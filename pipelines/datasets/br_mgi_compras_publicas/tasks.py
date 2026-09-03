@@ -8,8 +8,10 @@ and this flow share one implementation and cannot drift.
 from __future__ import annotations
 
 import datetime as dt
+import shutil
 from pathlib import Path
 
+import pyarrow.parquet as pq
 from google.cloud import storage
 from prefect import get_run_logger, task
 
@@ -18,6 +20,7 @@ from pipelines.datasets.br_mgi_compras_publicas.dicionario import (
     build_dicionario,
 )
 from pipelines.datasets.br_mgi_compras_publicas.harvest import (
+    authoritative_years,
     consolidate_table,
     harvest_table,
     plan_jobs,
@@ -97,7 +100,32 @@ def refresh_table(
             f"{table}: {merged['missing']} chunk(s) missing after harvest"
         )
     logger.info("%s: consolidated %s rows", table, f"{merged['rows']:,}")
-    return str(root / "output" / table)
+
+    out = root / "output" / table
+    if since is not None:
+        # The upload replaces a partition wholesale, so only ship partitions
+        # this run harvested completely. The source's date filter leaks the odd
+        # record outside the requested window; shipping that leaked partition
+        # would overwrite a real one with a single row.
+        keep = authoritative_years(spec, since)
+        for part in sorted(out.iterdir()):
+            if not part.is_dir() or "=" not in part.name:
+                continue
+            value = part.name.split("=", 1)[1]
+            if not (value.isdigit() and int(value) in keep):
+                rows = sum(
+                    pq.read_metadata(f).num_rows
+                    for f in part.glob("*.parquet")
+                )
+                shutil.rmtree(part)
+                logger.info(
+                    "%s: dropped %s (%s row(s)) -- outside the harvested "
+                    "window, so this run cannot replace that partition safely",
+                    table,
+                    part.name,
+                    f"{rows:,}",
+                )
+    return str(out)
 
 
 @task(retries=1, retry_delay_seconds=120)

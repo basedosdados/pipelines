@@ -70,6 +70,28 @@ def _year_range(spec: TableSpec, today: dt.date) -> tuple[int, int]:
     return first, last
 
 
+def authoritative_years(
+    spec: TableSpec, since: dt.date | None, today: dt.date | None = None
+) -> set[int]:
+    """Years this harvest is *complete* for, and may therefore replace.
+
+    A job bounded to year Y covers Y whole, so its partition can be rewritten
+    wholesale. The source's date filters are not perfectly tight, though: a
+    year-2026 `contrato` job was observed returning a row whose
+    `dataVigenciaInicial` falls in 2027. Such a leaked row is the only 2027 row
+    that job knows about, so writing it over a real 2027 partition would delete
+    every other 2027 contract.
+
+    The caller drops partitions outside this set rather than shipping a
+    partition it only partly harvested.
+    """
+    first_year, last_year = _year_range(spec, today or dt.date.today())
+    lo = max(first_year, since.year) if since else first_year
+    if lo > last_year:
+        return set()
+    return set(range(lo, last_year + 1))
+
+
 def count_pages(
     session: requests.Session, spec: TableSpec, params: dict[str, Any]
 ) -> int:
