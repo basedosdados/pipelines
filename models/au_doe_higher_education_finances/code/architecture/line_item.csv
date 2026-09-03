@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+statement,STRING,Financial statement table the line item belongs to,,no,,,no,One of the four statement tables in this dataset,
+line_item,STRING,Line item label as printed by the source,,no,,,no,,
+first_year,INT64,First year the label appears in the series,,no,,year,no,,
+last_year,INT64,Last year the label appears in the series,,no,,year,no,,
+n_years,INT64,Number of years the label appears in the series,,no,,year,no,Lower than the span between first_year and last_year where a label was retired and later reinstated,
