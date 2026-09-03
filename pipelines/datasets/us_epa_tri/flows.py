@@ -14,6 +14,13 @@ may be preliminary, and the previous one, which may have been finalised or
 revised), rewrite those two ``year=`` partitions in staging, and rebuild the
 tables with dbt. Older partitions stay as onboarded.
 
+Known edge in the poll: the source signal is a date and ``Table.Update.latest``
+is a wall clock, so a regeneration published later on the same day as a
+successful run is not seen as newer and is picked up only at EPA's next
+regeneration (each regeneration republishes every year, so nothing is lost, it
+arrives later). Comparing a coverage date against a wall clock is a known
+property of the shared poll task, not something to work around per dataset.
+
 Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``us_epa_tri_flow``;
 the dev pool ignores the schedule, the prod pool activates it (deployed paused).
 """

@@ -61,9 +61,10 @@ TABLE_NOTES = {
         "TRIFID; the Basic file itself carries only the county name."
     ),
     "chemical": (
-        "One row per TRI chemical identifier, with the attributes published in the "
-        "most recent reporting year in which the chemical appears (most frequent "
-        "variant within that year). The PFAS flag exists since RY 2020."
+        "One row per TRI chemical identifier and reporting year, with the "
+        "attributes published in that year (most frequent variant within the "
+        "year), so a chemical's classifications can change across years. The "
+        "PFAS flag exists since RY 2020."
     ),
     "form": (
         "One row per form (DOC_CTRL_NUM). SIC/NAICS codes are kept here because "

@@ -813,6 +813,16 @@ def _strip_number(col: str) -> str:
     return re.sub(r"^\d+\.\s", "", col)
 
 
+def _ident(name: str) -> str:
+    """Quote a SQL identifier, escaping any embedded double quote.
+
+    Column names here come from the header of a downloaded CSV, so they are
+    external input: a header carrying a double quote would otherwise close
+    the identifier and let the rest of the header run as SQL.
+    """
+    return '"' + name.replace('"', '""') + '"'
+
+
 def _to_string_table(tbl: pa.Table, columns: list[str]) -> pa.Table:
     """Reorder to the architecture and cast every column to STRING via arrow.
 
@@ -860,7 +870,7 @@ def clean_year(
     src = {_strip_number(c): c for c in cols}
 
     def q(name: str) -> str:
-        return '"' + src[name] + '"'
+        return _ident(src[name])
 
     n_rows = _row(con, "select count(*) from raw")[0]
     yrs = con.execute(f"select distinct {q('YEAR')} from raw").fetchall()
@@ -878,9 +888,8 @@ def clean_year(
 
     # nullify empty strings once, so every downstream select is simple
     for cname in cols:
-        con.execute(
-            f'update raw set "{cname}" = null where trim("{cname}") = \'\''
-        )
+        col = _ident(cname)
+        con.execute(f"update raw set {col} = null where trim({col}) = ''")
 
     # ── facility (year x TRIFID): first form by document control number ──
     fac_sel = ", ".join(f"{q(s)} as {t}" for s, t in FACILITY_MAP)
