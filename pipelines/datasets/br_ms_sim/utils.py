@@ -177,7 +177,9 @@ def read_dbc(filepath: Path, encoding: str = "iso-8859-1") -> pd.DataFrame:
     os.close(file_descriptor)
     try:
         dbc2dbf(str(filepath), tmp_path)
-        table = DBF(tmp_path, encoding=encoding, load=True)
+        # `load=True` guardaria os registros também na própria DBF, dobrando o
+        # pico de memória nas UFs grandes.
+        table = DBF(tmp_path, encoding=encoding, load=False)
         return pd.DataFrame(iter(table))
     finally:
         Path(tmp_path).unlink(missing_ok=True)

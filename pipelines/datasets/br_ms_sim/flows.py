@@ -175,6 +175,8 @@ def ms_sim_flow(
             source_format=source_format,
         )
 
+    # pyrefly: ignore [missing-attribute]
+    table_flow.job_variables = {"memory": "8Gi"}
     return table_flow
 
 
