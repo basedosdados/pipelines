@@ -83,6 +83,23 @@ _QUANTIDADE = (
     "Sin unidad de medida fija: la unidad varía por ítem y se publica en la columna "
     "unidade_medida. No sume cantidades de ítems diferentes.",
 )
+OBSERVATIONS[("despesa", "mes")] = (
+    "Preenchido apenas por Minas Gerais em todo o período e por Pernambuco somente em "
+    "2008-2010; de 2011 em diante Pernambuco publica apenas o exercício. Nas linhas "
+    "pernambucanas o campo traz períodos contábeis, não só meses do calendário: 28.517 "
+    "linhas usam 13 (encerramento do exercício) e há também o período 0 (abertura). "
+    "Filtre para 1 a 12 antes de tratar a coluna como mês.",
+    "Filled by Minas Gerais throughout and by Pernambuco only for 2008-2010; from 2011 "
+    "on Pernambuco publishes the exercise alone. On Pernambuco's rows the field carries "
+    "accounting periods, not just calendar months: 28,517 rows use 13 (year-end close) "
+    "and period 0 (opening) also occurs. Filter to 1-12 before treating it as a month.",
+    "Completado por Minas Gerais en todo el período y por Pernambuco solo en 2008-2010; "
+    "desde 2011 Pernambuco publica únicamente el ejercicio. En las filas pernambucanas "
+    "el campo trae períodos contables, no solo meses del calendario: 28.517 filas usan "
+    "13 (cierre del ejercicio) y también aparece el período 0 (apertura). Filtre de 1 a "
+    "12 antes de tratar la columna como mes.",
+)
+
 OBSERVATIONS[("licitacao_item", "quantidade")] = _QUANTIDADE
 OBSERVATIONS[("licitacao_participante", "quantidade")] = _QUANTIDADE
 
