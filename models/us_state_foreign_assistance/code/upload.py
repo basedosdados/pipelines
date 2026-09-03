@@ -1,9 +1,19 @@
 """Upload the cleaned us_state_foreign_assistance Parquet to BigQuery (dev).
 
-Memory-safe path for a 4M-row table: stream each file to GCS with a chunked
-resumable upload, then run a server-side BigQuery load job. Nothing is read
-into pandas. The files are all-STRING, so the staging table is all-STRING,
-matching what the recurring pipeline's ``upload_to_gcs`` would create.
+Delegates to the same ``pipelines.utils.tasks._upload_to_gcs`` helper the
+recurring flow uses, so the one-shot bootstrap and the pipeline produce an
+identical staging table. That matters more than it looks: the helper creates an
+**external** table over ``gs://<bucket>/staging/<ds>/<table>/*``, whereas a
+BigQuery load job would create a *native* one. A native staging table ignores
+the files a later pipeline run uploads, so dbt would keep reading the bootstrap
+data forever, with nothing failing to signal it.
+
+RAM stays flat because the table is created from a 0-row header file (see
+``dump_header``); the data itself is streamed to GCS by ``Storage.upload``,
+never loaded into pandas.
+
+Each release of the source restates the whole history, so every run is a full
+replace: the staging prefix is cleared before the upload.
 
 Reads ``<data dir>/output/<table>/*.parquet`` (default data dir
 ``~/Downloads/us_state_foreign_assistance_data``, override with
@@ -16,7 +26,10 @@ import os
 import sys
 from pathlib import Path
 
-from google.cloud import bigquery, storage
+import google.cloud.storage as gcs
+from google.cloud import bigquery
+
+from pipelines.utils.tasks import _upload_to_gcs
 
 PROJECT = "basedosdados-dev"
 BUCKET = "basedosdados-dev"
@@ -30,47 +43,63 @@ DATA_DIR = Path(
 OUTPUT_DIR = DATA_DIR / "output"
 TABLES = ["transaction", "budget", "dicionario"]
 
+# The bucket is requester-pays; bill every request to the dev project.
+_orig_bucket = gcs.Client.bucket
+
+
+def _patched_bucket(self, bucket_name, user_project=None):
+    return _orig_bucket(self, bucket_name, user_project=PROJECT)
+
+
+gcs.Client.bucket = _patched_bucket
+
+
+def clear_staging_prefix(table: str) -> int:
+    client = gcs.Client(project=PROJECT)
+    bucket = client.bucket(BUCKET)
+    prefix = f"staging/{DATASET_ID}/{table}/"
+    blobs = list(client.list_blobs(bucket, prefix=prefix))
+    for blob in blobs:
+        blob.delete()
+    return len(blobs)
+
 
 def upload_table(table: str, expected: int | None) -> None:
-    local = OUTPUT_DIR / table
-    files = sorted(local.glob("*.parquet"))
-    if not files:
-        raise FileNotFoundError(f"no parquet under {local}")
-    print(f"--- {table}: {len(files)} files ---", flush=True)
-
-    gcs = storage.Client(project=PROJECT)
-    bucket = gcs.bucket(BUCKET, user_project=PROJECT)
-    prefix = f"staging/{DATASET_ID}/{table}/"
-    stale = list(gcs.list_blobs(bucket, prefix=prefix))
-    for b in stale:
-        b.delete()
-    print(
-        f"deleted {len(stale)} stale objects under gs://{BUCKET}/{prefix}",
-        flush=True,
-    )
-    for f in files:
-        blob = bucket.blob(prefix + f.name)
-        blob.chunk_size = 64 * 1024 * 1024
-        blob.upload_from_filename(str(f))
-    print("gcs upload: OK", flush=True)
+    path = OUTPUT_DIR / table
+    if not path.is_dir():
+        raise FileNotFoundError(f"no output directory at {path}")
+    print(f"--- {table} ---", flush=True)
 
     bq = bigquery.Client(project=PROJECT)
-    ds_ref = bigquery.Dataset(f"{PROJECT}.{DATASET_ID}_staging")
-    ds_ref.location = "US"
-    bq.create_dataset(ds_ref, exists_ok=True)
-    table_ref = f"{PROJECT}.{DATASET_ID}_staging.{table}"
-    bq.query(f"drop table if exists `{table_ref}`").result()
-    job = bq.load_table_from_uri(
-        f"gs://{BUCKET}/{prefix}*.parquet",
-        table_ref,
-        job_config=bigquery.LoadJobConfig(
-            source_format=bigquery.SourceFormat.PARQUET,
-            write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE,
-        ),
+    ds = bigquery.Dataset(f"{PROJECT}.{DATASET_ID}_staging")
+    ds.location = "US"
+    bq.create_dataset(ds, exists_ok=True)
+
+    # A native table left by an earlier load job would shadow the GCS files the
+    # external definition is meant to read; drop it so the helper recreates it.
+    ref = f"{PROJECT}.{DATASET_ID}_staging.{table}"
+    try:
+        if bq.get_table(ref).table_type != "EXTERNAL":
+            bq.query(f"drop table `{ref}`").result()
+            print("dropped stale native staging table", flush=True)
+    except Exception:
+        pass
+
+    print(f"cleared {clear_staging_prefix(table)} stale objects", flush=True)
+    _upload_to_gcs(
+        data_path=path,
+        dataset_id=DATASET_ID,
+        table_id=table,
+        bucket_name=BUCKET,
+        dump_mode="append",
+        source_format="parquet",
     )
-    job.result()
-    n = bq.get_table(table_ref).num_rows
-    print(f"bq load: {n:,} rows", flush=True)
+
+    tbl = bq.get_table(ref)
+    n = next(iter(bq.query(f"select count(*) as n from `{ref}`").result()))[
+        "n"
+    ]
+    print(f"{tbl.table_type} staging table: {n:,} rows", flush=True)
     if expected is not None and n != expected:
         raise RuntimeError(f"{table}: row count {n} != expected {expected}")
 
