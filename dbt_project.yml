@@ -210,6 +210,9 @@ models:
     us_hhs_nppes:
       +materialized: table
       +schema: us_hhs_nppes
+    us_irs_form990:
+      +materialized: table
+      +schema: us_irs_form990
     us_fec_campaign_finance:
       +materialized: table
       +schema: us_fec_campaign_finance
