@@ -39,7 +39,12 @@ from google.cloud import bigquery  # noqa: E402
 from pipelines.utils.tasks import _upload_to_gcs  # noqa: E402
 
 DATASET_ID = "cl_chilecompra_mercado_publico"
-TABLES = ["orden_compra_item", "licitacion_item", "licitacion_oferta"]
+TABLES = [
+    "orden_compra_item",
+    "licitacion_item",
+    "licitacion_oferta",
+    "dicionario",
+]
 DEFAULT_ROOT = Path(
     os.environ.get(
         "CHILECOMPRA_DATA_DIR",
@@ -119,6 +124,29 @@ def _partition_files(root: Path, table: str) -> list[str]:
     )
 
 
+def upload_dicionario(root: Path, billing_project: str) -> int:
+    """Upload the dicionario, which is a single CSV rather than partitioned parquet."""
+    path = root / "output" / "dicionario"
+    if not (path / "dicionario.csv").exists():
+        raise FileNotFoundError(f"missing {path / 'dicionario.csv'}")
+    _upload_to_gcs(
+        data_path=str(path),
+        dataset_id=DATASET_ID,
+        table_id="dicionario",
+        bucket_name=billing_project,
+        dump_mode="append",
+        source_format="csv",
+    )
+    client = bigquery.Client(project=billing_project)
+    query = (
+        f"select count(*) as n from "
+        f"`{billing_project}.{DATASET_ID}_staging.dicionario`"
+    )
+    actual = next(iter(client.query(query).result())).n
+    print(f"  dicionario: {actual:,} rows in staging")
+    return actual
+
+
 def upload_table(
     table: str, root: Path, billing_project: str, expected: int | None
 ) -> int:
@@ -176,6 +204,9 @@ def main() -> int:
     for table in wanted:
         print(f"=== {table} ===", flush=True)
         try:
+            if table == "dicionario":
+                upload_dicionario(args.root, billing_project)
+                continue
             upload_table(
                 table,
                 args.root,

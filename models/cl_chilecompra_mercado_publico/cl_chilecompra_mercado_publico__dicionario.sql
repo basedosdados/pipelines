@@ -14,4 +14,5 @@ select
     safe_cast(cobertura_temporal as string) cobertura_temporal,
     safe_cast(valor as string) valor
 from
-    {{ set_datalake_project("cl_chilecompra_mercado_publico_staging.dicionario") }} as t
+    {{ set_datalake_project("cl_chilecompra_mercado_publico_staging.dicionario") }}
+    as t

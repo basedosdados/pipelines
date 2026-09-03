@@ -16,7 +16,7 @@ descripcion_tipo,STRING,Descricao do tipo de ordem de compra,,no,,,no,,Descripci
 id_plan_compra,STRING,Identificador do plano de compras associado,,no,,,no,"Coluna presente no cabecalho de 2007 a 2020, exceto 2017, e ausente a partir de 2021. So e efetivamente preenchida a partir de 2019: nula em 100% das linhas em 2007-01 e 2010-06, em 10 de 505.159 linhas em 2015-06, e preenchida em cerca de 41% das linhas em 2019-06 e 2020-06",idPlanDeCompra
 codigo_estado,STRING,Codigo do estado da ordem de compra,,yes,,,no,,codigoEstado
 estado,STRING,Estado da ordem de compra,,no,,,no,,Estado
-codigo_estado_proveedor,STRING,Codigo do estado da ordem segundo o fornecedor,,yes,,,no,,codigoEstadoProveedor
+codigo_estado_proveedor,STRING,Codigo do estado da ordem segundo o fornecedor,,no,,,no,"A fonte deixa os codigos 6 e 0 sem rotulo em estado_proveedor, em 14 linhas espalhadas por varios anos, portanto o dicionario nao cobre a coluna inteira; os 5 codigos restantes estao no dicionario",codigoEstadoProveedor
 estado_proveedor,STRING,Estado da ordem segundo o fornecedor,,no,,,no,,EstadoProveedor
 fecha_creacion,DATE,Data de criacao da ordem de compra,,no,,,no,Valor 1900-01-01 na origem indica ausencia e e convertido para nulo,FechaCreacion
 fecha_envio,DATE,Data de envio da ordem de compra ao fornecedor,,no,,,no,Define as particoes ano e mes,FechaEnvio
@@ -27,7 +27,7 @@ fecha_cancelacion,DATE,Data de cancelamento da ordem de compra,,no,,,no,,FechaCa
 indicador_items,STRING,Indica se a ordem de compra possui itens detalhados,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",tieneItems
 promedio_calificacion,FLOAT64,Nota media atribuida ao fornecedor nesta ordem de compra,,no,,score,no,,PromedioCalificacion
 cantidad_evaluacion,INT64,Quantidade de avaliacoes registradas para a ordem de compra,,no,,evaluation,no,,CantidadEvaluacion
-moneda,STRING,Moeda em que a ordem de compra foi emitida,,yes,,,no,Predominantemente CLP; CLF e UTM sao unidades indexadas a inflacao,TipoMonedaOC
+moneda,STRING,Moeda em que a ordem de compra foi emitida,,no,,,no,"Predominantemente CLP; CLF e UTM sao unidades indexadas a inflacao. Alem dos codigos de moeda validos a coluna traz 331 linhas com os valores '1' e '-1', que nao correspondem a moeda alguma, portanto o dicionario nao cobre a coluna inteira",TipoMonedaOC
 monto_total,FLOAT64,Valor total da ordem de compra na moeda de emissao,,no,,,no,A unidade e dada pela coluna moneda; use monto_total_clp para comparacoes,MontoTotalOC
 monto_total_clp,FLOAT64,Valor total da ordem de compra convertido para pesos chilenos,,no,,CLP,no,Conversao feita pela propria fonte,MontoTotalOC_PesosChilenos
 monto_impuestos,FLOAT64,Valor dos impostos da ordem de compra,,no,,,no,A unidade e dada pela coluna moneda,Impuestos
@@ -61,7 +61,7 @@ pais_proveedor,STRING,Pais do fornecedor,,no,,,no,,PaisProveedor
 financiamiento,STRING,Fonte de financiamento da compra,,no,,,no,,Financiamiento
 pais,STRING,Pais de origem do produto ou servico,,no,,,no,,Pais
 codigo_tipo_despacho,STRING,Codigo do tipo de despacho,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",TipoDespacho
-codigo_forma_pago,STRING,Codigo da forma de pagamento,,yes,,,no,,FormaPago
+codigo_forma_pago,STRING,Codigo da forma de pagamento,,no,,,no,"A fonte deixa os codigos 48 e 49 sem rotulo em forma_pago, em 3.452.648 linhas, portanto o dicionario nao cobre a coluna inteira; as demais 44 chaves estao no dicionario",FormaPago
 forma_pago,STRING,Descricao da forma de pagamento,,no,,,no,,Forma de Pago
 codigo_licitacion,STRING,Codigo da licitacao que originou a ordem de compra,,no,,,no,Chave de ligacao com as tabelas licitacion_item e licitacion_oferta,CodigoLicitacion
 codigo_convenio_marco,STRING,Codigo do convenio marco que originou a ordem de compra,,no,,,no,Presente apenas nos arquivos a partir de 2021,Codigo_ConvenioMarco
@@ -77,7 +77,7 @@ especificacion_comprador,STRING,Especificacao do item informada pelo comprador,,
 especificacion_proveedor,STRING,Especificacao do item informada pelo fornecedor,,no,,,no,,EspecificacionProveedor
 cantidad,FLOAT64,Quantidade contratada do item,,no,,,no,A unidade e dada pela coluna unidad_medida,cantidad
 unidad_medida,STRING,Unidade de medida do item,,no,,,no,,UnidadMedida
-moneda_item,STRING,Moeda da linha de item,,yes,,,no,,monedaItem
+moneda_item,STRING,Moeda da linha de item,,no,,,no,Mesmo caso de moeda: valores invalidos impedem a cobertura completa pelo dicionario,monedaItem
 precio_neto,FLOAT64,Preco unitario liquido do item,,no,,,no,A unidade e dada pela coluna moneda_item,precioNeto
 monto_cargos_item,FLOAT64,Valor dos encargos da linha de item,,no,,,no,A unidade e dada pela coluna moneda_item,totalCargos
 monto_descuentos_item,FLOAT64,Valor dos descontos da linha de item,,no,,,no,A unidade e dada pela coluna moneda_item,totalDescuentos

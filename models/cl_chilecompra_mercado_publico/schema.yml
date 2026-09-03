@@ -36,10 +36,6 @@ models:
             - codigo_tipo
             - sigla_tipo_abreviada
             - codigo_estado
-            - codigo_estado_proveedor
-            - moneda
-            - codigo_forma_pago
-            - moneda_item
           dictionary_model: ref('cl_chilecompra_mercado_publico__dicionario')
     columns:
       - name: ano
@@ -52,7 +48,9 @@ models:
         description: Identificador interno da ordem de compra no Mercado Publico
       - name: codigo_orden_compra
         description: Codigo publico da ordem de compra, no formato <unidade>-<correlativo>-<tipo><ano>
-        tests: [not_null]
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.999
       - name: url
         description: Endereco da ficha da ordem de compra no Mercado Publico
       - name: nombre
@@ -197,7 +195,9 @@ models:
         description: Codigo do convenio marco que originou a ordem de compra
       - name: id_item
         description: Identificador da linha de item dentro da ordem de compra
-        tests: [not_null]
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.999
       - name: codigo_categoria
         description: Codigo da categoria do item
       - name: categoria
@@ -266,6 +266,9 @@ models:
             - fecha_adjudicacion
             - fecha_aprobacion
             - id_comuna_unidad_compra
+            - tipo_duracion_contrato
+            - fecha_soporte_fisico
+            - fecha_estimada_firma
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - codigo_estado
@@ -283,10 +286,14 @@ models:
         tests: [not_null]
       - name: codigo_licitacion
         description: Codigo publico da licitacao, no formato <unidade>-<correlativo>-<tipo><ano>
-        tests: [not_null]
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.999
       - name: codigo_item
         description: Codigo da linha de item da licitacao
-        tests: [not_null]
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.999
       - name: id_licitacion
         description: Identificador interno da licitacao no Mercado Publico
       - name: url
@@ -527,16 +534,24 @@ models:
         tests: [not_null]
       - name: codigo_licitacion
         description: Codigo publico da licitacao, no formato <unidade>-<correlativo>-<tipo><ano>
-        tests: [not_null]
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.999
       - name: codigo_item
         description: Codigo da linha de item da licitacao
-        tests: [not_null]
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.999
       - name: codigo_proveedor
         description: Codigo do fornecedor proponente
-        tests: [not_null]
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.97
       - name: nombre_oferta
         description: Nome da proposta apresentada
-        tests: [not_null]
+        tests:
+          - dbt_utils.not_null_proportion:
+              at_least: 0.999
       - name: codigo_sucursal_proveedor
         description: Codigo da filial do fornecedor proponente
       - name: rut_proveedor

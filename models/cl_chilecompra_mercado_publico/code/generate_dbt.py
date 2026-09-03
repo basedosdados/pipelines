@@ -103,6 +103,26 @@ IGNORE = {
         "fecha_envio_oferta",
     ],
 }
+# Optional tender fields the source rarely fills, measured on the most recent year:
+# tipo_duracion_contrato 0.3%, fecha_soporte_fisico 2.3%, fecha_estimada_firma 4.1%.
+IGNORE["licitacion_item"] += [
+    "tipo_duracion_contrato",
+    "fecha_soporte_fisico",
+    "fecha_estimada_firma",
+]
+
+# Key columns carry sparse nulls that a strict not_null cannot express. They are real
+# source gaps, not load errors: 47 rows of 105.4M have no codigo_orden_compra, 9,346
+# have no id_item (7,916 of them in 2008), and every one of the 1,450,638 licitaciones
+# offer rows from lic-da/2014-3 -- the anomalous 111-column file -- identifies its
+# supplier by rut_proveedor rather than codigo_proveedor.
+#
+# A proportion test still catches a systemic break while tolerating the source's own
+# holes. Uniqueness of the full key is enforced separately and passes exactly.
+KEY_NULL_TOLERANCE = {
+    ("licitacion_oferta", "codigo_proveedor"): 0.97,
+}
+DEFAULT_KEY_PROPORTION = 0.999
 
 
 def wrap(text: str, indent: str = "     ", width: int = 95) -> list[str]:
@@ -195,18 +215,21 @@ def write_schema() -> None:
         for r in arch.itertuples():
             out.append(f"      - name: {r.name}")
             out.append(f"        description: {r.description}")
-            tests = (
-                ["not_null"]
-                if r.name in keys or r.name in ("ano", "mes")
-                else []
-            )
+            is_partition = r.name in ("ano", "mes")
+            is_key = r.name in keys
             directory = DIRECTORY_MODEL.get(str(r.directory_column))
-            if tests and not directory:
+            if is_partition and not directory:
                 out.append("        tests: [not_null]")
-            elif tests or directory:
+            elif is_partition or is_key or directory:
                 out.append("        tests:")
-                for test in tests:
-                    out.append(f"          - {test}")
+                if is_partition:
+                    out.append("          - not_null")
+                elif is_key:
+                    at_least = KEY_NULL_TOLERANCE.get(
+                        (table, str(r.name)), DEFAULT_KEY_PROPORTION
+                    )
+                    out.append("          - dbt_utils.not_null_proportion:")
+                    out.append(f"              at_least: {at_least}")
                 if directory:
                     out.append("          - relationships:")
                     out.append(f"              to: ref('{directory[0]}')")

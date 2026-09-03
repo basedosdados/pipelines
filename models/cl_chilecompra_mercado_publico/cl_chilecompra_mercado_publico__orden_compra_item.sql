@@ -99,8 +99,5 @@ select
     safe_cast(monto_impuestos_item as float64) monto_impuestos_item,
     safe_cast(monto_linea_neto as float64) monto_linea_neto
 from
-    {{
-        set_datalake_project(
-            "cl_chilecompra_mercado_publico_staging.orden_compra_item"
-        )
-    }} as t
+    {{ set_datalake_project("cl_chilecompra_mercado_publico_staging.orden_compra_item") }}
+    as t

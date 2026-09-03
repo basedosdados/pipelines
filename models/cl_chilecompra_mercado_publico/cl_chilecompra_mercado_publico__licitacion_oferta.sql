@@ -36,8 +36,5 @@ select
     safe_cast(monto_linea_adjudicada as float64) monto_linea_adjudicada,
     safe_cast(fecha_envio_oferta as date) fecha_envio_oferta
 from
-    {{
-        set_datalake_project(
-            "cl_chilecompra_mercado_publico_staging.licitacion_oferta"
-        )
-    }} as t
+    {{ set_datalake_project("cl_chilecompra_mercado_publico_staging.licitacion_oferta") }}
+    as t
