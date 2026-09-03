@@ -771,3 +771,32 @@ order of magnitude better. Measure before believing it.
 Related: 120 windows are queued as failed and need a sweep run once the main
 pass completes. They write no chunk, so re-running the same command picks
 them up.
+
+## dbt test suite validated against real data (2026-09-03)
+
+Run against the three finished models plus a provisional `dicionario`:
+
+```
+PASS=25  WARN=0  ERROR=1  TOTAL=26
+```
+
+The single error is `Not found: Table basedosdados-dev:br_pncp.contratacao` --
+the one model not yet built. **Every test that could run, passed**, across
+all five kinds: `not_null`, `relationships` (against the real
+`br_bd_diretorios_brasil` and `..._data_tempo` tables, all four confirmed
+present in dev), `dbt_utils.unique_combination_of_columns`,
+`not_null_proportion_multiple_columns` with its sparse-column exemptions,
+and the `custom_dictionary_coverage` tests.
+
+Two things worth keeping:
+
+- The dictionary-coverage tests had only ever been checked by a local
+  distinct-value comparison. They now pass against live rows.
+- Selecting `br_pncp__dicionario` pulls in **contratacao's** test too, since
+  that test `ref`s the dictionary. That is the cross-table dependency the
+  flow's run-all-then-test-all ordering exists for, demonstrated rather than
+  assumed: test a table before its siblings are built and it fails on a
+  missing relation.
+
+The `dicionario` used here is provisional -- contratacao contributes 0 keys
+until it is harvested, so it must be rebuilt last, as `constants` says.
