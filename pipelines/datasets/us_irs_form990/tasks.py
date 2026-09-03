@@ -1,13 +1,16 @@
 """Prefect 3 tasks for us_irs_form990 — thin wrappers over utils.py."""
 
+import re
 from pathlib import Path
 
-from google.api_core.exceptions import NotFound
-from google.cloud import bigquery
+from google.cloud import storage
 from prefect import task
 
 from pipelines.datasets.us_irs_form990 import utils
 from pipelines.datasets.us_irs_form990.constants import constants
+
+#: ``<batch>_p<k>.parquet`` — the batch id is the part file's name prefix.
+_PART_RE = re.compile(r"(.+)_p\d+\.parquet$")
 
 
 @task(retries=2, retry_delay_seconds=60)
@@ -30,30 +33,34 @@ def check_source_dates(urls: list[str]) -> dict[str, str]:
 
 
 @task(retries=1, retry_delay_seconds=60)
-def loaded_batches(bq_project: str) -> set[str]:
-    """Batches already present in the staging table (``xml_batch_id``).
+def loaded_batches(bucket_name: str) -> set[str]:
+    """Batches already uploaded to the staging bucket.
 
-    Reading the staging table, not the published one, keeps a re-run idempotent
-    even when the previous run uploaded a batch but failed before dbt.
+    Read from **GCS, not BigQuery**. Each parquet part is named
+    ``<batch>_p<k>.parquet``, so the set of loaded batches is already in the
+    object names and one prefix listing answers the question.
 
-    Only a genuinely missing table yields an empty set. Every other failure —
-    a permissions error above all — is re-raised: swallowing it silently turns
-    the incremental load into a full re-download of every IRS batch, which
-    looks like a healthy run and costs hours. A hand-created staging dataset
-    missing the worker's grant is exactly how that happens.
+    Querying the staging table instead would need ``bigquery.jobs.create`` in
+    the billing project, which the Prefect worker does not hold. Worse, a
+    permission error there is indistinguishable from "nothing loaded yet"
+    unless it is re-raised — and swallowing it silently turns the incremental
+    load into a full re-download of every IRS batch on every run, which still
+    reports success.
+
+    Reading the bucket rather than the table also keeps a re-run idempotent
+    when a previous run uploaded a batch but failed before dbt.
     """
-    client = bigquery.Client(project=bq_project)
-    table = (
-        f"{bq_project}.{constants.DATASET_ID.value}_staging.return_financial"
-    )
-    try:
-        rows = client.query(
-            f"select distinct xml_batch_id from `{table}`"
-        ).result()
-    except NotFound:
-        print(f"{table} does not exist yet; treating this as the first load")
-        return set()
-    return {r.xml_batch_id for r in rows}
+    client = storage.Client(project=bucket_name)
+    # The staging buckets are requester-pays.
+    bucket = client.bucket(bucket_name, user_project=bucket_name)
+    prefix = f"staging/{constants.DATASET_ID.value}/return_financial/"
+    batches = set()
+    for blob in client.list_blobs(bucket, prefix=prefix):
+        match = _PART_RE.match(Path(blob.name).name)
+        if match:
+            batches.add(match.group(1))
+    print(f"{len(batches)} batch(es) already in gs://{bucket_name}/{prefix}")
+    return batches
 
 
 @task(retries=2, retry_delay_seconds=300)

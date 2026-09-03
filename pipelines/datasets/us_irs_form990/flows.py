@@ -172,12 +172,10 @@ def us_irs_form990_flow(
     if not (new_efile or new_bmf or force_run):
         return
 
-    # Which project's staging table records the loaded batches. Reading dev
-    # on a dev-only run keeps the test path self-contained.
-    bq_project = (
-        "basedosdados-staging" if materialize_to_prod else "basedosdados-dev"
-    )
-    already = loaded_batches(bq_project)
+    # Which staging bucket records the loaded batches — the same bucket the
+    # upload writes to, so a dev run reads dev and never consults prod.
+    bucket = "basedosdados" if materialize_to_prod else "basedosdados-dev"
+    already = loaded_batches(bucket)
     todo = [u for u in urls if batch_id(u) not in already][:max_batches]
 
     work_dir = tempfile.mkdtemp(prefix="us_irs_form990_")
