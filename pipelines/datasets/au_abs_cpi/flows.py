@@ -88,6 +88,7 @@ def au_abs_cpi_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new month.
     """
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="cpi"
     )
@@ -105,30 +106,48 @@ def au_abs_cpi_flow(
             source_max_date=max_ym,
             env="prod",
             date_format="%Y-%m",
+            compare_against="coverage",
         )
         if not has_new_data and not force_run:
             return
 
+        # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+        # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+        # novo publicado, mesmo que a tabela não tenha sido atualizada.
+        commit_source_update_task(
+            dataset_id=DATASET_ID,
+            table_id="monthly",
+            source_max_date=max_ym,
+            env="prod",
+            date_format="%Y-%m",
+            update_metadata=update_metadata,
+            materialize_after_dump=materialize_to_prod,
+        )
+
         tables = list(constants.SOURCE_TABLES.value)  # quarterly, monthly
 
-        # Dev: upload staging + materialize/test.
-        for table in tables:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados-dev",
-                dump_mode="overwrite",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run/test",
-                target="dev",
-            )
-
+        # The dev materialization is the pre-arm validation path, not part of a
+        # production run: it rebuilds and re-tests every table in
+        # basedosdados-dev, which nothing downstream reads. Running it on an
+        # armed run doubled the BigQuery bytes billed for no signal — prod
+        # runs the same models and the same tests seconds later.
         if not materialize_to_prod:
+            # Dev: upload staging + materialize/test.
+            for table in tables:
+                upload_to_gcs(
+                    data_path=result[table],
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    bucket_name="basedosdados-dev",
+                    dump_mode="overwrite",
+                    source_format="parquet",
+                )
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="run/test",
+                    target="dev",
+                )
             return
 
         # Prod: upload staging + materialize/test.
@@ -157,13 +176,6 @@ def au_abs_cpi_flow(
                     env="prod",
                     bq_project="basedosdados",
                 )
-            commit_source_update_task(
-                dataset_id=DATASET_ID,
-                table_id="monthly",
-                source_max_date=max_ym,
-                env="prod",
-                date_format="%Y-%m",
-            )
     finally:
         # Covers early returns (no new data, dev-only) and any exception.
         shutil.rmtree(work_dir, ignore_errors=True)
@@ -172,6 +184,7 @@ def au_abs_cpi_flow(
 # ABS publishes the monthly CPI in the last week of each month (moving to the
 # 4th Wednesday from Feb 2027). Poll across the last week at 16:00 BRT; the
 # source-poll guard no-ops until a new month lands.
+# pyrefly: ignore [missing-attribute]
 au_abs_cpi_flow.deploy_schedules = [
-    {"cron": "0 16 22,23,24,25,26,27,28 * *", "timezone": "America/Sao_Paulo"}
+    {"cron": "15 16 22,23,24,25,26,27,28 * *", "timezone": "America/Sao_Paulo"}
 ]

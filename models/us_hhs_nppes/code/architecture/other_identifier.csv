@@ -1,0 +1,8 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+extraction_date,DATE,Data de referência do snapshot mensal do NPPES; cada extração é uma fotografia completa do cadastro e as extrações são empilhadas,,no,,,no,Partition column; taken from the end of the source file name date range,(file name date range)
+npi,STRING,"Identificador Nacional de Prestador (NPI), código numérico de 10 dígitos que identifica de forma única o prestador de serviços de saúde",,no,,,no,,NPI
+identifier_sequence,STRING,Posição do identificador na lista de até 50 outros identificadores informados pelo prestador,,no,,,no,Slot number 1-50 in the source's repeating group,(repeating group index)
+other_identifier,STRING,"Outro identificador do prestador atribuído por um plano de saúde, anterior ou paralelo ao NPI",,no,,,yes,"CMS masks values reported as SSN, ITIN or EIN; those masks are mapped to null here",Other Provider Identifier_1..50
+other_identifier_type_code,STRING,Tipo do emissor do outro identificador,,yes,,,no,,Other Provider Identifier Type Code_1..50
+other_identifier_state_code,STRING,"Sigla de duas letras do estado do plano Medicaid emissor, quando aplicável",,no,br_bd_diretorios_us.state:abbreviation,,no,,Other Provider Identifier State_1..50
+other_identifier_issuer,STRING,Nome do plano de saúde que emitiu o outro identificador,,no,,,no,,Other Provider Identifier Issuer_1..50

@@ -37,11 +37,11 @@ def br_ans_beneficiario__informacao_consolidada(
     url: str = "https://dadosabertos.ans.gov.br/FTP/PDA/informacoes_consolidadas_de_beneficiarios-024/",
     year: str | None = None,
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -58,11 +58,25 @@ def br_ans_beneficiario__informacao_consolidada(
             source_max_date=file_last_date,
             env="prod",
             date_format="%Y-%m",
+            compare_against="coverage",
         )
         if not has_new_data:
             print(f"Não há atualizações para a tabela {table_id}!")
             return
         files = files_to_download(df=links_and_dates, year=None)
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=file_last_date,
+        env="prod",
+        date_format="%Y-%m",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
 
     if not files:
         print("Nenhum arquivo para baixar.")
@@ -70,19 +84,22 @@ def br_ans_beneficiario__informacao_consolidada(
 
     output_filepath = crawler_ans(files=files)
 
+    # crawler_ans -> parquet_partition grava .parquet. Sem declarar o
+    # formato, o dump_header chamado por upload_to_gcs procura .csv (default)
+    # e não encontra nada.
     upload_to_gcs(
         data_path=output_filepath,
         dataset_id=dataset_id,
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode="append",
+        source_format="parquet",
     )
 
     run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -95,13 +112,13 @@ def br_ans_beneficiario__informacao_consolidada(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode="append",
+        source_format="parquet",
     )
 
     run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -122,16 +139,12 @@ def br_ans_beneficiario__informacao_consolidada(
             bq_project="basedosdados",
         )
 
-        if file_last_date is not None:
-            commit_source_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=file_last_date,
-                env="prod",
-                date_format="%Y-%m",
-            )
 
-
+# pyrefly: ignore [missing-attribute]
 br_ans_beneficiario__informacao_consolidada.deploy_schedules = [
     {"cron": "0 21 * * *", "timezone": "America/Sao_Paulo"}
 ]
+# Pico medido em produção após otimizar parquet_partition (category dtype +
+# del/gc.collect() por estado): ~1.78Gi. ~1.7x de margem sobre esse valor.
+# pyrefly: ignore [missing-attribute]
+br_ans_beneficiario__informacao_consolidada.job_variables = {"memory": "3Gi"}

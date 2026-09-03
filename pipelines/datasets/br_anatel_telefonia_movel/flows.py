@@ -18,7 +18,6 @@ def _anatel_tm_flow(table_id: str, cron: str):
         ano: int | None = None,
         semestre: int | None = None,
         materialize_after_dump: bool = True,
-        dbt_alias: bool = True,
         update_metadata: bool = True,
         target: str = "prod",
         force_run: bool = False,
@@ -29,13 +28,14 @@ def _anatel_tm_flow(table_id: str, cron: str):
             ano=ano,
             semestre=semestre,
             materialize_after_dump=materialize_after_dump,
-            dbt_alias=dbt_alias,
             update_metadata=update_metadata,
             target=target,
             force_run=force_run,
         )
 
+    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    # pyrefly: ignore [missing-attribute]
     _flow.job_variables = {"memory_limit": "8Gi", "memory_request": "2Gi"}
     return _flow
 

@@ -1,9 +1,10 @@
 """
 Flows para br_cgu_beneficios_cidadao — Prefect 3.
 
-Redeploy para propagar o fix de detecção/download no portal da CGU
-(User-Agent de browser + tratamento do 202 assíncrono + URL sem barra final)
-em pipelines/crawler/cgu/utils.py e pipelines/utils/utils.py.
+Redeploy para propagar o source_format por tabela, em
+pipelines/crawler/cgu/flows.py: o novo_bolsa_familia e a garantia_safra são
+gravados em parquet, mas o upload declarava csv para as três tabelas. Desde a
+#1677 isso derruba a run em dump_header, antes de qualquer escrita.
 """
 
 from prefect import flow
@@ -21,7 +22,6 @@ def _flow_factory(table_id: str, cron: str):
         table_id: str = table_id,
         relative_month: int = 1,
         materialize_after_dump: bool = True,
-        dbt_alias: bool = True,
         update_metadata: bool = True,
         target: str = "prod",
         force_run: bool = False,
@@ -31,12 +31,12 @@ def _flow_factory(table_id: str, cron: str):
             table_id=table_id,
             relative_month=relative_month,
             materialize_after_dump=materialize_after_dump,
-            dbt_alias=dbt_alias,
             update_metadata=update_metadata,
             target=target,
             force_run=force_run,
         )
 
+    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
 

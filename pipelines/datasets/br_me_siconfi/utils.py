@@ -68,6 +68,7 @@ def _ensure_code_on_path() -> None:
 def _download_api():
     """Import the ``download_api`` module from the bootstrap code dir."""
     _ensure_code_on_path()
+    # pyrefly: ignore [missing-import]
     import download_api
 
     return download_api
@@ -83,7 +84,9 @@ def _build_registry() -> dict:
     spec = importlib.util.spec_from_file_location(
         "siconfi_build", os.path.join(CODE_DIR, "build.py")
     )
+    # pyrefly: ignore [bad-argument-type]
     module = importlib.util.module_from_spec(spec)
+    # pyrefly: ignore [missing-attribute]
     spec.loader.exec_module(module)
     return module.BUILDERS
 
@@ -91,6 +94,7 @@ def _build_registry() -> dict:
 def _shared():
     """Import the builders' shared worker helpers."""
     _ensure_code_on_path()
+    # pyrefly: ignore [missing-import]
     from tables_final import shared
 
     return shared
@@ -254,11 +258,13 @@ def clean_window(
         for name, (first, last, comp) in builders.items()
         if name in tables
     ]
+    # pyrefly: ignore [unnecessary-type-conversion]
     path_dados = str(work_dir)
 
     unmatched: dict[str, list] = {}
     for ano in range(start_year, end_year + 1):
         _, ano_unmatched = shared.process_year_task(
+            # pyrefly: ignore [unnecessary-type-conversion]
             (ano, str(api_dir), path_dados, PATH_QUERIES, table_configs)
         )
         for comp, df in ano_unmatched.items():

@@ -9,6 +9,9 @@ Usa `FakeMetadataClient`/`FakeBQ` (conftest). Sem rede, sem BQ.
 
 import datetime
 
+import pytest
+
+# pyrefly: ignore [missing-import]
 from conftest import FakeBQ, FakeMetadataClient
 
 from pipelines.utils.metadata.domain import (
@@ -55,7 +58,9 @@ def test_poll_without_news_writes_only_poll():
 
 
 def test_poll_with_news_writes_poll_then_update():
-    client = FakeMetadataClient(table_update_latest=datetime.date(2026, 1, 1))
+    # register_source_poll não expõe compare_against — usa o default de
+    # poll_source_for_update ("coverage"), daí o fixture em coverage_max_date.
+    client = FakeMetadataClient(coverage_max_date=datetime.date(2026, 1, 1))
     result = register_source_poll(
         client, "br_x", "tab", source_max_date=datetime.date(2026, 6, 1)
     )
@@ -67,7 +72,7 @@ def test_poll_with_news_writes_poll_then_update():
 
 
 def test_poll_with_stale_source_writes_only_poll():
-    client = FakeMetadataClient(table_update_latest=datetime.date(2026, 6, 1))
+    client = FakeMetadataClient(coverage_max_date=datetime.date(2026, 6, 1))
     result = register_source_poll(
         client, "br_x", "tab", source_max_date=datetime.date(2026, 1, 1)
     )
@@ -103,6 +108,69 @@ def test_poll_source_for_update_defaults_url_to_none():
     poll_source_for_update(client, "br_x", "tab", source_max_date=None)
     _entity, _args, kwargs = client.writes[0]
     assert kwargs["url"] is None
+
+
+# ================================================ compare_against (§1781)
+def test_poll_default_compares_against_coverage():
+    # Sem compare_against, o default agora é "coverage" (o mais usado entre os
+    # flows auditados) — ignora Table.Update.latest completamente, mesmo que
+    # ele sozinho indicasse "sem novidade". É a mesma comparação que resolve o
+    # defeito do CAGED/ANS, agora sem precisar passar o parâmetro.
+    client = FakeMetadataClient(
+        table_update_latest=datetime.date(2026, 7, 7),  # "adiantado" (bug)
+        coverage_max_date=datetime.date(2026, 5, 1),  # cobertura real
+    )
+    result = poll_source_for_update(
+        client, "br_x", "tab", source_max_date=datetime.date(2026, 6, 1)
+    )
+    assert (
+        result is True
+    )  # 2026-06 > coverage (2026-05), apesar de < table_update
+
+
+def test_poll_default_false_when_source_not_ahead_of_coverage():
+    client = FakeMetadataClient(coverage_max_date=datetime.date(2026, 6, 1))
+    result = poll_source_for_update(
+        client, "br_x", "tab", source_max_date=datetime.date(2026, 6, 1)
+    )
+    assert result is False
+
+
+def test_poll_rejects_invalid_compare_against():
+    # Um typo em compare_against não pode cair silenciosamente no branch
+    # "table_update" — nem gravar o Poll antes de levantar.
+    client = FakeMetadataClient()
+    with pytest.raises(ValueError, match="compare_against inválido"):
+        poll_source_for_update(
+            client,
+            "br_x",
+            "tab",
+            source_max_date=datetime.date(2026, 6, 1),
+            compare_against="tabel_update",  # typo de propósito
+        )
+    assert client.writes == []
+
+
+def test_poll_explicit_table_update_still_works():
+    # compare_against="table_update" continua disponível para fontes onde
+    # source_max_date É um timestamp de publicação/execução (ex.: last_modified
+    # de um recurso CKAN, como br_bndes_operacoes_contratadas), não uma
+    # competência — nesses casos comparar contra coverage é que misturaria
+    # grandezas diferentes.
+    client = FakeMetadataClient(
+        table_update_latest=datetime.date(2026, 5, 1),
+        coverage_max_date=datetime.date(
+            2026, 7, 1
+        ),  # retornaria False se coverage fosse lido
+    )
+    result = poll_source_for_update(
+        client,
+        "br_x",
+        "tab",
+        source_max_date=datetime.date(2026, 6, 1),
+        compare_against="table_update",
+    )
+    assert result is True  # 2026-06 > table_update (2026-05)
 
 
 def test_commit_source_update_forwards_raw_source_url_to_client():

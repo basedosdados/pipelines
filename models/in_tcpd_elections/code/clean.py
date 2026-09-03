@@ -29,6 +29,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+# pyrefly: ignore [missing-import]
 import reference as ref
 
 # --------------------------------------------------------------------------- #
@@ -130,6 +131,7 @@ def normalize_candidate_sex(s: pd.Series) -> pd.Series:
     """MALE->M, FEMALE->F, THIRD->O; keep M/F/O; everything else -> null."""
     up = s.astype("string").str.strip().str.upper()
     up = up.replace({"MALE": "M", "FEMALE": "F", "THIRD": "O"})
+    # pyrefly: ignore [no-matching-overload]
     return up.where(up.isin(["M", "F", "O"]), other=pd.NA)
 
 
@@ -141,12 +143,14 @@ def normalize_candidate_type(s: pd.Series) -> pd.Series:
     """
     up = s.astype("string").str.strip().str.upper()
     up = up.replace({"GENERAL": "GEN"})
+    # pyrefly: ignore [no-matching-overload]
     return up.where(up.isin(["GEN", "SC", "ST"]), other=pd.NA)
 
 
 def normalize_constituency_type(s: pd.Series) -> pd.Series:
     """Keep GEN/SC/ST; BL/blank -> null."""
     up = s.astype("string").str.strip().str.upper()
+    # pyrefly: ignore [no-matching-overload]
     return up.where(up.isin(["GEN", "SC", "ST"]), other=pd.NA)
 
 
@@ -297,10 +301,12 @@ def report_election(table: str, df: pd.DataFrame, n_parts: int) -> None:
         vals = sorted(df[c].dropna().unique().tolist())
         print(f"\ndistinct {c}: {vals}")
 
+    # pyrefly: ignore [unnecessary-type-conversion]
     n_null_state = int(df["state_acronym"].isna().sum())
     print(f"\nnull state_acronym: {n_null_state}  (must be 0)")
     assert n_null_state == 0, f"NULL state_acronym found in {table}"
 
+    # pyrefly: ignore [unnecessary-type-conversion]
     n_null_pid = int(df["candidate_id"].isna().sum())
     print(f"null candidate_id: {n_null_pid:,}")
     if n_null_pid:
@@ -311,6 +317,7 @@ def report_election(table: str, df: pd.DataFrame, n_parts: int) -> None:
             "NOTA", na=False
         ) | names_upper.str.contains("NONE OF THE ABOVE", na=False)
         print(
+            # pyrefly: ignore [unnecessary-type-conversion]
             f"  of which candidate_name indicates NOTA: {int(is_nota.sum()):,} "
             f"/ {n_null_pid:,}"
         )

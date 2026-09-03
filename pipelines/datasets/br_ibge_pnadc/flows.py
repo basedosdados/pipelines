@@ -35,30 +35,52 @@ from pipelines.utils.to_download.tasks import download_async
 def br_ibge_pnadc__microdados(
     dataset_id: str = "br_ibge_pnadc",
     table_id: str = "microdados",
-    materialize_after_dump: bool = False,
-    dbt_alias: bool = True,
+    year: int | None = None,
+    quarter: int | None = None,
+    materialize_after_dump: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    data_source_max_date, url = get_data_source_date_and_url()
+    backfill = year is not None or quarter is not None
 
-    if not force_run:
+    data_source_max_date, url = get_data_source_date_and_url(
+        year=year, quarter=quarter
+    )
+
+    if not force_run and not backfill:
         has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             source_max_date=data_source_max_date,
             env="prod",
             date_format="%Y-%m-%d",
+            compare_against="table_update",
         )
         if not has_new_data:
             return
 
+    if not backfill:
+        # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+        # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+        # novo publicado, mesmo que a tabela não tenha sido atualizada.
+        commit_source_update_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=data_source_max_date,
+            env="prod",
+            date_format="%Y-%m-%d",
+            update_metadata=update_metadata,
+            materialize_after_dump=materialize_after_dump,
+        )
+
     input_dir, output_dir = build_table_paths(table_id=table_id)
+    # pyrefly: ignore [no-matching-overload]
     download_async(url, input_dir, "zip")
     build_partitions(input_dir, output_dir)
 
@@ -74,7 +96,6 @@ def br_ibge_pnadc__microdados(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -93,7 +114,6 @@ def br_ibge_pnadc__microdados(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -109,16 +129,8 @@ def br_ibge_pnadc__microdados(
             bq_project="basedosdados",
         )
 
-        if data_source_max_date is not None:
-            commit_source_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=data_source_max_date,
-                env="prod",
-                date_format="%Y-%m-%d",
-            )
 
-
+# pyrefly: ignore [missing-attribute]
 br_ibge_pnadc__microdados.deploy_schedules = [
     {"cron": "0 5 15-31 2,5,8,11 *", "timezone": "America/Sao_Paulo"}
 ]
@@ -132,7 +144,6 @@ def br_ibge_pnadc__dicionario(
     dataset_id: str = "br_ibge_pnadc",
     table_id: str = "dicionario",
     materialize_after_dump: bool = False,
-    dbt_alias: bool = True,
     target: str = "prod",
 ) -> None:
     """Reconstrói o dicionário da PNADC e materializa via dbt (dev e prod).
@@ -141,14 +152,15 @@ def br_ibge_pnadc__dicionario(
         dataset_id: ID do dataset no BigQuery.
         table_id: Slug da tabela do dicionário.
         materialize_after_dump: Se True, sobe também para prod e materializa lá.
-        dbt_alias: Usa o alias do modelo dbt (nome com prefixo `<ds>__`).
         target: Target dbt para a materialização em prod.
     """
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
     input_dir, output_dir = build_table_paths(table_id=table_id)
+    # pyrefly: ignore [no-matching-overload]
     data_path = build_dicionario_task(
         work_dir=input_dir, output_dir=output_dir
     )
@@ -166,7 +178,6 @@ def br_ibge_pnadc__dicionario(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -186,11 +197,11 @@ def br_ibge_pnadc__dicionario(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
 
+# pyrefly: ignore [missing-attribute]
 br_ibge_pnadc__dicionario.deploy_schedules = [
     {"cron": "0 5 1,15 * *", "timezone": "America/Sao_Paulo"}
 ]

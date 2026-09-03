@@ -212,6 +212,7 @@ def download_file(filename: str, retries: int = 3) -> Path:
                 log.warning(
                     f"  Failed to download {filename}: HTTP {resp.status_code}"
                 )
+                # pyrefly: ignore [bad-return]
                 return None
             local_path.write_bytes(resp.content)
             return local_path
@@ -223,10 +224,12 @@ def download_file(filename: str, retries: int = 3) -> Path:
                 f"  Download error (attempt {attempt + 1}/{retries}): {e}"
             )
             if attempt == retries - 1:
+                # pyrefly: ignore [bad-return]
                 return None
             import time
 
             time.sleep(2**attempt)
+    # pyrefly: ignore [bad-return]
     return None
 
 
@@ -255,6 +258,7 @@ def read_csv_from_zip(zip_path: Path) -> pd.DataFrame:
 
         if not csv_files:
             log.warning(f"  No CSV found in {zip_path.name}: {zf.namelist()}")
+            # pyrefly: ignore [bad-return]
             return None
 
         # Pick the largest CSV (usually the data file)
@@ -287,6 +291,7 @@ def read_csv_from_zip(zip_path: Path) -> pd.DataFrame:
             )
         except Exception as e:
             log.warning(f"  Error reading CSV from {zip_path.name}: {e}")
+            # pyrefly: ignore [bad-return]
             return None
 
         # Drop pandas duplicate-header artifacts (e.g. "xefgndru.1" in
@@ -294,8 +299,9 @@ def read_csv_from_zip(zip_path: Path) -> pd.DataFrame:
         junk = [
             c
             for c in df.columns
+            # pyrefly: ignore [unnecessary-type-conversion]
             if re.match(r".+\.\d+$", str(c))
-            or (str(c).strip().lower() == "i" and df[c].isna().all())
+            or (str(c).strip().lower() == "i" and df[c].isna().all())  # pyrefly: ignore [unnecessary-type-conversion]
         ]
         if junk:
             df = df.drop(columns=junk)
@@ -371,7 +377,9 @@ def clean_numeric_columns(df: pd.DataFrame, exclude_cols=None) -> pd.DataFrame:
                 continue
             # Try converting - IPEDS uses '.' for missing
             converted = pd.to_numeric(
-                df[col].replace({".": None, "": None}), errors="coerce"
+                # pyrefly: ignore [bad-argument-type]
+                df[col].replace({".": None, "": None}),
+                errors="coerce",
             )
             # If we can convert most values, do it
             non_null_orig = df[col].notna().sum()
@@ -857,6 +865,7 @@ def write_survey_parquet(survey: str, combined: pd.DataFrame) -> int:
     table_dir = OUTPUT_DIR / survey
     total = 0
     for year, group in combined.groupby("year", sort=True):
+        # pyrefly: ignore [bad-argument-type]
         part_dir = table_dir / f"year={int(year)}"
         part_dir.mkdir(parents=True, exist_ok=True)
         data = group.drop(columns=["year"])

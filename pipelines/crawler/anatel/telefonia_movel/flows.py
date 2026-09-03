@@ -32,11 +32,11 @@ def _run_anatel_telefonia_movel(
     ano: int | None,
     semestre: int | None,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -55,11 +55,25 @@ def _run_anatel_telefonia_movel(
         source_max_date=data_source_max_date,
         env="prod",
         date_format="%Y-%m",
+        compare_against="coverage",
     )
 
     if not has_new_data and not force_run:
         print(f"Não há atualizações para a tabela {table_id}!")
         return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=data_source_max_date,
+        env="prod",
+        date_format="%Y-%m",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
 
     filepath = join_tables_in_function(
         table_id=table_id, ano=new_year, semestre=new_semester
@@ -77,7 +91,6 @@ def _run_anatel_telefonia_movel(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -96,7 +109,6 @@ def _run_anatel_telefonia_movel(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -110,12 +122,4 @@ def _run_anatel_telefonia_movel(
             ),
             env="prod",
             bq_project="basedosdados",
-        )
-
-        commit_source_update_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            source_max_date=data_source_max_date,
-            env="prod",
-            date_format="%Y-%m",
         )

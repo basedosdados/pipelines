@@ -159,6 +159,7 @@ df = df.drop(columns=["NO_REGIAO", "NO_UF", "NO_MUNICIPIO"]).rename(
     columns=renames
 )
 
+# pyrefly: ignore [bad-index]
 df = df.loc[df["id_municipio"].notna(),]
 breakpoint()
 df["ano_de"] = df["NU_ANO_CENSO"].str.split("/").str[0]

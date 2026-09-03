@@ -29,7 +29,6 @@ def _sicor_flow(
         dataset_id: str = "br_bcb_sicor",
         table_id: str = table_id,
         materialize_after_dump: bool = True,
-        dbt_alias: bool = True,
         update_metadata: bool = True,
         target: str = "prod",
         force_run: bool = False,
@@ -40,7 +39,6 @@ def _sicor_flow(
             dataset_id=dataset_id,
             table_id=table_id,
             materialize_after_dump=materialize_after_dump,
-            dbt_alias=dbt_alias,
             update_metadata=update_metadata,
             target=target,
             force_run=force_run,
@@ -52,6 +50,7 @@ def _sicor_flow(
             local_redis_execution=local_redis_execution,
         )
 
+    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
 
@@ -136,6 +135,7 @@ def br_bcb_sicor__dicionario(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )

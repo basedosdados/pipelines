@@ -58,13 +58,17 @@ download → clean                      # your @task wrappers over utils
 max_date = <latest period in source>  # e.g. "YYYY-MM"
 has_new = poll_source_for_update_task(dataset_id, table_id, max_date, env="prod", date_format)
 if not has_new and not force_run: return
-for table in tables:                  # dev first
+for table in tables:                  # dev: upload + RUN every table first
     upload_to_gcs(data_path, dataset_id, table, bucket_name="basedosdados-dev", dump_mode, source_format)
-    run_dbt(dataset_id, table, dbt_command="run/test", target="dev")
+    run_dbt(dataset_id, table, dbt_command="run", target="dev")
+for table in tables:                  # THEN test — every sibling now exists
+    run_dbt(dataset_id, table, dbt_command="test", target="dev")
 if not materialize_to_prod: return
-for table in tables:                  # then prod
+for table in tables:                  # prod: upload + RUN every table first
     upload_to_gcs(..., bucket_name="basedosdados", ...)
-    run_dbt(..., target="prod")
+    run_dbt(..., dbt_command="run", target="prod")
+for table in tables:                  # THEN test
+    run_dbt(..., dbt_command="test", target="prod")
 if update_metadata:
     register_table_materialization_task(dataset_id, table, coverage=<CoverageSpec>, env="prod", bq_project="basedosdados")
     commit_source_update_task(dataset_id, table, max_date, env="prod", date_format)  # ONLY at the very end
@@ -74,6 +78,18 @@ if update_metadata:
 newer than the registered `Update.latest`; `commit_source_update_task` writes the
 new `Update.latest` and must run **last**, only after prod succeeded. The poll
 guard makes a scheduled run a no-op until the source actually publishes.
+
+**Run every table, then test every table — never interleave `run`/`test` per
+table.** Use `dbt_command="run"` in the first loop and `dbt_command="test"` in a
+second loop, per environment (do **not** use the combined `"run/test"` inside a
+per-table loop). Cross-table tests — `relationships`, `dbt_utils` referential
+checks, `custom_dictionary_coverage` with `ref('..._dicionario')` — read *sibling*
+models. Interleaved, the first table's test runs before its referenced sibling is
+built and fails: `Not found: Table ... au_ato_abr.dicionario`. This is silent in a
+re-run where a stale sibling from an earlier build survives (dev), and only bites
+in a clean environment (a freshly-emptied prod) — so it must be structural, not
+left to luck. `us_fed_fred` hit the same class of bug on its `observation`↔`series`
+FK test. → `project_au_ato_abr`
 
 ## Shared building blocks (`pipelines/utils`)
 
@@ -112,8 +128,17 @@ schema. Two details are load-bearing:
 
 This costs nothing downstream: staging is all-STRING by house convention anyway and the
 dbt model `safe_cast`s every column. `us_bls_cpi/utils.py::write_partitioned` is the
-reference. Note `bigquery-conventions.md` tells you to pin an explicit `pa.Schema` —
-correct for the one-shot onboarding upload, wrong here. → `project_dump_header_parquet_bug`
+reference.
+
+**Write all-STRING staging for the one-shot onboarding upload too, not only the pipeline.**
+Both paths share one staging dataset, so their external-table schemas must match. A dataset
+onboarded with *typed* parquet gets a *typed* external table; add a pipeline later and its
+all-STRING overwrite leaves dbt reading the stale typed table against string files
+(`Parquet column ... has type BYTE_ARRAY which does not match the target cpp_type INT32`), or
+`safe_cast`ing a still-typed column (`Invalid cast from INT64 to DATE`). Keeping both paths
+all-STRING removes the divergence — so `bigquery-conventions.md` no longer pins a *typed*
+`pa.Schema` for onboarding; it pins an all-STRING one with stable column order.
+→ `project_au_ato_abr`, `project_dump_header_parquet_bug`
 
 ### One raw data source per table (current limitation)
 
@@ -275,9 +300,30 @@ on the **deployed Prefect worker** (its pod SA has access) — the local
 Schedule inline on the flow object (do NOT register storage/run-config by hand):
 
 ```python
-my_flow.deploy_schedules = [{"cron": "0 16 10,11,12,13 * *", "timezone": "America/Sao_Paulo"}]
-my_flow.job_variables = {"memory": "8Gi"}   # optional; size to the clean step's peak RAM
+my_flow.deploy_schedules = [
+    {"cron": "35 16 10,11,12,13 * *", "timezone": "America/Sao_Paulo"}
+]
+my_flow.job_variables = {
+    "memory": "8Gi"
+}  # optional; size to the clean step's peak RAM
 ```
+
+**Pick a minute nobody else is using — never `0`.** The hour follows the source's
+publication time, but the minute is free, and defaulting it to `0` piles every
+pipeline onto the same instant. Twelve of the pipelines added in Aug 2026 all fired
+at `0 16 * * *` before that was spread out. Same-instant runs compete for BigQuery
+slots, and if the daily processing quota trips at that moment they **all** fail
+together, which also makes it hard to tell which pipeline actually caused the spike.
+
+Before choosing, list what is already taken and pick a free slot:
+
+```bash
+grep -rho '"cron": "[^"]*"' pipelines/datasets/*/flows.py | sort | uniq -c | sort -rn
+```
+
+Spacing of 5 minutes is plenty. Note this reduces contention, **not** bytes billed
+per day — the daily quota is a byte ceiling, and only doing less work (scoped tests,
+incremental models, no redundant dev materialization) moves that.
 
 Deploy is CI, via `.github/scripts/deploy_flows.py`:
 - **Dev pool** (`cd-prefect3-staging.yaml`, `--pool basedosdados-dev`, on PR):
@@ -285,10 +331,54 @@ Deploy is CI, via `.github/scripts/deploy_flows.py`:
   the job reports `skipped`, not failed. A PR without it deploys **nothing** and
   looks fine. The workflow triggers on `labeled` and `synchronize`, so adding the
   label is itself enough. Schedules are **stripped** — manual runs only.
+  **The label only covers `flows.py`** — see the subsection below.
 - **Prod pool** (`cd-prefect3.yaml`, `--pool basedosdados --all`, on merge to main):
   schedules become `Cron` objects; deployed **`paused=True`**.
 - Cron in `America/Sao_Paulo`; see crontab.guru. For a monthly source, poll across
   a few release-window days — the source-poll guard no-ops until a new period lands.
+
+### `deploy-flow` only deploys a PR that changes `flows.py`
+
+The workflow passes every changed `pipelines/**/*.py` to `deploy_flows.py --files`,
+and the script keeps only the files that **define a `Flow` object**. A PR that fixes
+`utils.py`, `tasks.py`, `constants.py` or a `*_clean.py` — the usual place a pipeline
+bug lives — contributes **zero** deployments.
+
+The job still reports **`pass`**. Nothing says it deployed nothing.
+
+```
+senado_api.py:   0 flow(s)     <- load_flows_from_file
+senado_clean.py: 0 flow(s)
+flows.py:        1 flow(s)
+```
+
+The consequence is that the dev run in "Verification" below **cannot validate that
+PR**. The deployment keeps whatever git ref it already had, so a trigger silently
+runs a *different branch* — whichever PR last touched that `flows.py`, or `main`.
+This is not theoretical: `mx_sesnsp_incidencia_delictiva` (#1873) and
+`br_senado_dados_abertos` (#1874) both fixed non-`flows.py` code, and three separate
+trigger attempts ran another branch's code and reproduced the original error, which
+reads exactly like "the fix does not work".
+
+**Confirm which branch actually ran.** The clone path in the logs names it:
+
+```
+File "/app/pipelines-<branch-slug>/pipelines/datasets/<ds>/utils.py", line ...
+```
+
+`/app/pipelines-main/` means it ran `main`, not your PR. Check this before drawing
+any conclusion from a validation run.
+
+To validate a non-`flows.py` fix, pick one:
+- **Merge it and watch the next scheduled run** — usually right when the flow is
+  already failing every run, so the fix cannot make things worse. Then confirm with
+  `uv run python -m pipelines.diagnostics health`.
+- **Touch `flows.py` in the same PR** (a real change, not a whitespace nudge) so the
+  deploy has something to pick up.
+
+Related: `load_flows_from_file` also **swallows import errors** and returns `{}`, so a
+broken import is a silent no-deploy with a green check for the same reason. A green
+"deploy flows" is never evidence that anything deployed.
 
 ### Arming is a manual step — merging does NOT start the schedule
 
@@ -333,7 +423,10 @@ checks to fail fast, then **run it**.
 ### 2. A real dev run (the actual gate)
 
 Add the **`deploy-flow`** label, wait for `cd-prefect3 (staging)` to report
-`registrado`, then trigger the deployment manually **with prod off**:
+`registrado`, then trigger the deployment manually **with prod off**. First confirm
+the PR actually changes `flows.py` — if it does not, this gate does not apply to it
+and the run will execute another branch's code (see "`deploy-flow` only deploys a PR
+that changes `flows.py`" above):
 
 ```
 parameters = {"materialize_to_prod": False, "update_metadata": False, "force_run": True}
@@ -345,8 +438,9 @@ and applies the paywall**, from the dev pool, because the metadata tasks are pin
 `env="prod"` regardless of pool. `force_run=True` bypasses the poll guard, which
 otherwise returns before doing anything.
 
-Done means: every task `COMPLETED`, and the logs show `dbt run OK` **and**
-`dbt test OK` for each table.
+Done means: every task `COMPLETED`, the logs show `dbt run OK` **and**
+`dbt test OK` for each table, **and** the clone path in the logs is your branch
+(`/app/pipelines-<your-branch>/`), not `/app/pipelines-main/`.
 
 ### 3. Reading the result — green does not mean it ingested
 

@@ -171,6 +171,7 @@ class MetadataClient:
 
     # --------------------------------------------------------------- resolvers
     def get_table_id(self, dataset_id: str, table_id: str) -> str:
+        # pyrefly: ignore [bad-return]
         return self._backend._get_table_id_from_name(
             gcp_dataset_id=dataset_id, gcp_table_id=table_id
         )
@@ -240,6 +241,40 @@ class MetadataClient:
         table_pk = self.get_table_id(dataset_id, table_id)
         return self._read_update_latest("$table_Id: ID", table_pk, "table_Id")
 
+    def get_coverage_max_date(
+        self, dataset_id: str, table_id: str
+    ) -> datetime.date | None:
+        """Lê a cobertura real (`Coverage.DateTimeRange`) e devolve o maior
+        `end` entre todas as faixas (free + pro). `None` se a tabela não tiver
+        nenhuma `Coverage.DateTimeRange` cadastrada.
+
+        Contraparte de `get_table_update_latest`: enquanto aquele lê um
+        timestamp de execução, este lê a competência de dados mais recente
+        que a tabela realmente cobre — a base de comparação usada pelo
+        `compare_against="coverage"` de `poll_source_for_update`.
+        """
+        table_pk = self.get_table_id(dataset_id, table_id)
+        query = """query($table_Id: ID) {
+            allCoverage(table_Id: $table_Id) {
+                edges { node { datetimeRanges {
+                    edges { node { endYear endMonth endDay } }
+                } } }
+            }
+        }"""
+        response = self._execute(query, {"table_Id": table_pk})
+        end_dates = []
+        for coverage in response["allCoverage"]["items"]:
+            for dtr in coverage["datetimeRanges"]["items"]:
+                year, month, day = (
+                    dtr["endYear"],
+                    dtr["endMonth"],
+                    dtr["endDay"],
+                )
+                if year is None:
+                    continue
+                end_dates.append(datetime.date(year, month or 1, day or 1))
+        return max(end_dates) if end_dates else None
+
     def get_raw_source_update_latest(
         self, dataset_id: str, table_id: str, url: str | None = None
     ) -> datetime.date | None:
@@ -286,7 +321,10 @@ class MetadataClient:
                 {"id": existing, "latest": _to_iso8601(latest)},
             )
         dto = PollInput(
-            rawDataSource=rds_id, latest=latest, entity=self._entity_id("day")
+            # pyrefly: ignore [bad-argument-type]
+            rawDataSource=rds_id,
+            latest=latest,
+            entity=self._entity_id("day"),
         )
         return self._mutate("CreateUpdatePoll", dto.model_dump())
 
@@ -308,6 +346,7 @@ class MetadataClient:
                 {"id": existing, "latest": _to_iso8601(latest)},
             )
         dto = RawSourceUpdateInput(
+            # pyrefly: ignore [bad-argument-type]
             rawDataSource=rds_id,
             latest=latest,
             frequency=1,

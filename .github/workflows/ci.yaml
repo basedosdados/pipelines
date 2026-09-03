@@ -1,0 +1,95 @@
+---
+name: CI
+on:
+  pull_request:
+    branches: [main]
+    types: [labeled, opened, synchronize, reopened]
+  push:
+    branches: [main]
+jobs:
+  lint-dockerfile:
+    name: Lint dockerfile
+    # Only when the Dockerfile changed in a PR (reviewdog needs a PR context)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v47
+        with:
+          files: Dockerfile
+      - name: Run hadolint
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: reviewdog/action-hadolint@v1
+        with:
+          reporter: github-pr-review
+  type-check:
+    name: Pyrefly type check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Install dependencies
+        # Full sync (project deps + dev group) so pyrefly can resolve imports
+        # like pandas/requests/numpy and see the type stubs. This mirrors the
+        # local env the suppressions were generated against.
+        run: uv sync
+      - name: Run pyrefly
+        run: uv run pyrefly check
+  test-dev-model:
+    name: Test DBT dev model
+    if: contains(github.event.pull_request.labels.*.name, 'test-dev-model')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v47
+        with:
+          files: models/**/*.sql
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Set up Python
+        run: uv python install
+      - name: Install dependencies
+        run: uv sync --locked --only-dev
+      - name: Write DBT service account
+        run: echo '${{ secrets.DBT_SA_DEV }}' | jq '.' > dbt_sa_dev.json
+      - name: Install dbt deps
+        run: uv run dbt deps
+      - name: Run dbt test
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: uv run dbt test --select ${{ steps.changed-files.outputs.all_changed_files }}
+        env:
+          BD_SERVICE_ACCOUNT_DEV: dbt_sa_dev.json
+  check-metadata:
+    name: Metadata validation (BigQuery vs API)
+    if: contains(github.event.pull_request.labels.*.name, 'check-metadata')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v47
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Set up Python
+        run: uv python install
+      - name: Install dependencies
+        run: uv sync --locked --only-dev
+      - name: Run metadata validation
+        run: uv run .github/workflows/scripts/check_metadata.py --modified-files "${{ steps.changed-files.outputs.all_modified_files }}"
+        env:
+          BASEDOSDADOS_CONFIG: ${{ secrets.BASEDOSDADOS_CONFIG }}
+          BASEDOSDADOS_CREDENTIALS_PROD: ${{ secrets.BASEDOSDADOS_CREDENTIALS_PROD }}
+          BASEDOSDADOS_CREDENTIALS_STAGING: ${{ secrets.BASEDOSDADOS_CREDENTIALS_STAGING }}

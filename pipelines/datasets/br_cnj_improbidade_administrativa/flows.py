@@ -33,11 +33,11 @@ def br_cnj_improbidade_administrativa__condenacao(
     dataset_id: str = "br_cnj_improbidade_administrativa",
     table_id: str = "condenacao",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -62,7 +62,6 @@ def br_cnj_improbidade_administrativa__condenacao(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -81,7 +80,6 @@ def br_cnj_improbidade_administrativa__condenacao(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -98,6 +96,7 @@ def br_cnj_improbidade_administrativa__condenacao(
         )
 
 
+# pyrefly: ignore [missing-attribute]
 br_cnj_improbidade_administrativa__condenacao.deploy_schedules = [
     {"cron": "0 7 * * 1", "timezone": "America/Sao_Paulo"}
 ]

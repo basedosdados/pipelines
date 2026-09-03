@@ -15,17 +15,19 @@ All backend operations use the `mcp__databasis__*` MCP tools. Never write raw HT
 
 Default: `dev`. Only switch to `prod` after explicit user approval.
 
-## Dataset status lifecycle (create `under_review`, publish only post-merge)
+## Dataset status lifecycle (publish dev/staging pre-promotion; prod only post-merge)
 
-**Always create a dataset with `status_id = status.under_review`, never `status.published`** — at every stage (dev/staging and prod alike). `under_review` hides the dataset from the production frontend, so metadata registered before the onboarding PR merges (with prod cloud tables that do not yet exist) cannot leak publicly.
+**Create a dataset with `status_id = status.under_review`** on registration. `under_review` hides the dataset from the **production** frontend, so metadata registered before the onboarding PR merges (with prod cloud tables that do not yet exist) cannot leak publicly.
 
-Flip the dataset to `status.published` **only after all three hold**:
+**On dev/staging, publish the dataset before the PR/prod-promotion step.** After the dev/staging metadata is registered and the tables verified, flip the **dev/staging** dataset `status.under_review → status.published` via `create_update_dataset(id=…, status_id=status.published, env=<dev|staging>)` (re-pass every required field). The dev/staging frontend is not the public production site, so this is safe and lets the reviewer see the dataset as it will appear. This is the only pre-merge publish, and only on dev/staging. When extending an already-published dataset, keep it published (and refresh its description if coverage changed).
+
+Flip the **prod** dataset to `status.published` **only after all three hold**:
 
 1. the onboarding **PR is merged** to `main`;
 2. the GitHub **table-approve action has run successfully** (it materialises `basedosdados.<gcp_dataset_id>.*` via `dbt --target prod`);
 3. the live prod tables **and** metadata are **verified** — row counts match, cloud tables resolve, `get_dataset(slug, env="prod")` shows the expected shape.
 
-Publishing is one call: `create_update_dataset(id=<dataset_id>, …, status_id=status.published, env="prod")` (re-pass every required field — no partial updates). Do this as a **separate post-merge action**, never inside the onboarding PR. Tables are gated by the dataset's status, so they may stay `status.published`; flipping the dataset publishes everything in one step.
+The **prod** publish is one call: `create_update_dataset(id=<dataset_id>, …, status_id=status.published, env="prod")` (re-pass every required field — no partial updates). Do this as a **separate post-merge action**, never inside the onboarding PR (the dev/staging publish already happened pre-promotion). Tables are gated by the dataset's status, so they may stay `status.published`; flipping the dataset publishes everything in one step.
 
 ## ID resolution (always run first)
 
@@ -77,9 +79,28 @@ For individual lookups: `mcp__databasis__lookup_id(env=<env>, slug=<slug>, type=
 | `description_pt/en/es` | string | 1–3 sentences, technical, no bullet lists |
 | `organization_ids` | list | From `discover_ids` using org slug(s) |
 | `theme_ids` | list | From `discover_ids` |
-| `tag_ids` | list | From `discover_ids`; empty list if none |
-| `status_id` | string | **`status.under_review` on creation** — flip to `status.published` only post-merge (see "Dataset status lifecycle" above) |
+| `tag_ids` | list | **Always scan, choose, and attach — do not leave empty.** See "Choosing tags" below |
+| `status_id` | string | **`status.under_review` on creation**; publish on dev/staging pre-promotion, prod only post-merge (see "Dataset status lifecycle" above) |
 | `id` | string | Pass when updating an existing record |
+
+## Choosing tags (do not leave empty)
+
+Every dataset must carry tags — several recent onboardings shipped with none, which hurts discoverability on the site. Never default `tag_ids` to `[]`.
+
+1. **Scan** the existing tag vocabulary: `discover_ids(env=<env>, keys=["tag"])` returns `{slug: id}` for every tag (there are ~800 — a broad, well-populated vocabulary).
+2. **Choose** the tags that genuinely describe the dataset — its subject, entity/grain, and source domain (e.g. for PGFN active debt: `debt`, `debtor`, `tax`, `revenue-collection`, `public-finance`, `federal`, `social_security`). Match on meaning, not exact string; prefer 4–8 specific tags over one vague one. Almost always an appropriate existing tag exists — use it rather than creating a near-duplicate.
+3. **Do not tag metadata that is already captured elsewhere.** Tags exist for subject matter, not to duplicate fields the dataset already carries as structured metadata. In particular, never create or attach a tag for:
+   - **Area / place names** — country, state, region, city (e.g. `mexico`, `sao-paulo`, `brazil`). Geographic coverage is the `Coverage`/`area` metadata; the frontend already facets on it.
+   - **Themes, or words derived from them** — a theme's own name or a near-synonym (e.g. `geografia`/`geography`, `economia`/`economics`) when it merely restates a `theme_id` already attached. Themes are their own metadata field.
+   - **Organization / source names** already recorded as the dataset's organization.
+
+   Prefer existing tags describing the *content* (what the data measures, its entity, its domain) over any tag that mirrors another metadata field.
+4. **Only if no existing tag fits**, create the missing one — but **flag every new tag to the user.** Before (or as) you create them, list the proposed new tags (slug + trilingual names) so the user can veto or correct them; you may proceed without waiting for a reply, and the user can adjust after the fact. Use `create_update_tag(slug=<slug>, name_pt=…, name_en=…, name_es=…, env=<env>)` and the returned id, subject to:
+   - **Slug is always English**, `kebab-case`, lowercase (e.g. `revenue-collection`, not `arrecadacao`). Check for a synonym first (e.g. `covid19` vs `covid-19` already both exist — do not add a third).
+   - **Names are translated and lowercase** in all three languages (`name_pt`, `name_en`, `name_es`), except that **acronyms stay uppercase** (e.g. `name_en="tax"`, but `name_en="GDP"`, `name_pt="PIB"`).
+5. **Attach** all chosen ids via `tag_ids` on `create_update_dataset`, then verify with `get_dataset` (tags are M2M — see Known issues).
+
+Resolve tags **per backend**: ids differ across dev/staging/prod, so re-scan (and re-create any approved new tag) on prod before attaching there. When updating an already-published dataset to add tags, re-pass every required field plus the full `tag_ids` (the API does no partial updates).
 
 ## `create_update_table` fields
 
@@ -92,6 +113,7 @@ For individual lookups: `mcp__databasis__lookup_id(env=<env>, slug=<slug>, type=
 | `status_id` | string | `status.published` — tables are gated by the dataset's `under_review` status, so they may stay published (see "Dataset status lifecycle") |
 | `published_by_ids` | list | Authenticated account ID |
 | `data_cleaned_by_ids` | list | Authenticated account ID |
+| `auxiliary_files_url` | string | Public URL of the table's auxiliary-file bundle. See `auxiliary-files` for what belongs in one, the GCS path convention, and the requester-pays caveat that makes these links resolve to HTTP 400 for anonymous users today |
 | `id` | string | Pass when updating |
 
 Do **not** pass `raw_data_source_ids` in the initial creation — link them in the deferred update (step 15).

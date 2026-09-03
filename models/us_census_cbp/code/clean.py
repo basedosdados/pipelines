@@ -265,6 +265,7 @@ def build_national(df: pd.DataFrame, year: int) -> pd.DataFrame:
     """
     c = Cols(df)
     out = pd.DataFrame()
+    # pyrefly: ignore [bad-argument-type]
     out["naics"] = _normalize_naics(c.get("naics"))
     out["naics_version"] = naics_version(year)
     lfo = c.get("lfo")
@@ -287,6 +288,7 @@ def build_state(df: pd.DataFrame, year: int) -> pd.DataFrame:
     c = Cols(df)
     out = pd.DataFrame()
     out["id_state"] = _str(c.get("fipstate")).str.zfill(2)
+    # pyrefly: ignore [bad-argument-type]
     out["naics"] = _normalize_naics(c.get("naics"))
     out["naics_version"] = naics_version(year)
     lfo = c.get("lfo")
@@ -312,6 +314,7 @@ def build_county(df: pd.DataFrame, year: int) -> pd.DataFrame:
     cty = _str(c.get("fipscty")).str.zfill(3)
     out["id_state"] = st
     out["id_county"] = st + cty
+    # pyrefly: ignore [bad-argument-type]
     out["naics"] = _normalize_naics(c.get("naics"))
     out["naics_version"] = naics_version(year)
     _totals(c, out)

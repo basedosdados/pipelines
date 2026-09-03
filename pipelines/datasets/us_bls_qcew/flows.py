@@ -101,6 +101,7 @@ def us_bls_qcew_flow(
             is False.
         force_run: Materialize even when the source poll reports no new quarter.
     """
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="naics"
     )
@@ -116,31 +117,49 @@ def us_bls_qcew_flow(
             source_max_date=max_ym,
             env="prod",
             date_format="%Y-%m",
+            compare_against="coverage",
         )
         if not has_new_data and not force_run:
             return
 
+        # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+        # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+        # novo publicado, mesmo que a tabela não tenha sido atualizada.
+        commit_source_update_task(
+            dataset_id=DATASET_ID,
+            table_id=POLL_TABLE,
+            source_max_date=max_ym,
+            env="prod",
+            date_format="%Y-%m",
+            update_metadata=update_metadata,
+            materialize_after_dump=materialize_to_prod,
+        )
+
         # Expensive: re-clean the full NAICS history into partitioned parquet.
         paths = clean_qcew(work_dir=work_dir)
 
-        # Dev: upload staging + materialize/test.
-        for table in NAICS_TABLES:
-            upload_to_gcs(
-                data_path=paths[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados-dev",
-                dump_mode="overwrite",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run/test",
-                target="dev",
-            )
-
+        # The dev materialization is the pre-arm validation path, not part of a
+        # production run: it rebuilds and re-tests every table in
+        # basedosdados-dev, which nothing downstream reads. Running it on an
+        # armed run doubled the BigQuery bytes billed for no signal — prod
+        # runs the same models and the same tests seconds later.
         if not materialize_to_prod:
+            # Dev: upload staging + materialize/test.
+            for table in NAICS_TABLES:
+                upload_to_gcs(
+                    data_path=paths[table],
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    bucket_name="basedosdados-dev",
+                    dump_mode="overwrite",
+                    source_format="parquet",
+                )
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="run/test",
+                    target="dev",
+                )
             return
 
         # Prod: upload staging + materialize/test.
@@ -169,13 +188,6 @@ def us_bls_qcew_flow(
                     env="prod",
                     bq_project="basedosdados",
                 )
-            commit_source_update_task(
-                dataset_id=DATASET_ID,
-                table_id=POLL_TABLE,
-                source_max_date=max_ym,
-                env="prod",
-                date_format="%Y-%m",
-            )
     finally:
         # Covers both early returns (no new data, dev-only) and any exception.
         # The k8s work pool gives each run a fresh pod, but a process/local
@@ -187,9 +199,11 @@ def us_bls_qcew_flow(
 # and Wages news releases land in early March, June, September, and December.
 # Poll across the first ~10 days of those months at 16:00 BRT; the source-poll
 # guard no-ops until a new quarter actually appears in the singlefiles.
+# pyrefly: ignore [missing-attribute]
 us_bls_qcew_flow.deploy_schedules = [
-    {"cron": "0 16 1-10 3,6,9,12 *", "timezone": "America/Sao_Paulo"}
+    {"cron": "10 16 1-10 3,6,9,12 *", "timezone": "America/Sao_Paulo"}
 ]
 # The clean step streams ~15M-row singlefiles one chunk at a time (peak ~1.75GB
 # in pandas); give the worker headroom above that.
+# pyrefly: ignore [missing-attribute]
 us_bls_qcew_flow.job_variables = {"memory": "8Gi"}

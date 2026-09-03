@@ -62,6 +62,7 @@ async def crawler_home_page(total_pages: int) -> list[httpx.Response]:
 async def crawler_sentences(
     peoples_info: list[PeopleLine],
 ) -> list[SentenceResponse]:
+    # pyrefly: ignore [bad-assignment]
     condenacao_ids: list[str] = np.unique(
         [i["condenacao_id"] for i in peoples_info]
     )
@@ -79,6 +80,7 @@ async def crawler_sentences(
             return {"condenacao_id": sentence_id, "response": response}
 
     async with httpx.AsyncClient(limits=limits, timeout=timeout) as client:
+        # pyrefly: ignore [bad-return]
         return await asyncio.gather(
             *[wrapper(client, sentence_id) for sentence_id in condenacao_ids]
         )  # type: ignore
@@ -100,6 +102,7 @@ async def get_peoples_info(
             return {"condenacao_id": sentence_id, "response": response}
 
     async with httpx.AsyncClient(timeout=timeout, limits=limits) as client:
+        # pyrefly: ignore [bad-return]
         return await asyncio.gather(
             *[
                 wrapper(client, sentence_id, people_id)
@@ -124,6 +127,7 @@ async def crawler_process(
             return {"process_id": people["processo_id"], "response": response}
 
     async with httpx.AsyncClient(timeout=timeout, limits=limits) as client:
+        # pyrefly: ignore [bad-return]
         return await asyncio.gather(
             *[wrapper(client, people_line) for people_line in peoples]  # type: ignore
         )

@@ -34,8 +34,9 @@ def check_if_values_are_accepted(
                 "Dicionário de delta tempo inválido. O dicionário deve conter apenas uma chave e um valor"
             )
         key = list(time_delta)[0]  # noqa: RUF015
-        if key not in metadata_constants.ACCEPTED_TIME_UNITS.value:
+        if key not in metadata_constants.ACCEPTED_TIME_UNITS.value:  # pyrefly: ignore [missing-attribute]
             raise ValueError(
+                # pyrefly: ignore [missing-attribute]
                 f"Unidade temporal inválida. Escolha entre {metadata_constants.ACCEPTED_TIME_UNITS.value}"
             )
         if not isinstance(time_delta[key], int):
@@ -43,21 +44,25 @@ def check_if_values_are_accepted(
                 "Valor de delta inválido. O valor deve ser um inteiro"
             )
 
+    # pyrefly: ignore [missing-attribute]
     if coverage_type not in metadata_constants.ACCEPTED_COVERAGE_TYPE.value:
         raise ValueError(
+            # pyrefly: ignore [missing-attribute]
             f"Tipo de cobertura temporal inválida. Escolha entre {metadata_constants.ACCEPTED_COVERAGE_TYPE.value}"
         )
 
     if (
         set(list(date_column_name))
-        not in metadata_constants.ACCEPTED_COLUMN_KEY_VALUES.value
+        not in metadata_constants.ACCEPTED_COLUMN_KEY_VALUES.value  # pyrefly: ignore [missing-attribute]
     ):
         raise ValueError(
+            # pyrefly: ignore [missing-attribute]
             f"Dicionário das colunas de data inválido. As chaves só podem assumir os valores: {metadata_constants.ACCEPTED_COLUMN_KEY_VALUES.value} "
         )
 
 
 def get_billing_project_id(mode: str) -> bool:
+    # pyrefly: ignore [bad-return]
     return metadata_constants.MODE_PROJECT.value[mode]
 
 
@@ -108,18 +113,40 @@ def extract_last_date_from_bq(
             billing_project_id=billing_project_id,
             project_id=project_id,
         )
+        # pyrefly: ignore [bad-argument-type]
         last_date = datetime.datetime.strftime(last_date_dt, date_format)
 
         return last_date
 
     query_date_column = format_date_column(date_column)
 
+    # Coverage dates in the future are filer typos, not real coverage, and a
+    # handful of them distorts the whole BD Pro window: `free_end` is
+    # `max_date - free_lag`, so an impossible date pushes the boundary forward
+    # and releases for free the period that should be paid. In
+    # us_fec_campaign_finance, 71 rows dated up to 2026-12-31 (against a real
+    # maximum of 2026-07-31) shrank the paid window from 8,614,269 rows to
+    # 25,277.
+    #
+    # The filter applies only to date columns (`{'date'}`). Year, year/month
+    # and year/quarter are deliberately left out: there the value labels a
+    # period, and a future label is often legitimate — budget year, crop year,
+    # school year — so filtering would shrink the coverage of correct datasets.
+    # `_max_transaction_date` in us_fec_campaign_finance/utils.py already
+    # applies this rule to the poll; this aligns coverage with what the poll
+    # was already doing.
+    date_filter = (
+        f"\n        WHERE {query_date_column} <= CURRENT_DATE()"
+        if date_column.keys() == {"date"}
+        else ""
+    )
+
     try:
         query_bd = f"""
         SELECT
         MAX({query_date_column}) as max_date
         FROM
-        `{project_id}.{dataset_id}.{table_id}`
+        `{project_id}.{dataset_id}.{table_id}`{date_filter}
         """
         log(query_bd)
         t = bd.read_sql(
@@ -152,6 +179,7 @@ def format_date_column(date_column: dict) -> str:
         query_date_column = (
             f"DATE({date_column['year']},{date_column['month']},1)"
         )
+    # pyrefly: ignore [unbound-name]
     return query_date_column
 
 
@@ -190,6 +218,7 @@ def update_date_from_bq_metadata(
         )  # Convert to seconds by dividing by 1000
         last_date = datetime.datetime.fromtimestamp(timestamp)
         log(f"Última data: {last_date}")
+        # pyrefly: ignore [bad-return]
         return last_date
     except Exception as e:
         log(f"An error occurred while extracting the last update date: {e!s}")
@@ -233,6 +262,7 @@ def format_date_parameters(free_parameters: dict, date_format: str) -> str:
     elif date_format == "%Y":
         formated_date = f"{free_parameters['endYear']}-01-01"
 
+    # pyrefly: ignore [unbound-name]
     return formated_date
 
 
@@ -249,6 +279,7 @@ def get_coverage_value(
         )
 
         # get coverage values in the PROD API for the table ID
+        # pyrefly: ignore [bad-argument-type]
         datetime_result = get_datetimerange(table_id, backend)
 
         date_objects = parse_datetime_ranges(datetime_result, date_format)
@@ -300,6 +331,7 @@ def get_datetimerange(table_id: str, backend=bd.Backend) -> dict:
     }
     """
     variables = {"table_Id": table_id}
+    # pyrefly: ignore [bad-argument-type]
     response = backend._execute_query(query, variables)
 
     return response
@@ -432,6 +464,7 @@ def get_api_most_recent_date(
             date_string, date_format
         )
 
+    # pyrefly: ignore [no-matching-overload]
     max_date_key = max(date_objects, key=date_objects.get)
     max_date_value = date_objects[max_date_key].date()
 

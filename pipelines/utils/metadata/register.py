@@ -29,6 +29,11 @@ from pipelines.utils.utils import log
 
 DEFAULT_BQ_PROJECT = "basedosdados"
 
+# Valores aceitos por `compare_against` em `poll_source_for_update`. Qualquer
+# outro valor (typo, etc.) cai silenciosamente no branch "table_update" se não
+# for validado — ver o `raise` em `poll_source_for_update`.
+VALID_COMPARE_AGAINST = frozenset({"coverage", "table_update"})
+
 # Tolerância para diminuição do tamanho da fonte na detecção por bytes: quedas de
 # até este percentual são tratadas como re-publicação normal (fontes como
 # `br_bcb_sicor` reexportam arquivos com pequenas variações de tamanho) e seguem
@@ -87,6 +92,7 @@ def register_source_poll(
             client=client,
             dataset_id=dataset_id,
             table_id=table_id,
+            # pyrefly: ignore [bad-argument-type]
             source_max_date=source_max_date,
         )
 
@@ -294,7 +300,12 @@ def register_table_materialization(
     # Row Access Policies só para part_bdpro.
     if policy.needs_row_access_policy(coverage):
         bq.apply_row_access_policies(
-            coverage, ranges.free_end, dataset_id, table_id
+            # pyrefly: ignore [bad-argument-type]
+            coverage,
+            # pyrefly: ignore [bad-argument-type]
+            ranges.free_end,
+            dataset_id,
+            table_id,
         )
 
     # Table.Update, com decisão explícita de pular quando billing != bq_project.
@@ -308,19 +319,20 @@ def register_table_materialization(
 
 def poll_source_for_update(
     client,
-    dataset_id,
-    table_id,
+    dataset_id: str,
+    table_id: str,
     source_max_date: datetime.date | None = None,
     raw_source_url: str | None = None,
+    compare_against: str = "coverage",
 ) -> bool:
     """Detecta se a fonte original tem novidade, sem gravar o Update.
 
     Sempre registra um `RawDataSource.Poll` (data de hoje) e devolve se a fonte
-    traz dados mais novos que o `Table.Update.latest` atual. Ao contrário de
-    `register_source_poll`, **não grava** o Update — essa escrita fica a cargo de
-    `commit_source_update`, chamada só após a materialização. Assim, se o flow
-    falha no meio, o Update não avança e a run seguinte ainda detecta a novidade
-    e retenta.
+    traz dados mais novos que o alvo de comparação (`compare_against`). Ao
+    contrário de `register_source_poll`, **não grava** o Update — essa escrita
+    fica a cargo de `commit_source_update`, chamada só após a materialização.
+    Assim, se o flow falha no meio, o Update não avança e a run seguinte ainda
+    detecta a novidade e retenta.
 
     Args:
         client: cliente de escrita/leitura do backend de metadados
@@ -333,11 +345,38 @@ def poll_source_for_update(
         raw_source_url: URL exata da fonte a mirar quando a tabela tem mais de
             uma fonte ligada. `None` (padrão) mantém o comportamento de fonte
             única.
+        compare_against: contra qual campo comparar `source_max_date`.
+            `"coverage"` (padrão) lê `Coverage.DateTimeRange` (a competência de
+            dados que a tabela de fato cobre) — o que `check_if_data_is_outdated`
+            (Prefect 0) fazia por padrão (`date_type="data_max_date"`) antes da
+            migração para Prefect 3 ter perdido essa escolha, e o que a maioria
+            dos flows auditados usa hoje (27 de 32). Use o padrão sempre que
+            `source_max_date` representar uma competência (ex.: pasta `YYYYMM`
+            de um FTP). `"table_update"` lê `Table.Update.latest` — um timestamp
+            de execução (`bq.last_modified`), não a cobertura real; comparar uma
+            competência contra isso mistura grandezas diferentes e trava a
+            detecção sempre que uma materialização anterior gravar um timestamp
+            "adiantado" em relação ao dia-1 do próximo mês publicado. Só faz
+            sentido quando `source_max_date` também for, na prática, um
+            timestamp de publicação/execução (ex.: `last_modified` de um recurso
+            CKAN), não uma competência — nesse caso os dois lados da comparação
+            são grandezas compatíveis.
 
     Returns:
-        bool — `True` se a fonte tem dados mais novos que o `Table.Update.latest`
-        atual; `False` caso contrário.
+        bool — `True` se a fonte tem dados mais novos que o alvo de comparação;
+        `False` caso contrário.
+
+    Raises:
+        ValueError: se `compare_against` não for `"coverage"` nem
+            `"table_update"`. Validado antes de qualquer escrita — um typo não
+            pode gravar o Poll e avaliar a novidade contra o alvo errado.
     """
+
+    if compare_against not in VALID_COMPARE_AGAINST:
+        raise ValueError(
+            f"compare_against inválido: {compare_against!r}. Use um de "
+            f"{sorted(VALID_COMPARE_AGAINST)!r}."
+        )
 
     client.upsert_raw_source_poll(
         dataset_id,
@@ -349,12 +388,27 @@ def poll_source_for_update(
     if source_max_date is None:
         return False
 
-    api_latest = client.get_table_update_latest(dataset_id, table_id)
+    if compare_against == "coverage":
+        api_latest = client.get_coverage_max_date(dataset_id, table_id)
+    else:
+        api_latest = client.get_table_update_latest(dataset_id, table_id)
+
+    log(
+        f"Comparando fonte em {source_max_date} contra "
+        f"{compare_against} em {api_latest}"
+    )
+
     if not policy.should_update_raw_source(api_latest, source_max_date):
-        log("Não há novas atualizações na fonte original")
+        log(
+            f"Não há novas atualizações na fonte original — "
+            f"fonte em {source_max_date}, {compare_against} em {api_latest}"
+        )
         return False
 
-    log("Há atualizações na fonte original")
+    log(
+        f"Há atualizações na fonte original — "
+        f"fonte em {source_max_date}, {compare_against} em {api_latest}"
+    )
     return True
 
 
@@ -368,11 +422,13 @@ def commit_source_update(
     """Grava o `RawDataSource.Update` da fonte original.
 
     Registra `source_max_date` como o novo `RawDataSource.Update.latest`. É a
-    contraparte de `poll_source_for_update`: deve ser chamada **só ao fim do
-    flow**, depois de a materialização ter dado certo, de modo que o Update só
-    avance quando o dado de fato chegou ao destino. Separar a detecção (poll) da
-    gravação (este commit) é o que evita que uma falha no meio do flow deixe o
-    Update adiantado e trave as runs seguintes.
+    contraparte de `poll_source_for_update`: deve ser chamada **logo depois do
+    poll confirmar novidade**, antes de baixar/materializar — não depende da
+    materialização ter dado certo. `poll_source_for_update` nunca lê o
+    `RawDataSource.Update` (compara contra `Coverage` ou `Table.Update`), então
+    não há risco de travar runs seguintes; o benefício é que, se o flow falhar
+    no meio, o metadado da fonte já reflete que havia dado novo publicado,
+    mesmo que a tabela ainda não tenha sido atualizada.
 
     Args:
         client: cliente de escrita/leitura do backend de metadados

@@ -409,6 +409,47 @@ models:
         description: Título da página na Wikipedia
       - name: ballotpedia
         description: Título da página na Ballotpedia
+  - name: br_bd_diretorios_us__sic
+    description: >
+      Diretório da classificação industrial SIC de 1987 (Standard Industrial
+      Classification), com hierarquia de divisão, grupo principal (2 dígitos),
+      grupo industrial (3 dígitos) e indústria (4 dígitos). Uma linha por código
+      em qualquer nível, identificada por `id_sic` com quatro dígitos: os grupos
+      principais aparecem como NN00 e os grupos industriais como NNN0, sem
+      ambiguidade porque nenhuma indústria de quatro dígitos do padrão termina em
+      zero. Fontes: manual SIC da OSHA e a lista de códigos SIC do EDGAR, da SEC,
+      que também fornece `name_sec` e `id_sec_office` para os códigos usados na
+      classificação de companhias abertas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_sic]
+    columns:
+      - name: id_sic
+        description: Código SIC de quatro dígitos, em qualquer nível da hierarquia
+        tests: [not_null]
+      - name: name
+        description: Nome da categoria SIC
+      - name: level
+        description: Nível hierárquico do código (2 grupo principal, 3 grupo industrial,
+          4 indústria)
+      - name: id_industry_group
+        description: Código do grupo industrial (3 dígitos)
+      - name: name_industry_group
+        description: Nome do grupo industrial
+      - name: id_major_group
+        description: Código do grupo principal (2 dígitos)
+      - name: name_major_group
+        description: Nome do grupo principal
+      - name: id_division
+        description: Letra da divisão SIC
+      - name: name_division
+        description: Nome da divisão SIC
+      - name: name_sec
+        description: Título da indústria conforme a lista de códigos SIC do EDGAR
+      - name: id_sec_office
+        description: Escritório da SEC responsável pela revisão dos registrantes do
+          código
   - name: br_bd_diretorios_us__naics_2022
     description: >
       Diretório da classificação industrial NAICS 2022 (North American Industry
@@ -614,6 +655,64 @@ models:
         description: Código da indústria NAICS (5 dígitos)
       - name: name_naics_industry
         description: Nome da indústria NAICS
+  - name: br_bd_diretorios_us__soc_2000
+    description: >
+      Diretório da classificação ocupacional SOC 2000 (Standard Occupational
+      Classification), com hierarquia de grupo principal, grupo menor e
+      ocupação ampla.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_soc]
+    columns:
+      - name: id_soc
+        description: Código SOC (formato XX-XXXX)
+        tests: [not_null]
+      - name: name
+        description: Nome da ocupação ou grupo
+      - name: level
+        description: Nível hierárquico do código
+      - name: id_major_group
+        description: Código do grupo principal
+      - name: name_major_group
+        description: Nome do grupo principal
+      - name: id_minor_group
+        description: Código do grupo menor
+      - name: name_minor_group
+        description: Nome do grupo menor
+      - name: id_broad_occupation
+        description: Código da ocupação ampla
+      - name: name_broad_occupation
+        description: Nome da ocupação ampla
+  - name: br_bd_diretorios_us__soc_2010
+    description: >
+      Diretório da classificação ocupacional SOC 2010 (Standard Occupational
+      Classification), com hierarquia de grupo principal, grupo menor e
+      ocupação ampla.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [diretorio]
+          combination_of_columns: [id_soc]
+    columns:
+      - name: id_soc
+        description: Código SOC (formato XX-XXXX)
+        tests: [not_null]
+      - name: name
+        description: Nome da ocupação ou grupo
+      - name: level
+        description: Nível hierárquico do código
+      - name: id_major_group
+        description: Código do grupo principal
+      - name: name_major_group
+        description: Nome do grupo principal
+      - name: id_minor_group
+        description: Código do grupo menor
+      - name: name_minor_group
+        description: Nome do grupo menor
+      - name: id_broad_occupation
+        description: Código da ocupação ampla
+      - name: name_broad_occupation
+        description: Nome da ocupação ampla
   - name: br_bd_diretorios_us__soc_2018
     description: >
       Diretório da classificação ocupacional SOC 2018 (Standard Occupational

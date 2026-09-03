@@ -323,11 +323,13 @@ def parse_info_file(path: str) -> tuple[dict, list[dict]]:
                 team = s_or_none(val)
                 name = s_or_none(row[3] if len(row) > 3 else None)
                 if name is not None:
+                    # pyrefly: ignore [bad-argument-type]
                     players.append((team, name))
             elif field == "registry" and val == "people":
                 nm = s_or_none(row[3] if len(row) > 3 else None)
                 ident = s_or_none(row[4] if len(row) > 4 else None)
                 if nm is not None:
+                    # pyrefly: ignore [unsupported-operation]
                     registry[nm] = ident
             elif field in (
                 "balls_per_over",
@@ -469,6 +471,7 @@ def _write_partitioned_rows(
     for yr, grp in by_year.items():
         if yr is None:
             raise ValueError(f"{table}: {len(grp)} rows with null year")
+        # pyrefly: ignore [bad-argument-type]
         yr = int(yr)
         df = pd.DataFrame(grp, columns=[n for n, _ in cols])
         at = _to_string_table(df, cols)
