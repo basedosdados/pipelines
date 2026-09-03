@@ -28,6 +28,7 @@ from pipelines.datasets.au_doe_higher_education.utils import (
     clean_completion_rate,
     clean_equity_group,
     clean_equity_performance,
+    clean_equity_reference_value,
     collect_provider_codes,
     stack_vintages,
 )
@@ -169,6 +170,9 @@ def main() -> None:
         INPUT / "sec11_equity_2024.xlsx"
     )
     built["student_equity_performance"] = clean_equity_performance(
+        INPUT / "sec16_equityperf_2024.xlsx"
+    )
+    built["equity_reference_value"] = clean_equity_reference_value(
         INPUT / "sec16_equityperf_2024.xlsx"
     )
     built["student_attrition_retention_success"] = clean_attrition(

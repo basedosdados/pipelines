@@ -1263,3 +1263,78 @@ def clean_application_offer(
     return (
         wide[[*keys, *UAO_MEASURES]].sort_values(keys).reset_index(drop=True)
     )
+
+
+def clean_equity_reference_value(path: str | Path) -> pd.DataFrame:
+    """Section 16.14 -> equity_reference_value.
+
+    The denominator behind the participation, retention and success *ratios* in
+    ``student_equity_performance``: each group's share of the reference
+    population. It does not fit that table's grid, because the source publishes
+    two values for a census year — one on the previous census basis and one on
+    the new one ("2016 (2011 Census)" beside "2016 (2016 Census)") — and picking
+    between them would be a guess. The census basis is kept as its own column
+    instead, so the table stays lossless and the join is explicit.
+
+    Layout: a state band row spanning sixteen columns each, a year header row in
+    which census years carry their basis in brackets, and one row per equity
+    group.
+    """
+    rows = _sheet_rows(path, "16.14")
+    states = _forward_fill(rows[3])
+    columns: dict[int, tuple[int, str | None, str]] = {}
+    for index, value in enumerate(rows[4]):
+        if value is None:
+            continue
+        text = re.sub(r"\s+", " ", str(value)).strip()
+        match = re.match(
+            r"^((?:19|20)\d{2})(?:\s*\((\d{4}\s*Census)\))?$", text
+        )
+        state = states[index]
+        if not match or state is None:
+            continue
+        census = (
+            re.sub(r"\s+", " ", match.group(2)).strip()
+            if match.group(2)
+            else None
+        )
+        abbreviation = STATE_ABBREVIATION.get(state)
+        if abbreviation is None:
+            continue
+        columns[index] = (int(match.group(1)), census, abbreviation)
+
+    records = []
+    for row in rows[5:]:
+        if row[0] is None:
+            continue
+        label = str(row[0]).strip()
+        if NON_DATA_ROW.match(label) or label.lower().startswith(
+            "methodology"
+        ):
+            continue
+        equity, _classification, _basis = parse_equity_label(label)
+        for index, (year, census, abbreviation) in columns.items():
+            value = to_number(row[index])
+            if value is None:
+                continue
+            records.append(
+                {
+                    "year": year,
+                    "state_abbreviation": abbreviation,
+                    "equity_group": equity,
+                    "census_basis": census,
+                    "reference_value": value,
+                }
+            )
+
+    frame = pd.DataFrame(records)
+    keys = ["year", "state_abbreviation", "equity_group", "census_basis"]
+    frame["year"] = frame["year"].astype("Int64")
+    frame["reference_value"] = pd.to_numeric(
+        frame["reference_value"], errors="coerce"
+    ).astype("Float64")
+    return (
+        frame.drop_duplicates(subset=keys)
+        .sort_values(keys)
+        .reset_index(drop=True)
+    )

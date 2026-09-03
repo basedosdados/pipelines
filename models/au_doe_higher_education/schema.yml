@@ -119,6 +119,40 @@ models:
       - name: completions
         description: >
           Número de conclusões de curso com titulação
+  - name: au_doe_higher_education__equity_reference_value
+    description: >
+      Participação de cada grupo de equidade na população de referência, por estado
+      e
+      ano, usada como denominador das razões publicadas em student_equity_performance.
+      Em anos censitários a fonte publica o mesmo ano em duas bases, e ambas são
+      mantidas
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - state_abbreviation
+            - equity_group
+            - census_basis
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [census_basis]
+    columns:
+      - name: year
+        description: >
+          Ano de referência
+        tests: [not_null]
+      - name: state_abbreviation
+        description: >
+          Sigla do estado ou território a que o valor de referência se refere
+      - name: equity_group
+        description: >
+          Grupo de equidade a que o valor de referência se refere
+      - name: census_basis
+        description: >
+          Recenseamento que serve de base ao valor de referência
+      - name: reference_value
+        description: >
+          Participação do grupo na população de referência
   - name: au_doe_higher_education__staff
     description: >
       Pessoal empregado por instituições de ensino superior australianas, em número

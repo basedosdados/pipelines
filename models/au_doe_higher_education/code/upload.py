@@ -48,6 +48,7 @@ TABLES = [
     (DIRECTORY_DATASET_ID, "higher_education_institution", 151),
     (DATASET_ID, "application_offer", 171),
     (DATASET_ID, "student_attrition_retention_success", 1_782),
+    (DATASET_ID, "equity_reference_value", 864),
     (DATASET_ID, "student_equity_group", 2_743),
     (DATASET_ID, "student_completion_rate", 4_383),
     (DATASET_ID, "student_equity_performance", 9_947),

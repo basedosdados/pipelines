@@ -17,3 +17,8 @@ Folder: https://drive.google.com/drive/folders/1UUZfXAIHqmZ5mJe_yIaMWhpEf5iwDJ8n
 
 The CSVs in this directory are the source of truth; the sheets are generated from
 them and exist for `upload_columns_from_sheet` at metadata registration.
+
+| equity_reference_value | 1e79duVO7v0r0MwC6XcptP_FzyFsn0b2xu94EzNErU6o |
+
+Every sheet carries `observations_en` and `observations_es` alongside the
+Portuguese `observations`, so `bulk_upsert_columns` fills all three languages.
