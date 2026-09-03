@@ -660,10 +660,49 @@ def clean_bmf(
 
     The six files partition the registry by filing state; an EIN appearing in
     two files would be a source defect and is kept once (first seen).
+
+    Rows are written out in chunks as they are read rather than collected
+    first. The registry is ~2M rows wide by 28 string fields, which as Python
+    dicts is 5-6 GB — more than the worker's 8 Gi limit once pyarrow builds
+    its arrays on top. Deduplication only needs the EINs, so the set of seen
+    EINs is the only thing that grows with the whole file (~200 MB); the row
+    buffer never exceeds one chunk.
     """
     input_dir = Path(input_dir)
-    rows: dict[str, dict] = {}
+    d = Path(out_dir) / "organization" / f"extraction_date={extraction_date}"
+    if d.exists():
+        shutil.rmtree(d)
+    d.mkdir(parents=True)
+
+    cols = [c for c in ORGANIZATION_COLUMNS if c != "extraction_date"]
+    schema = pa.schema([(c, pa.string()) for c in cols])
+    chunk = constants.CHUNK_ROWS.value
+
+    seen: set[str] = set()
+    buf: list[dict] = []
     per_file: dict[str, int] = {}
+    written = 0
+    part_no = 0
+
+    def flush() -> None:
+        nonlocal buf, part_no, written
+        if not buf:
+            return
+        pq.write_table(
+            pa.table(
+                {
+                    c: pa.array([r[c] for r in buf], type=pa.string())
+                    for c in cols
+                },
+                schema=schema,
+            ),
+            d / f"data_{part_no:05d}.parquet",
+            compression="snappy",
+        )
+        written += len(buf)
+        part_no += 1
+        buf = []
+
     for name in constants.BMF_FILES.value:
         path = input_dir / f"{name}.csv"
         n = 0
@@ -675,8 +714,9 @@ def clean_bmf(
             for r in reader:
                 n += 1
                 ein = r["EIN"].strip()
-                if ein in rows:
+                if ein in seen:
                     continue
+                seen.add(ein)
                 out = {
                     dst: _clean_text(r.get(src))
                     for src, dst in BMF_COLUMNS.items()
@@ -684,30 +724,13 @@ def clean_bmf(
                 out["ruling_date"] = _yyyymm_to_date(out["ruling_date"])
                 # The two 'tax period' fields stay YYYYMM labels; only ruling is
                 # a date proper.
-                rows[ein] = out
+                buf.append(out)
+                if len(buf) >= chunk:
+                    flush()
         per_file[name] = n
-    d = Path(out_dir) / "organization" / f"extraction_date={extraction_date}"
-    if d.exists():
-        shutil.rmtree(d)
-    d.mkdir(parents=True)
-    cols = [c for c in ORGANIZATION_COLUMNS if c != "extraction_date"]
-    schema = pa.schema([(c, pa.string()) for c in cols])
-    items = list(rows.values())
-    chunk = constants.CHUNK_ROWS.value
-    for i in range(0, len(items), chunk):
-        part = items[i : i + chunk]
-        pq.write_table(
-            pa.table(
-                {
-                    c: pa.array([r[c] for r in part], type=pa.string())
-                    for c in cols
-                },
-                schema=schema,
-            ),
-            d / f"data_{i // chunk:05d}.parquet",
-            compression="snappy",
-        )
-    per_file["organization"] = len(items)
+    flush()
+
+    per_file["organization"] = written
     return per_file
 
 
