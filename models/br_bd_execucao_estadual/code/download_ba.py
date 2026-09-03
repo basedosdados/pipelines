@@ -13,9 +13,11 @@ from __future__ import annotations
 
 import argparse
 import sys
+import tempfile
 import zipfile
 from pathlib import Path
 
+import certifi
 import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -23,6 +25,39 @@ from constants import BA_CKAN, BA_PACKAGES, BROWSER_UA, INPUT_DIR
 
 BA_INPUT = INPUT_DIR / "ba"
 CHUNK = 1 << 20
+
+
+# dados.ba.gov.br renewed its certificate on 2026-08-27 under a new intermediate,
+# `Sectigo Public Server Authentication CA OV R36`, but still serves the two
+# intermediates the PREVIOUS certificate used (Sectigo RSA Domain Validation and
+# Organization Validation Secure Server CA, both under USERTrust RSA). Neither signs
+# the new leaf, so the chain cannot be completed and every client that does not fetch
+# the missing issuer itself fails with CERTIFICATE_VERIFY_FAILED. Browsers hide this
+# by following the leaf's AIA extension; requests does not.
+#
+# The remedy is to supply the intermediate the server omits. This is NOT `verify=False`:
+# the leaf is still verified in full, and the chain still terminates at a root already
+# trusted by certifi (Sectigo Public Server Authentication Root R46). Confirmed with
+# `openssl verify -CAfile $(certifi) -untrusted <this file> <leaf>` -> OK.
+#
+# Delete this once Bahia fixes its server configuration; the download works without it
+# the moment they serve the correct chain.
+MISSING_INTERMEDIATE = (
+    Path(__file__).resolve().parent
+    / "certs"
+    / "sectigo_public_server_authentication_ca_ov_r36.pem"
+)
+
+
+def ca_bundle() -> str:
+    """certifi's roots plus the intermediate dados.ba.gov.br fails to send."""
+    bundle = Path(tempfile.mkdtemp(prefix="ba_ca_")) / "bundle.pem"
+    bundle.write_text(
+        Path(certifi.where()).read_text()
+        + "\n"
+        + MISSING_INTERMEDIATE.read_text()
+    )
+    return str(bundle)
 
 
 def is_intact(path: Path) -> bool:
@@ -73,6 +108,7 @@ def main(retries: int = 3) -> None:
     BA_INPUT.mkdir(parents=True, exist_ok=True)
     session = requests.Session()
     session.headers.update({"User-Agent": BROWSER_UA})
+    session.verify = ca_bundle()
 
     pending = plan(session)
     print(f"{len(pending)} files")
