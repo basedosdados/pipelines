@@ -68,6 +68,20 @@ RELATIONSHIPS = {
         "county_id is not null",
         0.02,
     ),
+    # Guards the chemical dimension against losing ids: a refresh that rewrote
+    # only the newest year partitions would break these.
+    ("form", "tri_chemical_id"): (
+        "us_epa_tri__chemical",
+        "tri_chemical_id",
+        None,
+        None,
+    ),
+    ("release", "tri_chemical_id"): (
+        "us_epa_tri__chemical",
+        "tri_chemical_id",
+        None,
+        None,
+    ),
     ("form", "primary_sic"): (
         "br_bd_diretorios_us__sic",
         "id_sic",

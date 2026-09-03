@@ -48,8 +48,8 @@ class constants(Enum):
     )
 
     TABLES = ["facility", "chemical", "form", "release", "dicionario"]
-    # Tables partitioned by reporting year (chemical and dicionario are not).
-    YEAR_TABLES = ["facility", "form", "release"]
+    # Tables partitioned by reporting year (only dicionario is not).
+    YEAR_TABLES = ["facility", "chemical", "form", "release"]
 
     # Grams per pound: dioxin quantities are reported in grams.
     GRAMS_PER_POUND = 453.59237

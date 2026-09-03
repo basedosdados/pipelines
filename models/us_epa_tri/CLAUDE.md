@@ -20,9 +20,16 @@ Worker sizing: `"memory": "4Gi"`.
 | table | grain | partition | coverage tier | columns |
 |---|---|---|---|---|
 | `facility` | year × TRIFID | `year` | all_free | 21 |
-| `chemical` | TRI chemical id | — | — | 11 |
+| `chemical` | year × TRI chemical id | `year` | all_free | 12 |
 | `form` | year × document control number | `year` | all_free | 46 |
 | `release` | year × document control number × release category (nonzero only) | `year` | all_free | 8 |
+
+`chemical` is partitioned like the data tables on purpose: a run that refreshes
+only the newest reporting years rewrites those partitions, whereas an
+unpartitioned dimension would be replaced wholesale and would lose every
+chemical last reported in an earlier year. `assert_output_layout` fails the
+clean if a file from an earlier layout is still in an output directory, because
+the upload ships the whole directory.
 | `dicionario` | — | — | — | 5 |
 
 ## Where the code lives

@@ -6,18 +6,31 @@
     "description_pt": "Instalações industriais e federais que entregaram formulários ao Toxics Release Inventory (TRI), com uma linha por instalação (TRIFID) e ano de referência. Traz nome, endereço, condado (código FIPS obtido do Envirofacts), coordenadas, empresa controladora e indicador de instalação federal, conforme a seção de identificação do Form R. Códigos SIC e NAICS estão na tabela form, porque a EPA os atribuiu por submissão até 2005.",
     "description_en": "Industrial and federal facilities that filed Toxics Release Inventory (TRI) forms, one row per facility (TRIFID) and reporting year. Carries name, address, county (FIPS code looked up in Envirofacts), coordinates, parent company and the federal-facility flag, as in the identification section of Form R. SIC and NAICS codes are in the form table, because EPA assigned them per submission through 2005.",
     "description_es": "Instalaciones industriales y federales que presentaron formularios al Toxics Release Inventory (TRI), con una fila por instalación (TRIFID) y año de referencia. Incluye nombre, dirección, condado (código FIPS obtenido de Envirofacts), coordenadas, empresa matriz e indicador de instalación federal, según la sección de identificación del Form R. Los códigos SIC y NAICS están en la tabla form, porque la EPA los asignó por presentación hasta 2005.",
-    "unique_key": ["year", "tri_facility_id"],
-    "not_null": ["year", "tri_facility_id"]
+    "unique_key": [
+      "year",
+      "tri_facility_id"
+    ],
+    "not_null": [
+      "year",
+      "tri_facility_id"
+    ]
   },
   "chemical": {
     "name_pt": "Produto químico",
     "name_en": "Chemical",
     "name_es": "Producto químico",
-    "description_pt": "Dimensão dos produtos químicos e categorias de compostos da lista TRI (seção 313 do EPCRA), com uma linha por identificador TRI. Traz nome, número CAS, identificador SRS e as classificações usadas pelo programa: dioxina ou PBT, metal e categoria de metal, carcinógeno OSHA, poluente do Clean Air Act e PFAS. Atributos conforme o ano de referência mais recente em que o produto aparece.",
-    "description_en": "Dimension of the chemicals and compound categories on the TRI list (EPCRA section 313), one row per TRI chemical identifier. Carries name, CAS number, SRS identifier and the program's classifications: dioxin or PBT, metal and metal category, OSHA carcinogen, Clean Air Act pollutant and PFAS. Attributes as of the most recent reporting year in which the chemical appears.",
-    "description_es": "Dimensión de los productos químicos y categorías de compuestos de la lista TRI (sección 313 del EPCRA), con una fila por identificador químico TRI. Incluye nombre, número CAS, identificador SRS y las clasificaciones del programa: dioxina o PBT, metal y categoría de metal, carcinógeno OSHA, contaminante del Clean Air Act y PFAS. Atributos según el año de referencia más reciente en que aparece el producto.",
-    "unique_key": ["tri_chemical_id"],
-    "not_null": ["tri_chemical_id", "chemical_name"]
+    "description_pt": "Dimensão dos produtos químicos e categorias de compostos da lista TRI (seção 313 do EPCRA), com uma linha por identificador TRI e ano de referência. Traz nome, número CAS, identificador SRS e as classificações usadas pelo programa: dioxina ou PBT, metal e categoria de metal, carcinógeno OSHA, poluente do Clean Air Act e PFAS. Os atributos são os publicados em cada ano, de modo que as classificações de um produto químico podem mudar ao longo do tempo.",
+    "description_en": "Dimension of the chemicals and compound categories on the TRI list (EPCRA section 313), one row per TRI chemical identifier and reporting year. Carries name, CAS number, SRS identifier and the program's classifications: dioxin or PBT, metal and metal category, OSHA carcinogen, Clean Air Act pollutant and PFAS. Attributes are those published in each year, so a chemical's classifications can change over time.",
+    "description_es": "Dimensión de los productos químicos y categorías de compuestos de la lista TRI (sección 313 del EPCRA), con una fila por identificador químico TRI y año de referencia. Incluye nombre, número CAS, identificador SRS y las clasificaciones del programa: dioxina o PBT, metal y categoría de metal, carcinógeno OSHA, contaminante del Clean Air Act y PFAS. Los atributos son los publicados en cada año, de modo que las clasificaciones de un producto químico pueden cambiar con el tiempo.",
+    "unique_key": [
+      "year",
+      "tri_chemical_id"
+    ],
+    "not_null": [
+      "year",
+      "tri_chemical_id",
+      "chemical_name"
+    ]
   },
   "form": {
     "name_pt": "Formulário",
@@ -26,8 +39,16 @@
     "description_pt": "Uma linha por formulário entregue ao TRI (Form R ou Form A), isto é, por instalação, produto químico e ano de referência, identificada pelo número de controle do documento. Traz o tipo de formulário, a unidade original, os códigos SIC e NAICS da instalação naquela submissão, os totais de liberação e transferência calculados pela EPA (seções 5 e 6) e as quantidades de resíduo relacionado à produção da seção 8 (liberado, reciclado, recuperado como energia e tratado, no local e fora dele), além da razão de produção. Todas as quantidades estão em libras; o detalhe por categoria de liberação está na tabela release.",
     "description_en": "One row per form filed with TRI (Form R or Form A), that is, per facility, chemical and reporting year, identified by the document control number. Carries the form type, the original unit, the facility's SIC and NAICS codes on that submission, EPA's computed release and transfer totals (sections 5 and 6) and the section 8 production-related waste quantities (released, recycled, burned for energy recovery and treated, on and off site), plus the production ratio. Every quantity is in pounds; the breakdown by release category is in the release table.",
     "description_es": "Una fila por formulario presentado al TRI (Form R o Form A), es decir, por instalación, producto químico y año de referencia, identificada por el número de control del documento. Incluye el tipo de formulario, la unidad original, los códigos SIC y NAICS de la instalación en esa presentación, los totales de liberación y transferencia calculados por la EPA (secciones 5 y 6) y las cantidades de residuo relacionado con la producción de la sección 8 (liberado, reciclado, recuperado como energía y tratado, en el sitio y fuera de él), además de la razón de producción. Todas las cantidades están en libras; el detalle por categoría de liberación está en la tabla release.",
-    "unique_key": ["year", "document_control_number"],
-    "not_null": ["year", "tri_facility_id", "document_control_number", "tri_chemical_id"]
+    "unique_key": [
+      "year",
+      "document_control_number"
+    ],
+    "not_null": [
+      "year",
+      "tri_facility_id",
+      "document_control_number",
+      "tri_chemical_id"
+    ]
   },
   "release": {
     "name_pt": "Liberação",
@@ -36,8 +57,20 @@
     "description_pt": "Quantidades liberadas e transferidas por formulário e categoria, em formato longo: uma linha por formulário (instalação, produto químico e ano) e categoria de liberação ou transferência do Form R, com as liberações no local para ar fugitivo, chaminé, água, injeção subterrânea e solo (seção 5), transferências para POTW (6.1) e transferências para fora do local por código de gestão M (6.2). As categorias são mutuamente exclusivas e as quantidades estão em libras para todas as linhas, com o valor original em gramas preservado para dioxinas. Linhas com quantidade zero não são armazenadas.",
     "description_en": "Quantities released and transferred per form and category, in long format: one row per form (facility, chemical and year) and Form R release or transfer category, covering on-site releases to fugitive air, stack air, water, underground injection and land (section 5), transfers to POTWs (6.1) and off-site transfers by M management code (6.2). Categories are mutually exclusive and quantities are in pounds for every row, with the original grams preserved for dioxins. Rows with a zero quantity are not stored.",
     "description_es": "Cantidades liberadas y transferidas por formulario y categoría, en formato largo: una fila por formulario (instalación, producto químico y año) y categoría de liberación o transferencia del Form R, con las liberaciones en el sitio al aire fugitivo, chimenea, agua, inyección subterránea y suelo (sección 5), transferencias a POTW (6.1) y transferencias fuera del sitio por código de gestión M (6.2). Las categorías son mutuamente excluyentes y las cantidades están en libras para todas las filas, con el valor original en gramos preservado para dioxinas. Las filas con cantidad cero no se almacenan.",
-    "unique_key": ["year", "document_control_number", "release_category"],
-    "not_null": ["year", "tri_facility_id", "document_control_number", "tri_chemical_id", "management_category", "release_category", "quantity_pounds"]
+    "unique_key": [
+      "year",
+      "document_control_number",
+      "release_category"
+    ],
+    "not_null": [
+      "year",
+      "tri_facility_id",
+      "document_control_number",
+      "tri_chemical_id",
+      "management_category",
+      "release_category",
+      "quantity_pounds"
+    ]
   },
   "dicionario": {
     "name_pt": "Dicionário",
@@ -46,7 +79,16 @@
     "description_pt": "Dicionário dos valores codificados das tabelas do conjunto: categorias de liberação e transferência do Form R (seções e códigos M), grupos de gestão, tipo de formulário e classificação do produto químico.",
     "description_en": "Dictionary of the coded values in the dataset's tables: Form R release and transfer categories (sections and M-codes), management groups, form type and chemical classification.",
     "description_es": "Diccionario de los valores codificados de las tablas del conjunto: categorías de liberación y transferencia del Form R (secciones y códigos M), grupos de gestión, tipo de formulario y clasificación del producto químico.",
-    "unique_key": ["id_tabela", "nome_coluna", "chave"],
-    "not_null": ["id_tabela", "nome_coluna", "chave", "valor"]
+    "unique_key": [
+      "id_tabela",
+      "nome_coluna",
+      "chave"
+    ],
+    "not_null": [
+      "id_tabela",
+      "nome_coluna",
+      "chave",
+      "valor"
+    ]
   }
 }

@@ -21,7 +21,7 @@ table (64,990 facilities) supplies the county FIPS code the Basic file lacks.
 | table | rows | notes |
 |---|---|---|
 | facility | 880,957 | year × TRIFID; 21,482 (2024) to 22,399 (2015) per year |
-| chemical | 710 | one per TRI chemical id, latest-year attributes |
+| chemical | 17,612 | year × TRI chemical id (710 distinct ids over 38 years) |
 | form | 3,218,093 | year × DOC_CTRL_NUM; 305,626 Form A, 2,912,467 Form R |
 | release | 7,270,354 | nonzero (form × category) rows; 40,912 in grams (dioxins) |
 | dicionario | 60 | 47 release categories, 6 management groups, form type, classification |
@@ -70,13 +70,31 @@ TOTAL omits the POTW treatment share. Totals are copied as published.
   check was added. A concurrent second downloader on the same `.part` file also
   corrupted one year. `validate_files.py` (scratch) confirmed all 38 files.
 
+## What the first dev run caught
+
+The pipeline refreshes only the two newest reporting years. `chemical` was
+originally a single unpartitioned dimension built from the years cleaned in that
+run, so the run replaced 710 chemicals with the 582 appearing in 2023-2024 and
+broke the chemical ids that `form` and `release` carry for earlier years. It is
+now partitioned by year like every other data table, `form.tri_chemical_id` and
+`release.tri_chemical_id` are FK-tested against it, and `assert_output_layout`
+refuses to clean when a file from an earlier layout is still present (a stale
+unpartitioned `chemical/data.parquet` silently added 710 phantom rows to
+staging before that guard existed). Making the year explicit also surfaces real
+history: the PFAS flag appears in 2020 (0 chemicals in 2019, 46 in 2020, 64 in
+2024).
+
 ## Pipeline (step 12)
 
 `pipelines/datasets/us_epa_tri/flows.py`: weekly poll of the page's "processed
 as of" date against `Table.Update.latest`; on change, re-download the two
 newest reporting years, rewrite their `year=` partitions (`dump_mode="append"`)
-and rebuild the tables. `AllFree` on every table (annual data). Dev run pending
-the PR + `deploy-flow` label.
+and rebuild the tables. `AllFree` on every table (annual data).
+
+**Dev run passed** (2026-09-03, run `wakeful-pogona`, 24 min, PR #1966): the two
+newest years downloaded, cleaned and uploaded, `dbt run OK` and `dbt test OK`
+for all five tables, and the older `year=` partitions survived the append. It is
+also what exposed the `chemical` defect above.
 
 ## Open items
 

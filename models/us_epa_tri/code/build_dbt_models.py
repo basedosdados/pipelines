@@ -22,6 +22,7 @@ UPDATED = "2026-09-03"
 # selective filter after year.
 PARTITIONED = {
     "facility": ["tri_facility_id"],
+    "chemical": ["tri_chemical_id"],
     "form": ["tri_facility_id", "tri_chemical_id"],
     "release": ["tri_chemical_id", "release_category"],
 }

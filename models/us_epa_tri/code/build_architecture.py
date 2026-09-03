@@ -225,12 +225,14 @@ _OBS_I18N = {
         "archivo como etiquetas de texto (Elemental metals, Metal compound "
         "categories, ...)",
     ),
-    "Attributes as published in the most recent reporting year in which the "
-    "chemical appears; the PFAS flag exists since RY 2020": (
-        "Atributos conforme publicados no ano de referência mais recente em que "
-        "o produto químico aparece; a marcação PFAS existe desde 2020",
-        "Atributos según se publicaron en el año de referencia más reciente en "
-        "que aparece el producto químico; la marca PFAS existe desde 2020",
+    "Attributes as published in each reporting year, so a chemical's "
+    "classifications can change across years; the PFAS flag exists since RY 2020": (
+        "Atributos conforme publicados em cada ano de referência, de modo que as "
+        "classificações de um produto químico podem mudar entre anos; a marcação "
+        "PFAS existe desde 2020",
+        "Atributos según se publicaron en cada año de referencia, de modo que las "
+        "clasificaciones de un producto químico pueden cambiar entre años; la "
+        "marca PFAS existe desde 2020",
     ),
     "Unique identifier assigned by EPA to each submission; format TTYY plus a "
     "sequential number": (
@@ -520,6 +522,7 @@ FACILITY = [
 ]
 
 CHEMICAL = [
+    YEAR,
     CHEM_ID,
     c(
         "chemical_name",
@@ -529,8 +532,9 @@ CHEMICAL = [
         "Nombre del producto químico o de la categoría de compuestos en la "
         "lista TRI",
         "CHEMICAL",
-        obs="Attributes as published in the most recent reporting year in which "
-        "the chemical appears; the PFAS flag exists since RY 2020",
+        obs="Attributes as published in each reporting year, so a chemical's "
+        "classifications can change across years; the PFAS flag exists since "
+        "RY 2020",
     ),
     c(
         "cas_number",

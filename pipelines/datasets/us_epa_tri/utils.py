@@ -1031,31 +1031,40 @@ def build_chemical(
     output_dir: Path,
     write_header: bool = False,
 ) -> int:
-    """One row per TRI chemical ID: attributes from the latest year it appears
-    (most frequent variant within that year)."""
-    tables = []
-    for year, t in chem_years:
-        tables.append(
-            t.append_column("year", pa.array([year] * t.num_rows, pa.int64()))
-        )
-    allc = pa.concat_tables(tables)
+    """Write the chemical dimension, one row per reporting year and chemical.
+
+    Partitioned by year like every other data table, so a run that refreshes
+    only the newest reporting years rewrites just those partitions. A
+    non-partitioned dimension would be replaced wholesale by such a run and
+    would lose every chemical last reported in an earlier year.
+
+    Within a year a chemical's attributes are constant in practice; the most
+    frequent variant wins if they are not.
+    """
+    total = 0
     con = duckdb.connect()
-    con.register("allc", allc)
-    chem = con.execute(
-        """
-        select * exclude (year, n_forms, rn) from (
-            select *, row_number() over (partition by tri_chemical_id order by year desc, n_forms desc, chemical_name) as rn
-            from allc
-        ) where rn = 1 order by tri_chemical_id
-        """
-    ).fetch_arrow_table()
+    for year, t in chem_years:
+        con.register("chem_year", t)
+        chem = con.execute(
+            """
+            select * exclude (n_forms, rn) from (
+                select *, row_number() over (
+                    partition by tri_chemical_id
+                    order by n_forms desc, chemical_name
+                ) as rn
+                from chem_year
+            ) where rn = 1 order by tri_chemical_id
+            """
+        ).fetch_arrow_table()
+        con.unregister("chem_year")
+        _write(
+            _to_string_table(chem, arch_columns("chemical", drop_year=True)),
+            output_dir / "chemical" / f"year={year}" / "data.parquet",
+            write_header,
+        )
+        total += chem.num_rows
     con.close()
-    _write(
-        _to_string_table(chem, arch_columns("chemical")),
-        output_dir / "chemical" / "data.parquet",
-        write_header,
-    )
-    return chem.num_rows
+    return total
 
 
 def dicionario_rows() -> list[dict]:
@@ -1113,6 +1122,36 @@ def build_dicionario(output_dir: Path, write_header: bool = False) -> int:
     return tbl.num_rows
 
 
+def assert_output_layout(output_dir: Path) -> None:
+    """Fail if any table directory holds a parquet the upload should not send.
+
+    The upload ships a whole table directory, so a file left behind by an
+    earlier run with a different layout is silently merged into the staging
+    table. That is how a stale unpartitioned ``chemical/data.parquet`` once
+    added 710 phantom rows and broke the dbt model's schema. Partitioned
+    tables must hold parquet only under ``year=YYYY/``; the rest only at the
+    top level.
+    """
+    partitioned = set(constants.YEAR_TABLES.value)
+    for table in constants.TABLES.value:
+        table_dir = output_dir / table
+        if not table_dir.exists():
+            continue
+        for path in sorted(table_dir.rglob("*.parquet")):
+            rel = path.relative_to(table_dir)
+            in_partition = len(rel.parts) == 2 and rel.parts[0].startswith(
+                "year="
+            )
+            at_top = len(rel.parts) == 1
+            ok = in_partition if table in partitioned else at_top
+            if not ok:
+                raise RuntimeError(
+                    f"unexpected parquet in the {table} output: {path}. "
+                    "Delete stale files from an earlier layout before "
+                    "uploading — the upload ships the whole directory"
+                )
+
+
 def clean_all(
     input_dir: Path,
     output_dir: Path,
@@ -1150,6 +1189,7 @@ def clean_all(
         log.info(f"{year}: {r['counts']} in {time.time() - t0:.0f}s")
     counts["chemical"] = build_chemical(chem_years, output_dir, write_header)
     counts["dicionario"] = build_dicionario(output_dir, write_header)
+    assert_output_layout(output_dir)
     return {
         "counts": dict(counts),
         "max_year": max(int(f.name[:4]) for f in files),

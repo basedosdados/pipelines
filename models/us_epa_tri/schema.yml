@@ -109,20 +109,31 @@ models:
   - name: us_epa_tri__chemical
     description: >
       Dimensão dos produtos químicos e categorias de compostos da lista TRI (seção
-      313 do EPCRA), com uma linha por identificador TRI. Traz nome, número CAS,
-      identificador SRS e as classificações usadas pelo programa: dioxina ou PBT,
-      metal e categoria de metal, carcinógeno OSHA, poluente do Clean Air Act e
-      PFAS. Atributos conforme o ano de referência mais recente em que o produto
-      aparece.
+      313 do EPCRA), com uma linha por identificador TRI e ano de referência. Traz
+      nome, número CAS, identificador SRS e as classificações usadas pelo
+      programa: dioxina ou PBT, metal e categoria de metal, carcinógeno OSHA,
+      poluente do Clean Air Act e PFAS. Os atributos são os publicados em cada
+      ano, de modo que as classificações de um produto químico podem mudar ao
+      longo do tempo.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [tri_chemical_id]
+          combination_of_columns: [year, tri_chemical_id]
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [classification]
           dictionary_model: ref('us_epa_tri__dicionario')
     columns:
+      - name: year
+        description: >
+          Ano-calendário de referência das atividades informadas
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: tri_chemical_id
         description: >
           Identificador TRI do produto químico ou categoria de compostos: número CAS
@@ -223,7 +234,11 @@ models:
         description: >
           Identificador TRI do produto químico ou categoria de compostos: número CAS
           sem hífens com zeros à esquerda (10 dígitos) ou código Nnnn para categorias
-        tests: [not_null]
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_epa_tri__chemical')
+              field: tri_chemical_id
       - name: chemical_name
         description: >
           Nome do produto químico conforme informado no formulário (ou nome genérico,
@@ -476,7 +491,11 @@ models:
         description: >
           Identificador TRI do produto químico ou categoria de compostos: número CAS
           sem hífens com zeros à esquerda (10 dígitos) ou código Nnnn para categorias
-        tests: [not_null]
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_epa_tri__chemical')
+              field: tri_chemical_id
       - name: management_category
         description: >
           Grupo de gestão da quantidade: liberação no local, liberação fora do local
