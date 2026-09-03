@@ -261,3 +261,75 @@ folding uniques and applying a single `.map(dict)` restored it to 80s.
 
 Not yet done: BigQuery upload, dbt run/test against real data, metadata registration,
 auxiliary-file upload, PR.
+
+## 12. Source defects found during the full load
+
+Three months behave unlike the other 469, and each would have corrupted the load
+silently rather than failing loudly.
+
+### April 2014 licitaciones do not exist
+
+`lic-da/2014-4.zip` contains a file named `2014-4.csv` whose 1,532,452 rows are **100%
+March 2014** — the same 20,511 tenders and the same first tender as `lic-da/2014-3.zip`,
+the same byte length (91,558,880), uploaded 15 seconds apart. The publisher put March's
+data in April's slot.
+
+This is a genuine gap in the series and must be stated in the table description. It is
+not a gap in this load.
+
+It is also how a latent bug surfaced. Partition files were written as a fixed
+`data.parquet` keyed on the *derived* date, so loading April wrote into the March
+partition and replaced it. Nothing was lost, because the two files hold identical data,
+but the mechanism is general.
+
+### One row of `lic-da/2026-3` carries a June date
+
+Corruption residue: the tender's other 142 rows are March, and June's own file does not
+contain that tender at all. With a fixed `data.parquet` name, loading March after June
+would have replaced June's 160,682 rows with that single row.
+
+**Partition files are therefore named for their source month** (`data_2026-03.parquet`),
+so two source months can contribute to one partition without destroying each other, and
+re-running a month overwrites exactly its own contribution. This matters more for the
+recurring pipeline than for the one-shot load, because the pipeline re-ingests an
+arbitrary rolling window in whatever order the publisher touched months.
+
+The June 2026 partition now correctly holds both files:
+
+```
+data_2026-06.parquet   160,682 rows
+data_2026-03.parquet         1 row
+```
+
+### `lic-da/2011-3` is split across two CSVs
+
+`lic_2011-3a.csv` and `lic_2011-3b.csv`, 1.27 GB combined — the largest month — with
+byte-identical headers. All CSV members of an archive are read in name order.
+
+### `lic-da/2026-3` has an unescaped quote
+
+It misaligns 849 records on one tender, giving field counts of 100, 111, 127 and 140
+against a 110-column header. The C parser rejects the whole file, so `clean_month` falls
+back to Python's `csv` module, which drops records whose width does not match and
+reports the count.
+
+Worth knowing: pandas would **not** have dropped the short ones. Its C parser pads a
+too-short record with NaN, quietly writing shifted values into the right-hand columns.
+Only records with too many fields raise. Hence the explicit width check.
+
+## 13. Final load
+
+| Table | Rows | Source months |
+|---|---|---|
+| `orden_compra_item` | 105,389,728 | 236/236 |
+| `licitacion_oferta` | 96,611,435 | 235/236 |
+| `licitacion_item` | 20,551,136 | 235/236 |
+| **total** | **222,552,299** | |
+
+Counted from the parquet footers, not `clean_log.jsonl` — that log is append-only across
+runs, so any month re-run under `--force` appears more than once and summing it
+over-counts. One schema per table, verified across all 707 files.
+
+The dicionario has **164 entries**, up from the 115 derivable from 2007 alone: codes
+appear over time (`codigo_tipo` 10 → 17 keys, `codigo_forma_pago` 34 → 44, licitación
+`sigla_tipo` 5 → 14). Every dictionary-flagged column has entries.
