@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+from google.api_core.exceptions import NotFound
 from google.cloud import bigquery
 from prefect import task
 
@@ -34,6 +35,12 @@ def loaded_batches(bq_project: str) -> set[str]:
 
     Reading the staging table, not the published one, keeps a re-run idempotent
     even when the previous run uploaded a batch but failed before dbt.
+
+    Only a genuinely missing table yields an empty set. Every other failure —
+    a permissions error above all — is re-raised: swallowing it silently turns
+    the incremental load into a full re-download of every IRS batch, which
+    looks like a healthy run and costs hours. A hand-created staging dataset
+    missing the worker's grant is exactly how that happens.
     """
     client = bigquery.Client(project=bq_project)
     table = (
@@ -43,8 +50,8 @@ def loaded_batches(bq_project: str) -> set[str]:
         rows = client.query(
             f"select distinct xml_batch_id from `{table}`"
         ).result()
-    except Exception as exc:  # first ever run: no staging table yet
-        print(f"no staging table to read ({type(exc).__name__}); loading all")
+    except NotFound:
+        print(f"{table} does not exist yet; treating this as the first load")
         return set()
     return {r.xml_batch_id for r in rows}
 
