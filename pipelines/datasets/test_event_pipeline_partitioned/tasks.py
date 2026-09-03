@@ -25,6 +25,15 @@ def write_partitioned_csv(reference_date: str) -> str:
     por mês, ao contrário do piloto original (`test_event_pipeline`, um
     arquivo só sem partição).
 
+    O arquivo NÃO repete `ano`/`mes` como colunas — convenção Hive padrão
+    (a mesma que o BigQuery detecta sozinho via `_is_partitioned`/
+    `bd.Table.create()`): a coluna de partição só existe no caminho da
+    pasta, nunca dentro do arquivo. Escrever `ano`/`mes` como colunas do
+    CSV também (erro cometido na primeira versão deste arquivo) faz a
+    tabela externa com particionamento Hive nativo (a cópia real, em
+    `basedosdados-staging`) esperar 1 coluna por linha e achar 3 —
+    `Database Error: Too many values in line`.
+
     Devolve o caminho do diretório BASE (não o arquivo) — `upload_to_gcs`
     espera um diretório quando os dados são particionados, pra preservar a
     estrutura `chave=valor/` como partição real no GCS (ver
@@ -38,8 +47,8 @@ def write_partitioned_csv(reference_date: str) -> str:
     csv_path = partition_dir / "dados.csv"
     with csv_path.open("w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["ano", "mes", "reference_date"])
-        writer.writerow([ref.year, ref.month, reference_date])
+        writer.writerow(["reference_date"])
+        writer.writerow([reference_date])
 
     print(f"[write_partitioned_csv] {csv_path}")
     return str(base)
