@@ -1,0 +1,529 @@
+---
+version: 2
+models:
+  - name: us_epa_tri__facility
+    description: >
+      Instalações industriais e federais que entregaram formulários ao Toxics
+      Release Inventory (TRI), com uma linha por instalação (TRIFID) e ano de
+      referência. Traz nome, endereço, condado (código FIPS obtido do
+      Envirofacts), coordenadas, empresa controladora e indicador de instalação
+      federal, conforme a seção de identificação do Form R. Códigos SIC e NAICS
+      estão na tabela form, porque a EPA os atribuiu por submissão até 2005.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, tri_facility_id]
+          config:
+            where: __most_recent_year_en__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          # Legitimately sparse (measured on the full history):
+          ignore_values:
+            - bia_code  # only facilities on tribal land
+            - tribe_name  # only facilities on tribal land
+    columns:
+      - name: year
+        description: >
+          Ano-calendário de referência das atividades informadas
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: tri_facility_id
+        description: >
+          Identificador TRI da instalação (TRIFID), 15 caracteres; identifica uma
+          localização geográfica e não muda com trocas de proprietário
+        tests: [not_null]
+      - name: frs_id
+        description: >
+          Identificador da instalação no Facility Registry Service (FRS) da EPA, chave
+          de ligação com outros programas da agência
+      - name: facility_name
+        description: >
+          Nome da instalação declarante
+      - name: street_address
+        description: >
+          Endereço (logradouro) da instalação
+      - name: city
+        description: >
+          Cidade da instalação
+      - name: county_id
+        description: >
+          Código FIPS do condado (5 dígitos: estado + condado) da instalação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              proportion_allowed_failures: 0.02
+              config:
+                where: county_id is not null
+      - name: county_name
+        description: >
+          Nome do condado da instalação, conforme informado
+      - name: state
+        description: >
+          Sigla postal de duas letras do estado da instalação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: abbreviation
+      - name: zip_code
+        description: >
+          Código postal (ZIP) da instalação, 5 ou 9 dígitos
+      - name: bia_code
+        description: >
+          Código de três letras do Bureau of Indian Affairs (BIA) da tribo em cuja
+          terra a instalação está localizada
+      - name: tribe_name
+        description: >
+          Nome da tribo em cuja terra a instalação está localizada
+      - name: latitude
+        description: >
+          Latitude que melhor representa a instalação, em graus decimais
+      - name: longitude
+        description: >
+          Longitude que melhor representa a instalação, em graus decimais
+      - name: parent_company_name
+        description: >
+          Nome da empresa controladora da instalação, conforme informado
+      - name: parent_company_duns
+        description: >
+          Número Dun & Bradstreet (D-U-N-S) da empresa controladora
+      - name: standardized_parent_company_name
+        description: >
+          Nome padronizado pela EPA da empresa controladora final nos Estados Unidos
+      - name: foreign_parent_company_name
+        description: >
+          Nome da empresa controladora estrangeira, quando há uma controladora de
+          nível superior fora dos Estados Unidos
+      - name: foreign_parent_company_duns
+        description: >
+          Número Dun & Bradstreet (D-U-N-S) da empresa controladora estrangeira
+      - name: standardized_foreign_parent_company_name
+        description: >
+          Nome padronizado pela EPA da empresa controladora estrangeira
+      - name: federal_facility
+        description: >
+          Indica se a instalação é de propriedade e operação do governo federal (YES
+          ou NO)
+  - name: us_epa_tri__chemical
+    description: >
+      Dimensão dos produtos químicos e categorias de compostos da lista TRI (seção
+      313 do EPCRA), com uma linha por identificador TRI. Traz nome, número CAS,
+      identificador SRS e as classificações usadas pelo programa: dioxina ou PBT,
+      metal e categoria de metal, carcinógeno OSHA, poluente do Clean Air Act e
+      PFAS. Atributos conforme o ano de referência mais recente em que o produto
+      aparece.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [tri_chemical_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [classification]
+          dictionary_model: ref('us_epa_tri__dicionario')
+    columns:
+      - name: tri_chemical_id
+        description: >
+          Identificador TRI do produto químico ou categoria de compostos: número CAS
+          sem hífens com zeros à esquerda (10 dígitos) ou código Nnnn para categorias
+        tests: [not_null]
+      - name: chemical_name
+        description: >
+          Nome do produto químico ou da categoria de compostos na lista TRI
+        tests: [not_null]
+      - name: cas_number
+        description: >
+          Número de registro do Chemical Abstracts Service (CAS) com hífens, ou o
+          código da categoria de compostos
+      - name: srs_id
+        description: >
+          Identificador da substância no Substance Registry Services (SRS) da EPA
+      - name: clean_air_act_chemical
+        description: >
+          Indica se o produto químico é listado como poluente atmosférico perigoso
+          pelo Clean Air Act (YES ou NO)
+      - name: classification
+        description: >
+          Classificação do produto químico: TRI (substância geral da seção 313 do
+          EPCRA), PBT (persistente, bioacumulativa e tóxica) ou Dioxin (dioxina ou
+          composto similar)
+      - name: metal
+        description: >
+          Indica se o produto químico é um metal com restrições de declaração no TRI
+          (YES ou NO)
+      - name: metal_category
+        description: >
+          Categoria de metal do produto químico, como rótulo de texto (por exemplo
+          Elemental metals, Metal compound categories, Non_Metal)
+      - name: carcinogen
+        description: >
+          Indica se o produto químico é classificado como carcinógeno pela OSHA (YES
+          ou NO)
+      - name: pbt
+        description: >
+          Indica se o produto químico é persistente, bioacumulativo e tóxico (PBT)
+          (YES ou NO)
+      - name: pfas
+        description: >
+          Indica se o produto químico é uma substância per- e polifluoroalquil (PFAS)
+          (YES ou NO)
+  - name: us_epa_tri__form
+    description: >
+      Uma linha por formulário entregue ao TRI (Form R ou Form A), isto é, por
+      instalação, produto químico e ano de referência, identificada pelo número de
+      controle do documento. Traz o tipo de formulário, a unidade original, os
+      códigos SIC e NAICS da instalação naquela submissão, os totais de liberação
+      e transferência calculados pela EPA (seções 5 e 6) e as quantidades de
+      resíduo relacionado à produção da seção 8 (liberado, reciclado, recuperado
+      como energia e tratado, no local e fora dele), além da razão de produção.
+      Todas as quantidades estão em libras; o detalhe por categoria de liberação
+      está na tabela release.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, document_control_number]
+          config:
+            where: __most_recent_year_en__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          # Legitimately sparse (measured on the full history):
+          ignore_values:
+            - naics_3  # secondary NAICS codes
+            - naics_4  # secondary NAICS codes
+            - naics_5  # secondary NAICS codes
+            - naics_6  # secondary NAICS codes
+            - sic_3  # secondary SIC codes, RY 1987-2005 only
+            - sic_4  # secondary SIC codes, RY 1987-2005 only
+            - sic_5  # secondary SIC codes, RY 1987-2005 only
+            - sic_6  # secondary SIC codes, RY 1987-2005 only
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [form_type]
+          dictionary_model: ref('us_epa_tri__dicionario')
+    columns:
+      - name: year
+        description: >
+          Ano-calendário de referência das atividades informadas
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: tri_facility_id
+        description: >
+          Identificador TRI da instalação (TRIFID), 15 caracteres; identifica uma
+          localização geográfica e não muda com trocas de proprietário
+        tests: [not_null]
+      - name: document_control_number
+        description: >
+          Número de controle do documento, identificador único da submissão (Form
+          R ou
+          Form A) atribuído pela EPA
+        tests: [not_null]
+      - name: tri_chemical_id
+        description: >
+          Identificador TRI do produto químico ou categoria de compostos: número CAS
+          sem hífens com zeros à esquerda (10 dígitos) ou código Nnnn para categorias
+        tests: [not_null]
+      - name: chemical_name
+        description: >
+          Nome do produto químico conforme informado no formulário (ou nome genérico,
+          se declarado como segredo industrial)
+      - name: form_type
+        description: >
+          Tipo de formulário entregue: R (Form R, relatório completo) ou A (Form A,
+          declaração de certificação sem quantidades)
+      - name: elemental_metal_included
+        description: >
+          Indica se o formulário combina um composto metálico e o metal elementar
+          correspondente (YES ou NO)
+      - name: unit_of_measure
+        description: >
+          Unidade em que a fonte informou as quantidades deste formulário: Pounds
+          (libras) ou Grams (gramas, para dioxinas)
+      - name: industry_sector_code
+        description: >
+          Código NAICS (3 ou 4 dígitos) do setor industrial atribuído pela EPA para
+          análise de tendências do TRI
+      - name: industry_sector
+        description: >
+          Nome do setor industrial atribuído pela EPA (por exemplo Chemicals, Primary
+          Metals)
+      - name: primary_sic
+        description: >
+          Código SIC (Standard Industrial Classification) primário de quatro dígitos
+          da instalação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__sic')
+              field: id_sic
+              proportion_allowed_failures: 0.02
+              config:
+                where: primary_sic is not null
+      - name: sic_2
+        description: >
+          Segundo código SIC (Standard Industrial Classification) de quatro dígitos
+          informado pela instalação
+      - name: sic_3
+        description: >
+          Terceiro código SIC (Standard Industrial Classification) de quatro dígitos
+          informado pela instalação
+      - name: sic_4
+        description: >
+          Quarto código SIC (Standard Industrial Classification) de quatro dígitos
+          informado pela instalação
+      - name: sic_5
+        description: >
+          Quinto código SIC (Standard Industrial Classification) de quatro dígitos
+          informado pela instalação
+      - name: sic_6
+        description: >
+          Sexto código SIC (Standard Industrial Classification) de quatro dígitos
+          informado pela instalação
+      - name: primary_naics
+        description: >
+          Código NAICS (North American Industry Classification System) primário de
+          seis dígitos, a principal atividade da instalação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__naics_2002')
+              field: id_naics
+              proportion_allowed_failures: 0.02
+              config:
+                where: naics_version = '2002' and primary_naics is not null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__naics_2007')
+              field: id_naics
+              proportion_allowed_failures: 0.02
+              config:
+                where: naics_version = '2007' and primary_naics is not null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__naics_2012')
+              field: id_naics
+              proportion_allowed_failures: 0.02
+              config:
+                where: naics_version = '2012' and primary_naics is not null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__naics_2017')
+              field: id_naics
+              proportion_allowed_failures: 0.02
+              config:
+                where: naics_version = '2017' and primary_naics is not null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__naics_2022')
+              field: id_naics
+              proportion_allowed_failures: 0.02
+              config:
+                where: naics_version = '2022' and primary_naics is not null
+      - name: naics_2
+        description: >
+          Segundo código NAICS (North American Industry Classification System) de
+          seis
+          dígitos informado pela instalação
+      - name: naics_3
+        description: >
+          Terceiro código NAICS (North American Industry Classification System) de
+          seis dígitos informado pela instalação
+      - name: naics_4
+        description: >
+          Quarto código NAICS (North American Industry Classification System) de seis
+          dígitos informado pela instalação
+      - name: naics_5
+        description: >
+          Quinto código NAICS (North American Industry Classification System) de seis
+          dígitos informado pela instalação
+      - name: naics_6
+        description: >
+          Sexto código NAICS (North American Industry Classification System) de seis
+          dígitos informado pela instalação
+      - name: naics_version
+        description: >
+          Versão da classificação NAICS que os códigos seguem (2002, 2007, 2012, 2017
+          ou 2022)
+      - name: on_site_release_total
+        description: >
+          Total liberado no local para ar, água e solo (soma da seção 5 do Form R)
+      - name: potw_transfer_total
+        description: >
+          Total transferido para estações públicas de tratamento de esgoto (POTW),
+          seção 6.1
+      - name: off_site_release_total
+        description: >
+          Total transferido para fora do local para liberação ou disposição, incluindo
+          a parcela de POTW considerada liberada
+      - name: off_site_recycling_total
+        description: >
+          Total transferido para fora do local para reciclagem
+      - name: off_site_energy_recovery_total
+        description: >
+          Total transferido para fora do local para recuperação de energia
+      - name: off_site_treatment_total
+        description: >
+          Total transferido para fora do local para tratamento, incluindo a parcela
+          de
+          POTW considerada tratada
+      - name: total_transfer
+        description: >
+          Total transferido para fora do local (seção 6.2): liberação, reciclagem,
+          recuperação de energia, tratamento e não classificado
+      - name: total_releases
+        description: >
+          Total de liberações no local e fora do local (seções 5 e 6 do Form R), o
+          indicador principal do TRI
+      - name: waste_released
+        description: >
+          Total de liberações no local e fora do local informado na seção 8.1 do Form
+          R (resíduo relacionado à produção)
+      - name: waste_released_on_site_contained
+        description: >
+          Seção 8.1A: disposição no local em poços de injeção Classe I, aterros RCRA
+          Subtítulo C e outros aterros
+      - name: waste_released_on_site_other
+        description: >
+          Seção 8.1B: outras disposições ou liberações no local não cobertas em 8.1A
+      - name: waste_released_off_site_contained
+        description: >
+          Seção 8.1C: disposição fora do local em poços de injeção Classe I, aterros
+          RCRA Subtítulo C e outros aterros
+      - name: waste_released_off_site_other
+        description: >
+          Seção 8.1D: outras disposições ou liberações fora do local não cobertas
+          em
+          8.1C
+      - name: waste_energy_recovery_on_site
+        description: >
+          Seção 8.2: quantidade queimada no local para recuperação de energia
+      - name: waste_energy_recovery_off_site
+        description: >
+          Seção 8.3: quantidade enviada para fora do local para recuperação de energia
+      - name: waste_recycled_on_site
+        description: >
+          Seção 8.4: quantidade reciclada no local
+      - name: waste_recycled_off_site
+        description: >
+          Seção 8.5: quantidade enviada para fora do local para reciclagem
+      - name: waste_treated_on_site
+        description: >
+          Seção 8.6: quantidade tratada no local
+      - name: waste_treated_off_site
+        description: >
+          Seção 8.7: quantidade enviada para fora do local para tratamento, incluindo
+          transferências para POTW
+      - name: production_related_waste
+        description: >
+          Total de resíduo relacionado à produção, soma das seções 8.1 a 8.7
+      - name: one_time_release
+        description: >
+          Seção 8.8: quantidade liberada ou transferida por eventos não associados
+          aos
+          processos rotineiros de produção (acidentes, remediações)
+      - name: production_ratio_type
+        description: >
+          Indica se o valor da seção 8.9 é uma razão de produção (PRODUCTION) ou um
+          índice de atividade (ACTIVITY)
+      - name: production_ratio
+        description: >
+          Seção 8.9: razão entre a produção ou atividade do ano de referência e a
+          do
+          ano anterior
+  - name: us_epa_tri__release
+    description: >
+      Quantidades liberadas e transferidas por formulário e categoria, em formato
+      longo: uma linha por formulário (instalação, produto químico e ano) e
+      categoria de liberação ou transferência do Form R, com as liberações no
+      local para ar fugitivo, chaminé, água, injeção subterrânea e solo (seção 5),
+      transferências para POTW (6.1) e transferências para fora do local por
+      código de gestão M (6.2). As categorias são mutuamente exclusivas e as
+      quantidades estão em libras para todas as linhas, com o valor original em
+      gramas preservado para dioxinas. Linhas com quantidade zero não são
+      armazenadas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - document_control_number
+            - release_category
+          config:
+            where: __most_recent_year_en__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          # Legitimately sparse (measured on the full history):
+          ignore_values:
+            - quantity_grams  # dioxin and dioxin-like compounds only
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [management_category, release_category]
+          dictionary_model: ref('us_epa_tri__dicionario')
+    columns:
+      - name: year
+        description: >
+          Ano-calendário de referência das atividades informadas
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: tri_facility_id
+        description: >
+          Identificador TRI da instalação (TRIFID), 15 caracteres; identifica uma
+          localização geográfica e não muda com trocas de proprietário
+        tests: [not_null]
+      - name: document_control_number
+        description: >
+          Número de controle do documento, identificador único da submissão (Form
+          R ou
+          Form A) atribuído pela EPA
+        tests: [not_null]
+      - name: tri_chemical_id
+        description: >
+          Identificador TRI do produto químico ou categoria de compostos: número CAS
+          sem hífens com zeros à esquerda (10 dígitos) ou código Nnnn para categorias
+        tests: [not_null]
+      - name: management_category
+        description: >
+          Grupo de gestão da quantidade: liberação no local, liberação fora do local
+          (disposição), reciclagem, recuperação de energia, tratamento ou não
+          classificado
+        tests: [not_null]
+      - name: release_category
+        description: >
+          Categoria de liberação ou transferência: seção do Form R (5.1 ar fugitivo,
+          5.2 chaminé, 5.3 água, 5.4 injeção subterrânea, 5.5 solo, 6.1 POTW) ou
+          código M de gestão fora do local (6.2)
+        tests: [not_null]
+      - name: quantity_pounds
+        description: >
+          Quantidade liberada ou transferida, em libras
+        tests: [not_null]
+      - name: quantity_grams
+        description: >
+          Quantidade liberada ou transferida, em gramas, apenas para dioxinas e
+          compostos similares, conforme informado
+  - name: us_epa_tri__dicionario
+    description: >
+      Dicionário dos valores codificados das tabelas do conjunto: categorias de
+      liberação e transferência do Form R (seções e códigos M), grupos de gestão,
+      tipo de formulário e classificação do produto químico.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: >
+          Nome da tabela
+        tests: [not_null]
+      - name: nome_coluna
+        description: >
+          Nome da coluna
+        tests: [not_null]
+      - name: chave
+        description: >
+          Valor codificado da coluna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >
+          Cobertura temporal do código
+      - name: valor
+        description: >
+          Descrição legível do valor codificado
+        tests: [not_null]
