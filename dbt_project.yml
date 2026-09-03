@@ -585,6 +585,9 @@ models:
     us_sec_edgar:
       +materialized: table
       +schema: us_sec_edgar
+    us_state_foreign_assistance:
+      +materialized: table
+      +schema: us_state_foreign_assistance
     us_stanford_dime:
       +materialized: table
       +schema: us_stanford_dime
