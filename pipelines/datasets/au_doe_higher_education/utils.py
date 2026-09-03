@@ -67,13 +67,13 @@ PIVOT_FIELD_RENAME = {
     "discipline": "discipline",
     "liability_status": "liability_status",
     "enrolment_count": "enrolments",
-    "student_load": "student_load",
+    "student_load": "student_load_eftsl",
     "completions": "completions",
     "current_duties_classification": "duties_classification",
     "function": "function",
     "organisational_unit": "organisational_unit",
     "work_contract": "work_contract",
-    "staff_count": "staff",
+    "staff_count": "staff_headcount",
     "fte_staff_count": "staff_fte",
 }
 
@@ -461,7 +461,9 @@ def build_institution_directory(
         extra.append(
             {
                 "id_higher_education_institution": key,
-                "name": AGGREGATE_INSTITUTIONS.get(key, str(row.institution_name)),
+                "name": AGGREGATE_INSTITUTIONS.get(
+                    key, str(row.institution_name)
+                ),
                 "state_abbreviation": str(row.state_abbreviation),
                 "provider_category": (
                     "Non-University Higher Education Provider"
@@ -530,7 +532,9 @@ def _sheet_rows(path: str | Path, sheet: str) -> list[tuple]:
 
     workbook = openpyxl.load_workbook(path, read_only=True, data_only=True)
     try:
-        return [tuple(row) for row in workbook[sheet].iter_rows(values_only=True)]
+        return [
+            tuple(row) for row in workbook[sheet].iter_rows(values_only=True)
+        ]
     finally:
         workbook.close()
 
@@ -803,7 +807,7 @@ def clean_equity_performance(path: str | Path) -> pd.DataFrame:
                 value = to_number(row[index])
                 if value is None:
                     continue
-                equity, classification, basis = parse_equity_label(band)
+                equity, _classification, basis = parse_equity_label(band)
                 records.append(
                     {
                         "year": year,
@@ -811,7 +815,6 @@ def clean_equity_performance(path: str | Path) -> pd.DataFrame:
                         "state_abbreviation": state,
                         "student_group": group,
                         "equity_group": equity,
-                        "equity_group_classification": classification,
                         "address_basis": basis,
                         "equity_group_label": str(band).strip(),
                         "measure": measure,
@@ -830,11 +833,10 @@ def clean_equity_performance(path: str | Path) -> pd.DataFrame:
         "state_abbreviation",
         "student_group",
         "equity_group",
-        "equity_group_classification",
         "address_basis",
     ]
     labels = long.groupby(
-        ["equity_group", "equity_group_classification", "address_basis"],
+        ["equity_group", "address_basis"],
         dropna=False,
         as_index=False,
     )["equity_group_label"].first()
@@ -842,11 +844,7 @@ def clean_equity_performance(path: str | Path) -> pd.DataFrame:
     for column in EQUITY_MEASURES:
         if column not in wide.columns:
             wide[column] = pd.NA
-    wide = wide.merge(
-        labels,
-        on=["equity_group", "equity_group_classification", "address_basis"],
-        how="left",
-    )
+    wide = wide.merge(labels, on=["equity_group", "address_basis"], how="left")
     keys = [*keys, "equity_group_label"]
     wide["year"] = wide["year"].astype("Int64")
     for column in (
