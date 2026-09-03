@@ -32,5 +32,8 @@ select
     safe_cast(success_ratio as float64) success_ratio,
     safe_cast(attainment_rate as float64) attainment_rate
 from
-    {{ set_datalake_project("au_doe_higher_education_staging.student_equity_performance") }}
-    as t
+    {{
+        set_datalake_project(
+            "au_doe_higher_education_staging.student_equity_performance"
+        )
+    }} as t

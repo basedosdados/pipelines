@@ -28,5 +28,4 @@ select
     safe_cast(field_of_education_secondary as string) field_of_education_secondary,
     safe_cast(enrolments as int64) enrolments
 from
-    {{ set_datalake_project("au_doe_higher_education_staging.student_enrolment") }}
-    as t
+    {{ set_datalake_project("au_doe_higher_education_staging.student_enrolment") }} as t

@@ -26,5 +26,8 @@ select
     safe_cast(re_enrolled_dropped_out_rate as float64) re_enrolled_dropped_out_rate,
     safe_cast(never_returned_rate as float64) never_returned_rate
 from
-    {{ set_datalake_project("au_doe_higher_education_staging.student_completion_rate") }}
-    as t
+    {{
+        set_datalake_project(
+            "au_doe_higher_education_staging.student_completion_rate"
+        )
+    }} as t

@@ -24,5 +24,4 @@ select
     safe_cast(offer_rate as float64) offer_rate,
     safe_cast(acceptances as int64) acceptances
 from
-    {{ set_datalake_project("au_doe_higher_education_staging.application_offer") }}
-    as t
+    {{ set_datalake_project("au_doe_higher_education_staging.application_offer") }} as t

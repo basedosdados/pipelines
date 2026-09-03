@@ -23,6 +23,4 @@ select
     safe_cast(work_contract as string) work_contract,
     safe_cast(staff_headcount as int64) staff_headcount,
     safe_cast(staff_fte as float64) staff_fte
-from
-    {{ set_datalake_project("au_doe_higher_education_staging.staff") }}
-    as t
+from {{ set_datalake_project("au_doe_higher_education_staging.staff") }} as t

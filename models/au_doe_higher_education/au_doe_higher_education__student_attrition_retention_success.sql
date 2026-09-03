@@ -22,5 +22,8 @@ select
     safe_cast(retention_rate as float64) retention_rate,
     safe_cast(success_rate as float64) success_rate
 from
-    {{ set_datalake_project("au_doe_higher_education_staging.student_attrition_retention_success") }}
-    as t
+    {{
+        set_datalake_project(
+            "au_doe_higher_education_staging.student_attrition_retention_success"
+        )
+    }} as t

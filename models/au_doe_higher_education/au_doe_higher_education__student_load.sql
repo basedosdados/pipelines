@@ -24,6 +24,4 @@ select
     safe_cast(gender as string) gender,
     safe_cast(liability_status as string) liability_status,
     safe_cast(student_load_eftsl as float64) student_load_eftsl
-from
-    {{ set_datalake_project("au_doe_higher_education_staging.student_load") }}
-    as t
+from {{ set_datalake_project("au_doe_higher_education_staging.student_load") }} as t
