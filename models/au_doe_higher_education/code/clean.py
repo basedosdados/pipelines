@@ -63,7 +63,7 @@ CUBES = {
     ),
     "student_load": (
         "load",
-        {"student_load": "FLOAT64"},
+        {"student_load_eftsl": "FLOAT64"},
         [
             *DIMENSIONS,
             "citizenship",
@@ -93,7 +93,7 @@ CUBES = {
     ),
     "staff": (
         "staff",
-        {"staff": "INT64", "staff_fte": "FLOAT64"},
+        {"staff_headcount": "INT64", "staff_fte": "FLOAT64"},
         [
             *DIMENSIONS,
             "gender",

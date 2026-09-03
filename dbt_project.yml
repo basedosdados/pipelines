@@ -61,6 +61,9 @@ models:
     au_doe_higher_education_finances:
       +materialized: table
       +schema: au_doe_higher_education_finances
+    au_doe_higher_education:
+      +materialized: table
+      +schema: au_doe_higher_education
     au_geoscape_gnaf:
       +materialized: table
       +schema: au_geoscape_gnaf
