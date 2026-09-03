@@ -1,0 +1,262 @@
+---
+version: 2
+models:
+  - name: us_epa_ghgrp__dicionario
+    description: >-
+      Dicionário de códigos das colunas categóricas do conjunto us_epa_ghgrp:
+      subparte e gás (emission_subpart), setor, subsetor e gás (emission_sector) e
+      os indicadores de situação do relato e de monitoramento da tabela facility.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [cobertura_temporal]
+    columns:
+      - name: id_tabela
+        description: >-
+          Nome da tabela do conjunto us_epa_ghgrp que a entrada do dicionário descreve
+      - name: nome_coluna
+        description: >-
+          Nome da coluna que a entrada do dicionário descreve
+      - name: chave
+        description: >-
+          Código armazenado na coluna
+      - name: cobertura_temporal
+        description: >-
+          Cobertura temporal da entrada do dicionário
+      - name: valor
+        description: >-
+          Rótulo correspondente ao código
+  - name: us_epa_ghgrp__facility
+    description: >-
+      Uma linha por instalação e ano de relato do Greenhouse Gas Reporting Program
+      (GHGRP) da EPA, 2010 em diante: identificadores (GHGRP, FRS), empresa
+      controladora, tipo de reportante, subpartes reportados, código NAICS,
+      localização (estado, condado, cidade, endereço, coordenadas) e indicadores de
+      monitoramento. Instalações que deixaram de reportar são mantidas pela fonte
+      com
+      reporting_status preenchido e sem linhas de emissão no ano.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, facility_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [cems_used, co2_captured, co2_supplied]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - reporting_status
+            - cems_used
+            - co2_captured
+            - co2_supplied
+          dictionary_model: ref('us_epa_ghgrp__dicionario')
+    columns:
+      - name: year
+        description: >-
+          Ano de referência do relato
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: facility_id
+        description: >-
+          Identificador da instalação no GHGRP, estável entre anos mesmo quando o
+          nome
+          ou o endereço mudam
+        tests: [not_null]
+      - name: frs_id
+        description: >-
+          Identificador da instalação no Facility Registry Service (FRS) da EPA
+      - name: state_id
+        description: >-
+          Código FIPS de dois dígitos do estado da instalação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: county_id
+        description: >-
+          Código FIPS de cinco dígitos do condado da instalação
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              proportion_allowed_failures: 0.01
+              ignore_values: ['']
+      - name: naics_id
+        description: >-
+          Código NAICS primário de seis dígitos da instalação, conforme reportado
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__naics_2007')
+              field: id_naics
+              proportion_allowed_failures: 0.02
+              config:
+                where: year <= 2017
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__naics_2017')
+              field: id_naics
+              proportion_allowed_failures: 0.12
+              config:
+                where: year >= 2018
+      - name: facility_name
+        description: >-
+          Nome da instalação
+      - name: parent_company
+        description: >-
+          Empresa(s) controladora(s) reportada(s), com a participação acionária entre
+          parênteses
+      - name: facility_type
+        description: >-
+          Tipos de reportante da instalação, separados por vírgula
+      - name: industry_type
+        description: >-
+          Códigos dos subpartes e tipos de indústria sob os quais a instalação
+          reportou, separados por vírgula
+      - name: reporting_status
+        description: >-
+          Situação do relato: nulo quando a instalação reportou no ano; caso
+          contrário, indica que deixou de reportar, com ou sem razão conhecida
+      - name: state_abbreviation
+        description: >-
+          Sigla de duas letras do estado da instalação
+      - name: county_name
+        description: >-
+          Nome do condado da instalação, conforme reportado
+      - name: city
+        description: >-
+          Cidade da instalação, conforme reportada
+      - name: zip_code
+        description: >-
+          Código postal (ZIP) da instalação
+      - name: address
+        description: >-
+          Endereço da instalação
+      - name: latitude
+        description: >-
+          Latitude da instalação, em graus decimais
+      - name: longitude
+        description: >-
+          Longitude da instalação, em graus decimais
+      - name: cems_used
+        description: >-
+          Indica se a instalação utiliza monitoramento contínuo de emissões (CEMS)
+      - name: co2_captured
+        description: >-
+          Indica se parte do CO2 é capturada no local e usada na fabricação de outros
+          produtos (subpartes G ou S)
+      - name: co2_supplied
+        description: >-
+          Indica se parte do CO2 reportado sob os subpartes AA, G ou P é transferida
+          para fora do local ou injetada (subparte PP)
+  - name: us_epa_ghgrp__emission_subpart
+    description: >-
+      Emissões anuais reportadas ao GHGRP por instalação, subparte do 40 CFR Part
+      98
+      e gás, em toneladas métricas de CO2 equivalente, 2010 em diante. O CO2
+      biogênico (gas = BIOCO2) é reportado à parte e não entra nos totais da
+      instalação publicados pela EPA.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, facility_id, subpart, gas]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [subpart, subpart_type, gas]
+          dictionary_model: ref('us_epa_ghgrp__dicionario')
+    columns:
+      - name: year
+        description: >-
+          Ano de referência do relato
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: facility_id
+        description: >-
+          Identificador da instalação no GHGRP
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_epa_ghgrp__facility')
+              field: facility_id
+      - name: subpart
+        description: >-
+          Subparte do 40 CFR Part 98 sob o qual a emissão foi reportada, identificado
+          pela letra
+        tests: [not_null]
+      - name: subpart_type
+        description: >-
+          Tipo de reportante ao qual o subparte pertence: E = emissor direto, S =
+          fornecedor, I = injeção de CO2
+        tests: [not_null]
+      - name: gas
+        description: >-
+          Código do gás de efeito estufa
+        tests: [not_null]
+      - name: emission
+        description: >-
+          Emissão reportada, em toneladas métricas de CO2 equivalente
+  - name: us_epa_ghgrp__emission_sector
+    description: >-
+      Emissões anuais reportadas ao GHGRP por instalação, setor e subsetor do painel
+      FLIGHT e gás, em toneladas métricas de CO2 equivalente, 2010 em diante. Os
+      setores são a classificação usada pela EPA no FLIGHT; a combustão estacionária
+      (subparte C) é atribuída ao setor da instalação, por isso os totais por setor
+      diferem dos totais por subparte. O CO2 biogênico (gas = BIOCO2) é reportado
+      à
+      parte. Nas raras chaves que a fonte publica em mais de uma linha, as emissões
+      foram somadas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - facility_id
+            - sector
+            - subsector
+            - gas
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [sector, sector_type, subsector, gas]
+          dictionary_model: ref('us_epa_ghgrp__dicionario')
+    columns:
+      - name: year
+        description: >-
+          Ano de referência do relato
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: facility_id
+        description: >-
+          Identificador da instalação no GHGRP
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_epa_ghgrp__facility')
+              field: facility_id
+      - name: sector
+        description: >-
+          Código do setor industrial do FLIGHT ao qual a emissão é atribuída
+        tests: [not_null]
+      - name: sector_type
+        description: >-
+          Tipo de reportante ao qual o setor pertence: E = emissor direto, S =
+          fornecedor, I = injeção de CO2
+        tests: [not_null]
+      - name: subsector
+        description: >-
+          Código do subsetor dentro do setor
+        tests: [not_null]
+      - name: gas
+        description: >-
+          Código do gás de efeito estufa
+        tests: [not_null]
+      - name: emission
+        description: >-
+          Emissão reportada, em toneladas métricas de CO2 equivalente
