@@ -11,7 +11,6 @@ from pipelines.datasets.br_ms_sim.tasks import (
     get_source_max_year,
     resolve_year_source,
 )
-from pipelines.datasets.br_ms_sim.utils import container_memory_limit_gb
 from pipelines.utils.metadata.domain import (
     AllFree,
     CoverageSpec,
@@ -63,8 +62,6 @@ def run_ms_sim(
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
-
-    print(f"Limite de memória do container: {container_memory_limit_gb()} GiB")
 
     backfill = ano is not None
     source_max_year = get_source_max_year()
