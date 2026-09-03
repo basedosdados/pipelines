@@ -13,6 +13,7 @@ from prefect import flow
 from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.utils.materialize_prod.flows import transfer_files_to_prod_flow
+from pipelines.utils.metadata.constants import MAT_TEST_JOB_VARIABLES
 from pipelines.utils.metadata.domain import CoverageSpec
 from pipelines.utils.metadata.tasks import (
     register_table_materialization_task,
@@ -139,3 +140,7 @@ def mat_test_flow(
         bq_project=bq_project,
         prefect_mode=prefect_mode,
     )
+
+
+# pyrefly: ignore [missing-attribute]
+mat_test_flow.job_variables = MAT_TEST_JOB_VARIABLES
