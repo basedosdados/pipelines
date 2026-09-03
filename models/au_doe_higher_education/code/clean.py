@@ -136,7 +136,9 @@ def write_partitioned(
                 lambda value: None if pd.isna(value) else str(int(value))
             )
         else:
-            frame[column] = values.astype("object").where(values.notna(), None)
+            objects = values.astype("object")
+            objects[values.isna()] = None
+            frame[column] = objects
 
     schema = pa.schema(
         [

@@ -251,17 +251,19 @@ def clean_pivot(path: str | Path, measures: dict[str, str]) -> pd.DataFrame:
         if column in measures:
             continue
         values = frame[column].astype("string").str.strip()
-        values = values.replace({"NULL": pd.NA})
+        values = values.mask(values == "NULL")
         frame[column] = values.replace(CATEGORY_HARMONISE.get(column, {}))
 
     # The source writes a blank string for "not a combined course" before 2024.
     if "field_of_education_secondary" in frame.columns:
-        frame["field_of_education_secondary"] = frame[
-            "field_of_education_secondary"
-        ].replace({"": NOT_COMBINED, "NULL": pd.NA})
+        secondary = frame["field_of_education_secondary"]
+        frame["field_of_education_secondary"] = secondary.mask(
+            secondary == "NULL"
+        ).replace({"": NOT_COMBINED})
     for column in ("course_level_detailed", "course_level_broad"):
         if column in frame.columns:
-            frame[column] = frame[column].replace({"": pd.NA, "NULL": pd.NA})
+            values = frame[column]
+            frame[column] = values.mask(values.isin(["", "NULL"]))
 
     frame["state_abbreviation"] = frame["state_abbreviation"].map(
         STATE_ABBREVIATION
@@ -680,7 +682,10 @@ def clean_attrition(path: str | Path) -> pd.DataFrame:
     return wide[[*keys, *metrics]].sort_values(keys).reset_index(drop=True)
 
 
-SENTINEL = "\x00"
+# A visible string, not a control character: pandas normalises "\x00" to the
+# empty string inside `Series.where`, so the sentinel never round-trips and the
+# nulls come back as "" instead of NA.
+SENTINEL = "__BD_NULL__"
 
 
 def _pivot_keeping_nulls(
@@ -703,7 +708,7 @@ def _pivot_keeping_nulls(
     ).reset_index()
     wide.columns.name = None
     for key in keys:
-        wide[key] = wide[key].replace({SENTINEL: None})
+        wide.loc[wide[key] == SENTINEL, key] = None
     return wide
 
 
@@ -824,7 +829,7 @@ def clean_equity_performance(path: str | Path) -> pd.DataFrame:
                         "student_group": group,
                         "equity_group": equity,
                         "address_basis": basis,
-                        "equity_group_label": str(band).strip(),
+                        "equity_group_label": band.strip(),
                         "measure": measure,
                         "value": value,
                     }
