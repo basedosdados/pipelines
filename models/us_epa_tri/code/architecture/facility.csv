@@ -1,0 +1,22 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano-calendário de referência das atividades informadas,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,YEAR
+tri_facility_id,STRING,"Identificador TRI da instalação (TRIFID), 15 caracteres; identifica uma localização geográfica e não muda com trocas de proprietário",,no,,,no,,TRIFID
+frs_id,STRING,"Identificador da instalação no Facility Registry Service (FRS) da EPA, chave de ligação com outros programas da agência",,no,,,no,,FRS ID
+facility_name,STRING,Nome da instalação declarante,,no,,,no,,FACILITY NAME
+street_address,STRING,Endereço (logradouro) da instalação,,no,,,no,,STREET ADDRESS
+city,STRING,Cidade da instalação,,no,,,no,,CITY
+county_id,STRING,Código FIPS do condado (5 dígitos: estado + condado) da instalação,,no,br_bd_diretorios_us.county:id_county,,no,"Derived: county FIPS code looked up by TRI facility ID in the Envirofacts TRI_FACILITY table (STATE_COUNTY_FIPS_CODE); the Basic file itself carries only the county name. The source's 00000 (unknown) is null. Connecticut facilities carry the legacy county codes 09001-09015, which the county directory (2022 planning regions) does not list",(Envirofacts TRI_FACILITY.STATE_COUNTY_FIPS_CODE)
+county_name,STRING,"Nome do condado da instalação, conforme informado",,no,,,no,,COUNTY
+state,STRING,Sigla postal de duas letras do estado da instalação,,no,br_bd_diretorios_us.state:abbreviation,,no,"Includes the District of Columbia and the territories AS, GU, MP, PR and VI",STATE
+zip_code,STRING,"Código postal (ZIP) da instalação, 5 ou 9 dígitos",,no,,,no,,ZIP
+bia_code,STRING,Código de três letras do Bureau of Indian Affairs (BIA) da tribo em cuja terra a instalação está localizada,,no,,,no,,BIA
+tribe_name,STRING,Nome da tribo em cuja terra a instalação está localizada,,no,,,no,,TRIBE
+latitude,FLOAT64,"Latitude que melhor representa a instalação, em graus decimais",,no,,degree,no,Collected from facilities through RY 2004; obtained from the Facility Registry Service since RY 2005,LATITUDE
+longitude,FLOAT64,"Longitude que melhor representa a instalação, em graus decimais",,no,,degree,no,Collected from facilities through RY 2004; obtained from the Facility Registry Service since RY 2005,LONGITUDE
+parent_company_name,STRING,"Nome da empresa controladora da instalação, conforme informado",,no,,,no,,PARENT CO NAME
+parent_company_duns,STRING,Número Dun & Bradstreet (D-U-N-S) da empresa controladora,,no,,,no,,PARENT CO DB NUM
+standardized_parent_company_name,STRING,Nome padronizado pela EPA da empresa controladora final nos Estados Unidos,,no,,,no,,STANDARD PARENT CO NAME
+foreign_parent_company_name,STRING,"Nome da empresa controladora estrangeira, quando há uma controladora de nível superior fora dos Estados Unidos",,no,,,no,,FOREIGN PARENT CO NAME
+foreign_parent_company_duns,STRING,Número Dun & Bradstreet (D-U-N-S) da empresa controladora estrangeira,,no,,,no,,FOREIGN PARENT CO DB NUM
+standardized_foreign_parent_company_name,STRING,Nome padronizado pela EPA da empresa controladora estrangeira,,no,,,no,,STANDARD FOREIGN PARENT CO NAME
+federal_facility,STRING,Indica se a instalação é de propriedade e operação do governo federal (YES ou NO),,no,,,no,,FEDERAL FACILITY
