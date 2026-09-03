@@ -148,6 +148,11 @@ def download(
         url, headers=constants.HEADERS.value, stream=True, timeout=timeout
     ) as r:
         r.raise_for_status()
+        # ``r.raw`` yields the body exactly as it came off the wire. irs.gov
+        # serves the BMF CSVs with ``Content-Encoding: br``, so without this
+        # the file on disk is Brotli, not CSV, and the header check in
+        # ``clean_bmf`` reports every column missing.
+        r.raw.decode_content = True
         with open(tmp, "wb") as fh:
             shutil.copyfileobj(r.raw, fh, length=1 << 22)
     tmp.rename(dest)
