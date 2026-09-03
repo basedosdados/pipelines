@@ -1,5 +1,3 @@
--- Microdados SIM: carga 2020-2024; particao end: 2024 (ver README).
--- Staging reprocessado com cleaning.py (circunstancia_obito, estado_civil).
 {{
     config(
         alias="microdados",
@@ -8,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 1996, "end": 2024, "interval": 1},
+            "range": {"start": 1996, "end": 2031, "interval": 1},
         },
         cluster_by="sigla_uf",
     )
@@ -105,5 +103,6 @@ select
     safe_cast(tipo_nivel_investigador as string) tipo_nivel_investigador,
     safe_cast(numero_dias_informacao as int64) numero_dias_informacao,
     safe_cast(fontes_informacao as string) fontes_informacao,
-    safe_cast(alt_causa as string) alt_causa
+    safe_cast(alt_causa as string) alt_causa,
+    safe_cast(dado_preliminar as string) dado_preliminar
 from {{ set_datalake_project("br_ms_sim_staging.microdados") }} as t

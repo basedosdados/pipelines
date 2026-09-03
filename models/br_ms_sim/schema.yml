@@ -213,6 +213,10 @@ models:
         description: Fontes Informação
       - name: alt_causa
         description: Alt. Causa
+      - name: dado_preliminar
+        description: >
+          Indica se o registro vem da versão preliminar da fonte, ainda sujeita
+          a revisão (1), ou da versão definitiva (0)
   - name: br_ms_sim__dicionario
     description: Dicionário para tradução dos códigos do conjunto br_ms_sim. Para
       taduzir códigos compartilhados entre instituições, como id_municipio, buscar
