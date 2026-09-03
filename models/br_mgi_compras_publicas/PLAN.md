@@ -654,3 +654,37 @@ structurally sequential. That was wrong: `SNAPSHOT` goes through
 `_page_range_jobs` (`harvest.py:246-257`), so the 2 snapshot values fan out to
 40 jobs. The 2h15m it takes is the AIMD throttle across ~1,900 pages, not a
 missing fan-out — nothing to fix.
+
+## The daily flow would have erased 1997-2025 (found and fixed 2026-09-03)
+
+Dev-running the daily flow -- which had never been exercised -- surfaced a
+defect that only bites on the first armed prod run.
+
+`_run` uploaded every table with `dump_mode="overwrite"`. In
+`pipelines/utils/tasks.py` that branch calls `st.delete_table(mode="staging")`,
+which removes the **entire** staging prefix for the table, then uploads
+`data_path`. For the weekly flow that is correct: its tables are snapshots and
+`data_path` holds the whole register. For the daily flow `data_path` held a
+180-day window, so all seven fact tables -- `contratacao`, `contratacao_item`,
+`contratacao_item_resultado`, `ata_registro_preco`, `ata_registro_preco_item`,
+`contrato`, `contrato_item` -- would have been rebuilt from that window alone.
+
+Switching to `append` alone is not the fix, for two independent reasons:
+
+1. `consolidate_table` writes `data-{i}.parquet` per partition. A year that
+   previously needed three files and now needs two leaves `data-2.parquet` in
+   place holding the *old* rows, which then double count.
+2. `since = today - 180d` opens mid-year, and `plan_jobs` clamps the window
+   start to `since` (`harvest.py:140`). Replacing the `ano=2026` partition with
+   only March 7 onward drops January 1 - March 6.
+
+The fix has three parts: align `since` to 1 January so partitions are written
+whole, delete exactly the partitions being replaced via
+`clear_staging_partitions`, then upload with `append`. Snapshot tables pass
+`since=None` and keep `overwrite`, which is what they need.
+
+The dev run (`sociable-carp`) was cancelled during its first harvest, before
+any upload. Dev row counts were re-checked afterwards and are unchanged.
+
+**Still unexercised:** the corrected daily path has not itself been dev-run.
+That run is the remaining gate before the daily schedule is armed.
