@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the reported research income,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,Year
+hep_code,STRING,Code of the higher education provider assigned by the Department of Education,,no,diretorios_au.higher_education_provider:hep_code,,no,,HEP Code
+category,STRING,"HERDC research income category, from 1 to 4",,yes,,,no,"1 Australian competitive grants, 2 other public sector research income, 3 industry and other research income, 4 cooperative research centre income",Category
+sub_category,STRING,HERDC research income sub-category within the category,,no,,,no,"Sub-categories are added and retired over the series; a null amount means the sub-category was not in use that year, which is not the same as a reported nil",Sub-Category
+amount,INT64,Research income reported for the sub-category,,no,,AUD,no,Null where the sub-category was not collected that year,Amount ($)
