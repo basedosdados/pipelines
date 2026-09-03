@@ -1,0 +1,12 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+tri_chemical_id,STRING,Identificador TRI do produto químico ou categoria de compostos: número CAS sem hífens com zeros à esquerda (10 dígitos) ou código Nnnn para categorias,,no,,,no,The value 9999999999 marks sanitized trade-secret submissions,TRI CHEMICAL/COMPOUND ID
+chemical_name,STRING,Nome do produto químico ou da categoria de compostos na lista TRI,,no,,,no,Attributes as published in the most recent reporting year in which the chemical appears; the PFAS flag exists since RY 2020,CHEMICAL
+cas_number,STRING,"Número de registro do Chemical Abstracts Service (CAS) com hífens, ou o código da categoria de compostos",,no,,,no,,CAS#
+srs_id,STRING,Identificador da substância no Substance Registry Services (SRS) da EPA,,no,,,no,,SRS ID
+clean_air_act_chemical,STRING,Indica se o produto químico é listado como poluente atmosférico perigoso pelo Clean Air Act (YES ou NO),,no,,,no,,CLEAN AIR ACT CHEMICAL
+classification,STRING,"Classificação do produto químico: TRI (substância geral da seção 313 do EPCRA), PBT (persistente, bioacumulativa e tóxica) ou Dioxin (dioxina ou composto similar)",,yes,,,no,,CLASSIFICATION
+metal,STRING,Indica se o produto químico é um metal com restrições de declaração no TRI (YES ou NO),,no,,,no,,METAL
+metal_category,STRING,"Categoria de metal do produto químico, como rótulo de texto (por exemplo Elemental metals, Metal compound categories, Non_Metal)",,no,,,no,"Codes 1-4 in the source documentation appear in the file as text labels (Elemental metals, Metal compound categories, ...)",METAL CATEGORY
+carcinogen,STRING,Indica se o produto químico é classificado como carcinógeno pela OSHA (YES ou NO),,no,,,no,,CARCINOGEN
+pbt,STRING,"Indica se o produto químico é persistente, bioacumulativo e tóxico (PBT) (YES ou NO)",,no,,,no,,PBT
+pfas,STRING,Indica se o produto químico é uma substância per- e polifluoroalquil (PFAS) (YES ou NO),,no,,,no,,PFAS
