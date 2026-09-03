@@ -26,6 +26,7 @@ import os
 import sys
 from pathlib import Path
 
+import basedosdados as bd
 import google.cloud.storage as gcs
 from google.cloud import bigquery
 
@@ -71,9 +72,16 @@ def upload_table(table: str, expected: int | None) -> None:
     print(f"--- {table} ---", flush=True)
 
     bq = bigquery.Client(project=PROJECT)
-    ds = bigquery.Dataset(f"{PROJECT}.{DATASET_ID}_staging")
-    ds.location = "US"
-    bq.create_dataset(ds, exists_ok=True)
+    # Create the staging dataset through the library, never with a bare
+    # bigquery.Client.create_dataset. Dataset.create calls publicize, which
+    # grants roles/bigquery.dataViewer to allUsers on a staging dataset — the
+    # grant the deployed worker reads staging through. A hand-created dataset
+    # gets only the creator plus project-level roles, and the pipeline then dies
+    # on `403 bigquery.tables.get denied`, whose "or it may not exist" wording
+    # points at the wrong cause entirely.
+    bd.Dataset(dataset_id=DATASET_ID).create(
+        mode="staging", if_exists="pass", location="US"
+    )
 
     # A native table left by an earlier load job would shadow the GCS files the
     # external definition is meant to read; drop it so the helper recreates it.
