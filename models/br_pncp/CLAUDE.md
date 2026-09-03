@@ -800,3 +800,42 @@ Two things worth keeping:
 
 The `dicionario` used here is provisional -- contratacao contributes 0 keys
 until it is harvested, so it must be rebuilt last, as `constants` says.
+
+## PNCP is unstable: second outage in 24h (2026-09-04)
+
+Paused again at `contratacao` 3879/7518. Diagnosis, with a local control so
+"the API is down" is a measurement rather than an assumption:
+
+| host | DNS | TCP connect | result |
+|---|---|---|---|
+| google.com | 0.01s | 0.03s | 200 |
+| storage.googleapis.com | 0.07s | 0.10s | 400 (expected) |
+| pncp.gov.br/app/ | 0.02s | 0.43s | fails above TCP |
+| pncp.gov.br/api/... | 0.04s | 0.44s | hangs 20s |
+
+Our network is healthy and PNCP's host is reachable -- DNS resolves, TCP
+connects -- and everything above that layer fails. Note this outage took the
+**web app** down too, unlike 2026-09-02 where the app served in 1.8s while
+the API hung.
+
+**Pause rather than push through.** A degraded API does not stop the
+harvest, it makes the harvest mark windows FAILED at ~1-2 minutes each. Left
+running, it would have walked the remaining 3,639 windows, finished with
+enormous gaps, and needed the entire range re-swept. The failure burst that
+gave it away:
+
+```
+m04 FAILED (DeepPageError: gave up at page 2/9)
+m05 FAILED (ServerOverloadError: unrecoverable single day)
+m06 FAILED (ServerOverloadError: unrecoverable single day)
+m07 FAILED (ServerOverloadError: unrecoverable single day)
+```
+
+Four modalidades of one window in a row is the signal: isolated failures are
+normal, a run of them means the API and not the data.
+
+**This matters for the recurring pipeline, not just the backfill.** Two
+outages in 24 hours means scheduled runs will hit them. The poll guard
+handles it correctly -- a failed run simply retries next schedule -- but
+expect failed runs in the Prefect UI and do not read them as a pipeline bug
+without checking whether PNCP was up.
