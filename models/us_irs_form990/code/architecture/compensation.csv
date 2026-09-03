@@ -1,0 +1,21 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano fiscal da declaração,,no,br_bd_diretorios_data_tempo.ano:ano,,no,Coluna de partição; ano fiscal da declaração (TaxYr no cabeçalho),F9_00_TAX_YEAR
+ein,STRING,Número de Identificação de Empregador (EIN) da organização declarante (nove dígitos),,no,,,no,,F9_00_ORG_EIN
+form_type,STRING,Formulário apresentado: 990 ou 990EZ,,yes,,,no,,F9_00_RETURN_TYPE
+object_id,STRING,Identificador de objeto da declaração no IRS,,no,,,no,"Identificador de objeto do IRS com 18 dígitos, também o nome do arquivo XML; único por declaração",(file name)
+line_number,STRING,Posição da pessoa na listagem da declaração,,no,,,no,"Sequência da pessoa na listagem da declaração, a partir de 1",(group order)
+person_name,STRING,"Nome do dirigente, diretor, curador, empregado-chave ou empregado mais bem remunerado",,no,,,no,,F9_07_COMP_DTK_NAME_PERS
+business_name,STRING,"Nome da entidade, quando o cargo é ocupado por uma organização",,no,,,no,,F9_07_COMP_DTK_NAME_ORG_L1
+title,STRING,Cargo ou título,,no,,,no,,F9_07_COMP_DTK_TITLE
+average_hours_per_week,FLOAT64,Média de horas semanais dedicadas ao cargo,,no,,hour,no,Horas informadas; o esquema do IRS as armazena como texto decimal,F9_07_COMP_DTK_AVE_HOUR_WEEK
+average_hours_per_week_related,FLOAT64,Média de horas semanais em organizações relacionadas,,no,,hour,no,Apenas Form 990,F9_07_COMP_DTK_AVE_HOUR_WEEK_RL
+is_individual_trustee_or_director,BOOLEAN,Cargo: curador individual ou diretor,,no,,,no,As caixas de cargo existem apenas na Parte VII do Form 990; nulo no 990-EZ,F9_07_COMP_DTK_POS_INDIV_TRUST_X
+is_institutional_trustee,BOOLEAN,Cargo: curador institucional,,no,,,no,As caixas de cargo existem apenas na Parte VII do Form 990; nulo no 990-EZ,F9_07_COMP_DTK_POS_INST_TRUST_X
+is_officer,BOOLEAN,Cargo: dirigente,,no,,,no,As caixas de cargo existem apenas na Parte VII do Form 990; nulo no 990-EZ,F9_07_COMP_DTK_POS_OFF_X
+is_key_employee,BOOLEAN,Cargo: empregado-chave,,no,,,no,As caixas de cargo existem apenas na Parte VII do Form 990; nulo no 990-EZ,F9_07_COMP_DTK_POS_KEY_EMPL_X
+is_highest_compensated_employee,BOOLEAN,Cargo: empregado mais bem remunerado,,no,,,no,As caixas de cargo existem apenas na Parte VII do Form 990; nulo no 990-EZ,F9_07_COMP_DTK_POS_HIGH_COMP_X
+is_former,BOOLEAN,"Cargo: ex-dirigente, ex-diretor, ex-curador ou ex-empregado",,no,,,no,As caixas de cargo existem apenas na Parte VII do Form 990; nulo no 990-EZ,F9_07_COMP_DTK_POS_FORMER_X
+reportable_compensation_from_organization,FLOAT64,Remuneração declarável paga pela organização (W-2/1099),,no,,USD,no,Form 990 coluna D; 990-EZ Parte IV coluna (c),F9_07_COMP_DTK_COMP_ORG
+reportable_compensation_from_related,FLOAT64,Remuneração declarável paga por organizações relacionadas,,no,,USD,no,Apenas Form 990,F9_07_COMP_DTK_COMP_RLTD
+other_compensation,FLOAT64,Outra remuneração estimada da organização e de organizações relacionadas,,no,,USD,no,Form 990 coluna F; no 990-EZ a coluna (e) de conta de despesas e outros abonos,F9_07_COMP_DTK_COMP_OTH
+employee_benefit_contributions,FLOAT64,Contribuições a planos de benefícios e remuneração diferida,,no,,USD,no,Apenas 990-EZ Parte IV coluna (d),F9_07_COMP_DTK_EMPL_BEN

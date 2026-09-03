@@ -1,0 +1,67 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano fiscal da declaração,,no,br_bd_diretorios_data_tempo.ano:ano,,no,Coluna de partição; ano fiscal da declaração (TaxYr no cabeçalho),F9_00_TAX_YEAR
+ein,STRING,Número de Identificação de Empregador (EIN) da organização declarante (nove dígitos),,no,,,no,,F9_00_ORG_EIN
+form_type,STRING,Formulário apresentado: 990 ou 990EZ,,yes,,,no,Apenas 990 e 990-EZ são carregados; 990-PF e 990-T estão fora da concordância,F9_00_RETURN_TYPE
+object_id,STRING,Identificador de objeto da declaração no IRS,,no,,,no,"Identificador de objeto do IRS com 18 dígitos, também o nome do arquivo XML; único por declaração",(file name)
+return_version,STRING,Versão do esquema XML e-file do IRS da declaração,,no,,,no,Versão do esquema e-file do IRS (ex.: 2024v5.2); os nomes dos elementos mudam entre versões e são conciliados pela concordância,@returnVersion
+xml_batch_id,STRING,Lote de divulgação do IRS (arquivo ZIP) em que a declaração foi publicada,,no,,,no,Nome do ZIP do IRS em que a declaração foi divulgada; corresponde a XML_BATCH_ID nos índices do IRS,(ZIP name)
+return_timestamp,TIMESTAMP,Data e hora do envio eletrônico da declaração,,no,,,no,,F9_00_RETURN_TIME_STAMP
+tax_period_begin,DATE,Primeiro dia do período fiscal coberto,,no,,,no,,F9_00_TAX_PERIOD_BEGIN_DATE
+tax_period_end,DATE,Último dia do período fiscal coberto,,no,,,no,,F9_00_TAX_PERIOD_END_DATE
+is_amended,BOOLEAN,Se a declaração é retificadora,,no,,,no,Caixa de seleção; false quando a caixa não consta do XML,F9_00_RETURN_AMENDED_X
+is_initial,BOOLEAN,Se é a primeira declaração da organização,,no,,,no,Caixa de seleção; false quando a caixa não consta do XML,F9_00_RETURN_INITIAL_X
+is_final,BOOLEAN,Se é a declaração final (organização encerrada),,no,,,no,Caixa de seleção; false quando a caixa não consta do XML,F9_00_RETURN_FINAL_X
+is_group_return,BOOLEAN,Se a declaração é um retorno de grupo para afiliadas,,no,,,no,Caixa de seleção; false quando a caixa não consta do XML,F9_00_RETURN_GROUP_X
+organization_name,STRING,Nome da organização declarante,,no,,,no,"Linhas 1 e 2 do nome do declarante, unidas por espaço",F9_00_ORG_NAME_L1 + F9_00_ORG_NAME_L2
+doing_business_as_name,STRING,Nome fantasia da organização,,no,,,no,Apenas Form 990,F9_00_ORG_NAME_DBA_L1
+principal_officer_name,STRING,Nome do dirigente principal,,no,,,no,Apenas Form 990,F9_00_PRIN_OFF_NAME_PERS
+address_line_1,STRING,Logradouro do endereço da organização,,no,,,no,,F9_00_ORG_ADDR_L1
+city,STRING,Cidade do endereço da organização,,no,,,no,,F9_00_ORG_ADDR_CITY
+state,STRING,Estado do endereço da organização (sigla USPS),,no,br_bd_diretorios_us.state:abbreviation,,no,"Estado dos EUA ou, para endereços no exterior, o nome da província/estado",F9_00_ORG_ADDR_STATE
+zip_code,STRING,CEP (ZIP) ou código postal estrangeiro,,no,,,no,,F9_00_ORG_ADDR_ZIP
+country,STRING,Código do país de um endereço no exterior,,no,,,no,Preenchido apenas para endereços no exterior,F9_00_ORG_ADDR_CNTR
+website,STRING,Site da organização,,no,,,no,,F9_00_ORG_WEBSITE
+formation_year,INT64,Ano de constituição da organização,,no,,year,no,Apenas Form 990,F9_00_YEAR_FORMATION
+legal_domicile_state,STRING,Estado de domicílio legal,,no,br_bd_diretorios_us.state:abbreviation,,no,Apenas Form 990,F9_00_LEGAL_DMCL_STATE
+organization_type,STRING,"Forma jurídica: corporation, trust, association ou other",,no,,,no,"Derivado das quatro caixas de tipo de organização: corporation, trust, association, other",F9_00_TYPE_ORG_*_X
+exempt_status,STRING,"Status de isenção declarado: 501(c)(3), 501(c), 4947(a)(1) ou 527",,no,,,no,"Derivado das caixas de status de isenção: 501(c)(3), 501(c), 4947(a)(1), 527",F9_00_EXEMPT_STAT_*_X
+group_exemption_number,STRING,Número de isenção de grupo,,no,,,no,,F9_00_GROUP_EXEMPT_NUM
+mission_description,STRING,Missão ou atividades mais significativas,,no,,,no,Parte I linha 1 (Form 990) ou a finalidade isenta principal (990-EZ),F9_01_ACT_GVRN_ACT_MISSION / F9_03_ORG_MISSION_PURPOSE
+gross_receipts,FLOAT64,Receitas brutas,,no,,USD,no,,F9_00_GRO_RCPT
+voting_members_count,INT64,Número de membros votantes do órgão de governança,,no,,person,no,Apenas Form 990,F9_01_ACT_GVRN_NUM_VOTE_MEMB
+independent_voting_members_count,INT64,Número de membros votantes independentes do órgão de governança,,no,,person,no,Apenas Form 990,F9_01_ACT_GVRN_NUM_VOTE_MEMB_IND
+employees_count,INT64,Número total de empregados,,no,,person,no,Apenas Form 990,F9_01_ACT_GVRN_EMPL_TOT
+volunteers_count,INT64,Número total de voluntários (estimativa),,no,,person,no,Apenas Form 990,F9_01_ACT_GVRN_VOL_TOT
+unrelated_business_revenue,FLOAT64,Receita total de negócios não relacionados,,no,,USD,no,Apenas Form 990,F9_01_ACT_GVRN_UBIZ_REV_TOT
+unrelated_business_taxable_income,FLOAT64,Renda tributável líquida de negócios não relacionados,,no,,USD,no,Apenas Form 990,F9_01_ACT_GVRN_UBIZ_TAXABLE_NET
+contributions_grants,FLOAT64,"Contribuições, doações e subvenções recebidas",,no,,USD,no,Form 990 Parte I linha 8 ou 990-EZ Parte I linha 1,F9_01_REV_CONTR_TOT_CY / _V2
+contributions_grants_prior_year,FLOAT64,"Contribuições, doações e subvenções recebidas, ano anterior",,no,,USD,no,"Coluna do ano anterior da Parte I do Form 990; nulo no 990-EZ, que informa apenas o ano corrente",F9_01_REV_CONTR_TOT_PY
+program_service_revenue,FLOAT64,Receita de serviços de programa,,no,,USD,no,,F9_01_REV_PROG_TOT_CY
+program_service_revenue_prior_year,FLOAT64,"Receita de serviços de programa, ano anterior",,no,,USD,no,"Coluna do ano anterior da Parte I do Form 990; nulo no 990-EZ, que informa apenas o ano corrente",F9_01_REV_PROG_TOT_PY
+investment_income,FLOAT64,Receita de investimentos,,no,,USD,no,Apenas Form 990,F9_01_REV_INVEST_TOT_CY
+investment_income_prior_year,FLOAT64,"Receita de investimentos, ano anterior",,no,,USD,no,"Coluna do ano anterior da Parte I do Form 990; nulo no 990-EZ, que informa apenas o ano corrente",F9_01_REV_INVEST_TOT_PY
+other_revenue,FLOAT64,Outras receitas,,no,,USD,no,Apenas Form 990,F9_01_REV_OTH_CY
+other_revenue_prior_year,FLOAT64,"Outras receitas, ano anterior",,no,,USD,no,"Coluna do ano anterior da Parte I do Form 990; nulo no 990-EZ, que informa apenas o ano corrente",F9_01_REV_OTH_PY
+total_revenue,FLOAT64,Receita total,,no,,USD,no,,F9_01_REV_TOT_CY
+total_revenue_prior_year,FLOAT64,"Receita total, ano anterior",,no,,USD,no,"Coluna do ano anterior da Parte I do Form 990; nulo no 990-EZ, que informa apenas o ano corrente",F9_01_REV_TOT_PY
+grants_paid,FLOAT64,Subvenções e valores similares pagos,,no,,USD,no,,F9_01_EXP_GRANT_SIMILAR_CY
+grants_paid_prior_year,FLOAT64,"Subvenções e valores similares pagos, ano anterior",,no,,USD,no,"Coluna do ano anterior da Parte I do Form 990; nulo no 990-EZ, que informa apenas o ano corrente",F9_01_EXP_GRANT_SIMILAR_PY
+benefits_paid_to_members,FLOAT64,Benefícios pagos a membros ou em seu favor,,no,,USD,no,,F9_01_EXP_BEN_PAID_MEMB_CY
+benefits_paid_to_members_prior_year,FLOAT64,"Benefícios pagos a membros ou em seu favor, ano anterior",,no,,USD,no,"Coluna do ano anterior da Parte I do Form 990; nulo no 990-EZ, que informa apenas o ano corrente",F9_01_EXP_BEN_PAID_MEMB_PY
+salaries_compensation,FLOAT64,"Salários, outras remunerações e benefícios a empregados",,no,,USD,no,,F9_01_EXP_SAL_ETC_CY
+salaries_compensation_prior_year,FLOAT64,"Salários, outras remunerações e benefícios a empregados, ano anterior",,no,,USD,no,"Coluna do ano anterior da Parte I do Form 990; nulo no 990-EZ, que informa apenas o ano corrente",F9_01_EXP_SAL_ETC_PY
+professional_fundraising_fees,FLOAT64,Honorários de captação de recursos profissional,,no,,USD,no,Apenas Form 990,F9_01_EXP_PROF_FUNDR_TOT_CY
+professional_fundraising_fees_prior_year,FLOAT64,"Honorários de captação de recursos profissional, ano anterior",,no,,USD,no,"Coluna do ano anterior da Parte I do Form 990; nulo no 990-EZ, que informa apenas o ano corrente",F9_01_EXP_PROF_FUNDR_TOT_PY
+total_fundraising_expenses,FLOAT64,Despesas totais de captação de recursos,,no,,USD,no,Apenas Form 990,F9_01_EXP_FUNDR_TOT_CY
+other_expenses,FLOAT64,Outras despesas,,no,,USD,no,,F9_01_EXP_OTH_CY / _V2
+other_expenses_prior_year,FLOAT64,"Outras despesas, ano anterior",,no,,USD,no,"Coluna do ano anterior da Parte I do Form 990; nulo no 990-EZ, que informa apenas o ano corrente",F9_01_EXP_OTH_PY
+total_expenses,FLOAT64,Despesas totais,,no,,USD,no,,F9_01_EXP_TOT_CY
+total_expenses_prior_year,FLOAT64,"Despesas totais, ano anterior",,no,,USD,no,"Coluna do ano anterior da Parte I do Form 990; nulo no 990-EZ, que informa apenas o ano corrente",F9_01_EXP_TOT_PY
+revenue_less_expenses,FLOAT64,Receita menos despesas (superávit ou déficit),,no,,USD,no,,F9_01_EXP_REV_LESS_EXP_CY
+revenue_less_expenses_prior_year,FLOAT64,"Receita menos despesas, ano anterior",,no,,USD,no,"Coluna do ano anterior da Parte I do Form 990; nulo no 990-EZ, que informa apenas o ano corrente",F9_01_EXP_REV_LESS_EXP_PY
+total_assets_boy,FLOAT64,Ativo total no início do ano,,no,,USD,no,Form 990 Parte I; no 990-EZ o total do balanço da Parte II,F9_01_NAFB_ASSET_TOT_BOY / F9_10_ASSET_TOT_BOY
+total_assets_eoy,FLOAT64,Ativo total no fim do ano,,no,,USD,no,Form 990 Parte I; no 990-EZ o total do balanço da Parte II,F9_01_NAFB_ASSET_TOT_EOY / F9_10_ASSET_TOT_EOY
+total_liabilities_boy,FLOAT64,Passivo total no início do ano,,no,,USD,no,Form 990 Parte I; no 990-EZ o total do balanço da Parte II,F9_01_NAFB_LIAB_TOT_BOY / F9_10_LIAB_TOT_BOY
+total_liabilities_eoy,FLOAT64,Passivo total no fim do ano,,no,,USD,no,Form 990 Parte I; no 990-EZ o total do balanço da Parte II,F9_01_NAFB_LIAB_TOT_EOY / F9_10_LIAB_TOT_EOY
+net_assets_boy,FLOAT64,Patrimônio líquido ou saldo de fundos no início do ano,,no,,USD,no,,F9_01_NAFB_TOT_BOY
+net_assets_eoy,FLOAT64,Patrimônio líquido ou saldo de fundos no fim do ano,,no,,USD,no,,F9_01_NAFB_TOT_EOY
