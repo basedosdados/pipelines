@@ -745,3 +745,23 @@ The onboarding staging reproduces the old table count exactly, and the new
 table matches the new staging exactly -- **dbt drops nothing**. The source
 returns the same row count with 8,003 fewer distinct keys than in August,
 which is the in-place revision this pipeline exists to re-read.
+
+### The partition guard, validated against the real leak
+
+`prune_non_authoritative` was pulled out of `refresh_table` so it can be
+exercised without a three-hour flow run. Run against the onboarding output --
+which contains the actual leaked row -- it behaves as intended:
+
+| table | input | dropped | kept |
+|---|---|---|---|
+| `contrato` | `ano=2026` (117,795) + `ano=2027` (1, leaked) | `ano=2027` | `ano=2026` |
+| `ata_registro_preco` | `ano=2026` (83,121) + `ano=2027` (7) | none | both |
+| any table, `since=None` | `ano=2027` | none | all |
+
+So `contrato`'s real 2027 partition is protected, `ata_registro_preco` still
+refreshes 2027 because it declares `last_year=2027`, and the weekly snapshot
+path is untouched.
+
+This is a local test of the guard, not an end-to-end run: no flow has yet
+executed the guard on the worker. The next daily run is what confirms
+`contrato` logs `cleared 1 partition(s): ano=2026`.

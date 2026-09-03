@@ -92,6 +92,36 @@ def authoritative_years(
     return set(range(lo, last_year + 1))
 
 
+def prune_non_authoritative(
+    table_dir: Path,
+    spec: TableSpec,
+    since: dt.date | None,
+    today: dt.date | None = None,
+) -> list[tuple[str, int]]:
+    """Delete output partitions this run did not harvest completely.
+
+    Returns the ``(partition, rows)`` pairs removed, so the caller can log them.
+    A no-op when `since` is unset: a full harvest is authoritative for
+    everything it produced.
+    """
+    if since is None or not table_dir.is_dir():
+        return []
+    keep = authoritative_years(spec, since, today)
+    dropped: list[tuple[str, int]] = []
+    for part in sorted(table_dir.iterdir()):
+        if not part.is_dir() or "=" not in part.name:
+            continue
+        value = part.name.split("=", 1)[1]
+        if value.isdigit() and int(value) in keep:
+            continue
+        rows = sum(
+            pq.read_metadata(f).num_rows for f in part.glob("*.parquet")
+        )
+        shutil.rmtree(part)
+        dropped.append((part.name, rows))
+    return dropped
+
+
 def count_pages(
     session: requests.Session, spec: TableSpec, params: dict[str, Any]
 ) -> int:
