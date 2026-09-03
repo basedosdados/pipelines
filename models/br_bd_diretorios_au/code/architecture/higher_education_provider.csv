@@ -1,0 +1,5 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+hep_code,STRING,Código do provedor de ensino superior atribuído pelo Departamento de Educação da Austrália,,no,,,no,Chave primária do diretório,HEP Code
+name,STRING,Nome do provedor de ensino superior,,no,,,no,"Nome atual do provedor. A fonte retroage o nome atual para toda a série, de modo que instituições renomeadas aparecem sob um único nome",Higher Education Provider
+abbreviation_state,STRING,"Sigla do estado ou território onde o provedor está sediado (NSW, VIC, QLD, SA, WA, TAS, NT, ACT, OTHER)",,no,,,no,"OTHER designa provedores que operam em mais de um estado, e não o código OT (Other Territories) do padrão geográfico da ABS. Por isso a coluna não é ligada ao diretório de estados",State/Territory
+cohort,STRING,"Grupo de universidades ao qual o provedor pertence (Go8, ATN, IRU, RUN, non-aligned)",,yes,,,no,"Go8 Group of Eight, ATN Australian Technology Network, IRU Innovative Research Universities, RUN Regional Universities Network",Cohort
