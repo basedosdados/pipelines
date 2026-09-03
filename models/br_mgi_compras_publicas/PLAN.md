@@ -688,3 +688,60 @@ any upload. Dev row counts were re-checked afterwards and are unchanged.
 
 **Still unexercised:** the corrected daily path has not itself been dev-run.
 That run is the remaining gate before the daily schedule is armed.
+
+## Dev run of the daily flow (2026-09-03) -- the fix verified against data
+
+`paper-armadillo` (`e9fdf2a6-c568-4c12-ac62-c8b0d1fc8d9a`), dev pool,
+05:59-08:4x UTC, `materialize_to_prod=False, update_metadata=False`.
+**35 tasks, all COMPLETED**: 7 `refresh_table`, then per table
+clear -> upload -> `dbt run`, then 7 `dbt test`. Run-all-then-test-all holds.
+
+Both 462-orgao loops ran inside the flow for the first time -- `contrato`
+116,031 rows and `contrato_item` 275,700, each **462 jobs, 0 failed**.
+
+### History was preserved
+
+Partition counts were captured before the run and compared after:
+
+| | before | after |
+|---|---:|---:|
+| pre-2026 rows | 16,797,888 | 16,797,890 |
+
+The old `overwrite` path would have left **0**. The `+2` is not a leak: the
+`contrato_item` and `contratacao_item` models dedup on a business key that does
+**not** include `ano`, so revision collapse is global across the table. When a
+key appears in two years, the surviving revision's `ano` decides its partition,
+and refreshing 2026 can legitimately migrate a row into 2025. "Pre-2026 is
+byte-identical" is therefore the wrong invariant; "pre-2026 is unchanged except
+for cross-partition revision migration" is the right one.
+
+The clearing logs show the fix doing exactly what it should:
+
+```
+contratacao:             cleared 1 partition(s): ano=2026
+contratacao_item:        cleared 1 partition(s): ano=2026
+ata_registro_preco:      cleared 2 partition(s): ano=2026, ano=2027
+contrato:                cleared 2 partition(s): ano=2026, ano=2027
+```
+
+`ata_registro_preco` declares `last_year=2027`, so clearing 2027 there is
+correct. `contrato` does not -- that is the leaked-partition defect, fixed
+in a later commit whose guard this run predates.
+
+### The 2026 deltas are source churn, not loss
+
+Four 2026 partitions moved (`contratacao_item` -8,003,
+`contratacao_item_resultado` +13,201, `contrato_item` -17,086,
+`ata_registro_preco_item` -468). Checked rather than assumed, for
+`contratacao_item`:
+
+| | rows | distinct keys |
+|---|---:|---:|
+| onboarding staging `ano=2026` | 1,531,794 | 1,284,182 |
+| this run's staging `ano=2026` | 1,531,794 | 1,276,179 |
+| resulting table partition | | 1,276,179 |
+
+The onboarding staging reproduces the old table count exactly, and the new
+table matches the new staging exactly -- **dbt drops nothing**. The source
+returns the same row count with 8,003 fewer distinct keys than in August,
+which is the in-place revision this pipeline exists to re-read.
