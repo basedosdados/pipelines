@@ -293,6 +293,10 @@ project-excludes = [
   # repo root. The shared transform lives in the typed
   # pipelines/datasets/fr_meteofrance/ and is type-checked there.
   "models/fr_meteofrance/code",
+  # One-shot onboarding code for br_mgi_compras_publicas: standalone `.py`
+  # run via `uv run` with bare imports resolved through sys.path. The shared
+  # transform lives in the typed pipelines/datasets/br_mgi_compras_publicas/.
+  "models/br_mgi_compras_publicas/code",
   "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
   "models/world_wb_mides/code/licitacao_item.ipynb",
   "models/world_olympedia_olympics/code/[[]code[]]world_olympedia_olympics.ipynb",

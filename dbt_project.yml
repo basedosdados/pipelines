@@ -462,6 +462,9 @@ models:
     br_mg_belohorizonte_smfa_iptu:
       +materialized: table
       +schema: br_mg_belohorizonte_smfa_iptu
+    br_mgi_compras_publicas:
+      +materialized: table
+      +schema: br_mgi_compras_publicas
     br_mma_sinpatinhas:
       +materialized: table
       +schema: br_mma_sinpatinhas
