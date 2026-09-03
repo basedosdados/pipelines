@@ -94,13 +94,23 @@ def download(session: requests.Session, name: str, url: str) -> int:
     return written
 
 
-def main(retries: int = 3) -> None:
+def main(retries: int = 3, years: set[int] | None = None) -> None:
     PE_INPUT.mkdir(parents=True, exist_ok=True)
     session = requests.Session()
     session.headers.update({"User-Agent": BROWSER_UA})
 
     pending = plan(session)
     print(f"{len(pending)} files")
+
+    # Year-scoped refresh: a recurring run re-fetches only the open exercise. Every PE
+    # file is one exercise of one kind, so there is nothing year-less to keep.
+    if years is not None:
+        pending = {
+            n: u
+            for n, u in pending.items()
+            if int(n.split("_")[1].split(".")[0]) in years
+        }
+        print(f"  year filter {sorted(years)}: {len(pending)} files")
 
     # A missing exercise must be loud. The download that first ran this dropped 2009 and
     # 2010 because their files are named year-first, and the only evidence was one
@@ -111,9 +121,12 @@ def main(retries: int = 3) -> None:
             for n in pending
             if n.startswith(kind)
         }
-        gaps = [
-            y for y in range(PE_FIRST_YEAR, PE_LAST_YEAR + 1) if y not in have
-        ]
+        span = (
+            sorted(years)
+            if years is not None
+            else range(PE_FIRST_YEAR, PE_LAST_YEAR + 1)
+        )
+        gaps = [y for y in span if y not in have]
         if gaps:
             print(f"  WARNING {kind}: no file found for {gaps}")
     for attempt in range(1, retries + 1):
@@ -138,4 +151,8 @@ def main(retries: int = 3) -> None:
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--retries", type=int, default=3)
-    main(**vars(ap.parse_args()))
+    ap.add_argument(
+        "--year", type=int, action="append", help="restrict to this exercise"
+    )
+    args = ap.parse_args()
+    main(retries=args.retries, years=set(args.year) if args.year else None)
