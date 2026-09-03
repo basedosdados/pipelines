@@ -26,7 +26,10 @@ import datetime as dt
 from prefect import flow
 
 from pipelines.datasets.br_mgi_compras_publicas.constants import constants
-from pipelines.datasets.br_mgi_compras_publicas.tasks import refresh_table
+from pipelines.datasets.br_mgi_compras_publicas.tasks import (
+    rebuild_dicionario,
+    refresh_table,
+)
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -66,8 +69,11 @@ WEEKLY_TABLES = (
     "fornecedor",
     "catalogo_material",
     "catalogo_servico",
-    "dicionario",
 )
+#: Not harvested -- derived from the other tables' chunks, so it is rebuilt
+#: after them rather than fetched. It has no TableSpec, and asking
+#: refresh_table for it raises.
+DERIVED_TABLES = ("dicionario",)
 
 #: Tables refreshed daily paywall their most recent window to BD Pro; the
 #: slow-moving registries stay fully open. `register_table_materialization_task`
@@ -87,7 +93,6 @@ COVERAGE = {
         date_format=DateFormat.YEAR_MD,
     )
     for t in WEEKLY_TABLES
-    if t != "dicionario"
 }
 
 
@@ -97,6 +102,7 @@ def _run(
     since: dt.date | None,
     materialize_to_prod: bool,
     update_metadata: bool,
+    derived: tuple[str, ...] = (),
 ) -> None:
     """Harvest, upload and build every table, then test them all.
 
@@ -106,6 +112,11 @@ def _run(
     a clean environment where the sibling does not exist yet.
     """
     paths = {t: refresh_table(t, output_dir, since=since) for t in tables}
+    for name in derived:
+        paths[name] = rebuild_dicionario(
+            output_dir, _after=list(paths.values())
+        )
+    tables = tables + derived
 
     for bucket, target, enabled in (
         ("basedosdados-dev", "dev", True),
@@ -177,7 +188,14 @@ def br_mgi_compras_publicas_semanal_flow(
     )
     # Snapshots carry no date filter -- the whole register is re-read and
     # stamped with today's extraction date.
-    _run(WEEKLY_TABLES, output_dir, None, materialize_to_prod, update_metadata)
+    _run(
+        WEEKLY_TABLES,
+        output_dir,
+        None,
+        materialize_to_prod,
+        update_metadata,
+        derived=DERIVED_TABLES,
+    )
 
 
 # Minute chosen off the hour and away from the slots already in use: piling

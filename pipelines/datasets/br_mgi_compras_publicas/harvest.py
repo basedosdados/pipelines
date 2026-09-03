@@ -11,6 +11,7 @@ from __future__ import annotations
 import datetime as dt
 import logging
 import shutil
+import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
@@ -348,13 +349,23 @@ def harvest_table(
     every = progress_every or max(1, min(50, len(todo) // 20 or 1))
     rows = 0
     failures = 0
-    session_pool = [build_session() for _ in range(workers)]
+    # One session per worker THREAD, not per job index. requests.Session is not
+    # documented as thread-safe, and indexing a fixed pool by job number does not
+    # give each thread its own: jobs finish out of order, so two in-flight jobs
+    # can land on the same slot and share a connection pool.
+    local = threading.local()
+
+    def session_for_thread() -> requests.Session:
+        session = getattr(local, "session", None)
+        if session is None:
+            session = build_session()
+            local.session = session
+        return session
 
     def work(index_job: tuple[int, Job]) -> int:
-        index, job = index_job
-        session = session_pool[index % workers]
+        _, job = index_job
         return run_job(
-            session,
+            session_for_thread(),
             spec,
             job,
             columns,

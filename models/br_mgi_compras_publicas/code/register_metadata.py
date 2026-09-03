@@ -94,6 +94,16 @@ def fn(name: str) -> Callable[..., Any]:
 
 
 def lookup(category: str, slug: str, env: str) -> str | None:
+    """Resolve a reference id by slug, since ids differ between backends.
+
+    Args:
+        category: discover_ids category, e.g. "status" or "tag".
+        slug: the slug to resolve within that category.
+        env: backend environment, "staging" or "prod".
+
+    Returns:
+        The id, or None when the slug does not exist in that backend.
+    """
     try:
         return fn("lookup_id")(category=category, slug=slug, env=env)["id"]
     except Exception:
@@ -142,12 +152,18 @@ def columns_payload(table: str) -> str:
 
 
 def existing(node: dict[str, Any]) -> dict[str, Any]:
-    """Index a table node's child records so their ids can be reused."""
+    """Index a table node's child records so their ids can be reused.
+
+    Keeps the FIRST record for a repeated entity, matching what `prune` keeps.
+    A dict comprehension keeps the last, which would hand back the id `prune`
+    had just deleted -- latent today only because `prune` is inert (the backend
+    exposes no delete tool), and silently wrong the moment one is added.
+    """
+    levels: dict[Any, Any] = {}
+    for level in node.get("observation_levels", []):
+        levels.setdefault(level.get("entity_id"), level["id"])
     return {
-        "observation_levels": {
-            level.get("entity_id"): level["id"]
-            for level in node.get("observation_levels", [])
-        },
+        "observation_levels": levels,
         "cloud_tables": [c["id"] for c in node.get("cloud_tables", [])],
         "coverages": [c["id"] for c in node.get("coverages", [])],
         "updates": [u["id"] for u in node.get("updates", [])],
@@ -161,6 +177,9 @@ def prune(node: dict[str, Any], env: str) -> None:
     create_update_table fail with an error that names `coverages_areas`, a field
     that appears nowhere in the request.
     """
+    # Inert unless the backend grows a delete tool. Kept because duplicate
+    # child records are a real failure mode of a re-run, and this is where the
+    # cleanup belongs when it becomes possible.
     delete = fn("delete_record") if hasattr(server, "delete_record") else None
     if delete is None:
         return

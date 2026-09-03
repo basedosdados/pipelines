@@ -318,7 +318,6 @@ DATASET = {
         "price",
         "company",
     ],
-
 }
 
 #: Order the tables are presented on the site: the 14.133 regime first, then the

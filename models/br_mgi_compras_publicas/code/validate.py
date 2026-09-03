@@ -28,6 +28,9 @@ from dbt_spec import TABLES  # noqa: E402
 from pipelines.datasets.br_mgi_compras_publicas.api import (  # noqa: E402
     build_session,
 )
+from pipelines.datasets.br_mgi_compras_publicas.constants import (  # noqa: E402
+    constants,
+)
 from pipelines.datasets.br_mgi_compras_publicas.harvest import (  # noqa: E402
     plan_jobs,
 )
@@ -127,7 +130,16 @@ def main() -> int:
         # Read the planned chunk set, not a glob. A directory can still hold
         # chunks written by an earlier run under different job identifiers, and
         # globbing those in doubles every row.
-        orgaos = ["0"] if spec.window == "orgao" else None
+        # The real orgao list, not a placeholder: plan_jobs names ORGAO chunks
+        # o{orgao}__y{year}, so a stand-in plans only o0__* chunks, none of which
+        # exist, and the table is skipped in silence. These are the two tables
+        # carrying a duplicate-key tolerance, so they are the ones that most need
+        # checking.
+        orgaos = (
+            list(constants.CONTRATO_ORGAOS.value)
+            if spec.window.value == "orgao"
+            else None
+        )
         jobs = plan_jobs(spec, orgaos=orgaos, session=planner)
         files = [
             j.chunk_path(output_dir)

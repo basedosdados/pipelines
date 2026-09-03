@@ -12,6 +12,10 @@ from pathlib import Path
 
 from prefect import get_run_logger, task
 
+from pipelines.datasets.br_mgi_compras_publicas.constants import constants
+from pipelines.datasets.br_mgi_compras_publicas.dicionario import (
+    build_dicionario,
+)
 from pipelines.datasets.br_mgi_compras_publicas.harvest import (
     consolidate_table,
     harvest_table,
@@ -36,14 +40,33 @@ def refresh_table(
     root = Path(output_dir)
     spec = TABLE_SPECS[table]
 
+    # A chunk on disk is never re-fetched, which is what makes the one-shot
+    # backfill resumable -- and what would make a scheduled refresh a no-op. The
+    # window is re-read every run precisely because the source revises rows in
+    # place, so last run's chunks have to go or the revisions never arrive.
+    chunk_dir = root / "_chunks" / table
+    if chunk_dir.is_dir():
+        stale = list(chunk_dir.glob("*.parquet"))
+        for f in stale:
+            f.unlink()
+        logger.info(
+            "%s: cleared %d chunk(s) from a previous run", table, len(stale)
+        )
+
     year_orgaos = None
+    orgaos = None
     if spec.window.value == "year_orgao":
         year_orgaos = year_orgao_pairs(root)
+    elif spec.window.value == "orgao":
+        # /modulo-contratos/ has no date-only entry point, so the refresh
+        # iterates orgaos. Only the 462 known to hold contracts, not all 15,007.
+        orgaos = list(constants.CONTRATO_ORGAOS.value)
 
     stats = harvest_table(
         table,
         root,
         max_workers=max_workers,
+        orgaos=orgaos,
         year_orgaos=year_orgaos,
         since=since,
         extraction_date=dt.date.today(),
@@ -63,7 +86,7 @@ def refresh_table(
             "partial refresh"
         )
 
-    jobs = plan_jobs(spec, year_orgaos=year_orgaos, since=since)
+    jobs = plan_jobs(spec, orgaos=orgaos, year_orgaos=year_orgaos, since=since)
     merged = consolidate_table(table, root, jobs=jobs)
     if merged.get("missing"):
         raise RuntimeError(
@@ -71,3 +94,24 @@ def refresh_table(
         )
     logger.info("%s: consolidated %s rows", table, f"{merged['rows']:,}")
     return str(root / "output" / table)
+
+
+@task(retries=1, retry_delay_seconds=120)
+def rebuild_dicionario(
+    output_dir: str, _after: list[str] | None = None
+) -> str:
+    """Rebuild the dicionario from every harvested table's chunks.
+
+    Args:
+        output_dir: scratch root holding ``_chunks/`` and ``output/``.
+        _after: results of the table refreshes, to order this task after them --
+            the dictionary is derived from their chunks, so it must run last.
+
+    Returns:
+        The directory the parquet was written to.
+    """
+    logger = get_run_logger()
+    root = Path(output_dir)
+    rows = build_dicionario(root)
+    logger.info("dicionario: %s key/value pairs", f"{rows:,}")
+    return str(root / "output" / "dicionario")

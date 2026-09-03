@@ -84,6 +84,11 @@ ALL_TABLES = FAST_TABLES + SLOW_TABLES
 
 
 def data_dir() -> Path:
+    """Scratch root for harvested chunks and consolidated parquet.
+
+    Returns:
+        The path named by ``COMPRAS_DATA_DIR``, or the default under Downloads.
+    """
     return Path(os.environ.get("COMPRAS_DATA_DIR", DEFAULT_DATA_DIR))
 
 
@@ -156,6 +161,11 @@ def resolve_orgaos(output_dir: Path, *, probe: bool) -> list[str]:
 
 
 def main() -> int:
+    """Harvest or consolidate the tables named on the command line.
+
+    Returns:
+        0 on success, 1 if any job failed or any planned chunk was missing.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--tables",

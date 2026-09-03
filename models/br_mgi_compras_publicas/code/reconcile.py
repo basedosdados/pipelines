@@ -97,7 +97,10 @@ SOURCES: dict[str, tuple] = {
         "/modulo-legado/6_consultarCompraItensSemLicitacao",
         ("dt_ano_aviso_licitacao",),
         "year_param",
-        range(1997, 2025),
+        # Must match the harvest's own range (ANO_FIM_LEGADO is 2025), or the
+        # source total omits a year the local count includes and the script
+        # reports a delta that is its own arithmetic.
+        range(1997, 2026),
     ),
     "licitacao_item": (
         "/modulo-legado/2_consultarItemLicitacao",
