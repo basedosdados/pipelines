@@ -103,3 +103,29 @@ directory's primary key. Declare the referential check as a dbt
 redundant with institution — the "Non-University Higher Education Providers"
 bucket legitimately spans states, while all 47 real institutions map to exactly
 one.
+
+## Overlap with br_bd_diretorios_au.higher_education_provider
+
+`main` already carries `br_bd_diretorios_au.higher_education_provider`, added by
+the `au_doe_higher_education_finances` onboarding and built from the Higher
+Education Research Data Collection. It is 43 rows keyed on `hep_code`.
+
+The two directories describe the same entity. **42 of its 43 codes match this
+directory's `provider_code` exactly**, so `hep_code` and `provider_code` are the
+same identifier; the one it has that this did not, Batchelor Institute (2246),
+is now backfilled here from it.
+
+This directory is a superset — 151 rows against 43 — because the statistics
+tables reference things HERDC does not carry:
+
+- Table C providers and non-university providers, which are outside HERDC
+- the aggregate buckets the published tables use in place of individual
+  providers ("Non-University Higher Education Providers", "Table A Providers")
+
+Those aggregates have no `hep_code`, which is why this directory cannot be keyed
+on the provider code and uses a slug instead. `higher_education_provider` in turn
+carries `cohort` (Go8, ATN, IRU, RUN, non-aligned), which this one does not.
+
+**These should be consolidated into one directory.** Doing so means changing a
+dataset that is already merged and live in production, so it is left as a
+decision for review rather than made here.

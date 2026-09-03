@@ -360,6 +360,15 @@ AGGREGATE_INSTITUTIONS = {
 }
 
 
+# Provider codes that the Section 15 to 17 tables do not carry, taken from
+# br_bd_diretorios_au.higher_education_provider, which is built from the Higher
+# Education Research Data Collection. All 42 codes the sections do carry match
+# that directory exactly, so the two are the same identifier.
+PROVIDER_CODE_OVERRIDES = {
+    "batchelor_institute_of_indigenous_tertiary_education": "2246",
+}
+
+
 def collect_provider_codes(
     path: str | Path, sheets: list[str], column: int
 ) -> dict:
@@ -483,12 +492,11 @@ def build_institution_directory(
         ),
         "is_aggregate",
     ] = "yes"
-    if provider_codes:
-        directory["provider_code"] = directory[
-            "id_higher_education_institution"
-        ].map(provider_codes)
-    else:
-        directory["provider_code"] = pd.NA
+    codes = dict(PROVIDER_CODE_OVERRIDES)
+    codes.update(provider_codes or {})
+    directory["provider_code"] = directory[
+        "id_higher_education_institution"
+    ].map(codes)
     return directory.sort_values(
         "id_higher_education_institution"
     ).reset_index(drop=True)
