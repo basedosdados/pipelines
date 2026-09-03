@@ -3,7 +3,7 @@
 import re
 from pathlib import Path
 
-from google.cloud import storage
+import basedosdados as bd
 from prefect import task
 
 from pipelines.datasets.us_irs_form990 import utils
@@ -50,12 +50,22 @@ def loaded_batches(bucket_name: str) -> set[str]:
     Reading the bucket rather than the table also keeps a re-run idempotent
     when a previous run uploaded a batch but failed before dbt.
     """
-    client = storage.Client(project=bucket_name)
-    # The staging buckets are requester-pays.
-    bucket = client.bucket(bucket_name, user_project=bucket_name)
+    # Go through ``bd.Storage`` rather than a bare ``storage.Client``. The
+    # staging buckets are requester-pays, so the listing must name a billing
+    # project, and the pod's own ADC identity holds no
+    # ``serviceusage.services.use`` there. ``bd.Storage`` builds its bucket
+    # handle from the credentials in the pod's ``config.toml`` — the same ones
+    # ``upload_to_gcs`` writes with — and already pins ``user_project`` to
+    # ``billing_project_id``.
+    storage = bd.Storage(
+        dataset_id=constants.DATASET_ID.value,
+        table_id="return_financial",
+        bucket_name=bucket_name,
+        billing_project_id=bucket_name,
+    )
     prefix = f"staging/{constants.DATASET_ID.value}/return_financial/"
     batches = set()
-    for blob in client.list_blobs(bucket, prefix=prefix):
+    for blob in storage.bucket.list_blobs(prefix=prefix):
         match = _PART_RE.match(Path(blob.name).name)
         if match:
             batches.add(match.group(1))
