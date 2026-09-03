@@ -28,6 +28,7 @@ import os
 import zipfile
 from pathlib import Path
 
+# pyrefly: ignore [untyped-import]
 import openpyxl
 
 DATASET = "us_epa_ghgrp"

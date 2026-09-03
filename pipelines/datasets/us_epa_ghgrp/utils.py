@@ -367,7 +367,7 @@ def build_emission_sector(api_dir: Path, dims: dict) -> pd.DataFrame:
     placeholder = df["gas"].isna() & df["emission"].isna()
     if placeholder.any():
         log.info(
-            f"emission_sector: dropping {int(placeholder.sum()):,} gas/value-less placeholder rows"
+            f"emission_sector: dropping {placeholder.sum():,} gas/value-less placeholder rows"
         )
         df = df[~placeholder].reset_index(drop=True)
     # The source publishes ~80 keys as two rows (a zero placeholder beside the
