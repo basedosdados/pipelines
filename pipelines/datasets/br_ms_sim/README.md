@@ -64,13 +64,26 @@ utils.download_table("microdados", 2025, source)
 utils.clean_table("microdados", 2025, source)
 ```
 
+## Série histórica
+
+Os CSVs de 1996–2024 na staging foram gravados pela limpeza anterior, que
+nulificava o código `6` de `local_ocorrencia` (aldeia indígena) antes do upload.
+O dado não chegou à staging, então `full-refresh` não o recupera — só
+reprocessar os `.dbc`. É o que faz `reprocess_br_ms_sim.py`, na raiz do repo.
+
+Enquanto o histórico não é reprocessado, ele também não traz `dado_preliminar`,
+e a coluna volta nula nesses anos. O modelo aplica `coalesce(dado_preliminar,
+'0')`: tudo anterior à primeira execução do pipeline veio do diretório
+definitivo. Depois do reprocessamento o `coalesce` deixa de encontrar nulos e
+continua correto.
+
 ## Pontos de atenção
 
-- `dado_preliminar` é coluna nova no modelo. Em `dump_mode="append"` o schema da
-  tabela externa só é ampliado por `_sync_staging_schema`
-  (`pipelines/utils/tasks.py`), que abre o cliente do BigQuery sem credencial e
-  responde `403 bigquery.tables.update`. É o primeiro caso em que esse caminho é
-  de fato exercitado.
+- `dado_preliminar` é coluna nova no modelo, e em `dump_mode="append"` quem
+  amplia o schema da tabela externa é o `_sync_staging_schema`
+  (`pipelines/utils/tasks.py`). Esse caminho nunca tinha sido exercitado e
+  falhava com `403 bigquery.tables.update`, porque abria o cliente do BigQuery
+  sem credencial; corrigido nesta mesma branch para usar o cliente da lib.
 - O dicionário do conjunto vem de uma staging própria, alimentada por
   `models/br_ms_sim/code/update_dicionario.py`. As linhas de `dado_preliminar`
   precisam ser acrescentadas por lá.

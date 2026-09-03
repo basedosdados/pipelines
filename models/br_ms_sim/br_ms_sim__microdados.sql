@@ -104,5 +104,5 @@ select
     safe_cast(numero_dias_informacao as int64) numero_dias_informacao,
     safe_cast(fontes_informacao as string) fontes_informacao,
     safe_cast(alt_causa as string) alt_causa,
-    safe_cast(dado_preliminar as string) dado_preliminar
+    safe_cast(coalesce(dado_preliminar, '0') as string) dado_preliminar
 from {{ set_datalake_project("br_ms_sim_staging.microdados") }} as t

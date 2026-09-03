@@ -272,7 +272,8 @@ class constants(Enum):
 
     # Códigos que representam ausência de informação e viram NULL.
     NULLIFY = {
-        "local_ocorrencia": ["0", "6", "7", "9"],
+        # "6" é aldeia indígena, não ausência de informação.
+        "local_ocorrencia": ["0", "7", "9"],
         "sexo": ["0", "6", "7", "9"],
         "raca_cor": ["0", "6", "7", "9"],
         "estado_civil": ["0", "9"],

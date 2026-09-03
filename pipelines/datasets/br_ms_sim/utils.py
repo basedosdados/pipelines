@@ -144,7 +144,13 @@ def download_year(ano: int, source: str, input_dir: Path) -> Path:
         url = template.format(sigla_uf=sigla_uf, ano=ano)
         destination = input_dir / f"DO{sigla_uf}{ano}.dbc"
         try:
-            urllib.request.urlretrieve(url, filename=str(destination))
+            # `urlretrieve` não aceita timeout: uma transferência travada
+            # penduraria o worker até alguém matar a execução.
+            with (
+                urllib.request.urlopen(url, timeout=300) as response,
+                open(destination, "wb") as file,
+            ):
+                shutil.copyfileobj(response, file)
         except Exception as error:
             destination.unlink(missing_ok=True)
             missing.append(sigla_uf)
@@ -302,8 +308,9 @@ def parse_hora(value: object) -> str | None:
 def parse_idade(value: object) -> float | None:
     """Converte a idade codificada do SIM em anos.
 
-    O primeiro dígito é a unidade — 1 minuto, 2 hora, 3 mês, 4 ano, 5 ano acima
-    de 100 — e os demais são a quantidade.
+    O primeiro dígito é a unidade — 0 minutos, 1 horas, 2 dias, 3 meses, 4 anos,
+    5 anos acima de 100 — e os demais são a quantidade. Minutos e horas viram
+    zero; a unidade 0 não é tratada e devolve None, como na carga anterior.
 
     Args:
         value: Valor bruto do arquivo.
