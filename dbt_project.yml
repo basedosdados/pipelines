@@ -186,6 +186,9 @@ models:
     us_fhfa_hpi:
       +materialized: table
       +schema: us_fhfa_hpi
+    us_epa_ghgrp:
+      +materialized: table
+      +schema: us_epa_ghgrp
     au_aph_hansard:
       +materialized: table
       +schema: au_aph_hansard
