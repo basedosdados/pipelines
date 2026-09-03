@@ -19,4 +19,13 @@
 
 entities: ngo 8dd563db-4e1e-4295-83cd-328565337bae, month f9659fea-…, year e1bf146e-…, person b4e76213-…
 
+coverages (staging, area us, free): organization b6216cd1-b2b3-4b78-bebb-af5c5e06cda7 (range 2a6d0dff-…, 2026-08-10),
+return_financial 9dcdf7b3-d3a0-42e1-83b9-970a01211c58 (range ec670adc-…, 2014–2025),
+compensation b90dccb4-e57f-47f2-8009-f71e3c013cd9 (range 220084a0-…, 2014–2025),
+revocation 2a238e2e-be3b-4c16-8bdb-28244ec0253e (range 8423ed11-…, 2010-05-15..2026-05-15)
+updates: tables (month, latest 2026-09-03) organization fc876acd-…, return_financial f47383fe-…,
+compensation b3534327-…, revocation 22574fc5-…; sources efile c525f2a8-… (2026-08-19),
+bmf 9986ca9a-… (2026-08-10), revocation 53df28f3-… (2026-09-01)
+Drive folder: BD/Dados/Conjuntos/us_irs_form990 = 1Hw8DUxQjEGOA1692tf5r1yuLSpYI42mG (5 architecture CSVs)
+
 ## prod — pending (ids differ; re-resolve everything)
