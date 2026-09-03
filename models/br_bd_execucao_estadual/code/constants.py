@@ -4,6 +4,7 @@ State-government budget execution and procurement. One section per UF, because t
 sources have nothing in common beyond what they describe.
 """
 
+import os
 import re
 import unicodedata
 from pathlib import Path
@@ -32,7 +33,16 @@ def normalise_column(name: str) -> str:
 
 # Scratch lives outside the repo and outside Dropbox: multi-GB, fully reproducible,
 # and deleted at the end of onboarding (see .claude/rules/onboarding-workflow.md).
-DATA_DIR = Path.home() / "Downloads" / "br_state_budget_data"
+#
+# EXEC_ESTADUAL_DATA_DIR overrides it, which is what the Prefect flow sets: a worker
+# has no ~/Downloads worth writing to, and each flow run wants its own temp dir so a
+# retry cannot inherit a half-written file from the run before it.
+DATA_DIR = Path(
+    os.environ.get(
+        "EXEC_ESTADUAL_DATA_DIR",
+        str(Path.home() / "Downloads" / "br_state_budget_data"),
+    )
+)
 INPUT_DIR = DATA_DIR / "input"
 OUTPUT_DIR = DATA_DIR / "output"
 
@@ -146,10 +156,23 @@ SP_CREDOR_TODOS = SP_CTL + "ckbT"
 # --------------------------------------------------------------------------- BA
 
 BA_CKAN = "https://dados.ba.gov.br/api/3/action/package_show"
+# The `contratos` package is deliberately NOT listed. Its archive is 676 MB and holds
+# six views, of which exactly one -- VW_PROCESSO_SEI -- is used here, and `despesas`
+# ships that same view. Verified by reading each archive's central directory over HTTP
+# range requests: despesas covers VW_PAINEL_DESPESA and VW_PROCESSO_SEI, licitacoes
+# covers the four VW_PROC_AQUISICAO_*, and contratos adds only VW_ADITIVOS_APOSTILA,
+# VW_DOCUMENTOS_ANEXOS, VW_INSTRUMENTO_DESPESA, VW_PAGAMENTOS_NOTA_ORDEM_BANCARIA and
+# VW_PAINEL_CONTRATOS_FISCAIS -- none of them in BA_TABLES.
+#
+# It also does not download reliably: three consecutive attempts truncated and failed
+# the archive integrity check, which aborted the whole flow run. The onboarding load
+# never fetched it either, so `ba_empenho_sei` has always been built from the despesas
+# copy of VW_PROCESSO_SEI and dropping the package changes no published data.
+#
+# Add it back only alongside a model that actually reads a contracts view.
 BA_PACKAGES = {
     "despesas": "518569da-ccaa-4621-b8d2-e7424ec3f1ea",
     "licitacoes": "36c792f9-1999-4f21-a669-752a178b06b7",
-    "contratos": "edbe8b9a-c363-457e-8b06-4e1c1f693cb8",
 }
 BA_TABLES = {
     "VW_PAINEL_DESPESA": "ba_despesa",
