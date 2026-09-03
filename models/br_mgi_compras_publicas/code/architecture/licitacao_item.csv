@@ -1,0 +1,28 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+ano,INT64,Ano de realização da licitação,1997(1)2025,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Coluna de particionamento. A fonte não publica data para o item, portanto o ano é extraído dos quatro últimos dígitos de id_compra",,Year of the tender,Año de la licitación
+id_compra,STRING,Identificador da licitação no SIASG,,no,,,no,Junta com a tabela licitacao,id_compra,Identifier of the tender in SIASG,Identificador de la licitación en el SIASG
+id_compra_item,STRING,Identificador do item da licitação no SIASG,,no,,,no,Chave primária da tabela,id_compra_item,Identifier of the tender item in SIASG,Identificador del ítem de la licitación en el SIASG
+numero_licitacao,STRING,Número da licitação publicado pela fonte,,no,,,no,,numero_licitacao,Tender number published by the source,Número de la licitación publicado por la fuente
+numero_item_licitacao,STRING,Número do item dentro da licitação,,no,,,no,,numero_item_licitacao,Item number within the tender,Número del ítem dentro de la licitación
+codigo_uasg,STRING,Código da UASG responsável pela licitação,,no,,,no,,uasg,Code of the UASG running the tender,Código de la UASG responsable de la licitación
+nome_uasg,STRING,Nome da UASG responsável pela licitação,,no,,,no,,nome_uasg,Name of the UASG running the tender,Nombre de la UASG responsable de la licitación
+numero_aviso,STRING,Número do aviso de licitação,,no,,,no,,numero_aviso,Number of the tender notice,Número del aviso de licitación
+codigo_modalidade,STRING,Código da modalidade de licitação no SIASG,,yes,,,no,,modalidade,SIASG code of the tender modality,Código de la modalidad de licitación en el SIASG
+modalidade,STRING,Modalidade de licitação,,no,,,no,,nome_modalidade,Tender modality,Modalidad de licitación
+codigo_item_material,STRING,Código do item no catálogo de materiais CATMAT,,no,,,no,Preenchido apenas quando o item é material,codigo_item_material,Code of the item in the CATMAT material catalogue,Código del ítem en el catálogo de materiales CATMAT
+nome_material,STRING,Nome do material licitado,,no,,,no,,nome_material,Name of the tendered material,Nombre del material licitado
+codigo_item_servico,STRING,Código do item no catálogo de serviços CATSER,,no,,,no,Preenchido apenas quando o item é serviço,codigo_item_servico,Code of the item in the CATSER service catalogue,Código del ítem en el catálogo de servicios CATSER
+nome_servico,STRING,Nome do serviço licitado,,no,,,no,,nome_servico,Name of the tendered service,Nombre del servicio licitado
+descricao_item,STRING,Descrição detalhada do item licitado,,no,,,no,,descricao_item,Detailed description of the tendered item,Descripción detallada del ítem licitado
+unidade,STRING,Unidade de fornecimento do item,,no,,,no,,unidade,Supply unit of the item,Unidad de suministro del ítem
+quantidade,FLOAT64,Quantidade licitada do item,,no,,unit,no,,quantidade,Quantity of the item put out to tender,Cantidad licitada del ítem
+valor_estimado,FLOAT64,Valor estimado do item,,no,,BRL,no,,valor_estimado,Estimated value of the item,Valor estimado del ítem
+criterio_julgamento,STRING,"Critério de julgamento do item, como menor valor ou maior desconto",,no,,,no,,criterio_julgamento,"Award criterion for the item, such as lowest value or largest discount","Criterio de adjudicación del ítem, como menor valor o mayor descuento"
+beneficio,STRING,"Tratamento diferenciado concedido a microempresas, empresas de pequeno porte e cooperativas",,no,,,no,,beneficio,"Preferential treatment granted to micro, small enterprises and cooperatives","Trato diferenciado concedido a microempresas, pequeñas empresas y cooperativas"
+cnpj_fornecedor,STRING,CNPJ do fornecedor vencedor do item,,no,,,no,,cnpj_fornecedor,Taxpayer number of the supplier awarded the item,CNPJ del proveedor adjudicatario del ítem
+nome_fornecedor,STRING,Razão social do fornecedor vencedor do item,,no,,,no,,nome_fornecedor,Corporate name of the supplier awarded the item,Razón social del proveedor adjudicatario del ítem
+cpf_vencedor,STRING,CPF mascarado do vencedor pessoa física,,no,,,yes,A fonte publica o CPF parcialmente mascarado. O valor ESTRANGEIRO indica vencedor sem CPF brasileiro,cpf_vencedor,Masked taxpayer number of the individual winner,CPF enmascarado del ganador persona física
+nome_vencedor_pessoa_fisica,STRING,Nome do vencedor pessoa física,,no,,,yes,,nome_vencedor_pf,Name of the individual winner,Nombre del ganador persona física
+indicador_decreto_7174,STRING,Indica se o item está sujeito às preferências do Decreto 7.174/2010,,yes,,,no,"O Decreto 7.174/2010 regula a preferência para bens e serviços de informática. A fonte publica o valor como texto true ou false, não como booleano",decreto_7174,"Whether the item is subject to the preferences of Decree 7,174/2010",Indica si el ítem está sujeto a las preferencias del Decreto 7.174/2010
+indicador_sustentavel,STRING,Indica se o item é classificado como sustentável,,yes,,,no,"A fonte publica o valor como 0 ou 1, não como booleano",sustentavel,Whether the item is classified as sustainable,Indica si el ítem está clasificado como sostenible
+data_alteracao,DATETIME,Data e hora da última alteração do registro,,no,,,no,,dt_alteracao,Timestamp of the last change to the record,Fecha y hora de la última modificación del registro
