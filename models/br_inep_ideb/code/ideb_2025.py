@@ -10,7 +10,12 @@ input = Path("input", "br_inep_ideb")
 output = Path("output", "br_inep_ideb")
 
 
-def main(year: int):
+def main(year: int, skip_download: bool = False) -> None:
+    """Build and upload IDEB data for one reference year.
+    Args:
+        year: IDEB reference year to process.
+        skip_download: Skip download of files
+    """
     input.mkdir(parents=True, exist_ok=True)
     output.mkdir(parents=True, exist_ok=True)
 
@@ -24,8 +29,6 @@ def main(year: int):
         "escola_anos_finais": f"https://download.inep.gov.br/ideb/resultados/divulgacao_anos_finais_escolas_{year}.zip",
         "escola_em": f"https://download.inep.gov.br/ideb/resultados/divulgacao_ensino_medio_escolas_{year}.zip",
     }
-
-    skip_download = True
 
     if not skip_download:
         for table_name, url in urls.items():
@@ -74,7 +77,7 @@ def main(year: int):
             pd.read_excel(xlsx_br, sheet_name=sheet_name, skiprows=9)[
                 list(common_renames.keys())
             ]
-            .rename(columns=common_renames, errors="raise")  # type: ignore
+            .rename(columns=common_renames, errors="raise")
             .assign(anos_escolares=sheet_name)
             for sheet_name in sheet_names_br
         ]
@@ -122,7 +125,10 @@ def main(year: int):
     ]
 
     df_brasil_updated = pd.concat(
-        [df_brasil[tb_brasil_order_cols], df_brasil_upstream]
+        [
+            df_brasil[tb_brasil_order_cols],
+            df_brasil_upstream.loc[df_brasil_upstream["year"] != year],
+        ]
     )
 
     output_br = os.path.join(output, "brasil.csv")
@@ -246,7 +252,10 @@ def main(year: int):
     )
 
     df_regiao_updated = pd.concat(
-        [df_regioes_latest[tb_regiao_order_cols], df_regiao_upstream]
+        [
+            df_regioes_latest[tb_regiao_order_cols],
+            df_regiao_upstream.loc[df_regiao_upstream["year"] != year],
+        ]
     )
 
     output_regiao = os.path.join(output, "regiao.csv")
@@ -290,7 +299,10 @@ def main(year: int):
     )
 
     df_uf_updated = pd.concat(
-        [df_ufs_latest[tb_uf_order_cols], df_uf_upstream]
+        [
+            df_ufs_latest[tb_uf_order_cols],
+            df_uf_upstream.loc[df_uf_upstream["year"] != year],
+        ]
     )
 
     output_uf = os.path.join(output, "uf.csv")
@@ -337,7 +349,7 @@ def main(year: int):
                         "CO_MUNICIPIO": "id_municipio",
                     },
                     errors="raise",
-                )  # type: ignore
+                )
                 .rename(columns=common_renames, errors="raise")
                 .assign(anos_escolares=table_name)
                 for table_name, path in {
@@ -415,7 +427,10 @@ def main(year: int):
     )
 
     df_municipio_updated = pd.concat(
-        [df_municipio_latest[tb_municipio_order_cols], df_municipio_upstream]
+        [
+            df_municipio_latest[tb_municipio_order_cols],
+            df_municipio_upstream.loc[df_municipio_upstream["year"] != year],
+        ]
     )
 
     output_municipio = os.path.join(output, "municipio.csv")
@@ -539,7 +554,10 @@ def main(year: int):
     )
 
     df_escolas_updated = pd.concat(
-        [df_escolas_latest[tb_escola_order_cols], df_escola_upstream]
+        [
+            df_escolas_latest[tb_escola_order_cols],
+            df_escola_upstream.loc[df_escola_upstream["year"] != year],
+        ]
     )
 
     output_escola = os.path.join(output, "escola.csv")
@@ -555,7 +573,6 @@ if __name__ == "__main__":
     for table_id in ["brasil", "escola", "municipio", "regiao", "uf"]:
         tb = bd.Table(dataset_id="br_inep_ideb", table_id=table_id)
         tb.create(
-            # pyrefly: ignore [bad-argument-type]
             output / f"{table_id}.csv",
             if_storage_data_exists="replace",
             if_table_exists="replace",
