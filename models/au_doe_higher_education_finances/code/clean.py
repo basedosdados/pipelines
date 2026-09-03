@@ -32,7 +32,7 @@ import re
 import shutil
 import sys
 
-import openpyxl
+import openpyxl  # pyrefly: ignore [untyped-import]
 import pyarrow as pa
 import pyarrow.parquet as pq
 
@@ -139,7 +139,7 @@ def workbook_sheets(path: pathlib.Path) -> dict[str, list[list[str]]]:
     filenames that claim otherwise.
     """
     if not path.read_bytes()[:2].startswith(b"PK"):
-        import xlrd
+        import xlrd  # pyrefly: ignore [untyped-import]
 
         book = xlrd.open_workbook(str(path))
         return {

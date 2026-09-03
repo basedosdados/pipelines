@@ -12,7 +12,7 @@ from __future__ import annotations
 import os
 import pathlib
 
-import openpyxl
+import openpyxl  # pyrefly: ignore [untyped-import]
 
 DATA_DIR = pathlib.Path(
     os.environ.get(
