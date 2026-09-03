@@ -246,6 +246,7 @@ project-excludes = [
   # resolvable from the repo root. The recurring pipeline's own transform lives in
   # the type-checked `pipelines/datasets/us_dot_bts_ontime/`, which is NOT excluded.
   "models/us_dot_bts_ontime/code",
+  "models/us_epa_tri/code",
   # Same policy: br_bd_diretorios_mundo ISCO/ISIC directory build/upload code is
   # standalone one-shot `.py` run via `uv run`, outside the typed framework.
   "models/br_bd_diretorios_mundo/code",
