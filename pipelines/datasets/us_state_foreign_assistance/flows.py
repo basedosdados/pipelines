@@ -175,6 +175,18 @@ def us_state_foreign_assistance_flow(
 us_state_foreign_assistance_flow.deploy_schedules = [
     {"cron": "40 5 5,12,19,26 * *", "timezone": "America/Sao_Paulo"}
 ]
-# DuckDB reads the 3.75 GB CSV with a 10 GB memory limit; give the pod headroom.
+# The whole transform peaks at 1.82 GB resident (measured: full clean_all over the
+# 3.75 GB CSV, on-disk DuckDB with a 6 GB buffer ceiling, 65 s), so 8Gi is ~4x
+# headroom and schedules far more easily than the 16Gi first tried.
+#
+# All three keys are set on purpose. The work pool's job template exposes
+# `memory_limit` and `memory_request` separately from `memory`, and a run that set
+# only `memory` was OOM-killed well below the value it asked for — so `memory`
+# alone is not reliably the container limit. Flows with a real memory floor
+# (br_me_cnpj, br_anatel_telefonia_movel, br_sfb_sicar) all set the explicit pair.
 # pyrefly: ignore [missing-attribute]
-us_state_foreign_assistance_flow.job_variables = {"memory": "16Gi"}
+us_state_foreign_assistance_flow.job_variables = {
+    "memory": "8Gi",
+    "memory_limit": "8Gi",
+    "memory_request": "2Gi",
+}

@@ -41,12 +41,23 @@ def clean_source(work_dir: str, input_dir: str) -> dict:
     (rows written per table), for logging and assertions.
     """
     output_dir = Path(work_dir) / "output"
+    db_path = Path(work_dir) / "duckdb.db"
+    # Provenance marker: this line exists only in the on-disk version of the
+    # transform, so its presence in the run logs proves which code the pod
+    # actually cloned. Two runs were OOM-killed with the in-memory version, and
+    # the deploy step only redeploys files that define a Flow — so a fix landing
+    # in utils.py alone can leave a stale deployment running the old code.
+    print(
+        f"clean: on-disk duckdb at {db_path}, 6GB buffer ceiling "
+        f"(measured peak 1.82 GB resident)",
+        flush=True,
+    )
     counts = clean_all(
         Path(input_dir),
         output_dir,
         memory_limit="6GB",
         threads=4,
-        db_path=Path(work_dir) / "duckdb.db",
+        db_path=db_path,
     )
     # The raw CSVs are 3.8 GB and nothing downstream reads them; free the pod's
     # ephemeral disk before the upload.
