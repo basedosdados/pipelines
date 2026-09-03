@@ -43,12 +43,26 @@ sets page is the secondary, dataset-level source.
   linked to their columns. Cloud tables → `basedosdados-dev`. Coverage `us`, 2010–2023.
 - source Update on envirofacts `2c353fcd-44cb-431d-b854-3b5c4a37268e` (latest 2023-01-01).
 
-## Prod promotion (pending approval)
+## Prod metadata (registered 2026-09-03, env="prod", verified by GraphQL read-back)
 
-Update the SAME dataset id on prod (`35d072bc-…`) — never create a second `ghgrp`. Re-resolve
-every reference id on prod (English tag slugs; cc0 id differs: `afd7b13d-98f5-4023-9cb3-e9b91b1962ca`;
-account 4). Cloud tables → `basedosdados`. Dataset stays `under_review` on prod until the PR
-merges, table-approve materializes, and the tables are verified.
+- dataset `35d072bc-ddf5-4975-b8ab-9a75f6d2fcfa` updated in place, status **under_review**,
+  name_es/description_es filled, English-slug tags kept
+- raw sources: envirofacts `a420db2b-7d65-47b4-b51e-b64c65a48859` (linked to every table; source
+  Update `3f6b1af7-…` latest 2023-01-01), flight `a0745076-b206-488b-aa84-b853132e4954`
+- tables: facility `aa57c297-4805-4ca6-ac5f-a0e756d01175`, emission_subpart
+  `3c8f5da2-6548-4250-8bdc-60df842376f3`, emission_sector `d6a80362-a36e-422e-84bf-f28da0222f9a`,
+  dicionario `ab3ff123-4304-4bb5-9525-8226d2f73425`
+- cloud tables → `basedosdados.us_epa_ghgrp.*` (materialised by table-approve on merge)
+- types, partition flag on `year`, OL links, directory FKs and `tonne_co2e` all confirmed
+- `bulk_upsert_columns` does NOT apply `is_partition` from JSON — the `update_column` OL-link
+  calls with `is_partition=True` are what set it (same on staging)
+
+## Post-merge (step 13–14)
+
+After the PR merges and table-approve builds `basedosdados.us_epa_ghgrp.*`: verify row counts
+(136,005 / 395,894 / 320,667 / 144), then `create_update_dataset(id=35d072bc-…, status=published,
+env="prod")` re-passing every field. Arm `us_epa_ghgrp` in Django admin. Delete
+`~/Downloads/us_epa_ghgrp_data/`.
 
 ## Local commands
 
