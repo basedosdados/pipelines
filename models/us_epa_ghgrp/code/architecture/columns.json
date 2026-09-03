@@ -440,6 +440,21 @@
       "is_partition": false
     },
     {
+      "name": "subpart_type",
+      "bigquery_type": "STRING",
+      "description_pt": "Tipo de reportante ao qual a categoria pertence: E = emissor direto, S = fornecedor de combustíveis ou gases industriais, I = injeção de CO2",
+      "description_en": "Reporter type the category belongs to: E = direct emitter, S = supplier of fuels or industrial gases, I = CO2 injection",
+      "description_es": "Tipo de reportante al que pertenece la categoría: E = emisor directo, S = proveedor de combustibles o gases industriales, I = inyección de CO2",
+      "measurement_unit": null,
+      "covered_by_dictionary": true,
+      "directory_column": null,
+      "has_sensitive_data": false,
+      "observations_pt": "Somente as categorias do tipo E são emissões diretas; as do tipo S são a quantidade de GEE associada aos produtos fornecidos e as do tipo I, o CO2 recebido para injeção ou sequestrado. Somar os três tipos conta a mesma tonelada mais de uma vez",
+      "observations_en": "Only type E categories are direct emissions; type S is the GHG quantity associated with the products supplied and type I the CO2 received for injection or sequestered. Summing the three types counts the same tonne more than once",
+      "observations_es": "Solo las categorías de tipo E son emisiones directas; el tipo S es la cantidad de GEI asociada a los productos suministrados y el tipo I, el CO2 recibido para inyección o secuestrado. Sumar los tres tipos cuenta la misma tonelada más de una vez",
+      "is_partition": false
+    },
+    {
       "name": "gas",
       "bigquery_type": "STRING",
       "description_pt": "Código do gás de efeito estufa (CO2, CH4, N2O, SF6, NF3, HFC, PFC, HFE, BIOCO2, entre outros)",
@@ -514,6 +529,21 @@
       "observations_pt": "Setores são a classificação usada no painel FLIGHT da EPA; os totais por setor diferem dos totais por subparte porque a combustão estacionária (subparte C) é atribuída ao setor da instalação",
       "observations_en": "Sectors are the classification used in EPA's FLIGHT dashboard; sector totals differ from subpart totals because stationary combustion (subpart C) is attributed to the facility's sector",
       "observations_es": "Los sectores son la clasificación usada en el panel FLIGHT de la EPA; los totales por sector difieren de los totales por subparte porque la combustión estacionaria (subparte C) se atribuye al sector de la instalación",
+      "is_partition": false
+    },
+    {
+      "name": "sector_type",
+      "bigquery_type": "STRING",
+      "description_pt": "Tipo de reportante ao qual a categoria pertence: E = emissor direto, S = fornecedor de combustíveis ou gases industriais, I = injeção de CO2",
+      "description_en": "Reporter type the category belongs to: E = direct emitter, S = supplier of fuels or industrial gases, I = CO2 injection",
+      "description_es": "Tipo de reportante al que pertenece la categoría: E = emisor directo, S = proveedor de combustibles o gases industriales, I = inyección de CO2",
+      "measurement_unit": null,
+      "covered_by_dictionary": true,
+      "directory_column": null,
+      "has_sensitive_data": false,
+      "observations_pt": "Somente as categorias do tipo E são emissões diretas; as do tipo S são a quantidade de GEE associada aos produtos fornecidos e as do tipo I, o CO2 recebido para injeção ou sequestrado. Somar os três tipos conta a mesma tonelada mais de uma vez",
+      "observations_en": "Only type E categories are direct emissions; type S is the GHG quantity associated with the products supplied and type I the CO2 received for injection or sequestered. Summing the three types counts the same tonne more than once",
+      "observations_es": "Solo las categorías de tipo E son emisiones directas; el tipo S es la cantidad de GEI asociada a los productos suministrados y el tipo I, el CO2 recibido para inyección o secuestrado. Sumar los tres tipos cuenta la misma tonelada más de una vez",
       "is_partition": false
     },
     {

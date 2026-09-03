@@ -164,7 +164,7 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
       - custom_dictionary_coverage:
-          columns_covered_by_dictionary: [subpart, gas]
+          columns_covered_by_dictionary: [subpart, subpart_type, gas]
           dictionary_model: ref('us_epa_ghgrp__dicionario')
     columns:
       - name: year
@@ -187,6 +187,11 @@ models:
         description: >-
           Subparte do 40 CFR Part 98 sob o qual a emissão foi reportada, identificado
           pela letra
+        tests: [not_null]
+      - name: subpart_type
+        description: >-
+          Tipo de reportante ao qual o subparte pertence: E = emissor direto, S =
+          fornecedor, I = injeção de CO2
         tests: [not_null]
       - name: gas
         description: >-
@@ -216,7 +221,7 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
       - custom_dictionary_coverage:
-          columns_covered_by_dictionary: [sector, subsector, gas]
+          columns_covered_by_dictionary: [sector, sector_type, subsector, gas]
           dictionary_model: ref('us_epa_ghgrp__dicionario')
     columns:
       - name: year
@@ -238,6 +243,11 @@ models:
       - name: sector
         description: >-
           Código do setor industrial do FLIGHT ao qual a emissão é atribuída
+        tests: [not_null]
+      - name: sector_type
+        description: >-
+          Tipo de reportante ao qual o setor pertence: E = emissor direto, S =
+          fornecedor, I = injeção de CO2
         tests: [not_null]
       - name: subsector
         description: >-

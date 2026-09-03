@@ -299,6 +299,24 @@ FACILITY = [
     ),
 ]
 
+
+def reporter_type(name: str, original: str) -> Col:
+    return Col(
+        name,
+        "STRING",
+        "Tipo de reportante ao qual a categoria pertence: E = emissor direto, S = fornecedor de combustíveis ou gases industriais, I = injeção de CO2",
+        "Reporter type the category belongs to: E = direct emitter, S = supplier of fuels or industrial gases, I = CO2 injection",
+        "Tipo de reportante al que pertenece la categoría: E = emisor directo, S = proveedor de combustibles o gases industriales, I = inyección de CO2",
+        dictionary="yes",
+        observations=(
+            "Somente as categorias do tipo E são emissões diretas; as do tipo S são a quantidade "
+            "de GEE associada aos produtos fornecidos e as do tipo I, o CO2 recebido para injeção "
+            "ou sequestrado. Somar os três tipos conta a mesma tonelada mais de uma vez"
+        ),
+        original_name=original,
+    )
+
+
 EMISSION_SUBPART = [
     year(),
     facility_id(),
@@ -315,6 +333,7 @@ EMISSION_SUBPART = [
         ),
         original_name="sub_part_id",
     ),
+    reporter_type("subpart_type", "subpart_type"),
     gas(),
     emission(),
 ]
@@ -336,6 +355,7 @@ EMISSION_SECTOR = [
         ),
         original_name="sector_id",
     ),
+    reporter_type("sector_type", "sector_type"),
     Col(
         "subsector",
         "STRING",
@@ -498,6 +518,18 @@ OBSERVATIONS_I18N: dict[str, tuple[str, str]] = {
         "Los sectores son la clasificación usada en el panel FLIGHT de la EPA; los totales "
         "por sector difieren de los totales por subparte porque la combustión estacionaria "
         "(subparte C) se atribuye al sector de la instalación",
+    ),
+    (
+        "Somente as categorias do tipo E são emissões diretas; as do tipo S são a quantidade "
+        "de GEE associada aos produtos fornecidos e as do tipo I, o CO2 recebido para injeção "
+        "ou sequestrado. Somar os três tipos conta a mesma tonelada mais de uma vez"
+    ): (
+        "Only type E categories are direct emissions; type S is the GHG quantity associated "
+        "with the products supplied and type I the CO2 received for injection or sequestered. "
+        "Summing the three types counts the same tonne more than once",
+        "Solo las categorías de tipo E son emisiones directas; el tipo S es la cantidad de GEI "
+        "asociada a los productos suministrados y el tipo I, el CO2 recibido para inyección o "
+        "secuestrado. Sumar los tres tipos cuenta la misma tonelada más de una vez",
     ),
     "O mesmo código de subsetor pode ocorrer em mais de um setor (ex.: PRO, IMP, EXP para fornecedores)": (
         "The same subsector code can occur in more than one sector (e.g. PRO, IMP, EXP for suppliers)",

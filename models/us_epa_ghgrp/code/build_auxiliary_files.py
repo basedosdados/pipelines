@@ -82,7 +82,9 @@ TABLE_NOTES = {
     ),
     "emission_subpart": (
         "Facility x year x subpart x gas, from `pub_facts_subp_ghg_emission`, with the "
-        "dimension ids replaced by their codes (subpart letter, gas code). Values are "
+        "dimension ids replaced by their codes (subpart letter, gas code) and the subpart's "
+        "reporter type added (`subpart_type`: E direct emitter, S supplier, I CO2 "
+        "injection — only E rows are direct emissions). Values are "
         "metric tons of CO2 equivalent. Biogenic CO2 (`gas = BIOCO2`) is published "
         "separately and is not part of EPA's facility totals. Null emissions are "
         "confidential business information withheld by EPA (subpart UU)."
@@ -90,7 +92,8 @@ TABLE_NOTES = {
     "emission_sector": (
         "Facility x year x sector x subsector x gas, from "
         "`pub_facts_sector_ghg_emission`, with the dimension ids replaced by their "
-        "codes. Sectors are the FLIGHT dashboard classification; stationary combustion "
+        "codes and the sector's reporter type added (`sector_type`: E direct emitter, S "
+        "supplier, I CO2 injection). Sectors are the FLIGHT dashboard classification; stationary combustion "
         "(subpart C) is attributed to the facility's sector, so sector totals differ "
         "from subpart totals (see FAQ 5). For the ~80 keys the API publishes as two "
         "rows, the rows were summed — that reproduces the subpart-table facility totals "

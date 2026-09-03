@@ -47,6 +47,10 @@ facts and were used to cross-check layout and to lift EPA's FAQ into the auxilia
   Dropped. Null `co2e_emission` otherwise: 1,188 in the subpart table (all subpart UU,
   confidential CO2 injection) and 2,871 in the sector table (confidential supplier
   quantities). Kept null.
+- Both emission tables mix reporter types: direct emitters (subpart type E), suppliers (S:
+  the GHG quantity embodied in fuels/gases supplied) and CO2 injection (I). Facility 1013701
+  in 2023: C + W = 43,895.8 t (FLIGHT's "total direct emissions") plus RR = 9,797.9 t
+  sequestered. `subpart_type` / `sector_type` carry the type so users can filter to E.
 - Sector and subpart facility totals (excluding biogenic CO2) agree within 1 t in 95.3%
   of facility-years; the rest differ by construction (FAQ 5: subpart C attribution).
 
@@ -57,9 +61,9 @@ facts and were used to cross-check layout and to lift EPA's FAQ into the auxilia
 | `facility` | `year, facility_id` | 136,005 |
 | `emission_subpart` | `year, facility_id, subpart, gas` | 395,894 |
 | `emission_sector` | `year, facility_id, sector, subsector, gas` | 320,667 |
-| `dicionario` | `id_tabela, nome_coluna, chave` | 139 |
+| `dicionario` | `id_tabela, nome_coluna, chave` | 144 |
 
-Dictionary-covered codes: `subpart`, `gas`, `sector`, `subsector`, `reporting_status`,
+Dictionary-covered codes: `subpart`, `subpart_type`, `gas`, `sector`, `sector_type`, `subsector`, `reporting_status`,
 `cems_used`, `co2_captured`, `co2_supplied`. `facility_type` and `industry_type` are
 comma-separated lists and stay readable text.
 

@@ -17,6 +17,7 @@ select
     safe_cast(year as int64) year,
     safe_cast(facility_id as string) facility_id,
     safe_cast(sector as string) sector,
+    safe_cast(sector_type as string) sector_type,
     safe_cast(subsector as string) subsector,
     safe_cast(gas as string) gas,
     safe_cast(emission as float64) emission

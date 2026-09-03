@@ -37,6 +37,16 @@ _CHUNK = constants.ROW_CHUNK.value
 _FIRST_YEAR = constants.FIRST_YEAR.value
 _STATE_FIPS = constants.STATE_FIPS.value
 
+# Reporter type of a subpart or sector, from the API dimension tables.
+_REPORTER_TYPE_LABELS = {
+    "E": "Direct emitter: greenhouse gases emitted at the facility",
+    "S": (
+        "Supplier: greenhouse gas quantity associated with the fuels or "
+        "industrial gases supplied, not emissions at the facility"
+    ),
+    "I": "CO2 injection: carbon dioxide received for injection or sequestered",
+}
+
 # Labels for the coded facility columns that have no dimension table in the API.
 _FACILITY_LABELS = {
     "reporting_status": {
@@ -223,6 +233,9 @@ def _dims(api_dir: Path) -> dict[str, dict[str, str]]:
         "subpart": _lookup(
             subpart.subpart_name, _strip_html(subpart.subpart_category)
         ),
+        # code -> reporter type (E direct emitter, S supplier, I CO2 injection)
+        "subpart_type": _lookup(subpart.subpart_name, subpart.subpart_type),
+        "sector_type": _lookup(sector.sector_code, sector.sector_type),
     }
 
 
@@ -326,6 +339,7 @@ def build_emission_subpart(api_dir: Path, dims: dict) -> pd.DataFrame:
             "emission": raw["co2e_emission"],
         }
     )
+    df["subpart_type"] = _map_codes(df, "subpart", dims["subpart_type"])
     df = _coerce(df, "emission_subpart")
     _assert_unique(
         df, "emission_subpart", ["year", "facility_id", "subpart", "gas"]
@@ -346,6 +360,7 @@ def build_emission_sector(api_dir: Path, dims: dict) -> pd.DataFrame:
             "emission": raw["co2e_emission"],
         }
     )
+    df["sector_type"] = _map_codes(df, "sector", dims["sector_type"])
     df = _coerce(df, "emission_sector")
     # ~26k rows carry neither a gas nor a value: sector-membership placeholders
     # for facilities that did not report that year. They hold no data.
@@ -364,7 +379,9 @@ def build_emission_sector(api_dir: Path, dims: dict) -> pd.DataFrame:
     if dup:
         log.info(f"emission_sector: summing {dup:,} duplicate-key rows")
         df = (
-            df.groupby(key, dropna=False, sort=False)["emission"]
+            df.groupby([*key, "sector_type"], dropna=False, sort=False)[
+                "emission"
+            ]
             .sum(min_count=1)
             .reset_index()
         )
@@ -383,9 +400,14 @@ def build_dicionario(
     """
     labels = {
         "facility": _FACILITY_LABELS,
-        "emission_subpart": {"subpart": dims["subpart"], "gas": dims["gas"]},
+        "emission_subpart": {
+            "subpart": dims["subpart"],
+            "subpart_type": _REPORTER_TYPE_LABELS,
+            "gas": dims["gas"],
+        },
         "emission_sector": {
             "sector": dims["sector"],
+            "sector_type": _REPORTER_TYPE_LABELS,
             "subsector": dims["subsector"],
             "gas": dims["gas"],
         },
