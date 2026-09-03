@@ -21,6 +21,37 @@ from pipelines.datasets.br_ms_sim.constants import constants
 FINAL, PRELIM = "definitivo", "preliminar"
 
 
+def container_memory_limit_gb() -> float | None:
+    """Lê o limite de memória deste container, em GiB.
+
+    Chave de `job_variables` que o template do work pool não reconhece é
+    descartada em silêncio, e o pod fica no limite padrão em vez do pedido.
+
+    Returns:
+        O limite em GiB, ou None se for ilimitado ou ilegível.
+    """
+    for path in (
+        "/sys/fs/cgroup/memory.max",
+        "/sys/fs/cgroup/memory/memory.limit_in_bytes",
+    ):
+        try:
+            with open(path) as file:
+                raw = file.read().strip()
+        except OSError:
+            continue
+        if raw == "max":
+            return None
+        try:
+            value = int(raw)
+        except ValueError:
+            continue
+        # cgroup v1 usa um número enorme para "sem limite".
+        if value >= 1 << 62:
+            return None
+        return round(value / 1024**3, 2)
+    return None
+
+
 def build_paths(table_id: str, ano: int) -> tuple[Path, Path]:
     """Cria os diretórios de trabalho do ano e devolve os dois caminhos.
 

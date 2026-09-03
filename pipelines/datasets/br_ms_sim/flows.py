@@ -11,6 +11,7 @@ from pipelines.datasets.br_ms_sim.tasks import (
     get_source_max_year,
     resolve_year_source,
 )
+from pipelines.datasets.br_ms_sim.utils import container_memory_limit_gb
 from pipelines.utils.metadata.domain import (
     AllFree,
     CoverageSpec,
@@ -62,6 +63,8 @@ def run_ms_sim(
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
+
+    print(f"Limite de memória do container: {container_memory_limit_gb()} GiB")
 
     backfill = ano is not None
     source_max_year = get_source_max_year()
@@ -175,8 +178,14 @@ def ms_sim_flow(
             source_format=source_format,
         )
 
+    # Os dois formatos: o template do work pool descarta em silêncio a chave
+    # que não reconhece, e o pod cai no limite padrão.
     # pyrefly: ignore [missing-attribute]
-    table_flow.job_variables = {"memory": "8Gi"}
+    table_flow.job_variables = {
+        "memory": "8Gi",
+        "memory_limit": "8Gi",
+        "memory_request": "2Gi",
+    }
     return table_flow
 
 
