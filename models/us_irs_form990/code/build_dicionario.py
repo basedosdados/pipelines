@@ -262,6 +262,7 @@ def main() -> None:
                 "cobertura_temporal",
                 "valor",
             ],
+            lineterminator="\n",
         )
         w.writeheader()
         w.writerows(rows)

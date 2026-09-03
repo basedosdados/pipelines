@@ -1470,7 +1470,7 @@ def write_architecture() -> None:
         with open(
             ARCH_DIR / f"{table}.csv", "w", newline="", encoding="utf-8"
         ) as fh:
-            w = csv.DictWriter(fh, fieldnames=ARCH_HEADER)
+            w = csv.DictWriter(fh, fieldnames=ARCH_HEADER, lineterminator="\n")
             w.writeheader()
             w.writerows(rows)
         (JSON_DIR / f"{table}.json").write_text(

@@ -37,7 +37,7 @@ def main() -> None:
     rows.sort(key=lambda r: (r["variable_name"], r["form_type"], r["xpath"]))
     dest = constants.CONCORDANCE_PATH.value
     with open(dest, "w", newline="", encoding="utf-8") as fh:
-        w = csv.DictWriter(fh, fieldnames=KEEP)
+        w = csv.DictWriter(fh, fieldnames=KEEP, lineterminator="\n")
         w.writeheader()
         for r in rows:
             w.writerow({k: r[k] for k in KEEP})
