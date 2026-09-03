@@ -1,0 +1,2019 @@
+---
+version: 2
+models:
+  - name: br_mgi_compras_publicas__contratacao
+    description: >-
+      Contratações públicas realizadas sob a Lei 14.133/2021 e divulgadas no PNCP
+      por meio do Compras.gov.br, de 2021 em diante. Uma linha por contratação, cobrindo
+      os três níveis de governo
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [numero_controle_pncp]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - cnpj_orgao_subrogado
+            - codigo_unidade_subrogada
+            - esfera_subrogado
+            - id_municipio_subrogada
+            - nome_municipio_subrogada
+            - nome_orgao_subrogado
+            - nome_unidade_subrogada
+            - poder_subrogado
+            - sigla_uf_subrogada
+    columns:
+      - name: ano
+        description: >-
+          Ano de publicação da contratação no PNCP
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: >-
+          Sigla da unidade da federação da unidade compradora
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              config:
+                where: sigla_uf != 'EX'
+      - name: id_municipio
+        description: >-
+          Código IBGE de 7 dígitos do município da unidade compradora
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_compra
+        description: >-
+          Identificador da contratação no SIASG
+      - name: numero_controle_pncp
+        description: >-
+          Número de controle da contratação no PNCP
+        tests: [not_null]
+      - name: ano_compra_pncp
+        description: >-
+          Ano da contratação no numerador do PNCP
+      - name: sequencial_compra_pncp
+        description: >-
+          Número sequencial da contratação no PNCP dentro do ano e do órgão
+      - name: numero_compra
+        description: >-
+          Número da compra atribuído pela unidade compradora
+      - name: processo
+        description: >-
+          Número do processo administrativo da contratação
+      - name: codigo_orgao
+        description: >-
+          Código do órgão comprador no SIASG
+      - name: cnpj_orgao
+        description: >-
+          CNPJ do órgão comprador
+      - name: nome_orgao
+        description: >-
+          Razão social do órgão comprador
+      - name: esfera
+        description: >-
+          Esfera federativa do órgão comprador
+      - name: poder
+        description: >-
+          Poder ao qual o órgão comprador pertence
+      - name: codigo_unidade
+        description: >-
+          Código da UASG compradora
+      - name: nome_unidade
+        description: >-
+          Nome da UASG compradora
+      - name: nome_municipio
+        description: >-
+          Nome do município da unidade compradora
+      - name: cnpj_orgao_subrogado
+        description: >-
+          CNPJ do órgão sub-rogado, quando a contratação foi transferida
+      - name: nome_orgao_subrogado
+        description: >-
+          Razão social do órgão sub-rogado
+      - name: esfera_subrogado
+        description: >-
+          Esfera federativa do órgão sub-rogado
+      - name: poder_subrogado
+        description: >-
+          Poder do órgão sub-rogado
+      - name: codigo_unidade_subrogada
+        description: >-
+          Código da UASG sub-rogada
+      - name: nome_unidade_subrogada
+        description: >-
+          Nome da UASG sub-rogada
+      - name: sigla_uf_subrogada
+        description: >-
+          Sigla da unidade da federação da UASG sub-rogada
+      - name: id_municipio_subrogada
+        description: >-
+          Código IBGE do município da UASG sub-rogada
+      - name: nome_municipio_subrogada
+        description: >-
+          Nome do município da UASG sub-rogada
+      - name: codigo_modalidade
+        description: >-
+          Código da modalidade de contratação no SIASG
+      - name: id_modalidade_pncp
+        description: >-
+          Código da modalidade de contratação no PNCP
+      - name: modalidade
+        description: >-
+          Nome da modalidade de contratação
+      - name: id_modo_disputa_pncp
+        description: >-
+          Código do modo de disputa no PNCP
+      - name: codigo_modo_disputa
+        description: >-
+          Código do modo de disputa no SIASG
+      - name: modo_disputa
+        description: >-
+          Modo de disputa, como aberto, fechado ou aberto-fechado
+      - name: codigo_amparo_legal
+        description: >-
+          Código do amparo legal da contratação no PNCP
+      - name: amparo_legal
+        description: >-
+          Dispositivo legal que ampara a contratação
+      - name: descricao_amparo_legal
+        description: >-
+          Descrição do dispositivo legal que ampara a contratação
+      - name: codigo_tipo_instrumento_convocatorio
+        description: >-
+          Código do tipo de instrumento convocatório no PNCP
+      - name: tipo_instrumento_convocatorio
+        description: >-
+          Tipo de instrumento convocatório, como edital ou aviso de contratação direta
+      - name: id_situacao_compra
+        description: >-
+          Código da situação da contratação no PNCP
+      - name: situacao_compra
+        description: >-
+          Situação da contratação, como divulgada no PNCP, suspensa, revogada ou anulada
+      - name: codigo_orcamento_sigiloso
+        description: >-
+          Código do regime de sigilo do orçamento estimado
+      - name: orcamento_sigiloso
+        description: >-
+          Regime de sigilo do orçamento estimado da contratação
+      - name: objeto_compra
+        description: >-
+          Descrição do objeto da contratação
+      - name: informacao_complementar
+        description: >-
+          Informações complementares publicadas com a contratação
+      - name: valor_total_estimado
+        description: >-
+          Valor total estimado da contratação
+      - name: valor_total_homologado
+        description: >-
+          Valor total homologado da contratação
+      - name: indicador_srp
+        description: >-
+          Indica se a contratação usa Sistema de Registro de Preços
+      - name: indicador_existe_resultado
+        description: >-
+          Indica se a contratação possui resultado registrado
+      - name: indicador_contratacao_excluida
+        description: >-
+          Indica se a contratação foi excluída do PNCP
+      - name: data_publicacao_pncp
+        description: >-
+          Data e hora de publicação da contratação no PNCP
+      - name: data_inclusao_pncp
+        description: >-
+          Data e hora de inclusão da contratação no PNCP
+      - name: data_atualizacao_pncp
+        description: >-
+          Data e hora da última atualização da contratação no PNCP
+      - name: data_abertura_proposta
+        description: >-
+          Data e hora de abertura do prazo de propostas
+      - name: data_encerramento_proposta
+        description: >-
+          Data e hora de encerramento do prazo de propostas
+  - name: br_mgi_compras_publicas__contratacao_item
+    description: >-
+      Itens das contratações realizadas sob a Lei 14.133/2021. Uma linha por item,
+      com quantidade, valor estimado e, quando já apurado, o resultado
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [numero_controle_pncp, numero_item_pncp]
+          config:
+            where: __most_recent_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - codigo_grupo
+            - codigo_pdm
+            - descricao_ncm
+            - nome_pdm
+            - percentual_margem_preferencia_adicional
+            - percentual_margem_preferencia_normal
+          config:
+            where: __most_recent_year__
+    columns:
+      - name: ano
+        description: >-
+          Ano de inclusão do item no PNCP
+        tests: [not_null]
+      - name: id_compra
+        description: >-
+          Identificador da contratação no SIASG
+      - name: id_compra_item
+        description: >-
+          Identificador do item da contratação no SIASG
+      - name: numero_controle_pncp
+        description: >-
+          Número de controle da contratação no PNCP
+        tests: [not_null]
+      - name: id_contratacao_pncp
+        description: >-
+          Número de controle da contratação no PNCP repetido pela fonte
+      - name: cnpj_orgao
+        description: >-
+          CNPJ do órgão comprador
+      - name: codigo_unidade
+        description: >-
+          Código da UASG compradora
+      - name: numero_item_pncp
+        description: >-
+          Número do item na contratação segundo o PNCP
+        tests: [not_null]
+      - name: numero_item_compra
+        description: >-
+          Número do item na contratação segundo o SIASG
+      - name: numero_grupo
+        description: >-
+          Número do grupo de itens ao qual o item pertence
+      - name: tipo_item
+        description: >-
+          Indica se o item é material ou serviço
+      - name: nome_tipo_item
+        description: >-
+          Nome do tipo do item
+      - name: codigo_item_catalogo
+        description: >-
+          Código do item nos catálogos CATMAT ou CATSER
+      - name: codigo_grupo
+        description: >-
+          Código do grupo do item no catálogo
+      - name: codigo_classe
+        description: >-
+          Código da classe do item no catálogo
+      - name: codigo_pdm
+        description: >-
+          Código do Padrão Descritivo de Material do item
+      - name: nome_pdm
+        description: >-
+          Nome do Padrão Descritivo de Material do item
+      - name: codigo_ncm
+        description: >-
+          Código NCM da Nomenclatura Comum do Mercosul do item
+      - name: descricao_ncm
+        description: >-
+          Descrição da classificação NCM do item
+      - name: descricao_resumida
+        description: >-
+          Descrição resumida do item
+      - name: descricao_detalhada
+        description: >-
+          Descrição detalhada do item
+      - name: unidade_medida
+        description: >-
+          Unidade de medida do item
+      - name: id_item_categoria
+        description: >-
+          Código da categoria do item no PNCP
+      - name: item_categoria
+        description: >-
+          Categoria do item, como informática, obras ou serviços de engenharia
+      - name: id_criterio_julgamento
+        description: >-
+          Código do critério de julgamento do item no PNCP
+      - name: criterio_julgamento
+        description: >-
+          Critério de julgamento do item, como menor preço ou maior desconto
+      - name: id_situacao_item
+        description: >-
+          Código da situação do item
+      - name: situacao_item
+        description: >-
+          Situação do item, como homologado, deserto, fracassado ou cancelado
+      - name: id_tipo_beneficio
+        description: >-
+          Código do tipo de benefício aplicado ao item
+      - name: tipo_beneficio
+        description: >-
+          Tipo de benefício, como participação exclusiva para microempresas e empresas
+          de pequeno porte
+      - name: quantidade
+        description: >-
+          Quantidade licitada do item
+      - name: valor_unitario_estimado
+        description: >-
+          Valor unitário estimado do item
+      - name: valor_total
+        description: >-
+          Valor total estimado do item
+      - name: quantidade_resultado
+        description: >-
+          Quantidade homologada do item
+      - name: valor_unitario_resultado
+        description: >-
+          Valor unitário homologado do item
+      - name: valor_total_resultado
+        description: >-
+          Valor total homologado do item
+      - name: id_fornecedor
+        description: >-
+          CNPJ ou CPF do fornecedor vencedor do item
+      - name: nome_fornecedor
+        description: >-
+          Nome ou razão social do fornecedor vencedor do item
+      - name: percentual_margem_preferencia_normal
+        description: >-
+          Percentual da margem de preferência normal aplicada ao item
+      - name: percentual_margem_preferencia_adicional
+        description: >-
+          Percentual da margem de preferência adicional aplicada ao item
+      - name: indicador_orcamento_sigiloso
+        description: >-
+          Indica se o orçamento estimado do item é sigiloso
+      - name: indicador_incentivo_produtivo_basico
+        description: >-
+          Indica se o item recebe incentivo do Processo Produtivo Básico
+      - name: indicador_margem_preferencia_normal
+        description: >-
+          Indica se foi aplicada margem de preferência normal ao item
+      - name: indicador_margem_preferencia_adicional
+        description: >-
+          Indica se foi aplicada margem de preferência adicional ao item
+      - name: indicador_tem_resultado
+        description: >-
+          Indica se o item possui resultado registrado
+      - name: data_inclusao_pncp
+        description: >-
+          Data e hora de inclusão do item no PNCP
+      - name: data_atualizacao_pncp
+        description: >-
+          Data e hora da última atualização do item no PNCP
+      - name: data_resultado
+        description: >-
+          Data e hora do resultado do item
+  - name: br_mgi_compras_publicas__contratacao_item_resultado
+    description: >-
+      Resultados dos itens das contratações da Lei 14.133/2021. Uma linha por fornecedor
+      classificado em cada item, com quantidade e valor homologados
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - numero_controle_pncp
+            - numero_item_pncp
+            - sequencial_resultado
+          config:
+            where: __most_recent_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - amparo_legal_criterio_desempate
+            - amparo_legal_margem_preferencia
+            - data_cancelamento_pncp
+            - data_cotacao_moeda_estrangeira
+            - id_amparo_legal_criterio_desempate
+            - id_amparo_legal_margem_preferencia
+            - id_moeda_estrangeira
+            - id_pais_origem_produto_servico
+            - motivo_cancelamento
+            - timezone_cotacao_moeda_estrangeira
+            - valor_nominal_moeda_estrangeira
+          config:
+            where: __most_recent_year__
+    columns:
+      - name: ano
+        description: >-
+          Ano de divulgação do resultado no PNCP
+        tests: [not_null]
+      - name: sigla_uf
+        description: >-
+          Sigla da unidade da federação da unidade compradora
+      - name: id_compra
+        description: >-
+          Identificador da contratação no SIASG
+      - name: id_compra_item
+        description: >-
+          Identificador do item da contratação no SIASG
+      - name: sequencial_resultado
+        description: >-
+          Número sequencial do resultado dentro do item
+        tests: [not_null]
+      - name: numero_controle_pncp
+        description: >-
+          Número de controle da contratação no PNCP
+        tests: [not_null]
+      - name: id_contratacao_pncp
+        description: >-
+          Número de controle da contratação no PNCP repetido pela fonte
+      - name: numero_item_pncp
+        description: >-
+          Número do item na contratação segundo o PNCP
+        tests: [not_null]
+      - name: cnpj_orgao
+        description: >-
+          CNPJ do órgão comprador
+      - name: codigo_unidade
+        description: >-
+          Código da UASG compradora
+      - name: id_fornecedor
+        description: >-
+          CNPJ ou CPF do fornecedor
+      - name: nome_fornecedor
+        description: >-
+          Nome ou razão social do fornecedor
+      - name: tipo_pessoa
+        description: >-
+          Indica se o fornecedor é pessoa física ou jurídica
+      - name: codigo_pais
+        description: >-
+          Código ISO de três letras do país do fornecedor
+      - name: id_porte_fornecedor
+        description: >-
+          Código do porte do fornecedor
+      - name: porte_fornecedor
+        description: >-
+          Porte do fornecedor
+      - name: id_natureza_juridica
+        description: >-
+          Código da natureza jurídica do fornecedor
+      - name: natureza_juridica
+        description: >-
+          Natureza jurídica do fornecedor
+      - name: ordem_classificacao_srp
+        description: >-
+          Posição do fornecedor na classificação do sistema de registro de preços
+      - name: id_situacao_resultado
+        description: >-
+          Código da situação do resultado
+      - name: situacao_resultado
+        description: >-
+          Situação do resultado, como informado ou cancelado
+      - name: motivo_cancelamento
+        description: >-
+          Motivo do cancelamento do resultado
+      - name: quantidade_homologada
+        description: >-
+          Quantidade homologada para o fornecedor
+      - name: valor_unitario_homologado
+        description: >-
+          Valor unitário homologado
+      - name: valor_total_homologado
+        description: >-
+          Valor total homologado
+      - name: percentual_desconto
+        description: >-
+          Percentual de desconto ofertado pelo fornecedor
+      - name: id_amparo_legal_margem_preferencia
+        description: >-
+          Código do amparo legal da margem de preferência aplicada
+      - name: amparo_legal_margem_preferencia
+        description: >-
+          Dispositivo legal que ampara a margem de preferência aplicada
+      - name: id_amparo_legal_criterio_desempate
+        description: >-
+          Código do amparo legal do critério de desempate aplicado
+      - name: amparo_legal_criterio_desempate
+        description: >-
+          Dispositivo legal que ampara o critério de desempate aplicado
+      - name: id_moeda_estrangeira
+        description: >-
+          Código da moeda estrangeira da proposta
+      - name: valor_nominal_moeda_estrangeira
+        description: >-
+          Valor nominal da proposta em moeda estrangeira
+      - name: data_cotacao_moeda_estrangeira
+        description: >-
+          Data e hora da cotação da moeda estrangeira
+      - name: timezone_cotacao_moeda_estrangeira
+        description: >-
+          Fuso horário da cotação da moeda estrangeira
+      - name: id_pais_origem_produto_servico
+        description: >-
+          Código do país de origem do produto ou serviço
+      - name: indicador_subcontratacao
+        description: >-
+          Indica se há subcontratação no resultado
+      - name: indicador_aplicacao_margem_preferencia
+        description: >-
+          Indica se foi aplicada margem de preferência
+      - name: indicador_aplicacao_beneficio_meepp
+        description: >-
+          Indica se foi aplicado benefício para microempresas e empresas de pequeno
+          porte
+      - name: indicador_aplicacao_criterio_desempate
+        description: >-
+          Indica se foi aplicado critério de desempate
+      - name: data_resultado_pncp
+        description: >-
+          Data e hora do resultado no PNCP
+      - name: data_inclusao_pncp
+        description: >-
+          Data e hora de inclusão do resultado no PNCP
+      - name: data_atualizacao_pncp
+        description: >-
+          Data e hora da última atualização do resultado no PNCP
+      - name: data_cancelamento_pncp
+        description: >-
+          Data e hora do cancelamento do resultado no PNCP
+  - name: br_mgi_compras_publicas__ata_registro_preco
+    description: >-
+      Atas de registro de preços firmadas a partir de contratações da Lei 14.133/2021.
+      Uma linha por ata, no estado mais recente informado pela fonte. A fonte não
+      atribui número de controle no PNCP a 0,68% das atas, portanto a chave é o par
+      id_compra e numero_ata_registro_preco
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_compra, numero_ata_registro_preco]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [data_hora_exclusao]
+    columns:
+      - name: ano
+        description: >-
+          Ano de início da vigência da ata
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: numero_controle_pncp_ata
+        description: >-
+          Número de controle da ata no PNCP
+      - name: numero_ata_registro_preco
+        description: >-
+          Número da ata de registro de preços
+        tests: [not_null]
+      - name: numero_controle_pncp_compra
+        description: >-
+          Número de controle da contratação de origem no PNCP
+      - name: id_compra
+        description: >-
+          Identificador da contratação de origem no SIASG
+        tests: [not_null]
+      - name: numero_compra
+        description: >-
+          Número da contratação de origem
+      - name: ano_compra
+        description: >-
+          Ano da contratação de origem
+      - name: codigo_unidade_gerenciadora
+        description: >-
+          Código da UASG gerenciadora da ata
+      - name: nome_unidade_gerenciadora
+        description: >-
+          Nome da UASG gerenciadora da ata
+      - name: codigo_orgao
+        description: >-
+          Código do órgão gerenciador no SIASG
+      - name: nome_orgao
+        description: >-
+          Nome do órgão gerenciador
+      - name: codigo_modalidade_compra
+        description: >-
+          Código da modalidade da contratação de origem
+      - name: modalidade_compra
+        description: >-
+          Modalidade da contratação de origem
+      - name: status_ata
+        description: >-
+          Situação da ata, como vigente ou cancelada
+      - name: objeto
+        description: >-
+          Descrição do objeto da ata de registro de preços
+      - name: quantidade_itens
+        description: >-
+          Quantidade de itens registrados na ata
+      - name: valor_total
+        description: >-
+          Valor total registrado na ata
+      - name: link_ata_pncp
+        description: >-
+          Endereço da ata no portal do PNCP
+      - name: link_compra_pncp
+        description: >-
+          Endereço da contratação de origem no portal do PNCP
+      - name: indicador_ata_excluida
+        description: >-
+          Indica se a ata foi excluída do PNCP
+      - name: data_assinatura
+        description: >-
+          Data de assinatura da ata
+      - name: data_vigencia_inicial
+        description: >-
+          Data de início da vigência da ata
+      - name: data_vigencia_final
+        description: >-
+          Data de término da vigência da ata
+      - name: data_hora_inclusao
+        description: >-
+          Data e hora de inclusão da ata no PNCP
+      - name: data_hora_atualizacao
+        description: >-
+          Data e hora da última atualização da ata no PNCP
+      - name: data_hora_exclusao
+        description: >-
+          Data e hora da exclusão da ata do PNCP
+  - name: br_mgi_compras_publicas__ata_registro_preco_item
+    description: >-
+      Itens das atas de registro de preços, com o fornecedor registrado, o preço unitário
+      e o limite de adesão. Uma linha por fornecedor classificado em cada item, no
+      estado mais recente informado pela fonte
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - numero_controle_pncp_ata
+            - numero_item
+            - classificacao_fornecedor
+          config:
+            where: numero_controle_pncp_ata is not null and numero_item is not null
+              and classificacao_fornecedor is not null
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [data_hora_exclusao]
+    columns:
+      - name: ano
+        description: >-
+          Ano de início da vigência da ata
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: numero_controle_pncp_ata
+        description: >-
+          Número de controle da ata no PNCP
+      - name: numero_item
+        description: >-
+          Número do item dentro da ata
+      - name: classificacao_fornecedor
+        description: >-
+          Posição do fornecedor na classificação do item
+      - name: numero_ata_registro_preco
+        description: >-
+          Número da ata de registro de preços
+      - name: numero_controle_pncp_compra
+        description: >-
+          Número de controle da contratação de origem no PNCP
+      - name: id_compra
+        description: >-
+          Identificador da contratação de origem no SIASG
+      - name: numero_compra
+        description: >-
+          Número da contratação de origem
+      - name: ano_compra
+        description: >-
+          Ano da contratação de origem
+      - name: codigo_unidade_gerenciadora
+        description: >-
+          Código da UASG gerenciadora da ata
+      - name: nome_unidade_gerenciadora
+        description: >-
+          Nome da UASG gerenciadora da ata
+      - name: codigo_modalidade_compra
+        description: >-
+          Código da modalidade da contratação de origem
+      - name: modalidade_compra
+        description: >-
+          Modalidade da contratação de origem
+      - name: codigo_item
+        description: >-
+          Código do item nos catálogos CATMAT ou CATSER
+      - name: descricao_item
+        description: >-
+          Descrição do item registrado
+      - name: tipo_item
+        description: >-
+          Indica se o item é material ou serviço
+      - name: codigo_pdm
+        description: >-
+          Código do Padrão Descritivo de Material do item
+      - name: nome_pdm
+        description: >-
+          Nome do Padrão Descritivo de Material do item
+      - name: id_fornecedor
+        description: >-
+          CNPJ ou CPF do fornecedor registrado
+      - name: nome_fornecedor
+        description: >-
+          Nome ou razão social do fornecedor registrado
+      - name: situacao_sicaf
+        description: >-
+          Código da situação do fornecedor no SICAF
+      - name: quantidade_homologada_item
+        description: >-
+          Quantidade total homologada para o item
+      - name: quantidade_homologada_vencedor
+        description: >-
+          Quantidade homologada para este fornecedor
+      - name: quantidade_empenhada
+        description: >-
+          Quantidade já empenhada do item
+      - name: maximo_adesao
+        description: >-
+          Quantidade máxima permitida para adesões de outras unidades
+      - name: valor_unitario
+        description: >-
+          Valor unitário registrado
+      - name: valor_total
+        description: >-
+          Valor total registrado para o item
+      - name: percentual_maior_desconto
+        description: >-
+          Maior percentual de desconto registrado para o item
+      - name: indicador_item_excluido
+        description: >-
+          Indica se o item foi excluído do PNCP
+      - name: data_assinatura
+        description: >-
+          Data de assinatura da ata
+      - name: data_vigencia_inicial
+        description: >-
+          Data de início da vigência da ata
+      - name: data_vigencia_final
+        description: >-
+          Data de término da vigência da ata
+      - name: data_hora_inclusao
+        description: >-
+          Data e hora de inclusão do item no PNCP
+      - name: data_hora_atualizacao
+        description: >-
+          Data e hora da última atualização do item no PNCP
+      - name: data_hora_exclusao
+        description: >-
+          Data e hora da exclusão do item do PNCP
+  - name: br_mgi_compras_publicas__contrato
+    description: >-
+      Contratos administrativos registrados no SIASG, de 2010 em diante. Uma linha
+      por contrato, com vigência, fornecedor e valores. Uma unidade gestora reutiliza
+      o número do contrato entre contratações, de modo que a chave inclui a compra
+      de origem; cerca de 0,3% das chaves ainda se repetem com conteúdo divergente
+      na fonte, e o teste de unicidade admite essa proporção
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns:
+            - codigo_orgao
+            - codigo_unidade_gestora
+            - numero_contrato
+            - id_compra
+          proportion_allowed_failures: 0.01
+          config:
+            where: id_compra is not null
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - codigo_subcategoria
+            - data_hora_exclusao
+            - numero_controle_pncp_contrato
+            - subcategoria
+            - total_despesas_acessorias
+    columns:
+      - name: ano
+        description: >-
+          Ano de início da vigência do contrato
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: numero_controle_pncp_contrato
+        description: >-
+          Número de controle do contrato no PNCP
+      - name: numero_contrato
+        description: >-
+          Número do contrato na unidade gestora
+      - name: codigo_orgao
+        description: >-
+          Código do órgão contratante no SIASG
+      - name: nome_orgao
+        description: >-
+          Nome do órgão contratante
+      - name: codigo_unidade_gestora
+        description: >-
+          Código da unidade gestora do contrato
+      - name: nome_unidade_gestora
+        description: >-
+          Nome da unidade gestora do contrato
+      - name: codigo_unidade_gestora_origem
+        description: >-
+          Código da unidade gestora de origem do contrato
+      - name: nome_unidade_gestora_origem
+        description: >-
+          Nome da unidade gestora de origem do contrato
+      - name: codigo_unidade_realizadora_compra
+        description: >-
+          Código da unidade que realizou a contratação
+      - name: nome_unidade_realizadora_compra
+        description: >-
+          Nome da unidade que realizou a contratação
+      - name: id_compra
+        description: >-
+          Identificador da contratação de origem no SIASG
+      - name: numero_controle_pncp_compra
+        description: >-
+          Número de controle da contratação de origem no PNCP
+      - name: numero_compra
+        description: >-
+          Número da contratação de origem
+      - name: codigo_modalidade_compra
+        description: >-
+          Código da modalidade da contratação de origem
+      - name: modalidade_compra
+        description: >-
+          Modalidade da contratação de origem
+      - name: id_fornecedor
+        description: >-
+          CNPJ ou CPF do fornecedor contratado
+      - name: nome_fornecedor
+        description: >-
+          Nome ou razão social do fornecedor contratado
+      - name: processo
+        description: >-
+          Número do processo administrativo do contrato
+      - name: receita_despesa
+        description: >-
+          Indica se o contrato gera receita ou despesa
+      - name: codigo_tipo
+        description: >-
+          Código do tipo de contrato
+      - name: tipo
+        description: >-
+          Tipo de contrato, como contrato, credenciamento ou termo aditivo
+      - name: codigo_categoria
+        description: >-
+          Código da categoria do contrato
+      - name: categoria
+        description: >-
+          Categoria do contrato, como compras, serviços ou obras
+      - name: codigo_subcategoria
+        description: >-
+          Código da subcategoria do contrato
+      - name: subcategoria
+        description: >-
+          Subcategoria do contrato
+      - name: objeto
+        description: >-
+          Descrição do objeto do contrato
+      - name: informacoes_complementares
+        description: >-
+          Informações complementares do contrato
+      - name: unidades_requisitantes
+        description: >-
+          Códigos das unidades requisitantes do contrato
+      - name: valor_global
+        description: >-
+          Valor global do contrato
+      - name: numero_parcelas
+        description: >-
+          Número de parcelas do contrato
+      - name: valor_parcela
+        description: >-
+          Valor de cada parcela do contrato
+      - name: valor_acumulado
+        description: >-
+          Valor acumulado do contrato, incluindo aditivos
+      - name: total_despesas_acessorias
+        description: >-
+          Total de despesas acessórias do contrato
+      - name: indicador_contrato_excluido
+        description: >-
+          Indica se o contrato foi excluído
+      - name: data_vigencia_inicial
+        description: >-
+          Data de início da vigência do contrato
+      - name: data_vigencia_final
+        description: >-
+          Data de término da vigência do contrato
+      - name: data_hora_inclusao
+        description: >-
+          Data e hora de inclusão do contrato no sistema
+      - name: data_hora_exclusao
+        description: >-
+          Data e hora da exclusão do contrato
+  - name: br_mgi_compras_publicas__contrato_item
+    description: >-
+      Itens dos contratos administrativos registrados no SIASG. Uma linha por item
+      contratado, com quantidade e valores unitário e total, no estado mais recente
+      informado pela fonte
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - codigo_orgao
+            - codigo_unidade_gestora
+            - numero_contrato
+            - id_compra
+            - numero_item
+          config:
+            where: codigo_orgao is not null and codigo_unidade_gestora is not null
+              and numero_contrato is not null and id_compra is not null and numero_item
+              is not null
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [data_hora_exclusao_contrato, data_hora_exclusao_item]
+    columns:
+      - name: ano
+        description: >-
+          Ano de início da vigência do contrato
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: numero_controle_pncp_contrato
+        description: >-
+          Número de controle do contrato no PNCP
+      - name: numero_contrato
+        description: >-
+          Número do contrato na unidade gestora
+      - name: numero_item
+        description: >-
+          Número do item dentro do contrato
+      - name: codigo_orgao
+        description: >-
+          Código do órgão contratante no SIASG
+      - name: nome_orgao
+        description: >-
+          Nome do órgão contratante
+      - name: codigo_unidade_gestora
+        description: >-
+          Código da unidade gestora do contrato
+      - name: nome_unidade_gestora
+        description: >-
+          Nome da unidade gestora do contrato
+      - name: codigo_unidade_gestora_origem
+        description: >-
+          Código da unidade gestora de origem do contrato
+      - name: nome_unidade_gestora_origem
+        description: >-
+          Nome da unidade gestora de origem do contrato
+      - name: codigo_unidade_realizadora_compra
+        description: >-
+          Código da unidade que realizou a contratação
+      - name: nome_unidade_realizadora_compra
+        description: >-
+          Nome da unidade que realizou a contratação
+      - name: id_compra
+        description: >-
+          Identificador da contratação de origem no SIASG
+      - name: numero_controle_pncp_compra
+        description: >-
+          Número de controle da contratação de origem no PNCP
+      - name: numero_compra
+        description: >-
+          Número da contratação de origem
+      - name: codigo_modalidade_compra
+        description: >-
+          Código da modalidade da contratação de origem
+      - name: modalidade_compra
+        description: >-
+          Modalidade da contratação de origem
+      - name: id_fornecedor
+        description: >-
+          CNPJ ou CPF do fornecedor contratado
+      - name: nome_fornecedor
+        description: >-
+          Nome ou razão social do fornecedor contratado
+      - name: processo
+        description: >-
+          Número do processo administrativo do contrato
+      - name: esfera
+        description: >-
+          Esfera federativa do órgão contratante
+      - name: poder
+        description: >-
+          Poder ao qual o órgão contratante pertence
+      - name: tipo_item
+        description: >-
+          Indica se o item é material ou serviço
+      - name: codigo_item
+        description: >-
+          Código do item nos catálogos CATMAT ou CATSER
+      - name: descricao_item
+        description: >-
+          Descrição do item contratado
+      - name: quantidade_item
+        description: >-
+          Quantidade contratada do item
+      - name: valor_unitario_item
+        description: >-
+          Valor unitário do item contratado
+      - name: valor_total_item
+        description: >-
+          Valor total do item contratado
+      - name: valor_global
+        description: >-
+          Valor global do contrato ao qual o item pertence
+      - name: indicador_contrato_excluido
+        description: >-
+          Indica se o contrato foi excluído
+      - name: indicador_item_excluido
+        description: >-
+          Indica se o item do contrato foi excluído
+      - name: data_vigencia_inicial
+        description: >-
+          Data de início da vigência do contrato
+      - name: data_vigencia_final
+        description: >-
+          Data de término da vigência do contrato
+      - name: data_hora_inclusao
+        description: >-
+          Data e hora de inclusão do item no sistema
+      - name: data_hora_exclusao_item
+        description: >-
+          Data e hora da exclusão do item do contrato
+      - name: data_hora_exclusao_contrato
+        description: >-
+          Data e hora da exclusão do contrato
+  - name: br_mgi_compras_publicas__licitacao
+    description: >-
+      Licitações realizadas sob a Lei 8.666/1993 e legislação anterior, de 1997 a
+      2025. Uma linha por licitação, em todas as modalidades
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_compra]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >-
+          Ano de publicação do aviso de licitação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_compra
+        description: >-
+          Identificador da licitação no SIASG
+        tests: [not_null]
+      - name: identificador
+        description: >-
+          Identificador alternativo da licitação publicado pela fonte
+      - name: codigo_uasg
+        description: >-
+          Código da UASG responsável pela licitação
+      - name: numero_aviso
+        description: >-
+          Número do aviso de licitação
+      - name: numero_processo
+        description: >-
+          Número do processo administrativo da licitação
+      - name: codigo_modalidade
+        description: >-
+          Código da modalidade de licitação no SIASG
+      - name: modalidade
+        description: >-
+          Modalidade de licitação, como pregão, concorrência, tomada de preços ou
+          convite
+      - name: tipo_pregao
+        description: >-
+          Forma de realização do pregão, eletrônico ou presencial
+      - name: tipo_recurso
+        description: >-
+          Origem dos recursos da licitação, nacional ou internacional
+      - name: situacao_aviso
+        description: >-
+          Situação do aviso, como publicado, revogado ou anulado
+      - name: codigo_municipio_uasg
+        description: >-
+          Código do município da UASG no SIASG
+      - name: objeto
+        description: >-
+          Descrição do objeto da licitação
+      - name: informacoes_gerais
+        description: >-
+          Informações gerais publicadas com o aviso
+      - name: endereco_entrega_edital
+        description: >-
+          Endereço de entrega ou retirada do edital
+      - name: nome_responsavel
+        description: >-
+          Nome do responsável pela licitação
+      - name: funcao_responsavel
+        description: >-
+          Função do responsável pela licitação
+      - name: numero_itens
+        description: >-
+          Quantidade de itens da licitação
+      - name: valor_estimado_total
+        description: >-
+          Valor total estimado da licitação
+      - name: valor_homologado_total
+        description: >-
+          Valor total homologado da licitação
+      - name: indicador_pertence_14133
+        description: >-
+          Indica se a licitação foi realizada sob a Lei 14.133/2021
+      - name: data_publicacao
+        description: >-
+          Data de publicação do aviso de licitação
+      - name: data_entrega_edital
+        description: >-
+          Data de disponibilização do edital
+      - name: data_entrega_proposta
+        description: >-
+          Data limite para entrega das propostas
+      - name: data_abertura_proposta
+        description: >-
+          Data de abertura das propostas
+      - name: data_alteracao
+        description: >-
+          Data e hora da última alteração do registro
+  - name: br_mgi_compras_publicas__licitacao_pregao
+    description: >-
+      Detalhamento processual dos pregões realizados sob a Lei 8.666/1993, incluindo
+      portaria, situação e datas de encerramento e resultado. Uma linha por pregão
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_compra]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [codigo_uasg, numero]
+    columns:
+      - name: ano
+        description: >-
+          Ano de publicação do edital do pregão
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_compra
+        description: >-
+          Identificador do pregão no SIASG
+        tests: [not_null]
+      - name: numero
+        description: >-
+          Número do pregão
+      - name: codigo_uasg
+        description: >-
+          Código da UASG responsável pelo pregão
+      - name: nome_uasg
+        description: >-
+          Nome da UASG responsável pelo pregão
+      - name: codigo_orgao
+        description: >-
+          Código do órgão responsável pelo pregão
+      - name: nome_orgao
+        description: >-
+          Nome do órgão responsável pelo pregão
+      - name: numero_processo
+        description: >-
+          Número do processo administrativo do pregão
+      - name: numero_portaria
+        description: >-
+          Número da portaria que designou o pregoeiro
+      - name: situacao_pregao
+        description: >-
+          Situação do pregão, como aberto, homologado, revogado ou anulado
+      - name: tipo_pregao
+        description: >-
+          Forma de realização do pregão, eletrônico ou presencial
+      - name: tipo_pregao_compra
+        description: >-
+          Sistema de compra do pregão
+      - name: objeto
+        description: >-
+          Descrição do objeto do pregão
+      - name: valor_estimado_total
+        description: >-
+          Valor total estimado do pregão
+      - name: valor_homologado_total
+        description: >-
+          Valor total homologado do pregão
+      - name: indicador_pertence_14133
+        description: >-
+          Indica se o pregão foi realizado sob a Lei 14.133/2021
+      - name: data_portaria
+        description: >-
+          Data da portaria que designou o pregoeiro
+      - name: data_edital
+        description: >-
+          Data de publicação do edital do pregão
+      - name: data_inicio_proposta
+        description: >-
+          Data e hora de abertura do prazo de propostas
+      - name: data_fim_proposta
+        description: >-
+          Data e hora de encerramento do prazo de propostas
+      - name: data_encerramento
+        description: >-
+          Data e hora de encerramento do pregão
+      - name: data_resultado
+        description: >-
+          Data e hora do resultado do pregão
+      - name: data_alteracao
+        description: >-
+          Data e hora da última alteração do registro
+  - name: br_mgi_compras_publicas__licitacao_item
+    description: >-
+      Itens das licitações realizadas sob a Lei 8.666/1993. Uma linha por item licitado,
+      com quantidade, valor estimado e fornecedor vencedor. Faltam 58.890 itens (1,23%)
+      que a fonte não entrega: 23.690 de Convite (0,7% da modalidade), 22.183 de Concorrência
+      (6,0%), e a totalidade de Concorrência Internacional (7.366) e de Concurso (5.651),
+      que portanto não aparecem nesta tabela. Os itens das modalidades Pregão, Dispensa
+      e Inexigibilidade estão nas tabelas licitacao_item_pregao e compra_sem_licitacao_item
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [id_compra_item]
+          proportion_allowed_failures: 0.0005
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [cpf_vencedor, nome_vencedor_pessoa_fisica]
+    columns:
+      - name: ano
+        description: >-
+          Ano de realização da licitação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_compra
+        description: >-
+          Identificador da licitação no SIASG
+      - name: id_compra_item
+        description: >-
+          Identificador do item da licitação no SIASG
+      - name: numero_licitacao
+        description: >-
+          Número da licitação publicado pela fonte
+      - name: numero_item_licitacao
+        description: >-
+          Número do item dentro da licitação
+      - name: codigo_uasg
+        description: >-
+          Código da UASG responsável pela licitação
+      - name: nome_uasg
+        description: >-
+          Nome da UASG responsável pela licitação
+      - name: numero_aviso
+        description: >-
+          Número do aviso de licitação
+      - name: codigo_modalidade
+        description: >-
+          Código da modalidade de licitação no SIASG
+      - name: modalidade
+        description: >-
+          Modalidade de licitação
+      - name: codigo_item_material
+        description: >-
+          Código do item no catálogo de materiais CATMAT
+      - name: nome_material
+        description: >-
+          Nome do material licitado
+      - name: codigo_item_servico
+        description: >-
+          Código do item no catálogo de serviços CATSER
+      - name: nome_servico
+        description: >-
+          Nome do serviço licitado
+      - name: descricao_item
+        description: >-
+          Descrição detalhada do item licitado
+      - name: unidade
+        description: >-
+          Unidade de fornecimento do item
+      - name: quantidade
+        description: >-
+          Quantidade licitada do item
+      - name: valor_estimado
+        description: >-
+          Valor estimado do item
+      - name: criterio_julgamento
+        description: >-
+          Critério de julgamento do item, como menor valor ou maior desconto
+      - name: beneficio
+        description: >-
+          Tratamento diferenciado concedido a microempresas, empresas de pequeno porte
+          e cooperativas
+      - name: cnpj_fornecedor
+        description: >-
+          CNPJ do fornecedor vencedor do item
+      - name: nome_fornecedor
+        description: >-
+          Razão social do fornecedor vencedor do item
+      - name: cpf_vencedor
+        description: >-
+          CPF mascarado do vencedor pessoa física
+      - name: nome_vencedor_pessoa_fisica
+        description: >-
+          Nome do vencedor pessoa física
+      - name: indicador_decreto_7174
+        description: >-
+          Indica se o item está sujeito às preferências do Decreto 7.174/2010
+      - name: indicador_sustentavel
+        description: >-
+          Indica se o item é classificado como sustentável
+      - name: data_alteracao
+        description: >-
+          Data e hora da última alteração do registro
+  - name: br_mgi_compras_publicas__licitacao_item_pregao
+    description: >-
+      Resultado dos itens dos pregões da Lei 8.666/1993, com menor lance, valor negociado
+      e valor homologado. Uma linha por item homologado
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_compra_item]
+          config:
+            where: __most_recent_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - fornecedor_vencedor
+            - tratamento_diferenciado
+            - valor_negociado
+          config:
+            where: __most_recent_year__
+    columns:
+      - name: ano
+        description: >-
+          Ano de homologação do item
+        tests: [not_null]
+      - name: id_compra
+        description: >-
+          Identificador do pregão no SIASG
+      - name: id_compra_item
+        description: >-
+          Identificador do item do pregão no SIASG
+        tests: [not_null]
+      - name: situacao_item
+        description: >-
+          Situação do item, como homologado, cancelado no julgamento, deserto ou fracassado
+      - name: descricao_item
+        description: >-
+          Descrição do item
+      - name: descricao_detalhada_item
+        description: >-
+          Descrição detalhada do item
+      - name: unidade_fornecimento
+        description: >-
+          Unidade de fornecimento do item
+      - name: quantidade_item
+        description: >-
+          Quantidade licitada do item
+      - name: valor_estimado_item
+        description: >-
+          Valor estimado do item
+      - name: menor_lance
+        description: >-
+          Menor lance ofertado para o item
+      - name: valor_negociado
+        description: >-
+          Valor obtido após negociação com o fornecedor
+      - name: valor_homologado_item
+        description: >-
+          Valor homologado do item
+      - name: fornecedor_vencedor
+        description: >-
+          Fornecedor vencedor do item
+      - name: nome_responsavel_adjudicacao
+        description: >-
+          Nome do responsável pela adjudicação do item
+      - name: nome_responsavel_homologacao
+        description: >-
+          Nome do responsável pela homologação do item
+      - name: indicador_decreto_7174
+        description: >-
+          Indica se o item está sujeito às preferências do Decreto 7.174/2010
+      - name: indicador_margem_preferencial
+        description: >-
+          Indica se foi aplicada margem de preferência ao item
+      - name: tratamento_diferenciado
+        description: >-
+          Tratamento diferenciado concedido a microempresas e empresas de pequeno
+          porte
+      - name: data_encerramento
+        description: >-
+          Data de encerramento da disputa do item
+      - name: data_adjudicacao
+        description: >-
+          Data de adjudicação do item
+      - name: data_homologacao
+        description: >-
+          Data de homologação do item
+      - name: data_alteracao
+        description: >-
+          Data e hora da última alteração do registro
+  - name: br_mgi_compras_publicas__compra_sem_licitacao
+    description: >-
+      Dispensas e inexigibilidades de licitação sob a Lei 8.666/1993, de 1997 a 2024.
+      Uma linha por contratação direta, com fundamento legal e justificativa
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [id_compra]
+          proportion_allowed_failures: 0.0001
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [data_publicacao, lei, objeto_licitacao]
+    columns:
+      - name: ano
+        description: >-
+          Ano de publicação do aviso de contratação direta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: id_compra
+        description: >-
+          Identificador da contratação direta no SIASG
+      - name: codigo_uasg
+        description: >-
+          Código da UASG responsável pela contratação
+      - name: codigo_orgao
+        description: >-
+          Código do órgão responsável pela contratação
+      - name: numero_aviso
+        description: >-
+          Número do aviso da contratação direta
+      - name: numero_processo
+        description: >-
+          Número do processo administrativo
+      - name: codigo_modalidade
+        description: >-
+          Código da modalidade da contratação direta
+      - name: quantidade_total_item
+        description: >-
+          Quantidade total de itens da contratação
+      - name: objeto_licitacao
+        description: >-
+          Descrição do objeto da contratação
+      - name: fundamento_legal
+        description: >-
+          Dispositivo legal que fundamenta a contratação direta
+      - name: justificativa
+        description: >-
+          Justificativa apresentada para a contratação direta
+      - name: nome_responsavel_declaracao_dispensa
+        description: >-
+          Nome do responsável pela declaração de dispensa ou inexigibilidade
+      - name: cargo_responsavel_declaracao_dispensa
+        description: >-
+          Cargo do responsável pela declaração de dispensa ou inexigibilidade
+      - name: nome_responsavel_ratificacao
+        description: >-
+          Nome do responsável pela ratificação
+      - name: cargo_responsavel_ratificacao
+        description: >-
+          Cargo do responsável pela ratificação
+      - name: nome_uasg
+        description: >-
+          Nome da UASG responsável pela contratação
+      - name: codigo_orgao_superior
+        description: >-
+          Código do órgão superior na hierarquia administrativa
+      - name: lei
+        description: >-
+          Lei que rege a contratação direta
+      - name: valor_estimado
+        description: >-
+          Valor total estimado da contratação direta
+      - name: indicador_pertence_14133
+        description: >-
+          Indica se a contratação foi realizada sob a Lei 14.133/2021
+      - name: data_declaracao_dispensa
+        description: >-
+          Data da declaração de dispensa ou inexigibilidade
+      - name: data_ratificacao
+        description: >-
+          Data da ratificação da contratação direta
+      - name: data_publicacao
+        description: >-
+          Data de publicação do aviso
+      - name: data_alteracao
+        description: >-
+          Data e hora da última alteração do registro
+  - name: br_mgi_compras_publicas__compra_sem_licitacao_item
+    description: >-
+      Itens das dispensas e inexigibilidades de licitação sob a Lei 8.666/1993. Uma
+      linha por item, com fornecedor vencedor e valor estimado
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [id_compra_item]
+          proportion_allowed_failures: 0.0001
+          config:
+            where: __most_recent_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - cargo_responsavel_ratificacao
+            - cpf_responsavel_declaracao_dispensa
+            - cpf_responsavel_publicacao
+            - cpf_responsavel_ratificacao
+            - cpf_vencedor
+            - data_publicacao
+            - fabricante
+            - nome_conjunto_materiais
+            - nome_responsavel_ratificacao
+            - objeto_licitacao
+          config:
+            where: __most_recent_year__
+    columns:
+      - name: ano
+        description: >-
+          Ano de publicação do aviso de contratação direta
+        tests: [not_null]
+      - name: id_compra
+        description: >-
+          Identificador da contratação direta no SIASG
+      - name: id_compra_item
+        description: >-
+          Identificador do item da contratação direta no SIASG
+      - name: numero_item_material
+        description: >-
+          Número do item dentro da contratação
+      - name: codigo_uasg
+        description: >-
+          Código da UASG responsável pela contratação
+      - name: codigo_orgao
+        description: >-
+          Código do órgão responsável pela contratação
+      - name: numero_aviso
+        description: >-
+          Número do aviso da contratação direta
+      - name: numero_processo
+        description: >-
+          Número do processo administrativo
+      - name: codigo_modalidade
+        description: >-
+          Código da modalidade da contratação direta
+      - name: quantidade_total_item
+        description: >-
+          Quantidade total de itens da contratação
+      - name: objeto_licitacao
+        description: >-
+          Descrição do objeto da contratação
+      - name: fundamento_legal
+        description: >-
+          Dispositivo legal que fundamenta a contratação direta
+      - name: justificativa
+        description: >-
+          Justificativa apresentada para a contratação direta
+      - name: nome_responsavel_declaracao_dispensa
+        description: >-
+          Nome do responsável pela declaração de dispensa ou inexigibilidade
+      - name: cargo_responsavel_declaracao_dispensa
+        description: >-
+          Cargo do responsável pela declaração de dispensa ou inexigibilidade
+      - name: nome_responsavel_ratificacao
+        description: >-
+          Nome do responsável pela ratificação
+      - name: cargo_responsavel_ratificacao
+        description: >-
+          Cargo do responsável pela ratificação
+      - name: modalidade
+        description: >-
+          Modalidade da contratação direta, dispensa ou inexigibilidade
+      - name: numero_inciso
+        description: >-
+          Inciso do dispositivo legal que fundamenta a contratação
+      - name: tipo_item
+        description: >-
+          Indica se o item é material ou serviço
+      - name: codigo_conjunto_materiais
+        description: >-
+          Código do conjunto de materiais no CATMAT
+      - name: nome_conjunto_materiais
+        description: >-
+          Nome do conjunto de materiais
+      - name: codigo_servico
+        description: >-
+          Código do serviço no CATSER
+      - name: nome_servico
+        description: >-
+          Nome do serviço contratado
+      - name: descricao_detalhada
+        description: >-
+          Descrição detalhada do item
+      - name: marca_material
+        description: >-
+          Marca do material adquirido
+      - name: fabricante
+        description: >-
+          Fabricante do material adquirido
+      - name: unidade_medida
+        description: >-
+          Unidade de medida do item
+      - name: quantidade_material
+        description: >-
+          Quantidade contratada do item
+      - name: valor_estimado
+        description: >-
+          Valor total estimado da contratação direta
+      - name: valor_estimado_item
+        description: >-
+          Valor estimado do item
+      - name: tipo_fornecedor_vencedor
+        description: >-
+          Indica se o fornecedor vencedor é pessoa física ou jurídica
+      - name: nome_fornecedor_vencedor
+        description: >-
+          Nome ou razão social do fornecedor vencedor
+      - name: cnpj_vencedor
+        description: >-
+          CNPJ do fornecedor vencedor
+      - name: cpf_vencedor
+        description: >-
+          CPF mascarado do vencedor pessoa física
+      - name: cpf_responsavel_declaracao_dispensa
+        description: >-
+          CPF do responsável pela declaração de dispensa
+      - name: cpf_responsavel_ratificacao
+        description: >-
+          CPF do responsável pela ratificação
+      - name: cpf_responsavel_publicacao
+        description: >-
+          CPF do responsável pela publicação
+      - name: data_publicacao
+        description: >-
+          Data de publicação do aviso
+      - name: data_alteracao
+        description: >-
+          Data e hora da última alteração do registro
+  - name: br_mgi_compras_publicas__orgao
+    description: >-
+      Cadastro dos órgãos registrados no SIASG, com hierarquia administrativa, esfera
+      e poder. Uma linha por órgão em cada extração
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, codigo_orgao]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: data_extracao
+        description: >-
+          Data em que o registro foi extraído da API Compras.gov.br
+        tests: [not_null]
+      - name: codigo_orgao
+        description: >-
+          Código do órgão no SIASG
+        tests: [not_null]
+      - name: cnpj_orgao
+        description: >-
+          CNPJ ou CPF do órgão
+      - name: nome_orgao
+        description: >-
+          Nome do órgão
+      - name: nome_mnemonico_orgao
+        description: >-
+          Nome abreviado do órgão usado no SIASG
+      - name: codigo_orgao_vinculado
+        description: >-
+          Código do órgão ao qual este é vinculado
+      - name: cnpj_orgao_vinculado
+        description: >-
+          CNPJ ou CPF do órgão vinculado
+      - name: nome_orgao_vinculado
+        description: >-
+          Nome do órgão vinculado
+      - name: codigo_orgao_superior
+        description: >-
+          Código do órgão superior na hierarquia administrativa
+      - name: cnpj_orgao_superior
+        description: >-
+          CNPJ ou CPF do órgão superior
+      - name: nome_orgao_superior
+        description: >-
+          Nome do órgão superior
+      - name: codigo_tipo_administracao
+        description: >-
+          Código do tipo de administração do órgão
+      - name: nome_tipo_administracao
+        description: >-
+          Tipo de administração do órgão, como administração direta federal, autarquia
+          ou fundo
+      - name: poder
+        description: >-
+          Poder ao qual o órgão pertence
+      - name: esfera
+        description: >-
+          Esfera federativa do órgão
+      - name: indicador_uso_sisg
+        description: >-
+          Indica se o órgão integra o SISG
+      - name: indicador_orgao_ativo
+        description: >-
+          Indica se o órgão está ativo no cadastro
+      - name: data_hora_movimento
+        description: >-
+          Data e hora da última movimentação do cadastro do órgão
+  - name: br_mgi_compras_publicas__unidade_administrativa
+    description: >-
+      Cadastro das Unidades Administrativas de Serviços Gerais (UASG), as unidades
+      que efetivamente compram. Uma linha por UASG em cada extração
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, codigo_uasg]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [nome_unidade_espelho]
+    columns:
+      - name: data_extracao
+        description: >-
+          Data em que o registro foi extraído da API Compras.gov.br
+        tests: [not_null]
+      - name: sigla_uf
+        description: >-
+          Sigla da unidade da federação onde a UASG está sediada
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              config:
+                where: sigla_uf != 'EX'
+      - name: id_municipio
+        description: >-
+          Código IBGE de 7 dígitos do município onde a UASG está sediada
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: codigo_uasg
+        description: >-
+          Código da Unidade Administrativa de Serviços Gerais
+        tests: [not_null]
+      - name: codigo_orgao
+        description: >-
+          Código do órgão ao qual a UASG pertence
+      - name: cnpj_orgao
+        description: >-
+          CNPJ ou CPF do órgão ao qual a UASG pertence
+      - name: cnpj_orgao_vinculado
+        description: >-
+          CNPJ ou CPF do órgão vinculado
+      - name: cnpj_orgao_superior
+        description: >-
+          CNPJ ou CPF do órgão superior
+      - name: cnpj_uasg
+        description: >-
+          CNPJ ou CPF próprio da UASG, quando possui
+      - name: nome_uasg
+        description: >-
+          Nome da UASG
+      - name: codigo_municipio_siasg
+        description: >-
+          Código do município no SIASG
+      - name: nome_municipio
+        description: >-
+          Nome do município onde a UASG está sediada
+      - name: codigo_unidade_polo
+        description: >-
+          Código da unidade polo à qual a UASG se subordina
+      - name: nome_unidade_polo
+        description: >-
+          Nome da unidade polo
+      - name: codigo_unidade_espelho
+        description: >-
+          Código da unidade espelho, quando a UASG replica outra unidade
+      - name: nome_unidade_espelho
+        description: >-
+          Nome da unidade espelho
+      - name: codigo_siorg
+        description: >-
+          Código da unidade no SIORG
+      - name: indicador_uso_sisg
+        description: >-
+          Indica se a UASG integra o SISG
+      - name: indicador_adesao_siasg
+        description: >-
+          Indica se a UASG aderiu ao SIASG
+      - name: indicador_uasg_cadastradora
+        description: >-
+          Indica se a UASG pode cadastrar fornecedores no SICAF
+      - name: indicador_uasg_ativa
+        description: >-
+          Indica se a UASG está ativa no cadastro
+      - name: data_implantacao_sidec
+        description: >-
+          Data e hora de implantação da UASG no SIDEC
+      - name: data_hora_movimento
+        description: >-
+          Data e hora da última movimentação do cadastro da UASG
+  - name: br_mgi_compras_publicas__fornecedor
+    description: >-
+      Cadastro de fornecedores do SICAF, com atividade econômica, porte e natureza
+      jurídica. Uma linha por fornecedor em cada extração
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - data_extracao
+            - cnpj
+            - cpf
+            - nome_razao_social
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [cnpj, cpf]
+    columns:
+      - name: data_extracao
+        description: >-
+          Data em que o registro foi extraído da API Compras.gov.br
+        tests: [not_null]
+      - name: sigla_uf
+        description: >-
+          Sigla da unidade da federação do fornecedor
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              config:
+                where: sigla_uf != 'EX'
+      - name: cnpj
+        description: >-
+          CNPJ do fornecedor pessoa jurídica
+      - name: cpf
+        description: >-
+          CPF mascarado do fornecedor pessoa física
+      - name: nome_razao_social
+        description: >-
+          Razão social ou nome do fornecedor
+        tests: [not_null]
+      - name: codigo_cnae
+        description: >-
+          Código CNAE da atividade econômica principal do fornecedor
+      - name: nome_cnae
+        description: >-
+          Descrição da atividade econômica principal do fornecedor
+      - name: id_natureza_juridica
+        description: >-
+          Código da natureza jurídica do fornecedor
+      - name: natureza_juridica
+        description: >-
+          Natureza jurídica do fornecedor
+      - name: id_porte_empresa
+        description: >-
+          Código do porte da empresa
+      - name: porte_empresa
+        description: >-
+          Porte da empresa, como microempresa, empresa de pequeno porte ou demais
+      - name: nome_municipio
+        description: >-
+          Nome do município do fornecedor
+      - name: indicador_habilitado_licitar
+        description: >-
+          Indica se o fornecedor está habilitado a licitar no SICAF
+      - name: indicador_fornecedor_ativo
+        description: >-
+          Indica se o fornecedor está ativo no cadastro
+  - name: br_mgi_compras_publicas__catalogo_material
+    description: >-
+      Catálogo de Materiais (CATMAT), com a hierarquia de grupo, classe e padrão descritivo.
+      Uma linha por item de material
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, codigo_item]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [descricao_ncm]
+    columns:
+      - name: data_extracao
+        description: >-
+          Data em que o registro foi extraído da API Compras.gov.br
+        tests: [not_null]
+      - name: codigo_item
+        description: >-
+          Código do item de material no CATMAT
+        tests: [not_null]
+      - name: codigo_grupo
+        description: >-
+          Código do grupo de material
+      - name: nome_grupo
+        description: >-
+          Nome do grupo de material
+      - name: codigo_classe
+        description: >-
+          Código da classe de material
+      - name: nome_classe
+        description: >-
+          Nome da classe de material
+      - name: codigo_pdm
+        description: >-
+          Código do Padrão Descritivo de Material
+      - name: nome_pdm
+        description: >-
+          Nome do Padrão Descritivo de Material
+      - name: codigo_ncm
+        description: >-
+          Código NCM da Nomenclatura Comum do Mercosul
+      - name: descricao_ncm
+        description: >-
+          Descrição da classificação NCM
+      - name: descricao_item
+        description: >-
+          Descrição estruturada do item de material
+      - name: indicador_item_sustentavel
+        description: >-
+          Indica se o item é classificado como sustentável
+      - name: indicador_aplica_margem_preferencia
+        description: >-
+          Indica se o item admite margem de preferência para produtos nacionais
+      - name: indicador_item_ativo
+        description: >-
+          Indica se o item está ativo no catálogo
+      - name: data_hora_atualizacao
+        description: >-
+          Data e hora da última atualização do item no catálogo
+  - name: br_mgi_compras_publicas__catalogo_servico
+    description: >-
+      Catálogo de Serviços (CATSER), com a hierarquia de seção, divisão, grupo e classe.
+      Uma linha por item de serviço
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data_extracao, codigo_servico]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [codigo_subclasse, nome_subclasse]
+    columns:
+      - name: data_extracao
+        description: >-
+          Data em que o registro foi extraído da API Compras.gov.br
+        tests: [not_null]
+      - name: codigo_servico
+        description: >-
+          Código do item de serviço no CATSER
+        tests: [not_null]
+      - name: codigo_secao
+        description: >-
+          Código da seção de serviço
+      - name: nome_secao
+        description: >-
+          Nome da seção de serviço
+      - name: codigo_divisao
+        description: >-
+          Código da divisão de serviço
+      - name: nome_divisao
+        description: >-
+          Nome da divisão de serviço
+      - name: codigo_grupo
+        description: >-
+          Código do grupo de serviço
+      - name: nome_grupo
+        description: >-
+          Nome do grupo de serviço
+      - name: codigo_classe
+        description: >-
+          Código da classe de serviço
+      - name: nome_classe
+        description: >-
+          Nome da classe de serviço
+      - name: codigo_subclasse
+        description: >-
+          Código da subclasse de serviço
+      - name: nome_subclasse
+        description: >-
+          Nome da subclasse de serviço
+      - name: nome_servico
+        description: >-
+          Nome do item de serviço
+      - name: codigo_cpc
+        description: >-
+          Código da Central Product Classification correspondente ao serviço
+      - name: indicador_exclusivo_central_compras
+        description: >-
+          Indica se o serviço é de contratação exclusiva pela Central de Compras
+      - name: indicador_servico_ativo
+        description: >-
+          Indica se o serviço está ativo no catálogo
+      - name: data_hora_atualizacao
+        description: >-
+          Data e hora da última atualização do serviço no catálogo
+  - name: br_mgi_compras_publicas__dicionario
+    description: >-
+      Dicionário das colunas codificadas do conjunto, relacionando cada chave ao seu
+      significado
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: >-
+          Nome da tabela à qual a chave se refere
+        tests: [not_null]
+      - name: nome_coluna
+        description: >-
+          Nome da coluna à qual a chave se refere
+        tests: [not_null]
+      - name: chave
+        description: >-
+          Valor codificado presente na coluna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >-
+          Cobertura temporal em que a chave é válida
+      - name: valor
+        description: >-
+          Significado da chave
