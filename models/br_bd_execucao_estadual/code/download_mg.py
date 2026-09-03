@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import gzip
+import re
 import sys
 from pathlib import Path
 
@@ -20,6 +21,11 @@ from constants import BROWSER_UA, INPUT_DIR, MG_CKAN, MG_PACKAGES
 
 MG_INPUT = INPUT_DIR / "mg"
 CHUNK = 1 << 20
+
+# Most fact and per-exercise dimension files carry the year in the name, in two
+# shapes: `ft_despesa_2002.csv.gz` and `contratos2022.csv`. Files with no year --
+# the dimension tables -- are whole-table exports and are always fetched.
+YEAR_RE = re.compile(r"(?<!\d)(?P<year>20\d{2})(?!\d)")
 
 
 def is_intact(path: Path) -> bool:
@@ -72,7 +78,7 @@ def download(
     return True
 
 
-def main(retries: int = 3) -> None:
+def main(retries: int = 3, years: set[int] | None = None) -> None:
     MG_INPUT.mkdir(parents=True, exist_ok=True)
     session = requests.Session()
     # dados.mg.gov.br returns 403 to a bare requests/curl User-Agent.
@@ -98,6 +104,18 @@ def main(retries: int = 3) -> None:
                 continue
             wanted[name] = url
     print(f"{len(wanted)} resources across {len(MG_PACKAGES)} packages")
+
+    # Year-scoped refresh. A recurring run only needs the open exercise, but it needs
+    # EVERY dimension table, because those are whole-table exports that get rewritten
+    # in place -- keeping last week's copy would leave new surrogate ids unresolved.
+    if years is not None:
+        scoped = {}
+        for name, url in wanted.items():
+            found = {int(m.group("year")) for m in YEAR_RE.finditer(name)}
+            if not found or found & years:
+                scoped[name] = url
+        print(f"  year filter {sorted(years)}: {len(scoped)} of {len(wanted)}")
+        wanted = scoped
 
     pending = dict(wanted)
     for attempt in range(1, retries + 1):
@@ -127,4 +145,12 @@ def main(retries: int = 3) -> None:
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--retries", type=int, default=3)
-    main(**vars(ap.parse_args()))
+    ap.add_argument(
+        "--year",
+        type=int,
+        action="append",
+        help="restrict per-exercise files to this year; repeatable. "
+        "Dimension tables are always fetched.",
+    )
+    args = ap.parse_args()
+    main(retries=args.retries, years=set(args.year) if args.year else None)
