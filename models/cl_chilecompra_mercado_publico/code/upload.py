@@ -17,19 +17,18 @@ Two deliberate departures from the usual onboarding upload script:
    consistent. They share one staging dataset, so a typed external table left behind by
    one collides with the other's all-STRING overwrite.
 
-Expected row counts come from clean_log.jsonl, written by the cleaning step, so the
-check is against what was actually produced rather than a hardcoded number.
+Expected row counts are summed from the parquet footers, not from clean_log.jsonl:
+that log is append-only across runs, so a month re-run under --force appears more than
+once and summing it over-counts.
 """
 
 from __future__ import annotations
 
 import argparse
 import glob
-import json
 import os
 import sys
 import warnings
-from collections import defaultdict
 from pathlib import Path
 
 warnings.filterwarnings("ignore")
@@ -59,18 +58,20 @@ def _patch_requester_pays(billing_project: str) -> None:
     gcs.Client.bucket = patched
 
 
-def expected_rows(root: Path) -> dict[str, int]:
-    """Sum the per-month row counts the cleaning step recorded, per table."""
-    totals: dict[str, int] = defaultdict(int)
-    log = root / "clean_log.jsonl"
-    if not log.exists():
-        return {}
-    for line in log.read_text(encoding="utf-8").splitlines():
-        if not line.strip():
-            continue
-        for table, count in json.loads(line)["rows"].items():
-            totals[table] += count
-    return dict(totals)
+def expected_rows(root: Path, table: str) -> int:
+    """Rows on disk for one table, summed from the parquet footers.
+
+    Deliberately NOT from clean_log.jsonl. That log is append-only across runs, so a
+    month re-run under --force appears several times and summing it over-counts. The
+    footers carry num_rows without reading any data, so this is both cheap and the
+    thing the upload is actually about to send.
+    """
+    import pyarrow.parquet as pq
+
+    return sum(
+        pq.ParquetFile(path).metadata.num_rows
+        for path in _partition_files(root, table)
+    )
 
 
 def partition_count(root: Path, table: str) -> int:
@@ -114,7 +115,7 @@ def assert_one_schema(root: Path, table: str) -> None:
 
 def _partition_files(root: Path, table: str) -> list[str]:
     return sorted(
-        glob.glob(f"{root}/output/{table}/**/data.parquet", recursive=True)
+        glob.glob(f"{root}/output/{table}/**/*.parquet", recursive=True)
     )
 
 
@@ -146,10 +147,10 @@ def upload_table(
             f"  {table}: {actual:,} rows in staging (no expected count on record)"
         )
     elif actual == expected:
-        print(f"  {table}: {actual:,} rows — matches the cleaning log")
+        print(f"  {table}: {actual:,} rows — matches the parquet on disk")
     else:
         raise ValueError(
-            f"{table}: staging has {actual:,} rows but the cleaning log recorded "
+            f"{table}: staging has {actual:,} rows but the parquet on disk holds "
             f"{expected:,}. Do not continue -- one of the two is wrong."
         )
     return actual
@@ -168,7 +169,6 @@ def main() -> int:
     _patch_requester_pays(billing_project)
 
     wanted = args.tables or TABLES
-    totals = expected_rows(args.root)
 
     print(
         f"=== uploading to {billing_project} (env={args.env}) ===", flush=True
@@ -176,7 +176,12 @@ def main() -> int:
     for table in wanted:
         print(f"=== {table} ===", flush=True)
         try:
-            upload_table(table, args.root, billing_project, totals.get(table))
+            upload_table(
+                table,
+                args.root,
+                billing_project,
+                expected_rows(args.root, table),
+            )
         except Exception as exc:
             print(f"  FAILED: {type(exc).__name__}: {exc}", flush=True)
             print("  Stopping -- do not upload later tables after a failure.")

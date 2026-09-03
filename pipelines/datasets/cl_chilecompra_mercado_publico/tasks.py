@@ -49,6 +49,12 @@ def select_stale_months_task(
     manifest: list[dict], lookback_days: int, force_all: bool = False
 ) -> list[dict]:
     """Keep the months the publisher touched within ``lookback_days``."""
+    manifest = [
+        e
+        for e in manifest
+        if (e["kind"], e["year"], e["month"])
+        not in utils.DUPLICATE_SOURCE_MONTHS
+    ]
     if force_all:
         return manifest
     cutoff = datetime.now(UTC) - timedelta(days=lookback_days)
@@ -83,7 +89,9 @@ def download_and_clean_task(entry: dict, root: str) -> dict:
         frames = utils.clean_month(kind, zip_path)
         counts = {}
         for table, df in frames.items():
-            utils.write_partitioned(df, table, output_dir)
+            utils.write_partitioned(
+                df, table, output_dir, f"{year}-{month:02d}"
+            )
             counts[table] = len(df)
     finally:
         zip_path.unlink(missing_ok=True)

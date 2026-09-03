@@ -84,7 +84,7 @@ DOCUMENTED = {
 
 def _partition_files(root: Path, table: str) -> list[str]:
     return sorted(
-        glob.glob(f"{root}/output/{table}/**/data.parquet", recursive=True)
+        glob.glob(f"{root}/output/{table}/**/*.parquet", recursive=True)
     )
 
 

@@ -48,13 +48,19 @@ def months(start: tuple[int, int], end: tuple[int, int]):
 
 
 def month_done(output_dir: Path, kind: str, year: int, month: int) -> bool:
+    """Has this source month already been written?
+
+    Keyed on the SOURCE month in the filename, not on the partition existing: a
+    partition can hold contributions from more than one source month, so "the directory
+    has a parquet in it" would wrongly report a month as done.
+    """
     return all(
         (
             output_dir
             / t
             / f"ano={year}"
             / f"mes={month:02d}"
-            / "data.parquet"
+            / f"data_{year}-{month:02d}.parquet"
         ).exists()
         for t in utils.TABLES_BY_KIND[kind]
     )
@@ -91,6 +97,12 @@ def main() -> int:
     failures = []
     for i, (kind, year, month) in enumerate(todo, 1):
         tag = f"[{i}/{len(todo)}] {kind} {year}-{month:02d}"
+        if (kind, year, month) in utils.DUPLICATE_SOURCE_MONTHS:
+            print(
+                f"{tag} skip: the publisher put another month's data in this slot",
+                flush=True,
+            )
+            continue
         if not args.force and month_done(output_dir, kind, year, month):
             print(f"{tag} skip (already built)", flush=True)
             continue
@@ -103,7 +115,9 @@ def main() -> int:
             frames = utils.clean_month(kind, zip_path)
             counts = {}
             for table, df in frames.items():
-                utils.write_partitioned(df, table, output_dir)
+                utils.write_partitioned(
+                    df, table, output_dir, f"{year}-{month:02d}"
+                )
                 counts[table] = len(df)
             if not args.keep_raw:
                 zip_path.unlink(missing_ok=True)

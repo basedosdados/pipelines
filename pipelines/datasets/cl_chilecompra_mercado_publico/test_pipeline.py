@@ -101,3 +101,74 @@ def test_region_lookup(raw, expected):
 def test_comuna_lookup(raw, expected):
     got = utils.resolve_geography(pd.Series([raw]), "comuna").iloc[0]
     assert (None if pd.isna(got) else got) == expected
+
+
+def test_duplicate_source_month_is_excluded_from_the_manifest():
+    """lic-da/2014-4 holds March 2014 data, so it must never be ingested.
+
+    Before partition files were named for their source month it silently overwrote
+    March; after, it would silently duplicate March.
+    """
+    manifest = [
+        entry(1, kind="licitacion", year=2014, month=4),
+        entry(1, kind="licitacion", year=2014, month=3),
+    ]
+    kept = {
+        (e["kind"], e["year"], e["month"])
+        for e in run(manifest, force_all=True)
+    }
+    assert ("licitacion", 2014, 4) not in kept
+    assert ("licitacion", 2014, 3) in kept
+
+
+def test_duplicate_source_month_excluded_even_when_stale():
+    manifest = [entry(400, kind="licitacion", year=2014, month=4)]
+    assert run(manifest, force_all=True) == []
+
+
+def test_partition_files_are_named_for_their_source_month(tmp_path):
+    """Two source months contributing to one partition must not overwrite each other."""
+    arch = utils.read_architecture("licitacion_oferta")
+    cols = list(arch["name"])
+
+    def frame(codigo):
+        row = {c: "x" for c in cols}
+        row.update(
+            ano="2026",
+            mes="06",
+            codigo_licitacion=codigo,
+            codigo_item="1",
+            codigo_proveedor="1",
+            nombre_oferta="o",
+        )
+        return pd.DataFrame([row], columns=cols)
+
+    utils.write_partitioned(
+        frame("A"), "licitacion_oferta", tmp_path, "2026-06"
+    )
+    utils.write_partitioned(
+        frame("B"), "licitacion_oferta", tmp_path, "2026-03"
+    )
+
+    part = tmp_path / "licitacion_oferta" / "ano=2026" / "mes=06"
+    names = sorted(p.name for p in part.glob("*.parquet"))
+    assert names == ["data_2026-03.parquet", "data_2026-06.parquet"], names
+
+
+def test_rewriting_one_source_month_is_idempotent(tmp_path):
+    arch = utils.read_architecture("licitacion_oferta")
+    cols = list(arch["name"])
+    row = {c: "x" for c in cols}
+    row.update(
+        ano="2026",
+        mes="06",
+        codigo_licitacion="A",
+        codigo_item="1",
+        codigo_proveedor="1",
+        nombre_oferta="o",
+    )
+    df = pd.DataFrame([row], columns=cols)
+    for _ in range(3):
+        utils.write_partitioned(df, "licitacion_oferta", tmp_path, "2026-06")
+    part = tmp_path / "licitacion_oferta" / "ano=2026" / "mes=06"
+    assert len(list(part.glob("*.parquet"))) == 1

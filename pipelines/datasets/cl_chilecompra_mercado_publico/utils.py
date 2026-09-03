@@ -14,6 +14,7 @@ The files are MONTHLY, not semestral -- ``<month>`` runs 1..12.
 
 from __future__ import annotations
 
+import csv as csv_module
 import functools
 import io
 import time
@@ -92,6 +93,19 @@ EXCLUDED_COLUMNS = {
     "EmailResponsableContrato",
     "FonoResponsableContrato",
 }
+
+# Source months to skip because the publisher put another month's data in the slot.
+#
+# lic-da/2014-4.zip holds a file named 2014-4.csv whose 1,532,452 rows are ALL March
+# 2014 -- same 20,511 tenders, same first tender, same row count as lic-da/2014-3.zip,
+# and the two blobs are the same byte length uploaded 15 seconds apart. So April 2014
+# licitaciones do not exist at source; that month is a genuine gap in the series, not a
+# gap in this load.
+#
+# Left in, it would write a second copy of March into the March partition, because
+# partition files are named for their source month. Before that naming change it instead
+# silently overwrote March with an identical copy, which is how it went unnoticed.
+DUPLICATE_SOURCE_MONTHS = {("licitacion", 2014, 4)}
 
 # Which table each licitaciones column belongs to was determined empirically, by
 # measuring how many distinct values each column takes within one tender and within one
@@ -260,44 +274,109 @@ def download_month(
     ) from last_error
 
 
-def _iter_csv_chunks(path: Path, chunk_rows: int = CHUNK_ROWS):
-    """Yield the CSV inside a monthly ZIP in row chunks, as all-string frames.
+def _csv_names(zf: zipfile.ZipFile) -> list[str]:
+    """CSV members of a monthly ZIP, in name order.
+
+    Usually one. ``lic-da/2011-3`` is split into ``lic_2011-3a.csv`` and
+    ``lic_2011-3b.csv`` -- 1.27 GB across the two, the largest month in the series --
+    with byte-identical headers. Reading them in order and concatenating reproduces the
+    single-file months exactly.
+    """
+    names = sorted(n for n in zf.namelist() if n.lower().endswith(".csv"))
+    if not names:
+        raise ValueError(f"no CSV inside {zf.filename}")
+    return names
+
+
+def _rename_columns(chunk: pd.DataFrame, filename: str, checked: bool) -> bool:
+    chunk.columns = [
+        HEADER_ALIASES.get(c.strip(), c.strip()) for c in chunk.columns
+    ]
+    if not checked:
+        _assert_columns_known(chunk.columns, filename)
+    return True
+
+
+def _iter_csv_chunks(
+    path: Path, chunk_rows: int = CHUNK_ROWS, strict: bool = False
+):
+    """Yield every CSV inside a monthly ZIP in row chunks, as all-string frames.
 
     Everything arrives as string; typing happens in the dbt model. The parser must be a
     real CSV parser -- quoted fields contain both embedded ``;`` and embedded newlines,
     so the file cannot be split on line boundaries.
+
+    ``strict`` swaps pandas' C parser for Python's csv module and drops records whose
+    field count does not match the header. That is slower, so it is only used as a
+    fallback for a file the fast parser rejects -- see clean_month.
     """
     with zipfile.ZipFile(path) as zf:
-        names = [n for n in zf.namelist() if n.lower().endswith(".csv")]
-        if len(names) != 1:
-            raise ValueError(
-                f"{path.name}: expected exactly one CSV, found {names}"
-            )
-        with zf.open(names[0]) as raw:
-            text = io.TextIOWrapper(
-                raw, encoding=ENCODING, errors=ENCODING_ERRORS, newline=""
-            )
-            reader = pd.read_csv(
-                text,
-                sep=";",
-                quotechar='"',
-                dtype=str,
-                keep_default_na=False,
-                na_values=[],
-                engine="c",
-                low_memory=False,
-                chunksize=chunk_rows,
-            )
-            checked = False
-            for chunk in reader:
-                chunk.columns = [
-                    HEADER_ALIASES.get(c.strip(), c.strip())
-                    for c in chunk.columns
-                ]
-                if not checked:
-                    _assert_columns_known(chunk.columns, path.name)
-                    checked = True
-                yield chunk
+        checked = False
+        for name in _csv_names(zf):
+            if strict:
+                for chunk in _strict_chunks(zf, name, path, chunk_rows):
+                    checked = _rename_columns(chunk, path.name, checked)
+                    yield chunk
+                continue
+            with zf.open(name) as raw:
+                text = io.TextIOWrapper(
+                    raw, encoding=ENCODING, errors=ENCODING_ERRORS, newline=""
+                )
+                reader = pd.read_csv(
+                    text,
+                    sep=";",
+                    quotechar='"',
+                    dtype=str,
+                    keep_default_na=False,
+                    na_values=[],
+                    engine="c",
+                    low_memory=False,
+                    chunksize=chunk_rows,
+                )
+                for chunk in reader:
+                    checked = _rename_columns(chunk, path.name, checked)
+                    yield chunk
+
+
+def _strict_chunks(
+    zf: zipfile.ZipFile, name: str, path: Path, chunk_rows: int
+):
+    """Parse one CSV with Python's csv module, dropping records of the wrong width.
+
+    ``lic-da/2026-3`` carries an unescaped double quote that breaks field alignment for
+    849 records, all on a single tender. Their field counts come out at 100, 111, 127,
+    140 rather than 110. Dropping them is the only honest option -- the fields are
+    misaligned, not merely missing -- but note that pandas would NOT have dropped the
+    short ones: its C parser pads a too-short record with NaN, quietly writing shifted
+    values into the right-hand columns. Hence the explicit width check, and the count
+    printed so the loss is on the record rather than silent.
+    """
+    csv_module.field_size_limit(10**9)
+    with zf.open(name) as raw:
+        text = io.TextIOWrapper(
+            raw, encoding=ENCODING, errors=ENCODING_ERRORS, newline=""
+        )
+        reader = csv_module.reader(text, delimiter=";", quotechar='"')
+        header = next(reader)
+        width = len(header)
+        rows: list[list[str]] = []
+        dropped = 0
+        for record in reader:
+            if len(record) != width:
+                dropped += 1
+                continue
+            rows.append(record)
+            if len(rows) >= chunk_rows:
+                yield pd.DataFrame(rows, columns=header, dtype=str)
+                rows = []
+        if rows:
+            yield pd.DataFrame(rows, columns=header, dtype=str)
+    if dropped:
+        print(
+            f"    {path.name}/{name}: dropped {dropped:,} malformed record(s) "
+            f"whose field count differed from the {width}-column header",
+            flush=True,
+        )
 
 
 def _read_csv_from_zip(path: Path) -> pd.DataFrame:
@@ -481,10 +560,28 @@ def clean_month(
     chunk onto the output tables first keeps the peak to the chunk plus the accumulated
     (much narrower) results.
     """
+    try:
+        return _clean_month(kind, zip_path, chunk_rows, strict=False)
+    except pd.errors.ParserError as exc:
+        # The fast C parser refuses the whole file on a malformed record. Retry from
+        # scratch with the strict reader, which drops just the bad records and reports
+        # how many. Restarting rather than resuming matters: chunks already yielded
+        # would otherwise be counted twice.
+        print(
+            f"    {Path(zip_path).name}: C parser rejected the file ({exc}); "
+            f"re-reading with the strict parser",
+            flush=True,
+        )
+        return _clean_month(kind, zip_path, chunk_rows, strict=True)
+
+
+def _clean_month(
+    kind: str, zip_path: Path, chunk_rows: int, strict: bool
+) -> dict[str, pd.DataFrame]:
     tables = TABLES_BY_KIND[kind]
     parts: dict[str, list[pd.DataFrame]] = {t: [] for t in tables}
 
-    for raw in _iter_csv_chunks(Path(zip_path), chunk_rows):
+    for raw in _iter_csv_chunks(Path(zip_path), chunk_rows, strict=strict):
         for table in tables:
             parts[table].append(build_table(raw, table))
 
@@ -518,9 +615,24 @@ def arrow_schema(table: str) -> pa.Schema:
 
 
 def write_partitioned(
-    df: pd.DataFrame, table: str, output_dir: Path
+    df: pd.DataFrame, table: str, output_dir: Path, source_tag: str
 ) -> list[Path]:
-    """Write hive-partitioned parquet: ``<table>/ano=YYYY/mes=MM/data.parquet``.
+    """Write hive-partitioned parquet: ``<table>/ano=YYYY/mes=MM/data_<source>.parquet``.
+
+    The file is named for the SOURCE month it came from, not the partition it lands in,
+    so two source files that both contribute to one partition cannot destroy each other.
+    That is not hypothetical: ``lic-da/2026-3`` yields one row whose FechaPublicacion
+    reads June -- corruption residue from the malformed region in that file, since the
+    tender's other 142 rows are March and the June file does not contain it at all. With
+    a fixed ``data.parquet`` name, loading March after June would have replaced June's
+    entire partition with that single row, silently.
+
+    It matters more for the recurring pipeline than for the one-shot load, because the
+    pipeline re-ingests an arbitrary rolling window of months in whatever order the
+    publisher touched them.
+
+    Naming by source also keeps re-runs idempotent: re-loading one month overwrites
+    exactly that month's contribution to every partition it touches.
 
     Cast to string through arrow rather than ``astype(str)``: the latter renders NULL as
     the literal "nan", which ``safe_cast`` will not turn back into NULL.
@@ -539,12 +651,12 @@ def write_partitioned(
         ]
         pq.write_table(
             pa.Table.from_arrays(arrays, schema=schema),
-            target / "data.parquet",
+            target / f"data_{source_tag}.parquet",
             compression="snappy",
             # Bounded row groups keep gcs.dump_header cheap: it builds the staging
             # table by reading row group 0 of the first parquet it walks into, so one
             # giant row group there is an out-of-memory risk on the worker.
             row_group_size=ROW_GROUP_SIZE,
         )
-        written.append(target / "data.parquet")
+        written.append(target / f"data_{source_tag}.parquet")
     return written
