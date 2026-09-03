@@ -27,6 +27,7 @@ from prefect import flow
 
 from pipelines.datasets.br_mgi_compras_publicas.constants import constants
 from pipelines.datasets.br_mgi_compras_publicas.tasks import (
+    clear_staging_partitions,
     rebuild_dicionario,
     refresh_table,
 )
@@ -125,12 +126,21 @@ def _run(
         if not enabled:
             continue
         for table in tables:
+            # A trailing-window refresh must not use "overwrite": that drops the
+            # whole staging prefix, so the table would be rebuilt from the
+            # window alone and every earlier year would be lost. Clear just the
+            # partitions being replaced, then append them back whole.
+            path = paths[table]
+            if since is not None:
+                path = clear_staging_partitions(
+                    table=table, data_path=path, bucket_name=bucket
+                )
             upload_to_gcs(
-                data_path=paths[table],
+                data_path=path,
                 dataset_id=DATASET_ID,
                 table_id=table,
                 bucket_name=bucket,
-                dump_mode="overwrite",
+                dump_mode="append" if since is not None else "overwrite",
                 source_format="parquet",
             )
             run_dbt(
@@ -171,7 +181,12 @@ def br_mgi_compras_publicas_diario_flow(
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="diario"
     )
-    since = dt.date.today() - dt.timedelta(days=revision_window_days)
+    # Align to 1 January: the harvest writes whole `ano=` partitions, and the
+    # upload replaces a partition wholesale. A window starting mid-year would
+    # rewrite that year's partition with only its tail, dropping January to the
+    # window start.
+    window_start = dt.date.today() - dt.timedelta(days=revision_window_days)
+    since = dt.date(window_start.year, 1, 1)
     _run(DAILY_TABLES, output_dir, since, materialize_to_prod, update_metadata)
 
 

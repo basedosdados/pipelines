@@ -10,6 +10,7 @@ from __future__ import annotations
 import datetime as dt
 from pathlib import Path
 
+from google.cloud import storage
 from prefect import get_run_logger, task
 
 from pipelines.datasets.br_mgi_compras_publicas.constants import constants
@@ -23,6 +24,9 @@ from pipelines.datasets.br_mgi_compras_publicas.harvest import (
     year_orgao_pairs,
 )
 from pipelines.datasets.br_mgi_compras_publicas.utils import TABLE_SPECS
+from pipelines.utils.gcs import get_credentials_from_env
+
+DATASET_ID = "br_mgi_compras_publicas"
 
 
 @task(retries=1, retry_delay_seconds=300)
@@ -115,3 +119,56 @@ def rebuild_dicionario(
     rows = build_dicionario(root)
     logger.info("dicionario: %s key/value pairs", f"{rows:,}")
     return str(root / "output" / "dicionario")
+
+
+@task(retries=2, retry_delay_seconds=30)
+def clear_staging_partitions(
+    table: str, data_path: str, bucket_name: str
+) -> str:
+    """Delete exactly the staging partitions this refresh is about to replace.
+
+    An incremental refresh cannot use ``dump_mode="overwrite"``: that drops the
+    whole ``staging/<ds>/<table>/`` prefix, so a trailing-window harvest would
+    rebuild the table from the window alone and destroy every earlier year.
+
+    Plain ``dump_mode="append"`` is not enough either. ``consolidate_table``
+    writes ``data-{i}.parquet`` per partition, so a year that previously needed
+    three files and now needs two leaves ``data-2.parquet`` behind holding the
+    *old* rows -- silently double counting. Clearing the partition prefix first
+    removes those orphans, and append then writes the partition whole.
+
+    Returns ``data_path`` so the caller can order the upload after this task.
+    """
+    logger = get_run_logger()
+    local = Path(data_path)
+    partitions = sorted(
+        p.name for p in local.iterdir() if p.is_dir() and "=" in p.name
+    )
+    if not partitions:
+        raise RuntimeError(
+            f"{table}: {local} holds no hive partitions; refusing to clear "
+            "staging, since that would leave the table inconsistent"
+        )
+
+    credentials = get_credentials_from_env(
+        mode="prod" if bucket_name == "basedosdados" else "staging"
+    )
+    client = storage.Client(project=bucket_name, credentials=credentials)
+    bucket = client.bucket(bucket_name, user_project=bucket_name)
+
+    removed = 0
+    for partition in partitions:
+        prefix = f"staging/{DATASET_ID}/{table}/{partition}/"
+        blobs = list(client.list_blobs(bucket, prefix=prefix))
+        if blobs:
+            bucket.delete_blobs(blobs)
+            removed += len(blobs)
+    logger.info(
+        "%s: cleared %d stale blob(s) across %d partition(s) in %s: %s",
+        table,
+        removed,
+        len(partitions),
+        bucket_name,
+        ", ".join(partitions),
+    )
+    return data_path
