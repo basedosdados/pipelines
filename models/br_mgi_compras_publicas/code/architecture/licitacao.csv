@@ -1,0 +1,27 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+ano,INT64,Ano de publicação do aviso de licitação,1997(1)2025,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Coluna de particionamento, derivada da data correspondente",,Year of publication of the tender notice,Año de publicación del aviso de licitación
+id_compra,STRING,Identificador da licitação no SIASG,,no,,,no,"Concatena código da UASG, modalidade, número do aviso e ano. Chave primária da tabela",id_compra,Identifier of the tender in SIASG,Identificador de la licitación en el SIASG
+identificador,STRING,Identificador alternativo da licitação publicado pela fonte,,no,,,no,,identificador,Alternative tender identifier published by the source,Identificador alternativo de la licitación publicado por la fuente
+codigo_uasg,STRING,Código da UASG responsável pela licitação,,no,,,no,,uasg,Code of the UASG running the tender,Código de la UASG responsable de la licitación
+numero_aviso,STRING,Número do aviso de licitação,,no,,,no,,numero_aviso,Number of the tender notice,Número del aviso de licitación
+numero_processo,STRING,Número do processo administrativo da licitação,,no,,,no,,numero_processo,Administrative case number of the tender,Número del proceso administrativo de la licitación
+codigo_modalidade,STRING,Código da modalidade de licitação no SIASG,,yes,,,no,"Codificação do regime da Lei 8.666, distinta da usada nas tabelas de contratação sob a Lei 14.133",modalidade,SIASG code of the tender modality,Código de la modalidad de licitación en el SIASG
+modalidade,STRING,"Modalidade de licitação, como pregão, concorrência, tomada de preços ou convite",,no,,,no,,nome_modalidade,"Tender modality, such as reverse auction, competitive bidding or invitation","Modalidad de licitación, como pregón, concurrencia, toma de precios o invitación"
+tipo_pregao,STRING,"Forma de realização do pregão, eletrônico ou presencial",,no,,,no,,tipo_pregao,"How the reverse auction was run, electronic or in person","Forma de realización del pregón, electrónico o presencial"
+tipo_recurso,STRING,"Origem dos recursos da licitação, nacional ou internacional",,no,,,no,,tipo_recurso,"Origin of the tender's funds, domestic or international","Origen de los recursos de la licitación, nacional o internacional"
+situacao_aviso,STRING,"Situação do aviso, como publicado, revogado ou anulado",,no,,,no,,situacao_aviso,"Notice status, such as published, revoked or annulled","Situación del aviso, como publicado, revocado o anulado"
+codigo_municipio_uasg,STRING,Código do município da UASG no SIASG,,no,,,no,"Codificação interna do SIASG, sem equivalência direta com o código IBGE. A UF pode ser obtida juntando com a tabela unidade_administrativa",codigo_municipio_uasg,SIASG municipality code of the UASG,Código del municipio de la UASG en el SIASG
+objeto,STRING,Descrição do objeto da licitação,,no,,,no,,objeto,Description of the tender's subject matter,Descripción del objeto de la licitación
+informacoes_gerais,STRING,Informações gerais publicadas com o aviso,,no,,,no,,informacoes_gerais,General information published with the notice,Información general publicada con el aviso
+endereco_entrega_edital,STRING,Endereço de entrega ou retirada do edital,,no,,,no,,endereco_entrega_edital,Address for collecting the tender documents,Dirección de entrega o retiro del pliego
+nome_responsavel,STRING,Nome do responsável pela licitação,,no,,,no,,nome_responsavel,Name of the official responsible for the tender,Nombre del responsable de la licitación
+funcao_responsavel,STRING,Função do responsável pela licitação,,no,,,no,,funcao_responsavel,Role of the official responsible for the tender,Función del responsable de la licitación
+numero_itens,INT64,Quantidade de itens da licitação,,no,,unit,no,,numero_itens,Number of items in the tender,Cantidad de ítems de la licitación
+valor_estimado_total,FLOAT64,Valor total estimado da licitação,,no,,BRL,no,,valor_estimado_total,Total estimated value of the tender,Valor total estimado de la licitación
+valor_homologado_total,FLOAT64,Valor total homologado da licitação,,no,,BRL,no,,valor_homologado_total,Total awarded value of the tender,Valor total homologado de la licitación
+indicador_pertence_14133,BOOLEAN,Indica se a licitação foi realizada sob a Lei 14.133/2021,,no,,,no,Durante a transição entre regimes algumas licitações da Lei 14.133 também aparecem no módulo legado,pertence14133,Whether the tender was run under Law 14.133/2021,Indica si la licitación se realizó bajo la Ley 14.133/2021
+data_publicacao,DATE,Data de publicação do aviso de licitação,,no,,,no,,data_publicacao,Date the tender notice was published,Fecha de publicación del aviso de licitación
+data_entrega_edital,DATE,Data de disponibilização do edital,,no,,,no,,data_entrega_edital,Date the tender documents became available,Fecha de disponibilización del pliego
+data_entrega_proposta,DATE,Data limite para entrega das propostas,,no,,,no,,data_entrega_proposta,Deadline for submitting proposals,Fecha límite para la entrega de propuestas
+data_abertura_proposta,DATE,Data de abertura das propostas,,no,,,no,,data_abertura_proposta,Date the proposals were opened,Fecha de apertura de las propuestas
+data_alteracao,DATETIME,Data e hora da última alteração do registro,,no,,,no,,dt_alteracao,Timestamp of the last change to the record,Fecha y hora de la última modificación del registro
