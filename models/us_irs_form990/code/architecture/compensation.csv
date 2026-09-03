@@ -1,5 +1,5 @@
 name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
-year,INT64,Ano fiscal da declaração,,no,br_bd_diretorios_data_tempo.ano:ano,,no,Coluna de partição; ano fiscal da declaração (TaxYr no cabeçalho),F9_00_TAX_YEAR
+year,INT64,Ano fiscal da declaração,,no,diretorios_data_tempo.ano:ano,,no,Coluna de partição; ano fiscal da declaração (TaxYr no cabeçalho),F9_00_TAX_YEAR
 ein,STRING,Número de Identificação de Empregador (EIN) da organização declarante (nove dígitos),,no,,,no,,F9_00_ORG_EIN
 form_type,STRING,Formulário apresentado: 990 ou 990EZ,,yes,,,no,,F9_00_RETURN_TYPE
 object_id,STRING,Identificador de objeto da declaração no IRS,,no,,,no,"Identificador de objeto do IRS com 18 dígitos, também o nome do arquivo XML; único por declaração",(file name)

@@ -4,7 +4,7 @@ legal_name,STRING,Nome legal da organização,,no,,,no,,Legal Name
 doing_business_as_name,STRING,Nome fantasia da organização,,no,,,no,,Doing Business As Name
 address,STRING,Logradouro,,no,,,no,,Organization Address
 city,STRING,Cidade,,no,,,no,,City
-state,STRING,Estado (sigla USPS),,no,br_bd_diretorios_us.state:abbreviation,,no,,State
+state,STRING,Estado (sigla USPS),,no,,,no,,State
 zip_code,STRING,CEP (ZIP),,no,,,no,,ZIP Code
 country,STRING,Código do país,,no,,,no,,Country
 exemption_type,STRING,Subseção do Internal Revenue Code sob a qual a organização era isenta,,yes,,,no,Subseção do IRC sob a qual a organização era isenta (mesma lista de códigos de subsection_code do BMF),Exemption Type

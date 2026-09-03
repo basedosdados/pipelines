@@ -43,6 +43,13 @@ Service (IRS), Tax Exempt and Government Entities division.
 - **One Deflate64 ZIP** (`2020_TEOS_XML_CT1.zip`) is unreadable by Python's
   `zipfile` and has 76 stray bytes; `utils._iter_members` falls back to
   Info-ZIP `unzip`, ignores its exit code and checks the member count.
+- **State columns carry no backend directory link.** They hold USPS
+  abbreviations, the US state directory is keyed on FIPS (`id_state`), and the
+  backend accepts a directory link only to a table's primary-key column. The
+  referential check is a dbt `custom_relationships` test against the
+  directory's `abbreviation` column instead, with a small tolerance for
+  foreign addresses. `br_bd_diretorios_us` is the GCP dataset id; the backend
+  slug is `diretorios_us`.
 - **BMF snapshots** stack on `extraction_date` (the `Last-Modified` date of
   `eo1.csv`); the IRS does not archive past extracts, so the panel starts at
   the first onboarded month (2026-08-10).

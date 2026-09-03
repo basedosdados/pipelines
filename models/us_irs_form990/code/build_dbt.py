@@ -27,7 +27,15 @@ UPDATED = "2026-09-03"
 AT_LEAST = 0.05
 
 STATE_DIR = "ref('br_bd_diretorios_us__state')"
-# Share of state values allowed outside the US state directory, per table.
+# Columns holding a USPS state abbreviation, and the share of values allowed
+# outside the US state directory. These carry no backend `directory_column`
+# (the directory is keyed on FIPS, not the abbreviation — see architecture.py),
+# so the referential check is declared here rather than derived from it.
+STATE_COLUMNS = {
+    "organization": ["state"],
+    "revocation": ["state"],
+    "return_financial": ["state", "legal_domicile_state"],
+}
 STATE_TOLERANCE = {
     "organization": "0.005",
     "revocation": "0.005",
@@ -243,19 +251,7 @@ def schema_yml(
 
 
 def relationship(table: str, c: dict) -> list[str] | None:
-    d = c["directory_column"]
-    if not d:
-        return None
-    if d.startswith("br_bd_diretorios_data_tempo.ano"):
-        return [
-            "          - relationships:",
-            f"              to: {YEAR_DIR}",
-            "              field: ano.ano",
-        ]
-    if d.startswith("br_bd_diretorios_us.state"):
-        # Foreign addresses (province names, eo_xx records) and a handful of
-        # mistyped codes fall outside the US state directory; a small share
-        # is tolerated and documented in the model description.
+    if c["name"] in STATE_COLUMNS.get(table, []):
         # ``ignore_values`` also switches on the macro's ``is not null`` filter;
         # without it every null state counts as a missing parent.
         return [
@@ -264,6 +260,15 @@ def relationship(table: str, c: dict) -> list[str] | None:
             "              field: abbreviation",
             "              ignore_values: ['XX']",
             f"              proportion_allowed_failures: {STATE_TOLERANCE[table]}",
+        ]
+    d = c["directory_column"]
+    if not d:
+        return None
+    if d.startswith("diretorios_data_tempo.ano"):
+        return [
+            "          - relationships:",
+            f"              to: {YEAR_DIR}",
+            "              field: ano.ano",
         ]
     raise SystemExit(f"unknown directory {d}")
 

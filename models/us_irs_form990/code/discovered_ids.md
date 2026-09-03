@@ -28,4 +28,34 @@ compensation b3534327-…, revocation 22574fc5-…; sources efile c525f2a8-… (
 bmf 9986ca9a-… (2026-08-10), revocation 53df28f3-… (2026-09-01)
 Drive folder: BD/Dados/Conjuntos/us_irs_form990 = 1Hw8DUxQjEGOA1692tf5r1yuLSpYI42mG (5 architecture CSVs)
 
-## prod — pending (ids differ; re-resolve everything)
+## prod (env="prod"), account 4
+
+- org `irs`: 3797243b-fedb-4f02-a6f2-c4d891f9abdf (created 2026-09-03)
+- dataset `form990`: e81c3465-adfd-45af-84de-a2adfd01899b (status under_review)
+- tags differ from staging: prod uses `ngo` 956756f8-905d-45f8-8cee-df0807a7c335 where
+  staging uses `terceiro_setor`; financial-statement 36ddc456-…, balance-sheet 0403592d-…,
+  registry 09a24850-…, taxation c9d46f34-… (same id as staging)
+- license cc0 afd7b13d-98f5-4023-9cb3-e9b91b1962ca (differs from staging)
+- raw sources: efile 22f8c2d3-c651-4823-900c-bdfb9313571e, bmf f2ccd536-3b6e-4253-b1c2-fd5ca3c72bbb,
+  revocation 03652fcf-a34e-49d1-b996-d2ac9d4c6b27
+
+| table | id | cloud table | coverage |
+|---|---|---|---|
+| organization | 75f8c3b8-d89d-4196-8131-9c64afab298f | 287c0f73-… | 33387aa7-… / range 7f03885c-… |
+| return_financial | 2dde900d-60cc-493e-a5d9-29e874fed030 | bf456f4e-… | bb0dc5f3-… / range 8071b9d9-… |
+| compensation | e8722aec-643f-4fca-9fb2-61561fa834d1 | e43b032e-… | 7c2a22cd-… / range 43c7eca1-… |
+| revocation | 691a5765-fee6-4046-b722-61e5ec46b6dd | 086f354c-… | b5a631b7-… / range 4990a1d1-… |
+| dicionario | 887ccfbb-0296-442f-9456-fcf5ce8b933f | 8a73407f-… | — |
+
+prod OLs: organization ngo 60411b14-…, month 8dadac6b-…; return_financial ngo d0f34d0e-…,
+year 423ae74b-…; compensation ngo e0d89a42-…, person 2bf98a56-…, year 3c3c9066-…;
+revocation ngo 315fce3b-…
+
+## Directory links — what the backend accepts
+
+`year` links to `diretorios_data_tempo.ano:ano` on both backends (note the backend slug,
+not the GCP dataset id `br_bd_diretorios_data_tempo`). The state columns carry **no**
+directory link: the directory's primary key is `id_state` (FIPS) and the backend rejects
+any other target with `Faça uma escolha válida`. `bulk_upsert_columns` reports `updated`
+for a `directory_column` it does not actually write — only `update_column` writes it, and
+it errors loudly on an invalid target. (ids differ; re-resolve everything)

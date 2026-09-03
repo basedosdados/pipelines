@@ -6,7 +6,7 @@ sort_name,STRING,Linha de nome secundária,,no,,,no,"Nome fantasia, nome do cap�
 in_care_of_name,STRING,Nome aos cuidados de quem a correspondência é dirigida,,no,,,no,,ICO
 street,STRING,Logradouro,,no,,,no,,STREET
 city,STRING,Cidade,,no,,,no,,CITY
-state,STRING,Estado do endereço (sigla USPS),,no,br_bd_diretorios_us.state:abbreviation,,no,Estado do endereço de declaração; fora do diretório de estados dos EUA para registros internacionais (eo_xx),STATE
+state,STRING,Estado do endereço (sigla USPS),,no,,,no,Estado do endereço de declaração; fora do diretório de estados dos EUA para registros internacionais (eo_xx),STATE
 zip_code,STRING,CEP (ZIP),,no,,,no,,ZIP
 group_exemption_number,STRING,Número de isenção de grupo,,no,,,no,Número de isenção de grupo com quatro dígitos; 0000 quando não há,GROUP
 subsection_code,STRING,Subseção do Internal Revenue Code sob a qual a organização é isenta,,yes,,,no,"Subseção do IRC 501(c) (ou 40=501(d), 50=501(e), 60=501(f), 70=501(k), 71, 81, 92=4947(a)(1)); ver dicionário",SUBSECTION

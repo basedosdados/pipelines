@@ -35,8 +35,16 @@ ARCH_HEADER = [
     "original_name",
 ]
 
-DIR_STATE = "br_bd_diretorios_us.state:abbreviation"
-DIR_YEAR = "br_bd_diretorios_data_tempo.ano:ano"
+# The backend's dataset slug for the US directory is `diretorios_us`, not the
+# GCP dataset id `br_bd_diretorios_us`; with the latter the FK silently
+# resolves to null (three `state` directory tables exist: us, au, de).
+# State columns carry USPS abbreviations ("CA"). The US state directory's
+# primary key is `id_state`, the FIPS code ("06"), and the backend accepts a
+# directory link only to a column flagged as that table's primary key — so an
+# abbreviation-keyed link cannot be expressed there and these columns carry no
+# `directory_column`. The referential check lives in dbt instead, against the
+# directory's `abbreviation` column (see build_dbt.STATE_COLUMNS).
+DIR_YEAR = "diretorios_data_tempo.ano:ano"
 USD = "USD"
 
 # Observations: written once in English, translated here so every column
@@ -380,7 +388,6 @@ RETURN_FINANCIAL = [
         "State of the organization's address (USPS abbreviation)",
         "Estado do endereço da organização (sigla USPS)",
         "Estado de la dirección de la organización (sigla USPS)",
-        dir=DIR_STATE,
         obs="US state or, for foreign addresses, the province/state name",
         orig="F9_00_ORG_ADDR_STATE",
     ),
@@ -425,7 +432,6 @@ RETURN_FINANCIAL = [
         "State of legal domicile",
         "Estado de domicílio legal",
         "Estado de domicilio legal",
-        dir=DIR_STATE,
         obs="Form 990 only",
         orig="F9_00_LEGAL_DMCL_STATE",
     ),
@@ -1079,7 +1085,6 @@ ORGANIZATION = [
         "State of the filing address (USPS abbreviation)",
         "Estado do endereço (sigla USPS)",
         "Estado de la dirección (sigla USPS)",
-        dir=DIR_STATE,
         obs="Filing-address state; outside the US state directory for international records (eo_xx)",
         orig="STATE",
     ),
@@ -1318,7 +1323,6 @@ REVOCATION = [
         "State (USPS abbreviation)",
         "Estado (sigla USPS)",
         "Estado (sigla USPS)",
-        dir=DIR_STATE,
         orig="State",
     ),
     c(

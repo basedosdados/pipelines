@@ -1,5 +1,5 @@
 name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
-year,INT64,Ano fiscal da declaração,,no,br_bd_diretorios_data_tempo.ano:ano,,no,Coluna de partição; ano fiscal da declaração (TaxYr no cabeçalho),F9_00_TAX_YEAR
+year,INT64,Ano fiscal da declaração,,no,diretorios_data_tempo.ano:ano,,no,Coluna de partição; ano fiscal da declaração (TaxYr no cabeçalho),F9_00_TAX_YEAR
 ein,STRING,Número de Identificação de Empregador (EIN) da organização declarante (nove dígitos),,no,,,no,,F9_00_ORG_EIN
 form_type,STRING,Formulário apresentado: 990 ou 990EZ,,yes,,,no,Apenas 990 e 990-EZ são carregados; 990-PF e 990-T estão fora da concordância,F9_00_RETURN_TYPE
 object_id,STRING,Identificador de objeto da declaração no IRS,,no,,,no,"Identificador de objeto do IRS com 18 dígitos, também o nome do arquivo XML; único por declaração",(file name)
@@ -17,12 +17,12 @@ doing_business_as_name,STRING,Nome fantasia da organização,,no,,,no,Apenas For
 principal_officer_name,STRING,Nome do dirigente principal,,no,,,no,Apenas Form 990,F9_00_PRIN_OFF_NAME_PERS
 address_line_1,STRING,Logradouro do endereço da organização,,no,,,no,,F9_00_ORG_ADDR_L1
 city,STRING,Cidade do endereço da organização,,no,,,no,,F9_00_ORG_ADDR_CITY
-state,STRING,Estado do endereço da organização (sigla USPS),,no,br_bd_diretorios_us.state:abbreviation,,no,"Estado dos EUA ou, para endereços no exterior, o nome da província/estado",F9_00_ORG_ADDR_STATE
+state,STRING,Estado do endereço da organização (sigla USPS),,no,,,no,"Estado dos EUA ou, para endereços no exterior, o nome da província/estado",F9_00_ORG_ADDR_STATE
 zip_code,STRING,CEP (ZIP) ou código postal estrangeiro,,no,,,no,,F9_00_ORG_ADDR_ZIP
 country,STRING,Código do país de um endereço no exterior,,no,,,no,Preenchido apenas para endereços no exterior,F9_00_ORG_ADDR_CNTR
 website,STRING,Site da organização,,no,,,no,,F9_00_ORG_WEBSITE
 formation_year,INT64,Ano de constituição da organização,,no,,year,no,Apenas Form 990,F9_00_YEAR_FORMATION
-legal_domicile_state,STRING,Estado de domicílio legal,,no,br_bd_diretorios_us.state:abbreviation,,no,Apenas Form 990,F9_00_LEGAL_DMCL_STATE
+legal_domicile_state,STRING,Estado de domicílio legal,,no,,,no,Apenas Form 990,F9_00_LEGAL_DMCL_STATE
 organization_type,STRING,"Forma jurídica: corporation, trust, association ou other",,no,,,no,"Derivado das quatro caixas de tipo de organização: corporation, trust, association, other",F9_00_TYPE_ORG_*_X
 exempt_status,STRING,"Status de isenção declarado: 501(c)(3), 501(c), 4947(a)(1) ou 527",,no,,,no,"Derivado das caixas de status de isenção: 501(c)(3), 501(c), 4947(a)(1), 527",F9_00_EXEMPT_STAT_*_X
 group_exemption_number,STRING,Número de isenção de grupo,,no,,,no,,F9_00_GROUP_EXEMPT_NUM
