@@ -8,14 +8,14 @@
             "data_type": "int64",
             "range": {"start": 1992, "end": 2031, "interval": 1},
         },
-        cluster_by=["hep_code", "category"],
+        cluster_by=["institution_id", "category"],
     )
 }}
 
 
 select
     safe_cast(year as int64) year,
-    safe_cast(hep_code as string) hep_code,
+    d.id_higher_education_institution institution_id,
     safe_cast(category as string) category,
     safe_cast(sub_category as string) sub_category,
     safe_cast(amount as int64) amount
@@ -25,3 +25,6 @@ from
             "au_doe_higher_education_finances_staging.research_income"
         )
     }} as t
+left join
+    {{ ref("br_bd_diretorios_au__higher_education_institution") }} as d
+    on safe_cast(t.hep_code as string) = d.provider_code
