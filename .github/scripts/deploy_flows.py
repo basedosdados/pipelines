@@ -82,6 +82,10 @@ def deploy_flow(
         ]
 
     job_variables = getattr(flow, "job_variables", None)
+    # Optional, opt-in per flow: caps how many runs of THIS deployment run at
+    # once. Defaults to None (Prefect's own default — no limit), so flows that do
+    # not set the attribute keep their exact prior behavior.
+    concurrency_limit = getattr(flow, "concurrency_limit", None)
 
     print(f"  Registrando {flow_name} → {entrypoint}")
 
@@ -98,6 +102,7 @@ def deploy_flow(
             tags=["automated-deploy"],
             schedules=schedules,
             job_variables=job_variables,
+            concurrency_limit=concurrency_limit,
             build=False,
             paused=True,  # schedules activated by backend sync (prod) or manually (dev)
         )
