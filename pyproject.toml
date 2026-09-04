@@ -222,6 +222,8 @@ project-excludes = [
   # using bare sys.path-relative imports (`import architecture`, `import clean`)
   # that pyrefly cannot resolve from the repo root.
   "models/us_stanford_dime/code",
+  # Same policy for the us_irs_form990 one-shot onboarding scripts.
+  "models/us_irs_form990/code",
   # Same policy: br_sfb_sicar onboarding code is standalone `.py` (architecture.py,
   # gen_*.py, bootstrap_clean.py use bare `import architecture`/`import clean`,
   # sys.path-relative), unresolvable from the repo root. The pure transform is
