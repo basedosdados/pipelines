@@ -37,7 +37,6 @@ from pipelines.utils.metadata.domain import (
     DateOnly,
     FreeLag,
     PartBdpro,
-    YearOnly,
 )
 from pipelines.utils.metadata.tasks import (
     register_table_materialization_task,
@@ -79,10 +78,34 @@ DERIVED_TABLES = ("dicionario",)
 #: Tables refreshed daily paywall their most recent window to BD Pro; the
 #: slow-moving registries stay fully open. `register_table_materialization_task`
 #: rolls the window forward on every run and re-issues the Row Access Policies.
+#: Column the BD Pro window is measured on, per daily table.
+#:
+#: It must be a real date, not `ano`. A year column cannot express a six-month
+#: boundary: every row of 2026 reads as 2026-01-01, so
+#: `DATE(ano,1,1) <= today - 6 months` releases the whole current year for
+#: free. A date column makes the window exactly "newer than six months ago",
+#: to the day, and it rolls forward on every run.
+#:
+#: For the contratacao tables the choice is forced -- each has one publication
+#: date. For atas and contratos it is not: `data_vigencia_inicial` looks
+#: forward, so a contract recorded today to start in 2028 would sit behind the
+#: paywall for two years while a contract signed in 2023 starting next month
+#: would be paid. Keying on when the row was *recorded* paywalls what is
+#: actually new and cannot be sidestepped by future-dating.
+BDPRO_DATE_COLUMN = {
+    "contratacao": "data_publicacao_pncp",
+    "contratacao_item": "data_inclusao_pncp",
+    "contratacao_item_resultado": "data_resultado_pncp",
+    "ata_registro_preco": "data_hora_inclusao",
+    "ata_registro_preco_item": "data_hora_inclusao",
+    "contrato": "data_hora_inclusao",
+    "contrato_item": "data_hora_inclusao",
+}
+
 COVERAGE = {
     t: PartBdpro(
-        date_column=YearOnly(col="ano"),
-        date_format=DateFormat.YEAR,
+        date_column=DateOnly(col=BDPRO_DATE_COLUMN[t]),
+        date_format=DateFormat.YEAR_MD,
         free_lag=FreeLag(unit="months", value=6),
     )
     for t in DAILY_TABLES
