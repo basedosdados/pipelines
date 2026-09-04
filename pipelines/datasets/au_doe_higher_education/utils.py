@@ -13,6 +13,7 @@ fact table. Everything in the Tier 1 half of this module reads that cache.
 from __future__ import annotations
 
 import re
+import shutil
 import unicodedata
 import zipfile
 from pathlib import Path
@@ -1352,3 +1353,388 @@ def clean_equity_reference_value(path: str | Path) -> pd.DataFrame:
         .sort_values(keys)
         .reset_index(drop=True)
     )
+
+
+# ---------------------------------------------------------------------------
+# Source discovery and download
+#
+# Nothing about the download URLs is stable: the department assigns each file
+# an opaque ``/download/<nid>/<slug>/<fid>/document/xlsx`` path that changes
+# every release. What *is* stable is the resource slug, which carries the year.
+# So discovery walks landing page -> resource slug -> resource page -> href.
+# ---------------------------------------------------------------------------
+
+RESOURCE_HREF = re.compile(
+    r"/higher-education-statistics/resources/([a-z0-9-]+)"
+)
+DOWNLOAD_HREF = re.compile(r"/download/\d+/[a-z0-9-]+/\d+/document/[a-z]+")
+STAFF_YEAR_PAGE = re.compile(
+    r"selected-higher-education-statistics-(\d{4})-staff-data"
+)
+
+
+def fetch_text(url: str, session: object | None = None) -> str:
+    """GET a page as text, with the browser headers the site demands."""
+    import requests
+
+    from pipelines.datasets.au_doe_higher_education.constants import constants
+
+    getter = session if session is not None else requests
+    response = getter.get(  # type: ignore[union-attr]
+        url, headers=constants.HEADERS.value, timeout=120
+    )
+    response.raise_for_status()
+    return response.text
+
+
+def resource_slugs(html: str) -> set[str]:
+    """Every ``/resources/<slug>`` linked from a page."""
+    return set(RESOURCE_HREF.findall(html))
+
+
+def newest_slug(slugs: set[str], pattern: str) -> tuple[str, int] | None:
+    """The slug matching ``pattern`` with the highest year, and that year."""
+    matches = []
+    for slug in slugs:
+        found = re.match(pattern, slug)
+        if found:
+            matches.append((slug, int(found.group(1))))
+    if not matches:
+        return None
+    return max(matches, key=lambda pair: pair[1])
+
+
+def resolve_download_url(slug: str, session: object | None = None) -> str:
+    """Resource slug -> absolute download URL for its document."""
+    from pipelines.datasets.au_doe_higher_education.constants import constants
+
+    base = constants.BASE_URL.value
+    html = fetch_text(
+        f"{base}/higher-education-statistics/resources/{slug}", session
+    )
+    href = DOWNLOAD_HREF.search(html)
+    if not href:
+        raise ValueError(f"no download link on resource page: {slug}")
+    return f"{base}{href.group(0)}"
+
+
+def discover_sources(session: object | None = None) -> dict[str, dict]:
+    """Locate the newest release of every document the build needs.
+
+    Returns ``{local_name: {"slug", "year", "url"}}``. Staff resources live on
+    a per-year sub-page rather than the landing page, so that page is resolved
+    first.
+    """
+    from pipelines.datasets.au_doe_higher_education.constants import constants
+
+    base = constants.BASE_URL.value
+    slugs: set[str] = set()
+    for page in (
+        constants.STUDENT_PAGE.value,
+        constants.STAFF_PAGE.value,
+        constants.UAO_PAGE.value,
+    ):
+        slugs |= resource_slugs(fetch_text(f"{base}{page}", session))
+
+    staff_html = fetch_text(f"{base}{constants.STAFF_PAGE.value}", session)
+    staff_years = [int(year) for year in STAFF_YEAR_PAGE.findall(staff_html)]
+    if staff_years:
+        slugs |= resource_slugs(
+            fetch_text(
+                f"{base}{constants.STAFF_PAGE.value}"
+                f"/selected-higher-education-statistics-{max(staff_years)}-staff-data",
+                session,
+            )
+        )
+
+    found: dict[str, dict] = {}
+    for name, pattern in constants.RESOURCES.value.items():
+        newest = newest_slug(slugs, pattern)
+        if newest is None:
+            continue
+        slug, year = newest
+        found[name] = {"slug": slug, "year": year}
+    return found
+
+
+def source_max_year(sources: dict[str, dict]) -> int:
+    """The newest reference year across the discovered documents."""
+    return max(entry["year"] for entry in sources.values())
+
+
+def download_sources(
+    input_dir: str | Path, sources: dict[str, dict] | None = None
+) -> dict[str, Path]:
+    """Download each discovered document to ``<input_dir>/<name>.xlsx``.
+
+    The local names are stable and year-free so the build does not have to
+    know which release it is reading.
+    """
+    import requests
+
+    from pipelines.datasets.au_doe_higher_education.constants import constants
+
+    target = Path(input_dir)
+    target.mkdir(parents=True, exist_ok=True)
+    session = requests.Session()
+    if sources is None:
+        sources = discover_sources(session)
+
+    written: dict[str, Path] = {}
+    for name, entry in sources.items():
+        url = entry.get("url") or resolve_download_url(entry["slug"], session)
+        path = target / f"{name}.xlsx"
+        with session.get(
+            url, headers=constants.HEADERS.value, stream=True, timeout=600
+        ) as response:
+            response.raise_for_status()
+            # decode_content matters: without it a Brotli/gzip response is
+            # written to disk still encoded.
+            response.raw.decode_content = True
+            with path.open("wb") as handle:
+                shutil.copyfileobj(response.raw, handle)
+        written[name] = path
+        print(
+            f"downloaded {name:20} {entry['slug']:55} {path.stat().st_size:>12,} B"
+        )
+    return written
+
+
+# ---------------------------------------------------------------------------
+# The build, shared by the one-shot bootstrap and the recurring flow
+# ---------------------------------------------------------------------------
+
+DIMENSIONS = ["year", "institution_id", "state_abbreviation"]
+
+CUBES: dict[str, tuple[str, dict[str, str], list[str]]] = {
+    "student_enrolment": (
+        "enrol",
+        {"enrolments": "INT64"},
+        [
+            *DIMENSIONS,
+            "citizenship",
+            "commencing",
+            "course_level_broad",
+            "course_level_detailed",
+            "gender",
+            "attendance_mode",
+            "attendance_type",
+            "special_course",
+            "field_of_education_primary",
+            "field_of_education_secondary",
+        ],
+    ),
+    "student_load": (
+        "load",
+        {"student_load_eftsl": "FLOAT64"},
+        [
+            *DIMENSIONS,
+            "citizenship",
+            "commencing",
+            "course_level_broad",
+            "course_level_detailed",
+            "discipline",
+            "gender",
+            "liability_status",
+        ],
+    ),
+    "award_course_completion": (
+        "compl",
+        {"completions": "INT64"},
+        [
+            *DIMENSIONS,
+            "citizenship",
+            "course_level_broad",
+            "course_level_detailed",
+            "gender",
+            "attendance_mode",
+            "attendance_type",
+            "special_course",
+            "field_of_education_primary",
+            "field_of_education_secondary",
+        ],
+    ),
+    "staff": (
+        "staff",
+        {"staff_headcount": "INT64", "staff_fte": "FLOAT64"},
+        [
+            *DIMENSIONS,
+            "gender",
+            "duties_classification",
+            "function",
+            "organisational_unit",
+            "work_contract",
+        ],
+    ),
+}
+
+
+def write_partitioned(
+    frame: pd.DataFrame,
+    output_dir: str | Path,
+    table: str,
+    partition: str = "year",
+) -> int:
+    """Write hive-partitioned Parquet with every column a string.
+
+    Staging is all-STRING by house convention and the dbt model ``safe_cast``s
+    each column to its architecture type. Casting through arrow rather than
+    ``astype(str)`` matters twice over: ``astype(str)`` renders null as the
+    literal "nan", which ``safe_cast`` will not turn back into NULL, and it
+    would render an Int64 year as "2024.0".
+    """
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
+    target = Path(output_dir) / table
+    frame = frame.copy()
+    for column in frame.columns:
+        if column == partition:
+            continue
+        values = frame[column]
+        if (
+            pd.api.types.is_float_dtype(values)
+            or str(values.dtype) == "Float64"
+        ):
+            frame[column] = values.map(
+                lambda value: None if pd.isna(value) else repr(float(value))
+            )
+        elif str(values.dtype) in ("Int64", "int64"):
+            frame[column] = values.map(
+                lambda value: None if pd.isna(value) else str(int(value))
+            )
+        else:
+            objects = values.astype("object")
+            objects[values.isna()] = None
+            frame[column] = objects
+
+    schema = pa.schema(
+        [
+            (name, pa.int64() if name == partition else pa.string())
+            for name in frame.columns
+        ]
+    )
+    pq.write_to_dataset(
+        pa.Table.from_pandas(frame, schema=schema, preserve_index=False),
+        root_path=str(target),
+        partition_cols=[partition],
+        compression="snappy",
+        existing_data_behavior="delete_matching",
+    )
+    return len(frame)
+
+
+def build_all(input_dir: str | Path) -> dict[str, pd.DataFrame]:
+    """Build every table from the workbooks in ``input_dir``.
+
+    Cube tables stack whatever vintages are present: the bootstrap holds
+    several (``enrol_v2020.xlsx`` ... ``enrol_v2024.xlsx``) and reaches back to
+    2016, while a scheduled run downloads only the current release and
+    therefore rebuilds only that release's window.
+    """
+    source = Path(input_dir)
+    built: dict[str, pd.DataFrame] = {}
+
+    for table, (prefix, measures, dimensions) in CUBES.items():
+        paths = sorted(source.glob(f"{prefix}_v*.xlsx")) or sorted(
+            source.glob(f"{prefix}.xlsx")
+        )
+        if not paths:
+            raise FileNotFoundError(f"no workbook for {table} in {source}")
+        built[table] = stack_vintages(paths, measures, dimensions)
+
+    built["student_equity_group"] = clean_equity_group(
+        source / "sec11_equity.xlsx"
+    )
+    built["student_equity_performance"] = clean_equity_performance(
+        source / "sec16_equityperf.xlsx"
+    )
+    built["equity_reference_value"] = clean_equity_reference_value(
+        source / "sec16_equityperf.xlsx"
+    )
+    built["student_attrition_retention_success"] = clean_attrition(
+        source / "sec15_attrition.xlsx"
+    )
+    built["student_completion_rate"] = clean_completion_rate(
+        source / "sec17_complrate.xlsx"
+    )
+    # Order is load-bearing: the current appendices supply the headline
+    # series, the 2021 file only the acceptances the source stopped
+    # publishing after that round. Passing them the other way round mislabels
+    # the revised series.
+    current = source / "uao_current.xlsx"
+    legacy = source / "uao_2021.xlsx"
+    if not current.exists():
+        vintages = sorted(source.glob("uao_*appendices.xlsx"))
+        current, legacy = vintages[-1], vintages[0]
+    built["application_offer"] = clean_application_offer(current, legacy)
+    return built
+
+
+def observed_institutions(built: dict[str, pd.DataFrame]) -> pd.DataFrame:
+    """Every institution appearing in any built table, with its state."""
+    observed = pd.concat(
+        [
+            frame[["institution_id", "state_abbreviation"]]
+            for frame in built.values()
+            if "institution_id" in frame.columns
+        ]
+    ).dropna(subset=["institution_id"])
+    observed = observed.drop_duplicates("institution_id")
+    observed["institution_name"] = (
+        observed["institution_id"].str.replace("_", " ").str.title()
+    )
+    return observed
+
+
+def merge_institution_directory(
+    existing: pd.DataFrame,
+    observed: pd.DataFrame,
+    codes: dict[str, str] | None = None,
+) -> pd.DataFrame:
+    """Extend the published directory with institutions seen for the first time.
+
+    A scheduled run rebuilds only the current release's window, so the
+    institutions it observes are a subset of those the directory already holds.
+    Replacing the directory with that subset would orphan every foreign key in
+    the older partitions, so existing rows always survive and only genuinely
+    new institutions are appended.
+    """
+    known = set(existing["id_higher_education_institution"])
+    fresh = observed[~observed["institution_id"].isin(known)]
+    if fresh.empty:
+        return existing.copy()
+
+    codes = codes or {}
+    added = pd.DataFrame(
+        {
+            "id_higher_education_institution": fresh["institution_id"],
+            "name": fresh["institution_name"],
+            "state_abbreviation": fresh["state_abbreviation"],
+            "provider_category": None,
+            "is_aggregate": "no",
+            "provider_code": fresh["institution_id"].map(codes),
+        }
+    )
+    for column in existing.columns:
+        if column not in added.columns:
+            added[column] = None
+    return pd.concat([existing, added[existing.columns]], ignore_index=True)
+
+
+def refreshed_partitions(
+    built: dict[str, pd.DataFrame], partition_override: dict[str, str]
+) -> dict[str, list[str]]:
+    """The partition values each rebuilt table covers.
+
+    Only these are replaced in staging. Everything older stays, which is what
+    keeps 2016-2019 alive once the department delists those vintages.
+    """
+    covered: dict[str, list[str]] = {}
+    for table, frame in built.items():
+        column = partition_override.get(table, "year")
+        if column not in frame.columns:
+            continue
+        values = frame[column].dropna().unique()
+        covered[table] = sorted(str(int(value)) for value in values)
+    return covered
