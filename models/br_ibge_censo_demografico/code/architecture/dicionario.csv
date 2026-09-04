@@ -1,0 +1,893 @@
+id_tabela,nome_coluna,chave,cobertura_temporal,valor
+microdados_domicilio_2022,id_regiao,1,2022,Região Norte (uf=11 a 17)
+microdados_domicilio_2022,id_regiao,2,2022,Região Nordeste (uf=21 a 29)
+microdados_domicilio_2022,id_regiao,3,2022,Região Sudeste (uf=31 a 33 e 35)
+microdados_domicilio_2022,id_regiao,4,2022,Região Sul (uf=41 a 43)
+microdados_domicilio_2022,id_regiao,5,2022,Região Centro-oeste (uf=50 a 53)
+microdados_domicilio_2022,situacao_setor,01,2022,Área urbana de alta densidade de edificações
+microdados_domicilio_2022,situacao_setor,02,2022,Área urbana de baixa densidade de edificações
+microdados_domicilio_2022,situacao_setor,03,2022,Núcleo urbano
+microdados_domicilio_2022,situacao_setor,05,2022,Povoado
+microdados_domicilio_2022,situacao_setor,06,2022,Núcleo rural
+microdados_domicilio_2022,situacao_setor,07,2022,Lugarejo
+microdados_domicilio_2022,situacao_setor,08,2022,Área rural (exclusive aglomerados)
+microdados_domicilio_2022,d0130,01,2022,Domicílio particular permanente ocupado
+microdados_domicilio_2022,d0130,05,2022,Domicílio particular improvisado ocupado
+microdados_domicilio_2022,d0130,06,2022,Domicílio coletivo com morador
+microdados_domicilio_2022,situacao_domicilio,1,2022,Urbana
+microdados_domicilio_2022,situacao_domicilio,2,2022,Rural
+microdados_domicilio_2022,d0170,1,2022,Masculino
+microdados_domicilio_2022,d0170,2,2022,Feminino
+microdados_domicilio_2022,d0170,9,2022,Ignorado
+microdados_domicilio_2022,d0180,01,2022,0 a 4 anos
+microdados_domicilio_2022,d0180,02,2022,5 a 9 anos
+microdados_domicilio_2022,d0180,03,2022,10 a 14 anos
+microdados_domicilio_2022,d0180,04,2022,15 a 19 anos
+microdados_domicilio_2022,d0180,05,2022,20 a 24 anos
+microdados_domicilio_2022,d0180,06,2022,25 a 29 anos
+microdados_domicilio_2022,d0180,07,2022,30 a 34 anos
+microdados_domicilio_2022,d0180,08,2022,35 a 39 anos
+microdados_domicilio_2022,d0180,09,2022,40 a 44 anos
+microdados_domicilio_2022,d0180,10,2022,45 a 49 anos
+microdados_domicilio_2022,d0180,11,2022,50 a 54 anos
+microdados_domicilio_2022,d0180,12,2022,55 a 59 anos
+microdados_domicilio_2022,d0180,13,2022,60 a 64 anos
+microdados_domicilio_2022,d0180,14,2022,65 a 69 anos
+microdados_domicilio_2022,d0180,15,2022,70 a 74 anos
+microdados_domicilio_2022,d0180,16,2022,75 a 79 anos
+microdados_domicilio_2022,d0180,17,2022,80 anos ou mais
+microdados_domicilio_2022,d0180,99,2022,Ignorado
+microdados_domicilio_2022,d0190,1,2022,"Próprio de algum morador Já pago, herdado ou ganho"
+microdados_domicilio_2022,d0190,2,2022,Próprio de algum morador Ainda pagando
+microdados_domicilio_2022,d0190,3,2022,Alugado
+microdados_domicilio_2022,d0190,4,2022,Cedido ou emprestado Por empregador
+microdados_domicilio_2022,d0190,5,2022,Cedido ou emprestado Por familiar
+microdados_domicilio_2022,d0190,6,2022,Cedido ou emprestado Outra forma
+microdados_domicilio_2022,d0190,7,2022,Outra condição
+microdados_domicilio_2022,d0200,11,2022,(Permanente ocupada) Casa
+microdados_domicilio_2022,d0200,12,2022,(Permanente ocupada) Casa de vila ou em condomínio
+microdados_domicilio_2022,d0200,13,2022,(Permanente ocupada) Apartamento
+microdados_domicilio_2022,d0200,14,2022,(Permanente ocupada) Habitação em casa de cômodos ou cortiço
+microdados_domicilio_2022,d0200,15,2022,(Permanente ocupada) Habitação indígena sem paredes ou maloca
+microdados_domicilio_2022,d0200,16,2022,(Permanente ocupada) Estrutura residencial permanente degradada ou inacabada
+microdados_domicilio_2022,d0200,51,2022,"(Improvisado ocupada) Tenda ou barraca de lona, plástico ou Tecido ou estrutura improvisada em logradouro público"
+microdados_domicilio_2022,d0200,52,2022,(Improvisado ocupada) Dentro de estabelecimento em Funcionamento
+microdados_domicilio_2022,d0200,53,2022,(Improvisado ocupada) Estrutura não residencial permanente degradada ou inacabada
+microdados_domicilio_2022,d0200,54,2022,"(Improvisado ocupada) Outros (veículos, abrigos naturais e outras estruturas improvisadas)"
+microdados_domicilio_2022,d0200,61,2022,(Coletivo com morador) Asilo ou outra instituição de longa permanência para idosos
+microdados_domicilio_2022,d0200,62,2022,(Coletivo com morador) Hotel ou pensão
+microdados_domicilio_2022,d0200,63,2022,(Coletivo com morador) Alojamento
+microdados_domicilio_2022,d0200,64,2022,"(Coletivo com morador) Penitenciária, Centro de Detenção e similar"
+microdados_domicilio_2022,d0200,65,2022,"(Coletivo com morador) Abrigo, albergue, casa de passagem, Clínica psiquiátrica, comunidade terapêutica, orfanato e similares"
+microdados_domicilio_2022,d0200,66,2022,(Coletivo com morador) Outro
+microdados_domicilio_2022,d0210,1,2022,Alvenaria ou taipa COM revestimento
+microdados_domicilio_2022,d0210,2,2022,Alvenaria SEM revestimento
+microdados_domicilio_2022,d0210,3,2022,Taipa sem revestimento
+microdados_domicilio_2022,d0210,4,2022,Madeira para construção
+microdados_domicilio_2022,d0210,5,2022,"Madeira aproveitada de tapume, embalagens, andaimes"
+microdados_domicilio_2022,d0210,6,2022,Outro material
+microdados_domicilio_2022,d0210,7,2022,Sem parede
+microdados_domicilio_2022,d0250,1,2022,Rede geral ou pluvial
+microdados_domicilio_2022,d0250,2,2022,Fossa séptica ou fossa filtro Ligada à rede
+microdados_domicilio_2022,d0250,3,2022,Fossa séptica ou fossa filtro Não ligada à rede
+microdados_domicilio_2022,d0250,4,2022,Fossa rudimentar ou buraco
+microdados_domicilio_2022,d0250,5,2022,Vala
+microdados_domicilio_2022,d0250,6,2022,"Rio, lago, córrego ou mar"
+microdados_domicilio_2022,d0250,7,2022,Outra forma
+microdados_domicilio_2022,d0250,9,2022,Não tem banheiro nem sanitário
+microdados_domicilio_2022,d0260,1,2022,Rede geral de distribuição
+microdados_domicilio_2022,d0260,2,2022,Poço  Profundo ou artesiano
+microdados_domicilio_2022,d0260,3,2022,"Poço  Raso, freático ou cacimba"
+microdados_domicilio_2022,d0260,4,2022,"Fonte, nascente ou mina"
+microdados_domicilio_2022,d0260,5,2022,Carro-pipa
+microdados_domicilio_2022,d0260,6,2022,Água da chuva armazenada
+microdados_domicilio_2022,d0260,7,2022,"Rios, açudes, córregos, lagos e igarapés"
+microdados_domicilio_2022,d0260,8,2022,Outra
+microdados_domicilio_2022,d0270,1,2022,Tem banheiro de uso exclusivo do domicílio - 1 banheiro
+microdados_domicilio_2022,d0270,2,2022,Tem banheiro de uso exclusivo do domicílio - 2 banheiros
+microdados_domicilio_2022,d0270,3,2022,Tem banheiro de uso exclusivo do domicílio - 3 banheiros
+microdados_domicilio_2022,d0270,4,2022,Tem banheiro de uso exclusivo do domicílio - 4 banheiros ou mais
+microdados_domicilio_2022,d0270,5,2022,Apenas banheiro de uso comum a mais de um domicílio
+microdados_domicilio_2022,d0270,6,2022,"Apenas sanitário ou buraco para dejeções, inclusive os localizados no terreno"
+microdados_domicilio_2022,d0270,7,2022,Não tem banheiro nem sanitário
+microdados_domicilio_2022,d0290,1,2022,Sim
+microdados_domicilio_2022,d0290,2,2022,Não
+microdados_domicilio_2022,d0300,1,2022,"Encanada até dentro da casa, apartamento ou habitação"
+microdados_domicilio_2022,d0300,2,2022,"Encanada, mas apenas no terreno"
+microdados_domicilio_2022,d0300,3,2022,Não chega encanada
+microdados_domicilio_2022,d0310,1,2022,Coletado no domicílio por serviço de limpeza
+microdados_domicilio_2022,d0310,2,2022,Depositado em caçamba de serviço de limpeza
+microdados_domicilio_2022,d0310,3,2022,Queimado na propriedade
+microdados_domicilio_2022,d0310,4,2022,Enterrado na propriedade
+microdados_domicilio_2022,d0310,5,2022,"Jogado em terreno baldio, encosta ou área pública"
+microdados_domicilio_2022,d0310,6,2022,Outro destino
+microdados_domicilio_2022,d0320,1,2022,Sim
+microdados_domicilio_2022,d0320,2,2022,Não
+microdados_domicilio_2022,d0330,1,2022,Sim
+microdados_domicilio_2022,d0330,2,2022,Não
+microdados_domicilio_2022,d0340,1,2022,Sim
+microdados_domicilio_2022,d0340,2,2022,Não
+microdados_domicilio_2022,d0340,9,2022,Ignorado
+microdados_domicilio_2022,md0130,0,2022,Não Imputado
+microdados_domicilio_2022,md0130,1,2022,Imputado
+microdados_domicilio_2022,md0150,0,2022,Não Imputado
+microdados_domicilio_2022,md0150,1,2022,Imputado
+microdados_domicilio_2022,md0160,0,2022,Não Imputado
+microdados_domicilio_2022,md0160,1,2022,Imputado
+microdados_domicilio_2022,md0170,0,2022,Não Imputado
+microdados_domicilio_2022,md0170,1,2022,Imputado
+microdados_domicilio_2022,md0180,0,2022,Não Imputado
+microdados_domicilio_2022,md0180,1,2022,Imputado
+microdados_domicilio_2022,md0190,0,2022,Não Imputado
+microdados_domicilio_2022,md0190,1,2022,Imputado
+microdados_domicilio_2022,md0190,9,2022,Não aplicável
+microdados_domicilio_2022,md0200,0,2022,Não Imputado
+microdados_domicilio_2022,md0200,1,2022,Imputado
+microdados_domicilio_2022,md0210,0,2022,Não Imputado
+microdados_domicilio_2022,md0210,1,2022,Imputado
+microdados_domicilio_2022,md0210,9,2022,Não aplicável
+microdados_domicilio_2022,md0220,0,2022,Não Imputado
+microdados_domicilio_2022,md0220,1,2022,Imputado
+microdados_domicilio_2022,md0220,9,2022,Não aplicável
+microdados_domicilio_2022,md0230,0,2022,Não Imputado
+microdados_domicilio_2022,md0230,1,2022,Imputado
+microdados_domicilio_2022,md0230,9,2022,Não aplicável
+microdados_domicilio_2022,md0240,0,2022,Não Imputado
+microdados_domicilio_2022,md0240,1,2022,Imputado
+microdados_domicilio_2022,md0240,9,2022,Não aplicável
+microdados_domicilio_2022,md0250,0,2022,Não Imputado
+microdados_domicilio_2022,md0250,1,2022,Imputado
+microdados_domicilio_2022,md0250,9,2022,Não aplicável
+microdados_domicilio_2022,md0260,0,2022,Não Imputado
+microdados_domicilio_2022,md0260,1,2022,Imputado
+microdados_domicilio_2022,md0260,9,2022,Não aplicável
+microdados_domicilio_2022,md0270,0,2022,Não Imputado
+microdados_domicilio_2022,md0270,1,2022,Imputado
+microdados_domicilio_2022,md0270,9,2022,Não aplicável
+microdados_domicilio_2022,md0280,0,2022,Não Imputado
+microdados_domicilio_2022,md0280,1,2022,Imputado
+microdados_domicilio_2022,md0280,9,2022,Não aplicável
+microdados_domicilio_2022,md0290,0,2022,Não Imputado
+microdados_domicilio_2022,md0290,1,2022,Imputado
+microdados_domicilio_2022,md0290,9,2022,Não aplicável
+microdados_domicilio_2022,md0300,0,2022,Não Imputado
+microdados_domicilio_2022,md0300,1,2022,Imputado
+microdados_domicilio_2022,md0300,9,2022,Não aplicável
+microdados_domicilio_2022,md0310,0,2022,Não Imputado
+microdados_domicilio_2022,md0310,1,2022,Imputado
+microdados_domicilio_2022,md0310,9,2022,Não aplicável
+microdados_domicilio_2022,md0320,0,2022,Não Imputado
+microdados_domicilio_2022,md0320,1,2022,Imputado
+microdados_domicilio_2022,md0320,9,2022,Não aplicável
+microdados_domicilio_2022,md0330,0,2022,Não Imputado
+microdados_domicilio_2022,md0330,1,2022,Imputado
+microdados_domicilio_2022,md0330,9,2022,Não aplicável
+microdados_domicilio_2022,md0340,0,2022,Não Imputado
+microdados_domicilio_2022,md0340,1,2022,Imputado
+microdados_domicilio_2022,md0340,9,2022,Não aplicável
+microdados_pessoa_2022,id_regiao,1,2022,Região Norte (uf=11 a 17)
+microdados_pessoa_2022,id_regiao,2,2022,Região Nordeste (uf=21 a 29)
+microdados_pessoa_2022,id_regiao,3,2022,Região Sudeste (uf=31 a 33 e 35)
+microdados_pessoa_2022,id_regiao,4,2022,Região Sul (uf=41 a 43)
+microdados_pessoa_2022,id_regiao,5,2022,Região Centro-oeste (uf=50 a 53)
+microdados_pessoa_2022,situacao_setor,01,2022,Área urbana de alta densidade de edificações
+microdados_pessoa_2022,situacao_setor,02,2022,Área urbana de baixa densidade de edificações
+microdados_pessoa_2022,situacao_setor,03,2022,Núcleo urbano
+microdados_pessoa_2022,situacao_setor,05,2022,Povoado
+microdados_pessoa_2022,situacao_setor,06,2022,Núcleo rural
+microdados_pessoa_2022,situacao_setor,07,2022,Lugarejo
+microdados_pessoa_2022,situacao_setor,08,2022,Área rural (exclusive aglomerados)
+microdados_pessoa_2022,p0130,01,2022,Domicílio particular permanente ocupado
+microdados_pessoa_2022,p0130,05,2022,Domicílio particular improvisado ocupado
+microdados_pessoa_2022,p0130,06,2022,Domicílio coletivo com morador
+microdados_pessoa_2022,situacao_domicilio,1,2022,Urbana
+microdados_pessoa_2022,situacao_domicilio,2,2022,Rural
+microdados_pessoa_2022,p0150,1,2022,Masculino
+microdados_pessoa_2022,p0150,2,2022,Feminino
+microdados_pessoa_2022,p0150,9,2022,Ignorado
+microdados_pessoa_2022,p0170,01,2022,Pessoa responsável pelo domicílio
+microdados_pessoa_2022,p0170,02,2022,Cônjuge ou companheiro(a) de sexo diferente
+microdados_pessoa_2022,p0170,03,2022,Cônjuge ou companheiro(a) do mesmo sexo
+microdados_pessoa_2022,p0170,04,2022,Filho(a) do responsável e do cônjuge
+microdados_pessoa_2022,p0170,05,2022,Filho(a) somente do responsável
+microdados_pessoa_2022,p0170,06,2022,Enteado(a)
+microdados_pessoa_2022,p0170,07,2022,Genro ou nora
+microdados_pessoa_2022,p0170,08,2022,"Pai, mãe, padrasto ou madrasta"
+microdados_pessoa_2022,p0170,09,2022,Sogro(a)
+microdados_pessoa_2022,p0170,10,2022,Neto(a)
+microdados_pessoa_2022,p0170,11,2022,Bisneto(a)
+microdados_pessoa_2022,p0170,12,2022,Irmão ou irmã
+microdados_pessoa_2022,p0170,13,2022,Avô ou avó
+microdados_pessoa_2022,p0170,14,2022,Outro parente
+microdados_pessoa_2022,p0170,15,2022,Agregado(a)
+microdados_pessoa_2022,p0170,16,2022,Convivente
+microdados_pessoa_2022,p0170,17,2022,Pensionista
+microdados_pessoa_2022,p0170,18,2022,Empregado(a) doméstico(a)
+microdados_pessoa_2022,p0170,19,2022,Parente do(a) empregado(a)  doméstico(a)
+microdados_pessoa_2022,p0170,20,2022,Individual em domicílio coletivo
+microdados_pessoa_2022,p0180,01,2022,0 a 4 anos
+microdados_pessoa_2022,p0180,02,2022,5 a 9 anos
+microdados_pessoa_2022,p0180,03,2022,10 a 14 anos
+microdados_pessoa_2022,p0180,04,2022,15 a 19 anos
+microdados_pessoa_2022,p0180,05,2022,20 a 24 anos
+microdados_pessoa_2022,p0180,06,2022,25 a 29 anos
+microdados_pessoa_2022,p0180,07,2022,30 a 34 anos
+microdados_pessoa_2022,p0180,08,2022,35 a 39 anos
+microdados_pessoa_2022,p0180,09,2022,40 a 44 anos
+microdados_pessoa_2022,p0180,10,2022,45 a 49 anos
+microdados_pessoa_2022,p0180,11,2022,50 a 54 anos
+microdados_pessoa_2022,p0180,12,2022,55 a 59 anos
+microdados_pessoa_2022,p0180,13,2022,60 a 64 anos
+microdados_pessoa_2022,p0180,14,2022,65 a 69 anos
+microdados_pessoa_2022,p0180,15,2022,70 a 74 anos
+microdados_pessoa_2022,p0180,16,2022,75 a 79 anos
+microdados_pessoa_2022,p0180,17,2022,80 anos ou mais
+microdados_pessoa_2022,p0180,99,2022,Ignorado
+microdados_pessoa_2022,p0200,1,2022,Data de nascimento
+microdados_pessoa_2022,p0200,2,2022,Idade declarada
+microdados_pessoa_2022,p0210,1,2022,Branca
+microdados_pessoa_2022,p0210,2,2022,Preta
+microdados_pessoa_2022,p0210,3,2022,Amarela
+microdados_pessoa_2022,p0210,4,2022,Parda
+microdados_pessoa_2022,p0210,5,2022,Indígena
+microdados_pessoa_2022,p0210,9,2022,Ignorado
+microdados_pessoa_2022,p0220,1,2022,Sim
+microdados_pessoa_2022,p0220,0,2022,Não
+microdados_pessoa_2022,p0220,9,2022,Ignorado
+microdados_pessoa_2022,p0230,1,2022,Sim
+microdados_pessoa_2022,p0230,2,2022,Não
+microdados_pessoa_2022,p0230,9,2022,Ignorado
+microdados_pessoa_2022,p0240,1,2022,Declarou uma etnia
+microdados_pessoa_2022,p0240,2,2022,Declarou duas etnias
+microdados_pessoa_2022,p0240,3,2022,Declaração não-determinada
+microdados_pessoa_2022,p0240,4,2022,Declaração mal definida
+microdados_pessoa_2022,p0240,5,2022,Não sabe
+microdados_pessoa_2022,p0240,6,2022,Não declarou
+microdados_pessoa_2022,p0250,1,2022,Declarou uma língua indígena
+microdados_pessoa_2022,p0250,2,2022,Declarou duas línguas indígenas
+microdados_pessoa_2022,p0250,3,2022,Declarou três línguas indígenas
+microdados_pessoa_2022,p0250,4,2022,Declaração não-determinada
+microdados_pessoa_2022,p0250,5,2022,Declaração mal definida
+microdados_pessoa_2022,p0250,6,2022,Não sabe
+microdados_pessoa_2022,p0250,7,2022,Não fala língua indígena no domicílio
+microdados_pessoa_2022,p0260,1,2022,Sim
+microdados_pessoa_2022,p0260,2,2022,Não
+microdados_pessoa_2022,p0270,1,2022,Do cartório
+microdados_pessoa_2022,p0270,2,2022,Registro Administrativo de Nascimento Indígena (RANI)
+microdados_pessoa_2022,p0270,3,2022,Não tem
+microdados_pessoa_2022,p0270,4,2022,Não sabe
+microdados_pessoa_2022,p0270,9,2022,Ignorado
+microdados_pessoa_2022,p0280,1,2022,Sim
+microdados_pessoa_2022,p0280,2,2022,Não Já viveu antes
+microdados_pessoa_2022,p0280,3,2022,Não Nunca viveu
+microdados_pessoa_2022,p0290,1,2022,Casamento civil e religioso
+microdados_pessoa_2022,p0290,2,2022,Só casamento civil
+microdados_pessoa_2022,p0290,3,2022,Só casamento religioso
+microdados_pessoa_2022,p0290,4,2022,União consensual
+microdados_pessoa_2022,p0300,1,2022,Sim
+microdados_pessoa_2022,p0300,2,2022,Não
+microdados_pessoa_2022,p0310,1,2022,Sim
+microdados_pessoa_2022,p0310,2,2022,Não
+microdados_pessoa_2022,p0380,01,2022,0 a 4 anos
+microdados_pessoa_2022,p0380,02,2022,5 a 9 anos
+microdados_pessoa_2022,p0380,03,2022,10 a 14 anos
+microdados_pessoa_2022,p0380,04,2022,15 a 19 anos
+microdados_pessoa_2022,p0380,05,2022,20 a 24 anos
+microdados_pessoa_2022,p0380,06,2022,25 a 29 anos
+microdados_pessoa_2022,p0380,07,2022,30 a 34 anos
+microdados_pessoa_2022,p0380,08,2022,35 a 39 anos
+microdados_pessoa_2022,p0380,09,2022,40 a 44 anos
+microdados_pessoa_2022,p0380,10,2022,45 a 49 anos
+microdados_pessoa_2022,p0380,11,2022,50 a 54 anos
+microdados_pessoa_2022,p0380,12,2022,55 a 59 anos
+microdados_pessoa_2022,p0380,13,2022,60 a 64 anos
+microdados_pessoa_2022,p0380,14,2022,65 a 69 anos
+microdados_pessoa_2022,p0380,15,2022,70 a 74 anos
+microdados_pessoa_2022,p0380,16,2022,75 a 79 anos
+microdados_pessoa_2022,p0380,17,2022,80 anos ou mais
+microdados_pessoa_2022,p0380,99,2022,Ignorado
+microdados_pessoa_2022,p0390,1,2022,Data de nascimento
+microdados_pessoa_2022,p0390,2,2022,Idade declarada
+microdados_pessoa_2022,p0400,1,2022,Sim
+microdados_pessoa_2022,p0400,2,2022,Não
+microdados_pessoa_2022,p0410,1,2022,Católica Apostólica Romana
+microdados_pessoa_2022,p0410,2,2022,Evangélicas
+microdados_pessoa_2022,p0410,3,2022,Espírita
+microdados_pessoa_2022,p0410,4,2022,Umbanda e Candomblé
+microdados_pessoa_2022,p0410,5,2022,Tradições indígenas
+microdados_pessoa_2022,p0410,6,2022,Outras religiosidades
+microdados_pessoa_2022,p0410,7,2022,Sem religião
+microdados_pessoa_2022,p0410,8,2022,Não sabe
+microdados_pessoa_2022,p0410,9,2022,Sem declaração
+microdados_pessoa_2022,p0420,1,2022,"Tem, não consegue de modo algum"
+microdados_pessoa_2022,p0420,2,2022,Tem muita dificuldade
+microdados_pessoa_2022,p0420,3,2022,Tem alguma dificuldade
+microdados_pessoa_2022,p0420,4,2022,Não tem dificuldade
+microdados_pessoa_2022,p0420,9,2022,Ignorado
+microdados_pessoa_2022,p0430,1,2022,"Tem, não consegue de modo algum"
+microdados_pessoa_2022,p0430,2,2022,Tem muita dificuldade
+microdados_pessoa_2022,p0430,3,2022,Tem alguma dificuldade
+microdados_pessoa_2022,p0430,4,2022,Não tem dificuldade
+microdados_pessoa_2022,p0430,9,2022,Ignorado
+microdados_pessoa_2022,p0440,1,2022,"Tem, não consegue de modo algum"
+microdados_pessoa_2022,p0440,2,2022,Tem muita dificuldade
+microdados_pessoa_2022,p0440,3,2022,Tem alguma dificuldade
+microdados_pessoa_2022,p0440,4,2022,Não tem dificuldade
+microdados_pessoa_2022,p0440,9,2022,Ignorado
+microdados_pessoa_2022,p0450,1,2022,"Tem, não consegue de modo algum"
+microdados_pessoa_2022,p0450,2,2022,Tem muita dificuldade
+microdados_pessoa_2022,p0450,3,2022,Tem alguma dificuldade
+microdados_pessoa_2022,p0450,4,2022,Não tem dificuldade
+microdados_pessoa_2022,p0450,9,2022,Ignorado
+microdados_pessoa_2022,p0460,1,2022,"Tem, não consegue de modo algum"
+microdados_pessoa_2022,p0460,2,2022,Tem muita dificuldade
+microdados_pessoa_2022,p0460,3,2022,Tem alguma dificuldade
+microdados_pessoa_2022,p0460,4,2022,Não tem dificuldade
+microdados_pessoa_2022,p0460,9,2022,Ignorado
+microdados_pessoa_2022,p0470,1,2022,Pessoa COM Deficiência
+microdados_pessoa_2022,p0470,2,2022,Pessoa SEM Deficiência
+microdados_pessoa_2022,p0470,9,2022,Não aplicável - Pessoa com menos de 2 anos de idade
+microdados_pessoa_2022,p0480,1,2022,Neste município
+microdados_pessoa_2022,p0480,2,2022,Em outro município do Brasil
+microdados_pessoa_2022,p0480,3,2022,Em outro país
+microdados_pessoa_2022,p0480,9,2022,Ignorado
+microdados_pessoa_2022,p0520,1,2022,Brasileiro nato
+microdados_pessoa_2022,p0520,2,2022,Naturalizado brasileiro
+microdados_pessoa_2022,p0520,3,2022,Estrangeiro
+microdados_pessoa_2022,p0530,1,2022,Sim
+microdados_pessoa_2022,p0530,2,2022,Não
+microdados_pessoa_2022,p0530,9,2022,Ignorado
+microdados_pessoa_2022,p0560,1,2022,Estado/Município
+microdados_pessoa_2022,p0560,2,2022,País estrangeiro
+microdados_pessoa_2022,p0560,9,2022,Ignorado
+microdados_pessoa_2022,p0600,1,2022,Neste município
+microdados_pessoa_2022,p0600,2,2022,Outro município do Brasil
+microdados_pessoa_2022,p0600,3,2022,Outro país
+microdados_pessoa_2022,p0600,9,2022,Ignorado
+microdados_pessoa_2022,p0640,1,2022,Sim
+microdados_pessoa_2022,p0640,2,2022,Não
+microdados_pessoa_2022,p0650,1,2022,Sim
+microdados_pessoa_2022,p0650,2,2022,Não Mas já frequentou
+microdados_pessoa_2022,p0650,3,2022,Não Nunca frequentou
+microdados_pessoa_2022,p0660,01,2022,Creche
+microdados_pessoa_2022,p0660,02,2022,Pré escola
+microdados_pessoa_2022,p0660,03,2022,Alfabetização de jovens e adultos
+microdados_pessoa_2022,p0660,04,2022,Regular do ensino fundamental
+microdados_pessoa_2022,p0660,05,2022,Educação de jovens e adultos (EJA) do ensino fundamental
+microdados_pessoa_2022,p0660,06,2022,Regular do ensino médio
+microdados_pessoa_2022,p0660,07,2022,Educação de jovens e adultos (EJA) do ensino médio
+microdados_pessoa_2022,p0660,08,2022,Superior de graduação
+microdados_pessoa_2022,p0660,09,2022,Especialização de nível superior (duração mínima de 360 horas)
+microdados_pessoa_2022,p0660,10,2022,Mestrado
+microdados_pessoa_2022,p0660,11,2022,Doutorado
+microdados_pessoa_2022,p0660,99,2022,Ignorado
+microdados_pessoa_2022,p0670,01,2022,Primeiro
+microdados_pessoa_2022,p0670,02,2022,Segundo
+microdados_pessoa_2022,p0670,03,2022,Terceiro
+microdados_pessoa_2022,p0670,04,2022,Quarto
+microdados_pessoa_2022,p0670,05,2022,Quinto
+microdados_pessoa_2022,p0670,06,2022,Sexto
+microdados_pessoa_2022,p0670,07,2022,Sétimo
+microdados_pessoa_2022,p0670,08,2022,Oitavo
+microdados_pessoa_2022,p0670,09,2022,Nono
+microdados_pessoa_2022,p0670,10,2022,Curso não classificado em anos
+microdados_pessoa_2022,p0670,99,2022,Ignorado
+microdados_pessoa_2022,p0680,01,2022,Primeira
+microdados_pessoa_2022,p0680,02,2022,Segunda
+microdados_pessoa_2022,p0680,03,2022,Terceira
+microdados_pessoa_2022,p0680,04,2022,Quarta
+microdados_pessoa_2022,p0680,05,2022,Quinta
+microdados_pessoa_2022,p0680,06,2022,Sexta
+microdados_pessoa_2022,p0680,07,2022,Sétima
+microdados_pessoa_2022,p0680,08,2022,Oitava
+microdados_pessoa_2022,p0680,09,2022,Nona
+microdados_pessoa_2022,p0680,10,2022,Curso não classificado em séries
+microdados_pessoa_2022,p0680,99,2022,Ignorado
+microdados_pessoa_2022,p0690,1,2022,Sim
+microdados_pessoa_2022,p0690,2,2022,Não
+microdados_pessoa_2022,p0690,9,2022,Ignorado
+microdados_pessoa_2022,p0700,01,2022,Creche
+microdados_pessoa_2022,p0700,02,2022,Pré escola
+microdados_pessoa_2022,p0700,03,2022,Classe de alfabetização
+microdados_pessoa_2022,p0700,04,2022,Alfabetização de jovens e adultos
+microdados_pessoa_2022,p0700,05,2022,Antigo primário (elementar)
+microdados_pessoa_2022,p0700,06,2022,Antigo ginasial (médio 1º ciclo)
+microdados_pessoa_2022,p0700,07,2022,Regular do ensino fundamental ou do 1º grau
+microdados_pessoa_2022,p0700,08,2022,Educação de jovens e adultos (EJA) do ensino fundamental ou supletivo do 1º grau
+microdados_pessoa_2022,p0700,09,2022,"Antigo científico, clássico, etc. (médio 2º ciclo)"
+microdados_pessoa_2022,p0700,10,2022,Regular do ensino médio ou do 2º grau
+microdados_pessoa_2022,p0700,11,2022,Educação de jovens e adultos (EJA) do ensino médio ou supletivo do 2º grau
+microdados_pessoa_2022,p0700,12,2022,Superior de graduação
+microdados_pessoa_2022,p0700,13,2022,Especialização de nível superior (duração mínima de 360 horas)
+microdados_pessoa_2022,p0700,14,2022,Mestrado
+microdados_pessoa_2022,p0700,15,2022,Doutorado
+microdados_pessoa_2022,p0700,99,2022,Ignorado
+microdados_pessoa_2022,p0710,1,2022,8 séries
+microdados_pessoa_2022,p0710,2,2022,9 anos
+microdados_pessoa_2022,p0710,9,2022,Ignorado
+microdados_pessoa_2022,p0720,01,2022,Nenhum
+microdados_pessoa_2022,p0720,02,2022,Primeiro
+microdados_pessoa_2022,p0720,03,2022,Segundo
+microdados_pessoa_2022,p0720,04,2022,Terceiro
+microdados_pessoa_2022,p0720,05,2022,Quarto
+microdados_pessoa_2022,p0720,06,2022,Quinto
+microdados_pessoa_2022,p0720,07,2022,Sexto
+microdados_pessoa_2022,p0720,08,2022,Sétimo
+microdados_pessoa_2022,p0720,09,2022,Oitavo
+microdados_pessoa_2022,p0720,10,2022,Nono
+microdados_pessoa_2022,p0720,11,2022,Curso não era classificado em anos
+microdados_pessoa_2022,p0720,99,2022,Ignorado
+microdados_pessoa_2022,p0730,01,2022,Nenhuma
+microdados_pessoa_2022,p0730,02,2022,Primeira
+microdados_pessoa_2022,p0730,03,2022,Segunda
+microdados_pessoa_2022,p0730,04,2022,Terceira
+microdados_pessoa_2022,p0730,05,2022,Quarta
+microdados_pessoa_2022,p0730,06,2022,Quinta
+microdados_pessoa_2022,p0730,07,2022,Sexta
+microdados_pessoa_2022,p0730,08,2022,Sétima
+microdados_pessoa_2022,p0730,09,2022,Oitava
+microdados_pessoa_2022,p0730,10,2022,Nona
+microdados_pessoa_2022,p0730,11,2022,Curso não classificado em séries
+microdados_pessoa_2022,p0730,99,2022,Ignorado
+microdados_pessoa_2022,p0740,1,2022,Sim
+microdados_pessoa_2022,p0740,2,2022,Não
+microdados_pessoa_2022,p0740,9,2022,Ignorado
+microdados_pessoa_2022,p0760,1,2022,Sem instrução e menos de 1 ano
+microdados_pessoa_2022,p0760,2,2022,Ensino fundamental incompleto ou equivalente
+microdados_pessoa_2022,p0760,3,2022,Ensino fundamental completo ou equivalente
+microdados_pessoa_2022,p0760,4,2022,Ensino médio incompleto ou equivalente
+microdados_pessoa_2022,p0760,5,2022,Ensino médio completo ou equivalente
+microdados_pessoa_2022,p0760,6,2022,Superior incompleto ou equivalente
+microdados_pessoa_2022,p0760,7,2022,Superior completo
+microdados_pessoa_2022,p0760,8,2022,Não determinado
+microdados_pessoa_2022,p0760,9,2022,"Ignorado ""se frequenta curso"""
+microdados_pessoa_2022,p0760,901,2022,"Ignorado ""curso que frequenta"""
+microdados_pessoa_2022,p0760,902,2022,"Ignorado ""ano/serie que frequenta"
+microdados_pessoa_2022,p0760,903,2022,"Ignorado ""se concluiu outro curso de graduação"""
+microdados_pessoa_2022,p0760,911,2022,"Ignorado ""curso que frequentou"""
+microdados_pessoa_2022,p0760,912,2022,"Ignorado ""se concluiu o curso que frequentou"""
+microdados_pessoa_2022,p0760,913,2022,"Ignorado ""ano/série que frequentou"""
+microdados_pessoa_2022,p0760,914,2022,"Ignorado ""duração do curso regular de Ensino Fundamental"""
+microdados_pessoa_2022,p0770,1,2022,Sem instrução e fundamental incompleto
+microdados_pessoa_2022,p0770,2,2022,Fundamental completo e médio incompleto
+microdados_pessoa_2022,p0770,3,2022,Médio completo e superior incompleto
+microdados_pessoa_2022,p0770,4,2022,Superior completo
+microdados_pessoa_2022,p0770,5,2022,Não determinado
+microdados_pessoa_2022,p0780,1,2022,Adequado
+microdados_pessoa_2022,p0780,2,2022,Não adequado
+microdados_pessoa_2022,p0780,9,2022,Não aplicável - Pessoa com menos de 6 anos ou maior que 24 anos de idade
+microdados_pessoa_2022,p0800,1,2022,Neste município
+microdados_pessoa_2022,p0800,2,2022,Em outro município do Brasil
+microdados_pessoa_2022,p0800,3,2022,Em outro país
+microdados_pessoa_2022,p0800,9,2022,Ignorado
+microdados_pessoa_2022,p0840,1,2022,Sim
+microdados_pessoa_2022,p0840,2,2022,Não
+microdados_pessoa_2022,p0840,9,2022,Ignorado
+microdados_pessoa_2022,p0850,1,2022,Sim
+microdados_pessoa_2022,p0850,2,2022,Não
+microdados_pessoa_2022,p0850,9,2022,Ignorado
+microdados_pessoa_2022,p0860,1,2022,Sim
+microdados_pessoa_2022,p0860,2,2022,Não
+microdados_pessoa_2022,p0860,9,2022,Ignorado
+microdados_pessoa_2022,p0870,1,2022,Sim
+microdados_pessoa_2022,p0870,2,2022,Não
+microdados_pessoa_2022,p0870,9,2022,Ignorado
+microdados_pessoa_2022,p0880,1,2022,Sim
+microdados_pessoa_2022,p0880,2,2022,Não
+microdados_pessoa_2022,p0880,9,2022,Ignorado
+microdados_pessoa_2022,p0890,1,2022,Sim
+microdados_pessoa_2022,p0890,2,2022,Não
+microdados_pessoa_2022,p0890,9,2022,Ignorado
+microdados_pessoa_2022,p0900,1,2022,Um
+microdados_pessoa_2022,p0900,2,2022,Dois
+microdados_pessoa_2022,p0900,3,2022,Três ou mais
+microdados_pessoa_2022,p0900,9,2022,Ignorado
+microdados_pessoa_2022,p0910,0,2022,Pessoa de menos de 10 anos de idade
+microdados_pessoa_2022,p0910,1,2022,Pessoa de 10 anos ou mais de idade
+microdados_pessoa_2022,p0920,0,2022,Pessoa de menos de 14 anos de idade
+microdados_pessoa_2022,p0920,1,2022,Pessoa de 14 anos ou mais de idade
+microdados_pessoa_2022,p0930,0,2022,Pessoa de 14 anos ou mais de idade FORA da força de trabalho
+microdados_pessoa_2022,p0930,1,2022,Pessoa de 14 anos ou mais de idade na força de trabalho
+microdados_pessoa_2022,p0940,0,2022,Pessoa de 14 anos ou mais de idade ocupada NÃO contribuinte de instituto de previdência no trabalho principal
+microdados_pessoa_2022,p0940,1,2022,Pessoa de 14 anos ou mais de idade ocupada contribuinte de instituto de previdência no trabalho principal
+microdados_pessoa_2022,p0950,0,2022,Desocupada
+microdados_pessoa_2022,p0950,1,2022,Ocupada
+microdados_pessoa_2022,p0960,0,2022,Não ocupada
+microdados_pessoa_2022,p0960,1,2022,Ocupada
+microdados_pessoa_2022,p0990,01,2022,Trabalhador doméstico (inclusive diarista)
+microdados_pessoa_2022,p0990,02,2022,"Militar do exército, da marinha, da aeronáutica, da polícia militar ou do corpo de bombeiros militar"
+microdados_pessoa_2022,p0990,03,2022,Empregado do setor privado
+microdados_pessoa_2022,p0990,04,2022,Empregado do setor público _ funcionário estatutário
+microdados_pessoa_2022,p0990,05,2022,Empregado do setor público _ empregado não estatutário
+microdados_pessoa_2022,p0990,06,2022,Empregado de empresas estatais
+microdados_pessoa_2022,p0990,07,2022,Empregador (com pelo menos um empregado)
+microdados_pessoa_2022,p0990,08,2022,Conta própria (sem empregados)
+microdados_pessoa_2022,p0990,09,2022,Trabalhador não remunerado em ajuda a morador do domicílio ou parente
+microdados_pessoa_2022,p0990,99,2022,Ignorado
+microdados_pessoa_2022,p1000,1,2022,Sim
+microdados_pessoa_2022,p1000,2,2022,Não
+microdados_pessoa_2022,p1000,9,2022,Ignorado
+microdados_pessoa_2022,p1010,1,2022,Sim
+microdados_pessoa_2022,p1010,2,2022,Não
+microdados_pessoa_2022,p1020,01,2022,Empregado no setor privado COM carteira de trabalho assinada
+microdados_pessoa_2022,p1020,02,2022,Empregado no setor privado SEM carteira de trabalho assinada
+microdados_pessoa_2022,p1020,03,2022,Trabalhador doméstico COM carteira de trabalho assinada
+microdados_pessoa_2022,p1020,04,2022,Trabalhador doméstico SEM carteira de trabalho assinada
+microdados_pessoa_2022,p1020,05,2022,Empregado no setor público COM carteira de trabalho assinada
+microdados_pessoa_2022,p1020,06,2022,Empregado no setor público SEM carteira de trabalho assinada
+microdados_pessoa_2022,p1020,07,2022,Militar e servidor estatutário
+microdados_pessoa_2022,p1020,08,2022,Empregador
+microdados_pessoa_2022,p1020,09,2022,Conta própria
+microdados_pessoa_2022,p1020,10,2022,Trabalhador familiar auxiliar
+microdados_pessoa_2022,p1050,1,2022,Sim
+microdados_pessoa_2022,p1050,2,2022,Não
+microdados_pessoa_2022,p1050,9,2022,Ignorado
+microdados_pessoa_2022,p1060,1,2022,Sim
+microdados_pessoa_2022,p1060,2,2022,Não
+microdados_pessoa_2022,p1060,9,2022,Ignorado
+microdados_pessoa_2022,p1070,1,2022,"Valor em dinheiro, produtos ou mercadorias"
+microdados_pessoa_2022,p1070,2,2022,"Outra forma (Moradia, Alimentação, Treinamento, etc.)"
+microdados_pessoa_2022,p1090,1,2022,Sim
+microdados_pessoa_2022,p1090,2,2022,Não
+microdados_pessoa_2022,p1090,9,2022,Ignorado
+microdados_pessoa_2022,p1120,1,2022,Em casa ou na propriedade
+microdados_pessoa_2022,p1120,2,2022,Fora de casa e da propriedade
+microdados_pessoa_2022,p1120,3,2022,Em outro município do Brasil
+microdados_pessoa_2022,p1120,4,2022,Em outro país
+microdados_pessoa_2022,p1120,5,2022,Em mais de um município ou país
+microdados_pessoa_2022,p1120,9,2022,Ignorado
+microdados_pessoa_2022,p1160,1,2022,Sim
+microdados_pessoa_2022,p1160,2,2022,Não
+microdados_pessoa_2022,p1160,9,2022,Ignorado
+microdados_pessoa_2022,p1170,01,2022,A pé
+microdados_pessoa_2022,p1170,02,2022,Bicicleta
+microdados_pessoa_2022,p1170,03,2022,Motocicleta
+microdados_pessoa_2022,p1170,04,2022,Mototáxi
+microdados_pessoa_2022,p1170,05,2022,Automóvel
+microdados_pessoa_2022,p1170,06,2022,Táxi ou assemelhados
+microdados_pessoa_2022,p1170,07,2022,"Van, perua ou assemelhados"
+microdados_pessoa_2022,p1170,08,2022,Ônibus
+microdados_pessoa_2022,p1170,09,2022,BRT ou ônibus de trânsito rápido
+microdados_pessoa_2022,p1170,10,2022,Trem ou metrô
+microdados_pessoa_2022,p1170,11,2022,Caminhonete ou caminhão adaptado (pau de arara)
+microdados_pessoa_2022,p1170,12,2022,Embarcação de médio e grande porte (acima de 20 pessoas)
+microdados_pessoa_2022,p1170,13,2022,Embarcação de pequeno porte (até 20 pessoas)
+microdados_pessoa_2022,p1170,14,2022,Outros
+microdados_pessoa_2022,p1170,99,2022,Ignorado
+microdados_pessoa_2022,p1180,0,2022,Não se desloca para local de trabalho
+microdados_pessoa_2022,p1180,1,2022,Até cinco minutos
+microdados_pessoa_2022,p1180,2,2022,De seis minutos até quinze minutos
+microdados_pessoa_2022,p1180,3,2022,Mais de quinze minutos até meia hora
+microdados_pessoa_2022,p1180,4,2022,Mais de meia hora até uma hora
+microdados_pessoa_2022,p1180,5,2022,Mais de uma hora até duas horas
+microdados_pessoa_2022,p1180,6,2022,Mais de duas horas até quatro horas
+microdados_pessoa_2022,p1180,7,2022,Mais de quatro horas
+microdados_pessoa_2022,p1180,9,2022,Tempo não informado (ignorado)
+microdados_pessoa_2022,p1200,1,2022,Sim
+microdados_pessoa_2022,p1200,2,2022,Não
+microdados_pessoa_2022,p1210,1,2022,A própria pessoa
+microdados_pessoa_2022,p1210,2,2022,Outro morador
+microdados_pessoa_2022,p1210,3,2022,Não morador
+microdados_pessoa_2022,p1210,9,2022,Ignorado
+microdados_pessoa_2022,mp0150,0,2022,Não Imputado
+microdados_pessoa_2022,mp0150,1,2022,Imputado
+microdados_pessoa_2022,mp0170,0,2022,Não Imputado
+microdados_pessoa_2022,mp0170,1,2022,Imputado
+microdados_pessoa_2022,mp0180,0,2022,Não Imputado
+microdados_pessoa_2022,mp0180,1,2022,Imputado
+microdados_pessoa_2022,mp0210,0,2022,Não Imputado
+microdados_pessoa_2022,mp0210,1,2022,Imputado
+microdados_pessoa_2022,mp0230,0,2022,Não Imputado
+microdados_pessoa_2022,mp0230,1,2022,Imputado
+microdados_pessoa_2022,mp0230,9,2022,Não aplicável
+microdados_pessoa_2022,mp0260,0,2022,Não Imputado
+microdados_pessoa_2022,mp0260,1,2022,Imputado
+microdados_pessoa_2022,mp0260,9,2022,Não aplicável
+microdados_pessoa_2022,mp0270,0,2022,Não Imputado
+microdados_pessoa_2022,mp0270,1,2022,Imputado
+microdados_pessoa_2022,mp0270,9,2022,Não aplicável
+microdados_pessoa_2022,mp0280,0,2022,Não Imputado
+microdados_pessoa_2022,mp0280,1,2022,Imputado
+microdados_pessoa_2022,mp0280,9,2022,Não aplicável
+microdados_pessoa_2022,mp0290,0,2022,Não Imputado
+microdados_pessoa_2022,mp0290,1,2022,Imputado
+microdados_pessoa_2022,mp0290,9,2022,Não aplicável
+microdados_pessoa_2022,mp0300,0,2022,Não Imputado
+microdados_pessoa_2022,mp0300,1,2022,Imputado
+microdados_pessoa_2022,mp0310,0,2022,Não Imputado
+microdados_pessoa_2022,mp0310,1,2022,Imputado
+microdados_pessoa_2022,mp0320,0,2022,Não Imputado
+microdados_pessoa_2022,mp0320,1,2022,Imputado
+microdados_pessoa_2022,mp0320,9,2022,Não aplicável
+microdados_pessoa_2022,mp0330,0,2022,Não Imputado
+microdados_pessoa_2022,mp0330,1,2022,Imputado
+microdados_pessoa_2022,mp0330,9,2022,Não aplicável
+microdados_pessoa_2022,mp0350,0,2022,Não Imputado
+microdados_pessoa_2022,mp0350,1,2022,Imputado
+microdados_pessoa_2022,mp0350,9,2022,Não aplicável
+microdados_pessoa_2022,mp0360,0,2022,Não Imputado
+microdados_pessoa_2022,mp0360,1,2022,Imputado
+microdados_pessoa_2022,mp0360,9,2022,Não aplicável
+microdados_pessoa_2022,mp0410,0,2022,Não Imputado
+microdados_pessoa_2022,mp0410,1,2022,Imputado
+microdados_pessoa_2022,mp0410,9,2022,Não aplicável
+microdados_pessoa_2022,mp0411,0,2022,Não Imputado
+microdados_pessoa_2022,mp0411,1,2022,Imputado
+microdados_pessoa_2022,mp0411,9,2022,Não aplicável
+microdados_pessoa_2022,mp0420,0,2022,Não Imputado
+microdados_pessoa_2022,mp0420,1,2022,Imputado
+microdados_pessoa_2022,mp0420,9,2022,Não aplicável
+microdados_pessoa_2022,mp0430,0,2022,Não Imputado
+microdados_pessoa_2022,mp0430,1,2022,Imputado
+microdados_pessoa_2022,mp0430,9,2022,Não aplicável
+microdados_pessoa_2022,mp0440,0,2022,Não Imputado
+microdados_pessoa_2022,mp0440,1,2022,Imputado
+microdados_pessoa_2022,mp0440,9,2022,Não aplicável
+microdados_pessoa_2022,mp0450,0,2022,Não Imputado
+microdados_pessoa_2022,mp0450,1,2022,Imputado
+microdados_pessoa_2022,mp0450,9,2022,Não aplicável
+microdados_pessoa_2022,mp0460,0,2022,Não Imputado
+microdados_pessoa_2022,mp0460,1,2022,Imputado
+microdados_pessoa_2022,mp0460,9,2022,Não aplicável
+microdados_pessoa_2022,mp0480,0,2022,Não Imputado
+microdados_pessoa_2022,mp0480,1,2022,Imputado
+microdados_pessoa_2022,mp0490,0,2022,Não Imputado
+microdados_pessoa_2022,mp0490,1,2022,Imputado
+microdados_pessoa_2022,mp0490,9,2022,Não aplicável
+microdados_pessoa_2022,mp0520,0,2022,Não Imputado
+microdados_pessoa_2022,mp0520,1,2022,Imputado
+microdados_pessoa_2022,mp0520,9,2022,Não aplicável
+microdados_pessoa_2022,mp0530,0,2022,Não Imputado
+microdados_pessoa_2022,mp0530,1,2022,Imputado
+microdados_pessoa_2022,mp0530,9,2022,Não aplicável
+microdados_pessoa_2022,mp0540,0,2022,Não Imputado
+microdados_pessoa_2022,mp0540,1,2022,Imputado
+microdados_pessoa_2022,mp0540,9,2022,Não aplicável
+microdados_pessoa_2022,mp0550,0,2022,Não Imputado
+microdados_pessoa_2022,mp0550,1,2022,Imputado
+microdados_pessoa_2022,mp0550,9,2022,Não aplicável
+microdados_pessoa_2022,mp0560,0,2022,Não Imputado
+microdados_pessoa_2022,mp0560,1,2022,Imputado
+microdados_pessoa_2022,mp0560,9,2022,Não aplicável
+microdados_pessoa_2022,mp0570,0,2022,Não Imputado
+microdados_pessoa_2022,mp0570,1,2022,Imputado
+microdados_pessoa_2022,mp0570,9,2022,Não aplicável
+microdados_pessoa_2022,mp0600,0,2022,Não Imputado
+microdados_pessoa_2022,mp0600,1,2022,Imputado
+microdados_pessoa_2022,mp0600,9,2022,Não aplicável
+microdados_pessoa_2022,mp0610,0,2022,Não Imputado
+microdados_pessoa_2022,mp0610,1,2022,Imputado
+microdados_pessoa_2022,mp0610,9,2022,Não aplicável
+microdados_pessoa_2022,mp0640,0,2022,Não Imputado
+microdados_pessoa_2022,mp0640,1,2022,Imputado
+microdados_pessoa_2022,mp0640,9,2022,Não aplicável
+microdados_pessoa_2022,mp0650,0,2022,Não Imputado
+microdados_pessoa_2022,mp0650,1,2022,Imputado
+microdados_pessoa_2022,mp0660,0,2022,Não Imputado
+microdados_pessoa_2022,mp0660,1,2022,Imputado
+microdados_pessoa_2022,mp0660,9,2022,Não aplicável
+microdados_pessoa_2022,mp0670,0,2022,Não Imputado
+microdados_pessoa_2022,mp0670,1,2022,Imputado
+microdados_pessoa_2022,mp0670,9,2022,Não aplicável
+microdados_pessoa_2022,mp0680,0,2022,Não Imputado
+microdados_pessoa_2022,mp0680,1,2022,Imputado
+microdados_pessoa_2022,mp0680,9,2022,Não aplicável
+microdados_pessoa_2022,mp0690,0,2022,Não Imputado
+microdados_pessoa_2022,mp0690,1,2022,Imputado
+microdados_pessoa_2022,mp0690,9,2022,Não aplicável
+microdados_pessoa_2022,mp0700,0,2022,Não Imputado
+microdados_pessoa_2022,mp0700,1,2022,Imputado
+microdados_pessoa_2022,mp0700,9,2022,Não aplicável
+microdados_pessoa_2022,mp0710,0,2022,Não Imputado
+microdados_pessoa_2022,mp0710,1,2022,Imputado
+microdados_pessoa_2022,mp0710,9,2022,Não aplicável
+microdados_pessoa_2022,mp0720,0,2022,Não Imputado
+microdados_pessoa_2022,mp0720,1,2022,Imputado
+microdados_pessoa_2022,mp0720,9,2022,Não aplicável
+microdados_pessoa_2022,mp0730,0,2022,Não Imputado
+microdados_pessoa_2022,mp0730,1,2022,Imputado
+microdados_pessoa_2022,mp0730,9,2022,Não aplicável
+microdados_pessoa_2022,mp0740,0,2022,Não Imputado
+microdados_pessoa_2022,mp0740,1,2022,Imputado
+microdados_pessoa_2022,mp0740,9,2022,Não aplicável
+microdados_pessoa_2022,mp0800,0,2022,Não Imputado
+microdados_pessoa_2022,mp0800,1,2022,Imputado
+microdados_pessoa_2022,mp0800,9,2022,Não aplicável
+microdados_pessoa_2022,mp0810,0,2022,Não Imputado
+microdados_pessoa_2022,mp0810,1,2022,Imputado
+microdados_pessoa_2022,mp0810,9,2022,Não aplicável
+microdados_pessoa_2022,mp0840,0,2022,Não Imputado
+microdados_pessoa_2022,mp0840,1,2022,Imputado
+microdados_pessoa_2022,mp0840,9,2022,Não aplicável
+microdados_pessoa_2022,mp0850,0,2022,Não Imputado
+microdados_pessoa_2022,mp0850,1,2022,Imputado
+microdados_pessoa_2022,mp0850,9,2022,Não aplicável
+microdados_pessoa_2022,mp0860,0,2022,Não Imputado
+microdados_pessoa_2022,mp0860,1,2022,Imputado
+microdados_pessoa_2022,mp0860,9,2022,Não aplicável
+microdados_pessoa_2022,mp0870,0,2022,Não Imputado
+microdados_pessoa_2022,mp0870,1,2022,Imputado
+microdados_pessoa_2022,mp0870,9,2022,Não aplicável
+microdados_pessoa_2022,mp0880,0,2022,Não Imputado
+microdados_pessoa_2022,mp0880,1,2022,Imputado
+microdados_pessoa_2022,mp0880,9,2022,Não aplicável
+microdados_pessoa_2022,mp0890,0,2022,Não Imputado
+microdados_pessoa_2022,mp0890,1,2022,Imputado
+microdados_pessoa_2022,mp0890,9,2022,Não aplicável
+microdados_pessoa_2022,mp0900,0,2022,Não Imputado
+microdados_pessoa_2022,mp0900,1,2022,Imputado
+microdados_pessoa_2022,mp0900,9,2022,Não aplicável
+microdados_pessoa_2022,mp0990,0,2022,Não Imputado
+microdados_pessoa_2022,mp0990,1,2022,Imputado
+microdados_pessoa_2022,mp0990,9,2022,Não aplicável
+microdados_pessoa_2022,mp1000,0,2022,Não Imputado
+microdados_pessoa_2022,mp1000,1,2022,Imputado
+microdados_pessoa_2022,mp1000,9,2022,Não aplicável
+microdados_pessoa_2022,mp1010,0,2022,Não Imputado
+microdados_pessoa_2022,mp1010,1,2022,Imputado
+microdados_pessoa_2022,mp1050,0,2022,Não Imputado
+microdados_pessoa_2022,mp1050,1,2022,Imputado
+microdados_pessoa_2022,mp1050,9,2022,Não aplicável
+microdados_pessoa_2022,mp1060,0,2022,Não Imputado
+microdados_pessoa_2022,mp1060,1,2022,Imputado
+microdados_pessoa_2022,mp1060,9,2022,Não aplicável
+microdados_pessoa_2022,mp1070,0,2022,Não Imputado
+microdados_pessoa_2022,mp1070,1,2022,Imputado
+microdados_pessoa_2022,mp1070,9,2022,Não aplicável
+microdados_pessoa_2022,mp1080,0,2022,Não Imputado
+microdados_pessoa_2022,mp1080,1,2022,Imputado
+microdados_pessoa_2022,mp1080,9,2022,Não aplicável
+microdados_pessoa_2022,mp1090,0,2022,Não Imputado
+microdados_pessoa_2022,mp1090,1,2022,Imputado
+microdados_pessoa_2022,mp1090,9,2022,Não aplicável
+microdados_pessoa_2022,mp1100,0,2022,Não Imputado
+microdados_pessoa_2022,mp1100,1,2022,Imputado
+microdados_pessoa_2022,mp1100,9,2022,Não aplicável
+microdados_pessoa_2022,mp1120,0,2022,Não Imputado
+microdados_pessoa_2022,mp1120,1,2022,Imputado
+microdados_pessoa_2022,mp1120,9,2022,Não aplicável
+microdados_pessoa_2022,mp1130,0,2022,Não Imputado
+microdados_pessoa_2022,mp1130,1,2022,Imputado
+microdados_pessoa_2022,mp1130,9,2022,Não aplicável
+microdados_pessoa_2022,mp1160,0,2022,Não Imputado
+microdados_pessoa_2022,mp1160,1,2022,Imputado
+microdados_pessoa_2022,mp1160,9,2022,Não aplicável
+microdados_pessoa_2022,mp1170,0,2022,Não Imputado
+microdados_pessoa_2022,mp1170,1,2022,Imputado
+microdados_pessoa_2022,mp1170,9,2022,Não aplicável
+microdados_pessoa_2022,mp1180,0,2022,Não Imputado
+microdados_pessoa_2022,mp1180,1,2022,Imputado
+microdados_pessoa_2022,mp1180,9,2022,Não aplicável
+microdados_pessoa_2022,mp1200,0,2022,Não Imputado
+microdados_pessoa_2022,mp1200,1,2022,Imputado
+microdados_pessoa_2022,mp1200,9,2022,Não aplicável
+microdados_pessoa_2022,mp1210,0,2022,Não Imputado
+microdados_pessoa_2022,mp1210,1,2022,Imputado
+microdados_pessoa_2022,mp1210,9,2022,Não aplicável
+microdados_pessoa_2022,mp1220,0,2022,Não Imputado
+microdados_pessoa_2022,mp1220,1,2022,Imputado
+microdados_pessoa_2022,mp1220,9,2022,Não aplicável
+microdados_familia_2022,id_regiao,1,2022,Região Norte (uf=11 a 17)
+microdados_familia_2022,id_regiao,2,2022,Região Nordeste (uf=21 a 29)
+microdados_familia_2022,id_regiao,3,2022,Região Sudeste (uf=31 a 33 e 35)
+microdados_familia_2022,id_regiao,4,2022,Região Sul (uf=41 a 43)
+microdados_familia_2022,id_regiao,5,2022,Região Centro-oeste (uf=50 a 53)
+microdados_familia_2022,situacao_setor,01,2022,Área urbana de alta densidade de edificações
+microdados_familia_2022,situacao_setor,02,2022,Área urbana de baixa densidade de edificações
+microdados_familia_2022,situacao_setor,03,2022,Núcleo urbano
+microdados_familia_2022,situacao_setor,05,2022,Povoado
+microdados_familia_2022,situacao_setor,06,2022,Núcleo rural
+microdados_familia_2022,situacao_setor,07,2022,Lugarejo
+microdados_familia_2022,situacao_setor,08,2022,Área rural (exclusive aglomerados)
+microdados_familia_2022,f0130,01,2022,Domicílio particular permanente ocupado
+microdados_familia_2022,f0130,05,2022,Domicílio particular improvisado ocupado
+microdados_familia_2022,f0130,06,2022,Domicílio coletivo com morador
+microdados_familia_2022,situacao_domicilio,1,2022,Urbana
+microdados_familia_2022,situacao_domicilio,2,2022,Rural
+microdados_familia_2022,f0150,01,2022,Única
+microdados_familia_2022,f0150,02,2022,Convivente - principal
+microdados_familia_2022,f0150,03,2022,Convivente - segunda
+microdados_familia_2022,f0150,04,2022,Convivente - terceira
+microdados_familia_2022,f0150,05,2022,Convivente - quarta
+microdados_familia_2022,f0150,06,2022,Convivente - quinta
+microdados_familia_2022,f0150,07,2022,Convivente - sexta
+microdados_familia_2022,f0150,08,2022,Convivente - sétima
+microdados_familia_2022,f0150,09,2022,Convivente - oitava
+microdados_familia_2022,f0150,10,2022,Convivente - nona
+microdados_familia_2022,f0170,1,2022,Masculino
+microdados_familia_2022,f0170,2,2022,Feminino
+microdados_familia_2022,f0180,01,2022,0 a 4 anos
+microdados_familia_2022,f0180,02,2022,5 a 9 anos
+microdados_familia_2022,f0180,03,2022,10 a 14 anos
+microdados_familia_2022,f0180,04,2022,15 a 19 anos
+microdados_familia_2022,f0180,05,2022,20 a 24 anos
+microdados_familia_2022,f0180,06,2022,25 a 29 anos
+microdados_familia_2022,f0180,07,2022,30 a 34 anos
+microdados_familia_2022,f0180,08,2022,35 a 39 anos
+microdados_familia_2022,f0180,09,2022,40 a 44 anos
+microdados_familia_2022,f0180,10,2022,45 a 49 anos
+microdados_familia_2022,f0180,11,2022,50 a 54 anos
+microdados_familia_2022,f0180,12,2022,55 a 59 anos
+microdados_familia_2022,f0180,13,2022,60 a 64 anos
+microdados_familia_2022,f0180,14,2022,65 a 69 anos
+microdados_familia_2022,f0180,15,2022,70 a 74 anos
+microdados_familia_2022,f0180,16,2022,75 a 79 anos
+microdados_familia_2022,f0180,17,2022,80 anos ou mais
+microdados_familia_2022,f0180,99,2022,Ignorado
+microdados_familia_2022,f0190,1,2022,Sem instrução e fundamental incompleto
+microdados_familia_2022,f0190,2,2022,Fundamental completo e médio incompleto
+microdados_familia_2022,f0190,3,2022,Médio completo e superior incompleto
+microdados_familia_2022,f0190,4,2022,Superior completo
+microdados_familia_2022,f0200,1,2022,Branca
+microdados_familia_2022,f0200,2,2022,Preta
+microdados_familia_2022,f0200,3,2022,Amarela
+microdados_familia_2022,f0200,4,2022,Parda
+microdados_familia_2022,f0200,5,2022,Indígena
+microdados_familia_2022,f0200,9,2022,Ignorado
+microdados_familia_2022,f0210,01,2022,Casal sem filhos
+microdados_familia_2022,f0210,02,2022,Casal sem filhos e com parentes
+microdados_familia_2022,f0210,03,2022,Casal com filhos
+microdados_familia_2022,f0210,04,2022,Casal com filhos e com parentes
+microdados_familia_2022,f0210,05,2022,Mulher sem cônjuge com filhos
+microdados_familia_2022,f0210,06,2022,Mulher sem cônjuge com filhos e com parentes
+microdados_familia_2022,f0210,07,2022,Homem sem cônjuge com filhos
+microdados_familia_2022,f0210,08,2022,Homem sem cônjuge com filhos e com parentes
+microdados_familia_2022,f0210,09,2022,Mulher ou homem com dois ou mais cônjuges
+microdados_familia_2022,f0210,10,2022,Outro
+microdados_familia_2022,f0220,1,2022,Casal sem filhos
+microdados_familia_2022,f0220,2,2022,Casal com filhos
+microdados_familia_2022,f0220,3,2022,Mulher sem cônjuge com filhos
+microdados_familia_2022,f0220,4,2022,Homem sem cônjuge com filhos
+microdados_familia_2022,mf0190,0,2022,Não Imputado
+microdados_familia_2022,mf0190,1,2022,Imputado
+microdados_familia_2022,mf0200,0,2022,Não Imputado
+microdados_familia_2022,mf0200,1,2022,Imputado
+microdados_mortalidade_2022,id_regiao,1,2022,Região Norte (uf=11 a 17)
+microdados_mortalidade_2022,id_regiao,2,2022,Região Nordeste (uf=21 a 29)
+microdados_mortalidade_2022,id_regiao,3,2022,Região Sudeste (uf=31 a 33 e 35)
+microdados_mortalidade_2022,id_regiao,4,2022,Região Sul (uf=41 a 43)
+microdados_mortalidade_2022,id_regiao,5,2022,Região Centro-oeste (uf=50 a 53)
+microdados_mortalidade_2022,situacao_setor,01,2022,Área urbana de alta densidade de edificações
+microdados_mortalidade_2022,situacao_setor,02,2022,Área urbana de baixa densidade de edificações
+microdados_mortalidade_2022,situacao_setor,03,2022,Núcleo urbano
+microdados_mortalidade_2022,situacao_setor,05,2022,Povoado
+microdados_mortalidade_2022,situacao_setor,06,2022,Núcleo rural
+microdados_mortalidade_2022,situacao_setor,07,2022,Lugarejo
+microdados_mortalidade_2022,situacao_setor,08,2022,Área rural (exclusive aglomerados)
+microdados_mortalidade_2022,m0130,01,2022,Domicílio particular permanente ocupado
+microdados_mortalidade_2022,m0130,05,2022,Domicílio particular improvisado ocupado
+microdados_mortalidade_2022,m0130,06,2022,Domicílio coletivo com morador
+microdados_mortalidade_2022,situacao_domicilio,1,2022,Urbana
+microdados_mortalidade_2022,situacao_domicilio,2,2022,Rural
+microdados_mortalidade_2022,m0150,1,2022,2019
+microdados_mortalidade_2022,m0150,2,2022,2020
+microdados_mortalidade_2022,m0150,3,2022,2021
+microdados_mortalidade_2022,m0150,4,2022,2022
+microdados_mortalidade_2022,m0150,9,2022,Ignorado
+microdados_mortalidade_2022,m0160,1,2022,Masculino
+microdados_mortalidade_2022,m0160,2,2022,Feminino
+microdados_mortalidade_2022,m0160,9,2022,Ignorado
+microdados_mortalidade_2022,m0170,01,2022,0 a 4 anos
+microdados_mortalidade_2022,m0170,02,2022,5 a 9 anos
+microdados_mortalidade_2022,m0170,03,2022,10 a 14 anos
+microdados_mortalidade_2022,m0170,04,2022,15 a 19 anos
+microdados_mortalidade_2022,m0170,05,2022,20 a 24 anos
+microdados_mortalidade_2022,m0170,06,2022,25 a 29 anos
+microdados_mortalidade_2022,m0170,07,2022,30 a 34 anos
+microdados_mortalidade_2022,m0170,08,2022,35 a 39 anos
+microdados_mortalidade_2022,m0170,09,2022,40 a 44 anos
+microdados_mortalidade_2022,m0170,10,2022,45 a 49 anos
+microdados_mortalidade_2022,m0170,11,2022,50 a 54 anos
+microdados_mortalidade_2022,m0170,12,2022,55 a 59 anos
+microdados_mortalidade_2022,m0170,13,2022,60 a 64 anos
+microdados_mortalidade_2022,m0170,14,2022,65 a 69 anos
+microdados_mortalidade_2022,m0170,15,2022,70 a 74 anos
+microdados_mortalidade_2022,m0170,16,2022,75 a 79 anos
+microdados_mortalidade_2022,m0170,17,2022,80 anos ou mais
+microdados_mortalidade_2022,m0170,99,2022,Idade ao falecer ignorada
+microdados_mortalidade_2022,mm0150,0,2022,Não Imputado
+microdados_mortalidade_2022,mm0150,1,2022,Imputado
+microdados_mortalidade_2022,mm0160,0,2022,Não Imputado
+microdados_mortalidade_2022,mm0160,1,2022,Imputado
+microdados_mortalidade_2022,mm0170,0,2022,Não Imputado
+microdados_mortalidade_2022,mm0170,1,2022,Imputado

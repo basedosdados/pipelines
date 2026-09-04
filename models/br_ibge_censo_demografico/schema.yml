@@ -12411,9 +12411,12 @@ models:
         description: Total do rendimento nominal mensal das pessoas  responsáveis
           moradoras em domicílios particulares  permanentes do sexo feminino
   - name: br_ibge_censo_demografico__dicionario
-    description: Dicionário para tradução dos códigos do conjunto br_ibge_censo_demografico.
-      Para taduzir códigos compartilhados entre instituições, como id_municipio, buscar
-      por diretórios
+    description: >
+      Dicionário para tradução dos códigos do conjunto br_ibge_censo_demografico
+      (1970–2010 e 2022). Categorias 1/2/3… das variáveis de questionário ficam
+      aqui (id_tabela, nome_coluna, chave, cobertura_temporal, valor), não no
+      schema das tabelas de microdados. Para códigos compartilhados entre
+      instituições, como id_municipio e sigla_uf, buscar por diretórios.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -12434,3 +12437,914 @@ models:
         description: Cobertura Temporal
       - name: valor
         description: Valor
+# --- censo 2022 public microdata (generated) ---
+  - name: br_ibge_censo_demografico__microdados_domicilio_2022
+    description: >
+      Microdados da amostra do Censo Demográfico 2022 (acesso público): um registro
+      por domicílio. Geografia máxima é a UF. Contém apenas registros com risco de
+      revelação abaixo de 20%; idade em grupos quinquenais; variáveis quase-identificadoras
+      omitidas; subamostra de 50% dos domicílios com fração amostral de 100%.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, sigla_uf, controle]
+    columns:
+      - name: ano
+        description: >
+          Ano de referência do Censo Demográfico
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: >
+          Unidade da Federação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_regiao
+        description: >
+          Grande Região
+      - name: controle
+        description: >
+          Controle
+        tests: [not_null]
+      - name: peso_amostral
+        description: >
+          Peso Amostral (Versão acesso Público)
+      - name: situacao_setor
+        description: >
+          Situação do Setor
+      - name: d0130
+        description: >
+          Espécie da unidade visitada
+      - name: situacao_domicilio
+        description: >
+          Situação do domicílio
+      - name: d0150
+        description: >
+          Moradores do domicílio, número
+      - name: d0160
+        description: >
+          Crianças do domicílio, número
+      - name: d0170
+        description: >
+          Sexo do morador responsável pelo domicílio
+      - name: d0180
+        description: >
+          Idade da pessoa responsável pelo domicílio, categoria
+      - name: d0190
+        description: >
+          Condição de ocupação do domicílio, categoria
+      - name: d0200
+        description: >
+          Tipo de espécie
+      - name: d0210
+        description: >
+          Material das paredes do domicílio, categoria
+      - name: d0220
+        description: >
+          Cômodos no domicílio, número
+      - name: d0230
+        description: >
+          Cômodos servindo de dormitório no domicílio, número
+      - name: d0240
+        description: >
+          Número de moradores por cômodo utilizado como dormitório
+      - name: d0250
+        description: >
+          Tipo de esgotamento sanitário do domicílio
+      - name: d0260
+        description: >
+          Abastecimento de água do domicílio, categoria
+      - name: d0270
+        description: >
+          Existência de banheiro ou sanitário e número de banheiros de uso exclusivo
+          do domicílio
+      - name: d0280
+        description: >
+          Banheiros de uso exclusivo com chuveiro e vaso sanitário no domicílio, inclusive
+          os localizados no terreno, número
+      - name: d0290
+        description: >
+          Acesso à rede geral de distribuição de água do domicílio, categoria
+      - name: d0300
+        description: >
+          Existência de água canalizada do domicílio, categoria
+      - name: d0310
+        description: >
+          Destino do lixo do domicílio, categoria
+      - name: d0320
+        description: >
+          Existência de máquina de lavar roupa no domicílio, categoria
+      - name: d0330
+        description: >
+          Acesso à internet, existência
+      - name: d0340
+        description: >
+          Ocorrência de óbito de morador do domicílio (de janeiro de 2019 a julho
+          de 2022), categoria
+      - name: d0350
+        description: >
+          Rendimento domiciliar
+      - name: d0360
+        description: >
+          Rendimento domiciliar per capita
+      - name: d0370
+        description: >
+          Total de homens no domicílio
+      - name: d0380
+        description: >
+          Total de mulheres no domicílio
+      - name: d0390
+        description: >
+          Total de moradores com deficiência no domicílio
+      - name: d0400
+        description: >
+          Total de moradores adultos com deficiência no domicílio
+      - name: d0410
+        description: >
+          Total de moradores crianças com deficiência no domicílio
+      - name: md0130
+        description: >
+          MARCA DE IMPUTAÇÃO NA D0130
+      - name: md0150
+        description: >
+          MARCA DE IMPUTAÇÃO NA D0150
+      - name: md0160
+        description: >
+          MARCA DE IMPUTAÇÃO NA D0160
+      - name: md0170
+        description: >
+          MARCA DE IMPUTAÇÃO NA D0170
+      - name: md0180
+        description: >
+          MARCA DE IMPUTAÇÃO NA D0180
+      - name: md0190
+        description: >
+          MARCA DE IMPUTAÇÃO NA D0190
+      - name: md0200
+        description: >
+          MARCA DE IMPUTAÇÃO NA D0200
+      - name: md0210
+        description: >
+          MARCA DE IMPUTAÇÃO NA D0210
+      - name: md0220
+        description: >
+          MARCA DE IMPUTAÇÃO NA D0220
+      - name: md0230
+        description: >
+          MARCA DE IMPUTAÇÃO NA D0230
+      - name: md0240
+        description: >
+          MARCA DE IMPUTAÇÃO NA D0240
+      - name: md0250
+        description: >
+          MARCA DE IMPUTAÇÃO NA D0250
+      - name: md0260
+        description: >
+          MARCA DE IMPUTAÇÃO NA D0260
+      - name: md0270
+        description: >
+          MARCA DE IMPUTAÇÃO NA D0270
+      - name: md0280
+        description: >
+          MARCA DE IMPUTAÇÃO NA D0280
+      - name: md0290
+        description: >
+          MARCA DE IMPUTAÇÃO NA D0290
+      - name: md0300
+        description: >
+          MARCA DE IMPUTAÇÃO NA D0300
+      - name: md0310
+        description: >
+          MARCA DE IMPUTAÇÃO NA D0310
+      - name: md0320
+        description: >
+          MARCA DE IMPUTAÇÃO NA D0320
+      - name: md0330
+        description: >
+          MARCA DE IMPUTAÇÃO NA D0330
+      - name: md0340
+        description: >
+          MARCA DE IMPUTAÇÃO NA D0340
+  - name: br_ibge_censo_demografico__microdados_pessoa_2022
+    description: >
+      Microdados da amostra do Censo Demográfico 2022 (acesso público): um registro
+      por pessoa. Geografia máxima é a UF. Contém apenas registros com risco de revelação
+      abaixo de 20%; idade em grupos quinquenais; variáveis quase-identificadoras
+      omitidas; subamostra de 50% dos domicílios com fração amostral de 100%.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, sigla_uf, controle, numero_ordem]
+    columns:
+      - name: ano
+        description: >
+          Ano de referência do Censo Demográfico
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: >
+          Unidade da Federação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_regiao
+        description: >
+          Grande Região
+      - name: controle
+        description: >
+          Controle
+        tests: [not_null]
+      - name: numero_ordem
+        description: >
+          Número de ordem do morador
+        tests: [not_null]
+      - name: peso_amostral
+        description: >
+          Peso Amostral (Versão acesso Público)
+      - name: situacao_setor
+        description: >
+          Situação do Setor
+      - name: p0130
+        description: >
+          Espécie da unidade visitada
+      - name: situacao_domicilio
+        description: >
+          Situação do domicílio
+      - name: p0150
+        description: >
+          Sexo
+      - name: p0170
+        description: >
+          Condição no domicílio da pessoa, categoria
+      - name: p0180
+        description: >
+          Idade calculada em anos da pessoa, categoria
+      - name: p0200
+        description: >
+          Forma de declaração de idade
+      - name: p0210
+        description: >
+          Cor ou raça da pessoa, categoria
+      - name: p0220
+        description: >
+          Pessoa Indígena, categoria
+      - name: p0230
+        description: >
+          Uso da língua portuguesa no domicílio da pessoa, categoria
+      - name: p0240
+        description: >
+          Status de declaração de etnia
+      - name: p0250
+        description: >
+          Status de declaração de língua indígena
+      - name: p0260
+        description: >
+          Pessoa quilombola, categoria
+      - name: p0270
+        description: >
+          Existência e tipo de registro de nascimento da pessoa, categoria
+      - name: p0280
+        description: >
+          Convivência com cônjuge ou companheiro da pessoa, categoria
+      - name: p0290
+        description: >
+          Natureza da união, categoria
+      - name: p0300
+        description: >
+          Moradia da mãe ou madrasta no domicílio da pessoa, categoria
+      - name: p0310
+        description: >
+          Moradia do pai ou padrasto no domicílio da pessoa, categoria
+      - name: p0320
+        description: >
+          Filhos homens nascidos vivos da pessoa, número
+      - name: p0330
+        description: >
+          Filhas mulheres nascidas vivas da pessoa, número
+      - name: p0340
+        description: >
+          Filhos nascidos vivos da pessoa, número
+      - name: p0350
+        description: >
+          Filhos homens vivos da pessoa, número
+      - name: p0360
+        description: >
+          Filhas mulheres vivas da pessoa, número
+      - name: p0370
+        description: >
+          Filhos vivos da pessoa, número
+      - name: p0380
+        description: >
+          Idade calculada do último filho nascido vivo da pessoa, categoria
+      - name: p0390
+        description: >
+          Forma de declaração de idade do último filho tido nascido vivo
+      - name: p0400
+        description: >
+          Existência de filho nascido vivo no período de 12 meses, categoria
+      - name: p0410
+        description: >
+          Religião ou culto, categoria
+      - name: p0420
+        description: >
+          Existência de deficiência visual da pessoa, categoria
+      - name: p0430
+        description: >
+          Existência de deficiência auditiva da pessoa, categoria
+      - name: p0440
+        description: >
+          Existência de deficiência motora da pessoa, categoria
+      - name: p0450
+        description: >
+          Existência de dificuldade em pegar objetos da pessoa, categoria
+      - name: p0460
+        description: >
+          Existência de deficiência mental ou intelectual da pessoa, categoria
+      - name: p0470
+        description: >
+          Variável indicadora da Existência de Deficiência
+      - name: p0480
+        description: >
+          Local de nascimento da pessoa, categoria
+      - name: p0490
+        description: >
+          Unidade da Federação de nascimento da pessoa, código
+      - name: p0520
+        description: >
+          Nacionalidade da pessoa, categoria
+      - name: p0530
+        description: >
+          Moradia em outro município ou país estrangeiro da pessoa, categoria
+      - name: p0540
+        description: >
+          Ano de fixação de residência da pessoa, número
+      - name: p0550
+        description: >
+          Tempo de moradia no município da pessoa, número
+      - name: p0560
+        description: >
+          Unidade da Federação e município ou país estrangeiro de moradia anterior
+          da pessoa, categoria
+      - name: p0570
+        description: >
+          Unidade da Federação de moradia anterior da pessoa, código
+      - name: p0600
+        description: >
+          Unidade da Federação e município ou país estrangeiro de moradia há 5 anos
+          da pessoa, categoria
+      - name: p0610
+        description: >
+          Unidade da Federação de moradia há 5 anos da pessoa, código
+      - name: p0640
+        description: >
+          Alfabetização da pessoa, categoria
+      - name: p0650
+        description: >
+          Frequência escolar da pessoa, categoria
+      - name: p0660
+        description: >
+          Curso frequentado pela pessoa, categoria
+      - name: p0670
+        description: >
+          Ano do curso frequentado pela pessoa, categoria
+      - name: p0680
+        description: >
+          Série do curso frequentado pela pessoa, categoria
+      - name: p0690
+        description: >
+          Conclusão de outro curso superior de graduação da pessoa, categoria
+      - name: p0700
+        description: >
+          Curso mais elevado frequentado anteriormente da pessoa, categoria
+      - name: p0710
+        description: >
+          Duração do curso frequentado anteriormente da pessoa, categoria
+      - name: p0720
+        description: >
+          Último ano concluído com aprovação no curso frequentado anteriormente da
+          pessoa, categoria
+      - name: p0730
+        description: >
+          Última série concluída com aprovação no curso frequentado anteriormente
+          da pessoa, categoria
+      - name: p0740
+        description: >
+          Conclusão de curso frequentado anteriormente pela pessoa, categoria
+      - name: p0760
+        description: >
+          Morador, nível de instrução de ensino
+      - name: p0770
+        description: >
+          Morador, nível de instrução de ensino, compatível com o Censo Demográfico
+          de 2010
+      - name: p0780
+        description: >
+          Variável indicadora de frequência escolar em nível adequado à idade
+      - name: p0790
+        description: >
+          Anos de estudo da pessoa
+      - name: p0800
+        description: >
+          Unidade da Federação e município ou país estrangeiro da escola da pessoa,
+          categoria
+      - name: p0810
+        description: >
+          Unidade da Federação do local de estudo da pessoa, categoria
+      - name: p0840
+        description: >
+          Existência de trabalho remunerado em dinheiro da pessoa, categoria
+      - name: p0850
+        description: >
+          Existência de trabalho remunerado em produtos, mercadorias ou benefícios
+          da pessoa, categoria
+      - name: p0860
+        description: >
+          Existência de bico ou atividade ocasional remunerada da pessoa, categoria
+      - name: p0870
+        description: >
+          Existência de trabalho não remunerado como ajuda na atividade remunerada
+          de morador do domicílio da pessoa, categoria
+      - name: p0880
+        description: >
+          Existência de afastamento temporário do trabalho remunerado da pessoa, categoria
+      - name: p0890
+        description: >
+          Existência de trabalho na plantação, criação de animais ou pesca, para alimentação
+          dos moradores do domicílio, categoria
+      - name: p0900
+        description: >
+          Trabalhos da pessoa, categoria
+      - name: p0910
+        description: >
+          Pessoa de 10 anos ou mais de idade, categoria
+      - name: p0920
+        description: >
+          Pessoa de 14 anos ou mais de idade, categoria
+      - name: p0930
+        description: >
+          Pessoa de 14 anos ou mais de idade na força de trabalho, categoria
+      - name: p0940
+        description: >
+          Pessoa de 14 anos ou mais, ocupada, contribuinte de instituto de previdência
+          no trabalho principal, catogoria
+      - name: p0950
+        description: >
+          Pessoas de 14 anos ou mais ocupada, categoria
+      - name: p0960
+        description: >
+          Pessoas de 10 anos ou mais ocupada, categoria
+      - name: p0990
+        description: >
+          Posição na ocupação do trabalho principal da pessoa, categoria
+      - name: p1000
+        description: >
+          Existência de carteira de trabalho assinada no trabalho principal da pessoa,
+          categoria
+      - name: p1010
+        description: >
+          Existência de registro no CNPJ do negócio ou empresa da pessoa, categoria
+      - name: p1020
+        description: >
+          Posição na ocupação no trabalho principal, semana de referência, pessoas
+          de 10 anos ou mais
+      - name: p1050
+        description: >
+          Existência de providência para conseguir trabalho no período de 30 dias
+          da pessoa, categoria
+      - name: p1060
+        description: >
+          Disponibilidade para começar a trabalhar da pessoa, categoria
+      - name: p1070
+        description: >
+          Tipo de rendimento bruto mensal habitualmente recebido em todos os trabalhos
+          para pessoas de 10 anos ou mais
+      - name: p1080
+        description: >
+          Valor do Rendimento bruto mensal habitual de todos os trabalhos para pessoas
+          de 10 anos ou mais
+      - name: p1090
+        description: >
+          Existência de rendimento bruto mensal, Aposentadoria/Pensão/Bolsa Família/BPC/Aluguel,
+          categoria
+      - name: p1100
+        description: >
+          Rendimento bruto mensal, Aposentadoria/Pensão/Bolsa Família/BPC/Aluguel,
+          Valor
+      - name: p1110
+        description: >
+          Rendimento recebido em todas as fontes
+      - name: p1120
+        description: >
+          Unidade da Federação e município ou país estrangeiro do local de trabalho
+          da pessoa, categoria
+      - name: p1130
+        description: >
+          Unidade da Federação do local de trabalho da pessoa, código
+      - name: p1160
+        description: >
+          Retorna do trabalho para casa 3 dias ou mais na semana, categoria
+      - name: p1170
+        description: >
+          Meios de transporte de deslocamento para o local de trabalho da pessoa,
+          categoria
+      - name: p1180
+        description: >
+          Tempo em que a pessoa leva entre sua casa e o local de trabalho normalmente,
+          categoria
+      - name: p1190
+        description: >
+          Tempo do deslocamento para trabalho, calculado em minutos
+      - name: p1200
+        description: >
+          Existência de diagnóstico de autismo por profissional de saúde
+      - name: p1210
+        description: >
+          Quem prestou as informações da pessoa, categoria
+      - name: p1220
+        description: >
+          Número de ordem de quem prestou as informações da pessoa, código
+      - name: mp0150
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0150
+      - name: mp0170
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0170
+      - name: mp0180
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0180
+      - name: mp0210
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0210
+      - name: mp0230
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0230
+      - name: mp0260
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0260
+      - name: mp0270
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0270
+      - name: mp0280
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0280
+      - name: mp0290
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0290
+      - name: mp0300
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0300
+      - name: mp0310
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0310
+      - name: mp0320
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0320
+      - name: mp0330
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0330
+      - name: mp0350
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0350
+      - name: mp0360
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0360
+      - name: mp0410
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0410
+      - name: mp0411
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0411
+      - name: mp0420
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0420
+      - name: mp0430
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0430
+      - name: mp0440
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0440
+      - name: mp0450
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0450
+      - name: mp0460
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0460
+      - name: mp0480
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0480
+      - name: mp0490
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0490
+      - name: mp0520
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0520
+      - name: mp0530
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0530
+      - name: mp0540
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0540
+      - name: mp0550
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0550
+      - name: mp0560
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0560
+      - name: mp0570
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0570
+      - name: mp0600
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0600
+      - name: mp0610
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0610
+      - name: mp0640
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0640
+      - name: mp0650
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0650
+      - name: mp0660
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0660
+      - name: mp0670
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0670
+      - name: mp0680
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0680
+      - name: mp0690
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0690
+      - name: mp0700
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0700
+      - name: mp0710
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0710
+      - name: mp0720
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0720
+      - name: mp0730
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0730
+      - name: mp0740
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0740
+      - name: mp0800
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0800
+      - name: mp0810
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0810
+      - name: mp0840
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0840
+      - name: mp0850
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0850
+      - name: mp0860
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0860
+      - name: mp0870
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0870
+      - name: mp0880
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0880
+      - name: mp0890
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0890
+      - name: mp0900
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0900
+      - name: mp0990
+        description: >
+          MARCA DE IMPUTAÇÃO NA P0990
+      - name: mp1000
+        description: >
+          MARCA DE IMPUTAÇÃO NA P1000
+      - name: mp1010
+        description: >
+          MARCA DE IMPUTAÇÃO NA P1010
+      - name: mp1050
+        description: >
+          MARCA DE IMPUTAÇÃO NA P1050
+      - name: mp1060
+        description: >
+          MARCA DE IMPUTAÇÃO NA P1060
+      - name: mp1070
+        description: >
+          MARCA DE IMPUTAÇÃO NA P1070
+      - name: mp1080
+        description: >
+          MARCA DE IMPUTAÇÃO NA P1080
+      - name: mp1090
+        description: >
+          MARCA DE IMPUTAÇÃO NA P1090
+      - name: mp1100
+        description: >
+          MARCA DE IMPUTAÇÃO NA P1100
+      - name: mp1120
+        description: >
+          MARCA DE IMPUTAÇÃO NA P1120
+      - name: mp1130
+        description: >
+          MARCA DE IMPUTAÇÃO NA P1130
+      - name: mp1160
+        description: >
+          MARCA DE IMPUTAÇÃO NA P1160
+      - name: mp1170
+        description: >
+          MARCA DE IMPUTAÇÃO NA P1170
+      - name: mp1180
+        description: >
+          MARCA DE IMPUTAÇÃO NA P1180
+      - name: mp1200
+        description: >
+          MARCA DE IMPUTAÇÃO NA P1200
+      - name: mp1210
+        description: >
+          MARCA DE IMPUTAÇÃO NA P1210
+      - name: mp1220
+        description: >
+          MARCA DE IMPUTAÇÃO NA P1220
+  - name: br_ibge_censo_demografico__microdados_familia_2022
+    description: >
+      Microdados da amostra do Censo Demográfico 2022 (acesso público): um registro
+      por família. Geografia máxima é a UF. Mesmas restrições de confidencialidade
+      do arquivo público.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, sigla_uf, controle, numero_ordem]
+    columns:
+      - name: ano
+        description: >
+          Ano de referência do Censo Demográfico
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: >
+          Unidade da Federação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_regiao
+        description: >
+          Grande Região
+      - name: controle
+        description: >
+          Controle
+        tests: [not_null]
+      - name: numero_ordem
+        description: >
+          Número de ordem da Família
+        tests: [not_null]
+      - name: peso_amostral
+        description: >
+          Peso Amostral (Versão acesso Público)
+      - name: situacao_setor
+        description: >
+          Situação do Setor
+      - name: f0130
+        description: >
+          Espécie da unidade visitada
+      - name: situacao_domicilio
+        description: >
+          Situação do domicílio
+      - name: f0150
+        description: >
+          Família, identificação
+      - name: f0160
+        description: >
+          Pessoas na família, número
+      - name: f0170
+        description: >
+          Sexo do responsável pela família única ou convivente principal [Para as
+          famílias conviventes secundárias a variável ficará em branco]
+      - name: f0180
+        description: >
+          Idade em anos do responsável pela família única ou convivente principal,
+          categoria [Para as famílias conviventes secundárias a variável ficará em
+          branco]
+      - name: f0190
+        description: >
+          Nível de instrução do responsável pela família única ou convivente principal
+          [Para as famílias conviventes secundárias a variável ficará em branco]
+      - name: f0200
+        description: >
+          Cor ou raça do responsável pela família única ou convivente principal [Para
+          as famílias conviventes secundárias a variável ficará em branco]
+      - name: f0210
+        description: >
+          Família únicas e conviventes principais, tipologia [Para as famílias conviventes
+          secundárias a variável ficará em branco]
+      - name: f0220
+        description: >
+          Famílias conviventes secundárias, tipologia [Para as famílias únicas ou
+          conviventes principais a variável ficará em branco]
+      - name: f0230
+        description: >
+          Filhos menores de 10 anos ou não economicamente ativos das Famílias únicas
+          e conviventes principais, número [Para as famílias conviventes secundárias
+          a variável ficará em branco]
+      - name: f0240
+        description: >
+          Integrantes da família, homens, número
+      - name: f0250
+        description: >
+          Integrantes da família, mulheres, número
+      - name: f0260
+        description: >
+          Rendimento familiar per capita
+      - name: f0270
+        description: >
+          Rendimento familiar, participação
+      - name: mf0190
+        description: >
+          MARCA DE IMPUTAÇÃO NA F019
+      - name: mf0200
+        description: >
+          MARCA DE IMPUTAÇÃO NA F0200
+  - name: br_ibge_censo_demografico__microdados_mortalidade_2022
+    description: >
+      Microdados da amostra do Censo Demográfico 2022 (acesso público): um registro
+      por óbito de morador reportado no domicílio. Geografia máxima é a UF. Mesmas
+      restrições de confidencialidade do arquivo público.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, sigla_uf, controle, numero_ordem]
+    columns:
+      - name: ano
+        description: >
+          Ano de referência do Censo Demográfico
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: sigla_uf
+        description: >
+          Unidade da Federação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_regiao
+        description: >
+          Grande Região
+      - name: controle
+        description: >
+          Controle
+        tests: [not_null]
+      - name: numero_ordem
+        description: >
+          Número de ordem da pessoa falecida
+        tests: [not_null]
+      - name: peso_amostral
+        description: >
+          Peso Amostral (Versão acesso Público)
+      - name: situacao_setor
+        description: >
+          Situação do Setor
+      - name: m0130
+        description: >
+          Espécie da unidade visitada
+      - name: situacao_domicilio
+        description: >
+          Situação do domicílio
+      - name: m0150
+        description: >
+          Ano de ocorrência do óbito de morador do domicílio, categoria
+      - name: m0160
+        description: >
+          Sexo da pessoa falecida do domicílio, categoria
+      - name: m0170
+        description: >
+          Pessoa falecida, idade calculada, categoria
+      - name: mm0150
+        description: >
+          MARCA DE IMPUTAÇÃO NA M0150
+      - name: mm0160
+        description: >
+          MARCA DE IMPUTAÇÃO NA M0160
+      - name: mm0170
+        description: >
+          MARCA DE IMPUTAÇÃO NA M0170
+# --- end censo 2022 public microdata ---

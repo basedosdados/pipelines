@@ -1,0 +1,57 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano de referência do Censo Demográfico,,no,br_bd_diretorios_data_tempo.ano:ano,,no,"Coluna de partição; só no path hive, não no parquet",
+sigla_uf,STRING,Unidade da Federação,,no,br_bd_diretorios_brasil.uf:sigla,,no,Convertido do código IBGE de 2 dígitos para sigla_uf,D0020
+id_regiao,STRING,Grande Região,,yes,,,no,,D0010
+controle,STRING,Controle,,no,,,no,Identificador; aritmética sem sentido,D0100
+peso_amostral,FLOAT64,Peso Amostral (Versão acesso Público),,no,,,no,Peso amostral adimensional do arquivo público,D0110
+situacao_setor,STRING,Situação do Setor,,yes,,,no,,D0120
+d0130,STRING,Espécie da unidade visitada,,yes,,,no,,D0130
+situacao_domicilio,STRING,Situação do domicílio,,yes,,,no,,D0140
+d0150,INT64,"Moradores do domicílio, número",,no,,person,no,,D0150
+d0160,INT64,"Crianças do domicílio, número",,no,,person,no,,D0160
+d0170,STRING,Sexo do morador responsável pelo domicílio,,yes,,,no,,D0170
+d0180,STRING,"Idade da pessoa responsável pelo domicílio, categoria",,yes,,,no,,D0180
+d0190,STRING,"Condição de ocupação do domicílio, categoria",,yes,,,no,,D0190
+d0200,STRING,Tipo de espécie,,yes,,,no,,D0200
+d0210,STRING,"Material das paredes do domicílio, categoria",,yes,,,no,,D0210
+d0220,INT64,"Cômodos no domicílio, número",,no,,room,no,,D0220
+d0230,INT64,"Cômodos servindo de dormitório no domicílio, número",,no,,room,no,,D0230
+d0240,FLOAT64,Número de moradores por cômodo utilizado como dormitório,,no,,person,no,,D0240
+d0250,STRING,Tipo de esgotamento sanitário do domicílio,,yes,,,no,,D0250
+d0260,STRING,"Abastecimento de água do domicílio, categoria",,yes,,,no,,D0260
+d0270,STRING,Existência de banheiro ou sanitário e número de banheiros de uso exclusivo do domicílio,,yes,,,no,,D0270
+d0280,INT64,"Banheiros de uso exclusivo com chuveiro e vaso sanitário no domicílio, inclusive os localizados no terreno, número",,no,,room,no,,D0280
+d0290,STRING,"Acesso à rede geral de distribuição de água do domicílio, categoria",,yes,,,no,,D0290
+d0300,STRING,"Existência de água canalizada do domicílio, categoria",,yes,,,no,,D0300
+d0310,STRING,"Destino do lixo do domicílio, categoria",,yes,,,no,,D0310
+d0320,STRING,"Existência de máquina de lavar roupa no domicílio, categoria",,yes,,,no,,D0320
+d0330,STRING,"Acesso à internet, existência",,yes,,,no,,D0330
+d0340,STRING,"Ocorrência de óbito de morador do domicílio (de janeiro de 2019 a julho de 2022), categoria",,yes,,,no,,D0340
+d0350,INT64,Rendimento domiciliar,,no,,BRL,no,,D0350
+d0360,FLOAT64,Rendimento domiciliar per capita,,no,,BRL,no,,D0360
+d0370,INT64,Total de homens no domicílio,,no,,person,no,,D0370
+d0380,INT64,Total de mulheres no domicílio,,no,,person,no,,D0380
+d0390,INT64,Total de moradores com deficiência no domicílio,,no,,person,no,,D0390
+d0400,INT64,Total de moradores adultos com deficiência no domicílio,,no,,person,no,,D0400
+d0410,INT64,Total de moradores crianças com deficiência no domicílio,,no,,person,no,,D0410
+md0130,STRING,MARCA DE IMPUTAÇÃO NA D0130,,yes,,,no,Marca de imputação do IBGE,MD0130
+md0150,STRING,MARCA DE IMPUTAÇÃO NA D0150,,yes,,,no,Marca de imputação do IBGE,MD0150
+md0160,STRING,MARCA DE IMPUTAÇÃO NA D0160,,yes,,,no,Marca de imputação do IBGE,MD0160
+md0170,STRING,MARCA DE IMPUTAÇÃO NA D0170,,yes,,,no,Marca de imputação do IBGE,MD0170
+md0180,STRING,MARCA DE IMPUTAÇÃO NA D0180,,yes,,,no,Marca de imputação do IBGE,MD0180
+md0190,STRING,MARCA DE IMPUTAÇÃO NA D0190,,yes,,,no,Marca de imputação do IBGE,MD0190
+md0200,STRING,MARCA DE IMPUTAÇÃO NA D0200,,yes,,,no,Marca de imputação do IBGE,MD0200
+md0210,STRING,MARCA DE IMPUTAÇÃO NA D0210,,yes,,,no,Marca de imputação do IBGE,MD0210
+md0220,STRING,MARCA DE IMPUTAÇÃO NA D0220,,yes,,,no,Marca de imputação do IBGE,MD0220
+md0230,STRING,MARCA DE IMPUTAÇÃO NA D0230,,yes,,,no,Marca de imputação do IBGE,MD0230
+md0240,STRING,MARCA DE IMPUTAÇÃO NA D0240,,yes,,,no,Marca de imputação do IBGE,MD0240
+md0250,STRING,MARCA DE IMPUTAÇÃO NA D0250,,yes,,,no,Marca de imputação do IBGE,MD0250
+md0260,STRING,MARCA DE IMPUTAÇÃO NA D0260,,yes,,,no,Marca de imputação do IBGE,MD0260
+md0270,STRING,MARCA DE IMPUTAÇÃO NA D0270,,yes,,,no,Marca de imputação do IBGE,MD0270
+md0280,STRING,MARCA DE IMPUTAÇÃO NA D0280,,yes,,,no,Marca de imputação do IBGE,MD0280
+md0290,STRING,MARCA DE IMPUTAÇÃO NA D0290,,yes,,,no,Marca de imputação do IBGE,MD0290
+md0300,STRING,MARCA DE IMPUTAÇÃO NA D0300,,yes,,,no,Marca de imputação do IBGE,MD0300
+md0310,STRING,MARCA DE IMPUTAÇÃO NA D0310,,yes,,,no,Marca de imputação do IBGE,MD0310
+md0320,STRING,MARCA DE IMPUTAÇÃO NA D0320,,yes,,,no,Marca de imputação do IBGE,MD0320
+md0330,STRING,MARCA DE IMPUTAÇÃO NA D0330,,yes,,,no,Marca de imputação do IBGE,MD0330
+md0340,STRING,MARCA DE IMPUTAÇÃO NA D0340,,yes,,,no,Marca de imputação do IBGE,MD0340

@@ -295,6 +295,11 @@ project-excludes = [
   # repo root. The shared transform lives in the typed
   # pipelines/datasets/fr_meteofrance/ and is type-checked there.
   "models/fr_meteofrance/code",
+  # Same policy: br_ibge_censo_demografico 2022 onboarding code is standalone
+  # one-shot `.py` (build_*.py, clean.py, upload.py, process.py) using bare
+  # `import constants` resolved via sys.path.insert — unresolvable from the
+  # repo root. One-shot onboarding code outside the typed `pipelines/` framework.
+  "models/br_ibge_censo_demografico/code",
   # One-shot onboarding code for br_mgi_compras_publicas: standalone `.py`
   # run via `uv run` with bare imports resolved through sys.path. The shared
   # transform lives in the typed pipelines/datasets/br_mgi_compras_publicas/.

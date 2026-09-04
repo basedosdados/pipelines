@@ -1,0 +1,170 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano de referência do Censo Demográfico,,no,br_bd_diretorios_data_tempo.ano:ano,,no,"Coluna de partição; só no path hive, não no parquet",
+sigla_uf,STRING,Unidade da Federação,,no,br_bd_diretorios_brasil.uf:sigla,,no,Convertido do código IBGE de 2 dígitos para sigla_uf,P0020
+id_regiao,STRING,Grande Região,,yes,,,no,,P0010
+controle,STRING,Controle,,no,,,no,Identificador; aritmética sem sentido,P0100
+numero_ordem,STRING,Número de ordem do morador,,no,,,no,Identificador; aritmética sem sentido,P0101
+peso_amostral,FLOAT64,Peso Amostral (Versão acesso Público),,no,,,no,Peso amostral adimensional do arquivo público,P0110
+situacao_setor,STRING,Situação do Setor,,yes,,,no,,P0120
+p0130,STRING,Espécie da unidade visitada,,yes,,,no,,P0130
+situacao_domicilio,STRING,Situação do domicílio,,yes,,,no,,P0140
+p0150,STRING,Sexo,,yes,,,no,,P0150
+p0170,STRING,"Condição no domicílio da pessoa, categoria",,yes,,,no,,P0170
+p0180,STRING,"Idade calculada em anos da pessoa, categoria",,yes,,,no,,P0180
+p0200,STRING,Forma de declaração de idade,,yes,,,no,,P0200
+p0210,STRING,"Cor ou raça da pessoa, categoria",,yes,,,no,,P0210
+p0220,STRING,"Pessoa Indígena, categoria",,yes,,,no,,P0220
+p0230,STRING,"Uso da língua portuguesa no domicílio da pessoa, categoria",,yes,,,no,,P0230
+p0240,STRING,Status de declaração de etnia,,yes,,,no,,P0240
+p0250,STRING,Status de declaração de língua indígena,,yes,,,no,,P0250
+p0260,STRING,"Pessoa quilombola, categoria",,yes,,,no,,P0260
+p0270,STRING,"Existência e tipo de registro de nascimento da pessoa, categoria",,yes,,,no,,P0270
+p0280,STRING,"Convivência com cônjuge ou companheiro da pessoa, categoria",,yes,,,no,,P0280
+p0290,STRING,"Natureza da união, categoria",,yes,,,no,,P0290
+p0300,STRING,"Moradia da mãe ou madrasta no domicílio da pessoa, categoria",,yes,,,no,,P0300
+p0310,STRING,"Moradia do pai ou padrasto no domicílio da pessoa, categoria",,yes,,,no,,P0310
+p0320,INT64,"Filhos homens nascidos vivos da pessoa, número",,no,,person,no,,P0320
+p0330,INT64,"Filhas mulheres nascidas vivas da pessoa, número",,no,,person,no,,P0330
+p0340,INT64,"Filhos nascidos vivos da pessoa, número",,no,,person,no,,P0340
+p0350,INT64,"Filhos homens vivos da pessoa, número",,no,,person,no,,P0350
+p0360,INT64,"Filhas mulheres vivas da pessoa, número",,no,,person,no,,P0360
+p0370,INT64,"Filhos vivos da pessoa, número",,no,,person,no,,P0370
+p0380,STRING,"Idade calculada do último filho nascido vivo da pessoa, categoria",,yes,,,no,,P0380
+p0390,STRING,Forma de declaração de idade do último filho tido nascido vivo,,yes,,,no,,P0390
+p0400,STRING,"Existência de filho nascido vivo no período de 12 meses, categoria",,yes,,,no,,P0400
+p0410,STRING,"Religião ou culto, categoria",,yes,,,no,,P0410
+p0420,STRING,"Existência de deficiência visual da pessoa, categoria",,yes,,,no,,P0420
+p0430,STRING,"Existência de deficiência auditiva da pessoa, categoria",,yes,,,no,,P0430
+p0440,STRING,"Existência de deficiência motora da pessoa, categoria",,yes,,,no,,P0440
+p0450,STRING,"Existência de dificuldade em pegar objetos da pessoa, categoria",,yes,,,no,,P0450
+p0460,STRING,"Existência de deficiência mental ou intelectual da pessoa, categoria",,yes,,,no,,P0460
+p0470,STRING,Variável indicadora da Existência de Deficiência,,yes,,,no,,P0470
+p0480,STRING,"Local de nascimento da pessoa, categoria",,yes,,,no,,P0480
+p0490,STRING,"Unidade da Federação de nascimento da pessoa, código",,no,,,no,,P0490
+p0520,STRING,"Nacionalidade da pessoa, categoria",,yes,,,no,,P0520
+p0530,STRING,"Moradia em outro município ou país estrangeiro da pessoa, categoria",,yes,,,no,,P0530
+p0540,INT64,"Ano de fixação de residência da pessoa, número",,no,,year,no,,P0540
+p0550,INT64,"Tempo de moradia no município da pessoa, número",,no,,year,no,,P0550
+p0560,STRING,"Unidade da Federação e município ou país estrangeiro de moradia anterior da pessoa, categoria",,yes,,,no,,P0560
+p0570,STRING,"Unidade da Federação de moradia anterior da pessoa, código",,no,,,no,,P0570
+p0600,STRING,"Unidade da Federação e município ou país estrangeiro de moradia há 5 anos da pessoa, categoria",,yes,,,no,,P0600
+p0610,STRING,"Unidade da Federação de moradia há 5 anos da pessoa, código",,no,,,no,,P0610
+p0640,STRING,"Alfabetização da pessoa, categoria",,yes,,,no,,P0640
+p0650,STRING,"Frequência escolar da pessoa, categoria",,yes,,,no,,P0650
+p0660,STRING,"Curso frequentado pela pessoa, categoria",,yes,,,no,,P0660
+p0670,STRING,"Ano do curso frequentado pela pessoa, categoria",,yes,,,no,,P0670
+p0680,STRING,"Série do curso frequentado pela pessoa, categoria",,yes,,,no,,P0680
+p0690,STRING,"Conclusão de outro curso superior de graduação da pessoa, categoria",,yes,,,no,,P0690
+p0700,STRING,"Curso mais elevado frequentado anteriormente da pessoa, categoria",,yes,,,no,,P0700
+p0710,STRING,"Duração do curso frequentado anteriormente da pessoa, categoria",,yes,,,no,,P0710
+p0720,STRING,"Último ano concluído com aprovação no curso frequentado anteriormente da pessoa, categoria",,yes,,,no,,P0720
+p0730,STRING,"Última série concluída com aprovação no curso frequentado anteriormente da pessoa, categoria",,yes,,,no,,P0730
+p0740,STRING,"Conclusão de curso frequentado anteriormente pela pessoa, categoria",,yes,,,no,,P0740
+p0760,STRING,"Morador, nível de instrução de ensino",,yes,,,no,,P0760
+p0770,STRING,"Morador, nível de instrução de ensino, compatível com o Censo Demográfico de 2010",,yes,,,no,,P0770
+p0780,STRING,Variável indicadora de frequência escolar em nível adequado à idade,,yes,,,no,,P0780
+p0790,STRING,Anos de estudo da pessoa,,no,,,no,,P0790
+p0800,STRING,"Unidade da Federação e município ou país estrangeiro da escola da pessoa, categoria",,yes,,,no,,P0800
+p0810,STRING,"Unidade da Federação do local de estudo da pessoa, categoria",,no,,,no,,P0810
+p0840,STRING,"Existência de trabalho remunerado em dinheiro da pessoa, categoria",,yes,,,no,,P0840
+p0850,STRING,"Existência de trabalho remunerado em produtos, mercadorias ou benefícios da pessoa, categoria",,yes,,,no,,P0850
+p0860,STRING,"Existência de bico ou atividade ocasional remunerada da pessoa, categoria",,yes,,,no,,P0860
+p0870,STRING,"Existência de trabalho não remunerado como ajuda na atividade remunerada de morador do domicílio da pessoa, categoria",,yes,,,no,,P0870
+p0880,STRING,"Existência de afastamento temporário do trabalho remunerado da pessoa, categoria",,yes,,,no,,P0880
+p0890,STRING,"Existência de trabalho na plantação, criação de animais ou pesca, para alimentação dos moradores do domicílio, categoria",,yes,,,no,,P0890
+p0900,STRING,"Trabalhos da pessoa, categoria",,yes,,,no,,P0900
+p0910,STRING,"Pessoa de 10 anos ou mais de idade, categoria",,yes,,,no,,P0910
+p0920,STRING,"Pessoa de 14 anos ou mais de idade, categoria",,yes,,,no,,P0920
+p0930,STRING,"Pessoa de 14 anos ou mais de idade na força de trabalho, categoria",,yes,,,no,,P0930
+p0940,STRING,"Pessoa de 14 anos ou mais, ocupada, contribuinte de instituto de previdência no trabalho principal, catogoria",,yes,,,no,,P0940
+p0950,STRING,"Pessoas de 14 anos ou mais ocupada, categoria",,yes,,,no,,P0950
+p0960,STRING,"Pessoas de 10 anos ou mais ocupada, categoria",,yes,,,no,,P0960
+p0990,STRING,"Posição na ocupação do trabalho principal da pessoa, categoria",,yes,,,no,,P0990
+p1000,STRING,"Existência de carteira de trabalho assinada no trabalho principal da pessoa, categoria",,yes,,,no,,P1000
+p1010,STRING,"Existência de registro no CNPJ do negócio ou empresa da pessoa, categoria",,yes,,,no,,P1010
+p1020,STRING,"Posição na ocupação no trabalho principal, semana de referência, pessoas de 10 anos ou mais",,yes,,,no,,P1020
+p1050,STRING,"Existência de providência para conseguir trabalho no período de 30 dias da pessoa, categoria",,yes,,,no,,P1050
+p1060,STRING,"Disponibilidade para começar a trabalhar da pessoa, categoria",,yes,,,no,,P1060
+p1070,STRING,Tipo de rendimento bruto mensal habitualmente recebido em todos os trabalhos para pessoas de 10 anos ou mais,,yes,,,no,,P1070
+p1080,INT64,Valor do Rendimento bruto mensal habitual de todos os trabalhos para pessoas de 10 anos ou mais,,no,,BRL,no,,P1080
+p1090,STRING,"Existência de rendimento bruto mensal, Aposentadoria/Pensão/Bolsa Família/BPC/Aluguel, categoria",,yes,,,no,,P1090
+p1100,INT64,"Rendimento bruto mensal, Aposentadoria/Pensão/Bolsa Família/BPC/Aluguel, Valor",,no,,BRL,no,,P1100
+p1110,INT64,Rendimento recebido em todas as fontes,,no,,BRL,no,,P1110
+p1120,STRING,"Unidade da Federação e município ou país estrangeiro do local de trabalho da pessoa, categoria",,yes,,,no,,P1120
+p1130,STRING,"Unidade da Federação do local de trabalho da pessoa, código",,no,,,no,,P1130
+p1160,STRING,"Retorna do trabalho para casa 3 dias ou mais na semana, categoria",,yes,,,no,,P1160
+p1170,STRING,"Meios de transporte de deslocamento para o local de trabalho da pessoa, categoria",,yes,,,no,,P1170
+p1180,STRING,"Tempo em que a pessoa leva entre sua casa e o local de trabalho normalmente, categoria",,yes,,,no,,P1180
+p1190,INT64,"Tempo do deslocamento para trabalho, calculado em minutos",,no,,minute,no,,P1190
+p1200,STRING,Existência de diagnóstico de autismo por profissional de saúde,,yes,,,no,,P1200
+p1210,STRING,"Quem prestou as informações da pessoa, categoria",,yes,,,no,,P1210
+p1220,STRING,"Número de ordem de quem prestou as informações da pessoa, código",,no,,,no,,P1220
+mp0150,STRING,MARCA DE IMPUTAÇÃO NA P0150,,yes,,,no,Marca de imputação do IBGE,MP0150
+mp0170,STRING,MARCA DE IMPUTAÇÃO NA P0170,,yes,,,no,Marca de imputação do IBGE,MP0170
+mp0180,STRING,MARCA DE IMPUTAÇÃO NA P0180,,yes,,,no,Marca de imputação do IBGE,MP0180
+mp0210,STRING,MARCA DE IMPUTAÇÃO NA P0210,,yes,,,no,Marca de imputação do IBGE,MP0210
+mp0230,STRING,MARCA DE IMPUTAÇÃO NA P0230,,yes,,,no,Marca de imputação do IBGE,MP0230
+mp0260,STRING,MARCA DE IMPUTAÇÃO NA P0260,,yes,,,no,Marca de imputação do IBGE,MP0260
+mp0270,STRING,MARCA DE IMPUTAÇÃO NA P0270,,yes,,,no,Marca de imputação do IBGE,MP0270
+mp0280,STRING,MARCA DE IMPUTAÇÃO NA P0280,,yes,,,no,Marca de imputação do IBGE,MP0280
+mp0290,STRING,MARCA DE IMPUTAÇÃO NA P0290,,yes,,,no,Marca de imputação do IBGE,MP0290
+mp0300,STRING,MARCA DE IMPUTAÇÃO NA P0300,,yes,,,no,Marca de imputação do IBGE,MP0300
+mp0310,STRING,MARCA DE IMPUTAÇÃO NA P0310,,yes,,,no,Marca de imputação do IBGE,MP0310
+mp0320,STRING,MARCA DE IMPUTAÇÃO NA P0320,,yes,,,no,Marca de imputação do IBGE,MP0320
+mp0330,STRING,MARCA DE IMPUTAÇÃO NA P0330,,yes,,,no,Marca de imputação do IBGE,MP0330
+mp0350,STRING,MARCA DE IMPUTAÇÃO NA P0350,,yes,,,no,Marca de imputação do IBGE,MP0350
+mp0360,STRING,MARCA DE IMPUTAÇÃO NA P0360,,yes,,,no,Marca de imputação do IBGE,MP0360
+mp0410,STRING,MARCA DE IMPUTAÇÃO NA P0410,,yes,,,no,Marca de imputação do IBGE,MP0410
+mp0411,STRING,MARCA DE IMPUTAÇÃO NA P0411,,yes,,,no,Marca de imputação do IBGE,MP0411
+mp0420,STRING,MARCA DE IMPUTAÇÃO NA P0420,,yes,,,no,Marca de imputação do IBGE,MP0420
+mp0430,STRING,MARCA DE IMPUTAÇÃO NA P0430,,yes,,,no,Marca de imputação do IBGE,MP0430
+mp0440,STRING,MARCA DE IMPUTAÇÃO NA P0440,,yes,,,no,Marca de imputação do IBGE,MP0440
+mp0450,STRING,MARCA DE IMPUTAÇÃO NA P0450,,yes,,,no,Marca de imputação do IBGE,MP0450
+mp0460,STRING,MARCA DE IMPUTAÇÃO NA P0460,,yes,,,no,Marca de imputação do IBGE,MP0460
+mp0480,STRING,MARCA DE IMPUTAÇÃO NA P0480,,yes,,,no,Marca de imputação do IBGE,MP0480
+mp0490,STRING,MARCA DE IMPUTAÇÃO NA P0490,,yes,,,no,Marca de imputação do IBGE,MP0490
+mp0520,STRING,MARCA DE IMPUTAÇÃO NA P0520,,yes,,,no,Marca de imputação do IBGE,MP0520
+mp0530,STRING,MARCA DE IMPUTAÇÃO NA P0530,,yes,,,no,Marca de imputação do IBGE,MP0530
+mp0540,STRING,MARCA DE IMPUTAÇÃO NA P0540,,yes,,,no,Marca de imputação do IBGE,MP0540
+mp0550,STRING,MARCA DE IMPUTAÇÃO NA P0550,,yes,,,no,Marca de imputação do IBGE,MP0550
+mp0560,STRING,MARCA DE IMPUTAÇÃO NA P0560,,yes,,,no,Marca de imputação do IBGE,MP0560
+mp0570,STRING,MARCA DE IMPUTAÇÃO NA P0570,,yes,,,no,Marca de imputação do IBGE,MP0570
+mp0600,STRING,MARCA DE IMPUTAÇÃO NA P0600,,yes,,,no,Marca de imputação do IBGE,MP0600
+mp0610,STRING,MARCA DE IMPUTAÇÃO NA P0610,,yes,,,no,Marca de imputação do IBGE,MP0610
+mp0640,STRING,MARCA DE IMPUTAÇÃO NA P0640,,yes,,,no,Marca de imputação do IBGE,MP0640
+mp0650,STRING,MARCA DE IMPUTAÇÃO NA P0650,,yes,,,no,Marca de imputação do IBGE,MP0650
+mp0660,STRING,MARCA DE IMPUTAÇÃO NA P0660,,yes,,,no,Marca de imputação do IBGE,MP0660
+mp0670,STRING,MARCA DE IMPUTAÇÃO NA P0670,,yes,,,no,Marca de imputação do IBGE,MP0670
+mp0680,STRING,MARCA DE IMPUTAÇÃO NA P0680,,yes,,,no,Marca de imputação do IBGE,MP0680
+mp0690,STRING,MARCA DE IMPUTAÇÃO NA P0690,,yes,,,no,Marca de imputação do IBGE,MP0690
+mp0700,STRING,MARCA DE IMPUTAÇÃO NA P0700,,yes,,,no,Marca de imputação do IBGE,MP0700
+mp0710,STRING,MARCA DE IMPUTAÇÃO NA P0710,,yes,,,no,Marca de imputação do IBGE,MP0710
+mp0720,STRING,MARCA DE IMPUTAÇÃO NA P0720,,yes,,,no,Marca de imputação do IBGE,MP0720
+mp0730,STRING,MARCA DE IMPUTAÇÃO NA P0730,,yes,,,no,Marca de imputação do IBGE,MP0730
+mp0740,STRING,MARCA DE IMPUTAÇÃO NA P0740,,yes,,,no,Marca de imputação do IBGE,MP0740
+mp0800,STRING,MARCA DE IMPUTAÇÃO NA P0800,,yes,,,no,Marca de imputação do IBGE,MP0800
+mp0810,STRING,MARCA DE IMPUTAÇÃO NA P0810,,yes,,,no,Marca de imputação do IBGE,MP0810
+mp0840,STRING,MARCA DE IMPUTAÇÃO NA P0840,,yes,,,no,Marca de imputação do IBGE,MP0840
+mp0850,STRING,MARCA DE IMPUTAÇÃO NA P0850,,yes,,,no,Marca de imputação do IBGE,MP0850
+mp0860,STRING,MARCA DE IMPUTAÇÃO NA P0860,,yes,,,no,Marca de imputação do IBGE,MP0860
+mp0870,STRING,MARCA DE IMPUTAÇÃO NA P0870,,yes,,,no,Marca de imputação do IBGE,MP0870
+mp0880,STRING,MARCA DE IMPUTAÇÃO NA P0880,,yes,,,no,Marca de imputação do IBGE,MP0880
+mp0890,STRING,MARCA DE IMPUTAÇÃO NA P0890,,yes,,,no,Marca de imputação do IBGE,MP0890
+mp0900,STRING,MARCA DE IMPUTAÇÃO NA P0900,,yes,,,no,Marca de imputação do IBGE,MP0900
+mp0990,STRING,MARCA DE IMPUTAÇÃO NA P0990,,yes,,,no,Marca de imputação do IBGE,MP0990
+mp1000,STRING,MARCA DE IMPUTAÇÃO NA P1000,,yes,,,no,Marca de imputação do IBGE,MP1000
+mp1010,STRING,MARCA DE IMPUTAÇÃO NA P1010,,yes,,,no,Marca de imputação do IBGE,MP1010
+mp1050,STRING,MARCA DE IMPUTAÇÃO NA P1050,,yes,,,no,Marca de imputação do IBGE,MP1050
+mp1060,STRING,MARCA DE IMPUTAÇÃO NA P1060,,yes,,,no,Marca de imputação do IBGE,MP1060
+mp1070,STRING,MARCA DE IMPUTAÇÃO NA P1070,,yes,,,no,Marca de imputação do IBGE,MP1070
+mp1080,STRING,MARCA DE IMPUTAÇÃO NA P1080,,yes,,,no,Marca de imputação do IBGE,MP1080
+mp1090,STRING,MARCA DE IMPUTAÇÃO NA P1090,,yes,,,no,Marca de imputação do IBGE,MP1090
+mp1100,STRING,MARCA DE IMPUTAÇÃO NA P1100,,yes,,,no,Marca de imputação do IBGE,MP1100
+mp1120,STRING,MARCA DE IMPUTAÇÃO NA P1120,,yes,,,no,Marca de imputação do IBGE,MP1120
+mp1130,STRING,MARCA DE IMPUTAÇÃO NA P1130,,yes,,,no,Marca de imputação do IBGE,MP1130
+mp1160,STRING,MARCA DE IMPUTAÇÃO NA P1160,,yes,,,no,Marca de imputação do IBGE,MP1160
+mp1170,STRING,MARCA DE IMPUTAÇÃO NA P1170,,yes,,,no,Marca de imputação do IBGE,MP1170
+mp1180,STRING,MARCA DE IMPUTAÇÃO NA P1180,,yes,,,no,Marca de imputação do IBGE,MP1180
+mp1200,STRING,MARCA DE IMPUTAÇÃO NA P1200,,yes,,,no,Marca de imputação do IBGE,MP1200
+mp1210,STRING,MARCA DE IMPUTAÇÃO NA P1210,,yes,,,no,Marca de imputação do IBGE,MP1210
+mp1220,STRING,MARCA DE IMPUTAÇÃO NA P1220,,yes,,,no,Marca de imputação do IBGE,MP1220
