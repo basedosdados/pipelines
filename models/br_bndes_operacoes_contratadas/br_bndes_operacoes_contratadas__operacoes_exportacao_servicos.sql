@@ -3,7 +3,6 @@
         alias="operacoes_exportacao_servicos",
         schema="br_bndes_operacoes_contratadas",
         materialized="table",
-        labels={"project_id": "basedosdados"},
     )
 }}
 
