@@ -1,0 +1,30 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+extraction_date,DATE,Data de publicação do extrato mensal do Business Master File,,no,,,no,"Coluna de partição; data de publicação do extrato mensal, lida do cabeçalho Last-Modified do arquivo",(Last-Modified)
+ein,STRING,"Número de Identificação de Empregador (EIN, nove dígitos)",,no,,,no,,EIN
+name,STRING,Nome principal da organização,,no,,,no,,NAME
+sort_name,STRING,Linha de nome secundária,,no,,,no,"Nome fantasia, nome do capítulo ou número local (SORT_NAME)",SORT_NAME
+in_care_of_name,STRING,Nome aos cuidados de quem a correspondência é dirigida,,no,,,no,,ICO
+street,STRING,Logradouro,,no,,,no,,STREET
+city,STRING,Cidade,,no,,,no,,CITY
+state,STRING,Estado do endereço (sigla USPS),,no,,,no,Estado do endereço de declaração; fora do diretório de estados dos EUA para registros internacionais (eo_xx),STATE
+zip_code,STRING,CEP (ZIP),,no,,,no,,ZIP
+group_exemption_number,STRING,Número de isenção de grupo,,no,,,no,Número de isenção de grupo com quatro dígitos; 0000 quando não há,GROUP
+subsection_code,STRING,Subseção do Internal Revenue Code sob a qual a organização é isenta,,yes,,,no,"Subseção do IRC 501(c) (ou 40=501(d), 50=501(e), 60=501(f), 70=501(k), 71, 81, 92=4947(a)(1)); ver dicionário",SUBSECTION
+classification_code,STRING,Código(s) de classificação dentro da subseção,,no,,,no,Até quatro códigos de classificação de um dígito concatenados; o significado depende da subseção (chave do dicionário é subseção+classificação),CLASSIFICATION
+affiliation_code,STRING,"Código de afiliação (central, intermediária, independente, subordinada)",,yes,,,no,,AFFILIATION
+ruling_date,DATE,Mês da carta de decisão ou determinação que reconhece a isenção,,no,,,no,"Mês e ano da carta de determinação, armazenados como o primeiro dia do mês; nulo quando a fonte traz 000000",RULING
+deductibility_code,STRING,Se as contribuições são dedutíveis,,yes,,,no,,DEDUCTIBILITY
+foundation_code,STRING,Código de fundação (tipo de instituição de caridade pública ou fundação privada),,yes,,,no,,FOUNDATION
+activity_code,STRING,Códigos de atividade (obsoletos desde 1995),,no,,,no,Até três códigos de atividade obsoletos de três dígitos concatenados (determinações anteriores a 1995); 000000000 quando não há,ACTIVITY
+organization_code,STRING,"Tipo de organização (sociedade, trust, cooperativa, parceria, associação)",,yes,,,no,,ORGANIZATION
+status_code,STRING,Código de status da organização isenta,,yes,,,no,,STATUS
+ntee_code,STRING,Código NTEE (National Taxonomy of Exempt Entities),,yes,,,no,"Código NTEE-CC atribuído pelo IRS; o dicionário cobre o código de três caracteres, o quarto caractere (quando presente) é um sufixo do IRS",NTEE_CD
+tax_period,STRING,Período fiscal da última declaração apresentada (YYYYMM),,no,,,no,"Período fiscal da última declaração apresentada, no formato YYYYMM",TAX_PERIOD
+accounting_period_month,STRING,Mês de encerramento do exercício,,no,,,no,Mês de encerramento do exercício (MM),ACCT_PD
+filing_requirement_code,STRING,Código de obrigatoriedade de apresentação do Form 990,,yes,,,no,,FILING_REQ_CD
+pf_filing_requirement_code,STRING,Código de obrigatoriedade de apresentação do Form 990-PF,,yes,,,no,,PF_FILING_REQ_CD
+asset_code,STRING,Faixa de ativos da última declaração,,yes,,,no,,ASSET_CD
+income_code,STRING,Faixa de renda da última declaração,,yes,,,no,,INCOME_CD
+asset_amount,FLOAT64,Valor contábil do ativo total no fim do ano na última declaração,,no,,USD,no,Da declaração mais recente da série 990; nulo quando a organização não apresentou declaração,ASSET_AMT
+income_amount,FLOAT64,Valor de renda calculado pelo IRS a partir da última declaração,,no,,USD,no,Gerado pelo IRS a partir da última declaração; soma de volta itens de despesa líquidos na receita total,INCOME_AMT
+revenue_amount,FLOAT64,Receita total na última declaração Form 990 ou 990-EZ,,no,,USD,no,Da declaração mais recente da série 990; nulo quando a organização não apresentou declaração,REVENUE_AMT

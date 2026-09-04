@@ -1,0 +1,598 @@
+---
+version: 2
+models:
+  - name: au_doe_higher_education__application_offer
+    description: >
+      Candidaturas e ofertas de vaga em cursos de graduação na Austrália, por estado
+      e
+      ano do processo de admissão. Aceitações deixaram de ser publicadas após 2021,
+      e a
+      fonte mantém em paralelo uma série revista para 2019 a 2021
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - series
+            - state_abbreviation
+            - dimension
+            - dimension_value
+            - application_source
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [applicants, offers, offer_rate, acceptances]
+    columns:
+      - name: year
+        description: >
+          Ano do processo de admissão a que os dados se referem
+        tests: [not_null]
+      - name: series
+        description: >
+          Série metodológica a que a observação pertence
+      - name: state_abbreviation
+        description: >
+          Sigla do estado ou território a que os dados de candidatura se referem
+      - name: dimension
+        description: >
+          Dimensão pela qual os dados estão desagregados
+      - name: dimension_value
+        description: >
+          Categoria da dimensão a que a observação se refere
+      - name: application_source
+        description: >
+          Canal pelo qual a candidatura foi apresentada
+      - name: applicants
+        description: >
+          Número de candidatos a cursos de graduação
+      - name: offers
+        description: >
+          Número de ofertas de vaga emitidas
+      - name: offer_rate
+        description: >
+          Razão entre ofertas e candidatos
+      - name: acceptances
+        description: >
+          Número de ofertas aceitas
+  - name: au_doe_higher_education__award_course_completion
+    description: >
+      Conclusões de curso com titulação no ensino superior australiano, por instituição,
+      nível de curso, área de educação e características do estudante. Valores sujeitos
+      a perturbação de entrada
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - institution_id
+            - state_abbreviation
+            - citizenship
+            - course_level_broad
+            - course_level_detailed
+            - gender
+            - attendance_mode
+            - attendance_type
+            - special_course
+            - field_of_education_primary
+            - field_of_education_secondary
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >
+          Ano de conclusão do curso
+        tests: [not_null]
+      - name: institution_id
+        description: >
+          Instituição de ensino superior à qual os dados se referem
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__higher_education_institution')
+              field: id_higher_education_institution
+      - name: state_abbreviation
+        description: >
+          Sigla do estado ou território da instituição
+      - name: citizenship
+        description: >
+          Situação de cidadania do estudante
+      - name: course_level_broad
+        description: >
+          Nível amplo do curso concluído
+      - name: course_level_detailed
+        description: >
+          Nível detalhado do curso concluído
+      - name: gender
+        description: >
+          Gênero informado do estudante
+      - name: attendance_mode
+        description: >
+          Modalidade de frequência do estudante
+      - name: attendance_type
+        description: >
+          Tipo de frequência do estudante
+      - name: special_course
+        description: >
+          Indicador de curso de interesse especial
+      - name: field_of_education_primary
+        description: >
+          Área ampla de educação principal do curso (ASCED)
+      - name: field_of_education_secondary
+        description: >
+          Área ampla de educação secundária, para cursos combinados (ASCED)
+      - name: completions
+        description: >
+          Número de conclusões de curso com titulação
+  - name: au_doe_higher_education__equity_reference_value
+    description: >
+      Participação de cada grupo de equidade na população de referência, por estado
+      e
+      ano, usada como denominador das razões publicadas em student_equity_performance.
+      Em anos censitários a fonte publica o mesmo ano em duas bases, e ambas são
+      mantidas
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - state_abbreviation
+            - equity_group
+            - census_basis
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [census_basis]
+    columns:
+      - name: year
+        description: >
+          Ano de referência
+        tests: [not_null]
+      - name: state_abbreviation
+        description: >
+          Sigla do estado ou território a que o valor de referência se refere
+      - name: equity_group
+        description: >
+          Grupo de equidade a que o valor de referência se refere
+      - name: census_basis
+        description: >
+          Recenseamento que serve de base ao valor de referência
+      - name: reference_value
+        description: >
+          Participação do grupo na população de referência
+  - name: au_doe_higher_education__staff
+    description: >
+      Pessoal empregado por instituições de ensino superior australianas, em número
+      de
+      pessoas e equivalência em tempo integral, por classificação, função e unidade
+      organizacional. Pessoal casual efetivo é reportado com um ano de defasagem
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - institution_id
+            - state_abbreviation
+            - gender
+            - duties_classification
+            - function
+            - organisational_unit
+            - work_contract
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >
+          Ano de referência da coleta de pessoal
+        tests: [not_null]
+      - name: institution_id
+        description: >
+          Instituição de ensino superior à qual os dados se referem
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__higher_education_institution')
+              field: id_higher_education_institution
+      - name: state_abbreviation
+        description: >
+          Sigla do estado ou território da instituição
+      - name: gender
+        description: >
+          Gênero informado do funcionário
+      - name: duties_classification
+        description: >
+          Classificação das funções correntes do funcionário
+      - name: function
+        description: >
+          Função exercida pelo funcionário
+      - name: organisational_unit
+        description: >
+          Tipo de unidade organizacional de lotação
+      - name: work_contract
+        description: >
+          Tipo de vínculo de trabalho
+      - name: staff_headcount
+        description: >
+          Número de funcionários (contagem de pessoas)
+      - name: staff_fte
+        description: >
+          Equivalência em tempo integral dos funcionários
+  - name: au_doe_higher_education__student_attrition_retention_success
+    description: >
+      Taxas de evasão, retenção e sucesso de ingressantes em cursos de bacharelado
+      em
+      provedores das Tabelas A e B, por instituição e recorte de cidadania. Evasão
+      e
+      retenção são publicadas em base setorial e por provedor, que não são comparáveis
+      entre si
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - institution_id
+            - state_abbreviation
+            - student_group
+            - rate_basis
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [attrition_rate, retention_rate, success_rate]
+    columns:
+      - name: year
+        description: >
+          Ano da coorte de ingressantes a que as taxas se referem
+        tests: [not_null]
+      - name: institution_id
+        description: >
+          Instituição de ensino superior à qual os dados se referem
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__higher_education_institution')
+              field: id_higher_education_institution
+      - name: state_abbreviation
+        description: >
+          Sigla do estado ou território da instituição
+      - name: student_group
+        description: >
+          Recorte de estudantes a que as taxas se referem
+      - name: rate_basis
+        description: >
+          Base de cálculo da taxa
+      - name: attrition_rate
+        description: >
+          Proporção de ingressantes que não retornam nem concluem no ano seguinte
+      - name: retention_rate
+        description: >
+          Proporção de ingressantes que permanecem matriculados no ano seguinte
+      - name: success_rate
+        description: >
+          Proporção da carga de estudo cursada que foi concluída com aprovação
+  - name: au_doe_higher_education__student_completion_rate
+    description: >
+      Taxas de conclusão de coortes de ingressantes domésticos acompanhadas por quatro,
+      seis e nove anos, desagregadas por características do estudante e por instituição
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - cohort_start_year
+            - cohort_end_year
+            - tracking_years
+            - institution_id
+            - state_abbreviation
+            - provider_group
+            - dimension
+            - dimension_value
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - completed_rate
+            - still_enrolled_rate
+            - re_enrolled_dropped_out_rate
+            - never_returned_rate
+    columns:
+      - name: cohort_start_year
+        description: >
+          Ano de ingresso da coorte
+        tests: [not_null]
+      - name: cohort_end_year
+        description: >
+          Ano final da janela de acompanhamento da coorte
+      - name: tracking_years
+        description: >
+          Duração da janela de acompanhamento, em anos
+      - name: institution_id
+        description: >
+          Instituição de ensino superior à qual os dados se referem
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__higher_education_institution')
+              field: id_higher_education_institution
+      - name: state_abbreviation
+        description: >
+          Sigla do estado ou território da instituição
+      - name: provider_group
+        description: >
+          Conjunto de provedores a que a coorte pertence
+      - name: dimension
+        description: >
+          Dimensão pela qual a coorte está desagregada
+      - name: dimension_value
+        description: >
+          Categoria da dimensão a que a coorte se refere
+      - name: completed_rate
+        description: >
+          Proporção da coorte que concluiu o curso em qualquer ano da janela
+      - name: still_enrolled_rate
+        description: >
+          Proporção da coorte ainda matriculada ao fim da janela
+      - name: re_enrolled_dropped_out_rate
+        description: >
+          Proporção da coorte que retornou aos estudos mas evadiu novamente
+      - name: never_returned_rate
+        description: >
+          Proporção da coorte que não retornou após abandonar
+  - name: au_doe_higher_education__student_enrolment
+    description: >
+      Matrículas em cursos de ensino superior na Austrália, por instituição, nível
+      de
+      curso, área de educação e características do estudante. Compilada a partir das
+      pivot tables da coleção estatística de estudantes do Departamento de Educação.
+      Valores sujeitos a perturbação de entrada
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - institution_id
+            - state_abbreviation
+            - citizenship
+            - commencing
+            - course_level_broad
+            - course_level_detailed
+            - gender
+            - attendance_mode
+            - attendance_type
+            - special_course
+            - field_of_education_primary
+            - field_of_education_secondary
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >
+          Ano de referência da coleta de estudantes
+        tests: [not_null]
+      - name: institution_id
+        description: >
+          Instituição de ensino superior à qual os dados se referem
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__higher_education_institution')
+              field: id_higher_education_institution
+      - name: state_abbreviation
+        description: >
+          Sigla do estado ou território da instituição
+      - name: citizenship
+        description: >
+          Situação de cidadania do estudante
+      - name: commencing
+        description: >
+          Indica se o estudante iniciou o curso no ano de referência ou é continuante
+      - name: course_level_broad
+        description: >
+          Nível amplo do curso
+      - name: course_level_detailed
+        description: >
+          Nível detalhado do curso
+      - name: gender
+        description: >
+          Gênero informado do estudante
+      - name: attendance_mode
+        description: >
+          Modalidade de frequência do estudante
+      - name: attendance_type
+        description: >
+          Tipo de frequência do estudante
+      - name: special_course
+        description: >
+          Indicador de curso de interesse especial
+      - name: field_of_education_primary
+        description: >
+          Área ampla de educação principal do curso (ASCED)
+      - name: field_of_education_secondary
+        description: >
+          Área ampla de educação secundária, para cursos combinados (ASCED)
+      - name: enrolments
+        description: >
+          Número de matrículas na combinação de características
+  - name: au_doe_higher_education__student_equity_group
+    description: >
+      Estudantes domésticos por grupo de equidade, no total nacional desde 2011 e
+      por
+      instituição no ano da publicação. Grupos delimitados por classificações SEIFA
+      e
+      ASGS, cujas versões não são comparáveis entre si
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - institution_id
+            - state_abbreviation
+            - student_group
+            - equity_group
+            - equity_group_classification
+            - address_basis
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [students]
+    columns:
+      - name: year
+        description: >
+          Ano de referência
+        tests: [not_null]
+      - name: institution_id
+        description: >
+          Instituição de ensino superior à qual os dados se referem
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__higher_education_institution')
+              field: id_higher_education_institution
+      - name: state_abbreviation
+        description: >
+          Sigla do estado ou território da instituição
+      - name: student_group
+        description: >
+          Recorte de estudantes a que a contagem se refere
+      - name: equity_group
+        description: >
+          Grupo de equidade ao qual a contagem se refere
+      - name: equity_group_classification
+        description: >
+          Versão da classificação estatística usada para delimitar o grupo
+      - name: address_basis
+        description: >
+          Endereço do estudante usado para classificar o grupo
+      - name: equity_group_label
+        description: >
+          Rótulo do grupo de equidade exatamente como publicado pela fonte
+      - name: students
+        description: >
+          Número de estudantes no grupo de equidade
+  - name: au_doe_higher_education__student_equity_performance
+    description: >
+      Indicadores de desempenho por grupo de equidade em provedores das Tabelas A
+      e B,
+      incluindo taxas de acesso, participação, retenção, sucesso e obtenção de título,
+      além de contagens de ingressantes, matrículas e conclusões
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - institution_id
+            - state_abbreviation
+            - student_group
+            - equity_group
+            - address_basis
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - commencing_students
+            - enrolments
+            - award_course_completions
+            - access_rate
+            - participation_rate
+            - participation_ratio
+            - retention_rate
+            - retention_ratio
+            - success_rate
+            - success_ratio
+            - attainment_rate
+    columns:
+      - name: year
+        description: >
+          Ano de referência
+        tests: [not_null]
+      - name: institution_id
+        description: >
+          Instituição de ensino superior à qual os dados se referem
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__higher_education_institution')
+              field: id_higher_education_institution
+      - name: state_abbreviation
+        description: >
+          Sigla do estado ou território da instituição
+      - name: student_group
+        description: >
+          Recorte de estudantes a que os indicadores se referem
+      - name: equity_group
+        description: >
+          Grupo de equidade ao qual a contagem se refere
+      - name: address_basis
+        description: >
+          Endereço do estudante usado para classificar o grupo
+      - name: equity_group_label
+        description: >
+          Rótulo do grupo de equidade exatamente como publicado pela fonte
+      - name: commencing_students
+        description: >
+          Número de estudantes ingressantes do grupo
+      - name: enrolments
+        description: >
+          Número de matrículas do grupo
+      - name: award_course_completions
+        description: >
+          Número de conclusões de curso do grupo
+      - name: access_rate
+        description: >
+          Participação do grupo entre os ingressantes domésticos
+      - name: participation_rate
+        description: >
+          Participação do grupo entre todos os estudantes domésticos
+      - name: participation_ratio
+        description: >
+          Razão entre a taxa de participação do grupo e seu valor de referência
+          populacional
+      - name: retention_rate
+        description: >
+          Proporção de estudantes do grupo que permanecem matriculados no ano seguinte
+      - name: retention_ratio
+        description: >
+          Razão entre a taxa de retenção do grupo e a do total de estudantes domésticos
+      - name: success_rate
+        description: >
+          Proporção da carga de estudo do grupo concluída com aprovação
+      - name: success_ratio
+        description: >
+          Razão entre a taxa de sucesso do grupo e a do total de estudantes domésticos
+      - name: attainment_rate
+        description: >
+          Participação do grupo entre as conclusões de curso domésticas
+  - name: au_doe_higher_education__student_load
+    description: >
+      Carga de estudo equivalente em tempo integral (EFTSL) em cursos de ensino superior
+      na Austrália, por instituição, disciplina, situação de custeio e características
+      do estudante. Valores sujeitos a perturbação de entrada
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - institution_id
+            - state_abbreviation
+            - citizenship
+            - commencing
+            - course_level_broad
+            - course_level_detailed
+            - discipline
+            - gender
+            - liability_status
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >
+          Ano de referência da coleta de estudantes
+        tests: [not_null]
+      - name: institution_id
+        description: >
+          Instituição de ensino superior à qual os dados se referem
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__higher_education_institution')
+              field: id_higher_education_institution
+      - name: state_abbreviation
+        description: >
+          Sigla do estado ou território da instituição
+      - name: citizenship
+        description: >
+          Situação de cidadania do estudante
+      - name: commencing
+        description: >
+          Indica se o estudante iniciou o curso no ano de referência ou é continuante
+      - name: course_level_broad
+        description: >
+          Nível amplo do curso
+      - name: course_level_detailed
+        description: >
+          Nível detalhado do curso
+      - name: discipline
+        description: >
+          Grupo de disciplina das unidades de estudo cursadas (ASCED)
+      - name: gender
+        description: >
+          Gênero informado do estudante
+      - name: liability_status
+        description: >
+          Situação de custeio do estudante na unidade de estudo
+      - name: student_load_eftsl
+        description: >-
+          Carga de estudo equivalente em tempo integral (EFTSL)
