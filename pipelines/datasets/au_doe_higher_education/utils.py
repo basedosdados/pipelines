@@ -538,6 +538,7 @@ def to_number(value: object) -> float | None:
 
 
 def _sheet_rows(path: str | Path, sheet: str) -> list[tuple]:
+    # pyrefly: ignore [untyped-import]
     import openpyxl
 
     workbook = openpyxl.load_workbook(path, read_only=True, data_only=True)
