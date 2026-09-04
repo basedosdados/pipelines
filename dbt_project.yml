@@ -61,6 +61,9 @@ models:
     au_doe_higher_education_finances:
       +materialized: table
       +schema: au_doe_higher_education_finances
+    au_doe_higher_education:
+      +materialized: table
+      +schema: au_doe_higher_education
     au_geoscape_gnaf:
       +materialized: table
       +schema: au_geoscape_gnaf
@@ -216,6 +219,9 @@ models:
     us_hhs_nppes:
       +materialized: table
       +schema: us_hhs_nppes
+    us_irs_form990:
+      +materialized: table
+      +schema: us_irs_form990
     us_fec_campaign_finance:
       +materialized: table
       +schema: us_fec_campaign_finance
@@ -594,6 +600,9 @@ models:
     us_sec_edgar:
       +materialized: table
       +schema: us_sec_edgar
+    us_state_foreign_assistance:
+      +materialized: table
+      +schema: us_state_foreign_assistance
     us_stanford_dime:
       +materialized: table
       +schema: us_stanford_dime

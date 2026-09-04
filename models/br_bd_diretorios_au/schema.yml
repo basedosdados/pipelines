@@ -1115,27 +1115,38 @@ models:
       - name: quality_indicator
         description: Indicador geral de qualidade da correspondência (Good, Acceptable,
           Poor)
-  - name: br_bd_diretorios_au__higher_education_provider
+  - name: br_bd_diretorios_au__higher_education_institution
     description: >
-      Diretório dos provedores de ensino superior da Austrália, com o código
-      atribuído pelo Departamento de Educação, nome, estado de sede e grupo
-      universitário. Construído a partir da Higher Education Research Data
-      Collection (HERDC), a única fonte que publica o código do provedor.
+      Diretório de instituições de ensino superior australianas aprovadas sob o Higher
+      Education Support Act 2003, com categoria de provedor, estado sede e código
+      de
+      provedor
     tests:
       - dbt_utils.unique_combination_of_columns:
           tags: [diretorio]
-          combination_of_columns: [hep_code]
+          combination_of_columns: [id_higher_education_institution]
     columns:
-      - name: hep_code
-        description: Código do provedor de ensino superior atribuído pelo Departamento
-          de Educação da Austrália
-        tests: [not_null]
+      - name: id_higher_education_institution
+        description: >
+          Identificador da instituição de ensino superior australiana
+        tests: [not_null, unique]
       - name: name
-        description: Nome do provedor de ensino superior
-        tests: [not_null]
-      - name: abbreviation_state
-        description: Sigla do estado ou território onde o provedor está sediado (NSW,
-          VIC, QLD, SA, WA, TAS, NT, ACT, OTHER)
+        description: >
+          Nome oficial da instituição
+      - name: state_abbreviation
+        description: >
+          Sigla do estado ou território sede da instituição
+      - name: provider_category
+        description: >
+          Categoria do provedor sob o Higher Education Support Act 2003
+      - name: is_aggregate
+        description: >
+          Indica se o registro representa um agregado de instituições e não uma
+          instituição individual
+      - name: provider_code
+        description: >-
+          Código do provedor atribuído pelo Departamento de Educação
       - name: cohort
-        description: Grupo de universidades ao qual o provedor pertence (Go8, ATN,
-          IRU, RUN, non-aligned)
+        description: >-
+          Grupo de universidades ao qual o provedor pertence (Go8, ATN, IRU,
+          RUN, non-aligned)

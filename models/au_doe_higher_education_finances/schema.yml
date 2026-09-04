@@ -10,7 +10,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - year
-            - hep_code
+            - institution_id
             - institution_type
             - line_number
       - not_null_proportion_multiple_columns:
@@ -24,15 +24,14 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
-      - name: hep_code
+      - name: institution_id
         description: >-
-          Code of the higher education provider assigned by the Department of
-          Education
+          Identifier of the Australian higher education institution
         tests:
           - not_null
           - relationships:
-              to: ref('br_bd_diretorios_au__higher_education_provider')
-              field: hep_code
+              to: ref('br_bd_diretorios_au__higher_education_institution')
+              field: id_higher_education_institution
       - name: institution_type
         description: >-
           Sector of the provider the amount covers: whole institution, its higher
@@ -63,7 +62,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - year
-            - hep_code
+            - institution_id
             - institution_type
             - line_number
       - not_null_proportion_multiple_columns:
@@ -77,15 +76,14 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
-      - name: hep_code
+      - name: institution_id
         description: >-
-          Code of the higher education provider assigned by the Department of
-          Education
+          Identifier of the Australian higher education institution
         tests:
           - not_null
           - relationships:
-              to: ref('br_bd_diretorios_au__higher_education_provider')
-              field: hep_code
+              to: ref('br_bd_diretorios_au__higher_education_institution')
+              field: id_higher_education_institution
       - name: institution_type
         description: >-
           Sector of the provider the amount covers: whole institution, its higher
@@ -116,7 +114,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - year
-            - hep_code
+            - institution_id
             - institution_type
             - line_number
       - not_null_proportion_multiple_columns:
@@ -130,15 +128,14 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
-      - name: hep_code
+      - name: institution_id
         description: >-
-          Code of the higher education provider assigned by the Department of
-          Education
+          Identifier of the Australian higher education institution
         tests:
           - not_null
           - relationships:
-              to: ref('br_bd_diretorios_au__higher_education_provider')
-              field: hep_code
+              to: ref('br_bd_diretorios_au__higher_education_institution')
+              field: id_higher_education_institution
       - name: institution_type
         description: >-
           Sector of the provider the amount covers: whole institution, its higher
@@ -170,7 +167,7 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - year
-            - hep_code
+            - institution_id
             - institution_type
             - line_number
       - not_null_proportion_multiple_columns:
@@ -184,15 +181,14 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
-      - name: hep_code
+      - name: institution_id
         description: >-
-          Code of the higher education provider assigned by the Department of
-          Education
+          Identifier of the Australian higher education institution
         tests:
           - not_null
           - relationships:
-              to: ref('br_bd_diretorios_au__higher_education_provider')
-              field: hep_code
+              to: ref('br_bd_diretorios_au__higher_education_institution')
+              field: id_higher_education_institution
       - name: institution_type
         description: >-
           Sector of the provider the amount covers: whole institution, its higher
@@ -223,7 +219,11 @@ models:
       that year.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, hep_code, category, sub_category]
+          combination_of_columns:
+            - year
+            - institution_id
+            - category
+            - sub_category
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -235,15 +235,14 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
-      - name: hep_code
+      - name: institution_id
         description: >-
-          Code of the higher education provider assigned by the Department of
-          Education
+          Identifier of the Australian higher education institution
         tests:
           - not_null
           - relationships:
-              to: ref('br_bd_diretorios_au__higher_education_provider')
-              field: hep_code
+              to: ref('br_bd_diretorios_au__higher_education_institution')
+              field: id_higher_education_institution
       - name: category
         description: >-
           HERDC research income category, from 1 to 4
