@@ -765,3 +765,64 @@ path is untouched.
 This is a local test of the guard, not an end-to-end run: no flow has yet
 executed the guard on the worker. The next daily run is what confirms
 `contrato` logs `cleared 1 partition(s): ano=2026`.
+
+## The BD Pro window keys off a date column, not `ano` (2026-09-04)
+
+The daily tables were specced `PartBdpro(free_lag=6 months)` with
+`date_column=YearOnly(col="ano")`. That cannot express a six-month boundary.
+The row access policy is built as `DATE(ano,1,1) <= free_end`, so every row of
+2026 reads as 2026-01-01 regardless of when it actually happened, and the
+window can only ever fall on a year boundary.
+
+It was also *inert on four of the seven tables*. The window is anchored on the
+table's max date, and `ata_registro_preco*` and `contrato*` had max `ano=2027`
+-- from the leaked future-vigencia rows, 1 to 196 of them. So their pro window
+was 2027 and the whole of 2026, the year that matters, stayed free.
+
+Each daily table has a real date column, so the spec now uses
+`DateOnly` + `DateFormat.YEAR_MD`:
+
+| table | column | why |
+|---|---|---|
+| `contratacao` | `data_publicacao_pncp` | only publication date it has |
+| `contratacao_item` | `data_inclusao_pncp` | " |
+| `contratacao_item_resultado` | `data_resultado_pncp` | " |
+| `ata_registro_preco`, `_item` | `data_hora_inclusao` | when recorded |
+| `contrato`, `contrato_item` | `data_hora_inclusao` | when recorded |
+
+For atas and contratos the choice was between `data_vigencia_inicial` and
+`data_hora_inclusao`. Vigencia looks *forward*: a contract recorded today to
+start in 2028 would sit behind the paywall for two years, while one signed in
+2023 starting next month would be paid. Keying on when the row was recorded
+paywalls what is actually new, and cannot be sidestepped by future-dating.
+
+This also fixes the leak's effect for free. `extract_last_date_from_bq` adds
+`WHERE <col> <= CURRENT_DATE()` for `{'date'}` columns -- and only for those --
+so a future-dated row can no longer drag the anchor forward. The same failure
+cost `us_fec_campaign_finance` its paid window once, shrinking it from 8,614,269
+rows to 25,277.
+
+**Effect**, measured on the live prod tables:
+
+| | boundary | rows paid | share |
+|---|---|---|---|
+| before (`ano`) | year granularity | inert on 4 of 7 tables | -- |
+| after | ~2026-01-24 | 3,220,258 | 16.0% |
+
+Every table now carries a real 13.7-18.9% pro share, and no row has a NULL in
+its window column -- a NULL would fail `col <= date` and hide the row from the
+public entirely.
+
+**The anchor is the latest data, not today.** `free_end = source_end - 6 months`
+where `source_end` is the table's max date, currently 2026-07-23/25 because the
+source lags about six weeks. Anchoring on today instead would put the boundary
+at 2026-03-04 and pay 2,594,386 rows (12.9%); it would also mean editing
+framework code shared by every dataset, and it degrades if the source stalls,
+since the free window would keep advancing until everything was free. Decision
+2026-09-04: keep the framework anchor.
+
+Prod coverage ranges were rewritten to day granularity to match, free and pro
+disjoint with pro starting the day after free ends, `is_closed` False/True
+respectively -- verified directly against the backend, since the MCP's
+`get_dataset` does not return month/day and makes correct ranges look like they
+overlap.
