@@ -129,3 +129,30 @@ carries `cohort` (Go8, ATN, IRU, RUN, non-aligned), which this one does not.
 **These should be consolidated into one directory.** Doing so means changing a
 dataset that is already merged and live in production, so it is left as a
 decision for review rather than made here.
+
+## Recurring pipeline
+
+`pipelines/datasets/au_doe_higher_education/` refreshes the dataset annually.
+The transform is the same code this bootstrap uses — `utils.build_all` — so the
+two cannot drift.
+
+**Discovery.** Every download URL carries an opaque node id that changes with
+each release, so nothing can be hardcoded. Only the resource slug is stable and
+it carries the year, so the flow walks landing page → newest slug → resource
+page → download href. Staff data sits one level deeper, under a per-year
+sub-page.
+
+**The refresh is partition-scoped, not a rebuild.** This is the part that is
+easy to get wrong. The pivot releases carry a rolling five-to-seven year window
+and the department delists older ones: 2016-2019 exists only because the
+onboarding stacked vintages that can no longer be downloaded. A run that
+rebuilt the tables from the current release would silently drop those years. So
+the flow replaces exactly the partitions it rebuilt and leaves the rest alone,
+deleting those staging prefixes first because `upload_to_gcs` appends.
+
+For the same reason the institution directory is **merged, not replaced**: it
+is unpartitioned, and rewriting it from one release's institutions would orphan
+the foreign keys in the older partitions.
+
+All tables are annual, well below the monthly threshold for a BD Pro window, so
+every one is `AllFree`.
