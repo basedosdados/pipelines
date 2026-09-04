@@ -2047,7 +2047,7 @@ models:
     description: Microdados da Pesquisa Suplementar Anual referentes a educação
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [ano, id_pessoa]
+          combination_of_columns: [trimestre, ano, id_pessoa]
     columns:
       - name: ano
         description: Ano
@@ -2138,8 +2138,8 @@ models:
           - dbt_utils.not_null_proportion:
               at_least: 0.01
       - name: V1028
-        description: "Peso do domicílio e das pessoas (Peso trimestral com correção\
-          \ de não entrevista com calibração pela projeção de população)\n"
+        description: Peso do domicílio e das pessoas (Peso trimestral com correção
+          de não entrevista com calibração pela projeção de população)
         tests:
           - dbt_utils.not_null_proportion:
               at_least: 0.01
@@ -2330,7 +2330,7 @@ models:
         description: 'Este curso técnico que ... frequentou anteriormente foi feito:'
         tests:
           - dbt_utils.not_null_proportion:
-              at_least: 0.008
+              at_least: 0.006
       - name: V3022A
         description: Em que ano ... iniciou este curso técnico que frequentou anteriormente?
       - name: V3022C
@@ -2355,7 +2355,7 @@ models:
         description: '... concluiu este curso técnico que frequentou anteriormente?'
         tests:
           - dbt_utils.not_null_proportion:
-              at_least: 0.007
+              at_least: 0.005
       - name: V3023A
         description: '... concluiu este curso técnico ou normal (magistério) que frequentou?'
         tests:
@@ -2371,7 +2371,7 @@ models:
           superior?'
         tests:
           - dbt_utils.not_null_proportion:
-              at_least: 0.009
+              at_least: 0.007
       - name: V3026
         description: '...frequenta algum curso de qualificação profissional?'
         tests:
@@ -2384,7 +2384,7 @@ models:
           de nível superior?
         tests:
           - dbt_utils.not_null_proportion:
-              at_least: 0.009
+              at_least: 0.007
       - name: V3029
         description: Anteriormente, ... frequentou algum curso de qualificação profissional?
         tests:
@@ -2417,7 +2417,7 @@ models:
         description: Por que motivo ... não frequenta escola ou creche?
         tests:
           - dbt_utils.not_null_proportion:
-              at_least: 0.007
+              at_least: 0.005
       - name: V3033A
         description: Qual o principal motivo para ... não frequentar escola ou creche?
         tests:

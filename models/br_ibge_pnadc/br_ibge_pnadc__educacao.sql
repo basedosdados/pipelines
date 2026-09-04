@@ -6,12 +6,13 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2016, "end": 2024, "interval": 1},
+            "range": {"start": 2016, "end": 2030, "interval": 1},
         },
         cluster_by="sigla_uf",
         labels={"project_id": "basedosdados"},
     )
 }}
+
 select
     safe_cast(ano as int64) ano,
     safe_cast(trimestre as int64) trimestre,
