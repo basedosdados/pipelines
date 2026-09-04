@@ -1,0 +1,92 @@
+{
+  "organization": {
+    "name_pt": "Organizações isentas (BMF)",
+    "name_en": "Exempt organizations (BMF)",
+    "name_es": "Organizaciones exentas (BMF)",
+    "description_pt": "Cadastro de todas as organizações isentas de imposto de renda nos Estados Unidos, extraído mensalmente do Business Master File (BMF) do IRS, com uma linha por EIN em cada extração mensal. Traz nome, endereço, subseção do Internal Revenue Code, código NTEE, data da carta de determinação, código de fundação, obrigatoriedade de declaração e os totais de ativo, renda e receita da última declaração apresentada. Cada extração é uma fotografia completa do cadastro e as extrações são empilhadas, formando um painel. Não inclui igrejas e outras organizações que não precisam solicitar reconhecimento de isenção nem organizações com isenção revogada.",
+    "description_en": "Registry of every organization exempt from US federal income tax, extracted monthly from the IRS Business Master File (BMF), with one row per EIN in each monthly extraction. Carries name, address, Internal Revenue Code subsection, NTEE code, determination-letter date, foundation code, filing requirement and the asset, income and revenue totals from the latest return filed. Each extraction is a full photograph of the registry and extractions are stacked into a panel. Churches and other organizations not required to apply for recognition of exemption, and organizations whose exemption was revoked, are absent.",
+    "description_es": "Registro de todas las organizaciones exentas del impuesto federal sobre la renta en Estados Unidos, extraído mensualmente del Business Master File (BMF) del IRS, con una fila por EIN en cada extracción mensual. Incluye nombre, dirección, subsección del Internal Revenue Code, código NTEE, fecha de la carta de determinación, código de fundación, obligación de presentación y los totales de activo, ingresos y receitas de la última declaración presentada. Cada extracción es una fotografía completa del registro y las extracciones se apilan formando un panel. No incluye iglesias ni otras organizaciones que no deben solicitar reconocimiento de exención, ni organizaciones con exención revocada.",
+    "unique_key": [
+      "extraction_date",
+      "ein"
+    ],
+    "not_null": [
+      "extraction_date",
+      "ein"
+    ]
+  },
+  "return_financial": {
+    "name_pt": "Declarações (Form 990 e 990-EZ)",
+    "name_en": "Returns (Form 990 and 990-EZ)",
+    "name_es": "Declaraciones (Form 990 y 990-EZ)",
+    "description_pt": "Uma linha por declaração anual eletrônica Form 990 ou 990-EZ, identificada por EIN, ano fiscal e tipo de formulário, com o cabeçalho da declaração (período fiscal, endereço, status de isenção, forma jurídica, missão) e os totais financeiros da Parte I: receitas por fonte, despesas por categoria, ativo, passivo e patrimônio líquido no início e no fim do ano, número de empregados, voluntários e membros do conselho. Os valores são extraídos do XML do IRS por meio da concordância do Nonprofit Open Data Collective, que unifica os caminhos das várias versões do esquema. Cobre apenas declarações eletrônicas: declarações em papel não constam dos dados do IRS, e a apresentação eletrônica só se tornou obrigatória para todos os declarantes a partir dos anos fiscais iniciados após 1 de julho de 2019; declarações 990-PF e 990-T não estão incluídas nesta fase. Quando há mais de uma declaração para o mesmo EIN, ano fiscal e formulário (retificações), apenas a mais recente é mantida. Cerca de 176 mil declarações indexadas pelo IRS no ano de divulgação de 2022 (34% dos Form 990 e 990-EZ daquele ano) não constam dos arquivos ZIP do IRS e, portanto, também não constam desta tabela.",
+    "description_en": "One row per electronically filed annual Form 990 or 990-EZ return, identified by EIN, tax year and form type, with the return header (tax period, address, exempt status, legal form, mission) and the Part I financial totals: revenue by source, expenses by category, assets, liabilities and net assets at the beginning and end of the year, and counts of employees, volunteers and board members. Values are read from the IRS XML through the Nonprofit Open Data Collective concordance, which unifies the paths across schema versions. Covers e-filed returns only: paper returns are absent from the IRS data, and electronic filing became mandatory for all filers only for tax years beginning after 1 July 2019; Form 990-PF and 990-T returns are not included in this phase. When more than one return exists for the same EIN, tax year and form (amendments), only the most recent is kept. About 176,000 returns indexed by the IRS in release year 2022 (34% of that year's Form 990 and 990-EZ filings) are absent from the IRS ZIP files and therefore from this table.",
+    "description_es": "Una fila por declaración anual electrónica Form 990 o 990-EZ, identificada por EIN, año fiscal y tipo de formulario, con el encabezado de la declaración (período fiscal, dirección, estado de exención, forma jurídica, misión) y los totales financieros de la Parte I: ingresos por fuente, gastos por categoría, activo, pasivo y activos netos al inicio y al final del año, y número de empleados, voluntarios y miembros del consejo. Los valores se extraen del XML del IRS mediante la concordancia del Nonprofit Open Data Collective, que unifica las rutas de las distintas versiones del esquema. Cubre solo declaraciones electrónicas: las declaraciones en papel no figuran en los datos del IRS, y la presentación electrónica solo fue obligatoria para todos los declarantes a partir de los años fiscales iniciados después del 1 de julio de 2019; las declaraciones 990-PF y 990-T no se incluyen en esta fase. Cuando existe más de una declaración para el mismo EIN, año fiscal y formulario (rectificaciones), solo se conserva la más reciente. Cerca de 176 mil declaraciones indexadas por el IRS en el año de publicación 2022 (34% de los Form 990 y 990-EZ de ese año) no figuran en los archivos ZIP del IRS y, por lo tanto, tampoco en esta tabla.",
+    "unique_key": [
+      "year",
+      "ein",
+      "form_type"
+    ],
+    "not_null": [
+      "year",
+      "ein",
+      "form_type",
+      "object_id"
+    ]
+  },
+  "compensation": {
+    "name_pt": "Remuneração de dirigentes",
+    "name_en": "Officer compensation",
+    "name_es": "Remuneración de directivos",
+    "description_pt": "Uma linha por pessoa listada na Parte VII, Seção A, do Form 990 (dirigentes, diretores, curadores, empregados-chave e empregados mais bem remunerados) ou na Parte IV do Form 990-EZ, por declaração: nome, cargo, horas semanais, tipo de cargo e remuneração declarável paga pela organização, por organizações relacionadas e outras remunerações estimadas. Cobre apenas declarações eletrônicas Form 990 e 990-EZ; declarações em papel e Form 990-PF não constam. Restrita às declarações mantidas na tabela de declarações (a mais recente por EIN, ano fiscal e formulário). Cerca de 176 mil declarações indexadas pelo IRS no ano de divulgação de 2022 (34% dos Form 990 e 990-EZ daquele ano) não constam dos arquivos ZIP do IRS e, portanto, também não constam desta tabela.",
+    "description_en": "One row per person listed in Form 990 Part VII Section A (officers, directors, trustees, key employees and highest-compensated employees) or Form 990-EZ Part IV, per return: name, title, weekly hours, position type and reportable compensation from the organization, from related organizations and estimated other compensation. Covers e-filed Form 990 and 990-EZ returns only; paper returns and Form 990-PF are absent. Restricted to the returns kept in the returns table (the most recent per EIN, tax year and form). About 176,000 returns indexed by the IRS in release year 2022 (34% of that year's Form 990 and 990-EZ filings) are absent from the IRS ZIP files and therefore from this table.",
+    "description_es": "Una fila por persona listada en la Parte VII, Sección A, del Form 990 (directivos, directores, fiduciarios, empleados clave y empleados mejor remunerados) o en la Parte IV del Form 990-EZ, por declaración: nombre, cargo, horas semanales, tipo de cargo y remuneración declarable pagada por la organización, por organizaciones relacionadas y otras remuneraciones estimadas. Cubre solo declaraciones electrónicas Form 990 y 990-EZ; las declaraciones en papel y el Form 990-PF no figuran. Restringida a las declaraciones conservadas en la tabla de declaraciones (la más reciente por EIN, año fiscal y formulario). Cerca de 176 mil declaraciones indexadas por el IRS en el año de publicación 2022 (34% de los Form 990 y 990-EZ de ese año) no figuran en los archivos ZIP del IRS y, por lo tanto, tampoco en esta tabla.",
+    "unique_key": [
+      "year",
+      "ein",
+      "form_type",
+      "line_number"
+    ],
+    "not_null": [
+      "year",
+      "ein",
+      "form_type",
+      "object_id",
+      "line_number"
+    ]
+  },
+  "revocation": {
+    "name_pt": "Revogações automáticas de isenção",
+    "name_en": "Automatic revocations of exemption",
+    "name_es": "Revocaciones automáticas de exención",
+    "description_pt": "Lista cumulativa de organizações cuja isenção foi revogada automaticamente por não apresentarem a declaração anual exigida por três anos consecutivos, publicada mensalmente pelo IRS, com uma linha por EIN e data de revogação: nome, endereço, subseção de isenção, data de vigência, data de publicação e data de restabelecimento da isenção, quando houve. Substituída integralmente a cada atualização.",
+    "description_en": "Cumulative list of organizations whose exemption was automatically revoked for failing to file the required annual return for three consecutive years, published monthly by the IRS, with one row per EIN and revocation date: name, address, exemption subsection, effective date, posting date and reinstatement date when exemption was later restored. Fully replaced at each update.",
+    "description_es": "Lista acumulativa de organizaciones cuya exención fue revocada automáticamente por no presentar la declaración anual exigida durante tres años consecutivos, publicada mensualmente por el IRS, con una fila por EIN y fecha de revocación: nombre, dirección, subsección de exención, fecha de vigencia, fecha de publicación y fecha de restablecimiento de la exención, cuando la hubo. Se reemplaza íntegramente en cada actualización.",
+    "unique_key": [
+      "ein",
+      "revocation_date"
+    ],
+    "not_null": [
+      "ein",
+      "revocation_date"
+    ]
+  },
+  "dicionario": {
+    "name_pt": "Dicionário",
+    "name_en": "Dictionary",
+    "name_es": "Diccionario",
+    "description_pt": "Dicionário de códigos das colunas categóricas: tipo de formulário, subseção e classificação do Internal Revenue Code, códigos de afiliação, dedutibilidade, fundação, tipo de organização, status, faixas de ativo e renda, obrigatoriedade de declaração e códigos NTEE, conforme a folha de informações do EO BMF do IRS e a taxonomia NTEE do NCCS.",
+    "description_en": "Code dictionary for the categorical columns: form type, Internal Revenue Code subsection and classification, affiliation, deductibility, foundation, organization type, status, asset and income classes, filing requirement codes and NTEE codes, per the IRS EO BMF information sheet and the NCCS NTEE taxonomy.",
+    "description_es": "Diccionario de códigos de las columnas categóricas: tipo de formulario, subsección y clasificación del Internal Revenue Code, códigos de afiliación, deducibilidad, fundación, tipo de organización, estado, tramos de activo e ingresos, obligación de presentación y códigos NTEE, según la hoja informativa del EO BMF del IRS y la taxonomía NTEE del NCCS.",
+    "unique_key": [
+      "id_tabela",
+      "nome_coluna",
+      "chave"
+    ],
+    "not_null": [
+      "id_tabela",
+      "nome_coluna",
+      "chave"
+    ]
+  }
+}
