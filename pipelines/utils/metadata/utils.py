@@ -166,6 +166,59 @@ def extract_last_date_from_bq(
         raise
 
 
+def extract_first_date_from_bq(
+    dataset_id: str,
+    table_id: str,
+    date_format: str,
+    date_column: dict,
+    billing_project_id: str,
+    project_id: str = "basedosdados",
+) -> str:
+    """Extrai o início real da série (MIN da coluna de cobertura).
+
+    Simétrica a `extract_last_date_from_bq`, mas para o começo da cobertura. É
+    usada só no cálculo do range free de `part_bdpro` (sempre histórico), então
+    não tem o ramo non-historical.
+
+    Filtra valores anteriores a 1900 em qualquer granularidade — um ano < 1900
+    não é sequer representável em `DateTimeRangeInput` (`Year >= 1900`) e
+    derrubaria a escrita — e, só para colunas de data (`{'date'}`), também
+    valores futuros, pelo mesmo motivo do MAX (um typo distorceria a cobertura).
+    Para colunas ano/ano-mês/ano-tri um rótulo futuro pode ser legítimo (ano
+    orçamentário, safra), então lá não se filtra o teto.
+
+    Returns:
+        str: a primeira data no formato "%Y", "%Y-%m" ou "%Y-%m-%d".
+    """
+    query_date_column = format_date_column(date_column)
+
+    date_filter = f"\n        WHERE {query_date_column} >= DATE '1900-01-01'"
+    if date_column.keys() == {"date"}:
+        date_filter += f"\n        AND {query_date_column} <= CURRENT_DATE()"
+
+    try:
+        query_bd = f"""
+        SELECT
+        MIN({query_date_column}) as min_date
+        FROM
+        `{project_id}.{dataset_id}.{table_id}`{date_filter}
+        """
+        log(query_bd)
+        t = bd.read_sql(
+            query=query_bd,
+            billing_project_id=billing_project_id,
+            from_file=True,
+        )
+
+        first_date = t["min_date"][0].strftime(date_format)
+        log(f"Primeira data: {first_date}")
+
+        return first_date
+    except Exception as e:
+        log(f"An error occurred while extracting the first date: {e!s}")
+        raise
+
+
 def format_date_column(date_column: dict) -> str:
     if date_column.keys() == {"date"}:
         query_date_column = date_column["date"]

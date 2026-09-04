@@ -187,6 +187,121 @@ def test_compute_part_bdpro_ranges_never_overlap():
     assert (r.pro.startYear, r.pro.startMonth, r.pro.startDay) == (2026, 2, 1)
 
 
+def test_compute_part_bdpro_free_end_only_without_source_start() -> None:
+    """Sem source_start (chamada legada), o free continua saindo só-com-fim.
+
+    O comportamento antigo é preservado: o início gravado no backend é mantido
+    pelo update, que só toca o fim.
+    """
+    spec = PartBdpro(
+        date_column=DateOnly(col="data"),
+        date_format=DateFormat.YEAR_MD,
+        free_lag=FreeLag(unit="months", value=6),
+    )
+    r = compute_coverage_ranges(spec, date(2026, 8, 25), IDS_BOTH)
+    # pyrefly: ignore [missing-attribute]
+    assert (r.free.startYear, r.free.startMonth, r.free.startDay) == (
+        None,
+        None,
+        None,
+    )
+    # pyrefly: ignore [missing-attribute]
+    assert (r.free.endYear, r.free.endMonth, r.free.endDay) == (2026, 2, 25)
+
+
+def test_compute_part_bdpro_free_full_range_when_history_exists() -> None:
+    """Com source_start bem antes de free_end, o free sai completo e válido.
+
+    Início = início real da série, fim = source_end - lag; início <= fim, então
+    o range não inverte.
+    """
+    spec = PartBdpro(
+        date_column=DateOnly(col="data"),
+        date_format=DateFormat.YEAR_MD,
+        free_lag=FreeLag(unit="months", value=6),
+    )
+    r = compute_coverage_ranges(
+        spec,
+        date(2026, 8, 25),
+        IDS_BOTH,
+        source_start=date(2000, 10, 19),
+    )
+    # pyrefly: ignore [missing-attribute]
+    free_start = (r.free.startYear, r.free.startMonth, r.free.startDay)
+    # pyrefly: ignore [missing-attribute]
+    free_end = (r.free.endYear, r.free.endMonth, r.free.endDay)
+    assert free_start == (2000, 10, 19)
+    assert free_end == (2026, 2, 25)
+    assert free_start <= free_end  # início <= fim: não invertido
+
+
+def test_compute_part_bdpro_free_collapses_when_history_all_paywalled() -> (
+    None
+):
+    """Snapshot sem história: o free colapsa em vez de inverter.
+
+    Quando todo o dado é mais novo que free_end (source_start > free_end), o
+    free vira [free_end, free_end] — válido e degenerado — em vez de início >
+    fim, que o backend recusa.
+    """
+    spec = PartBdpro(
+        date_column=DateOnly(col="data_extracao"),
+        date_format=DateFormat.YEAR_MD,
+        free_lag=FreeLag(unit="months", value=6),
+    )
+    r = compute_coverage_ranges(
+        spec,
+        date(2026, 8, 25),
+        IDS_BOTH,
+        source_start=date(2026, 8, 25),  # 1 único snapshot, hoje
+    )
+    free_end_expected = (2026, 2, 25)  # 2026-08-25 menos 6 meses
+    # pyrefly: ignore [missing-attribute]
+    free_start = (r.free.startYear, r.free.startMonth, r.free.startDay)
+    # pyrefly: ignore [missing-attribute]
+    free_end = (r.free.endYear, r.free.endMonth, r.free.endDay)
+    assert free_start == free_end_expected
+    assert free_end == free_end_expected
+    # start == end: range degenerado porém VÁLIDO (não invertido)
+    assert free_start <= free_end
+    # pro segue cobrindo até source_end, sem inverter
+    # pyrefly: ignore [missing-attribute]
+    assert (r.pro.endYear, r.pro.endMonth, r.pro.endDay) == (2026, 8, 25)
+
+
+def test_compute_ranges_carry_spec_interval() -> None:
+    """O interval da spec vai para os ranges — não é fixado em 1.
+
+    Eleições brasileiras são bienais (interval=2): tanto o range free (all_free)
+    quanto ambos os ranges de um part_bdpro precisam carregar esse passo.
+    """
+    biennial_free = AllFree(
+        date_column=YearOnly(col="ano"),
+        date_format=DateFormat.YEAR,
+        interval=2,
+    )
+    r = compute_coverage_ranges(biennial_free, date(2022, 1, 1), IDS_BOTH)
+    # pyrefly: ignore [missing-attribute]
+    assert r.free.interval == 2
+
+    biennial_part = PartBdpro(
+        date_column=YearOnly(col="ano"),
+        date_format=DateFormat.YEAR,
+        free_lag=FreeLag(unit="years", value=4),
+        interval=2,
+    )
+    r = compute_coverage_ranges(
+        biennial_part,
+        date(2022, 1, 1),
+        IDS_BOTH,
+        source_start=date(1998, 1, 1),
+    )
+    # pyrefly: ignore [missing-attribute]
+    assert r.free.interval == 2
+    # pyrefly: ignore [missing-attribute]
+    assert r.pro.interval == 2
+
+
 def test_compute_all_bdpro_annual():
     spec = AllBdpro(
         date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR

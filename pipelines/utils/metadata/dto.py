@@ -22,6 +22,7 @@ UUIDStr = Annotated[str, Field(pattern=r"^[0-9a-f-]{36}$")]
 Year = Annotated[int, Field(ge=1900, le=2100)]
 Month = Annotated[int, Field(ge=1, le=12)]
 Day = Annotated[int, Field(ge=1, le=31)]
+Interval = Annotated[int, Field(ge=1)]
 
 
 def _to_iso8601(value: object) -> str:
@@ -46,7 +47,17 @@ IsoDateStr = Annotated[str, BeforeValidator(_to_iso8601)]
 
 
 class DateTimeRangeInput(BaseModel):
-    """Payload de `CreateUpdateDateTimeRange` (Coverage.DateTimeRange)."""
+    """Payload de `CreateUpdateDateTimeRange` (Coverage.DateTimeRange).
+
+    `interval` é sempre enviado. O backend o **exige** ao criar um range com
+    início e fim ("Interval must exist in ranges with start and end dates"); sem
+    ele, `upsert_coverage_datetime_range` só conseguia UPDATE de um range já
+    existente, nunca CREATE. O valor é o passo da série (o "(N)" da notação de
+    cobertura): 1 para a maioria (anual/mensal/diária contínua), mas nem sempre —
+    eleições brasileiras são bienais (`interval=2`). No caminho das pipelines ele
+    vem de `CoverageSpec.interval`; o default 1 aqui só serve à construção direta
+    do DTO.
+    """
 
     coverage: UUIDStr
     startYear: Year | None = None
@@ -55,6 +66,7 @@ class DateTimeRangeInput(BaseModel):
     endYear: Year | None = None
     endMonth: Month | None = None
     endDay: Day | None = None
+    interval: Interval = 1
 
     @model_validator(mode="after")
     def _shape_consistent(self) -> DateTimeRangeInput:
