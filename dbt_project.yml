@@ -59,6 +59,12 @@ models:
     au_ato_taxation_statistics:
       +materialized: table
       +schema: au_ato_taxation_statistics
+    au_doe_higher_education_finances:
+      +materialized: table
+      +schema: au_doe_higher_education_finances
+    au_doe_higher_education:
+      +materialized: table
+      +schema: au_doe_higher_education
     au_geoscape_gnaf:
       +materialized: table
       +schema: au_geoscape_gnaf
@@ -187,6 +193,9 @@ models:
     us_fhfa_hpi:
       +materialized: table
       +schema: us_fhfa_hpi
+    us_epa_ghgrp:
+      +materialized: table
+      +schema: us_epa_ghgrp
     au_aph_hansard:
       +materialized: table
       +schema: au_aph_hansard
@@ -211,6 +220,9 @@ models:
     us_hhs_nppes:
       +materialized: table
       +schema: us_hhs_nppes
+    us_irs_form990:
+      +materialized: table
+      +schema: us_irs_form990
     us_fec_campaign_finance:
       +materialized: table
       +schema: us_fec_campaign_finance
@@ -460,6 +472,9 @@ models:
     br_mg_belohorizonte_smfa_iptu:
       +materialized: table
       +schema: br_mg_belohorizonte_smfa_iptu
+    br_mgi_compras_publicas:
+      +materialized: table
+      +schema: br_mgi_compras_publicas
     br_mma_sinpatinhas:
       +materialized: table
       +schema: br_mma_sinpatinhas
@@ -586,6 +601,12 @@ models:
     us_sec_edgar:
       +materialized: table
       +schema: us_sec_edgar
+    us_state_foreign_assistance:
+      +materialized: table
+      +schema: us_state_foreign_assistance
+    us_stanford_dime:
+      +materialized: table
+      +schema: us_stanford_dime
     us_census_acs:
       +materialized: table
       +schema: us_census_acs
@@ -598,6 +619,9 @@ models:
     us_ed_nces_ccd:
       +materialized: table
       +schema: us_ed_nces_ccd
+    us_epa_tri:
+      +materialized: table
+      +schema: us_epa_tri
     us_medsl_elections:
       +materialized: table
       +schema: us_medsl_elections
