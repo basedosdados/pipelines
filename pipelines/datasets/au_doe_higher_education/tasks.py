@@ -21,7 +21,7 @@ from pipelines.datasets.au_doe_higher_education.utils import (
 from pipelines.utils.gcs import get_credentials_from_env
 
 
-@task
+@task(retries=3, retry_delay_seconds=[60, 300, 900])
 def discover_sources_task() -> dict[str, dict]:
     """Locate the newest release of every source document."""
     sources = discover_sources()
@@ -36,7 +36,7 @@ def source_max_year_task(sources: dict[str, dict]) -> str:
     return str(source_max_year(sources))
 
 
-@task
+@task(retries=3, retry_delay_seconds=[60, 300, 900])
 def download_task(input_dir: str, sources: dict[str, dict]) -> str:
     """Download every discovered document into ``input_dir``."""
     download_sources(input_dir, sources)

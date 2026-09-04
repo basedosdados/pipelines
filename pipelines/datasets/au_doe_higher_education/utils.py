@@ -1373,15 +1373,36 @@ STAFF_YEAR_PAGE = re.compile(
 )
 
 
+def build_session() -> object:
+    """A session that retries: the site is slow and intermittently stalls.
+
+    Read timeouts, not refusals, are the observed failure, so a retry on a
+    fresh connection is the right response. Connect and read timeouts are set
+    separately because a stalled read needs a long leash while a dead host
+    should fail fast.
+    """
+    import requests
+    from requests.adapters import HTTPAdapter
+    from urllib3.util.retry import Retry
+
+    session = requests.Session()
+    retry = Retry(
+        total=5,
+        backoff_factor=5,
+        status_forcelist=(429, 500, 502, 503, 504),
+        allowed_methods=frozenset({"GET", "HEAD"}),
+    )
+    session.mount("https://", HTTPAdapter(max_retries=retry))
+    return session
+
+
 def fetch_text(url: str, session: object | None = None) -> str:
     """GET a page as text, with the browser headers the site demands."""
-    import requests
-
     from pipelines.datasets.au_doe_higher_education.constants import constants
 
-    getter = session if session is not None else requests
+    getter = session if session is not None else build_session()
     response = getter.get(  # type: ignore[union-attr]
-        url, headers=constants.HEADERS.value, timeout=120
+        url, headers=constants.HEADERS.value, timeout=(30, 300)
     )
     response.raise_for_status()
     return response.text
@@ -1470,13 +1491,11 @@ def download_sources(
     The local names are stable and year-free so the build does not have to
     know which release it is reading.
     """
-    import requests
-
     from pipelines.datasets.au_doe_higher_education.constants import constants
 
     target = Path(input_dir)
     target.mkdir(parents=True, exist_ok=True)
-    session = requests.Session()
+    session = build_session()
     if sources is None:
         sources = discover_sources(session)
 
@@ -1484,8 +1503,11 @@ def download_sources(
     for name, entry in sources.items():
         url = entry.get("url") or resolve_download_url(entry["slug"], session)
         path = target / f"{name}.xlsx"
-        with session.get(
-            url, headers=constants.HEADERS.value, stream=True, timeout=600
+        with session.get(  # type: ignore[union-attr]
+            url,
+            headers=constants.HEADERS.value,
+            stream=True,
+            timeout=(30, 600),
         ) as response:
             response.raise_for_status()
             # decode_content matters: without it a Brotli/gzip response is
