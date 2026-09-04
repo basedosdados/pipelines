@@ -99,3 +99,29 @@ until those MCPs work. Cloud-table URLs must name `basedosdados` /
 - [x] PR — draft https://github.com/basedosdados/pipelines/pull/1960
 - [ ] Official lake + `table-approve` (later)
 - [ ] Cleanup `~/Downloads/br_ibge_censo_demografico_data/`
+
+## Alterações-Luiza
+
+Ajustes feitos nos scripts em `code/` (ainda não commitados):
+
+- **Imports de `constants`**: em `build_architecture.py`, `build_dbt.py`, `clean.py`,
+  `download.py`, `process.py`, `sync_gcs.py` e `upload.py`, trocado o import local
+  (`sys.path.insert` + `import constants as c`) por
+  `from models.br_ibge_censo_demografico.code import constants` (import absoluto, alias
+  `constants` em vez de `c`).
+- **`constants.py`**: `DATA_ROOT` mudou de `~/Downloads/br_ibge_censo_demografico_data`
+  para `tmp/br_ibge_censo_demografico_data/data` (caminho relativo); `ARCHITECTURE_DIR`
+  mudou de `code/architecture` (relativo ao `__file__`) para
+  `models/br_ibge_censo_demografico/code/architecture`.
+- **`sync_gcs.py`**: adicionado modo `--sandbox` (opcional, default `False`):
+  - com `--sandbox`: comportamento antigo — credenciais `sandbox-507414.json`,
+    upload direto pro bucket `sandbox-507414-...` via `google.cloud.storage`.
+  - sem `--sandbox` (novo default): usa credenciais `staging.json` e sobe cada
+    tabela para o staging oficial via `pipelines.utils.tasks._upload_to_gcs`
+    (`GOOGLE_APPLICATION_CREDENTIALS`, `dataset_id`, `table_id`, `source_format="parquet"`).
+  - `--delete-local` agora com `default=False` explícito.
+- **`schema.yml`**: nos testes `relationships` das 4 tabelas novas de 2022
+  (`microdados_domicilio_2022`, `microdados_pessoa_2022`, `microdados_familia_2022`,
+  `microdados_mortalidade_2022`), a coluna `ano` referenciando
+  `ref('br_bd_diretorios_data_tempo__ano')` teve o `field` corrigido de `ano` para
+  `ano.ano`.

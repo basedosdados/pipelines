@@ -7,15 +7,13 @@ Usage:
 from __future__ import annotations
 
 import csv
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
-import constants as c
+from models.br_ibge_censo_demografico.code import constants
 
 MODEL_DIR = Path(__file__).resolve().parent.parent
 SCHEMA_PATH = MODEL_DIR / "schema.yml"
-DATASET = c.DATASET_ID
+DATASET = constants.DATASET_ID
 
 CAST = {
     "INT64": "int64",
@@ -45,7 +43,9 @@ MARKER_END = "# --- end censo 2022 public microdata ---"
 
 
 def read_architecture(slug: str) -> list[dict[str, str]]:
-    with (c.ARCHITECTURE_DIR / f"{slug}.csv").open(encoding="utf-8") as handle:
+    with (constants.ARCHITECTURE_DIR / f"{slug}.csv").open(
+        encoding="utf-8"
+    ) as handle:
         return list(csv.DictReader(handle))
 
 
@@ -79,8 +79,12 @@ from
 
 def schema_fragment(slug: str, columns: list[dict[str, str]]) -> str:
     key = KEYS[slug]
-    desc = c.TABLES[
-        next(sheet for sheet, spec in c.TABLES.items() if spec["slug"] == slug)
+    desc = constants.TABLES[
+        next(
+            sheet
+            for sheet, spec in constants.TABLES.items()
+            if spec["slug"] == slug
+        )
     ]["description"]
     lines = [
         f"  - name: {DATASET}__{slug}",
@@ -135,7 +139,7 @@ def write_schema(fragments: list[str]) -> None:
 
 def main() -> None:
     fragments = []
-    for spec in c.TABLES.values():
+    for spec in constants.TABLES.values():
         slug = spec["slug"]
         columns = read_architecture(slug)
         write_sql(slug, columns)

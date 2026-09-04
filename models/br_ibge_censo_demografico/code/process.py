@@ -7,13 +7,11 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
 import clean
-import constants as c
 import download
+
+from models.br_ibge_censo_demografico.code import constants
 
 
 def main() -> None:
@@ -22,14 +20,14 @@ def main() -> None:
     args = parser.parse_args()
     wanted = {u.strip().upper() for u in args.ufs.split(",") if u.strip()}
     download.download_docs()
-    c.INPUT_DIR.mkdir(parents=True, exist_ok=True)
+    constants.INPUT_DIR.mkdir(parents=True, exist_ok=True)
     all_counts: dict[str, dict[str, int]] = {}
-    for _code, sigla, zip_name in c.UF_ZIPS:
+    for _code, sigla, zip_name in constants.UF_ZIPS:
         if wanted and sigla not in wanted:
             continue
-        zip_path = c.INPUT_DIR / zip_name
+        zip_path = constants.INPUT_DIR / zip_name
         print(f"\n######## {sigla} ########", flush=True)
-        download.download_file(f"{c.FTP_CSV}/{zip_name}", zip_path)
+        download.download_file(f"{constants.FTP_CSV}/{zip_name}", zip_path)
         all_counts[sigla] = clean.clean_uf(sigla, zip_path, only=set())
         zip_path.unlink(missing_ok=True)
         print(f"  deleted {zip_name}", flush=True)

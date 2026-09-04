@@ -11,24 +11,23 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import sys
 import tempfile
 import zipfile
 from pathlib import Path
 
 import pandas as pd
 import pyarrow as pa
+import pyarrow.csv as pv
 import pyarrow.parquet as pq
 
-sys.path.insert(0, str(Path(__file__).parent))
-import constants as c
+from models.br_ibge_censo_demografico.code import constants
 
 HIVE_ONLY = {"ano", "sigla_uf"}
 CHUNKSIZE = 50_000
 
 
 def architecture_rows(slug: str) -> list[dict[str, str]]:
-    path = c.ARCHITECTURE_DIR / f"{slug}.csv"
+    path = constants.ARCHITECTURE_DIR / f"{slug}.csv"
     with path.open(encoding="utf-8") as handle:
         return list(csv.DictReader(handle))
 
@@ -55,11 +54,11 @@ def _wanted(slug: str, only: set[str]) -> bool:
 
 
 def clean_uf(sigla: str, zip_path: Path, only: set[str]) -> dict[str, int]:
-    code = next(cd for cd, sg, _ in c.UF_ZIPS if sg == sigla)
+    code = next(cd for cd, sg, _ in constants.UF_ZIPS if sg == sigla)
     counts: dict[str, int] = {}
     with zipfile.ZipFile(zip_path) as zf:
         names = {Path(n).name: n for n in zf.namelist()}
-        for sheet, spec in c.TABLES.items():
+        for sheet, spec in constants.TABLES.items():
             slug = spec["slug"]
             if not _wanted(slug, only):
                 continue
@@ -69,7 +68,10 @@ def clean_uf(sigla: str, zip_path: Path, only: set[str]) -> dict[str, int]:
                 raise FileNotFoundError(f"{csv_name} not in {zip_path.name}")
             columns = parquet_columns(architecture_rows(slug))
             dest_dir = (
-                c.OUTPUT_DIR / slug / f"ano={c.YEAR}" / f"sigla_uf={sigla}"
+                constants.OUTPUT_DIR
+                / slug
+                / f"ano={constants.YEAR}"
+                / f"sigla_uf={sigla}"
             )
             dest_dir.mkdir(parents=True, exist_ok=True)
             dest = dest_dir / "data.parquet"
@@ -103,7 +105,9 @@ def clean_uf(sigla: str, zip_path: Path, only: set[str]) -> dict[str, int]:
                 )
                 for frame in chunks:
                     frame.columns = [
-                        c.RENAMES[sheet].get(col.strip(), col.strip().lower())
+                        constants.RENAMES[sheet].get(
+                            col.strip(), col.strip().lower()
+                        )
                         for col in frame.columns
                     ]
                     if "sigla_uf" in frame.columns:
@@ -112,7 +116,9 @@ def clean_uf(sigla: str, zip_path: Path, only: set[str]) -> dict[str, int]:
                             .astype(str)
                             .str.strip()
                             .map(
-                                lambda v: c.UF_CODE_TO_SIGLA.get(v.zfill(2), v)
+                                lambda v: constants.UF_CODE_TO_SIGLA.get(
+                                    v.zfill(2), v
+                                )
                             )
                         )
                     table = to_string_table(frame, columns)
@@ -157,7 +163,7 @@ def clean_uf(sigla: str, zip_path: Path, only: set[str]) -> dict[str, int]:
 
 
 def write_dicionario() -> int:
-    src = c.ARCHITECTURE_DIR / "dicionario.csv"
+    src = constants.ARCHITECTURE_DIR / "dicionario.csv"
     frame = pd.read_csv(src, dtype=str, keep_default_na=False)
     columns = [
         "id_tabela",
@@ -167,16 +173,16 @@ def write_dicionario() -> int:
         "valor",
     ]
     table = to_string_table(frame, columns)
-    dest_dir = c.OUTPUT_DIR / "dicionario"
+    dest_dir = constants.OUTPUT_DIR / "dicionario"
     dest_dir.mkdir(parents=True, exist_ok=True)
-    dest = dest_dir / "data.parquet"
-    pq.write_table(table, dest, compression="snappy")
+    dest = dest_dir / "dicionario_2022.csv"
+    pv.write_csv(table, dest)
     print(f"  dicionario: {table.num_rows:,} rows → {dest}", flush=True)
     return table.num_rows
 
 
 def _save_counts(counts: dict) -> None:
-    path = c.DATA_ROOT / "row_counts.json"
+    path = constants.DATA_ROOT / "row_counts.json"
     existing: dict = {}
     if path.exists():
         existing = json.loads(path.read_text(encoding="utf-8"))
@@ -203,10 +209,10 @@ def main() -> None:
     wanted = {u.strip().upper() for u in args.ufs.split(",") if u.strip()}
     only = {t.strip().lower() for t in args.tables.split(",") if t.strip()}
     all_counts: dict[str, dict[str, int]] = {}
-    for _code, sigla, zip_name in c.UF_ZIPS:
+    for _code, sigla, zip_name in constants.UF_ZIPS:
         if wanted and sigla not in wanted:
             continue
-        zip_path = c.INPUT_DIR / zip_name
+        zip_path = constants.INPUT_DIR / zip_name
         if not zip_path.exists():
             raise FileNotFoundError(f"missing {zip_path}; run download.py")
         print(f"=== {sigla} ===", flush=True)

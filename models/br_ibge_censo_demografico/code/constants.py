@@ -9,7 +9,7 @@ YEAR = 2022
 GCS_BUCKET = "sandbox-507414-br-ibge-censo-demografico"
 GCS_PREFIX = "br_ibge_censo_demografico"
 
-DATA_ROOT = Path(Path.home() / "Downloads" / "br_ibge_censo_demografico_data")
+DATA_ROOT = Path("tmp") / "br_ibge_censo_demografico_data" / "data"
 INPUT_DIR = DATA_ROOT / "input"
 OUTPUT_DIR = DATA_ROOT / "output"
 DOCS_DIR = DATA_ROOT / "docs"
@@ -160,4 +160,6 @@ RENAMES = {
     "MORT": MORT_RENAME,
 }
 
-ARCHITECTURE_DIR = Path(__file__).resolve().parent / "architecture"
+ARCHITECTURE_DIR = (
+    Path("models") / "br_ibge_censo_demografico" / "code" / "architecture"
+)

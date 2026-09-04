@@ -20,15 +20,14 @@ import pyarrow.dataset as pads
 import pyarrow.parquet as pq
 from google.cloud import bigquery
 
-sys.path.insert(0, str(Path(__file__).parent))
-import constants as c
+from models.br_ibge_censo_demografico.code import constants
 
 os.environ.setdefault(
     "GOOGLE_APPLICATION_CREDENTIALS",
     str(Path.home() / ".basedosdados" / "credentials" / "sandbox-507414.json"),
 )
 
-STAGING_DATASET = f"{c.DATASET_ID}_staging"
+STAGING_DATASET = f"{constants.DATASET_ID}_staging"
 # Smallest first so a bad table fails before the 21M-row person upload.
 TABLES = [
     "dicionario",
@@ -59,7 +58,7 @@ def _string_table(table: pa.Table) -> pa.Table:
 
 def iter_partitions(slug: str):
     """Yield (index, total, table) per on-disk parquet, hive cols as STRING."""
-    root = c.OUTPUT_DIR / slug
+    root = constants.OUTPUT_DIR / slug
     if slug == "dicionario":
         path = root / "data.parquet"
         if not path.exists():
@@ -89,7 +88,7 @@ def iter_partitions(slug: str):
 
 
 def ensure_dataset(client: bigquery.Client) -> None:
-    dataset = bigquery.Dataset(f"{c.GCP_PROJECT}.{STAGING_DATASET}")
+    dataset = bigquery.Dataset(f"{constants.GCP_PROJECT}.{STAGING_DATASET}")
     dataset.location = "US"
     client.create_dataset(dataset, exists_ok=True)
 
@@ -101,11 +100,11 @@ def _schema_of(table: pa.Table) -> list[bigquery.SchemaField]:
 
 
 def upload_table(client: bigquery.Client, slug: str) -> int:
-    path = c.OUTPUT_DIR / slug
+    path = constants.OUTPUT_DIR / slug
     if not path.exists():
         raise FileNotFoundError(f"missing {path}")
     expected = local_rows(path)
-    dest = f"{c.GCP_PROJECT}.{STAGING_DATASET}.{slug}"
+    dest = f"{constants.GCP_PROJECT}.{STAGING_DATASET}.{slug}"
     client.delete_table(dest, not_found_ok=True)
     for _ in range(15):
         try:
@@ -114,7 +113,7 @@ def upload_table(client: bigquery.Client, slug: str) -> int:
             client.delete_table(dest, not_found_ok=True)
         except Exception:
             break
-    tmp = Path("/tmp") / f"{c.DATASET_ID}_{slug}.parquet"
+    tmp = Path("/tmp") / f"{constants.DATASET_ID}_{slug}.parquet"
     writer: pq.ParquetWriter | None = None
     written = 0
     schema = None
@@ -185,8 +184,11 @@ def main() -> None:
     if unknown:
         print(f"unknown tables: {sorted(unknown)}\nvalid: {TABLES}")
         sys.exit(2)
-    client = bigquery.Client(project=c.GCP_PROJECT)
-    print(f"=== upload to {c.GCP_PROJECT}.{STAGING_DATASET} ===", flush=True)
+    client = bigquery.Client(project=constants.GCP_PROJECT)
+    print(
+        f"=== upload to {constants.GCP_PROJECT}.{STAGING_DATASET} ===",
+        flush=True,
+    )
     ensure_dataset(client)
     for slug in tables:
         print(f"=== {slug} ===", flush=True)

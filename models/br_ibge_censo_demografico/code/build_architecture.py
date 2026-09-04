@@ -8,13 +8,11 @@ from __future__ import annotations
 
 import csv
 import re
-import sys
 from pathlib import Path
 
 import openpyxl
 
-sys.path.insert(0, str(Path(__file__).parent))
-import constants as c
+from models.br_ibge_censo_demografico.code import constants
 
 ARCH_FIELDS = [
     "name",
@@ -131,11 +129,11 @@ def directory_for(name: str) -> str:
 
 
 def bd_name(sheet: str, original: str) -> str:
-    return c.RENAMES[sheet].get(original, original.lower())
+    return constants.RENAMES[sheet].get(original, original.lower())
 
 
 def iter_layout(sheet: str) -> list[dict]:
-    path = c.DOCS_DIR / c.LAYOUT_XLSX_NAME
+    path = constants.DOCS_DIR / constants.LAYOUT_XLSX_NAME
     workbook = openpyxl.load_workbook(path, data_only=True)
     rows = []
     for raw in workbook[sheet].iter_rows(min_row=3, values_only=True):
@@ -168,9 +166,9 @@ def iter_layout(sheet: str) -> list[dict]:
 
 
 def write_architecture(sheet: str, rows: list[dict]) -> None:
-    c.ARCHITECTURE_DIR.mkdir(parents=True, exist_ok=True)
-    slug = c.TABLES[sheet]["slug"]
-    path = c.ARCHITECTURE_DIR / f"{slug}.csv"
+    constants.ARCHITECTURE_DIR.mkdir(parents=True, exist_ok=True)
+    slug = constants.TABLES[sheet]["slug"]
+    path = constants.ARCHITECTURE_DIR / f"{slug}.csv"
     # Partition columns first (ano is hive-only; listed for dbt/metadata).
     ano_row = {
         "name": "ano",
@@ -209,7 +207,7 @@ def write_architecture(sheet: str, rows: list[dict]) -> None:
 
 
 def write_dicionario(all_rows: dict[str, list[dict]]) -> Path:
-    path = c.ARCHITECTURE_DIR / "dicionario.csv"
+    path = constants.ARCHITECTURE_DIR / "dicionario.csv"
     fieldnames = [
         "id_tabela",
         "nome_coluna",
@@ -219,7 +217,7 @@ def write_dicionario(all_rows: dict[str, list[dict]]) -> Path:
     ]
     out = []
     for sheet, rows in all_rows.items():
-        slug = c.TABLES[sheet]["slug"]
+        slug = constants.TABLES[sheet]["slug"]
         for row in rows:
             if row["covered_by_dictionary"] != "yes":
                 continue
@@ -243,7 +241,7 @@ def write_dicionario(all_rows: dict[str, list[dict]]) -> Path:
 
 def main() -> None:
     all_rows = {}
-    for sheet in c.TABLES:
+    for sheet in constants.TABLES:
         rows = iter_layout(sheet)
         write_architecture(sheet, rows)
         all_rows[sheet] = rows

@@ -8,15 +8,13 @@ from __future__ import annotations
 
 import argparse
 import ssl
-import sys
 import time
 import urllib.request
 from pathlib import Path
 
 import certifi
 
-sys.path.insert(0, str(Path(__file__).parent))
-import constants as c
+from models.br_ibge_censo_demografico.code import constants
 
 _SSL_CONTEXT = ssl.create_default_context(cafile=certifi.where())
 
@@ -52,14 +50,14 @@ def download_file(url: str, dest: Path, retries: int = 3) -> None:
 
 
 def download_docs() -> None:
-    c.DOCS_DIR.mkdir(parents=True, exist_ok=True)
+    constants.DOCS_DIR.mkdir(parents=True, exist_ok=True)
     download_file(
-        f"{c.FTP_DOCS}/Layout%20Microdados%20CD2022%20-%20acesso%20P%c3%bablico.xlsx",
-        c.DOCS_DIR / c.LAYOUT_XLSX_NAME,
+        f"{constants.FTP_DOCS}/Layout%20Microdados%20CD2022%20-%20acesso%20P%c3%bablico.xlsx",
+        constants.DOCS_DIR / constants.LAYOUT_XLSX_NAME,
     )
     download_file(
-        f"{c.FTP_DOCS}/Dicion%c3%a1rio%20de%20Vari%c3%a1veis%20-%20Microdados%20CD2022.pdf",
-        c.DOCS_DIR / "dicionario_variaveis.pdf",
+        f"{constants.FTP_DOCS}/Dicion%c3%a1rio%20de%20Vari%c3%a1veis%20-%20Microdados%20CD2022.pdf",
+        constants.DOCS_DIR / "dicionario_variaveis.pdf",
     )
 
 
@@ -71,11 +69,13 @@ def main() -> None:
     args = parser.parse_args()
     wanted = {u.strip().upper() for u in args.ufs.split(",") if u.strip()}
     download_docs()
-    c.INPUT_DIR.mkdir(parents=True, exist_ok=True)
-    for _code, sigla, zip_name in c.UF_ZIPS:
+    constants.INPUT_DIR.mkdir(parents=True, exist_ok=True)
+    for _code, sigla, zip_name in constants.UF_ZIPS:
         if wanted and sigla not in wanted:
             continue
-        download_file(f"{c.FTP_CSV}/{zip_name}", c.INPUT_DIR / zip_name)
+        download_file(
+            f"{constants.FTP_CSV}/{zip_name}", constants.INPUT_DIR / zip_name
+        )
 
 
 if __name__ == "__main__":
