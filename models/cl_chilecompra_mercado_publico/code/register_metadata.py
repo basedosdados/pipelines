@@ -46,9 +46,14 @@ def shift_month(ym: tuple[int, int], months: int) -> tuple[int, int]:
 
 
 class Registrar:
-    def __init__(self, env: str, dry_run: bool = False):
+    def __init__(self, env: str, dry_run: bool = False, publish: bool = False):
         self.env = env
         self.dry_run = dry_run
+        # A dataset is registered under_review so it cannot leak to the public site
+        # before its PR has merged and the prod tables exist. dev/staging is not the
+        # public site, so it is published before the review checkpoint; prod is
+        # published only after merge + table-approve + verification.
+        self.publish = publish
         self.ids: dict[str, dict[str, str]] = {}
         self.account = server.get_authenticated_account(env=env)["id"]
 
@@ -148,16 +153,21 @@ class Registrar:
             organization_ids=[self.ids["organization"][spec.ORGANIZATION]],
             theme_ids=[self.ids["theme"][t] for t in spec.THEMES],
             tag_ids=[self.ids["tag"][t] for t in spec.TAGS],
-            status_id=self.ids["status"]["under_review"],
+            status_id=self.ids["status"][
+                "published" if self.publish else "under_review"
+            ],
             env=self.env,
         )
         if current["found"]:
             args["id"] = current["id"]
+        status = "published" if self.publish else "under_review"
         if self.dry_run:
-            self.log("dataset:", "update" if current["found"] else "create")
+            self.log(
+                "dataset:", "update" if current["found"] else "create", f"({status})"
+            )
             return current["id"] or ""
         result = server.create_update_dataset(**args)
-        self.log("dataset:", result["id"])
+        self.log("dataset:", result["id"], f"({status})")
         return result["id"]
 
     # --------------------------------------------------------- 2. raw sources
@@ -483,12 +493,17 @@ def main() -> int:
     ap.add_argument("--env", default="staging")
     ap.add_argument("--stages", default=",".join(ALL_STAGES))
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument(
+        "--publish",
+        action="store_true",
+        help="set the dataset status to published instead of under_review",
+    )
     args = ap.parse_args()
     stages = [s.strip() for s in args.stages.split(",") if s.strip()]
     unknown = [s for s in stages if s not in ALL_STAGES]
     if unknown:
         raise SystemExit(f"unknown stage(s): {unknown}; known: {ALL_STAGES}")
-    Registrar(args.env, dry_run=args.dry_run).run(stages)
+    Registrar(args.env, dry_run=args.dry_run, publish=args.publish).run(stages)
     print("DONE")
     return 0
 
