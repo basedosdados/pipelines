@@ -13,10 +13,10 @@ descripcion_oferta_proveedor,STRING,Descricao da proposta informada pelo fornece
 estado_oferta,STRING,Estado da proposta,,no,,,no,,Estado Oferta
 estado_final_oferta,STRING,Estado final da proposta,,no,,,no,Presente apenas nos arquivos de 2007 a 2014,Estado final Oferta
 indicador_oferta_seleccionada,STRING,Indica se a proposta foi a selecionada para a linha de item,,no,,,no,,Oferta seleccionada
-cantidad_ofertada,FLOAT64,Quantidade ofertada na proposta,,no,,,no,A unidade e dada pela coluna unidad_medida_oferta,Cantidad Ofertada
+cantidad_ofertada,FLOAT64,Quantidade ofertada na proposta,,no,,unit,no,A unidade e dada pela coluna unidad_medida_oferta,Cantidad Ofertada
 unidad_medida_oferta,STRING,Unidade de medida da quantidade ofertada,,no,,,no,Presente apenas nos arquivos de 2007 a 2014; chega como UnidadMedida.1,UnidadMedida.1
-monto_unitario_oferta,FLOAT64,Valor unitario ofertado,,no,,,no,A unidade e dada pela coluna moneda_oferta em licitacion_item,MontoUnitarioOferta
-monto_total_ofertado,FLOAT64,Valor total ofertado na linha,,no,,,no,A unidade e dada pela coluna moneda_oferta em licitacion_item,Valor Total Ofertado
-cantidad_adjudicada,FLOAT64,Quantidade adjudicada ao fornecedor na linha,,no,,,no,A unidade e dada pela coluna unidad_medida em licitacion_item,CantidadAdjudicada
-monto_linea_adjudicada,FLOAT64,Valor adjudicado na linha de item,,no,,,no,A unidade e dada pela coluna moneda_oferta em licitacion_item,MontoLineaAdjudica
+monto_unitario_oferta,FLOAT64,Valor unitario ofertado,,no,,currency,no,A unidade e dada pela coluna moneda_oferta em licitacion_item,MontoUnitarioOferta
+monto_total_ofertado,FLOAT64,Valor total ofertado na linha,,no,,currency,no,A unidade e dada pela coluna moneda_oferta em licitacion_item,Valor Total Ofertado
+cantidad_adjudicada,FLOAT64,Quantidade adjudicada ao fornecedor na linha,,no,,unit,no,A unidade e dada pela coluna unidad_medida em licitacion_item,CantidadAdjudicada
+monto_linea_adjudicada,FLOAT64,Valor adjudicado na linha de item,,no,,currency,no,A unidade e dada pela coluna moneda_oferta em licitacion_item,MontoLineaAdjudica
 fecha_envio_oferta,DATE,Data de envio da proposta,,no,,,no,Valor 1900-01-01 na origem indica ausencia e e convertido para nulo,FechaEnvioOferta

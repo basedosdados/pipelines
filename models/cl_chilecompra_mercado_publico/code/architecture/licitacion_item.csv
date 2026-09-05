@@ -60,8 +60,8 @@ direccion_entrega,STRING,Endereco de entrega de antecedentes,,no,,,no,,Direccion
 estimacion,STRING,Tipo de estimativa do valor da licitacao,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",Estimacion
 fuente_financiamiento,STRING,Fonte de financiamento da licitacao,,no,,,no,,FuenteFinanciamiento
 visibilidad_monto,STRING,Indica se o valor estimado e publico,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",VisibilidadMonto
-monto_estimado,FLOAT64,Valor estimado da licitacao,,no,,,no,A unidade e dada pela coluna moneda,MontoEstimado
-monto_estimado_adjudicado,FLOAT64,Valor estimado adjudicado da licitacao,,no,,,no,A unidade e dada pela coluna moneda; constante por licitacao,Monto Estimado Adjudicado
+monto_estimado,FLOAT64,Valor estimado da licitacao,,no,,currency,no,A unidade e dada pela coluna moneda,MontoEstimado
+monto_estimado_adjudicado,FLOAT64,Valor estimado adjudicado da licitacao,,no,,currency,no,A unidade e dada pela coluna moneda; constante por licitacao,Monto Estimado Adjudicado
 justificacion_monto_estimado,STRING,Justificativa do valor estimado,,no,,,no,,JustificacionMontoEstimado
 tiempo,INT64,Prazo da licitacao,,no,,time_unit,no,Unidade dada pela coluna unidad_tiempo,Tiempo
 unidad_tiempo,STRING,Unidade de tempo do prazo da licitacao,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",UnidadTiempo
@@ -98,4 +98,4 @@ nombre_producto_generico,STRING,Nome generico do produto ou servico,,no,,,no,Cab
 nombre_linea,STRING,Nome da linha de aquisicao,,no,,,no,Cabecalho grafado com acento ate 2014,Nombre linea Adquisicion
 descripcion_linea,STRING,Descricao da linha de aquisicao,,no,,,no,Cabecalho grafado com acento ate 2014,Descripcion linea Adquisicion
 unidad_medida,STRING,Unidade de medida do item,,no,,,no,,UnidadMedida
-cantidad,FLOAT64,Quantidade solicitada do item,,no,,,no,A unidade e dada pela coluna unidad_medida,Cantidad
+cantidad,FLOAT64,Quantidade solicitada do item,,no,,unit,no,A unidade e dada pela coluna unidad_medida,Cantidad

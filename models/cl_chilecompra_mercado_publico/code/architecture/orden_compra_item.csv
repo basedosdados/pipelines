@@ -25,16 +25,16 @@ fecha_ultima_modificacion,DATE,Data da ultima modificacao da ordem de compra,,no
 fecha_aceptacion,DATE,Data de aceitacao da ordem pelo fornecedor,,no,,,no,,FechaAceptacion
 fecha_cancelacion,DATE,Data de cancelamento da ordem de compra,,no,,,no,,FechaCancelacion
 indicador_items,STRING,Indica se a ordem de compra possui itens detalhados,,no,,,no,"A fonte publica esta coluna apenas como codigo, sem divulgar a tabela de significados correspondente, portanto nao ha entrada no dicionario",tieneItems
-promedio_calificacion,FLOAT64,Nota media atribuida ao fornecedor nesta ordem de compra,,no,,score,no,,PromedioCalificacion
+promedio_calificacion,FLOAT64,Nota media atribuida ao fornecedor nesta ordem de compra,,no,,score_point,no,,PromedioCalificacion
 cantidad_evaluacion,INT64,Quantidade de avaliacoes registradas para a ordem de compra,,no,,evaluation,no,,CantidadEvaluacion
 moneda,STRING,Moeda em que a ordem de compra foi emitida,,no,,,no,"Predominantemente CLP; CLF e UTM sao unidades indexadas a inflacao. Alem dos codigos de moeda validos a coluna traz 331 linhas com os valores '1' e '-1', que nao correspondem a moeda alguma, portanto o dicionario nao cobre a coluna inteira",TipoMonedaOC
-monto_total,FLOAT64,Valor total da ordem de compra na moeda de emissao,,no,,,no,A unidade e dada pela coluna moneda; use monto_total_clp para comparacoes,MontoTotalOC
-monto_total_clp,FLOAT64,Valor total da ordem de compra convertido para pesos chilenos,,no,,CLP,no,Conversao feita pela propria fonte,MontoTotalOC_PesosChilenos
-monto_impuestos,FLOAT64,Valor dos impostos da ordem de compra,,no,,,no,A unidade e dada pela coluna moneda,Impuestos
+monto_total,FLOAT64,Valor total da ordem de compra na moeda de emissao,,no,,currency,no,A unidade e dada pela coluna moneda; use monto_total_clp para comparacoes,MontoTotalOC
+monto_total_clp,FLOAT64,Valor total da ordem de compra convertido para pesos chilenos,,no,,clp,no,Conversao feita pela propria fonte,MontoTotalOC_PesosChilenos
+monto_impuestos,FLOAT64,Valor dos impostos da ordem de compra,,no,,currency,no,A unidade e dada pela coluna moneda,Impuestos
 tipo_impuesto,STRING,Tipo de imposto aplicado a ordem de compra,,no,,,no,,TipoImpuesto
-monto_descuentos,FLOAT64,Valor dos descontos da ordem de compra,,no,,,no,A unidade e dada pela coluna moneda,Descuentos
-monto_cargos,FLOAT64,Valor dos encargos da ordem de compra,,no,,,no,A unidade e dada pela coluna moneda,Cargos
-monto_total_neto,FLOAT64,Valor total liquido da ordem de compra,,no,,,no,A unidade e dada pela coluna moneda,TotalNetoOC
+monto_descuentos,FLOAT64,Valor dos descontos da ordem de compra,,no,,currency,no,A unidade e dada pela coluna moneda,Descuentos
+monto_cargos,FLOAT64,Valor dos encargos da ordem de compra,,no,,currency,no,A unidade e dada pela coluna moneda,Cargos
+monto_total_neto,FLOAT64,Valor total liquido da ordem de compra,,no,,currency,no,A unidade e dada pela coluna moneda,TotalNetoOC
 porcentaje_iva,FLOAT64,Aliquota de IVA aplicada a ordem de compra,,no,,percent,no,,PorcentajeIva
 codigo_unidad_compra,STRING,Codigo da unidade compradora,,no,,,no,,CodigoUnidadCompra
 rut_unidad_compra,STRING,RUT da unidade compradora,,no,,,no,Formato com pontos e digito verificador,RutUnidadCompra
@@ -75,11 +75,11 @@ rubro_n2,STRING,Rubro UNSPSC de segundo nivel,,no,,,no,,RubroN2
 rubro_n3,STRING,Rubro UNSPSC de terceiro nivel,,no,,,no,,RubroN3
 especificacion_comprador,STRING,Especificacao do item informada pelo comprador,,no,,,no,,EspecificacionComprador
 especificacion_proveedor,STRING,Especificacao do item informada pelo fornecedor,,no,,,no,,EspecificacionProveedor
-cantidad,FLOAT64,Quantidade contratada do item,,no,,,no,A unidade e dada pela coluna unidad_medida,cantidad
+cantidad,FLOAT64,Quantidade contratada do item,,no,,unit,no,A unidade e dada pela coluna unidad_medida,cantidad
 unidad_medida,STRING,Unidade de medida do item,,no,,,no,,UnidadMedida
 moneda_item,STRING,Moeda da linha de item,,no,,,no,Mesmo caso de moeda: valores invalidos impedem a cobertura completa pelo dicionario,monedaItem
-precio_neto,FLOAT64,Preco unitario liquido do item,,no,,,no,A unidade e dada pela coluna moneda_item,precioNeto
-monto_cargos_item,FLOAT64,Valor dos encargos da linha de item,,no,,,no,A unidade e dada pela coluna moneda_item,totalCargos
-monto_descuentos_item,FLOAT64,Valor dos descontos da linha de item,,no,,,no,A unidade e dada pela coluna moneda_item,totalDescuentos
-monto_impuestos_item,FLOAT64,Valor dos impostos da linha de item,,no,,,no,A unidade e dada pela coluna moneda_item,totalImpuestos
-monto_linea_neto,FLOAT64,Valor total liquido da linha de item,,no,,,no,A unidade e dada pela coluna moneda_item,totalLineaNeto
+precio_neto,FLOAT64,Preco unitario liquido do item,,no,,currency,no,A unidade e dada pela coluna moneda_item,precioNeto
+monto_cargos_item,FLOAT64,Valor dos encargos da linha de item,,no,,currency,no,A unidade e dada pela coluna moneda_item,totalCargos
+monto_descuentos_item,FLOAT64,Valor dos descontos da linha de item,,no,,currency,no,A unidade e dada pela coluna moneda_item,totalDescuentos
+monto_impuestos_item,FLOAT64,Valor dos impostos da linha de item,,no,,currency,no,A unidade e dada pela coluna moneda_item,totalImpuestos
+monto_linea_neto,FLOAT64,Valor total liquido da linha de item,,no,,currency,no,A unidade e dada pela coluna moneda_item,totalLineaNeto
