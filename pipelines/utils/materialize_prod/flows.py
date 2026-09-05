@@ -6,6 +6,7 @@ Flow de transferência de arquivos do bucket basedosdados-dev para basedosdados
 from __future__ import annotations
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.utils.materialize_prod.tasks import (
     download_files_from_bucket_folders,
@@ -91,10 +92,12 @@ def _build_coverage(
 def transfer_files_to_prod_flow(
     dataset_id: str = "br_cgu_beneficios_cidadao",
     table_id: str = "novo_bolsa_familia",
-    folders: list[str] | None = None,
+    folders: list[str]
+    | None = None,  # None = tabela sem partição (staging direto)
     source_bucket: str = "basedosdados-dev",
     download_billing_project: str = "basedosdados",
     materialize_after_dump: bool = True,
+    dbt_command: str = "run",
     # Interface de metadados — opt-in (desligada por padrão).
     update_metadata: bool = False,
     coverage_tier: str = "all_free",  # all_free|all_bdpro|part_bdpro|non_historical
@@ -108,14 +111,12 @@ def transfer_files_to_prod_flow(
     env: str = "prod",
     bq_project: str = "basedosdados",
 ) -> None:
-    if folders is None:
-        folders = ["mes_competencia=202306", "mes_competencia=202305"]
-
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Materialização Prod: ",
-        dataset_id=dataset_id,
-        table_id=table_id,
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Materialização Prod: ",
+            dataset_id=dataset_id,
+            table_id=table_id,
+        )
     )
 
     output_filepath = download_files_from_bucket_folders(
@@ -144,7 +145,7 @@ def transfer_files_to_prod_flow(
     run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
-        dbt_command="run",
+        dbt_command=dbt_command,
         target="prod",
     )
 
