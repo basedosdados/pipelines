@@ -9,14 +9,8 @@ from pathlib import Path
 
 from prefect import task
 
-from pipelines.datasets.test_dataset.constants import (
-    DATASET_ID,
-    EVENT_PIPELINE_PARTITIONED_TABLE_ID,
-    EVENT_PIPELINE_TABLE_ID,
-)
 from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
 from pipelines.utils.stage_dispatch import CheckResult, DownloadResult
-from pipelines.utils.tasks import upload_to_gcs
 
 # ──────────────────────────────────────────────────────────────────────────────
 # event_pipeline (issue #1867) — ver constants.py
@@ -47,19 +41,13 @@ def event_pipeline_check_update() -> CheckResult:
 
 
 def event_pipeline_download(download_params: dict) -> DownloadResult:
-    """Download simulado (CSV pequeno com a data de referência) + upload
-    pro staging. Devolve o que o `mat_test` genérico precisa."""
+    """Download simulado (CSV pequeno com a data de referência). O upload
+    pro staging é feito pela cápsula (`CheckThenDownloadPipeline.run_download`)
+    a partir de `data_path` — não é responsabilidade deste `download_data`."""
     reference_date = download_params["reference_date"]
 
     csv_path = event_pipeline_write_reference_date_csv(
         reference_date=reference_date
-    )
-    upload_to_gcs(
-        data_path=csv_path,
-        dataset_id=DATASET_ID,
-        table_id=EVENT_PIPELINE_TABLE_ID,
-        bucket_name="basedosdados-dev",
-        dump_mode="append",
     )
 
     return DownloadResult(
@@ -67,6 +55,7 @@ def event_pipeline_download(download_params: dict) -> DownloadResult:
             date_column=DateOnly(col="reference_date"),
             date_format=DateFormat.YEAR_MD,
         ).model_dump(),
+        data_path=csv_path,
         bq_project="basedosdados-dev",
         prefect_mode="dev",
         # Teste real do caminho dev->prod (issue #1867): mat_test_flow
@@ -130,9 +119,9 @@ def event_pipeline_partitioned_download(
     download_params: dict,
 ) -> DownloadResult:
     """
-    Download simulado, mas particionado por `ano=/mes=` — upload pro
-    staging preserva essa estrutura (ver
-    `event_pipeline_partitioned_write_partitioned_csv`). `partition_folders`
+    Download simulado, mas particionado por `ano=/mes=` — o upload pro
+    staging (feito pela cápsula, ver `event_pipeline_download` acima)
+    preserva essa estrutura a partir de `data_path`. `partition_folders`
     no `DownloadResult` é o que faz o `mat_test` promover só essa fatia
     pra prod (`transfer_files_to_prod_flow`), não o staging inteiro.
     """
@@ -143,19 +132,13 @@ def event_pipeline_partitioned_download(
     base_dir = event_pipeline_partitioned_write_partitioned_csv(
         reference_date=reference_date
     )
-    upload_to_gcs(
-        data_path=base_dir,
-        dataset_id=DATASET_ID,
-        table_id=EVENT_PIPELINE_PARTITIONED_TABLE_ID,
-        bucket_name="basedosdados-dev",
-        dump_mode="append",
-    )
 
     return DownloadResult(
         coverage=AllFree(
             date_column=DateOnly(col="reference_date"),
             date_format=DateFormat.YEAR_MD,
         ).model_dump(),
+        data_path=base_dir,
         bq_project="basedosdados-dev",
         prefect_mode="dev",
         # Mesmo teste real do caminho dev->prod do event_pipeline.

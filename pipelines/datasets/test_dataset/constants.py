@@ -14,12 +14,11 @@ BACKEND_ENV = "prod"
 # ──────────────────────────────────────────────────────────────────────────────
 # event_pipeline — piloto da arquitetura orientada a eventos (issue #1867)
 #
-# Variante padrão (check_update/flow_download separados), sem partição —
+# Variante padrão (check_update/download separados), sem partição —
 # um único CSV. Tabela: test_dataset.test_event_pipeline.
 # ──────────────────────────────────────────────────────────────────────────────
 
 EVENT_PIPELINE_TABLE_ID = "test_event_pipeline"
-EVENT_PIPELINE_PREFECT_DATASET_ID = "test_event_pipeline"
 
 # Recursos de pod pras etapas deste piloto — sobrescrevem o default do
 # work pool (2 CPU / 4Gi de limite; 500m CPU / 1Gi de request). Cada
@@ -40,7 +39,7 @@ EVENT_PIPELINE_JOB_VARIABLES = {
         "memory_limit": "512Mi",
         "memory_request": "256Mi",
     },
-    "flow_download": {
+    "download": {
         "cpu_limit": "1",
         "memory_limit": "2Gi",
     },
@@ -56,9 +55,6 @@ EVENT_PIPELINE_JOB_VARIABLES = {
 # ──────────────────────────────────────────────────────────────────────────────
 
 EVENT_PIPELINE_PARTITIONED_TABLE_ID = "test_event_pipeline_partitioned"
-EVENT_PIPELINE_PARTITIONED_PREFECT_DATASET_ID = (
-    "test_event_pipeline_partitioned"
-)
 
 # Mesmos tiers do event_pipeline — carga igualmente sintética/leve.
 EVENT_PIPELINE_PARTITIONED_JOB_VARIABLES = EVENT_PIPELINE_JOB_VARIABLES

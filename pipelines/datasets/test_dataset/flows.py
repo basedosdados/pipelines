@@ -10,9 +10,7 @@ from pipelines.datasets.test_dataset.constants import (
     DATASET_ID,
     EVENT_PIPELINE_JOB_VARIABLES,
     EVENT_PIPELINE_PARTITIONED_JOB_VARIABLES,
-    EVENT_PIPELINE_PARTITIONED_PREFECT_DATASET_ID,
     EVENT_PIPELINE_PARTITIONED_TABLE_ID,
-    EVENT_PIPELINE_PREFECT_DATASET_ID,
     EVENT_PIPELINE_TABLE_ID,
 )
 from pipelines.datasets.test_dataset.tasks import (
@@ -114,19 +112,19 @@ def test_download_data_to_gcs_all_cases_flow() -> None:
 # event_pipeline — piloto da arquitetura orientada a eventos (issue #1867)
 #
 # check_update_flow compara a data de hoje contra a coverage registrada no
-# backend pra test_dataset.test_event_pipeline. flow_download_flow simula
+# backend pra test_dataset.test_event_pipeline. download_flow simula
 # um download (CSV pequeno) e sobe pro staging. A materialização de
 # verdade (dbt run/test em dev e prod + atualização da coverage) é feita
 # pelo mat_test_flow genérico (pipelines/utils/metadata/flows.py).
 #
-# Cadeia: check_update -> (run_deployment) -> flow_download -> (run_deployment) -> mat_test.
+# Cadeia: check_update -> (run_deployment) -> download -> (run_deployment) -> mat_test.
 #
 # Nomes de variável com prefixo `event_pipeline_` de propósito: esse
 # módulo tem várias pipelines, e `deploy_flows.py` descobre flows pelo
 # nome da variável — duas pipelines aqui não podem, as duas, se chamar
 # `check_update_flow` (a segunda sobrescreveria a primeira no namespace
-# do módulo). Por isso `_event_pipeline.flow_download_deployment` é
-# setado logo depois de `event_pipeline_flow_download_flow` existir, a
+# do módulo). Por isso `_event_pipeline.download_deployment` é
+# setado logo depois de `event_pipeline_download_flow` existir, a
 # partir do `__name__` da própria função — não repetido como string solta
 # no construtor (evita o mesmo tipo de risco que o `Etapa(StrEnum)`
 # elimina: duas grafias do mesmo nome que podem divergir silenciosamente).
@@ -135,16 +133,13 @@ def test_download_data_to_gcs_all_cases_flow() -> None:
 _event_pipeline = CheckThenDownloadPipeline(
     dataset_id=DATASET_ID,
     table_id=EVENT_PIPELINE_TABLE_ID,
-    prefect_dataset_id=EVENT_PIPELINE_PREFECT_DATASET_ID,
     env=BACKEND_ENV,
-    check_fn=event_pipeline_check_update,
-    download_fn=event_pipeline_download,
+    check_for_update=event_pipeline_check_update,
+    download_data=event_pipeline_download,
 )
 
 
-@flow(
-    name=f"{EVENT_PIPELINE_PREFECT_DATASET_ID}: check_update", log_prints=True
-)
+@flow(name=_event_pipeline.check_update_flow_name, log_prints=True)
 def event_pipeline_check_update_flow() -> None:
     """Disparado pelo schedule. Todo o corpo mora em `_event_pipeline` —
     ver `CheckThenDownloadPipeline` em `pipelines/utils/stage_dispatch.py`."""
@@ -153,7 +148,7 @@ def event_pipeline_check_update_flow() -> None:
 
 # pyrefly: ignore [missing-attribute]
 event_pipeline_check_update_flow.deploy_tags = deploy_tags(
-    EVENT_PIPELINE_PREFECT_DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE
 )
 # pyrefly: ignore [missing-attribute]
 event_pipeline_check_update_flow.job_variables = EVENT_PIPELINE_JOB_VARIABLES[
@@ -161,10 +156,8 @@ event_pipeline_check_update_flow.job_variables = EVENT_PIPELINE_JOB_VARIABLES[
 ]
 
 
-@flow(
-    name=f"{EVENT_PIPELINE_PREFECT_DATASET_ID}: flow_download", log_prints=True
-)
-def event_pipeline_flow_download_flow(download_params: dict) -> None:
+@flow(name=_event_pipeline.download_flow_name, log_prints=True)
+def event_pipeline_download_flow(download_params: dict) -> None:
     """
     Disparado por `event_pipeline_check_update_flow` via `run_deployment()`,
     ou manualmente (rerun/debug) passando `download_params` à mão.
@@ -173,16 +166,14 @@ def event_pipeline_flow_download_flow(download_params: dict) -> None:
 
 
 # pyrefly: ignore [missing-attribute]
-event_pipeline_flow_download_flow.deploy_tags = deploy_tags(
-    EVENT_PIPELINE_PREFECT_DATASET_ID, Etapa.FLOW_DOWNLOAD
+event_pipeline_download_flow.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.DOWNLOAD
 )
 # pyrefly: ignore [missing-attribute]
-event_pipeline_flow_download_flow.job_variables = EVENT_PIPELINE_JOB_VARIABLES[
-    Etapa.FLOW_DOWNLOAD
+event_pipeline_download_flow.job_variables = EVENT_PIPELINE_JOB_VARIABLES[
+    Etapa.DOWNLOAD
 ]
-_event_pipeline.flow_download_deployment = (
-    event_pipeline_flow_download_flow.fn.__name__
-)
+_event_pipeline.download_deployment = event_pipeline_download_flow.fn.__name__
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -197,17 +188,13 @@ _event_pipeline.flow_download_deployment = (
 _event_pipeline_partitioned = CheckThenDownloadPipeline(
     dataset_id=DATASET_ID,
     table_id=EVENT_PIPELINE_PARTITIONED_TABLE_ID,
-    prefect_dataset_id=EVENT_PIPELINE_PARTITIONED_PREFECT_DATASET_ID,
     env=BACKEND_ENV,
-    check_fn=event_pipeline_partitioned_check_update,
-    download_fn=event_pipeline_partitioned_download,
+    check_for_update=event_pipeline_partitioned_check_update,
+    download_data=event_pipeline_partitioned_download,
 )
 
 
-@flow(
-    name=f"{EVENT_PIPELINE_PARTITIONED_PREFECT_DATASET_ID}: check_update",
-    log_prints=True,
-)
+@flow(name=_event_pipeline_partitioned.check_update_flow_name, log_prints=True)
 def event_pipeline_partitioned_check_update_flow() -> None:
     """Disparado manualmente pro teste. Todo o corpo mora em
     `_event_pipeline_partitioned`."""
@@ -216,7 +203,7 @@ def event_pipeline_partitioned_check_update_flow() -> None:
 
 # pyrefly: ignore [missing-attribute]
 event_pipeline_partitioned_check_update_flow.deploy_tags = deploy_tags(
-    EVENT_PIPELINE_PARTITIONED_PREFECT_DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE
 )
 # pyrefly: ignore [missing-attribute]
 event_pipeline_partitioned_check_update_flow.job_variables = (
@@ -224,11 +211,8 @@ event_pipeline_partitioned_check_update_flow.job_variables = (
 )
 
 
-@flow(
-    name=f"{EVENT_PIPELINE_PARTITIONED_PREFECT_DATASET_ID}: flow_download",
-    log_prints=True,
-)
-def event_pipeline_partitioned_flow_download_flow(
+@flow(name=_event_pipeline_partitioned.download_flow_name, log_prints=True)
+def event_pipeline_partitioned_download_flow(
     download_params: dict,
 ) -> None:
     """
@@ -240,13 +224,13 @@ def event_pipeline_partitioned_flow_download_flow(
 
 
 # pyrefly: ignore [missing-attribute]
-event_pipeline_partitioned_flow_download_flow.deploy_tags = deploy_tags(
-    EVENT_PIPELINE_PARTITIONED_PREFECT_DATASET_ID, Etapa.FLOW_DOWNLOAD
+event_pipeline_partitioned_download_flow.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.DOWNLOAD
 )
 # pyrefly: ignore [missing-attribute]
-event_pipeline_partitioned_flow_download_flow.job_variables = (
-    EVENT_PIPELINE_PARTITIONED_JOB_VARIABLES[Etapa.FLOW_DOWNLOAD]
+event_pipeline_partitioned_download_flow.job_variables = (
+    EVENT_PIPELINE_PARTITIONED_JOB_VARIABLES[Etapa.DOWNLOAD]
 )
-_event_pipeline_partitioned.flow_download_deployment = (
-    event_pipeline_partitioned_flow_download_flow.fn.__name__
+_event_pipeline_partitioned.download_deployment = (
+    event_pipeline_partitioned_download_flow.fn.__name__
 )

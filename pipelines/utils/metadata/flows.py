@@ -66,7 +66,7 @@ def mat_test_flow(
     o retry da própria task, que se perderia atrás de um `@flow` wrapper
     sem retry configurado) — sempre a mesma sequência, então este flow é
     genérico e reaproveitado por qualquer dataset/tabela, disparado ao
-    final de `flow_download` via `run_deployment()` (issue #1867,
+    final de `download` via `run_deployment()` (issue #1867,
     basedosdados/pipelines#1867 — ver `pipelines/utils/stage_dispatch.py`).
 
     Todos os parâmetros são tipados de verdade — `coverage: CoverageSpec`
@@ -95,7 +95,7 @@ def mat_test_flow(
     a `basedosdados-dev`) devem passar `["dev"]`.
 
     `partition_folders` (opcional, `None` por padrão): pastas de partição
-    estilo Hive (ex. `ano=2026/mes=08`) que o `flow_download` upstream
+    estilo Hive (ex. `ano=2026/mes=08`) que o `download` upstream
     atualizou nesta execução — repassadas direto pra
     `transfer_files_to_prod_flow`, pra promover só a fatia nova, não o
     staging inteiro. Tabelas sem partição (como o piloto) não precisam
