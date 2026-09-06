@@ -8,7 +8,7 @@
             "data_type": "int64",
             "range": {"start": 1968, "end": 2029, "interval": 1},
         },
-        cluster_by=["state_residence_id"],
+        cluster_by=["underlying_cause_code", "state_residence_id"],
     )
 }}
 

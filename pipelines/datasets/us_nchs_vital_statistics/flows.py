@@ -71,7 +71,10 @@ def us_nchs_vital_statistics_flow(
                 product,
             )
             continue
-        max_date = f"{source_year}-01-01"
+        # The annual file covers through December of its data year, and the poll
+        # compares this against the registered coverage end (compare_against
+        # defaults to "coverage"), so it must be the END of the year.
+        max_date = f"{source_year}-12-31"
         has_new = poll_source_for_update_task(
             dataset_id=DATASET_ID,
             table_id=product,
@@ -167,7 +170,7 @@ def us_nchs_vital_statistics_flow(
         commit_source_update_task(
             dataset_id=DATASET_ID,
             table_id=product,
-            source_max_date=f"{source_year}-01-01",
+            source_max_date=f"{source_year}-12-31",
             env="prod",
             date_format="%Y-%m-%d",
         )
