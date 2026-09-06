@@ -176,11 +176,12 @@ def main() -> int:
             zf.writestr("definiciones.md", definiciones)
         print(f"{archive}  ({archive.stat().st_size:,} bytes)")
     print(
-        "\nUpload to gs://basedosdados/auxiliary_files/cl_chilecompra_mercado_publico/"
-        "<table>/auxiliary_files.zip and set auxiliary_files_url on each table.\n"
-        "Both GCS buckets are requester-pays, so the published URL currently returns "
-        "HTTP 400 for anonymous users. Verify with an unauthenticated curl and report "
-        "the real status rather than assuming it resolves."
+        "\nUpload to gs://basedosdados-public/auxiliary_files/"
+        "cl_chilecompra_mercado_publico/<table>/auxiliary_files.zip -- the public "
+        "bucket, NOT the data-lake buckets. basedosdados and basedosdados-dev are "
+        "requester-pays, so a link served from either returns HTTP 400 "
+        "UserProjectMissing to an anonymous visitor. Verify with an unauthenticated "
+        "curl and report the real status rather than assuming it resolves."
     )
     return 0
 

@@ -333,3 +333,41 @@ over-counts. One schema per table, verified across all 707 files.
 The dicionario has **164 entries**, up from the 115 derivable from 2007 alone: codes
 appear over time (`codigo_tipo` 10 → 17 keys, `codigo_forma_pago` 34 → 44, licitación
 `sigla_tipo` 5 → 14). Every dictionary-flagged column has entries.
+
+## 14. `orden_compra_item` is incremental
+
+A full rebuild of `orden_compra_item` reads **141.5 GiB** of staging. The recurring
+pipeline only ever re-ingests the trailing window ChileCompra rewrites (roughly the last
+15 months of `oc-da`), so rebuilding twenty years on every weekly run is waste. The model
+is therefore `materialized="incremental"` with `incremental_strategy="insert_overwrite"`,
+rebuilding `max(ano) - 2` onward. Measured on the first incremental run: **64.7 GiB in
+43 s**, with the row count and every per-year count identical before and after, and 2023
+— outside the window — untouched.
+
+Three things about it are load-bearing:
+
+- **The threshold is resolved at compile time into a bare string literal.** The staging
+  table is an external table with hive partitioning in `STRINGS` mode, so `ano` there is
+  a STRING pseudo-column read out of the object path. A literal comparison prunes the
+  parquet files; a subquery or a cast around the column would read all 236 partitions and
+  give back exactly what the incremental model exists to avoid.
+- **`max(ano) - 2`, not the current year.** A 15-month lookback reaches two calendar
+  years back when the run happens in January.
+- **This is not the "trailing window + overwrite erases history" trap.** That failure
+  needs a source that only holds the window. Staging here always holds the full history,
+  so each partition `insert_overwrite` replaces is rebuilt complete from source.
+
+The `pre_hook` dropping row access policies is required — BigQuery blocks DML on a table
+that carries them, and `insert_overwrite` is DML. It is guarded with
+`adapter.get_relation`, because an unguarded `DROP ALL ROW ACCESS POLICIES` fails on the
+**first** build of a relation, including inside the GitHub table-approve prod
+materialisation.
+
+Its tests are scoped to the most recent year partition — unscoped, the uniqueness and
+dictionary-coverage tests each scan all 105.4M rows. The one exception is `not_null` on
+`ano`: `__most_recent_year__` expands to `ano = <max>`, which drops exactly the null rows
+the test looks for, so scoping it would make it pass vacuously.
+
+The other three tables are left as `table`: `licitacion_oferta` is the next largest at
+96.6M rows / 29.1 GB, and its uniqueness and dictionary tests are still unscoped. Worth
+revisiting if the weekly build proves expensive.

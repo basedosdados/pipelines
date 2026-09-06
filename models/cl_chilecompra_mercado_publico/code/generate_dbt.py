@@ -37,6 +37,36 @@ DIRECTORY_MODEL = {
     ),
 }
 
+# orden_compra_item is the expensive model: 105.4M rows / 154.9 GB, and a full rebuild
+# reads 141.5 GiB of staging. The recurring pipeline only ever re-ingests a rolling
+# trailing window -- ChileCompra rewrites roughly the last 15 months of oc-da -- so
+# rebuilding twenty years every week is waste. The other three tables are small enough
+# that a full rebuild is cheaper than the machinery.
+#
+# insert_overwrite replaces exactly the `ano` partitions the incremental query returns.
+# That is safe here, and is NOT the "trailing window + overwrite erases history" trap:
+# the staging external table always holds the FULL history, so each partition it touches
+# is rebuilt complete from source rather than from the window alone.
+#
+# The window is max(ano) - 2, not the current year: a 15-month lookback reaches two
+# calendar years back when the run happens in January.
+INCREMENTAL_LOOKBACK_YEARS = {"orden_compra_item": 2}
+
+# BigQuery blocks DML on a table that carries row access policies, and insert_overwrite
+# is DML -- hence the pre-hook that the house pattern uses on every part_bdpro
+# incremental model. The adapter.get_relation guard matters: an unguarded DROP fails on
+# the FIRST build, when the table does not exist yet, and fails identically inside the
+# GitHub table-approve prod materialisation.
+DROP_POLICIES_PRE_HOOK = (
+    "{% if adapter.get_relation(this.database, this.schema, this.identifier) %}"
+    "DROP ALL ROW ACCESS POLICIES ON {{ this }}"
+    "{% else %}SELECT 1{% endif %}"
+)
+
+# Tests on this table are scoped to the most recent year partition. Unscoped, the
+# uniqueness and dictionary-coverage tests each scan all 105.4M rows.
+SCOPED_TEST_TABLES = {"orden_compra_item"}
+
 DESCRIPTIONS = {
     "orden_compra_item": (
         "Ordens de compra do Mercado Publico do Chile no nivel de linha de item, de 2007 "
@@ -136,6 +166,30 @@ def wrap(text: str, indent: str = "     ", width: int = 95) -> list[str]:
     return out
 
 
+def incremental_filter(lookback: int) -> str:
+    """The WHERE that limits an incremental run to the last `lookback` + 1 years.
+
+    The threshold is resolved at COMPILE time into a bare string literal, deliberately.
+    The staging table is an external table with hive partitioning in STRINGS mode, so
+    `ano` there is a STRING pseudo-column read out of the object path: a literal
+    comparison prunes the parquet files, while a subquery or a cast around the column
+    would read all 236 partitions and give back everything the incremental model is for.
+    """
+    return (
+        "{% if is_incremental() %}\n"
+        "    {%- set max_year_result = run_query("
+        '"select max(ano) as max_year from " ~ this) -%}\n'
+        "    {%- set max_year = 0 -%}\n"
+        "    {%- if execute and max_year_result.rows[0][0] -%}\n"
+        "        {%- set max_year = max_year_result.rows[0][0] -%}\n"
+        "    {%- endif -%}\n"
+        "    -- rebuild the trailing window the source rewrites; every partition it\n"
+        "    -- touches is rebuilt in full from staging, which holds all of history\n"
+        f"    where t.ano >= '{{{{ max_year - {lookback} }}}}'\n"
+        "{% endif %}\n"
+    )
+
+
 def write_models() -> None:
     for table in TABLES:
         arch = utils.read_architecture(table)
@@ -143,22 +197,36 @@ def write_models() -> None:
             "    " + CAST[str(r.bigquery_type)].format(c=r.name)
             for r in arch.itertuples()
         ]
+        lookback = INCREMENTAL_LOOKBACK_YEARS.get(table)
+        if lookback:
+            materialization = (
+                '        materialized="incremental",\n'
+                '        incremental_strategy="insert_overwrite",\n'
+            )
+        else:
+            materialization = '        materialized="table",\n'
         sql = (
             "{{\n"
             "    config(\n"
             f'        schema="{DS}",\n'
             f'        alias="{table}",\n'
-            '        materialized="table",\n'
-            "        partition_by={\n"
+            + materialization
+            + "        partition_by={\n"
             '            "field": "ano",\n'
             '            "data_type": "int64",\n'
             '            "range": {"start": 2007, "end": 2031, "interval": 1},\n'
             "        },\n"
             '        cluster_by=["mes"],\n'
-            "    )\n"
+            + (
+                f'        pre_hook="{DROP_POLICIES_PRE_HOOK}",\n'
+                if lookback
+                else ""
+            )
+            + "    )\n"
             "}}\n\n\nselect\n"
             + ("," + NL).join(casts)
             + f'\nfrom\n    {{{{ set_datalake_project("{DS}_staging.{table}") }}}}\n    as t\n'
+            + (incremental_filter(lookback) if lookback else "")
         )
         (OUT / f"{DS}__{table}.sql").write_text(sql, encoding="utf-8")
         print(f"  model {table}: {len(arch)} columns")
@@ -188,9 +256,13 @@ def write_schema() -> None:
         out.append(f"  - name: {DS}__{table}")
         out.append("    description: >")
         out.extend(wrap(DESCRIPTIONS[table]))
+        scoped = table in SCOPED_TEST_TABLES
         out.append("    tests:")
         out.append("      - dbt_utils.unique_combination_of_columns:")
         out.append(f"          combination_of_columns: [{', '.join(keys)}]")
+        if scoped:
+            out.append("          config:")
+            out.append("            where: __most_recent_year__")
         out.append("      - not_null_proportion_multiple_columns:")
         out.append("          at_least: 0.05")
         # Scope it: unscoped, this test compiles a scan over every column of a table
@@ -211,6 +283,9 @@ def write_schema() -> None:
             for column in dict_cols:
                 out.append(f"            - {column}")
             out.append(f"          dictionary_model: ref('{DS}__dicionario')")
+            if scoped:
+                out.append("          config:")
+                out.append("            where: __most_recent_year__")
         out.append("    columns:")
         for r in arch.itertuples():
             out.append(f"      - name: {r.name}")
@@ -219,17 +294,38 @@ def write_schema() -> None:
             is_key = r.name in keys
             directory = DIRECTORY_MODEL.get(str(r.directory_column))
             if is_partition and not directory:
-                out.append("        tests: [not_null]")
+                if scoped and r.name != "ano":
+                    out.append("        tests:")
+                    out.append("          - not_null:")
+                    out.append("              config:")
+                    out.append("                where: __most_recent_year__")
+                else:
+                    # not_null on `ano` is never scoped: __most_recent_year__ expands
+                    # to `ano = <max>`, which drops the null rows the test looks for,
+                    # so scoping it would make it pass vacuously.
+                    out.append("        tests: [not_null]")
             elif is_partition or is_key or directory:
                 out.append("        tests:")
                 if is_partition:
-                    out.append("          - not_null")
+                    if scoped and r.name != "ano":
+                        out.append("          - not_null:")
+                        out.append("              config:")
+                        out.append(
+                            "                where: __most_recent_year__"
+                        )
+                    else:
+                        out.append("          - not_null")
                 elif is_key:
                     at_least = KEY_NULL_TOLERANCE.get(
                         (table, str(r.name)), DEFAULT_KEY_PROPORTION
                     )
                     out.append("          - dbt_utils.not_null_proportion:")
                     out.append(f"              at_least: {at_least}")
+                    if scoped:
+                        out.append("              config:")
+                        out.append(
+                            "                where: __most_recent_year__"
+                        )
                 if directory:
                     out.append("          - relationships:")
                     out.append(f"              to: ref('{directory[0]}')")

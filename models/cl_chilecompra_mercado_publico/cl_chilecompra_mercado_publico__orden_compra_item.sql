@@ -2,13 +2,15 @@
     config(
         schema="cl_chilecompra_mercado_publico",
         alias="orden_compra_item",
-        materialized="table",
+        materialized="incremental",
+        incremental_strategy="insert_overwrite",
         partition_by={
             "field": "ano",
             "data_type": "int64",
             "range": {"start": 2007, "end": 2031, "interval": 1},
         },
         cluster_by=["mes"],
+        pre_hook="{% if adapter.get_relation(this.database, this.schema, this.identifier) %}DROP ALL ROW ACCESS POLICIES ON {{ this }}{% else %}SELECT 1{% endif %}",
     )
 }}
 
@@ -101,3 +103,13 @@ select
 from
     {{ set_datalake_project("cl_chilecompra_mercado_publico_staging.orden_compra_item") }}
     as t
+{% if is_incremental() %}
+    {%- set max_year_result = run_query("select max(ano) as max_year from " ~ this) -%}
+    {%- set max_year = 0 -%}
+    {%- if execute and max_year_result.rows[0][0] -%}
+        {%- set max_year = max_year_result.rows[0][0] -%}
+    {%- endif -%}
+    -- rebuild the trailing window the source rewrites; every partition it
+    -- touches is rebuilt in full from staging, which holds all of history
+    where t.ano >= '{{ max_year - 2 }}'
+{% endif %}

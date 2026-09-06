@@ -35,6 +35,22 @@ COVERAGE_END = (2026, 8)
 # range starts the month after it.
 FREE_LAG_MONTHS = 6
 
+# Auxiliary bundles are served from basedosdados-public, which is NOT requester-pays.
+# The two data-lake buckets (basedosdados, basedosdados-dev) are, so a link served from
+# either returns HTTP 400 UserProjectMissing to an anonymous visitor -- which is why
+# every one of the 84 production tables using this field today has a dead link. The
+# convention change is pipelines#1928; this dataset follows the working bucket rather
+# than shipping three more dead links.
+AUXILIARY_FILES_BUCKET = "basedosdados-public"
+
+
+def auxiliary_files_url(table_slug: str) -> str:
+    return (
+        f"https://storage.googleapis.com/{AUXILIARY_FILES_BUCKET}/auxiliary_files/"
+        f"{GCP_DATASET_ID}/{table_slug}/auxiliary_files.zip"
+    )
+
+
 DATASET = {
     "name_pt": "Compras Públicas (Mercado Público)",
     "name_en": "Public Procurement (Mercado Público)",
@@ -115,6 +131,7 @@ RAW_SOURCES = {
 TABLES = [
     {
         "slug": "orden_compra_item",
+        "auxiliary_files": True,
         "raw_source": "oc",
         "name_pt": "Ordens de compra (item)",
         "name_en": "Purchase orders (item)",
@@ -157,6 +174,7 @@ TABLES = [
     },
     {
         "slug": "licitacion_item",
+        "auxiliary_files": True,
         "raw_source": "lic",
         "name_pt": "Licitações (item)",
         "name_en": "Tenders (item)",
@@ -197,6 +215,7 @@ TABLES = [
     },
     {
         "slug": "licitacion_oferta",
+        "auxiliary_files": True,
         "raw_source": "lic",
         "name_pt": "Licitações (proposta)",
         "name_en": "Tenders (bid)",
@@ -247,6 +266,7 @@ TABLES = [
     },
     {
         "slug": "dicionario",
+        "auxiliary_files": False,
         "raw_source": None,
         "name_pt": "Dicionário",
         "name_en": "Dictionary",

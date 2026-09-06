@@ -163,7 +163,9 @@ class Registrar:
         status = "published" if self.publish else "under_review"
         if self.dry_run:
             self.log(
-                "dataset:", "update" if current["found"] else "create", f"({status})"
+                "dataset:",
+                "update" if current["found"] else "create",
+                f"({status})",
             )
             return current["id"] or ""
         result = server.create_update_dataset(**args)
@@ -230,6 +232,8 @@ class Registrar:
             # fail before it did anything.
             if table["raw_source"]:
                 args["raw_data_source_ids"] = [raw_ids[table["raw_source"]]]
+            if table["auxiliary_files"]:
+                args["auxiliary_files_url"] = spec.auxiliary_files_url(slug)
             existing_id = current[slug]["id"] if slug in current else ""
             if existing_id:
                 args["id"] = existing_id
