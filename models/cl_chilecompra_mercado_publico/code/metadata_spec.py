@@ -22,9 +22,76 @@ TAGS = [
     "gasto",
     "licitacao",
 ]
+
+# The prod backend keys the same tag vocabulary by ENGLISH slugs; staging kept the
+# Portuguese ones. All eight concepts already exist on prod, so nothing new is created
+# there. The mapping was made against each prod tag's own namePt, which is what
+# separates the near-duplicates: competition/competition-market are competição and
+# concorrência, company/firm are companhia and empresa, expenditure/spending are despesa
+# and gasto.
+TAGS_PROD = {
+    "administracao_publica": "public_administration",
+    "compra": "purchase",
+    "concorrencia": "competition-market",
+    "contrato": "contract",
+    "empresa": "firm",
+    "financas_publicas": "public-finance",
+    "gasto": "spending",
+    "licitacao": "public_procurement",
+}
+
+
+def tags_for(env: str) -> list[str]:
+    if env == "prod":
+        return [TAGS_PROD[t] for t in TAGS]
+    return list(TAGS)
+
+
 AREA = "cl"
 LICENSE = "libre_uso_cl"
 AVAILABILITY = "online"
+
+# ChileCompra publishes no open licence. Its terms permit reuse and contemplate
+# commercial use, but require explicit attribution -- "deberán indicar claramente que la
+# fuente de los datos es la Dirección ChileCompra" -- so it gets its own record, mirroring
+# the existing libre_uso_mx. Neither this nor the organization exists on prod until the
+# registration script creates them.
+LICENSE_RECORD = {
+    "slug": LICENSE,
+    "name_pt": "Livre Uso CL",
+    "name_en": "Free Use CL",
+    "name_es": "Libre Uso CL",
+    "url": "https://www.chilecompra.cl/terminos-y-condiciones-de-uso/",
+}
+
+ORGANIZATION_RECORD = {
+    "slug": ORGANIZATION,
+    "name_pt": "ChileCompra",
+    "name_en": "ChileCompra",
+    "name_es": "ChileCompra",
+    "description_pt": (
+        "Direção de Compras e Contratação Pública (ChileCompra), serviço público "
+        "dependente do Ministério da Fazenda do Chile. Administra o Mercado Público "
+        "(www.mercadopublico.cl), a plataforma transacional pela qual os organismos do "
+        "Estado regidos pela Lei N° 19.886 realizam suas licitações e emitem ordens de "
+        "compra, e publica esses dados de forma aberta."
+    ),
+    "description_en": (
+        "Dirección de Compras y Contratación Pública (ChileCompra), a public agency "
+        "under Chile's Ministry of Finance. It runs Mercado Público "
+        "(www.mercadopublico.cl), the transactional platform through which State bodies "
+        "governed by Law No. 19.886 run their tenders and issue purchase orders, and "
+        "publishes that data openly."
+    ),
+    "description_es": (
+        "Dirección de Compras y Contratación Pública (ChileCompra), servicio público "
+        "dependiente del Ministerio de Hacienda de Chile. Administra Mercado Público "
+        "(www.mercadopublico.cl), la plataforma transaccional mediante la cual los "
+        "organismos del Estado regidos por la Ley N° 19.886 realizan sus licitaciones y "
+        "emiten órdenes de compra, y publica esos datos de forma abierta."
+    ),
+    "website": "https://www.chilecompra.cl",
+}
 
 # The load covers 2007-01 .. 2026-08 in every table.
 COVERAGE_START = (2007, 1)

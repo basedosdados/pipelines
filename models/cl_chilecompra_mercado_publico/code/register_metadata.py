@@ -61,6 +61,44 @@ class Registrar:
     def log(self, *parts):
         print(" ".join(str(p) for p in parts), flush=True)
 
+    @property
+    def tags(self) -> list[str]:
+        return spec.tags_for(self.env)
+
+    def ensure_organization_and_license(self):
+        """Create the ChileCompra organization and the libre_uso_cl licence if absent.
+
+        Both are this dataset's own records -- ChileCompra publishes no open licence, so
+        its terms get a record of their own mirroring libre_uso_mx -- and neither exists
+        on a backend where this dataset has not been registered before. Creating them is
+        idempotent: create_update_* keyed by slug updates the row if it is already there.
+        """
+        if spec.LICENSE not in self.ids["license"]:
+            if self.dry_run:
+                self.log(f"  would create licence {spec.LICENSE}")
+            else:
+                made = server.create_update_license(
+                    env=self.env, **spec.LICENSE_RECORD
+                )
+                self.ids["license"][spec.LICENSE] = made["id"]
+                self.log(f"  created licence {spec.LICENSE}: {made['id']}")
+        if spec.ORGANIZATION not in self.ids["organization"]:
+            if self.dry_run:
+                self.log(f"  would create organization {spec.ORGANIZATION}")
+            else:
+                area = server.lookup_id(
+                    category="area", slug=spec.AREA, env=self.env
+                )
+                made = server.create_update_organization(
+                    env=self.env,
+                    area_id=area["id"],
+                    **spec.ORGANIZATION_RECORD,
+                )
+                self.ids["organization"][spec.ORGANIZATION] = made["id"]
+                self.log(
+                    f"  created organization {spec.ORGANIZATION}: {made['id']}"
+                )
+
     def resolve_ids(self):
         keys = [
             "status",
@@ -78,6 +116,11 @@ class Registrar:
         # at a time.
         area = server.lookup_id(category="area", slug=spec.AREA, env=self.env)
         self.ids["area"] = {spec.AREA: area["id"]} if area.get("id") else {}
+        # The organization and the licence are this dataset's own records, and are
+        # created on a backend that lacks them. Everything else must already exist:
+        # inventing a theme or a tag silently forks a shared vocabulary.
+        self.ensure_organization_and_license()
+
         missing = []
         for key, slug in (
             [
@@ -87,7 +130,7 @@ class Registrar:
                 ("area", spec.AREA),
             ]
             + [("theme", t) for t in spec.THEMES]
-            + [("tag", t) for t in spec.TAGS]
+            + [("tag", t) for t in self.tags]
         ):
             if slug not in self.ids[key]:
                 missing.append(f"{key}:{slug}")
@@ -152,7 +195,7 @@ class Registrar:
             **{k: v for k, v in spec.DATASET.items()},
             organization_ids=[self.ids["organization"][spec.ORGANIZATION]],
             theme_ids=[self.ids["theme"][t] for t in spec.THEMES],
-            tag_ids=[self.ids["tag"][t] for t in spec.TAGS],
+            tag_ids=[self.ids["tag"][t] for t in self.tags],
             status_id=self.ids["status"][
                 "published" if self.publish else "under_review"
             ],
