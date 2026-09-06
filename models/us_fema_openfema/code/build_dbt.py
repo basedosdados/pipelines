@@ -37,11 +37,50 @@ PARTITION_END = 2031
 SPARSE_THRESHOLD = 0.05
 
 # `not_null_proportion_multiple_columns` builds a CASE per column and scans the
-# whole model — at dbt compile, not only at dbt test. On the two wide NFIP
-# tables (85 and 90 columns, 2.7M and 74.3M rows) an unscoped pass is large
-# enough to threaten the project-wide daily byte quota on basedosdados-dev, so
-# it is scoped to the newest partition. See [[reference_null_proportion_test_cost]].
-SCOPED_TESTS = {"nfip_claim", "nfip_policy"}
+# whole model — at dbt compile, not only at dbt test. Whole-table on nfip_policy
+# is roughly 26 GB, enough to threaten the project-wide daily byte quota on
+# basedosdados-dev, so that one table is pinned to a single complete partition
+# (1.3 GB). See [[reference_null_proportion_test_cost]].
+#
+# The scope is a FIXED year, not `__most_recent_year_en__`. The newest partition
+# is the wrong slice to judge "is this column populated?": nfip_policy's newest
+# is 2027, which holds two forward-dated policies, so every column reads as
+# empty; nfip_claim's newest is the current part-year, where no claim has
+# reached a recovery yet. A fixed complete partition instead asks the question
+# worth asking — has the transform stopped populating a column that used to be
+# populated — and does not confuse that with the source not having filled in
+# the current year.
+SCOPE = {"nfip_policy": "year = 2024"}
+
+# Columns that are legitimately near-empty and would otherwise trip the 5%
+# threshold. Measured against each table's own scope above.
+SPARSE_COLUMNS = {
+    "nfip_claim": [
+        # Recoveries happen on ~1.35% of claims; the flood-characteristics code
+        # is recorded on ~1.5%.
+        "flood_characteristics_indicator",
+        "most_recent_recovery_date",
+        "total_bldg_claim_pmt_recovery",
+        "total_contents_claim_pmt_recovery",
+        "total_icc_claim_pmt_recovery",
+        "total_salvage_recovery",
+        "total_subrogation_recovery",
+    ],
+    "nfip_policy": [
+        # The manual rating fields NFIP stopped using when Risk Rating 2.0
+        # replaced them: zero rows in 2024, still populated in earlier years.
+        "additional_building_rate",
+        "additional_contents_rate",
+        "basic_building_rate",
+        "basic_contents_rate",
+        "community_probation_surcharge",
+        "insurance_to_value_code",
+        "subsidized_rate_type",
+        # Only a cancelled policy carries these — 3.2% of 2024.
+        "cancellation_date_of_flood_policy",
+        "cancellation_voidance_reason_code",
+    ],
+}
 
 # County codes that occur in the data but not in the US county directory, which
 # is a current-vintage snapshot. Two different things are on this list and both
@@ -159,9 +198,14 @@ def write_schema() -> None:
             )
         out.append("      - not_null_proportion_multiple_columns:")
         out.append(f"          at_least: {SPARSE_THRESHOLD}")
-        if table in SCOPED_TESTS:
+        if table in SPARSE_COLUMNS:
+            out.append("          ignore_values:")
+            out.extend(
+                f"            - {name}" for name in SPARSE_COLUMNS[table]
+            )
+        if table in SCOPE:
             out.append("          config:")
-            out.append("            where: __most_recent_year_en__")
+            out.append(f"            where: \"{SCOPE[table]}\"")
         coded = [r["name"] for r in rows if r["covered_by_dictionary"] == "yes"]
         if coded:
             # Every code in the data must have a label in `dicionario`. This is
@@ -174,9 +218,9 @@ def write_schema() -> None:
             )
             out.append("          columns_covered_by_dictionary:")
             out.extend(f"            - {name}" for name in coded)
-            if table in SCOPED_TESTS:
+            if table in SCOPE:
                 out.append("          config:")
-                out.append("            where: __most_recent_year_en__")
+                out.append(f"            where: \"{SCOPE[table]}\"")
         out.append("    columns:")
         for row in rows:
             out.append(f"      - name: {row['name']}")

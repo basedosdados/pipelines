@@ -369,8 +369,14 @@ models:
           combination_of_columns: [year, claim_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          config:
-            where: __most_recent_year_en__
+          ignore_values:
+            - flood_characteristics_indicator
+            - most_recent_recovery_date
+            - total_bldg_claim_pmt_recovery
+            - total_contents_claim_pmt_recovery
+            - total_icc_claim_pmt_recovery
+            - total_salvage_recovery
+            - total_subrogation_recovery
       - custom_dictionary_coverage:
           dictionary_model: ref('us_fema_openfema__dicionario')
           columns_covered_by_dictionary:
@@ -395,8 +401,6 @@ models:
             - flood_zone_current
             - building_description_code
             - foundation_type
-          config:
-            where: __most_recent_year_en__
     columns:
       - name: year
         description: >
@@ -771,8 +775,18 @@ models:
           combination_of_columns: [year, policy_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - additional_building_rate
+            - additional_contents_rate
+            - basic_building_rate
+            - basic_contents_rate
+            - community_probation_surcharge
+            - insurance_to_value_code
+            - subsidized_rate_type
+            - cancellation_date_of_flood_policy
+            - cancellation_voidance_reason_code
           config:
-            where: __most_recent_year_en__
+            where: "year = 2024"
       - custom_dictionary_coverage:
           dictionary_model: ref('us_fema_openfema__dicionario')
           columns_covered_by_dictionary:
@@ -805,7 +819,7 @@ models:
             - building_over_water_type
             - foundation_type
           config:
-            where: __most_recent_year_en__
+            where: "year = 2024"
     columns:
       - name: year
         description: >
