@@ -12,6 +12,10 @@ models:
           combination_of_columns: [year, disaster_number, place_code]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_fema_openfema__dicionario')
+          columns_covered_by_dictionary:
+            - declaration_type
     columns:
       - name: year
         description: >
@@ -195,6 +199,10 @@ models:
           combination_of_columns: [year, gm_project_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_fema_openfema__dicionario')
+          columns_covered_by_dictionary:
+            - damage_category_code
     columns:
       - name: year
         description: >
@@ -361,6 +369,32 @@ models:
           combination_of_columns: [year, claim_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_fema_openfema__dicionario')
+          columns_covered_by_dictionary:
+            - basement_enclosure_crawlspace_type
+            - crs_class_code
+            - elevation_certificate_indicator
+            - rated_flood_zone
+            - location_of_contents
+            - number_of_floors_in_insured_building
+            - obstruction_type
+            - occupancy_type
+            - rate_method
+            - building_deductible_code
+            - cause_of_damage
+            - condominium_coverage_type_code
+            - contents_deductible_code
+            - disaster_assistance_coverage_required
+            - flood_characteristics_indicator
+            - non_payment_reason_contents
+            - non_payment_reason_building
+            - replacement_cost_basis
+            - flood_zone_current
+            - building_description_code
+            - foundation_type
           config:
             where: __most_recent_year_en__
     columns:
@@ -737,6 +771,39 @@ models:
           combination_of_columns: [year, policy_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_fema_openfema__dicionario')
+          columns_covered_by_dictionary:
+            - basement_enclosure_crawlspace_type
+            - condominium_coverage_type_code
+            - crs_class_code
+            - building_deductible_code
+            - contents_deductible_code
+            - elevation_certificate_indicator
+            - rated_flood_zone
+            - location_of_contents
+            - number_of_floors_in_insured_building
+            - obstruction_type
+            - occupancy_type
+            - policy_term_indicator
+            - rate_method
+            - regular_emergency_program_indicator
+            - cancellation_voidance_reason_code
+            - subsidized_rate_type
+            - premium_payment_indicator
+            - enclosure_type_code
+            - building_description_code
+            - insurance_to_value_code
+            - waiting_period_type
+            - rollover_transfer_code
+            - disaster_assistance_coverage_required
+            - grandfathering_type_code
+            - flood_zone_current
+            - building_purpose
+            - building_over_water_type
+            - foundation_type
           config:
             where: __most_recent_year_en__
     columns:

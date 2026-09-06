@@ -162,6 +162,21 @@ def write_schema() -> None:
         if table in SCOPED_TESTS:
             out.append("          config:")
             out.append("            where: __most_recent_year_en__")
+        coded = [r["name"] for r in rows if r["covered_by_dictionary"] == "yes"]
+        if coded:
+            # Every code in the data must have a label in `dicionario`. This is
+            # also checked at build time by build_dicionario.py, but only
+            # against the freshly cleaned files; here it holds continuously,
+            # against what is actually in the warehouse.
+            out.append("      - custom_dictionary_coverage:")
+            out.append(
+                f"          dictionary_model: ref('{DATASET}__dicionario')"
+            )
+            out.append("          columns_covered_by_dictionary:")
+            out.extend(f"            - {name}" for name in coded)
+            if table in SCOPED_TESTS:
+                out.append("          config:")
+                out.append("            where: __most_recent_year_en__")
         out.append("    columns:")
         for row in rows:
             out.append(f"      - name: {row['name']}")
