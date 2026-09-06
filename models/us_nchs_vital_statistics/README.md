@@ -172,6 +172,39 @@ ages yield NULL. A value portion of all nines is "not stated" within its unit �
 the 2019 code `1999` is "age in years unknown", not a 999-year-old. `age_detail_code`
 retains the raw published code.
 
+## Disclosure
+
+These are individual-level health records, so the published tables were checked
+before release rather than after.
+
+**Nothing is added relative to the source.** Both tables are a strict column
+subset of the NCHS public-use file with the same rows. No column is a direct
+identifier, every column traces to a published source variable, and the only
+derived columns — `icd_revision` (a function of year), `age_years` (a decode of
+the published `age_detail_code`) and `year` — create no information the source
+did not already carry. Disclosure risk is therefore exactly the source's.
+
+**The source itself is re-identifiable in the county years.** Share of birth
+records unique on (year, month, state, county, mother's age, race, sex,
+plurality, gestation):
+
+| Year | Geography published | Records unique on those fields |
+|---|---|---|
+| 1975 | state | 9.1% |
+| 1990 | state + county | 27.1% |
+| 2000 | state + county | 29.8% |
+| 2003 | state | 2.0% |
+| 2008 | none | 0.8% |
+
+Deaths are higher still — 85.1% in 1990 and 86.6% in 2000 on the equivalent
+fields, falling to 23.2% once geography ends.
+
+NCHS's own disclosure control is visible in that table: removing sub-state
+geography drops uniqueness by roughly fortyfold, which is why they did it. The
+residual concentrates in **1982–2002**, the only years carrying county FIPS.
+Republishing does not add fields, but it does make those years far more
+queryable than a fixed-width file on an FTP server.
+
 ## Dictionary coverage is partial by design
 
 `dicionario` carries 184 verified value labels across 29 columns. The labels are
