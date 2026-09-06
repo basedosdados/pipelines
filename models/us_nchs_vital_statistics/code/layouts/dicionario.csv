@@ -170,11 +170,57 @@ death,place_of_death,9,2003(1)2024,Place of death unknown
 death,race_recode_3,1,1968(1)2020,White
 death,race_recode_3,2,1968(1)2020,Races other than White or Black
 death,race_recode_3,3,1968(1)2020,Black
+death,race_recode_40,01,2019(1)2024,White
+death,race_recode_40,02,2019(1)2024,Black
+death,race_recode_40,03,2019(1)2024,American Indian and Alaska Native
+death,race_recode_40,04,2019(1)2024,Asian Indian
+death,race_recode_40,05,2019(1)2024,Chinese
+death,race_recode_40,06,2019(1)2024,Filipino
+death,race_recode_40,07,2019(1)2024,Japanese
+death,race_recode_40,08,2019(1)2024,Korean
+death,race_recode_40,09,2019(1)2024,Vietnamese
+death,race_recode_40,10,2019(1)2024,Other or multiple Asian
+death,race_recode_40,11,2019(1)2024,Hawaiian
+death,race_recode_40,12,2019(1)2024,Guamanian or Chamorro
+death,race_recode_40,13,2019(1)2024,Samoan
+death,race_recode_40,14,2019(1)2024,Other or multiple Pacific Islander
+death,race_recode_40,15,2019(1)2024,Black and White
+death,race_recode_40,16,2019(1)2024,Black and American Indian or Alaska Native
+death,race_recode_40,17,2019(1)2024,Black and Asian
+death,race_recode_40,18,2019(1)2024,Black and Native Hawaiian or Other Pacific Islander
+death,race_recode_40,19,2019(1)2024,American Indian or Alaska Native and White
+death,race_recode_40,20,2019(1)2024,American Indian or Alaska Native and Asian
+death,race_recode_40,21,2019(1)2024,American Indian or Alaska Native and Native Hawaiian or Other Pacific Islander
+death,race_recode_40,22,2019(1)2024,Asian and White
+death,race_recode_40,23,2019(1)2024,Asian and Native Hawaiian or Other Pacific Islander
+death,race_recode_40,24,2019(1)2024,Native Hawaiian or Other Pacific Islander and White
+death,race_recode_40,25,2019(1)2024,"Black, American Indian or Alaska Native and White"
+death,race_recode_40,26,2019(1)2024,"Black, American Indian or Alaska Native and Asian"
+death,race_recode_40,27,2019(1)2024,"Black, American Indian or Alaska Native and Native Hawaiian or Other Pacific Islander"
+death,race_recode_40,28,2019(1)2024,"Black, Asian and White"
+death,race_recode_40,29,2019(1)2024,"Black, Asian and Native Hawaiian or Other Pacific Islander"
+death,race_recode_40,30,2019(1)2024,"Black, Native Hawaiian or Other Pacific Islander and White"
+death,race_recode_40,31,2019(1)2024,"American Indian or Alaska Native, Asian and White"
+death,race_recode_40,32,2019(1)2024,"American Indian or Alaska Native, Native Hawaiian or Other Pacific Islander and White"
+death,race_recode_40,33,2019(1)2024,"American Indian or Alaska Native, Asian and Native Hawaiian or Other Pacific Islander"
+death,race_recode_40,34,2019(1)2024,"Asian, Native Hawaiian or Other Pacific Islander and White"
+death,race_recode_40,35,2019(1)2024,"Black, American Indian or Alaska Native, Asian and White"
+death,race_recode_40,36,2019(1)2024,"Black, American Indian or Alaska Native, Asian and Native Hawaiian or Other Pacific Islander"
+death,race_recode_40,37,2019(1)2024,"Black, American Indian or Alaska Native, Native Hawaiian or Other Pacific Islander and White"
+death,race_recode_40,38,2019(1)2024,"Black, Asian, Native Hawaiian or Other Pacific Islander and White"
+death,race_recode_40,39,2019(1)2024,"American Indian or Alaska Native, Asian, Native Hawaiian or Other Pacific Islander and White"
+death,race_recode_40,40,2019(1)2024,"Black, American Indian or Alaska Native, Asian, Native Hawaiian or Other Pacific Islander and White"
 death,race_recode_5,0,2004(1)2020,Other (Puerto Rico only)
 death,race_recode_5,1,2004(1)2020,White
 death,race_recode_5,2,2004(1)2020,Black
 death,race_recode_5,3,2004(1)2020,American Indian
 death,race_recode_5,4,2004(1)2020,Asian or Pacific Islander
+death,race_recode_6,1,2022(1)2024,White only
+death,race_recode_6,2,2022(1)2024,Black only
+death,race_recode_6,3,2022(1)2024,American Indian and Alaska Native only
+death,race_recode_6,4,2022(1)2024,Asian only
+death,race_recode_6,5,2022(1)2024,Native Hawaiian or Other Pacific Islander only
+death,race_recode_6,6,2022(1)2024,More than one race
 death,residence_status,1,1968(1)2024,Residents: state and county of occurrence and residence are the same
 death,residence_status,2,1968(1)2024,Intrastate nonresidents: state of occurrence and residence are the same but county differs
 death,residence_status,3,1968(1)2024,"Interstate nonresidents: state of occurrence and residence differ, both in the United States"

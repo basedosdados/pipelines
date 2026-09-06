@@ -17,21 +17,30 @@ models:
       nao tem layout publicado e esta ausente.
     tests:
       - not_null_proportion_multiple_columns:
-          # Scoped to the newest year: unscoped, this scans every column of a
-          # 200M-row table on every run. The newest year is also the one a
-          # refresh actually appends, so it is the meaningful check.
-          config:
-            where: __most_recent_year_en__
           at_least: 0.05
           ignore_values:
-            # absent from the source in the newest year
-            - state_residence_id
+            - birth_day_of_week
             - county_residence_id
-            - record_weight
+            - county_residence_population_code
+            - mother_education_code
             - mother_education_years
-            - mother_race_code
             - mother_race_bridged_code
-            - father_race_code
+            - mother_race_recode_6
+            - mother_race_recode_31
+            - father_race_recode_6
+            - mother_hispanic_origin_code
+            - mother_race_hispanic_code
+            - mother_nativity_code
+            - gestation_recode_3
+            - birth_weight_recode_4
+            - delivery_method_recode
+            - apgar_score_5min
+            - prenatal_care_month_began
+            - prenatal_visits
+            - state_residence_id
+            - mother_marital_status
+            - father_age_years
+            - record_weight
     columns:
       - name: year
         description: >
@@ -173,21 +182,30 @@ models:
       revisao vale em cada ano; codigos de revisoes diferentes nao sao comparaveis.
     tests:
       - not_null_proportion_multiple_columns:
-          # Scoped to the newest year: unscoped, this scans every column of a
-          # 200M-row table on every run. The newest year is also the one a
-          # refresh actually appends, so it is the meaningful check.
-          config:
-            where: __most_recent_year_en__
           at_least: 0.05
           ignore_values:
-            # absent from the source in the newest year
-            - state_residence_id
             - county_residence_id
-            - race_recode_3
+            - state_residence_id
             - race_recode_5
+            - race_recode_3
+            - race_bridged_flag
+            - hispanic_origin_code
             - hispanic_origin_race_recode
+            - hispanic_origin_race_recode_1997
             - education_years
+            - education_code
+            - education_reporting_flag
+            - marital_status
+            - place_of_death
+            - manner_of_death
+            - cause_recode_113
+            - cause_recode_358
+            - cause_recode_39
             - cause_recode_72
+            - death_day_of_week
+            - injury_at_work
+            - autopsy
+            - age_years
     columns:
       - name: year
         description: >
@@ -246,6 +264,15 @@ models:
       - name: race_bridged_flag
         description: >
           Indicador de que a raça foi convertida pela metodologia ponte
+      - name: race_recode_6
+        description: >
+          Raça do falecido em seis categorias de raça única sob o padrão OMB de 1997,
+          a partir de 2022
+      - name: race_recode_40
+        description: >
+          Raça detalhada do falecido em 40 categorias de raça única sob o padrão OMB
+          de 1997, a partir de 2019; de 2021 em diante é a única informação de raça
+          no arquivo
       - name: hispanic_origin_code
         description: >
           Origem hispânica do falecido

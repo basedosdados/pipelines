@@ -29,6 +29,8 @@ select
     safe_cast(race_recode_3 as string) race_recode_3,
     safe_cast(race_recode_5 as string) race_recode_5,
     safe_cast(race_bridged_flag as string) race_bridged_flag,
+    safe_cast(race_recode_6 as string) race_recode_6,
+    safe_cast(race_recode_40 as string) race_recode_40,
     safe_cast(hispanic_origin_code as string) hispanic_origin_code,
     safe_cast(hispanic_origin_race_recode as string) hispanic_origin_race_recode,
     safe_cast(

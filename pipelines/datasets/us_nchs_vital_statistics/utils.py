@@ -422,6 +422,27 @@ COLUMN_SPEC: dict[str, list[tuple]] = {
             "2003 onward",
         ),
         (
+            "race_recode_6",
+            "STRING",
+            "",
+            ["racer6"],
+            [],
+            None,
+            "single race under the 1997 OMB standard, 2022 onward. Replaces the bridged "
+            "race_recode_3/5, which NCHS stopped publishing after 2020",
+        ),
+        (
+            "race_recode_40",
+            "STRING",
+            "",
+            ["race40"],
+            [],
+            None,
+            "detailed single race under the 1997 OMB standard, 2019 onward. From 2021 "
+            "this and race_recode_6 are the only race information in the file: the "
+            "bridged race_code is no longer populated",
+        ),
+        (
             "hispanic_origin_code",
             "STRING",
             "",
