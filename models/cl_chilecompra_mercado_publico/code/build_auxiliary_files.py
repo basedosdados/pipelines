@@ -8,7 +8,9 @@ left as a link that may be restructured away.
     uv run python models/cl_chilecompra_mercado_publico/code/build_auxiliary_files.py
 
 Writes <root>/auxiliary_files/<table>/auxiliary_files.zip, ready to upload to
-gs://basedosdados/auxiliary_files/cl_chilecompra_mercado_publico/<table>/.
+gs://basedosdados-public/auxiliary_files/cl_chilecompra_mercado_publico/<table>/ -- the
+public bucket, not the data-lake ones, which are requester-pays and answer an anonymous
+request with HTTP 400.
 """
 
 from __future__ import annotations

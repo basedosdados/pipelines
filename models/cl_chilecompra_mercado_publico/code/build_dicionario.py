@@ -130,7 +130,11 @@ def main() -> int:
                     "valor": row["valor"],
                 }
             )
-        covered.add((table, code))
+        # Only a pair that actually produced keys counts as covered. Marking an empty
+        # result as covered hides it from the missing-entries report below, which is the
+        # one thing that report exists to catch.
+        if len(pairs):
+            covered.add((table, code))
         print(f"{table}.{code}: {len(pairs)} keys")
 
     # Currency names live only in licitaciones; reuse them for the OC currency columns.

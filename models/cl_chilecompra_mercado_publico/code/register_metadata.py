@@ -72,9 +72,14 @@ class Registrar:
         its terms get a record of their own mirroring libre_uso_mx -- and neither exists
         on a backend where this dataset has not been registered before. Creating them is
         idempotent: create_update_* keyed by slug updates the row if it is already there.
+
+        A dry run records a placeholder id for whatever it would have created, so
+        resolve_ids does not then abort on "missing organization/license" and hide the
+        rest of the plan -- which is the whole point of asking for a dry run.
         """
         if spec.LICENSE not in self.ids["license"]:
             if self.dry_run:
+                self.ids["license"][spec.LICENSE] = "<dry-run>"
                 self.log(f"  would create licence {spec.LICENSE}")
             else:
                 made = server.create_update_license(
@@ -84,6 +89,7 @@ class Registrar:
                 self.log(f"  created licence {spec.LICENSE}: {made['id']}")
         if spec.ORGANIZATION not in self.ids["organization"]:
             if self.dry_run:
+                self.ids["organization"][spec.ORGANIZATION] = "<dry-run>"
                 self.log(f"  would create organization {spec.ORGANIZATION}")
             else:
                 area = server.lookup_id(
@@ -485,14 +491,38 @@ class Registrar:
                     f"  raw source {key}: Update latest={source_latest[:10]}"
                 )
                 continue
+            # Reuse the existing record. create_update_update called without an id
+            # CREATES, so omitting this adds a second Update to the same raw source on
+            # every re-run -- the exact duplication this script exists to avoid, and one
+            # the table-anchored loop above already guards against.
+            existing = self.raw_source_update_id(raw_id)
             server.create_update_update(
                 entity_id=month,
                 frequency=1,
                 latest=source_latest,
                 raw_data_source_id=raw_id,
+                id=existing,
                 env=self.env,
             )
             self.log(f"  raw source {key}: Update latest={source_latest[:10]}")
+
+    def raw_source_update_id(self, raw_id: str) -> str | None:
+        """The id of this raw source's month-entity Update, or None if it has none."""
+        q = """
+        query($id: ID!) {
+          allRawdatasource(id: $id) { edges { node { updates(first: 10) {
+            edges { node { id entity { slug } } }
+          } } } }
+        }"""
+        edges = server._gql(q, {"id": raw_id}, env=self.env)[
+            "allRawdatasource"
+        ]["edges"]
+        if not edges:
+            return None
+        for upd in edges[0]["node"]["updates"]["edges"]:
+            if (upd["node"].get("entity") or {}).get("slug") == "month":
+                return server._strip_id(upd["node"]["id"])
+        return None
 
     # --------------------------------------------------------------- 9. order
     def order(self):

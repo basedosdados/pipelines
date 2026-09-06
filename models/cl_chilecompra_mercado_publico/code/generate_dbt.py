@@ -69,8 +69,8 @@ SCOPED_TEST_TABLES = {"orden_compra_item"}
 
 DESCRIPTIONS = {
     "orden_compra_item": (
-        "Ordens de compra do Mercado Publico do Chile no nivel de linha de item, de 2007 "
-        "a hoje. Cada linha e um item de uma ordem de compra emitida por um organismo "
+        "Ordens de compra do Mercado Publico do Chile no nivel de linha de item, de janeiro de 2007 "
+        "em diante. Cada linha e um item de uma ordem de compra emitida por um organismo "
         "publico a um fornecedor. A chave logica e (codigo_orden_compra, id_item). "
         "Conforme a propria ChileCompra, o arquivo de descarga massiva inclui ordens de "
         "compra que sao excluidas das estatisticas oficiais por conterem erros de valor "
@@ -78,13 +78,13 @@ DESCRIPTIONS = {
         "cifras publicadas pela ChileCompra."
     ),
     "licitacion_item": (
-        "Licitacoes do Mercado Publico do Chile no nivel de linha de item, de 2007 a "
-        "hoje. Cada linha e um item de uma licitacao, com todos os atributos do processo "
+        "Licitacoes do Mercado Publico do Chile no nivel de linha de item, de janeiro de 2007 "
+        "em diante. Cada linha e um item de uma licitacao, com todos os atributos do processo "
         "licitatorio. A chave logica e (codigo_licitacion, codigo_item). As propostas "
         "recebidas em cada item estao na tabela licitacion_oferta."
     ),
     "licitacion_oferta": (
-        "Propostas recebidas nas licitacoes do Mercado Publico do Chile, de 2007 a hoje. "
+        "Propostas recebidas nas licitacoes do Mercado Publico do Chile, de janeiro de 2007 em diante. "
         "Cada linha e a proposta de um fornecedor para uma linha de item de uma "
         "licitacao, incluindo as propostas nao vencedoras. A chave logica e "
         "(codigo_licitacion, codigo_item, codigo_proveedor, nombre_oferta). Os atributos "

@@ -3,16 +3,17 @@ version: 2
 models:
   - name: cl_chilecompra_mercado_publico__orden_compra_item
     description: >
-      Ordens de compra do Mercado Publico do Chile no nivel de linha de item, de 2007
-      a hoje.
-      Cada linha e um item de uma ordem de compra emitida por um organismo publico
-      a um
-      fornecedor. A chave logica e (codigo_orden_compra, id_item). Conforme a propria
-      ChileCompra, o arquivo de descarga massiva inclui ordens de compra que sao excluidas
-      das
-      estatisticas oficiais por conterem erros de valor ou de tipo de moeda, de modo
-      que
-      agregados calculados aqui nao coincidem com as cifras publicadas pela ChileCompra.
+      Ordens de compra do Mercado Publico do Chile no nivel de linha de item, de janeiro
+      de
+      2007 em diante. Cada linha e um item de uma ordem de compra emitida por um organismo
+      publico a um fornecedor. A chave logica e (codigo_orden_compra, id_item). Conforme
+      a
+      propria ChileCompra, o arquivo de descarga massiva inclui ordens de compra que
+      sao
+      excluidas das estatisticas oficiais por conterem erros de valor ou de tipo de
+      moeda, de
+      modo que agregados calculados aqui nao coincidem com as cifras publicadas pela
+      ChileCompra.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [codigo_orden_compra, id_item]
@@ -245,13 +246,12 @@ models:
         description: Valor total liquido da linha de item
   - name: cl_chilecompra_mercado_publico__licitacion_item
     description: >
-      Licitacoes do Mercado Publico do Chile no nivel de linha de item, de 2007 a
-      hoje. Cada
-      linha e um item de uma licitacao, com todos os atributos do processo licitatorio.
-      A chave
-      logica e (codigo_licitacion, codigo_item). As propostas recebidas em cada item
-      estao na
-      tabela licitacion_oferta.
+      Licitacoes do Mercado Publico do Chile no nivel de linha de item, de janeiro
+      de 2007 em
+      diante. Cada linha e um item de uma licitacao, com todos os atributos do processo
+      licitatorio. A chave logica e (codigo_licitacion, codigo_item). As propostas
+      recebidas em
+      cada item estao na tabela licitacion_oferta.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [codigo_licitacion, codigo_item]
@@ -511,11 +511,12 @@ models:
         description: Quantidade solicitada do item
   - name: cl_chilecompra_mercado_publico__licitacion_oferta
     description: >
-      Propostas recebidas nas licitacoes do Mercado Publico do Chile, de 2007 a hoje.
-      Cada
-      linha e a proposta de um fornecedor para uma linha de item de uma licitacao,
-      incluindo as
-      propostas nao vencedoras. A chave logica e (codigo_licitacion, codigo_item,
+      Propostas recebidas nas licitacoes do Mercado Publico do Chile, de janeiro de
+      2007 em
+      diante. Cada linha e a proposta de um fornecedor para uma linha de item de uma
+      licitacao,
+      incluindo as propostas nao vencedoras. A chave logica e (codigo_licitacion,
+      codigo_item,
       codigo_proveedor, nombre_oferta). Os atributos do processo licitatorio estao
       na tabela
       licitacion_item.
