@@ -19,8 +19,11 @@ and cause of death (ICD-8/9/10). See ``models/us_nchs_vital_statistics/README.md
 
 from __future__ import annotations
 
+import contextlib
 import csv
 import logging
+import shutil
+import subprocess
 import zipfile
 from pathlib import Path
 
@@ -711,24 +714,120 @@ def decode_age_years(codes: pd.Series, year: int) -> pd.Series:
 # --------------------------------------------------------------------------- #
 # Fixed-width reading
 # --------------------------------------------------------------------------- #
-def _open_data_member(zip_path: Path):
-    """Yield a binary handle on the single data member inside an NCHS zip."""
+# NCHS zips are not all standard deflate. Several years ship deflate64
+# (method 9) and 2015 natality ships PPMd (method 98); Python's zipfile
+# supports neither. `7z` handles both and is in the pipeline image
+# (p7zip-full); `unzip` covers deflate64 and `bsdtar` covers PPMd, which is
+# what is available on a developer machine.
+#
+# `unzip -p` on a PPMd member exits 0 and writes NOTHING, so a fallback that
+# trusted the exit code would silently produce an empty partition. Every
+# candidate is therefore required to yield actual bytes before it is accepted.
+_EXTRACTORS = (
+    ("7z", lambda z, m: ["7z", "e", "-so", str(z), m]),
+    ("unzip", lambda z, m: ["unzip", "-p", str(z), m]),
+    ("bsdtar", lambda z, m: ["bsdtar", "-xOf", str(z), m]),
+)
+
+
+def _largest_member(zip_path: Path) -> str:
     zf = zipfile.ZipFile(zip_path)
-    members = [i for i in zf.infolist() if not i.is_dir()]
-    if not members:
-        raise ValueError(f"{zip_path} contains no files")
-    member = max(members, key=lambda i: i.file_size)
-    return zf, zf.open(member)
+    try:
+        members = [i for i in zf.infolist() if not i.is_dir()]
+        if not members:
+            raise ValueError(f"{zip_path} contains no files")
+        return max(members, key=lambda i: i.file_size).filename
+    finally:
+        zf.close()
 
 
-def _detect_stride(handle) -> tuple[int, int]:
-    """Return (record_length, stride) for a fixed-width NCHS file.
+class _MemberStream:
+    """A read-only byte stream over one member of an NCHS zip.
+
+    Uses Python's zipfile when it understands the compression method, and
+    otherwise shells out to the first external extractor that actually
+    produces bytes.
+    """
+
+    def __init__(self, zip_path: Path):
+        self.zip_path = Path(zip_path)
+        self.member = _largest_member(self.zip_path)
+        self._zf = None
+        self._proc = None
+        self._stream = None
+        self._open()
+
+    def _open(self):
+        zf = zipfile.ZipFile(self.zip_path)
+        info = zf.getinfo(self.member)
+        if info.compress_type in (zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED):
+            self._zf = zf
+            self._stream = zf.open(info)
+            return
+        zf.close()
+        errors = []
+        for name, argv in _EXTRACTORS:
+            if shutil.which(name) is None:
+                errors.append(f"{name}: not installed")
+                continue
+            proc = subprocess.Popen(
+                argv(self.zip_path, self.member),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL,
+            )
+            head = proc.stdout.read(1 << 16) if proc.stdout else b""
+            if head:
+                self._proc = proc
+                self._stream = proc.stdout
+                self._head = head
+                log.info(
+                    "%s uses compression method %s; extracted with %s",
+                    self.zip_path.name,
+                    info.compress_type,
+                    name,
+                )
+                return
+            proc.kill()
+            proc.wait()
+            errors.append(f"{name}: produced no output")
+        raise RuntimeError(
+            f"cannot decompress {self.zip_path.name} "
+            f"(compression method {info.compress_type}): " + "; ".join(errors)
+        )
+
+    _head = b""
+
+    def read(self, n: int = -1) -> bytes:
+        if self._head:
+            head, self._head = self._head, b""
+            if n is not None and n >= 0 and len(head) > n:
+                self._head = head[n:]
+                return head[:n]
+            rest = (
+                self._stream.read(max(0, n - len(head)))
+                if n and n > 0
+                else self._stream.read()
+            )
+            return head + (rest or b"")
+        return self._stream.read(n) if n is not None else self._stream.read()
+
+    def close(self):
+        if self._stream is not None:
+            with contextlib.suppress(Exception):
+                self._stream.close()
+        if self._proc is not None:
+            self._proc.kill()
+            self._proc.wait()
+        if self._zf is not None:
+            self._zf.close()
+
+
+def _detect_stride(probe: bytes) -> tuple[int, int]:
+    """Return (record_length, stride) from the first bytes of the file.
 
     stride includes the line terminator. Returns stride 0 when the file is not
     uniformly strided, so the caller falls back to line-by-line reading.
     """
-    probe = handle.read(1 << 20)
-    handle.seek(0)
     nl = probe.find(b"\n")
     if nl == -1:
         return len(probe), 0
@@ -859,25 +958,32 @@ def parse_year(
         len(resolved),
         ",".join(missing) or "none",
     )
-    zf, handle = _open_data_member(zip_path)
+    stream = _MemberStream(zip_path)
+    total = 0
     try:
-        reclen, stride = _detect_stride(handle)
+        probe = stream.read(1 << 20)
+        if not probe:
+            raise RuntimeError(f"{zip_path.name}: extractor produced no data")
+        reclen, stride = _detect_stride(probe)
         if stride:
             # Uniform stride: slice the raw buffer directly, no per-line work.
             block = stride * chunk_rows
             carry = b""
+            buf = probe
             while True:
-                buf = handle.read(block)
-                if not buf:
-                    break
                 buf = carry + buf
                 usable = (len(buf) // stride) * stride
                 carry = buf[usable:]
                 if usable:
+                    total += usable // stride
                     yield _columns_from_block(
                         buf[:usable], stride, reclen, resolved, product, year
                     )
+                buf = stream.read(block)
+                if not buf:
+                    break
             if carry.strip():
+                total += 1
                 yield _columns_from_block(
                     carry.ljust(stride, b" "),
                     stride,
@@ -896,23 +1002,43 @@ def parse_year(
             )
             width = max(width, reclen)
             lines: list[bytes] = []
-            for raw in handle:
-                raw = raw.rstrip(b"\r\n")
-                if not raw:
-                    continue
-                lines.append(raw.ljust(width, b" ")[:width])
-                if len(lines) >= chunk_rows:
-                    yield _columns_from_block(
-                        b"".join(lines), width, width, resolved, product, year
-                    )
-                    lines = []
+            carry = b""
+            buf = probe
+            while True:
+                data = carry + buf
+                parts = data.split(b"\n")
+                carry = parts.pop()
+                for raw in parts:
+                    raw = raw.rstrip(b"\r")
+                    if not raw:
+                        continue
+                    lines.append(raw.ljust(width, b" ")[:width])
+                    if len(lines) >= chunk_rows:
+                        total += len(lines)
+                        yield _columns_from_block(
+                            b"".join(lines),
+                            width,
+                            width,
+                            resolved,
+                            product,
+                            year,
+                        )
+                        lines = []
+                buf = stream.read(1 << 22)
+                if not buf:
+                    break
+            tail = carry.rstrip(b"\r")
+            if tail:
+                lines.append(tail.ljust(width, b" ")[:width])
             if lines:
+                total += len(lines)
                 yield _columns_from_block(
                     b"".join(lines), width, width, resolved, product, year
                 )
     finally:
-        handle.close()
-        zf.close()
+        stream.close()
+    if total == 0:
+        raise RuntimeError(f"{zip_path.name}: no records parsed")
 
 
 def _string_schema(product: str) -> pa.Schema:
@@ -965,6 +1091,7 @@ def clean_all(
     products=("birth", "death"),
     years: list[int] | None = None,
     layouts: dict | None = None,
+    skip_existing: bool = False,
 ) -> dict:
     """Clean every downloaded product-year into partitioned parquet.
 
@@ -986,6 +1113,10 @@ def clean_all(
                 log.warning(
                     "%s %s: no published record layout, skipped", product, year
                 )
+                continue
+            done = Path(output_dir) / product / f"year={year}" / "data.parquet"
+            if skip_existing and done.exists() and done.stat().st_size > 0:
+                log.info("%s %s already written, skipping", product, year)
                 continue
             n = write_year(
                 parse_year(product, year, zip_path, layouts),

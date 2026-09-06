@@ -36,6 +36,11 @@ def main():
     ap.add_argument("--products", nargs="*", default=["birth", "death"])
     ap.add_argument("--years", nargs="*", type=int)
     ap.add_argument("--skip-dicionario", action="store_true")
+    ap.add_argument(
+        "--skip-existing",
+        action="store_true",
+        help="leave already-written year partitions alone (resume a partial run)",
+    )
     args = ap.parse_args()
 
     logging.basicConfig(
@@ -47,6 +52,7 @@ def main():
         DATA / "output",
         products=tuple(args.products),
         years=args.years,
+        skip_existing=args.skip_existing,
     )
     if not args.skip_dicionario:
         n = u.write_dicionario(constants.CODE_DIR.value, DATA / "output")
