@@ -1,0 +1,535 @@
+---
+version: 2
+models:
+  - name: us_census_lodes__residence_jobs
+    description: Número de empregos por bloco censitário de residência do trabalhador,
+      ano e tipo de vínculo, com desagregações por idade, faixa de rendimento, setor
+      NAICS, raça, etnia, escolaridade e sexo. Corresponde aos arquivos Residence
+      Area Characteristics (RAC) do LODES 8, segmento S000 (todos os trabalhadores).
+      Os dados são enumerados em blocos censitários de 2020 e toda a série histórica
+      foi reprocessada para essa malha; códigos de bloco de versões anteriores do
+      LODES (malha de 2010) não são comparáveis sem os arquivos de relacionamento
+      do Census Bureau.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, job_type, block_id]
+          config:
+            where: __most_recent_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - jobs_education_bachelors_or_higher
+            - jobs_education_high_school
+            - jobs_education_less_than_high_school
+            - jobs_education_some_college
+            - jobs_ethnicity_hispanic
+            - jobs_ethnicity_not_hispanic
+            - jobs_race_american_indian_alaska_native
+            - jobs_race_asian
+            - jobs_race_black
+            - jobs_race_native_hawaiian_pacific_islander
+            - jobs_race_two_or_more
+            - jobs_race_white
+            - jobs_sex_female
+            - jobs_sex_male
+          config:
+            where: __most_recent_year__
+    columns:
+      - name: year
+        description: Ano de referência dos dados
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+              config:
+                where: __most_recent_year__
+      - name: state_id
+        description: Código FIPS do estado do bloco censitário de residência
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+              config:
+                where: __most_recent_year__
+      - name: county_id
+        description: Código FIPS do condado do bloco censitário de residência
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              config:
+                where: __most_recent_year__
+      - name: census_tract_id
+        description: Código do setor censitário de 2020 do bloco de residência
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__census_tract_2020')
+              field: id_census_tract
+              config:
+                where: __most_recent_year__
+      - name: block_id
+        description: Código do bloco censitário de tabulação de 2020 de residência
+        tests: [not_null]
+      - name: job_type
+        description: Tipo de vínculo empregatício considerado na tabulação
+        tests: [not_null]
+      - name: jobs_total
+        description: Número total de empregos
+      - name: jobs_age_29_or_younger
+        description: Número de empregos de trabalhadores de 29 anos ou menos
+      - name: jobs_age_30_to_54
+        description: Número de empregos de trabalhadores de 30 a 54 anos
+      - name: jobs_age_55_or_older
+        description: Número de empregos de trabalhadores de 55 anos ou mais
+      - name: jobs_earnings_1250_or_less
+        description: Número de empregos com rendimento mensal de até 1.250 dólares
+      - name: jobs_earnings_1251_to_3333
+        description: Número de empregos com rendimento mensal de 1.251 a 3.333 dólares
+      - name: jobs_earnings_above_3333
+        description: Número de empregos com rendimento mensal superior a 3.333 dólares
+      - name: jobs_naics_11
+        description: Número de empregos no setor NAICS 11 (Agricultura, silvicultura,
+          pesca e caça)
+      - name: jobs_naics_21
+        description: Número de empregos no setor NAICS 21 (Indústria extrativa e extração
+          de petróleo e gás)
+      - name: jobs_naics_22
+        description: Número de empregos no setor NAICS 22 (Utilidades públicas)
+      - name: jobs_naics_23
+        description: Número de empregos no setor NAICS 23 (Construção)
+      - name: jobs_naics_31_33
+        description: Número de empregos no setor NAICS 31-33 (Indústria de transformação)
+      - name: jobs_naics_42
+        description: Número de empregos no setor NAICS 42 (Comércio atacadista)
+      - name: jobs_naics_44_45
+        description: Número de empregos no setor NAICS 44-45 (Comércio varejista)
+      - name: jobs_naics_48_49
+        description: Número de empregos no setor NAICS 48-49 (Transporte e armazenagem)
+      - name: jobs_naics_51
+        description: Número de empregos no setor NAICS 51 (Informação)
+      - name: jobs_naics_52
+        description: Número de empregos no setor NAICS 52 (Atividades financeiras
+          e de seguros)
+      - name: jobs_naics_53
+        description: Número de empregos no setor NAICS 53 (Atividades imobiliárias
+          e de aluguel)
+      - name: jobs_naics_54
+        description: Número de empregos no setor NAICS 54 (Serviços profissionais,
+          científicos e técnicos)
+      - name: jobs_naics_55
+        description: Número de empregos no setor NAICS 55 (Gestão de empresas e empreendimentos)
+      - name: jobs_naics_56
+        description: Número de empregos no setor NAICS 56 (Serviços administrativos,
+          de apoio e de gestão de resíduos)
+      - name: jobs_naics_61
+        description: Número de empregos no setor NAICS 61 (Serviços educacionais)
+      - name: jobs_naics_62
+        description: Número de empregos no setor NAICS 62 (Saúde e assistência social)
+      - name: jobs_naics_71
+        description: Número de empregos no setor NAICS 71 (Artes, entretenimento e
+          recreação)
+      - name: jobs_naics_72
+        description: Número de empregos no setor NAICS 72 (Alojamento e alimentação)
+      - name: jobs_naics_81
+        description: Número de empregos no setor NAICS 81 (Outros serviços, exceto
+          administração pública)
+      - name: jobs_naics_92
+        description: Número de empregos no setor NAICS 92 (Administração pública)
+      - name: jobs_race_white
+        description: Número de empregos de trabalhadores de raça branca, isoladamente
+      - name: jobs_race_black
+        description: Número de empregos de trabalhadores negros ou afro-americanos,
+          isoladamente
+      - name: jobs_race_american_indian_alaska_native
+        description: Número de empregos de trabalhadores indígenas americanos ou nativos
+          do Alasca, isoladamente
+      - name: jobs_race_asian
+        description: Número de empregos de trabalhadores asiáticos, isoladamente
+      - name: jobs_race_native_hawaiian_pacific_islander
+        description: Número de empregos de trabalhadores nativos do Havaí ou de outras
+          ilhas do Pacífico, isoladamente
+      - name: jobs_race_two_or_more
+        description: Número de empregos de trabalhadores de dois ou mais grupos raciais
+      - name: jobs_ethnicity_not_hispanic
+        description: Número de empregos de trabalhadores não hispânicos ou latinos
+      - name: jobs_ethnicity_hispanic
+        description: Número de empregos de trabalhadores hispânicos ou latinos
+      - name: jobs_education_less_than_high_school
+        description: Número de empregos de trabalhadores sem ensino médio completo
+      - name: jobs_education_high_school
+        description: Número de empregos de trabalhadores com ensino médio completo
+          e sem ensino superior
+      - name: jobs_education_some_college
+        description: Número de empregos de trabalhadores com ensino superior incompleto
+          ou curso de nível associado
+      - name: jobs_education_bachelors_or_higher
+        description: Número de empregos de trabalhadores com bacharelado ou pós-graduação
+      - name: jobs_sex_male
+        description: Número de empregos de trabalhadores do sexo masculino
+      - name: jobs_sex_female
+        description: Número de empregos de trabalhadoras do sexo feminino
+      - name: date_created
+        description: Data de criação do arquivo de origem pelo Census Bureau
+  - name: us_census_lodes__workplace_jobs
+    description: Número de empregos por bloco censitário do local de trabalho, ano
+      e tipo de vínculo, com desagregações por idade, faixa de rendimento, setor NAICS,
+      raça, etnia, escolaridade, sexo, idade da firma e porte da firma. Corresponde
+      aos arquivos Workplace Area Characteristics (WAC) do LODES 8, segmento S000
+      (todos os trabalhadores). Os dados são enumerados em blocos censitários de 2020
+      e toda a série histórica foi reprocessada para essa malha; códigos de bloco
+      de versões anteriores do LODES (malha de 2010) não são comparáveis sem os arquivos
+      de relacionamento do Census Bureau.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, job_type, block_id]
+          config:
+            where: __most_recent_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - jobs_education_bachelors_or_higher
+            - jobs_education_high_school
+            - jobs_education_less_than_high_school
+            - jobs_education_some_college
+            - jobs_ethnicity_hispanic
+            - jobs_ethnicity_not_hispanic
+            - jobs_firm_age_0_to_1
+            - jobs_firm_age_11_or_more
+            - jobs_firm_age_2_to_3
+            - jobs_firm_age_4_to_5
+            - jobs_firm_age_6_to_10
+            - jobs_firm_size_0_to_19
+            - jobs_firm_size_20_to_49
+            - jobs_firm_size_250_to_499
+            - jobs_firm_size_500_or_more
+            - jobs_firm_size_50_to_249
+            - jobs_race_american_indian_alaska_native
+            - jobs_race_asian
+            - jobs_race_black
+            - jobs_race_native_hawaiian_pacific_islander
+            - jobs_race_two_or_more
+            - jobs_race_white
+            - jobs_sex_female
+            - jobs_sex_male
+          config:
+            where: __most_recent_year__
+    columns:
+      - name: year
+        description: Ano de referência dos dados
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+              config:
+                where: __most_recent_year__
+      - name: state_id
+        description: Código FIPS do estado do bloco censitário de trabalho
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+              config:
+                where: __most_recent_year__
+      - name: county_id
+        description: Código FIPS do condado do bloco censitário de trabalho
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              config:
+                where: __most_recent_year__
+      - name: census_tract_id
+        description: Código do setor censitário de 2020 do bloco de trabalho
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__census_tract_2020')
+              field: id_census_tract
+              config:
+                where: __most_recent_year__
+      - name: block_id
+        description: Código do bloco censitário de tabulação de 2020 de trabalho
+        tests: [not_null]
+      - name: job_type
+        description: Tipo de vínculo empregatício considerado na tabulação
+        tests: [not_null]
+      - name: jobs_total
+        description: Número total de empregos
+      - name: jobs_age_29_or_younger
+        description: Número de empregos de trabalhadores de 29 anos ou menos
+      - name: jobs_age_30_to_54
+        description: Número de empregos de trabalhadores de 30 a 54 anos
+      - name: jobs_age_55_or_older
+        description: Número de empregos de trabalhadores de 55 anos ou mais
+      - name: jobs_earnings_1250_or_less
+        description: Número de empregos com rendimento mensal de até 1.250 dólares
+      - name: jobs_earnings_1251_to_3333
+        description: Número de empregos com rendimento mensal de 1.251 a 3.333 dólares
+      - name: jobs_earnings_above_3333
+        description: Número de empregos com rendimento mensal superior a 3.333 dólares
+      - name: jobs_naics_11
+        description: Número de empregos no setor NAICS 11 (Agricultura, silvicultura,
+          pesca e caça)
+      - name: jobs_naics_21
+        description: Número de empregos no setor NAICS 21 (Indústria extrativa e extração
+          de petróleo e gás)
+      - name: jobs_naics_22
+        description: Número de empregos no setor NAICS 22 (Utilidades públicas)
+      - name: jobs_naics_23
+        description: Número de empregos no setor NAICS 23 (Construção)
+      - name: jobs_naics_31_33
+        description: Número de empregos no setor NAICS 31-33 (Indústria de transformação)
+      - name: jobs_naics_42
+        description: Número de empregos no setor NAICS 42 (Comércio atacadista)
+      - name: jobs_naics_44_45
+        description: Número de empregos no setor NAICS 44-45 (Comércio varejista)
+      - name: jobs_naics_48_49
+        description: Número de empregos no setor NAICS 48-49 (Transporte e armazenagem)
+      - name: jobs_naics_51
+        description: Número de empregos no setor NAICS 51 (Informação)
+      - name: jobs_naics_52
+        description: Número de empregos no setor NAICS 52 (Atividades financeiras
+          e de seguros)
+      - name: jobs_naics_53
+        description: Número de empregos no setor NAICS 53 (Atividades imobiliárias
+          e de aluguel)
+      - name: jobs_naics_54
+        description: Número de empregos no setor NAICS 54 (Serviços profissionais,
+          científicos e técnicos)
+      - name: jobs_naics_55
+        description: Número de empregos no setor NAICS 55 (Gestão de empresas e empreendimentos)
+      - name: jobs_naics_56
+        description: Número de empregos no setor NAICS 56 (Serviços administrativos,
+          de apoio e de gestão de resíduos)
+      - name: jobs_naics_61
+        description: Número de empregos no setor NAICS 61 (Serviços educacionais)
+      - name: jobs_naics_62
+        description: Número de empregos no setor NAICS 62 (Saúde e assistência social)
+      - name: jobs_naics_71
+        description: Número de empregos no setor NAICS 71 (Artes, entretenimento e
+          recreação)
+      - name: jobs_naics_72
+        description: Número de empregos no setor NAICS 72 (Alojamento e alimentação)
+      - name: jobs_naics_81
+        description: Número de empregos no setor NAICS 81 (Outros serviços, exceto
+          administração pública)
+      - name: jobs_naics_92
+        description: Número de empregos no setor NAICS 92 (Administração pública)
+      - name: jobs_race_white
+        description: Número de empregos de trabalhadores de raça branca, isoladamente
+      - name: jobs_race_black
+        description: Número de empregos de trabalhadores negros ou afro-americanos,
+          isoladamente
+      - name: jobs_race_american_indian_alaska_native
+        description: Número de empregos de trabalhadores indígenas americanos ou nativos
+          do Alasca, isoladamente
+      - name: jobs_race_asian
+        description: Número de empregos de trabalhadores asiáticos, isoladamente
+      - name: jobs_race_native_hawaiian_pacific_islander
+        description: Número de empregos de trabalhadores nativos do Havaí ou de outras
+          ilhas do Pacífico, isoladamente
+      - name: jobs_race_two_or_more
+        description: Número de empregos de trabalhadores de dois ou mais grupos raciais
+      - name: jobs_ethnicity_not_hispanic
+        description: Número de empregos de trabalhadores não hispânicos ou latinos
+      - name: jobs_ethnicity_hispanic
+        description: Número de empregos de trabalhadores hispânicos ou latinos
+      - name: jobs_education_less_than_high_school
+        description: Número de empregos de trabalhadores sem ensino médio completo
+      - name: jobs_education_high_school
+        description: Número de empregos de trabalhadores com ensino médio completo
+          e sem ensino superior
+      - name: jobs_education_some_college
+        description: Número de empregos de trabalhadores com ensino superior incompleto
+          ou curso de nível associado
+      - name: jobs_education_bachelors_or_higher
+        description: Número de empregos de trabalhadores com bacharelado ou pós-graduação
+      - name: jobs_sex_male
+        description: Número de empregos de trabalhadores do sexo masculino
+      - name: jobs_sex_female
+        description: Número de empregos de trabalhadoras do sexo feminino
+      - name: jobs_firm_age_0_to_1
+        description: Número de empregos em firmas com 0 a 1 ano de idade
+      - name: jobs_firm_age_2_to_3
+        description: Número de empregos em firmas com 2 a 3 anos de idade
+      - name: jobs_firm_age_4_to_5
+        description: Número de empregos em firmas com 4 a 5 anos de idade
+      - name: jobs_firm_age_6_to_10
+        description: Número de empregos em firmas com 6 a 10 anos de idade
+      - name: jobs_firm_age_11_or_more
+        description: Número de empregos em firmas com 11 anos de idade ou mais
+      - name: jobs_firm_size_0_to_19
+        description: Número de empregos em firmas com 0 a 19 empregados
+      - name: jobs_firm_size_20_to_49
+        description: Número de empregos em firmas com 20 a 49 empregados
+      - name: jobs_firm_size_50_to_249
+        description: Número de empregos em firmas com 50 a 249 empregados
+      - name: jobs_firm_size_250_to_499
+        description: Número de empregos em firmas com 250 a 499 empregados
+      - name: jobs_firm_size_500_or_more
+        description: Número de empregos em firmas com 500 empregados ou mais
+      - name: date_created
+        description: Data de criação do arquivo de origem pelo Census Bureau
+  - name: us_census_lodes__geography_crosswalk
+    description: Relação entre cada bloco censitário de tabulação de 2020 e as demais
+      unidades geográficas suportadas pelo aplicativo OnTheMap, incluindo condado,
+      setor censitário, grupo de blocos, região metropolitana, ZCTA, lugar, distrito
+      eleitoral e distrito escolar, além do ponto interno do bloco. Retrata a delimitação
+      vigente na divulgação do LODES 8.4 e é substituída integralmente a cada nova
+      versão.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [block_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - alaska_native_corporation_id
+            - alaska_native_corporation_name
+            - block_group_name
+            - cbsa_id
+            - cbsa_name
+            - census_tract_name
+            - congressional_district_id
+            - congressional_district_name
+            - county_subdivision_id
+            - county_subdivision_name
+            - military_installation_id
+            - military_installation_name
+            - place_id
+            - place_name
+            - school_district_id
+            - school_district_name
+            - secondary_school_district_id
+            - secondary_school_district_name
+            - state_legislative_district_lower_id
+            - state_legislative_district_lower_name
+            - state_legislative_district_upper_id
+            - state_legislative_district_upper_name
+            - tribal_area_id
+            - tribal_area_name
+            - tribal_subdivision_id
+            - tribal_subdivision_name
+            - workforce_board_id
+            - workforce_board_name
+            - zcta_id
+            - zcta_name
+    columns:
+      - name: block_id
+        description: Código do bloco censitário de tabulação de 2020
+        tests: [not_null]
+      - name: state_id
+        description: Código FIPS do estado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+              config: {}
+      - name: state_abbreviation
+        description: Sigla USPS do estado
+      - name: state_name
+        description: Nome do estado
+      - name: county_id
+        description: Código FIPS do condado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              config: {}
+      - name: county_name
+        description: Nome do condado ou equivalente
+      - name: census_tract_id
+        description: Código do setor censitário de 2020
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__census_tract_2020')
+              field: id_census_tract
+              config: {}
+      - name: census_tract_name
+        description: Nome do setor censitário, com condado e estado
+      - name: block_group_id
+        description: Código do grupo de blocos censitários
+      - name: block_group_name
+        description: Nome do grupo de blocos, com setor censitário, condado e estado
+      - name: cbsa_id
+        description: Código da área estatística baseada em núcleo (CBSA)
+      - name: cbsa_name
+        description: Nome da área estatística baseada em núcleo (CBSA)
+      - name: zcta_id
+        description: Código da área de tabulação de código postal (ZCTA)
+      - name: zcta_name
+        description: Nome da área de tabulação de código postal (ZCTA)
+      - name: place_id
+        description: Código nacional único do lugar (FIPS de estado + FIPS de lugar)
+      - name: place_name
+        description: Nome do lugar
+      - name: county_subdivision_id
+        description: Código nacional único da subdivisão de condado
+      - name: county_subdivision_name
+        description: Nome da subdivisão de condado
+      - name: congressional_district_id
+        description: Código nacional único do distrito eleitoral do 119º Congresso
+      - name: congressional_district_name
+        description: Nome do distrito eleitoral do 119º Congresso
+      - name: state_legislative_district_lower_id
+        description: Código nacional único do distrito legislativo estadual da câmara
+          baixa
+      - name: state_legislative_district_lower_name
+        description: Nome do distrito legislativo estadual da câmara baixa
+      - name: state_legislative_district_upper_id
+        description: Código nacional único do distrito legislativo estadual da câmara
+          alta
+      - name: state_legislative_district_upper_name
+        description: Nome do distrito legislativo estadual da câmara alta
+      - name: school_district_id
+        description: Código nacional único do distrito escolar unificado ou de ensino
+          fundamental
+      - name: school_district_name
+        description: Nome do distrito escolar unificado ou de ensino fundamental
+      - name: secondary_school_district_id
+        description: Código nacional único do distrito escolar de ensino médio
+      - name: secondary_school_district_name
+        description: Nome do distrito escolar de ensino médio
+      - name: tribal_area_id
+        description: Código da área indígena americana, nativa do Alasca ou nativa
+          do Havaí
+      - name: tribal_area_name
+        description: Nome da área indígena americana, nativa do Alasca ou nativa do
+          Havaí
+      - name: tribal_subdivision_id
+        description: Código da subdivisão tribal indígena americana
+      - name: tribal_subdivision_name
+        description: Nome da subdivisão tribal indígena americana
+      - name: alaska_native_corporation_id
+        description: Código nacional único da corporação regional nativa do Alasca
+          (ANRC)
+      - name: alaska_native_corporation_name
+        description: Nome da corporação regional nativa do Alasca
+      - name: military_installation_id
+        description: Código do marco de instalação militar
+      - name: military_installation_name
+        description: Nome da instalação militar
+      - name: workforce_board_id
+        description: Código nacional único da área do conselho de inovação da força
+          de trabalho (WIB)
+      - name: workforce_board_name
+        description: Nome da área do conselho de inovação da força de trabalho
+      - name: latitude
+        description: Latitude do ponto interno do bloco censitário, em graus decimais
+      - name: longitude
+        description: Longitude do ponto interno do bloco censitário, em graus decimais
+      - name: date_created
+        description: Data de criação do arquivo de origem pelo Census Bureau
+  - name: us_census_lodes__dicionario
+    description: Dicionário de códigos das colunas codificadas do conjunto us_census_lodes
+    columns:
+      - name: id_tabela
+        description: Nome da tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave do valor
+      - name: cobertura_temporal
+        description: Cobertura temporal do valor
+      - name: valor
+        description: Valor traduzido
