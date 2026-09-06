@@ -391,7 +391,7 @@ def clean_state_year(
 
     for table in ("residence_jobs", "workplace_jobs"):
         frames = []
-        for (tbl, job_type, _url), path in zip(jobs, paths):
+        for (tbl, job_type, _url), path in zip(jobs, paths, strict=True):
             if tbl != table or path is None:
                 continue
             frames.append(clean_rac_wac(path, table, year, job_type, geo))

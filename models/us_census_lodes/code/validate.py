@@ -55,7 +55,10 @@ def counts() -> dict[str, dict[tuple[str, int], int]]:
     out: dict[str, dict[tuple[str, int], int]] = {t: {} for t in FACTS}
     for table in FACTS:
         for path in sorted((OUTPUT / table).glob("year=*/*.parquet")):
-            year = int(re.search(r"year=(\d{4})", str(path)).group(1))
+            m = re.search(r"year=(\d{4})", str(path))
+            if m is None:
+                raise ValueError(f"unexpected parquet path, no year=: {path}")
+            year = int(m.group(1))
             state = path.stem
             out[table][(state, year)] = pq.ParquetFile(path).metadata.num_rows
     return out

@@ -19,18 +19,30 @@ from __future__ import annotations
 import argparse
 import datetime
 import json
+import os
 import sys
 from pathlib import Path
 
-sys.path.insert(
-    0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
+# The databasis MCP server is a sibling repo, not a package dependency. Its
+# tool functions are plain callables, so importing the module directly avoids
+# pushing ~40 KB of column JSON per table through the MCP interface.
+MCP_REPO = os.environ.get(
+    "DATABASIS_MCP_REPO",
+    str(Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"),
 )
+if not (Path(MCP_REPO) / "server.py").exists():
+    raise SystemExit(
+        f"databasis MCP server not found at {MCP_REPO}. "
+        "Set DATABASIS_MCP_REPO to the checkout of basedosdados/mcp."
+    )
+sys.path.insert(0, MCP_REPO)
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-import server
+# pyrefly: ignore [missing-import]
+import server  # noqa: E402
 
-from pipelines.datasets.us_census_lodes.constants import YEARS
-from pipelines.datasets.us_census_lodes.utils import read_arch
+from pipelines.datasets.us_census_lodes.constants import YEARS  # noqa: E402
+from pipelines.datasets.us_census_lodes.utils import read_arch  # noqa: E402
 
 # The backend's Update.latest is a DateTime, not a Date -- a bare
 # "YYYY-MM-DD" is rejected with "DateTime cannot represent value".
@@ -435,7 +447,7 @@ def main() -> None:
                 observation_level_id=ol_ids["year"],
                 env=env,
             )
-        if table in OL_COLUMN:
+        if table in OL_COLUMN and entity:
             name = OL_COLUMN[table]
             server.update_column(
                 column_id=by_name[name],
