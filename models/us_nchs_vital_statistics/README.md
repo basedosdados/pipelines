@@ -85,7 +85,7 @@ summary ("sub-state detail removed in 2005").
 | `birth` | `state_residence_id` | 1968–2004 |
 | `birth` | `county_residence_id` (FIPS) | 1982–2002 |
 | `death` | `state_residence_id` | 1968–2004 |
-| `death` | `county_residence_id` (FIPS) | 1982–2004 |
+| `death` | `county_residence_id` (FIPS) | 1982–2002 |
 
 **From 2005 onward the public-use files carry no state of residence at all**, for
 either births or deaths. For deaths, 2005–2024 contains no sub-national geography
@@ -101,7 +101,11 @@ Two encodings feed `state_residence_id`, both normalised to state FIPS:
   natality file (01 Alabama, 02 Alaska, 03 Arizona, 04 Arkansas, 05 California)
   and confirmed by the output containing exactly the 51 valid state FIPS codes,
   correctly skipping 03, 07 and 14, which are not state FIPS.
-- 2003–2004 births publish a postal abbreviation (`mrstate`), mapped to FIPS.
+- 2003–2004 publish a **postal abbreviation** — `mrstate` for births and, under
+  the same name it used for the numeric code, `staters` for deaths. Numeric and
+  alphabetic codes cannot be told apart by variable name, so the transform
+  disambiguates on the value itself; mapping a postal code through the numeric
+  table silently yields an all-NULL column.
 
 `county_residence_id` is **not** back-filled before 1982: the earlier `cntyres` /
 `countyrs` are NCHS county codes on a different numbering system, and mapping them

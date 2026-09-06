@@ -366,8 +366,8 @@ COLUMN_SPEC: dict[str, list[tuple]] = {
             ["fipsstr", "staters"],
             [],
             None,
-            "state FIPS; native FIPS 1982-2004, NCHS alphabetical code mapped 1968-1981; "
-            "ABSENT from the public-use file 2005 onward",
+            "state FIPS; native FIPS 1982-2002, NCHS alphabetical code mapped 1968-1981, "
+            "postal code mapped 2003-2004; ABSENT from the public-use file 2005 onward",
         ),
         (
             "county_residence_id",
@@ -376,7 +376,7 @@ COLUMN_SPEC: dict[str, list[tuple]] = {
             ["fipsctyr"],
             [],
             None,
-            "5-digit state+county FIPS, 1982-2004 only. Deliberately NOT back-filled from the "
+            "5-digit state+county FIPS, 1982-2002 only. Deliberately NOT back-filled from the "
             "pre-1982 `countyrs`, which is an NCHS county code on a different numbering system",
         ),
         ("residence_status", "STRING", "", ["restatus"], [], None, ""),
@@ -913,16 +913,27 @@ def _finalise(
     st = resolved.get("state_residence_id")
     if st is not None:
         raw = df["state_residence_id"]
-        if st["source"] in ("stateres", "staters"):
-            df["state_residence_id"] = raw.map(NCHS_STATE_TO_FIPS).astype(
-                "string"
-            )
+        if st["source"] in ("stresfip", "fipsstr"):
+            # Already state FIPS.
+            df["state_residence_id"] = raw.str.zfill(2).astype("string")
         elif st["source"] == "mrstate":
             df["state_residence_id"] = (
                 raw.str.upper().map(POSTAL_TO_FIPS).astype("string")
             )
         else:
-            df["state_residence_id"] = raw.str.zfill(2).astype("string")
+            # `stateres` / `staters` carry the NCHS numeric code through 2002 but
+            # switch to a POSTAL abbreviation with the 2003 certificate revision,
+            # under the same variable name. Numeric and alphabetic codes cannot be
+            # told apart by name, and mapping a postal code through the numeric
+            # table silently yields all-NULL, so disambiguate on the value itself.
+            upper = raw.str.upper()
+            alpha = upper.str.fullmatch(r"[A-Z]{2}").fillna(False)
+            df["state_residence_id"] = (
+                upper.where(~alpha)
+                .map(NCHS_STATE_TO_FIPS)
+                .fillna(upper.where(alpha).map(POSTAL_TO_FIPS))
+                .astype("string")
+            )
         df["state_residence_id"] = df["state_residence_id"].mask(
             ~df["state_residence_id"].isin(VALID_STATE_FIPS)
         )
