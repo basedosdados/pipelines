@@ -166,10 +166,18 @@ LEGENDS: dict[str, dict[str, str]] = {
             "Risk Rating 2.0: non-residential unit within a multi-unit building"
         ),
     },
+    # FEMA lists only 1, 3 and 9. The policy file also carries 0, 2, 4, 5 and
+    # 6, which appear in no published list — labelled as undocumented rather
+    # than inferred from the code being a plausible number of years.
     "policy_term_indicator": {
         "1": "One year",
         "3": "Three years, for policies effective before 1 May 1999",
         "9": "Other term, between one and three years",
+        "0": UNDOC,
+        "2": UNDOC,
+        "4": UNDOC,
+        "5": UNDOC,
+        "6": UNDOC,
     },
     "basement_enclosure_crawlspace_type": {
         "0": "None",
@@ -352,7 +360,10 @@ LEGENDS: dict[str, dict[str, str]] = {
         "18": "Manufactured or mobile home",
         "19": "Travel trailer",
         "20": "Townhouse or rowhouse",
+        # 21, 32 and 34 occur in the data but in no published FEMA list.
         "21": UNDOC,
+        "32": UNDOC,
+        "34": UNDOC,
     },
     # The data abbreviates FEMA's "RatingEngine" to "RE", and the trailing
     # entry defeats the parser.

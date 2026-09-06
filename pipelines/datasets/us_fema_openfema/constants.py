@@ -79,3 +79,8 @@ class constants(Enum):
     BATCH_ROWS = 250_000
 
     REQUEST_TIMEOUT = 900
+
+    # www.fema.gov stalls part-way through the 3.7 GB policy file often enough
+    # that a single-shot download is not reliable. The endpoint honours HTTP
+    # Range, so a stalled transfer is resumed rather than restarted.
+    DOWNLOAD_ATTEMPTS = 8

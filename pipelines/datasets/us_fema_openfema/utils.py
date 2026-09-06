@@ -64,21 +64,49 @@ def download_table(table: str, input_dir: Path) -> Path:
     target = input_dir / f"{table}.parquet"
     partial = target.with_suffix(".parquet.part")
 
-    with requests.get(
-        url, stream=True, timeout=constants.REQUEST_TIMEOUT.value
-    ) as response:
-        response.raise_for_status()
-        # requests does not decode Content-Encoding on `.raw`; copyfileobj on
-        # it would write compressed bytes to disk.
-        response.raw.decode_content = True
-        with partial.open("wb") as handle:
-            shutil.copyfileobj(response.raw, handle, length=1024 * 1024)
+    for attempt in range(1, constants.DOWNLOAD_ATTEMPTS.value + 1):
+        done = partial.stat().st_size if partial.exists() else 0
+        headers = {"Range": f"bytes={done}-"} if done else {}
+        with requests.get(
+            url,
+            stream=True,
+            timeout=constants.REQUEST_TIMEOUT.value,
+            headers=headers,
+        ) as response:
+            if done and response.status_code == 200:
+                # The server ignored the range and restarted the whole file.
+                done = 0
+            elif done and response.status_code != 206:
+                response.raise_for_status()
+            else:
+                response.raise_for_status()
+            # requests does not decode Content-Encoding on `.raw`; copyfileobj
+            # on it would write compressed bytes to disk.
+            response.raw.decode_content = True
+            with partial.open("ab" if done else "wb") as handle:
+                shutil.copyfileobj(response.raw, handle, length=1024 * 1024)
 
-    # A truncated stream still returns HTTP 200, so the file is only accepted
-    # once parquet can read its footer.
-    pq.ParquetFile(partial)
-    partial.replace(target)
-    return target
+        # A truncated stream still returns HTTP 200 and the 3.7 GB policy file
+        # does stall part-way, so the file is only accepted once parquet can
+        # read its footer. Anything else is resumed from where it stopped.
+        try:
+            pq.ParquetFile(partial)
+        except Exception as error:  # noqa: BLE001 — any read failure resumes
+            if attempt == constants.DOWNLOAD_ATTEMPTS.value:
+                raise RuntimeError(
+                    f"{table}: {partial.stat().st_size:,} bytes downloaded but "
+                    f"the parquet footer is unreadable after {attempt} "
+                    f"attempts ({error})"
+                ) from error
+            print(
+                f"  {table}: incomplete at {partial.stat().st_size:,} bytes, "
+                f"resuming (attempt {attempt + 1})"
+            )
+            continue
+        partial.replace(target)
+        return target
+
+    raise RuntimeError(f"{table}: download did not complete")
 
 
 # --------------------------------------------------------------------------
@@ -382,3 +410,29 @@ def clean_all(
             f"{min(counts)}-{max(counts)}"
         )
     return result
+
+
+def write_dicionario(output_dir: Path) -> int:
+    """Copy the committed dictionary CSV to `output_dir` as all-STRING parquet.
+
+    The dictionary is static — it is generated from the source's own field
+    dictionary by ``models/us_fema_openfema/code/build_dicionario.py`` and
+    committed, so it is read rather than rebuilt at pipeline time. It carries
+    no date column and is therefore not partitioned.
+    """
+    source = (
+        Path(constants.ARCHITECTURE_DIR.value).parent / "dicionario.csv"
+    )
+    columns = architecture_columns("dicionario")
+    with source.open() as handle:
+        rows = list(csv.DictReader(handle))
+    table = pa.Table.from_arrays(
+        [pa.array([row[c] for row in rows], pa.string()) for c in columns],
+        names=columns,
+    )
+    target = output_dir / "dicionario"
+    if target.exists():
+        shutil.rmtree(target)
+    target.mkdir(parents=True)
+    pq.write_table(table, target / "data.parquet", compression="snappy")
+    return table.num_rows

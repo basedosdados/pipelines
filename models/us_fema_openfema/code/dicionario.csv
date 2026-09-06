@@ -388,6 +388,8 @@ nfip_claim,building_description_code,18,,Manufactured or mobile home
 nfip_claim,building_description_code,19,,Travel trailer
 nfip_claim,building_description_code,20,,Townhouse or rowhouse
 nfip_claim,building_description_code,21,,Not documented by FEMA; reported value retained as published
+nfip_claim,building_description_code,32,,Not documented by FEMA; reported value retained as published
+nfip_claim,building_description_code,34,,Not documented by FEMA; reported value retained as published
 nfip_claim,foundation_type,0,,Not reported
 nfip_claim,foundation_type,1,,Slab
 nfip_claim,foundation_type,2,,Basement
@@ -580,6 +582,11 @@ nfip_policy,occupancy_type,19,,Risk Rating 2.0: non-residential unit within a mu
 nfip_policy,policy_term_indicator,1,,One year
 nfip_policy,policy_term_indicator,3,,"Three years, for policies effective before 1 May 1999"
 nfip_policy,policy_term_indicator,9,,"Other term, between one and three years"
+nfip_policy,policy_term_indicator,0,,Not documented by FEMA; reported value retained as published
+nfip_policy,policy_term_indicator,2,,Not documented by FEMA; reported value retained as published
+nfip_policy,policy_term_indicator,4,,Not documented by FEMA; reported value retained as published
+nfip_policy,policy_term_indicator,5,,Not documented by FEMA; reported value retained as published
+nfip_policy,policy_term_indicator,6,,Not documented by FEMA; reported value retained as published
 nfip_policy,rate_method,1,,Manual
 nfip_policy,rate_method,2,,Specific
 nfip_policy,rate_method,3,,Alternative
@@ -661,6 +668,8 @@ nfip_policy,building_description_code,18,,Manufactured or mobile home
 nfip_policy,building_description_code,19,,Travel trailer
 nfip_policy,building_description_code,20,,Townhouse or rowhouse
 nfip_policy,building_description_code,21,,Not documented by FEMA; reported value retained as published
+nfip_policy,building_description_code,32,,Not documented by FEMA; reported value retained as published
+nfip_policy,building_description_code,34,,Not documented by FEMA; reported value retained as published
 nfip_policy,insurance_to_value_code,1,,Less than .50
 nfip_policy,insurance_to_value_code,2,,.50 - .74
 nfip_policy,insurance_to_value_code,3,,.75 or More
