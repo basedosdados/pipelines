@@ -17,30 +17,21 @@ models:
       nao tem layout publicado e esta ausente.
     tests:
       - not_null_proportion_multiple_columns:
+          # Scoped to the newest year: unscoped, this scans every column of a
+          # 200M-row table on every run. The newest year is also the one a
+          # refresh actually appends, so it is the meaningful check.
+          config:
+            where: __most_recent_year_en__
           at_least: 0.05
           ignore_values:
-            - birth_day_of_week
-            - county_residence_id
-            - county_residence_population_code
-            - mother_education_code
-            - mother_education_years
-            - mother_race_bridged_code
-            - mother_race_recode_6
-            - mother_race_recode_31
-            - father_race_recode_6
-            - mother_hispanic_origin_code
-            - mother_race_hispanic_code
-            - mother_nativity_code
-            - gestation_recode_3
-            - birth_weight_recode_4
-            - delivery_method_recode
-            - apgar_score_5min
-            - prenatal_care_month_began
-            - prenatal_visits
+            # absent from the source in the newest year
             - state_residence_id
-            - mother_marital_status
-            - father_age_years
+            - county_residence_id
             - record_weight
+            - mother_education_years
+            - mother_race_code
+            - mother_race_bridged_code
+            - father_race_code
     columns:
       - name: year
         description: >
@@ -182,30 +173,21 @@ models:
       revisao vale em cada ano; codigos de revisoes diferentes nao sao comparaveis.
     tests:
       - not_null_proportion_multiple_columns:
+          # Scoped to the newest year: unscoped, this scans every column of a
+          # 200M-row table on every run. The newest year is also the one a
+          # refresh actually appends, so it is the meaningful check.
+          config:
+            where: __most_recent_year_en__
           at_least: 0.05
           ignore_values:
-            - county_residence_id
+            # absent from the source in the newest year
             - state_residence_id
-            - race_recode_5
+            - county_residence_id
             - race_recode_3
-            - race_bridged_flag
-            - hispanic_origin_code
+            - race_recode_5
             - hispanic_origin_race_recode
-            - hispanic_origin_race_recode_1997
             - education_years
-            - education_code
-            - education_reporting_flag
-            - marital_status
-            - place_of_death
-            - manner_of_death
-            - cause_recode_113
-            - cause_recode_358
-            - cause_recode_39
             - cause_recode_72
-            - death_day_of_week
-            - injury_at_work
-            - autopsy
-            - age_years
     columns:
       - name: year
         description: >

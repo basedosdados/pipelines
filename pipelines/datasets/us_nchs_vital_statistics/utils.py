@@ -1101,6 +1101,7 @@ def clean_all(
     layouts = layouts or load_layouts()
     input_dir, output_dir = Path(input_dir), Path(output_dir)
     counts: dict[tuple[str, int], int] = {}
+    failures: dict[tuple[str, int], str] = {}
     for product in products:
         src_dir = input_dir / constants.CDC_DIR.value[product]
         for zip_path in sorted(
@@ -1118,14 +1119,31 @@ def clean_all(
             if skip_existing and done.exists() and done.stat().st_size > 0:
                 log.info("%s %s already written, skipping", product, year)
                 continue
-            n = write_year(
-                parse_year(product, year, zip_path, layouts),
-                product,
-                year,
-                output_dir,
-            )
+            try:
+                n = write_year(
+                    parse_year(product, year, zip_path, layouts),
+                    product,
+                    year,
+                    output_dir,
+                )
+            except Exception as exc:
+                # One unreadable year must not abort the other 113. The failure
+                # is recorded and re-reported at the end so a partial run is
+                # never mistaken for a complete one.
+                failures[(product, year)] = str(exc)
+                log.error("%s %s FAILED: %s", product, year, exc)
+                partial = Path(output_dir) / product / f"year={year}"
+                for stale in partial.glob("*.parquet"):
+                    stale.unlink()
+                continue
             counts[(product, year)] = n
             log.info("%s %s -> %s rows", product, year, f"{n:,}")
+    if failures:
+        log.error(
+            "%d year(s) failed and were NOT written: %s",
+            len(failures),
+            ", ".join(f"{p} {y}" for p, y in sorted(failures)),
+        )
     return counts
 
 
