@@ -32,7 +32,9 @@ import server
 from pipelines.datasets.us_census_lodes.constants import YEARS
 from pipelines.datasets.us_census_lodes.utils import read_arch
 
-TODAY = datetime.date.today().isoformat()
+# The backend's Update.latest is a DateTime, not a Date -- a bare
+# "YYYY-MM-DD" is rejected with "DateTime cannot represent value".
+TODAY = datetime.date.today().isoformat() + "T00:00:00+00:00"
 
 SLUG = "lodes"
 GCP_DATASET_ID = "us_census_lodes"
@@ -508,7 +510,7 @@ def main() -> None:
                 raw_data_source_id=source_ids[table],
                 entity_id=ids["year_entity"],
                 frequency=1,
-                latest=f"{YEARS[-1]}-01-01",
+                latest=f"{YEARS[-1]}-01-01T00:00:00+00:00",
                 env=env,
             )
 
