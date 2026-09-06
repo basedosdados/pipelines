@@ -22,8 +22,8 @@ aggregation. Both were re-decided against measurements taken from the source.
 
 Measured non-zero density of the value columns: **19.3 of 40 per block (RAC)**
 and **14.2 of 50 (WAC)** — on Vermont, a rural state, and 29/40 on DC. A long
-reshape therefore multiplies rows by ~15–19, putting `residence_jobs` at
-**~5.7 bn rows** and `workplace_jobs` at **~2.0 bn**. Wide is 298 M and 146 M.
+reshape therefore multiplies rows by ~15–19. Against the built wide tables
+(491 M and 194 M rows) that is **~9.5 bn** and **~2.8 bn** rows respectively.
 
 The published wide layout is not "suffix-column soup": it is 41 (RAC) / 51 (WAC)
 count columns with an exact dictionary. Renamed to readable English
@@ -113,12 +113,18 @@ stated in each table description, not just here.
 
 ## Tables
 
-| Table | Grain | Rows (est.) | Cols |
+| Table | Grain | Rows (measured) | Cols |
 |---|---|---|---|
-| `residence_jobs` | year × job_type × block (residence) | ~298 M | 48 |
-| `workplace_jobs` | year × job_type × block (workplace) | ~146 M | 58 |
-| `geography_crosswalk` | 2020 tabulation block | ~8.2 M | 41 |
+| `residence_jobs` | year × job_type × block (residence) | **490,994,834** | 48 |
+| `workplace_jobs` | year × job_type × block (workplace) | **194,030,022** | 58 |
+| `geography_crosswalk` | 2020 tabulation block | **8,174,955** | 41 |
 | `dicionario` | code → label | 12 | 5 |
+
+Counts are from the built parquet (`code/validate.py`), not an estimate. They
+came in well above the pre-build projection of ~298 M / ~146 M: that projection
+extrapolated bytes-per-row from DC and Vermont, and rural states carry far more
+low-count blocks per byte than either. 18 GB of Snappy parquet across 2,281
+files.
 
 Partition: `year` INT64 on the two fact tables, range 2002–2028.
 Cluster: `state_id`, `county_id`.

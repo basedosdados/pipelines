@@ -15,9 +15,9 @@ registered as `cc0`. GCP id `us_census_lodes` · org `us_census` · backend slug
 
 | Table | Grain | Rows | Source files |
 |---|---|---|---|
-| `residence_jobs` | year × job_type × residence block | ~298 M | `<st>_rac_S000_<JT>_<yr>.csv.gz` |
-| `workplace_jobs` | year × job_type × workplace block | ~146 M | `<st>_wac_S000_<JT>_<yr>.csv.gz` |
-| `geography_crosswalk` | 2020 tabulation block | ~8.2 M | `<st>_xwalk.csv.gz` |
+| `residence_jobs` | year × job_type × residence block | 490,994,834 | `<st>_rac_S000_<JT>_<yr>.csv.gz` |
+| `workplace_jobs` | year × job_type × workplace block | 194,030,022 | `<st>_wac_S000_<JT>_<yr>.csv.gz` |
+| `geography_crosswalk` | 2020 tabulation block | 8,174,955 | `<st>_xwalk.csv.gz` |
 | `dicionario` | code → label | 12 | hand-built |
 
 Wide, as published. Partitioned on `year`, clustered on `state_id, county_id`.
@@ -45,7 +45,7 @@ Wide, as published. Partitioned on `year`, clustered on `state_id, county_id`.
    and `block_group_id` therefore carry **no** directory FK. `state_id`,
    `county_id` and `census_tract_id` are materialised on the fact tables and do
    link, which is also what makes clustering possible without a substring on
-   300 M rows.
+   491 M rows.
 
 4. **Do not slice `block_id` to get county or tract — use the crosswalk.**
    Connecticut replaced counties with planning regions in 2022, so its 2020
