@@ -22,7 +22,7 @@ from pathlib import Path
 import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
-import requests
+import requests  # pyrefly: ignore [missing-attribute]
 
 from pipelines.datasets.us_fema_openfema.constants import constants
 
@@ -91,7 +91,7 @@ def download_table(table: str, input_dir: Path) -> Path:
         # read its footer. Anything else is resumed from where it stopped.
         try:
             pq.ParquetFile(partial)
-        except Exception as error:  # noqa: BLE001 — any read failure resumes
+        except Exception as error:  # any read failure means resume
             if attempt == constants.DOWNLOAD_ATTEMPTS.value:
                 raise RuntimeError(
                     f"{table}: {partial.stat().st_size:,} bytes downloaded but "
@@ -117,7 +117,7 @@ def download_table(table: str, input_dir: Path) -> Path:
 def _pad(array: pa.Array, width: int) -> pa.Array:
     """Left-pad with zeros to `width`. Empty strings become null first."""
     array = pc.if_else(  # pyrefly: ignore [missing-attribute]
-        pc.equal(array, ""),
+        pc.equal(array, ""),  # pyrefly: ignore [missing-attribute]
         pa.nulls(len(array), pa.string()),
         array,  # pyrefly: ignore [missing-attribute]
     )
@@ -126,7 +126,7 @@ def _pad(array: pa.Array, width: int) -> pa.Array:
 
 def _blank_to_null(array: pa.Array) -> pa.Array:
     return pc.if_else(  # pyrefly: ignore [missing-attribute]
-        pc.equal(array, ""),
+        pc.equal(array, ""),  # pyrefly: ignore [missing-attribute]
         pa.nulls(len(array), pa.string()),
         array,  # pyrefly: ignore [missing-attribute]
     )
@@ -186,14 +186,14 @@ def _derive(table: str, batch: pa.Table) -> pa.Table:
         nulls = pa.nulls(len(geoid), pa.string())
         tract = pc.if_else(  # pyrefly: ignore [missing-attribute]
             well_formed,
-            pc.utf8_slice_codeunits(geoid, 0, 11),
+            pc.utf8_slice_codeunits(geoid, 0, 11),  # pyrefly: ignore [missing-attribute]
             nulls,  # pyrefly: ignore [missing-attribute]
         )
         batch = batch.append_column("census_tract_id", tract)
         if table == "nfip_policy":
             county = pc.if_else(  # pyrefly: ignore [missing-attribute]
                 well_formed,
-                pc.utf8_slice_codeunits(geoid, 0, 5),
+                pc.utf8_slice_codeunits(geoid, 0, 5),  # pyrefly: ignore [missing-attribute]
                 nulls,  # pyrefly: ignore [missing-attribute]
             )
             batch = batch.append_column(
@@ -420,9 +420,7 @@ def write_dicionario(output_dir: Path) -> int:
     committed, so it is read rather than rebuilt at pipeline time. It carries
     no date column and is therefore not partitioned.
     """
-    source = (
-        Path(constants.ARCHITECTURE_DIR.value).parent / "dicionario.csv"
-    )
+    source = Path(constants.ARCHITECTURE_DIR.value).parent / "dicionario.csv"
     columns = architecture_columns("dicionario")
     with source.open() as handle:
         rows = list(csv.DictReader(handle))

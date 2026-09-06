@@ -78,7 +78,7 @@ def upload_table(slug: str) -> int:
         # Clear the staging prefix first, or stale blobs collide with the new
         # partition keys.
         st.delete_table(mode="staging", not_found_ok=True)
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"  [warn] staging prefix cleanup: {e}")
 
     tb.create(
