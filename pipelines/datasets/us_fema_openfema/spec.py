@@ -53,6 +53,13 @@ PA_STATE_CODE_FIX = {
 # These must become NULL rather than a county that does not exist.
 NO_COUNTY = {"0", "00", "000"}
 
+# 1,004 Public Assistance rows carry stateNumberCode "0" while naming a real
+# state in stateAbbreviation (Arizona, Louisiana). No state FIPS code is 00, so
+# the numeric field is simply unpopulated there. It becomes NULL rather than a
+# state that does not exist — and rather than a FIPS code inferred from the
+# abbreviation, which the table already carries in state_abbreviation.
+NO_STATE = {"0", "00"}
+
 # Where OpenFEMA's field dictionary disagrees with the parquet it actually
 # ships, the parquet wins — that is what gets ingested. Verified by
 # validate_types.py against the downloaded files.

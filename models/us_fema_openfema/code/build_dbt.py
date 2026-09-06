@@ -43,6 +43,38 @@ SPARSE_THRESHOLD = 0.05
 # it is scoped to the newest partition. See [[reference_null_proportion_test_cost]].
 SCOPED_TESTS = {"nfip_claim", "nfip_policy"}
 
+# County codes that occur in the data but not in the US county directory, which
+# is a current-vintage snapshot. Two different things are on this list and both
+# are the source's, not ours, so the values are published as FEMA wrote them and
+# the referential check is told to skip exactly these:
+#
+#   1. Geographies that existed when the record was written and no longer do. A
+#      1985 declaration for Shannon County SD legitimately says 46113; rewriting
+#      it to Oglala Lakota's 46102 would falsify the record.
+#   2. Public Assistance rows where FEMA paired a county code with the wrong
+#      state — 35101 is labelled "Pueblo County", which is Colorado's 08101, and
+#      55161 is labelled "Washtenaw County", which is Michigan's 26161.
+#
+# The list is explicit rather than a proportion so that a code FEMA has not
+# emitted before fails the build instead of being absorbed.
+COUNTY_FK_IGNORE = [
+    # Alaska census areas retired or re-split since 2008
+    "02201", "02232", "02261", "02270", "02280",
+    # Connecticut's eight legacy counties, replaced by planning regions in 2022
+    "09001", "09003", "09005", "09007", "09009", "09011", "09013", "09015",
+    # renamed or dissolved: Shannon SD -> Oglala Lakota, Bedford City VA merged
+    "46113", "51515",
+    # Public Assistance rows whose county code belongs to a different state
+    "32073", "34055", "34085", "35101", "38109", "38141", "46155", "55161",
+    # Freely associated states and territories with no county-equivalent in the
+    # directory: Micronesia, the Marshall Islands, the Northern Marianas
+    "64002", "64005", "64040", "64060",
+    "68010", "68030", "68040", "68070", "68080", "68090", "68110", "68120",
+    "68140", "68150", "68160", "68170", "68180", "68190", "68300", "68310",
+    "68320", "68330", "68340", "68390", "68400", "68410", "68420", "68430",
+    "69010",
+]
+
 
 def cast(name: str, bq_type: str) -> str:
     if bq_type == "BOOLEAN":
@@ -164,14 +196,14 @@ def _tests(table: str, row: dict, cfg: dict | None) -> list[str]:
         out.append("        tests:")
         out.append("          - not_null")
         if directory:
-            out.extend(_relationship(directory))
+            out.extend(_relationship(directory, row['name']))
     elif directory:
         out.append("        tests:")
-        out.extend(_relationship(directory))
+        out.extend(_relationship(directory, row['name']))
     return out
 
 
-def _relationship(directory: str) -> list[str]:
+def _relationship(directory: str, column: str) -> list[str]:
     dataset, rest = directory.split(".", 1)
     table, field = rest.split(":", 1)
     prefix = "br_bd_" if dataset.startswith("diretorios") else ""
@@ -183,11 +215,20 @@ def _relationship(directory: str) -> list[str]:
     # See [[reference_dbt_time_directory_relationships_broken]].
     if field == table:
         field = f"{table}.{field}"
-    return [
-        "          - relationships:",
+    if column != "county_id":
+        return [
+            "          - relationships:",
+            f"              to: ref('{ref}')",
+            f"              field: {field}",
+        ]
+    out = [
+        "          - custom_relationships:",
         f"              to: ref('{ref}')",
         f"              field: {field}",
+        "              ignore_values:",
     ]
+    out += [f"                - '{code}'" for code in COUNTY_FK_IGNORE]
+    return out
 
 
 def main() -> None:

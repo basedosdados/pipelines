@@ -132,6 +132,15 @@ def _blank_to_null(array: pa.Array) -> pa.Array:
     )
 
 
+def _blank_sentinel_to_null(array: pa.Array, sentinels: set[str]) -> pa.Array:
+    """Null out codes that mean "not stated" rather than a real place."""
+    return pc.if_else(  # pyrefly: ignore [missing-attribute]
+        pc.is_in(array, value_set=pa.array(sorted(sentinels))),  # pyrefly: ignore [missing-attribute]
+        pa.nulls(len(array), pa.string()),
+        array,
+    )
+
+
 def _county_id(state: pa.Array, county: pa.Array) -> pa.Array:
     """state(2) + county(3), null wherever either side is missing."""
     from pipelines.datasets.us_fema_openfema import spec
@@ -171,7 +180,7 @@ def _derive(table: str, batch: pa.Table) -> pa.Table:
         state = _blank_to_null(state)
         for wrong, right in spec.PA_STATE_CODE_FIX.items():
             state = pc.if_else(pc.equal(state, wrong), right, state)  # pyrefly: ignore [missing-attribute]
-        state = _pad(state, 2)
+        state = _blank_sentinel_to_null(_pad(state, 2), spec.NO_STATE)
         county_id = _county_id(state, _pad(batch["county_code"], 3))
         return _set(batch, "state_id", state).append_column(
             "county_id", county_id
