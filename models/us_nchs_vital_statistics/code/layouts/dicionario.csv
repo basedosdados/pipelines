@@ -1,0 +1,185 @@
+id_tabela,nome_coluna,chave,cobertura_temporal,valor
+birth,birth_attendant,1,2003(1)2024,Doctor of Medicine
+birth,birth_attendant,2,2003(1)2024,Doctor of Osteopathy
+birth,birth_attendant,3,2003(1)2024,Certified Nurse Midwife or Certified Midwife
+birth,birth_attendant,4,2003(1)2024,Other midwife
+birth,birth_attendant,5,2003(1)2024,Other
+birth,birth_attendant,9,2003(1)2024,Unknown or not stated
+birth,birth_day_of_week,1,2003(1)2024,Sunday
+birth,birth_day_of_week,2,2003(1)2024,Monday
+birth,birth_day_of_week,3,2003(1)2024,Tuesday
+birth,birth_day_of_week,4,2003(1)2024,Wednesday
+birth,birth_day_of_week,5,2003(1)2024,Thursday
+birth,birth_day_of_week,6,2003(1)2024,Friday
+birth,birth_day_of_week,7,2003(1)2024,Saturday
+birth,birth_weight_recode_4,1,2003(1)2024,227 to 1499 grams
+birth,birth_weight_recode_4,2,2003(1)2024,1500 to 2499 grams
+birth,birth_weight_recode_4,3,2003(1)2024,2500 to 8165 grams
+birth,birth_weight_recode_4,4,2003(1)2024,Unknown or not stated
+birth,delivery_method_recode,1,2005(1)2024,"Vaginal, excluding vaginal after previous caesarean"
+birth,delivery_method_recode,2,2005(1)2024,Vaginal after previous caesarean
+birth,delivery_method_recode,3,2005(1)2024,Primary caesarean
+birth,delivery_method_recode,4,2005(1)2024,Repeat caesarean
+birth,delivery_method_recode,5,2005(1)2024,"Vaginal, unknown if previous caesarean"
+birth,delivery_method_recode,6,2005(1)2024,"Caesarean, unknown if previous caesarean"
+birth,delivery_method_recode,9,2005(1)2024,Not stated
+birth,father_race_recode_6,1,2014(1)2024,White only
+birth,father_race_recode_6,2,2014(1)2024,Black only
+birth,father_race_recode_6,3,2014(1)2024,American Indian or Alaska Native only
+birth,father_race_recode_6,4,2014(1)2024,Asian only
+birth,father_race_recode_6,5,2014(1)2024,Native Hawaiian or Other Pacific Islander only
+birth,father_race_recode_6,6,2014(1)2024,More than one race
+birth,gestation_recode_3,1,2003(1)2024,Under 37 weeks
+birth,gestation_recode_3,2,2003(1)2024,37 weeks and over
+birth,gestation_recode_3,3,2003(1)2024,Not stated
+birth,mother_education_code,1,2003(1)2024,8th grade or less
+birth,mother_education_code,2,2003(1)2024,9th through 12th grade with no diploma
+birth,mother_education_code,3,2003(1)2024,High school graduate or GED completed
+birth,mother_education_code,4,2003(1)2024,Some college credit but not a degree
+birth,mother_education_code,5,2003(1)2024,Associate degree
+birth,mother_education_code,6,2003(1)2024,Bachelor's degree
+birth,mother_education_code,7,2003(1)2024,Master's degree
+birth,mother_education_code,8,2003(1)2024,Doctorate or professional degree
+birth,mother_education_code,9,2003(1)2024,Unknown
+birth,mother_hispanic_origin_code,0,2014(1)2024,Non-Hispanic
+birth,mother_hispanic_origin_code,1,2014(1)2024,Mexican
+birth,mother_hispanic_origin_code,2,2014(1)2024,Puerto Rican
+birth,mother_hispanic_origin_code,3,2014(1)2024,Cuban
+birth,mother_hispanic_origin_code,4,2014(1)2024,Central and South American
+birth,mother_hispanic_origin_code,5,2014(1)2024,Other and unknown Hispanic origin
+birth,mother_hispanic_origin_code,9,2014(1)2024,Hispanic origin not stated
+birth,mother_marital_status,1,1978(1)2002,Married
+birth,mother_marital_status,2,1978(1)2002,Unmarried
+birth,mother_marital_status,1,2003(1)2024,Married
+birth,mother_marital_status,2,2003(1)2024,Unmarried
+birth,mother_marital_status,9,2003(1)2024,Unknown or not stated
+birth,mother_nativity_code,1,2003(1)2024,Born in the United States (50 states)
+birth,mother_nativity_code,2,2003(1)2024,Born outside the United States (includes possessions)
+birth,mother_nativity_code,3,2003(1)2024,Unknown or not stated
+birth,mother_race_hispanic_code,1,2003(1)2024,Non-Hispanic White only
+birth,mother_race_hispanic_code,2,2003(1)2024,Non-Hispanic Black only
+birth,mother_race_hispanic_code,3,2003(1)2024,Non-Hispanic American Indian or Alaska Native only
+birth,mother_race_hispanic_code,4,2003(1)2024,Non-Hispanic Asian only
+birth,mother_race_hispanic_code,5,2003(1)2024,Non-Hispanic Native Hawaiian or Other Pacific Islander only
+birth,mother_race_hispanic_code,6,2003(1)2024,Non-Hispanic more than one race
+birth,mother_race_hispanic_code,7,2003(1)2024,Hispanic
+birth,mother_race_hispanic_code,8,2003(1)2024,Origin unknown or not stated
+birth,mother_race_recode_31,01,2014(1)2024,White only
+birth,mother_race_recode_31,02,2014(1)2024,Black only
+birth,mother_race_recode_31,03,2014(1)2024,American Indian or Alaska Native only
+birth,mother_race_recode_31,04,2014(1)2024,Asian only
+birth,mother_race_recode_31,05,2014(1)2024,Native Hawaiian or Other Pacific Islander only
+birth,mother_race_recode_31,06,2014(1)2024,Black and White
+birth,mother_race_recode_31,07,2014(1)2024,Black and American Indian or Alaska Native
+birth,mother_race_recode_31,08,2014(1)2024,Black and Asian
+birth,mother_race_recode_31,09,2014(1)2024,Black and Native Hawaiian or Other Pacific Islander
+birth,mother_race_recode_31,10,2014(1)2024,American Indian or Alaska Native and White
+birth,mother_race_recode_31,11,2014(1)2024,American Indian or Alaska Native and Asian
+birth,mother_race_recode_31,12,2014(1)2024,American Indian or Alaska Native and Native Hawaiian or Other Pacific Islander
+birth,mother_race_recode_31,13,2014(1)2024,Asian and White
+birth,mother_race_recode_31,14,2014(1)2024,Asian and Native Hawaiian or Other Pacific Islander
+birth,mother_race_recode_31,15,2014(1)2024,Native Hawaiian or Other Pacific Islander and White
+birth,mother_race_recode_31,16,2014(1)2024,"Black, American Indian or Alaska Native, and White"
+birth,mother_race_recode_31,17,2014(1)2024,"Black, American Indian or Alaska Native, and Asian"
+birth,mother_race_recode_31,18,2014(1)2024,"Black, American Indian or Alaska Native, and Native Hawaiian or Other Pacific Islander"
+birth,mother_race_recode_31,19,2014(1)2024,"Black, Asian, and White"
+birth,mother_race_recode_31,20,2014(1)2024,"Black, Asian, and Native Hawaiian or Other Pacific Islander"
+birth,mother_race_recode_31,21,2014(1)2024,"Black, Native Hawaiian or Other Pacific Islander, and White"
+birth,mother_race_recode_31,22,2014(1)2024,"American Indian or Alaska Native, Asian, and White"
+birth,mother_race_recode_31,23,2014(1)2024,"American Indian or Alaska Native, Native Hawaiian or Other Pacific Islander, and White"
+birth,mother_race_recode_31,24,2014(1)2024,"American Indian or Alaska Native, Asian, and Native Hawaiian or Other Pacific Islander"
+birth,mother_race_recode_31,25,2014(1)2024,"Asian, Native Hawaiian or Other Pacific Islander, and White"
+birth,mother_race_recode_31,26,2014(1)2024,"Black, American Indian or Alaska Native, Asian, and White"
+birth,mother_race_recode_31,27,2014(1)2024,"Black, American Indian or Alaska Native, Asian, and Native Hawaiian or Other Pacific Islander"
+birth,mother_race_recode_31,28,2014(1)2024,"Black, American Indian or Alaska Native, Native Hawaiian or Other Pacific Islander, and White"
+birth,mother_race_recode_31,29,2014(1)2024,"Black, Asian, Native Hawaiian or Other Pacific Islander, and White"
+birth,mother_race_recode_31,30,2014(1)2024,"American Indian or Alaska Native, Asian, Native Hawaiian or Other Pacific Islander, and White"
+birth,mother_race_recode_31,31,2014(1)2024,"Black, American Indian or Alaska Native, Asian, Native Hawaiian or Other Pacific Islander, and White"
+birth,mother_race_recode_6,1,2014(1)2024,White only
+birth,mother_race_recode_6,2,2014(1)2024,Black only
+birth,mother_race_recode_6,3,2014(1)2024,American Indian or Alaska Native only
+birth,mother_race_recode_6,4,2014(1)2024,Asian only
+birth,mother_race_recode_6,5,2014(1)2024,Native Hawaiian or Other Pacific Islander only
+birth,mother_race_recode_6,6,2014(1)2024,More than one race
+birth,plurality,1,1968(1)2002,Single
+birth,plurality,2,1968(1)2002,Twin
+birth,plurality,3,1968(1)2002,Triplet
+birth,plurality,4,1968(1)2002,Quadruplet
+birth,plurality,5,1968(1)2002,Quintuplet or higher
+birth,plurality,1,2003(1)2024,Single
+birth,plurality,2,2003(1)2024,Twin
+birth,plurality,3,2003(1)2024,Triplet
+birth,plurality,4,2003(1)2024,Quadruplet or higher
+birth,residence_status,1,1968(1)2024,Resident: state and county of occurrence and residence are the same
+birth,residence_status,2,1968(1)2024,Intrastate nonresident: state of occurrence and residence are the same but county differs
+birth,residence_status,3,1968(1)2024,"Interstate nonresident: state of occurrence and residence differ, both in the United States"
+birth,residence_status,4,1968(1)2024,Foreign resident: residence is outside the 50 states and the District of Columbia
+birth,sex,1,1968(1)2002,Male
+birth,sex,2,1968(1)2002,Female
+birth,sex,F,2003(1)2024,Female
+birth,sex,M,2003(1)2024,Male
+death,autopsy,N,2003(1)2024,No
+death,autopsy,U,2003(1)2024,Unknown
+death,autopsy,Y,2003(1)2024,Yes
+death,death_day_of_week,1,1989(1)2024,Sunday
+death,death_day_of_week,2,1989(1)2024,Monday
+death,death_day_of_week,3,1989(1)2024,Tuesday
+death,death_day_of_week,4,1989(1)2024,Wednesday
+death,death_day_of_week,5,1989(1)2024,Thursday
+death,death_day_of_week,6,1989(1)2024,Friday
+death,death_day_of_week,7,1989(1)2024,Saturday
+death,death_day_of_week,9,1989(1)2024,Unknown
+death,education_code,1,2003(1)2024,8th grade or less
+death,education_code,2,2003(1)2024,"9th to 12th grade, no diploma"
+death,education_code,3,2003(1)2024,High school graduate or GED completed
+death,education_code,4,2003(1)2024,"Some college credit, but no degree"
+death,education_code,5,2003(1)2024,Associate degree
+death,education_code,6,2003(1)2024,Bachelor's degree
+death,education_code,7,2003(1)2024,Master's degree
+death,education_code,8,2003(1)2024,Doctorate or professional degree
+death,education_code,9,2003(1)2024,Unknown
+death,education_reporting_flag,0,2003(1)2024,1989 revision of education item on certificate
+death,education_reporting_flag,1,2003(1)2024,2003 revision of education item on certificate
+death,education_reporting_flag,2,2003(1)2024,No education item on certificate
+death,icd_revision,10,1968(1)2024,"ICD-10, in force for deaths occurring 1999 onward"
+death,icd_revision,8,1968(1)2024,"ICD-8, in force for deaths occurring 1968 to 1978"
+death,icd_revision,9,1968(1)2024,"ICD-9, in force for deaths occurring 1979 to 1998"
+death,injury_at_work,N,1993(1)2024,No
+death,injury_at_work,U,1993(1)2024,Unknown
+death,injury_at_work,Y,1993(1)2024,Yes
+death,manner_of_death,1,1999(1)2024,Accident
+death,manner_of_death,2,1999(1)2024,Suicide
+death,manner_of_death,3,1999(1)2024,Homicide
+death,manner_of_death,4,1999(1)2024,Pending investigation
+death,manner_of_death,5,1999(1)2024,Could not determine
+death,manner_of_death,6,1999(1)2024,Self-inflicted
+death,manner_of_death,7,1999(1)2024,Natural
+death,marital_status,D,2003(1)2024,Divorced
+death,marital_status,M,2003(1)2024,Married
+death,marital_status,S,2003(1)2024,"Never married, single"
+death,marital_status,U,2003(1)2024,Marital status unknown
+death,marital_status,W,2003(1)2024,Widowed
+death,place_of_death,1,2003(1)2024,"Hospital, clinic or medical center: inpatient"
+death,place_of_death,2,2003(1)2024,"Hospital, clinic or medical center: outpatient or admitted to emergency room"
+death,place_of_death,3,2003(1)2024,"Hospital, clinic or medical center: dead on arrival"
+death,place_of_death,4,2003(1)2024,Decedent's home
+death,place_of_death,5,2003(1)2024,Hospice facility
+death,place_of_death,6,2003(1)2024,Nursing home or long-term care
+death,place_of_death,7,2003(1)2024,Other
+death,place_of_death,9,2003(1)2024,Place of death unknown
+death,race_recode_3,1,1968(1)2020,White
+death,race_recode_3,2,1968(1)2020,Races other than White or Black
+death,race_recode_3,3,1968(1)2020,Black
+death,race_recode_5,0,2004(1)2020,Other (Puerto Rico only)
+death,race_recode_5,1,2004(1)2020,White
+death,race_recode_5,2,2004(1)2020,Black
+death,race_recode_5,3,2004(1)2020,American Indian
+death,race_recode_5,4,2004(1)2020,Asian or Pacific Islander
+death,residence_status,1,1968(1)2024,Residents: state and county of occurrence and residence are the same
+death,residence_status,2,1968(1)2024,Intrastate nonresidents: state of occurrence and residence are the same but county differs
+death,residence_status,3,1968(1)2024,"Interstate nonresidents: state of occurrence and residence differ, both in the United States"
+death,residence_status,4,1968(1)2024,Foreign residents: place of residence is outside the United States
+death,sex,1,1968(1)2002,Male
+death,sex,2,1968(1)2002,Female
+death,sex,F,2003(1)2024,Female
+death,sex,M,2003(1)2024,Male
