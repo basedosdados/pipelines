@@ -57,17 +57,39 @@ TABLES = [
     "dicionario",
 ]
 
-# Reference ids differ per backend, so they are resolved at run time.
+# Reference ids differ per backend, so everything is resolved at run time.
+#
+# Slugs differ too: prod names tags in English ("employment"), staging in
+# Portuguese ("emprego"), for the SAME underlying record — the UUIDs match
+# across environments even though the slugs do not. Reference ids are NOT
+# universally stable, though: `cc0` is afd7b13d on prod and 7fb71004 on
+# staging. So resolve by slug, per environment, never by a copied UUID.
 REF = {
-    "organization": "us_census",
+    # All three sibling US Census datasets (acs, cbp, cps) use census_bureau on
+    # prod, and `us_census` does not exist there at all.
+    "organization": "census_bureau",
     "themes": ["economics", "population", "urbanization"],
     # Content tags only. Area names, theme synonyms and the organization name
     # are already structured metadata and must not be duplicated as tags.
-    "tags": ["emprego", "trabalho", "salario", "mobilidade", "demografia"],
+    "tags": ["employment", "labor", "salary", "mobility", "demographics"],
     "license": "cc0",
     "availability": "online",
     "area": "us",
 }
+
+# Same records, Portuguese slugs, on the staging backend.
+STAGING_SLUGS = {
+    "employment": "emprego",
+    "labor": "trabalho",
+    "salary": "salario",
+    "mobility": "mobilidade",
+    "demographics": "demografia",
+}
+
+
+def tag_slug(slug: str, env: str) -> str:
+    return STAGING_SLUGS.get(slug, slug) if env != "prod" else slug
+
 
 DATASET_TEXT = {
     "name_pt": "LEHD Origin-Destination Employment Statistics (LODES)",
@@ -270,6 +292,37 @@ OL_COLUMN = {
 }
 
 
+def ensure_census_block(env: str) -> str:
+    """The census_block entity is new; prod does not carry it yet.
+
+    The entity category is fetched with a raw query rather than
+    ``lookup_id(category="entity_category", ...)``: the MCP helper asks for
+    ``allEntityCategory`` while the schema field is ``allEntitycategory``, so
+    that path is a hard 400.
+    """
+    try:
+        return server.lookup_id(
+            category="entity", slug="census_block", env=env
+        )["id"]
+    except Exception:
+        pass
+    cat = server._gql(
+        '{allEntitycategory(slug: "spatial"){edges{node{id}}}}',
+        env=env,
+        auth=False,
+    )["allEntitycategory"]["edges"][0]["node"]["id"]
+    r = server.create_update_entity(
+        slug="census_block",
+        name_pt="Bloco censitário",
+        name_en="Census block",
+        name_es="Bloque censal",
+        category_id=server._strip_id(cat),
+        env=env,
+    )
+    print(f"  created entity census_block -> {r['id']}")
+    return r["id"]
+
+
 def resolve(env: str) -> dict:
     ids = {
         "organization": server.lookup_id(
@@ -293,9 +346,7 @@ def resolve(env: str) -> dict:
         "year_entity": server.lookup_id(
             category="entity", slug="year", env=env
         )["id"],
-        "census_block": server.lookup_id(
-            category="entity", slug="census_block", env=env
-        )["id"],
+        "census_block": ensure_census_block(env),
     }
     ids["themes"] = [
         server.lookup_id(category="theme", slug=s, env=env)["id"]
