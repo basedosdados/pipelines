@@ -37,6 +37,7 @@ from pipelines.datasets.us_census_lodes.constants import (
 from pipelines.datasets.us_census_lodes.utils import (
     clean_crosswalk,
     clean_state_year,
+    load_block_geography,
 )
 
 
@@ -81,9 +82,17 @@ def main() -> None:
             local["geography_crosswalk"] = clean_crosswalk(
                 state, INPUT, OUTPUT, keep_input=args.keep_input
             )
+        # County and tract come from the state's crosswalk, not from slicing
+        # the block code -- the two disagree (all of CT, some VT blocks).
+        geo = load_block_geography(state, INPUT, OUTPUT)
         for year in years:
             got = clean_state_year(
-                state, year, INPUT, OUTPUT, keep_input=args.keep_input
+                state,
+                year,
+                INPUT,
+                OUTPUT,
+                geo=geo,
+                keep_input=args.keep_input,
             )
             for table, rows in got.items():
                 local[table] = local.get(table, 0) + rows

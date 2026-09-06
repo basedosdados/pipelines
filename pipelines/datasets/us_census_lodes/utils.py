@@ -204,9 +204,30 @@ def _null_unavailable(
 
 
 def clean_rac_wac(
-    path: Path, table: str, year: int, job_type: str
+    path: Path,
+    table: str,
+    year: int,
+    job_type: str,
+    geo: pd.DataFrame,
 ) -> pd.DataFrame:
-    """Clean one RAC or WAC file into the architecture's column order."""
+    """Clean one RAC or WAC file into the architecture's column order.
+
+    ``geo`` is the state's block-to-geography lookup from
+    :func:`load_block_geography`. County and tract come from **the crosswalk,
+    not from slicing the block code**, because the two genuinely disagree:
+
+    * Connecticut replaced counties with planning regions in 2022. The 2020
+      tabulation block GEOID still carries the legacy county (``09001``-``09015``)
+      while the crosswalk carries the planning region (``09110``-``09190``) --
+      measured at 100% of CT blocks, for both county and tract.
+    * Even outside CT, LODES reassigns a few blocks: 60 Vermont blocks sit in a
+      different crosswalk tract than their prefix implies, and some in a
+      different county.
+
+    Slicing the prefix would therefore make these tables contradict
+    ``geography_crosswalk`` inside the same dataset, and would not join to
+    ``br_bd_diretorios_us``, which follows the current delineation.
+    """
     counts = RAC_COUNTS if table == "residence_jobs" else WAC_COUNTS
     geocode = "h_geocode" if table == "residence_jobs" else "w_geocode"
 
@@ -218,12 +239,13 @@ def clean_rac_wac(
         )
 
     block = raw[geocode].str.zfill(15)
+    joined = geo.reindex(block.to_numpy())
     out = pd.DataFrame(
         {
             "year": year,
-            "state_id": block.str[:2],
-            "county_id": block.str[:5],
-            "census_tract_id": block.str[:11],
+            "state_id": joined["state_id"].to_numpy(),
+            "county_id": joined["county_id"].to_numpy(),
+            "census_tract_id": joined["census_tract_id"].to_numpy(),
             "block_id": block,
             "job_type": job_type,
         }
@@ -309,12 +331,32 @@ def write_parquet(df: pd.DataFrame, table: str, dest: Path) -> int:
     return table_arrow.num_rows
 
 
+def load_block_geography(
+    state: str, input_dir: Path, output_dir: Path
+) -> pd.DataFrame:
+    """Block-to-geography lookup for one state, indexed by ``block_id``.
+
+    Reads the state's already-written crosswalk parquet when it exists, so a
+    re-run does not re-download it; otherwise it builds the crosswalk first.
+    """
+    path = output_dir / "geography_crosswalk" / f"{state}.parquet"
+    if not path.exists():
+        clean_crosswalk(state, input_dir, output_dir)
+    df = (
+        pq.ParquetFile(path)
+        .read(columns=["block_id", "state_id", "county_id", "census_tract_id"])
+        .to_pandas()
+    )
+    return df.set_index("block_id")
+
+
 def clean_state_year(
     state: str,
     year: int,
     input_dir: Path,
     output_dir: Path,
     *,
+    geo: pd.DataFrame | None = None,
     job_types: list[str] | None = None,
     keep_input: bool = False,
 ) -> dict[str, int]:
@@ -325,6 +367,8 @@ def clean_state_year(
     """
     job_types = job_types or JOB_TYPES
     written: dict[str, int] = {}
+    if geo is None:
+        geo = load_block_geography(state, input_dir, output_dir)
 
     # Fetch the (at most twelve) files for this state-year concurrently. The
     # server is the bottleneck and this is the natural unit of work: peak disk
@@ -350,12 +394,21 @@ def clean_state_year(
         for (tbl, job_type, _url), path in zip(jobs, paths):
             if tbl != table or path is None:
                 continue
-            frames.append(clean_rac_wac(path, table, year, job_type))
+            frames.append(clean_rac_wac(path, table, year, job_type, geo))
             if not keep_input:
                 path.unlink(missing_ok=True)
         if not frames:
             continue
         df = pd.concat(frames, ignore_index=True)
+        # A job block absent from the state's crosswalk gets NULL geography.
+        # That should never happen -- the crosswalk is the same release -- so
+        # it is worth failing on rather than shipping unjoinable rows.
+        orphans = int(df["state_id"].isna().sum())
+        if orphans:
+            raise ValueError(
+                f"{table} {state} {year}: {orphans:,} of {len(df):,} rows have a "
+                f"block_id absent from the {state} geography crosswalk"
+            )
         dest = output_dir / table / f"year={year}" / f"{state}.parquet"
         written[table] = write_parquet(df, table, dest)
     return written
@@ -397,9 +450,17 @@ def clean_all(
         ) + clean_crosswalk(
             state, input_dir, output_dir, keep_input=keep_input
         )
+        # Loaded once per state and reused across its years: the fact tables
+        # take county and tract from here, not from the block prefix.
+        geo = load_block_geography(state, input_dir, output_dir)
         for year in years:
             got = clean_state_year(
-                state, year, input_dir, output_dir, keep_input=keep_input
+                state,
+                year,
+                input_dir,
+                output_dir,
+                geo=geo,
+                keep_input=keep_input,
             )
             for table, rows in got.items():
                 totals[table] = totals.get(table, 0) + rows

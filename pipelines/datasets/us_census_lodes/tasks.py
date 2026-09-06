@@ -9,6 +9,7 @@ from pipelines.datasets.us_census_lodes.utils import (
     clean_crosswalk,
     clean_state_year,
     latest_source_year,
+    load_block_geography,
 )
 
 
@@ -35,8 +36,12 @@ def build_years(work_dir: str, years: list[int]) -> dict:
     for state in STATES:
         clean_crosswalk(state, input_dir, output_dir)
         produced.add("geography_crosswalk")
+        # County and tract come from the crosswalk, not the block prefix.
+        geo = load_block_geography(state, input_dir, output_dir)
         for year in years:
-            for table in clean_state_year(state, year, input_dir, output_dir):
+            for table in clean_state_year(
+                state, year, input_dir, output_dir, geo=geo
+            ):
                 produced.add(table)
 
     return {table: str(output_dir / table) for table in sorted(produced)}

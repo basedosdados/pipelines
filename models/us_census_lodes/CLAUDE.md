@@ -43,42 +43,52 @@ Wide, as published. Partitioned on `year`, clustered on `state_id, county_id`.
 3. **No census-block directory exists.** `br_bd_diretorios_us` stops at
    `census_tract_2020`; there is no block and no block-group table. `block_id`
    and `block_group_id` therefore carry **no** directory FK. `state_id`,
-   `county_id` and `census_tract_id` are materialised prefixes of `block_id` and
-   do link, which is also what makes clustering possible without a substring on
+   `county_id` and `census_tract_id` are materialised on the fact tables and do
+   link, which is also what makes clustering possible without a substring on
    300 M rows.
 
-4. **`state_abbreviation` cannot be linked either** — it holds USPS codes, the
+4. **Do not slice `block_id` to get county or tract — use the crosswalk.**
+   Connecticut replaced counties with planning regions in 2022, so its 2020
+   block GEOIDs carry the legacy county (`09001`–`09015`) while the crosswalk
+   carries the planning region (`09110`–`09190`). Measured: the two disagree on
+   **100%** of CT blocks, for county and tract alike, and on 60 Vermont blocks
+   (some of which change county). The fact tables take both from the state's
+   crosswalk, so they agree with `geography_crosswalk` and join to the
+   directory. `clean_state_year` raises if a job block is absent from its
+   state's crosswalk rather than emitting NULL geography.
+
+5. **`state_abbreviation` cannot be linked either** — it holds USPS codes, the
    state directory is keyed on FIPS, and the backend only accepts a link to a
    directory's primary-key column. Referential integrity is a dbt test instead.
 
-5. **The geography vintage is 2020 and history is restated onto it.** LODES 6
+6. **The geography vintage is 2020 and history is restated onto it.** LODES 6
    and 7 used 2010 blocks. A block code from an older extract is not comparable
    without the Census Bureau's 2010↔2020 relationship files. Stated in every
    table description, because a silent cross-vintage join produces plausible
    nonsense.
 
-6. **A 404 is data, not a failure.** LODES publishes nothing for a
+7. **A 404 is data, not a failure.** LODES publishes nothing for a
    state-year-jobtype with no data. `utils.download` returns None on 404 and
    raises on every other HTTP status, so a transient outage is never recorded as
    a coverage gap. Measured gaps: `code/availability.md`.
 
-7. **`us/` is not a state.** The LODES8 root has 53 directories: 50 states, DC,
+8. **`us/` is not a state.** The LODES8 root has 53 directories: 50 states, DC,
    PR, and `us`, which holds only a national crosswalk. It is skipped.
 
-8. **PR has RAC but no WAC or OD** in any year — a LED partner without the data
+9. **PR has RAC but no WAC or OD** in any year — a LED partner without the data
    infrastructure. AK is missing WAC from 2017, MI from 2022.
 
-9. **OD is deliberately not here.** Measured at ~2.6 bn rows for JT00 alone and
+10. **OD is deliberately not here.** Measured at ~2.6 bn rows for JT00 alone and
    ~10.6 bn for all six job types, and tract aggregation only buys 3.96× (measured
    on DC 2022). It gets its own onboarding.
 
-10. **Staging parquet is all-STRING**, written through `utils.write_parquet` by
+11. **Staging parquet is all-STRING**, written through `utils.write_parquet` by
     both this bootstrap and the pipeline, so the two upload paths cannot produce
     divergent staging schemas. Values pass through the architecture's real types
     first, then cast via arrow — never `astype(str)`, which renders NULL as
     `"nan"`.
 
-11. **`bd.Table.create`, not a BigQuery load job.** The load job would make the
+12. **`bd.Table.create`, not a BigQuery load job.** The load job would make the
     staging table NATIVE, and the recurring pipeline writes only to GCS — dbt
     would then serve a stale native snapshot forever.
 

@@ -396,6 +396,60 @@ for _code, (_pt, _en, _es) in NAICS_SECTORS.items():
     )
 
 
+# County and tract are taken from the state's geography crosswalk, not from
+# slicing the block code. The two genuinely disagree: Connecticut replaced
+# counties with planning regions in 2022, so its 2020 block GEOIDs still carry
+# the legacy county (09001-09015) while the crosswalk carries the planning
+# region (09110-09190) -- measured at 100% of CT blocks. A few blocks elsewhere
+# are reassigned too (60 in Vermont). Slicing the prefix would make these tables
+# contradict geography_crosswalk inside the same dataset.
+XWALK_DERIVED_PT = (
+    "Obtido da tabela geography_crosswalk desta mesma versão do LODES, e não dos "
+    "primeiros dígitos do código do bloco"
+)
+XWALK_DERIVED_EN = (
+    "Taken from the geography_crosswalk table of this same LODES release, not from "
+    "the leading digits of the block code"
+)
+XWALK_DERIVED_ES = (
+    "Obtenido de la tabla geography_crosswalk de esta misma versión de LODES, y no "
+    "de los primeros dígitos del código del bloque"
+)
+COUNTY_PT = (
+    XWALK_DERIVED_PT
+    + ". Reflete a delimitação vigente: Connecticut substituiu condados por regiões "
+    "de planejamento em 2022, de modo que o código aqui (09110-09190) difere do "
+    "condado embutido no código do bloco (09001-09015)"
+)
+COUNTY_EN = (
+    XWALK_DERIVED_EN
+    + ". It reflects the current delineation: Connecticut replaced counties with "
+    "planning regions in 2022, so the code here (09110-09190) differs from the "
+    "county embedded in the block code (09001-09015)"
+)
+COUNTY_ES = (
+    XWALK_DERIVED_ES
+    + ". Refleja la delimitación vigente: Connecticut sustituyó los condados por "
+    "regiones de planificación en 2022, por lo que el código aquí (09110-09190) "
+    "difiere del condado incluido en el código del bloque (09001-09015)"
+)
+TRACT_PT = (
+    XWALK_DERIVED_PT
+    + ". Difere do prefixo do bloco em todo Connecticut e em um pequeno número de "
+    "blocos reatribuídos em outros estados"
+)
+TRACT_EN = (
+    XWALK_DERIVED_EN
+    + ". It differs from the block prefix throughout Connecticut and for a small "
+    "number of reassigned blocks in other states"
+)
+TRACT_ES = (
+    XWALK_DERIVED_ES
+    + ". Difiere del prefijo del bloque en todo Connecticut y en un pequeño número "
+    "de bloques reasignados en otros estados"
+)
+
+
 def geo_key_rows(geo_kind: str) -> list[dict]:
     """Key columns. ``geo_kind`` is 'residence' or 'workplace'."""
     if geo_kind == "residence":
@@ -425,8 +479,11 @@ def geo_key_rows(geo_kind: str) -> list[dict]:
             f"Código FIPS del estado del bloque censal de {es}",
             directory=DIR_STATE,
             original=original,
-            observations="Dois primeiros dígitos do código do bloco. | First two digits "
-            "of the block code. | Dos primeros dígitos del código del bloque.",
+            observations=XWALK_DERIVED_PT
+            + " | "
+            + XWALK_DERIVED_EN
+            + " | "
+            + XWALK_DERIVED_ES,
         ),
         row(
             "county_id",
@@ -436,8 +493,7 @@ def geo_key_rows(geo_kind: str) -> list[dict]:
             f"Código FIPS del condado del bloque censal de {es}",
             directory=DIR_COUNTY,
             original=original,
-            observations="Cinco primeiros dígitos do código do bloco. | First five "
-            "digits of the block code. | Cinco primeros dígitos del código del bloque.",
+            observations=COUNTY_PT + " | " + COUNTY_EN + " | " + COUNTY_ES,
         ),
         row(
             "census_tract_id",
@@ -447,8 +503,7 @@ def geo_key_rows(geo_kind: str) -> list[dict]:
             f"Código del sector censal de 2020 del bloque de {es}",
             directory=DIR_TRACT,
             original=original,
-            observations="Onze primeiros dígitos do código do bloco. | First eleven "
-            "digits of the block code. | Once primeros dígitos del código del bloque.",
+            observations=TRACT_PT + " | " + TRACT_EN + " | " + TRACT_ES,
         ),
         row(
             "block_id",

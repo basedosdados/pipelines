@@ -128,9 +128,26 @@ semantics for it.
 
 ### Key columns
 
-`state_id`, `county_id` and `census_tract_id` are prefixes of `block_id`,
-materialised so the table can be clustered and joined to `br_bd_diretorios_us`
-without a substring on hundreds of millions of rows.
+`state_id`, `county_id` and `census_tract_id` are materialised on the fact
+tables so they can be clustered and joined to `br_bd_diretorios_us` without a
+substring on hundreds of millions of rows.
+
+**They come from the state's geography crosswalk, not from slicing `block_id`.**
+The two genuinely disagree, and the difference is not cosmetic:
+
+| | block prefix | crosswalk |
+|---|---|---|
+| Connecticut county | `09001`–`09015` (legacy counties) | `09110`–`09190` (planning regions) |
+| CT blocks affected | — | **100%**, county and tract alike |
+| Vermont tract | — | 60 blocks sit in a different tract, some in a different county |
+
+Connecticut replaced counties with planning regions in 2022. A 2020 tabulation
+block GEOID still carries the county in force when it was assigned; the
+crosswalk carries the current delineation, which is what `br_bd_diretorios_us`
+follows. Deriving from the prefix would make the fact tables contradict
+`geography_crosswalk` **inside the same dataset** and would break the directory
+join for all of CT. The cleaner therefore raises if a job block is missing from
+its state's crosswalk, rather than emitting a NULL geography.
 
 **`br_bd_diretorios_us` has no census-block and no block-group table** — it stops
 at `census_tract_2020`. `block_id` and `block_group_id` therefore carry no
