@@ -242,6 +242,26 @@ RAW_SOURCES = {
     ),
 }
 
+# Per-table auxiliary-file bundles, built by code/build_auxiliary_files.py.
+#
+# The bucket is basedosdados-dev because that is the only one the onboarding
+# credentials can write to; basedosdados-public (the current convention, used by
+# cl_chilecompra) rejects the dev service account with 403. Neither resolves for
+# an anonymous reader today: basedosdados-dev is requester-pays (HTTP 400
+# UserProjectMissing) and the public-bucket migration moved the metadata without
+# moving the objects (HTTP 404). Verified 2026-09-06; platform-wide, not
+# specific to this dataset.
+AUX_BUCKET = "basedosdados-dev"
+AUX_TABLES = ["residence_jobs", "workplace_jobs", "geography_crosswalk"]
+
+
+def auxiliary_files_url(table: str) -> str:
+    return (
+        f"https://storage.googleapis.com/{AUX_BUCKET}/auxiliary_files/"
+        f"{GCP_DATASET_ID}/{table}/auxiliary_files.zip"
+    )
+
+
 # Which column identifies each table's observation level.
 OL_COLUMN = {
     "residence_jobs": "block_id",
@@ -390,6 +410,9 @@ def main() -> None:
             status_id=ids["published"],
             published_by_ids=[ids["account"]],
             data_cleaned_by_ids=[ids["account"]],
+            auxiliary_files_url=(
+                auxiliary_files_url(table) if table in AUX_TABLES else ""
+            ),
             env=env,
             **{k: v for k, v in TABLE_TEXT[table].items() if k != "entity"},
         )
@@ -533,6 +556,9 @@ def main() -> None:
                 status_id=ids["published"],
                 published_by_ids=[ids["account"]],
                 data_cleaned_by_ids=[ids["account"]],
+                auxiliary_files_url=(
+                    auxiliary_files_url(table) if table in AUX_TABLES else ""
+                ),
                 raw_data_source_ids=[source_ids[table]],
                 env=env,
                 **{
