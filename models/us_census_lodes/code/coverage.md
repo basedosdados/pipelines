@@ -15,7 +15,7 @@ file for it or because the file it publishes is empty.
 | `residence_jobs` | 490,994,834 | 1129 of 1144 |
 | `workplace_jobs` | 194,030,022 | 1100 of 1144 |
 | `geography_crosswalk` | 8,174,955 | n/a |
-| `dicionario` | 0 | n/a |
+| `dicionario` | 12 | n/a |
 
 ## State-years with no `residence_jobs` data
 
