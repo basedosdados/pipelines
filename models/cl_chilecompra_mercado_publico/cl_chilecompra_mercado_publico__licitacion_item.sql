@@ -84,7 +84,9 @@ select
     safe_cast(tipo_pago as string) tipo_pago,
     safe_cast(prohibicion_contratacion as string) prohibicion_contratacion,
     safe_cast(subcontratacion as string) subcontratacion,
-    safe_cast(unidad_tiempo_duracion_contrato as string) unidad_tiempo_duracion_contrato,
+    safe_cast(
+        unidad_tiempo_duracion_contrato as string
+    ) unidad_tiempo_duracion_contrato,
     safe_cast(tiempo_duracion_contrato as int64) tiempo_duracion_contrato,
     safe_cast(tipo_duracion_contrato as string) tipo_duracion_contrato,
     safe_cast(observacion_contrato as string) observacion_contrato,
@@ -98,11 +100,17 @@ select
     safe_cast(numero_aprobacion as string) numero_aprobacion,
     safe_cast(fecha_aprobacion as date) fecha_aprobacion,
     safe_cast(cantidad_oferentes as int64) cantidad_oferentes,
-    safe_cast(indicador_criterios_ambientales as string) indicador_criterios_ambientales,
-    safe_cast(descripcion_criterios_ambientales as string) descripcion_criterios_ambientales,
+    safe_cast(
+        indicador_criterios_ambientales as string
+    ) indicador_criterios_ambientales,
+    safe_cast(
+        descripcion_criterios_ambientales as string
+    ) descripcion_criterios_ambientales,
     safe_cast(indicador_criterios_sociales as string) indicador_criterios_sociales,
     safe_cast(descripcion_criterios_sociales as string) descripcion_criterios_sociales,
-    safe_cast(descripcion_criterios_sociales_2 as string) descripcion_criterios_sociales_2,
+    safe_cast(
+        descripcion_criterios_sociales_2 as string
+    ) descripcion_criterios_sociales_2,
     safe_cast(criterios_evaluacion as string) criterios_evaluacion,
     safe_cast(correlativo_item as string) correlativo_item,
     safe_cast(codigo_producto_onu as string) codigo_producto_onu,

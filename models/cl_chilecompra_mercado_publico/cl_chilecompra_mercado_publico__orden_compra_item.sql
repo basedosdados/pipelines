@@ -101,14 +101,19 @@ select
     safe_cast(monto_impuestos_item as float64) monto_impuestos_item,
     safe_cast(monto_linea_neto as float64) monto_linea_neto
 from
-    {{ set_datalake_project("cl_chilecompra_mercado_publico_staging.orden_compra_item") }}
-    as t
+    {{
+        set_datalake_project(
+            "cl_chilecompra_mercado_publico_staging.orden_compra_item"
+        )
+    }} as t
 {% if is_incremental() %}
-    {%- set max_year_result = run_query("select max(ano) as max_year from " ~ this) -%}
-    {%- set max_year = 0 -%}
-    {%- if execute and max_year_result.rows[0][0] -%}
-        {%- set max_year = max_year_result.rows[0][0] -%}
-    {%- endif -%}
+        {%- set max_year_result = run_query(
+            "select max(ano) as max_year from " ~ this
+        ) -%}
+        {%- set max_year = 0 -%}
+        {%- if execute and max_year_result.rows[0][0] -%}
+            {%- set max_year = max_year_result.rows[0][0] -%}
+        {%- endif -%}
     -- rebuild the trailing window the source rewrites; every partition it
     -- touches is rebuilt in full from staging, which holds all of history
     where t.ano >= '{{ max_year - 2 }}'
