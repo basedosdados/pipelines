@@ -27,6 +27,12 @@ from pipelines.datasets.us_census_lodes.utils import read_arch
 MODEL_DIR = Path(__file__).resolve().parents[1]
 
 PARTITIONED = {"residence_jobs", "workplace_jobs"}
+
+# Scope the expensive tests to the latest year. The partition column here is
+# `year`, so the placeholder must be the English variant: plain
+# `__most_recent_year__` hardcodes `ano` in macros/custom_get_where_subquery.sql
+# and fails with "Unrecognized name: ano".
+MOST_RECENT_YEAR = "__most_recent_year_en__"
 CLUSTER = ["state_id", "county_id"]
 
 VINTAGE_NOTE = (
@@ -170,7 +176,7 @@ def build_schema() -> dict:
                             "job_type",
                             "block_id",
                         ],
-                        "config": {"where": "__most_recent_year__"},
+                        "config": {"where": MOST_RECENT_YEAR},
                     }
                 }
             )
@@ -187,7 +193,7 @@ def build_schema() -> dict:
             if SPARSE[table]:
                 proportion["ignore_values"] = sorted(SPARSE[table])
             if table in PARTITIONED:
-                proportion["config"] = {"where": "__most_recent_year__"}
+                proportion["config"] = {"where": MOST_RECENT_YEAR}
             tests.append({"not_null_proportion_multiple_columns": proportion})
         if tests:
             model["tests"] = tests
@@ -214,7 +220,7 @@ def build_schema() -> dict:
                         "relationships": {
                             "to": f"ref('{dataset}__{tbl}')",
                             "field": ref_field,
-                            "config": {"where": "__most_recent_year__"}
+                            "config": {"where": MOST_RECENT_YEAR}
                             if table in PARTITIONED
                             else {},
                         }
