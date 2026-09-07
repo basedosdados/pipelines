@@ -172,3 +172,45 @@ def test_rewriting_one_source_month_is_idempotent(tmp_path):
         utils.write_partitioned(df, "licitacion_oferta", tmp_path, "2026-06")
     part = tmp_path / "licitacion_oferta" / "ano=2026" / "mes=06"
     assert len(list(part.glob("*.parquet"))) == 1
+
+
+def test_newest_month_per_kind_picks_the_latest_of_each_kind():
+    """force_run's fallback must give the run something real to do, per kind."""
+    from pipelines.datasets.cl_chilecompra_mercado_publico.flows import (
+        newest_month_per_kind,
+    )
+
+    manifest = [
+        {"kind": "orden_compra", "year": 2026, "month": 7},
+        {"kind": "orden_compra", "year": 2026, "month": 8},
+        {"kind": "orden_compra", "year": 2025, "month": 12},
+        {"kind": "licitacion", "year": 2026, "month": 8},
+        {"kind": "licitacion", "year": 2026, "month": 3},
+    ]
+    assert newest_month_per_kind(manifest) == [
+        {"kind": "licitacion", "year": 2026, "month": 8},
+        {"kind": "orden_compra", "year": 2026, "month": 8},
+    ]
+
+
+def test_newest_month_per_kind_compares_year_before_month():
+    """A December of an older year must not beat a January of a newer one."""
+    from pipelines.datasets.cl_chilecompra_mercado_publico.flows import (
+        newest_month_per_kind,
+    )
+
+    manifest = [
+        {"kind": "orden_compra", "year": 2025, "month": 12},
+        {"kind": "orden_compra", "year": 2026, "month": 1},
+    ]
+    assert newest_month_per_kind(manifest) == [
+        {"kind": "orden_compra", "year": 2026, "month": 1}
+    ]
+
+
+def test_newest_month_per_kind_is_empty_for_an_empty_manifest():
+    from pipelines.datasets.cl_chilecompra_mercado_publico.flows import (
+        newest_month_per_kind,
+    )
+
+    assert newest_month_per_kind([]) == []
