@@ -304,8 +304,41 @@ my_flow.deploy_schedules = [
     {"cron": "35 16 10,11,12,13 * *", "timezone": "America/Sao_Paulo"}
 ]
 my_flow.job_variables = {
-    "memory": "8Gi"
+    "memory": "8Gi",
+    "memory_limit": "8Gi",     # <- the one the pod actually gets
+    "memory_request": "2Gi",
 }  # optional; size to the clean step's peak RAM
+```
+
+### `memory` alone is silently ignored — set `memory_limit` too
+
+**`memory` is not a variable of the work pool's job template.** `basedosdados-dev`
+exposes `memory_limit` (default **`4Gi`**) and `memory_request` (default `1Gi`); a key
+that is not in the template is dropped without complaint, so a flow that sets only
+`memory` runs on **4Gi no matter what number it names**.
+
+Nothing surfaces this. The deploy succeeds, the deployment shows the `job_variables` you
+set, and the pod is simply killed later:
+
+```
+Container 'prefect-job' was killed due to out-of-memory (OOMKilled)
+```
+
+Two `cl_chilecompra_mercado_publico` dev runs died this way at a declared `"16Gi"`, both
+after the same four months, while instrumentation showed RSS plateauing at 2.5 GB — far
+under the limit that was asked for, and just over the 4Gi that was actually applied.
+
+**As of 2026-09-07, 43 flows under `pipelines/datasets/*/flows.py` set only `memory`** and
+are therefore all capped at 4Gi regardless of the value written — including ones asking
+for 8, 12 and 16Gi. Only `br_me_cnpj`, `br_anatel_telefonia_movel`, `br_sfb_sicar` and
+`us_state_foreign_assistance` set the explicit pair. Any of the other 43 whose workload
+grew past 4Gi is failing for this reason and not for the reason its logs suggest.
+
+Verify rather than trusting the number you wrote:
+
+```bash
+uv run python -c "import sys; sys.path.insert(0,'<mcp>'); import server; \
+print(list(server._prefect_get('/work_pools/basedosdados-dev')['base_job_template']['variables']['properties']))"
 ```
 
 **Pick a minute nobody else is using — never `0`.** The hour follows the source's
