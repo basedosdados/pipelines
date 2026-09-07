@@ -26,7 +26,9 @@ class constants(Enum):
     # www.dol.gov sits behind Akamai, which rejects requests, curl and wget with
     # HTTP 403 on the TLS fingerprint alone — browser headers do not help. Every
     # fetch goes through curl_cffi impersonating Chrome.
-    PERFORMANCE_PAGE = "https://www.dol.gov/agencies/eta/foreign-labor/performance"
+    PERFORMANCE_PAGE = (
+        "https://www.dol.gov/agencies/eta/foreign-labor/performance"
+    )
     IMPERSONATE = "chrome"
     BASE_URL = "https://www.dol.gov"
 

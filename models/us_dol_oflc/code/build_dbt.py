@@ -91,7 +91,9 @@ def read_arch(table: str) -> list[dict]:
 
 def sql(table: str) -> str:
     arch = read_arch(table)
-    casts = ",\n    ".join(CAST[c["bigquery_type"]].format(c=c["name"]) for c in arch)
+    casts = ",\n    ".join(
+        CAST[c["bigquery_type"]].format(c=c["name"]) for c in arch
+    )
     if table == "dictionary":
         config = textwrap.dedent(f'''\
             {{{{
@@ -122,8 +124,14 @@ def sql(table: str) -> str:
 
 
 def wrap(text: str, indent: str) -> str:
-    body = "\n".join(textwrap.wrap(" ".join(text.split()), 74,
-                                   initial_indent=indent, subsequent_indent=indent))
+    body = "\n".join(
+        textwrap.wrap(
+            " ".join(text.split()),
+            74,
+            initial_indent=indent,
+            subsequent_indent=indent,
+        )
+    )
     return f">-\n{body}"
 
 
@@ -151,17 +159,23 @@ def schema() -> str:
             # not cost a full scan on every dbt test run.
             out.append("          config:")
             out.append("            where: __most_recent_year_en__")
-        covered = [c["name"] for c in arch if c["covered_by_dictionary"] == "yes"]
+        covered = [
+            c["name"] for c in arch if c["covered_by_dictionary"] == "yes"
+        ]
         if covered:
             out.append("      - custom_dictionary_coverage_eng:")
-            out.append(f"          dictionary_model: ref('{DATASET}__dictionary')")
+            out.append(
+                f"          dictionary_model: ref('{DATASET}__dictionary')"
+            )
             out.append("          columns_covered_by_dictionary:")
             for c in covered:
                 out.append(f"            - {c}")
         out.append("    columns:")
         for c in arch:
             out.append(f"      - name: {c['name']}")
-            out.append(f"        description: {wrap(c['description'], '          ')}")
+            out.append(
+                f"        description: {wrap(c['description'], '          ')}"
+            )
             tests = []
             if c["name"] in KEY[table]:
                 tests.append("not_null")
@@ -169,15 +183,22 @@ def schema() -> str:
                 out.append("        tests:")
                 out.append("          - not_null")
                 out.append("          - relationships:")
-                out.append("              to: ref('br_bd_diretorios_data_tempo__ano')")
+                out.append(
+                    "              to: ref('br_bd_diretorios_data_tempo__ano')"
+                )
                 out.append("              field: ano.ano")
                 continue
-            if c["name"] in ("employer_state", "worksite_state") and c["name"] in names:
+            if (
+                c["name"] in ("employer_state", "worksite_state")
+                and c["name"] in names
+            ):
                 out.append("        tests:")
                 if tests:
                     out.append("          - not_null")
                 out.append("          - custom_relationships:")
-                out.append("              to: ref('br_bd_diretorios_us__state')")
+                out.append(
+                    "              to: ref('br_bd_diretorios_us__state')"
+                )
                 out.append("              field: abbreviation")
                 out.append("              proportion_allowed_failures: 0.05")
                 continue

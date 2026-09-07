@@ -23,7 +23,9 @@ import zipfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-DATA = Path(os.environ.get("OFLC_DATA_DIR", Path.home() / "Downloads/us_dol_oflc_data"))
+DATA = Path(
+    os.environ.get("OFLC_DATA_DIR", Path.home() / "Downloads/us_dol_oflc_data")
+)
 LAYOUTS = DATA / "input" / "layouts"
 OUT = DATA / "auxiliary_files"
 BASE_URL = "https://www.dol.gov/sites/dolgov/files/ETA/oflc/pdfs/"
@@ -111,24 +113,34 @@ def main() -> int:
         docs = sorted(p for p in LAYOUTS.iterdir() if rx.match(p.name))
         if not docs:
             raise SystemExit(f"No record layouts matched {table}")
-        listing = "\n".join(f"- `{p.name}` ({p.stat().st_size // 1024} KB)"
-                            for p in docs)
+        listing = "\n".join(
+            f"- `{p.name}` ({p.stat().st_size // 1024} KB)" for p in docs
+        )
         tdir = OUT / table
         tdir.mkdir(parents=True, exist_ok=True)
-        readme = README.format(table=table, program=PROGRAM_NAME[table],
-                               page=PAGE, base=BASE_URL, date=date,
-                               files=listing)
+        readme = README.format(
+            table=table,
+            program=PROGRAM_NAME[table],
+            page=PAGE,
+            base=BASE_URL,
+            date=date,
+            files=listing,
+        )
         (tdir / "README.md").write_text(readme)
-        shutil.copy(HERE / "crosswalk" / f"{table}.csv",
-                    tdir / f"{table}_crosswalk.csv")
+        shutil.copy(
+            HERE / "crosswalk" / f"{table}.csv",
+            tdir / f"{table}_crosswalk.csv",
+        )
         zpath = OUT / f"{table}_auxiliary_files.zip"
         with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
             z.write(tdir / "README.md", "README.md")
             z.write(tdir / f"{table}_crosswalk.csv", f"{table}_crosswalk.csv")
             for p in docs:
                 z.write(p, f"record_layouts/{p.name}")
-        print(f"{table}: {len(docs)} layouts -> {zpath} "
-              f"({zpath.stat().st_size / 1e6:.1f} MB)")
+        print(
+            f"{table}: {len(docs)} layouts -> {zpath} "
+            f"({zpath.stat().st_size / 1e6:.1f} MB)"
+        )
     return 0
 
 

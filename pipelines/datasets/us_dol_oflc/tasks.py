@@ -49,8 +49,9 @@ def download_program(program: str, years: list[int], work_dir: str) -> str:
 
 
 @task
-def clean_program(program: str, years: list[int], work_dir: str,
-                  input_dir: str) -> dict:
+def clean_program(
+    program: str, years: list[int], work_dir: str, input_dir: str
+) -> dict:
     """Re-materialise the given fiscal years of one program.
 
     Returns:
@@ -75,7 +76,11 @@ def partition_paths(program_result: dict, years: list[int]) -> list[str]:
     refresh from touching fiscal years the run did not rebuild.
     """
     root = Path(program_result["path"])
-    return [str(root / f"year={fy}") for fy in years if (root / f"year={fy}").exists()]
+    return [
+        str(root / f"year={fy}")
+        for fy in years
+        if (root / f"year={fy}").exists()
+    ]
 
 
 @task

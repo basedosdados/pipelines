@@ -91,7 +91,9 @@ def us_dol_oflc_flow(
             program=POLL_TABLE, years=years, work_dir=work_dir
         )
         results[POLL_TABLE] = clean_program(
-            program=POLL_TABLE, years=years, work_dir=work_dir,
+            program=POLL_TABLE,
+            years=years,
+            work_dir=work_dir,
             input_dir=input_dir,
         )
         max_date = results[POLL_TABLE]["max_decision_date"]
@@ -114,14 +116,18 @@ def us_dol_oflc_flow(
                 program=program, years=years, work_dir=work_dir
             )
             results[program] = clean_program(
-                program=program, years=years, work_dir=work_dir,
+                program=program,
+                years=years,
+                work_dir=work_dir,
                 input_dir=program_input,
             )
 
         # `dictionary` is rebuilt from the full history, not from a two-year
         # refresh, so the pipeline never uploads it — but dbt still runs the
         # model so the dictionary-coverage tests read a current table.
-        bucket = "basedosdados-dev" if not materialize_to_prod else "basedosdados"
+        bucket = (
+            "basedosdados-dev" if not materialize_to_prod else "basedosdados"
+        )
         target = "dev" if not materialize_to_prod else "prod"
 
         # Upload one hive partition per refreshed fiscal year, with
@@ -143,11 +149,19 @@ def us_dol_oflc_flow(
         # tests read a sibling model, and interleaving run/test per table fails
         # in a clean environment where that sibling does not exist yet.
         for table in constants.TABLES.value:
-            run_dbt(dataset_id=DATASET_ID, table_id=table,
-                    dbt_command="run", target=target)
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="run",
+                target=target,
+            )
         for table in constants.TABLES.value:
-            run_dbt(dataset_id=DATASET_ID, table_id=table,
-                    dbt_command="test", target=target)
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="test",
+                target=target,
+            )
 
         if not materialize_to_prod:
             return

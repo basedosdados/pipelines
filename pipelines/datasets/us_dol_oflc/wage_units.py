@@ -38,13 +38,37 @@ def _add(canonical: str, *tokens: str) -> None:
 _add("hour", "HOUR", "HOURLY", "HR", "H", "PER HOUR", "HOURLY WAGE")
 _add("day", "DAY", "DAILY", "DAI", "DY", "PER DAY")
 _add("week", "WEEK", "WEEKLY", "WK", "W", "PER WEEK")
-_add("bi-weekly", "BI-WEEKLY", "BIWEEKLY", "BI WEEKLY", "BI", "BW", "B",
-     "EVERY TWO WEEKS")
-_add("semi-monthly", "SEMI-MONTHLY", "SEMIMONTHLY", "SEMI MONTHLY", "SM",
-     "TWICE A MONTH")
+_add(
+    "bi-weekly",
+    "BI-WEEKLY",
+    "BIWEEKLY",
+    "BI WEEKLY",
+    "BI",
+    "BW",
+    "B",
+    "EVERY TWO WEEKS",
+)
+_add(
+    "semi-monthly",
+    "SEMI-MONTHLY",
+    "SEMIMONTHLY",
+    "SEMI MONTHLY",
+    "SM",
+    "TWICE A MONTH",
+)
 _add("month", "MONTH", "MONTHLY", "MTH", "MO", "M", "PER MONTH")
-_add("year", "YEAR", "YEARLY", "YR", "Y", "A", "ANNUAL", "ANNUALLY", "PER YEAR",
-     "SALARIED")
+_add(
+    "year",
+    "YEAR",
+    "YEARLY",
+    "YR",
+    "Y",
+    "A",
+    "ANNUAL",
+    "ANNUALLY",
+    "PER YEAR",
+    "SALARIED",
+)
 _add("piece rate", "PIECE RATE", "PIECE-RATE", "PIECERATE", "PC")
 
 
@@ -54,8 +78,15 @@ def normalise(raw: object) -> str | None:
         return None
     token = " ".join(str(raw).strip().upper().split())
     # "Select Pay Range" is the unfilled form default, not a unit.
-    if not token or token in {"NA", "N/A", "NONE", "UNKNOWN", "-",
-                              "SELECT PAY RANGE", "SELECT"}:
+    if not token or token in {
+        "NA",
+        "N/A",
+        "NONE",
+        "UNKNOWN",
+        "-",
+        "SELECT PAY RANGE",
+        "SELECT",
+    }:
         return None
     return UNIT_MAP.get(token)
 

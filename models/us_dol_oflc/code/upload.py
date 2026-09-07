@@ -23,14 +23,15 @@ _argv = sys.argv[1:]
 if "--env" in _argv:
     _i = _argv.index("--env")
     ENV = _argv[_i + 1]
-    _argv = _argv[:_i] + _argv[_i + 2:]
+    _argv = _argv[:_i] + _argv[_i + 2 :]
 else:
     ENV = "dev"
 
 BILLING_PROJECT = "basedosdados" if ENV == "prod" else "basedosdados-dev"
 DATASET_ID = "us_dol_oflc"
-DATA = Path(os.environ.get("OFLC_DATA_DIR",
-                           Path.home() / "Downloads/us_dol_oflc_data"))
+DATA = Path(
+    os.environ.get("OFLC_DATA_DIR", Path.home() / "Downloads/us_dol_oflc_data")
+)
 OUTPUT_ROOT = DATA / "output"
 
 # The GCS bucket is requester-pays.
@@ -54,7 +55,7 @@ def upload_table(slug: str) -> int:
     st = bd.Storage(dataset_id=DATASET_ID, table_id=slug)
     try:
         st.delete_table(mode="staging", not_found_ok=True)
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         print(f"  [warn] staging prefix cleanup: {e}")
 
     tb = bd.Table(dataset_id=DATASET_ID, table_id=slug)

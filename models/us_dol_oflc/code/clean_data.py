@@ -25,7 +25,9 @@ from pathlib import Path
 from pipelines.datasets.us_dol_oflc.constants import constants
 from pipelines.datasets.us_dol_oflc.utils import build
 
-DATA = Path(os.environ.get("OFLC_DATA_DIR", Path.home() / "Downloads/us_dol_oflc_data"))
+DATA = Path(
+    os.environ.get("OFLC_DATA_DIR", Path.home() / "Downloads/us_dol_oflc_data")
+)
 INPUT = DATA / "input"
 OUTPUT = DATA / "output"
 REPORT = DATA / "clean_report.json"
@@ -42,19 +44,29 @@ def main() -> int:
         i = argv.index("--years")
         lo, _, hi = argv[i + 1].partition("-")
         years = set(range(int(lo), int(hi or lo) + 1))
-        argv = argv[:i] + argv[i + 2:]
+        argv = argv[:i] + argv[i + 2 :]
     wanted = [a for a in argv if a in PROGRAMS] or PROGRAMS
-    report_path = REPORT if not years else REPORT.with_name(
-        f"clean_report_{wanted[0]}_{min(years)}_{max(years)}.json")
-    report = json.loads(report_path.read_text()) if report_path.exists() else {}
+    report_path = (
+        REPORT
+        if not years
+        else REPORT.with_name(
+            f"clean_report_{wanted[0]}_{min(years)}_{max(years)}.json"
+        )
+    )
+    report = (
+        json.loads(report_path.read_text()) if report_path.exists() else {}
+    )
     for program in wanted:
         print(f"=== {program} ===", flush=True)
         build(program, report, INPUT, OUTPUT, years, resume)
         report_path.write_text(json.dumps(report, indent=1))
     for program, info in report.items():
         if info.get("unrecognised_wage_units"):
-            print(f"WARNING {program}: unrecognised wage units "
-                  f"{info['unrecognised_wage_units']}", file=sys.stderr)
+            print(
+                f"WARNING {program}: unrecognised wage units "
+                f"{info['unrecognised_wage_units']}",
+                file=sys.stderr,
+            )
     return 0
 
 

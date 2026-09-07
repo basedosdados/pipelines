@@ -32,8 +32,11 @@ CROSSWALK_DIR = constants.CROSSWALK_DIR.value
 
 # Columns derived here rather than read from the source.
 DERIVED = {
-    "year", "source_file",
-    "wage_offered_from_annual", "wage_offered_to_annual", "prevailing_wage_annual",
+    "year",
+    "source_file",
+    "wage_offered_from_annual",
+    "wage_offered_to_annual",
+    "prevailing_wage_annual",
 }
 
 # Values the source uses for "blank".
@@ -44,6 +47,7 @@ NULLISH = {"", "NA", "N/A", "NULL", "NONE", "UNKNOWN", "-", "--", "."}
 # Value coercion
 # --------------------------------------------------------------------------
 
+
 def _clean_str(v: object) -> str | None:
     if v is None:
         return None
@@ -51,10 +55,7 @@ def _clean_str(v: object) -> str | None:
         return None
     if isinstance(v, (dt.date, dt.datetime)):
         return v.isoformat()
-    if isinstance(v, float) and v.is_integer():
-        s = str(int(v))
-    else:
-        s = str(v)
+    s = str(int(v)) if isinstance(v, float) and v.is_integer() else str(v)
     s = " ".join(s.split())
     return None if s.upper() in NULLISH else s
 
@@ -78,11 +79,18 @@ def _to_float(v: object) -> float | None:
 
 def _to_int(v: object) -> int | None:
     f = _to_float(v)
-    return None if f is None else int(round(f))
+    return None if f is None else round(f)
 
 
-_DATE_FORMATS = ("%Y-%m-%d", "%m/%d/%Y", "%m/%d/%y", "%d-%b-%y", "%Y%m%d",
-                 "%m-%d-%Y", "%b %d, %Y")
+_DATE_FORMATS = (
+    "%Y-%m-%d",
+    "%m/%d/%Y",
+    "%m/%d/%y",
+    "%d-%b-%y",
+    "%Y%m%d",
+    "%m-%d-%Y",
+    "%b %d, %Y",
+)
 
 
 def _to_date(v: object) -> str | None:
@@ -102,13 +110,18 @@ def _to_date(v: object) -> str | None:
     return None
 
 
-COERCE = {"STRING": _clean_str, "INT64": _to_int, "FLOAT64": _to_float,
-          "DATE": _to_date}
+COERCE = {
+    "STRING": _clean_str,
+    "INT64": _to_int,
+    "FLOAT64": _to_float,
+    "DATE": _to_date,
+}
 
 
 # --------------------------------------------------------------------------
 # Crosswalk
 # --------------------------------------------------------------------------
+
 
 def load_crosswalk(program: str) -> dict[tuple[int, str], dict[str, str]]:
     """(fiscal_year, source_file) -> {source_column: canonical_column}."""
@@ -118,7 +131,8 @@ def load_crosswalk(program: str) -> dict[tuple[int, str], dict[str, str]]:
             if row["disposition"] != "mapped":
                 continue
             out[(int(row["fiscal_year"]), row["source_file"])][
-                row["source_column"]] = row["canonical_column"]
+                row["source_column"]
+            ] = row["canonical_column"]
     return out
 
 
@@ -133,6 +147,7 @@ def read_sheet(path: Path) -> tuple[list[str], list[list]]:
 # --------------------------------------------------------------------------
 # Build one program
 # --------------------------------------------------------------------------
+
 
 def source_files(program: str, input_dir: Path) -> dict[int, list[Path]]:
     """Source workbooks for one program, grouped by fiscal year.
@@ -151,8 +166,15 @@ def source_files(program: str, input_dir: Path) -> dict[int, list[Path]]:
     return dict(sorted(by_year.items()))
 
 
-def read_file(path: Path, fy: int, program: str, order: list[str],
-              types: dict[str, str], xw, unknown_units) -> pd.DataFrame:
+def read_file(
+    path: Path,
+    fy: int,
+    program: str,
+    order: list[str],
+    types: dict[str, str],
+    xw,
+    unknown_units,
+) -> pd.DataFrame:
     """One source workbook as a canonical-schema DataFrame."""
     mapping = xw.get((fy, path.name))
     if not mapping:
@@ -176,25 +198,42 @@ def read_file(path: Path, fy: int, program: str, order: list[str],
     for amount, unit, target in (
         ("wage_offered_from", "wage_unit_of_pay", "wage_offered_from_annual"),
         ("wage_offered_to", "wage_unit_of_pay", "wage_offered_to_annual"),
-        ("prevailing_wage", "prevailing_wage_unit_of_pay", "prevailing_wage_annual"),
+        (
+            "prevailing_wage",
+            "prevailing_wage_unit_of_pay",
+            "prevailing_wage_annual",
+        ),
     ):
         if target not in order:
             continue
         if unit in df.columns:
             canon_unit = df[unit].map(wu.normalise)
-            for raw, norm in zip(df[unit], canon_unit):
+            for raw, norm in zip(df[unit], canon_unit, strict=True):
                 if raw is not None and norm is None and _clean_str(raw):
                     unknown_units[str(raw)] += 1
             df[unit] = canon_unit
-            df[target] = [wu.annualise(a, u) for a, u in zip(df[amount], canon_unit)]
+            df[target] = pd.Series(
+                [
+                    wu.annualise(a, u)
+                    for a, u in zip(df[amount], canon_unit, strict=True)
+                ],
+                index=df.index,
+                dtype="object",
+            )
         else:
             df[target] = None
     print(f"  {path.name}: {n:,} rows -> FY{fy}", flush=True)
     return df[order]
 
 
-def build(program: str, report: dict, input_dir: Path, output_dir: Path,
-          years: set[int] | None = None, resume: bool = False) -> None:
+def build(
+    program: str,
+    report: dict,
+    input_dir: Path,
+    output_dir: Path,
+    years: set[int] | None = None,
+    resume: bool = False,
+) -> None:
     """Clean one program, writing and freeing one fiscal year at a time.
 
     Holding every year in memory would need tens of gigabytes for the LCA
@@ -207,9 +246,20 @@ def build(program: str, report: dict, input_dir: Path, output_dir: Path,
     xw = load_crosswalk(program)
     unknown_units: dict[str, int] = defaultdict(int)
 
-    typed = pa.schema([pa.field(c, {"STRING": pa.string(), "INT64": pa.int64(),
-                                    "FLOAT64": pa.float64(), "DATE": pa.string()}[t])
-                       for c, t in spec])
+    typed = pa.schema(
+        [
+            pa.field(
+                c,
+                {
+                    "STRING": pa.string(),
+                    "INT64": pa.int64(),
+                    "FLOAT64": pa.float64(),
+                    "DATE": pa.string(),
+                }[t],
+            )
+            for c, t in spec
+        ]
+    )
     strings = pa.schema([pa.field(c, pa.string()) for c, _ in spec])
 
     tdir = output_dir / program
@@ -223,9 +273,15 @@ def build(program: str, report: dict, input_dir: Path, output_dir: Path,
         if resume and target.exists():
             print(f"  FY{fy}: already written, skipping", flush=True)
             continue
-        frames = [read_file(p, fy, program, order, types, xw, unknown_units)
-                  for p in paths]
-        df = pd.concat(frames, ignore_index=True) if len(frames) > 1 else frames[0]
+        frames = [
+            read_file(p, fy, program, order, types, xw, unknown_units)
+            for p in paths
+        ]
+        df = (
+            pd.concat(frames, ignore_index=True)
+            if len(frames) > 1
+            else frames[0]
+        )
         del frames
         before = len(df)
         df = df.drop_duplicates(subset=["case_number"], keep="last")
@@ -234,22 +290,35 @@ def build(program: str, report: dict, input_dir: Path, output_dir: Path,
         at = pa.Table.from_pandas(df, schema=typed, preserve_index=False)
         pq.write_table(at.cast(strings), target, compression="snappy")
         total += len(df)
-        per_year[fy] = {"rows": len(df), "files": [p.name for p in paths],
-                        "duplicate_case_numbers_dropped": dropped}
-        print(f"  FY{fy}: {len(df):,} rows from {len(paths)} file(s) "
-              f"({dropped:,} duplicate case numbers)", flush=True)
+        per_year[fy] = {
+            "rows": len(df),
+            "files": [p.name for p in paths],
+            "duplicate_case_numbers_dropped": dropped,
+        }
+        print(
+            f"  FY{fy}: {len(df):,} rows from {len(paths)} file(s) "
+            f"({dropped:,} duplicate case numbers)",
+            flush=True,
+        )
         del df, at
 
     key = program if not years else f"{program}:{min(years)}-{max(years)}"
-    report[key] = {"rows": total, "columns": len(order), "by_year": per_year,
-                   "unrecognised_wage_units": dict(unknown_units)}
-    print(f"{program}: {total:,} rows, {len(order)} columns -> {tdir}\n", flush=True)
-
+    report[key] = {
+        "rows": total,
+        "columns": len(order),
+        "by_year": per_year,
+        "unrecognised_wage_units": dict(unknown_units),
+    }
+    print(
+        f"{program}: {total:,} rows, {len(order)} columns -> {tdir}\n",
+        flush=True,
+    )
 
 
 # --------------------------------------------------------------------------
 # Download
 # --------------------------------------------------------------------------
+
 
 def _session():
     """A curl_cffi session impersonating Chrome.
@@ -260,8 +329,9 @@ def _session():
     """
     from curl_cffi import requests as cffi_requests
 
-    return cffi_requests.Session(impersonate=constants.IMPERSONATE.value,
-                                 timeout=1800)
+    return cffi_requests.Session(
+        impersonate=constants.IMPERSONATE.value, timeout=1800
+    )
 
 
 def list_source_files(program: str) -> dict[str, str]:
@@ -278,7 +348,11 @@ def list_source_files(program: str) -> dict[str, str]:
         name = href.rsplit("/", 1)[-1]
         if not pattern.search(name):
             continue
-        url = href if href.startswith("http") else constants.BASE_URL.value + href
+        url = (
+            href
+            if href.startswith("http")
+            else constants.BASE_URL.value + href
+        )
         found[name] = url.replace("//media/", "/media/")
     return found
 
@@ -288,7 +362,8 @@ def download_file(url: str, dest: Path, session=None) -> Path:
     session = session or _session()
     dest.parent.mkdir(parents=True, exist_ok=True)
     response = session.get(
-        url, headers={"Referer": constants.PERFORMANCE_PAGE.value}, stream=True)
+        url, headers={"Referer": constants.PERFORMANCE_PAGE.value}, stream=True
+    )
     if response.status_code != 200:
         raise RuntimeError(f"HTTP {response.status_code} for {url}")
     tmp = dest.with_suffix(dest.suffix + ".part")
@@ -299,7 +374,9 @@ def download_file(url: str, dest: Path, session=None) -> Path:
             size += len(chunk)
     if size < 10_000:
         tmp.unlink(missing_ok=True)
-        raise RuntimeError(f"Suspiciously small download ({size} bytes) for {url}")
+        raise RuntimeError(
+            f"Suspiciously small download ({size} bytes) for {url}"
+        )
     tmp.rename(dest)
     return dest
 
@@ -327,6 +404,7 @@ def local_name(program: str, name: str) -> str:
 # Fiscal-year orchestration for the recurring pipeline
 # --------------------------------------------------------------------------
 
+
 def current_fiscal_year(today: dt.date | None = None) -> int:
     """Federal fiscal year containing ``today``.
 
@@ -349,7 +427,9 @@ def refresh_fiscal_years(open_fy: int | None = None) -> list[int]:
     return [open_fy - 1, open_fy]
 
 
-def download_fiscal_years(program: str, years: list[int], input_dir: Path) -> list[Path]:
+def download_fiscal_years(
+    program: str, years: list[int], input_dir: Path
+) -> list[Path]:
     """Download every published workbook for ``program`` in ``years``.
 
     The quarterly LCA files for a fiscal year are disjoint for FY2020-FY2025 and
@@ -372,8 +452,9 @@ def download_fiscal_years(program: str, years: list[int], input_dir: Path) -> li
     return got
 
 
-def clean_fiscal_years(program: str, years: list[int], input_dir: Path,
-                       output_dir: Path) -> dict:
+def clean_fiscal_years(
+    program: str, years: list[int], input_dir: Path, output_dir: Path
+) -> dict:
     """Re-materialise ``years`` of ``program`` from the downloaded workbooks.
 
     The whole fiscal year is rebuilt rather than appended to: a new quarterly

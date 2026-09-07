@@ -19,7 +19,6 @@ from __future__ import annotations
 
 import csv
 import os
-import sys
 from collections import defaultdict
 from pathlib import Path
 
@@ -29,9 +28,10 @@ import pyarrow.dataset as pads
 import pyarrow.parquet as pq
 
 HERE = Path(__file__).resolve().parent
-from pipelines.datasets.us_dol_oflc import canonical_map as cm  # noqa: E402
 
-DATA = Path(os.environ.get("OFLC_DATA_DIR", Path.home() / "Downloads/us_dol_oflc_data"))
+DATA = Path(
+    os.environ.get("OFLC_DATA_DIR", Path.home() / "Downloads/us_dol_oflc_data")
+)
 OUTPUT = DATA / "output"
 ARCH = HERE / "architecture"
 
@@ -64,22 +64,44 @@ LABELS: dict[str, dict[str, str]] = {
 }
 LABELS["prevailing_wage_unit_of_pay"] = LABELS["wage_unit_of_pay"]
 
-YES_NO = {"Y": "Yes", "N": "No", "YES": "Yes", "NO": "No",
-          "T": "Yes", "F": "No", "TRUE": "Yes", "FALSE": "No",
-          "1": "Yes", "0": "No"}
+YES_NO = {
+    "Y": "Yes",
+    "N": "No",
+    "YES": "Yes",
+    "NO": "No",
+    "T": "Yes",
+    "F": "No",
+    "TRUE": "Yes",
+    "FALSE": "No",
+    "1": "Yes",
+    "0": "No",
+}
 YES_NO_COLUMNS = {
-    "full_time_position", "h1b_dependent", "willful_violator", "support_h1b",
-    "withdrawn", "secondary_entity", "refile", "schedule_a_sheepherder",
-    "required_experience", "is_multiple_worksites", "h2a_labor_contractor",
-    "emergency_filing", "cap_exempt", "meals_provided",
+    "full_time_position",
+    "h1b_dependent",
+    "willful_violator",
+    "support_h1b",
+    "withdrawn",
+    "secondary_entity",
+    "refile",
+    "schedule_a_sheepherder",
+    "required_experience",
+    "is_multiple_worksites",
+    "h2a_labor_contractor",
+    "emergency_filing",
+    "cap_exempt",
+    "meals_provided",
     "agent_representing_employer",
 }
 
 
 def covered_columns(table: str) -> list[str]:
     with open(ARCH / f"{table}.csv") as fh:
-        return [r["name"] for r in csv.DictReader(fh)
-                if r["covered_by_dictionary"] == "yes"]
+        return [
+            r["name"]
+            for r in csv.DictReader(fh)
+            if r["covered_by_dictionary"] == "yes"
+        ]
 
 
 def label(column: str, value: str) -> str:
@@ -114,33 +136,54 @@ def main() -> int:
         cols = covered_columns(table)
         tdir = OUTPUT / table
         if not tdir.exists():
-            raise SystemExit(f"Missing cleaned output for {table}; run clean_data.py")
+            raise SystemExit(
+                f"Missing cleaned output for {table}; run clean_data.py"
+            )
         seen: dict[tuple[str, str], set[int]] = defaultdict(set)
         ds = pads.dataset(tdir, format="parquet", partitioning="hive")
-        for batch in ds.to_batches(columns=cols + ["year"]):
+        for batch in ds.to_batches(columns=[*cols, "year"]):
             df = batch.to_pandas()
             years = df["year"].astype(str)
             for col in cols:
                 sub = df[[col]].assign(year=years).dropna(subset=[col])
-                for value, year in zip(sub[col], sub["year"]):
+                for value, year in zip(sub[col], sub["year"], strict=True):
                     v = " ".join(str(value).split())
                     if v:
                         seen[(col, v)].add(int(year))
         for (col, value), years in sorted(seen.items()):
-            rows.append({"table_id": table, "column_name": col, "key": value,
-                         "temporal_coverage": coverage(years),
-                         "value": label(col, value)})
-        print(f"{table}: {len({c for c, _ in seen})} covered columns, "
-              f"{sum(1 for k in seen if k[0] in {c for c, _ in seen})} entries",
-              flush=True)
+            rows.append(
+                {
+                    "table_id": table,
+                    "column_name": col,
+                    "key": value,
+                    "temporal_coverage": coverage(years),
+                    "value": label(col, value),
+                }
+            )
+        print(
+            f"{table}: {len({c for c, _ in seen})} covered columns, "
+            f"{sum(1 for k in seen if k[0] in {c for c, _ in seen})} entries",
+            flush=True,
+        )
 
-    df = pd.DataFrame(rows, columns=["table_id", "column_name", "key",
-                                     "temporal_coverage", "value"])
+    df = pd.DataFrame(
+        rows,
+        columns=[
+            "table_id",
+            "column_name",
+            "key",
+            "temporal_coverage",
+            "value",
+        ],
+    )
     schema = pa.schema([pa.field(c, pa.string()) for c in df.columns])
     pdir = OUTPUT / "dictionary"
     pdir.mkdir(parents=True, exist_ok=True)
-    pq.write_table(pa.Table.from_pandas(df, schema=schema, preserve_index=False),
-                   pdir / "data.parquet", compression="snappy")
+    pq.write_table(
+        pa.Table.from_pandas(df, schema=schema, preserve_index=False),
+        pdir / "data.parquet",
+        compression="snappy",
+    )
     print(f"dictionary: {len(df):,} rows -> {pdir}")
     return 0
 
