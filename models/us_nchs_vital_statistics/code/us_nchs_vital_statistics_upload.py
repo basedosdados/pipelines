@@ -41,7 +41,7 @@ DATA = Path(
 BUCKET = "basedosdados-dev"
 
 
-def staging_table_type(table: str) -> str:
+def staging_table_type(table: str) -> str | None:
     from google.cloud import bigquery
 
     client = bigquery.Client(project=BUCKET)

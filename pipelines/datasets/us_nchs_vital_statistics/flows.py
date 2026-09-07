@@ -54,6 +54,7 @@ def us_nchs_vital_statistics_flow(
     year: int | None = None,
 ):
     logger = get_run_logger()
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="birth"
     )
@@ -179,7 +180,9 @@ def us_nchs_vital_statistics_flow(
 # NCHS releases the final annual files without a fixed date, usually between the
 # following autumn and the second spring. Poll on a few days each month; the
 # source-poll guard makes a run a no-op until a new data year actually appears.
+# pyrefly: ignore [missing-attribute]
 us_nchs_vital_statistics_flow.deploy_schedules = [
     {"cron": "38 7 12,19,26 * *", "timezone": "America/Sao_Paulo"}
 ]
+# pyrefly: ignore [missing-attribute]
 us_nchs_vital_statistics_flow.job_variables = {"memory": "8Gi"}
