@@ -878,3 +878,44 @@ outages in 24 hours means scheduled runs will hit them. The poll guard
 handles it correctly -- a failed run simply retries next schedule -- but
 expect failed runs in the Prefect UI and do not read them as a pipeline bug
 without checking whether PNCP was up.
+
+## All five models materialized and green in dev (2026-09-07)
+
+```
+dbt run  PASS=5   ERROR=0
+dbt test PASS=33  ERROR=0
+```
+
+| model | materialized | staging | collapsed |
+|---|---|---|---|
+| `contrato` | 4,707,847 | 4,707,847 | 0 |
+| `contratacao` | 4,003,518 | 4,003,718 | 200 |
+| `ata_registro_preco` | 1,137,524 | 1,137,524 | 0 |
+| `instrumento_cobranca` | 179,463 | 215,382 | 35,919 |
+| `dicionario` | 222 | 222 | -- |
+| **total** | **10,028,574** | | |
+
+Both non-zero collapses were verified rather than assumed -- a dedup key
+that merges genuinely distinct records loses data silently:
+
+```
+contratacao          200 keys duplicated,    200 collapsed, 0 rows differ
+instrumento_cobranca 33,068 keys duplicated, 35,919 collapsed, 0 rows differ
+```
+
+### 'EX' — procurement from abroad
+
+The two contratacao directory relationship tests initially failed on **7
+rows of 4,003,718**, all 2026, carrying `sigla_uf='EX'` and
+`id_municipio='9097071'` -- the government's code for *Exterior*, a
+procuring unit outside Brazil (embassy, consulate). Real data that the BD
+directories do not cover; `contrato` has none.
+
+**Kept and exempted, not nulled.** Nulling would have made the constraint
+pass by erasing the fact that those procurements happened abroad. The
+exemption lives in one place, `gen_dbt.DIRECTORY_EXEMPTIONS`, and the
+meaning of both codes is recorded in the architecture's `observations` so
+the published column metadata explains them.
+
+`get_where_subquery` string-replaces the placeholder and wraps the whole
+clause, so `__most_recent_year__ and sigla_uf != 'EX'` composes correctly.

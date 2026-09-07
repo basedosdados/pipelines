@@ -52,7 +52,7 @@ models:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
               config:
-                where: __most_recent_year__
+                where: __most_recent_year__ and sigla_uf != 'EX'
       - name: id_municipio
         description: >
           Código IBGE de sete dígitos do município da unidade administrativa
@@ -62,7 +62,7 @@ models:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
               config:
-                where: __most_recent_year__
+                where: __most_recent_year__ and id_municipio != '9097071'
       - name: id_contratacao_pncp
         description: >
           Número de controle da contratação no PNCP, identificador único do registro

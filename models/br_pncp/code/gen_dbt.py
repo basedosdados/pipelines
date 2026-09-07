@@ -64,6 +64,20 @@ NOT_NULL = {
     "dicionario": ["id_tabela", "nome_coluna", "chave", "valor"],
 }
 
+# Values that are real and meaningful but deliberately absent from the BD
+# directories, so their relationship test must exempt them rather than the
+# data being nulled to make the test green.
+#
+# 'EX' (and its paired municipality code 9097071) is the Brazilian
+# government's code for *Exterior* -- a procuring unit located abroad, such
+# as an embassy or consulate. 7 rows of contratacao's 4,003,718 carry it, all
+# in 2026. Dropping that would silently discard the fact that those
+# procurements happened outside Brazil.
+DIRECTORY_EXEMPTIONS = {
+    ("contratacao", "sigla_uf"): "sigla_uf != 'EX'",
+    ("contratacao", "id_municipio"): "id_municipio != '9097071'",
+}
+
 DESCRIPTIONS = {
     "contratacao": (
         "Contratações públicas (licitações, dispensas e inexigibilidades) divulgadas no "
@@ -303,8 +317,15 @@ def schema_yaml() -> str:
                 )
                 out.append(f"              field: {target_field}")
                 if table in PARTITIONED:
+                    exempt = DIRECTORY_EXEMPTIONS.get((table, c["name"]))
+                    clause = "__most_recent_year__"
+                    if exempt:
+                        # get_where_subquery string-replaces the placeholder
+                        # and wraps the whole clause, so an extra condition
+                        # composes cleanly.
+                        clause += f" and {exempt}"
                     out.append("              config:")
-                    out.append("                where: __most_recent_year__")
+                    out.append(f"                where: {clause}")
                 continue
             if tests:
                 out.append(f"        tests: [{', '.join(tests)}]")
