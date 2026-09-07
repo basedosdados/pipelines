@@ -35,6 +35,14 @@ from pipelines.datasets.us_fbi_cde.spec import TABLES  # noqa: E402
 DATASET_SLUG = "u_s_crime_data_explorer_cde"
 GCP_DATASET_ID = "us_fbi_cde"
 
+# The convention is the prod bucket, but a local credential is dev-only and the
+# prod bucket refuses the write (403). Registering a URL to an object that does
+# not exist is worse than pointing at one that does, and most existing rows in
+# production already point here. Both buckets are requester-pays, so either way
+# the link returns HTTP 400 to an anonymous visitor until the migration to
+# gs://basedosdados-public lands (PR #1928).
+AUXILIARY_BUCKET = "basedosdados-dev"
+
 # Other empty FBI crime shells in production. Reported to the user as
 # consolidation candidates; never modified here.
 CONSOLIDATION_CANDIDATES = [
@@ -403,7 +411,8 @@ def main():
     args = parser.parse_args()
     env = args.env
     gcp_project = "basedosdados-dev" if env == "staging" else "basedosdados"
-    today = args.today or date.today().isoformat()
+    # The backend types Update.latest as DateTime, so a bare date is rejected.
+    today = (args.today or date.today().isoformat()) + "T00:00:00"
 
     ids = server.discover_ids(
         env=env,
@@ -458,9 +467,11 @@ def main():
     # https://crime-data-explorer.fr.cloud.gov/downloads-and-docs, is a hard 404
     # since the CDE moved hosts. Its id is reused for the NIBRS source so the
     # record is refreshed rather than left beside a working duplicate.
-    existing = server.get_raw_data_sources(
-        dataset_slug=DATASET_SLUG, env=env
-    ).get("result", [])
+    # Called directly the tool returns a bare list; through the MCP layer it is
+    # wrapped in {"result": [...]}. Accept either.
+    existing = server.get_raw_data_sources(dataset_slug=DATASET_SLUG, env=env)
+    if isinstance(existing, dict):
+        existing = existing.get("result", [])
     known_sources = {source["name"]: source["id"] for source in existing}
     legacy = next(
         (
@@ -513,7 +524,7 @@ def main():
         aux = (
             ""
             if table == "dicionario"
-            else f"https://storage.googleapis.com/basedosdados/auxiliary_files/"
+            else f"https://storage.googleapis.com/{AUXILIARY_BUCKET}/auxiliary_files/"
             f"{GCP_DATASET_ID}/{table}/auxiliary_files.zip"
         )
         table_id = server.create_update_table(
@@ -660,7 +671,7 @@ def main():
         raw_data_source_id=raw_ids["nibrs"],
         entity_id=ids["entity"]["year"],
         frequency=1,
-        latest=f"{TABLES['incident']['last_year']}-12-01",
+        latest=f"{TABLES['incident']['last_year']}-12-01T00:00:00",
         env=env,
     )
     print("raw source Update recorded at the source's max coverage date")
