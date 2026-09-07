@@ -87,6 +87,45 @@ def clean_one_bundle(args):
     return tag, counts
 
 
+def report_stale_partitions(written):
+    """Warn about partitions on disk that this run did not write.
+
+    Renaming a partition key does not remove the directory it used to live in.
+    When the Nebraska bundles were remapped from the postal code NE to the UCR
+    code NB, the previous run's ``state_abbr=NE`` directories stayed behind and
+    the state was counted twice in every NIBRS table. Nothing failed; the totals
+    were simply wrong. This makes that condition loud instead of silent.
+
+    It reports rather than deletes: an unexpected partition may be the new work
+    and the stale one may be what you meant to keep.
+    """
+    stale = []
+    for table in NIBRS_TABLES:
+        directory = OUTPUT / table
+        if not directory.exists():
+            continue
+        for year_dir in sorted(directory.glob("year=*")):
+            for state_dir in sorted(year_dir.glob("state_abbr=*")):
+                key = (table, year_dir.name, state_dir.name)
+                if key not in written:
+                    stale.append("/".join(key))
+    if stale:
+        print(
+            f"\nWARNING: {len(stale)} partitions on disk were not written by this "
+            f"run and are probably left over from an earlier one:"
+        )
+        for entry in stale[:10]:
+            print(f"    {entry}")
+        if len(stale) > 10:
+            print(f"    ... and {len(stale) - 10} more")
+        print(
+            "  Remove them before validating, or the rows are counted twice."
+        )
+    else:
+        print("no stale partitions on disk")
+    return stale
+
+
 def pass_nibrs(limit=None, workers=4):
     bundles = sorted((INPUT / "nibrs").glob("*.zip"))
     if limit:
@@ -96,6 +135,7 @@ def pass_nibrs(limit=None, workers=4):
         state_abbr, year = path.stem.split("-")
         jobs.append((str(path), state_abbr, int(year)))
     totals = Counter()
+    written = set()
     done = 0
     started = time.time()
     with ProcessPoolExecutor(workers) as pool:
@@ -103,11 +143,16 @@ def pass_nibrs(limit=None, workers=4):
         for future in as_completed(futures):
             job = futures[future]
             try:
-                _tag, counts = future.result()
+                tag, counts = future.result()
             except Exception as error:
                 print(f"FAILED {job[1]}-{job[2]}: {error}", flush=True)
                 continue
             totals.update(counts)
+            state_abbr, year = tag.rsplit("-", 1)
+            for table in NIBRS_TABLES:
+                written.add(
+                    (table, f"year={year}", f"state_abbr={state_abbr}")
+                )
             done += 1
             if done % 25 == 0:
                 elapsed = time.time() - started
@@ -119,6 +164,8 @@ def pass_nibrs(limit=None, workers=4):
     print("NIBRS row counts:")
     for table in NIBRS_TABLES:
         print(f"  {table:32s} {totals[table]:>14,}")
+    if not limit:
+        report_stale_partitions(written)
     return totals
 
 

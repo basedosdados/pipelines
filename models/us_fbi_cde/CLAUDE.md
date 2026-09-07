@@ -134,6 +134,22 @@ a dev-only run.
 No table is `PartBdpro`. The BD Pro rolling window applies to tables refreshed
 monthly or more often; this one refreshes annually.
 
+## Renaming a partition key leaves the old one behind
+
+`write_partition` writes into `year=<Y>/state_abbr=<ST>/`. It does not remove a
+directory that a previous run used under a different key. When Nebraska was
+remapped from the postal `NE` to the UCR `NB`, the earlier run's
+`state_abbr=NE/` directories survived and the state was counted twice in all
+eight NIBRS tables — no error, just wrong totals.
+
+`pass_nibrs` now reports any partition on disk that the run did not write. It
+reports rather than deletes, because the unexpected partition is sometimes the
+new work. Clear the stale ones before validating.
+
+The staging upload is not exposed to this: `upload.py` calls
+`Storage.delete_table(mode="staging")` before every upload, which clears the
+whole prefix.
+
 ## Rebuilding from scratch
 
 ```bash
