@@ -31,6 +31,9 @@ DATASET = "us_fbi_cde"
 MODELS = Path(__file__).resolve().parents[1]
 
 # Tables large enough that an unscoped full-table test is not worth its bytes.
+# Their tests are scoped with __most_recent_year_en__, the English-partition
+# variant: the plain __most_recent_year__ filters on `ano`, which these tables
+# do not have, so every scoped test would error rather than run.
 LARGE = {
     "incident",
     "offense",
@@ -212,7 +215,7 @@ def render_schema():
         )
         if scoped:
             out.append("          config:")
-            out.append("            where: __most_recent_year__")
+            out.append("            where: __most_recent_year_en__")
         out.append("      - not_null_proportion_multiple_columns:")
         out.append("          at_least: 0.05")
         sparse = SPARSE_COLUMNS.get(table)
@@ -222,7 +225,7 @@ def render_schema():
                 out.append(f"            - {name}")
         if scoped:
             out.append("          config:")
-            out.append("            where: __most_recent_year__")
+            out.append("            where: __most_recent_year_en__")
         if dictionary_columns:
             out.append("      - custom_dictionary_coverage:")
             out.append(
