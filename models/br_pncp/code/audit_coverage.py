@@ -35,6 +35,7 @@ import sys
 from collections import defaultdict
 from datetime import date
 from pathlib import Path
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
@@ -48,7 +49,7 @@ PAGE_LINE = re.compile(r"(\S+) (\d{8}_\d{8}(?:_m\d{2})?) page (\d+)/(\d+)")
 
 
 def expected_tags(table: str, start: date, end: date) -> list[str]:
-    spec = constants.ENDPOINTS.value[table]
+    spec: dict[str, Any] = constants.ENDPOINTS.value[table]
     rz = spec.get("resize")
     rz = (date.fromisoformat(rz[0]), int(rz[1])) if rz else None
     mods = constants.MODALIDADES.value if spec["by_modalidade"] else [None]

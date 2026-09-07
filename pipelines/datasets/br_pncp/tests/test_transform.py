@@ -334,8 +334,9 @@ class TestHarvestResilience:
         # HTTPError means the server answered; it is handled by status code, so
         # sweeping it into the retry tuple would hide 4xx/5xx handling.
         import urllib.error
+        from email.message import Message
 
-        refusal = urllib.error.HTTPError("u", 429, "Too Many", {}, None)
+        refusal = urllib.error.HTTPError("u", 429, "Too Many", Message(), None)
         assert isinstance(
             refusal, urllib.error.URLError
         )  # it is a subclass...
@@ -429,9 +430,12 @@ class TestEmptyResultSignalling:
         # window is empty. Treating it as an error made a working endpoint —
         # one that really does carry 17,536 records in Jan 2026 — look dead.
         import urllib.error
+        from email.message import Message
 
         def _raise(*a, **k):
-            raise urllib.error.HTTPError("u", 404, "Not Found", {}, None)
+            raise urllib.error.HTTPError(
+                "u", 404, "Not Found", Message(), None
+            )
 
         monkeypatch.setattr(utils.urllib.request, "urlopen", _raise)
         assert (
@@ -939,7 +943,7 @@ class TestPerEndpointConcurrencyCap:
     def test_a_caller_asking_for_fewer_workers_is_respected(self):
         # min(), not the declared value: asking for 1 must never become 3.
         spec = {"max_workers": 3}
-        assert min(1, int(spec.get("max_workers", 1))) == 1
+        assert min(1, spec.get("max_workers", 1)) == 1
 
 
 class TestStagingPartSizeStaysSmall:
@@ -1111,13 +1115,16 @@ class TestCoverageDateColumnsExist:
         from pipelines.datasets.br_pncp import flows
 
         for table, spec in flows._COVERAGE.items():
-            col = spec.date_column.col
+            # A date_column names one column (DateOnly/YearOnly) or two
+            # (YearMonth/YearQuarter); check whichever it carries.
+            dc = spec.date_column.model_dump()
             names = {c["name"] for c in utils.read_architecture(table)}
-            assert col in names, (
-                f"{table} coverage keys on {col!r}, which is not one of its "
-                f"columns; date-ish columns are "
-                f"{sorted(n for n in names if n.startswith('data_'))}"
-            )
+            for col in (v for k, v in dc.items() if k != "kind"):
+                assert col in names, (
+                    f"{table} coverage keys on {col!r}, which is not one "
+                    f"of its columns; date-ish columns are "
+                    f"{sorted(n for n in names if n.startswith('data_'))}"
+                )
 
     def test_specs_cover_exactly_the_tables_that_get_materialised(self):
         from pipelines.datasets.br_pncp import flows

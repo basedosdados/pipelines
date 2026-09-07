@@ -138,6 +138,10 @@ def sql_for(table: str) -> str:
         )
 
     start, end = PARTITIONED[table]
+    if key_cols is None or recency_col is None:
+        # Every partitioned model dedups; a missing entry is a bug here,
+        # not a table that legitimately keeps duplicates.
+        raise KeyError(f"{table} is partitioned but has no DEDUP_KEYS entry")
     key = ", ".join(key_cols)
 
     # Staging is append-only: each pipeline run adds the records it harvested,
