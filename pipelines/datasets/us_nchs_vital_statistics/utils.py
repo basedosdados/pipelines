@@ -26,6 +26,7 @@ import shutil
 import subprocess
 import zipfile
 from pathlib import Path
+from typing import IO
 
 import pandas as pd
 import pyarrow as pa
@@ -773,9 +774,9 @@ class _MemberStream:
     def __init__(self, zip_path: Path):
         self.zip_path = Path(zip_path)
         self.member = _largest_member(self.zip_path)
-        self._zf = None
-        self._proc = None
-        self._stream = None
+        self._zf: zipfile.ZipFile | None = None
+        self._proc: subprocess.Popen | None = None
+        self._stream: IO[bytes] | None = None
         self._open()
 
     def _open(self):
@@ -818,19 +819,25 @@ class _MemberStream:
 
     _head = b""
 
+    @property
+    def _open_stream(self) -> IO[bytes]:
+        """The underlying stream, which `_open` always sets or raises."""
+        if self._stream is None:
+            raise RuntimeError(f"{self.zip_path.name}: stream is closed")
+        return self._stream
+
     def read(self, n: int = -1) -> bytes:
+        stream = self._open_stream
         if self._head:
             head, self._head = self._head, b""
-            if n is not None and n >= 0 and len(head) > n:
+            if n >= 0 and len(head) > n:
                 self._head = head[n:]
                 return head[:n]
             rest = (
-                self._stream.read(max(0, n - len(head)))
-                if n and n > 0
-                else self._stream.read()
+                stream.read(max(0, n - len(head))) if n > 0 else stream.read()
             )
             return head + (rest or b"")
-        return self._stream.read(n) if n is not None else self._stream.read()
+        return stream.read(n) if n >= 0 else stream.read()
 
     def close(self):
         if self._stream is not None:
