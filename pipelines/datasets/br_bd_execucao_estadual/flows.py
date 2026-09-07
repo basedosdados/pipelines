@@ -59,7 +59,9 @@ DATASET_ID = constants.DATASET_ID.value
 # one flow keeps a single dbt pass over the tables they share -- `licitacao`,
 # `licitacao_item` and `relacionamentos` are each fed by two states, and rebuilding them
 # once per state would run the same model twice for no gain.
-DAILY_STATES = ["MG", "BA", "PE"]
+# ES is per-year bulk CSV like MG, so it belongs in the daily group rather
+# than the weekly one, which exists only for SP's per-(exercise, orgao) scrape.
+DAILY_STATES = ["MG", "BA", "PE", "ES"]
 WEEKLY_STATES = ["SP"]
 
 

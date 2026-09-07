@@ -8,7 +8,8 @@ models:
       linha corresponde a um documento de empenho combinado a uma linha orçamentária,
       com
       os valores empenhado, liquidado e pago. Dados extraídos dos sistemas financeiros
-      estaduais (SIAFI/MG, e-Fisco/PE) e harmonizados em um esquema comum. Só entram
+      estaduais (SIAFI/MG, e-Fisco/PE, SIGEFES/ES) e harmonizados em um esquema comum.
+      Só entram
       aqui
       os estados cuja fonte publica o número do empenho, o credor e os valores na
       mesma
@@ -144,7 +145,7 @@ models:
         description: >
           Número da licitação atribuído pelo estado, distinto do número do processo
           de
-          aquisição. Publicado apenas pela Bahia
+          aquisição. Publicado pela Bahia e pelo Espírito Santo
       - name: data_abertura
         description: Data de cadastro ou abertura do processo
       - name: data_publicacao
@@ -160,7 +161,8 @@ models:
       - name: registro_preco
         description: >
           Indica se o processo é um registro de preços, em que uma licitação autoriza
-          compras parceladas ao longo de um período. Publicado apenas pela Bahia
+          compras parceladas ao longo de um período. Publicado pela Bahia e pelo Espírito
+          Santo
       - name: grupo
         description: Grupo de materiais ou serviços objeto do processo
       - name: processo_sei
@@ -222,7 +224,10 @@ models:
           processo
       - name: id_item
         description: >
-          Número do item dentro do processo, conforme a fonte. Nulo em Minas Gerais,
+          Número do item dentro do processo, conforme a fonte. Nulo em Minas Gerais
+          e,
+          no Espírito Santo, nulo nas disputas por lote inteiro (pregão), em que a
+          fonte não numera itens,
           que
           não publica numeração de item
       - name: descricao
@@ -237,7 +242,11 @@ models:
         description: >
           Código do item de despesa a que o item licitado pertence, no mesmo espaço
           de
-          códigos de despesa.item_despesa. Preenchido apenas em Minas Gerais
+          códigos de despesa.item_despesa. Preenchido apenas em Minas Gerais. Nulo
+          no
+          Espírito Santo: a fonte publica ali o rótulo do elemento de despesa, não
+          o
+          código do subelemento, e os dois não são comparáveis
       - name: unidade_medida
         description: Unidade de medida em que o item foi cotado
       - name: data_homologacao
