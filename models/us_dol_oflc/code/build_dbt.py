@@ -11,6 +11,7 @@ Usage:
 from __future__ import annotations
 
 import csv
+import json
 import sys
 import textwrap
 from pathlib import Path
@@ -69,10 +70,22 @@ CAST = {
     "DATE": "safe_cast({c} as date) {c}",
 }
 
-# Columns that are legitimately null in most rows or most years, excluded from
-# the not-null proportion test. Filled from the measured null shares in
-# code/null_report.json.
-SPARSE: dict[str, list[str]] = {}
+# The lca table is scoped to the most recent fiscal year because the proportion
+# test scans every column and the table is both wide and long; the other three
+# are small enough to test over their full history, which is the more meaningful
+# question.
+SCOPED_TO_LATEST_YEAR = {"lca"}
+
+# Columns legitimately below the 5% non-null threshold, measured rather than
+# guessed — see build_null_report.py.
+_NULL_REPORT = HERE / "null_report.json"
+_report = json.loads(_NULL_REPORT.read_text()) if _NULL_REPORT.exists() else {}
+SPARSE: dict[str, list[str]] = {
+    table: info[
+        "sparse_latest" if table in SCOPED_TO_LATEST_YEAR else "sparse_full"
+    ]
+    for table, info in _report.items()
+}
 
 # Logical key per table, used by the uniqueness test.
 KEY = {
@@ -153,10 +166,10 @@ def schema() -> str:
             out.append("          ignore_values:")
             for c in SPARSE[table]:
                 out.append(f"            - {c}")
-        if table != "dictionary":
-            # The proportion test scans every column; scope it to the most
-            # recent fiscal year so a 57-column, multi-million-row table does
-            # not cost a full scan on every dbt test run.
+        if table in SCOPED_TO_LATEST_YEAR:
+            # The proportion test scans every column; scope the widest, longest
+            # table to the most recent fiscal year so a dbt test run does not
+            # cost a full-table scan.
             out.append("          config:")
             out.append("            where: __most_recent_year_en__")
         covered = [
