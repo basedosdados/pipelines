@@ -26,6 +26,21 @@ FACTOR: dict[str, float] = {
     "year": 1.0,
 }
 
+# Tokens that stand for "no unit given" rather than for an unrecognised one.
+# "Select Pay Range" is the unfilled default of the H-2 form's dropdown.
+PLACEHOLDERS = frozenset(
+    {
+        "",
+        "NA",
+        "N/A",
+        "NONE",
+        "UNKNOWN",
+        "-",
+        "SELECT PAY RANGE",
+        "SELECT",
+    }
+)
+
 # raw source token (upper-cased, punctuation-stripped) -> canonical unit
 UNIT_MAP: dict[str, str] = {}
 
@@ -77,16 +92,7 @@ def normalise(raw: object) -> str | None:
     if raw is None:
         return None
     token = " ".join(str(raw).strip().upper().split())
-    # "Select Pay Range" is the unfilled form default, not a unit.
-    if not token or token in {
-        "NA",
-        "N/A",
-        "NONE",
-        "UNKNOWN",
-        "-",
-        "SELECT PAY RANGE",
-        "SELECT",
-    }:
+    if not token or token in PLACEHOLDERS:
         return None
     return UNIT_MAP.get(token)
 
@@ -99,3 +105,12 @@ def annualise(amount: float | None, unit: str | None) -> float | None:
     if factor is None:
         return None
     return amount * factor
+
+
+def is_placeholder(raw: object) -> bool:
+    """Whether a raw token means "no unit given" rather than an unknown unit.
+
+    Used to keep the cleaning report honest: a blank or an unfilled dropdown is
+    not something the unit vocabulary is missing.
+    """
+    return " ".join(str(raw).strip().upper().split()) in PLACEHOLDERS

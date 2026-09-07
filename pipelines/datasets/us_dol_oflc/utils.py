@@ -209,8 +209,9 @@ def read_file(
         if unit in df.columns:
             canon_unit = df[unit].map(wu.normalise)
             for raw, norm in zip(df[unit], canon_unit, strict=True):
-                if raw is not None and norm is None and _clean_str(raw):
-                    unknown_units[str(raw)] += 1
+                cleaned = _clean_str(raw)
+                if norm is None and cleaned and not wu.is_placeholder(cleaned):
+                    unknown_units[cleaned] += 1
             df[unit] = canon_unit
             df[target] = pd.Series(
                 [
