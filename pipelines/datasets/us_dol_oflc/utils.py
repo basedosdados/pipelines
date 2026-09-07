@@ -283,9 +283,18 @@ def build(
             else frames[0]
         )
         del frames
+        # Two separate de-duplications, counted separately so the provenance is
+        # honest. Byte-identical repeated rows are a source artifact — the
+        # FY2009 iCERT LCA file repeats 7,256 rows verbatim. What survives that
+        # and still repeats a case number is a genuine conflict (a case appearing
+        # in two quarterly files, or in both FY2024 PERM form versions); the last
+        # file read wins, which is the later publication.
         before = len(df)
+        df = df.drop_duplicates(keep="first")
+        identical = before - len(df)
+        after_identical = len(df)
         df = df.drop_duplicates(subset=["case_number"], keep="last")
-        dropped = before - len(df)
+        dropped = after_identical - len(df)
         pdir.mkdir(parents=True, exist_ok=True)
         at = pa.Table.from_pandas(df, schema=typed, preserve_index=False)
         pq.write_table(at.cast(strings), target, compression="snappy")
@@ -293,11 +302,13 @@ def build(
         per_year[fy] = {
             "rows": len(df),
             "files": [p.name for p in paths],
-            "duplicate_case_numbers_dropped": dropped,
+            "identical_rows_dropped": identical,
+            "repeated_case_numbers_dropped": dropped,
         }
         print(
             f"  FY{fy}: {len(df):,} rows from {len(paths)} file(s) "
-            f"({dropped:,} duplicate case numbers)",
+            f"({identical:,} identical rows, {dropped:,} repeated case "
+            f"numbers dropped)",
             flush=True,
         )
         del df, at
@@ -476,7 +487,9 @@ def max_decision_date(output_dir: Path, program: str) -> str | None:
     tdir = output_dir / program
     if not tdir.exists():
         return None
-    ds = pads.dataset(tdir, format="parquet", partitioning="hive")
+    # See build_dictionary: the STRING ``year`` column inside the files and
+    # an inferred hive ``year`` cannot be merged, so read the files directly.
+    ds = pads.dataset(sorted(tdir.rglob("*.parquet")), format="parquet")
     best: str | None = None
     for batch in ds.to_batches(columns=["decision_date"]):
         values = [v for v in batch.column(0).to_pylist() if v]

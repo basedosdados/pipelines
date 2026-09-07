@@ -140,7 +140,10 @@ def main() -> int:
                 f"Missing cleaned output for {table}; run clean_data.py"
             )
         seen: dict[tuple[str, str], set[int]] = defaultdict(set)
-        ds = pads.dataset(tdir, format="parquet", partitioning="hive")
+        # No hive partitioning: the files carry their own STRING ``year`` column,
+        # and letting pyarrow also derive an int32 ``year`` from the directory
+        # name makes the two schemas unmergeable.
+        ds = pads.dataset(sorted(tdir.rglob("*.parquet")), format="parquet")
         for batch in ds.to_batches(columns=[*cols, "year"]):
             df = batch.to_pandas()
             years = df["year"].astype(str)
