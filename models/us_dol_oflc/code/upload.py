@@ -75,7 +75,15 @@ def upload_table(slug: str) -> int:
 
 
 def main() -> int:
-    wanted = [a for a in _argv if a in TABLES] or TABLES
+    unknown = [a for a in _argv if a not in TABLES]
+    if unknown:
+        # Silently ignoring a typo would fall through to "all tables", which
+        # deletes and replaces the staging data for every one of them.
+        raise SystemExit(
+            f"Unknown table argument(s): {', '.join(unknown)}. "
+            f"Known tables: {', '.join(TABLES)}"
+        )
+    wanted = _argv or TABLES
     print(f"env={ENV} project={BILLING_PROJECT}")
     for slug in wanted:
         print(f"--- {slug} ---", flush=True)

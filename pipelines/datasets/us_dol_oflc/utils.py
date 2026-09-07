@@ -309,7 +309,16 @@ def build(
         df = df.drop_duplicates(keep="first")
         identical = before - len(df)
         after_identical = len(df)
-        df = df.drop_duplicates(subset=["case_number"], keep="last")
+        # Only rows that actually carry a case number are de-duplicated on it:
+        # pandas treats missing values as equal, so a blank case number would
+        # collapse every such row in the fiscal year into one and the loss would
+        # be reported as a repeated case number. There are none today, but a
+        # form revision could introduce them and the failure would be silent.
+        repeated = (
+            df.duplicated(subset=["case_number"], keep="last")
+            & df["case_number"].notna()
+        )
+        df = df[~repeated]
         dropped = after_identical - len(df)
         pdir.mkdir(parents=True, exist_ok=True)
         at = pa.Table.from_pandas(df, schema=typed, preserve_index=False)

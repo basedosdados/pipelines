@@ -19,6 +19,9 @@ def fiscal_years_to_refresh() -> list[int]:
 
     A closed fiscal year is frozen; the previous year stays in scope because its
     final annual file lands after the year has ended.
+
+    Returns:
+        The two federal fiscal years to re-materialise, oldest first.
     """
     return refresh_fiscal_years()
 
@@ -54,9 +57,17 @@ def clean_program(
 ) -> dict:
     """Re-materialise the given fiscal years of one program.
 
+    Args:
+        program: One of lca, perm, h2a, h2b.
+        years: Fiscal years to rebuild. Each is rebuilt whole, never appended to.
+        work_dir: Directory to write into; tables land under ``<work_dir>/output``.
+        input_dir: Directory holding the downloaded workbooks, from
+            :func:`download_program`.
+
     Returns:
         ``{"path": <partitioned output dir>, "max_decision_date": "YYYY-MM-DD",
-        "rows": int}``.
+        "rows": int}``. ``max_decision_date`` is the source's own coverage
+        high-water mark, which is what the source poll compares against.
     """
     output_dir = Path(work_dir) / "output"
     report = clean_fiscal_years(program, years, Path(input_dir), output_dir)
@@ -74,6 +85,14 @@ def partition_paths(program_result: dict, years: list[int]) -> list[str]:
 
     Uploading the partition directories rather than the table root keeps a
     refresh from touching fiscal years the run did not rebuild.
+
+    Args:
+        program_result: The return value of :func:`clean_program`.
+        years: Fiscal years the run rebuilt.
+
+    Returns:
+        One ``<output>/<program>/year=<FY>`` path per fiscal year that was
+        actually written, as strings.
     """
     root = Path(program_result["path"])
     return [
@@ -85,4 +104,9 @@ def partition_paths(program_result: dict, years: list[int]) -> list[str]:
 
 @task
 def dataset_id() -> str:
+    """The BigQuery dataset id the flow writes to.
+
+    Returns:
+        ``"us_dol_oflc"``.
+    """
     return constants.DATASET_ID.value
