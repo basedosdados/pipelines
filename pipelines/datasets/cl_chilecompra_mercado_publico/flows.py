@@ -316,5 +316,20 @@ def cl_chilecompra_mercado_publico_flow(
 cl_chilecompra_mercado_publico_flow.deploy_schedules = [
     {"cron": "23 18 * * 1", "timezone": "America/Sao_Paulo"}
 ]
+
+# `memory` alone is NOT the container limit. The work pool's job template exposes
+# `memory_limit` and `memory_request`; `memory` is not among its variables, so setting
+# only that key is silently dropped and the pod runs on the pool default of 4Gi. Two dev
+# runs were OOMKilled at "16Gi" for exactly that reason, both after the same four months.
+#
+# The instrumented run measured the real shape: RSS plateaus at 2490 MB (1816 → 2333 →
+# 2477 → 2490, converging) with pyarrow returning to zero each month, and the fifth month
+# then added its ~2 GB transient peak on top and crossed 4Gi. So the workload needs
+# roughly 5 GB; 12Gi leaves headroom for the licitacion months, which build two tables at
+# once.
 # pyrefly: ignore [missing-attribute]
-cl_chilecompra_mercado_publico_flow.job_variables = {"memory": "16Gi"}
+cl_chilecompra_mercado_publico_flow.job_variables = {
+    "memory": "12Gi",
+    "memory_limit": "12Gi",
+    "memory_request": "4Gi",
+}
