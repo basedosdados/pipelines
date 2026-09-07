@@ -30,7 +30,14 @@ models:
             - valor_total_homologado
       - custom_dictionary_coverage:
           dictionary_model: ref('br_pncp__dicionario')
-          columns_covered_by_dictionary: [id_esfera, id_poder, id_modalidade, id_modo_disputa, id_situacao_compra, id_tipo_instrumento_convocatorio, codigo_amparo_legal]
+          columns_covered_by_dictionary:
+            - id_esfera
+            - id_poder
+            - id_modalidade
+            - id_modo_disputa
+            - id_situacao_compra
+            - id_tipo_instrumento_convocatorio
+            - codigo_amparo_legal
           config:
             where: __most_recent_year__
     columns:
@@ -206,7 +213,12 @@ models:
             - valor_acumulado
       - custom_dictionary_coverage:
           dictionary_model: ref('br_pncp__dicionario')
-          columns_covered_by_dictionary: [id_esfera, id_poder, id_tipo_contrato, id_categoria_processo, tipo_pessoa_fornecedor]
+          columns_covered_by_dictionary:
+            - id_esfera
+            - id_poder
+            - id_tipo_contrato
+            - id_categoria_processo
+            - tipo_pessoa_fornecedor
           config:
             where: __most_recent_year__
     columns:
@@ -305,7 +317,8 @@ models:
           Nome da categoria do objeto contratado
       - name: id_fornecedor
         description: >
-          Número de inscrição do fornecedor contratado, CNPJ para pessoa jurídica e
+          Número de inscrição do fornecedor contratado, CNPJ para pessoa jurídica
+          e
           CPF para pessoa física
       - name: nome_fornecedor
         description: >
@@ -473,15 +486,19 @@ models:
       instrumento de cobrança dentro de um contrato.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [ano, cnpj_orgao, ano_contrato, sequencial_contrato, sequencial_instrumento_cobranca]
+          combination_of_columns:
+            - ano
+            - cnpj_orgao
+            - ano_contrato
+            - sequencial_contrato
+            - sequencial_instrumento_cobranca
           config:
             where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
             where: __most_recent_year__
-          ignore_values:
-            - observacao
+          ignore_values: [observacao]
       - custom_dictionary_coverage:
           dictionary_model: ref('br_pncp__dicionario')
           columns_covered_by_dictionary: [id_tipo_instrumento_cobranca]

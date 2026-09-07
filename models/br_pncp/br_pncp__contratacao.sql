@@ -38,7 +38,9 @@ select
     safe_cast(modo_disputa as string) modo_disputa,
     safe_cast(id_situacao_compra as string) id_situacao_compra,
     safe_cast(situacao_compra as string) situacao_compra,
-    safe_cast(id_tipo_instrumento_convocatorio as string) id_tipo_instrumento_convocatorio,
+    safe_cast(
+        id_tipo_instrumento_convocatorio as string
+    ) id_tipo_instrumento_convocatorio,
     safe_cast(tipo_instrumento_convocatorio as string) tipo_instrumento_convocatorio,
     safe_cast(codigo_amparo_legal as string) codigo_amparo_legal,
     safe_cast(nome_amparo_legal as string) nome_amparo_legal,
@@ -54,14 +56,9 @@ select
     safe_cast(valor_total_estimado as float64) valor_total_estimado,
     safe_cast(valor_total_homologado as float64) valor_total_homologado,
     safe_cast(link_sistema_origem as string) link_sistema_origem
-from
-    {{ set_datalake_project("br_pncp_staging.contratacao") }}
-    as t
-{% if is_incremental() and var('pncp_years', '') %}
-    where
-        safe_cast(ano as int64) in (
-            {{ var('pncp_years') }}
-        )
+from {{ set_datalake_project("br_pncp_staging.contratacao") }} as t
+{% if is_incremental() and var("pncp_years", "") %}
+    where safe_cast(ano as int64) in ({{ var("pncp_years") }})
 {% endif %}
 qualify
     row_number() over (
