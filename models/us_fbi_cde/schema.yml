@@ -1,0 +1,1002 @@
+---
+version: 2
+models:
+  - name: us_fbi_cde__agency
+    description: >
+      Uma linha por agência policial e ano, de 1960 a 2025, reunindo os
+      quadros de pessoal do Law Enforcement Employees, a população coberta e
+      os campos de cobertura de que se precisa para ponderar as demais
+      tabelas: quantos meses a agência reportou ao sistema resumido, quantos
+      reportou ao NIBRS e qual agência a cobre quando ela não reporta
+      diretamente.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, ori]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - county_id
+            - county_name
+            - agency_unit
+            - covered_by_ori
+            - nibrs_start_date
+            - nibrs_months_reported
+            - nibrs_participated
+            - legacy_ori
+            - core_city_flag
+            - employee_per_1000_inhabitants
+            - male_officer_count
+            - male_civilian_count
+            - female_officer_count
+            - female_civilian_count
+            - officer_count
+            - civilian_count
+            - employee_count
+            - population_group_code
+            - population_group_description
+            - division_name
+            - region_name
+            - agency_type
+            - summary_months_reported
+            - officer_killed_felonious_count
+            - officer_killed_accidental_count
+            - officer_assaulted_count
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_fbi_cde__dicionario')
+          columns_covered_by_dictionary:
+            - population_group_code
+            - core_city_flag
+            - nibrs_participated
+    columns:
+      - name: year
+        description: >
+          Ano de referência dos dados, usado como coluna de partição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: ori
+        description: >
+          Originating Agency Identifier, o identificador da agência policial no
+          programa UCR e a chave de junção entre as tabelas
+        tests: [not_null]
+      - name: legacy_ori
+        description: >
+          Forma antiga de sete caracteres do ORI, usada nos arquivos resumidos
+      - name: state_id
+        description: >
+          Código FIPS de duas posições do estado, distrito ou território
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: state_abbr
+        description: >
+          Sigla de duas letras do estado, distrito ou território da agência
+      - name: county_id
+        description: >
+          Código FIPS de cinco posições do condado principal da agência
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+      - name: county_name
+        description: >
+          Nome do condado principal atendido pela agência, tal como publicado
+      - name: agency_name
+        description: >
+          Nome público da agência policial
+      - name: agency_unit
+        description: >
+          Unidade ou subdivisão da agência, quando a agência reporta por unidade
+      - name: agency_type
+        description: >
+          Tipo de agência, por exemplo cidade, condado, universidade ou polícia
+          estadual
+      - name: division_name
+        description: >
+          Divisão censitária dos Estados Unidos em que a agência se localiza
+      - name: region_name
+        description: >
+          Região censitária dos Estados Unidos em que a agência se localiza
+      - name: population_group_code
+        description: >
+          Código do grupo populacional do UCR, que classifica a agência por porte
+          e tipo de jurisdição
+      - name: population_group_description
+        description: >
+          Descrição do grupo populacional do UCR
+      - name: core_city_flag
+        description: >
+          Indica se a agência atende a cidade núcleo de uma área metropolitana
+      - name: population
+        description: >
+          População residente coberta pela jurisdição da agência no ano
+      - name: officer_count
+        description: >
+          Número de policiais juramentados empregados pela agência
+      - name: civilian_count
+        description: >
+          Número de funcionários civis empregados pela agência
+      - name: employee_count
+        description: >
+          Número total de empregados da agência, somando policiais e civis
+      - name: male_officer_count
+        description: >
+          Número de policiais juramentados do sexo masculino
+      - name: male_civilian_count
+        description: >
+          Número de funcionários civis do sexo masculino
+      - name: female_officer_count
+        description: >
+          Número de policiais juramentados do sexo feminino
+      - name: female_civilian_count
+        description: >
+          Número de funcionárias civis do sexo feminino
+      - name: employee_per_1000_inhabitants
+        description: >
+          Empregados da agência por mil habitantes da jurisdição
+      - name: summary_months_reported
+        description: >
+          Último mês do ano para o qual a agência enviou o formulário resumido
+          Return A, de 0 a 12
+      - name: nibrs_months_reported
+        description: >
+          Número de meses do ano em que a agência enviou um relatório NIBRS de
+          incidente ou um relatório zero, de 0 a 12
+      - name: nibrs_participated
+        description: >
+          Indica se a agência participou do NIBRS no ano
+      - name: nibrs_start_date
+        description: >
+          Data em que a agência começou a enviar dados no formato NIBRS
+      - name: covered_by_ori
+        description: >
+          ORI da agência que envia os dados de criminalidade em nome desta agência
+      - name: officer_killed_felonious_count
+        description: >
+          Número de policiais mortos por atos criminosos no ano
+      - name: officer_killed_accidental_count
+        description: >
+          Número de policiais mortos por atos acidentais ou negligentes no ano
+      - name: officer_assaulted_count
+        description: >
+          Número de agressões contra policiais registradas no ano
+  - name: us_fbi_cde__incident
+    description: >
+      Uma linha por incidente registrado no NIBRS, de 1991 a 2025, com a data,
+      a hora, a agência e o esclarecimento por meio excepcional. A cobertura
+      do NIBRS é parcial e cresce ao longo do período, de três estados em 1991
+      para todos em 2020.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, incident_id]
+          config:
+            where: __most_recent_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - cleared_except_date
+            - incident_hour
+            - submission_date
+            - cargo_theft_flag
+            - incident_status
+            - ori
+          config:
+            where: __most_recent_year__
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_fbi_cde__dicionario')
+          columns_covered_by_dictionary:
+            - report_date_flag
+            - cargo_theft_flag
+            - cleared_except_code
+            - incident_status
+    columns:
+      - name: year
+        description: >
+          Ano de referência dos dados, usado como coluna de partição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_abbr
+        description: >
+          Sigla de duas letras do estado, distrito ou território da agência
+        tests: [not_null]
+      - name: ori
+        description: >
+          Originating Agency Identifier, o identificador da agência policial no
+          programa UCR e a chave de junção entre as tabelas
+      - name: incident_id
+        description: >
+          Identificador do incidente atribuído pelo FBI, único dentro do ano
+        tests: [not_null]
+      - name: incident_date
+        description: >
+          Data em que o incidente ocorreu
+      - name: incident_hour
+        description: >
+          Hora do dia em que o incidente ocorreu, de 00 a 23
+      - name: report_date_flag
+        description: >
+          Indica que a data do incidente é, na verdade, a data do registro da
+          ocorrência
+      - name: cargo_theft_flag
+        description: >
+          Indica que o incidente envolveu roubo de carga
+      - name: cleared_except_code
+        description: >
+          Código do motivo pelo qual o incidente foi esclarecido por meio
+          excepcional, e não por prisão
+      - name: cleared_except_date
+        description: >
+          Data do esclarecimento excepcional do incidente
+      - name: incident_status
+        description: >
+          Situação do incidente no processamento do FBI
+      - name: submission_date
+        description: >
+          Data em que a agência enviou o registro ao FBI
+  - name: us_fbi_cde__offense
+    description: >
+      Uma linha por ofensa dentro de um incidente do NIBRS. Um incidente
+      admite até dez ofensas e a regra da hierarquia do sistema resumido não
+      se aplica, de modo que todas são contadas. Traz o local, a arma
+      principal e a motivação por preconceito principal.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, offense_id]
+          config:
+            where: __most_recent_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - premises_entered_count
+            - method_entry_code
+            - weapon_code
+            - weapon_count
+            - bias_motivation_code
+            - bias_motivation_count
+          config:
+            where: __most_recent_year__
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_fbi_cde__dicionario')
+          columns_covered_by_dictionary:
+            - offense_code
+            - attempt_complete_flag
+            - location_code
+            - method_entry_code
+            - weapon_code
+            - bias_motivation_code
+    columns:
+      - name: year
+        description: >
+          Ano de referência dos dados, usado como coluna de partição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_abbr
+        description: >
+          Sigla de duas letras do estado, distrito ou território da agência
+        tests: [not_null]
+      - name: offense_id
+        description: >
+          Identificador da ofensa atribuído pelo FBI, único dentro do ano
+        tests: [not_null]
+      - name: incident_id
+        description: >
+          Identificador do incidente atribuído pelo FBI, único dentro do ano
+      - name: offense_code
+        description: >
+          Código NIBRS da ofensa, por exemplo 13B para agressão simples
+      - name: attempt_complete_flag
+        description: >
+          Indica se a ofensa foi consumada ou apenas tentada
+      - name: location_code
+        description: >
+          Código do tipo de local em que a ofensa ocorreu
+      - name: premises_entered_count
+        description: >
+          Número de unidades invadidas, informado apenas para arrombamento em
+          edificações com várias unidades
+      - name: method_entry_code
+        description: >
+          Indica se houve arrombamento com ou sem uso de força, informado apenas
+          para ofensas de invasão
+      - name: weapon_code
+        description: >
+          Código da arma ou força usada na ofensa
+      - name: weapon_count
+        description: >
+          Número de armas registradas para a ofensa
+      - name: bias_motivation_code
+        description: >
+          Código da motivação por preconceito atribuída à ofensa
+      - name: bias_motivation_count
+        description: >
+          Número de motivações por preconceito registradas para a ofensa
+  - name: us_fbi_cde__offender
+    description: >
+      Uma linha por agressor identificado em um incidente do NIBRS, com idade,
+      sexo, raça e etnia quando informados. Agressores desconhecidos aparecem
+      com número de ordem 0 e atributos nulos.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, offender_id]
+          config:
+            where: __most_recent_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [age, age_range_low, age_range_high, ethnicity_code]
+          config:
+            where: __most_recent_year__
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_fbi_cde__dicionario')
+          columns_covered_by_dictionary:
+            - age_code
+            - sex_code
+            - race_code
+            - ethnicity_code
+    columns:
+      - name: year
+        description: >
+          Ano de referência dos dados, usado como coluna de partição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_abbr
+        description: >
+          Sigla de duas letras do estado, distrito ou território da agência
+        tests: [not_null]
+      - name: offender_id
+        description: >
+          Identificador do agressor atribuído pelo FBI, único dentro do ano
+        tests: [not_null]
+      - name: incident_id
+        description: >
+          Identificador do incidente atribuído pelo FBI, único dentro do ano
+      - name: offender_sequence_number
+        description: >
+          Número de ordem do agressor dentro do incidente
+      - name: age_code
+        description: >
+          Código da faixa etária do agressor, incluindo os códigos de desconhecido
+          e de menor de um ano
+      - name: age
+        description: >
+          Idade exata do agressor em anos, quando informada
+      - name: age_range_low
+        description: >
+          Limite inferior da faixa etária do agressor, quando a idade exata não é
+          informada
+      - name: age_range_high
+        description: >
+          Limite superior da faixa etária do agressor, quando a idade exata não é
+          informada
+      - name: sex_code
+        description: >
+          Código do sexo do agressor
+      - name: race_code
+        description: >
+          Código da raça do agressor, tal como registrado pela agência
+      - name: ethnicity_code
+        description: >
+          Código da etnia hispânica ou latina do agressor
+  - name: us_fbi_cde__victim
+    description: >
+      Uma linha por vítima de um incidente do NIBRS. Nem toda vítima é uma
+      pessoa: empresas, instituições financeiras, governos e a sociedade
+      também são registrados como vítimas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, victim_id]
+          config:
+            where: __most_recent_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - age
+            - age_range_low
+            - age_range_high
+            - ethnicity_code
+            - assignment_type_code
+            - activity_type_code
+            - injury_code
+            - injury_count
+            - resident_status_code
+          config:
+            where: __most_recent_year__
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_fbi_cde__dicionario')
+          columns_covered_by_dictionary:
+            - victim_type_code
+            - age_code
+            - sex_code
+            - race_code
+            - ethnicity_code
+            - resident_status_code
+            - assignment_type_code
+            - activity_type_code
+            - injury_code
+    columns:
+      - name: year
+        description: >
+          Ano de referência dos dados, usado como coluna de partição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_abbr
+        description: >
+          Sigla de duas letras do estado, distrito ou território da agência
+        tests: [not_null]
+      - name: victim_id
+        description: >
+          Identificador da vítima atribuído pelo FBI, único dentro do ano
+        tests: [not_null]
+      - name: incident_id
+        description: >
+          Identificador do incidente atribuído pelo FBI, único dentro do ano
+      - name: victim_sequence_number
+        description: >
+          Número de ordem da vítima dentro do incidente
+      - name: victim_type_code
+        description: >
+          Código do tipo de vítima, que pode ser pessoa, empresa, governo ou
+          sociedade
+      - name: age_code
+        description: >
+          Código da faixa etária da vítima, incluindo os códigos de desconhecido e
+          de menor de um ano
+      - name: age
+        description: >
+          Idade exata da vítima em anos, quando informada
+      - name: age_range_low
+        description: >
+          Limite inferior da faixa etária da vítima, quando a idade exata não é
+          informada
+      - name: age_range_high
+        description: >
+          Limite superior da faixa etária da vítima, quando a idade exata não é
+          informada
+      - name: sex_code
+        description: >
+          Código do sexo da vítima
+      - name: race_code
+        description: >
+          Código da raça da vítima, tal como registrado pela agência
+      - name: ethnicity_code
+        description: >
+          Código da etnia hispânica ou latina da vítima
+      - name: resident_status_code
+        description: >
+          Indica se a vítima residia na localidade em que o incidente ocorreu
+      - name: assignment_type_code
+        description: >
+          Código do tipo de escala do policial vitimado, informado apenas quando a
+          vítima é um policial ferido ou morto em serviço
+      - name: activity_type_code
+        description: >
+          Código da atividade que o policial vitimado exercia, informado apenas
+          quando a vítima é um policial ferido ou morto em serviço
+      - name: injury_code
+        description: >
+          Código do tipo de lesão sofrida pela vítima
+      - name: injury_count
+        description: >
+          Número de lesões registradas para a vítima
+  - name: us_fbi_cde__victim_offense
+    description: >
+      Liga cada vítima às ofensas específicas que sofreu dentro do incidente.
+      É necessária para contar vítimas por tipo de ofensa: atribuir todas as
+      ofensas de um incidente a todas as suas vítimas superestima as
+      contagens.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, victim_id, offense_id]
+          config:
+            where: __most_recent_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year__
+    columns:
+      - name: year
+        description: >
+          Ano de referência dos dados, usado como coluna de partição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_abbr
+        description: >
+          Sigla de duas letras do estado, distrito ou território da agência
+        tests: [not_null]
+      - name: victim_id
+        description: >
+          Identificador da vítima
+        tests: [not_null]
+      - name: offense_id
+        description: >
+          Identificador da ofensa sofrida pela vítima
+        tests: [not_null]
+  - name: us_fbi_cde__victim_offender_relationship
+    description: >
+      Liga cada vítima aos agressores do incidente e registra a relação entre
+      eles. O preenchimento é obrigatório apenas quando o incidente inclui um
+      crime contra a pessoa ou um roubo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, victim_id, offender_id]
+          config:
+            where: __most_recent_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [relationship_code]
+          config:
+            where: __most_recent_year__
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_fbi_cde__dicionario')
+          columns_covered_by_dictionary: [relationship_code]
+    columns:
+      - name: year
+        description: >
+          Ano de referência dos dados, usado como coluna de partição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_abbr
+        description: >
+          Sigla de duas letras do estado, distrito ou território da agência
+        tests: [not_null]
+      - name: victim_id
+        description: >
+          Identificador da vítima
+        tests: [not_null]
+      - name: offender_id
+        description: >
+          Identificador do agressor
+        tests: [not_null]
+      - name: relationship_code
+        description: >
+          Código da relação da vítima com o agressor
+  - name: us_fbi_cde__arrestee
+    description: >
+      Uma linha por pessoa presa, reunindo as prisões do Grupo A, ligadas a um
+      incidente, e as do Grupo B, que chegam sem vínculo com incidente ou
+      agência nos arquivos publicados.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, arrest_group, arrestee_id]
+          config:
+            where: __most_recent_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - age
+            - age_range_low
+            - age_range_high
+            - ethnicity_code
+            - incident_id
+            - ori
+            - under_18_disposition_code
+            - weapon_code
+            - multiple_arrestee_indicator
+            - resident_status_code
+            - arrestee_sequence_number
+          config:
+            where: __most_recent_year__
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_fbi_cde__dicionario')
+          columns_covered_by_dictionary:
+            - arrest_group
+            - arrest_type_code
+            - multiple_arrestee_indicator
+            - offense_code
+            - age_code
+            - sex_code
+            - race_code
+            - ethnicity_code
+            - resident_status_code
+            - under_18_disposition_code
+            - weapon_code
+    columns:
+      - name: year
+        description: >
+          Ano de referência dos dados, usado como coluna de partição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_abbr
+        description: >
+          Sigla de duas letras do estado, distrito ou território da agência
+        tests: [not_null]
+      - name: ori
+        description: >
+          Originating Agency Identifier, o identificador da agência policial no
+          programa UCR e a chave de junção entre as tabelas
+      - name: arrestee_id
+        description: >
+          Identificador da pessoa presa atribuído pelo FBI, único dentro do ano e
+          do grupo de prisão
+        tests: [not_null]
+      - name: incident_id
+        description: >
+          Identificador do incidente atribuído pelo FBI, único dentro do ano
+      - name: arrest_group
+        description: >
+          Indica se a prisão vem de um relatório de incidente do Grupo A ou de um
+          relatório de prisão do Grupo B
+        tests: [not_null]
+      - name: arrestee_sequence_number
+        description: >
+          Número de ordem da pessoa presa dentro do incidente
+      - name: arrest_date
+        description: >
+          Data da prisão
+      - name: arrest_type_code
+        description: >
+          Código do tipo de prisão, por exemplo em flagrante ou por mandado
+      - name: multiple_arrestee_indicator
+        description: >
+          Indica se a prisão faz parte de uma prisão múltipla já contada em outro
+          registro
+      - name: offense_code
+        description: >
+          Código NIBRS da ofensa pela qual a pessoa foi presa
+      - name: age_code
+        description: >
+          Código da faixa etária da pessoa presa, incluindo os códigos de
+          desconhecido e de menor de um ano
+      - name: age
+        description: >
+          Idade exata da pessoa presa em anos, quando informada
+      - name: age_range_low
+        description: >
+          Limite inferior da faixa etária da pessoa presa, quando a idade exata
+          não é informada
+      - name: age_range_high
+        description: >
+          Limite superior da faixa etária da pessoa presa, quando a idade exata
+          não é informada
+      - name: sex_code
+        description: >
+          Código do sexo da pessoa presa
+      - name: race_code
+        description: >
+          Código da raça da pessoa presa, tal como registrado pela agência
+      - name: ethnicity_code
+        description: >
+          Código da etnia hispânica ou latina da pessoa presa
+      - name: resident_status_code
+        description: >
+          Indica se a pessoa presa residia na localidade da prisão
+      - name: under_18_disposition_code
+        description: >
+          Código do encaminhamento dado a pessoas presas com menos de 18 anos
+      - name: weapon_code
+        description: >
+          Código da arma portada pela pessoa no momento da prisão
+  - name: us_fbi_cde__property
+    description: >
+      Uma linha por descrição de bem envolvido em um incidente do NIBRS, com o
+      tipo de perda, o valor em dólares correntes e, nas ofensas de drogas, o
+      tipo e a quantidade da substância apreendida.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, property_description_id]
+          config:
+            where: __most_recent_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - date_recovered
+            - stolen_count
+            - recovered_count
+            - property_description_code
+            - property_value
+            - suspected_drug_code
+            - drug_quantity
+            - drug_measure_code
+          config:
+            where: __most_recent_year__
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_fbi_cde__dicionario')
+          columns_covered_by_dictionary:
+            - property_loss_code
+            - property_description_code
+            - suspected_drug_code
+            - drug_measure_code
+    columns:
+      - name: year
+        description: >
+          Ano de referência dos dados, usado como coluna de partição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_abbr
+        description: >
+          Sigla de duas letras do estado, distrito ou território da agência
+        tests: [not_null]
+      - name: property_description_id
+        description: >
+          Identificador da descrição de bem atribuído pelo FBI, único dentro do
+          ano
+        tests: [not_null]
+      - name: property_id
+        description: >
+          Identificador do registro de bem a que a descrição pertence
+      - name: incident_id
+        description: >
+          Identificador do incidente atribuído pelo FBI, único dentro do ano
+      - name: property_loss_code
+        description: >
+          Código do tipo de perda do bem, por exemplo furtado, recuperado,
+          apreendido ou destruído
+      - name: property_description_code
+        description: >
+          Código do tipo de bem envolvido
+      - name: property_value
+        description: >
+          Valor do bem em dólares correntes do ano do incidente
+      - name: date_recovered
+        description: >
+          Data em que o bem foi recuperado
+      - name: stolen_count
+        description: >
+          Número de veículos furtados no incidente, informado apenas para furto de
+          veículo
+      - name: recovered_count
+        description: >
+          Número de veículos recuperados no incidente, informado apenas para furto
+          de veículo
+      - name: suspected_drug_code
+        description: >
+          Código do tipo de droga suspeita apreendida
+      - name: drug_quantity
+        description: >
+          Quantidade estimada da droga apreendida, na unidade indicada por
+          'drug_measure_code'
+      - name: drug_measure_code
+        description: >
+          Código da unidade de medida da quantidade de droga
+  - name: us_fbi_cde__hate_crime
+    description: >
+      Uma linha por incidente de crime de ódio registrado pelo programa UCR
+      entre 1991 e 2025, com a motivação por preconceito, as ofensas, o local
+      e as contagens de vítimas e agressores. Cobre também os anos anteriores
+      ao NIBRS.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, incident_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - agency_unit
+            - adult_victim_count
+            - juvenile_victim_count
+            - adult_offender_count
+            - juvenile_offender_count
+            - offender_ethnicity
+            - population_group_code
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_fbi_cde__dicionario')
+          columns_covered_by_dictionary:
+            - population_group_code
+            - multiple_offense_flag
+            - multiple_bias_flag
+    columns:
+      - name: year
+        description: >
+          Ano de referência dos dados, usado como coluna de partição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_abbr
+        description: >
+          Sigla de duas letras do estado, distrito ou território da agência
+      - name: ori
+        description: >
+          Originating Agency Identifier, o identificador da agência policial no
+          programa UCR e a chave de junção entre as tabelas
+      - name: incident_id
+        description: >
+          Identificador do incidente de crime de ódio atribuído pelo FBI
+        tests: [not_null]
+      - name: incident_date
+        description: >
+          Data em que o incidente ocorreu
+      - name: agency_name
+        description: >
+          Nome público da agência que registrou o incidente
+      - name: agency_unit
+        description: >
+          Unidade ou subdivisão da agência que registrou o incidente
+      - name: agency_type
+        description: >
+          Tipo da agência que registrou o incidente
+      - name: division_name
+        description: >
+          Divisão censitária dos Estados Unidos em que a agência se localiza
+      - name: region_name
+        description: >
+          Região censitária dos Estados Unidos em que a agência se localiza
+      - name: population_group_code
+        description: >
+          Código do grupo populacional do UCR da agência
+      - name: offense_name
+        description: >
+          Nomes das ofensas do incidente, separados por ponto e vírgula quando há
+          mais de uma
+      - name: bias_description
+        description: >
+          Descrições da motivação por preconceito, separadas por ponto e vírgula
+          quando há mais de uma
+      - name: location_name
+        description: >
+          Nome do tipo de local em que o incidente ocorreu
+      - name: victim_types
+        description: >
+          Tipos de vítima do incidente, separados por ponto e vírgula quando há
+          mais de um
+      - name: victim_count
+        description: >
+          Número de vítimas do incidente, contando vítimas que não são pessoas
+      - name: individual_victim_count
+        description: >
+          Número de vítimas individuais do incidente
+      - name: adult_victim_count
+        description: >
+          Número de vítimas adultas do incidente
+      - name: juvenile_victim_count
+        description: >
+          Número de vítimas menores de 18 anos do incidente
+      - name: offender_count
+        description: >
+          Número de agressores do incidente
+      - name: adult_offender_count
+        description: >
+          Número de agressores adultos do incidente
+      - name: juvenile_offender_count
+        description: >
+          Número de agressores menores de 18 anos do incidente
+      - name: offender_race
+        description: >
+          Raça percebida dos agressores do incidente
+      - name: offender_ethnicity
+        description: >
+          Etnia percebida dos agressores do incidente
+      - name: multiple_offense_flag
+        description: >
+          Indica se o incidente envolveu mais de uma ofensa
+      - name: multiple_bias_flag
+        description: >
+          Indica se o incidente envolveu mais de uma motivação por preconceito
+  - name: us_fbi_cde__ucr_summary
+    description: >
+      Contagens mensais do formulário resumido Return A por agência e item de
+      ofensa, de 1985 a 2025: ofensas efetivas, infundadas, esclarecidas e
+      esclarecidas apenas com menores de 18 anos. É a série longa que
+      atravessa a transição para o NIBRS, já que o formulário continua a ser
+      coletado das agências que não migraram.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, ori, month, offense_code]
+          config:
+            where: __most_recent_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - unfounded_count
+            - juvenile_cleared_count
+            - ori
+            - legacy_ori
+            - state_abbr
+          config:
+            where: __most_recent_year__
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_fbi_cde__dicionario')
+          columns_covered_by_dictionary:
+            - offense_code
+            - record_type_code
+            - breakdown_reported_flag
+    columns:
+      - name: year
+        description: >
+          Ano de referência dos dados, usado como coluna de partição
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_abbr
+        description: >
+          Sigla de duas letras do estado, distrito ou território da agência
+      - name: ori
+        description: >
+          Originating Agency Identifier de nove caracteres, para junção com as
+          demais tabelas
+        tests: [not_null]
+      - name: legacy_ori
+        description: >
+          Forma antiga de sete caracteres do ORI, tal como publicada no arquivo
+          Return A
+      - name: month
+        description: >
+          Mês de referência dos dados, de 1 a 12
+        tests: [not_null]
+      - name: offense_code
+        description: >
+          Item de ofensa do formulário Return A a que as contagens se referem
+        tests: [not_null]
+      - name: actual_count
+        description: >
+          Número de ofensas efetivamente ocorridas, já descontadas as infundadas
+      - name: unfounded_count
+        description: >
+          Número de ofensas denunciadas que a investigação concluiu não terem
+          ocorrido
+      - name: cleared_count
+        description: >
+          Número de ofensas esclarecidas por prisão ou por meio excepcional
+      - name: juvenile_cleared_count
+        description: >
+          Número de ofensas esclarecidas envolvendo apenas pessoas menores de 18
+          anos
+      - name: record_type_code
+        description: >
+          Código do tipo de registro do mês, que distingue retorno normal, ajuste
+          e dado indisponível
+      - name: breakdown_reported_flag
+        description: >
+          Indica se a agência informou a abertura por subtipo de ofensa ou apenas
+          os totais
+  - name: us_fbi_cde__dicionario
+    description: >
+      Dicionário de códigos das colunas categóricas de todas as tabelas do
+      conjunto, com o rótulo em inglês, a língua da fonte.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: >
+          Nome da tabela a que o código se aplica
+        tests: [not_null]
+      - name: nome_coluna
+        description: >
+          Nome da coluna a que o código se aplica
+        tests: [not_null]
+      - name: chave
+        description: >
+          Código, tal como armazenado na coluna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >
+          Cobertura temporal do código
+        tests: [not_null]
+      - name: valor
+        description: >-
+          Rótulo do código, em inglês, a língua da fonte

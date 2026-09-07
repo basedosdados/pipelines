@@ -1,0 +1,1015 @@
+id_tabela,nome_coluna,chave,cobertura_temporal,valor
+agency,core_city_flag,N,,Not a core city
+agency,core_city_flag,Y,,Core city of a metropolitan statistical area
+agency,nibrs_participated,N,,Did not report to NIBRS in the year
+agency,nibrs_participated,Y,,Reported to NIBRS in the year
+agency,population_group_code,0,,Possessions
+agency,population_group_code,1,,"Cities 250,000 or over"
+agency,population_group_code,1A,,"Cities 1,000,000 or over"
+agency,population_group_code,1B,,"Cities from 500,000 through 999,999"
+agency,population_group_code,1C,,"Cities from 250,000 through 499,999"
+agency,population_group_code,2,,"Cities from 100,000 through 249,999"
+agency,population_group_code,3,,"Cities from 50,000 through 99,999"
+agency,population_group_code,4,,"Cities from 25,000 through 49,999"
+agency,population_group_code,5,,"Cities from 10,000 through 24,999"
+agency,population_group_code,6,,"Cities from 2,500 through 9,999"
+agency,population_group_code,7,,"Cities under 2,500"
+agency,population_group_code,8,,Non-metropolitan counties
+agency,population_group_code,8A,,"Non-metropolitan counties 100,000 or over"
+agency,population_group_code,8B,,"Non-metropolitan counties from 25,000 through 99,999"
+agency,population_group_code,8C,,"Non-metropolitan counties from 10,000 through 24,999"
+agency,population_group_code,8D,,"Non-metropolitan counties under 10,000"
+agency,population_group_code,8E,,Non-metropolitan state police
+agency,population_group_code,9,,Metropolitan counties
+agency,population_group_code,9A,,"Metropolitan counties 100,000 or over"
+agency,population_group_code,9B,,"Metropolitan counties from 25,000 through 99,999"
+agency,population_group_code,9C,,"Metropolitan counties from 10,000 through 24,999"
+agency,population_group_code,9D,,"Metropolitan counties under 10,000"
+agency,population_group_code,9E,,Metropolitan state police
+arrestee,age_code,00,,Unknown
+arrestee,age_code,01,,1 Years Old
+arrestee,age_code,02,,2 Years Old
+arrestee,age_code,03,,3 Years Old
+arrestee,age_code,04,,4 Years Old
+arrestee,age_code,05,,5 Years Old
+arrestee,age_code,06,,6 Years Old
+arrestee,age_code,07,,7 Years Old
+arrestee,age_code,08,,8 Years Old
+arrestee,age_code,09,,9 Years Old
+arrestee,age_code,10,,10 Years Old
+arrestee,age_code,11,,11 Years Old
+arrestee,age_code,12,,12 Years Old
+arrestee,age_code,13,,13 Years Old
+arrestee,age_code,14,,14 Years Old
+arrestee,age_code,15,,15 Years Old
+arrestee,age_code,16,,16 Years Old
+arrestee,age_code,17,,17 Years Old
+arrestee,age_code,18,,18 Years Old
+arrestee,age_code,19,,19 Years Old
+arrestee,age_code,20,,20 Years Old
+arrestee,age_code,21,,21 Years Old
+arrestee,age_code,22,,22 Years Old
+arrestee,age_code,23,,23 Years Old
+arrestee,age_code,24,,24 Years Old
+arrestee,age_code,25,,25 Years Old
+arrestee,age_code,26,,26 Years Old
+arrestee,age_code,27,,27 Years Old
+arrestee,age_code,28,,28 Years Old
+arrestee,age_code,29,,29 Years Old
+arrestee,age_code,30,,30 Years Old
+arrestee,age_code,31,,31 Years Old
+arrestee,age_code,32,,32 Years Old
+arrestee,age_code,33,,33 Years Old
+arrestee,age_code,34,,34 Years Old
+arrestee,age_code,35,,35 Years Old
+arrestee,age_code,36,,36 Years Old
+arrestee,age_code,37,,37 Years Old
+arrestee,age_code,38,,38 Years Old
+arrestee,age_code,39,,39 Years Old
+arrestee,age_code,40,,40 Years Old
+arrestee,age_code,41,,41 Years Old
+arrestee,age_code,42,,42 Years Old
+arrestee,age_code,43,,43 Years Old
+arrestee,age_code,44,,44 Years Old
+arrestee,age_code,45,,45 Years Old
+arrestee,age_code,46,,46 Years Old
+arrestee,age_code,47,,47 Years Old
+arrestee,age_code,48,,48 Years Old
+arrestee,age_code,49,,49 Years Old
+arrestee,age_code,50,,50 Years Old
+arrestee,age_code,51,,51 Years Old
+arrestee,age_code,52,,52 Years Old
+arrestee,age_code,53,,53 Years Old
+arrestee,age_code,54,,54 Years Old
+arrestee,age_code,55,,55 Years Old
+arrestee,age_code,56,,56 Years Old
+arrestee,age_code,57,,57 Years Old
+arrestee,age_code,58,,58 Years Old
+arrestee,age_code,59,,59 Years Old
+arrestee,age_code,60,,60 Years Old
+arrestee,age_code,61,,61 Years Old
+arrestee,age_code,62,,62 Years Old
+arrestee,age_code,63,,63 Years Old
+arrestee,age_code,64,,64 Years Old
+arrestee,age_code,65,,65 Years Old
+arrestee,age_code,66,,66 Years Old
+arrestee,age_code,67,,67 Years Old
+arrestee,age_code,68,,68 Years Old
+arrestee,age_code,69,,69 Years Old
+arrestee,age_code,70,,70 Years Old
+arrestee,age_code,71,,71 Years Old
+arrestee,age_code,72,,72 Years Old
+arrestee,age_code,73,,73 Years Old
+arrestee,age_code,74,,74 Years Old
+arrestee,age_code,75,,75 Years Old
+arrestee,age_code,76,,76 Years Old
+arrestee,age_code,77,,77 Years Old
+arrestee,age_code,78,,78 Years Old
+arrestee,age_code,79,,79 Years Old
+arrestee,age_code,80,,80 Years Old
+arrestee,age_code,81,,81 Years Old
+arrestee,age_code,82,,82 Years Old
+arrestee,age_code,83,,83 Years Old
+arrestee,age_code,84,,84 Years Old
+arrestee,age_code,85,,85 Years Old
+arrestee,age_code,86,,86 Years Old
+arrestee,age_code,87,,87 Years Old
+arrestee,age_code,88,,88 Years Old
+arrestee,age_code,89,,89 Years Old
+arrestee,age_code,90,,90 Years Old
+arrestee,age_code,91,,91 Years Old
+arrestee,age_code,92,,92 Years Old
+arrestee,age_code,93,,93 Years Old
+arrestee,age_code,94,,94 Years Old
+arrestee,age_code,95,,95 Years Old
+arrestee,age_code,96,,96 Years Old
+arrestee,age_code,97,,97 Years Old
+arrestee,age_code,98,,98 Years Old
+arrestee,age_code,99,,Over 98 Years Old
+arrestee,age_code,AG,,Age in Years
+arrestee,age_code,BB,,7-364 Days Old
+arrestee,age_code,NB,,1-6 Days Old
+arrestee,age_code,NN,,Under 24 Hours
+arrestee,age_code,NS,,Not Specified
+arrestee,arrest_group,A,,"Group A incident report arrest, linked to an incident"
+arrestee,arrest_group,B,,"Group B arrest report, with no incident and no agency identifier"
+arrestee,arrest_type_code,O,,On View
+arrestee,arrest_type_code,S,,Summoned / Cited
+arrestee,arrest_type_code,T,,Taken INTO Custody
+arrestee,ethnicity_code,H,,Hispanic or Latino
+arrestee,ethnicity_code,M,,Multiple
+arrestee,ethnicity_code,N,,Not Hispanic or Latino
+arrestee,ethnicity_code,U,,Unknown
+arrestee,ethnicity_code,X,,Not Specified
+arrestee,multiple_arrestee_indicator,C,,Count arrestee
+arrestee,multiple_arrestee_indicator,M,,Multiple arrestee segments were submitted for this offender
+arrestee,multiple_arrestee_indicator,N,,Not applicable
+arrestee,offense_code,09A,,Murder and Nonnegligent Manslaughter
+arrestee,offense_code,09B,,Negligent Manslaughter
+arrestee,offense_code,09C,,Justifiable Homicide
+arrestee,offense_code,100,,Kidnapping/Abduction
+arrestee,offense_code,101,,Treason
+arrestee,offense_code,103,,Espionage
+arrestee,offense_code,11A,,Rape
+arrestee,offense_code,11B,,Sodomy
+arrestee,offense_code,11C,,Sexual Assault With An Object
+arrestee,offense_code,11D,,Fondling
+arrestee,offense_code,120,,Robbery
+arrestee,offense_code,13A,,Aggravated Assault
+arrestee,offense_code,13B,,Simple Assault
+arrestee,offense_code,13C,,Intimidation
+arrestee,offense_code,200,,Arson
+arrestee,offense_code,210,,Extortion/Blackmail
+arrestee,offense_code,220,,Burglary/Breaking & Entering
+arrestee,offense_code,23*,,Not Specified
+arrestee,offense_code,23A,,Pocket-picking
+arrestee,offense_code,23B,,Purse-snatching
+arrestee,offense_code,23C,,Shoplifting
+arrestee,offense_code,23D,,Theft From Building
+arrestee,offense_code,23E,,Theft From Coin-Operated Machine or Device
+arrestee,offense_code,23F,,Theft From Motor Vehicle
+arrestee,offense_code,23G,,Theft of Motor Vehicle Parts or Accessories
+arrestee,offense_code,23H,,All Other Larceny
+arrestee,offense_code,240,,Motor Vehicle Theft
+arrestee,offense_code,250,,Counterfeiting/Forgery
+arrestee,offense_code,26A,,False Pretenses/Swindle/Confidence Game
+arrestee,offense_code,26B,,Credit Card/Automated Teller Machine Fraud
+arrestee,offense_code,26C,,Impersonation
+arrestee,offense_code,26D,,Welfare Fraud
+arrestee,offense_code,26E,,Wire Fraud
+arrestee,offense_code,26F,,Identity Theft
+arrestee,offense_code,26G,,Hacking/Computer Invasion
+arrestee,offense_code,26H,,Money Laundering
+arrestee,offense_code,270,,Embezzlement
+arrestee,offense_code,280,,Stolen Property Offenses
+arrestee,offense_code,290,,Destruction/Damage/Vandalism of Property
+arrestee,offense_code,30A,,Illegal Entry into the United States
+arrestee,offense_code,30B,,False Citizenship
+arrestee,offense_code,30C,,Smuggling Aliens
+arrestee,offense_code,30D,,Re-entry after Deportation
+arrestee,offense_code,35A,,Drug/Narcotic Violations
+arrestee,offense_code,35B,,Drug Equipment Violations
+arrestee,offense_code,360,,Failure to Register as a Sex Offender
+arrestee,offense_code,36A,,Incest
+arrestee,offense_code,36B,,Statutory Rape
+arrestee,offense_code,370,,Pornography/Obscene Material
+arrestee,offense_code,39A,,Betting/Wagering
+arrestee,offense_code,39B,,Operating/Promoting/Assisting Gambling
+arrestee,offense_code,39C,,Gambling Equipment Violation
+arrestee,offense_code,39D,,Sports Tampering
+arrestee,offense_code,40A,,Prostitution
+arrestee,offense_code,40B,,Assisting or Promoting Prostitution
+arrestee,offense_code,40C,,Purchasing Prostitution
+arrestee,offense_code,49A,,Harboring Escapee/Concealing from Arrest
+arrestee,offense_code,49B,,Flight to Avoid Prosecution
+arrestee,offense_code,49C,,Flight to Avoid Deportation
+arrestee,offense_code,510,,Bribery
+arrestee,offense_code,520,,Weapon Law Violations
+arrestee,offense_code,521,,Violation of National Firearm Act of 1934
+arrestee,offense_code,522,,Weapons of Mass Destruction
+arrestee,offense_code,526,,Explosives Violation
+arrestee,offense_code,58A,,Import Violations
+arrestee,offense_code,58B,,Export Violations
+arrestee,offense_code,61A,,Federal Liquor Offenses
+arrestee,offense_code,61B,,Federal Tobacco Offenses
+arrestee,offense_code,620,,Wildlife Trafficking
+arrestee,offense_code,64A,,"Human Trafficking, Commercial Sex Acts"
+arrestee,offense_code,64B,,"Human Trafficking, Involuntary Servitude"
+arrestee,offense_code,720,,Animal Cruelty
+arrestee,offense_code,90A,,Bad Checks
+arrestee,offense_code,90B,,Curfew/Loitering/Vagrancy Violations
+arrestee,offense_code,90C,,Disorderly Conduct
+arrestee,offense_code,90D,,Driving Under the Influence
+arrestee,offense_code,90E,,Drunkenness
+arrestee,offense_code,90F,,"Family Offenses, Nonviolent"
+arrestee,offense_code,90G,,Liquor Law Violations
+arrestee,offense_code,90H,,Peeping Tom
+arrestee,offense_code,90I,,Runaway
+arrestee,offense_code,90J,,Trespass of Real Property
+arrestee,offense_code,90K,,Failure to Appear
+arrestee,offense_code,90L,,Federal Resource Violations
+arrestee,offense_code,90M,,Perjury
+arrestee,offense_code,90Z,,All Other Offenses
+arrestee,race_code,A,,Asian
+arrestee,race_code,AP,,"Asian, Native Hawaiian, or Other Pacific Islander"
+arrestee,race_code,B,,Black or African American
+arrestee,race_code,C,,Chinese
+arrestee,race_code,I,,American Indian or Alaska Native
+arrestee,race_code,J,,Japanese
+arrestee,race_code,M,,Multiple
+arrestee,race_code,NS,,Not Specified
+arrestee,race_code,O,,Other
+arrestee,race_code,P,,Native Hawaiian or Other Pacific Islander
+arrestee,race_code,U,,Unknown
+arrestee,race_code,W,,White
+arrestee,resident_status_code,N,,Non-resident
+arrestee,resident_status_code,R,,Resident of the locality
+arrestee,resident_status_code,U,,Unknown
+arrestee,sex_code,F,,Female
+arrestee,sex_code,M,,Male
+arrestee,sex_code,U,,Unknown
+arrestee,under_18_disposition_code,H,,Handled within the department and released
+arrestee,under_18_disposition_code,R,,Referred to another authority
+arrestee,weapon_code,01,,Unarmed
+arrestee,weapon_code,01A,,Firearm (Automatic)
+arrestee,weapon_code,02,,Handgun
+arrestee,weapon_code,02A,,Handgun (Automatic)
+arrestee,weapon_code,03,,Rifle
+arrestee,weapon_code,03A,,Rifle (Automatic)
+arrestee,weapon_code,04,,Shotgun
+arrestee,weapon_code,04A,,Shotgun (Automatic)
+arrestee,weapon_code,05,,Other Firearm
+arrestee,weapon_code,05A,,Other Firearm (Automatic)
+arrestee,weapon_code,06,,Firearm
+arrestee,weapon_code,06A,,Firearm (Automatic)
+arrestee,weapon_code,07,,Handgun
+arrestee,weapon_code,07A,,Handgun (Automatic)
+arrestee,weapon_code,08,,Rifle
+arrestee,weapon_code,08A,,Rifle (Automatic)
+arrestee,weapon_code,09,,Shotgun
+arrestee,weapon_code,09A,,Shotgun (Automatic)
+arrestee,weapon_code,10,,Other Firearm
+arrestee,weapon_code,10A,,Other Firearm (Automatic)
+arrestee,weapon_code,11,,Firearm
+arrestee,weapon_code,11A,,Firearm (Automatic)
+arrestee,weapon_code,12,,Handgun
+arrestee,weapon_code,12A,,Handgun (Automatic)
+arrestee,weapon_code,13,,Rifle
+arrestee,weapon_code,13A,,Rifle (Automatic)
+arrestee,weapon_code,14,,Shotgun
+arrestee,weapon_code,14A,,Shotgun (Automatic)
+arrestee,weapon_code,15,,Other Firearm
+arrestee,weapon_code,15A,,Other Firearm (Automatic)
+arrestee,weapon_code,16,,Lethal Cutting Instrument
+arrestee,weapon_code,17,,Club/Blackjack/Brass Knuckles
+arrestee,weapon_code,20,,Knife/Cutting Instrument
+arrestee,weapon_code,30,,Blunt Object
+arrestee,weapon_code,35,,Motor Vehicle
+arrestee,weapon_code,40,,Personal Weapons
+arrestee,weapon_code,50,,Poison
+arrestee,weapon_code,55,,Pushed or Thrown Out Window
+arrestee,weapon_code,60,,Explosives
+arrestee,weapon_code,65,,Fire/Incendiary Device
+arrestee,weapon_code,70,,Drugs/Narcotics/Sleeping Pills
+arrestee,weapon_code,75,,Drowning
+arrestee,weapon_code,80,,Strangulation - Include Hanging
+arrestee,weapon_code,85,,Asphyxiation
+arrestee,weapon_code,90,,Other
+arrestee,weapon_code,95,,Unknown
+arrestee,weapon_code,99,,None
+hate_crime,multiple_bias_flag,M,,Multiple bias motivations
+hate_crime,multiple_bias_flag,S,,Single bias motivation
+hate_crime,multiple_offense_flag,M,,Multiple offenses
+hate_crime,multiple_offense_flag,S,,Single offense
+hate_crime,population_group_code,0,,Possessions
+hate_crime,population_group_code,1,,"Cities 250,000 or over"
+hate_crime,population_group_code,1A,,"Cities 1,000,000 or over"
+hate_crime,population_group_code,1B,,"Cities from 500,000 through 999,999"
+hate_crime,population_group_code,1C,,"Cities from 250,000 through 499,999"
+hate_crime,population_group_code,2,,"Cities from 100,000 through 249,999"
+hate_crime,population_group_code,3,,"Cities from 50,000 through 99,999"
+hate_crime,population_group_code,4,,"Cities from 25,000 through 49,999"
+hate_crime,population_group_code,5,,"Cities from 10,000 through 24,999"
+hate_crime,population_group_code,6,,"Cities from 2,500 through 9,999"
+hate_crime,population_group_code,7,,"Cities under 2,500"
+hate_crime,population_group_code,8,,Non-metropolitan counties
+hate_crime,population_group_code,8A,,"Non-metropolitan counties 100,000 or over"
+hate_crime,population_group_code,8B,,"Non-metropolitan counties from 25,000 through 99,999"
+hate_crime,population_group_code,8C,,"Non-metropolitan counties from 10,000 through 24,999"
+hate_crime,population_group_code,8D,,"Non-metropolitan counties under 10,000"
+hate_crime,population_group_code,8E,,Non-metropolitan state police
+hate_crime,population_group_code,9,,Metropolitan counties
+hate_crime,population_group_code,9A,,"Metropolitan counties 100,000 or over"
+hate_crime,population_group_code,9B,,"Metropolitan counties from 25,000 through 99,999"
+hate_crime,population_group_code,9C,,"Metropolitan counties from 10,000 through 24,999"
+hate_crime,population_group_code,9D,,"Metropolitan counties under 10,000"
+hate_crime,population_group_code,9E,,Metropolitan state police
+incident,cargo_theft_flag,f,,The incident did not involve cargo theft
+incident,cargo_theft_flag,t,,The incident involved cargo theft
+incident,cleared_except_code,A,,Death of Offender
+incident,cleared_except_code,B,,Prosecution Declined
+incident,cleared_except_code,C,,In Custody of Other Jurisdiction
+incident,cleared_except_code,D,,Victim Refused to Cooperate
+incident,cleared_except_code,E,,Juvenile/No Custody
+incident,cleared_except_code,N,,Not Applicable
+incident,incident_status,ACCEPTED,,Accepted by the FBI
+incident,incident_status,DELETED,,Deleted by the submitting agency
+incident,report_date_flag,f,,The incident date is the date the incident occurred
+incident,report_date_flag,t,,The incident date is the report date
+offender,age_code,00,,Unknown
+offender,age_code,01,,1 Years Old
+offender,age_code,02,,2 Years Old
+offender,age_code,03,,3 Years Old
+offender,age_code,04,,4 Years Old
+offender,age_code,05,,5 Years Old
+offender,age_code,06,,6 Years Old
+offender,age_code,07,,7 Years Old
+offender,age_code,08,,8 Years Old
+offender,age_code,09,,9 Years Old
+offender,age_code,10,,10 Years Old
+offender,age_code,11,,11 Years Old
+offender,age_code,12,,12 Years Old
+offender,age_code,13,,13 Years Old
+offender,age_code,14,,14 Years Old
+offender,age_code,15,,15 Years Old
+offender,age_code,16,,16 Years Old
+offender,age_code,17,,17 Years Old
+offender,age_code,18,,18 Years Old
+offender,age_code,19,,19 Years Old
+offender,age_code,20,,20 Years Old
+offender,age_code,21,,21 Years Old
+offender,age_code,22,,22 Years Old
+offender,age_code,23,,23 Years Old
+offender,age_code,24,,24 Years Old
+offender,age_code,25,,25 Years Old
+offender,age_code,26,,26 Years Old
+offender,age_code,27,,27 Years Old
+offender,age_code,28,,28 Years Old
+offender,age_code,29,,29 Years Old
+offender,age_code,30,,30 Years Old
+offender,age_code,31,,31 Years Old
+offender,age_code,32,,32 Years Old
+offender,age_code,33,,33 Years Old
+offender,age_code,34,,34 Years Old
+offender,age_code,35,,35 Years Old
+offender,age_code,36,,36 Years Old
+offender,age_code,37,,37 Years Old
+offender,age_code,38,,38 Years Old
+offender,age_code,39,,39 Years Old
+offender,age_code,40,,40 Years Old
+offender,age_code,41,,41 Years Old
+offender,age_code,42,,42 Years Old
+offender,age_code,43,,43 Years Old
+offender,age_code,44,,44 Years Old
+offender,age_code,45,,45 Years Old
+offender,age_code,46,,46 Years Old
+offender,age_code,47,,47 Years Old
+offender,age_code,48,,48 Years Old
+offender,age_code,49,,49 Years Old
+offender,age_code,50,,50 Years Old
+offender,age_code,51,,51 Years Old
+offender,age_code,52,,52 Years Old
+offender,age_code,53,,53 Years Old
+offender,age_code,54,,54 Years Old
+offender,age_code,55,,55 Years Old
+offender,age_code,56,,56 Years Old
+offender,age_code,57,,57 Years Old
+offender,age_code,58,,58 Years Old
+offender,age_code,59,,59 Years Old
+offender,age_code,60,,60 Years Old
+offender,age_code,61,,61 Years Old
+offender,age_code,62,,62 Years Old
+offender,age_code,63,,63 Years Old
+offender,age_code,64,,64 Years Old
+offender,age_code,65,,65 Years Old
+offender,age_code,66,,66 Years Old
+offender,age_code,67,,67 Years Old
+offender,age_code,68,,68 Years Old
+offender,age_code,69,,69 Years Old
+offender,age_code,70,,70 Years Old
+offender,age_code,71,,71 Years Old
+offender,age_code,72,,72 Years Old
+offender,age_code,73,,73 Years Old
+offender,age_code,74,,74 Years Old
+offender,age_code,75,,75 Years Old
+offender,age_code,76,,76 Years Old
+offender,age_code,77,,77 Years Old
+offender,age_code,78,,78 Years Old
+offender,age_code,79,,79 Years Old
+offender,age_code,80,,80 Years Old
+offender,age_code,81,,81 Years Old
+offender,age_code,82,,82 Years Old
+offender,age_code,83,,83 Years Old
+offender,age_code,84,,84 Years Old
+offender,age_code,85,,85 Years Old
+offender,age_code,86,,86 Years Old
+offender,age_code,87,,87 Years Old
+offender,age_code,88,,88 Years Old
+offender,age_code,89,,89 Years Old
+offender,age_code,90,,90 Years Old
+offender,age_code,91,,91 Years Old
+offender,age_code,92,,92 Years Old
+offender,age_code,93,,93 Years Old
+offender,age_code,94,,94 Years Old
+offender,age_code,95,,95 Years Old
+offender,age_code,96,,96 Years Old
+offender,age_code,97,,97 Years Old
+offender,age_code,98,,98 Years Old
+offender,age_code,99,,Over 98 Years Old
+offender,age_code,AG,,Age in Years
+offender,age_code,BB,,7-364 Days Old
+offender,age_code,NB,,1-6 Days Old
+offender,age_code,NN,,Under 24 Hours
+offender,age_code,NS,,Not Specified
+offender,ethnicity_code,H,,Hispanic or Latino
+offender,ethnicity_code,M,,Multiple
+offender,ethnicity_code,N,,Not Hispanic or Latino
+offender,ethnicity_code,U,,Unknown
+offender,ethnicity_code,X,,Not Specified
+offender,race_code,A,,Asian
+offender,race_code,AP,,"Asian, Native Hawaiian, or Other Pacific Islander"
+offender,race_code,B,,Black or African American
+offender,race_code,C,,Chinese
+offender,race_code,I,,American Indian or Alaska Native
+offender,race_code,J,,Japanese
+offender,race_code,M,,Multiple
+offender,race_code,NS,,Not Specified
+offender,race_code,O,,Other
+offender,race_code,P,,Native Hawaiian or Other Pacific Islander
+offender,race_code,U,,Unknown
+offender,race_code,W,,White
+offender,sex_code,F,,Female
+offender,sex_code,M,,Male
+offender,sex_code,U,,Unknown
+offense,attempt_complete_flag,A,,Attempted
+offense,attempt_complete_flag,C,,Completed
+offense,bias_motivation_code,11,,Anti-White
+offense,bias_motivation_code,12,,Anti-Black or African American
+offense,bias_motivation_code,13,,Anti-American Indian or Alaska Native
+offense,bias_motivation_code,14,,Anti-Asian
+offense,bias_motivation_code,15,,Anti-Multi-Racial Group
+offense,bias_motivation_code,16,,Anti-Native Hawaiian or Other Pacific Islander
+offense,bias_motivation_code,21,,Anti-Jewish
+offense,bias_motivation_code,22,,Anti-Catholic
+offense,bias_motivation_code,23,,Anti-Protestant
+offense,bias_motivation_code,24,,Anti-Islamic (Muslem)
+offense,bias_motivation_code,25,,Anti-Other Religion
+offense,bias_motivation_code,26,,Anti-Multi-Religious Group
+offense,bias_motivation_code,27,,Anti-Atheist/Agnosticism
+offense,bias_motivation_code,28,,Anti-Mormon
+offense,bias_motivation_code,29,,Anti-Jehovah's Witness
+offense,bias_motivation_code,31,,Anti-Arab
+offense,bias_motivation_code,32,,Anti-Hispanic or Latino
+offense,bias_motivation_code,33,,Anti-Not Hispanic or Latino
+offense,bias_motivation_code,41,,Anti-Male Homosexual (Gay)
+offense,bias_motivation_code,42,,Anti-Female Homosexual (Lesbian)
+offense,bias_motivation_code,43,,"Anti-Lesbian, Gay, Bisexual, or Transgender, Mixed Group (LGBT)"
+offense,bias_motivation_code,44,,Anti-Heterosexual
+offense,bias_motivation_code,45,,Anti-Bisexual
+offense,bias_motivation_code,51,,Anti-Physical Disability
+offense,bias_motivation_code,52,,Anti-Mental Disability
+offense,bias_motivation_code,61,,Anti-Male
+offense,bias_motivation_code,62,,Anti-Female
+offense,bias_motivation_code,71,,Anti-Transgender
+offense,bias_motivation_code,72,,Anti-Gender Non-Conforming
+offense,bias_motivation_code,81,,Anti-Eastern Orthodox
+offense,bias_motivation_code,82,,Anti-Other Christian
+offense,bias_motivation_code,83,,Anti-Buddhist
+offense,bias_motivation_code,84,,Anti-Hindu
+offense,bias_motivation_code,85,,Anti-Sikh
+offense,bias_motivation_code,88,,None
+offense,bias_motivation_code,99,,Unknown
+offense,location_code,00,,Not Specified
+offense,location_code,01,,Air/Bus/Train Terminal
+offense,location_code,02,,Bank/Savings and Loan
+offense,location_code,03,,Bar/Nightclub
+offense,location_code,04,,Church Synagogue/Temple
+offense,location_code,05,,Commercial/Office Building
+offense,location_code,06,,Construction Site
+offense,location_code,07,,Convenience Store
+offense,location_code,08,,Department/Discount Store
+offense,location_code,09,,Drug Store/Dr. s Office/Hospital
+offense,location_code,10,,Field/Woods
+offense,location_code,11,,Government/Public Building
+offense,location_code,12,,Grocery/Supermarket
+offense,location_code,13,,Highway/Road/Ally
+offense,location_code,14,,Hotel/Motel/Etc.
+offense,location_code,15,,Jail/Prison
+offense,location_code,16,,Lake/Waterway
+offense,location_code,17,,Liquor Store
+offense,location_code,18,,Parking Lot/Garage
+offense,location_code,19,,Rental Stor. Facil.
+offense,location_code,20,,Residence/Home
+offense,location_code,21,,Restaurant
+offense,location_code,22,,School/College
+offense,location_code,23,,Service/Gas Station
+offense,location_code,24,,Specialty Store
+offense,location_code,25,,Other/Unknown
+offense,location_code,37,,Abandoned/Condemned Structure
+offense,location_code,38,,Amusement Park
+offense,location_code,39,,Arena/Stadium/Fairgrounds/Coliseum
+offense,location_code,40,,ATM Separate from Bank
+offense,location_code,41,,Auto Dealership New/Used
+offense,location_code,42,,Camp/Campground
+offense,location_code,44,,Daycare Facility
+offense,location_code,45,,Dock/Wharf/Freight/Modal Terminal
+offense,location_code,46,,Farm Facility
+offense,location_code,47,,Gambling Facility/Casino/Race Track
+offense,location_code,48,,Industrial Site
+offense,location_code,49,,Military Installation
+offense,location_code,50,,Park/Playground
+offense,location_code,51,,Rest Area
+offense,location_code,52,,School-College/University
+offense,location_code,53,,School-Elementary/Secondary
+offense,location_code,54,,Shelter-Mission/Homeless
+offense,location_code,55,,Shopping Mall
+offense,location_code,56,,Tribal Lands
+offense,location_code,57,,Community Center
+offense,location_code,58,,Cyberspace
+offense,method_entry_code,F,,Force
+offense,method_entry_code,N,,No force
+offense,offense_code,09A,,Murder and Nonnegligent Manslaughter
+offense,offense_code,09B,,Negligent Manslaughter
+offense,offense_code,09C,,Justifiable Homicide
+offense,offense_code,100,,Kidnapping/Abduction
+offense,offense_code,101,,Treason
+offense,offense_code,103,,Espionage
+offense,offense_code,11A,,Rape
+offense,offense_code,11B,,Sodomy
+offense,offense_code,11C,,Sexual Assault With An Object
+offense,offense_code,11D,,Fondling
+offense,offense_code,120,,Robbery
+offense,offense_code,13A,,Aggravated Assault
+offense,offense_code,13B,,Simple Assault
+offense,offense_code,13C,,Intimidation
+offense,offense_code,200,,Arson
+offense,offense_code,210,,Extortion/Blackmail
+offense,offense_code,220,,Burglary/Breaking & Entering
+offense,offense_code,23*,,Not Specified
+offense,offense_code,23A,,Pocket-picking
+offense,offense_code,23B,,Purse-snatching
+offense,offense_code,23C,,Shoplifting
+offense,offense_code,23D,,Theft From Building
+offense,offense_code,23E,,Theft From Coin-Operated Machine or Device
+offense,offense_code,23F,,Theft From Motor Vehicle
+offense,offense_code,23G,,Theft of Motor Vehicle Parts or Accessories
+offense,offense_code,23H,,All Other Larceny
+offense,offense_code,240,,Motor Vehicle Theft
+offense,offense_code,250,,Counterfeiting/Forgery
+offense,offense_code,26A,,False Pretenses/Swindle/Confidence Game
+offense,offense_code,26B,,Credit Card/Automated Teller Machine Fraud
+offense,offense_code,26C,,Impersonation
+offense,offense_code,26D,,Welfare Fraud
+offense,offense_code,26E,,Wire Fraud
+offense,offense_code,26F,,Identity Theft
+offense,offense_code,26G,,Hacking/Computer Invasion
+offense,offense_code,26H,,Money Laundering
+offense,offense_code,270,,Embezzlement
+offense,offense_code,280,,Stolen Property Offenses
+offense,offense_code,290,,Destruction/Damage/Vandalism of Property
+offense,offense_code,30A,,Illegal Entry into the United States
+offense,offense_code,30B,,False Citizenship
+offense,offense_code,30C,,Smuggling Aliens
+offense,offense_code,30D,,Re-entry after Deportation
+offense,offense_code,35A,,Drug/Narcotic Violations
+offense,offense_code,35B,,Drug Equipment Violations
+offense,offense_code,360,,Failure to Register as a Sex Offender
+offense,offense_code,36A,,Incest
+offense,offense_code,36B,,Statutory Rape
+offense,offense_code,370,,Pornography/Obscene Material
+offense,offense_code,39A,,Betting/Wagering
+offense,offense_code,39B,,Operating/Promoting/Assisting Gambling
+offense,offense_code,39C,,Gambling Equipment Violation
+offense,offense_code,39D,,Sports Tampering
+offense,offense_code,40A,,Prostitution
+offense,offense_code,40B,,Assisting or Promoting Prostitution
+offense,offense_code,40C,,Purchasing Prostitution
+offense,offense_code,49A,,Harboring Escapee/Concealing from Arrest
+offense,offense_code,49B,,Flight to Avoid Prosecution
+offense,offense_code,49C,,Flight to Avoid Deportation
+offense,offense_code,510,,Bribery
+offense,offense_code,520,,Weapon Law Violations
+offense,offense_code,521,,Violation of National Firearm Act of 1934
+offense,offense_code,522,,Weapons of Mass Destruction
+offense,offense_code,526,,Explosives Violation
+offense,offense_code,58A,,Import Violations
+offense,offense_code,58B,,Export Violations
+offense,offense_code,61A,,Federal Liquor Offenses
+offense,offense_code,61B,,Federal Tobacco Offenses
+offense,offense_code,620,,Wildlife Trafficking
+offense,offense_code,64A,,"Human Trafficking, Commercial Sex Acts"
+offense,offense_code,64B,,"Human Trafficking, Involuntary Servitude"
+offense,offense_code,720,,Animal Cruelty
+offense,offense_code,90A,,Bad Checks
+offense,offense_code,90B,,Curfew/Loitering/Vagrancy Violations
+offense,offense_code,90C,,Disorderly Conduct
+offense,offense_code,90D,,Driving Under the Influence
+offense,offense_code,90E,,Drunkenness
+offense,offense_code,90F,,"Family Offenses, Nonviolent"
+offense,offense_code,90G,,Liquor Law Violations
+offense,offense_code,90H,,Peeping Tom
+offense,offense_code,90I,,Runaway
+offense,offense_code,90J,,Trespass of Real Property
+offense,offense_code,90K,,Failure to Appear
+offense,offense_code,90L,,Federal Resource Violations
+offense,offense_code,90M,,Perjury
+offense,offense_code,90Z,,All Other Offenses
+offense,weapon_code,01,,Unarmed
+offense,weapon_code,01A,,Firearm (Automatic)
+offense,weapon_code,02,,Handgun
+offense,weapon_code,02A,,Handgun (Automatic)
+offense,weapon_code,03,,Rifle
+offense,weapon_code,03A,,Rifle (Automatic)
+offense,weapon_code,04,,Shotgun
+offense,weapon_code,04A,,Shotgun (Automatic)
+offense,weapon_code,05,,Other Firearm
+offense,weapon_code,05A,,Other Firearm (Automatic)
+offense,weapon_code,06,,Firearm
+offense,weapon_code,06A,,Firearm (Automatic)
+offense,weapon_code,07,,Handgun
+offense,weapon_code,07A,,Handgun (Automatic)
+offense,weapon_code,08,,Rifle
+offense,weapon_code,08A,,Rifle (Automatic)
+offense,weapon_code,09,,Shotgun
+offense,weapon_code,09A,,Shotgun (Automatic)
+offense,weapon_code,10,,Other Firearm
+offense,weapon_code,10A,,Other Firearm (Automatic)
+offense,weapon_code,11,,Firearm
+offense,weapon_code,11A,,Firearm (Automatic)
+offense,weapon_code,12,,Handgun
+offense,weapon_code,12A,,Handgun (Automatic)
+offense,weapon_code,13,,Rifle
+offense,weapon_code,13A,,Rifle (Automatic)
+offense,weapon_code,14,,Shotgun
+offense,weapon_code,14A,,Shotgun (Automatic)
+offense,weapon_code,15,,Other Firearm
+offense,weapon_code,15A,,Other Firearm (Automatic)
+offense,weapon_code,16,,Lethal Cutting Instrument
+offense,weapon_code,17,,Club/Blackjack/Brass Knuckles
+offense,weapon_code,20,,Knife/Cutting Instrument
+offense,weapon_code,30,,Blunt Object
+offense,weapon_code,35,,Motor Vehicle
+offense,weapon_code,40,,Personal Weapons
+offense,weapon_code,50,,Poison
+offense,weapon_code,55,,Pushed or Thrown Out Window
+offense,weapon_code,60,,Explosives
+offense,weapon_code,65,,Fire/Incendiary Device
+offense,weapon_code,70,,Drugs/Narcotics/Sleeping Pills
+offense,weapon_code,75,,Drowning
+offense,weapon_code,80,,Strangulation - Include Hanging
+offense,weapon_code,85,,Asphyxiation
+offense,weapon_code,90,,Other
+offense,weapon_code,95,,Unknown
+offense,weapon_code,99,,None
+property,drug_measure_code,DU,,Dosage Unit
+property,drug_measure_code,FO,,Fluid Ounce
+property,drug_measure_code,GL,,Gallon
+property,drug_measure_code,GM,,Gram
+property,drug_measure_code,KG,,Kilogram
+property,drug_measure_code,LB,,Pound
+property,drug_measure_code,LT,,Liter
+property,drug_measure_code,ML,,Milliliter
+property,drug_measure_code,NP,,Number of Plants
+property,drug_measure_code,OZ,,Ounce
+property,drug_measure_code,XX,,Not Reported
+property,property_description_code,01,,Aircraft
+property,property_description_code,02,,Alcohol
+property,property_description_code,03,,Automobile
+property,property_description_code,04,,Bicycles
+property,property_description_code,05,,Buses
+property,property_description_code,06,,Clothes/ Furs
+property,property_description_code,07,,Computer Hard/ Software
+property,property_description_code,08,,Consumable Goods
+property,property_description_code,09,,Credit/ Debit cards
+property,property_description_code,10,,Drugs/ Narcotics
+property,property_description_code,11,,Drug Equipment
+property,property_description_code,12,,Farm Equipment
+property,property_description_code,13,,Firearms
+property,property_description_code,14,,Gambling Equipment
+property,property_description_code,15,,Industrial Equipment
+property,property_description_code,16,,Household Goods
+property,property_description_code,17,,Jewelry/ Precious Metals
+property,property_description_code,18,,Livestock
+property,property_description_code,19,,Merchandise
+property,property_description_code,20,,Money
+property,property_description_code,21,,Negotiable Instruments
+property,property_description_code,22,,Non Negotiable Instruments
+property,property_description_code,23,,Office Equipment
+property,property_description_code,24,,Other Motor Vehicles
+property,property_description_code,25,,Purse/ Wallet
+property,property_description_code,26,,Radio/ TV/ VCR
+property,property_description_code,27,,Recordings
+property,property_description_code,28,,Recreational Vehicles
+property,property_description_code,29,,Structure/ Single dwelling
+property,property_description_code,30,,Structure/ Other residence
+property,property_description_code,31,,Structure/ Other commercial
+property,property_description_code,32,,Structure/ Other industrial
+property,property_description_code,33,,Structure/ Public
+property,property_description_code,34,,Structure/ Storage
+property,property_description_code,35,,Structure/ Other
+property,property_description_code,36,,Tools
+property,property_description_code,37,,Trucks
+property,property_description_code,38,,Vehicle Parts
+property,property_description_code,39,,Watercraft
+property,property_description_code,41,,Aircraft Parts/ Accessories
+property,property_description_code,42,,Artistic Supplies/ Accessories
+property,property_description_code,43,,Building Materials
+property,property_description_code,44,,Camping/ Hunting/ Fishing Equipment/ Supplies
+property,property_description_code,45,,Chemicals
+property,property_description_code,46,,Collections/ Collectibles
+property,property_description_code,47,,Crops
+property,property_description_code,48,,Documents/ Personal or Business
+property,property_description_code,49,,Explosives
+property,property_description_code,59,,Firearm Accessories
+property,property_description_code,64,,Fuel
+property,property_description_code,65,,Identity Documents
+property,property_description_code,66,,Identity-Intangible
+property,property_description_code,67,,Law Enforcement Equipment
+property,property_description_code,68,,Lawn/ Yard/ Garden Equipment
+property,property_description_code,69,,Logging Equipment
+property,property_description_code,70,,Medical/ Medical Lab Equipment
+property,property_description_code,71,,"Metals, Non-Precious"
+property,property_description_code,72,,Musical Instruments
+property,property_description_code,73,,Pets
+property,property_description_code,74,,Photographic/ Optical Equipment
+property,property_description_code,75,,Portable Electronic Communications
+property,property_description_code,76,,Recreational/ Sports Equipment
+property,property_description_code,77,,Other
+property,property_description_code,78,,Trailers
+property,property_description_code,79,,Watercraft Equipment/ Parts/ Accessories
+property,property_description_code,80,,Weapons-Other
+property,property_description_code,88,,Pending Inventory
+property,property_description_code,99,,Special
+property,property_loss_code,1,,None
+property,property_loss_code,2,,Burned
+property,property_loss_code,3,,Counterfeited/Forged
+property,property_loss_code,4,,Destroyed/Damaged/Vandalized
+property,property_loss_code,5,,Recovered
+property,property_loss_code,6,,Seized
+property,property_loss_code,7,,Stolen/Etc
+property,property_loss_code,8,,Unknown
+property,suspected_drug_code,A,,Crack Cocaine
+property,suspected_drug_code,B,,Cocaine
+property,suspected_drug_code,C,,Hashish
+property,suspected_drug_code,D,,Heroin
+property,suspected_drug_code,E,,Marijuana
+property,suspected_drug_code,F,,Morphine
+property,suspected_drug_code,G,,Opium
+property,suspected_drug_code,H,,Other Narcotics
+property,suspected_drug_code,I,,LSD
+property,suspected_drug_code,J,,PCP
+property,suspected_drug_code,K,,Other Hallucingens
+property,suspected_drug_code,L,,Meth/ Amphetamines
+property,suspected_drug_code,M,,Other Stimulants
+property,suspected_drug_code,N,,Barbiturates
+property,suspected_drug_code,O,,Other Depressants
+property,suspected_drug_code,P,,Other Drugs
+property,suspected_drug_code,U,,Unknown
+property,suspected_drug_code,X,,More Than 3 Types
+ucr_summary,breakdown_reported_flag,P,,The agency reported the breakdown offenses as well as the totals
+ucr_summary,breakdown_reported_flag,T,,The agency reported only the totals
+ucr_summary,offense_code,assault_firearm,,Aggravated assault with a firearm
+ucr_summary,offense_code,assault_hands_feet,,"Aggravated assault with hands, fists or feet"
+ucr_summary,offense_code,assault_knife,,Aggravated assault with a knife or cutting instrument
+ucr_summary,offense_code,assault_other_weapon,,Aggravated assault with another dangerous weapon
+ucr_summary,offense_code,assault_simple,,Simple assault
+ucr_summary,offense_code,assault_total,,"Assault, total, aggravated and simple combined"
+ucr_summary,offense_code,attempted_rape,,Attempted rape
+ucr_summary,offense_code,burglary_attempted,,Attempted forcible entry
+ucr_summary,offense_code,burglary_forcible_entry,,Burglary with forcible entry
+ucr_summary,offense_code,burglary_total,,"Burglary and breaking or entering, total"
+ucr_summary,offense_code,burglary_unlawful_entry,,Burglary with unlawful entry and no force
+ucr_summary,offense_code,grand_total,,Grand total of all offense line items
+ucr_summary,offense_code,larceny_total,,"Larceny-theft, total, excluding motor vehicle theft"
+ucr_summary,offense_code,manslaughter,,Manslaughter by negligence
+ucr_summary,offense_code,motor_vehicle_theft_auto,,Theft of an automobile
+ucr_summary,offense_code,motor_vehicle_theft_other,,Theft of another type of vehicle
+ucr_summary,offense_code,motor_vehicle_theft_total,,"Motor vehicle theft, total"
+ucr_summary,offense_code,motor_vehicle_theft_truck_bus,,Theft of a truck or bus
+ucr_summary,offense_code,murder,,Murder and non-negligent manslaughter
+ucr_summary,offense_code,rape_by_force,,Rape by force
+ucr_summary,offense_code,rape_total,,"Rape, total"
+ucr_summary,offense_code,robbery_firearm,,Robbery with a firearm
+ucr_summary,offense_code,robbery_knife,,Robbery with a knife or cutting instrument
+ucr_summary,offense_code,robbery_other_weapon,,Robbery with another dangerous weapon
+ucr_summary,offense_code,robbery_strong_arm,,"Strong-arm robbery, using hands, fists or feet"
+ucr_summary,offense_code,robbery_total,,"Robbery, total"
+ucr_summary,record_type_code,0,,Not updated
+ucr_summary,record_type_code,2,,Adjustment to a previously filed month
+ucr_summary,record_type_code,4,,Not available
+ucr_summary,record_type_code,5,,Normal return
+ucr_summary,record_type_code,8,,Included but unusable
+victim,activity_type_code,01,,Responding to Disturbance Call
+victim,activity_type_code,02,,Burglaries in Progress or Pursuing Burglary Suspects
+victim,activity_type_code,03,,Robberies in Progress or Pusuing Robbery Suspects
+victim,activity_type_code,04,,Attempting Other Arrests
+victim,activity_type_code,05,,Civil Disorder
+victim,activity_type_code,06,,"Handling, Transporting, Custody of Prisoners"
+victim,activity_type_code,07,,Investigating Suspicious Persons or Circumstances
+victim,activity_type_code,08,,Ambush - No Warning
+victim,activity_type_code,09,,Handling Persons with Mental Illness
+victim,activity_type_code,10,,Traffic Pursuits and Stops
+victim,activity_type_code,11,,All Other
+victim,age_code,00,,Unknown
+victim,age_code,01,,1 Years Old
+victim,age_code,02,,2 Years Old
+victim,age_code,03,,3 Years Old
+victim,age_code,04,,4 Years Old
+victim,age_code,05,,5 Years Old
+victim,age_code,06,,6 Years Old
+victim,age_code,07,,7 Years Old
+victim,age_code,08,,8 Years Old
+victim,age_code,09,,9 Years Old
+victim,age_code,10,,10 Years Old
+victim,age_code,11,,11 Years Old
+victim,age_code,12,,12 Years Old
+victim,age_code,13,,13 Years Old
+victim,age_code,14,,14 Years Old
+victim,age_code,15,,15 Years Old
+victim,age_code,16,,16 Years Old
+victim,age_code,17,,17 Years Old
+victim,age_code,18,,18 Years Old
+victim,age_code,19,,19 Years Old
+victim,age_code,20,,20 Years Old
+victim,age_code,21,,21 Years Old
+victim,age_code,22,,22 Years Old
+victim,age_code,23,,23 Years Old
+victim,age_code,24,,24 Years Old
+victim,age_code,25,,25 Years Old
+victim,age_code,26,,26 Years Old
+victim,age_code,27,,27 Years Old
+victim,age_code,28,,28 Years Old
+victim,age_code,29,,29 Years Old
+victim,age_code,30,,30 Years Old
+victim,age_code,31,,31 Years Old
+victim,age_code,32,,32 Years Old
+victim,age_code,33,,33 Years Old
+victim,age_code,34,,34 Years Old
+victim,age_code,35,,35 Years Old
+victim,age_code,36,,36 Years Old
+victim,age_code,37,,37 Years Old
+victim,age_code,38,,38 Years Old
+victim,age_code,39,,39 Years Old
+victim,age_code,40,,40 Years Old
+victim,age_code,41,,41 Years Old
+victim,age_code,42,,42 Years Old
+victim,age_code,43,,43 Years Old
+victim,age_code,44,,44 Years Old
+victim,age_code,45,,45 Years Old
+victim,age_code,46,,46 Years Old
+victim,age_code,47,,47 Years Old
+victim,age_code,48,,48 Years Old
+victim,age_code,49,,49 Years Old
+victim,age_code,50,,50 Years Old
+victim,age_code,51,,51 Years Old
+victim,age_code,52,,52 Years Old
+victim,age_code,53,,53 Years Old
+victim,age_code,54,,54 Years Old
+victim,age_code,55,,55 Years Old
+victim,age_code,56,,56 Years Old
+victim,age_code,57,,57 Years Old
+victim,age_code,58,,58 Years Old
+victim,age_code,59,,59 Years Old
+victim,age_code,60,,60 Years Old
+victim,age_code,61,,61 Years Old
+victim,age_code,62,,62 Years Old
+victim,age_code,63,,63 Years Old
+victim,age_code,64,,64 Years Old
+victim,age_code,65,,65 Years Old
+victim,age_code,66,,66 Years Old
+victim,age_code,67,,67 Years Old
+victim,age_code,68,,68 Years Old
+victim,age_code,69,,69 Years Old
+victim,age_code,70,,70 Years Old
+victim,age_code,71,,71 Years Old
+victim,age_code,72,,72 Years Old
+victim,age_code,73,,73 Years Old
+victim,age_code,74,,74 Years Old
+victim,age_code,75,,75 Years Old
+victim,age_code,76,,76 Years Old
+victim,age_code,77,,77 Years Old
+victim,age_code,78,,78 Years Old
+victim,age_code,79,,79 Years Old
+victim,age_code,80,,80 Years Old
+victim,age_code,81,,81 Years Old
+victim,age_code,82,,82 Years Old
+victim,age_code,83,,83 Years Old
+victim,age_code,84,,84 Years Old
+victim,age_code,85,,85 Years Old
+victim,age_code,86,,86 Years Old
+victim,age_code,87,,87 Years Old
+victim,age_code,88,,88 Years Old
+victim,age_code,89,,89 Years Old
+victim,age_code,90,,90 Years Old
+victim,age_code,91,,91 Years Old
+victim,age_code,92,,92 Years Old
+victim,age_code,93,,93 Years Old
+victim,age_code,94,,94 Years Old
+victim,age_code,95,,95 Years Old
+victim,age_code,96,,96 Years Old
+victim,age_code,97,,97 Years Old
+victim,age_code,98,,98 Years Old
+victim,age_code,99,,Over 98 Years Old
+victim,age_code,AG,,Age in Years
+victim,age_code,BB,,7-364 Days Old
+victim,age_code,NB,,1-6 Days Old
+victim,age_code,NN,,Under 24 Hours
+victim,age_code,NS,,Not Specified
+victim,assignment_type_code,F,,Two-Officer Vehicle
+victim,assignment_type_code,G,,One-Officer (Alone)
+victim,assignment_type_code,H,,One-Officer (Assisted)
+victim,assignment_type_code,I,,Detective or Special Assignment (Alone)
+victim,assignment_type_code,J,,Detective or Special Assignment (Assisted)
+victim,assignment_type_code,K,,Other (Alone)
+victim,assignment_type_code,L,,Other (Assisted)
+victim,ethnicity_code,H,,Hispanic or Latino
+victim,ethnicity_code,M,,Multiple
+victim,ethnicity_code,N,,Not Hispanic or Latino
+victim,ethnicity_code,U,,Unknown
+victim,ethnicity_code,X,,Not Specified
+victim,injury_code,B,,Apparent Broken Bones
+victim,injury_code,G,,Gunshot Wound
+victim,injury_code,I,,Possible Internal Injury
+victim,injury_code,L,,Severe Laceration
+victim,injury_code,M,,Minor Injury
+victim,injury_code,N,,None
+victim,injury_code,O,,Other Major Injury
+victim,injury_code,T,,Loss of Teeth
+victim,injury_code,U,,Unconscious
+victim,race_code,A,,Asian
+victim,race_code,AP,,"Asian, Native Hawaiian, or Other Pacific Islander"
+victim,race_code,B,,Black or African American
+victim,race_code,C,,Chinese
+victim,race_code,I,,American Indian or Alaska Native
+victim,race_code,J,,Japanese
+victim,race_code,M,,Multiple
+victim,race_code,NS,,Not Specified
+victim,race_code,O,,Other
+victim,race_code,P,,Native Hawaiian or Other Pacific Islander
+victim,race_code,U,,Unknown
+victim,race_code,W,,White
+victim,resident_status_code,N,,Non-resident
+victim,resident_status_code,R,,Resident of the locality
+victim,resident_status_code,U,,Unknown
+victim,sex_code,F,,Female
+victim,sex_code,M,,Male
+victim,sex_code,U,,Unknown
+victim,victim_type_code,B,,Business
+victim,victim_type_code,F,,Financial Institution
+victim,victim_type_code,G,,Government
+victim,victim_type_code,I,,Individual
+victim,victim_type_code,L,,Law Enforcement Officer
+victim,victim_type_code,O,,Other
+victim,victim_type_code,R,,Religious Organization
+victim,victim_type_code,S,,Society/Public
+victim,victim_type_code,U,,Unknown
+victim_offender_relationship,relationship_code,AQ,,Victim Was Acquaintance
+victim_offender_relationship,relationship_code,BE,,Victim Was Babysittee
+victim_offender_relationship,relationship_code,BG,,Victim Was Boyfriend/Girlfriend
+victim_offender_relationship,relationship_code,CF,,Victim Was Child of Boyfriend or Girlfriend
+victim_offender_relationship,relationship_code,CH,,Victim Was Child
+victim_offender_relationship,relationship_code,CO,,Cohabitant (non-intimate relationship)
+victim_offender_relationship,relationship_code,CS,,Victim Was Common-Law Spouse
+victim_offender_relationship,relationship_code,EE,,Victim was Employee
+victim_offender_relationship,relationship_code,ER,,Victim was Employer
+victim_offender_relationship,relationship_code,FC,,Victim was Foster Child
+victim_offender_relationship,relationship_code,FP,,Victim was Foster Parent
+victim_offender_relationship,relationship_code,FR,,Victim Was Friend
+victim_offender_relationship,relationship_code,GC,,Victim Was Grandchild
+victim_offender_relationship,relationship_code,GP,,Victim Was Grandparent
+victim_offender_relationship,relationship_code,HR,,Homosexual Relationship
+victim_offender_relationship,relationship_code,IL,,Victim Was In-law
+victim_offender_relationship,relationship_code,NE,,Victim Was Neighbor
+victim_offender_relationship,relationship_code,OF,,Victim Was Other Family Member
+victim_offender_relationship,relationship_code,OK,,Victim was Otherwise Known
+victim_offender_relationship,relationship_code,PA,,Victim Was Parent
+victim_offender_relationship,relationship_code,RU,,Relationship Unknown
+victim_offender_relationship,relationship_code,SB,,Victim Was Sibling
+victim_offender_relationship,relationship_code,SC,,Victim Was Stepchild
+victim_offender_relationship,relationship_code,SE,,Victim Was Spouse
+victim_offender_relationship,relationship_code,SP,,Victim Was Stepparent
+victim_offender_relationship,relationship_code,SS,,Victim Was Stepsibling
+victim_offender_relationship,relationship_code,ST,,Victim Was Stranger
+victim_offender_relationship,relationship_code,VO,,Victim Was Offender
+victim_offender_relationship,relationship_code,XR,,Victim Was Ex-Relationship (Ex-Boyfriend/Girlfriend)
+victim_offender_relationship,relationship_code,XS,,Victim was Ex-Spouse

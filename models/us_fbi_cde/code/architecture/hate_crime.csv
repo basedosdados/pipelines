@@ -1,0 +1,27 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,"Ano de referência dos dados, usado como coluna de partição",,no,diretorios_data_tempo.ano:ano,year,no,,data_year
+state_abbr,STRING,"Sigla de duas letras do estado, distrito ou território da agência",,no,,,no,,state_abbr
+ori,STRING,"Originating Agency Identifier, o identificador da agência policial no programa UCR e a chave de junção entre as tabelas",,no,,,no,Nove caracteres a partir de 2000 e sete caracteres antes disso; 'legacy_ori' na tabela agency guarda a forma curta. Nine characters from 2000 onward and seven before that; 'legacy_ori' on the agency table holds the short form.,ori
+incident_id,STRING,Identificador do incidente de crime de ódio atribuído pelo FBI,,no,,,no,Numeração própria da série de crimes de ódio; não corresponde ao 'incident_id' das tabelas do NIBRS. Numbered within the hate crime series; it does not correspond to 'incident_id' in the NIBRS tables.,incident_id
+incident_date,DATE,Data em que o incidente ocorreu,,no,,,no,,incident_date
+agency_name,STRING,Nome público da agência que registrou o incidente,,no,,,no,,pug_agency_name
+agency_unit,STRING,Unidade ou subdivisão da agência que registrou o incidente,,no,,,no,,pub_agency_unit
+agency_type,STRING,Tipo da agência que registrou o incidente,,no,,,no,,agency_type_name
+division_name,STRING,Divisão censitária dos Estados Unidos em que a agência se localiza,,no,,,no,,division_name
+region_name,STRING,Região censitária dos Estados Unidos em que a agência se localiza,,no,,,no,,region_name
+population_group_code,STRING,Código do grupo populacional do UCR da agência,,yes,,,no,,population_group_code
+offense_name,STRING,"Nomes das ofensas do incidente, separados por ponto e vírgula quando há mais de uma",,no,,,no,,offense_name
+bias_description,STRING,"Descrições da motivação por preconceito, separadas por ponto e vírgula quando há mais de uma",,no,,,no,,bias_desc
+location_name,STRING,Nome do tipo de local em que o incidente ocorreu,,no,,,no,,location_name
+victim_types,STRING,"Tipos de vítima do incidente, separados por ponto e vírgula quando há mais de um",,no,,,no,,victim_types
+victim_count,INT64,"Número de vítimas do incidente, contando vítimas que não são pessoas",,no,,victim,no,,victim_count
+individual_victim_count,INT64,Número de vítimas individuais do incidente,,no,,person,no,,total_individual_victims
+adult_victim_count,INT64,Número de vítimas adultas do incidente,,no,,person,no,,adult_victim_count
+juvenile_victim_count,INT64,Número de vítimas menores de 18 anos do incidente,,no,,person,no,,juvenile_victim_count
+offender_count,INT64,Número de agressores do incidente,,no,,person,no,O valor 0 indica que o número de agressores é desconhecido. The value 0 indicates that the number of offenders is unknown.,total_offender_count
+adult_offender_count,INT64,Número de agressores adultos do incidente,,no,,person,no,,adult_offender_count
+juvenile_offender_count,INT64,Número de agressores menores de 18 anos do incidente,,no,,person,no,,juvenile_offender_count
+offender_race,STRING,Raça percebida dos agressores do incidente,,no,,,no,,offender_race
+offender_ethnicity,STRING,Etnia percebida dos agressores do incidente,,no,,,no,,offender_ethnicity
+multiple_offense_flag,STRING,Indica se o incidente envolveu mais de uma ofensa,,yes,,,no,,multiple_offense
+multiple_bias_flag,STRING,Indica se o incidente envolveu mais de uma motivação por preconceito,,yes,,,no,,multiple_bias
