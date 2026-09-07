@@ -3,4 +3,4 @@ year,INT64,"Ano de referência dos dados, usado como coluna de partição",,no,d
 state_abbr,STRING,"Sigla de duas letras do estado, distrito ou território da agência",,no,,,no,,state_abbr
 victim_id,STRING,Identificador da vítima,,no,,,no,,victim_id
 offender_id,STRING,Identificador do agressor,,no,,,no,,offender_id
-relationship_code,STRING,Código da relação da vítima com o agressor,,yes,,,no,Obrigatório apenas quando o incidente inclui um crime contra a pessoa ou um roubo. Mandatory only when the incident includes a crime against a person or a robbery.,relationship_id
+relationship_code,STRING,Código da relação da vítima com o agressor,,yes,,,no,"Obrigatório apenas quando o incidente inclui um crime contra a pessoa ou um roubo. Sete pares vítima-agressor em 68,9 milhões trazem duas relações distintas, registradas assim pela própria agência, e por isso o código integra a chave da tabela. Mandatory only when the incident includes a crime against a person or a robbery. Seven victim-offender pairs out of 68.9 million carry two distinct relationships, recorded that way by the agency itself, which is why the code forms part of the table's key.",relationship_id

@@ -908,8 +908,13 @@ VICTIM_OFFENDER_RELATIONSHIP = [
         dictionary="yes",
         observations=(
             "Obrigatório apenas quando o incidente inclui um crime contra a "
-            "pessoa ou um roubo. Mandatory only when the incident includes a "
-            "crime against a person or a robbery."
+            "pessoa ou um roubo. Sete pares vítima-agressor em 68,9 milhões "
+            "trazem duas relações distintas, registradas assim pela própria "
+            "agência, e por isso o código integra a chave da tabela. Mandatory "
+            "only when the incident includes a crime against a person or a "
+            "robbery. Seven victim-offender pairs out of 68.9 million carry two "
+            "distinct relationships, recorded that way by the agency itself, "
+            "which is why the code forms part of the table's key."
         ),
         original="relationship_id",
     ),
@@ -1624,7 +1629,13 @@ TABLES = {
     "victim_offender_relationship": {
         "columns": VICTIM_OFFENDER_RELATIONSHIP,
         "partitions": ["year", "state_abbr"],
-        "unique_key": ["year", "state_abbr", "victim_id", "offender_id"],
+        "unique_key": [
+            "year",
+            "state_abbr",
+            "victim_id",
+            "offender_id",
+            "relationship_code",
+        ],
         "first_year": 1991,
         "last_year": 2025,
     },
