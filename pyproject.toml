@@ -292,6 +292,14 @@ project-excludes = [
   # used only by the `--validate` name cross-check and deliberately kept out of
   # pyproject, since the directory is a static one-off load with no pipeline.
   "models/br_bd_diretorios_cl/code",
+  # Same policy: cl_chilecompra_mercado_publico onboarding code is standalone
+  # one-shot `.py` (build_columns_json.py, generate_dbt.py, upload.py,
+  # register_metadata.py run via `uv run`) using bare `import metadata_spec` /
+  # `import descriptions_i18n` and the databasis MCP's `import server`, all
+  # resolved via sys.path.insert and unresolvable from the repo root. The shared
+  # transform lives in the typed pipelines/datasets/cl_chilecompra_mercado_publico/
+  # and is type-checked there.
+  "models/cl_chilecompra_mercado_publico/code",
   # Same policy: br_bd_execucao_estadual onboarding code is standalone one-shot
   # `.py` (download_*.py, clean_*.py, upload.py, validate_*.py,
   # register_columns.py run via `uv run`) using bare `import constants` /
