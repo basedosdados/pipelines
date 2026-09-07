@@ -8,7 +8,46 @@ one-day sample of `contrato`, 71% of records were municipal, 13% state and 13% f
 Coverage starts 2021 (Lei 14.133/2021), but adoption ramps steeply — 5.3k contratos in
 2021 against 2.02M in 2025.
 
-## Status: PAUSED — PNCP consulta API is down (2026-09-02)
+## Status: HARVEST COMPLETE, audited clean (2026-09-07)
+
+All four tables fully harvested. The coverage audit reports **0 problems
+across 8,925 windows** -- nothing missing, nothing truncated:
+
+| table | windows | staging rows |
+|---|---|---|
+| `contratacao` | 7518/7518 | 4,003,718 |
+| `contrato` | 305/305 | 4,707,847 |
+| `ata_registro_preco` | 1033/1033 | 1,137,524 |
+| `instrumento_cobranca` | 69/69 | 215,382 |
+| `dicionario` | -- | 222 |
+
+**The modalidade-coverage worry did not materialise.** m08 (Dispensa de
+Licitação) failed repeatedly during the concurrency problem, and a table
+silently missing a procurement route would have passed every dbt test.
+Every one of those failures recovered on retry: the audit shows no spike in
+any modalidade, and the rebuilt dictionary independently derives all **14**
+`id_modalidade` keys from the data itself.
+
+Getting there took three passes, which is the point of auditing separately
+from the harvest's own success report: the harvest said "done" at 7,499
+chunks, the audit found 19 missing, a sweep recovered 18, and the audit
+named the last one (`20250909_20250910_m09`, which then fetched cleanly in
+127s).
+
+`contratacao` by year, the same PNCP adoption curve as the other tables:
+
+| 2021 | 2022 | 2023 | 2024 | 2025 | 2026 (to Aug) |
+|---|---|---|---|---|---|
+| 7,236 | 62,207 | 252,580 | 1,231,772 | 1,462,732 | 987,191 |
+
+### A real PNCP-side defect worth knowing
+
+Some `contratacoes/publicacao` pages answer `HTTP 400 "For input string:
+\"\""` -- their API failing to parse its own stored data. Seen on m09
+windows at pages 8 and 18. Those recovered on retry, but the recurring
+pipeline will meet it again; it is not a bug in this code.
+
+## Earlier: PAUSED — PNCP consulta API is down (2026-09-02)
 
 The harvest is stopped because the API stopped answering, not because of
 anything here. Measured 2026-09-02 23:0x:
