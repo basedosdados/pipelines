@@ -59,6 +59,24 @@ COVERAGE = {
 }
 
 
+def newest_month_per_kind(manifest: list[dict]) -> list[dict]:
+    """The latest month the source exposes, one entry per kind.
+
+    Used only by ``force_run`` when nothing is stale, to give the run something real to
+    do. One month per kind is the smallest slice that still covers every table.
+    """
+    newest: dict[str, dict] = {}
+    for entry in manifest:
+        key = entry["kind"]
+        current = newest.get(key)
+        if current is None or (entry["year"], entry["month"]) > (
+            current["year"],
+            current["month"],
+        ):
+            newest[key] = entry
+    return [newest[k] for k in sorted(newest)]
+
+
 @flow(name="cl_chilecompra_mercado_publico")
 def cl_chilecompra_mercado_publico_flow(
     lookback_days: int = constants.DEFAULT_LOOKBACK_DAYS.value,
@@ -92,16 +110,22 @@ def cl_chilecompra_mercado_publico_flow(
             max_date,
         )
 
-        # Recorded for metadata hygiene (it writes the Poll), but deliberately NOT the gate:
-        # a retroactive rewrite of a closed month leaves the source's max coverage date
-        # unchanged, so gating on it would make the pipeline ignore real revisions.
-        poll_source_for_update_task(
-            dataset_id=DATASET_ID,
-            table_id="orden_compra_item",
-            source_max_date=max_date,
-            env="prod",
-            date_format="%Y-%m-%d",
-        )
+        # Recorded for metadata hygiene (it writes the Poll), but deliberately NOT the
+        # gate: a retroactive rewrite of a closed month leaves the source's max coverage
+        # date unchanged, so gating on it would make the pipeline ignore real revisions.
+        #
+        # Gated on update_metadata because the task is pinned env="prod" no matter which
+        # pool the run is on. Ungated, a validation run on the dev pool with
+        # update_metadata=False still writes a Poll into PRODUCTION metadata -- the one
+        # prod write a "dev, no metadata" run is supposed to be incapable of making.
+        if update_metadata:
+            poll_source_for_update_task(
+                dataset_id=DATASET_ID,
+                table_id="orden_compra_item",
+                source_max_date=max_date,
+                env="prod",
+                date_format="%Y-%m-%d",
+            )
 
         stale = select_stale_months_task(manifest, lookback_days, force_all)
         logger.info(
@@ -110,9 +134,21 @@ def cl_chilecompra_mercado_publico_flow(
             lookback_days,
             [f"{e['kind']} {e['year']}-{e['month']:02d}" for e in stale],
         )
-        if not stale and not force_run:
-            logger.info("Não há novas atualizações na fonte original")
-            return
+        if not stale:
+            if not force_run:
+                logger.info("Não há novas atualizações na fonte original")
+                return
+            # force_run means "run even though nothing looks stale", and its whole
+            # purpose is validating the flow end to end. Proceeding with an empty list
+            # ingested nothing, uploaded nothing and ran no dbt, yet still reached the
+            # metadata block and committed a source Update -- a green run proving
+            # nothing. Fall back to the newest month of each kind so a forced run
+            # actually exercises download, clean, upload and dbt.
+            stale = newest_month_per_kind(manifest)
+            logger.info(
+                "force_run with nothing stale: falling back to %s",
+                [f"{e['kind']} {e['year']}-{e['month']:02d}" for e in stale],
+            )
 
         ingested = []
         for entry in stale:
@@ -122,6 +158,14 @@ def cl_chilecompra_mercado_publico_flow(
         touched = sorted(
             {t for e in stale for t in constants.TABLES.value[e["kind"]]}
         )
+        if not touched:
+            # Nothing was built, so there is nothing to record. Falling through would
+            # register a materialization and commit a source Update for a run that
+            # ingested no rows, advancing the source watermark past data never loaded.
+            logger.warning(
+                "no table was touched; skipping upload and metadata"
+            )
+            return
         output_root = f"{scratch_root}/output"
 
         # dev: upload and run every table first, then test. Interleaving run and test per
