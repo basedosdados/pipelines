@@ -127,6 +127,8 @@ OBSERVATIONS = {
     "wage_unit_of_pay": "Harmonised by Data Basis from vocabularies that differ by year and program (Hour, HR, Hourly all become hour)",
     "prevailing_wage_unit_of_pay": "Harmonised by Data Basis in the same way as wage_unit_of_pay",
     "worksite_city": "Primary worksite only. Applications covering several worksites list the rest in the companion Appendix A and Addendum B files, which are not part of this table",
+    "total_worksite_locations": "Count of worksite locations. Left without a measurement unit because the Data Basis unit vocabulary has no entry for a worksite; the value is a plain count",
+    "total_worksite_records": "Count of worksite records attached to the application. Left without a measurement unit for the same reason as total_worksite_locations",
     "source_file": "Provenance. Names the Department of Labor workbook the row came from, which identifies the form version behind the row",
 }
 

@@ -55,5 +55,5 @@ housing_state,STRING,USPS two-letter abbreviation of the state of the housing th
 housing_type,STRING,Type of housing the employer provides to the workers,,no,,,no,,
 housing_total_occupancy,INT64,Total number of workers the provided housing can accommodate,,no,,person,no,,
 meals_provided,STRING,Whether the employer provides meals to the workers,,yes,,,no,,
-total_worksite_records,INT64,Total number of worksite records attached to the application,,no,,,no,,
+total_worksite_records,INT64,Total number of worksite records attached to the application,,no,,,no,Count of worksite records attached to the application. Left without a measurement unit for the same reason as total_worksite_locations,
 source_file,STRING,Name of the Department of Labor disclosure file the row was read from,,no,,,no,"Provenance. Names the Department of Labor workbook the row came from, which identifies the form version behind the row",

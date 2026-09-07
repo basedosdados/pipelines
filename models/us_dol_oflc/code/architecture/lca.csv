@@ -47,7 +47,7 @@ new_concurrent_employment,INT64,Number of worker positions requested for new con
 change_employer,INT64,Number of worker positions requested for a change of employer,,no,,person,no,,
 amended_petition,INT64,Number of worker positions requested on an amended petition,,no,,person,no,,
 worksite_workers,INT64,Number of workers assigned to the primary worksite,,no,,person,no,,
-total_worksite_locations,INT64,Total number of worksite locations listed on the application,,no,,,no,,
+total_worksite_locations,INT64,Total number of worksite locations listed on the application,,no,,,no,Count of worksite locations. Left without a measurement unit because the Data Basis unit vocabulary has no entry for a worksite; the value is a plain count,
 secondary_entity,STRING,Whether the worker will be placed at a secondary entity rather than at the employer's own premises,,yes,,,no,,
 secondary_entity_business_name,STRING,Business name of the secondary entity where the worker will be placed,,no,,,no,,
 h1b_dependent,STRING,Whether the employer is H-1B dependent under the statutory ratio of H-1B workers to total workforce,,yes,,,no,,
