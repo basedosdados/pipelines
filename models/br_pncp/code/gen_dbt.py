@@ -3,6 +3,17 @@
 The architecture is the source of truth for column order, types and
 descriptions, so the SQL and the YAML are derived from it rather than
 hand-maintained alongside it.
+
+Run the repo's formatters afterwards, or the next commit will show a diff
+that looks like a regeneration bug and is not one -- sqlfmt and yamlfix
+reshape this output, and pre-commit.ci will do it for you on the PR if you
+do not do it here:
+
+    uv run python models/br_pncp/code/gen_dbt.py
+    uv run pre-commit run sqlfmt  --files models/br_pncp/*.sql
+    uv run pre-commit run yamlfix --files models/br_pncp/schema.yml
+
+That sequence is idempotent: it reproduces the committed files exactly.
 """
 
 from __future__ import annotations
@@ -344,6 +355,12 @@ def main() -> None:
     schema = MODELS_DIR / "schema.yml"
     schema.write_text(schema_yaml(), encoding="utf-8")
     print(f"wrote {schema.name}")
+    print(
+        "\nNow run the formatters, or these files will differ from what is "
+        "committed:\n"
+        "  uv run pre-commit run sqlfmt  --files models/br_pncp/*.sql\n"
+        "  uv run pre-commit run yamlfix --files models/br_pncp/schema.yml"
+    )
 
 
 if __name__ == "__main__":
