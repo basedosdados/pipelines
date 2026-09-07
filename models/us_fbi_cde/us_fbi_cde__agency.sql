@@ -16,7 +16,6 @@
 select
     safe_cast(year as int64) year,
     safe_cast(ori as string) ori,
-    safe_cast(legacy_ori as string) legacy_ori,
     safe_cast(state_id as string) state_id,
     safe_cast(state_abbr as string) state_abbr,
     safe_cast(county_id as string) county_id,

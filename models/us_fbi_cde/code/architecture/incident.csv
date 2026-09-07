@@ -1,7 +1,7 @@
 name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
 year,INT64,"Ano de referência dos dados, usado como coluna de partição",,no,diretorios_data_tempo.ano:ano,year,no,,data_year
 state_abbr,STRING,"Sigla de duas letras do estado, distrito ou território da agência",,no,,,no,,state_abbr
-ori,STRING,"Originating Agency Identifier, o identificador da agência policial no programa UCR e a chave de junção entre as tabelas",,no,,,no,Nove caracteres a partir de 2000 e sete caracteres antes disso; 'legacy_ori' na tabela agency guarda a forma curta. Nine characters from 2000 onward and seven before that; 'legacy_ori' on the agency table holds the short form.,ori
+ori,STRING,"Originating Agency Identifier, o identificador da agência policial no programa UCR e a chave de junção entre as tabelas",,no,,,no,"Nove caracteres: o ORI de sete caracteres do NCIC seguido de um sufixo de duas posições que identifica a subunidade, '00' para a própria agência. Nine characters: the seven-character NCIC ORI followed by a two-digit sub-unit suffix, '00' for the agency itself.",ori
 incident_id,STRING,"Identificador do incidente atribuído pelo FBI, único dentro do ano",,no,,,no,,incident_id
 incident_date,DATE,Data em que o incidente ocorreu,,no,,,no,,incident_date
 incident_hour,STRING,"Hora do dia em que o incidente ocorreu, de 00 a 23",,no,,,no,Nulo quando a agência não informou a hora. Null when the agency did not report the hour.,incident_hour

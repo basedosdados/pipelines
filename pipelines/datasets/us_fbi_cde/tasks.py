@@ -128,18 +128,6 @@ def clean_window(work_dir: str, downloads: dict) -> dict:
         participation.append(tables["_participation"])
         attributes.append(tables["_agency_attributes"])
 
-    # Return A carries only the seven-character legacy ORI. The NIBRS agency
-    # tables in the same window carry both forms, so they supply the crosswalk;
-    # agencies absent from NIBRS fall back to the append-"00" rule.
-    crosswalk = {}
-    for frame in attributes:
-        if frame is None or frame.empty:
-            continue
-        pairs = frame.dropna(subset=["ori", "legacy_ori"])
-        crosswalk.update(
-            dict(zip(pairs["legacy_ori"], pairs["ori"], strict=False))
-        )
-
     for zip_path, year in downloads["reta"]:
         summary, agency = parse_reta_file(zip_path, year)
         if summary.empty:
@@ -153,10 +141,12 @@ def clean_window(work_dir: str, downloads: dict) -> dict:
             summary[column] = summary[column].map(
                 lambda v: None if pd.isna(v) else str(int(v))
             )
+        # A modern ORI is the seven-character NCIC ORI plus a two-digit
+        # sub-unit suffix, and a Return A record is filed by the parent agency.
+        # The NIBRS bundles' own legacy_ori column is a nine-character alternate
+        # ORI, not the short form, so it is no use as a crosswalk.
         summary["ori"] = summary["legacy_ori"].map(
-            lambda v: (
-                crosswalk.get(v, f"{v}00") if isinstance(v, str) else None
-            )
+            lambda v: f"{v}00" if isinstance(v, str) and v else None
         )
         write_partition(summary, "ucr_summary", output, {"year": str(year)})
         reta_agency.append(agency)
@@ -241,13 +231,7 @@ def _write_agency(
     )
     agency = agency.merge(
         attrs.drop_duplicates(["year", "ori"])[
-            [
-                "year",
-                "ori",
-                "legacy_ori",
-                "nibrs_start_date",
-                "nibrs_participated",
-            ]
+            ["year", "ori", "nibrs_start_date", "nibrs_participated"]
         ],
         on=["year", "ori"],
         how="left",

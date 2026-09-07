@@ -129,7 +129,7 @@ def pass_nibrs(limit=None, workers=4):
 
 def clean_one_reta(args):
     """Parse one Return A year and write its ucr_summary partition."""
-    zip_path, year, crosswalk = args
+    zip_path, year = args
     summary, agency = parse_reta_file(zip_path, year)
     if summary.empty:
         return year, 0
@@ -145,34 +145,16 @@ def clean_one_reta(args):
     sidecar = SIDECAR / "reta"
     sidecar.mkdir(parents=True, exist_ok=True)
     agency.to_parquet(sidecar / f"agency_{year}.parquet", index=False)
-    # Return A carries only the seven-character legacy ORI. The nine-character
-    # form comes from the NIBRS agency tables, which carry both; agencies absent
-    # from NIBRS fall back to the append-"00" rule those tables establish.
-    summary["ori"] = summary["legacy_ori"].map(
-        lambda v: crosswalk.get(v, f"{v}00") if isinstance(v, str) else None
-    )
+    summary["ori"] = summary["legacy_ori"].map(modern_ori)
     write_partition(summary, "ucr_summary", OUTPUT, {"year": str(year)})
     return year, len(summary)
 
 
 def pass_reta(limit=None, workers=4):
-    crosswalk, rule_matches = legacy_ori_crosswalk()
-    if not crosswalk:
-        raise SystemExit(
-            "no legacy ORI crosswalk: run the nibrs step first, or ucr_summary "
-            "would be written with no join key to the other tables"
-        )
-    share = rule_matches / len(crosswalk)
-    print(
-        f"legacy ORI crosswalk: {len(crosswalk):,} agencies, "
-        f"{rule_matches:,} ({share:.1%}) follow the legacy+'00' rule"
-    )
     files = sorted((INPUT / "reta").glob("reta-[0-9]*.zip"))
     if limit:
         files = files[:limit]
-    jobs = [
-        (str(path), int(path.stem.split("-")[1]), crosswalk) for path in files
-    ]
+    jobs = [(str(path), int(path.stem.split("-")[1])) for path in files]
     total = 0
     with ProcessPoolExecutor(workers) as pool:
         for year, rows in pool.map(clean_one_reta, jobs):
@@ -228,21 +210,36 @@ def county_crosswalk():
     return lookup, states
 
 
-def legacy_ori_crosswalk():
-    """Map the seven-character legacy ORI to the nine-character modern one."""
-    frames = []
-    for path in sorted((SIDECAR / "nibrs").glob("attributes_*.parquet")):
-        frames.append(pd.read_parquet(path, columns=["ori", "legacy_ori"]))
-    if not frames:
-        return {}, 0
-    combined = pd.concat(frames, ignore_index=True).dropna()
-    combined = combined[combined["legacy_ori"].str.len() == 7]
-    combined = combined.drop_duplicates(subset=["legacy_ori"])
-    crosswalk = dict(
-        zip(combined["legacy_ori"], combined["ori"], strict=False)
-    )
-    matches_rule = sum(1 for k, v in crosswalk.items() if v == k + "00")
-    return crosswalk, matches_rule
+def modern_ori(legacy_ori):
+    """Turn a seven-character Return A ORI into the nine-character form.
+
+    A modern ORI is the seven-character NCIC ORI plus a two-digit sub-unit
+    suffix, and the Return A record is filed by the parent agency, so the
+    suffix is "00". The NIBRS bundles' own ``legacy_ori`` column is *not* the
+    short form — it holds a nine-character alternate ORI equal to ``ori`` in all
+    but 19 of 2,292 sampled agencies — so it cannot serve as a crosswalk.
+    """
+    if not isinstance(legacy_ori, str) or not legacy_ori:
+        return None
+    return f"{legacy_ori}00"
+
+
+def report_ori_rule(reta_agency, known_oris):
+    """Report how often the suffix rule lands on an ORI the source knows."""
+    if reta_agency.empty:
+        return
+    for year in sorted(reta_agency["year"].unique())[
+        :: max(len(reta_agency["year"].unique()) // 4, 1)
+    ]:
+        legacy = set(
+            reta_agency.loc[reta_agency["year"] == year, "legacy_ori"].dropna()
+        )
+        derived = {f"{value}00" for value in legacy}
+        hit = len(derived & known_oris)
+        print(
+            f"  {year}: {hit:,} of {len(legacy):,} Return A agencies "
+            f"({hit / max(len(legacy), 1):.1%}) resolve to a known ORI"
+        )
 
 
 def pass_agency():
@@ -312,13 +309,10 @@ def pass_agency():
         )
     )
 
-    crosswalk, _ = legacy_ori_crosswalk()
     if not reta_agency.empty:
-        reta_agency["ori"] = reta_agency["legacy_ori"].map(
-            lambda v: (
-                crosswalk.get(v, f"{v}00") if isinstance(v, str) else None
-            )
-        )
+        print("Return A ORI resolution:")
+        report_ori_rule(reta_agency, set(lee["ori"].dropna()))
+        reta_agency["ori"] = reta_agency["legacy_ori"].map(modern_ori)
         reta_agency = reta_agency.drop_duplicates(subset=["year", "ori"])
 
     base = lee.rename(
@@ -368,15 +362,7 @@ def pass_agency():
 
     agency = agency.merge(participation, on=["year", "ori"], how="left")
     agency = agency.merge(
-        attributes[
-            [
-                "year",
-                "ori",
-                "legacy_ori",
-                "nibrs_start_date",
-                "nibrs_participated",
-            ]
-        ],
+        attributes[["year", "ori", "nibrs_start_date", "nibrs_participated"]],
         on=["year", "ori"],
         how="left",
     )
