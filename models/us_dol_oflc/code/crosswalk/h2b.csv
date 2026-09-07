@@ -1,0 +1,1630 @@
+fiscal_year,source_file,source_column,canonical_column,disposition
+2008,h2b_2008.xlsx,,agent_representing_employer,absent this year
+2008,h2b_2008.xlsx,,anticipated_number_of_hours,absent this year
+2008,h2b_2008.xlsx,,application_type,absent this year
+2008,h2b_2008.xlsx,,attorney_law_firm_name,absent this year
+2008,h2b_2008.xlsx,,cap_exempt,absent this year
+2008,h2b_2008.xlsx,CASE_NO,case_number,mapped
+2008,h2b_2008.xlsx,CASE_STATUS,case_status,mapped
+2008,h2b_2008.xlsx,CERTIFICATION_BEGIN_DATE,certification_begin_date,mapped
+2008,h2b_2008.xlsx,CERTIFICATION_END_DATE,certification_end_date,mapped
+2008,h2b_2008.xlsx,DECISION_DATE,decision_date,mapped
+2008,h2b_2008.xlsx,,education_level,absent this year
+2008,h2b_2008.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2008,h2b_2008.xlsx,EMPLOYER_CITY,employer_city,mapped
+2008,h2b_2008.xlsx,,employer_country,absent this year
+2008,h2b_2008.xlsx,EMPLOYER_NAME,employer_name,mapped
+2008,h2b_2008.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2008,h2b_2008.xlsx,EMPLOYER_STATE,employer_state,mapped
+2008,h2b_2008.xlsx,,employer_trade_name,absent this year
+2008,h2b_2008.xlsx,,employment_begin_date,absent this year
+2008,h2b_2008.xlsx,,employment_end_date,absent this year
+2008,h2b_2008.xlsx,,full_time_position,absent this year
+2008,h2b_2008.xlsx,,job_order_number,absent this year
+2008,h2b_2008.xlsx,,job_order_submit_date,absent this year
+2008,h2b_2008.xlsx,JOB_TITLE,job_title,mapped
+2008,h2b_2008.xlsx,,msa_name,absent this year
+2008,h2b_2008.xlsx,,naics_id,absent this year
+2008,h2b_2008.xlsx,,nature_of_temporary_need,absent this year
+2008,h2b_2008.xlsx,,overtime_rate_from,absent this year
+2008,h2b_2008.xlsx,,overtime_rate_to,absent this year
+2008,h2b_2008.xlsx,PREVAILING_WAGE,prevailing_wage,mapped
+2008,h2b_2008.xlsx,,prevailing_wage_tracking_number,absent this year
+2008,h2b_2008.xlsx,PW_UNIT_OF_PAY,prevailing_wage_unit_of_pay,mapped
+2008,h2b_2008.xlsx,NPC_SUBMITTED_DATE,received_date,mapped
+2008,h2b_2008.xlsx,,requested_begin_date,absent this year
+2008,h2b_2008.xlsx,,requested_end_date,absent this year
+2008,h2b_2008.xlsx,,soc_id,absent this year
+2008,h2b_2008.xlsx,,soc_title,absent this year
+2008,h2b_2008.xlsx,,swa_state,absent this year
+2008,h2b_2008.xlsx,,type_of_employer,absent this year
+2008,h2b_2008.xlsx,,visa_class,absent this year
+2008,h2b_2008.xlsx,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2008,h2b_2008.xlsx,,wage_offered_to,absent this year
+2008,h2b_2008.xlsx,BASIC_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2008,h2b_2008.xlsx,,work_experience_months,absent this year
+2008,h2b_2008.xlsx,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2008,h2b_2008.xlsx,,workers_requested,absent this year
+2008,h2b_2008.xlsx,,worksite_address,absent this year
+2008,h2b_2008.xlsx,,worksite_city,absent this year
+2008,h2b_2008.xlsx,,worksite_county,absent this year
+2008,h2b_2008.xlsx,,worksite_postal_code,absent this year
+2008,h2b_2008.xlsx,ALIEN_WORK_STATE,worksite_state,mapped
+2008,h2b_2008.xlsx,AGENT_ATTORNEY_ADDRESS,,dropped: attorney/agent personal details
+2008,h2b_2008.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2008,h2b_2008.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2008,h2b_2008.xlsx,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2008,h2b_2008.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2009,h2b_2009.xlsx,,agent_representing_employer,absent this year
+2009,h2b_2009.xlsx,,anticipated_number_of_hours,absent this year
+2009,h2b_2009.xlsx,,application_type,absent this year
+2009,h2b_2009.xlsx,,attorney_law_firm_name,absent this year
+2009,h2b_2009.xlsx,,cap_exempt,absent this year
+2009,h2b_2009.xlsx,CASE_NO,case_number,mapped
+2009,h2b_2009.xlsx,CASE_STATUS,case_status,mapped
+2009,h2b_2009.xlsx,CERTIFICATION_BEGIN_DATE,certification_begin_date,mapped
+2009,h2b_2009.xlsx,CERTIFICATION_END_DATE,certification_end_date,mapped
+2009,h2b_2009.xlsx,DECISION_DATE,decision_date,mapped
+2009,h2b_2009.xlsx,,education_level,absent this year
+2009,h2b_2009.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2009,h2b_2009.xlsx,EMPLOYER_CITY,employer_city,mapped
+2009,h2b_2009.xlsx,,employer_country,absent this year
+2009,h2b_2009.xlsx,EMPLOYER_NAME,employer_name,mapped
+2009,h2b_2009.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2009,h2b_2009.xlsx,EMPLOYER_STATE,employer_state,mapped
+2009,h2b_2009.xlsx,,employer_trade_name,absent this year
+2009,h2b_2009.xlsx,,employment_begin_date,absent this year
+2009,h2b_2009.xlsx,,employment_end_date,absent this year
+2009,h2b_2009.xlsx,,full_time_position,absent this year
+2009,h2b_2009.xlsx,,job_order_number,absent this year
+2009,h2b_2009.xlsx,,job_order_submit_date,absent this year
+2009,h2b_2009.xlsx,JOB_TITLE,job_title,mapped
+2009,h2b_2009.xlsx,,msa_name,absent this year
+2009,h2b_2009.xlsx,,naics_id,absent this year
+2009,h2b_2009.xlsx,,nature_of_temporary_need,absent this year
+2009,h2b_2009.xlsx,,overtime_rate_from,absent this year
+2009,h2b_2009.xlsx,,overtime_rate_to,absent this year
+2009,h2b_2009.xlsx,PREVAILING_WAGE,prevailing_wage,mapped
+2009,h2b_2009.xlsx,,prevailing_wage_tracking_number,absent this year
+2009,h2b_2009.xlsx,PW_UNIT_OF_PAY,prevailing_wage_unit_of_pay,mapped
+2009,h2b_2009.xlsx,NPC_SUBMITTED_DATE,received_date,mapped
+2009,h2b_2009.xlsx,,requested_begin_date,absent this year
+2009,h2b_2009.xlsx,,requested_end_date,absent this year
+2009,h2b_2009.xlsx,,soc_id,absent this year
+2009,h2b_2009.xlsx,,soc_title,absent this year
+2009,h2b_2009.xlsx,,swa_state,absent this year
+2009,h2b_2009.xlsx,,type_of_employer,absent this year
+2009,h2b_2009.xlsx,,visa_class,absent this year
+2009,h2b_2009.xlsx,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2009,h2b_2009.xlsx,,wage_offered_to,absent this year
+2009,h2b_2009.xlsx,BASIC_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2009,h2b_2009.xlsx,,work_experience_months,absent this year
+2009,h2b_2009.xlsx,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2009,h2b_2009.xlsx,,workers_requested,absent this year
+2009,h2b_2009.xlsx,,worksite_address,absent this year
+2009,h2b_2009.xlsx,,worksite_city,absent this year
+2009,h2b_2009.xlsx,,worksite_county,absent this year
+2009,h2b_2009.xlsx,,worksite_postal_code,absent this year
+2009,h2b_2009.xlsx,ALIEN_WORK_STATE,worksite_state,mapped
+2009,h2b_2009.xlsx,AGENT_ATTORNEY_ADDRESS,,dropped: attorney/agent personal details
+2009,h2b_2009.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2009,h2b_2009.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2009,h2b_2009.xlsx,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2009,h2b_2009.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2010,h2b_2010.xlsx,,agent_representing_employer,absent this year
+2010,h2b_2010.xlsx,,anticipated_number_of_hours,absent this year
+2010,h2b_2010.xlsx,APPLICATION_TYPE,application_type,mapped
+2010,h2b_2010.xlsx,,attorney_law_firm_name,absent this year
+2010,h2b_2010.xlsx,,cap_exempt,absent this year
+2010,h2b_2010.xlsx,CASE_NO,case_number,mapped
+2010,h2b_2010.xlsx,CASE_STATUS,case_status,mapped
+2010,h2b_2010.xlsx,CERTIFICATION_BEGIN_DATE,certification_begin_date,mapped
+2010,h2b_2010.xlsx,CERTIFICATION_END_DATE,certification_end_date,mapped
+2010,h2b_2010.xlsx,DECISION_DATE,decision_date,mapped
+2010,h2b_2010.xlsx,,education_level,absent this year
+2010,h2b_2010.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2010,h2b_2010.xlsx,EMPLOYER_CITY,employer_city,mapped
+2010,h2b_2010.xlsx,,employer_country,absent this year
+2010,h2b_2010.xlsx,EMPLOYER_NAME,employer_name,mapped
+2010,h2b_2010.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2010,h2b_2010.xlsx,EMPLOYER_STATE,employer_state,mapped
+2010,h2b_2010.xlsx,,employer_trade_name,absent this year
+2010,h2b_2010.xlsx,,employment_begin_date,absent this year
+2010,h2b_2010.xlsx,,employment_end_date,absent this year
+2010,h2b_2010.xlsx,,full_time_position,absent this year
+2010,h2b_2010.xlsx,,job_order_number,absent this year
+2010,h2b_2010.xlsx,,job_order_submit_date,absent this year
+2010,h2b_2010.xlsx,JOB_TITLE,job_title,mapped
+2010,h2b_2010.xlsx,,msa_name,absent this year
+2010,h2b_2010.xlsx,,naics_id,absent this year
+2010,h2b_2010.xlsx,,nature_of_temporary_need,absent this year
+2010,h2b_2010.xlsx,,overtime_rate_from,absent this year
+2010,h2b_2010.xlsx,,overtime_rate_to,absent this year
+2010,h2b_2010.xlsx,PREVAILING_WAGE,prevailing_wage,mapped
+2010,h2b_2010.xlsx,,prevailing_wage_tracking_number,absent this year
+2010,h2b_2010.xlsx,PW_UNIT_OF_PAY,prevailing_wage_unit_of_pay,mapped
+2010,h2b_2010.xlsx,NPC_SUBMITTED_DATE,received_date,mapped
+2010,h2b_2010.xlsx,,requested_begin_date,absent this year
+2010,h2b_2010.xlsx,,requested_end_date,absent this year
+2010,h2b_2010.xlsx,,soc_id,absent this year
+2010,h2b_2010.xlsx,,soc_title,absent this year
+2010,h2b_2010.xlsx,,swa_state,absent this year
+2010,h2b_2010.xlsx,,type_of_employer,absent this year
+2010,h2b_2010.xlsx,,visa_class,absent this year
+2010,h2b_2010.xlsx,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2010,h2b_2010.xlsx,,wage_offered_to,absent this year
+2010,h2b_2010.xlsx,BASIC_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2010,h2b_2010.xlsx,,work_experience_months,absent this year
+2010,h2b_2010.xlsx,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2010,h2b_2010.xlsx,NBR_WORKERS_REQUESTED,workers_requested,mapped
+2010,h2b_2010.xlsx,,worksite_address,absent this year
+2010,h2b_2010.xlsx,,worksite_city,absent this year
+2010,h2b_2010.xlsx,,worksite_county,absent this year
+2010,h2b_2010.xlsx,,worksite_postal_code,absent this year
+2010,h2b_2010.xlsx,ALIEN_WORK_STATE,worksite_state,mapped
+2010,h2b_2010.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2010,h2b_2010.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2010,h2b_2010.xlsx,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2010,h2b_2010.xlsx,DOT_OCCUPATIONAL_CODE,,dropped: legacy DOT occupation code (SOC is kept)
+2010,h2b_2010.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2011,h2b_2011.xlsx,,agent_representing_employer,absent this year
+2011,h2b_2011.xlsx,,anticipated_number_of_hours,absent this year
+2011,h2b_2011.xlsx,,application_type,absent this year
+2011,h2b_2011.xlsx,,attorney_law_firm_name,absent this year
+2011,h2b_2011.xlsx,,cap_exempt,absent this year
+2011,h2b_2011.xlsx,CASE_NO,case_number,mapped
+2011,h2b_2011.xlsx,CASE_STATUS,case_status,mapped
+2011,h2b_2011.xlsx,CERTIFICATION_BEGIN_DATE,certification_begin_date,mapped
+2011,h2b_2011.xlsx,CERTIFICATION_END_DATE,certification_end_date,mapped
+2011,h2b_2011.xlsx,DECISION_DATE,decision_date,mapped
+2011,h2b_2011.xlsx,,education_level,absent this year
+2011,h2b_2011.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2011,h2b_2011.xlsx,EMPLOYER_CITY,employer_city,mapped
+2011,h2b_2011.xlsx,,employer_country,absent this year
+2011,h2b_2011.xlsx,EMPLOYER_NAME,employer_name,mapped
+2011,h2b_2011.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2011,h2b_2011.xlsx,EMPLOYER_STATE,employer_state,mapped
+2011,h2b_2011.xlsx,,employer_trade_name,absent this year
+2011,h2b_2011.xlsx,,employment_begin_date,absent this year
+2011,h2b_2011.xlsx,,employment_end_date,absent this year
+2011,h2b_2011.xlsx,,full_time_position,absent this year
+2011,h2b_2011.xlsx,,job_order_number,absent this year
+2011,h2b_2011.xlsx,,job_order_submit_date,absent this year
+2011,h2b_2011.xlsx,JOB_TITLE,job_title,mapped
+2011,h2b_2011.xlsx,,msa_name,absent this year
+2011,h2b_2011.xlsx,,naics_id,absent this year
+2011,h2b_2011.xlsx,,nature_of_temporary_need,absent this year
+2011,h2b_2011.xlsx,,overtime_rate_from,absent this year
+2011,h2b_2011.xlsx,,overtime_rate_to,absent this year
+2011,h2b_2011.xlsx,PREVAILING_WAGE,prevailing_wage,mapped
+2011,h2b_2011.xlsx,,prevailing_wage_tracking_number,absent this year
+2011,h2b_2011.xlsx,PW_UNIT_OF_PAY,prevailing_wage_unit_of_pay,mapped
+2011,h2b_2011.xlsx,NPC_SUBMITTED_DATE,received_date,mapped
+2011,h2b_2011.xlsx,,requested_begin_date,absent this year
+2011,h2b_2011.xlsx,,requested_end_date,absent this year
+2011,h2b_2011.xlsx,SOC_CODE,soc_id,mapped
+2011,h2b_2011.xlsx,SOC_NAME,soc_title,mapped
+2011,h2b_2011.xlsx,,swa_state,absent this year
+2011,h2b_2011.xlsx,,type_of_employer,absent this year
+2011,h2b_2011.xlsx,VISA_CLASS,visa_class,mapped
+2011,h2b_2011.xlsx,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2011,h2b_2011.xlsx,,wage_offered_to,absent this year
+2011,h2b_2011.xlsx,BASIC_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2011,h2b_2011.xlsx,,work_experience_months,absent this year
+2011,h2b_2011.xlsx,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2011,h2b_2011.xlsx,NBR_WORKERS_REQUESTED,workers_requested,mapped
+2011,h2b_2011.xlsx,,worksite_address,absent this year
+2011,h2b_2011.xlsx,,worksite_city,absent this year
+2011,h2b_2011.xlsx,,worksite_county,absent this year
+2011,h2b_2011.xlsx,,worksite_postal_code,absent this year
+2011,h2b_2011.xlsx,ALIEN_WORK_STATE,worksite_state,mapped
+2011,h2b_2011.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2011,h2b_2011.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2011,h2b_2011.xlsx,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2011,h2b_2011.xlsx,DOT_NAME,,dropped: legacy DOT occupation code (SOC is kept)
+2011,h2b_2011.xlsx,DOT_OCCUPATIONAL_CODE,,dropped: legacy DOT occupation code (SOC is kept)
+2011,h2b_2011.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2012,h2b_2012.xlsx,,agent_representing_employer,absent this year
+2012,h2b_2012.xlsx,,anticipated_number_of_hours,absent this year
+2012,h2b_2012.xlsx,,application_type,absent this year
+2012,h2b_2012.xlsx,,attorney_law_firm_name,absent this year
+2012,h2b_2012.xlsx,,cap_exempt,absent this year
+2012,h2b_2012.xlsx,CASE_NO,case_number,mapped
+2012,h2b_2012.xlsx,CASE_STATUS,case_status,mapped
+2012,h2b_2012.xlsx,CERTIFICATION_BEGIN_DATE,certification_begin_date,mapped
+2012,h2b_2012.xlsx,CERTIFICATION_END_DATE,certification_end_date,mapped
+2012,h2b_2012.xlsx,DECISION_DATE,decision_date,mapped
+2012,h2b_2012.xlsx,,education_level,absent this year
+2012,h2b_2012.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2012,h2b_2012.xlsx,EMPLOYER_CITY,employer_city,mapped
+2012,h2b_2012.xlsx,,employer_country,absent this year
+2012,h2b_2012.xlsx,EMPLOYER_NAME,employer_name,mapped
+2012,h2b_2012.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2012,h2b_2012.xlsx,EMPLOYER_STATE,employer_state,mapped
+2012,h2b_2012.xlsx,,employer_trade_name,absent this year
+2012,h2b_2012.xlsx,,employment_begin_date,absent this year
+2012,h2b_2012.xlsx,,employment_end_date,absent this year
+2012,h2b_2012.xlsx,,full_time_position,absent this year
+2012,h2b_2012.xlsx,,job_order_number,absent this year
+2012,h2b_2012.xlsx,,job_order_submit_date,absent this year
+2012,h2b_2012.xlsx,JOB_TITLE,job_title,mapped
+2012,h2b_2012.xlsx,,msa_name,absent this year
+2012,h2b_2012.xlsx,,naics_id,absent this year
+2012,h2b_2012.xlsx,,nature_of_temporary_need,absent this year
+2012,h2b_2012.xlsx,,overtime_rate_from,absent this year
+2012,h2b_2012.xlsx,,overtime_rate_to,absent this year
+2012,h2b_2012.xlsx,PREVAILING_WAGE,prevailing_wage,mapped
+2012,h2b_2012.xlsx,,prevailing_wage_tracking_number,absent this year
+2012,h2b_2012.xlsx,PW_UNIT_OF_PAY,prevailing_wage_unit_of_pay,mapped
+2012,h2b_2012.xlsx,NPC_SUBMITTED_DATE,received_date,mapped
+2012,h2b_2012.xlsx,,requested_begin_date,absent this year
+2012,h2b_2012.xlsx,,requested_end_date,absent this year
+2012,h2b_2012.xlsx,SOC_CODE,soc_id,mapped
+2012,h2b_2012.xlsx,SOC_NAME,soc_title,mapped
+2012,h2b_2012.xlsx,,swa_state,absent this year
+2012,h2b_2012.xlsx,,type_of_employer,absent this year
+2012,h2b_2012.xlsx,VISA_CLASS,visa_class,mapped
+2012,h2b_2012.xlsx,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2012,h2b_2012.xlsx,,wage_offered_to,absent this year
+2012,h2b_2012.xlsx,BASIC_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2012,h2b_2012.xlsx,,work_experience_months,absent this year
+2012,h2b_2012.xlsx,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2012,h2b_2012.xlsx,NBR_WORKERS_REQUESTED,workers_requested,mapped
+2012,h2b_2012.xlsx,,worksite_address,absent this year
+2012,h2b_2012.xlsx,,worksite_city,absent this year
+2012,h2b_2012.xlsx,,worksite_county,absent this year
+2012,h2b_2012.xlsx,,worksite_postal_code,absent this year
+2012,h2b_2012.xlsx,ALIEN_WORK_STATE,worksite_state,mapped
+2012,h2b_2012.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2012,h2b_2012.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2012,h2b_2012.xlsx,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2012,h2b_2012.xlsx,DOT_NAME,,dropped: legacy DOT occupation code (SOC is kept)
+2012,h2b_2012.xlsx,DOT_OCCUPATIONAL_CODE,,dropped: legacy DOT occupation code (SOC is kept)
+2012,h2b_2012.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2013,h2b_2013.xls,,agent_representing_employer,absent this year
+2013,h2b_2013.xls,,anticipated_number_of_hours,absent this year
+2013,h2b_2013.xls,,application_type,absent this year
+2013,h2b_2013.xls,,attorney_law_firm_name,absent this year
+2013,h2b_2013.xls,,cap_exempt,absent this year
+2013,h2b_2013.xls,CASE_NUMBER,case_number,mapped
+2013,h2b_2013.xls,CASE_STATUS,case_status,mapped
+2013,h2b_2013.xls,CERTIFICATION_BEGIN_DATE,certification_begin_date,mapped
+2013,h2b_2013.xls,CERTIFICATION_END_DATE,certification_end_date,mapped
+2013,h2b_2013.xls,DECISION_DATE,decision_date,mapped
+2013,h2b_2013.xls,,education_level,absent this year
+2013,h2b_2013.xls,EMPLOYER_ADDRESS1,employer_address,mapped
+2013,h2b_2013.xls,EMPLOYER_CITY,employer_city,mapped
+2013,h2b_2013.xls,,employer_country,absent this year
+2013,h2b_2013.xls,EMPLOYER_NAME,employer_name,mapped
+2013,h2b_2013.xls,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2013,h2b_2013.xls,EMPLOYER_STATE,employer_state,mapped
+2013,h2b_2013.xls,,employer_trade_name,absent this year
+2013,h2b_2013.xls,,employment_begin_date,absent this year
+2013,h2b_2013.xls,,employment_end_date,absent this year
+2013,h2b_2013.xls,,full_time_position,absent this year
+2013,h2b_2013.xls,,job_order_number,absent this year
+2013,h2b_2013.xls,,job_order_submit_date,absent this year
+2013,h2b_2013.xls,JOB_TITLE,job_title,mapped
+2013,h2b_2013.xls,,msa_name,absent this year
+2013,h2b_2013.xls,,naics_id,absent this year
+2013,h2b_2013.xls,,nature_of_temporary_need,absent this year
+2013,h2b_2013.xls,,overtime_rate_from,absent this year
+2013,h2b_2013.xls,,overtime_rate_to,absent this year
+2013,h2b_2013.xls,PREVIALING_WAGE,prevailing_wage,mapped
+2013,h2b_2013.xls,,prevailing_wage_tracking_number,absent this year
+2013,h2b_2013.xls,PW_UNIT_OF_PAY,prevailing_wage_unit_of_pay,mapped
+2013,h2b_2013.xls,NPC_SUBMITTED_DATE,received_date,mapped
+2013,h2b_2013.xls,,requested_begin_date,absent this year
+2013,h2b_2013.xls,,requested_end_date,absent this year
+2013,h2b_2013.xls,SOC_CODE,soc_id,mapped
+2013,h2b_2013.xls,SOC_NAME,soc_title,mapped
+2013,h2b_2013.xls,,swa_state,absent this year
+2013,h2b_2013.xls,,type_of_employer,absent this year
+2013,h2b_2013.xls,VISA_CLASS,visa_class,mapped
+2013,h2b_2013.xls,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2013,h2b_2013.xls,,wage_offered_to,absent this year
+2013,h2b_2013.xls,BASIC_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2013,h2b_2013.xls,,work_experience_months,absent this year
+2013,h2b_2013.xls,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2013,h2b_2013.xls,,workers_requested,absent this year
+2013,h2b_2013.xls,,worksite_address,absent this year
+2013,h2b_2013.xls,,worksite_city,absent this year
+2013,h2b_2013.xls,,worksite_county,absent this year
+2013,h2b_2013.xls,,worksite_postal_code,absent this year
+2013,h2b_2013.xls,ALIEN_WORK_STATE,worksite_state,mapped
+2013,h2b_2013.xls,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2013,h2b_2013.xls,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2013,h2b_2013.xls,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2013,h2b_2013.xls,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2014,h2b_2014.xlsx,,agent_representing_employer,absent this year
+2014,h2b_2014.xlsx,,anticipated_number_of_hours,absent this year
+2014,h2b_2014.xlsx,,application_type,absent this year
+2014,h2b_2014.xlsx,LAWFIRM_NAME,attorney_law_firm_name,mapped
+2014,h2b_2014.xlsx,,cap_exempt,absent this year
+2014,h2b_2014.xlsx,CASE_NUMBER,case_number,mapped
+2014,h2b_2014.xlsx,CASE_STATUS,case_status,mapped
+2014,h2b_2014.xlsx,CERTIFICATION_BEGIN_DATE,certification_begin_date,mapped
+2014,h2b_2014.xlsx,CERTIFICATION_END_DATE,certification_end_date,mapped
+2014,h2b_2014.xlsx,RECENT_DECISION_DATE,decision_date,mapped
+2014,h2b_2014.xlsx,,education_level,absent this year
+2014,h2b_2014.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2014,h2b_2014.xlsx,EMPLOYER_CITY,employer_city,mapped
+2014,h2b_2014.xlsx,,employer_country,absent this year
+2014,h2b_2014.xlsx,EMPLOYER_NAME,employer_name,mapped
+2014,h2b_2014.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2014,h2b_2014.xlsx,EMPLOYER_STATE,employer_state,mapped
+2014,h2b_2014.xlsx,,employer_trade_name,absent this year
+2014,h2b_2014.xlsx,,employment_begin_date,absent this year
+2014,h2b_2014.xlsx,,employment_end_date,absent this year
+2014,h2b_2014.xlsx,,full_time_position,absent this year
+2014,h2b_2014.xlsx,,job_order_number,absent this year
+2014,h2b_2014.xlsx,,job_order_submit_date,absent this year
+2014,h2b_2014.xlsx,JOB_TITLE,job_title,mapped
+2014,h2b_2014.xlsx,,msa_name,absent this year
+2014,h2b_2014.xlsx,,naics_id,absent this year
+2014,h2b_2014.xlsx,,nature_of_temporary_need,absent this year
+2014,h2b_2014.xlsx,,overtime_rate_from,absent this year
+2014,h2b_2014.xlsx,,overtime_rate_to,absent this year
+2014,h2b_2014.xlsx,PREVIALING_WAGE,prevailing_wage,mapped
+2014,h2b_2014.xlsx,,prevailing_wage_tracking_number,absent this year
+2014,h2b_2014.xlsx,PW_UNIT_OF_PAY,prevailing_wage_unit_of_pay,mapped
+2014,h2b_2014.xlsx,NPC_SUBMITTED_DATE,received_date,mapped
+2014,h2b_2014.xlsx,,requested_begin_date,absent this year
+2014,h2b_2014.xlsx,,requested_end_date,absent this year
+2014,h2b_2014.xlsx,SOC_CODE,soc_id,mapped
+2014,h2b_2014.xlsx,SOC_NAME,soc_title,mapped
+2014,h2b_2014.xlsx,,swa_state,absent this year
+2014,h2b_2014.xlsx,,type_of_employer,absent this year
+2014,h2b_2014.xlsx,VISA_CLASS,visa_class,mapped
+2014,h2b_2014.xlsx,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2014,h2b_2014.xlsx,,wage_offered_to,absent this year
+2014,h2b_2014.xlsx,BASIC_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2014,h2b_2014.xlsx,,work_experience_months,absent this year
+2014,h2b_2014.xlsx,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2014,h2b_2014.xlsx,,workers_requested,absent this year
+2014,h2b_2014.xlsx,,worksite_address,absent this year
+2014,h2b_2014.xlsx,,worksite_city,absent this year
+2014,h2b_2014.xlsx,,worksite_county,absent this year
+2014,h2b_2014.xlsx,,worksite_postal_code,absent this year
+2014,h2b_2014.xlsx,ALIEN_WORK_STATE,worksite_state,mapped
+2014,h2b_2014.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2014,h2b_2014.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2014,h2b_2014.xlsx,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2014,h2b_2014.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2015,h2b_2015.xlsx,,agent_representing_employer,absent this year
+2015,h2b_2015.xlsx,,anticipated_number_of_hours,absent this year
+2015,h2b_2015.xlsx,,application_type,absent this year
+2015,h2b_2015.xlsx,LAWFIRM_NAME,attorney_law_firm_name,mapped
+2015,h2b_2015.xlsx,,cap_exempt,absent this year
+2015,h2b_2015.xlsx,CASE_NUMBER,case_number,mapped
+2015,h2b_2015.xlsx,CASE_STATUS,case_status,mapped
+2015,h2b_2015.xlsx,CERTIFICATION_BEGIN_DATE,certification_begin_date,mapped
+2015,h2b_2015.xlsx,CERTIFICATION_END_DATE,certification_end_date,mapped
+2015,h2b_2015.xlsx,DECISION_DATE,decision_date,mapped
+2015,h2b_2015.xlsx,EDUCATION_LEVEL,education_level,mapped
+2015,h2b_2015.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2015,h2b_2015.xlsx,EMPLOYER_CITY,employer_city,mapped
+2015,h2b_2015.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2015,h2b_2015.xlsx,EMPLOYER_NAME,employer_name,mapped
+2015,h2b_2015.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2015,h2b_2015.xlsx,EMPLOYER_STATE,employer_state,mapped
+2015,h2b_2015.xlsx,,employer_trade_name,absent this year
+2015,h2b_2015.xlsx,JOB_START_DATE,employment_begin_date,mapped
+2015,h2b_2015.xlsx,,employment_end_date,absent this year
+2015,h2b_2015.xlsx,FULL_TIME_POSITION,full_time_position,mapped
+2015,h2b_2015.xlsx,JOB_IDNUMBER,job_order_number,mapped
+2015,h2b_2015.xlsx,,job_order_submit_date,absent this year
+2015,h2b_2015.xlsx,JOB_TITLE,job_title,mapped
+2015,h2b_2015.xlsx,,msa_name,absent this year
+2015,h2b_2015.xlsx,NAIC_CODE,naics_id,mapped
+2015,h2b_2015.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2015,h2b_2015.xlsx,OVERTIME_RATE_FROM,overtime_rate_from,mapped
+2015,h2b_2015.xlsx,OVERTIME_RATE_TO,overtime_rate_to,mapped
+2015,h2b_2015.xlsx,PREVAILING_WAGE,prevailing_wage,mapped
+2015,h2b_2015.xlsx,,prevailing_wage_tracking_number,absent this year
+2015,h2b_2015.xlsx,PW_UNIT_OF_PAY,prevailing_wage_unit_of_pay,mapped
+2015,h2b_2015.xlsx,NPC_SUBMITTED_DATE,received_date,mapped
+2015,h2b_2015.xlsx,,requested_begin_date,absent this year
+2015,h2b_2015.xlsx,,requested_end_date,absent this year
+2015,h2b_2015.xlsx,SOC_CODE,soc_id,mapped
+2015,h2b_2015.xlsx,SOC_TITLE,soc_title,mapped
+2015,h2b_2015.xlsx,SWA_NAME,swa_state,mapped
+2015,h2b_2015.xlsx,,type_of_employer,absent this year
+2015,h2b_2015.xlsx,VISA_CLASS,visa_class,mapped
+2015,h2b_2015.xlsx,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2015,h2b_2015.xlsx,,wage_offered_to,absent this year
+2015,h2b_2015.xlsx,BASIC_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2015,h2b_2015.xlsx,EMP_EXP_NUM_MONTHS,work_experience_months,mapped
+2015,h2b_2015.xlsx,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2015,h2b_2015.xlsx,NBR_WORKERS_REQUESTED,workers_requested,mapped
+2015,h2b_2015.xlsx,,worksite_address,absent this year
+2015,h2b_2015.xlsx,WORKSITE_CITY,worksite_city,mapped
+2015,h2b_2015.xlsx,,worksite_county,absent this year
+2015,h2b_2015.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2015,h2b_2015.xlsx,WORKSITE_STATE,worksite_state,mapped
+2015,h2b_2015.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2015,h2b_2015.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2015,h2b_2015.xlsx,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2015,h2b_2015.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2015,h2b_2015.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2015,h2b_2015.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2015,h2b_2015.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2015,h2b_2015.xlsx,EMP_EXPERIENCE_REQD,,dropped: H-2 job-condition detail
+2015,h2b_2015.xlsx,HOURLY_WORK_SCHEDULE_AM,,dropped: hourly work schedule
+2015,h2b_2015.xlsx,HOURLY_WORK_SCHEDULE_PM,,dropped: hourly work schedule
+2015,h2b_2015.xlsx,MAJOR,,dropped: H-2 job-condition detail
+2015,h2b_2015.xlsx,NAME_REQD_TRAINING,,dropped: H-2 job-condition detail
+2015,h2b_2015.xlsx,NUM_MONTHS_TRAINING,,dropped: H-2 job-condition detail
+2015,h2b_2015.xlsx,OTHER_EDU,,dropped: H-2 job-condition detail
+2015,h2b_2015.xlsx,OTHER_WORKSITE_LOCATION,,dropped: free-text secondary worksite note
+2015,h2b_2015.xlsx,SECOND_DIPLOMA,,dropped: H-2 job-condition detail
+2015,h2b_2015.xlsx,SECOND_DIPLOMA_MAJOR,,dropped: H-2 job-condition detail
+2015,h2b_2015.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2015,h2b_2015.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2015,h2b_2015.xlsx,TRAINING_REQ,,dropped: H-2 job-condition detail
+2016,h2b_2016.xlsx,,agent_representing_employer,absent this year
+2016,h2b_2016.xlsx,,anticipated_number_of_hours,absent this year
+2016,h2b_2016.xlsx,,application_type,absent this year
+2016,h2b_2016.xlsx,LAWFIRM_NAME,attorney_law_firm_name,mapped
+2016,h2b_2016.xlsx,,cap_exempt,absent this year
+2016,h2b_2016.xlsx,CASE_NUMBER,case_number,mapped
+2016,h2b_2016.xlsx,CASE_STATUS,case_status,mapped
+2016,h2b_2016.xlsx,CERTIFICATION_BEGIN_DATE,certification_begin_date,mapped
+2016,h2b_2016.xlsx,CERTIFICATION_END_DATE,certification_end_date,mapped
+2016,h2b_2016.xlsx,DECISION_DATE,decision_date,mapped
+2016,h2b_2016.xlsx,EDUCATION_LEVEL,education_level,mapped
+2016,h2b_2016.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2016,h2b_2016.xlsx,EMPLOYER_CITY,employer_city,mapped
+2016,h2b_2016.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2016,h2b_2016.xlsx,EMPLOYER_NAME,employer_name,mapped
+2016,h2b_2016.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2016,h2b_2016.xlsx,EMPLOYER_STATE,employer_state,mapped
+2016,h2b_2016.xlsx,,employer_trade_name,absent this year
+2016,h2b_2016.xlsx,JOB_START_DATE,employment_begin_date,mapped
+2016,h2b_2016.xlsx,JOB_END_DATE,employment_end_date,mapped
+2016,h2b_2016.xlsx,FULL_TIME_POSITION,full_time_position,mapped
+2016,h2b_2016.xlsx,JOB_IDNUMBER,job_order_number,mapped
+2016,h2b_2016.xlsx,,job_order_submit_date,absent this year
+2016,h2b_2016.xlsx,JOB_TITLE,job_title,mapped
+2016,h2b_2016.xlsx,,msa_name,absent this year
+2016,h2b_2016.xlsx,NAIC_CODE,naics_id,mapped
+2016,h2b_2016.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2016,h2b_2016.xlsx,OVERTIME_RATE_FROM,overtime_rate_from,mapped
+2016,h2b_2016.xlsx,OVERTIME_RATE_TO,overtime_rate_to,mapped
+2016,h2b_2016.xlsx,,prevailing_wage,absent this year
+2016,h2b_2016.xlsx,,prevailing_wage_tracking_number,absent this year
+2016,h2b_2016.xlsx,,prevailing_wage_unit_of_pay,absent this year
+2016,h2b_2016.xlsx,SUBMITTED_DATE,received_date,mapped
+2016,h2b_2016.xlsx,,requested_begin_date,absent this year
+2016,h2b_2016.xlsx,,requested_end_date,absent this year
+2016,h2b_2016.xlsx,SOC_CODE,soc_id,mapped
+2016,h2b_2016.xlsx,SOC_TITLE,soc_title,mapped
+2016,h2b_2016.xlsx,SWA_NAME,swa_state,mapped
+2016,h2b_2016.xlsx,,type_of_employer,absent this year
+2016,h2b_2016.xlsx,VISA_CLASS,visa_class,mapped
+2016,h2b_2016.xlsx,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2016,h2b_2016.xlsx,,wage_offered_to,absent this year
+2016,h2b_2016.xlsx,BASIC_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2016,h2b_2016.xlsx,EMP_EXP_NUM_MONTHS,work_experience_months,mapped
+2016,h2b_2016.xlsx,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2016,h2b_2016.xlsx,NBR_WORKERS_REQUESTED,workers_requested,mapped
+2016,h2b_2016.xlsx,,worksite_address,absent this year
+2016,h2b_2016.xlsx,WORKSITE_CITY,worksite_city,mapped
+2016,h2b_2016.xlsx,,worksite_county,absent this year
+2016,h2b_2016.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2016,h2b_2016.xlsx,WORKSITE_STATE,worksite_state,mapped
+2016,h2b_2016.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2016,h2b_2016.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2016,h2b_2016.xlsx,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2016,h2b_2016.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2016,h2b_2016.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2016,h2b_2016.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2016,h2b_2016.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2016,h2b_2016.xlsx,EMP_EXPERIENCE_REQD,,dropped: H-2 job-condition detail
+2016,h2b_2016.xlsx,MAJOR,,dropped: H-2 job-condition detail
+2016,h2b_2016.xlsx,NAME_REQUIRED_TRAINING,,dropped: H-2 job-condition detail
+2016,h2b_2016.xlsx,NUM_MONTHS_TRAINING,,dropped: H-2 job-condition detail
+2016,h2b_2016.xlsx,OTHER_EDUCATION,,dropped: H-2 job-condition detail
+2016,h2b_2016.xlsx,OTHER_WORKSITE_LOCATION,,dropped: free-text secondary worksite note
+2016,h2b_2016.xlsx,SECOND_DIPLOMA,,dropped: H-2 job-condition detail
+2016,h2b_2016.xlsx,SECOND_DIPLOMA_MAJOR,,dropped: H-2 job-condition detail
+2016,h2b_2016.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2016,h2b_2016.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2016,h2b_2016.xlsx,TRAINING_REQUIRED,,dropped: H-2 job-condition detail
+2017,h2b_2017.xlsx,AGENT_POC_EMPLOYER_REP_BY_AGENT,agent_representing_employer,mapped
+2017,h2b_2017.xlsx,BASIC_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2017,h2b_2017.xlsx,,application_type,absent this year
+2017,h2b_2017.xlsx,LAWFIRM_NAME,attorney_law_firm_name,mapped
+2017,h2b_2017.xlsx,,cap_exempt,absent this year
+2017,h2b_2017.xlsx,CASE_NUMBER,case_number,mapped
+2017,h2b_2017.xlsx,CASE_STATUS,case_status,mapped
+2017,h2b_2017.xlsx,CERTIFICATION_BEGIN_DATE,certification_begin_date,mapped
+2017,h2b_2017.xlsx,CERTIFICATION_END_DATE,certification_end_date,mapped
+2017,h2b_2017.xlsx,DECISION_DATE,decision_date,mapped
+2017,h2b_2017.xlsx,EDUCATION_LEVEL,education_level,mapped
+2017,h2b_2017.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2017,h2b_2017.xlsx,EMPLOYER_CITY,employer_city,mapped
+2017,h2b_2017.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2017,h2b_2017.xlsx,EMPLOYER_NAME,employer_name,mapped
+2017,h2b_2017.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2017,h2b_2017.xlsx,EMPLOYER_STATE,employer_state,mapped
+2017,h2b_2017.xlsx,TRADE_NAME_DBA,employer_trade_name,mapped
+2017,h2b_2017.xlsx,JOB_START_DATE,employment_begin_date,mapped
+2017,h2b_2017.xlsx,JOB_END_DATE,employment_end_date,mapped
+2017,h2b_2017.xlsx,FULL_TIME_POSITION,full_time_position,mapped
+2017,h2b_2017.xlsx,JOB_IDNUMBER,job_order_number,mapped
+2017,h2b_2017.xlsx,,job_order_submit_date,absent this year
+2017,h2b_2017.xlsx,JOB_TITLE,job_title,mapped
+2017,h2b_2017.xlsx,,msa_name,absent this year
+2017,h2b_2017.xlsx,NAICS_CODE,naics_id,mapped
+2017,h2b_2017.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2017,h2b_2017.xlsx,OVERTIME_RATE_FROM,overtime_rate_from,mapped
+2017,h2b_2017.xlsx,OVERTIME_RATE_TO,overtime_rate_to,mapped
+2017,h2b_2017.xlsx,,prevailing_wage,absent this year
+2017,h2b_2017.xlsx,,prevailing_wage_tracking_number,absent this year
+2017,h2b_2017.xlsx,,prevailing_wage_unit_of_pay,absent this year
+2017,h2b_2017.xlsx,SUBMITTED_DATE,received_date,mapped
+2017,h2b_2017.xlsx,,requested_begin_date,absent this year
+2017,h2b_2017.xlsx,,requested_end_date,absent this year
+2017,h2b_2017.xlsx,SOC_CODE,soc_id,mapped
+2017,h2b_2017.xlsx,SOC_NAME,soc_title,mapped
+2017,h2b_2017.xlsx,SWA_NAME,swa_state,mapped
+2017,h2b_2017.xlsx,,type_of_employer,absent this year
+2017,h2b_2017.xlsx,VISA_CLASS,visa_class,mapped
+2017,h2b_2017.xlsx,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2017,h2b_2017.xlsx,,wage_offered_to,absent this year
+2017,h2b_2017.xlsx,PAY_RANGE_UNIT,wage_unit_of_pay,mapped
+2017,h2b_2017.xlsx,EMP_EXP_NUM_MONTHS,work_experience_months,mapped
+2017,h2b_2017.xlsx,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2017,h2b_2017.xlsx,NBR_WORKERS_REQUESTED,workers_requested,mapped
+2017,h2b_2017.xlsx,,worksite_address,absent this year
+2017,h2b_2017.xlsx,WORKSITE_CITY,worksite_city,mapped
+2017,h2b_2017.xlsx,WORKSITE_COUNTY,worksite_county,mapped
+2017,h2b_2017.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2017,h2b_2017.xlsx,WORKSITE_STATE,worksite_state,mapped
+2017,h2b_2017.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2017,h2b_2017.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2017,h2b_2017.xlsx,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2017,h2b_2017.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2017,h2b_2017.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2017,h2b_2017.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2017,h2b_2017.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2017,h2b_2017.xlsx,EMP_EXPERIENCE_REQD,,dropped: H-2 job-condition detail
+2017,h2b_2017.xlsx,HOURLY_WORK_SCHEDULE_AM,,dropped: hourly work schedule
+2017,h2b_2017.xlsx,HOURLY_WORK_SCHEDULE_PM,,dropped: hourly work schedule
+2017,h2b_2017.xlsx,MAJOR,,dropped: H-2 job-condition detail
+2017,h2b_2017.xlsx,NAME_REQUIRED_TRAINING,,dropped: H-2 job-condition detail
+2017,h2b_2017.xlsx,NUM_MONTHS_TRAINING,,dropped: H-2 job-condition detail
+2017,h2b_2017.xlsx,OTHER_EDUCATION,,dropped: H-2 job-condition detail
+2017,h2b_2017.xlsx,OTHER_WORKSITE_LOCATION,,dropped: free-text secondary worksite note
+2017,h2b_2017.xlsx,SECOND_DIPLOMA,,dropped: H-2 job-condition detail
+2017,h2b_2017.xlsx,SECOND_DIPLOMA_MAJOR,,dropped: H-2 job-condition detail
+2017,h2b_2017.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2017,h2b_2017.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2017,h2b_2017.xlsx,TRAINING_REQUIRED,,dropped: H-2 job-condition detail
+2018,h2b_2018.xlsx,AGENT_POC_EMPLOYER_REP_BY_AGENT,agent_representing_employer,mapped
+2018,h2b_2018.xlsx,NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2018,h2b_2018.xlsx,,application_type,absent this year
+2018,h2b_2018.xlsx,LAWFIRM_NAME,attorney_law_firm_name,mapped
+2018,h2b_2018.xlsx,,cap_exempt,absent this year
+2018,h2b_2018.xlsx,CASE_NUMBER,case_number,mapped
+2018,h2b_2018.xlsx,CASE_STATUS,case_status,mapped
+2018,h2b_2018.xlsx,CERTIFICATION_BEGIN_DATE,certification_begin_date,mapped
+2018,h2b_2018.xlsx,CERTIFICATION_END_DATE,certification_end_date,mapped
+2018,h2b_2018.xlsx,DECISION_DATE,decision_date,mapped
+2018,h2b_2018.xlsx,EDUCATION_LEVEL,education_level,mapped
+2018,h2b_2018.xlsx,EMPLOYER_ADDRESS_1,employer_address,mapped
+2018,h2b_2018.xlsx,EMPLOYER_CITY,employer_city,mapped
+2018,h2b_2018.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2018,h2b_2018.xlsx,EMPLOYER_NAME,employer_name,mapped
+2018,h2b_2018.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2018,h2b_2018.xlsx,EMPLOYER_STATE,employer_state,mapped
+2018,h2b_2018.xlsx,TRADE_NAME_DBA,employer_trade_name,mapped
+2018,h2b_2018.xlsx,JOB_START_DATE,employment_begin_date,mapped
+2018,h2b_2018.xlsx,JOB_END_DATE,employment_end_date,mapped
+2018,h2b_2018.xlsx,FULL_TIME_POSITION,full_time_position,mapped
+2018,h2b_2018.xlsx,JOB_IDNUMBER,job_order_number,mapped
+2018,h2b_2018.xlsx,,job_order_submit_date,absent this year
+2018,h2b_2018.xlsx,JOB_TITLE,job_title,mapped
+2018,h2b_2018.xlsx,,msa_name,absent this year
+2018,h2b_2018.xlsx,NAICS_CODE,naics_id,mapped
+2018,h2b_2018.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2018,h2b_2018.xlsx,OVERTIME_RATE_FROM,overtime_rate_from,mapped
+2018,h2b_2018.xlsx,OVERTIME_RATE_TO,overtime_rate_to,mapped
+2018,h2b_2018.xlsx,,prevailing_wage,absent this year
+2018,h2b_2018.xlsx,,prevailing_wage_tracking_number,absent this year
+2018,h2b_2018.xlsx,,prevailing_wage_unit_of_pay,absent this year
+2018,h2b_2018.xlsx,SUBMITTED_DATE,received_date,mapped
+2018,h2b_2018.xlsx,,requested_begin_date,absent this year
+2018,h2b_2018.xlsx,,requested_end_date,absent this year
+2018,h2b_2018.xlsx,SOC_CODE,soc_id,mapped
+2018,h2b_2018.xlsx,SOC_TITLE,soc_title,mapped
+2018,h2b_2018.xlsx,SWA_NAME,swa_state,mapped
+2018,h2b_2018.xlsx,,type_of_employer,absent this year
+2018,h2b_2018.xlsx,VISA_TYPE,visa_class,mapped
+2018,h2b_2018.xlsx,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2018,h2b_2018.xlsx,,wage_offered_to,absent this year
+2018,h2b_2018.xlsx,PAY_RANGE_UNIT,wage_unit_of_pay,mapped
+2018,h2b_2018.xlsx,EMP_EXP_NUM_MONTHS,work_experience_months,mapped
+2018,h2b_2018.xlsx,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2018,h2b_2018.xlsx,NBR_WORKERS_REQUESTED,workers_requested,mapped
+2018,h2b_2018.xlsx,,worksite_address,absent this year
+2018,h2b_2018.xlsx,EMPLOYEE_WORKSITE_CITY,worksite_city,mapped
+2018,h2b_2018.xlsx,EMPLOYEE_WORKSITE_COUNTY,worksite_county,mapped
+2018,h2b_2018.xlsx,EMPLOYEE_POSTAL_CODE,worksite_postal_code,mapped
+2018,h2b_2018.xlsx,EMPLOYEE_WORK_STATE,worksite_state,mapped
+2018,h2b_2018.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2018,h2b_2018.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2018,h2b_2018.xlsx,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2018,h2b_2018.xlsx,EMPLOYER_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2018,h2b_2018.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2018,h2b_2018.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2018,h2b_2018.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2018,h2b_2018.xlsx,EMP_EXPERIENCE_REQD,,dropped: H-2 job-condition detail
+2018,h2b_2018.xlsx,HOURLY_WORK_SCHEDULE_AM,,dropped: hourly work schedule
+2018,h2b_2018.xlsx,HOURLY_WORK_SCHEDULE_PM,,dropped: hourly work schedule
+2018,h2b_2018.xlsx,MAJOR,,dropped: H-2 job-condition detail
+2018,h2b_2018.xlsx,NAME_REQUIRED_TRAINING,,dropped: H-2 job-condition detail
+2018,h2b_2018.xlsx,NUM_MONTHS_TRAINING,,dropped: H-2 job-condition detail
+2018,h2b_2018.xlsx,OTHER_EDUCATION,,dropped: H-2 job-condition detail
+2018,h2b_2018.xlsx,OTHER_WORKSITE_LOCATION,,dropped: free-text secondary worksite note
+2018,h2b_2018.xlsx,SECOND_DIPLOMA,,dropped: H-2 job-condition detail
+2018,h2b_2018.xlsx,SECOND_DIPLOMA_MAJOR,,dropped: H-2 job-condition detail
+2018,h2b_2018.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2018,h2b_2018.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2018,h2b_2018.xlsx,TRAINING_REQUIRED,,dropped: H-2 job-condition detail
+2019,h2b_2019.xlsx,EMPLOYER_REP_BY_AGENT,agent_representing_employer,mapped
+2019,h2b_2019.xlsx,BASIC_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2019,h2b_2019.xlsx,,application_type,absent this year
+2019,h2b_2019.xlsx,LAWFIRM_NAME,attorney_law_firm_name,mapped
+2019,h2b_2019.xlsx,,cap_exempt,absent this year
+2019,h2b_2019.xlsx,CASE_NUMBER,case_number,mapped
+2019,h2b_2019.xlsx,CASE_STATUS,case_status,mapped
+2019,h2b_2019.xlsx,CERTIFICATION_BEGIN_DATE,certification_begin_date,mapped
+2019,h2b_2019.xlsx,CERTIFICATION_END_DATE,certification_end_date,mapped
+2019,h2b_2019.xlsx,DECISION_DATE,decision_date,mapped
+2019,h2b_2019.xlsx,EDUCATION_LEVEL,education_level,mapped
+2019,h2b_2019.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2019,h2b_2019.xlsx,EMPLOYER_CITY,employer_city,mapped
+2019,h2b_2019.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2019,h2b_2019.xlsx,EMPLOYER_NAME,employer_name,mapped
+2019,h2b_2019.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2019,h2b_2019.xlsx,EMPLOYER_STATE,employer_state,mapped
+2019,h2b_2019.xlsx,TRADE_NAME_DBA,employer_trade_name,mapped
+2019,h2b_2019.xlsx,JOB_START_DATE,employment_begin_date,mapped
+2019,h2b_2019.xlsx,JOB_END_DATE,employment_end_date,mapped
+2019,h2b_2019.xlsx,FULL_TIME_POSITION,full_time_position,mapped
+2019,h2b_2019.xlsx,JOB_IDNUMBER,job_order_number,mapped
+2019,h2b_2019.xlsx,,job_order_submit_date,absent this year
+2019,h2b_2019.xlsx,JOB_TITLE,job_title,mapped
+2019,h2b_2019.xlsx,,msa_name,absent this year
+2019,h2b_2019.xlsx,NAICS_CODE,naics_id,mapped
+2019,h2b_2019.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2019,h2b_2019.xlsx,OVERTIME_RATE_FROM,overtime_rate_from,mapped
+2019,h2b_2019.xlsx,OVERTIME_RATE_TO,overtime_rate_to,mapped
+2019,h2b_2019.xlsx,,prevailing_wage,absent this year
+2019,h2b_2019.xlsx,,prevailing_wage_tracking_number,absent this year
+2019,h2b_2019.xlsx,,prevailing_wage_unit_of_pay,absent this year
+2019,h2b_2019.xlsx,SUBMITTED_DATE,received_date,mapped
+2019,h2b_2019.xlsx,,requested_begin_date,absent this year
+2019,h2b_2019.xlsx,,requested_end_date,absent this year
+2019,h2b_2019.xlsx,SOC_CODE,soc_id,mapped
+2019,h2b_2019.xlsx,SOC_TITLE,soc_title,mapped
+2019,h2b_2019.xlsx,SWA_NAME,swa_state,mapped
+2019,h2b_2019.xlsx,,type_of_employer,absent this year
+2019,h2b_2019.xlsx,VISA_CLASS,visa_class,mapped
+2019,h2b_2019.xlsx,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2019,h2b_2019.xlsx,,wage_offered_to,absent this year
+2019,h2b_2019.xlsx,PAY_RANGE_UNIT,wage_unit_of_pay,mapped
+2019,h2b_2019.xlsx,EMP_EXP_NUM_MONTHS,work_experience_months,mapped
+2019,h2b_2019.xlsx,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2019,h2b_2019.xlsx,NBR_WORKERS_REQUESTED,workers_requested,mapped
+2019,h2b_2019.xlsx,,worksite_address,absent this year
+2019,h2b_2019.xlsx,WORKSITE_CITY,worksite_city,mapped
+2019,h2b_2019.xlsx,WORKSITE_COUNTY,worksite_county,mapped
+2019,h2b_2019.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2019,h2b_2019.xlsx,WORKSITE_STATE,worksite_state,mapped
+2019,h2b_2019.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2019,h2b_2019.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2019,h2b_2019.xlsx,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2019,h2b_2019.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2019,h2b_2019.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2019,h2b_2019.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2019,h2b_2019.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2019,h2b_2019.xlsx,EMP_EXPERIENCE_REQD,,dropped: H-2 job-condition detail
+2019,h2b_2019.xlsx,HOURLY_WORK_SCHEDULE_AM,,dropped: hourly work schedule
+2019,h2b_2019.xlsx,HOURLY_WORK_SCHEDULE_PM,,dropped: hourly work schedule
+2019,h2b_2019.xlsx,MAJOR,,dropped: H-2 job-condition detail
+2019,h2b_2019.xlsx,NAME_REQUIRED_TRAINING,,dropped: H-2 job-condition detail
+2019,h2b_2019.xlsx,NUM_MONTHS_TRAINING,,dropped: H-2 job-condition detail
+2019,h2b_2019.xlsx,OTHER_EDUCATION,,dropped: H-2 job-condition detail
+2019,h2b_2019.xlsx,OTHER_WORKSITE_LOCATION,,dropped: free-text secondary worksite note
+2019,h2b_2019.xlsx,SECOND_DIPLOMA,,dropped: H-2 job-condition detail
+2019,h2b_2019.xlsx,SECOND_DIPLOMA_MAJOR,,dropped: H-2 job-condition detail
+2019,h2b_2019.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2019,h2b_2019.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2019,h2b_2019.xlsx,TRAINING_REQUIRED,,dropped: H-2 job-condition detail
+2020,h2b_2020.xlsx,TYPE_OF_REPRESENTATION,agent_representing_employer,mapped
+2020,h2b_2020.xlsx,ANTICIPATED_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2020,h2b_2020.xlsx,,application_type,absent this year
+2020,h2b_2020.xlsx,LAWFIRM_NAME_BUSINESS_NAME,attorney_law_firm_name,mapped
+2020,h2b_2020.xlsx,CAP_EXEMPT,cap_exempt,mapped
+2020,h2b_2020.xlsx,CASE_NUMBER,case_number,mapped
+2020,h2b_2020.xlsx,CASE_STATUS,case_status,mapped
+2020,h2b_2020.xlsx,,certification_begin_date,absent this year
+2020,h2b_2020.xlsx,,certification_end_date,absent this year
+2020,h2b_2020.xlsx,DECISION_DATE,decision_date,mapped
+2020,h2b_2020.xlsx,EDUCATION_LEVEL,education_level,mapped
+2020,h2b_2020.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2020,h2b_2020.xlsx,EMPLOYER_CITY,employer_city,mapped
+2020,h2b_2020.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2020,h2b_2020.xlsx,EMPLOYER_NAME,employer_name,mapped
+2020,h2b_2020.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2020,h2b_2020.xlsx,EMPLOYER_STATE,employer_state,mapped
+2020,h2b_2020.xlsx,TRADE_NAME_DBA,employer_trade_name,mapped
+2020,h2b_2020.xlsx,EMPLOYMENT_BEGIN_DATE,employment_begin_date,mapped
+2020,h2b_2020.xlsx,EMPLOYMENT_END_DATE,employment_end_date,mapped
+2020,h2b_2020.xlsx,,full_time_position,absent this year
+2020,h2b_2020.xlsx,,job_order_number,absent this year
+2020,h2b_2020.xlsx,JOB_ORDER_SUBMIT_DATE,job_order_submit_date,mapped
+2020,h2b_2020.xlsx,JOB_TITLE,job_title,mapped
+2020,h2b_2020.xlsx,MSA_NAME_OES_AREA_TITLE,msa_name,mapped
+2020,h2b_2020.xlsx,NAICS_CODE,naics_id,mapped
+2020,h2b_2020.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2020,h2b_2020.xlsx,OVERTIME_RATE_FROM,overtime_rate_from,mapped
+2020,h2b_2020.xlsx,OVERTIME_RATE_TO,overtime_rate_to,mapped
+2020,h2b_2020.xlsx,,prevailing_wage,absent this year
+2020,h2b_2020.xlsx,1st_PWD_CASE_NUMBER,prevailing_wage_tracking_number,mapped
+2020,h2b_2020.xlsx,,prevailing_wage_unit_of_pay,absent this year
+2020,h2b_2020.xlsx,RECEIVED_DATE,received_date,mapped
+2020,h2b_2020.xlsx,REQUESTED_BEGIN_DATE,requested_begin_date,mapped
+2020,h2b_2020.xlsx,REQUESTED_END_DATE,requested_end_date,mapped
+2020,h2b_2020.xlsx,SOC_CODE,soc_id,mapped
+2020,h2b_2020.xlsx,SOC_TITLE,soc_title,mapped
+2020,h2b_2020.xlsx,SWA_STATE,swa_state,mapped
+2020,h2b_2020.xlsx,TYPE_OF_EMPLOYER,type_of_employer,mapped
+2020,h2b_2020.xlsx,,visa_class,absent this year
+2020,h2b_2020.xlsx,BASIC_WAGE_RATE_FROM,wage_offered_from,mapped
+2020,h2b_2020.xlsx,BASIC_WAGE_RATE_TO,wage_offered_to,mapped
+2020,h2b_2020.xlsx,PER,wage_unit_of_pay,mapped
+2020,h2b_2020.xlsx,WORK_EXPERIENCE_MONTHS,work_experience_months,mapped
+2020,h2b_2020.xlsx,TOTAL_WORKERS_CERTIFIED,workers_certified,mapped
+2020,h2b_2020.xlsx,TOTAL_WORKERS_REQUESTED,workers_requested,mapped
+2020,h2b_2020.xlsx,WORKSITE_ADDRESS1,worksite_address,mapped
+2020,h2b_2020.xlsx,WORKSITE_CITY,worksite_city,mapped
+2020,h2b_2020.xlsx,WORKSITE_COUNTY,worksite_county,mapped
+2020,h2b_2020.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2020,h2b_2020.xlsx,WORKSITE_STATE,worksite_state,mapped
+2020,h2b_2020.xlsx,2nd_PWD_CASE_NUMBER,,dropped: additional prevailing-wage determination
+2020,h2b_2020.xlsx,3rd_PWD_CASE_NUMBER,,dropped: additional prevailing-wage determination
+2020,h2b_2020.xlsx,ADDITIONAL_WAGE_CONDITIONS,,dropped: H-2 contract / attestation detail
+2020,h2b_2020.xlsx,APPENDIX_D_COMPLETED,,dropped: form attachment flag
+2020,h2b_2020.xlsx,ATTORNEY_AGENT_ADDRESS1,,dropped: attorney/agent personal details
+2020,h2b_2020.xlsx,ATTORNEY_AGENT_ADDRESS2,,dropped: attorney/agent personal details
+2020,h2b_2020.xlsx,ATTORNEY_AGENT_CITY,,dropped: attorney/agent personal details
+2020,h2b_2020.xlsx,ATTORNEY_AGENT_COUNTRY,,dropped: attorney/agent personal details
+2020,h2b_2020.xlsx,ATTORNEY_AGENT_EMAIL_ADDRESS,,dropped: attorney/agent personal details
+2020,h2b_2020.xlsx,ATTORNEY_AGENT_FIRST_NAME,,dropped: attorney/agent personal details
+2020,h2b_2020.xlsx,ATTORNEY_AGENT_LAST_NAME,,dropped: attorney/agent personal details
+2020,h2b_2020.xlsx,ATTORNEY_AGENT_MIDDLE_NAME,,dropped: attorney/agent personal details
+2020,h2b_2020.xlsx,ATTORNEY_AGENT_PHONE,,dropped: attorney/agent personal details
+2020,h2b_2020.xlsx,ATTORNEY_AGENT_PHONE_EXT,,dropped: attorney/agent personal details
+2020,h2b_2020.xlsx,ATTORNEY_AGENT_POSTAL_CODE,,dropped: attorney/agent personal details
+2020,h2b_2020.xlsx,ATTORNEY_AGENT_PROVINCE,,dropped: attorney/agent personal details
+2020,h2b_2020.xlsx,ATTORNEY_AGENT_STATE,,dropped: attorney/agent personal details
+2020,h2b_2020.xlsx,BOARD_LODGING_OTHER_FACILITIES,,dropped: H-2 contract / attestation detail
+2020,h2b_2020.xlsx,DAILY_TRANSPORTATION,,dropped: H-2 contract / attestation detail
+2020,h2b_2020.xlsx,DEDUCTIONS_FROM_PAY,,dropped: H-2 contract / attestation detail
+2020,h2b_2020.xlsx,EMAIL_TO_APPLY,,dropped: job application contact
+2020,h2b_2020.xlsx,EMERGENCY_FILING_PWD_ATTACHED,,dropped: form attachment flag
+2020,h2b_2020.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2020,h2b_2020.xlsx,EMPLOYER_APPENDIX_B_ATTACHED,,dropped: form attachment flag
+2020,h2b_2020.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2020,h2b_2020.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2020,h2b_2020.xlsx,EMPLOYER_POC_ADDRESS1,,dropped: employer point-of-contact personal details
+2020,h2b_2020.xlsx,EMPLOYER_POC_ADDRESS2,,dropped: employer point-of-contact personal details
+2020,h2b_2020.xlsx,EMPLOYER_POC_CITY,,dropped: employer point-of-contact personal details
+2020,h2b_2020.xlsx,EMPLOYER_POC_COUNTRY,,dropped: employer point-of-contact personal details
+2020,h2b_2020.xlsx,EMPLOYER_POC_EMAIL,,dropped: employer point-of-contact personal details
+2020,h2b_2020.xlsx,EMPLOYER_POC_FIRST_NAME,,dropped: employer point-of-contact personal details
+2020,h2b_2020.xlsx,EMPLOYER_POC_JOB_TITLE,,dropped: employer point-of-contact personal details
+2020,h2b_2020.xlsx,EMPLOYER_POC_LAST_NAME,,dropped: employer point-of-contact personal details
+2020,h2b_2020.xlsx,EMPLOYER_POC_MIDDLE_NAME,,dropped: employer point-of-contact personal details
+2020,h2b_2020.xlsx,EMPLOYER_POC_PHONE,,dropped: employer point-of-contact personal details
+2020,h2b_2020.xlsx,EMPLOYER_POC_PHONE_EXT,,dropped: employer point-of-contact personal details
+2020,h2b_2020.xlsx,EMPLOYER_POC_POSTAL_CODE,,dropped: employer point-of-contact personal details
+2020,h2b_2020.xlsx,EMPLOYER_POC_PROVINCE,,dropped: employer point-of-contact personal details
+2020,h2b_2020.xlsx,EMPLOYER_POC_STATE,,dropped: employer point-of-contact personal details
+2020,h2b_2020.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2020,h2b_2020.xlsx,EMP_CLIENT_APPENDIX_B_ATTACHED,,dropped: form attachment flag
+2020,h2b_2020.xlsx,EMP_PROVIDED_TOOLS_EQUIPMENT,,dropped: H-2 contract / attestation detail
+2020,h2b_2020.xlsx,FOREIGN_LABOR_RECRUITER,,dropped: H-2 contract / attestation detail
+2020,h2b_2020.xlsx,FRIDAY_HOURS,,dropped: per-weekday hour schedule
+2020,h2b_2020.xlsx,HOURLY_SCHEDULE_BEGIN,,dropped: hourly work schedule
+2020,h2b_2020.xlsx,HOURLY_SCHEDULE_END,,dropped: hourly work schedule
+2020,h2b_2020.xlsx,MONDAY_HOURS,,dropped: per-weekday hour schedule
+2020,h2b_2020.xlsx,NAME_OF_HIGHEST_STATE_COURT,,dropped: attorney bar detail
+2020,h2b_2020.xlsx,ON_THE_JOB_TRAINING_AVAILABLE,,dropped: H-2 contract / attestation detail
+2020,h2b_2020.xlsx,OTHER_WORKSITE_LOCATION,,dropped: free-text secondary worksite note
+2020,h2b_2020.xlsx,OVERTIME_AVAILABLE,,dropped: H-2 contract / attestation detail
+2020,h2b_2020.xlsx,PHONE_TO_APPLY,,dropped: job application contact
+2020,h2b_2020.xlsx,PREPARER_BUSINESS_NAME,,dropped: form preparer personal details
+2020,h2b_2020.xlsx,PREPARER_EMAIL,,dropped: form preparer personal details
+2020,h2b_2020.xlsx,PREPARER_FIRST_NAME,,dropped: form preparer personal details
+2020,h2b_2020.xlsx,PREPARER_LAST_NAME,,dropped: form preparer personal details
+2020,h2b_2020.xlsx,PREPARER_MIDDLE_NAME,,dropped: form preparer personal details
+2020,h2b_2020.xlsx,SATURDAY_HOURS,,dropped: per-weekday hour schedule
+2020,h2b_2020.xlsx,SPECIAL_REQUIREMENTS,,dropped: H-2 job-condition detail
+2020,h2b_2020.xlsx,STATE_OF_HIGHEST_COURT,,dropped: attorney bar detail
+2020,h2b_2020.xlsx,SUNDAY_HOURS,,dropped: per-weekday hour schedule
+2020,h2b_2020.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2020,h2b_2020.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2020,h2b_2020.xlsx,THURSDAY_HOURS,,dropped: per-weekday hour schedule
+2020,h2b_2020.xlsx,TRAINING_MONTHS,,dropped: H-2 job-condition detail
+2020,h2b_2020.xlsx,TUESDAY_HOURS,,dropped: per-weekday hour schedule
+2020,h2b_2020.xlsx,WEBSITE_TO_APPLY,,dropped: job application contact
+2020,h2b_2020.xlsx,WEDNESDAY_HOURS,,dropped: per-weekday hour schedule
+2020,h2b_2020.xlsx,WORKSITE_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2021,h2b_2021.xlsx,TYPE_OF_REPRESENTATION,agent_representing_employer,mapped
+2021,h2b_2021.xlsx,ANTICIPATED_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2021,h2b_2021.xlsx,,application_type,absent this year
+2021,h2b_2021.xlsx,LAWFIRM_NAME_BUSINESS_NAME,attorney_law_firm_name,mapped
+2021,h2b_2021.xlsx,CAP_EXEMPT,cap_exempt,mapped
+2021,h2b_2021.xlsx,CASE_NUMBER,case_number,mapped
+2021,h2b_2021.xlsx,CASE_STATUS,case_status,mapped
+2021,h2b_2021.xlsx,,certification_begin_date,absent this year
+2021,h2b_2021.xlsx,,certification_end_date,absent this year
+2021,h2b_2021.xlsx,DECISION_DATE,decision_date,mapped
+2021,h2b_2021.xlsx,EDUCATION_LEVEL,education_level,mapped
+2021,h2b_2021.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2021,h2b_2021.xlsx,EMPLOYER_CITY,employer_city,mapped
+2021,h2b_2021.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2021,h2b_2021.xlsx,EMPLOYER_NAME,employer_name,mapped
+2021,h2b_2021.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2021,h2b_2021.xlsx,EMPLOYER_STATE,employer_state,mapped
+2021,h2b_2021.xlsx,TRADE_NAME_DBA,employer_trade_name,mapped
+2021,h2b_2021.xlsx,EMPLOYMENT_BEGIN_DATE,employment_begin_date,mapped
+2021,h2b_2021.xlsx,EMPLOYMENT_END_DATE,employment_end_date,mapped
+2021,h2b_2021.xlsx,,full_time_position,absent this year
+2021,h2b_2021.xlsx,,job_order_number,absent this year
+2021,h2b_2021.xlsx,JOB_ORDER_SUBMIT_DATE,job_order_submit_date,mapped
+2021,h2b_2021.xlsx,JOB_TITLE,job_title,mapped
+2021,h2b_2021.xlsx,MSA_NAME_OES_AREA_TITLE,msa_name,mapped
+2021,h2b_2021.xlsx,NAICS_CODE,naics_id,mapped
+2021,h2b_2021.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2021,h2b_2021.xlsx,OVERTIME_RATE_FROM,overtime_rate_from,mapped
+2021,h2b_2021.xlsx,OVERTIME_RATE_TO,overtime_rate_to,mapped
+2021,h2b_2021.xlsx,,prevailing_wage,absent this year
+2021,h2b_2021.xlsx,1st_PWD_CASE_NUMBER,prevailing_wage_tracking_number,mapped
+2021,h2b_2021.xlsx,,prevailing_wage_unit_of_pay,absent this year
+2021,h2b_2021.xlsx,RECEIVED_DATE,received_date,mapped
+2021,h2b_2021.xlsx,REQUESTED_BEGIN_DATE,requested_begin_date,mapped
+2021,h2b_2021.xlsx,REQUESTED_END_DATE,requested_end_date,mapped
+2021,h2b_2021.xlsx,SOC_CODE,soc_id,mapped
+2021,h2b_2021.xlsx,SOC_TITLE,soc_title,mapped
+2021,h2b_2021.xlsx,SWA_STATE,swa_state,mapped
+2021,h2b_2021.xlsx,TYPE_OF_EMPLOYER,type_of_employer,mapped
+2021,h2b_2021.xlsx,,visa_class,absent this year
+2021,h2b_2021.xlsx,BASIC_WAGE_RATE_FROM,wage_offered_from,mapped
+2021,h2b_2021.xlsx,BASIC_WAGE_RATE_TO,wage_offered_to,mapped
+2021,h2b_2021.xlsx,PER,wage_unit_of_pay,mapped
+2021,h2b_2021.xlsx,WORK_EXPERIENCE_MONTHS,work_experience_months,mapped
+2021,h2b_2021.xlsx,TOTAL_WORKERS_CERTIFIED,workers_certified,mapped
+2021,h2b_2021.xlsx,TOTAL_WORKERS_REQUESTED,workers_requested,mapped
+2021,h2b_2021.xlsx,WORKSITE_ADDRESS1,worksite_address,mapped
+2021,h2b_2021.xlsx,WORKSITE_CITY,worksite_city,mapped
+2021,h2b_2021.xlsx,WORKSITE_COUNTY,worksite_county,mapped
+2021,h2b_2021.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2021,h2b_2021.xlsx,WORKSITE_STATE,worksite_state,mapped
+2021,h2b_2021.xlsx,2nd_PWD_CASE_NUMBER,,dropped: additional prevailing-wage determination
+2021,h2b_2021.xlsx,3rd_PWD_CASE_NUMBER,,dropped: additional prevailing-wage determination
+2021,h2b_2021.xlsx,ADDITIONAL_WAGE_CONDITIONS,,dropped: H-2 contract / attestation detail
+2021,h2b_2021.xlsx,APPENDIX_D_COMPLETED,,dropped: form attachment flag
+2021,h2b_2021.xlsx,ATTORNEY_AGENT_ADDRESS1,,dropped: attorney/agent personal details
+2021,h2b_2021.xlsx,ATTORNEY_AGENT_ADDRESS2,,dropped: attorney/agent personal details
+2021,h2b_2021.xlsx,ATTORNEY_AGENT_CITY,,dropped: attorney/agent personal details
+2021,h2b_2021.xlsx,ATTORNEY_AGENT_COUNTRY,,dropped: attorney/agent personal details
+2021,h2b_2021.xlsx,ATTORNEY_AGENT_EMAIL_ADDRESS,,dropped: attorney/agent personal details
+2021,h2b_2021.xlsx,ATTORNEY_AGENT_FIRST_NAME,,dropped: attorney/agent personal details
+2021,h2b_2021.xlsx,ATTORNEY_AGENT_LAST_NAME,,dropped: attorney/agent personal details
+2021,h2b_2021.xlsx,ATTORNEY_AGENT_MIDDLE_NAME,,dropped: attorney/agent personal details
+2021,h2b_2021.xlsx,ATTORNEY_AGENT_PHONE,,dropped: attorney/agent personal details
+2021,h2b_2021.xlsx,ATTORNEY_AGENT_PHONE_EXT,,dropped: attorney/agent personal details
+2021,h2b_2021.xlsx,ATTORNEY_AGENT_POSTAL_CODE,,dropped: attorney/agent personal details
+2021,h2b_2021.xlsx,ATTORNEY_AGENT_PROVINCE,,dropped: attorney/agent personal details
+2021,h2b_2021.xlsx,ATTORNEY_AGENT_STATE,,dropped: attorney/agent personal details
+2021,h2b_2021.xlsx,BOARD_LODGING_OTHER_FACILITIES,,dropped: H-2 contract / attestation detail
+2021,h2b_2021.xlsx,DAILY_TRANSPORTATION,,dropped: H-2 contract / attestation detail
+2021,h2b_2021.xlsx,DEDUCTIONS_FROM_PAY,,dropped: H-2 contract / attestation detail
+2021,h2b_2021.xlsx,EMAIL_TO_APPLY,,dropped: job application contact
+2021,h2b_2021.xlsx,EMERGENCY_FILING_PWD_ATTACHED,,dropped: form attachment flag
+2021,h2b_2021.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2021,h2b_2021.xlsx,EMPLOYER_APPENDIX_B_ATTACHED,,dropped: form attachment flag
+2021,h2b_2021.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2021,h2b_2021.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2021,h2b_2021.xlsx,EMPLOYER_POC_ADDRESS1,,dropped: employer point-of-contact personal details
+2021,h2b_2021.xlsx,EMPLOYER_POC_ADDRESS2,,dropped: employer point-of-contact personal details
+2021,h2b_2021.xlsx,EMPLOYER_POC_CITY,,dropped: employer point-of-contact personal details
+2021,h2b_2021.xlsx,EMPLOYER_POC_COUNTRY,,dropped: employer point-of-contact personal details
+2021,h2b_2021.xlsx,EMPLOYER_POC_EMAIL,,dropped: employer point-of-contact personal details
+2021,h2b_2021.xlsx,EMPLOYER_POC_FIRST_NAME,,dropped: employer point-of-contact personal details
+2021,h2b_2021.xlsx,EMPLOYER_POC_JOB_TITLE,,dropped: employer point-of-contact personal details
+2021,h2b_2021.xlsx,EMPLOYER_POC_LAST_NAME,,dropped: employer point-of-contact personal details
+2021,h2b_2021.xlsx,EMPLOYER_POC_MIDDLE_NAME,,dropped: employer point-of-contact personal details
+2021,h2b_2021.xlsx,EMPLOYER_POC_PHONE,,dropped: employer point-of-contact personal details
+2021,h2b_2021.xlsx,EMPLOYER_POC_PHONE_EXT,,dropped: employer point-of-contact personal details
+2021,h2b_2021.xlsx,EMPLOYER_POC_POSTAL_CODE,,dropped: employer point-of-contact personal details
+2021,h2b_2021.xlsx,EMPLOYER_POC_PROVINCE,,dropped: employer point-of-contact personal details
+2021,h2b_2021.xlsx,EMPLOYER_POC_STATE,,dropped: employer point-of-contact personal details
+2021,h2b_2021.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2021,h2b_2021.xlsx,EMP_CLIENT_APPENDIX_B_ATTACHED,,dropped: form attachment flag
+2021,h2b_2021.xlsx,EMP_PROVIDED_TOOLS_EQUIPMENT,,dropped: H-2 contract / attestation detail
+2021,h2b_2021.xlsx,FOREIGN_LABOR_RECRUITER,,dropped: H-2 contract / attestation detail
+2021,h2b_2021.xlsx,FRIDAY_HOURS,,dropped: per-weekday hour schedule
+2021,h2b_2021.xlsx,HOURLY_SCHEDULE_BEGIN,,dropped: hourly work schedule
+2021,h2b_2021.xlsx,HOURLY_SCHEDULE_END,,dropped: hourly work schedule
+2021,h2b_2021.xlsx,MONDAY_HOURS,,dropped: per-weekday hour schedule
+2021,h2b_2021.xlsx,NAME_OF_HIGHEST_STATE_COURT,,dropped: attorney bar detail
+2021,h2b_2021.xlsx,ON_THE_JOB_TRAINING_AVAILABLE,,dropped: H-2 contract / attestation detail
+2021,h2b_2021.xlsx,OTHER_WORKSITE_LOCATION,,dropped: free-text secondary worksite note
+2021,h2b_2021.xlsx,OVERTIME_AVAILABLE,,dropped: H-2 contract / attestation detail
+2021,h2b_2021.xlsx,PHONE_TO_APPLY,,dropped: job application contact
+2021,h2b_2021.xlsx,PREPARER_BUSINESS_NAME,,dropped: form preparer personal details
+2021,h2b_2021.xlsx,PREPARER_EMAIL,,dropped: form preparer personal details
+2021,h2b_2021.xlsx,PREPARER_FIRST_NAME,,dropped: form preparer personal details
+2021,h2b_2021.xlsx,PREPARER_LAST_NAME,,dropped: form preparer personal details
+2021,h2b_2021.xlsx,PREPARER_MIDDLE_NAME,,dropped: form preparer personal details
+2021,h2b_2021.xlsx,SATURDAY_HOURS,,dropped: per-weekday hour schedule
+2021,h2b_2021.xlsx,SPECIAL_REQUIREMENTS,,dropped: H-2 job-condition detail
+2021,h2b_2021.xlsx,STATE_OF_HIGHEST_COURT,,dropped: attorney bar detail
+2021,h2b_2021.xlsx,SUNDAY_HOURS,,dropped: per-weekday hour schedule
+2021,h2b_2021.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2021,h2b_2021.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2021,h2b_2021.xlsx,THURSDAY_HOURS,,dropped: per-weekday hour schedule
+2021,h2b_2021.xlsx,TRAINING_MONTHS,,dropped: H-2 job-condition detail
+2021,h2b_2021.xlsx,TUESDAY_HOURS,,dropped: per-weekday hour schedule
+2021,h2b_2021.xlsx,WEBSITE_TO_APPLY,,dropped: job application contact
+2021,h2b_2021.xlsx,WEDNESDAY_HOURS,,dropped: per-weekday hour schedule
+2021,h2b_2021.xlsx,WORKSITE_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2022,h2b_2022.xlsx,TYPE_OF_REPRESENTATION,agent_representing_employer,mapped
+2022,h2b_2022.xlsx,ANTICIPATED_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2022,h2b_2022.xlsx,,application_type,absent this year
+2022,h2b_2022.xlsx,LAWFIRM_NAME_BUSINESS_NAME,attorney_law_firm_name,mapped
+2022,h2b_2022.xlsx,CAP_EXEMPT,cap_exempt,mapped
+2022,h2b_2022.xlsx,CASE_NUMBER,case_number,mapped
+2022,h2b_2022.xlsx,CASE_STATUS,case_status,mapped
+2022,h2b_2022.xlsx,,certification_begin_date,absent this year
+2022,h2b_2022.xlsx,,certification_end_date,absent this year
+2022,h2b_2022.xlsx,DECISION_DATE,decision_date,mapped
+2022,h2b_2022.xlsx,EDUCATION_LEVEL,education_level,mapped
+2022,h2b_2022.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2022,h2b_2022.xlsx,EMPLOYER_CITY,employer_city,mapped
+2022,h2b_2022.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2022,h2b_2022.xlsx,EMPLOYER_NAME,employer_name,mapped
+2022,h2b_2022.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2022,h2b_2022.xlsx,EMPLOYER_STATE,employer_state,mapped
+2022,h2b_2022.xlsx,TRADE_NAME_DBA,employer_trade_name,mapped
+2022,h2b_2022.xlsx,EMPLOYMENT_BEGIN_DATE,employment_begin_date,mapped
+2022,h2b_2022.xlsx,EMPLOYMENT_END_DATE,employment_end_date,mapped
+2022,h2b_2022.xlsx,,full_time_position,absent this year
+2022,h2b_2022.xlsx,,job_order_number,absent this year
+2022,h2b_2022.xlsx,JOB_ORDER_SUBMIT_DATE,job_order_submit_date,mapped
+2022,h2b_2022.xlsx,JOB_TITLE,job_title,mapped
+2022,h2b_2022.xlsx,MSA_NAME_OES_AREA_TITLE,msa_name,mapped
+2022,h2b_2022.xlsx,NAICS_CODE,naics_id,mapped
+2022,h2b_2022.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2022,h2b_2022.xlsx,OVERTIME_RATE_FROM,overtime_rate_from,mapped
+2022,h2b_2022.xlsx,OVERTIME_RATE_TO,overtime_rate_to,mapped
+2022,h2b_2022.xlsx,,prevailing_wage,absent this year
+2022,h2b_2022.xlsx,1st_PWD_CASE_NUMBER,prevailing_wage_tracking_number,mapped
+2022,h2b_2022.xlsx,,prevailing_wage_unit_of_pay,absent this year
+2022,h2b_2022.xlsx,RECEIVED_DATE,received_date,mapped
+2022,h2b_2022.xlsx,REQUESTED_BEGIN_DATE,requested_begin_date,mapped
+2022,h2b_2022.xlsx,REQUESTED_END_DATE,requested_end_date,mapped
+2022,h2b_2022.xlsx,SOC_CODE,soc_id,mapped
+2022,h2b_2022.xlsx,SOC_TITLE,soc_title,mapped
+2022,h2b_2022.xlsx,SWA_STATE,swa_state,mapped
+2022,h2b_2022.xlsx,TYPE_OF_EMPLOYER,type_of_employer,mapped
+2022,h2b_2022.xlsx,,visa_class,absent this year
+2022,h2b_2022.xlsx,BASIC_WAGE_RATE_FROM,wage_offered_from,mapped
+2022,h2b_2022.xlsx,BASIC_WAGE_RATE_TO,wage_offered_to,mapped
+2022,h2b_2022.xlsx,PER,wage_unit_of_pay,mapped
+2022,h2b_2022.xlsx,WORK_EXPERIENCE_MONTHS,work_experience_months,mapped
+2022,h2b_2022.xlsx,TOTAL_WORKERS_CERTIFIED,workers_certified,mapped
+2022,h2b_2022.xlsx,TOTAL_WORKERS_REQUESTED,workers_requested,mapped
+2022,h2b_2022.xlsx,WORKSITE_ADDRESS1,worksite_address,mapped
+2022,h2b_2022.xlsx,WORKSITE_CITY,worksite_city,mapped
+2022,h2b_2022.xlsx,WORKSITE_COUNTY,worksite_county,mapped
+2022,h2b_2022.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2022,h2b_2022.xlsx,WORKSITE_STATE,worksite_state,mapped
+2022,h2b_2022.xlsx,2nd_PWD_CASE_NUMBER,,dropped: additional prevailing-wage determination
+2022,h2b_2022.xlsx,3rd_PWD_CASE_NUMBER,,dropped: additional prevailing-wage determination
+2022,h2b_2022.xlsx,ADDITIONAL_WAGE_CONDITIONS,,dropped: H-2 contract / attestation detail
+2022,h2b_2022.xlsx,APPENDIX_D_COMPLETED,,dropped: form attachment flag
+2022,h2b_2022.xlsx,ATTORNEY_AGENT_ADDRESS1,,dropped: attorney/agent personal details
+2022,h2b_2022.xlsx,ATTORNEY_AGENT_ADDRESS2,,dropped: attorney/agent personal details
+2022,h2b_2022.xlsx,ATTORNEY_AGENT_CITY,,dropped: attorney/agent personal details
+2022,h2b_2022.xlsx,ATTORNEY_AGENT_COUNTRY,,dropped: attorney/agent personal details
+2022,h2b_2022.xlsx,ATTORNEY_AGENT_EMAIL_ADDRESS,,dropped: attorney/agent personal details
+2022,h2b_2022.xlsx,ATTORNEY_AGENT_FIRST_NAME,,dropped: attorney/agent personal details
+2022,h2b_2022.xlsx,ATTORNEY_AGENT_LAST_NAME,,dropped: attorney/agent personal details
+2022,h2b_2022.xlsx,ATTORNEY_AGENT_MIDDLE_NAME,,dropped: attorney/agent personal details
+2022,h2b_2022.xlsx,ATTORNEY_AGENT_PHONE,,dropped: attorney/agent personal details
+2022,h2b_2022.xlsx,ATTORNEY_AGENT_PHONE_EXT,,dropped: attorney/agent personal details
+2022,h2b_2022.xlsx,ATTORNEY_AGENT_POSTAL_CODE,,dropped: attorney/agent personal details
+2022,h2b_2022.xlsx,ATTORNEY_AGENT_PROVINCE,,dropped: attorney/agent personal details
+2022,h2b_2022.xlsx,ATTORNEY_AGENT_STATE,,dropped: attorney/agent personal details
+2022,h2b_2022.xlsx,BOARD_LODGING_OTHER_FACILITIES,,dropped: H-2 contract / attestation detail
+2022,h2b_2022.xlsx,DAILY_TRANSPORTATION,,dropped: H-2 contract / attestation detail
+2022,h2b_2022.xlsx,DEDUCTIONS_FROM_PAY,,dropped: H-2 contract / attestation detail
+2022,h2b_2022.xlsx,EMAIL_TO_APPLY,,dropped: job application contact
+2022,h2b_2022.xlsx,EMERGENCY_FILING_PWD_ATTACHED,,dropped: form attachment flag
+2022,h2b_2022.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2022,h2b_2022.xlsx,EMPLOYER_APPENDIX_B_ATTACHED,,dropped: form attachment flag
+2022,h2b_2022.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2022,h2b_2022.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2022,h2b_2022.xlsx,EMPLOYER_POC_ADDRESS1,,dropped: employer point-of-contact personal details
+2022,h2b_2022.xlsx,EMPLOYER_POC_ADDRESS2,,dropped: employer point-of-contact personal details
+2022,h2b_2022.xlsx,EMPLOYER_POC_CITY,,dropped: employer point-of-contact personal details
+2022,h2b_2022.xlsx,EMPLOYER_POC_COUNTRY,,dropped: employer point-of-contact personal details
+2022,h2b_2022.xlsx,EMPLOYER_POC_EMAIL,,dropped: employer point-of-contact personal details
+2022,h2b_2022.xlsx,EMPLOYER_POC_FIRST_NAME,,dropped: employer point-of-contact personal details
+2022,h2b_2022.xlsx,EMPLOYER_POC_JOB_TITLE,,dropped: employer point-of-contact personal details
+2022,h2b_2022.xlsx,EMPLOYER_POC_LAST_NAME,,dropped: employer point-of-contact personal details
+2022,h2b_2022.xlsx,EMPLOYER_POC_MIDDLE_NAME,,dropped: employer point-of-contact personal details
+2022,h2b_2022.xlsx,EMPLOYER_POC_PHONE,,dropped: employer point-of-contact personal details
+2022,h2b_2022.xlsx,EMPLOYER_POC_PHONE_EXT,,dropped: employer point-of-contact personal details
+2022,h2b_2022.xlsx,EMPLOYER_POC_POSTAL_CODE,,dropped: employer point-of-contact personal details
+2022,h2b_2022.xlsx,EMPLOYER_POC_PROVINCE,,dropped: employer point-of-contact personal details
+2022,h2b_2022.xlsx,EMPLOYER_POC_STATE,,dropped: employer point-of-contact personal details
+2022,h2b_2022.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2022,h2b_2022.xlsx,EMP_CLIENT_APPENDIX_B_ATTACHED,,dropped: form attachment flag
+2022,h2b_2022.xlsx,EMP_PROVIDED_TOOLS_EQUIPMENT,,dropped: H-2 contract / attestation detail
+2022,h2b_2022.xlsx,FOREIGN_LABOR_RECRUITER,,dropped: H-2 contract / attestation detail
+2022,h2b_2022.xlsx,FRIDAY_HOURS,,dropped: per-weekday hour schedule
+2022,h2b_2022.xlsx,HOURLY_SCHEDULE_BEGIN,,dropped: hourly work schedule
+2022,h2b_2022.xlsx,HOURLY_SCHEDULE_END,,dropped: hourly work schedule
+2022,h2b_2022.xlsx,MONDAY_HOURS,,dropped: per-weekday hour schedule
+2022,h2b_2022.xlsx,NAME_OF_HIGHEST_STATE_COURT,,dropped: attorney bar detail
+2022,h2b_2022.xlsx,ON_THE_JOB_TRAINING_AVAILABLE,,dropped: H-2 contract / attestation detail
+2022,h2b_2022.xlsx,OTHER_WORKSITE_LOCATION,,dropped: free-text secondary worksite note
+2022,h2b_2022.xlsx,OVERTIME_AVAILABLE,,dropped: H-2 contract / attestation detail
+2022,h2b_2022.xlsx,PHONE_TO_APPLY,,dropped: job application contact
+2022,h2b_2022.xlsx,PREPARER_BUSINESS_NAME,,dropped: form preparer personal details
+2022,h2b_2022.xlsx,PREPARER_EMAIL,,dropped: form preparer personal details
+2022,h2b_2022.xlsx,PREPARER_FIRST_NAME,,dropped: form preparer personal details
+2022,h2b_2022.xlsx,PREPARER_LAST_NAME,,dropped: form preparer personal details
+2022,h2b_2022.xlsx,PREPARER_MIDDLE_NAME,,dropped: form preparer personal details
+2022,h2b_2022.xlsx,SATURDAY_HOURS,,dropped: per-weekday hour schedule
+2022,h2b_2022.xlsx,SPECIAL_REQUIREMENTS,,dropped: H-2 job-condition detail
+2022,h2b_2022.xlsx,STATE_OF_HIGHEST_COURT,,dropped: attorney bar detail
+2022,h2b_2022.xlsx,SUNDAY_HOURS,,dropped: per-weekday hour schedule
+2022,h2b_2022.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2022,h2b_2022.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2022,h2b_2022.xlsx,THURSDAY_HOURS,,dropped: per-weekday hour schedule
+2022,h2b_2022.xlsx,TRAINING_MONTHS,,dropped: H-2 job-condition detail
+2022,h2b_2022.xlsx,TUESDAY_HOURS,,dropped: per-weekday hour schedule
+2022,h2b_2022.xlsx,WEBSITE_TO_APPLY,,dropped: job application contact
+2022,h2b_2022.xlsx,WEDNESDAY_HOURS,,dropped: per-weekday hour schedule
+2022,h2b_2022.xlsx,WORKSITE_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2023,h2b_2023.xlsx,TYPE_OF_REPRESENTATION,agent_representing_employer,mapped
+2023,h2b_2023.xlsx,ANTICIPATED_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2023,h2b_2023.xlsx,,application_type,absent this year
+2023,h2b_2023.xlsx,LAWFIRM_NAME_BUSINESS_NAME,attorney_law_firm_name,mapped
+2023,h2b_2023.xlsx,CAP_EXEMPT,cap_exempt,mapped
+2023,h2b_2023.xlsx,CASE_NUMBER,case_number,mapped
+2023,h2b_2023.xlsx,CASE_STATUS,case_status,mapped
+2023,h2b_2023.xlsx,,certification_begin_date,absent this year
+2023,h2b_2023.xlsx,,certification_end_date,absent this year
+2023,h2b_2023.xlsx,DECISION_DATE,decision_date,mapped
+2023,h2b_2023.xlsx,EDUCATION_LEVEL,education_level,mapped
+2023,h2b_2023.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2023,h2b_2023.xlsx,EMPLOYER_CITY,employer_city,mapped
+2023,h2b_2023.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2023,h2b_2023.xlsx,EMPLOYER_NAME,employer_name,mapped
+2023,h2b_2023.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2023,h2b_2023.xlsx,EMPLOYER_STATE,employer_state,mapped
+2023,h2b_2023.xlsx,TRADE_NAME_DBA,employer_trade_name,mapped
+2023,h2b_2023.xlsx,EMPLOYMENT_BEGIN_DATE,employment_begin_date,mapped
+2023,h2b_2023.xlsx,EMPLOYMENT_END_DATE,employment_end_date,mapped
+2023,h2b_2023.xlsx,,full_time_position,absent this year
+2023,h2b_2023.xlsx,,job_order_number,absent this year
+2023,h2b_2023.xlsx,JOB_ORDER_SUBMIT_DATE,job_order_submit_date,mapped
+2023,h2b_2023.xlsx,JOB_TITLE,job_title,mapped
+2023,h2b_2023.xlsx,MSA_NAME_OES_AREA_TITLE,msa_name,mapped
+2023,h2b_2023.xlsx,NAICS_CODE,naics_id,mapped
+2023,h2b_2023.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2023,h2b_2023.xlsx,OVERTIME_RATE_FROM,overtime_rate_from,mapped
+2023,h2b_2023.xlsx,OVERTIME_RATE_TO,overtime_rate_to,mapped
+2023,h2b_2023.xlsx,,prevailing_wage,absent this year
+2023,h2b_2023.xlsx,1st_PWD_CASE_NUMBER,prevailing_wage_tracking_number,mapped
+2023,h2b_2023.xlsx,,prevailing_wage_unit_of_pay,absent this year
+2023,h2b_2023.xlsx,RECEIVED_DATE,received_date,mapped
+2023,h2b_2023.xlsx,REQUESTED_BEGIN_DATE,requested_begin_date,mapped
+2023,h2b_2023.xlsx,REQUESTED_END_DATE,requested_end_date,mapped
+2023,h2b_2023.xlsx,SOC_CODE,soc_id,mapped
+2023,h2b_2023.xlsx,SOC_TITLE,soc_title,mapped
+2023,h2b_2023.xlsx,SWA_STATE,swa_state,mapped
+2023,h2b_2023.xlsx,TYPE_OF_EMPLOYER,type_of_employer,mapped
+2023,h2b_2023.xlsx,,visa_class,absent this year
+2023,h2b_2023.xlsx,BASIC_WAGE_RATE_FROM,wage_offered_from,mapped
+2023,h2b_2023.xlsx,BASIC_WAGE_RATE_TO,wage_offered_to,mapped
+2023,h2b_2023.xlsx,PER,wage_unit_of_pay,mapped
+2023,h2b_2023.xlsx,WORK_EXPERIENCE_MONTHS,work_experience_months,mapped
+2023,h2b_2023.xlsx,TOTAL_WORKERS_CERTIFIED,workers_certified,mapped
+2023,h2b_2023.xlsx,TOTAL_WORKERS_REQUESTED,workers_requested,mapped
+2023,h2b_2023.xlsx,WORKSITE_ADDRESS1,worksite_address,mapped
+2023,h2b_2023.xlsx,WORKSITE_CITY,worksite_city,mapped
+2023,h2b_2023.xlsx,WORKSITE_COUNTY,worksite_county,mapped
+2023,h2b_2023.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2023,h2b_2023.xlsx,WORKSITE_STATE,worksite_state,mapped
+2023,h2b_2023.xlsx,2nd_PWD_CASE_NUMBER,,dropped: additional prevailing-wage determination
+2023,h2b_2023.xlsx,3rd_PWD_CASE_NUMBER,,dropped: additional prevailing-wage determination
+2023,h2b_2023.xlsx,ADDITIONAL_WAGE_CONDITIONS,,dropped: H-2 contract / attestation detail
+2023,h2b_2023.xlsx,APPENDIX_D_COMPLETED,,dropped: form attachment flag
+2023,h2b_2023.xlsx,ATTORNEY_AGENT_ADDRESS1,,dropped: attorney/agent personal details
+2023,h2b_2023.xlsx,ATTORNEY_AGENT_ADDRESS2,,dropped: attorney/agent personal details
+2023,h2b_2023.xlsx,ATTORNEY_AGENT_CITY,,dropped: attorney/agent personal details
+2023,h2b_2023.xlsx,ATTORNEY_AGENT_COUNTRY,,dropped: attorney/agent personal details
+2023,h2b_2023.xlsx,ATTORNEY_AGENT_EMAIL_ADDRESS,,dropped: attorney/agent personal details
+2023,h2b_2023.xlsx,ATTORNEY_AGENT_FIRST_NAME,,dropped: attorney/agent personal details
+2023,h2b_2023.xlsx,ATTORNEY_AGENT_LAST_NAME,,dropped: attorney/agent personal details
+2023,h2b_2023.xlsx,ATTORNEY_AGENT_MIDDLE_NAME,,dropped: attorney/agent personal details
+2023,h2b_2023.xlsx,ATTORNEY_AGENT_PHONE,,dropped: attorney/agent personal details
+2023,h2b_2023.xlsx,ATTORNEY_AGENT_PHONE_EXT,,dropped: attorney/agent personal details
+2023,h2b_2023.xlsx,ATTORNEY_AGENT_POSTAL_CODE,,dropped: attorney/agent personal details
+2023,h2b_2023.xlsx,ATTORNEY_AGENT_PROVINCE,,dropped: attorney/agent personal details
+2023,h2b_2023.xlsx,ATTORNEY_AGENT_STATE,,dropped: attorney/agent personal details
+2023,h2b_2023.xlsx,BOARD_LODGING_OTHER_FACILITIES,,dropped: H-2 contract / attestation detail
+2023,h2b_2023.xlsx,DAILY_TRANSPORTATION,,dropped: H-2 contract / attestation detail
+2023,h2b_2023.xlsx,DEDUCTIONS_FROM_PAY,,dropped: H-2 contract / attestation detail
+2023,h2b_2023.xlsx,EMAIL_TO_APPLY,,dropped: job application contact
+2023,h2b_2023.xlsx,EMERGENCY_FILING_PWD_ATTACHED,,dropped: form attachment flag
+2023,h2b_2023.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2023,h2b_2023.xlsx,EMPLOYER_APPENDIX_B_ATTACHED,,dropped: form attachment flag
+2023,h2b_2023.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2023,h2b_2023.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2023,h2b_2023.xlsx,EMPLOYER_POC_ADDRESS1,,dropped: employer point-of-contact personal details
+2023,h2b_2023.xlsx,EMPLOYER_POC_ADDRESS2,,dropped: employer point-of-contact personal details
+2023,h2b_2023.xlsx,EMPLOYER_POC_CITY,,dropped: employer point-of-contact personal details
+2023,h2b_2023.xlsx,EMPLOYER_POC_COUNTRY,,dropped: employer point-of-contact personal details
+2023,h2b_2023.xlsx,EMPLOYER_POC_EMAIL,,dropped: employer point-of-contact personal details
+2023,h2b_2023.xlsx,EMPLOYER_POC_FIRST_NAME,,dropped: employer point-of-contact personal details
+2023,h2b_2023.xlsx,EMPLOYER_POC_JOB_TITLE,,dropped: employer point-of-contact personal details
+2023,h2b_2023.xlsx,EMPLOYER_POC_LAST_NAME,,dropped: employer point-of-contact personal details
+2023,h2b_2023.xlsx,EMPLOYER_POC_MIDDLE_NAME,,dropped: employer point-of-contact personal details
+2023,h2b_2023.xlsx,EMPLOYER_POC_PHONE,,dropped: employer point-of-contact personal details
+2023,h2b_2023.xlsx,EMPLOYER_POC_PHONE_EXT,,dropped: employer point-of-contact personal details
+2023,h2b_2023.xlsx,EMPLOYER_POC_POSTAL_CODE,,dropped: employer point-of-contact personal details
+2023,h2b_2023.xlsx,EMPLOYER_POC_PROVINCE,,dropped: employer point-of-contact personal details
+2023,h2b_2023.xlsx,EMPLOYER_POC_STATE,,dropped: employer point-of-contact personal details
+2023,h2b_2023.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2023,h2b_2023.xlsx,EMP_CLIENT_APPENDIX_B_ATTACHED,,dropped: form attachment flag
+2023,h2b_2023.xlsx,EMP_PROVIDED_TOOLS_EQUIPMENT,,dropped: H-2 contract / attestation detail
+2023,h2b_2023.xlsx,FOREIGN_LABOR_RECRUITER,,dropped: H-2 contract / attestation detail
+2023,h2b_2023.xlsx,FRIDAY_HOURS,,dropped: per-weekday hour schedule
+2023,h2b_2023.xlsx,HOURLY_SCHEDULE_BEGIN,,dropped: hourly work schedule
+2023,h2b_2023.xlsx,HOURLY_SCHEDULE_END,,dropped: hourly work schedule
+2023,h2b_2023.xlsx,MONDAY_HOURS,,dropped: per-weekday hour schedule
+2023,h2b_2023.xlsx,NAME_OF_HIGHEST_STATE_COURT,,dropped: attorney bar detail
+2023,h2b_2023.xlsx,ON_THE_JOB_TRAINING_AVAILABLE,,dropped: H-2 contract / attestation detail
+2023,h2b_2023.xlsx,OTHER_WORKSITE_LOCATION,,dropped: free-text secondary worksite note
+2023,h2b_2023.xlsx,OVERTIME_AVAILABLE,,dropped: H-2 contract / attestation detail
+2023,h2b_2023.xlsx,PHONE_TO_APPLY,,dropped: job application contact
+2023,h2b_2023.xlsx,PREPARER_BUSINESS_NAME,,dropped: form preparer personal details
+2023,h2b_2023.xlsx,PREPARER_EMAIL,,dropped: form preparer personal details
+2023,h2b_2023.xlsx,PREPARER_FIRST_NAME,,dropped: form preparer personal details
+2023,h2b_2023.xlsx,PREPARER_LAST_NAME,,dropped: form preparer personal details
+2023,h2b_2023.xlsx,PREPARER_MIDDLE_NAME,,dropped: form preparer personal details
+2023,h2b_2023.xlsx,SATURDAY_HOURS,,dropped: per-weekday hour schedule
+2023,h2b_2023.xlsx,SPECIAL_REQUIREMENTS,,dropped: H-2 job-condition detail
+2023,h2b_2023.xlsx,STATE_OF_HIGHEST_COURT,,dropped: attorney bar detail
+2023,h2b_2023.xlsx,SUNDAY_HOURS,,dropped: per-weekday hour schedule
+2023,h2b_2023.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2023,h2b_2023.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2023,h2b_2023.xlsx,THURSDAY_HOURS,,dropped: per-weekday hour schedule
+2023,h2b_2023.xlsx,TRAINING_MONTHS,,dropped: H-2 job-condition detail
+2023,h2b_2023.xlsx,TUESDAY_HOURS,,dropped: per-weekday hour schedule
+2023,h2b_2023.xlsx,WEBSITE_TO_APPLY,,dropped: job application contact
+2023,h2b_2023.xlsx,WEDNESDAY_HOURS,,dropped: per-weekday hour schedule
+2023,h2b_2023.xlsx,WORKSITE_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2024,h2b_2024.xlsx,TYPE_OF_REPRESENTATION,agent_representing_employer,mapped
+2024,h2b_2024.xlsx,ANTICIPATED_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2024,h2b_2024.xlsx,,application_type,absent this year
+2024,h2b_2024.xlsx,LAWFIRM_NAME_BUSINESS_NAME,attorney_law_firm_name,mapped
+2024,h2b_2024.xlsx,CAP_EXEMPT,cap_exempt,mapped
+2024,h2b_2024.xlsx,CASE_NUMBER,case_number,mapped
+2024,h2b_2024.xlsx,CASE_STATUS,case_status,mapped
+2024,h2b_2024.xlsx,,certification_begin_date,absent this year
+2024,h2b_2024.xlsx,,certification_end_date,absent this year
+2024,h2b_2024.xlsx,DECISION_DATE,decision_date,mapped
+2024,h2b_2024.xlsx,EDUCATION_LEVEL,education_level,mapped
+2024,h2b_2024.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2024,h2b_2024.xlsx,EMPLOYER_CITY,employer_city,mapped
+2024,h2b_2024.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2024,h2b_2024.xlsx,EMPLOYER_NAME,employer_name,mapped
+2024,h2b_2024.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2024,h2b_2024.xlsx,EMPLOYER_STATE,employer_state,mapped
+2024,h2b_2024.xlsx,TRADE_NAME_DBA,employer_trade_name,mapped
+2024,h2b_2024.xlsx,EMPLOYMENT_BEGIN_DATE,employment_begin_date,mapped
+2024,h2b_2024.xlsx,EMPLOYMENT_END_DATE,employment_end_date,mapped
+2024,h2b_2024.xlsx,,full_time_position,absent this year
+2024,h2b_2024.xlsx,,job_order_number,absent this year
+2024,h2b_2024.xlsx,JOB_ORDER_SUBMIT_DATE,job_order_submit_date,mapped
+2024,h2b_2024.xlsx,JOB_TITLE,job_title,mapped
+2024,h2b_2024.xlsx,MSA_NAME_OES_AREA_TITLE,msa_name,mapped
+2024,h2b_2024.xlsx,NAICS_CODE,naics_id,mapped
+2024,h2b_2024.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2024,h2b_2024.xlsx,OVERTIME_RATE_FROM,overtime_rate_from,mapped
+2024,h2b_2024.xlsx,OVERTIME_RATE_TO,overtime_rate_to,mapped
+2024,h2b_2024.xlsx,,prevailing_wage,absent this year
+2024,h2b_2024.xlsx,1st_PWD_CASE_NUMBER,prevailing_wage_tracking_number,mapped
+2024,h2b_2024.xlsx,,prevailing_wage_unit_of_pay,absent this year
+2024,h2b_2024.xlsx,RECEIVED_DATE,received_date,mapped
+2024,h2b_2024.xlsx,REQUESTED_BEGIN_DATE,requested_begin_date,mapped
+2024,h2b_2024.xlsx,REQUESTED_END_DATE,requested_end_date,mapped
+2024,h2b_2024.xlsx,SOC_CODE,soc_id,mapped
+2024,h2b_2024.xlsx,SOC_TITLE,soc_title,mapped
+2024,h2b_2024.xlsx,SWA_STATE,swa_state,mapped
+2024,h2b_2024.xlsx,TYPE_OF_EMPLOYER,type_of_employer,mapped
+2024,h2b_2024.xlsx,,visa_class,absent this year
+2024,h2b_2024.xlsx,BASIC_WAGE_RATE_FROM,wage_offered_from,mapped
+2024,h2b_2024.xlsx,BASIC_WAGE_RATE_TO,wage_offered_to,mapped
+2024,h2b_2024.xlsx,PER,wage_unit_of_pay,mapped
+2024,h2b_2024.xlsx,WORK_EXPERIENCE_MONTHS,work_experience_months,mapped
+2024,h2b_2024.xlsx,TOTAL_WORKERS_CERTIFIED,workers_certified,mapped
+2024,h2b_2024.xlsx,TOTAL_WORKERS_REQUESTED,workers_requested,mapped
+2024,h2b_2024.xlsx,WORKSITE_ADDRESS1,worksite_address,mapped
+2024,h2b_2024.xlsx,WORKSITE_CITY,worksite_city,mapped
+2024,h2b_2024.xlsx,WORKSITE_COUNTY,worksite_county,mapped
+2024,h2b_2024.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2024,h2b_2024.xlsx,WORKSITE_STATE,worksite_state,mapped
+2024,h2b_2024.xlsx,2nd_PWD_CASE_NUMBER,,dropped: additional prevailing-wage determination
+2024,h2b_2024.xlsx,3rd_PWD_CASE_NUMBER,,dropped: additional prevailing-wage determination
+2024,h2b_2024.xlsx,ADDITIONAL_WAGE_CONDITIONS,,dropped: H-2 contract / attestation detail
+2024,h2b_2024.xlsx,AGENT_AGREEMENT_ATTACHED,,dropped: form attachment flag
+2024,h2b_2024.xlsx,AGENT_MSPA_ATTACHED,,dropped: form attachment flag
+2024,h2b_2024.xlsx,AGREEMENTS_ATTACHED,,dropped: form attachment flag
+2024,h2b_2024.xlsx,APPENDIX_A_ATTACHED,,dropped: form attachment flag
+2024,h2b_2024.xlsx,APPENDIX_C_ATTACHED,,dropped: form attachment flag
+2024,h2b_2024.xlsx,APPENDIX_D_COMPLETED,,dropped: form attachment flag
+2024,h2b_2024.xlsx,ATTORNEY_AGENT_ADDRESS1,,dropped: attorney/agent personal details
+2024,h2b_2024.xlsx,ATTORNEY_AGENT_ADDRESS2,,dropped: attorney/agent personal details
+2024,h2b_2024.xlsx,ATTORNEY_AGENT_CITY,,dropped: attorney/agent personal details
+2024,h2b_2024.xlsx,ATTORNEY_AGENT_COUNTRY,,dropped: attorney/agent personal details
+2024,h2b_2024.xlsx,ATTORNEY_AGENT_EMAIL_ADDRESS,,dropped: attorney/agent personal details
+2024,h2b_2024.xlsx,ATTORNEY_AGENT_FIRST_NAME,,dropped: attorney/agent personal details
+2024,h2b_2024.xlsx,ATTORNEY_AGENT_LAST_NAME,,dropped: attorney/agent personal details
+2024,h2b_2024.xlsx,ATTORNEY_AGENT_MIDDLE_NAME,,dropped: attorney/agent personal details
+2024,h2b_2024.xlsx,ATTORNEY_AGENT_PHONE,,dropped: attorney/agent personal details
+2024,h2b_2024.xlsx,ATTORNEY_AGENT_PHONE_EXT,,dropped: attorney/agent personal details
+2024,h2b_2024.xlsx,ATTORNEY_AGENT_POSTAL_CODE,,dropped: attorney/agent personal details
+2024,h2b_2024.xlsx,ATTORNEY_AGENT_PROVINCE,,dropped: attorney/agent personal details
+2024,h2b_2024.xlsx,ATTORNEY_AGENT_STATE,,dropped: attorney/agent personal details
+2024,h2b_2024.xlsx,BOARD_LODGING_OTHER_FACILITIES,,dropped: H-2 contract / attestation detail
+2024,h2b_2024.xlsx,CAP_EXEMPT_WORKERS,,dropped: H-2B cap breakdown
+2024,h2b_2024.xlsx,CAP_SUBJECT_WORKERS,,dropped: H-2B cap breakdown
+2024,h2b_2024.xlsx,DAILY_TRANSPORTATION,,dropped: H-2 contract / attestation detail
+2024,h2b_2024.xlsx,DEDUCTIONS_FROM_PAY,,dropped: H-2 contract / attestation detail
+2024,h2b_2024.xlsx,EMAIL_TO_APPLY,,dropped: job application contact
+2024,h2b_2024.xlsx,EMERGENCY_FILING_PWD_ATTACHED,,dropped: form attachment flag
+2024,h2b_2024.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2024,h2b_2024.xlsx,EMPLOYER_APPENDIX_B_ATTACHED,,dropped: form attachment flag
+2024,h2b_2024.xlsx,EMPLOYER_FEIN,,dropped: phone / employer identifier
+2024,h2b_2024.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2024,h2b_2024.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2024,h2b_2024.xlsx,EMPLOYER_POC_ADDRESS1,,dropped: employer point-of-contact personal details
+2024,h2b_2024.xlsx,EMPLOYER_POC_ADDRESS2,,dropped: employer point-of-contact personal details
+2024,h2b_2024.xlsx,EMPLOYER_POC_CITY,,dropped: employer point-of-contact personal details
+2024,h2b_2024.xlsx,EMPLOYER_POC_COUNTRY,,dropped: employer point-of-contact personal details
+2024,h2b_2024.xlsx,EMPLOYER_POC_EMAIL,,dropped: employer point-of-contact personal details
+2024,h2b_2024.xlsx,EMPLOYER_POC_FIRST_NAME,,dropped: employer point-of-contact personal details
+2024,h2b_2024.xlsx,EMPLOYER_POC_JOB_TITLE,,dropped: employer point-of-contact personal details
+2024,h2b_2024.xlsx,EMPLOYER_POC_LAST_NAME,,dropped: employer point-of-contact personal details
+2024,h2b_2024.xlsx,EMPLOYER_POC_MIDDLE_NAME,,dropped: employer point-of-contact personal details
+2024,h2b_2024.xlsx,EMPLOYER_POC_PHONE,,dropped: employer point-of-contact personal details
+2024,h2b_2024.xlsx,EMPLOYER_POC_PHONE_EXT,,dropped: employer point-of-contact personal details
+2024,h2b_2024.xlsx,EMPLOYER_POC_POSTAL_CODE,,dropped: employer point-of-contact personal details
+2024,h2b_2024.xlsx,EMPLOYER_POC_PROVINCE,,dropped: employer point-of-contact personal details
+2024,h2b_2024.xlsx,EMPLOYER_POC_STATE,,dropped: employer point-of-contact personal details
+2024,h2b_2024.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2024,h2b_2024.xlsx,EMP_CLIENT_APPENDIX_B_ATTACHED,,dropped: form attachment flag
+2024,h2b_2024.xlsx,EMP_MSPA_ATTACHED,,dropped: form attachment flag
+2024,h2b_2024.xlsx,EMP_PROVIDED_TOOLS_EQUIPMENT,,dropped: H-2 contract / attestation detail
+2024,h2b_2024.xlsx,FOREIGN_LABOR_RECRUITER,,dropped: H-2 contract / attestation detail
+2024,h2b_2024.xlsx,FRIDAY_HOURS,,dropped: per-weekday hour schedule
+2024,h2b_2024.xlsx,HOURLY_SCHEDULE_BEGIN,,dropped: hourly work schedule
+2024,h2b_2024.xlsx,HOURLY_SCHEDULE_END,,dropped: hourly work schedule
+2024,h2b_2024.xlsx,JOB_CONTRACT_EXISTS,,dropped: H-2 contract / attestation detail
+2024,h2b_2024.xlsx,JOB_ORDER_TO_SWA,,dropped: H-2 contract / attestation detail
+2024,h2b_2024.xlsx,MONDAY_HOURS,,dropped: per-weekday hour schedule
+2024,h2b_2024.xlsx,NAME_OF_HIGHEST_STATE_COURT,,dropped: attorney bar detail
+2024,h2b_2024.xlsx,ON_THE_JOB_TRAINING_AVAILABLE,,dropped: H-2 contract / attestation detail
+2024,h2b_2024.xlsx,OTHER_WORKSITE_LOCATION,,dropped: free-text secondary worksite note
+2024,h2b_2024.xlsx,OVERTIME_AVAILABLE,,dropped: H-2 contract / attestation detail
+2024,h2b_2024.xlsx,PHONE_TO_APPLY,,dropped: job application contact
+2024,h2b_2024.xlsx,PREPARER_BUSINESS_NAME,,dropped: form preparer personal details
+2024,h2b_2024.xlsx,PREPARER_EMAIL,,dropped: form preparer personal details
+2024,h2b_2024.xlsx,PREPARER_FIRST_NAME,,dropped: form preparer personal details
+2024,h2b_2024.xlsx,PREPARER_LAST_NAME,,dropped: form preparer personal details
+2024,h2b_2024.xlsx,PREPARER_MIDDLE_INITIAL,,dropped: form preparer personal details
+2024,h2b_2024.xlsx,SATURDAY_HOURS,,dropped: per-weekday hour schedule
+2024,h2b_2024.xlsx,SPECIAL_REQUIREMENTS,,dropped: H-2 job-condition detail
+2024,h2b_2024.xlsx,STATE_OF_HIGHEST_COURT,,dropped: attorney bar detail
+2024,h2b_2024.xlsx,SUNDAY_HOURS,,dropped: per-weekday hour schedule
+2024,h2b_2024.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2024,h2b_2024.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2024,h2b_2024.xlsx,THURSDAY_HOURS,,dropped: per-weekday hour schedule
+2024,h2b_2024.xlsx,TRAINING_MONTHS,,dropped: H-2 job-condition detail
+2024,h2b_2024.xlsx,TUESDAY_HOURS,,dropped: per-weekday hour schedule
+2024,h2b_2024.xlsx,WEBSITE_TO_APPLY,,dropped: job application contact
+2024,h2b_2024.xlsx,WEDNESDAY_HOURS,,dropped: per-weekday hour schedule
+2024,h2b_2024.xlsx,WORKSITE_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2025,h2b_2025.xlsx,TYPE_OF_REPRESENTATION,agent_representing_employer,mapped
+2025,h2b_2025.xlsx,ANTICIPATED_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2025,h2b_2025.xlsx,,application_type,absent this year
+2025,h2b_2025.xlsx,LAWFIRM_NAME_BUSINESS_NAME,attorney_law_firm_name,mapped
+2025,h2b_2025.xlsx,CAP_EXEMPT,cap_exempt,mapped
+2025,h2b_2025.xlsx,CASE_NUMBER,case_number,mapped
+2025,h2b_2025.xlsx,CASE_STATUS,case_status,mapped
+2025,h2b_2025.xlsx,,certification_begin_date,absent this year
+2025,h2b_2025.xlsx,,certification_end_date,absent this year
+2025,h2b_2025.xlsx,DECISION_DATE,decision_date,mapped
+2025,h2b_2025.xlsx,EDUCATION_LEVEL,education_level,mapped
+2025,h2b_2025.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2025,h2b_2025.xlsx,EMPLOYER_CITY,employer_city,mapped
+2025,h2b_2025.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2025,h2b_2025.xlsx,EMPLOYER_NAME,employer_name,mapped
+2025,h2b_2025.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2025,h2b_2025.xlsx,EMPLOYER_STATE,employer_state,mapped
+2025,h2b_2025.xlsx,TRADE_NAME_DBA,employer_trade_name,mapped
+2025,h2b_2025.xlsx,EMPLOYMENT_BEGIN_DATE,employment_begin_date,mapped
+2025,h2b_2025.xlsx,EMPLOYMENT_END_DATE,employment_end_date,mapped
+2025,h2b_2025.xlsx,,full_time_position,absent this year
+2025,h2b_2025.xlsx,,job_order_number,absent this year
+2025,h2b_2025.xlsx,JOB_ORDER_SUBMIT_DATE,job_order_submit_date,mapped
+2025,h2b_2025.xlsx,JOB_TITLE,job_title,mapped
+2025,h2b_2025.xlsx,MSA_NAME_OES_AREA_TITLE,msa_name,mapped
+2025,h2b_2025.xlsx,NAICS_CODE,naics_id,mapped
+2025,h2b_2025.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2025,h2b_2025.xlsx,OVERTIME_RATE_FROM,overtime_rate_from,mapped
+2025,h2b_2025.xlsx,OVERTIME_RATE_TO,overtime_rate_to,mapped
+2025,h2b_2025.xlsx,,prevailing_wage,absent this year
+2025,h2b_2025.xlsx,1st_PWD_CASE_NUMBER,prevailing_wage_tracking_number,mapped
+2025,h2b_2025.xlsx,,prevailing_wage_unit_of_pay,absent this year
+2025,h2b_2025.xlsx,RECEIVED_DATE,received_date,mapped
+2025,h2b_2025.xlsx,REQUESTED_BEGIN_DATE,requested_begin_date,mapped
+2025,h2b_2025.xlsx,REQUESTED_END_DATE,requested_end_date,mapped
+2025,h2b_2025.xlsx,SOC_CODE,soc_id,mapped
+2025,h2b_2025.xlsx,SOC_TITLE,soc_title,mapped
+2025,h2b_2025.xlsx,SWA_STATE,swa_state,mapped
+2025,h2b_2025.xlsx,TYPE_OF_EMPLOYER,type_of_employer,mapped
+2025,h2b_2025.xlsx,,visa_class,absent this year
+2025,h2b_2025.xlsx,BASIC_WAGE_RATE_FROM,wage_offered_from,mapped
+2025,h2b_2025.xlsx,BASIC_WAGE_RATE_TO,wage_offered_to,mapped
+2025,h2b_2025.xlsx,PER,wage_unit_of_pay,mapped
+2025,h2b_2025.xlsx,WORK_EXPERIENCE_MONTHS,work_experience_months,mapped
+2025,h2b_2025.xlsx,TOTAL_WORKERS_CERTIFIED,workers_certified,mapped
+2025,h2b_2025.xlsx,TOTAL_WORKERS_REQUESTED,workers_requested,mapped
+2025,h2b_2025.xlsx,WORKSITE_ADDRESS1,worksite_address,mapped
+2025,h2b_2025.xlsx,WORKSITE_CITY,worksite_city,mapped
+2025,h2b_2025.xlsx,WORKSITE_COUNTY,worksite_county,mapped
+2025,h2b_2025.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2025,h2b_2025.xlsx,WORKSITE_STATE,worksite_state,mapped
+2025,h2b_2025.xlsx,2nd_PWD_CASE_NUMBER,,dropped: additional prevailing-wage determination
+2025,h2b_2025.xlsx,3rd_PWD_CASE_NUMBER,,dropped: additional prevailing-wage determination
+2025,h2b_2025.xlsx,ADDITIONAL_WAGE_CONDITIONS,,dropped: H-2 contract / attestation detail
+2025,h2b_2025.xlsx,AGENT_AGREEMENT_ATTACHED,,dropped: form attachment flag
+2025,h2b_2025.xlsx,AGENT_MSPA_ATTACHED,,dropped: form attachment flag
+2025,h2b_2025.xlsx,AGREEMENTS_ATTACHED,,dropped: form attachment flag
+2025,h2b_2025.xlsx,APPENDIX_A_ATTACHED,,dropped: form attachment flag
+2025,h2b_2025.xlsx,APPENDIX_C_ATTACHED,,dropped: form attachment flag
+2025,h2b_2025.xlsx,APPENDIX_D_COMPLETED,,dropped: form attachment flag
+2025,h2b_2025.xlsx,ATTORNEY_AGENT_ADDRESS1,,dropped: attorney/agent personal details
+2025,h2b_2025.xlsx,ATTORNEY_AGENT_ADDRESS2,,dropped: attorney/agent personal details
+2025,h2b_2025.xlsx,ATTORNEY_AGENT_CITY,,dropped: attorney/agent personal details
+2025,h2b_2025.xlsx,ATTORNEY_AGENT_COUNTRY,,dropped: attorney/agent personal details
+2025,h2b_2025.xlsx,ATTORNEY_AGENT_EMAIL_ADDRESS,,dropped: attorney/agent personal details
+2025,h2b_2025.xlsx,ATTORNEY_AGENT_FIRST_NAME,,dropped: attorney/agent personal details
+2025,h2b_2025.xlsx,ATTORNEY_AGENT_LAST_NAME,,dropped: attorney/agent personal details
+2025,h2b_2025.xlsx,ATTORNEY_AGENT_MIDDLE_NAME,,dropped: attorney/agent personal details
+2025,h2b_2025.xlsx,ATTORNEY_AGENT_PHONE,,dropped: attorney/agent personal details
+2025,h2b_2025.xlsx,ATTORNEY_AGENT_PHONE_EXT,,dropped: attorney/agent personal details
+2025,h2b_2025.xlsx,ATTORNEY_AGENT_POSTAL_CODE,,dropped: attorney/agent personal details
+2025,h2b_2025.xlsx,ATTORNEY_AGENT_PROVINCE,,dropped: attorney/agent personal details
+2025,h2b_2025.xlsx,ATTORNEY_AGENT_STATE,,dropped: attorney/agent personal details
+2025,h2b_2025.xlsx,BOARD_LODGING_OTHER_FACILITIES,,dropped: H-2 contract / attestation detail
+2025,h2b_2025.xlsx,CAP_EXEMPT_WORKERS,,dropped: H-2B cap breakdown
+2025,h2b_2025.xlsx,CAP_SUBJECT_WORKERS,,dropped: H-2B cap breakdown
+2025,h2b_2025.xlsx,DAILY_TRANSPORTATION,,dropped: H-2 contract / attestation detail
+2025,h2b_2025.xlsx,DEDUCTIONS_FROM_PAY,,dropped: H-2 contract / attestation detail
+2025,h2b_2025.xlsx,EMAIL_TO_APPLY,,dropped: job application contact
+2025,h2b_2025.xlsx,EMERGENCY_FILING_PWD_ATTACHED,,dropped: form attachment flag
+2025,h2b_2025.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2025,h2b_2025.xlsx,EMPLOYER_APPENDIX_B_ATTACHED,,dropped: form attachment flag
+2025,h2b_2025.xlsx,EMPLOYER_FEIN,,dropped: phone / employer identifier
+2025,h2b_2025.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2025,h2b_2025.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2025,h2b_2025.xlsx,EMPLOYER_POC_ADDRESS1,,dropped: employer point-of-contact personal details
+2025,h2b_2025.xlsx,EMPLOYER_POC_ADDRESS2,,dropped: employer point-of-contact personal details
+2025,h2b_2025.xlsx,EMPLOYER_POC_CITY,,dropped: employer point-of-contact personal details
+2025,h2b_2025.xlsx,EMPLOYER_POC_COUNTRY,,dropped: employer point-of-contact personal details
+2025,h2b_2025.xlsx,EMPLOYER_POC_EMAIL,,dropped: employer point-of-contact personal details
+2025,h2b_2025.xlsx,EMPLOYER_POC_FIRST_NAME,,dropped: employer point-of-contact personal details
+2025,h2b_2025.xlsx,EMPLOYER_POC_JOB_TITLE,,dropped: employer point-of-contact personal details
+2025,h2b_2025.xlsx,EMPLOYER_POC_LAST_NAME,,dropped: employer point-of-contact personal details
+2025,h2b_2025.xlsx,EMPLOYER_POC_MIDDLE_NAME,,dropped: employer point-of-contact personal details
+2025,h2b_2025.xlsx,EMPLOYER_POC_PHONE,,dropped: employer point-of-contact personal details
+2025,h2b_2025.xlsx,EMPLOYER_POC_PHONE_EXT,,dropped: employer point-of-contact personal details
+2025,h2b_2025.xlsx,EMPLOYER_POC_POSTAL_CODE,,dropped: employer point-of-contact personal details
+2025,h2b_2025.xlsx,EMPLOYER_POC_PROVINCE,,dropped: employer point-of-contact personal details
+2025,h2b_2025.xlsx,EMPLOYER_POC_STATE,,dropped: employer point-of-contact personal details
+2025,h2b_2025.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2025,h2b_2025.xlsx,EMP_CLIENT_APPENDIX_B_ATTACHED,,dropped: form attachment flag
+2025,h2b_2025.xlsx,EMP_MSPA_ATTACHED,,dropped: form attachment flag
+2025,h2b_2025.xlsx,EMP_PROVIDED_TOOLS_EQUIPMENT,,dropped: H-2 contract / attestation detail
+2025,h2b_2025.xlsx,FOREIGN_LABOR_RECRUITER,,dropped: H-2 contract / attestation detail
+2025,h2b_2025.xlsx,FRIDAY_HOURS,,dropped: per-weekday hour schedule
+2025,h2b_2025.xlsx,HOURLY_SCHEDULE_BEGIN,,dropped: hourly work schedule
+2025,h2b_2025.xlsx,HOURLY_SCHEDULE_END,,dropped: hourly work schedule
+2025,h2b_2025.xlsx,JOB_CONTRACT_EXISTS,,dropped: H-2 contract / attestation detail
+2025,h2b_2025.xlsx,JOB_ORDER_TO_SWA,,dropped: H-2 contract / attestation detail
+2025,h2b_2025.xlsx,LAWFIRM_BUSINESS_FEIN,,dropped: phone / employer identifier
+2025,h2b_2025.xlsx,MONDAY_HOURS,,dropped: per-weekday hour schedule
+2025,h2b_2025.xlsx,NAME_OF_HIGHEST_STATE_COURT,,dropped: attorney bar detail
+2025,h2b_2025.xlsx,ON_THE_JOB_TRAINING_AVAILABLE,,dropped: H-2 contract / attestation detail
+2025,h2b_2025.xlsx,OTHER_WORKSITE_LOCATION,,dropped: free-text secondary worksite note
+2025,h2b_2025.xlsx,OVERTIME_AVAILABLE,,dropped: H-2 contract / attestation detail
+2025,h2b_2025.xlsx,PHONE_TO_APPLY,,dropped: job application contact
+2025,h2b_2025.xlsx,PREPARER_BUSINESS_NAME,,dropped: form preparer personal details
+2025,h2b_2025.xlsx,PREPARER_EMAIL,,dropped: form preparer personal details
+2025,h2b_2025.xlsx,PREPARER_FEIN,,dropped: form preparer personal details
+2025,h2b_2025.xlsx,PREPARER_FIRST_NAME,,dropped: form preparer personal details
+2025,h2b_2025.xlsx,PREPARER_LAST_NAME,,dropped: form preparer personal details
+2025,h2b_2025.xlsx,PREPARER_MIDDLE_INITIAL,,dropped: form preparer personal details
+2025,h2b_2025.xlsx,SATURDAY_HOURS,,dropped: per-weekday hour schedule
+2025,h2b_2025.xlsx,SPECIAL_REQUIREMENTS,,dropped: H-2 job-condition detail
+2025,h2b_2025.xlsx,STATE_OF_HIGHEST_COURT,,dropped: attorney bar detail
+2025,h2b_2025.xlsx,SUNDAY_HOURS,,dropped: per-weekday hour schedule
+2025,h2b_2025.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2025,h2b_2025.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2025,h2b_2025.xlsx,THURSDAY_HOURS,,dropped: per-weekday hour schedule
+2025,h2b_2025.xlsx,TRAINING_MONTHS,,dropped: H-2 job-condition detail
+2025,h2b_2025.xlsx,TUESDAY_HOURS,,dropped: per-weekday hour schedule
+2025,h2b_2025.xlsx,WEBSITE_TO_APPLY,,dropped: job application contact
+2025,h2b_2025.xlsx,WEDNESDAY_HOURS,,dropped: per-weekday hour schedule
+2025,h2b_2025.xlsx,WORKSITE_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2026,h2b_2026.xlsx,TYPE_OF_REPRESENTATION,agent_representing_employer,mapped
+2026,h2b_2026.xlsx,ANTICIPATED_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2026,h2b_2026.xlsx,,application_type,absent this year
+2026,h2b_2026.xlsx,LAWFIRM_NAME_BUSINESS_NAME,attorney_law_firm_name,mapped
+2026,h2b_2026.xlsx,,cap_exempt,absent this year
+2026,h2b_2026.xlsx,CASE_NUMBER,case_number,mapped
+2026,h2b_2026.xlsx,CASE_STATUS,case_status,mapped
+2026,h2b_2026.xlsx,,certification_begin_date,absent this year
+2026,h2b_2026.xlsx,,certification_end_date,absent this year
+2026,h2b_2026.xlsx,DECISION_DATE,decision_date,mapped
+2026,h2b_2026.xlsx,EDUCATION_LEVEL,education_level,mapped
+2026,h2b_2026.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2026,h2b_2026.xlsx,EMPLOYER_CITY,employer_city,mapped
+2026,h2b_2026.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2026,h2b_2026.xlsx,EMPLOYER_NAME,employer_name,mapped
+2026,h2b_2026.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2026,h2b_2026.xlsx,EMPLOYER_STATE,employer_state,mapped
+2026,h2b_2026.xlsx,TRADE_NAME_DBA,employer_trade_name,mapped
+2026,h2b_2026.xlsx,EMPLOYMENT_BEGIN_DATE,employment_begin_date,mapped
+2026,h2b_2026.xlsx,EMPLOYMENT_END_DATE,employment_end_date,mapped
+2026,h2b_2026.xlsx,,full_time_position,absent this year
+2026,h2b_2026.xlsx,,job_order_number,absent this year
+2026,h2b_2026.xlsx,JOB_ORDER_SUBMIT_DATE,job_order_submit_date,mapped
+2026,h2b_2026.xlsx,JOB_TITLE,job_title,mapped
+2026,h2b_2026.xlsx,MSA_NAME_OES_AREA_TITLE,msa_name,mapped
+2026,h2b_2026.xlsx,NAICS_CODE,naics_id,mapped
+2026,h2b_2026.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2026,h2b_2026.xlsx,OVERTIME_RATE_FROM,overtime_rate_from,mapped
+2026,h2b_2026.xlsx,OVERTIME_RATE_TO,overtime_rate_to,mapped
+2026,h2b_2026.xlsx,,prevailing_wage,absent this year
+2026,h2b_2026.xlsx,1st_PWD_CASE_NUMBER,prevailing_wage_tracking_number,mapped
+2026,h2b_2026.xlsx,,prevailing_wage_unit_of_pay,absent this year
+2026,h2b_2026.xlsx,RECEIVED_DATE,received_date,mapped
+2026,h2b_2026.xlsx,REQUESTED_BEGIN_DATE,requested_begin_date,mapped
+2026,h2b_2026.xlsx,REQUESTED_END_DATE,requested_end_date,mapped
+2026,h2b_2026.xlsx,SOC_CODE,soc_id,mapped
+2026,h2b_2026.xlsx,SOC_TITLE,soc_title,mapped
+2026,h2b_2026.xlsx,SWA_STATE,swa_state,mapped
+2026,h2b_2026.xlsx,TYPE_OF_EMPLOYER,type_of_employer,mapped
+2026,h2b_2026.xlsx,,visa_class,absent this year
+2026,h2b_2026.xlsx,BASIC_WAGE_RATE_FROM,wage_offered_from,mapped
+2026,h2b_2026.xlsx,BASIC_WAGE_RATE_TO,wage_offered_to,mapped
+2026,h2b_2026.xlsx,PER,wage_unit_of_pay,mapped
+2026,h2b_2026.xlsx,WORK_EXPERIENCE_MONTHS,work_experience_months,mapped
+2026,h2b_2026.xlsx,TOTAL_WORKERS_CERTIFIED,workers_certified,mapped
+2026,h2b_2026.xlsx,TOTAL_WORKERS_REQUESTED,workers_requested,mapped
+2026,h2b_2026.xlsx,WORKSITE_ADDRESS1,worksite_address,mapped
+2026,h2b_2026.xlsx,WORKSITE_CITY,worksite_city,mapped
+2026,h2b_2026.xlsx,WORKSITE_COUNTY,worksite_county,mapped
+2026,h2b_2026.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2026,h2b_2026.xlsx,WORKSITE_STATE,worksite_state,mapped
+2026,h2b_2026.xlsx,2nd_PWD_CASE_NUMBER,,dropped: additional prevailing-wage determination
+2026,h2b_2026.xlsx,3rd_PWD_CASE_NUMBER,,dropped: additional prevailing-wage determination
+2026,h2b_2026.xlsx,ADDITIONAL_WAGE_CONDITIONS,,dropped: H-2 contract / attestation detail
+2026,h2b_2026.xlsx,AGENT_AGREEMENT_ATTACHED,,dropped: form attachment flag
+2026,h2b_2026.xlsx,AGENT_MSPA_ATTACHED,,dropped: form attachment flag
+2026,h2b_2026.xlsx,AGREEMENTS_ATTACHED,,dropped: form attachment flag
+2026,h2b_2026.xlsx,APPENDIX_A_ATTACHED,,dropped: form attachment flag
+2026,h2b_2026.xlsx,APPENDIX_C_ATTACHED,,dropped: form attachment flag
+2026,h2b_2026.xlsx,APPENDIX_D_COMPLETED,,dropped: form attachment flag
+2026,h2b_2026.xlsx,ATTORNEY_AGENT_ADDRESS1,,dropped: attorney/agent personal details
+2026,h2b_2026.xlsx,ATTORNEY_AGENT_ADDRESS2,,dropped: attorney/agent personal details
+2026,h2b_2026.xlsx,ATTORNEY_AGENT_CITY,,dropped: attorney/agent personal details
+2026,h2b_2026.xlsx,ATTORNEY_AGENT_COUNTRY,,dropped: attorney/agent personal details
+2026,h2b_2026.xlsx,ATTORNEY_AGENT_EMAIL_ADDRESS,,dropped: attorney/agent personal details
+2026,h2b_2026.xlsx,ATTORNEY_AGENT_FIRST_NAME,,dropped: attorney/agent personal details
+2026,h2b_2026.xlsx,ATTORNEY_AGENT_LAST_NAME,,dropped: attorney/agent personal details
+2026,h2b_2026.xlsx,ATTORNEY_AGENT_MIDDLE_NAME,,dropped: attorney/agent personal details
+2026,h2b_2026.xlsx,ATTORNEY_AGENT_PHONE,,dropped: attorney/agent personal details
+2026,h2b_2026.xlsx,ATTORNEY_AGENT_PHONE_EXT,,dropped: attorney/agent personal details
+2026,h2b_2026.xlsx,ATTORNEY_AGENT_POSTAL_CODE,,dropped: attorney/agent personal details
+2026,h2b_2026.xlsx,ATTORNEY_AGENT_PROVINCE,,dropped: attorney/agent personal details
+2026,h2b_2026.xlsx,ATTORNEY_AGENT_STATE,,dropped: attorney/agent personal details
+2026,h2b_2026.xlsx,BOARD_LODGING_OTHER_FACILITIES,,dropped: H-2 contract / attestation detail
+2026,h2b_2026.xlsx,CAP_EXEMPT_WORKERS,,dropped: H-2B cap breakdown
+2026,h2b_2026.xlsx,CAP_SUBJECT_WORKERS,,dropped: H-2B cap breakdown
+2026,h2b_2026.xlsx,DAILY_TRANSPORTATION,,dropped: H-2 contract / attestation detail
+2026,h2b_2026.xlsx,DEDUCTIONS_FROM_PAY,,dropped: H-2 contract / attestation detail
+2026,h2b_2026.xlsx,EMAIL_TO_APPLY,,dropped: job application contact
+2026,h2b_2026.xlsx,EMERGENCY_FILING_PWD_ATTACHED,,dropped: form attachment flag
+2026,h2b_2026.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2026,h2b_2026.xlsx,EMPLOYER_APPENDIX_B_ATTACHED,,dropped: form attachment flag
+2026,h2b_2026.xlsx,EMPLOYER_FEIN,,dropped: phone / employer identifier
+2026,h2b_2026.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2026,h2b_2026.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2026,h2b_2026.xlsx,EMPLOYER_POC_ADDRESS1,,dropped: employer point-of-contact personal details
+2026,h2b_2026.xlsx,EMPLOYER_POC_ADDRESS2,,dropped: employer point-of-contact personal details
+2026,h2b_2026.xlsx,EMPLOYER_POC_CITY,,dropped: employer point-of-contact personal details
+2026,h2b_2026.xlsx,EMPLOYER_POC_COUNTRY,,dropped: employer point-of-contact personal details
+2026,h2b_2026.xlsx,EMPLOYER_POC_EMAIL,,dropped: employer point-of-contact personal details
+2026,h2b_2026.xlsx,EMPLOYER_POC_FIRST_NAME,,dropped: employer point-of-contact personal details
+2026,h2b_2026.xlsx,EMPLOYER_POC_JOB_TITLE,,dropped: employer point-of-contact personal details
+2026,h2b_2026.xlsx,EMPLOYER_POC_LAST_NAME,,dropped: employer point-of-contact personal details
+2026,h2b_2026.xlsx,EMPLOYER_POC_MIDDLE_NAME,,dropped: employer point-of-contact personal details
+2026,h2b_2026.xlsx,EMPLOYER_POC_PHONE,,dropped: employer point-of-contact personal details
+2026,h2b_2026.xlsx,EMPLOYER_POC_PHONE_EXT,,dropped: employer point-of-contact personal details
+2026,h2b_2026.xlsx,EMPLOYER_POC_POSTAL_CODE,,dropped: employer point-of-contact personal details
+2026,h2b_2026.xlsx,EMPLOYER_POC_PROVINCE,,dropped: employer point-of-contact personal details
+2026,h2b_2026.xlsx,EMPLOYER_POC_STATE,,dropped: employer point-of-contact personal details
+2026,h2b_2026.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2026,h2b_2026.xlsx,EMP_CLIENT_APPENDIX_B_ATTACHED,,dropped: form attachment flag
+2026,h2b_2026.xlsx,EMP_MSPA_ATTACHED,,dropped: form attachment flag
+2026,h2b_2026.xlsx,EMP_PROVIDED_TOOLS_EQUIPMENT,,dropped: H-2 contract / attestation detail
+2026,h2b_2026.xlsx,FOREIGN_LABOR_RECRUITER,,dropped: H-2 contract / attestation detail
+2026,h2b_2026.xlsx,FRIDAY_HOURS,,dropped: per-weekday hour schedule
+2026,h2b_2026.xlsx,HOURLY_SCHEDULE_BEGIN,,dropped: hourly work schedule
+2026,h2b_2026.xlsx,HOURLY_SCHEDULE_END,,dropped: hourly work schedule
+2026,h2b_2026.xlsx,JOB_CONTRACT_EXISTS,,dropped: H-2 contract / attestation detail
+2026,h2b_2026.xlsx,JOB_ORDER_TO_SWA,,dropped: H-2 contract / attestation detail
+2026,h2b_2026.xlsx,LAWFIRM_BUSINESS_FEIN,,dropped: phone / employer identifier
+2026,h2b_2026.xlsx,MONDAY_HOURS,,dropped: per-weekday hour schedule
+2026,h2b_2026.xlsx,NAME_OF_HIGHEST_STATE_COURT,,dropped: attorney bar detail
+2026,h2b_2026.xlsx,ON_THE_JOB_TRAINING_AVAILABLE,,dropped: H-2 contract / attestation detail
+2026,h2b_2026.xlsx,OTHER_WORKSITE_LOCATION,,dropped: free-text secondary worksite note
+2026,h2b_2026.xlsx,OVERTIME_AVAILABLE,,dropped: H-2 contract / attestation detail
+2026,h2b_2026.xlsx,PHONE_TO_APPLY,,dropped: job application contact
+2026,h2b_2026.xlsx,PREPARER_BUSINESS_NAME,,dropped: form preparer personal details
+2026,h2b_2026.xlsx,PREPARER_EMAIL,,dropped: form preparer personal details
+2026,h2b_2026.xlsx,PREPARER_FEIN,,dropped: form preparer personal details
+2026,h2b_2026.xlsx,PREPARER_FIRST_NAME,,dropped: form preparer personal details
+2026,h2b_2026.xlsx,PREPARER_LAST_NAME,,dropped: form preparer personal details
+2026,h2b_2026.xlsx,PREPARER_MIDDLE_INITIAL,,dropped: form preparer personal details
+2026,h2b_2026.xlsx,SATURDAY_HOURS,,dropped: per-weekday hour schedule
+2026,h2b_2026.xlsx,SPECIAL_REQUIREMENTS,,dropped: H-2 job-condition detail
+2026,h2b_2026.xlsx,STATE_OF_HIGHEST_COURT,,dropped: attorney bar detail
+2026,h2b_2026.xlsx,SUNDAY_HOURS,,dropped: per-weekday hour schedule
+2026,h2b_2026.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2026,h2b_2026.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2026,h2b_2026.xlsx,THURSDAY_HOURS,,dropped: per-weekday hour schedule
+2026,h2b_2026.xlsx,TRAINING_MONTHS,,dropped: H-2 job-condition detail
+2026,h2b_2026.xlsx,TUESDAY_HOURS,,dropped: per-weekday hour schedule
+2026,h2b_2026.xlsx,WEBSITE_TO_APPLY,,dropped: job application contact
+2026,h2b_2026.xlsx,WEDNESDAY_HOURS,,dropped: per-weekday hour schedule
+2026,h2b_2026.xlsx,WORKSITE_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)

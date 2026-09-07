@@ -1,0 +1,1022 @@
+---
+version: 2
+models:
+  - name: us_dol_oflc__lca
+    description: >-
+      Labor Condition Applications filed with the Office of Foreign Labor
+      Certification for the H-1B, H-1B1 and E-3 programs, one row per case
+      number per federal fiscal year, with the employer, the primary
+      worksite, the occupation, the offered wage and the prevailing wage.
+      FY2008 and part of FY2009 come from the legacy H-1B eFile system;
+      the rest from iCERT and FLAG.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - case_number
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+      - custom_dictionary_coverage_eng:
+          dictionary_model: ref('us_dol_oflc__dictionary')
+          columns_covered_by_dictionary:
+            - case_status
+            - visa_class
+            - full_time_position
+            - wage_unit_of_pay
+            - prevailing_wage_unit_of_pay
+            - prevailing_wage_level
+            - prevailing_wage_source
+            - agent_representing_employer
+            - secondary_entity
+            - h1b_dependent
+            - willful_violator
+            - support_h1b
+            - withdrawn
+    columns:
+      - name: year
+        description: >-
+          Federal fiscal year of the disclosure file the case was
+          published in, running from 1 October to 30 September
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: case_number
+        description: >-
+          Case number assigned by the Office of Foreign Labor
+          Certification, unique within the fiscal year
+        tests: [not_null]
+      - name: case_status
+        description: >-
+          Outcome of the application at the time the file was published
+      - name: visa_class
+        description: >-
+          Visa classification requested on the application
+      - name: received_date
+        description: >-
+          Date the application was received by the Department of Labor
+      - name: decision_date
+        description: >-
+          Date the Department of Labor issued its determination on the
+          application
+      - name: employment_begin_date
+        description: >-
+          First day of the requested period of employment
+      - name: employment_end_date
+        description: >-
+          Last day of the requested period of employment
+      - name: employer_name
+        description: >-
+          Legal business name of the employer filing the application
+      - name: employer_trade_name
+        description: >-
+          Trade name or doing-business-as name of the employer
+      - name: employer_address
+        description: >-
+          First line of the employer's business address
+      - name: employer_city
+        description: >-
+          City of the employer's business address
+      - name: employer_state
+        description: >-
+          USPS two-letter abbreviation of the state of the employer's
+          business address
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: abbreviation
+              proportion_allowed_failures: 0.05
+      - name: employer_postal_code
+        description: >-
+          ZIP code of the employer's business address
+      - name: employer_country
+        description: >-
+          Country of the employer's business address
+      - name: naics_id
+        description: >-
+          North American Industry Classification System code of the
+          employer's industry
+      - name: job_title
+        description: >-
+          Job title of the position offered, as written by the employer
+      - name: soc_id
+        description: >-
+          Standard Occupational Classification code of the position
+          offered
+      - name: soc_title
+        description: >-
+          Standard Occupational Classification title of the position
+          offered
+      - name: full_time_position
+        description: >-
+          Whether the position offered is full time
+      - name: wage_offered_from
+        description: >-
+          Wage offered to the worker, at the bottom of the offered range,
+          in the unit given by wage_unit_of_pay
+      - name: wage_offered_to
+        description: >-
+          Wage offered to the worker, at the top of the offered range, in
+          the unit given by wage_unit_of_pay
+      - name: wage_unit_of_pay
+        description: >-
+          Period the offered wage refers to, harmonised by Data Basis to
+          hour, day, week, bi-weekly, semi-monthly, month, year or piece
+          rate
+      - name: wage_offered_from_annual
+        description: >-
+          Offered wage at the bottom of the range converted to an annual
+          amount by Data Basis, null when the unit is missing or is a
+          piece rate
+      - name: wage_offered_to_annual
+        description: >-
+          Offered wage at the top of the range converted to an annual
+          amount by Data Basis, null when the unit is missing or is a
+          piece rate
+      - name: prevailing_wage
+        description: >-
+          Prevailing wage determined for the occupation and area, in the
+          unit given by prevailing_wage_unit_of_pay
+      - name: prevailing_wage_unit_of_pay
+        description: >-
+          Period the prevailing wage refers to, harmonised by Data Basis
+          to hour, day, week, bi-weekly, semi-monthly, month, year or
+          piece rate
+      - name: prevailing_wage_annual
+        description: >-
+          Prevailing wage converted to an annual amount by Data Basis,
+          null when the unit is missing or is a piece rate
+      - name: prevailing_wage_level
+        description: >-
+          Skill level of the prevailing wage determination, from Level I
+          to Level IV
+      - name: prevailing_wage_source
+        description: >-
+          Source of the prevailing wage determination, such as the OES
+          survey or an employer-provided survey
+      - name: prevailing_wage_source_year
+        description: >-
+          Publication year of the wage survey used in the prevailing wage
+          determination
+      - name: prevailing_wage_tracking_number
+        description: >-
+          Tracking or case number of the prevailing wage determination
+          issued for the application
+      - name: worksite_address
+        description: >-
+          First line of the address of the primary worksite
+      - name: worksite_city
+        description: >-
+          City of the primary worksite
+      - name: worksite_county
+        description: >-
+          County of the primary worksite
+      - name: worksite_state
+        description: >-
+          USPS two-letter abbreviation of the state of the primary
+          worksite
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: abbreviation
+              proportion_allowed_failures: 0.05
+      - name: worksite_postal_code
+        description: >-
+          ZIP code of the primary worksite
+      - name: attorney_law_firm_name
+        description: >-
+          Business name of the law firm or agency representing the
+          employer
+      - name: agent_representing_employer
+        description: >-
+          Whether an attorney or agent represents the employer on the
+          application
+      - name: original_certification_date
+        description: >-
+          Date of the original certification when the case is an amendment
+          or a withdrawal of a certified application
+      - name: total_workers
+        description: >-
+          Number of worker positions requested on the application
+      - name: new_employment
+        description: >-
+          Number of worker positions requested for new employment
+      - name: continued_employment
+        description: >-
+          Number of worker positions requested for continued employment
+      - name: change_previous_employment
+        description: >-
+          Number of worker positions requested for a change in previously
+          approved employment
+      - name: new_concurrent_employment
+        description: >-
+          Number of worker positions requested for new concurrent
+          employment
+      - name: change_employer
+        description: >-
+          Number of worker positions requested for a change of employer
+      - name: amended_petition
+        description: >-
+          Number of worker positions requested on an amended petition
+      - name: worksite_workers
+        description: >-
+          Number of workers assigned to the primary worksite
+      - name: total_worksite_locations
+        description: >-
+          Total number of worksite locations listed on the application
+      - name: secondary_entity
+        description: >-
+          Whether the worker will be placed at a secondary entity rather
+          than at the employer's own premises
+      - name: secondary_entity_business_name
+        description: >-
+          Business name of the secondary entity where the worker will be
+          placed
+      - name: h1b_dependent
+        description: >-
+          Whether the employer is H-1B dependent under the statutory ratio
+          of H-1B workers to total workforce
+      - name: willful_violator
+        description: >-
+          Whether the employer has been found to be a willful violator of
+          the H-1B program rules
+      - name: support_h1b
+        description: >-
+          Whether the labor condition application supports an H-1B
+          petition
+      - name: statutory_basis
+        description: >-
+          Statutory basis the employer claims for exemption from the
+          additional H-1B dependent attestations
+      - name: withdrawn
+        description: >-
+          Whether the application was withdrawn by the employer, as
+          recorded in the legacy H-1B eFile system
+      - name: source_file
+        description: >-
+          Name of the Department of Labor disclosure file the row was read
+          from
+  - name: us_dol_oflc__perm
+    description: >-
+      Applications for Permanent Employment Certification (ETA-9089) filed
+      with the Office of Foreign Labor Certification, one row per case
+      number per federal fiscal year, with the employer, the worksite, the
+      occupation, the offered wage, the prevailing wage and the foreign
+      worker's citizenship and class of admission.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - case_number
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+      - custom_dictionary_coverage_eng:
+          dictionary_model: ref('us_dol_oflc__dictionary')
+          columns_covered_by_dictionary:
+            - case_status
+            - full_time_position
+            - wage_unit_of_pay
+            - prevailing_wage_unit_of_pay
+            - prevailing_wage_level
+            - prevailing_wage_source
+            - agent_representing_employer
+            - application_type
+            - refile
+            - schedule_a_sheepherder
+            - minimum_education
+            - required_experience
+            - class_of_admission
+            - foreign_worker_education
+            - is_multiple_worksites
+    columns:
+      - name: year
+        description: >-
+          Federal fiscal year of the disclosure file the case was
+          published in, running from 1 October to 30 September
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: case_number
+        description: >-
+          Case number assigned by the Office of Foreign Labor
+          Certification to the permanent labor certification application,
+          unique within the fiscal year
+        tests: [not_null]
+      - name: case_status
+        description: >-
+          Outcome of the application at the time the file was published
+      - name: received_date
+        description: >-
+          Date the application was received by the Department of Labor
+      - name: decision_date
+        description: >-
+          Date the Department of Labor issued its determination on the
+          application
+      - name: employer_name
+        description: >-
+          Legal business name of the employer filing the application
+      - name: employer_trade_name
+        description: >-
+          Trade name or doing-business-as name of the employer
+      - name: employer_address
+        description: >-
+          First line of the employer's business address
+      - name: employer_city
+        description: >-
+          City of the employer's business address
+      - name: employer_state
+        description: >-
+          USPS two-letter abbreviation of the state of the employer's
+          business address
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: abbreviation
+              proportion_allowed_failures: 0.05
+      - name: employer_postal_code
+        description: >-
+          ZIP code of the employer's business address
+      - name: employer_country
+        description: >-
+          Country of the employer's business address
+      - name: naics_id
+        description: >-
+          North American Industry Classification System code of the
+          employer's industry
+      - name: job_title
+        description: >-
+          Job title of the position offered, as written by the employer
+      - name: soc_id
+        description: >-
+          Standard Occupational Classification code of the position
+          offered
+      - name: soc_title
+        description: >-
+          Standard Occupational Classification title of the position
+          offered
+      - name: full_time_position
+        description: >-
+          Whether the position offered is full time
+      - name: wage_offered_from
+        description: >-
+          Wage offered to the worker, at the bottom of the offered range,
+          in the unit given by wage_unit_of_pay
+      - name: wage_offered_to
+        description: >-
+          Wage offered to the worker, at the top of the offered range, in
+          the unit given by wage_unit_of_pay
+      - name: wage_unit_of_pay
+        description: >-
+          Period the offered wage refers to, harmonised by Data Basis to
+          hour, day, week, bi-weekly, semi-monthly, month, year or piece
+          rate
+      - name: wage_offered_from_annual
+        description: >-
+          Offered wage at the bottom of the range converted to an annual
+          amount by Data Basis, null when the unit is missing or is a
+          piece rate
+      - name: wage_offered_to_annual
+        description: >-
+          Offered wage at the top of the range converted to an annual
+          amount by Data Basis, null when the unit is missing or is a
+          piece rate
+      - name: prevailing_wage
+        description: >-
+          Prevailing wage determined for the occupation and area, in the
+          unit given by prevailing_wage_unit_of_pay
+      - name: prevailing_wage_unit_of_pay
+        description: >-
+          Period the prevailing wage refers to, harmonised by Data Basis
+          to hour, day, week, bi-weekly, semi-monthly, month, year or
+          piece rate
+      - name: prevailing_wage_annual
+        description: >-
+          Prevailing wage converted to an annual amount by Data Basis,
+          null when the unit is missing or is a piece rate
+      - name: prevailing_wage_level
+        description: >-
+          Skill level of the prevailing wage determination, from Level I
+          to Level IV
+      - name: prevailing_wage_source
+        description: >-
+          Source of the prevailing wage determination, such as the OES
+          survey or an employer-provided survey
+      - name: prevailing_wage_tracking_number
+        description: >-
+          Tracking or case number of the prevailing wage determination
+          issued for the application
+      - name: worksite_address
+        description: >-
+          First line of the address of the primary worksite
+      - name: worksite_city
+        description: >-
+          City of the primary worksite
+      - name: worksite_county
+        description: >-
+          County of the primary worksite
+      - name: worksite_state
+        description: >-
+          USPS two-letter abbreviation of the state of the primary
+          worksite
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: abbreviation
+              proportion_allowed_failures: 0.05
+      - name: worksite_postal_code
+        description: >-
+          ZIP code of the primary worksite
+      - name: attorney_law_firm_name
+        description: >-
+          Business name of the law firm or agency representing the
+          employer
+      - name: agent_representing_employer
+        description: >-
+          Whether an attorney or agent represents the employer on the
+          application
+      - name: application_type
+        description: >-
+          Type of application filed
+      - name: refile
+        description: >-
+          Whether the application is a refiling of a previously submitted
+          case
+      - name: schedule_a_sheepherder
+        description: >-
+          Whether the application is filed under the Schedule A
+          sheepherder provision
+      - name: us_economic_sector
+        description: >-
+          Broad economic sector of the employer as classified on the
+          application
+      - name: employer_num_employees
+        description: >-
+          Number of employees on the employer's payroll
+      - name: employer_year_commenced_business
+        description: >-
+          Year the employer commenced business
+      - name: prevailing_wage_determination_date
+        description: >-
+          Date the prevailing wage determination was issued
+      - name: prevailing_wage_expiration_date
+        description: >-
+          Date the prevailing wage determination expires
+      - name: minimum_education
+        description: >-
+          Minimum level of education required for the job opportunity
+      - name: major_field_of_study
+        description: >-
+          Major field of study required for the job opportunity
+      - name: required_experience
+        description: >-
+          Whether experience in the job offered is required
+      - name: required_experience_months
+        description: >-
+          Months of experience in the job offered required by the employer
+      - name: country_of_citizenship
+        description: >-
+          Country of citizenship of the foreign worker named on the
+          application
+      - name: foreign_worker_birth_country
+        description: >-
+          Country of birth of the foreign worker named on the application
+      - name: class_of_admission
+        description: >-
+          Non-immigrant visa class the foreign worker holds at the time of
+          filing
+      - name: foreign_worker_education
+        description: >-
+          Highest level of education completed by the foreign worker
+      - name: is_multiple_worksites
+        description: >-
+          Whether the job opportunity covers more than one worksite
+      - name: source_file
+        description: >-
+          Name of the Department of Labor disclosure file the row was read
+          from
+  - name: us_dol_oflc__h2a
+    description: >-
+      Applications for H-2A temporary agricultural labor certification
+      filed with the Office of Foreign Labor Certification, one row per
+      case number per federal fiscal year, with the employer, the
+      worksite, the crop, the workers requested and certified, the offered
+      wage and the housing the employer provides.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - case_number
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+      - custom_dictionary_coverage_eng:
+          dictionary_model: ref('us_dol_oflc__dictionary')
+          columns_covered_by_dictionary:
+            - case_status
+            - visa_class
+            - full_time_position
+            - wage_unit_of_pay
+            - agent_representing_employer
+            - type_of_employer_application
+            - h2a_labor_contractor
+            - nature_of_temporary_need
+            - emergency_filing
+            - frequency_of_pay
+            - education_level
+            - meals_provided
+    columns:
+      - name: year
+        description: >-
+          Federal fiscal year of the disclosure file the case was
+          published in, running from 1 October to 30 September
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: case_number
+        description: >-
+          Case number assigned by the Office of Foreign Labor
+          Certification, unique within the fiscal year
+        tests: [not_null]
+      - name: case_status
+        description: >-
+          Outcome of the application at the time the file was published
+      - name: visa_class
+        description: >-
+          Visa classification of the certification, H-2A for temporary
+          agricultural work
+      - name: received_date
+        description: >-
+          Date the application was received by the Department of Labor
+      - name: decision_date
+        description: >-
+          Date the Department of Labor issued its determination on the
+          application
+      - name: employment_begin_date
+        description: >-
+          First day of the requested period of employment
+      - name: employment_end_date
+        description: >-
+          Last day of the requested period of employment
+      - name: employer_name
+        description: >-
+          Legal business name of the employer filing the application
+      - name: employer_trade_name
+        description: >-
+          Trade name or doing-business-as name of the employer
+      - name: employer_address
+        description: >-
+          First line of the employer's business address
+      - name: employer_city
+        description: >-
+          City of the employer's business address
+      - name: employer_state
+        description: >-
+          USPS two-letter abbreviation of the state of the employer's
+          business address
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: abbreviation
+              proportion_allowed_failures: 0.05
+      - name: employer_postal_code
+        description: >-
+          ZIP code of the employer's business address
+      - name: employer_country
+        description: >-
+          Country of the employer's business address
+      - name: naics_id
+        description: >-
+          North American Industry Classification System code of the
+          employer's industry
+      - name: job_title
+        description: >-
+          Job title of the position offered, as written by the employer
+      - name: soc_id
+        description: >-
+          Standard Occupational Classification code of the position
+          offered
+      - name: soc_title
+        description: >-
+          Standard Occupational Classification title of the position
+          offered
+      - name: full_time_position
+        description: >-
+          Whether the position offered is full time
+      - name: wage_offered_from
+        description: >-
+          Wage offered to the worker, at the bottom of the offered range,
+          in the unit given by wage_unit_of_pay
+      - name: wage_unit_of_pay
+        description: >-
+          Period the offered wage refers to, harmonised by Data Basis to
+          hour, day, week, bi-weekly, semi-monthly, month, year or piece
+          rate
+      - name: wage_offered_from_annual
+        description: >-
+          Offered wage at the bottom of the range converted to an annual
+          amount by Data Basis, null when the unit is missing or is a
+          piece rate
+      - name: wage_offered_to_annual
+        description: >-
+          Offered wage at the top of the range converted to an annual
+          amount by Data Basis, null when the unit is missing or is a
+          piece rate
+      - name: worksite_address
+        description: >-
+          First line of the address of the primary worksite
+      - name: worksite_city
+        description: >-
+          City of the primary worksite
+      - name: worksite_county
+        description: >-
+          County of the primary worksite
+      - name: worksite_state
+        description: >-
+          USPS two-letter abbreviation of the state of the primary
+          worksite
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: abbreviation
+              proportion_allowed_failures: 0.05
+      - name: worksite_postal_code
+        description: >-
+          ZIP code of the primary worksite
+      - name: attorney_law_firm_name
+        description: >-
+          Business name of the law firm or agency representing the
+          employer
+      - name: agent_representing_employer
+        description: >-
+          Whether an attorney or agent represents the employer on the
+          application
+      - name: certification_begin_date
+        description: >-
+          First day of the certified period of employment
+      - name: certification_end_date
+        description: >-
+          Last day of the certified period of employment
+      - name: requested_begin_date
+        description: >-
+          First day of the period of need stated by the employer
+      - name: requested_end_date
+        description: >-
+          Last day of the period of need stated by the employer
+      - name: type_of_employer_application
+        description: >-
+          Whether the application is filed by an individual employer, an
+          agricultural association or an agent
+      - name: h2a_labor_contractor
+        description: >-
+          Whether the applicant is an H-2A labor contractor
+      - name: nature_of_temporary_need
+        description: >-
+          Nature of the employer's temporary need, such as seasonal or
+          peak load
+      - name: emergency_filing
+        description: >-
+          Whether the application was filed as an emergency filing
+      - name: primary_crop
+        description: >-
+          Primary crop or agricultural activity of the job opportunity
+      - name: job_order_number
+        description: >-
+          Job order number assigned by the state workforce agency
+      - name: workers_requested
+        description: >-
+          Number of workers requested by the employer
+      - name: workers_certified
+        description: >-
+          Number of workers certified by the Department of Labor
+      - name: anticipated_number_of_hours
+        description: >-
+          Number of hours of work anticipated per week
+      - name: piece_rate_offer
+        description: >-
+          Piece rate offered to the worker, when pay is per unit produced
+      - name: piece_rate_unit
+        description: >-
+          Unit the piece rate is paid per, as written by the employer
+      - name: overtime_rate_from
+        description: >-
+          Overtime rate offered, at the bottom of the offered range
+      - name: overtime_rate_to
+        description: >-
+          Overtime rate offered, at the top of the offered range
+      - name: frequency_of_pay
+        description: >-
+          How often the worker is paid
+      - name: education_level
+        description: >-
+          Minimum level of education required for the job opportunity
+      - name: work_experience_months
+        description: >-
+          Months of work experience required for the job opportunity
+      - name: housing_city
+        description: >-
+          City of the housing the employer provides to the workers
+      - name: housing_state
+        description: >-
+          USPS two-letter abbreviation of the state of the housing the
+          employer provides to the workers
+      - name: housing_type
+        description: >-
+          Type of housing the employer provides to the workers
+      - name: housing_total_occupancy
+        description: >-
+          Total number of workers the provided housing can accommodate
+      - name: meals_provided
+        description: >-
+          Whether the employer provides meals to the workers
+      - name: total_worksite_records
+        description: >-
+          Total number of worksite records attached to the application
+      - name: source_file
+        description: >-
+          Name of the Department of Labor disclosure file the row was read
+          from
+  - name: us_dol_oflc__h2b
+    description: >-
+      Applications for H-2B temporary non-agricultural labor certification
+      filed with the Office of Foreign Labor Certification, one row per
+      case number per federal fiscal year, with the employer, the
+      worksite, the occupation, the workers requested and certified and
+      the offered wage.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - case_number
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+      - custom_dictionary_coverage_eng:
+          dictionary_model: ref('us_dol_oflc__dictionary')
+          columns_covered_by_dictionary:
+            - case_status
+            - visa_class
+            - full_time_position
+            - wage_unit_of_pay
+            - prevailing_wage_unit_of_pay
+            - agent_representing_employer
+            - application_type
+            - nature_of_temporary_need
+            - cap_exempt
+            - type_of_employer
+            - education_level
+    columns:
+      - name: year
+        description: >-
+          Federal fiscal year of the disclosure file the case was
+          published in, running from 1 October to 30 September
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: case_number
+        description: >-
+          Case number assigned by the Office of Foreign Labor
+          Certification, unique within the fiscal year
+        tests: [not_null]
+      - name: case_status
+        description: >-
+          Outcome of the application at the time the file was published
+      - name: visa_class
+        description: >-
+          Visa classification of the certification, H-2B for temporary
+          non-agricultural work
+      - name: received_date
+        description: >-
+          Date the application was received by the Department of Labor
+      - name: decision_date
+        description: >-
+          Date the Department of Labor issued its determination on the
+          application
+      - name: employment_begin_date
+        description: >-
+          First day of the requested period of employment
+      - name: employment_end_date
+        description: >-
+          Last day of the requested period of employment
+      - name: employer_name
+        description: >-
+          Legal business name of the employer filing the application
+      - name: employer_trade_name
+        description: >-
+          Trade name or doing-business-as name of the employer
+      - name: employer_address
+        description: >-
+          First line of the employer's business address
+      - name: employer_city
+        description: >-
+          City of the employer's business address
+      - name: employer_state
+        description: >-
+          USPS two-letter abbreviation of the state of the employer's
+          business address
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: abbreviation
+              proportion_allowed_failures: 0.05
+      - name: employer_postal_code
+        description: >-
+          ZIP code of the employer's business address
+      - name: employer_country
+        description: >-
+          Country of the employer's business address
+      - name: naics_id
+        description: >-
+          North American Industry Classification System code of the
+          employer's industry
+      - name: job_title
+        description: >-
+          Job title of the position offered, as written by the employer
+      - name: soc_id
+        description: >-
+          Standard Occupational Classification code of the position
+          offered
+      - name: soc_title
+        description: >-
+          Standard Occupational Classification title of the position
+          offered
+      - name: full_time_position
+        description: >-
+          Whether the position offered is full time
+      - name: wage_offered_from
+        description: >-
+          Wage offered to the worker, at the bottom of the offered range,
+          in the unit given by wage_unit_of_pay
+      - name: wage_offered_to
+        description: >-
+          Wage offered to the worker, at the top of the offered range, in
+          the unit given by wage_unit_of_pay
+      - name: wage_unit_of_pay
+        description: >-
+          Period the offered wage refers to, harmonised by Data Basis to
+          hour, day, week, bi-weekly, semi-monthly, month, year or piece
+          rate
+      - name: wage_offered_from_annual
+        description: >-
+          Offered wage at the bottom of the range converted to an annual
+          amount by Data Basis, null when the unit is missing or is a
+          piece rate
+      - name: wage_offered_to_annual
+        description: >-
+          Offered wage at the top of the range converted to an annual
+          amount by Data Basis, null when the unit is missing or is a
+          piece rate
+      - name: prevailing_wage
+        description: >-
+          Prevailing wage determined for the occupation and area, in the
+          unit given by prevailing_wage_unit_of_pay
+      - name: prevailing_wage_unit_of_pay
+        description: >-
+          Period the prevailing wage refers to, harmonised by Data Basis
+          to hour, day, week, bi-weekly, semi-monthly, month, year or
+          piece rate
+      - name: prevailing_wage_annual
+        description: >-
+          Prevailing wage converted to an annual amount by Data Basis,
+          null when the unit is missing or is a piece rate
+      - name: prevailing_wage_tracking_number
+        description: >-
+          Tracking or case number of the prevailing wage determination
+          issued for the application
+      - name: worksite_address
+        description: >-
+          First line of the address of the primary worksite
+      - name: worksite_city
+        description: >-
+          City of the primary worksite
+      - name: worksite_county
+        description: >-
+          County of the primary worksite
+      - name: worksite_state
+        description: >-
+          USPS two-letter abbreviation of the state of the primary
+          worksite
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: abbreviation
+              proportion_allowed_failures: 0.05
+      - name: worksite_postal_code
+        description: >-
+          ZIP code of the primary worksite
+      - name: attorney_law_firm_name
+        description: >-
+          Business name of the law firm or agency representing the
+          employer
+      - name: agent_representing_employer
+        description: >-
+          Whether an attorney or agent represents the employer on the
+          application
+      - name: application_type
+        description: >-
+          Type of temporary labor certification application filed
+      - name: certification_begin_date
+        description: >-
+          First day of the certified period of employment
+      - name: certification_end_date
+        description: >-
+          Last day of the certified period of employment
+      - name: requested_begin_date
+        description: >-
+          First day of the period of need stated by the employer
+      - name: requested_end_date
+        description: >-
+          Last day of the period of need stated by the employer
+      - name: nature_of_temporary_need
+        description: >-
+          Nature of the employer's temporary need, such as seasonal or
+          peak load
+      - name: cap_exempt
+        description: >-
+          Whether the application is exempt from the H-2B statutory cap
+      - name: type_of_employer
+        description: >-
+          Type of employer filing the application
+      - name: job_order_number
+        description: >-
+          Job order number assigned by the state workforce agency
+      - name: job_order_submit_date
+        description: >-
+          Date the job order was submitted to the state workforce agency
+      - name: swa_state
+        description: >-
+          State workforce agency that received the job order
+      - name: workers_requested
+        description: >-
+          Number of workers requested by the employer
+      - name: workers_certified
+        description: >-
+          Number of workers certified by the Department of Labor
+      - name: anticipated_number_of_hours
+        description: >-
+          Number of hours of work anticipated per week
+      - name: overtime_rate_from
+        description: >-
+          Overtime rate offered, at the bottom of the offered range
+      - name: overtime_rate_to
+        description: >-
+          Overtime rate offered, at the top of the offered range
+      - name: msa_name
+        description: >-
+          Name of the metropolitan statistical area or OES wage area of
+          the worksite
+      - name: education_level
+        description: >-
+          Minimum level of education required for the job opportunity
+      - name: work_experience_months
+        description: >-
+          Months of work experience required for the job opportunity
+      - name: source_file
+        description: >-
+          Name of the Department of Labor disclosure file the row was read
+          from
+  - name: us_dol_oflc__dictionary
+    description: >-
+      Dictionary of the coded values used by the us_dol_oflc tables, with
+      the fiscal years each value occurs in. The OFLC vocabularies change
+      across form revisions, so a value present in one span of years may
+      be absent in another.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - table_id
+            - column_name
+            - key
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: table_id
+        description: >-
+          Slug of the us_dol_oflc table the entry describes
+        tests: [not_null]
+      - name: column_name
+        description: >-
+          Name of the column covered by the dictionary
+        tests: [not_null]
+      - name: key
+        description: >-
+          Coded value exactly as stored in the data table
+        tests: [not_null]
+      - name: temporal_coverage
+        description: >-
+          Fiscal years the mapping applies to
+      - name: value
+        description: >-
+          Meaning of the coded value
