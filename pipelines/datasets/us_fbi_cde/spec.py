@@ -1676,12 +1676,10 @@ TABLES = {
     "dicionario": {
         "columns": DICIONARIO,
         "partitions": [],
-        "unique_key": [
-            "id_tabela",
-            "nome_coluna",
-            "chave",
-            "cobertura_temporal",
-        ],
+        # cobertura_temporal is deliberately not part of the key: none of these
+        # code sets changes meaning by era, so the column is empty throughout and
+        # keying on it would attach a not_null test that can never pass.
+        "unique_key": ["id_tabela", "nome_coluna", "chave"],
         "first_year": None,
         "last_year": None,
     },

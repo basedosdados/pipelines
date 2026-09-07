@@ -75,9 +75,18 @@ models:
         description: >
           Código FIPS de cinco posições do condado principal da agência
         tests:
-          - relationships:
+          - custom_relationships:
               to: ref('br_bd_diretorios_us__county')
               field: id_county
+              ignore_values:
+                - '09001'
+                - '09003'
+                - '09005'
+                - '09007'
+                - '09009'
+                - '09011'
+                - '09013'
+                - '09015'
       - name: county_name
         description: >
           Nome do condado principal atendido pela agência, tal como publicado
@@ -998,13 +1007,10 @@ models:
       conjunto, com o rótulo em inglês, a língua da fonte.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - id_tabela
-            - nome_coluna
-            - chave
-            - cobertura_temporal
+          combination_of_columns: [id_tabela, nome_coluna, chave]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [cobertura_temporal]
     columns:
       - name: id_tabela
         description: >
@@ -1021,7 +1027,6 @@ models:
       - name: cobertura_temporal
         description: >
           Cobertura temporal do código
-        tests: [not_null]
       - name: valor
         description: >-
           Rótulo do código, em inglês, a língua da fonte

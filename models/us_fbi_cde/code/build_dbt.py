@@ -46,6 +46,18 @@ LARGE = {
     "ucr_summary",
 }
 
+# Connecticut's counties, retired in 2022 in favour of planning regions.
+CT_LEGACY_COUNTIES = [
+    "09001",
+    "09003",
+    "09005",
+    "09007",
+    "09009",
+    "09011",
+    "09013",
+    "09015",
+]
+
 CLUSTER = {
     "incident": ["state_abbr", "ori"],
     "offense": ["state_abbr", "offense_code"],
@@ -262,11 +274,19 @@ def render_schema():
                 )
                 tests.append("              field: id_state")
             if name == "county_id":
-                tests.append("          - relationships:")
+                # Connecticut replaced its eight counties with nine planning
+                # regions in 2022. The directory carries the current vintage;
+                # this dataset spans 1960-2025, so the pre-2022 codes are the
+                # right answer for the years they cover and are ignored rather
+                # than mapped forward into an anachronism.
+                tests.append("          - custom_relationships:")
                 tests.append(
                     "              to: ref('br_bd_diretorios_us__county')"
                 )
                 tests.append("              field: id_county")
+                tests.append("              ignore_values:")
+                for legacy in CT_LEGACY_COUNTIES:
+                    tests.append(f"                - '{legacy}'")
             if tests:
                 out.append("        tests:")
                 out.extend(tests)
@@ -277,6 +297,10 @@ def render_schema():
 # Columns that are legitimately mostly or entirely null, so the null-proportion
 # test must not fail on them.
 SPARSE_COLUMNS = {
+    # None of these code sets changes meaning by era, so the temporal column is
+    # empty throughout. It is kept because it is part of the house dicionario
+    # schema, not because this dataset populates it.
+    "dicionario": ["cobertura_temporal"],
     "agency": [
         "county_id",
         "county_name",
