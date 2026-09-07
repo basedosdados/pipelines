@@ -112,7 +112,7 @@ Run from `code/`; scratch defaults to `~/Downloads/us_cfpb_complaints_data`
 | Script | What it does |
 |---|---|
 | `gen_architecture.py` | Writes `sheet_complaint.tsv` / `sheet_dicionario.tsv` — the source of truth |
-| `common.py` | Paths, architecture parsing, USPS→FIPS state crosswalk |
+| `common.py` | Scratch paths; re-exports the shared transform from `pipelines/datasets/us_cfpb_complaints/utils.py` |
 | `download.py` | Downloads + unzips the bulk export |
 | `clean.py` | Streams the CSV → all-STRING parquet, hive-partitioned by year |
 | `gen_dicionario.py` | Builds `dicionario` from the cleaned parquet |
@@ -153,20 +153,75 @@ which drops the production table too.
 well as test time. `tags` and `consumer_complaint_narrative` are exempted: both are
 legitimately sparse in recent years.
 
-## Planned recurring pipeline (not built yet)
+## Recurring pipeline
 
-Daily source; full-snapshot export. The intended shape:
+`pipelines/datasets/us_cfpb_complaints/` — daily, `us_cfpb_complaints_flow`, cron
+`45 7 * * *` America/Sao_Paulo (hour 7 already holds 23, 37 and 51, so 45 keeps five
+minutes' spacing; never default the minute to `0`).
 
-- Download the snapshot, clean it, and **append only complaints whose `complaint_id`
-  is new** — the table is not rebuilt from the snapshot.
-- **An update path for recent partitions is mandatory, not optional.** Existing rows
-  change: `company_response_to_consumer` moves off `In progress`, `timely_response`
-  resolves, `company_public_response` is published within 180 days, and narratives are
-  added months later (hence the 2.4% figure for 2026). Re-cleaning and replacing the
-  current and previous year's partitions on each run covers all four.
-- Daily cadence ⇒ **BD Pro rolling window** applies to `complaint` (`PartBdpro`);
-  `dicionario` has no date column and takes no coverage spec. The pro Coverage
-  (`is_closed=True`) must exist **before** the spec is switched or the run hard-fails
-  at `assert_coverage_topology`.
-- Verify a manual dev run (`materialize_to_prod: False, update_metadata: False,
-  force_run: True`) before arming.
+**The transform lives in `pipelines/datasets/us_cfpb_complaints/utils.py`** and the
+scripts under `code/` import it, so the bootstrap and the pipeline cannot drift. The
+port was verified against the validated bootstrap output: identical row counts per
+year, identical `state_without_fips` (4,327), identical `dicionario` (587 rows), and
+a value-level hash match on `year=2011`, `year=2017`, `year=2026` and `dicionario`.
+
+### Why every partition is rewritten each run
+
+The CFPB publishes a **full snapshot daily**, and complaints are not only added, they
+are revised: `company_response_to_consumer` moves off `In progress`,
+`timely_response` resolves, `company_public_response` is published within 180 days,
+and the narrative arrives months later once scrubbed (2.4% of 2026 complaints carry
+one, against 21.9% overall). An append-only load keyed on `complaint_id` would miss
+all four. Rewriting everything is cheap because parsing the 9.3 GB CSV has to happen
+regardless; the BigQuery cost is one scan of ~1.4 GB of parquet.
+
+`dicionario` is regenerated every run too — a taxonomy revision introduces new values,
+and `complaint`'s `custom_dictionary_coverage` test fails if the register lags.
+
+### Two things in the flow that are not stylistic
+
+- **`dump_mode="append"`, never `"overwrite"`.** Overwrite calls
+  `tb.delete(mode="all")`, which drops the **production** table, and it fires from
+  the dev half of the flow too. Append ends in `Storage.upload(if_exists="replace")`,
+  which replaces each partition blob wholesale — same end state, no delete.
+- **Every table is built before any is tested**, in both environments (`dbt_command="run"`
+  in one loop, `"test"` in a second). `complaint`'s `custom_dictionary_coverage` test
+  reads `dicionario` through `ref()`; interleaved per table, it runs before
+  `dicionario` exists and fails with `Not found: Table ... us_cfpb_complaints.dicionario`.
+  A re-run hides this, because a stale sibling survives — so it only bites in a clean
+  environment, which is prod.
+
+### BD Pro rolling window — NOT yet armed, needs a decision
+
+The flow declares `PartBdpro(free_lag=6 months)` on `complaint`, per the house rule
+that any table refreshed monthly or more often paywalls its most recent window. This
+has **not** been applied to any backend yet, and the pipeline will hard-fail at
+`assert_coverage_topology` until it is:
+
+    part_bdpro exige Coverage free + pro
+
+**Before arming**, either
+(a) create the pro Coverage on staging and prod —
+`create_update_coverage(table_id=…, area_id=<us>, is_closed=True, env=…)` plus its
+`DateTimeRange` with `is_closed=True`, free ending at `source_end - 6 months` and pro
+starting the next day (they must not overlap) — or
+(b) change `_COVERAGE` to `AllFree(date_column=DateOnly(col="date_received"),
+date_format=DateFormat.YEAR_MD)` and leave the table fully open.
+
+`compute_coverage_ranges`, `assert_coverage_topology` and `needs_row_access_policy`
+are pure and unit-testable; `apply_row_access_policies` issues real BigQuery DDL and
+needs the worker's rights, so the paywall itself is **not** exercisable locally.
+
+### Verification status
+
+Local checks pass: flow imports, `deploy_flows.load_flows_from_file` discovers
+`us_cfpb_complaints_flow`, transform parity against the bootstrap, ruff, and pyrefly
+(0 diagnostics). **The dev run has not happened** — it needs the PR pushed with the
+`deploy-flow` label, then a manual trigger with
+`{"materialize_to_prod": False, "update_metadata": False, "force_run": True}`. All
+three matter: the flow defaults to `materialize_to_prod=True, update_metadata=True`,
+and the metadata tasks are pinned `env="prod"` even from the dev pool.
+
+Green does not mean ingested: the poll guard returns early and Prefect still reports
+`COMPLETED`. Read the logs for `dbt run OK` + `dbt test OK` on both tables, and check
+the clone path is `/app/pipelines-<branch>/`, not `/app/pipelines-main/`.
