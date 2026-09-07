@@ -347,6 +347,7 @@ def main() -> int:
                     "canonical_column",
                     "disposition",
                 ],
+                lineterminator="\n",
             )
             w.writeheader()
             w.writerows(rows)

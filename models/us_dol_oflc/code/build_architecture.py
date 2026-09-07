@@ -14,15 +14,12 @@ from __future__ import annotations
 
 import csv
 import json
-import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE))
-
-import descriptions as ds  # noqa: E402
 
 from pipelines.datasets.us_dol_oflc import canonical_map as cm  # noqa: E402
+from pipelines.datasets.us_dol_oflc import descriptions as ds  # noqa: E402
 
 ARCH = HERE / "architecture"
 JSON_OUT = HERE / "columns_json"
@@ -195,7 +192,7 @@ def main() -> int:
                 entry["measurement_unit"] = UNITS[name]
             payload.append(entry)
         with open(ARCH / f"{program}.csv", "w", newline="") as fh:
-            w = csv.DictWriter(fh, fieldnames=FIELDS)
+            w = csv.DictWriter(fh, fieldnames=FIELDS, lineterminator="\n")
             w.writeheader()
             w.writerows(rows)
         (JSON_OUT / f"{program}.json").write_text(
@@ -242,7 +239,7 @@ def main() -> int:
         ),
     ]
     with open(ARCH / "dictionary.csv", "w", newline="") as fh:
-        w = csv.DictWriter(fh, fieldnames=FIELDS)
+        w = csv.DictWriter(fh, fieldnames=FIELDS, lineterminator="\n")
         w.writeheader()
         for name, btype, en, _pt, _es in dict_cols:
             w.writerow(
