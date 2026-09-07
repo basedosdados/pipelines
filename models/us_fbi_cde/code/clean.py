@@ -33,6 +33,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_fbi_cde.constants import constants
 from pipelines.datasets.us_fbi_cde.utils import (
+    canonical_state,
     clean_nibrs_bundle,
     parse_reta_file,
     read_csv_all_strings,
@@ -130,10 +131,23 @@ def pass_nibrs(limit=None, workers=4):
     bundles = sorted((INPUT / "nibrs").glob("*.zip"))
     if limit:
         bundles = bundles[:limit]
+    # Map the state once, here, so the same value reaches the row contents and
+    # the partition path. Bundles whose state is not in the download list are
+    # skipped: NB-2019 duplicates NE-2019 exactly and would otherwise be cleaned
+    # into the same partition twice.
+    wanted = set(constants.STATES.value)
     jobs = []
+    skipped = []
     for path in bundles:
         state_abbr, year = path.stem.split("-")
-        jobs.append((str(path), state_abbr, int(year)))
+        if state_abbr not in wanted:
+            skipped.append(path.stem)
+            continue
+        jobs.append((str(path), canonical_state(state_abbr), int(year)))
+    if skipped:
+        print(
+            f"skipping {len(skipped)} bundle(s) not in the state list: {skipped}"
+        )
     totals = Counter()
     written = set()
     done = 0

@@ -41,6 +41,18 @@ SIGNED_URL_ENDPOINT = "https://cde.ucr.cjis.gov/LATEST/s3/signedurl"
 # in the incident tables and "NB" everywhere else in the same dataset.
 UCR_STATE_ABBR = {"NE": "NB"}
 
+
+def canonical_state(state_abbr):
+    """Map a bundle's filename state to the code the rest of the dataset uses.
+
+    Call this once, at the point the bundle is scheduled, so the same value
+    reaches both the row contents and the partition path. Mapping it only inside
+    the cleaner leaves the caller writing `state_abbr=NE/` directories whose rows
+    say `NB` — the partition key wins, and the state ends up mislabelled.
+    """
+    return UCR_STATE_ABBR.get(state_abbr, state_abbr)
+
+
 # The FBI is inconsistent about missing values: the NIBRS bundles leave the
 # field empty, while the law enforcement employee extract writes the literal
 # string "NULL" — in 750,787 of its 785,127 pub_agency_unit values. Read as
@@ -351,7 +363,7 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
     """
     from pipelines.datasets.us_fbi_cde.spec import column_names
 
-    state_abbr = UCR_STATE_ABBR.get(state_abbr, state_abbr)
+    state_abbr = canonical_state(state_abbr)
 
     with zipfile.ZipFile(zip_path) as zf:
         members = _members(zf)

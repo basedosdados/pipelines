@@ -16,6 +16,7 @@ from prefect import task
 
 from pipelines.datasets.us_fbi_cde.constants import constants
 from pipelines.datasets.us_fbi_cde.utils import (
+    canonical_state,
     clean_nibrs_bundle,
     download_key,
     parse_reta_file,
@@ -117,6 +118,8 @@ def clean_window(work_dir: str, downloads: dict) -> dict:
     participation, attributes, reta_agency = [], [], []
 
     for zip_path, state, year in downloads["bundles"]:
+        # Map once, so the row contents and the partition path agree.
+        state = canonical_state(state)
         tables = clean_nibrs_bundle(zip_path, state, year)
         for table in NIBRS_TABLES:
             write_partition(
