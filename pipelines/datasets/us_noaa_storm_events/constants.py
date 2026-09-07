@@ -8,7 +8,7 @@ neutralise.
 from enum import Enum
 from pathlib import Path
 
-# Repo root, then the committed architecture TSVs (the single schema source of
+# Repo root, then the committed architecture CSVs (the single schema source of
 # truth — column order, bigquery_type and the raw -> clean name mapping).
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 
@@ -17,7 +17,7 @@ class constants(Enum):
     """Constants for the us_noaa_storm_events pipeline.
 
     Lowercase class name follows the repo-wide convention for dataset constant
-    enums. ``ARCHITECTURE_DIR`` points at the architecture TSVs under
+    enums. ``ARCHITECTURE_DIR`` points at the architecture CSVs under
     ``models/us_noaa_storm_events/code/architecture``, shared with the one-shot
     bootstrap.
     """

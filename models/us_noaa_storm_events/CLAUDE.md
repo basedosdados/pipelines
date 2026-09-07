@@ -163,9 +163,9 @@ the rows. This is the single numeric column in the dataset without a unit, and
 ```
 models/us_noaa_storm_events/
 ├── code/
-│   ├── architecture/sheet_{event,fatality,event_location}.tsv   ← source of truth
-│   ├── gen_architecture.py    writes the TSVs (edit the column defs here)
-│   ├── gen_dbt.py             writes the .sql models and schema.yml from the TSVs
+│   ├── architecture/sheet_{event,fatality,event_location}.csv   ← source of truth
+│   ├── gen_architecture.py    writes the CSVs (edit the column defs here)
+│   ├── gen_dbt.py             writes the .sql models and schema.yml from the CSVs
 │   ├── common.py              scratch paths; re-exports the shared transform
 │   ├── clean.py               one-shot: clean every year to parquet
 │   ├── verify_parquet.py      row counts, key uniqueness, damage totals, null shares
@@ -204,9 +204,34 @@ release so this is rare; `force_run=True` covers it when it is not.
 Release day is not fixed — the 2026 creation tokens fall on the 1st, 19th, 23rd,
 25th, 27th and 28th — hence a daily poll rather than a few chosen days.
 
-**Coverage tier.** All three tables are registered `AllFree`. The house rule points
-at `PartBdpro` for a table refreshed monthly or more often, and this one is
-monthly, but switching requires a pro Coverage (`is_closed=True`) to exist first or
-`assert_coverage_topology` raises, and the first armed run would then paywall data
-that is currently public. Left as a deliberate one-line change in `_COVERAGE` plus
-one `create_update_coverage` call.
+**Coverage tier: `PartBdpro`, 6-month lag, on all three tables.** They refresh
+monthly, so the house rule applies. Each run recomputes
+`free_end = source_end - free_lag`, rewrites both `DateTimeRange`s and re-issues
+the BigQuery Row Access Policies, so the window rolls on its own and the dbt
+models are untouched.
+
+The date column differs by table, and nulls drive the choice: the policy grants
+`allUsers` `<date_col> <= free_end`, and a NULL fails that comparison, so a row
+with no date would be paywalled forever.
+
+| table | date column | why | window at 2026-05 |
+|---|---|---|---|
+| `event` | `begin_datetime` | non-null on all 2,041,816 rows | free ≤ 2025-11-30, pro 2025-12-01..2026-05-31 |
+| `fatality` | `year` | `fatality_datetime` is NULL on 12 rows where the source gives no day | free ≤ 2025, pro 2026 |
+| `event_location` | `year` | no date column at all beyond the partition | free ≤ 2025, pro 2026 |
+
+The granularities differ at the boundary — `event`'s free window ends mid-month,
+the other two at a year boundary — so a recent fatality can be free while its
+event is not. That direction is harmless: it never exposes a row the pro window
+is meant to cover.
+
+Both Coverages (free `is_closed=False`, pro `is_closed=True`) and both
+`DateTimeRange`s carry `is_closed` set to match, registered to exactly what the
+pipeline recomputes so the site does not show a different window before the first
+armed run. The pipeline never writes `is_closed` — `DateTimeRangeInput` has no
+such field — so what is registered is what stays.
+
+**Not verifiable before arming:** `apply_row_access_policies` issues real
+BigQuery DDL with the worker's rights. The window arithmetic and the topology
+guard are pure and are unit-checked; the policies themselves first run on the
+first armed prod run.

@@ -1,6 +1,6 @@
 """Write the dbt models and schema.yml for us_noaa_storm_events.
 
-Generated from the architecture TSVs so the SQL cast list, the column order and
+Generated from the architecture CSVs so the SQL cast list, the column order and
 the documented descriptions cannot drift from the schema they are supposed to
 implement.
 

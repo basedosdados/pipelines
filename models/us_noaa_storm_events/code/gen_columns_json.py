@@ -1,6 +1,6 @@
-"""Write the bulk_upsert_columns payload for each table, from the architecture TSVs.
+"""Write the bulk_upsert_columns payload for each table, from the architecture CSVs.
 
-The backend metadata is generated from the same TSVs as the transform and the dbt
+The backend metadata is generated from the same CSVs as the transform and the dbt
 models, so the three cannot describe different schemas.
 
 Run: uv run python models/us_noaa_storm_events/code/gen_columns_json.py [out_dir]

@@ -1,11 +1,11 @@
-"""Write the architecture TSVs for us_noaa_storm_events.
+"""Write the architecture CSVs for us_noaa_storm_events.
 
-The TSVs under ``architecture/`` are the single source of truth for column
+The CSVs under ``architecture/`` are the single source of truth for column
 names, order, BigQuery types, units, directory links and the raw -> clean name
 mapping. The cleaning transform, the dbt models and the backend metadata are all
 generated from them, so a schema change is made here and nowhere else.
 
-Descriptions are carried in all three languages in the TSV itself rather than
+Descriptions are carried in all three languages in the CSV itself rather than
 translated downstream, so no second source of truth exists.
 
 Run: uv run python models/us_noaa_storm_events/code/gen_architecture.py
@@ -864,11 +864,9 @@ def main() -> None:
                 assert c["measurement_unit"] or c["name"] == "magnitude", (
                     f"{table}.{c['name']}: numeric column needs a measurement_unit"
                 )
-        path = OUT / f"sheet_{table}.tsv"
+        path = OUT / f"sheet_{table}.csv"
         with open(path, "w", encoding="utf-8", newline="") as fh:
-            w = csv.DictWriter(
-                fh, fieldnames=HEADER, delimiter="\t", lineterminator="\n"
-            )
+            w = csv.DictWriter(fh, fieldnames=HEADER, lineterminator="\n")
             w.writeheader()
             w.writerows(cols)
         print(f"wrote {path} ({len(cols)} columns)")

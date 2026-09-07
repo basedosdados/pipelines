@@ -65,7 +65,7 @@ class Col:
     """One column of an architecture table.
 
     The transform only needs ``name`` / ``bq_type`` / ``original``; the remaining
-    fields are carried so the metadata scripts read the same TSV through the same
+    fields are carried so the metadata scripts read the same CSV through the same
     parser rather than writing a second one.
     """
 
@@ -85,11 +85,11 @@ class Col:
 
 
 def load_cols(table: str) -> list[Col]:
-    """Load ordered column specs from the architecture TSV for a table."""
-    path = Path(constants.ARCHITECTURE_DIR.value) / f"sheet_{table}.tsv"
+    """Load ordered column specs from the architecture CSV for a table."""
+    path = Path(constants.ARCHITECTURE_DIR.value) / f"sheet_{table}.csv"
     cols = []
     with open(path, encoding="utf-8") as fh:
-        for r in csv.DictReader(fh, delimiter="\t"):
+        for r in csv.DictReader(fh):
             cols.append(
                 Col(
                     name=r["name"].strip(),

@@ -7,7 +7,7 @@ on top: where the scratch data lives.
 
 Scratch data goes under ``~/Downloads/us_noaa_storm_events_data/`` (never in the
 repo or in Dropbox), overridable via ``NOAA_STORM_EVENTS_DATA_DIR``. The
-architecture TSVs under ``architecture/`` remain the source of truth for column
+architecture CSVs under ``architecture/`` remain the source of truth for column
 names, order, types and the raw -> clean name mapping; ``gen_architecture.py``
 writes them.
 """

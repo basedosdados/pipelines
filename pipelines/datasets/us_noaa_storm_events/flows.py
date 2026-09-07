@@ -41,7 +41,13 @@ from pipelines.datasets.us_noaa_storm_events.tasks import (
     download_corpus,
     probe_source,
 )
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
+from pipelines.utils.metadata.domain import (
+    DateFormat,
+    DateOnly,
+    FreeLag,
+    PartBdpro,
+    YearOnly,
+)
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -58,20 +64,50 @@ EVENT = constants.EVENT.value
 
 # Coverage spec per table.
 #
-# All three data tables are registered AllFree for now. The house rule points at
-# PartBdpro for a table refreshed monthly or more often, and this one is monthly —
-# but switching a table to part_bdpro requires a pro Coverage (is_closed=True) to
-# already exist on it, or assert_coverage_topology raises before anything is
-# written, and the first armed run would then paywall data that is currently
-# public. That is a publishing decision, so it is left as an explicit one-line
-# change here plus one create_update_coverage call, not made silently.
+# All three data tables refresh monthly, so all three carry the BD Pro rolling
+# window: the most recent slice is pro-only, everything older is free. Each run
+# recomputes free_end = source_end - free_lag, rewrites both DateTimeRanges and
+# re-issues the BigQuery Row Access Policies, so the window slides on its own.
+#
+# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
+# Coverage to already exist on the table, or assert_coverage_topology raises
+# before anything is written.
+#
+# The date column differs by table, and the choice is driven by nulls: the Row
+# Access Policy grants allUsers `<date_col> <= free_end`, and a NULL fails that
+# comparison, so any row with no date would be paywalled forever.
+#
+# * event uses begin_datetime, which is non-null on all 2,041,816 rows — a true
+#   6-month rolling window.
+# * fatality has fatality_datetime, but it is NULL on 12 rows where the source
+#   reports no day. Those 12 deaths would never become free, so the window keys
+#   on `year` instead, which is the non-null partition column.
+# * event_location has no date column at all beyond `year`.
+#
+# The two granularities differ slightly at the boundary — event's free window
+# ends mid-month while the other two end at a year boundary — which can leave a
+# recent fatality free while its event is not. That direction is harmless: it
+# never exposes a row the pro window is meant to cover.
 #
 # `dicionario` has no date column, so it takes no coverage spec at all.
+_FREE_LAG = FreeLag(unit="months", value=6)
+
 _COVERAGE = {
-    table: AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    )
-    for table in ("event", "fatality", "event_location")
+    "event": PartBdpro(
+        date_column=DateOnly(col="begin_datetime"),
+        date_format=DateFormat.YEAR_MD,
+        free_lag=_FREE_LAG,
+    ),
+    "fatality": PartBdpro(
+        date_column=YearOnly(col="year"),
+        date_format=DateFormat.YEAR,
+        free_lag=_FREE_LAG,
+    ),
+    "event_location": PartBdpro(
+        date_column=YearOnly(col="year"),
+        date_format=DateFormat.YEAR,
+        free_lag=_FREE_LAG,
+    ),
 }
 
 
