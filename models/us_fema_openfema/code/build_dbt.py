@@ -11,6 +11,8 @@ descriptions cannot drift between the catalog and the warehouse. Edit
 from __future__ import annotations
 
 import csv
+import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -335,12 +337,39 @@ def _relationship(directory: str, column: str) -> list[str]:
     return out
 
 
+def normalise(paths: list[Path]) -> None:
+    """Run the repo's own formatters over the generated files.
+
+    sqlfmt and yamlfix are pre-commit hooks, so whatever they would rewrite is
+    what belongs in the repo. Running them here rather than hand-matching their
+    output keeps a regeneration byte-identical to what is committed — otherwise
+    every rebuild reintroduces a diff that CI then rewrites.
+    """
+    sql = [str(p) for p in paths if p.suffix == ".sql"]
+    yaml = [str(p) for p in paths if p.suffix == ".yml"]
+    for tool, args in (("sqlfmt", sql), ("yamlfix", yaml)):
+        if not args:
+            continue
+        binary = shutil.which(tool) or str(Path(sys.executable).parent / tool)
+        if not Path(binary).exists():
+            print(
+                f"  [warn] {tool} not found; run pre-commit before committing"
+            )
+            continue
+        subprocess.run([binary, *args], check=False, capture_output=True)
+        print(f"  normalised {len(args)} file(s) with {tool}")
+
+
 def main() -> None:
+    written = []
     for table in [*spec.TABLES, "dicionario"]:
         write_model(table)
+        written.append(MODELS / f"{DATASET}__{table}.sql")
         print(f"{DATASET}__{table}.sql")
     write_schema()
+    written.append(MODELS / "schema.yml")
     print("schema.yml")
+    normalise(written)
 
 
 if __name__ == "__main__":
