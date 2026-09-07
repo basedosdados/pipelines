@@ -1,0 +1,85 @@
+{
+ "lca": {
+  "rows": 9913071,
+  "latest_fiscal_year": 2026,
+  "latest_rows": 437496,
+  "sparse_full": [
+   "original_certification_date",
+   "prevailing_wage_tracking_number"
+  ],
+  "sparse_latest": [
+   "prevailing_wage_tracking_number",
+   "withdrawn"
+  ]
+ },
+ "perm": {
+  "rows": 1769123,
+  "latest_fiscal_year": 2026,
+  "latest_rows": 112550,
+  "sparse_full": [
+   "employer_trade_name"
+  ],
+  "sparse_latest": [
+   "class_of_admission",
+   "country_of_citizenship",
+   "foreign_worker_birth_country",
+   "foreign_worker_education",
+   "major_field_of_study",
+   "minimum_education",
+   "prevailing_wage",
+   "prevailing_wage_annual",
+   "prevailing_wage_determination_date",
+   "prevailing_wage_expiration_date",
+   "prevailing_wage_level",
+   "prevailing_wage_source",
+   "prevailing_wage_unit_of_pay",
+   "refile",
+   "required_experience",
+   "required_experience_months",
+   "schedule_a_sheepherder",
+   "us_economic_sector"
+  ]
+ },
+ "h2a": {
+  "rows": 227725,
+  "latest_fiscal_year": 2026,
+  "latest_rows": 20638,
+  "sparse_full": [
+   "education_level",
+   "overtime_rate_from",
+   "overtime_rate_to"
+  ],
+  "sparse_latest": [
+   "certification_begin_date",
+   "certification_end_date",
+   "education_level",
+   "full_time_position",
+   "overtime_rate_from",
+   "overtime_rate_to",
+   "primary_crop",
+   "visa_class"
+  ]
+ },
+ "h2b": {
+  "rows": 183837,
+  "latest_fiscal_year": 2026,
+  "latest_rows": 17075,
+  "sparse_full": [
+   "application_type",
+   "job_order_number"
+  ],
+  "sparse_latest": [
+   "application_type",
+   "cap_exempt",
+   "certification_begin_date",
+   "certification_end_date",
+   "education_level",
+   "full_time_position",
+   "job_order_number",
+   "prevailing_wage",
+   "prevailing_wage_annual",
+   "prevailing_wage_unit_of_pay",
+   "visa_class"
+  ]
+ }
+}

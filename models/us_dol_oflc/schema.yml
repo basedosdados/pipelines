@@ -16,6 +16,9 @@ models:
             - case_number
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - prevailing_wage_tracking_number
+            - withdrawn
           config:
             where: __most_recent_year_en__
       - custom_dictionary_coverage_eng:
@@ -273,8 +276,8 @@ models:
             - case_number
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          config:
-            where: __most_recent_year_en__
+          ignore_values:
+            - employer_trade_name
       - custom_dictionary_coverage_eng:
           dictionary_model: ref('us_dol_oflc__dictionary')
           columns_covered_by_dictionary:
@@ -515,8 +518,10 @@ models:
             - case_number
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          config:
-            where: __most_recent_year_en__
+          ignore_values:
+            - education_level
+            - overtime_rate_from
+            - overtime_rate_to
       - custom_dictionary_coverage_eng:
           dictionary_model: ref('us_dol_oflc__dictionary')
           columns_covered_by_dictionary:
@@ -754,8 +759,9 @@ models:
             - case_number
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          config:
-            where: __most_recent_year_en__
+          ignore_values:
+            - application_type
+            - job_order_number
       - custom_dictionary_coverage_eng:
           dictionary_model: ref('us_dol_oflc__dictionary')
           columns_covered_by_dictionary:

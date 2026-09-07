@@ -144,15 +144,22 @@ def main() -> int:
         # and letting pyarrow also derive an int32 ``year`` from the directory
         # name makes the two schemas unmergeable.
         ds = pads.dataset(sorted(tdir.rglob("*.parquet")), format="parquet")
-        for batch in ds.to_batches(columns=[*cols, "year"]):
-            df = batch.to_pandas()
-            years = df["year"].astype(str)
-            for col in cols:
-                sub = df[[col]].assign(year=years).dropna(subset=[col])
-                for value, year in zip(sub[col], sub["year"], strict=True):
-                    v = " ".join(str(value).split())
-                    if v:
-                        seen[(col, v)].add(int(year))
+        # Distinct (value, year) pairs are found with a grouped aggregate rather
+        # than a Python loop: the lca table alone is ~10M rows, and iterating it
+        # per column in Python takes minutes.
+        for col in cols:
+            tb = ds.to_table(columns=[col, "year"])
+            distinct = tb.group_by([col, "year"]).aggregate([])
+            for value, year in zip(
+                distinct.column(col).to_pylist(),
+                distinct.column("year").to_pylist(),
+                strict=True,
+            ):
+                if value is None or year is None:
+                    continue
+                v = " ".join(str(value).split())
+                if v:
+                    seen[(col, v)].add(int(year))
         for (col, value), years in sorted(seen.items()):
             rows.append(
                 {
