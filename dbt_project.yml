@@ -579,6 +579,9 @@ models:
     br_tse_filiacao_partidaria:
       +materialized: table
       +schema: br_tse_filiacao_partidaria
+    cl_chilecompra_mercado_publico:
+      +materialized: table
+      +schema: cl_chilecompra_mercado_publico
     gb_eric_ess:
       +materialized: table
       +schema: gb_eric_ess
