@@ -1,0 +1,166 @@
+---
+version: 2
+models:
+  - name: us_cfpb_complaints__complaint
+    description: >-
+      Consumer complaints submitted to the Consumer Financial Protection Bureau
+      about consumer financial products and services, one row per complaint,
+      from December 2011 onwards. Carries the product and issue the consumer
+      selected, the company complained about, the consumer's state and ZIP code,
+      the submission channel, how the company closed the complaint, and whether
+      it responded on time. Includes the consumer's free-text narrative, which
+      the CFPB publishes only when the consumer consents to publication and only
+      after it removes personal information; the narrative is present on about
+      22% of complaints and is reproduced exactly as published, without further
+      editing. The complaint form's product and issue taxonomy was revised in
+      April 2017 and again in August 2023 and values are kept exactly as
+      published, never remapped onto later categories — the dicionario table
+      records the years over which each value appears. The "Consumer disputed?"
+      and "Consumer consent provided?" fields are absent: the CFPB removed them
+      from this export in June 2026.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - complaint_id
+      # Scoped to the most recent year: unscoped, this test reads every column,
+      # including the 3.9 GB narrative, at compile as well as at test time.
+      # tags and consumer_complaint_narrative are legitimately sparse in recent
+      # years — tags apply only to older-American and servicemember complaints,
+      # and narratives are released only after the CFPB's scrubbing, which lags
+      # the complaint by months.
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [consumer_complaint_narrative, tags]
+          config:
+            where: __most_recent_year_en__
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_cfpb_complaints__dicionario')
+          columns_covered_by_dictionary:
+            - product
+            - sub_product
+            - issue
+            - sub_issue
+            - tags
+            - submitted_via
+            - company_public_response
+            - company_response_to_consumer
+            - timely_response
+    columns:
+      - name: year
+        description: Calendar year in which the CFPB received the complaint
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: complaint_id
+        description: Unique complaint identifier assigned by the CFPB
+        tests: [not_null]
+      - name: state_id
+        description: >-
+          Two-digit FIPS code of the consumer's state, territory or district,
+          derived from the published state abbreviation
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: date_received
+        description: Date on which the CFPB received the complaint
+        tests: [not_null]
+      - name: date_sent_to_company
+        description: >-
+          Date on which the CFPB forwarded the complaint to the company. Earlier
+          than date_received on 7,050 complaints (0.04%), an inconsistency
+          present in the source and preserved
+      - name: product
+        description: >-
+          Type of financial product or service the consumer identified. Taxonomy
+          revised in April 2017 and August 2023; values are preserved as
+          published
+      - name: sub_product
+        description: >-
+          Sub-type of the financial product or service. Not every product has
+          sub-products
+      - name: issue
+        description: >-
+          Problem the consumer reported. The available values depend on the
+          product
+      - name: sub_issue
+        description: >-
+          Further detail of the problem the consumer reported. Not every issue
+          has sub-issues
+      - name: company_name
+        description: >-
+          Name of the company the complaint is about, as registered with the
+          CFPB. 8,101 distinct names; the spelling used for one institution
+          varies over time and the source carries no company identifier
+      - name: state_abbreviation
+        description: >-
+          Two-letter abbreviation of the consumer's state as published by the
+          CFPB. Preserved verbatim, so it also carries the military post codes
+          AA, AE and AP and the literal value UNITED STATES MINOR OUTLYING
+          ISLANDS, none of which are directory abbreviations — join on state_id
+          instead
+      - name: zip_code
+        description: >-
+          Five-digit ZIP code reported by the consumer. The CFPB masks it where
+          the postal area has 20,000 inhabitants or fewer: 1,130,458 complaints
+          carry only the three-digit prefix followed by XX and 138,969 are
+          masked entirely as XXXXX
+      - name: tags
+        description: >-
+          CFPB marking for complaints from older Americans or servicemembers. A
+          complaint can carry both, separated by a comma
+      - name: submitted_via
+        description: Channel through which the complaint reached the CFPB
+      - name: company_public_response
+        description: >-
+          The company's optional public response, chosen from a set of options
+          the CFPB defines. Present on 54.8% of complaints
+      - name: company_response_to_consumer
+        description: How the company closed the complaint
+      - name: timely_response
+        description: >-
+          Whether the company responded within the timeframe the CFPB requires.
+          Yes and No are preserved as published rather than converted to a
+          boolean
+      - name: consumer_complaint_narrative
+        description: >-
+          The consumer's own account of the complaint, in free text. Published
+          only when the consumer consents and after the CFPB removes the
+          personal information it identifies, replacing it with runs of X.
+          Reproduced exactly as published
+  - name: us_cfpb_complaints__dicionario
+    description: >-
+      Register of every value published for the categorical columns of the
+      complaint table, with the range of years over which each value appears.
+      The CFPB publishes these fields as readable English labels rather than
+      codes, so valor repeats chave; what the register adds is
+      cobertura_temporal, which exposes the April 2017 and August 2023 revisions
+      of the complaint form's taxonomy. Values are never remapped across
+      revisions, so one concept can appear under several labels with disjoint
+      coverage — "Credit reporting" (2012-2017), "Credit reporting, credit
+      repair services, or other personal consumer reports" (2017-2023) and
+      "Credit reporting or other personal consumer reports" (2023 onwards) are
+      three successive labels for the same product family.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: Name of the table the key and value refer to
+        tests: [not_null]
+      - name: nome_coluna
+        description: Name of the column the key and value refer to
+        tests: [not_null]
+      - name: chave
+        description: Category value as stored in the column
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >-
+          Range of years over which the value is observed in the complaint
+          table, in START(INTERVAL)END notation
+      - name: valor
+        description: Category label as published by the CFPB
