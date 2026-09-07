@@ -624,6 +624,9 @@ models:
     us_epa_tri:
       +materialized: table
       +schema: us_epa_tri
+    us_fema_openfema:
+      +materialized: table
+      +schema: us_fema_openfema
     us_medsl_elections:
       +materialized: table
       +schema: us_medsl_elections
