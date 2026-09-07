@@ -11,8 +11,11 @@ them.
 
 from __future__ import annotations
 
+import os
 import shutil
+import sys
 import tempfile
+from pathlib import Path
 
 from prefect import flow, get_run_logger
 
@@ -57,6 +60,48 @@ COVERAGE = {
     "licitacion_item": PartBdpro(**_PART_BDPRO),
     "licitacion_oferta": PartBdpro(**_PART_BDPRO),
 }
+
+
+def _rss_mb() -> float:
+    """Resident set size in MB — the number the container's memory limit counts.
+
+    Read from /proc on Linux (where the workers run) and via resource elsewhere, and
+    never allowed to raise: this is diagnostics, and losing the run to a broken probe
+    would be worse than losing the number.
+    """
+    try:
+        with open("/proc/self/statm") as fh:
+            return int(fh.read().split()[1]) * os.sysconf("SC_PAGE_SIZE") / 1e6
+    except (OSError, IndexError, ValueError):
+        pass
+    try:
+        import resource
+
+        raw = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        return raw / 1e6 if sys.platform == "darwin" else raw / 1e3
+    except Exception:
+        return float("nan")
+
+
+def _arrow_mb() -> float:
+    """Bytes pyarrow currently holds. Locally this returns to ~0 after every month."""
+    try:
+        import pyarrow as pa
+
+        return pa.default_memory_pool().bytes_allocated() / 1e6
+    except Exception:
+        return float("nan")
+
+
+def _dir_mb(path: str) -> float:
+    """Size of the scratch tree, to separate disk growth from resident memory."""
+    try:
+        return (
+            sum(f.stat().st_size for f in Path(path).rglob("*") if f.is_file())
+            / 1e6
+        )
+    except OSError:
+        return float("nan")
 
 
 def newest_month_per_kind(manifest: list[dict]) -> list[dict]:
@@ -153,6 +198,20 @@ def cl_chilecompra_mercado_publico_flow(
         ingested = []
         for entry in stale:
             ingested.append(download_and_clean_task(entry, scratch_root))
+            # The first dev run was OOMKilled at 16 GiB after four months, and the
+            # transform does not explain it: profiled locally over seven months it peaks
+            # at 2.5 GB with pyarrow's pool returning to zero every month. Log the curve
+            # where it actually fails, so the next failure says whether memory climbs
+            # steadily, jumps at one month, or spikes somewhere else entirely.
+            logger.info(
+                "after %s %d-%02d: RSS %.0f MB, arrow %.0f MB, scratch %.0f MB",
+                entry["kind"],
+                entry["year"],
+                entry["month"],
+                _rss_mb(),
+                _arrow_mb(),
+                _dir_mb(scratch_root),
+            )
         logger.info("ingested %d month-files: %s", len(ingested), ingested)
 
         touched = sorted(
