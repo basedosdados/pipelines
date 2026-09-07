@@ -1136,3 +1136,54 @@ class TestCoverageDateColumnsExist:
             f"no coverage spec for {scoped - set(flows._COVERAGE)}"
         )
         assert "dicionario" not in flows._COVERAGE
+
+
+class TestJobVariablesReachThePod:
+    """`memory` alone is a silent no-op, and silence is the whole problem.
+
+    It is not a variable of the basedosdados-dev work pool's job template
+    (which exposes cpu_limit, cpu_request, memory_limit, memory_request), so
+    Prefect drops it without an error. The deploy succeeds, the deployment
+    record shows the 8Gi that was asked for, and the pod runs at the 4Gi
+    default -- then gets OOMKilled at a size unrelated to any number in the
+    source. 43 flows in this repo were sized that way.
+
+    Verified against the live pool on 2026-09-08: `"memory" in properties` is
+    False.
+    """
+
+    POOL_VARIABLES = {
+        "cpu_limit",
+        "cpu_request",
+        "memory_limit",
+        "memory_request",
+    }
+
+    def test_the_memory_ask_uses_the_key_the_pool_reads(self):
+        from pipelines.datasets.br_pncp import flows
+
+        # pyrefly: ignore [missing-attribute]
+        jv = flows.br_pncp_flow.job_variables
+        assert "memory_limit" in jv, (
+            "job_variables sets no memory_limit, so the pod gets the pool's "
+            f"4Gi default however large `memory` is; got {jv}"
+        )
+        assert jv["memory_limit"] == jv.get("memory"), (
+            "memory and memory_limit disagree, which makes the deployment "
+            "record lie about what the pod will actually get"
+        )
+
+    def test_no_job_variable_is_silently_dropped(self):
+        from pipelines.datasets.br_pncp import flows
+
+        # `memory` is kept deliberately: harmless, and it is what a reader
+        # greps for. Everything else must be a real template variable.
+        unknown = (
+            # pyrefly: ignore [missing-attribute]
+            set(flows.br_pncp_flow.job_variables)
+            - self.POOL_VARIABLES
+            - {"memory"}
+        )
+        assert not unknown, (
+            f"not variables of the work pool template: {sorted(unknown)}"
+        )

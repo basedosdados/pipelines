@@ -278,5 +278,14 @@ br_pncp_flow.deploy_schedules = [
     {"cron": "12 4 * * *", "timezone": "America/Sao_Paulo"}
 ]
 # The clean step holds a full lookback window of contratações in memory.
+#
+# `memory` alone is silently dropped: it is not a variable of the work pool's
+# job template, so the pod would get the 4Gi default while the deployment
+# record still showed the 8Gi we asked for. `memory_limit` is the one the
+# container actually gets.
 # pyrefly: ignore [missing-attribute]
-br_pncp_flow.job_variables = {"memory": "8Gi"}
+br_pncp_flow.job_variables = {
+    "memory": "8Gi",
+    "memory_limit": "8Gi",
+    "memory_request": "2Gi",
+}
