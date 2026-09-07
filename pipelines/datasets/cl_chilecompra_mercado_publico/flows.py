@@ -11,8 +11,11 @@ them.
 
 from __future__ import annotations
 
+import os
 import shutil
+import sys
 import tempfile
+from pathlib import Path
 
 from prefect import flow, get_run_logger
 
@@ -59,6 +62,66 @@ COVERAGE = {
 }
 
 
+def _rss_mb() -> float:
+    """Resident set size in MB — the number the container's memory limit counts.
+
+    Read from /proc on Linux (where the workers run) and via resource elsewhere, and
+    never allowed to raise: this is diagnostics, and losing the run to a broken probe
+    would be worse than losing the number.
+    """
+    try:
+        with open("/proc/self/statm") as fh:
+            return int(fh.read().split()[1]) * os.sysconf("SC_PAGE_SIZE") / 1e6
+    except (OSError, IndexError, ValueError):
+        pass
+    try:
+        import resource
+
+        raw = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        return raw / 1e6 if sys.platform == "darwin" else raw / 1e3
+    except Exception:
+        return float("nan")
+
+
+def _arrow_mb() -> float:
+    """Bytes pyarrow currently holds. Locally this returns to ~0 after every month."""
+    try:
+        import pyarrow as pa
+
+        return pa.default_memory_pool().bytes_allocated() / 1e6
+    except Exception:
+        return float("nan")
+
+
+def _dir_mb(path: str) -> float:
+    """Size of the scratch tree, to separate disk growth from resident memory."""
+    try:
+        return (
+            sum(f.stat().st_size for f in Path(path).rglob("*") if f.is_file())
+            / 1e6
+        )
+    except OSError:
+        return float("nan")
+
+
+def newest_month_per_kind(manifest: list[dict]) -> list[dict]:
+    """The latest month the source exposes, one entry per kind.
+
+    Used only by ``force_run`` when nothing is stale, to give the run something real to
+    do. One month per kind is the smallest slice that still covers every table.
+    """
+    newest: dict[str, dict] = {}
+    for entry in manifest:
+        key = entry["kind"]
+        current = newest.get(key)
+        if current is None or (entry["year"], entry["month"]) > (
+            current["year"],
+            current["month"],
+        ):
+            newest[key] = entry
+    return [newest[k] for k in sorted(newest)]
+
+
 @flow(name="cl_chilecompra_mercado_publico")
 def cl_chilecompra_mercado_publico_flow(
     lookback_days: int = constants.DEFAULT_LOOKBACK_DAYS.value,
@@ -92,16 +155,22 @@ def cl_chilecompra_mercado_publico_flow(
             max_date,
         )
 
-        # Recorded for metadata hygiene (it writes the Poll), but deliberately NOT the gate:
-        # a retroactive rewrite of a closed month leaves the source's max coverage date
-        # unchanged, so gating on it would make the pipeline ignore real revisions.
-        poll_source_for_update_task(
-            dataset_id=DATASET_ID,
-            table_id="orden_compra_item",
-            source_max_date=max_date,
-            env="prod",
-            date_format="%Y-%m-%d",
-        )
+        # Recorded for metadata hygiene (it writes the Poll), but deliberately NOT the
+        # gate: a retroactive rewrite of a closed month leaves the source's max coverage
+        # date unchanged, so gating on it would make the pipeline ignore real revisions.
+        #
+        # Gated on update_metadata because the task is pinned env="prod" no matter which
+        # pool the run is on. Ungated, a validation run on the dev pool with
+        # update_metadata=False still writes a Poll into PRODUCTION metadata -- the one
+        # prod write a "dev, no metadata" run is supposed to be incapable of making.
+        if update_metadata:
+            poll_source_for_update_task(
+                dataset_id=DATASET_ID,
+                table_id="orden_compra_item",
+                source_max_date=max_date,
+                env="prod",
+                date_format="%Y-%m-%d",
+            )
 
         stale = select_stale_months_task(manifest, lookback_days, force_all)
         logger.info(
@@ -110,18 +179,52 @@ def cl_chilecompra_mercado_publico_flow(
             lookback_days,
             [f"{e['kind']} {e['year']}-{e['month']:02d}" for e in stale],
         )
-        if not stale and not force_run:
-            logger.info("Não há novas atualizações na fonte original")
-            return
+        if not stale:
+            if not force_run:
+                logger.info("Não há novas atualizações na fonte original")
+                return
+            # force_run means "run even though nothing looks stale", and its whole
+            # purpose is validating the flow end to end. Proceeding with an empty list
+            # ingested nothing, uploaded nothing and ran no dbt, yet still reached the
+            # metadata block and committed a source Update -- a green run proving
+            # nothing. Fall back to the newest month of each kind so a forced run
+            # actually exercises download, clean, upload and dbt.
+            stale = newest_month_per_kind(manifest)
+            logger.info(
+                "force_run with nothing stale: falling back to %s",
+                [f"{e['kind']} {e['year']}-{e['month']:02d}" for e in stale],
+            )
 
         ingested = []
         for entry in stale:
             ingested.append(download_and_clean_task(entry, scratch_root))
+            # The first dev run was OOMKilled at 16 GiB after four months, and the
+            # transform does not explain it: profiled locally over seven months it peaks
+            # at 2.5 GB with pyarrow's pool returning to zero every month. Log the curve
+            # where it actually fails, so the next failure says whether memory climbs
+            # steadily, jumps at one month, or spikes somewhere else entirely.
+            logger.info(
+                "after %s %d-%02d: RSS %.0f MB, arrow %.0f MB, scratch %.0f MB",
+                entry["kind"],
+                entry["year"],
+                entry["month"],
+                _rss_mb(),
+                _arrow_mb(),
+                _dir_mb(scratch_root),
+            )
         logger.info("ingested %d month-files: %s", len(ingested), ingested)
 
         touched = sorted(
             {t for e in stale for t in constants.TABLES.value[e["kind"]]}
         )
+        if not touched:
+            # Nothing was built, so there is nothing to record. Falling through would
+            # register a materialization and commit a source Update for a run that
+            # ingested no rows, advancing the source watermark past data never loaded.
+            logger.warning(
+                "no table was touched; skipping upload and metadata"
+            )
+            return
         output_root = f"{scratch_root}/output"
 
         # dev: upload and run every table first, then test. Interleaving run and test per
@@ -213,5 +316,20 @@ def cl_chilecompra_mercado_publico_flow(
 cl_chilecompra_mercado_publico_flow.deploy_schedules = [
     {"cron": "23 18 * * 1", "timezone": "America/Sao_Paulo"}
 ]
+
+# `memory` alone is NOT the container limit. The work pool's job template exposes
+# `memory_limit` and `memory_request`; `memory` is not among its variables, so setting
+# only that key is silently dropped and the pod runs on the pool default of 4Gi. Two dev
+# runs were OOMKilled at "16Gi" for exactly that reason, both after the same four months.
+#
+# The instrumented run measured the real shape: RSS plateaus at 2490 MB (1816 → 2333 →
+# 2477 → 2490, converging) with pyarrow returning to zero each month, and the fifth month
+# then added its ~2 GB transient peak on top and crossed 4Gi. So the workload needs
+# roughly 5 GB; 12Gi leaves headroom for the licitacion months, which build two tables at
+# once.
 # pyrefly: ignore [missing-attribute]
-cl_chilecompra_mercado_publico_flow.job_variables = {"memory": "16Gi"}
+cl_chilecompra_mercado_publico_flow.job_variables = {
+    "memory": "12Gi",
+    "memory_limit": "12Gi",
+    "memory_request": "4Gi",
+}
