@@ -692,6 +692,10 @@ models:
       - name: job_order_number
         description: >-
           Job order number assigned by the state workforce agency
+      - name: swa_name
+        description: >-
+          Name of the state workforce agency office that received the job
+          order
       - name: workers_requested
         description: >-
           Number of workers requested by the employer
@@ -959,6 +963,10 @@ models:
       - name: swa_state
         description: >-
           State workforce agency that received the job order
+      - name: swa_name
+        description: >-
+          Name of the state workforce agency office that received the job
+          order
       - name: workers_requested
         description: >-
           Number of workers requested by the employer

@@ -40,6 +40,7 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2008,h2a_2008.xlsx,,requested_end_date,absent this year
 2008,h2a_2008.xlsx,,soc_id,absent this year
 2008,h2a_2008.xlsx,,soc_title,absent this year
+2008,h2a_2008.xlsx,,swa_name,absent this year
 2008,h2a_2008.xlsx,,total_worksite_records,absent this year
 2008,h2a_2008.xlsx,APPLICATION_TYPE,type_of_employer_application,mapped
 2008,h2a_2008.xlsx,,visa_class,absent this year
@@ -100,6 +101,7 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2009,h2a_2009.xlsx,REQUESTED_END_DATE_OF_NEED,requested_end_date,mapped
 2009,h2a_2009.xlsx,,soc_id,absent this year
 2009,h2a_2009.xlsx,,soc_title,absent this year
+2009,h2a_2009.xlsx,,swa_name,absent this year
 2009,h2a_2009.xlsx,,total_worksite_records,absent this year
 2009,h2a_2009.xlsx,ORGANIZATION_FLAG,type_of_employer_application,mapped
 2009,h2a_2009.xlsx,,visa_class,absent this year
@@ -162,6 +164,7 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2010,h2a_2010.xlsx,REQUESTED_END_DATE_OF_NEED,requested_end_date,mapped
 2010,h2a_2010.xlsx,,soc_id,absent this year
 2010,h2a_2010.xlsx,,soc_title,absent this year
+2010,h2a_2010.xlsx,,swa_name,absent this year
 2010,h2a_2010.xlsx,,total_worksite_records,absent this year
 2010,h2a_2010.xlsx,ORGANIZATION_FLAG,type_of_employer_application,mapped
 2010,h2a_2010.xlsx,,visa_class,absent this year
@@ -224,6 +227,7 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2011,h2a_2011.xlsx,REQUESTED_END_DATE_OF_NEED,requested_end_date,mapped
 2011,h2a_2011.xlsx,,soc_id,absent this year
 2011,h2a_2011.xlsx,,soc_title,absent this year
+2011,h2a_2011.xlsx,,swa_name,absent this year
 2011,h2a_2011.xlsx,,total_worksite_records,absent this year
 2011,h2a_2011.xlsx,APPLICATION_TYPE,type_of_employer_application,mapped
 2011,h2a_2011.xlsx,,visa_class,absent this year
@@ -284,6 +288,7 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2012,h2a_2012.xlsx,REQUESTED_END_DATE_OF_NEED,requested_end_date,mapped
 2012,h2a_2012.xlsx,,soc_id,absent this year
 2012,h2a_2012.xlsx,,soc_title,absent this year
+2012,h2a_2012.xlsx,,swa_name,absent this year
 2012,h2a_2012.xlsx,,total_worksite_records,absent this year
 2012,h2a_2012.xlsx,ORGANIZATION_FLAG,type_of_employer_application,mapped
 2012,h2a_2012.xlsx,VISA_CLASS,visa_class,mapped
@@ -343,6 +348,7 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2013,h2a_2013.xls,REQUESTED_END_DATE_OF_NEED,requested_end_date,mapped
 2013,h2a_2013.xls,,soc_id,absent this year
 2013,h2a_2013.xls,,soc_title,absent this year
+2013,h2a_2013.xls,,swa_name,absent this year
 2013,h2a_2013.xls,,total_worksite_records,absent this year
 2013,h2a_2013.xls,ORGANIZATION_FLAG,type_of_employer_application,mapped
 2013,h2a_2013.xls,VISA_CLASS,visa_class,mapped
@@ -402,6 +408,7 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2014,h2a_2014.xlsx,REQUESTED_END_DATE_OF_NEED,requested_end_date,mapped
 2014,h2a_2014.xlsx,SOC_CODE_ID,soc_id,mapped
 2014,h2a_2014.xlsx,SOC_TITLE,soc_title,mapped
+2014,h2a_2014.xlsx,,swa_name,absent this year
 2014,h2a_2014.xlsx,,total_worksite_records,absent this year
 2014,h2a_2014.xlsx,ORGANIZATION_FLAG,type_of_employer_application,mapped
 2014,h2a_2014.xlsx,VISA_CLASS,visa_class,mapped
@@ -460,6 +467,7 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2015,h2a_2015.xlsx,,requested_end_date,absent this year
 2015,h2a_2015.xlsx,SOC_CODE,soc_id,mapped
 2015,h2a_2015.xlsx,SOC_TITLE,soc_title,mapped
+2015,h2a_2015.xlsx,SWA_NAME,swa_name,mapped
 2015,h2a_2015.xlsx,,total_worksite_records,absent this year
 2015,h2a_2015.xlsx,ORGANIZATION_FLAG,type_of_employer_application,mapped
 2015,h2a_2015.xlsx,VISA_CLASS,visa_class,mapped
@@ -492,7 +500,6 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2015,h2a_2015.xlsx,SECOND_DIPLOMA_MAJOR,,dropped: H-2 job-condition detail
 2015,h2a_2015.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
 2015,h2a_2015.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
-2015,h2a_2015.xlsx,SWA_NAME,,dropped: state workforce agency office name
 2015,h2a_2015.xlsx,TRAINING_REQ,,dropped: H-2 job-condition detail
 2016,h2a_2016.xlsx,,agent_representing_employer,absent this year
 2016,h2a_2016.xlsx,BASIC_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
@@ -535,6 +542,7 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2016,h2a_2016.xlsx,REQUESTED_END_DATE_OF_NEED,requested_end_date,mapped
 2016,h2a_2016.xlsx,SOC_CODE,soc_id,mapped
 2016,h2a_2016.xlsx,SOC_TITLE,soc_title,mapped
+2016,h2a_2016.xlsx,SWA_NAME,swa_name,mapped
 2016,h2a_2016.xlsx,,total_worksite_records,absent this year
 2016,h2a_2016.xlsx,ORGANIZATION_FLAG,type_of_employer_application,mapped
 2016,h2a_2016.xlsx,VISA_CLASS,visa_class,mapped
@@ -568,7 +576,6 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2016,h2a_2016.xlsx,SECOND_DIPLOMA_MAJOR,,dropped: H-2 job-condition detail
 2016,h2a_2016.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
 2016,h2a_2016.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
-2016,h2a_2016.xlsx,SWA_NAME,,dropped: state workforce agency office name
 2016,h2a_2016.xlsx,TRAINING_REQ,,dropped: H-2 job-condition detail
 2017,h2a_2017.xlsx,AGENT_POC_EMPLOYER_REP_BY_AGENT,agent_representing_employer,mapped
 2017,h2a_2017.xlsx,BASIC_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
@@ -611,6 +618,7 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2017,h2a_2017.xlsx,REQUESTED_END_DATE_OF_NEED,requested_end_date,mapped
 2017,h2a_2017.xlsx,SOC_CODE,soc_id,mapped
 2017,h2a_2017.xlsx,SOC_TITLE,soc_title,mapped
+2017,h2a_2017.xlsx,SWA_NAME,swa_name,mapped
 2017,h2a_2017.xlsx,,total_worksite_records,absent this year
 2017,h2a_2017.xlsx,ORGANIZATION_FLAG,type_of_employer_application,mapped
 2017,h2a_2017.xlsx,VISA_CLASS,visa_class,mapped
@@ -644,7 +652,6 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2017,h2a_2017.xlsx,SECOND_DIPLOMA_MAJOR,,dropped: H-2 job-condition detail
 2017,h2a_2017.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
 2017,h2a_2017.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
-2017,h2a_2017.xlsx,SWA_NAME,,dropped: state workforce agency office name
 2017,h2a_2017.xlsx,TRAINING_REQ,,dropped: H-2 job-condition detail
 2018,h2a_2018.xlsx,AGENT_POC_EMPLOYER_REP_BY_AGENT,agent_representing_employer,mapped
 2018,h2a_2018.xlsx,BASIC_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
@@ -687,6 +694,7 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2018,h2a_2018.xlsx,REQUESTED_END_DATE_OF_NEED,requested_end_date,mapped
 2018,h2a_2018.xlsx,SOC_CODE,soc_id,mapped
 2018,h2a_2018.xlsx,SOC_TITLE,soc_title,mapped
+2018,h2a_2018.xlsx,SWA_NAME,swa_name,mapped
 2018,h2a_2018.xlsx,,total_worksite_records,absent this year
 2018,h2a_2018.xlsx,ORGANIZATION_FLAG,type_of_employer_application,mapped
 2018,h2a_2018.xlsx,VISA_CLASS,visa_class,mapped
@@ -720,7 +728,6 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2018,h2a_2018.xlsx,SECOND_DIPLOMA_MAJOR,,dropped: H-2 job-condition detail
 2018,h2a_2018.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
 2018,h2a_2018.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
-2018,h2a_2018.xlsx,SWA_NAME,,dropped: state workforce agency office name
 2018,h2a_2018.xlsx,TRAINING_REQ,,dropped: H-2 job-condition detail
 2019,h2a_2019.xlsx,EMPLOYER_REP_BY_AGENT,agent_representing_employer,mapped
 2019,h2a_2019.xlsx,BASIC_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
@@ -763,6 +770,7 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2019,h2a_2019.xlsx,REQUESTED_END_DATE_OF_NEED,requested_end_date,mapped
 2019,h2a_2019.xlsx,SOC_CODE,soc_id,mapped
 2019,h2a_2019.xlsx,SOC_TITLE,soc_title,mapped
+2019,h2a_2019.xlsx,SWA_NAME,swa_name,mapped
 2019,h2a_2019.xlsx,,total_worksite_records,absent this year
 2019,h2a_2019.xlsx,ORGANIZATION_FLAG,type_of_employer_application,mapped
 2019,h2a_2019.xlsx,VISA_CLASS,visa_class,mapped
@@ -796,7 +804,6 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2019,h2a_2019.xlsx,SECOND_DIPLOMA_MAJOR,,dropped: H-2 job-condition detail
 2019,h2a_2019.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
 2019,h2a_2019.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
-2019,h2a_2019.xlsx,SWA_NAME,,dropped: state workforce agency office name
 2019,h2a_2019.xlsx,TRAINING_REQ,,dropped: H-2 job-condition detail
 2020,h2a_2020.xlsx,TYPE_OF_REPRESENTATION,agent_representing_employer,mapped
 2020,h2a_2020.xlsx,ANTICIPATED_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
@@ -839,6 +846,7 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2020,h2a_2020.xlsx,REQUESTED_END_DATE,requested_end_date,mapped
 2020,h2a_2020.xlsx,SOC_CODE,soc_id,mapped
 2020,h2a_2020.xlsx,SOC_TITLE,soc_title,mapped
+2020,h2a_2020.xlsx,,swa_name,absent this year
 2020,h2a_2020.xlsx,TOTAL_WORKSITE_RECORDS,total_worksite_records,mapped
 2020,h2a_2020.xlsx,TYPE_OF_EMPLOYER_APPLICATION,type_of_employer_application,mapped
 2020,h2a_2020.xlsx,,visa_class,absent this year
@@ -984,6 +992,7 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2021,h2a_2021.xlsx,REQUESTED_END_DATE,requested_end_date,mapped
 2021,h2a_2021.xlsx,SOC_CODE,soc_id,mapped
 2021,h2a_2021.xlsx,SOC_TITLE,soc_title,mapped
+2021,h2a_2021.xlsx,,swa_name,absent this year
 2021,h2a_2021.xlsx,TOTAL_WORKSITES_RECORDS,total_worksite_records,mapped
 2021,h2a_2021.xlsx,TYPE_OF_EMPLOYER_APPLICATION,type_of_employer_application,mapped
 2021,h2a_2021.xlsx,,visa_class,absent this year
@@ -1130,6 +1139,7 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2022,h2a_2022.xlsx,REQUESTED_END_DATE,requested_end_date,mapped
 2022,h2a_2022.xlsx,SOC_CODE,soc_id,mapped
 2022,h2a_2022.xlsx,SOC_TITLE,soc_title,mapped
+2022,h2a_2022.xlsx,,swa_name,absent this year
 2022,h2a_2022.xlsx,TOTAL_WORKSITES_RECORDS,total_worksite_records,mapped
 2022,h2a_2022.xlsx,TYPE_OF_EMPLOYER_APPLICATION,type_of_employer_application,mapped
 2022,h2a_2022.xlsx,,visa_class,absent this year
@@ -1276,6 +1286,7 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2023,h2a_2023.xlsx,REQUESTED_END_DATE,requested_end_date,mapped
 2023,h2a_2023.xlsx,SOC_CODE,soc_id,mapped
 2023,h2a_2023.xlsx,SOC_TITLE,soc_title,mapped
+2023,h2a_2023.xlsx,,swa_name,absent this year
 2023,h2a_2023.xlsx,TOTAL_WORKSITES_RECORDS,total_worksite_records,mapped
 2023,h2a_2023.xlsx,TYPE_OF_EMPLOYER_APPLICATION,type_of_employer_application,mapped
 2023,h2a_2023.xlsx,,visa_class,absent this year
@@ -1422,6 +1433,7 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2024,h2a_2024.xlsx,REQUESTED_END_DATE,requested_end_date,mapped
 2024,h2a_2024.xlsx,SOC_CODE,soc_id,mapped
 2024,h2a_2024.xlsx,SOC_TITLE,soc_title,mapped
+2024,h2a_2024.xlsx,,swa_name,absent this year
 2024,h2a_2024.xlsx,TOTAL_WORKSITE_RECORDS,total_worksite_records,mapped
 2024,h2a_2024.xlsx,TYPE_OF_EMPLOYER_APPLICATION,type_of_employer_application,mapped
 2024,h2a_2024.xlsx,,visa_class,absent this year
@@ -1583,6 +1595,7 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2025,h2a_2025.xlsx,REQUESTED_END_DATE,requested_end_date,mapped
 2025,h2a_2025.xlsx,SOC_CODE,soc_id,mapped
 2025,h2a_2025.xlsx,SOC_TITLE,soc_title,mapped
+2025,h2a_2025.xlsx,,swa_name,absent this year
 2025,h2a_2025.xlsx,TOTAL_WORKSITE_RECORDS,total_worksite_records,mapped
 2025,h2a_2025.xlsx,TYPE_OF_EMPLOYER_APPLICATION,type_of_employer_application,mapped
 2025,h2a_2025.xlsx,,visa_class,absent this year
@@ -1746,6 +1759,7 @@ fiscal_year,source_file,source_column,canonical_column,disposition
 2026,h2a_2026.xlsx,REQUESTED_END_DATE,requested_end_date,mapped
 2026,h2a_2026.xlsx,SOC_CODE,soc_id,mapped
 2026,h2a_2026.xlsx,SOC_TITLE,soc_title,mapped
+2026,h2a_2026.xlsx,,swa_name,absent this year
 2026,h2a_2026.xlsx,TOTAL_WORKSITE_RECORDS,total_worksite_records,mapped
 2026,h2a_2026.xlsx,TYPE_OF_EMPLOYER_APPLICATION,type_of_employer_application,mapped
 2026,h2a_2026.xlsx,,visa_class,absent this year

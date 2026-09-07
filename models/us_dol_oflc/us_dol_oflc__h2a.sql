@@ -53,6 +53,7 @@ select
     safe_cast(emergency_filing as string) emergency_filing,
     safe_cast(primary_crop as string) primary_crop,
     safe_cast(job_order_number as string) job_order_number,
+    safe_cast(swa_name as string) swa_name,
     safe_cast(workers_requested as int64) workers_requested,
     safe_cast(workers_certified as int64) workers_certified,
     safe_cast(anticipated_number_of_hours as float64) anticipated_number_of_hours,

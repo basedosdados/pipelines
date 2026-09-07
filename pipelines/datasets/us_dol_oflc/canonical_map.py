@@ -114,6 +114,7 @@ EXTRA = {
         ("emergency_filing", "STRING"),
         ("primary_crop", "STRING"),
         ("job_order_number", "STRING"),
+        ("swa_name", "STRING"),
         ("workers_requested", "INT64"),
         ("workers_certified", "INT64"),
         ("anticipated_number_of_hours", "FLOAT64"),
@@ -143,6 +144,7 @@ EXTRA = {
         ("job_order_number", "STRING"),
         ("job_order_submit_date", "DATE"),
         ("swa_state", "STRING"),
+        ("swa_name", "STRING"),
         ("workers_requested", "INT64"),
         ("workers_certified", "INT64"),
         ("anticipated_number_of_hours", "FLOAT64"),
@@ -585,6 +587,7 @@ ALIASES: dict[str, dict[str, list[str]]] = {
             "emergency_filing": ["EMERGENCY_FILING"],
             "primary_crop": ["PRIMARY_CROP"],
             "job_order_number": ["JOB_ORDER_NUMBER", "JOB_IDNUMBER"],
+            "swa_name": ["SWA_NAME"],
             "overtime_rate_from": ["OVERTIME_RATE_FROM"],
             "overtime_rate_to": ["OVERTIME_RATE_TO"],
             "workers_requested": [
@@ -638,7 +641,8 @@ ALIASES: dict[str, dict[str, list[str]]] = {
             "type_of_employer": ["TYPE_OF_EMPLOYER"],
             "job_order_number": ["JOB_IDNUMBER"],
             "job_order_submit_date": ["JOB_ORDER_SUBMIT_DATE"],
-            "swa_state": ["SWA_STATE", "SWA_NAME"],
+            "swa_state": ["SWA_STATE"],
+            "swa_name": ["SWA_NAME"],
             "workers_requested": [
                 "NBR_WORKERS_REQUESTED",
                 "TOTAL_WORKERS_REQUESTED",

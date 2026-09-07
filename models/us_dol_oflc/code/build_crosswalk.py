@@ -89,7 +89,6 @@ DROP_RULES: list[tuple[str, str]] = [
         "employer-worker relationship attestation",
     ),
     (r"^(PRIMARY|PRMARY)[_/]SUB$", "legacy primary/sub application flag"),
-    (r"^SWA_NAME$", "state workforce agency office name"),
     (
         r"^DOT_(OCCUPATIONAL_CODE|NAME)$",
         "legacy DOT occupation code (SOC is kept)",

@@ -493,6 +493,11 @@ D: dict[str, tuple[str, str, str]] = {
         "Data em que a ordem de serviço foi enviada à agência estadual de trabalho",
         "Fecha en que la orden de trabajo fue enviada a la agencia estatal de trabajo",
     ),
+    "swa_name": (
+        "Name of the state workforce agency office that received the job order",
+        "Nome do escritório da agência estadual de trabalho que recebeu a ordem de serviço",
+        "Nombre de la oficina de la agencia estatal de trabajo que recibió la orden de trabajo",
+    ),
     "swa_state": (
         "State workforce agency that received the job order",
         "Agência estadual de trabalho que recebeu a ordem de serviço",

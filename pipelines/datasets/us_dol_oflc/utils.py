@@ -25,6 +25,7 @@ import pyarrow.parquet as pq
 import python_calamine as pc
 
 from pipelines.datasets.us_dol_oflc import canonical_map as cm
+from pipelines.datasets.us_dol_oflc import us_states as us
 from pipelines.datasets.us_dol_oflc import wage_units as wu
 from pipelines.datasets.us_dol_oflc.constants import constants
 
@@ -195,6 +196,20 @@ def read_file(
     data["source_file"] = [path.name] * n
 
     df = pd.DataFrame(data)
+
+    # The source mixes USPS abbreviations and full state names in one column —
+    # 42% of PERM rows carry the full name — which makes the column unjoinable
+    # and contradicts its own description. Values that match neither form are
+    # left exactly as written.
+    for col in (
+        "employer_state",
+        "worksite_state",
+        "housing_state",
+        "swa_state",
+    ):
+        if col in df.columns:
+            df[col] = df[col].map(us.normalise)
+
     for amount, unit, target in (
         ("wage_offered_from", "wage_unit_of_pay", "wage_offered_from_annual"),
         ("wage_offered_to", "wage_unit_of_pay", "wage_offered_to_annual"),
