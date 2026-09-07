@@ -6,6 +6,7 @@ from prefect import task
 
 from pipelines.datasets.us_census_lodes.constants import STATES
 from pipelines.datasets.us_census_lodes.utils import (
+    build_dicionario,
     clean_crosswalk,
     clean_state_year,
     latest_source_year,
@@ -43,5 +44,10 @@ def build_years(work_dir: str, years: list[int]) -> dict:
                 state, year, input_dir, output_dir, geo=geo
             ):
                 produced.add(table)
+
+    # Static reference data, but rebuilt every run so the flow is
+    # self-contained rather than depending on a blob the bootstrap left behind.
+    build_dicionario(output_dir)
+    produced.add("dicionario")
 
     return {table: str(output_dir / table) for table in sorted(produced)}

@@ -28,6 +28,7 @@ import pyarrow.parquet as pq
 
 from pipelines.datasets.us_census_lodes.constants import (
     ARCHITECTURE_DIR,
+    JOB_TYPE_LABELS,
     JOB_TYPES,
     RAC_COUNTS,
     SEGMENT,
@@ -429,6 +430,39 @@ def clean_crosswalk(
     if not keep_input:
         path.unlink(missing_ok=True)
     return rows
+
+
+# Job types JT04 and JT05 (federal) are supplied by OPM and start in 2010.
+DICIONARIO_FIRST_YEAR = {"JT04": 2010, "JT05": 2010}
+
+
+def build_dicionario(output_dir: Path) -> int:
+    """Write the `dicionario` table.
+
+    `job_type` is the only codified column in this dataset; every other
+    coded-looking column resolves through a directory. Built here rather than
+    only in the onboarding bootstrap so the recurring flow refreshes it too --
+    otherwise a lost staging blob would leave the model unbuildable and nothing
+    would notice.
+    """
+    rows = [
+        {
+            "id_tabela": table,
+            "nome_coluna": "job_type",
+            "chave": code,
+            "cobertura_temporal": (
+                f"{DICIONARIO_FIRST_YEAR.get(code, YEARS[0])}(1){YEARS[-1]}"
+            ),
+            "valor": en,
+        }
+        for table in ("residence_jobs", "workplace_jobs")
+        for code, (en, _pt, _es) in JOB_TYPE_LABELS.items()
+    ]
+    return write_parquet(
+        pd.DataFrame(rows),
+        "dicionario",
+        output_dir / "dicionario" / "data.parquet",
+    )
 
 
 def clean_all(
