@@ -1,0 +1,6 @@
+name,bigquery_type,description,description_en,description_es,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_tabela,STRING,Nome da tabela a que o valor se refere,Name of the table the value belongs to,Nombre de la tabla a la que pertenece el valor,,no,,,no,,id_tabela
+nome_coluna,STRING,Nome da coluna a que o valor se refere,Name of the column the value belongs to,Nombre de la columna a la que pertenece el valor,,no,,,no,,nome_coluna
+chave,STRING,Código armazenado na coluna,Code stored in the column,Código almacenado en la columna,,no,,,no,,chave
+cobertura_temporal,STRING,Período em que a chave tem este significado,Period over which the key carries this meaning,Período en que la clave tiene este significado,,no,,,no,,cobertura_temporal
+valor,STRING,Rótulo correspondente ao código,Label corresponding to the code,Etiqueta correspondiente al código,,no,,,no,,valor
