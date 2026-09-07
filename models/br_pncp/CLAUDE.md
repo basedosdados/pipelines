@@ -480,6 +480,51 @@ levels), and the near-duplicates `financas` / `financa_publicas` / `gasto`.
 IDs differ per backend. Re-resolve every one of these on prod before
 registering there; the organization in particular must be created again.
 
+## Registered on prod (2026-09-08)
+
+Step 10. The dataset is `status = under_review`, so it is invisible on the public
+frontend until the PR merges, table-approve materialises `basedosdados.br_pncp.*`
+and the tables are verified (step 13). Cloud tables already point at
+`basedosdados`, which does not exist yet — that is the convention, not an error.
+
+| Record | ID (prod) |
+|---|---|
+| organization `pncp` | `16d72bbe-1b42-4dbd-99cd-65f19487eca8` |
+| dataset `pncp` | `81d89c04-120e-4b7d-aae0-41428f199811` |
+| raw data source | `fb335b2f-0c54-4d59-ba54-4ce6707745b1` |
+| table `contratacao` | `700c7b32-3e05-4085-b3c3-917466bba7c9` |
+| table `contrato` | `12e35a4c-829d-4ba8-86c2-8e983853d59a` |
+| table `ata_registro_preco` | `60d2d4e4-60aa-405d-b47c-d58a6ca9960d` |
+| table `instrumento_cobranca` | `45efca02-8a15-4dbc-8cb3-da3ad7af73a9` |
+| table `dicionario` | `6400b27e-fd3f-4dbb-82ad-c636faf39629` |
+
+Every id created by that run is in `/tmp/pncp_meta_state_prod.json`; the script is
+`register_prod.py` in the session scratchpad. **Re-run it only with that state file
+present** — `create_update_*` creates a duplicate when called without an `id`.
+
+The **organization had to be created on prod** (`pncp` did not exist), so its id is
+independent of staging's. Every other reference resolved to the *same* UUID as
+staging, including all seven tags — but prod renamed their slugs to English:
+
+| staging slug | prod slug |
+|---|---|
+| `licitacao` | `public_procurement` |
+| `contrato` | `contract` |
+| `compra` | `purchase` |
+| `administracao_publica` | `public_administration` |
+| `financas_publicas` | `public-finance` |
+| `despesa` | `expenditure` |
+| `transparencia` | `transparency` |
+
+So `lookup_id(category="tag", slug="licitacao", env="prod")` **raises**, and looking
+the tag up by its staging UUID is the reliable route. `license.unknown` is
+`77dfe32b-6a14-4490-806f-22af1f26c425` on prod, different from staging.
+
+Verified after the run: 136 columns across the five tables (40 / 46 / 22 / 23 / 5),
+one raw source per table, both coverages per fact table with `isClosed` matching on
+the range as well as the Coverage, and every grain column linked to its observation
+level.
+
 ## Measured API behaviour (2026-08-28)
 
 Everything here was measured against the live API, not inferred. It is the
