@@ -100,6 +100,39 @@ def check_cast_survival(con, counts, failures):
         print("  every typed column survives the cast intact")
 
 
+def check_null_sentinels(con, counts, failures):
+    """Look for the literal string "NULL" left in any string column.
+
+    The employee extract writes "NULL" where the NIBRS bundles leave the field
+    empty. The reader treats both as missing, but a source file that starts
+    using the sentinel somewhere new would otherwise publish it as a value.
+    """
+    print('\nliteral "NULL" sentinels')
+    found = False
+    for table, spec in TABLES.items():
+        if table not in counts:
+            continue
+        for column in spec["columns"]:
+            if column["bigquery_type"] != "STRING":
+                continue
+            name = column["name"]
+            if name in spec["partitions"]:
+                continue
+            hits = con.execute(
+                f"select count(*) from {source(table)} where {name} = 'NULL'"
+            ).fetchone()[0]
+            if hits:
+                found = True
+                print(
+                    f"  {table}.{name}: {hits:,} rows hold the string 'NULL'"
+                )
+                failures.append(
+                    f"{table}.{name}: {hits:,} literal 'NULL' strings"
+                )
+    if not found:
+        print("  none")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--skip-references", action="store_true")
@@ -207,6 +240,7 @@ def main():
     print("  every other coded column is fully covered")
 
     check_cast_survival(con, counts, failures)
+    check_null_sentinels(con, counts, failures)
 
     if "ucr_summary" in counts and "agency" in counts:
         print("\nthe one derived join: ucr_summary.ori -> agency.ori")
