@@ -403,7 +403,7 @@ def clean_state_year(
         # A job block absent from the state's crosswalk gets NULL geography.
         # That should never happen -- the crosswalk is the same release -- so
         # it is worth failing on rather than shipping unjoinable rows.
-        orphans = int(df["state_id"].isna().sum())
+        orphans = df["state_id"].isna().sum()
         if orphans:
             raise ValueError(
                 f"{table} {state} {year}: {orphans:,} of {len(df):,} rows have a "

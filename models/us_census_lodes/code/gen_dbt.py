@@ -14,6 +14,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+# CI's pyrefly environment has no types-PyYAML, unlike the local venv.
+# pyrefly: ignore [untyped-import]
 import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
