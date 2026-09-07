@@ -170,7 +170,9 @@ def pass_reta(limit=None, workers=4):
     files = sorted((INPUT / "reta").glob("reta-[0-9]*.zip"))
     if limit:
         files = files[:limit]
-    jobs = [(str(path), int(path.stem.split("-")[1]), crosswalk) for path in files]
+    jobs = [
+        (str(path), int(path.stem.split("-")[1]), crosswalk) for path in files
+    ]
     total = 0
     with ProcessPoolExecutor(workers) as pool:
         for year, rows in pool.map(clean_one_reta, jobs):
@@ -420,7 +422,6 @@ def pass_hate_crime():
     path = INPUT / "extracted_hate_crime" / "hate_crime.csv"
     frame = read_csv_all_strings(path)
     frame.columns = [c.strip().lower() for c in frame.columns]
-    frame = frame.replace("NULL", pd.NA)
     frame = frame.rename(
         columns={
             "data_year": "year",

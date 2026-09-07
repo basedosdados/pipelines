@@ -458,16 +458,22 @@ def main():
     # https://crime-data-explorer.fr.cloud.gov/downloads-and-docs, is a hard 404
     # since the CDE moved hosts. Its id is reused for the NIBRS source so the
     # record is refreshed rather than left beside a working duplicate.
-    existing = server.get_raw_data_sources(dataset_slug=DATASET_SLUG, env=env).get(
-        "result", []
-    )
+    existing = server.get_raw_data_sources(
+        dataset_slug=DATASET_SLUG, env=env
+    ).get("result", [])
     known_sources = {source["name"]: source["id"] for source in existing}
     legacy = next(
-        (s for s in existing if "crime-data-explorer.fr.cloud.gov" in (s.get("url") or "")),
+        (
+            s
+            for s in existing
+            if "crime-data-explorer.fr.cloud.gov" in (s.get("url") or "")
+        ),
         None,
     )
     if legacy:
-        print(f"reusing the dead 2023 raw source {legacy['id']} ({legacy['url']}) for NIBRS")
+        print(
+            f"reusing the dead 2023 raw source {legacy['id']} ({legacy['url']}) for NIBRS"
+        )
         known_sources.setdefault(RAW_SOURCES[0]["name_en"], legacy["id"])
     raw_ids = {}
     for source in RAW_SOURCES:

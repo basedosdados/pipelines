@@ -22,8 +22,8 @@ import duckdb
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from pipelines.datasets.us_fbi_cde.constants import constants  # noqa: E402
-from pipelines.datasets.us_fbi_cde.spec import TABLES  # noqa: E402
+from pipelines.datasets.us_fbi_cde.constants import constants
+from pipelines.datasets.us_fbi_cde.spec import TABLES
 
 OUTPUT = constants.DATA_ROOT.value / "output"
 DICIONARIO = Path(__file__).resolve().parent / "dicionario.csv"
@@ -45,6 +45,61 @@ def source(table):
     return f"read_parquet('{OUTPUT}/{table}/**/*.parquet', hive_partitioning=true)"
 
 
+# Patterns BigQuery's SAFE_CAST actually accepts from a string. Anything else
+# becomes NULL without an error, which is how a whole column goes missing
+# quietly. duckdb's TRY_CAST is more permissive than BigQuery's, so the shapes
+# are matched with a regex rather than delegated to a cast.
+CAST_PATTERNS = {
+    "INT64": r"^-?[0-9]+$",
+    "FLOAT64": r"^-?[0-9]+(\.[0-9]+)?([eE][-+]?[0-9]+)?$",
+    "DATE": r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+}
+
+
+def check_cast_survival(con, counts, failures):
+    """Report any typed column whose staging values would not survive safe_cast."""
+    print(
+        "\ncast survival (staging is all-STRING; the dbt model safe_casts it)"
+    )
+    problems = 0
+    for table, spec in TABLES.items():
+        if table not in counts or table == "dicionario":
+            continue
+        for column in spec["columns"]:
+            pattern = CAST_PATTERNS.get(column["bigquery_type"])
+            if pattern is None:
+                continue
+            name = column["name"]
+            if name in spec["partitions"]:
+                continue  # hive keys are typed by the reader, not the cast
+            total, bad = con.execute(
+                f"select count({name}), "
+                f"count(*) filter (where {name} is not null "
+                f"and not regexp_matches({name}, '{pattern}')) "
+                f"from {source(table)}"
+            ).fetchone()
+            if not bad:
+                continue
+            problems += 1
+            examples = con.execute(
+                f"select distinct {name} from {source(table)} "
+                f"where {name} is not null and not regexp_matches({name}, '{pattern}') "
+                f"limit 5"
+            ).fetchall()
+            values = ", ".join(repr(e[0]) for e in examples)
+            share = bad / max(total, 1)
+            print(
+                f"  {table}.{name} ({column['bigquery_type']}): "
+                f"{bad:,} of {total:,} ({share:.2%}) would become NULL — {values}"
+            )
+            failures.append(
+                f"{table}.{name}: {share:.2%} of non-null values fail "
+                f"safe_cast to {column['bigquery_type']}"
+            )
+    if not problems:
+        print("  every typed column survives the cast intact")
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--skip-references", action="store_true")
@@ -61,7 +116,9 @@ def main():
             print(f"{table:32s} {'(absent)':>15s}")
             continue
         if table == "dicionario":
-            rows = con.execute(f"select count(*) from {source(table)}").fetchone()[0]
+            rows = con.execute(
+                f"select count(*) from {source(table)}"
+            ).fetchone()[0]
             counts[table] = rows
             print(f"{table:32s} {rows:>15,}")
             continue
@@ -89,7 +146,9 @@ def main():
         status = "ok" if duplicates == 0 else f"{duplicates:,} duplicate keys"
         print(f"  {table:32s} ({key}): {status}")
         if duplicates:
-            failures.append(f"{table}: {duplicates:,} duplicate keys on ({key})")
+            failures.append(
+                f"{table}: {duplicates:,} duplicate keys on ({key})"
+            )
 
     if not args.skip_references:
         print("\nreferential integrity")
@@ -119,7 +178,11 @@ def main():
     for table, spec in TABLES.items():
         if table not in counts or table == "dicionario":
             continue
-        coded = [c["name"] for c in spec["columns"] if c["covered_by_dictionary"] == "yes"]
+        coded = [
+            c["name"]
+            for c in spec["columns"]
+            if c["covered_by_dictionary"] == "yes"
+        ]
         for column in coded:
             uncovered = con.execute(
                 f"select count(distinct t.{column}) from {source(table)} t "
@@ -135,9 +198,15 @@ def main():
                     f"where t.{column} is not null and d.chave is null limit 8"
                 ).fetchall()
                 values = ", ".join(repr(m[0]) for m in missing)
-                print(f"  {table}.{column}: {uncovered} codes with no entry ({values})")
-                failures.append(f"{table}.{column}: {uncovered} codes absent from the dictionary")
+                print(
+                    f"  {table}.{column}: {uncovered} codes with no entry ({values})"
+                )
+                failures.append(
+                    f"{table}.{column}: {uncovered} codes absent from the dictionary"
+                )
     print("  every other coded column is fully covered")
+
+    check_cast_survival(con, counts, failures)
 
     if "ucr_summary" in counts and "agency" in counts:
         print("\nthe one derived join: ucr_summary.ori -> agency.ori")
@@ -147,7 +216,9 @@ def main():
             f"left join (select distinct year, ori from {source('agency')}) p "
             "on s.year = p.year and s.ori = p.ori"
         ).fetchone()
-        print(f"  {matched:,} of {total:,} agency-years join ({matched / max(total, 1):.1%})")
+        print(
+            f"  {matched:,} of {total:,} agency-years join ({matched / max(total, 1):.1%})"
+        )
         if matched / max(total, 1) < 0.9:
             failures.append(
                 f"ucr_summary.ori joins to agency for only {matched / total:.1%} of agency-years"

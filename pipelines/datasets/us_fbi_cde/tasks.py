@@ -136,7 +136,9 @@ def clean_window(work_dir: str, downloads: dict) -> dict:
         if frame is None or frame.empty:
             continue
         pairs = frame.dropna(subset=["ori", "legacy_ori"])
-        crosswalk.update(dict(zip(pairs["legacy_ori"], pairs["ori"], strict=False)))
+        crosswalk.update(
+            dict(zip(pairs["legacy_ori"], pairs["ori"], strict=False))
+        )
 
     for zip_path, year in downloads["reta"]:
         summary, agency = parse_reta_file(zip_path, year)
@@ -152,7 +154,9 @@ def clean_window(work_dir: str, downloads: dict) -> dict:
                 lambda v: None if pd.isna(v) else str(int(v))
             )
         summary["ori"] = summary["legacy_ori"].map(
-            lambda v: crosswalk.get(v, f"{v}00") if isinstance(v, str) else None
+            lambda v: (
+                crosswalk.get(v, f"{v}00") if isinstance(v, str) else None
+            )
         )
         write_partition(summary, "ucr_summary", output, {"year": str(year)})
         reta_agency.append(agency)
@@ -282,7 +286,6 @@ def _write_hate_crime(output, path, years):
     else:
         frame = read_csv_all_strings(path)
     frame.columns = [c.strip().lower() for c in frame.columns]
-    frame = frame.replace("NULL", pd.NA)
     frame = frame.rename(
         columns={
             "data_year": "year",

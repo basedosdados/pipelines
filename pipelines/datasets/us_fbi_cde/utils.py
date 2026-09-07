@@ -33,6 +33,12 @@ import pyarrow.parquet as pq
 
 SIGNED_URL_ENDPOINT = "https://cde.ucr.cjis.gov/LATEST/s3/signedurl"
 
+# The FBI is inconsistent about missing values: the NIBRS bundles leave the
+# field empty, while the law enforcement employee extract writes the literal
+# string "NULL" — in 750,787 of its 785,127 pub_agency_unit values. Read as
+# text, that string would ship as a real value.
+NA_VALUES = ["", "NULL"]
+
 # --------------------------------------------------------------------------
 # Download
 # --------------------------------------------------------------------------
@@ -166,7 +172,7 @@ def _read(zf, members, logical, usecols=None):
             text,
             dtype=str,
             keep_default_na=False,
-            na_values=[""],
+            na_values=NA_VALUES,
             low_memory=False,
         )
     frame.columns = [c.strip().lower() for c in frame.columns]
@@ -333,7 +339,9 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
                 if agency_id is not None
                 else pd.NA,
                 "incident_id": incident["incident_id"],
-                "incident_date": _as_date(_first_column(incident, "incident_date")),
+                "incident_date": _as_date(
+                    _first_column(incident, "incident_date")
+                ),
                 "incident_hour": _first_column(incident, "incident_hour"),
                 "report_date_flag": _first_column(
                     incident, "report_date_flag"
@@ -349,7 +357,9 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
                     _first_column(incident, "cleared_except_date")
                 ),
                 "incident_status": _first_column(incident, "incident_status"),
-                "submission_date": _as_date(_first_column(incident, "submission_date")),
+                "submission_date": _as_date(
+                    _first_column(incident, "submission_date")
+                ),
             }
         )
         out["incident"] = frame
@@ -557,7 +567,9 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
                 "arrestee_sequence_number": _first_column(
                     arrestee, "arrestee_seq_num"
                 ),
-                "arrest_date": _as_date(_first_column(arrestee, "arrest_date")),
+                "arrest_date": _as_date(
+                    _first_column(arrestee, "arrest_date")
+                ),
                 "arrest_type_code": _resolve(
                     _first_column(arrestee, "arrest_type_id"),
                     maps["nibrs_arrest_type"],
@@ -1146,7 +1158,7 @@ def read_csv_all_strings(path, **kwargs):
         path,
         dtype=str,
         keep_default_na=False,
-        na_values=[""],
+        na_values=NA_VALUES,
         low_memory=False,
         **kwargs,
     )
