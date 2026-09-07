@@ -42,6 +42,4 @@ select
     safe_cast(region as int64) region,
     safe_cast(designated_incident_types as string) designated_incident_types,
     safe_cast(record_id as string) record_id
-from
-    {{ set_datalake_project("us_fema_openfema_staging.disaster_declaration") }}
-    as t
+from {{ set_datalake_project("us_fema_openfema_staging.disaster_declaration") }} as t

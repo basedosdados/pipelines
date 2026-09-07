@@ -98,19 +98,62 @@ SPARSE_COLUMNS = {
 # emitted before fails the build instead of being absorbed.
 COUNTY_FK_IGNORE = [
     # Alaska census areas retired or re-split since 2008
-    "02201", "02232", "02261", "02270", "02280",
+    "02201",
+    "02232",
+    "02261",
+    "02270",
+    "02280",
     # Connecticut's eight legacy counties, replaced by planning regions in 2022
-    "09001", "09003", "09005", "09007", "09009", "09011", "09013", "09015",
+    "09001",
+    "09003",
+    "09005",
+    "09007",
+    "09009",
+    "09011",
+    "09013",
+    "09015",
     # renamed or dissolved: Shannon SD -> Oglala Lakota, Bedford City VA merged
-    "46113", "51515",
+    "46113",
+    "51515",
     # Public Assistance rows whose county code belongs to a different state
-    "32073", "34055", "34085", "35101", "38109", "38141", "46155", "55161",
+    "32073",
+    "34055",
+    "34085",
+    "35101",
+    "38109",
+    "38141",
+    "46155",
+    "55161",
     # Freely associated states and territories with no county-equivalent in the
     # directory: Micronesia, the Marshall Islands, the Northern Marianas
-    "64002", "64005", "64040", "64060",
-    "68010", "68030", "68040", "68070", "68080", "68090", "68110", "68120",
-    "68140", "68150", "68160", "68170", "68180", "68190", "68300", "68310",
-    "68320", "68330", "68340", "68390", "68400", "68410", "68420", "68430",
+    "64002",
+    "64005",
+    "64040",
+    "64060",
+    "68010",
+    "68030",
+    "68040",
+    "68070",
+    "68080",
+    "68090",
+    "68110",
+    "68120",
+    "68140",
+    "68150",
+    "68160",
+    "68170",
+    "68180",
+    "68190",
+    "68300",
+    "68310",
+    "68320",
+    "68330",
+    "68340",
+    "68390",
+    "68400",
+    "68410",
+    "68420",
+    "68430",
     "69010",
 ]
 
@@ -205,8 +248,10 @@ def write_schema() -> None:
             )
         if table in SCOPE:
             out.append("          config:")
-            out.append(f"            where: \"{SCOPE[table]}\"")
-        coded = [r["name"] for r in rows if r["covered_by_dictionary"] == "yes"]
+            out.append(f'            where: "{SCOPE[table]}"')
+        coded = [
+            r["name"] for r in rows if r["covered_by_dictionary"] == "yes"
+        ]
         if coded:
             # Every code in the data must have a label in `dicionario`. This is
             # also checked at build time by build_dicionario.py, but only
@@ -220,7 +265,7 @@ def write_schema() -> None:
             out.extend(f"            - {name}" for name in coded)
             if table in SCOPE:
                 out.append("          config:")
-                out.append(f"            where: \"{SCOPE[table]}\"")
+                out.append(f'            where: "{SCOPE[table]}"')
         out.append("    columns:")
         for row in rows:
             out.append(f"      - name: {row['name']}")
@@ -255,10 +300,10 @@ def _tests(table: str, row: dict, cfg: dict | None) -> list[str]:
         out.append("        tests:")
         out.append("          - not_null")
         if directory:
-            out.extend(_relationship(directory, row['name']))
+            out.extend(_relationship(directory, row["name"]))
     elif directory:
         out.append("        tests:")
-        out.extend(_relationship(directory, row['name']))
+        out.extend(_relationship(directory, row["name"]))
     return out
 
 
