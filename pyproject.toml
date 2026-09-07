@@ -224,6 +224,10 @@ project-excludes = [
   "models/us_stanford_dime/code",
   # Same policy for the us_irs_form990 one-shot onboarding scripts.
   "models/us_irs_form990/code",
+  # Same policy: the us_cfpb_complaints onboarding scripts are standalone `.py`
+  # run from their own directory with bare sibling imports (`from common import
+  # ...`), which pyrefly cannot resolve from the repo root.
+  "models/us_cfpb_complaints/code",
   # Same policy: br_sfb_sicar onboarding code is standalone `.py` (architecture.py,
   # gen_*.py, bootstrap_clean.py use bare `import architecture`/`import clean`,
   # sys.path-relative), unresolvable from the repo root. The pure transform is
