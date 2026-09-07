@@ -1,8 +1,8 @@
 name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
 year,INT64,"Ano de referência dos dados, usado como coluna de partição",,no,diretorios_data_tempo.ano:ano,year,no,,data_year
 state_abbr,STRING,"Sigla de duas letras do estado, distrito ou território da agência",,no,,,no,,state_abbr
-offender_id,STRING,"Identificador do agressor atribuído pelo FBI, único dentro do ano",,no,,,no,,offender_id
-incident_id,STRING,"Identificador do incidente atribuído pelo FBI, único dentro do ano",,no,,,no,,incident_id
+offender_id,STRING,"Identificador do agressor atribuído pelo FBI, único dentro do estado e do ano",,no,,,no,,offender_id
+incident_id,STRING,"Identificador do incidente atribuído pelo FBI, único dentro do estado e do ano",,no,,,no,,incident_id
 offender_sequence_number,STRING,Número de ordem do agressor dentro do incidente,,no,,,no,"O valor 0 identifica agressores desconhecidos, cujos atributos demográficos são todos nulos. The value 0 identifies unknown offenders, whose demographic attributes are all null.",offender_seq_num
 age_code,STRING,"Código da faixa etária do agressor, incluindo os códigos de desconhecido e de menor de um ano",,yes,,,no,,age_id
 age,INT64,"Idade exata do agressor em anos, quando informada",,no,,year,no,,age_num

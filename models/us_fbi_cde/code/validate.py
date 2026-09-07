@@ -28,7 +28,9 @@ from pipelines.datasets.us_fbi_cde.spec import TABLES
 OUTPUT = constants.DATA_ROOT.value / "output"
 DICIONARIO = Path(__file__).resolve().parent / "dicionario.csv"
 
-# child table -> (child column, parent table, parent column)
+# child table -> (child column, parent table, parent column). Every join also
+# carries year and state_abbr: the FBI's ids are unique within a state-year, not
+# globally, and joining on the id alone silently mixes states.
 REFERENCES = [
     ("offense", "incident_id", "incident", "incident_id"),
     ("offender", "incident_id", "incident", "incident_id"),
@@ -136,9 +138,16 @@ def check_null_sentinels(con, counts, failures):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--skip-references", action="store_true")
+    parser.add_argument("--threads", type=int, default=2)
+    parser.add_argument("--memory-limit", default="6GB")
     args = parser.parse_args()
     con = duckdb.connect()
-    con.execute("pragma threads=4")
+    # Bounded on purpose: the referential checks anti-join 200-million-row
+    # tables, and duckdb will happily take the whole machine. It spills to disk
+    # past the limit instead.
+    con.execute(f"pragma threads={args.threads}")
+    con.execute(f"pragma memory_limit='{args.memory_limit}'")
+    con.execute(f"pragma temp_directory='{OUTPUT.parent / 'duckdb_tmp'}'")
     failures = []
 
     print(f"{'table':32s} {'rows':>15s}  years")
@@ -191,7 +200,8 @@ def main():
             orphans = con.execute(
                 f"select count(*) from {source(child)} c "
                 f"anti join {source(parent)} p "
-                f"on c.year = p.year and c.{child_col} = p.{parent_col} "
+                f"on c.year = p.year and c.state_abbr = p.state_abbr "
+                f"and c.{child_col} = p.{parent_col} "
                 f"where c.{child_col} is not null"
             ).fetchone()[0]
             share = orphans / max(counts[child], 1)

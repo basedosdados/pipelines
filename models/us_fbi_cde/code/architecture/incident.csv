@@ -2,7 +2,7 @@ name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory
 year,INT64,"Ano de referência dos dados, usado como coluna de partição",,no,diretorios_data_tempo.ano:ano,year,no,,data_year
 state_abbr,STRING,"Sigla de duas letras do estado, distrito ou território da agência",,no,,,no,,state_abbr
 ori,STRING,"Originating Agency Identifier, o identificador da agência policial no programa UCR e a chave de junção entre as tabelas",,no,,,no,"Nove caracteres: o ORI de sete caracteres do NCIC seguido de um sufixo de duas posições que identifica a subunidade, '00' para a própria agência. Nine characters: the seven-character NCIC ORI followed by a two-digit sub-unit suffix, '00' for the agency itself.",ori
-incident_id,STRING,"Identificador do incidente atribuído pelo FBI, único dentro do ano",,no,,,no,,incident_id
+incident_id,STRING,"Identificador do incidente atribuído pelo FBI, único dentro do estado e do ano",,no,,,no,,incident_id
 incident_date,DATE,Data em que o incidente ocorreu,,no,,,no,,incident_date
 incident_hour,STRING,"Hora do dia em que o incidente ocorreu, de 00 a 23",,no,,,no,Nulo quando a agência não informou a hora. Null when the agency did not report the hour.,incident_hour
 report_date_flag,STRING,"Indica que a data do incidente é, na verdade, a data do registro da ocorrência",,yes,,,no,,report_date_flag

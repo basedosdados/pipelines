@@ -144,6 +144,9 @@ arrestee,ethnicity_code,X,,Not Specified
 arrestee,multiple_arrestee_indicator,C,,Count arrestee
 arrestee,multiple_arrestee_indicator,M,,Multiple arrestee segments were submitted for this offender
 arrestee,multiple_arrestee_indicator,N,,Not applicable
+arrestee,multiple_arrestee_indicator,c,,Count arrestee
+arrestee,multiple_arrestee_indicator,m,,Multiple arrestee segments were submitted for this offender
+arrestee,multiple_arrestee_indicator,n,,Not applicable
 arrestee,offense_code,09A,,Murder and Nonnegligent Manslaughter
 arrestee,offense_code,09B,,Negligent Manslaughter
 arrestee,offense_code,09C,,Justifiable Homicide
@@ -248,6 +251,10 @@ arrestee,resident_status_code,U,,Unknown
 arrestee,sex_code,F,,Female
 arrestee,sex_code,M,,Male
 arrestee,sex_code,U,,Unknown
+arrestee,sex_code,X,,Not specified
+arrestee,sex_code,f,,Female
+arrestee,sex_code,m,,Male
+arrestee,sex_code,u,,Unknown
 arrestee,under_18_disposition_code,H,,Handled within the department and released
 arrestee,under_18_disposition_code,R,,Referred to another authority
 arrestee,weapon_code,01,,Unarmed
@@ -283,6 +290,12 @@ arrestee,weapon_code,15A,,Other Firearm (Automatic)
 arrestee,weapon_code,16,,Lethal Cutting Instrument
 arrestee,weapon_code,17,,Club/Blackjack/Brass Knuckles
 arrestee,weapon_code,20,,Knife/Cutting Instrument
+arrestee,weapon_code,21,,Firearm (automatic)
+arrestee,weapon_code,21A,,Firearm (automatic)
+arrestee,weapon_code,22,,Handgun (automatic)
+arrestee,weapon_code,23,,Rifle (automatic)
+arrestee,weapon_code,24A,,Shotgun (automatic)
+arrestee,weapon_code,25,,Other firearm (automatic)
 arrestee,weapon_code,30,,Blunt Object
 arrestee,weapon_code,35,,Motor Vehicle
 arrestee,weapon_code,40,,Personal Weapons
@@ -324,6 +337,8 @@ hate_crime,population_group_code,9B,,"Metropolitan counties from 25,000 through 
 hate_crime,population_group_code,9C,,"Metropolitan counties from 10,000 through 24,999"
 hate_crime,population_group_code,9D,,"Metropolitan counties under 10,000"
 hate_crime,population_group_code,9E,,Metropolitan state police
+incident,cargo_theft_flag,N,,The incident did not involve cargo theft
+incident,cargo_theft_flag,Y,,The incident involved cargo theft
 incident,cargo_theft_flag,f,,The incident did not involve cargo theft
 incident,cargo_theft_flag,t,,The incident involved cargo theft
 incident,cleared_except_code,A,,Death of Offender
@@ -332,8 +347,13 @@ incident,cleared_except_code,C,,In Custody of Other Jurisdiction
 incident,cleared_except_code,D,,Victim Refused to Cooperate
 incident,cleared_except_code,E,,Juvenile/No Custody
 incident,cleared_except_code,N,,Not Applicable
+incident,incident_status,0,,No status recorded
+incident,incident_status,7,,No status recorded
 incident,incident_status,ACCEPTED,,Accepted by the FBI
 incident,incident_status,DELETED,,Deleted by the submitting agency
+incident,incident_status,ERRORS,,Submitted with errors
+incident,incident_status,WARNINGS,,Submitted with warnings
+incident,report_date_flag,R,,The incident date is the report date
 incident,report_date_flag,f,,The incident date is the date the incident occurred
 incident,report_date_flag,t,,The incident date is the report date
 offender,age_code,00,,Unknown
@@ -461,6 +481,10 @@ offender,race_code,W,,White
 offender,sex_code,F,,Female
 offender,sex_code,M,,Male
 offender,sex_code,U,,Unknown
+offender,sex_code,X,,Not specified
+offender,sex_code,f,,Female
+offender,sex_code,m,,Male
+offender,sex_code,u,,Unknown
 offense,attempt_complete_flag,A,,Attempted
 offense,attempt_complete_flag,C,,Completed
 offense,bias_motivation_code,11,,Anti-White
@@ -667,6 +691,12 @@ offense,weapon_code,15A,,Other Firearm (Automatic)
 offense,weapon_code,16,,Lethal Cutting Instrument
 offense,weapon_code,17,,Club/Blackjack/Brass Knuckles
 offense,weapon_code,20,,Knife/Cutting Instrument
+offense,weapon_code,21,,Firearm (automatic)
+offense,weapon_code,21A,,Firearm (automatic)
+offense,weapon_code,22,,Handgun (automatic)
+offense,weapon_code,23,,Rifle (automatic)
+offense,weapon_code,24A,,Shotgun (automatic)
+offense,weapon_code,25,,Other firearm (automatic)
 offense,weapon_code,30,,Blunt Object
 offense,weapon_code,35,,Motor Vehicle
 offense,weapon_code,40,,Personal Weapons
@@ -974,6 +1004,10 @@ victim,resident_status_code,U,,Unknown
 victim,sex_code,F,,Female
 victim,sex_code,M,,Male
 victim,sex_code,U,,Unknown
+victim,sex_code,X,,Not specified
+victim,sex_code,f,,Female
+victim,sex_code,m,,Male
+victim,sex_code,u,,Unknown
 victim,victim_type_code,B,,Business
 victim,victim_type_code,F,,Financial Institution
 victim,victim_type_code,G,,Government

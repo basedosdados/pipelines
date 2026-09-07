@@ -168,7 +168,7 @@ models:
       para todos em 2020.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, incident_id]
+          combination_of_columns: [year, state_abbr, incident_id]
           config:
             where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
@@ -208,7 +208,8 @@ models:
           programa UCR e a chave de junção entre as tabelas
       - name: incident_id
         description: >
-          Identificador do incidente atribuído pelo FBI, único dentro do ano
+          Identificador do incidente atribuído pelo FBI, único dentro do estado e
+          do ano
         tests: [not_null]
       - name: incident_date
         description: >
@@ -244,7 +245,7 @@ models:
       principal e a motivação por preconceito principal.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, offense_id]
+          combination_of_columns: [year, state_abbr, offense_id]
           config:
             where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
@@ -282,11 +283,13 @@ models:
         tests: [not_null]
       - name: offense_id
         description: >
-          Identificador da ofensa atribuído pelo FBI, único dentro do ano
+          Identificador da ofensa atribuído pelo FBI, único dentro do estado e do
+          ano
         tests: [not_null]
       - name: incident_id
         description: >
-          Identificador do incidente atribuído pelo FBI, único dentro do ano
+          Identificador do incidente atribuído pelo FBI, único dentro do estado e
+          do ano
       - name: offense_code
         description: >
           Código NIBRS da ofensa, por exemplo 13B para agressão simples
@@ -323,7 +326,7 @@ models:
       com número de ordem 0 e atributos nulos.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, offender_id]
+          combination_of_columns: [year, state_abbr, offender_id]
           config:
             where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
@@ -353,11 +356,13 @@ models:
         tests: [not_null]
       - name: offender_id
         description: >
-          Identificador do agressor atribuído pelo FBI, único dentro do ano
+          Identificador do agressor atribuído pelo FBI, único dentro do estado e
+          do ano
         tests: [not_null]
       - name: incident_id
         description: >
-          Identificador do incidente atribuído pelo FBI, único dentro do ano
+          Identificador do incidente atribuído pelo FBI, único dentro do estado e
+          do ano
       - name: offender_sequence_number
         description: >
           Número de ordem do agressor dentro do incidente
@@ -392,7 +397,7 @@ models:
       também são registrados como vítimas.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, victim_id]
+          combination_of_columns: [year, state_abbr, victim_id]
           config:
             where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
@@ -436,11 +441,13 @@ models:
         tests: [not_null]
       - name: victim_id
         description: >
-          Identificador da vítima atribuído pelo FBI, único dentro do ano
+          Identificador da vítima atribuído pelo FBI, único dentro do estado e do
+          ano
         tests: [not_null]
       - name: incident_id
         description: >
-          Identificador do incidente atribuído pelo FBI, único dentro do ano
+          Identificador do incidente atribuído pelo FBI, único dentro do estado e
+          do ano
       - name: victim_sequence_number
         description: >
           Número de ordem da vítima dentro do incidente
@@ -497,7 +504,7 @@ models:
       contagens.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, victim_id, offense_id]
+          combination_of_columns: [year, state_abbr, victim_id, offense_id]
           config:
             where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
@@ -532,7 +539,7 @@ models:
       crime contra a pessoa ou um roubo.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, victim_id, offender_id]
+          combination_of_columns: [year, state_abbr, victim_id, offender_id]
           config:
             where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
@@ -574,7 +581,11 @@ models:
       agência nos arquivos publicados.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, arrest_group, arrestee_id]
+          combination_of_columns:
+            - year
+            - state_abbr
+            - arrest_group
+            - arrestee_id
           config:
             where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
@@ -631,7 +642,8 @@ models:
         tests: [not_null]
       - name: incident_id
         description: >
-          Identificador do incidente atribuído pelo FBI, único dentro do ano
+          Identificador do incidente atribuído pelo FBI, único dentro do estado e
+          do ano
       - name: arrest_group
         description: >
           Indica se a prisão vem de um relatório de incidente do Grupo A ou de um
@@ -693,7 +705,7 @@ models:
       tipo e a quantidade da substância apreendida.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, property_description_id]
+          combination_of_columns: [year, state_abbr, property_description_id]
           config:
             where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
@@ -732,14 +744,15 @@ models:
       - name: property_description_id
         description: >
           Identificador da descrição de bem atribuído pelo FBI, único dentro do
-          ano
+          estado e do ano
         tests: [not_null]
       - name: property_id
         description: >
           Identificador do registro de bem a que a descrição pertence
       - name: incident_id
         description: >
-          Identificador do incidente atribuído pelo FBI, único dentro do ano
+          Identificador do incidente atribuído pelo FBI, único dentro do estado e
+          do ano
       - name: property_loss_code
         description: >
           Código do tipo de perda do bem, por exemplo furtado, recuperado,
@@ -894,7 +907,12 @@ models:
       coletado das agências que não migraram.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, ori, month, offense_code]
+          combination_of_columns:
+            - year
+            - ori
+            - record_number
+            - month
+            - offense_code
           config:
             where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
@@ -933,6 +951,11 @@ models:
       - name: legacy_ori
         description: >
           ORI de sete caracteres do NCIC, tal como publicado no arquivo Return A
+      - name: record_number
+        description: >
+          Ordem do registro físico Return A da agência dentro do ano, a partir de
+          1
+        tests: [not_null]
       - name: month
         description: >
           Mês de referência dos dados, de 1 a 12

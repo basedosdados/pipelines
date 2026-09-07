@@ -1,8 +1,8 @@
 name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
 year,INT64,"Ano de referência dos dados, usado como coluna de partição",,no,diretorios_data_tempo.ano:ano,year,no,,data_year
 state_abbr,STRING,"Sigla de duas letras do estado, distrito ou território da agência",,no,,,no,,state_abbr
-victim_id,STRING,"Identificador da vítima atribuído pelo FBI, único dentro do ano",,no,,,no,,victim_id
-incident_id,STRING,"Identificador do incidente atribuído pelo FBI, único dentro do ano",,no,,,no,,incident_id
+victim_id,STRING,"Identificador da vítima atribuído pelo FBI, único dentro do estado e do ano",,no,,,no,,victim_id
+incident_id,STRING,"Identificador do incidente atribuído pelo FBI, único dentro do estado e do ano",,no,,,no,,incident_id
 victim_sequence_number,STRING,Número de ordem da vítima dentro do incidente,,no,,,no,,victim_seq_num
 victim_type_code,STRING,"Código do tipo de vítima, que pode ser pessoa, empresa, governo ou sociedade",,yes,,,no,Nem toda vítima é uma pessoa: crimes contra a sociedade têm uma única vítima do tipo sociedade. Not every victim is a person: crimes against society have a single victim of type society.,victim_type_id
 age_code,STRING,"Código da faixa etária da vítima, incluindo os códigos de desconhecido e de menor de um ano",,yes,,,no,,age_id

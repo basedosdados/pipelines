@@ -1,8 +1,8 @@
 name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
 year,INT64,"Ano de referência dos dados, usado como coluna de partição",,no,diretorios_data_tempo.ano:ano,year,no,,data_year
 state_abbr,STRING,"Sigla de duas letras do estado, distrito ou território da agência",,no,,,no,,state_abbr
-offense_id,STRING,"Identificador da ofensa atribuído pelo FBI, único dentro do ano",,no,,,no,,offense_id
-incident_id,STRING,"Identificador do incidente atribuído pelo FBI, único dentro do ano",,no,,,no,,incident_id
+offense_id,STRING,"Identificador da ofensa atribuído pelo FBI, único dentro do estado e do ano",,no,,,no,,offense_id
+incident_id,STRING,"Identificador do incidente atribuído pelo FBI, único dentro do estado e do ano",,no,,,no,,incident_id
 offense_code,STRING,"Código NIBRS da ofensa, por exemplo 13B para agressão simples",,yes,,,no,,offense_code
 attempt_complete_flag,STRING,Indica se a ofensa foi consumada ou apenas tentada,,yes,,,no,,attempt_complete_flag
 location_code,STRING,Código do tipo de local em que a ofensa ocorreu,,yes,,,no,O tipo reflete o uso do local no momento da ofensa. The type reflects how the location was being used at the time of the offense.,location_id

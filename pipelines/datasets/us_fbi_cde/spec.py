@@ -135,9 +135,9 @@ def _incident_id(nullable_note=""):
     return column(
         "incident_id",
         "STRING",
-        "Identificador do incidente atribuído pelo FBI, único dentro do ano",
-        "Incident identifier assigned by the FBI, unique within the year",
-        "Identificador del incidente asignado por el FBI, único dentro del año",
+        "Identificador do incidente atribuído pelo FBI, único dentro do estado e do ano",
+        "Incident identifier assigned by the FBI, unique within the state and year",
+        "Identificador del incidente asignado por el FBI, único dentro del estado y del año",
         observations=nullable_note,
         original="incident_id",
     )
@@ -618,8 +618,8 @@ OFFENSE = [
     column(
         "offense_id",
         "STRING",
-        "Identificador da ofensa atribuído pelo FBI, único dentro do ano",
-        "Offense identifier assigned by the FBI, unique within the year",
+        "Identificador da ofensa atribuído pelo FBI, único dentro do estado e do ano",
+        "Offense identifier assigned by the FBI, unique within the state and year",
         "Identificador del delito asignado por el FBI, único dentro del año",
         original="offense_id",
     ),
@@ -737,8 +737,8 @@ OFFENDER = [
     column(
         "offender_id",
         "STRING",
-        "Identificador do agressor atribuído pelo FBI, único dentro do ano",
-        "Offender identifier assigned by the FBI, unique within the year",
+        "Identificador do agressor atribuído pelo FBI, único dentro do estado e do ano",
+        "Offender identifier assigned by the FBI, unique within the state and year",
         "Identificador del agresor asignado por el FBI, único dentro del año",
         original="offender_id",
     ),
@@ -766,9 +766,9 @@ VICTIM = [
     column(
         "victim_id",
         "STRING",
-        "Identificador da vítima atribuído pelo FBI, único dentro do ano",
-        "Victim identifier assigned by the FBI, unique within the year",
-        "Identificador de la víctima asignado por el FBI, único dentro del año",
+        "Identificador da vítima atribuído pelo FBI, único dentro do estado e do ano",
+        "Victim identifier assigned by the FBI, unique within the state and year",
+        "Identificador de la víctima asignado por el FBI, único dentro del estado y del año",
         original="victim_id",
     ),
     _incident_id(),
@@ -1046,8 +1046,8 @@ PROPERTY = [
     column(
         "property_description_id",
         "STRING",
-        "Identificador da descrição de bem atribuído pelo FBI, único dentro do ano",
-        "Property description identifier assigned by the FBI, unique within the year",
+        "Identificador da descrição de bem atribuído pelo FBI, único dentro do estado e do ano",
+        "Property description identifier assigned by the FBI, unique within the state and year",
         "Identificador de la descripción del bien asignado por el FBI, único "
         "dentro del año",
         original="nibrs_prop_desc_id",
@@ -1422,6 +1422,25 @@ UCR_SUMMARY = [
         original="ori_code",
     ),
     column(
+        "record_number",
+        "STRING",
+        "Ordem do registro físico Return A da agência dentro do ano, a partir de 1",
+        "Ordinal of the agency's physical Return A record within the year, from 1",
+        "Orden del registro físico Return A de la agencia dentro del año, desde 1",
+        observations=(
+            "Quase sempre 1. O FBI passou a enviar mais de um registro por "
+            "agência e ano nos arquivos recentes — 272 agências em 2022, uma "
+            "delas 16 vezes — cada um com suas próprias contagens; nada no "
+            "registro diz se substituem ou somam-se uns aos outros, por isso são "
+            "mantidos e numerados. Almost always 1. The FBI began shipping more "
+            "than one record per agency-year in the recent files — 272 agencies "
+            "in 2022, one of them 16 times — each with its own counts; nothing "
+            "in the record says whether they replace or supplement one another, "
+            "so they are kept and numbered."
+        ),
+        original="",
+    ),
+    column(
         "month",
         "INT64",
         "Mês de referência dos dados, de 1 a 12",
@@ -1570,56 +1589,56 @@ TABLES = {
     "incident": {
         "columns": INCIDENT,
         "partitions": ["year", "state_abbr"],
-        "unique_key": ["year", "incident_id"],
+        "unique_key": ["year", "state_abbr", "incident_id"],
         "first_year": 1991,
         "last_year": 2025,
     },
     "offense": {
         "columns": OFFENSE,
         "partitions": ["year", "state_abbr"],
-        "unique_key": ["year", "offense_id"],
+        "unique_key": ["year", "state_abbr", "offense_id"],
         "first_year": 1991,
         "last_year": 2025,
     },
     "offender": {
         "columns": OFFENDER,
         "partitions": ["year", "state_abbr"],
-        "unique_key": ["year", "offender_id"],
+        "unique_key": ["year", "state_abbr", "offender_id"],
         "first_year": 1991,
         "last_year": 2025,
     },
     "victim": {
         "columns": VICTIM,
         "partitions": ["year", "state_abbr"],
-        "unique_key": ["year", "victim_id"],
+        "unique_key": ["year", "state_abbr", "victim_id"],
         "first_year": 1991,
         "last_year": 2025,
     },
     "victim_offense": {
         "columns": VICTIM_OFFENSE,
         "partitions": ["year", "state_abbr"],
-        "unique_key": ["year", "victim_id", "offense_id"],
+        "unique_key": ["year", "state_abbr", "victim_id", "offense_id"],
         "first_year": 1991,
         "last_year": 2025,
     },
     "victim_offender_relationship": {
         "columns": VICTIM_OFFENDER_RELATIONSHIP,
         "partitions": ["year", "state_abbr"],
-        "unique_key": ["year", "victim_id", "offender_id"],
+        "unique_key": ["year", "state_abbr", "victim_id", "offender_id"],
         "first_year": 1991,
         "last_year": 2025,
     },
     "arrestee": {
         "columns": ARRESTEE,
         "partitions": ["year", "state_abbr"],
-        "unique_key": ["year", "arrest_group", "arrestee_id"],
+        "unique_key": ["year", "state_abbr", "arrest_group", "arrestee_id"],
         "first_year": 1991,
         "last_year": 2025,
     },
     "property": {
         "columns": PROPERTY,
         "partitions": ["year", "state_abbr"],
-        "unique_key": ["year", "property_description_id"],
+        "unique_key": ["year", "state_abbr", "property_description_id"],
         "first_year": 1991,
         "last_year": 2025,
     },
@@ -1633,7 +1652,13 @@ TABLES = {
     "ucr_summary": {
         "columns": UCR_SUMMARY,
         "partitions": ["year"],
-        "unique_key": ["year", "ori", "month", "offense_code"],
+        "unique_key": [
+            "year",
+            "ori",
+            "record_number",
+            "month",
+            "offense_code",
+        ],
         "first_year": 1985,
         "last_year": 2025,
     },

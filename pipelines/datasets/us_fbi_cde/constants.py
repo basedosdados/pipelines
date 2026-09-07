@@ -47,6 +47,11 @@ class constants(Enum):
     # agency table (the CDE publishes county names only).
     CENSUS_COUNTY_ANSI = "https://www2.census.gov/geo/docs/reference/codes2020/national_county2020.txt"
 
+    # Bundle filenames use postal codes. "NB" is deliberately absent: the CDE
+    # publishes Nebraska 2019 under both NB and NE and the two archives are
+    # identical (34,543 incidents, every id shared), so downloading both would
+    # ingest that state-year twice. Cleaning maps the NE filename to the UCR
+    # code NB, which is what the FBI's own extracts and its ORIs use.
     STATES = [
         "AL",
         "AK",
@@ -104,7 +109,6 @@ class constants(Enum):
         "AS",
         "VI",
         "CZ",
-        "NB",
     ]
 
     # Scratch location. Never inside the repo or Dropbox: the raw bundles are

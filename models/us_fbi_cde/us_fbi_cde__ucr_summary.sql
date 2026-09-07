@@ -18,6 +18,7 @@ select
     safe_cast(state_abbr as string) state_abbr,
     safe_cast(ori as string) ori,
     safe_cast(legacy_ori as string) legacy_ori,
+    safe_cast(record_number as string) record_number,
     safe_cast(month as int64) month,
     safe_cast(offense_code as string) offense_code,
     safe_cast(actual_count as int64) actual_count,

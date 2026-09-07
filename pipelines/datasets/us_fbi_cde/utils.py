@@ -21,10 +21,12 @@ from __future__ import annotations
 import io
 import json
 import os
+import re
 import time
 import urllib.parse
 import urllib.request
 import zipfile
+from collections import Counter
 from pathlib import Path
 
 import pandas as pd
@@ -32,6 +34,12 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 SIGNED_URL_ENDPOINT = "https://cde.ucr.cjis.gov/LATEST/s3/signedurl"
+
+# The NIBRS bundles are named with postal codes, but the FBI's own employee and
+# hate crime extracts, its ORIs and the Return A state table all use the UCR
+# code. Nebraska is the only one that differs, and left alone it would be "NE"
+# in the incident tables and "NB" everywhere else in the same dataset.
+UCR_STATE_ABBR = {"NE": "NB"}
 
 # The FBI is inconsistent about missing values: the NIBRS bundles leave the
 # field empty, while the law enforcement employee extract writes the literal
@@ -204,20 +212,81 @@ def _first_column(frame, *candidates):
     return pd.Series(pd.NA, index=frame.index, dtype="object")
 
 
-def _as_date(series):
+MONTHS = {
+    "JAN": "01",
+    "FEB": "02",
+    "MAR": "03",
+    "APR": "04",
+    "MAY": "05",
+    "JUN": "06",
+    "JUL": "07",
+    "AUG": "08",
+    "SEP": "09",
+    "OCT": "10",
+    "NOV": "11",
+    "DEC": "12",
+}
+_ORACLE_DATE = re.compile(r"^(\d{2})-([A-Z]{3})-(\d{2})$")
+
+
+def _as_date(series, data_year=None):
     """Normalise a source date to ``YYYY-MM-DD``.
 
-    The bundles are inconsistent: the same logical column arrives as
-    ``1991-07-20 00:00:00`` in the pre-2020 files, ``2023-05-31 13:49:51.367``
-    for submission timestamps and a bare ``2023-01-01`` elsewhere. BigQuery's
-    ``SAFE_CAST(... AS DATE)`` returns NULL for anything carrying a time part,
-    so a mixed column would silently lose most of its values in the dbt model
-    rather than fail. Truncating here keeps the loss impossible.
+    Three shapes appear across the bundles and all three must be handled:
+
+    * ``2023-01-01`` and ``2023-05-31 13:49:51.367`` — ISO, with or without a
+      time part;
+    * ``09-AUG-15`` — Oracle's ``DD-MON-YY``, used by 212 of the 1,066 bundles
+      across 48 states. The century is resolved against the bundle's own data
+      year rather than a fixed pivot, so an incident dated in an adjacent year
+      still lands in the right century.
+
+    BigQuery's ``SAFE_CAST(... AS DATE)`` accepts only the bare ISO form and
+    returns NULL for everything else, so an unhandled shape would empty the
+    column silently rather than fail.
     """
     if series is None or len(series) == 0:
         return series
-    trimmed = series.astype("object").str.slice(0, 10)
-    return trimmed.where(trimmed.str.match(r"^\d{4}-\d{2}-\d{2}$", na=False))
+    text = series.astype("object").str.strip()
+    iso = text.str.slice(0, 10)
+    iso = iso.where(iso.str.match(r"^\d{4}-\d{2}-\d{2}$", na=False))
+
+    oracle = text.where(text.str.match(r"^\d{2}-[A-Z]{3}-\d{2}$", na=False))
+    if oracle.notna().any():
+        century = 1900 if data_year is None else (data_year // 100) * 100
+
+        def convert(value):
+            if not isinstance(value, str):
+                return pd.NA
+            match = _ORACLE_DATE.match(value)
+            if not match:
+                return pd.NA
+            day, month, short_year = match.groups()
+            month = MONTHS.get(month)
+            if month is None:
+                return pd.NA
+            year = century + int(short_year)
+            if data_year is not None and abs(year - data_year) > 50:
+                year += 100 if year < data_year else -100
+            return f"{year:04d}-{month}-{day}"
+
+        iso = iso.fillna(oracle.map(convert))
+    return iso
+
+
+def _as_number(series, integer=True):
+    """Null out values that BigQuery's SAFE_CAST would silently drop.
+
+    ``age_num`` is the reason this exists: it carries the non-numeric age codes
+    ``NS``, ``BB``, ``NB`` and ``NN`` in 12-14% of rows. Those codes are already
+    preserved in ``age_code``, so nulling the numeric column loses nothing and
+    stops a typed column from quietly emptying in the dbt model.
+    """
+    if series is None or len(series) == 0:
+        return series
+    text = series.astype("object").str.strip()
+    pattern = r"^-?\d+$" if integer else r"^-?\d+(\.\d+)?([eE][-+]?\d+)?$"
+    return text.where(text.str.match(pattern, na=False))
 
 
 def _code_maps(zf, members):
@@ -282,6 +351,8 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
     """
     from pipelines.datasets.us_fbi_cde.spec import column_names
 
+    state_abbr = UCR_STATE_ABBR.get(state_abbr, state_abbr)
+
     with zipfile.ZipFile(zip_path) as zf:
         members = _members(zf)
         maps = _code_maps(zf, members)
@@ -340,7 +411,7 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
                 else pd.NA,
                 "incident_id": incident["incident_id"],
                 "incident_date": _as_date(
-                    _first_column(incident, "incident_date")
+                    _first_column(incident, "incident_date"), year
                 ),
                 "incident_hour": _first_column(incident, "incident_hour"),
                 "report_date_flag": _first_column(
@@ -354,11 +425,11 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
                     maps["nibrs_cleared_except"],
                 ),
                 "cleared_except_date": _as_date(
-                    _first_column(incident, "cleared_except_date")
+                    _first_column(incident, "cleared_except_date"), year
                 ),
                 "incident_status": _first_column(incident, "incident_status"),
                 "submission_date": _as_date(
-                    _first_column(incident, "submission_date")
+                    _first_column(incident, "submission_date"), year
                 ),
             }
         )
@@ -433,10 +504,14 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
                 "age_code": _resolve(
                     _first_column(offender, "age_id"), maps["nibrs_age"]
                 ),
-                "age": _first_column(offender, "age_num"),
-                "age_range_low": _first_column(offender, "age_range_low_num"),
-                "age_range_high": _first_column(
-                    offender, "age_range_high_num", "age_code_range_high"
+                "age": _as_number(_first_column(offender, "age_num")),
+                "age_range_low": _as_number(
+                    _first_column(offender, "age_range_low_num")
+                ),
+                "age_range_high": _as_number(
+                    _first_column(
+                        offender, "age_range_high_num", "age_code_range_high"
+                    )
                 ),
                 "sex_code": _first_column(offender, "sex_code"),
                 "race_code": _resolve(
@@ -476,10 +551,14 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
                 "age_code": _resolve(
                     _first_column(victim, "age_id"), maps["nibrs_age"]
                 ),
-                "age": _first_column(victim, "age_num"),
-                "age_range_low": _first_column(victim, "age_range_low_num"),
-                "age_range_high": _first_column(
-                    victim, "age_range_high_num", "age_code_range_high"
+                "age": _as_number(_first_column(victim, "age_num")),
+                "age_range_low": _as_number(
+                    _first_column(victim, "age_range_low_num")
+                ),
+                "age_range_high": _as_number(
+                    _first_column(
+                        victim, "age_range_high_num", "age_code_range_high"
+                    )
                 ),
                 "sex_code": _first_column(victim, "sex_code"),
                 "race_code": _resolve(
@@ -568,7 +647,7 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
                     arrestee, "arrestee_seq_num"
                 ),
                 "arrest_date": _as_date(
-                    _first_column(arrestee, "arrest_date")
+                    _first_column(arrestee, "arrest_date"), year
                 ),
                 "arrest_type_code": _resolve(
                     _first_column(arrestee, "arrest_type_id"),
@@ -581,8 +660,10 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
                 "age_code": _resolve(
                     _first_column(arrestee, "age_id"), maps["nibrs_age"]
                 ),
-                "age": _first_column(arrestee, "age_num"),
-                "age_range_low": _first_column(arrestee, "age_range_low_num"),
+                "age": _as_number(_first_column(arrestee, "age_num")),
+                "age_range_low": _as_number(
+                    _first_column(arrestee, "age_range_low_num")
+                ),
                 "age_range_high": _first_column(
                     arrestee, "age_range_high_num"
                 ),
@@ -625,7 +706,9 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
                 "arrestee_sequence_number": _first_column(
                     groupb, "arrestee_seq_num"
                 ),
-                "arrest_date": _as_date(_first_column(groupb, "arrest_date")),
+                "arrest_date": _as_date(
+                    _first_column(groupb, "arrest_date"), year
+                ),
                 "arrest_type_code": _resolve(
                     _first_column(groupb, "arrest_type_id"),
                     maps["nibrs_arrest_type"],
@@ -635,9 +718,13 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
                 "age_code": _resolve(
                     _first_column(groupb, "age_id"), maps["nibrs_age"]
                 ),
-                "age": _first_column(groupb, "age_num"),
-                "age_range_low": _first_column(groupb, "age_range_low_num"),
-                "age_range_high": _first_column(groupb, "age_range_high_num"),
+                "age": _as_number(_first_column(groupb, "age_num")),
+                "age_range_low": _as_number(
+                    _first_column(groupb, "age_range_low_num")
+                ),
+                "age_range_high": _as_number(
+                    _first_column(groupb, "age_range_high_num")
+                ),
                 "sex_code": _first_column(groupb, "sex_code"),
                 "race_code": _resolve(
                     _first_column(groupb, "race_id"), maps["ref_race"]
@@ -676,8 +763,12 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
                     _first_column(prop, "prop_loss_id"),
                     maps["nibrs_prop_loss_type"],
                 ),
-                "stolen_count": _first_column(prop, "stolen_count"),
-                "recovered_count": _first_column(prop, "recovered_count"),
+                "stolen_count": _as_number(
+                    _first_column(prop, "stolen_count")
+                ),
+                "recovered_count": _as_number(
+                    _first_column(prop, "recovered_count")
+                ),
             }
         )
         if prop_desc is not None and not prop_desc.empty:
@@ -695,7 +786,7 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
                         prop_desc, "property_value"
                     ),
                     "date_recovered": _as_date(
-                        _first_column(prop_desc, "date_recovered")
+                        _first_column(prop_desc, "date_recovered"), year
                     ),
                 }
             )
@@ -710,11 +801,20 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
                 ]
             )
         frame = base.merge(desc, on="property_id", how="left")
-        # A property record with no description keeps one row; give it a stable
-        # surrogate so the table has a usable primary key.
+        # The published nibrs_prop_desc_id is frequently blank, and one property
+        # record can carry several descriptions, so falling back to the property
+        # id alone collides. The natural key is the property plus the description
+        # type; where even that is absent the record has no description at all
+        # and there is exactly one row for it.
+        fallback = "p" + frame["property_id"].astype(str)
+        with_code = frame["property_description_code"].notna()
+        fallback = fallback.where(
+            ~with_code,
+            fallback + "-" + frame["property_description_code"].astype(str),
+        )
         frame["property_description_id"] = frame[
             "property_description_id"
-        ].fillna("p" + frame["property_id"].astype(str))
+        ].fillna(fallback)
         folded_drug = _fold(
             drug,
             "property_id",
@@ -794,7 +894,7 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
                 # older ones give a bare year, which is left null rather than
                 # fabricated into a January date.
                 "nibrs_start_date": _as_date(
-                    _first_column(agencies, "nibrs_start_date")
+                    _first_column(agencies, "nibrs_start_date"), year
                 ),
                 "nibrs_participated": _first_column(
                     agencies, "nibrs_participated"
@@ -981,6 +1081,12 @@ RETA_STATE_CODES = {
     "48": "WI",
     "47": "WV",
     "49": "WY",
+    # Absent from the 1990 record description but present in the recent
+    # files: 98 is the federal agencies (ATF, FBI field offices), which the
+    # FBI's own employee extract also codes FS; 69 is the Northern Mariana
+    # Islands, whose ORIs carry the MK prefix.
+    "98": "FS",
+    "69": "MK",
 }
 
 
@@ -1048,6 +1154,11 @@ def parse_reta_file(zip_path, year):
     """
     summary_rows = []
     agency_rows = []
+    # The recent files carry more than one physical record for some agencies —
+    # 272 ORIs in 2022, one of them 16 times — each with its own counts. They
+    # are kept and numbered rather than collapsed, since nothing in the record
+    # says whether they replace or supplement one another.
+    record_seen = Counter()
     for line in iter_reta_lines(zip_path):
         if len(line) != RETA_LRECL:
             continue
@@ -1055,6 +1166,8 @@ def parse_reta_file(zip_path, year):
         legacy_ori = line[3:10].strip()
         if not legacy_ori:
             continue
+        record_seen[legacy_ori] += 1
+        record_number = str(record_seen[legacy_ori])
         months_reported = line[41:43].strip()
         killed_felonious = killed_accidental = assaulted = 0
         for month_index in range(12):
@@ -1087,6 +1200,7 @@ def parse_reta_file(zip_path, year):
                         "year": str(year),
                         "state_abbr": state_abbr,
                         "legacy_ori": legacy_ori,
+                        "record_number": record_number,
                         "month": str(month_index + 1),
                         "offense_code": offense,
                         "actual_count": counts["actual_count"],
@@ -1104,6 +1218,7 @@ def parse_reta_file(zip_path, year):
                 "year": str(year),
                 "state_abbr": state_abbr,
                 "legacy_ori": legacy_ori,
+                "record_number": record_number,
                 "core_city_flag": line[22].strip(),
                 "covered_by_ori": line[23:30].strip(),
                 "summary_months_reported": months_reported,

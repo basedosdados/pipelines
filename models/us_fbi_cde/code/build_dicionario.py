@@ -154,17 +154,26 @@ HARVEST = [
 # Code sets the FBI documents in the NIBRS user manual and the Return A record
 # description rather than in a shipped lookup file.
 LITERAL = {
+    # The flag columns carry three different encodings across the bundle eras:
+    # t/f in the recent files, Y/N in the older ones, and R for a report date.
     ("incident", "report_date_flag"): {
         "t": "The incident date is the report date",
         "f": "The incident date is the date the incident occurred",
+        "R": "The incident date is the report date",
     },
     ("incident", "cargo_theft_flag"): {
         "t": "The incident involved cargo theft",
         "f": "The incident did not involve cargo theft",
+        "Y": "The incident involved cargo theft",
+        "N": "The incident did not involve cargo theft",
     },
     ("incident", "incident_status"): {
         "ACCEPTED": "Accepted by the FBI",
         "DELETED": "Deleted by the submitting agency",
+        "ERRORS": "Submitted with errors",
+        "WARNINGS": "Submitted with warnings",
+        "0": "No status recorded",
+        "7": "No status recorded",
     },
     ("offense", "attempt_complete_flag"): {
         "A": "Attempted",
@@ -182,6 +191,9 @@ LITERAL = {
         "M": "Multiple arrestee segments were submitted for this offender",
         "C": "Count arrestee",
         "N": "Not applicable",
+        "m": "Multiple arrestee segments were submitted for this offender",
+        "c": "Count arrestee",
+        "n": "Not applicable",
     },
     ("arrestee", "under_18_disposition_code"): {
         "H": "Handled within the department and released",
@@ -210,6 +222,16 @@ LITERAL = {
         "5": "Normal return",
         "8": "Included but unusable",
     },
+    # Automatic-firearm weapon codes, present in the data but absent from the
+    # weapon lookup the bundles ship.
+    ("__weapon__", "__weapon__"): {
+        "21": "Firearm (automatic)",
+        "21A": "Firearm (automatic)",
+        "22": "Handgun (automatic)",
+        "23": "Rifle (automatic)",
+        "24A": "Shotgun (automatic)",
+        "25": "Other firearm (automatic)",
+    },
     ("ucr_summary", "breakdown_reported_flag"): {
         "P": "The agency reported the breakdown offenses as well as the totals",
         "T": "The agency reported only the totals",
@@ -217,7 +239,16 @@ LITERAL = {
 }
 
 # Sex and resident status are shared by several tables and documented in prose.
-SEX = {"M": "Male", "F": "Female", "U": "Unknown"}
+# Lower-case variants appear in the older bundles, and X in the recent ones.
+SEX = {
+    "M": "Male",
+    "F": "Female",
+    "U": "Unknown",
+    "X": "Not specified",
+    "m": "Male",
+    "f": "Female",
+    "u": "Unknown",
+}
 RESIDENT = {
     "R": "Resident of the locality",
     "N": "Non-resident",
@@ -337,10 +368,15 @@ def main():
                     add(table, column, code, label)
 
     for (table, column), mapping in LITERAL.items():
+        if table.startswith("__"):
+            continue
         for code, label in mapping.items():
             add(table, column, code, label)
     for code, label in RETA_LABELS.items():
         add("ucr_summary", "offense_code", code, label)
+    for code, label in LITERAL[("__weapon__", "__weapon__")].items():
+        add("offense", "weapon_code", code, label)
+        add("arrestee", "weapon_code", code, label)
 
     ordered = sorted(
         rows.items(), key=lambda kv: (kv[0][0], kv[0][1], kv[0][2])
