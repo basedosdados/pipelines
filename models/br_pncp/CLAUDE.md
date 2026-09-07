@@ -919,3 +919,51 @@ the published column metadata explains them.
 
 `get_where_subquery` string-replaces the placeholder and wraps the whole
 clause, so `__most_recent_year__ and sigla_uf != 'EX'` composes correctly.
+
+## Metadata registered on staging (2026-09-07)
+
+Dataset `pncp` = `bc97bdcc-e363-4560-bff3-a831dca212f2`, published on
+staging so the reviewer sees it as it will appear. Raw data source
+`175790f0-65d1-4d00-a292-ad1baa7587c5` (one only -- `client._raw_source_id`
+raises on a table with two).
+
+| table | id | columns | observation levels |
+|---|---|---|---|
+| `contratacao` | `d5477a27-…` | 40 | procurement, year, municipality |
+| `contrato` | `a91d355f-…` | 46 | contract, year, municipality |
+| `ata_registro_preco` | `47ca21d7-…` | 22 | agreement, year |
+| `instrumento_cobranca` | `b3bd8ee2-…` | 23 | bill, year |
+| `dicionario` | `a6b6b884-…` | 5 | — |
+
+All 136 columns carry PT/EN/ES descriptions and their BigQuery types; the
+22 observations are trilingual too. Cloud tables point at
+`basedosdados-dev`, which is where the staging backend's data lives -- prod
+registration re-points them at `basedosdados`.
+
+### Two things worth re-verifying if this is ever redone
+
+**`update_column` cannot link an observation level here.** It sends no
+`bigqueryType`, which the backend requires on `CreateUpdateColumn`, so the
+call fails outright. `bulk_upsert_columns` does not link OLs either. The
+working route is `server._gql` to read each column's id and type, then
+`_mut("CreateUpdateColumn", …)` carrying `bigqueryType` and
+`observationLevel` — and `isPartition` re-passed, since it defaults to
+False and would otherwise be cleared on `ano`.
+
+**Coverage polarity, verified rather than assumed** (free is the *open*
+one):
+
+```
+contratacao          free isClosed=False 2021-08-10..2026-02-28
+                     pro  isClosed=True  2026-03-01..2026-08-28
+instrumento_cobranca free isClosed=False 2021-12-07..2026-02-27
+                     pro  isClosed=True  2026-02-28..2026-08-27
+```
+
+`isClosed` is set on both the Coverage and its DateTimeRange, and the two
+ranges do not overlap — free ends inclusive, pro starts the next day. Both
+must exist before a `PartBdpro` pipeline runs or it hard-fails on
+`assert_coverage_topology`.
+
+Every id is recorded in `/tmp/pncp_meta_state.json`, because
+`create_update_*` duplicates when re-run without one.
