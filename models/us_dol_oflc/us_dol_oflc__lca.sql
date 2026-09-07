@@ -44,7 +44,9 @@ select
     safe_cast(prevailing_wage_level as string) prevailing_wage_level,
     safe_cast(prevailing_wage_source as string) prevailing_wage_source,
     safe_cast(prevailing_wage_source_year as string) prevailing_wage_source_year,
-    safe_cast(prevailing_wage_tracking_number as string) prevailing_wage_tracking_number,
+    safe_cast(
+        prevailing_wage_tracking_number as string
+    ) prevailing_wage_tracking_number,
     safe_cast(worksite_address as string) worksite_address,
     safe_cast(worksite_city as string) worksite_city,
     safe_cast(worksite_county as string) worksite_county,

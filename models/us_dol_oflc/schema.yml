@@ -11,14 +11,10 @@ models:
       the rest from iCERT and FLAG.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - year
-            - case_number
+          combination_of_columns: [year, case_number]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - prevailing_wage_tracking_number
-            - withdrawn
+          ignore_values: [prevailing_wage_tracking_number, withdrawn]
           config:
             where: __most_recent_year_en__
       - custom_dictionary_coverage_eng:
@@ -271,13 +267,10 @@ models:
       worker's citizenship and class of admission.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - year
-            - case_number
+          combination_of_columns: [year, case_number]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - employer_trade_name
+          ignore_values: [employer_trade_name]
       - custom_dictionary_coverage_eng:
           dictionary_model: ref('us_dol_oflc__dictionary')
           columns_covered_by_dictionary:
@@ -513,15 +506,10 @@ models:
       wage and the housing the employer provides.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - year
-            - case_number
+          combination_of_columns: [year, case_number]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - education_level
-            - overtime_rate_from
-            - overtime_rate_to
+          ignore_values: [education_level, overtime_rate_from, overtime_rate_to]
       - custom_dictionary_coverage_eng:
           dictionary_model: ref('us_dol_oflc__dictionary')
           columns_covered_by_dictionary:
@@ -758,15 +746,10 @@ models:
       the offered wage.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - year
-            - case_number
+          combination_of_columns: [year, case_number]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - application_type
-            - job_order_number
-            - swa_name
+          ignore_values: [application_type, job_order_number, swa_name]
       - custom_dictionary_coverage_eng:
           dictionary_model: ref('us_dol_oflc__dictionary')
           columns_covered_by_dictionary:
@@ -1005,10 +988,7 @@ models:
       be absent in another.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - table_id
-            - column_name
-            - key
+          combination_of_columns: [table_id, column_name, key]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:

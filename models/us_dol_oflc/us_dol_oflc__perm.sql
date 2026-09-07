@@ -40,7 +40,9 @@ select
     safe_cast(prevailing_wage_annual as float64) prevailing_wage_annual,
     safe_cast(prevailing_wage_level as string) prevailing_wage_level,
     safe_cast(prevailing_wage_source as string) prevailing_wage_source,
-    safe_cast(prevailing_wage_tracking_number as string) prevailing_wage_tracking_number,
+    safe_cast(
+        prevailing_wage_tracking_number as string
+    ) prevailing_wage_tracking_number,
     safe_cast(worksite_address as string) worksite_address,
     safe_cast(worksite_city as string) worksite_city,
     safe_cast(worksite_county as string) worksite_county,
@@ -53,8 +55,12 @@ select
     safe_cast(schedule_a_sheepherder as string) schedule_a_sheepherder,
     safe_cast(us_economic_sector as string) us_economic_sector,
     safe_cast(employer_num_employees as int64) employer_num_employees,
-    safe_cast(employer_year_commenced_business as int64) employer_year_commenced_business,
-    safe_cast(prevailing_wage_determination_date as date) prevailing_wage_determination_date,
+    safe_cast(
+        employer_year_commenced_business as int64
+    ) employer_year_commenced_business,
+    safe_cast(
+        prevailing_wage_determination_date as date
+    ) prevailing_wage_determination_date,
     safe_cast(prevailing_wage_expiration_date as date) prevailing_wage_expiration_date,
     safe_cast(minimum_education as string) minimum_education,
     safe_cast(major_field_of_study as string) major_field_of_study,

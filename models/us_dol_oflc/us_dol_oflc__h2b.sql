@@ -41,7 +41,9 @@ select
     safe_cast(prevailing_wage as float64) prevailing_wage,
     safe_cast(prevailing_wage_unit_of_pay as string) prevailing_wage_unit_of_pay,
     safe_cast(prevailing_wage_annual as float64) prevailing_wage_annual,
-    safe_cast(prevailing_wage_tracking_number as string) prevailing_wage_tracking_number,
+    safe_cast(
+        prevailing_wage_tracking_number as string
+    ) prevailing_wage_tracking_number,
     safe_cast(worksite_address as string) worksite_address,
     safe_cast(worksite_city as string) worksite_city,
     safe_cast(worksite_county as string) worksite_county,
