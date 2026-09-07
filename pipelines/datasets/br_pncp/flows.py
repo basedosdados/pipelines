@@ -70,11 +70,24 @@ _PART_BDPRO = PartBdpro(
     free_lag=FreeLag(unit="months", value=6),
 )
 
+# instrumento_cobranca has NO data_publicacao column -- only data_emissao,
+# data_inclusao and data_atualizacao -- so it cannot share _PART_BDPRO.
+# register_table_materialization_task reads the max of this column straight
+# from BigQuery, so the wrong name fails the first metadata run rather than
+# degrading quietly. It keys on data_inclusao, which is also what its `ano`
+# partition derives from (PARTITION_SOURCE), keeping the paywall window and
+# the partitioning on the same clock.
+_PART_BDPRO_INCLUSAO = PartBdpro(
+    date_column=DateOnly(col="data_inclusao"),
+    date_format=DateFormat.YEAR_MD,
+    free_lag=FreeLag(unit="months", value=6),
+)
+
 _COVERAGE = {
     "contratacao": _PART_BDPRO,
     "contrato": _PART_BDPRO,
     "ata_registro_preco": _PART_BDPRO,
-    "instrumento_cobranca": _PART_BDPRO,
+    "instrumento_cobranca": _PART_BDPRO_INCLUSAO,
     "plano_contratacao_anual": AllFree(
         date_column=DateOnly(col="data_publicacao"),
         date_format=DateFormat.YEAR_MD,

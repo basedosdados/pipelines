@@ -1093,3 +1093,39 @@ class TestContratacaoResizeBoundary:
             if lo >= rz[0]
         ]
         assert all((hi - lo).days <= 1 for lo, hi in wins[:-1])
+
+
+class TestCoverageDateColumnsExist:
+    """Every coverage spec must name a column the table actually has.
+
+    register_table_materialization_task reads `max(<date_column>)` straight
+    from BigQuery, so a wrong name is not a soft failure -- it breaks the
+    first run with metadata enabled, which is also the first run that applies
+    the BD Pro paywall. instrumento_cobranca shipped pointing at
+    data_publicacao, a column it does not have (it has data_emissao,
+    data_inclusao, data_atualizacao), and nothing in the local checks would
+    have caught it.
+    """
+
+    def test_every_spec_date_column_is_in_its_architecture(self):
+        from pipelines.datasets.br_pncp import flows
+
+        for table, spec in flows._COVERAGE.items():
+            col = spec.date_column.col
+            names = {c["name"] for c in utils.read_architecture(table)}
+            assert col in names, (
+                f"{table} coverage keys on {col!r}, which is not one of its "
+                f"columns; date-ish columns are "
+                f"{sorted(n for n in names if n.startswith('data_'))}"
+            )
+
+    def test_specs_cover_exactly_the_tables_that_get_materialised(self):
+        from pipelines.datasets.br_pncp import flows
+
+        # dicionario has no date column and deliberately no spec; deferred
+        # tables keep theirs so re-adding them needs no extra step.
+        scoped = set(constants.FACT_TABLES.value)
+        assert scoped <= set(flows._COVERAGE), (
+            f"no coverage spec for {scoped - set(flows._COVERAGE)}"
+        )
+        assert "dicionario" not in flows._COVERAGE
