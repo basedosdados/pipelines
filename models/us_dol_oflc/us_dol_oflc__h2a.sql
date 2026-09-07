@@ -36,7 +36,6 @@ select
     safe_cast(wage_offered_from as float64) wage_offered_from,
     safe_cast(wage_unit_of_pay as string) wage_unit_of_pay,
     safe_cast(wage_offered_from_annual as float64) wage_offered_from_annual,
-    safe_cast(wage_offered_to_annual as float64) wage_offered_to_annual,
     safe_cast(worksite_address as string) worksite_address,
     safe_cast(worksite_city as string) worksite_city,
     safe_cast(worksite_county as string) worksite_county,

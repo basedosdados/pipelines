@@ -626,11 +626,6 @@ models:
           Offered wage at the bottom of the range converted to an annual
           amount by Data Basis, null when the unit is missing or is a
           piece rate
-      - name: wage_offered_to_annual
-        description: >-
-          Offered wage at the top of the range converted to an annual
-          amount by Data Basis, null when the unit is missing or is a
-          piece rate
       - name: worksite_address
         description: >-
           First line of the address of the primary worksite

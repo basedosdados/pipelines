@@ -196,8 +196,15 @@ OMIT = {
 
 
 def columns(program: str) -> list[tuple[str, str]]:
-    """Canonical column list, in order, for one program table."""
-    omit = OMIT[program]
+    """Canonical column list, in order, for one program table.
+
+    A derived ``<x>_annual`` column is dropped along with its source ``<x>``:
+    H-2A reports a single wage offer, so omitting ``wage_offered_to`` has to
+    omit ``wage_offered_to_annual`` too, or the annualisation would look for a
+    column that is not there.
+    """
+    omit = set(OMIT[program])
+    omit |= {f"{name}_annual" for name in list(omit)}
     return [c for c in CORE + EXTRA[program] + TRAILING if c[0] not in omit]
 
 
