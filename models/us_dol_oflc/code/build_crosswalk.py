@@ -23,8 +23,7 @@ from pathlib import Path
 
 import python_calamine as pc
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import canonical_map as cm  # noqa: E402
+from pipelines.datasets.us_dol_oflc import canonical_map as cm  # noqa: E402
 
 DATA = Path(os.environ.get("OFLC_DATA_DIR", Path.home() / "Downloads/us_dol_oflc_data"))
 INPUT = DATA / "input"

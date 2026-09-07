@@ -29,8 +29,7 @@ import pyarrow.dataset as pads
 import pyarrow.parquet as pq
 
 HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE))
-import canonical_map as cm  # noqa: E402
+from pipelines.datasets.us_dol_oflc import canonical_map as cm  # noqa: E402
 
 DATA = Path(os.environ.get("OFLC_DATA_DIR", Path.home() / "Downloads/us_dol_oflc_data"))
 OUTPUT = DATA / "output"

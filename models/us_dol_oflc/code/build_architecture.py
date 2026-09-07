@@ -19,8 +19,10 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-import canonical_map as cm  # noqa: E402
+
 import descriptions as ds  # noqa: E402
+
+from pipelines.datasets.us_dol_oflc import canonical_map as cm  # noqa: E402
 
 ARCH = HERE / "architecture"
 JSON_OUT = HERE / "columns_json"
