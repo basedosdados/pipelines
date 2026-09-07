@@ -57,6 +57,7 @@
    "overtime_rate_from",
    "overtime_rate_to",
    "primary_crop",
+   "swa_name",
    "visa_class"
   ]
  },
@@ -66,7 +67,8 @@
   "latest_rows": 17075,
   "sparse_full": [
    "application_type",
-   "job_order_number"
+   "job_order_number",
+   "swa_name"
   ],
   "sparse_latest": [
    "application_type",
@@ -79,6 +81,7 @@
    "prevailing_wage",
    "prevailing_wage_annual",
    "prevailing_wage_unit_of_pay",
+   "swa_name",
    "visa_class"
   ]
  }

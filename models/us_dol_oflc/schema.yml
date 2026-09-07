@@ -766,6 +766,7 @@ models:
           ignore_values:
             - application_type
             - job_order_number
+            - swa_name
       - custom_dictionary_coverage_eng:
           dictionary_model: ref('us_dol_oflc__dictionary')
           columns_covered_by_dictionary:
