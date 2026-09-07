@@ -1,0 +1,8 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+numero_poste,STRING,"Número Météo-France do posto, de oito dígitos",,no,,,no,,NUM_POSTE
+nom_poste,STRING,Nome usual do posto,,no,,,no,,NOM_USUEL
+id_departement,STRING,Código do departamento ou da coletividade ultramarina do posto,,no,br_bd_diretorios_fr.departement:id_departamento,,no,"Segue a codificação da Météo-France, que difere do Code officiel géographique do INSEE. Oito códigos não constam do diretório br_bd_diretorios_fr, cobrindo 771 dos 14.751 postos: 20 (Córsega, que no COG é 2A e 2B), 99 (postos fora da França) e as coletividades de além-mar 975, 984, 985, 986, 987 e 988. O caso de 975, São Pedro e Miquelão, é uma lacuna do próprio diretório, e não uma invenção da Météo-France.",
+latitude,FLOAT64,"Latitude do posto, negativa ao sul do equador",,no,,degree,no,,LAT
+longitude,FLOAT64,"Longitude do posto, negativa a oeste de Greenwich",,no,,degree,no,,LON
+altitude,FLOAT64,"Altitude do pé do abrigo, ou do pluviômetro quando não há abrigo",,no,,meter,no,,ALTI
+geolocalisation,GEOGRAPHY,"Ponto geográfico do posto, em WGS 84",,no,,,no,,

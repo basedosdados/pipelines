@@ -7,7 +7,7 @@ do run, fora dela cai no `logging` padrão —, então o módulo segue importáv
 o Prefect instalado.
 
 O schema (ordem das colunas, tipos, nome de origem) vem de `constants.COLUNAS`,
-não de arquivo — a planilha de arquitetura fica fora do repo, em `task_davi/`.
+não de arquivo — a planilha de arquitetura não é versionada.
 """
 
 import io

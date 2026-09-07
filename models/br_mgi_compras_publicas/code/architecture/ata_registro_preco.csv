@@ -1,0 +1,27 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+ano,INT64,Ano de início da vigência da ata,2023(1)2027,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Coluna de particionamento, derivada da data correspondente",,Year of the start of the price record's validity,Año de el inicio de la vigencia del acta
+numero_controle_pncp_ata,STRING,Número de controle da ata no PNCP,,no,,,no,Chave primária da tabela,numeroControlePncpAta,PNCP control number of the price record,Número de control del acta en el PNCP
+numero_ata_registro_preco,STRING,Número da ata de registro de preços,,no,,,no,,numeroAtaRegistroPreco,Number of the price record,Número del acta de registro de precios
+numero_controle_pncp_compra,STRING,Número de controle da contratação de origem no PNCP,,no,,,no,,numeroControlePncpCompra,PNCP control number of the originating procurement,Número de control de la contratación de origen en el PNCP
+id_compra,STRING,Identificador da contratação de origem no SIASG,,no,,,no,Junta com a tabela contratacao,idCompra,Identifier of the originating procurement in SIASG,Identificador de la contratación de origen en el SIASG
+numero_compra,STRING,Número da contratação de origem,,no,,,no,,numeroCompra,Number of the originating procurement,Número de la contratación de origen
+ano_compra,INT64,Ano da contratação de origem,,no,,year,no,,anoCompra,Year of the originating procurement,Año de la contratación de origen
+codigo_unidade_gerenciadora,STRING,Código da UASG gerenciadora da ata,,no,,,no,,codigoUnidadeGerenciadora,Code of the UASG managing the price record,Código de la UASG gestora del acta
+nome_unidade_gerenciadora,STRING,Nome da UASG gerenciadora da ata,,no,,,no,,nomeUnidadeGerenciadora,Name of the UASG managing the price record,Nombre de la UASG gestora del acta
+codigo_orgao,STRING,Código do órgão gerenciador no SIASG,,no,,,no,,codigoOrgao,SIASG code of the managing body,Código del órgano gestor en el SIASG
+nome_orgao,STRING,Nome do órgão gerenciador,,no,,,no,,nomeOrgao,Name of the managing body,Nombre del órgano gestor
+codigo_modalidade_compra,STRING,Código da modalidade da contratação de origem,,yes,,,no,,codigoModalidadeCompra,Code of the originating procurement's modality,Código de la modalidad de la contratación de origen
+modalidade_compra,STRING,Modalidade da contratação de origem,,no,,,no,,nomeModalidadeCompra,Modality of the originating procurement,Modalidad de la contratación de origen
+status_ata,STRING,"Situação da ata, como vigente ou cancelada",,no,,,no,,statusAta,"Status of the price record, such as in force or cancelled","Situación del acta, como vigente o cancelada"
+objeto,STRING,Descrição do objeto da ata de registro de preços,,no,,,no,,objeto,Description of the price record's subject matter,Descripción del objeto del acta de registro de precios
+quantidade_itens,INT64,Quantidade de itens registrados na ata,,no,,unit,no,,quantidadeItens,Number of items recorded in the price record,Cantidad de ítems registrados en el acta
+valor_total,FLOAT64,Valor total registrado na ata,,no,,BRL,no,,valorTotal,Total value recorded in the price record,Valor total registrado en el acta
+link_ata_pncp,STRING,Endereço da ata no portal do PNCP,,no,,,no,,linkAtaPNCP,URL of the price record on the PNCP portal,Dirección del acta en el portal del PNCP
+link_compra_pncp,STRING,Endereço da contratação de origem no portal do PNCP,,no,,,no,,linkCompraPNCP,URL of the originating procurement on the PNCP portal,Dirección de la contratación de origen en el portal del PNCP
+indicador_ata_excluida,BOOLEAN,Indica se a ata foi excluída do PNCP,,no,,,no,,ataExcluido,Whether the price record was deleted from PNCP,Indica si el acta fue excluida del PNCP
+data_assinatura,DATE,Data de assinatura da ata,,no,,,no,,dataAssinatura,Date the price record was signed,Fecha de firma del acta
+data_vigencia_inicial,DATE,Data de início da vigência da ata,,no,,,no,,dataVigenciaInicial,Start date of the price record's validity,Fecha de inicio de la vigencia del acta
+data_vigencia_final,DATE,Data de término da vigência da ata,,no,,,no,,dataVigenciaFinal,End date of the price record's validity,Fecha de término de la vigencia del acta
+data_hora_inclusao,DATETIME,Data e hora de inclusão da ata no PNCP,,no,,,no,,dataHoraInclusao,Timestamp when the price record was added to PNCP,Fecha y hora de inclusión del acta en el PNCP
+data_hora_atualizacao,DATETIME,Data e hora da última atualização da ata no PNCP,,no,,,no,,dataHoraAtualizacao,Timestamp of the last update to the price record on PNCP,Fecha y hora de la última actualización del acta en el PNCP
+data_hora_exclusao,DATETIME,Data e hora da exclusão da ata do PNCP,,no,,,no,"Preenchida apenas nos registros excluídos, menos de 2% do total",dataHoraExclusao,Timestamp when the price record was deleted from PNCP,Fecha y hora de la exclusión del acta del PNCP

@@ -1,0 +1,5 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_comuna,STRING,"Código único territorial (CUT) de la comuna, de cinco dígitos",,no,,,no,"Llave primaria. Los dos primeros dígitos corresponden a la región y los tres primeros a la provincia",CUT
+id_provincia,STRING,Código de la provincia a la que pertenece la comuna,,no,br_bd_diretorios_cl.provincia:id_provincia,,no,,COD_PROVINCIA
+id_region,STRING,Código de la región a la que pertenece la comuna,,no,br_bd_diretorios_cl.region:id_region,,no,"Redundante respecto de `id_provincia`, se incluye para evitar un cruce adicional en los análisis a nivel regional",COD_REGION
+nombre,STRING,Nombre de la comuna,,no,,,no,"Derivado del nombre en mayúsculas publicado por el INE mediante capitalización castellana",COMUNA

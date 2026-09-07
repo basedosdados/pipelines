@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_tabela,STRING,Nombre de la tabla del conjunto a la que corresponde la clave,,no,,,no,,
+nome_coluna,STRING,Nombre de la columna a la que corresponde la clave,,no,,,no,,
+chave,STRING,Valor de la clave tal como aparece almacenado en la columna,,no,,,no,,
+cobertura_temporal,STRING,Cobertura temporal en la que la clave tiene el significado indicado,,no,,,no,,
+valor,STRING,Significado de la clave,,no,,,no,,

@@ -1,0 +1,21 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+year,INT64,Ano do evento eleitoral,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de particionamento. Vários eventos podem compartilhar o mesmo ano,,Year of the electoral event,Año del evento electoral
+state_abbreviation,STRING,Sigla do estado ou território,,no,br_bd_diretorios_au.state:abbreviation,,no,,StateAb,State or territory abbreviation,Sigla del estado o territorio
+election_id,STRING,Identificador do evento eleitoral atribuído pela AEC,,no,,,no,Corresponde ao Event ID usado nas URLs de results.aec.gov.au,,AEC identifier of the electoral event,Identificador del evento electoral asignado por la AEC
+chamber,STRING,"Apuração à qual os totais se referem: Câmara, Senado ou referendo",,yes,,,no,,,"Count the totals refer to: House, Senate or referendum","Conteo al que se refieren los totales: Cámara, Senado o referendo"
+division_id,STRING,Identificador da divisão eleitoral federal atribuído pela AEC,,no,,,no,Identificador próprio da AEC; não corresponde ao código CED do ABS,DivisionID,AEC identifier of the Commonwealth electoral division,Identificador de la división electoral federal asignado por la AEC
+division_name,STRING,Nome da divisão eleitoral federal,,no,,,no,,DivisionNm,Name of the Commonwealth electoral division,Nombre de la división electoral federal
+enrolment,INT64,Número de pessoas inscritas na divisão,,no,,person,no,,Enrolment,Number of electors enrolled in the division,Número de personas inscritas en la división
+turnout,INT64,Número de pessoas que compareceram,,no,,person,no,,Turnout,Number of electors who turned out,Número de personas que acudieron a votar
+turnout_percentage,FLOAT64,Comparecimento como percentual das pessoas inscritas,,no,,percent,no,,TurnoutPercentage,Turnout as a share of enrolled electors,Participación como porcentaje de las personas inscritas
+turnout_swing,FLOAT64,Variação do comparecimento em relação ao evento anterior,,no,,percent,no,Expresso em pontos percentuais,TurnoutSwing,Change in turnout relative to the previous event,Variación de la participación respecto al evento anterior
+ordinary_votes,INT64,Votos ordinários,,no,,vote,no,,OrdinaryVotes,Ordinary votes,Votos ordinarios
+absent_votes,INT64,Votos de ausentes,,no,,vote,no,,AbsentVotes,Absent votes,Votos de ausentes
+provisional_votes,INT64,Votos provisórios,,no,,vote,no,,ProvisionalVotes,Provisional votes,Votos provisionales
+pre_poll_votes,INT64,Votos antecipados,,no,,vote,no,,PrePollVotes,Pre-poll votes,Votos anticipados
+postal_votes,INT64,Votos por correio,,no,,vote,no,,PostalVotes,Postal votes,Votos por correo
+formal_votes,INT64,Votos válidos,,no,,vote,no,,FormalVotes,Formal votes,Votos válidos
+informal_votes,INT64,Votos inválidos,,no,,vote,no,,InformalVotes,Informal votes,Votos inválidos
+informal_percentage,FLOAT64,Votos inválidos como percentual do total apurado,,no,,percent,no,,InformalPercent,Informal votes as a share of the total count,Votos inválidos como porcentaje del total escrutado
+informal_swing,FLOAT64,Variação do percentual de votos inválidos em relação ao evento anterior,,no,,percent,no,Expresso em pontos percentuais,InformalSwing,Change in the informal vote share relative to the previous event,Variación del porcentaje de votos inválidos respecto al evento anterior
+total_votes,INT64,Total de votos,,no,,vote,no,,TotalVotes,Total votes,Total de votos

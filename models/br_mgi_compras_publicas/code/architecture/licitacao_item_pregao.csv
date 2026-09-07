@@ -1,0 +1,23 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+ano,INT64,Ano de homologação do item,2000(1)2025,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Coluna de particionamento, derivada da data correspondente",,Year of the item's award,Año de la homologación del ítem
+id_compra,STRING,Identificador do pregão no SIASG,,no,,,no,Junta com as tabelas licitacao e licitacao_pregao,id_compra,Identifier of the reverse auction in SIASG,Identificador del pregón en el SIASG
+id_compra_item,STRING,Identificador do item do pregão no SIASG,,no,,,no,Chave primária da tabela. Junta com licitacao_item,id_compra_item,Identifier of the reverse auction item in SIASG,Identificador del ítem del pregón en el SIASG
+situacao_item,STRING,"Situação do item, como homologado, cancelado no julgamento, deserto ou fracassado",,no,,,no,,situacao_item,"Item status, such as awarded, cancelled at judgement, deserted or failed","Situación del ítem, como homologado, cancelado en el juicio, desierto o fracasado"
+descricao_item,STRING,Descrição do item,,no,,,no,,descricao_item,Description of the item,Descripción del ítem
+descricao_detalhada_item,STRING,Descrição detalhada do item,,no,,,no,,descricao_detalhada_item,Detailed description of the item,Descripción detallada del ítem
+unidade_fornecimento,STRING,Unidade de fornecimento do item,,no,,,no,,unidade_fornecimento,Supply unit of the item,Unidad de suministro del ítem
+quantidade_item,FLOAT64,Quantidade licitada do item,,no,,unit,no,,quantidade_item,Quantity of the item put out to tender,Cantidad licitada del ítem
+valor_estimado_item,FLOAT64,Valor estimado do item,,no,,BRL,no,,valor_estimado_item,Estimated value of the item,Valor estimado del ítem
+menor_lance,FLOAT64,Menor lance ofertado para o item,,no,,BRL,no,,menor_lance,Lowest bid offered for the item,Menor oferta presentada para el ítem
+valor_negociado,FLOAT64,Valor obtido após negociação com o fornecedor,,no,,BRL,no,,valor_negociado,Value reached after negotiation with the supplier,Valor obtenido tras la negociación con el proveedor
+valor_homologado_item,FLOAT64,Valor homologado do item,,no,,BRL,no,,valor_homologado_item,Awarded value of the item,Valor homologado del ítem
+fornecedor_vencedor,STRING,Fornecedor vencedor do item,,no,,,no,Integralmente vazia nas amostras verificadas em 2026-08. O vencedor está disponível na tabela licitacao_item,fornecedor_vencedor,Supplier awarded the item,Proveedor adjudicatario del ítem
+nome_responsavel_adjudicacao,STRING,Nome do responsável pela adjudicação do item,,no,,,no,,no_adjudic,Name of the official who adjudicated the item,Nombre del responsable de la adjudicación del ítem
+nome_responsavel_homologacao,STRING,Nome do responsável pela homologação do item,,no,,,no,,no_hom,Name of the official who awarded the item,Nombre del responsable de la homologación del ítem
+indicador_decreto_7174,STRING,Indica se o item está sujeito às preferências do Decreto 7.174/2010,,yes,,,no,"A fonte publica o valor como texto TRUE ou FALSE, não como booleano",decreto_7174,"Whether the item is subject to the preferences of Decree 7,174/2010",Indica si el ítem está sujeto a las preferencias del Decreto 7.174/2010
+indicador_margem_preferencial,STRING,Indica se foi aplicada margem de preferência ao item,,yes,,,no,"A fonte publica o valor como texto TRUE ou FALSE, não como booleano",margem_preferencial,Whether a preference margin was applied to the item,Indica si se aplicó margen de preferencia al ítem
+tratamento_diferenciado,STRING,Tratamento diferenciado concedido a microempresas e empresas de pequeno porte,,yes,,,no,Integralmente vazia nas amostras verificadas em 2026-08,tratamento_diferenciado,Preferential treatment granted to micro and small enterprises,Trato diferenciado concedido a microempresas y pequeñas empresas
+data_encerramento,DATE,Data de encerramento da disputa do item,,no,,,no,,dt_encerramento,Date the bidding for the item closed,Fecha de cierre de la disputa del ítem
+data_adjudicacao,DATE,Data de adjudicação do item,,no,,,no,,dt_adjudic,Date the item was adjudicated,Fecha de adjudicación del ítem
+data_homologacao,DATE,Data de homologação do item,,no,,,no,,dt_hom,Date the item was awarded,Fecha de homologación del ítem
+data_alteracao,DATETIME,Data e hora da última alteração do registro,,no,,,no,,dt_alteracao,Timestamp of the last change to the record,Fecha y hora de la última modificación del registro

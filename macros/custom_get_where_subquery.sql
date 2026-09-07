@@ -71,6 +71,27 @@
             {% endif %}
         {% endif %}
 
+        {# This block looks for __most_recent_year_fr__ placeholder #}
+        {# French-language datasets partition on `annee` (INT64), not `ano`. #}
+        {% if "__most_recent_year_fr__" in where %}
+            {% set max_year_query = (
+                "select max(cast(annee as int64)) as max_year from "
+                ~ relation
+            ) %}
+            {% set max_year_result = run_query(max_year_query) %}
+            {% if execute and max_year_result.rows[0][0] %}
+                {% set max_year = max_year_result.rows[0][0] %}
+                {% set where = where | replace(
+                    "__most_recent_year_fr__", "annee = " ~ max_year
+                ) %}
+                {% do log(
+                    "The test will filter by the most recent year: "
+                    ~ max_year,
+                    info=True,
+                ) %}
+            {% endif %}
+        {% endif %}
+
         {# This block looks for __most_recent_date__  placeholder #}
         {% if "__most_recent_date__" in where %}
             {% set max_date_query = "select max(data) as max_date from " ~ relation %}

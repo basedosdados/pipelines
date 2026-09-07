@@ -1,0 +1,1076 @@
+---
+version: 2
+models:
+  - name: us_ed_nces_ccd__school
+    description: >-
+      Annual directory of every public elementary and secondary school in the United
+      States,
+      from the NCES Common Core of Data school universe survey. One row per NCES school
+      identifier and school year, with location, geography codes, school type and
+      level,
+      charter, magnet and virtual indicators, Title I status, grade span, full-time
+      equivalent
+      teachers, total enrollment and free and reduced-price lunch eligibility counts.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, school_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - direct_certification
+            - state_leg_district_lower
+            - state_leg_district_upper
+            - elem_cedp
+            - middle_cedp
+            - high_cedp
+            - ungrade_cedp
+            - title_i_schoolwide
+            - shared_time
+            - virtual
+            - csa_id
+            - bureau_indian_education
+            - title_i_status
+            - title_i_eligible
+            - magnet
+          config:
+            where: __most_recent_year_en__
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - state_id
+            - urban_centric_locale
+            - school_level
+            - school_type
+            - school_status
+            - lowest_grade_offered
+            - highest_grade_offered
+            - bureau_indian_education
+            - title_i_status
+            - title_i_eligible
+            - title_i_schoolwide
+            - charter
+            - magnet
+            - shared_time
+            - virtual
+            - elem_cedp
+            - middle_cedp
+            - high_cedp
+            - ungrade_cedp
+            - lunch_program
+          dictionary_model: ref('us_ed_nces_ccd__dicionario')
+    columns:
+      - name: year
+        description: >-
+          Fall year of the school year the record refers to (2020 denotes school year
+          2020-21)
+        tests: [not_null]
+      - name: school_id
+        description: >-
+          NCES school identification number (12 characters: 7-character LEAID followed
+          by a
+          5-digit school number)
+        tests: [not_null]
+      - name: agency_id
+        description: >-
+          NCES local education agency (school district) identification number, or
+          LEAID (7
+          characters: 2-digit state FIPS followed by a 5-digit agency number)
+      - name: state_id
+        description: >-
+          State FIPS code as reported by the CCD
+      - name: county_id
+        description: >-
+          County FIPS code (5 digits: state FIPS followed by the 3-digit county code)
+      - name: school_id_local
+        description: >-
+          NCES school number within the state (state FIPS followed by the school number)
+      - name: school_id_state
+        description: >-
+          School identification number assigned by the state education agency
+      - name: agency_id_state
+        description: >-
+          Local education agency identification number assigned by the state
+      - name: school_name
+        description: >-
+          School name
+      - name: agency_name
+        description: >-
+          Local education agency (school district) name
+      - name: cbsa_id
+        description: >-
+          OMB core-based statistical area code of the vintage in force in the school
+          year
+      - name: csa_id
+        description: >-
+          OMB combined statistical area code of the vintage in force in the school
+          year
+      - name: congressional_district_id
+        description: >-
+          State and congressional district identification number
+      - name: state_leg_district_lower
+        description: >-
+          State legislative district, lower chamber
+      - name: state_leg_district_upper
+        description: >-
+          State legislative district, upper chamber
+      - name: street_location
+        description: >-
+          Street of the location address
+      - name: city_location
+        description: >-
+          City of the location address
+      - name: state_location
+        description: >-
+          USPS state abbreviation of the location address
+      - name: zip_location
+        description: >-
+          ZIP code of the location address
+      - name: street_mailing
+        description: >-
+          Street of the mailing address
+      - name: city_mailing
+        description: >-
+          City of the mailing address
+      - name: state_mailing
+        description: >-
+          USPS state abbreviation of the mailing address
+      - name: zip_mailing
+        description: >-
+          ZIP code of the mailing address
+      - name: phone
+        description: >-
+          School telephone number
+      - name: latitude
+        description: >-
+          Latitude of the school in decimal degrees
+      - name: longitude
+        description: >-
+          Longitude of the school in decimal degrees
+      - name: urban_centric_locale
+        description: >-
+          Degree of urbanization (urban-centric locale) of the school location
+      - name: school_level
+        description: >-
+          School level
+      - name: school_type
+        description: >-
+          School type
+      - name: school_status
+        description: >-
+          Operational status of the school at the start of the school year
+      - name: lowest_grade_offered
+        description: >-
+          Lowest grade offered by the school
+      - name: highest_grade_offered
+        description: >-
+          Highest grade offered by the school
+      - name: bureau_indian_education
+        description: >-
+          Whether the school is funded or operated by the Bureau of Indian Education
+      - name: title_i_status
+        description: >-
+          Title I status of the school
+      - name: title_i_eligible
+        description: >-
+          Whether the school is eligible for Title I funding
+      - name: title_i_schoolwide
+        description: >-
+          Whether the school operates a schoolwide Title I program
+      - name: charter
+        description: >-
+          Whether the school is a charter school
+      - name: magnet
+        description: >-
+          Whether the school is a magnet school
+      - name: shared_time
+        description: >-
+          Whether the school operates on a shared-time basis with another school
+      - name: virtual
+        description: >-
+          Whether the school delivers instruction virtually
+      - name: elem_cedp
+        description: >-
+          Elementary school indicator derived by the Urban Institute Center on Education
+          Data and
+          Policy
+      - name: middle_cedp
+        description: >-
+          Middle school indicator derived by the Urban Institute Center on Education
+          Data and
+          Policy
+      - name: high_cedp
+        description: >-
+          High school indicator derived by the Urban Institute Center on Education
+          Data and Policy
+      - name: ungrade_cedp
+        description: >-
+          Ungraded school indicator derived by the Urban Institute Center on Education
+          Data and
+          Policy
+      - name: lunch_program
+        description: >-
+          National School Lunch Program participation status
+      - name: teachers_fte
+        description: >-
+          Full-time equivalent classroom teachers
+      - name: enrollment
+        description: >-
+          Total student enrollment reported in the school directory
+      - name: free_lunch
+        description: >-
+          Students eligible for a free lunch under the National School Lunch Act
+      - name: reduced_price_lunch
+        description: >-
+          Students eligible for a reduced-price lunch under the National School Lunch
+          Act
+      - name: free_or_reduced_price_lunch
+        description: >-
+          Students eligible for a free or reduced-price lunch under the National School
+          Lunch Act
+      - name: direct_certification
+        description: >-
+          Students eligible for a free lunch through direct certification
+  - name: us_ed_nces_ccd__school_district
+    description: >-
+      Annual directory of every public school district (local education agency) in
+      the United
+      States, from the NCES Common Core of Data agency universe survey. One row per
+      NCES LEAID
+      and school year, with location, geography codes, agency type and level, grade
+      span,
+      number of schools operated, total enrollment, and counts of special education,
+      English
+      learner and migrant students. Staff counts are published separately in the staff
+      table.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, agency_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - cmsa_id
+            - necta_id
+            - supervisory_union_number
+            - csa_id
+            - agency_charter_indicator
+            - bureau_indian_education
+            - spec_ed_students
+            - english_language_learners
+            - migrant_students
+          config:
+            where: __most_recent_year_en__
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - state_id
+            - cbsa_type
+            - urban_centric_locale
+            - agency_type
+            - agency_level
+            - agency_charter_indicator
+            - boundary_change_indicator
+            - bureau_indian_education
+            - lowest_grade_offered
+            - highest_grade_offered
+          dictionary_model: ref('us_ed_nces_ccd__dicionario')
+    columns:
+      - name: year
+        description: >-
+          Fall year of the school year the record refers to (2020 denotes school year
+          2020-21)
+        tests: [not_null]
+      - name: agency_id
+        description: >-
+          NCES local education agency (school district) identification number, or
+          LEAID (7
+          characters: 2-digit state FIPS followed by a 5-digit agency number)
+        tests: [not_null]
+      - name: state_id
+        description: >-
+          State FIPS code as reported by the CCD
+      - name: county_id
+        description: >-
+          County FIPS code (5 digits) of the agency's location
+      - name: agency_id_state
+        description: >-
+          Local education agency identification number assigned by the state
+      - name: agency_name
+        description: >-
+          Local education agency (school district) name
+      - name: county_name
+        description: >-
+          County name
+      - name: cbsa_id
+        description: >-
+          OMB core-based statistical area code of the vintage in force in the school
+          year
+      - name: cbsa_type
+        description: >-
+          Whether the core-based statistical area is metropolitan or micropolitan
+      - name: csa_id
+        description: >-
+          OMB combined statistical area code of the vintage in force in the school
+          year
+      - name: cmsa_id
+        description: >-
+          Consolidated metropolitan statistical area code (discontinued after 2003)
+      - name: necta_id
+        description: >-
+          New England city and town area code
+      - name: congressional_district_id
+        description: >-
+          State and congressional district identification number
+      - name: state_leg_district_lower
+        description: >-
+          State legislative district, lower chamber
+      - name: state_leg_district_upper
+        description: >-
+          State legislative district, upper chamber
+      - name: supervisory_union_number
+        description: >-
+          Supervisory union identification number, where the agency belongs to one
+      - name: street_location
+        description: >-
+          Street of the location address
+      - name: city_location
+        description: >-
+          City of the location address
+      - name: state_location
+        description: >-
+          USPS state abbreviation of the location address
+      - name: zip_location
+        description: >-
+          ZIP code of the location address
+      - name: zip4_location
+        description: >-
+          Four-digit ZIP code extension of the location address
+      - name: street_mailing
+        description: >-
+          Street of the mailing address
+      - name: city_mailing
+        description: >-
+          City of the mailing address
+      - name: state_mailing
+        description: >-
+          USPS state abbreviation of the mailing address
+      - name: zip_mailing
+        description: >-
+          ZIP code of the mailing address
+      - name: zip4_mailing
+        description: >-
+          Four-digit ZIP code extension of the mailing address
+      - name: phone
+        description: >-
+          Agency telephone number
+      - name: latitude
+        description: >-
+          Latitude of the agency in decimal degrees
+      - name: longitude
+        description: >-
+          Longitude of the agency in decimal degrees
+      - name: urban_centric_locale
+        description: >-
+          Degree of urbanization (urban-centric locale) of the agency location
+      - name: agency_type
+        description: >-
+          Type of local education agency
+      - name: agency_level
+        description: >-
+          Grade span served by the agency
+      - name: agency_charter_indicator
+        description: >-
+          Whether the agency operates charter schools
+      - name: boundary_change_indicator
+        description: >-
+          Whether the agency's boundary changed since the previous school year
+      - name: bureau_indian_education
+        description: >-
+          Whether the agency is funded or operated by the Bureau of Indian Education
+      - name: lowest_grade_offered
+        description: >-
+          Lowest grade offered by the agency
+      - name: highest_grade_offered
+        description: >-
+          Highest grade offered by the agency
+      - name: number_of_schools
+        description: >-
+          Schools operated by the agency
+      - name: enrollment
+        description: >-
+          Total student enrollment reported in the agency directory
+      - name: spec_ed_students
+        description: >-
+          Students served under the Individuals with Disabilities Education Act
+      - name: english_language_learners
+        description: >-
+          Students identified as English language learners
+      - name: migrant_students
+        description: >-
+          Students identified as migrant
+  - name: us_ed_nces_ccd__school_enrollment
+    description: >-
+      Public school enrollment counts in long format, one row per school, school year,
+      grade,
+      race or ethnicity and sex, from the NCES Common Core of Data school membership
+      file. The
+      source ships roughly 200 wide membership columns whose composition changes across
+      years;
+      they are reshaped here into a single count column. Marginal totals are retained
+      and
+      carry the code 99 on grade, race and sex, so the cells and their totals must
+      not be
+      summed together. Race and sex detail begins in 1998; earlier years carry totals
+      only.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, school_id, grade, race, sex]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [state_id, grade, race, sex]
+          dictionary_model: ref('us_ed_nces_ccd__dicionario')
+    columns:
+      - name: year
+        description: >-
+          Fall year of the school year the record refers to (2020 denotes school year
+          2020-21)
+        tests: [not_null]
+      - name: school_id
+        description: >-
+          NCES school identification number (12 characters: 7-character LEAID followed
+          by a
+          5-digit school number)
+        tests: [not_null]
+      - name: agency_id
+        description: >-
+          NCES local education agency (school district) identification number, or
+          LEAID (7
+          characters: 2-digit state FIPS followed by a 5-digit agency number)
+      - name: state_id
+        description: >-
+          State FIPS code as reported by the CCD
+      - name: grade
+        description: >-
+          Grade the enrollment count refers to
+        tests: [not_null]
+      - name: race
+        description: >-
+          Race or ethnicity the enrollment count refers to
+        tests: [not_null]
+      - name: sex
+        description: >-
+          Sex the enrollment count refers to
+        tests: [not_null]
+      - name: enrollment
+        description: >-
+          Students enrolled in the school in the given grade, race and sex cell
+  - name: us_ed_nces_ccd__staff
+    description: >-
+      Full-time equivalent staff of public school districts in long format, one row
+      per school
+      district, school year and staff category, from the NCES Common Core of Data
+      agency
+      universe survey. Categories cover teachers by grade span, instructional aides,
+      coordinators, guidance counselors, psychologists, librarians and administrative
+      and
+      support staff. Category totals are reported alongside their components and must
+      not be
+      summed together with them. Rows with no reported count are omitted.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, agency_id, staff_category]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [state_id, staff_category]
+          dictionary_model: ref('us_ed_nces_ccd__dicionario')
+    columns:
+      - name: year
+        description: >-
+          Fall year of the school year the record refers to (2020 denotes school year
+          2020-21)
+        tests: [not_null]
+      - name: agency_id
+        description: >-
+          NCES local education agency (school district) identification number, or
+          LEAID (7
+          characters: 2-digit state FIPS followed by a 5-digit agency number)
+        tests: [not_null]
+      - name: state_id
+        description: >-
+          State FIPS code as reported by the CCD
+      - name: staff_category
+        description: >-
+          Staff category the full-time equivalent count refers to
+        tests: [not_null]
+      - name: staff_fte
+        description: >-
+          Full-time equivalent staff in the category
+        tests: [not_null]
+  - name: us_ed_nces_ccd__district_finance
+    description: >-
+      Revenues, expenditures, salaries, employee benefits, debt and assets of public
+      school
+      districts, from the Census Bureau and NCES Annual Survey of School System Finances
+      (form
+      F-33). One row per school district and fiscal year, in nominal US dollars. Categories
+      that a given year's form did not collect are null; the CARES Act, CRRSA and
+      ARP relief
+      items exist only from 2019 onward.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, agency_id, census_id]
+          config:
+            where: agency_id is not null or census_id is not null
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - census_id
+            - rev_fed_arra
+            - exp_current_arra
+            - outlay_capital_arra
+            - rev_fed_state_math_sci_teach
+            - rev_fed_state_drug_free
+            - rev_cares_act_relief_serv
+            - rev_cares_act_relief_esf_rwp
+          config:
+            where: __most_recent_year_en__
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [state_id]
+          dictionary_model: ref('us_ed_nces_ccd__dicionario')
+    columns:
+      - name: year
+        description: >-
+          Fall year of the school year the record refers to (2020 denotes school year
+          2020-21)
+        tests: [not_null]
+      - name: agency_id
+        description: >-
+          NCES local education agency (school district) identification number, or
+          LEAID (7
+          characters: 2-digit state FIPS followed by a 5-digit agency number)
+      - name: state_id
+        description: >-
+          State FIPS code as reported by the CCD
+      - name: census_id
+        description: >-
+          US Census Bureau 14-digit government identification number
+      - name: enrollment_fall_responsible
+        description: >-
+          Students for which the reporting local education agency is financially responsible
+      - name: enrollment_fall_school
+        description: >-
+          Students enrolled in schools operated by the reporting local education agency
+      - name: rev_total
+        description: >-
+          Total revenue
+      - name: rev_fed_total
+        description: >-
+          Total federal revenue
+      - name: rev_fed_state_title_i
+        description: >-
+          Federal revenue through the state for Title I
+      - name: rev_fed_state_idea
+        description: >-
+          Federal revenue through the state for the Individuals with Disabilities
+          Education Act
+      - name: rev_fed_state_vocational
+        description: >-
+          Federal revenue through the state for vocational and tech education
+      - name: rev_fed_state_eff_instruction
+        description: >-
+          Federal revenue through state for effective instructional practices
+      - name: rev_fed_state_supp_ed
+        description: >-
+          Federal revenue through state to support student achievement
+      - name: rev_fed_state_supp_21st_lc
+        description: >-
+          Federal revenue through state to 21st century learning centers
+      - name: rev_fed_state_rural_lowinc_sch
+        description: >-
+          Federal revenue through state for rural low-income schools
+      - name: rev_fed_state_bilingual_ed
+        description: >-
+          Federal revenue through the state for bilingual education
+      - name: rev_fed_state_other
+        description: >-
+          Federal revenue through the state for other purposes
+      - name: rev_fed_child_nutrition_act
+        description: >-
+          Federal revenue through the state for the Child Nutrition Act
+      - name: rev_fed_nonspec
+        description: >-
+          Federal revenue for nonspecified purposes
+      - name: rev_fed_direct_impact_aid
+        description: >-
+          Direct federal revenue for impact aid
+      - name: rev_fed_direct_indian_ed
+        description: >-
+          Direct federal revenue for Indian Education
+      - name: rev_fed_direct_rural_achievement
+        description: >-
+          Federal revenue through state support small and rural district achievement
+      - name: rev_fed_direct_other
+        description: >-
+          Direct federal revenue for other purposes
+      - name: rev_state_total
+        description: >-
+          Total state revenue
+      - name: rev_state_gen_formula_assist
+        description: >-
+          State revenue from general formula assistance
+      - name: rev_state_staff_improve
+        description: >-
+          State revenue for staff improvement programs
+      - name: rev_state_special_ed
+        description: >-
+          State revenue for special education programs
+      - name: rev_state_compens_basic_ed
+        description: >-
+          State revenue for compensatory and basic skills programs
+      - name: rev_state_bilingual_ed
+        description: >-
+          State revenue for bilingual education
+      - name: rev_state_gifted_talented
+        description: >-
+          State revenue for gifted and talented programs
+      - name: rev_state_vocational_ed
+        description: >-
+          State revenue for vocational education programs
+      - name: rev_state_sch_lunch
+        description: >-
+          State revenue for school lunch programs
+      - name: rev_state_outlay_capital_debt
+        description: >-
+          State revenue for capital outlay and debt services programs
+      - name: rev_state_transportation
+        description: >-
+          State revenue for transportation programs
+      - name: rev_state_oth_prog
+        description: >-
+          State revenue for other programs
+      - name: rev_state_nonspec
+        description: >-
+          State revenue for nonspecified purposes
+      - name: rev_state_employee_benefits
+        description: >-
+          State revenue, on behalf of the local education agency, for employee benefits
+      - name: rev_state_not_employee_benefits
+        description: >-
+          State revenue, on behalf of the local education agency, for other benefits
+          than employee
+          benefits
+      - name: rev_local_total
+        description: >-
+          Total local revenue
+      - name: rev_local_parent_govt
+        description: >-
+          Local revenue from parent government contributions
+      - name: rev_local_prop_tax
+        description: >-
+          Local revenue from property taxes
+      - name: rev_local_sales_tax
+        description: >-
+          Local revenue from general sales taxes
+      - name: rev_local_utility_tax
+        description: >-
+          Local revenue from public utility taxes
+      - name: rev_local_income_tax
+        description: >-
+          Local revenue from individual and corporate income taxes
+      - name: rev_local_other_tax
+        description: >-
+          Local revenue from all other taxes
+      - name: rev_local_other_sch_systems
+        description: >-
+          Local revenue from other school systems
+      - name: rev_local_cities_counties
+        description: >-
+          Local revenue from cities and counties
+      - name: rev_local_tuition_fees
+        description: >-
+          Local revenue from tuition fees from pupils and parents
+      - name: rev_local_transportation_fees
+        description: >-
+          Local revenue from transportation fees from pupils and parents
+      - name: rev_local_sch_lunch
+        description: >-
+          Local revenue from school lunches
+      - name: rev_local_textbook_sales_rents
+        description: >-
+          Local revenue from textbook sales and rentals
+      - name: rev_local_dist_activ_receipts
+        description: >-
+          Local revenue from district activity receipts
+      - name: rev_local_student_fees_nonspec
+        description: >-
+          Local revenue from nonspecified student fees
+      - name: rev_local_oth_sales_serv
+        description: >-
+          Local revenue from other sales and services
+      - name: rev_local_rents_royalties
+        description: >-
+          Local revenue from rents and royalties
+      - name: rev_local_property_sale
+        description: >-
+          Local revenue from property sales
+      - name: rev_local_interest_earnings
+        description: >-
+          Local revenue from interest earnings
+      - name: rev_local_fines_forfeits
+        description: >-
+          Local revenue from fines and forfeits
+      - name: rev_local_private_contrib
+        description: >-
+          Local revenue from private contributions
+      - name: rev_local_misc
+        description: >-
+          Local revenue from miscellaneous sources
+      - name: rev_nces
+        description: >-
+          NCES local revenue, Census Bureau state revenue
+      - name: exp_total
+        description: >-
+          Total expenditures
+      - name: exp_current_elsec_total
+        description: >-
+          Total current expenditures for elementary and secondary education
+      - name: exp_current_instruction_total
+        description: >-
+          Total current expenditures for instruction
+      - name: exp_instruction
+        description: >-
+          Expenditures on instruction
+      - name: payments_private_schools
+        description: >-
+          Payments to private schools
+      - name: payments_charter_schools
+        description: >-
+          Payments to charter schools
+      - name: exp_current_supp_serve_total
+        description: >-
+          Total current expenditures for support services
+      - name: exp_current_pupils
+        description: >-
+          Current expenditures for pupil support services
+      - name: exp_current_instruc_staff
+        description: >-
+          Current expenditures for instructional staff support services
+      - name: exp_current_general_admin
+        description: >-
+          Current expenditures for general administration support services
+      - name: exp_current_sch_admin
+        description: >-
+          Current expenditures for school administration support services
+      - name: exp_current_operation_plant
+        description: >-
+          Current expenditures for support services for operation and maintenance
+          of plant
+      - name: exp_current_student_transport
+        description: >-
+          Current expenditures for student transportation support services
+      - name: exp_current_bco
+        description: >-
+          Current expenditures for business, central, and other support services
+      - name: exp_current_supp_serv_nonspec
+        description: >-
+          Current expenditures for support services for nonspecified purposes
+      - name: exp_current_other
+        description: >-
+          Total current expenditures for other elementary or secondary
+      - name: exp_current_food_serv
+        description: >-
+          Current expenditures for food services
+      - name: exp_current_enterprise
+        description: >-
+          Current expenditures for enterprise operations
+      - name: exp_current_other_elsec
+        description: >-
+          Current expenditures for other elementary or secondary school purposes
+      - name: exp_nonelsec
+        description: >-
+          Total non-elementary or secondary school expenditures
+      - name: exp_nonelsec_community_serv
+        description: >-
+          Non-elementary or secondary school expenditures for community services
+      - name: exp_nonelsec_adult_education
+        description: >-
+          Non-elementary or secondary school expenditures for adult education
+      - name: exp_nonelsec_other
+        description: >-
+          Non-elementary or secondary school expenditures for other purposes
+      - name: outlay_capital_total
+        description: >-
+          Total capital outlay expenditures
+      - name: outlay_capital_construction
+        description: >-
+          Capital outlay for construction
+      - name: outlay_capital_land_structures
+        description: >-
+          Capital outlay for land and existing structures
+      - name: outlay_capital_instruc_equip
+        description: >-
+          Capital outlay for instructional equipment
+      - name: outlay_capital_other_equip
+        description: >-
+          Capital outlay for other equipment
+      - name: outlay_capital_nonspec_equip
+        description: >-
+          Capital outlay for nonspecified equipment
+      - name: payments_state_govt
+        description: >-
+          Payments to state governments
+      - name: payments_local_govt
+        description: >-
+          Payments to local governments
+      - name: payments_other_sch_system
+        description: >-
+          Payments to other school systems
+      - name: debt_interest
+        description: >-
+          Interest on debt
+      - name: salaries_total
+        description: >-
+          Total salary amount
+      - name: salaries_instruction
+        description: >-
+          Salaries for instruction
+      - name: salaries_teachers_regular_prog
+        description: >-
+          Teacher salaries for regular education programs
+      - name: salaries_teachers_sped
+        description: >-
+          Teacher salaries for special education programs
+      - name: salaries_teachers_vocational
+        description: >-
+          Teacher salaries for vocational education programs
+      - name: salaries_teachers_other_ed
+        description: >-
+          Teacher salaries for other education programs
+      - name: salaries_supp_pupils
+        description: >-
+          Salaries for pupil support services
+      - name: salaries_supp_instruc_staff
+        description: >-
+          Salaries for instructional staff support services
+      - name: salaries_supp_general_admin
+        description: >-
+          Salaries for general administration support services
+      - name: salaries_supp_sch_admin
+        description: >-
+          Salaries for school administration support services
+      - name: salaries_supp_operation_plant
+        description: >-
+          Salaries for support services for operation and maintenance of plant
+      - name: salaries_supp_stud_transport
+        description: >-
+          Salaries for student transportation support services
+      - name: salaries_supp_bco
+        description: >-
+          Salaries for business, central, and other support services
+      - name: salaries_food_service
+        description: >-
+          Salaries for food services
+      - name: benefits_employee_total
+        description: >-
+          Total employee benefits (dollars)
+      - name: benefits_employee_instruction
+        description: >-
+          Employee benefits for instruction (dollars)
+      - name: benefits_supp_pupils
+        description: >-
+          Employee benefits for pupil support services (dollars)
+      - name: benefits_supp_instruc_staff
+        description: >-
+          Employee benefits for instructional staff support services (dollars)
+      - name: benefits_supp_general_admin
+        description: >-
+          Employee benefits for general administration support services (dollars)
+      - name: benefits_supp_sch_admin
+        description: >-
+          Employee benefits for school administration support services (dollars)
+      - name: benefits_supp_operation_plant
+        description: >-
+          Employee benefits for support services for operation and maintenance of
+          plant (dollars)
+      - name: benefits_supp_stud_transport
+        description: >-
+          Employee benefits for student transportation support services (dollars)
+      - name: benefits_supp_bco
+        description: >-
+          Employee benefits for business, central, and other support services (dollars)
+      - name: benefits_food_service
+        description: >-
+          Employee benefits for food services (dollars)
+      - name: benefits_enterprise_operations
+        description: >-
+          Employee benefits for enterprise operations (dollars)
+      - name: exp_textbooks
+        description: >-
+          Expenditures on textbooks
+      - name: debt_longterm_outstand_beg_fy
+        description: >-
+          Long-term debt outstanding at beginning of fiscal year
+      - name: debt_longterm_issued_fy
+        description: >-
+          Long-term debt issued during fiscal year
+      - name: debt_longterm_retired_fy
+        description: >-
+          Long-term debt retired during fiscal year
+      - name: debt_longterm_outstand_end_fy
+        description: >-
+          Long-term debt outstanding at end of fiscal year
+      - name: debt_shortterm_outstand_beg_fy
+        description: >-
+          Short-term debt outstanding at beginning of fiscal year
+      - name: debt_shortterm_outstand_end_fy
+        description: >-
+          Short-term debt outstanding at end of fiscal year
+      - name: assets_sinking_fund
+        description: >-
+          Assets in a sinking fund (dollars)
+      - name: assets_bond_fund
+        description: >-
+          Assets in a bond fund (dollars)
+      - name: assets_other
+        description: >-
+          Assets in other funds (dollars)
+      - name: exp_utilities_energy
+        description: >-
+          Expenditures for utilities and energy services
+      - name: exp_tech_supplies_services
+        description: >-
+          Expenditures for technology-related supplies and purchased services
+      - name: exp_tech_equipment
+        description: >-
+          Expenditures for technology-related equipment
+      - name: exp_current_state_local_funds
+        description: >-
+          Current expenditures from state and local funds
+      - name: exp_current_federal_funds
+        description: >-
+          Current expenditures from federal funds
+      - name: exp_current_resa
+        description: >-
+          Current expenditures made by regional education service agencies on behalf
+          of the local
+          education agency
+      - name: exp_sped_current
+        description: >-
+          Current special education expenditures
+      - name: exp_sped_instruction
+        description: >-
+          Current special education expenditures for instruction
+      - name: exp_sped_pupil_support_services
+        description: >-
+          Current special education expenditures for pupil support services
+      - name: exp_sped_staff_support_services
+        description: >-
+          Current special education expenditures for instructional support services
+      - name: exp_sped_trans_support_services
+        description: >-
+          Current special education expenditures for Transportation services
+      - name: rev_cares_act_relief_esser
+        description: >-
+          Federal CARES Act revenues (ESSER)
+      - name: rev_cares_act_relief_geer
+        description: >-
+          Federal CARES Act revenues (GEER)
+      - name: rev_cares_act_relief_esf_rem
+        description: >-
+          Federal CARES Act revenues (Education Stabilization Fund - Rethink K12 Models)
+      - name: rev_cares_act_relief_esf_rwp
+        description: >-
+          Federal CARES Act revenues (Education Stabilization Fund - Reimagine Workforce
+          Preparation)
+      - name: rev_cares_act_relief_serv
+        description: >-
+          Federal CARES Act revenues (Project School Emergency Response to Violence)
+      - name: rev_cares_act_relief_crf
+        description: >-
+          Federal CARES Act revenues (Coronavirus Relief Fund)
+      - name: exp_cares_act_current
+        description: >-
+          Expenditures using Federal COVID relief funds
+      - name: exp_cares_act_instruction
+        description: >-
+          Expenditures using Federal COVID relief funds on instruction
+      - name: exp_cares_act_support_services
+        description: >-
+          Expenditures using Federal COVID relief funds on support services
+      - name: exp_cares_act_outlay
+        description: >-
+          Expenditures using Federal COVID relief funds on capital outlay
+      - name: exp_cares_act_tech_service
+        description: >-
+          Expenditures using Federal COVID relief funds on Technology and related
+          support services
+      - name: exp_cares_act_tech_equipment
+        description: >-
+          Expenditures using Federal COVID relief funds on Technology and equipment
+      - name: rev_crrsa_esser_ii
+        description: >-
+          Federal CRRSA Act revenues (ESSER II)
+      - name: rev_arp_esser
+        description: >-
+          Federal ARP Act revenues (ESSER)
+      - name: rev_crrsa_geer_ii
+        description: >-
+          Federal CRRSA Act revenues (GEER II)
+      - name: rev_state_local_recovery_funds
+        description: >-
+          Revenue from State and Local COVID-19 Fiscal recovery measures
+      - name: exp_cares_act_tech_plant
+        description: >-
+          Expenditures using Federal COVID relief funds on PLANT maintenance
+      - name: exp_cares_act_food
+        description: >-
+          Expenditures using Federal COVID relief funds on Food Services
+      - name: rev_fed_state_math_sci_teach
+        description: >-
+          Federal revenue through the state for math, science, and teacher quality
+      - name: rev_fed_state_drug_free
+        description: >-
+          Federal revenue through the state for safe and drug-free schools
+      - name: rev_fed_arra
+        description: >-
+          Federal revenue from the American Recovery and Reinvestment Act
+      - name: exp_current_arra
+        description: >-
+          Current expenditures for the American Recovery and Reinvestment Act
+      - name: outlay_capital_arra
+        description: >-
+          Capital outlay for the American Recovery and Reinvestment Act
+  - name: us_ed_nces_ccd__dicionario
+    description: >-
+      Dictionary of the codes stored in the coded columns of the us_ed_nces_ccd tables,
+      with
+      the label each code stands for.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [cobertura_temporal]
+    columns:
+      - name: id_tabela
+        description: >-
+          Slug of the us_ed_nces_ccd table the dictionary entry describes
+        tests: [not_null]
+      - name: nome_coluna
+        description: >-
+          Name of the column the dictionary entry describes
+        tests: [not_null]
+      - name: chave
+        description: >-
+          Code stored in the column
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >-
+          Temporal coverage of the dictionary entry
+      - name: valor
+        description: >-
+          Label the code stands for
+        tests: [not_null]

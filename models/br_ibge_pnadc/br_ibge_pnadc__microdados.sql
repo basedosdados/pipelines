@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2012, "end": 2025, "interval": 1},
+            "range": {"start": 2012, "end": 2031, "interval": 1},
         },
         cluster_by="sigla_uf",
         labels={"tema": "economia"},

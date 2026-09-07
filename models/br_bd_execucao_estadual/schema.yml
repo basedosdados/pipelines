@@ -1,0 +1,683 @@
+---
+version: 2
+models:
+  - name: br_bd_execucao_estadual__despesa
+    description: >
+      Execução orçamentária dos governos estaduais brasileiros em nível de transação.
+      Cada
+      linha corresponde a um documento de empenho combinado a uma linha orçamentária,
+      com
+      os valores empenhado, liquidado e pago. Dados extraídos dos sistemas financeiros
+      estaduais (SIAFI/MG, e-Fisco/PE) e harmonizados em um esquema comum. Só entram
+      aqui
+      os estados cuja fonte publica o número do empenho, o credor e os valores na
+      mesma
+      linha; estados cuja fonte publica apenas agregados estão em despesa_mensal e
+      despesa_anual. A granularidade temporal varia por estado, e Pernambuco não publica
+      data nem mês, apenas o exercício, de modo que um filtro por mês exclui PE.
+    # Sem teste de unicidade, e isso é deliberado: a tabela não tem chave de linha. Em
+    # 2023 Minas Gerais publica 9,3% de linhas integralmente idênticas (mesmo empenho,
+    # documento, data e valor), o que a fonte permite. Não são multiplicação do modelo:
+    # code/validate_mg.py e code/validate_pe.py conferem contagem de linhas e somas de
+    # valor contra o staging bruto, e é essa conferência -- não um teste de unicidade --
+    # que protege contra fan-out de junção.
+    #
+    # O teste de proporção é restrito ao ano mais recente de propósito: ele varre TODAS
+    # as colunas, e a tabela tem 26 GB.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [id_licitacao_bd, id_licitacao, modalidade_licitacao]
+          config:
+            where: __most_recent_year__
+    columns:
+      - name: ano
+        description: Ano do exercício orçamentário ao qual a despesa pertence
+        tests: [not_null]
+      - name: mes
+        description: Mês de referência do movimento
+      - name: data
+        description: Data de emissão do empenho
+      - name: sigla_uf
+        description: Sigla da unidade da federação do governo estadual
+        tests: [not_null]
+      - name: orgao
+        description: Código do órgão ou unidade orçamentária responsável pela despesa
+      - name: nome_orgao
+        description: Nome do órgão ou unidade orçamentária
+      - name: id_unidade_gestora
+        description: Código da unidade gestora executora da despesa
+      - name: nome_unidade_gestora
+        description: Nome da unidade gestora executora da despesa
+      - name: id_empenho_bd
+        description: >
+          Identificador único do empenho construído pela Data Basis, no formato
+          <sigla_uf><ano>-<identificador de origem>
+      - name: id_empenho
+        description: Identificador do empenho no sistema de origem
+      - name: numero_empenho
+        description: Número da nota de empenho atribuído pela unidade executora
+      - name: tipo_empenho
+        description: Tipo do empenho, como ordinário, estimado ou global
+      - name: descricao
+        description: Descrição da finalidade do gasto informada na origem
+      - name: id_licitacao_bd
+        description: >
+          Identificador único do processo licitatório associado ao empenho, construído
+          pela Data Basis. Preenchido apenas quando a fonte publica o vínculo entre
+          licitação e empenho
+      - name: id_licitacao
+        description: Número do processo licitatório no sistema de origem
+      - name: modalidade_licitacao
+        description: Modalidade do processo de contratação que originou a despesa
+      - name: documento_credor
+        description: >
+          CPF ou CNPJ do credor. CPFs são divulgados de forma parcialmente mascarada
+          pela
+          fonte
+      - name: nome_credor
+        description: Nome ou razão social do credor
+      - name: tipo_documento_credor
+        description: Tipo do documento de identificação do credor
+      - name: funcao
+        description: Código da função de governo, conforme a classificação funcional
+      - name: subfuncao
+        description: Código da subfunção de governo, conforme a classificação funcional
+      - name: programa
+        description: Código do programa orçamentário
+      - name: acao
+        description: Código da ação orçamentária
+      - name: categoria_economica
+        description: Código da categoria econômica da despesa
+      - name: grupo_despesa
+        description: Código do grupo de natureza da despesa
+      - name: modalidade_aplicacao
+        description: Código da modalidade de aplicação dos recursos
+      - name: elemento_despesa
+        description: Código do elemento de despesa
+      - name: item_despesa
+        description: Código do item de despesa, detalhamento do elemento
+      - name: fonte_recurso
+        description: Código da fonte de recursos que financia a despesa
+      - name: tipo_documento
+        description: Tipo do documento contábil que registrou o movimento
+      - name: valor_empenhado
+        description: Valor empenhado em reais correntes
+      - name: valor_liquidado
+        description: Valor liquidado em reais correntes
+      - name: valor_pago
+        description: Valor pago em reais correntes
+  - name: br_bd_execucao_estadual__licitacao
+    description: >
+      Processos licitatórios e demais procedimentos de contratação realizados pelos
+      governos estaduais brasileiros. Uma linha por processo, com objeto, modalidade,
+      critério de julgamento, situação e os valores de referência e homologado. Liga-se
+      à
+      execução orçamentária pela tabela relacionamentos, quando a fonte publica o
+      vínculo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sigla_uf, id_licitacao_bd]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano de abertura do processo de contratação
+        tests: [not_null]
+      - name: mes
+        description: Mês de abertura do processo de contratação
+      - name: sigla_uf
+        description: Sigla da unidade da federação do governo estadual
+        tests: [not_null]
+      - name: orgao
+        description: Código do órgão ou entidade responsável pela contratação
+      - name: nome_orgao
+        description: Nome do órgão ou entidade responsável pela contratação
+      - name: id_licitacao_bd
+        description: >
+          Identificador único do processo licitatório construído pela Data Basis,
+          no
+          formato <sigla_uf>-<identificador de origem>
+      - name: id_licitacao
+        description: Número do processo licitatório no sistema de origem
+      - name: numero_licitacao
+        description: >
+          Número da licitação atribuído pelo estado, distinto do número do processo
+          de
+          aquisição. Publicado apenas pela Bahia
+      - name: data_abertura
+        description: Data de cadastro ou abertura do processo
+      - name: data_publicacao
+        description: Data de publicação do edital no diário oficial
+      - name: data_homologacao
+        description: Data de homologação do resultado do processo
+      - name: poder
+        description: Poder ao qual pertence o órgão solicitante
+      - name: forma_contratacao
+        description: Forma de contratação adotada, como licitação ou contratação direta
+      - name: categoria
+        description: Categoria do processo de aquisição atribuída pelo estado
+      - name: registro_preco
+        description: >
+          Indica se o processo é um registro de preços, em que uma licitação autoriza
+          compras parceladas ao longo de um período. Publicado apenas pela Bahia
+      - name: grupo
+        description: Grupo de materiais ou serviços objeto do processo
+      - name: processo_sei
+        description: Número do processo no sistema eletrônico de informações do estado
+      - name: descricao_objeto
+        description: Descrição do objeto da contratação
+      - name: modalidade
+        description: >
+          Procedimento de contratação, como pregão, concorrência, dispensa ou
+          inexigibilidade, no vocabulário da fonte
+      - name: tipo
+        description: Tipo da licitação, como menor preço ou melhor técnica
+      - name: criterio_julgamento
+        description: Critério de julgamento das propostas, por item ou por lote
+      - name: situacao
+        description: Situação do processo de contratação
+      - name: valor_referencia
+        description: Valor de referência estimado pelo órgão em reais correntes
+      - name: valor_homologado
+        description: Valor homologado ao final do processo em reais correntes
+      - name: url_edital
+        description: Endereço eletrônico do edital do processo
+  - name: br_bd_execucao_estadual__licitacao_item
+    description: >
+      Itens licitados pelos governos estaduais, com quantidade, unidade de medida,
+      preço
+      unitário de referência e preço unitário homologado, além do fornecedor vencedor
+      quando a fonte o publica na linha do item. O grão difere entre estados: na Bahia
+      é
+      uma linha por item numerado do processo; em Minas Gerais é uma linha por compra
+      de
+      um produto catalogado dentro do processo, e o mesmo produto pode aparecer mais
+      de
+      uma vez no mesmo processo, com fornecedor, lote ou preço diferentes.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sigla_uf, id_item_bd]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano de referência do item licitado
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação do governo estadual
+        tests: [not_null]
+      - name: id_licitacao_bd
+        description: Identificador único do processo licitatório construído pela Data
+          Basis
+      - name: id_licitacao
+        description: Número do processo licitatório no sistema de origem
+      - name: id_item_bd
+        description: >
+          Identificador único do item construído pela Data Basis. Na Bahia é
+          <sigla_uf>-<processo>-<sequência do item>; em Minas Gerais é
+          <sigla_uf>-<processo>-<produto catalogado>-<ocorrência>, porque a fonte
+          não
+          numera os itens e o mesmo produto pode ser comprado mais de uma vez no mesmo
+          processo
+      - name: id_item
+        description: >
+          Número do item dentro do processo, conforme a fonte. Nulo em Minas Gerais,
+          que
+          não publica numeração de item
+      - name: descricao
+        description: Descrição do material ou serviço licitado
+      - name: codigo_catalogo
+        description: Código do item no catálogo de materiais e serviços do estado
+      - name: grupo_material_servico
+        description: Grupo do material ou serviço no catálogo do estado
+      - name: classe_material_servico
+        description: Classe do material ou serviço no catálogo do estado
+      - name: item_despesa
+        description: >
+          Código do item de despesa a que o item licitado pertence, no mesmo espaço
+          de
+          códigos de despesa.item_despesa. Preenchido apenas em Minas Gerais
+      - name: unidade_medida
+        description: Unidade de medida em que o item foi cotado
+      - name: data_homologacao
+        description: Data de homologação do item
+      - name: quantidade
+        description: Quantidade solicitada do item
+      - name: valor_unitario_referencia
+        description: Preço unitário de referência estimado pelo órgão em reais correntes
+      - name: valor_referencia
+        description: Valor total de referência do item em reais correntes
+      - name: valor_unitario
+        description: Preço unitário homologado em reais correntes
+      - name: valor_total
+        description: Valor total homologado do item em reais correntes
+      - name: valor_atualizado
+        description: Valor total do item atualizado em reais correntes
+      - name: documento_vencedor
+        description: CPF ou CNPJ do fornecedor vencedor
+      - name: nome_vencedor
+        description: Nome ou razão social do fornecedor vencedor
+      - name: tipo_documento_vencedor
+        description: Tipo do documento de identificação do fornecedor vencedor
+  - name: br_bd_execucao_estadual__pagamento
+    description: >
+      Pagamentos dos governos estaduais no nível do documento de pagamento (ordem
+      bancária). Uma linha por lançamento, com data, valor, credor e o vínculo com
+      o
+      empenho. Equivale à tabela pagamento do MiDES e existe apenas para Pernambuco,
+      a
+      única fonte do conjunto que publica execução em nível de documento de pagamento.
+      Uma mesma ordem bancária paga vários empenhos. A soma de valor_pago não equivale
+      a
+      despesa.valor_pago: aquela é o total pago do empenho no exercício, esta traz
+      cada
+      ordem bancária, incluindo lançamentos devolvidos e cancelados.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sigla_uf, id_pagamento_bd]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano do exercício em que o pagamento foi lançado
+        tests: [not_null]
+      - name: mes
+        description: Mês do lançamento do pagamento
+      - name: data
+        description: Data do lançamento do pagamento
+      - name: sigla_uf
+        description: Sigla da unidade da federação do governo estadual
+        tests: [not_null]
+      - name: id_pagamento_bd
+        description: >
+          Identificador único do pagamento construído pela Data Basis, no formato
+          <sigla_uf>-<ordem bancária>-<sequência dentro da ordem>, porque uma ordem
+          bancária paga vários empenhos e não identifica a linha sozinha. Vinte linhas
+          de 2025 não têm ordem bancária, apenas empenho e valor, e recebem o marcador
+          SEMOB no lugar do número
+      - name: numero_ordem_bancaria
+        description: Número da ordem bancária que efetuou o pagamento
+      - name: id_empenho_bd
+        description: >
+          Identificador do empenho pago, no mesmo formato de despesa.id_empenho_bd,
+          para
+          ligar o pagamento à execução orçamentária
+      - name: numero_empenho
+        description: Número da nota de empenho paga
+      - name: situacao
+        description: >
+          Situação da ordem bancária. Nem toda linha é dinheiro que saiu do tesouro:
+          além de PAGA, ocorrem DEVOLVIDA, CANCELADA, DEVOLVIDA APOS PAGTO, AJUSTADA,
+          ENVIADA e GERADA
+      - name: nome_unidade_gestora
+        description: Nome da unidade gestora que emitiu a ordem bancária
+      - name: documento_credor
+        description: >
+          CPF ou CNPJ de quem recebeu a ordem bancária, apenas a parte anterior ao
+          nome. Nem sempre é um documento: o estado emite pseudocódigos para
+          beneficiários sem CNPJ
+      - name: nome_credor
+        description: Nome ou razão social de quem recebeu a ordem bancária
+      - name: documento_credor_empenho
+        description: >
+          CPF ou CNPJ do credor nomeado no empenho, que difere do credor da ordem
+          bancária em cerca de metade das linhas
+      - name: nome_credor_empenho
+        description: Nome ou razão social do credor nomeado no empenho
+      - name: descricao
+        description: Finalidade do pagamento informada na ordem bancária
+      - name: valor_pago
+        description: Valor da ordem bancária em reais correntes
+  - name: br_bd_execucao_estadual__relacionamentos
+    description: >
+      Ponte entre processos licitatórios e empenhos. Existe apenas onde a fonte publica
+      o
+      vínculo de forma explícita. A relação é de muitos para muitos: um processo pode
+      gerar
+      vários empenhos.
+    # A ponte é única em todas as suas colunas -- nenhuma linha repetida entre as
+    # 1.292.948. Como nada aqui é deduplicado de propósito (a relação é muitos para
+    # muitos), o teste cobre a linha inteira: qualquer repetição indicaria multiplicação
+    # por junção, não um vínculo legítimo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - sigla_uf
+            - id_licitacao_bd
+            - id_licitacao_origem
+            - id_empenho
+            - numero_empenho
+            - instrumento_orcamentario
+            - dotacao_orcamentaria
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: sigla_uf
+        description: Sigla da unidade da federação do governo estadual
+        tests: [not_null]
+      - name: id_licitacao_bd
+        description: Identificador único do processo licitatório construído pela Data
+          Basis
+      - name: id_licitacao_origem
+        description: Identificador do processo licitatório no sistema de origem
+      - name: id_empenho
+        description: >
+          Identificador interno do empenho no sistema de origem. Preenchido por Minas
+          Gerais, que publica o vínculo diretamente
+      - name: numero_empenho
+        description: >
+          Número do empenho no sistema orçamentário do estado. Preenchido pela Bahia,
+          que
+          não possui identificador interno e liga o processo ao empenho pelo instrumento
+          orçamentário
+      - name: instrumento_orcamentario
+        description: >
+          Número do instrumento orçamentário que liga o item da licitação ao empenho,
+          na
+          Bahia
+      - name: dotacao_orcamentaria
+        description: Dotação orçamentária que vincula o processo ao empenho
+  - name: br_bd_execucao_estadual__dicionario
+    description: >
+      Dicionário de valores codificados das demais tabelas. O par formado por estado
+      e
+      código é a chave: os códigos não são comparáveis entre estados, exceto função
+      e
+      subfunção, que seguem a classificação funcional federal.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - sigla_uf
+            - id_tabela
+            - nome_coluna
+            - chave
+            - valor
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: Nome da tabela à qual a coluna codificada pertence
+      - name: sigla_uf
+        description: Sigla da unidade da federação a que o código se refere
+        tests: [not_null]
+      - name: nome_coluna
+        description: Nome da coluna codificada
+      - name: chave
+        description: Valor da chave codificada presente na coluna
+      - name: valor
+        description: Descrição do valor da chave codificada
+      - name: cobertura_temporal
+        description: >-
+          Intervalo de exercícios em que aquele rótulo esteve vigente, na notação
+          inicio(intervalo)fim
+  - name: br_bd_execucao_estadual__despesa_mensal
+    description: >
+      Execução orçamentária mensal por linha orçamentária, para estados cuja fonte
+      publica
+      os valores sem identificar o credor. Uma linha por mês, dotação e unidade executora,
+      com dotação inicial e atual, empenhado, liquidado e pago. Não confundir com
+      despesa,
+      que é em nível de documento, nem com despesa_anual, que é anual e traz o credor.
+    # A dotação não identifica a linha: 4,3% das linhas repetem a combinação abaixo com
+    # valores diferentes, porque a fonte publica mais de um lançamento para a mesma
+    # dotação no mesmo mês. A tolerância existe para isso; o teste ainda pega uma
+    # multiplicação grosseira por junção.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns:
+            - sigla_uf
+            - ano
+            - mes
+            - dotacao_orcamentaria
+            - id_unidade_gestora
+          proportion_allowed_failures: 0.06
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano do exercício orçamentário
+        tests: [not_null]
+      - name: mes
+        description: Mês do exercício orçamentário
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação do governo estadual
+        tests: [not_null]
+      - name: orgao
+        description: Código do órgão orçamentário
+      - name: nome_orgao
+        description: Nome do órgão orçamentário
+      - name: unidade_orcamentaria
+        description: Código da unidade orçamentária
+      - name: nome_unidade_orcamentaria
+        description: Nome da unidade orçamentária
+      - name: id_unidade_gestora
+        description: Código da unidade gestora executora da despesa
+      - name: nome_unidade_gestora
+        description: Nome da unidade gestora executora da despesa
+      - name: poder
+        description: Poder ao qual o órgão pertence
+      - name: dotacao_orcamentaria
+        description: Número da conta de dotação orçamentária anual
+      - name: funcao
+        description: Código da função de governo
+      - name: subfuncao
+        description: Código da subfunção de governo
+      - name: programa
+        description: Código do programa de governo
+      - name: acao
+        description: Código da ação de governo
+      - name: categoria_economica
+        description: Código da categoria econômica da despesa
+      - name: grupo_despesa
+        description: Código do grupo de natureza da despesa
+      - name: modalidade_aplicacao
+        description: Código da modalidade de aplicação dos recursos
+      - name: elemento_despesa
+        description: Código do elemento de despesa
+      - name: subelemento_despesa
+        description: Código do subelemento de despesa
+      - name: fonte_recurso
+        description: Código da fonte de recursos
+      - name: destinacao_recurso
+        description: Código da destinação de recursos
+      - name: regiao
+        description: Código da região orçamentária de aplicação
+      - name: valor_dotacao_inicial
+        description: Valor da dotação inicial em reais correntes
+      - name: valor_dotacao_atual
+        description: Valor da dotação atualizada em reais correntes
+      - name: valor_empenhado
+        description: Valor empenhado no mês em reais correntes
+      - name: valor_liquidado
+        description: Valor liquidado no mês em reais correntes
+      - name: valor_pago
+        description: Valor pago no mês em reais correntes
+      - name: valor_descentralizacao_recebida
+        description: Valor recebido por descentralização em reais correntes
+      - name: valor_descentralizacao_concedida
+        description: Valor concedido por descentralização em reais correntes
+  - name: br_bd_execucao_estadual__despesa_anual
+    description: >
+      Execução orçamentária anual por credor e linha orçamentária, para estados cuja
+      fonte publica apenas agregados anuais. Uma linha por exercício, órgão, unidade
+      gestora, fonte de recursos, credor e natureza da despesa, com empenhado,
+      liquidado, pago e pago de restos a pagar. Existe porque São Paulo não publica
+      número de documento nem data infra-anual. Não confundir com despesa, que é em
+      nível de documento, nem com despesa_mensal, que é mensal e não traz credor.
+    # 0,04% das linhas repetem a combinação abaixo com valores diferentes: o SIGEO
+    # devolve mais de uma linha para a mesma dotação quando o detalhe que as separa não
+    # está entre as colunas exportadas. Nenhuma linha é idêntica em todas as colunas.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns:
+            - sigla_uf
+            - ano
+            - orgao
+            - id_unidade_gestora
+            - fonte_recurso
+            - documento_credor
+            - natureza_despesa
+          proportion_allowed_failures: 0.01
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano do exercício orçamentário
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação do governo estadual
+        tests: [not_null]
+      - name: orgao
+        description: Código do órgão orçamentário
+      - name: nome_orgao
+        description: Nome do órgão orçamentário
+      - name: id_unidade_gestora
+        description: Código da unidade gestora executora da despesa
+      - name: nome_unidade_gestora
+        description: Nome da unidade gestora executora da despesa
+      - name: fonte_recurso
+        description: Código da fonte de recursos
+      - name: nome_fonte_recurso
+        description: Nome da fonte de recursos
+      - name: natureza_despesa
+        description: >
+          Código da natureza da despesa, com oito dígitos reunindo categoria econômica,
+          grupo, modalidade de aplicação, elemento e subelemento. Mais detalhado que
+          a
+          coluna elemento_despesa das demais tabelas
+      - name: nome_natureza_despesa
+        description: Nome da natureza da despesa
+      - name: documento_credor
+        description: >
+          CPF ou CNPJ do credor. São Paulo publica os CPF sem máscara, diferentemente
+          de
+          Minas Gerais, que os oculta, e de Pernambuco, que os mascara
+      - name: nome_credor
+        description: Nome ou razão social do credor
+      - name: tipo_documento_credor
+        description: >
+          Tipo do identificador do credor, derivado do seu formato: CNPJ, CPF,
+          UNIDADE_GESTORA ou OUTRO
+      - name: valor_empenhado
+        description: Valor empenhado em reais correntes
+      - name: valor_liquidado
+        description: Valor liquidado em reais correntes
+      - name: valor_pago
+        description: Valor pago em reais correntes
+      - name: valor_pago_restos
+        description: >
+          Valor pago no exercício referente a restos a pagar de exercícios anteriores,
+          mantido separado de valor_pago para não duplicar a contagem no ano do empenho
+  - name: br_bd_execucao_estadual__empenho_credor
+    description: >
+      Empenhos e seus credores, sem valores. Existe para estados cuja fonte publica
+      o
+      credor em uma base separada da base de valores, sem chave que permita atribuir
+      valor
+      a credor. Permite saber quem foi empenhado, quando e sob qual instrumento
+      orçamentário, mas não quanto.
+    # 1,7% das linhas repetem (empenho, credor): a fonte lança o mesmo empenho mais de
+    # uma vez para o mesmo credor, em pedidos distintos. Nenhuma linha é idêntica em
+    # todas as colunas.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [sigla_uf, ano, numero_empenho, id_credor]
+          proportion_allowed_failures: 0.03
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano do exercício orçamentário
+        tests: [not_null]
+      - name: mes
+        description: Mês do pedido de empenho
+      - name: sigla_uf
+        description: Sigla da unidade da federação do governo estadual
+        tests: [not_null]
+      - name: numero_empenho
+        description: Número do empenho no sistema orçamentário do estado
+      - name: instrumento_orcamentario
+        description: Número do instrumento orçamentário que originou o empenho
+      - name: tipo_empenho
+        description: Código do tipo de empenho
+      - name: tipo_despesa
+        description: Código do tipo de despesa
+      - name: id_credor
+        description: Código do credor no sistema de origem
+      - name: nome_credor
+        description: Nome ou razão social do credor
+      - name: documento_credor_formatado
+        description: CPF ou CNPJ do credor com máscara, como publicado pela fonte
+      - name: documento_credor
+        description: CPF ou CNPJ do credor apenas com dígitos
+      - name: data_pedido
+        description: Data do pedido de empenho
+      - name: data_autorizacao
+        description: Data e hora da autorização do empenho
+      - name: processo_sei
+        description: Número do processo no sistema eletrônico de informações
+      - name: dotacao_orcamentaria
+        description: >
+          Chave de dotação orçamentária do empenho. Não permite atribuir valores por
+          credor: há cerca de seis empenhos por dotação
+  - name: br_bd_execucao_estadual__licitacao_participante
+    description: >
+      Participantes de licitações estaduais. Uma linha por item e fornecedor, com
+      o valor
+      cotado, o valor homologado e a situação do fornecedor naquele item. Inclui os
+      fornecedores derrotados, o que permite medir concorrência.
+    # 0,16% das linhas repetem (item, fornecedor) -- o mesmo fornecedor cotando duas
+    # vezes o mesmo item -- e 238 linhas são idênticas em todas as colunas, na fonte.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [sigla_uf, id_item_bd, documento]
+          proportion_allowed_failures: 0.01
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano do processo de aquisição
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação do governo estadual
+        tests: [not_null]
+      - name: id_licitacao_bd
+        description: Identificador único do processo licitatório construído pela Data
+          Basis
+      - name: id_item_bd
+        description: Identificador único do item construído pela Data Basis
+      - name: id_item
+        description: Número do item dentro do processo
+      - name: razao_social
+        description: Nome ou razão social do fornecedor participante
+      - name: documento_formatado
+        description: CPF ou CNPJ do fornecedor com máscara, como publicado pela fonte
+      - name: documento
+        description: CPF ou CNPJ do fornecedor apenas com dígitos
+      - name: situacao
+        description: >
+          Situação do fornecedor naquele item, como classificado, desclassificado
+          ou
+          habilitado
+      - name: vencedor
+        description: >
+          Indica se o fornecedor venceu o item, conforme a situação publicada pela
+          fonte.
+          Não é inferido a partir do valor homologado: 84% das linhas marcadas como
+          Perdedor também trazem valor homologado positivo, porque a coluna registra
+          o
+          valor do item e não o que aquele fornecedor recebeu
+      - name: quantidade
+        description: Quantidade pedida do item
+      - name: valor_unitario_cotado
+        description: Valor unitário cotado pelo fornecedor em reais correntes
+      - name: valor_total_cotado
+        description: Valor total cotado pelo fornecedor em reais correntes
+      - name: valor_unitario_homologado
+        description: Valor unitário homologado ao fornecedor em reais correntes
+      - name: valor_total_homologado
+        description: Valor total homologado ao fornecedor em reais correntes
+      - name: categoria
+        description: Categoria do processo de aquisição

@@ -23,7 +23,7 @@ pública **em vigor**.
 
 ## Decisões
 
-As cinco decisões abaixo estão fechadas.
+As quatro decisões abaixo estão fechadas.
 
 ### 1. `dataset_id`: `br_sedec_desastres` × o `s2id` que já existe
 
@@ -64,9 +64,11 @@ a fonte só mostra o presente: no primeiro run a tabela tem um dia de história,
 série cresce a partir dele.
 
 **O guarda do poll exige tratamento específico.** `poll_source_for_update_task`
-compara a data máxima da fonte com o `Update` registrado, para não reingerir dado
-que não mudou. Numa série de retratos, todo run produz linhas novas — outra
-`data_extracao` — e a fonte não publica data de referência. Ver a decisão 4.
+compara a data máxima da fonte com o fim do `Coverage.DateTimeRange` da tabela, para
+não reingerir dado que não mudou. Numa série de retratos a fonte não publica data de
+referência, então o que alimenta a comparação é a `data_extracao` estampada por
+`clean_all` — a mesma coluna declarada no `_COVERAGE`, o que deixa os dois lados
+sendo data de retrato: um retrato novo passa, um segundo run no mesmo dia não.
 
 ### 3. Frequência: mensal
 
@@ -100,34 +102,7 @@ recente restringiria ao BD Pro o **estado atual** dos reconhecimentos e liberari
 apenas os retratos com mais de seis meses. Em termos de registro, isso significa uma
 Coverage, `is_closed=False`, e nenhuma Row Access Policy.
 
-### 4. O que alimenta o poll — a `data_extracao`, com o guarda mantido
-
-`poll_source_for_update_task` compara a data máxima da fonte com o
-`Table.Update.latest` e, se não houver novidade, o flow retorna sem materializar.
-O flow mantém esse guarda.
-
-O `max_date` que alimenta a comparação é a própria `data_extracao` estampada por
-`clean_all`, e não um `date.today()` recalculado no flow, que divergiria se o run
-atravessasse a meia-noite.
-
-O guarda não congela esta tabela, ao contrário do que ocorre em séries de cobertura
-defasada como a do `br_ibge_ipca`. O `Table.Update.latest` é escrito por
-`register_table_materialization` como o `bq.last_modified` da tabela, isto é, um
-relógio; o congelamento acontece quando o `max_date` é uma data de cobertura sempre
-anterior a esse relógio. Aqui a `data_extracao` é estampada no momento do run, então
-no run seguinte ela é posterior ao `last_modified` do anterior. Como
-`MetadataClient._read_update_latest` trunca o valor em `[:10]` e devolve `date`, a
-comparação é `date × date`, e o guarda só bloqueia um segundo run no mesmo dia.
-
-O primeiro run é destravado pelo metadado, não pelo código: o `Table.Update.latest`
-está em `2026-08-05`, anterior à `data_extracao` de qualquer run. Ele passa a ser um
-relógio de materialização depois do primeiro run de prod com `update_metadata=True`.
-
-O poll é chamado sem condição e está pinado em `env="prod"`. Um run com
-`update_metadata=false` também depende do backend de produção, e falha nessa task se
-ele estiver indisponível.
-
-### 5. Onde fica o join do município: no dbt
+### 4. Onde fica o join do município: no dbt
 
 A fonte dá o **nome** do município, e a convenção exige `id_municipio` com FK
 para o diretório.
@@ -146,8 +121,8 @@ Consequências no código:
 - o `not_null` em `id_municipio` no `schema.yml` é o que impede perda silenciosa,
   porque o `left join` devolve NULL para quem não casar.
 
-A taxa de casamento medida, as seis exceções na forma do `case` e o caso do acento
-grave estão no roadmap da task, Etapa 4.
+As seis exceções e o tratamento do acento grave estão no `case` do próprio `.sql`,
+detalhados na seção "O join do município" abaixo.
 
 ## O modelo dbt
 
@@ -273,8 +248,8 @@ diretórios de outros países. Arquitetura commitada, script de limpeza local e
 
 Em consequência:
 
-- **a planilha de arquitetura fica em `task_davi/bndes/`**, em **xlsx** (o padrão),
-  fora do repo, com uma cópia como Planilha Google no Drive, exigida pelo
+- **a planilha de arquitetura não é versionada**, em **xlsx** (o padrão), com uma
+  cópia como Planilha Google no Drive, exigida pelo
   `upload_columns_from_sheet` (ver Metadados). Como o código não pode lê-la, o schema
   (ordem, tipos, `original_name`) vive em `constants.COLUNAS`, e toda alteração na
   planilha precisa ser refletida lá;

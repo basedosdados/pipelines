@@ -1,0 +1,124 @@
+{
+  "env": "prod",
+  "dataset_id": "2ae9ce23-150e-4839-bf58-52b1226a2e6b",
+  "dataset_slug": "college_scorecard",
+  "organization_id": "b1058375-2429-474e-aab4-24ce1a172b70",
+  "theme_id": "011ab0e3-d5b3-47c8-807f-81c07897fe12",
+  "raw_data_source_id": "fc8c660f-29ed-4b14-8e18-1eacd4c69662",
+  "account_id": "4",
+  "area_us_id": "61a2c232-c649-4b41-a5a3-1467b7393e11",
+  "entity": {
+    "year": "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "higher_education_institution": "b39d2987-cace-44c8-8534-ada54cce9063",
+    "degree": "d5850ee7-7610-4aa5-816f-0468afa52d6e"
+  },
+  "status": {
+    "under_review": "47208305-325a-4da9-9222-ac6849405b78",
+    "published": "e16221de-ac30-4926-83d3-de219998dab3"
+  },
+  "license_cc0": "afd7b13d-98f5-4023-9cb3-e9b91b1962ca",
+  "availability_online": "dd396d7d-0264-4c1f-bf0d-6efe2dc89cbe",
+  "tables": {
+    "institution": "2d676e15-1230-4cac-9fc6-388fc904a410",
+    "field_of_study": "43e0a7e7-a754-46bf-8975-1c54e4878a37",
+    "earnings": "40886f21-201e-4711-9e9c-ffb03ec8be35",
+    "cost": "8c67ea2c-53e3-4bc3-b88c-f8258f9c6d7e",
+    "aid_debt": "a0bbad6c-5d79-4160-91dd-00614f5565b1",
+    "completion": "90b7d4ca-515e-4453-922b-189d352fd21e",
+    "repayment": "b76f7408-8786-4b50-b104-030e10856688",
+    "academics": "ee254505-9705-4921-bb80-14e18867b8e8",
+    "student_body": "6bb23885-4a8d-43ce-bdcf-1576a2955cee",
+    "variable": "0a4a460b-21cf-480a-ac62-857b4e9ef060",
+    "dicionario": "35082137-03b1-4414-b1fd-56a1a74856d0"
+  },
+  "coverage_years": {
+    "institution": [
+      1996,
+      2025
+    ],
+    "field_of_study": [
+      2015,
+      2022
+    ],
+    "earnings": [
+      2003,
+      2022
+    ],
+    "cost": [
+      1996,
+      2024
+    ],
+    "aid_debt": [
+      1997,
+      2024
+    ],
+    "completion": [
+      1997,
+      2024
+    ],
+    "repayment": [
+      1996,
+      2025
+    ],
+    "academics": [
+      1996,
+      2025
+    ],
+    "student_body": [
+      1996,
+      2025
+    ]
+  },
+  "observation_levels": {
+    "academics": {
+      "year": "822841ab-2c5b-4309-8beb-1a51105b9c75",
+      "higher_education_institution": "e0f91688-4010-4634-9941-20c8d42e31fc"
+    },
+    "aid_debt": {
+      "year": "c2d43d39-f42a-452a-9b2b-2183b8ef906d",
+      "higher_education_institution": "6477328d-c088-43d7-860c-35422fc74be3"
+    },
+    "completion": {
+      "year": "5150e379-e54a-47cf-b8b0-87a00dcdc418",
+      "higher_education_institution": "d5dc8da2-7b25-4a81-81b3-82225b9f9007"
+    },
+    "cost": {
+      "year": "c6b6b66c-4b29-400e-b6a9-f8f8b39d9372",
+      "higher_education_institution": "0ca8bee2-7a8f-47cc-aaff-802750ea504b"
+    },
+    "earnings": {
+      "year": "f29e75ad-fb0b-44a8-99f2-c348b2c2096d",
+      "higher_education_institution": "d5dc172e-f9a9-411f-b87a-15c0f90a785c"
+    },
+    "repayment": {
+      "year": "bd2f95ff-b086-4c3c-93bd-bf6f8dba628c",
+      "higher_education_institution": "961aa225-77d6-40e4-b5af-de1796f8858f"
+    },
+    "student_body": {
+      "year": "5e625404-c2e7-4592-a127-ae92afa82212",
+      "higher_education_institution": "308cce8d-8e5f-4a78-8928-9c1a4e113c09"
+    },
+    "institution": {
+      "year": "cf51e724-e925-417b-bd04-ba3c745d79bb",
+      "higher_education_institution": "03c9d440-d509-4799-9845-05aae031e026"
+    },
+    "field_of_study": {
+      "year": "16ea86d1-bc59-4f97-b7f8-27792d2292c9",
+      "higher_education_institution": "011f7bdd-9817-4456-8c30-76e2834f9edc",
+      "degree": "e6ba1804-3c44-4f8f-a049-9f7eeced680b"
+    }
+  },
+  "table_order": [
+    "institution",
+    "field_of_study",
+    "academics",
+    "student_body",
+    "cost",
+    "aid_debt",
+    "completion",
+    "repayment",
+    "earnings",
+    "variable",
+    "dicionario"
+  ]
+}

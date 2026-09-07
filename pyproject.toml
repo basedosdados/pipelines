@@ -28,6 +28,7 @@ dependencies = [
   "distributed==2021.11.2",
   "docker>=6,<7",
   "docopt==0.6.2",
+  "duckdb>=1.0,<2.0",
   "fake-useragent<2.0.0,>=1.1.3",
   "fsspec>=2022.5.0",
   "google-analytics-data==0.17.0",
@@ -212,11 +213,28 @@ build-backend = "hatchling.build"
 project-excludes = [
   "pipelines/{{cookiecutter.pipeline_name}}",
   "models/br_tse_eleicoes/code",
+  "models/us_noaa_storm_events/code",
   "models/us_harvard_cbdb/code",
   "models/us_cfpb_hmda/code",
   "models/world_aiddata_gcdf/code",
   "models/us_fed_fred/code",
   "models/br_senado_dados_abertos_administrativos/code",
+  # Same policy: the us_stanford_dime onboarding scripts are standalone `.py`
+  # using bare sys.path-relative imports (`import architecture`, `import clean`)
+  # that pyrefly cannot resolve from the repo root.
+  "models/us_stanford_dime/code",
+  # Same policy for the us_irs_form990 one-shot onboarding scripts.
+  "models/us_irs_form990/code",
+  # Same policy: the us_cfpb_complaints onboarding scripts are standalone `.py`
+  # run from their own directory with bare sibling imports (`from common import
+  # ...`), which pyrefly cannot resolve from the repo root.
+  "models/us_cfpb_complaints/code",
+  # Same policy for the us_fema_openfema build scripts: they are standalone
+  # `.py` run from their own directory, importing sibling modules by bare name
+  # (`import glossary`, `import tables`, `import legends`), which pyrefly
+  # cannot resolve from the repo root. The pure transform they share lives in
+  # pipelines/datasets/us_fema_openfema/ and is checked normally.
+  "models/us_fema_openfema/code",
   # Same policy: br_sfb_sicar onboarding code is standalone `.py` (architecture.py,
   # gen_*.py, bootstrap_clean.py use bare `import architecture`/`import clean`,
   # sys.path-relative), unresolvable from the repo root. The pure transform is
@@ -233,9 +251,24 @@ project-excludes = [
   # unresolvable from the repo root. One-shot onboarding code, not the typed
   # `pipelines/` framework, consistent with the model-ETL-not-type-checked policy.
   "models/world_oecd_piaac/code",
+  # Same policy: us_dot_bts_ontime onboarding code is standalone one-shot `.py`
+  # (download.py, clean.py, upload.py, validate.py, register_columns.py,
+  # link_observation_levels.py, promote_to_prod.py) run via `uv run`. It uses bare
+  # `import gen_columns_json` resolved through sys.path.insert, and
+  # importlib.util.spec_from_file_location for the databasis MCP module — neither
+  # resolvable from the repo root. The recurring pipeline's own transform lives in
+  # the type-checked `pipelines/datasets/us_dot_bts_ontime/`, which is NOT excluded.
+  "models/us_dot_bts_ontime/code",
+  "models/us_epa_tri/code",
   # Same policy: br_bd_diretorios_mundo ISCO/ISIC directory build/upload code is
   # standalone one-shot `.py` run via `uv run`, outside the typed framework.
   "models/br_bd_diretorios_mundo/code",
+  # Same policy: au_aec_elections onboarding code is standalone one-shot `.py` run
+  # via `uv run` (clean.py, upload.py, validate.py, build_*.py), and
+  # register_metadata.py drives the databasis MCP module through
+  # `sys.path.insert` — unresolvable from the repo root. The pure transform lives
+  # in the typed `pipelines/datasets/au_aec_elections/`, which is checked.
+  "models/au_aec_elections/code",
   "models/au_geoscape_gnaf/code",
   "models/us_cms_open_payments/code",
   "models/us_fec_campaign_finance/code",
@@ -248,6 +281,43 @@ project-excludes = [
   # typed `pipelines/` framework. The shared transform lives in the typed
   # pipelines/datasets/us_bls_oes/ and is type-checked there.
   "models/us_bls_oes/code",
+  # Same policy: us_fdic_bankfind onboarding code is standalone `.py`
+  # (catalog.py, build_*.py, download_and_clean.py, upload.py, validate.py,
+  # register_metadata.py run via `uv run`) — one-shot onboarding code outside
+  # the typed `pipelines/` framework. The pure transform lives in
+  # pipelines/datasets/us_fdic_bankfind/utils.py and is type-checked there.
+  "models/us_fdic_bankfind/code",
+  # Same policy: br_bd_diretorios_cl onboarding code is standalone one-shot `.py`
+  # (clean.py, upload.py run via `uv run --with ...`) outside the typed
+  # `pipelines/` framework. It also imports `pdfplumber`, an optional dependency
+  # used only by the `--validate` name cross-check and deliberately kept out of
+  # pyproject, since the directory is a static one-off load with no pipeline.
+  "models/br_bd_diretorios_cl/code",
+  # Same policy: cl_chilecompra_mercado_publico onboarding code is standalone
+  # one-shot `.py` (build_columns_json.py, generate_dbt.py, upload.py,
+  # register_metadata.py run via `uv run`) using bare `import metadata_spec` /
+  # `import descriptions_i18n` and the databasis MCP's `import server`, all
+  # resolved via sys.path.insert and unresolvable from the repo root. The shared
+  # transform lives in the typed pipelines/datasets/cl_chilecompra_mercado_publico/
+  # and is type-checked there.
+  "models/cl_chilecompra_mercado_publico/code",
+  # Same policy: br_bd_execucao_estadual onboarding code is standalone one-shot
+  # `.py` (download_*.py, clean_*.py, upload.py, validate_*.py,
+  # register_columns.py run via `uv run`) using bare `import constants` /
+  # `import translations` resolved via sys.path.insert — unresolvable from the
+  # repo root. One-shot onboarding code outside the typed `pipelines/` framework.
+  "models/br_bd_execucao_estadual/code",
+  # Same policy: fr_meteofrance onboarding code is standalone one-shot `.py`
+  # (gen_artifacts.py, probe_codes.py, validate.py, clim_gen_artifacts.py,
+  # clim_upload.py run via `uv run`) using bare `import schema_map` /
+  # `import descriptions_i18n` resolved via sys.path — unresolvable from the
+  # repo root. The shared transform lives in the typed
+  # pipelines/datasets/fr_meteofrance/ and is type-checked there.
+  "models/fr_meteofrance/code",
+  # One-shot onboarding code for br_mgi_compras_publicas: standalone `.py`
+  # run via `uv run` with bare imports resolved through sys.path. The shared
+  # transform lives in the typed pipelines/datasets/br_mgi_compras_publicas/.
+  "models/br_mgi_compras_publicas/code",
   "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
   "models/world_wb_mides/code/licitacao_item.ipynb",
   "models/world_olympedia_olympics/code/[[]code[]]world_olympedia_olympics.ipynb",

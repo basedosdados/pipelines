@@ -28,8 +28,6 @@ from pipelines.utils.tasks import (
 from pipelines.utils.to_download.tasks import download_async
 
 
-# Modelo incremental: para reprocessar o trimestre mais recente, apague a
-# partição dele antes de rodar e use force_run.
 @flow(
     name="br_ibge_pnadc__microdados",
     log_prints=True,
@@ -37,7 +35,9 @@ from pipelines.utils.to_download.tasks import download_async
 def br_ibge_pnadc__microdados(
     dataset_id: str = "br_ibge_pnadc",
     table_id: str = "microdados",
-    materialize_after_dump: bool = False,
+    year: int | None = None,
+    quarter: int | None = None,
+    materialize_after_dump: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
@@ -47,9 +47,13 @@ def br_ibge_pnadc__microdados(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    data_source_max_date, url = get_data_source_date_and_url()
+    backfill = year is not None or quarter is not None
 
-    if not force_run:
+    data_source_max_date, url = get_data_source_date_and_url(
+        year=year, quarter=quarter
+    )
+
+    if not force_run and not backfill:
         has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
@@ -61,18 +65,19 @@ def br_ibge_pnadc__microdados(
         if not has_new_data:
             return
 
-    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
-    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
-    # novo publicado, mesmo que a tabela não tenha sido atualizada.
-    commit_source_update_task(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        source_max_date=data_source_max_date,
-        env="prod",
-        date_format="%Y-%m-%d",
-        update_metadata=update_metadata,
-        materialize_after_dump=materialize_after_dump,
-    )
+    if not backfill:
+        # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+        # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+        # novo publicado, mesmo que a tabela não tenha sido atualizada.
+        commit_source_update_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=data_source_max_date,
+            env="prod",
+            date_format="%Y-%m-%d",
+            update_metadata=update_metadata,
+            materialize_after_dump=materialize_after_dump,
+        )
 
     input_dir, output_dir = build_table_paths(table_id=table_id)
     # pyrefly: ignore [no-matching-overload]

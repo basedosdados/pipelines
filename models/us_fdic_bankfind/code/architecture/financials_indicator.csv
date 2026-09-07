@@ -1,0 +1,7 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Calendar year of the quarterly report,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Partition column, derived from the report date",REPDTE
+quarter,INT64,"Calendar quarter of the report, 1 to 4",,no,,quarter,no,Derived from the report date,REPDTE
+report_date,DATE,Last day of the quarter the report covers,,no,,,no,"Call Reports are filed as of 31 March, 30 June, 30 September and 31 December",REPDTE
+cert,STRING,FDIC certificate number identifying the institution,,no,,,no,"Stable across name changes; the primary institution key. Joins to institution.cert, enforced as a dbt relationships test",CERT
+indicator_id,STRING,FDIC mnemonic of the reported line item,,no,,,no,"Decoded by the indicator table, which also carries the unit each value is expressed in. Joins to indicator.indicator_id, enforced as a dbt relationships test",(field name)
+value,FLOAT64,Reported value of the line item,,no,,,no,"The unit varies by indicator and is given by indicator.measurement_unit: dollar amounts are in whole dollars after conversion from the FDIC's thousands, ratios are in percent, and counts are dimensionless",(field value)

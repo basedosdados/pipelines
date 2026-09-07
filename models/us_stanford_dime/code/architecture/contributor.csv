@@ -1,0 +1,21 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+contributor_id,STRING,"Unique identifier of the contributor, assigned by DIME entity resolution",,no,,,no,Joins to the contribution and contributor_cycle tables,bonica.cid
+contributor_type,STRING,Whether the contributor is an individual or an organization,,yes,,,no,,contributor.type
+contributor_gender,STRING,Gender of the contributor,,yes,,,yes,Imputed by DIME from first-name gender ratios and gendered titles; not self-reported,contributor.gender
+is_corporation,STRING,Whether the contributor is a corporation or trade organization,,no,,,no,Applies to committees only; these donors are excluded from the CFscore estimation,is.corp
+contributor_cfscore,FLOAT64,Common-space CFscore of the contributor,,no,,score_point,no,"Negative is liberal, positive is conservative. Donors who gave to a single recipient are assigned that recipient's ideal point",contributor.cfscore
+is_projected,STRING,Whether the contributor was projected onto the space rather than estimated within it,,yes,,,no,"Stored as 0 or 1 in the source. Value 1 covers corporate and trade-affiliated committees and donors who gave to a single recipient, whose scores are less reliable",is.projected
+number_distinct_recipients,INT64,Number of distinct recipients in the scaling that received contributions from the donor,,no,,unit,no,The number of observations behind the ideal point. Eight or more distinct recipients is typically enough for a reliable estimate,num.distinct
+first_cycle_active,INT64,First election cycle in which the donor was recorded as active,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,first_cycle_active
+last_cycle_active,INT64,Last election cycle in which the donor was recorded as active,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,last_cycle_active
+most_recent_name,STRING,Name reported by the contributor on their most recent record,,no,,,yes,,most.recent.contributor.name
+most_recent_address,STRING,Street address reported by the contributor on their most recent record,,no,,,yes,,most.recent.contributor.address
+most_recent_city,STRING,City reported by the contributor on their most recent record,,no,,,no,,most.recent.contributor.city
+most_recent_state,STRING,Two-letter state abbreviation reported on the most recent record,,no,,,no,"Includes territories and foreign codes, so it is not linked to the state directory",most.recent.contributor.state
+most_recent_zipcode,STRING,ZIP code reported by the contributor on their most recent record,,no,,,no,Five or nine digits depending on the filing,most.recent.contributor.zipcode
+most_recent_latitude,FLOAT64,Latitude geocoded from the most recent record,,no,,degree,yes,,most.recent.contributor.latitude
+most_recent_longitude,FLOAT64,Longitude geocoded from the most recent record,,no,,degree,yes,,most.recent.contributor.longitude
+most_recent_occupation,STRING,Occupation reported by the contributor on their most recent record,,no,,,no,,most.recent.contributor.occupation
+most_recent_employer,STRING,Employer reported by the contributor on their most recent record,,no,,,no,,most.recent.contributor.employer
+most_recent_transaction_id,STRING,Identifier of the contributor's most recent contribution record,,no,,,no,Joins to transaction_id in the contribution table,most.recent.transaction.id
+most_recent_transaction_date,DATE,Date of the contributor's most recent contribution record,,no,,,no,,most.recent.transaction.date
