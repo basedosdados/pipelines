@@ -36,6 +36,7 @@ from pipelines.datasets.us_fbi_cde.utils import (
     canonical_state,
     clean_nibrs_bundle,
     parse_reta_file,
+    postal_state,
     read_csv_all_strings,
     write_partition,
 )
@@ -435,11 +436,15 @@ def pass_agency():
         )
 
     lookup, state_fips = county_crosswalk()
-    agency["state_id"] = agency["state_abbr"].map(state_fips)
+    # The Census list is keyed on postal codes while agency.state_abbr holds the
+    # UCR code, so it is translated for the lookup only. The published column
+    # keeps the UCR code, which is what the rest of the dataset uses.
+    postal = agency["state_abbr"].map(postal_state)
+    agency["state_id"] = postal.map(state_fips)
     names = agency["county_name"].fillna("").str.upper().str.strip()
     agency["county_id"] = [
         lookup.get((state, name))
-        for state, name in zip(agency["state_abbr"], names, strict=False)
+        for state, name in zip(postal, names, strict=False)
     ]
     matched = agency["county_id"].notna().sum()
     with_name = (names != "").sum()

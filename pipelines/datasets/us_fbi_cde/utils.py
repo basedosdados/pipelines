@@ -41,6 +41,18 @@ SIGNED_URL_ENDPOINT = "https://cde.ucr.cjis.gov/LATEST/s3/signedurl"
 # in the incident tables and "NB" everywhere else in the same dataset.
 UCR_STATE_ABBR = {"NE": "NB"}
 
+# The reverse, for looking values up in sources that use postal codes — the
+# Census ANSI county list among them. Without it, Nebraska, Guam and the
+# Northern Mariana Islands get no FIPS code at all. "FS" (federal agencies) and
+# "CZ" (Canal Zone) are deliberately absent: neither is a state and neither has
+# a FIPS code to find.
+POSTAL_STATE_ABBR = {"NB": "NE", "GM": "GU", "MK": "MP"}
+
+
+def postal_state(state_abbr):
+    """Map a UCR state code to the postal code the Census files use."""
+    return POSTAL_STATE_ABBR.get(state_abbr, state_abbr)
+
 
 def canonical_state(state_abbr):
     """Map a bundle's filename state to the code the rest of the dataset uses.
