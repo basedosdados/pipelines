@@ -72,10 +72,14 @@ def us_nchs_vital_statistics_flow(
                 product,
             )
             continue
-        # The annual file covers through December of its data year, and the poll
-        # compares this against the registered coverage end (compare_against
-        # defaults to "coverage"), so it must be the END of the year.
-        max_date = f"{source_year}-12-31"
+        # Compared against the registered coverage end, which this dataset keeps
+        # at YEAR granularity (the coverage spec below is DateFormat.YEAR, so
+        # register_table_materialization_task rewrites the range that way after
+        # every run). A year-granular coverage end materialises as YYYY-01-01, so
+        # the poll date must be YYYY-01-01 too: dated YYYY-12-31 it is always
+        # "newer" than the year already loaded and the flow re-ingests it on
+        # every scheduled run.
+        max_date = f"{source_year}-01-01"
         has_new = poll_source_for_update_task(
             dataset_id=DATASET_ID,
             table_id=product,
@@ -171,7 +175,7 @@ def us_nchs_vital_statistics_flow(
         commit_source_update_task(
             dataset_id=DATASET_ID,
             table_id=product,
-            source_max_date=f"{source_year}-12-31",
+            source_max_date=f"{source_year}-01-01",
             env="prod",
             date_format="%Y-%m-%d",
         )
