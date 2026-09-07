@@ -429,11 +429,32 @@ def pass_hate_crime():
 
 
 # --------------------------------------------------------------------------
+# Pass 5 - dictionary
+# --------------------------------------------------------------------------
+
+
+def pass_dicionario():
+    """Copy the committed dictionary CSV into the output tree as parquet.
+
+    It is committed rather than rebuilt here because it is harvested from nine
+    bundles spanning every era of the source, which is slow and does not change
+    between releases. Regenerate it with ``build_dicionario.py``.
+    """
+    source = Path(__file__).resolve().parent / "dicionario.csv"
+    frame = read_csv_all_strings(source)
+    write_partition(frame, "dicionario", OUTPUT, {})
+    print(f"dicionario rows: {len(frame):,}")
+    return len(frame)
+
+
+# --------------------------------------------------------------------------
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--steps", default="nibrs,reta,agency,hate_crime")
+    parser.add_argument(
+        "--steps", default="nibrs,reta,agency,hate_crime,dicionario"
+    )
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--workers", type=int, default=4)
     args = parser.parse_args()
@@ -454,6 +475,9 @@ def main():
     if "hate_crime" in steps:
         print("== hate crime")
         report["hate_crime"] = pass_hate_crime()
+    if "dicionario" in steps:
+        print("== dictionary")
+        report["dicionario"] = pass_dicionario()
     (DATA_ROOT / "clean_report.json").write_text(json.dumps(report, indent=1))
     print(json.dumps(report, indent=1))
 
