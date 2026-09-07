@@ -128,6 +128,16 @@ def clean_window(work_dir: str, downloads: dict) -> dict:
         participation.append(tables["_participation"])
         attributes.append(tables["_agency_attributes"])
 
+    # Return A carries only the seven-character legacy ORI. The NIBRS agency
+    # tables in the same window carry both forms, so they supply the crosswalk;
+    # agencies absent from NIBRS fall back to the append-"00" rule.
+    crosswalk = {}
+    for frame in attributes:
+        if frame is None or frame.empty:
+            continue
+        pairs = frame.dropna(subset=["ori", "legacy_ori"])
+        crosswalk.update(dict(zip(pairs["legacy_ori"], pairs["ori"], strict=False)))
+
     for zip_path, year in downloads["reta"]:
         summary, agency = parse_reta_file(zip_path, year)
         if summary.empty:
@@ -142,7 +152,7 @@ def clean_window(work_dir: str, downloads: dict) -> dict:
                 lambda v: None if pd.isna(v) else str(int(v))
             )
         summary["ori"] = summary["legacy_ori"].map(
-            lambda v: f"{v}00" if isinstance(v, str) else None
+            lambda v: crosswalk.get(v, f"{v}00") if isinstance(v, str) else None
         )
         write_partition(summary, "ucr_summary", output, {"year": str(year)})
         reta_agency.append(agency)

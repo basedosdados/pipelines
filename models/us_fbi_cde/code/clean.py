@@ -129,7 +129,7 @@ def pass_nibrs(limit=None, workers=4):
 
 def clean_one_reta(args):
     """Parse one Return A year and write its ucr_summary partition."""
-    zip_path, year = args
+    zip_path, year, crosswalk = args
     summary, agency = parse_reta_file(zip_path, year)
     if summary.empty:
         return year, 0
@@ -145,18 +145,32 @@ def clean_one_reta(args):
     sidecar = SIDECAR / "reta"
     sidecar.mkdir(parents=True, exist_ok=True)
     agency.to_parquet(sidecar / f"agency_{year}.parquet", index=False)
-    # ori is filled in later from the legacy crosswalk; write it now so the
-    # partition has every declared column.
-    summary["ori"] = pd.NA
+    # Return A carries only the seven-character legacy ORI. The nine-character
+    # form comes from the NIBRS agency tables, which carry both; agencies absent
+    # from NIBRS fall back to the append-"00" rule those tables establish.
+    summary["ori"] = summary["legacy_ori"].map(
+        lambda v: crosswalk.get(v, f"{v}00") if isinstance(v, str) else None
+    )
     write_partition(summary, "ucr_summary", OUTPUT, {"year": str(year)})
     return year, len(summary)
 
 
 def pass_reta(limit=None, workers=4):
+    crosswalk, rule_matches = legacy_ori_crosswalk()
+    if not crosswalk:
+        raise SystemExit(
+            "no legacy ORI crosswalk: run the nibrs step first, or ucr_summary "
+            "would be written with no join key to the other tables"
+        )
+    share = rule_matches / len(crosswalk)
+    print(
+        f"legacy ORI crosswalk: {len(crosswalk):,} agencies, "
+        f"{rule_matches:,} ({share:.1%}) follow the legacy+'00' rule"
+    )
     files = sorted((INPUT / "reta").glob("reta-[0-9]*.zip"))
     if limit:
         files = files[:limit]
-    jobs = [(str(path), int(path.stem.split("-")[1])) for path in files]
+    jobs = [(str(path), int(path.stem.split("-")[1]), crosswalk) for path in files]
     total = 0
     with ProcessPoolExecutor(workers) as pool:
         for year, rows in pool.map(clean_one_reta, jobs):
@@ -296,12 +310,7 @@ def pass_agency():
         )
     )
 
-    crosswalk, rule_matches = legacy_ori_crosswalk()
-    print(
-        f"legacy ORI crosswalk: {len(crosswalk):,} agencies, "
-        f"{rule_matches:,} ({rule_matches / max(len(crosswalk), 1):.1%}) follow the "
-        f"legacy+'00' rule"
-    )
+    crosswalk, _ = legacy_ori_crosswalk()
     if not reta_agency.empty:
         reta_agency["ori"] = reta_agency["legacy_ori"].map(
             lambda v: (

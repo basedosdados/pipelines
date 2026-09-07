@@ -198,6 +198,22 @@ def _first_column(frame, *candidates):
     return pd.Series(pd.NA, index=frame.index, dtype="object")
 
 
+def _as_date(series):
+    """Normalise a source date to ``YYYY-MM-DD``.
+
+    The bundles are inconsistent: the same logical column arrives as
+    ``1991-07-20 00:00:00`` in the pre-2020 files, ``2023-05-31 13:49:51.367``
+    for submission timestamps and a bare ``2023-01-01`` elsewhere. BigQuery's
+    ``SAFE_CAST(... AS DATE)`` returns NULL for anything carrying a time part,
+    so a mixed column would silently lose most of its values in the dbt model
+    rather than fail. Truncating here keeps the loss impossible.
+    """
+    if series is None or len(series) == 0:
+        return series
+    trimmed = series.astype("object").str.slice(0, 10)
+    return trimmed.where(trimmed.str.match(r"^\d{4}-\d{2}-\d{2}$", na=False))
+
+
 def _code_maps(zf, members):
     """Build ``{lookup name: {surrogate id: published code}}`` for this bundle."""
     maps = {}
@@ -317,7 +333,7 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
                 if agency_id is not None
                 else pd.NA,
                 "incident_id": incident["incident_id"],
-                "incident_date": _first_column(incident, "incident_date"),
+                "incident_date": _as_date(_first_column(incident, "incident_date")),
                 "incident_hour": _first_column(incident, "incident_hour"),
                 "report_date_flag": _first_column(
                     incident, "report_date_flag"
@@ -329,11 +345,11 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
                     _first_column(incident, "cleared_except_id"),
                     maps["nibrs_cleared_except"],
                 ),
-                "cleared_except_date": _first_column(
-                    incident, "cleared_except_date"
+                "cleared_except_date": _as_date(
+                    _first_column(incident, "cleared_except_date")
                 ),
                 "incident_status": _first_column(incident, "incident_status"),
-                "submission_date": _first_column(incident, "submission_date"),
+                "submission_date": _as_date(_first_column(incident, "submission_date")),
             }
         )
         out["incident"] = frame
@@ -541,7 +557,7 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
                 "arrestee_sequence_number": _first_column(
                     arrestee, "arrestee_seq_num"
                 ),
-                "arrest_date": _first_column(arrestee, "arrest_date"),
+                "arrest_date": _as_date(_first_column(arrestee, "arrest_date")),
                 "arrest_type_code": _resolve(
                     _first_column(arrestee, "arrest_type_id"),
                     maps["nibrs_arrest_type"],
@@ -597,7 +613,7 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
                 "arrestee_sequence_number": _first_column(
                     groupb, "arrestee_seq_num"
                 ),
-                "arrest_date": _first_column(groupb, "arrest_date"),
+                "arrest_date": _as_date(_first_column(groupb, "arrest_date")),
                 "arrest_type_code": _resolve(
                     _first_column(groupb, "arrest_type_id"),
                     maps["nibrs_arrest_type"],
@@ -666,8 +682,8 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
                     "property_value": _first_column(
                         prop_desc, "property_value"
                     ),
-                    "date_recovered": _first_column(
-                        prop_desc, "date_recovered"
+                    "date_recovered": _as_date(
+                        _first_column(prop_desc, "date_recovered")
                     ),
                 }
             )
@@ -762,8 +778,11 @@ def clean_nibrs_bundle(zip_path, state_abbr, year):
                 "year": str(year),
                 "ori": agencies["ori"],
                 "legacy_ori": _first_column(agencies, "legacy_ori"),
-                "nibrs_start_date": _first_column(
-                    agencies, "nibrs_start_date", "current_nibrs_start_year"
+                # Only the post-2020 bundles carry a real start date; the
+                # older ones give a bare year, which is left null rather than
+                # fabricated into a January date.
+                "nibrs_start_date": _as_date(
+                    _first_column(agencies, "nibrs_start_date")
                 ),
                 "nibrs_participated": _first_column(
                     agencies, "nibrs_participated"
