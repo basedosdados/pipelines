@@ -216,6 +216,7 @@ build-backend = "hatchling.build"
 project-excludes = [
   "pipelines/{{cookiecutter.pipeline_name}}",
   "models/br_tse_eleicoes/code",
+  "models/us_nih_reporter/code",
   "models/us_noaa_storm_events/code",
   "models/us_harvard_cbdb/code",
   "models/us_cfpb_hmda/code",

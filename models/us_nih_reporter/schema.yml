@@ -1,0 +1,453 @@
+---
+version: 2
+models:
+  - name: us_nih_reporter__project
+    description: >-
+      Um registro por solicitação financiada e ano FISCAL federal, desde o ano
+      fiscal de 1985, com título, instituição beneficiária, pesquisadores
+      principais, código de atividade, instituto administrador, painel de
+      revisão e custo. O ano fiscal federal vai de 1 de outubro a 30 de
+      setembro e é nomeado pelo ano em que termina; não é o ano-calendário.
+      Fonte: NIH RePORTER ExPORTER. Além do NIH, os arquivos cobrem projetos
+      financiados pela ACF, AHRQ, CDC, FDA, HRSA e Departamento de Assuntos de
+      Veteranos, mas o custo só está disponível para NIH, CDC, FDA e ACF. A
+      coluna core_project_num é o que liga esta tabela às tabelas
+      publication_link, patent_link e clinical_study_link; as colunas de
+      componente do número do projeto descrevem a concessão como ela está hoje
+      e divergem do número em 3,09% das linhas, porque o instituto
+      administrador muda quando a concessão é transferida. Complementa
+      us_treasury_usaspending, que traz a transação orçamentária federal sem o
+      detalhe científico registrado aqui.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, application_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          # Empty by construction over most of the period:
+          # the source did not publish the column before a
+          # given year, or it applies to a small subset.
+          ignore_values:
+            - subproject_id
+            - suffix
+            - total_cost_subproject
+            - org_ipf_id
+            - direct_cost
+            - indirect_cost
+            - funding_mechanism
+            - nih_spending_cats
+            - public_health_relevance
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_nih_reporter__dicionario')
+          columns_covered_by_dictionary: [application_type, arra_funded]
+    columns:
+      - name: year
+        description: >-
+          Ano fiscal da apropriação de que os recursos do projeto foram
+          obrigados
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: application_id
+        description: >-
+          Identificador único do registro do projeto na base RePORTER
+        tests: [not_null]
+      - name: full_project_num
+        description: >-
+          Número completo do projeto, formado pelo tipo de solicitação, código
+          de atividade, código do instituto, número de série, ano de apoio e
+          sufixo
+      - name: core_project_num
+        description: >-
+          Identificador do projeto de pesquisa que não varia entre anos de
+          apoio, formado pelo código de atividade, código do instituto e
+          número de série
+      - name: subproject_id
+        description: >-
+          Identificador do subprojeto dentro de uma concessão multiprojeto
+      - name: application_type
+        description: >-
+          Código de um dígito que identifica o tipo de solicitação financiada
+      - name: activity
+        description: >-
+          Código de três caracteres do programa de concessão, contrato ou
+          atividade intramuros que apoia o projeto
+      - name: administering_ic
+        description: >-
+          Código de dois caracteres da agência, instituto ou centro que
+          administra a concessão
+      - name: serial_number
+        description: >-
+          Número de série atribuído em ordem sequencial dentro de cada
+          organização administradora
+      - name: suffix
+        description: >-
+          Sufixo do número da solicitação que identifica versões emendadas e
+          suplementos
+      - name: support_year
+        description: >-
+          Ano de apoio do projeto, conforme consta do número completo do
+          projeto
+      - name: assistance_listing_number
+        description: >-
+          Número do programa federal no catálogo de auxílios federais, antes
+          chamado código CFDA
+      - name: opportunity_number
+        description: >-
+          Número do anúncio de oportunidade de financiamento sob o qual a
+          solicitação foi apresentada
+      - name: study_section
+        description: >-
+          Código do painel de revisão por pares que avaliou o mérito
+          científico e técnico da solicitação
+      - name: org_ipf_id
+        description: >-
+          Identificador interno do NIH que associa a instituição a seus
+          registros nos sistemas eletrônicos da agência
+      - name: org_duns
+        description: >-
+          Número DUNS da organização beneficiária
+      - name: pi_ids
+        description: >-
+          Identificadores dos pesquisadores principais do projeto, separados
+          por ponto e vírgula
+      - name: project_title
+        description: >-
+          Título da concessão, contrato ou projeto intramuros financiado
+      - name: ic_name
+        description: >-
+          Nome por extenso da agência, instituto ou centro administrador
+      - name: funding_mechanism
+        description: >-
+          Categoria de mecanismo de financiamento usada nas tabelas
+          orçamentárias do NIH
+      - name: funding_ics
+        description: >-
+          Institutos e centros que financiaram o projeto no ano fiscal, cada
+          um seguido do valor aportado
+      - name: arra_funded
+        description: >-
+          Indica se o projeto foi apoiado por recursos apropriados pela Lei de
+          Recuperação e Reinvestimento Americana de 2009
+      - name: study_section_name
+        description: >-
+          Nome do comitê permanente de revisão que avaliou a solicitação
+      - name: program_officer_name
+        description: >-
+          Nome do servidor do instituto que coordena os aspectos substantivos
+          do projeto
+      - name: pi_names
+        description: >-
+          Nomes dos pesquisadores principais designados para dirigir o
+          projeto, separados por ponto e vírgula
+      - name: org_name
+        description: >-
+          Nome da instituição de ensino, organização de pesquisa, empresa ou
+          órgão público que recebeu o financiamento
+      - name: org_dept
+        description: >-
+          Departamento de vínculo do pesquisador principal de contato, em
+          categorização padronizada
+      - name: ed_inst_type
+        description: >-
+          Nome do agrupamento de componentes da instituição usado pelo NIH
+      - name: org_city
+        description: >-
+          Cidade do escritório administrativo da organização beneficiária
+      - name: org_state
+        description: >-
+          Sigla da unidade subnacional do escritório administrativo da
+          organização beneficiária
+      - name: org_zipcode
+        description: >-
+          Código postal do escritório administrativo da organização
+          beneficiária
+      - name: org_district
+        description: >-
+          Distrito congressual do escritório administrativo da organização
+          beneficiária
+      - name: org_country
+        description: >-
+          País do escritório administrativo da organização beneficiária
+      - name: org_fips
+        description: >-
+          Código FIPS do país da organização beneficiária
+      - name: project_start
+        description: >-
+          Data de início do projeto
+      - name: project_end
+        description: >-
+          Data de término do projeto, incluindo anos futuros já comprometidos
+      - name: budget_start
+        description: >-
+          Data em que começa o financiamento do projeto no ano fiscal
+      - name: budget_end
+        description: >-
+          Data em que termina o financiamento do projeto no ano fiscal
+      - name: award_notice_date
+        description: >-
+          Data do aviso de concessão que obriga os recursos e define o período
+          e as condições do apoio
+      - name: nih_spending_cats
+        description: >-
+          Categorias de gasto do NIH em que o projeto foi classificado,
+          separadas por ponto e vírgula
+      - name: project_terms
+        description: >-
+          Termos que descrevem o conteúdo do projeto, separados por ponto e
+          vírgula
+      - name: public_health_relevance
+        description: >-
+          Declaração apresentada com a solicitação sobre o potencial do
+          projeto de melhorar a saúde pública
+      - name: direct_cost
+        description: >-
+          Custo direto total do projeto no ano fiscal, somados todos os
+          institutos e centros
+      - name: indirect_cost
+        description: >-
+          Custo indireto total do projeto no ano fiscal, somados todos os
+          institutos e centros
+      - name: total_cost
+        description: >-
+          Financiamento total do projeto no ano fiscal, somados todos os
+          institutos e centros
+      - name: total_cost_subproject
+        description: >-
+          Financiamento total do subprojeto no ano fiscal, somados todos os
+          institutos e centros
+  - name: us_nih_reporter__project_abstract
+    description: >-
+      Um registro por solicitação financiada e ano FISCAL federal com o resumo
+      da pesquisa, ligado a project pelo par (year, application_id). Fonte:
+      NIH RePORTER ExPORTER, que publica os resumos em arquivo separado do
+      arquivo de projetos por causa do tamanho. Nas concessões o resumo é
+      fornecido ao NIH pelo beneficiário; nem todo projeto tem resumo
+      publicado.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, application_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano fiscal do arquivo de resumos de que o registro provém
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: application_id
+        description: >-
+          Identificador único do registro do projeto na base RePORTER
+        tests: [not_null]
+      - name: abstract_text
+        description: >-
+          Resumo da pesquisa realizada no projeto
+  - name: us_nih_reporter__publication
+    description: >-
+      Um registro por publicação e ano-CALENDÁRIO de divulgação do arquivo de
+      origem, desde 1980, com título, periódico, autores, vínculo do primeiro
+      autor e identificadores PubMed e PubMed Central. O ano desta tabela é o
+      do arquivo de divulgação, e não o ano fiscal usado em project. Fonte:
+      NIH RePORTER ExPORTER, que integra os dados de publicação a partir do
+      PubMed, do PubMed Central e da base intramuros do NIH. A ligação aos
+      projetos que financiaram a publicação está em publication_link.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, pmid]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          # Empty by construction over most of the period:
+          # the source did not publish the column before a
+          # given year, or it applies to a small subset.
+          ignore_values: [pmc_id]
+    columns:
+      - name: year
+        description: >-
+          Ano-calendário do arquivo de publicações de que o registro provém
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: pmid
+        description: >-
+          Identificador único da publicação no PubMed
+        tests: [not_null]
+      - name: pmc_id
+        description: >-
+          Identificador único do artigo no PubMed Central
+      - name: issn
+        description: >-
+          Número internacional normalizado que identifica o periódico
+      - name: publication_title
+        description: >-
+          Título do artigo
+      - name: journal_title
+        description: >-
+          Título completo do periódico
+      - name: journal_title_abbreviation
+        description: >-
+          Abreviatura padronizada do título do periódico
+      - name: journal_volume
+        description: >-
+          Volume do periódico em que o artigo foi publicado
+      - name: journal_issue
+        description: >-
+          Número, parte ou suplemento do periódico em que o artigo foi
+          publicado
+      - name: page_number
+        description: >-
+          Páginas do artigo no periódico
+      - name: publication_date
+        description: >-
+          Data de publicação do fascículo, conforme impressa no periódico
+      - name: publication_year
+        description: >-
+          Ano de publicação do artigo
+      - name: author_list
+        description: >-
+          Autores do artigo, separados por ponto e vírgula
+      - name: affiliation
+        description: >-
+          Vínculo institucional do primeiro autor
+      - name: country
+        description: >-
+          País de publicação do periódico
+      - name: language
+        description: >-
+          Língua em que o artigo foi publicado
+  - name: us_nih_reporter__publication_link
+    description: >-
+      Um registro por par de publicação e projeto de pesquisa citado como
+      fonte de apoio, no formato longo, desde o ano-calendário de 1980. Liga
+      publication a project: pmid identifica a publicação e core_project_num o
+      projeto. Fonte: NIH RePORTER ExPORTER. A associação vem dos
+      agradecimentos do artigo, anotados pelo PubMed, ou do sistema de
+      submissão de manuscritos do NIH, e não identifica um ano do projeto nem
+      um ano fiscal de financiamento.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, pmid, core_project_num]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano-calendário do arquivo de ligações de que o registro provém
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: pmid
+        description: >-
+          Identificador único da publicação no PubMed
+        tests: [not_null]
+      - name: core_project_num
+        description: >-
+          Identificador do projeto de pesquisa citado como fonte de apoio da
+          publicação
+        tests: [not_null]
+  - name: us_nih_reporter__patent_link
+    description: >-
+      Um registro por par de patente e projeto de pesquisa reconhecido como
+      apoio ao seu desenvolvimento, no formato longo, com o título da patente
+      e o nome de seu titular. Fonte: NIH RePORTER ExPORTER, que publica um
+      único arquivo cobrindo todos os anos fiscais, e por isso esta tabela não
+      é particionada por ano. A associação vem do sistema iEdison, em que as
+      organizações beneficiárias reportam invenções. O registro é
+      reconhecidamente incompleto: só constam patentes concedidas, não pedidos
+      em andamento, e nem toda organização beneficiária cumpre a obrigação de
+      reportar, sobretudo depois de encerrado o apoio do NIH. Patentes só são
+      reportadas para projetos do NIH, não para os das demais agências
+      presentes em project.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [patent_id, core_project_num]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: patent_id
+        description: >-
+          Número da patente no banco de patentes concedidas do escritório de
+          patentes e marcas dos Estados Unidos
+        tests: [not_null]
+      - name: core_project_num
+        description: >-
+          Identificador do projeto de pesquisa reconhecido como apoio ao
+          desenvolvimento da patente
+        tests: [not_null]
+      - name: patent_title
+        description: >-
+          Título da patente
+      - name: patent_org_name
+        description: >-
+          Nome da organização ou pessoa titular da patente
+  - name: us_nih_reporter__clinical_study_link
+    description: >-
+      Um registro por par de estudo clínico e projeto de pesquisa reconhecido
+      como seu apoio, no formato longo, com o título e a situação do estudo.
+      Fonte: NIH RePORTER ExPORTER, que publica um único arquivo cobrindo
+      todos os anos fiscais, e por isso esta tabela não é particionada por
+      ano. A associação vem do próprio ClinicalTrials.gov, que informa ao
+      RePORTER os números de concessão declarados no registro do estudo, e não
+      identifica um ano do projeto nem um ano fiscal de financiamento. A
+      situação do estudo descreve o estágio em que ele se encontrava na data
+      de extração do arquivo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [nct_id, core_project_num]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: nct_id
+        description: >-
+          Identificador do estudo clínico no registro ClinicalTrials.gov
+        tests: [not_null]
+      - name: core_project_num
+        description: >-
+          Identificador do projeto de pesquisa reconhecido como apoio ao
+          estudo clínico
+        tests: [not_null]
+      - name: study_title
+        description: >-
+          Título do estudo clínico conforme consta do ClinicalTrials.gov
+      - name: study_status
+        description: >-
+          Estágio atual do estudo clínico
+  - name: us_nih_reporter__dicionario
+    description: >-
+      Registro dos valores assumidos pelas colunas codificadas da tabela
+      project, com a cobertura temporal de cada valor em anos fiscais. Cobre
+      application_type e arra_funded a partir do dicionário de dados publicado
+      pelo NIH, activity a partir do registro oficial de códigos de atividade,
+      e administering_ic a partir da própria coluna ic_name dos dados. A
+      coluna valor fica vazia nos códigos de atividade que o registro oficial
+      não cobre, que são os de contratos, projetos intramuros e agências que
+      não o NIH.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+    columns:
+      - name: id_tabela
+        description: >-
+          Nome da tabela a que a coluna codificada pertence
+        tests: [not_null]
+      - name: nome_coluna
+        description: >-
+          Nome da coluna codificada
+        tests: [not_null]
+      - name: chave
+        description: >-
+          Valor armazenado na coluna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >-
+          Anos fiscais em que o valor aparece, na notação início(intervalo)fim
+      - name: valor
+        description: >-
+          Significado do valor armazenado
