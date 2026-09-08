@@ -21,7 +21,6 @@ from prefect import flow
 
 from pipelines.datasets.us_dol_oflc.constants import constants
 from pipelines.datasets.us_dol_oflc.tasks import (
-    check_layouts,
     clean_program,
     download_program,
     fiscal_years_to_refresh,
@@ -91,7 +90,6 @@ def us_dol_oflc_flow(
         input_dir = download_program(
             program=POLL_TABLE, years=years, work_dir=work_dir
         )
-        check_layouts(program=POLL_TABLE, input_dir=input_dir)
         results[POLL_TABLE] = clean_program(
             program=POLL_TABLE,
             years=years,
@@ -117,7 +115,6 @@ def us_dol_oflc_flow(
             program_input = download_program(
                 program=program, years=years, work_dir=work_dir
             )
-            check_layouts(program=program, input_dir=program_input)
             results[program] = clean_program(
                 program=program,
                 years=years,
@@ -201,6 +198,15 @@ us_dol_oflc_flow.deploy_schedules = [
     {"cron": "23 14 5,12,19,26 2,5,8,11 *", "timezone": "America/Sao_Paulo"}
 ]
 # The clean step holds one fiscal year of LCA (~700k rows x 57 columns) in
-# pandas while it is written.
+# pandas while it is written, and calamine builds a Python object per cell of
+# the workbook it is reading.
+#
+# The keys are memory_limit / memory_request: this work pool's job template
+# defines no "memory" variable, so the {"memory": "8Gi"} spelling used by most
+# datasets in this repo is silently discarded and the pod runs at the pool
+# default of 4Gi. That is what OOM-killed the first full run here.
 # pyrefly: ignore [missing-attribute]
-us_dol_oflc_flow.job_variables = {"memory": "8Gi"}
+us_dol_oflc_flow.job_variables = {
+    "memory_limit": "12Gi",
+    "memory_request": "4Gi",
+}

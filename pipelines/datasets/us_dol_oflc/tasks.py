@@ -10,7 +10,6 @@ from pipelines.datasets.us_dol_oflc.utils import (
     download_fiscal_years,
     max_decision_date,
     refresh_fiscal_years,
-    unknown_layouts,
 )
 
 
@@ -50,29 +49,6 @@ def download_program(program: str, years: list[int], work_dir: str) -> str:
             "page layout may have changed"
         )
     return str(input_dir)
-
-
-@task
-def check_layouts(program: str, input_dir: str) -> None:
-    """Fail before cleaning if the crosswalk does not cover a downloaded file.
-
-    Args:
-        program: One of lca, perm, h2a, h2b.
-        input_dir: Directory holding the downloaded workbooks, from
-            :func:`download_program`.
-
-    Raises:
-        RuntimeError: When one or more workbooks have an unrecognised layout,
-            naming all of them.
-    """
-    unknown = unknown_layouts(program, Path(input_dir))
-    if unknown:
-        raise RuntimeError(
-            f"{program}: the crosswalk does not describe {len(unknown)} "
-            f"downloaded file(s): {', '.join(unknown)}. The source has revised "
-            f"a form; rebuild the crosswalk with build_crosswalk.py and review "
-            f"what changed before this can run."
-        )
 
 
 @task

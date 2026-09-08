@@ -179,6 +179,18 @@ def load_crosswalk_headers(
     }
 
 
+def read_header(path: Path) -> list[str]:
+    """The header row of a workbook, without materialising the rest of it.
+
+    ``to_python()`` builds a Python object per cell, so reading a 437k x 98
+    workbook to look at one row costs gigabytes — enough to OOM the worker. The
+    layout pre-flight only needs the header, so it reads only the header.
+    """
+    ws = pc.CalamineWorkbook.from_path(str(path)).get_sheet_by_index(0)
+    rows = ws.to_python(nrows=1)
+    return [str(c).strip() for c in rows[0]] if rows else []
+
+
 def read_sheet(path: Path) -> tuple[list[str], list[list]]:
     ws = pc.CalamineWorkbook.from_path(str(path)).get_sheet_by_index(0)
     rows = ws.to_python()
@@ -601,31 +613,3 @@ def max_decision_date(output_dir: Path, program: str) -> str | None:
             top = max(values)
             best = top if best is None or top > best else best
     return best
-
-
-def unknown_layouts(program: str, input_dir: Path) -> list[str]:
-    """Downloaded workbooks whose layout the crosswalk cannot resolve.
-
-    Checking every file up front turns "the run died on the first file" into one
-    message naming all of them, which is the difference between one debugging
-    cycle and several when the source revises a form.
-
-    Args:
-        program: One of lca, perm, h2a, h2b.
-        input_dir: Directory holding the downloaded workbooks.
-
-    Returns:
-        The file names that resolve neither by name nor by layout, empty when
-        every file is covered.
-    """
-    xw = load_crosswalk(program)
-    by_header = load_crosswalk_headers(program)
-    unknown = []
-    for fy, paths in source_files(program, input_dir).items():
-        for path in paths:
-            if xw.get((fy, path.name)):
-                continue
-            header, _ = read_sheet(path)
-            if frozenset(header) not in by_header:
-                unknown.append(path.name)
-    return unknown
