@@ -17,7 +17,7 @@ from pipelines.utils.metadata.domain import (
     DateFormat,
     FreeLag,
     PartBdpro,
-    YearOnly,
+    YearBimester,
 )
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -40,9 +40,9 @@ TABLES = [
 POLL_TABLE = constants.TABLE_MUNICIPALITY.value
 
 _COVERAGE = PartBdpro(
-    date_column=YearOnly(col="ano"),
-    date_format=DateFormat.YEAR,
-    free_lag=FreeLag(unit="years", value=1),
+    date_column=YearBimester(year="ano", bimester="bimestre"),
+    date_format=DateFormat.YEAR_MONTH,
+    free_lag=FreeLag(unit="months", value=6),
 )
 
 
