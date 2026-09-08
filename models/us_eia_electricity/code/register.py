@@ -103,11 +103,24 @@ def main() -> None:
     account = server.get_authenticated_account(env=env)
     account_id = str(account["id"])
 
+    # Tags are the one reference vocabulary whose SLUGS differ between backends:
+    # staging carries the Portuguese originals (`eletricidade`, `usina`) and prod
+    # the English ones (`electricity`, `power_plant`). The UUIDs are preserved
+    # across environments, so resolve on the target env by slug and fall back to
+    # the id staging gives for the same tag. A tag that resolves in neither is a
+    # genuine gap and raises rather than being silently dropped.
     tag_ids = []
     for slug in spec.DATASET["tag_slugs"]:
-        tag_ids.append(
-            server.lookup_id(category="tag", slug=slug, env=env)["id"]
-        )
+        try:
+            tag_ids.append(
+                server.lookup_id(category="tag", slug=slug, env=env)["id"]
+            )
+        except Exception:
+            tag_ids.append(
+                server.lookup_id(category="tag", slug=slug, env="staging")[
+                    "id"
+                ]
+            )
 
     existing = server.get_dataset(slug=spec.DATASET_SLUG, env=env)
     dataset_id = existing["id"] if existing["found"] else None
