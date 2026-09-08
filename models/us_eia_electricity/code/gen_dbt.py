@@ -61,6 +61,24 @@ KEYS = {
     "fuel_receipts_costs": (None, None),
 }
 
+# Key columns that are actually non-null, so `not_null` asserts something rather
+# than restating a fact the source contradicts. Measured, not assumed: EIA-923
+# did not collect the prime mover until 2003, leaving it null on all 178,966
+# rows of 2001 and 2002, and the energy source is null on a further 204 rows of
+# the same era. nuclear_unit_id is populated only at nuclear plants by design,
+# and a fuel delivery's plant and month, while always present, are not a key.
+NOT_NULL_KEY_COLUMNS = {
+    "plant": ["year", "plant_id"],
+    "generator": [
+        "year",
+        "plant_id",
+        "generator_id",
+        "generator_status_group",
+    ],
+    "generation_fuel": ["year", "month", "plant_id"],
+    "fuel_receipts_costs": ["year", "month", "plant_id"],
+}
+
 
 # Columns whose values are enumerated in the dicionario, taken from the
 # architecture rather than listed twice.
@@ -262,7 +280,7 @@ def write_schema() -> None:
                 "            # most recent year on the two tables large enough for the"
             )
             lines.append("            # scan to matter.")
-            lines.append("            where: __most_recent_year__")
+            lines.append("            where: __most_recent_year_en__")
         lines.append("          at_least: 0.05")
         if sparse:
             lines.append(
@@ -293,9 +311,7 @@ def write_schema() -> None:
             lines.append("        description: >-")
             lines.append(_block(col.description_pt, 10))
             tests = []
-            if col.name == "year" or (
-                key and col.name in key and col.name != "nuclear_unit_id"
-            ):
+            if col.name in NOT_NULL_KEY_COLUMNS[table]:
                 tests.append("not_null")
             rels = []
             if col.name == "year":

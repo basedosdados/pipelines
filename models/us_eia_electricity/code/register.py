@@ -25,6 +25,7 @@ import json
 import sys
 from pathlib import Path
 
+import gen_columns_json
 import metadata_spec as spec
 from common import DATA_TABLES, OUTPUT, load_cols
 
@@ -86,9 +87,6 @@ def main() -> None:
         "--bdpro",
         action="store_true",
         help="also write the free/pro coverage split",
-    )
-    parser.add_argument(
-        "--columns-dir", type=Path, default=CODE_DIR / "_columns"
     )
     args = parser.parse_args()
     env = args.env
@@ -195,8 +193,13 @@ def main() -> None:
         table_id = result["id"]
         print(f"\ntable {table} -> {table_id}")
 
-        payload = json.loads(
-            (args.columns_dir / f"columns_{table}.json").read_text()
+        # Built from the architecture CSVs in memory rather than read from a
+        # committed intermediate, so the backend cannot end up describing a
+        # schema the architecture no longer has.
+        payload = (
+            gen_columns_json.DICIONARIO_COLUMNS
+            if table == "dicionario"
+            else gen_columns_json.payload(table)
         )
         server.bulk_upsert_columns(
             table_id=table_id,

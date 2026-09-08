@@ -483,13 +483,13 @@ models:
             # dbt compile, not only dbt test, so it is scoped to the
             # most recent year on the two tables large enough for the
             # scan to matter.
-            where: __most_recent_year__
+            where: __most_recent_year_en__
           at_least: 0.05
           # Measured over the parquet by verify_parquet.py: each of
           # these is a field the form began collecting part-way
           # through the record, or one that applies to a small
           # minority of rows by construction.
-          ignore_values: [nuclear_unit_id]
+          ignore_values: [nuclear_unit_id, reporting_frequency_code]
       - custom_dictionary_coverage:
           dictionary_model: ref('us_eia_electricity__dicionario')
           columns_covered_by_dictionary:
@@ -564,11 +564,9 @@ models:
       - name: prime_mover_code
         description: >-
           Código da máquina primária
-        tests: [not_null]
       - name: energy_source_code
         description: >-
           Código do combustível ou fonte de energia consumida
-        tests: [not_null]
       - name: fuel_type_code_agg
         description: >-
           Código agregado de combustível usado nas publicações da EIA
@@ -627,13 +625,15 @@ models:
             # dbt compile, not only dbt test, so it is scoped to the
             # most recent year on the two tables large enough for the
             # scan to matter.
-            where: __most_recent_year__
+            where: __most_recent_year_en__
           at_least: 0.05
           # Measured over the parquet by verify_parquet.py: each of
           # these is a field the form began collecting part-way
           # through the record, or one that applies to a small
           # minority of rows by construction.
-          ignore_values: [secondary_transportation_mode_code]
+          ignore_values:
+            - reporting_frequency_code
+            - secondary_transportation_mode_code
       - custom_dictionary_coverage:
           dictionary_model: ref('us_eia_electricity__dicionario')
           columns_covered_by_dictionary:
@@ -662,12 +662,14 @@ models:
         description: >-
           Mês-calendário a que a observação se refere
         tests:
+          - not_null
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__mes')
               field: mes.mes
       - name: plant_id
         description: >-
           Código da usina geradora atribuído pela EIA
+        tests: [not_null]
       - name: plant_name
         description: >-
           Nome da usina que recebeu o combustível

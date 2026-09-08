@@ -849,7 +849,14 @@ def build_generator(reader: YearReader) -> pd.DataFrame:
 
     state = col("state")
     county = col("county")
-    status = col("operational_status_code")
+    # Repair the status code BEFORE deriving the group from it. The pre-2009
+    # sheets file standby generators as `BU`, which PUDL's code_fixes maps to
+    # `SB`; deriving the group from the raw value left 332 rows across 2004-2006
+    # with no group at all, because `BU` is not in the vocabulary the group
+    # mapping reads.
+    status = col("operational_status_code").map(
+        lambda v: repair_code(v, "core_eia__codes_operational_status")
+    )
     group = raw["_group"].where(
         raw["_group"].ne(""), status.map(status_group_for)
     )

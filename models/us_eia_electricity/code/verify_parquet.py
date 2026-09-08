@@ -228,19 +228,28 @@ def main() -> None:
             else set(sorted(years)[-3:])
         )
         full_counts, full_total = null_counts(table)
-        scope_counts, scope_total = null_counts(table, scope)
         measured.setdefault(table, {})["scope_years"] = sorted(scope)
         sparse_full = sorted(
             c
             for c in full_counts
             if (full_total - full_counts[c]) / full_total < 0.05
         )
-        sparse_scope = sorted(
-            c
-            for c in scope_counts
-            if scope_total
-            and (scope_total - scope_counts[c]) / scope_total < 0.05
-        )
+        # One year at a time, then union — NOT the pooled share across the
+        # recent years. The scoped test's __most_recent_year_en__ resolves to a
+        # SINGLE year, and that year moves: EIA dropped
+        # reporting_frequency_code from the 2026 EIA-923 file entirely, so it is
+        # 0% non-null in 2026 while sitting comfortably above the floor once
+        # 2024 and 2025 are pooled in. Exempting a column only withdraws an
+        # assertion about it, so the union is the safe direction to err.
+        sparse_scope_set: set[str] = set()
+        for year in scope:
+            counts, total = null_counts(table, {year})
+            if not total:
+                continue
+            sparse_scope_set |= {
+                c for c in counts if (total - counts[c]) / total < 0.05
+            }
+        sparse_scope = sorted(sparse_scope_set)
         measured[table]["sparse_full"] = sparse_full
         measured[table]["sparse_scope"] = sparse_scope
         print(

@@ -45,6 +45,7 @@
    "secondary_transportation_mode_code"
   ],
   "sparse_scope": [
+   "reporting_frequency_code",
    "secondary_transportation_mode_code"
   ]
  },
@@ -88,7 +89,8 @@
    "nuclear_unit_id"
   ],
   "sparse_scope": [
-   "nuclear_unit_id"
+   "nuclear_unit_id",
+   "reporting_frequency_code"
   ]
  },
  "generator": {
