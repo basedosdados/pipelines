@@ -148,9 +148,63 @@ TLS-impersonating `curl_cffi` client alike — while serving the same page to a
 browser session. The 258-code register is therefore **committed** at
 `code/reference/activity_codes.csv` rather than fetched at run time, and it is
 what turns `activity` from a three-character code into a programme name in the
-dicionario. 372 activity codes appear in the data; the register covers the grant
-and cooperative-agreement codes and leaves contract (`N…`), intramural (`Z…`)
-and non-NIH agency codes unlabelled.
+dicionario. 372 activity codes appear in the data and **233 of them get a
+label**; the register covers grants and cooperative agreements and leaves
+contract (`N…`), intramural (`Z…`) and non-NIH agency codes unlabelled. That is
+why `activity` is in `DICT_COLUMNS` but not in `DICT_TEST_COLUMNS` — the dbt
+`custom_dictionary_coverage` test would fail on data that is correct.
+
+## What the build produced
+
+`verify_parquet.py` reads blank counts from the parquet row-group statistics
+rather than the data, and reduces each key to a 64-bit hash in a numpy array
+rather than a Python set, so the whole audit peaks at ~590 MB against a 4.7 GB
+corpus.
+
+| table | rows | files | key | duplicates |
+|---|---:|---:|---|---:|
+| `project` | 2,951,523 | 41 | `year, application_id` | 0 |
+| `project_abstract` | 2,599,720 | 41 | `year, application_id` | 0 |
+| `publication` | 3,218,880 | 46 | `year, pmid` | 0 |
+| `publication_link` | 7,582,090 | 46 | `year, pmid, core_project_num` | 0 |
+| `patent_link` | 92,936 | 1 | `patent_id, core_project_num, patent_org_name` | 0 |
+| `clinical_study_link` | 39,560 | 1 | `nct_id, core_project_num` | 0 |
+| `dicionario` | 497 | 1 | `id_tabela, nome_coluna, chave` | 0 |
+
+**`patent_link`'s key includes the owner, and that is not cosmetic.**
+`(patent_id, core_project_num)` repeats on 36 rows — every one of them the same
+patent title under two different owners, such as patent 9370529 on P50AT004155
+credited to both Iowa State University and the University of Iowa. The same
+patent, supported by the same project, reported by two institutions. The triple
+is unique on all 92,936 rows, so it is the key; collapsing the pair would have
+silently discarded a real co-assignment.
+
+### Join integrity, measured
+
+| join | matched | note |
+|---|---|---|
+| `publication_link` → `project` | 7,239,514 / 7,582,090 (95.48%) | see below |
+| `patent_link` → `project` | 92,928 / 92,936 (99.99%) | |
+| `clinical_study_link` → `project` | 39,381 / 39,560 (99.55%) | |
+| `project_abstract` → `project` | 2,598,777 / 2,599,720 (99.96%) | 943 unmatched |
+
+The 4.5% of publication links with no project is **the project file's start
+date, not a defect**. The unmatched share falls from 58% in the 1980 link file
+to about 1% from 2020 on, and the unmatched project numbers use activity codes
+that went out of use (R23, K04, T01) and the old institute letters (`AM`, the
+arthritis and metabolic institute now `DK`). Publications from 1980-1984 cite
+grants awarded before FY1985, which is where ExPORTER's project file begins.
+
+The 943 unmatched abstract rows are an inconsistency between the source's own
+two files for the same fiscal year. They are kept as published.
+
+**No `ignore_values` anywhere in `schema.yml`.** Every column of every table
+clears the 0.05 non-null floor in the newest partition by a wide margin — the
+list of sparse columns this design started with was a guess, and the
+measurement removed it. The `not_null_proportion_multiple_columns` and
+`custom_dictionary_coverage` tests are scoped to `__most_recent_year_en__` on
+the four partitioned tables, because the test scans every column and the whole
+`project_abstract` table is 8 GB of text.
 
 ## Also worth knowing
 

@@ -286,7 +286,8 @@ us_nih_reporter_flow.deploy_schedules = [
     {"cron": "12 7 6,16,26 * *", "timezone": "America/Sao_Paulo"}
 ]
 # The clean step holds one file's rows in memory at a time, plus the FY1985-FY1999
-# funding supplement (840,226 rows) for the whole project pass. `memory_limit` is
+# funding supplement (840,226 rows) for the whole project pass; a full local
+# rebuild peaked at 0.95 GB resident. `memory_limit` is
 # what the pod actually gets — a bare `memory` key is not in the work pool's job
 # template and is dropped silently, leaving the default 4Gi however large a number
 # it names.

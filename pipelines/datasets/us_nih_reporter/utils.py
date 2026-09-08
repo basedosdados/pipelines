@@ -626,9 +626,12 @@ def clean_patents(input_dir: Path, output_dir: Path) -> int:
     """Clean the all-years patent file.
 
     36 of the 92,936 published rows repeat a ``(patent_id, core_project_num)``
-    pair; exact repeats are collapsed so the pair is a key, and any repeat that
-    disagrees on title or owner is kept, which the dbt uniqueness test then
-    surfaces rather than hiding.
+    pair, and every one of them carries the same patent title under two
+    different owners — the same patent, supported by the same project, reported
+    by two institutions. That is real published data, so the pair is not the
+    table's key: the owner belongs in it, and
+    ``(patent_id, core_project_num, patent_org_name)`` is unique on all 92,936
+    rows. Only rows identical in every field are collapsed here.
     """
     src = input_dir / source_filename("patents", None)
     seen: set[tuple] = set()

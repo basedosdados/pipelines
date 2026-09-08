@@ -134,12 +134,15 @@ class constants(Enum):
     }
 
     # Subset of DICT_COLUMNS asserted complete by the dbt
-    # custom_dictionary_coverage test. Only the two closed label sets the source
-    # documents qualify: `activity` has an official register that covers 258 of
-    # the 372 observed codes and leaves contract, intramural and non-NIH codes
-    # unlabelled, and `administering_ic` is labelled from the data's own
-    # ic_name column, which is itself blank on some rows.
-    DICT_TEST_COLUMNS = {"project": ["application_type", "arra_funded"]}
+    # custom_dictionary_coverage test. `activity` is excluded because the
+    # official NIH register labels only 233 of the 372 activity codes the data
+    # contains — contract, intramural and non-NIH agency codes have no entry —
+    # so the test would fail on data that is correct. The other three are
+    # complete over the whole corpus, measured by verify_parquet.py: 9/9
+    # application types, 2/2 ARRA flags and 114/114 administering institutes.
+    DICT_TEST_COLUMNS = {
+        "project": ["application_type", "arra_funded", "administering_ic"]
+    }
 
     # Documented meanings of APPLICATION_TYPE, from the ExPORTER data dictionary.
     # Values 6 and 8 occur in the data (4,885 and 2,213 rows) but the dictionary

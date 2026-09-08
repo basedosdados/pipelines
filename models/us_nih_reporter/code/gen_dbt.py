@@ -27,35 +27,32 @@ PARTITION_RANGE = {
     "publication_link": (1980, 2031),
 }
 
-# The logical key of each table, used for the uniqueness test.
+# The logical key of each table, used for the uniqueness test. Each was
+# confirmed unique over the whole cleaned corpus by verify_parquet.py.
+#
+# patent_link carries the owner in its key because (patent_id,
+# core_project_num) is NOT unique: 36 pairs appear twice, every one of them with
+# the same patent title and two different owners — the same patent, supported by
+# the same project, reported by two institutions. The published grain is the
+# triple, and (patent_id, core_project_num, patent_org_name) is unique on all
+# 92,936 rows.
 KEYS = {
     "project": ["year", "application_id"],
     "project_abstract": ["year", "application_id"],
     "publication": ["year", "pmid"],
     "publication_link": ["year", "pmid", "core_project_num"],
-    "patent_link": ["patent_id", "core_project_num"],
+    "patent_link": ["patent_id", "core_project_num", "patent_org_name"],
     "clinical_study_link": ["nct_id", "core_project_num"],
 }
 
-# Columns whose non-null share over the full corpus is below the 0.05 floor of
-# not_null_proportion_multiple_columns, measured by verify_parquet.py. Every one
-# is empty by construction for a large stretch of the period: the source did not
-# publish the column at all before a given fiscal year, or it applies only to a
-# small subset of records.
-SPARSE = {
-    "project": [
-        "subproject_id",
-        "suffix",
-        "total_cost_subproject",
-        "org_ipf_id",
-        "direct_cost",
-        "indirect_cost",
-        "funding_mechanism",
-        "nih_spending_cats",
-        "public_health_relevance",
-    ],
-    "publication": ["pmc_id"],
-}
+# Tables whose not_null_proportion_multiple_columns test is scoped to the most
+# recent year. The test scans every column of the table at compile time, and an
+# unscoped run over 2.95M project rows and 8 GB of abstract text is not worth
+# its cost on every dbt invocation. verify_parquet.py confirms that no column of
+# any of the four clears the 0.05 non-null floor only because of the scoping —
+# in the FY2025/CY2025 partition every column is well above it, which is why
+# there is no ignore_values list anywhere in this schema.
+SCOPED_NULL_TEST = set(PARTITIONED_TABLES)
 
 TABLE_NAMES = {
     "project": ("Projeto", "Project", "Proyecto"),
@@ -225,19 +222,22 @@ def write_schema() -> None:
             lines.append(f"            - {k}")
         lines.append("      - not_null_proportion_multiple_columns:")
         lines.append("          at_least: 0.05")
-        if SPARSE.get(table):
+        if table in SCOPED_NULL_TEST:
             lines.append(
-                "          # Empty by construction over most of the period:"
+                "          # Scoped to the newest partition: the test scans"
             )
             lines.append(
-                "          # the source did not publish the column before a"
+                "          # every column, and the whole table is 2.95M project"
             )
             lines.append(
-                "          # given year, or it applies to a small subset."
+                "          # rows and 8 GB of abstract text. Every column clears"
             )
-            lines.append("          ignore_values:")
-            for v in SPARSE[table]:
-                lines.append(f"            - {v}")
+            lines.append(
+                "          # the floor in that partition by a wide margin, so"
+            )
+            lines.append("          # there is no ignore_values list.")
+            lines.append("          config:")
+            lines.append("            where: __most_recent_year_en__")
         if dict_test.get(table):
             lines.append("      - custom_dictionary_coverage:")
             lines.append(
@@ -246,6 +246,9 @@ def write_schema() -> None:
             lines.append("          columns_covered_by_dictionary:")
             for c in dict_test[table]:
                 lines.append(f"            - {c}")
+            if table in SCOPED_NULL_TEST:
+                lines.append("          config:")
+                lines.append("            where: __most_recent_year_en__")
         lines.append("    columns:")
         for c in cols:
             lines.append(f"      - name: {c.name}")

@@ -260,21 +260,22 @@ PROJECT = [
         "Código de tres caracteres del programa de subvención, contrato o actividad intramuros que apoya el proyecto",
         dictionary=True,
         obs=(
-            "372 valores distintos no período. O registro oficial do NIH cobre "
-            "258 códigos de concessões e acordos de cooperação; contratos de "
-            "pesquisa e desenvolvimento (iniciados por N), projetos "
-            "intramuros (iniciados por Z) e códigos de outras agências ficam "
-            "sem rótulo no dicionário.",
-            "372 distinct values over the period. The official NIH register "
-            "covers 258 grant and cooperative agreement codes; research and "
-            "development contracts (beginning with N), intramural projects "
-            "(beginning with Z) and other agencies' codes have no label in the "
-            "dictionary.",
-            "372 valores distintos en el período. El registro oficial del NIH "
-            "cubre 258 códigos de subvenciones y acuerdos de cooperación; los "
-            "contratos de investigación y desarrollo (iniciados por N), los "
-            "proyectos intramuros (iniciados por Z) y los códigos de otras "
-            "agencias quedan sin etiqueta en el diccionario.",
+            "372 valores distintos no período, dos quais 233 têm rótulo no "
+            "dicionário. O registro oficial do NIH cobre 258 códigos de "
+            "concessões e acordos de cooperação; contratos de pesquisa e "
+            "desenvolvimento (iniciados por N), projetos intramuros (iniciados "
+            "por Z) e códigos de outras agências ficam sem rótulo.",
+            "372 distinct values over the period, of which 233 carry a label in "
+            "the dictionary. The official NIH register covers 258 grant and "
+            "cooperative agreement codes; research and development contracts "
+            "(beginning with N), intramural projects (beginning with Z) and "
+            "other agencies' codes have no label.",
+            "372 valores distintos en el período, de los cuales 233 tienen "
+            "etiqueta en el diccionario. El registro oficial del NIH cubre 258 "
+            "códigos de subvenciones y acuerdos de cooperación; los contratos "
+            "de investigación y desarrollo (iniciados por N), los proyectos "
+            "intramuros (iniciados por Z) y los códigos de otras agencias "
+            "quedan sin etiqueta.",
         ),
         original="ACTIVITY",
     ),
@@ -925,9 +926,21 @@ PROJECT_ABSTRACT = [
         "Unique identifier of the project record in the RePORTER database",
         "Identificador único del registro del proyecto en la base RePORTER",
         obs=(
-            "Liga esta tabela a project pelo par (year, application_id).",
-            "Joins this table to project on the pair (year, application_id).",
-            "Une esta tabla con project por el par (year, application_id).",
+            "Liga esta tabela a project pelo par (year, application_id). A "
+            "correspondência é quase completa: 943 das 2.599.720 linhas de "
+            "resumo (0,04%) não têm registro correspondente em project no mesmo "
+            "ano fiscal, uma inconsistência entre os dois arquivos da própria "
+            "fonte, mantida como publicada.",
+            "Joins this table to project on the pair (year, application_id). "
+            "The match is all but complete: 943 of the 2,599,720 abstract rows "
+            "(0.04%) have no matching project record in the same fiscal year, "
+            "an inconsistency between the source's own two files, kept as "
+            "published.",
+            "Une esta tabla con project por el par (year, application_id). La "
+            "correspondencia es casi completa: 943 de las 2.599.720 filas de "
+            "resumen (0,04%) no tienen registro correspondiente en project en el "
+            "mismo año fiscal, una inconsistencia entre los dos archivos de la "
+            "propia fuente, mantenida como se publica.",
         ),
         original="APPLICATION_ID",
     ),
@@ -1195,15 +1208,32 @@ PUBLICATION_LINK = [
             "Liga esta tabela a project pela coluna core_project_num. A "
             "associação vem dos agradecimentos do artigo ou do sistema de "
             "submissão de manuscritos do NIH, e não identifica um ano do "
-            "projeto nem um ano fiscal de financiamento.",
+            "projeto nem um ano fiscal de financiamento. 342.576 das 7.582.090 "
+            "linhas (4,5%) citam um projeto que não consta de project, porque "
+            "o arquivo de projetos começa no ano fiscal de 1985 e as "
+            "publicações mais antigas citam concessões anteriores a ele: a "
+            "proporção sem correspondência cai de 58% no arquivo de 1980 para "
+            "cerca de 1% a partir de 2020, e os códigos de atividade sem "
+            "correspondência são os que saíram de uso, como R23, K04 e T01.",
             "Joins this table to project on the core_project_num column. The "
             "association comes from the article's acknowledgements or from the "
             "NIH manuscript submission system, and identifies neither a year of "
-            "the project nor a fiscal year of funding.",
+            "the project nor a fiscal year of funding. 342,576 of the 7,582,090 "
+            "rows (4.5%) cite a project absent from project, because the "
+            "project file starts in fiscal year 1985 and older publications "
+            "cite awards that predate it: the unmatched share falls from 58% in "
+            "the 1980 file to about 1% from 2020 on, and the unmatched activity "
+            "codes are the discontinued ones, such as R23, K04 and T01.",
             "Une esta tabla con project por la columna core_project_num. La "
             "asociación proviene de los agradecimientos del artículo o del "
             "sistema de envío de manuscritos del NIH, y no identifica un año "
-            "del proyecto ni un año fiscal de financiamiento.",
+            "del proyecto ni un año fiscal de financiamiento. 342.576 de las "
+            "7.582.090 filas (4,5%) citan un proyecto que no consta en project, "
+            "porque el archivo de proyectos comienza en el año fiscal de 1985 y "
+            "las publicaciones más antiguas citan subvenciones anteriores: la "
+            "proporción sin correspondencia cae del 58% en el archivo de 1980 a "
+            "cerca del 1% a partir de 2020, y los códigos de actividad sin "
+            "correspondencia son los que dejaron de usarse, como R23, K04 y T01.",
         ),
         original="PROJECT_NUMBER",
     ),
@@ -1273,11 +1303,23 @@ PATENT_LINK = [
         "Nombre de la organización o persona titular de la patente",
         obs=(
             "Pode diferir da organização que recebeu a concessão ou o contrato. "
-            "Vazio em 2.343 das 92.936 linhas publicadas.",
+            "Vazio em 2.343 das 92.936 linhas publicadas. Faz parte da chave da "
+            "tabela: 36 pares de patente e projeto aparecem duas vezes, sempre "
+            "com o mesmo título e dois titulares diferentes, e a tripla "
+            "(patent_id, core_project_num, patent_org_name) é única em todas as "
+            "92.936 linhas.",
             "May differ from the organisation that received the grant or "
-            "contract. Blank on 2,343 of the 92,936 published rows.",
+            "contract. Blank on 2,343 of the 92,936 published rows. It is part "
+            "of the table's key: 36 patent-project pairs appear twice, always "
+            "with the same title and two different owners, and the triple "
+            "(patent_id, core_project_num, patent_org_name) is unique on all "
+            "92,936 rows.",
             "Puede diferir de la organización que recibió la subvención o el "
-            "contrato. Vacío en 2.343 de las 92.936 filas publicadas.",
+            "contrato. Vacío en 2.343 de las 92.936 filas publicadas. Forma "
+            "parte de la clave de la tabla: 36 pares de patente y proyecto "
+            "aparecen dos veces, siempre con el mismo título y dos titulares "
+            "diferentes, y la tripla (patent_id, core_project_num, "
+            "patent_org_name) es única en las 92.936 filas.",
         ),
         original="PATENT_ORG_NAME",
     ),
