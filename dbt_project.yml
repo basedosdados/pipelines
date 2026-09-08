@@ -633,6 +633,9 @@ models:
     us_ed_nces_ccd:
       +materialized: table
       +schema: us_ed_nces_ccd
+    us_eia_electricity:
+      +materialized: table
+      +schema: us_eia_electricity
     us_epa_tri:
       +materialized: table
       +schema: us_epa_tri
