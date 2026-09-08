@@ -10,6 +10,7 @@ import shutil
 import tempfile
 import urllib.request
 from pathlib import Path
+from urllib.error import URLError
 
 import basedosdados as bd
 import pandas as pd
@@ -91,7 +92,8 @@ def download_year(ano: int, input_dir: Path) -> Path:
     """Baixa os arquivos `.dbc` das 27 UFs do ano.
 
     UF ausente na fonte é registrada no log e ignorada; a carga prossegue com as
-    demais.
+    demais. Falha de rede propaga, para a task repetir em vez de gravar um ano
+    incompleto.
 
     Args:
         ano: Ano a baixar.
@@ -101,6 +103,7 @@ def download_year(ano: int, input_dir: Path) -> Path:
         O diretório de destino.
 
     Raises:
+        URLError: Se a fonte responder algo que não seja 550.
         RuntimeError: Se nenhuma das 27 UFs for baixada.
     """
     missing = []
@@ -113,8 +116,12 @@ def download_year(ano: int, input_dir: Path) -> Path:
                 open(destination, "wb") as file,
             ):
                 shutil.copyfileobj(response, file)
-        except Exception as error:
+        except URLError as error:
             destination.unlink(missing_ok=True)
+            # 550 é arquivo inexistente no FTP. Qualquer outra falha é de rede:
+            # repetir a task inteira é melhor que gravar um ano incompleto.
+            if "550" not in str(error):
+                raise
             missing.append(sigla_uf)
             print(f"  {sigla_uf}: ausente na fonte — {error}")
 
