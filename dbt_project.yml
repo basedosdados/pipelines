@@ -636,12 +636,18 @@ models:
     us_ed_nces_ccd:
       +materialized: table
       +schema: us_ed_nces_ccd
+    us_eia_electricity:
+      +materialized: table
+      +schema: us_eia_electricity
     us_epa_tri:
       +materialized: table
       +schema: us_epa_tri
     us_fema_openfema:
       +materialized: table
       +schema: us_fema_openfema
+    us_fbi_cde:
+      +materialized: table
+      +schema: us_fbi_cde
     us_medsl_elections:
       +materialized: table
       +schema: us_medsl_elections
