@@ -24,6 +24,9 @@ dependencies = [
   "click<9.0.0,>=8.0.3",
   "cloudpickle==2.0.0",
   "croniter==1.0.15",
+  # www.dol.gov (Akamai) rejects requests/curl/wget on the TLS fingerprint
+  # alone; curl_cffi impersonates Chrome and is admitted. Used by us_dol_oflc.
+  "curl-cffi>=0.7,<1.0",
   "dask==2021.11.2",
   "distributed==2021.11.2",
   "docker>=6,<7",
