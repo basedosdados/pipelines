@@ -1,0 +1,1230 @@
+---
+version: 2
+models:
+  - name: world_iati_activities__registry_dataset
+    description: >
+      Conjuntos de dados registrados no Registro IATI, com a licença declarada por
+      cada organização publicadora. É a tabela de proveniência e de licenciamento
+      à qual todas as demais se ligam. Inclui os conjuntos não comerciais, cujas linhas
+      foram removidas das demais tabelas, e os conjuntos que o Bulk Data Service não
+      conseguiu baixar (is_downloaded falso), que não têm linhas em nenhuma outra
+      tabela
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [registry_dataset_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: registry_dataset_id
+        description: Identificador do conjunto de dados no Registro IATI
+        tests: [not_null]
+      - name: publisher_id
+        description: Identificador da organização publicadora no Registro IATI
+      - name: licence_id
+        description: Licença sob a qual a organização publicadora liberou o conjunto
+          de dados de origem
+      - name: source_url
+        description: Endereço de onde o publicador serve o arquivo XML original
+      - name: cached_xml_url
+        description: Endereço da última cópia íntegra do arquivo mantida pelo Bulk
+          Data Service
+      - name: is_downloaded
+        description: Indica se o Bulk Data Service conseguiu baixar o arquivo do publicador
+      - name: last_update_check
+        description: Momento em que o Bulk Data Service verificou o arquivo pela última
+          vez
+  - name: world_iati_activities__activity
+    description: >
+      Atividades de cooperação e ajuda internacional publicadas no padrão IATI. Uma
+      linha por atividade. É a tabela de topo: todas as demais, exceto organisation
+      e registry_dataset, ligam-se a ela por activity_id
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [activity_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - budget_not_provided_code
+            - budget_not_provided_name
+            - crs_channel_code
+    columns:
+      - name: registry_dataset_id
+        description: Identificador do conjunto de dados no Registro IATI de onde a
+          linha veio
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__registry_dataset')
+              field: registry_dataset_id
+      - name: publisher_id
+        description: Identificador da organização publicadora no Registro IATI
+      - name: activity_id
+        description: Identificador único da atividade nesta base
+        tests: [not_null]
+      - name: iati_identifier
+        description: Identificador global e único da atividade, atribuído pela organização
+          que a reporta
+      - name: reporting_org_id
+        description: Identificador IATI da organização que reporta a atividade
+      - name: licence_id
+        description: Licença sob a qual a organização publicadora liberou o conjunto
+          de dados de origem
+      - name: title
+        description: Título da atividade
+      - name: reporting_org_name
+        description: Nome da organização que reporta a atividade
+      - name: reporting_org_type_code
+        description: Código do tipo da organização que reporta a atividade
+      - name: reporting_org_type_name
+        description: Nome do tipo da organização que reporta a atividade
+      - name: reporting_org_is_secondary
+        description: Indica que a organização está reproduzindo dados publicados por
+          outra, e não reportando os próprios
+      - name: activity_status_code
+        description: Código da situação da atividade
+      - name: activity_status_name
+        description: Nome da situação da atividade
+      - name: activity_scope_code
+        description: Código do alcance geográfico da atividade
+      - name: activity_scope_name
+        description: Nome do alcance geográfico da atividade
+      - name: planned_start_date
+        description: Data planejada de início da atividade
+      - name: actual_start_date
+        description: Data efetiva de início da atividade
+      - name: planned_end_date
+        description: Data planejada de término da atividade
+      - name: actual_end_date
+        description: Data efetiva de término da atividade
+      - name: collaboration_type_code
+        description: Código do tipo de colaboração, na classificação do CAD/OCDE
+      - name: collaboration_type_name
+        description: Nome do tipo de colaboração, na classificação do CAD/OCDE
+      - name: default_flow_type_code
+        description: Código padrão do tipo de fluxo financeiro da atividade
+      - name: default_flow_type_name
+        description: Nome padrão do tipo de fluxo financeiro da atividade
+      - name: default_finance_type_code
+        description: Código padrão do instrumento financeiro da atividade
+      - name: default_finance_type_name
+        description: Nome padrão do instrumento financeiro da atividade
+      - name: default_tied_status_code
+        description: Código padrão da condicionalidade de aquisição da atividade
+      - name: default_tied_status_name
+        description: Nome padrão da condicionalidade de aquisição da atividade
+      - name: default_currency_code
+        description: Código ISO 4217 da moeda padrão da atividade
+      - name: default_currency_name
+        description: Nome da moeda padrão da atividade
+      - name: capital_spend_percentage
+        description: Parcela do orçamento da atividade destinada a despesa de capital
+      - name: has_conditions_attached
+        description: Indica que a atividade tem condições associadas ao financiamento
+      - name: is_humanitarian
+        description: Indica que a atividade é classificada como humanitária pelo publicador
+      - name: hierarchy_level
+        description: Nível da atividade na hierarquia declarada pelo publicador, de
+          programa a subprojeto
+      - name: budget_not_provided_code
+        description: Código da razão pela qual a atividade não declara orçamento
+      - name: budget_not_provided_name
+        description: Nome da razão pela qual a atividade não declara orçamento
+      - name: crs_channel_code
+        description: Código do canal de entrega na classificação CRS do CAD/OCDE
+      - name: country_budget_items_vocabulary_code
+        description: Código do vocabulário usado para alinhar a atividade às rubricas
+          orçamentárias do país receptor
+      - name: country_budget_items_vocabulary_name
+        description: Nome do vocabulário usado para alinhar a atividade às rubricas
+          orçamentárias do país receptor
+      - name: language_code
+        description: Código do idioma padrão dos textos da atividade
+      - name: linked_data_uri
+        description: Endereço de dados ligados publicado pela organização para esta
+          atividade
+      - name: last_updated_datetime
+        description: Momento da última alteração da atividade declarado pelo publicador
+  - name: world_iati_activities__budget
+    description: >
+      Orçamentos declarados em cada atividade, por período. Uma linha por período
+      orçamentário. Particionada pelo ano de period_start_date
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, budget_id]
+        config:
+          where: __most_recent_year_en__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+        config:
+          where: __most_recent_year_en__
+    columns:
+      - name: year
+        description: Ano da data de referência da linha, derivado pela Data Basis
+          para particionar a tabela
+        tests: [not_null]
+      - name: registry_dataset_id
+        description: Identificador do conjunto de dados no Registro IATI de onde a
+          linha veio
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__registry_dataset')
+              field: registry_dataset_id
+              config:
+                where: __most_recent_year_en__
+      - name: publisher_id
+        description: Identificador da organização publicadora no Registro IATI
+      - name: budget_id
+        description: Identificador único da linha nesta tabela
+        tests: [not_null]
+      - name: activity_id
+        description: Identificador da atividade a que a linha pertence
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__activity')
+              field: activity_id
+              config:
+                where: __most_recent_year_en__
+      - name: iati_identifier
+        description: Identificador global e único da atividade, atribuído pela organização
+          que a reporta
+      - name: reporting_org_id
+        description: Identificador IATI da organização que reporta a atividade
+      - name: licence_id
+        description: Licença sob a qual a organização publicadora liberou o conjunto
+          de dados de origem
+      - name: budget_type_code
+        description: Código do tipo de orçamento, que distingue original de revisado
+      - name: budget_type_name
+        description: Nome do tipo de orçamento, que distingue original de revisado
+      - name: budget_status_code
+        description: Código da situação do orçamento, que distingue indicativo de
+          comprometido
+      - name: budget_status_name
+        description: Nome da situação do orçamento, que distingue indicativo de comprometido
+      - name: period_start_date
+        description: Data de início do período orçamentário
+      - name: period_end_date
+        description: Data de término do período orçamentário
+      - name: value
+        description: Valor monetário do orçamento, na moeda declarada em currency_code
+      - name: currency_code
+        description: Código ISO 4217 da moeda do valor
+      - name: currency_name
+        description: Nome da moeda do valor
+      - name: value_date
+        description: Data à qual o valor se refere, usada para a conversão cambial
+  - name: world_iati_activities__document_link
+    description: >
+      Documentos associados a cada atividade, com endereço, formato e título. Uma
+      linha por documento. Os endereços são declarados pelo publicador e não são verificados
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [document_link_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [description]
+    columns:
+      - name: registry_dataset_id
+        description: Identificador do conjunto de dados no Registro IATI de onde a
+          linha veio
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__registry_dataset')
+              field: registry_dataset_id
+      - name: publisher_id
+        description: Identificador da organização publicadora no Registro IATI
+      - name: document_link_id
+        description: Identificador único da linha nesta tabela
+        tests: [not_null]
+      - name: activity_id
+        description: Identificador da atividade a que a linha pertence
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__activity')
+              field: activity_id
+      - name: iati_identifier
+        description: Identificador global e único da atividade, atribuído pela organização
+          que a reporta
+      - name: reporting_org_id
+        description: Identificador IATI da organização que reporta a atividade
+      - name: licence_id
+        description: Licença sob a qual a organização publicadora liberou o conjunto
+          de dados de origem
+      - name: url
+        description: Endereço do documento
+      - name: format_code
+        description: Código do formato do arquivo, no padrão de tipos de mídia da
+          IANA
+      - name: format_name
+        description: Nome do formato do arquivo, no padrão de tipos de mídia da IANA
+      - name: title
+        description: Título do documento
+      - name: description
+        description: Descrição do documento
+      - name: document_date
+        description: Data do documento declarada pelo publicador
+  - name: world_iati_activities__location
+    description: >
+      Locais subnacionais associados a cada atividade, com coordenadas quando declaradas.
+      Uma linha por local de cada atividade
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [location_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: registry_dataset_id
+        description: Identificador do conjunto de dados no Registro IATI de onde a
+          linha veio
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__registry_dataset')
+              field: registry_dataset_id
+      - name: publisher_id
+        description: Identificador da organização publicadora no Registro IATI
+      - name: location_id
+        description: Identificador único da linha nesta tabela
+        tests: [not_null]
+      - name: activity_id
+        description: Identificador da atividade a que a linha pertence
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__activity')
+              field: activity_id
+      - name: iati_identifier
+        description: Identificador global e único da atividade, atribuído pela organização
+          que a reporta
+      - name: reporting_org_id
+        description: Identificador IATI da organização que reporta a atividade
+      - name: licence_id
+        description: Licença sob a qual a organização publicadora liberou o conjunto
+          de dados de origem
+      - name: location_ref
+        description: Referência do local atribuída pela organização que reporta a
+          atividade
+      - name: name
+        description: Nome do local
+      - name: description
+        description: Descrição do local
+      - name: activity_description
+        description: Descrição do que a atividade faz neste local
+      - name: point_position
+        description: Coordenadas do local, como latitude e longitude separadas por
+          espaço
+      - name: point_srs_name
+        description: Sistema de referência espacial em que as coordenadas foram declaradas
+      - name: location_reach_code
+        description: Código do alcance do local, que distingue onde a atividade ocorre
+          de onde ela produz efeito
+      - name: location_reach_name
+        description: Nome do alcance do local, que distingue onde a atividade ocorre
+          de onde ela produz efeito
+      - name: exactness_code
+        description: Código da exatidão das coordenadas, que distingue ponto exato
+          de aproximação
+      - name: exactness_name
+        description: Nome da exatidão das coordenadas, que distingue ponto exato de
+          aproximação
+      - name: location_class_code
+        description: Código da classe do local, que distingue feição administrativa,
+          povoado e estrutura
+      - name: location_class_name
+        description: Nome da classe do local, que distingue feição administrativa,
+          povoado e estrutura
+      - name: feature_designation_code
+        description: Código da designação da feição geográfica, no vocabulário do
+          GeoNames
+      - name: feature_designation_name
+        description: Nome da designação da feição geográfica, no vocabulário do GeoNames
+  - name: world_iati_activities__organisation
+    description: >
+      Organizações que publicam arquivos de organização no padrão IATI, distintos
+      dos arquivos de atividade. Uma linha por organização
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [organisation_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: registry_dataset_id
+        description: Identificador do conjunto de dados no Registro IATI de onde a
+          linha veio
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__registry_dataset')
+              field: registry_dataset_id
+      - name: publisher_id
+        description: Identificador da organização publicadora no Registro IATI
+      - name: organisation_id
+        description: Identificador único da organização nesta tabela
+        tests: [not_null]
+      - name: organisation_identifier
+        description: Identificador IATI da organização, estável entre execuções
+      - name: reporting_org_id
+        description: Identificador IATI da organização que reporta a atividade
+      - name: licence_id
+        description: Licença sob a qual a organização publicadora liberou o conjunto
+          de dados de origem
+      - name: name
+        description: Nome da organização
+      - name: reporting_org_name
+        description: Nome da organização que reporta o arquivo
+      - name: reporting_org_type_code
+        description: Código do tipo da organização que reporta o arquivo
+      - name: reporting_org_type_name
+        description: Nome do tipo da organização que reporta o arquivo
+      - name: reporting_org_is_secondary
+        description: Indica que a organização está reproduzindo dados publicados por
+          outra
+      - name: default_currency_code
+        description: Código ISO 4217 da moeda padrão da organização
+      - name: default_currency_name
+        description: Nome da moeda padrão da organização
+      - name: language_code
+        description: Código do idioma padrão dos textos da organização
+      - name: last_updated_datetime
+        description: Momento da última alteração do arquivo declarado pelo publicador
+  - name: world_iati_activities__participating_org
+    description: >
+      Organizações que participam de cada atividade e o papel de cada uma, entre financiador,
+      responsável, extensor e executor. Uma linha por participação
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [participating_org_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: registry_dataset_id
+        description: Identificador do conjunto de dados no Registro IATI de onde a
+          linha veio
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__registry_dataset')
+              field: registry_dataset_id
+      - name: publisher_id
+        description: Identificador da organização publicadora no Registro IATI
+      - name: participating_org_id
+        description: Identificador único da linha nesta tabela
+        tests: [not_null]
+      - name: activity_id
+        description: Identificador da atividade a que a linha pertence
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__activity')
+              field: activity_id
+      - name: iati_identifier
+        description: Identificador global e único da atividade, atribuído pela organização
+          que a reporta
+      - name: reporting_org_id
+        description: Identificador IATI da organização que reporta a atividade
+      - name: licence_id
+        description: Licença sob a qual a organização publicadora liberou o conjunto
+          de dados de origem
+      - name: org_id
+        description: Identificador IATI da organização participante
+      - name: org_activity_id
+        description: Identificador IATI da atividade correspondente na base da organização
+          participante
+      - name: role_code
+        description: Código do papel da organização, que distingue financiador, responsável,
+          extensor e executor
+      - name: role_name
+        description: Nome do papel da organização, que distingue financiador, responsável,
+          extensor e executor
+      - name: org_type_code
+        description: Código do tipo da organização participante
+      - name: org_type_name
+        description: Nome do tipo da organização participante
+      - name: crs_channel_code
+        description: Código do canal de entrega na classificação CRS do CAD/OCDE
+      - name: crs_channel_name
+        description: Nome do canal de entrega na classificação CRS do CAD/OCDE
+      - name: org_name
+        description: Nome da organização participante
+  - name: world_iati_activities__planned_disbursement
+    description: >
+      Desembolsos planejados em cada atividade, por período. Uma linha por período.
+      Particionada pelo ano de period_start_date
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, planned_disbursement_id]
+        config:
+          where: __most_recent_year_en__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [receiver_org_type_name]
+        config:
+          where: __most_recent_year_en__
+    columns:
+      - name: year
+        description: Ano da data de referência da linha, derivado pela Data Basis
+          para particionar a tabela
+        tests: [not_null]
+      - name: registry_dataset_id
+        description: Identificador do conjunto de dados no Registro IATI de onde a
+          linha veio
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__registry_dataset')
+              field: registry_dataset_id
+              config:
+                where: __most_recent_year_en__
+      - name: publisher_id
+        description: Identificador da organização publicadora no Registro IATI
+      - name: planned_disbursement_id
+        description: Identificador único da linha nesta tabela
+        tests: [not_null]
+      - name: activity_id
+        description: Identificador da atividade a que a linha pertence
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__activity')
+              field: activity_id
+              config:
+                where: __most_recent_year_en__
+      - name: iati_identifier
+        description: Identificador global e único da atividade, atribuído pela organização
+          que a reporta
+      - name: reporting_org_id
+        description: Identificador IATI da organização que reporta a atividade
+      - name: licence_id
+        description: Licença sob a qual a organização publicadora liberou o conjunto
+          de dados de origem
+      - name: planned_disbursement_type_code
+        description: Código do tipo de desembolso planejado, que distingue original
+          de revisado
+      - name: planned_disbursement_type_name
+        description: Nome do tipo de desembolso planejado, que distingue original
+          de revisado
+      - name: period_start_date
+        description: Data de início do período do desembolso planejado
+      - name: period_end_date
+        description: Data de término do período do desembolso planejado
+      - name: value
+        description: Valor monetário do desembolso planejado, na moeda declarada em
+          currency_code
+      - name: currency_code
+        description: Código ISO 4217 da moeda do valor
+      - name: currency_name
+        description: Nome da moeda do valor
+      - name: value_date
+        description: Data à qual o valor se refere, usada para a conversão cambial
+      - name: provider_org_id
+        description: Identificador IATI da organização de onde o recurso deve sair
+      - name: provider_activity_id
+        description: Identificador IATI da atividade correspondente na base da organização
+          de onde o recurso deve sair
+      - name: provider_org_type_code
+        description: Código do tipo da organização de onde o recurso deve sair
+      - name: provider_org_type_name
+        description: Nome do tipo da organização de onde o recurso deve sair
+      - name: provider_org_name
+        description: Nome da organização de onde o recurso deve sair
+      - name: receiver_org_id
+        description: Identificador IATI da organização que deve receber o recurso
+      - name: receiver_activity_id
+        description: Identificador IATI da atividade correspondente na base da organização
+          que deve receber o recurso
+      - name: receiver_org_type_code
+        description: Código do tipo da organização que deve receber o recurso
+      - name: receiver_org_type_name
+        description: Nome do tipo da organização que deve receber o recurso
+      - name: receiver_org_name
+        description: Nome da organização que deve receber o recurso
+  - name: world_iati_activities__policy_marker
+    description: >
+      Marcadores de política atribuídos a cada atividade, como igualdade de gênero
+      e mitigação climática, com o grau em que são objetivo da atividade. Uma linha
+      por marcador de cada atividade
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [policy_marker_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [vocabulary_uri]
+    columns:
+      - name: registry_dataset_id
+        description: Identificador do conjunto de dados no Registro IATI de onde a
+          linha veio
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__registry_dataset')
+              field: registry_dataset_id
+      - name: publisher_id
+        description: Identificador da organização publicadora no Registro IATI
+      - name: policy_marker_id
+        description: Identificador único da linha nesta tabela
+        tests: [not_null]
+      - name: activity_id
+        description: Identificador da atividade a que a linha pertence
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__activity')
+              field: activity_id
+      - name: iati_identifier
+        description: Identificador global e único da atividade, atribuído pela organização
+          que a reporta
+      - name: reporting_org_id
+        description: Identificador IATI da organização que reporta a atividade
+      - name: licence_id
+        description: Licença sob a qual a organização publicadora liberou o conjunto
+          de dados de origem
+      - name: vocabulary_code
+        description: Código do vocabulário de marcadores de política usado
+      - name: vocabulary_name
+        description: Nome do vocabulário de marcadores de política usado
+      - name: vocabulary_uri
+        description: Endereço da definição do vocabulário, quando ele não é um dos
+          padronizados pelo IATI
+      - name: policy_marker_code
+        description: Código do marcador de política, como igualdade de gênero ou mitigação
+          climática
+      - name: policy_marker_name
+        description: Nome do marcador de política, como igualdade de gênero ou mitigação
+          climática
+      - name: significance_code
+        description: Código do grau em que o marcador é objetivo da atividade, de
+          não orientado a principal
+      - name: significance_name
+        description: Nome do grau em que o marcador é objetivo da atividade, de não
+          orientado a principal
+      - name: policy_marker_narrative
+        description: Nome do marcador conforme escrito pelo publicador
+  - name: world_iati_activities__recipient_country
+    description: >
+      Países receptores de cada atividade, com a parcela da atividade que cabe a cada
+      um. Uma linha por país de cada atividade
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [activity_recipient_country_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: registry_dataset_id
+        description: Identificador do conjunto de dados no Registro IATI de onde a
+          linha veio
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__registry_dataset')
+              field: registry_dataset_id
+      - name: publisher_id
+        description: Identificador da organização publicadora no Registro IATI
+      - name: activity_recipient_country_id
+        description: Identificador único da linha nesta tabela
+        tests: [not_null]
+      - name: activity_id
+        description: Identificador da atividade a que a linha pertence
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__activity')
+              field: activity_id
+      - name: iati_identifier
+        description: Identificador global e único da atividade, atribuído pela organização
+          que a reporta
+      - name: reporting_org_id
+        description: Identificador IATI da organização que reporta a atividade
+      - name: licence_id
+        description: Licença sob a qual a organização publicadora liberou o conjunto
+          de dados de origem
+      - name: recipient_country_code
+        description: Código do país receptor da atividade
+      - name: recipient_country_name
+        description: Nome do país receptor da atividade
+      - name: percentage
+        description: Parcela da atividade atribuída a este país
+      - name: recipient_country_narrative
+        description: Nome do país conforme escrito pelo publicador
+  - name: world_iati_activities__recipient_region
+    description: >
+      Regiões receptoras de cada atividade, com a parcela da atividade que cabe a
+      cada uma. Uma linha por região de cada atividade
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [activity_recipient_region_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: registry_dataset_id
+        description: Identificador do conjunto de dados no Registro IATI de onde a
+          linha veio
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__registry_dataset')
+              field: registry_dataset_id
+      - name: publisher_id
+        description: Identificador da organização publicadora no Registro IATI
+      - name: activity_recipient_region_id
+        description: Identificador único da linha nesta tabela
+        tests: [not_null]
+      - name: activity_id
+        description: Identificador da atividade a que a linha pertence
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__activity')
+              field: activity_id
+      - name: iati_identifier
+        description: Identificador global e único da atividade, atribuído pela organização
+          que a reporta
+      - name: reporting_org_id
+        description: Identificador IATI da organização que reporta a atividade
+      - name: licence_id
+        description: Licença sob a qual a organização publicadora liberou o conjunto
+          de dados de origem
+      - name: recipient_region_code
+        description: Código da região receptora da atividade
+      - name: recipient_region_name
+        description: Nome da região receptora da atividade
+      - name: vocabulary_code
+        description: Código do vocabulário de regiões usado
+      - name: vocabulary_name
+        description: Nome do vocabulário de regiões usado
+      - name: vocabulary_uri
+        description: Endereço da definição do vocabulário, quando ele não é um dos
+          padronizados pelo IATI
+      - name: percentage
+        description: Parcela da atividade atribuída a esta região
+      - name: recipient_region_narrative
+        description: Nome da região conforme escrito pelo publicador
+  - name: world_iati_activities__related_activity
+    description: >
+      Ligações declaradas entre atividades, como atividade-mãe, filha, irmã e cofinanciada.
+      Uma linha por ligação. A atividade referenciada pode não existir nesta base
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [related_activity_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: registry_dataset_id
+        description: Identificador do conjunto de dados no Registro IATI de onde a
+          linha veio
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__registry_dataset')
+              field: registry_dataset_id
+      - name: publisher_id
+        description: Identificador da organização publicadora no Registro IATI
+      - name: related_activity_id
+        description: Identificador único da linha nesta tabela
+        tests: [not_null]
+      - name: activity_id
+        description: Identificador da atividade a que a linha pertence
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__activity')
+              field: activity_id
+      - name: iati_identifier
+        description: Identificador global e único da atividade, atribuído pela organização
+          que a reporta
+      - name: reporting_org_id
+        description: Identificador IATI da organização que reporta a atividade
+      - name: licence_id
+        description: Licença sob a qual a organização publicadora liberou o conjunto
+          de dados de origem
+      - name: related_iati_identifier
+        description: Identificador IATI da atividade relacionada
+      - name: relation_type_code
+        description: Código do tipo de relação, que distingue atividade-mãe, filha,
+          irmã e cofinanciada
+      - name: relation_type_name
+        description: Nome do tipo de relação, que distingue atividade-mãe, filha,
+          irmã e cofinanciada
+  - name: world_iati_activities__result
+    description: >
+      Resultados declarados em cada atividade, entre produto, efeito e impacto. Uma
+      linha por resultado
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [result_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: registry_dataset_id
+        description: Identificador do conjunto de dados no Registro IATI de onde a
+          linha veio
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__registry_dataset')
+              field: registry_dataset_id
+      - name: publisher_id
+        description: Identificador da organização publicadora no Registro IATI
+      - name: result_id
+        description: Identificador único da linha nesta tabela
+        tests: [not_null]
+      - name: activity_id
+        description: Identificador da atividade a que a linha pertence
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__activity')
+              field: activity_id
+      - name: iati_identifier
+        description: Identificador global e único da atividade, atribuído pela organização
+          que a reporta
+      - name: reporting_org_id
+        description: Identificador IATI da organização que reporta a atividade
+      - name: licence_id
+        description: Licença sob a qual a organização publicadora liberou o conjunto
+          de dados de origem
+      - name: result_type_code
+        description: Código do tipo de resultado, que distingue produto, efeito e
+          impacto
+      - name: result_type_name
+        description: Nome do tipo de resultado, que distingue produto, efeito e impacto
+      - name: is_aggregation_status
+        description: Indica que os valores do resultado podem ser somados a outros
+          da mesma organização
+      - name: title
+        description: Título do resultado
+      - name: description
+        description: Descrição do resultado
+  - name: world_iati_activities__result_indicator
+    description: >
+      Indicadores de cada resultado. Uma linha por indicador
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [result_indicator_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: registry_dataset_id
+        description: Identificador do conjunto de dados no Registro IATI de onde a
+          linha veio
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__registry_dataset')
+              field: registry_dataset_id
+      - name: publisher_id
+        description: Identificador da organização publicadora no Registro IATI
+      - name: result_indicator_id
+        description: Identificador único da linha nesta tabela
+        tests: [not_null]
+      - name: activity_id
+        description: Identificador da atividade a que a linha pertence
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__activity')
+              field: activity_id
+      - name: iati_identifier
+        description: Identificador global e único da atividade, atribuído pela organização
+          que a reporta
+      - name: reporting_org_id
+        description: Identificador IATI da organização que reporta a atividade
+      - name: licence_id
+        description: Licença sob a qual a organização publicadora liberou o conjunto
+          de dados de origem
+      - name: result_id
+        description: Identificador do resultado a que o indicador pertence
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__result')
+              field: result_id
+      - name: measure_code
+        description: Código da unidade de medida do indicador, que distingue unidade,
+          percentual e qualitativo
+      - name: measure_name
+        description: Nome da unidade de medida do indicador, que distingue unidade,
+          percentual e qualitativo
+      - name: is_ascending
+        description: Indica que valores maiores do indicador representam progresso
+      - name: is_aggregation_status
+        description: Indica que os valores do indicador podem ser somados a outros
+          da mesma organização
+      - name: title
+        description: Título do indicador
+      - name: description
+        description: Descrição do indicador
+  - name: world_iati_activities__result_indicator_period
+    description: >
+      Períodos de medição de cada indicador, com meta e valor efetivo. Uma linha por
+      período. Particionada pelo ano de period_start_date
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, result_indicator_period_id]
+        config:
+          where: __most_recent_year_en__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [target_value, actual_value]
+        config:
+          where: __most_recent_year_en__
+    columns:
+      - name: year
+        description: Ano da data de referência da linha, derivado pela Data Basis
+          para particionar a tabela
+        tests: [not_null]
+      - name: registry_dataset_id
+        description: Identificador do conjunto de dados no Registro IATI de onde a
+          linha veio
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__registry_dataset')
+              field: registry_dataset_id
+              config:
+                where: __most_recent_year_en__
+      - name: publisher_id
+        description: Identificador da organização publicadora no Registro IATI
+      - name: result_indicator_period_id
+        description: Identificador único da linha nesta tabela
+        tests: [not_null]
+      - name: activity_id
+        description: Identificador da atividade a que a linha pertence
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__activity')
+              field: activity_id
+              config:
+                where: __most_recent_year_en__
+      - name: iati_identifier
+        description: Identificador global e único da atividade, atribuído pela organização
+          que a reporta
+      - name: reporting_org_id
+        description: Identificador IATI da organização que reporta a atividade
+      - name: licence_id
+        description: Licença sob a qual a organização publicadora liberou o conjunto
+          de dados de origem
+      - name: result_id
+        description: Identificador do resultado a que o período pertence
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__result')
+              field: result_id
+              config:
+                where: __most_recent_year_en__
+      - name: result_indicator_id
+        description: Identificador do indicador a que o período pertence
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__result_indicator')
+              field: result_indicator_id
+              config:
+                where: __most_recent_year_en__
+      - name: period_start_date
+        description: Data de início do período de medição
+      - name: period_end_date
+        description: Data de término do período de medição
+      - name: target_value
+        description: Valor que o indicador deveria atingir no período
+      - name: actual_value
+        description: Valor que o indicador efetivamente atingiu no período
+  - name: world_iati_activities__sector
+    description: >
+      Setores atribuídos a cada atividade, com a parcela da atividade que cabe a cada
+      um. Uma linha por setor de cada atividade
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [activity_sector_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: registry_dataset_id
+        description: Identificador do conjunto de dados no Registro IATI de onde a
+          linha veio
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__registry_dataset')
+              field: registry_dataset_id
+      - name: publisher_id
+        description: Identificador da organização publicadora no Registro IATI
+      - name: activity_sector_id
+        description: Identificador único da linha nesta tabela
+        tests: [not_null]
+      - name: activity_id
+        description: Identificador da atividade a que a linha pertence
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__activity')
+              field: activity_id
+      - name: iati_identifier
+        description: Identificador global e único da atividade, atribuído pela organização
+          que a reporta
+      - name: reporting_org_id
+        description: Identificador IATI da organização que reporta a atividade
+      - name: licence_id
+        description: Licença sob a qual a organização publicadora liberou o conjunto
+          de dados de origem
+      - name: vocabulary_code
+        description: Código do vocabulário de setores usado
+      - name: vocabulary_name
+        description: Nome do vocabulário de setores usado
+      - name: vocabulary_uri
+        description: Endereço da definição do vocabulário, quando ele não é um dos
+          padronizados pelo IATI
+      - name: sector_code
+        description: Código do setor atribuído à atividade
+      - name: sector_name
+        description: Nome do setor atribuído à atividade
+      - name: percentage
+        description: Parcela da atividade atribuída a este setor
+      - name: sector_narrative
+        description: Nome do setor conforme escrito pelo publicador
+  - name: world_iati_activities__transaction
+    description: >
+      Transações financeiras declaradas em cada atividade, incluindo compromissos,
+      desembolsos, gastos e reembolsos. Uma linha por transação. Particionada pelo
+      ano de transaction_date
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, transaction_id]
+        config:
+          where: __most_recent_year_en__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - recipient_region_name
+            - recipient_region_vocabulary_code
+            - recipient_region_vocabulary_name
+        config:
+          where: __most_recent_year_en__
+    columns:
+      - name: year
+        description: Ano da data de referência da linha, derivado pela Data Basis
+          para particionar a tabela
+        tests: [not_null]
+      - name: registry_dataset_id
+        description: Identificador do conjunto de dados no Registro IATI de onde a
+          linha veio
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__registry_dataset')
+              field: registry_dataset_id
+              config:
+                where: __most_recent_year_en__
+      - name: publisher_id
+        description: Identificador da organização publicadora no Registro IATI
+      - name: transaction_id
+        description: Identificador único da linha nesta tabela
+        tests: [not_null]
+      - name: activity_id
+        description: Identificador da atividade a que a linha pertence
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__activity')
+              field: activity_id
+              config:
+                where: __most_recent_year_en__
+      - name: iati_identifier
+        description: Identificador global e único da atividade, atribuído pela organização
+          que a reporta
+      - name: reporting_org_id
+        description: Identificador IATI da organização que reporta a atividade
+      - name: licence_id
+        description: Licença sob a qual a organização publicadora liberou o conjunto
+          de dados de origem
+      - name: transaction_ref
+        description: Referência da transação atribuída pela organização que a reporta
+      - name: transaction_type_code
+        description: Código do tipo de transação, que distingue compromisso, desembolso,
+          gasto e reembolso
+      - name: transaction_type_name
+        description: Nome do tipo de transação, que distingue compromisso, desembolso,
+          gasto e reembolso
+      - name: transaction_date
+        description: Data em que a transação ocorreu
+      - name: value
+        description: Valor monetário da transação, na moeda declarada em currency_code
+      - name: currency_code
+        description: Código ISO 4217 da moeda do valor
+      - name: currency_name
+        description: Nome da moeda do valor
+      - name: value_date
+        description: Data à qual o valor se refere, usada para a conversão cambial
+      - name: value_usd
+        description: Valor convertido para dólares dos Estados Unidos
+      - name: description
+        description: Descrição da transação
+      - name: provider_org_id
+        description: Identificador IATI da organização de onde o recurso saiu
+      - name: provider_activity_id
+        description: Identificador IATI da atividade correspondente na base da organização
+          de onde o recurso saiu
+      - name: provider_org_type_code
+        description: Código do tipo da organização de onde o recurso saiu
+      - name: provider_org_type_name
+        description: Nome do tipo da organização de onde o recurso saiu
+      - name: provider_org_name
+        description: Nome da organização de onde o recurso saiu
+      - name: receiver_org_id
+        description: Identificador IATI da organização que recebeu o recurso
+      - name: receiver_activity_id
+        description: Identificador IATI da atividade correspondente na base da organização
+          que recebeu o recurso
+      - name: receiver_org_type_code
+        description: Código do tipo da organização que recebeu o recurso
+      - name: receiver_org_type_name
+        description: Nome do tipo da organização que recebeu o recurso
+      - name: receiver_org_name
+        description: Nome da organização que recebeu o recurso
+      - name: disbursement_channel_code
+        description: Código do canal pelo qual o recurso foi desembolsado
+      - name: disbursement_channel_name
+        description: Nome do canal pelo qual o recurso foi desembolsado
+      - name: sector_code
+        description: Código do setor principal da transação
+      - name: sector_name
+        description: Nome do setor principal da transação
+      - name: recipient_country_code
+        description: Código do país receptor da transação
+      - name: recipient_country_name
+        description: Nome do país receptor da transação
+      - name: recipient_region_code
+        description: Código da região receptora da transação
+      - name: recipient_region_name
+        description: Nome da região receptora da transação
+      - name: recipient_region_vocabulary_code
+        description: Código do vocabulário de regiões usado
+      - name: recipient_region_vocabulary_name
+        description: Nome do vocabulário de regiões usado
+      - name: flow_type_code
+        description: Código do tipo de fluxo financeiro, que distingue ajuda oficial
+          de outros fluxos
+      - name: flow_type_name
+        description: Nome do tipo de fluxo financeiro, que distingue ajuda oficial
+          de outros fluxos
+      - name: finance_type_code
+        description: Código do instrumento financeiro, que distingue doação de empréstimo
+      - name: finance_type_name
+        description: Nome do instrumento financeiro, que distingue doação de empréstimo
+      - name: tied_status_code
+        description: Código da condicionalidade de aquisição do recurso
+      - name: tied_status_name
+        description: Nome da condicionalidade de aquisição do recurso
+      - name: is_humanitarian
+        description: Indica que a transação é classificada como humanitária pelo publicador
+  - name: world_iati_activities__transaction_breakdown
+    description: >
+      Decomposição de cada transação em partes proporcionais por setor e por destino
+      geográfico, seguindo a metodologia do Country Development Finance Data. Uma
+      linha por combinação de transação, setor, país e região. Particionada pelo ano
+      de transaction_date. Não tem chave única: um publicador pode declarar o mesmo
+      setor ou o mesmo receptor duas vezes na mesma atividade, e a decomposição então
+      repete a combinação de transação, setor, país e região com valores distintos
+      — 441.215 linhas, 1,79% da tabela
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+        config:
+          where: __most_recent_year_en__
+    columns:
+      - name: year
+        description: Ano da data de referência da linha, derivado pela Data Basis
+          para particionar a tabela
+        tests: [not_null]
+      - name: registry_dataset_id
+        description: Identificador do conjunto de dados no Registro IATI de onde a
+          linha veio
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__registry_dataset')
+              field: registry_dataset_id
+              config:
+                where: __most_recent_year_en__
+      - name: publisher_id
+        description: Identificador da organização publicadora no Registro IATI
+      - name: transaction_id
+        description: Identificador da transação que esta linha decompõe
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__transaction')
+              field: transaction_id
+              config:
+                where: __most_recent_year_en__
+      - name: activity_id
+        description: Identificador da atividade a que a linha pertence
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__activity')
+              field: activity_id
+              config:
+                where: __most_recent_year_en__
+      - name: iati_identifier
+        description: Identificador global e único da atividade, atribuído pela organização
+          que a reporta
+      - name: reporting_org_id
+        description: Identificador IATI da organização que reporta a atividade
+      - name: licence_id
+        description: Licença sob a qual a organização publicadora liberou o conjunto
+          de dados de origem
+      - name: transaction_type_code
+        description: Código do tipo de transação
+      - name: transaction_type_name
+        description: Nome do tipo de transação
+      - name: transaction_date
+        description: Data em que a transação ocorreu
+      - name: sector_code
+        description: Código do setor a que esta parcela foi atribuída
+      - name: sector_name
+        description: Nome do setor a que esta parcela foi atribuída
+      - name: recipient_country_code
+        description: Código do país a que esta parcela foi atribuída
+      - name: recipient_country_name
+        description: Nome do país a que esta parcela foi atribuída
+      - name: recipient_region_code
+        description: Código da região a que esta parcela foi atribuída
+      - name: recipient_region_name
+        description: Nome da região a que esta parcela foi atribuída
+      - name: value
+        description: Valor monetário da transação, na moeda declarada em currency_code
+      - name: currency_code
+        description: Código ISO 4217 da moeda do valor
+      - name: value_date
+        description: Data à qual o valor se refere, usada para a conversão cambial
+      - name: value_usd
+        description: Valor convertido para dólares dos Estados Unidos
+      - name: percentage_used
+        description: Parcela do valor da transação atribuída a esta combinação de
+          setor e destino
+  - name: world_iati_activities__transaction_sector
+    description: >
+      Setores declarados diretamente em cada transação, antes da decomposição proporcional.
+      Uma linha por setor de cada transação
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [transaction_sector_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [vocabulary_uri]
+    columns:
+      - name: registry_dataset_id
+        description: Identificador do conjunto de dados no Registro IATI de onde a
+          linha veio
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__registry_dataset')
+              field: registry_dataset_id
+      - name: publisher_id
+        description: Identificador da organização publicadora no Registro IATI
+      - name: transaction_sector_id
+        description: Identificador único da linha nesta tabela
+        tests: [not_null]
+      - name: activity_id
+        description: Identificador da atividade a que a linha pertence
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__activity')
+              field: activity_id
+      - name: iati_identifier
+        description: Identificador global e único da atividade, atribuído pela organização
+          que a reporta
+      - name: reporting_org_id
+        description: Identificador IATI da organização que reporta a atividade
+      - name: licence_id
+        description: Licença sob a qual a organização publicadora liberou o conjunto
+          de dados de origem
+      - name: transaction_id
+        description: Identificador da transação a que o setor foi atribuído
+        tests:
+          - relationships:
+              to: ref('world_iati_activities__transaction')
+              field: transaction_id
+      - name: vocabulary_code
+        description: Código do vocabulário de setores usado
+      - name: vocabulary_name
+        description: Nome do vocabulário de setores usado
+      - name: vocabulary_uri
+        description: Endereço da definição do vocabulário, quando ele não é um dos
+          padronizados pelo IATI
+      - name: sector_code
+        description: Código do setor atribuído à transação
+      - name: sector_name
+        description: Nome do setor atribuído à transação
+      - name: sector_narrative
+        description: Nome do setor conforme escrito pelo publicador

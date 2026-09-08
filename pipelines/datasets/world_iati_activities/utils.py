@@ -306,22 +306,32 @@ def clean_table(
             f"COPY ({body}) TO '{dest / 'data.parquet'}' ({copy_opts})"
         )
 
+    _rename_partition_files(dest)
     kept = _scalar(
         con, f"SELECT count(*) FROM read_parquet('{dest}/**/*.parquet')"
     )
     con.close()
 
-    _rename_partition_files(dest)
     assert_all_string(dest)
     return {"table": table, "source_rows": total, "kept_rows": kept}
 
 
 def _rename_partition_files(dest: Path) -> None:
-    """DuckDB writes ``data0.parquet`` per partition; the house convention is
-    ``data.parquet``."""
-    for f in dest.rglob("*.parquet"):
-        if f.name != "data.parquet":
-            f.rename(f.with_name("data.parquet"))
+    """DuckDB writes ``data0.parquet``, ``data1.parquet``, … per partition; the
+    house convention is a single ``data.parquet``.
+
+    Renaming unconditionally is silent data loss: a partition DuckDB chose to
+    split across two files ends up with the second overwriting the first. That
+    happened on ``budget``, which lost 96,002 of 2,833,973 rows before this
+    guard existed — and it was invisible until the row counts were compared
+    after the rename rather than before it. Only a directory holding exactly one
+    file is renamed; the rest keep DuckDB's indexed names, which the uploader
+    globs anyway.
+    """
+    for directory in {f.parent for f in dest.rglob("*.parquet")}:
+        files = sorted(directory.glob("*.parquet"))
+        if len(files) == 1 and files[0].name != "data.parquet":
+            files[0].rename(files[0].with_name("data.parquet"))
 
 
 def write_transaction_lookup(out_dir: Path, dest: Path) -> Path:

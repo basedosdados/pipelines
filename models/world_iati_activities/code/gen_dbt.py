@@ -3,7 +3,9 @@
 Everything is derived from the architecture CSVs, so a column added there
 appears in the model, in its cast, and in schema.yml without a second edit.
 
-Run: ``python gen_dbt.py``
+Run ``python gen_dbt.py``, then ``uv run pre-commit run --files
+models/world_iati_activities/*`` — sqlfmt and yamlfix rewrite the output, and
+committing without that first produces the hook re-write loop.
 """
 
 import csv
@@ -39,13 +41,14 @@ UNIQUE_KEY = {
     "registry_dataset": ["registry_dataset_id"],
     "activity": ["activity_id"],
     "transaction": ["year", "transaction_id"],
-    "transaction_breakdown": [
-        "year",
-        "transaction_id",
-        "sector_code",
-        "recipient_country_code",
-        "recipient_region_code",
-    ],
+    # No unique key exists in the source. A publisher can declare the same
+    # sector or the same recipient twice on one activity, and IATI Tables then
+    # emits two splits of the same transaction over the identical
+    # (sector, country, region) triple with different values: 206,827 such
+    # groups covering 441,215 rows, 1.79% of the table. Adding `value` still
+    # leaves 47,848. Rather than assert a key that is not there, this table
+    # carries no uniqueness test — see the model description.
+    "transaction_breakdown": None,
     "transaction_sector": ["transaction_sector_id"],
     "budget": ["year", "budget_id"],
     "planned_disbursement": ["year", "planned_disbursement_id"],
@@ -73,6 +76,32 @@ FK = {
     "result_indicator_id": "result_indicator",
 }
 
+# Columns that are legitimately below the 5% non-null floor the proportion test
+# enforces, with their measured non-null share of the source table. These are
+# optional IATI elements almost nobody publishes, not a mapping mistake — the
+# empty-column check in verify_parquet.py is what would catch that.
+IGNORE_SPARSE = {
+    "activity": [
+        "budget_not_provided_code",  # 1.58%
+        "budget_not_provided_name",  # 1.58%
+        "crs_channel_code",  # 0.67%
+    ],
+    "transaction": [
+        "recipient_region_name",  # 4.79%
+        "recipient_region_vocabulary_code",  # 0.40%
+        "recipient_region_vocabulary_name",  # 0.40%
+    ],
+    "transaction_sector": ["vocabulary_uri"],  # 0.01%
+    "planned_disbursement": ["receiver_org_type_name"],  # 3.03%
+    "policy_marker": ["vocabulary_uri"],  # 2.08%
+    "document_link": ["description"],  # 3.31%
+    "result_indicator_period": [
+        "target_value",  # 0.02%
+        "actual_value",  # 0.34%
+    ],
+}
+
+
 DESCRIPTION = {
     "registry_dataset": (
         "Conjuntos de dados registrados no Registro IATI, com a licença "
@@ -97,7 +126,11 @@ DESCRIPTION = {
         "Decomposição de cada transação em partes proporcionais por setor e "
         "por destino geográfico, seguindo a metodologia do Country Development "
         "Finance Data. Uma linha por combinação de transação, setor, país e "
-        "região. Particionada pelo ano de transaction_date"
+        "região. Particionada pelo ano de transaction_date. Não tem chave "
+        "única: um publicador pode declarar o mesmo setor ou o mesmo receptor "
+        "duas vezes na mesma atividade, e a decomposição então repete a "
+        "combinação de transação, setor, país e região com valores distintos "
+        "— 441.215 linhas, 1,79% da tabela"
     ),
     "transaction_sector": (
         "Setores declarados diretamente em cada transação, antes da "
@@ -235,14 +268,20 @@ def write_schema(tables):
         out.append("    description: >\n")
         out.append(f"      {DESCRIPTION[table]}\n")
         out.append("    tests:\n")
-        out.append("      - dbt_utils.unique_combination_of_columns:\n")
-        out.append(
-            f"          combination_of_columns: [{', '.join(UNIQUE_KEY[table])}]\n"
-        )
-        if scope:
-            out.append(scope)
+        if UNIQUE_KEY[table] is not None:
+            out.append("      - dbt_utils.unique_combination_of_columns:\n")
+            out.append(
+                "          combination_of_columns: "
+                f"[{', '.join(UNIQUE_KEY[table])}]\n"
+            )
+            if scope:
+                out.append(scope)
         out.append("      - not_null_proportion_multiple_columns:\n")
         out.append("          at_least: 0.05\n")
+        for col in IGNORE_SPARSE.get(table, []):
+            if col == IGNORE_SPARSE[table][0]:
+                out.append("          ignore_values:\n")
+            out.append(f"            - {col}\n")
         if scope:
             out.append(scope)
         out.append("    columns:\n")
@@ -252,7 +291,8 @@ def write_schema(tables):
                 f"        description: {yaml_quote(c['description_pt'])}\n"
             )
             tests = []
-            if c["name"] in UNIQUE_KEY[table] or c["name"] == "year":
+            key = UNIQUE_KEY[table] or []
+            if c["name"] in key or c["name"] == "year":
                 tests.append("not_null")
             fk = FK.get(c["name"])
             # A table never points a relationships test at itself.

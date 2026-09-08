@@ -22,6 +22,8 @@ from gen_dbt import UNIQUE_KEY
 from pipelines.datasets.world_iati_activities.constants import constants
 from pipelines.datasets.world_iati_activities.utils import load_cols
 
+PARTITION_SOURCE = constants.PARTITION_SOURCE.value
+
 
 def glob(table: str) -> str:
     return f"{OUTPUT / table}/**/*.parquet"
@@ -34,12 +36,17 @@ def check(table: str, con: duckdb.DuckDBPyConnection) -> list[str]:
         return [f"{table}: no parquet written"]
 
     expected = [c.name for c in load_cols(table)]
+    # A hive-partitioned table encodes `year` in the directory name, not in the
+    # file body; BigQuery reconstructs it from the path.
+    in_file = [
+        c for c in expected if not (c == "year" and table in PARTITION_SOURCE)
+    ]
     schema = pq.read_schema(files[0])
-    if list(schema.names) != expected:
+    if list(schema.names) != in_file:
         problems.append(
             f"{table}: column order drift\n"
             f"    parquet: {list(schema.names)}\n"
-            f"    arch:    {expected}"
+            f"    arch:    {in_file}"
         )
     typed = [
         n
@@ -54,10 +61,14 @@ def check(table: str, con: duckdb.DuckDBPyConnection) -> list[str]:
     ).fetchone()[0]
 
     key = UNIQUE_KEY[table]
-    dupes = con.execute(
-        f"select count(*) from (select {', '.join(key)} from "
-        f"read_parquet('{glob(table)}') group by all having count(*) > 1)"
-    ).fetchone()[0]
+    dupes = (
+        0
+        if key is None
+        else con.execute(
+            f"select count(*) from (select {', '.join(key)} from "
+            f"read_parquet('{glob(table)}') group by all having count(*) > 1)"
+        ).fetchone()[0]
+    )
     if dupes:
         problems.append(
             f"{table}: {dupes:,} duplicate values of the dbt uniqueness key "
@@ -86,6 +97,9 @@ def main() -> None:
     tables = sys.argv[1:] or constants.ALL_TABLES.value
     con = duckdb.connect()
     con.execute("SET TimeZone='UTC'")
+    con.execute("SET memory_limit='6GB'")
+    (OUTPUT / "_duckdb_tmp").mkdir(parents=True, exist_ok=True)
+    con.execute(f"SET temp_directory='{OUTPUT / '_duckdb_tmp'}'")
     problems = []
     total = 0
     for t in tables:
