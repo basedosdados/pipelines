@@ -238,6 +238,7 @@ project-excludes = [
   # cannot resolve from the repo root. The pure transform they share lives in
   # pipelines/datasets/us_fema_openfema/ and is checked normally.
   "models/us_fema_openfema/code",
+  "models/us_fbi_cde/code",
   # Same policy: br_sfb_sicar onboarding code is standalone `.py` (architecture.py,
   # gen_*.py, bootstrap_clean.py use bare `import architecture`/`import clean`,
   # sys.path-relative), unresolvable from the repo root. The pure transform is
