@@ -32,7 +32,12 @@ import server  # noqa: E402
 
 from pipelines.datasets.us_fbi_cde.spec import TABLES  # noqa: E402
 
-DATASET_SLUG = "u_s_crime_data_explorer_cde"
+# Backend slug is the part after <country>_<org>_, so org "fbi" plus "cde" gives
+# the GCP dataset id us_fbi_cde — the same shape as us_bls_cpi -> cpi. The shell
+# was created in 2023 under a slug scraped from the page title; it is renamed
+# rather than replaced, so its id, raw sources and inbound links all survive.
+DATASET_SLUG = "cde"
+LEGACY_DATASET_SLUG = "u_s_crime_data_explorer_cde"
 GCP_DATASET_ID = "us_fbi_cde"
 
 # The convention is the prod bucket, but a local credential is dev-only and the
@@ -372,8 +377,16 @@ def existing_state(env):
     """
     dataset = server.get_dataset(slug=DATASET_SLUG, env=env)
     if not dataset.get("found"):
+        dataset = server.get_dataset(slug=LEGACY_DATASET_SLUG, env=env)
+        if dataset.get("found"):
+            print(
+                f"found the shell under its legacy slug "
+                f"{LEGACY_DATASET_SLUG}; renaming it to {DATASET_SLUG}"
+            )
+    if not dataset.get("found"):
         raise SystemExit(
-            f"the dataset shell {DATASET_SLUG} does not exist on {env}"
+            f"no dataset shell on {env} under {DATASET_SLUG} "
+            f"or {LEGACY_DATASET_SLUG}"
         )
     state = {"dataset": dataset, "tables": {}}
     for slug, table in dataset.get("tables", {}).items():
@@ -472,6 +485,9 @@ def main():
     existing = server.get_raw_data_sources(dataset_slug=DATASET_SLUG, env=env)
     if isinstance(existing, dict):
         existing = existing.get("result", [])
+    # get_raw_data_sources returns a single `name`, and it is the Portuguese one.
+    # Keying this on name_en never matched, so every run created four more
+    # sources instead of updating the existing four.
     known_sources = {source["name"]: source["id"] for source in existing}
     legacy = next(
         (
@@ -485,11 +501,11 @@ def main():
         print(
             f"reusing the dead 2023 raw source {legacy['id']} ({legacy['url']}) for NIBRS"
         )
-        known_sources.setdefault(RAW_SOURCES[0]["name_en"], legacy["id"])
+        known_sources.setdefault(RAW_SOURCES[0]["name_pt"], legacy["id"])
     raw_ids = {}
     for source in RAW_SOURCES:
         result = server.create_update_raw_data_source(
-            id=known_sources.get(source["name_en"]),
+            id=known_sources.get(source["name_pt"]),
             dataset_id=dataset_id,
             name_pt=source["name_pt"],
             name_en=source["name_en"],
