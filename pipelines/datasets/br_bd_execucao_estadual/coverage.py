@@ -42,6 +42,9 @@ MONTHLY = {
     # `ano` and no `mes`, so there is no month to report.
     ("despesa", "ES"),
     ("licitacao", "ES"),
+    # RS carries a full date on every movement, and the pivot keeps the
+    # commitment row's month, so despesa/RS is month-granular.
+    ("despesa", "RS"),
 }
 
 # Tables with no date column at all: their coverage carries no range to refresh.

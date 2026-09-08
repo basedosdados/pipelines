@@ -289,3 +289,47 @@ ES_ENCODING = "utf-8-sig"
 
 # ES's 2004-2008 aggregate rows name the withheld creditor this way.
 ES_ANONYMISED = "Informação não disponivel."
+
+# --------------------------------------------------------------------------- RS
+
+RS_CKAN = "https://dados.rs.gov.br/api/3/action/package_show"
+RS_PACKAGE_LIST = "https://dados.rs.gov.br/api/3/action/package_list"
+
+# RS is only reachable over some network paths: `dados.rs.gov.br` resolves everywhere
+# but refused a residential Australian ISP outright while answering fine from a
+# university range. It is not a country block -- both routes tried were Australian --
+# so treat a timeout here as "try another egress", not as "the source is down".
+#
+# Package slugs change convention FOUR times across the series
+# (`despesas-do-estado-em-2012` ... `despesas-do-estado-2022` ... `despesas-2023` ...
+# `2024-despesas-do-estado`), so they are discovered from the catalogue rather than
+# built from a template. A single f-string pattern silently misses whole years.
+RS_FIRST_YEAR, RS_LAST_YEAR = 2012, 2026
+
+# One flat table, published as twelve monthly ZIPs per exercise. Each archive holds one
+# CSV (`Gasto-RS-<ano><mes>.csv`), ~180 MB uncompressed against ~9 MB zipped -- a 20x
+# ratio, so the whole series is ~1.6 GB to fetch and ~36 GB to process.
+RS_TABLE = "rs_despesa"
+
+RS_SEP = ";"
+# **Windows-1252, not the ISO-8859-1 the accents suggest.** The files carry smart
+# quotes and en-dashes in the C1 range (0x91-0x96), which latin-1 leaves undefined, so
+# duckdb refuses every one of them with `Invalid Input Error: File is not latin-1
+# encoded`. That refusal is correct and useful: Python's latin-1 decodes ANY byte
+# sequence, so a "try utf-8, else latin-1" probe reports success and yields mojibake.
+#
+# duckdb has no cp1252 reader, so clean_rs transcodes to UTF-8 while unpacking. The
+# five bytes cp1252 itself leaves undefined (0x81, 0x8D, 0x8F, 0x90, 0x9D -- 2012 has
+# one) are decoded as their latin-1 characters, which is lossless, rather than replaced.
+RS_ENCODING = "cp1252"
+
+# RS publishes ONE ROW PER PHASE (`FaseGasto` = Empenho / Liquidação / Pagamento /
+# Retenção), where MG, BA, PE and SP all put the phase values as columns on one row.
+# That is the MiDES ledger shape and the opposite of this dataset's `despesa` design.
+# Staging mirrors the source either way; the decision belongs in the dbt model.
+RS_PHASE_COLUMN = "FaseGasto"
+
+# CPFs are published as all zeros rather than partially masked, so unlike MG
+# (`***.195.606-**`) and ES (`###.743.147-##`) there is no partial identifier at all
+# for natural persons.
+RS_NULL_DOCUMENT = "000.000.000-00"
