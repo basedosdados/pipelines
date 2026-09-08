@@ -560,6 +560,53 @@ Verified after the repair — every table back to its documented backfill total:
 `dbt run --full-refresh` PASS=5 ERROR=0; `dbt test` PASS=33 ERROR=0. The
 dicionario rebuild scans 619 MiB, which is the new per-run cost of deriving it.
 
+### Second dev run: clean, and it proves both fixes on real data
+
+`jovial-gazelle` (`24dada01`), same parameters, 2h15m, `COMPLETED`. State alone
+would prove nothing — the first run also passed `dbt run` on partitions it had
+just truncated — so it was checked against the recorded before-state.
+
+**Every table grew, and by exactly what was harvested.** The harvest log and the
+staging delta agree row for row, which is the accounting identity that says
+nothing was destroyed on the way in:
+
+| table | staging before | after | delta | harvested |
+|---|---|---|---|---|
+| `contratacao` | 4,003,718 | 4,048,669 | +44,951 | 44,951 |
+| `contrato` | 4,707,847 | 4,766,086 | +58,239 | 58,239 |
+| `ata_registro_preco` | 1,137,524 | 1,154,022 | +16,498 | 16,498 |
+| `instrumento_cobranca` | 215,382 | 218,680 | +3,298 | 3,298 |
+
+The backfill's part survives beside the run's, which is the whole point:
+
+    ano=2021/data_0000.parquet            2,248,612 B   05:01  (backfill)
+    ano=2021/data_20260908_0000.parquet      14,359 B   07:49  (this run)
+
+`dbt run OK` **and** `dbt test OK` for all five models, in the structural order
+the flow enforces — every model built, then every model tested.
+
+**The dictionary grew rather than shrinking, and the new row is the proof.**
+222 → 223, nothing lost, one addition:
+
+    ('contratacao', 'codigo_amparo_legal', '188', 'Lei 13.303/2026, Art. 28. §1º')
+
+A legal basis that did not exist in the backfill appeared in the last ten days
+and the derived dictionary documented it with no intervention. Under the old
+design this exact event was the failure mode: the dictionary would have been
+rebuilt from those ten days and kept only what they contained.
+
+`staging/br_pncp/dicionario/` is empty and there is no staging table — the
+dicionario is a dbt model now and nothing uploads it.
+
+### Was anything else in the repo writing colliding part names?
+
+No. Of the 48 flows using `dump_mode="append"`, only `br_mf_divida_ativa` also
+numbers parquet parts from zero, and it is not affected: it partitions
+`ano=<Y>/trimestre=<Q>` and ingests *new* quarters, so each run writes a fresh
+partition directory, and the one path that re-ingests an existing quarter
+deliberately switches to `dump_mode="overwrite"`. br_pncp was exposed because
+its partition is `ano` and every run touches years that already exist.
+
 ### What this says about the local checks
 
 Every local check passed while both bugs sat in the code: 74 unit tests, ruff,
