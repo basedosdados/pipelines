@@ -1,0 +1,1884 @@
+fiscal_year,source_file,source_column,canonical_column,disposition
+2008,h2a_2008.xlsx,,agent_representing_employer,absent this year
+2008,h2a_2008.xlsx,,anticipated_number_of_hours,absent this year
+2008,h2a_2008.xlsx,,attorney_law_firm_name,absent this year
+2008,h2a_2008.xlsx,CASE_NO,case_number,mapped
+2008,h2a_2008.xlsx,CASE_STATUS,case_status,mapped
+2008,h2a_2008.xlsx,CERTIFICATION_BEGIN_DATE,certification_begin_date,mapped
+2008,h2a_2008.xlsx,CERTIFICATION_END_DATE,certification_end_date,mapped
+2008,h2a_2008.xlsx,DECISION_DATE,decision_date,mapped
+2008,h2a_2008.xlsx,,education_level,absent this year
+2008,h2a_2008.xlsx,,emergency_filing,absent this year
+2008,h2a_2008.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2008,h2a_2008.xlsx,EMPLOYER_CITY,employer_city,mapped
+2008,h2a_2008.xlsx,,employer_country,absent this year
+2008,h2a_2008.xlsx,EMPLOYER_NAME,employer_name,mapped
+2008,h2a_2008.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2008,h2a_2008.xlsx,EMPLOYER_STATE,employer_state,mapped
+2008,h2a_2008.xlsx,,employer_trade_name,absent this year
+2008,h2a_2008.xlsx,,employment_begin_date,absent this year
+2008,h2a_2008.xlsx,,employment_end_date,absent this year
+2008,h2a_2008.xlsx,,frequency_of_pay,absent this year
+2008,h2a_2008.xlsx,,full_time_position,absent this year
+2008,h2a_2008.xlsx,,h2a_labor_contractor,absent this year
+2008,h2a_2008.xlsx,,housing_city,absent this year
+2008,h2a_2008.xlsx,,housing_state,absent this year
+2008,h2a_2008.xlsx,,housing_total_occupancy,absent this year
+2008,h2a_2008.xlsx,,housing_type,absent this year
+2008,h2a_2008.xlsx,,job_order_number,absent this year
+2008,h2a_2008.xlsx,JOB_TITLE,job_title,mapped
+2008,h2a_2008.xlsx,,meals_provided,absent this year
+2008,h2a_2008.xlsx,,naics_id,absent this year
+2008,h2a_2008.xlsx,,nature_of_temporary_need,absent this year
+2008,h2a_2008.xlsx,,overtime_rate_from,absent this year
+2008,h2a_2008.xlsx,,overtime_rate_to,absent this year
+2008,h2a_2008.xlsx,,piece_rate_offer,absent this year
+2008,h2a_2008.xlsx,,piece_rate_unit,absent this year
+2008,h2a_2008.xlsx,,primary_crop,absent this year
+2008,h2a_2008.xlsx,CASE_RECEIVED_DATE,received_date,mapped
+2008,h2a_2008.xlsx,,requested_begin_date,absent this year
+2008,h2a_2008.xlsx,,requested_end_date,absent this year
+2008,h2a_2008.xlsx,,soc_id,absent this year
+2008,h2a_2008.xlsx,,soc_title,absent this year
+2008,h2a_2008.xlsx,,swa_name,absent this year
+2008,h2a_2008.xlsx,,total_worksite_records,absent this year
+2008,h2a_2008.xlsx,APPLICATION_TYPE,type_of_employer_application,mapped
+2008,h2a_2008.xlsx,,visa_class,absent this year
+2008,h2a_2008.xlsx,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2008,h2a_2008.xlsx,BASIC_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2008,h2a_2008.xlsx,,work_experience_months,absent this year
+2008,h2a_2008.xlsx,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2008,h2a_2008.xlsx,,workers_requested,absent this year
+2008,h2a_2008.xlsx,,worksite_address,absent this year
+2008,h2a_2008.xlsx,,worksite_city,absent this year
+2008,h2a_2008.xlsx,,worksite_county,absent this year
+2008,h2a_2008.xlsx,,worksite_postal_code,absent this year
+2008,h2a_2008.xlsx,ALIEN_WORK_STATE,worksite_state,mapped
+2008,h2a_2008.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2008,h2a_2008.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2008,h2a_2008.xlsx,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2008,h2a_2008.xlsx,ALIEN_WORK_CITY,,"dropped: legacy H-2A worksite city, superseded by WORKSITE_CITY"
+2008,h2a_2008.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2008,h2a_2008.xlsx,ORGANIZATION_FLAG,,duplicate of type_of_employer_application
+2009,h2a_2009.xlsx,,agent_representing_employer,absent this year
+2009,h2a_2009.xlsx,,anticipated_number_of_hours,absent this year
+2009,h2a_2009.xlsx,,attorney_law_firm_name,absent this year
+2009,h2a_2009.xlsx,CASE_NO,case_number,mapped
+2009,h2a_2009.xlsx,CASE_STATUS,case_status,mapped
+2009,h2a_2009.xlsx,CERTIFICATION_BEGIN_DATE,certification_begin_date,mapped
+2009,h2a_2009.xlsx,CERTIFICATION_END_DATE,certification_end_date,mapped
+2009,h2a_2009.xlsx,DECISION_DATE,decision_date,mapped
+2009,h2a_2009.xlsx,,education_level,absent this year
+2009,h2a_2009.xlsx,,emergency_filing,absent this year
+2009,h2a_2009.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2009,h2a_2009.xlsx,EMPLOYER_CITY,employer_city,mapped
+2009,h2a_2009.xlsx,,employer_country,absent this year
+2009,h2a_2009.xlsx,EMPLOYER_NAME,employer_name,mapped
+2009,h2a_2009.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2009,h2a_2009.xlsx,EMPLOYER_STATE,employer_state,mapped
+2009,h2a_2009.xlsx,,employer_trade_name,absent this year
+2009,h2a_2009.xlsx,,employment_begin_date,absent this year
+2009,h2a_2009.xlsx,,employment_end_date,absent this year
+2009,h2a_2009.xlsx,,frequency_of_pay,absent this year
+2009,h2a_2009.xlsx,,full_time_position,absent this year
+2009,h2a_2009.xlsx,,h2a_labor_contractor,absent this year
+2009,h2a_2009.xlsx,,housing_city,absent this year
+2009,h2a_2009.xlsx,,housing_state,absent this year
+2009,h2a_2009.xlsx,,housing_total_occupancy,absent this year
+2009,h2a_2009.xlsx,,housing_type,absent this year
+2009,h2a_2009.xlsx,,job_order_number,absent this year
+2009,h2a_2009.xlsx,JOB_TITLE,job_title,mapped
+2009,h2a_2009.xlsx,,meals_provided,absent this year
+2009,h2a_2009.xlsx,,naics_id,absent this year
+2009,h2a_2009.xlsx,,nature_of_temporary_need,absent this year
+2009,h2a_2009.xlsx,,overtime_rate_from,absent this year
+2009,h2a_2009.xlsx,,overtime_rate_to,absent this year
+2009,h2a_2009.xlsx,,piece_rate_offer,absent this year
+2009,h2a_2009.xlsx,,piece_rate_unit,absent this year
+2009,h2a_2009.xlsx,,primary_crop,absent this year
+2009,h2a_2009.xlsx,CASE_RECEIVED_DATE,received_date,mapped
+2009,h2a_2009.xlsx,REQUESTED_START_DATE_OF_NEED,requested_begin_date,mapped
+2009,h2a_2009.xlsx,REQUESTED_END_DATE_OF_NEED,requested_end_date,mapped
+2009,h2a_2009.xlsx,,soc_id,absent this year
+2009,h2a_2009.xlsx,,soc_title,absent this year
+2009,h2a_2009.xlsx,,swa_name,absent this year
+2009,h2a_2009.xlsx,,total_worksite_records,absent this year
+2009,h2a_2009.xlsx,ORGANIZATION_FLAG,type_of_employer_application,mapped
+2009,h2a_2009.xlsx,,visa_class,absent this year
+2009,h2a_2009.xlsx,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2009,h2a_2009.xlsx,BASIC_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2009,h2a_2009.xlsx,,work_experience_months,absent this year
+2009,h2a_2009.xlsx,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2009,h2a_2009.xlsx,,workers_requested,absent this year
+2009,h2a_2009.xlsx,,worksite_address,absent this year
+2009,h2a_2009.xlsx,,worksite_city,absent this year
+2009,h2a_2009.xlsx,,worksite_county,absent this year
+2009,h2a_2009.xlsx,,worksite_postal_code,absent this year
+2009,h2a_2009.xlsx,ALIEN_WORK_STATE,worksite_state,mapped
+2009,h2a_2009.xlsx,AGENT_ATTORNEY_ADDRESS1,,dropped: attorney/agent personal details
+2009,h2a_2009.xlsx,AGENT_ATTORNEY_ADDRESS2,,dropped: attorney/agent personal details
+2009,h2a_2009.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2009,h2a_2009.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2009,h2a_2009.xlsx,AGENT_ATTORNEY_POSTAL_CODE,,dropped: attorney/agent personal details
+2009,h2a_2009.xlsx,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2009,h2a_2009.xlsx,ALIEN_WORK_CITY,,"dropped: legacy H-2A worksite city, superseded by WORKSITE_CITY"
+2009,h2a_2009.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2010,h2a_2010.xlsx,,agent_representing_employer,absent this year
+2010,h2a_2010.xlsx,,anticipated_number_of_hours,absent this year
+2010,h2a_2010.xlsx,,attorney_law_firm_name,absent this year
+2010,h2a_2010.xlsx,CASE_NO,case_number,mapped
+2010,h2a_2010.xlsx,CASE_STATUS,case_status,mapped
+2010,h2a_2010.xlsx,CERTIFICATION_BEGIN_DATE,certification_begin_date,mapped
+2010,h2a_2010.xlsx,CERTIFICATION_END_DATE,certification_end_date,mapped
+2010,h2a_2010.xlsx,DECISION_DATE,decision_date,mapped
+2010,h2a_2010.xlsx,,education_level,absent this year
+2010,h2a_2010.xlsx,,emergency_filing,absent this year
+2010,h2a_2010.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2010,h2a_2010.xlsx,EMPLOYER_CITY,employer_city,mapped
+2010,h2a_2010.xlsx,,employer_country,absent this year
+2010,h2a_2010.xlsx,EMPLOYER_NAME,employer_name,mapped
+2010,h2a_2010.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2010,h2a_2010.xlsx,EMPLOYER_STATE,employer_state,mapped
+2010,h2a_2010.xlsx,,employer_trade_name,absent this year
+2010,h2a_2010.xlsx,,employment_begin_date,absent this year
+2010,h2a_2010.xlsx,,employment_end_date,absent this year
+2010,h2a_2010.xlsx,,frequency_of_pay,absent this year
+2010,h2a_2010.xlsx,,full_time_position,absent this year
+2010,h2a_2010.xlsx,,h2a_labor_contractor,absent this year
+2010,h2a_2010.xlsx,,housing_city,absent this year
+2010,h2a_2010.xlsx,,housing_state,absent this year
+2010,h2a_2010.xlsx,,housing_total_occupancy,absent this year
+2010,h2a_2010.xlsx,,housing_type,absent this year
+2010,h2a_2010.xlsx,,job_order_number,absent this year
+2010,h2a_2010.xlsx,JOB_TITLE,job_title,mapped
+2010,h2a_2010.xlsx,,meals_provided,absent this year
+2010,h2a_2010.xlsx,,naics_id,absent this year
+2010,h2a_2010.xlsx,,nature_of_temporary_need,absent this year
+2010,h2a_2010.xlsx,,overtime_rate_from,absent this year
+2010,h2a_2010.xlsx,,overtime_rate_to,absent this year
+2010,h2a_2010.xlsx,,piece_rate_offer,absent this year
+2010,h2a_2010.xlsx,,piece_rate_unit,absent this year
+2010,h2a_2010.xlsx,,primary_crop,absent this year
+2010,h2a_2010.xlsx,CASE_RECEIVED_DATE,received_date,mapped
+2010,h2a_2010.xlsx,REQUESTED_START_DATE_OF_NEED,requested_begin_date,mapped
+2010,h2a_2010.xlsx,REQUESTED_END_DATE_OF_NEED,requested_end_date,mapped
+2010,h2a_2010.xlsx,,soc_id,absent this year
+2010,h2a_2010.xlsx,,soc_title,absent this year
+2010,h2a_2010.xlsx,,swa_name,absent this year
+2010,h2a_2010.xlsx,,total_worksite_records,absent this year
+2010,h2a_2010.xlsx,ORGANIZATION_FLAG,type_of_employer_application,mapped
+2010,h2a_2010.xlsx,,visa_class,absent this year
+2010,h2a_2010.xlsx,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2010,h2a_2010.xlsx,BASIC_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2010,h2a_2010.xlsx,,work_experience_months,absent this year
+2010,h2a_2010.xlsx,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2010,h2a_2010.xlsx,,workers_requested,absent this year
+2010,h2a_2010.xlsx,,worksite_address,absent this year
+2010,h2a_2010.xlsx,,worksite_city,absent this year
+2010,h2a_2010.xlsx,,worksite_county,absent this year
+2010,h2a_2010.xlsx,,worksite_postal_code,absent this year
+2010,h2a_2010.xlsx,ALIEN_WORK_STATE,worksite_state,mapped
+2010,h2a_2010.xlsx,AGENT_ATTORNEY_ADDRESS1,,dropped: attorney/agent personal details
+2010,h2a_2010.xlsx,AGENT_ATTORNEY_ADDRESS2,,dropped: attorney/agent personal details
+2010,h2a_2010.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2010,h2a_2010.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2010,h2a_2010.xlsx,AGENT_ATTORNEY_POSTAL_CODE,,dropped: attorney/agent personal details
+2010,h2a_2010.xlsx,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2010,h2a_2010.xlsx,ALIEN_WORK_CITY,,"dropped: legacy H-2A worksite city, superseded by WORKSITE_CITY"
+2010,h2a_2010.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2011,h2a_2011.xlsx,,agent_representing_employer,absent this year
+2011,h2a_2011.xlsx,BASIC_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2011,h2a_2011.xlsx,,attorney_law_firm_name,absent this year
+2011,h2a_2011.xlsx,CASE_NO,case_number,mapped
+2011,h2a_2011.xlsx,CASE_STATUS,case_status,mapped
+2011,h2a_2011.xlsx,CERTIFICATION_BEGIN_DATE,certification_begin_date,mapped
+2011,h2a_2011.xlsx,CERTIFICATION_END_DATE,certification_end_date,mapped
+2011,h2a_2011.xlsx,DECISION_DATE,decision_date,mapped
+2011,h2a_2011.xlsx,,education_level,absent this year
+2011,h2a_2011.xlsx,,emergency_filing,absent this year
+2011,h2a_2011.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2011,h2a_2011.xlsx,EMPLOYER_CITY,employer_city,mapped
+2011,h2a_2011.xlsx,,employer_country,absent this year
+2011,h2a_2011.xlsx,EMPLOYER_NAME,employer_name,mapped
+2011,h2a_2011.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2011,h2a_2011.xlsx,EMPLOYER_STATE,employer_state,mapped
+2011,h2a_2011.xlsx,,employer_trade_name,absent this year
+2011,h2a_2011.xlsx,,employment_begin_date,absent this year
+2011,h2a_2011.xlsx,,employment_end_date,absent this year
+2011,h2a_2011.xlsx,,frequency_of_pay,absent this year
+2011,h2a_2011.xlsx,,full_time_position,absent this year
+2011,h2a_2011.xlsx,,h2a_labor_contractor,absent this year
+2011,h2a_2011.xlsx,,housing_city,absent this year
+2011,h2a_2011.xlsx,,housing_state,absent this year
+2011,h2a_2011.xlsx,,housing_total_occupancy,absent this year
+2011,h2a_2011.xlsx,,housing_type,absent this year
+2011,h2a_2011.xlsx,,job_order_number,absent this year
+2011,h2a_2011.xlsx,JOB_TITLE,job_title,mapped
+2011,h2a_2011.xlsx,,meals_provided,absent this year
+2011,h2a_2011.xlsx,,naics_id,absent this year
+2011,h2a_2011.xlsx,,nature_of_temporary_need,absent this year
+2011,h2a_2011.xlsx,,overtime_rate_from,absent this year
+2011,h2a_2011.xlsx,,overtime_rate_to,absent this year
+2011,h2a_2011.xlsx,,piece_rate_offer,absent this year
+2011,h2a_2011.xlsx,,piece_rate_unit,absent this year
+2011,h2a_2011.xlsx,PRIMARY_CROP,primary_crop,mapped
+2011,h2a_2011.xlsx,CASE_RECEIVED_DATE,received_date,mapped
+2011,h2a_2011.xlsx,REQUESTED_START_DATE_OF_NEED,requested_begin_date,mapped
+2011,h2a_2011.xlsx,REQUESTED_END_DATE_OF_NEED,requested_end_date,mapped
+2011,h2a_2011.xlsx,,soc_id,absent this year
+2011,h2a_2011.xlsx,,soc_title,absent this year
+2011,h2a_2011.xlsx,,swa_name,absent this year
+2011,h2a_2011.xlsx,,total_worksite_records,absent this year
+2011,h2a_2011.xlsx,APPLICATION_TYPE,type_of_employer_application,mapped
+2011,h2a_2011.xlsx,,visa_class,absent this year
+2011,h2a_2011.xlsx,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2011,h2a_2011.xlsx,BASIC_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2011,h2a_2011.xlsx,,work_experience_months,absent this year
+2011,h2a_2011.xlsx,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2011,h2a_2011.xlsx,NBR_WORKERS_REQUESTED,workers_requested,mapped
+2011,h2a_2011.xlsx,,worksite_address,absent this year
+2011,h2a_2011.xlsx,,worksite_city,absent this year
+2011,h2a_2011.xlsx,,worksite_county,absent this year
+2011,h2a_2011.xlsx,,worksite_postal_code,absent this year
+2011,h2a_2011.xlsx,ALIEN_WORK_STATE,worksite_state,mapped
+2011,h2a_2011.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2011,h2a_2011.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2011,h2a_2011.xlsx,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2011,h2a_2011.xlsx,ALIEN_WORK_CITY,,"dropped: legacy H-2A worksite city, superseded by WORKSITE_CITY"
+2011,h2a_2011.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2011,h2a_2011.xlsx,ORGANIZATION_FLAG,,duplicate of type_of_employer_application
+2012,h2a_2012.xlsx,,agent_representing_employer,absent this year
+2012,h2a_2012.xlsx,BASIC_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2012,h2a_2012.xlsx,,attorney_law_firm_name,absent this year
+2012,h2a_2012.xlsx,CASE_NO,case_number,mapped
+2012,h2a_2012.xlsx,CASE_STATUS,case_status,mapped
+2012,h2a_2012.xlsx,CERTIFICATION_BEGIN_DATE,certification_begin_date,mapped
+2012,h2a_2012.xlsx,CERTIFICATION_END_DATE,certification_end_date,mapped
+2012,h2a_2012.xlsx,DECISION_DATE,decision_date,mapped
+2012,h2a_2012.xlsx,,education_level,absent this year
+2012,h2a_2012.xlsx,,emergency_filing,absent this year
+2012,h2a_2012.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2012,h2a_2012.xlsx,EMPLOYER_CITY,employer_city,mapped
+2012,h2a_2012.xlsx,,employer_country,absent this year
+2012,h2a_2012.xlsx,EMPLOYER_NAME,employer_name,mapped
+2012,h2a_2012.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2012,h2a_2012.xlsx,EMPLOYER_STATE,employer_state,mapped
+2012,h2a_2012.xlsx,,employer_trade_name,absent this year
+2012,h2a_2012.xlsx,,employment_begin_date,absent this year
+2012,h2a_2012.xlsx,,employment_end_date,absent this year
+2012,h2a_2012.xlsx,,frequency_of_pay,absent this year
+2012,h2a_2012.xlsx,,full_time_position,absent this year
+2012,h2a_2012.xlsx,,h2a_labor_contractor,absent this year
+2012,h2a_2012.xlsx,,housing_city,absent this year
+2012,h2a_2012.xlsx,,housing_state,absent this year
+2012,h2a_2012.xlsx,,housing_total_occupancy,absent this year
+2012,h2a_2012.xlsx,,housing_type,absent this year
+2012,h2a_2012.xlsx,,job_order_number,absent this year
+2012,h2a_2012.xlsx,JOB_TITLE,job_title,mapped
+2012,h2a_2012.xlsx,,meals_provided,absent this year
+2012,h2a_2012.xlsx,,naics_id,absent this year
+2012,h2a_2012.xlsx,,nature_of_temporary_need,absent this year
+2012,h2a_2012.xlsx,,overtime_rate_from,absent this year
+2012,h2a_2012.xlsx,,overtime_rate_to,absent this year
+2012,h2a_2012.xlsx,,piece_rate_offer,absent this year
+2012,h2a_2012.xlsx,,piece_rate_unit,absent this year
+2012,h2a_2012.xlsx,PRIMARY_CROP,primary_crop,mapped
+2012,h2a_2012.xlsx,CASE_RECEIVED_DATE,received_date,mapped
+2012,h2a_2012.xlsx,REQUESTED_START_DATE_OF_NEED,requested_begin_date,mapped
+2012,h2a_2012.xlsx,REQUESTED_END_DATE_OF_NEED,requested_end_date,mapped
+2012,h2a_2012.xlsx,,soc_id,absent this year
+2012,h2a_2012.xlsx,,soc_title,absent this year
+2012,h2a_2012.xlsx,,swa_name,absent this year
+2012,h2a_2012.xlsx,,total_worksite_records,absent this year
+2012,h2a_2012.xlsx,ORGANIZATION_FLAG,type_of_employer_application,mapped
+2012,h2a_2012.xlsx,VISA_CLASS,visa_class,mapped
+2012,h2a_2012.xlsx,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2012,h2a_2012.xlsx,BASIC_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2012,h2a_2012.xlsx,,work_experience_months,absent this year
+2012,h2a_2012.xlsx,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2012,h2a_2012.xlsx,NBR_WORKERS_REQUESTED,workers_requested,mapped
+2012,h2a_2012.xlsx,,worksite_address,absent this year
+2012,h2a_2012.xlsx,,worksite_city,absent this year
+2012,h2a_2012.xlsx,,worksite_county,absent this year
+2012,h2a_2012.xlsx,,worksite_postal_code,absent this year
+2012,h2a_2012.xlsx,ALIEN_WORK_STATE,worksite_state,mapped
+2012,h2a_2012.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2012,h2a_2012.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2012,h2a_2012.xlsx,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2012,h2a_2012.xlsx,ALIEN_WORK_CITY,,"dropped: legacy H-2A worksite city, superseded by WORKSITE_CITY"
+2012,h2a_2012.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2013,h2a_2013.xls,,agent_representing_employer,absent this year
+2013,h2a_2013.xls,BASIC_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2013,h2a_2013.xls,,attorney_law_firm_name,absent this year
+2013,h2a_2013.xls,CASE_NO,case_number,mapped
+2013,h2a_2013.xls,CASE_STATUS,case_status,mapped
+2013,h2a_2013.xls,CERTIFICATION_BEGIN_DATE,certification_begin_date,mapped
+2013,h2a_2013.xls,CERTIFICATION_END_DATE,certification_end_date,mapped
+2013,h2a_2013.xls,DECISION_DATE,decision_date,mapped
+2013,h2a_2013.xls,,education_level,absent this year
+2013,h2a_2013.xls,,emergency_filing,absent this year
+2013,h2a_2013.xls,EMPLOYER_ADDRESS1,employer_address,mapped
+2013,h2a_2013.xls,EMPLOYER_CITY,employer_city,mapped
+2013,h2a_2013.xls,,employer_country,absent this year
+2013,h2a_2013.xls,EMPLOYER_NAME,employer_name,mapped
+2013,h2a_2013.xls,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2013,h2a_2013.xls,EMPLOYER_STATE,employer_state,mapped
+2013,h2a_2013.xls,,employer_trade_name,absent this year
+2013,h2a_2013.xls,,employment_begin_date,absent this year
+2013,h2a_2013.xls,,employment_end_date,absent this year
+2013,h2a_2013.xls,,frequency_of_pay,absent this year
+2013,h2a_2013.xls,,full_time_position,absent this year
+2013,h2a_2013.xls,,h2a_labor_contractor,absent this year
+2013,h2a_2013.xls,,housing_city,absent this year
+2013,h2a_2013.xls,,housing_state,absent this year
+2013,h2a_2013.xls,,housing_total_occupancy,absent this year
+2013,h2a_2013.xls,,housing_type,absent this year
+2013,h2a_2013.xls,,job_order_number,absent this year
+2013,h2a_2013.xls,JOB_TITLE,job_title,mapped
+2013,h2a_2013.xls,,meals_provided,absent this year
+2013,h2a_2013.xls,,naics_id,absent this year
+2013,h2a_2013.xls,,nature_of_temporary_need,absent this year
+2013,h2a_2013.xls,,overtime_rate_from,absent this year
+2013,h2a_2013.xls,,overtime_rate_to,absent this year
+2013,h2a_2013.xls,,piece_rate_offer,absent this year
+2013,h2a_2013.xls,,piece_rate_unit,absent this year
+2013,h2a_2013.xls,,primary_crop,absent this year
+2013,h2a_2013.xls,CASE_RECEIVED_DATE,received_date,mapped
+2013,h2a_2013.xls,REQUESTED_START_DATE_OF_NEED,requested_begin_date,mapped
+2013,h2a_2013.xls,REQUESTED_END_DATE_OF_NEED,requested_end_date,mapped
+2013,h2a_2013.xls,,soc_id,absent this year
+2013,h2a_2013.xls,,soc_title,absent this year
+2013,h2a_2013.xls,,swa_name,absent this year
+2013,h2a_2013.xls,,total_worksite_records,absent this year
+2013,h2a_2013.xls,ORGANIZATION_FLAG,type_of_employer_application,mapped
+2013,h2a_2013.xls,VISA_CLASS,visa_class,mapped
+2013,h2a_2013.xls,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2013,h2a_2013.xls,BASIC_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2013,h2a_2013.xls,,work_experience_months,absent this year
+2013,h2a_2013.xls,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2013,h2a_2013.xls,,workers_requested,absent this year
+2013,h2a_2013.xls,,worksite_address,absent this year
+2013,h2a_2013.xls,,worksite_city,absent this year
+2013,h2a_2013.xls,,worksite_county,absent this year
+2013,h2a_2013.xls,,worksite_postal_code,absent this year
+2013,h2a_2013.xls,ALIEN_WORK_STATE,worksite_state,mapped
+2013,h2a_2013.xls,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2013,h2a_2013.xls,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2013,h2a_2013.xls,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2013,h2a_2013.xls,ALIEN_WORK_CITY,,"dropped: legacy H-2A worksite city, superseded by WORKSITE_CITY"
+2013,h2a_2013.xls,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2014,h2a_2014.xlsx,,agent_representing_employer,absent this year
+2014,h2a_2014.xlsx,BASIC_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2014,h2a_2014.xlsx,LAWFIRM_NAME,attorney_law_firm_name,mapped
+2014,h2a_2014.xlsx,CASE_NO,case_number,mapped
+2014,h2a_2014.xlsx,CASE_STATUS,case_status,mapped
+2014,h2a_2014.xlsx,CERTIFICATION_BEGIN_DATE,certification_begin_date,mapped
+2014,h2a_2014.xlsx,CERTIFICATION_END_DATE,certification_end_date,mapped
+2014,h2a_2014.xlsx,DECISION_DATE,decision_date,mapped
+2014,h2a_2014.xlsx,,education_level,absent this year
+2014,h2a_2014.xlsx,,emergency_filing,absent this year
+2014,h2a_2014.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2014,h2a_2014.xlsx,EMPLOYER_CITY,employer_city,mapped
+2014,h2a_2014.xlsx,,employer_country,absent this year
+2014,h2a_2014.xlsx,EMPLOYER_NAME,employer_name,mapped
+2014,h2a_2014.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2014,h2a_2014.xlsx,EMPLOYER_STATE,employer_state,mapped
+2014,h2a_2014.xlsx,,employer_trade_name,absent this year
+2014,h2a_2014.xlsx,,employment_begin_date,absent this year
+2014,h2a_2014.xlsx,,employment_end_date,absent this year
+2014,h2a_2014.xlsx,,frequency_of_pay,absent this year
+2014,h2a_2014.xlsx,,full_time_position,absent this year
+2014,h2a_2014.xlsx,,h2a_labor_contractor,absent this year
+2014,h2a_2014.xlsx,,housing_city,absent this year
+2014,h2a_2014.xlsx,,housing_state,absent this year
+2014,h2a_2014.xlsx,,housing_total_occupancy,absent this year
+2014,h2a_2014.xlsx,,housing_type,absent this year
+2014,h2a_2014.xlsx,,job_order_number,absent this year
+2014,h2a_2014.xlsx,JOB_TITLE,job_title,mapped
+2014,h2a_2014.xlsx,,meals_provided,absent this year
+2014,h2a_2014.xlsx,,naics_id,absent this year
+2014,h2a_2014.xlsx,,nature_of_temporary_need,absent this year
+2014,h2a_2014.xlsx,,overtime_rate_from,absent this year
+2014,h2a_2014.xlsx,,overtime_rate_to,absent this year
+2014,h2a_2014.xlsx,,piece_rate_offer,absent this year
+2014,h2a_2014.xlsx,,piece_rate_unit,absent this year
+2014,h2a_2014.xlsx,,primary_crop,absent this year
+2014,h2a_2014.xlsx,CASE_RECEIVED_DATE,received_date,mapped
+2014,h2a_2014.xlsx,REQUESTED_START_DATE_OF_NEED,requested_begin_date,mapped
+2014,h2a_2014.xlsx,REQUESTED_END_DATE_OF_NEED,requested_end_date,mapped
+2014,h2a_2014.xlsx,SOC_CODE_ID,soc_id,mapped
+2014,h2a_2014.xlsx,SOC_TITLE,soc_title,mapped
+2014,h2a_2014.xlsx,,swa_name,absent this year
+2014,h2a_2014.xlsx,,total_worksite_records,absent this year
+2014,h2a_2014.xlsx,ORGANIZATION_FLAG,type_of_employer_application,mapped
+2014,h2a_2014.xlsx,VISA_CLASS,visa_class,mapped
+2014,h2a_2014.xlsx,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2014,h2a_2014.xlsx,BASIC_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2014,h2a_2014.xlsx,,work_experience_months,absent this year
+2014,h2a_2014.xlsx,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2014,h2a_2014.xlsx,,workers_requested,absent this year
+2014,h2a_2014.xlsx,,worksite_address,absent this year
+2014,h2a_2014.xlsx,WORKSITE_LOCATION_CITY,worksite_city,mapped
+2014,h2a_2014.xlsx,,worksite_county,absent this year
+2014,h2a_2014.xlsx,,worksite_postal_code,absent this year
+2014,h2a_2014.xlsx,WORKSITE_LOCATION_STATE,worksite_state,mapped
+2014,h2a_2014.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2014,h2a_2014.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2014,h2a_2014.xlsx,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2014,h2a_2014.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2015,h2a_2015.xlsx,,agent_representing_employer,absent this year
+2015,h2a_2015.xlsx,BASIC_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2015,h2a_2015.xlsx,LAWFIRM_NAME,attorney_law_firm_name,mapped
+2015,h2a_2015.xlsx,CASE_NUMBER,case_number,mapped
+2015,h2a_2015.xlsx,CASE_STATUS,case_status,mapped
+2015,h2a_2015.xlsx,CERTIFICATION_BEGIN_DATE,certification_begin_date,mapped
+2015,h2a_2015.xlsx,CERTIFICATION_END_DATE,certification_end_date,mapped
+2015,h2a_2015.xlsx,DECISION_DATE,decision_date,mapped
+2015,h2a_2015.xlsx,EDUCATION_LEVEL,education_level,mapped
+2015,h2a_2015.xlsx,,emergency_filing,absent this year
+2015,h2a_2015.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2015,h2a_2015.xlsx,EMPLOYER_CITY,employer_city,mapped
+2015,h2a_2015.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2015,h2a_2015.xlsx,EMPLOYER_NAME,employer_name,mapped
+2015,h2a_2015.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2015,h2a_2015.xlsx,EMPLOYER_STATE,employer_state,mapped
+2015,h2a_2015.xlsx,,employer_trade_name,absent this year
+2015,h2a_2015.xlsx,JOB_START_DATE,employment_begin_date,mapped
+2015,h2a_2015.xlsx,JOB_END_DATE,employment_end_date,mapped
+2015,h2a_2015.xlsx,,frequency_of_pay,absent this year
+2015,h2a_2015.xlsx,FULL_TIME_POSITION,full_time_position,mapped
+2015,h2a_2015.xlsx,,h2a_labor_contractor,absent this year
+2015,h2a_2015.xlsx,,housing_city,absent this year
+2015,h2a_2015.xlsx,,housing_state,absent this year
+2015,h2a_2015.xlsx,,housing_total_occupancy,absent this year
+2015,h2a_2015.xlsx,,housing_type,absent this year
+2015,h2a_2015.xlsx,JOB_IDNUMBER,job_order_number,mapped
+2015,h2a_2015.xlsx,JOB_TITLE,job_title,mapped
+2015,h2a_2015.xlsx,,meals_provided,absent this year
+2015,h2a_2015.xlsx,NAIC_CODE,naics_id,mapped
+2015,h2a_2015.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2015,h2a_2015.xlsx,OVERTIME_RATE_FROM,overtime_rate_from,mapped
+2015,h2a_2015.xlsx,OVERTIME_RATE_TO,overtime_rate_to,mapped
+2015,h2a_2015.xlsx,,piece_rate_offer,absent this year
+2015,h2a_2015.xlsx,,piece_rate_unit,absent this year
+2015,h2a_2015.xlsx,PRIMARY_CROP,primary_crop,mapped
+2015,h2a_2015.xlsx,CASE_RECEIVED_DATE,received_date,mapped
+2015,h2a_2015.xlsx,,requested_begin_date,absent this year
+2015,h2a_2015.xlsx,,requested_end_date,absent this year
+2015,h2a_2015.xlsx,SOC_CODE,soc_id,mapped
+2015,h2a_2015.xlsx,SOC_TITLE,soc_title,mapped
+2015,h2a_2015.xlsx,SWA_NAME,swa_name,mapped
+2015,h2a_2015.xlsx,,total_worksite_records,absent this year
+2015,h2a_2015.xlsx,ORGANIZATION_FLAG,type_of_employer_application,mapped
+2015,h2a_2015.xlsx,VISA_CLASS,visa_class,mapped
+2015,h2a_2015.xlsx,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2015,h2a_2015.xlsx,BASIC_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2015,h2a_2015.xlsx,EMP_EXP_NUM_MONTHS,work_experience_months,mapped
+2015,h2a_2015.xlsx,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2015,h2a_2015.xlsx,NBR_WORKERS_REQUESTED,workers_requested,mapped
+2015,h2a_2015.xlsx,,worksite_address,absent this year
+2015,h2a_2015.xlsx,WORKSITE_CITY,worksite_city,mapped
+2015,h2a_2015.xlsx,,worksite_county,absent this year
+2015,h2a_2015.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2015,h2a_2015.xlsx,WORKSITE_STATE,worksite_state,mapped
+2015,h2a_2015.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2015,h2a_2015.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2015,h2a_2015.xlsx,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2015,h2a_2015.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2015,h2a_2015.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2015,h2a_2015.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2015,h2a_2015.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2015,h2a_2015.xlsx,EMP_EXPERIENCE_REQD,,dropped: H-2 job-condition detail
+2015,h2a_2015.xlsx,HOURLY_WORK_SCHEDULE_AM,,dropped: hourly work schedule
+2015,h2a_2015.xlsx,HOURLY_WORK_SCHEDULE_PM,,dropped: hourly work schedule
+2015,h2a_2015.xlsx,MAJOR,,dropped: H-2 job-condition detail
+2015,h2a_2015.xlsx,NAME_REQD_TRAINING,,dropped: H-2 job-condition detail
+2015,h2a_2015.xlsx,NUM_MONTHS_TRAINING,,dropped: H-2 job-condition detail
+2015,h2a_2015.xlsx,OTHER_EDU,,dropped: H-2 job-condition detail
+2015,h2a_2015.xlsx,OTHER_WORKSITE_LOCATION,,dropped: free-text secondary worksite note
+2015,h2a_2015.xlsx,SECOND_DIPLOMA,,dropped: H-2 job-condition detail
+2015,h2a_2015.xlsx,SECOND_DIPLOMA_MAJOR,,dropped: H-2 job-condition detail
+2015,h2a_2015.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2015,h2a_2015.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2015,h2a_2015.xlsx,TRAINING_REQ,,dropped: H-2 job-condition detail
+2016,h2a_2016.xlsx,,agent_representing_employer,absent this year
+2016,h2a_2016.xlsx,BASIC_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2016,h2a_2016.xlsx,LAWFIRM_NAME,attorney_law_firm_name,mapped
+2016,h2a_2016.xlsx,CASE_NUMBER,case_number,mapped
+2016,h2a_2016.xlsx,CASE_STATUS,case_status,mapped
+2016,h2a_2016.xlsx,,certification_begin_date,absent this year
+2016,h2a_2016.xlsx,,certification_end_date,absent this year
+2016,h2a_2016.xlsx,DECISION_DATE,decision_date,mapped
+2016,h2a_2016.xlsx,EDUCATION_LEVEL,education_level,mapped
+2016,h2a_2016.xlsx,,emergency_filing,absent this year
+2016,h2a_2016.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2016,h2a_2016.xlsx,EMPLOYER_CITY,employer_city,mapped
+2016,h2a_2016.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2016,h2a_2016.xlsx,EMPLOYER_NAME,employer_name,mapped
+2016,h2a_2016.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2016,h2a_2016.xlsx,EMPLOYER_STATE,employer_state,mapped
+2016,h2a_2016.xlsx,,employer_trade_name,absent this year
+2016,h2a_2016.xlsx,JOB_START_DATE,employment_begin_date,mapped
+2016,h2a_2016.xlsx,JOB_END_DATE,employment_end_date,mapped
+2016,h2a_2016.xlsx,,frequency_of_pay,absent this year
+2016,h2a_2016.xlsx,FULL_TIME_POSITION,full_time_position,mapped
+2016,h2a_2016.xlsx,,h2a_labor_contractor,absent this year
+2016,h2a_2016.xlsx,,housing_city,absent this year
+2016,h2a_2016.xlsx,,housing_state,absent this year
+2016,h2a_2016.xlsx,,housing_total_occupancy,absent this year
+2016,h2a_2016.xlsx,,housing_type,absent this year
+2016,h2a_2016.xlsx,JOB_IDNUMBER,job_order_number,mapped
+2016,h2a_2016.xlsx,JOB_TITLE,job_title,mapped
+2016,h2a_2016.xlsx,,meals_provided,absent this year
+2016,h2a_2016.xlsx,NAIC_CODE,naics_id,mapped
+2016,h2a_2016.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2016,h2a_2016.xlsx,OVERTIME_RATE_FROM,overtime_rate_from,mapped
+2016,h2a_2016.xlsx,OVERTIME_RATE_TO,overtime_rate_to,mapped
+2016,h2a_2016.xlsx,,piece_rate_offer,absent this year
+2016,h2a_2016.xlsx,,piece_rate_unit,absent this year
+2016,h2a_2016.xlsx,PRIMARY_CROP,primary_crop,mapped
+2016,h2a_2016.xlsx,CASE_RECEIVED_DATE,received_date,mapped
+2016,h2a_2016.xlsx,REQUESTED_START_DATE_OF_NEED,requested_begin_date,mapped
+2016,h2a_2016.xlsx,REQUESTED_END_DATE_OF_NEED,requested_end_date,mapped
+2016,h2a_2016.xlsx,SOC_CODE,soc_id,mapped
+2016,h2a_2016.xlsx,SOC_TITLE,soc_title,mapped
+2016,h2a_2016.xlsx,SWA_NAME,swa_name,mapped
+2016,h2a_2016.xlsx,,total_worksite_records,absent this year
+2016,h2a_2016.xlsx,ORGANIZATION_FLAG,type_of_employer_application,mapped
+2016,h2a_2016.xlsx,VISA_CLASS,visa_class,mapped
+2016,h2a_2016.xlsx,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2016,h2a_2016.xlsx,BASIC_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2016,h2a_2016.xlsx,EMP_EXP_NUM_MONTHS,work_experience_months,mapped
+2016,h2a_2016.xlsx,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2016,h2a_2016.xlsx,NBR_WORKERS_REQUESTED,workers_requested,mapped
+2016,h2a_2016.xlsx,,worksite_address,absent this year
+2016,h2a_2016.xlsx,WORKSITE_CITY,worksite_city,mapped
+2016,h2a_2016.xlsx,,worksite_county,absent this year
+2016,h2a_2016.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2016,h2a_2016.xlsx,WORKSITE_STATE,worksite_state,mapped
+2016,h2a_2016.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2016,h2a_2016.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2016,h2a_2016.xlsx,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2016,h2a_2016.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2016,h2a_2016.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2016,h2a_2016.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2016,h2a_2016.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2016,h2a_2016.xlsx,EMP_EXPERIENCE_REQD,,dropped: H-2 job-condition detail
+2016,h2a_2016.xlsx,HOURLY_WORK_SCHEDULE_AM,,dropped: hourly work schedule
+2016,h2a_2016.xlsx,HOURLY_WORK_SCHEDULE_PM,,dropped: hourly work schedule
+2016,h2a_2016.xlsx,MAJOR,,dropped: H-2 job-condition detail
+2016,h2a_2016.xlsx,NAME_REQD_TRAINING,,dropped: H-2 job-condition detail
+2016,h2a_2016.xlsx,NUM_MONTHS_TRAINING,,dropped: H-2 job-condition detail
+2016,h2a_2016.xlsx,OTHER_EDU,,dropped: H-2 job-condition detail
+2016,h2a_2016.xlsx,OTHER_WORKSITE_LOCATION,,dropped: free-text secondary worksite note
+2016,h2a_2016.xlsx,PRIMARY/SUB,,dropped: legacy primary/sub application flag
+2016,h2a_2016.xlsx,SECOND_DIPLOMA,,dropped: H-2 job-condition detail
+2016,h2a_2016.xlsx,SECOND_DIPLOMA_MAJOR,,dropped: H-2 job-condition detail
+2016,h2a_2016.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2016,h2a_2016.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2016,h2a_2016.xlsx,TRAINING_REQ,,dropped: H-2 job-condition detail
+2017,h2a_2017.xlsx,AGENT_POC_EMPLOYER_REP_BY_AGENT,agent_representing_employer,mapped
+2017,h2a_2017.xlsx,BASIC_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2017,h2a_2017.xlsx,LAWFIRM_NAME,attorney_law_firm_name,mapped
+2017,h2a_2017.xlsx,CASE_NUMBER,case_number,mapped
+2017,h2a_2017.xlsx,CASE_STATUS,case_status,mapped
+2017,h2a_2017.xlsx,,certification_begin_date,absent this year
+2017,h2a_2017.xlsx,,certification_end_date,absent this year
+2017,h2a_2017.xlsx,DECISION_DATE,decision_date,mapped
+2017,h2a_2017.xlsx,EDUCATION_LEVEL,education_level,mapped
+2017,h2a_2017.xlsx,,emergency_filing,absent this year
+2017,h2a_2017.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2017,h2a_2017.xlsx,EMPLOYER_CITY,employer_city,mapped
+2017,h2a_2017.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2017,h2a_2017.xlsx,EMPLOYER_NAME,employer_name,mapped
+2017,h2a_2017.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2017,h2a_2017.xlsx,EMPLOYER_STATE,employer_state,mapped
+2017,h2a_2017.xlsx,TRADE_NAME_DBA,employer_trade_name,mapped
+2017,h2a_2017.xlsx,JOB_START_DATE,employment_begin_date,mapped
+2017,h2a_2017.xlsx,JOB_END_DATE,employment_end_date,mapped
+2017,h2a_2017.xlsx,,frequency_of_pay,absent this year
+2017,h2a_2017.xlsx,FULL_TIME_POSITION,full_time_position,mapped
+2017,h2a_2017.xlsx,,h2a_labor_contractor,absent this year
+2017,h2a_2017.xlsx,,housing_city,absent this year
+2017,h2a_2017.xlsx,,housing_state,absent this year
+2017,h2a_2017.xlsx,,housing_total_occupancy,absent this year
+2017,h2a_2017.xlsx,,housing_type,absent this year
+2017,h2a_2017.xlsx,JOB_IDNUMBER,job_order_number,mapped
+2017,h2a_2017.xlsx,JOB_TITLE,job_title,mapped
+2017,h2a_2017.xlsx,,meals_provided,absent this year
+2017,h2a_2017.xlsx,NAICS_CODE,naics_id,mapped
+2017,h2a_2017.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2017,h2a_2017.xlsx,OVERTIME_RATE_FROM,overtime_rate_from,mapped
+2017,h2a_2017.xlsx,OVERTIME_RATE_TO,overtime_rate_to,mapped
+2017,h2a_2017.xlsx,,piece_rate_offer,absent this year
+2017,h2a_2017.xlsx,,piece_rate_unit,absent this year
+2017,h2a_2017.xlsx,PRIMARY_CROP,primary_crop,mapped
+2017,h2a_2017.xlsx,CASE_RECEIVED_DATE,received_date,mapped
+2017,h2a_2017.xlsx,REQUESTED_START_DATE_OF_NEED,requested_begin_date,mapped
+2017,h2a_2017.xlsx,REQUESTED_END_DATE_OF_NEED,requested_end_date,mapped
+2017,h2a_2017.xlsx,SOC_CODE,soc_id,mapped
+2017,h2a_2017.xlsx,SOC_TITLE,soc_title,mapped
+2017,h2a_2017.xlsx,SWA_NAME,swa_name,mapped
+2017,h2a_2017.xlsx,,total_worksite_records,absent this year
+2017,h2a_2017.xlsx,ORGANIZATION_FLAG,type_of_employer_application,mapped
+2017,h2a_2017.xlsx,VISA_CLASS,visa_class,mapped
+2017,h2a_2017.xlsx,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2017,h2a_2017.xlsx,BASIC_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2017,h2a_2017.xlsx,EMP_EXP_NUM_MONTHS,work_experience_months,mapped
+2017,h2a_2017.xlsx,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2017,h2a_2017.xlsx,NBR_WORKERS_REQUESTED,workers_requested,mapped
+2017,h2a_2017.xlsx,,worksite_address,absent this year
+2017,h2a_2017.xlsx,WORKSITE_CITY,worksite_city,mapped
+2017,h2a_2017.xlsx,WORKSITE_COUNTY,worksite_county,mapped
+2017,h2a_2017.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2017,h2a_2017.xlsx,WORKSITE_STATE,worksite_state,mapped
+2017,h2a_2017.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2017,h2a_2017.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2017,h2a_2017.xlsx,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2017,h2a_2017.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2017,h2a_2017.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2017,h2a_2017.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2017,h2a_2017.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2017,h2a_2017.xlsx,EMP_EXPERIENCE_REQD,,dropped: H-2 job-condition detail
+2017,h2a_2017.xlsx,HOURLY_WORK_SCHEDULE_AM,,dropped: hourly work schedule
+2017,h2a_2017.xlsx,HOURLY_WORK_SCHEDULE_PM,,dropped: hourly work schedule
+2017,h2a_2017.xlsx,MAJOR,,dropped: H-2 job-condition detail
+2017,h2a_2017.xlsx,NAME_REQD_TRAINING,,dropped: H-2 job-condition detail
+2017,h2a_2017.xlsx,NUM_MONTHS_TRAINING,,dropped: H-2 job-condition detail
+2017,h2a_2017.xlsx,OTHER_EDU,,dropped: H-2 job-condition detail
+2017,h2a_2017.xlsx,OTHER_WORKSITE_LOCATION,,dropped: free-text secondary worksite note
+2017,h2a_2017.xlsx,PRIMARY/SUB,,dropped: legacy primary/sub application flag
+2017,h2a_2017.xlsx,SECOND_DIPLOMA,,dropped: H-2 job-condition detail
+2017,h2a_2017.xlsx,SECOND_DIPLOMA_MAJOR,,dropped: H-2 job-condition detail
+2017,h2a_2017.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2017,h2a_2017.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2017,h2a_2017.xlsx,TRAINING_REQ,,dropped: H-2 job-condition detail
+2018,h2a_2018.xlsx,AGENT_POC_EMPLOYER_REP_BY_AGENT,agent_representing_employer,mapped
+2018,h2a_2018.xlsx,BASIC_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2018,h2a_2018.xlsx,LAWFIRM_NAME,attorney_law_firm_name,mapped
+2018,h2a_2018.xlsx,CASE_NO,case_number,mapped
+2018,h2a_2018.xlsx,CASE_STATUS,case_status,mapped
+2018,h2a_2018.xlsx,,certification_begin_date,absent this year
+2018,h2a_2018.xlsx,,certification_end_date,absent this year
+2018,h2a_2018.xlsx,DECISION_DATE,decision_date,mapped
+2018,h2a_2018.xlsx,EDUCATION_LEVEL,education_level,mapped
+2018,h2a_2018.xlsx,,emergency_filing,absent this year
+2018,h2a_2018.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2018,h2a_2018.xlsx,EMPLOYER_CITY,employer_city,mapped
+2018,h2a_2018.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2018,h2a_2018.xlsx,EMPLOYER_NAME,employer_name,mapped
+2018,h2a_2018.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2018,h2a_2018.xlsx,EMPLOYER_STATE,employer_state,mapped
+2018,h2a_2018.xlsx,TRADE_NAME_DBA,employer_trade_name,mapped
+2018,h2a_2018.xlsx,JOB_START_DATE,employment_begin_date,mapped
+2018,h2a_2018.xlsx,JOB_END_DATE,employment_end_date,mapped
+2018,h2a_2018.xlsx,,frequency_of_pay,absent this year
+2018,h2a_2018.xlsx,FULL_TIME,full_time_position,mapped
+2018,h2a_2018.xlsx,,h2a_labor_contractor,absent this year
+2018,h2a_2018.xlsx,,housing_city,absent this year
+2018,h2a_2018.xlsx,,housing_state,absent this year
+2018,h2a_2018.xlsx,,housing_total_occupancy,absent this year
+2018,h2a_2018.xlsx,,housing_type,absent this year
+2018,h2a_2018.xlsx,JOB_IDNUMBER,job_order_number,mapped
+2018,h2a_2018.xlsx,JOB_TITLE,job_title,mapped
+2018,h2a_2018.xlsx,,meals_provided,absent this year
+2018,h2a_2018.xlsx,NAICS_CODE,naics_id,mapped
+2018,h2a_2018.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2018,h2a_2018.xlsx,OVERTIME_RATE_FROM,overtime_rate_from,mapped
+2018,h2a_2018.xlsx,OVERTIME_RATE_TO,overtime_rate_to,mapped
+2018,h2a_2018.xlsx,,piece_rate_offer,absent this year
+2018,h2a_2018.xlsx,,piece_rate_unit,absent this year
+2018,h2a_2018.xlsx,PRIMARY_CROP,primary_crop,mapped
+2018,h2a_2018.xlsx,CASE_RECEIVED_DATE,received_date,mapped
+2018,h2a_2018.xlsx,REQUESTED_START_DATE_OF_NEED,requested_begin_date,mapped
+2018,h2a_2018.xlsx,REQUESTED_END_DATE_OF_NEED,requested_end_date,mapped
+2018,h2a_2018.xlsx,SOC_CODE,soc_id,mapped
+2018,h2a_2018.xlsx,SOC_TITLE,soc_title,mapped
+2018,h2a_2018.xlsx,SWA_NAME,swa_name,mapped
+2018,h2a_2018.xlsx,,total_worksite_records,absent this year
+2018,h2a_2018.xlsx,ORGANIZATION_FLAG,type_of_employer_application,mapped
+2018,h2a_2018.xlsx,VISA_CLASS,visa_class,mapped
+2018,h2a_2018.xlsx,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2018,h2a_2018.xlsx,BASIC_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2018,h2a_2018.xlsx,EMP_EXP_NUM_MONTHS,work_experience_months,mapped
+2018,h2a_2018.xlsx,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2018,h2a_2018.xlsx,NBR_WORKERS_REQUESTED,workers_requested,mapped
+2018,h2a_2018.xlsx,,worksite_address,absent this year
+2018,h2a_2018.xlsx,WORKSITE_CITY,worksite_city,mapped
+2018,h2a_2018.xlsx,WORKSITE_COUNTY,worksite_county,mapped
+2018,h2a_2018.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2018,h2a_2018.xlsx,WORKSITE_STATE,worksite_state,mapped
+2018,h2a_2018.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2018,h2a_2018.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2018,h2a_2018.xlsx,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2018,h2a_2018.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2018,h2a_2018.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2018,h2a_2018.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2018,h2a_2018.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2018,h2a_2018.xlsx,EMP_EXPERIENCE_REQD,,dropped: H-2 job-condition detail
+2018,h2a_2018.xlsx,HOURLY_WORK_SCHEDULE_AM,,dropped: hourly work schedule
+2018,h2a_2018.xlsx,HOURLY_WORK_SCHEDULE_PM,,dropped: hourly work schedule
+2018,h2a_2018.xlsx,MAJOR,,dropped: H-2 job-condition detail
+2018,h2a_2018.xlsx,NAME_REQD_TRAINING,,dropped: H-2 job-condition detail
+2018,h2a_2018.xlsx,NUM_MONTHS_TRAINING,,dropped: H-2 job-condition detail
+2018,h2a_2018.xlsx,OTHER_EDU,,dropped: H-2 job-condition detail
+2018,h2a_2018.xlsx,OTHER_WORKSITE_LOCATION,,dropped: free-text secondary worksite note
+2018,h2a_2018.xlsx,PRIMARY_SUB,,dropped: legacy primary/sub application flag
+2018,h2a_2018.xlsx,SECOND_DIPLOMA,,dropped: H-2 job-condition detail
+2018,h2a_2018.xlsx,SECOND_DIPLOMA_MAJOR,,dropped: H-2 job-condition detail
+2018,h2a_2018.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2018,h2a_2018.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2018,h2a_2018.xlsx,TRAINING_REQ,,dropped: H-2 job-condition detail
+2019,h2a_2019.xlsx,EMPLOYER_REP_BY_AGENT,agent_representing_employer,mapped
+2019,h2a_2019.xlsx,BASIC_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2019,h2a_2019.xlsx,LAWFIRM_NAME,attorney_law_firm_name,mapped
+2019,h2a_2019.xlsx,CASE_NUMBER,case_number,mapped
+2019,h2a_2019.xlsx,CASE_STATUS,case_status,mapped
+2019,h2a_2019.xlsx,,certification_begin_date,absent this year
+2019,h2a_2019.xlsx,,certification_end_date,absent this year
+2019,h2a_2019.xlsx,DECISION_DATE,decision_date,mapped
+2019,h2a_2019.xlsx,EDUCATION_LEVEL,education_level,mapped
+2019,h2a_2019.xlsx,,emergency_filing,absent this year
+2019,h2a_2019.xlsx,EMPLOYER_ADDRESS1,employer_address,mapped
+2019,h2a_2019.xlsx,EMPLOYER_CITY,employer_city,mapped
+2019,h2a_2019.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2019,h2a_2019.xlsx,EMPLOYER_NAME,employer_name,mapped
+2019,h2a_2019.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2019,h2a_2019.xlsx,EMPLOYER_STATE,employer_state,mapped
+2019,h2a_2019.xlsx,TRADE_NAME_DBA,employer_trade_name,mapped
+2019,h2a_2019.xlsx,JOB_START_DATE,employment_begin_date,mapped
+2019,h2a_2019.xlsx,JOB_END_DATE,employment_end_date,mapped
+2019,h2a_2019.xlsx,,frequency_of_pay,absent this year
+2019,h2a_2019.xlsx,FULL_TIME_POSITION,full_time_position,mapped
+2019,h2a_2019.xlsx,,h2a_labor_contractor,absent this year
+2019,h2a_2019.xlsx,,housing_city,absent this year
+2019,h2a_2019.xlsx,,housing_state,absent this year
+2019,h2a_2019.xlsx,,housing_total_occupancy,absent this year
+2019,h2a_2019.xlsx,,housing_type,absent this year
+2019,h2a_2019.xlsx,JOB_IDNUMBER,job_order_number,mapped
+2019,h2a_2019.xlsx,JOB_TITLE,job_title,mapped
+2019,h2a_2019.xlsx,,meals_provided,absent this year
+2019,h2a_2019.xlsx,NAICS_CODE,naics_id,mapped
+2019,h2a_2019.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2019,h2a_2019.xlsx,OVERTIME_RATE_FROM,overtime_rate_from,mapped
+2019,h2a_2019.xlsx,OVERTIME_RATE_TO,overtime_rate_to,mapped
+2019,h2a_2019.xlsx,,piece_rate_offer,absent this year
+2019,h2a_2019.xlsx,,piece_rate_unit,absent this year
+2019,h2a_2019.xlsx,PRIMARY_CROP,primary_crop,mapped
+2019,h2a_2019.xlsx,CASE_RECEIVED_DATE,received_date,mapped
+2019,h2a_2019.xlsx,REQUESTED_START_DATE_OF_NEED,requested_begin_date,mapped
+2019,h2a_2019.xlsx,REQUESTED_END_DATE_OF_NEED,requested_end_date,mapped
+2019,h2a_2019.xlsx,SOC_CODE,soc_id,mapped
+2019,h2a_2019.xlsx,SOC_TITLE,soc_title,mapped
+2019,h2a_2019.xlsx,SWA_NAME,swa_name,mapped
+2019,h2a_2019.xlsx,,total_worksite_records,absent this year
+2019,h2a_2019.xlsx,ORGANIZATION_FLAG,type_of_employer_application,mapped
+2019,h2a_2019.xlsx,VISA_CLASS,visa_class,mapped
+2019,h2a_2019.xlsx,BASIC_RATE_OF_PAY,wage_offered_from,mapped
+2019,h2a_2019.xlsx,BASIC_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2019,h2a_2019.xlsx,EMP_EXP_NUM_MONTHS,work_experience_months,mapped
+2019,h2a_2019.xlsx,NBR_WORKERS_CERTIFIED,workers_certified,mapped
+2019,h2a_2019.xlsx,NBR_WORKERS_REQUESTED,workers_requested,mapped
+2019,h2a_2019.xlsx,,worksite_address,absent this year
+2019,h2a_2019.xlsx,WORKSITE_CITY,worksite_city,mapped
+2019,h2a_2019.xlsx,WORKSITE_COUNTY,worksite_county,mapped
+2019,h2a_2019.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2019,h2a_2019.xlsx,WORKSITE_STATE,worksite_state,mapped
+2019,h2a_2019.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2019,h2a_2019.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2019,h2a_2019.xlsx,AGENT_ATTORNEY_STATE,,dropped: attorney/agent personal details
+2019,h2a_2019.xlsx,EMPLOYER_ADDRESS2,,dropped: secondary worksite/wage block (primary worksite only)
+2019,h2a_2019.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2019,h2a_2019.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2019,h2a_2019.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2019,h2a_2019.xlsx,EMP_EXPERIENCE_REQD,,dropped: H-2 job-condition detail
+2019,h2a_2019.xlsx,HOURLY_WORK_SCHEDULE_AM,,dropped: hourly work schedule
+2019,h2a_2019.xlsx,HOURLY_WORK_SCHEDULE_PM,,dropped: hourly work schedule
+2019,h2a_2019.xlsx,MAJOR,,dropped: H-2 job-condition detail
+2019,h2a_2019.xlsx,NAME_REQD_TRAINING,,dropped: H-2 job-condition detail
+2019,h2a_2019.xlsx,NUM_MONTHS_TRAINING,,dropped: H-2 job-condition detail
+2019,h2a_2019.xlsx,OTHER_EDU,,dropped: H-2 job-condition detail
+2019,h2a_2019.xlsx,OTHER_WORKSITE_LOCATION,,dropped: free-text secondary worksite note
+2019,h2a_2019.xlsx,PRMARY/SUB,,dropped: legacy primary/sub application flag
+2019,h2a_2019.xlsx,SECOND_DIPLOMA,,dropped: H-2 job-condition detail
+2019,h2a_2019.xlsx,SECOND_DIPLOMA_MAJOR,,dropped: H-2 job-condition detail
+2019,h2a_2019.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2019,h2a_2019.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2019,h2a_2019.xlsx,TRAINING_REQ,,dropped: H-2 job-condition detail
+2020,h2a_2020.xlsx,TYPE_OF_REPRESENTATION,agent_representing_employer,mapped
+2020,h2a_2020.xlsx,ANTICIPATED_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2020,h2a_2020.xlsx,LAWFIRM_NAME_BUSINESS_NAME,attorney_law_firm_name,mapped
+2020,h2a_2020.xlsx,CASE_NUMBER,case_number,mapped
+2020,h2a_2020.xlsx,CASE_STATUS,case_status,mapped
+2020,h2a_2020.xlsx,,certification_begin_date,absent this year
+2020,h2a_2020.xlsx,,certification_end_date,absent this year
+2020,h2a_2020.xlsx,DECISION_DATE,decision_date,mapped
+2020,h2a_2020.xlsx,EDUCATION_LEVEL,education_level,mapped
+2020,h2a_2020.xlsx,EMERGENCY_FILING,emergency_filing,mapped
+2020,h2a_2020.xlsx,EMPLOYER_ADDRESS_1,employer_address,mapped
+2020,h2a_2020.xlsx,EMPLOYER_CITY,employer_city,mapped
+2020,h2a_2020.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2020,h2a_2020.xlsx,EMPLOYER_NAME,employer_name,mapped
+2020,h2a_2020.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2020,h2a_2020.xlsx,EMPLOYER_STATE,employer_state,mapped
+2020,h2a_2020.xlsx,TRADE_NAME_DBA,employer_trade_name,mapped
+2020,h2a_2020.xlsx,EMPLOYMENT_BEGIN_DATE,employment_begin_date,mapped
+2020,h2a_2020.xlsx,EMPLOYMENT_END_DATE,employment_end_date,mapped
+2020,h2a_2020.xlsx,FREQUENCY_OF_PAY,frequency_of_pay,mapped
+2020,h2a_2020.xlsx,,full_time_position,absent this year
+2020,h2a_2020.xlsx,H2A_LABOR_CONTRACTOR,h2a_labor_contractor,mapped
+2020,h2a_2020.xlsx,HOUSING_CITY,housing_city,mapped
+2020,h2a_2020.xlsx,HOUSING_STATE,housing_state,mapped
+2020,h2a_2020.xlsx,TOTAL_OCCUPANCY,housing_total_occupancy,mapped
+2020,h2a_2020.xlsx,TYPE_OF_HOUSING,housing_type,mapped
+2020,h2a_2020.xlsx,JOB_ORDER_NUMBER,job_order_number,mapped
+2020,h2a_2020.xlsx,JOB_TITLE,job_title,mapped
+2020,h2a_2020.xlsx,MEALS_PROVIDED,meals_provided,mapped
+2020,h2a_2020.xlsx,NAICS_CODE,naics_id,mapped
+2020,h2a_2020.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2020,h2a_2020.xlsx,,overtime_rate_from,absent this year
+2020,h2a_2020.xlsx,,overtime_rate_to,absent this year
+2020,h2a_2020.xlsx,PIECE_RATE_OFFER,piece_rate_offer,mapped
+2020,h2a_2020.xlsx,PIECE_RATE_UNIT,piece_rate_unit,mapped
+2020,h2a_2020.xlsx,,primary_crop,absent this year
+2020,h2a_2020.xlsx,RECEIVED_DATE,received_date,mapped
+2020,h2a_2020.xlsx,REQUESTED_BEGIN_DATE,requested_begin_date,mapped
+2020,h2a_2020.xlsx,REQUESTED_END_DATE,requested_end_date,mapped
+2020,h2a_2020.xlsx,SOC_CODE,soc_id,mapped
+2020,h2a_2020.xlsx,SOC_TITLE,soc_title,mapped
+2020,h2a_2020.xlsx,,swa_name,absent this year
+2020,h2a_2020.xlsx,TOTAL_WORKSITE_RECORDS,total_worksite_records,mapped
+2020,h2a_2020.xlsx,TYPE_OF_EMPLOYER_APPLICATION,type_of_employer_application,mapped
+2020,h2a_2020.xlsx,,visa_class,absent this year
+2020,h2a_2020.xlsx,WAGE_OFFER,wage_offered_from,mapped
+2020,h2a_2020.xlsx,PER,wage_unit_of_pay,mapped
+2020,h2a_2020.xlsx,WORK_EXPERIENCE_MONTHS,work_experience_months,mapped
+2020,h2a_2020.xlsx,TOTAL_WORKERS_H2A_CERTIFIED,workers_certified,mapped
+2020,h2a_2020.xlsx,TOTAL_WORKERS_NEEDED,workers_requested,mapped
+2020,h2a_2020.xlsx,WORKSITE_ADDRESS,worksite_address,mapped
+2020,h2a_2020.xlsx,WORKSITE_CITY,worksite_city,mapped
+2020,h2a_2020.xlsx,WORKSITE_COUNTY,worksite_county,mapped
+2020,h2a_2020.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2020,h2a_2020.xlsx,WORKSITE_STATE,worksite_state,mapped
+2020,h2a_2020.xlsx,790A_ADDENDUM_A_ATTACHED,,dropped: form attachment flag
+2020,h2a_2020.xlsx,790A_ADDENDUM_B_ATTACHED,,dropped: form attachment flag
+2020,h2a_2020.xlsx,ADDENDUM_B_HOUSING_ATTACHED,,dropped: form attachment flag
+2020,h2a_2020.xlsx,ADDENDUM_B_WORKSITE_ATTACHED,,dropped: form attachment flag
+2020,h2a_2020.xlsx,ADDITIONAL_JOB_REQUIREMENTS,,dropped: H-2 job-condition detail
+2020,h2a_2020.xlsx,APPENDIX_A_ATTACHED,,dropped: form attachment flag
+2020,h2a_2020.xlsx,ATTORNEY_AGENT_ADDRESS_1,,dropped: attorney/agent personal details
+2020,h2a_2020.xlsx,ATTORNEY_AGENT_ADDRESS_2,,dropped: attorney/agent personal details
+2020,h2a_2020.xlsx,ATTORNEY_AGENT_CITY,,dropped: attorney/agent personal details
+2020,h2a_2020.xlsx,ATTORNEY_AGENT_COUNTRY,,dropped: attorney/agent personal details
+2020,h2a_2020.xlsx,ATTORNEY_AGENT_EMAIL,,dropped: attorney/agent personal details
+2020,h2a_2020.xlsx,ATTORNEY_AGENT_FIRST_NAME,,dropped: attorney/agent personal details
+2020,h2a_2020.xlsx,ATTORNEY_AGENT_LAST_NAME,,dropped: attorney/agent personal details
+2020,h2a_2020.xlsx,ATTORNEY_AGENT_MIDDLE_NAME,,dropped: attorney/agent personal details
+2020,h2a_2020.xlsx,ATTORNEY_AGENT_PHONE,,dropped: attorney/agent personal details
+2020,h2a_2020.xlsx,ATTORNEY_AGENT_PHONE_EXT,,dropped: attorney/agent personal details
+2020,h2a_2020.xlsx,ATTORNEY_AGENT_POSTAL_CODE,,dropped: attorney/agent personal details
+2020,h2a_2020.xlsx,ATTORNEY_AGENT_PROVINCE,,dropped: attorney/agent personal details
+2020,h2a_2020.xlsx,ATTORNEY_AGENT_STATE,,dropped: attorney/agent personal details
+2020,h2a_2020.xlsx,CERTIFICATION_REQUIREMENTS,,dropped: H-2 job-condition detail
+2020,h2a_2020.xlsx,CRIMINAL_BACKGROUND_CHECK,,dropped: H-2 job-condition detail
+2020,h2a_2020.xlsx,DEDUCTIONS_FROM_PAY,,dropped: H-2 contract / attestation detail
+2020,h2a_2020.xlsx,DRIVER_REQUIREMENTS,,dropped: H-2 job-condition detail
+2020,h2a_2020.xlsx,DRUG_SCREEN,,dropped: H-2 job-condition detail
+2020,h2a_2020.xlsx,EMAIL_TO_APPLY,,dropped: job application contact
+2020,h2a_2020.xlsx,EMPLOYER_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2020,h2a_2020.xlsx,EMPLOYER_MSPA_ATTACHED,,dropped: form attachment flag
+2020,h2a_2020.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2020,h2a_2020.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2020,h2a_2020.xlsx,EMPLOYER_POC_ADDRESS1,,dropped: employer point-of-contact personal details
+2020,h2a_2020.xlsx,EMPLOYER_POC_ADDRESS2,,dropped: employer point-of-contact personal details
+2020,h2a_2020.xlsx,EMPLOYER_POC_CITY,,dropped: employer point-of-contact personal details
+2020,h2a_2020.xlsx,EMPLOYER_POC_COUNTRY,,dropped: employer point-of-contact personal details
+2020,h2a_2020.xlsx,EMPLOYER_POC_EMAIL,,dropped: employer point-of-contact personal details
+2020,h2a_2020.xlsx,EMPLOYER_POC_FIRST_NAME,,dropped: employer point-of-contact personal details
+2020,h2a_2020.xlsx,EMPLOYER_POC_JOB_TITLE,,dropped: employer point-of-contact personal details
+2020,h2a_2020.xlsx,EMPLOYER_POC_LAST_NAME,,dropped: employer point-of-contact personal details
+2020,h2a_2020.xlsx,EMPLOYER_POC_MIDDLE_NAME,,dropped: employer point-of-contact personal details
+2020,h2a_2020.xlsx,EMPLOYER_POC_PHONE,,dropped: employer point-of-contact personal details
+2020,h2a_2020.xlsx,EMPLOYER_POC_PHONE_EXT,,dropped: employer point-of-contact personal details
+2020,h2a_2020.xlsx,EMPLOYER_POC_POSTAL_CODE,,dropped: employer point-of-contact personal details
+2020,h2a_2020.xlsx,EMPLOYER_POC_PROVINCE,,dropped: employer point-of-contact personal details
+2020,h2a_2020.xlsx,EMPLOYER_POC_STATE,,dropped: employer point-of-contact personal details
+2020,h2a_2020.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2020,h2a_2020.xlsx,EXPOSURE_TO_TEMPERATURES,,dropped: H-2 job-condition detail
+2020,h2a_2020.xlsx,EXTENSIVE_PUSHING_PULLING,,dropped: H-2 job-condition detail
+2020,h2a_2020.xlsx,EXTENSIVE_SITTING_WALKING,,dropped: H-2 job-condition detail
+2020,h2a_2020.xlsx,FREQUENT_STOOPING_BENDING_OVER,,dropped: H-2 job-condition detail
+2020,h2a_2020.xlsx,FRIDAY_HOURS,,dropped: per-weekday hour schedule
+2020,h2a_2020.xlsx,HOURLY_WORK_SCHEDULE_END,,dropped: hourly work schedule
+2020,h2a_2020.xlsx,HOURLY_WORK_SCHEDULE_START,,dropped: hourly work schedule
+2020,h2a_2020.xlsx,HOUSING_ADDRESS_LOCATION,,dropped: H-2A housing detail
+2020,h2a_2020.xlsx,HOUSING_COMPLIANCE_FEDERAL,,dropped: H-2A housing detail
+2020,h2a_2020.xlsx,HOUSING_COMPLIANCE_LOCAL,,dropped: H-2A housing detail
+2020,h2a_2020.xlsx,HOUSING_COMPLIANCE_STATE,,dropped: H-2A housing detail
+2020,h2a_2020.xlsx,HOUSING_COUNTY,,dropped: H-2A housing detail
+2020,h2a_2020.xlsx,HOUSING_POSTAL_CODE,,dropped: H-2A housing detail
+2020,h2a_2020.xlsx,HOUSING_TRANSPORTATION,,dropped: H-2 contract / attestation detail
+2020,h2a_2020.xlsx,JOINT_EMPLOYER_APPENDIX_A_ATTACHED,,dropped: form attachment flag
+2020,h2a_2020.xlsx,LIFTING_AMOUNT,,dropped: H-2 job-condition detail
+2020,h2a_2020.xlsx,LIFTING_REQUIREMENTS,,dropped: H-2 job-condition detail
+2020,h2a_2020.xlsx,MEALS_CHARGED,,dropped: H-2A housing detail
+2020,h2a_2020.xlsx,MEAL_REIMBURSEMENT_MAXIMUM,,dropped: H-2A housing detail
+2020,h2a_2020.xlsx,MEAL_REIMBURSEMENT_MINIMUM,,dropped: H-2A housing detail
+2020,h2a_2020.xlsx,MONDAY_HOURS,,dropped: per-weekday hour schedule
+2020,h2a_2020.xlsx,NAME_OF_HIGHEST_STATE_COURT,,dropped: attorney bar detail
+2020,h2a_2020.xlsx,ON_CALL_REQUIREMENT,,dropped: H-2 job-condition detail
+2020,h2a_2020.xlsx,OTHER_FREQUENCY_OF_PAY,,dropped: H-2 contract / attestation detail
+2020,h2a_2020.xlsx,PHONE_TO_APPLY,,dropped: job application contact
+2020,h2a_2020.xlsx,PREPARER_BUSINESS_NAME,,dropped: form preparer personal details
+2020,h2a_2020.xlsx,PREPARER_EMAIL,,dropped: form preparer personal details
+2020,h2a_2020.xlsx,PREPARER_FIRST_NAME,,dropped: form preparer personal details
+2020,h2a_2020.xlsx,PREPARER_LAST_NAME,,dropped: form preparer personal details
+2020,h2a_2020.xlsx,PREPARER_MIDDLE_INITIAL,,dropped: form preparer personal details
+2020,h2a_2020.xlsx,REPETITIVE_MOVEMENTS,,dropped: H-2 job-condition detail
+2020,h2a_2020.xlsx,SATURDAY_HOURS,,dropped: per-weekday hour schedule
+2020,h2a_2020.xlsx,STATE_OF_HIGHEST_COURT,,dropped: attorney bar detail
+2020,h2a_2020.xlsx,SUNDAY_HOURS,,dropped: per-weekday hour schedule
+2020,h2a_2020.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2020,h2a_2020.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2020,h2a_2020.xlsx,SURETY_BOND_ATTACHED,,dropped: form attachment flag
+2020,h2a_2020.xlsx,THURSDAY_HOURS,,dropped: per-weekday hour schedule
+2020,h2a_2020.xlsx,TOTAL_ADDENDUM_A_RECORDS,,dropped: form attachment flag
+2020,h2a_2020.xlsx,TOTAL_HOUSING_RECORDS,,dropped: H-2A housing detail
+2020,h2a_2020.xlsx,TOTAL_UNITS,,dropped: H-2A housing detail
+2020,h2a_2020.xlsx,TOTAL_WORKERS_H2A_REQUESTED,,duplicate of workers_requested
+2020,h2a_2020.xlsx,TRAINING_MONTHS,,dropped: H-2 job-condition detail
+2020,h2a_2020.xlsx,TUESDAY_HOURS,,dropped: per-weekday hour schedule
+2020,h2a_2020.xlsx,WEBSITE_TO_APPLY,,dropped: job application contact
+2020,h2a_2020.xlsx,WEDNESDAY_HOURS,,dropped: per-weekday hour schedule
+2020,h2a_2020.xlsx,WORK_CONTRACTS_ATTACHED,,dropped: form attachment flag
+2021,h2a_2021.xlsx,TYPE_OF_REPRESENTATION,agent_representing_employer,mapped
+2021,h2a_2021.xlsx,ANTICIPATED_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2021,h2a_2021.xlsx,LAWFIRM_NAME_BUSINESS_NAME,attorney_law_firm_name,mapped
+2021,h2a_2021.xlsx,CASE_NUMBER,case_number,mapped
+2021,h2a_2021.xlsx,CASE_STATUS,case_status,mapped
+2021,h2a_2021.xlsx,,certification_begin_date,absent this year
+2021,h2a_2021.xlsx,,certification_end_date,absent this year
+2021,h2a_2021.xlsx,DECISION_DATE,decision_date,mapped
+2021,h2a_2021.xlsx,EDUCATION_LEVEL,education_level,mapped
+2021,h2a_2021.xlsx,EMERGENCY_FILING,emergency_filing,mapped
+2021,h2a_2021.xlsx,EMPLOYER_ADDRESS_1,employer_address,mapped
+2021,h2a_2021.xlsx,EMPLOYER_CITY,employer_city,mapped
+2021,h2a_2021.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2021,h2a_2021.xlsx,EMPLOYER_NAME,employer_name,mapped
+2021,h2a_2021.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2021,h2a_2021.xlsx,EMPLOYER_STATE,employer_state,mapped
+2021,h2a_2021.xlsx,TRADE_NAME_DBA,employer_trade_name,mapped
+2021,h2a_2021.xlsx,EMPLOYMENT_BEGIN_DATE,employment_begin_date,mapped
+2021,h2a_2021.xlsx,EMPLOYMENT_END_DATE,employment_end_date,mapped
+2021,h2a_2021.xlsx,FREQUENCY_OF_PAY,frequency_of_pay,mapped
+2021,h2a_2021.xlsx,,full_time_position,absent this year
+2021,h2a_2021.xlsx,H2A_LABOR_CONTRACTOR,h2a_labor_contractor,mapped
+2021,h2a_2021.xlsx,HOUSING_CITY,housing_city,mapped
+2021,h2a_2021.xlsx,HOUSING_STATE,housing_state,mapped
+2021,h2a_2021.xlsx,TOTAL_OCCUPANCY,housing_total_occupancy,mapped
+2021,h2a_2021.xlsx,TYPE_OF_HOUSING,housing_type,mapped
+2021,h2a_2021.xlsx,JOB_ORDER_NUMBER,job_order_number,mapped
+2021,h2a_2021.xlsx,JOB_TITLE,job_title,mapped
+2021,h2a_2021.xlsx,MEALS_PROVIDED,meals_provided,mapped
+2021,h2a_2021.xlsx,NAICS_CODE,naics_id,mapped
+2021,h2a_2021.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2021,h2a_2021.xlsx,,overtime_rate_from,absent this year
+2021,h2a_2021.xlsx,,overtime_rate_to,absent this year
+2021,h2a_2021.xlsx,PIECE_RATE_OFFER,piece_rate_offer,mapped
+2021,h2a_2021.xlsx,PIECE_RATE_UNIT,piece_rate_unit,mapped
+2021,h2a_2021.xlsx,,primary_crop,absent this year
+2021,h2a_2021.xlsx,RECEIVED_DATE,received_date,mapped
+2021,h2a_2021.xlsx,REQUESTED_BEGIN_DATE,requested_begin_date,mapped
+2021,h2a_2021.xlsx,REQUESTED_END_DATE,requested_end_date,mapped
+2021,h2a_2021.xlsx,SOC_CODE,soc_id,mapped
+2021,h2a_2021.xlsx,SOC_TITLE,soc_title,mapped
+2021,h2a_2021.xlsx,,swa_name,absent this year
+2021,h2a_2021.xlsx,TOTAL_WORKSITES_RECORDS,total_worksite_records,mapped
+2021,h2a_2021.xlsx,TYPE_OF_EMPLOYER_APPLICATION,type_of_employer_application,mapped
+2021,h2a_2021.xlsx,,visa_class,absent this year
+2021,h2a_2021.xlsx,WAGE_OFFER,wage_offered_from,mapped
+2021,h2a_2021.xlsx,PER,wage_unit_of_pay,mapped
+2021,h2a_2021.xlsx,WORK_EXPERIENCE_MONTHS,work_experience_months,mapped
+2021,h2a_2021.xlsx,TOTAL_WORKERS_H2A_CERTIFIED,workers_certified,mapped
+2021,h2a_2021.xlsx,TOTAL_WORKERS_NEEDED,workers_requested,mapped
+2021,h2a_2021.xlsx,WORKSITE_ADDRESS,worksite_address,mapped
+2021,h2a_2021.xlsx,WORKSITE_CITY,worksite_city,mapped
+2021,h2a_2021.xlsx,WORKSITE_COUNTY,worksite_county,mapped
+2021,h2a_2021.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2021,h2a_2021.xlsx,WORKSITE_STATE,worksite_state,mapped
+2021,h2a_2021.xlsx,790A_ADDENDUM_B_ATTACHED,,dropped: form attachment flag
+2021,h2a_2021.xlsx,790A_addendum_a_attached,,dropped: form attachment flag
+2021,h2a_2021.xlsx,ADDENDUM_B_HOUSING_ATTACHED,,dropped: form attachment flag
+2021,h2a_2021.xlsx,ADDENDUM_B_WORKSITE_ATTACHED,,dropped: form attachment flag
+2021,h2a_2021.xlsx,ADDENDUM_C_ATTACHED,,dropped: form attachment flag
+2021,h2a_2021.xlsx,APPENDIX_A_ATTACHED,,dropped: form attachment flag
+2021,h2a_2021.xlsx,ATTORNEY_AGENT_ADDRESS_1,,dropped: attorney/agent personal details
+2021,h2a_2021.xlsx,ATTORNEY_AGENT_ADDRESS_2,,dropped: attorney/agent personal details
+2021,h2a_2021.xlsx,ATTORNEY_AGENT_CITY,,dropped: attorney/agent personal details
+2021,h2a_2021.xlsx,ATTORNEY_AGENT_COUNTRY,,dropped: attorney/agent personal details
+2021,h2a_2021.xlsx,ATTORNEY_AGENT_EMAIL_ADDRESS,,dropped: attorney/agent personal details
+2021,h2a_2021.xlsx,ATTORNEY_AGENT_FIRST_NAME,,dropped: attorney/agent personal details
+2021,h2a_2021.xlsx,ATTORNEY_AGENT_LAST_NAME,,dropped: attorney/agent personal details
+2021,h2a_2021.xlsx,ATTORNEY_AGENT_MIDDLE_NAME,,dropped: attorney/agent personal details
+2021,h2a_2021.xlsx,ATTORNEY_AGENT_PHONE,,dropped: attorney/agent personal details
+2021,h2a_2021.xlsx,ATTORNEY_AGENT_PHONE_EXT,,dropped: attorney/agent personal details
+2021,h2a_2021.xlsx,ATTORNEY_AGENT_POSTAL_CODE,,dropped: attorney/agent personal details
+2021,h2a_2021.xlsx,ATTORNEY_AGENT_PROVINCE,,dropped: attorney/agent personal details
+2021,h2a_2021.xlsx,ATTORNEY_AGENT_STATE,,dropped: attorney/agent personal details
+2021,h2a_2021.xlsx,CERTIFICATION_REQUIREMENTS,,dropped: H-2 job-condition detail
+2021,h2a_2021.xlsx,CRIMINAL_BACKGROUND_CHECK,,dropped: H-2 job-condition detail
+2021,h2a_2021.xlsx,DEDUCTIONS_FROM_PAY,,dropped: H-2 contract / attestation detail
+2021,h2a_2021.xlsx,DRIVER_REQUIREMENTS,,dropped: H-2 job-condition detail
+2021,h2a_2021.xlsx,DRUG_SCREEN,,dropped: H-2 job-condition detail
+2021,h2a_2021.xlsx,EMAIL_TO_APPLY,,dropped: job application contact
+2021,h2a_2021.xlsx,EMPLOYER_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2021,h2a_2021.xlsx,EMPLOYER_MSPA_ATTACHED,,dropped: form attachment flag
+2021,h2a_2021.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2021,h2a_2021.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2021,h2a_2021.xlsx,EMPLOYER_POC_ADDRESS1,,dropped: employer point-of-contact personal details
+2021,h2a_2021.xlsx,EMPLOYER_POC_ADDRESS2,,dropped: employer point-of-contact personal details
+2021,h2a_2021.xlsx,EMPLOYER_POC_CITY,,dropped: employer point-of-contact personal details
+2021,h2a_2021.xlsx,EMPLOYER_POC_COUNTRY,,dropped: employer point-of-contact personal details
+2021,h2a_2021.xlsx,EMPLOYER_POC_EMAIL,,dropped: employer point-of-contact personal details
+2021,h2a_2021.xlsx,EMPLOYER_POC_FIRST_NAME,,dropped: employer point-of-contact personal details
+2021,h2a_2021.xlsx,EMPLOYER_POC_JOB_TITLE,,dropped: employer point-of-contact personal details
+2021,h2a_2021.xlsx,EMPLOYER_POC_LAST_NAME,,dropped: employer point-of-contact personal details
+2021,h2a_2021.xlsx,EMPLOYER_POC_MIDDLE_NAME,,dropped: employer point-of-contact personal details
+2021,h2a_2021.xlsx,EMPLOYER_POC_PHONE,,dropped: employer point-of-contact personal details
+2021,h2a_2021.xlsx,EMPLOYER_POC_PHONE_EXT,,dropped: employer point-of-contact personal details
+2021,h2a_2021.xlsx,EMPLOYER_POC_POSTAL_CODE,,dropped: employer point-of-contact personal details
+2021,h2a_2021.xlsx,EMPLOYER_POC_PROVINCE,,dropped: employer point-of-contact personal details
+2021,h2a_2021.xlsx,EMPLOYER_POC_STATE,,dropped: employer point-of-contact personal details
+2021,h2a_2021.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2021,h2a_2021.xlsx,EXPOSURE_TO_TEMPERATURES,,dropped: H-2 job-condition detail
+2021,h2a_2021.xlsx,EXTENSIVE_PUSHING_PULLING,,dropped: H-2 job-condition detail
+2021,h2a_2021.xlsx,EXTENSIVE_SITTING_WALKING,,dropped: H-2 job-condition detail
+2021,h2a_2021.xlsx,FREQUENT_STOOPING_BENDING_OVER,,dropped: H-2 job-condition detail
+2021,h2a_2021.xlsx,FRIDAY_HOURS,,dropped: per-weekday hour schedule
+2021,h2a_2021.xlsx,HOURLY_SCHEDULE_BEGIN,,dropped: hourly work schedule
+2021,h2a_2021.xlsx,HOURLY_SCHEDULE_END,,dropped: hourly work schedule
+2021,h2a_2021.xlsx,HOUSING_ADDRESS_LOCATION,,dropped: H-2A housing detail
+2021,h2a_2021.xlsx,HOUSING_COMPLIANCE_FEDERAL,,dropped: H-2A housing detail
+2021,h2a_2021.xlsx,HOUSING_COMPLIANCE_LOCAL,,dropped: H-2A housing detail
+2021,h2a_2021.xlsx,HOUSING_COMPLIANCE_STATE,,dropped: H-2A housing detail
+2021,h2a_2021.xlsx,HOUSING_COUNTY,,dropped: H-2A housing detail
+2021,h2a_2021.xlsx,HOUSING_POSTAL_CODE,,dropped: H-2A housing detail
+2021,h2a_2021.xlsx,HOUSING_TRANSPORTATION,,dropped: H-2 contract / attestation detail
+2021,h2a_2021.xlsx,JNT_EMPLOYER_APPEND_A_ATTACHED,,dropped: form attachment flag
+2021,h2a_2021.xlsx,LIFTING_AMOUNT,,dropped: H-2 job-condition detail
+2021,h2a_2021.xlsx,LIFTING_REQUIREMENTS,,dropped: H-2 job-condition detail
+2021,h2a_2021.xlsx,MEALS_CHARGE,,dropped: H-2A housing detail
+2021,h2a_2021.xlsx,MEAL_REIMBURSEMENT_MAXIMUM,,dropped: H-2A housing detail
+2021,h2a_2021.xlsx,MEAL_REIMBURSEMENT_MINIMUM,,dropped: H-2A housing detail
+2021,h2a_2021.xlsx,MONDAY_HOURS,,dropped: per-weekday hour schedule
+2021,h2a_2021.xlsx,NAME_OF_HIGHEST_STATE_COURT,,dropped: attorney bar detail
+2021,h2a_2021.xlsx,ON_CALL_REQUIREMENT,,dropped: H-2 job-condition detail
+2021,h2a_2021.xlsx,OTHER_FREQUENCY_OF_PAY,,dropped: H-2 contract / attestation detail
+2021,h2a_2021.xlsx,PHONE_TO_APPLY,,dropped: job application contact
+2021,h2a_2021.xlsx,PREPARER_BUSINESS_NAME,,dropped: form preparer personal details
+2021,h2a_2021.xlsx,PREPARER_EMAIL,,dropped: form preparer personal details
+2021,h2a_2021.xlsx,PREPARER_FIRST_NAME,,dropped: form preparer personal details
+2021,h2a_2021.xlsx,PREPARER_LAST_NAME,,dropped: form preparer personal details
+2021,h2a_2021.xlsx,PREPARER_MIDDLE_INITIAL,,dropped: form preparer personal details
+2021,h2a_2021.xlsx,REPETITIVE_MOVEMENTS,,dropped: H-2 job-condition detail
+2021,h2a_2021.xlsx,SATURDAY_HOURS,,dropped: per-weekday hour schedule
+2021,h2a_2021.xlsx,SPECIAL_REQUIREMENTS,,dropped: H-2 job-condition detail
+2021,h2a_2021.xlsx,STATE_OF_HIGHEST_COURT,,dropped: attorney bar detail
+2021,h2a_2021.xlsx,SUNDAY_HOURS,,dropped: per-weekday hour schedule
+2021,h2a_2021.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2021,h2a_2021.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2021,h2a_2021.xlsx,SURETY_BOND_ATTACHED,,dropped: form attachment flag
+2021,h2a_2021.xlsx,THURSDAY_HOURS,,dropped: per-weekday hour schedule
+2021,h2a_2021.xlsx,TOTAL_ADDENDUM_A_RECORDS,,dropped: form attachment flag
+2021,h2a_2021.xlsx,TOTAL_HOUSING_RECORDS,,dropped: H-2A housing detail
+2021,h2a_2021.xlsx,TOTAL_UNITS,,dropped: H-2A housing detail
+2021,h2a_2021.xlsx,TOTAL_WORKERS_H2A_REQUESTED,,duplicate of workers_requested
+2021,h2a_2021.xlsx,TRAINING_MONTHS,,dropped: H-2 job-condition detail
+2021,h2a_2021.xlsx,TUESDAY_HOURS,,dropped: per-weekday hour schedule
+2021,h2a_2021.xlsx,WEBSITE_TO_APPLY,,dropped: job application contact
+2021,h2a_2021.xlsx,WEDNESDAY_HOURS,,dropped: per-weekday hour schedule
+2021,h2a_2021.xlsx,WORK_CONTRACTS_ATTACHED,,dropped: form attachment flag
+2022,h2a_2022.xlsx,TYPE_OF_REPRESENTATION,agent_representing_employer,mapped
+2022,h2a_2022.xlsx,ANTICIPATED_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2022,h2a_2022.xlsx,LAWFIRM_NAME_BUSINESS_NAME,attorney_law_firm_name,mapped
+2022,h2a_2022.xlsx,CASE_NUMBER,case_number,mapped
+2022,h2a_2022.xlsx,CASE_STATUS,case_status,mapped
+2022,h2a_2022.xlsx,,certification_begin_date,absent this year
+2022,h2a_2022.xlsx,,certification_end_date,absent this year
+2022,h2a_2022.xlsx,DECISION_DATE,decision_date,mapped
+2022,h2a_2022.xlsx,EDUCATION_LEVEL,education_level,mapped
+2022,h2a_2022.xlsx,EMERGENCY_FILING,emergency_filing,mapped
+2022,h2a_2022.xlsx,EMPLOYER_ADDRESS_1,employer_address,mapped
+2022,h2a_2022.xlsx,EMPLOYER_CITY,employer_city,mapped
+2022,h2a_2022.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2022,h2a_2022.xlsx,EMPLOYER_NAME,employer_name,mapped
+2022,h2a_2022.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2022,h2a_2022.xlsx,EMPLOYER_STATE,employer_state,mapped
+2022,h2a_2022.xlsx,TRADE_NAME_DBA,employer_trade_name,mapped
+2022,h2a_2022.xlsx,EMPLOYMENT_BEGIN_DATE,employment_begin_date,mapped
+2022,h2a_2022.xlsx,EMPLOYMENT_END_DATE,employment_end_date,mapped
+2022,h2a_2022.xlsx,FREQUENCY_OF_PAY,frequency_of_pay,mapped
+2022,h2a_2022.xlsx,,full_time_position,absent this year
+2022,h2a_2022.xlsx,H2A_LABOR_CONTRACTOR,h2a_labor_contractor,mapped
+2022,h2a_2022.xlsx,HOUSING_CITY,housing_city,mapped
+2022,h2a_2022.xlsx,HOUSING_STATE,housing_state,mapped
+2022,h2a_2022.xlsx,TOTAL_OCCUPANCY,housing_total_occupancy,mapped
+2022,h2a_2022.xlsx,TYPE_OF_HOUSING,housing_type,mapped
+2022,h2a_2022.xlsx,JOB_ORDER_NUMBER,job_order_number,mapped
+2022,h2a_2022.xlsx,JOB_TITLE,job_title,mapped
+2022,h2a_2022.xlsx,MEALS_PROVIDED,meals_provided,mapped
+2022,h2a_2022.xlsx,NAICS_CODE,naics_id,mapped
+2022,h2a_2022.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2022,h2a_2022.xlsx,,overtime_rate_from,absent this year
+2022,h2a_2022.xlsx,,overtime_rate_to,absent this year
+2022,h2a_2022.xlsx,PIECE_RATE_OFFER,piece_rate_offer,mapped
+2022,h2a_2022.xlsx,PIECE_RATE_UNIT,piece_rate_unit,mapped
+2022,h2a_2022.xlsx,,primary_crop,absent this year
+2022,h2a_2022.xlsx,RECEIVED_DATE,received_date,mapped
+2022,h2a_2022.xlsx,REQUESTED_BEGIN_DATE,requested_begin_date,mapped
+2022,h2a_2022.xlsx,REQUESTED_END_DATE,requested_end_date,mapped
+2022,h2a_2022.xlsx,SOC_CODE,soc_id,mapped
+2022,h2a_2022.xlsx,SOC_TITLE,soc_title,mapped
+2022,h2a_2022.xlsx,,swa_name,absent this year
+2022,h2a_2022.xlsx,TOTAL_WORKSITES_RECORDS,total_worksite_records,mapped
+2022,h2a_2022.xlsx,TYPE_OF_EMPLOYER_APPLICATION,type_of_employer_application,mapped
+2022,h2a_2022.xlsx,,visa_class,absent this year
+2022,h2a_2022.xlsx,WAGE_OFFER,wage_offered_from,mapped
+2022,h2a_2022.xlsx,PER,wage_unit_of_pay,mapped
+2022,h2a_2022.xlsx,WORK_EXPERIENCE_MONTHS,work_experience_months,mapped
+2022,h2a_2022.xlsx,TOTAL_WORKERS_H2A_CERTIFIED,workers_certified,mapped
+2022,h2a_2022.xlsx,TOTAL_WORKERS_NEEDED,workers_requested,mapped
+2022,h2a_2022.xlsx,WORKSITE_ADDRESS,worksite_address,mapped
+2022,h2a_2022.xlsx,WORKSITE_CITY,worksite_city,mapped
+2022,h2a_2022.xlsx,WORKSITE_COUNTY,worksite_county,mapped
+2022,h2a_2022.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2022,h2a_2022.xlsx,WORKSITE_STATE,worksite_state,mapped
+2022,h2a_2022.xlsx,790A_ADDENDUM_A_ATTACHED,,dropped: form attachment flag
+2022,h2a_2022.xlsx,790A_ADDENDUM_B_ATTACHED,,dropped: form attachment flag
+2022,h2a_2022.xlsx,ADDENDUM_B_HOUSING_ATTACHED,,dropped: form attachment flag
+2022,h2a_2022.xlsx,ADDENDUM_B_WORKSITE_ATTACHED,,dropped: form attachment flag
+2022,h2a_2022.xlsx,ADDENDUM_C_ATTACHED,,dropped: form attachment flag
+2022,h2a_2022.xlsx,ADDITIONAL_JOB_REQUIREMENTS,,dropped: H-2 job-condition detail
+2022,h2a_2022.xlsx,APPENDIX_A_ATTACHED,,dropped: form attachment flag
+2022,h2a_2022.xlsx,ATTORNEY_AGENT_ADDRESS_1,,dropped: attorney/agent personal details
+2022,h2a_2022.xlsx,ATTORNEY_AGENT_ADDRESS_2,,dropped: attorney/agent personal details
+2022,h2a_2022.xlsx,ATTORNEY_AGENT_CITY,,dropped: attorney/agent personal details
+2022,h2a_2022.xlsx,ATTORNEY_AGENT_COUNTRY,,dropped: attorney/agent personal details
+2022,h2a_2022.xlsx,ATTORNEY_AGENT_EMAIL,,dropped: attorney/agent personal details
+2022,h2a_2022.xlsx,ATTORNEY_AGENT_FIRST_NAME,,dropped: attorney/agent personal details
+2022,h2a_2022.xlsx,ATTORNEY_AGENT_LAST_NAME,,dropped: attorney/agent personal details
+2022,h2a_2022.xlsx,ATTORNEY_AGENT_MIDDLE_NAME,,dropped: attorney/agent personal details
+2022,h2a_2022.xlsx,ATTORNEY_AGENT_PHONE,,dropped: attorney/agent personal details
+2022,h2a_2022.xlsx,ATTORNEY_AGENT_PHONE_EXT,,dropped: attorney/agent personal details
+2022,h2a_2022.xlsx,ATTORNEY_AGENT_POSTAL_CODE,,dropped: attorney/agent personal details
+2022,h2a_2022.xlsx,ATTORNEY_AGENT_PROVINCE,,dropped: attorney/agent personal details
+2022,h2a_2022.xlsx,ATTORNEY_AGENT_STATE,,dropped: attorney/agent personal details
+2022,h2a_2022.xlsx,CERTIFICATION_REQUIREMENTS,,dropped: H-2 job-condition detail
+2022,h2a_2022.xlsx,CRIMINAL_BACKGROUND_CHECK,,dropped: H-2 job-condition detail
+2022,h2a_2022.xlsx,DEDUCTIONS_FROM_PAY,,dropped: H-2 contract / attestation detail
+2022,h2a_2022.xlsx,DRIVER_REQUIREMENTS,,dropped: H-2 job-condition detail
+2022,h2a_2022.xlsx,DRUG_SCREEN,,dropped: H-2 job-condition detail
+2022,h2a_2022.xlsx,EMAIL_TO_APPLY,,dropped: job application contact
+2022,h2a_2022.xlsx,EMPLOYER_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2022,h2a_2022.xlsx,EMPLOYER_MSPA_ATTACHED,,dropped: form attachment flag
+2022,h2a_2022.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2022,h2a_2022.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2022,h2a_2022.xlsx,EMPLOYER_POC_ADDRESS1,,dropped: employer point-of-contact personal details
+2022,h2a_2022.xlsx,EMPLOYER_POC_ADDRESS2,,dropped: employer point-of-contact personal details
+2022,h2a_2022.xlsx,EMPLOYER_POC_CITY,,dropped: employer point-of-contact personal details
+2022,h2a_2022.xlsx,EMPLOYER_POC_COUNTRY,,dropped: employer point-of-contact personal details
+2022,h2a_2022.xlsx,EMPLOYER_POC_EMAIL,,dropped: employer point-of-contact personal details
+2022,h2a_2022.xlsx,EMPLOYER_POC_FIRST_NAME,,dropped: employer point-of-contact personal details
+2022,h2a_2022.xlsx,EMPLOYER_POC_JOB_TITLE,,dropped: employer point-of-contact personal details
+2022,h2a_2022.xlsx,EMPLOYER_POC_LAST_NAME,,dropped: employer point-of-contact personal details
+2022,h2a_2022.xlsx,EMPLOYER_POC_MIDDLE_NAME,,dropped: employer point-of-contact personal details
+2022,h2a_2022.xlsx,EMPLOYER_POC_PHONE,,dropped: employer point-of-contact personal details
+2022,h2a_2022.xlsx,EMPLOYER_POC_PHONE_EXT,,dropped: employer point-of-contact personal details
+2022,h2a_2022.xlsx,EMPLOYER_POC_POSTAL_CODE,,dropped: employer point-of-contact personal details
+2022,h2a_2022.xlsx,EMPLOYER_POC_PROVINCE,,dropped: employer point-of-contact personal details
+2022,h2a_2022.xlsx,EMPLOYER_POC_STATE,,dropped: employer point-of-contact personal details
+2022,h2a_2022.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2022,h2a_2022.xlsx,EXPOSURE_TO_TEMPERATURES,,dropped: H-2 job-condition detail
+2022,h2a_2022.xlsx,EXTENSIVE_PUSHING_PULLING,,dropped: H-2 job-condition detail
+2022,h2a_2022.xlsx,EXTENSIVE_SITTING_WALKING,,dropped: H-2 job-condition detail
+2022,h2a_2022.xlsx,FREQUENT_STOOPING_BENDING_OVER,,dropped: H-2 job-condition detail
+2022,h2a_2022.xlsx,FRIDAY_HOURS,,dropped: per-weekday hour schedule
+2022,h2a_2022.xlsx,HOURLY_SCHEDULE_BEGIN,,dropped: hourly work schedule
+2022,h2a_2022.xlsx,HOURLY_SCHEDULE_END,,dropped: hourly work schedule
+2022,h2a_2022.xlsx,HOUSING_ADDRESS_LOCATION,,dropped: H-2A housing detail
+2022,h2a_2022.xlsx,HOUSING_COMPLIANCE_FEDERAL,,dropped: H-2A housing detail
+2022,h2a_2022.xlsx,HOUSING_COMPLIANCE_LOCAL,,dropped: H-2A housing detail
+2022,h2a_2022.xlsx,HOUSING_COMPLIANCE_STATE,,dropped: H-2A housing detail
+2022,h2a_2022.xlsx,HOUSING_COUNTY,,dropped: H-2A housing detail
+2022,h2a_2022.xlsx,HOUSING_POSTAL_CODE,,dropped: H-2A housing detail
+2022,h2a_2022.xlsx,HOUSING_TRANSPORTATION,,dropped: H-2 contract / attestation detail
+2022,h2a_2022.xlsx,JOINT_EMPLOYER_APPENDIX_A_ATTACHED,,dropped: form attachment flag
+2022,h2a_2022.xlsx,LIFTING_AMOUNT,,dropped: H-2 job-condition detail
+2022,h2a_2022.xlsx,LIFTING_REQUIREMENTS,,dropped: H-2 job-condition detail
+2022,h2a_2022.xlsx,MEALS_CHARGED,,dropped: H-2A housing detail
+2022,h2a_2022.xlsx,MEAL_REIMBURSEMENT_MAXIMUM,,dropped: H-2A housing detail
+2022,h2a_2022.xlsx,MEAL_REIMBURSEMENT_MINIMUM,,dropped: H-2A housing detail
+2022,h2a_2022.xlsx,MONDAY_HOURS,,dropped: per-weekday hour schedule
+2022,h2a_2022.xlsx,NAME_OF_HIGHEST_STATE_COURT,,dropped: attorney bar detail
+2022,h2a_2022.xlsx,ON_CALL_REQUIREMENT,,dropped: H-2 job-condition detail
+2022,h2a_2022.xlsx,OTHER_FREQUENCY_OF_PAY,,dropped: H-2 contract / attestation detail
+2022,h2a_2022.xlsx,PHONE_TO_APPLY,,dropped: job application contact
+2022,h2a_2022.xlsx,PREPARER_BUSINESS_NAME,,dropped: form preparer personal details
+2022,h2a_2022.xlsx,PREPARER_EMAIL,,dropped: form preparer personal details
+2022,h2a_2022.xlsx,PREPARER_FIRST_NAME,,dropped: form preparer personal details
+2022,h2a_2022.xlsx,PREPARER_LAST_NAME,,dropped: form preparer personal details
+2022,h2a_2022.xlsx,PREPARER_MIDDLE_INITIAL,,dropped: form preparer personal details
+2022,h2a_2022.xlsx,REPETITIVE_MOVEMENTS,,dropped: H-2 job-condition detail
+2022,h2a_2022.xlsx,SATURDAY_HOURS,,dropped: per-weekday hour schedule
+2022,h2a_2022.xlsx,STATE_OF_HIGHEST_COURT,,dropped: attorney bar detail
+2022,h2a_2022.xlsx,SUNDAY_HOURS,,dropped: per-weekday hour schedule
+2022,h2a_2022.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2022,h2a_2022.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2022,h2a_2022.xlsx,SURETY_BOND_ATTACHED,,dropped: form attachment flag
+2022,h2a_2022.xlsx,THURSDAY_HOURS,,dropped: per-weekday hour schedule
+2022,h2a_2022.xlsx,TOTAL_ADDENDUM_A_RECORDS,,dropped: form attachment flag
+2022,h2a_2022.xlsx,TOTAL_HOUSING_RECORDS,,dropped: H-2A housing detail
+2022,h2a_2022.xlsx,TOTAL_UNITS,,dropped: H-2A housing detail
+2022,h2a_2022.xlsx,TOTAL_WORKERS_H2A_REQUESTED,,duplicate of workers_requested
+2022,h2a_2022.xlsx,TRAINING_MONTHS,,dropped: H-2 job-condition detail
+2022,h2a_2022.xlsx,TUESDAY_HOURS,,dropped: per-weekday hour schedule
+2022,h2a_2022.xlsx,WEBSITE_TO_APPLY,,dropped: job application contact
+2022,h2a_2022.xlsx,WEDNESDAY_HOURS,,dropped: per-weekday hour schedule
+2022,h2a_2022.xlsx,WORK_CONTRACTS_ATTACHED,,dropped: form attachment flag
+2023,h2a_2023.xlsx,TYPE_OF_REPRESENTATION,agent_representing_employer,mapped
+2023,h2a_2023.xlsx,ANTICIPATED_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2023,h2a_2023.xlsx,LAWFIRM_NAME_BUSINESS_NAME,attorney_law_firm_name,mapped
+2023,h2a_2023.xlsx,CASE_NUMBER,case_number,mapped
+2023,h2a_2023.xlsx,CASE_STATUS,case_status,mapped
+2023,h2a_2023.xlsx,,certification_begin_date,absent this year
+2023,h2a_2023.xlsx,,certification_end_date,absent this year
+2023,h2a_2023.xlsx,DECISION_DATE,decision_date,mapped
+2023,h2a_2023.xlsx,EDUCATION_LEVEL,education_level,mapped
+2023,h2a_2023.xlsx,EMERGENCY_FILING,emergency_filing,mapped
+2023,h2a_2023.xlsx,EMPLOYER_ADDRESS_1,employer_address,mapped
+2023,h2a_2023.xlsx,EMPLOYER_CITY,employer_city,mapped
+2023,h2a_2023.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2023,h2a_2023.xlsx,EMPLOYER_NAME,employer_name,mapped
+2023,h2a_2023.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2023,h2a_2023.xlsx,EMPLOYER_STATE,employer_state,mapped
+2023,h2a_2023.xlsx,TRADE_NAME_DBA,employer_trade_name,mapped
+2023,h2a_2023.xlsx,EMPLOYMENT_BEGIN_DATE,employment_begin_date,mapped
+2023,h2a_2023.xlsx,EMPLOYMENT_END_DATE,employment_end_date,mapped
+2023,h2a_2023.xlsx,FREQUENCY_OF_PAY,frequency_of_pay,mapped
+2023,h2a_2023.xlsx,,full_time_position,absent this year
+2023,h2a_2023.xlsx,H2A_LABOR_CONTRACTOR,h2a_labor_contractor,mapped
+2023,h2a_2023.xlsx,HOUSING_CITY,housing_city,mapped
+2023,h2a_2023.xlsx,HOUSING_STATE,housing_state,mapped
+2023,h2a_2023.xlsx,TOTAL_OCCUPANCY,housing_total_occupancy,mapped
+2023,h2a_2023.xlsx,TYPE_OF_HOUSING,housing_type,mapped
+2023,h2a_2023.xlsx,JOB_ORDER_NUMBER,job_order_number,mapped
+2023,h2a_2023.xlsx,JOB_TITLE,job_title,mapped
+2023,h2a_2023.xlsx,MEALS_PROVIDED,meals_provided,mapped
+2023,h2a_2023.xlsx,NAICS_CODE,naics_id,mapped
+2023,h2a_2023.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2023,h2a_2023.xlsx,,overtime_rate_from,absent this year
+2023,h2a_2023.xlsx,,overtime_rate_to,absent this year
+2023,h2a_2023.xlsx,PIECE_RATE_OFFER,piece_rate_offer,mapped
+2023,h2a_2023.xlsx,PIECE_RATE_UNIT,piece_rate_unit,mapped
+2023,h2a_2023.xlsx,,primary_crop,absent this year
+2023,h2a_2023.xlsx,RECEIVED_DATE,received_date,mapped
+2023,h2a_2023.xlsx,REQUESTED_BEGIN_DATE,requested_begin_date,mapped
+2023,h2a_2023.xlsx,REQUESTED_END_DATE,requested_end_date,mapped
+2023,h2a_2023.xlsx,SOC_CODE,soc_id,mapped
+2023,h2a_2023.xlsx,SOC_TITLE,soc_title,mapped
+2023,h2a_2023.xlsx,,swa_name,absent this year
+2023,h2a_2023.xlsx,TOTAL_WORKSITES_RECORDS,total_worksite_records,mapped
+2023,h2a_2023.xlsx,TYPE_OF_EMPLOYER_APPLICATION,type_of_employer_application,mapped
+2023,h2a_2023.xlsx,,visa_class,absent this year
+2023,h2a_2023.xlsx,WAGE_OFFER,wage_offered_from,mapped
+2023,h2a_2023.xlsx,PER,wage_unit_of_pay,mapped
+2023,h2a_2023.xlsx,WORK_EXPERIENCE_MONTHS,work_experience_months,mapped
+2023,h2a_2023.xlsx,TOTAL_WORKERS_H2A_CERTIFIED,workers_certified,mapped
+2023,h2a_2023.xlsx,TOTAL_WORKERS_NEEDED,workers_requested,mapped
+2023,h2a_2023.xlsx,WORKSITE_ADDRESS,worksite_address,mapped
+2023,h2a_2023.xlsx,WORKSITE_CITY,worksite_city,mapped
+2023,h2a_2023.xlsx,WORKSITE_COUNTY,worksite_county,mapped
+2023,h2a_2023.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2023,h2a_2023.xlsx,WORKSITE_STATE,worksite_state,mapped
+2023,h2a_2023.xlsx,790A_ADDENDUM_A_ATTACHED,,dropped: form attachment flag
+2023,h2a_2023.xlsx,790A_ADDENDUM_B_ATTACHED,,dropped: form attachment flag
+2023,h2a_2023.xlsx,ADDENDUM_B_HOUSING_ATTACHED,,dropped: form attachment flag
+2023,h2a_2023.xlsx,ADDENDUM_B_WORKSITE_ATTACHED,,dropped: form attachment flag
+2023,h2a_2023.xlsx,ADDENDUM_C_ATTACHED,,dropped: form attachment flag
+2023,h2a_2023.xlsx,ADDITIONAL_JOB_REQUIREMENTS,,dropped: H-2 job-condition detail
+2023,h2a_2023.xlsx,APPENDIX_A_ATTACHED,,dropped: form attachment flag
+2023,h2a_2023.xlsx,ATTORNEY_AGENT_ADDRESS_1,,dropped: attorney/agent personal details
+2023,h2a_2023.xlsx,ATTORNEY_AGENT_ADDRESS_2,,dropped: attorney/agent personal details
+2023,h2a_2023.xlsx,ATTORNEY_AGENT_CITY,,dropped: attorney/agent personal details
+2023,h2a_2023.xlsx,ATTORNEY_AGENT_COUNTRY,,dropped: attorney/agent personal details
+2023,h2a_2023.xlsx,ATTORNEY_AGENT_EMAIL,,dropped: attorney/agent personal details
+2023,h2a_2023.xlsx,ATTORNEY_AGENT_FIRST_NAME,,dropped: attorney/agent personal details
+2023,h2a_2023.xlsx,ATTORNEY_AGENT_LAST_NAME,,dropped: attorney/agent personal details
+2023,h2a_2023.xlsx,ATTORNEY_AGENT_MIDDLE_NAME,,dropped: attorney/agent personal details
+2023,h2a_2023.xlsx,ATTORNEY_AGENT_PHONE,,dropped: attorney/agent personal details
+2023,h2a_2023.xlsx,ATTORNEY_AGENT_PHONE_EXT,,dropped: attorney/agent personal details
+2023,h2a_2023.xlsx,ATTORNEY_AGENT_POSTAL_CODE,,dropped: attorney/agent personal details
+2023,h2a_2023.xlsx,ATTORNEY_AGENT_PROVINCE,,dropped: attorney/agent personal details
+2023,h2a_2023.xlsx,ATTORNEY_AGENT_STATE,,dropped: attorney/agent personal details
+2023,h2a_2023.xlsx,CERTIFICATION_REQUIREMENTS,,dropped: H-2 job-condition detail
+2023,h2a_2023.xlsx,CRIMINAL_BACKGROUND_CHECK,,dropped: H-2 job-condition detail
+2023,h2a_2023.xlsx,DEDUCTIONS_FROM_PAY,,dropped: H-2 contract / attestation detail
+2023,h2a_2023.xlsx,DRIVER_REQUIREMENTS,,dropped: H-2 job-condition detail
+2023,h2a_2023.xlsx,DRUG_SCREEN,,dropped: H-2 job-condition detail
+2023,h2a_2023.xlsx,EMAIL_TO_APPLY,,dropped: job application contact
+2023,h2a_2023.xlsx,EMPLOYER_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2023,h2a_2023.xlsx,EMPLOYER_MSPA_ATTACHED,,dropped: form attachment flag
+2023,h2a_2023.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2023,h2a_2023.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2023,h2a_2023.xlsx,EMPLOYER_POC_ADDRESS1,,dropped: employer point-of-contact personal details
+2023,h2a_2023.xlsx,EMPLOYER_POC_ADDRESS2,,dropped: employer point-of-contact personal details
+2023,h2a_2023.xlsx,EMPLOYER_POC_CITY,,dropped: employer point-of-contact personal details
+2023,h2a_2023.xlsx,EMPLOYER_POC_COUNTRY,,dropped: employer point-of-contact personal details
+2023,h2a_2023.xlsx,EMPLOYER_POC_EMAIL,,dropped: employer point-of-contact personal details
+2023,h2a_2023.xlsx,EMPLOYER_POC_FIRST_NAME,,dropped: employer point-of-contact personal details
+2023,h2a_2023.xlsx,EMPLOYER_POC_JOB_TITLE,,dropped: employer point-of-contact personal details
+2023,h2a_2023.xlsx,EMPLOYER_POC_LAST_NAME,,dropped: employer point-of-contact personal details
+2023,h2a_2023.xlsx,EMPLOYER_POC_MIDDLE_NAME,,dropped: employer point-of-contact personal details
+2023,h2a_2023.xlsx,EMPLOYER_POC_PHONE,,dropped: employer point-of-contact personal details
+2023,h2a_2023.xlsx,EMPLOYER_POC_PHONE_EXT,,dropped: employer point-of-contact personal details
+2023,h2a_2023.xlsx,EMPLOYER_POC_POSTAL_CODE,,dropped: employer point-of-contact personal details
+2023,h2a_2023.xlsx,EMPLOYER_POC_PROVINCE,,dropped: employer point-of-contact personal details
+2023,h2a_2023.xlsx,EMPLOYER_POC_STATE,,dropped: employer point-of-contact personal details
+2023,h2a_2023.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2023,h2a_2023.xlsx,EXPOSURE_TO_TEMPERATURES,,dropped: H-2 job-condition detail
+2023,h2a_2023.xlsx,EXTENSIVE_PUSHING_PULLING,,dropped: H-2 job-condition detail
+2023,h2a_2023.xlsx,EXTENSIVE_SITTING_WALKING,,dropped: H-2 job-condition detail
+2023,h2a_2023.xlsx,FREQUENT_STOOPING_BENDING_OVER,,dropped: H-2 job-condition detail
+2023,h2a_2023.xlsx,FRIDAY_HOURS,,dropped: per-weekday hour schedule
+2023,h2a_2023.xlsx,HOURLY_SCHEDULE_BEGIN,,dropped: hourly work schedule
+2023,h2a_2023.xlsx,HOURLY_SCHEDULE_END,,dropped: hourly work schedule
+2023,h2a_2023.xlsx,HOUSING_ADDRESS_LOCATION,,dropped: H-2A housing detail
+2023,h2a_2023.xlsx,HOUSING_COMPLIANCE_FEDERAL,,dropped: H-2A housing detail
+2023,h2a_2023.xlsx,HOUSING_COMPLIANCE_LOCAL,,dropped: H-2A housing detail
+2023,h2a_2023.xlsx,HOUSING_COMPLIANCE_STATE,,dropped: H-2A housing detail
+2023,h2a_2023.xlsx,HOUSING_COUNTY,,dropped: H-2A housing detail
+2023,h2a_2023.xlsx,HOUSING_POSTAL_CODE,,dropped: H-2A housing detail
+2023,h2a_2023.xlsx,HOUSING_TRANSPORTATION,,dropped: H-2 contract / attestation detail
+2023,h2a_2023.xlsx,JOINT_EMPLOYER_APPENDIX_A_ATTACHED,,dropped: form attachment flag
+2023,h2a_2023.xlsx,LIFTING_AMOUNT,,dropped: H-2 job-condition detail
+2023,h2a_2023.xlsx,LIFTING_REQUIREMENTS,,dropped: H-2 job-condition detail
+2023,h2a_2023.xlsx,MEALS_CHARGED,,dropped: H-2A housing detail
+2023,h2a_2023.xlsx,MEAL_REIMBURSEMENT_MAXIMUM,,dropped: H-2A housing detail
+2023,h2a_2023.xlsx,MEAL_REIMBURSEMENT_MINIMUM,,dropped: H-2A housing detail
+2023,h2a_2023.xlsx,MONDAY_HOURS,,dropped: per-weekday hour schedule
+2023,h2a_2023.xlsx,NAME_OF_HIGHEST_STATE_COURT,,dropped: attorney bar detail
+2023,h2a_2023.xlsx,ON_CALL_REQUIREMENT,,dropped: H-2 job-condition detail
+2023,h2a_2023.xlsx,OTHER_FREQUENCY_OF_PAY,,dropped: H-2 contract / attestation detail
+2023,h2a_2023.xlsx,PHONE_TO_APPLY,,dropped: job application contact
+2023,h2a_2023.xlsx,PREPARER_BUSINESS_NAME,,dropped: form preparer personal details
+2023,h2a_2023.xlsx,PREPARER_EMAIL,,dropped: form preparer personal details
+2023,h2a_2023.xlsx,PREPARER_FIRST_NAME,,dropped: form preparer personal details
+2023,h2a_2023.xlsx,PREPARER_LAST_NAME,,dropped: form preparer personal details
+2023,h2a_2023.xlsx,PREPARER_MIDDLE_INITIAL,,dropped: form preparer personal details
+2023,h2a_2023.xlsx,REPETITIVE_MOVEMENTS,,dropped: H-2 job-condition detail
+2023,h2a_2023.xlsx,SATURDAY_HOURS,,dropped: per-weekday hour schedule
+2023,h2a_2023.xlsx,STATE_OF_HIGHEST_COURT,,dropped: attorney bar detail
+2023,h2a_2023.xlsx,SUNDAY_HOURS,,dropped: per-weekday hour schedule
+2023,h2a_2023.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2023,h2a_2023.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2023,h2a_2023.xlsx,SURETY_BOND_ATTACHED,,dropped: form attachment flag
+2023,h2a_2023.xlsx,THURSDAY_HOURS,,dropped: per-weekday hour schedule
+2023,h2a_2023.xlsx,TOTAL_ADDENDUM_A_RECORDS,,dropped: form attachment flag
+2023,h2a_2023.xlsx,TOTAL_HOUSING_RECORDS,,dropped: H-2A housing detail
+2023,h2a_2023.xlsx,TOTAL_UNITS,,dropped: H-2A housing detail
+2023,h2a_2023.xlsx,TOTAL_WORKERS_H2A_REQUESTED,,duplicate of workers_requested
+2023,h2a_2023.xlsx,TRAINING_MONTHS,,dropped: H-2 job-condition detail
+2023,h2a_2023.xlsx,TUESDAY_HOURS,,dropped: per-weekday hour schedule
+2023,h2a_2023.xlsx,WEBSITE_TO_APPLY,,dropped: job application contact
+2023,h2a_2023.xlsx,WEDNESDAY_HOURS,,dropped: per-weekday hour schedule
+2023,h2a_2023.xlsx,WORK_CONTRACTS_ATTACHED,,dropped: form attachment flag
+2024,h2a_2024.xlsx,TYPE_OF_REPRESENTATION,agent_representing_employer,mapped
+2024,h2a_2024.xlsx,ANTICIPATED_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2024,h2a_2024.xlsx,LAWFIRM_NAME_BUSINESS_NAME,attorney_law_firm_name,mapped
+2024,h2a_2024.xlsx,CASE_NUMBER,case_number,mapped
+2024,h2a_2024.xlsx,CASE_STATUS,case_status,mapped
+2024,h2a_2024.xlsx,,certification_begin_date,absent this year
+2024,h2a_2024.xlsx,,certification_end_date,absent this year
+2024,h2a_2024.xlsx,DECISION_DATE,decision_date,mapped
+2024,h2a_2024.xlsx,EDUCATION_LEVEL,education_level,mapped
+2024,h2a_2024.xlsx,EMERGENCY_FILING,emergency_filing,mapped
+2024,h2a_2024.xlsx,EMPLOYER_ADDRESS_1,employer_address,mapped
+2024,h2a_2024.xlsx,EMPLOYER_CITY,employer_city,mapped
+2024,h2a_2024.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2024,h2a_2024.xlsx,EMPLOYER_NAME,employer_name,mapped
+2024,h2a_2024.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2024,h2a_2024.xlsx,EMPLOYER_STATE,employer_state,mapped
+2024,h2a_2024.xlsx,TRADE_NAME_DBA,employer_trade_name,mapped
+2024,h2a_2024.xlsx,EMPLOYMENT_BEGIN_DATE,employment_begin_date,mapped
+2024,h2a_2024.xlsx,EMPLOYMENT_END_DATE,employment_end_date,mapped
+2024,h2a_2024.xlsx,FREQUENCY_OF_PAY,frequency_of_pay,mapped
+2024,h2a_2024.xlsx,,full_time_position,absent this year
+2024,h2a_2024.xlsx,H2A_LABOR_CONTRACTOR,h2a_labor_contractor,mapped
+2024,h2a_2024.xlsx,HOUSING_CITY,housing_city,mapped
+2024,h2a_2024.xlsx,HOUSING_STATE,housing_state,mapped
+2024,h2a_2024.xlsx,TOTAL_OCCUPANCY,housing_total_occupancy,mapped
+2024,h2a_2024.xlsx,TYPE_OF_HOUSING,housing_type,mapped
+2024,h2a_2024.xlsx,JOB_ORDER_NUMBER,job_order_number,mapped
+2024,h2a_2024.xlsx,JOB_TITLE,job_title,mapped
+2024,h2a_2024.xlsx,MEALS_PROVIDED,meals_provided,mapped
+2024,h2a_2024.xlsx,NAICS_CODE,naics_id,mapped
+2024,h2a_2024.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2024,h2a_2024.xlsx,,overtime_rate_from,absent this year
+2024,h2a_2024.xlsx,,overtime_rate_to,absent this year
+2024,h2a_2024.xlsx,PIECE_RATE_OFFER,piece_rate_offer,mapped
+2024,h2a_2024.xlsx,PIECE_RATE_UNIT,piece_rate_unit,mapped
+2024,h2a_2024.xlsx,,primary_crop,absent this year
+2024,h2a_2024.xlsx,RECEIVED_DATE,received_date,mapped
+2024,h2a_2024.xlsx,REQUESTED_BEGIN_DATE,requested_begin_date,mapped
+2024,h2a_2024.xlsx,REQUESTED_END_DATE,requested_end_date,mapped
+2024,h2a_2024.xlsx,SOC_CODE,soc_id,mapped
+2024,h2a_2024.xlsx,SOC_TITLE,soc_title,mapped
+2024,h2a_2024.xlsx,,swa_name,absent this year
+2024,h2a_2024.xlsx,TOTAL_WORKSITE_RECORDS,total_worksite_records,mapped
+2024,h2a_2024.xlsx,TYPE_OF_EMPLOYER_APPLICATION,type_of_employer_application,mapped
+2024,h2a_2024.xlsx,,visa_class,absent this year
+2024,h2a_2024.xlsx,WAGE_OFFER,wage_offered_from,mapped
+2024,h2a_2024.xlsx,PER,wage_unit_of_pay,mapped
+2024,h2a_2024.xlsx,WORK_EXPERIENCE_MONTHS,work_experience_months,mapped
+2024,h2a_2024.xlsx,TOTAL_WORKERS_H2A_CERTIFIED,workers_certified,mapped
+2024,h2a_2024.xlsx,TOTAL_WORKERS_NEEDED,workers_requested,mapped
+2024,h2a_2024.xlsx,WORKSITE_ADDRESS,worksite_address,mapped
+2024,h2a_2024.xlsx,WORKSITE_CITY,worksite_city,mapped
+2024,h2a_2024.xlsx,WORKSITE_COUNTY,worksite_county,mapped
+2024,h2a_2024.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2024,h2a_2024.xlsx,WORKSITE_STATE,worksite_state,mapped
+2024,h2a_2024.xlsx,790A_ADDENDUM_A_ATTACHED,,dropped: form attachment flag
+2024,h2a_2024.xlsx,790A_ADDENDUM_B_ATTACHED,,dropped: form attachment flag
+2024,h2a_2024.xlsx,ADDENDUM_B_HOUSING_ATTACHED,,dropped: form attachment flag
+2024,h2a_2024.xlsx,ADDENDUM_B_WORKSITE_ATTACHED,,dropped: form attachment flag
+2024,h2a_2024.xlsx,ADDENDUM_C_ATTACHED,,dropped: form attachment flag
+2024,h2a_2024.xlsx,ADDITIONAL_JOB_REQUIREMENTS,,dropped: H-2 job-condition detail
+2024,h2a_2024.xlsx,AGENT_RECRUITER_AGREEMENT_ATTACHED,,dropped: form attachment flag
+2024,h2a_2024.xlsx,AG_ASSN_OR_AGENCY_STATUS,,dropped: H-2 contract / attestation detail
+2024,h2a_2024.xlsx,APPENDIX_A_ATTACHED,,dropped: form attachment flag
+2024,h2a_2024.xlsx,APPENDIX_C_ATTACHED,,dropped: form attachment flag
+2024,h2a_2024.xlsx,APPENDIX_D_ATTACHED,,dropped: form attachment flag
+2024,h2a_2024.xlsx,ATTORNEY_AGENT_ADDRESS_1,,dropped: attorney/agent personal details
+2024,h2a_2024.xlsx,ATTORNEY_AGENT_ADDRESS_2,,dropped: attorney/agent personal details
+2024,h2a_2024.xlsx,ATTORNEY_AGENT_CITY,,dropped: attorney/agent personal details
+2024,h2a_2024.xlsx,ATTORNEY_AGENT_COUNTRY,,dropped: attorney/agent personal details
+2024,h2a_2024.xlsx,ATTORNEY_AGENT_EMAIL,,dropped: attorney/agent personal details
+2024,h2a_2024.xlsx,ATTORNEY_AGENT_FIRST_NAME,,dropped: attorney/agent personal details
+2024,h2a_2024.xlsx,ATTORNEY_AGENT_LAST_NAME,,dropped: attorney/agent personal details
+2024,h2a_2024.xlsx,ATTORNEY_AGENT_MIDDLE_NAME,,dropped: attorney/agent personal details
+2024,h2a_2024.xlsx,ATTORNEY_AGENT_PHONE,,dropped: attorney/agent personal details
+2024,h2a_2024.xlsx,ATTORNEY_AGENT_PHONE_EXT,,dropped: attorney/agent personal details
+2024,h2a_2024.xlsx,ATTORNEY_AGENT_POSTAL_CODE,,dropped: attorney/agent personal details
+2024,h2a_2024.xlsx,ATTORNEY_AGENT_PROVINCE,,dropped: attorney/agent personal details
+2024,h2a_2024.xlsx,ATTORNEY_AGENT_STATE,,dropped: attorney/agent personal details
+2024,h2a_2024.xlsx,CERTIFICATION_REQUIREMENTS,,dropped: H-2 job-condition detail
+2024,h2a_2024.xlsx,CRIMINAL_BACKGROUND_CHECK,,dropped: H-2 job-condition detail
+2024,h2a_2024.xlsx,DEDUCTIONS_FROM_PAY,,dropped: H-2 contract / attestation detail
+2024,h2a_2024.xlsx,DRIVER_REQUIREMENTS,,dropped: H-2 job-condition detail
+2024,h2a_2024.xlsx,DRUG_SCREEN,,dropped: H-2 job-condition detail
+2024,h2a_2024.xlsx,EMAIL_TO_APPLY,,dropped: job application contact
+2024,h2a_2024.xlsx,EMPLOYER_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2024,h2a_2024.xlsx,EMPLOYER_FEIN,,dropped: phone / employer identifier
+2024,h2a_2024.xlsx,EMPLOYER_MSPA_ATTACHED,,dropped: form attachment flag
+2024,h2a_2024.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2024,h2a_2024.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2024,h2a_2024.xlsx,EMPLOYER_POC_ADDRESS1,,dropped: employer point-of-contact personal details
+2024,h2a_2024.xlsx,EMPLOYER_POC_ADDRESS2,,dropped: employer point-of-contact personal details
+2024,h2a_2024.xlsx,EMPLOYER_POC_CITY,,dropped: employer point-of-contact personal details
+2024,h2a_2024.xlsx,EMPLOYER_POC_COUNTRY,,dropped: employer point-of-contact personal details
+2024,h2a_2024.xlsx,EMPLOYER_POC_EMAIL,,dropped: employer point-of-contact personal details
+2024,h2a_2024.xlsx,EMPLOYER_POC_FIRST_NAME,,dropped: employer point-of-contact personal details
+2024,h2a_2024.xlsx,EMPLOYER_POC_JOB_TITLE,,dropped: employer point-of-contact personal details
+2024,h2a_2024.xlsx,EMPLOYER_POC_LAST_NAME,,dropped: employer point-of-contact personal details
+2024,h2a_2024.xlsx,EMPLOYER_POC_MIDDLE_NAME,,dropped: employer point-of-contact personal details
+2024,h2a_2024.xlsx,EMPLOYER_POC_PHONE,,dropped: employer point-of-contact personal details
+2024,h2a_2024.xlsx,EMPLOYER_POC_PHONE_EXT,,dropped: employer point-of-contact personal details
+2024,h2a_2024.xlsx,EMPLOYER_POC_POSTAL_CODE,,dropped: employer point-of-contact personal details
+2024,h2a_2024.xlsx,EMPLOYER_POC_PROVINCE,,dropped: employer point-of-contact personal details
+2024,h2a_2024.xlsx,EMPLOYER_POC_STATE,,dropped: employer point-of-contact personal details
+2024,h2a_2024.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2024,h2a_2024.xlsx,EXPOSURE_TO_TEMPERATURES,,dropped: H-2 job-condition detail
+2024,h2a_2024.xlsx,EXTENSIVE_PUSHING_PULLING,,dropped: H-2 job-condition detail
+2024,h2a_2024.xlsx,EXTENSIVE_SITTING_WALKING,,dropped: H-2 job-condition detail
+2024,h2a_2024.xlsx,FREQUENT_STOOPING_BENDING_OVER,,dropped: H-2 job-condition detail
+2024,h2a_2024.xlsx,FRIDAY_HOURS,,dropped: per-weekday hour schedule
+2024,h2a_2024.xlsx,HOURLY_SCHEDULE_BEGIN,,dropped: hourly work schedule
+2024,h2a_2024.xlsx,HOURLY_SCHEDULE_END,,dropped: hourly work schedule
+2024,h2a_2024.xlsx,HOUSING_ADDRESS_LOCATION,,dropped: H-2A housing detail
+2024,h2a_2024.xlsx,HOUSING_COMPLIANCE_FEDERAL,,dropped: H-2A housing detail
+2024,h2a_2024.xlsx,HOUSING_COMPLIANCE_LOCAL,,dropped: H-2A housing detail
+2024,h2a_2024.xlsx,HOUSING_COMPLIANCE_OTHER,,dropped: H-2A housing detail
+2024,h2a_2024.xlsx,HOUSING_COMPLIANCE_OTHER_SPECIFY,,dropped: H-2A housing detail
+2024,h2a_2024.xlsx,HOUSING_COMPLIANCE_STATE,,dropped: H-2A housing detail
+2024,h2a_2024.xlsx,HOUSING_COMPLIANCE_SWA,,dropped: H-2A housing detail
+2024,h2a_2024.xlsx,HOUSING_COUNTY,,dropped: H-2A housing detail
+2024,h2a_2024.xlsx,HOUSING_POSTAL_CODE,,dropped: H-2A housing detail
+2024,h2a_2024.xlsx,HOUSING_TRANSPORTATION,,dropped: H-2 contract / attestation detail
+2024,h2a_2024.xlsx,JOINT_EMPLOYER_APPENDIX_A_ATTACHED,,dropped: form attachment flag
+2024,h2a_2024.xlsx,LIFTING_AMOUNT,,dropped: H-2 job-condition detail
+2024,h2a_2024.xlsx,LIFTING_REQUIREMENTS,,dropped: H-2 job-condition detail
+2024,h2a_2024.xlsx,MEALS_CHARGED,,dropped: H-2A housing detail
+2024,h2a_2024.xlsx,MEAL_REIMBURSEMENT_MAXIMUM,,dropped: H-2A housing detail
+2024,h2a_2024.xlsx,MEAL_REIMBURSEMENT_MINIMUM,,dropped: H-2A housing detail
+2024,h2a_2024.xlsx,MIN_STANDARDS,,dropped: H-2 job-condition detail
+2024,h2a_2024.xlsx,MONDAY_HOURS,,dropped: per-weekday hour schedule
+2024,h2a_2024.xlsx,NAME_OF_HIGHEST_STATE_COURT,,dropped: attorney bar detail
+2024,h2a_2024.xlsx,ON_CALL_REQUIREMENT,,dropped: H-2 job-condition detail
+2024,h2a_2024.xlsx,OTHER_FREQUENCY_OF_PAY,,dropped: H-2 contract / attestation detail
+2024,h2a_2024.xlsx,OVERTIME_PAY,,dropped: H-2 contract / attestation detail
+2024,h2a_2024.xlsx,PHONE_EXT_TO_APPLY,,dropped: job application contact
+2024,h2a_2024.xlsx,PHONE_TO_APPLY,,dropped: job application contact
+2024,h2a_2024.xlsx,PIECE_RATE_ADDITIONAL_INFO,,dropped: H-2 contract / attestation detail
+2024,h2a_2024.xlsx,PREPARER_BUSINESS_NAME,,dropped: form preparer personal details
+2024,h2a_2024.xlsx,PREPARER_EMAIL,,dropped: form preparer personal details
+2024,h2a_2024.xlsx,PREPARER_FIRST_NAME,,dropped: form preparer personal details
+2024,h2a_2024.xlsx,PREPARER_LAST_NAME,,dropped: form preparer personal details
+2024,h2a_2024.xlsx,PREPARER_MIDDLE_INITIAL,,dropped: form preparer personal details
+2024,h2a_2024.xlsx,PREV_TRADE_NAME_DBA_1,,dropped: H-2 contract / attestation detail
+2024,h2a_2024.xlsx,PREV_TRADE_NAME_DBA_2,,dropped: secondary worksite/wage block (primary worksite only)
+2024,h2a_2024.xlsx,REPETITIVE_MOVEMENTS,,dropped: H-2 job-condition detail
+2024,h2a_2024.xlsx,SATURDAY_HOURS,,dropped: per-weekday hour schedule
+2024,h2a_2024.xlsx,STATE_OF_HIGHEST_COURT,,dropped: attorney bar detail
+2024,h2a_2024.xlsx,SUNDAY_HOURS,,dropped: per-weekday hour schedule
+2024,h2a_2024.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2024,h2a_2024.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2024,h2a_2024.xlsx,SURETY_BOND_ATTACHED,,dropped: form attachment flag
+2024,h2a_2024.xlsx,THURSDAY_HOURS,,dropped: per-weekday hour schedule
+2024,h2a_2024.xlsx,TOTAL_ADDENDUM_A_RECORDS,,dropped: form attachment flag
+2024,h2a_2024.xlsx,TOTAL_HOUSING_RECORDS,,dropped: H-2A housing detail
+2024,h2a_2024.xlsx,TOTAL_UNITS,,dropped: H-2A housing detail
+2024,h2a_2024.xlsx,TOTAL_WORKERS_H2A_REQUESTED,,duplicate of workers_requested
+2024,h2a_2024.xlsx,TRAINING_MONTHS,,dropped: H-2 job-condition detail
+2024,h2a_2024.xlsx,TUESDAY_HOURS,,dropped: per-weekday hour schedule
+2024,h2a_2024.xlsx,USING_AGENT_RECRUITER,,dropped: H-2 contract / attestation detail
+2024,h2a_2024.xlsx,WEBSITE_TO_APPLY,,dropped: job application contact
+2024,h2a_2024.xlsx,WEDNESDAY_HOURS,,dropped: per-weekday hour schedule
+2024,h2a_2024.xlsx,WORK_CONTRACTS_ATTACHED,,dropped: form attachment flag
+2025,h2a_2025.xlsx,TYPE_OF_REPRESENTATION,agent_representing_employer,mapped
+2025,h2a_2025.xlsx,ANTICIPATED_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2025,h2a_2025.xlsx,LAWFIRM_NAME_BUSINESS_NAME,attorney_law_firm_name,mapped
+2025,h2a_2025.xlsx,CASE_NUMBER,case_number,mapped
+2025,h2a_2025.xlsx,CASE_STATUS,case_status,mapped
+2025,h2a_2025.xlsx,,certification_begin_date,absent this year
+2025,h2a_2025.xlsx,,certification_end_date,absent this year
+2025,h2a_2025.xlsx,DECISION_DATE,decision_date,mapped
+2025,h2a_2025.xlsx,EDUCATION_LEVEL,education_level,mapped
+2025,h2a_2025.xlsx,EMERGENCY_FILING,emergency_filing,mapped
+2025,h2a_2025.xlsx,EMPLOYER_ADDRESS_1,employer_address,mapped
+2025,h2a_2025.xlsx,EMPLOYER_CITY,employer_city,mapped
+2025,h2a_2025.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2025,h2a_2025.xlsx,EMPLOYER_NAME,employer_name,mapped
+2025,h2a_2025.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2025,h2a_2025.xlsx,EMPLOYER_STATE,employer_state,mapped
+2025,h2a_2025.xlsx,TRADE_NAME_DBA,employer_trade_name,mapped
+2025,h2a_2025.xlsx,EMPLOYMENT_BEGIN_DATE,employment_begin_date,mapped
+2025,h2a_2025.xlsx,EMPLOYMENT_END_DATE,employment_end_date,mapped
+2025,h2a_2025.xlsx,FREQUENCY_OF_PAY,frequency_of_pay,mapped
+2025,h2a_2025.xlsx,,full_time_position,absent this year
+2025,h2a_2025.xlsx,H2A_LABOR_CONTRACTOR,h2a_labor_contractor,mapped
+2025,h2a_2025.xlsx,HOUSING_CITY,housing_city,mapped
+2025,h2a_2025.xlsx,HOUSING_STATE,housing_state,mapped
+2025,h2a_2025.xlsx,TOTAL_OCCUPANCY,housing_total_occupancy,mapped
+2025,h2a_2025.xlsx,TYPE_OF_HOUSING,housing_type,mapped
+2025,h2a_2025.xlsx,JOB_ORDER_NUMBER,job_order_number,mapped
+2025,h2a_2025.xlsx,JOB_TITLE,job_title,mapped
+2025,h2a_2025.xlsx,MEALS_PROVIDED,meals_provided,mapped
+2025,h2a_2025.xlsx,NAICS_CODE,naics_id,mapped
+2025,h2a_2025.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2025,h2a_2025.xlsx,,overtime_rate_from,absent this year
+2025,h2a_2025.xlsx,,overtime_rate_to,absent this year
+2025,h2a_2025.xlsx,PIECE_RATE_OFFER,piece_rate_offer,mapped
+2025,h2a_2025.xlsx,PIECE_RATE_UNIT,piece_rate_unit,mapped
+2025,h2a_2025.xlsx,,primary_crop,absent this year
+2025,h2a_2025.xlsx,RECEIVED_DATE,received_date,mapped
+2025,h2a_2025.xlsx,REQUESTED_BEGIN_DATE,requested_begin_date,mapped
+2025,h2a_2025.xlsx,REQUESTED_END_DATE,requested_end_date,mapped
+2025,h2a_2025.xlsx,SOC_CODE,soc_id,mapped
+2025,h2a_2025.xlsx,SOC_TITLE,soc_title,mapped
+2025,h2a_2025.xlsx,,swa_name,absent this year
+2025,h2a_2025.xlsx,TOTAL_WORKSITE_RECORDS,total_worksite_records,mapped
+2025,h2a_2025.xlsx,TYPE_OF_EMPLOYER_APPLICATION,type_of_employer_application,mapped
+2025,h2a_2025.xlsx,,visa_class,absent this year
+2025,h2a_2025.xlsx,WAGE_OFFER,wage_offered_from,mapped
+2025,h2a_2025.xlsx,PER,wage_unit_of_pay,mapped
+2025,h2a_2025.xlsx,WORK_EXPERIENCE_MONTHS,work_experience_months,mapped
+2025,h2a_2025.xlsx,TOTAL_WORKERS_H2A_CERTIFIED,workers_certified,mapped
+2025,h2a_2025.xlsx,TOTAL_WORKERS_NEEDED,workers_requested,mapped
+2025,h2a_2025.xlsx,WORKSITE_ADDRESS,worksite_address,mapped
+2025,h2a_2025.xlsx,WORKSITE_CITY,worksite_city,mapped
+2025,h2a_2025.xlsx,WORKSITE_COUNTY,worksite_county,mapped
+2025,h2a_2025.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2025,h2a_2025.xlsx,WORKSITE_STATE,worksite_state,mapped
+2025,h2a_2025.xlsx,790A_ADDENDUM_A_ATTACHED,,dropped: form attachment flag
+2025,h2a_2025.xlsx,790A_ADDENDUM_B_ATTACHED,,dropped: form attachment flag
+2025,h2a_2025.xlsx,ADDENDUM_B_HOUSING_ATTACHED,,dropped: form attachment flag
+2025,h2a_2025.xlsx,ADDENDUM_B_WORKSITE_ATTACHED,,dropped: form attachment flag
+2025,h2a_2025.xlsx,ADDENDUM_C_ATTACHED,,dropped: form attachment flag
+2025,h2a_2025.xlsx,ADDITIONAL_JOB_REQUIREMENTS,,dropped: H-2 job-condition detail
+2025,h2a_2025.xlsx,AGENT_RECRUITER_AGREEMENT_ATTACHED,,dropped: form attachment flag
+2025,h2a_2025.xlsx,AG_ASSN_OR_AGENCY_STATUS,,dropped: H-2 contract / attestation detail
+2025,h2a_2025.xlsx,APPENDIX_A_ATTACHED,,dropped: form attachment flag
+2025,h2a_2025.xlsx,APPENDIX_C_ATTACHED,,dropped: form attachment flag
+2025,h2a_2025.xlsx,APPENDIX_D_ATTACHED,,dropped: form attachment flag
+2025,h2a_2025.xlsx,ATTORNEY_AGENT_ADDRESS_1,,dropped: attorney/agent personal details
+2025,h2a_2025.xlsx,ATTORNEY_AGENT_ADDRESS_2,,dropped: attorney/agent personal details
+2025,h2a_2025.xlsx,ATTORNEY_AGENT_CITY,,dropped: attorney/agent personal details
+2025,h2a_2025.xlsx,ATTORNEY_AGENT_COUNTRY,,dropped: attorney/agent personal details
+2025,h2a_2025.xlsx,ATTORNEY_AGENT_EMAIL,,dropped: attorney/agent personal details
+2025,h2a_2025.xlsx,ATTORNEY_AGENT_FIRST_NAME,,dropped: attorney/agent personal details
+2025,h2a_2025.xlsx,ATTORNEY_AGENT_LAST_NAME,,dropped: attorney/agent personal details
+2025,h2a_2025.xlsx,ATTORNEY_AGENT_MIDDLE_NAME,,dropped: attorney/agent personal details
+2025,h2a_2025.xlsx,ATTORNEY_AGENT_PHONE,,dropped: attorney/agent personal details
+2025,h2a_2025.xlsx,ATTORNEY_AGENT_PHONE_EXT,,dropped: attorney/agent personal details
+2025,h2a_2025.xlsx,ATTORNEY_AGENT_POSTAL_CODE,,dropped: attorney/agent personal details
+2025,h2a_2025.xlsx,ATTORNEY_AGENT_PROVINCE,,dropped: attorney/agent personal details
+2025,h2a_2025.xlsx,ATTORNEY_AGENT_STATE,,dropped: attorney/agent personal details
+2025,h2a_2025.xlsx,CERTIFICATION_REQUIREMENTS,,dropped: H-2 job-condition detail
+2025,h2a_2025.xlsx,CRIMINAL_BACKGROUND_CHECK,,dropped: H-2 job-condition detail
+2025,h2a_2025.xlsx,DEDUCTIONS_FROM_PAY,,dropped: H-2 contract / attestation detail
+2025,h2a_2025.xlsx,DRIVER_REQUIREMENTS,,dropped: H-2 job-condition detail
+2025,h2a_2025.xlsx,DRUG_SCREEN,,dropped: H-2 job-condition detail
+2025,h2a_2025.xlsx,EMAIL_TO_APPLY,,dropped: job application contact
+2025,h2a_2025.xlsx,EMPLOYER_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2025,h2a_2025.xlsx,EMPLOYER_FEIN,,dropped: phone / employer identifier
+2025,h2a_2025.xlsx,EMPLOYER_MSPA_ATTACHED,,dropped: form attachment flag
+2025,h2a_2025.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2025,h2a_2025.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2025,h2a_2025.xlsx,EMPLOYER_POC_ADDRESS1,,dropped: employer point-of-contact personal details
+2025,h2a_2025.xlsx,EMPLOYER_POC_ADDRESS2,,dropped: employer point-of-contact personal details
+2025,h2a_2025.xlsx,EMPLOYER_POC_CITY,,dropped: employer point-of-contact personal details
+2025,h2a_2025.xlsx,EMPLOYER_POC_COUNTRY,,dropped: employer point-of-contact personal details
+2025,h2a_2025.xlsx,EMPLOYER_POC_EMAIL,,dropped: employer point-of-contact personal details
+2025,h2a_2025.xlsx,EMPLOYER_POC_FIRST_NAME,,dropped: employer point-of-contact personal details
+2025,h2a_2025.xlsx,EMPLOYER_POC_JOB_TITLE,,dropped: employer point-of-contact personal details
+2025,h2a_2025.xlsx,EMPLOYER_POC_LAST_NAME,,dropped: employer point-of-contact personal details
+2025,h2a_2025.xlsx,EMPLOYER_POC_MIDDLE_NAME,,dropped: employer point-of-contact personal details
+2025,h2a_2025.xlsx,EMPLOYER_POC_PHONE,,dropped: employer point-of-contact personal details
+2025,h2a_2025.xlsx,EMPLOYER_POC_PHONE_EXT,,dropped: employer point-of-contact personal details
+2025,h2a_2025.xlsx,EMPLOYER_POC_POSTAL_CODE,,dropped: employer point-of-contact personal details
+2025,h2a_2025.xlsx,EMPLOYER_POC_PROVINCE,,dropped: employer point-of-contact personal details
+2025,h2a_2025.xlsx,EMPLOYER_POC_STATE,,dropped: employer point-of-contact personal details
+2025,h2a_2025.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2025,h2a_2025.xlsx,EXPOSURE_TO_TEMPERATURES,,dropped: H-2 job-condition detail
+2025,h2a_2025.xlsx,EXTENSIVE_PUSHING_PULLING,,dropped: H-2 job-condition detail
+2025,h2a_2025.xlsx,EXTENSIVE_SITTING_WALKING,,dropped: H-2 job-condition detail
+2025,h2a_2025.xlsx,FREQUENT_STOOPING_BENDING_OVER,,dropped: H-2 job-condition detail
+2025,h2a_2025.xlsx,FRIDAY_HOURS,,dropped: per-weekday hour schedule
+2025,h2a_2025.xlsx,HOURLY_SCHEDULE_BEGIN,,dropped: hourly work schedule
+2025,h2a_2025.xlsx,HOURLY_SCHEDULE_END,,dropped: hourly work schedule
+2025,h2a_2025.xlsx,HOUSING_ADDRESS_LOCATION,,dropped: H-2A housing detail
+2025,h2a_2025.xlsx,HOUSING_COMPLIANCE_FEDERAL,,dropped: H-2A housing detail
+2025,h2a_2025.xlsx,HOUSING_COMPLIANCE_LOCAL,,dropped: H-2A housing detail
+2025,h2a_2025.xlsx,HOUSING_COMPLIANCE_OTHER,,dropped: H-2A housing detail
+2025,h2a_2025.xlsx,HOUSING_COMPLIANCE_OTHER_SPECIFY,,dropped: H-2A housing detail
+2025,h2a_2025.xlsx,HOUSING_COMPLIANCE_STATE,,dropped: H-2A housing detail
+2025,h2a_2025.xlsx,HOUSING_COMPLIANCE_SWA,,dropped: H-2A housing detail
+2025,h2a_2025.xlsx,HOUSING_COUNTY,,dropped: H-2A housing detail
+2025,h2a_2025.xlsx,HOUSING_POSTAL_CODE,,dropped: H-2A housing detail
+2025,h2a_2025.xlsx,HOUSING_TRANSPORTATION,,dropped: H-2 contract / attestation detail
+2025,h2a_2025.xlsx,JOINT_EMPLOYER_APPENDIX_A_ATTACHED,,dropped: form attachment flag
+2025,h2a_2025.xlsx,LAWFIRM_BUSINESS_FEIN,,dropped: phone / employer identifier
+2025,h2a_2025.xlsx,LIFTING_AMOUNT,,dropped: H-2 job-condition detail
+2025,h2a_2025.xlsx,LIFTING_REQUIREMENTS,,dropped: H-2 job-condition detail
+2025,h2a_2025.xlsx,MEALS_CHARGED,,dropped: H-2A housing detail
+2025,h2a_2025.xlsx,MEAL_REIMBURSEMENT_MAXIMUM,,dropped: H-2A housing detail
+2025,h2a_2025.xlsx,MEAL_REIMBURSEMENT_MINIMUM,,dropped: H-2A housing detail
+2025,h2a_2025.xlsx,MIN_STANDARDS,,dropped: H-2 job-condition detail
+2025,h2a_2025.xlsx,MONDAY_HOURS,,dropped: per-weekday hour schedule
+2025,h2a_2025.xlsx,NAME_OF_HIGHEST_STATE_COURT,,dropped: attorney bar detail
+2025,h2a_2025.xlsx,ON_CALL_REQUIREMENT,,dropped: H-2 job-condition detail
+2025,h2a_2025.xlsx,OTHER_FREQUENCY_OF_PAY,,dropped: H-2 contract / attestation detail
+2025,h2a_2025.xlsx,OVERTIME_PAY,,dropped: H-2 contract / attestation detail
+2025,h2a_2025.xlsx,PHONE_EXT_TO_APPLY,,dropped: job application contact
+2025,h2a_2025.xlsx,PHONE_TO_APPLY,,dropped: job application contact
+2025,h2a_2025.xlsx,PIECE_RATE_ADDITIONAL_INFO,,dropped: H-2 contract / attestation detail
+2025,h2a_2025.xlsx,PREPARER_BUSINESS_NAME,,dropped: form preparer personal details
+2025,h2a_2025.xlsx,PREPARER_EMAIL,,dropped: form preparer personal details
+2025,h2a_2025.xlsx,PREPARER_FEIN,,dropped: form preparer personal details
+2025,h2a_2025.xlsx,PREPARER_FIRST_NAME,,dropped: form preparer personal details
+2025,h2a_2025.xlsx,PREPARER_LAST_NAME,,dropped: form preparer personal details
+2025,h2a_2025.xlsx,PREPARER_MIDDLE_INITIAL,,dropped: form preparer personal details
+2025,h2a_2025.xlsx,PREV_TRADE_NAME_DBA_1,,dropped: H-2 contract / attestation detail
+2025,h2a_2025.xlsx,PREV_TRADE_NAME_DBA_2,,dropped: secondary worksite/wage block (primary worksite only)
+2025,h2a_2025.xlsx,REPETITIVE_MOVEMENTS,,dropped: H-2 job-condition detail
+2025,h2a_2025.xlsx,SATURDAY_HOURS,,dropped: per-weekday hour schedule
+2025,h2a_2025.xlsx,STATE_OF_HIGHEST_COURT,,dropped: attorney bar detail
+2025,h2a_2025.xlsx,SUNDAY_HOURS,,dropped: per-weekday hour schedule
+2025,h2a_2025.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2025,h2a_2025.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2025,h2a_2025.xlsx,SURETY_BOND_ATTACHED,,dropped: form attachment flag
+2025,h2a_2025.xlsx,THURSDAY_HOURS,,dropped: per-weekday hour schedule
+2025,h2a_2025.xlsx,TOTAL_ADDENDUM_A_RECORDS,,dropped: form attachment flag
+2025,h2a_2025.xlsx,TOTAL_HOUSING_RECORDS,,dropped: H-2A housing detail
+2025,h2a_2025.xlsx,TOTAL_UNITS,,dropped: H-2A housing detail
+2025,h2a_2025.xlsx,TOTAL_WORKERS_H2A_REQUESTED,,duplicate of workers_requested
+2025,h2a_2025.xlsx,TRAINING_MONTHS,,dropped: H-2 job-condition detail
+2025,h2a_2025.xlsx,TUESDAY_HOURS,,dropped: per-weekday hour schedule
+2025,h2a_2025.xlsx,USING_AGENT_RECRUITER,,dropped: H-2 contract / attestation detail
+2025,h2a_2025.xlsx,WEBSITE_TO_APPLY,,dropped: job application contact
+2025,h2a_2025.xlsx,WEDNESDAY_HOURS,,dropped: per-weekday hour schedule
+2025,h2a_2025.xlsx,WORK_CONTRACTS_ATTACHED,,dropped: form attachment flag
+2026,h2a_2026.xlsx,TYPE_OF_REPRESENTATION,agent_representing_employer,mapped
+2026,h2a_2026.xlsx,ANTICIPATED_NUMBER_OF_HOURS,anticipated_number_of_hours,mapped
+2026,h2a_2026.xlsx,LAWFIRM_NAME_BUSINESS_NAME,attorney_law_firm_name,mapped
+2026,h2a_2026.xlsx,CASE_NUMBER,case_number,mapped
+2026,h2a_2026.xlsx,CASE_STATUS,case_status,mapped
+2026,h2a_2026.xlsx,,certification_begin_date,absent this year
+2026,h2a_2026.xlsx,,certification_end_date,absent this year
+2026,h2a_2026.xlsx,DECISION_DATE,decision_date,mapped
+2026,h2a_2026.xlsx,EDUCATION_LEVEL,education_level,mapped
+2026,h2a_2026.xlsx,EMERGENCY_FILING,emergency_filing,mapped
+2026,h2a_2026.xlsx,EMPLOYER_ADDRESS_1,employer_address,mapped
+2026,h2a_2026.xlsx,EMPLOYER_CITY,employer_city,mapped
+2026,h2a_2026.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2026,h2a_2026.xlsx,EMPLOYER_NAME,employer_name,mapped
+2026,h2a_2026.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2026,h2a_2026.xlsx,EMPLOYER_STATE,employer_state,mapped
+2026,h2a_2026.xlsx,TRADE_NAME_DBA,employer_trade_name,mapped
+2026,h2a_2026.xlsx,EMPLOYMENT_BEGIN_DATE,employment_begin_date,mapped
+2026,h2a_2026.xlsx,EMPLOYMENT_END_DATE,employment_end_date,mapped
+2026,h2a_2026.xlsx,FREQUENCY_OF_PAY,frequency_of_pay,mapped
+2026,h2a_2026.xlsx,,full_time_position,absent this year
+2026,h2a_2026.xlsx,H2A_LABOR_CONTRACTOR,h2a_labor_contractor,mapped
+2026,h2a_2026.xlsx,HOUSING_CITY,housing_city,mapped
+2026,h2a_2026.xlsx,HOUSING_STATE,housing_state,mapped
+2026,h2a_2026.xlsx,TOTAL_OCCUPANCY,housing_total_occupancy,mapped
+2026,h2a_2026.xlsx,TYPE_OF_HOUSING,housing_type,mapped
+2026,h2a_2026.xlsx,JOB_ORDER_NUMBER,job_order_number,mapped
+2026,h2a_2026.xlsx,JOB_TITLE,job_title,mapped
+2026,h2a_2026.xlsx,MEALS_PROVIDED,meals_provided,mapped
+2026,h2a_2026.xlsx,NAICS_CODE,naics_id,mapped
+2026,h2a_2026.xlsx,NATURE_OF_TEMPORARY_NEED,nature_of_temporary_need,mapped
+2026,h2a_2026.xlsx,,overtime_rate_from,absent this year
+2026,h2a_2026.xlsx,,overtime_rate_to,absent this year
+2026,h2a_2026.xlsx,PIECE_RATE_OFFER,piece_rate_offer,mapped
+2026,h2a_2026.xlsx,PIECE_RATE_UNIT,piece_rate_unit,mapped
+2026,h2a_2026.xlsx,,primary_crop,absent this year
+2026,h2a_2026.xlsx,RECEIVED_DATE,received_date,mapped
+2026,h2a_2026.xlsx,REQUESTED_BEGIN_DATE,requested_begin_date,mapped
+2026,h2a_2026.xlsx,REQUESTED_END_DATE,requested_end_date,mapped
+2026,h2a_2026.xlsx,SOC_CODE,soc_id,mapped
+2026,h2a_2026.xlsx,SOC_TITLE,soc_title,mapped
+2026,h2a_2026.xlsx,,swa_name,absent this year
+2026,h2a_2026.xlsx,TOTAL_WORKSITE_RECORDS,total_worksite_records,mapped
+2026,h2a_2026.xlsx,TYPE_OF_EMPLOYER_APPLICATION,type_of_employer_application,mapped
+2026,h2a_2026.xlsx,,visa_class,absent this year
+2026,h2a_2026.xlsx,WAGE_OFFER,wage_offered_from,mapped
+2026,h2a_2026.xlsx,PER,wage_unit_of_pay,mapped
+2026,h2a_2026.xlsx,WORK_EXPERIENCE_MONTHS,work_experience_months,mapped
+2026,h2a_2026.xlsx,TOTAL_WORKERS_H2A_CERTIFIED,workers_certified,mapped
+2026,h2a_2026.xlsx,TOTAL_WORKERS_NEEDED,workers_requested,mapped
+2026,h2a_2026.xlsx,WORKSITE_ADDRESS,worksite_address,mapped
+2026,h2a_2026.xlsx,WORKSITE_CITY,worksite_city,mapped
+2026,h2a_2026.xlsx,WORKSITE_COUNTY,worksite_county,mapped
+2026,h2a_2026.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2026,h2a_2026.xlsx,WORKSITE_STATE,worksite_state,mapped
+2026,h2a_2026.xlsx,790A_ADDENDUM_A_ATTACHED,,dropped: form attachment flag
+2026,h2a_2026.xlsx,790A_ADDENDUM_B_ATTACHED,,dropped: form attachment flag
+2026,h2a_2026.xlsx,ADDENDUM_B_HOUSING_ATTACHED,,dropped: form attachment flag
+2026,h2a_2026.xlsx,ADDENDUM_B_WORKSITE_ATTACHED,,dropped: form attachment flag
+2026,h2a_2026.xlsx,ADDENDUM_C_ATTACHED,,dropped: form attachment flag
+2026,h2a_2026.xlsx,ADDITIONAL_JOB_REQUIREMENTS,,dropped: H-2 job-condition detail
+2026,h2a_2026.xlsx,AGENT_RECRUITER_AGREEMENT_ATTACHED,,dropped: form attachment flag
+2026,h2a_2026.xlsx,AG_ASSN_OR_AGENCY_STATUS,,dropped: H-2 contract / attestation detail
+2026,h2a_2026.xlsx,APPENDIX_A_ATTACHED,,dropped: form attachment flag
+2026,h2a_2026.xlsx,APPENDIX_C_ATTACHED,,dropped: form attachment flag
+2026,h2a_2026.xlsx,APPENDIX_D_ATTACHED,,dropped: form attachment flag
+2026,h2a_2026.xlsx,ATTORNEY_AGENT_ADDRESS_1,,dropped: attorney/agent personal details
+2026,h2a_2026.xlsx,ATTORNEY_AGENT_ADDRESS_2,,dropped: attorney/agent personal details
+2026,h2a_2026.xlsx,ATTORNEY_AGENT_CITY,,dropped: attorney/agent personal details
+2026,h2a_2026.xlsx,ATTORNEY_AGENT_COUNTRY,,dropped: attorney/agent personal details
+2026,h2a_2026.xlsx,ATTORNEY_AGENT_EMAIL,,dropped: attorney/agent personal details
+2026,h2a_2026.xlsx,ATTORNEY_AGENT_FIRST_NAME,,dropped: attorney/agent personal details
+2026,h2a_2026.xlsx,ATTORNEY_AGENT_LAST_NAME,,dropped: attorney/agent personal details
+2026,h2a_2026.xlsx,ATTORNEY_AGENT_MIDDLE_NAME,,dropped: attorney/agent personal details
+2026,h2a_2026.xlsx,ATTORNEY_AGENT_PHONE,,dropped: attorney/agent personal details
+2026,h2a_2026.xlsx,ATTORNEY_AGENT_PHONE_EXT,,dropped: attorney/agent personal details
+2026,h2a_2026.xlsx,ATTORNEY_AGENT_POSTAL_CODE,,dropped: attorney/agent personal details
+2026,h2a_2026.xlsx,ATTORNEY_AGENT_PROVINCE,,dropped: attorney/agent personal details
+2026,h2a_2026.xlsx,ATTORNEY_AGENT_STATE,,dropped: attorney/agent personal details
+2026,h2a_2026.xlsx,CERTIFICATION_REQUIREMENTS,,dropped: H-2 job-condition detail
+2026,h2a_2026.xlsx,CRIMINAL_BACKGROUND_CHECK,,dropped: H-2 job-condition detail
+2026,h2a_2026.xlsx,DEDUCTIONS_FROM_PAY,,dropped: H-2 contract / attestation detail
+2026,h2a_2026.xlsx,DRIVER_REQUIREMENTS,,dropped: H-2 job-condition detail
+2026,h2a_2026.xlsx,DRUG_SCREEN,,dropped: H-2 job-condition detail
+2026,h2a_2026.xlsx,EMAIL_TO_APPLY,,dropped: job application contact
+2026,h2a_2026.xlsx,EMPLOYER_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2026,h2a_2026.xlsx,EMPLOYER_FEIN,,dropped: phone / employer identifier
+2026,h2a_2026.xlsx,EMPLOYER_MSPA_ATTACHED,,dropped: form attachment flag
+2026,h2a_2026.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2026,h2a_2026.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2026,h2a_2026.xlsx,EMPLOYER_POC_ADDRESS1,,dropped: employer point-of-contact personal details
+2026,h2a_2026.xlsx,EMPLOYER_POC_ADDRESS2,,dropped: employer point-of-contact personal details
+2026,h2a_2026.xlsx,EMPLOYER_POC_CITY,,dropped: employer point-of-contact personal details
+2026,h2a_2026.xlsx,EMPLOYER_POC_COUNTRY,,dropped: employer point-of-contact personal details
+2026,h2a_2026.xlsx,EMPLOYER_POC_EMAIL,,dropped: employer point-of-contact personal details
+2026,h2a_2026.xlsx,EMPLOYER_POC_FIRST_NAME,,dropped: employer point-of-contact personal details
+2026,h2a_2026.xlsx,EMPLOYER_POC_JOB_TITLE,,dropped: employer point-of-contact personal details
+2026,h2a_2026.xlsx,EMPLOYER_POC_LAST_NAME,,dropped: employer point-of-contact personal details
+2026,h2a_2026.xlsx,EMPLOYER_POC_MIDDLE_NAME,,dropped: employer point-of-contact personal details
+2026,h2a_2026.xlsx,EMPLOYER_POC_PHONE,,dropped: employer point-of-contact personal details
+2026,h2a_2026.xlsx,EMPLOYER_POC_PHONE_EXT,,dropped: employer point-of-contact personal details
+2026,h2a_2026.xlsx,EMPLOYER_POC_POSTAL_CODE,,dropped: employer point-of-contact personal details
+2026,h2a_2026.xlsx,EMPLOYER_POC_PROVINCE,,dropped: employer point-of-contact personal details
+2026,h2a_2026.xlsx,EMPLOYER_POC_STATE,,dropped: employer point-of-contact personal details
+2026,h2a_2026.xlsx,EMPLOYER_PROVINCE,,dropped: non-US employer province
+2026,h2a_2026.xlsx,EXPOSURE_TO_TEMPERATURES,,dropped: H-2 job-condition detail
+2026,h2a_2026.xlsx,EXTENSIVE_PUSHING_PULLING,,dropped: H-2 job-condition detail
+2026,h2a_2026.xlsx,EXTENSIVE_SITTING_WALKING,,dropped: H-2 job-condition detail
+2026,h2a_2026.xlsx,FREQUENT_STOOPING_BENDING_OVER,,dropped: H-2 job-condition detail
+2026,h2a_2026.xlsx,FRIDAY_HOURS,,dropped: per-weekday hour schedule
+2026,h2a_2026.xlsx,HOURLY_SCHEDULE_BEGIN,,dropped: hourly work schedule
+2026,h2a_2026.xlsx,HOURLY_SCHEDULE_END,,dropped: hourly work schedule
+2026,h2a_2026.xlsx,HOUSING_ADDRESS_LOCATION,,dropped: H-2A housing detail
+2026,h2a_2026.xlsx,HOUSING_COMPLIANCE_FEDERAL,,dropped: H-2A housing detail
+2026,h2a_2026.xlsx,HOUSING_COMPLIANCE_LOCAL,,dropped: H-2A housing detail
+2026,h2a_2026.xlsx,HOUSING_COMPLIANCE_OTHER,,dropped: H-2A housing detail
+2026,h2a_2026.xlsx,HOUSING_COMPLIANCE_OTHER_SPECIFY,,dropped: H-2A housing detail
+2026,h2a_2026.xlsx,HOUSING_COMPLIANCE_STATE,,dropped: H-2A housing detail
+2026,h2a_2026.xlsx,HOUSING_COMPLIANCE_SWA,,dropped: H-2A housing detail
+2026,h2a_2026.xlsx,HOUSING_COUNTY,,dropped: H-2A housing detail
+2026,h2a_2026.xlsx,HOUSING_POSTAL_CODE,,dropped: H-2A housing detail
+2026,h2a_2026.xlsx,HOUSING_TRANSPORTATION,,dropped: H-2 contract / attestation detail
+2026,h2a_2026.xlsx,JOINT_EMPLOYER_APPENDIX_A_ATTACHED,,dropped: form attachment flag
+2026,h2a_2026.xlsx,LAWFIRM_BUSINESS_FEIN,,dropped: phone / employer identifier
+2026,h2a_2026.xlsx,LIFTING_AMOUNT,,dropped: H-2 job-condition detail
+2026,h2a_2026.xlsx,LIFTING_REQUIREMENTS,,dropped: H-2 job-condition detail
+2026,h2a_2026.xlsx,MEALS_CHARGED,,dropped: H-2A housing detail
+2026,h2a_2026.xlsx,MEAL_REIMBURSEMENT_MAXIMUM,,dropped: H-2A housing detail
+2026,h2a_2026.xlsx,MEAL_REIMBURSEMENT_MINIMUM,,dropped: H-2A housing detail
+2026,h2a_2026.xlsx,MIN_STANDARDS,,dropped: H-2 job-condition detail
+2026,h2a_2026.xlsx,MONDAY_HOURS,,dropped: per-weekday hour schedule
+2026,h2a_2026.xlsx,NAME_OF_HIGHEST_STATE_COURT,,dropped: attorney bar detail
+2026,h2a_2026.xlsx,ON_CALL_REQUIREMENT,,dropped: H-2 job-condition detail
+2026,h2a_2026.xlsx,OTHER_FREQUENCY_OF_PAY,,dropped: H-2 contract / attestation detail
+2026,h2a_2026.xlsx,OVERTIME_PAY,,dropped: H-2 contract / attestation detail
+2026,h2a_2026.xlsx,PHONE_EXT_TO_APPLY,,dropped: job application contact
+2026,h2a_2026.xlsx,PHONE_TO_APPLY,,dropped: job application contact
+2026,h2a_2026.xlsx,PIECE_RATE_ADDITIONAL_INFO,,dropped: H-2 contract / attestation detail
+2026,h2a_2026.xlsx,PREPARER_BUSINESS_NAME,,dropped: form preparer personal details
+2026,h2a_2026.xlsx,PREPARER_EMAIL,,dropped: form preparer personal details
+2026,h2a_2026.xlsx,PREPARER_FEIN,,dropped: form preparer personal details
+2026,h2a_2026.xlsx,PREPARER_FIRST_NAME,,dropped: form preparer personal details
+2026,h2a_2026.xlsx,PREPARER_LAST_NAME,,dropped: form preparer personal details
+2026,h2a_2026.xlsx,PREPARER_MIDDLE_INITIAL,,dropped: form preparer personal details
+2026,h2a_2026.xlsx,PREV_TRADE_NAME_DBA_1,,dropped: H-2 contract / attestation detail
+2026,h2a_2026.xlsx,PREV_TRADE_NAME_DBA_2,,dropped: secondary worksite/wage block (primary worksite only)
+2026,h2a_2026.xlsx,REPETITIVE_MOVEMENTS,,dropped: H-2 job-condition detail
+2026,h2a_2026.xlsx,SATURDAY_HOURS,,dropped: per-weekday hour schedule
+2026,h2a_2026.xlsx,STATE_OF_HIGHEST_COURT,,dropped: attorney bar detail
+2026,h2a_2026.xlsx,SUNDAY_HOURS,,dropped: per-weekday hour schedule
+2026,h2a_2026.xlsx,SUPERVISE_HOW_MANY,,dropped: H-2 job-condition detail
+2026,h2a_2026.xlsx,SUPERVISE_OTHER_EMP,,dropped: H-2 job-condition detail
+2026,h2a_2026.xlsx,SURETY_BOND_ATTACHED,,dropped: form attachment flag
+2026,h2a_2026.xlsx,THURSDAY_HOURS,,dropped: per-weekday hour schedule
+2026,h2a_2026.xlsx,TOTAL_ADDENDUM_A_RECORDS,,dropped: form attachment flag
+2026,h2a_2026.xlsx,TOTAL_HOUSING_RECORDS,,dropped: H-2A housing detail
+2026,h2a_2026.xlsx,TOTAL_UNITS,,dropped: H-2A housing detail
+2026,h2a_2026.xlsx,TOTAL_WORKERS_H2A_REQUESTED,,duplicate of workers_requested
+2026,h2a_2026.xlsx,TRAINING_MONTHS,,dropped: H-2 job-condition detail
+2026,h2a_2026.xlsx,TUESDAY_HOURS,,dropped: per-weekday hour schedule
+2026,h2a_2026.xlsx,USING_AGENT_RECRUITER,,dropped: H-2 contract / attestation detail
+2026,h2a_2026.xlsx,WEBSITE_TO_APPLY,,dropped: job application contact
+2026,h2a_2026.xlsx,WEDNESDAY_HOURS,,dropped: per-weekday hour schedule
+2026,h2a_2026.xlsx,WORK_CONTRACTS_ATTACHED,,dropped: form attachment flag
