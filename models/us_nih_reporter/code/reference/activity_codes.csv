@@ -1,0 +1,259 @@
+activity_code,funding_category,title
+C06,Construction and Modernization,Research Facilities Construction Grant
+D43,Research Training and Career Development,International Research Training Grants
+D71,Research Training and Career Development,International Research Training Planning Grant
+DP1,Research and Development,NIH Director's Pioneer Award (NDPA)
+DP2,Research and Development,NIH Director's New Innovator Awards
+DP3,Research and Development,Type 1 Diabetes Targeted Research Award
+DP4,Research and Development,NIH Director's Pathfinder Award - Multi-Yr Funding
+DP5,Research and Development,Early Independence Award
+DP7,Research Training and Career Development,NIH Director's Workforce Innovation Award
+E11,,Grants for Public Health Special Projects
+F05,Research Training and Career Development,International Research Fellowships (FIC)
+F30,Research Training and Career Development,Individual Predoctoral NRSA for M.D./Ph.D. Fellowships
+F31,Research Training and Career Development,Predoctoral Individual National Research Service Award
+F32,Research Training and Career Development,Postdoctoral Individual National Research Service Award
+F33,Research Training and Career Development,National Research Service Awards for Senior Fellows
+F37,Research Training and Career Development,Medical Informatics Fellowships
+F38,Research Training and Career Development,Applied Medical Informatics Fellowships
+F99,Research Training and Career Development,Predoctoral to Postdoctoral Fellow Transition Award
+FI2,Research Training and Career Development,Intramural Postdoctoral Research Associate
+FM1,Research Training and Career Development,Fellowship for Intramural Dual-Degree Scientists (FIDDS)
+G07,Research and Development,Resources Improvement Grant
+G08,Research and Development,Resources Project Grant (NLM)
+G11,Research and Development,Extramural Associate Research Development Award (EARDA)
+G12,,Research Centers in Minority Institutions Award
+G13,Research and Development,Health Sciences Publication Support Awards (NLM)
+G20,Construction and Modernization,"Grants for Repair, Renovation and Modernization of Existing Research Facilities"
+G94,,Administrative Support for Public Health Service Agency Foundations
+H13,,Conferences Active
+H23,,Immunization Program
+H25,,Venereal Disease Control
+H28,,State and Community-Based Injury Control Programs
+H50,,"Maternal and Child Health Services Project, RB Funds Active"
+H57,,Indian Health Service Loan Repayment Program
+H62,,Services or Education on AIDS
+H64,,State and Community-Based Childhood Lead Poisoning Prevention Program
+H75,,Health Investigations/Assessments of Control/Preven. Methods
+H79,,Mental Health and/or Substance Abuse Services Grants
+HD4,,Drug Use/Alcohol Abuse Prevention Demo: Community Partnership Study
+I01,Research and Development,Non-HHS Research Projects
+I80,Research and Development,DoD Research Project Grant Program (I80)
+IK3,Research Training and Career Development,Non-DHHS Nursing Research Initiative
+K00,Research Training and Career Development,Post-doctoral Transition Award
+K01,Research Training and Career Development,Research Scientist Development Award - Research & Training
+K02,Research Training and Career Development,Research Scientist Development Award - Research
+K05,Research Training and Career Development,Research Scientist Award
+K06,Research Training and Career Development,Research Career Awards
+K07,Research Training and Career Development,Academic/Teacher Award (ATA)
+K08,Research Training and Career Development,Clinical Investigator Award (CIA)
+K12,Research Training and Career Development,Physician Scientist Award (Program) (PSA)
+K14,Research Training and Career Development,Resource-Limited Institution Faculty Development Awards
+K18,Research Training and Career Development,The Career Enhancement Award
+K21,Research Training and Career Development,Scientist Development Award
+K22,Research Training and Career Development,Career Transition Award
+K23,Research Training and Career Development,Mentored Patient-Oriented Research Career Development Award
+K24,Research Training and Career Development,Midcareer Investigator Award in Patient-Oriented Research
+K25,Research Training and Career Development,Mentored Quantitative Research Career Development Award
+K26,Research Training and Career Development,Midcareer Investigator Award in Biomedical and Behavioral Research
+K30,Research Training and Career Development,Clinical Research Curriculum Award (CRCA)
+K32,Research Training and Career Development,Academic Career Excellence (ACE) Award
+K38,Research Training and Career Development,Early Stage Mentored Research and Career Development
+K43,Research Training and Career Development,International Research Career Development Award
+K76,Research Training and Career Development,Emerging Leaders Career Development Award
+K99,Research Training and Career Development,Career Transition Award
+KD1,Research Training and Career Development,Mental Health and/or Substance Abuse KD&A Grants
+KL1,Research Training and Career Development,Linked Research Career Development Award
+KL2,Research Training and Career Development,Mentored Career Development Award
+KM1,Research Training and Career Development,Institutional Career Enhancement Awards - Multi-Yr Funding
+L30,Loan Repayment Programs,Loan Repayment Program for Clinical Researchers
+L32,Loan Repayment Programs,Loan Repayment Program for Clinical Researchers from Disadvantaged Backgrounds
+L40,Loan Repayment Programs,Loan Repayment Program for Pediatric Research
+L50,Loan Repayment Programs,Loan Repayment Program for Contraception and Infertility Research
+L60,Loan Repayment Programs,Loan Repayment Program for Health Disparities Research
+L70,Loan Repayment Programs,Loan Repayment Program for Research in Emerging Areas Critical to Human Health
+M01,,General Clinical Research Centers Program
+OT2,Other Transactions,Research Project-Other Transaction Award
+P01,Research and Development,Research Program Projects
+P20,Research and Development,Exploratory Grants
+P2C,Research and Development,Resource-Related Research Multi-Component Projects and Centers
+P30,Research and Development,Center Core Grants
+P40,Research and Development,"Animal (Mammalian and Nonmammalian) Model, and Animal and Biological Material Resource Grants"
+P41,Research and Development,Biotechnology Resource Grants
+P42,Research and Development,Hazardous Substances Basic Research Grants Program (NIEHS)
+P50,Research and Development,Specialized Center
+P51,Research and Development,Primate Research Center Grants
+P60,Research and Development,Comprehensive Center
+PF5,,Collaborative International Research Project
+PL1,Research and Development,Linked Center Core Grant
+PM1,Research and Development,Program Project or Center with Complex Structure
+PN1,Research and Development,Concept Development Award
+PN2,Research and Development,Research Development Center
+R00,Research and Development,Research Transition Award
+R01,Research and Development,Research Project
+R03,Research and Development,Small Research Grants
+R13,Research and Development,Conference
+R15,Research and Development,Research Enhancement Awards
+R16,Research and Development,Research Excellence Award
+R18,Research and Development,Research Demonstration and Dissemination Projects
+R21,Research and Development,Exploratory/Developmental Grants
+R24,Research and Development,Resource-Related Research Projects
+R25,Research Training and Career Development,Education Projects
+R28,Research and Development,Resource-Related Research Projects
+R2F,,Food Safety Capacity and Infrastructure Building
+R30,,"Preventive Health Service - Venereal Disease Research, Demonstration, and Public Information and Education Grants"
+R33,Research and Development,Exploratory/Developmental Grants Phase II
+R34,Research and Development,Planning Grant
+R35,Research and Development,Investigator-Focused Award
+R36,Research Training and Career Development,Dissertation Award
+R37,Research and Development,Method to Extend Research in Time (MERIT) Award
+R38,Research Training and Career Development,Mentored Research Pathway in Residency
+R41,Small Business,Small Business Technology Transfer (STTR) Grants - Phase I
+R42,Small Business,Small Business Technology Transfer (STTR) Grants - Phase II
+R43,Small Business,Small Business Innovation Research Grants (SBIR) - Phase I
+R44,Small Business,Small Business Innovation Research Grants (SBIR) - Phase II
+R49,,Injury Control Research and Demonstration Projects and Injury Prevention Research Centers
+R50,Research and Development,Research Specialist Award
+R55,Research and Development,James A. Shannon Director's Award
+R56,Research and Development,"High Priority, Short Term Project Award"
+R61,Research and Development,Phase 1 Exploratory/Developmental Grant
+R90,Research Training and Career Development,Interdisciplinary Regular Research Training Award
+RC1,Research and Development,NIH Challenge Grants and Partnerships Program
+RC2,Research and Development,High Impact Research and Research Infrastructure Programs
+RC3,Research and Development,"Biomedical Research, Development, and Growth to Spur the Acceleration of New Technologies (BRDG-SPAN) Program"
+RC4,Research and Development,High Impact Research and Research Infrastructure Programs - Multi-Yr Funding
+RF1,Research and Development,Multi-Year Funded Research Project Grant
+RF2,,Linked International Research Project
+RL1,Research and Development,Linked Research project Grant
+RL2,Research and Development,Linked Exploratory/Development Grant
+RL5,Research Training and Career Development,Linked Education Project
+RL9,Research Training and Career Development,Linked Research Training Award
+RM1,Research and Development,Research Project with Complex Structure
+RP1,Research and Development,Science-Driven Research Project
+RS1,Research and Development,Programs to Prevent the Emergence and Spread of Antimicrobial Resistance in the United States
+S06,Research and Development,Tribal Biomedical Research Support
+S07,Research and Development,Biomedical Research Support Grants
+S10,Research and Development,Biomedical Research Support Shared Instrumentation Grants
+S11,Research and Development,Biomedical Research Support Thematic Project Grants for Developing Institutions
+S15,Research and Development,Small Instrumentation Grants Program
+S21,Research and Development,Research and Institutional Resources Health Disparities Endowment Grants - Capacity Building
+S22,Research Training and Career Development,Research and Student Resources Health Disparities Endowment Grants - Educational Programs
+SB0,"Research and Development,Small Business",Phase 0 Proof of Concept Partnership
+SB1,Small Business,Commercialization Readiness Program
+SC1,Research and Development,Research Enhancement Award
+SC2,Research and Development,Pilot Research Project
+SC3,Research and Development,Research Continuance Award
+SI2,Research and Development,Intramural Clinical Scholar Research Award
+T01,Research Training and Career Development,Graduate Training Program
+T02,Research Training and Career Development,Undergraduate Training Program
+T09,Research Training and Career Development,Scientific Evaluation
+T14,Research Training and Career Development,Conferences
+T15,Research Training and Career Development,Continuing Education Training Grants
+T32,Research Training and Career Development,Institutional National Research Service Award
+T34,Research Training and Career Development,Undergraduate NRSA Institutional Research Training Grants
+T35,Research Training and Career Development,NRSA Short-Term Research Training
+T37,Research Training and Career Development,International Research Training Grants
+T42,Research Training and Career Development,Educational Resource Center Training Grants
+T90,Research Training and Career Development,Interdisciplinary Research Training Award
+TL1,Research Training and Career Development,Linked Training Award
+TL4,Research Training and Career Development,Undergraduate NRSA Institutional Research Training Grants
+TU2,Research Training and Career Development,Institutional National Research Service Award with Involvement of NIH Intramural Faculty
+U01,Research and Development,Research Project--Cooperative Agreements
+U09,,Scientific Review and Evaluation--Cooperative Agreements
+U10,,Cooperative Clinical Research--Cooperative Agreements
+U11,,Study (in China) of Periconceptional Vitamin Supplements to Prevent Spina Bifida and Anencephaly Cooperative Agreements
+U13,Research and Development,Conference--Cooperative Agreements
+U17,,Applied Methods in Violence-Related or Accidental Injury Surveillance Cooperative Agreements
+U18,,Research Demonstration--Cooperative Agreements
+U19,Research and Development,Research Program--Cooperative Agreements
+U1A,,Capacity Building for Core Components of Tobacco Prevention and Control Programs Cooperative Agreements
+U1B,,Cooperative Agreement for Research and Surveillance Activities to Reduce the Incidence of HIV/AIDS
+U1Q,,Emergency Disaster Relief Relating to CDC Programs Cooperative Agreement
+U1V,,Capacity Building for Core Components of Tobacco Prevention and Control Programs Cooperative Agreements
+U21,,Immunization Service Cooperative Agreements
+U22,,HIV/STD Preventive Services
+U23,,TB Prevention and Control Services Cooperative Agreements
+U24,Research and Development,Resource-Related Research Projects--Cooperative Agreements
+U27,,Surveillance of Complications of Hemophilia Cooperative Agreements
+U2C,,Resource-Related Research Multi-Component Projects and Centers Cooperative Agreements
+U2F,Research and Development,Food Safety Capacity and Infrastructure Building
+U2G,,Global HIV/AIDS Non-Research Cooperative Agreements
+U2R,Research Training and Career Development,International Research Training Cooperative Agreements
+U30,,"Prev. Health Services: Venereal Disease Research, Demonstration, and Public Information and Education Projects"
+U32,,State-based Diabetes Control Programs
+U34,Research and Development,Planning Cooperative Agreement
+U36,,Program Improvements for Schools of Public Health
+U38,,Uniform National Health Program Reporting System
+U3R,Research and Development,NIH Small Research Grant Program (Cooperative Agreement)
+U41,,Biotechnology Resource Cooperative Agreements
+U42,,"Animal (Mammalian and Nonmammalian) Model, and Animal and Biological Materials Resource Cooperative Agreements"
+U43,Small Business,Small Business Innovation Research (SBIR) Cooperative Agreements - Phase I
+U44,Small Business,Small Business Innovation Research (SBIR) Cooperative Agreements - Phase II
+U45,,Hazardous Waste Worker Health and Safety Training Cooperative Agreements (NIEHS)
+U47,,Laboratory/Other Diagnostic Medical Quality Improvement Cooperative Agreements
+U48,,Health Promotion and Disease Prevention Research Centers
+U49,,Coop: Injury Control Res. and Demo and Injury Prevention
+U50,,Special Cooperative Investigations/Assessment of Control/Prevention Methods
+U51,,Health Planning Strategies/National Academy of Sciences Activities
+U52,,Cooperative Agreement for Tuberculosis Control
+U53,,Capacity Bldg: Occupational Safety/Community Environmental Health
+U54,Research and Development,Specialized Center--Cooperative Agreements
+U55,,Core Support For American Council on Transplantation Active
+U56,,Exploratory Grants--Cooperative Agreements
+U57,,State-Based Comprehensive Breast/Cervical Cancer Control Program Cooperative Agreements
+U58,,Chronic Disease Control Cooperative Agreement
+U59,,Disabilities Prevention Cooperative Agreement Program
+U60,,"Cooperative Agreements in Occupational Safety and Health Research, Demonstrations, Evaluation and Education Research, Demonstrations, Evaluation and Education"
+U61,,Preventive Health Activities Regarding Hazardous Substances
+U62,,Prevention/Surveillance Activities/Studies of AIDS
+U65,,"Minority/Other Community-based HIV Prevention Project, Cooperative Agreements"
+U66,,Immunization Demonstration Projects Cooperative Agreements
+U75,,National Cancer Registries Cooperative Agreements
+U79,,Mental Health and/or Substance Abuse Services Cooperative Agreements
+U81,,Injury Community Demonstration Projects: Evaluation of Youth Violence Prevention Program
+U82,,Enhancement of State and Local Capacity to Assess the Progress toward Healthy People 2010 Objectives
+U83,,Research to Advance the Understanding of the Health of Racial and Ethnic Populations or Subpopulations Cooperative Agreements
+U84,,Cooperative Agreements for Fetal Alcohol Syndrome Prevention Research Programs
+U86,,State Demonstration: Comprehensive School Health Programs to Prevent Important Health Problems and Improve Educational Outcome
+U87,,State Demonstration: Comprehensive School Health Program to Prevent Sexual Behaviors that Result in HIV Infection and to Improve Educational Outcome
+U90,,Cooperative Agreements for Special Projects of National Significance (SPNS)
+UA1,,AIDS Research Project Cooperative Agreement
+UA5,Research and Development,Academic Research Enhancement Award (AREA) Cooperative Agreements
+UB1,Small Business,Commercialization Readiness Program - Cooperative Agreement
+UC1,,NIH Challenge Grants and Partnerships Program - Phase II-Coop.Agreement
+UC2,Research and Development,High Impact Research and Research Infrastructure Cooperative Agreement Programs
+UC3,,"Biomedical Research, Development, and Growth to Spur the Acceleration of New Technologies (BRDG-SPAN) Cooperative Agreement Program"
+UC4,,High Impact Research and Research Infrastructure Cooperative Agreement Programs - Multi-Yr Funding
+UC6,Construction and Modernization,Construction Cooperative Agreement
+UC7,,Biocontainment Laboratory Operation Cooperative Agreement
+UD1,,Mental Health and/or Substance Abuse KD&A Cooperative Agreements
+UE1,,Studies of Environmental Hazards and Health Effects
+UE2,,Emergency and Environmental Health Services
+UE5,Research Training and Career Development,Education Projects - Cooperative Agreements
+UF1,Research and Development,Multi-Year Funded Research Project Cooperative Agreement
+UF2,,Rape Prevention and Education Cooperative Agreement
+UF5,,Collaborative International Cooperative Agreement
+UG1,,Clinical Research Cooperative Agreements - Single Project
+UG3,Research and Development,Phase 1 Exploratory/Developmental Cooperative Agreement
+UG4,,National Network of Libraries of Medicine
+UH1,,HBCU Research Scientist Award
+UH2,Research and Development,Exploratory/Developmental Cooperative Agreement Phase I
+UH3,Research and Development,Exploratory/Developmental Cooperative Agreement Phase II
+UH4,,Hazmat Training at DOE Nuclear Weapons Complex
+UL1,,Linked Specialized Center Cooperative Agreement
+UL2,,Linked International Cooperative Agreement
+UM1,Research and Development,Research Project with Complex Structure Cooperative Agreement
+UM2,Research and Development,Program Project or Center with Complex Structure Cooperative Agreement
+UP1,Research and Development,Science-Driven Research Project Cooperative Agreement
+UP5,Research Training and Career Development,Early Independence Award Cooperative Agreement
+UR6,,Prevention Intervention Research on Substance Abuse in Children Cooperative Agreements
+UR8,,Applied Research in Emerging Infections-(including Tick-borne Diseases) Cooperative Agreements
+US3,,Hantaviral Reservoir Studies Cooperative Agreements
+US4,,Community-Based Primary Prevention Programs: Intimate Partner Violence Cooperative Agreements
+UT1,Small Business,Small Business Technology Transfer (STTR) - Cooperative Agreements - Phase I
+UT2,Small Business,Small Business Technology Transfer (STTR) - Cooperative Agreements - Phase II
+VF1,,Rape Prevention and Education Grants
+X01,Research and Development,Resource Access Program
+X02,,Preapplication
+X98,,Protection and Advocacy for Mentally Ill Individuals
+X99,,National All Schedules Prescription Electronic Reporting (NASPER)
