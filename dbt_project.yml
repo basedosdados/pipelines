@@ -210,6 +210,12 @@ models:
     us_census_cps:
       +materialized: table
       +schema: us_census_cps
+    us_census_lodes:
+      +materialized: table
+      +schema: us_census_lodes
+    us_cfpb_complaints:
+      +materialized: table
+      +schema: us_cfpb_complaints
     us_cfpb_hmda:
       +materialized: table
       +schema: us_cfpb_hmda
@@ -222,6 +228,9 @@ models:
     us_irs_form990:
       +materialized: table
       +schema: us_irs_form990
+    us_nchs_vital_statistics:
+      +materialized: table
+      +schema: us_nchs_vital_statistics
     us_fec_campaign_finance:
       +materialized: table
       +schema: us_fec_campaign_finance
@@ -519,6 +528,9 @@ models:
     br_ons_estimativa_custos:
       +materialized: table
       +schema: br_ons_estimativa_custos
+    br_pncp:
+      +materialized: table
+      +schema: br_pncp
     br_poder360_pesquisas:
       +materialized: table
       +schema: br_poder360_pesquisas
@@ -576,6 +588,9 @@ models:
     br_tse_filiacao_partidaria:
       +materialized: table
       +schema: br_tse_filiacao_partidaria
+    cl_chilecompra_mercado_publico:
+      +materialized: table
+      +schema: cl_chilecompra_mercado_publico
     gb_eric_ess:
       +materialized: table
       +schema: gb_eric_ess
@@ -609,6 +624,9 @@ models:
     us_census_acs:
       +materialized: table
       +schema: us_census_acs
+    us_dol_oflc:
+      +materialized: table
+      +schema: us_dol_oflc
     us_ed_college_scorecard:
       +materialized: table
       +schema: us_ed_college_scorecard
@@ -618,18 +636,36 @@ models:
     us_ed_nces_ccd:
       +materialized: table
       +schema: us_ed_nces_ccd
+    us_eia_electricity:
+      +materialized: table
+      +schema: us_eia_electricity
     us_epa_tri:
       +materialized: table
       +schema: us_epa_tri
+    us_fema_openfema:
+      +materialized: table
+      +schema: us_fema_openfema
+    us_fbi_cde:
+      +materialized: table
+      +schema: us_fbi_cde
     us_medsl_elections:
       +materialized: table
       +schema: us_medsl_elections
+    us_nih_reporter:
+      +materialized: table
+      +schema: us_nih_reporter
+    us_noaa_storm_events:
+      +materialized: table
+      +schema: us_noaa_storm_events
     world_ampas_oscar:
       +materialized: table
       +schema: world_ampas_oscar
     world_dasanaike_sage:
       +materialized: table
       +schema: world_dasanaike_sage
+    world_iati_activities:
+      +materialized: table
+      +schema: world_iati_activities
     world_iea_pirls:
       +materialized: table
       +schema: world_iea_pirls

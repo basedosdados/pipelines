@@ -505,3 +505,156 @@ class constants_exportacao_bens(Enum):
             ]
         ]
     )
+
+
+class constants_exportacao_servicos(Enum):
+    """
+    Config da 4a tabela do conjunto: operacoes_exportacao_servicos.
+
+    Fonte: conjunto CKAN "operacoes-exportacao", recurso de pos-embarque de
+    servicos de engenharia — o mesmo pacote da irma de bens, recurso distinto.
+    Decisoes de modelagem no README do conjunto.
+
+    Baixa pelo /datastore/dump, e nao pelo result.url do resource_show: o dump
+    vem UTF-8, com decimal em ponto e data ISO, enquanto o download direto vem
+    cp1252 com decimal em virgula. Conteudo identico (conferido celula a
+    celula). O custo e que o dump responde chunked, sem Content-Length e
+    ignorando Range — por isso DOWNLOAD sem validacao de tamanho, com a
+    contagem de linhas do datastore como contraprova.
+    """
+
+    DATASET_ID = "br_bndes_operacoes_contratadas"
+    LAST_MODIFIED_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
+    TABLE_ID = "operacoes_exportacao_servicos"
+    CKAN_RESOURCE_ID = "d158033b-f6cb-4609-9717-a9cb2ff7ffc5"
+
+    RESOURCE_SHOW_URL = (
+        "https://dadosabertos.bndes.gov.br/api/3/action/resource_show"
+        "?id=d158033b-f6cb-4609-9717-a9cb2ff7ffc5"
+    )
+    DOWNLOAD_URL = (
+        "https://dadosabertos.bndes.gov.br/datastore/dump/"
+        "d158033b-f6cb-4609-9717-a9cb2ff7ffc5"
+    )
+    INPUT_PATH = "/tmp/input/br_bndes_operacoes_contratadas/"
+    OUTPUT_PATH = "/tmp/output/br_bndes_operacoes_contratadas/"
+    CSV_FILENAME = "operacoes_exportacao_servicos.csv"
+
+    RENAME = {
+        "exportador": "nome_exportador",
+        "cnpj_do_exportador": "cnpj_exportador",
+        "porte_do_exportador": "porte_exportador",
+        "descricao_da_operacao": "descricao_operacao",
+        "uf": "sigla_uf",
+        "pais_destino_das_exportacoes": "nome_pais_destino",
+        "numero_da_operacao": "id_operacao",
+        "data_da_contratacao": "data_contratacao",
+        "valor_da_operacao_em_um": "valor_operacao",
+        "valor_desembolsado_em_um": "valor_desembolsado",
+        "moeda_sigla": "sigla_moeda",
+        "fonte_de_recursos_desembolsos": "fonte_recurso",
+        "custo_financeiro": "custo_financeiro",
+        "juros": "taxa_juros",
+        "prazo_total_meses": "prazo_meses",
+        "setor_subsetor_de_atividade": "setor_subsetor",
+        "area_operacional": "area_operacional",
+        "modalidade_de_apoio": "modalidade_apoio",
+        "forma_de_apoio": "forma_apoio",
+        "produto": "produto",
+        "modalidade_operacional": "modalidade_operacional",
+        "mutuario": "tipo_mutuario",
+        "categoria": "categoria",
+        "situacao_da_operacao": "situacao_operacao",
+        "tipo_de_garantia": "tipo_garantia",
+    }
+
+    # chave sintetica do datastore, sem correspondente na arquitetura
+    DROP_COLUMNS = ["_id"]
+
+    MOEDA = {"US$ COMPRA": "USD"}
+
+    # Em caixa alta, ao contrario da irma de bens: sao os mesmos rotulos do
+    # BNDES, com "/" no proprio nome, publicados aqui em maiuscula.
+    ROTULOS_COMPOSTOS = ("SEGURO DE CRÉDITO/FGE", "CCR/ALADI")
+
+    # setores publicados em setor_subsetor_de_atividade; o corte do subsetor
+    # casa o setor por prefixo. Grafia diferente da irma de bens
+    # ("COMERCIO E SERVICOS" contra "COMERCIO/SERVICOS"), mesmo agrupamento
+    SETORES = ("COMERCIO E SERVICOS",)
+
+    # Lixo de encoding na origem: o byte 0x90 (indefinido em cp1252, publicado
+    # como &#144; no download direto) aparece em 5 linhas de
+    # descricao_da_operacao, em quatro grafias que corrompem a mesma palavra de
+    # formas diferentes — ora no lugar da letra acentuada, ora ao lado dela.
+    # Nao ha regra generica que acerte as quatro, entao a correcao e explicita e
+    # o clean falha alto se sobrar 0x90 em alguma linha.
+    DESCRICAO_CORRECOES = {
+        "HIDREL\x90ETRICA": "HIDRELÉTRICA",
+        "HIDREL\x90TRICA": "HIDRELÉTRICA",
+        "PERIF\x90ÉRICA": "PERIFÉRICA",
+        "PERIFE\x90RICA": "PERIFÉRICA",
+    }
+
+    ORDER_COLUMNS = [
+        "ano",
+        "data_contratacao",
+        "sigla_uf",
+        "nome_pais_destino",
+        "id_operacao",
+        "cnpj_exportador",
+        "nome_exportador",
+        "porte_exportador",
+        "descricao_operacao",
+        "categoria",
+        "modalidade_operacional",
+        "tipo_mutuario",
+        "produto",
+        "modalidade_apoio",
+        "forma_apoio",
+        "area_operacional",
+        "fonte_recurso",
+        "custo_financeiro",
+        "sigla_moeda",
+        "setor_bndes",
+        "subsetor_bndes",
+        "tipo_garantia",
+        "situacao_operacao",
+        "valor_operacao",
+        "valor_desembolsado",
+        "taxa_juros",
+        "prazo_meses",
+    ]
+
+    SCHEMA = pa.schema(
+        [
+            (col, pa.string())
+            for col in [
+                "data_contratacao",
+                "sigla_uf",
+                "nome_pais_destino",
+                "id_operacao",
+                "cnpj_exportador",
+                "nome_exportador",
+                "porte_exportador",
+                "descricao_operacao",
+                "categoria",
+                "modalidade_operacional",
+                "tipo_mutuario",
+                "produto",
+                "modalidade_apoio",
+                "forma_apoio",
+                "area_operacional",
+                "fonte_recurso",
+                "custo_financeiro",
+                "sigla_moeda",
+                "setor_bndes",
+                "subsetor_bndes",
+                "tipo_garantia",
+                "situacao_operacao",
+                "valor_operacao",
+                "valor_desembolsado",
+                "taxa_juros",
+                "prazo_meses",
+            ]
+        ]
+    )

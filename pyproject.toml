@@ -24,6 +24,9 @@ dependencies = [
   "click<9.0.0,>=8.0.3",
   "cloudpickle==2.0.0",
   "croniter==1.0.15",
+  # www.dol.gov (Akamai) rejects requests/curl/wget on the TLS fingerprint
+  # alone; curl_cffi impersonates Chrome and is admitted. Used by us_dol_oflc.
+  "curl-cffi>=0.7,<1.0",
   "dask==2021.11.2",
   "distributed==2021.11.2",
   "docker>=6,<7",
@@ -213,6 +216,12 @@ build-backend = "hatchling.build"
 project-excludes = [
   "pipelines/{{cookiecutter.pipeline_name}}",
   "models/br_tse_eleicoes/code",
+  "models/us_nih_reporter/code",
+  # Same policy: the world_iati_activities onboarding scripts run from their own
+  # directory with bare sibling imports (`common`, `gen_dbt`), which pyrefly
+  # cannot resolve from the repo root.
+  "models/world_iati_activities/code",
+  "models/us_noaa_storm_events/code",
   "models/us_harvard_cbdb/code",
   "models/us_cfpb_hmda/code",
   "models/world_aiddata_gcdf/code",
@@ -224,6 +233,24 @@ project-excludes = [
   "models/us_stanford_dime/code",
   # Same policy for the us_irs_form990 one-shot onboarding scripts.
   "models/us_irs_form990/code",
+  # Same policy for the us_eia_electricity one-shot onboarding scripts: they run
+  # from their own directory with bare sibling imports (`from common import ...`,
+  # `import metadata_spec`) plus a sys.path insert to reach the databasis MCP
+  # server module, none of which pyrefly can resolve from the repo root. The
+  # transform they share lives in pipelines/datasets/us_eia_electricity/ and is
+  # checked normally.
+  "models/us_eia_electricity/code",
+  # Same policy: the us_cfpb_complaints onboarding scripts are standalone `.py`
+  # run from their own directory with bare sibling imports (`from common import
+  # ...`), which pyrefly cannot resolve from the repo root.
+  "models/us_cfpb_complaints/code",
+  # Same policy for the us_fema_openfema build scripts: they are standalone
+  # `.py` run from their own directory, importing sibling modules by bare name
+  # (`import glossary`, `import tables`, `import legends`), which pyrefly
+  # cannot resolve from the repo root. The pure transform they share lives in
+  # pipelines/datasets/us_fema_openfema/ and is checked normally.
+  "models/us_fema_openfema/code",
+  "models/us_fbi_cde/code",
   # Same policy: br_sfb_sicar onboarding code is standalone `.py` (architecture.py,
   # gen_*.py, bootstrap_clean.py use bare `import architecture`/`import clean`,
   # sys.path-relative), unresolvable from the repo root. The pure transform is
@@ -282,6 +309,14 @@ project-excludes = [
   # used only by the `--validate` name cross-check and deliberately kept out of
   # pyproject, since the directory is a static one-off load with no pipeline.
   "models/br_bd_diretorios_cl/code",
+  # Same policy: cl_chilecompra_mercado_publico onboarding code is standalone
+  # one-shot `.py` (build_columns_json.py, generate_dbt.py, upload.py,
+  # register_metadata.py run via `uv run`) using bare `import metadata_spec` /
+  # `import descriptions_i18n` and the databasis MCP's `import server`, all
+  # resolved via sys.path.insert and unresolvable from the repo root. The shared
+  # transform lives in the typed pipelines/datasets/cl_chilecompra_mercado_publico/
+  # and is type-checked there.
+  "models/cl_chilecompra_mercado_publico/code",
   # Same policy: br_bd_execucao_estadual onboarding code is standalone one-shot
   # `.py` (download_*.py, clean_*.py, upload.py, validate_*.py,
   # register_columns.py run via `uv run`) using bare `import constants` /
