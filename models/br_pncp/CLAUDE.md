@@ -480,6 +480,94 @@ levels), and the near-duplicates `financas` / `financa_publicas` / `gasto`.
 IDs differ per backend. Re-resolve every one of these on prod before
 registering there; the organization in particular must be created again.
 
+## First dev run: two silent data-loss bugs (2026-09-08)
+
+The run was triggered on the dev pool with `{"materialize_to_prod": false,
+"update_metadata": false, "force_run": true}`. It harvested, uploaded, ran dbt
+for every table, and **failed** on `dbt test` for `contratacao`:
+`custom_dictionary_coverage` returned 44 uncovered codes. Chasing that turned up
+two independent defects, neither of which any local check can reach.
+
+### 1. Part filenames collided, so `append` overwrote the backfill
+
+`clean_table` numbered parts `data_{index:04d}.parquet` from zero on every run.
+Locally that is harmless. In GCS it is destruction: `upload_to_gcs` with
+`dump_mode="append"` uploads **by name** into a prefix that already holds the
+backfill, so the incremental run's part 0 replaced the backfill's part 0 in
+every partition it touched.
+
+    ano=2021/data_0000.parquet     14,359 B   09-08 02:15   <- the run
+    ano=2022/data_0000.parquet     13,763 B   09-08 02:15   <- the run
+    ano=2022/data_0001.parquet  2,285,867 B   09-07 09:56   <- survivor
+
+| table | staging before | staging after |
+|---|---|---|
+| `contratacao` | 4,003,718 | 3,799,298 |
+| `contratacao` ano=2021 | 7,236 | **8** |
+
+Roughly one 50,000-row part per year per table, and 2021 lost its only part.
+Nothing failed: dbt cheerfully rebuilt each partition from what survived, and
+`dbt run` reported success.
+
+Parts now carry a run stamp — `data_<YYYYMMDD>_NNNN.parquet`. A same-day retry
+reuses the stamp and replaces only its own files; different days accumulate,
+which is correct because the models carry an unconditional QUALIFY on the PNCP
+control number. The backfill's unstamped `data_NNNN.parquet` names coexist
+harmlessly and still sort first, which keeps `save_header_files` reading a small
+blob.
+
+### 2. The dicionario was rebuilt from the lookback window
+
+`build_dicionario` derived code→label pairs from the parquet the run had just
+cleaned. For the backfill that output *is* the whole table, so it was right; for
+an incremental run it is ten days, so the dictionary was rebuilt from ten days.
+It went 222 rows → 162, and 44 codes present in the data lost their entry —
+which is exactly what the coverage test caught.
+
+The fix is structural rather than careful: **the dicionario is now a dbt model
+over the fact models** (`gen_dbt.dicionario_sql`). It is a function of the tables
+it documents, so it cannot describe a different population, and it has no upload
+path, no staging table, and no way to drift. `build_dicionario`, `distinct_pairs`,
+`build_dicionario_task`, `models/br_pncp/code/build_dicionario.py` and the
+dicionario upload are all deleted.
+
+Two properties the generated SQL depends on, both easy to break while editing:
+UNION ALL resolves **positionally**, so every branch selects the five columns in
+architecture order; and a QUALIFY keys one row per
+`(id_tabela, nome_coluna, chave)`, so a label that drifts cannot turn the table
+into a multimap.
+
+**The derivation reproduces the harvested dictionary exactly** — 222 rows in
+both, and the set difference of `(id_tabela, nome_coluna, chave, valor)` tuples
+is empty in both directions.
+
+### Repair
+
+Staging was restored from the intact local backfill output by re-uploading the
+17 clobbered blobs; the ~10 days the run harvested went with them and get
+re-harvested under stamped names. `br_pncp_staging.dicionario` (external) was
+dropped along with its GCS prefix, since nothing writes or reads it now.
+
+Verified after the repair — every table back to its documented backfill total:
+
+| table | staging rows |
+|---|---|
+| `contratacao` | 4,003,718 |
+| `contrato` | 4,707,847 |
+| `ata_registro_preco` | 1,137,524 |
+| `instrumento_cobranca` | 215,382 |
+
+`dbt run --full-refresh` PASS=5 ERROR=0; `dbt test` PASS=33 ERROR=0. The
+dicionario rebuild scans 619 MiB, which is the new per-run cost of deriving it.
+
+### What this says about the local checks
+
+Every local check passed while both bugs sat in the code: 74 unit tests, ruff,
+pyrefly, transform parity against the backfill, and deploy discovery. Neither
+bug is reachable from any of them — the first needs two uploads into one GCS
+prefix, the second needs a run narrower than the backfill. The dev run is not a
+formality.
+
 ## Registered on prod (2026-09-08)
 
 Step 10. The dataset is `status = under_review`, so it is invisible on the public
