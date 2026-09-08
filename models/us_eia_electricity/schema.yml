@@ -1,0 +1,795 @@
+---
+version: 2
+models:
+  - name: us_eia_electricity__plant
+    description: >-
+      Um registro por usina de geração de eletricidade por ano-calendário,
+      conforme o Anexo 2 do Formulário EIA-860 da U.S. Energy Information
+      Administration: localização, empresa operadora, autoridade de
+      balanceamento, situação regulatória, setor econômico e infraestrutura
+      associada. plant_id é o identificador atribuído pela EIA e é a chave de
+      junção estável entre todas as tabelas deste conjunto e entre os
+      formulários EIA-860 e EIA-923; permanece com a usina através de mudanças
+      de proprietário e de nome. O escopo do formulário cresceu ao longo do
+      período — endereço passa a ser coletado em 2007, coordenadas e
+      infraestrutura de gás em 2013 —, de modo que uma coluna vazia num ano
+      antigo indica ausência de coleta e não ausência de informação; a
+      cobertura de cada coluna está registrada em temporal_coverage.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, plant_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          # Measured over the parquet by verify_parquet.py: each of
+          # these is a field the form began collecting part-way
+          # through the record, or one that applies to a small
+          # minority of rows by construction.
+          ignore_values:
+            - ash_impoundment_status
+            - datum
+            - grid_voltage_2_kv
+            - grid_voltage_3_kv
+            - has_net_metering
+            - natural_gas_pipeline_name_2
+            - natural_gas_pipeline_name_3
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_eia_electricity__dicionario')
+          columns_covered_by_dictionary:
+            - balancing_authority_code
+            - sector_id
+            - regulatory_status_code
+            - ferc_cogen_status
+            - ferc_small_power_producer
+            - ferc_exempt_wholesale_generator
+            - natural_gas_storage
+            - liquefied_natural_gas_storage
+            - ash_impoundment
+            - ash_impoundment_lined
+            - ash_impoundment_status
+            - energy_storage
+            - has_net_metering
+            - data_maturity
+    columns:
+      - name: year
+        description: >-
+          Ano-calendário do inventário
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: plant_id
+        description: >-
+          Código da usina geradora atribuído pela EIA
+        tests: [not_null]
+      - name: plant_name
+        description: >-
+          Nome da usina tal como declarado
+      - name: utility_id
+        description: >-
+          Código da empresa operadora atribuído pela EIA
+      - name: utility_name
+        description: >-
+          Nome da empresa operadora
+      - name: state_abbreviation
+        description: >-
+          Sigla postal de duas letras do estado
+      - name: state_id
+        description: >-
+          Código FIPS de duas posições do estado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: county_name
+        description: >-
+          Nome do condado onde a usina está localizada
+      - name: county_id
+        description: >-
+          Código FIPS de cinco posições do condado
+      - name: city
+        description: >-
+          Cidade do endereço da usina
+      - name: street_address
+        description: >-
+          Logradouro do endereço da usina
+      - name: zip_code
+        description: >-
+          CEP do endereço da usina
+      - name: latitude
+        description: >-
+          Latitude da usina em graus decimais
+      - name: longitude
+        description: >-
+          Longitude da usina em graus decimais
+      - name: balancing_authority_code
+        description: >-
+          Código da autoridade de balanceamento que despacha a usina
+      - name: balancing_authority_name
+        description: >-
+          Nome da autoridade de balanceamento
+      - name: nerc_region
+        description: >-
+          Região de confiabilidade da NERC
+      - name: iso_rto_code
+        description: >-
+          Código do operador independente do sistema ou organização regional
+          de transmissão
+      - name: sector_id
+        description: >-
+          Código do setor econômico da usina
+      - name: sector_name
+        description: >-
+          Nome do setor econômico da usina
+      - name: primary_purpose_naics_code
+        description: >-
+          Código NAICS da atividade econômica principal do estabelecimento
+      - name: regulatory_status_code
+        description: >-
+          Situação regulatória da usina
+      - name: service_area
+        description: >-
+          Área de concessão declarada
+      - name: water_source
+        description: >-
+          Fonte de água de resfriamento declarada
+      - name: grid_voltage_1_kv
+        description: >-
+          Tensão do primeiro ponto de conexão à rede
+      - name: grid_voltage_2_kv
+        description: >-
+          Tensão do segundo ponto de conexão à rede
+      - name: grid_voltage_3_kv
+        description: >-
+          Tensão do terceiro ponto de conexão à rede
+      - name: ferc_cogen_status
+        description: >-
+          Indica se a usina é cogeradora qualificada junto à FERC
+      - name: ferc_small_power_producer
+        description: >-
+          Indica se a usina é pequena produtora qualificada junto à FERC
+      - name: ferc_exempt_wholesale_generator
+        description: >-
+          Indica se a usina é geradora atacadista isenta junto à FERC
+      - name: transmission_distribution_owner_id
+        description: >-
+          Código da empresa dona da rede de transmissão ou distribuição de
+          conexão
+      - name: transmission_distribution_owner_name
+        description: >-
+          Nome da empresa dona da rede de conexão
+      - name: transmission_distribution_owner_state
+        description: >-
+          Sigla do estado da empresa dona da rede de conexão
+      - name: natural_gas_pipeline_name_1
+        description: >-
+          Nome do primeiro gasoduto que abastece a usina
+      - name: natural_gas_pipeline_name_2
+        description: >-
+          Nome do segundo gasoduto que abastece a usina
+      - name: natural_gas_pipeline_name_3
+        description: >-
+          Nome do terceiro gasoduto que abastece a usina
+      - name: natural_gas_local_distribution_company
+        description: >-
+          Distribuidora local de gás natural que atende a usina
+      - name: natural_gas_storage
+        description: >-
+          Indica se a usina dispõe de estocagem de gás natural
+      - name: liquefied_natural_gas_storage
+        description: >-
+          Indica se a usina dispõe de estocagem de gás natural liquefeito
+      - name: ash_impoundment
+        description: >-
+          Indica se a usina opera bacia de cinzas
+      - name: ash_impoundment_lined
+        description: >-
+          Indica se a bacia de cinzas é impermeabilizada
+      - name: ash_impoundment_status
+        description: >-
+          Situação operacional da bacia de cinzas
+      - name: energy_storage
+        description: >-
+          Indica se a usina opera armazenamento de energia
+      - name: has_net_metering
+        description: >-
+          Indica se a usina opera sob medição líquida
+      - name: datum
+        description: >-
+          Datum geodésico das coordenadas declaradas
+      - name: data_maturity
+        description: >-
+          Grau de consolidação dos valores da linha
+  - name: us_eia_electricity__generator
+    description: >-
+      Um registro por gerador por ano-calendário, conforme o Anexo 3 do
+      Formulário EIA-860 da U.S. Energy Information Administration: capacidade
+      nominal, de verão e de inverno, máquina primária, combustíveis, datas de
+      entrada em operação e de aposentadoria, situação operacional e
+      tecnologia de combustão. A chave é (year, plant_id, generator_id):
+      generator_id é único apenas dentro de uma usina. A partir de 2009 o
+      formulário separa geradores em operação, propostos e aposentados em
+      planilhas distintas, unidas aqui em uma tabela só, com
+      generator_status_group registrando a origem; antes de 2009 o grupo é
+      derivado de operational_status_code pelo próprio vocabulário da EIA. Uma
+      soma de capacity_mw sobre a tabela inteira sem filtrar
+      generator_status_group soma capacidade instalada, proposta e aposentada
+      no mesmo número.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns:
+            - year
+            - plant_id
+            - generator_id
+            - generator_status_group
+          proportion_allowed_failures: 0.001
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          # Measured over the parquet by verify_parquet.py: each of
+          # these is a field the form began collecting part-way
+          # through the record, or one that applies to a small
+          # minority of rows by construction.
+          ignore_values:
+            - energy_source_code_3
+            - energy_source_code_4
+            - energy_source_code_5
+            - energy_source_code_6
+            - fluidized_bed_tech
+            - other_combustion_tech
+            - planned_new_capacity_mw
+            - planned_retirement_date
+            - pulverized_coal_tech
+            - stoker_tech
+            - subcritical_tech
+            - supercritical_tech
+            - ultrasupercritical_tech
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_eia_electricity__dicionario')
+          columns_covered_by_dictionary:
+            - generator_status_group
+            - operational_status_code
+            - ownership_code
+            - sector_id
+            - prime_mover_code
+            - technology_description
+            - energy_source_code_1
+            - energy_source_code_2
+            - energy_source_code_3
+            - energy_source_code_4
+            - energy_source_code_5
+            - energy_source_code_6
+            - can_burn_multiple_fuels
+            - can_cofire_fuels
+            - switch_oil_gas
+            - carbon_capture
+            - solid_fuel_gasification
+            - pulverized_coal_tech
+            - fluidized_bed_tech
+            - stoker_tech
+            - other_combustion_tech
+            - subcritical_tech
+            - supercritical_tech
+            - ultrasupercritical_tech
+            - duct_burners
+            - bypass_heat_recovery
+            - associated_combined_heat_power
+            - topping_bottoming_code
+            - synchronized_transmission_grid
+            - data_maturity
+    columns:
+      - name: year
+        description: >-
+          Ano-calendário do inventário
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: plant_id
+        description: >-
+          Código da usina geradora atribuído pela EIA
+        tests: [not_null]
+      - name: generator_id
+        description: >-
+          Identificador do gerador dentro da usina
+        tests: [not_null]
+      - name: plant_name
+        description: >-
+          Nome da usina tal como declarado
+      - name: utility_id
+        description: >-
+          Código da empresa operadora atribuído pela EIA
+      - name: utility_name
+        description: >-
+          Nome da empresa operadora
+      - name: state_abbreviation
+        description: >-
+          Sigla postal de duas letras do estado
+      - name: state_id
+        description: >-
+          Código FIPS de duas posições do estado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: county_name
+        description: >-
+          Nome do condado onde o gerador está localizado
+      - name: county_id
+        description: >-
+          Código FIPS de cinco posições do condado
+      - name: generator_status_group
+        description: >-
+          Grupo do gerador no formulário: em operação, proposto ou aposentado
+        tests: [not_null]
+      - name: operational_status_code
+        description: >-
+          Código da situação operacional do gerador
+      - name: unit_id
+        description: >-
+          Identificador da unidade a que o gerador pertence
+      - name: ownership_code
+        description: >-
+          Código da forma de propriedade do gerador
+      - name: sector_id
+        description: >-
+          Código do setor econômico da usina
+      - name: sector_name
+        description: >-
+          Nome do setor econômico da usina
+      - name: prime_mover_code
+        description: >-
+          Código da máquina primária do gerador
+      - name: technology_description
+        description: >-
+          Descrição da tecnologia de geração
+      - name: capacity_mw
+        description: >-
+          Capacidade nominal de placa do gerador
+      - name: summer_capacity_mw
+        description: >-
+          Capacidade líquida do gerador em condições de verão
+      - name: winter_capacity_mw
+        description: >-
+          Capacidade líquida do gerador em condições de inverno
+      - name: minimum_load_mw
+        description: >-
+          Carga mínima de operação estável do gerador
+      - name: planned_new_capacity_mw
+        description: >-
+          Capacidade de placa prevista para o gerador proposto
+      - name: turbines_num
+        description: >-
+          Número de turbinas do gerador
+      - name: turbines_inverters_hydrokinetics
+        description: >-
+          Número de turbinas, inversores ou dispositivos hidrocinéticos
+      - name: energy_source_code_1
+        description: >-
+          Código do primeiro combustível ou fonte de energia do gerador
+      - name: energy_source_code_2
+        description: >-
+          Código do segundo combustível ou fonte de energia do gerador
+      - name: energy_source_code_3
+        description: >-
+          Código do terceiro combustível ou fonte de energia do gerador
+      - name: energy_source_code_4
+        description: >-
+          Código do quarto combustível ou fonte de energia do gerador
+      - name: energy_source_code_5
+        description: >-
+          Código do quinto combustível ou fonte de energia do gerador
+      - name: energy_source_code_6
+        description: >-
+          Código do sexto combustível ou fonte de energia do gerador
+      - name: can_burn_multiple_fuels
+        description: >-
+          Indica se o gerador pode queimar mais de um combustível
+      - name: can_cofire_fuels
+        description: >-
+          Indica se o gerador pode co-queimar combustíveis
+      - name: switch_oil_gas
+        description: >-
+          Indica se o gerador pode alternar entre óleo e gás
+      - name: operating_date
+        description: >-
+          Data em que o gerador entrou em operação comercial
+      - name: retirement_date
+        description: >-
+          Data em que o gerador foi aposentado
+      - name: planned_retirement_date
+        description: >-
+          Data prevista de aposentadoria do gerador
+      - name: planned_operating_date
+        description: >-
+          Data prevista de entrada em operação do gerador proposto
+      - name: carbon_capture
+        description: >-
+          Indica se o gerador possui captura de carbono
+      - name: solid_fuel_gasification
+        description: >-
+          Indica se o gerador usa gaseificação de combustível sólido
+      - name: pulverized_coal_tech
+        description: >-
+          Indica tecnologia de carvão pulverizado
+      - name: fluidized_bed_tech
+        description: >-
+          Indica tecnologia de leito fluidizado
+      - name: stoker_tech
+        description: >-
+          Indica tecnologia de grelha alimentadora
+      - name: other_combustion_tech
+        description: >-
+          Indica outra tecnologia de combustão
+      - name: subcritical_tech
+        description: >-
+          Indica ciclo a vapor subcrítico
+      - name: supercritical_tech
+        description: >-
+          Indica ciclo a vapor supercrítico
+      - name: ultrasupercritical_tech
+        description: >-
+          Indica ciclo a vapor ultrassupercrítico
+      - name: duct_burners
+        description: >-
+          Indica presença de queimadores de duto
+      - name: bypass_heat_recovery
+        description: >-
+          Indica se a recuperação de calor pode ser contornada
+      - name: associated_combined_heat_power
+        description: >-
+          Indica se o gerador integra unidade de cogeração
+      - name: topping_bottoming_code
+        description: >-
+          Posição do gerador no ciclo de cogeração
+      - name: synchronized_transmission_grid
+        description: >-
+          Indica se o gerador é sincronizado com a rede de transmissão
+      - name: rto_iso_lmp_node_id
+        description: >-
+          Identificador do nó de preço marginal local no ISO ou RTO
+      - name: data_maturity
+        description: >-
+          Grau de consolidação dos valores da linha
+  - name: us_eia_electricity__generation_fuel
+    description: >-
+      Geração líquida de eletricidade e consumo de combustível por usina,
+      combustível, máquina primária e mês, conforme a página 1 do Formulário
+      EIA-923 da U.S. Energy Information Administration. A fonte publica esta
+      página em formato largo, com doze colunas por medida e um total anual;
+      aqui ela está em formato longo, uma linha por mês, e os totais anuais
+      foram descartados por serem a soma das doze colunas mensais. Um par
+      (linha, mês) em que todas as seis medidas são nulas é descartado, o que
+      é o que faz um ano parcial funcionar: o arquivo do ano corrente traz
+      doze colunas mas só reporta até o mês publicado. Um zero declarado é
+      mantido, porque significa que a usina não queimou combustível naquele
+      mês. As quantidades físicas de combustível estão em unidades que variam
+      por combustível, indicadas em fuel_unit; para agregar entre combustíveis
+      use as colunas em MMBtu. Respondentes anuais, identificados em
+      reporting_frequency_code, declaram o total do ano na coluna de dezembro.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - plant_id
+            - energy_source_code
+            - prime_mover_code
+            - nuclear_unit_id
+          proportion_allowed_failures: 0.05
+      - not_null_proportion_multiple_columns:
+          config:
+            # The macro reads every column of the model and runs at
+            # dbt compile, not only dbt test, so it is scoped to the
+            # most recent year on the two tables large enough for the
+            # scan to matter.
+            where: __most_recent_year__
+          at_least: 0.05
+          # Measured over the parquet by verify_parquet.py: each of
+          # these is a field the form began collecting part-way
+          # through the record, or one that applies to a small
+          # minority of rows by construction.
+          ignore_values: [nuclear_unit_id]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_eia_electricity__dicionario')
+          columns_covered_by_dictionary:
+            - census_region
+            - balancing_authority_code
+            - sector_id
+            - prime_mover_code
+            - energy_source_code
+            - fuel_type_code_agg
+            - associated_combined_heat_power
+            - reporting_frequency_code
+            - fuel_unit
+            - data_maturity
+    columns:
+      - name: year
+        description: >-
+          Ano-calendário do relatório
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: >-
+          Mês-calendário a que a observação se refere
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: plant_id
+        description: >-
+          Código da usina geradora atribuído pela EIA
+        tests: [not_null]
+      - name: plant_name
+        description: >-
+          Nome da usina tal como declarado
+      - name: operator_id
+        description: >-
+          Código do operador da usina atribuído pela EIA
+      - name: operator_name
+        description: >-
+          Nome do operador da usina
+      - name: state_abbreviation
+        description: >-
+          Sigla postal de duas letras do estado
+      - name: state_id
+        description: >-
+          Código FIPS de duas posições do estado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: census_region
+        description: >-
+          Região censitária dos Estados Unidos
+      - name: nerc_region
+        description: >-
+          Região de confiabilidade da NERC
+      - name: balancing_authority_code
+        description: >-
+          Código da autoridade de balanceamento que despacha a usina
+      - name: sector_id
+        description: >-
+          Código do setor econômico da usina
+      - name: sector_name
+        description: >-
+          Nome do setor econômico da usina
+      - name: naics_code
+        description: >-
+          Código NAICS da atividade econômica da usina
+      - name: prime_mover_code
+        description: >-
+          Código da máquina primária
+        tests: [not_null]
+      - name: energy_source_code
+        description: >-
+          Código do combustível ou fonte de energia consumida
+        tests: [not_null]
+      - name: fuel_type_code_agg
+        description: >-
+          Código agregado de combustível usado nas publicações da EIA
+      - name: nuclear_unit_id
+        description: >-
+          Identificador da unidade nuclear
+      - name: associated_combined_heat_power
+        description: >-
+          Indica se a geração provém de unidade de cogeração
+      - name: reporting_frequency_code
+        description: >-
+          Frequência com que o respondente declara o formulário
+      - name: fuel_unit
+        description: >-
+          Unidade física em que o combustível é declarado
+      - name: fuel_consumed_units
+        description: >-
+          Quantidade física total de combustível consumida no mês
+      - name: fuel_consumed_for_electricity_units
+        description: >-
+          Quantidade física de combustível consumida para geração de
+          eletricidade no mês
+      - name: fuel_mmbtu_per_unit
+        description: >-
+          Conteúdo energético médio por unidade física de combustível
+      - name: fuel_consumed_mmbtu
+        description: >-
+          Conteúdo energético total do combustível consumido no mês
+      - name: fuel_consumed_for_electricity_mmbtu
+        description: >-
+          Conteúdo energético do combustível consumido para geração de
+          eletricidade no mês
+      - name: net_generation_mwh
+        description: >-
+          Geração líquida de eletricidade no mês
+      - name: data_maturity
+        description: >-
+          Grau de consolidação dos valores da linha
+  - name: us_eia_electricity__fuel_receipts_costs
+    description: >-
+      Uma linha por entrega de combustível a uma usina de geração, conforme o
+      Anexo 2 Parte C do Formulário EIA-923 da U.S. Energy Information
+      Administration: quantidade recebida, conteúdo energético, custo
+      entregue, fornecedor, mina de origem, modo de transporte e teores de
+      enxofre, cinzas, umidade, mercúrio e cloro. O custo é publicado pela
+      fonte em centavos de dólar por MMBtu e está convertido para dólares em
+      fuel_cost_per_mmbtu; é o custo entregue na usina, com transporte
+      incluído, e está ausente onde a EIA o suprime por confidencialidade do
+      respondente. Uma entrega não tem identificador publicado e duas entregas
+      idênticas no mesmo mês são um fato da fonte, não um erro, de modo que a
+      tabela não afirma unicidade sobre nenhuma combinação de colunas.
+    tests:
+      - not_null_proportion_multiple_columns:
+          config:
+            # The macro reads every column of the model and runs at
+            # dbt compile, not only dbt test, so it is scoped to the
+            # most recent year on the two tables large enough for the
+            # scan to matter.
+            where: __most_recent_year__
+          at_least: 0.05
+          # Measured over the parquet by verify_parquet.py: each of
+          # these is a field the form began collecting part-way
+          # through the record, or one that applies to a small
+          # minority of rows by construction.
+          ignore_values: [secondary_transportation_mode_code]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_eia_electricity__dicionario')
+          columns_covered_by_dictionary:
+            - balancing_authority_code
+            - energy_source_code
+            - fuel_group_code
+            - contract_type_code
+            - mine_type_code
+            - primary_transportation_mode_code
+            - secondary_transportation_mode_code
+            - natural_gas_transport_code
+            - natural_gas_delivery_contract_type_code
+            - regulated
+            - reporting_frequency_code
+            - data_maturity
+    columns:
+      - name: year
+        description: >-
+          Ano-calendário do relatório
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: >-
+          Mês-calendário a que a observação se refere
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: plant_id
+        description: >-
+          Código da usina geradora atribuído pela EIA
+      - name: plant_name
+        description: >-
+          Nome da usina que recebeu o combustível
+      - name: state_abbreviation
+        description: >-
+          Sigla postal de duas letras do estado
+      - name: state_id
+        description: >-
+          Código FIPS de duas posições do estado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: operator_id
+        description: >-
+          Código do operador da usina atribuído pela EIA
+      - name: operator_name
+        description: >-
+          Nome do operador da usina
+      - name: balancing_authority_code
+        description: >-
+          Código da autoridade de balanceamento que despacha a usina
+      - name: energy_source_code
+        description: >-
+          Código do combustível recebido
+      - name: fuel_group_code
+        description: >-
+          Grupo de combustível: carvão, gás natural, petróleo ou outro
+      - name: contract_type_code
+        description: >-
+          Código do tipo de contrato de suprimento
+      - name: contract_expiration_date
+        description: >-
+          Data de expiração do contrato de suprimento
+      - name: supplier_name
+        description: >-
+          Nome do fornecedor do combustível
+      - name: mine_name
+        description: >-
+          Nome da mina de origem do carvão
+      - name: mine_id_msha
+        description: >-
+          Código da mina na Mine Safety and Health Administration
+      - name: mine_type_code
+        description: >-
+          Código do tipo de lavra da mina
+      - name: mine_state_abbreviation
+        description: >-
+          Sigla postal do estado da mina de origem
+      - name: mine_county_id
+        description: >-
+          Código FIPS de cinco posições do condado da mina
+      - name: primary_transportation_mode_code
+        description: >-
+          Código do modo principal de transporte do combustível
+      - name: secondary_transportation_mode_code
+        description: >-
+          Código do modo secundário de transporte do combustível
+      - name: natural_gas_transport_code
+        description: >-
+          Código do regime de transporte do gás natural: firme ou
+          interruptível
+      - name: natural_gas_delivery_contract_type_code
+        description: >-
+          Código do tipo de contrato de entrega de gás natural
+      - name: fuel_received_units
+        description: >-
+          Quantidade física de combustível recebida na entrega
+      - name: fuel_mmbtu_per_unit
+        description: >-
+          Conteúdo energético por unidade física do combustível recebido
+      - name: fuel_cost_per_mmbtu
+        description: >-
+          Custo do combustível entregue por milhão de BTU
+      - name: sulfur_content_pct
+        description: >-
+          Teor de enxofre do combustível recebido
+      - name: ash_content_pct
+        description: >-
+          Teor de cinzas do combustível recebido
+      - name: moisture_content_pct
+        description: >-
+          Teor de umidade do combustível recebido
+      - name: mercury_content_ppm
+        description: >-
+          Teor de mercúrio do combustível recebido
+      - name: chlorine_content_ppm
+        description: >-
+          Teor de cloro do combustível recebido
+      - name: regulated
+        description: >-
+          Indica se a entrega se destina a usina de tarifa regulada
+      - name: reporting_frequency_code
+        description: >-
+          Frequência com que o respondente declara o formulário
+      - name: data_maturity
+        description: >-
+          Grau de consolidação dos valores da linha
+  - name: us_eia_electricity__dicionario
+    description: >-
+      Registro dos valores assumidos pelas colunas codificadas das tabelas
+      plant, generator, generation_fuel e fuel_receipts_costs, com o
+      significado de cada código e a cobertura temporal em que ele aparece. Os
+      rótulos vêm dos vocabulários publicados pela EIA na forma em que o
+      projeto Public Utility Data Liberation os mantém. A coluna
+      cobertura_temporal é o que expõe a deriva do vocabulário: máquinas
+      primárias de armazenamento e eólica offshore, por exemplo, só aparecem
+      décadas depois do resto da lista.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+    columns:
+      - name: id_tabela
+        description: Nome da tabela a que a coluna codificada pertence
+        tests: [not_null]
+      - name: nome_coluna
+        description: Nome da coluna codificada
+        tests: [not_null]
+      - name: chave
+        description: Valor armazenado na coluna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: Anos em que o valor aparece, na notação início(intervalo)fim
+      - name: valor
+        description: Significado do valor armazenado
