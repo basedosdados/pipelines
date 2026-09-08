@@ -317,14 +317,58 @@ when called without an `id`.
 | table `clinical_study_link` | `d695a4e1-cd9f-4aa2-8494-6b229ee3233c` |
 | table `dicionario` | `145237e4-54af-4032-99df-3fc471c8c03d` |
 
-Two entity choices worth recording. `clinical_study_link`'s study level uses the
-`other` entity because the backend vocabulary has no clinical-study entity, and
-minting one is a change to shared reference data rather than a dataset decision.
 `patent_link` and `clinical_study_link` carry a `us` coverage with **no**
 datetime range: the source ships them as one snapshot covering every fiscal
 year with no date column, so a range would be a claim the data does not make.
 The pipeline's `NonHistorical()` spec derives one from the BigQuery table's
 last-modified on the first armed prod run.
+
+## Backend IDs (prod)
+
+Registered `status = under_review`, so the dataset is hidden from the public
+frontend until the PR merges, table-approve materialises
+`basedosdados.us_nih_reporter.*`, and the tables are verified. Publishing is
+step 13, a separate action.
+
+| what | id |
+|---|---|
+| dataset `nih_reporter` | `f17727fb-4553-40e1-a495-676805a878c1` |
+| raw source — annual bulk files | `bea1b1ad-f846-4327-8aca-140d89c26472` |
+| raw source — patents and clinical studies | `41ff2d80-c961-4651-b7d8-261be8435142` |
+| raw source — RePORTER API | `04ee1972-2720-4610-8a4c-ab9087ad1782` |
+| table `project` | `05237e77-d923-4607-a2d0-a024e3da7944` |
+| table `project_abstract` | `e4e395fc-43db-4405-8c6a-3b26fda577e0` |
+| table `publication` | `a71f40fb-ae16-431e-b30c-9a19ceff8050` |
+| table `publication_link` | `86e8ff88-7091-473f-a913-d7de3a099513` |
+| table `patent_link` | `6c2478f7-f977-4fe1-a283-47de9d9689fe` |
+| table `clinical_study_link` | `1de56866-0f01-40bb-821c-c04951e3dfe6` |
+| table `dicionario` | `3c9211c6-1aeb-425b-b6e4-7f0ad0219b20` |
+| account | `4` |
+
+**Reference ids are not interchangeable between the two environments, and the
+tag slugs are not either.** The `project` entity is `c5b8b0a3-…` on staging and
+`53374e81-…` on prod. Staging's tag vocabulary is Portuguese and prod's is
+English — `pesquisa` there is `research` here, on the same UUID — so
+`register_metadata.py` lists both spellings per tag and takes whichever the
+environment has, rather than resolving one slug and failing on the other.
+
+## The `clinical_study` entity
+
+Created for this dataset, under the `health` category alongside `aih`,
+`health_care_provider` and `notification`:
+`e98f8fd1-6928-4c39-a06c-f8974bc3f6f8` on staging,
+`991ca75f-4a62-4940-a2f2-36195318c78b` on prod. It is shared reference data, so
+any dataset with a clinical-trial grain should reuse it rather than fall back to
+`other`.
+
+`discover_ids` cannot read entity categories — it queries `allEntityCategory`
+and the schema calls the field `allEntitycategory` — so the category is resolved
+through `_gql` instead. That is the reason earlier onboardings recorded new
+entities as impossible to create.
+
+The staging observation level was rewritten in place rather than replaced: there
+is no MCP tool to delete an observation level, and the column's FK points at its
+id, so reusing the record keeps `nct_id` linked and leaves no orphan behind.
 
 **The three raw sources exist so each table has exactly one.**
 `client._raw_source_id` raises when a table has two or more, and both the poll

@@ -371,14 +371,28 @@ OBSERVATION_LEVELS = {
         ("article", "pmid"),
         ("project", "core_project_num"),
     ],
-    # No `clinical_study` entity exists in the backend vocabulary; `other` is
-    # the documented escape hatch and is used rather than minting one.
     "patent_link": [("patent", "patent_id"), ("project", "core_project_num")],
     "clinical_study_link": [
-        ("other", "nct_id"),
+        ("clinical_study", "nct_id"),
         ("project", "core_project_num"),
     ],
     "dicionario": [],
+}
+
+# Observation-level entities this dataset needs that the backend vocabulary does
+# not already carry, as slug -> (category slug, name_pt, name_en, name_es).
+# `clinical_study` joins the `health` category alongside aih,
+# health_care_provider and notification. It is shared reference data, so it is
+# created once per environment and reused, never re-created per dataset — and
+# its id differs between staging and prod, like several other entities, so it is
+# always resolved by slug rather than hardcoded.
+NEW_ENTITIES = {
+    "clinical_study": (
+        "health",
+        "Estudo clínico",
+        "Clinical study",
+        "Estudio clínico",
+    ),
 }
 
 DATETIME_RANGES = {
@@ -472,17 +486,37 @@ RAW_SOURCES = [
     ),
 ]
 
+# Tags, as the alternative slugs the same tag carries in each environment.
+# Staging's vocabulary is Portuguese and prod's is English, but the records are
+# the same — `pesquisa` on staging and `research` on prod share the UUID
+# 4ae52b90-…. So the tag is resolved by trying each spelling and taking the one
+# that environment has, rather than by hardcoding either. Every one of the nine
+# already exists in both; none is minted here.
 TAGS = [
-    "pesquisa",
-    "financiamento",
-    "gasto",
-    "academia",
-    "publicacao",
-    "propriedade_intelectual",
-    "medicina",
-    "inovacao",
-    "federal",
+    ("pesquisa", "research"),
+    ("financiamento", "financing"),
+    ("gasto", "spending"),
+    ("academia",),
+    ("publicacao", "publication"),
+    ("propriedade_intelectual", "intellectual_property"),
+    ("medicina", "medicine"),
+    ("inovacao", "innovation"),
+    ("federal",),
 ]
+
+
+def resolve_tags(available: dict) -> list[str]:
+    out = []
+    for alts in TAGS:
+        hit = next((available[s] for s in alts if s in available), None)
+        if hit is None:
+            raise SystemExit(
+                f"no tag found for any of {alts} in this environment"
+            )
+        out.append(hit)
+    return out
+
+
 THEMES = ["health", "science-technology"]
 
 
@@ -503,8 +537,36 @@ def main() -> int:
     status_published = ids["status"]["published"]
     license_cc0 = ids["license"]["cc0"]
     availability_online = ids["availability"]["online"]
-    entity = ids["entity"]
+    tag_ids = resolve_tags(ids["tag"])
+    entity = dict(ids["entity"])
     print(f"account={account} org={org} area={area_us}")
+
+    # Entity vocabulary this dataset needs but the backend does not have yet.
+    # discover_ids cannot read entity categories — its query asks for
+    # `allEntityCategory` and the schema calls the field `allEntitycategory` —
+    # so the category is resolved through _gql instead.
+    cats = {
+        e["node"]["slug"]: server._strip_id(e["node"]["id"])
+        for e in server._gql(
+            "query { allEntitycategory { edges { node { id slug } } } }",
+            {},
+            env=ENV,
+        )["allEntitycategory"]["edges"]
+    }
+    for slug, (category, name_pt, name_en, name_es) in NEW_ENTITIES.items():
+        if slug in entity:
+            print(f"entity {slug} -> {entity[slug]} (existing)")
+            continue
+        eid = server.create_update_entity(
+            slug=slug,
+            name_pt=name_pt,
+            name_en=name_en,
+            name_es=name_es,
+            category_id=cats[category],
+            env=ENV,
+        )["id"]
+        entity[slug] = eid
+        print(f"entity {slug} -> {eid} (created under {category})")
 
     existing = server.get_dataset(slug=DATASET_SLUG, env=ENV)
 
@@ -513,7 +575,7 @@ def main() -> int:
         **DATASET,
         organization_ids=[org],
         theme_ids=[ids["theme"][t] for t in THEMES],
-        tag_ids=[ids["tag"][t] for t in TAGS],
+        tag_ids=tag_ids,
         status_id=status_under_review,
         env=ENV,
     )
@@ -568,20 +630,39 @@ def main() -> int:
         table_ids[table] = tid
         print(f"\ntable {table} -> {tid}")
 
-        # observation levels
+        # Observation levels. An existing record is reused whenever one exists,
+        # including when its entity has changed: the entity is rewritten in
+        # place on the same observation-level id, rather than a second record
+        # being created beside the first. There is no MCP tool to delete an
+        # observation level, so a stale one would have to be removed by hand
+        # through GraphQL — and the column FK points at the id, so reusing it
+        # also keeps the column link intact.
+        want = [slug for slug, _c in OBSERVATION_LEVELS[table]]
         have_ol = {
             o.get("entity_id"): o["id"]
             for o in p.get("observation_levels", [])
         }
+        spare = [
+            oid
+            for eid, oid in have_ol.items()
+            if eid not in {entity[s] for s in want}
+        ]
         ol_ids = {}
         for slug, _col in OBSERVATION_LEVELS[table]:
             eid = entity[slug]
-            oid = server.create_update_observation_level(
-                id=have_ol.get(eid), table_id=tid, entity_id=eid, env=ENV
+            oid = have_ol.get(eid) or (spare.pop(0) if spare else None)
+            reused = " (rewritten)" if oid and eid not in have_ol else ""
+            ol_ids[slug] = server.create_update_observation_level(
+                id=oid, table_id=tid, entity_id=eid, env=ENV
             )["id"]
-            ol_ids[slug] = oid
+            if reused:
+                print(f"  observation level {slug}{reused}")
         if ol_ids:
             print(f"  observation levels: {list(ol_ids)}")
+        if spare:
+            print(
+                f"  WARNING: {len(spare)} stale observation level(s) left: {spare}"
+            )
 
         # columns
         with open(
@@ -713,7 +794,7 @@ def main() -> int:
             **DATASET,
             organization_ids=[org],
             theme_ids=[ids["theme"][t] for t in THEMES],
-            tag_ids=[ids["tag"][t] for t in TAGS],
+            tag_ids=tag_ids,
             status_id=status_published,
             env=ENV,
         )
