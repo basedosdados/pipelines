@@ -47,7 +47,7 @@ _COVERAGE = PartBdpro(
 
 
 @flow(name="br_fnde_fundeb", log_prints=True)
-def br_fnde_fundeb_flow(
+def br_fnde_fundeb(
     dataset_id: str = constants.DATASET_ID.value,
     materialize_to_prod: bool = True,
     update_metadata: bool = True,
@@ -135,9 +135,9 @@ def br_fnde_fundeb_flow(
 
 
 # pyrefly: ignore [missing-attribute]
-br_fnde_fundeb_flow.deploy_schedules = [
+br_fnde_fundeb.deploy_schedules = [
     {"cron": "17 10 5,12,19,26 * *", "timezone": "America/Sao_Paulo"}
 ]
 
 # pyrefly: ignore [missing-attribute]
-br_fnde_fundeb_flow.job_variables = {"memory": "4Gi"}
+br_fnde_fundeb.job_variables = {"memory": "4Gi"}
