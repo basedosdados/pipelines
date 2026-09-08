@@ -20,3 +20,6 @@ from {{ ref("br_bd_execucao_estadual__licitacao_mg") }}
 union all
 select *
 from {{ ref("br_bd_execucao_estadual__licitacao_ba") }}
+union all
+select *
+from {{ ref("br_bd_execucao_estadual__licitacao_es") }}
