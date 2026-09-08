@@ -44,6 +44,10 @@ PLAN: dict[
         # Measured 2026-09-08. ES carries a full `Data` on every expense row, so
         # unlike PE it is genuinely month-granular across the whole series.
         ("br_es", 2009, 1, 2026, 9),
+        # Measured 2026-09-08. Six months are absent from RS's own
+        # catalogue (2020-06/08, 2022-04, 2023-02/06/08), so the range is
+        # continuous but the series inside it is not.
+        ("br_rs", 2012, 1, 2026, 7),
     ],
     "pagamento": [("br_pe", 2008, 1, 2026, 8)],
     "despesa_mensal": [("br_ba", 2013, 1, 2026, 8)],
