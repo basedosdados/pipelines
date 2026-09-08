@@ -1,0 +1,191 @@
+"""Upload the cleaned us_eia_electricity parquet to BigQuery staging (basedosdados-dev).
+
+    python upload.py                    # every table
+    python upload.py plant generator    # selected tables
+
+Uses ``pipelines.utils.tasks._upload_to_gcs`` — the same helper the recurring flow
+calls — rather than ``bd.Table.create(path=<data>)`` or a BigQuery load job. That
+matters twice over:
+
+* ``_upload_to_gcs`` hands ``tb.create`` a 0-row header from ``dump_header`` and
+  streams the data files separately, so RAM stays flat.
+* It leaves staging as an **EXTERNAL** table over ``gs://<bucket>/staging/<ds>/<tbl>/*``.
+  A ``load_table_from_uri`` bootstrap would leave a NATIVE table instead, which
+  silently ignores every file a later pipeline run writes — dbt would keep serving
+  this bootstrap snapshot forever with no error and no failing test.
+
+``dump_mode="append"`` is deliberate: ``"overwrite"`` calls ``tb.delete(mode="all")``,
+which drops the production table too, even when invoked against dev.
+
+Requires GOOGLE_APPLICATION_CREDENTIALS pointing at a Data Basis dev service-account
+key and ~/.basedosdados/config.toml. The bucket is requester-pays, so
+``gcs.Client.bucket`` is patched to pin ``user_project`` to the billing project.
+"""
+
+import os
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(REPO_ROOT))
+
+import google.cloud.storage as gcs  # noqa: E402
+import pyarrow.parquet as pq  # noqa: E402
+from common import ALL_TABLES, DATASET_ID, OUTPUT  # noqa: E402
+from google.cloud import bigquery  # noqa: E402
+
+BILLING_PROJECT = "basedosdados-dev"
+BUCKET = "basedosdados-dev"
+
+# Every data table is hive-partitioned by report year; dicionario is a single
+# file. The expected file count is read from the parquet on disk rather than
+# hardcoded, because the year sets differ per table: EIA-860 runs 2001-2025,
+# EIA-923's generation_fuel runs 2001-2026, and its fuel_receipts_costs only
+# starts in 2008.
+MIN_FILES = {
+    "plant": 25,
+    "generator": 25,
+    "generation_fuel": 26,
+    "fuel_receipts_costs": 19,
+    "dicionario": 1,
+}
+
+
+_orig_bucket = gcs.Client.bucket
+
+
+def _patched_bucket(
+    self: gcs.Client, bucket_name: str, user_project: str | None = None
+) -> "gcs.Bucket":
+    """Return a bucket handle pinned to the billing project.
+
+    The Data Basis buckets are requester-pays, so every request must name a
+    project to bill. Patching the client is the least invasive way to apply that
+    to the uploads the basedosdados package makes internally.
+
+    Args:
+        self: The storage client the method is bound to.
+        bucket_name: Bucket to open.
+        user_project: Ignored; BILLING_PROJECT always wins.
+
+    Returns:
+        The bucket, with ``user_project`` set to BILLING_PROJECT.
+    """
+    return _orig_bucket(self, bucket_name, user_project=BILLING_PROJECT)
+
+
+gcs.Client.bucket = _patched_bucket
+
+from pipelines.utils.tasks import _upload_to_gcs  # noqa: E402
+
+
+def local_rows(table: str) -> tuple[int, int]:
+    """Count the rows and files of a table's local parquet.
+
+    Args:
+        table: Clean table slug.
+
+    Returns:
+        ``(row_count, file_count)``, read from the parquet footers.
+    """
+    files = sorted((OUTPUT / table).rglob("*.parquet"))
+    return sum(pq.ParquetFile(f).metadata.num_rows for f in files), len(files)
+
+
+def staging_rows(client: bigquery.Client, table: str) -> int:
+    """Count the rows BigQuery sees in the staging external table.
+
+    Args:
+        client: An authenticated BigQuery client.
+        table: Clean table slug.
+
+    Returns:
+        The row count of ``<billing project>.<dataset>_staging.<table>``.
+    """
+    ref = f"{BILLING_PROJECT}.{DATASET_ID}_staging.{table}"
+    return next(
+        iter(client.query(f"select count(*) n from `{ref}`").result())
+    ).n
+
+
+def upload(table: str) -> None:
+    """Upload one table's parquet to staging and verify what landed.
+
+    Args:
+        table: Clean table slug.
+
+    Raises:
+        SystemExit: If fewer partitions exist than expected, if the staging
+            table is NATIVE rather than EXTERNAL, if the staging row count does
+            not match the local one, or if the staging schema is not all-STRING.
+    """
+    expected, nfiles = local_rows(table)
+    print(
+        f"\n[{table}] local: {expected:,} rows across {nfiles} parquet file(s)"
+    )
+    if nfiles < MIN_FILES[table]:
+        raise SystemExit(
+            f"[{table}] expected at least {MIN_FILES[table]} parquet file(s), found "
+            f"{nfiles} — finish clean.py first"
+        )
+
+    _upload_to_gcs(
+        data_path=OUTPUT / table,
+        dataset_id=DATASET_ID,
+        table_id=table,
+        bucket_name=BUCKET,
+        dump_mode="append",
+        source_format="parquet",
+    )
+
+    client = bigquery.Client(project=BILLING_PROJECT)
+    ref = client.get_table(f"{BILLING_PROJECT}.{DATASET_ID}_staging.{table}")
+    got = staging_rows(client, table)
+    print(f"[{table}] staging: {got:,} rows, table_type={ref.table_type}")
+    if ref.table_type != "EXTERNAL":
+        raise SystemExit(
+            f"[{table}] staging table is {ref.table_type}, expected EXTERNAL — a "
+            "native table ignores the files a later pipeline run writes"
+        )
+    if got != expected:
+        raise SystemExit(
+            f"[{table}] ROW COUNT MISMATCH: {got:,} != {expected:,}"
+        )
+
+    # Staging must be all-STRING. dump_header infers the schema from the first
+    # parquet file it finds, and an unlucky one — a zero-row partition, or a
+    # column whose values all happen to look numeric — makes BigQuery autodetect
+    # a non-string type. Every real partition then fails to read with "has type
+    # BYTE_ARRAY which does not match the target cpp_type INT64", and the dbt
+    # model's safe_cast never gets the chance to run. Caught here rather than
+    # four minutes into a dbt build.
+    typed = [f.name for f in ref.schema if f.field_type != "STRING"]
+    if typed:
+        raise SystemExit(
+            f"[{table}] staging schema is not all-STRING: {typed} — drop the "
+            "staging table and its GCS prefix, then re-upload"
+        )
+    print(f"[{table}] OK")
+
+
+def main() -> None:
+    """Upload the tables named on the command line, or all of them.
+
+    Raises:
+        SystemExit: If GOOGLE_APPLICATION_CREDENTIALS is unset or an unknown
+            table is named.
+    """
+    if not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"):
+        raise SystemExit("GOOGLE_APPLICATION_CREDENTIALS is not set")
+    tables = sys.argv[1:] or ALL_TABLES
+    for t in tables:
+        if t not in ALL_TABLES:
+            raise SystemExit(
+                f"unknown table {t!r}; expected one of {ALL_TABLES}"
+            )
+        upload(t)
+    print("\nall uploads verified")
+
+
+if __name__ == "__main__":
+    main()
