@@ -9,7 +9,6 @@ from prefect import task
 
 from pipelines.datasets.br_pncp.constants import constants
 from pipelines.datasets.br_pncp.utils import (
-    build_dicionario,
     clean_table,
     harvest,
 )
@@ -59,24 +58,6 @@ def clean_window(work_dir: str, input_dir: str, table: str) -> dict:
         flush=True,
     )
     return summary
-
-
-@task
-def build_dicionario_task(work_dir: str) -> dict:
-    """Rebuild the dicionario from whatever fact tables this run produced.
-
-    Returns:
-        ``data_path`` and the row count, shaped like a cleaning summary so the
-        flow can treat it uniformly.
-    """
-    output_dir = Path(work_dir) / "output"
-    rows = build_dicionario(output_dir)
-    return {
-        "table": "dicionario",
-        "written_rows": rows,
-        "years": [],
-        "data_path": str(output_dir / "dicionario"),
-    }
 
 
 @task

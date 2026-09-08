@@ -25,7 +25,13 @@ from pathlib import Path
 # home; this script is the one-shot onboarding front end for it.
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from pipelines.datasets.br_pncp.utils import DEDUP_KEYS, read_architecture
+from pipelines.datasets.br_pncp.utils import (
+    DEDUP_KEYS,
+    DICIONARIO_DERIVED,
+    DICIONARIO_HARDCODED,
+    DICIONARIO_HARDCODED_TABLES,
+    read_architecture,
+)
 
 DATASET = "br_pncp"
 MODELS_DIR = Path(__file__).resolve().parents[1]
@@ -121,6 +127,101 @@ DESCRIPTIONS = {
 }
 
 
+def _quote(value: str) -> str:
+    """A BigQuery single-quoted string literal."""
+    return "'" + value.replace("\\", "\\\\").replace("'", "\\'") + "'"
+
+
+def dicionario_sql() -> str:
+    """Build the dicionario by reading the fact models, not a staging table.
+
+    It used to be harvested: `build_dicionario` scanned the cleaned parquet a
+    run had just produced, wrote `dicionario/data.parquet`, and uploaded it.
+    That is correct exactly once -- for the backfill, whose output *is* the
+    whole table. On an incremental run the cleaned output is one lookback
+    window, so the dictionary was rebuilt from ten days of data and shrank to
+    whatever those days happened to contain. The first dev run took it from
+    222 rows to 162 and left 44 codes in contratacao with no entry, which is
+    what custom_dictionary_coverage then caught.
+
+    Deriving it here makes that unrepresentable. The dictionary is a function
+    of the materialized tables, so it cannot describe a different population
+    from the one it documents, and it needs no upload path of its own.
+
+    Two things to keep in mind when editing the generated SQL:
+
+    - UNION ALL resolves positionally, not by name. Every branch must select
+      the five columns in architecture order; a reordered branch corrupts the
+      table silently rather than failing.
+    - A code can carry more than one label when a publisher's free text drifts
+      (the same id_situacao_compra with two spellings). QUALIFY keeps one row
+      per (id_tabela, nome_coluna, chave) deterministically, so the table
+      stays a real key -> value map.
+    """
+    branches: list[str] = []
+
+    for table, pairs in DICIONARIO_DERIVED.items():
+        if table not in TABLES:
+            # plano_contratacao_anual is deferred and has no model to read.
+            continue
+        for code_col, label_col in pairs:
+            branches.append(
+                "        select\n"
+                f"            {_quote(table)} id_tabela,\n"
+                f"            {_quote(code_col)} nome_coluna,\n"
+                f"            safe_cast({code_col} as string) chave,\n"
+                "            '' cobertura_temporal,\n"
+                f"            safe_cast({label_col} as string) valor\n"
+                f"        from {{{{ ref('{DATASET}__{table}') }}}}\n"
+                f"        where {code_col} is not null and {label_col} is not null"
+            )
+
+    literals: list[str] = []
+    for column, mapping in DICIONARIO_HARDCODED.items():
+        for table in DICIONARIO_HARDCODED_TABLES[column]:
+            if table not in TABLES:
+                continue
+            for code, label in mapping.items():
+                literals.append(
+                    "            struct("
+                    f"{_quote(table)} as id_tabela, "
+                    f"{_quote(column)} as nome_coluna, "
+                    f"{_quote(code)} as chave, "
+                    "'' as cobertura_temporal, "
+                    f"{_quote(label)} as valor)"
+                )
+
+    return (
+        "{{\n"
+        "    config(\n"
+        f'        schema="{DATASET}",\n'
+        '        alias="dicionario",\n'
+        '        materialized="table",\n'
+        "    )\n"
+        "}}\n\n\n"
+        "-- Derived from the fact models rather than from staging, so the\n"
+        "-- dictionary always describes exactly the data it documents. See\n"
+        "-- gen_dbt.dicionario_sql for why.\n"
+        "with\n"
+        "    derived as (\n"
+        + "\n        union all\n".join(branches)
+        + "\n    ),\n"
+        "    -- Codes the API never labels; source: PNCP manual de integração.\n"
+        "    hardcoded as (\n"
+        "        select * from unnest([\n"
+        + ",\n".join(literals)
+        + "\n        ])\n"
+        "    )\n"
+        "select id_tabela, nome_coluna, chave, cobertura_temporal, valor\n"
+        "from (select * from derived union all select * from hardcoded)\n"
+        "qualify\n"
+        "    row_number() over (\n"
+        "        partition by id_tabela, nome_coluna, chave order by valor\n"
+        "    )\n"
+        "    = 1\n"
+    )
+
+
 def sql_for(table: str) -> str:
     cols = read_architecture(table)
     key_cols, recency_col = DEDUP_KEYS.get(table, (None, None))
@@ -130,23 +231,14 @@ def sql_for(table: str) -> str:
         for c in cols
     )
 
+    if table == "dicionario":
+        return dicionario_sql()
+
     if table not in PARTITIONED:
-        # dicionario is small and derived; a full rebuild each run is cheaper
-        # than the machinery to make it incremental.
-        return (
-            "{{\n"
-            "    config(\n"
-            f'        schema="{DATASET}",\n'
-            f'        alias="{table}",\n'
-            '        materialized="table",\n'
-            "    )\n"
-            "}}\n\n\n"
-            "select\n"
-            f"{selects}\n"
-            "from\n"
-            f'    {{{{ set_datalake_project("{DATASET}_staging.{table}") }}}}\n'
-            "    as t\n"
-        )
+        # A non-partitioned fact table would still read staging; none exists
+        # today, so reaching here means a table was added without deciding
+        # how it is built.
+        raise KeyError(f"{table} is neither partitioned nor the dicionario")
 
     start, end = PARTITIONED[table]
     if key_cols is None or recency_col is None:

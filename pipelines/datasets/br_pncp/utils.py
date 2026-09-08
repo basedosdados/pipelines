@@ -45,7 +45,7 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -679,6 +679,7 @@ def clean_table(
     table: str,
     replace: bool = True,
     batch_rows: int = int(os.environ.get("PNCP_BATCH_ROWS", "50000")),
+    run_stamp: str | None = None,
 ) -> dict:
     """Stream one table's raw chunks into partitioned all-STRING parquet.
 
@@ -697,9 +698,27 @@ def clean_table(
     are open at a time. Several parts per partition directory are fine — a
     hive-partitioned external table reads every file in the directory.
 
+    **Part names carry a run stamp, and that is load-bearing.** They used to be
+    ``data_0000.parquet`` numbered from zero on every run. Locally that is
+    harmless: ``replace=True`` clears the tree first, and an incremental run
+    writes into its own temporary directory. In GCS it is silent data loss --
+    ``upload_to_gcs(dump_mode="append")`` uploads by name into a prefix that
+    already holds the backfill, so an incremental run's part 0 *overwrites* the
+    backfill's part 0 in every partition it touches. The first dev run of this
+    pipeline destroyed one ~50,000-row part per year that way, taking staging
+    contratacao from 4,003,718 rows to 3,799,298 and ano=2021 from 7,236 rows
+    to 8. Nothing failed; dbt rebuilt the partitions from what was left.
+
+    A stamp makes each run's parts distinct, so append means append. Rerunning
+    on the same day reuses that day's stamp and overwrites only its own files,
+    which keeps a retry idempotent. Parts from different days accumulate, which
+    is correct rather than wasteful: the models carry an unconditional QUALIFY
+    on the PNCP control number, so duplicates across runs collapse.
+
     Args:
         input_dir: Root holding ``<table>/*.jsonl.gz``.
-        output_dir: Root to write ``<table>/ano=<year>/data_NNNN.parquet`` under.
+        output_dir: Root to write
+            ``<table>/ano=<year>/data_<stamp>_NNNN.parquet`` under.
         table: Table slug.
         replace: Remove the table's existing output tree first. True for the
             one-shot backfill, where the run produces the complete table. False
@@ -721,6 +740,7 @@ def clean_table(
         ``written_rows`` counts rows *before* deduplication, which is what
         staging will contain; the materialized table will hold fewer.
     """
+    stamp = run_stamp or datetime.now(UTC).strftime("%Y%m%d")
     columns = read_architecture(table)
     names = [c["name"] for c in columns]
     file_names = [n for n in names if n != "ano"]
@@ -750,7 +770,7 @@ def clean_table(
         ]
         pq.write_table(
             pa.Table.from_arrays(arrays, schema=schema),
-            target / f"data_{index:04d}.parquet",
+            target / f"data_{stamp}_{index:04d}.parquet",
             compression="snappy",
         )
         return len(rows)
@@ -782,6 +802,12 @@ def clean_table(
 # dicionario
 # --------------------------------------------------------------------------- #
 
+# These two mappings are read by models/br_pncp/code/gen_dbt.py, which turns
+# them into the dicionario dbt model. Nothing builds the dicionario in Python
+# any more: deriving it from a cleaned harvest was correct for the backfill and
+# silently wrong for every incremental run, which rebuilt it from a ten-day
+# window. See gen_dbt.dicionario_sql.
+#
 # table -> [(code column, label column)] where PNCP ships the label alongside
 # the code, so the dictionary is derived from the data and cannot drift from it.
 DICIONARIO_DERIVED = {
@@ -831,88 +857,3 @@ DICIONARIO_HARDCODED_TABLES = {
     "id_poder": ["contratacao", "contrato"],
     "tipo_pessoa_fornecedor": ["contrato"],
 }
-
-
-def distinct_pairs(
-    output_dir: Path, table: str, code_col: str, label_col: str
-) -> dict:
-    """Read the distinct code -> label pairs present in a cleaned table."""
-    import pyarrow.dataset as pa_ds
-
-    table_dir = output_dir / table
-    if not table_dir.exists():
-        return {}
-    dataset = pa_ds.dataset(table_dir, format="parquet", partitioning="hive")
-    if (
-        code_col not in dataset.schema.names
-        or label_col not in dataset.schema.names
-    ):
-        return {}
-    scanned = dataset.to_table(columns=[code_col, label_col])
-    pairs: dict[str, str] = {}
-    for code, label in zip(
-        scanned.column(code_col).to_pylist(),
-        scanned.column(label_col).to_pylist(),
-        strict=True,
-    ):
-        if code is None or label is None:
-            continue
-        pairs.setdefault(str(code), str(label))
-    return pairs
-
-
-def build_dicionario(output_dir: Path) -> int:
-    """Rebuild the dicionario table from the cleaned fact tables.
-
-    Returns the number of dictionary rows written.
-    """
-    rows: list[dict] = []
-
-    for table, pairs_spec in DICIONARIO_DERIVED.items():
-        for code_col, label_col in pairs_spec:
-            mapping = distinct_pairs(output_dir, table, code_col, label_col)
-            for code, label in sorted(
-                mapping.items(), key=lambda kv: (len(kv[0]), kv[0])
-            ):
-                rows.append(
-                    {
-                        "id_tabela": table,
-                        "nome_coluna": code_col,
-                        "chave": code,
-                        "cobertura_temporal": "",
-                        "valor": label,
-                    }
-                )
-            print(
-                f"  dicionario {table}.{code_col}: {len(mapping)} keys",
-                flush=True,
-            )
-
-    for column, mapping in DICIONARIO_HARDCODED.items():
-        for table in DICIONARIO_HARDCODED_TABLES[column]:
-            for code, label in mapping.items():
-                rows.append(
-                    {
-                        "id_tabela": table,
-                        "nome_coluna": column,
-                        "chave": code,
-                        "cobertura_temporal": "",
-                        "valor": label,
-                    }
-                )
-
-    names = [c["name"] for c in read_architecture("dicionario")]
-    target = output_dir / "dicionario"
-    target.mkdir(parents=True, exist_ok=True)
-    arrays = [
-        pa.array([r.get(n) for r in rows], type=pa.string()) for n in names
-    ]
-    pq.write_table(
-        pa.Table.from_arrays(
-            arrays, schema=pa.schema([(n, pa.string()) for n in names])
-        ),
-        target / "data.parquet",
-        compression="snappy",
-    )
-    print(f"  dicionario: {len(rows):,} rows", flush=True)
-    return len(rows)

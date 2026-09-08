@@ -11,6 +11,7 @@ import gzip
 import itertools
 import json
 from datetime import date, timedelta
+from pathlib import Path
 
 import pyarrow.dataset as ds
 import pytest
@@ -1186,4 +1187,147 @@ class TestJobVariablesReachThePod:
         )
         assert not unknown, (
             f"not variables of the work pool template: {sorted(unknown)}"
+        )
+
+
+class TestPartNamesDoNotCollideAcrossRuns:
+    """Part names carry a run stamp because `append` uploads by name.
+
+    `upload_to_gcs(dump_mode="append")` uploads each local file into a staging
+    prefix that already holds the backfill. When both runs number their parts
+    from zero, the incremental run's `data_0000.parquet` *replaces* the
+    backfill's in every partition it touches, and nothing reports it: dbt then
+    rebuilds those partitions from what survived.
+
+    That is not hypothetical. The first dev run of this pipeline (2026-09-08)
+    destroyed one ~50,000-row part per year -- staging contratacao 4,003,718 ->
+    3,799,298 rows, ano=2021 7,236 -> 8 -- and the only symptom was a
+    dictionary-coverage test failing for an unrelated-looking reason.
+    """
+
+    def _write(self, tmp_path, name, control, stamp):
+        target = tmp_path / f"in_{name}" / "contrato"
+        target.mkdir(parents=True)
+        with gzip.open(target / "w.jsonl.gz", "wt", encoding="utf-8") as fh:
+            fh.write(
+                json.dumps(
+                    {
+                        "numeroControlePNCP": control,
+                        "dataPublicacaoPncp": "2024-05-01T00:00:00",
+                        "dataAtualizacaoGlobal": "2024-05-01T00:00:00",
+                    }
+                )
+                + "\n"
+            )
+        utils.clean_table(
+            tmp_path / f"in_{name}",
+            tmp_path / f"out_{name}",
+            "contrato",
+            run_stamp=stamp,
+        )
+        return {
+            p.name
+            for p in (tmp_path / f"out_{name}" / "contrato" / "ano=2024").glob(
+                "*.parquet"
+            )
+        }
+
+    def test_two_runs_write_disjoint_part_names(self, tmp_path):
+        backfill = self._write(tmp_path, "a", "A-1/2024", "20260907")
+        daily = self._write(tmp_path, "b", "B-1/2024", "20260908")
+
+        assert backfill and daily
+        assert not (backfill & daily), (
+            "both runs wrote the same part name, so uploading the second into "
+            f"the first's staging prefix would overwrite it: {backfill & daily}"
+        )
+
+    def test_a_same_day_retry_reuses_its_own_names(self, tmp_path):
+        first = self._write(tmp_path, "c", "A-1/2024", "20260908")
+        retry = self._write(tmp_path, "d", "A-1/2024", "20260908")
+
+        # Deliberate: a retry should replace its own files rather than pile up
+        # a second copy of the same window.
+        assert first == retry
+
+    def test_the_stamp_defaults_to_something(self, tmp_path):
+        names = self._write(tmp_path, "e", "A-1/2024", None)
+        assert names, "no part written"
+        name = next(iter(names))
+        assert name != "data_0000.parquet", (
+            "the default part name is the pre-fix one, so a run that does not "
+            "pass run_stamp still collides with the backfill"
+        )
+
+
+class TestDicionarioIsDerivedFromTheModels:
+    """The dicionario must read the fact models, never a harvest window.
+
+    `build_dicionario` scanned the parquet a run had just cleaned. For the
+    backfill that output *is* the whole table, so it was right; for an
+    incremental run it is one lookback window, so the dictionary was rebuilt
+    from ten days and shrank to whatever those days contained -- 222 rows to
+    162 on the first dev run, leaving 44 codes in contratacao undocumented.
+    """
+
+    def _sql(self):
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "pncp_gen_dbt",
+            Path(__file__).resolve().parents[4]
+            / "models"
+            / "br_pncp"
+            / "code"
+            / "gen_dbt.py",
+        )
+        assert spec and spec.loader
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module, module.dicionario_sql()
+
+    def test_it_reads_the_models_and_not_staging(self):
+        _, sql = self._sql()
+        assert "set_datalake_project" not in sql, (
+            "the dicionario is reading a staging table again, which is the "
+            "upload path that made it drift"
+        )
+        assert "ref(" in sql
+
+    def test_every_derivable_pair_that_has_a_model_is_present(self):
+        module, sql = self._sql()
+        for table, pairs in utils.DICIONARIO_DERIVED.items():
+            for code_col, _ in pairs:
+                if table not in module.TABLES:
+                    # plano_contratacao_anual is deferred: no model to read.
+                    assert f"'{code_col}' nome_coluna" not in sql
+                    continue
+                assert f"'{code_col}' nome_coluna" in sql, (
+                    f"{table}.{code_col} is derivable but absent from the "
+                    "dicionario model"
+                )
+
+    def test_one_row_per_key_survives_a_label_that_drifts(self):
+        _, sql = self._sql()
+        # A publisher's free text can spell the same code two ways; without
+        # this the table stops being a key -> value map.
+        assert "qualify" in sql
+        assert "partition by id_tabela, nome_coluna, chave" in sql
+
+    def test_nothing_uploads_the_dicionario(self):
+        assert "dicionario" not in constants.FACT_TABLES.value
+        assert "dicionario" in constants.ALL_TABLES.value
+        # ...and it is built last, after the models it reads.
+        assert constants.ALL_TABLES.value[-1] == "dicionario"
+
+        flows_src = (
+            Path(__file__).resolve().parents[1] / "flows.py"
+        ).read_text()
+        upload_block = flows_src[flows_src.index("uploads = ") :]
+        assert "uploads = constants.FACT_TABLES.value" in upload_block
+        assert "data_path=summaries[table]" in upload_block
+        assert "for table in tables:\n                upload_to_gcs" not in (
+            flows_src
+        ), (
+            "the upload loop is back on ALL_TABLES, which has no dicionario data"
         )

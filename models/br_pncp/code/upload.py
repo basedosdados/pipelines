@@ -48,16 +48,18 @@ OUTPUT_ROOT = DATA_ROOT / "output"
 # Derived from constants rather than hardcoded: a deferred table (see
 # constants.DEFERRED_TABLES) has no cleaned output, and uploading it would
 # create an empty staging table that the dbt model then reads.
+#
+# The dicionario is NOT uploaded: it is a dbt model derived from the fact
+# models (see gen_dbt.dicionario_sql), so it has no staging table.
 _PREFERRED = [
-    "dicionario",
     "instrumento_cobranca",
     "ata_registro_preco",
     "contratacao",
     "contrato",
 ]
-_SCOPED = set(constants.ALL_TABLES.value)
+_SCOPED = set(constants.FACT_TABLES.value)
 TABLE_ORDER = [t for t in _PREFERRED if t in _SCOPED] + [
-    t for t in constants.ALL_TABLES.value if t not in _PREFERRED
+    t for t in constants.FACT_TABLES.value if t not in _PREFERRED
 ]
 
 # Requester-pays bucket: force user_project onto every bucket handle.
@@ -78,13 +80,7 @@ def expected_rows() -> dict[str, int]:
     if not summary_path.exists():
         raise SystemExit(f"missing {summary_path}; run clean.py first")
     summary = json.loads(summary_path.read_text(encoding="utf-8"))
-    counts = {s["table"]: s["written_rows"] for s in summary}
-    dicionario = OUTPUT_ROOT / "dicionario" / "data.parquet"
-    if dicionario.exists():
-        import pyarrow.parquet as pq
-
-        counts["dicionario"] = pq.read_metadata(dicionario).num_rows
-    return counts
+    return {s["table"]: s["written_rows"] for s in summary}
 
 
 def upload_table(slug: str, expected: int) -> int:

@@ -22,7 +22,6 @@ from prefect import flow
 
 from pipelines.datasets.br_pncp.constants import constants
 from pipelines.datasets.br_pncp.tasks import (
-    build_dicionario_task,
     clean_window,
     harvest_window,
     max_publication_date,
@@ -155,8 +154,6 @@ def br_pncp_flow(
             )
             return
 
-        summaries["dicionario"] = build_dicionario_task(work_dir=work_dir)
-
         source_max_date = max_publication_date(
             summaries=[summaries[t] for t in constants.FACT_TABLES.value]
         )
@@ -189,10 +186,15 @@ def br_pncp_flow(
             }
         )
         dbt_vars = {"pncp_years": ",".join(str(y) for y in touched_years)}
+        # Only the fact tables have data to upload. The dicionario is a dbt
+        # model over those tables (see gen_dbt.dicionario_sql), so it is built
+        # and tested but never uploaded -- and, being last in ALL_TABLES, it is
+        # built after the models it reads.
+        uploads = constants.FACT_TABLES.value
         tables = constants.ALL_TABLES.value
 
         if not materialize_to_prod:
-            for table in tables:
+            for table in uploads:
                 upload_to_gcs(
                     data_path=summaries[table]["data_path"],
                     dataset_id=DATASET_ID,
@@ -201,6 +203,7 @@ def br_pncp_flow(
                     dump_mode="append",
                     source_format="parquet",
                 )
+            for table in tables:
                 run_dbt(
                     dataset_id=DATASET_ID,
                     table_id=table,
@@ -221,7 +224,7 @@ def br_pncp_flow(
                 )
             return
 
-        for table in tables:
+        for table in uploads:
             upload_to_gcs(
                 data_path=summaries[table]["data_path"],
                 dataset_id=DATASET_ID,
@@ -230,6 +233,7 @@ def br_pncp_flow(
                 dump_mode="append",
                 source_format="parquet",
             )
+        for table in tables:
             run_dbt(
                 dataset_id=DATASET_ID,
                 table_id=table,
