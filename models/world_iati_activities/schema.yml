@@ -46,6 +46,7 @@ models:
           ignore_values:
             - budget_not_provided_code
             - budget_not_provided_name
+            - linked_data_uri
             - crs_channel_code
     columns:
       - name: registry_dataset_id
@@ -151,12 +152,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, budget_id]
-          config:
-            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          config:
-            where: __most_recent_year_en__
     columns:
       - name: year
         description: Ano da data de referência da linha, derivado pela Data Basis
@@ -169,8 +166,6 @@ models:
           - relationships:
               to: ref('world_iati_activities__registry_dataset')
               field: registry_dataset_id
-              config:
-                where: __most_recent_year_en__
       - name: publisher_id
         description: Identificador da organização publicadora no Registro IATI
       - name: budget_id
@@ -182,8 +177,6 @@ models:
           - relationships:
               to: ref('world_iati_activities__activity')
               field: activity_id
-              config:
-                where: __most_recent_year_en__
       - name: iati_identifier
         description: Identificador global e único da atividade, atribuído pela organização
           que a reporta
@@ -448,13 +441,14 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, planned_disbursement_id]
-          config:
-            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values: [receiver_org_type_name]
-          config:
-            where: __most_recent_year_en__
+          ignore_values:
+            - provider_activity_id
+            - receiver_org_id
+            - receiver_activity_id
+            - receiver_org_type_code
+            - receiver_org_type_name
     columns:
       - name: year
         description: Ano da data de referência da linha, derivado pela Data Basis
@@ -467,8 +461,6 @@ models:
           - relationships:
               to: ref('world_iati_activities__registry_dataset')
               field: registry_dataset_id
-              config:
-                where: __most_recent_year_en__
       - name: publisher_id
         description: Identificador da organização publicadora no Registro IATI
       - name: planned_disbursement_id
@@ -480,8 +472,6 @@ models:
           - relationships:
               to: ref('world_iati_activities__activity')
               field: activity_id
-              config:
-                where: __most_recent_year_en__
       - name: iati_identifier
         description: Identificador global e único da atividade, atribuído pela organização
           que a reporta
@@ -842,13 +832,9 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, result_indicator_period_id]
-          config:
-            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [target_value, actual_value]
-          config:
-            where: __most_recent_year_en__
     columns:
       - name: year
         description: Ano da data de referência da linha, derivado pela Data Basis
@@ -861,8 +847,6 @@ models:
           - relationships:
               to: ref('world_iati_activities__registry_dataset')
               field: registry_dataset_id
-              config:
-                where: __most_recent_year_en__
       - name: publisher_id
         description: Identificador da organização publicadora no Registro IATI
       - name: result_indicator_period_id
@@ -874,8 +858,6 @@ models:
           - relationships:
               to: ref('world_iati_activities__activity')
               field: activity_id
-              config:
-                where: __most_recent_year_en__
       - name: iati_identifier
         description: Identificador global e único da atividade, atribuído pela organização
           que a reporta
@@ -890,16 +872,12 @@ models:
           - relationships:
               to: ref('world_iati_activities__result')
               field: result_id
-              config:
-                where: __most_recent_year_en__
       - name: result_indicator_id
         description: Identificador do indicador a que o período pertence
         tests:
           - relationships:
               to: ref('world_iati_activities__result_indicator')
               field: result_indicator_id
-              config:
-                where: __most_recent_year_en__
       - name: period_start_date
         description: Data de início do período de medição
       - name: period_end_date
@@ -967,16 +945,12 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, transaction_id]
-          config:
-            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
             - recipient_region_name
             - recipient_region_vocabulary_code
             - recipient_region_vocabulary_name
-          config:
-            where: __most_recent_year_en__
     columns:
       - name: year
         description: Ano da data de referência da linha, derivado pela Data Basis
@@ -989,8 +963,6 @@ models:
           - relationships:
               to: ref('world_iati_activities__registry_dataset')
               field: registry_dataset_id
-              config:
-                where: __most_recent_year_en__
       - name: publisher_id
         description: Identificador da organização publicadora no Registro IATI
       - name: transaction_id
@@ -1002,8 +974,6 @@ models:
           - relationships:
               to: ref('world_iati_activities__activity')
               field: activity_id
-              config:
-                where: __most_recent_year_en__
       - name: iati_identifier
         description: Identificador global e único da atividade, atribuído pela organização
           que a reporta
@@ -1103,8 +1073,6 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          config:
-            where: __most_recent_year_en__
     columns:
       - name: year
         description: Ano da data de referência da linha, derivado pela Data Basis
@@ -1117,8 +1085,6 @@ models:
           - relationships:
               to: ref('world_iati_activities__registry_dataset')
               field: registry_dataset_id
-              config:
-                where: __most_recent_year_en__
       - name: publisher_id
         description: Identificador da organização publicadora no Registro IATI
       - name: transaction_id
@@ -1127,16 +1093,12 @@ models:
           - relationships:
               to: ref('world_iati_activities__transaction')
               field: transaction_id
-              config:
-                where: __most_recent_year_en__
       - name: activity_id
         description: Identificador da atividade a que a linha pertence
         tests:
           - relationships:
               to: ref('world_iati_activities__activity')
               field: activity_id
-              config:
-                where: __most_recent_year_en__
       - name: iati_identifier
         description: Identificador global e único da atividade, atribuído pela organização
           que a reporta

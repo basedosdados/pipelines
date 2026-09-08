@@ -85,6 +85,7 @@ IGNORE_SPARSE = {
     "activity": [
         "budget_not_provided_code",  # 1.58%
         "budget_not_provided_name",  # 1.58%
+        "linked_data_uri",  # 3.02%
         "crs_channel_code",  # 0.67%
     ],
     "transaction": [
@@ -93,8 +94,14 @@ IGNORE_SPARSE = {
         "recipient_region_vocabulary_name",  # 0.40%
     ],
     "transaction_sector": ["vocabulary_uri"],  # 0.01%
-    "planned_disbursement": ["receiver_org_type_name"],  # 3.03%
-    "policy_marker": ["vocabulary_uri"],  # 2.08%
+    "planned_disbursement": [
+        "provider_activity_id",  # 2.83%
+        "receiver_org_id",  # 0.29%
+        "receiver_activity_id",  # 0.13%
+        "receiver_org_type_code",  # 3.03%
+        "receiver_org_type_name",  # 3.03%
+    ],
+    "policy_marker": ["vocabulary_uri"],  # 1.27%
     "document_link": ["description"],  # 3.31%
     "result_indicator_period": [
         "target_value",  # 0.02%
@@ -102,9 +109,6 @@ IGNORE_SPARSE = {
     ],
 }
 
-
-# Table descriptions live in tables.py, shared with register_metadata.py, so
-# the dbt description and the backend description cannot drift apart.
 DESCRIPTION = {k: v["description_pt"] for k, v in TABLES.items()}
 
 
@@ -165,18 +169,13 @@ def write_schema(tables):
     out = ["---\n", "version: 2\n", "models:\n"]
     for table in tables:
         cols = load(table)
-        partitioned = table in PARTITIONED
-        # The wide, tall tables get their tests scoped to the most recent
-        # partition: the null-proportion test compiles a scan of every column,
-        # which is a full-table read on 24.6M rows otherwise.
-        # `config` belongs INSIDE the test's own mapping, alongside its
-        # arguments — a sibling key makes dbt refuse to parse the file with
-        # "test definition dictionary must have exactly one key".
-        scope = (
-            "          config:\n            where: __most_recent_year_en__\n"
-            if partitioned
-            else ""
-        )
+        # No test is scoped with `where: __most_recent_year_en__`. That keyword
+        # resolves to max(year), and these partition columns are not a calendar:
+        # a handful of publisher data-entry errors push max(year) to 2031 for
+        # transaction (64 rows), 2100 for budget (2 rows) and 2064 for
+        # planned_disbursement (3 rows). Scoping there tests noise — the
+        # null-proportion test reported 13 sparse columns off a 3-row partition —
+        # so every test reads the whole table.
         out.append(f"  - name: {DATASET}__{table}\n")
         out.append("    description: >\n")
         out.append(f"      {DESCRIPTION[table]}\n")
@@ -187,16 +186,12 @@ def write_schema(tables):
                 "          combination_of_columns: "
                 f"[{', '.join(UNIQUE_KEY[table])}]\n"
             )
-            if scope:
-                out.append(scope)
         out.append("      - not_null_proportion_multiple_columns:\n")
         out.append("          at_least: 0.05\n")
         for col in IGNORE_SPARSE.get(table, []):
             if col == IGNORE_SPARSE[table][0]:
                 out.append("          ignore_values:\n")
             out.append(f"            - {col}\n")
-        if scope:
-            out.append(scope)
         out.append("    columns:\n")
         for c in cols:
             out.append(f"      - name: {c['name']}\n")
@@ -216,11 +211,6 @@ def write_schema(tables):
                 out.append("          - relationships:\n")
                 out.append(f"              to: ref('{DATASET}__{fk}')\n")
                 out.append(f"              field: {c['name']}\n")
-                if partitioned:
-                    out.append("              config:\n")
-                    out.append(
-                        "                where: __most_recent_year_en__\n"
-                    )
             elif tests:
                 out.append(f"        tests: [{', '.join(tests)}]\n")
     (MODEL_DIR / "schema.yml").write_text("".join(out), encoding="utf-8")
