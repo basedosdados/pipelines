@@ -139,6 +139,24 @@ def refresh_es(work_dir: str, year: int, full: bool) -> None:
     clean_es.main()
 
 
+def refresh_rs(work_dir: str, year: int, full: bool) -> None:
+    """Rio Grande do Sul, year-scoped like MG and ES.
+
+    RS publishes one ZIP per month per exercise, so a scoped run re-fetches only the
+    open years' twelve archives. The conversion is the expensive half: ~36 GB expanded
+    across the full series, one archive at a time.
+    """
+    _ensure_code_on_path(work_dir)
+    # pyrefly: ignore [missing-import]
+    import clean_rs
+
+    # pyrefly: ignore [missing-import]
+    import download_rs
+
+    download_rs.main(years=_years(year, full))
+    clean_rs.main()
+
+
 def refresh_sp(work_dir: str, year: int, full: bool) -> None:
     """São Paulo, scraped one (exercise, órgão) at a time.
 
@@ -166,6 +184,7 @@ REFRESHERS = {
     "BA": refresh_ba,
     "PE": refresh_pe,
     "ES": refresh_es,
+    "RS": refresh_rs,
     "SP": refresh_sp,
 }
 
