@@ -621,6 +621,9 @@ models:
     us_census_acs:
       +materialized: table
       +schema: us_census_acs
+    us_dol_oflc:
+      +materialized: table
+      +schema: us_dol_oflc
     us_ed_college_scorecard:
       +materialized: table
       +schema: us_ed_college_scorecard
