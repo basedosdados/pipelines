@@ -37,3 +37,6 @@ from {{ ref("br_bd_execucao_estadual__despesa_pe") }}
 union all
 select *
 from {{ ref("br_bd_execucao_estadual__despesa_pe_legado") }}
+union all
+select *
+from {{ ref("br_bd_execucao_estadual__despesa_es") }}
