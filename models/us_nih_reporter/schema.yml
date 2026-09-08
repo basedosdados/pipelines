@@ -20,9 +20,7 @@ models:
       detalhe científico registrado aqui.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - year
-            - application_id
+          combination_of_columns: [year, application_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           # Scoped to the newest partition: the test scans
@@ -53,8 +51,7 @@ models:
       - name: application_id
         description: >-
           Identificador único do registro do projeto na base RePORTER
-        tests:
-          - not_null
+        tests: [not_null]
       - name: full_project_num
         description: >-
           Número completo do projeto, formado pelo tipo de solicitação, código
@@ -229,9 +226,7 @@ models:
       publicado.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - year
-            - application_id
+          combination_of_columns: [year, application_id]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           # Scoped to the newest partition: the test scans
@@ -253,8 +248,7 @@ models:
       - name: application_id
         description: >-
           Identificador único do registro do projeto na base RePORTER
-        tests:
-          - not_null
+        tests: [not_null]
       - name: abstract_text
         description: >-
           Resumo da pesquisa realizada no projeto
@@ -269,9 +263,7 @@ models:
       projetos que financiaram a publicação está em publication_link.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - year
-            - pmid
+          combination_of_columns: [year, pmid]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           # Scoped to the newest partition: the test scans
@@ -293,8 +285,7 @@ models:
       - name: pmid
         description: >-
           Identificador único da publicação no PubMed
-        tests:
-          - not_null
+        tests: [not_null]
       - name: pmc_id
         description: >-
           Identificador único do artigo no PubMed Central
@@ -349,10 +340,7 @@ models:
       um ano fiscal de financiamento.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - year
-            - pmid
-            - core_project_num
+          combination_of_columns: [year, pmid, core_project_num]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           # Scoped to the newest partition: the test scans
@@ -374,14 +362,12 @@ models:
       - name: pmid
         description: >-
           Identificador único da publicação no PubMed
-        tests:
-          - not_null
+        tests: [not_null]
       - name: core_project_num
         description: >-
           Identificador do projeto de pesquisa citado como fonte de apoio da
           publicação
-        tests:
-          - not_null
+        tests: [not_null]
   - name: us_nih_reporter__patent_link
     description: >-
       Um registro por par de patente e projeto de pesquisa reconhecido como
@@ -397,10 +383,7 @@ models:
       presentes em project.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - patent_id
-            - core_project_num
-            - patent_org_name
+          combination_of_columns: [patent_id, core_project_num, patent_org_name]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -408,14 +391,12 @@ models:
         description: >-
           Número da patente no banco de patentes concedidas do escritório de
           patentes e marcas dos Estados Unidos
-        tests:
-          - not_null
+        tests: [not_null]
       - name: core_project_num
         description: >-
           Identificador do projeto de pesquisa reconhecido como apoio ao
           desenvolvimento da patente
-        tests:
-          - not_null
+        tests: [not_null]
       - name: patent_title
         description: >-
           Título da patente
@@ -435,23 +416,19 @@ models:
       de extração do arquivo.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - nct_id
-            - core_project_num
+          combination_of_columns: [nct_id, core_project_num]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
       - name: nct_id
         description: >-
           Identificador do estudo clínico no registro ClinicalTrials.gov
-        tests:
-          - not_null
+        tests: [not_null]
       - name: core_project_num
         description: >-
           Identificador do projeto de pesquisa reconhecido como apoio ao
           estudo clínico
-        tests:
-          - not_null
+        tests: [not_null]
       - name: study_title
         description: >-
           Título do estudo clínico conforme consta do ClinicalTrials.gov
@@ -470,10 +447,7 @@ models:
       não o NIH.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - id_tabela
-            - nome_coluna
-            - chave
+          combination_of_columns: [id_tabela, nome_coluna, chave]
     columns:
       - name: id_tabela
         description: >-
