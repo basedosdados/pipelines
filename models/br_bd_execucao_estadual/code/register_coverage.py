@@ -164,8 +164,14 @@ def apply(env: str) -> None:
     dataset = server.get_dataset(slug="execucao_estadual", env=env)
     for slug, entries in PLAN.items():
         table = dataset["tables"][slug]
-        existing = table["coverages"]
-        for i, (area, y0, m0, y1, m1) in enumerate(entries):
+        # Matched BY AREA, never by position. The backend does not return coverages in
+        # PLAN order -- on `licitacao` it has br_mg before br_ba where PLAN has BA
+        # first -- so an index-based pairing writes each state's range onto another
+        # state's coverage record. The end state happened to come out right only
+        # because every entry was rewritten in the same pass; a PLAN shorter than the
+        # backend's list, or a failure midway, would leave ranges on the wrong states.
+        existing = {c["area_slug"]: c for c in table["coverages"]}
+        for area, y0, m0, y1, m1 in entries:
             # Reuse the coverage already on the table where there is one: the backend has
             # no delete-coverage tool, and duplicates break CreateUpdateTable later.
             kwargs = {
@@ -173,8 +179,9 @@ def apply(env: str) -> None:
                 "area_id": areas[area],
                 "env": env,
             }
-            if i < len(existing):
-                kwargs["id"] = existing[i]["id"]
+            prior_cov = existing.get(area)
+            if prior_cov:
+                kwargs["id"] = prior_cov["id"]
             coverage = server.create_update_coverage(**kwargs)
             if y0 is None:
                 print(f"  {slug:24} {area}  no range")
@@ -188,11 +195,7 @@ def apply(env: str) -> None:
             }
             if m0:
                 rng.update(start_month=m0, end_month=m1)
-            prior = (
-                existing[i].get("datetime_ranges")
-                if i < len(existing)
-                else None
-            )
+            prior = prior_cov.get("datetime_ranges") if prior_cov else None
             if prior:
                 rng["id"] = prior[0]["id"]
             server.create_update_datetime_range(**rng)
