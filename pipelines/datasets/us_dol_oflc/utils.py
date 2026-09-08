@@ -481,11 +481,25 @@ def fiscal_year_of(name: str) -> int | None:
 
 
 def local_name(program: str, name: str) -> str:
-    """Local file name for a source workbook, matching the crosswalk key."""
+    """Local file name for a source workbook.
+
+    Two source files must never collapse onto one name — that silently replaces
+    one with the other. A fiscal year can legitimately be published as several
+    files: one per quarter, and in a form-transition year one per form version
+    (PERM FY2024, H-2A FY2025), so both are carried into the name.
+
+    The crosswalk is resolved by column layout rather than by this name, so the
+    name only has to be unique, not to match anything.
+    """
     fy = fiscal_year_of(name)
     quarter = re.search(r"_Q([1-4])", name, re.I)
-    suffix = f"q{quarter.group(1)}" if quarter and fy and fy >= 2020 else ""
-    return f"{program}_{fy}{suffix}{Path(name).suffix}"
+    parts = [program, str(fy)]
+    if quarter and fy and fy >= 2020:
+        parts.append(f"q{quarter.group(1)}")
+    form = re.search(r"(new|old)[_ ]form", name, re.I)
+    if form:
+        parts.append(form.group(1).lower())
+    return "".join([parts[0], "_", "".join(parts[1:])]) + Path(name).suffix
 
 
 # --------------------------------------------------------------------------
@@ -528,10 +542,23 @@ def download_fiscal_years(
     session = _session()
     input_dir.mkdir(parents=True, exist_ok=True)
     got: list[Path] = []
-    for name, url in sorted(list_source_files(program).items()):
-        fy = fiscal_year_of(name)
-        if fy not in years:
-            continue
+    wanted = {
+        name: url
+        for name, url in sorted(list_source_files(program).items())
+        if fiscal_year_of(name) in years
+    }
+    # A collision would silently replace one source file with another, so it is
+    # an error rather than something to resolve by ordering.
+    names: dict[str, str] = {}
+    for name in wanted:
+        local = local_name(program, name)
+        if local in names:
+            raise UnknownLayoutError(
+                f"{program}: {name} and {names[local]} both map to {local}. "
+                f"Two source files cannot share one local name."
+            )
+        names[local] = name
+    for name, url in wanted.items():
         dest = input_dir / local_name(program, name)
         if dest.exists() and dest.stat().st_size > 10_000:
             got.append(dest)

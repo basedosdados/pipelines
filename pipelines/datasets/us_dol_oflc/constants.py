@@ -32,13 +32,23 @@ class constants(Enum):
     IMPERSONATE = "chrome"
     BASE_URL = "https://www.dol.gov"
 
-    # Link text on the performance page is inconsistent, so files are found by
-    # matching the href against these patterns, one per program.
+    # Files are found by matching the published file name against these
+    # patterns, one per program. They are anchored and deliberately narrow: the
+    # performance page publishes companion workbooks beside each disclosure file
+    # — LCA Appendix A and Worksites, the H-2A Addendums, the H-2B Appendixes —
+    # which carry different layouts and, under a looser pattern, collapse onto
+    # the same local name and overwrite the file we actually want.
+    #
+    # Only the case-level disclosure file is matched, and only in the modern
+    # naming the pipeline ever sees: the historical layouts (H-1B_Case_Data_FY2008,
+    # Icert_ LCA_ FY2009, LCA_FY2012_Q4 …) were onboarded once and are never
+    # re-fetched, because a run only ever touches the open fiscal year and the
+    # one before it.
     FILE_PATTERNS = {
-        "lca": r"(LCA|H-1B|H1B|Icert)[_ ].*(Disclosure|Case_Data|iCert|FY)",
-        "perm": r"PERM.*(Disclosure|FY)",
-        "h2a": r"H-?2A.*(Disclosure|FY)",
-        "h2b": r"H-?2B.*(Disclosure|FY)",
+        "lca": r"^LCA_Disclosure_Data_FY_?\d{4}(_Q[1-4])?\.xlsx?$",
+        "perm": r"^PERM_Disclosure_Data_(New_Form_)?FY_?\d{4}(_Q[1-4])?\.xlsx?$",
+        "h2a": r"^H-?2A_Disclosure_Data_FY_?\d{4}(_Q[1-4])?(_(new|old)_form)?\.xlsx?$",
+        "h2b": r"^H-?2B_Disclosure_(Data_)?FY_?\d{4}(_Q[1-4])?\.xlsx?$",
     }
 
     # A fiscal year is frozen once its final file has landed and the year is
