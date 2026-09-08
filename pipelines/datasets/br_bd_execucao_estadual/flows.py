@@ -61,6 +61,13 @@ DATASET_ID = constants.DATASET_ID.value
 # once per state would run the same model twice for no gain.
 # ES is per-year bulk CSV like MG, so it belongs in the daily group rather
 # than the weekly one, which exists only for SP's per-(exercise, orgao) scrape.
+# RS is deliberately absent from BOTH schedules, though `refresh_rs` exists and works.
+#
+# `dados.rs.gov.br` refused a residential Australian ISP outright while answering from a
+# university range, and has since gone unreachable again -- the reachability is
+# path-dependent, and whether a GKE worker can reach it AT ALL is untested. Scheduling
+# it before that is known would fail the daily run every day and bury the states that do
+# work. Add "RS" here once a flow run has actually fetched from the cluster.
 DAILY_STATES = ["MG", "BA", "PE", "ES"]
 WEEKLY_STATES = ["SP"]
 
