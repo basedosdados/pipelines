@@ -146,7 +146,8 @@ models:
   - name: world_iati_activities__budget
     description: >
       Orçamentos declarados em cada atividade, por período. Uma linha por período
-      orçamentário. Particionada pelo ano de period_start_date
+      orçamentário. Particionada pelo ano de period_start_date, que se estende ao
+      futuro porque os orçamentos são prospectivos
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, budget_id]
@@ -835,7 +836,9 @@ models:
   - name: world_iati_activities__result_indicator_period
     description: >
       Períodos de medição de cada indicador, com meta e valor efetivo. Uma linha por
-      período. Particionada pelo ano de period_start_date
+      período. Particionada pelo ano de period_start_date. 5.600 linhas trazem 1900
+      como ano de início, um valor sentinela de publicadores, e ficam fora da cobertura
+      declarada
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, result_indicator_period_id]
@@ -1096,8 +1099,7 @@ models:
       linha por combinação de transação, setor, país e região. Particionada pelo ano
       de transaction_date. Não tem chave única: um publicador pode declarar o mesmo
       setor ou o mesmo receptor duas vezes na mesma atividade, e a decomposição então
-      repete a combinação de transação, setor, país e região com valores distintos
-      — 441.215 linhas, 1,79% da tabela
+      repete a combinação com valores distintos — 441.215 linhas, 1,79% da tabela
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05

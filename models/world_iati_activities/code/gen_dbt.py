@@ -12,6 +12,7 @@ import csv
 import json
 
 from common import ARCH_DIR, OUTPUT, REPO_ROOT
+from tables import TABLES
 
 DATASET = "world_iati_activities"
 MODEL_DIR = REPO_ROOT / "models" / DATASET
@@ -102,100 +103,9 @@ IGNORE_SPARSE = {
 }
 
 
-DESCRIPTION = {
-    "registry_dataset": (
-        "Conjuntos de dados registrados no Registro IATI, com a licença "
-        "declarada por cada organização publicadora. É a tabela de "
-        "proveniência e de licenciamento à qual todas as demais se ligam. "
-        "Inclui os conjuntos não comerciais, cujas linhas foram removidas das "
-        "demais tabelas, e os conjuntos que o Bulk Data Service não conseguiu "
-        "baixar (is_downloaded falso), que não têm linhas em nenhuma outra "
-        "tabela"
-    ),
-    "activity": (
-        "Atividades de cooperação e ajuda internacional publicadas no padrão "
-        "IATI. Uma linha por atividade. É a tabela de topo: todas as demais, "
-        "exceto organisation e registry_dataset, ligam-se a ela por activity_id"
-    ),
-    "transaction": (
-        "Transações financeiras declaradas em cada atividade, incluindo "
-        "compromissos, desembolsos, gastos e reembolsos. Uma linha por "
-        "transação. Particionada pelo ano de transaction_date"
-    ),
-    "transaction_breakdown": (
-        "Decomposição de cada transação em partes proporcionais por setor e "
-        "por destino geográfico, seguindo a metodologia do Country Development "
-        "Finance Data. Uma linha por combinação de transação, setor, país e "
-        "região. Particionada pelo ano de transaction_date. Não tem chave "
-        "única: um publicador pode declarar o mesmo setor ou o mesmo receptor "
-        "duas vezes na mesma atividade, e a decomposição então repete a "
-        "combinação de transação, setor, país e região com valores distintos "
-        "— 441.215 linhas, 1,79% da tabela"
-    ),
-    "transaction_sector": (
-        "Setores declarados diretamente em cada transação, antes da "
-        "decomposição proporcional. Uma linha por setor de cada transação"
-    ),
-    "budget": (
-        "Orçamentos declarados em cada atividade, por período. Uma linha por "
-        "período orçamentário. Particionada pelo ano de period_start_date"
-    ),
-    "planned_disbursement": (
-        "Desembolsos planejados em cada atividade, por período. Uma linha por "
-        "período. Particionada pelo ano de period_start_date"
-    ),
-    "sector": (
-        "Setores atribuídos a cada atividade, com a parcela da atividade que "
-        "cabe a cada um. Uma linha por setor de cada atividade"
-    ),
-    "recipient_country": (
-        "Países receptores de cada atividade, com a parcela da atividade que "
-        "cabe a cada um. Uma linha por país de cada atividade"
-    ),
-    "recipient_region": (
-        "Regiões receptoras de cada atividade, com a parcela da atividade que "
-        "cabe a cada uma. Uma linha por região de cada atividade"
-    ),
-    "participating_org": (
-        "Organizações que participam de cada atividade e o papel de cada uma, "
-        "entre financiador, responsável, extensor e executor. Uma linha por "
-        "participação"
-    ),
-    "related_activity": (
-        "Ligações declaradas entre atividades, como atividade-mãe, filha, irmã "
-        "e cofinanciada. Uma linha por ligação. A atividade referenciada pode "
-        "não existir nesta base"
-    ),
-    "policy_marker": (
-        "Marcadores de política atribuídos a cada atividade, como igualdade de "
-        "gênero e mitigação climática, com o grau em que são objetivo da "
-        "atividade. Uma linha por marcador de cada atividade"
-    ),
-    "document_link": (
-        "Documentos associados a cada atividade, com endereço, formato e "
-        "título. Uma linha por documento. Os endereços são declarados pelo "
-        "publicador e não são verificados"
-    ),
-    "location": (
-        "Locais subnacionais associados a cada atividade, com coordenadas "
-        "quando declaradas. Uma linha por local de cada atividade"
-    ),
-    "result": (
-        "Resultados declarados em cada atividade, entre produto, efeito e "
-        "impacto. Uma linha por resultado"
-    ),
-    "result_indicator": (
-        "Indicadores de cada resultado. Uma linha por indicador"
-    ),
-    "result_indicator_period": (
-        "Períodos de medição de cada indicador, com meta e valor efetivo. Uma "
-        "linha por período. Particionada pelo ano de period_start_date"
-    ),
-    "organisation": (
-        "Organizações que publicam arquivos de organização no padrão IATI, "
-        "distintos dos arquivos de atividade. Uma linha por organização"
-    ),
-}
+# Table descriptions live in tables.py, shared with register_metadata.py, so
+# the dbt description and the backend description cannot drift apart.
+DESCRIPTION = {k: v["description_pt"] for k, v in TABLES.items()}
 
 
 def load(table):
