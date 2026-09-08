@@ -50,7 +50,14 @@ def c(
     obs=("", "", ""),
 ):
     """One architecture row. Descriptions are capitalised and carry no trailing
-    period, per .claude/rules/data-basis-style.md."""
+    period, per .claude/rules/data-basis-style.md.
+
+    ``directory`` is a Data Basis *directory* foreign key and is left empty
+    throughout this dataset: the tables reference each other, not a
+    br_bd_diretorios_* table, and an unresolved directory_column gets the whole
+    column dropped at registration. The intra-dataset relationships are enforced
+    by the dbt relationships tests in schema.yml.
+    """
     for text in (pt, en, es):
         assert (text and text[0].isupper()) or text[0].isdigit(), text
         assert not text.endswith("."), text
@@ -104,7 +111,6 @@ def registry_dataset_id():
         "Identificador do conjunto de dados no Registro IATI de onde a linha veio",
         "Identifier of the dataset in the IATI Registry the row came from",
         "Identificador del conjunto de datos en el Registro IATI del que proviene la fila",
-        directory="world_iati_activities.registry_dataset:registry_dataset_id",
         obs=(
             "Resolve para https://www.iatiregistry.org/dataset/<valor>",
             "Resolves to https://www.iatiregistry.org/dataset/<value>",
@@ -164,9 +170,6 @@ def activity_id(raw="_link_activity", primary=False):
             "Identificador único de la actividad en esta base"
             if primary
             else "Identificador de la actividad a la que pertenece la fila"
-        ),
-        directory=(
-            "" if primary else "world_iati_activities.activity:activity_id"
         ),
         obs=(
             "Chave sintética atribuída pelo IATI Tables (_link). Não é estável entre execuções: use iati_identifier para acompanhar uma atividade ao longo do tempo",
@@ -922,7 +925,6 @@ SPEC["transaction_breakdown"] = [
         "Identificador do conjunto de dados no Registro IATI de onde a linha veio",
         "Identifier of the dataset in the IATI Registry the row came from",
         "Identificador del conjunto de datos en el Registro IATI del que proviene la fila",
-        directory="world_iati_activities.registry_dataset:registry_dataset_id",
         obs=(
             "Esta tabela não traz a coluna dataset na fonte; ela é obtida pela Data Basis unindo transaction_id à tabela transaction",
             "The source table carries no dataset column; Data Basis obtains it by joining transaction_id to the transaction table",
@@ -937,7 +939,6 @@ SPEC["transaction_breakdown"] = [
         "Identificador da transação que esta linha decompõe",
         "Identifier of the transaction this row breaks down",
         "Identificador de la transacción que esta fila descompone",
-        directory="world_iati_activities.transaction:transaction_id",
     ),
     activity_id(),
     iati_identifier(),
@@ -1011,7 +1012,6 @@ SPEC["transaction_sector"] = [
         "Identificador da transação a que o setor foi atribuído",
         "Identifier of the transaction the sector was attributed to",
         "Identificador de la transacción a la que se atribuyó el sector",
-        directory="world_iati_activities.transaction:transaction_id",
     ),
     *vocabulary_cols("de setores usado", "sector", "de sectores usado"),
     *pair(
@@ -1514,7 +1514,6 @@ SPEC["result_indicator"] = [
         "Identificador do resultado a que o indicador pertence",
         "Identifier of the result the indicator belongs to",
         "Identificador del resultado al que pertenece el indicador",
-        directory="world_iati_activities.result:result_id",
     ),
     *pair(
         "measure",
@@ -1567,7 +1566,6 @@ SPEC["result_indicator_period"] = [
         "Identificador do resultado a que o período pertence",
         "Identifier of the result the period belongs to",
         "Identificador del resultado al que pertenece el período",
-        directory="world_iati_activities.result:result_id",
     ),
     c(
         "result_indicator_id",
@@ -1576,7 +1574,6 @@ SPEC["result_indicator_period"] = [
         "Identificador do indicador a que o período pertence",
         "Identifier of the indicator the period belongs to",
         "Identificador del indicador al que pertenece el período",
-        directory="world_iati_activities.result_indicator:result_indicator_id",
     ),
     c(
         "period_start_date",
@@ -1635,7 +1632,6 @@ SPEC["organisation"] = [
         "Identificador do conjunto de dados no Registro IATI de onde a linha veio",
         "Identifier of the dataset in the IATI Registry the row came from",
         "Identificador del conjunto de datos en el Registro IATI del que proviene la fila",
-        directory="world_iati_activities.registry_dataset:registry_dataset_id",
     ),
     publisher_id(),
     c(
