@@ -422,8 +422,6 @@ models:
       - name: patent_org_name
         description: >-
           Nome da organização ou pessoa titular da patente
-        tests:
-          - not_null
   - name: us_nih_reporter__clinical_study_link
     description: >-
       Um registro por par de estudo clínico e projeto de pesquisa reconhecido

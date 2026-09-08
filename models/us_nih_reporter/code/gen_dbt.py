@@ -54,6 +54,17 @@ KEYS = {
 # there is no ignore_values list anywhere in this schema.
 SCOPED_NULL_TEST = set(PARTITIONED_TABLES)
 
+# Columns that carry a not_null test. This is the key minus the columns the
+# source leaves blank — it is deliberately not derived from KEYS.
+#
+# patent_org_name participates in patent_link's uniqueness but is blank on 2,343
+# of 92,936 rows (2.52%): NIH does not always name the patent's owner. The
+# triple stays unique regardless — at most one row of each duplicated
+# patent-project pair has a blank owner — so uniqueness is enforced and
+# not_null is not.
+NOT_NULL = {t: list(k) for t, k in KEYS.items()}
+NOT_NULL["patent_link"] = ["patent_id", "core_project_num"]
+
 TABLE_NAMES = {
     "project": ("Projeto", "Project", "Proyecto"),
     "project_abstract": (
@@ -255,7 +266,7 @@ def write_schema() -> None:
             lines.append("        description: >-")
             lines.append(_block(c.description_pt, 10))
             tests = []
-            if c.name in KEYS[table]:
+            if c.name in NOT_NULL[table]:
                 tests.append("not_null")
             rels = []
             if c.name == "year":
