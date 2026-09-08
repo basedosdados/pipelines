@@ -35,47 +35,70 @@ MCP = "/Users/rdahis/Dropbox/BD/mcp"
 # (area slug, start_year, start_month, end_year, end_month).
 # A None month means the range is year-granular; None years mean no range at all, which is
 # correct for the two tables that carry no date column.
+# One entry per (table, area). The second element is a LIST of ranges, because a
+# state's series is not always continuous: Rio Grande do Sul is missing six months
+# that its own catalogue does not publish, and a single 2012-2026 range would promise
+# data that is not there.
+#
+# Multiple RANGES rather than multiple coverages: a Coverage is keyed by area, so
+# duplicating it for one state produces ambiguous records the backend has no tool to
+# delete, and duplicates break CreateUpdateTable later. DateTimeRange is the repeating
+# child meant for exactly this.
+#
+# `None` in place of the list means the table carries no date column at all.
 PLAN: dict[
-    str, list[tuple[str, int | None, int | None, int | None, int | None]]
+    str, list[tuple[str, list[tuple[int, int | None, int, int | None]] | None]]
 ] = {
     "despesa": [
-        ("br_mg", 2002, 1, 2026, 8),
-        ("br_pe", 2008, None, 2026, None),
+        ("br_mg", [(2002, 1, 2026, 8)]),
+        ("br_pe", [(2008, None, 2026, None)]),
         # Measured 2026-09-08. ES carries a full `Data` on every expense row, so
         # unlike PE it is genuinely month-granular across the whole series.
-        ("br_es", 2009, 1, 2026, 9),
-        # Measured 2026-09-08. Six months are absent from RS's own
-        # catalogue (2020-06/08, 2022-04, 2023-02/06/08), so the range is
-        # continuous but the series inside it is not.
-        ("br_rs", 2012, 1, 2026, 7),
+        ("br_es", [(2009, 1, 2026, 9)]),
+        # Seven spans, derived from the data on 2026-09-08 and summing to exactly the
+        # 169 months present. The gaps are 2020-06, 2020-08, 2022-04, 2023-02, 2023-06
+        # and 2023-08: RS's catalogue serves the NEIGHBOURING month's file in those
+        # slots, so the months were never published rather than lost in transit.
+        (
+            "br_rs",
+            [
+                (2012, 1, 2020, 5),
+                (2020, 7, 2020, 7),
+                (2020, 9, 2022, 3),
+                (2022, 5, 2023, 1),
+                (2023, 3, 2023, 5),
+                (2023, 7, 2023, 7),
+                (2023, 9, 2026, 7),
+            ],
+        ),
     ],
-    "pagamento": [("br_pe", 2008, 1, 2026, 8)],
-    "despesa_mensal": [("br_ba", 2013, 1, 2026, 8)],
-    "despesa_anual": [("br_sp", 2010, None, 2026, None)],
-    "empenho_credor": [("br_ba", 2019, 1, 2026, 8)],
+    "pagamento": [("br_pe", [(2008, 1, 2026, 8)])],
+    "despesa_mensal": [("br_ba", [(2013, 1, 2026, 8)])],
+    "despesa_anual": [("br_sp", [(2010, None, 2026, None)])],
+    "empenho_credor": [("br_ba", [(2019, 1, 2026, 8)])],
     "licitacao": [
-        ("br_ba", 2004, 1, 2026, 12),
-        ("br_mg", 2009, 1, 2024, 3),
-        ("br_es", 2009, 8, 2026, 8),
+        ("br_ba", [(2004, 1, 2026, 12)]),
+        ("br_mg", [(2009, 1, 2024, 3)]),
+        ("br_es", [(2009, 8, 2026, 8)]),
     ],
     "licitacao_item": [
-        ("br_ba", 2004, None, 2026, None),
-        ("br_mg", 2009, None, 2025, None),
+        ("br_ba", [(2004, None, 2026, None)]),
+        ("br_mg", [(2009, None, 2025, None)]),
         # Year-granular: the canonical licitacao_item has no `mes`.
-        ("br_es", 2009, None, 2026, None),
+        ("br_es", [(2009, None, 2026, None)]),
     ],
     "licitacao_participante": [
-        ("br_ba", 2004, None, 2026, None),
-        ("br_es", 2009, None, 2026, None),
+        ("br_ba", [(2004, None, 2026, None)]),
+        ("br_es", [(2009, None, 2026, None)]),
     ],
     "relacionamentos": [
-        ("br_ba", None, None, None, None),
-        ("br_mg", None, None, None, None),
-        ("br_es", None, None, None, None),
+        ("br_ba", None),
+        ("br_mg", None),
+        ("br_es", None),
     ],
     "dicionario": [
-        ("br_mg", None, None, None, None),
-        ("br_es", None, None, None, None),
+        ("br_mg", None),
+        ("br_es", None),
     ],
 }
 
@@ -129,10 +152,11 @@ def check(env: str) -> int:
     seen = measured(project)
     stale = 0
     for slug, entries in PLAN.items():
-        for area, y0, _, y1, _ in entries:
+        for area, ranges in entries:
             uf = area.removeprefix("br_").upper()
-            if y0 is None:
+            if ranges is None:
                 continue
+            y0, y1 = ranges[0][0], ranges[-1][2]
             got = seen.get((slug, uf))
             if got is None:
                 print(f"  {slug} {uf}: no rows in the table")
@@ -171,9 +195,9 @@ def apply(env: str) -> None:
         # because every entry was rewritten in the same pass; a PLAN shorter than the
         # backend's list, or a failure midway, would leave ranges on the wrong states.
         existing = {c["area_slug"]: c for c in table["coverages"]}
-        for area, y0, m0, y1, m1 in entries:
-            # Reuse the coverage already on the table where there is one: the backend has
-            # no delete-coverage tool, and duplicates break CreateUpdateTable later.
+        for area, ranges in entries:
+            # Reuse the coverage already on the table where there is one: the backend
+            # has no delete-coverage tool, and duplicates break CreateUpdateTable later.
             kwargs = {
                 "table_id": table["id"],
                 "area_id": areas[area],
@@ -183,23 +207,36 @@ def apply(env: str) -> None:
             if prior_cov:
                 kwargs["id"] = prior_cov["id"]
             coverage = server.create_update_coverage(**kwargs)
-            if y0 is None:
+            if ranges is None:
                 print(f"  {slug:24} {area}  no range")
                 continue
-            rng = {
-                "coverage_id": coverage["id"],
-                "start_year": y0,
-                "end_year": y1,
-                "interval": 1,
-                "env": env,
-            }
-            if m0:
-                rng.update(start_month=m0, end_month=m1)
-            prior = prior_cov.get("datetime_ranges") if prior_cov else None
-            if prior:
-                rng["id"] = prior[0]["id"]
-            server.create_update_datetime_range(**rng)
-            label = f"{y0}-{m0:02d}..{y1}-{m1:02d}" if m0 else f"{y0}..{y1}"
+
+            prior = (prior_cov or {}).get("datetime_ranges") or []
+            if len(prior) > len(ranges):
+                # There is no delete tool for a DateTimeRange either, so a shrinking
+                # list would leave stale spans claiming coverage that was withdrawn.
+                # Refuse rather than half-apply.
+                raise SystemExit(
+                    f"{slug}/{area}: {len(prior)} range(s) registered but only "
+                    f"{len(ranges)} planned; the extra ones cannot be deleted here"
+                )
+            for i, (y0, m0, y1, m1) in enumerate(ranges):
+                rng = {
+                    "coverage_id": coverage["id"],
+                    "start_year": y0,
+                    "end_year": y1,
+                    "interval": 1,
+                    "env": env,
+                }
+                if m0:
+                    rng.update(start_month=m0, end_month=m1)
+                if i < len(prior):
+                    rng["id"] = prior[i]["id"]
+                server.create_update_datetime_range(**rng)
+            label = ", ".join(
+                f"{y0}-{m0:02d}..{y1}-{m1:02d}" if m0 else f"{y0}..{y1}"
+                for y0, m0, y1, m1 in ranges
+            )
             print(f"  {slug:24} {area}  {label}")
 
 
