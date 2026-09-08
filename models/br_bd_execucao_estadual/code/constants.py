@@ -191,3 +191,101 @@ PE_PACKAGES = {
     "all-pagamentos": "57c99440-751c-47da-8cf8-75ab7c76ed74",
 }
 PE_FIRST_YEAR, PE_LAST_YEAR = 2008, 2026
+
+# --------------------------------------------------------------------------- ES
+
+ES_CKAN = "https://dados.es.gov.br/api/3/action/package_show"
+
+# Slugs rather than UUIDs, unlike the other states: ES's are descriptive and were
+# verified against the live catalogue, and `package_show` accepts either.
+ES_PACKAGES = {
+    "despesas": "portal-da-transparencia-despesas-execucao-orcamentaria-e-financeira",
+    "compras": "portal-da-transparencia-compras-publicas",
+    "contratos": "portal-da-transparencia-contratos",
+}
+
+# Source file stem -> staging table. Matched on the EXACT stem before `-<ano>`, never
+# as a prefix: `ItensLotes` is a prefix of `ItensLotesDisputas`, so a prefix match
+# silently files every bidder row into the item table. Same family as the MG
+# `dm_empenho_desp_*` glob collision, and just as quiet.
+ES_TABLES = {
+    "Despesas": "es_despesa",
+    "Licitacoes": "es_licitacao",
+    "Lotes": "es_lote",
+    "ItensLotes": "es_licitacao_item",
+    "ItensLotesDisputas": "es_licitacao_participante",
+    "Compras": "es_compra",
+    "Editais": "es_edital",
+    "Contratos": "es_contrato",
+    # NumeroProcesso <-> NumeroEmpenho: ES's native process->commitment bridge, the
+    # analogue of MG's fl_compras_empenho. Feeds `relacionamentos`.
+    "Empenhos": "es_contrato_empenho",
+}
+
+# Published but deliberately not ingested:
+#   OrcamentosDespesa / OrcamentosDespesaAssembleia -- the budget law (LOA), an
+#     authorisation rather than an execution. A future `orcamento` table, not `despesa`.
+#   OrcamentosExecucoes -- all 18 files are 0 bytes.
+#   RestosAPagar -- 0 bytes before 2023, and `despesa.ValorRap` already carries the
+#     RAP value on the execution row.
+ES_SKIP_STEMS = frozenset(
+    {
+        "OrcamentosDespesa",
+        "OrcamentosDespesaAssembleia",
+        "OrcamentosExecucoes",
+        "RestosAPagar",
+    }
+)
+
+# The despesas package advertises 2004, but 2004-2008 are NOT transaction grain: each
+# is 0.6-0.9 MB of annual aggregates padded into the same 71 columns, with
+# `Favorecido = 'Informação não disponivel.'`, `CpfCnpjNis = '0'` and `Data` pinned to
+# 31/12 of the exercise. Real per-document rows start in 2009, where the file jumps to
+# 574 MB. Ingesting the earlier years would advertise five years of coverage that
+# carries no creditor and no document.
+ES_DESPESA_FIRST_YEAR = 2009
+ES_FIRST_YEAR, ES_LAST_YEAR = 2009, 2026
+
+# The year in a file name means two different things, and conflating them loses data.
+#
+# For the execution and procurement families it is the EXERCISE, and it agrees with the
+# `Ano` / `DataCriacao` inside the file. Those can be year-scoped safely.
+ES_YEAR_SCOPED_STEMS = frozenset(
+    {
+        "Despesas",
+        "Licitacoes",
+        "Lotes",
+        "ItensLotes",
+        "ItensLotesDisputas",
+        "Compras",
+        "Editais",
+    }
+)
+
+# For `contratos` it is the year of a DATE THAT MAY BE MISSING, so the package carries
+# buckets named 1753, 1991, 2001, 2027, 2028, 2032, 2224, 3024 and 5024.
+#
+# **1753 is not junk.** `01/01/1753` is SQL Server's `datetime` minimum -- the sentinel
+# this source writes when `DataCelebracao` was never recorded -- so `Contratos-1753.csv`
+# holds 180 genuine contracts (one of them R$14,751,756.36) and `Empenhos-1753.csv` 193
+# genuine commitments, all with real `NumeroEmpenho`, supplier, value and vigência
+# dates. A year filter over the file name deletes them without a word.
+#
+# The whole contratos family is ~45 MB, so it is always fetched in full and the real
+# year is taken from the date columns downstream, never from the file name. The other
+# odd buckets are 0 bytes and are dropped by the zero-size check, not by a year rule.
+ES_ALWAYS_FETCH_STEMS = frozenset({"Contratos", "Empenhos"})
+
+# The sentinel itself, for the cleaners: treat as NULL, never as a date.
+ES_NULL_DATE = "01/01/1753"
+
+# In the same package but not ingested yet: `AlteracoesContratuais` (contract
+# amendments) and `Comissoes` (tender commissions). Both are small and real; neither
+# has a home in the current schema.
+
+ES_SEP = ";"
+# Every file carries a UTF-8 BOM on the first header cell.
+ES_ENCODING = "utf-8-sig"
+
+# ES's 2004-2008 aggregate rows name the withheld creditor this way.
+ES_ANONYMISED = "Informação não disponivel."
