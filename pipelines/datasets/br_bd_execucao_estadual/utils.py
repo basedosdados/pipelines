@@ -119,6 +119,26 @@ def refresh_pe(work_dir: str, year: int, full: bool) -> None:
     clean_pe.main()
 
 
+def refresh_es(work_dir: str, year: int, full: bool) -> None:
+    """Espírito Santo, year-scoped like MG.
+
+    Every ES file is per-exercise, so a scoped run rewrites only the open years --
+    except the contratos family, which download_es always fetches whole because its
+    file-name year is the year of a date that may be missing (`Contratos-1753.csv` is
+    SQL Server's datetime floor and holds real rows). That family totals ~45 MB, so
+    taking it whole daily is cheaper than reasoning about which bucket changed.
+    """
+    _ensure_code_on_path(work_dir)
+    # pyrefly: ignore [missing-import]
+    import clean_es
+
+    # pyrefly: ignore [missing-import]
+    import download_es
+
+    download_es.main(years=_years(year, full))
+    clean_es.main()
+
+
 def refresh_sp(work_dir: str, year: int, full: bool) -> None:
     """São Paulo, scraped one (exercise, órgão) at a time.
 
@@ -145,6 +165,7 @@ REFRESHERS = {
     "MG": refresh_mg,
     "BA": refresh_ba,
     "PE": refresh_pe,
+    "ES": refresh_es,
     "SP": refresh_sp,
 }
 

@@ -30,3 +30,6 @@ from {{ ref("br_bd_execucao_estadual__relacionamentos_mg") }}
 union all
 select *
 from {{ ref("br_bd_execucao_estadual__relacionamentos_ba") }}
+union all
+select *
+from {{ ref("br_bd_execucao_estadual__relacionamentos_es") }}
