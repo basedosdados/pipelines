@@ -68,6 +68,15 @@ META_FILES = ["file_map.csv", "page_map.csv", "skiprows.csv", "skipfooter.csv"]
 
 
 def vendor_maps(pudl_src: Path) -> None:
+    """Copy the extraction maps for the pages this dataset reads.
+
+    Args:
+        pudl_src: A checkout of catalyst-cooperative/pudl.
+
+    Writes ``file_map.csv``, ``page_map.csv``, ``skiprows.csv``,
+    ``skipfooter.csv`` and one ``column_maps/<page>.csv`` per page in
+    :data:`PAGES`, under ``code/pudl/<form>/``.
+    """
     for dataset, pages in PAGES.items():
         src = pudl_src / "src/pudl/package_data" / dataset
         out = DEST / dataset
@@ -85,6 +94,15 @@ def vendor_maps(pudl_src: Path) -> None:
 
 
 def vendor_codes(pudl_src: Path) -> None:
+    """Copy the code vocabularies this dataset's columns reference.
+
+    Executes PUDL's ``codes.py`` (pure literal data plus pandas) and writes the
+    tables named in :data:`CODE_TABLES` to ``code/pudl/codes.json``, each with
+    its ``code_fixes`` and ``ignored_codes``.
+
+    Args:
+        pudl_src: A checkout of catalyst-cooperative/pudl.
+    """
     path = pudl_src / "src/pudl/metadata/codes.py"
     spec = importlib.util.spec_from_file_location("_pudl_codes", path)
     module = importlib.util.module_from_spec(spec)
@@ -116,6 +134,12 @@ def vendor_codes(pudl_src: Path) -> None:
 
 
 def write_readme(pudl_src: Path) -> None:
+    """Write ``code/pudl/README.md``, pinning the source commit.
+
+    Args:
+        pudl_src: A checkout of catalyst-cooperative/pudl, read for its HEAD SHA
+            so the vendored files are traceable to an exact upstream revision.
+    """
     import subprocess
 
     sha = subprocess.run(
@@ -144,8 +168,9 @@ Catalyst Cooperative, MIT licence.
 The raw column names in `column_maps` are the published headers **after**
 PUDL's `simplify_columns`: non-alphanumeric characters become spaces, letters
 are lowercased, internal whitespace is compacted, and the remaining spaces
-become underscores. `pipelines/datasets/us_eia_electricity/utils.py` applies the same
-normalisation before looking a column up.
+become underscores. `simplify` in
+`pipelines/datasets/us_eia_electricity/utils.py` applies the same normalisation
+before looking a column up.
 
 `codes.json` keeps PUDL's short codes as published (`BIT`, `ST`, `OP`) rather
 than PUDL's snake_case relabelling, because Data Basis records the code in the
@@ -156,6 +181,11 @@ column and the label in the `dicionario` table. The `code_fixes` and
 
 
 def main() -> None:
+    """Refresh everything under ``code/pudl/`` from a PUDL checkout.
+
+    Raises:
+        SystemExit: If ``--pudl-src`` is not a PUDL checkout.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--pudl-src",

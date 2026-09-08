@@ -164,21 +164,29 @@ def fetch(url: str, dest: Path) -> None:
     dest.write_bytes(response.content)
 
 
-def code_vocabulary_csv(dest: Path) -> None:
-    """Flatten the vendored vocabularies to one CSV of code, label, description."""
+def code_vocabulary_csv(dest: Path, table: str) -> None:
+    """Write one table's code vocabularies to a CSV.
+
+    Scoped to the bundle's own table: each bundle is per table, and its README
+    says the file holds that table's coded columns, so shipping the whole
+    dataset's vocabulary in all four would make the README wrong.
+
+    Args:
+        dest: Path the CSV is written to.
+        table: Table whose coded columns are included.
+    """
     rows = []
-    for table, columns in constants.CODED_COLUMNS.value.items():
-        for column, vocabulary in columns.items():
-            for entry in codes()[vocabulary]["rows"]:
-                rows.append(
-                    {
-                        "table": table,
-                        "column": column,
-                        "code": entry["code"],
-                        "label": entry.get("label", ""),
-                        "description": entry.get("description", ""),
-                    }
-                )
+    for column, vocabulary in constants.CODED_COLUMNS.value[table].items():
+        for entry in codes()[vocabulary]["rows"]:
+            rows.append(
+                {
+                    "table": table,
+                    "column": column,
+                    "code": entry["code"],
+                    "label": entry.get("label", ""),
+                    "description": entry.get("description", ""),
+                }
+            )
     with open(dest, "w", encoding="utf-8", newline="") as fh:
         writer = csv.DictWriter(
             fh, fieldnames=["table", "column", "code", "label", "description"]
@@ -224,7 +232,7 @@ def build(table: str) -> Path:
                     f"`{newest_zip(form).name}`, baixado em {DOWNLOADED}."
                 )
 
-    code_vocabulary_csv(stage / "code_vocabularies.csv")
+    code_vocabulary_csv(stage / "code_vocabularies.csv", table)
     entries.append(
         "- `code_vocabularies.csv` — código, rótulo e descrição de cada coluna "
         "codificada desta tabela."

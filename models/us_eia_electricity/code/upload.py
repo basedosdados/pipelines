@@ -54,7 +54,23 @@ MIN_FILES = {
 _orig_bucket = gcs.Client.bucket
 
 
-def _patched_bucket(self, bucket_name, user_project=None):
+def _patched_bucket(
+    self: gcs.Client, bucket_name: str, user_project: str | None = None
+) -> "gcs.Bucket":
+    """Return a bucket handle pinned to the billing project.
+
+    The Data Basis buckets are requester-pays, so every request must name a
+    project to bill. Patching the client is the least invasive way to apply that
+    to the uploads the basedosdados package makes internally.
+
+    Args:
+        self: The storage client the method is bound to.
+        bucket_name: Bucket to open.
+        user_project: Ignored; BILLING_PROJECT always wins.
+
+    Returns:
+        The bucket, with ``user_project`` set to BILLING_PROJECT.
+    """
     return _orig_bucket(self, bucket_name, user_project=BILLING_PROJECT)
 
 
@@ -64,11 +80,28 @@ from pipelines.utils.tasks import _upload_to_gcs  # noqa: E402
 
 
 def local_rows(table: str) -> tuple[int, int]:
+    """Count the rows and files of a table's local parquet.
+
+    Args:
+        table: Clean table slug.
+
+    Returns:
+        ``(row_count, file_count)``, read from the parquet footers.
+    """
     files = sorted((OUTPUT / table).rglob("*.parquet"))
     return sum(pq.ParquetFile(f).metadata.num_rows for f in files), len(files)
 
 
 def staging_rows(client: bigquery.Client, table: str) -> int:
+    """Count the rows BigQuery sees in the staging external table.
+
+    Args:
+        client: An authenticated BigQuery client.
+        table: Clean table slug.
+
+    Returns:
+        The row count of ``<billing project>.<dataset>_staging.<table>``.
+    """
     ref = f"{BILLING_PROJECT}.{DATASET_ID}_staging.{table}"
     return next(
         iter(client.query(f"select count(*) n from `{ref}`").result())
@@ -76,6 +109,16 @@ def staging_rows(client: bigquery.Client, table: str) -> int:
 
 
 def upload(table: str) -> None:
+    """Upload one table's parquet to staging and verify what landed.
+
+    Args:
+        table: Clean table slug.
+
+    Raises:
+        SystemExit: If fewer partitions exist than expected, if the staging
+            table is NATIVE rather than EXTERNAL, if the staging row count does
+            not match the local one, or if the staging schema is not all-STRING.
+    """
     expected, nfiles = local_rows(table)
     print(
         f"\n[{table}] local: {expected:,} rows across {nfiles} parquet file(s)"
@@ -126,6 +169,12 @@ def upload(table: str) -> None:
 
 
 def main() -> None:
+    """Upload the tables named on the command line, or all of them.
+
+    Raises:
+        SystemExit: If GOOGLE_APPLICATION_CREDENTIALS is unset or an unknown
+            table is named.
+    """
     if not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"):
         raise SystemExit("GOOGLE_APPLICATION_CREDENTIALS is not set")
     tables = sys.argv[1:] or ALL_TABLES

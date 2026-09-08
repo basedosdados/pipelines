@@ -22,6 +22,7 @@ Two things this deliberately does **not** do:
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -29,10 +30,26 @@ import gen_columns_json
 import metadata_spec as spec
 from common import DATA_TABLES, OUTPUT, load_cols
 
-sys.path.insert(
-    0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
+# The Data Basis MCP `server` module is a sibling repository, not a dependency of
+# this one, so it has to be put on the path explicitly. Read the location from
+# the environment rather than hardcoding one machine's checkout: a literal path
+# breaks on every other machine, in CI and on the Prefect worker, and embeds a
+# personal directory name in the repository.
+_MCP_PATH = os.environ.get(
+    "BD_MCP_PATH",
+    str(Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"),
 )
-import server
+if Path(_MCP_PATH).is_dir():
+    sys.path.insert(0, _MCP_PATH)
+try:
+    import server
+except (
+    ModuleNotFoundError
+) as error:  # pragma: no cover - environment dependent
+    raise SystemExit(
+        "the Data Basis MCP `server` module is not importable. Point BD_MCP_PATH "
+        f"at a checkout of the mcp repository (tried {_MCP_PATH!r})."
+    ) from error
 
 CODE_DIR = Path(__file__).resolve().parent
 ALL_TABLES = [*DATA_TABLES, "dicionario"]
@@ -43,6 +60,24 @@ ALL_TABLES = [*DATA_TABLES, "dicionario"]
 # first armed run.
 BDPRO_TABLES = ["generation_fuel", "fuel_receipts_costs"]
 FREE_LAG_MONTHS = 6
+
+
+def _first_range_id(coverage: dict | None) -> str | None:
+    """Return the id of a coverage's first datetime range, if it has one.
+
+    ``.get("datetime_ranges", [{}])`` would return the default only when the key
+    is absent; a coverage carrying an empty list gets the empty list back and
+    subscripting it raises. That shape is reachable — these code paths create a
+    Coverage before its DateTimeRange, so an interrupted run leaves exactly it.
+
+    Args:
+        coverage: A previously registered coverage record, or None.
+
+    Returns:
+        The id of its first datetime range, or None when it has none.
+    """
+    ranges = (coverage or {}).get("datetime_ranges") or []
+    return ranges[0]["id"] if ranges else None
 
 
 def coverage_bounds(table: str) -> tuple[int, int | None, int, int | None]:
@@ -342,9 +377,7 @@ def main() -> None:
             end_month=free_end_month,
             interval=1,
             is_closed=False,
-            id=(free_prior or {}).get("datetime_ranges", [{}])[0].get("id")
-            if free_prior
-            else None,
+            id=_first_range_id(free_prior),
             env=env,
         )
         pro = server.create_update_coverage(
@@ -362,9 +395,7 @@ def main() -> None:
             end_month=end_month,
             interval=1,
             is_closed=True,
-            id=(pro_prior or {}).get("datetime_ranges", [{}])[0].get("id")
-            if pro_prior
-            else None,
+            id=_first_range_id(pro_prior),
             env=env,
         )
 

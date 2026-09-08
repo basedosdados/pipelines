@@ -17,8 +17,9 @@ Catalyst Cooperative, MIT licence.
 The raw column names in `column_maps` are the published headers **after**
 PUDL's `simplify_columns`: non-alphanumeric characters become spaces, letters
 are lowercased, internal whitespace is compacted, and the remaining spaces
-become underscores. `pipelines/datasets/us_eia/utils.py` applies the same
-normalisation before looking a column up.
+become underscores. `simplify` in
+`pipelines/datasets/us_eia_electricity/utils.py` applies the same normalisation
+before looking a column up.
 
 `codes.json` keeps PUDL's short codes as published (`BIT`, `ST`, `OP`) rather
 than PUDL's snake_case relabelling, because Data Basis records the code in the

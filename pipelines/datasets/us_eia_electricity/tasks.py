@@ -33,8 +33,15 @@ def probe_source(work_dir: str) -> dict:
       is fetched and its page 1 cleaned, which is ~40 s. The other 640 MB is
       downloaded only after the poll says there is work.
 
+    Args:
+        work_dir: Scratch directory for this flow run; the probe writes its
+            download and its one-year parquet underneath it.
+
     Returns:
         ``{"years": {form: [...]}, "max_date": {form: "YYYY-MM-DD"}}``.
+
+    Raises:
+        RuntimeError: If no EIA-923 report year carries any generation rows.
     """
     input_dir = Path(work_dir) / "input"
     output_dir = Path(work_dir) / "probe"
@@ -76,7 +83,16 @@ def probe_source(work_dir: str) -> dict:
 
 @task(retries=2, retry_delay_seconds=60)
 def download_corpus(work_dir: str, probe: dict) -> str:
-    """Download every report year of both forms. Returns the input directory."""
+    """Download every report year of both forms.
+
+    Args:
+        work_dir: Scratch directory for this flow run.
+        probe: Result of :func:`probe_source`; its ``years`` decides what to
+            fetch, so the flow downloads exactly the years the poll saw.
+
+    Returns:
+        The input directory, as a string (Prefect serializes task results).
+    """
     input_dir = Path(work_dir) / "input"
     for form in ("eia860", "eia923"):
         download_form(form, input_dir, years=probe["years"][form])
@@ -97,9 +113,14 @@ def clean_corpus(work_dir: str, input_dir: str) -> dict:
     over the whole record rather than over whichever years happened to be
     refreshed.
 
+    Args:
+        work_dir: Scratch directory for this flow run; the parquet is written
+            underneath it.
+        input_dir: Directory holding the downloaded source ZIPs.
+
     Returns:
         Table slug -> partitioned output directory (as strings), plus
-        ``"row_counts"``.
+        ``"row_counts"`` mapping each table to its row count.
     """
     output_dir = Path(work_dir) / "output"
     counts = clean_all(Path(input_dir), output_dir, log=print)

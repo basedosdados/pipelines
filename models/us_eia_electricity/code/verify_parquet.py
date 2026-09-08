@@ -1,7 +1,7 @@
 """Verify the cleaned us_eia_electricity parquet before it is uploaded anywhere.
 
     python verify_parquet.py                     # every check
-    python verify_parquet.py --write-coverage    # also refresh measured_coverage.json
+    python verify_parquet.py --write-measured    # also refresh measured.json
 
 Six checks, all read from the local parquet:
 
@@ -14,8 +14,13 @@ Six checks, all read from the local parquet:
    list in ``gen_dbt.py`` is measured rather than guessed. Read from the parquet
    **footers** (every column chunk records its own ``null_count``), so this is
    metadata only — no scan and no BigQuery quota.
-4. **Directory resolution** — the share of rows whose state and county resolve
-   against ``br_bd_diretorios_us``.
+4. **Directory resolution** — the share of rows whose ``state_id`` /
+   ``county_id`` / ``mine_county_id`` is populated. Those columns are set only
+   when the published name or code resolved against the committed export of
+   ``br_bd_diretorios_us`` (``us_county_directory.csv``), so a non-null value is
+   by construction a resolved one — but this reads the parquet footers, not the
+   directory, so it measures resolution against that **snapshot**. The live
+   check is the dbt ``relationships`` test on ``state_id``.
 5. **Magnitudes** — national net generation by year against EIA's own published
    totals, which is the one check that would catch a units or melt error.
 6. **All-STRING, non-empty** partitions.
@@ -105,8 +110,17 @@ def null_counts(
     return counts, total
 
 
-def coverage(table: str) -> dict[str, str]:
-    """First and last year each column is non-null, in START(1)END notation."""
+def coverage(table: str) -> dict[str, tuple[int, int]]:
+    """First and last year each column holds a non-null value.
+
+    Args:
+        table: Clean table slug.
+
+    Returns:
+        Column name -> ``(first_year, last_year)``. A column that is null in
+        every partition is absent from the mapping. The caller formats the pair
+        as the START(1)END notation the architecture uses.
+    """
     spans: dict[str, list[int]] = defaultdict(list)
     for path in partitions(table):
         year = int(path.parent.name.split("=")[1])

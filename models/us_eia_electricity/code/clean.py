@@ -26,6 +26,18 @@ from common import (
 
 
 def main() -> None:
+    """Clean the requested report years to partitioned parquet.
+
+    Reads ``--years`` / ``--tables`` from the command line (default: every year
+    and every table found under the input directory), optionally fetching any
+    missing source ZIPs first with ``--download``. Writes
+    ``output/<table>/year=<year>/data.parquet`` and then asserts every partition
+    is all-STRING and non-empty.
+
+    Raises:
+        AssertionError: If any written partition is empty or carries a
+            non-string column, either of which would poison the staging schema.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--years", type=int, nargs="*")
     parser.add_argument("--tables", nargs="*", choices=DATA_TABLES)

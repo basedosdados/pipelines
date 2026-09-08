@@ -190,10 +190,19 @@ class constants(Enum):
     #
     #   {(form, page, year): {"rename": {raw_header: canonical}, "drop": [canonical]}}
     #
-    # eia860/plant/2013: PUDL's map expects the header "NERC Region Code"; the
-    # ZIP eia.gov currently serves for 2013 has "NERC Region". Confirmed by
-    # opening 2___Plant_Y2013.xlsx — the column is there and holds SERC, RFC,
-    # SPP and the rest, only the header differs.
+    # A `rename` entry is {raw simplified header: PUDL canonical name} — the same
+    # direction as the vendored column maps, whose KEYS are raw headers and whose
+    # VALUES are canonical names. So an entry mapping a name to itself is not a
+    # no-op: it re-points the canonical column at a different raw header.
+    #
+    # eia860/plant/2013: PUDL recorded the raw header as "NERC Region Code" for
+    # the canonical column `nerc_region`; the ZIP eia.gov currently serves has
+    # the raw header "NERC Region", which simplifies to `nerc_region`. The entry
+    # below therefore reads "the canonical column nerc_region now comes from the
+    # raw header nerc_region". Confirmed by opening 2___Plant_Y2013.xlsx — the
+    # column is there and holds SERC, RFC, SPP and the rest, only the header
+    # differs — and by the result: nerc_region is populated on 8,041 of the 8,060
+    # plants of 2013, in line with 2012 (7,281/7,289) and 2014 (8,501/8,520).
     MAP_OVERRIDES = {
         ("eia860", "plant", 2013): {"rename": {"nerc_region": "nerc_region"}},
     }

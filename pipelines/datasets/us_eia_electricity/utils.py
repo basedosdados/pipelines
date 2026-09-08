@@ -49,6 +49,7 @@ import zipfile
 from dataclasses import dataclass, field
 from functools import cache
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 import pyarrow as pa
@@ -550,13 +551,27 @@ def clean_text(series: pd.Series) -> pd.Series:
     naive read leaves ``"."`` sitting in a code column, where it looks like a
     real value and defeats every downstream count.
     """
-    out = series.astype("object").map(
-        lambda v: (
-            None
-            if v is None or (isinstance(v, float) and pd.isna(v))
-            else str(v)
-        )
-    )
+
+    # pd.isna on the scalar, not `isinstance(v, float)`: pandas has three
+    # missing values and only one of them is a float. A blank cell in a column
+    # pandas types as datetime is pd.NaT and one in a nullable column is pd.NA,
+    # neither of which is a float — str() would render them "NaT" and "<NA>",
+    # and _NA_RE matches neither, so the literal would survive into a STRING
+    # column as a real value. Not observed in the 2001-2026 corpus (every such
+    # column comes back as object dtype), but one cleanly-typed EIA release
+    # would be enough.
+    def _text(value: Any) -> str | None:
+        if value is None:
+            return None
+        try:
+            if pd.isna(value):
+                return None
+        except (TypeError, ValueError):
+            # pd.isna raises on a list-like; such a cell is not missing.
+            pass
+        return str(value)
+
+    out = series.astype("object").map(_text)
     out = out.map(lambda v: None if v is None else _WS.sub(" ", v).strip())
     return out.map(lambda v: None if v is None or _NA_RE.match(v) else v)
 
@@ -1461,6 +1476,11 @@ def source_max_date(table: str, output_dir: Path) -> str:
             for y in batch.column(0).to_pylist()
             if y
         }
+        if not years:
+            raise ValueError(
+                f"{table}: no rows carry a report year, so the source has no "
+                "coverage date to poll against"
+            )
         return f"{max(years)}-01-01"
     latest = (0, 0)
     for batch in data.to_batches(columns=["year", "month"]):
@@ -1471,4 +1491,9 @@ def source_max_date(table: str, output_dir: Path) -> str:
         ):
             if year and month:
                 latest = max(latest, (int(year), int(month)))
+    if latest == (0, 0):
+        raise ValueError(
+            f"{table}: no rows carry both a year and a month, so the source has "
+            "no coverage date to poll against"
+        )
     return f"{latest[0]:04d}-{latest[1]:02d}-01"

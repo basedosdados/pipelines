@@ -1999,7 +1999,11 @@ def main() -> None:
                 col.coverage = span
         path = OUT / f"sheet_{table}.csv"
         with open(path, "w", encoding="utf-8", newline="") as fh:
-            writer = csv.DictWriter(fh, fieldnames=HEADER)
+            # lineterminator="\n": csv defaults to CRLF, which the repo's
+            # `mixed line ending` pre-commit hook then rewrites to LF. Without
+            # this the generator and the hook fight, and re-running the
+            # generator shows every line of every sheet as changed.
+            writer = csv.DictWriter(fh, fieldnames=HEADER, lineterminator="\n")
             writer.writeheader()
             for col in cols:
                 writer.writerow(col.row())
