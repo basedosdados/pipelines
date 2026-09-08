@@ -382,7 +382,7 @@ def main():
         rows.items(), key=lambda kv: (kv[0][0], kv[0][1], kv[0][2])
     )
     with open(OUT, "w", newline="", encoding="utf-8") as handle:
-        writer = csv.writer(handle)
+        writer = csv.writer(handle, lineterminator="\n")
         writer.writerow(
             [
                 "id_tabela",
