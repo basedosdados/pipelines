@@ -345,12 +345,27 @@ step 13, a separate action.
 | table `dicionario` | `3c9211c6-1aeb-425b-b6e4-7f0ad0219b20` |
 | account | `4` |
 
+**The prod tables carry `Table.Update.latest = 1970-01-01`, deliberately.** Prod
+has never been materialised — table-approve builds those tables when the PR
+merges — so a real date there would claim a refresh that had not happened, and
+the poll (`compare_against="table_update"`, strict `source_max > latest`) would
+then suppress the table's first refresh. The epoch is used because it cannot be
+mistaken for a real materialisation. The first materialisation overwrites it
+with a true wall clock; `register_metadata.py` only writes this field when
+passed `--materialized`, which is true of staging (dbt built and tested those
+tables) and not of prod.
+
 **Reference ids are not interchangeable between the two environments, and the
 tag slugs are not either.** The `project` entity is `c5b8b0a3-…` on staging and
 `53374e81-…` on prod. Staging's tag vocabulary is Portuguese and prod's is
 English — `pesquisa` there is `research` here, on the same UUID — so
 `register_metadata.py` lists both spellings per tag and takes whichever the
 environment has, rather than resolving one slug and failing on the other.
+
+Both metadata scripts import the Data Basis MCP `server` module, which is a
+**separate checkout, not a dependency of this repo**. Set `DATABASIS_MCP_PATH`
+to the directory holding `server.py`; `common.import_mcp_server()` validates it
+and fails with a named error rather than a bare `ModuleNotFoundError`.
 
 ## The `clinical_study` entity
 

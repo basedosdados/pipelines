@@ -4,7 +4,10 @@ Idempotent by construction: every create_update_* call is given the id read back
 from get_dataset when the record already exists, because those tools create a
 second record when called without one.
 
+Set ``DATABASIS_MCP_PATH`` to the Data Basis MCP checkout before running.
+
 Run: ~/.venvs/bd-pipelines/bin/python register_metadata.py [staging|prod]
+     [--materialized]
 """
 
 import json
@@ -12,12 +15,21 @@ import sys
 from datetime import date
 from pathlib import Path
 
-sys.path.insert(
-    0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-)
-import server
+from common import import_mcp_server
 
-ENV = sys.argv[1] if len(sys.argv) > 1 else "staging"
+server = import_mcp_server()
+
+ARGS = sys.argv[1:]
+ENV = next((a for a in ARGS if not a.startswith("-")), "staging")
+
+# Whether this environment's BigQuery tables have actually been built. It gates
+# one thing: the table-anchored Update record, whose `latest` means "when Data
+# Basis last refreshed this table". Registration alone refreshes nothing, and
+# the poll reads that field (`compare_against="table_update"`) with a strict
+# `source_max > latest`, so writing today's date here would both claim a
+# materialisation that has not happened and suppress the table's first refresh.
+# Off by default so a bare re-run can never re-introduce that claim.
+MATERIALIZED = "--materialized" in ARGS
 COLUMNS_DIR = Path(__file__).resolve().parent / "columns"
 
 DATASET_SLUG = "nih_reporter"
@@ -740,17 +752,26 @@ def main() -> int:
                 env=ENV,
             )
 
-        # table update record: when Data Basis last refreshed the table
-        have_up = [u["id"] for u in p.get("updates", [])]
-        server.create_update_update(
-            id=have_up[0] if have_up else None,
-            table_id=tid,
-            entity_id=entity["year"],
-            frequency=1,
-            latest=f"{date.today()}T00:00:00",
-            env=ENV,
+        # Table-anchored Update: when Data Basis last refreshed the table.
+        # Written only when this environment's tables really have been built —
+        # see MATERIALIZED above. On prod they are materialised by the
+        # table-approve action on merge, not by this script, so a bare prod
+        # registration leaves the record alone and the first materialisation
+        # (or `register_table_materialization_task`) sets it.
+        if MATERIALIZED:
+            have_up = [u["id"] for u in p.get("updates", [])]
+            server.create_update_update(
+                id=have_up[0] if have_up else None,
+                table_id=tid,
+                entity_id=entity["year"],
+                frequency=1,
+                latest=f"{date.today()}T00:00:00",
+                env=ENV,
+            )
+        print(
+            "  cloud table, coverage, datetime range"
+            + (", update: ok" if MATERIALIZED else " (update skipped): ok")
         )
-        print("  cloud table, coverage, datetime range, update: ok")
 
     # deferred raw source links --------------------------------------------
     for spec in RAW_SOURCES:
