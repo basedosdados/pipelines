@@ -1,0 +1,2284 @@
+fiscal_year,source_file,source_column,canonical_column,disposition
+2008,perm_2008.xlsx,,agent_representing_employer,absent this year
+2008,perm_2008.xlsx,APPLICATION_TYPE,application_type,mapped
+2008,perm_2008.xlsx,,attorney_law_firm_name,absent this year
+2008,perm_2008.xlsx,CASE_NUMBER,case_number,mapped
+2008,perm_2008.xlsx,CASE_STATUS,case_status,mapped
+2008,perm_2008.xlsx,CLASS_OF_ADMISSION,class_of_admission,mapped
+2008,perm_2008.xlsx,COUNTRY_OF_CITZENSHIP,country_of_citizenship,mapped
+2008,perm_2008.xlsx,DECISION_DATE,decision_date,mapped
+2008,perm_2008.xlsx,EMPLOYER_ADDRESS_1,employer_address,mapped
+2008,perm_2008.xlsx,EMPLOYER_CITY,employer_city,mapped
+2008,perm_2008.xlsx,,employer_country,absent this year
+2008,perm_2008.xlsx,EMPLOYER_NAME,employer_name,mapped
+2008,perm_2008.xlsx,,employer_num_employees,absent this year
+2008,perm_2008.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2008,perm_2008.xlsx,EMPLOYER_STATE,employer_state,mapped
+2008,perm_2008.xlsx,,employer_trade_name,absent this year
+2008,perm_2008.xlsx,,employer_year_commenced_business,absent this year
+2008,perm_2008.xlsx,,foreign_worker_birth_country,absent this year
+2008,perm_2008.xlsx,,foreign_worker_education,absent this year
+2008,perm_2008.xlsx,,full_time_position,absent this year
+2008,perm_2008.xlsx,,is_multiple_worksites,absent this year
+2008,perm_2008.xlsx,PW_JOB_TITLE_9089,job_title,mapped
+2008,perm_2008.xlsx,,major_field_of_study,absent this year
+2008,perm_2008.xlsx,,minimum_education,absent this year
+2008,perm_2008.xlsx,2007_NAICS_US_CODE,naics_id,mapped
+2008,perm_2008.xlsx,PW_AMOUNT_9089,prevailing_wage,mapped
+2008,perm_2008.xlsx,,prevailing_wage_determination_date,absent this year
+2008,perm_2008.xlsx,,prevailing_wage_expiration_date,absent this year
+2008,perm_2008.xlsx,PW_LEVEL_9089,prevailing_wage_level,mapped
+2008,perm_2008.xlsx,,prevailing_wage_source,absent this year
+2008,perm_2008.xlsx,,prevailing_wage_tracking_number,absent this year
+2008,perm_2008.xlsx,PW_UNIT_OF_PAY_9089,prevailing_wage_unit_of_pay,mapped
+2008,perm_2008.xlsx,,received_date,absent this year
+2008,perm_2008.xlsx,,refile,absent this year
+2008,perm_2008.xlsx,,required_experience,absent this year
+2008,perm_2008.xlsx,,required_experience_months,absent this year
+2008,perm_2008.xlsx,,schedule_a_sheepherder,absent this year
+2008,perm_2008.xlsx,PW_SOC_CODE,soc_id,mapped
+2008,perm_2008.xlsx,,soc_title,absent this year
+2008,perm_2008.xlsx,US_ECONOMIC_SECTOR,us_economic_sector,mapped
+2008,perm_2008.xlsx,WAGE_OFFER_FROM_9089,wage_offered_from,mapped
+2008,perm_2008.xlsx,WAGE_OFFER_TO_9089,wage_offered_to,mapped
+2008,perm_2008.xlsx,WAGE_OFFER_UNIT_OF_PAY_9089,wage_unit_of_pay,mapped
+2008,perm_2008.xlsx,,worksite_address,absent this year
+2008,perm_2008.xlsx,JOB_INFO_WORK_CITY,worksite_city,mapped
+2008,perm_2008.xlsx,,worksite_county,absent this year
+2008,perm_2008.xlsx,,worksite_postal_code,absent this year
+2008,perm_2008.xlsx,JOB_INFO_WORK_STATE,worksite_state,mapped
+2008,perm_2008.xlsx,2007_NAICS_US_TITLE,,dropped: NAICS title (code is kept)
+2008,perm_2008.xlsx,EMPLOYER_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2009,perm_2009.xlsx,,agent_representing_employer,absent this year
+2009,perm_2009.xlsx,APPLICATION TYPE,application_type,mapped
+2009,perm_2009.xlsx,,attorney_law_firm_name,absent this year
+2009,perm_2009.xlsx,CASE_NUMBER,case_number,mapped
+2009,perm_2009.xlsx,CASE STATUS,case_status,mapped
+2009,perm_2009.xlsx,CLASS OF ADMISSION,class_of_admission,mapped
+2009,perm_2009.xlsx,COUNTRY OF CITZENSHIP,country_of_citizenship,mapped
+2009,perm_2009.xlsx,DECISION DATE,decision_date,mapped
+2009,perm_2009.xlsx,EMPLOYER ADDRESS_1,employer_address,mapped
+2009,perm_2009.xlsx,EMPLOYER CITY,employer_city,mapped
+2009,perm_2009.xlsx,,employer_country,absent this year
+2009,perm_2009.xlsx,EMPLOYER NAME,employer_name,mapped
+2009,perm_2009.xlsx,,employer_num_employees,absent this year
+2009,perm_2009.xlsx,EMPLOYER POSTAL CODE,employer_postal_code,mapped
+2009,perm_2009.xlsx,EMPLOYER STATE,employer_state,mapped
+2009,perm_2009.xlsx,,employer_trade_name,absent this year
+2009,perm_2009.xlsx,,employer_year_commenced_business,absent this year
+2009,perm_2009.xlsx,,foreign_worker_birth_country,absent this year
+2009,perm_2009.xlsx,,foreign_worker_education,absent this year
+2009,perm_2009.xlsx,,full_time_position,absent this year
+2009,perm_2009.xlsx,,is_multiple_worksites,absent this year
+2009,perm_2009.xlsx,PW JOB TITLE 9089,job_title,mapped
+2009,perm_2009.xlsx,,major_field_of_study,absent this year
+2009,perm_2009.xlsx,,minimum_education,absent this year
+2009,perm_2009.xlsx,2007 NAICS US CODE,naics_id,mapped
+2009,perm_2009.xlsx,PW AMOUNT 9089,prevailing_wage,mapped
+2009,perm_2009.xlsx,,prevailing_wage_determination_date,absent this year
+2009,perm_2009.xlsx,,prevailing_wage_expiration_date,absent this year
+2009,perm_2009.xlsx,PW LEVEL 9089,prevailing_wage_level,mapped
+2009,perm_2009.xlsx,,prevailing_wage_source,absent this year
+2009,perm_2009.xlsx,,prevailing_wage_tracking_number,absent this year
+2009,perm_2009.xlsx,PW UNIT OF PAY 9089,prevailing_wage_unit_of_pay,mapped
+2009,perm_2009.xlsx,,received_date,absent this year
+2009,perm_2009.xlsx,,refile,absent this year
+2009,perm_2009.xlsx,,required_experience,absent this year
+2009,perm_2009.xlsx,,required_experience_months,absent this year
+2009,perm_2009.xlsx,,schedule_a_sheepherder,absent this year
+2009,perm_2009.xlsx,PW SOC CODE,soc_id,mapped
+2009,perm_2009.xlsx,,soc_title,absent this year
+2009,perm_2009.xlsx,US ECONOMIC SECTOR,us_economic_sector,mapped
+2009,perm_2009.xlsx,WAGE OFFER FROM 9089,wage_offered_from,mapped
+2009,perm_2009.xlsx,WAGE OFFER TO 9089,wage_offered_to,mapped
+2009,perm_2009.xlsx,WAGE OFFER UNIT OF PAY 9089,wage_unit_of_pay,mapped
+2009,perm_2009.xlsx,,worksite_address,absent this year
+2009,perm_2009.xlsx,JOB INFO WORK CITY,worksite_city,mapped
+2009,perm_2009.xlsx,,worksite_county,absent this year
+2009,perm_2009.xlsx,,worksite_postal_code,absent this year
+2009,perm_2009.xlsx,JOB INFO WORK STATE,worksite_state,mapped
+2009,perm_2009.xlsx,2007 NAICS US TITLE,,dropped: NAICS title (code is kept)
+2009,perm_2009.xlsx,EMPLOYER ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2010,perm_2010.xlsx,,agent_representing_employer,absent this year
+2010,perm_2010.xlsx,APPLICATION_TYPE,application_type,mapped
+2010,perm_2010.xlsx,,attorney_law_firm_name,absent this year
+2010,perm_2010.xlsx,CASE_NO,case_number,mapped
+2010,perm_2010.xlsx,CASE_STATUS,case_status,mapped
+2010,perm_2010.xlsx,CLASS_OF_ADMISSION,class_of_admission,mapped
+2010,perm_2010.xlsx,COUNTRY_OF_CITZENSHIP,country_of_citizenship,mapped
+2010,perm_2010.xlsx,DECISION_DATE,decision_date,mapped
+2010,perm_2010.xlsx,EMPLOYER_ADDRESS_1,employer_address,mapped
+2010,perm_2010.xlsx,EMPLOYER_CITY,employer_city,mapped
+2010,perm_2010.xlsx,,employer_country,absent this year
+2010,perm_2010.xlsx,EMPLOYER_NAME,employer_name,mapped
+2010,perm_2010.xlsx,,employer_num_employees,absent this year
+2010,perm_2010.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2010,perm_2010.xlsx,EMPLOYER_STATE,employer_state,mapped
+2010,perm_2010.xlsx,,employer_trade_name,absent this year
+2010,perm_2010.xlsx,,employer_year_commenced_business,absent this year
+2010,perm_2010.xlsx,,foreign_worker_birth_country,absent this year
+2010,perm_2010.xlsx,,foreign_worker_education,absent this year
+2010,perm_2010.xlsx,,full_time_position,absent this year
+2010,perm_2010.xlsx,,is_multiple_worksites,absent this year
+2010,perm_2010.xlsx,PW_JOB_TITLE_9089,job_title,mapped
+2010,perm_2010.xlsx,,major_field_of_study,absent this year
+2010,perm_2010.xlsx,,minimum_education,absent this year
+2010,perm_2010.xlsx,2007_NAICS_US_CODE,naics_id,mapped
+2010,perm_2010.xlsx,PW_AMOUNT_9089,prevailing_wage,mapped
+2010,perm_2010.xlsx,,prevailing_wage_determination_date,absent this year
+2010,perm_2010.xlsx,,prevailing_wage_expiration_date,absent this year
+2010,perm_2010.xlsx,PW_LEVEL_9089,prevailing_wage_level,mapped
+2010,perm_2010.xlsx,PW_SOURCE_NAME_9089,prevailing_wage_source,mapped
+2010,perm_2010.xlsx,,prevailing_wage_tracking_number,absent this year
+2010,perm_2010.xlsx,PW_UNIT_OF_PAY_9089,prevailing_wage_unit_of_pay,mapped
+2010,perm_2010.xlsx,,received_date,absent this year
+2010,perm_2010.xlsx,,refile,absent this year
+2010,perm_2010.xlsx,,required_experience,absent this year
+2010,perm_2010.xlsx,,required_experience_months,absent this year
+2010,perm_2010.xlsx,,schedule_a_sheepherder,absent this year
+2010,perm_2010.xlsx,PW_SOC_CODE,soc_id,mapped
+2010,perm_2010.xlsx,PW_SOC_TITLE,soc_title,mapped
+2010,perm_2010.xlsx,US_ECONOMIC_SECTOR,us_economic_sector,mapped
+2010,perm_2010.xlsx,WAGE_OFFER_FROM_9089,wage_offered_from,mapped
+2010,perm_2010.xlsx,WAGE_OFFER_TO_9089,wage_offered_to,mapped
+2010,perm_2010.xlsx,WAGE_OFFER_UNIT_OF_PAY_9089,wage_unit_of_pay,mapped
+2010,perm_2010.xlsx,,worksite_address,absent this year
+2010,perm_2010.xlsx,JOB_INFO_WORK_CITY,worksite_city,mapped
+2010,perm_2010.xlsx,,worksite_county,absent this year
+2010,perm_2010.xlsx,,worksite_postal_code,absent this year
+2010,perm_2010.xlsx,JOB_INFO_WORK_STATE,worksite_state,mapped
+2010,perm_2010.xlsx,2007_NAICS_US_TITLE,,dropped: NAICS title (code is kept)
+2010,perm_2010.xlsx,EMPLOYER_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2011,perm_2011.xlsx,,agent_representing_employer,absent this year
+2011,perm_2011.xlsx,APPLICATION_TYPE,application_type,mapped
+2011,perm_2011.xlsx,,attorney_law_firm_name,absent this year
+2011,perm_2011.xlsx,CASE_NO,case_number,mapped
+2011,perm_2011.xlsx,CASE_STATUS,case_status,mapped
+2011,perm_2011.xlsx,CLASS_OF_ADMISSION,class_of_admission,mapped
+2011,perm_2011.xlsx,COUNTRY_OF_CITZENSHIP,country_of_citizenship,mapped
+2011,perm_2011.xlsx,DECISION_DATE,decision_date,mapped
+2011,perm_2011.xlsx,EMPLOYER_ADDRESS_1,employer_address,mapped
+2011,perm_2011.xlsx,EMPLOYER_CITY,employer_city,mapped
+2011,perm_2011.xlsx,,employer_country,absent this year
+2011,perm_2011.xlsx,EMPLOYER_NAME,employer_name,mapped
+2011,perm_2011.xlsx,,employer_num_employees,absent this year
+2011,perm_2011.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2011,perm_2011.xlsx,EMPLOYER_STATE,employer_state,mapped
+2011,perm_2011.xlsx,,employer_trade_name,absent this year
+2011,perm_2011.xlsx,,employer_year_commenced_business,absent this year
+2011,perm_2011.xlsx,,foreign_worker_birth_country,absent this year
+2011,perm_2011.xlsx,,foreign_worker_education,absent this year
+2011,perm_2011.xlsx,,full_time_position,absent this year
+2011,perm_2011.xlsx,,is_multiple_worksites,absent this year
+2011,perm_2011.xlsx,PW_JOB_TITLE_9089,job_title,mapped
+2011,perm_2011.xlsx,,major_field_of_study,absent this year
+2011,perm_2011.xlsx,,minimum_education,absent this year
+2011,perm_2011.xlsx,2007_NAICS_US_CODE,naics_id,mapped
+2011,perm_2011.xlsx,PW_AMOUNT_9089,prevailing_wage,mapped
+2011,perm_2011.xlsx,,prevailing_wage_determination_date,absent this year
+2011,perm_2011.xlsx,,prevailing_wage_expiration_date,absent this year
+2011,perm_2011.xlsx,PW_LEVEL_9089,prevailing_wage_level,mapped
+2011,perm_2011.xlsx,PW_SOURCE_NAME_9089,prevailing_wage_source,mapped
+2011,perm_2011.xlsx,,prevailing_wage_tracking_number,absent this year
+2011,perm_2011.xlsx,PW_UNIT_OF_PAY_9089,prevailing_wage_unit_of_pay,mapped
+2011,perm_2011.xlsx,,received_date,absent this year
+2011,perm_2011.xlsx,,refile,absent this year
+2011,perm_2011.xlsx,,required_experience,absent this year
+2011,perm_2011.xlsx,,required_experience_months,absent this year
+2011,perm_2011.xlsx,,schedule_a_sheepherder,absent this year
+2011,perm_2011.xlsx,PW_SOC_CODE,soc_id,mapped
+2011,perm_2011.xlsx,PW_SOC_TITLE,soc_title,mapped
+2011,perm_2011.xlsx,US_ECONOMIC_SECTOR,us_economic_sector,mapped
+2011,perm_2011.xlsx,WAGE_OFFER_FROM_9089,wage_offered_from,mapped
+2011,perm_2011.xlsx,WAGE_OFFER_TO_9089,wage_offered_to,mapped
+2011,perm_2011.xlsx,WAGE_OFFER_UNIT_OF_PAY_9089,wage_unit_of_pay,mapped
+2011,perm_2011.xlsx,,worksite_address,absent this year
+2011,perm_2011.xlsx,JOB_INFO_WORK_CITY,worksite_city,mapped
+2011,perm_2011.xlsx,,worksite_county,absent this year
+2011,perm_2011.xlsx,,worksite_postal_code,absent this year
+2011,perm_2011.xlsx,JOB_INFO_WORK_STATE,worksite_state,mapped
+2011,perm_2011.xlsx,2007_NAICS_US_TITLE,,dropped: NAICS title (code is kept)
+2011,perm_2011.xlsx,EMPLOYER_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2012,perm_2012.xlsx,,agent_representing_employer,absent this year
+2012,perm_2012.xlsx,APPLICATION_TYPE,application_type,mapped
+2012,perm_2012.xlsx,,attorney_law_firm_name,absent this year
+2012,perm_2012.xlsx,CASE_NO,case_number,mapped
+2012,perm_2012.xlsx,CASE_STATUS,case_status,mapped
+2012,perm_2012.xlsx,CLASS_OF_ADMISSION,class_of_admission,mapped
+2012,perm_2012.xlsx,COUNTRY_OF_CITZENSHIP,country_of_citizenship,mapped
+2012,perm_2012.xlsx,DECISION_DATE,decision_date,mapped
+2012,perm_2012.xlsx,EMPLOYER_ADDRESS_1,employer_address,mapped
+2012,perm_2012.xlsx,EMPLOYER_CITY,employer_city,mapped
+2012,perm_2012.xlsx,,employer_country,absent this year
+2012,perm_2012.xlsx,EMPLOYER_NAME,employer_name,mapped
+2012,perm_2012.xlsx,,employer_num_employees,absent this year
+2012,perm_2012.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2012,perm_2012.xlsx,EMPLOYER_STATE,employer_state,mapped
+2012,perm_2012.xlsx,,employer_trade_name,absent this year
+2012,perm_2012.xlsx,,employer_year_commenced_business,absent this year
+2012,perm_2012.xlsx,,foreign_worker_birth_country,absent this year
+2012,perm_2012.xlsx,,foreign_worker_education,absent this year
+2012,perm_2012.xlsx,,full_time_position,absent this year
+2012,perm_2012.xlsx,,is_multiple_worksites,absent this year
+2012,perm_2012.xlsx,PW_JOB_TITLE_9089,job_title,mapped
+2012,perm_2012.xlsx,,major_field_of_study,absent this year
+2012,perm_2012.xlsx,,minimum_education,absent this year
+2012,perm_2012.xlsx,2007_NAICS_US_CODE,naics_id,mapped
+2012,perm_2012.xlsx,PW_AMOUNT_9089,prevailing_wage,mapped
+2012,perm_2012.xlsx,,prevailing_wage_determination_date,absent this year
+2012,perm_2012.xlsx,,prevailing_wage_expiration_date,absent this year
+2012,perm_2012.xlsx,PW_LEVEL_9089,prevailing_wage_level,mapped
+2012,perm_2012.xlsx,PW_SOURCE_NAME_9089,prevailing_wage_source,mapped
+2012,perm_2012.xlsx,,prevailing_wage_tracking_number,absent this year
+2012,perm_2012.xlsx,PW_UNIT_OF_PAY_9089,prevailing_wage_unit_of_pay,mapped
+2012,perm_2012.xlsx,,received_date,absent this year
+2012,perm_2012.xlsx,,refile,absent this year
+2012,perm_2012.xlsx,,required_experience,absent this year
+2012,perm_2012.xlsx,,required_experience_months,absent this year
+2012,perm_2012.xlsx,,schedule_a_sheepherder,absent this year
+2012,perm_2012.xlsx,PW_SOC_CODE,soc_id,mapped
+2012,perm_2012.xlsx,PW_SOC_TITLE,soc_title,mapped
+2012,perm_2012.xlsx,US_ECONOMIC_SECTOR,us_economic_sector,mapped
+2012,perm_2012.xlsx,WAGE_OFFER_FROM_9089,wage_offered_from,mapped
+2012,perm_2012.xlsx,WAGE_OFFER_TO_9089,wage_offered_to,mapped
+2012,perm_2012.xlsx,WAGE_OFFER_UNIT_OF_PAY_9089,wage_unit_of_pay,mapped
+2012,perm_2012.xlsx,,worksite_address,absent this year
+2012,perm_2012.xlsx,JOB_INFO_WORK_CITY,worksite_city,mapped
+2012,perm_2012.xlsx,,worksite_county,absent this year
+2012,perm_2012.xlsx,,worksite_postal_code,absent this year
+2012,perm_2012.xlsx,JOB_INFO_WORK_STATE,worksite_state,mapped
+2012,perm_2012.xlsx,2007_NAICS_US_TITLE,,dropped: NAICS title (code is kept)
+2013,perm_2013.xlsx,,agent_representing_employer,absent this year
+2013,perm_2013.xlsx,APPLICATION_TYPE,application_type,mapped
+2013,perm_2013.xlsx,,attorney_law_firm_name,absent this year
+2013,perm_2013.xlsx,CASE_NO,case_number,mapped
+2013,perm_2013.xlsx,Case_Status,case_status,mapped
+2013,perm_2013.xlsx,Class_of_Admission,class_of_admission,mapped
+2013,perm_2013.xlsx,Country_of_Citizenship,country_of_citizenship,mapped
+2013,perm_2013.xlsx,Decision_Date,decision_date,mapped
+2013,perm_2013.xlsx,Employer_address_1,employer_address,mapped
+2013,perm_2013.xlsx,Employer_City,employer_city,mapped
+2013,perm_2013.xlsx,,employer_country,absent this year
+2013,perm_2013.xlsx,Employer_Name,employer_name,mapped
+2013,perm_2013.xlsx,,employer_num_employees,absent this year
+2013,perm_2013.xlsx,Employer_Postal_Code,employer_postal_code,mapped
+2013,perm_2013.xlsx,Employer_State,employer_state,mapped
+2013,perm_2013.xlsx,,employer_trade_name,absent this year
+2013,perm_2013.xlsx,,employer_year_commenced_business,absent this year
+2013,perm_2013.xlsx,,foreign_worker_birth_country,absent this year
+2013,perm_2013.xlsx,,foreign_worker_education,absent this year
+2013,perm_2013.xlsx,,full_time_position,absent this year
+2013,perm_2013.xlsx,,is_multiple_worksites,absent this year
+2013,perm_2013.xlsx,Add_These_PW_Job_Title_9089,job_title,mapped
+2013,perm_2013.xlsx,,major_field_of_study,absent this year
+2013,perm_2013.xlsx,,minimum_education,absent this year
+2013,perm_2013.xlsx,2007_NAICS_US_Code,naics_id,mapped
+2013,perm_2013.xlsx,PW_AMOUNT_9089,prevailing_wage,mapped
+2013,perm_2013.xlsx,,prevailing_wage_determination_date,absent this year
+2013,perm_2013.xlsx,,prevailing_wage_expiration_date,absent this year
+2013,perm_2013.xlsx,PW_LEVEL_9089,prevailing_wage_level,mapped
+2013,perm_2013.xlsx,PW_SOURCE_NAME_9089,prevailing_wage_source,mapped
+2013,perm_2013.xlsx,,prevailing_wage_tracking_number,absent this year
+2013,perm_2013.xlsx,PW_Unit_of_Pay_9089,prevailing_wage_unit_of_pay,mapped
+2013,perm_2013.xlsx,,received_date,absent this year
+2013,perm_2013.xlsx,,refile,absent this year
+2013,perm_2013.xlsx,,required_experience,absent this year
+2013,perm_2013.xlsx,,required_experience_months,absent this year
+2013,perm_2013.xlsx,,schedule_a_sheepherder,absent this year
+2013,perm_2013.xlsx,PW_SOC_Code,soc_id,mapped
+2013,perm_2013.xlsx,PW SOC Title,soc_title,mapped
+2013,perm_2013.xlsx,US ECONOMIC SECTOR,us_economic_sector,mapped
+2013,perm_2013.xlsx,WAGE_OFFERED_FROM_9089,wage_offered_from,mapped
+2013,perm_2013.xlsx,WAGE_OFFERED_TO_9089,wage_offered_to,mapped
+2013,perm_2013.xlsx,,wage_unit_of_pay,absent this year
+2013,perm_2013.xlsx,,worksite_address,absent this year
+2013,perm_2013.xlsx,Job_Info_Work_City,worksite_city,mapped
+2013,perm_2013.xlsx,,worksite_county,absent this year
+2013,perm_2013.xlsx,,worksite_postal_code,absent this year
+2013,perm_2013.xlsx,Job_Info_Work_State,worksite_state,mapped
+2013,perm_2013.xlsx,2007 NAICS US TITLE,,dropped: NAICS title (code is kept)
+2013,perm_2013.xlsx,Employer_address_2,,dropped: secondary worksite/wage block (primary worksite only)
+2013,perm_2013.xlsx,PW_Job_Title_9089,,duplicate of job_title
+2014,perm_2014.xlsx,,agent_representing_employer,absent this year
+2014,perm_2014.xlsx,APPLICATION_TYPE,application_type,mapped
+2014,perm_2014.xlsx,,attorney_law_firm_name,absent this year
+2014,perm_2014.xlsx,CASE_NO,case_number,mapped
+2014,perm_2014.xlsx,Case_Status,case_status,mapped
+2014,perm_2014.xlsx,Class_of_Admission,class_of_admission,mapped
+2014,perm_2014.xlsx,Country_of_Citizenship,country_of_citizenship,mapped
+2014,perm_2014.xlsx,Decision_Date,decision_date,mapped
+2014,perm_2014.xlsx,Employer_address_1,employer_address,mapped
+2014,perm_2014.xlsx,Employer_City,employer_city,mapped
+2014,perm_2014.xlsx,,employer_country,absent this year
+2014,perm_2014.xlsx,Employer_Name,employer_name,mapped
+2014,perm_2014.xlsx,,employer_num_employees,absent this year
+2014,perm_2014.xlsx,Employer_Postal_Code,employer_postal_code,mapped
+2014,perm_2014.xlsx,Employer_State,employer_state,mapped
+2014,perm_2014.xlsx,,employer_trade_name,absent this year
+2014,perm_2014.xlsx,,employer_year_commenced_business,absent this year
+2014,perm_2014.xlsx,,foreign_worker_birth_country,absent this year
+2014,perm_2014.xlsx,,foreign_worker_education,absent this year
+2014,perm_2014.xlsx,,full_time_position,absent this year
+2014,perm_2014.xlsx,,is_multiple_worksites,absent this year
+2014,perm_2014.xlsx,PW_Job_Title_9089,job_title,mapped
+2014,perm_2014.xlsx,,major_field_of_study,absent this year
+2014,perm_2014.xlsx,,minimum_education,absent this year
+2014,perm_2014.xlsx,2007_NAICS_US_CODE,naics_id,mapped
+2014,perm_2014.xlsx,PW_AMOUNT_9089,prevailing_wage,mapped
+2014,perm_2014.xlsx,,prevailing_wage_determination_date,absent this year
+2014,perm_2014.xlsx,,prevailing_wage_expiration_date,absent this year
+2014,perm_2014.xlsx,PW_LEVEL_9089,prevailing_wage_level,mapped
+2014,perm_2014.xlsx,PW_SOURCE_NAME_9089,prevailing_wage_source,mapped
+2014,perm_2014.xlsx,,prevailing_wage_tracking_number,absent this year
+2014,perm_2014.xlsx,PW_UNIT_OF_PAY_9089,prevailing_wage_unit_of_pay,mapped
+2014,perm_2014.xlsx,,received_date,absent this year
+2014,perm_2014.xlsx,,refile,absent this year
+2014,perm_2014.xlsx,,required_experience,absent this year
+2014,perm_2014.xlsx,,required_experience_months,absent this year
+2014,perm_2014.xlsx,,schedule_a_sheepherder,absent this year
+2014,perm_2014.xlsx,PW_SOC_Code,soc_id,mapped
+2014,perm_2014.xlsx,PW_SOC_TITLE,soc_title,mapped
+2014,perm_2014.xlsx,US_ECONOMIC_SECTOR,us_economic_sector,mapped
+2014,perm_2014.xlsx,WAGE_OFFERED_FROM_9089,wage_offered_from,mapped
+2014,perm_2014.xlsx,WAGE_OFFERED_TO_9089,wage_offered_to,mapped
+2014,perm_2014.xlsx,WAGE_OFFERED_UNIT_OF_PAY_9089,wage_unit_of_pay,mapped
+2014,perm_2014.xlsx,,worksite_address,absent this year
+2014,perm_2014.xlsx,Job_Info_Work_City,worksite_city,mapped
+2014,perm_2014.xlsx,,worksite_county,absent this year
+2014,perm_2014.xlsx,,worksite_postal_code,absent this year
+2014,perm_2014.xlsx,Job_Info_Work_State,worksite_state,mapped
+2014,perm_2014.xlsx,2007_NAICS_US_TITLE,,dropped: NAICS title (code is kept)
+2014,perm_2014.xlsx,Employer_address_2,,dropped: secondary worksite/wage block (primary worksite only)
+2015,perm_2015.xlsx,,agent_representing_employer,absent this year
+2015,perm_2015.xlsx,,application_type,absent this year
+2015,perm_2015.xlsx,AGENT_FIRM_NAME,attorney_law_firm_name,mapped
+2015,perm_2015.xlsx,CASE_NUMBER,case_number,mapped
+2015,perm_2015.xlsx,CASE_STATUS,case_status,mapped
+2015,perm_2015.xlsx,CLASS_OF_ADMISSION,class_of_admission,mapped
+2015,perm_2015.xlsx,COUNTRY_OF_CITIZENSHIP,country_of_citizenship,mapped
+2015,perm_2015.xlsx,DECISION_DATE,decision_date,mapped
+2015,perm_2015.xlsx,EMPLOYER_ADDRESS_1,employer_address,mapped
+2015,perm_2015.xlsx,EMPLOYER_CITY,employer_city,mapped
+2015,perm_2015.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2015,perm_2015.xlsx,EMPLOYER_NAME,employer_name,mapped
+2015,perm_2015.xlsx,EMPLOYER_NUM_EMPLOYEES,employer_num_employees,mapped
+2015,perm_2015.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2015,perm_2015.xlsx,EMPLOYER_STATE,employer_state,mapped
+2015,perm_2015.xlsx,,employer_trade_name,absent this year
+2015,perm_2015.xlsx,EMPLOYER_YR_ESTAB,employer_year_commenced_business,mapped
+2015,perm_2015.xlsx,FW_INFO_BIRTH_COUNTRY,foreign_worker_birth_country,mapped
+2015,perm_2015.xlsx,FOREIGN_WORKER_INFO_EDUCATION,foreign_worker_education,mapped
+2015,perm_2015.xlsx,,full_time_position,absent this year
+2015,perm_2015.xlsx,,is_multiple_worksites,absent this year
+2015,perm_2015.xlsx,JOB_INFO_JOB_TITLE,job_title,mapped
+2015,perm_2015.xlsx,JOB_INFO_MAJOR,major_field_of_study,mapped
+2015,perm_2015.xlsx,JOB_INFO_EDUCATION,minimum_education,mapped
+2015,perm_2015.xlsx,NAICS_US_CODE,naics_id,mapped
+2015,perm_2015.xlsx,PW_AMOUNT_9089,prevailing_wage,mapped
+2015,perm_2015.xlsx,PW_DETERM_DATE,prevailing_wage_determination_date,mapped
+2015,perm_2015.xlsx,PW_EXPIRE_DATE,prevailing_wage_expiration_date,mapped
+2015,perm_2015.xlsx,PW_LEVEL_9089,prevailing_wage_level,mapped
+2015,perm_2015.xlsx,PW_SOURCE_NAME_9089,prevailing_wage_source,mapped
+2015,perm_2015.xlsx,PW_TRACK_NUM,prevailing_wage_tracking_number,mapped
+2015,perm_2015.xlsx,PW_UNIT_OF_PAY_9089,prevailing_wage_unit_of_pay,mapped
+2015,perm_2015.xlsx,CASE_RECEIVED_DATE,received_date,mapped
+2015,perm_2015.xlsx,REFILE,refile,mapped
+2015,perm_2015.xlsx,JOB_INFO_EXPERIENCE,required_experience,mapped
+2015,perm_2015.xlsx,JOB_INFO_EXPERIENCE_NUM_MONTHS,required_experience_months,mapped
+2015,perm_2015.xlsx,SCHD_A_SHEEPHERDER,schedule_a_sheepherder,mapped
+2015,perm_2015.xlsx,PW_SOC_CODE,soc_id,mapped
+2015,perm_2015.xlsx,PW_SOC_TITLE,soc_title,mapped
+2015,perm_2015.xlsx,,us_economic_sector,absent this year
+2015,perm_2015.xlsx,WAGE_OFFER_FROM_9089,wage_offered_from,mapped
+2015,perm_2015.xlsx,WAGE_OFFER_TO_9089,wage_offered_to,mapped
+2015,perm_2015.xlsx,WAGE_OFFER_UNIT_OF_PAY_9089,wage_unit_of_pay,mapped
+2015,perm_2015.xlsx,,worksite_address,absent this year
+2015,perm_2015.xlsx,JOB_INFO_WORK_CITY,worksite_city,mapped
+2015,perm_2015.xlsx,,worksite_county,absent this year
+2015,perm_2015.xlsx,JOB_INFO_WORK_POSTAL_CODE,worksite_postal_code,mapped
+2015,perm_2015.xlsx,JOB_INFO_WORK_STATE,worksite_state,mapped
+2015,perm_2015.xlsx,AGENT_CITY,,dropped: agent location detail
+2015,perm_2015.xlsx,AGENT_STATE,,dropped: agent location detail
+2015,perm_2015.xlsx,EMPLOYER_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2015,perm_2015.xlsx,EMPLOYER_DECL_INFO_TITLE,,dropped: declarant personal details
+2015,perm_2015.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2015,perm_2015.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2015,perm_2015.xlsx,FOREIGN_WORKER_INFO_CITY,,dropped: foreign worker residence — personal
+2015,perm_2015.xlsx,FOREIGN_WORKER_INFO_INST,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,FOREIGN_WORKER_INFO_MAJOR,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,FOREIGN_WORKER_INFO_STATE,,dropped: foreign worker residence — personal
+2015,perm_2015.xlsx,FW_INFO_ALT_EDU_EXPERIENCE,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,FW_INFO_EDUCATION_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,FW_INFO_POSTAL_CODE,,dropped: foreign worker residence — personal
+2015,perm_2015.xlsx,FW_INFO_REL_OCCUP_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,FW_INFO_REQ_EXPERIENCE,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,FW_INFO_TRAINING_COMP,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,FW_INFO_YR_REL_EDU_COMPLETED,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,FW_OWNERSHIP_INTEREST,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,JI_FOREIGN_WORKER_LIVE_ON_PREMISES,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,JI_LIVE_IN_DOMESTIC_SERVICE,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,JI_LIVE_IN_DOM_SVC_CONTRACT,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,JI_OFFERED_TO_SEC_J_FOREIGN_WORKER,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,JOB_INFO_ALT_CMB_ED_OTH_YRS,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,JOB_INFO_ALT_COMBO_ED,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,JOB_INFO_ALT_COMBO_ED_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,JOB_INFO_ALT_COMBO_ED_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,JOB_INFO_ALT_FIELD,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,JOB_INFO_ALT_FIELD_NAME,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,JOB_INFO_ALT_OCC,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,JOB_INFO_ALT_OCC_JOB_TITLE,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,JOB_INFO_ALT_OCC_NUM_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,JOB_INFO_COMBO_OCCUPATION,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,JOB_INFO_EDUCATION_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,JOB_INFO_FOREIGN_ED,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,JOB_INFO_FOREIGN_LANG_REQ,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,JOB_INFO_JOB_REQ_NORMAL,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,JOB_INFO_TRAINING,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,JOB_INFO_TRAINING_FIELD,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,JOB_INFO_TRAINING_NUM_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,NAICS_US_TITLE,,dropped: NAICS title (code is kept)
+2015,perm_2015.xlsx,ORIG_CASE_NO,,dropped: PERM job-requirement / worker-qualification detail
+2015,perm_2015.xlsx,ORIG_FILE_DATE,,duplicate of received_date
+2015,perm_2015.xlsx,PREPARER_INFO_EMP_COMPLETED,,dropped: form preparer personal details
+2015,perm_2015.xlsx,PREPARER_INFO_TITLE,,dropped: form preparer personal details
+2015,perm_2015.xlsx,PW_Job_Title_9089,,duplicate of job_title
+2015,perm_2015.xlsx,PW_SOURCE_NAME_OTHER_9089,,dropped: prevailing wage survey detail
+2015,perm_2015.xlsx,RECR_INFO_COLL_TEACH_COMP_PROC,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RECR_INFO_COLL_UNIV_TEACHER,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RECR_INFO_EMPLOYER_REC_PAYMENT,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RECR_INFO_FIRST_AD_START,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RECR_INFO_JOB_FAIR_FROM,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RECR_INFO_JOB_FAIR_TO,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RECR_INFO_ON_CAMPUS_RECR_FROM,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RECR_INFO_ON_CAMPUS_RECR_TO,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RECR_INFO_PROFESSIONAL_OCC,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RECR_INFO_PRO_ORG_ADVERT_FROM,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RECR_INFO_PRO_ORG_ADVERT_TO,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RECR_INFO_RADIO_TV_AD_FROM,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RECR_INFO_RADIO_TV_AD_TO,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RECR_INFO_SECOND_AD_START,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RECR_INFO_SUNDAY_NEWSPAPER,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RECR_INFO_SWA_JOB_ORDER_END,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RECR_INFO_SWA_JOB_ORDER_START,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,REC_INFO_BARG_REP_NOTIFIED,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RI_1ST_AD_NEWSPAPER_NAME,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RI_2ND_AD_NEWSPAPER_NAME,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RI_2ND_AD_NEWSPAPER_OR_JOURNAL,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RI_CAMPUS_PLACEMENT_FROM,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RI_CAMPUS_PLACEMENT_TO,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RI_COLL_TCH_BASIC_PROCESS,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RI_COLL_TEACH_PRO_JNL,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RI_COLL_TEACH_SELECT_DATE,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RI_EMPLOYEE_REFERRAL_PROG_FROM,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RI_EMPLOYEE_REFERRAL_PROG_TO,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RI_EMPLOYER_WEB_POST_FROM,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RI_EMPLOYER_WEB_POST_TO,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RI_JOB_SEARCH_WEBSITE_FROM,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RI_JOB_SEARCH_WEBSITE_TO,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RI_LAYOFF_IN_PAST_SIX_MONTHS,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RI_LOCAL_ETHNIC_PAPER_FROM,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RI_LOCAL_ETHNIC_PAPER_TO,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RI_POSTED_NOTICE_AT_WORKSITE,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RI_PVT_EMPLOYMENT_FIRM_FROM,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RI_PVT_EMPLOYMENT_FIRM_TO,,dropped: PERM recruitment process detail
+2015,perm_2015.xlsx,RI_US_WORKERS_CONSIDERED,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,,agent_representing_employer,absent this year
+2016,perm_2016.xlsx,,application_type,absent this year
+2016,perm_2016.xlsx,AGENT_FIRM_NAME,attorney_law_firm_name,mapped
+2016,perm_2016.xlsx,CASE_NUMBER,case_number,mapped
+2016,perm_2016.xlsx,CASE_STATUS,case_status,mapped
+2016,perm_2016.xlsx,CLASS_OF_ADMISSION,class_of_admission,mapped
+2016,perm_2016.xlsx,COUNTRY_OF_CITIZENSHIP,country_of_citizenship,mapped
+2016,perm_2016.xlsx,DECISION_DATE,decision_date,mapped
+2016,perm_2016.xlsx,EMPLOYER_ADDRESS_1,employer_address,mapped
+2016,perm_2016.xlsx,EMPLOYER_CITY,employer_city,mapped
+2016,perm_2016.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2016,perm_2016.xlsx,EMPLOYER_NAME,employer_name,mapped
+2016,perm_2016.xlsx,EMPLOYER_NUM_EMPLOYEES,employer_num_employees,mapped
+2016,perm_2016.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2016,perm_2016.xlsx,EMPLOYER_STATE,employer_state,mapped
+2016,perm_2016.xlsx,,employer_trade_name,absent this year
+2016,perm_2016.xlsx,EMPLOYER_YR_ESTAB,employer_year_commenced_business,mapped
+2016,perm_2016.xlsx,FW_INFO_BIRTH_COUNTRY,foreign_worker_birth_country,mapped
+2016,perm_2016.xlsx,FOREIGN_WORKER_INFO_EDUCATION,foreign_worker_education,mapped
+2016,perm_2016.xlsx,,full_time_position,absent this year
+2016,perm_2016.xlsx,,is_multiple_worksites,absent this year
+2016,perm_2016.xlsx,JOB_INFO_JOB_TITLE,job_title,mapped
+2016,perm_2016.xlsx,JOB_INFO_MAJOR,major_field_of_study,mapped
+2016,perm_2016.xlsx,JOB_INFO_EDUCATION,minimum_education,mapped
+2016,perm_2016.xlsx,NAICS_US_CODE,naics_id,mapped
+2016,perm_2016.xlsx,PW_AMOUNT_9089,prevailing_wage,mapped
+2016,perm_2016.xlsx,PW_DETERM_DATE,prevailing_wage_determination_date,mapped
+2016,perm_2016.xlsx,PW_EXPIRE_DATE,prevailing_wage_expiration_date,mapped
+2016,perm_2016.xlsx,PW_LEVEL_9089,prevailing_wage_level,mapped
+2016,perm_2016.xlsx,PW_SOURCE_NAME_9089,prevailing_wage_source,mapped
+2016,perm_2016.xlsx,PW_TRACK_NUM,prevailing_wage_tracking_number,mapped
+2016,perm_2016.xlsx,PW_UNIT_OF_PAY_9089,prevailing_wage_unit_of_pay,mapped
+2016,perm_2016.xlsx,CASE_RECEIVED_DATE,received_date,mapped
+2016,perm_2016.xlsx,REFILE,refile,mapped
+2016,perm_2016.xlsx,JOB_INFO_EXPERIENCE,required_experience,mapped
+2016,perm_2016.xlsx,JOB_INFO_EXPERIENCE_NUM_MONTHS,required_experience_months,mapped
+2016,perm_2016.xlsx,SCHD_A_SHEEPHERDER,schedule_a_sheepherder,mapped
+2016,perm_2016.xlsx,PW_SOC_CODE,soc_id,mapped
+2016,perm_2016.xlsx,PW_SOC_TITLE,soc_title,mapped
+2016,perm_2016.xlsx,,us_economic_sector,absent this year
+2016,perm_2016.xlsx,WAGE_OFFER_FROM_9089,wage_offered_from,mapped
+2016,perm_2016.xlsx,WAGE_OFFER_TO_9089,wage_offered_to,mapped
+2016,perm_2016.xlsx,WAGE_OFFER_UNIT_OF_PAY_9089,wage_unit_of_pay,mapped
+2016,perm_2016.xlsx,,worksite_address,absent this year
+2016,perm_2016.xlsx,JOB_INFO_WORK_CITY,worksite_city,mapped
+2016,perm_2016.xlsx,,worksite_county,absent this year
+2016,perm_2016.xlsx,JOB_INFO_WORK_POSTAL_CODE,worksite_postal_code,mapped
+2016,perm_2016.xlsx,JOB_INFO_WORK_STATE,worksite_state,mapped
+2016,perm_2016.xlsx,AGENT_CITY,,dropped: agent location detail
+2016,perm_2016.xlsx,AGENT_STATE,,dropped: agent location detail
+2016,perm_2016.xlsx,EMPLOYER_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2016,perm_2016.xlsx,EMPLOYER_DECL_INFO_TITLE,,dropped: declarant personal details
+2016,perm_2016.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2016,perm_2016.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2016,perm_2016.xlsx,FOREIGN_WORKER_INFO_CITY,,dropped: foreign worker residence — personal
+2016,perm_2016.xlsx,FOREIGN_WORKER_INFO_INST,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,FOREIGN_WORKER_INFO_MAJOR,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,FOREIGN_WORKER_INFO_STATE,,dropped: foreign worker residence — personal
+2016,perm_2016.xlsx,FW_INFO_ALT_EDU_EXPERIENCE,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,FW_INFO_EDUCATION_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,FW_INFO_POSTAL_CODE,,dropped: foreign worker residence — personal
+2016,perm_2016.xlsx,FW_INFO_REL_OCCUP_EXPERIENCE,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,FW_INFO_REQ_EXPERIENCE,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,FW_INFO_TRAINING_COMP,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,FW_INFO_YR_REL_EDU_COMPLETED,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,FW_OWNERSHIP_INTEREST,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,JI_FW_LIVE_ON_PREMISES,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,JI_LIVE_IN_DOMESTIC_SERVICE,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,JI_LIVE_IN_DOM_SVC_CONTRACT,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,JI_OFFERED_TO_SEC_J_FW,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,JOB_INFO_ALT_CMB_ED_OTH_YRS,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,JOB_INFO_ALT_COMBO_ED,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,JOB_INFO_ALT_COMBO_ED_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,JOB_INFO_ALT_COMBO_ED_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,JOB_INFO_ALT_FIELD,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,JOB_INFO_ALT_FIELD_NAME,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,JOB_INFO_ALT_OCC,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,JOB_INFO_ALT_OCC_JOB_TITLE,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,JOB_INFO_ALT_OCC_NUM_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,JOB_INFO_COMBO_OCCUPATION,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,JOB_INFO_EDUCATION_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,JOB_INFO_FOREIGN_ED,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,JOB_INFO_FOREIGN_LANG_REQ,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,JOB_INFO_JOB_REQ_NORMAL,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,JOB_INFO_TRAINING,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,JOB_INFO_TRAINING_FIELD,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,JOB_INFO_TRAINING_NUM_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,NAICS_US_TITLE,,dropped: NAICS title (code is kept)
+2016,perm_2016.xlsx,ORIG_CASE_NO,,dropped: PERM job-requirement / worker-qualification detail
+2016,perm_2016.xlsx,ORIG_FILE_DATE,,duplicate of received_date
+2016,perm_2016.xlsx,PREPARER_INFO_EMP_COMPLETED,,dropped: form preparer personal details
+2016,perm_2016.xlsx,PREPARER_INFO_TITLE,,dropped: form preparer personal details
+2016,perm_2016.xlsx,PW_Job_Title_9089,,duplicate of job_title
+2016,perm_2016.xlsx,PW_SOURCE_NAME_OTHER_9089,,dropped: prevailing wage survey detail
+2016,perm_2016.xlsx,RECR_INFO_BARG_REP_NOTIFIED,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RECR_INFO_COLL_TEACH_COMP_PROC,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RECR_INFO_COLL_UNIV_TEACHER,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RECR_INFO_EMPLOYER_REC_PAYMENT,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RECR_INFO_FIRST_AD_START,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RECR_INFO_JOB_FAIR_FROM,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RECR_INFO_JOB_FAIR_TO,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RECR_INFO_ON_CAMPUS_RECR_FROM,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RECR_INFO_ON_CAMPUS_RECR_TO,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RECR_INFO_PROFESSIONAL_OCC,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RECR_INFO_PRO_ORG_ADVERT_FROM,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RECR_INFO_PRO_ORG_ADVERT_TO,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RECR_INFO_RADIO_TV_AD_FROM,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RECR_INFO_RADIO_TV_AD_TO,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RECR_INFO_SECOND_AD_START,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RECR_INFO_SUNDAY_NEWSPAPER,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RECR_INFO_SWA_JOB_ORDER_END,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RECR_INFO_SWA_JOB_ORDER_START,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RI_1ST_AD_NEWSPAPER_NAME,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RI_2ND_AD_NEWSPAPER_NAME,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RI_2ND_AD_NEWSPAPER_OR_JOURNAL,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RI_CAMPUS_PLACEMENT_FROM,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RI_CAMPUS_PLACEMENT_TO,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RI_COLL_TCH_BASIC_PROCESS,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RI_COLL_TEACH_PRO_JNL,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RI_COLL_TEACH_SELECT_DATE,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RI_EMPLOYEE_REFERRAL_PROG_FROM,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RI_EMPLOYEE_REFERRAL_PROG_TO,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RI_EMPLOYER_WEB_POST_FROM,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RI_EMPLOYER_WEB_POST_TO,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RI_JOB_SEARCH_WEBSITE_FROM,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RI_JOB_SEARCH_WEBSITE_TO,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RI_LAYOFF_IN_PAST_SIX_MONTHS,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RI_LOCAL_ETHNIC_PAPER_FROM,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RI_LOCAL_ETHNIC_PAPER_TO,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RI_POSTED_NOTICE_AT_WORKSITE,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RI_PVT_EMPLOYMENT_FIRM_FROM,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RI_PVT_EMPLOYMENT_FIRM_TO,,dropped: PERM recruitment process detail
+2016,perm_2016.xlsx,RI_US_WORKERS_CONSIDERED,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,,agent_representing_employer,absent this year
+2017,perm_2017.xlsx,,application_type,absent this year
+2017,perm_2017.xlsx,AGENT_FIRM_NAME,attorney_law_firm_name,mapped
+2017,perm_2017.xlsx,CASE_NUMBER,case_number,mapped
+2017,perm_2017.xlsx,CASE_STATUS,case_status,mapped
+2017,perm_2017.xlsx,CLASS_OF_ADMISSION,class_of_admission,mapped
+2017,perm_2017.xlsx,COUNTRY_OF_CITIZENSHIP,country_of_citizenship,mapped
+2017,perm_2017.xlsx,DECISION_DATE,decision_date,mapped
+2017,perm_2017.xlsx,EMPLOYER_ADDRESS_1,employer_address,mapped
+2017,perm_2017.xlsx,EMPLOYER_CITY,employer_city,mapped
+2017,perm_2017.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2017,perm_2017.xlsx,EMPLOYER_NAME,employer_name,mapped
+2017,perm_2017.xlsx,EMPLOYER_NUM_EMPLOYEES,employer_num_employees,mapped
+2017,perm_2017.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2017,perm_2017.xlsx,EMPLOYER_STATE,employer_state,mapped
+2017,perm_2017.xlsx,,employer_trade_name,absent this year
+2017,perm_2017.xlsx,EMPLOYER_YR_ESTAB,employer_year_commenced_business,mapped
+2017,perm_2017.xlsx,FW_INFO_BIRTH_COUNTRY,foreign_worker_birth_country,mapped
+2017,perm_2017.xlsx,FOREIGN_WORKER_INFO_EDUCATION,foreign_worker_education,mapped
+2017,perm_2017.xlsx,,full_time_position,absent this year
+2017,perm_2017.xlsx,,is_multiple_worksites,absent this year
+2017,perm_2017.xlsx,JOB_INFO_JOB_TITLE,job_title,mapped
+2017,perm_2017.xlsx,JOB_INFO_MAJOR,major_field_of_study,mapped
+2017,perm_2017.xlsx,JOB_INFO_EDUCATION,minimum_education,mapped
+2017,perm_2017.xlsx,NAICS_US_CODE,naics_id,mapped
+2017,perm_2017.xlsx,PW_AMOUNT_9089,prevailing_wage,mapped
+2017,perm_2017.xlsx,PW_DETERM_DATE,prevailing_wage_determination_date,mapped
+2017,perm_2017.xlsx,PW_EXPIRE_DATE,prevailing_wage_expiration_date,mapped
+2017,perm_2017.xlsx,PW_LEVEL_9089,prevailing_wage_level,mapped
+2017,perm_2017.xlsx,PW_SOURCE_NAME_9089,prevailing_wage_source,mapped
+2017,perm_2017.xlsx,PW_TRACK_NUM,prevailing_wage_tracking_number,mapped
+2017,perm_2017.xlsx,PW_UNIT_OF_PAY_9089,prevailing_wage_unit_of_pay,mapped
+2017,perm_2017.xlsx,CASE_RECEIVED_DATE,received_date,mapped
+2017,perm_2017.xlsx,REFILE,refile,mapped
+2017,perm_2017.xlsx,JOB_INFO_EXPERIENCE,required_experience,mapped
+2017,perm_2017.xlsx,JOB_INFO_EXPERIENCE_NUM_MONTHS,required_experience_months,mapped
+2017,perm_2017.xlsx,SCHD_A_SHEEPHERDER,schedule_a_sheepherder,mapped
+2017,perm_2017.xlsx,PW_SOC_CODE,soc_id,mapped
+2017,perm_2017.xlsx,PW_SOC_TITLE,soc_title,mapped
+2017,perm_2017.xlsx,,us_economic_sector,absent this year
+2017,perm_2017.xlsx,WAGE_OFFER_FROM_9089,wage_offered_from,mapped
+2017,perm_2017.xlsx,WAGE_OFFER_TO_9089,wage_offered_to,mapped
+2017,perm_2017.xlsx,WAGE_OFFER_UNIT_OF_PAY_9089,wage_unit_of_pay,mapped
+2017,perm_2017.xlsx,,worksite_address,absent this year
+2017,perm_2017.xlsx,JOB_INFO_WORK_CITY,worksite_city,mapped
+2017,perm_2017.xlsx,,worksite_county,absent this year
+2017,perm_2017.xlsx,JOB_INFO_WORK_POSTAL_CODE,worksite_postal_code,mapped
+2017,perm_2017.xlsx,JOB_INFO_WORK_STATE,worksite_state,mapped
+2017,perm_2017.xlsx,AGENT_CITY,,dropped: agent location detail
+2017,perm_2017.xlsx,AGENT_STATE,,dropped: agent location detail
+2017,perm_2017.xlsx,EMPLOYER_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2017,perm_2017.xlsx,EMPLOYER_DECL_INFO_TITLE,,dropped: declarant personal details
+2017,perm_2017.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2017,perm_2017.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2017,perm_2017.xlsx,FOREIGN_WORKER_INFO_CITY,,dropped: foreign worker residence — personal
+2017,perm_2017.xlsx,FOREIGN_WORKER_INFO_INST,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,FOREIGN_WORKER_INFO_MAJOR,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,FOREIGN_WORKER_INFO_STATE,,dropped: foreign worker residence — personal
+2017,perm_2017.xlsx,FW_INFO_ALT_EDU_EXPERIENCE,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,FW_INFO_EDUCATION_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,FW_INFO_POSTAL_CODE,,dropped: foreign worker residence — personal
+2017,perm_2017.xlsx,FW_INFO_REL_OCCUP_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,FW_INFO_REQ_EXPERIENCE,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,FW_INFO_TRAINING_COMP,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,FW_INFO_YR_REL_EDU_COMPLETED,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,FW_OWNERSHIP_INTEREST,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,JI_FW_LIVE_ON_PREMISES,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,JI_LIVE_IN_DOMESTIC_SERVICE,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,JI_LIVE_IN_DOM_SVC_CONTRACT,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,JI_OFFERED_TO_SEC_J_FW,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,JOB_INFO_ALT_CMB_ED_OTH_YRS,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,JOB_INFO_ALT_COMBO_ED,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,JOB_INFO_ALT_COMBO_ED_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,JOB_INFO_ALT_COMBO_ED_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,JOB_INFO_ALT_FIELD,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,JOB_INFO_ALT_FIELD_NAME,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,JOB_INFO_ALT_OCC,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,JOB_INFO_ALT_OCC_JOB_TITLE,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,JOB_INFO_ALT_OCC_NUM_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,JOB_INFO_COMBO_OCCUPATION,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,JOB_INFO_EDUCATION_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,JOB_INFO_FOREIGN_ED,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,JOB_INFO_FOREIGN_LANG_REQ,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,JOB_INFO_JOB_REQ_NORMAL,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,JOB_INFO_TRAINING,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,JOB_INFO_TRAINING_FIELD,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,JOB_INFO_TRAINING_NUM_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,NAICS_US_TITLE,,dropped: NAICS title (code is kept)
+2017,perm_2017.xlsx,ORIG_CASE_NO,,dropped: PERM job-requirement / worker-qualification detail
+2017,perm_2017.xlsx,ORIG_FILE_DATE,,duplicate of received_date
+2017,perm_2017.xlsx,PREPARER_INFO_EMP_COMPLETED,,dropped: form preparer personal details
+2017,perm_2017.xlsx,PREPARER_INFO_TITLE,,dropped: form preparer personal details
+2017,perm_2017.xlsx,PW_JOB_TITLE_9089,,duplicate of job_title
+2017,perm_2017.xlsx,PW_SOURCE_NAME_OTHER_9089,,dropped: prevailing wage survey detail
+2017,perm_2017.xlsx,RECR_INFO_BARG_REP_NOTIFIED,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RECR_INFO_COLL_TEACH_COMP_PROC,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RECR_INFO_COLL_UNIV_TEACHER,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RECR_INFO_EMPLOYER_REC_PAYMENT,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RECR_INFO_FIRST_AD_START,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RECR_INFO_JOB_FAIR_FROM,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RECR_INFO_JOB_FAIR_TO,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RECR_INFO_ON_CAMPUS_RECR_FROM,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RECR_INFO_ON_CAMPUS_RECR_TO,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RECR_INFO_PROFESSIONAL_OCC,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RECR_INFO_PRO_ORG_ADVERT_FROM,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RECR_INFO_PRO_ORG_ADVERT_TO,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RECR_INFO_RADIO_TV_AD_FROM,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RECR_INFO_RADIO_TV_AD_TO,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RECR_INFO_SECOND_AD_START,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RECR_INFO_SUNDAY_NEWSPAPER,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RECR_INFO_SWA_JOB_ORDER_END,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RECR_INFO_SWA_JOB_ORDER_START,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RI_1ST_AD_NEWSPAPER_NAME,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RI_2ND_AD_NEWSPAPER_NAME,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RI_2ND_AD_NEWSPAPER_OR_JOURNAL,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RI_CAMPUS_PLACEMENT_FROM,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RI_CAMPUS_PLACEMENT_TO,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RI_COLL_TCH_BASIC_PROCESS,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RI_COLL_TEACH_PRO_JNL,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RI_COLL_TEACH_SELECT_DATE,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RI_EMPLOYEE_REFERRAL_PROG_FROM,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RI_EMPLOYEE_REFERRAL_PROG_TO,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RI_EMPLOYER_WEB_POST_FROM,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RI_EMPLOYER_WEB_POST_TO,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RI_JOB_SEARCH_WEBSITE_FROM,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RI_JOB_SEARCH_WEBSITE_TO,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RI_LAYOFF_IN_PAST_SIX_MONTHS,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RI_LOCAL_ETHNIC_PAPER_FROM,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RI_LOCAL_ETHNIC_PAPER_TO,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RI_POSTED_NOTICE_AT_WORKSITE,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RI_PVT_EMPLOYMENT_FIRM_FROM,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RI_PVT_EMPLOYMENT_FIRM_TO,,dropped: PERM recruitment process detail
+2017,perm_2017.xlsx,RI_US_WORKERS_CONSIDERED,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,,agent_representing_employer,absent this year
+2018,perm_2018.xlsx,,application_type,absent this year
+2018,perm_2018.xlsx,AGENT_FIRM_NAME,attorney_law_firm_name,mapped
+2018,perm_2018.xlsx,CASE_NUMBER,case_number,mapped
+2018,perm_2018.xlsx,CASE_STATUS,case_status,mapped
+2018,perm_2018.xlsx,CLASS_OF_ADMISSION,class_of_admission,mapped
+2018,perm_2018.xlsx,COUNTRY_OF_CITIZENSHIP,country_of_citizenship,mapped
+2018,perm_2018.xlsx,DECISION_DATE,decision_date,mapped
+2018,perm_2018.xlsx,EMPLOYER_ADDRESS_1,employer_address,mapped
+2018,perm_2018.xlsx,EMPLOYER_CITY,employer_city,mapped
+2018,perm_2018.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2018,perm_2018.xlsx,EMPLOYER_NAME,employer_name,mapped
+2018,perm_2018.xlsx,EMPLOYER_NUM_EMPLOYEES,employer_num_employees,mapped
+2018,perm_2018.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2018,perm_2018.xlsx,EMPLOYER_STATE,employer_state,mapped
+2018,perm_2018.xlsx,,employer_trade_name,absent this year
+2018,perm_2018.xlsx,EMPLOYER_YR_ESTAB,employer_year_commenced_business,mapped
+2018,perm_2018.xlsx,FW_INFO_BIRTH_COUNTRY,foreign_worker_birth_country,mapped
+2018,perm_2018.xlsx,FOREIGN_WORKER_INFO_EDUCATION,foreign_worker_education,mapped
+2018,perm_2018.xlsx,,full_time_position,absent this year
+2018,perm_2018.xlsx,,is_multiple_worksites,absent this year
+2018,perm_2018.xlsx,JOB_INFO_JOB_TITLE,job_title,mapped
+2018,perm_2018.xlsx,JOB_INFO_MAJOR,major_field_of_study,mapped
+2018,perm_2018.xlsx,JOB_INFO_EDUCATION,minimum_education,mapped
+2018,perm_2018.xlsx,NAICS_US_CODE,naics_id,mapped
+2018,perm_2018.xlsx,PW_AMOUNT_9089,prevailing_wage,mapped
+2018,perm_2018.xlsx,PW_DETERM_DATE,prevailing_wage_determination_date,mapped
+2018,perm_2018.xlsx,PW_EXPIRE_DATE,prevailing_wage_expiration_date,mapped
+2018,perm_2018.xlsx,PW_LEVEL_9089,prevailing_wage_level,mapped
+2018,perm_2018.xlsx,PW_SOURCE_NAME_9089,prevailing_wage_source,mapped
+2018,perm_2018.xlsx,PW_TRACK_NUM,prevailing_wage_tracking_number,mapped
+2018,perm_2018.xlsx,PW_UNIT_OF_PAY_9089,prevailing_wage_unit_of_pay,mapped
+2018,perm_2018.xlsx,CASE_RECEIVED_DATE,received_date,mapped
+2018,perm_2018.xlsx,REFILE,refile,mapped
+2018,perm_2018.xlsx,JOB_INFO_EXPERIENCE,required_experience,mapped
+2018,perm_2018.xlsx,JOB_INFO_EXPERIENCE_NUM_MONTHS,required_experience_months,mapped
+2018,perm_2018.xlsx,SCHD_A_SHEEPHERDER,schedule_a_sheepherder,mapped
+2018,perm_2018.xlsx,PW_SOC_CODE,soc_id,mapped
+2018,perm_2018.xlsx,PW_SOC_TITLE,soc_title,mapped
+2018,perm_2018.xlsx,,us_economic_sector,absent this year
+2018,perm_2018.xlsx,WAGE_OFFER_FROM_9089,wage_offered_from,mapped
+2018,perm_2018.xlsx,WAGE_OFFER_TO_9089,wage_offered_to,mapped
+2018,perm_2018.xlsx,WAGE_OFFER_UNIT_OF_PAY_9089,wage_unit_of_pay,mapped
+2018,perm_2018.xlsx,,worksite_address,absent this year
+2018,perm_2018.xlsx,JOB_INFO_WORK_CITY,worksite_city,mapped
+2018,perm_2018.xlsx,,worksite_county,absent this year
+2018,perm_2018.xlsx,JOB_INFO_WORK_POSTAL_CODE,worksite_postal_code,mapped
+2018,perm_2018.xlsx,JOB_INFO_WORK_STATE,worksite_state,mapped
+2018,perm_2018.xlsx,AGENT_CITY,,dropped: agent location detail
+2018,perm_2018.xlsx,AGENT_STATE,,dropped: agent location detail
+2018,perm_2018.xlsx,EMPLOYER_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2018,perm_2018.xlsx,EMPLOYER_DECL_INFO_TITLE,,dropped: declarant personal details
+2018,perm_2018.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2018,perm_2018.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2018,perm_2018.xlsx,FOREIGN_WORKER_INFO_CITY,,dropped: foreign worker residence — personal
+2018,perm_2018.xlsx,FOREIGN_WORKER_INFO_INST,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,FOREIGN_WORKER_INFO_MAJOR,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,FOREIGN_WORKER_INFO_STATE,,dropped: foreign worker residence — personal
+2018,perm_2018.xlsx,FW_INFO_ALT_EDU_EXPERIENCE,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,FW_INFO_EDUCATION_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,FW_INFO_POSTAL_CODE,,dropped: foreign worker residence — personal
+2018,perm_2018.xlsx,FW_INFO_REL_OCCUP_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,FW_INFO_REQ_EXPERIENCE,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,FW_INFO_TRAINING_COMP,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,FW_INFO_YR_REL_EDU_COMPLETED,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,FW_OWNERSHIP_INTEREST,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,JI_FW_LIVE_ON_PREMISES,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,JI_LIVE_IN_DOMESTIC_SERVICE,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,JI_LIVE_IN_DOM_SVC_CONTRACT,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,JI_OFFERED_TO_SEC_J_FW,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,JOB_INFO_ALT_CMB_ED_OTH_YRS,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,JOB_INFO_ALT_COMBO_ED,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,JOB_INFO_ALT_COMBO_ED_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,JOB_INFO_ALT_COMBO_ED_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,JOB_INFO_ALT_FIELD,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,JOB_INFO_ALT_FIELD_NAME,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,JOB_INFO_ALT_OCC,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,JOB_INFO_ALT_OCC_JOB_TITLE,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,JOB_INFO_ALT_OCC_NUM_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,JOB_INFO_COMBO_OCCUPATION,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,JOB_INFO_EDUCATION_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,JOB_INFO_FOREIGN_ED,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,JOB_INFO_FOREIGN_LANG_REQ,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,JOB_INFO_JOB_REQ_NORMAL,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,JOB_INFO_TRAINING,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,JOB_INFO_TRAINING_FIELD,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,JOB_INFO_TRANING_NUM_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,NAICS_US_TITLE,,dropped: NAICS title (code is kept)
+2018,perm_2018.xlsx,ORIG_CASE_NO,,dropped: PERM job-requirement / worker-qualification detail
+2018,perm_2018.xlsx,ORIG_FILE_DATE,,duplicate of received_date
+2018,perm_2018.xlsx,PREPARER_INFO_EMP_COMPLETED,,dropped: form preparer personal details
+2018,perm_2018.xlsx,PREPARER_INFO_TITLE,,dropped: form preparer personal details
+2018,perm_2018.xlsx,PW_JOB_TITLE_9089,,duplicate of job_title
+2018,perm_2018.xlsx,PW_SOURCE_NAME_OTHER_9089,,dropped: prevailing wage survey detail
+2018,perm_2018.xlsx,RECR_INFO_BARG_REP_NOTIFIED,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RECR_INFO_COLL_TEACH_COMP_PROC,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RECR_INFO_COLL_UNIV_TEACHER,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RECR_INFO_EMPLOYER_REC_PAYMENT,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RECR_INFO_FIRST_AD_START,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RECR_INFO_JOB_FAIR_FROM,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RECR_INFO_JOB_FAIR_TO,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RECR_INFO_ON_CAMPUS_RECR_FROM,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RECR_INFO_ON_CAMPUS_RECR_TO,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RECR_INFO_PROFESSIONAL_OCC,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RECR_INFO_PRO_ORG_ADVERT_FROM,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RECR_INFO_PRO_ORG_ADVERT_TO,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RECR_INFO_RADIO_TV_AD_FROM,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RECR_INFO_RADIO_TV_AD_TO,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RECR_INFO_SECOND_AD_START,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RECR_INFO_SUNDAY_NEWSPAPER,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RECR_INFO_SWA_JOB_ORDER_END,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RECR_INFO_SWA_JOB_ORDER_START,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RI_1ST_AD_NEWSPAPER_NAME,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RI_2ND_AD_NEWSPAPER_NAME,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RI_2ND_AD_NEWSPAPER_OR_JOURNAL,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RI_CAMPUS_PLACEMENT_FROM,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RI_CAMPUS_PLACEMENT_TO,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RI_COLL_TCH_BASIC_PROCESS,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RI_COLL_TEACH_PRO_JNL,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RI_COLL_TEACH_SELECT_DATE,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RI_EMPLOYEE_REFERRAL_PROG_FROM,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RI_EMPLOYEE_REFERRAL_PROG_TO,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RI_EMPLOYER_WEB_POST_FROM,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RI_EMPLOYER_WEB_POST_TO,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RI_JOB_SEARCH_WEBSITE_FROM,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RI_JOB_SEARCH_WEBSITE_TO,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RI_LAYOFF_IN_PAST_SIX_MONTHS,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RI_LOCAL_ETHNIC_PAPER_FROM,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RI_LOCAL_ETHNIC_PAPER_TO,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RI_POSTED_NOTICE_AT_WORKSITE,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RI_PVT_EMPLOYMENT_FIRM_FROM,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RI_PVT_EMPLOYMENT_FIRM_TO,,dropped: PERM recruitment process detail
+2018,perm_2018.xlsx,RI_US_WORKERS_CONSIDERED,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,,agent_representing_employer,absent this year
+2019,perm_2019.xlsx,,application_type,absent this year
+2019,perm_2019.xlsx,AGENT_FIRM_NAME,attorney_law_firm_name,mapped
+2019,perm_2019.xlsx,CASE_NUMBER,case_number,mapped
+2019,perm_2019.xlsx,CASE_STATUS,case_status,mapped
+2019,perm_2019.xlsx,CLASS_OF_ADMISSION,class_of_admission,mapped
+2019,perm_2019.xlsx,COUNTRY_OF_CITIZENSHIP,country_of_citizenship,mapped
+2019,perm_2019.xlsx,DECISION_DATE,decision_date,mapped
+2019,perm_2019.xlsx,EMPLOYER_ADDRESS_1,employer_address,mapped
+2019,perm_2019.xlsx,EMPLOYER_CITY,employer_city,mapped
+2019,perm_2019.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2019,perm_2019.xlsx,EMPLOYER_NAME,employer_name,mapped
+2019,perm_2019.xlsx,EMPLOYER_NUM_EMPLOYEES,employer_num_employees,mapped
+2019,perm_2019.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2019,perm_2019.xlsx,EMPLOYER_STATE,employer_state,mapped
+2019,perm_2019.xlsx,,employer_trade_name,absent this year
+2019,perm_2019.xlsx,EMPLOYER_YR_ESTAB,employer_year_commenced_business,mapped
+2019,perm_2019.xlsx,FW_INFO_BIRTH_COUNTRY,foreign_worker_birth_country,mapped
+2019,perm_2019.xlsx,FOREIGN_WORKER_INFO_EDUCATION,foreign_worker_education,mapped
+2019,perm_2019.xlsx,,full_time_position,absent this year
+2019,perm_2019.xlsx,,is_multiple_worksites,absent this year
+2019,perm_2019.xlsx,JOB_INFO_JOB_TITLE,job_title,mapped
+2019,perm_2019.xlsx,JOB_INFO_MAJOR,major_field_of_study,mapped
+2019,perm_2019.xlsx,JOB_INFO_EDUCATION,minimum_education,mapped
+2019,perm_2019.xlsx,NAICS_US_CODE,naics_id,mapped
+2019,perm_2019.xlsx,PW_AMOUNT_9089,prevailing_wage,mapped
+2019,perm_2019.xlsx,PW_DETERM_DATE,prevailing_wage_determination_date,mapped
+2019,perm_2019.xlsx,PW_EXPIRE_DATE,prevailing_wage_expiration_date,mapped
+2019,perm_2019.xlsx,PW_LEVEL_9089,prevailing_wage_level,mapped
+2019,perm_2019.xlsx,PW_SOURCE_NAME_9089,prevailing_wage_source,mapped
+2019,perm_2019.xlsx,PW_TRACK_NUM,prevailing_wage_tracking_number,mapped
+2019,perm_2019.xlsx,PW_UNIT_OF_PAY_9089,prevailing_wage_unit_of_pay,mapped
+2019,perm_2019.xlsx,CASE_RECEIVED_DATE,received_date,mapped
+2019,perm_2019.xlsx,REFILE,refile,mapped
+2019,perm_2019.xlsx,JOB_INFO_EXPERIENCE,required_experience,mapped
+2019,perm_2019.xlsx,JOB_INFO_EXPERIENCE_NUM_MONTHS,required_experience_months,mapped
+2019,perm_2019.xlsx,SCHD_A_SHEEPHERDER,schedule_a_sheepherder,mapped
+2019,perm_2019.xlsx,PW_SOC_CODE,soc_id,mapped
+2019,perm_2019.xlsx,PW_SOC_TITLE,soc_title,mapped
+2019,perm_2019.xlsx,,us_economic_sector,absent this year
+2019,perm_2019.xlsx,WAGE_OFFERED_FROM_9089,wage_offered_from,mapped
+2019,perm_2019.xlsx,WAGE_OFFERED_TO_9089,wage_offered_to,mapped
+2019,perm_2019.xlsx,WAGE_OFFER_UNIT_OF_PAY_9089,wage_unit_of_pay,mapped
+2019,perm_2019.xlsx,,worksite_address,absent this year
+2019,perm_2019.xlsx,JOB_INFO_WORK_CITY,worksite_city,mapped
+2019,perm_2019.xlsx,,worksite_county,absent this year
+2019,perm_2019.xlsx,JOB_INFO_WORK_POSTAL_CODE,worksite_postal_code,mapped
+2019,perm_2019.xlsx,JOB_INFO_WORK_STATE,worksite_state,mapped
+2019,perm_2019.xlsx,AGENT_CITY,,dropped: agent location detail
+2019,perm_2019.xlsx,AGENT_STATE,,dropped: agent location detail
+2019,perm_2019.xlsx,EMPLOYER_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2019,perm_2019.xlsx,EMPLOYER_DECL_INFO_TITLE,,dropped: declarant personal details
+2019,perm_2019.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2019,perm_2019.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2019,perm_2019.xlsx,FOREIGN_WORKER_INFO_CITY,,dropped: foreign worker residence — personal
+2019,perm_2019.xlsx,FOREIGN_WORKER_INFO_INST,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,FOREIGN_WORKER_INFO_MAJOR,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,FOREIGN_WORKER_INFO_STATE,,dropped: foreign worker residence — personal
+2019,perm_2019.xlsx,FW_INFO_ALT_EDU_EXPERIENCE,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,FW_INFO_EDUCATION_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,FW_INFO_POSTAL_CODE,,dropped: foreign worker residence — personal
+2019,perm_2019.xlsx,FW_INFO_REL_OCCUP_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,FW_INFO_REQ_EXPERIENCE,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,FW_INFO_TRAINING_COMP,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,FW_INFO_YR_REL_EDU_COMPLETED,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,FW_OWNERSHIP_INTEREST,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,JI_FW_LIVE_ON_PREMISES,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,JI_LIVE_IN_DOMESTIC_SERVICE,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,JI_LIVE_IN_DOM_SVC_CONTRACT,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,JI_OFFERED_TO_SEC_J_FW,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,JOB_INFO_ALT_CMB_ED_OTH_YRS,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,JOB_INFO_ALT_COMBO_ED_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,JOB_INFO_ALT_COMBO_ED_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,JOB_INFO_ALT_COMBO_ED_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,JOB_INFO_ALT_FIELD,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,JOB_INFO_ALT_FIELD_NAME,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,JOB_INFO_ALT_OCC,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,JOB_INFO_ALT_OCC_JOB_TITLE,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,JOB_INFO_ALT_OCC_NUM_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,JOB_INFO_COMBO_OCCUPATION,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,JOB_INFO_EDUCATION_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,JOB_INFO_FOREIGN_ED,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,JOB_INFO_FOREIGN_LANG_REQ,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,JOB_INFO_JOB_REQ_NORMAL,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,JOB_INFO_TRAINING,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,JOB_INFO_TRAINING_FIELD,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,JOB_INFO_TRAINING_NUM_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,NAICS_US_TITLE,,dropped: NAICS title (code is kept)
+2019,perm_2019.xlsx,ORIG_CASE_NO,,dropped: PERM job-requirement / worker-qualification detail
+2019,perm_2019.xlsx,ORIG_FILE_DATE,,duplicate of received_date
+2019,perm_2019.xlsx,PREPARER_INFO_EMP_COMPLETED,,dropped: form preparer personal details
+2019,perm_2019.xlsx,PREPARER_INFO_TITLE,,dropped: form preparer personal details
+2019,perm_2019.xlsx,PW_JOB_TITLE,,duplicate of job_title
+2019,perm_2019.xlsx,PW_SOURCE_NAME_OTHER_9089,,dropped: prevailing wage survey detail
+2019,perm_2019.xlsx,RECR_INFO_BARG_REP_NOTIFIED,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RECR_INFO_COLL_TEACH_COMP_PROC,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RECR_INFO_COLL_UNIV_TEACHER,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RECR_INFO_EMPLOYER_REC_PAYMENT,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RECR_INFO_FIRST_AD_START,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RECR_INFO_JOB_FAIR_FROM,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RECR_INFO_JOB_FAIR_TO,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RECR_INFO_ON_CAMPUS_RECR_FROM,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RECR_INFO_ON_CAMPUS_RECR_TO,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RECR_INFO_PROFESSIONAL_OCC,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RECR_INFO_PRO_ORG_ADVERT_FROM,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RECR_INFO_PRO_ORG_ADVERT_TO,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RECR_INFO_RADIO_TV_AD_FROM,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RECR_INFO_RADIO_TV_AD_TO,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RECR_INFO_SECOND_AD_START,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RECR_INFO_SUNDAY_NEWSPAPER,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RECR_INFO_SWA_JOB_ORDER_END,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RECR_INFO_SWA_JOB_ORDER_START,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RI_1ST_AD_NEWSPAPER_NAME,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RI_2ND_AD_NEWSPAPER_NAME,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RI_2ND_AD_NEWSPAPER_OR_JOURNAL,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RI_CAMPUS_PLACEMENT_FROM,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RI_CAMPUS_PLACEMENT_TO,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RI_COLL_TCH_BASIC_PROCESS,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RI_COLL_TEACH_PRO_JNL,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RI_COLL_TEACH_SELECT_DATE,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RI_EMPLOYEE_REFERRAL_PROG_FROM,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RI_EMPLOYEE_REFERRAL_PROG_TO,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RI_EMPLOYER_WEB_POST_FROM,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RI_EMPLOYER_WEB_POST_TO,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RI_JOB_SEARCH_WEBSITE_FROM,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RI_JOB_SEARCH_WEBSITE_TO,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RI_LAYOFF_IN_PAST_SIX_MONTHS,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RI_LOCAL_ETHNIC_PAPER_FROM,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RI_LOCAL_ETHNIC_PAPER_TO,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RI_POSTED_NOTICE_AT_WORKSITE,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RI_PVT_EMPLOYMENT_FIRM_FROM,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RI_PVT_EMPLOYMENT_FIRM_TO,,dropped: PERM recruitment process detail
+2019,perm_2019.xlsx,RI_US_WORKERS_CONSIDERED,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,,agent_representing_employer,absent this year
+2020,perm_2020.xlsx,,application_type,absent this year
+2020,perm_2020.xlsx,AGENT_ATTORNEY_FIRM_NAME,attorney_law_firm_name,mapped
+2020,perm_2020.xlsx,CASE_NUMBER,case_number,mapped
+2020,perm_2020.xlsx,CASE_STATUS,case_status,mapped
+2020,perm_2020.xlsx,CLASS_OF_ADMISSION,class_of_admission,mapped
+2020,perm_2020.xlsx,COUNTRY_OF_CITIZENSHIP,country_of_citizenship,mapped
+2020,perm_2020.xlsx,DECISION_DATE,decision_date,mapped
+2020,perm_2020.xlsx,EMPLOYER_ADDRESS_1,employer_address,mapped
+2020,perm_2020.xlsx,EMPLOYER_CITY,employer_city,mapped
+2020,perm_2020.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2020,perm_2020.xlsx,EMPLOYER_NAME,employer_name,mapped
+2020,perm_2020.xlsx,EMPLOYER_NUM_EMPLOYEES,employer_num_employees,mapped
+2020,perm_2020.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2020,perm_2020.xlsx,EMPLOYER_STATE_PROVINCE,employer_state,mapped
+2020,perm_2020.xlsx,,employer_trade_name,absent this year
+2020,perm_2020.xlsx,EMPLOYER_YEAR_COMMENCED_BUSINESS,employer_year_commenced_business,mapped
+2020,perm_2020.xlsx,FOREIGN_WORKER_BIRTH_COUNTRY,foreign_worker_birth_country,mapped
+2020,perm_2020.xlsx,FOREIGN_WORKER_EDUCATION,foreign_worker_education,mapped
+2020,perm_2020.xlsx,,full_time_position,absent this year
+2020,perm_2020.xlsx,,is_multiple_worksites,absent this year
+2020,perm_2020.xlsx,JOB_TITLE,job_title,mapped
+2020,perm_2020.xlsx,MAJOR_FIELD_OF_STUDY,major_field_of_study,mapped
+2020,perm_2020.xlsx,MINIMUM_EDUCATION,minimum_education,mapped
+2020,perm_2020.xlsx,NAICS_CODE,naics_id,mapped
+2020,perm_2020.xlsx,PW_WAGE,prevailing_wage,mapped
+2020,perm_2020.xlsx,PW_DETERMINATION_DATE,prevailing_wage_determination_date,mapped
+2020,perm_2020.xlsx,PW_EXPIRATION_DATE,prevailing_wage_expiration_date,mapped
+2020,perm_2020.xlsx,PW_SKILL_LEVEL,prevailing_wage_level,mapped
+2020,perm_2020.xlsx,PW_WAGE_SOURCE,prevailing_wage_source,mapped
+2020,perm_2020.xlsx,PW_TRACK_NUMBER,prevailing_wage_tracking_number,mapped
+2020,perm_2020.xlsx,PW_UNIT_OF_PAY,prevailing_wage_unit_of_pay,mapped
+2020,perm_2020.xlsx,RECEIVED_DATE,received_date,mapped
+2020,perm_2020.xlsx,REFILE,refile,mapped
+2020,perm_2020.xlsx,REQUIRED_EXPERIENCE,required_experience,mapped
+2020,perm_2020.xlsx,REQUIRED_EXPERIENCE_MONTHS,required_experience_months,mapped
+2020,perm_2020.xlsx,SCHD_A_SHEEPHERDER,schedule_a_sheepherder,mapped
+2020,perm_2020.xlsx,PW_SOC_CODE,soc_id,mapped
+2020,perm_2020.xlsx,PW_SOC_TITLE,soc_title,mapped
+2020,perm_2020.xlsx,,us_economic_sector,absent this year
+2020,perm_2020.xlsx,WAGE_OFFER_FROM,wage_offered_from,mapped
+2020,perm_2020.xlsx,WAGE_OFFER_TO,wage_offered_to,mapped
+2020,perm_2020.xlsx,WAGE_OFFER_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2020,perm_2020.xlsx,WORKSITE_ADDRESS_1,worksite_address,mapped
+2020,perm_2020.xlsx,WORKSITE_CITY,worksite_city,mapped
+2020,perm_2020.xlsx,,worksite_county,absent this year
+2020,perm_2020.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2020,perm_2020.xlsx,WORKSITE_STATE,worksite_state,mapped
+2020,perm_2020.xlsx,ACCEPT_ALT_COMBO,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,ACCEPT_ALT_COMBO_EDUCATION,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,ACCEPT_ALT_COMBO_EDUCATION_YRS,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,ACCEPT_ALT_COMBO_ED_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,ACCEPT_ALT_FIELD_OF_STUDY,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,ACCEPT_ALT_JOB_TITLE,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,ACCEPT_ALT_MAJOR_FLD_OF_STUDY,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,ACCEPT_ALT_OCCUPATION,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,ACCEPT_ALT_OCCUPATION_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,ACCEPT_FOREIGN_EDUCATION,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,ADD_RECRUIT_INFORMATION,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,AGENT_ATTORNEY_ADDRESS_1,,dropped: attorney/agent personal details
+2020,perm_2020.xlsx,AGENT_ATTORNEY_ADDRESS_2,,dropped: attorney/agent personal details
+2020,perm_2020.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2020,perm_2020.xlsx,AGENT_ATTORNEY_COUNTRY,,dropped: attorney/agent personal details
+2020,perm_2020.xlsx,AGENT_ATTORNEY_EMAIL,,dropped: attorney/agent personal details
+2020,perm_2020.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2020,perm_2020.xlsx,AGENT_ATTORNEY_PHONE,,dropped: attorney/agent personal details
+2020,perm_2020.xlsx,AGENT_ATTORNEY_PHONE_EXT,,dropped: attorney/agent personal details
+2020,perm_2020.xlsx,AGENT_ATTORNEY_POSTAL_CODE,,dropped: attorney/agent personal details
+2020,perm_2020.xlsx,AGENT_ATTORNEY_STATE_PROVINCE,,dropped: attorney/agent personal details
+2020,perm_2020.xlsx,APP_FOR_COLLEGE_U_TEACHER,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,BARGAINING_REP_NOTIFIED,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,BASIC_RECRUITMENT_PROCESS,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,CAMPUS_PLACEMENT_FROM_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,CAMPUS_PLACEMENT_TO_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,COMBINATION_OCCUPATION,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,COMPETITIVE_PROCESS,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,EMPLOYEE_REFERRAL_PROG_TO_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,EMPLOYEE_REF_PROG_FROM_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,EMPLOYER_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2020,perm_2020.xlsx,EMPLOYER_COMPLETED_APPLICATION,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2020,perm_2020.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2020,perm_2020.xlsx,EMPLOYER_WEBSITE_FROM_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,EMPLOYER_WEBSITE_TO_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,EMP_CONTACT_ADDRESS_1,,dropped: employer point-of-contact personal details
+2020,perm_2020.xlsx,EMP_CONTACT_ADDRESS_2,,dropped: employer point-of-contact personal details
+2020,perm_2020.xlsx,EMP_CONTACT_CITY,,dropped: employer point-of-contact personal details
+2020,perm_2020.xlsx,EMP_CONTACT_COUNTRY,,dropped: employer point-of-contact personal details
+2020,perm_2020.xlsx,EMP_CONTACT_EMAIL,,dropped: employer point-of-contact personal details
+2020,perm_2020.xlsx,EMP_CONTACT_NAME,,dropped: employer point-of-contact personal details
+2020,perm_2020.xlsx,EMP_CONTACT_PHONE,,dropped: employer point-of-contact personal details
+2020,perm_2020.xlsx,EMP_CONTACT_POSTAL_CODE,,dropped: employer point-of-contact personal details
+2020,perm_2020.xlsx,EMP_CONTACT_STATE_PROVINCE,,dropped: employer point-of-contact personal details
+2020,perm_2020.xlsx,EMP_INFO_DECL_NAME,,dropped: declarant personal details
+2020,perm_2020.xlsx,EMP_INFO_DECL_TITLE,,dropped: declarant personal details
+2020,perm_2020.xlsx,EMP_RECEIVED_PAYMENT,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,FIRST_ADVERTISEMENT_START_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,FIRST_NEWSPAPER_NAME,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,FOREIGN_LANGUAGE_REQUIRED,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,FOREIGN_WORKER_ALT_ED_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,FOREIGN_WORKER_ALT_OCC_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,FOREIGN_WORKER_CURR_EMPLOYED,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,FOREIGN_WORKER_EDUCATION_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,FOREIGN_WORKER_ED_INST_ADD_1,,dropped: foreign worker education institution address
+2020,perm_2020.xlsx,FOREIGN_WORKER_ED_INST_ADD_2,,dropped: foreign worker education institution address
+2020,perm_2020.xlsx,FOREIGN_WORKER_ED_INST_CITY,,dropped: foreign worker education institution address
+2020,perm_2020.xlsx,FOREIGN_WORKER_ED_INST_COUNTRY,,dropped: foreign worker education institution address
+2020,perm_2020.xlsx,FOREIGN_WORKER_ED_INST_POST_CD,,dropped: foreign worker education institution address
+2020,perm_2020.xlsx,FOREIGN_WORKER_ED_INST_STATE_P,,dropped: foreign worker education institution address
+2020,perm_2020.xlsx,FOREIGN_WORKER_EMPL_PAY_FOR_ED,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,FOREIGN_WORKER_EXP_WITH_EMPL,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,FOREIGN_WORKER_INFO_MAJOR,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,FOREIGN_WORKER_INST_OF_ED,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,FOREIGN_WORKER_LIVE_IN_DOM_CNT,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,FOREIGN_WORKER_LIVE_IN_DOM_SER,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,FOREIGN_WORKER_LIVE_ON_PREM,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,FOREIGN_WORKER_REQ_EXPERIENCE,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,FOREIGN_WORKER_TRAINING_COMP,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,FOREIGN_WORKER_YRS_ED_COMP,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,FW_OWNERSHIP_INTEREST,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,JOB_EDUCATION_MIN_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,JOB_FAIR_FROM_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,JOB_FAIR_TO_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,JOB_OPP_REQUIREMENTS_NORMAL,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,JOB_SEARCH_WEBSITE_FROM_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,JOB_SEARCH_WEBSITE_TO_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,LAYOFF_IN_PAST_SIX_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,LOCAL_ETHNIC_PAPER_FROM_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,LOCAL_ETHNIC_PAPER_TO_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,OFFERED_TO_APPL_FOREIGN_WORKER,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,ON_CAMPUS_RECRUITING_FROM_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,ON_CAMPUS_RECRUITING_TO_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,ORIG_FILE_DATE,,duplicate of received_date
+2020,perm_2020.xlsx,PAYMENT_DETAILS,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,POSTED_NOTICE_AT_WORKSITE,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,PREPARER_EMAIL,,dropped: form preparer personal details
+2020,perm_2020.xlsx,PREPARER_NAME,,dropped: form preparer personal details
+2020,perm_2020.xlsx,PREPARER_TITLE,,dropped: form preparer personal details
+2020,perm_2020.xlsx,PREVIOUS_SWA_CASE_NUMBER_STATE,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,PROFESSIONAL_OCCUPATION,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,PRO_ORG_ADVERTISEMENT_TO_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,PRO_ORG_AD_FROM_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,PVT_EMPLOYMENT_FIRM_FROM_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,PVT_EMPLOYMENT_FIRM_TO_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,PW_SOURCE_NAME_OTHER,,dropped: prevailing wage survey detail
+2020,perm_2020.xlsx,RADIO_TV_AD_FROM_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,RADIO_TV_AD_TO_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,REQUIRED_FIELD_OF_TRAINING,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,REQUIRED_TRAINING,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,REQUIRED_TRAINING_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,SECOND_ADVERTISEMENT_TYPE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,SECOND_AD_START_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,SECOND_NEWSPAPER_AD_NAME,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,SPECIFIC_SKILLS,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,SUNDAY_EDITION_NEWSPAPER,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,SWA_JOB_ORDER_END_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,SWA_JOB_ORDER_START_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,TEACHER_PUB_JOURNAL_NAME,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,TEACHER_SELECT_DATE,,dropped: PERM recruitment process detail
+2020,perm_2020.xlsx,US_WORKERS_CONSIDERED,,dropped: PERM job-requirement / worker-qualification detail
+2020,perm_2020.xlsx,WORKSITE_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2021,perm_2021.xlsx,,agent_representing_employer,absent this year
+2021,perm_2021.xlsx,,application_type,absent this year
+2021,perm_2021.xlsx,AGENT_ATTORNEY_FIRM_NAME,attorney_law_firm_name,mapped
+2021,perm_2021.xlsx,CASE_NUMBER,case_number,mapped
+2021,perm_2021.xlsx,CASE_STATUS,case_status,mapped
+2021,perm_2021.xlsx,CLASS_OF_ADMISSION,class_of_admission,mapped
+2021,perm_2021.xlsx,COUNTRY_OF_CITIZENSHIP,country_of_citizenship,mapped
+2021,perm_2021.xlsx,DECISION_DATE,decision_date,mapped
+2021,perm_2021.xlsx,EMPLOYER_ADDRESS_1,employer_address,mapped
+2021,perm_2021.xlsx,EMPLOYER_CITY,employer_city,mapped
+2021,perm_2021.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2021,perm_2021.xlsx,EMPLOYER_NAME,employer_name,mapped
+2021,perm_2021.xlsx,EMPLOYER_NUM_EMPLOYEES,employer_num_employees,mapped
+2021,perm_2021.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2021,perm_2021.xlsx,EMPLOYER_STATE_PROVINCE,employer_state,mapped
+2021,perm_2021.xlsx,,employer_trade_name,absent this year
+2021,perm_2021.xlsx,EMPLOYER_YEAR_COMMENCED_BUSINESS,employer_year_commenced_business,mapped
+2021,perm_2021.xlsx,FOREIGN_WORKER_BIRTH_COUNTRY,foreign_worker_birth_country,mapped
+2021,perm_2021.xlsx,FOREIGN_WORKER_EDUCATION,foreign_worker_education,mapped
+2021,perm_2021.xlsx,,full_time_position,absent this year
+2021,perm_2021.xlsx,,is_multiple_worksites,absent this year
+2021,perm_2021.xlsx,JOB_TITLE,job_title,mapped
+2021,perm_2021.xlsx,MAJOR_FIELD_OF_STUDY,major_field_of_study,mapped
+2021,perm_2021.xlsx,MINIMUM_EDUCATION,minimum_education,mapped
+2021,perm_2021.xlsx,NAICS_CODE,naics_id,mapped
+2021,perm_2021.xlsx,PW_WAGE,prevailing_wage,mapped
+2021,perm_2021.xlsx,PW_DETERMINATION_DATE,prevailing_wage_determination_date,mapped
+2021,perm_2021.xlsx,PW_EXPIRATION_DATE,prevailing_wage_expiration_date,mapped
+2021,perm_2021.xlsx,PW_SKILL_LEVEL,prevailing_wage_level,mapped
+2021,perm_2021.xlsx,PW_WAGE_SOURCE,prevailing_wage_source,mapped
+2021,perm_2021.xlsx,PW_TRACK_NUMBER,prevailing_wage_tracking_number,mapped
+2021,perm_2021.xlsx,PW_UNIT_OF_PAY,prevailing_wage_unit_of_pay,mapped
+2021,perm_2021.xlsx,RECEIVED_DATE,received_date,mapped
+2021,perm_2021.xlsx,REFILE,refile,mapped
+2021,perm_2021.xlsx,REQUIRED_EXPERIENCE,required_experience,mapped
+2021,perm_2021.xlsx,REQUIRED_EXPERIENCE_MONTHS,required_experience_months,mapped
+2021,perm_2021.xlsx,SCHD_A_SHEEPHERDER,schedule_a_sheepherder,mapped
+2021,perm_2021.xlsx,PW_SOC_CODE,soc_id,mapped
+2021,perm_2021.xlsx,PW_SOC_TITLE,soc_title,mapped
+2021,perm_2021.xlsx,,us_economic_sector,absent this year
+2021,perm_2021.xlsx,WAGE_OFFER_FROM,wage_offered_from,mapped
+2021,perm_2021.xlsx,WAGE_OFFER_TO,wage_offered_to,mapped
+2021,perm_2021.xlsx,WAGE_OFFER_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2021,perm_2021.xlsx,WORKSITE_ADDRESS_1,worksite_address,mapped
+2021,perm_2021.xlsx,WORKSITE_CITY,worksite_city,mapped
+2021,perm_2021.xlsx,,worksite_county,absent this year
+2021,perm_2021.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2021,perm_2021.xlsx,WORKSITE_STATE,worksite_state,mapped
+2021,perm_2021.xlsx,ACCEPT_ALT_COMBO,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,ACCEPT_ALT_COMBO_EDUCATION,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,ACCEPT_ALT_COMBO_EDUCATION_YRS,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,ACCEPT_ALT_COMBO_ED_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,ACCEPT_ALT_FIELD_OF_STUDY,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,ACCEPT_ALT_JOB_TITLE,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,ACCEPT_ALT_MAJOR_FLD_OF_STUDY,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,ACCEPT_ALT_OCCUPATION,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,ACCEPT_ALT_OCCUPATION_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,ACCEPT_FOREIGN_EDUCATION,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,ADD_RECRUIT_INFORMATION,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,AGENT_ATTORNEY_ADDRESS_1,,dropped: attorney/agent personal details
+2021,perm_2021.xlsx,AGENT_ATTORNEY_ADDRESS_2,,dropped: attorney/agent personal details
+2021,perm_2021.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2021,perm_2021.xlsx,AGENT_ATTORNEY_COUNTRY,,dropped: attorney/agent personal details
+2021,perm_2021.xlsx,AGENT_ATTORNEY_EMAIL,,dropped: attorney/agent personal details
+2021,perm_2021.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2021,perm_2021.xlsx,AGENT_ATTORNEY_PHONE,,dropped: attorney/agent personal details
+2021,perm_2021.xlsx,AGENT_ATTORNEY_PHONE_EXT,,dropped: attorney/agent personal details
+2021,perm_2021.xlsx,AGENT_ATTORNEY_POSTAL_CODE,,dropped: attorney/agent personal details
+2021,perm_2021.xlsx,AGENT_ATTORNEY_STATE_PROVINCE,,dropped: attorney/agent personal details
+2021,perm_2021.xlsx,APP_FOR_COLLEGE_U_TEACHER,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,BARGAINING_REP_NOTIFIED,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,BASIC_RECRUITMENT_PROCESS,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,CAMPUS_PLACEMENT_FROM_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,CAMPUS_PLACEMENT_TO_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,COMBINATION_OCCUPATION,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,COMPETITIVE_PROCESS,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,EMPLOYEE_REFERRAL_PROG_TO_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,EMPLOYEE_REF_PROG_FROM_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,EMPLOYER_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2021,perm_2021.xlsx,EMPLOYER_COMPLETED_APPLICATION,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2021,perm_2021.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2021,perm_2021.xlsx,EMPLOYER_WEBSITE_FROM_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,EMPLOYER_WEBSITE_TO_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,EMP_CONTACT_ADDRESS_1,,dropped: employer point-of-contact personal details
+2021,perm_2021.xlsx,EMP_CONTACT_ADDRESS_2,,dropped: employer point-of-contact personal details
+2021,perm_2021.xlsx,EMP_CONTACT_CITY,,dropped: employer point-of-contact personal details
+2021,perm_2021.xlsx,EMP_CONTACT_COUNTRY,,dropped: employer point-of-contact personal details
+2021,perm_2021.xlsx,EMP_CONTACT_EMAIL,,dropped: employer point-of-contact personal details
+2021,perm_2021.xlsx,EMP_CONTACT_NAME,,dropped: employer point-of-contact personal details
+2021,perm_2021.xlsx,EMP_CONTACT_PHONE,,dropped: employer point-of-contact personal details
+2021,perm_2021.xlsx,EMP_CONTACT_POSTAL_CODE,,dropped: employer point-of-contact personal details
+2021,perm_2021.xlsx,EMP_CONTACT_STATE_PROVINCE,,dropped: employer point-of-contact personal details
+2021,perm_2021.xlsx,EMP_DECL_TITLE,,dropped: declarant title
+2021,perm_2021.xlsx,EMP_INFO_DECL_NAME,,dropped: declarant personal details
+2021,perm_2021.xlsx,EMP_RECEIVED_PAYMENT,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,FIRST_ADVERTISEMENT_START_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,FIRST_NEWSPAPER_NAME,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,FOREIGN_LANGUAGE_REQUIRED,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,FOREIGN_WORKER_ALT_ED_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,FOREIGN_WORKER_ALT_OCC_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,FOREIGN_WORKER_CURR_EMPLOYED,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,FOREIGN_WORKER_EDUCATION_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,FOREIGN_WORKER_ED_INST_ADD_1,,dropped: foreign worker education institution address
+2021,perm_2021.xlsx,FOREIGN_WORKER_ED_INST_ADD_2,,dropped: foreign worker education institution address
+2021,perm_2021.xlsx,FOREIGN_WORKER_ED_INST_CITY,,dropped: foreign worker education institution address
+2021,perm_2021.xlsx,FOREIGN_WORKER_ED_INST_COUNTRY,,dropped: foreign worker education institution address
+2021,perm_2021.xlsx,FOREIGN_WORKER_ED_INST_POST_CD,,dropped: foreign worker education institution address
+2021,perm_2021.xlsx,FOREIGN_WORKER_ED_INST_STATE_P,,dropped: foreign worker education institution address
+2021,perm_2021.xlsx,FOREIGN_WORKER_EMPL_PAY_FOR_ED,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,FOREIGN_WORKER_EXP_WITH_EMPL,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,FOREIGN_WORKER_INFO_MAJOR,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,FOREIGN_WORKER_INST_OF_ED,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,FOREIGN_WORKER_LIVE_IN_DOM_SER,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,FOREIGN_WORKER_LIVE_IN_DOM_SVC_CNT,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,FOREIGN_WORKER_LIVE_ON_PREM,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,FOREIGN_WORKER_REQ_EXPERIENCE,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,FOREIGN_WORKER_TRAINING_COMP,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,FOREIGN_WORKER_YRS_ED_COMP,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,FW_OWNERSHIP_INTEREST,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,JOB_EDUCATION_MIN_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,JOB_FAIR_FROM_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,JOB_FAIR_TO_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,JOB_OPP_REQUIREMENTS_NORMAL,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,JOB_SEARCH_WEBSITE_FROM_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,JOB_SEARCH_WEBSITE_TO_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,LAYOFF_IN_PAST_SIX_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,LOCAL_ETHNIC_PAPER_FROM_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,LOCAL_ETHNIC_PAPER_TO_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,OFFERED_TO_APPL_FOREIGN_WORKER,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,ON_CAMPUS_RECRUITING_FROM_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,ON_CAMPUS_RECRUITING_TO_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,ORIG_FILE_DATE,,duplicate of received_date
+2021,perm_2021.xlsx,PAYMENT_DETAILS,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,POSTED_NOTICE_AT_WORKSITE,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,PREPARER_EMAIL,,dropped: form preparer personal details
+2021,perm_2021.xlsx,PREPARER_NAME,,dropped: form preparer personal details
+2021,perm_2021.xlsx,PREPARER_TITLE,,dropped: form preparer personal details
+2021,perm_2021.xlsx,PREVIOUS_SWA_CASE_NUMBER_STATE,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,PROFESSIONAL_OCCUPATION,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,PRO_ORG_ADVERTISEMENT_TO_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,PRO_ORG_AD_FROM_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,PVT_EMPLOYMENT_FIRM_FROM_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,PVT_EMPLOYMENT_FIRM_TO_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,PW_SOURCE_NAME_OTHER,,dropped: prevailing wage survey detail
+2021,perm_2021.xlsx,RADIO_TV_AD_FROM_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,RADIO_TV_AD_TO_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,REQUIRED_FIELD_OF_TRAINING,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,REQUIRED_TRAINING,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,REQUIRED_TRAINING_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,SECOND_ADVERTISEMENT_TYPE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,SECOND_AD_START_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,SECOND_NEWSPAPER_AD_NAME,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,SPECIFIC_SKILLS,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,SUNDAY_EDITION_NEWSPAPER,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,SWA_JOB_ORDER_END_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,SWA_JOB_ORDER_START_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,TEACHER_PUB_JOURNAL_NAME,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,TEACHER_SELECT_DATE,,dropped: PERM recruitment process detail
+2021,perm_2021.xlsx,US_WORKERS_CONSIDERED,,dropped: PERM job-requirement / worker-qualification detail
+2021,perm_2021.xlsx,WORKSITE_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2022,perm_2022.xlsx,,agent_representing_employer,absent this year
+2022,perm_2022.xlsx,,application_type,absent this year
+2022,perm_2022.xlsx,AGENT_ATTORNEY_FIRM_NAME,attorney_law_firm_name,mapped
+2022,perm_2022.xlsx,CASE_NUMBER,case_number,mapped
+2022,perm_2022.xlsx,CASE_STATUS,case_status,mapped
+2022,perm_2022.xlsx,CLASS_OF_ADMISSION,class_of_admission,mapped
+2022,perm_2022.xlsx,COUNTRY_OF_CITIZENSHIP,country_of_citizenship,mapped
+2022,perm_2022.xlsx,DECISION_DATE,decision_date,mapped
+2022,perm_2022.xlsx,EMPLOYER_ADDRESS_1,employer_address,mapped
+2022,perm_2022.xlsx,EMPLOYER_CITY,employer_city,mapped
+2022,perm_2022.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2022,perm_2022.xlsx,EMPLOYER_NAME,employer_name,mapped
+2022,perm_2022.xlsx,EMPLOYER_NUM_EMPLOYEES,employer_num_employees,mapped
+2022,perm_2022.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2022,perm_2022.xlsx,EMPLOYER_STATE_PROVINCE,employer_state,mapped
+2022,perm_2022.xlsx,,employer_trade_name,absent this year
+2022,perm_2022.xlsx,EMP_YEAR_COMMENCED_BUSINESS,employer_year_commenced_business,mapped
+2022,perm_2022.xlsx,FOREIGN_WORKER_BIRTH_COUNTRY,foreign_worker_birth_country,mapped
+2022,perm_2022.xlsx,FOREIGN_WORKER_EDUCATION,foreign_worker_education,mapped
+2022,perm_2022.xlsx,,full_time_position,absent this year
+2022,perm_2022.xlsx,,is_multiple_worksites,absent this year
+2022,perm_2022.xlsx,JOB_TITLE,job_title,mapped
+2022,perm_2022.xlsx,MAJOR_FIELD_OF_STUDY,major_field_of_study,mapped
+2022,perm_2022.xlsx,MINIMUM_EDUCATION,minimum_education,mapped
+2022,perm_2022.xlsx,NAICS_CODE,naics_id,mapped
+2022,perm_2022.xlsx,PW_WAGE,prevailing_wage,mapped
+2022,perm_2022.xlsx,PW_DETERMINATION_DATE,prevailing_wage_determination_date,mapped
+2022,perm_2022.xlsx,PW_EXPIRATION_DATE,prevailing_wage_expiration_date,mapped
+2022,perm_2022.xlsx,PW_SKILL_LEVEL,prevailing_wage_level,mapped
+2022,perm_2022.xlsx,PW_WAGE_SOURCE,prevailing_wage_source,mapped
+2022,perm_2022.xlsx,PW_TRACK_NUMBER,prevailing_wage_tracking_number,mapped
+2022,perm_2022.xlsx,PW_UNIT_OF_PAY,prevailing_wage_unit_of_pay,mapped
+2022,perm_2022.xlsx,RECEIVED_DATE,received_date,mapped
+2022,perm_2022.xlsx,REFILE,refile,mapped
+2022,perm_2022.xlsx,REQUIRED_EXPERIENCE,required_experience,mapped
+2022,perm_2022.xlsx,REQUIRED_EXPERIENCE_MONTHS,required_experience_months,mapped
+2022,perm_2022.xlsx,SCHD_A_SHEEPHERDER,schedule_a_sheepherder,mapped
+2022,perm_2022.xlsx,PW_SOC_CODE,soc_id,mapped
+2022,perm_2022.xlsx,PW_SOC_TITLE,soc_title,mapped
+2022,perm_2022.xlsx,,us_economic_sector,absent this year
+2022,perm_2022.xlsx,WAGE_OFFER_FROM,wage_offered_from,mapped
+2022,perm_2022.xlsx,WAGE_OFFER_TO,wage_offered_to,mapped
+2022,perm_2022.xlsx,WAGE_OFFER_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2022,perm_2022.xlsx,WORKSITE_ADDRESS_1,worksite_address,mapped
+2022,perm_2022.xlsx,WORKSITE_CITY,worksite_city,mapped
+2022,perm_2022.xlsx,,worksite_county,absent this year
+2022,perm_2022.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2022,perm_2022.xlsx,WORKSITE_STATE,worksite_state,mapped
+2022,perm_2022.xlsx,ACCEPT_ALT_COMBO,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,ACCEPT_ALT_COMBO_EDUCATION,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,ACCEPT_ALT_COMBO_EDUCATION_YRS,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,ACCEPT_ALT_COMBO_ED_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,ACCEPT_ALT_FIELD_OF_STUDY,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,ACCEPT_ALT_JOB_TITLE,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,ACCEPT_ALT_MAJOR_FLD_OF_STUDY,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,ACCEPT_ALT_OCCUPATION,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,ACCEPT_ALT_OCCUPATION_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,ACCEPT_FOREIGN_EDUCATION,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,ADD_RECRUIT_INFORMATION,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,AGENT_ATTORNEY_ADDRESS_1,,dropped: attorney/agent personal details
+2022,perm_2022.xlsx,AGENT_ATTORNEY_ADDRESS_2,,dropped: attorney/agent personal details
+2022,perm_2022.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2022,perm_2022.xlsx,AGENT_ATTORNEY_COUNTRY,,dropped: attorney/agent personal details
+2022,perm_2022.xlsx,AGENT_ATTORNEY_EMAIL,,dropped: attorney/agent personal details
+2022,perm_2022.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2022,perm_2022.xlsx,AGENT_ATTORNEY_PHONE,,dropped: attorney/agent personal details
+2022,perm_2022.xlsx,AGENT_ATTORNEY_PHONE_EXT,,dropped: attorney/agent personal details
+2022,perm_2022.xlsx,AGENT_ATTORNEY_POSTAL_CODE,,dropped: attorney/agent personal details
+2022,perm_2022.xlsx,AGENT_ATTORNEY_STATE_PROVINCE,,dropped: attorney/agent personal details
+2022,perm_2022.xlsx,APP_FOR_COLLEGE_U_TEACHER,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,BARGAINING_REP_NOTIFIED,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,BASIC_RECRUITMENT_PROCESS,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,CAMPUS_PLACEMENT_FROM_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,CAMPUS_PLACEMENT_TO_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,COMBINATION_OCCUPATION,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,COMPETITIVE_PROCESS,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,EMPLOYEE_REFERRAL_PROG_TO_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,EMPLOYEE_REF_PROG_FROM_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,EMPLOYER_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2022,perm_2022.xlsx,EMPLOYER_COMPLETED_APPLICATION,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2022,perm_2022.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2022,perm_2022.xlsx,EMPLOYER_WEBSITE_FROM_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,EMPLOYER_WEBSITE_TO_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,EMP_CONTACT_ADDRESS_1,,dropped: employer point-of-contact personal details
+2022,perm_2022.xlsx,EMP_CONTACT_ADDRESS_2,,dropped: employer point-of-contact personal details
+2022,perm_2022.xlsx,EMP_CONTACT_CITY,,dropped: employer point-of-contact personal details
+2022,perm_2022.xlsx,EMP_CONTACT_COUNTRY,,dropped: employer point-of-contact personal details
+2022,perm_2022.xlsx,EMP_CONTACT_EMAIL,,dropped: employer point-of-contact personal details
+2022,perm_2022.xlsx,EMP_CONTACT_NAME,,dropped: employer point-of-contact personal details
+2022,perm_2022.xlsx,EMP_CONTACT_PHONE,,dropped: employer point-of-contact personal details
+2022,perm_2022.xlsx,EMP_CONTACT_POSTAL_CODE,,dropped: employer point-of-contact personal details
+2022,perm_2022.xlsx,EMP_CONTACT_STATE_PROVINCE,,dropped: employer point-of-contact personal details
+2022,perm_2022.xlsx,EMP_DECL_TITLE,,dropped: declarant title
+2022,perm_2022.xlsx,EMP_INFO_DECL_NAME,,dropped: declarant personal details
+2022,perm_2022.xlsx,EMP_RECEIVED_PAYMENT,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,FIRST_ADVERTISEMENT_START_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,FIRST_NEWSPAPER_NAME,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,FOREIGN_LANGUAGE_REQUIRED,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,FOREIGN_WORKER_ALT_ED_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,FOREIGN_WORKER_ALT_OCC_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,FOREIGN_WORKER_CURR_EMPLOYED,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,FOREIGN_WORKER_EDUCATION_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,FOREIGN_WORKER_ED_INST_ADD_1,,dropped: foreign worker education institution address
+2022,perm_2022.xlsx,FOREIGN_WORKER_ED_INST_ADD_2,,dropped: foreign worker education institution address
+2022,perm_2022.xlsx,FOREIGN_WORKER_ED_INST_CITY,,dropped: foreign worker education institution address
+2022,perm_2022.xlsx,FOREIGN_WORKER_ED_INST_COUNTRY,,dropped: foreign worker education institution address
+2022,perm_2022.xlsx,FOREIGN_WORKER_ED_INST_POST_CD,,dropped: foreign worker education institution address
+2022,perm_2022.xlsx,FOREIGN_WORKER_ED_INST_STATE_P,,dropped: foreign worker education institution address
+2022,perm_2022.xlsx,FOREIGN_WORKER_EMPL_PAY_FOR_ED,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,FOREIGN_WORKER_EXP_WITH_EMPL,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,FOREIGN_WORKER_INFO_MAJOR,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,FOREIGN_WORKER_INST_OF_ED,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,FOREIGN_WORKER_LIVE_IN_DOM_CNT,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,FOREIGN_WORKER_LIVE_IN_DOM_SER,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,FOREIGN_WORKER_LIVE_ON_PREM,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,FOREIGN_WORKER_REQ_EXPERIENCE,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,FOREIGN_WORKER_TRAINING_COMP,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,FOREIGN_WORKER_YRS_ED_COMP,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,FW_OWNERSHIP_INTEREST,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,JOB_EDUCATION_MIN_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,JOB_FAIR_FROM_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,JOB_FAIR_TO_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,JOB_OPP_REQUIREMENTS_NORMAL,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,JOB_SEARCH_WEBSITE_FROM_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,JOB_SEARCH_WEBSITE_TO_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,LAYOFF_IN_PAST_SIX_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,LOCAL_ETHNIC_PAPER_FROM_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,LOCAL_ETHNIC_PAPER_TO_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,OFFERED_TO_APPL_FOREIGN_WORKER,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,ON_CAMPUS_RECRUITING_FROM_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,ON_CAMPUS_RECRUITING_TO_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,ORIG_FILE_DATE,,duplicate of received_date
+2022,perm_2022.xlsx,PAYMENT_DETAILS,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,POSTED_NOTICE_AT_WORKSITE,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,PREPARER_EMAIL,,dropped: form preparer personal details
+2022,perm_2022.xlsx,PREPARER_NAME,,dropped: form preparer personal details
+2022,perm_2022.xlsx,PREPARER_TITLE,,dropped: form preparer personal details
+2022,perm_2022.xlsx,PREVIOUS_SWA_CASE_NUMBER_STATE,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,PROFESSIONAL_OCCUPATION,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,PRO_ORG_ADVERTISEMENT_TO_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,PRO_ORG_AD_FROM_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,PVT_EMPLOYMENT_FIRM_FROM_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,PVT_EMPLOYMENT_FIRM_TO_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,PW_SOURCE_NAME_OTHER,,dropped: prevailing wage survey detail
+2022,perm_2022.xlsx,RADIO_TV_AD_FROM_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,RADIO_TV_AD_TO_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,REQUIRED_FIELD_OF_TRAINING,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,REQUIRED_TRAINING,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,REQUIRED_TRAINING_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,SECOND_ADVERTISEMENT_TYPE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,SECOND_AD_START_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,SECOND_NEWSPAPER_AD_NAME,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,SPECIFIC_SKILLS,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,SUNDAY_EDITION_NEWSPAPER,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,SWA_JOB_ORDER_END_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,SWA_JOB_ORDER_START_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,TEACHER_PUB_JOURNAL_NAME,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,TEACHER_SELECT_DATE,,dropped: PERM recruitment process detail
+2022,perm_2022.xlsx,US_WORKERS_CONSIDERED,,dropped: PERM job-requirement / worker-qualification detail
+2022,perm_2022.xlsx,WORKSITE_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2023,perm_2023.xlsx,,agent_representing_employer,absent this year
+2023,perm_2023.xlsx,,application_type,absent this year
+2023,perm_2023.xlsx,AGENT_ATTORNEY_FIRM_NAME,attorney_law_firm_name,mapped
+2023,perm_2023.xlsx,CASE_NUMBER,case_number,mapped
+2023,perm_2023.xlsx,CASE_STATUS,case_status,mapped
+2023,perm_2023.xlsx,CLASS_OF_ADMISSION,class_of_admission,mapped
+2023,perm_2023.xlsx,COUNTRY_OF_CITIZENSHIP,country_of_citizenship,mapped
+2023,perm_2023.xlsx,DECISION_DATE,decision_date,mapped
+2023,perm_2023.xlsx,EMPLOYER_ADDRESS_1,employer_address,mapped
+2023,perm_2023.xlsx,EMPLOYER_CITY,employer_city,mapped
+2023,perm_2023.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2023,perm_2023.xlsx,EMPLOYER_NAME,employer_name,mapped
+2023,perm_2023.xlsx,EMPLOYER_NUM_EMPLOYEES,employer_num_employees,mapped
+2023,perm_2023.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2023,perm_2023.xlsx,EMPLOYER_STATE_PROVINCE,employer_state,mapped
+2023,perm_2023.xlsx,,employer_trade_name,absent this year
+2023,perm_2023.xlsx,EMPLOYER_YEAR_COMMENCED_BUSINESS,employer_year_commenced_business,mapped
+2023,perm_2023.xlsx,FOREIGN_WORKER_BIRTH_COUNTRY,foreign_worker_birth_country,mapped
+2023,perm_2023.xlsx,FOREIGN_WORKER_EDUCATION,foreign_worker_education,mapped
+2023,perm_2023.xlsx,,full_time_position,absent this year
+2023,perm_2023.xlsx,,is_multiple_worksites,absent this year
+2023,perm_2023.xlsx,JOB_TITLE,job_title,mapped
+2023,perm_2023.xlsx,MAJOR_FIELD_OF_STUDY,major_field_of_study,mapped
+2023,perm_2023.xlsx,MINIMUM_EDUCATION,minimum_education,mapped
+2023,perm_2023.xlsx,NAICS_CODE,naics_id,mapped
+2023,perm_2023.xlsx,PW_WAGE,prevailing_wage,mapped
+2023,perm_2023.xlsx,PW_DETERMINATION_DATE,prevailing_wage_determination_date,mapped
+2023,perm_2023.xlsx,PW_EXPIRATION_DATE,prevailing_wage_expiration_date,mapped
+2023,perm_2023.xlsx,PW_SKILL_LEVEL,prevailing_wage_level,mapped
+2023,perm_2023.xlsx,PW_WAGE_SOURCE,prevailing_wage_source,mapped
+2023,perm_2023.xlsx,PW_TRACK_NUMBER,prevailing_wage_tracking_number,mapped
+2023,perm_2023.xlsx,PW_UNIT_OF_PAY,prevailing_wage_unit_of_pay,mapped
+2023,perm_2023.xlsx,RECEIVED_DATE,received_date,mapped
+2023,perm_2023.xlsx,REFILE,refile,mapped
+2023,perm_2023.xlsx,REQUIRED_EXPERIENCE,required_experience,mapped
+2023,perm_2023.xlsx,REQUIRED_EXPERIENCE_MONTHS,required_experience_months,mapped
+2023,perm_2023.xlsx,SCHD_A_SHEEPHERDER,schedule_a_sheepherder,mapped
+2023,perm_2023.xlsx,PW_SOC_CODE,soc_id,mapped
+2023,perm_2023.xlsx,PW_SOC_TITLE,soc_title,mapped
+2023,perm_2023.xlsx,,us_economic_sector,absent this year
+2023,perm_2023.xlsx,WAGE_OFFER_FROM,wage_offered_from,mapped
+2023,perm_2023.xlsx,WAGE_OFFER_TO,wage_offered_to,mapped
+2023,perm_2023.xlsx,WAGE_OFFER_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2023,perm_2023.xlsx,WORKSITE_ADDRESS_1,worksite_address,mapped
+2023,perm_2023.xlsx,WORKSITE_CITY,worksite_city,mapped
+2023,perm_2023.xlsx,,worksite_county,absent this year
+2023,perm_2023.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2023,perm_2023.xlsx,WORKSITE_STATE,worksite_state,mapped
+2023,perm_2023.xlsx,ACCEPT_ALT_COMBO,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,ACCEPT_ALT_COMBO_EDUCATION,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,ACCEPT_ALT_COMBO_EDUCATION_YRS,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,ACCEPT_ALT_COMBO_ED_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,ACCEPT_ALT_FIELD_OF_STUDY,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,ACCEPT_ALT_JOB_TITLE,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,ACCEPT_ALT_MAJOR_FLD_OF_STUDY,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,ACCEPT_ALT_OCCUPATION,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,ACCEPT_ALT_OCCUPATION_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,ACCEPT_FOREIGN_EDUCATION,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,ADD_RECRUIT_INFORMATION,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,AGENT_ATTORNEY_ADDRESS_1,,dropped: attorney/agent personal details
+2023,perm_2023.xlsx,AGENT_ATTORNEY_ADDRESS_2,,dropped: attorney/agent personal details
+2023,perm_2023.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2023,perm_2023.xlsx,AGENT_ATTORNEY_COUNTRY,,dropped: attorney/agent personal details
+2023,perm_2023.xlsx,AGENT_ATTORNEY_EMAIL,,dropped: attorney/agent personal details
+2023,perm_2023.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2023,perm_2023.xlsx,AGENT_ATTORNEY_PHONE,,dropped: attorney/agent personal details
+2023,perm_2023.xlsx,AGENT_ATTORNEY_PHONE_EXT,,dropped: attorney/agent personal details
+2023,perm_2023.xlsx,AGENT_ATTORNEY_POSTAL_CODE,,dropped: attorney/agent personal details
+2023,perm_2023.xlsx,AGENT_ATTORNEY_STATE_PROVINCE,,dropped: attorney/agent personal details
+2023,perm_2023.xlsx,APP_FOR_COLLEGE_U_TEACHER,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,BARGAINING_REP_NOTIFIED,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,BASIC_RECRUITMENT_PROCESS,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,CAMPUS_PLACEMENT_FROM_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,CAMPUS_PLACEMENT_TO_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,COMBINATION_OCCUPATION,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,COMPETITIVE_PROCESS,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,EMPLOYEE_REFERRAL_PROG_TO_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,EMPLOYEE_REF_PROG_FROM_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,EMPLOYER_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2023,perm_2023.xlsx,EMPLOYER_COMPLETED_APPLICATION,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2023,perm_2023.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2023,perm_2023.xlsx,EMPLOYER_WEBSITE_FROM_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,EMPLOYER_WEBSITE_TO_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,EMP_CONTACT_ADDRESS_1,,dropped: employer point-of-contact personal details
+2023,perm_2023.xlsx,EMP_CONTACT_ADDRESS_2,,dropped: employer point-of-contact personal details
+2023,perm_2023.xlsx,EMP_CONTACT_CITY,,dropped: employer point-of-contact personal details
+2023,perm_2023.xlsx,EMP_CONTACT_COUNTRY,,dropped: employer point-of-contact personal details
+2023,perm_2023.xlsx,EMP_CONTACT_EMAIL,,dropped: employer point-of-contact personal details
+2023,perm_2023.xlsx,EMP_CONTACT_NAME,,dropped: employer point-of-contact personal details
+2023,perm_2023.xlsx,EMP_CONTACT_PHONE,,dropped: employer point-of-contact personal details
+2023,perm_2023.xlsx,EMP_CONTACT_POSTAL_CODE,,dropped: employer point-of-contact personal details
+2023,perm_2023.xlsx,EMP_CONTACT_STATE_PROVINCE,,dropped: employer point-of-contact personal details
+2023,perm_2023.xlsx,EMP_DECL_TITLE,,dropped: declarant title
+2023,perm_2023.xlsx,EMP_INFO_DECL_NAME,,dropped: declarant personal details
+2023,perm_2023.xlsx,EMP_RECEIVED_PAYMENT,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,FIRST_ADVERTISEMENT_START_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,FIRST_NEWSPAPER_NAME,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,FOREIGN_LANGUAGE_REQUIRED,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,FOREIGN_WORKER_ALT_ED_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,FOREIGN_WORKER_ALT_OCC_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,FOREIGN_WORKER_CURR_EMPLOYED,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,FOREIGN_WORKER_EDUCATION_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,FOREIGN_WORKER_ED_INST_ADD_1,,dropped: foreign worker education institution address
+2023,perm_2023.xlsx,FOREIGN_WORKER_ED_INST_ADD_2,,dropped: foreign worker education institution address
+2023,perm_2023.xlsx,FOREIGN_WORKER_ED_INST_CITY,,dropped: foreign worker education institution address
+2023,perm_2023.xlsx,FOREIGN_WORKER_ED_INST_COUNTRY,,dropped: foreign worker education institution address
+2023,perm_2023.xlsx,FOREIGN_WORKER_ED_INST_POST_CD,,dropped: foreign worker education institution address
+2023,perm_2023.xlsx,FOREIGN_WORKER_ED_INST_STATE_P,,dropped: foreign worker education institution address
+2023,perm_2023.xlsx,FOREIGN_WORKER_EMPL_PAY_FOR_ED,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,FOREIGN_WORKER_EXP_WITH_EMPL,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,FOREIGN_WORKER_INFO_MAJOR,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,FOREIGN_WORKER_INST_OF_ED,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,FOREIGN_WORKER_LIVE_IN_DOM_SER,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,FOREIGN_WORKER_LIVE_IN_DOM_SVC_CNT,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,FOREIGN_WORKER_LIVE_ON_PREM,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,FOREIGN_WORKER_REQ_EXPERIENCE,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,FOREIGN_WORKER_TRAINING_COMP,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,FOREIGN_WORKER_YRS_ED_COMP,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,FW_OWNERSHIP_INTEREST,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,JOB_EDUCATION_MIN_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,JOB_FAIR_FROM_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,JOB_FAIR_TO_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,JOB_OPP_REQUIREMENTS_NORMAL,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,JOB_SEARCH_WEBSITE_FROM_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,JOB_SEARCH_WEBSITE_TO_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,LAYOFF_IN_PAST_SIX_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,LOCAL_ETHNIC_PAPER_FROM_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,LOCAL_ETHNIC_PAPER_TO_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,OFFERED_TO_APPL_FOREIGN_WORKER,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,ON_CAMPUS_RECRUITING_FROM_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,ON_CAMPUS_RECRUITING_TO_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,ORIG_FILE_DATE,,duplicate of received_date
+2023,perm_2023.xlsx,PAYMENT_DETAILS,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,POSTED_NOTICE_AT_WORKSITE,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,PREPARER_EMAIL,,dropped: form preparer personal details
+2023,perm_2023.xlsx,PREPARER_NAME,,dropped: form preparer personal details
+2023,perm_2023.xlsx,PREPARER_TITLE,,dropped: form preparer personal details
+2023,perm_2023.xlsx,PREVIOUS_SWA_CASE_NUMBER_STATE,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,PROFESSIONAL_OCCUPATION,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,PRO_ORG_ADVERTISEMENT_TO_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,PRO_ORG_AD_FROM_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,PVT_EMPLOYMENT_FIRM_FROM_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,PVT_EMPLOYMENT_FIRM_TO_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,PW_SOURCE_NAME_OTHER,,dropped: prevailing wage survey detail
+2023,perm_2023.xlsx,RADIO_TV_AD_FROM_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,RADIO_TV_AD_TO_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,REQUIRED_FIELD_OF_TRAINING,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,REQUIRED_TRAINING,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,REQUIRED_TRAINING_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,SECOND_ADVERTISEMENT_TYPE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,SECOND_AD_START_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,SECOND_NEWSPAPER_AD_NAME,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,SPECIFIC_SKILLS,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,SUNDAY_EDITION_NEWSPAPER,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,SWA_JOB_ORDER_END_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,SWA_JOB_ORDER_START_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,TEACHER_PUB_JOURNAL_NAME,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,TEACHER_SELECT_DATE,,dropped: PERM recruitment process detail
+2023,perm_2023.xlsx,US_WORKERS_CONSIDERED,,dropped: PERM job-requirement / worker-qualification detail
+2023,perm_2023.xlsx,WORKSITE_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2024,perm_2024.xlsx,,agent_representing_employer,absent this year
+2024,perm_2024.xlsx,,application_type,absent this year
+2024,perm_2024.xlsx,AGENT_ATTORNEY_FIRM_NAME,attorney_law_firm_name,mapped
+2024,perm_2024.xlsx,CASE_NUMBER,case_number,mapped
+2024,perm_2024.xlsx,CASE_STATUS,case_status,mapped
+2024,perm_2024.xlsx,CLASS_OF_ADMISSION,class_of_admission,mapped
+2024,perm_2024.xlsx,COUNTRY_OF_CITIZENSHIP,country_of_citizenship,mapped
+2024,perm_2024.xlsx,DECISION_DATE,decision_date,mapped
+2024,perm_2024.xlsx,EMPLOYER_ADDRESS_1,employer_address,mapped
+2024,perm_2024.xlsx,EMPLOYER_CITY,employer_city,mapped
+2024,perm_2024.xlsx,EMPLOYER_COUNTRY,employer_country,mapped
+2024,perm_2024.xlsx,EMPLOYER_NAME,employer_name,mapped
+2024,perm_2024.xlsx,EMPLOYER_NUM_EMPLOYEES,employer_num_employees,mapped
+2024,perm_2024.xlsx,EMPLOYER_POSTAL_CODE,employer_postal_code,mapped
+2024,perm_2024.xlsx,EMPLOYER_STATE_PROVINCE,employer_state,mapped
+2024,perm_2024.xlsx,,employer_trade_name,absent this year
+2024,perm_2024.xlsx,EMP_YEAR_COMMENCED_BUSINESS,employer_year_commenced_business,mapped
+2024,perm_2024.xlsx,FOREIGN_WORKER_BIRTH_COUNTRY,foreign_worker_birth_country,mapped
+2024,perm_2024.xlsx,FOREIGN_WORKER_EDUCATION,foreign_worker_education,mapped
+2024,perm_2024.xlsx,,full_time_position,absent this year
+2024,perm_2024.xlsx,,is_multiple_worksites,absent this year
+2024,perm_2024.xlsx,JOB_TITLE,job_title,mapped
+2024,perm_2024.xlsx,MAJOR_FIELD_OF_STUDY,major_field_of_study,mapped
+2024,perm_2024.xlsx,MINIMUM_EDUCATION,minimum_education,mapped
+2024,perm_2024.xlsx,NAICS_CODE,naics_id,mapped
+2024,perm_2024.xlsx,PW_WAGE,prevailing_wage,mapped
+2024,perm_2024.xlsx,PW_DETERMINATION_DATE,prevailing_wage_determination_date,mapped
+2024,perm_2024.xlsx,PW_EXPIRATION_DATE,prevailing_wage_expiration_date,mapped
+2024,perm_2024.xlsx,PW_SKILL_LEVEL,prevailing_wage_level,mapped
+2024,perm_2024.xlsx,PW_WAGE_SOURCE,prevailing_wage_source,mapped
+2024,perm_2024.xlsx,PW_TRACK_NUMBER,prevailing_wage_tracking_number,mapped
+2024,perm_2024.xlsx,PW_UNIT_OF_PAY,prevailing_wage_unit_of_pay,mapped
+2024,perm_2024.xlsx,RECEIVED_DATE,received_date,mapped
+2024,perm_2024.xlsx,REFILE,refile,mapped
+2024,perm_2024.xlsx,REQUIRED_EXPERIENCE,required_experience,mapped
+2024,perm_2024.xlsx,REQUIRED_EXPERIENCE_MONTHS,required_experience_months,mapped
+2024,perm_2024.xlsx,SCHD_A_SHEEPHERDER,schedule_a_sheepherder,mapped
+2024,perm_2024.xlsx,PW_SOC_CODE,soc_id,mapped
+2024,perm_2024.xlsx,PW_SOC_TITLE,soc_title,mapped
+2024,perm_2024.xlsx,,us_economic_sector,absent this year
+2024,perm_2024.xlsx,WAGE_OFFER_FROM,wage_offered_from,mapped
+2024,perm_2024.xlsx,WAGE_OFFER_TO,wage_offered_to,mapped
+2024,perm_2024.xlsx,WAGE_OFFER_UNIT_OF_PAY,wage_unit_of_pay,mapped
+2024,perm_2024.xlsx,WORKSITE_ADDRESS_1,worksite_address,mapped
+2024,perm_2024.xlsx,WORKSITE_CITY,worksite_city,mapped
+2024,perm_2024.xlsx,,worksite_county,absent this year
+2024,perm_2024.xlsx,WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2024,perm_2024.xlsx,WORKSITE_STATE,worksite_state,mapped
+2024,perm_2024.xlsx,ACCEPT_ALT_COMBO,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,ACCEPT_ALT_COMBO_EDUCATION,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,ACCEPT_ALT_COMBO_EDUCATION_YRS,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,ACCEPT_ALT_COMBO_ED_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,ACCEPT_ALT_FIELD_OF_STUDY,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,ACCEPT_ALT_JOB_TITLE,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,ACCEPT_ALT_MAJOR_FLD_OF_STUDY,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,ACCEPT_ALT_OCCUPATION,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,ACCEPT_ALT_OCCUPATION_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,ACCEPT_FOREIGN_EDUCATION,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,ADD_RECRUIT_INFORMATION,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,AGENT_ATTORNEY_ADDRESS_1,,dropped: attorney/agent personal details
+2024,perm_2024.xlsx,AGENT_ATTORNEY_ADDRESS_2,,dropped: attorney/agent personal details
+2024,perm_2024.xlsx,AGENT_ATTORNEY_CITY,,dropped: attorney/agent personal details
+2024,perm_2024.xlsx,AGENT_ATTORNEY_COUNTRY,,dropped: attorney/agent personal details
+2024,perm_2024.xlsx,AGENT_ATTORNEY_EMAIL,,dropped: attorney/agent personal details
+2024,perm_2024.xlsx,AGENT_ATTORNEY_NAME,,dropped: attorney/agent personal details
+2024,perm_2024.xlsx,AGENT_ATTORNEY_PHONE,,dropped: attorney/agent personal details
+2024,perm_2024.xlsx,AGENT_ATTORNEY_PHONE_EXT,,dropped: attorney/agent personal details
+2024,perm_2024.xlsx,AGENT_ATTORNEY_POSTAL_CODE,,dropped: attorney/agent personal details
+2024,perm_2024.xlsx,AGENT_ATTORNEY_STATE_PROVINCE,,dropped: attorney/agent personal details
+2024,perm_2024.xlsx,APP_FOR_COLLEGE_U_TEACHER,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,BARGAINING_REP_NOTIFIED,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,BASIC_RECRUITMENT_PROCESS,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,CAMPUS_PLACEMENT_FROM_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,CAMPUS_PLACEMENT_TO_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,COMBINATION_OCCUPATION,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,COMPETITIVE_PROCESS,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,EMPLOYEE_REFERRAL_PROG_TO_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,EMPLOYEE_REF_PROG_FROM_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,EMPLOYER_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2024,perm_2024.xlsx,EMPLOYER_COMPLETED_APPLICATION,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,EMPLOYER_FEIN,,dropped: phone / employer identifier
+2024,perm_2024.xlsx,EMPLOYER_PHONE,,dropped: phone / employer identifier
+2024,perm_2024.xlsx,EMPLOYER_PHONE_EXT,,dropped: phone / employer identifier
+2024,perm_2024.xlsx,EMPLOYER_WEBSITE_FROM_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,EMPLOYER_WEBSITE_TO_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,EMP_CONTACT_ADDRESS_1,,dropped: employer point-of-contact personal details
+2024,perm_2024.xlsx,EMP_CONTACT_ADDRESS_2,,dropped: employer point-of-contact personal details
+2024,perm_2024.xlsx,EMP_CONTACT_CITY,,dropped: employer point-of-contact personal details
+2024,perm_2024.xlsx,EMP_CONTACT_COUNTRY,,dropped: employer point-of-contact personal details
+2024,perm_2024.xlsx,EMP_CONTACT_EMAIL,,dropped: employer point-of-contact personal details
+2024,perm_2024.xlsx,EMP_CONTACT_NAME,,dropped: employer point-of-contact personal details
+2024,perm_2024.xlsx,EMP_CONTACT_PHONE,,dropped: employer point-of-contact personal details
+2024,perm_2024.xlsx,EMP_CONTACT_POSTAL_CODE,,dropped: employer point-of-contact personal details
+2024,perm_2024.xlsx,EMP_CONTACT_STATE_PROVINCE,,dropped: employer point-of-contact personal details
+2024,perm_2024.xlsx,EMP_DECL_TITLE,,dropped: declarant title
+2024,perm_2024.xlsx,EMP_INFO_DECL_NAME,,dropped: declarant personal details
+2024,perm_2024.xlsx,EMP_RECEIVED_PAYMENT,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,FIRST_ADVERTISEMENT_START_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,FIRST_NEWSPAPER_NAME,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,FOREIGN_LANGUAGE_REQUIRED,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,FOREIGN_WORKER_ALT_ED_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,FOREIGN_WORKER_ALT_OCC_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,FOREIGN_WORKER_CURR_EMPLOYED,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,FOREIGN_WORKER_EDUCATION_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,FOREIGN_WORKER_ED_INST_ADD_1,,dropped: foreign worker education institution address
+2024,perm_2024.xlsx,FOREIGN_WORKER_ED_INST_ADD_2,,dropped: foreign worker education institution address
+2024,perm_2024.xlsx,FOREIGN_WORKER_ED_INST_CITY,,dropped: foreign worker education institution address
+2024,perm_2024.xlsx,FOREIGN_WORKER_ED_INST_COUNTRY,,dropped: foreign worker education institution address
+2024,perm_2024.xlsx,FOREIGN_WORKER_ED_INST_POST_CD,,dropped: foreign worker education institution address
+2024,perm_2024.xlsx,FOREIGN_WORKER_ED_INST_STATE_P,,dropped: foreign worker education institution address
+2024,perm_2024.xlsx,FOREIGN_WORKER_EMPL_PAY_FOR_ED,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,FOREIGN_WORKER_EXP_WITH_EMPL,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,FOREIGN_WORKER_INFO_MAJOR,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,FOREIGN_WORKER_INST_OF_ED,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,FOREIGN_WORKER_LIVE_IN_DOM_SER,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,FOREIGN_WORKER_LIVE_IN_DOM_SVC_CNT,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,FOREIGN_WORKER_LIVE_ON_PREM,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,FOREIGN_WORKER_REQ_EXPERIENCE,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,FOREIGN_WORKER_TRAINING_COMP,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,FOREIGN_WORKER_YRS_ED_COMP,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,FW_OWNERSHIP_INTEREST,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,JOB_EDUCATION_MIN_OTHER,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,JOB_FAIR_FROM_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,JOB_FAIR_TO_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,JOB_OPP_REQUIREMENTS_NORMAL,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,JOB_SEARCH_WEBSITE_FROM_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,JOB_SEARCH_WEBSITE_TO_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,LAYOFF_IN_PAST_SIX_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,LOCAL_ETHNIC_PAPER_FROM_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,LOCAL_ETHNIC_PAPER_TO_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,OFFERED_TO_APPL_FOREIGN_WORKER,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,ON_CAMPUS_RECRUITING_FROM_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,ON_CAMPUS_RECRUITING_TO_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,ORIG_FILE_DATE,,duplicate of received_date
+2024,perm_2024.xlsx,PAYMENT_DETAILS,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,POSTED_NOTICE_AT_WORKSITE,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,PREPARER_EMAIL,,dropped: form preparer personal details
+2024,perm_2024.xlsx,PREPARER_NAME,,dropped: form preparer personal details
+2024,perm_2024.xlsx,PREPARER_TITLE,,dropped: form preparer personal details
+2024,perm_2024.xlsx,PREVIOUS_SWA_CASE_NUMBER_STATE,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,PROFESSIONAL_OCCUPATION,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,PRO_ORG_ADVERTISEMENT_TO_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,PRO_ORG_AD_FROM_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,PVT_EMPLOYMENT_FIRM_FROM_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,PVT_EMPLOYMENT_FIRM_TO_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,PW_SOURCE_NAME_OTHER,,dropped: prevailing wage survey detail
+2024,perm_2024.xlsx,RADIO_TV_AD_FROM_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,RADIO_TV_AD_TO_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,REQUIRED_FIELD_OF_TRAINING,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,REQUIRED_TRAINING,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,REQUIRED_TRAINING_MONTHS,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,SECOND_ADVERTISEMENT_TYPE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,SECOND_AD_START_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,SECOND_NEWSPAPER_AD_NAME,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,SPECIFIC_SKILLS,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,SUNDAY_EDITION_NEWSPAPER,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,SWA_JOB_ORDER_END_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,SWA_JOB_ORDER_START_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,TEACHER_PUB_JOURNAL_NAME,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,TEACHER_SELECT_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024.xlsx,US_WORKERS_CONSIDERED,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024.xlsx,WORKSITE_ADDRESS_2,,dropped: secondary worksite/wage block (primary worksite only)
+2024,perm_2024b.xlsx,ATTY_AG_REP_TYPE,agent_representing_employer,mapped
+2024,perm_2024b.xlsx,OCCUPATION_TYPE,application_type,mapped
+2024,perm_2024b.xlsx,ATTY_AG_LAW_FIRM_NAME,attorney_law_firm_name,mapped
+2024,perm_2024b.xlsx,CASE_NUMBER,case_number,mapped
+2024,perm_2024b.xlsx,CASE_STATUS,case_status,mapped
+2024,perm_2024b.xlsx,,class_of_admission,absent this year
+2024,perm_2024b.xlsx,,country_of_citizenship,absent this year
+2024,perm_2024b.xlsx,DECISION_DATE,decision_date,mapped
+2024,perm_2024b.xlsx,EMP_ADDR1,employer_address,mapped
+2024,perm_2024b.xlsx,EMP_CITY,employer_city,mapped
+2024,perm_2024b.xlsx,EMP_COUNTRY,employer_country,mapped
+2024,perm_2024b.xlsx,EMP_BUSINESS_NAME,employer_name,mapped
+2024,perm_2024b.xlsx,EMP_NUM_PAYROLL,employer_num_employees,mapped
+2024,perm_2024b.xlsx,EMP_POSTCODE,employer_postal_code,mapped
+2024,perm_2024b.xlsx,EMP_STATE,employer_state,mapped
+2024,perm_2024b.xlsx,EMP_TRADE_NAME,employer_trade_name,mapped
+2024,perm_2024b.xlsx,EMP_YEAR_COMMENCED,employer_year_commenced_business,mapped
+2024,perm_2024b.xlsx,,foreign_worker_birth_country,absent this year
+2024,perm_2024b.xlsx,,foreign_worker_education,absent this year
+2024,perm_2024b.xlsx,OTHER_REQ_IS_FULLTIME_EMP,full_time_position,mapped
+2024,perm_2024b.xlsx,IS_MULTIPLE_LOCATIONS,is_multiple_worksites,mapped
+2024,perm_2024b.xlsx,JOB_TITLE,job_title,mapped
+2024,perm_2024b.xlsx,,major_field_of_study,absent this year
+2024,perm_2024b.xlsx,,minimum_education,absent this year
+2024,perm_2024b.xlsx,EMP_NAICS,naics_id,mapped
+2024,perm_2024b.xlsx,,prevailing_wage,absent this year
+2024,perm_2024b.xlsx,,prevailing_wage_determination_date,absent this year
+2024,perm_2024b.xlsx,,prevailing_wage_expiration_date,absent this year
+2024,perm_2024b.xlsx,,prevailing_wage_level,absent this year
+2024,perm_2024b.xlsx,,prevailing_wage_source,absent this year
+2024,perm_2024b.xlsx,JOB_OPP_PWD_NUMBER,prevailing_wage_tracking_number,mapped
+2024,perm_2024b.xlsx,,prevailing_wage_unit_of_pay,absent this year
+2024,perm_2024b.xlsx,RECEIVED_DATE,received_date,mapped
+2024,perm_2024b.xlsx,,refile,absent this year
+2024,perm_2024b.xlsx,,required_experience,absent this year
+2024,perm_2024b.xlsx,,required_experience_months,absent this year
+2024,perm_2024b.xlsx,,schedule_a_sheepherder,absent this year
+2024,perm_2024b.xlsx,,soc_id,absent this year
+2024,perm_2024b.xlsx,,soc_title,absent this year
+2024,perm_2024b.xlsx,,us_economic_sector,absent this year
+2024,perm_2024b.xlsx,JOB_OPP_WAGE_FROM,wage_offered_from,mapped
+2024,perm_2024b.xlsx,JOB_OPP_WAGE_TO,wage_offered_to,mapped
+2024,perm_2024b.xlsx,JOB_OPP_WAGE_PER,wage_unit_of_pay,mapped
+2024,perm_2024b.xlsx,PRIMARY_WORKSITE_ADDR1,worksite_address,mapped
+2024,perm_2024b.xlsx,PRIMARY_WORKSITE_CITY,worksite_city,mapped
+2024,perm_2024b.xlsx,PRIMARY_WORKSITE_COUNTY,worksite_county,mapped
+2024,perm_2024b.xlsx,PRIMARY_WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2024,perm_2024b.xlsx,PRIMARY_WORKSITE_STATE,worksite_state,mapped
+2024,perm_2024b.xlsx,ATTY_AG_ADDRESS1,,dropped: attorney/agent personal details
+2024,perm_2024b.xlsx,ATTY_AG_ADDRESS2,,dropped: attorney/agent personal details
+2024,perm_2024b.xlsx,ATTY_AG_CITY,,dropped: attorney/agent personal details
+2024,perm_2024b.xlsx,ATTY_AG_COUNTRY,,dropped: attorney/agent personal details
+2024,perm_2024b.xlsx,ATTY_AG_EMAIL,,dropped: attorney/agent personal details
+2024,perm_2024b.xlsx,ATTY_AG_FEIN,,dropped: attorney/agent personal details
+2024,perm_2024b.xlsx,ATTY_AG_FIRST_NAME,,dropped: attorney/agent personal details
+2024,perm_2024b.xlsx,ATTY_AG_GOOD_STANDING_COURT,,dropped: attorney/agent personal details
+2024,perm_2024b.xlsx,ATTY_AG_GOOD_STANDING_STATE,,dropped: attorney/agent personal details
+2024,perm_2024b.xlsx,ATTY_AG_LAST_NAME,,dropped: attorney/agent personal details
+2024,perm_2024b.xlsx,ATTY_AG_MIDDLE_NAME,,dropped: attorney/agent personal details
+2024,perm_2024b.xlsx,ATTY_AG_PHONE,,dropped: attorney/agent personal details
+2024,perm_2024b.xlsx,ATTY_AG_PHONE_EXT,,dropped: attorney/agent personal details
+2024,perm_2024b.xlsx,ATTY_AG_POSTAL_CODE,,dropped: attorney/agent personal details
+2024,perm_2024b.xlsx,ATTY_AG_PROVINCE,,dropped: attorney/agent personal details
+2024,perm_2024b.xlsx,ATTY_AG_STATE,,dropped: attorney/agent personal details
+2024,perm_2024b.xlsx,ATTY_AG_STATE_BAR_NUMBER,,dropped: attorney/agent personal details
+2024,perm_2024b.xlsx,DECL_PREP_EMAIL,,dropped: form preparer personal details
+2024,perm_2024b.xlsx,DECL_PREP_FIRM_BUSINESS_NAME,,dropped: form preparer personal details
+2024,perm_2024b.xlsx,DECL_PREP_FIRST_NAME,,dropped: form preparer personal details
+2024,perm_2024b.xlsx,DECL_PREP_LAST_NAME,,dropped: form preparer personal details
+2024,perm_2024b.xlsx,DECL_PREP_LAWFIRM_FEIN,,dropped: form preparer personal details
+2024,perm_2024b.xlsx,DECL_PREP_MIDDLE_NAME,,dropped: form preparer personal details
+2024,perm_2024b.xlsx,EMP_ADDR2,,dropped: secondary worksite/wage block (primary worksite only)
+2024,perm_2024b.xlsx,EMP_CERTIFY_COMPLIANCE,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024b.xlsx,EMP_FEIN,,dropped: phone / employer identifier
+2024,perm_2024b.xlsx,EMP_PHONE,,dropped: phone / employer identifier
+2024,perm_2024b.xlsx,EMP_PHONEEXT,,dropped: phone / employer identifier
+2024,perm_2024b.xlsx,EMP_POC_ADDR1,,dropped: employer point-of-contact personal details
+2024,perm_2024b.xlsx,EMP_POC_ADDR2,,dropped: employer point-of-contact personal details
+2024,perm_2024b.xlsx,EMP_POC_CITY,,dropped: employer point-of-contact personal details
+2024,perm_2024b.xlsx,EMP_POC_COUNTRY,,dropped: employer point-of-contact personal details
+2024,perm_2024b.xlsx,EMP_POC_EMAIL,,dropped: employer point-of-contact personal details
+2024,perm_2024b.xlsx,EMP_POC_FIRST_NAME,,dropped: employer point-of-contact personal details
+2024,perm_2024b.xlsx,EMP_POC_JOB_TITLE,,dropped: employer point-of-contact personal details
+2024,perm_2024b.xlsx,EMP_POC_LAST_NAME,,dropped: employer point-of-contact personal details
+2024,perm_2024b.xlsx,EMP_POC_MIDDLE_NAME,,dropped: employer point-of-contact personal details
+2024,perm_2024b.xlsx,EMP_POC_PHONE,,dropped: employer point-of-contact personal details
+2024,perm_2024b.xlsx,EMP_POC_PHONEEXT,,dropped: employer point-of-contact personal details
+2024,perm_2024b.xlsx,EMP_POC_POSTAL_CODE,,dropped: employer point-of-contact personal details
+2024,perm_2024b.xlsx,EMP_POC_PROVINCE,,dropped: employer point-of-contact personal details
+2024,perm_2024b.xlsx,EMP_POC_STATE,,dropped: employer point-of-contact personal details
+2024,perm_2024b.xlsx,EMP_PROVINCE,,dropped: non-US employer province
+2024,perm_2024b.xlsx,EMP_RELATIONSHIP_WORKER,,dropped: employer-worker relationship attestation
+2024,perm_2024b.xlsx,EMP_WORKER_INTEREST,,dropped: employer-worker relationship attestation
+2024,perm_2024b.xlsx,FW_INFO_APPX_A_ATTACHED,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024b.xlsx,FW_INFO_ATTY_OR_AGENT,,duplicate of agent_representing_employer
+2024,perm_2024b.xlsx,IS_APPENDIX_B_ATTACHED,,dropped: form attachment flag
+2024,perm_2024b.xlsx,JOB_OPP_PWD_ATTACHED,,dropped: form attachment flag
+2024,perm_2024b.xlsx,JOB_OPP_WAGE_CONDITIONS,,dropped: H-2 contract / attestation detail
+2024,perm_2024b.xlsx,NOTICE_POST_BARGAIN_REP,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,NOTICE_POST_BARGAIN_REP_ELECTRONIC,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,NOTICE_POST_BARGAIN_REP_INHOUSE,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,NOTICE_POST_BARGAIN_REP_PHYSICAL,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,NOTICE_POST_BARGAIN_REP_PRIVATE,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,NOTICE_POST_EMP_NOT_POSTED,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,OTHER_REQ_ACCEPT_DIPLOMA_PWD,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024b.xlsx,OTHER_REQ_EMP_LAYOFF,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024b.xlsx,OTHER_REQ_EMP_PAY_EDUCATION,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024b.xlsx,OTHER_REQ_EMP_REC_PAYMENT,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024b.xlsx,OTHER_REQ_EMP_RELY_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024b.xlsx,OTHER_REQ_EMP_USE_CREDENTIAL,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024b.xlsx,OTHER_REQ_EMP_WILL_ACCEPT,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024b.xlsx,OTHER_REQ_FW_GAIN_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024b.xlsx,OTHER_REQ_IS_EMP_PROVIDED_CONT,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024b.xlsx,OTHER_REQ_IS_FW_CURRENTLY_WRK,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024b.xlsx,OTHER_REQ_IS_FW_EXECUTED_CONT,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024b.xlsx,OTHER_REQ_IS_FW_QUALIFY,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024b.xlsx,OTHER_REQ_IS_LIVEIN_HOUSEHOLD,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024b.xlsx,OTHER_REQ_IS_PAID_EXPERIENCE,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024b.xlsx,OTHER_REQ_JOB_COMBO_OCCUP,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024b.xlsx,OTHER_REQ_JOB_EMP_PREMISES,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024b.xlsx,OTHER_REQ_JOB_FOREIGN_LANGUAGE,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024b.xlsx,OTHER_REQ_JOB_REQ_EXCEED,,dropped: PERM job-requirement / worker-qualification detail
+2024,perm_2024b.xlsx,PRIMARY_WORKSITE_ADDR2,,dropped: secondary worksite/wage block (primary worksite only)
+2024,perm_2024b.xlsx,PRIMARY_WORKSITE_BLS_AREA,,dropped: PERM worksite classification detail
+2024,perm_2024b.xlsx,PRIMARY_WORKSITE_TYPE,,dropped: PERM worksite classification detail
+2024,perm_2024b.xlsx,RECR_INFO_AD_DATE1,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_INFO_AD_DATE2,,dropped: secondary worksite/wage block (primary worksite only)
+2024,perm_2024b.xlsx,RECR_INFO_IS_NEWSPAPER_SUNDAY,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_INFO_JOB_END_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_INFO_JOB_START_DATE,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_INFO_NEWSPAPER_NAME,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_INFO_NEWSPAPER_NAME2,,dropped: secondary worksite/wage block (primary worksite only)
+2024,perm_2024b.xlsx,RECR_INFO_RECRUIT_AD_TYPE,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_INFO_RECRUIT_SUPERVISED_REQ,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_OCC_CAMPUS_PLACEMENT_FROM,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_OCC_CAMPUS_PLACEMENT_TO,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_OCC_EMP_REFERRAL_FROM,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_OCC_EMP_REFERRAL_TO,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_OCC_EMP_WEBSITE_FROM,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_OCC_EMP_WEBSITE_TO,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_OCC_JOB_FAIR_FROM,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_OCC_JOB_FAIR_TO,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_OCC_JOB_SEARCH_FROM,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_OCC_JOB_SEARCH_TO,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_OCC_LOCAL_NEWSPAPER_FROM,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_OCC_LOCAL_NEWSPAPER_TO,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_OCC_ON_CAMPUS_FROM,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_OCC_ON_CAMPUS_TO,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_OCC_PRIVATE_EMP_FROM,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_OCC_PRIVATE_EMP_TO,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_OCC_RADIO_AD_FROM,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_OCC_RADIO_AD_TO,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_OCC_TRADE_ORG_FROM,,dropped: PERM recruitment process detail
+2024,perm_2024b.xlsx,RECR_OCC_TRADE_ORG_TO,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,ATTY_AG_REP_TYPE,agent_representing_employer,mapped
+2025,perm_2025.xlsx,OCCUPATION_TYPE,application_type,mapped
+2025,perm_2025.xlsx,ATTY_AG_LAW_FIRM_NAME,attorney_law_firm_name,mapped
+2025,perm_2025.xlsx,CASE_NUMBER,case_number,mapped
+2025,perm_2025.xlsx,CASE_STATUS,case_status,mapped
+2025,perm_2025.xlsx,,class_of_admission,absent this year
+2025,perm_2025.xlsx,,country_of_citizenship,absent this year
+2025,perm_2025.xlsx,DECISION_DATE,decision_date,mapped
+2025,perm_2025.xlsx,EMP_ADDR1,employer_address,mapped
+2025,perm_2025.xlsx,EMP_CITY,employer_city,mapped
+2025,perm_2025.xlsx,EMP_COUNTRY,employer_country,mapped
+2025,perm_2025.xlsx,EMP_BUSINESS_NAME,employer_name,mapped
+2025,perm_2025.xlsx,EMP_NUM_PAYROLL,employer_num_employees,mapped
+2025,perm_2025.xlsx,EMP_POSTCODE,employer_postal_code,mapped
+2025,perm_2025.xlsx,EMP_STATE,employer_state,mapped
+2025,perm_2025.xlsx,EMP_TRADE_NAME,employer_trade_name,mapped
+2025,perm_2025.xlsx,EMP_YEAR_COMMENCED,employer_year_commenced_business,mapped
+2025,perm_2025.xlsx,,foreign_worker_birth_country,absent this year
+2025,perm_2025.xlsx,,foreign_worker_education,absent this year
+2025,perm_2025.xlsx,OTHER_REQ_IS_FULLTIME_EMP,full_time_position,mapped
+2025,perm_2025.xlsx,IS_MULTIPLE_LOCATIONS,is_multiple_worksites,mapped
+2025,perm_2025.xlsx,JOB_TITLE,job_title,mapped
+2025,perm_2025.xlsx,,major_field_of_study,absent this year
+2025,perm_2025.xlsx,,minimum_education,absent this year
+2025,perm_2025.xlsx,EMP_NAICS,naics_id,mapped
+2025,perm_2025.xlsx,,prevailing_wage,absent this year
+2025,perm_2025.xlsx,,prevailing_wage_determination_date,absent this year
+2025,perm_2025.xlsx,,prevailing_wage_expiration_date,absent this year
+2025,perm_2025.xlsx,,prevailing_wage_level,absent this year
+2025,perm_2025.xlsx,,prevailing_wage_source,absent this year
+2025,perm_2025.xlsx,JOB_OPP_PWD_NUMBER,prevailing_wage_tracking_number,mapped
+2025,perm_2025.xlsx,,prevailing_wage_unit_of_pay,absent this year
+2025,perm_2025.xlsx,RECEIVED_DATE,received_date,mapped
+2025,perm_2025.xlsx,,refile,absent this year
+2025,perm_2025.xlsx,,required_experience,absent this year
+2025,perm_2025.xlsx,,required_experience_months,absent this year
+2025,perm_2025.xlsx,,schedule_a_sheepherder,absent this year
+2025,perm_2025.xlsx,PWD_SOC_CODE,soc_id,mapped
+2025,perm_2025.xlsx,PWD_SOC_TITLE,soc_title,mapped
+2025,perm_2025.xlsx,,us_economic_sector,absent this year
+2025,perm_2025.xlsx,JOB_OPP_WAGE_FROM,wage_offered_from,mapped
+2025,perm_2025.xlsx,JOB_OPP_WAGE_TO,wage_offered_to,mapped
+2025,perm_2025.xlsx,JOB_OPP_WAGE_PER,wage_unit_of_pay,mapped
+2025,perm_2025.xlsx,PRIMARY_WORKSITE_ADDR1,worksite_address,mapped
+2025,perm_2025.xlsx,PRIMARY_WORKSITE_CITY,worksite_city,mapped
+2025,perm_2025.xlsx,PRIMARY_WORKSITE_COUNTY,worksite_county,mapped
+2025,perm_2025.xlsx,PRIMARY_WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2025,perm_2025.xlsx,PRIMARY_WORKSITE_STATE,worksite_state,mapped
+2025,perm_2025.xlsx,ATTY_AG_ADDRESS1,,dropped: attorney/agent personal details
+2025,perm_2025.xlsx,ATTY_AG_ADDRESS2,,dropped: attorney/agent personal details
+2025,perm_2025.xlsx,ATTY_AG_CITY,,dropped: attorney/agent personal details
+2025,perm_2025.xlsx,ATTY_AG_COUNTRY,,dropped: attorney/agent personal details
+2025,perm_2025.xlsx,ATTY_AG_EMAIL,,dropped: attorney/agent personal details
+2025,perm_2025.xlsx,ATTY_AG_FEIN,,dropped: attorney/agent personal details
+2025,perm_2025.xlsx,ATTY_AG_FIRST_NAME,,dropped: attorney/agent personal details
+2025,perm_2025.xlsx,ATTY_AG_GOOD_STANDING_COURT,,dropped: attorney/agent personal details
+2025,perm_2025.xlsx,ATTY_AG_GOOD_STANDING_STATE,,dropped: attorney/agent personal details
+2025,perm_2025.xlsx,ATTY_AG_LAST_NAME,,dropped: attorney/agent personal details
+2025,perm_2025.xlsx,ATTY_AG_MIDDLE_NAME,,dropped: attorney/agent personal details
+2025,perm_2025.xlsx,ATTY_AG_PHONE,,dropped: attorney/agent personal details
+2025,perm_2025.xlsx,ATTY_AG_PHONE_EXT,,dropped: attorney/agent personal details
+2025,perm_2025.xlsx,ATTY_AG_POSTAL_CODE,,dropped: attorney/agent personal details
+2025,perm_2025.xlsx,ATTY_AG_PROVINCE,,dropped: attorney/agent personal details
+2025,perm_2025.xlsx,ATTY_AG_STATE,,dropped: attorney/agent personal details
+2025,perm_2025.xlsx,ATTY_AG_STATE_BAR_NUMBER,,dropped: attorney/agent personal details
+2025,perm_2025.xlsx,DECL_PREP_EMAIL,,dropped: form preparer personal details
+2025,perm_2025.xlsx,DECL_PREP_FIRM_BUSINESS_NAME,,dropped: form preparer personal details
+2025,perm_2025.xlsx,DECL_PREP_FIRST_NAME,,dropped: form preparer personal details
+2025,perm_2025.xlsx,DECL_PREP_LAST_NAME,,dropped: form preparer personal details
+2025,perm_2025.xlsx,DECL_PREP_LAWFIRM_FEIN,,dropped: form preparer personal details
+2025,perm_2025.xlsx,DECL_PREP_MIDDLE_NAME,,dropped: form preparer personal details
+2025,perm_2025.xlsx,EMP_ADDR2,,dropped: secondary worksite/wage block (primary worksite only)
+2025,perm_2025.xlsx,EMP_CERTIFY_COMPLIANCE,,dropped: PERM job-requirement / worker-qualification detail
+2025,perm_2025.xlsx,EMP_FEIN,,dropped: phone / employer identifier
+2025,perm_2025.xlsx,EMP_PHONE,,dropped: phone / employer identifier
+2025,perm_2025.xlsx,EMP_PHONEEXT,,dropped: phone / employer identifier
+2025,perm_2025.xlsx,EMP_POC_ADDR1,,dropped: employer point-of-contact personal details
+2025,perm_2025.xlsx,EMP_POC_ADDR2,,dropped: employer point-of-contact personal details
+2025,perm_2025.xlsx,EMP_POC_CITY,,dropped: employer point-of-contact personal details
+2025,perm_2025.xlsx,EMP_POC_COUNTRY,,dropped: employer point-of-contact personal details
+2025,perm_2025.xlsx,EMP_POC_EMAIL,,dropped: employer point-of-contact personal details
+2025,perm_2025.xlsx,EMP_POC_FIRST_NAME,,dropped: employer point-of-contact personal details
+2025,perm_2025.xlsx,EMP_POC_JOB_TITLE,,dropped: employer point-of-contact personal details
+2025,perm_2025.xlsx,EMP_POC_LAST_NAME,,dropped: employer point-of-contact personal details
+2025,perm_2025.xlsx,EMP_POC_MIDDLE_NAME,,dropped: employer point-of-contact personal details
+2025,perm_2025.xlsx,EMP_POC_PHONE,,dropped: employer point-of-contact personal details
+2025,perm_2025.xlsx,EMP_POC_PHONEEXT,,dropped: employer point-of-contact personal details
+2025,perm_2025.xlsx,EMP_POC_POSTAL_CODE,,dropped: employer point-of-contact personal details
+2025,perm_2025.xlsx,EMP_POC_PROVINCE,,dropped: employer point-of-contact personal details
+2025,perm_2025.xlsx,EMP_POC_STATE,,dropped: employer point-of-contact personal details
+2025,perm_2025.xlsx,EMP_PROVINCE,,dropped: non-US employer province
+2025,perm_2025.xlsx,EMP_RELATIONSHIP_WORKER,,dropped: employer-worker relationship attestation
+2025,perm_2025.xlsx,EMP_WORKER_INTEREST,,dropped: employer-worker relationship attestation
+2025,perm_2025.xlsx,FW_INFO_APPX_A_ATTACHED,,dropped: PERM job-requirement / worker-qualification detail
+2025,perm_2025.xlsx,FW_INFO_ATTY_OR_AGENT,,duplicate of agent_representing_employer
+2025,perm_2025.xlsx,IS_APPENDIX_B_ATTACHED,,dropped: form attachment flag
+2025,perm_2025.xlsx,JOB_OPP_PWD_ATTACHED,,dropped: form attachment flag
+2025,perm_2025.xlsx,JOB_OPP_WAGE_CONDITIONS,,dropped: H-2 contract / attestation detail
+2025,perm_2025.xlsx,NOTICE_POST_BARGAIN_REP,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,NOTICE_POST_BARGAIN_REP_ELECTRONIC,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,NOTICE_POST_BARGAIN_REP_INHOUSE,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,NOTICE_POST_BARGAIN_REP_PHYSICAL,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,NOTICE_POST_BARGAIN_REP_PRIVATE,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,NOTICE_POST_EMP_NOT_POSTED,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,OTHER_REQ_ACCEPT_DIPLOMA_PWD,,dropped: PERM job-requirement / worker-qualification detail
+2025,perm_2025.xlsx,OTHER_REQ_EMP_LAYOFF,,dropped: PERM job-requirement / worker-qualification detail
+2025,perm_2025.xlsx,OTHER_REQ_EMP_PAY_EDUCATION,,dropped: PERM job-requirement / worker-qualification detail
+2025,perm_2025.xlsx,OTHER_REQ_EMP_REC_PAYMENT,,dropped: PERM job-requirement / worker-qualification detail
+2025,perm_2025.xlsx,OTHER_REQ_EMP_RELY_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2025,perm_2025.xlsx,OTHER_REQ_EMP_USE_CREDENTIAL,,dropped: PERM job-requirement / worker-qualification detail
+2025,perm_2025.xlsx,OTHER_REQ_EMP_WILL_ACCEPT,,dropped: PERM job-requirement / worker-qualification detail
+2025,perm_2025.xlsx,OTHER_REQ_FW_GAIN_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2025,perm_2025.xlsx,OTHER_REQ_IS_EMP_PROVIDED_CONT,,dropped: PERM job-requirement / worker-qualification detail
+2025,perm_2025.xlsx,OTHER_REQ_IS_FW_CURRENTLY_WRK,,dropped: PERM job-requirement / worker-qualification detail
+2025,perm_2025.xlsx,OTHER_REQ_IS_FW_EXECUTED_CONT,,dropped: PERM job-requirement / worker-qualification detail
+2025,perm_2025.xlsx,OTHER_REQ_IS_FW_QUALIFY,,dropped: PERM job-requirement / worker-qualification detail
+2025,perm_2025.xlsx,OTHER_REQ_IS_LIVEIN_HOUSEHOLD,,dropped: PERM job-requirement / worker-qualification detail
+2025,perm_2025.xlsx,OTHER_REQ_IS_PAID_EXPERIENCE,,dropped: PERM job-requirement / worker-qualification detail
+2025,perm_2025.xlsx,OTHER_REQ_JOB_COMBO_OCCUP,,dropped: PERM job-requirement / worker-qualification detail
+2025,perm_2025.xlsx,OTHER_REQ_JOB_EMP_PREMISES,,dropped: PERM job-requirement / worker-qualification detail
+2025,perm_2025.xlsx,OTHER_REQ_JOB_FOREIGN_LANGUAGE,,dropped: PERM job-requirement / worker-qualification detail
+2025,perm_2025.xlsx,OTHER_REQ_JOB_REQ_EXCEED,,dropped: PERM job-requirement / worker-qualification detail
+2025,perm_2025.xlsx,PRIMARY_WORKSITE_ADDR2,,dropped: secondary worksite/wage block (primary worksite only)
+2025,perm_2025.xlsx,PRIMARY_WORKSITE_BLS_AREA,,dropped: PERM worksite classification detail
+2025,perm_2025.xlsx,PRIMARY_WORKSITE_TYPE,,dropped: PERM worksite classification detail
+2025,perm_2025.xlsx,RECR_INFO_AD_DATE1,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_INFO_AD_DATE2,,dropped: secondary worksite/wage block (primary worksite only)
+2025,perm_2025.xlsx,RECR_INFO_IS_NEWSPAPER_SUNDAY,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_INFO_JOB_END_DATE,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_INFO_JOB_START_DATE,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_INFO_NEWSPAPER_NAME,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_INFO_NEWSPAPER_NAME2,,dropped: secondary worksite/wage block (primary worksite only)
+2025,perm_2025.xlsx,RECR_INFO_RECRUIT_AD_TYPE,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_INFO_RECRUIT_SUPERVISED_REQ,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_OCC_CAMPUS_PLACEMENT_FROM,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_OCC_CAMPUS_PLACEMENT_TO,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_OCC_EMP_REFERRAL_FROM,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_OCC_EMP_REFERRAL_TO,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_OCC_EMP_WEBSITE_FROM,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_OCC_EMP_WEBSITE_TO,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_OCC_JOB_FAIR_FROM,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_OCC_JOB_FAIR_TO,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_OCC_JOB_SEARCH_FROM,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_OCC_JOB_SEARCH_TO,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_OCC_LOCAL_NEWSPAPER_FROM,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_OCC_LOCAL_NEWSPAPER_TO,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_OCC_ON_CAMPUS_FROM,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_OCC_ON_CAMPUS_TO,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_OCC_PRIVATE_EMP_FROM,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_OCC_PRIVATE_EMP_TO,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_OCC_RADIO_AD_FROM,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_OCC_RADIO_AD_TO,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_OCC_TRADE_ORG_FROM,,dropped: PERM recruitment process detail
+2025,perm_2025.xlsx,RECR_OCC_TRADE_ORG_TO,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,ATTY_AG_REP_TYPE,agent_representing_employer,mapped
+2026,perm_2026.xlsx,OCCUPATION_TYPE,application_type,mapped
+2026,perm_2026.xlsx,ATTY_AG_LAW_FIRM_NAME,attorney_law_firm_name,mapped
+2026,perm_2026.xlsx,CASE_NUMBER,case_number,mapped
+2026,perm_2026.xlsx,CASE_STATUS,case_status,mapped
+2026,perm_2026.xlsx,,class_of_admission,absent this year
+2026,perm_2026.xlsx,,country_of_citizenship,absent this year
+2026,perm_2026.xlsx,DECISION_DATE,decision_date,mapped
+2026,perm_2026.xlsx,EMP_ADDR1,employer_address,mapped
+2026,perm_2026.xlsx,EMP_CITY,employer_city,mapped
+2026,perm_2026.xlsx,EMP_COUNTRY,employer_country,mapped
+2026,perm_2026.xlsx,EMP_BUSINESS_NAME,employer_name,mapped
+2026,perm_2026.xlsx,EMP_NUM_PAYROLL,employer_num_employees,mapped
+2026,perm_2026.xlsx,EMP_POSTCODE,employer_postal_code,mapped
+2026,perm_2026.xlsx,EMP_STATE,employer_state,mapped
+2026,perm_2026.xlsx,EMP_TRADE_NAME,employer_trade_name,mapped
+2026,perm_2026.xlsx,EMP_YEAR_COMMENCED,employer_year_commenced_business,mapped
+2026,perm_2026.xlsx,,foreign_worker_birth_country,absent this year
+2026,perm_2026.xlsx,,foreign_worker_education,absent this year
+2026,perm_2026.xlsx,OTHER_REQ_IS_FULLTIME_EMP,full_time_position,mapped
+2026,perm_2026.xlsx,IS_MULTIPLE_LOCATIONS,is_multiple_worksites,mapped
+2026,perm_2026.xlsx,JOB_TITLE,job_title,mapped
+2026,perm_2026.xlsx,,major_field_of_study,absent this year
+2026,perm_2026.xlsx,,minimum_education,absent this year
+2026,perm_2026.xlsx,EMP_NAICS,naics_id,mapped
+2026,perm_2026.xlsx,,prevailing_wage,absent this year
+2026,perm_2026.xlsx,,prevailing_wage_determination_date,absent this year
+2026,perm_2026.xlsx,,prevailing_wage_expiration_date,absent this year
+2026,perm_2026.xlsx,,prevailing_wage_level,absent this year
+2026,perm_2026.xlsx,,prevailing_wage_source,absent this year
+2026,perm_2026.xlsx,JOB_OPP_PWD_NUMBER,prevailing_wage_tracking_number,mapped
+2026,perm_2026.xlsx,,prevailing_wage_unit_of_pay,absent this year
+2026,perm_2026.xlsx,RECEIVED_DATE,received_date,mapped
+2026,perm_2026.xlsx,,refile,absent this year
+2026,perm_2026.xlsx,,required_experience,absent this year
+2026,perm_2026.xlsx,,required_experience_months,absent this year
+2026,perm_2026.xlsx,,schedule_a_sheepherder,absent this year
+2026,perm_2026.xlsx,PWD_SOC_CODE,soc_id,mapped
+2026,perm_2026.xlsx,PWD_SOC_TITLE,soc_title,mapped
+2026,perm_2026.xlsx,,us_economic_sector,absent this year
+2026,perm_2026.xlsx,JOB_OPP_WAGE_FROM,wage_offered_from,mapped
+2026,perm_2026.xlsx,JOB_OPP_WAGE_TO,wage_offered_to,mapped
+2026,perm_2026.xlsx,JOB_OPP_WAGE_PER,wage_unit_of_pay,mapped
+2026,perm_2026.xlsx,PRIMARY_WORKSITE_ADDR1,worksite_address,mapped
+2026,perm_2026.xlsx,PRIMARY_WORKSITE_CITY,worksite_city,mapped
+2026,perm_2026.xlsx,PRIMARY_WORKSITE_COUNTY,worksite_county,mapped
+2026,perm_2026.xlsx,PRIMARY_WORKSITE_POSTAL_CODE,worksite_postal_code,mapped
+2026,perm_2026.xlsx,PRIMARY_WORKSITE_STATE,worksite_state,mapped
+2026,perm_2026.xlsx,ATTY_AG_ADDRESS1,,dropped: attorney/agent personal details
+2026,perm_2026.xlsx,ATTY_AG_ADDRESS2,,dropped: attorney/agent personal details
+2026,perm_2026.xlsx,ATTY_AG_CITY,,dropped: attorney/agent personal details
+2026,perm_2026.xlsx,ATTY_AG_COUNTRY,,dropped: attorney/agent personal details
+2026,perm_2026.xlsx,ATTY_AG_EMAIL,,dropped: attorney/agent personal details
+2026,perm_2026.xlsx,ATTY_AG_FEIN,,dropped: attorney/agent personal details
+2026,perm_2026.xlsx,ATTY_AG_FIRST_NAME,,dropped: attorney/agent personal details
+2026,perm_2026.xlsx,ATTY_AG_GOOD_STANDING_COURT,,dropped: attorney/agent personal details
+2026,perm_2026.xlsx,ATTY_AG_GOOD_STANDING_STATE,,dropped: attorney/agent personal details
+2026,perm_2026.xlsx,ATTY_AG_LAST_NAME,,dropped: attorney/agent personal details
+2026,perm_2026.xlsx,ATTY_AG_MIDDLE_NAME,,dropped: attorney/agent personal details
+2026,perm_2026.xlsx,ATTY_AG_PHONE,,dropped: attorney/agent personal details
+2026,perm_2026.xlsx,ATTY_AG_PHONE_EXT,,dropped: attorney/agent personal details
+2026,perm_2026.xlsx,ATTY_AG_POSTAL_CODE,,dropped: attorney/agent personal details
+2026,perm_2026.xlsx,ATTY_AG_PROVINCE,,dropped: attorney/agent personal details
+2026,perm_2026.xlsx,ATTY_AG_STATE,,dropped: attorney/agent personal details
+2026,perm_2026.xlsx,ATTY_AG_STATE_BAR_NUMBER,,dropped: attorney/agent personal details
+2026,perm_2026.xlsx,DECL_PREP_EMAIL,,dropped: form preparer personal details
+2026,perm_2026.xlsx,DECL_PREP_FIRM_BUSINESS_NAME,,dropped: form preparer personal details
+2026,perm_2026.xlsx,DECL_PREP_FIRST_NAME,,dropped: form preparer personal details
+2026,perm_2026.xlsx,DECL_PREP_LAST_NAME,,dropped: form preparer personal details
+2026,perm_2026.xlsx,DECL_PREP_LAWFIRM_FEIN,,dropped: form preparer personal details
+2026,perm_2026.xlsx,DECL_PREP_MIDDLE_NAME,,dropped: form preparer personal details
+2026,perm_2026.xlsx,EMP_ADDR2,,dropped: secondary worksite/wage block (primary worksite only)
+2026,perm_2026.xlsx,EMP_CERTIFY_COMPLIANCE,,dropped: PERM job-requirement / worker-qualification detail
+2026,perm_2026.xlsx,EMP_FEIN,,dropped: phone / employer identifier
+2026,perm_2026.xlsx,EMP_PHONE,,dropped: phone / employer identifier
+2026,perm_2026.xlsx,EMP_PHONEEXT,,dropped: phone / employer identifier
+2026,perm_2026.xlsx,EMP_POC_ADDR1,,dropped: employer point-of-contact personal details
+2026,perm_2026.xlsx,EMP_POC_ADDR2,,dropped: employer point-of-contact personal details
+2026,perm_2026.xlsx,EMP_POC_CITY,,dropped: employer point-of-contact personal details
+2026,perm_2026.xlsx,EMP_POC_COUNTRY,,dropped: employer point-of-contact personal details
+2026,perm_2026.xlsx,EMP_POC_EMAIL,,dropped: employer point-of-contact personal details
+2026,perm_2026.xlsx,EMP_POC_FIRST_NAME,,dropped: employer point-of-contact personal details
+2026,perm_2026.xlsx,EMP_POC_JOB_TITLE,,dropped: employer point-of-contact personal details
+2026,perm_2026.xlsx,EMP_POC_LAST_NAME,,dropped: employer point-of-contact personal details
+2026,perm_2026.xlsx,EMP_POC_MIDDLE_NAME,,dropped: employer point-of-contact personal details
+2026,perm_2026.xlsx,EMP_POC_PHONE,,dropped: employer point-of-contact personal details
+2026,perm_2026.xlsx,EMP_POC_PHONEEXT,,dropped: employer point-of-contact personal details
+2026,perm_2026.xlsx,EMP_POC_POSTAL_CODE,,dropped: employer point-of-contact personal details
+2026,perm_2026.xlsx,EMP_POC_PROVINCE,,dropped: employer point-of-contact personal details
+2026,perm_2026.xlsx,EMP_POC_STATE,,dropped: employer point-of-contact personal details
+2026,perm_2026.xlsx,EMP_PROVINCE,,dropped: non-US employer province
+2026,perm_2026.xlsx,EMP_RELATIONSHIP_WORKER,,dropped: employer-worker relationship attestation
+2026,perm_2026.xlsx,EMP_WORKER_INTEREST,,dropped: employer-worker relationship attestation
+2026,perm_2026.xlsx,FW_INFO_APPX_A_ATTACHED,,dropped: PERM job-requirement / worker-qualification detail
+2026,perm_2026.xlsx,FW_INFO_ATTY_OR_AGENT,,duplicate of agent_representing_employer
+2026,perm_2026.xlsx,IS_APPENDIX_B_ATTACHED,,dropped: form attachment flag
+2026,perm_2026.xlsx,JOB_OPP_PWD_ATTACHED,,dropped: form attachment flag
+2026,perm_2026.xlsx,JOB_OPP_WAGE_CONDITIONS,,dropped: H-2 contract / attestation detail
+2026,perm_2026.xlsx,NOTICE_POST_BARGAIN_REP,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,NOTICE_POST_BARGAIN_REP_ELECTRONIC,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,NOTICE_POST_BARGAIN_REP_INHOUSE,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,NOTICE_POST_BARGAIN_REP_PHYSICAL,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,NOTICE_POST_BARGAIN_REP_PRIVATE,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,NOTICE_POST_EMP_NOT_POSTED,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,OTHER_REQ_ACCEPT_DIPLOMA_PWD,,dropped: PERM job-requirement / worker-qualification detail
+2026,perm_2026.xlsx,OTHER_REQ_EMP_LAYOFF,,dropped: PERM job-requirement / worker-qualification detail
+2026,perm_2026.xlsx,OTHER_REQ_EMP_PAY_EDUCATION,,dropped: PERM job-requirement / worker-qualification detail
+2026,perm_2026.xlsx,OTHER_REQ_EMP_REC_PAYMENT,,dropped: PERM job-requirement / worker-qualification detail
+2026,perm_2026.xlsx,OTHER_REQ_EMP_RELY_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2026,perm_2026.xlsx,OTHER_REQ_EMP_USE_CREDENTIAL,,dropped: PERM job-requirement / worker-qualification detail
+2026,perm_2026.xlsx,OTHER_REQ_EMP_WILL_ACCEPT,,dropped: PERM job-requirement / worker-qualification detail
+2026,perm_2026.xlsx,OTHER_REQ_FW_GAIN_EXP,,dropped: PERM job-requirement / worker-qualification detail
+2026,perm_2026.xlsx,OTHER_REQ_IS_EMP_PROVIDED_CONT,,dropped: PERM job-requirement / worker-qualification detail
+2026,perm_2026.xlsx,OTHER_REQ_IS_FW_CURRENTLY_WRK,,dropped: PERM job-requirement / worker-qualification detail
+2026,perm_2026.xlsx,OTHER_REQ_IS_FW_EXECUTED_CONT,,dropped: PERM job-requirement / worker-qualification detail
+2026,perm_2026.xlsx,OTHER_REQ_IS_FW_QUALIFY,,dropped: PERM job-requirement / worker-qualification detail
+2026,perm_2026.xlsx,OTHER_REQ_IS_LIVEIN_HOUSEHOLD,,dropped: PERM job-requirement / worker-qualification detail
+2026,perm_2026.xlsx,OTHER_REQ_IS_PAID_EXPERIENCE,,dropped: PERM job-requirement / worker-qualification detail
+2026,perm_2026.xlsx,OTHER_REQ_JOB_COMBO_OCCUP,,dropped: PERM job-requirement / worker-qualification detail
+2026,perm_2026.xlsx,OTHER_REQ_JOB_EMP_PREMISES,,dropped: PERM job-requirement / worker-qualification detail
+2026,perm_2026.xlsx,OTHER_REQ_JOB_FOREIGN_LANGUAGE,,dropped: PERM job-requirement / worker-qualification detail
+2026,perm_2026.xlsx,OTHER_REQ_JOB_REQ_EXCEED,,dropped: PERM job-requirement / worker-qualification detail
+2026,perm_2026.xlsx,PRIMARY_WORKSITE_ADDR2,,dropped: secondary worksite/wage block (primary worksite only)
+2026,perm_2026.xlsx,PRIMARY_WORKSITE_BLS_AREA,,dropped: PERM worksite classification detail
+2026,perm_2026.xlsx,PRIMARY_WORKSITE_TYPE,,dropped: PERM worksite classification detail
+2026,perm_2026.xlsx,RECR_INFO_AD_DATE1,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_INFO_AD_DATE2,,dropped: secondary worksite/wage block (primary worksite only)
+2026,perm_2026.xlsx,RECR_INFO_IS_NEWSPAPER_SUNDAY,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_INFO_JOB_END_DATE,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_INFO_JOB_START_DATE,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_INFO_NEWSPAPER_NAME,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_INFO_NEWSPAPER_NAME2,,dropped: secondary worksite/wage block (primary worksite only)
+2026,perm_2026.xlsx,RECR_INFO_RECRUIT_AD_TYPE,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_INFO_RECRUIT_SUPERVISED_REQ,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_OCC_CAMPUS_PLACEMENT_FROM,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_OCC_CAMPUS_PLACEMENT_TO,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_OCC_EMP_REFERRAL_FROM,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_OCC_EMP_REFERRAL_TO,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_OCC_EMP_WEBSITE_FROM,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_OCC_EMP_WEBSITE_TO,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_OCC_JOB_FAIR_FROM,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_OCC_JOB_FAIR_TO,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_OCC_JOB_SEARCH_FROM,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_OCC_JOB_SEARCH_TO,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_OCC_LOCAL_NEWSPAPER_FROM,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_OCC_LOCAL_NEWSPAPER_TO,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_OCC_ON_CAMPUS_FROM,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_OCC_ON_CAMPUS_TO,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_OCC_PRIVATE_EMP_FROM,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_OCC_PRIVATE_EMP_TO,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_OCC_RADIO_AD_FROM,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_OCC_RADIO_AD_TO,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_OCC_TRADE_ORG_FROM,,dropped: PERM recruitment process detail
+2026,perm_2026.xlsx,RECR_OCC_TRADE_ORG_TO,,dropped: PERM recruitment process detail
