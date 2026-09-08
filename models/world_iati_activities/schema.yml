@@ -151,12 +151,12 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, budget_id]
-        config:
-          where: __most_recent_year_en__
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-        config:
-          where: __most_recent_year_en__
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: Ano da data de referência da linha, derivado pela Data Basis
@@ -448,13 +448,13 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, planned_disbursement_id]
-        config:
-          where: __most_recent_year_en__
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [receiver_org_type_name]
-        config:
-          where: __most_recent_year_en__
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: Ano da data de referência da linha, derivado pela Data Basis
@@ -842,13 +842,13 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, result_indicator_period_id]
-        config:
-          where: __most_recent_year_en__
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [target_value, actual_value]
-        config:
-          where: __most_recent_year_en__
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: Ano da data de referência da linha, derivado pela Data Basis
@@ -967,16 +967,16 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, transaction_id]
-        config:
-          where: __most_recent_year_en__
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
             - recipient_region_name
             - recipient_region_vocabulary_code
             - recipient_region_vocabulary_name
-        config:
-          where: __most_recent_year_en__
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: Ano da data de referência da linha, derivado pela Data Basis
@@ -1103,8 +1103,8 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-        config:
-          where: __most_recent_year_en__
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: Ano da data de referência da linha, derivado pela Data Basis

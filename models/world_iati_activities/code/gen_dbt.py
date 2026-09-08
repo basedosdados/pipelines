@@ -169,8 +169,11 @@ def write_schema(tables):
         # The wide, tall tables get their tests scoped to the most recent
         # partition: the null-proportion test compiles a scan of every column,
         # which is a full-table read on 24.6M rows otherwise.
+        # `config` belongs INSIDE the test's own mapping, alongside its
+        # arguments — a sibling key makes dbt refuse to parse the file with
+        # "test definition dictionary must have exactly one key".
         scope = (
-            "        config:\n          where: __most_recent_year_en__\n"
+            "          config:\n            where: __most_recent_year_en__\n"
             if partitioned
             else ""
         )
