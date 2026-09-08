@@ -33,14 +33,28 @@ DATASET_SLUG = "iati_activities"
 GCP_DATASET_ID = "world_iati_activities"
 ORG_SLUG = "iati"
 THEMES = ["economics", "government"]
-TAGS = [
-    "ajuda_internacional",
-    "desenvolvimento",
-    "doacao",
-    "financiamento",
-    "ong",
-    "transparencia",
-]
+# The tag vocabulary is Portuguese-slugged on staging and English-slugged on
+# prod — the same six tags, matched here by their Portuguese name so the pairing
+# is checkable rather than guessed. All twelve already exist; none is created.
+TAGS = {
+    "staging": [
+        "ajuda_internacional",  # ajuda internacional
+        "desenvolvimento",  # desenvolvimento
+        "doacao",  # doação
+        "financiamento",  # financiamento
+        "ong",  # ong
+        "transparencia",  # transparência
+    ],
+    "prod": [
+        "international-aid",  # ajuda internacional
+        "development",  # desenvolvimento
+        "donation",  # doação
+        "financing",  # financiamento
+        "ngo",  # ong
+        "transparency",  # transparência
+    ],
+}
+TAGS["dev"] = TAGS["staging"]
 
 GCP_PROJECT = {
     "prod": "basedosdados",
@@ -220,7 +234,7 @@ def main() -> None:
     english = srv.lookup_id("language", "en", env=env)["id"]
     account = srv.get_authenticated_account(env=env)["id"]
     themes = [srv.lookup_id("theme", t, env=env)["id"] for t in THEMES]
-    tags = [srv.lookup_id("tag", t, env=env)["id"] for t in TAGS]
+    tags = [srv.lookup_id("tag", t, env=env)["id"] for t in TAGS[env]]
     entities = {
         slug: srv.lookup_id("entity", slug, env=env)["id"]
         for slug in sorted({e for t in TABLES.values() for e in t["entities"]})
