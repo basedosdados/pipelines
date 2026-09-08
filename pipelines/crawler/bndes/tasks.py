@@ -16,11 +16,13 @@ from pipelines.crawler.bndes.constants import (
     constants,
     constants_administracao_publica,
     constants_exportacao_bens,
+    constants_exportacao_servicos,
 )
 from pipelines.crawler.bndes.utils import (
     clean,
     clean_administracao_publica,
     clean_exportacao_bens,
+    clean_exportacao_servicos,
     download_csv,
     get_source_last_modified,
 )
@@ -194,5 +196,65 @@ def clean_and_partition_exportacao_bens(csv_path: str) -> str:
     )
 
     clean_exportacao_bens(csv_path=Path(csv_path), output_dir=output_dir)
+
+    return str(output_dir)
+
+
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
+def get_source_max_date_exportacao_servicos() -> datetime:
+    """
+    Le o last_modified do recurso CKAN de operacoes_exportacao_servicos (poll).
+
+    Returns:
+        datetime: data/hora da ultima publicacao do CSV no portal.
+    """
+    return get_source_last_modified(
+        constants_exportacao_servicos.RESOURCE_SHOW_URL.value
+    )
+
+
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
+def download_exportacao_servicos_csv() -> str:
+    """
+    Baixa o CSV de operacoes_exportacao_servicos para o INPUT_PATH.
+
+    Sem validacao de tamanho: o /datastore/dump responde chunked, sem
+    Content-Length, e ignora Range. A contraprova e a contagem de linhas do
+    datastore, conferida no clean.
+
+    Returns:
+        str: caminho local do CSV baixado.
+    """
+    dest = (
+        Path(constants_exportacao_servicos.INPUT_PATH.value)
+        / constants_exportacao_servicos.CSV_FILENAME.value
+    )
+
+    downloaded_file_path = download_csv(
+        dest=dest,
+        url=constants_exportacao_servicos.DOWNLOAD_URL.value,
+        validate_size=False,
+    )
+
+    return str(downloaded_file_path)
+
+
+@task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
+def clean_and_partition_exportacao_servicos(csv_path: str) -> str:
+    """
+    Limpa o CSV de operacoes_exportacao_servicos e grava Parquet por ano.
+
+    Args:
+        csv_path (str): caminho do CSV baixado.
+
+    Returns:
+        str: raiz das particoes gravadas (output_dir), p/ o upload_to_gcs.
+    """
+    output_dir = (
+        Path(constants_exportacao_servicos.OUTPUT_PATH.value)
+        / constants_exportacao_servicos.TABLE_ID.value
+    )
+
+    clean_exportacao_servicos(csv_path=Path(csv_path), output_dir=output_dir)
 
     return str(output_dir)
