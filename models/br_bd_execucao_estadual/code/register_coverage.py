@@ -41,6 +41,9 @@ PLAN: dict[
     "despesa": [
         ("br_mg", 2002, 1, 2026, 8),
         ("br_pe", 2008, None, 2026, None),
+        # Measured 2026-09-08. ES carries a full `Data` on every expense row, so
+        # unlike PE it is genuinely month-granular across the whole series.
+        ("br_es", 2009, 1, 2026, 9),
     ],
     "pagamento": [("br_pe", 2008, 1, 2026, 8)],
     "despesa_mensal": [("br_ba", 2013, 1, 2026, 8)],
@@ -49,17 +52,27 @@ PLAN: dict[
     "licitacao": [
         ("br_ba", 2004, 1, 2026, 12),
         ("br_mg", 2009, 1, 2024, 3),
+        ("br_es", 2009, 8, 2026, 8),
     ],
     "licitacao_item": [
         ("br_ba", 2004, None, 2026, None),
         ("br_mg", 2009, None, 2025, None),
+        # Year-granular: the canonical licitacao_item has no `mes`.
+        ("br_es", 2009, None, 2026, None),
     ],
-    "licitacao_participante": [("br_ba", 2004, None, 2026, None)],
+    "licitacao_participante": [
+        ("br_ba", 2004, None, 2026, None),
+        ("br_es", 2009, None, 2026, None),
+    ],
     "relacionamentos": [
         ("br_ba", None, None, None, None),
         ("br_mg", None, None, None, None),
+        ("br_es", None, None, None, None),
     ],
-    "dicionario": [("br_mg", None, None, None, None)],
+    "dicionario": [
+        ("br_mg", None, None, None, None),
+        ("br_es", None, None, None, None),
+    ],
 }
 
 # Which column carries the month, where one is usable for a range.

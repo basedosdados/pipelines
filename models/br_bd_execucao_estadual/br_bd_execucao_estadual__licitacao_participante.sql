@@ -24,3 +24,6 @@
 -- qual a distância entre a proposta vencedora e as demais.
 select *
 from {{ ref("br_bd_execucao_estadual__licitacao_participante_ba") }}
+union all
+select *
+from {{ ref("br_bd_execucao_estadual__licitacao_participante_es") }}
