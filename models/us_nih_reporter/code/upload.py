@@ -24,6 +24,7 @@ key and ~/.basedosdados/config.toml. The bucket is requester-pays, so
 
 import os
 import sys
+import tempfile
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -139,6 +140,10 @@ def upload(table: str) -> None:
 def main() -> None:
     if not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"):
         raise SystemExit("GOOGLE_APPLICATION_CREDENTIALS is not set")
+    # gcs.dump_header writes its 0-row header parquet to ./data/<uuid>/ relative
+    # to the working directory. Run from a temp directory so that scratch does
+    # not land in the repo; every path this script passes is absolute.
+    os.chdir(tempfile.mkdtemp(prefix="us_nih_reporter_upload_"))
     tables = sys.argv[1:] or ALL_TABLES
     for t in tables:
         if t not in ALL_TABLES:

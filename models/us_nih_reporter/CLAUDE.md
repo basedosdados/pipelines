@@ -269,6 +269,26 @@ Every table is `AllFree`: the BD Pro rolling window covers tables refreshed
 monthly or more often, the annual tables are not, and the two link tables have
 no date column for a window to slide along.
 
+## Auxiliary files — built, not uploaded
+
+`build_auxiliary_files.py` writes one bundle per table under
+`<scratch>/auxiliary_files/<table>/auxiliary_files.zip`: the ExPORTER data
+dictionary, the RePORT FAQ page, a README with the citation, per-file
+provenance and download date, and the notes a reader needs for that table.
+`project`'s bundle additionally carries the activity code register.
+
+**They are not in GCS yet.** The dev service account this onboarding runs under
+(`chave-subidores-de-dados@basedosdados-dev`) gets 403 writing to
+`gs://basedosdados`, so the upload needs a credential with prod object-write
+rights. Run `build_auxiliary_files.py --upload` under one.
+
+`auxiliary_files_url` is registered on all seven tables regardless, at the
+documented path. Fetched anonymously today it returns **HTTP 400
+`UserProjectMissing`** — both buckets are requester-pays, which is why every
+production `auxiliaryFilesUrl` is currently dead for a site visitor, not
+something specific to this dataset. Verified against
+`us_noaa_storm_events/event`, which returns the same.
+
 ## Backend IDs (staging)
 
 Recorded so a re-run does not create duplicates —
@@ -285,3 +305,31 @@ when called without an `id`.
 | area `us` | `61a2c232-c649-4b41-a5a3-1467b7393e11` |
 | account | `57` |
 | entity `year` / `project` / `article` / `patent` / `other` | `e1bf146e-…` / `c5b8b0a3-…` / `90a4d427-…` / `d2084929-…` / `1b3a7364-…` |
+| dataset `nih_reporter` | `b49928d1-d6c1-4a38-a590-f909a6de514f` |
+| raw source — annual bulk files | `c95b4cb5-083a-4e9b-8421-af15d1da76af` |
+| raw source — patents and clinical studies | `45f4e00d-1789-49c8-970f-06c82c733add` |
+| raw source — RePORTER API | `6f31581a-d53f-4392-b8e0-a00d95d813f9` |
+| table `project` | `18a9d8c2-5b50-4ee0-bb8c-14a03f8466cc` |
+| table `project_abstract` | `fb9d6653-7d41-499a-b550-b016f44e83fa` |
+| table `publication` | `60276dd4-9e5f-41bd-84fa-8806db851ff0` |
+| table `publication_link` | `b9d34a49-bee8-48f6-bdfe-19919df845fa` |
+| table `patent_link` | `f8e76658-772f-4293-84e8-ad42ef25d715` |
+| table `clinical_study_link` | `d695a4e1-cd9f-4aa2-8494-6b229ee3233c` |
+| table `dicionario` | `145237e4-54af-4032-99df-3fc471c8c03d` |
+
+Two entity choices worth recording. `clinical_study_link`'s study level uses the
+`other` entity because the backend vocabulary has no clinical-study entity, and
+minting one is a change to shared reference data rather than a dataset decision.
+`patent_link` and `clinical_study_link` carry a `us` coverage with **no**
+datetime range: the source ships them as one snapshot covering every fiscal
+year with no date column, so a range would be a claim the data does not make.
+The pipeline's `NonHistorical()` spec derives one from the BigQuery table's
+last-modified on the first armed prod run.
+
+**The three raw sources exist so each table has exactly one.**
+`client._raw_source_id` raises when a table has two or more, and both the poll
+and the commit tasks go through it — a table linked to two sources cannot run a
+recurring pipeline at all. The annual families point at one, patents and
+clinical studies at another, and the RePORTER API is registered at dataset
+level with no table link, because it is documented as a source but is not where
+these tables come from.
