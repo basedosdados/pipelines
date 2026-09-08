@@ -8,14 +8,20 @@ models:
       linha corresponde a um documento de empenho combinado a uma linha orçamentária,
       com
       os valores empenhado, liquidado e pago. Dados extraídos dos sistemas financeiros
-      estaduais (SIAFI/MG, e-Fisco/PE, SIGEFES/ES) e harmonizados em um esquema comum.
+      estaduais (SIAFI/MG, e-Fisco/PE, SIGEFES/ES, CAGE/RS) e harmonizados em um esquema
+      comum.
       Só entram
       aqui
       os estados cuja fonte publica o número do empenho, o credor e os valores na
       mesma
       linha; estados cuja fonte publica apenas agregados estão em despesa_mensal e
       despesa_anual. A granularidade temporal varia por estado, e Pernambuco não publica
-      data nem mês, apenas o exercício, de modo que um filtro por mês exclui PE.
+      data nem mês, apenas o exercício, de modo que um filtro por mês exclui PE. O
+      Rio Grande do Sul publica uma linha por fase (empenho, liquidação, pagamento);
+      aqui elas são pivotadas para uma linha por empenho, e a retenção — que é
+      descontada de dentro do pagamento — fica de fora para não contá-la duas vezes.
+      Seis meses não constam do catálogo do RS: 2020-06, 2020-08, 2022-04, 2023-02,
+      2023-06 e 2023-08.
     # Sem teste de unicidade, e isso é deliberado: a tabela não tem chave de linha. Em
     # 2023 Minas Gerais publica 9,3% de linhas integralmente idênticas (mesmo empenho,
     # documento, data e valor), o que a fonte permite. Não são multiplicação do modelo:
