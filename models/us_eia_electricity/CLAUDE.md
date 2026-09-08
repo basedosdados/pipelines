@@ -24,7 +24,15 @@ Two forms, one ZIP per report year each.
 | EIA-860 | annual plant and generator inventory | <https://www.eia.gov/electricity/data/eia860/> | 2001-2025 | `plant`, `generator` |
 | EIA-923 | monthly generation, fuel and receipts | <https://www.eia.gov/electricity/data/eia923/> | 2001-2026 | `generation_fuel`, `fuel_receipts_costs` |
 
-663 MB of source ZIPs in total. 2001 is the floor for both: before it the forms
+| table | rows | coverage | key |
+|---|---:|---|---|
+| `plant` | 233,162 | 2001-2025 | `(year, plant_id)`, exact |
+| `generator` | 627,957 | 2001-2025 | `(year, plant_id, generator_id, generator_status_group)`, 1 collision |
+| `generation_fuel` | 3,592,515 | 2001-01 .. 2026-06 | `(year, month, plant_id, energy_source_code, prime_mover_code, nuclear_unit_id)`, 1.13% collisions |
+| `fuel_receipts_costs` | 766,262 | 2008-01 .. 2026-06 | no published key |
+| `dicionario` | 752 | — | `(id_tabela, nome_coluna, chave)` |
+
+**5,220,648 rows.** 663 MB of source ZIPs in total. 2001 is the floor for both: before it the forms
 are EIA-860A/860B and EIA-906, which are differently shaped surveys rather than
 earlier vintages of the same one.
 
@@ -241,3 +249,95 @@ Policy's `<= free_end` and be paywalled forever.
 **Not verifiable before arming:** `apply_row_access_policies` issues real
 BigQuery DDL with the worker's rights, and the prod upload needs the worker's
 credentials. Both first run on the first armed prod run.
+
+## What the dev run caught that local checks did not
+
+Local verification passed on all four tables before any of this surfaced. The
+dbt run against `basedosdados-dev` found three real defects, which is the whole
+argument for running it rather than trusting a clean local pass.
+
+**`generator_status_group` was derived from the unrepaired status code.** The
+pre-2009 sheets file standby generators as `BU`, which PUDL's `code_fixes` maps
+to `SB` — but the group was being derived *before* that repair, so `BU` was not
+in the vocabulary the group mapping reads and 332 rows across 2004-2006 came out
+with no group at all. Deriving the group after the repair takes it to zero.
+
+**`not_null` was asserted on every key column.** EIA-923 did not collect the
+prime mover until 2003, so it is null on all 178,966 rows of 2001 and 2002, and
+the energy source is null on 204 more of the same era. The assertion now covers
+only the key columns measured non-null; the `dicionario` records the consequence
+in the open, since `prime_mover_code = ST` on `generation_fuel` shows a coverage
+of 2003(1)2026 while the table starts in 2001.
+
+**The scoped null-proportion exemption list was measured over the wrong window.**
+It was computed over the last three years *pooled*, but
+`__most_recent_year_en__` resolves to a *single* year. EIA dropped
+`reporting_frequency_code` from the 2026 EIA-923 file entirely, so it is 0%
+non-null in 2026 and comfortably above the floor once 2024 and 2025 are pooled
+in. `verify_parquet.py` now takes the union over each recent year alone.
+
+(The same run also showed the scoped tests were using `__most_recent_year__`,
+which resolves to `ano`; this dataset's partition column is `year`, so they
+needed `__most_recent_year_en__`.)
+
+## Validation
+
+`dbt run` PASS=5, `dbt test` PASS=37, ERROR=0 in `basedosdados-dev`.
+
+National net generation summed from the melted `generation_fuel` reproduces
+EIA's own Electric Power Annual to a rounding error, which is the check that
+would catch a units or melt error:
+
+| year | this dataset | EIA published |
+|---|---:|---:|
+| 2005 | 4,055.4 | 4,055 |
+| 2010 | 4,125.1 | 4,125 |
+| 2015 | 4,078.7 | 4,078 |
+| 2020 | 4,009.8 | 4,009 |
+| 2023 | 4,183.3 | 4,178 |
+
+(million MWh). The 2010 fuel mix is right too — coal 1,834, gas 988, nuclear
+807, hydro 260, wind 95 million MWh — as is the seasonality, peaking in July and
+troughing in April. Operating nameplate capacity runs 1,105 GW in 2010 to 1,301
+GW in 2024, matching EIA's published trajectory.
+
+Directory resolution, measured over the full record: `plant.state_id` 100.00%,
+`plant.county_id` 97.41%, `generator.state_id` 91.06% (the form did not publish
+a state before 2004), `generator.county_id` 72.92% (no county before 2009),
+`generation_fuel.state_id` 99.99%, `fuel_receipts_costs.state_id` 100.00%.
+`mine_county_id` is 32.39%, which is by construction: only coal deliveries name
+a mine.
+
+## What is deferred
+
+Shipped: EIA-860 Schedules 2 and 3, and EIA-923 page 1 and Schedule 2 Part C.
+Deliberately not in this onboarding, and each a clean follow-up:
+
+- **Form EIA-861** (utility retail sales, revenue and customers by state and
+  sector) — a separate form with its own file family.
+- **SEDS**, the State Energy Data System — a different publication entirely, and
+  the natural `us_eia_seds`.
+- **The API v2 series and the bulk files.** These are mostly aggregates of the
+  forms shipped here; the microdata is the more useful artifact and the API
+  needs a key, which the form files do not.
+- **The rest of both forms**: EIA-860's ownership, multifuel, and environmental
+  equipment pages; EIA-923's boiler fuel, generator, stocks and Schedule 8
+  environmental pages. The extraction machinery reads them already — they are
+  in PUDL's maps — so adding one is an architecture CSV and a builder, not new
+  plumbing.
+- **Pre-2001 vintages** (EIA-860A/860B, EIA-906) — differently shaped surveys,
+  not earlier editions of the same one.
+
+## Relationship to the PUDL catalog entry
+
+Prod carries an empty `public_utility_data_liberation_project_pudl` dataset
+(`39d95102-84c0-4352-b686-16a25abb5fc0`, organization
+`public_utility_data_liberation_project_pudl`, themes energy / environment /
+infrastructure, six tags, `tables: {}`). It is **not** folded into this dataset,
+and should not be: PUDL is a different publisher with its own organization
+record, and its value over the raw forms is the derived layer — the FERC Form 1
+to EIA record linkage, the plant-part list, EPA CEMS — not a re-cut of EIA-860
+and EIA-923. Absorbing it here would misattribute the data to EIA.
+
+It should not stay an empty shell beside this dataset either. Either fill it
+with the PUDL-specific derived tables, or retire it.
