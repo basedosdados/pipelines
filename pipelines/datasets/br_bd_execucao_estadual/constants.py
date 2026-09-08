@@ -60,6 +60,7 @@ class constants(Enum):
     # mg_dm_acao. This pipeline is what populates prod staging, by uploading every
     # mirror below to the prod bucket itself.
     STAGING_BY_STATE = {
+        "RS": ["rs_despesa"],
         "ES": [
             "es_despesa",
             "es_licitacao",
