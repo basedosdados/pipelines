@@ -40,6 +40,16 @@ DERIVED = {
     "prevailing_wage_annual",
 }
 
+
+class UnknownLayoutError(RuntimeError):
+    """A source workbook whose column layout the crosswalk does not describe.
+
+    Raised rather than ``SystemExit`` so a Prefect run reports it as Failed —
+    an ordinary data problem — instead of Crashed, which reads like the
+    infrastructure died.
+    """
+
+
 # Values the source uses for "blank".
 NULLISH = {"", "NA", "N/A", "NULL", "NONE", "UNKNOWN", "-", "--", "."}
 
@@ -125,7 +135,7 @@ COERCE = {
 
 
 def load_crosswalk(program: str) -> dict[tuple[int, str], dict[str, str]]:
-    """(fiscal_year, source_file) -> {source_column: canonical_column}."""
+    """(fiscal_year, local_file) -> {source_column: canonical_column}."""
     out: dict[tuple[int, str], dict[str, str]] = defaultdict(dict)
     with open(CROSSWALK_DIR / f"{program}.csv") as fh:
         for row in csv.DictReader(fh):
@@ -135,6 +145,38 @@ def load_crosswalk(program: str) -> dict[tuple[int, str], dict[str, str]]:
                 row["source_column"]
             ] = row["canonical_column"]
     return out
+
+
+def load_crosswalk_headers(
+    program: str,
+) -> dict[frozenset[str], dict[str, str]]:
+    """Header signature -> mapping, for files the crosswalk knows by layout.
+
+    The crosswalk is keyed on the file name the onboarding run happened to give
+    each workbook, but the recurring pipeline derives its own names from the
+    published file names, and the two do not always agree — the FY2025 LCA Q4
+    file is ``lca_2025.xlsx`` in the crosswalk and ``lca_2025q4.xlsx`` when the
+    pipeline downloads it.
+
+    Matching on the set of source columns instead removes that coupling
+    entirely, and it is the more meaningful key: what determines how a workbook
+    is read is its layout, not its name. A new quarterly file with an unchanged
+    layout therefore resolves on its own, while a genuine form revision still
+    finds no match and fails loudly, which is what the crosswalk is for.
+    """
+    by_file: dict[tuple[int, str], set[str]] = defaultdict(set)
+    with open(CROSSWALK_DIR / f"{program}.csv") as fh:
+        for row in csv.DictReader(fh):
+            if row["source_column"]:
+                by_file[(int(row["fiscal_year"]), row["source_file"])].add(
+                    row["source_column"]
+                )
+    mapped = load_crosswalk(program)
+    return {
+        frozenset(columns): mapped[key]
+        for key, columns in by_file.items()
+        if key in mapped
+    }
 
 
 def read_sheet(path: Path) -> tuple[list[str], list[list]]:
@@ -174,13 +216,20 @@ def read_file(
     order: list[str],
     types: dict[str, str],
     xw,
+    by_header,
     unknown_units,
 ) -> pd.DataFrame:
     """One source workbook as a canonical-schema DataFrame."""
+    header, rows = read_sheet(path)
     mapping = xw.get((fy, path.name))
     if not mapping:
-        raise SystemExit(f"No crosswalk entry for {path.name} (FY{fy})")
-    header, rows = read_sheet(path)
+        mapping = by_header.get(frozenset(header))
+    if not mapping:
+        raise UnknownLayoutError(
+            f"No crosswalk entry for {path.name} (FY{fy}) and its column layout "
+            f"matches no known layout for {program}. Rebuild the crosswalk with "
+            f"build_crosswalk.py and review what changed."
+        )
     idx = {col: i for i, col in enumerate(header)}
     data: dict[str, list] = {}
     for src, canon in mapping.items():
@@ -260,6 +309,7 @@ def build(
     order = [c for c, _ in spec]
     types = dict(spec)
     xw = load_crosswalk(program)
+    by_header = load_crosswalk_headers(program)
     unknown_units: dict[str, int] = defaultdict(int)
 
     typed = pa.schema(
@@ -290,7 +340,9 @@ def build(
             print(f"  FY{fy}: already written, skipping", flush=True)
             continue
         frames = [
-            read_file(p, fy, program, order, types, xw, unknown_units)
+            read_file(
+                p, fy, program, order, types, xw, by_header, unknown_units
+            )
             for p in paths
         ]
         df = (
@@ -522,3 +574,31 @@ def max_decision_date(output_dir: Path, program: str) -> str | None:
             top = max(values)
             best = top if best is None or top > best else best
     return best
+
+
+def unknown_layouts(program: str, input_dir: Path) -> list[str]:
+    """Downloaded workbooks whose layout the crosswalk cannot resolve.
+
+    Checking every file up front turns "the run died on the first file" into one
+    message naming all of them, which is the difference between one debugging
+    cycle and several when the source revises a form.
+
+    Args:
+        program: One of lca, perm, h2a, h2b.
+        input_dir: Directory holding the downloaded workbooks.
+
+    Returns:
+        The file names that resolve neither by name nor by layout, empty when
+        every file is covered.
+    """
+    xw = load_crosswalk(program)
+    by_header = load_crosswalk_headers(program)
+    unknown = []
+    for fy, paths in source_files(program, input_dir).items():
+        for path in paths:
+            if xw.get((fy, path.name)):
+                continue
+            header, _ = read_sheet(path)
+            if frozenset(header) not in by_header:
+                unknown.append(path.name)
+    return unknown

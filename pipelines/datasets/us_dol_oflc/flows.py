@@ -21,6 +21,7 @@ from prefect import flow
 
 from pipelines.datasets.us_dol_oflc.constants import constants
 from pipelines.datasets.us_dol_oflc.tasks import (
+    check_layouts,
     clean_program,
     download_program,
     fiscal_years_to_refresh,
@@ -90,6 +91,7 @@ def us_dol_oflc_flow(
         input_dir = download_program(
             program=POLL_TABLE, years=years, work_dir=work_dir
         )
+        check_layouts(program=POLL_TABLE, input_dir=input_dir)
         results[POLL_TABLE] = clean_program(
             program=POLL_TABLE,
             years=years,
@@ -115,6 +117,7 @@ def us_dol_oflc_flow(
             program_input = download_program(
                 program=program, years=years, work_dir=work_dir
             )
+            check_layouts(program=program, input_dir=program_input)
             results[program] = clean_program(
                 program=program,
                 years=years,
