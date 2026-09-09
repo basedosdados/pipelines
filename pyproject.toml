@@ -217,6 +217,10 @@ project-excludes = [
   "pipelines/{{cookiecutter.pipeline_name}}",
   "models/br_tse_eleicoes/code",
   "models/us_nih_reporter/code",
+  # Same policy: the us_cms_hcris onboarding scripts run from their own
+  # directory with bare sibling imports (`common`, `measures`, `schema`),
+  # which pyrefly cannot resolve from the repo root.
+  "models/us_cms_hcris/code",
   # Same policy: the world_iati_activities onboarding scripts run from their own
   # directory with bare sibling imports (`common`, `gen_dbt`), which pyrefly
   # cannot resolve from the repo root.
@@ -338,6 +342,10 @@ project-excludes = [
   # run via `uv run` with bare imports resolved through sys.path. The shared
   # transform lives in the typed pipelines/datasets/br_mgi_compras_publicas/.
   "models/br_mgi_compras_publicas/code",
+    # Standalone one-shot onboarding ETL: sibling-module and out-of-repo
+    # imports pyrefly cannot resolve. The reusable transform lives in
+    # pipelines/datasets/us_census_bps/utils.py, which is checked.
+    "models/us_census_bps/code",
   "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
   "models/world_wb_mides/code/licitacao_item.ipynb",
   "models/world_olympedia_olympics/code/[[]code[]]world_olympedia_olympics.ipynb",

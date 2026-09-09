@@ -183,6 +183,9 @@ models:
     us_bls_oes:
       +materialized: table
       +schema: us_bls_oes
+    us_census_bps:
+      +materialized: table
+      +schema: us_census_bps
     us_fdic_bankfind:
       +materialized: table
       +schema: us_fdic_bankfind
@@ -219,6 +222,9 @@ models:
     us_cfpb_hmda:
       +materialized: table
       +schema: us_cfpb_hmda
+    us_cms_hcris:
+      +materialized: table
+      +schema: us_cms_hcris
     us_cms_open_payments:
       +materialized: table
       +schema: us_cms_open_payments
