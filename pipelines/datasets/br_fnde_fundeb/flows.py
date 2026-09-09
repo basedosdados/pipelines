@@ -17,7 +17,7 @@ from pipelines.utils.metadata.domain import (
     DateFormat,
     FreeLag,
     PartBdpro,
-    YearOnly,
+    YearBimester,
 )
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -40,14 +40,14 @@ TABLES = [
 POLL_TABLE = constants.TABLE_MUNICIPALITY.value
 
 _COVERAGE = PartBdpro(
-    date_column=YearOnly(col="ano"),
-    date_format=DateFormat.YEAR,
-    free_lag=FreeLag(unit="years", value=1),
+    date_column=YearBimester(year="ano", bimester="bimestre"),
+    date_format=DateFormat.YEAR_MONTH,
+    free_lag=FreeLag(unit="months", value=6),
 )
 
 
 @flow(name="br_fnde_fundeb", log_prints=True)
-def br_fnde_fundeb_flow(
+def br_fnde_fundeb(
     dataset_id: str = constants.DATASET_ID.value,
     materialize_to_prod: bool = True,
     update_metadata: bool = True,
@@ -135,9 +135,9 @@ def br_fnde_fundeb_flow(
 
 
 # pyrefly: ignore [missing-attribute]
-br_fnde_fundeb_flow.deploy_schedules = [
+br_fnde_fundeb.deploy_schedules = [
     {"cron": "17 10 5,12,19,26 * *", "timezone": "America/Sao_Paulo"}
 ]
 
 # pyrefly: ignore [missing-attribute]
-br_fnde_fundeb_flow.job_variables = {"memory": "4Gi"}
+br_fnde_fundeb.job_variables = {"memory": "4Gi"}
