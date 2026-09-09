@@ -20,6 +20,11 @@ REPO_ROOT = CODE_DIR.parents[2]
 # repo root is not otherwise importable.
 sys.path.insert(0, str(REPO_ROOT))
 
+# K is re-exported for the scripts in this directory, which read the per-year
+# source listings from it. ruff sees no use of it here and would strip it.
+from pipelines.datasets.us_census_cog import (  # noqa: E402, F401, N812
+    constants as K,
+)
 from pipelines.datasets.us_census_cog.constants import constants  # noqa: E402
 
 DATA_DIR = Path(

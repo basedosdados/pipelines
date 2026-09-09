@@ -16,7 +16,7 @@ directory tree, packaging and naming:
 | `apes/datasets/` — Public Employment & Payroll | `employment` / `employment_unit` | 1992–2024 | 5,643,839 / 897,572 |
 | `gov-finances/datasets/` — State and Local Government Finances | `finance` / `finance_unit` | 1967, 1970–2018 | 116,497,008 / 1,912,739 |
 
-Plus `dicionario`, 947 rows. **125,596,000 rows in total.**
+Plus `dicionario`, 947 rows. **125,596,998 rows in total.**
 
 Licence: a work of the U.S. federal government, public domain.
 

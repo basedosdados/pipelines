@@ -87,21 +87,21 @@ DIR_PLACE = "br_bd_diretorios_us.place:id_place"
 
 
 def col(
-    name,
-    typ,
-    pt,
-    en,
-    es,
+    name: str,
+    typ: str,
+    pt: str,
+    en: str,
+    es: str,
     *,
-    coverage="",
-    dictionary="no",
-    directory="",
-    unit="",
-    sensitive="no",
-    obs=("", "", ""),
-    original="",
-):
-    """Build one architecture row."""
+    coverage: str = "",
+    dictionary: str = "no",
+    directory: str = "",
+    unit: str = "",
+    sensitive: str = "no",
+    obs: tuple[str, str, str] = ("", "", ""),
+    original: str = "",
+) -> list[str]:
+    """Build one architecture row in the order HEADER declares."""
     return [
         name,
         typ,
@@ -165,8 +165,12 @@ OBS_GOVS_ID = (
 )
 
 
-def c_year(desc_extra=("", "", ""), original="", coverage=""):
-    """The partition column."""
+def c_year(
+    desc_extra: tuple[str, str, str] = ("", "", ""),
+    original: str = "",
+    coverage: str = "",
+) -> list[str]:
+    """The partition column, shared by every table but dicionario."""
     return col(
         "year",
         "INT64",
@@ -181,7 +185,8 @@ def c_year(desc_extra=("", "", ""), original="", coverage=""):
     )
 
 
-def c_government_id(original=""):
+def c_government_id(original: str = "") -> list[str]:
+    """The 6-digit Census identifier of the government unit."""
     return col(
         "government_id",
         "STRING",
@@ -193,7 +198,8 @@ def c_government_id(original=""):
     )
 
 
-def c_government_id_govs(original=""):
+def c_government_id_govs(original: str = "") -> list[str]:
+    """The legacy GOVS identifier of the government unit."""
     return col(
         "government_id_govs",
         "STRING",
@@ -205,7 +211,8 @@ def c_government_id_govs(original=""):
     )
 
 
-def c_government_type(original=""):
+def c_government_type(original: str = "") -> list[str]:
+    """The type of government, from state through independent school district."""
     return col(
         "government_type",
         "STRING",
@@ -217,7 +224,10 @@ def c_government_type(original=""):
     )
 
 
-def c_state_id(original="", obs=("", "", "")):
+def c_state_id(
+    original: str = "", obs: tuple[str, str, str] = ("", "", "")
+) -> list[str]:
+    """The FIPS state code, keyed to the US state directory."""
     return col(
         "state_id",
         "STRING",
@@ -230,7 +240,10 @@ def c_state_id(original="", obs=("", "", "")):
     )
 
 
-def c_county_id(original="", obs=("", "", "")):
+def c_county_id(
+    original: str = "", obs: tuple[str, str, str] = ("", "", "")
+) -> list[str]:
+    """The FIPS county code, keyed to the US county directory."""
     return col(
         "county_id",
         "STRING",
@@ -243,7 +256,10 @@ def c_county_id(original="", obs=("", "", "")):
     )
 
 
-def c_county_subdivision_id(original="", coverage=""):
+def c_county_subdivision_id(
+    original: str = "", coverage: str = ""
+) -> list[str]:
+    """The FIPS county subdivision code, which townships carry instead of a place."""
     return col(
         "county_subdivision_id",
         "STRING",
@@ -488,7 +504,7 @@ GOVERNMENT_UNIT = [
             "Nulo quando a fonte traz o pseudocódigo 99xxx, que designa a área "
             "de um condado e não um lugar incorporado",
             "Null where the source carries the 99xxx pseudo-code, which denotes "
-            "a county área rather than an incorporated place",
+            "a county area rather than an incorporated place",
             "Nulo cuando la fuente trae el pseudocódigo 99xxx, que designa el "
             "área de un condado y no un lugar incorporado",
         ),
@@ -499,7 +515,7 @@ GOVERNMENT_UNIT = [
         "county_area_name",
         "STRING",
         "Nome da área de condado atribuida à unidade na fonte",
-        "Name of the county área assigned to the unit in the source",
+        "Name of the county area assigned to the unit in the source",
         "Nombre del área de condado asignada a la unidad en la fuente",
         original="COUNTY_AREA_NAME",
     ),
@@ -550,7 +566,10 @@ OBS_FLAG = (
 )
 
 
-def flag_col(name, subject_pt, subject_en, subject_es):
+def flag_col(
+    name: str, subject_pt: str, subject_en: str, subject_es: str
+) -> list[str]:
+    """The data quality flag that accompanies one employment measure."""
     return col(
         f"{name}_flag",
         "STRING",
@@ -667,9 +686,9 @@ EMPLOYMENT = [
         coverage="1992(1)2018",
         unit="hour",
         obs=(
-            "A fonte deixou de publicar está variável a partir de 2019",
+            "A fonte deixou de publicar esta variável a partir de 2019",
             "The source stopped publishing this variable from 2019 on",
-            "La fuente dejo de publicar está variable a partir de 2019",
+            "La fuente dejó de publicar esta variable a partir de 2019",
         ),
         original="Part-Time Hours",
     ),
@@ -682,9 +701,9 @@ EMPLOYMENT = [
         coverage="1992(1)2018",
         unit="person",
         obs=(
-            "A fonte deixou de publicar está variável a partir de 2019",
+            "A fonte deixou de publicar esta variável a partir de 2019",
             "The source stopped publishing this variable from 2019 on",
-            "La fuente dejo de publicar está variable a partir de 2019",
+            "La fuente dejó de publicar esta variable a partir de 2019",
         ),
         original="Full-Time Equivalent Employment",
     ),
@@ -934,7 +953,7 @@ FINANCE_UNIT = [
             "Nulo quando a fonte traz o pseudocódigo 99xxx, que designa a área "
             "de um condado e não um lugar incorporado",
             "Null where the source carries the 99xxx pseudo-code, which denotes "
-            "a county área rather than an incorporated place",
+            "a county area rather than an incorporated place",
             "Nulo cuando la fuente trae el pseudocódigo 99xxx, que designa el "
             "área de un condado y no un lugar incorporado",
         ),
