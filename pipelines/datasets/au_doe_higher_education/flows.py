@@ -182,5 +182,11 @@ def au_doe_higher_education_flow(
 au_doe_higher_education_flow.deploy_schedules = [
     {"cron": "35 17 9 * *", "timezone": "America/Sao_Paulo"}
 ]
+# `memory` is not a variable of the work pool's job template, so it is dropped
+# without complaint and the pod gets the pool default of 4Gi no matter what
+# number is written here. `memory_limit` is the one that is actually applied.
 # pyrefly: ignore [missing-attribute]
-au_doe_higher_education_flow.job_variables = {"memory": "12Gi"}
+au_doe_higher_education_flow.job_variables = {
+    "memory_limit": "12Gi",
+    "memory_request": "2Gi",
+}

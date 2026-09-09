@@ -13,10 +13,11 @@ fact table. Everything in the Tier 1 half of this module reads that cache.
 from __future__ import annotations
 
 import re
-import shutil
+import time
 import unicodedata
 import zipfile
 from pathlib import Path
+from typing import Any
 from xml.etree import ElementTree as ET
 
 import pandas as pd
@@ -1374,38 +1375,81 @@ STAFF_YEAR_PAGE = re.compile(
 
 
 def build_session() -> object:
-    """A session that retries: the site is slow and intermittently stalls.
+    """A curl_cffi session impersonating Chrome.
 
-    Read timeouts, not refusals, are the observed failure, so a retry on a
-    fresh connection is the right response. Connect and read timeouts are set
-    separately because a stalled read needs a long leash while a dead host
-    should fail fast.
+    The site is behind Akamai with a Signal Sciences WAF. From the Kubernetes
+    pool that WAF does not refuse a plain ``requests`` client, it stalls it:
+    on 2026-09-04 the flow spent 2h13m on the very first collection page
+    without a single response, timing out fifteen consecutive times at a 300s
+    read timeout, and the pod was evicted mid-backoff. Raising the timeout is
+    therefore not the fix — that run already carried the raised one. What the
+    WAF keys on is the client fingerprint, and curl_cffi reproduces Chrome's,
+    which is what got the equivalent Akamai block on www.dol.gov admitted
+    (see ``us_dol_oflc``).
     """
-    import requests
-    from requests.adapters import HTTPAdapter
-    from urllib3.util.retry import Retry
+    from curl_cffi import requests as cffi_requests
 
-    session = requests.Session()
-    retry = Retry(
-        total=5,
-        backoff_factor=5,
-        status_forcelist=(429, 500, 502, 503, 504),
-        allowed_methods=frozenset({"GET", "HEAD"}),
+    from pipelines.datasets.au_doe_higher_education.constants import constants
+
+    return cffi_requests.Session(
+        impersonate=constants.IMPERSONATE.value,
+        timeout=constants.REQUEST_TIMEOUT.value,
     )
-    session.mount("https://", HTTPAdapter(max_retries=retry))
-    return session
+
+
+def request_with_retry(url: str, session: object, **kwargs) -> Any:
+    """GET ``url`` with a bounded retry, raising rather than stalling.
+
+    The budget is deliberately small and the failure loud. The previous design
+    nested a five-deep ``urllib3`` retry inside a three-deep Prefect task retry
+    at a 300s read timeout, so when the WAF blackholed the pod the run burned
+    2h13m without one response and ended as an evicted pod rather than as a
+    reported failure. Here an unreachable host costs about six minutes per task
+    attempt and then raises something a human can read.
+
+    A 4xx other than 429 is not retried: that is the source answering, and
+    retrying it only obscures a renamed or withdrawn document.
+    """
+    from pipelines.datasets.au_doe_higher_education.constants import constants
+
+    attempts = constants.RETRY_ATTEMPTS.value
+    backoff = constants.RETRY_BACKOFF_SECONDS.value
+    last: Exception | None = None
+
+    for attempt in range(1, attempts + 1):
+        try:
+            response = session.get(url, **kwargs)  # type: ignore[union-attr]
+        except Exception as error:
+            last = error
+        else:
+            status = response.status_code
+            if status < 400:
+                return response
+            if 400 <= status < 500 and status != 429:
+                raise RuntimeError(
+                    f"HTTP {status} for {url} — the source answered, so the "
+                    "document is renamed or withdrawn rather than unreachable"
+                )
+            last = RuntimeError(f"HTTP {status} for {url}")
+
+        if attempt < attempts:
+            delay = backoff * attempt
+            print(
+                f"attempt {attempt}/{attempts} for {url} failed "
+                f"({type(last).__name__}: {last}); retrying in {delay}s"
+            )
+            time.sleep(delay)
+
+    raise RuntimeError(
+        f"giving up on {url} after {attempts} attempts: "
+        f"{type(last).__name__}: {last}"
+    ) from last
 
 
 def fetch_text(url: str, session: object | None = None) -> str:
-    """GET a page as text, with the browser headers the site demands."""
-    from pipelines.datasets.au_doe_higher_education.constants import constants
-
+    """GET a page as text, with the browser fingerprint the site demands."""
     getter = session if session is not None else build_session()
-    response = getter.get(  # type: ignore[union-attr]
-        url, headers=constants.HEADERS.value, timeout=(30, 300)
-    )
-    response.raise_for_status()
-    return response.text
+    return request_with_retry(url, getter).text
 
 
 def resource_slugs(html: str) -> set[str]:
@@ -1425,14 +1469,20 @@ def newest_slug(slugs: set[str], pattern: str) -> tuple[str, int] | None:
     return max(matches, key=lambda pair: pair[1])
 
 
+def resource_page_url(slug: str) -> str:
+    """The public resource page a document is linked from."""
+    from pipelines.datasets.au_doe_higher_education.constants import constants
+
+    base = constants.BASE_URL.value
+    return f"{base}/higher-education-statistics/resources/{slug}"
+
+
 def resolve_download_url(slug: str, session: object | None = None) -> str:
     """Resource slug -> absolute download URL for its document."""
     from pipelines.datasets.au_doe_higher_education.constants import constants
 
     base = constants.BASE_URL.value
-    html = fetch_text(
-        f"{base}/higher-education-statistics/resources/{slug}", session
-    )
+    html = fetch_text(resource_page_url(slug), session)
     href = DOWNLOAD_HREF.search(html)
     if not href:
         raise ValueError(f"no download link on resource page: {slug}")
@@ -1469,12 +1519,26 @@ def discover_sources(session: object | None = None) -> dict[str, dict]:
         )
 
     found: dict[str, dict] = {}
+    missing: list[str] = []
     for name, pattern in constants.RESOURCES.value.items():
         newest = newest_slug(slugs, pattern)
         if newest is None:
+            missing.append(name)
             continue
         slug, year = newest
         found[name] = {"slug": slug, "year": year}
+
+    # Every document feeds a table, so a missing one is not a smaller run, it
+    # is a run that would rebuild a table from a partial harvest and replace
+    # good partitions with it. Fail here instead, naming what went missing.
+    if missing:
+        raise RuntimeError(
+            "source discovery incomplete: no resource slug matched "
+            f"{', '.join(sorted(missing))} among the {len(slugs)} slug(s) "
+            "linked from the collection pages. The department has most "
+            "likely renamed the resource — check the pattern in "
+            "constants.RESOURCES against the live page."
+        )
     return found
 
 
@@ -1491,8 +1555,6 @@ def download_sources(
     The local names are stable and year-free so the build does not have to
     know which release it is reading.
     """
-    from pipelines.datasets.au_doe_higher_education.constants import constants
-
     target = Path(input_dir)
     target.mkdir(parents=True, exist_ok=True)
     session = build_session()
@@ -1503,21 +1565,34 @@ def download_sources(
     for name, entry in sources.items():
         url = entry.get("url") or resolve_download_url(entry["slug"], session)
         path = target / f"{name}.xlsx"
-        with session.get(  # type: ignore[union-attr]
-            url,
-            headers=constants.HEADERS.value,
-            stream=True,
-            timeout=(30, 600),
-        ) as response:
-            response.raise_for_status()
-            # decode_content matters: without it a Brotli/gzip response is
-            # written to disk still encoded.
-            response.raw.decode_content = True
-            with path.open("wb") as handle:
-                shutil.copyfileobj(response.raw, handle)
+        # ``.content`` is already decompressed, so the Brotli/gzip trap that
+        # requires ``decode_content`` on a raw ``requests`` stream cannot
+        # arise here. The workbooks are a few MB each.
+        response = request_with_retry(
+            url, session, headers={"Referer": resource_page_url(entry["slug"])}
+        )
+        body = response.content  # type: ignore[union-attr]
+
+        # A WAF challenge or an error page arrives with status 200 and would
+        # otherwise be written out as a .xlsx, to fail much later somewhere
+        # that says nothing about the real cause. Every document the build
+        # reads is a real workbook, so check the zip magic here.
+        if not body.startswith(b"PK\x03\x04"):
+            raise RuntimeError(
+                f"{name}: {url} did not return a workbook — "
+                f"{len(body):,} B starting {body[:16]!r}"
+            )
+
+        path.write_bytes(body)
         written[name] = path
-        print(
-            f"downloaded {name:20} {entry['slug']:55} {path.stat().st_size:>12,} B"
+        print(f"downloaded {name:20} {entry['slug']:55} {len(body):>12,} B")
+
+    # Nothing downstream tolerates a gap, so prove the harvest is complete
+    # rather than letting the build discover it one table too late.
+    absent = sorted(set(sources) - set(written))
+    if absent:
+        raise RuntimeError(
+            f"download incomplete, missing: {', '.join(absent)}"
         )
     return written
 
