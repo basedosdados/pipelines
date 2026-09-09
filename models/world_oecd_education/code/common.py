@@ -46,13 +46,21 @@ HEADERS = {
 # The API rate-limits by IP and answers 429 with a plain-text body. ``curl -o``
 # and any client that ignores the status code will happily write that 246-byte
 # body into a file named ``*.csv``; every fetch here goes through ``get`` so the
-# status is always checked. Tripped once during scoping at roughly 200 structure
-# requests issued 0.15s apart, so keep the gap well above that.
-REQUEST_GAP_S = 1.0
-MAX_RETRIES = 6
-BACKOFF_BASE_S = 30
+# status is always checked.
+#
+# The gap is adaptive because a fixed one is either too slow or too greedy: a
+# full run at a 1s gap drew 115 rate-limit responses in 147 requests, and each
+# cost a 60s backoff -- far more than the politeness would have. Every 429 widens
+# the gap for the rest of the run, so the throttle settles near whatever the
+# server is actually willing to serve instead of rediscovering the limit.
+REQUEST_GAP_S = 3.0
+GAP_STEP_S = 1.5
+MAX_GAP_S = 20.0
+MAX_RETRIES = 8
+BACKOFF_BASE_S = 20
 
 _last_request = 0.0
+_gap = REQUEST_GAP_S
 
 
 class RateLimitError(RuntimeError):
@@ -73,9 +81,9 @@ def get(url, *, params=None, stream=False, timeout=1800, allow_empty=False):
     ``NoRecordsFound`` returns None instead — any other 404 still raises, so a
     genuinely broken URL cannot be silently recorded as an empty chunk.
     """
-    global _last_request
+    global _last_request, _gap
     for attempt in range(MAX_RETRIES):
-        gap = REQUEST_GAP_S - (time.monotonic() - _last_request)
+        gap = _gap - (time.monotonic() - _last_request)
         if gap > 0:
             time.sleep(gap)
         resp = requests.get(
@@ -91,10 +99,12 @@ def get(url, *, params=None, stream=False, timeout=1800, allow_empty=False):
         ):
             return None
         if resp.status_code == 429 or resp.status_code >= 500:
+            if resp.status_code == 429:
+                _gap = min(_gap + GAP_STEP_S, MAX_GAP_S)
             wait = BACKOFF_BASE_S * (2**attempt)
             print(
-                f"  {resp.status_code} from OECD API, sleeping {wait}s "
-                f"(attempt {attempt + 1}/{MAX_RETRIES}): {url}",
+                f"  {resp.status_code} from OECD API, sleeping {wait}s, "
+                f"gap now {_gap:.1f}s (attempt {attempt + 1}/{MAX_RETRIES})",
                 flush=True,
             )
             time.sleep(wait)
