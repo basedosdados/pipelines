@@ -107,7 +107,9 @@ def _assert_staging(client: bigquery.Client, table_slug: str) -> int:
         raise RuntimeError(
             f"{table_slug}: staging columns are not STRING: {typed}"
         )
-    rows = next(iter(client.query(f"select count(*) n from `{ref}`").result())).n
+    rows = next(
+        iter(client.query(f"select count(*) n from `{ref}`").result())
+    ).n
     return int(rows)
 
 

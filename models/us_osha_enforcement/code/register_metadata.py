@@ -1,0 +1,500 @@
+#!/usr/bin/env python
+"""Register ``us_osha_enforcement`` metadata in the Data Basis backend.
+
+    ~/.venvs/bd-pipelines/bin/python \
+        models/us_osha_enforcement/code/register_metadata.py --env staging
+
+Idempotent by construction: every record is looked up before it is written, and
+an existing id is passed back on update. ``create_update_*`` is *not*
+idempotent on its own — omitting the id creates a duplicate observation level,
+cloud table, coverage or update on every re-run.
+
+The script talks to the backend through the databasis MCP server module rather
+than the MCP tool surface, so the 138-column payloads never have to be pasted
+through a conversation.
+"""
+
+from __future__ import annotations
+
+import argparse
+import importlib.util
+import json
+import logging
+import sys
+from pathlib import Path
+
+MCP = "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
+HERE = Path(__file__).resolve().parent
+DATASET_ID = "us_osha_enforcement"
+SLUG = "enforcement"
+ORG_SLUG = "osha"
+
+#: Newest inspection open_date in the source files, for the raw source Update.
+SOURCE_MAX_DATE = "2026-09-03T00:00:00+00:00"
+
+#: Wall-clock date of this onboarding, for each table Update.
+TODAY = "2026-09-09T00:00:00+00:00"
+
+log = logging.getLogger("register_metadata")
+
+# Observation levels per table, as (entity_slug, [identifying columns]).
+#
+# There is no `inspection` entity in the shared vocabulary; `audit` is the
+# closest published one — a regulatory examination of an establishment — and is
+# used rather than minting a near-duplicate. Every level is linked to the
+# columns that identify it, or the site renders the level's columns as "Não
+# informado".
+OBSERVATION_LEVELS: dict[str, list[tuple[str, list[str]]]] = {
+    "inspection": [
+        ("audit", ["inspection_id"]),
+        ("state", ["site_state"]),
+        ("year", ["year"]),
+    ],
+    "violation": [
+        ("citation", ["inspection_id", "citation_id"]),
+        ("year", ["year"]),
+    ],
+    "violation_event": [
+        ("citation", ["inspection_id", "citation_id"]),
+        ("year", ["year"]),
+    ],
+    "violation_text": [
+        ("citation", ["inspection_id", "citation_id"]),
+        ("year", ["year"]),
+    ],
+    "related_activity": [("audit", ["inspection_id"]), ("year", ["year"])],
+    "emphasis_code": [("audit", ["inspection_id"]), ("year", ["year"])],
+    "optional_code_info": [("audit", ["inspection_id"]), ("year", ["year"])],
+    "accident": [("crash", ["accident_id"]), ("year", ["year"])],
+    "accident_injury": [
+        ("person", ["accident_id", "injury_line_number"]),
+        ("year", ["year"]),
+    ],
+    "accident_narrative": [("crash", ["accident_id"]), ("year", ["year"])],
+    "dicionario": [],
+}
+
+# Temporal coverage per table, measured from the cleaned data.
+COVERAGE: dict[str, dict] = {
+    "inspection": {"start": (1970, 6, 20), "end": (2026, 9, 3)},
+    "violation": {"start": (1972, 3, 15), "end": (2026, 8, 6)},
+    "violation_event": {"start": (1970, 1, 15), "end": (2026, 9, 3)},
+    "violation_text": {"start": (1984, None, None), "end": (2026, None, None)},
+    "related_activity": {
+        "start": (1972, None, None),
+        "end": (2026, None, None),
+    },
+    "emphasis_code": {"start": (1972, None, None), "end": (2026, None, None)},
+    "optional_code_info": {
+        "start": (1972, None, None),
+        "end": (2026, None, None),
+    },
+    "accident": {"start": (1972, 9, 21), "end": (2025, 3, 28)},
+    "accident_injury": {
+        "start": (1972, None, None),
+        "end": (2025, None, None),
+    },
+    "accident_narrative": {
+        "start": (1972, None, None),
+        "end": (2025, None, None),
+    },
+    "dicionario": {},
+}
+
+DATASET_TEXT = {
+    "name_pt": "Fiscalização da OSHA",
+    "name_en": "OSHA Enforcement",
+    "name_es": "Fiscalización de OSHA",
+    "description_pt": (
+        "Registro completo da fiscalização de segurança e saúde no trabalho "
+        "nos Estados Unidos, desde 1972: cada inspeção realizada pela OSHA ou "
+        "por um plano estadual, as violações citadas, as multas propostas e "
+        "revisadas, e os acidentes e lesões investigados. Onze tabelas ligadas "
+        "pelo número da inspeção (activity number). A multa corrente é um "
+        "valor móvel: é contestada e revisada por anos após a citação e só se "
+        "estabiliza quando o caso é encerrado — o histórico completo está em "
+        "violation_event. Fonte: Catálogo de Dados de Fiscalização do "
+        "Departamento do Trabalho dos Estados Unidos."
+    ),
+    "description_en": (
+        "The complete record of United States workplace safety and health "
+        "enforcement since 1972: every inspection carried out by OSHA or a "
+        "state plan, the violations cited, the penalties proposed and revised, "
+        "and the incidents and injuries investigated. Eleven tables linked by "
+        "the inspection's activity number. The current penalty is a moving "
+        "figure: it is contested and revised for years after the citation and "
+        "only settles when the case closes — the full history is in "
+        "violation_event. Source: the United States Department of Labor "
+        "Enforcement Data Catalog."
+    ),
+    "description_es": (
+        "Registro completo de la fiscalización de seguridad y salud laboral en "
+        "los Estados Unidos desde 1972: cada inspección realizada por OSHA o "
+        "por un plan estatal, las violaciones citadas, las multas propuestas y "
+        "revisadas, y los accidentes y lesiones investigados. Once tablas "
+        "vinculadas por el número de inspección (activity number). La multa "
+        "corriente es un valor móvil: se impugna y revisa durante años tras la "
+        "citación y solo se estabiliza al cerrarse el caso — el historial "
+        "completo está en violation_event. Fuente: Catálogo de Datos de "
+        "Fiscalización del Departamento de Trabajo de los Estados Unidos."
+    ),
+}
+
+RAW_SOURCES = [
+    {
+        "name_pt": "Catálogo de Dados de Fiscalização do DOL — OSHA",
+        "name_en": "DOL Enforcement Data Catalog — OSHA",
+        "name_es": "Catálogo de Datos de Fiscalización del DOL — OSHA",
+        "url": "https://data.dol.gov/",
+        "description_pt": (
+            "Portal de dados abertos do Departamento do Trabalho dos Estados "
+            "Unidos. Publica os arquivos completos da fiscalização da OSHA, "
+            "reeditados diariamente, em "
+            "https://data.dol.gov/data-catalog/OSHA/<tabela>/OSHA_<tabela>.zip"
+        ),
+        "description_en": (
+            "The United States Department of Labor open data portal. Publishes "
+            "the complete OSHA enforcement files, reissued daily, at "
+            "https://data.dol.gov/data-catalog/OSHA/<table>/OSHA_<table>.zip"
+        ),
+        "description_es": (
+            "Portal de datos abiertos del Departamento de Trabajo de los "
+            "Estados Unidos. Publica los archivos completos de fiscalización "
+            "de OSHA, reeditados diariamente, en "
+            "https://data.dol.gov/data-catalog/OSHA/<tabla>/OSHA_<tabla>.zip"
+        ),
+    }
+]
+
+TAGS = [
+    "inspection",
+    "violations",
+    "penalties",
+    "citations",
+    "abatements",
+    "safety",
+    "health",
+    "accidents",
+    "labor",
+    "firm",
+]
+
+
+def _load(name: str, path: Path):
+    spec = importlib.util.spec_from_file_location(name, path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load {path}")
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def main(argv: list[str] | None = None) -> int:
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--env", default="staging")
+    p.add_argument("--dry-run", action="store_true")
+    args = p.parse_args(argv)
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
+
+    sys.path.insert(0, MCP)
+    import server
+
+    env = args.env
+    arch = _load("architecture_def", HERE / "architecture_def.py")
+    ids = server.discover_ids(env=env, keys=["status", "theme", "tag"])
+    status_published = ids["status"]["published"]
+    status_under_review = ids["status"]["under_review"]
+
+    # --- organization -------------------------------------------------------
+    try:
+        org = server.lookup_id(category="organization", slug=ORG_SLUG, env=env)
+        org_id = org["id"]
+        log.info(f"organization {ORG_SLUG} exists: {org_id}")
+    except Exception:
+        if args.dry_run:
+            log.info(f"[dry-run] would create organization {ORG_SLUG}")
+            org_id = "<new>"
+        else:
+            area_us = server.lookup_id(category="area", slug="us", env=env)
+            org = server.create_update_organization(
+                slug=ORG_SLUG,
+                name_pt="Administração de Segurança e Saúde Ocupacional (OSHA)",
+                name_en="Occupational Safety and Health Administration (OSHA)",
+                name_es="Administración de Seguridad y Salud Ocupacional (OSHA)",
+                description_pt=(
+                    "Agência do Departamento do Trabalho dos Estados Unidos "
+                    "responsável por fiscalizar a segurança e a saúde no "
+                    "trabalho, criada pelo Occupational Safety and Health Act "
+                    "de 1970."
+                ),
+                description_en=(
+                    "The United States Department of Labor agency responsible "
+                    "for enforcing workplace safety and health, created by the "
+                    "Occupational Safety and Health Act of 1970."
+                ),
+                description_es=(
+                    "Agencia del Departamento de Trabajo de los Estados Unidos "
+                    "responsable de fiscalizar la seguridad y la salud "
+                    "laboral, creada por la Occupational Safety and Health Act "
+                    "de 1970."
+                ),
+                website="https://www.osha.gov/",
+                area_id=area_us["id"],
+                env=env,
+            )
+            org_id = org["id"]
+            log.info(f"organization {ORG_SLUG} created: {org_id}")
+
+    # --- tags ---------------------------------------------------------------
+    tag_ids = []
+    for slug in TAGS:
+        got = ids["tag"].get(slug)
+        if got:
+            tag_ids.append(got)
+        else:
+            log.warning(f"tag {slug!r} not in the vocabulary — skipped")
+
+    # --- dataset ------------------------------------------------------------
+    existing = server.get_dataset(slug=SLUG, env=env)
+    dataset_id = existing["id"] if existing.get("found") else None
+    theme_ids = [
+        ids["theme"]["safety"],
+        ids["theme"]["economics"],
+        ids["theme"]["justice"],
+    ]
+    if args.dry_run:
+        log.info(f"[dry-run] dataset {SLUG} -> {dataset_id or 'create'}")
+        log.info(
+            f"[dry-run] {len(arch.TABLES)} tables, "
+            f"{sum(len(t.columns) for t in arch.TABLES)} columns"
+        )
+        return 0
+
+    ds = server.create_update_dataset(
+        id=dataset_id,
+        slug=SLUG,
+        organization_ids=[org_id],
+        theme_ids=theme_ids,
+        tag_ids=tag_ids,
+        status_id=status_under_review,
+        env=env,
+        **DATASET_TEXT,
+    )
+    dataset_id = ds["id"]
+    log.info(f"dataset {SLUG}: {dataset_id}")
+
+    # --- raw data sources ---------------------------------------------------
+    #
+    # One source only, and one linked per table: `client._raw_source_id`
+    # resolves a table's source through a query that raises when a table has
+    # two or more, and both the poll and commit tasks go through it — a table
+    # with two sources cannot run a recurring pipeline at all.
+    existing_sources = {
+        s["name"]: s["id"]
+        for s in (
+            server.get_raw_data_sources(dataset_slug=SLUG, env=env) or []
+        )
+    }
+    license_id = server.lookup_id(category="license", slug="cc0", env=env)[
+        "id"
+    ]
+    availability_id = server.lookup_id(
+        category="availability", slug="online", env=env
+    )["id"]
+    area_us = server.lookup_id(category="area", slug="us", env=env)["id"]
+    source_ids = []
+    for src in RAW_SOURCES:
+        got = server.create_update_raw_data_source(
+            id=existing_sources.get(src["name_en"]),
+            dataset_id=dataset_id,
+            license_id=license_id,
+            availability_id=availability_id,
+            language_ids=[
+                server.lookup_id(category="language", slug="en", env=env)["id"]
+            ],
+            has_structured_data=True,
+            contains_api=False,
+            is_free=True,
+            requires_registration=False,
+            env=env,
+            **src,
+        )
+        source_ids.append(got["id"])
+        log.info(f"raw data source {src['name_en']}: {got['id']}")
+
+    # --- tables -------------------------------------------------------------
+    account = server.get_authenticated_account(env=env)
+    existing = server.get_dataset(slug=SLUG, env=env)
+    have = existing.get("tables", {}) or {}
+    state = {
+        "env": env,
+        "dataset_id": dataset_id,
+        "org_id": org_id,
+        "raw_data_source_ids": source_ids,
+        "account_id": account["id"],
+        "tables": {},
+    }
+
+    entity_ids = server.discover_ids(env=env, keys=["entity"])["entity"]
+
+    for table in arch.TABLES:
+        prev = have.get(table.slug, {})
+        # create_update_table fails once a table has a Coverage, so the table
+        # record is written before any coverage is attached to it.
+        tbl = server.create_update_table(
+            id=prev.get("id"),
+            slug=table.slug,
+            dataset_id=dataset_id,
+            name_pt=table.name_pt,
+            name_en=table.name_en,
+            name_es=table.name_es,
+            description_pt=table.description_pt,
+            description_en=table.description_en,
+            description_es=table.description_es,
+            status_id=status_published,
+            published_by_ids=[account["id"]],
+            data_cleaned_by_ids=[account["id"]],
+            raw_data_source_ids=source_ids,
+            env=env,
+        )
+        table_id = tbl["id"]
+        log.info(f"table {table.slug}: {table_id}")
+
+        # observation levels
+        ol_ids: dict[str, str] = {
+            ol["entity_slug"]: ol["id"]
+            for ol in prev.get("observation_levels", [])
+        }
+        for entity_slug, _cols in OBSERVATION_LEVELS[table.slug]:
+            if entity_slug in ol_ids:
+                continue
+            ol = server.create_update_observation_level(
+                table_id=table_id,
+                entity_id=entity_ids[entity_slug],
+                env=env,
+            )
+            ol_ids[entity_slug] = ol["id"]
+
+        # columns — one bulk call carries types, FKs, units and translations
+        payload = json.loads(
+            (HERE / "columns_json" / f"{table.slug}.json").read_text()
+        )
+        server.bulk_upsert_columns(
+            table_id=table_id,
+            columns_json=json.dumps(payload, ensure_ascii=False),
+            env=env,
+        )
+
+        # bulk_upsert_columns does not set is_partition, and does not link a
+        # column to its observation level. Both need update_column, and its
+        # boolean arguments default to False — so is_partition is re-passed on
+        # any column that is both a partition and a level's identifier.
+        by_name = {
+            c["name"]: c["id"]
+            for c in server.get_dataset(slug=SLUG, env=env)["tables"][
+                table.slug
+            ]["columns"]
+        }
+        link: dict[str, str] = {}
+        for entity_slug, cols in OBSERVATION_LEVELS[table.slug]:
+            for col in cols:
+                link[col] = ol_ids[entity_slug]
+        for col in table.partition:
+            link.setdefault(col, "")
+        for col_name, ol_id in link.items():
+            if col_name not in by_name:
+                log.warning(
+                    f"{table.slug}.{col_name} not registered — skipped"
+                )
+                continue
+            server.update_column(
+                column_id=by_name[col_name],
+                column_name=col_name,
+                table_id=table_id,
+                is_partition=col_name in table.partition,
+                observation_level_id=ol_id or None,
+                env=env,
+            )
+
+        # cloud table
+        cloud_id = (prev.get("cloud_tables") or [{}])[0].get("id")
+        server.create_update_cloud_table(
+            id=cloud_id,
+            table_id=table_id,
+            gcp_project_id="basedosdados-dev"
+            if env != "prod"
+            else "basedosdados",
+            gcp_dataset_id=DATASET_ID,
+            gcp_table_id=table.slug,
+            env=env,
+        )
+
+        # coverage + temporal range
+        cov = COVERAGE[table.slug]
+        cov_id = (prev.get("coverages") or [{}])[0].get("id")
+        coverage = server.create_update_coverage(
+            id=cov_id, table_id=table_id, area_id=area_us, env=env
+        )
+        if cov:
+            ranges = prev.get("coverages") or [{}]
+            range_id = None
+            if ranges and ranges[0].get("datetime_ranges"):
+                range_id = ranges[0]["datetime_ranges"][0]["id"]
+            sy, sm, sd = cov["start"]
+            ey, em, ed = cov["end"]
+            server.create_update_datetime_range(
+                id=range_id,
+                coverage_id=coverage["id"],
+                start_year=sy,
+                start_month=sm,
+                start_day=sd,
+                end_year=ey,
+                end_month=em,
+                end_day=ed,
+                interval=1,
+                env=env,
+            )
+
+        # table Update — when WE last refreshed, a wall clock
+        upd_id = (prev.get("updates") or [{}])[0].get("id")
+        server.create_update_update(
+            id=upd_id,
+            table_id=table_id,
+            entity_id=entity_ids["week"],
+            frequency=1,
+            latest=TODAY,
+            env=env,
+        )
+
+        state["tables"][table.slug] = {
+            "id": table_id,
+            "observation_levels": ol_ids,
+            "columns": len(payload),
+        }
+
+    # The raw data source Update is the SOURCE's max coverage date, not a wall
+    # clock. Created here rather than waiting for the first pipeline run: a run
+    # with update_metadata off leaves a Poll and no source Update.
+    for source_id in source_ids:
+        server.create_update_update(
+            raw_data_source_id=source_id,
+            entity_id=entity_ids["week"],
+            frequency=1,
+            latest=SOURCE_MAX_DATE,
+            env=env,
+        )
+
+    server.reorder_tables(
+        dataset_slug=SLUG,
+        table_slugs=[t.slug for t in arch.TABLES],
+        env=env,
+    )
+
+    (HERE / f"backend_ids_{env}.json").write_text(json.dumps(state, indent=1))
+    log.info(f"wrote {HERE / f'backend_ids_{env}.json'}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
