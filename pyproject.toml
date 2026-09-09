@@ -225,6 +225,10 @@ project-excludes = [
   # directory with bare sibling imports (`common`, `gen_dbt`), which pyrefly
   # cannot resolve from the repo root.
   "models/world_iati_activities/code",
+  # Same policy: the us_census_cog onboarding scripts run from their own
+  # directory with bare sibling imports (`common`), which pyrefly cannot resolve
+  # from the repo root.
+  "models/us_census_cog/code",
   "models/us_noaa_storm_events/code",
   "models/us_harvard_cbdb/code",
   "models/us_cfpb_hmda/code",

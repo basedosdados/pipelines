@@ -1,0 +1,400 @@
+---
+version: 2
+models:
+  - name: us_census_cog__government_unit
+    description: >-
+      Um registro por unidade de governo estadual ou local listada no levantamento
+      de unidades de governo (Government Units Survey) do Census Bureau, com nome,
+      tipo, endereço, população ou matrícula e localização. Cobre os anos de levantamento
+      de 1997 a 2025. Os anos de 2002 e 2007 são publicados em um formato por tipo
+      de governo incompatível com os demais e ficaram de fora. A coluna unit_category
+      separa os governos independentes dos sistemas escolares e previdenciários dependentes,
+      que a fonte lista ao lado deles mas não conta como governos.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, government_id]
+          config:
+            where: government_id is not null
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, government_id_govs]
+          config:
+            where: government_id_govs is not null
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_census_cog__dicionario')
+          columns_covered_by_dictionary:
+            - government_type
+            - unit_category
+            - function_code
+            - school_level_code
+            - is_active
+    columns:
+      - name: year
+        description: Ano de referência do levantamento de unidades de governo
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: government_id
+        description: Identificador da unidade de governo no Census Bureau
+      - name: government_id_govs
+        description: Identificador legado da unidade de governo no sistema GOVS
+      - name: government_type
+        description: Tipo de unidade de governo
+      - name: unit_category
+        description: >-
+          Categoria da unidade na publicação, que separa governos independentes dos
+          sistemas escolares e previdenciários dependentes
+      - name: unit_name
+        description: Nome da unidade de governo
+      - name: function_code
+        description: Código da função exercida, apenas para distritos especiais
+      - name: function_name
+        description: Nome da função exercida, apenas para distritos especiais
+      - name: school_level_code
+        description: Código do nível de ensino, apenas para distritos escolares
+      - name: political_description
+        description: Designação política da unidade, como county, city, town ou village
+      - name: officer_title
+        description: Cargo do responsável indicado como contato da unidade
+      - name: address_line_1
+        description: Primeira linha do endereço postal da unidade
+      - name: address_line_2
+        description: Segunda linha do endereço postal da unidade
+      - name: city
+        description: Cidade do endereço postal da unidade
+      - name: state_abbreviation
+        description: Sigla de duas letras do estado do endereço postal
+      - name: zip_code
+        description: Código postal de cinco dígitos do endereço da unidade
+      - name: zip_code_extension
+        description: Extensão de quatro dígitos do código postal
+      - name: web_address
+        description: Endereco do sítio eletrônico oficial da unidade
+      - name: population
+        description: População residente atribuída à unidade
+      - name: population_year
+        description: Ano a que se refere a população informada
+      - name: school_enrollment
+        description: Número de alunos matriculados, apenas para distritos escolares
+      - name: enrollment_year
+        description: Ano a que se refere a matrícula informada
+      - name: state_id
+        description: Código FIPS de duas posições do estado
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+              ignore_values: []
+              proportion_allowed_failures: 0.0
+      - name: county_id
+        description: Código FIPS de cinco posições do condado, estado seguido de condado
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              ignore_values: []
+              proportion_allowed_failures: 0.0
+      - name: place_id
+        description: Código FIPS de sete posições do lugar, estado seguido de lugar
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__place')
+              field: id_place
+              ignore_values: []
+              proportion_allowed_failures: 0.0
+      - name: county_área_name
+        description: Nome da área de condado atribuída à unidade na fonte
+      - name: parent_government_id
+        description: Identificador da unidade de governo a que está unidade e subordinada
+      - name: is_active
+        description: Indica se a unidade estava ativa na data do levantamento
+  - name: us_census_cog__employment
+    description: >-
+      Um registro por unidade de governo e categoria funcional no levantamento anual
+      de emprego e folha de pagamento do setor público (Annual Survey of Public Employment
+      & Payroll), de 1992 a 2024. Emprego e folha referem-se ao mês de março. Os anos
+      de 1992, 1997, 2002, 2007, 2012, 2017 e 2022 são censos e cobrem todas as unidades;
+      os demais são amostras de cerca de onze mil unidades, cuja probabilidade de
+      seleção está em employment_unit. Não há levantamento em 1996. Horas em tempo
+      parcial e emprego equivalente a tempo integral deixaram de ser publicados em
+      2019.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, government_id_govs, function_code]
+          config:
+            where: government_id_govs is not null
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_census_cog__dicionario')
+          columns_covered_by_dictionary:
+            - government_type
+            - function_code
+            - full_time_employees_flag
+            - full_time_payroll_flag
+            - part_time_employees_flag
+            - part_time_payroll_flag
+    columns:
+      - name: year
+        description: Ano de referência do levantamento de emprego público
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: government_id
+        description: Identificador da unidade de governo no Census Bureau
+      - name: government_id_govs
+        description: Identificador legado da unidade de governo no sistema GOVS
+      - name: state_id
+        description: Código FIPS de duas posições do estado
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+              ignore_values: []
+              proportion_allowed_failures: 0.0
+      - name: government_type
+        description: Tipo de unidade de governo
+      - name: function_code
+        description: Código da categoria funcional do emprego
+      - name: full_time_employees
+        description: Número de empregados em tempo integral
+      - name: full_time_employees_flag
+        description: Marcador de qualidade de empregados em tempo integral
+      - name: full_time_payroll
+        description: Folha de pagamento dos empregados em tempo integral
+      - name: full_time_payroll_flag
+        description: Marcador de qualidade de folha de pagamento em tempo integral
+      - name: part_time_employees
+        description: Número de empregados em tempo parcial
+      - name: part_time_employees_flag
+        description: Marcador de qualidade de empregados em tempo parcial
+      - name: part_time_payroll
+        description: Folha de pagamento dos empregados em tempo parcial
+      - name: part_time_payroll_flag
+        description: Marcador de qualidade de folha de pagamento em tempo parcial
+      - name: part_time_hours
+        description: Horas trabalhadas pelos empregados em tempo parcial
+      - name: full_time_equivalent_employees
+        description: Emprego equivalente a tempo integral
+  - name: us_census_cog__employment_unit
+    description: >-
+      Um registro por unidade de governo pesquisada em cada ano do levantamento anual
+      de emprego e folha de pagamento do setor público, de 1992 a 2024, com nome,
+      localização, nível de ensino e probabilidade de seleção na amostra. Complementa
+      a tabela employment, que traz os valores por categoria funcional.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, government_id_govs]
+          config:
+            where: government_id_govs is not null
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_census_cog__dicionario')
+          columns_covered_by_dictionary:
+            - government_type
+            - census_region_code
+            - school_level_code
+            - worksheet_code
+    columns:
+      - name: year
+        description: Ano de referência do levantamento de emprego público
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: government_id
+        description: Identificador da unidade de governo no Census Bureau
+      - name: government_id_govs
+        description: Identificador legado da unidade de governo no sistema GOVS
+      - name: government_type
+        description: Tipo de unidade de governo
+      - name: unit_name
+        description: Nome da unidade de governo
+      - name: state_id
+        description: Código FIPS de duas posições do estado
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+              ignore_values: []
+              proportion_allowed_failures: 0.0
+      - name: county_id
+        description: Código FIPS de cinco posições do condado, estado seguido de condado
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              ignore_values: []
+              proportion_allowed_failures: 0.0
+      - name: county_name
+        description: >-
+          Nome do condado onde a unidade está localizada ou ao qual foi atribuída
+      - name: census_region_code
+        description: Código da região censitária
+      - name: population_enrollment_function
+        description: >-
+          Campo multiuso da fonte, que traz população, matrícula ou código de função
+          conforme o tipo de governo
+      - name: population_enrollment_year
+        description: Ano a que se refere a população ou matrícula informada
+      - name: school_level_code
+        description: Código do nível de ensino, apenas para distritos escolares
+      - name: selection_probability
+        description: Probabilidade de seleção da unidade na amostra
+      - name: worksheet_code
+        description: Código do formulário usado para coletar os dados da unidade
+  - name: us_census_cog__finance
+    description: >-
+      Um registro por unidade de governo e item financeiro nas finanças de governos
+      estaduais e locais, dos exercícios fiscais de 1967 e 1970 a 2018, cobrindo receita,
+      despesa, dívida e ativos. Os exercícios até 2012 vêm do arquivo histórico, publicado
+      com uma linha por governo e 529 colunas, aqui transposto para uma linha por
+      item; os exercícios de 2013 em diante já são publicados nessa forma. Nem todo
+      item_code é um item coletado: os códigos de três posições são coletados e os
+      demais são agregados calculados pela fonte, de modo que somar todos os registros
+      de um governo duplica valores. Exceção: não há dados para 1968 e 1969, e a fonte
+      não publica microdados por unidade a partir de 2019.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, government_id_govs, item_code]
+          config:
+            where: government_id_govs is not null
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, government_id, item_code]
+          config:
+            where: government_id is not null
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_census_cog__dicionario')
+          columns_covered_by_dictionary: [item_code, data_flag]
+    columns:
+      - name: year
+        description: Ano de referência fiscal das finanças do governo
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: government_id
+        description: Identificador da unidade de governo no Census Bureau
+      - name: government_id_govs
+        description: Identificador legado da unidade de governo no sistema GOVS
+      - name: item_code
+        description: Código do item financeiro de receita, despesa, dívida ou ativo
+      - name: amount
+        description: Valor do item financeiro
+      - name: data_flag
+        description: Marcador de imputação do item
+  - name: us_census_cog__finance_unit
+    description: >-
+      Um registro por unidade de governo em cada exercício fiscal das finanças de
+      governos estaduais e locais, de 1967 e 1970 a 2018, com nome, localização, população,
+      fim do exercício e peso amostral. Complementa a tabela finance, que traz os
+      valores por item financeiro.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, government_id_govs]
+          config:
+            where: government_id_govs is not null
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, government_id]
+          config:
+            where: government_id is not null
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_census_cog__dicionario')
+          columns_covered_by_dictionary:
+            - government_type
+            - census_region_code
+            - school_level_code
+            - special_district_function_code
+            - data_flag
+            - is_imputed_record
+    columns:
+      - name: year
+        description: Ano de referência fiscal das finanças do governo
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: government_id
+        description: Identificador da unidade de governo no Census Bureau
+      - name: government_id_govs
+        description: Identificador legado da unidade de governo no sistema GOVS
+      - name: government_type
+        description: Tipo de unidade de governo
+      - name: unit_name
+        description: Nome da unidade de governo
+      - name: state_id
+        description: Código FIPS de duas posições do estado
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+              ignore_values: []
+              proportion_allowed_failures: 0.0
+      - name: county_id
+        description: Código FIPS de cinco posições do condado, estado seguido de condado
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              ignore_values: []
+              proportion_allowed_failures: 0.0
+      - name: county_name
+        description: Nome do condado onde a unidade está localizada
+      - name: place_id
+        description: Código FIPS de sete posições do lugar, estado seguido de lugar
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__place')
+              field: id_place
+              ignore_values: []
+              proportion_allowed_failures: 0.0
+      - name: census_region_code
+        description: Código da região censitária
+      - name: population
+        description: População residente atribuída à unidade
+      - name: population_year
+        description: Ano a que se refere a população informada
+      - name: school_enrollment
+        description: Número de alunos matriculados, apenas para distritos escolares
+      - name: school_level_code
+        description: Código do nível de ensino, apenas para distritos escolares
+      - name: special_district_function_code
+        description: Código da função exercida, apenas para distritos especiais
+      - name: fiscal_year_end
+        description: Fim do exercício fiscal da unidade, no formato MMDD
+      - name: survey_weight
+        description: Peso estatístico da unidade na amostra
+      - name: data_flag
+        description: Marcador de qualidade do registro da unidade
+      - name: is_imputed_record
+        description: Indica se o registro inteiro da unidade foi imputado
+  - name: us_census_cog__dicionario
+    description: >-
+      Correspondência entre os valores codificados das colunas categóricas do conjunto
+      e sua descrição, incluindo tipo de governo, categoria funcional do emprego,
+      item financeiro, marcadores de qualidade, nível de ensino e região censitária.
+    tests: []
+    columns:
+      - name: id_tabela
+        description: Nome da tabela a que a chave se refere
+      - name: nome_coluna
+        description: Nome da coluna a que a chave se refere
+      - name: chave
+        description: Valor codificado presente na coluna
+      - name: cobertura_temporal
+        description: Cobertura temporal da correspondência entre chave e valor
+      - name: valor
+        description: Descrição correspondente ao valor codificado

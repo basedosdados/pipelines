@@ -1,0 +1,530 @@
+column_label,item_code,source_item_code,item_type,variable_name,description
+Total Revenue,TotRev,DDD,derived,TotRev,Total Revenue
+Total Rev-Own Sources,TotRev_Own,DDD,derived,TotRev_Own,Total Revenue from Own Sources
+General Revenue,GenRev,DDD,derived,GenRev,General Revenue
+Gen Rev-Own Sources,GenRev_Own,DDD,derived,GenRev_Own,General Revenue from Own Sources
+Total Taxes,TotTaxes,T--,subtotal,TotTaxes,Total Taxes
+Property Tax,T01,T01,item,PropTax,Property Tax
+Tot Sales & Gr Rec Tax,TotSaleTax,DDD,derived,TotSaleTax,Total Sales and Gross Receipts Taxes
+Total Gen Sales Tax,T09,T09,item,GenSaleTax,General Sales Tax (includes T08 for Federal Government)
+Total Select Sales Tax,TotSelTax,DDD,derived,TotSelTax,Total Selective Sales Taxes
+Alcoholic Beverage Tax,T10,T10,item,AlcoBevTax,Alcoholic beverage tax
+Amusement Tax,T11,T11,item,AmuseTax,Amusement tax
+Insurance Premium Tax,T12,T12,item,InsPremTax,Insurance premium tax
+Motor Fuels Tax,T13,T13,item,MotFuelTax,Motor fuels tax
+Pari-mutuels Tax,T14,T14,item,Pari-MuTax,Pari-mutuels tax
+Public Utility Tax,T15,T15,item,PubUtilTax,Public utilities tax
+Tobacco Tax,T16,T16,item,TobaccoTax,Tobacco tax
+Other Select Sales Tax,T19,T19,item,OthSelTax,Other selective sales tax
+Total License Taxes,TotLicTax,DDD,derived,TotLicTax,Total License Taxes
+Alcoholic Beverage Lic,T20,T20,item,AlcoBevLic,Alcoholic beverage licenses
+Amusement License,T21,T21,item,AmuseLic,Amusement licenses
+Corporation License,T22,T22,item,CorpLic,Corporation licenses
+Hunting & Fishing License,T23,T23,item,HuntFishLc,Hunting and fishing licenses
+Motor Vehicle License,T24,T24,item,MtVehLic,Motor vehicle licenses
+Motor Veh Oper License,T25,T25,item,MtVehOpLic,Motor vehicle operator licenses
+Public Utility License,T27,T27,item,PubUtilLic,Public utility licenses
+Occup and Bus Lic NEC,T28,T28,item,OccuBusLic,"Occupation and business licenses, NEC"
+Other License Taxes,T29,T29,item,OthLicTax,Other licenses
+Total Income Taxes,TotIncTax,DDD,derived,TotIncTax,Total Income Taxes
+Individual Income Tax,T40,T40,item,IndIncTax,Individual income tax (includes code T49)
+Corp Net Income Tax,T41,T41,item,CorpIncTax,Corporation net income tax
+Death and Gift Tax,T50,T50,item,DthGiftTax,Death and Gift Tax
+Docum and Stock Tr Tax,T51,T51,item,DocumTax,Documentary and Stock Transfer Tax
+Severance Tax,T53,T53,item,SeverTax,Severance Tax
+Taxes NEC,T99,T99,item,TaxNEC,Taxes NEC
+Total IG Revenue,TotIGR,DDD,derived,TotIGR,Total Intergovernmental Revenue
+Total Fed IG Revenue,TotFedIGR,B--,subtotal,TotFedIGR,"Intergovernmental Revenue from Federal Government, Total"
+Fed IGR-Air Transport,B01,B01,item,FIGR_Airp,Air transportation (airports)
+Fed IGR-Education,B21,B21,item,FIGR_Educ,Education
+Fed IGR-Emp Sec Adm,B22,B22,item,FIGR_EmSec,Employment security (social insurance) administration
+Fed IGR-Gen Rev Shar,B27,B27,item,FIGR_GRS,General revenue sharing (obsolete after FY 1987)
+Fed IGR-Gen Support,B30,B30,item,FIGR_GenSp,Other general support
+Fed IGR-Health & Hos,B42,B42,item,FIGR_HltHo,Health and hospitals
+Fed IGR-Highways,B46,B46,item,FIGR_Hwys,Highways
+Fed IGR-Transit Sub,B47,B47,item,FIGR_TrnSb,Transit subsidies (includes B94)
+Fed IGR-Hous/Com Dev,B50,B50,item,FIGR_HoCD,Housing and community development
+Fed IGR-Natural Res,B59,B59,item,FIGR_NatRs,Natural resources (includes any B54)
+Fed IGR-Public Welf,B79,B79,item,FIGR_PuWel,Public welfare
+Fed IGR-Sewerage,B80,B80,item,FIGR_Sewer,Sewerage
+Fed IGR-Other,B89,B89,item,FIGR_Other,"Other (includes B91, B92, and B93)"
+Total State IG Revenue,TotStaIGR,C--,subtotal,TotStaIGR,"Intergovernmental Revenue from State Government, Total"
+State IGR-Education,C21,C21,item,SIGR_Educ,Education
+State IGR-Tax Relief,C28,C28,item,SIGR_TaxRe,Tax relief (Note: Obsolete code after FY 87)
+State IGR-Oth Gen Sup,C30,C30,item,SIGR_GenSp,Other general support
+State IGR-Health & Hos,C42,C42,item,SIGR_HltHo,Health and hospitals
+State IGR-Highways,C46,C46,item,SIGR_Hwys,Highways
+State IGR-Transit Sub,C47,C47,item,SIGR_TrnSb,Transit subsidies (includes C94)
+State IGR-Hous/Com Dev,C50,C50,item,SIGR_HoCD,Housing and community development
+State IGR-Public Welf,C79,C79,item,SIGR_PuWel,Public welfare
+State IGR-Sewerage,C80,C80,item,SIGR_Sewer,Sewerage
+State IGR-Other,C89,C89,item,SIGR_Other,"Other (includes C91, C92, and C93)"
+Tot Local IG Rev,TotLocIGR,D--,subtotal,TotLocIGR,"Intergovernmental Revenue from Local Governments, Total"
+Local IGR-InterSchool Aid,D11,D11,item,LIGR_InSch,From other school systems (applies to type 5's only)
+Local IGR-Other Education,D21,D21,item,LIGR_Educ,All other local education aid
+Local IGR-Oth Gen Sup,D30,D30,item,LIGR_GenSp,General government support
+Local IGR-Health & Hos,D42,D42,item,LIGR_HltHo,Health and hospitals
+Local IGR-Highways,D46,D46,item,LIGR_Hwys,Highways
+Local IGR-Transit Sub,D47,D47,item,LIGR_TrnSb,Transit subsidies (includes D94)
+Local IGR-Hous/Com Dev,D50,D50,item,LIGR_HoCD,Housing and community development
+Local IGR-Public Welf,D79,D79,item,LIGR_PuWel,Public welfare
+Local IGR-Sewerage,D80,D80,item,LIGR_Sewer,Sewerage
+Local IGR-Other,D89,D89,item,LIGR_Other,"Other (includes D91, D92, and D93)"
+Tot Chgs and Misc Rev,TotChgMisc,DDD,derived,TotChgMisc,Total Charges and Miscellaneous General Revenue
+Total General Charges,TotGenChgs,A--,subtotal,TotGenChgs,"General Charges, Total"
+Chg-Air Transportation,A01,A01,item,Chg_Airp,Air transportation (airports)
+Chg-Misc Com Activ,A03,A03,item,Chg_MisCom,Miscellaneous commercial activities
+Chg-Total Education,Chg_TotEd,DDD,derived,Chg_TotEd,"Education, total (includes any A21)"
+Chg-Elem Ed-Sch Lunch,A09,A09,item,Chg_ES_Lun,School Lunch
+Chg-Elem Ed-Tuition,A10,A10,item,Chg_ES_Tui,Tuition
+Chg-Elem Ed-NEC,A12,A12,item,Chg_ES_NEC,Other
+Chg-Total High Ed,Chg_HiEd,DDD,derived,Chg_HiEd,Higher Education (includes A16 and A18)
+Chg-Hospitals,A36,A36,item,Chg_Hosp,Hospitals
+Chg-Regular Highways,A44,A44,item,Chg_RegHwy,Regular Highways (includes A45 before FY 1977)
+Chg-Toll Highways,A45,A45,item,Chg_TolHwy,Toll highways (not available before FY 1977)
+Chg-Housing & Comm Dev,A50,A50,item,Chg_HoCD,Housing and community development
+Chg-Total Nat Res,A59,A59,item,Chg_NatRes,"Natural resources (includes any A54, A56, and A59)"
+Chg-Parking,A60,A60,item,Chg_Parkg,Parking facilities
+Chg-Parks & Recreation,A61,A61,item,Chg_PrkRec,Parks and recreation
+Chg-Sewerage,A80,A80,item,Chg_Sewer,Sewerage
+Chg-Solid Waste Mgmt,A81,A81,item,Chg_SWMgmt,Solid waste management
+Chg-Water Transport,A87,A87,item,Chg_WatTrn,Sea and Inland Port Facilities
+Chg-All Other NEC,A89,A89,item,Chg_OthNEC,"All other general charges, NEC (includes Federal codes A06 and  A14)"
+Misc General Revenue,MiscGenRev,U--,subtotal,MiscGenRev,"Miscellaneous General Revenue, Total"
+Special Assessments,U01,U01,item,SpecAssess,Special assessments
+Prop Sale-Hous/Com Dev,U10,U10,item,Prop_HoCD,Housing and community development
+Prop Sale-Other,U11,U11,item,Prop_Other,Other property
+Interest Revenue,U20,U20,item,InterstRev,Interest earnings on investments
+Fines and Forfeits,U30,U30,item,Fines_Forf,Fines and forfeits
+Rents and Royalties,Rents_Royl,U4-,subtotal,Rents_Royl,Rents and royalties (includes U40 and U41)
+Net Lottery Revenue,U95,U95,item,NetLotRev,"Net lottery revenue, after prizes & admin expenses"
+Misc General Rev NEC,U99,U99,item,MiscGenNEC,Other miscellaneous general revenue
+Liquor Stores Revenue,A90,A90,item,LiqStorRev,Liquor Stores Revenue
+Total Utility Revenue,TotUtilRev,A9-,subtotal,TotUtilRev,Total Utility Charges
+Water Utility Revenue,A91,A91,item,WatUtilRev,Water supply utility charges
+Electric Utility Rev,A92,A92,item,EleUtilRev,Electric power utility charges
+Gas Utility Rev,A93,A93,item,GasUtilRev,Gas supply utility charges
+Transit Utility Rev,A94,A94,item,TrnUtilRev,Transit systems utility charges
+Total Insur Trust Rev,TotInsRev,DDD,derived,TotInsRev,Total Insurance Trust Revenue (includes systems not listed separately)
+Total Insur Trust Ctrb,TotInsCtrb,DDD,derived,TotInsCtrb,Total insurance trust contributions
+Tot Ins Trust Inv Rev,TotInsInv,DDD,derived,TotInsInv,Total insurance trust earnings on investments
+Total Emp Ret Rev,TotEmpRRev,DDD,derived,TotEmpRRev,Total revenue
+Emp Ret-Total Ctrib,EmpR_TotCb,DDD,derived,EmpR_TotCb,Total contributions (Note: Not sum of detail below)
+Emp Ret-Loc Emp Ctrib,X01,X01,item,EmpR_EmpCb,Contributions from employees (includes any X02)
+Emp Ret-Loc To Loc Sys,X04,X04,item,EmpR_LocLo,Local government contribution to local system (intragovernmental transfer)
+Emp Ret-From Other Gov,X05,X05,item,EmpR_OthGv,Contribution from other governments
+Emp Ret-Sta To Sta Ctr,X06,X06,item,EmpR_StaSt,State government contribution to own system (sic)
+Emp Ret-Int Rev,X08,X08,item,EmpR_IntRv,Interest on investments
+Emp Ret-Other Earnings,X09,X09,item,EmpR_OthEr,Other investment earnings
+Total Unemp Rev,TotUnemRev,DDD,derived,TotUnemRev,Total revenue
+Unemp-Payroll Tax,Y01,Y01,item,Unem_PyTax,Contributions from employers (payroll taxes)
+Unemp-Int Revenue,Y02,Y02,item,Unem_IntRv,Interest credited by Federal Government
+Unemp-Federal Advances,Y04,Y04,item,Unem_FedAv,Advances and contributions from Federal Government
+Total Expenditure,TotExpend,DDD,derived,TotExpend,Total Expenditure
+Total IG Expenditure,TotIGExp,DDD,derived,TotIGExp,Total Intergovernmental Expenditure
+Direct Expenditure,TotDirExp,DDD,derived,TotDirExp,Direct Expenditure
+Total Current Expend,TotCurrExp,DDD,derived,TotCurrExp,Total Current Expenditure (= C301 - C307)
+Total Current Oper,TotCurrOp,E--,subtotal,TotCurrOp,Total Current Operations
+Total Capital Outlays,TotCapOut,DDD,derived,TotCapOut,Total Capital Outlays
+Total Construction,TotConstr,F--,subtotal,TotConstr,Construction Only
+Tot Assist & Subsidies,TotAssist,DDD,derived,TotAssist,Total Assistance And Subsidies
+Total Interest on Debt,TotIntExp,I--,subtotal,TotIntExp,Total Interest On Debt
+Total Insur Trust Ben,TotInsTExp,DDD,derived,TotInsTExp,Total Insurance Trust Benefits (includes systems not listed separately below)
+Total Salaries & Wages,Z00,Z00,item,Sal_Wages,Exhibit: Total Salaries And Wages
+General Expenditure,GenExpend,DDD,derived,GenExpend,General Expenditure
+IG Exp-To State Govt,IGE_ToSta,L--,subtotal,IGE_ToSta,To State Governments
+IG Exp-To Local Govts,IGE_ToLoc,DDD,derived,IGE_ToLoc,To Local Governments
+IG Exp-To Federal Govt,IGE_ToFed,S--,subtotal,IGE_ToFed,To Federal Government
+Direct General Expend,GenDirExp,DDD,derived,GenDirExp,Direct General Expenditure
+General Current Expend,GenCurrExp,DDD,derived,GenCurrExp,General Current Expenditure (= C315 - C329)
+General Current Oper,GenCurrOp,E--,subtotal,GenCurrOp,General Current Operations
+General Capital Outlay,GenCapOut,DDD,derived,GenCapOut,General Capital Outlays
+General Construction,GenConstr,F--,subtotal,GenConstr,General Construction
+General Assist & Sub,GenAssist,DDD,derived,GenAssist,Assistance and subsidies (same as C311 above)
+General Debt Interest,general_debt_interest,I89,item,GenIntExp,Interest on general debt (same as I89 below)
+Air Trans-Total Expend,Airp_Tot,-01,subtotal,Airp_Tot,"Air Transportation, Total"
+Air Trans-Direct Expend,Airp_Dir,-01,subtotal,Airp_Dir,Direct expenditure
+Air Trans-Cap Outlay,Airp_Cap,DDD,derived,Airp_Cap,Capital outlays
+Air Trans-Construction,F01,F01,item,Airp_Con,Construction
+Air Trans-IG To State,L01,L01,item,Airp_IGS,To state government
+Air Trans-IG-Local Govts,M01,M01,item,Airp_IGL,"To local governments, total (includes N01, O01, P01, and R01)"
+Misc Com Activ-Tot Exp,MisCom_Tot,-03,subtotal,MisCom_Tot,"Miscellaneous Commercial Activities, Total"
+Misc Com Activ-Cap Out,MisCom_Cap,DDD,derived,MisCom_Cap,Capital outlays
+Misc Com Activ-Constr,F03,F03,item,MisCom_Con,Construction
+Correct-Total Exp,Correc_Tot,-05,subtotal,Correc_Tot,"Corrections, Total (includes -04, Correctional Institutions)"
+Correct-Direct Exp,Correc_Dir,-05,subtotal,Correc_Dir,Direct expenditure
+Correct-Cap Outlay,Correc_Cap,DDD,derived,Correc_Cap,Capital outlays
+Correct-Construct,F05,F05,item,Correc_Con,Construction
+Correct-IG To St,L05,L05,item,Correc_IGS,To state government
+Correct-IG-Loc Govts,M05,M05,item,Correc_IGL,"To local governments, total (includes N05, O05, P05, and R05)"
+Total Educ-Total Exp,TotEd_Tot,DDD,derived,TotEd_Tot,"Total Education, Total"
+Total Educ-Direct Exp,TotEd_Dir,DDD,derived,TotEd_Dir,Direct Expenditure
+Total Educ-Assist & Sub,total_educ_assist_sub,J19,item,TotEd_A&S,Assistance and subsidies (same as E19 below)
+Total Educ-Cap Outlay,TotEd_Cap,DDD,derived,TotEd_Cap,Capital outlays
+Total Educ-Construct,TotEd_Con,DDD,derived,TotEd_Con,Construction
+Elem Educ-Total Exp,ElSEd_Tot,-12,subtotal,ElSEd_Tot,"Elementary and Secondary Education, Total"
+Elem Educ-Direct Exp,ElSEd_Dir,-12,subtotal,ElSEd_Dir,Direct expenditure
+Elem Educ-Cap Outlay,ElSEd_Cap,DDD,derived,ElSEd_Cap,Capital outlays
+Elem Educ-Construction,F12,F12,item,ElSEd_Con,Construction
+Elem Educ-IG To State,L12,L12,item,ElSEd_IGS,To state government
+Elem Educ-IG-Local Govts,M12,M12,item,ElSEd_IGL,"To local governments NEC (includes N12, O12, P12, Q12, and R12)"
+Elem Educ-IG-Sch to Sch,Q11,Q11,item,ElSEd_IGSc,Interschool District Transfers
+Higher Ed-Total Exp,HiEd_Tot,-18,subtotal,HiEd_Tot,"Higher Education, Total (includes -16, Auxiliary Enterprises)"
+Higher Ed-Direct Exp,HiEd_Dir,-18,subtotal,HiEd_Dir,Direct expenditure
+Higher Ed-Cap Outlay,HiEd_Cap,DDD,derived,HiEd_Cap,Capital outlays
+Higher Ed-Construct,F18,F18,item,HiEd_Con,Construction
+Higher Ed-IG To St,L18,L18,item,HiEd_IGS,To state government
+Higher Ed-IG-Loc Govts,M18,M18,item,HiEd_IGL,"To local governments, total (includes N18, O18, P18, Q18, and R18)"
+Educ-NEC-Total Expend,OthEd_Tot,-21,subtotal,OthEd_Tot,"Education, NEC, Total"
+Educ-NEC-Direct Expend,OthEd_Dir,-21,subtotal,OthEd_Dir,Direct expenditure
+Educ-NEC-Assistance,educ_nec_assistance,J19,item,OthEd_Asst,Assistance and subsidies
+Educ-NEC-Cap Outlay,OthEd_Cap,DDD,derived,OthEd_Cap,Capital outlays
+Educ-NEC-Construction,F21,F21,item,OthEd_Con,Construction
+Educ-NEC-IG To State,L21,L21,item,OthEd_IGS,To state government
+Educ-NEC-IG-Local Govts,M21,M21,item,OthEd_IGL,"To local governments, total (includes N21, O21, P21, Q21, and R21)"
+Emp Sec Adm-Direct Exp,EmpSec_Tot,-22,subtotal,EmpSec_Tot,"Employment Security Admin., Total (for Fed Govt, includes IG expend)"
+Emp Sec Adm-Cap Outlay,EmpSec_Cap,DDD,derived,EmpSec_Cap,Capital outlays
+Emp Sec Adm-Construct,F22,F22,item,EmpSec_Con,Construction
+Fin Admin-Total Exp,FinAdm_Tot,-23,subtotal,FinAdm_Tot,"Financial Administration, Total"
+Fin Admin-Direct Exp,FinAdm_Dir,-23,subtotal,FinAdm_Dir,Direct expenditure
+Fin Admin-Cap Outlay,FinAdm_Cap,DDD,derived,FinAdm_Cap,Capital outlays
+Fin Admin-Construction,F23,F23,item,FinAdm_Con,Construction
+Fin Admin-IG To State,L23,L23,item,FinAdm_IGS,To state government
+Fin Admin-IG-Local Govts,M23,M23,item,FinAdm_IGL,"To local governments, total (includes N23, O23, P23, and R23)"
+Fire Prot-Total Expend,Fire_Tot,-24,subtotal,Fire_Tot,"Fire Protection, Total"
+Fire Prot-Direct Exp,Fire_Dir,-24,subtotal,Fire_Dir,Direct expenditure
+Fire Prot-Cap Outlay,Fire_Cap,DDD,derived,Fire_Cap,Capital outlays
+Fire Prot-Construction,F24,F24,item,Fire_Con,Construction
+Fire Prot-IG To State,L24,L24,item,Fire_IGS,To state government
+Fire Prot-IG-Local Govts,M24,M24,item,Fire_IGL,"To local governments, total (includes N24, O24, P24, and R24)"
+Judicial-Total Expend,Judic_Tot,-25,subtotal,Judic_Tot,"Judicial and Legal, Total"
+Judicial-Direct Expend,Judic_Dir,-25,subtotal,Judic_Dir,Direct expenditure
+Judicial-Cap Outlay,Judic_Cap,DDD,derived,Judic_Cap,Capital outlays
+Judicial-Construction,F25,F25,item,Judic_Con,Construction
+Judicial-IG To State,L25,L25,item,Judic_IGS,To state government
+Judicial-IG-Local Govts,M25,M25,item,Judic_IGL,"To local governments, total (includes N25, O25, P25, and R25)"
+Cen Staff-Total Expend,CStaff_Tot,-29,subtotal,CStaff_Tot,"Central Staff Services, Total (includes any Legislative Activities, code -26)"
+Cen Staff-Direct Exp,CStaff_Dir,-29,subtotal,CStaff_Dir,Direct expenditure
+Cen Staff-Cap Outlay,CStaff_Cap,DDD,derived,CStaff_Cap,Capital outlays
+Cen Staff-Construction,F29,F29,item,CStaff_Con,Construction
+Cen Staff-IG To State,L29,L29,item,CStaff_IGS,To state government
+Cen Staff-IG-Local Govts,M29,M29,item,CStaff_IGL,"To local governments, total (includes N29, O29, P29, and R29)"
+Gen Pub Bldg-Total Exp,GenBld_Tot,-31,subtotal,GenBld_Tot,"General Public Buildings, Total"
+Gen Pub Bldg-Cap Out,GenBld_Cap,DDD,derived,GenBld_Cap,Capital outlays
+Gen Pub Bldg-Construct,F31,F31,item,GenBld_Con,Construction
+Health-Total Expend,Health_Tot,-32,subtotal,Health_Tot,"Health, Total"
+Health-Direct Expend,Health_Dir,-32,subtotal,Health_Dir,Direct expenditure
+Health-Capital Outlay,Health_Cap,DDD,derived,Health_Cap,Capital outlays
+Health-Construction,F32,F32,item,Health_Con,Construction
+Health-IG To State,L32,L32,item,Health_IGS,To state government
+Health-IG-Local Govts,M32,M32,item,Health_IGL,"To local governments, total (includes N32, O32, P32, and R32)"
+Total Hospital-Total Exp,Hosp_Tot,DDD,derived,Hosp_Tot,"Total Hospitals, Total"
+Total Hospital-Dir Exp,Hosp_Dir,DDD,derived,Hosp_Dir,Direct expenditure
+Total Hospital-Cap Out,Hosp_Cap,DDD,derived,Hosp_Cap,Capital Outlays
+Total Hospital-Construct,Hosp_Con,DDD,derived,Hosp_Con,Construction
+Total Hospital-IG To State,total_hospital_ig_to_state,L38,item,OthHos_IGS,To state government
+Total Hospital-IG-Loc Govts,total_hospital_ig_loc_govts,M38,item,OthHos_IGL,"To local governments, total (includes N38, O38, P38, and R38)"
+Own Hospital-Total Exp,OwnHos_Tot,-36,subtotal,OwnHos_Tot,"Own Hospitals, Total"
+Own Hospital-Cap Out,OwnHos_Cap,DDD,derived,OwnHos_Cap,Capital outlays
+Own Hospital-Construct,F36,F36,item,OwnHos_Con,Construction
+Hosp-Other-Total Exp,OthHos_Tot,-38,subtotal,OthHos_Tot,"Other Hospitals, Total"
+Hosp-Other-Direct Exp,OthHos_Dir,-38,subtotal,OthHos_Dir,Direct expenditure
+Hosp-Other-Cap Outlay,OthHos_Cap,DDD,derived,OthHos_Cap,Capital outlays
+Hosp-Other-Construct,F38,F38,item,OthHos_Con,Construction
+Hosp-Other-IG To State,hosp_other_ig_to_state,L38,item,OthHos_IGS,To state government
+Hosp-Other-IG-Loc Govts,hosp_other_ig_loc_govts,M38,item,OthHos_IGL,"To local governments, total (includes N38, O38, P38, and R38)"
+Total Highways-Tot Exp,TotHwy_Tot,DDD,derived,TotHwy_Tot,"Total Highways, Total (sum of highway codes -44 and -45)"
+Total Highways-Dir Exp,TotHwy_Dir,DDD,derived,TotHwy_Dir,Direct Expenditure
+Total Highways-Cap Out,TotHwy_Cap,DDD,derived,TotHwy_Cap,Capital outlays
+Total Highways-Construct,TotHwy_Con,DDD,derived,TotHwy_Con,Construction
+Regular Hwy-Total Exp,RegHwy_Tot,-44,subtotal,RegHwy_Tot,"Regular Highways, Total (includes -45, Toll Highways, prior to FY 1977)"
+Regular Hwy-Direct Exp,RegHwy_Dir,-44,subtotal,RegHwy_Dir,Direct expenditure
+Regular Hwy-Cap Outlay,RegHwy_Cap,DDD,derived,RegHwy_Cap,Capital outlays
+Regular Hwy-Construct,F44,F44,item,RegHwy_Con,Construction
+Regular Hwy-IG To Sta,L44,L44,item,RegHwy_IGS,To state government
+Regular Hwy-IG-Loc Govts,M44,M44,item,RegHwy_IGL,"To local governments, total (includes N44, O44, P44, and R44)"
+Toll Hwy-Total Expend,TolHwy_Tot,-45,subtotal,TolHwy_Tot,"Toll Highways, Total  (included in Regular Highways prior to FY 1977)"
+Toll Hwy-Cap Outlay,TolHwy_Cap,DDD,derived,TolHwy_Cap,Capital outlays
+Toll Hwy-Construction,F45,F45,item,TolHwy_Con,Construction
+Transit Sub-Total Exp,TranSb_Tot,-47,subtotal,TranSb_Tot,"Transit Subsidies, Total"
+Transit Sub-Direct Sub,E47,E47,item,TranSb_Dir,Direct subsidies to private transit companies
+Transit Sub-IG To Sta,L47,L47,item,TranSb_IGS,To state government (includes L94)
+Transit Sub-IG-Loc Govts,M47,M47,item,TranSb_IGL,"To local governments, total (includes N47, O47, P47, R47, and M94)"
+Transit Sub-To Own Sys,Z61,Z61,item,TranSb_Own,Exhibit: Contribution to own transit system
+Hous & Com-Total Exp,HoCD_Tot,-50,subtotal,HoCD_Tot,"Housing and Community Development, Total"
+Hous & Com-Direct Exp,HoCD_Dir,-50,subtotal,HoCD_Dir,Direct expenditure
+Hous & Com-Cap Outlay,HoCD_Cap,DDD,derived,HoCD_Cap,Capital outlays
+Hous & Com-Construct,F50,F50,item,HoCD_Con,Construction
+Hous & Com-IG To State,L50,L50,item,HoCD_IGS,To state government
+Hous & Com-IG-Loc Govts,M50,M50,item,HoCD_IGL,"To local governments, total (includes N50, O50, P50, and R50)"
+Libraries-Total Expend,Libry_Tot,-52,subtotal,Libry_Tot,"Libraries, Total"
+Libraries-Direct Exp,Libry_Dir,-52,subtotal,Libry_Dir,Direct expenditure
+Libraries-Cap Outlay,Libry_Cap,DDD,derived,Libry_Cap,Capital outlays
+Libraries-Construction,F52,F52,item,Libry_Con,Construction
+Libraries-IG To State,L52,L52,item,Libry_IGS,To state government
+Libraries-IG-Local Govts,M52,M52,item,Libry_IGL,"To local governments, total (includes N52, O52, P52, and R52)"
+Natural Res-Total Exp,NatRes_Tot,-59,subtotal,NatRes_Tot,"Natural Resources, Total"
+Natural Res-Direct Exp,NatRes_Dir,-59,subtotal,NatRes_Dir,Direct expenditure
+Natural Res-Cap Outlay,NatRes_Cap,DDD,derived,NatRes_Cap,Capital outlays
+Natural Res-Construct,F59,F59,item,NatRes_Con,Construction
+Natural Res-IG To Sta,L59,L59,item,NatRes_IGS,To state government
+Natural Res-IG-Loc Govts,M59,M59,item,NatRes_IGL,"To local governments, total (includes N59, O59, P59, and R59)"
+Parking-Total Expend,Parkg_Tot,-60,subtotal,Parkg_Tot,"Parking Facilities, Total"
+Parking-Direct Expend,Parkg_Dir,-60,subtotal,Parkg_Dir,Direct expenditure
+Parking-Capital Outlay,Parkg_Cap,DDD,derived,Parkg_Cap,Capital outlays
+Parking-Construction,F60,F60,item,Parkg_Con,Construction
+Parking-IG-To State,L60,L60,item,Parkg_IGS,To state government
+Parking-IG-Local Govts,M60,M60,item,Parkg_IGL,"To local governments, total (includes N60, O60, P60, and R60)"
+Parks & Rec-Total Exp,PrkRec_Tot,-61,subtotal,PrkRec_Tot,"Parks and Recreation, Total"
+Parks & Rec-Direct Exp,PrkRec_Dir,-61,subtotal,PrkRec_Dir,Direct expenditure
+Parks & Rec-Cap Outlay,PrkRec_Cap,DDD,derived,PrkRec_Cap,Capital outlays
+Parks & Rec-Construct,F61,F61,item,PrkRec_Con,Construction
+Parks & Rec-IG To Sta,L61,L61,item,PrkRec_IGS,To state government
+Parks & Rec-IG-Loc Govts,M61,M61,item,PrkRec_IGL,"To local governments, total (includes N61, O61, P61, and R61)"
+Police Prot-Total Exp,Police_Tot,-62,subtotal,Police_Tot,"Police Protection, Total"
+Police Prot-Direct Exp,Police_Dir,-62,subtotal,Police_Dir,Direct expenditure
+Police Prot-Cap Outlay,Police_Cap,DDD,derived,Police_Cap,Capital outlays
+Police Prot-Construct,F62,F62,item,Police_Con,Construction
+Police Prot-IG To Sta,L62,L62,item,Police_IGS,To state government
+Police Prot-IG-Loc Govts,M62,M62,item,Police_IGL,"To local governments, total (includes N62, O62, P62, and R62)"
+Prot Insp-Total Exp,ProtRg_Tot,-66,subtotal,ProtRg_Tot,"Protective Inspection and Regulation, NEC"
+Prot Insp-Direct Exp,ProtRg_Dir,-66,subtotal,ProtRg_Dir,Direct expenditure
+Prot Insp-Cap Outlay,ProtRg_Cap,DDD,derived,ProtRg_Cap,Capital outlays
+Prot Insp-Construction,F66,F66,item,ProtRg_Con,Construction
+Prot Insp-IG To State,L66,L66,item,ProtRg_IGS,To state government
+Prot Insp-IG-Local Govts,M66,M66,item,ProtRg_IGL,"To local governments, total (includes N66, O66, P66, and R66)"
+Public Welf-Total Exp,Welf_Tot,DDD,derived,Welf_Tot,"Public Welfare, Total"
+Public Welf-Direct Exp,Welf_Dir,DDD,derived,Welf_Dir,Direct Expenditure
+Public Welf-Cash Asst,Welf_Asst,DDD,derived,Welf_Asst,Cash assistance payments
+Public Welf-Cap Outlay,Welf_Cap,DDD,derived,Welf_Cap,Capital outlays
+Public Welf-Construct,Welf_Con,DDD,derived,Welf_Con,Construction
+Welf-Categ-Total Exp,Wel_Ct_Tot,-67,subtotal,Wel_Ct_Tot,"Public Welfare-Categorical Assistance Programs, Total"
+Welf-Categ-Cash Assist,E67,E67,item,Wel_Ct_AS,Cash assistance payments
+Welf-Categ-IG To State,L67,L67,item,Wel_Ct_IGS,To state government
+Welf-Categ-IG-Loc Govts,M67,M67,item,Wel_Ct_IGL,"To local governments, total (includes N67, O67, P67, and R67)"
+Welf-Cash-Total Exp,Wel_Cs_Tot,-68,subtotal,Wel_Cs_Tot,"Public Welfare-Other Assistance Programs, Total"
+Welf-Cash-Cash Assist,E68,E68,item,Wel_Cs_AS,Cash assistance payments
+Welf-Cash-IG-Local Govts,M68,M68,item,Wel_Cs_IGL,"To local governments, total (includes N68, O68, P68, and R68)"
+Welf-Vend Pmts-Medical,E74,E74,item,Wel_Vn_Med,For medical care
+Welf-Vend Pmts-NEC,E75,E75,item,Wel_Vn_NEC,For other purposes
+Welf-State Share Part D,S74,S74,item,Welf_PartD,State share of Medicare Part D (prescription drug coverage)
+Welf-Ins-Total Exp,Wel_In_Tot,-77,subtotal,Wel_In_Tot,"Public Welfare-Institutions, Total"
+Welf-Ins-Cap Outlay,Wel_In_Cap,DDD,derived,Wel_In_Cap,Capital outlays
+Welf-Ins-Construction,F77,F77,item,Wel_In_Con,Construction
+Welf-NEC-Total Expend,OthWel_Tot,-79,subtotal,OthWel_Tot,"Public Welfare-NEC, Total"
+Welf-NEC-Direct Expend,OthWel_Dir,-79,subtotal,OthWel_Dir,Direct expenditure
+Welf-NEC-Cap Outlay,OthWel_Cap,DDD,derived,OthWel_Cap,Capital outlays
+Welf-NEC-Construction,F79,F79,item,OthWel_Con,Construction
+Welf-NEC-IG To State,L79,L79,item,OthWel_IGS,To state government
+Welf-NEC-IG-Local Govts,M79,M79,item,OthWel_IGL,"To local governments, total (includes N79, O79, P79, and R79)"
+Sewerage-Total Expend,Sewer_Tot,-80,subtotal,Sewer_Tot,"Sewerage, Total"
+Sewerage-Direct Expend,Sewer_Dir,-80,subtotal,Sewer_Dir,Direct expenditure
+Sewerage-Cap Outlay,Sewer_Cap,DDD,derived,Sewer_Cap,Capital outlays
+Sewerage-Construction,F80,F80,item,Sewer_Con,Construction
+Sewerage-IG To State,L80,L80,item,Sewer_IGS,To state government
+Sewerage-IG-Local Govts,M80,M80,item,Sewer_IGL,"To local governments, total (includes N80, O80, P80, and R80)"
+SW Mgmt-Total Expend,SWMgmt_Tot,-81,subtotal,SWMgmt_Tot,"Solid Waste Management, Total"
+SW Mgmt-Direct Expend,SWMgmt_Dir,-81,subtotal,SWMgmt_Dir,Direct expenditure
+SW Mgmt-Capital Outlay,SWMgmt_Cap,DDD,derived,SWMgmt_Cap,Capital outlays
+SW Mgmt-Construction,F81,F81,item,SWMgmt_Con,Construction
+SW Mgmt-IG To State,L81,L81,item,SWMgmt_IGS,To state government
+SW Mgmt-IG-Local Govts,M81,M81,item,SWMgmt_IGL,"To local governments, total (includes N81, O81, P81, and R81)"
+Water Trans-Total Exp,WatTrn_Tot,-87,subtotal,WatTrn_Tot,Sea and Inland Port Facilities
+Water Trans-Direct Exp,WatTrn_Dir,-87,subtotal,WatTrn_Dir,Direct expenditure
+Water Trans-Cap Outlay,WatTrn_Cap,DDD,derived,WatTrn_Cap,Capital outlays
+Water Trans-Construct,F87,F87,item,WatTrn_Con,Construction
+Water Trans-IG To Sta,L87,L87,item,WatTrn_IGS,To state government
+Water Trans-IG-Loc Govts,M87,M87,item,WatTrn_IGL,"To local governments, total (includes N87, O87, P87, and R87)"
+Interest on Gen Debt,interest_on_gen_debt,I89,item,GenIntExp,Interest on General Debt
+General NEC-Total Exp,GenNEC_Tot,-89,subtotal,GenNEC_Tot,"General Expenditure NEC, Total (includes any amounts for codes -84 & -85)"
+General NEC-Direct Exp,GenNEC_Dir,-89,subtotal,GenNEC_Dir,Direct expenditure
+VetBonus,J85,J85,item,VetBonus,Assistance and subsidies
+General NEC-Cap Outlay,GenNEC_Cap,DDD,derived,GenNEC_Cap,Capital outlays
+General NEC-Construct,F89,F89,item,GenNEC_Con,Construction
+General NEC-IG To St,L89,L89,item,GenNEC_IGS,"To state government (includes L91, L92, and L93)"
+General NEC-IG-Loc Govts,M89,M89,item,GenNEC_IGL,"To local governments, total (incl N89, O89, P89, R89, M91, M92, and M93)"
+General NEC-IG To Fed,S89,S89,item,GenNEC_IGF,To Federal Government
+Liquor Stores-Tot Exp,LiqStr_Tot,-90,subtotal,LiqStr_Tot,"Liquor Stores, Total"
+Liquor Stores-Cap Out,LiqStr_Cap,DDD,derived,LiqStr_Cap,Capital outlays
+Liquor Stores-Constr,F90,F90,item,LiqStr_Con,Construction
+Total Util-Total Exp,Util_Tot,DDD,derived,Util_Tot,"Total Utilities, Total"
+Total Util-Inter Exp,Util_Int,DDD,derived,Util_Int,Interest on debt
+Total Util-Cap Outlay,Util_Cap,DDD,derived,Util_Cap,Capital outlays
+Total Util-Construct,Util_Con,DDD,derived,Util_Con,Construction
+Water Util-Total Exp,WatUtl_Tot,-91,subtotal,WatUtl_Tot,"Water Supply Utilities, Total"
+Water Util-Inter Exp,I91,I91,item,WatUtl_Int,Interest on debt
+Water Util-Cap Outlay,WatUtl_Cap,DDD,derived,WatUtl_Cap,Capital outlays
+Water Util-Construct,F91,F91,item,WatUtl_Con,Construction
+Elec Util-Total Exp,EleUtl_Tot,-92,subtotal,EleUtl_Tot,"Electric Power Utilities, Total"
+Elec Util-Inter Exp,I92,I92,item,EleUtl_Int,Interest on debt
+Elec Util-Cap Outlay,EleUtl_Cap,DDD,derived,EleUtl_Cap,Capital outlays
+Elec Util-Construct,F92,F92,item,EleUtl_Con,Construction
+Gas Util-Total Exp,GasUtl_Tot,-93,subtotal,GasUtl_Tot,"Gas Supply Utilities, Total"
+Gas Util-Inter Exp,I93,I93,item,GasUtl_Int,Interest on debt
+Gas Util-Cap Outlay,GasUtl_Cap,DDD,derived,GasUtl_Cap,Capital outlays
+Gas Util-Construct,F93,F93,item,GasUtl_Con,Construction
+Trans Util-Total Exp,TrnUtl_Tot,-94,subtotal,TrnUtl_Tot,"Transit System Utilities, Total"
+Trans Util-Inter Exp,I94,I94,item,TrnUtl_Int,Interest on debt
+Trans Util-Cap Outlay,TrnUtl_Cap,DDD,derived,TrnUtl_Cap,Capital outlays
+Trans Util-Construct,F94,F94,item,TrnUtl_Con,Construction
+Emp Ret-Total Expend,EmpRet_Tot,DDD,derived,EmpRet_Tot,"Employee Retirement, Total"
+Emp Ret-Benefit Paymts,X11,X11,item,EmpRet_Ben,Benefit payments
+Emp Ret-Withdrawals,X12,X12,item,EmpRet_Wit,Withdrawals
+Emp Ret-Other Paymts,X14,X14,item,EmpRet_Oth,Other payments (Exhibit item-not included in C995)
+Unemp Comp-Total Exp,Unemp_Tot,DDD,derived,Unemp_Tot,"Unemployment Compensation, Total (Washington DC only for local govts)"
+Unemp Comp-Ben Paymts,Y05,Y05,item,Unemp_Ben,Benefit payments
+Unemp-Ext & Spec Pmts,Y06,Y06,item,Unemp_Ext,Extended and special payments
+Total Debt Outstanding,TotDebtOS,DDD,derived,TotDebtOS,Total Debt Outstanding at End of Fiscal Year
+Total Long-Term Debt Out,LTDebtOS,DDD,derived,LTDebtOS,Long-term only
+ST Debt-End of Year,64V,64V,item,ST_DebtOS,Short-term only
+Total Beg LTD Out,BegOS_Tot,19-,subtotal,BegOS_Tot,Total
+Beg LTD Out-Private Purp,beg_ltd_out_private_purp,19T,item,BegOS_PDPP,Public debt for private purposes (N/A before FY 1982)
+Beg LTD Out-All Other,19U,19U,item,BegOS_Oth,"All other general functions, NEC"
+Beg LTD Out-Utility,BegOS_Utl,DDD,derived,BegOS_Utl,"Utilities, total"
+Beg LTD Out-Water Util,19A,19A,item,BegOS_Wat,Water supply
+Beg LTD Out-Elec Util,19B,19B,item,BegOS_Ele,Electric power
+Beg LTD Out-Gas Util,19C,19C,item,BegOS_Gas,Gas supply
+Beg LTD Out-Trans Util,19D,19D,item,BegOS_Trn,Transit systems
+Beg LTD Out-General,BegOS_Gen,DDD,derived,BegOS_Gen,"General, total"
+Beg LTD Out-Education,19H,19H,item,BegOS_Ed,"Education, NEC"
+Beg LTD Out-Priv Purp,beg_ltd_out_priv_purp,19T,item,BegOS_PDPP,Public debt for private purposes (includes 19W)
+Beg LTD Out-Other NEC,19X,19X,item,BegOS_NEC,"All other general functions, NEC"
+Total LTD Issued,TotIss_Tot,2--,subtotal,TotIss_Tot,Total
+LTD Iss-Private Purp,ltd_iss_private_purp,24T,item,TotIssPDPP,Public debt for private purposes (N/A before FY 1982)
+LTD Iss-All Other,29U,29U,item,TotIss_Oth,"All other general functions, NEC"
+LTD Iss-Utility,TotIss_Utl,DDD,derived,TotIss_Utl,"Utilities, total"
+LTD Iss-Util-Water,TotIss_Wat,2-A,subtotal,TotIss_Wat,Water supply
+LTD Iss-Util-Electric,TotIss_Ele,2-B,subtotal,TotIss_Ele,Electric power
+LTD Iss-Util-Gas Supply,TotIss_Gas,2-C,subtotal,TotIss_Gas,Gas supply
+LTD Iss-Util-Transit,TotIss_Trn,2-D,subtotal,TotIss_Trn,Transit systems
+LTD Iss-General,TotIss_Gen,DDD,derived,TotIss_Gen,"General, total"
+LTD Iss-Gen-Elem Educ,TotIss_ES,2-F,subtotal,TotIss_ES,Elementary and secondary education
+LTD Iss-Gen-Other Educ,TotIss_OEd,2-G,subtotal,TotIss_OEd,Higher and other education (includes 2-H)
+LTD Iss-Gen-Other NEC,TotIss_NEC,2-X,subtotal,TotIss_NEC,"All other general functions, NEC (includes 24T)"
+Total LTD Iss-FFC,FFCIss_Tot,21/29-,subtotal,FFCIss_Tot,Total
+LTD Iss-FFC-Utility,FFCIss_Utl,DDD,derived,FFCIss_Utl,"Utilities, total"
+LTD Iss-FFC-Water Util,FFCIss_Wat,21/29A,derived,FFCIss_Wat,Water supply
+LTD Iss-FFC-Elec Util,FFCIss_Ele,21/29B,derived,FFCIss_Ele,Electric power
+LTD Iss-FFC-Gas Util,FFCIss_Gas,21/29C,derived,FFCIss_Gas,Gas supply
+LTD Iss-FFC-Trans Util,FFCIss_Trn,21/29D,derived,FFCIss_Trn,Transit systems
+LTD Iss-FFC-General,FFCIss_Gen,DDD,derived,FFCIss_Gen,"General, total"
+LTD Iss-FFC-Elem Educ,FFCIss_ES,21/29F,derived,FFCIss_ES,Elementary and secondary education
+LTD Iss-FFC-Other Educ,FFCIss_OEd,21/29G,derived,FFCIss_OEd,Higher and other education (includes 21/29H)
+LTD Iss-FFC-Other NEC,FFCIss_NEC,21/29X,derived,FFCIss_NEC,"All other general functions, NEC"
+Total LTD Iss-NG,NGIss_Tot,24-,subtotal,NGIss_Tot,Total
+LTD Iss-NG-Utility,NGIss_Util,DDD,derived,NGIss_Util,"Utilities, total"
+LTD Iss-NG-Water Util,24A,24A,item,NGIss_Wat,Water supply
+LTD Iss-NG-Elec Util,24B,24B,item,NGIss_Ele,Electric power
+LTD Iss-NG-Gas Util,24C,24C,item,NGIss_Gas,Gas supply
+LTD Iss-NG-Trans Util,24D,24D,item,NGIss_Trn,Transit systems
+LTD Iss-NG-General,NGIss_Gen,DDD,derived,NGIss_Gen,"General, total"
+LTD Iss-NG-Elem Educ,24F,24F,item,NGIss_ES,Elementary and secondary education
+LTD Iss-NG-Other Educ,24G,24G,item,NGIss_OtEd,Higher and other education (includes 24H)
+LTD Iss-NG-Private Purp,ltd_iss_ng_private_purp,24T,item,NGIss_PDPP,Public debt for private purposes (includes 24W)
+LTD Iss-NG-Other NEC,24X,24X,item,NGIss_NEC,"All other general functions, NEC"
+Total LTD Iss-Unsp,UnsIss_Tot,29-,subtotal,UnsIss_Tot,Total
+LTD Iss-Unsp-Utility,UnsIss_Utl,DDD,derived,UnsIss_Utl,"Utilities, total"
+LTD Iss-Unsp-Water Util,29A,29A,item,UnsIss_Wat,Water supply
+LTD Iss-Unsp-Elec Util,29B,29B,item,UnsIss_Ele,Electric power
+LTD Iss-Unsp-Gas Util,29C,29C,item,UnsIss_Gas,Gas supply
+LTD Iss-Unsp-Trans Util,29D,29D,item,UnsIss_Trn,Transit systems
+LTD Iss-Unsp-General,UnsIss_Gen,DDD,derived,UnsIss_Gen,"General, total"
+LTD Iss-Unsp-Elem Educ,29F,29F,item,UnsIss_ES,Elementary and secondary education
+LTD Iss-Unsp-Other Educ,29G,29G,item,UnsIss_OEd,Higher and other education (includes 29H)
+LTD Iss-Unsp-Other NEC,29X,29X,item,UnsIss_NEC,"All other general functions, NEC"
+Total LTD Retired,TotRet_Tot,3--,subtotal,TotRet_Tot,Total
+LTD Ret-Private Purp,ltd_ret_private_purp,34T,item,TotRetPDPP,Public debt for private purposes (N/A before FY 1982)
+LTD Ret-All Other,39U,39U,item,TotRet_Oth,"All other general functions, NEC"
+LTD Ret-Utility,TotRet_Utl,DDD,derived,TotRet_Utl,"Utilities, total"
+LTD Ret-Util-Water,TotRet_Wat,3-A,subtotal,TotRet_Wat,Water supply
+LTD Ret-Util-Electric,TotRet_Ele,3-B,subtotal,TotRet_Ele,Electric power
+LTD Ret-Util-Gas Supply,TotRet_Gas,3-C,subtotal,TotRet_Gas,Gas supply
+LTD Ret-Util-Transit,TotRet_Trn,3-D,subtotal,TotRet_Trn,Transit systems
+LTD Ret-General,TotRet_Gen,DDD,derived,TotRet_Gen,"General, total"
+LTD Ret-Gen-Elem Educ,TotRet_ES,3-F,subtotal,TotRet_ES,Elementary and secondary education
+LTD Ret-Gen-Other Educ,TotRet_OEd,3-G,subtotal,TotRet_OEd,Higher and other education (includes 3-H)
+LTD Ret-Gen-Other NEC,TotRet_NEC,3-X,subtotal,TotRet_NEC,"All other general functions, NEC (includes 34T)"
+Total LTD Ret-FFC,FFCRet_Tot,31/39-,subtotal,FFCRet_Tot,Total
+LTD Ret-FFC-Utility,FFCRet_Utl,DDD,derived,FFCRet_Utl,"Utilities, total"
+LTD Ret-FFC-Water Util,FFCRet_Wat,31/39A,derived,FFCRet_Wat,Water supply
+LTD Ret-FFC-Elec Util,FFCRet_Ele,31/39B,derived,FFCRet_Ele,Electric power
+LTD Ret-FFC-Gas Util,FFCRet_Gas,31/39C,derived,FFCRet_Gas,Gas supply
+LTD Ret-FFC-Trans Util,FFCRet_Trn,31/39D,derived,FFCRet_Trn,Transit systems
+LTD Ret-FFC-General,FFCRet_Gen,DDD,derived,FFCRet_Gen,"General, total"
+LTD Ret-FFC-Elem Educ,FFCRet_ES,31/39F,derived,FFCRet_ES,Elementary and secondary education
+LTD Ret-FFC-Other Educ,FFCRet_OEd,31/39G,derived,FFCRet_OEd,Higher and other education (includes 31/39H)
+LTD Ret-FFC-Other NEC,FFCRet_NEC,31/39X,derived,FFCRet_NEC,"All other general functions, NEC"
+Total LTD Ret-NG,NGRet_Tot,34-,subtotal,NGRet_Tot,Total
+LTD Ret-NG-Utility,NGRet_Util,DDD,derived,NGRet_Util,"Utilities, total"
+LTD Ret-NG-Water Util,34A,34A,item,NGRet_Wat,Water supply
+LTD Ret-NG-Elec Util,34B,34B,item,NGRet_Ele,Electric power
+LTD Ret-NG-Gas Util,34C,34C,item,NGRet_Gas,Gas supply
+LTD Ret-NG-Trans Util,34D,34D,item,NGRet_Trn,Transit systems
+LTD Ret-NG-General,NGRet_Gen,DDD,derived,NGRet_Gen,"General, total"
+LTD Ret-NG-Elem Educ,34F,34F,item,NGRet_ES,Elementary and secondary education
+LTD Ret-NG-Other Educ,34G,34G,item,NGRet_OtEd,Higher and other education (includes 34H)
+LTD Ret-NG-Private Purp,ltd_ret_ng_private_purp,34T,item,NGRet_PDPP,Public debt for private purposes (includes 34W)
+LTD Ret-NG-Other NEC,34X,34X,item,NGRet_NEC,"All other general functions, NEC"
+Total LTD Ret-Unsp,UnsRet_Tot,39-,subtotal,UnsRet_Tot,Total
+LTD Ret-Unsp-Utility,UnsRet_Utl,DDD,derived,UnsRet_Utl,"Utilities, total"
+LTD Ret-Unsp-Water Util,39A,39A,item,UnsRet_Wat,Water supply
+LTD Ret-Unsp-Elec Utili,39B,39B,item,UnsRet_Ele,Electric power
+LTD Ret-Unsp-Gas Util,39C,39C,item,UnsRet_Gas,Gas supply
+LTD Ret-Unsp-Trans Util,39D,39D,item,UnsRet_Trn,Transit systems
+LTD Ret-Unsp-General,UnsRet_Gen,DDD,derived,UnsRet_Gen,"General, total"
+LTD Ret-Unsp-Elem Educ,39F,39F,item,UnsRet_ES,Elementary and secondary education
+LTD Ret-Unsp-Other Educ,39G,39G,item,UnsRet_OEd,Higher and other education (includes 39H)
+LTD Ret-Unsp-Other NEC,39X,39X,item,UnsRet_NEC,"All other general functions, NEC"
+Total LTD Out,TotOut_Tot,DDD,derived,TotOut_Tot,Total
+LTD Out-Private Purp,ltd_out_private_purp,44T,item,LTDOutPDPP,Public debt for private purposes (N/A before FY 1982)
+LTD Out-All Other,49U,49U,item,LTDOut_Oth,"All other general functions, NEC"
+Total LTD Out-Utility,TotOut_Utl,DDD,derived,TotOut_Utl,"Utilities, total"
+LTD Out-Util-Water,TotOut_Wat,4-A,subtotal,TotOut_Wat,Water supply
+LTD Out-Util-Electric,TotOut_Ele,4-B,subtotal,TotOut_Ele,Electric power
+LTD Out-Util-Gas Supply,TotOut_Gas,4-C,subtotal,TotOut_Gas,Gas supply
+LTD Out-Util-Transit,TotOut_Trn,4-D,subtotal,TotOut_Trn,Transit systems
+LTD Out-General,TotOut_Gen,DDD,derived,TotOut_Gen,"General, total"
+LTD Out-Gen-Elem Educ,TotOut_ES,4-F,subtotal,TotOut_ES,Elementary and secondary education
+LTD Out-Gen-Other Educ,TotOut_OEd,4-G,subtotal,TotOut_OEd,Higher and other education (includes 4-H)
+LTD Out-Gen-Other NEC,TotOut_NEC,4-X,subtotal,TotOut_NEC,"All other general functions, NEC (includes 44T)"
+Total LTD Out-FFC,FFCOut_Tot,41-,subtotal,FFCOut_Tot,Total
+LTD Out-FFC-Utility,FFCOut_Utl,DDD,derived,FFCOut_Utl,"Utilities, total"
+LTD Out-FFC-Water Util,41A,41A,item,FFCOut_Wat,Water supply
+LTD Out-FFC-Elec Util,41B,41B,item,FFCOut_Ele,Electric power
+LTD Out-FFC-Gas Util,41C,41C,item,FFCOut_Gas,Gas supply
+LTD Out-FFC-Trans Util,41D,41D,item,FFCOut_Trn,Transit systems
+LTD Out-FFC-General,FFCOut_Gen,DDD,derived,FFCOut_Gen,"General, total"
+LTD Out-FFC-Elem Educ,41F,41F,item,FFCOut_ES,Elementary and secondary education
+LTD Out-FFC-Other Educ,41G,41G,item,FFCOut_OEd,Higher and other education (includes 41H)
+LTD Out-FFC-Other NEC,41X,41X,item,FFCOut_NEC,"All other general functions, NEC"
+Tot LTD Out-NG,NGOut_Tot,44-,subtotal,NGOut_Tot,Total
+LTD Out-NG-Utility,NGOut_Util,DDD,derived,NGOut_Util,"Utilities, total"
+LTD Out-NG-Water Util,44A,44A,item,NGOut_Wat,Water supply
+LTD Out-NG-Elec Util,44B,44B,item,NGOut_Ele,Electric power
+LTD Out-NG-Gas Util,44C,44C,item,NGOut_Gas,Gas supply
+LTD Out-NG-Trans Util,44D,44D,item,NGOut_Trn,Transit systems
+LTD Out-NG-General,NGOut_Gen,DDD,derived,NGOut_Gen,"General, total"
+LTD Out-NG-Elem Educ,44F,44F,item,NGOut_ES,Elementary and secondary education
+LTD Out-NG-Other Educ,44G,44G,item,NGOut_OtEd,Higher and other education (includes 44H)
+LTD Out-NG-Private Purp,ltd_out_ng_private_purp,44T,item,NGOut_PDPP,Public debt for private purposes (includes 44W)
+LTD Out-NG-Other NEC,44X,44X,item,NGOut_NEC,"All other general functions, NEC"
+Total Cash & Securities,TotCashSec,DDD,derived,TotCashSec,All Funds Cash and Securities (insurance and noninsurance)
+Insur Trust-Cash & Sec,InsTr_CSc,DDD,derived,InsTr_CSc,"Insurance Trust Funds Only Cash and Securities, Total"
+Emp Retire-Cash & Sec,EmpR_CSc,X--,subtotal,EmpR_CSc,Total cash and securities
+Emp Retire-Cash & Dep,X21,X21,item,EmpR_Cash,Cash and deposits
+Emp Retire-Total Sec,EmpR_TotSc,DDD,derived,EmpR_TotSc,"Securities, total"
+Emp Retire-Sec-Tot Fed,EmpR_FdSec,DDD,derived,EmpR_FdSec,"Federal securities, total (Note: Includes  X30 and X33)"
+Emp Retire-Sec-S&L Secur,X35,X35,item,EmpR_SLSec,State & local govt (Note: Included in X44 after FY87)
+Emp Retire-Sec-Tot Nong,EmpR_NonGv,DDD,derived,EmpR_NonGv,"Nongovernmental securities, NEC"
+Emp Retire-Sec-Corp Bds,X40,X40,item,EmpR_CpBds,Corporate bonds
+Emp Retire-Sec-Corp Stk,X41,X41,item,EmpR_CpStk,Corporate stock
+Emp Retire-Sec-Mortgages,X42,X42,item,EmpR_Mortg,Mortgages
+Emp Retire-Sec-Misc Inv,X47,X47,item,EmpR_Misc,Miscellaneous investments (Note: Added in FY 88)
+Emp Retire-Sec-Oth Nong,X44,X44,item,EmpR_Other,Other (includes X35 after FY 87)
+Unemp Comp-Cash & Sec,Unemp_CSc,DDD,derived,Unemp_CSc,Total cash and securities
+Unemp Comp-Bal In US Trs,Y07,Y07,item,Unemp_Bal,Balance held in U.S. Treasury
+Unemp Comp-Other Balance,Y08,Y08,item,Unemp_Oth,Other balances (can be positive or negative)
+Nonin Trust-Cash & Sec,NonIns_CSc,DDD,derived,NonIns_CSc,"Other Than Insurance Trusts Holdings Cash and Securities, Total"
+Sinking Fd-Cash & Sec,Sink_CSc,DDD,derived,Sink_CSc,Sinking Funds (debt service funds) Cash and Securities
+Bond Fd-Cash & Sec,Bond_CSc,DDD,derived,Bond_CSc,Bond Funds Cash and Securities
+Oth Nonin Fd-Cash & Sec,Other_CSc,DDD,derived,Other_CSc,All Other Noninsurance Funds Cash and Securities
