@@ -139,12 +139,6 @@ class constants(Enum):
         "SP": ["sp_despesa"],
     }
 
-    # Only Minas Gerais and Pernambuco publish per-exercise files, so only they can
-    # be refreshed for the current year alone. Bahia ships whole-dataset ZIPs and
-    # São Paulo is queried per (exercise, órgão), so BA re-downloads everything and
-    # SP re-scrapes just the open exercise.
-    YEARLY_SOURCES = {"MG", "PE"}
-
     # São Paulo's SIGEO is a WebForms scrape at roughly 36 s per (exercise, órgão).
     # One exercise is ~32 queries, about twenty minutes; all seventeen took five
     # hours. That is why SP has its own weekly flow instead of riding the daily one.
