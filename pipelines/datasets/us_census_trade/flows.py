@@ -139,16 +139,25 @@ def us_census_trade_flow(
         # against the table's registered coverage, at month granularity, so the
         # comparison is like-for-like: a year-granular date against a
         # month-granular coverage silently degrades this to an annual pipeline.
-        has_new_data = poll_source_for_update_task(
-            dataset_id=DATASET_ID,
-            table_id=POLL_TABLE,
-            source_max_date=latest,
-            env="prod",
-            date_format="%Y-%m",
-            compare_against="coverage",
-        )
-        if not has_new_data and not force_run:
-            return
+        #
+        # The poll is skipped entirely on a forced run. It reads and writes the
+        # PROD backend, and a forced run is precisely the case where prod may
+        # not know this dataset yet -- the first dev run, before the onboarding
+        # PR has merged. Polling then fails on a table it cannot resolve, for an
+        # answer the run has already decided to ignore.
+        if force_run:
+            print("force_run: skipping the source poll")
+        else:
+            has_new_data = poll_source_for_update_task(
+                dataset_id=DATASET_ID,
+                table_id=POLL_TABLE,
+                source_max_date=latest,
+                env="prod",
+                date_format="%Y-%m",
+                compare_against="coverage",
+            )
+            if not has_new_data:
+                return
 
         start = first_month or refresh_window(latest)
         print(f"refreshing {start}..{latest} for {selected}")
