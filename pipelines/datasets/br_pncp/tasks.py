@@ -62,14 +62,37 @@ def clean_window(work_dir: str, input_dir: str, table: str) -> dict:
 
 @task
 def max_publication_date(summaries: list[dict]) -> str:
-    """Latest publication year present in this run, as ``YYYY-01-01``.
+    """Latest partition date present in this run, as ``YYYY-MM-DD``.
 
     PNCP is a continuously-updated register with no release calendar, so there
     is no "new period published" signal comparable to a monthly statistical
-    release. The source's coverage therefore advances by publication year, which
-    is the granularity the coverage metadata records.
+    release. What stands in for one is the latest date the run actually saw --
+    `data_publicacao` for the procurement tables, `data_inclusao` for
+    instrumento_cobranca (`utils.PARTITION_SOURCE`).
+
+    **This must be a day, not a year.** The value is handed to
+    `poll_source_for_update_task(..., compare_against="coverage")`, which tests
+    ``source_max > Coverage.DateTimeRange`` -- and that range is day-granular,
+    because `register_table_materialization_task` reads the real max date out
+    of BigQuery. This used to return ``f"{max(years)}-01-01"``, so from the
+    first materialization onward the comparison was a January 1st against a
+    mid-year date and could not be true again until the next calendar year. The
+    prod run of 2026-09-09 harvested 151,488 records, compared 2026-01-01
+    against a coverage of 2026-08-28, concluded there was nothing new, and
+    exited Completed having ingested none of it. A year-granular value here
+    silently converts a daily pipeline into an annual one.
+
+    The max is taken across every fact table rather than contratacao alone,
+    matching what the poll is asking: whether the *source* has anything newer
+    than what is published. That errs toward materializing, which is the safe
+    direction for this comparison -- a needless run costs time, a skipped one
+    loses a day of data.
     """
-    years = [int(y) for s in summaries for y in (s.get("years") or [])]
-    if not years:
-        return f"{constants.START_YEAR.value}-01-01"
-    return f"{max(years)}-01-01"
+    dates = [
+        d for s in summaries if (d := s.get("max_partition_date")) is not None
+    ]
+    if dates:
+        return max(dates)
+    # No dated record in this run. Fall back to the year floor, which is older
+    # than any registered coverage and therefore reads as "nothing new".
+    return f"{constants.START_YEAR.value}-01-01"
