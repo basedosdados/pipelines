@@ -388,7 +388,12 @@ def yaml_block(text: str, indent: str) -> str:
     """Render a description as a folded YAML block scalar.
 
     A bare scalar breaks on any colon in a continuation line, which several of
-    these descriptions have.
+    these descriptions have. The chomping indicator matters: plain ``>`` keeps
+    one trailing newline, which dbt then writes into the BigQuery column
+    description, so the published description differs from the API's by a
+    trailing ``\n``. The `check-metadata` CI job compares exactly those two and
+    flagged every column of this dataset. ``>-`` strips it. 61 of the repo's
+    schema.yml files already use ``>-``.
 
     Args:
         text: The description.
@@ -406,7 +411,7 @@ def yaml_block(text: str, indent: str) -> str:
             cur = f"{cur} {w}".strip()
     lines.append(cur)
     body = "\n".join(f"{indent}{line}" for line in lines)
-    return ">\n" + body + "\n"
+    return ">-\n" + body + "\n"
 
 
 def schema_yml(ignore: dict[str, list[str]]) -> str:
