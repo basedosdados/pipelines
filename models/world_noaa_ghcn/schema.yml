@@ -1,0 +1,177 @@
+---
+version: 2
+models:
+  - name: world_noaa_ghcn__dicionario
+    description: >
+      Dicionário de códigos das colunas categóricas das demais tabelas:
+      elementos meteorológicos, sinalizadores de medição, qualidade e fonte, e
+      códigos de rede das estações.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: >
+          Nome da tabela
+        tests: [not_null]
+      - name: nome_coluna
+        description: >
+          Nome da coluna
+        tests: [not_null]
+      - name: chave
+        description: >
+          Chave
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >
+          Cobertura temporal
+      - name: valor
+        description: >
+          Valor
+        tests: [not_null]
+  - name: world_noaa_ghcn__observation
+    description: >
+      Observações diárias por estação e elemento, em formato longo, de 1950 em
+      diante. Restrita aos cinco elementos principais do GHCN-Daily: temperatura
+      máxima (TMAX), temperatura mínima (TMIN), precipitação (PRCP), queda de
+      neve (SNOW) e profundidade de neve (SNWD). Os valores já estão convertidos
+      para unidades padrão, indicadas por linha em measurement_unit. Observações
+      que reprovaram no controle de qualidade foram mantidas e estão marcadas em
+      quality_flag: filtre por quality_flag IS NULL para usar apenas dados
+      aprovados.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, station_id, date, element]
+          config:
+            where: __most_recent_year_en__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [measurement_flag, quality_flag, observation_time]
+          config:
+            where: __most_recent_year_en__
+    columns:
+      - name: year
+        description: >
+          Ano da observação
+        tests: [not_null]
+      - name: station_id
+        description: >
+          Código de identificação da estação no GHCN-Daily
+        tests: [not_null]
+      - name: date
+        description: >
+          Data da observação
+        tests: [not_null]
+      - name: element
+        description: >
+          Código do elemento meteorológico observado
+        tests: [not_null]
+      - name: value
+        description: >
+          Valor observado do elemento, convertido para a unidade padrão indicada em
+          measurement_unit
+        tests: [not_null]
+      - name: measurement_unit
+        description: >
+          Unidade de medida do valor observado nesta linha
+      - name: measurement_flag
+        description: >
+          Sinalizador de medição que qualifica como o valor foi obtido
+      - name: quality_flag
+        description: >
+          Sinalizador de qualidade que indica qual teste de controle de qualidade
+          a
+          observação reprovou
+      - name: source_flag
+        description: >
+          Sinalizador de fonte que identifica o conjunto de dados de origem do valor
+      - name: observation_time
+        description: >
+          Horário da observação no formato HHMM, hora local
+  - name: world_noaa_ghcn__station
+    description: >
+      Estações de superfície do GHCN-Daily, uma linha por estação, com
+      coordenadas, altitude, país, estado e identificador da Organização
+      Meteorológica Mundial.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [station_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - state_code
+            - state_name
+            - gsn_flag
+            - hcn_crn_flag
+            - wmo_id
+            - elevation
+    columns:
+      - name: station_id
+        description: >
+          Código de identificação da estação no GHCN-Daily
+        tests: [not_null]
+      - name: country_code
+        description: >
+          Código FIPS do país onde a estação está localizada
+      - name: country_name
+        description: >
+          Nome do país onde a estação está localizada
+      - name: network_code
+        description: >
+          Código da rede de numeração que atribuiu o identificador da estação
+      - name: state_code
+        description: >
+          Código postal do estado ou província, apenas para estações dos Estados
+          Unidos e do Canadá
+      - name: state_name
+        description: >
+          Nome do estado, território ou província
+      - name: station_name
+        description: >
+          Nome da estação
+      - name: latitude
+        description: >
+          Latitude da estação em graus decimais
+      - name: longitude
+        description: >
+          Longitude da estação em graus decimais
+      - name: elevation
+        description: >
+          Altitude da estação
+      - name: gsn_flag
+        description: >
+          Indica se a estação pertence à GCOS Surface Network
+      - name: hcn_crn_flag
+        description: >
+          Indica se a estação pertence à U.S. Historical Climatology Network ou à
+          U.S. Climate Reference Network
+      - name: wmo_id
+        description: >
+          Número da estação na Organização Meteorológica Mundial
+  - name: world_noaa_ghcn__station_element_inventory
+    description: >
+      Inventário de cobertura por estação e elemento, indicando o primeiro e o
+      último ano com dados não sinalizados. Cobre os 144 elementos registrados
+      pelo GHCN-Daily, inclusive os que não estão na tabela observation.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [station_id, element]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: station_id
+        description: >
+          Código de identificação da estação no GHCN-Daily
+        tests: [not_null]
+      - name: element
+        description: >
+          Código do elemento meteorológico medido
+        tests: [not_null]
+      - name: first_year
+        description: >
+          Primeiro ano com dados não sinalizados para o elemento na estação
+        tests: [not_null]
+      - name: last_year
+        description: >
+          Último ano com dados não sinalizados para o elemento na estação
+        tests: [not_null]
