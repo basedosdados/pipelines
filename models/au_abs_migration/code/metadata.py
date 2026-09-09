@@ -71,11 +71,27 @@ DATASET = {
     ),
     "organization_slugs": ["abs"],
     "theme_slugs": ["population", "government"],
-    "tag_slugs": ["migracao", "demografia", "cidadania", "mobilidade", "visa"],
+    # One entry per concept, English slug first. The vocabularies diverge by
+    # backend — prod carries migration/demographics/citizenship/mobility, while
+    # the older staging clone still has the Portuguese slugs — so each concept
+    # lists its known spellings and the first that exists wins.
+    "tag_slugs": [
+        ("migration", "migracao"),
+        ("demographics", "demografia"),
+        ("citizenship", "cidadania"),
+        ("mobility", "mobilidade"),
+        ("visa",),
+    ],
 }
 
-# Tags that may not exist yet, with the trilingual names to create them under.
-NEW_TAGS = {"visa": ("visto", "visa", "visado")}
+# Trilingual names for a tag that has to be created, keyed by its English slug.
+NEW_TAGS = {
+    "migration": ("migração", "migration", "migración"),
+    "demographics": ("demografia", "demographics", "demografía"),
+    "citizenship": ("cidadania", "citizenship", "ciudadanía"),
+    "mobility": ("mobilidade", "mobility", "movilidad"),
+    "visa": ("visto", "visa", "visado"),
+}
 
 SPREADSHEET_SOURCE = "spreadsheets"
 API_SOURCE = "api"
@@ -477,6 +493,16 @@ DICIONARIO = {
     "update": None,
 }
 
+# The country directory's key column is spelled differently on each backend:
+# prod agrees with BigQuery (sigla_iso3), while the older staging clone still
+# calls it sigla_pais_iso3. A link that names the wrong one is accepted with no
+# error and leaves the foreign key null, so it has to be rewritten per env.
+DIRECTORY_BY_ENV = {
+    "staging": {
+        "diretorios_mundo.pais:sigla_iso3": "diretorios_mundo.pais:sigla_pais_iso3",
+    },
+}
+
 # column name -> observation level entity slug
 COLUMN_ENTITY = {
     "year": "year",
@@ -493,7 +519,7 @@ def architecture(table_slug: str) -> list[dict]:
         return list(csv.DictReader(handle))
 
 
-def columns_payload(table_slug: str) -> str:
+def columns_payload(table_slug: str, env: str) -> str:
     """Architecture rows as the bulk_upsert_columns payload.
 
     Directory links are rewritten to the backend dataset slug: the backend
@@ -608,11 +634,23 @@ def existing_state(env: str) -> dict:
 
 
 def resolve_tags(env: str) -> list[str]:
+    """One id per tag concept, creating the tag only when no spelling exists.
+
+    The vocabularies diverge by backend, so each concept lists its known slugs
+    and the first that resolves wins; a concept with no match is created under
+    its English slug.
+    """
     ids = []
-    for slug in DATASET["tag_slugs"]:
-        try:
-            ids.append(lookup("tag", slug, env))
-        except Exception:
+    for candidates in DATASET["tag_slugs"]:
+        found = None
+        for slug in candidates:
+            try:
+                found = lookup("tag", slug, env)
+                break
+            except Exception:
+                continue
+        if found is None:
+            slug = candidates[0]
             name_pt, name_en, name_es = NEW_TAGS[slug]
             created = server.create_update_tag(
                 slug=slug,
@@ -622,7 +660,8 @@ def resolve_tags(env: str) -> list[str]:
                 env=env,
             )
             print(f"  created tag {slug}")
-            ids.append(server._strip_id(str(created.get("id", created))))
+            found = server._strip_id(str(created.get("id", created)))
+        ids.append(found)
     return ids
 
 
@@ -747,7 +786,7 @@ def main() -> None:
             level_ids[entity_slug] = server._strip_id(str(result["id"]))
 
         upsert = server.bulk_upsert_columns(
-            table_id=table_id, columns_json=columns_payload(slug), env=env
+            table_id=table_id, columns_json=columns_payload(slug, env), env=env
         )
 
         columns = {
