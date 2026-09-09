@@ -47,8 +47,7 @@ from dataset_meta import (  # noqa: E402
     RAW_SOURCE,
     TABLE_DESCRIPTIONS,
     TABLE_NAMES,
-    TAGS_EXISTING,
-    TAGS_NEW,
+    TAGS,
     THEMES,
 )
 from schema import TABLES  # noqa: E402
@@ -105,11 +104,12 @@ class Registrar:
     # -- dataset ---------------------------------------------------------
 
     def tag_ids(self, ids: dict) -> list[str]:
-        """Resolve the dataset's tags, creating the two that do not exist.
+        """Resolve the dataset's tags, creating whichever the backend lacks.
 
-        New tags are named here rather than silently invented elsewhere:
-        ``medicare`` and ``uncompensated-care``, both English kebab-case slugs
-        with lowercase names in all three languages.
+        The vocabularies differ between environments -- `health-facilities`
+        exists on staging and not on prod -- so a fixed "these already exist"
+        list would fail on one of them. Anything created is printed, since a new
+        tag enters a shared vocabulary and is the user's call to keep.
 
         Args:
             ids: The result of ``discover_ids``.
@@ -117,17 +117,13 @@ class Registrar:
         Returns:
             Tag ids to attach.
         """
-        tags = dict(ids.get("tag", {}))
+        known = dict(ids.get("tag", {}))
         out = []
-        for slug in TAGS_EXISTING:
-            if slug not in tags:
-                raise SystemExit(f"tag {slug!r} is missing from {self.env}")
-            out.append(tags[slug])
-        for slug, (pt, en, es) in TAGS_NEW.items():
-            if slug in tags:
-                out.append(tags[slug])
+        for slug, (pt, en, es) in TAGS.items():
+            if slug in known:
+                out.append(known[slug])
                 continue
-            print(f"  creating tag {slug!r} ({en})")
+            print(f"  creating tag {slug!r} ({en}) -- absent from {self.env}")
             made = self.call(
                 "create_update_tag",
                 slug=slug,
@@ -163,7 +159,7 @@ class Registrar:
             description_pt=dpt,
             description_en=den,
             description_es=des,
-            organization_ids=[ids["organization"][ORGANIZATION]],
+            organization_ids=[ids["organization"][ORGANIZATION[self.env]]],
             theme_ids=[ids["theme"][t] for t in THEMES],
             tag_ids=self.tag_ids(ids),
             status_id=ids["status"]["under_review"],

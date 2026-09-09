@@ -6,20 +6,39 @@ registration script stays mechanical.
 
 DATASET_SLUG = "hcris"
 GCP_DATASET_ID = "us_cms_hcris"
-ORGANIZATION = "centers_for_medicare_medicaid_services_cms"
+# The same organization record carries a different slug per backend -- prod
+# shortened it to "cms" while staging kept the long form; the UUID is the same
+# on both. Resolved by slug, so the mapping has to be per environment.
+ORGANIZATION = {
+    "staging": "centers_for_medicare_medicaid_services_cms",
+    "prod": "cms",
+}
 THEMES = ["health", "economics"]
 
-# Existing tags, checked against the backend's 873-tag vocabulary.
-TAGS_EXISTING = [
-    "hospital",
-    "health-facilities",
-    "accounting",
-    "balance-sheet",
-    "financial-statement",
-]
-# Tags that do not exist yet and are created on registration. Slugs are English
-# kebab-case; names are lowercase in all three languages.
-TAGS_NEW = {
+# Every tag the dataset carries, with the names to create it under where a
+# backend does not have it yet. The vocabularies drift between environments --
+# `health-facilities` exists on staging and not on prod -- so the registration
+# creates what is missing rather than assuming a fixed "existing" set. Slugs are
+# English kebab-case; names are lowercase in all three languages, except where
+# the backend already holds a differently-cased name, which is left alone.
+TAGS = {
+    "hospital": ("hospital", "hospital", "hospital"),
+    "health-facilities": (
+        "Estabelecimentos de saúde",
+        "Health facilities",
+        "Establecimientos de salud",
+    ),
+    "accounting": ("contabilidade", "accounting", "contabilidad"),
+    "balance-sheet": (
+        "balanço patrimonial",
+        "balance sheet",
+        "balance general",
+    ),
+    "financial-statement": (
+        "demonstração financeira",
+        "financial statement",
+        "estado financiero",
+    ),
     "medicare": ("medicare", "medicare", "medicare"),
     "uncompensated-care": (
         "atendimento não remunerado",
