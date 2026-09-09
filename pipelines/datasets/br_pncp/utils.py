@@ -623,16 +623,34 @@ def convert(value, bq_type: str):
     return as_string(value)
 
 
-def partition_year(record: dict, table: str) -> int | None:
+def partition_date(record: dict, table: str) -> str | None:
+    """The record's partition date, as a full ISO ``YYYY-MM-DD`` string.
+
+    This is the date the `ano` partition is derived from -- `data_publicacao`
+    for the three procurement tables, `data_inclusao` for instrumento_cobranca
+    (see PARTITION_SOURCE). It is also the column each table's coverage spec
+    keys on, which is the point: the source-freshness poll compares its result
+    against `Coverage.DateTimeRange`, and that range is day-granular because
+    `register_table_materialization_task` reads the real max date out of
+    BigQuery. Returning a day here keeps both sides of that comparison on the
+    same clock. See `tasks.max_publication_date`.
+
+    plano_contratacao_anual is the exception: it is keyed on `anoPca`, a bare
+    year with no month or day, so it can only be placed at January 1st.
+    """
     raw = record.get(PARTITION_SOURCE[table])
     if raw in (None, ""):
         return None
     if table == "plano_contratacao_anual":
         try:
-            return int(raw)
+            return f"{int(raw):04d}-01-01"
         except (TypeError, ValueError):
             return None
-    iso = as_date(raw)
+    return as_date(raw)
+
+
+def partition_year(record: dict, table: str) -> int | None:
+    iso = partition_date(record, table)
     return int(iso[:4]) if iso else None
 
 
@@ -736,7 +754,9 @@ def clean_table(
             millions without pre-seeding a 0-row 00_header.parquet.
 
     Returns:
-        Summary with raw and written row counts and the years touched. Note that
+        Summary with raw and written row counts, the years touched, and
+        ``max_partition_date`` -- the latest partition date seen in this run,
+        as ``YYYY-MM-DD``, or None when the run wrote nothing. Note that
         ``written_rows`` counts rows *before* deduplication, which is what
         staging will contain; the materialized table will hold fewer.
     """
@@ -755,6 +775,7 @@ def clean_table(
     raw_rows = 0
     written = 0
     undated = 0
+    max_date: str | None = None
 
     def flush(year: str) -> int:
         rows = buffers.pop(year, None)
@@ -776,6 +797,11 @@ def clean_table(
         return len(rows)
 
     for record in iter_raw(input_dir, table):
+        record_date = partition_date(record, table)
+        if record_date is not None and (
+            max_date is None or record_date > max_date
+        ):
+            max_date = record_date
         for row in flatten(record, table, columns):
             raw_rows += 1
             year = row["ano"]
@@ -795,6 +821,7 @@ def clean_table(
         "written_rows": written,
         "undated_dropped": undated,
         "years": sorted(parts),
+        "max_partition_date": max_date,
     }
 
 
