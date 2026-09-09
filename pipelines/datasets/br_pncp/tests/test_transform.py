@@ -1331,3 +1331,137 @@ class TestDicionarioIsDerivedFromTheModels:
         ), (
             "the upload loop is back on ALL_TABLES, which has no dicionario data"
         )
+
+
+class TestSourceFreshnessIsDayGranular:
+    """The poll guard compares against a day-granular coverage, so the source
+    date it is handed must be a day too.
+
+    `max_publication_date` used to return ``f"{max(years)}-01-01"``. From the
+    first materialization onward that is a January 1st being compared against a
+    mid-year `Coverage.DateTimeRange`, so `should_update_raw_source` — which is
+    ``source_max > api_latest`` — could not be true again until the next
+    calendar year. The prod run of 2026-09-09 harvested 151,488 records,
+    compared 2026-01-01 against a coverage of 2026-08-28, and exited Completed
+    having ingested none of them. Nothing failed; a daily pipeline had quietly
+    become an annual one.
+    """
+
+    def _write_chunk(self, input_dir, table, name, records):
+        target = input_dir / table
+        target.mkdir(parents=True, exist_ok=True)
+        with gzip.open(
+            target / f"{name}.jsonl.gz", "wt", encoding="utf-8"
+        ) as fh:
+            for record in records:
+                fh.write(json.dumps(record) + "\n")
+
+    def _record(self, control, published):
+        return {
+            "numeroControlePNCP": control,
+            "dataPublicacaoPncp": published,
+            "dataAtualizacaoGlobal": published,
+            "orgaoEntidade": {"cnpj": "1", "esferaId": "M"},
+            "unidadeOrgao": {"ufSigla": "PB", "codigoIbge": "2516904"},
+            "valorGlobal": 100.0,
+        }
+
+    def test_partition_date_keeps_the_day(self):
+        assert (
+            utils.partition_date(
+                {"dataPublicacaoPncp": "2026-09-09T23:59:00"}, "contrato"
+            )
+            == "2026-09-09"
+        )
+
+    def test_partition_date_uses_inclusion_date_for_instrumento_cobranca(self):
+        # Its coverage keys on data_inclusao, so its freshness must too.
+        assert (
+            utils.partition_date(
+                {"dataInclusao": "2026-09-08T10:00:00"}, "instrumento_cobranca"
+            )
+            == "2026-09-08"
+        )
+
+    def test_pca_has_only_a_year_so_it_sits_at_january_first(self):
+        # anoPca carries no month or day; this is the one honest Jan 1st.
+        assert (
+            utils.partition_date({"anoPca": 2026}, "plano_contratacao_anual")
+            == "2026-01-01"
+        )
+
+    def test_an_undated_record_yields_no_date(self):
+        assert (
+            utils.partition_date({"dataPublicacaoPncp": None}, "contrato")
+            is None
+        )
+
+    def test_partition_year_still_agrees_with_partition_date(self):
+        record = {"dataPublicacaoPncp": "2026-09-09T23:59:00"}
+        assert utils.partition_year(record, "contrato") == 2026
+
+    def test_summary_reports_the_latest_date_the_run_saw(self, tmp_path):
+        input_dir, output_dir = tmp_path / "input", tmp_path / "output"
+        self._write_chunk(
+            input_dir,
+            "contrato",
+            "w1",
+            [
+                self._record("A-1/2026", "2026-08-30T00:00:00"),
+                self._record("B-1/2026", "2026-09-09T00:00:00"),
+                self._record("C-1/2025", "2025-01-02T00:00:00"),
+            ],
+        )
+        summary = utils.clean_table(input_dir, output_dir, "contrato")
+        assert summary["max_partition_date"] == "2026-09-09"
+
+    def test_undated_records_do_not_contribute_a_date(self, tmp_path):
+        input_dir, output_dir = tmp_path / "input", tmp_path / "output"
+        self._write_chunk(
+            input_dir,
+            "contrato",
+            "w1",
+            [self._record("A-1/2026", None)],
+        )
+        summary = utils.clean_table(input_dir, output_dir, "contrato")
+        assert summary["max_partition_date"] is None
+
+    def test_the_poll_beats_a_mid_year_coverage(self):
+        """The regression, stated as the comparison the flow actually makes."""
+        from pipelines.datasets.br_pncp.tasks import max_publication_date
+        from pipelines.utils.metadata.policy import should_update_raw_source
+
+        summaries = [
+            {"years": ["2026"], "max_partition_date": "2026-09-09"},
+            {"years": ["2026"], "max_partition_date": "2026-09-08"},
+        ]
+        source_max = max_publication_date.fn(summaries)
+        assert source_max == "2026-09-09"
+        # The coverage registered for contratacao on the day this broke.
+        assert should_update_raw_source(
+            date(2026, 8, 28), date.fromisoformat(source_max)
+        )
+
+    def test_a_run_of_only_backdated_amendments_still_no_ops(self):
+        """The guard's actual job — don't re-materialize for old records."""
+        from pipelines.datasets.br_pncp.tasks import max_publication_date
+        from pipelines.utils.metadata.policy import should_update_raw_source
+
+        source_max = max_publication_date.fn(
+            [{"years": ["2024"], "max_partition_date": "2024-03-01"}]
+        )
+        assert not should_update_raw_source(
+            date(2026, 8, 28), date.fromisoformat(source_max)
+        )
+
+    def test_an_empty_run_falls_back_below_any_coverage(self):
+        from pipelines.datasets.br_pncp.tasks import max_publication_date
+        from pipelines.utils.metadata.policy import should_update_raw_source
+
+        source_max = max_publication_date.fn(
+            [{"years": [], "max_partition_date": None}]
+        )
+        assert source_max == f"{constants.START_YEAR.value}-01-01"
+        assert not should_update_raw_source(
+            date(2026, 8, 28), date.fromisoformat(source_max)
+        )
