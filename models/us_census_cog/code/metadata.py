@@ -30,6 +30,11 @@ from common import ARCHITECTURE, DATASET_ID  # noqa: E402
 from pipelines.datasets.us_census_cog.utils import load_cols  # noqa: E402
 
 IDS = CODE_DIR / "metadata_ids.json"
+# The per-table documentation bundles built by build_auxiliary_files.py. They
+# sit on the data bucket rather than gs://basedosdados-public because the
+# uploader account cannot write to the latter, so the URL returns HTTP 400 to an
+# anonymous visitor — the same state as every other auxiliary link in production.
+AUXILIARY_FILES = "https://storage.googleapis.com/basedosdados-dev/auxiliary_files/us_census_cog"
 SLUG = "census_governments"
 AREA = "us"
 
@@ -337,17 +342,35 @@ TABLE_DESCRIPTIONS = {
     ),
 }
 
-TAGS = [
-    "administracao_publica",
-    "financas_publicas",
-    "emprego",
-    "salario",
-    "servidor",
-    "despesa",
-    "receita",
-    "divida",
-    "imposto",
-]
+# The tag vocabulary is not the same in the two environments: staging carries
+# the Portuguese legacy slugs and production the English ones. The subject is
+# identical, so the two lists are the same nine tags under each backend's own
+# spelling. "governo" is deliberately absent — it would restate the government
+# theme the dataset already carries.
+TAGS = {
+    "staging": [
+        "administracao_publica",
+        "financas_publicas",
+        "emprego",
+        "salario",
+        "servidor",
+        "despesa",
+        "receita",
+        "divida",
+        "imposto",
+    ],
+    "prod": [
+        "public_administration",
+        "public-finance",
+        "employment",
+        "salary",
+        "public_servant",
+        "expenditure",
+        "revenue",
+        "debt",
+        "tax",
+    ],
+}
 
 
 def load_ids() -> dict:
@@ -429,7 +452,7 @@ def main(env: str) -> None:
         description_es=DATASET_DESCRIPTION[2],
         organization_ids=[o["id"] for o in existing["organizations"]],
         theme_ids=[t["id"] for t in existing["themes"]],
-        tag_ids=[refs["tag"][t] for t in TAGS],
+        tag_ids=[refs["tag"][t] for t in TAGS[env]],
         status_id=status["published" if env == "staging" else "under_review"],
         id=dataset_id,
         env=env,
@@ -493,6 +516,11 @@ def main(env: str) -> None:
                 data_cleaned_by_ids=[account],
                 raw_data_source_ids=(
                     [sources[spec["source"]]] if spec["source"] else []
+                ),
+                auxiliary_files_url=(
+                    f"{AUXILIARY_FILES}/{slug}/auxiliary_files.zip"
+                    if spec["source"]
+                    else ""
                 ),
                 id=record.get("id"),
                 env=env,
