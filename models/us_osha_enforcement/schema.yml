@@ -1,0 +1,632 @@
+---
+version: 2
+models:
+  - name: us_osha_enforcement__inspection
+    description: >-
+      Uma linha por inspeção da OSHA (federal ou de plano estadual), identificada
+      pelo activity number. Contém o estabelecimento inspecionado e seu endereço,
+      a classificação industrial (SIC e NAICS), o motivo e o escopo da inspeção, a
+      representação sindical e as datas de abertura e encerramento do caso. Cobre
+      1972 a 2026.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [inspection_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano de abertura da inspeção
+        tests: [not_null]
+      - name: inspection_id
+        description: >-
+          Identificador único da inspeção (activity number) da OSHA
+        tests: [not_null]
+      - name: reporting_office_id
+        description: >-
+          Código da jurisdição da OSHA (escritório federal ou plano estadual)
+          responsável pela inspeção
+      - name: establishment_key
+        description: >-
+          Chave interna do estabelecimento no sistema IMIS da OSHA
+      - name: establishment_name
+        description: >-
+          Nome do estabelecimento inspecionado
+      - name: site_address
+        description: >-
+          Logradouro do local inspecionado
+      - name: site_city
+        description: >-
+          Município do local inspecionado
+      - name: site_state
+        description: >-
+          Sigla postal do estado do local inspecionado
+      - name: site_zip_code
+        description: >-
+          CEP (ZIP code) de cinco dígitos do local inspecionado
+      - name: mailing_address
+        description: >-
+          Logradouro do endereço de correspondência do empregador
+      - name: mailing_city
+        description: >-
+          Município do endereço de correspondência do empregador
+      - name: mailing_state
+        description: >-
+          Sigla postal do estado do endereço de correspondência do empregador
+      - name: mailing_zip_code
+        description: >-
+          CEP (ZIP code) do endereço de correspondência do empregador
+      - name: sic_code
+        description: >-
+          Código SIC de quatro dígitos do estabelecimento, na versão de 1987 do manual
+      - name: naics_code
+        description: >-
+          Código NAICS de seis dígitos do estabelecimento
+      - name: owner_type
+        description: >-
+          Tipo de empregador: privado, governo local, governo estadual ou federal
+      - name: owner_code
+        description: >-
+          Código da agência federal empregadora, preenchido apenas quando owner_type
+          indica governo federal
+      - name: inspection_type
+        description: >-
+          Motivo da inspeção: acidente, denúncia, encaminhamento, programada, entre
+          outros
+      - name: inspection_scope
+        description: >-
+          Escopo da inspeção: completa, parcial, apenas registros ou inspeção não
+          realizada
+      - name: no_inspection_reason
+        description: >-
+          Motivo pelo qual a inspeção não foi realizada
+      - name: safety_health
+        description: >-
+          Indica se a inspeção foi de segurança (S) ou de saúde ocupacional (H)
+      - name: advance_notice
+        description: >-
+          Indica se houve aviso prévio ao empregador sobre a inspeção
+      - name: union_status
+        description: >-
+          Indica se havia representação sindical dos trabalhadores durante a inspeção
+      - name: safety_program_manufacturing
+        description: >-
+          Indica uso do guia de planejamento de segurança para a indústria de
+          transformação
+      - name: safety_program_construction
+        description: >-
+          Indica uso do guia de planejamento de segurança para a construção
+      - name: safety_program_maritime
+        description: >-
+          Indica uso do guia de planejamento de segurança para o setor marítimo
+      - name: health_program_manufacturing
+        description: >-
+          Indica uso do guia de planejamento de saúde para a indústria de
+          transformação
+      - name: health_program_construction
+        description: >-
+          Indica uso do guia de planejamento de saúde para a construção
+      - name: health_program_maritime
+        description: >-
+          Indica uso do guia de planejamento de saúde para o setor marítimo
+      - name: migrant_labor
+        description: >-
+          Indica inspeção de alojamento ou trabalho de mão de obra migrante
+      - name: employees_in_establishment
+        description: >-
+          Número de empregados no estabelecimento inspecionado
+      - name: open_date
+        description: >-
+          Data de abertura da inspeção
+      - name: closing_conference_date
+        description: >-
+          Data da conferência de encerramento com o empregador
+      - name: close_case_date
+        description: >-
+          Data de encerramento do caso
+      - name: case_modified_date
+        description: >-
+          Data da última alteração na inspeção ou em suas violações
+  - name: us_osha_enforcement__violation
+    description: >-
+      Uma linha por citação emitida, identificada pelo par inspeção e citação.
+      Contém a norma citada, a classificação da violação (grave, deliberada,
+      reincidente, outra), as multas inicial e corrente, os prazos de correção e
+      as datas de contestação e de ordem final. current_penalty é um valor móvel:
+      a multa é contestada e revisada por anos após a citação, e só se estabiliza
+      quando o caso é encerrado. Compare com initial_penalty e acompanhe o
+      histórico completo em violation_event.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [inspection_id, citation_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano de abertura da inspeção associada
+        tests: [not_null]
+      - name: inspection_id
+        description: >-
+          Identificador único da inspeção (activity number) da OSHA
+        tests: [not_null]
+      - name: citation_id
+        description: >-
+          Identificador da citação: número da citação, do item e do grupo do item
+        tests: [not_null]
+      - name: standard
+        description: >-
+          Norma da OSHA citada, no formato interno do IMIS
+      - name: violation_type
+        description: >-
+          Classificação da violação: grave, deliberada, reincidente, outra ou não
+          classificada
+      - name: deleted
+        description: >-
+          Indica que a citação foi excluída (X)
+      - name: issuance_date
+        description: >-
+          Data de emissão da citação
+      - name: initial_penalty
+        description: >-
+          Multa proposta na emissão da citação
+      - name: current_penalty
+        description: >-
+          Multa corrente após contestações e acordos
+      - name: abatement_due_date
+        description: >-
+          Prazo para correção da condição citada
+      - name: abatement_completion_code
+        description: >-
+          Código de situação da correção da condição citada
+      - name: contest_date
+        description: >-
+          Data em que a citação foi contestada pelo empregador
+      - name: final_order_date
+        description: >-
+          Data da ordem final que encerra a citação
+      - name: instances
+        description: >-
+          Número de ocorrências da condição citada
+      - name: employees_exposed
+        description: >-
+          Número de empregados expostos à condição citada
+      - name: gravity
+        description: >-
+          Nível de gravidade atribuído a violações graves
+      - name: related_event_code
+        description: >-
+          Códigos de eventos relacionados à citação, separados por ponto e vírgula
+      - name: emphasis_program
+        description: >-
+          Indica que a citação decorre de um programa de ênfase (X)
+      - name: hazard_category
+        description: >-
+          Categoria de risco da norma da indústria geral
+      - name: hazardous_substance_1
+        description: >-
+          Primeiro código de substância perigosa associada à citação
+      - name: hazardous_substance_2
+        description: >-
+          Segundo código de substância perigosa associada à citação
+      - name: hazardous_substance_3
+        description: >-
+          Terceiro código de substância perigosa associada à citação
+      - name: hazardous_substance_4
+        description: >-
+          Quarto código de substância perigosa associada à citação
+      - name: hazardous_substance_5
+        description: >-
+          Quinto código de substância perigosa associada à citação
+      - name: fta_inspection_id
+        description: >-
+          Identificador da inspeção de falha em corrigir (failure to abate)
+      - name: fta_issuance_date
+        description: >-
+          Data de emissão da citação por falha em corrigir
+      - name: fta_penalty
+        description: >-
+          Multa por falha em corrigir
+      - name: fta_contest_date
+        description: >-
+          Data de contestação da citação por falha em corrigir
+      - name: fta_final_order_date
+        description: >-
+          Data da ordem final da citação por falha em corrigir
+  - name: us_osha_enforcement__violation_event
+    description: >-
+      Histórico de eventos de cada citação: contestações, acordos, revisões de
+      multa e mudanças de prazo de correção. É o registro que explica por que
+      violation.current_penalty difere de violation.initial_penalty e como a multa
+      evoluiu até o encerramento do caso.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - inspection_id
+            - citation_id
+            - event_date
+            - event_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano de abertura da inspeção associada
+        tests: [not_null]
+      - name: inspection_id
+        description: >-
+          Identificador único da inspeção (activity number) da OSHA
+        tests: [not_null]
+      - name: citation_id
+        description: >-
+          Identificador da citação: número da citação, do item e do grupo do item
+        tests: [not_null]
+      - name: penalty_or_fta
+        description: >-
+          Indica se o evento se refere à multa (P) ou à falha em corrigir (F)
+      - name: event_code
+        description: >-
+          Código de classificação do evento
+        tests: [not_null]
+      - name: event_date
+        description: >-
+          Data do evento
+        tests: [not_null]
+      - name: penalty
+        description: >-
+          Multa avaliada no evento
+      - name: abatement_date
+        description: >-
+          Prazo de correção vigente após o evento; aplicável apenas quando
+          penalty_or_fta é P
+      - name: violation_type
+        description: >-
+          Classificação da violação no evento; aplicável apenas quando penalty_or_fta
+          é F
+      - name: fta_inspection_id
+        description: >-
+          Identificador da inspeção por falha em corrigir; aplicável apenas quando
+          penalty_or_fta é F
+  - name: us_osha_enforcement__violation_text
+    description: >-
+      Texto integral da descrição da violação que acompanha cada citação,
+      remontado a partir das linhas do arquivo de origem. Traz a norma citada por
+      extenso e a narrativa da condição observada, com endereço do local e data.
+      Cobre 1.005.228 citações, 7,6% do total: a fonte praticamente não guarda o
+      texto de citações anteriores a 2010 (0,4% das da década de 1990, 0,8% das de
+      2000) e cobre 31% das citações da década de 2010 e 39% das da de 2020.
+      Apesar do nome do arquivo de origem (osha_violation_gen_duty_std), apenas
+      4,6% das citações aqui invocam a cláusula de dever geral 5(a)(1); as normas
+      mais frequentes são a de proteção contra quedas (1926.501, 10,1%) e a de
+      comunicação de perigos (1910.1200, 6,1%). Como toda citação é um documento
+      público que identifica o autuado, o texto nomeia pessoas físicas quando o
+      empregador citado é um profissional autônomo — o mesmo nome que consta em
+      inspection.establishment_name.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [inspection_id, citation_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano de abertura da inspeção associada
+        tests: [not_null]
+      - name: inspection_id
+        description: >-
+          Identificador único da inspeção (activity number) da OSHA
+        tests: [not_null]
+      - name: citation_id
+        description: >-
+          Identificador da citação: número da citação, do item e do grupo do item
+        tests: [not_null]
+      - name: text
+        description: >-
+          Texto integral da descrição da violação
+      - name: line_count
+        description: >-
+          Número de linhas do arquivo de origem que compõem o texto
+  - name: us_osha_enforcement__related_activity
+    description: >-
+      Liga cada inspeção às atividades que a originaram ou que dela decorreram:
+      denúncias, encaminhamentos, acidentes e outras inspeções. Uma linha por par
+      de atividades relacionadas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - inspection_id
+            - related_activity_id
+            - related_type
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano de abertura da inspeção associada
+        tests: [not_null]
+      - name: inspection_id
+        description: >-
+          Identificador único da inspeção (activity number) da OSHA
+        tests: [not_null]
+      - name: related_activity_id
+        description: >-
+          Identificador da atividade relacionada
+        tests: [not_null]
+      - name: related_type
+        description: >-
+          Tipo da atividade relacionada
+        tests: [not_null]
+      - name: related_safety
+        description: >-
+          Indica que a denúncia ou encaminhamento relacionado trata de segurança (X)
+      - name: related_health
+        description: >-
+          Indica que a denúncia ou encaminhamento relacionado trata de saúde
+          ocupacional (X)
+  - name: us_osha_enforcement__emphasis_code
+    description: >-
+      Programas de ênfase associados a cada inspeção — nacionais, estratégicos,
+      locais e estaduais. Uma linha por par de inspeção e programa; uma inspeção
+      pode estar ligada a vários programas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [inspection_id, program_type, program_value]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano de abertura da inspeção associada
+        tests: [not_null]
+      - name: inspection_id
+        description: >-
+          Identificador único da inspeção (activity number) da OSHA
+        tests: [not_null]
+      - name: program_type
+        description: >-
+          Tipo do programa de ênfase
+        tests: [not_null]
+      - name: program_value
+        description: >-
+          Descrição do programa de ênfase específico
+        tests: [not_null]
+  - name: us_osha_enforcement__optional_code_info
+    description: >-
+      Informações opcionais coletadas em cada inspeção, gravadas como pares de
+      identificador e valor. A OSHA não publica o significado dos identificadores
+      nem o formato dos valores, de modo que o conteúdo é opaco: em geral são
+      números de processo de planos estaduais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - inspection_id
+            - information_id
+            - information_value
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano de abertura da inspeção associada
+        tests: [not_null]
+      - name: inspection_id
+        description: >-
+          Identificador único da inspeção (activity number) da OSHA
+        tests: [not_null]
+      - name: information_type
+        description: >-
+          Tipo da informação opcional; apenas o tipo N é publicado
+      - name: information_id
+        description: >-
+          Identificador da informação opcional
+        tests: [not_null]
+      - name: information_value
+        description: >-
+          Valor da informação opcional
+        tests: [not_null]
+  - name: us_osha_enforcement__accident
+    description: >-
+      Uma linha por acidente de trabalho comunicado pelo empregador e investigado
+      pela OSHA, identificado pelo número do formulário OSHA-170. Contém a data e
+      a descrição curta do evento, as palavras-chave atribuídas na revisão, os
+      atributos da obra quando o acidente ocorre na construção civil e a indicação
+      de óbito. Cobre 1972 a 2025.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [accident_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano do acidente
+        tests: [not_null]
+      - name: accident_id
+        description: >-
+          Identificador único do acidente (número do formulário OSHA-170)
+        tests: [not_null]
+      - name: reporting_office_id
+        description: >-
+          Código da jurisdição da OSHA (escritório federal ou plano estadual) que
+          registrou o acidente
+      - name: event_date
+        description: >-
+          Data do acidente
+      - name: event_description
+        description: >-
+          Descrição curta do evento, sem identificação dos trabalhadores envolvidos
+      - name: event_keyword
+        description: >-
+          Palavras-chave atribuídas ao acidente na revisão, separadas por vírgula
+      - name: fatality
+        description: >-
+          Indica que há óbito associado ao acidente (X)
+      - name: sic_list
+        description: >-
+          Códigos SIC de quatro dígitos das inspeções relacionadas, separados por
+          vírgula
+      - name: construction_end_use
+        description: >-
+          Destinação da obra, quando o acidente ocorre na construção civil
+      - name: project_type
+        description: >-
+          Tipo da obra, quando o acidente ocorre na construção civil
+      - name: project_cost
+        description: >-
+          Faixa de custo da obra, quando o acidente ocorre na construção civil
+      - name: building_stories
+        description: >-
+          Número de pavimentos da edificação, quando o acidente ocorre na construção
+          civil
+      - name: nonbuilding_height
+        description: >-
+          Altura em pés da estrutura, quando a obra não é uma edificação
+  - name: us_osha_enforcement__accident_injury
+    description: >-
+      Uma linha por pessoa lesionada em cada acidente investigado. Contém idade,
+      sexo e ocupação da pessoa, a natureza da lesão, a parte do corpo atingida, a
+      fonte e o tipo do evento, os fatores ambiental e humano e a gravidade
+      (óbito, hospitalização ou não hospitalização). As pessoas não são nomeadas:
+      identificam-se apenas pelo número de linha dentro do acidente. Os códigos
+      são interpretados pela tabela dicionario.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [accident_id, injury_line_number]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano do acidente
+        tests: [not_null]
+      - name: accident_id
+        description: >-
+          Identificador do acidente a que a lesão pertence
+        tests: [not_null]
+      - name: inspection_id
+        description: >-
+          Identificador da inspeção associada à investigação do acidente
+      - name: injury_line_number
+        description: >-
+          Número de linha da pessoa lesionada dentro do acidente, referenciado no
+          texto da narrativa
+        tests: [not_null]
+      - name: age
+        description: >-
+          Idade da pessoa lesionada
+      - name: sex
+        description: >-
+          Sexo da pessoa lesionada
+      - name: degree_of_injury
+        description: >-
+          Gravidade da lesão: óbito, hospitalização ou sem hospitalização
+      - name: nature_of_injury
+        description: >-
+          Natureza da lesão (tabela de códigos IN)
+      - name: part_of_body
+        description: >-
+          Parte do corpo atingida (tabela de códigos BD)
+      - name: source_of_injury
+        description: >-
+          Fonte da lesão (tabela de códigos SO)
+      - name: event_type
+        description: >-
+          Tipo do evento que causou a lesão (tabela de códigos FT)
+      - name: environmental_factor
+        description: >-
+          Fator ambiental associado à lesão (tabela de códigos EN)
+      - name: human_factor
+        description: >-
+          Fator humano associado à lesão (tabela de códigos HU)
+      - name: occupation_code
+        description: >-
+          Ocupação da pessoa lesionada (tabela de códigos OCC)
+      - name: task_assigned
+        description: >-
+          Indica se a tarefa executada era regularmente atribuída à pessoa
+      - name: hazardous_substance
+        description: >-
+          Código da substância perigosa envolvida na lesão
+      - name: construction_operation
+        description: >-
+          Operação de construção em curso (tabela de códigos OPER)
+      - name: construction_operation_cause
+        description: >-
+          Causa da lesão na operação de construção (tabela de códigos OPER)
+      - name: fatality_cause
+        description: >-
+          Causa do óbito em obra de construção (tabela de códigos CAUS)
+      - name: fall_distance
+        description: >-
+          Distância da queda, em pés
+      - name: fall_height
+        description: >-
+          Altura em que a pessoa se encontrava ao cair, em pés
+  - name: us_osha_enforcement__accident_narrative
+    description: >-
+      Uma linha por acidente, com a narrativa da investigação remontada a partir
+      das linhas do arquivo de origem. A narrativa descreve a sequência do evento
+      e o desfecho clínico. As pessoas lesionadas não são nomeadas: a OSHA as
+      designa como "Employee #1" ou "an employee" — em uma amostra de 21.133
+      narrativas não há nome próprio, número de documento nem telefone. A
+      narrativa contém, porém, idade, sexo, ocupação, empregador, data e hora
+      exatas, local e detalhe da lesão, o que pode identificar a pessoa para quem
+      conhece o local de trabalho. O conteúdo é publicado literalmente pela
+      própria OSHA.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [accident_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano do acidente
+        tests: [not_null]
+      - name: accident_id
+        description: >-
+          Identificador do acidente a que a narrativa se refere
+        tests: [not_null]
+      - name: narrative
+        description: >-
+          Narrativa da investigação do acidente
+      - name: line_count
+        description: >-
+          Número de linhas do arquivo de origem que compõem a narrativa
+      - name: wrap_style
+        description: >-
+          Regime de quebra de linha do registro na fonte, usado na remontagem
+  - name: us_osha_enforcement__dicionario
+    description: >-
+      Traduz os códigos usados nas demais tabelas para rótulos legíveis. Reúne
+      duas fontes: as 14 tabelas de código publicadas pela OSHA no arquivo
+      osha_accident_lookup2, que interpretam as colunas de accident e
+      accident_injury, e as listas de códigos publicadas no dicionário de dados do
+      Catálogo de Dados de Fiscalização do DOL. Códigos para os quais a OSHA não
+      publica legenda — gravity, abatement_completion_code, related_event_code,
+      hazard_category, event_code, related_type e program_type — não constam desta
+      tabela; a coluna correspondente registra a ausência em suas observações.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: >-
+          Nome da tabela que contém a coluna codificada
+        tests: [not_null]
+      - name: nome_coluna
+        description: >-
+          Nome da coluna codificada
+        tests: [not_null]
+      - name: chave
+        description: >-
+          Código armazenado na coluna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >-
+          Cobertura temporal do código
+      - name: valor
+        description: >-
+          Rótulo legível correspondente ao código
