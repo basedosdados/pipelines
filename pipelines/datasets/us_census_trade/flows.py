@@ -260,8 +260,17 @@ us_census_trade_flow.deploy_schedules = [
 # job template, so a flow that sets only `memory` runs on the 4Gi default no
 # matter what number it names, and is later OOMKilled with no hint of why.
 # `memory_limit` is the one the pod actually gets.
+#
+# memory_request is what the SCHEDULER reserves and is the only half that
+# decides whether the pod can be placed; memory_limit is the burst ceiling and
+# costs nothing at scheduling time. A 4Gi request left this flow
+# InfrastructurePending on a busy cluster ("0/3 nodes are available: 3
+# Insufficient memory") while five other flows held the nodes. 2Gi is the modal
+# request across this repo and schedules alongside them; the 12Gi limit still
+# gives the harvest room to burst, and matches the largest limits already in use
+# (br_bd_execucao_estadual, br_sfb_sicar, cl_chilecompra_mercado_publico).
 # pyrefly: ignore [missing-attribute]
 us_census_trade_flow.job_variables = {
-    "memory_limit": "16Gi",
-    "memory_request": "4Gi",
+    "memory_limit": "12Gi",
+    "memory_request": "2Gi",
 }
