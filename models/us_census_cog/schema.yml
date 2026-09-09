@@ -90,6 +90,8 @@ models:
               field: id_state
               ignore_values: []
               proportion_allowed_failures: 0.0
+              config:
+                where: state_id is not null
       - name: county_id
         description: Código FIPS de cinco posições do condado, estado seguido de condado
         tests:
@@ -98,6 +100,8 @@ models:
               field: id_county
               ignore_values: []
               proportion_allowed_failures: 0.01
+              config:
+                where: county_id is not null
       - name: place_id
         description: Código FIPS de sete posições do lugar, estado seguido de lugar
         tests:
@@ -106,6 +110,8 @@ models:
               field: id_place
               ignore_values: []
               proportion_allowed_failures: 0.01
+              config:
+                where: place_id is not null
       - name: county_subdivision_id
         description: >-
           Código FIPS de sete posições da subdivisão de condado, estado seguido de
@@ -163,6 +169,8 @@ models:
               field: id_state
               ignore_values: []
               proportion_allowed_failures: 0.0
+              config:
+                where: state_id is not null
       - name: government_type
         description: Tipo de unidade de governo
       - name: function_code
@@ -232,6 +240,8 @@ models:
               field: id_state
               ignore_values: []
               proportion_allowed_failures: 0.001
+              config:
+                where: state_id is not null
       - name: county_id
         description: Código FIPS de cinco posições do condado, estado seguido de condado
         tests:
@@ -240,6 +250,8 @@ models:
               field: id_county
               ignore_values: []
               proportion_allowed_failures: 0.02
+              config:
+                where: county_id is not null
       - name: county_name
         description: >-
           Nome do condado onde a unidade está localizada ou ao qual foi atribuída
@@ -357,6 +369,8 @@ models:
               field: id_state
               ignore_values: []
               proportion_allowed_failures: 0.0
+              config:
+                where: state_id is not null
       - name: county_id
         description: Código FIPS de cinco posições do condado, estado seguido de condado
         tests:
@@ -365,6 +379,8 @@ models:
               field: id_county
               ignore_values: []
               proportion_allowed_failures: 0.02
+              config:
+                where: county_id is not null
       - name: county_name
         description: Nome do condado onde a unidade está localizada
       - name: place_id
@@ -375,6 +391,8 @@ models:
               field: id_place
               ignore_values: []
               proportion_allowed_failures: 0.01
+              config:
+                where: place_id is not null
       - name: county_subdivision_id
         description: >-
           Código FIPS de sete posições da subdivisão de condado, estado seguido de

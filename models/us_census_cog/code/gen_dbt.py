@@ -291,6 +291,11 @@ def model_yaml(table: str) -> dict:
         if column.name in DIRECTORY_TESTS:
             model, field = DIRECTORY_TESTS[column.name]
             tolerance = DIRECTORY_TOLERANCE.get((table, column.name), 0.0)
+            # custom_relationships adds its own "is not null" guard only when
+            # ignore_values is set, so an unguarded test counts every null row
+            # as a missing key: place_id is null on 79% of government_unit and
+            # the test failed at a measured miss rate of 0.3%. Scope it to the
+            # rows that carry a value instead.
             column_tests.append(
                 {
                     "custom_relationships": {
@@ -298,6 +303,7 @@ def model_yaml(table: str) -> dict:
                         "field": field,
                         "ignore_values": [],
                         "proportion_allowed_failures": tolerance,
+                        "config": {"where": f"{column.name} is not null"},
                     }
                 }
             )
