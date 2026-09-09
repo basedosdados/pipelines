@@ -1,0 +1,848 @@
+{
+ "hospital_name": {
+  "2552-10": {
+   "reports": 91827,
+   "share": 1.0,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 90693,
+   "share": 0.9958,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "street_address": {
+  "2552-10": {
+   "reports": 91785,
+   "share": 0.9995,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 89938,
+   "share": 0.9875,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "city": {
+  "2552-10": {
+   "reports": 91827,
+   "share": 1.0,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 90566,
+   "share": 0.9944,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "reported_state_abbreviation": {
+  "2552-10": {
+   "reports": 91827,
+   "share": 1.0,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 90568,
+   "share": 0.9944,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "zip_code": {
+  "2552-10": {
+   "reports": 91827,
+   "share": 1.0,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 90488,
+   "share": 0.9935,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "county_name": {
+  "2552-10": {
+   "reports": 86605,
+   "share": 0.9431,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 84961,
+   "share": 0.9329,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "chain_organization_name": {
+  "2552-10": {
+   "reports": 55319,
+   "share": 0.6024,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 11691,
+   "share": 0.1284,
+   "year_min": 2000,
+   "year_max": 2011
+  }
+ },
+ "total_patient_charges": {
+  "2552-10": {
+   "reports": 88156,
+   "share": 0.96,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 87653,
+   "share": 0.9624,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "contractual_allowances_discounts": {
+  "2552-10": {
+   "reports": 87020,
+   "share": 0.9477,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 85903,
+   "share": 0.9432,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "net_patient_revenue": {
+  "2552-10": {
+   "reports": 88176,
+   "share": 0.9602,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 87662,
+   "share": 0.9625,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "total_operating_expense": {
+  "2552-10": {
+   "reports": 90608,
+   "share": 0.9867,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 89034,
+   "share": 0.9776,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "donations": {
+  "2552-10": {
+   "reports": 33437,
+   "share": 0.3641,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 37636,
+   "share": 0.4132,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "investment_income": {
+  "2552-10": {
+   "reports": 51205,
+   "share": 0.5576,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 56918,
+   "share": 0.625,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "other_income": {
+  "2552-10": {
+   "reports": 87023,
+   "share": 0.9477,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 85595,
+   "share": 0.9398,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "total_other_expense": {
+  "2552-10": {
+   "reports": 28128,
+   "share": 0.3063,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 32338,
+   "share": 0.3551,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "inpatient_hospital_revenue": {
+  "2552-10": {
+   "reports": 87742,
+   "share": 0.9555,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 87225,
+   "share": 0.9577,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "inpatient_general_routine_revenue": {
+  "2552-10": {
+   "reports": 87952,
+   "share": 0.9578,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 87472,
+   "share": 0.9604,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "inpatient_intensive_care_revenue": {
+  "2552-10": {
+   "reports": 46194,
+   "share": 0.5031,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 50590,
+   "share": 0.5555,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "inpatient_routine_care_revenue": {
+  "2552-10": {
+   "reports": 87979,
+   "share": 0.9581,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 87503,
+   "share": 0.9608,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "inpatient_ancillary_revenue": {
+  "2552-10": {
+   "reports": 83593,
+   "share": 0.9103,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 83331,
+   "share": 0.915,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "inpatient_outpatient_service_revenue": {
+  "2552-10": {
+   "reports": 47203,
+   "share": 0.514,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 30235,
+   "share": 0.332,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "inpatient_total_revenue": {
+  "2552-10": {
+   "reports": 88050,
+   "share": 0.9589,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 87600,
+   "share": 0.9618,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "outpatient_ancillary_revenue": {
+  "2552-10": {
+   "reports": 69877,
+   "share": 0.761,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 63250,
+   "share": 0.6945,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "outpatient_outpatient_service_revenue": {
+  "2552-10": {
+   "reports": 67724,
+   "share": 0.7375,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 62723,
+   "share": 0.6887,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "outpatient_total_revenue": {
+  "2552-10": {
+   "reports": 80392,
+   "share": 0.8755,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 82639,
+   "share": 0.9074,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "total_patient_revenue": {
+  "2552-10": {
+   "reports": 88156,
+   "share": 0.96,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 87713,
+   "share": 0.9631,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "cost_to_charge_ratio": {
+  "2552-10": {
+   "reports": 73862,
+   "share": 0.8044,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 38949,
+   "share": 0.4277,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "uncompensated_care_charges": {
+  "2552-96": {
+   "reports": 20313,
+   "share": 0.223,
+   "year_min": 2002,
+   "year_max": 2011
+  }
+ },
+ "uncompensated_care_cost": {
+  "2552-96": {
+   "reports": 20274,
+   "share": 0.2226,
+   "year_min": 2003,
+   "year_max": 2011
+  }
+ },
+ "total_initial_charity_care_charges": {
+  "2552-10": {
+   "reports": 65241,
+   "share": 0.7105,
+   "year_min": 2011,
+   "year_max": 2026
+  }
+ },
+ "charity_care_partial_payments": {
+  "2552-10": {
+   "reports": 29668,
+   "share": 0.3231,
+   "year_min": 2011,
+   "year_max": 2025
+  }
+ },
+ "cost_of_initial_charity_care": {
+  "2552-10": {
+   "reports": 65236,
+   "share": 0.7104,
+   "year_min": 2011,
+   "year_max": 2026
+  }
+ },
+ "cost_of_charity_care": {
+  "2552-10": {
+   "reports": 65125,
+   "share": 0.7092,
+   "year_min": 2011,
+   "year_max": 2026
+  }
+ },
+ "total_bad_debt_expense": {
+  "2552-10": {
+   "reports": 67862,
+   "share": 0.739,
+   "year_min": 2011,
+   "year_max": 2026
+  }
+ },
+ "medicare_reimbursable_bad_debt": {
+  "2552-10": {
+   "reports": 66441,
+   "share": 0.7235,
+   "year_min": 2011,
+   "year_max": 2026
+  }
+ },
+ "non_medicare_bad_debt_expense": {
+  "2552-10": {
+   "reports": 71435,
+   "share": 0.7779,
+   "year_min": 2011,
+   "year_max": 2026
+  }
+ },
+ "non_reimbursable_bad_debt_cost": {
+  "2552-10": {
+   "reports": 71965,
+   "share": 0.7837,
+   "year_min": 2011,
+   "year_max": 2026
+  }
+ },
+ "cost_of_uncompensated_care": {
+  "2552-10": {
+   "reports": 72339,
+   "share": 0.7878,
+   "year_min": 2011,
+   "year_max": 2026
+  }
+ },
+ "beds_adult_pediatric": {
+  "2552-10": {
+   "reports": 90446,
+   "share": 0.985,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 89621,
+   "share": 0.984,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "available_bed_days_adult_pediatric": {
+  "2552-10": {
+   "reports": 90468,
+   "share": 0.9852,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 89643,
+   "share": 0.9843,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "inpatient_bed_days_adult_pediatric": {
+  "2552-10": {
+   "reports": 90349,
+   "share": 0.9839,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 89514,
+   "share": 0.9828,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "discharges_adult_pediatric": {
+  "2552-10": {
+   "reports": 90374,
+   "share": 0.9842,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 89544,
+   "share": 0.9832,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "discharges_medicare_adult_pediatric": {
+  "2552-10": {
+   "reports": 89788,
+   "share": 0.9778,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 89172,
+   "share": 0.9791,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "discharges_medicaid_adult_pediatric": {
+  "2552-10": {
+   "reports": 77547,
+   "share": 0.8445,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 82158,
+   "share": 0.9021,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "beds_total_adult_pediatric_swing": {
+  "2552-10": {
+   "reports": 90446,
+   "share": 0.985,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 89621,
+   "share": 0.984,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "beds_intensive_care_unit": {
+  "2552-10": {
+   "reports": 46292,
+   "share": 0.5041,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 51406,
+   "share": 0.5644,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "beds_coronary_care_unit": {
+  "2552-10": {
+   "reports": 7667,
+   "share": 0.0835,
+   "year_min": 2011,
+   "year_max": 2025
+  },
+  "2552-96": {
+   "reports": 11231,
+   "share": 0.1233,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "beds_burn_intensive_care_unit": {
+  "2552-10": {
+   "reports": 1515,
+   "share": 0.0165,
+   "year_min": 2011,
+   "year_max": 2025
+  },
+  "2552-96": {
+   "reports": 1369,
+   "share": 0.015,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "beds_surgical_intensive_care_unit": {
+  "2552-10": {
+   "reports": 2977,
+   "share": 0.0324,
+   "year_min": 2011,
+   "year_max": 2025
+  },
+  "2552-96": {
+   "reports": 2820,
+   "share": 0.031,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "beds_other_special_care": {
+  "2552-10": {
+   "reports": 8720,
+   "share": 0.095,
+   "year_min": 2011,
+   "year_max": 2025
+  },
+  "2552-96": {
+   "reports": 10081,
+   "share": 0.1107,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "beds_total": {
+  "2552-10": {
+   "reports": 90499,
+   "share": 0.9855,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 89769,
+   "share": 0.9856,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "beds_grand_total": {
+  "2552-10": {
+   "reports": 90571,
+   "share": 0.9863,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 89757,
+   "share": 0.9855,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "cash": {
+  "2552-10": {
+   "reports": 84002,
+   "share": 0.9148,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 84790,
+   "share": 0.931,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "total_current_assets": {
+  "2552-10": {
+   "reports": 87382,
+   "share": 0.9516,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 87250,
+   "share": 0.958,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "total_fixed_assets": {
+  "2552-10": {
+   "reports": 86267,
+   "share": 0.9395,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 85719,
+   "share": 0.9412,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "total_current_liabilities": {
+  "2552-10": {
+   "reports": 87212,
+   "share": 0.9497,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 86920,
+   "share": 0.9544,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "accumulated_depreciation": {
+  "2552-10": {
+   "reports": 83298,
+   "share": 0.9071,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 81204,
+   "share": 0.8916,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "new_capital_assets": {
+  "2552-10": {
+   "reports": 83535,
+   "share": 0.9097,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 70544,
+   "share": 0.7746,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "total_medicare_payment": {
+  "2552-10": {
+   "reports": 49739,
+   "share": 0.5417,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 62153,
+   "share": 0.6824,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "secondary_medicare_payment": {
+  "2552-10": {
+   "reports": 34071,
+   "share": 0.371,
+   "year_min": 2011,
+   "year_max": 2025
+  },
+  "2552-96": {
+   "reports": 46564,
+   "share": 0.5113,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "value_based_purchasing_adjustment": {
+  "2552-10": {
+   "reports": 34872,
+   "share": 0.3798,
+   "year_min": 2012,
+   "year_max": 2026
+  }
+ },
+ "readmissions_reduction_adjustment": {
+  "2552-10": {
+   "reports": 34780,
+   "share": 0.3788,
+   "year_min": 2012,
+   "year_max": 2026
+  }
+ },
+ "medicare_inpatient_total_cost": {
+  "2552-10": {
+   "reports": 89657,
+   "share": 0.9764,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 89091,
+   "share": 0.9782,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "medicare_inpatient_operating_cost": {
+  "2552-10": {
+   "reports": 69363,
+   "share": 0.7554,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 77762,
+   "share": 0.8538,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "medicare_inpatient_routine_charges": {
+  "2552-10": {
+   "reports": 89658,
+   "share": 0.9764,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 87343,
+   "share": 0.959,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ },
+ "medicare_inpatient_ancillary_net_charges": {
+  "2552-10": {
+   "reports": 85737,
+   "share": 0.9337,
+   "year_min": 2011,
+   "year_max": 2026
+  },
+  "2552-96": {
+   "reports": 87886,
+   "share": 0.965,
+   "year_min": 1996,
+   "year_max": 2011
+  }
+ }
+}
