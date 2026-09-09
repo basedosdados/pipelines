@@ -576,36 +576,43 @@ def source_last_modified(
 
 def clear_staging_prefix(
     bucket_name: str, dataset_id: str, table_id: str
-) -> int:
-    """Delete every blob under a table's staging prefix.
+) -> None:
+    """Delete everything under a table's staging prefix.
 
     Each run rebuilds the whole history, because CMS republishes the whole
     history. Clearing the prefix first is what makes that a replacement rather
-    than an overlay: a partition that needed two part files last quarter and
-    one this quarter would otherwise keep the stale second file and double
-    count those rows, since ``upload_to_gcs`` replaces blobs by name and never
-    removes extras.
+    than an overlay: a partition that needed two part files last quarter and one
+    this quarter would otherwise keep the stale second file and double count
+    those rows, since ``upload_to_gcs`` replaces blobs by name and never removes
+    extras.
 
     This is deliberately **not** ``dump_mode="overwrite"``. That path calls
-    ``tb.delete(mode="all")``, which drops the *production* table — from the dev
-    half of the flow too, because ``bd.Table`` resolves its projects from the
-    pod's config rather than from ``bucket_name``.
+    ``st.delete_table(...)`` *and* ``tb.delete(mode="all")``, and the second one
+    drops the **production** table — from the dev half of a run too, because
+    ``bd.Table`` resolves its projects from the pod's config rather than from
+    ``bucket_name``. Only the storage half is wanted here.
+
+    Uses ``bd.Storage`` rather than a hand-built ``google.cloud.storage.Client``.
+    A raw client picks up Application Default Credentials, which on the deployed
+    worker is the pod's default identity and lacks ``serviceusage.services.use``
+    on the billing project; the first dev run died on exactly that 403 after
+    cleaning all 33 extracts. ``bd.Storage`` loads the configured service
+    account, and ``billing_project_id`` is matched to the bucket for the same
+    reason ``pipelines.utils.tasks._upload_to_gcs`` matches it.
 
     Args:
         bucket_name: GCS bucket, which is also the billing project.
         dataset_id: GCP dataset id.
         table_id: Table slug.
-
-    Returns:
-        The number of blobs deleted.
     """
-    from google.cloud import storage
+    import basedosdados as bd
 
-    client = storage.Client(project=bucket_name)
-    bucket = client.bucket(bucket_name, user_project=bucket_name)
-    prefix = f"staging/{dataset_id}/{table_id}/"
-    deleted = 0
-    for blob in list(client.list_blobs(bucket, prefix=prefix)):
-        blob.delete()
-        deleted += 1
-    return deleted
+    storage = bd.Storage(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name=bucket_name,
+        billing_project_id=bucket_name,
+    )
+    storage.delete_table(
+        mode="staging", bucket_name=bucket_name, not_found_ok=True
+    )

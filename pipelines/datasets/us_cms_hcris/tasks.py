@@ -123,21 +123,19 @@ def download_and_clean_task(
 
 
 @task
-def clear_staging_task(bucket_name: str, table_id: str) -> int:
+def clear_staging_task(bucket_name: str, table_id: str) -> None:
     """Delete a table's staging prefix before the run re-uploads it.
 
-    CMS republishes the whole history every quarter, so every run rebuilds
-    every partition. Clearing first makes that a replacement: without it a
-    partition that needed two part files last quarter and one this quarter
-    keeps the stale second file and double counts those rows.
+    CMS republishes the whole history every quarter, so every run rebuilds every
+    partition. Clearing first makes that a replacement: without it a partition
+    that needed two part files last quarter and one this quarter keeps the stale
+    second file and double counts those rows.
 
     Args:
         bucket_name: GCS bucket, also the billing project.
         table_id: Table slug.
-
-    Returns:
-        Blobs deleted.
     """
-    n = clear_staging_prefix(bucket_name, constants.DATASET_ID.value, table_id)
-    log(f"{table_id}: cleared {n} blobs from gs://{bucket_name}/staging/…")
-    return n
+    clear_staging_prefix(bucket_name, constants.DATASET_ID.value, table_id)
+    log(
+        f"{table_id}: cleared gs://{bucket_name}/staging/{constants.DATASET_ID.value}/{table_id}/"
+    )
