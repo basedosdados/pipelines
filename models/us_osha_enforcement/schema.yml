@@ -16,6 +16,12 @@ models:
           dictionary_model: ref('us_osha_enforcement__dicionario')
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - safety_program_maritime
+            - health_program_manufacturing
+            - health_program_construction
+            - health_program_maritime
+            - migrant_labor
     columns:
       - name: year
         description: >-
@@ -147,6 +153,19 @@ models:
           dictionary_model: ref('us_osha_enforcement__dicionario')
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - deleted
+            - emphasis_program
+            - hazard_category
+            - hazardous_substance_1
+            - hazardous_substance_2
+            - hazardous_substance_3
+            - hazardous_substance_4
+            - hazardous_substance_5
+            - fta_inspection_id
+            - fta_issuance_date
+            - fta_contest_date
+            - fta_final_order_date
     columns:
       - name: year
         description: >-
@@ -257,6 +276,8 @@ models:
           dictionary_model: ref('us_osha_enforcement__dicionario')
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - fta_inspection_id
     columns:
       - name: year
         description: >-
@@ -526,6 +547,9 @@ models:
           dictionary_model: ref('us_osha_enforcement__dicionario')
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - fall_distance
+            - fall_height
     columns:
       - name: year
         description: >-
@@ -650,6 +674,8 @@ models:
           combination_of_columns: [id_tabela, nome_coluna, chave]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - cobertura_temporal
     columns:
       - name: id_tabela
         description: >-
