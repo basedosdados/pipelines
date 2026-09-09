@@ -204,6 +204,9 @@ models:
     au_abs_labour_force:
       +materialized: table
       +schema: au_abs_labour_force
+    au_abs_migration:
+      +materialized: table
+      +schema: au_abs_migration
     us_bls_qcew:
       +materialized: table
       +schema: us_bls_qcew

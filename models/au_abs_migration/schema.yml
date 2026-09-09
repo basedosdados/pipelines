@@ -1,0 +1,609 @@
+---
+version: 2
+models:
+  - name: au_abs_migration__overseas_country_of_birth_australia
+    description: >-
+      Migração internacional da Austrália por país de nascimento, uma linha por
+      exercício fiscal e país, com chegadas, partidas e migração líquida do país
+      como um todo. Os valores são arredondados pelo ABS para a dezena mais próxima,
+      de modo que os componentes nem sempre somam os totais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, country_of_birth_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano inicial do exercício fiscal australiano a que se referem os dados;
+          2004 corresponde ao exercício 2004-05, encerrado em 30 de junho de 2005
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_of_birth_id
+        description: >-
+          Código do país de nascimento na Standard Australian Classification of
+          Countries (SACC) 2016, com quatro dígitos
+        tests: [not_null]
+      - name: country_iso3_code
+        description: >-
+          Código ISO 3166-1 alfa-3 do país de nascimento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: arrivals
+        description: >-
+          Número de chegadas de migrantes do exterior
+      - name: departures
+        description: >-
+          Número de partidas de migrantes para o exterior
+      - name: net
+        description: >-
+          Migração líquida internacional: chegadas menos partidas
+  - name: au_abs_migration__overseas_country_of_birth_state
+    description: >-
+      Migração internacional por país de nascimento e estado ou território de
+      residência, uma linha por exercício fiscal, estado e país. Os valores são
+      arredondados pelo ABS para a dezena mais próxima, de modo que os componentes
+      nem sempre somam os totais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, state_id, country_of_birth_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano inicial do exercício fiscal australiano a que se referem os dados;
+          2004 corresponde ao exercício 2004-05, encerrado em 30 de junho de 2005
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_id
+        description: >-
+          Código do estado ou território australiano de residência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: id_state
+      - name: country_of_birth_id
+        description: >-
+          Código do país de nascimento na Standard Australian Classification of
+          Countries (SACC) 2016, com quatro dígitos
+        tests: [not_null]
+      - name: country_iso3_code
+        description: >-
+          Código ISO 3166-1 alfa-3 do país de nascimento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: arrivals
+        description: >-
+          Número de chegadas de migrantes do exterior
+      - name: departures
+        description: >-
+          Número de partidas de migrantes para o exterior
+      - name: net
+        description: >-
+          Migração líquida internacional: chegadas menos partidas
+  - name: au_abs_migration__overseas_age_sex_australia
+    description: >-
+      Migração internacional da Austrália por grupo etário e sexo, uma linha por
+      exercício fiscal, grupo etário e sexo. Os valores são arredondados pelo ABS
+      para a dezena mais próxima, de modo que os componentes nem sempre somam os
+      totais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, age_group, sex]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano inicial do exercício fiscal australiano a que se referem os dados;
+          2004 corresponde ao exercício 2004-05, encerrado em 30 de junho de 2005
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: age_group
+        description: >-
+          Código do grupo etário do migrante
+        tests: [not_null]
+      - name: sex
+        description: >-
+          Código do sexo do migrante
+        tests: [not_null]
+      - name: arrivals
+        description: >-
+          Número de chegadas de migrantes do exterior
+      - name: departures
+        description: >-
+          Número de partidas de migrantes para o exterior
+      - name: net
+        description: >-
+          Migração líquida internacional: chegadas menos partidas
+  - name: au_abs_migration__overseas_age_sex_state
+    description: >-
+      Migração internacional por grupo etário, sexo e estado ou território de
+      residência, uma linha por exercício fiscal, estado, grupo etário e sexo. Os
+      valores são arredondados pelo ABS para a dezena mais próxima, de modo que os
+      componentes nem sempre somam os totais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, state_id, age_group, sex]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano inicial do exercício fiscal australiano a que se referem os dados;
+          2004 corresponde ao exercício 2004-05, encerrado em 30 de junho de 2005
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_id
+        description: >-
+          Código do estado ou território australiano de residência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: id_state
+      - name: age_group
+        description: >-
+          Código do grupo etário do migrante
+        tests: [not_null]
+      - name: sex
+        description: >-
+          Código do sexo do migrante
+        tests: [not_null]
+      - name: arrivals
+        description: >-
+          Número de chegadas de migrantes do exterior
+      - name: departures
+        description: >-
+          Número de partidas de migrantes para o exterior
+      - name: net
+        description: >-
+          Migração líquida internacional: chegadas menos partidas
+  - name: au_abs_migration__overseas_age_sex_australia_calendar_year
+    description: >-
+      Migração internacional da Austrália por grupo etário e sexo, em anos civis.
+      Mesma estatística da tabela por exercício fiscal, recortada por outro
+      calendário. Os valores são arredondados pelo ABS para a dezena mais próxima,
+      de modo que os componentes nem sempre somam os totais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, age_group, sex]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano civil de referência dos dados
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: age_group
+        description: >-
+          Código do grupo etário do migrante
+        tests: [not_null]
+      - name: sex
+        description: >-
+          Código do sexo do migrante
+        tests: [not_null]
+      - name: arrivals
+        description: >-
+          Número de chegadas de migrantes do exterior
+      - name: departures
+        description: >-
+          Número de partidas de migrantes para o exterior
+      - name: net
+        description: >-
+          Migração líquida internacional: chegadas menos partidas
+  - name: au_abs_migration__overseas_age_sex_state_calendar_year
+    description: >-
+      Migração internacional por grupo etário, sexo e estado ou território de
+      residência, em anos civis. Os valores são arredondados pelo ABS para a dezena
+      mais próxima, de modo que os componentes nem sempre somam os totais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, state_id, age_group, sex]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano civil de referência dos dados
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_id
+        description: >-
+          Código do estado ou território australiano de residência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: id_state
+      - name: age_group
+        description: >-
+          Código do grupo etário do migrante
+        tests: [not_null]
+      - name: sex
+        description: >-
+          Código do sexo do migrante
+        tests: [not_null]
+      - name: arrivals
+        description: >-
+          Número de chegadas de migrantes do exterior
+      - name: departures
+        description: >-
+          Número de partidas de migrantes para o exterior
+      - name: net
+        description: >-
+          Migração líquida internacional: chegadas menos partidas
+  - name: au_abs_migration__overseas_visa_australia
+    description: >-
+      Chegadas e partidas de migrantes internacionais da Austrália por grupo de
+      visto ou de cidadania, uma linha por exercício fiscal e grupo de visto.
+      Contabiliza migrações segundo o visto detido no momento do deslocamento, e não
+      vistos concedidos. Os valores são arredondados pelo ABS para a dezena mais
+      próxima, de modo que os componentes nem sempre somam os totais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, visa_group_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano inicial do exercício fiscal australiano a que se referem os dados;
+          2004 corresponde ao exercício 2004-05, encerrado em 30 de junho de 2005
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: visa_group_id
+        description: >-
+          Código do grupo de visto ou de cidadania do migrante no momento da
+          migração
+        tests: [not_null]
+      - name: arrivals
+        description: >-
+          Número de chegadas de migrantes do exterior
+      - name: departures
+        description: >-
+          Número de partidas de migrantes para o exterior
+  - name: au_abs_migration__overseas_visa_state
+    description: >-
+      Chegadas e partidas de migrantes internacionais por grupo de visto ou de
+      cidadania e estado ou território de residência, uma linha por exercício
+      fiscal, estado e grupo de visto. Os valores são arredondados pelo ABS para a
+      dezena mais próxima, de modo que os componentes nem sempre somam os totais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, state_id, visa_group_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano inicial do exercício fiscal australiano a que se referem os dados;
+          2004 corresponde ao exercício 2004-05, encerrado em 30 de junho de 2005
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_id
+        description: >-
+          Código do estado ou território australiano de residência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: id_state
+      - name: visa_group_id
+        description: >-
+          Código do grupo de visto ou de cidadania do migrante no momento da
+          migração
+        tests: [not_null]
+      - name: arrivals
+        description: >-
+          Número de chegadas de migrantes do exterior
+      - name: departures
+        description: >-
+          Número de partidas de migrantes para o exterior
+  - name: au_abs_migration__overseas_visa_quarter_australia
+    description: >-
+      Chegadas e partidas de migrantes internacionais da Austrália por grupo de
+      visto ou de cidadania, em trimestres civis. O ABS revisa esta série a cada
+      divulgação trimestral da população, de modo que o ano preliminar pode divergir
+      das tabelas anuais, que refletem a divulgação anual. Os valores são
+      arredondados pelo ABS para a dezena mais próxima, de modo que os componentes
+      nem sempre somam os totais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, quarter, visa_group_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano civil de referência dos dados
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Trimestre civil de referência, de 1 a 4
+        tests: [not_null]
+      - name: visa_group_id
+        description: >-
+          Código do grupo de visto ou de cidadania do migrante no momento da
+          migração
+        tests: [not_null]
+      - name: arrivals
+        description: >-
+          Número de chegadas de migrantes do exterior
+      - name: departures
+        description: >-
+          Número de partidas de migrantes para o exterior
+  - name: au_abs_migration__overseas_visa_quarter_state
+    description: >-
+      Chegadas e partidas de migrantes internacionais por grupo de visto ou de
+      cidadania e estado ou território de residência, em trimestres civis. Os
+      valores são arredondados pelo ABS para a dezena mais próxima, de modo que os
+      componentes nem sempre somam os totais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, quarter, state_id, visa_group_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano civil de referência dos dados
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Trimestre civil de referência, de 1 a 4
+        tests: [not_null]
+      - name: state_id
+        description: >-
+          Código do estado ou território australiano de residência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: id_state
+      - name: visa_group_id
+        description: >-
+          Código do grupo de visto ou de cidadania do migrante no momento da
+          migração
+        tests: [not_null]
+      - name: arrivals
+        description: >-
+          Número de chegadas de migrantes do exterior
+      - name: departures
+        description: >-
+          Número de partidas de migrantes para o exterior
+  - name: au_abs_migration__interstate_age_sex_australia
+    description: >-
+      Migração interestadual na Austrália por grupo etário e sexo, uma linha por
+      exercício fiscal, grupo etário e sexo. Os totais nacionais correspondem à soma
+      dos deslocamentos entre estados e territórios. Os valores são arredondados
+      pelo ABS para a dezena mais próxima, de modo que os componentes nem sempre
+      somam os totais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, age_group, sex]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano inicial do exercício fiscal australiano a que se referem os dados;
+          2004 corresponde ao exercício 2004-05, encerrado em 30 de junho de 2005
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: age_group
+        description: >-
+          Código do grupo etário do migrante
+        tests: [not_null]
+      - name: sex
+        description: >-
+          Código do sexo do migrante
+        tests: [not_null]
+      - name: arrivals
+        description: >-
+          Número de chegadas de migrantes de outros estados ou territórios
+      - name: departures
+        description: >-
+          Número de partidas de migrantes para outros estados ou territórios
+      - name: net
+        description: >-
+          Migração líquida interestadual: chegadas menos partidas
+  - name: au_abs_migration__interstate_age_sex_state
+    description: >-
+      Migração interestadual por grupo etário, sexo e estado ou território, uma
+      linha por exercício fiscal, estado, grupo etário e sexo. Os valores são
+      arredondados pelo ABS para a dezena mais próxima, de modo que os componentes
+      nem sempre somam os totais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, state_id, age_group, sex]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano inicial do exercício fiscal australiano a que se referem os dados;
+          2004 corresponde ao exercício 2004-05, encerrado em 30 de junho de 2005
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_id
+        description: >-
+          Código do estado ou território australiano de residência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: id_state
+      - name: age_group
+        description: >-
+          Código do grupo etário do migrante
+        tests: [not_null]
+      - name: sex
+        description: >-
+          Código do sexo do migrante
+        tests: [not_null]
+      - name: arrivals
+        description: >-
+          Número de chegadas de migrantes de outros estados ou territórios
+      - name: departures
+        description: >-
+          Número de partidas de migrantes para outros estados ou territórios
+      - name: net
+        description: >-
+          Migração líquida interestadual: chegadas menos partidas
+  - name: au_abs_migration__interstate_age_sex_australia_calendar_year
+    description: >-
+      Migração interestadual na Austrália por grupo etário e sexo, em anos civis.
+      Os
+      valores são arredondados pelo ABS para a dezena mais próxima, de modo que os
+      componentes nem sempre somam os totais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, age_group, sex]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano civil de referência dos dados
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: age_group
+        description: >-
+          Código do grupo etário do migrante
+        tests: [not_null]
+      - name: sex
+        description: >-
+          Código do sexo do migrante
+        tests: [not_null]
+      - name: arrivals
+        description: >-
+          Número de chegadas de migrantes de outros estados ou territórios
+      - name: departures
+        description: >-
+          Número de partidas de migrantes para outros estados ou territórios
+      - name: net
+        description: >-
+          Migração líquida interestadual: chegadas menos partidas
+  - name: au_abs_migration__interstate_age_sex_state_calendar_year
+    description: >-
+      Migração interestadual por grupo etário, sexo e estado ou território, em anos
+      civis. Inclui os Territórios Externos (código 9), ausentes da série por
+      exercício fiscal. Os valores são arredondados pelo ABS para a dezena mais
+      próxima, de modo que os componentes nem sempre somam os totais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, state_id, age_group, sex]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano civil de referência dos dados
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: state_id
+        description: >-
+          Código do estado ou território australiano de residência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_au__state')
+              field: id_state
+      - name: age_group
+        description: >-
+          Código do grupo etário do migrante
+        tests: [not_null]
+      - name: sex
+        description: >-
+          Código do sexo do migrante
+        tests: [not_null]
+      - name: arrivals
+        description: >-
+          Número de chegadas de migrantes de outros estados ou territórios
+      - name: departures
+        description: >-
+          Número de partidas de migrantes para outros estados ou territórios
+      - name: net
+        description: >-
+          Migração líquida interestadual: chegadas menos partidas
+  - name: au_abs_migration__dicionario
+    description: >-
+      Dicionário dos valores codificados usados nas tabelas de au_abs_migration:
+      país de nascimento (SACC), grupo etário, sexo e grupo de visto.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [cobertura_temporal]
+    columns:
+      - name: id_tabela
+        description: >-
+          Slug da tabela de au_abs_migration descrita pela entrada
+        tests: [not_null]
+      - name: nome_coluna
+        description: >-
+          Nome da coluna descrita pela entrada
+        tests: [not_null]
+      - name: chave
+        description: >-
+          Valor da chave, conforme armazenado na coluna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >-
+          Cobertura temporal da entrada
+      - name: valor
+        description: >-
+          Descrição da chave
