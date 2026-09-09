@@ -217,6 +217,10 @@ project-excludes = [
   "pipelines/{{cookiecutter.pipeline_name}}",
   "models/br_tse_eleicoes/code",
   "models/us_nih_reporter/code",
+  # Same policy: the us_cms_hcris onboarding scripts run from their own
+  # directory with bare sibling imports (`common`, `measures`, `schema`),
+  # which pyrefly cannot resolve from the repo root.
+  "models/us_cms_hcris/code",
   # Same policy: the world_iati_activities onboarding scripts run from their own
   # directory with bare sibling imports (`common`, `gen_dbt`), which pyrefly
   # cannot resolve from the repo root.
