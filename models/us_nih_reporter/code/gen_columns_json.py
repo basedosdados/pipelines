@@ -14,6 +14,18 @@ from common import ALL_TABLES, load_cols
 
 
 def payload(table: str) -> list[dict]:
+    """Build one table's bulk_upsert_columns payload from its architecture CSV.
+
+    Optional keys are omitted rather than sent empty: bulk_upsert_columns writes
+    only the fields present for a row, so an empty string would blank a value
+    that is already correct on a re-run.
+
+    Args:
+        table: Clean table slug, matching a sheet_<table>.csv.
+
+    Returns:
+        One dict per column, in the architecture's column order.
+    """
     out = []
     for c in load_cols(table):
         entry = {
@@ -38,6 +50,15 @@ def payload(table: str) -> list[dict]:
 
 
 def main() -> None:
+    """Write one columns_<table>.json per table into the output directory.
+
+    Args:
+        None. The first command-line argument is the output directory,
+        defaulting to the working directory.
+
+    Returns:
+        None. Writes one JSON file per table and prints each path.
+    """
     out_dir = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(".")
     out_dir.mkdir(parents=True, exist_ok=True)
     for table in ALL_TABLES:
