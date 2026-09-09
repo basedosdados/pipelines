@@ -244,6 +244,11 @@ project-excludes = [
   # transform they share lives in pipelines/datasets/us_eia_electricity/ and is
   # checked normally.
   "models/us_eia_electricity/code",
+  # Same policy: the us_census_trade metadata scripts import the databasis MCP
+  # `server` module from outside the repo, which pyrefly cannot resolve. The
+  # download and cleaning transform they document lives in
+  # pipelines/datasets/us_census_trade/ and is checked normally.
+  "models/us_census_trade/code",
   # Same policy: the us_cfpb_complaints onboarding scripts are standalone `.py`
   # run from their own directory with bare sibling imports (`from common import
   # ...`), which pyrefly cannot resolve from the repo root.
