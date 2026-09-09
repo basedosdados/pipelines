@@ -83,6 +83,9 @@ def deploy_flow(
 
     job_variables = getattr(flow, "job_variables", None)
 
+    extra_tags = getattr(flow, "deploy_tags", None) or []
+    tags = ["automated-deploy", *extra_tags]
+
     print(f"  Registrando {flow_name} → {entrypoint}")
 
     try:
@@ -95,7 +98,7 @@ def deploy_flow(
         ).deploy(
             name=flow_name,
             work_pool_name=pool_name,
-            tags=["automated-deploy"],
+            tags=tags,
             schedules=schedules,
             job_variables=job_variables,
             build=False,
@@ -106,7 +109,7 @@ def deploy_flow(
             if not schedules
             else f"com schedules: {schedules}"
         )
-        print(f"  ✓ {flow_name} registrado {status}")
+        print(f"  ✓ {flow_name} registrado {status}, tags={tags}")
         return True
     except Exception as e:
         print(f"  ✗ Falha ao registrar {flow_name}: {e}")

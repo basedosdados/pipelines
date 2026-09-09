@@ -13,7 +13,7 @@ from prefect import task
 def download_files_from_bucket_folders(
     dataset_id: str,
     table_id: str,
-    folders: str | list[str],
+    folders: str | list[str] | None = None,
     extension: str | None = None,
     source_bucket: str = "basedosdados-dev",
     billing_project: str = "basedosdados",
@@ -25,8 +25,11 @@ def download_files_from_bucket_folders(
     Parameters:
         dataset_id (str): The ID of the dataset.
         table_id (str): The ID of the table.
-        folders (Union[str, List[str]]): Either a single folder name or a list of folder names within the bucket
-            containing the files.
+        folders (Union[str, List[str], None]): Either a single folder name or a
+            list of folder names (partições estilo Hive, ex. ``mes_competencia=202306``)
+            dentro do staging da tabela. ``None`` (default) para tabelas **sem
+            partição** — baixa tudo direto de ``staging/{dataset_id}/{table_id}/``,
+            sem subpasta.
         extension (str, optional): The file extension to filter. If None, downloads all files. Default is None.
         source_bucket (str): Bucket de origem (requester-pays). Default ``basedosdados-dev``.
         billing_project (str): Projeto cobrado pelo acesso requester-pays. Precisa
@@ -39,16 +42,20 @@ def download_files_from_bucket_folders(
     os.makedirs("/tmp/data/backup/", exist_ok=True)
     storage_client = storage.Client(project=billing_project)
 
-    if isinstance(folders, str):
-        folders = [folders]
+    if folders is None:
+        prefixes = [f"staging/{dataset_id}/{table_id}/"]
+    else:
+        if isinstance(folders, str):
+            folders = [folders]
+        prefixes = [
+            f"staging/{dataset_id}/{table_id}/{folder}/" for folder in folders
+        ]
 
-    for folder in folders:
+    for prefix in prefixes:
         # List blobs (files) within the specified folder in the bucket
         blobs_in_bucket = storage_client.bucket(
             bucket_name=source_bucket, user_project=billing_project
-        ).list_blobs(
-            prefix=f"staging/{dataset_id}/{table_id}/{folder}/",
-        )
+        ).list_blobs(prefix=prefix)
         blob_list = list(blobs_in_bucket)
 
         for blob in blob_list:
