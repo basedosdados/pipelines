@@ -13,10 +13,15 @@ failure rather than silently shifted data.
 
 from __future__ import annotations
 
+import concurrent.futures as cf
 import csv
 import logging
 import re
 import shutil
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -807,3 +812,174 @@ def clean_all(
     for table, count in sorted(dropped.items()):
         log.info(f"{table}: dropped {count:,} rows with no geography code")
     return totals
+
+
+# ── download ────────────────────────────────────────────────────────────────
+
+BASE_URL = constants.BASE_URL.value
+HEADERS = constants.HEADERS.value
+
+
+def download_targets(through_year: int) -> list[tuple[str, Path]]:
+    """Build the (url, destination) list for every published BPS file.
+
+    Args:
+        through_year: Last survey year to ask for. Years the Census Bureau has
+            not published yet simply answer 404 and are skipped.
+
+    Returns:
+        One (url, destination) pair per candidate file.
+    """
+    out: list[tuple[str, Path]] = []
+
+    def add(directory: str, prefix: str, level: str, kind: str, first: int):
+        for year in range(first, through_year + 1):
+            names = (
+                [f"{prefix}{year % 100:02d}{m:02d}c.txt" for m in range(1, 13)]
+                if kind == "monthly"
+                else [f"{prefix}{year}a.txt"]
+            )
+            for name in names:
+                url = BASE_URL + urllib.parse.quote(f"{directory}/{name}")
+                out.append((url, Path(level) / name))
+
+    for level, directory in constants.GEO_DIRS.value.items():
+        prefix = constants.GEO_PREFIXES.value[level]
+        for kind in ("monthly", "annual"):
+            add(
+                directory,
+                prefix,
+                level,
+                kind,
+                constants.FIRST_YEAR.value[(level, kind)],
+            )
+    for directory, prefix in constants.PLACE_REGIONS.value.items():
+        for kind in ("monthly", "annual"):
+            add(
+                f"Place/{directory}",
+                prefix,
+                "place",
+                kind,
+                constants.FIRST_YEAR.value[("place", kind)],
+            )
+    return out
+
+
+def fetch_file(url: str, dest: Path, tries: int = 5) -> tuple[str, str]:
+    """Download one BPS file, distinguishing a missing file from a rejection.
+
+    Two Census server behaviours would otherwise lose data silently. A file
+    that does not exist answers HTTP 404 with an HTML page, so the body is
+    checked before anything is written. Separately, the site firewall rejects a
+    few perfectly valid URLs with **HTTP 200** and a "Request Rejected" HTML
+    page; treating that as a missing file dropped four place months and one
+    metropolitan month on the first full run. The rejection is cached against
+    the exact URL, so every retry carries a cache-busting parameter.
+
+    Args:
+        url: Absolute URL of the file.
+        dest: Destination path; parent directories are created.
+        tries: Attempts before giving up.
+
+    Returns:
+        ``(status, detail)``; status is "ok", "cached", "missing" or "failed".
+        Only an HTTP 404 yields "missing".
+    """
+    if dest.exists() and dest.stat().st_size > 0:
+        return "cached", ""
+    detail = ""
+    for attempt in range(tries):
+        target = url if attempt == 0 else f"{url}?attempt={attempt}"
+        request = urllib.request.Request(target, headers=HEADERS)
+        try:
+            with urllib.request.urlopen(request, timeout=300) as response:
+                body = response.read()
+        except urllib.error.HTTPError as exc:
+            if exc.code == 404:
+                return "missing", "HTTP 404"
+            detail = f"HTTP {exc.code}"
+            time.sleep(2 * (attempt + 1))
+            continue
+        except Exception as exc:
+            detail = f"{type(exc).__name__}: {exc}"
+            time.sleep(2 * (attempt + 1))
+            continue
+        head = body[:1000].lower()
+        if b"<html" in head or b"<!doctype" in head:
+            detail = "firewall rejection (HTTP 200 with an HTML body)"
+            time.sleep(1 + attempt)
+            continue
+        if not body.strip():
+            detail = "empty body"
+            time.sleep(1 + attempt)
+            continue
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(body)
+        return "ok", ""
+    return "failed", detail
+
+
+def download_all(
+    input_dir: Path, through_year: int, workers: int = 6
+) -> dict[str, int]:
+    """Download every published BPS file into ``input_dir``.
+
+    Args:
+        input_dir: Directory to download into.
+        through_year: Last survey year to ask for.
+        workers: Concurrent downloads.
+
+    Returns:
+        Counts by status.
+
+    Raises:
+        RuntimeError: If any file failed for a reason other than a 404. A
+            partial download must stop the run rather than quietly produce a
+            table with months missing.
+    """
+    jobs = [
+        (url, input_dir / rel) for url, rel in download_targets(through_year)
+    ]
+    counts = {"ok": 0, "cached": 0, "missing": 0, "failed": 0}
+    failures: list[str] = []
+    with cf.ThreadPoolExecutor(max_workers=workers) as pool:
+        futures = {pool.submit(fetch_file, u, d): u for u, d in jobs}
+        for future in cf.as_completed(futures):
+            status, detail = future.result()
+            counts[status] += 1
+            if status == "failed":
+                failures.append(f"{futures[future]} -- {detail}")
+    log.info(f"download: {counts}")
+    if failures:
+        raise RuntimeError(
+            f"{len(failures)} files failed to download (not 404s): "
+            + "; ".join(failures[:10])
+        )
+    return counts
+
+
+def latest_monthly_period(input_dir: Path) -> str:
+    """Return the most recent monthly survey period present, as ``YYYY-MM``.
+
+    Read from the state files, the smallest monthly series and the one that
+    goes back furthest, so it is the cheapest reliable signal of what the
+    Census Bureau has published.
+
+    Args:
+        input_dir: Directory holding the downloaded files.
+
+    Returns:
+        The latest period, e.g. ``"2026-07"``.
+
+    Raises:
+        ValueError: If no monthly state file was downloaded.
+    """
+    periods = []
+    for path in (input_dir / "state").glob("st*c.txt"):
+        _level, periodicity, year, month = parse_filename(path.name)
+        if periodicity == "monthly" and month is not None:
+            periods.append((year, month))
+    if not periods:
+        raise ValueError(f"no monthly state files under {input_dir}")
+    year, month = max(periods)
+    return f"{year:04d}-{month:02d}"

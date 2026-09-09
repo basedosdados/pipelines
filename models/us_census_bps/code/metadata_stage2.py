@@ -84,11 +84,63 @@ def read_state(table_id: str, env: str) -> dict:
     }
 
 
+# What each source has actually published, as a coverage date. The
+# raw-data-source Update means "what the publisher last released", unlike the
+# table Update and the Poll, which are wall clocks. The metropolitan files
+# stopped at December 2023, when the series moved to the CBSA basis, so that
+# source's last release is not today's period.
+SOURCE_MAX_PERIOD = {
+    "place": "2026-07-01T00:00:00+00:00",
+    "county": "2026-07-01T00:00:00+00:00",
+    "cbsa": "2026-07-01T00:00:00+00:00",
+    "state": "2026-07-01T00:00:00+00:00",
+    "msa": "2023-12-01T00:00:00+00:00",
+}
+
+
+def register_source_update(env: str) -> int:
+    """Record what the source has published, against each raw data source.
+
+    A recurring dataset needs three records and they mean different things:
+    the table Update is when Data Basis last refreshed, the raw-data-source
+    Update is the source's own max coverage date, and the Poll is when we last
+    looked. The flow writes the latter two, but only on a run with
+    update_metadata=True, so a dataset tested with metadata off ends up with a
+    Poll and no source Update. Registering it here means the record exists
+    from the start.
+    """
+    entity = server.discover_ids(env=env, keys=["entity"])["entity"]
+    prior = server.get_raw_data_sources(DATASET_SLUG, env=env)
+    if isinstance(prior, dict):
+        prior = prior.get("raw_data_sources", [])
+    by_url = {BASE + path: level for level, (path, *_r) in SOURCES.items()}
+    for source in prior:
+        level = by_url[source["url"]]
+        latest = SOURCE_MAX_PERIOD[level]
+        server.create_update_update(
+            entity_id=entity["month"],
+            frequency=1,
+            latest=latest,
+            raw_data_source_id=source["id"],
+            env=env,
+        )
+        print(f"source update {level:7s} -> {latest[:10]}")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--env", default="staging")
+    parser.add_argument(
+        "--source-update-only",
+        action="store_true",
+        help="Only (re)write the raw-data-source Update records.",
+    )
     args = parser.parse_args()
     env = args.env
+
+    if args.source_update_only:
+        return register_source_update(env)
 
     ids = server.discover_ids(env=env, keys=["entity", "status"])
     entity = ids["entity"]
@@ -248,6 +300,9 @@ def main() -> int:
         dataset_slug=DATASET_SLUG, table_slugs=TABLE_ORDER, env=env
     )
     print("\n=== pass 3: table order set ===")
+
+    print("\n=== pass 4: raw-data-source updates ===")
+    register_source_update(env)
     return 0
 
 
