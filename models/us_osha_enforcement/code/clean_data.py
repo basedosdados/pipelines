@@ -38,6 +38,13 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--data-dir", default=constants.DEFAULT_DATA_DIR.value)
     p.add_argument("--all", action="store_true", help="clean every table")
     p.add_argument("--tables", nargs="*", default=None)
+    p.add_argument(
+        "--years",
+        nargs="*",
+        type=int,
+        default=None,
+        help="restrict output to these partition years",
+    )
     p.add_argument("--download", action="store_true", help="download first")
     p.add_argument("--only-download", action="store_true")
     args = p.parse_args(argv)
@@ -75,10 +82,15 @@ def main(argv: list[str] | None = None) -> int:
     # whole directory.
     for slug in args.tables or []:
         shutil.rmtree(output_dir / slug, ignore_errors=True)
-    if args.all:
+    if args.all and not args.years:
         shutil.rmtree(output_dir, ignore_errors=True)
 
-    counts = clean_all(input_dir, output_dir, args.tables)
+    counts = clean_all(
+        input_dir,
+        output_dir,
+        args.tables,
+        set(args.years) if args.years else None,
+    )
     report = output_dir / "clean_report.json"
     report.parent.mkdir(parents=True, exist_ok=True)
     existing = json.loads(report.read_text()) if report.exists() else {}

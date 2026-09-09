@@ -44,6 +44,24 @@ ARCH_COLUMNS = [
 
 PARTITION_START, PARTITION_END = 1970, 2035
 
+#: Referential tests. Each child column is checked against its parent's key.
+#:
+#: accident_injury is deliberately absent from both directions. 22,509 of the
+#: 188,305 incidents its rows reference have no row in `accident` — the source
+#: publishes injury detail for investigations whose incident record it does not
+#: release — and 87 rows name an inspection that is likewise unpublished. Both
+#: are source gaps, not cleaning defects, so a relationships test there would
+#: fail on data that is correct.
+FOREIGN_KEYS: dict[str, list[tuple[str, str, str]]] = {
+    "violation": [("inspection_id", "inspection", "inspection_id")],
+    "violation_event": [("inspection_id", "inspection", "inspection_id")],
+    "violation_text": [("inspection_id", "inspection", "inspection_id")],
+    "related_activity": [("inspection_id", "inspection", "inspection_id")],
+    "emphasis_code": [("inspection_id", "inspection", "inspection_id")],
+    "optional_code_info": [("inspection_id", "inspection", "inspection_id")],
+    "accident_narrative": [("accident_id", "accident", "accident_id")],
+}
+
 
 def _load(name: str):
     spec = importlib.util.spec_from_file_location(name, HERE / f"{name}.py")
@@ -175,7 +193,7 @@ def _yaml_block(text: str, indent: str) -> str:
     return "\n".join(f"{indent}{ln}" for ln in lines)
 
 
-def write_schema(tables, sparse: dict[str, list[str]]) -> None:
+def write_schema(tables, sparse: dict[str, list[str]], excluded: set) -> None:
     out = ["---", "version: 2", "models:"]
     for table in tables:
         out.append(f"  - name: {DATASET}__{table.slug}")
@@ -188,6 +206,22 @@ def write_schema(tables, sparse: dict[str, list[str]]) -> None:
             + ", ".join(table.primary_key)
             + "]"
         )
+        covered = [
+            c.name
+            for c in table.columns
+            if c.covered_by_dictionary == "yes"
+            and (table.slug, c.name) not in excluded
+        ]
+        if covered and table.slug != "dicionario":
+            out.append("      - custom_dictionary_coverage:")
+            out.append(
+                "          columns_covered_by_dictionary: ["
+                + ", ".join(covered)
+                + "]"
+            )
+            out.append(
+                f"          dictionary_model: ref('{DATASET}__dicionario')"
+            )
         ignore = sparse.get(table.slug, [])
         out.append("      - not_null_proportion_multiple_columns:")
         out.append("          at_least: 0.05")
@@ -199,11 +233,23 @@ def write_schema(tables, sparse: dict[str, list[str]]) -> None:
             out.append(f"      - name: {col.name}")
             out.append("        description: >-")
             out.append(_yaml_block(col.description, "          "))
-            tests = []
+            fks = [
+                fk
+                for fk in FOREIGN_KEYS.get(table.slug, [])
+                if fk[0] == col.name
+            ]
+            simple = []
             if col.name in table.partition or col.name in table.primary_key:
-                tests.append("not_null")
-            if tests:
-                out.append(f"        tests: [{', '.join(tests)}]")
+                simple.append("not_null")
+            if simple and not fks:
+                out.append(f"        tests: [{', '.join(simple)}]")
+            elif simple or fks:
+                out.append("        tests:")
+                out.extend(f"          - {t}" for t in simple)
+                for _, parent, field in fks:
+                    out.append("          - relationships:")
+                    out.append(f"              to: ref('{DATASET}__{parent}')")
+                    out.append(f"              field: {field}")
     (MODEL_DIR / "schema.yml").write_text(
         "\n".join(out) + "\n", encoding="utf-8"
     )
@@ -219,7 +265,8 @@ def main() -> int:
     write_architecture(arch.TABLES)
     write_columns_json(arch.TABLES)
     write_models(arch.TABLES)
-    write_schema(arch.TABLES, sparse)
+    dd = _load("dictionary_def")
+    write_schema(arch.TABLES, sparse, dd.DICTIONARY_COVERAGE_EXCLUDED)
     return 0
 
 

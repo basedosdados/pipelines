@@ -308,10 +308,15 @@ class PartitionWriter:
         columns: list[str],
         out_dir: Path,
         partitioned: bool = True,
+        years: set[int] | None = None,
     ):
         self.table = table
         self.columns = columns
         self.partitioned = partitioned
+        #: When set, only these partition years are written. A refresh run
+        #: rewrites one object per partition and leaves the rest of the prefix
+        #: alone, so the staging table keeps its full history.
+        self.years = years
         self.schema = pa.schema([pa.field(c, pa.string()) for c in columns])
         self.dir = out_dir / table
         self._buf: dict[int, list[list[str | None]]] = {}
@@ -319,11 +324,15 @@ class PartitionWriter:
         self._buffered = 0
         self.rows = 0
         self.dropped_no_year = 0
+        self.skipped_year = 0
 
     def add(self, year: int | None, values: list[str | None]) -> None:
         """Queue one row. A row with no resolvable year is counted and dropped."""
         if year is None:
             self.dropped_no_year += 1
+            return
+        if self.years is not None and year not in self.years:
+            self.skipped_year += 1
             return
         self._buf.setdefault(year, []).append(values)
         self._buffered += 1
@@ -461,13 +470,14 @@ def build_simple(
     out_dir: Path,
     insp_years: YearMap,
     acc_years: YearMap,
+    years: set[int] | None = None,
 ) -> PartitionWriter:
     """Clean one table that maps a source row straight to a published row."""
     cols = [c.name for c in table.columns]
     norms = column_normalisers(table)
     year_of = _year_resolver(table, insp_years, acc_years)
     stem = table.source_file.removeprefix("OSHA_")
-    writer = PartitionWriter(table.slug, cols, out_dir)
+    writer = PartitionWriter(table.slug, cols, out_dir, years=years)
     for idx, row in read_source(stem, input_dir):
         year = year_of(idx, row)
         values: list[str | None] = []
@@ -569,7 +579,11 @@ def join_lines(lines: list[str], vocab: set[str]) -> tuple[str, str]:
 
 
 def build_accident_narrative(
-    table, input_dir: Path, out_dir: Path, acc_years: YearMap
+    table,
+    input_dir: Path,
+    out_dir: Path,
+    acc_years: YearMap,
+    years: set[int] | None = None,
 ) -> PartitionWriter:
     """Reassemble ``accident_abstract`` into one narrative per incident.
 
@@ -593,7 +607,7 @@ def build_accident_narrative(
     vocab = build_vocabulary(docs)
     log.info(f"accident_narrative: vocabulary of {len(vocab):,} words")
     writer = PartitionWriter(
-        table.slug, [c.name for c in table.columns], out_dir
+        table.slug, [c.name for c in table.columns], out_dir, years=years
     )
     for key, lines in docs.items():
         ordered = [lines[n] for n in sorted(lines)]
@@ -615,7 +629,11 @@ def build_accident_narrative(
 
 
 def build_violation_text(
-    table, input_dir: Path, out_dir: Path, insp_years: YearMap
+    table,
+    input_dir: Path,
+    out_dir: Path,
+    insp_years: YearMap,
+    years: set[int] | None = None,
 ) -> PartitionWriter:
     """Reassemble ``violation_gen_duty_std`` into one text per citation.
 
@@ -635,7 +653,7 @@ def build_violation_text(
         docs.setdefault((activity, citation), {})[line] = row[idx["LINE_TEXT"]]
 
     writer = PartitionWriter(
-        table.slug, [c.name for c in table.columns], out_dir
+        table.slug, [c.name for c in table.columns], out_dir, years=years
     )
     for (activity, citation), lines in docs.items():
         ordered = [lines[n] for n in sorted(lines)]
@@ -719,12 +737,20 @@ def build_dicionario(table, input_dir: Path, out_dir: Path) -> PartitionWriter:
 
 
 def clean_all(
-    input_dir: Path, output_dir: Path, tables: list[str] | None = None
+    input_dir: Path,
+    output_dir: Path,
+    tables: list[str] | None = None,
+    years: set[int] | None = None,
 ) -> dict[str, int]:
     """Clean every table, returning ``{table_slug: rows}``.
 
     ``inspection`` and ``accident`` are read first regardless of the requested
     subset: every other table takes its ``year`` from one of them.
+
+    ``years`` restricts the output to those partitions. A refresh run rewrites
+    one Parquet object per partition and leaves the rest of the prefix alone,
+    so the staging table keeps its full history — the partitions not in
+    ``years`` are simply not re-uploaded.
     """
     arch = _arch()
     wanted = tables or [t.slug for t in arch.TABLES]
@@ -739,15 +765,70 @@ def clean_all(
             writer = build_dicionario(table, input_dir, output_dir)
         elif table.slug == "accident_narrative":
             writer = build_accident_narrative(
-                table, input_dir, output_dir, acc_years
+                table, input_dir, output_dir, acc_years, years
             )
         elif table.slug == "violation_text":
             writer = build_violation_text(
-                table, input_dir, output_dir, insp_years
+                table, input_dir, output_dir, insp_years, years
             )
         else:
             writer = build_simple(
-                table, input_dir, output_dir, insp_years, acc_years
+                table, input_dir, output_dir, insp_years, acc_years, years
             )
         counts[table.slug] = writer.rows
     return counts
+
+
+# --------------------------------------------------------------------------- #
+# refresh planning
+# --------------------------------------------------------------------------- #
+
+
+def plan_refresh(
+    input_dir: Path, trailing_years: int = 8, modified_days: int = 400
+) -> dict:
+    """Decide the source max date and which partition years to rebuild.
+
+    A full rebuild would be the literally correct semantic — OSHA reissues the
+    whole file every day and amends old records in place — but it means
+    re-cleaning 38.8M rows on every run. Two cheaper signals cover it:
+
+    * the trailing ``trailing_years`` partition years, which absorb ordinary
+      new activity and the long tail of penalties still being contested;
+    * any older year that OSHA has actually touched, read from
+      ``inspection.case_mod_date``, which records when an inspection or its
+      violations were last changed.
+
+    ``case_mod_date`` was only introduced in April 2004 and is populated on
+    half the rows, so it is a supplement to the trailing window, never a
+    replacement for it.
+
+    Returns ``{"max_date": "YYYY-MM-DD", "years": [...]}`` — the source's
+    newest inspection open date, for the poll, and the years to rebuild.
+    """
+    from datetime import date, timedelta
+
+    cutoff = (date.today() - timedelta(days=modified_days)).isoformat()
+    max_open = ""
+    years: set[int] = set()
+    touched: set[int] = set()
+    for idx, row in read_source("inspection", input_dir):
+        opened = norm_date(row[idx["OPEN_DATE"]])
+        if not opened:
+            continue
+        if opened > max_open:
+            max_open = opened
+        years.add(int(opened[:4]))
+        modified = norm_date(row[idx["CASE_MOD_DATE"]])
+        if modified and modified >= cutoff:
+            touched.add(int(opened[:4]))
+
+    newest = max(years)
+    trailing = {y for y in years if y > newest - trailing_years}
+    selected = sorted(trailing | touched)
+    log.info(
+        f"refresh plan: max_open_date={max_open}, "
+        f"{len(trailing)} trailing + {len(touched - trailing)} touched "
+        f"= {len(selected)} partition years"
+    )
+    return {"max_date": max_open, "years": selected}

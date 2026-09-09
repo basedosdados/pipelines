@@ -144,3 +144,37 @@ PUBLISHED_CODES: dict[tuple[str, str], dict[str, str]] = {
 
 for _t, _c in _FLAG_COLUMNS:
     PUBLISHED_CODES[(_t, _c)] = dict(_FLAG_X)
+
+
+#: Columns held out of the ``custom_dictionary_coverage`` test, because the
+#: source emits a code the published legend does not define. Holding them out
+#: is deliberate: the alternative is to invent a label, and the alternative to
+#: that is a test that fails on data which is correct.
+#:
+#: Two causes, both measured against the full files.
+#:
+#: 1. ``violation_type`` carries a ``P`` that appears in neither OSHA's Field
+#:    Operations Manual nor the DOL catalog.
+#: 2. Every numeric code column in ``accident_injury`` carries a ``0``. OSHA's
+#:    own lookup file defines ``0`` for exactly one of them — ``OCC 0 =
+#:    "Occupation Not Listed"`` — and omits it for the rest, so ``0`` is
+#:    plainly the agency's not-applicable sentinel rather than a category. The
+#:    evidence is in the counts: ``0`` appears on exactly 5,434 rows in each of
+#:    seven independent columns, which is one set of uncoded records rather
+#:    than seven coincidences, and on 63-67% of rows in the three
+#:    construction-only columns, which simply do not apply to most incidents.
+DICTIONARY_COVERAGE_EXCLUDED: set[tuple[str, str]] = {
+    ("violation", "violation_type"),
+    ("violation_event", "violation_type"),
+    ("accident_injury", "degree_of_injury"),
+    ("accident_injury", "nature_of_injury"),
+    ("accident_injury", "part_of_body"),
+    ("accident_injury", "source_of_injury"),
+    ("accident_injury", "event_type"),
+    ("accident_injury", "environmental_factor"),
+    ("accident_injury", "human_factor"),
+    ("accident_injury", "task_assigned"),
+    ("accident_injury", "construction_operation"),
+    ("accident_injury", "construction_operation_cause"),
+    ("accident_injury", "fatality_cause"),
+}

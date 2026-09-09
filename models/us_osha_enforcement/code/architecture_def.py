@@ -1800,3 +1800,39 @@ TABLES: list[Table] = [
 ]
 
 BY_SLUG = {t.slug: t for t in TABLES}
+
+
+# --------------------------------------------------------------------------- #
+# measured source quirks, applied to the columns they affect
+# --------------------------------------------------------------------------- #
+
+_ZERO_SENTINEL_NOTE = (
+    "A fonte também emite o código 0, que a tabela de códigos da OSHA não "
+    "define para esta coluna. É o sentinela de não aplicável ou não "
+    "codificado: aparece em exatamente 5.434 linhas em cada uma de sete "
+    "colunas independentes, e em 63% a 67% das linhas nas colunas que só se "
+    'aplicam à construção civil. A própria OSHA define 0 como "Occupation '
+    'Not Listed" em occupation_code. Por isso esta coluna fica fora do teste '
+    "de cobertura do dicionário."
+)
+
+_ZERO_SENTINEL_COLUMNS = [
+    "degree_of_injury",
+    "nature_of_injury",
+    "part_of_body",
+    "source_of_injury",
+    "event_type",
+    "environmental_factor",
+    "human_factor",
+    "task_assigned",
+    "construction_operation",
+    "construction_operation_cause",
+    "fatality_cause",
+]
+
+for _col in ACCIDENT_INJURY.columns:
+    if _col.name in _ZERO_SENTINEL_COLUMNS:
+        prefix = _col.observations.rstrip()
+        if prefix and not prefix.endswith("."):
+            prefix += "."
+        _col.observations = f"{prefix} {_ZERO_SENTINEL_NOTE}".strip()

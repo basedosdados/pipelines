@@ -11,6 +11,9 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [inspection_id]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [owner_type, inspection_type, inspection_scope, no_inspection_reason, safety_health, advance_notice, union_status, safety_program_manufacturing, safety_program_construction, safety_program_maritime, health_program_manufacturing, health_program_construction, health_program_maritime, migrant_labor]
+          dictionary_model: ref('us_osha_enforcement__dicionario')
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -139,6 +142,9 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [inspection_id, citation_id]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [deleted, emphasis_program]
+          dictionary_model: ref('us_osha_enforcement__dicionario')
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -149,7 +155,11 @@ models:
       - name: inspection_id
         description: >-
           Identificador único da inspeção (activity number) da OSHA
-        tests: [not_null]
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_osha_enforcement__inspection')
+              field: inspection_id
       - name: citation_id
         description: >-
           Identificador da citação: número da citação, do item e do grupo do item
@@ -241,11 +251,10 @@ models:
       evoluiu até o encerramento do caso.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - inspection_id
-            - citation_id
-            - event_date
-            - event_code
+          combination_of_columns: [inspection_id, citation_id, event_date, event_code]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [penalty_or_fta]
+          dictionary_model: ref('us_osha_enforcement__dicionario')
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -256,7 +265,11 @@ models:
       - name: inspection_id
         description: >-
           Identificador único da inspeção (activity number) da OSHA
-        tests: [not_null]
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_osha_enforcement__inspection')
+              field: inspection_id
       - name: citation_id
         description: >-
           Identificador da citação: número da citação, do item e do grupo do item
@@ -315,7 +328,11 @@ models:
       - name: inspection_id
         description: >-
           Identificador único da inspeção (activity number) da OSHA
-        tests: [not_null]
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_osha_enforcement__inspection')
+              field: inspection_id
       - name: citation_id
         description: >-
           Identificador da citação: número da citação, do item e do grupo do item
@@ -333,10 +350,10 @@ models:
       de atividades relacionadas.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - inspection_id
-            - related_activity_id
-            - related_type
+          combination_of_columns: [inspection_id, related_activity_id, related_type]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [related_safety, related_health]
+          dictionary_model: ref('us_osha_enforcement__dicionario')
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -347,7 +364,11 @@ models:
       - name: inspection_id
         description: >-
           Identificador único da inspeção (activity number) da OSHA
-        tests: [not_null]
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_osha_enforcement__inspection')
+              field: inspection_id
       - name: related_activity_id
         description: >-
           Identificador da atividade relacionada
@@ -381,7 +402,11 @@ models:
       - name: inspection_id
         description: >-
           Identificador único da inspeção (activity number) da OSHA
-        tests: [not_null]
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_osha_enforcement__inspection')
+              field: inspection_id
       - name: program_type
         description: >-
           Tipo do programa de ênfase
@@ -398,10 +423,7 @@ models:
       números de processo de planos estaduais.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - inspection_id
-            - information_id
-            - information_value
+          combination_of_columns: [inspection_id, information_id, information_value]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -412,7 +434,11 @@ models:
       - name: inspection_id
         description: >-
           Identificador único da inspeção (activity number) da OSHA
-        tests: [not_null]
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_osha_enforcement__inspection')
+              field: inspection_id
       - name: information_type
         description: >-
           Tipo da informação opcional; apenas o tipo N é publicado
@@ -434,6 +460,9 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [accident_id]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [fatality, construction_end_use, project_type, project_cost]
+          dictionary_model: ref('us_osha_enforcement__dicionario')
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -492,6 +521,9 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [accident_id, injury_line_number]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [sex, occupation_code]
+          dictionary_model: ref('us_osha_enforcement__dicionario')
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -576,6 +608,9 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [accident_id]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [wrap_style]
+          dictionary_model: ref('us_osha_enforcement__dicionario')
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -586,7 +621,11 @@ models:
       - name: accident_id
         description: >-
           Identificador do acidente a que a narrativa se refere
-        tests: [not_null]
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_osha_enforcement__accident')
+              field: accident_id
       - name: narrative
         description: >-
           Narrativa da investigação do acidente
