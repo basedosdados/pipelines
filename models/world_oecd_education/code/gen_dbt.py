@@ -109,21 +109,45 @@ def schema_entry(slug, spec, columns, key):
     lines.append(f"          combination_of_columns: [{', '.join(key)}]")
     lines.append("      - not_null_proportion_multiple_columns:")
     lines.append("          at_least: 0.05")
+    coded = [r["name"] for r in columns if r["covered_by_dictionary"] == "yes"]
+    if coded:
+        # The facts carry codes only -- the labels are SDMX structure metadata --
+        # so this test is what guarantees the dicionario describes every value
+        # actually present, rather than the dictionary being derivable from the
+        # facts the way a source that ships code and label together would allow.
+        lines.append("      - custom_dictionary_coverage:")
+        lines.append(
+            f"          dictionary_model: ref('{DATASET_ID}__dicionario')"
+        )
+        lines.append("          columns_covered_by_dictionary:")
+        for name in coded:
+            lines.append(f"            - {name}")
     lines.append("    columns:")
     for r in columns:
         lines.append(f"      - name: {r['name']}")
         lines.append("        description: >-")
         for part in _wrap(r["description_pt"]):
             lines.append(f"          {part}")
+        tests = []
         if r["name"] == "year":
-            lines.append("        tests: [not_null]")
+            tests.append("          - not_null")
         if r["directory_column"]:
             ds_tbl, field = r["directory_column"].split(":")
             ref = ds_tbl.replace(".", "__")
+            # A relationships test against the time directory needs the field
+            # qualified as "<table>.<column>". dbt quotes the path in parts, so
+            # the trailing `ano` becomes an implicit BigQuery range variable and
+            # an unqualified `ano` binds to the whole STRUCT row rather than the
+            # column -- the test then cannot pass. ~76 datasets in this repo
+            # carry the broken form.
+            if ref.endswith(("__ano", "__mes")):
+                field = f"{ref.rsplit('__', 1)[1]}.{field}"
+            tests.append("          - relationships:")
+            tests.append(f"              to: ref('{ref}')")
+            tests.append(f"              field: {field}")
+        if tests:
             lines.append("        tests:")
-            lines.append("          - relationships:")
-            lines.append(f"              to: ref('{ref}')")
-            lines.append(f"              field: {field}")
+            lines.extend(tests)
     return "\n".join(lines)
 
 
@@ -140,6 +164,59 @@ def _wrap(text, width=76):
     return out
 
 
+def _dicionario_entry():
+    """schema.yml entry for the dictionary model."""
+    cols = {
+        "id_tabela": (
+            "Tabela deste conjunto a que a entrada se refere",
+            "Table of this dataset the entry refers to",
+            "Tabla de este conjunto a la que se refiere la entrada",
+        ),
+        "nome_coluna": (
+            "Coluna codificada a que a entrada se refere",
+            "Coded column the entry refers to",
+            "Columna codificada a la que se refiere la entrada",
+        ),
+        "chave": (
+            "Código tal como aparece na coluna",
+            "Code exactly as it appears in the column",
+            "Código tal como aparece en la columna",
+        ),
+        "cobertura_temporal": (
+            "Cobertura temporal da entrada, vazia quando igual à da tabela",
+            "Temporal coverage of the entry, empty when the same as the table's",
+            "Cobertura temporal de la entrada, vacía cuando es igual a la de la tabla",
+        ),
+        "valor": (
+            "Rótulo que a OCDE publica para o código",
+            "Label the OECD publishes for the code",
+            "Etiqueta que la OCDE publica para el código",
+        ),
+    }
+    lines = [f"  - name: {DATASET_ID}__dicionario"]
+    lines.append("    description: >-")
+    for part in _wrap(
+        "Rótulos das colunas codificadas deste conjunto, extraídos das listas de "
+        "códigos SDMX publicadas pela OCDE. As tabelas de fatos carregam apenas "
+        "códigos: os rótulos são metadados de estrutura, não dados."
+    ):
+        lines.append(f"      {part}")
+    lines.append("    tests:")
+    lines.append("      - dbt_utils.unique_combination_of_columns:")
+    lines.append(
+        "          combination_of_columns: [id_tabela, nome_coluna, chave]"
+    )
+    lines.append("    columns:")
+    for name, (pt, _en, _es) in cols.items():
+        lines.append(f"      - name: {name}")
+        lines.append("        description: >-")
+        for part in _wrap(pt):
+            lines.append(f"          {part}")
+        if name != "cobertura_temporal":
+            lines.append("        tests: [not_null]")
+    return "\n".join(lines)
+
+
 def main():
     MODELS.mkdir(parents=True, exist_ok=True)
     entries = []
@@ -153,6 +230,7 @@ def main():
         )
         entries.append(schema_entry(slug, spec, columns, key))
         print(f"  {slug:22s} {len(columns):2d} columns, key of {len(key)}")
+    entries.append(_dicionario_entry())
     (MODELS / "schema.yml").write_text(
         "---\nversion: 2\nmodels:\n" + "\n".join(entries) + "\n"
     )

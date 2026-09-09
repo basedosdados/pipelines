@@ -1,0 +1,1752 @@
+---
+version: 2
+models:
+  - name: world_oecd_education__student
+    description: >-
+      Matrículas, ingressantes, concluintes e repetentes por nível de ensino, área
+      de formação, idade, sexo e mobilidade internacional, na coleta UOE conduzida
+      em conjunto pela OCDE, pelo Instituto de Estatística da UNESCO e pelo
+      Eurostat.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - reference_area
+            - education_level
+            - measure
+            - education_type
+            - intensity
+            - education_field
+            - grade
+            - frequency
+            - origin_area
+            - destination_area
+            - education_institution_type
+            - mobility
+            - unit_measure
+            - sex
+            - age
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('world_oecd_education__dicionario')
+          columns_covered_by_dictionary:
+            - reference_area
+            - education_level
+            - measure
+            - education_type
+            - intensity
+            - education_field
+            - grade
+            - frequency
+            - origin_area
+            - destination_area
+            - education_institution_type
+            - mobility
+            - unit_measure
+            - sex
+            - age
+            - confidentiality_status
+            - decimals
+            - obs_status
+            - origin_criterion
+            - time_period_collection
+            - unit_multiplier
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da observação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: >-
+          Código ISO 3166-1 alfa-3 do país da observação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: reference_area
+        description: >-
+          Área de referência da observação: país, entidade subnacional ou agregado
+      - name: education_level
+        description: >-
+          Nível de ensino segundo a CINE 2011 (ISCED 2011)
+      - name: measure
+        description: >-
+          Grandeza medida pela observação
+      - name: education_type
+        description: >-
+          Tipo de ensino, distinguindo educação formal inicial e de adultos
+      - name: intensity
+        description: >-
+          Regime de dedicação do estudante: tempo integral ou parcial
+      - name: education_field
+        description: >-
+          Área de formação segundo a CINE-F 2013
+      - name: grade
+        description: >-
+          Série ou ano de estudo dentro do nível de ensino
+      - name: frequency
+        description: >-
+          Periodicidade da série
+      - name: origin_area
+        description: >-
+          País ou região de origem do estudante móvel
+      - name: destination_area
+        description: >-
+          País ou região de destino do estudante móvel
+      - name: education_institution_type
+        description: >-
+          Natureza da instituição de ensino: pública, privada dependente ou
+          independente do governo
+      - name: mobility
+        description: >-
+          Condição de mobilidade internacional do estudante
+      - name: unit_measure
+        description: >-
+          Unidade em que a observação está expressa
+      - name: sex
+        description: >-
+          Sexo da população de referência
+      - name: age
+        description: >-
+          Idade ou faixa etária da população de referência
+      - name: obs_value
+        description: >-
+          Valor da observação
+      - name: obs_comment
+        description: >-
+          Nota de rodapé da fonte sobre a observação
+      - name: confidentiality_status
+        description: >-
+          Situação de confidencialidade da observação
+      - name: decimals
+        description: >-
+          Número de casas decimais com que a fonte publica o valor
+      - name: obs_status
+        description: >-
+          Situação da observação, incluindo o motivo de ausência do valor
+      - name: origin_criterion
+        description: >-
+          Critério usado para classificar a origem do estudante móvel
+      - name: reference_date_ages
+        description: >-
+          Data de referência usada para apurar as idades
+      - name: reporting_year_end
+        description: >-
+          Fim do ano de referência do país, quando não coincide com o ano civil
+      - name: reporting_year_start
+        description: >-
+          Início do ano de referência do país, quando não coincide com o ano civil
+      - name: time_period_collection
+        description: >-
+          Momento do período a que a coleta se refere
+      - name: unit_multiplier
+        description: >-
+          Potência de dez pela qual o valor deve ser multiplicado
+      - name: source_flow
+        description: >-
+          Dataflow SDMX de onde a linha foi extraída
+      - name: source_flow_version
+        description: >-
+          Versão do dataflow SDMX de onde a linha foi extraída
+  - name: world_oecd_education__teacher
+    description: >-
+      Docentes, pessoal de direção e auxiliares por nível de ensino, tipo de
+      instituição, idade e sexo, com razões aluno-docente e tamanho médio de
+      turma, na coleta UOE.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - reference_area
+            - education_level
+            - measure
+            - education_type
+            - intensity
+            - education_field
+            - grade
+            - frequency
+            - origin_area
+            - destination_area
+            - education_institution_type
+            - mobility
+            - unit_measure
+            - sex
+            - age
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('world_oecd_education__dicionario')
+          columns_covered_by_dictionary:
+            - reference_area
+            - education_level
+            - measure
+            - education_type
+            - intensity
+            - education_field
+            - grade
+            - frequency
+            - origin_area
+            - destination_area
+            - education_institution_type
+            - mobility
+            - unit_measure
+            - sex
+            - age
+            - confidentiality_status
+            - decimals
+            - obs_status
+            - origin_criterion
+            - time_period_collection
+            - unit_multiplier
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da observação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: >-
+          Código ISO 3166-1 alfa-3 do país da observação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: reference_area
+        description: >-
+          Área de referência da observação: país, entidade subnacional ou agregado
+      - name: education_level
+        description: >-
+          Nível de ensino segundo a CINE 2011 (ISCED 2011)
+      - name: measure
+        description: >-
+          Grandeza medida pela observação
+      - name: education_type
+        description: >-
+          Tipo de ensino, distinguindo educação formal inicial e de adultos
+      - name: intensity
+        description: >-
+          Regime de dedicação do estudante: tempo integral ou parcial
+      - name: education_field
+        description: >-
+          Área de formação segundo a CINE-F 2013
+      - name: grade
+        description: >-
+          Série ou ano de estudo dentro do nível de ensino
+      - name: frequency
+        description: >-
+          Periodicidade da série
+      - name: origin_area
+        description: >-
+          País ou região de origem do estudante móvel
+      - name: destination_area
+        description: >-
+          País ou região de destino do estudante móvel
+      - name: education_institution_type
+        description: >-
+          Natureza da instituição de ensino: pública, privada dependente ou
+          independente do governo
+      - name: mobility
+        description: >-
+          Condição de mobilidade internacional do estudante
+      - name: unit_measure
+        description: >-
+          Unidade em que a observação está expressa
+      - name: sex
+        description: >-
+          Sexo da população de referência
+      - name: age
+        description: >-
+          Idade ou faixa etária da população de referência
+      - name: obs_value
+        description: >-
+          Valor da observação
+      - name: obs_comment
+        description: >-
+          Nota de rodapé da fonte sobre a observação
+      - name: confidentiality_status
+        description: >-
+          Situação de confidencialidade da observação
+      - name: decimals
+        description: >-
+          Número de casas decimais com que a fonte publica o valor
+      - name: obs_status
+        description: >-
+          Situação da observação, incluindo o motivo de ausência do valor
+      - name: origin_criterion
+        description: >-
+          Critério usado para classificar a origem do estudante móvel
+      - name: reference_date_ages
+        description: >-
+          Data de referência usada para apurar as idades
+      - name: reporting_year_end
+        description: >-
+          Fim do ano de referência do país, quando não coincide com o ano civil
+      - name: reporting_year_start
+        description: >-
+          Início do ano de referência do país, quando não coincide com o ano civil
+      - name: time_period_collection
+        description: >-
+          Momento do período a que a coleta se refere
+      - name: unit_multiplier
+        description: >-
+          Potência de dez pela qual o valor deve ser multiplicado
+      - name: source_flow
+        description: >-
+          Dataflow SDMX de onde a linha foi extraída
+      - name: source_flow_version
+        description: >-
+          Versão do dataflow SDMX de onde a linha foi extraída
+  - name: world_oecd_education__finance
+    description: >-
+      Despesa com instituições de ensino por origem dos recursos, destino e
+      natureza do gasto, em valores absolutos, por estudante e como proporção do
+      PIB. A fonte publica uma janela móvel de cerca de 18 anos, descartando os
+      anos mais antigos a cada edição.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - reference_area
+            - measure
+            - education_level
+            - financing_source
+            - expenditure_destination
+            - expenditure_type
+            - price_base
+            - unit_measure
+            - questionnaire_sheet
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('world_oecd_education__dicionario')
+          columns_covered_by_dictionary:
+            - reference_area
+            - measure
+            - education_level
+            - financing_source
+            - expenditure_destination
+            - expenditure_type
+            - price_base
+            - unit_measure
+            - questionnaire_sheet
+            - decimals
+            - denominator_category
+            - numerator_category
+            - obs_status
+            - obs_status_2
+            - obs_status_3
+            - unit_multiplier
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da observação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: >-
+          Código ISO 3166-1 alfa-3 do país da observação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: reference_area
+        description: >-
+          Área de referência da observação: país, entidade subnacional ou agregado
+      - name: measure
+        description: >-
+          Grandeza medida pela observação
+      - name: education_level
+        description: >-
+          Nível de ensino segundo a CINE 2011 (ISCED 2011)
+      - name: financing_source
+        description: >-
+          Origem dos recursos aplicados em educação
+      - name: expenditure_destination
+        description: >-
+          Destino da despesa em educação
+      - name: expenditure_type
+        description: >-
+          Natureza da despesa: corrente, de capital ou por rubrica
+      - name: price_base
+        description: >-
+          Base de preços do valor monetário: corrente ou constante
+      - name: unit_measure
+        description: >-
+          Unidade em que a observação está expressa
+      - name: questionnaire_sheet
+        description: >-
+          Aba do questionário de origem da observação
+      - name: obs_value
+        description: >-
+          Valor da observação
+      - name: base_period
+        description: >-
+          Ano-base usado quando o valor está a preços constantes
+      - name: decimals
+        description: >-
+          Número de casas decimais com que a fonte publica o valor
+      - name: denominator_category
+        description: >-
+          Categoria que compõe o denominador do indicador
+      - name: denominator_value
+        description: >-
+          Valor do denominador do indicador
+      - name: last_modified
+        description: >-
+          Data em que a fonte modificou a observação
+      - name: last_update
+        description: >-
+          Data em que a fonte atualizou a observação
+      - name: numerator_category
+        description: >-
+          Categoria que compõe o numerador do indicador
+      - name: numerator_value
+        description: >-
+          Valor do numerador do indicador
+      - name: obs_status
+        description: >-
+          Situação da observação, incluindo o motivo de ausência do valor
+      - name: obs_status_2
+        description: >-
+          Segunda marcação de situação da observação, quando a fonte registra mais
+          de
+          uma
+      - name: obs_status_3
+        description: >-
+          Terceira marcação de situação da observação, quando a fonte registra mais
+          de
+          uma
+      - name: questionnaire_row_id
+        description: >-
+          Identificador da linha na aba do questionário de origem
+      - name: unit_multiplier
+        description: >-
+          Potência de dez pela qual o valor deve ser multiplicado
+      - name: source_flow
+        description: >-
+          Dataflow SDMX de onde a linha foi extraída
+      - name: source_flow_version
+        description: >-
+          Versão do dataflow SDMX de onde a linha foi extraída
+  - name: world_oecd_education__finance_enrolment
+    description: >-
+      Matrículas em equivalente de tempo integral ajustadas ao ano financeiro, que
+      servem de denominador aos indicadores de despesa por estudante.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - reference_area
+            - measure
+            - education_level
+            - intensity
+            - education_institution_type
+            - unit_measure
+            - questionnaire_sheet
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('world_oecd_education__dicionario')
+          columns_covered_by_dictionary:
+            - reference_area
+            - measure
+            - education_level
+            - intensity
+            - education_institution_type
+            - unit_measure
+            - questionnaire_sheet
+            - decimals
+            - obs_status
+            - obs_status_2
+            - obs_status_3
+            - unit_multiplier
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da observação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: >-
+          Código ISO 3166-1 alfa-3 do país da observação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: reference_area
+        description: >-
+          Área de referência da observação: país, entidade subnacional ou agregado
+      - name: measure
+        description: >-
+          Grandeza medida pela observação
+      - name: education_level
+        description: >-
+          Nível de ensino segundo a CINE 2011 (ISCED 2011)
+      - name: intensity
+        description: >-
+          Regime de dedicação do estudante: tempo integral ou parcial
+      - name: education_institution_type
+        description: >-
+          Natureza da instituição de ensino: pública, privada dependente ou
+          independente do governo
+      - name: unit_measure
+        description: >-
+          Unidade em que a observação está expressa
+      - name: questionnaire_sheet
+        description: >-
+          Aba do questionário de origem da observação
+      - name: obs_value
+        description: >-
+          Valor da observação
+      - name: decimals
+        description: >-
+          Número de casas decimais com que a fonte publica o valor
+      - name: last_modified
+        description: >-
+          Data em que a fonte modificou a observação
+      - name: last_update
+        description: >-
+          Data em que a fonte atualizou a observação
+      - name: obs_status
+        description: >-
+          Situação da observação, incluindo o motivo de ausência do valor
+      - name: obs_status_2
+        description: >-
+          Segunda marcação de situação da observação, quando a fonte registra mais
+          de
+          uma
+      - name: obs_status_3
+        description: >-
+          Terceira marcação de situação da observação, quando a fonte registra mais
+          de
+          uma
+      - name: questionnaire_row_id
+        description: >-
+          Identificador da linha na aba do questionário de origem
+      - name: unit_multiplier
+        description: >-
+          Potência de dez pela qual o valor deve ser multiplicado
+      - name: source_flow
+        description: >-
+          Dataflow SDMX de onde a linha foi extraída
+      - name: source_flow_version
+        description: >-
+          Versão do dataflow SDMX de onde a linha foi extraída
+  - name: world_oecd_education__finance_reference
+    description: >-
+      PIB, deflatores, paridades de poder de compra e população que servem de
+      referência aos indicadores de financiamento da educação.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - reference_area
+            - measure
+            - price_base
+            - unit_measure
+            - questionnaire_sheet
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('world_oecd_education__dicionario')
+          columns_covered_by_dictionary:
+            - reference_area
+            - measure
+            - price_base
+            - unit_measure
+            - questionnaire_sheet
+            - decimals
+            - obs_status
+            - obs_status_2
+            - obs_status_3
+            - unit_multiplier
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da observação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: >-
+          Código ISO 3166-1 alfa-3 do país da observação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: reference_area
+        description: >-
+          Área de referência da observação: país, entidade subnacional ou agregado
+      - name: measure
+        description: >-
+          Grandeza medida pela observação
+      - name: price_base
+        description: >-
+          Base de preços do valor monetário: corrente ou constante
+      - name: unit_measure
+        description: >-
+          Unidade em que a observação está expressa
+      - name: questionnaire_sheet
+        description: >-
+          Aba do questionário de origem da observação
+      - name: obs_value
+        description: >-
+          Valor da observação
+      - name: base_period
+        description: >-
+          Ano-base usado quando o valor está a preços constantes
+      - name: decimals
+        description: >-
+          Número de casas decimais com que a fonte publica o valor
+      - name: last_modified
+        description: >-
+          Data em que a fonte modificou a observação
+      - name: last_update
+        description: >-
+          Data em que a fonte atualizou a observação
+      - name: obs_status
+        description: >-
+          Situação da observação, incluindo o motivo de ausência do valor
+      - name: obs_status_2
+        description: >-
+          Segunda marcação de situação da observação, quando a fonte registra mais
+          de
+          uma
+      - name: obs_status_3
+        description: >-
+          Terceira marcação de situação da observação, quando a fonte registra mais
+          de
+          uma
+      - name: data_source
+        description: >-
+          Fonte primária de onde a OCDE obteve a observação
+      - name: unit_multiplier
+        description: >-
+          Potência de dez pela qual o valor deve ser multiplicado
+      - name: source_flow
+        description: >-
+          Dataflow SDMX de onde a linha foi extraída
+      - name: source_flow_version
+        description: >-
+          Versão do dataflow SDMX de onde a linha foi extraída
+  - name: world_oecd_education__finance_subnational
+    description: >-
+      Despesa total com instituições de ensino por estudante em equivalente de
+      tempo integral, desagregada por entidade subnacional dos países que reportam
+      esse recorte.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - reference_area
+            - measure
+            - education_level
+            - financing_source
+            - expenditure_destination
+            - expenditure_type
+            - price_base
+            - unit_measure
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('world_oecd_education__dicionario')
+          columns_covered_by_dictionary:
+            - reference_area
+            - measure
+            - education_level
+            - financing_source
+            - expenditure_destination
+            - expenditure_type
+            - price_base
+            - unit_measure
+            - decimals
+            - obs_status
+            - unit_multiplier
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da observação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: >-
+          Código ISO 3166-1 alfa-3 do país da observação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: reference_area
+        description: >-
+          Área de referência da observação: país, entidade subnacional ou agregado
+      - name: measure
+        description: >-
+          Grandeza medida pela observação
+      - name: education_level
+        description: >-
+          Nível de ensino segundo a CINE 2011 (ISCED 2011)
+      - name: financing_source
+        description: >-
+          Origem dos recursos aplicados em educação
+      - name: expenditure_destination
+        description: >-
+          Destino da despesa em educação
+      - name: expenditure_type
+        description: >-
+          Natureza da despesa: corrente, de capital ou por rubrica
+      - name: price_base
+        description: >-
+          Base de preços do valor monetário: corrente ou constante
+      - name: unit_measure
+        description: >-
+          Unidade em que a observação está expressa
+      - name: obs_value
+        description: >-
+          Valor da observação
+      - name: base_period
+        description: >-
+          Ano-base usado quando o valor está a preços constantes
+      - name: country_note
+        description: >-
+          País a que a nota da fonte se refere
+      - name: decimals
+        description: >-
+          Número de casas decimais com que a fonte publica o valor
+      - name: obs_status
+        description: >-
+          Situação da observação, incluindo o motivo de ausência do valor
+      - name: unit_multiplier
+        description: >-
+          Potência de dez pela qual o valor deve ser multiplicado
+      - name: source_flow
+        description: >-
+          Dataflow SDMX de onde a linha foi extraída
+      - name: source_flow_version
+        description: >-
+          Versão do dataflow SDMX de onde a linha foi extraída
+  - name: world_oecd_education__labour_market_outcome
+    description: >-
+      Distribuição da população adulta por nível de escolaridade e seus resultados
+      no mercado de trabalho: taxas de emprego, desemprego e inatividade,
+      rendimentos relativos e transição da escola para o trabalho, por idade,
+      sexo, área de formação e situação migratória.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - reference_area
+            - sex
+            - age
+            - attainment_level
+            - education_field
+            - measure
+            - income
+            - birth_place
+            - migration_age
+            - education_status
+            - labour_force_status
+            - unemployment_duration
+            - unit_measure
+            - statistical_operation
+            - work_time_arrangement
+            - questionnaire
+            - frequency
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('world_oecd_education__dicionario')
+          columns_covered_by_dictionary:
+            - reference_area
+            - sex
+            - age
+            - attainment_level
+            - education_field
+            - measure
+            - income
+            - birth_place
+            - migration_age
+            - education_status
+            - labour_force_status
+            - unemployment_duration
+            - unit_measure
+            - statistical_operation
+            - work_time_arrangement
+            - questionnaire
+            - frequency
+            - confidentiality_status
+            - decimals
+            - obs_status
+            - unit_multiplier
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da observação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: >-
+          Código ISO 3166-1 alfa-3 do país da observação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: reference_area
+        description: >-
+          Área de referência da observação: país, entidade subnacional ou agregado
+      - name: sex
+        description: >-
+          Sexo da população de referência
+      - name: age
+        description: >-
+          Idade ou faixa etária da população de referência
+      - name: attainment_level
+        description: >-
+          Nível de escolaridade concluído pela pessoa
+      - name: education_field
+        description: >-
+          Área de formação segundo a CINE-F 2013
+      - name: measure
+        description: >-
+          Grandeza medida pela observação
+      - name: income
+        description: >-
+          Faixa de rendimento relativa à mediana
+      - name: birth_place
+        description: >-
+          Local de nascimento, distinguindo nativos de imigrantes
+      - name: migration_age
+        description: >-
+          Idade em que a pessoa imigrou
+      - name: education_status
+        description: >-
+          Situação da pessoa quanto à participação em educação ou formação
+      - name: labour_force_status
+        description: >-
+          Condição da pessoa perante a força de trabalho
+      - name: unemployment_duration
+        description: >-
+          Tempo decorrido de desemprego
+      - name: unit_measure
+        description: >-
+          Unidade em que a observação está expressa
+      - name: statistical_operation
+        description: >-
+          Operação estatística aplicada ao valor, por exemplo média ou mediana
+      - name: work_time_arrangement
+        description: >-
+          Regime de jornada de trabalho: tempo integral ou parcial
+      - name: questionnaire
+        description: >-
+          Questionário do qual a observação foi extraída
+      - name: frequency
+        description: >-
+          Periodicidade da série
+      - name: obs_value
+        description: >-
+          Valor da observação
+      - name: confidentiality_status
+        description: >-
+          Situação de confidencialidade da observação
+      - name: decimals
+        description: >-
+          Número de casas decimais com que a fonte publica o valor
+      - name: obs_status
+        description: >-
+          Situação da observação, incluindo o motivo de ausência do valor
+      - name: unit_multiplier
+        description: >-
+          Potência de dez pela qual o valor deve ser multiplicado
+      - name: source_flow
+        description: >-
+          Dataflow SDMX de onde a linha foi extraída
+      - name: source_flow_version
+        description: >-
+          Versão do dataflow SDMX de onde a linha foi extraída
+  - name: world_oecd_education__salary_actual
+    description: >-
+      Salários efetivamente recebidos por docentes e diretores escolares, em
+      valores absolutos e em relação aos rendimentos de trabalhadores com ensino
+      superior. A fonte não usa dimensão temporal: cada edição publica seus
+      próprios anos de referência, e a tabela empilha as edições.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - reference_area
+            - measure
+            - unit_measure
+            - education_institution_type
+            - education_level
+            - age
+            - sex
+            - personnel_type
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('world_oecd_education__dicionario')
+          columns_covered_by_dictionary:
+            - reference_area
+            - measure
+            - unit_measure
+            - education_institution_type
+            - education_level
+            - age
+            - sex
+            - personnel_type
+            - currency
+            - decimals
+            - obs_status
+            - price_base
+            - statistical_operation
+            - unit_multiplier
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da observação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: >-
+          Código ISO 3166-1 alfa-3 do país da observação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: reference_area
+        description: >-
+          Área de referência da observação: país, entidade subnacional ou agregado
+      - name: measure
+        description: >-
+          Grandeza medida pela observação
+      - name: unit_measure
+        description: >-
+          Unidade em que a observação está expressa
+      - name: education_institution_type
+        description: >-
+          Natureza da instituição de ensino: pública, privada dependente ou
+          independente do governo
+      - name: education_level
+        description: >-
+          Nível de ensino segundo a CINE 2011 (ISCED 2011)
+      - name: age
+        description: >-
+          Idade ou faixa etária da população de referência
+      - name: sex
+        description: >-
+          Sexo da população de referência
+      - name: personnel_type
+        description: >-
+          Categoria do pessoal escolar: docentes, direção ou auxiliares
+      - name: obs_value
+        description: >-
+          Valor da observação
+      - name: base_period
+        description: >-
+          Ano-base usado quando o valor está a preços constantes
+      - name: currency
+        description: >-
+          Moeda em que o valor monetário está expresso
+      - name: decimals
+        description: >-
+          Número de casas decimais com que a fonte publica o valor
+      - name: obs_status
+        description: >-
+          Situação da observação, incluindo o motivo de ausência do valor
+      - name: price_base
+        description: >-
+          Base de preços do valor monetário: corrente ou constante
+      - name: reference_period
+        description: >-
+          Período de referência declarado pela fonte para a observação
+      - name: statistical_operation
+        description: >-
+          Operação estatística aplicada ao valor, por exemplo média ou mediana
+      - name: unit_multiplier
+        description: >-
+          Potência de dez pela qual o valor deve ser multiplicado
+      - name: source_flow
+        description: >-
+          Dataflow SDMX de onde a linha foi extraída
+      - name: source_flow_version
+        description: >-
+          Versão do dataflow SDMX de onde a linha foi extraída
+  - name: world_oecd_education__salary_statutory
+    description: >-
+      Salários previstos em lei ou acordo coletivo para docentes e diretores
+      escolares, por nível de qualificação e tempo de experiência. Como nos
+      salários efetivos, a fonte não usa dimensão temporal e a tabela empilha as
+      edições.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - reference_area
+            - measure
+            - unit_measure
+            - statistical_operation
+            - education_institution_type
+            - education_level
+            - personnel_type
+            - personnel_qualification_level
+            - personnel_experience_level
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('world_oecd_education__dicionario')
+          columns_covered_by_dictionary:
+            - reference_area
+            - measure
+            - unit_measure
+            - statistical_operation
+            - education_institution_type
+            - education_level
+            - personnel_type
+            - personnel_qualification_level
+            - personnel_experience_level
+            - currency
+            - decimals
+            - obs_status
+            - price_base
+            - unit_multiplier
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da observação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: >-
+          Código ISO 3166-1 alfa-3 do país da observação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: reference_area
+        description: >-
+          Área de referência da observação: país, entidade subnacional ou agregado
+      - name: measure
+        description: >-
+          Grandeza medida pela observação
+      - name: unit_measure
+        description: >-
+          Unidade em que a observação está expressa
+      - name: statistical_operation
+        description: >-
+          Operação estatística aplicada ao valor, por exemplo média ou mediana
+      - name: education_institution_type
+        description: >-
+          Natureza da instituição de ensino: pública, privada dependente ou
+          independente do governo
+      - name: education_level
+        description: >-
+          Nível de ensino segundo a CINE 2011 (ISCED 2011)
+      - name: personnel_type
+        description: >-
+          Categoria do pessoal escolar: docentes, direção ou auxiliares
+      - name: personnel_qualification_level
+        description: >-
+          Nível de qualificação do pessoal, usado para comparar salários
+      - name: personnel_experience_level
+        description: >-
+          Tempo de experiência do pessoal, usado para comparar salários
+      - name: obs_value
+        description: >-
+          Valor da observação
+      - name: base_period
+        description: >-
+          Ano-base usado quando o valor está a preços constantes
+      - name: currency
+        description: >-
+          Moeda em que o valor monetário está expresso
+      - name: decimals
+        description: >-
+          Número de casas decimais com que a fonte publica o valor
+      - name: obs_status
+        description: >-
+          Situação da observação, incluindo o motivo de ausência do valor
+      - name: price_base
+        description: >-
+          Base de preços do valor monetário: corrente ou constante
+      - name: reference_period
+        description: >-
+          Período de referência declarado pela fonte para a observação
+      - name: unit_multiplier
+        description: >-
+          Potência de dez pela qual o valor deve ser multiplicado
+      - name: source_flow
+        description: >-
+          Dataflow SDMX de onde a linha foi extraída
+      - name: source_flow_version
+        description: >-
+          Versão do dataflow SDMX de onde a linha foi extraída
+  - name: world_oecd_education__salary_trend
+    description: >-
+      Série anual dos salários efetivos e estatutários de docentes desde 2000, a
+      preços constantes, permitindo acompanhar a evolução real da remuneração.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - reference_area
+            - measure
+            - unit_measure
+            - education_institution_type
+            - education_level
+            - age
+            - sex
+            - personnel_type
+            - personnel_qualification_level
+            - personnel_experience_level
+            - price_base
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('world_oecd_education__dicionario')
+          columns_covered_by_dictionary:
+            - reference_area
+            - measure
+            - unit_measure
+            - education_institution_type
+            - education_level
+            - age
+            - sex
+            - personnel_type
+            - personnel_qualification_level
+            - personnel_experience_level
+            - price_base
+            - currency
+            - decimals
+            - obs_status
+            - statistical_operation
+            - transformation
+            - unit_multiplier
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da observação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: >-
+          Código ISO 3166-1 alfa-3 do país da observação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: reference_area
+        description: >-
+          Área de referência da observação: país, entidade subnacional ou agregado
+      - name: measure
+        description: >-
+          Grandeza medida pela observação
+      - name: unit_measure
+        description: >-
+          Unidade em que a observação está expressa
+      - name: education_institution_type
+        description: >-
+          Natureza da instituição de ensino: pública, privada dependente ou
+          independente do governo
+      - name: education_level
+        description: >-
+          Nível de ensino segundo a CINE 2011 (ISCED 2011)
+      - name: age
+        description: >-
+          Idade ou faixa etária da população de referência
+      - name: sex
+        description: >-
+          Sexo da população de referência
+      - name: personnel_type
+        description: >-
+          Categoria do pessoal escolar: docentes, direção ou auxiliares
+      - name: personnel_qualification_level
+        description: >-
+          Nível de qualificação do pessoal, usado para comparar salários
+      - name: personnel_experience_level
+        description: >-
+          Tempo de experiência do pessoal, usado para comparar salários
+      - name: price_base
+        description: >-
+          Base de preços do valor monetário: corrente ou constante
+      - name: obs_value
+        description: >-
+          Valor da observação
+      - name: base_period
+        description: >-
+          Ano-base usado quando o valor está a preços constantes
+      - name: currency
+        description: >-
+          Moeda em que o valor monetário está expresso
+      - name: decimals
+        description: >-
+          Número de casas decimais com que a fonte publica o valor
+      - name: obs_status
+        description: >-
+          Situação da observação, incluindo o motivo de ausência do valor
+      - name: statistical_operation
+        description: >-
+          Operação estatística aplicada ao valor, por exemplo média ou mediana
+      - name: transformation
+        description: >-
+          Transformação aplicada ao valor em relação à série de origem
+      - name: unit_multiplier
+        description: >-
+          Potência de dez pela qual o valor deve ser multiplicado
+      - name: source_flow
+        description: >-
+          Dataflow SDMX de onde a linha foi extraída
+      - name: source_flow_version
+        description: >-
+          Versão do dataflow SDMX de onde a linha foi extraída
+  - name: world_oecd_education__working_time
+    description: >-
+      Horas anuais de ensino efetivo e estatutário de docentes e horas de trabalho
+      de diretores, por nível de ensino. A fonte não usa dimensão temporal e a
+      tabela empilha as edições.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - reference_area
+            - measure
+            - unit_measure
+            - education_institution_type
+            - education_level
+            - personnel_type
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('world_oecd_education__dicionario')
+          columns_covered_by_dictionary:
+            - reference_area
+            - measure
+            - unit_measure
+            - education_institution_type
+            - education_level
+            - personnel_type
+            - decimals
+            - obs_status
+            - statistical_operation
+            - unit_multiplier
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da observação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: >-
+          Código ISO 3166-1 alfa-3 do país da observação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: reference_area
+        description: >-
+          Área de referência da observação: país, entidade subnacional ou agregado
+      - name: measure
+        description: >-
+          Grandeza medida pela observação
+      - name: unit_measure
+        description: >-
+          Unidade em que a observação está expressa
+      - name: education_institution_type
+        description: >-
+          Natureza da instituição de ensino: pública, privada dependente ou
+          independente do governo
+      - name: education_level
+        description: >-
+          Nível de ensino segundo a CINE 2011 (ISCED 2011)
+      - name: personnel_type
+        description: >-
+          Categoria do pessoal escolar: docentes, direção ou auxiliares
+      - name: obs_value
+        description: >-
+          Valor da observação
+      - name: decimals
+        description: >-
+          Número de casas decimais com que a fonte publica o valor
+      - name: obs_status
+        description: >-
+          Situação da observação, incluindo o motivo de ausência do valor
+      - name: reference_period
+        description: >-
+          Período de referência declarado pela fonte para a observação
+      - name: statistical_operation
+        description: >-
+          Operação estatística aplicada ao valor, por exemplo média ou mediana
+      - name: unit_multiplier
+        description: >-
+          Potência de dez pela qual o valor deve ser multiplicado
+      - name: source_flow
+        description: >-
+          Dataflow SDMX de onde a linha foi extraída
+      - name: source_flow_version
+        description: >-
+          Versão do dataflow SDMX de onde a linha foi extraída
+  - name: world_oecd_education__working_time_trend
+    description: >-
+      Série anual das horas estatutárias de ensino desde 2000, por nível de
+      ensino.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - reference_area
+            - measure
+            - unit_measure
+            - education_institution_type
+            - education_level
+            - personnel_type
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('world_oecd_education__dicionario')
+          columns_covered_by_dictionary:
+            - reference_area
+            - measure
+            - unit_measure
+            - education_institution_type
+            - education_level
+            - personnel_type
+            - decimals
+            - obs_status
+            - statistical_operation
+            - unit_multiplier
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da observação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: >-
+          Código ISO 3166-1 alfa-3 do país da observação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: reference_area
+        description: >-
+          Área de referência da observação: país, entidade subnacional ou agregado
+      - name: measure
+        description: >-
+          Grandeza medida pela observação
+      - name: unit_measure
+        description: >-
+          Unidade em que a observação está expressa
+      - name: education_institution_type
+        description: >-
+          Natureza da instituição de ensino: pública, privada dependente ou
+          independente do governo
+      - name: education_level
+        description: >-
+          Nível de ensino segundo a CINE 2011 (ISCED 2011)
+      - name: personnel_type
+        description: >-
+          Categoria do pessoal escolar: docentes, direção ou auxiliares
+      - name: obs_value
+        description: >-
+          Valor da observação
+      - name: decimals
+        description: >-
+          Número de casas decimais com que a fonte publica o valor
+      - name: obs_status
+        description: >-
+          Situação da observação, incluindo o motivo de ausência do valor
+      - name: statistical_operation
+        description: >-
+          Operação estatística aplicada ao valor, por exemplo média ou mediana
+      - name: unit_multiplier
+        description: >-
+          Potência de dez pela qual o valor deve ser multiplicado
+      - name: source_flow
+        description: >-
+          Dataflow SDMX de onde a linha foi extraída
+      - name: source_flow_version
+        description: >-
+          Versão do dataflow SDMX de onde a linha foi extraída
+  - name: world_oecd_education__instruction_time
+    description: >-
+      Horas de instrução obrigatória previstas no currículo do ensino geral, por
+      idade, nível de ensino e disciplina.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - reference_area
+            - measure
+            - unit_measure
+            - education_institution_type
+            - education_level
+            - age
+            - subject
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('world_oecd_education__dicionario')
+          columns_covered_by_dictionary:
+            - reference_area
+            - measure
+            - unit_measure
+            - education_institution_type
+            - education_level
+            - age
+            - subject
+            - decimals
+            - obs_status
+            - statistical_operation
+            - unit_multiplier
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da observação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: >-
+          Código ISO 3166-1 alfa-3 do país da observação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: reference_area
+        description: >-
+          Área de referência da observação: país, entidade subnacional ou agregado
+      - name: measure
+        description: >-
+          Grandeza medida pela observação
+      - name: unit_measure
+        description: >-
+          Unidade em que a observação está expressa
+      - name: education_institution_type
+        description: >-
+          Natureza da instituição de ensino: pública, privada dependente ou
+          independente do governo
+      - name: education_level
+        description: >-
+          Nível de ensino segundo a CINE 2011 (ISCED 2011)
+      - name: age
+        description: >-
+          Idade ou faixa etária da população de referência
+      - name: subject
+        description: >-
+          Disciplina ou área do currículo a que se refere o tempo de instrução
+      - name: obs_value
+        description: >-
+          Valor da observação
+      - name: decimals
+        description: >-
+          Número de casas decimais com que a fonte publica o valor
+      - name: obs_status
+        description: >-
+          Situação da observação, incluindo o motivo de ausência do valor
+      - name: reference_period
+        description: >-
+          Período de referência declarado pela fonte para a observação
+      - name: statistical_operation
+        description: >-
+          Operação estatística aplicada ao valor, por exemplo média ou mediana
+      - name: unit_multiplier
+        description: >-
+          Potência de dez pela qual o valor deve ser multiplicado
+      - name: source_flow
+        description: >-
+          Dataflow SDMX de onde a linha foi extraída
+      - name: source_flow_version
+        description: >-
+          Versão do dataflow SDMX de onde a linha foi extraída
+  - name: world_oecd_education__talis_teacher
+    description: >-
+      Resultados agregados do questionário de docentes da Pesquisa Internacional
+      sobre Ensino e Aprendizagem (TALIS), por idade, sexo, tipo de instituição,
+      grau de urbanização e perfil docente.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - reference_area
+            - frequency
+            - measure
+            - unit_measure
+            - statistical_operation
+            - education_level
+            - age
+            - sex
+            - urbanisation_degree
+            - institution_type
+            - students_characteristics
+            - teacher_profile
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('world_oecd_education__dicionario')
+          columns_covered_by_dictionary:
+            - reference_area
+            - frequency
+            - measure
+            - unit_measure
+            - statistical_operation
+            - education_level
+            - age
+            - sex
+            - urbanisation_degree
+            - institution_type
+            - students_characteristics
+            - teacher_profile
+            - decimals
+            - obs_status
+            - unit_multiplier
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da observação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: >-
+          Código ISO 3166-1 alfa-3 do país da observação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: reference_area
+        description: >-
+          Área de referência da observação: país, entidade subnacional ou agregado
+      - name: frequency
+        description: >-
+          Periodicidade da série
+      - name: measure
+        description: >-
+          Grandeza medida pela observação
+      - name: unit_measure
+        description: >-
+          Unidade em que a observação está expressa
+      - name: statistical_operation
+        description: >-
+          Operação estatística aplicada ao valor, por exemplo média ou mediana
+      - name: education_level
+        description: >-
+          Nível de ensino segundo a CINE 2011 (ISCED 2011)
+      - name: age
+        description: >-
+          Idade ou faixa etária da população de referência
+      - name: sex
+        description: >-
+          Sexo da população de referência
+      - name: urbanisation_degree
+        description: >-
+          Grau de urbanização da localidade da escola
+      - name: institution_type
+        description: >-
+          Tipo de instituição declarado no inquérito TALIS
+      - name: students_characteristics
+        description: >-
+          Característica do corpo discente da escola no TALIS
+      - name: teacher_profile
+        description: >-
+          Perfil do docente segundo o recorte usado no TALIS
+      - name: obs_value
+        description: >-
+          Valor da observação
+      - name: talis_question
+        description: >-
+          Pergunta do TALIS e resposta a que a observação corresponde
+      - name: decimals
+        description: >-
+          Número de casas decimais com que a fonte publica o valor
+      - name: obs_status
+        description: >-
+          Situação da observação, incluindo o motivo de ausência do valor
+      - name: unit_multiplier
+        description: >-
+          Potência de dez pela qual o valor deve ser multiplicado
+      - name: source_flow
+        description: >-
+          Dataflow SDMX de onde a linha foi extraída
+      - name: source_flow_version
+        description: >-
+          Versão do dataflow SDMX de onde a linha foi extraída
+  - name: world_oecd_education__talis_principal
+    description: >-
+      Resultados agregados do questionário de diretores da Pesquisa Internacional
+      sobre Ensino e Aprendizagem (TALIS), com os mesmos recortes do questionário
+      de docentes.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - reference_area
+            - frequency
+            - measure
+            - unit_measure
+            - statistical_operation
+            - education_level
+            - age
+            - sex
+            - urbanisation_degree
+            - institution_type
+            - students_characteristics
+            - teacher_profile
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('world_oecd_education__dicionario')
+          columns_covered_by_dictionary:
+            - reference_area
+            - frequency
+            - measure
+            - unit_measure
+            - statistical_operation
+            - education_level
+            - age
+            - sex
+            - urbanisation_degree
+            - institution_type
+            - students_characteristics
+            - teacher_profile
+            - decimals
+            - obs_status
+            - unit_multiplier
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da observação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: >-
+          Código ISO 3166-1 alfa-3 do país da observação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: reference_area
+        description: >-
+          Área de referência da observação: país, entidade subnacional ou agregado
+      - name: frequency
+        description: >-
+          Periodicidade da série
+      - name: measure
+        description: >-
+          Grandeza medida pela observação
+      - name: unit_measure
+        description: >-
+          Unidade em que a observação está expressa
+      - name: statistical_operation
+        description: >-
+          Operação estatística aplicada ao valor, por exemplo média ou mediana
+      - name: education_level
+        description: >-
+          Nível de ensino segundo a CINE 2011 (ISCED 2011)
+      - name: age
+        description: >-
+          Idade ou faixa etária da população de referência
+      - name: sex
+        description: >-
+          Sexo da população de referência
+      - name: urbanisation_degree
+        description: >-
+          Grau de urbanização da localidade da escola
+      - name: institution_type
+        description: >-
+          Tipo de instituição declarado no inquérito TALIS
+      - name: students_characteristics
+        description: >-
+          Característica do corpo discente da escola no TALIS
+      - name: teacher_profile
+        description: >-
+          Perfil do docente segundo o recorte usado no TALIS
+      - name: obs_value
+        description: >-
+          Valor da observação
+      - name: talis_question
+        description: >-
+          Pergunta do TALIS e resposta a que a observação corresponde
+      - name: decimals
+        description: >-
+          Número de casas decimais com que a fonte publica o valor
+      - name: obs_status
+        description: >-
+          Situação da observação, incluindo o motivo de ausência do valor
+      - name: unit_multiplier
+        description: >-
+          Potência de dez pela qual o valor deve ser multiplicado
+      - name: source_flow
+        description: >-
+          Dataflow SDMX de onde a linha foi extraída
+      - name: source_flow_version
+        description: >-
+          Versão do dataflow SDMX de onde a linha foi extraída
+  - name: world_oecd_education__dicionario
+    description: >-
+      Rótulos das colunas codificadas deste conjunto, extraídos das listas de
+      códigos SDMX publicadas pela OCDE. As tabelas de fatos carregam apenas
+      códigos: os rótulos são metadados de estrutura, não dados.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+    columns:
+      - name: id_tabela
+        description: >-
+          Tabela deste conjunto a que a entrada se refere
+        tests: [not_null]
+      - name: nome_coluna
+        description: >-
+          Coluna codificada a que a entrada se refere
+        tests: [not_null]
+      - name: chave
+        description: >-
+          Código tal como aparece na coluna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >-
+          Cobertura temporal da entrada, vazia quando igual à da tabela
+      - name: valor
+        description: >-
+          Rótulo que a OCDE publica para o código
+        tests: [not_null]
