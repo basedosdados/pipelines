@@ -9,12 +9,15 @@ that is exactly what identifies an observation in a cube. It is a wide key (16
 columns for ``student``), but a narrower one would not be unique: these are long
 fact tables where the same measure recurs across every dimension combination.
 
-Run: ``python gen_dbt.py``
+Run ``python gen_dbt.py``, then ``pre-commit run sqlfmt --files models/world_oecd_education/*.sql``
+-- the generator writes readable SQL but not sqlfmt-canonical SQL, and the hook
+rewrites it.
 """
 
 import csv
+import json
 
-from common import ARCH_DIR, DATASET_ID, OUTPUT, REPO_ROOT
+from common import ARCH_DIR, CODE_DIR, DATASET_ID, OUTPUT, REPO_ROOT
 from tables import TABLES
 
 MODELS = REPO_ROOT / "models" / DATASET_ID
@@ -27,6 +30,25 @@ NON_KEY = {
     "source_flow_version",
     "country_iso3_code",
 }
+
+
+def sparse_columns(slug):
+    """Columns under the 5% non-null threshold, measured by verify_parquet.py.
+
+    These are exemptions from not_null_proportion_multiple_columns, and each is a
+    measured fact rather than a guess. Most are SDMX attributes the DSD declares
+    but the OECD never populates for that cube -- verified against the raw CSV
+    for the student cube, where all seven are 0% populated at source too, so the
+    emptiness is the source's and not the cleaner's. finance_subnational's
+    country_iso3_code is empty by construction: that cube's areas are NUTS-style
+    subnational entities, none of which is a country.
+    """
+    path = CODE_DIR / "measured.json"
+    if not path.exists():
+        raise FileNotFoundError(
+            "run verify_parquet.py first to measure sparsity"
+        )
+    return json.loads(path.read_text())[slug]["sparse"]
 
 
 def arch(slug):
@@ -109,6 +131,11 @@ def schema_entry(slug, spec, columns, key):
     lines.append(f"          combination_of_columns: [{', '.join(key)}]")
     lines.append("      - not_null_proportion_multiple_columns:")
     lines.append("          at_least: 0.05")
+    sparse = sparse_columns(slug)
+    if sparse:
+        lines.append("          ignore_values:")
+        for name in sparse:
+            lines.append(f"            - {name}")
     coded = [r["name"] for r in columns if r["covered_by_dictionary"] == "yes"]
     if coded:
         # The facts carry codes only -- the labels are SDMX structure metadata --

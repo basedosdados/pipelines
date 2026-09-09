@@ -28,6 +28,14 @@ models:
             - age
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - confidentiality_status
+            - obs_comment
+            - origin_criterion
+            - reference_date_ages
+            - reporting_year_end
+            - reporting_year_start
+            - time_period_collection
       - custom_dictionary_coverage:
           dictionary_model: ref('world_oecd_education__dicionario')
           columns_covered_by_dictionary:
@@ -179,6 +187,14 @@ models:
             - age
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - confidentiality_status
+            - obs_comment
+            - origin_criterion
+            - reference_date_ages
+            - reporting_year_end
+            - reporting_year_start
+            - time_period_collection
       - custom_dictionary_coverage:
           dictionary_model: ref('world_oecd_education__dicionario')
           columns_covered_by_dictionary:
@@ -325,6 +341,13 @@ models:
             - questionnaire_sheet
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - denominator_category
+            - denominator_value
+            - numerator_category
+            - numerator_value
+            - obs_status_2
+            - obs_status_3
       - custom_dictionary_coverage:
           dictionary_model: ref('world_oecd_education__dicionario')
           columns_covered_by_dictionary:
@@ -456,6 +479,7 @@ models:
             - questionnaire_sheet
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [obs_status_2, obs_status_3]
       - custom_dictionary_coverage:
           dictionary_model: ref('world_oecd_education__dicionario')
           columns_covered_by_dictionary:
@@ -561,6 +585,7 @@ models:
             - questionnaire_sheet
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [obs_status_2, obs_status_3]
       - custom_dictionary_coverage:
           dictionary_model: ref('world_oecd_education__dicionario')
           columns_covered_by_dictionary:
@@ -664,6 +689,7 @@ models:
             - unit_measure
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [base_period, country_iso3_code]
       - custom_dictionary_coverage:
           dictionary_model: ref('world_oecd_education__dicionario')
           columns_covered_by_dictionary:
@@ -771,6 +797,7 @@ models:
             - frequency
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [confidentiality_status]
       - custom_dictionary_coverage:
           dictionary_model: ref('world_oecd_education__dicionario')
           columns_covered_by_dictionary:
@@ -1015,6 +1042,7 @@ models:
             - personnel_experience_level
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [base_period]
       - custom_dictionary_coverage:
           dictionary_model: ref('world_oecd_education__dicionario')
           columns_covered_by_dictionary:
