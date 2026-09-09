@@ -59,7 +59,23 @@ EXPECTED_FILES = {
 _orig_bucket = gcs.Client.bucket
 
 
-def _patched_bucket(self, bucket_name, user_project=None):
+def _patched_bucket(
+    self: gcs.Client, bucket_name: str, user_project: str | None = None
+) -> gcs.Bucket:
+    """Return a bucket handle that always bills BILLING_PROJECT.
+
+    The Data Basis buckets are requester-pays, so every call needs a
+    user_project. Callers inside the basedosdados SDK do not pass one, hence
+    the patch rather than a wrapper.
+
+    Args:
+        self: The storage client, since this replaces an unbound method.
+        bucket_name: Name of the bucket to open.
+        user_project: Ignored — BILLING_PROJECT always wins.
+
+    Returns:
+        The bucket handle, pinned to the billing project.
+    """
     return _orig_bucket(self, bucket_name, user_project=BILLING_PROJECT)
 
 
@@ -69,11 +85,28 @@ from pipelines.utils.tasks import _upload_to_gcs  # noqa: E402
 
 
 def local_rows(table: str) -> tuple[int, int]:
+    """Row count and file count of a table's local parquet.
+
+    Args:
+        table: Clean table slug.
+
+    Returns:
+        ``(rows, files)`` read from the parquet metadata, not the data.
+    """
     files = sorted((OUTPUT / table).rglob("*.parquet"))
     return sum(pq.ParquetFile(f).metadata.num_rows for f in files), len(files)
 
 
 def staging_rows(client: bigquery.Client, table: str) -> int:
+    """Row count of the table's staging external table.
+
+    Args:
+        client: An authenticated BigQuery client.
+        table: Clean table slug.
+
+    Returns:
+        The row count reported by BigQuery.
+    """
     ref = f"{BILLING_PROJECT}.{DATASET_ID}_staging.{table}"
     return next(
         iter(client.query(f"select count(*) n from `{ref}`").result())
@@ -81,6 +114,19 @@ def staging_rows(client: bigquery.Client, table: str) -> int:
 
 
 def upload(table: str) -> None:
+    """Upload one table's parquet to staging and verify what landed.
+
+    Args:
+        table: Clean table slug.
+
+    Returns:
+        None.
+
+    Raises:
+        SystemExit: when the parquet file count, the staging row count, the
+            table type or the staging schema does not match what the pipeline
+            will later expect.
+    """
     expected, nfiles = local_rows(table)
     print(
         f"\n[{table}] local: {expected:,} rows across {nfiles} parquet file(s)"
@@ -138,6 +184,14 @@ def upload(table: str) -> None:
 
 
 def main() -> None:
+    """Upload every table named on the command line, or all of them.
+
+    Returns:
+        None.
+
+    Raises:
+        SystemExit: when credentials are unset or a table name is unknown.
+    """
     if not os.environ.get("GOOGLE_APPLICATION_CREDENTIALS"):
         raise SystemExit("GOOGLE_APPLICATION_CREDENTIALS is not set")
     # gcs.dump_header writes its 0-row header parquet to ./data/<uuid>/ relative
