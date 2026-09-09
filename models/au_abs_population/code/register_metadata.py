@@ -35,16 +35,32 @@ DATASET_SLUG = "population"
 GCP_DATASET_ID = "au_abs_population"
 ORG_SLUG = "abs"
 THEME_SLUGS = ["population"]
-TAG_SLUGS = [
-    "demografia",
-    "migracao",
-    "fertilidade",
-    "mortalidade",
-    "nascimento",
-    "obito",
-    "projecao",
-    "idade",
-]
+# The tag vocabularies are slugged in different languages per backend: staging
+# is Portuguese, prod is English (895 tags, none of the Portuguese slugs). The
+# same eight concepts therefore resolve under different slugs, and looking up
+# the wrong set silently yields an untagged dataset.
+TAG_SLUGS = {
+    "staging": [
+        "demografia",
+        "migracao",
+        "fertilidade",
+        "mortalidade",
+        "nascimento",
+        "obito",
+        "projecao",
+        "idade",
+    ],
+    "prod": [
+        "demographics",
+        "migration",
+        "fertility",
+        "mortality",
+        "birth",
+        "death",
+        "projection",
+        "age",
+    ],
+}
 
 TABLE_ORDER = [
     "national_state",
@@ -437,9 +453,10 @@ def main() -> None:
         "id"
     ]
     theme_ids = [ids["theme"][t] for t in THEME_SLUGS]
+    tag_slugs = TAG_SLUGS[env]
     tag_ids = [
         server.lookup_id(category="tag", slug=t, env=env)["id"]
-        for t in TAG_SLUGS
+        for t in tag_slugs
     ]
     area_au = server.lookup_id(category="area", slug="au", env=env)["id"]
     account = server.get_authenticated_account(env=env)
