@@ -31,34 +31,60 @@ ARCH = Path(__file__).parent / "architecture"
 DATASET_SLUG = "ghcn_daily"
 GCP_DATASET_ID = "world_noaa_ghcn"
 
-ORGANIZATION_ID = "4b68d506-22c1-442e-8dc0-a5b75aa3a1b6"  # noaa
-THEME_ENVIRONMENT = "d80f1b78-9e2c-41d5-a456-d6b44d37502f"
-AREA_WORLD = "21486514-209f-416f-b73c-30f41d07e059"
-
-# GHCN-Daily is a work of the US federal government and is in the public domain
-# under 17 U.S.C. 105. NCEI's ISO metadata record attaches only a citation
-# request and liability disclaimers -- no restriction on redistribution or
-# commercial use -- so cc0 is the right machine-readable representation. This
-# also matches the existing NOAA datasets in prod (storm_events_database).
-LICENSE_CC0 = "7fb71004-2abe-4fc8-a258-e2aac27c71d9"
-AVAILABILITY_ONLINE = "dd396d7d-0264-4c1f-bf0d-6efe2dc89cbe"
-
-TAG_IDS = [
-    "2c0037dd-3d4f-430c-842c-d745e8b54972",  # temperature
-    "6920728f-181a-49a8-8144-8818cd618c20",  # precipitation
-    "5c8ce70f-b05f-42bd-955f-3227e5409614",  # rain
-    "301d1cf8-114d-4cf3-94d4-d8d92d0f1ac6",  # climate
-    "f9f4f327-d644-47cc-8bd0-f12aad651ef7",  # meteorology
-    "efa5c696-f977-4dfc-849a-ac258d855eef",  # climate change
-    "b3c7d667-4fc5-4069-bdd1-7409ae7a5940",  # wind
-    "a14f53c4-d98c-43a3-925b-ddbd3cbf8aa5",  # humidity
+# Reference ids differ between staging and prod -- cc0, `station` and `date`
+# all carry different UUIDs in the two environments -- so they are resolved by
+# slug at run time rather than hardcoded. Hardcoding them would have silently
+# attached the wrong licence and dropped two observation levels on prod.
+REFERENCES = {
+    "organization": "noaa",
+    "theme": "environment",
+    "area": "world",
+    "license": "cc0",
+    "availability": "online",
+}
+ENTITY_SLUGS = {
+    "station": "station",  # one row per weather station
+    "date": "date",  # daily grain of the observation table
+    "day": "day",  # cadence of the table Update record
+    "other": "other",  # the meteorological element dimension
+}
+# Tag slugs are English on prod and Portuguese on staging, though the two
+# environments share the same UUIDs. Each entry is (prod slug, staging slug) and
+# the lookup tries them in turn, so the same script runs against both.
+TAG_SLUGS = [
+    ("temperature", "temperatura"),
+    ("precipitation", "precipitacao"),
+    ("rain", "chuva"),
+    ("climate", "clima"),
+    ("meteorology", "meteorologia"),
+    ("climate_change", "mudancas_climaticas"),
+    ("wind", "vento"),
+    ("humidity", "umidade"),
 ]
 
-ENTITY_STATION = "946c51a4-617b-41c9-8fc3-66b4bfb5847c"
-ENTITY_DATE = "bf710bfa-3131-4423-a751-6c04de0a89dc"
-ENTITY_YEAR = "e1bf146e-b6bb-4b65-bee7-c800876e80a5"
-ENTITY_DAY = "81f0c890-65a6-48a1-9523-af38d3f4af63"
-ENTITY_OTHER = "1b3a7364-3e76-4416-8af7-d52824da2d24"  # meteorological element
+
+def _lookup(category: str, slugs: tuple[str, ...], env: str) -> str:
+    """Resolve a reference id, trying each slug the environments may use."""
+    for slug in slugs:
+        try:
+            return server.lookup_id(category=category, slug=slug, env=env)[
+                "id"
+            ]
+        except RuntimeError:
+            continue
+    raise RuntimeError(f"{category} not found in {env} under any of {slugs}")
+
+
+def resolve(env: str) -> dict[str, str]:
+    """Look every reference id up by slug in the target environment."""
+    ids = {}
+    for kind, slug in REFERENCES.items():
+        ids[kind] = _lookup(kind, (slug,), env)
+    for key, slug in ENTITY_SLUGS.items():
+        ids[f"entity_{key}"] = _lookup("entity", (slug,), env)
+    ids["tags"] = [_lookup("tag", pair, env) for pair in TAG_SLUGS]
+    return ids
+
 
 DATASET = {
     "name_pt": "Global Historical Climatology Network - Daily (GHCN-Daily)",
@@ -123,7 +149,7 @@ TABLES = {
             "con coordenadas, altitud, país, estado e identificador de la "
             "Organización Meteorológica Mundial."
         ),
-        "observation_levels": [(ENTITY_STATION, "station_id")],
+        "observation_levels": [("station", "station_id")],
     },
     "station_element_inventory": {
         "name_pt": "Inventário de estação e elemento",
@@ -145,8 +171,8 @@ TABLES = {
             "una estación sin recorrer la tabla de observaciones."
         ),
         "observation_levels": [
-            (ENTITY_STATION, "station_id"),
-            (ENTITY_OTHER, "element"),
+            ("station", "station_id"),
+            ("other", "element"),
         ],
     },
     "observation": {
@@ -186,9 +212,9 @@ TABLES = {
             "datos aprobados."
         ),
         "observation_levels": [
-            (ENTITY_STATION, "station_id"),
-            (ENTITY_DATE, "date"),
-            (ENTITY_OTHER, "element"),
+            ("station", "station_id"),
+            ("date", "date"),
+            ("other", "element"),
         ],
     },
     "dicionario": {
@@ -298,6 +324,7 @@ def main() -> None:
     env = args.env
 
     gcp_project = "basedosdados-dev" if env == "staging" else "basedosdados"
+    ids = resolve(env)
     account = server.get_authenticated_account(env=env)
     account_id = account["id"] if isinstance(account, dict) else account
     print("authenticated as", account_id)
@@ -308,9 +335,9 @@ def main() -> None:
     ds_id = server.create_update_dataset(
         id=existing.get("id") if existing.get("found") else None,
         slug=DATASET_SLUG,
-        organization_ids=[ORGANIZATION_ID],
-        theme_ids=[THEME_ENVIRONMENT],
-        tag_ids=TAG_IDS,
+        organization_ids=[ids["organization"]],
+        theme_ids=[ids["theme"]],
+        tag_ids=ids["tags"],
         status_id=status["under_review"],
         env=env,
         **DATASET,
@@ -327,8 +354,8 @@ def main() -> None:
         r = server.create_update_raw_data_source(
             id=prev_raw.get(rs["url"]),
             dataset_id=ds_id,
-            license_id=LICENSE_CC0,
-            availability_id=AVAILABILITY_ONLINE,
+            license_id=ids["license"],
+            availability_id=ids["availability"],
             env=env,
             **rs,
         )
@@ -366,7 +393,8 @@ def main() -> None:
             o.get("entity_id"): o.get("id")
             for o in prev.get("observation_levels", [])
         }
-        for entity_id, col in spec["observation_levels"]:
+        for entity_key, col in spec["observation_levels"]:
+            entity_id = ids[f"entity_{entity_key}"]
             o = server.create_update_observation_level(
                 id=prev_ols.get(entity_id),
                 table_id=tid,
@@ -414,7 +442,7 @@ def main() -> None:
         cov = server.create_update_coverage(
             id=(prev.get("coverages") or [{}])[0].get("id"),
             table_id=tid,
-            area_id=AREA_WORLD,
+            area_id=ids["area"],
             env=env,
         )
         cov_id = cov["id"] if isinstance(cov, dict) else cov
@@ -440,7 +468,7 @@ def main() -> None:
             # archive weekly, so the table refreshes daily once the recurring
             # pipeline is armed. `latest` is when WE last refreshed -- a wall
             # clock, not a coverage date.
-            entity_id=ENTITY_DAY,
+            entity_id=ids["entity_day"],
             frequency=1,
             latest=datetime.now(UTC).isoformat(),
             env=env,
