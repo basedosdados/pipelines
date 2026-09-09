@@ -18,6 +18,16 @@ Run: uv run python models/us_dot_fars/code/gen_architecture.py
 import csv
 from pathlib import Path
 
+from columns_extra import (
+    DIR_COUNTY,
+    DIR_MONTH,
+    DIR_STATE,
+    DIR_YEAR,
+    ERA,
+    FULL,
+    extras,
+)
+
 ARCH = Path(__file__).resolve().parent / "architecture"
 
 FIELDS = [
@@ -36,8 +46,6 @@ FIELDS = [
     "observations_es",
     "original_name",
 ]
-
-FULL = "1975(1)2024"
 
 
 def c(
@@ -71,22 +79,6 @@ def c(
         "original_name": orig,
     }
 
-
-DIR_YEAR = "diretorios_data_tempo.ano:ano"
-DIR_MONTH = "diretorios_data_tempo.mes:mes"
-DIR_STATE = "diretorios_us.state:id_state"
-DIR_COUNTY = "diretorios_us.county:id_county"
-
-# A note repeated on every coded column: the code set is not stable over the
-# 50-year span, so the dictionary is keyed by year range as well as by code.
-ERA = (
-    "Coluna codificada; o conjunto de códigos mudou ao longo do tempo, portanto "
-    "consulte a tabela dicionario pelo par (código, cobertura_temporal)",
-    "Coded column; the code set changed over time, so read it against the "
-    "dicionario table on the (code, temporal coverage) pair",
-    "Columna codificada; el conjunto de códigos cambió con el tiempo, por lo que "
-    "debe leerse en la tabla dicionario por el par (código, cobertura temporal)",
-)
 
 CRASH = [
     c(
@@ -233,7 +225,7 @@ CRASH = [
     c(
         "latitude",
         "FLOAT64",
-        "LATITUDE|latitude",
+        "LATITUDE",
         "Latitude do local do acidente, em graus decimais",
         "Latitude of the crash location, in decimal degrees",
         "Latitud del lugar del accidente, en grados decimales",
@@ -248,7 +240,7 @@ CRASH = [
     c(
         "longitude",
         "FLOAT64",
-        "LONGITUD|longitud",
+        "LONGITUD",
         "Longitude do local do acidente, em graus decimais",
         "Longitude of the crash location, in decimal degrees",
         "Longitud del lugar del accidente, en grados decimales",
@@ -282,16 +274,18 @@ CRASH = [
     c(
         "route_signing_code",
         "STRING",
-        "ROUTE",
+        # CL_TWAY (1975-1986) and ROUTE (1987-) are the same data element under
+        # two names, per the SAS Name block in NHTSA's own manual.
+        "ROUTE|CL_TWAY",
         "Tipo de sinalização da via (interestadual, rodovia federal, estadual, via local)",
         "Route signing of the trafficway (interstate, US highway, state highway, local road)",
         "Tipo de señalización de la vía (interestatal, carretera federal, estatal, vía local)",
-        "1987(1)2024",
+        FULL,
         dic=True,
         obs=ERA,
     ),
     c(
-        "land_use_code",
+        "rural_urban_code",
         "STRING",
         "RUR_URB",
         "Classificação rural ou urbana do local do acidente",
@@ -315,9 +309,9 @@ CRASH = [
         "1975(1)2014",
         dic=True,
         obs=(
-            "Descontinuada após 2014 e substituída pelo par functional_system_code e land_use_code, cujos códigos não são comparáveis aos desta coluna",
-            "Discontinued after 2014 and replaced by the pair functional_system_code and land_use_code, whose codes are not comparable to this column's",
-            "Descontinuada después de 2014 y sustituida por el par functional_system_code y land_use_code, cuyos códigos no son comparables con los de esta columna",
+            "Descontinuada após 2014 e substituída pelo par functional_system_code e rural_urban_code, cujos códigos não são comparáveis aos desta coluna",
+            "Discontinued after 2014 and replaced by the pair functional_system_code and rural_urban_code, whose codes are not comparable to this column's",
+            "Descontinuada después de 2014 y sustituida por el par functional_system_code y rural_urban_code, cuyos códigos no son comparables con los de esta columna",
         ),
     ),
     c(
@@ -2023,10 +2017,15 @@ DICIONARIO = [
     ),
 ]
 
+# Every remaining column of accident.csv / vehicle.csv / person.csv, named from
+# NHTSA's own Data Element List. See columns_extra.py for how era renames are
+# collapsed and why the <VAR>NAME label columns are excluded.
+_EXTRA_CRASH, _EXTRA_VEHICLE, _EXTRA_PERSON = extras(c)
+
 TABLES = {
-    "crash": CRASH,
-    "vehicle": VEHICLE,
-    "person": PERSON,
+    "crash": CRASH + _EXTRA_CRASH,
+    "vehicle": VEHICLE + _EXTRA_VEHICLE,
+    "person": PERSON + _EXTRA_PERSON,
     "dicionario": DICIONARIO,
 }
 

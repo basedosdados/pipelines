@@ -30,6 +30,7 @@ import re
 import tempfile
 import zipfile
 from collections import defaultdict
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -267,12 +268,23 @@ def num(value: str, sentinels: set[int]) -> str | None:
 
 
 def code(value: str) -> str | None:
-    """Normalise a coded value: strip, drop leading zeros, keep it a string."""
-    v = (value or "").strip().strip('"')
+    """Normalise a coded value: strip, drop leading zeros, keep it a string.
+
+    Leading zeros go with ``lstrip`` rather than an int round-trip: this runs
+    once per cell over roughly 300 million cells, where ``str(int(v))`` costs
+    about twice as much.
+    """
+    v = value.strip()
     if not v:
         return None
-    if v.lstrip("-").isdigit():
-        return str(int(v))
+    if v[0] == '"':
+        v = v.strip('"').strip()
+        if not v:
+            return None
+    if v.isdigit():
+        return v.lstrip("0") or "0"
+    if v[0] == "-" and v[1:].isdigit():
+        return "-" + (v[1:].lstrip("0") or "0")
     return v
 
 
@@ -323,6 +335,23 @@ def coord(value: str, is_longitude: bool = False) -> str | None:
     if not (lo <= f <= hi):
         return None
     return repr(f)
+
+
+def year_2_or_4(value: str, sentinels: set[int]) -> str | None:
+    """Normalise a year field that FARS writes with two digits in the early era
+    and four in the later one.
+
+    The two forms are told apart by magnitude, not by file year, because the
+    changeover is not uniform: MOD_YEAR is already four digits in 1998 while
+    LAST_YR still carries values like 74 well after that. Keying on the file
+    year sends 9999 through the two-digit branch and yields year 11899.
+    """
+    n = _int(value)
+    if n is None or n <= 0 or n in sentinels:
+        return None
+    if n < 1000:
+        return None if n == 99 else str(1900 + n)
+    return None if not (1900 <= n <= 2100) else str(n)
 
 
 def model_year(value: str, year: int) -> str | None:
@@ -415,6 +444,7 @@ SENTINELS: dict[str, dict[str, set[int]]] = {
         "hospital_arrival_minute": {88, 99},
         "speed_limit": {0, 98, 99},
         "milepoint": {0, 99998, 99999},
+        "vehicles_in_transport_count": {99},
     },
     "vehicle": {
         "occupants_count": {98, 99, 998, 999},
@@ -426,6 +456,22 @@ SENTINELS: dict[str, dict[str, set[int]]] = {
         "previous_speeding_convictions_count": {98, 99, 998, 999},
         "previous_other_convictions_count": {98, 99, 998, 999},
         "vehicle_speed_limit": {0, 98, 99},
+        "month": {0, 99},
+        "day": {0, 99},
+        "hour": {24, 88, 99},
+        "minute": {88, 99},
+        "vehicle_forms_count": set(),
+        # 0 marks "no prior record" rather than month zero.
+        "first_record_month": {0, 88, 99},
+        "last_record_month": {0, 88, 99},
+        "vin_length": {0, 99},
+        "vin_curb_weight": {0, 9999},
+        "wheelbase_short": {0, 9999},
+        "wheelbase_long": {0, 9999},
+        "motorcycle_engine_displacement": {0, 9999},
+        "motorcycle_dry_weight": {0, 999, 9999},
+        "engine_displacement_cubic_inch": {0, 998, 999},
+        "truck_shipping_weight": {0, 99999},
     },
     "person": {
         # 88 = not applicable (survivor), 97 = redacted, 99 = unknown; 24 is the
@@ -436,6 +482,22 @@ SENTINELS: dict[str, dict[str, set[int]]] = {
         # kept: FARS counts deaths up to 30 days (720 hours) after the crash.
         "survival_hours": {999},
         "survival_minutes": {99},
+        "month": {0, 99},
+        "day": {0, 99},
+        "hour": {24, 88, 99},
+        "minute": {88, 99},
+        "vehicle_forms_count": set(),
+        # 88 is "not applicable (survivor)"; 0 is the same thing in the old era.
+        "death_month": {0, 88, 99},
+        "death_day": {0, 88, 99},
+        "vin_length": {0, 99},
+        "vin_curb_weight": {0, 9999},
+        "wheelbase_short": {0, 9999},
+        "wheelbase_long": {0, 9999},
+        "motorcycle_engine_displacement": {0, 9999},
+        "motorcycle_dry_weight": {0, 999, 9999},
+        "engine_displacement_cubic_inch": {0, 998, 999},
+        "truck_shipping_weight": {0, 99999},
     },
 }
 
@@ -481,6 +543,8 @@ def _plain(name: str, table: str, cols_by_name: dict[str, Col]):
 
 
 # Columns whose cleaning is not implied by their type alone.
+_YEAR_SENTINELS = {0, 8888, 9998, 9999}
+
 SPECIAL = {
     ("crash", "latitude"): lambda v, y: coord(v),
     ("crash", "longitude"): lambda v, y: coord(v, is_longitude=True),
@@ -488,52 +552,88 @@ SPECIAL = {
     ("vehicle", "travel_speed"): travel_speed,
     ("person", "model_year"): model_year,
     ("person", "age"): age,
+    # Driver-record and death years carry the same two-digit early era as the
+    # model year, so they need the same magnitude-based reading.
+    ("vehicle", "first_record_year"): lambda v, y: year_2_or_4(
+        v, _YEAR_SENTINELS
+    ),
+    ("vehicle", "last_record_year"): lambda v, y: year_2_or_4(
+        v, _YEAR_SENTINELS
+    ),
+    ("person", "death_year"): lambda v, y: year_2_or_4(v, _YEAR_SENTINELS),
 }
 
 
 def clean_table(
     table: str, zip_path: Path, year: int, cols: list[Col]
-) -> list[dict]:
-    """Clean one source file for one year into a list of canonical-column rows."""
+) -> list[list]:
+    """Clean one source file for one year into rows aligned to ``cols``.
+
+    Rows are lists rather than dicts, and each column's source position and
+    cleaner are resolved once into a plan instead of being looked up per cell.
+    Across 343 columns and 50 years that is roughly 300 million cells, where two
+    dict lookups per cell is the difference between minutes and seconds.
+    """
     by_name = {c.name: c for c in cols}
-    cleaners = {
-        c.name: SPECIAL.get((table, c.name)) or _plain(c.name, table, by_name)
-        for c in cols
-    }
     stem = constants.SOURCE_FILE.value[table]
-    rows: list[dict] = []
-    positions: dict[str, int] | None = None
+    idx = {c.name: i for i, c in enumerate(cols)}
+    width_out = len(cols)
+    rows: list[list] = []
+    plan: list[tuple[int, int, Callable[[str, int], str | None]]] | None = None
+
+    # Positions of the columns filled in after the per-cell pass. A column the
+    # table does not have simply resolves to None and its block is skipped.
+    i_year = idx.get("year")
+    i_state = idx.get("state_id")
+    i_county = idx.get("county_id")
+    i_date = idx.get("date")
+    i_bac = idx.get("blood_alcohol_content")
+    i_ddate = idx.get("death_date")
+    i_dhour = idx.get("death_hour")
+    i_dmin = idx.get("death_minute")
 
     for index, raw in read_rows(zip_path, stem):
-        if positions is None:
+        if plan is None:
             positions = resolve(cols, index)
-        row: dict[str, str | None] = {}
-        for c in cols:
-            pos = positions.get(c.name)
-            if pos is None or pos >= len(raw):
-                row[c.name] = None
-                continue
-            row[c.name] = cleaners[c.name](raw[pos], year)
+            plan = [
+                (
+                    idx[c.name],
+                    positions[c.name],
+                    SPECIAL.get((table, c.name))
+                    or _plain(c.name, table, by_name),
+                )
+                for c in cols
+                if c.name in positions
+            ]
+        row: list = [None] * width_out
+        width_in = len(raw)
+        for i, pos, fn in plan:
+            if pos < width_in:
+                row[i] = fn(raw[pos], year)
 
         # year is not a column of vehicle.csv or person.csv, and in accident.csv
         # it is two-digit before 1982; the annual file is the reliable source.
-        row["year"] = str(year)
+        if i_year is not None:
+            row[i_year] = str(year)
 
-        if "state_id" in row and row["state_id"] is not None:
-            row["state_id"] = f"{int(row['state_id']):02d}"
+        if i_state is not None and row[i_state] is not None:
+            row[i_state] = f"{int(row[i_state]):02d}"
 
-        if table == "crash":
-            row["county_id"] = county_id_for(
-                row.get("state_id") or "", _raw(index, raw, "COUNTY")
+        if i_county is not None:
+            row[i_county] = county_id_for(
+                (row[i_state] if i_state is not None else "") or "",
+                _raw(index, raw, "COUNTY"),
             )
-            row["date"] = date_from(
+        if i_date is not None:
+            row[i_date] = date_from(
                 year, _raw(index, raw, "MONTH"), _raw(index, raw, "DAY")
             )
-        elif table == "person":
-            row["blood_alcohol_content"] = blood_alcohol(
+        if i_bac is not None:
+            row[i_bac] = blood_alcohol(
                 _first(index, raw, ("ALC_RES", "TEST_RES")), year
             )
-            row["death_date"] = date_from(
+        if i_ddate is not None:
+            row[i_ddate] = date_from(
                 _raw(index, raw, "DEATH_YR"),
                 _raw(index, raw, "DEATH_MO"),
                 _raw(index, raw, "DEATH_DA"),
@@ -541,9 +641,11 @@ def clean_table(
             # Before 2010 a survivor's death time is stored as 0 rather than as
             # a not-applicable code, which is indistinguishable from midnight.
             # Gate the whole death block on there being a death date.
-            if row["death_date"] is None:
-                row["death_hour"] = None
-                row["death_minute"] = None
+            if row[i_ddate] is None:
+                if i_dhour is not None:
+                    row[i_dhour] = None
+                if i_dmin is not None:
+                    row[i_dmin] = None
         rows.append(row)
     return rows
 
@@ -823,7 +925,7 @@ def _string_schema(cols: list[Col]) -> pa.Schema:
 
 
 def write_partition(
-    rows: list[dict], cols: list[Col], out_dir: Path, year: int
+    rows: list[list], cols: list[Col], out_dir: Path, year: int
 ) -> int:
     """Write one ``year=<Y>/data.parquet`` partition. Returns the row count.
 
@@ -839,8 +941,8 @@ def write_partition(
     schema = _string_schema(cols)
     table = pa.Table.from_arrays(
         [
-            pa.array([r.get(c.name) or None for r in rows], type=pa.string())
-            for c in cols
+            pa.array([r[i] or None for r in rows], type=pa.string())
+            for i in range(len(cols))
         ],
         schema=schema,
     )

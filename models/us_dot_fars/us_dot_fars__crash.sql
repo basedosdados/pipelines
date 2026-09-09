@@ -29,7 +29,7 @@ select
     safe_cast(trafficway_id as string) trafficway_id,
     safe_cast(milepoint as float64) milepoint,
     safe_cast(route_signing_code as string) route_signing_code,
-    safe_cast(land_use_code as string) land_use_code,
+    safe_cast(rural_urban_code as string) rural_urban_code,
     safe_cast(road_function_class_code as string) road_function_class_code,
     safe_cast(functional_system_code as string) functional_system_code,
     safe_cast(road_owner_code as string) road_owner_code,
@@ -53,18 +53,14 @@ select
     safe_cast(roadway_profile_code as string) roadway_profile_code,
     safe_cast(surface_condition_code as string) surface_condition_code,
     safe_cast(traffic_control_code as string) traffic_control_code,
-    safe_cast(
-        traffic_control_functioning_code as string
-    ) traffic_control_functioning_code,
+    safe_cast(traffic_control_functioning_code as string) traffic_control_functioning_code,
     safe_cast(trafficway_flow_code as string) trafficway_flow_code,
     safe_cast(vehicle_forms_count as int64) vehicle_forms_count,
     safe_cast(vehicles_total_count as int64) vehicles_total_count,
     safe_cast(parked_vehicles_count as int64) parked_vehicles_count,
     safe_cast(persons_count as int64) persons_count,
     safe_cast(persons_in_motor_vehicles_count as int64) persons_in_motor_vehicles_count,
-    safe_cast(
-        persons_outside_motor_vehicles_count as int64
-    ) persons_outside_motor_vehicles_count,
+    safe_cast(persons_outside_motor_vehicles_count as int64) persons_outside_motor_vehicles_count,
     safe_cast(pedestrians_count as int64) pedestrians_count,
     safe_cast(fatalities_count as int64) fatalities_count,
     safe_cast(drunk_drivers_count as int64) drunk_drivers_count,
@@ -73,5 +69,15 @@ select
     safe_cast(arrival_hour as int64) arrival_hour,
     safe_cast(arrival_minute as int64) arrival_minute,
     safe_cast(hospital_arrival_hour as int64) hospital_arrival_hour,
-    safe_cast(hospital_arrival_minute as int64) hospital_arrival_minute
+    safe_cast(hospital_arrival_minute as int64) hospital_arrival_minute,
+    safe_cast(crash_related_factor_1_code as string) crash_related_factor_1_code,
+    safe_cast(crash_related_factor_2_code as string) crash_related_factor_2_code,
+    safe_cast(crash_related_factor_3_code as string) crash_related_factor_3_code,
+    safe_cast(federal_highway_code as string) federal_highway_code,
+    safe_cast(land_use_code as string) land_use_code,
+    safe_cast(roadway_surface_type_code as string) roadway_surface_type_code,
+    safe_cast(trafficway_id_2 as string) trafficway_id_2,
+    safe_cast(vehicles_in_transport_count as int64) vehicles_in_transport_count,
+    safe_cast(atmospheric_condition_1_code as string) atmospheric_condition_1_code,
+    safe_cast(atmospheric_condition_2_code as string) atmospheric_condition_2_code
 from {{ set_datalake_project("us_dot_fars_staging.crash") }} as t

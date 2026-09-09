@@ -125,19 +125,44 @@ re-checks the ones that can regress.
 
 ## Column scope
 
-The source publishes roughly 450 distinct columns across the three files over the
-span, many of them VIN-decode output and administrative fields. The tables here
-carry a curated 57 / 55 / 43, chosen for analytic value and documented with
-per-column `temporal_coverage`. Era-successor variables are merged into one
-column when the source renamed a field (`TEST_RES` -> `ALC_RES`,
-`C_M_ZONE` -> `WRK_ZONE`) and kept separate when it restructured the concept
-(`ROAD_FNC` -> `FUNC_SYS` + `RUR_URB`), since merging incompatible code sets
-under one name would be a correctness bug.
+**Every column of `accident.csv`, `vehicle.csv` and `person.csv` is modelled** —
+363 source columns across the three files, mapped to 343 output columns. Names
+and descriptions come from NHTSA's own Data Element List in the FARS Analytical
+User's Manual, 1975-2024, so a column is called what the publisher calls it.
 
-`gen_architecture.py` is the single source of truth: the transform, the dbt
-models and the backend metadata are all generated from the architecture CSVs, and
-`verify_spec.py`-style checks assert every declared source alias and temporal
-coverage against the real 50-year header matrix.
+Two source variables collapse into one output column only where the manual gives
+them the same data element name **and** their year spans are disjoint — that is a
+rename across eras (`TOWAWAY` → `TOWED`, `VEH_CF1` → `VEH_SC1`, `P_CF1` →
+`P_SF1`). Same name with *overlapping* spans means genuinely parallel fields
+(`WEATHER1`/`WEATHER2`, `CF1`/`CF2`/`CF3`, `GVWR_FROM`/`GVWR_TO`) and they stay
+separate. `verify_spec2`-style checks assert that every source column is claimed
+exactly once and that every declared alias and temporal coverage matches the real
+50-year header matrix.
+
+The one deliberate exclusion is the 213 `<VAR>NAME` companion columns the CSVs
+carry from 2015. They are the label half of a code, and the `dicionario` already
+carries that label for **every** year rather than only for 2015 on — so modelling
+them would add 213 columns of duplication that are null for the first 40 years.
+
+Because the tables now span 50 years of a changing form, many columns are
+populated for only part of it: `DISPLACE` exists in 2011-2012 alone, `D_VISION1`
+in 2009 alone. Each carries its own `temporal_coverage`, and the ones below the
+0.05 non-null floor are listed in `architecture/sparse.json` and excluded from
+`not_null_proportion_multiple_columns` — being empty outside their era is the
+correct behaviour, not a defect.
+
+`gen_architecture.py` plus `columns_extra.py` are the single source of truth: the
+transform, the dbt models and the backend metadata are all generated from the
+architecture CSVs.
+
+### Performance
+
+The transform is a per-cell Python pass over roughly 300 million cells. Rows are
+built as lists aligned to the column order, with each column's source position
+and cleaner resolved once into a plan rather than looked up per cell, and
+`code()` drops leading zeros with `lstrip` rather than an `int` round-trip.
+Together those take a year from about 200 seconds to about 25, and the change is
+byte-identical on the output.
 
 ## Refresh
 
