@@ -18,7 +18,7 @@ import argparse
 import csv
 import json
 import sys
-from datetime import date
+from datetime import UTC, datetime
 from pathlib import Path
 
 sys.path.insert(
@@ -35,6 +35,14 @@ ORGANIZATION_ID = "4b68d506-22c1-442e-8dc0-a5b75aa3a1b6"  # noaa
 THEME_ENVIRONMENT = "d80f1b78-9e2c-41d5-a456-d6b44d37502f"
 AREA_WORLD = "21486514-209f-416f-b73c-30f41d07e059"
 
+# GHCN-Daily is a work of the US federal government and is in the public domain
+# under 17 U.S.C. 105. NCEI's ISO metadata record attaches only a citation
+# request and liability disclaimers -- no restriction on redistribution or
+# commercial use -- so cc0 is the right machine-readable representation. This
+# also matches the existing NOAA datasets in prod (storm_events_database).
+LICENSE_CC0 = "7fb71004-2abe-4fc8-a258-e2aac27c71d9"
+AVAILABILITY_ONLINE = "dd396d7d-0264-4c1f-bf0d-6efe2dc89cbe"
+
 TAG_IDS = [
     "2c0037dd-3d4f-430c-842c-d745e8b54972",  # temperature
     "6920728f-181a-49a8-8144-8818cd618c20",  # precipitation
@@ -49,6 +57,7 @@ TAG_IDS = [
 ENTITY_STATION = "946c51a4-617b-41c9-8fc3-66b4bfb5847c"
 ENTITY_DATE = "bf710bfa-3131-4423-a751-6c04de0a89dc"
 ENTITY_YEAR = "e1bf146e-b6bb-4b65-bee7-c800876e80a5"
+ENTITY_DAY = "81f0c890-65a6-48a1-9523-af38d3f4af63"
 ENTITY_OTHER = "1b3a7364-3e76-4416-8af7-d52824da2d24"  # meteorological element
 
 DATASET = {
@@ -309,10 +318,19 @@ def main() -> None:
     ds_id = ds_id["id"] if isinstance(ds_id, dict) else ds_id
     print("dataset", ds_id)
 
+    prev_raw = {
+        r.get("url"): r.get("id")
+        for r in server.get_raw_data_sources(DATASET_SLUG, env=env)
+    }
     raw_ids = []
     for rs in RAW_SOURCES:
         r = server.create_update_raw_data_source(
-            dataset_id=ds_id, env=env, **rs
+            id=prev_raw.get(rs["url"]),
+            dataset_id=ds_id,
+            license_id=LICENSE_CC0,
+            availability_id=AVAILABILITY_ONLINE,
+            env=env,
+            **rs,
         )
         raw_ids.append(r["id"] if isinstance(r, dict) else r)
     print("raw data sources", raw_ids)
@@ -418,9 +436,13 @@ def main() -> None:
         server.create_update_update(
             id=(prev.get("updates") or [{}])[0].get("id"),
             table_id=tid,
-            entity_id=ENTITY_YEAR,
+            # NCEI rewrites the current year daily and reconstructs the whole
+            # archive weekly, so the table refreshes daily once the recurring
+            # pipeline is armed. `latest` is when WE last refreshed -- a wall
+            # clock, not a coverage date.
+            entity_id=ENTITY_DAY,
             frequency=1,
-            latest=date.today().isoformat(),
+            latest=datetime.now(UTC).isoformat(),
             env=env,
         )
         server.create_update_table(
@@ -441,7 +463,7 @@ def main() -> None:
         )
 
     server.reorder_tables(
-        dataset_id=ds_id, table_order=json.dumps(TABLE_ORDER), env=env
+        dataset_slug=DATASET_SLUG, table_slugs=TABLE_ORDER, env=env
     )
     print("done.")
 
