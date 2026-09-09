@@ -414,6 +414,15 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--env", default="staging")
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument(
+        "--publish",
+        action="store_true",
+        help=(
+            "flip the dataset to published. Safe on dev/staging, which is not "
+            "the public site; on prod, only after the PR has merged, "
+            "table-approve has materialised the tables, and they are verified"
+        ),
+    )
     args = ap.parse_args()
     env = args.env
     gcp_project = "basedosdados" if env == "prod" else "basedosdados-dev"
@@ -454,18 +463,22 @@ def main() -> None:
         organization_ids=[org_id],
         theme_ids=theme_ids,
         tag_ids=tag_ids,
-        status_id=status_under_review,
+        status_id=status_published if args.publish else status_under_review,
         id=existing.get("id") if existing.get("found") else None,
         env=env,
     )
     dataset_id = ds["id"]
     print(f"dataset {DATASET_SLUG} -> {dataset_id}")
 
+    # Key on url, not name: get_raw_data_sources returns only the Portuguese
+    # name, so matching on name_en never hits and every run would create a
+    # second copy of all three sources.
     prior_sources = {
-        s.get("name_en") or s.get("name"): s["id"]
+        s["url"]: s["id"]
         for s in server.get_raw_data_sources(
             dataset_slug=DATASET_SLUG, env=env
         )
+        if s.get("url")
     }
     source_ids = {}
     for key, spec in RAW_SOURCES.items():
@@ -479,16 +492,22 @@ def main() -> None:
             contains_api=False,
             requires_registration=False,
             status_id=status_published,
-            id=prior_sources.get(spec["name_en"]),
+            id=prior_sources.get(spec["url"]),
             env=env,
         )
         source_ids[key] = r["id"]
         print(f"  raw source {key} -> {r['id']}")
 
-    after = server.get_dataset(slug=DATASET_SLUG, env=env)
     for table in TABLE_ORDER:
         spec = TABLES[table]
-        prior = after.get("tables", {}).get(table, {})
+        # Re-read per table rather than from one pre-loop snapshot: a partial
+        # run leaves records behind, and create_update_* duplicates observation
+        # levels, cloud tables, coverages and updates when called without an id.
+        prior = (
+            server.get_dataset(slug=DATASET_SLUG, env=env)
+            .get("tables", {})
+            .get(table, {})
+        )
         t = server.create_update_table(
             slug=table,
             name_pt=spec["name_pt"],
@@ -599,7 +618,7 @@ def main() -> None:
             entity_id=entity[ent],
             frequency=freq,
             lag=lag,
-            latest=TODAY,
+            latest=NOW,
             table_id=table_id,
             id=prior_up[0]["id"] if prior_up else None,
             env=env,
@@ -629,7 +648,8 @@ def main() -> None:
     print(f"\n=== METADATA REGISTRATION COMPLETE (env={env}) ===")
 
 
-TODAY = __import__("datetime").date.today().isoformat()
+# The backend field is a DateTime, so a bare date is rejected.
+NOW = __import__("datetime").datetime.now().replace(microsecond=0).isoformat()
 
 if __name__ == "__main__":
     main()
