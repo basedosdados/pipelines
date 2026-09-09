@@ -9,10 +9,9 @@ for the duplicate records create_update_* produces when called without an id.
 import sys
 from collections import Counter
 
-sys.path.insert(
-    0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-)
-import server
+from common import import_mcp_server
+
+server = import_mcp_server()
 
 ENV = sys.argv[1] if len(sys.argv) > 1 else "staging"
 SLUG = "nih_reporter"
