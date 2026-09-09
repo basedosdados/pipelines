@@ -73,22 +73,56 @@ def partition_range(frame: pd.DataFrame | None) -> tuple[int, int]:
     return start, CUR_YEAR + 5
 
 
+# Columns that are sparse *by construction*, plus the note explaining why.
+#
+# The measurement below reads whichever extraction it is run against, so a
+# column that merely hovers near the 5% floor gets listed on one run and
+# dropped on the next — and the proportion test then fails in prod the first
+# time the source dips under. Declaring such columns here makes the exclusion
+# stable and records the reason, instead of leaving it to a lucky snapshot.
+STRUCTURALLY_SPARSE: dict[str, tuple[tuple[str, ...], str]] = {
+    "diretor_coordenador": (
+        (
+            "matricula_substituto",
+            "nome_substituto",
+            "data_inicio_substituicao",
+            "data_fim_substituicao",
+        ),
+        "A fonte só preenche o objeto `substituto` nos setores com substituição "
+        "vigente na data de extração — 11 dos 234 setores (4,7%) em 2026-09-07 e "
+        "20 dos 234 (8,5%) em 2026-09-09 — e, quando o preenche, os quatro campos "
+        "vêm sempre juntos. Por serem esparsas por construção, essas colunas ficam "
+        "fora do teste de proporção de nulos.",
+    ),
+}
+
+
 def ignore_values(
     slug: str, spec: dict, frame: pd.DataFrame | None
 ) -> list[str]:
-    """Columns under 5% non-null, which the proportion test must skip.
+    """Columns the proportion test must skip, in architecture order.
 
-    Several columns here are legitimately sparse — `numero_formatado` and
-    `unidade_gestora` exist only for contratos, `cargo` and `categoria` only for
-    cessões pelo Senado, and most `quadro_pessoal` dimensions apply to a single
-    source report.
+    Two sources, unioned: the columns declared structurally sparse in
+    :data:`STRUCTURALLY_SPARSE`, and the columns measured under 5% non-null in
+    the extraction at hand. Several of the measured ones are legitimately
+    sparse — `numero_formatado` and `unidade_gestora` exist only for contratos,
+    `cargo` and `categoria` only for cessões pelo Senado, and most
+    `quadro_pessoal` dimensions apply to a single source report.
+
+    The declared set applies even with no parquet on disk, so regenerating
+    without the extraction cannot silently drop it.
     """
-    if frame is None or not len(frame):
-        return []
+    declared = set(STRUCTURALLY_SPARSE.get(slug, ((), ""))[0])
     out = []
     for col in spec["cols"]:
         name = col[0]
-        if name in frame.columns and frame[name].notna().mean() < 0.05:
+        measured = (
+            frame is not None
+            and len(frame)
+            and name in frame.columns
+            and frame[name].notna().mean() < 0.05
+        )
+        if name in declared or measured:
             out.append(name)
     return out
 
@@ -150,11 +184,23 @@ def gen_sql(slug: str, spec: dict, frame: pd.DataFrame | None) -> str:
     )
 
 
+def desc(slug: str, spec: dict) -> str:
+    """The dbt model description: the table description plus any sparsity note.
+
+    The note is appended here rather than stored in ``spec['desc_pt']`` because
+    that string is the public table description, and has ``desc_en``/``desc_es``
+    counterparts that would silently fall out of sync.
+    """
+    text = spec["desc_pt"].strip()
+    note = STRUCTURALLY_SPARSE.get(slug, ((), ""))[1]
+    return f"{text} {note}".strip() if note else text
+
+
 def gen_schema_entry(slug: str, spec: dict, frame: pd.DataFrame | None) -> str:
     out = [
         f"  - name: {DATASET}__{slug}",
         "    description: >",
-        f"      {spec['desc_pt'].strip()}",
+        f"      {desc(slug, spec)}",
         "    tests:",
         "      - dbt_utils.unique_combination_of_columns:",
         f"          combination_of_columns: [{', '.join(spec['unique'])}]",
