@@ -34,6 +34,7 @@ import sys
 import tarfile
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from typing import NamedTuple
 
 import pandas as pd
 import pyarrow as pa
@@ -219,6 +220,444 @@ def download_window(
     return str(api_dir)
 
 
+# ── crosswalk preflight ──────────────────────────────────────────────────────
+# Tesouro adds account codes to the DCA layout without notice, and a key the
+# builders join on that is absent from the compatibilização tables must fail the
+# run rather than silently drop or mislabel rows. That check used to live at the
+# *end* of the clean — i.e. ~18h into a run that spends almost all of it in the
+# API download (flow run 01a059bc, 2026-09-02: download 17h18m, archive 13m,
+# clean 24m, then the raise).
+#
+# The same check now runs in two cheaper places. Both read only the account
+# keys; neither builds a row:
+#
+#   1. :func:`preflight_crosswalk` — *before* the download, against the raw JSON
+#      the previous run archived to GCS. Measured on the 2022-2026 window:
+#      ~370 MB fetched in ~2 min, 27,990 files scanned in 209 s, 46,291 distinct
+#      keys — about 6 minutes against the download's 17h18m. Complete for that
+#      snapshot (every entity, not a sample), but blind to keys Tesouro has
+#      published since it was written.
+#   2. the head of :func:`clean_window` — against this run's own fresh download,
+#      before any builder runs. Complete and current, but only reachable once
+#      the download has been paid for.
+#
+# A cheap live probe of Brasil + all 27 UFs (28 calls, ~2 min) was measured and
+# rejected as the preflight source: none of the five keys that failed on
+# 2026-09-02 appear at those levels — they are município-only — so such a probe
+# would have passed and the run would still have died at hour 18.
+
+# ``apply_conta_split``'s pattern: "CODE - NAME" -> (portaria, conta).
+_CONTA_SPLIT_RE = re.compile(r"^(\d+(?:\.\d+)*)\s*-?\s*(.*)")
+
+_ACCOUNT_KEY = ("ano", "estagio", "portaria", "conta")
+
+
+class _CompSpec(NamedTuple):
+    """How one crosswalk file is joined, mirrored from its builders.
+
+    Attributes:
+        comp_key: Key of this table in the dict ``load_crosswalk`` returns.
+        join_cols: Columns the builder merges on (its ``chaves``).
+        report_cols: Columns ``get_unmatched`` reports for a gap.
+        eoy_only: Builder first filters to the ``31/12/<ano>`` snapshot.
+        lstrip_zeros: Builder strips leading zeros from ``portaria`` after the
+            conta split.
+    """
+
+    comp_key: str
+    join_cols: tuple[str, ...]
+    report_cols: tuple[str, ...]
+    eoy_only: bool = False
+    lstrip_zeros: bool = False
+
+
+# Per crosswalk file — the ``comp_file`` in ``build.py``'s BUILDERS registry, and
+# the name printed in the failure. This mirrors each builder's ``chaves``,
+# ``get_unmatched`` call and post-split normalisation in code/tables_final/*.py;
+# those live inside ``_build_api`` and cannot be imported, so the one thing to
+# check when a builder changes is that this table still matches it. The
+# ``clean_window`` backstop exists to catch it when it does not.
+_COMP_SPEC = {
+    "receitas_orcamentarias": _CompSpec(
+        "receitas", _ACCOUNT_KEY, _ACCOUNT_KEY
+    ),
+    "despesas_orcamentarias": _CompSpec(
+        "despesas", _ACCOUNT_KEY, _ACCOUNT_KEY
+    ),
+    # The three despesas_funcao builders alone do
+    # ``portaria.str.lstrip("0")`` — the API sends "01.031", the crosswalk
+    # holds "1.031". Without it every função code would read as a gap.
+    "despesas_funcao": _CompSpec(
+        "despesas_funcao", _ACCOUNT_KEY, _ACCOUNT_KEY, lstrip_zeros=True
+    ),
+    # municipio_balanco_patrimonial keeps only the 31/12 snapshot, merges on
+    # (ano, portaria), and reports the gap with ``conta`` appended.
+    "balanco_patrimonial": _CompSpec(
+        "balanco",
+        ("ano", "portaria"),
+        ("ano", "portaria", "conta"),
+        eoy_only=True,
+    ),
+}
+
+
+def _crosswalk_targets(tables) -> dict[tuple[str, str], str]:
+    """``{(level, anexo): comp_file}`` for the crosswalk-backed tables in scope.
+
+    ``LEVEL`` / ``ANEXO`` are read from the builder modules and ``comp_file``
+    from the BUILDERS registry, so the preflight checks exactly the (level,
+    anexo) pairs the builders will join — no second copy of that mapping.
+    Tables whose registry entry carries an empty ``comp_file`` do no crosswalk
+    join and are skipped.
+
+    Args:
+        tables: Table slugs in scope for this run.
+
+    Returns:
+        Mapping from ``(level, anexo)`` to the crosswalk file name.
+    """
+    import importlib
+
+    _ensure_code_on_path()
+    builders = _build_registry()
+    targets: dict[tuple[str, str], str] = {}
+    for table in tables:
+        spec = builders.get(table)
+        if not spec:
+            continue
+        comp_file = spec[2]
+        if not comp_file:
+            continue
+        mod = importlib.import_module(f"tables_final.{table}")
+        targets[(mod.LEVEL, mod.ANEXO)] = comp_file
+    return targets
+
+
+def _account_keys(items, ano: int, level: str, anexos) -> list[tuple]:
+    """Account keys of one entity-year payload, without building a DataFrame.
+
+    Mirrors ``load_year_data`` (``estagio`` is the API's ``coluna``; ``anexo``
+    gets the ``DCA-`` prefix) and ``apply_conta_split`` (split ``"CODE - NAME"``
+    into portaria/conta, repair the two mojibake dashes). Items whose anexo is
+    not checked against a crosswalk are dropped here — that is roughly half of
+    them, and skipping them halves the scan.
+
+    Args:
+        items: The ``data.items`` list of one downloaded entity-year JSON.
+        ano: The year of that payload.
+        level: ``brasil`` / ``uf`` / ``municipio``.
+        anexos: Anexos worth keeping (the keys of :func:`_crosswalk_targets`).
+
+    Returns:
+        ``(ano, level, anexo, estagio, portaria, conta)`` tuples.
+    """
+    out = []
+    for it in items:
+        anexo = str(it.get("anexo") or "")
+        if not anexo.startswith("DCA-"):
+            anexo = "DCA-" + anexo
+        if anexo not in anexos:
+            continue
+        raw = str(it.get("conta") or "")
+        m = _CONTA_SPLIT_RE.match(raw)
+        if m:
+            portaria, conta = m.group(1).strip(), m.group(2).strip()
+        else:
+            portaria, conta = "", raw.strip()
+        conta = conta.replace("�", "-").replace("¿", "-")
+        out.append((ano, level, anexo, str(it.get("coluna")), portaria, conta))
+    return out
+
+
+def _level_of_file(name: str, ano: int) -> str:
+    """Government level of a ``dca_<year>_<cod_ibge>.json`` file.
+
+    Derived from the entity-code length exactly as ``load_year_data`` does, so
+    the preflight buckets a file the same way the builders will.
+    """
+    cod = name.rsplit("/", 1)[-1][len(f"dca_{ano}_") : -len(".json")]
+    n = len(cod)
+    return "brasil" if n == 1 else "uf" if n == 2 else "municipio"
+
+
+def scan_keys_api_dir(api_dir: str, years, levels, anexos) -> set[tuple]:
+    """Distinct account keys in a freshly downloaded ``input/api`` tree.
+
+    Args:
+        api_dir: Directory from :func:`download_window`.
+        years: Window years to scan.
+        levels: Government levels to scan.
+        anexos: Anexos worth keeping.
+
+    Returns:
+        Set of ``(ano, level, anexo, estagio, portaria, conta)``.
+    """
+    root = Path(api_dir)
+    keys: set[tuple] = set()
+    for ano in years:
+        for lvl in levels:
+            for jpath in sorted((root / lvl).glob(f"dca_{ano}_*.json")):
+                try:
+                    payload = json.loads(jpath.read_text())
+                except (json.JSONDecodeError, OSError):
+                    continue
+                items = payload.get("data", {}).get("items", [])
+                if not items:
+                    continue
+                keys.update(
+                    _account_keys(
+                        items, ano, _level_of_file(jpath.name, ano), anexos
+                    )
+                )
+    return keys
+
+
+def scan_keys_archive(
+    bucket_name: str, work_dir: str, years, levels, anexos
+) -> tuple[set[tuple], list[tuple[int, object]]]:
+    """Distinct account keys in the raw JSON a previous run archived to GCS.
+
+    Reads ``gs://<bucket>/<RAW_PREFIX>/api/dca_<year>.tar.gz`` — written by
+    :func:`archive_raw` on **every** run, including one that later fails, so the
+    snapshot is at most one cycle old. Each tarball is streamed and deleted
+    before the next, so peak disk is one year (~95 MB compressed).
+
+    A year that is missing, or that cannot be fetched, is skipped rather than
+    fatal, and the caller prints exactly which years were read: the preflight is
+    an early-exit optimisation, and :func:`clean_window` still gates the run on
+    this run's own download. Degrading to "checked fewer years" is strictly
+    better than failing a monthly run on a transient GCS error.
+
+    Args:
+        bucket_name: Bucket holding the archive.
+        work_dir: Run scratch directory.
+        years: Window years to scan.
+        levels: Government levels to scan.
+        anexos: Anexos worth keeping.
+
+    Returns:
+        ``(keys, provenance)`` where provenance is ``(year, blob_updated)`` per
+        tarball actually read.
+    """
+    bucket = _bucket(bucket_name)
+    tmp = Path(work_dir) / "preflight"
+    tmp.mkdir(parents=True, exist_ok=True)
+
+    keys: set[tuple] = set()
+    provenance: list[tuple[int, object]] = []
+    wanted_levels = set(levels)
+    for ano in years:
+        local = tmp / f"dca_{ano}.tar.gz"
+        year_keys: set[tuple] = set()
+        n_files = 0
+        try:
+            blob = bucket.blob(f"{RAW_PREFIX}/api/dca_{ano}.tar.gz")
+            if not blob.exists():
+                print(f"preflight: no archive for {ano}, skipping that year")
+                continue
+            blob.reload()
+            blob.download_to_filename(str(local))
+            with tarfile.open(str(local), "r:gz") as tar:
+                for member in tar:
+                    if not member.isfile():
+                        continue
+                    level = _level_of_file(member.name, ano)
+                    if level not in wanted_levels:
+                        continue
+                    handle = tar.extractfile(member)
+                    if handle is None:
+                        continue
+                    try:
+                        payload = json.loads(handle.read())
+                    except json.JSONDecodeError:
+                        continue
+                    n_files += 1
+                    items = payload.get("data", {}).get("items", [])
+                    if items:
+                        year_keys.update(
+                            _account_keys(items, ano, level, anexos)
+                        )
+        except Exception as exc:
+            # A GCS blip or a truncated tarball must not cost a monthly run.
+            # The year is simply left unchecked and said so, out loud.
+            print(
+                f"preflight: could not read the {ano} archive ({exc}); skipping it"
+            )
+            continue
+        finally:
+            local.unlink(missing_ok=True)
+        keys |= year_keys
+        provenance.append((ano, blob.updated))
+        print(
+            f"preflight: dca_{ano}.tar.gz ({n_files} files, archived "
+            f"{blob.updated:%Y-%m-%d}) -> {len(keys):,} keys so far"
+        )
+    return keys, provenance
+
+
+def crosswalk_gaps(keys, tables) -> dict[str, pd.DataFrame]:
+    """Account keys present in the source but absent from the crosswalk.
+
+    The set-membership equivalent of the builders' left join plus
+    ``get_unmatched``: a key that would not find a crosswalk row is a gap.
+
+    Args:
+        keys: Iterable of ``(ano, level, anexo, estagio, portaria, conta)``.
+        tables: Table slugs in scope.
+
+    Returns:
+        ``{comp_file: DataFrame}`` of the distinct unmatched report keys. Empty
+        when every key resolves.
+    """
+    targets = _crosswalk_targets(tables)
+    if not targets:
+        return {}
+
+    comp = _shared().load_crosswalk(PATH_QUERIES)
+    known: dict[str, set[tuple]] = {}
+    for comp_file in set(targets.values()):
+        spec = _COMP_SPEC[comp_file]
+        known[comp_file] = set(
+            comp[spec.comp_key][list(spec.join_cols)]
+            .astype(str)
+            .itertuples(index=False, name=None)
+        )
+
+    missing: dict[str, set[tuple]] = {cf: set() for cf in known}
+    for ano, level, anexo, estagio, portaria, conta in keys:
+        comp_file = targets.get((level, anexo))
+        if comp_file is None:
+            continue
+        spec = _COMP_SPEC[comp_file]
+        if spec.eoy_only and estagio != f"31/12/{ano}":
+            continue
+        row = {
+            "ano": str(ano),
+            "estagio": estagio,
+            "portaria": portaria.lstrip("0")
+            if spec.lstrip_zeros
+            else portaria,
+            "conta": conta,
+        }
+        if tuple(row[c] for c in spec.join_cols) in known[comp_file]:
+            continue
+        missing[comp_file].add(tuple(row[c] for c in spec.report_cols))
+
+    return {
+        comp_file: pd.DataFrame(
+            sorted(rows), columns=list(_COMP_SPEC[comp_file].report_cols)
+        ).reset_index(drop=True)
+        for comp_file, rows in missing.items()
+        if rows
+    }
+
+
+# Cap on how many gap keys are printed per crosswalk file. The operator has to
+# add every one of them by hand, so the default is to print them all; the 2,228
+# gaps of 2026-07-31 are the reason there is a cap at all.
+_MAX_REPORTED_GAPS = 200
+
+
+def raise_on_crosswalk_gaps(gaps: dict, source: str) -> None:
+    """Raise the actionable crosswalk-gap error, or return if there are none.
+
+    Args:
+        gaps: ``{comp_file: DataFrame}`` from :func:`crosswalk_gaps`.
+        source: What was checked, named in the message — the operator needs to
+            know whether the gaps came from this run's download or from the
+            previous run's archive.
+
+    Raises:
+        RuntimeError: If ``gaps`` is non-empty.
+    """
+    if not gaps:
+        return
+    blocks = []
+    for comp_file, frame in sorted(gaps.items()):
+        shown = frame.head(_MAX_REPORTED_GAPS)
+        suffix = (
+            f"\n… and {len(frame) - len(shown)} more"
+            if len(frame) > len(shown)
+            else ""
+        )
+        blocks.append(
+            f"[{comp_file}.xlsx] {len(frame)} unmatched key(s):\n"
+            f"{shown.to_string(index=False)}{suffix}"
+        )
+    raise RuntimeError(
+        "SICONFI crosswalk gaps — Tesouro emitted account keys missing "
+        "from the compatibilização tables. Add them to "
+        "models/br_me_siconfi/code/crosswalk/<file>.xlsx (fill the *_bd "
+        f"columns) and re-run.\nSource checked: {source}.\n\n"
+        + "\n\n".join(blocks)
+    )
+
+
+def preflight_crosswalk(
+    work_dir: str,
+    start_year: int,
+    end_year: int,
+    levels,
+    archive_bucket: str,
+) -> int:
+    """Check the crosswalk before the download, against the archived raw JSON.
+
+    Turns the recurring failure from "18 hours, then a RuntimeError" into
+    "~6 minutes, then the same RuntimeError with the same key list". It is an
+    early exit, not a new gate: passing here does not prove this run will pass,
+    because Tesouro may have published new codes since the archive was written —
+    :func:`clean_window` re-checks against the fresh download.
+
+    No archive (a first run, or a bucket that has never been written) is a
+    no-op with a printed note, never a failure.
+
+    Args:
+        work_dir: Run scratch directory.
+        start_year: First window year (inclusive).
+        end_year: Last window year (inclusive).
+        levels: Government levels this run will build.
+        archive_bucket: Bucket holding the raw archive.
+
+    Returns:
+        Number of distinct account keys checked (0 when no archive was found).
+
+    Raises:
+        RuntimeError: If the archived keys reveal crosswalk gaps.
+    """
+    tables = tables_for_levels(levels)
+    targets = _crosswalk_targets(tables)
+    if not targets:
+        print("preflight: no crosswalk-backed tables in scope, skipping")
+        return 0
+
+    years = list(range(start_year, end_year + 1))
+    anexos = {anexo for _, anexo in targets}
+    keys, provenance = scan_keys_archive(
+        archive_bucket, work_dir, years, levels, anexos
+    )
+    if not provenance:
+        print(
+            f"preflight: no raw archive under gs://{archive_bucket}/"
+            f"{RAW_PREFIX}/api/ for {start_year}-{end_year}; "
+            "skipping (clean_window still checks this run's download)"
+        )
+        return 0
+
+    checked = ", ".join(
+        f"{ano} (archived {when:%Y-%m-%d})" for ano, when in provenance
+    )
+    print(
+        f"preflight: checked {len(keys):,} distinct account keys from "
+        f"{checked} against {len(set(targets.values()))} crosswalk file(s)"
+    )
+    raise_on_crosswalk_gaps(
+        crosswalk_gaps(keys, tables),
+        f"gs://{archive_bucket}/{RAW_PREFIX}/api/ — {checked}",
+    )
+    print("preflight: no crosswalk gaps in the archived window")
+    return len(keys)
+
+
 # ── clean (reuse the bootstrap builders) ─────────────────────────────────────
 def clean_window(
     work_dir: str, api_dir: str, start_year: int, end_year: int, tables
@@ -230,10 +669,15 @@ def clean_window(
     ``<work_dir>/output/<table>/…``. Only window years are built; the legacy
     Finbra path (≤2012) is never touched here — older years come from the cache.
 
-    Crosswalk gaps fail loud: if any crosswalk-backed builder reports unmatched
-    ``(ano, estagio, portaria, conta)`` keys, this raises with the offending
-    keys grouped by crosswalk file, so a human can extend
-    ``models/br_me_siconfi/code/crosswalk/<file>.xlsx`` and re-run.
+    Crosswalk gaps fail loud, and they fail **before** any builder runs: the
+    downloaded JSON is first scanned for its distinct account keys (a read-only
+    pass, no rows built) and checked against the compatibilização tables. That
+    turns a gap into a failure a couple of minutes into the clean instead of ~24
+    minutes in, after 20M rows of CSV have been written and thrown away, and it
+    reports every offending key up front rather than whatever the last year
+    happened to surface. The builders' own ``get_unmatched`` result is still
+    checked afterwards as the authoritative backstop — it is the code that
+    actually performs the join.
 
     Args:
         work_dir: Run scratch directory (output written under ``output/``).
@@ -253,6 +697,24 @@ def clean_window(
     # ``_init_worker`` loads the crosswalk into shared._comp and fixes sys.path.
     shared._init_worker(CODE_DIR, PATH_QUERIES)
 
+    # Cheap key-only pre-check over the same JSON the builders are about to
+    # read. Complete and current — unlike the archive-based preflight, which
+    # cannot see codes published since the previous run.
+    levels = sorted({_level_of(t) for t in tables})
+    targets = _crosswalk_targets(tables)
+    if targets:
+        years = list(range(start_year, end_year + 1))
+        keys = scan_keys_api_dir(
+            api_dir, years, levels, {anexo for _, anexo in targets}
+        )
+        print(
+            f"clean_window: pre-checking {len(keys):,} distinct account keys "
+            f"from the fresh download against the crosswalk"
+        )
+        raise_on_crosswalk_gaps(
+            crosswalk_gaps(keys, tables), f"this run's download ({api_dir})"
+        )
+
     table_configs = [
         (name, first, last, comp)
         for name, (first, last, comp) in builders.items()
@@ -271,20 +733,16 @@ def clean_window(
             if comp and df is not None and not df.empty:
                 unmatched.setdefault(comp, []).append(df)
 
-    if unmatched:
-        blocks = []
-        for comp, dfs in sorted(unmatched.items()):
-            combined = pd.concat(dfs, ignore_index=True).drop_duplicates()
-            blocks.append(
-                f"[{comp}.xlsx] {len(combined)} unmatched key(s); sample:\n"
-                f"{combined.head(20).to_string(index=False)}"
-            )
-        raise RuntimeError(
-            "SICONFI crosswalk gaps — Tesouro emitted account keys missing "
-            "from the compatibilização tables. Add them to "
-            "models/br_me_siconfi/code/crosswalk/<file>.xlsx (fill the *_bd "
-            "columns) and re-run.\n\n" + "\n\n".join(blocks)
-        )
+    # Backstop. The pre-check above should already have raised; reaching here
+    # with gaps means the key scan drifted from what the builders actually join
+    # on, which is worth knowing about rather than silently tolerating.
+    raise_on_crosswalk_gaps(
+        {
+            comp: pd.concat(dfs, ignore_index=True).drop_duplicates()
+            for comp, dfs in unmatched.items()
+        },
+        "the builders' own join (the key pre-check missed these)",
+    )
 
     return os.path.join(path_dados, "output")
 
