@@ -14,7 +14,7 @@ from pipelines.datasets.us_census_bps.utils import (
 )
 
 
-@task(retries=2, retry_delay_seconds=60)
+@task(retries=3, retry_delay_seconds=180)
 def download_bps(work_dir: str) -> str:
     """Download every published Building Permits Survey file.
 

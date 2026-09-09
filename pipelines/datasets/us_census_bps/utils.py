@@ -871,6 +871,11 @@ def download_targets(through_year: int) -> list[tuple[str, Path]]:
 # faster than they do from a laptop.
 THROTTLE_CODES = frozenset({408, 429, 503})
 
+# After the concurrent sweep, stragglers get this many sequential passes, each
+# preceded by a pause long enough for the server's throttle window to reset.
+RETRY_PASSES = 3
+RETRY_PASS_PAUSE = 90.0
+
 
 def _throttle_delay(exc: urllib.error.HTTPError, attempt: int) -> float:
     """Seconds to wait after a throttling response, honouring Retry-After."""
@@ -962,19 +967,49 @@ def download_all(
         (url, input_dir / rel) for url, rel in download_targets(through_year)
     ]
     counts = {"ok": 0, "cached": 0, "missing": 0, "failed": 0}
-    failures: list[str] = []
+    leftover: list[tuple[str, Path]] = []
+    details: dict[str, str] = {}
     with cf.ThreadPoolExecutor(max_workers=workers) as pool:
-        futures = {pool.submit(fetch_file, u, d): u for u, d in jobs}
+        futures = {pool.submit(fetch_file, u, d): (u, d) for u, d in jobs}
         for future in cf.as_completed(futures):
             status, detail = future.result()
             counts[status] += 1
             if status == "failed":
-                failures.append(f"{futures[future]} -- {detail}")
+                url, dest = futures[future]
+                leftover.append((url, dest))
+                details[url] = detail
     log.info(f"download: {counts}")
-    if failures:
+
+    # A concurrent sweep over 3,400 files reliably draws HTTP 429 near the
+    # end, and the handful of stragglers succeed once the pressure is off.
+    # Retrying them here, one at a time and slowly, keeps the Prefect task
+    # retry as a last resort rather than the mechanism the run depends on: on
+    # the first two dev runs the concurrent pass alone consumed both retries.
+    for attempt in range(1, RETRY_PASSES + 1):
+        if not leftover:
+            break
+        log.info(
+            f"retry pass {attempt}: {len(leftover)} files, one at a time, "
+            f"after a {RETRY_PASS_PAUSE:.0f}s pause"
+        )
+        time.sleep(RETRY_PASS_PAUSE)
+        still: list[tuple[str, Path]] = []
+        for url, dest in leftover:
+            status, detail = fetch_file(url, dest)
+            if status == "failed":
+                details[url] = detail
+                still.append((url, dest))
+            else:
+                counts["failed"] -= 1
+                counts[status] += 1
+            time.sleep(1.0)
+        leftover = still
+    log.info(f"download after retries: {counts}")
+
+    if leftover:
         raise RuntimeError(
-            f"{len(failures)} files failed to download (not 404s): "
-            + "; ".join(failures[:10])
+            f"{len(leftover)} files failed to download (not 404s): "
+            + "; ".join(f"{u} -- {details[u]}" for u, _dest in leftover[:10])
         )
     return counts
 
