@@ -68,3 +68,45 @@ DATA_TABLES = [t for t in ALL_TABLES if t != "dicionario"]
 # The full published corpus, as of the FY2025 project release.
 FISCAL_YEARS = list(range(constants.FIRST_FISCAL_YEAR.value, 2026))
 CALENDAR_YEARS = list(range(constants.FIRST_CALENDAR_YEAR.value, 2026))
+
+
+def import_mcp_server():
+    """Import the Data Basis MCP ``server`` module.
+
+    The MCP server is a **separate checkout**, not a dependency of this
+    repository, so its location cannot be hardcoded and it is not importable in
+    CI at all. Set ``DATABASIS_MCP_PATH`` to the directory holding
+    ``server.py``; the two metadata scripts use it, nothing else does.
+
+    Returns:
+        The imported ``server`` module.
+
+    Raises:
+        SystemExit: when the module is neither already importable nor findable
+            through ``DATABASIS_MCP_PATH`` — a named configuration error rather
+            than a bare ``ModuleNotFoundError`` from an import that silently
+            fell through a nonexistent path.
+    """
+    try:
+        import server  # already importable: installed, or on PYTHONPATH
+
+        return server
+    except ModuleNotFoundError:
+        pass
+
+    configured = os.environ.get("DATABASIS_MCP_PATH", "").strip()
+    if not configured:
+        raise SystemExit(
+            "DATABASIS_MCP_PATH is not set. Point it at the directory holding "
+            "the Data Basis MCP server.py (the basedosdados/mcp checkout)."
+        )
+    path = Path(configured).expanduser()
+    if not (path / "server.py").is_file():
+        raise SystemExit(
+            f"No server.py under DATABASIS_MCP_PATH={path}. Point it at the "
+            "directory holding the Data Basis MCP server.py."
+        )
+    sys.path.insert(0, str(path))
+    import server
+
+    return server
