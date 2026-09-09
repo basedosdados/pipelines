@@ -1,0 +1,77 @@
+{{
+    config(
+        schema="us_dot_fars",
+        alias="crash",
+        materialized="table",
+        partition_by={
+            "field": "year",
+            "data_type": "int64",
+            "range": {"start": 1975, "end": 2029, "interval": 1},
+        },
+    )
+}}
+
+
+select
+    safe_cast(year as int64) year,
+    safe_cast(state_id as string) state_id,
+    safe_cast(county_id as string) county_id,
+    safe_cast(case_number as string) case_number,
+    safe_cast(city_code as string) city_code,
+    safe_cast(date as date) date,
+    safe_cast(month as int64) month,
+    safe_cast(day as int64) day,
+    safe_cast(day_of_week_code as string) day_of_week_code,
+    safe_cast(hour as int64) hour,
+    safe_cast(minute as int64) minute,
+    safe_cast(latitude as float64) latitude,
+    safe_cast(longitude as float64) longitude,
+    safe_cast(trafficway_id as string) trafficway_id,
+    safe_cast(milepoint as float64) milepoint,
+    safe_cast(route_signing_code as string) route_signing_code,
+    safe_cast(land_use_code as string) land_use_code,
+    safe_cast(road_function_class_code as string) road_function_class_code,
+    safe_cast(functional_system_code as string) functional_system_code,
+    safe_cast(road_owner_code as string) road_owner_code,
+    safe_cast(national_highway_system_code as string) national_highway_system_code,
+    safe_cast(special_jurisdiction_code as string) special_jurisdiction_code,
+    safe_cast(first_harmful_event_code as string) first_harmful_event_code,
+    safe_cast(manner_of_collision_code as string) manner_of_collision_code,
+    safe_cast(relation_to_junction_code as string) relation_to_junction_code,
+    safe_cast(within_interchange_code as string) within_interchange_code,
+    safe_cast(intersection_type_code as string) intersection_type_code,
+    safe_cast(relation_to_roadway_code as string) relation_to_roadway_code,
+    safe_cast(work_zone_code as string) work_zone_code,
+    safe_cast(light_condition_code as string) light_condition_code,
+    safe_cast(weather_code as string) weather_code,
+    safe_cast(school_bus_related_code as string) school_bus_related_code,
+    safe_cast(rail_crossing_id as string) rail_crossing_id,
+    safe_cast(hit_and_run_code as string) hit_and_run_code,
+    safe_cast(number_of_lanes_code as string) number_of_lanes_code,
+    safe_cast(speed_limit as int64) speed_limit,
+    safe_cast(roadway_alignment_code as string) roadway_alignment_code,
+    safe_cast(roadway_profile_code as string) roadway_profile_code,
+    safe_cast(surface_condition_code as string) surface_condition_code,
+    safe_cast(traffic_control_code as string) traffic_control_code,
+    safe_cast(
+        traffic_control_functioning_code as string
+    ) traffic_control_functioning_code,
+    safe_cast(trafficway_flow_code as string) trafficway_flow_code,
+    safe_cast(vehicle_forms_count as int64) vehicle_forms_count,
+    safe_cast(vehicles_total_count as int64) vehicles_total_count,
+    safe_cast(parked_vehicles_count as int64) parked_vehicles_count,
+    safe_cast(persons_count as int64) persons_count,
+    safe_cast(persons_in_motor_vehicles_count as int64) persons_in_motor_vehicles_count,
+    safe_cast(
+        persons_outside_motor_vehicles_count as int64
+    ) persons_outside_motor_vehicles_count,
+    safe_cast(pedestrians_count as int64) pedestrians_count,
+    safe_cast(fatalities_count as int64) fatalities_count,
+    safe_cast(drunk_drivers_count as int64) drunk_drivers_count,
+    safe_cast(notification_hour as int64) notification_hour,
+    safe_cast(notification_minute as int64) notification_minute,
+    safe_cast(arrival_hour as int64) arrival_hour,
+    safe_cast(arrival_minute as int64) arrival_minute,
+    safe_cast(hospital_arrival_hour as int64) hospital_arrival_hour,
+    safe_cast(hospital_arrival_minute as int64) hospital_arrival_minute
+from {{ set_datalake_project("us_dot_fars_staging.crash") }} as t

@@ -222,6 +222,10 @@ project-excludes = [
   # cannot resolve from the repo root.
   "models/world_iati_activities/code",
   "models/us_noaa_storm_events/code",
+  # Same policy: the us_dot_fars onboarding scripts run from their own directory
+  # with bare sibling imports (`common`), which pyrefly cannot resolve from the
+  # repo root.
+  "models/us_dot_fars/code",
   "models/us_harvard_cbdb/code",
   "models/us_cfpb_hmda/code",
   "models/world_aiddata_gcdf/code",
