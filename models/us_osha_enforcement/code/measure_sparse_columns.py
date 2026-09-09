@@ -33,6 +33,7 @@ THRESHOLD = 0.10
 def main() -> int:
     arch = _arch()
     sparse: dict[str, list[str]] = {}
+    complete: dict[str, list[str]] = {}
     near: list[tuple[str, str, float]] = []
     for table in arch.TABLES:
         files = sorted(
@@ -53,17 +54,29 @@ def main() -> int:
                             cm.statistics.null_count if cm.statistics else 0
                         )
                         nonnull[cm.path_in_schema] += cm.num_values - nulls
-        low = []
+        low, full = [], []
         for col in cols:
             prop = nonnull[col] / total if total else 0.0
             if prop < THRESHOLD:
                 low.append(col)
                 near.append((table.slug, col, prop))
+            if nonnull[col] == total:
+                full.append(col)
         if low:
             sparse[table.slug] = low
+        complete[table.slug] = full
     dest = "models/us_osha_enforcement/code/sparse_columns.json"
     with open(dest, "w") as fh:
         json.dump(sparse, fh, indent=1)
+    # Columns that are 100% populated. A `not_null` test is only written for a
+    # key column that appears here: several key parts are nullable in the
+    # source (violation_event.event_date is empty on 27,830 rows,
+    # optional_code_info.information_value on 25), and asserting otherwise
+    # fails on data that is correct.
+    with open(
+        "models/us_osha_enforcement/code/complete_columns.json", "w"
+    ) as fh:
+        json.dump(complete, fh, indent=1)
     for slug, col, prop in sorted(near, key=lambda x: x[2]):
         print(f"  {slug:<20} {col:<32} {100 * prop:6.2f}% non-null")
     print(f"\n{len(near)} columns below {100 * THRESHOLD:.0f}% -> {dest}")

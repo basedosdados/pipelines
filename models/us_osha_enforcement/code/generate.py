@@ -193,19 +193,36 @@ def _yaml_block(text: str, indent: str) -> str:
     return "\n".join(f"{indent}{ln}" for ln in lines)
 
 
-def write_schema(tables, sparse: dict[str, list[str]], excluded: set) -> None:
+def write_schema(
+    tables,
+    sparse: dict[str, list[str]],
+    excluded: set,
+    complete: dict[str, list[str]],
+) -> None:
     out = ["---", "version: 2", "models:"]
     for table in tables:
         out.append(f"  - name: {DATASET}__{table.slug}")
         out.append("    description: >-")
         out.append(_yaml_block(table.description_pt, "      "))
         out.append("    tests:")
-        out.append("      - dbt_utils.unique_combination_of_columns:")
-        out.append(
-            "          combination_of_columns: ["
-            + ", ".join(table.primary_key)
-            + "]"
-        )
+        if table.key_is_exact:
+            out.append("      - dbt_utils.unique_combination_of_columns:")
+            out.append(
+                "          combination_of_columns: ["
+                + ", ".join(table.primary_key)
+                + "]"
+            )
+        else:
+            # The source emits rows identical on every column, so no exact key
+            # exists; this catches a gross regression rather than asserting
+            # uniqueness the data does not have.
+            out.append("      - custom_unique_combinations_of_columns:")
+            out.append(
+                "          combination_of_columns: ["
+                + ", ".join(table.primary_key)
+                + "]"
+            )
+            out.append("          proportion_allowed_failures: 0.01")
         covered = [
             c.name
             for c in table.columns
@@ -239,7 +256,10 @@ def write_schema(tables, sparse: dict[str, list[str]], excluded: set) -> None:
                 if fk[0] == col.name
             ]
             simple = []
-            if col.name in table.partition or col.name in table.primary_key:
+            if col.name in table.partition or (
+                col.name in table.primary_key
+                and col.name in complete.get(table.slug, [])
+            ):
                 simple.append("not_null")
             if simple and not fks:
                 out.append(f"        tests: [{', '.join(simple)}]")
@@ -262,11 +282,17 @@ def main() -> int:
     sparse = (
         json.loads(sparse_path.read_text()) if sparse_path.exists() else {}
     )
+    complete_path = HERE / "complete_columns.json"
+    complete = (
+        json.loads(complete_path.read_text()) if complete_path.exists() else {}
+    )
     write_architecture(arch.TABLES)
     write_columns_json(arch.TABLES)
     write_models(arch.TABLES)
     dd = _load("dictionary_def")
-    write_schema(arch.TABLES, sparse, dd.DICTIONARY_COVERAGE_EXCLUDED)
+    write_schema(
+        arch.TABLES, sparse, dd.DICTIONARY_COVERAGE_EXCLUDED, complete
+    )
     return 0
 
 

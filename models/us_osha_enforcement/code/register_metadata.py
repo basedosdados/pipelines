@@ -67,7 +67,7 @@ OBSERVATION_LEVELS: dict[str, list[tuple[str, list[str]]]] = {
     "optional_code_info": [("audit", ["inspection_id"]), ("year", ["year"])],
     "accident": [("crash", ["accident_id"]), ("year", ["year"])],
     "accident_injury": [
-        ("person", ["accident_id", "injury_line_number"]),
+        ("person", ["accident_id", "inspection_id", "injury_line_number"]),
         ("year", ["year"]),
     ],
     "accident_narrative": [("crash", ["accident_id"]), ("year", ["year"])],

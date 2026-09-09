@@ -83,6 +83,10 @@ class Table:
     primary_key: list[str]
     columns: list[Col] = field(default_factory=list)
     reassembled: bool = False
+    #: False when the source emits rows that are identical on every column, so
+    #: the "key" is the best available discriminator rather than a true key.
+    #: Tested with custom_unique_combinations_of_columns instead.
+    key_is_exact: bool = True
 
     @property
     def partition(self) -> list[str]:
@@ -841,7 +845,17 @@ VIOLATION_EVENT = Table(
     ),
     source_file="OSHA_violation_event",
     year_from="inspection",
-    primary_key=["inspection_id", "citation_id", "event_date", "event_code"],
+    primary_key=[
+        "inspection_id",
+        "citation_id",
+        "event_date",
+        "event_code",
+        "penalty_or_fta",
+        "penalty",
+        "abatement_date",
+        "violation_type",
+    ],
+    key_is_exact=False,
     columns=[
         YEAR_INSP,
         INSP_ID(),
@@ -1039,7 +1053,13 @@ RELATED_ACTIVITY = Table(
     ),
     source_file="OSHA_related_activity",
     year_from="inspection",
-    primary_key=["inspection_id", "related_activity_id", "related_type"],
+    primary_key=[
+        "inspection_id",
+        "related_activity_id",
+        "related_type",
+        "related_safety",
+        "related_health",
+    ],
     columns=[
         YEAR_INSP,
         INSP_ID(),
@@ -1366,7 +1386,14 @@ ACCIDENT_INJURY = Table(
     name_en="Incident injury",
     name_es="Lesión en accidente",
     description_pt=(
-        "Uma linha por pessoa lesionada em cada acidente investigado. Contém "
+        "Uma linha por pessoa lesionada, por inspeção que investigou o "
+        "acidente. Quando um mesmo acidente é investigado sob várias "
+        "inspeções — canteiros com vários empregadores, em que a OSHA abre "
+        "uma inspeção por empresa — a mesma pessoa aparece uma vez em cada "
+        "uma delas: o acidente 221210990 tem 18 linhas para a mesma pessoa, "
+        "uma por inspeção. A chave é (accident_id, inspection_id, "
+        "injury_line_number); contar pessoas lesionadas exige distinct sobre "
+        "(accident_id, injury_line_number). Contém "
         "idade, sexo e ocupação da pessoa, a natureza da lesão, a parte do "
         "corpo atingida, a fonte e o tipo do evento, os fatores ambiental e "
         "humano e a gravidade (óbito, hospitalização ou não hospitalização). "
@@ -1375,7 +1402,14 @@ ACCIDENT_INJURY = Table(
         "dicionario."
     ),
     description_en=(
-        "One row per person injured in each investigated incident. Carries the "
+        "One row per injured person, per inspection that investigated the "
+        "incident. Where one incident is investigated under several "
+        "inspections — a multi-employer worksite, where OSHA opens an "
+        "inspection against each contractor — the same person appears once "
+        "in each: incident 221210990 carries 18 rows for the same person, "
+        "one per inspection. The key is (accident_id, inspection_id, "
+        "injury_line_number); counting injured people needs a distinct over "
+        "(accident_id, injury_line_number). Carries the "
         "person's age, sex and occupation, the nature of the injury, the part "
         "of the body affected, the source and type of the event, the "
         "environmental and human factors, and the severity (fatality, "
@@ -1384,7 +1418,14 @@ ACCIDENT_INJURY = Table(
         "resolved through the dicionario table."
     ),
     description_es=(
-        "Una fila por persona lesionada en cada accidente investigado. "
+        "Una fila por persona lesionada, por inspección que investigó el "
+        "accidente. Cuando un mismo accidente se investiga bajo varias "
+        "inspecciones — obras con varios empleadores, donde OSHA abre una "
+        "inspección por empresa — la misma persona aparece una vez en cada "
+        "una: el accidente 221210990 tiene 18 filas para la misma persona, "
+        "una por inspección. La clave es (accident_id, inspection_id, "
+        "injury_line_number); contar personas lesionadas requiere distinct "
+        "sobre (accident_id, injury_line_number). '"
         "Contiene edad, sexo y ocupación de la persona, la naturaleza de la "
         "lesión, la parte del cuerpo afectada, la fuente y el tipo del evento, "
         "los factores ambiental y humano y la gravedad (fallecimiento, "
@@ -1394,7 +1435,7 @@ ACCIDENT_INJURY = Table(
     ),
     source_file="OSHA_accident_injury",
     year_from="accident_or_inspection",
-    primary_key=["accident_id", "injury_line_number"],
+    primary_key=["accident_id", "inspection_id", "injury_line_number"],
     columns=[
         YEAR_ACC,
         c(

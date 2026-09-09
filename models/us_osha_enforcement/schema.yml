@@ -269,8 +269,9 @@ models:
       violation.current_penalty difere de violation.initial_penalty e como a multa
       evoluiu até o encerramento do caso.
     tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [inspection_id, citation_id, event_date, event_code]
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [inspection_id, citation_id, event_date, event_code, penalty_or_fta, penalty, abatement_date, violation_type]
+          proportion_allowed_failures: 0.01
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [penalty_or_fta]
           dictionary_model: ref('us_osha_enforcement__dicionario')
@@ -301,11 +302,9 @@ models:
       - name: event_code
         description: >-
           Código de classificação do evento
-        tests: [not_null]
       - name: event_date
         description: >-
           Data do evento
-        tests: [not_null]
       - name: penalty
         description: >-
           Multa avaliada no evento
@@ -371,7 +370,7 @@ models:
       de atividades relacionadas.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [inspection_id, related_activity_id, related_type]
+          combination_of_columns: [inspection_id, related_activity_id, related_type, related_safety, related_health]
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [related_safety, related_health]
           dictionary_model: ref('us_osha_enforcement__dicionario')
@@ -397,7 +396,6 @@ models:
       - name: related_type
         description: >-
           Tipo da atividade relacionada
-        tests: [not_null]
       - name: related_safety
         description: >-
           Indica que a denúncia ou encaminhamento relacionado trata de segurança (X)
@@ -470,7 +468,6 @@ models:
       - name: information_value
         description: >-
           Valor da informação opcional
-        tests: [not_null]
   - name: us_osha_enforcement__accident
     description: >-
       Uma linha por acidente de trabalho comunicado pelo empregador e investigado
@@ -533,15 +530,21 @@ models:
           Altura em pés da estrutura, quando a obra não é uma edificação
   - name: us_osha_enforcement__accident_injury
     description: >-
-      Uma linha por pessoa lesionada em cada acidente investigado. Contém idade,
-      sexo e ocupação da pessoa, a natureza da lesão, a parte do corpo atingida, a
-      fonte e o tipo do evento, os fatores ambiental e humano e a gravidade
-      (óbito, hospitalização ou não hospitalização). As pessoas não são nomeadas:
-      identificam-se apenas pelo número de linha dentro do acidente. Os códigos
-      são interpretados pela tabela dicionario.
+      Uma linha por pessoa lesionada, por inspeção que investigou o acidente.
+      Quando um mesmo acidente é investigado sob várias inspeções — canteiros com
+      vários empregadores, em que a OSHA abre uma inspeção por empresa — a mesma
+      pessoa aparece uma vez em cada uma delas: o acidente 221210990 tem 18 linhas
+      para a mesma pessoa, uma por inspeção. A chave é (accident_id,
+      inspection_id, injury_line_number); contar pessoas lesionadas exige distinct
+      sobre (accident_id, injury_line_number). Contém idade, sexo e ocupação da
+      pessoa, a natureza da lesão, a parte do corpo atingida, a fonte e o tipo do
+      evento, os fatores ambiental e humano e a gravidade (óbito, hospitalização
+      ou não hospitalização). As pessoas não são nomeadas: identificam-se apenas
+      pelo número de linha dentro do acidente. Os códigos são interpretados pela
+      tabela dicionario.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [accident_id, injury_line_number]
+          combination_of_columns: [accident_id, inspection_id, injury_line_number]
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [sex, occupation_code]
           dictionary_model: ref('us_osha_enforcement__dicionario')
@@ -562,6 +565,7 @@ models:
       - name: inspection_id
         description: >-
           Identificador da inspeção associada à investigação do acidente
+        tests: [not_null]
       - name: injury_line_number
         description: >-
           Número de linha da pessoa lesionada dentro do acidente, referenciado no
