@@ -36,17 +36,35 @@ GCP_PROJECT = {
 
 # Content tags only. The dataset's theme is already "education", so a tag that
 # merely restates it adds nothing, and area/organisation are separate metadata.
-TAGS = [
-    "matricula",
-    "docente",
-    "escolaridade",
-    "salario",
-    "financiamento",
-    "gasto",
-    "indicadores_educacionais",
-    "educacao_superior",
-    "trabalho",
+#
+# Each entry is a list of candidate slugs, most-preferred first, because the two
+# backends do not share a tag vocabulary: prod uses English kebab-case slugs
+# while staging still carries legacy Portuguese ones. The first slug that exists
+# in that backend wins, and a concept with no match there is simply dropped
+# rather than inventing a near-duplicate tag.
+TAG_CANDIDATES = [
+    ["student", "matricula"],
+    ["teacher", "docente"],
+    ["schooling", "escolaridade"],
+    ["salary", "salario"],
+    ["financing", "financiamento"],
+    ["spending", "gasto"],
+    ["higher-education", "educacao_superior"],
+    ["labor", "trabalho"],
+    ["education-indicators", "indicadores_educacionais"],
 ]
+
+
+def resolve_tags(vocabulary):
+    """Tag ids for this backend, taking the first candidate slug that exists."""
+    out = []
+    for candidates in TAG_CANDIDATES:
+        for slug in candidates:
+            if slug in vocabulary:
+                out.append(vocabulary[slug])
+                break
+    return out
+
 
 NAME_PT = "OCDE: educação"
 NAME_EN = "OECD: education"
@@ -266,7 +284,7 @@ def main():
         description_es=DESC_ES,
         organization_ids=[ids["organization"]["oecd"]],
         theme_ids=[ids["theme"]["education"]],
-        tag_ids=[ids["tag"][t] for t in TAGS if t in ids["tag"]],
+        tag_ids=resolve_tags(ids["tag"]),
         status_id=ids["status"][
             "published" if args.publish else "under_review"
         ],
