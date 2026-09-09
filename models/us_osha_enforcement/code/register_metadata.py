@@ -21,6 +21,7 @@ import importlib.util
 import json
 import logging
 import sys
+from datetime import date
 from pathlib import Path
 
 MCP = "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
@@ -75,33 +76,40 @@ OBSERVATION_LEVELS: dict[str, list[tuple[str, list[str]]]] = {
 }
 
 # Temporal coverage per table, measured from the cleaned data.
-# Measured from the cleaned partitions. Tables whose coverage date_column is
-# the partition year carry the partition span exactly; the rest carry the span
-# of their own date column.
-COVERAGE: dict[str, dict] = {
-    "inspection": {"start": (1970, 6, 20), "end": (2026, 9, 3)},
-    "violation": {"start": (1972, 3, 15), "end": (2026, 8, 6)},
-    "violation_event": {"start": (1970, 1, 15), "end": (2026, 9, 3)},
-    "violation_text": {"start": (1984, None, None), "end": (2026, None, None)},
-    "related_activity": {
-        "start": (1972, None, None),
-        "end": (2026, None, None),
-    },
-    "emphasis_code": {"start": (1972, None, None), "end": (2026, None, None)},
-    "optional_code_info": {
-        "start": (1972, None, None),
-        "end": (2026, None, None),
-    },
-    "accident": {"start": (1972, 9, 21), "end": (2025, 3, 28)},
-    "accident_injury": {
-        "start": (1972, None, None),
-        "end": (2025, None, None),
-    },
-    "accident_narrative": {
-        "start": (1972, None, None),
-        "end": (2025, None, None),
-    },
-    "dicionario": {},
+# Historical start of each table's coverage, measured from the cleaned
+# partitions. Only the *start* is set here: the pipeline's
+# `compute_coverage_ranges` writes the free range's end and the whole pro range
+# on every run, and never touches the free start, so whatever is registered at
+# onboarding persists.
+COVERAGE_START: dict[str, tuple[int, int | None, int | None]] = {
+    "inspection": (1970, 6, 20),
+    "violation": (1972, 3, 15),
+    "violation_event": (1972, None, None),
+    "violation_text": (1984, None, None),
+    "related_activity": (1970, None, None),
+    "emphasis_code": (1972, None, None),
+    "optional_code_info": (1973, None, None),
+    "accident": (1972, 9, 21),
+    "accident_injury": (1972, None, None),
+    "accident_narrative": (1972, None, None),
+    "dicionario": (),
+}
+
+# Newest value of each table's coverage date column, measured in BigQuery after
+# the dev build. The pipeline recomputes this from the data on every run; these
+# are only the values registered at onboarding, so the dataset does not sit with
+# an empty pro window until the first refresh.
+SOURCE_END: dict[str, date] = {
+    "inspection": date(2026, 9, 3),
+    "violation": date(2026, 8, 6),
+    "violation_event": date(2026, 1, 1),
+    "violation_text": date(2026, 1, 1),
+    "related_activity": date(2026, 1, 1),
+    "emphasis_code": date(2026, 1, 1),
+    "optional_code_info": date(2026, 1, 1),
+    "accident": date(2025, 3, 28),
+    "accident_injury": date(2025, 1, 1),
+    "accident_narrative": date(2025, 1, 1),
 }
 
 DATASET_TEXT = {
@@ -187,6 +195,46 @@ TAGS = [
 ]
 
 
+#: `compute_coverage_ranges` validates the coverage id as a UUID, and the pro
+#: Coverage does not exist yet when the free range is computed. Only the free
+#: half of the result is used at that point.
+PLACEHOLDER_UUID = "00000000-0000-0000-0000-000000000000"
+
+
+def read_coverages(server, table_id: str, env: str) -> dict[bool, dict]:
+    """Coverages on a table, keyed by ``is_closed``.
+
+    ``get_dataset`` does not return ``isClosed``, and it is the whole free/pro
+    discriminator, so this reads it straight from GraphQL. Without it a re-run
+    cannot tell the two coverages apart and would create a third.
+    """
+    q = """query($id: ID!) { allTable(id: $id) { edges { node { coverages {
+        edges { node { id isClosed datetimeRanges { edges { node { id } } } } }
+    } } } } }"""
+    edges = server._gql(q, {"id": table_id}, env=env)["allTable"]["edges"]
+    if not edges:
+        return {}
+    out: dict[bool, dict] = {}
+    for e in edges[0]["node"]["coverages"]["edges"]:
+        node = e["node"]
+        out[bool(node["isClosed"])] = {
+            "id": server._strip_id(node["id"]),
+            "datetime_ranges": [
+                {"id": server._strip_id(r["node"]["id"])}
+                for r in node["datetimeRanges"]["edges"]
+            ],
+        }
+    return out
+
+
+def _range_id(coverage: dict | None) -> str | None:
+    """Existing DateTimeRange id on a coverage, so a re-run updates it."""
+    if not coverage:
+        return None
+    ranges = coverage.get("datetime_ranges") or []
+    return ranges[0]["id"] if ranges else None
+
+
 def _load(name: str, path: Path):
     spec = importlib.util.spec_from_file_location(name, path)
     if spec is None or spec.loader is None:
@@ -206,6 +254,15 @@ def main(argv: list[str] | None = None) -> int:
 
     sys.path.insert(0, MCP)
     import server
+
+    sys.path.insert(0, str(HERE.parents[2]))
+    from pipelines.datasets.us_osha_enforcement.flows import (
+        _COVERAGE as FLOW_COVERAGE,
+    )
+    from pipelines.utils.metadata.policy import (
+        CoverageIds,
+        compute_coverage_ranges,
+    )
 
     env = args.env
     arch = _load("architecture_def", HERE / "architecture_def.py")
@@ -437,30 +494,68 @@ def main(argv: list[str] | None = None) -> int:
             env=env,
         )
 
-        # coverage + temporal range
-        cov = COVERAGE[table.slug]
-        cov_id = (prev.get("coverages") or [{}])[0].get("id")
-        coverage = server.create_update_coverage(
-            id=cov_id, table_id=table_id, area_id=area_us, env=env
+        # Coverage. Every dated table is part_bdpro, so it needs BOTH a free
+        # (is_closed=False) and a pro (is_closed=True) Coverage to exist
+        # *before* the pipeline runs — assert_coverage_topology raises
+        # otherwise, before anything is written. The two DateTimeRanges are
+        # mutually exclusive: free ends at free_end inclusive, so pro starts
+        # the following period.
+        spec = FLOW_COVERAGE.get(table.slug)
+        start = COVERAGE_START.get(table.slug) or ()
+        existing_cov = read_coverages(server, table_id, env)
+        free_cov = server.create_update_coverage(
+            id=(existing_cov.get(False) or {}).get("id"),
+            table_id=table_id,
+            area_id=area_us,
+            is_closed=False,
+            env=env,
         )
-        if cov:
-            ranges = prev.get("coverages") or [{}]
-            range_id = None
-            if ranges and ranges[0].get("datetime_ranges"):
-                range_id = ranges[0]["datetime_ranges"][0]["id"]
-            sy, sm, sd = cov["start"]
-            ey, em, ed = cov["end"]
+        if start and spec is not None:
+            ranges = compute_coverage_ranges(
+                spec,
+                SOURCE_END[table.slug],
+                CoverageIds(free=free_cov["id"], pro=PLACEHOLDER_UUID),
+            )
+            free_dump = ranges.free.model_dump(exclude_none=True)
+            sy, sm, sd = [*list(start), None, None][:3]
             server.create_update_datetime_range(
-                id=range_id,
-                coverage_id=coverage["id"],
+                id=_range_id(existing_cov.get(False)),
+                coverage_id=free_cov["id"],
                 start_year=sy,
                 start_month=sm,
                 start_day=sd,
-                end_year=ey,
-                end_month=em,
-                end_day=ed,
+                end_year=free_dump.get("endYear"),
+                end_month=free_dump.get("endMonth"),
+                end_day=free_dump.get("endDay"),
                 interval=1,
+                is_closed=False,
                 env=env,
+            )
+            pro_cov = server.create_update_coverage(
+                id=(existing_cov.get(True) or {}).get("id"),
+                table_id=table_id,
+                area_id=area_us,
+                is_closed=True,
+                env=env,
+            )
+            pro_dump = ranges.pro.model_dump(exclude_none=True)
+            server.create_update_datetime_range(
+                id=_range_id(existing_cov.get(True)),
+                coverage_id=pro_cov["id"],
+                start_year=pro_dump.get("startYear"),
+                start_month=pro_dump.get("startMonth"),
+                start_day=pro_dump.get("startDay"),
+                end_year=pro_dump.get("endYear"),
+                end_month=pro_dump.get("endMonth"),
+                end_day=pro_dump.get("endDay"),
+                interval=1,
+                is_closed=True,
+                env=env,
+            )
+            log.info(
+                f"  {table.slug}: free .. {free_dump.get('endYear')}"
+                f"{'-' + str(free_dump['endMonth']) if 'endMonth' in free_dump else ''}"
+                f" | pro {pro_dump.get('startYear')} .. {pro_dump.get('endYear')}"
             )
 
         # table Update — when WE last refreshed, a wall clock

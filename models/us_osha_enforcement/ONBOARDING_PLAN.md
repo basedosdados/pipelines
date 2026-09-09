@@ -209,11 +209,63 @@ year OSHA has actually touched, read from `inspection.case_mod_date`. On the
 cleaning only 2024-2025 reproduces those partitions exactly (2,038 / 2,151 /
 2,038 rows).
 
-**All tables are `AllFree`.** The house rule paywalls the recent window of any
-table refreshing monthly or more often, and weekly qualifies — but the tier is a
-business decision, this is public-domain federal data OSHA publishes free, and
-switching a table to `PartBdpro` requires a pro Coverage to exist on it first or
-`assert_coverage_topology` hard-fails. Left free deliberately, to be revisited.
+## BD Pro rolling window
+
+**Every dated table is `PartBdpro` with a six-month free lag** (Ricardo's call,
+2026-09-09). `register_table_materialization_task` recomputes
+`free_end = source_end - 6 months` on every run, rewrites both DateTimeRanges and
+re-issues the BigQuery Row Access Policies, so the window rolls forward on its
+own. The dbt models are untouched: the paywall is enforced by the policies, not
+by SQL. `dicionario` has no date column and takes no spec.
+
+The split registered at onboarding, from the measured maxima:
+
+| table | granularity | free ends | pro window |
+|---|---|---|---|
+| `inspection` | `open_date` | 2026-03-03 | 2026-03-04 .. 2026-09-03 |
+| `violation` | `issuance_date` | 2026-02-06 | 2026-02-07 .. 2026-08-06 |
+| `accident` | `event_date` | 2024-09-28 | 2024-09-29 .. 2025-03-28 |
+| `violation_event` | `year` | 2025 | 2026 |
+| `violation_text` | `year` | 2025 | 2026 |
+| `related_activity` | `year` | 2025 | 2026 |
+| `emphasis_code` | `year` | 2025 | 2026 |
+| `optional_code_info` | `year` | 2025 | 2026 |
+| `accident_injury` | `year` | 2024 | 2025 |
+| `accident_narrative` | `year` | 2024 | 2025 |
+
+`violation_event` reports its partition `year` rather than its own `event_date`,
+unlike the other three tables that carry a real date. **100 of its 11.7M rows are
+dated in the future** — up to `2026-12-01`, impossible for an event that has
+already happened — and `read_max_date` takes the maximum, so those hundred rows
+alone would push `free_end` three months earlier and paywall data that should be
+free. The partition year comes from the parent inspection's `open_date`, which
+has no future rows at all. (Future `abatement_due_date` and
+`violation_event.abatement_date` values are *not* errors — an abatement deadline
+is legitimately in the future — so they are left alone.)
+
+### The open-export leak, which this dataset now inherits
+
+`run_dbt(target="prod", dbt_command="run")` calls `download_data_to_gcs`
+immediately after building each model, inside the per-table loop. The model is
+`materialized="table"`, so BigQuery does CREATE OR REPLACE, **and replacing a
+table drops its row access policies**. The export then finds no policy, logs
+"Sem row access policy bdpro_filter", and writes the *full* table to the open
+download path. The policies are only re-issued at the end of the flow, by
+`register_table_materialization_task`. This is a known upstream defect, not
+specific to this dataset, and it is not a first-run-only ordering problem.
+
+The export has a size gate, so the exposure here is bounded and measurable:
+
+| tier | tables |
+|---|---|
+| >1 GB, no download at all | `violation`, `inspection` |
+| 100 MB-1 GB, BD Pro download only | `violation_text`, `violation_event` |
+| <100 MB, **open download — leaks the pro window** | `emphasis_code`, `accident_narrative`, `related_activity`, `optional_code_info`, `accident`, `accident_injury`, `dicionario` |
+
+So the paywall holds in BigQuery for all ten tables, and holds in the download
+path for the four largest, but the six small tables publish their pro window
+openly on every prod run until the upstream ordering is fixed. Fixing it means
+editing `pipelines/utils/tasks.py`, which does not belong in a dataset PR.
 
 ## Open items
 

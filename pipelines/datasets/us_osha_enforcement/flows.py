@@ -34,9 +34,10 @@ from pipelines.datasets.us_osha_enforcement.tasks import (
     plan_osha_refresh,
 )
 from pipelines.utils.metadata.domain import (
-    AllFree,
     DateFormat,
     DateOnly,
+    FreeLag,
+    PartBdpro,
     YearOnly,
 )
 from pipelines.utils.metadata.tasks import (
@@ -54,48 +55,81 @@ DATASET_ID = constants.DATASET_ID.value
 
 #: Coverage spec per table.
 #:
-#: Tables with a real date column report it; the rest have only the partition
-#: year, because the source gives them no date of their own.
+#: This dataset refreshes weekly, so the house rule applies: the most recent
+#: window of every table is BD Pro and everything older stays free. Six months,
+#: which on a year-granularity table resolves to "the current year is pro".
 #:
-#: Every table is AllFree. The BD Pro rolling window applies to tables that
-#: refresh monthly or more often, and this one refreshes weekly, so the rule
-#: would ordinarily apply — but see the dataset's onboarding notes: the tier is
-#: a business decision that has to be taken deliberately, and switching a table
-#: to PartBdpro also requires a pro Coverage to exist on it first, or
-#: assert_coverage_topology hard-fails before anything is written.
+#: `register_table_materialization_task` recomputes free_end = source_end -
+#: free_lag on every run, rewrites both DateTimeRanges and re-issues the
+#: BigQuery Row Access Policies, so the window rolls forward by itself. The dbt
+#: model is untouched — the paywall is enforced by the policies, not by SQL.
 #:
-#: `dicionario` has no date column and takes no coverage spec at all.
+#: part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
+#: Coverage to already exist on the table, or assert_coverage_topology raises
+#: before anything is written. They are created at onboarding by
+#: models/us_osha_enforcement/code/register_metadata.py.
+#:
+#: `violation_event` reports its partition `year`, not its own `event_date`,
+#: unlike the other three tables that have a real date column. 100 of its
+#: 11.7M rows carry an event dated in the future — up to 2026-12-01, which is
+#: impossible for an event — and read_max_date takes the max, so those rows
+#: alone would push free_end three months earlier and paywall data that should
+#: be free. The partition year comes from the parent inspection's open_date,
+#: which has no future rows at all.
+#:
+#: `dicionario` has no date column and takes no coverage spec.
+_FREE_LAG = FreeLag(unit="months", value=6)
+
 _COVERAGE = {
-    "inspection": AllFree(
-        date_column=DateOnly(col="open_date"), date_format=DateFormat.YEAR_MD
+    "inspection": PartBdpro(
+        date_column=DateOnly(col="open_date"),
+        date_format=DateFormat.YEAR_MD,
+        free_lag=_FREE_LAG,
     ),
-    "violation": AllFree(
+    "violation": PartBdpro(
         date_column=DateOnly(col="issuance_date"),
         date_format=DateFormat.YEAR_MD,
+        free_lag=_FREE_LAG,
     ),
-    "violation_event": AllFree(
-        date_column=DateOnly(col="event_date"), date_format=DateFormat.YEAR_MD
+    "violation_event": PartBdpro(
+        date_column=YearOnly(col="year"),
+        date_format=DateFormat.YEAR,
+        free_lag=_FREE_LAG,
     ),
-    "violation_text": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
+    "violation_text": PartBdpro(
+        date_column=YearOnly(col="year"),
+        date_format=DateFormat.YEAR,
+        free_lag=_FREE_LAG,
     ),
-    "related_activity": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
+    "related_activity": PartBdpro(
+        date_column=YearOnly(col="year"),
+        date_format=DateFormat.YEAR,
+        free_lag=_FREE_LAG,
     ),
-    "emphasis_code": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
+    "emphasis_code": PartBdpro(
+        date_column=YearOnly(col="year"),
+        date_format=DateFormat.YEAR,
+        free_lag=_FREE_LAG,
     ),
-    "optional_code_info": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
+    "optional_code_info": PartBdpro(
+        date_column=YearOnly(col="year"),
+        date_format=DateFormat.YEAR,
+        free_lag=_FREE_LAG,
     ),
-    "accident": AllFree(
-        date_column=DateOnly(col="event_date"), date_format=DateFormat.YEAR_MD
+    "accident": PartBdpro(
+        date_column=DateOnly(col="event_date"),
+        date_format=DateFormat.YEAR_MD,
+        free_lag=_FREE_LAG,
     ),
-    "accident_injury": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
+    "accident_injury": PartBdpro(
+        date_column=YearOnly(col="year"),
+        date_format=DateFormat.YEAR,
+        free_lag=_FREE_LAG,
     ),
-    "accident_narrative": AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
+    "accident_narrative": PartBdpro(
+        date_column=YearOnly(col="year"),
+        date_format=DateFormat.YEAR,
+        free_lag=_FREE_LAG,
     ),
 }
 
