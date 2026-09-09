@@ -55,7 +55,8 @@ def main(argv: list[str] | None = None) -> int:
         log.error(f"dataset {SLUG} not found on {env}")
         return 1
     org_id = existing["organizations"][0]["id"]
-    tag_ids = [ids["tag"][t] for t in rm.TAGS if t in ids["tag"]]
+    known = set(ids["tag"].values())
+    tag_ids = [t for t in rm.TAGS if t in known]
     theme_ids = [ids["theme"][t] for t in ("safety", "economics", "justice")]
     server.create_update_dataset(
         id=existing["id"],

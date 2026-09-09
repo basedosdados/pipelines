@@ -179,19 +179,24 @@ RAW_SOURCES = [
 
 # Tags name the subject matter. Nothing that merely restates another metadata
 # field: not the area (US), not the organization (OSHA), not the themes already
-# attached. Slugs are Portuguese on staging and English on prod, but the UUIDs
-# are the same, so this list resolves on both.
-TAGS = [
-    "acidente_de_trabalho",
-    "seguranca",
-    "saude",
-    "trabalho",
-    "fiscalizacao",
-    "multa",
-    "empresa",
-    "risco",
-    "regulacao",
-    "obito",
+# attached.
+#
+# Held as UUIDs rather than slugs because the vocabularies are slugged in
+# different languages per environment — staging is Portuguese, prod is English —
+# while the ids are the same. Resolving by slug works on staging and silently
+# matches nothing on prod, which is how the first registration ended up with no
+# tags at all.
+TAGS: list[str] = [
+    "417285b0-247f-40c5-8d94-d1c5b26ecd78",  # acidente_de_trabalho / workplace_accident
+    "8b9b235d-ce53-4ee2-947e-d56888da3ec9",  # seguranca / security
+    "cc64207a-9aeb-4283-bebf-94f39d0c98b2",  # saude / health
+    "161d4c2e-a61e-481d-8821-3f70b534c063",  # trabalho / labor
+    "3ee4d3c4-0ee2-436b-bd7f-76293cbc0bf2",  # fiscalizacao / oversight
+    "b9c6eff2-eeb8-4dde-b8f1-115706ec7b69",  # multa / fine
+    "536be6c2-7fc6-4409-a029-fb8e1c771dec",  # empresa / firm
+    "de92651d-de18-4c64-87fc-d6991463fcd1",  # risco / risk
+    "73bd61b6-e0f4-4e8f-bb46-6245b00fe919",  # regulacao / regulation
+    "afd5cec6-1f15-474b-a21d-9d7414441518",  # obito / death
 ]
 
 
@@ -311,13 +316,12 @@ def main(argv: list[str] | None = None) -> int:
             log.info(f"organization {ORG_SLUG} created: {org_id}")
 
     # --- tags ---------------------------------------------------------------
-    tag_ids = []
-    for slug in TAGS:
-        got = ids["tag"].get(slug)
-        if got:
-            tag_ids.append(got)
-        else:
-            log.warning(f"tag {slug!r} not in the vocabulary — skipped")
+    known = set(ids["tag"].values())
+    tag_ids = [t for t in TAGS if t in known]
+    missing = [t for t in TAGS if t not in known]
+    if missing:
+        log.warning(f"{len(missing)} tag id(s) absent from {env}: {missing}")
+    log.info(f"{len(tag_ids)} tags resolved")
 
     # --- dataset ------------------------------------------------------------
     existing = server.get_dataset(slug=SLUG, env=env)
