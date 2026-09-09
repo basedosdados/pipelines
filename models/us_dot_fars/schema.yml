@@ -22,10 +22,7 @@ models:
       na tabela vehicle.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - year
-            - state_id
-            - case_number
+          combination_of_columns: [year, state_id, case_number]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
       - custom_dictionary_coverage:
@@ -89,8 +86,7 @@ models:
       - name: case_number
         description: >-
           Número do caso atribuído pelo estado, único dentro do par estado-ano
-        tests:
-          - not_null
+        tests: [not_null]
       - name: city_code
         description: >-
           Código NHTSA do município ou cidade onde ocorreu o acidente
@@ -473,8 +469,7 @@ models:
       - name: vehicle_number
         description: >-
           Número sequencial do veículo dentro do acidente
-        tests:
-          - not_null
+        tests: [not_null]
       - name: unit_type_code
         description: >-
           Tipo de unidade: veículo em movimento, estacionado ou fora de
@@ -1121,13 +1116,11 @@ models:
         description: >-
           Número do veículo em que a pessoa estava; 0 identifica quem não
           estava em veículo automotor
-        tests:
-          - not_null
+        tests: [not_null]
       - name: person_number
         description: >-
           Número sequencial da pessoa dentro do veículo ou do acidente
-        tests:
-          - not_null
+        tests: [not_null]
       - name: age
         description: >-
           Idade da pessoa em anos completos no momento do acidente
@@ -1475,26 +1468,21 @@ models:
       - name: id_tabela
         description: >-
           Nome da tabela a que a coluna codificada pertence
-        tests:
-          - not_null
+        tests: [not_null]
       - name: nome_coluna
         description: >-
           Nome da coluna codificada
-        tests:
-          - not_null
+        tests: [not_null]
       - name: chave
         description: >-
           Valor armazenado na coluna
-        tests:
-          - not_null
+        tests: [not_null]
       - name: cobertura_temporal
         description: >-
           Anos em que o par código-significado vigorou, na notação
           início(intervalo)fim
-        tests:
-          - not_null
+        tests: [not_null]
       - name: valor
         description: >-
           Significado do valor armazenado
-        tests:
-          - not_null
+        tests: [not_null]

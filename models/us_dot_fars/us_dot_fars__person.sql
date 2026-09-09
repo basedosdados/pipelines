@@ -66,7 +66,9 @@ select
     safe_cast(death_day as int64) death_day,
     safe_cast(death_year as int64) death_year,
     safe_cast(death_time_code as string) death_time_code,
-    safe_cast(alcohol_determination_method_code as string) alcohol_determination_method_code,
+    safe_cast(
+        alcohol_determination_method_code as string
+    ) alcohol_determination_method_code,
     safe_cast(drug_determination_method_code as string) drug_determination_method_code,
     safe_cast(drug_test_type_1_code as string) drug_test_type_1_code,
     safe_cast(drug_test_type_2_code as string) drug_test_type_2_code,
@@ -80,10 +82,16 @@ select
     safe_cast(person_related_factor_3_code as string) person_related_factor_3_code,
     safe_cast(helmet_misuse_code as string) helmet_misuse_code,
     safe_cast(non_motorist_device_type_code as string) non_motorist_device_type_code,
-    safe_cast(non_motorist_device_motorization_code as string) non_motorist_device_motorization_code,
-    safe_cast(striking_vehicle_number_legacy_code as string) striking_vehicle_number_legacy_code,
+    safe_cast(
+        non_motorist_device_motorization_code as string
+    ) non_motorist_device_motorization_code,
+    safe_cast(
+        striking_vehicle_number_legacy_code as string
+    ) striking_vehicle_number_legacy_code,
     safe_cast(death_certificate_number as string) death_certificate_number,
-    safe_cast(roadway_function_class_person_code as string) roadway_function_class_person_code,
+    safe_cast(
+        roadway_function_class_person_code as string
+    ) roadway_function_class_person_code,
     safe_cast(rural_urban_person_code as string) rural_urban_person_code,
     safe_cast(functional_system_person_code as string) functional_system_person_code,
     safe_cast(initial_impact_point_code as string) initial_impact_point_code,
@@ -94,8 +102,12 @@ select
     safe_cast(special_use_code as string) special_use_code,
     safe_cast(tow_vehicle_code as string) tow_vehicle_code,
     safe_cast(make_model_code as string) make_model_code,
-    safe_cast(gross_vehicle_weight_rating_from_code as string) gross_vehicle_weight_rating_from_code,
-    safe_cast(gross_vehicle_weight_rating_to_code as string) gross_vehicle_weight_rating_to_code,
+    safe_cast(
+        gross_vehicle_weight_rating_from_code as string
+    ) gross_vehicle_weight_rating_from_code,
+    safe_cast(
+        gross_vehicle_weight_rating_to_code as string
+    ) gross_vehicle_weight_rating_to_code,
     safe_cast(final_stage_body_class_code as string) final_stage_body_class_code,
     safe_cast(vpic_make_code as string) vpic_make_code,
     safe_cast(vpic_model_code as string) vpic_model_code,
@@ -114,7 +126,9 @@ select
     safe_cast(motorcycle_dry_weight as int64) motorcycle_dry_weight,
     safe_cast(engine_displacement_cubic_inch as int64) engine_displacement_cubic_inch,
     safe_cast(truck_shipping_weight as int64) truck_shipping_weight,
-    safe_cast(truck_shipping_weight_variance_code as string) truck_shipping_weight_variance_code,
+    safe_cast(
+        truck_shipping_weight_variance_code as string
+    ) truck_shipping_weight_variance_code,
     safe_cast(truck_weight_rating_code as string) truck_weight_rating_code,
     safe_cast(truck_series as string) truck_series,
     safe_cast(wheels_and_drive_wheels_code as string) wheels_and_drive_wheels_code,

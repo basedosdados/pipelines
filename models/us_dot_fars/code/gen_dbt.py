@@ -7,6 +7,8 @@ Run: uv run python models/us_dot_fars/code/gen_dbt.py
 """
 
 import json
+import shutil
+import subprocess
 from pathlib import Path
 
 from common import ALL_TABLES, DATA_TABLES, REPO_ROOT, load_cols
@@ -250,12 +252,42 @@ def write_schema() -> None:
     print(f"wrote schema.yml ({len(ALL_TABLES)} models)")
 
 
+def _format(paths: list[Path]) -> None:
+    """Run the repo's pinned sqlfmt / yamlfix over the generated files.
+
+    Without this the generator and the pre-commit hooks disagree, and every
+    regeneration produces a diff that passes locally (the hooks skip files inside
+    a gitignored worktree) and then fails pre-commit.ci. Running the same two
+    tools here makes the generated output already-formatted, so regenerating is
+    idempotent. Missing tools are skipped rather than fatal - the generator must
+    still work in an environment that has not installed them.
+    """
+    sql = [str(p) for p in paths if p.suffix == ".sql"]
+    yml = [str(p) for p in paths if p.suffix in (".yml", ".yaml")]
+    for tool, args in (("sqlfmt", sql), ("yamlfix", yml)):
+        if not args:
+            continue
+        exe = shutil.which(tool)
+        if not exe:
+            print(
+                f"  {tool} not on PATH - skipping (pre-commit will reformat)"
+            )
+            continue
+        subprocess.run([exe, *args], check=True, capture_output=True)
+        print(f"  {tool}: formatted {len(args)} file(s)")
+
+
 def main() -> None:
     MODELS.mkdir(parents=True, exist_ok=True)
+    written = []
     for table in DATA_TABLES:
         write_model(table)
+        written.append(MODELS / f"{DATASET}__{table}.sql")
     write_dicionario()
+    written.append(MODELS / f"{DATASET}__dicionario.sql")
     write_schema()
+    written.append(MODELS / "schema.yml")
+    _format(written)
 
 
 if __name__ == "__main__":

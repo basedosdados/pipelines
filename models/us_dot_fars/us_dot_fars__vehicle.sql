@@ -30,10 +30,14 @@ select
     safe_cast(vehicle_identification_number as string) vehicle_identification_number,
     safe_cast(tow_vehicle_code as string) tow_vehicle_code,
     safe_cast(jackknife_code as string) jackknife_code,
-    safe_cast(gross_vehicle_weight_rating_code as string) gross_vehicle_weight_rating_code,
+    safe_cast(
+        gross_vehicle_weight_rating_code as string
+    ) gross_vehicle_weight_rating_code,
     safe_cast(vehicle_configuration_code as string) vehicle_configuration_code,
     safe_cast(cargo_body_type_code as string) cargo_body_type_code,
-    safe_cast(hazardous_material_involvement_code as string) hazardous_material_involvement_code,
+    safe_cast(
+        hazardous_material_involvement_code as string
+    ) hazardous_material_involvement_code,
     safe_cast(bus_use_code as string) bus_use_code,
     safe_cast(special_use_code as string) special_use_code,
     safe_cast(emergency_use_code as string) emergency_use_code,
@@ -55,8 +59,12 @@ select
     safe_cast(previous_crashes_count as int64) previous_crashes_count,
     safe_cast(previous_suspensions_count as int64) previous_suspensions_count,
     safe_cast(previous_dwi_convictions_count as int64) previous_dwi_convictions_count,
-    safe_cast(previous_speeding_convictions_count as int64) previous_speeding_convictions_count,
-    safe_cast(previous_other_convictions_count as int64) previous_other_convictions_count,
+    safe_cast(
+        previous_speeding_convictions_count as int64
+    ) previous_speeding_convictions_count,
+    safe_cast(
+        previous_other_convictions_count as int64
+    ) previous_other_convictions_count,
     safe_cast(speeding_related_code as string) speeding_related_code,
     safe_cast(trafficway_description_code as string) trafficway_description_code,
     safe_cast(vehicle_number_of_lanes_code as string) vehicle_number_of_lanes_code,
@@ -65,7 +73,9 @@ select
     safe_cast(vehicle_roadway_profile_code as string) vehicle_roadway_profile_code,
     safe_cast(vehicle_surface_condition_code as string) vehicle_surface_condition_code,
     safe_cast(vehicle_traffic_control_code as string) vehicle_traffic_control_code,
-    safe_cast(vehicle_traffic_control_functioning_code as string) vehicle_traffic_control_functioning_code,
+    safe_cast(
+        vehicle_traffic_control_functioning_code as string
+    ) vehicle_traffic_control_functioning_code,
     safe_cast(crash_type_code as string) crash_type_code,
     safe_cast(driver_maneuver_code as string) driver_maneuver_code,
     safe_cast(month as int64) month,
@@ -80,26 +90,42 @@ select
     safe_cast(vehicle_towed_code as string) vehicle_towed_code,
     safe_cast(rollover_location_code as string) rollover_location_code,
     safe_cast(underride_override_code as string) underride_override_code,
-    safe_cast(vehicle_underride_override_code as string) vehicle_underride_override_code,
+    safe_cast(
+        vehicle_underride_override_code as string
+    ) vehicle_underride_override_code,
     safe_cast(vehicle_maneuver_code as string) vehicle_maneuver_code,
     safe_cast(crash_avoidance_maneuver_code as string) crash_avoidance_maneuver_code,
     safe_cast(crash_type_configuration_code as string) crash_type_configuration_code,
     safe_cast(pre_event_movement_code as string) pre_event_movement_code,
-    safe_cast(attempted_avoidance_maneuver_code as string) attempted_avoidance_maneuver_code,
+    safe_cast(
+        attempted_avoidance_maneuver_code as string
+    ) attempted_avoidance_maneuver_code,
     safe_cast(pre_impact_stability_code as string) pre_impact_stability_code,
     safe_cast(pre_impact_location_code as string) pre_impact_location_code,
-    safe_cast(vehicle_roadway_surface_type_code as string) vehicle_roadway_surface_type_code,
+    safe_cast(
+        vehicle_roadway_surface_type_code as string
+    ) vehicle_roadway_surface_type_code,
     safe_cast(driver_vision_obscured_1_code as string) driver_vision_obscured_1_code,
     safe_cast(driver_vision_obscured_2_code as string) driver_vision_obscured_2_code,
     safe_cast(driver_vision_obscured_3_code as string) driver_vision_obscured_3_code,
     safe_cast(driver_training_code as string) driver_training_code,
     safe_cast(driver_zip_code as string) driver_zip_code,
     safe_cast(license_type_code as string) license_type_code,
-    safe_cast(license_endorsement_compliance_code as string) license_endorsement_compliance_code,
-    safe_cast(license_restriction_compliance_code as string) license_restriction_compliance_code,
-    safe_cast(license_vehicle_class_compliance_code as string) license_vehicle_class_compliance_code,
-    safe_cast(previous_suspensions_bac_count_code as string) previous_suspensions_bac_count_code,
-    safe_cast(previous_other_suspensions_code as string) previous_other_suspensions_code,
+    safe_cast(
+        license_endorsement_compliance_code as string
+    ) license_endorsement_compliance_code,
+    safe_cast(
+        license_restriction_compliance_code as string
+    ) license_restriction_compliance_code,
+    safe_cast(
+        license_vehicle_class_compliance_code as string
+    ) license_vehicle_class_compliance_code,
+    safe_cast(
+        previous_suspensions_bac_count_code as string
+    ) previous_suspensions_bac_count_code,
+    safe_cast(
+        previous_other_suspensions_code as string
+    ) previous_other_suspensions_code,
     safe_cast(first_record_month as int64) first_record_month,
     safe_cast(first_record_year as int64) first_record_year,
     safe_cast(last_record_month as int64) last_record_month,
@@ -120,21 +146,39 @@ select
     safe_cast(sequence_of_events_5_code as string) sequence_of_events_5_code,
     safe_cast(sequence_of_events_6_code as string) sequence_of_events_6_code,
     safe_cast(axles_code as string) axles_code,
-    safe_cast(hazardous_material_placard_code as string) hazardous_material_placard_code,
+    safe_cast(
+        hazardous_material_placard_code as string
+    ) hazardous_material_placard_code,
     safe_cast(hazardous_material_id as string) hazardous_material_id,
-    safe_cast(hazardous_material_class_number as string) hazardous_material_class_number,
-    safe_cast(hazardous_material_release_code as string) hazardous_material_release_code,
+    safe_cast(
+        hazardous_material_class_number as string
+    ) hazardous_material_class_number,
+    safe_cast(
+        hazardous_material_release_code as string
+    ) hazardous_material_release_code,
     safe_cast(motor_carrier_id as string) motor_carrier_id,
-    safe_cast(motor_carrier_id_issuing_authority_code as string) motor_carrier_id_issuing_authority_code,
+    safe_cast(
+        motor_carrier_id_issuing_authority_code as string
+    ) motor_carrier_id_issuing_authority_code,
     safe_cast(motor_carrier_id_number as string) motor_carrier_id_number,
     safe_cast(trailer_1_vin as string) trailer_1_vin,
     safe_cast(trailer_2_vin as string) trailer_2_vin,
     safe_cast(trailer_3_vin as string) trailer_3_vin,
-    safe_cast(trailer_1_gross_weight_rating_code as string) trailer_1_gross_weight_rating_code,
-    safe_cast(trailer_2_gross_weight_rating_code as string) trailer_2_gross_weight_rating_code,
-    safe_cast(trailer_3_gross_weight_rating_code as string) trailer_3_gross_weight_rating_code,
-    safe_cast(gross_vehicle_weight_rating_from_code as string) gross_vehicle_weight_rating_from_code,
-    safe_cast(gross_vehicle_weight_rating_to_code as string) gross_vehicle_weight_rating_to_code,
+    safe_cast(
+        trailer_1_gross_weight_rating_code as string
+    ) trailer_1_gross_weight_rating_code,
+    safe_cast(
+        trailer_2_gross_weight_rating_code as string
+    ) trailer_2_gross_weight_rating_code,
+    safe_cast(
+        trailer_3_gross_weight_rating_code as string
+    ) trailer_3_gross_weight_rating_code,
+    safe_cast(
+        gross_vehicle_weight_rating_from_code as string
+    ) gross_vehicle_weight_rating_from_code,
+    safe_cast(
+        gross_vehicle_weight_rating_to_code as string
+    ) gross_vehicle_weight_rating_to_code,
     safe_cast(final_stage_body_class_code as string) final_stage_body_class_code,
     safe_cast(vpic_make_code as string) vpic_make_code,
     safe_cast(vpic_model_code as string) vpic_model_code,
@@ -156,7 +200,9 @@ select
     safe_cast(motorcycle_dry_weight as int64) motorcycle_dry_weight,
     safe_cast(engine_displacement_cubic_inch as int64) engine_displacement_cubic_inch,
     safe_cast(truck_shipping_weight as int64) truck_shipping_weight,
-    safe_cast(truck_shipping_weight_variance_code as string) truck_shipping_weight_variance_code,
+    safe_cast(
+        truck_shipping_weight_variance_code as string
+    ) truck_shipping_weight_variance_code,
     safe_cast(truck_weight_rating_code as string) truck_weight_rating_code,
     safe_cast(truck_series as string) truck_series,
     safe_cast(wheels_and_drive_wheels_code as string) wheels_and_drive_wheels_code,

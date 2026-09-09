@@ -53,14 +53,18 @@ select
     safe_cast(roadway_profile_code as string) roadway_profile_code,
     safe_cast(surface_condition_code as string) surface_condition_code,
     safe_cast(traffic_control_code as string) traffic_control_code,
-    safe_cast(traffic_control_functioning_code as string) traffic_control_functioning_code,
+    safe_cast(
+        traffic_control_functioning_code as string
+    ) traffic_control_functioning_code,
     safe_cast(trafficway_flow_code as string) trafficway_flow_code,
     safe_cast(vehicle_forms_count as int64) vehicle_forms_count,
     safe_cast(vehicles_total_count as int64) vehicles_total_count,
     safe_cast(parked_vehicles_count as int64) parked_vehicles_count,
     safe_cast(persons_count as int64) persons_count,
     safe_cast(persons_in_motor_vehicles_count as int64) persons_in_motor_vehicles_count,
-    safe_cast(persons_outside_motor_vehicles_count as int64) persons_outside_motor_vehicles_count,
+    safe_cast(
+        persons_outside_motor_vehicles_count as int64
+    ) persons_outside_motor_vehicles_count,
     safe_cast(pedestrians_count as int64) pedestrians_count,
     safe_cast(fatalities_count as int64) fatalities_count,
     safe_cast(drunk_drivers_count as int64) drunk_drivers_count,
