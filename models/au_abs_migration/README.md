@@ -91,6 +91,9 @@ carries the labels.
 - `build_country_mapping.py` — writes `sacc_iso3.csv` (SACC → ISO3)
 - `clean.py` — parses everything, validates, writes all-STRING partitioned parquet
 - `gen_dbt.py` — writes the 15 models and `schema.yml` from the architecture
+  (pre-commit's `sqlfmt` and `yamlfix` reformat them afterwards, so a rerun shows a
+  formatting diff until the hooks run again)
+- `metadata.py` — registers the dataset in the backend; `--publish` flips the status
 - `upload.py` — uploads to `basedosdados-dev.au_abs_migration_staging`
 
 No recurring pipeline: the release is annual and the dataset was onboarded as a

@@ -156,9 +156,11 @@ def country_iso3_code() -> dict[str, str]:
         "Código ISO 3166-1 alfa-3 do país de nascimento",
         "ISO 3166-1 alpha-3 code of the country of birth",
         "Código ISO 3166-1 alfa-3 del país de nacimiento",
-        directory="diretorios_mundo.pais:sigla_iso3",
+        directory="diretorios_mundo.pais:sigla_pais_iso3",
         observations=(
-            "Resolved from the SACC code during cleaning. Null for the residual SACC "
+            "Links to the country directory, whose backend key is spelled "
+            "sigla_pais_iso3 although the BigQuery column is sigla_iso3. Resolved "
+            "from the SACC code during cleaning. Null for the residual SACC "
             "categories, for Kosovo and Spanish North Africa (no ISO 3166-1 code), and "
             "for SACC 2100, which spans the United Kingdom together with the Channel "
             "Islands and the Isle of Man. The seven Antarctic territorial claims all "
