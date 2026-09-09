@@ -215,6 +215,7 @@ build-backend = "hatchling.build"
 [tool.pyrefly]
 project-excludes = [
   "pipelines/{{cookiecutter.pipeline_name}}",
+  "models/world_oecd_education/code",
   "models/br_tse_eleicoes/code",
   "models/us_nih_reporter/code",
   # Same policy: the us_cms_hcris onboarding scripts run from their own
