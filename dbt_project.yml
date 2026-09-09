@@ -213,6 +213,9 @@ models:
     us_census_lodes:
       +materialized: table
       +schema: us_census_lodes
+    us_census_trade:
+      +materialized: table
+      +schema: us_census_trade
     us_cfpb_complaints:
       +materialized: table
       +schema: us_cfpb_complaints
