@@ -184,3 +184,8 @@ class constants(Enum):
     DOWNLOAD_ATTEMPTS = 4
     DOWNLOAD_RETRY_SLEEP = 10
     REQUEST_TIMEOUT = 900
+
+    # The poll's two header requests per file transfer no body, so they get a
+    # far shorter deadline than a 3.6 GB download: a probe that hangs should
+    # fail the run quickly rather than sit for fifteen minutes per file.
+    PROBE_TIMEOUT = 120
