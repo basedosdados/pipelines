@@ -42,6 +42,20 @@ class constants(Enum):
             "relacionamentos",
         ],
         "PE": ["despesa", "pagamento"],
+        # ES feeds `dicionario` even though it publishes no dimension tables of its
+        # own: the dicionario model derives ES's labels from `es_despesa` directly,
+        # so an ES refresh has to rebuild it alongside the five tables ES unions into.
+        "ES": [
+            "despesa",
+            "licitacao",
+            "licitacao_item",
+            "licitacao_participante",
+            "relacionamentos",
+            "dicionario",
+        ],
+        # RS publishes no tenders at all, and `dicionario` does not read `rs_despesa`,
+        # so RS feeds exactly one table.
+        "RS": ["despesa"],
         "SP": ["despesa_anual"],
     }
 
