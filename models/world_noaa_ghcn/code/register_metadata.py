@@ -212,6 +212,23 @@ TABLE_ORDER = [
     "dicionario",
 ]
 
+# Per-table documentation bundles, built by build_auxiliary_files.py.
+#
+# These sit on basedosdados-dev because local credentials are dev-only. The
+# bucket is requester-pays, so every one of these URLs returns HTTP 400
+# (UserProjectMissing) to an anonymous visitor -- verified 2026-09-09, and the
+# same is true of every prod table already using this field. The fix is one
+# bucket setting, not a bespoke hosting decision per dataset; see
+# .claude/rules/auxiliary-files.md. `dicionario` gets no bundle: it is itself
+# the decoded form of the documentation.
+AUXILIARY_FILES_URL = {
+    t: (
+        "https://storage.googleapis.com/basedosdados-dev/auxiliary_files/"
+        f"world_noaa_ghcn/{t}/auxiliary_files.zip"
+    )
+    for t in ("observation", "station", "station_element_inventory")
+}
+
 RAW_SOURCES = [
     {
         "name_pt": "GHCN-Daily: arquivos anuais e metadados de estações",
@@ -311,6 +328,7 @@ def main() -> None:
             status_id=status["published"],
             published_by_ids=[account_id],
             data_cleaned_by_ids=[account_id],
+            auxiliary_files_url=AUXILIARY_FILES_URL.get(table),
             env=env,
             **{
                 k: v
@@ -412,6 +430,7 @@ def main() -> None:
             status_id=status["published"],
             published_by_ids=[account_id],
             data_cleaned_by_ids=[account_id],
+            auxiliary_files_url=AUXILIARY_FILES_URL.get(table),
             raw_data_source_ids=raw_ids,
             env=env,
             **{
