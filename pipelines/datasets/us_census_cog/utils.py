@@ -288,8 +288,12 @@ def cut(line: str, span: tuple[int, int]) -> str:
     return line[span[0] - 1 : span[1]].strip()
 
 
-def to_int(value: str | None) -> int | None:
-    """Parse an integer, treating blanks and non-numeric filler as missing."""
+def to_int(value: object) -> int | None:
+    """Parse an integer, treating blanks and non-numeric filler as missing.
+
+    Takes ``object`` rather than ``str``: spreadsheet cells arrive as int, float
+    or None as readily as text, so the conversion below is not redundant.
+    """
     if value is None:
         return None
     text = str(value).strip().replace(",", "")
@@ -304,8 +308,11 @@ def to_int(value: str | None) -> int | None:
             return None
 
 
-def to_float(value: str | None) -> float | None:
-    """Parse a float, treating blanks as missing."""
+def to_float(value: object) -> float | None:
+    """Parse a float, treating blanks as missing.
+
+    Takes ``object`` for the same reason as ``to_int``.
+    """
     if value is None:
         return None
     text = str(value).strip()
@@ -325,7 +332,7 @@ def clean_text(value: object) -> str | None:
     return text or None
 
 
-def geography_code(state_id: str | None, place_code: str | None) -> str | None:
+def geography_code(state_id: str | None, place_code: object) -> str | None:
     """Build a 7-digit state-plus-code geography id, dropping the pseudo-codes.
 
     The Census assigns ``99<county>`` in the place field to units that sit in a
@@ -395,7 +402,7 @@ def county_id(state_id: str | None, county_code: str | None) -> str | None:
     """Build the 5-digit FIPS county id from its state and county parts."""
     if not state_id or not county_code:
         return None
-    code = str(county_code).strip().zfill(3)
+    code = county_code.strip().zfill(3)
     if not code.isdigit() or code == "000":
         return None
     return f"{state_id}{code}"
@@ -503,6 +510,9 @@ GUS_SHEET_CATEGORY = {
 
 def _gus_rows(path: Path) -> Iterator[tuple[str, dict]]:
     """Yield ``(sheet_title, row_dict)`` for every data row in a GUS workbook."""
+    # openpyxl ships no type stubs and types-openpyxl is not a dependency of
+    # this repo; the warning is about the library, not this code.
+    # pyrefly: ignore [untyped-import]
     import openpyxl
 
     workbook = openpyxl.load_workbook(path, read_only=True, data_only=True)
@@ -558,15 +568,13 @@ def clean_government_unit(input_dir: Path, year: int) -> list[dict]:
         if govs is None and row.get("state_code_govs") is not None:
             govs = "".join(
                 [
-                    str(clean_text(row.get("state_code_govs")) or "").zfill(2),
-                    str(government_type or "0"),
-                    str(clean_text(row.get("county_code_govs")) or "").zfill(
+                    (clean_text(row.get("state_code_govs")) or "").zfill(2),
+                    government_type or "0",
+                    (clean_text(row.get("county_code_govs")) or "").zfill(3),
+                    (clean_text(row.get("unit_code_govs")) or "").zfill(3),
+                    (clean_text(row.get("supplement_code_govs")) or "0").zfill(
                         3
                     ),
-                    str(clean_text(row.get("unit_code_govs")) or "").zfill(3),
-                    str(
-                        clean_text(row.get("supplement_code_govs")) or "0"
-                    ).zfill(3),
                     "00",
                 ]
             )
@@ -1016,7 +1024,15 @@ def clean_finance(input_dir: Path, year: int) -> Iterator[dict]:
     non-zero item. Fiscal years from 2013 come already in that long shape.
     """
     if year <= 2012:
-        catalog = load_finance_catalog()
+        # Only the rows read from the historical User Guide describe the wide
+        # file, and they are in its column order. The rest of the catalogue
+        # documents codes that appear solely in the 2013-2018 long files, and
+        # including them here would misalign every item in the melt.
+        catalog = [
+            entry
+            for entry in load_finance_catalog()
+            if entry["source"] == "historical_user_guide"
+        ]
         codes = [entry["item_code"] for entry in catalog]
         expected = [entry["column_label"] for entry in catalog]
         archive = input_dir / "fin" / "IndFin_1967_2012.zip"
