@@ -325,12 +325,12 @@ def clean_text(value: object) -> str | None:
     return text or None
 
 
-def place_id(state_id: str | None, place_code: str | None) -> str | None:
-    """Build the 7-digit FIPS place id, dropping the 99xxx county pseudo-codes.
+def geography_code(state_id: str | None, place_code: str | None) -> str | None:
+    """Build a 7-digit state-plus-code geography id, dropping the pseudo-codes.
 
     The Census assigns ``99<county>`` in the place field to units that sit in a
-    county area rather than an incorporated place. Those are not places and must
-    not be emitted as a foreign key into the place directory.
+    county area rather than a named geography. Those are not real codes and must
+    not be emitted as a foreign key.
     """
     if not state_id or not place_code:
         return None
@@ -338,6 +338,57 @@ def place_id(state_id: str | None, place_code: str | None) -> str | None:
     if not code.isdigit() or code.startswith("99") or code == "00000":
         return None
     return f"{state_id}{code}"
+
+
+def split_geography(
+    government_type: str | None, state_id: str | None, place_code: str | None
+) -> tuple[str | None, str | None]:
+    """Route the source's one geography code to the column it belongs in.
+
+    The Census writes a single ``FIPS place`` field for both municipalities and
+    townships, but the two are different code spaces: a municipality carries an
+    incorporated-place code, a township a county-subdivision code. Measured on
+    the 2022 government units file, every one of the 16,214 township codes is
+    absent from the place directory while 19,462 of 19,491 municipal codes are
+    present, so treating them as one column would put a 45% failure rate on a
+    foreign key that is otherwise sound.
+
+    Returns:
+        ``(place_id, county_subdivision_id)``, at most one of them set.
+    """
+    code = geography_code(state_id, place_code)
+    if code is None:
+        return None, None
+    if government_type == "3":
+        return None, code
+    if government_type == "2":
+        return code, None
+    return None, None
+
+
+def pad_code(value: str | None, width: int) -> str | None:
+    """Zero-pad a fixed-width code, which older files publish unpadded.
+
+    The employment unit directory writes ``3`` where later years write ``03``,
+    which would otherwise split one code into two dictionary keys.
+    """
+    text = clean_text(value)
+    if text is None:
+        return None
+    return text.zfill(width) if text.isdigit() and len(text) < width else text
+
+
+def fips_state(value: str | None) -> str | None:
+    """Normalise a FIPS state field, treating the federal ``00`` as missing.
+
+    The employment unit directory writes ``00`` for the federal record, which is
+    not a state and is absent from every state directory.
+    """
+    text = clean_text(value)
+    if text is None:
+        return None
+    text = text.zfill(2)
+    return None if text == "00" else text
 
 
 def county_id(state_id: str | None, county_code: str | None) -> str | None:
@@ -500,9 +551,7 @@ def clean_government_unit(input_dir: Path, year: int) -> list[dict]:
             function_code = clean_text(row.get("function_code"))
         school_level_code, _ = split_coded_name(row.get("school_level_code"))
 
-        state_id = clean_text(row.get("state_id"))
-        if state_id is not None:
-            state_id = state_id.zfill(2)
+        state_id = fips_state(row.get("state_id"))
         county_code = clean_text(row.get("county_code"))
 
         govs = clean_text(row.get("government_id_govs"))
@@ -531,6 +580,9 @@ def clean_government_unit(input_dir: Path, year: int) -> list[dict]:
         if government_type is None:
             government_type = sheet_type
 
+        place, subdivision = split_geography(
+            government_type, state_id, row.get("place_code")
+        )
         government_id = clean_text(row.get("government_id"))
         out.append(
             {
@@ -570,7 +622,8 @@ def clean_government_unit(input_dir: Path, year: int) -> list[dict]:
                 "enrollment_year": to_int(row.get("enrollment_year")),
                 "state_id": state_id,
                 "county_id": county_id(state_id, county_code),
-                "place_id": place_id(state_id, row.get("place_code")),
+                "place_id": place,
+                "county_subdivision_id": subdivision,
                 "county_area_name": clean_text(row.get("county_area_name")),
                 "parent_government_id": clean_text(
                     row.get("parent_government_id")
@@ -693,10 +746,10 @@ def clean_employment_unit(input_dir: Path, year: int) -> Iterator[dict]:
                 else EMPLOYMENT_UNIT_LAYOUT
             )
         unit_id = cut(line, layout["unit_id_govs"])
-        state_id = cut(line, layout["state_id"]) or GOVS_TO_FIPS_STATE.get(
-            unit_id[:2]
+        state_id = fips_state(
+            cut(line, layout["state_id"])
+            or GOVS_TO_FIPS_STATE.get(unit_id[:2])
         )
-        state_id = state_id.zfill(2) if state_id else None
         government_id = (
             cut(line, layout["government_id"])
             if "government_id" in layout
@@ -713,21 +766,35 @@ def clean_employment_unit(input_dir: Path, year: int) -> Iterator[dict]:
             "state_id": state_id,
             "county_id": county_id(state_id, cut(line, layout["county_code"])),
             "county_name": clean_text(cut(line, layout["county_name"])),
-            "census_region_code": cut(line, layout["census_region_code"])
-            or None,
+            "census_region_code": (
+                cut(line, layout["census_region_code"]).lstrip("0") or None
+            ),
             "population_enrollment_function": (
                 cut(line, layout["population_enrollment_function"]) or None
             ),
             "population_enrollment_year": _two_digit_year(
                 cut(line, layout["population_enrollment_year"]), year
             ),
-            "school_level_code": cut(line, layout["school_level_code"])
-            or None,
+            "school_level_code": _school_level(
+                cut(line, layout["school_level_code"])
+            ),
             "selection_probability": to_float(
                 cut(line, layout["selection_probability"])
             ),
-            "worksheet_code": cut(line, layout["worksheet_code"]) or None,
+            "worksheet_code": pad_code(cut(line, layout["worksheet_code"]), 2),
         }
+
+
+def _school_level(value: str | None) -> str | None:
+    """Normalise the school level code, treating an all-zero value as missing.
+
+    ``0`` and ``00`` appear where the unit is not a school system, which is not
+    one of the seven documented levels.
+    """
+    text = pad_code(value, 2)
+    if text is None or set(text) == {"0"}:
+        return None
+    return text
 
 
 def _two_digit_year(value: str, survey_year: int) -> int | None:
@@ -912,8 +979,7 @@ def _wide_value(value: object) -> str | None:
 
 def _wide_reference_row(reference: dict, year: int) -> dict:
     """Turn the wide file's reference fields into a finance_unit row."""
-    state_id = clean_text(reference.get("state_id"))
-    state_id = state_id.zfill(2) if state_id else None
+    state_id = fips_state(reference.get("state_id"))
     return {
         "year": year,
         "government_id": None,
@@ -924,13 +990,16 @@ def _wide_reference_row(reference: dict, year: int) -> dict:
         "county_id": None,
         "county_name": None,
         "place_id": None,
+        "county_subdivision_id": None,
         "census_region_code": _wide_value(reference.get("census_region_code")),
         "population": to_int(reference.get("population")),
         "population_year": _two_digit_year(
             str(reference.get("population_year") or ""), year
         ),
         "school_enrollment": None,
-        "school_level_code": _wide_value(reference.get("school_level_code")),
+        "school_level_code": _school_level(
+            _wide_value(reference.get("school_level_code"))
+        ),
         "special_district_function_code": None,
         "fiscal_year_end": _fiscal_year_end(reference.get("fiscal_year_end")),
         "survey_weight": to_float(reference.get("survey_weight")),
@@ -1028,7 +1097,11 @@ def clean_finance_unit(input_dir: Path, year: int) -> Iterator[dict]:
                 raise ValueError(
                     f"{year}: unknown finance directory record length {len(line)}"
                 )
-        state_id = cut(line, layout["state_id"]).zfill(2)
+        state_id = fips_state(cut(line, layout["state_id"]))
+        government_type = cut(line, layout["government_type"]) or None
+        place, subdivision = split_geography(
+            government_type, state_id, cut(line, layout["place_code"])
+        )
         yield {
             "year": year,
             "government_id": (
@@ -1041,12 +1114,13 @@ def clean_finance_unit(input_dir: Path, year: int) -> Iterator[dict]:
                 if "government_id_govs" in layout
                 else None
             ),
-            "government_type": cut(line, layout["government_type"]) or None,
+            "government_type": government_type,
             "unit_name": clean_text(cut(line, layout["unit_name"])),
-            "state_id": state_id or None,
+            "state_id": state_id,
             "county_id": county_id(state_id, cut(line, layout["county_code"])),
             "county_name": clean_text(cut(line, layout["county_name"])),
-            "place_id": place_id(state_id, cut(line, layout["place_code"])),
+            "place_id": place,
+            "county_subdivision_id": subdivision,
             "census_region_code": None,
             "population": to_int(cut(line, layout["population"])),
             "population_year": _two_digit_year(
@@ -1153,8 +1227,13 @@ WORKSHEET_LABELS = {
     "09": "E-9 Police protection agencies",
     "10": "E-10 College and other postsecondary education",
 }
+# Codes the Census publishes a label for only in the older documentation, which
+# the current code list drops.
 EMPLOYMENT_FUNCTION_LABELS = {
     "000": "Total, all government employment functions",
+    "002": "Space research and technology, federal",
+    "006": "National defense and international relations, federal",
+    "014": "Postal service, federal",
     "001": "Air transportation",
     "005": "Corrections",
     "012": "Education, elementary and secondary instructional",
@@ -1214,6 +1293,33 @@ EMPLOYMENT_FLAG_LABELS = {
     "Q": "Imputed: growth rate applied to a prior year value flagged P",
     "X": "Imputed: analyst created the value without contacting the respondent",
 }
+# Values that appear in the data but in no code list the Census still
+# publishes. Recording what is known about them beats either inventing a label
+# or leaving the column undocumented; see models/us_census_cog/CLAUDE.md.
+UNDOCUMENTED = (
+    "Code present in the source data but absent from every code list the "
+    "Census Bureau publishes"
+)
+UNDOCUMENTED_LABELS = {
+    # These seven codes carry no label in any published list, but the data
+    # settles what they are: across 1992-1998 the value of code 112 equals the
+    # sum of the seven for 47,541 of 47,545 units, so they are the components of
+    # "Education - Elementary and Secondary Other". Which component each one is
+    # remains undocumented.
+    ("employment", "function_code"): {
+        code: (
+            "Component of code 112, Education - Elementary and Secondary Other, "
+            f"reported from 1992 to 2000. {UNDOCUMENTED}"
+        )
+        for code in ("212", "312", "412", "512", "612", "712", "812")
+    },
+    ("employment", "flag"): {"I": UNDOCUMENTED, "S": UNDOCUMENTED},
+    ("employment_unit", "worksheet_code"): dict.fromkeys(
+        ("11", "93", "94", "95", "96", "97", "CC"), UNDOCUMENTED
+    ),
+    ("finance", "data_flag"): dict.fromkeys(("M", "N", "S"), UNDOCUMENTED),
+}
+
 IS_ACTIVE_LABELS = {
     "Y": "Active at the survey date",
     "N": "Not active at the survey date",
@@ -1278,11 +1384,27 @@ def build_dicionario(
         add(table, "school_level_code", sorted(SCHOOL_LEVEL_LABELS.items()))
     for table in ("employment_unit", "finance_unit"):
         add(table, "census_region_code", sorted(CENSUS_REGION_LABELS.items()))
-    add("employment_unit", "worksheet_code", sorted(WORKSHEET_LABELS.items()))
+    add(
+        "employment_unit",
+        "worksheet_code",
+        sorted(
+            WORKSHEET_LABELS.items()
+            | UNDOCUMENTED_LABELS[
+                ("employment_unit", "worksheet_code")
+            ].items()
+        ),
+    )
     add(
         "employment",
         "function_code",
-        sorted(EMPLOYMENT_FUNCTION_LABELS.items()),
+        sorted(
+            EMPLOYMENT_FUNCTION_LABELS.items()
+            | UNDOCUMENTED_LABELS[("employment", "function_code")].items()
+        ),
+    )
+    flags = sorted(
+        EMPLOYMENT_FLAG_LABELS.items()
+        | UNDOCUMENTED_LABELS[("employment", "flag")].items()
     )
     for column in (
         "full_time_employees_flag",
@@ -1290,9 +1412,15 @@ def build_dicionario(
         "part_time_employees_flag",
         "part_time_payroll_flag",
     ):
-        add("employment", column, sorted(EMPLOYMENT_FLAG_LABELS.items()))
-    add("finance", "data_flag", sorted(FINANCE_FLAG_LABELS.items()))
-    add("finance_unit", "data_flag", sorted(FINANCE_FLAG_LABELS.items()))
+        add("employment", column, flags)
+    add(
+        "finance",
+        "data_flag",
+        sorted(
+            FINANCE_FLAG_LABELS.items()
+            | UNDOCUMENTED_LABELS[("finance", "data_flag")].items()
+        ),
+    )
     add(
         "finance_unit",
         "is_imputed_record",

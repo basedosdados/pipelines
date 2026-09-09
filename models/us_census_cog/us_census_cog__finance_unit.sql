@@ -22,6 +22,7 @@ select
     safe_cast(county_id as string) county_id,
     safe_cast(county_name as string) county_name,
     safe_cast(place_id as string) place_id,
+    safe_cast(county_subdivision_id as string) county_subdivision_id,
     safe_cast(census_region_code as string) census_region_code,
     safe_cast(population as int64) population,
     safe_cast(population_year as int64) population_year,

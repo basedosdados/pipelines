@@ -21,6 +21,7 @@ models:
             where: government_id_govs is not null
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [parent_government_id, address_line_2]
       - custom_dictionary_coverage:
           dictionary_model: ref('us_census_cog__dicionario')
           columns_covered_by_dictionary:
@@ -96,7 +97,7 @@ models:
               to: ref('br_bd_diretorios_us__county')
               field: id_county
               ignore_values: []
-              proportion_allowed_failures: 0.0
+              proportion_allowed_failures: 0.01
       - name: place_id
         description: Código FIPS de sete posições do lugar, estado seguido de lugar
         tests:
@@ -104,8 +105,12 @@ models:
               to: ref('br_bd_diretorios_us__place')
               field: id_place
               ignore_values: []
-              proportion_allowed_failures: 0.0
-      - name: county_área_name
+              proportion_allowed_failures: 0.01
+      - name: county_subdivision_id
+        description: >-
+          Código FIPS de sete posições da subdivisão de condado, estado seguido de
+          subdivisão
+      - name: county_area_name
         description: Nome da área de condado atribuída à unidade na fonte
       - name: parent_government_id
         description: Identificador da unidade de governo a que está unidade e subordinada
@@ -122,8 +127,9 @@ models:
       parcial e emprego equivalente a tempo integral deixaram de ser publicados em
       2019.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [year, government_id_govs, function_code]
+          proportion_allowed_failures: 0.0001
           config:
             where: government_id_govs is not null
       - not_null_proportion_multiple_columns:
@@ -188,8 +194,9 @@ models:
       localização, nível de ensino e probabilidade de seleção na amostra. Complementa
       a tabela employment, que traz os valores por categoria funcional.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [year, government_id_govs]
+          proportion_allowed_failures: 0.0001
           config:
             where: government_id_govs is not null
       - not_null_proportion_multiple_columns:
@@ -224,7 +231,7 @@ models:
               to: ref('br_bd_diretorios_us__state')
               field: id_state
               ignore_values: []
-              proportion_allowed_failures: 0.0
+              proportion_allowed_failures: 0.001
       - name: county_id
         description: Código FIPS de cinco posições do condado, estado seguido de condado
         tests:
@@ -232,7 +239,7 @@ models:
               to: ref('br_bd_diretorios_us__county')
               field: id_county
               ignore_values: []
-              proportion_allowed_failures: 0.0
+              proportion_allowed_failures: 0.02
       - name: county_name
         description: >-
           Nome do condado onde a unidade está localizada ou ao qual foi atribuída
@@ -272,6 +279,7 @@ models:
             where: government_id is not null
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [government_id, data_flag]
       - custom_dictionary_coverage:
           dictionary_model: ref('us_census_cog__dicionario')
           columns_covered_by_dictionary: [item_code, data_flag]
@@ -310,6 +318,13 @@ models:
             where: government_id is not null
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - government_id
+            - school_enrollment
+            - data_flag
+            - special_district_function_code
+            - place_id
+            - county_subdivision_id
       - custom_dictionary_coverage:
           dictionary_model: ref('us_census_cog__dicionario')
           columns_covered_by_dictionary:
@@ -317,7 +332,6 @@ models:
             - census_region_code
             - school_level_code
             - special_district_function_code
-            - data_flag
             - is_imputed_record
     columns:
       - name: year
@@ -350,7 +364,7 @@ models:
               to: ref('br_bd_diretorios_us__county')
               field: id_county
               ignore_values: []
-              proportion_allowed_failures: 0.0
+              proportion_allowed_failures: 0.02
       - name: county_name
         description: Nome do condado onde a unidade está localizada
       - name: place_id
@@ -360,7 +374,11 @@ models:
               to: ref('br_bd_diretorios_us__place')
               field: id_place
               ignore_values: []
-              proportion_allowed_failures: 0.0
+              proportion_allowed_failures: 0.01
+      - name: county_subdivision_id
+        description: >-
+          Código FIPS de sete posições da subdivisão de condado, estado seguido de
+          subdivisão
       - name: census_region_code
         description: Código da região censitária
       - name: population

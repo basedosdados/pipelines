@@ -38,7 +38,8 @@ select
     safe_cast(state_id as string) state_id,
     safe_cast(county_id as string) county_id,
     safe_cast(place_id as string) place_id,
-    safe_cast(county_área_name as string) county_área_name,
+    safe_cast(county_subdivision_id as string) county_subdivision_id,
+    safe_cast(county_area_name as string) county_area_name,
     safe_cast(parent_government_id as string) parent_government_id,
     safe_cast(is_active as string) is_active
 from {{ set_datalake_project("us_census_cog_staging.government_unit") }} as t

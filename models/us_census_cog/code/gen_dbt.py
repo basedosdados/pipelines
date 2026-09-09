@@ -47,12 +47,14 @@ DICTIONARY_COLUMNS = {
         "worksheet_code",
     ],
     "finance": ["item_code", "data_flag"],
+    # data_flag is deliberately absent: in the historical archive the field
+    # concatenates single-letter flags, so it carries 31 distinct values such as
+    # "ED", "GK" and "KLP" that are combinations rather than codes.
     "finance_unit": [
         "government_type",
         "census_region_code",
         "school_level_code",
         "special_district_function_code",
-        "data_flag",
         "is_imputed_record",
     ],
 }
@@ -61,13 +63,52 @@ DIRECTORY_TESTS = {
     "county_id": ("br_bd_diretorios_us__county", "id_county"),
     "place_id": ("br_bd_diretorios_us__place", "id_place"),
 }
-# Measured share of rows whose value is absent from the directory, rounded up.
-# Filled in by validate.py against the built tables; see models/us_census_cog/
-# CLAUDE.md for what each exception is.
-DIRECTORY_TOLERANCE: dict[tuple[str, str], float] = {}
-# Columns legitimately sparse enough to fail the 5% non-null floor, measured on
-# the built tables rather than guessed.
-SPARSE_COLUMNS: dict[str, list[str]] = {}
+# Share of rows whose geographic identifier is absent from the Data Basis US
+# directories, measured by validate.py on the cleaned output and set with
+# headroom. These are not defects: county and place codes are retired and
+# reassigned over a 58-year span, and the directories carry the current
+# vintage. Connecticut replaced its counties with planning regions in 2022 and
+# several Alaska boroughs have been created or renamed.
+#
+#   government_unit.county_id  3,040 of 644,259  0.0047
+#   government_unit.place_id     439 of 136,322  0.0032
+#   employment_unit.county_id  6,813 of 895,701  0.0076
+#   employment_unit.state_id       6 of 897,290  0.0000
+#   finance_unit.county_id     1,074 of 210,328  0.0051
+#   finance_unit.place_id        109 of  36,994  0.0029
+DIRECTORY_TOLERANCE: dict[tuple[str, str], float] = {
+    ("government_unit", "county_id"): 0.01,
+    ("government_unit", "place_id"): 0.01,
+    ("employment_unit", "county_id"): 0.02,
+    ("employment_unit", "state_id"): 0.001,
+    ("finance_unit", "county_id"): 0.02,
+    ("finance_unit", "place_id"): 0.01,
+}
+# Columns legitimately sparse enough to fail, or to come within reach of, the 5%
+# non-null floor. Measured by validate.py rather than guessed; the share of
+# non-null rows is noted beside each one. Columns above roughly 10% are left in
+# the test, because a new survey year moves them by well under a point.
+SPARSE_COLUMNS: dict[str, list[str]] = {
+    # parent_government_id 0.0090, address_line_2 0.0911
+    "government_unit": ["parent_government_id", "address_line_2"],
+    # government_id 0.0142, data_flag 0.0421
+    "finance": ["government_id", "data_flag"],
+    # government_id 0.0465, school_enrollment 0.0424, data_flag 0.0407,
+    # special_district_function_code 0.0303, place_id 0.0193,
+    # county_subdivision_id 0.0112
+    "finance_unit": [
+        "government_id",
+        "school_enrollment",
+        "data_flag",
+        "special_district_function_code",
+        "place_id",
+        "county_subdivision_id",
+    ],
+}
+# The 1992 employment unit directory lists 14 governments twice, which carries
+# into the data file as 28 duplicated rows. Measured: 14 of 897,572 unit rows
+# and 28 of 5,643,839 data rows, all in 1992, all exact-name repeats.
+DUPLICATE_TOLERANCE = {"employment": 0.0001, "employment_unit": 0.0001}
 # Uniqueness is tested per identifier era: no single identifier is populated in
 # every year, so each test is scoped to the rows that carry its key.
 UNIQUE_KEYS = {
@@ -195,13 +236,26 @@ def model_yaml(table: str) -> dict:
     columns = load_cols(table)
     tests: list = []
     for key, where in UNIQUE_KEYS.get(table, []):
-        entry = {
-            "dbt_utils.unique_combination_of_columns": {
-                "combination_of_columns": key,
-                "config": {"where": where},
-            }
-        }
-        tests.append(entry)
+        tolerance = DUPLICATE_TOLERANCE.get(table)
+        if tolerance:
+            tests.append(
+                {
+                    "custom_unique_combinations_of_columns": {
+                        "combination_of_columns": key,
+                        "proportion_allowed_failures": tolerance,
+                        "config": {"where": where},
+                    }
+                }
+            )
+        else:
+            tests.append(
+                {
+                    "dbt_utils.unique_combination_of_columns": {
+                        "combination_of_columns": key,
+                        "config": {"where": where},
+                    }
+                }
+            )
     proportion: dict = {"at_least": 0.05}
     if SPARSE_COLUMNS.get(table):
         proportion["ignore_values"] = SPARSE_COLUMNS[table]

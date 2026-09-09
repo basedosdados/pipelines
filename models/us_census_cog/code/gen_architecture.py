@@ -243,6 +243,41 @@ def c_county_id(original="", obs=("", "", "")):
     )
 
 
+def c_county_subdivision_id(original="", coverage=""):
+    return col(
+        "county_subdivision_id",
+        "STRING",
+        "Código FIPS de sete posições da subdivisão de condado, estado seguido "
+        "de subdivisão",
+        "Seven-digit FIPS county subdivision code, state followed by "
+        "subdivision",
+        "Codigo FIPS de siete posiciones de la subdivision de condado, estado "
+        "seguido de subdivision",
+        coverage=coverage,
+        obs=(
+            "A fonte grava um único campo de código geográfico para municípios "
+            "e townships, mas os dois são espaços de código distintos. O "
+            "município traz um código de lugar incorporado e o township um "
+            "código de subdivisão de condado, separados aqui em duas colunas. "
+            "Não há diretório de subdivisões de condado, então esta coluna não "
+            "tem chave estrangeira",
+            "The source writes one geography code field for both municipalities "
+            "and townships, but the two are different code spaces. A "
+            "municipality carries an incorporated place code and a township a "
+            "county subdivision code, separated here into two columns. There is "
+            "no county subdivision directory, so this column carries no foreign "
+            "key",
+            "La fuente escribe un unico campo de codigo geografico para "
+            "municipios y townships, pero son espacios de codigo distintos. El "
+            "municipio trae un codigo de lugar incorporado y el township un "
+            "codigo de subdivision de condado, separados aqui en dos columnas. "
+            "No hay directorio de subdivisiones de condado, por lo que esta "
+            "columna no lleva clave foranea",
+        ),
+        original=original,
+    )
+
+
 # --------------------------------------------------------------------------
 # government_unit
 # --------------------------------------------------------------------------
@@ -459,8 +494,9 @@ GOVERNMENT_UNIT = [
         ),
         original="FIPS_PLACE",
     ),
+    c_county_subdivision_id("FIPS_PLACE"),
     col(
-        "county_área_name",
+        "county_area_name",
         "STRING",
         "Nome da área de condado atribuida à unidade na fonte",
         "Name of the county área assigned to the unit in the source",
@@ -904,6 +940,7 @@ FINANCE_UNIT = [
         ),
         original="FIPS place code",
     ),
+    c_county_subdivision_id("FIPS place code", coverage="2013(1)2018"),
     col(
         "census_region_code",
         "STRING",

@@ -12,9 +12,11 @@ directory tree, packaging and naming:
 
 | family | clean tables | years | rows |
 |---|---|---|---:|
-| `gus/datasets/` — Government Units Survey | `government_unit` | 1997, 2012, 2017, 2021, 2022, 2024, 2025 | 645,684 |
-| `apes/datasets/` — Public Employment & Payroll | `employment`, `employment_unit` | 1992–2024 | 6,541,411 |
-| `gov-finances/datasets/` — State and Local Government Finances | `finance`, `finance_unit` | 1967, 1970–2018 | see below |
+| `gus/datasets/` — Government Units Survey | `government_unit` | 1997, 2012, 2017, 2021, 2022, 2024, 2025 | 644,893 |
+| `apes/datasets/` — Public Employment & Payroll | `employment` / `employment_unit` | 1992–2024 | 5,643,839 / 897,572 |
+| `gov-finances/datasets/` — State and Local Government Finances | `finance` / `finance_unit` | 1967, 1970–2018 | 116,497,008 / 1,912,739 |
+
+Plus `dicionario`, 947 rows. **125,596,000 rows in total.**
 
 Licence: a work of the U.S. federal government, public domain.
 
@@ -42,6 +44,28 @@ not the FIPS one (Los Angeles County is GOVS 019, FIPS 037). Every table carries
 `state_id` and, where the source gives it, `county_id` in FIPS. The employment
 data file publishes only the GOVS state, converted here through
 `GOVS_TO_FIPS_STATE`.
+
+## Checks against the published figures
+
+- **Government count.** The 2022 `government_unit` rows in the three
+  independent-government categories number **90,837**, which is the Census's own
+  published 2022 count of local governments, exactly.
+- **Employment internal consistency.** For 2010 and 2022 every unit's `000`
+  total equals the sum of its own function rows, for both employment and, in
+  2010, payroll — 10,481 and 79,255 units with zero mismatches. The 2022 payroll
+  differs on 10,149 units, always by one dollar, which is rounding in the source.
+- **Employment against the published summary.** Summed over units, 2022 gives
+  14,921,207 full-time and 4,258,844 part-time employees against the published
+  14,953,430 and 4,266,821 — 0.22% and 0.19% low. The per-state differences run
+  in both directions (California is 6,161 high on full-time and 5,151 low on
+  part-time), so this is the summary table and the microdata file carrying
+  different revision vintages, not a parsing error.
+- **Keys.** No duplicates at all on `(year, government_id_govs, item_code)` over
+  114,845,732 finance rows, nor on the 2017 PID6 key. The only duplicates
+  anywhere are 14 governments the 1992 employment directory lists twice.
+- **Directories.** After splitting place from county subdivision, 0.3% of place
+  codes and 0.5–0.8% of county codes are absent from the Data Basis US
+  directories, which is geography churn across 58 years rather than a defect.
 
 ## Traps, measured
 
@@ -105,8 +129,28 @@ data file publishes only the GOVS state, converted here through
     Census lists them but does not count them as governments. The worksheet is
     preserved as `unit_category` so the distinction survives.
 
-11. **The place code is not always a place.** `99xxx` is the pseudo-code for a
-    county area rather than an incorporated place; `place_id` is null there.
+11. **The place code is not always a place.** The source writes one geography
+    field for both municipalities and townships, but a municipality carries an
+    incorporated-place code and a township a county-subdivision code. Measured
+    on 2022: every one of the 16,214 township codes is absent from the place
+    directory, against 29 of 19,491 municipal ones. They are split into
+    `place_id` and `county_subdivision_id`; there is no county-subdivision
+    directory, so the latter carries no foreign key. `99xxx` is a third thing —
+    the pseudo-code for a county area — and is dropped.
+
+12. **Seven employment function codes have no published label.** `212`, `312`,
+    `412`, `512`, `612`, `712` and `812` appear from 1992 to 2000 and are in no
+    code list the Census still publishes. The data settles what they are: across
+    1992–1998, code `112` equals their sum for 47,541 of 47,545 units, so they
+    are components of "Education - Elementary and Secondary Other". Which
+    component each one is remains unknown, and the `dicionario` says so rather
+    than guessing. The same treatment covers employment flags `I` and `S`,
+    finance flags `M`, `N` and `S`, and worksheet codes `11`, `93`–`97` and `CC`.
+
+13. **`finance_unit.data_flag` is not a code.** In the historical archive the
+    field concatenates single-letter flags, giving 31 distinct values including
+    `ED`, `GK` and `KLP`. It is deliberately left out of the dictionary
+    coverage test.
 
 ## What is deliberately not here
 

@@ -14,6 +14,7 @@ read an .xls at run time.
 
 import csv
 import re
+import subprocess
 import zipfile
 from pathlib import Path
 
@@ -74,6 +75,44 @@ def wide_header() -> list[str]:
     return header
 
 
+# No single annual technical document lists every code the long files use: the
+# 2018 edition is missing four that the 2013 edition carries, so both are read.
+ANNUAL_TECH_DOCS = {
+    2018: "2018 S&L Public Use Files Technical Documentation.pdf",
+    2013: "2013 S&L Indiv Unit Data File Tech Doc.pdf",
+}
+CODE_LINE = re.compile(r"^\s*([A-Z0-9]{3})\s{2,}(\S.*?)\s*$")
+
+
+def read_annual_codes() -> dict[str, str]:
+    """Return the item code list published with the 2018 annual finance file.
+
+    The historical User Guide documents the variables of the wide file, which is
+    not the same set of codes the long 2013-2018 files use: 129 of the 326 codes
+    seen in those years appear nowhere in it. The annual technical documentation
+    carries the missing labels, as a plain two-column list in its PDF.
+    """
+    codes: dict[str, str] = {}
+    pdf = Path("/tmp/cog_annual_tech_doc.pdf")
+    text = Path("/tmp/cog_annual_tech_doc.txt")
+    for year, member in ANNUAL_TECH_DOCS.items():
+        archive = next((INPUT / "fin").glob(f"{year}_*.zip"))
+        with zipfile.ZipFile(archive) as zf:
+            pdf.write_bytes(zf.read(member))
+        subprocess.run(
+            ["pdftotext", "-layout", str(pdf), str(text)], check=True
+        )
+        for line in text.read_text().splitlines():
+            match = CODE_LINE.match(line)
+            if match and not match.group(2).startswith(
+                ("Description", "Value")
+            ):
+                codes.setdefault(match.group(1), match.group(2))
+    pdf.unlink(missing_ok=True)
+    text.unlink(missing_ok=True)
+    return codes
+
+
 def item_type(code: str) -> str:
     """Classify a catalogue entry by what its code means.
 
@@ -116,6 +155,7 @@ def main() -> None:
                 "item_type": item_type(code),
                 "variable_name": entry["variable_name"],
                 "description": entry["description"],
+                "source": "historical_user_guide",
             }
         )
 
@@ -139,6 +179,27 @@ def main() -> None:
         if len(group) > 1:
             for row in group:
                 row["item_code"] = slug(row["column_label"])
+
+    # Codes used only by the long 2013-2018 files, labelled from the annual
+    # technical documentation rather than the historical User Guide.
+    # Match on the emitted key only. The six codes whose historical columns
+    # collided are keyed under slugs there, but the long files use the plain
+    # code, so each still needs a row of its own.
+    known = {r["item_code"] for r in rows}
+    for code, description in sorted(read_annual_codes().items()):
+        if code in known:
+            continue
+        rows.append(
+            {
+                "column_label": "",
+                "item_code": code,
+                "source_item_code": code,
+                "item_type": item_type(code),
+                "variable_name": "",
+                "description": description,
+                "source": "annual_tech_doc",
+            }
+        )
 
     path = ARCH / "finance_item_catalog.csv"
     with path.open("w", newline="") as fh:
