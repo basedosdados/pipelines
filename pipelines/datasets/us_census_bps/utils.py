@@ -865,16 +865,33 @@ def download_targets(through_year: int) -> list[tuple[str, Path]]:
     return out
 
 
-def fetch_file(url: str, dest: Path, tries: int = 5) -> tuple[str, str]:
+# Statuses that mean "slow down", not "broken". They need a far longer pause
+# than a dropped connection: www2.census.gov returned 429 on three files
+# partway through a full download from a datacentre, where requests leave
+# faster than they do from a laptop.
+THROTTLE_CODES = frozenset({408, 429, 503})
+
+
+def _throttle_delay(exc: urllib.error.HTTPError, attempt: int) -> float:
+    """Seconds to wait after a throttling response, honouring Retry-After."""
+    header = exc.headers.get("Retry-After") if exc.headers else None
+    if header and header.strip().isdigit():
+        return min(120.0, float(header.strip()))
+    return min(120.0, 5.0 * (2**attempt))
+
+
+def fetch_file(url: str, dest: Path, tries: int = 6) -> tuple[str, str]:
     """Download one BPS file, distinguishing a missing file from a rejection.
 
-    Two Census server behaviours would otherwise lose data silently. A file
-    that does not exist answers HTTP 404 with an HTML page, so the body is
-    checked before anything is written. Separately, the site firewall rejects a
-    few perfectly valid URLs with **HTTP 200** and a "Request Rejected" HTML
-    page; treating that as a missing file dropped four place months and one
-    metropolitan month on the first full run. The rejection is cached against
-    the exact URL, so every retry carries a cache-busting parameter.
+    Three Census server behaviours would otherwise lose data or fail the run.
+    A file that does not exist answers HTTP 404 with an HTML page, so the body
+    is checked before anything is written. The site firewall rejects a few
+    perfectly valid URLs with **HTTP 200** and a "Request Rejected" HTML page;
+    treating that as a missing file dropped four place months and one
+    metropolitan month on the first full run, and since the rejection is cached
+    against the exact URL, every retry carries a cache-busting parameter. And
+    the server throttles a sustained download with 429, which needs a much
+    longer pause than a network flake.
 
     Args:
         url: Absolute URL of the file.
@@ -898,7 +915,10 @@ def fetch_file(url: str, dest: Path, tries: int = 5) -> tuple[str, str]:
             if exc.code == 404:
                 return "missing", "HTTP 404"
             detail = f"HTTP {exc.code}"
-            time.sleep(2 * (attempt + 1))
+            if exc.code in THROTTLE_CODES:
+                time.sleep(_throttle_delay(exc, attempt))
+            else:
+                time.sleep(2 * (attempt + 1))
             continue
         except Exception as exc:
             detail = f"{type(exc).__name__}: {exc}"
@@ -920,14 +940,15 @@ def fetch_file(url: str, dest: Path, tries: int = 5) -> tuple[str, str]:
 
 
 def download_all(
-    input_dir: Path, through_year: int, workers: int = 6
+    input_dir: Path, through_year: int, workers: int = 4
 ) -> dict[str, int]:
     """Download every published BPS file into ``input_dir``.
 
     Args:
         input_dir: Directory to download into.
         through_year: Last survey year to ask for.
-        workers: Concurrent downloads.
+        workers: Concurrent downloads. Kept low: six was enough to draw
+            HTTP 429 from the server partway through a full run.
 
     Returns:
         Counts by status.
