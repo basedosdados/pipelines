@@ -67,22 +67,66 @@ def already_done(year: int, expect: int) -> bool:
         return False
 
 
-def download(year: int) -> Path:
+def remote_size(url: str) -> int | None:
+    """Content-Length of the source file, or None if the server withholds it."""
+    r = requests.head(url, timeout=(30, 120), allow_redirects=True)
+    r.raise_for_status()
+    n = r.headers.get("Content-Length")
+    return int(n) if n else None
+
+
+def download(year: int, attempts: int = 4) -> Path:
+    """Fetch one by_year archive, verifying it arrived whole.
+
+    `requests.iter_content` ends silently when the connection drops mid-stream,
+    so a partial body looks like a successful download. That is not theoretical:
+    a first pass over this archive truncated 1991 to 99.7 MB of 152.7 MB, and
+    three neighbouring years with it, purely from running six downloads at once.
+
+    Two consequences, both handled here. The written file is compared against
+    Content-Length and a short one is deleted and retried, so a truncation never
+    becomes a short partition. And an *existing* file is re-checked against the
+    same length rather than trusted, so a resume cannot silently reuse a
+    truncated file from an earlier run.
+    """
     RAW.mkdir(parents=True, exist_ok=True)
     dest = RAW / f"{year}.csv.gz"
-    if dest.exists() and dest.stat().st_size > 0:
-        return dest
     url = c.BY_YEAR_URL.format(year=year)
+    want = remote_size(url)
+
+    if dest.exists() and (want is None or dest.stat().st_size == want):
+        return dest
+    if dest.exists():
+        print(
+            f"  {year}: local {dest.stat().st_size:,} != remote {want:,}, refetching",
+            flush=True,
+        )
+        dest.unlink()
+
     tmp = dest.with_suffix(".part")
-    with requests.get(url, stream=True, timeout=(30, 1800)) as r:
-        r.raise_for_status()
-        # decode_content=False keeps the gzip bytes intact; the server sends the
-        # file already gzipped and we want it stored that way.
-        with open(tmp, "wb") as fh:
-            for chunk in r.iter_content(chunk_size=1 << 20):
-                fh.write(chunk)
-    tmp.rename(dest)
-    return dest
+    last = ""
+    for attempt in range(1, attempts + 1):
+        with requests.get(url, stream=True, timeout=(30, 1800)) as r:
+            r.raise_for_status()
+            # decode_content is left alone: the server sends the file already
+            # gzipped and we want the gzip bytes on disk, not the decoded CSV.
+            with open(tmp, "wb") as fh:
+                for chunk in r.iter_content(chunk_size=1 << 20):
+                    fh.write(chunk)
+        got = tmp.stat().st_size
+        if want is None or got == want:
+            tmp.rename(dest)
+            return dest
+        last = f"got {got:,} of {want:,} bytes"
+        print(
+            f"  {year}: truncated ({last}), attempt {attempt}/{attempts}",
+            flush=True,
+        )
+        tmp.unlink()
+        time.sleep(5 * attempt)
+    raise OSError(
+        f"{year}: download truncated after {attempts} attempts ({last})"
+    )
 
 
 def main() -> None:
