@@ -106,6 +106,7 @@ FACT_TABLES = tuple(TABLE_SPECS)
 # Columns computed in this module rather than read from the API response.
 DERIVED = {
     "country_iso2_code",
+    "country_iso3_code",
     "hs4_code",
     "hs2_code",
     "hs_revision",
@@ -330,6 +331,23 @@ def _to_null(series: pd.Series) -> pd.Series:
     return series.replace(list(constants.MISSING_TOKENS.value), pd.NA)
 
 
+def load_country_iso3() -> dict[str, str]:
+    """Census Schedule C country code -> ISO 3166-1 alpha-3.
+
+    Read from the committed map rather than derived at run time. Schedule C
+    publishes alpha-2 only, and the country directory's primary key is alpha-3,
+    so the two have to be bridged somewhere; doing it once and committing the
+    result keeps the transform free of a BigQuery dependency.
+
+    Covers 238 of the 241 Schedule C codes. Kosovo, the Gaza Strip and the West
+    Bank are absent because ISO 3166-1 does not assign them a country code, so
+    ``country_iso3_code`` is null for those three and the directory
+    relationship test skips them as nulls.
+    """
+    with Path(constants.ISO3_MAP.value).open(encoding="utf-8") as fh:
+        return json.load(fh)
+
+
 def load_country_iso2(schedule_c_text: str) -> dict[str, str]:
     """Parse Schedule C into a Census country code -> ISO2 map.
 
@@ -404,6 +422,8 @@ def clean_table(
             out[name] = pd.to_numeric(df["MONTH"], errors="coerce")
         elif name == "country_iso2_code":
             out[name] = df["CTY_CODE"].str.strip().map(iso2_by_code)
+        elif name == "country_iso3_code":
+            out[name] = df["CTY_CODE"].str.strip().map(load_country_iso3())
         elif name == "hs6_code":
             out[name] = df[commodity_src].str.strip().str.zfill(6)
         elif name == "hs4_code":
@@ -456,7 +476,7 @@ def collapse_to_grain(
     measures = [c for c in order if c not in grain]
     non_additive = [
         c for c in measures if c.endswith(NON_ADDITIVE_SUFFIXES)
-    ] + [c for c in measures if c in DERIVED or c in ("country_iso2_code",)]
+    ] + [c for c in measures if c in DERIVED]
     additive = [c for c in measures if c not in non_additive]
 
     if not df.duplicated(subset=grain).any():

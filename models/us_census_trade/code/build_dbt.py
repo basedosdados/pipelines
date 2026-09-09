@@ -71,37 +71,16 @@ SPARSE = {
     "state_id",  # null for STATE codes that are not a real state
 }
 
-# Plain `relationships` where the join is exact.
+# Plain `relationships` where the join is exact. NULLs are skipped by the test,
+# so the three Schedule C codes with no ISO 3166-1 country (Kosovo, the Gaza
+# Strip, the West Bank) need no exclusion list -- country_iso3_code is simply
+# null for them.
 RELATIONSHIPS = {
+    "country_iso3_code": ("br_bd_diretorios_mundo__pais", "sigla_iso3"),
     "state_id": ("br_bd_diretorios_us__state", "id_state"),
 }
 
-# `custom_relationships` where a measured, explained set of values cannot join.
-#
-# country_iso2_code: 237 of Schedule C's 241 ISO2 codes are present in
-# br_bd_diretorios_mundo.pais. The four that are not were checked one by one
-# against the directory:
-#
-#   GZ  Gaza Strip   -- not a country in ISO 3166-1
-#   WE  West Bank    -- not a country in ISO 3166-1
-#   KV  Kosovo       -- Census's own code; ISO 3166-1 assigns Kosovo no
-#                       official alpha-2 (XK is user-assigned)
-#   NA  Namibia      -- IS a valid ISO 3166-1 code, and IS missing from the
-#                       directory: pais.sigla_iso2 is NULL for Namibia while
-#                       sigla_iso3 is 'NAM'. The literal "NA" was read as a
-#                       null sentinel when the directory was built. That is a
-#                       defect in br_bd_diretorios_mundo, not in this dataset,
-#                       and it is excluded here rather than worked around,
-#                       because fixing a shared directory does not belong in a
-#                       dataset PR. Remove NA from this list once the directory
-#                       is corrected.
-CUSTOM_RELATIONSHIPS = {
-    "country_iso2_code": (
-        "br_bd_diretorios_mundo__pais",
-        "sigla_iso2",
-        ["GZ", "KV", "NA", "WE"],
-    ),
-}
+CUSTOM_RELATIONSHIPS: dict[str, tuple[str, str, list[str]]] = {}
 
 DESCRIPTIONS = {
     "import": """

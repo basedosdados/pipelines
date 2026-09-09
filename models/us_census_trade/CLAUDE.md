@@ -76,14 +76,34 @@ Consequently `hs6_code` carries a `directory_column` link to
 earlier revisions would fail. Measure the miss rate on the dev run and add a
 `custom_relationships` test with a measured tolerance.
 
-## Known upstream defect: Namibia
+## Country joins on ISO3, and why not ISO2
 
-`br_bd_diretorios_mundo.pais` has `sigla_iso2 = NULL` for Namibia (`sigla_iso3`
-is `NAM`) — the literal `"NA"` was read as a null sentinel when that directory
-was built. All 241 Schedule C ISO2 codes were checked; 237 join. The
-`custom_relationships` test on `country_iso2_code` excludes `GZ`, `WE`, `KV`
-(none are ISO 3166-1 countries) and `NA` (the directory defect). **Drop `NA`
-from `code/build_dbt.py` once the directory is fixed.**
+Schedule C publishes an ISO **alpha-2** column, but the country join is on
+**alpha-3**, through a derived `country_iso3_code`. Two separate reasons, both
+found the hard way:
+
+1. **The directory's primary key is ISO3.** A `directory_column` that does not
+   target the directory's primary key is **silently dropped on write** — the
+   registration reports success and the link simply is not there. `pais`'s
+   primary key is `sigla_pais_iso3`.
+2. **`pais.sigla_iso2` is NULL for Namibia.** The literal `"NA"` was read as a
+   null sentinel when that directory was built. An ISO2 join loses Namibia; the
+   ISO3 join does not, because `sigla_iso3` is `NAM`.
+
+Backend column names are **not** the BigQuery column names: the directory is
+`sigla_pais_iso3` in the backend and `sigla_iso3` in BigQuery. The architecture's
+`directory_column` needs the backend name; the dbt `relationships` test needs the
+BigQuery one.
+
+`country_iso2_code` is kept as the source-native value, with no directory link.
+`pipelines/datasets/us_census_trade/country_iso3.json` maps 238 of the 241
+Schedule C codes; Kosovo, the Gaza Strip and the West Bank are absent because
+ISO 3166-1 assigns them no country code, so `country_iso3_code` is null there and
+the relationship test skips them as nulls — no exclusion list needed.
+
+The Namibia defect in `br_bd_diretorios_mundo` still affects other datasets
+(`gb_eric_ess` has 11 ISO2 relationship tests) and is worth fixing separately,
+but this dataset no longer depends on it.
 
 ## Regenerating
 

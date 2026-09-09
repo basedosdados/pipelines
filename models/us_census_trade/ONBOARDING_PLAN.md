@@ -88,9 +88,15 @@ property of the source, not an omission.
    **January of the previous year through the newest month** on every run. The
    refresh replaces only the affected `year` partitions — never the whole table.
 
-6. **Country joins on ISO2, not ISO3.** Schedule C ships an ISO2 column, so
-   ISO2 is the zero-inference join to `br_bd_diretorios_mundo.pais:sigla_iso2`
-   (precedent: `gb_eric_ess`). The native `country_code` is kept alongside it.
+6. **Country joins on ISO3, though Schedule C publishes ISO2.** Two measured
+   reasons. A `directory_column` that does not target the directory's primary
+   key is silently dropped on write, and `pais`'s primary key is
+   `sigla_pais_iso3`; and `pais.sigla_iso2` is NULL for Namibia, because the
+   literal "NA" was read as a null sentinel when that directory was built. So
+   `country_iso3_code` is derived through a committed 238-code map and carries
+   the link, while `country_iso2_code` is kept as the source-native value with
+   no link. Note also that backend column names differ from BigQuery ones —
+   `sigla_pais_iso3` versus `sigla_iso3`. The native `country_code` is kept too.
    `SUMMARY_LVL='DET'` filters out the country *groupings* (OPEC, EU, …), which
    would otherwise double-count against their members.
 
@@ -130,3 +136,57 @@ BACI is the reconciled annual world panel at HS6; this is the US national
 source at monthly frequency with customs district and port detail that BACI
 does not carry. The dataset description must say this explicitly.
 Commercial angle: supply-chain and trade analytics.
+
+---
+
+## Backend metadata
+
+Registered on **staging** by `code/register_metadata.py`.
+
+| | |
+|---|---|
+| Backend slug | `foreign_trade` — `trade` is taken by CITES |
+| Organization | `us_census` |
+| Theme | `economics` |
+| Tags | `comercio`, `importacao`, `exportacao`, `balanca_comercial`, `porto`, `transporte`, `frete` — all pre-existing, none created |
+| Licence | `cc0`, the closest slug the backend carries for a US Government public-domain work; same choice as `us_census_lodes` |
+| Status | `under_review` until the PR merges and the prod tables materialise |
+| Raw data source | one, shared by all seven tables — a table with two sources cannot run a recurring pipeline |
+
+**New shared vocabulary:** the entity `port` did not exist and was created under
+the `spatial` category, alongside `state` and `country`. `customs` already
+existed and is used for the district grain. Conflating the two would erase the
+distinction the port tables exist for. Flagging it because it is shared
+vocabulary, the same way a new tag would be.
+
+**Not registered yet, deliberately:** Coverage, DateTimeRange and Update. They
+need the real maximum month, which requires reading the API. `code/register_coverage.py`
+does it after the first dev run, creating the free and pro Coverage pair that a
+`part_bdpro` pipeline needs before its first armed run.
+
+## Sequencing, and why it differs from the standard workflow
+
+Steps 3–5 (download, clean, upload) normally run locally. They cannot: there is
+no API key on this machine. So the data lands via the deployed dev flow run,
+which is also the step-12 verification gate.
+
+1. ✅ Design, architecture, transform, dbt models, pipeline, backend metadata
+2. ⬜ **Provision `CENSUS_API_KEY` in Vault at secret path `us_census_trade`**
+3. ⬜ PR with the **`deploy-flow`** label — without it the staging deploy is
+   skipped and the job still reports `pass`
+4. ⬜ Dev run, backfilling from 2010-01:
+   `{"materialize_to_prod": false, "update_metadata": false, "force_run": true, "first_month": "2010-01"}`
+   All four matter. The flow defaults to `materialize_to_prod=true,
+   update_metadata=true`, and the metadata tasks are pinned `env="prod"` even
+   from the dev pool, so a run triggered with `{}` writes prod data and prod
+   metadata. Consider slicing by `tables` — six fact tables over sixteen years
+   is a long single run.
+5. ⬜ Measure: row counts per table, the real sparsity of every column, the
+   `hs6_code` miss rate against the single-vintage HS directory. Correct
+   `ignore_values` in `code/build_dbt.py` from measurements, not guesses
+6. ⬜ `register_coverage.py --max-month <measured>`; publish the dataset on
+   **staging** only; verification checkpoint
+7. ⬜ Prod metadata, merge, table-approve materialises prod, verify, publish
+8. ⬜ Arm the schedule in Django admin, watching the first armed run — it is the
+   first-ever execution of the prod upload and of the Row Access Policies
+9. ⬜ Delete `~/Downloads/us_census_trade_data/` if any local scratch was created

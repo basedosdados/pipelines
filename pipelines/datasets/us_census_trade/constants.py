@@ -36,6 +36,11 @@ class constants(Enum):
         _REPO_ROOT / "models" / "us_census_trade" / "code" / "architecture"
     )
 
+    # Census Schedule C code -> ISO 3166-1 alpha-3, built once from
+    # br_bd_diretorios_mundo.pais (which is what country_iso3_code links to)
+    # and committed, so the transform needs no BigQuery access at run time.
+    ISO3_MAP = Path(__file__).resolve().parent / "country_iso3.json"
+
     BASE_URL = "https://api.census.gov/data/timeseries/intltrade/"
 
     # API key resolution. When CENSUS_API_KEY is absent from the environment

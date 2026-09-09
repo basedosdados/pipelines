@@ -36,7 +36,11 @@ HEADER = [
 # --------------------------------------------------------------------------- #
 DIR_YEAR = "br_bd_diretorios_data_tempo.ano:ano"
 DIR_MONTH = "br_bd_diretorios_data_tempo.mes:mes"
-DIR_COUNTRY = "br_bd_diretorios_mundo.pais:sigla_iso2"
+# The backend column names differ from the BigQuery ones: the directory table
+# is `sigla_pais_iso3` in the backend and `sigla_iso3` in BigQuery. The backend
+# link needs the backend name, and it must target the directory's PRIMARY KEY,
+# which is ISO3 -- a link to ISO2 is silently dropped on write.
+DIR_COUNTRY = "br_bd_diretorios_mundo.pais:sigla_pais_iso3"
 DIR_STATE = "br_bd_diretorios_us.state:id_state"
 DIR_HS6 = "br_bd_diretorios_comercio_internacional.sistema_harmonizado:id_sh6"
 
@@ -131,15 +135,26 @@ def country_keys():
             original="CTY_CODE",
         ),
         col(
+            "country_iso3_code",
+            "STRING",
+            "Sigla ISO 3166-1 alfa-3 do país parceiro",
+            "ISO 3166-1 alpha-3 code of the partner country",
+            "Código ISO 3166-1 alfa-3 del país socio",
+            directory=DIR_COUNTRY,
+            obs_pt="Derivada do código da Schedule C. Cobre 238 dos 241 códigos do Census; fica nula para Kosovo, Faixa de Gaza e Cisjordânia, que não são países no ISO 3166-1.",
+            obs_en="Derived from the Schedule C code. Covers 238 of the 241 Census codes; null for Kosovo, the Gaza Strip and the West Bank, which are not countries in ISO 3166-1.",
+            obs_es="Derivada del código de la Schedule C. Cubre 238 de los 241 códigos del Census; queda nula para Kosovo, la Franja de Gaza y Cisjordania, que no son países en la ISO 3166-1.",
+            original="CTY_CODE",
+        ),
+        col(
             "country_iso2_code",
             "STRING",
             "Sigla ISO 3166-1 alfa-2 do país parceiro",
             "ISO 3166-1 alpha-2 code of the partner country",
             "Código ISO 3166-1 alfa-2 del país socio",
-            directory=DIR_COUNTRY,
-            obs_pt="Derivada da coluna ISO da Schedule C. Nula para códigos do Census sem país ISO correspondente, como áreas não identificadas.",
-            obs_en="Derived from the ISO column of Schedule C. Null for Census codes with no corresponding ISO country, such as unidentified areas.",
-            obs_es="Derivada de la columna ISO de la Schedule C. Nula para códigos del Census sin país ISO correspondiente, como áreas no identificadas.",
+            obs_pt="Valor publicado na própria Schedule C, mantido como veio da fonte. A ligação ao diretório de países é feita por country_iso3_code, que é a chave primária do diretório.",
+            obs_en="The value Schedule C itself publishes, kept as the source gives it. The link to the country directory is made through country_iso3_code, which is the directory's primary key.",
+            obs_es="El valor publicado en la propia Schedule C, mantenido tal como viene de la fuente. El enlace al directorio de países se hace por country_iso3_code, que es la clave primaria del directorio.",
             original="CTY_CODE",
         ),
     ]

@@ -51,16 +51,16 @@ models:
         description: >-
           Código do país parceiro na Schedule C do Census Bureau
         tests: [not_null]
+      - name: country_iso3_code
+        description: >-
+          Sigla ISO 3166-1 alfa-3 do país parceiro
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
       - name: country_iso2_code
         description: >-
           Sigla ISO 3166-1 alfa-2 do país parceiro
-        tests:
-          - custom_relationships:
-              to: ref('br_bd_diretorios_mundo__pais')
-              field: sigla_iso2
-              # Measured against the directory;
-              # see build_dbt.py for each code.
-              ignore_values: [GZ, KV, NA, WE]
       - name: district_code
         description: >-
           Código do distrito aduaneiro na Schedule D do Census Bureau
@@ -189,16 +189,16 @@ models:
         description: >-
           Código do país parceiro na Schedule C do Census Bureau
         tests: [not_null]
+      - name: country_iso3_code
+        description: >-
+          Sigla ISO 3166-1 alfa-3 do país parceiro
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
       - name: country_iso2_code
         description: >-
           Sigla ISO 3166-1 alfa-2 do país parceiro
-        tests:
-          - custom_relationships:
-              to: ref('br_bd_diretorios_mundo__pais')
-              field: sigla_iso2
-              # Measured against the directory;
-              # see build_dbt.py for each code.
-              ignore_values: [GZ, KV, NA, WE]
       - name: district_code
         description: >-
           Código do distrito aduaneiro na Schedule D do Census Bureau
@@ -293,16 +293,16 @@ models:
         description: >-
           Código do país parceiro na Schedule C do Census Bureau
         tests: [not_null]
+      - name: country_iso3_code
+        description: >-
+          Sigla ISO 3166-1 alfa-3 do país parceiro
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
       - name: country_iso2_code
         description: >-
           Sigla ISO 3166-1 alfa-2 do país parceiro
-        tests:
-          - custom_relationships:
-              to: ref('br_bd_diretorios_mundo__pais')
-              field: sigla_iso2
-              # Measured against the directory;
-              # see build_dbt.py for each code.
-              ignore_values: [GZ, KV, NA, WE]
       - name: port_code
         description: >-
           Código do porto na Schedule D do Census Bureau
@@ -377,16 +377,16 @@ models:
         description: >-
           Código do país parceiro na Schedule C do Census Bureau
         tests: [not_null]
+      - name: country_iso3_code
+        description: >-
+          Sigla ISO 3166-1 alfa-3 do país parceiro
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
       - name: country_iso2_code
         description: >-
           Sigla ISO 3166-1 alfa-2 do país parceiro
-        tests:
-          - custom_relationships:
-              to: ref('br_bd_diretorios_mundo__pais')
-              field: sigla_iso2
-              # Measured against the directory;
-              # see build_dbt.py for each code.
-              ignore_values: [GZ, KV, NA, WE]
       - name: port_code
         description: >-
           Código do porto na Schedule D do Census Bureau
@@ -463,16 +463,16 @@ models:
         description: >-
           Código do país parceiro na Schedule C do Census Bureau
         tests: [not_null]
+      - name: country_iso3_code
+        description: >-
+          Sigla ISO 3166-1 alfa-3 do país parceiro
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
       - name: country_iso2_code
         description: >-
           Sigla ISO 3166-1 alfa-2 do país parceiro
-        tests:
-          - custom_relationships:
-              to: ref('br_bd_diretorios_mundo__pais')
-              field: sigla_iso2
-              # Measured against the directory;
-              # see build_dbt.py for each code.
-              ignore_values: [GZ, KV, NA, WE]
       - name: state_abbreviation
         description: >-
           Sigla de duas letras do estado dos Estados Unidos
@@ -560,16 +560,16 @@ models:
         description: >-
           Código do país parceiro na Schedule C do Census Bureau
         tests: [not_null]
+      - name: country_iso3_code
+        description: >-
+          Sigla ISO 3166-1 alfa-3 do país parceiro
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
       - name: country_iso2_code
         description: >-
           Sigla ISO 3166-1 alfa-2 do país parceiro
-        tests:
-          - custom_relationships:
-              to: ref('br_bd_diretorios_mundo__pais')
-              field: sigla_iso2
-              # Measured against the directory;
-              # see build_dbt.py for each code.
-              ignore_values: [GZ, KV, NA, WE]
       - name: state_abbreviation
         description: >-
           Sigla de duas letras do estado dos Estados Unidos

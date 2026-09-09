@@ -20,6 +20,7 @@ select
     safe_cast(year as int64) year,
     safe_cast(month as int64) month,
     safe_cast(country_code as string) country_code,
+    safe_cast(country_iso3_code as string) country_iso3_code,
     safe_cast(country_iso2_code as string) country_iso2_code,
     safe_cast(port_code as string) port_code,
     safe_cast(hs6_code as string) hs6_code,
