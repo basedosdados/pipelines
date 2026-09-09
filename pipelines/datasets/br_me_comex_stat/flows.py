@@ -1,168 +1,197 @@
 """
-Flows for br_me_comex_stat — Prefect 3.
+Flows para br_me_comex_stat — Prefect 3.
+
+Migrado por completo pro pipeline orientado a eventos (issue #1867):
+check_update -> download -> mat_test, uma dupla de flows por tabela.
+Lógica específica do dataset mora em `tasks.py`, constantes em
+`constants.py` — aqui só a fiação (`CheckThenDownloadPipeline` + `@flow`).
 """
 
 from prefect import flow
 
-from pipelines.crawler.me_comex_stat.constants import (
-    constants as comex_constants,
+from pipelines.datasets.br_me_comex_stat.constants import (
+    DATASET_ID,
+    MUNICIPIO_EXPORTACAO_TABLE_ID,
+    MUNICIPIO_IMPORTACAO_TABLE_ID,
+    NCM_EXPORTACAO_TABLE_ID,
+    NCM_IMPORTACAO_TABLE_ID,
 )
-from pipelines.crawler.me_comex_stat.tasks import (
-    clean_br_me_comex_stat,
-    download_br_me_comex_stat,
-    parse_last_date,
+from pipelines.datasets.br_me_comex_stat.tasks import (
+    br_me_comex_stat_check_for_update,
+    make_download_data,
 )
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    PartBdpro,
-    YearMonth,
-)
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
-)
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
+from pipelines.utils.stage_dispatch import (
+    CheckThenDownloadPipeline,
+    Etapa,
+    deploy_tags,
 )
 
 
-def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
-    @flow(
-        name=f"br_me_comex_stat__{table_id}",
-        log_prints=True,
+def _make_pipeline(table_id: str) -> CheckThenDownloadPipeline:
+    return CheckThenDownloadPipeline(
+        dataset_id=DATASET_ID,
+        table_id=table_id,
+        # Mesma função pras 4 tabelas -- a fonte de check é única,
+        # compartilhada (ver banner em tasks.py).
+        check_for_update=br_me_comex_stat_check_for_update,
+        download_data=make_download_data(table_id),
+        date_format="%Y-%m",
     )
-    def _flow(
-        dataset_id: str = "br_me_comex_stat",
-        table_id: str = table_id,
-        materialize_after_dump: bool = True,
-        update_metadata: bool = True,
-        target: str = "prod",
-        force_run: bool = False,
-    ) -> None:
-        # pyrefly: ignore [unused-coroutine]
-        rename_flow_run_dataset_table(
-            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
-        )
-
-        last_date = parse_last_date(link=comex_constants.DOWNLOAD_LINK.value)
-
-        if not force_run:
-            has_new_data = poll_source_for_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=last_date,
-                env="prod",
-                date_format="%Y-%m",
-                compare_against="coverage",
-            )
-            if not has_new_data:
-                print(f"Tabela {table_id} já cobre a fonte — encerrando")
-                return
-
-        # A fonte é uma só para as quatro tabelas, então este Update é um
-        # ponteiro compartilhado: quem rodar primeiro no dia o avança. O gate
-        # acima continua por tabela, porque compara contra o Coverage de cada
-        # tabela, não contra este RawDataSource.Update.
-        commit_source_update_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            source_max_date=last_date,
-            env="prod",
-            date_format="%Y-%m",
-            update_metadata=update_metadata,
-            materialize_after_dump=materialize_after_dump,
-        )
-
-        download_br_me_comex_stat(
-            table_name=table_name,
-            year_download=last_date,
-        )
-
-        filepath = clean_br_me_comex_stat(
-            path=comex_constants.PATH.value,
-            table_type=table_type,
-            table_name=table_name,
-        )
-
-        # pyrefly: ignore [no-matching-overload]
-        upload_to_gcs(
-            data_path=filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            bucket_name="basedosdados-dev",
-            dump_mode="append",
-        )
-
-        run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_command="run/test",
-            target="dev",
-        )
-
-        if not materialize_after_dump:
-            return
-
-        # pyrefly: ignore [no-matching-overload]
-        upload_to_gcs(
-            data_path=filepath,
-            dataset_id=dataset_id,
-            table_id=table_id,
-            bucket_name="basedosdados",
-            dump_mode="append",
-        )
-
-        run_dbt(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            dbt_command="run/test",
-            target=target,
-        )
-
-        if update_metadata:
-            register_table_materialization_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                coverage=PartBdpro(
-                    date_column=YearMonth(year="ano", month="mes"),
-                    date_format=DateFormat.YEAR_MONTH,
-                ),
-                env="prod",
-                bq_project="basedosdados",
-            )
-
-    # pyrefly: ignore [missing-attribute]
-    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
-    return _flow
 
 
-br_me_comex_stat__municipio_exportacao = _comex_flow(
-    table_id="municipio_exportacao",
-    table_name=comex_constants.TABLE_NAME.value[1],
-    table_type=comex_constants.TABLE_TYPE.value[0],
-    cron="0 21 * * 1-5",
+_municipio_exportacao_pipeline = _make_pipeline(MUNICIPIO_EXPORTACAO_TABLE_ID)
+_municipio_importacao_pipeline = _make_pipeline(MUNICIPIO_IMPORTACAO_TABLE_ID)
+_ncm_exportacao_pipeline = _make_pipeline(NCM_EXPORTACAO_TABLE_ID)
+_ncm_importacao_pipeline = _make_pipeline(NCM_IMPORTACAO_TABLE_ID)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# municipio_exportacao
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+@flow(
+    name=_municipio_exportacao_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_me_comex_stat_municipio_exportacao_check_update_flow() -> None:
+    _municipio_exportacao_pipeline.run_check_update()
+
+
+# pyrefly: ignore [missing-attribute]
+br_me_comex_stat_municipio_exportacao_check_update_flow.deploy_tags = (
+    deploy_tags(DATASET_ID, Etapa.CHECK_UPDATE)
 )
 
-br_me_comex_stat__municipio_importacao = _comex_flow(
-    table_id="municipio_importacao",
-    table_name=comex_constants.TABLE_NAME.value[0],
-    table_type=comex_constants.TABLE_TYPE.value[0],
-    cron="0 20 * * 1-5",
+
+@flow(
+    name=_municipio_exportacao_pipeline.download_flow_name,
+    log_prints=True,
+)
+def br_me_comex_stat_municipio_exportacao_download_flow(
+    download_params: dict,
+) -> None:
+    _municipio_exportacao_pipeline.run_download(download_params)
+
+
+# pyrefly: ignore [missing-attribute]
+br_me_comex_stat_municipio_exportacao_download_flow.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.DOWNLOAD
+)
+_municipio_exportacao_pipeline.download_deployment = (
+    br_me_comex_stat_municipio_exportacao_download_flow.fn.__name__
 )
 
-br_me_comex_stat__ncm_exportacao = _comex_flow(
-    table_id="ncm_exportacao",
-    table_name=comex_constants.TABLE_NAME.value[3],
-    table_type=comex_constants.TABLE_TYPE.value[1],
-    cron="0 8,17 * * 1-5",
+
+# ──────────────────────────────────────────────────────────────────────────────
+# municipio_importacao
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+@flow(
+    name=_municipio_importacao_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_me_comex_stat_municipio_importacao_check_update_flow() -> None:
+    _municipio_importacao_pipeline.run_check_update()
+
+
+# pyrefly: ignore [missing-attribute]
+br_me_comex_stat_municipio_importacao_check_update_flow.deploy_tags = (
+    deploy_tags(DATASET_ID, Etapa.CHECK_UPDATE)
 )
 
-br_me_comex_stat__ncm_importacao = _comex_flow(
-    table_id="ncm_importacao",
-    table_name=comex_constants.TABLE_NAME.value[2],
-    table_type=comex_constants.TABLE_TYPE.value[1],
-    cron="0 8,17 * * 1-5",
+
+@flow(
+    name=_municipio_importacao_pipeline.download_flow_name,
+    log_prints=True,
+)
+def br_me_comex_stat_municipio_importacao_download_flow(
+    download_params: dict,
+) -> None:
+    _municipio_importacao_pipeline.run_download(download_params)
+
+
+# pyrefly: ignore [missing-attribute]
+br_me_comex_stat_municipio_importacao_download_flow.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.DOWNLOAD
+)
+_municipio_importacao_pipeline.download_deployment = (
+    br_me_comex_stat_municipio_importacao_download_flow.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# ncm_exportacao
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+@flow(
+    name=_ncm_exportacao_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_me_comex_stat_ncm_exportacao_check_update_flow() -> None:
+    _ncm_exportacao_pipeline.run_check_update()
+
+
+# pyrefly: ignore [missing-attribute]
+br_me_comex_stat_ncm_exportacao_check_update_flow.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE
+)
+
+
+@flow(
+    name=_ncm_exportacao_pipeline.download_flow_name,
+    log_prints=True,
+)
+def br_me_comex_stat_ncm_exportacao_download_flow(
+    download_params: dict,
+) -> None:
+    _ncm_exportacao_pipeline.run_download(download_params)
+
+
+# pyrefly: ignore [missing-attribute]
+br_me_comex_stat_ncm_exportacao_download_flow.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.DOWNLOAD
+)
+_ncm_exportacao_pipeline.download_deployment = (
+    br_me_comex_stat_ncm_exportacao_download_flow.fn.__name__
+)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# ncm_importacao
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+@flow(
+    name=_ncm_importacao_pipeline.check_update_flow_name,
+    log_prints=True,
+)
+def br_me_comex_stat_ncm_importacao_check_update_flow() -> None:
+    _ncm_importacao_pipeline.run_check_update()
+
+
+# pyrefly: ignore [missing-attribute]
+br_me_comex_stat_ncm_importacao_check_update_flow.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE
+)
+
+
+@flow(
+    name=_ncm_importacao_pipeline.download_flow_name,
+    log_prints=True,
+)
+def br_me_comex_stat_ncm_importacao_download_flow(
+    download_params: dict,
+) -> None:
+    _ncm_importacao_pipeline.run_download(download_params)
+
+
+# pyrefly: ignore [missing-attribute]
+br_me_comex_stat_ncm_importacao_download_flow.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.DOWNLOAD
+)
+_ncm_importacao_pipeline.download_deployment = (
+    br_me_comex_stat_ncm_importacao_download_flow.fn.__name__
 )

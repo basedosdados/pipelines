@@ -4,6 +4,11 @@ Constant values for the datasets projects
 
 from enum import Enum
 
+# Pipeline orientado a eventos (issue #1867) — as 2 tabelas do dataset.
+DATASET_ID = "br_denatran_frota"
+UF_TIPO_TABLE_ID = "uf_tipo"
+MUNICIPIO_TIPO_TABLE_ID = "municipio_tipo"
+
 
 class constants(Enum):
     """

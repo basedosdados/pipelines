@@ -158,6 +158,7 @@ def check_update_and_dispatch(
     env: str = "prod",
     date_format: str = "%Y-%m-%d",
     extra_download_params: dict | None = None,
+    compare_against: str = "coverage",
 ) -> bool:
     """
     Encapsula o padrão real de check_update, pra não repetir essa sequência
@@ -187,6 +188,11 @@ def check_update_and_dispatch(
     `poll_source_for_update_task`/`commit_source_update_task` vêm de
     `pipelines.utils.metadata.tasks` — o mesmo par usado pelos datasets
     reais (ver `br_bcb_estban/flows.py`).
+
+    `compare_against` repassa direto pro `poll_source_for_update_task`
+    (`"coverage"` por padrão). Tabelas `NonHistorical` (sem coluna de data
+    confiável, sem baseline de `Coverage.DateTimeRange` — ex.
+    `br_me_cnpj.simples`) precisam de `"table_update"` em vez do padrão.
     """
     has_new_data = poll_source_for_update_task(
         dataset_id=dataset_id,
@@ -194,7 +200,7 @@ def check_update_and_dispatch(
         source_max_date=reference_date,
         env=env,
         date_format=date_format,
-        compare_against="coverage",
+        compare_against=compare_against,
     )
     if not has_new_data:
         return False
@@ -339,11 +345,15 @@ class CheckThenDownloadPipeline:
         env: str = "prod",
         date_format: str = "%Y-%m-%d",
         download_deployment: str | None = None,
+        compare_against: str = "coverage",
     ) -> None:
         self.dataset_id = dataset_id
         self.table_id = table_id
         self.check_for_update = check_for_update
         self.download_data = download_data
+        # "table_update" pra tabelas NonHistorical (sem Coverage.DateTimeRange
+        # baseline pra comparar) — ver docstring de check_update_and_dispatch.
+        self.compare_against = compare_against
         # Convenção padrão do repo pra nome de flow no Prefect, sempre
         # `dataset_id__table_id` (ver `br_bcb_agencia__agencia`,
         # `br_denatran_frota__uf_tipo`) — usada mesmo quando há só uma
@@ -390,6 +400,7 @@ class CheckThenDownloadPipeline:
             env=self.env,
             date_format=self.date_format,
             extra_download_params=result.extra_download_params,
+            compare_against=self.compare_against,
         )
 
     def run_download(self, download_params: dict) -> None:

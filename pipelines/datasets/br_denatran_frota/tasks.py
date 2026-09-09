@@ -1,6 +1,7 @@
 import datetime
 import os
 import re
+from collections.abc import Callable
 from pathlib import Path
 from zipfile import ZipFile
 
@@ -11,6 +12,7 @@ from dateutil.relativedelta import relativedelta
 from prefect import task
 from string_utils import asciify
 
+from pipelines.datasets.br_denatran_frota.constants import DATASET_ID
 from pipelines.datasets.br_denatran_frota.constants import (
     constants as denatran_constants,
 )
@@ -29,7 +31,9 @@ from pipelines.datasets.br_denatran_frota.utils import (
     verify_file,
     verify_total,
 )
+from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
 from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
+from pipelines.utils.stage_dispatch import CheckResult, DownloadResult
 from pipelines.utils.utils import log
 
 
@@ -411,6 +415,84 @@ def get_latest_date_task(
     log(f"Available dates: {dates_str}")
     # pyrefly: ignore [bad-return]
     return dates, dates_str, dates[0], dates_str[0]
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Pipeline orientado a eventos (issue #1867) — as 2 tabelas do dataset
+# (uf_tipo, municipio_tipo). Ver constants.py.
+#
+# Diferente de br_ibge_ipca, o check aqui é leve de verdade e independente
+# do download: `get_latest_date_task` só lista links (`extract_links_post_2012`)
+# e confere existência do arquivo (`verify_file`), sem baixar o conteúdo —
+# o download de verdade só acontece em `crawl_task`, chamado por
+# `download_data`. `make_check_for_update`/`make_download_data` são
+# fábricas parametrizadas por `table_id` — os `@flow` em `flows.py` não
+# usam fábrica (ver docstring de `CheckThenDownloadPipeline`), só a lógica
+# aqui.
+# ──────────────────────────────────────────────────────────────────────────────
+
+_TREAT_TASK_BY_TABLE_ID = {
+    "uf_tipo": treat_uf_tipo_task,
+    "municipio_tipo": treat_municipio_tipo_task,
+}
+_FILETYPE_BY_TABLE_ID = {
+    "uf_tipo": denatran_constants.UF_TIPO_BASIC_FILENAME.value,
+    "municipio_tipo": denatran_constants.MUNIC_TIPO_BASIC_FILENAME.value,
+}
+
+
+def make_check_for_update(table_id: str) -> Callable[[], CheckResult]:
+    def check_for_update() -> CheckResult:
+        input_dir, _ = build_paths()
+        _, _, _, first_available_str = get_latest_date_task(
+            table_id=table_id,
+            dataset_id=DATASET_ID,
+            input_dir=input_dir,
+        )
+        assert first_available_str is not None
+        reference_date = datetime.datetime.strptime(
+            first_available_str, "%Y-%m"
+        ).date()
+        return CheckResult(reference_date=reference_date)
+
+    return check_for_update
+
+
+def make_download_data(table_id: str) -> Callable[[dict], DownloadResult]:
+    filetype = _FILETYPE_BY_TABLE_ID[table_id]
+    treat_task = _TREAT_TASK_BY_TABLE_ID[table_id]
+
+    def download_data(download_params: dict) -> DownloadResult:
+        ref = datetime.date.fromisoformat(download_params["reference_date"])
+        source_max_date = datetime.datetime(ref.year, ref.month, 1)
+
+        input_dir, output_dir = build_paths()
+        crawl_task(
+            source_max_date=source_max_date,
+            table_id=table_id,
+            temp_dir=input_dir,
+        )
+        # pyrefly: ignore [no-matching-overload]
+        desired_file = get_desired_file_task(
+            source_max_date=source_max_date,
+            download_directory=input_dir,
+            table_id=table_id,
+            filetype=filetype,
+        )
+        filepath = treat_task(file=desired_file, output_dir=output_dir)
+
+        return DownloadResult(
+            coverage=PartBdpro(
+                date_column=YearMonth(year="ano", month="mes"),
+                date_format=DateFormat.YEAR_MONTH,
+            ).model_dump(),
+            # pyrefly: ignore [bad-argument-type]
+            data_path=filepath,
+            bq_project="basedosdados",
+            source_format="parquet",
+        )
+
+    return download_data
 
 
 @task
