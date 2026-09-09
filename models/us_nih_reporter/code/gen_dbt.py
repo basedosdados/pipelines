@@ -65,6 +65,10 @@ SCOPED_NULL_TEST = set(PARTITIONED_TABLES)
 NOT_NULL = {t: list(k) for t, k in KEYS.items()}
 NOT_NULL["patent_link"] = ["patent_id", "core_project_num"]
 
+# The dicionario register's own key, used for its uniqueness test and
+# its not_null columns.
+DICIONARIO_KEY = ["id_tabela", "nome_coluna", "chave"]
+
 TABLE_NAMES = {
     "project": ("Projeto", "Project", "Proyecto"),
     "project_abstract": (
@@ -227,10 +231,14 @@ def write_schema() -> None:
         lines.append("    description: >-")
         lines.append(_block(TABLE_DESCRIPTIONS[table], 6))
         lines.append("    tests:")
+        # Flow style, not a block sequence: the repo's yamlfix pre-commit hook
+        # collapses short scalar sequences onto one line, so a block sequence
+        # here would mean every run of this generator produced formatting churn
+        # against the committed file.
         lines.append("      - dbt_utils.unique_combination_of_columns:")
-        lines.append("          combination_of_columns:")
-        for k in KEYS[table]:
-            lines.append(f"            - {k}")
+        lines.append(
+            f"          combination_of_columns: [{', '.join(KEYS[table])}]"
+        )
         lines.append("      - not_null_proportion_multiple_columns:")
         lines.append("          at_least: 0.05")
         if table in SCOPED_NULL_TEST:
@@ -271,10 +279,13 @@ def write_schema() -> None:
             rels = []
             if c.name == "year":
                 rels.append(("br_bd_diretorios_data_tempo__ano", "ano.ano"))
-            if tests or rels:
+            if tests and not rels:
+                # Same yamlfix rule: a lone `tests: [not_null]` is collapsed.
+                lines.append(f"        tests: [{', '.join(tests)}]")
+            elif tests or rels:
                 lines.append("        tests:")
-                for t in tests:
-                    lines.append(f"          - {t}")
+                for name in tests:
+                    lines.append(f"          - {name}")
                 for to, field in rels:
                     lines.append("          - relationships:")
                     lines.append(f"              to: ref('{to}')")
@@ -300,15 +311,15 @@ def write_schema() -> None:
     )
     lines.append("    tests:")
     lines.append("      - dbt_utils.unique_combination_of_columns:")
-    lines.append("          combination_of_columns:")
-    for k in ("id_tabela", "nome_coluna", "chave"):
-        lines.append(f"            - {k}")
+    lines.append(
+        f"          combination_of_columns: [{', '.join(DICIONARIO_KEY)}]"
+    )
     lines.append("    columns:")
     for c in load_cols("dicionario"):
         lines.append(f"      - name: {c.name}")
         lines.append("        description: >-")
         lines.append(_block(c.description_pt, 10))
-        if c.name in ("id_tabela", "nome_coluna", "chave"):
+        if c.name in DICIONARIO_KEY:
             lines.append("        tests: [not_null]")
 
     (MODELS / "schema.yml").write_text("\n".join(lines) + "\n")

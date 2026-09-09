@@ -63,12 +63,14 @@ the dbt model ``safe_cast``s every column to its architecture type.
 
 import csv
 import io
+import math
 import re
 import sys
 import time
 import zipfile
 from collections import Counter, defaultdict
 from dataclasses import dataclass
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 
 import pyarrow as pa
@@ -196,14 +198,27 @@ def download_file(
     for attempt in range(1, constants.DOWNLOAD_ATTEMPTS.value + 1):
         try:
             with sess.get(
-                url, stream=True, timeout=constants.REQUEST_TIMEOUT.value
+                url,
+                # Ask for an unencoded body so Content-Length describes the
+                # bytes actually written, and can be used to detect a truncated
+                # transfer. On requests 2.26 / urllib3 1.26, iter_content can
+                # return normally after an early EOF, so without this check a
+                # short file reaches the cleaner as silently missing rows.
+                headers={"Accept-Encoding": "identity"},
+                stream=True,
+                timeout=constants.REQUEST_TIMEOUT.value,
             ) as resp:
                 if resp.status_code != 200:
                     last = f"HTTP {resp.status_code}"
                     raise OSError(last)
+                expected = resp.headers.get("Content-Length")
                 with open(tmp, "wb") as fh:
                     for chunk in resp.iter_content(DOWNLOAD_CHUNK):
                         fh.write(chunk)
+            written = tmp.stat().st_size
+            if expected is not None and written != int(expected):
+                last = f"truncated: got {written} bytes, expected {expected}"
+                raise OSError(last)
             if tmp.stat().st_size <= 1000:
                 last = f"suspiciously small ({tmp.stat().st_size} bytes)"
                 raise OSError(last)
@@ -277,10 +292,15 @@ def read_rows(path: Path, member: str | None = None):
     their columns differently from their neighbours.
     """
     if path.suffix.lower() == ".zip":
-        zf = zipfile.ZipFile(path)
-        members = [member] if member else zf.namelist()
-        for name in members:
-            yield from _rows_from_text(_decode(zf.open(name).read()))
+        # Context managers on both the archive and each member: this is a
+        # generator, so a caller that stops consuming it early would otherwise
+        # leave the descriptors open for the life of the process.
+        with zipfile.ZipFile(path) as zf:
+            members = [member] if member else zf.namelist()
+            for name in members:
+                with zf.open(name) as fh:
+                    raw = fh.read()
+                yield from _rows_from_text(_decode(raw))
         return
     yield from _rows_from_text(_decode(path.read_bytes()))
 
@@ -344,24 +364,35 @@ def norm_date(raw: str) -> str:
 
 
 def norm_int(raw: str) -> str:
-    """An integer rendered as text, or empty. Never ``'nan'``."""
+    """An integer rendered as text, or empty. Never ``'nan'`` or ``'inf'``.
+
+    ``float`` accepts ``nan``, ``inf`` and ``infinity``, and ``int()`` of a
+    non-finite float raises ``OverflowError`` rather than ``ValueError`` — which
+    would escape this function and abort the whole year's cleaning run. Both are
+    rejected as empty instead.
+    """
     v = (raw or "").strip().replace(",", "")
     if not v:
         return ""
     try:
-        return str(int(float(v)))
+        f = float(v)
     except ValueError:
         return ""
+    if not math.isfinite(f):
+        return ""
+    return str(int(f))
 
 
 def norm_float(raw: str) -> str:
-    """A number rendered as text, or empty."""
+    """A number rendered as text, or empty. Never ``'nan'`` or ``'inf'``."""
     v = (raw or "").strip().replace(",", "").replace("$", "")
     if not v:
         return ""
     try:
         f = float(v)
     except ValueError:
+        return ""
+    if not math.isfinite(f):
         return ""
     return str(int(f)) if f == int(f) else repr(f)
 
@@ -670,24 +701,51 @@ def clean_clinical_studies(input_dir: Path, output_dir: Path) -> int:
 def clean_all(
     input_dir: Path,
     output_dir: Path,
-    fiscal_years: list[int],
-    calendar_years: list[int],
+    project_years: list[int],
+    abstract_years: list[int],
+    publication_years: list[int],
+    link_years: list[int],
     include_all_year_tables: bool = True,
 ) -> dict[str, int]:
-    """Clean the given years. Returns ``{table: total_rows}``."""
+    """Clean the given years. Returns ``{table: total_rows}``.
+
+    **One year list per family, never one per cadence.** The four year-keyed
+    families are probed independently and their year sets are not guaranteed to
+    match: NIH published the FY2025 abstract file on 2026-03-09 and the FY2025
+    project file on 2026-07-09, so there is a window each year in which one
+    exists and the other does not. Driving the abstract cleaner from the
+    project years would then build a path for a file the download step never
+    fetched and raise ``FileNotFoundError``, failing the flow; driving it the
+    other way would silently skip a year that was downloaded.
+
+    Args:
+        input_dir: Directory holding the downloaded ExPORTER archives.
+        output_dir: Root of the partitioned parquet tree to write.
+        project_years: Fiscal years of the ``projects`` family to clean.
+        abstract_years: Fiscal years of the ``abstracts`` family to clean.
+        publication_years: Calendar years of the ``publications`` family.
+        link_years: Calendar years of the ``linktables`` family.
+        include_all_year_tables: Clean the patent and clinical-study files,
+            which carry no year and are published as one all-years snapshot.
+
+    Returns:
+        Row counts per clean table, for the tables this call produced.
+    """
     totals: dict[str, int] = defaultdict(int)
-    supplement = load_funding_supplement(input_dir)
-    for year in fiscal_years:
+    supplement = load_funding_supplement(input_dir) if project_years else {}
+    for year in project_years:
         totals["project"] += clean_project_year(
             year, input_dir, output_dir, supplement
         )
+    for year in abstract_years:
         totals["project_abstract"] += clean_abstract_year(
             year, input_dir, output_dir
         )
-    for year in calendar_years:
+    for year in publication_years:
         totals["publication"] += clean_publication_year(
             year, input_dir, output_dir
         )
+    for year in link_years:
         totals["publication_link"] += clean_publication_link_year(
             year, input_dir, output_dir
         )
@@ -831,23 +889,27 @@ def probe_file(
     Returns ``None`` when the file does not exist.
     """
     sess = session or requests.Session()
+    timeout = constants.PROBE_TIMEOUT.value
     resp = sess.get(
-        source_url(family, year), timeout=120, allow_redirects=False
+        source_url(family, year), timeout=timeout, allow_redirects=False
     )
     if resp.status_code != 302:
         return None
     location = resp.headers.get("Location")
     if not location:
         return None
-    head = sess.head(location, timeout=120)
+    head = sess.head(location, timeout=timeout)
     if head.status_code != 200:
         return None
     modified = head.headers.get("Last-Modified", "")
     try:
-        stamp = time.strftime(
-            "%Y-%m-%d", time.strptime(modified, "%a, %d %b %Y %H:%M:%S %Z")
-        )
-    except ValueError:
+        # parsedate_to_datetime, not time.strptime: strptime resolves %a and %b
+        # through LC_TIME, so on a worker with a non-English locale every
+        # Last-Modified would fail to parse, source_max_date would return "",
+        # and probe_source would raise. HTTP dates are RFC 2822 and always
+        # English, which is exactly what this parser assumes.
+        stamp = parsedate_to_datetime(modified).strftime("%Y-%m-%d")
+    except (TypeError, ValueError):
         stamp = ""
     return {
         "family": family,

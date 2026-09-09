@@ -73,11 +73,18 @@ def clean_corpus(work_dir: str, input_dir: str, probe: dict) -> dict:
     output_dir = Path(work_dir) / "output"
     listing = probe["listing"]
     families = {k.split("|")[0] for k in listing}
+    # Each family cleans exactly the years the probe found for it, which are the
+    # years download_corpus fetched for it. The four year-keyed families are
+    # probed independently and can disagree by a year around a release, so
+    # driving two of them from one list would either read a file that was never
+    # downloaded or skip one that was.
     counts = clean_all(
         input_dir=Path(input_dir),
         output_dir=output_dir,
-        fiscal_years=years_in(listing, "projects"),
-        calendar_years=years_in(listing, "publications"),
+        project_years=years_in(listing, "projects"),
+        abstract_years=years_in(listing, "abstracts"),
+        publication_years=years_in(listing, "publications"),
+        link_years=years_in(listing, "linktables"),
         include_all_year_tables="patents" in families,
     )
     # The dicionario's temporal coverage is computed from the project
