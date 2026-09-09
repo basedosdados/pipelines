@@ -61,13 +61,18 @@ DATASET_ID = constants.DATASET_ID.value
 # once per state would run the same model twice for no gain.
 # ES is per-year bulk CSV like MG, so it belongs in the daily group rather
 # than the weekly one, which exists only for SP's per-(exercise, orgao) scrape.
-# RS is deliberately absent from BOTH schedules, though `refresh_rs` exists and works.
+# RS is absent from both schedules, but no longer because reachability is unknown.
 #
 # `dados.rs.gov.br` refused a residential Australian ISP outright while answering from a
-# university range, and has since gone unreachable again -- the reachability is
-# path-dependent, and whether a GKE worker can reach it AT ALL is untested. Scheduling
-# it before that is known would fail the daily run every day and bury the states that do
-# work. Add "RS" here once a flow run has actually fetched from the cluster.
+# university range, so the reachability is path-dependent and a cluster test was the only
+# way to settle it. That test has now run: a dev flow run on 2026-09-09 fetched 19
+# archives (0.27 GB) and cleaned 6,744,072 rows from the GKE worker. The source IS
+# reachable from the cluster.
+#
+# RS stays on its own flow only until it is in production, because the first prod run
+# must be `full_refresh=True` and RS alone is ~36 GB expanded -- worth its own pod rather
+# than added to a daily run that already carries four states. Move "RS" here once that
+# run has completed.
 DAILY_STATES = ["MG", "BA", "PE", "ES"]
 WEEKLY_STATES = ["SP"]
 
@@ -79,6 +84,21 @@ def _run(
     full_refresh: bool,
 ) -> None:
     """Refresh the given states, then rebuild every table they feed."""
+    # Checked here, before anything is downloaded, because the failure it catches is
+    # otherwise invisible until the worst possible moment. A state wired into
+    # REFRESHERS and STAGING_BY_STATE but missing from TABLES_BY_STATE downloads
+    # every archive, cleans it, and UPLOADS it to the bucket -- and only then raises
+    # KeyError while working out what to rebuild. On a prod run that leaves the
+    # staging mirrors written and no model built. RS did exactly this on its first
+    # dev run; ES would have done it on the first prod run.
+    unknown = [s for s in states if s not in constants.TABLES_BY_STATE.value]
+    if unknown:
+        raise KeyError(
+            f"{unknown} refresh but feed no known table: add them to "
+            "TABLES_BY_STATE, listing every published model their staging tables "
+            "union into"
+        )
+
     year = datetime.date.today().year
     work_dir = tempfile.mkdtemp(prefix="br_bd_execucao_estadual_")
     try:
@@ -210,6 +230,45 @@ def br_bd_execucao_estadual_sp_flow(
     _run(WEEKLY_STATES, materialize_to_prod, update_metadata, full_refresh)
 
 
+@flow(name="br_bd_execucao_estadual_rs", log_prints=True)
+def br_bd_execucao_estadual_rs_flow(
+    materialize_to_prod: bool = True,
+    update_metadata: bool = True,
+    full_refresh: bool = False,
+) -> None:
+    """Refresh Rio Grande do Sul and rebuild `despesa`.
+
+    Separate from the daily flow, and deployed WITHOUT a schedule, because RS's
+    reachability is path-dependent: `dados.rs.gov.br` refused a residential Australian
+    ISP outright while answering from a university range. A dev run from the cluster on
+    2026-09-09 settled that question -- 19 archives, 6,744,072 rows -- so the source is
+    reachable from GKE. The flow stays separate through the first prod run, which is
+    ~36 GB expanded and does not belong bolted onto four other states.
+
+    This flow exists so RS has a route to prod at all. `table-approve` cannot promote
+    this dataset -- it syncs `staging/<dataset>/<published table>/`, and the 49 staging
+    mirrors here are named after SOURCE tables -- so a flow run is the only way any
+    state reaches production.
+
+    The dev run that answered the reachability question is done. What remains is the
+    first prod run at `full_refresh=True`; after that, move "RS" into DAILY_STATES and
+    retire this flow.
+
+    Args:
+        materialize_to_prod: As in the daily flow.
+        update_metadata: As in the daily flow. Leave False until `br_rs` coverages
+            exist in prod -- the refresh updates existing coverages and silently finds
+            nothing to do when there are none.
+        full_refresh: Re-download all 175 monthly archives instead of the open years.
+            Needed once, for the first prod run. ~2.3 GB compressed, ~36 GB expanded.
+    """
+    # pyrefly: ignore [unused-coroutine]
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=DATASET_ID, table_id="despesa"
+    )
+    _run(["RS"], materialize_to_prod, update_metadata, full_refresh)
+
+
 # MG publishes D+1 and BA D-1, so the data is a day old by 06:00 either way. 04:40 is
 # unused elsewhere in the repo and lands before the working day in São Paulo.
 # pyrefly: ignore [missing-attribute]
@@ -218,8 +277,16 @@ br_bd_execucao_estadual_flow.deploy_schedules = [
 ]
 # `despesa` is 85M rows and the MG clean holds a duckdb working set; the raw MG input
 # alone is ~2 GB before it is read.
+# `memory` is NOT a variable of the work pool's job template, so a pod asking for it
+# alone silently gets the 4Gi default -- the deploy succeeds, the deployment record shows
+# what was asked for, and the OOM arrives later at an unrelated size. The pool reads
+# `memory_limit` and `memory_request`. Set all three.
 # pyrefly: ignore [missing-attribute]
-br_bd_execucao_estadual_flow.job_variables = {"memory": "12Gi"}
+br_bd_execucao_estadual_flow.job_variables = {
+    "memory": "12Gi",
+    "memory_limit": "12Gi",
+    "memory_request": "4Gi",
+}
 
 # Sunday, when the scrape's twenty minutes competes with nothing. SIGEO is annual, so a
 # weekly pass is well inside the useful resolution of the data.
@@ -228,4 +295,21 @@ br_bd_execucao_estadual_sp_flow.deploy_schedules = [
     {"cron": "20 5 * * 0", "timezone": "America/Sao_Paulo"}
 ]
 # pyrefly: ignore [missing-attribute]
-br_bd_execucao_estadual_sp_flow.job_variables = {"memory": "8Gi"}
+br_bd_execucao_estadual_sp_flow.job_variables = {
+    "memory": "8Gi",
+    "memory_limit": "8Gi",
+    "memory_request": "2Gi",
+}
+
+# No `deploy_schedules`: this flow is deployed unscheduled on purpose, and is triggered
+# by hand. See the docstring.
+#
+# RS is the heaviest clean here -- 175 monthly archives expanding to ~36 GB, converted
+# one at a time with duckdb capped at 2GB. 8Gi leaves room for the transient peak that
+# killed a local run.
+# pyrefly: ignore [missing-attribute]
+br_bd_execucao_estadual_rs_flow.job_variables = {
+    "memory": "8Gi",
+    "memory_limit": "8Gi",
+    "memory_request": "2Gi",
+}
