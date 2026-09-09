@@ -166,17 +166,21 @@ RAW_SOURCES = [
     }
 ]
 
+# Tags name the subject matter. Nothing that merely restates another metadata
+# field: not the area (US), not the organization (OSHA), not the themes already
+# attached. Slugs are Portuguese on staging and English on prod, but the UUIDs
+# are the same, so this list resolves on both.
 TAGS = [
-    "inspection",
-    "violations",
-    "penalties",
-    "citations",
-    "abatements",
-    "safety",
-    "health",
-    "accidents",
-    "labor",
-    "firm",
+    "acidente_de_trabalho",
+    "seguranca",
+    "saude",
+    "trabalho",
+    "fiscalizacao",
+    "multa",
+    "empresa",
+    "risco",
+    "regulacao",
+    "obito",
 ]
 
 
@@ -306,7 +310,7 @@ def main(argv: list[str] | None = None) -> int:
     source_ids = []
     for src in RAW_SOURCES:
         got = server.create_update_raw_data_source(
-            id=existing_sources.get(src["name_en"]),
+            id=existing_sources.get(src["name_pt"]),
             dataset_id=dataset_id,
             license_id=license_id,
             availability_id=availability_id,
