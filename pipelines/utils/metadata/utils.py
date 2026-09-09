@@ -91,6 +91,7 @@ def extract_last_date_from_bq(
             - {'date'}: MAX('date')
             - {'year'}: MAX(DATE(year, 1, 1))
             - {'year', 'quarter'}: MAX(DATE(year, month*3, 1))
+            - {'year', 'bimester'}: MAX(DATE(year, bimester*2, 1))
             - {'year', 'month'}: MAX(DATE(year, month, 1))
         billing_project_id (str): Projeto BigQuery utilizado para faturamento.
         project_id (str): Projeto padrão usado para obter a data da última atualização (padrão é "basedosdados").
@@ -128,8 +129,8 @@ def extract_last_date_from_bq(
     # maximum of 2026-07-31) shrank the paid window from 8,614,269 rows to
     # 25,277.
     #
-    # The filter applies only to date columns (`{'date'}`). Year, year/month
-    # and year/quarter are deliberately left out: there the value labels a
+    # The filter applies only to date columns (`{'date'}`). Year, year/month,
+    # year/quarter and year/bimester are deliberately left out: there the value labels a
     # period, and a future label is often legitimate — budget year, crop year,
     # school year — so filtering would shrink the coverage of correct datasets.
     # `_max_transaction_date` in us_fec_campaign_finance/utils.py already
@@ -227,6 +228,10 @@ def format_date_column(date_column: dict) -> str:
     if date_column.keys() == {"year", "quarter"}:
         query_date_column = (
             f"DATE({date_column['year']},{date_column['quarter']}*3,1)"
+        )
+    if date_column.keys() == {"year", "bimester"}:
+        query_date_column = (
+            f"DATE({date_column['year']},{date_column['bimester']}*2,1)"
         )
     if date_column.keys() == {"year", "month"}:
         query_date_column = (
