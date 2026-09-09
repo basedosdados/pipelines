@@ -81,7 +81,7 @@ OBSERVATION_LEVELS: dict[str, list[tuple[str, list[str]]]] = {
 # `compute_coverage_ranges` writes the free range's end and the whole pro range
 # on every run, and never touches the free start, so whatever is registered at
 # onboarding persists.
-COVERAGE_START: dict[str, tuple[int, int | None, int | None]] = {
+COVERAGE_START: dict[str, tuple[int, int | None, int | None] | tuple[()]] = {
     "inspection": (1970, 6, 20),
     "violation": (1972, 3, 15),
     "violation_event": (1972, None, None),
@@ -516,7 +516,12 @@ def main(argv: list[str] | None = None) -> int:
                 SOURCE_END[table.slug],
                 CoverageIds(free=free_cov["id"], pro=PLACEHOLDER_UUID),
             )
-            free_dump = ranges.free.model_dump(exclude_none=True)
+            if ranges.free is None or ranges.pro is None:
+                raise RuntimeError(
+                    f"{table.slug}: compute_coverage_ranges returned no "
+                    "free/pro pair — the spec is not part_bdpro"
+                )
+            free_range = ranges.free
             sy, sm, sd = [*list(start), None, None][:3]
             server.create_update_datetime_range(
                 id=_range_id(existing_cov.get(False)),
@@ -524,9 +529,9 @@ def main(argv: list[str] | None = None) -> int:
                 start_year=sy,
                 start_month=sm,
                 start_day=sd,
-                end_year=free_dump.get("endYear"),
-                end_month=free_dump.get("endMonth"),
-                end_day=free_dump.get("endDay"),
+                end_year=free_range.endYear,
+                end_month=free_range.endMonth,
+                end_day=free_range.endDay,
                 interval=1,
                 is_closed=False,
                 env=env,
@@ -538,24 +543,41 @@ def main(argv: list[str] | None = None) -> int:
                 is_closed=True,
                 env=env,
             )
-            pro_dump = ranges.pro.model_dump(exclude_none=True)
+            pro_range = ranges.pro
             server.create_update_datetime_range(
                 id=_range_id(existing_cov.get(True)),
                 coverage_id=pro_cov["id"],
-                start_year=pro_dump.get("startYear"),
-                start_month=pro_dump.get("startMonth"),
-                start_day=pro_dump.get("startDay"),
-                end_year=pro_dump.get("endYear"),
-                end_month=pro_dump.get("endMonth"),
-                end_day=pro_dump.get("endDay"),
+                start_year=pro_range.startYear,
+                start_month=pro_range.startMonth,
+                start_day=pro_range.startDay,
+                end_year=pro_range.endYear,
+                end_month=pro_range.endMonth,
+                end_day=pro_range.endDay,
                 interval=1,
                 is_closed=True,
                 env=env,
             )
+            free_end_txt = "-".join(
+                str(v)
+                for v in (
+                    free_range.endYear,
+                    free_range.endMonth,
+                    free_range.endDay,
+                )
+                if v is not None
+            )
+            pro_start_txt = "-".join(
+                str(v)
+                for v in (
+                    pro_range.startYear,
+                    pro_range.startMonth,
+                    pro_range.startDay,
+                )
+                if v is not None
+            )
             log.info(
-                f"  {table.slug}: free .. {free_dump.get('endYear')}"
-                f"{'-' + str(free_dump['endMonth']) if 'endMonth' in free_dump else ''}"
-                f" | pro {pro_dump.get('startYear')} .. {pro_dump.get('endYear')}"
+                f"  {table.slug}: free .. {free_end_txt} | "
+                f"pro {pro_start_txt} .. {pro_range.endYear}"
             )
 
         # table Update — when WE last refreshed, a wall clock
