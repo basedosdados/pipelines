@@ -75,6 +75,9 @@ OBSERVATION_LEVELS: dict[str, list[tuple[str, list[str]]]] = {
 }
 
 # Temporal coverage per table, measured from the cleaned data.
+# Measured from the cleaned partitions. Tables whose coverage date_column is
+# the partition year carry the partition span exactly; the rest carry the span
+# of their own date column.
 COVERAGE: dict[str, dict] = {
     "inspection": {"start": (1970, 6, 20), "end": (2026, 9, 3)},
     "violation": {"start": (1972, 3, 15), "end": (2026, 8, 6)},
