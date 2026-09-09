@@ -19,7 +19,7 @@ CONFIG = {
         "        partition_by={\n"
         '            "field": "year",\n'
         '            "data_type": "int64",\n'
-        '            "range": {"start": 1950, "end": 2031, "interval": 1},\n'
+        '            "range": {"start": 1763, "end": 2031, "interval": 1},\n'
         "        },\n"
         '        cluster_by=["station_id", "element"],\n'
     ),

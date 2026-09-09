@@ -3,18 +3,19 @@
 NOAA NCEI GHCN-Daily: daily land-surface observations from ~132,500 stations
 worldwide. Source: https://www.ncei.noaa.gov/pub/data/ghcn/daily/
 
-**Read `SCOPE_DECISION.md` first.** This dataset ships a deliberate subset of
-the source archive (five core elements, 1950 onward — 2.16 bn of 3.19 bn rows)
-and the reasoning is not re-derivable from the code.
+**Read `SCOPE_DECISION.md` first.** This dataset ships the **full** archive —
+every element, every year, 3.19 bn rows. A cut to the core five from 1950 was
+drafted and rejected because neither candidate cut was actually a size cut
+(15% and 19% respectively); the reasoning is not re-derivable from the code.
 
 ## Tables
 
 | Table | Rows | Grain |
 |---|---|---|
 | `station` | 132,501 | one per station |
-| `station_element_inventory` | 782,552 | station x element, all 144 elements |
-| `observation` | ~2.16 bn | station x date x element, 5 core elements, 1950+ |
-| `dicionario` | 219 | code -> label for every coded column |
+| `station_element_inventory` | 782,552 | station x element, first/last year |
+| `observation` | 3.19 bn | station x date x element, all 144 elements, 1763+ |
+| `dicionario` | 358 | code -> label for every coded column |
 
 ## Traps this source sets
 
@@ -33,10 +34,17 @@ and the reasoning is not re-derivable from the code.
    timestamp (observed 2026-09-07 19:28-19:30 across every file, 1763 to 2026).
    A refresh pipeline must not diff on mtime — see the pipeline notes below.
 
-4. **`value` has no single unit.** Even within the core five, TMAX/TMIN are
-   celsius and PRCP/SNOW/SNWD are millimetres. The unit is carried per row in
-   `measurement_unit`; the column-level `measurement_unit` is deliberately
-   blank. See SCOPE_DECISION.md.
+4. **`value` has no single unit, and for 28 elements no unit at all.** Units
+   are carried per row in `measurement_unit`; the column-level metadata on
+   `value` is deliberately blank. `FMTM`/`PGTM` hold an HHMM clock time and
+   every `WT**`/`WV**` is an occurrence indicator whose value is always 1 —
+   these carry a **null** `measurement_unit` and are listed in
+   `constants.NON_QUANTITY_ELEMENTS` (1.14% of 2024 rows).
+
+6. **An unmapped element code raises.** `clean_year` fails loud on any element
+   absent from `constants.ELEMENT_UNITS`, because an unmapped code would take a
+   null divisor and silently null out every one of its values. GHCN adds
+   elements between versions — map the new code, do not drop it.
 
 5. **Do not confuse this with nClimGrid.** Prod already holds a metadata shell
    `gridded_5km_ghcn_daily_temperature_and_precipitation_dataset_nclimgrid`

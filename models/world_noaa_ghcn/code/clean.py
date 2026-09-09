@@ -183,20 +183,18 @@ def build_dicionario(output_dir: Path, elements_present: set[str]) -> int:
         for key, value in mapping.items():
             rows.append((table_id, column, key, "", value))
 
-    # element: the observation table carries only the core five; the inventory
-    # table carries every element GHCN-Daily has ever recorded.
-    core_desc = {
-        e: f"{c.ELEMENT_DESCRIPTIONS[e]} ({c.ELEMENT_UNITS[e][0]})"
-        for e in c.CORE_ELEMENTS
-    }
-    add("observation", "element", core_desc)
-    inv_desc = {}
+    # Both tables carry the same element universe, so both get the same labels.
+    # The label states the unit, which varies by element, and marks the codes
+    # whose value is not a measurement at all.
+    elem_desc = {}
     for e in sorted(elements_present):
         unit = c.ELEMENT_UNITS[e][0]
-        inv_desc[e] = c.ELEMENT_DESCRIPTIONS.get(e, e) + (
-            f" ({unit})" if unit else " (not a quantity)"
+        label = c.ELEMENT_DESCRIPTIONS[e]
+        elem_desc[e] = (
+            f"{label} ({unit})" if unit else f"{label} (not a quantity)"
         )
-    add("station_element_inventory", "element", inv_desc)
+    add("observation", "element", elem_desc)
+    add("station_element_inventory", "element", elem_desc)
 
     for table_id in ("observation",):
         add(table_id, "measurement_flag", c.MEASUREMENT_FLAGS)
@@ -235,10 +233,20 @@ OBSERVATION_COLUMNS = [
 def clean_year(year: int, raw_path: Path, output_dir: Path) -> int:
     """Read one by_year csv.gz and write output/observation/year=<y>/data.parquet.
 
-    Keeps only CORE_ELEMENTS, converts the raw integer to its standard unit,
-    and drops the -9999 missing sentinel.  Rows whose quality_flag is non-blank
-    are KEPT — they failed QC and the flag says so; filtering is the user's
-    decision, not ours.
+    Keeps every element, converts the raw integer to its standard unit, and
+    drops only the -9999 missing sentinel.
+
+    Two things are deliberately NOT filtered:
+
+    * Rows whose ``quality_flag`` is non-blank are KEPT — they failed QC and
+      the flag says so; filtering is the user's decision, not ours.
+    * The 28 elements in ``NON_QUANTITY_ELEMENTS`` (HHMM clock times and
+      weather-type occurrence indicators) are kept with a **null**
+      ``measurement_unit``, because their stored value is not a measurement.
+
+    An element code absent from ``ELEMENT_UNITS`` raises rather than silently
+    producing a null value — GHCN adds elements between versions, and a new one
+    must be mapped, not dropped.
     """
     read_opts = pacsv.ReadOptions(
         column_names=list(c.RAW_COLUMNS), block_size=1 << 26
@@ -263,19 +271,30 @@ def clean_year(year: int, raw_path: Path, output_dir: Path) -> int:
     import pyarrow.compute as pc
 
     # pyrefly: ignore [missing-attribute]  # pyarrow.compute builds these at runtime
-    keep = pc.is_in(table["element"], value_set=pa.array(c.CORE_ELEMENTS))
-    # pyrefly: ignore [missing-attribute]  # pyarrow.compute builds these at runtime
-    keep = pc.and_(keep, pc.not_equal(table["value"], c.MISSING_VALUE))
+    keep = pc.not_equal(table["value"], c.MISSING_VALUE)
     table = table.filter(keep)
     if table.num_rows == 0:
         return 0
 
     element = table["element"]
-    # per-element divisor and unit, built by branching on the element code
-    divisor = pa.array([c.ELEMENT_UNITS[e][1] for e in c.CORE_ELEMENTS])
-    unit = pa.array([c.ELEMENT_UNITS[e][0] for e in c.CORE_ELEMENTS])
+    # Fail loud on an element GHCN has added since ELEMENT_UNITS was written:
+    # an unmapped code would otherwise take a null divisor and silently null
+    # out every one of its values.
     # pyrefly: ignore [missing-attribute]  # pyarrow.compute builds these at runtime
-    idx = pc.index_in(element, value_set=pa.array(c.CORE_ELEMENTS))
+    seen = set(pc.unique(element).to_pylist())
+    unknown = sorted(e for e in seen if e not in c.ELEMENT_UNITS)
+    if unknown:
+        raise ValueError(
+            f"{year}: element codes absent from constants.ELEMENT_UNITS: "
+            f"{unknown}. Map them in constants.py before loading this year."
+        )
+
+    # per-element divisor and unit, looked up by element code
+    known = sorted(c.ELEMENT_UNITS)
+    divisor = pa.array([c.ELEMENT_UNITS[e][1] for e in known])
+    unit = pa.array([c.ELEMENT_UNITS[e][0] for e in known], pa.string())
+    # pyrefly: ignore [missing-attribute]  # pyarrow.compute builds these at runtime
+    idx = pc.index_in(element, value_set=pa.array(known))
     # pyrefly: ignore [missing-attribute]  # pyarrow.compute builds these at runtime
     value = pc.divide(
         pc.cast(table["value"], pa.float64()),

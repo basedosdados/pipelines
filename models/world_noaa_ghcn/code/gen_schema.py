@@ -15,19 +15,21 @@ DESCRIPTIONS = {
     ),
     "station_element_inventory": (
         "Inventário de cobertura por estação e elemento, indicando o primeiro "
-        "e o último ano com dados não sinalizados. Cobre os 144 elementos "
-        "registrados pelo GHCN-Daily, inclusive os que não estão na tabela "
-        "observation."
+        "e o último ano com dados não sinalizados. Cobre os mesmos 144 "
+        "elementos da tabela observation, permitindo descobrir a cobertura de "
+        "uma estação sem varrer a tabela de observações."
     ),
     "observation": (
-        "Observações diárias por estação e elemento, em formato longo, de 1950 "
-        "em diante. Restrita aos cinco elementos principais do GHCN-Daily: "
-        "temperatura máxima (TMAX), temperatura mínima (TMIN), precipitação "
-        "(PRCP), queda de neve (SNOW) e profundidade de neve (SNWD). Os "
-        "valores já estão convertidos para unidades padrão, indicadas por "
-        "linha em measurement_unit. Observações que reprovaram no controle de "
-        "qualidade foram mantidas e estão marcadas em quality_flag: filtre por "
-        "quality_flag IS NULL para usar apenas dados aprovados."
+        "Observações diárias por estação e elemento, em formato longo, de 1763 "
+        "em diante. Cobre os 144 elementos do GHCN-Daily, dos quais os cinco "
+        "principais (TMAX, TMIN, PRCP, SNOW, SNWD) concentram 84,6% das "
+        "linhas. Os valores já estão convertidos para unidades padrão, "
+        "indicadas por linha em measurement_unit; em 28 elementos o valor não "
+        "é uma grandeza mensurável (horários em HHMM e indicadores de "
+        "ocorrência) e measurement_unit é nulo. Observações que reprovaram no "
+        "controle de qualidade foram mantidas e estão marcadas em "
+        "quality_flag: filtre por quality_flag IS NULL para usar apenas dados "
+        "aprovados."
     ),
     "dicionario": (
         "Dicionário de códigos das colunas categóricas das demais tabelas: "

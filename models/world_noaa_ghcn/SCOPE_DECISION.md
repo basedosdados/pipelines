@@ -3,6 +3,14 @@
 Decided 2026-09-09, before any build work. Measured, not estimated: every figure
 below comes from streaming all 264 `by_year/*.csv.gz` files and counting rows.
 
+## Decision: load the full archive
+
+**Every element, every year. 3,193,292,359 observation rows, 1763 to 2026.**
+
+An initial cut to the five core elements from 1950 was drafted and then
+**rejected on the evidence below**, which is kept because it is the reason the
+full load is defensible rather than merely ambitious.
+
 ## What the full archive actually is
 
 | Quantity | Measured |
@@ -10,78 +18,80 @@ below comes from streaming all 264 `by_year/*.csv.gz` files and counting rows.
 | `by_year/` files | 264 (1763–2026) |
 | Compressed size | 14.13 GB |
 | Total observation rows | **3,193,292,359 (3.19 bn)** |
-| Rows in the 5 README "core" elements | **2,703,017,389 (2.70 bn = 84.6%)** |
-| Distinct elements | 32 (1900) → 74 (2024); ~100 across the archive |
+| Rows in the 5 README "core" elements | 2,703,017,389 (2.70 bn = 84.6%) |
+| Distinct elements | 144 across the archive; 74 in 2024 alone |
+| Elements whose value is not a quantity | 28 (1.14% of 2024 rows) |
 | Stations (`ghcnd-stations.txt`) | 132,501 |
 | Inventory rows (`ghcnd-inventory.txt`) | 782,552 |
 | Core-5 rows failing QC (non-blank Q-flag) | 6,013,106 (0.222%) |
 
-## The candidate cuts, measured
+Per-year counts are committed at `code/year_row_counts.csv`.
 
-The brief offered three cuts. Two of them turn out **not to be size cuts**:
+## Why the candidate cuts were rejected
 
 | Cut | Rows kept | Saving |
 |---|---|---|
 | (a) core elements only, all years | 2.70 bn | **15%** |
 | (b) 1950 onward, all elements | 2.60 bn | **19%** |
-| (a) + (b) together | **2.16 bn** | **32%** |
+| (a) + (b) together | 2.16 bn | **32%** |
 | (c) GHCN-Monthly v4 instead | — | different product |
 
-Element filtering saves only 15% because the core elements *are* the archive —
-PRCP alone is 30% of 2024 rows. Year filtering saves only 19% because the
-pre-1950 record is thin (1900 = 4.6M rows against 2024's 37.1M).
+**Neither candidate cut is a size cut.** Element filtering saves 15% because
+the core elements *are* the archive — PRCP alone is 30% of 2024 rows. Year
+filtering saves 19% because the pre-1950 record is thin (1900 = 4.6M rows
+against 2024's 37.1M). Paying a third of the data to avoid a third of the cost
+is a bad trade when the third being dropped includes the 19th-century series
+that make GHCN distinctive.
 
-## Decision: (a) + (b) — the five core elements, 1950 onward
+(c) was rejected as non-responsive: GHCN-Monthly v4 is monthly mean
+temperature, a different product that carries no daily precipitation or snow.
 
-`TMAX, TMIN, PRCP, SNOW, SNWD` for `1950-01-01` onward. **2.16 billion rows.**
+## The one real objection, and how it is handled
 
-Three reasons, in order of weight:
+Element filtering was originally proposed on **correctness**, not size: the
+agreed architecture is one `value FLOAT64` column with an explicit
+`measurement_unit`, and that is dishonest across 144 elements whose units span
+degrees C, mm, hPa, degrees of arc, percent, minutes, cm, km, m/s, days, HHMM
+clock times and boolean occurrence indicators.
 
-1. **(a) is a correctness cut, not a size cut.** The agreed architecture is one
-   `value FLOAT64` column with an explicit `measurement_unit`. That is only
-   honest for a unit-coherent element set. Across all ~100 elements the units
-   span degrees C, mm, hPa×10, degrees of arc, percent, minutes, cm, HHMM clock
-   times, and boolean weather-type occurrence flags — `WT03` ("thunder
-   occurred") and `PGTM` ("peak gust at 14:32") cannot share a numeric column
-   with a stated unit. Restricting to the five core elements is what makes the
-   specified architecture correct. It is worth doing even at zero size saving.
+That is fixed rather than avoided:
 
-2. **(b) keeps the build inside proven scale.** The largest table this repo has
-   shipped is `us_fbi_cde` at 1.32 bn rows. 2.16 bn is 1.6× that; 2.70 bn is
-   2.0×, and 3.19 bn is 2.4×. 1950 is also the conventional modern-record cut for
-   climatology, so it needs no bespoke justification to a user.
+- `measurement_unit` is carried **per row**, not per column. The column-level
+  metadata on `value` is deliberately blank, with the reason recorded in the
+  column's `observations`.
+- The **28 elements whose value is not a measurable quantity** — `FMTM` and
+  `PGTM` (a clock time in HHMM) and every `WT**` / `WV**` (an occurrence
+  indicator whose value is always 1) — carry a **null** `measurement_unit`.
+  They are listed in `constants.NON_QUANTITY_ELEMENTS`, and the clean step
+  asserts that the null-unit set in the output matches that list exactly.
 
-3. **(c) is rejected as non-responsive.** GHCN-Monthly v4 is monthly mean
-   temperature — a different product that does not deliver daily precipitation,
-   snow, or station-day observations. It is not a first phase of this dataset;
-   it is a different dataset.
+Verified on 2024: 422,494 rows (1.14%) have a null `measurement_unit`, and the
+set of elements carrying one matches `NON_QUANTITY_ELEMENTS` with zero
+disagreements.
 
-## What is deliberately deferred (phase 2, documented not silent)
+## Residual risk, stated plainly
 
-- **Pre-1950 core-5**: 0.55 bn rows, back to 1763. Disproportionate scientific
-  value per row; the only reason it is not in phase 1 is build risk.
-- **The ~95 non-core elements**: 0.49 bn rows. Needs a different table shape —
-  they are not unit-coherent and should not be appended to `observation`.
-  `TAVG` (5.3% of 2024 rows, tenths °C) and `TOBS` (4.2%) are the natural first
-  additions and *are* unit-coherent with TMAX/TMIN.
-- The `station_element_inventory` table ships the **full** element list for all
-  years, so a user can see exactly what phase 1 omits.
+3.19 bn rows is ~2.4x the largest table this repo has shipped (`us_fbi_cde`,
+1.32 bn). The untested step is prod materialisation via the table-approve
+action, which has previously OOM'd on large staging parquet. That risk is not
+created by the full load — it applied to the 2.16 bn variant too — but the full
+load makes it ~48% larger.
 
-## Two design consequences worth flagging
+## Build constraints
 
-- **`value` carries two units.** Even within the core five, TMAX/TMIN are °C and
-  PRCP/SNOW/SNWD are mm. A single column-level `measurement_unit` cannot
-  describe the column. Resolved by carrying a per-row `measurement_unit` STRING
-  column and leaving the column-level metadata blank with an explicit note.
-  A **wide** table (one row per station-day, five typed value columns) would
-  avoid this *and* cut rows ~2.3× to ~930M — but the brief specified LONG, so
-  LONG is what is built.
-- **Scaling is per element, not global.** PRCP is tenths of mm but **SNOW and
-  SNWD are already whole millimetres** in the source. Applying a blanket ÷10 to
-  "precipitation-like" elements would silently divide snowfall by ten.
+- Local disk has ~62 GB free against ~60-75 GB of expected parquet, so the
+  backfill **streams one year at a time**: download, clean, upload, delete.
+  The whole output is never materialised locally.
+- An element code absent from `constants.ELEMENT_UNITS` raises rather than
+  silently producing a null value. GHCN adds elements between versions, and an
+  unmapped code would otherwise null out every one of its values.
 
-## Build constraint
+## Two source traps that survive into the pipeline
 
-Local disk has 64 GB free against ~40-50 GB of expected parquet. The backfill
-therefore streams **one year at a time**: download → clean → parquet → upload →
-delete, never materialising the whole output.
+- **Scaling is per element, not global.** PRCP is tenths of a millimetre but
+  **SNOW and SNWD are already whole millimetres**. A blanket divide-by-ten
+  across "precipitation-like" elements silently divides snowfall by ten.
+- **`by_year` file mtimes cannot detect change.** NCEI reconstructs the whole
+  archive weekly, so all 264 files carry one identical timestamp (observed
+  2026-09-07 19:28–19:30 on every file from 1763 to 2026). The refresh pipeline
+  must diff on size or content, never on modification date.

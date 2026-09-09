@@ -8,7 +8,7 @@
         partition_by={
             "field": "year",
             "data_type": "int64",
-            "range": {"start": 1950, "end": 2031, "interval": 1},
+            "range": {"start": 1763, "end": 2031, "interval": 1},
         },
         cluster_by=["station_id", "element"],
     )

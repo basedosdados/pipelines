@@ -10,8 +10,11 @@ BASE_URL = "https://www.ncei.noaa.gov/pub/data/ghcn/daily"
 BY_YEAR_URL = BASE_URL + "/by_year/{year}.csv.gz"
 
 # --- Scope (see SCOPE_DECISION.md) -----------------------------------------
+# The full archive ships: every element, every year. CORE_ELEMENTS is retained
+# only because it names the five elements the GHCN-Daily readme calls "core" —
+# it is not a filter.
 CORE_ELEMENTS = ("TMAX", "TMIN", "PRCP", "SNOW", "SNWD")
-FIRST_YEAR = 1950
+FIRST_YEAR = 1763
 
 # The raw by_year CSV has no header; these are its 8 fields in order.
 RAW_COLUMNS = (
@@ -133,13 +136,153 @@ for _n in list(range(1, 23)):
     ELEMENT_UNITS[f"WT{_n:02d}"] = _OCCURRENCE
     ELEMENT_UNITS[f"WV{_n:02d}"] = _OCCURRENCE
 
+# Human-readable label for every element code, transcribed from readme section
+# III. The dicionario is built from this, so a gap here becomes a bare code on
+# the site.
 ELEMENT_DESCRIPTIONS = {
+    # five core elements
     "TMAX": "Maximum temperature",
     "TMIN": "Minimum temperature",
     "PRCP": "Precipitation",
     "SNOW": "Snowfall",
     "SNWD": "Snow depth",
+    # cloudiness
+    "ACMC": "Average cloudiness midnight to midnight, 30-second ceilometer data",
+    "ACMH": "Average cloudiness midnight to midnight, manual observations",
+    "ACSC": "Average cloudiness sunrise to sunset, 30-second ceilometer data",
+    "ACSH": "Average cloudiness sunrise to sunset, manual observations",
+    # temperature, humidity, pressure
+    "ADPT": "Average dew point temperature for the day",
+    "ASLP": "Average sea level pressure for the day",
+    "ASTP": "Average station level pressure for the day",
+    "AWBT": "Average wet bulb temperature for the day",
+    "RHAV": "Average relative humidity for the day",
+    "RHMN": "Minimum relative humidity for the day",
+    "RHMX": "Maximum relative humidity for the day",
+    "TAVG": "Average daily temperature",
+    "TAXN": "Average daily temperature computed as the mean of TMAX and TMIN",
+    "TOBS": "Temperature at the time of observation",
+    "MNPN": "Daily minimum temperature of water in an evaporation pan",
+    "MXPN": "Daily maximum temperature of water in an evaporation pan",
+    # wind
+    "AWDR": "Average daily wind direction",
+    "AWND": "Average daily wind speed",
+    "WDF1": "Direction of fastest 1-minute wind",
+    "WDF2": "Direction of fastest 2-minute wind",
+    "WDF5": "Direction of fastest 5-second wind",
+    "WDFG": "Direction of peak wind gust",
+    "WDFI": "Direction of highest instantaneous wind",
+    "WDFM": "Fastest mile wind direction",
+    "WDMV": "24-hour wind movement",
+    "WSF1": "Fastest 1-minute wind speed",
+    "WSF2": "Fastest 2-minute wind speed",
+    "WSF5": "Fastest 5-second wind speed",
+    "WSFG": "Peak gust wind speed",
+    "WSFI": "Highest instantaneous wind speed",
+    "WSFM": "Fastest mile wind speed",
+    "FMTM": "Time of fastest mile or fastest 1-minute wind, as HHMM",
+    "PGTM": "Peak gust time, as HHMM",
+    # multiday totals and their day counts
+    "DAEV": "Number of days included in the multiday evaporation total MDEV",
+    "DAPR": "Number of days included in the multiday precipitation total MDPR",
+    "DASF": "Number of days included in the multiday snowfall total MDSF",
+    "DATN": "Number of days included in the multiday minimum temperature MDTN",
+    "DATX": "Number of days included in the multiday maximum temperature MDTX",
+    "DAWM": "Number of days included in the multiday wind movement MDWM",
+    "DWPR": "Number of days with non-zero precipitation in the multiday total MDPR",
+    "MDEV": "Multiday evaporation total, used with DAEV",
+    "MDPR": "Multiday precipitation total, used with DAPR and DWPR",
+    "MDSF": "Multiday snowfall total, used with DASF",
+    "MDTN": "Multiday minimum temperature, used with DATN",
+    "MDTX": "Multiday maximum temperature, used with DATX",
+    "MDWM": "Multiday wind movement, used with DAWM",
+    # water, ice and ground
+    "EVAP": "Evaporation of water from an evaporation pan",
+    "FRGB": "Base of the frozen ground layer",
+    "FRGT": "Top of the frozen ground layer",
+    "FRTH": "Thickness of the frozen ground layer",
+    "GAHT": "Difference between river and gauge height",
+    "THIC": "Thickness of ice on water",
+    "WESD": "Water equivalent of snow on the ground",
+    "WESF": "Water equivalent of snowfall",
+    # sunshine
+    "PSUN": "Daily percent of possible sunshine",
+    "TSUN": "Daily total sunshine",
 }
+
+_GROUND_COVER = {
+    "0": "unknown cover",
+    "1": "grass",
+    "2": "fallow",
+    "3": "bare ground",
+    "4": "brome grass",
+    "5": "sod",
+    "6": "straw mulch",
+    "7": "grass muck",
+    "8": "bare muck",
+}
+_SOIL_DEPTH = {
+    "1": "5 cm",
+    "2": "10 cm",
+    "3": "20 cm",
+    "4": "50 cm",
+    "5": "100 cm",
+    "6": "150 cm",
+    "7": "180 cm",
+}
+for _cover, _cover_label in _GROUND_COVER.items():
+    for _depth, _depth_label in _SOIL_DEPTH.items():
+        ELEMENT_DESCRIPTIONS[f"SN{_cover}{_depth}"] = (
+            f"Minimum soil temperature under {_cover_label} at {_depth_label}"
+        )
+        ELEMENT_DESCRIPTIONS[f"SX{_cover}{_depth}"] = (
+            f"Maximum soil temperature under {_cover_label} at {_depth_label}"
+        )
+
+_WEATHER_TYPE = {
+    "01": "fog, ice fog or freezing fog, which may include heavy fog",
+    "02": "heavy fog or heavy freezing fog, not always distinguished from fog",
+    "03": "thunder",
+    "04": "ice pellets, sleet, snow pellets or small hail",
+    "05": "hail, which may include small hail",
+    "06": "glaze or rime",
+    "07": "dust, volcanic ash, blowing dust, blowing sand or blowing obstruction",
+    "08": "smoke or haze",
+    "09": "blowing or drifting snow",
+    "10": "tornado, waterspout or funnel cloud",
+    "11": "high or damaging winds",
+    "12": "blowing spray",
+    "13": "mist",
+    "14": "drizzle",
+    "15": "freezing drizzle",
+    "16": "rain, which may include freezing rain, drizzle and freezing drizzle",
+    "17": "freezing rain",
+    "18": "snow, snow pellets, snow grains or ice crystals",
+    "19": "unknown source of precipitation",
+    "21": "ground fog",
+    "22": "ice fog or freezing fog",
+}
+for _code, _label in _WEATHER_TYPE.items():
+    ELEMENT_DESCRIPTIONS[f"WT{_code}"] = f"Weather type observed: {_label}"
+
+_WEATHER_VICINITY = {
+    "01": "fog, ice fog or freezing fog, which may include heavy fog",
+    "03": "thunder",
+    "07": "ash, dust, sand or other blowing obstruction",
+    "18": "snow or ice crystals",
+    "20": "rain or snow shower",
+}
+for _code, _label in _WEATHER_VICINITY.items():
+    ELEMENT_DESCRIPTIONS[f"WV{_code}"] = f"Weather in the vicinity: {_label}"
+
+# Elements whose stored value is not a measurable quantity: a clock time in
+# HHMM, or an occurrence indicator whose value carries no magnitude. These
+# carry a null measurement_unit in the observation table.
+NON_QUANTITY_ELEMENTS = frozenset(
+    ["FMTM", "PGTM"]
+    + [f"WT{c}" for c in _WEATHER_TYPE]
+    + [f"WV{c}" for c in _WEATHER_VICINITY]
+)
 
 # --- Flag code tables (readme section III) ---------------------------------
 MEASUREMENT_FLAGS = {

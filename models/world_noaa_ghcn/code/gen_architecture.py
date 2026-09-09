@@ -175,7 +175,7 @@ INVENTORY = [
         "Code of the meteorological element measured",
         "Código del elemento meteorológico medido",
         dict_="yes",
-        obs="Esta tabela cobre os 144 elementos que o GHCN-Daily já registrou, enquanto a tabela observation cobre apenas os cinco elementos principais. | This table covers all 144 elements GHCN-Daily has ever recorded, whereas the observation table covers only the five core elements. | Esta tabla cubre los 144 elementos que GHCN-Daily ha registrado, mientras que la tabla observation cubre solo los cinco elementos principales.",
+        obs="Cobre os mesmos 144 elementos da tabela observation. Indica em que anos cada estação mediu cada elemento, sem precisar varrer a tabela de observações. | Covers the same 144 elements as the observation table. It says which years each station measured each element, without scanning the observation table. | Cubre los mismos 144 elementos que la tabla observation. Indica en qué años cada estación midió cada elemento, sin recorrer la tabla de observaciones.",
         orig="ELEMENT",
     ),
     col(
@@ -200,24 +200,31 @@ INVENTORY = [
 
 _VALUE_OBS = (
     "A unidade varia por elemento e está registrada na coluna measurement_unit "
-    "de cada linha: graus Celsius para TMAX e TMIN, milímetros para PRCP, SNOW "
-    "e SNWD. Por isso esta coluna não tem uma unidade de medida única no nível "
-    "da coluna. Os fatores de escala da fonte já foram aplicados: PRCP vem em "
-    "décimos de milímetro e TMAX/TMIN em décimos de grau, mas SNOW e SNWD já "
-    "vêm em milímetros inteiros. O sentinela -9999 da fonte foi removido. | "
-    "The unit varies by element and is recorded per row in the measurement_unit "
-    "column: degrees Celsius for TMAX and TMIN, millimetres for PRCP, SNOW and "
-    "SNWD. This column therefore carries no single column-level measurement "
-    "unit. The source scaling factors have already been applied: PRCP arrives "
-    "in tenths of a millimetre and TMAX/TMIN in tenths of a degree, but SNOW "
-    "and SNWD already arrive in whole millimetres. The source sentinel -9999 "
-    "was removed. | "
+    "de cada linha, por isso esta coluna não tem uma unidade única no nível da "
+    "coluna. Os fatores de escala da fonte já foram aplicados, e eles diferem "
+    "entre elementos: PRCP vem em décimos de milímetro e TMAX/TMIN em décimos "
+    "de grau, mas SNOW e SNWD já vêm em milímetros inteiros. Em 28 dos 144 "
+    "elementos o valor não é uma grandeza mensurável e measurement_unit é "
+    "nulo: FMTM e PGTM guardam um horário no formato HHMM, e os elementos WT e "
+    "WV indicam a ocorrência de um fenômeno. O sentinela -9999 da fonte foi "
+    "removido. | "
+    "The unit varies by element and is recorded per row in the "
+    "measurement_unit column, so this column carries no single column-level "
+    "unit. The source scaling factors have already been applied and they "
+    "differ between elements: PRCP arrives in tenths of a millimetre and "
+    "TMAX/TMIN in tenths of a degree, but SNOW and SNWD already arrive in "
+    "whole millimetres. For 28 of the 144 elements the value is not a "
+    "measurable quantity and measurement_unit is null: FMTM and PGTM hold a "
+    "clock time in HHMM format, and the WT and WV elements indicate that a "
+    "phenomenon occurred. The source sentinel -9999 was removed. | "
     "La unidad varía según el elemento y se registra por fila en la columna "
-    "measurement_unit: grados Celsius para TMAX y TMIN, milímetros para PRCP, "
-    "SNOW y SNWD. Por eso esta columna no tiene una unidad de medida única a "
-    "nivel de columna. Los factores de escala de la fuente ya fueron "
-    "aplicados: PRCP viene en décimas de milímetro y TMAX/TMIN en décimas de "
-    "grado, pero SNOW y SNWD ya vienen en milímetros enteros. El centinela "
+    "measurement_unit, por lo que esta columna no tiene una unidad única a "
+    "nivel de columna. Los factores de escala de la fuente ya fueron aplicados "
+    "y difieren entre elementos: PRCP viene en décimas de milímetro y "
+    "TMAX/TMIN en décimas de grado, pero SNOW y SNWD ya vienen en milímetros "
+    "enteros. En 28 de los 144 elementos el valor no es una cantidad medible y "
+    "measurement_unit es nulo: FMTM y PGTM guardan una hora en formato HHMM, y "
+    "los elementos WT y WV indican la ocurrencia de un fenómeno. El centinela "
     "-9999 de la fuente fue eliminado."
 )
 
@@ -274,7 +281,7 @@ OBSERVATION = [
         "Code of the meteorological element observed",
         "Código del elemento meteorológico observado",
         dict_="yes",
-        obs="Restrito aos cinco elementos principais do GHCN-Daily: TMAX, TMIN, PRCP, SNOW e SNWD. | Restricted to the five core GHCN-Daily elements: TMAX, TMIN, PRCP, SNOW and SNWD. | Restringido a los cinco elementos principales de GHCN-Daily: TMAX, TMIN, PRCP, SNOW y SNWD.",
+        obs="Cobre os 144 elementos registrados pelo GHCN-Daily, dos quais os cinco principais (TMAX, TMIN, PRCP, SNOW, SNWD) concentram 84,6% das linhas. Consulte a tabela dicionario para o rótulo e a unidade de cada código. | Covers all 144 elements GHCN-Daily records, of which the five core ones (TMAX, TMIN, PRCP, SNOW, SNWD) account for 84.6% of rows. See the dicionario table for the label and unit of each code. | Cubre los 144 elementos que registra GHCN-Daily, de los cuales los cinco principales (TMAX, TMIN, PRCP, SNOW, SNWD) concentran el 84,6% de las filas. Consulte la tabla dicionario para la etiqueta y la unidad de cada código.",
         orig="ELEMENT",
     ),
     col(
@@ -292,7 +299,7 @@ OBSERVATION = [
         "Unidade de medida do valor observado nesta linha",
         "Unit of measurement of the observed value in this row",
         "Unidad de medida del valor observado en esta fila",
-        obs="Assume celsius para TMAX e TMIN, e millimeter para PRCP, SNOW e SNWD. | Takes celsius for TMAX and TMIN, and millimeter for PRCP, SNOW and SNWD. | Toma celsius para TMAX y TMIN, y millimeter para PRCP, SNOW y SNWD.",
+        obs="Assume valores como celsius, millimeter, meter_per_second, hectopascal, percent, degree, centimeter, kilometer, minute e day, conforme o elemento. É nulo nos 28 elementos cujo valor não é uma grandeza mensurável. | Takes values such as celsius, millimeter, meter_per_second, hectopascal, percent, degree, centimeter, kilometer, minute and day, depending on the element. It is null for the 28 elements whose value is not a measurable quantity. | Toma valores como celsius, millimeter, meter_per_second, hectopascal, percent, degree, centimeter, kilometer, minute y day, según el elemento. Es nulo en los 28 elementos cuyo valor no es una cantidad medible.",
     ),
     col(
         "measurement_flag",
