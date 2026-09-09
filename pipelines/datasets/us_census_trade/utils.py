@@ -539,6 +539,10 @@ def write_month(state: dict, df: pd.DataFrame) -> None:
     strings = pa.schema([pa.field(a["name"], pa.string()) for a in arch])
 
     for year, group in df[order].groupby("year", sort=True):
+        # pandas-stubs types a groupby key as a very wide union, so int() on it
+        # is a false positive. It only shows up in CI, whose stubs differ from
+        # the shared venv's -- a local `pyrefly check` passes on this line.
+        # pyrefly: ignore [bad-argument-type]
         year = int(year)
         writer = state["writers"].get(year)
         if writer is None:
