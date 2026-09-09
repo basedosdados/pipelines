@@ -1565,13 +1565,22 @@ def download_sources(
     for name, entry in sources.items():
         url = entry.get("url") or resolve_download_url(entry["slug"], session)
         path = target / f"{name}.xlsx"
-        # ``.content`` is already decompressed, so the Brotli/gzip trap that
-        # requires ``decode_content`` on a raw ``requests`` stream cannot
-        # arise here. The workbooks are a few MB each.
+        # ``stream=True`` is load-bearing, and not for memory. curl_cffi reads a
+        # ``(connect, read)`` tuple differently from ``requests``: unstreamed it
+        # sums the pair into one ``CURLOPT_TIMEOUT_MS`` deadline covering the
+        # body, so a large-but-healthy download would be aborted for being slow
+        # rather than stalled. Streamed, the same pair becomes
+        # ``LOW_SPEED_LIMIT``/``LOW_SPEED_TIME`` — abort only if throughput dies.
+        # That is the intended rule: bound the stall, not the size.
+        # Chunks are already decompressed, so the Brotli/gzip trap that needs
+        # ``decode_content`` on a raw ``requests`` stream cannot arise here.
         response = request_with_retry(
-            url, session, headers={"Referer": resource_page_url(entry["slug"])}
+            url,
+            session,
+            headers={"Referer": resource_page_url(entry["slug"])},
+            stream=True,
         )
-        body = response.content  # type: ignore[union-attr]
+        body = b"".join(response.iter_content())  # type: ignore[union-attr]
 
         # A WAF challenge or an error page arrives with status 200 and would
         # otherwise be written out as a .xlsx, to fail much later somewhere
