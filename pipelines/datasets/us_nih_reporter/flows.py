@@ -55,6 +55,7 @@ ignores the schedules, the prod pool activates them.
 
 import shutil
 import tempfile
+from collections.abc import Mapping
 
 from prefect import flow
 
@@ -66,6 +67,7 @@ from pipelines.datasets.us_nih_reporter.tasks import (
 )
 from pipelines.utils.metadata.domain import (
     AllFree,
+    CoverageSpec,
     DateFormat,
     NonHistorical,
     YearOnly,
@@ -111,7 +113,7 @@ _LINK_COVERAGE = {
 def _materialize(
     families: list[str],
     tables: list[str],
-    coverage: dict,
+    coverage: Mapping[str, CoverageSpec],
     anchor_table: str,
     materialize_to_prod: bool,
     update_metadata: bool,
@@ -121,6 +123,26 @@ def _materialize(
 
     Shared by the two flows: they differ only in which families they probe,
     which tables they build and which table anchors the source poll.
+
+    Args:
+        families: ExPORTER families to probe and download, as keys of
+            ``constants.FAMILIES``.
+        tables: Clean tables this group builds, uploads and tests, in build
+            order — every one is built before any is tested.
+        coverage: Clean table -> its ``CoverageSpec``, registered after a
+            successful prod materialization. A table absent from this mapping
+            gets no coverage registered, which is how ``dicionario`` is handled.
+        anchor_table: Table whose raw data source the poll and the source-update
+            commit are read from and written to.
+        materialize_to_prod: Write the prod staging bucket and run dbt against
+            ``target="prod"``. False exercises only the dev half.
+        update_metadata: Register table coverage and commit the source update
+            after a successful prod materialization. No effect when
+            ``materialize_to_prod`` is False.
+        force_run: Rebuild even when the source poll reports nothing new.
+
+    Returns:
+        None.
     """
     # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
