@@ -52,8 +52,12 @@ def main():
     for slug in TABLES:
         props, total = measure(slug)
         sparse = sorted(c for c, p in props.items() if p < THRESHOLD)
+        years = sorted(
+            int(d.name.split("=")[1]) for d in (OUTPUT / slug).glob("year=*")
+        )
         out[slug] = {
             "rows": total,
+            "years": years,
             "proportions": {c: round(p, 6) for c, p in sorted(props.items())},
             "sparse": sparse,
         }
