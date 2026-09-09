@@ -59,11 +59,19 @@ class RateLimitError(RuntimeError):
     """The OECD API returned 429."""
 
 
-def get(url, *, params=None, stream=False, timeout=1800):
+# The API answers a query that matches no observations with 404 and this exact
+# body, not with an empty 200. It is a legitimate "nothing here", and the student
+# cube really does have empty years (2006 and 2007) between populated ones.
+NO_RECORDS = "NoRecordsFound"
+
+
+def get(url, *, params=None, stream=False, timeout=1800, allow_empty=False):
     """GET with UA, throttling, and retry-with-backoff on 429 and 5xx.
 
     Never returns a response whose status is not 200, so a caller cannot mistake
-    an error body for data.
+    an error body for data. With ``allow_empty``, a 404 whose body is exactly
+    ``NoRecordsFound`` returns None instead — any other 404 still raises, so a
+    genuinely broken URL cannot be silently recorded as an empty chunk.
     """
     global _last_request
     for attempt in range(MAX_RETRIES):
@@ -76,6 +84,12 @@ def get(url, *, params=None, stream=False, timeout=1800):
         _last_request = time.monotonic()
         if resp.status_code == 200:
             return resp
+        if (
+            allow_empty
+            and resp.status_code == 404
+            and resp.text.strip() == NO_RECORDS
+        ):
+            return None
         if resp.status_code == 429 or resp.status_code >= 500:
             wait = BACKOFF_BASE_S * (2**attempt)
             print(

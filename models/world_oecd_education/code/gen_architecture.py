@@ -72,7 +72,7 @@ DERIVED = {
     ),
     "country_iso3_code": dict(
         bigquery_type="STRING",
-        directory_column="br_bd_diretorios_mundo.pais:id_pais",
+        directory_column="br_bd_diretorios_mundo.pais:sigla_iso3",
         description_pt="Código ISO 3166-1 alfa-3 do país da observação",
         description_en="ISO 3166-1 alpha-3 code of the observation's country",
         description_es="Código ISO 3166-1 alfa-3 del país de la observación",
