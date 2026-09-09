@@ -226,7 +226,12 @@ def state_table(monthly: bool) -> list[list[str]]:
             "Two-digit FIPS state code",
             directory=DIR_STATE,
             observations=(
-                "Null on the national, regional and divisional total rows"
+                "Null on the national, regional and divisional total rows. "
+                "Until 2021 the survey identified the territories by their "
+                "old Census codes rather than by FIPS, so Puerto Rico is "
+                "published as 43 through 2021 and as 72 from 2022; this "
+                "column carries the FIPS code throughout, and geography_id "
+                "carries the code as published"
             ),
             original="FIPS State",
         ),

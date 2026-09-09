@@ -433,6 +433,12 @@ def target_table(level: str, periodicity: str, fields: list[str]) -> str:
 
 _PLACE_NULL_CODES = {"00000", "99990", "99999", "0", "000"}
 
+# Until 2021 the survey identified the territories by their old Census codes
+# rather than by FIPS, so Puerto Rico appears as 43 through 2021 and as 72
+# from 2022. Normalising state_id keeps a territory on one identifier across
+# the whole panel; geography_id still carries the code exactly as published.
+_LEGACY_STATE_CODES = {"43": "72", "52": "78"}
+
 
 def _geography_level(code: str | None) -> str | None:
     """Classify a state-file geography code as nation, region, division or state."""
@@ -479,6 +485,7 @@ def to_columns(rec: dict, table: str) -> dict:
         out["valuation_reported"] = rec.get("valuation_reported")
 
     state = _pad(rec.get("state"), 2)
+    state = _LEGACY_STATE_CODES.get(state or "", state)
     region = rec.get("region")
     division = rec.get("division")
 
