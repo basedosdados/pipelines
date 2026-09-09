@@ -188,38 +188,51 @@ def main() -> int:
             project_keys = np.unique(h)
         del h
 
+    # Every join check reads project. When project wrote no parquet the loop
+    # above recorded that in `problems` and continued, so project_keys is None
+    # here — dereferencing it would raise AttributeError, abort before the
+    # verdict is printed, and lose the exit code that reports the real failure.
     print("\n=== join integrity ===")
-    cores = key_hashes("project", files_for("project"), ["core_project_num"])
-    project_cores = np.unique(cores)
-    del cores
-    print(
-        f"  project: {project_keys.size:,} keys, "
-        f"{project_cores.size:,} distinct core_project_num"
-    )
-
-    for table in ("publication_link", "patent_link", "clinical_study_link"):
-        fs = files_for(table)
-        if not fs:
-            continue
-        h = key_hashes(table, fs, ["core_project_num"])
-        hit = int(np.isin(h, project_cores, assume_unique=False).sum())
+    if project_keys is None:
+        print("  skipped: project has no parquet, so nothing to join against")
+    else:
+        cores = key_hashes(
+            "project", files_for("project"), ["core_project_num"]
+        )
+        project_cores = np.unique(cores)
+        del cores
         print(
-            f"  {table:<22} {hit:,}/{h.size:,} rows match a project "
+            f"  project: {project_keys.size:,} keys, "
+            f"{project_cores.size:,} distinct core_project_num"
+        )
+
+        for table in (
+            "publication_link",
+            "patent_link",
+            "clinical_study_link",
+        ):
+            fs = files_for(table)
+            if not fs:
+                continue
+            h = key_hashes(table, fs, ["core_project_num"])
+            hit = int(np.isin(h, project_cores, assume_unique=False).sum())
+            print(
+                f"  {table:<22} {hit:,}/{h.size:,} rows match a project "
+                f"({100 * hit / h.size if h.size else 0:.2f}%)"
+            )
+            del h
+
+        h = key_hashes(
+            "project_abstract",
+            files_for("project_abstract"),
+            KEYS["project_abstract"],
+        )
+        hit = int(np.isin(h, project_keys, assume_unique=False).sum())
+        print(
+            f"  project_abstract       {hit:,}/{h.size:,} rows match a project "
             f"({100 * hit / h.size if h.size else 0:.2f}%)"
         )
         del h
-
-    h = key_hashes(
-        "project_abstract",
-        files_for("project_abstract"),
-        KEYS["project_abstract"],
-    )
-    hit = int(np.isin(h, project_keys, assume_unique=False).sum())
-    print(
-        f"  project_abstract       {hit:,}/{h.size:,} rows match a project "
-        f"({100 * hit / h.size if h.size else 0:.2f}%)"
-    )
-    del h
 
     print("\n=== dicionario coverage ===")
     dic: dict[tuple[str, str], set[str]] = defaultdict(set)
