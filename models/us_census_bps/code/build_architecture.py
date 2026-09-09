@@ -119,14 +119,16 @@ def measures(*, reported: bool) -> list[list[str]]:
             "buildings",
             "INT64",
             "Number of buildings authorized by building permits",
-            observations=IMPUTED_NOTE + ". Counted in buildings",
+            unit="building",
+            observations=IMPUTED_NOTE,
             original="Bldgs",
         ),
         col(
             "units",
             "INT64",
             "Number of housing units authorized by building permits",
-            observations=IMPUTED_NOTE + ". Counted in housing units",
+            unit="housing_unit",
+            observations=IMPUTED_NOTE,
             original="Units",
         ),
         col(
@@ -146,7 +148,8 @@ def measures(*, reported: bool) -> list[list[str]]:
             "INT64",
             "Number of buildings authorized, counting reporting permit "
             "offices only",
-            observations=REPORTED_NOTE + ". Counted in buildings",
+            unit="building",
+            observations=REPORTED_NOTE,
             original="Bldgs rep",
         ),
         col(
@@ -154,7 +157,8 @@ def measures(*, reported: bool) -> list[list[str]]:
             "INT64",
             "Number of housing units authorized, counting reporting permit "
             "offices only",
-            observations=REPORTED_NOTE + ". Counted in housing units",
+            unit="housing_unit",
+            observations=REPORTED_NOTE,
             original="Units rep",
         ),
         col(

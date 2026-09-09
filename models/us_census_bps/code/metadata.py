@@ -26,7 +26,7 @@ import server
 from pipelines.datasets.us_census_bps.constants import constants
 
 ARCH = Path(__file__).resolve().parent / "architecture"
-DATASET_SLUG = "building_permits_survey_bps"
+DATASET_SLUG = "bps"
 GCP_DATASET = constants.DATASET_ID.value
 BASE = constants.BASE_URL.value
 
@@ -66,7 +66,13 @@ DESC_ES = (
     "solamente reportadas."
 )
 
-TAG_SLUGS = ["housing", "construcao", "real_estate", "regulacao"]
+# The two backends carry different tag vocabularies: staging still uses the
+# older Portuguese slugs, production uses English ones. Same tags either way.
+TAG_SLUGS = {
+    "staging": ["housing", "construcao", "real_estate", "regulacao"],
+    "prod": ["housing", "construction", "real-estate", "regulation"],
+    "dev": ["housing", "construcao", "real_estate", "regulacao"],
+}
 NEW_TAGS = [
     {
         "slug": "building-permit",
@@ -299,12 +305,58 @@ def table_description(table: str) -> str:
     return DESCRIPTIONS[table]
 
 
+def column_payload(table: str) -> list[dict]:
+    """Build the bulk_upsert_columns payload from a table's architecture CSV."""
+    return [
+        {
+            "name": c["name"],
+            "bigquery_type": c["bigquery_type"],
+            "description": c["description"],
+            "description_en": c["description"],
+            "temporal_coverage": c["temporal_coverage"],
+            "covered_by_dictionary": c["covered_by_dictionary"],
+            "directory_column": c["directory_column"],
+            "measurement_unit": c["measurement_unit"],
+            "has_sensitive_data": c["has_sensitive_data"],
+            "observations": c["observations"],
+            "observations_en": c["observations"],
+        }
+        for c in csv.DictReader((ARCH / f"{table}.csv").open())
+    ]
+
+
+def refresh_columns(env: str) -> int:
+    """Re-upsert every table's columns from the architecture CSVs."""
+    tables = server.get_dataset(DATASET_SLUG, env=env)["tables"]
+    for table in TABLE_ORDER:
+        payload = column_payload(table)
+        server.bulk_upsert_columns(
+            table_id=tables[table]["id"],
+            columns_json=json.dumps(payload, ensure_ascii=False),
+            env=env,
+        )
+        print(f"{table}: {len(payload)} columns refreshed")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--env", default="staging")
     parser.add_argument("--gcp-project", default="basedosdados-dev")
+    parser.add_argument(
+        "--columns-only",
+        action="store_true",
+        help=(
+            "Re-upsert columns from the architecture CSVs and nothing else. "
+            "Needed once a table has coverages, because create_update_table "
+            "then fails on a backend form error."
+        ),
+    )
     args = parser.parse_args()
     env = args.env
+
+    if args.columns_only:
+        return refresh_columns(env)
 
     ids = server.discover_ids(
         env=env, keys=["status", "theme", "entity", "license", "availability"]
@@ -314,7 +366,7 @@ def main() -> int:
     org = server.lookup_id("organization", "census_bureau", env=env)["id"]
 
     tag_ids = []
-    for slug in TAG_SLUGS:
+    for slug in TAG_SLUGS[env]:
         tag_ids.append(server.lookup_id("tag", slug, env=env)["id"])
     for tag in NEW_TAGS:
         try:
@@ -415,23 +467,7 @@ def main() -> int:
             env=env,
         )
 
-        columns = list(csv.DictReader((ARCH / f"{table}.csv").open()))
-        payload = [
-            {
-                "name": c["name"],
-                "bigquery_type": c["bigquery_type"],
-                "description": c["description"],
-                "description_en": c["description"],
-                "temporal_coverage": c["temporal_coverage"],
-                "covered_by_dictionary": c["covered_by_dictionary"],
-                "directory_column": c["directory_column"],
-                "measurement_unit": c["measurement_unit"],
-                "has_sensitive_data": c["has_sensitive_data"],
-                "observations": c["observations"],
-                "observations_en": c["observations"],
-            }
-            for c in columns
-        ]
+        payload = column_payload(table)
         server.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(payload, ensure_ascii=False),

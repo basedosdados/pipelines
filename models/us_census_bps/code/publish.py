@@ -48,7 +48,7 @@ def main() -> int:
     org = server.lookup_id("organization", "census_bureau", env=env)["id"]
     tag_ids = [
         server.lookup_id("tag", slug, env=env)["id"]
-        for slug in TAG_SLUGS + [t["slug"] for t in NEW_TAGS]
+        for slug in TAG_SLUGS[env] + [t["slug"] for t in NEW_TAGS]
     ]
     dataset = server.get_dataset(DATASET_SLUG, env=env)
     if not dataset.get("found"):
