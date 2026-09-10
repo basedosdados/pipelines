@@ -176,6 +176,20 @@ def _session() -> requests.Session:
     return session
 
 
+def _fetch(session: requests.Session, url: str, timeout: int) -> bytes:
+    """GET a URL, raising on any non-2xx rather than returning the error body.
+
+    Every caller below writes straight to disk behind an ``if not target.exists()``
+    guard, so a silent failure is not a retryable one: the error page is written under
+    the data file's name and every later run skips it. The ECQ host answers a wrong
+    path with a 404 body rather than a connection error, which is exactly the shape
+    that gets written out and then never revisited.
+    """
+    response = session.get(url, timeout=timeout)
+    response.raise_for_status()
+    return response.content
+
+
 def download_results(input_dir: Path) -> Path:
     """Fetch elections.json, every per-event JSON companion and every results archive."""
     input_dir.mkdir(parents=True, exist_ok=True)
@@ -186,11 +200,11 @@ def download_results(input_dir: Path) -> Path:
     index_path = input_dir / "elections.json"
     if not index_path.exists():
         index_path.write_bytes(
-            session.get(constants.ELECTIONS_INDEX.value, timeout=120).content
+            _fetch(session, constants.ELECTIONS_INDEX.value, 120)
         )
     events = json.loads(index_path.read_text())["elections"]
 
-    site = constants.RESULTS_SITE_URL.value
+    base = constants.RESULTS_BASE_URL.value
     for event in events:
         for key in ("electorates", "boundaryVenues"):
             name = event.get(key)
@@ -198,15 +212,13 @@ def download_results(input_dir: Path) -> Path:
                 continue
             target = input_dir / "json" / name
             if not target.exists():
-                target.write_bytes(
-                    session.get(f"{site}/data/{name}", timeout=120).content
-                )
+                target.write_bytes(_fetch(session, f"{base}/{name}", 120))
         url = event.get("archiveXML")
         if not url:
             continue
         target = input_dir / "zips" / url.rsplit("/", 1)[-1]
         if not target.exists():
-            target.write_bytes(session.get(url, timeout=300).content)
+            target.write_bytes(_fetch(session, url, 300))
     return index_path
 
 

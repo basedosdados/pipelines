@@ -23,15 +23,15 @@ class constants(Enum):
     DATASET_ID = "au_qld_ecq_elections"
     BACKEND_SLUG = "qld_elections"
 
+    # Every data file lives on resultsdata.*, at the root, with no path segment.
+    # results.elections.qld.gov.au is the single-page app: it serves its own shell for
+    # every route, so a wrong path there returns 404 rather than anything useful.
     RESULTS_BASE_URL = "https://resultsdata.elections.qld.gov.au"
-    RESULTS_SITE_URL = "https://results.elections.qld.gov.au"
     DISCLOSURES_BASE_URL = "https://disclosures.ecq.qld.gov.au"
 
     # elections.json drives everything: it lists every event, its archive zip and its
     # electorates/boundary_venues JSON companions.
-    ELECTIONS_INDEX = (
-        "https://results.elections.qld.gov.au/data/elections.json"
-    )
+    ELECTIONS_INDEX = "https://resultsdata.elections.qld.gov.au/elections.json"
 
     # Events published without an `archiveXML` key. MASC23 (the 2023 Mapoon Aboriginal
     # Shire Council Councillor By-election) has no results archive at all, so it carries
