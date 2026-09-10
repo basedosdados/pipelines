@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: br_pncp__contratacao
+  - name: br_mgi_pncp__contratacao
     description: >
       Contratações públicas (licitações, dispensas e inexigibilidades)
       divulgadas no Portal Nacional de Contratações Públicas, abrangendo os três
@@ -29,7 +29,7 @@ models:
             - nome_unidade_subrogada
             - valor_total_homologado
       - custom_dictionary_coverage:
-          dictionary_model: ref('br_pncp__dicionario')
+          dictionary_model: ref('br_mgi_pncp__dicionario')
           columns_covered_by_dictionary:
             - id_esfera
             - id_poder
@@ -183,7 +183,7 @@ models:
       - name: link_sistema_origem
         description: >
           Endereço do registro no sistema de origem do órgão contratante
-  - name: br_pncp__contrato
+  - name: br_mgi_pncp__contrato
     description: >
       Contratos e empenhos decorrentes de contratações públicas divulgados no
       Portal Nacional de Contratações Públicas, abrangendo os três níveis de
@@ -212,7 +212,7 @@ models:
             - nome_unidade_subrogada
             - valor_acumulado
       - custom_dictionary_coverage:
-          dictionary_model: ref('br_pncp__dicionario')
+          dictionary_model: ref('br_mgi_pncp__dicionario')
           columns_covered_by_dictionary:
             - id_esfera
             - id_poder
@@ -384,7 +384,7 @@ models:
       - name: valor_acumulado
         description: >
           Valor acumulado do contrato após termos aditivos e reajustes
-  - name: br_pncp__ata_registro_preco
+  - name: br_mgi_pncp__ata_registro_preco
     description: >
       Atas de registro de preços divulgadas no Portal Nacional de Contratações
       Públicas. Uma linha por ata, identificada pelo número de controle no PNCP.
@@ -479,7 +479,7 @@ models:
       - name: data_atualizacao
         description: >
           Data da última atualização global do registro no PNCP
-  - name: br_pncp__instrumento_cobranca
+  - name: br_mgi_pncp__instrumento_cobranca
     description: >
       Instrumentos de cobrança (notas fiscais e faturas) vinculados a contratos
       divulgados no Portal Nacional de Contratações Públicas. Uma linha por
@@ -500,7 +500,7 @@ models:
             where: __most_recent_year__
           ignore_values: [observacao]
       - custom_dictionary_coverage:
-          dictionary_model: ref('br_pncp__dicionario')
+          dictionary_model: ref('br_mgi_pncp__dicionario')
           columns_covered_by_dictionary: [id_tipo_instrumento_cobranca]
           config:
             where: __most_recent_year__
@@ -584,7 +584,7 @@ models:
       - name: valor_nota_fiscal
         description: >
           Valor total da nota fiscal eletrônica associada
-  - name: br_pncp__dicionario
+  - name: br_mgi_pncp__dicionario
     description: >
       Dicionário de valores codificados das demais tabelas do conjunto, com o
       significado de cada chave por tabela e coluna.
