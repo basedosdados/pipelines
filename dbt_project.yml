@@ -47,6 +47,12 @@ models:
     au_abs_national_accounts:
       +materialized: table
       +schema: au_abs_national_accounts
+    au_abs_household_income_wealth:
+      +materialized: table
+      +schema: au_abs_household_income_wealth
+    au_abs_population:
+      +materialized: table
+      +schema: au_abs_population
     au_alexander_politicians:
       +materialized: table
       +schema: au_alexander_politicians
@@ -184,6 +190,9 @@ models:
     us_bls_oes:
       +materialized: table
       +schema: us_bls_oes
+    us_census_bps:
+      +materialized: table
+      +schema: us_census_bps
     us_fdic_bankfind:
       +materialized: table
       +schema: us_fdic_bankfind
@@ -202,18 +211,33 @@ models:
     au_abs_labour_force:
       +materialized: table
       +schema: au_abs_labour_force
+    au_abs_migration:
+      +materialized: table
+      +schema: au_abs_migration
     us_bls_qcew:
       +materialized: table
       +schema: us_bls_qcew
     us_census_cbp:
       +materialized: table
       +schema: us_census_cbp
+    us_census_cog:
+      +materialized: table
+      +schema: us_census_cog
     us_census_cps:
       +materialized: table
       +schema: us_census_cps
+    us_census_lodes:
+      +materialized: table
+      +schema: us_census_lodes
+    us_cfpb_complaints:
+      +materialized: table
+      +schema: us_cfpb_complaints
     us_cfpb_hmda:
       +materialized: table
       +schema: us_cfpb_hmda
+    us_cms_hcris:
+      +materialized: table
+      +schema: us_cms_hcris
     us_cms_open_payments:
       +materialized: table
       +schema: us_cms_open_payments
@@ -223,18 +247,27 @@ models:
     us_irs_form990:
       +materialized: table
       +schema: us_irs_form990
+    us_nchs_vital_statistics:
+      +materialized: table
+      +schema: us_nchs_vital_statistics
     us_fec_campaign_finance:
       +materialized: table
       +schema: us_fec_campaign_finance
     us_dot_bts_ontime:
       +materialized: table
       +schema: us_dot_bts_ontime
+    us_dot_fars:
+      +materialized: table
+      +schema: us_dot_fars
     us_nature_gerda:
       +materialized: table
       +schema: us_nature_gerda
     us_congress_legislators:
       +materialized: table
       +schema: us_congress_legislators
+    world_oecd_education:
+      +materialized: table
+      +schema: world_oecd_education
     world_aiddata_gcdf:
       +materialized: table
       +schema: world_aiddata_gcdf
@@ -520,6 +553,9 @@ models:
     br_ons_estimativa_custos:
       +materialized: table
       +schema: br_ons_estimativa_custos
+    br_mgi_pncp:
+      +materialized: table
+      +schema: br_mgi_pncp
     br_poder360_pesquisas:
       +materialized: table
       +schema: br_poder360_pesquisas
@@ -577,6 +613,9 @@ models:
     br_tse_filiacao_partidaria:
       +materialized: table
       +schema: br_tse_filiacao_partidaria
+    cl_chilecompra_mercado_publico:
+      +materialized: table
+      +schema: cl_chilecompra_mercado_publico
     gb_eric_ess:
       +materialized: table
       +schema: gb_eric_ess
@@ -610,6 +649,9 @@ models:
     us_census_acs:
       +materialized: table
       +schema: us_census_acs
+    us_dol_oflc:
+      +materialized: table
+      +schema: us_dol_oflc
     us_ed_college_scorecard:
       +materialized: table
       +schema: us_ed_college_scorecard
@@ -619,18 +661,42 @@ models:
     us_ed_nces_ccd:
       +materialized: table
       +schema: us_ed_nces_ccd
+    us_eia_electricity:
+      +materialized: table
+      +schema: us_eia_electricity
     us_epa_tri:
       +materialized: table
       +schema: us_epa_tri
+    us_fema_openfema:
+      +materialized: table
+      +schema: us_fema_openfema
+    us_fbi_cde:
+      +materialized: table
+      +schema: us_fbi_cde
     us_medsl_elections:
       +materialized: table
       +schema: us_medsl_elections
+    us_nih_reporter:
+      +materialized: table
+      +schema: us_nih_reporter
+    us_noaa_storm_events:
+      +materialized: table
+      +schema: us_noaa_storm_events
+    us_osha_enforcement:
+      +materialized: table
+      +schema: us_osha_enforcement
     world_ampas_oscar:
       +materialized: table
       +schema: world_ampas_oscar
     world_dasanaike_sage:
       +materialized: table
       +schema: world_dasanaike_sage
+    world_iati_activities:
+      +materialized: table
+      +schema: world_iati_activities
+    world_noaa_ghcn:
+      +materialized: table
+      +schema: world_noaa_ghcn
     world_iea_pirls:
       +materialized: table
       +schema: world_iea_pirls

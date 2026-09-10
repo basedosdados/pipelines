@@ -1,0 +1,30 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,"Ano de referência, usado como coluna de partição",,no,diretorios_data_tempo.ano:ano,year,no,Derived during cleaning: year of declaration_date,declarationDate
+state_id,STRING,"Código FIPS de duas posições do estado, distrito ou território",,no,diretorios_us.state:id_state,,no,,fipsStateCode
+county_id,STRING,Código FIPS de cinco posições do condado,,no,diretorios_us.county:id_county,,no,"Derivado na limpeza; nulo quando a fonte não identifica um condado. Derived during cleaning: state_id || fips_county_code, null when fips_county_code = '000'",
+disaster_number,STRING,Número sequencial que designa o evento declarado como desastre,,no,,,no,,disasterNumber
+place_code,STRING,"Código interno da FEMA para a localidade designada, formado por '99' seguido do código FIPS de três posições do condado",,no,,,no,,placeCode
+fema_declaration_string,STRING,"Identificador padrão da declaração sob o Stafford Act, formado pela concatenação do tipo de declaração, do número do desastre e da sigla do estado",,no,,,no,,femaDeclarationString
+incident_id,STRING,Identificador único do incidente; incidentes podem ou não se tornar desastres declarados,,no,,,no,,incidentId
+state_abbreviation,STRING,"Sigla de duas letras do estado, distrito ou território",,no,,,no,"Não vinculado ao diretório de estados, que é chaveado pelo código FIPS e não pela sigla; a integridade é verificada por teste dbt",state
+declaration_type,STRING,"Código de duas letras que distingue desastre de grande porte, emergência e gestão de incêndio",,yes,,,no,,declarationType
+declaration_date,DATE,Data em que o desastre foi declarado,,no,,,no,,declarationDate
+fy_declared,INT64,Ano fiscal federal em que o desastre foi declarado,,no,,year,no,,fyDeclared
+incident_type,STRING,"Tipo primário do incidente, como incêndio ou inundação",,no,,,no,,incidentType
+declaration_title,STRING,Título atribuído ao desastre,,no,,,no,,declarationTitle
+ih_program_declared,BOOLEAN,Indica se o programa Individuals and Households foi declarado para este desastre,,no,,,no,,ihProgramDeclared
+ia_program_declared,BOOLEAN,Indica se o programa Individual Assistance foi declarado para este desastre,,no,,,no,,iaProgramDeclared
+pa_program_declared,BOOLEAN,Indica se o programa Public Assistance foi declarado para este desastre,,no,,,no,,paProgramDeclared
+hm_program_declared,BOOLEAN,Indica se o programa Hazard Mitigation foi declarado para este desastre,,no,,,no,,hmProgramDeclared
+incident_begin_date,DATE,Data de início do incidente,,no,,,no,,incidentBeginDate
+incident_end_date,DATE,Data de término do incidente,,no,,,no,,incidentEndDate
+disaster_closeout_date,DATE,Data em que todas as transações financeiras de todos os programas foram concluídas,,no,,,no,,disasterCloseoutDate
+tribal_request,BOOLEAN,"Indica que o pedido de declaração foi submetido diretamente ao Presidente por uma nação tribal, independentemente de um estado",,no,,,no,,tribalRequest
+fips_county_code,STRING,Código FIPS de três posições do condado dentro do estado,,no,,,no,,fipsCountyCode
+designated_area,STRING,Nome da área geográfica incluída na declaração,,no,,,no,,designatedArea
+declaration_request_number,STRING,Número atribuído ao pedido de declaração,,no,,,no,,declarationRequestNumber
+declaration_request_date,DATE,Data em que o pedido de declaração foi feito,,no,,,no,,declarationRequestDate
+last_ia_filing_date,DATE,Último dia para protocolar pedidos de Individual Assistance; disponível apenas a partir de 1998 e somente quando o programa foi aprovado,,no,,,no,,lastIAFilingDate
+region,INT64,Número de 1 a 10 que identifica a região da FEMA em que o desastre ocorreu,,no,,,no,"Número da região da FEMA, de 1 a 10; sem unidade de medida cadastrada no back-end",region
+designated_incident_types,STRING,Lista separada por vírgulas dos tipos de incidente designados para o desastre,,no,,,no,,designatedIncidentTypes
+record_id,STRING,Identificador único do registro atribuído pela OpenFEMA,,no,,,no,,id

@@ -42,6 +42,20 @@ class constants(Enum):
             "relacionamentos",
         ],
         "PE": ["despesa", "pagamento"],
+        # ES feeds `dicionario` even though it publishes no dimension tables of its
+        # own: the dicionario model derives ES's labels from `es_despesa` directly,
+        # so an ES refresh has to rebuild it alongside the five tables ES unions into.
+        "ES": [
+            "despesa",
+            "licitacao",
+            "licitacao_item",
+            "licitacao_participante",
+            "relacionamentos",
+            "dicionario",
+        ],
+        # RS publishes no tenders at all, and `dicionario` does not read `rs_despesa`,
+        # so RS feeds exactly one table.
+        "RS": ["despesa"],
         "SP": ["despesa_anual"],
     }
 
@@ -60,6 +74,18 @@ class constants(Enum):
     # mg_dm_acao. This pipeline is what populates prod staging, by uploading every
     # mirror below to the prod bucket itself.
     STAGING_BY_STATE = {
+        "RS": ["rs_despesa"],
+        "ES": [
+            "es_despesa",
+            "es_licitacao",
+            "es_lote",
+            "es_licitacao_item",
+            "es_licitacao_participante",
+            "es_compra",
+            "es_edital",
+            "es_contrato",
+            "es_contrato_empenho",
+        ],
         "MG": [
             "mg_ft_despesa",
             "mg_dm_empenho",
@@ -112,12 +138,6 @@ class constants(Enum):
         "PE": ["pe_despesa", "pe_despesa_legado", "pe_pagamento"],
         "SP": ["sp_despesa"],
     }
-
-    # Only Minas Gerais and Pernambuco publish per-exercise files, so only they can
-    # be refreshed for the current year alone. Bahia ships whole-dataset ZIPs and
-    # São Paulo is queried per (exercise, órgão), so BA re-downloads everything and
-    # SP re-scrapes just the open exercise.
-    YEARLY_SOURCES = {"MG", "PE"}
 
     # São Paulo's SIGEO is a WebForms scrape at roughly 36 s per (exercise, órgão).
     # One exercise is ~32 queries, about twenty minutes; all seventeen took five

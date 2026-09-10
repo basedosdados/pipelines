@@ -73,11 +73,73 @@ with
                     "br_bd_execucao_estadual_staging.mg_dm_modalidade_aplic"
                 )
             }}
+    ),
+    -- Espírito Santo needs no dimension tables: SIGEFES ships every classification as
+    -- a code+label pair ON the expense row, so the dictionary is the distinct pairs
+    -- already present in `es_despesa`.
+    --
+    -- One `unnest` of an array of structs rather than ten unions, so the 15.3M-row
+    -- table is scanned once instead of ten times. Every column is STRING in staging,
+    -- which is what lets the structs share a type.
+    --
+    -- Labels carry padding in the source (' ESTADO ', ' ADMINISTRAÇÃO GERAL A CARGO DA
+    -- SEFAZ  '), so they are trimmed here; leaving them would emit the same label
+    -- several times under different whitespace.
+    es as (
+        select par.nome_coluna, par.chave, par.valor, d.ano as ano_exercicio
+        from
+            {{ set_datalake_project("br_bd_execucao_estadual_staging.es_despesa") }}
+            as d,
+            unnest(
+                [
+                    struct(
+                        'funcao' as nome_coluna,
+                        trim(d.codigofuncao) as chave,
+                        trim(d.funcao) as valor
+                    ),
+                    struct('subfuncao', trim(d.codigosubfuncao), trim(d.subfuncao)),
+                    struct('programa', trim(d.codigoprograma), trim(d.programa)),
+                    struct('acao', trim(d.codigoacao), trim(d.acao)),
+                    struct(
+                        'categoria_economica',
+                        trim(d.codigocategoriaeconomica),
+                        trim(d.categoriaeconomica)
+                    ),
+                    struct(
+                        'grupo_despesa',
+                        trim(d.codigogrupodespesa),
+                        trim(d.grupodespesa)
+                    ),
+                    struct(
+                        'modalidade_aplicacao',
+                        trim(d.codigomodalidade),
+                        trim(d.modalidade)
+                    ),
+                    struct(
+                        'elemento_despesa',
+                        trim(d.codigoelementodespesa),
+                        trim(d.elementodespesa)
+                    ),
+                    struct(
+                        'item_despesa',
+                        trim(d.codigosubelementodespesa),
+                        trim(d.subelementodespesa)
+                    ),
+                    struct('fonte_recurso', trim(d.codigofonte), trim(d.fonte))
+                ]
+            ) as par
+    ),
+    todos as (
+        select 'MG' as sigla_uf, nome_coluna, chave, valor, ano_exercicio
+        from mg
+        union all
+        select 'ES', nome_coluna, chave, valor, ano_exercicio
+        from es
     )
 
 select
     'despesa' as id_tabela,
-    'MG' as sigla_uf,
+    safe_cast(sigla_uf as string) as sigla_uf,
     safe_cast(nome_coluna as string) as nome_coluna,
     safe_cast(chave as string) as chave,
     safe_cast(valor as string) as valor,
@@ -88,6 +150,6 @@ select
         then min(ano_exercicio)
         else concat(min(ano_exercicio), '(1)', max(ano_exercicio))
     end as cobertura_temporal
-from mg
-where chave is not null and valor is not null
+from todos
+where nullif(chave, '') is not null and nullif(valor, '') is not null
 group by id_tabela, sigla_uf, nome_coluna, chave, valor

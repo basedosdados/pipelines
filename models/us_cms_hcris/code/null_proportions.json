@@ -1,0 +1,17 @@
+{
+ "report": [
+  "npi",
+  "special_indicator"
+ ],
+ "report_value": [
+  "alpha_value"
+ ],
+ "hospital_financial": [
+  "beds_burn_intensive_care_unit",
+  "beds_coronary_care_unit",
+  "beds_other_special_care",
+  "beds_surgical_intensive_care_unit",
+  "uncompensated_care_charges",
+  "uncompensated_care_cost"
+ ]
+}
