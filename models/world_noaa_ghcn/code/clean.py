@@ -44,6 +44,15 @@ def to_all_string(table: pa.Table, column_order: list[str]) -> pa.Table:
 
 
 def write_parquet(table: pa.Table, path: Path) -> int:
+    """Write a table as Snappy Parquet, creating parent directories.
+
+    Args:
+        table: Table to write.
+        path: Destination file path.
+
+    Returns:
+        Number of rows written.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     pq.write_table(table, path, compression="snappy")
     return table.num_rows
@@ -77,6 +86,16 @@ def _fixed_width(line: str, start: int, end: int) -> str:
 def read_code_table(
     path: Path, code_end: int, name_start: int
 ) -> dict[str, str]:
+    """Parse a fixed-width code-to-name file into a mapping.
+
+    Args:
+        path: File to read.
+        code_end: Last column of the code field, 1-indexed inclusive.
+        name_start: First column of the name field, 1-indexed.
+
+    Returns:
+        Mapping of code to name.
+    """
     out = {}
     with open(path, encoding="utf-8", errors="replace") as fh:
         for line in fh:
@@ -87,6 +106,15 @@ def read_code_table(
 
 
 def clean_stations(input_dir: Path, output_dir: Path) -> int:
+    """Build the ``station`` table from the GHCN station metadata files.
+
+    Args:
+        input_dir: Directory holding the downloaded metadata files.
+        output_dir: Root output directory.
+
+    Returns:
+        Number of rows written.
+    """
     countries = read_code_table(input_dir / "ghcnd-countries.txt", 2, 4)
     states = read_code_table(input_dir / "ghcnd-states.txt", 2, 4)
 
@@ -139,6 +167,15 @@ INVENTORY_COLUMNS = ["station_id", "element", "first_year", "last_year"]
 
 
 def clean_inventory(input_dir: Path, output_dir: Path) -> int:
+    """Build the ``station_element_inventory`` table.
+
+    Args:
+        input_dir: Directory holding ``ghcnd-inventory.txt``.
+        output_dir: Root output directory.
+
+    Returns:
+        Number of rows written.
+    """
     sid, elem, first, last = [], [], [], []
     with open(
         input_dir / "ghcnd-inventory.txt", encoding="utf-8", errors="replace"
@@ -177,9 +214,25 @@ DICIONARIO_COLUMNS = [
 
 
 def build_dicionario(output_dir: Path, elements_present: set[str]) -> int:
+    """Build the ``dicionario`` table of code-to-label mappings.
+
+    Args:
+        output_dir: Root output directory.
+        elements_present: Every element code the archive records.
+
+    Returns:
+        Number of rows written.
+    """
     rows: list[tuple[str, str, str, str, str]] = []
 
     def add(table_id: str, column: str, mapping: dict[str, str]) -> None:
+        """Append one column's code-to-label mapping.
+
+        Args:
+            table_id: Table the column belongs to.
+            column: Column name.
+            mapping: Code to label.
+        """
         for key, value in mapping.items():
             rows.append((table_id, column, key, "", value))
 
@@ -307,7 +360,10 @@ def clean_year(year: int, raw_path: Path, output_dir: Path) -> int:
     date = pc.strptime(date_str, format="%Y%m%d", unit="s")
     out = pa.table(
         {
-            "year": pa.array([year] * table.num_rows, pa.int64()),
+            # pa.repeat, not [year] * n: the largest partition holds 37M rows,
+            # and materialising that as a Python list costs over a
+            # gigabyte of objects for a single constant.
+            "year": pa.repeat(pa.scalar(year, pa.int64()), table.num_rows),
             "station_id": table["station_id"],
             # pyrefly: ignore [missing-attribute]
             "date": pc.strftime(date, format="%Y-%m-%d"),
