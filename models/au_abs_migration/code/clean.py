@@ -538,6 +538,7 @@ def write_table(
         return len(frame)
 
     for year, group in frame.groupby("year", sort=True):
+        # pyrefly: ignore [bad-argument-type]
         partition = destination / f"year={int(year)}"
         partition.mkdir(parents=True, exist_ok=True)
         arrow = pa.Table.from_pandas(group, preserve_index=False).cast(

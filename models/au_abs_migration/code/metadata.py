@@ -17,13 +17,19 @@ import csv
 import datetime as dt
 import json
 import sys
+from dataclasses import dataclass, field
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
-sys.path.insert(
-    0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-)
+MCP_PATH = "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
 
-import server
+if TYPE_CHECKING:
+    # The databasis MCP server is a local checkout, absent from CI's environment,
+    # so it is imported for real only at runtime.
+    server: Any = None
+else:
+    sys.path.insert(0, MCP_PATH)
+    import server
 
 CODE = Path(__file__).resolve().parent
 ARCH = CODE / "architecture"
@@ -151,6 +157,23 @@ ROUNDED_ES = (
 )
 
 
+@dataclass(frozen=True)
+class TableSpec:
+    """Everything the backend needs to know about one table."""
+
+    slug: str
+    name_pt: str
+    name_en: str
+    name_es: str
+    description_pt: str
+    description_en: str
+    description_es: str
+    observation_levels: list[str] = field(default_factory=list)
+    coverage: tuple[int, int | None, int, int | None] | None = None
+    source: str | None = None
+    update: tuple[str, int, int | None] | None = None
+
+
 def table(
     slug: str,
     names: tuple[str, str, str],
@@ -159,20 +182,20 @@ def table(
     coverage: tuple[int, int | None, int, int | None],
     source: str,
     update: tuple[str, int, int | None],
-) -> dict:
-    return {
-        "slug": slug,
-        "name_pt": names[0],
-        "name_en": names[1],
-        "name_es": names[2],
-        "description_pt": f"{descriptions[0]} {ROUNDED_PT}",
-        "description_en": f"{descriptions[1]} {ROUNDED_EN}",
-        "description_es": f"{descriptions[2]} {ROUNDED_ES}",
-        "observation_levels": observation_levels,
-        "coverage": coverage,
-        "source": source,
-        "update": update,
-    }
+) -> TableSpec:
+    return TableSpec(
+        slug=slug,
+        name_pt=names[0],
+        name_en=names[1],
+        name_es=names[2],
+        description_pt=f"{descriptions[0]} {ROUNDED_PT}",
+        description_en=f"{descriptions[1]} {ROUNDED_EN}",
+        description_es=f"{descriptions[2]} {ROUNDED_ES}",
+        observation_levels=observation_levels,
+        coverage=coverage,
+        source=source,
+        update=update,
+    )
 
 
 ANNUAL = ("year", 1, 1)
@@ -470,28 +493,24 @@ TABLES = [
     ),
 ]
 
-DICIONARIO = {
-    "slug": "dicionario",
-    "name_pt": "Dicionário",
-    "name_en": "Dictionary",
-    "name_es": "Diccionario",
-    "description_pt": (
+DICIONARIO = TableSpec(
+    slug="dicionario",
+    name_pt="Dicionário",
+    name_en="Dictionary",
+    name_es="Diccionario",
+    description_pt=(
         "Dicionário dos valores codificados usados nas tabelas de au_abs_migration: país "
         "de nascimento (SACC), grupo etário, sexo e grupo de visto."
     ),
-    "description_en": (
+    description_en=(
         "Dictionary of the coded values used across the au_abs_migration tables: country "
         "of birth (SACC), age group, sex and visa group."
     ),
-    "description_es": (
+    description_es=(
         "Diccionario de los valores codificados usados en las tablas de au_abs_migration: "
         "país de nacimiento (SACC), grupo de edad, sexo y grupo de visado."
     ),
-    "observation_levels": [],
-    "coverage": None,
-    "source": None,
-    "update": None,
-}
+)
 
 # The country directory's key column is spelled differently on each backend:
 # prod agrees with BigQuery (sigla_iso3), while the older staging clone still
@@ -744,30 +763,28 @@ def main() -> None:
         source_ids[key] = server._strip_id(str(result["id"]))
         print(f"raw source {key} = {source_ids[key]}")
 
-    wanted = args.tables or [t["slug"] for t in [*TABLES, DICIONARIO]]
+    wanted = args.tables or [spec.slug for spec in [*TABLES, DICIONARIO]]
     for spec in [*TABLES, DICIONARIO]:
-        if spec["slug"] not in wanted:
+        if spec.slug not in wanted:
             continue
-        slug = spec["slug"]
+        slug = spec.slug
         known = state.get("tables", {}).get(slug, {})
         table_id = server._strip_id(
             str(
                 server.create_update_table(
                     slug=slug,
-                    name_pt=spec["name_pt"],
-                    name_en=spec["name_en"],
-                    name_es=spec["name_es"],
+                    name_pt=spec.name_pt,
+                    name_en=spec.name_en,
+                    name_es=spec.name_es,
                     dataset_id=dataset_id,
                     status_id=lookup("status", "published", env),
                     published_by_ids=[account_id],
                     data_cleaned_by_ids=[account_id],
-                    description_pt=spec["description_pt"],
-                    description_en=spec["description_en"],
-                    description_es=spec["description_es"],
+                    description_pt=spec.description_pt,
+                    description_en=spec.description_en,
+                    description_es=spec.description_es,
                     raw_data_source_ids=(
-                        [source_ids[spec["source"]]]
-                        if spec["source"]
-                        else None
+                        [source_ids[spec.source]] if spec.source else None
                     ),
                     id=known.get("id"),
                     env=env,
@@ -776,7 +793,7 @@ def main() -> None:
         )
 
         level_ids = {}
-        for entity_slug in spec["observation_levels"]:
+        for entity_slug in spec.observation_levels:
             result = server.create_update_observation_level(
                 table_id=table_id,
                 entity_id=entities[entity_slug],
@@ -820,7 +837,7 @@ def main() -> None:
             env=env,
         )
 
-        if spec["coverage"]:
+        if spec.coverage:
             coverage = server.create_update_coverage(
                 table_id=table_id,
                 area_id=area_id,
@@ -828,7 +845,7 @@ def main() -> None:
                 env=env,
             )
             coverage_id = server._strip_id(str(coverage["id"]))
-            start_year, start_month, end_year, end_month = spec["coverage"]
+            start_year, start_month, end_year, end_month = spec.coverage
             server.create_update_datetime_range(
                 coverage_id=coverage_id,
                 start_year=start_year,
@@ -840,8 +857,8 @@ def main() -> None:
                 env=env,
             )
 
-        if spec["update"]:
-            entity_slug, frequency, lag = spec["update"]
+        if spec.update:
+            entity_slug, frequency, lag = spec.update
             server.create_update_update(
                 entity_id=entities[entity_slug],
                 frequency=frequency,
@@ -861,7 +878,7 @@ def main() -> None:
         # Ordering only makes sense once every table exists.
         server.reorder_tables(
             dataset_slug=DATASET_SLUG,
-            table_slugs=[t["slug"] for t in [*TABLES, DICIONARIO]],
+            table_slugs=[spec.slug for spec in [*TABLES, DICIONARIO]],
             env=env,
         )
     print("done")
