@@ -1,6 +1,6 @@
-"""One-shot historical backfill for the br_pncp onboarding.
+"""One-shot historical backfill for the br_mgi_pncp onboarding.
 
-Front end for ``pipelines.datasets.br_pncp.utils.harvest``, which is the
+Front end for ``pipelines.datasets.br_mgi_pncp.utils.harvest``, which is the
 canonical transform shared with the recurring pipeline.
 
 The backfill harvests ``contratacao`` and ``contrato`` from their
@@ -17,7 +17,7 @@ stable across restarts. Anything after the cutoff is picked up by the
 recurring pipeline's lookback, which is what the handover is for.
 
 Usage:
-    uv run python models/br_pncp/code/download.py --end 2026-08-28 [--tables ...]
+    uv run python models/br_mgi_pncp/code/download.py --end 2026-08-28 [--tables ...]
 """
 
 from __future__ import annotations
@@ -30,11 +30,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from pipelines.datasets.br_pncp.constants import constants
-from pipelines.datasets.br_pncp.utils import harvest
+from pipelines.datasets.br_mgi_pncp.constants import constants
+from pipelines.datasets.br_mgi_pncp.utils import harvest
 
 DATA_DIR = Path(
-    os.environ.get("PNCP_DATA_DIR", Path.home() / "Downloads" / "br_pncp_data")
+    os.environ.get(
+        "PNCP_DATA_DIR", Path.home() / "Downloads" / "br_mgi_pncp_data"
+    )
 )
 TABLES = list(constants.ENDPOINTS.value)
 
