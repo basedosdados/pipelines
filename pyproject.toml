@@ -225,6 +225,12 @@ project-excludes = [
   # directory with bare sibling imports (`common`, `gen_dbt`), which pyrefly
   # cannot resolve from the repo root.
   "models/world_iati_activities/code",
+  # Same policy: the au_abs_population onboarding scripts (bootstrap, upload,
+  # validation and the architecture/dbt generators) are standalone one-shot ETL
+  # that manipulate sys.path and monkey-patch the GCS client; the reusable
+  # transform they call lives in pipelines/datasets/au_abs_population/utils.py,
+  # which is type-checked.
+  "models/au_abs_population/code",
   "models/us_noaa_storm_events/code",
   "models/us_harvard_cbdb/code",
   "models/us_cfpb_hmda/code",
