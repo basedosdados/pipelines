@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: au_ecq_elections__election
+  - name: au_qld_ecq_elections__election
     description: >-
       Catálogo dos 54 eventos eleitorais estaduais e municipais de Queensland cobertos
       pelo conjunto: eleições gerais estaduais, eleições quadrienais municipais e
@@ -42,7 +42,7 @@ models:
       - name: results_archive_url
         description: >-
           Endereço do arquivo de resultados publicado pela ECQ para o evento
-  - name: au_ecq_elections__candidate
+  - name: au_qld_ecq_elections__candidate
     description: >-
       Pessoas candidatas em cada disputa, com posição na cédula, partido e indicação
       de
@@ -125,7 +125,7 @@ models:
       - name: is_declared_elected
         description: >-
           Indica se a pessoa candidata foi declarada eleita na disputa
-  - name: au_ecq_elections__enrolment_turnout
+  - name: au_qld_ecq_elections__enrolment_turnout
     description: >-
       Uma linha por disputa e rodada de apuração, com pessoas inscritas, votos totais,
       válidos e inválidos e os percentuais correspondentes. As apurações preliminar
@@ -232,7 +232,7 @@ models:
       - name: last_updated
         description: >-
           Momento da última atualização da rodada de apuração pela ECQ
-  - name: au_ecq_elections__result_district
+  - name: au_qld_ecq_elections__result_district
     description: >-
       Votos de cada pessoa candidata no total da disputa, por estágio e tipo de
       apuração. A ECQ não publica apuração de preferência entre dois partidos, apenas
@@ -320,7 +320,7 @@ models:
       - name: percentage
         description: >-
           Votos da pessoa candidata como percentual dos votos válidos da disputa
-  - name: au_ecq_elections__result_voting_centre
+  - name: au_qld_ecq_elections__result_voting_centre
     description: >-
       Votos de cada pessoa candidata em cada local de votação, por estágio e tipo
       de
@@ -432,7 +432,7 @@ models:
       - name: votes_informal
         description: >-
           Total de votos inválidos no local de votação
-  - name: au_ecq_elections__distribution_of_preferences
+  - name: au_qld_ecq_elections__distribution_of_preferences
     description: >-
       Transferências de voto na distribuição de preferências, no nível da disputa:
       uma
@@ -541,7 +541,7 @@ models:
       - name: votes_remaining_in_count
         description: >-
           Votos que permanecem na apuração após a etapa
-  - name: au_ecq_elections__voting_centre
+  - name: au_qld_ecq_elections__voting_centre
     description: >-
       Locais de votação de cada evento eleitoral, com endereço e coordenadas. O grão
       é
@@ -619,7 +619,7 @@ models:
       - name: is_abolished
         description: >-
           Indica se o local de votação foi extinto
-  - name: au_ecq_elections__disclosure_gift
+  - name: au_qld_ecq_elections__disclosure_gift
     description: >-
       Doações individuais declaradas ao Electronic Disclosure System da ECQ, reunindo
       as
@@ -668,7 +668,7 @@ models:
       - name: electoral_committee_name
         description: >-
           Nome do comitê eleitoral de quem recebeu a doação
-  - name: au_ecq_elections__disclosure_expenditure
+  - name: au_qld_ecq_elections__disclosure_expenditure
     description: >-
       Despesas eleitorais individuais declaradas ao Electronic Disclosure System da
       ECQ,
@@ -710,7 +710,7 @@ models:
       - name: expenditure_purpose
         description: >-
           Finalidade declarada da despesa
-  - name: au_ecq_elections__disclosure_return
+  - name: au_qld_ecq_elections__disclosure_return
     description: >-
       Totais recebidos e pagos nas declarações periódicas semestrais apresentadas
       ao
@@ -757,7 +757,7 @@ models:
       - name: amount_paid
         description: >-
           Total pago no período de referência, em dólares australianos
-  - name: au_ecq_elections__dicionario
+  - name: au_qld_ecq_elections__dicionario
     description: >-
       Correspondência entre as chaves codificadas das colunas do conjunto e o seu
       significado.

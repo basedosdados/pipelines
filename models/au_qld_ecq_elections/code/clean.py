@@ -1,18 +1,21 @@
-"""One-shot onboarding transform for au_ecq_elections.
+"""One-shot onboarding transform for au_qld_ecq_elections.
 
-Thin wrapper: every function lives in ``pipelines/datasets/au_ecq_elections/utils.py``
+Thin wrapper: every function lives in ``pipelines/datasets/au_qld_ecq_elections/utils.py``
 so a later recurring pipeline reuses this transform instead of duplicating it.
 
 Run:
-    PYTHONPATH=. ~/.venvs/bd-pipelines/bin/python models/au_ecq_elections/code/clean.py
+    PYTHONPATH=. ~/.venvs/bd-pipelines/bin/python models/au_qld_ecq_elections/code/clean.py
 """
 
 from __future__ import annotations
 
 import sys
 
-from pipelines.datasets.au_ecq_elections.constants import constants, data_root
-from pipelines.datasets.au_ecq_elections.utils import (
+from pipelines.datasets.au_qld_ecq_elections.constants import (
+    constants,
+    data_root,
+)
+from pipelines.datasets.au_qld_ecq_elections.utils import (
     clean_all,
     download_disclosures,
     download_results,

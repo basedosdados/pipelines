@@ -1,9 +1,9 @@
-"""Generate the au_ecq_elections architecture CSVs and the columns JSON.
+"""Generate the au_qld_ecq_elections architecture CSVs and the columns JSON.
 
-The architecture is derived from ``pipelines/datasets/au_ecq_elections/schema.py`` so
+The architecture is derived from ``pipelines/datasets/au_qld_ecq_elections/schema.py`` so
 the sheets, the cleaning transform and the dbt models cannot drift apart.
 
-Run:  uv run python models/au_ecq_elections/code/build_architecture.py
+Run:  uv run python models/au_qld_ecq_elections/code/build_architecture.py
 """
 
 from __future__ import annotations
@@ -11,8 +11,8 @@ from __future__ import annotations
 import csv
 import json
 
-from pipelines.datasets.au_ecq_elections import schema
-from pipelines.datasets.au_ecq_elections.constants import (
+from pipelines.datasets.au_qld_ecq_elections import schema
+from pipelines.datasets.au_qld_ecq_elections.constants import (
     ARCHITECTURE_DIR,
     constants,
 )

@@ -1,6 +1,6 @@
 {{
     config(
-        schema="au_ecq_elections",
+        schema="au_qld_ecq_elections",
         alias="disclosure_gift",
         materialized="table",
         partition_by={
@@ -23,4 +23,4 @@ select
     safe_cast(is_political_donation as string) is_political_donation,
     safe_cast(has_electoral_committee as string) has_electoral_committee,
     safe_cast(electoral_committee_name as string) electoral_committee_name
-from {{ set_datalake_project("au_ecq_elections_staging.disclosure_gift") }} as t
+from {{ set_datalake_project("au_qld_ecq_elections_staging.disclosure_gift") }} as t

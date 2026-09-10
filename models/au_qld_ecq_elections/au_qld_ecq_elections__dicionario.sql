@@ -1,6 +1,6 @@
 {{
     config(
-        schema="au_ecq_elections",
+        schema="au_qld_ecq_elections",
         alias="dicionario",
         materialized="table",
     )
@@ -13,4 +13,4 @@ select
     safe_cast(chave as string) chave,
     safe_cast(cobertura_temporal as string) cobertura_temporal,
     safe_cast(valor as string) valor
-from {{ set_datalake_project("au_ecq_elections_staging.dicionario") }} as t
+from {{ set_datalake_project("au_qld_ecq_elections_staging.dicionario") }} as t

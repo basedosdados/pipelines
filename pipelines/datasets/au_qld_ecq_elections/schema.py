@@ -1,4 +1,4 @@
-"""Column specification for every au_ecq_elections table.
+"""Column specification for every au_qld_ecq_elections table.
 
 Single source of truth: the architecture CSVs, the cleaning transform and the dbt
 models are all generated from (or validated against) the ``TABLES`` mapping below.

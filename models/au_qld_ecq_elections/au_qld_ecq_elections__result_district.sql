@@ -1,7 +1,7 @@
 {{
     config(
-        schema="au_ecq_elections",
-        alias="distribution_of_preferences",
+        schema="au_qld_ecq_elections",
+        alias="result_district",
         materialized="table",
         partition_by={
             "field": "year",
@@ -25,19 +25,11 @@ select
     safe_cast(lga_name as string) lga_name,
     safe_cast(district_name as string) district_name,
     safe_cast(count_status as string) count_status,
-    safe_cast(distribution_number as string) distribution_number,
-    safe_cast(excluded_ballot_order_number as string) excluded_ballot_order_number,
+    safe_cast(count_type as string) count_type,
     safe_cast(ballot_order_number as string) ballot_order_number,
-    safe_cast(excluded_ballot_name as string) excluded_ballot_name,
     safe_cast(ballot_name as string) ballot_name,
     safe_cast(party_code as string) party_code,
     safe_cast(party_name as string) party_name,
-    safe_cast(votes_transferred as int64) votes_transferred,
-    safe_cast(percentage_transferred as float64) percentage_transferred,
-    safe_cast(votes_distributed as int64) votes_distributed,
-    safe_cast(votes_exhausted as int64) votes_exhausted,
-    safe_cast(percentage_exhausted as float64) percentage_exhausted,
-    safe_cast(votes_remaining_in_count as int64) votes_remaining_in_count
-from
-    {{ set_datalake_project("au_ecq_elections_staging.distribution_of_preferences") }}
-    as t
+    safe_cast(votes as int64) votes,
+    safe_cast(percentage as float64) percentage
+from {{ set_datalake_project("au_qld_ecq_elections_staging.result_district") }} as t

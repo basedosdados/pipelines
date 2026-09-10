@@ -1,6 +1,6 @@
 {{
     config(
-        schema="au_ecq_elections",
+        schema="au_qld_ecq_elections",
         alias="election",
         materialized="table",
         partition_by={
@@ -21,4 +21,4 @@ select
     safe_cast(government_level as string) government_level,
     safe_cast(election_date as date) election_date,
     safe_cast(results_archive_url as string) results_archive_url
-from {{ set_datalake_project("au_ecq_elections_staging.election") }} as t
+from {{ set_datalake_project("au_qld_ecq_elections_staging.election") }} as t

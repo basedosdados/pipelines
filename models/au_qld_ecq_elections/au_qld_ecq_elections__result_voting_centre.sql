@@ -1,6 +1,6 @@
 {{
     config(
-        schema="au_ecq_elections",
+        schema="au_qld_ecq_elections",
         alias="result_voting_centre",
         materialized="table",
         partition_by={
@@ -39,4 +39,5 @@ select
     safe_cast(votes_total as int64) votes_total,
     safe_cast(votes_formal as int64) votes_formal,
     safe_cast(votes_informal as int64) votes_informal
-from {{ set_datalake_project("au_ecq_elections_staging.result_voting_centre") }} as t
+from
+    {{ set_datalake_project("au_qld_ecq_elections_staging.result_voting_centre") }} as t

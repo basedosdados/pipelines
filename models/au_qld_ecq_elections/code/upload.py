@@ -1,11 +1,11 @@
-"""Upload cleaned au_ecq_elections parquet to BigQuery staging.
+"""Upload cleaned au_qld_ecq_elections parquet to BigQuery staging.
 
 Usage:
-    PYTHONPATH=. ~/.venvs/bd-pipelines/bin/python models/au_ecq_elections/code/upload.py \
+    PYTHONPATH=. ~/.venvs/bd-pipelines/bin/python models/au_qld_ecq_elections/code/upload.py \
         [--env dev] [table_slug ...]
 
 Reads the cleaned parquet from ``$ECQ_DATA/output`` (default
-``~/Downloads/au_ecq_elections_data/output``), which is never under the repo or Dropbox.
+``~/Downloads/au_qld_ecq_elections_data/output``), which is never under the repo or Dropbox.
 Uploads smallest table first and stops on the first failure.
 
 Prod table data is materialised by the table-approve action on merge, not by running
@@ -24,7 +24,7 @@ import basedosdados as bd  # noqa: E402
 import google.cloud.storage as gcs  # noqa: E402
 from google.cloud import bigquery  # noqa: E402
 
-from pipelines.datasets.au_ecq_elections.constants import (  # noqa: E402
+from pipelines.datasets.au_qld_ecq_elections.constants import (  # noqa: E402
     constants,
     data_root,
 )

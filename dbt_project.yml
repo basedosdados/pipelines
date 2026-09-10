@@ -64,12 +64,12 @@ models:
     au_doe_higher_education:
       +materialized: table
       +schema: au_doe_higher_education
-    au_ecq_elections:
-      +materialized: table
-      +schema: au_ecq_elections
     au_geoscape_gnaf:
       +materialized: table
       +schema: au_geoscape_gnaf
+    au_qld_ecq_elections:
+      +materialized: table
+      +schema: au_qld_ecq_elections
     au_rba_statistical_tables:
       +materialized: table
       +schema: au_rba_statistical_tables

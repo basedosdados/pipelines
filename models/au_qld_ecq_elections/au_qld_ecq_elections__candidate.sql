@@ -1,6 +1,6 @@
 {{
     config(
-        schema="au_ecq_elections",
+        schema="au_qld_ecq_elections",
         alias="candidate",
         materialized="table",
         partition_by={
@@ -31,4 +31,4 @@ select
     safe_cast(party_code as string) party_code,
     safe_cast(party_name as string) party_name,
     safe_cast(is_declared_elected as string) is_declared_elected
-from {{ set_datalake_project("au_ecq_elections_staging.candidate") }} as t
+from {{ set_datalake_project("au_qld_ecq_elections_staging.candidate") }} as t

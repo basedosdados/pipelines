@@ -1,6 +1,6 @@
 {{
     config(
-        schema="au_ecq_elections",
+        schema="au_qld_ecq_elections",
         alias="disclosure_expenditure",
         materialized="table",
         partition_by={
@@ -22,4 +22,6 @@ select
     safe_cast(election_name as string) election_name,
     safe_cast(goods_or_services_description as string) goods_or_services_description,
     safe_cast(expenditure_purpose as string) expenditure_purpose
-from {{ set_datalake_project("au_ecq_elections_staging.disclosure_expenditure") }} as t
+from
+    {{ set_datalake_project("au_qld_ecq_elections_staging.disclosure_expenditure") }}
+    as t

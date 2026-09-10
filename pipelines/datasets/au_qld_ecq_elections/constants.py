@@ -1,4 +1,4 @@
-"""Constants for au_ecq_elections — Electoral Commission of Queensland results and disclosures."""
+"""Constants for au_qld_ecq_elections — Electoral Commission of Queensland results and disclosures."""
 
 import os
 from enum import Enum
@@ -6,7 +6,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 ARCHITECTURE_DIR = (
-    REPO_ROOT / "models" / "au_ecq_elections" / "code" / "architecture"
+    REPO_ROOT / "models" / "au_qld_ecq_elections" / "code" / "architecture"
 )
 
 
@@ -14,13 +14,13 @@ def data_root() -> Path:
     """Scratch location for raw downloads and cleaned parquet (never inside the repo)."""
     return Path(
         os.environ.get(
-            "ECQ_DATA", Path.home() / "Downloads" / "au_ecq_elections_data"
+            "ECQ_DATA", Path.home() / "Downloads" / "au_qld_ecq_elections_data"
         )
     )
 
 
 class constants(Enum):
-    DATASET_ID = "au_ecq_elections"
+    DATASET_ID = "au_qld_ecq_elections"
     BACKEND_SLUG = "qld_elections"
 
     RESULTS_BASE_URL = "https://resultsdata.elections.qld.gov.au"

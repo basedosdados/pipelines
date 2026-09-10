@@ -1,6 +1,6 @@
 {{
     config(
-        schema="au_ecq_elections",
+        schema="au_qld_ecq_elections",
         alias="enrolment_turnout",
         materialized="table",
         partition_by={
@@ -38,4 +38,4 @@ select
     safe_cast(voting_method as string) voting_method,
     safe_cast(is_final as string) is_final,
     safe_cast(last_updated as datetime) last_updated
-from {{ set_datalake_project("au_ecq_elections_staging.enrolment_turnout") }} as t
+from {{ set_datalake_project("au_qld_ecq_elections_staging.enrolment_turnout") }} as t

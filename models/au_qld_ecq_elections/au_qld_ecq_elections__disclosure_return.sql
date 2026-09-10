@@ -1,6 +1,6 @@
 {{
     config(
-        schema="au_ecq_elections",
+        schema="au_qld_ecq_elections",
         alias="disclosure_return",
         materialized="table",
         partition_by={
@@ -22,4 +22,4 @@ select
     safe_cast(period_label as string) period_label,
     safe_cast(amount_received as float64) amount_received,
     safe_cast(amount_paid as float64) amount_paid
-from {{ set_datalake_project("au_ecq_elections_staging.disclosure_return") }} as t
+from {{ set_datalake_project("au_qld_ecq_elections_staging.disclosure_return") }} as t

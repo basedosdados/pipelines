@@ -1,7 +1,7 @@
-"""Pure download + cleaning transform for au_ecq_elections.
+"""Pure download + cleaning transform for au_qld_ecq_elections.
 
 No Prefect imports: the one-shot onboarding bootstrap under
-``models/au_ecq_elections/code/`` imports these functions directly, so the
+``models/au_qld_ecq_elections/code/`` imports these functions directly, so the
 transform lives in exactly one place.
 
 The Electoral Commission of Queensland publishes two unrelated bodies of data:
@@ -55,7 +55,7 @@ import pandas as pd
 import pyarrow as pa
 import requests
 
-from pipelines.datasets.au_ecq_elections.constants import constants
+from pipelines.datasets.au_qld_ecq_elections.constants import constants
 
 # --------------------------------------------------------------------------------------
 # Small helpers
@@ -1385,7 +1385,7 @@ def write_partitioned(
 
 def clean_all(input_dir: Path, output_dir: Path) -> dict[str, int]:
     """Full transform. Returns a row count per table."""
-    from pipelines.datasets.au_ecq_elections import schema
+    from pipelines.datasets.au_qld_ecq_elections import schema
 
     crosswalk = build_directory_crosswalk(
         input_dir / "directory_crosswalk.json"

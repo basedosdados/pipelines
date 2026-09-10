@@ -1,6 +1,6 @@
 {{
     config(
-        schema="au_ecq_elections",
+        schema="au_qld_ecq_elections",
         alias="voting_centre",
         materialized="table",
         partition_by={
@@ -29,4 +29,4 @@ select
     safe_cast(longitude as float64) longitude,
     safe_cast(joint_type as string) joint_type,
     safe_cast(is_abolished as string) is_abolished
-from {{ set_datalake_project("au_ecq_elections_staging.voting_centre") }} as t
+from {{ set_datalake_project("au_qld_ecq_elections_staging.voting_centre") }} as t
