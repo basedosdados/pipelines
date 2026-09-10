@@ -1,6 +1,6 @@
 {{
     config(
-        schema="br_pncp",
+        schema="br_mgi_pncp",
         alias="dicionario",
         materialized="table",
     )
@@ -18,7 +18,7 @@ with
             safe_cast(id_modalidade as string) chave,
             '' cobertura_temporal,
             safe_cast(modalidade as string) valor
-        from {{ ref("br_pncp__contratacao") }}
+        from {{ ref("br_mgi_pncp__contratacao") }}
         where id_modalidade is not null and modalidade is not null
         union all
         select
@@ -27,7 +27,7 @@ with
             safe_cast(id_modo_disputa as string) chave,
             '' cobertura_temporal,
             safe_cast(modo_disputa as string) valor
-        from {{ ref("br_pncp__contratacao") }}
+        from {{ ref("br_mgi_pncp__contratacao") }}
         where id_modo_disputa is not null and modo_disputa is not null
         union all
         select
@@ -36,7 +36,7 @@ with
             safe_cast(id_situacao_compra as string) chave,
             '' cobertura_temporal,
             safe_cast(situacao_compra as string) valor
-        from {{ ref("br_pncp__contratacao") }}
+        from {{ ref("br_mgi_pncp__contratacao") }}
         where id_situacao_compra is not null and situacao_compra is not null
         union all
         select
@@ -45,7 +45,7 @@ with
             safe_cast(id_tipo_instrumento_convocatorio as string) chave,
             '' cobertura_temporal,
             safe_cast(tipo_instrumento_convocatorio as string) valor
-        from {{ ref("br_pncp__contratacao") }}
+        from {{ ref("br_mgi_pncp__contratacao") }}
         where
             id_tipo_instrumento_convocatorio is not null
             and tipo_instrumento_convocatorio is not null
@@ -56,7 +56,7 @@ with
             safe_cast(codigo_amparo_legal as string) chave,
             '' cobertura_temporal,
             safe_cast(nome_amparo_legal as string) valor
-        from {{ ref("br_pncp__contratacao") }}
+        from {{ ref("br_mgi_pncp__contratacao") }}
         where codigo_amparo_legal is not null and nome_amparo_legal is not null
         union all
         select
@@ -65,7 +65,7 @@ with
             safe_cast(id_tipo_contrato as string) chave,
             '' cobertura_temporal,
             safe_cast(tipo_contrato as string) valor
-        from {{ ref("br_pncp__contrato") }}
+        from {{ ref("br_mgi_pncp__contrato") }}
         where id_tipo_contrato is not null and tipo_contrato is not null
         union all
         select
@@ -74,7 +74,7 @@ with
             safe_cast(id_categoria_processo as string) chave,
             '' cobertura_temporal,
             safe_cast(categoria_processo as string) valor
-        from {{ ref("br_pncp__contrato") }}
+        from {{ ref("br_mgi_pncp__contrato") }}
         where id_categoria_processo is not null and categoria_processo is not null
         union all
         select
@@ -83,7 +83,7 @@ with
             safe_cast(id_tipo_instrumento_cobranca as string) chave,
             '' cobertura_temporal,
             safe_cast(tipo_instrumento_cobranca as string) valor
-        from {{ ref("br_pncp__instrumento_cobranca") }}
+        from {{ ref("br_mgi_pncp__instrumento_cobranca") }}
         where
             id_tipo_instrumento_cobranca is not null
             and tipo_instrumento_cobranca is not null
