@@ -815,6 +815,12 @@ TABLES["voting_centre"] = [
         "State or territory abbreviation of the voting centre",
         "Sigla del estado o territorio del local de votación",
         directory_column=DIR_STATE,
+        observations=(
+            "O vínculo com o diretório é real e é testado no dbt, mas o backend não "
+            "consegue registrá-lo: ele só aceita chave estrangeira para a coluna marcada "
+            "como chave primária do diretório, e a chave de br_bd_diretorios_au.state é "
+            "id_state, não abbreviation."
+        ),
         original_name="state",
     ),
     C(
@@ -1200,6 +1206,202 @@ def column_types(table: str) -> dict[str, str]:
     return {c.name: c.bigquery_type for c in TABLES[table]}
 
 
+# --------------------------------------------------------------------------------------
+# Observation translations
+# --------------------------------------------------------------------------------------
+
+# Column ``observations`` are authored in Portuguese; the backend stores one field per
+# language and a bare ``observations`` key is written to Portuguese only, which is how
+# 3,022 production columns ended up PT-only. Every distinct note is translated here and
+# ``validate()`` fails on any note that is not.
+OBSERVATION_TRANSLATIONS: dict[str, tuple[str, str]] = {
+    "Coluna de particionamento. Vários eventos eleitorais podem compartilhar o mesmo ano.": (
+        "Partition column. Several electoral events can share the same year.",
+        "Columna de particionamiento. Varios eventos electorales pueden compartir el mismo año.",
+    ),
+    "Chave estrangeira para a tabela election, presente em todas as tabelas de resultados.": (
+        "Foreign key to the election table, present in every results table.",
+        "Clave foránea hacia la tabla election, presente en todas las tablas de resultados.",
+    ),
+    "Os 93 distritos estaduais de Queensland presentes na cobertura de 2020 a 2026 correspondem exatamente à vintage 2021 do ASGS. Nulo nas disputas de governo local.": (
+        "The 93 Queensland state districts in the 2020 to 2026 coverage match the ASGS 2021 vintage exactly. Null in local government contests.",
+        "Los 93 distritos estatales de Queensland presentes en la cobertura de 2020 a 2026 corresponden exactamente a la vintage 2021 del ASGS. Nulo en las disputas de gobierno local.",
+    ),
+    "Campo electorateId da ECQ. É único dentro de cada evento eleitoral e identifica uma única disputa por cadeira.": (
+        "The ECQ electorateId field. Unique within each electoral event, identifying a single seat race.",
+        "Campo electorateId de la ECQ. Es único dentro de cada evento electoral e identifica una única disputa por escaño.",
+    ),
+    "Código LGA 2021 do ABS, derivado por cruzamento validado de nomes: a ECQ mantém o sufixo legal (Shire, Regional, City) que o nome do ABS omite. Nulo nas disputas estaduais.": (
+        "ABS 2021 LGA code, derived by a validated name crosswalk: the ECQ keeps the legal suffix (Shire, Regional, City) that the ABS name drops. Null in state contests.",
+        "Código LGA 2021 del ABS, derivado por cruce validado de nombres: la ECQ mantiene el sufijo legal (Shire, Regional, City) que el nombre del ABS omite. Nulo en las disputas estatales.",
+    ),
+    "Campo areaCode da ECQ. Não é o código do ABS, que está em lga_id.": (
+        "The ECQ areaCode field. Not the ABS code, which is in lga_id.",
+        "Campo areaCode de la ECQ. No es el código del ABS, que está en lga_id.",
+    ),
+    "Assume os valores state e local. É definido por disputa, nunca uma constante do conjunto: disputas estaduais e locais convivem nas mesmas tabelas.": (
+        "Takes the values state and local. Set per contest, never a constant of the dataset: state and local contests coexist in the same tables.",
+        "Toma los valores state y local. Se define por disputa, nunca es una constante del conjunto: disputas estatales y locales conviven en las mismas tablas.",
+    ),
+    "Assume os valores state_district, councillor e mayor.": (
+        "Takes the values state_district, councillor and mayor.",
+        "Toma los valores state_district, councillor y mayor.",
+    ),
+    "Assume os valores compulsory_preferential, optional_preferential e first_past_the_post. É definido por disputa: os três coexistem dentro do evento de 2024.": (
+        "Takes the values compulsory_preferential, optional_preferential and first_past_the_post. Set per contest: all three coexist within the 2024 event.",
+        "Toma los valores compulsory_preferential, optional_preferential y first_past_the_post. Se define por disputa: los tres coexisten dentro del evento de 2024.",
+    ),
+    "Nulo nas disputas estaduais.": (
+        "Null in state contests.",
+        "Nulo en las disputas estatales.",
+    ),
+    "Assume os valores preliminary_unofficial, indicative_unofficial, first_preference_official, distribution_of_preferences_official e declared_unopposed. As apurações preliminar e oficial de primeira preferência divergem nos 93 distritos da eleição geral de 2024: não são recortes redundantes do mesmo número, portanto filtre sempre por count_status.": (
+        "Takes the values preliminary_unofficial, indicative_unofficial, first_preference_official, distribution_of_preferences_official and declared_unopposed. The preliminary and official first preference counts differ in all 93 districts of the 2024 general election: they are not redundant snapshots of the same number, so always filter on count_status.",
+        "Toma los valores preliminary_unofficial, indicative_unofficial, first_preference_official, distribution_of_preferences_official y declared_unopposed. Los escrutinios preliminar y oficial de primera preferencia divergen en los 93 distritos de la elección general de 2024: no son recortes redundantes del mismo número, por lo que conviene filtrar siempre por count_status.",
+    ),
+    "Total da etapa de distribuição, repetido em cada linha de pessoa candidata receptora.": (
+        "Total for the distribution stage, repeated on every receiving candidate row.",
+        "Total de la etapa de distribución, repetido en cada fila de persona candidata receptora.",
+    ),
+    "Número de ordem na cédula; aritmética sobre ele não tem sentido, por isso é publicado como texto.": (
+        "Ballot order number; arithmetic on it is meaningless, so it is published as text.",
+        "Número de orden en la boleta; la aritmética sobre él no tiene sentido, por eso se publica como texto.",
+    ),
+    'Formato "SOBRENOME, Prenomes".': (
+        'Format "SURNAME, Given names".',
+        'Formato "APELLIDO, Nombres".',
+    ),
+    "Assume os valores yes e no.": (
+        "Takes the values yes and no.",
+        "Toma los valores yes y no.",
+    ),
+    "Total do local de votação, repetido em cada linha de pessoa candidata.": (
+        "Voting centre total, repeated on every candidate row.",
+        "Total del local de votación, repetido en cada fila de persona candidata.",
+    ),
+    "Assume os valores first_preference e two_candidate_preferred. A ECQ não publica apuração de preferência entre dois partidos, ao contrário da AEC.": (
+        "Takes the values first_preference and two_candidate_preferred. Unlike the AEC, the ECQ publishes no two party preferred count.",
+        "Toma los valores first_preference y two_candidate_preferred. A diferencia de la AEC, la ECQ no publica escrutinio de preferencia entre dos partidos.",
+    ),
+    "Número de ordem na cédula; aritmética sobre ele não tem sentido.": (
+        "Ballot order number; arithmetic on it is meaningless.",
+        "Número de orden en la boleta; la aritmética sobre él no tiene sentido.",
+    ),
+    "Campo exclusivo da esfera estadual; vazio em todas as linhas locais.": (
+        "A state-only field; empty on every local row.",
+        "Campo exclusivo del ámbito estatal; vacío en todas las filas locales.",
+    ),
+    "Chave da tabela. A eleição suplementar de conselheiro do Mapoon Aboriginal Shire Council de 2023 (stub MASC23) está excluída do conjunto porque a ECQ não publica arquivo de resultados para ela.": (
+        "Key of the table. The 2023 Mapoon Aboriginal Shire Council councillor by-election (stub MASC23) is excluded from the dataset because the ECQ publishes no results archive for it.",
+        "Clave de la tabla. La elección parcial de concejal del Mapoon Aboriginal Shire Council de 2023 (stub MASC23) está excluida del conjunto porque la ECQ no publica archivo de resultados para ella.",
+    ),
+    "Assume os valores Local Quadrennial, State General, State By-election, Local Councillor By-election e Local Mayoral By-election.": (
+        "Takes the values Local Quadrennial, State General, State By-election, Local Councillor By-election and Local Mayoral By-election.",
+        "Toma los valores Local Quadrennial, State General, State By-election, Local Councillor By-election y Local Mayoral By-election.",
+    ),
+    "Assume os valores state e local.": (
+        "Takes the values state and local.",
+        "Toma los valores state y local.",
+    ),
+    "Número de ordem; aritmética sobre ele não tem sentido.": (
+        "Sequence number; arithmetic on it is meaningless.",
+        "Número de orden; la aritmética sobre él no tiene sentido.",
+    ),
+    "As 64 disputas decididas sem apuração, com count_status igual a declared_unopposed, trazem uma única linha com as colunas de votos nulas.": (
+        "The 64 contests decided without a count, with count_status equal to declared_unopposed, carry a single row whose vote columns are null.",
+        "Las 64 disputas decididas sin escrutinio, con count_status igual a declared_unopposed, traen una única fila con las columnas de votos nulas.",
+    ),
+    "Assume os valores PB, EV, DV1, DV2, AB1 e AB2. O campo typeDescription da própria ECQ é inconfiável, pois em parte dos locais repete o nome do local em vez do rótulo do tipo; por isso apenas o código é publicado aqui e os rótulos ficam na tabela dicionario.": (
+        "Takes the values PB, EV, DV1, DV2, AB1 and AB2. The ECQ's own typeDescription field is unreliable, because for some centres it repeats the centre name instead of the type label; only the code is published here and the labels live in the dicionario table.",
+        "Toma los valores PB, EV, DV1, DV2, AB1 y AB2. El campo typeDescription de la propia ECQ no es confiable, pues en parte de los locales repite el nombre del local en vez de la etiqueta del tipo; por eso aquí solo se publica el código y las etiquetas quedan en la tabla dicionario.",
+    ),
+    "Igual a district_name nas disputas estaduais e nas divisões de conselho; nas disputas de conselho indiviso e de prefeitura é uma sub-área da disputa.": (
+        "Equal to district_name in state contests and in council divisions; in undivided council and mayoral contests it is a reporting sub-area of the contest.",
+        "Igual a district_name en las disputas estatales y en las divisiones de concejo; en las disputas de concejo indiviso y de alcaldía es una subárea de la disputa.",
+    ),
+    "Número de ordem; aritmética sobre ele não tem sentido. A ECQ também publica esta distribuição por local de votação (146.223 linhas); esse grão mais fino não está incluído nesta tabela.": (
+        "Sequence number; arithmetic on it is meaningless. The ECQ also publishes this distribution by voting centre (146,223 rows); that finer grain is not included in this table.",
+        "Número de orden; la aritmética sobre él no tiene sentido. La ECQ también publica esta distribución por local de votación (146.223 filas); ese grano más fino no está incluido en esta tabla.",
+    ),
+    "O grão da tabela é uma linha por evento eleitoral, local de votação e distrito atendido: um local que atende dois distritos aparece duas vezes.": (
+        "The grain of the table is one row per electoral event, voting centre and district served: a centre serving two districts appears twice.",
+        "El grano de la tabla es una fila por evento electoral, local de votación y distrito atendido: un local que atiende dos distritos aparece dos veces.",
+    ),
+    "Publicado como texto: pode conter letras e intervalos.": (
+        "Published as text: it can contain letters and ranges.",
+        "Publicado como texto: puede contener letras e intervalos.",
+    ),
+    "Código postal, não uma quantidade; publicado como texto.": (
+        "A postcode, not a quantity; published as text.",
+        "Código postal, no una cantidad; publicado como texto.",
+    ),
+    "O vínculo com o diretório é real e é testado no dbt, mas o backend não consegue registrá-lo: ele só aceita chave estrangeira para a coluna marcada como chave primária do diretório, e a chave de br_bd_diretorios_au.state é id_state, não abbreviation.": (
+        "The directory link is real and is tested in dbt, but the backend cannot record it: it only accepts a foreign key to the column flagged as the directory's primary key, and the key of br_bd_diretorios_au.state is id_state, not abbreviation.",
+        "El vínculo con el directorio es real y se prueba en dbt, pero el backend no puede registrarlo: solo acepta clave foránea hacia la columna marcada como clave primaria del directorio, y la clave de br_bd_diretorios_au.state es id_state, no abbreviation.",
+    ),
+    "Assume os valores Host e Guest, que marcam locais compartilhados entre distritos. Nulo quando o local não é compartilhado.": (
+        "Takes the values Host and Guest, which mark centres shared between districts. Null when the centre is not shared.",
+        "Toma los valores Host y Guest, que marcan locales compartidos entre distritos. Nulo cuando el local no es compartido.",
+    ),
+    "Coluna de particionamento, derivada de date_gift_made. 23 linhas não trazem data da doação nem evento eleitoral, de modo que a coluna de particionamento não está integralmente preenchida.": (
+        "Partition column, derived from date_gift_made. 23 rows carry neither a gift date nor an electoral event, so the partition column is not fully populated.",
+        "Columna de particionamiento, derivada de date_gift_made. 23 filas no traen fecha de la donación ni evento electoral, de modo que la columna de particionamiento no está íntegramente poblada.",
+    ),
+    "Nenhuma coluna da fonte codifica esta informação: ela é derivada de qual das duas exportações do mapa (State ou Local) originou a linha, e essa é a única forma de recuperá-la.": (
+        "No column in the source encodes this: it is derived from which of the two map exports (State or Local) the row came from, and that is the only way to recover it.",
+        "Ninguna columna de la fuente codifica esta información: se deriva de cuál de las dos exportaciones del mapa (State o Local) originó la fila, y esa es la única forma de recuperarla.",
+    ),
+    "Ausente em 23 linhas, que também não trazem evento eleitoral associado.": (
+        "Absent on 23 rows, which also carry no associated electoral event.",
+        "Ausente en 23 filas, que tampoco traen evento electoral asociado.",
+    ),
+    "Linhas inteiramente duplicadas são frequentes (502 na esfera estadual e 54 na local) e não são necessariamente erros: duas doações idênticas do mesmo doador na mesma data são genuinamente indistinguíveis, por isso a tabela não publica chave primária.": (
+        "Fully duplicated rows are pervasive (502 in the state export and 54 in the local one, 557 once pooled and cleaned) and are not necessarily errors: two identical gifts from the same donor on the same date are genuinely indistinguishable, so the table publishes no primary key.",
+        "Las filas totalmente duplicadas son frecuentes (502 en la exportación estatal y 54 en la local, 557 una vez reunidas y limpiadas) y no son necesariamente errores: dos donaciones idénticas del mismo donante en la misma fecha son genuinamente indistinguibles, por lo que la tabla no publica clave primaria.",
+    ),
+    "Linhas inteiramente duplicadas são frequentes e não são necessariamente erros; a tabela não publica chave primária.": (
+        "Fully duplicated rows are pervasive (446 in the source export, 454 once cleaned) and are not necessarily errors; the table publishes no primary key.",
+        "Las filas totalmente duplicadas son frecuentes (446 en la exportación de origen, 454 una vez limpiadas) y no son necesariamente errores; la tabla no publica clave primaria.",
+    ),
+    "Majoritariamente vazio (preenchido em 2,7% das doações estaduais) e em texto livre. Não corresponde de forma confiável à tabela election, pois também nomeia eventos de 2012 e 2016, anteriores à cobertura de resultados.": (
+        "Mostly empty (populated on 2.7% of state gifts, 13.6% once pooled) and free text. It does not join reliably to the election table, since it also names 2012 and 2016 events that precede the results coverage.",
+        "Mayoritariamente vacío (poblado en el 2,7% de las donaciones estatales, 13,6% una vez reunidas) y en texto libre. No corresponde de forma confiable a la tabla election, pues también nombra eventos de 2012 y 2016, anteriores a la cobertura de resultados.",
+    ),
+    "Assume os valores Yes, No, Unknown e -. O traço é um terceiro estado real, que significa não aplicável e não um vazio: o campo existe apenas na esfera estadual, de modo que toda linha local traz -.": (
+        "Takes the values Yes, No, Unknown and -. The dash is a real third state meaning not applicable, not a blank: the field exists only in the state sphere, so every local row carries -.",
+        "Toma los valores Yes, No, Unknown y -. El guion es un tercer estado real, que significa no aplicable y no un vacío: el campo existe solo en el ámbito estatal, de modo que toda fila local trae -.",
+    ),
+    "Coluna de particionamento, derivada de date_incurred. A cobertura é concentrada nos ciclos eleitorais e não é uniforme: na prática começa em 2019, com apenas 1.997 linhas somando 2016, 2017 e 2018.": (
+        "Partition column, derived from date_incurred. Coverage is concentrated in election cycles and is not uniform: in practice it starts in 2019, with only 1,997 rows across 2016, 2017 and 2018 combined.",
+        "Columna de particionamiento, derivada de date_incurred. La cobertura se concentra en los ciclos electorales y no es uniforme: en la práctica comienza en 2019, con solo 1.997 filas sumando 2016, 2017 y 2018.",
+    ),
+    "Duas linhas datadas de 1924 são erros de digitação para 2024, ambas ligadas às eleições municipais de 2024, e foram corrigidas para 2024 para que o intervalo de particionamento não recue um século.": (
+        "Two rows dated 1924 are data-entry typos for 2024, both attached to the 2024 local government elections, and were repaired to 2024 so the partition range is not dragged back a century.",
+        "Dos filas fechadas en 1924 son errores de digitación por 2024, ambas ligadas a las elecciones municipales de 2024, y fueron corregidas a 2024 para que el intervalo de particionamiento no retroceda un siglo.",
+    ),
+    "Assume os valores Councillor, Mayor e Announced Candidate, além de vazio.": (
+        "Takes the values Councillor, Mayor and Announced Candidate, as well as blank.",
+        "Toma los valores Councillor, Mayor y Announced Candidate, además de vacío.",
+    ),
+    "Texto livre; não corresponde de forma confiável à tabela election.": (
+        "Free text; it does not join reliably to the election table.",
+        "Texto libre; no corresponde de forma confiable a la tabla election.",
+    ),
+    "Coluna de particionamento, derivada de date_created.": (
+        "Partition column, derived from date_created.",
+        "Columna de particionamiento, derivada de date_created.",
+    ),
+    "As exportações do Electronic Disclosure System não trazem coluna de situação da declaração: a interface do sistema filtra por ela, mas não a exporta, de modo que a situação de entrega é uma lacuna conhecida.": (
+        "The Electronic Disclosure System exports carry no return status column: the system's interface filters on it but does not export it, so lodgement status is a known gap.",
+        "Las exportaciones del Electronic Disclosure System no traen columna de situación de la declaración: la interfaz del sistema filtra por ella, pero no la exporta, de modo que la situación de entrega es una laguna conocida.",
+    ),
+    "São 20 períodos semestrais de calendário, do segundo semestre de 2016 ao primeiro semestre de 2026. A declaração é única por return_for_name, period_start_date e period_end_date.": (
+        "There are 20 half-year calendar periods, from the second half of 2016 to the first half of 2026. The return is unique on return_for_name, period_start_date and period_end_date.",
+        "Son 20 períodos semestrales de calendario, del segundo semestre de 2016 al primer semestre de 2026. La declaración es única por return_for_name, period_start_date y period_end_date.",
+    ),
+}
+
+
 def validate() -> None:
     """Fail loudly on a duplicated column name within a table, or a typed quantity
     published without a measurement unit."""
@@ -1236,6 +1438,13 @@ def validate() -> None:
             if c.name.startswith("id_") and table != "dicionario":
                 raise ValueError(
                     f"{table}.{c.name}: English datasets take the _id suffix"
+                )
+            if (
+                c.observations
+                and c.observations not in OBSERVATION_TRANSLATIONS
+            ):
+                raise ValueError(
+                    f"{table}.{c.name}: observation note has no EN/ES translation"
                 )
 
 

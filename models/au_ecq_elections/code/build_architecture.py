@@ -73,7 +73,19 @@ def main() -> None:
                 "covered_by_dictionary": c.covered_by_dictionary == "yes",
                 "directory_column": c.directory_column or None,
                 "has_sensitive_data": c.has_sensitive_data == "yes",
-                "observations": c.observations or None,
+                # All three languages, always. bulk_upsert_columns writes a bare
+                # "observations" key to Portuguese only, and leaves EN and ES blank.
+                "observations_pt": c.observations or None,
+                "observations_en": (
+                    schema.OBSERVATION_TRANSLATIONS[c.observations][0]
+                    if c.observations
+                    else None
+                ),
+                "observations_es": (
+                    schema.OBSERVATION_TRANSLATIONS[c.observations][1]
+                    if c.observations
+                    else None
+                ),
                 "is_partition": c.name in schema.PARTITION_COLUMNS[table],
             }
             for c in cols
