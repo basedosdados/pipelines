@@ -70,6 +70,9 @@ models:
     au_rba_statistical_tables:
       +materialized: table
       +schema: au_rba_statistical_tables
+    au_vic_vec_elections:
+      +materialized: table
+      +schema: au_vic_vec_elections
     br_anatel_banda_larga_fixa:
       +materialized: table
       +schema: br_anatel_banda_larga_fixa

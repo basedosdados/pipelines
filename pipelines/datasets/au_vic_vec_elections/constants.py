@@ -44,16 +44,52 @@ class constants(Enum):
     # Two-party-preferred for 2022 is not on the blob; it is served from the CMS.
     TWO_PARTY_PREFERRED_2022_URL = "https://www.vec.vic.gov.au/-/media/a8466a1794024583a2128ed431ca24f3.xlsx"
 
-    # Polling day for each electoral event in the dataset.
-    ELECTION_DATES = {
-        "state2002": "2002-11-30",
-        "state2006": "2006-11-25",
-        "state2010": "2010-11-27",
-        "state2014": "2014-11-29",
-        "state2018": "2018-11-24",
-        "state2022": "2022-11-26",
-        "prahran_by2025": "2025-02-08",
-        "nepean_by2026": "2026-05-02",
+    # Every electoral event in the dataset: display name, type and polling day.
+    # General-election dates are the statutory polling days; by-election and
+    # supplementary-election dates are taken from the VEC's own by-elections timeline
+    # page, not from the workbooks, which carry only a print date.
+    #
+    # Narracan is the awkward one. Its 2022 general-election contest was voided when a
+    # candidate died during the campaign, so Narracan has no 2022 general result at all
+    # and is instead contested at a supplementary election held on 28 January 2023. It
+    # is therefore a 2023 event, not a 2022 one.
+    ELECTION_META = {
+        "state2002": ("State Election 2002", "state_general", "2002-11-30"),
+        "state2006": ("State Election 2006", "state_general", "2006-11-25"),
+        "state2010": ("State Election 2010", "state_general", "2010-11-27"),
+        "state2014": ("State Election 2014", "state_general", "2014-11-29"),
+        "state2018": ("State Election 2018", "state_general", "2018-11-24"),
+        "state2022": ("State Election 2022", "state_general", "2022-11-26"),
+        "narracan_supp2023": (
+            "Narracan District Supplementary Election 2023",
+            "state_by_election",
+            "2023-01-28",
+        ),
+        "warrandyte_by2023": (
+            "Warrandyte District By-election 2023",
+            "state_by_election",
+            "2023-08-26",
+        ),
+        "mulgrave_by2023": (
+            "Mulgrave District By-election 2023",
+            "state_by_election",
+            "2023-11-18",
+        ),
+        "prahran_by2025": (
+            "Prahran District By-election 2025",
+            "state_by_election",
+            "2025-02-08",
+        ),
+        "werribee_by2025": (
+            "Werribee District By-election 2025",
+            "state_by_election",
+            "2025-02-08",
+        ),
+        "nepean_by2026": (
+            "Nepean District By-election 2026",
+            "state_by_election",
+            "2026-05-02",
+        ),
     }
 
     # Australian Statistical Geography Standard vintage used for the district link.

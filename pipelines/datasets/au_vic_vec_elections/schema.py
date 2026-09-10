@@ -10,7 +10,7 @@ identifier is STRING.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 # Directory foreign keys use the BACKEND slug (diretorios_au,
 # diretorios_data_tempo), not the BigQuery dataset id (br_bd_diretorios_*).
@@ -179,6 +179,16 @@ SED_ID = C(
     observations="Código ASGS 2021 do ABS para o distrito eleitoral estadual, cruzado por nome. Apenas os distritos da Assembleia Legislativa são cruzados, e somente onde a vintage 2021 ainda traz o nome do distrito; as fronteiras distritais de Victoria foram redivididas em 2001, 2013 e 2021, de modo que distritos de eleições anteriores frequentemente não têm correspondente na vintage 2021 e ficam nulos. Nulo em toda disputa do Conselho Legislativo.",
 )
 
+GROUP_LETTER = C(
+    "group_letter",
+    "STRING",
+    "Letra do grupo na cédula do Conselho Legislativo",
+    "Group letter on the Legislative Council ballot paper",
+    "Letra del grupo en la boleta del Consejo Legislativo",
+    observations="Letra do grupo na cédula do Conselho Legislativo. Identifica o grupo, e portanto a linha de votos acima da linha, que não traz nome de candidatura. Nula nas disputas da Assembleia Legislativa.",
+)
+
+
 # Spliced verbatim into the six contest-level fact tables.
 CONTEST_BLOCK = [
     YEAR,
@@ -300,14 +310,7 @@ TABLES["candidate"] = [
         "Nombres de pila de la persona candidata",
     ),
     PARTY_NAME,
-    C(
-        "group_letter",
-        "STRING",
-        "Letra do grupo da pessoa candidata na cédula do Conselho Legislativo",
-        "Group letter of the candidate on the Legislative Council ballot paper",
-        "Letra del grupo de la persona candidata en la boleta del Consejo Legislativo",
-        observations="Letra do grupo na cédula de votação por grupo do Conselho Legislativo. Nula nas disputas da Assembleia Legislativa.",
-    ),
+    GROUP_LETTER,
     C(
         "is_elected",
         "STRING",
@@ -398,6 +401,7 @@ TABLES["result_district"] = [
     BALLOT_POSITION,
     BALLOT_NAME,
     PARTY_NAME,
+    GROUP_LETTER,
     VOTES,
     pct(
         "percentage",
@@ -423,7 +427,7 @@ TABLES["result_voting_centre"] = [
         "Type of vote the row refers to",
         "Tipo de voto al que se refiere la fila",
         covered_by_dictionary="yes",
-        observations="Assume os valores ordinary, absent, early, postal, provisional e marked_as_voted. Os votos ordinários são reportados por local de votação; os demais tipos de voto declarado são reportados uma única vez para toda a disputa e trazem o tipo de voto como nome do local de votação.",
+        observations="Assume os valores ordinary, absent, early, postal, provisional, marked_as_voted e declaration. Os votos ordinários são reportados por local de votação; os demais tipos de voto declarado são reportados uma única vez para toda a disputa e trazem o tipo de voto como nome do local de votação. O valor declaration ocorre apenas em 2006, quando a VEC publicava uma única linha de voto por declaração em vez de separar voto provisório de voto de eleitor já marcado como tendo votado.",
     ),
     C(
         "count_type",
@@ -437,6 +441,7 @@ TABLES["result_voting_centre"] = [
     BALLOT_POSITION,
     BALLOT_NAME,
     PARTY_NAME,
+    GROUP_LETTER,
     VOTES,
 ]
 
@@ -689,6 +694,10 @@ def column_types(table: str) -> dict[str, str]:
 # 3,022 production columns ended up PT-only. Every distinct note is translated here and
 # ``validate()`` fails on any note that is not.
 OBSERVATION_TRANSLATIONS: dict[str, tuple[str, str]] = {
+    "Letra do grupo na cédula do Conselho Legislativo. Identifica o grupo, e portanto a linha de votos acima da linha, que não traz nome de candidatura. Nula nas disputas da Assembleia Legislativa.": (
+        "Group letter on the Legislative Council ballot paper. It identifies the group, and therefore the above-the-line vote row, which carries no candidate name. Null in Legislative Assembly contests.",
+        "Letra del grupo en la boleta del Consejo Legislativo. Identifica al grupo, y por tanto la fila de votos sobre la línea, que no trae nombre de candidatura. Nula en las disputas de la Asamblea Legislativa.",
+    ),
     "Coluna de particionamento. Vários eventos eleitorais podem compartilhar o mesmo ano.": (
         "Partition column. Several electoral events can share the same year.",
         "Columna de particionamiento. Varios eventos electorales pueden compartir el mismo año.",
@@ -765,9 +774,9 @@ OBSERVATION_TRANSLATIONS: dict[str, tuple[str, str]] = {
         "Takes the values first_preference, two_candidate_preferred and two_party_preferred. Always filter on it: the three are different counts of the same contest, not redundant snapshots.",
         "Toma los valores first_preference, two_candidate_preferred y two_party_preferred. Filtre siempre por esta columna: los tres son escrutinios distintos de la misma disputa, y no recortes redundantes.",
     ),
-    "Assume os valores ordinary, absent, early, postal, provisional e marked_as_voted. Os votos ordinários são reportados por local de votação; os demais tipos de voto declarado são reportados uma única vez para toda a disputa e trazem o tipo de voto como nome do local de votação.": (
-        "Takes the values ordinary, absent, early, postal, provisional and marked_as_voted. Ordinary votes are reported per voting centre; the remaining declaration vote types are reported once for the whole contest and carry the vote type as the voting centre name.",
-        "Toma los valores ordinary, absent, early, postal, provisional y marked_as_voted. Los votos ordinarios se reportan por local de votación; los demás tipos de voto declarado se reportan una única vez para toda la disputa y traen el tipo de voto como nombre del local de votación.",
+    "Assume os valores ordinary, absent, early, postal, provisional, marked_as_voted e declaration. Os votos ordinários são reportados por local de votação; os demais tipos de voto declarado são reportados uma única vez para toda a disputa e trazem o tipo de voto como nome do local de votação. O valor declaration ocorre apenas em 2006, quando a VEC publicava uma única linha de voto por declaração em vez de separar voto provisório de voto de eleitor já marcado como tendo votado.": (
+        "Takes the values ordinary, absent, early, postal, provisional, marked_as_voted and declaration. Ordinary votes are reported per voting centre; the remaining declaration vote types are reported once for the whole contest and carry the vote type as the voting centre name. The value declaration occurs only in 2006, when the VEC published a single declaration vote line instead of separating provisional votes from votes of electors already marked as having voted.",
+        "Toma los valores ordinary, absent, early, postal, provisional, marked_as_voted y declaration. Los votos ordinarios se reportan por local de votación; los demás tipos de voto declarado se reportan una única vez para toda la disputa y traen el tipo de voto como nombre del local de votación. El valor declaration ocurre solo en 2006, cuando la VEC publicaba una única línea de voto por declaración en vez de separar el voto provisional del voto de elector ya marcado como habiendo votado.",
     ),
     "Assume os valores first_preference e two_candidate_preferred. Filtre sempre por esta coluna: as duas são apurações distintas da mesma disputa, e não recortes redundantes.": (
         "Takes the values first_preference and two_candidate_preferred. Always filter on it: the two are different counts of the same contest, not redundant snapshots.",
@@ -869,3 +878,289 @@ def validate() -> None:
                 raise ValueError(
                     f"{table}.{c.name}: observation note has no EN/ES translation"
                 )
+
+
+# --------------------------------------------------------------------------------------
+# Table-level metadata (dbt schema.yml and the Data Basis backend both read this)
+# --------------------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class TableMeta:
+    name_pt: str
+    name_en: str
+    name_es: str
+    description_pt: str
+    description_en: str
+    description_es: str
+    unique_key: list[str] = field(default_factory=list)
+    ignore_null_proportion: list[str] = field(default_factory=list)
+    # Key columns the source allows to be NULL — part of the uniqueness key, but no
+    # not_null test is emitted for them.
+    nullable_key: list[str] = field(default_factory=list)
+
+
+TABLE_META: dict[str, TableMeta] = {
+    "election": TableMeta(
+        "Eventos eleitorais",
+        "Electoral events",
+        "Eventos electorales",
+        "Catálogo dos eventos eleitorais estaduais de Victoria cobertos pelo conjunto: "
+        "as eleições gerais de 2006, 2010, 2014, 2018 e 2022, as eleições suplementares "
+        "de distrito e a eleição suplementar de Narracan de 2022, que substituiu uma "
+        "disputa anulada da eleição geral. A eleição de 2002 está representada apenas "
+        "por duas províncias do Conselho Legislativo, Western Port e Higinbotham, "
+        "porque a VEC não publica mais nada daquele pleito. As disputas de governo "
+        "local, também administradas pela VEC, não estão incluídas.",
+        "Catalogue of the Victorian state electoral events covered by the dataset: the "
+        "2006, 2010, 2014, 2018 and 2022 general elections, the district by-elections "
+        "and the 2022 Narracan supplementary election, which replaced a voided general "
+        "election contest. The 2002 election is represented only by two Legislative "
+        "Council provinces, Western Port and Higinbotham, because the VEC publishes "
+        "nothing else from that poll. Local government contests, which the VEC also "
+        "administers, are not included.",
+        "Catálogo de los eventos electorales estatales de Victoria cubiertos por el "
+        "conjunto: las elecciones generales de 2006, 2010, 2014, 2018 y 2022, las "
+        "elecciones parciales de distrito y la elección suplementaria de Narracan de "
+        "2022, que reemplazó una disputa anulada de la elección general. La elección de "
+        "2002 está representada solo por dos provincias del Consejo Legislativo, "
+        "Western Port y Higinbotham, porque la VEC no publica nada más de aquel "
+        "comicio. Las disputas de gobierno local, que la VEC también administra, no "
+        "están incluidas.",
+        unique_key=["election_id"],
+    ),
+    "candidate": TableMeta(
+        "Candidaturas",
+        "Candidates",
+        "Candidaturas",
+        "Pessoas candidatas em cada disputa, com posição na cédula, partido e indicação "
+        "de eleição. group_letter e elected_order são preenchidas apenas nas disputas "
+        "do Conselho Legislativo, ballot_position apenas onde a fonte publica a ordem "
+        "na cédula, e state_electoral_division_id é nula em toda disputa do Conselho "
+        "Legislativo e nos distritos sem correspondente na vintage 2021 do ASGS.",
+        "Candidates in each contest, with ballot position, party and elected status. "
+        "group_letter and elected_order are populated only in Legislative Council "
+        "contests, ballot_position only where the source publishes the ballot order, "
+        "and state_electoral_division_id is null for every Legislative Council contest "
+        "and for districts with no counterpart in the ASGS 2021 vintage.",
+        "Personas candidatas en cada disputa, con posición en la boleta, partido e "
+        "indicación de elección. group_letter y elected_order se pueblan solo en las "
+        "disputas del Consejo Legislativo, ballot_position solo donde la fuente publica "
+        "el orden en la boleta, y state_electoral_division_id es nula en toda disputa "
+        "del Consejo Legislativo y en los distritos sin contraparte en la vintage 2021 "
+        "del ASGS.",
+        unique_key=["year", "election_id", "contest_id", "ballot_name"],
+        ignore_null_proportion=[
+            "group_letter",
+            "elected_order",
+            "ballot_position",
+            "state_electoral_division_id",
+        ],
+    ),
+    "enrolment_turnout": TableMeta(
+        "Inscrições e comparecimento",
+        "Enrolment and turnout",
+        "Inscripciones y participación",
+        "Uma linha por disputa, com pessoas inscritas, votos totais, válidos e "
+        "inválidos, percentuais de voto inválido e de comparecimento, quota e número de "
+        "cadeiras a preencher. A quota existe apenas nas disputas por voto único "
+        "transferível do Conselho Legislativo e é nula na Assembleia Legislativa, e "
+        "state_electoral_division_id é nula em toda disputa do Conselho Legislativo e "
+        "nos distritos sem correspondente na vintage 2021 do ASGS.",
+        "One row per contest, with enrolled electors, total, formal and informal votes, "
+        "the informal and turnout shares, the quota and the number of seats to be "
+        "filled. The quota exists only in the Legislative Council single transferable "
+        "vote contests and is null in the Legislative Assembly, and "
+        "state_electoral_division_id is null for every Legislative Council contest and "
+        "for districts with no counterpart in the ASGS 2021 vintage.",
+        "Una fila por disputa, con personas inscritas, votos totales, válidos e "
+        "inválidos, porcentajes de voto inválido y de participación, cuota y número de "
+        "escaños a ocupar. La cuota existe solo en las disputas por voto único "
+        "transferible del Consejo Legislativo y es nula en la Asamblea Legislativa, y "
+        "state_electoral_division_id es nula en toda disputa del Consejo Legislativo y "
+        "en los distritos sin contraparte en la vintage 2021 del ASGS.",
+        unique_key=["year", "election_id", "contest_id"],
+        ignore_null_proportion=["quota", "state_electoral_division_id"],
+    ),
+    "result_district": TableMeta(
+        "Resultados por disputa",
+        "Results by contest",
+        "Resultados por disputa",
+        "Votos de cada pessoa candidata no total da disputa, por tipo de apuração: "
+        "primeira preferência, preferência entre dois candidatos e preferência entre "
+        "dois partidos; filtre sempre por count_type, pois as três são apurações "
+        "distintas da mesma disputa. A coluna percentage é publicada apenas em parte "
+        "das apurações, ballot_position apenas onde a fonte traz a ordem na cédula, e "
+        "state_electoral_division_id é nula em toda disputa do Conselho Legislativo e "
+        "nos distritos sem correspondente na vintage 2021 do ASGS. A eleição de 2002 "
+        "está representada apenas pelas províncias de Western Port e Higinbotham, "
+        "únicas disputas daquele pleito publicadas pela VEC.",
+        "Votes for each candidate across the whole contest, by count type: first "
+        "preference, two candidate preferred and two party preferred; always filter on "
+        "count_type, since the three are distinct counts of the same contest. The "
+        "percentage column is published for only part of the counts, ballot_position "
+        "only where the source carries the ballot order, and "
+        "state_electoral_division_id is null for every Legislative Council contest and "
+        "for districts with no counterpart in the ASGS 2021 vintage. The 2002 election "
+        "is represented only by the Western Port and Higinbotham provinces, the sole "
+        "contests from that poll the VEC publishes.",
+        "Votos de cada persona candidata en el total de la disputa, por tipo de "
+        "escrutinio: primera preferencia, preferencia entre dos candidatos y "
+        "preferencia entre dos partidos; filtre siempre por count_type, ya que los tres "
+        "son escrutinios distintos de la misma disputa. La columna percentage se "
+        "publica solo en parte de los escrutinios, ballot_position solo donde la fuente "
+        "trae el orden en la boleta, y state_electoral_division_id es nula en toda "
+        "disputa del Consejo Legislativo y en los distritos sin contraparte en la "
+        "vintage 2021 del ASGS. La elección de 2002 está representada solo por las "
+        "provincias de Western Port y Higinbotham, únicas disputas de aquel comicio "
+        "publicadas por la VEC.",
+        # party_name and group_letter are part of the key because a row is not always
+        # a candidate. A two-party-preferred row names a party bloc and no candidate,
+        # and a Legislative Council above-the-line row names a group and no candidate,
+        # so ballot_name is null on both and cannot identify them.
+        unique_key=[
+            "year",
+            "election_id",
+            "contest_id",
+            "count_type",
+            "ballot_name",
+            "party_name",
+            "group_letter",
+        ],
+        ignore_null_proportion=[
+            "ballot_position",
+            "state_electoral_division_id",
+            "percentage",
+            "group_letter",
+        ],
+    ),
+    "result_voting_centre": TableMeta(
+        "Resultados por local de votação",
+        "Results by voting centre",
+        "Resultados por local de votación",
+        "Votos de cada pessoa candidata em cada local de votação, por tipo de voto e "
+        "tipo de apuração. Os votos ordinários são reportados por local de votação; os "
+        "demais tipos de voto declarado são reportados uma única vez para toda a "
+        "disputa e trazem o tipo de voto como nome do local. A eleição de 2002 está "
+        "representada apenas pelas províncias de Western Port e Higinbotham, únicas "
+        "disputas daquele pleito publicadas pela VEC, e "
+        "state_electoral_division_id é nula em toda disputa do Conselho Legislativo e "
+        "nos distritos sem correspondente na vintage 2021 do ASGS.",
+        "Votes for each candidate at each voting centre, by vote type and count type. "
+        "Ordinary votes are reported per voting centre; the remaining declaration vote "
+        "types are reported once for the whole contest and carry the vote type as the "
+        "voting centre name. The 2002 election is represented only by the Western Port "
+        "and Higinbotham provinces, the sole contests from that poll the VEC publishes, "
+        "and state_electoral_division_id is null for every Legislative Council contest "
+        "and for districts with no counterpart in the ASGS 2021 vintage.",
+        "Votos de cada persona candidata en cada local de votación, por tipo de voto y "
+        "tipo de escrutinio. Los votos ordinarios se reportan por local de votación; "
+        "los demás tipos de voto declarado se reportan una única vez para toda la "
+        "disputa y traen el tipo de voto como nombre del local. La elección de 2002 "
+        "está representada solo por las provincias de Western Port y Higinbotham, "
+        "únicas disputas de aquel comicio publicadas por la VEC, y "
+        "state_electoral_division_id es nula en toda disputa del Consejo Legislativo y "
+        "en los distritos sin contraparte en la vintage 2021 del ASGS.",
+        # See result_district: a Legislative Council above-the-line row identifies a
+        # group, not a candidate, so ballot_name is null and group_letter is what
+        # distinguishes one ticket's votes from another's at the same voting centre.
+        unique_key=[
+            "year",
+            "election_id",
+            "contest_id",
+            "count_type",
+            "vote_type",
+            "voting_centre_name",
+            "ballot_name",
+            "party_name",
+            "group_letter",
+        ],
+        ignore_null_proportion=[
+            "ballot_position",
+            "state_electoral_division_id",
+            "group_letter",
+        ],
+    ),
+    "distribution_of_preferences": TableMeta(
+        "Distribuição de preferências",
+        "Distribution of preferences",
+        "Distribución de preferencias",
+        "Transferências de voto contagem a contagem na distribuição de preferências, "
+        "com valor de transferência, cédulas e votos transferidos e total acumulado de "
+        "cada pessoa candidata ao fim da contagem. A coluna party_name é nula nas "
+        "contagens em que a fonte não nomeia o partido, e state_electoral_division_id é "
+        "nula em toda disputa do Conselho Legislativo e nos distritos sem "
+        "correspondente na vintage 2021 do ASGS.",
+        "Vote transfers count by count in the distribution of preferences, with the "
+        "transfer value, the ballot papers and votes transferred and each candidate's "
+        "progressive total at the end of the count. The party_name column is null in "
+        "the counts where the source does not name the party, and "
+        "state_electoral_division_id is null for every Legislative Council contest and "
+        "for districts with no counterpart in the ASGS 2021 vintage.",
+        "Transferencias de voto conteo a conteo en la distribución de preferencias, con "
+        "el valor de transferencia, las boletas y votos transferidos y el total "
+        "acumulado de cada persona candidata al final del conteo. La columna party_name "
+        "es nula en los conteos en que la fuente no nombra el partido, y "
+        "state_electoral_division_id es nula en toda disputa del Consejo Legislativo y "
+        "en los distritos sin contraparte en la vintage 2021 del ASGS.",
+        unique_key=[
+            "year",
+            "election_id",
+            "contest_id",
+            "count_number",
+            "ballot_name",
+        ],
+        ignore_null_proportion=["state_electoral_division_id", "party_name"],
+    ),
+    "disclosure_gift": TableMeta(
+        "Doações declaradas",
+        "Disclosed donations",
+        "Donaciones declaradas",
+        "Doações políticas individuais declaradas ao registro de doações da VEC, de 26 "
+        "de novembro de 2018 a 8 de setembro de 2026, somando 4.374 lançamentos em um "
+        "registro vivo que continua crescendo. Cada doação é declarada tanto pelo "
+        "doador quanto pelo beneficiário, de modo que um lançamento não reconciliado "
+        "traz nulas as colunas do lado ausente, incluindo data, identificador e nome. A "
+        "coluna electorate_name é preenchida em 703 dos 4.374 lançamentos.",
+        "Individual political donations disclosed to the VEC donation register, from 26 "
+        "November 2018 to 8 September 2026, totalling 4,374 records in a live register "
+        "that keeps growing. Each donation is disclosed by both the donor and the "
+        "recipient, so an unreconciled record carries nulls in the missing side's "
+        "columns, including its date, identifier and name. The electorate_name column "
+        "is populated on 703 of the 4,374 records.",
+        "Donaciones políticas individuales declaradas al registro de donaciones de la "
+        "VEC, del 26 de noviembre de 2018 al 8 de septiembre de 2026, sumando 4.374 "
+        "asientos en un registro vivo que sigue creciendo. Cada donación es declarada "
+        "tanto por el donante como por el beneficiario, de modo que un asiento no "
+        "reconciliado trae nulas las columnas del lado ausente, incluidos su fecha, "
+        "identificador y nombre. La columna electorate_name se puebla en 703 de los "
+        "4.374 asientos.",
+        unique_key=["donation_id"],
+        ignore_null_proportion=[
+            "electorate_name",
+            "recipient_party_id",
+            "recipient_party_name",
+            "date_made",
+            "donor_suburb",
+            "donor_state",
+            "donor_id",
+            "donor_name",
+        ],
+    ),
+    "dicionario": TableMeta(
+        "Dicionário",
+        "Dictionary",
+        "Diccionario",
+        "Correspondência entre as chaves codificadas das colunas do conjunto e o seu "
+        "significado.",
+        "Mapping between the coded keys used in the dataset's columns and their "
+        "meaning.",
+        "Correspondencia entre las claves codificadas de las columnas del conjunto y su "
+        "significado.",
+        unique_key=["id_tabela", "nome_coluna", "chave"],
+    ),
+}
+
+assert set(TABLE_META) == set(TABLES), (
+    f"TABLE_META and TABLES disagree: {set(TABLE_META) ^ set(TABLES)}"
+)
