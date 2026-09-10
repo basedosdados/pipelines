@@ -1,0 +1,193 @@
+---
+version: 2
+models:
+  - name: au_abs_household_income_wealth__household_estimate
+    description: >-
+      Published summary estimates from the ABS Survey of Income and Housing, as
+      released in Household Income and Wealth, Australia, 2019-20 (former
+      catalogue number 6523.0). One row per published cell of the 16 data
+      cubes: a measure, for a survey year, for one category of one population
+      breakdown, with the relative standard error or 95% margin of error ABS
+      published alongside it. The headline distributions carry a biennial time
+      series back to 2007-08 for income and 2009-10 for wealth; the remaining
+      breakdowns are 2019-20 cross-sections. These are the published summary
+      tables only. The underlying unit-record data are restricted to the ABS
+      DataLab and TableBuilder and are not part of this dataset.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - geography
+            - source_table_id
+            - breakdown_type
+            - breakdown_value
+            - measure
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [estimate_flag]
+      - custom_dictionary_coverage_eng:
+          dictionary_model: ref('au_abs_household_income_wealth__dictionary')
+          columns_covered_by_dictionary: [breakdown_type, estimate_flag]
+    columns:
+      - name: year
+        description: >-
+          Calendar year in which the survey financial year ends, so the 2019-20
+          Survey of Income and Housing is stored as 2020
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: survey_year
+        description: >-
+          Australian financial year the estimate refers to, in YYYY-YY format,
+          such as 2019-20
+        tests: [not_null]
+      - name: geography
+        description: >-
+          Area the estimate covers: Australia for most tables, a state or
+          territory, a greater capital city area, or the rest of a state
+        tests: [not_null]
+      - name: geography_level
+        description: >-
+          Geographic level of the area, one of national, state or territory,
+          greater capital city area, rest of state
+      - name: source_table_id
+        description: >-
+          Number of the ABS data cube table the estimate is published in, such
+          as 10.2. Table numbers are specific to the 2019-20 release
+        tests: [not_null]
+      - name: source_table_name
+        description: Title of the ABS data cube table the estimate is published in
+      - name: breakdown_type
+        description: >-
+          Population characteristic the estimate is broken down by, coded and
+          decoded in the dictionary table. Total where the estimate covers all
+          households or persons
+        tests: [not_null]
+      - name: breakdown_value
+        description: >-
+          Category of the breakdown the estimate refers to, as ABS labels it.
+          Where ABS groups categories the group and the category are joined
+          with a greater-than sign, as in "65 YEARS AND OVER > 65-74"
+        tests: [not_null]
+      - name: measure
+        description: >-
+          Quantity the estimate measures, as ABS labels it. Where ABS nests
+          labels the levels are joined with a greater-than sign, as in
+          "Household net worth > Mean net worth"
+        tests: [not_null]
+      - name: measurement_unit
+        description: >-
+          Unit the estimate is expressed in, as published by ABS: $, $'000, %,
+          '000, ratio, no., years or hours
+      - name: estimate
+        description: >-
+          Value of the estimate, in the unit given by measurement_unit. Null
+          where ABS published a marker instead of a number, which
+          estimate_flag then gives
+      - name: estimate_flag
+        description: >-
+          Marker ABS published in place of a value, decoded in the dictionary
+          table. Null where an estimate was published
+      - name: relative_standard_error
+        description: >-
+          Relative standard error of the estimate, as a percentage. ABS
+          considers an estimate whose relative standard error exceeds 50% too
+          unreliable for general use. Null where ABS published none
+      - name: margin_of_error
+        description: >-
+          95% margin of error of the estimate, in the same unit as the
+          estimate. ABS publishes it for proportions in place of a relative
+          standard error
+  - name: au_abs_household_income_wealth__experimental_wealth_estimate
+    description: >-
+      Experimental estimates of the distribution of household wealth from ABS
+      working paper 1351.0 (2002), covering 1994 to 2000. These are the only
+      ABS estimates of household wealth by the age of the household reference
+      person before the Survey of Income and Housing began measuring wealth in
+      2003-04, and they exist only as appendix tables in that paper. They are
+      modelled from the national accounts household balance sheet and
+      benchmarked to the Survey of Income and Housing Costs and the Household
+      Expenditure Survey, were published as experimental, and carry no standard
+      errors. They are held apart from household_estimate for that reason and
+      must not be joined to it as one series. Net worth is as at 30 June of the
+      year; income is for the financial year ended 30 June of the year.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - source_table_id
+            - breakdown_type
+            - breakdown_value
+            - measure
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage_eng:
+          dictionary_model: ref('au_abs_household_income_wealth__dictionary')
+          columns_covered_by_dictionary: [breakdown_type]
+    columns:
+      - name: year
+        description: >-
+          Year the estimate refers to. Net worth is as at 30 June of this year
+          and income is for the financial year ended 30 June of this year
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: source_table_id
+        description: >-
+          Number of the appendix table in ABS working paper 1351.0, such as
+          14.2.1
+        tests: [not_null]
+      - name: source_table_name
+        description: Title of the appendix table in ABS working paper 1351.0
+      - name: breakdown_type
+        description: >-
+          Population characteristic the estimate is broken down by, coded and
+          decoded in the dictionary table
+        tests: [not_null]
+      - name: breakdown_value
+        description: Category of the breakdown the estimate refers to
+        tests: [not_null]
+      - name: measure
+        description: Quantity the estimate measures
+        tests: [not_null]
+      - name: measurement_unit
+        description: >-
+          Unit the estimate is expressed in, always dollars in current prices
+      - name: estimate
+        description: >-
+          Value of the estimate, in dollars at current prices. Median values
+          can be zero where at least half the households in a group hold none
+          of the asset
+        tests: [not_null]
+  - name: au_abs_household_income_wealth__dictionary
+    description: >-
+      Meanings of the coded values used in this dataset, covering the
+      breakdown_type and estimate_flag columns of household_estimate and the
+      breakdown_type column of experimental_wealth_estimate.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [table_id, column_name, key]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [temporal_coverage]
+    columns:
+      - name: table_id
+        description: Slug of the table the covered column belongs to
+        tests: [not_null]
+      - name: column_name
+        description: Name of the column whose values this row decodes
+        tests: [not_null]
+      - name: key
+        description: Value as stored in the covered column
+        tests: [not_null]
+      - name: temporal_coverage
+        description: >-
+          Years the key is valid for, empty where it is valid for the whole
+          coverage of the table
+      - name: value
+        description: Meaning of the key
+        tests: [not_null]
