@@ -1,4 +1,4 @@
-"""Generate the br_pncp dbt models and schema.yml from the architecture CSVs.
+"""Generate the br_mgi_pncp dbt models and schema.yml from the architecture CSVs.
 
 The architecture is the source of truth for column order, types and
 descriptions, so the SQL and the YAML are derived from it rather than
@@ -9,9 +9,9 @@ that looks like a regeneration bug and is not one -- sqlfmt and yamlfix
 reshape this output, and pre-commit.ci will do it for you on the PR if you
 do not do it here:
 
-    uv run python models/br_pncp/code/gen_dbt.py
-    uv run pre-commit run sqlfmt  --files models/br_pncp/*.sql
-    uv run pre-commit run yamlfix --files models/br_pncp/schema.yml
+    uv run python models/br_mgi_pncp/code/gen_dbt.py
+    uv run pre-commit run sqlfmt  --files models/br_mgi_pncp/*.sql
+    uv run pre-commit run yamlfix --files models/br_mgi_pncp/schema.yml
 
 That sequence is idempotent: it reproduces the committed files exactly.
 """
@@ -25,7 +25,7 @@ from pathlib import Path
 # home; this script is the one-shot onboarding front end for it.
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from pipelines.datasets.br_pncp.utils import (
+from pipelines.datasets.br_mgi_pncp.utils import (
     DEDUP_KEYS,
     DICIONARIO_DERIVED,
     DICIONARIO_HARDCODED,
@@ -33,7 +33,7 @@ from pipelines.datasets.br_pncp.utils import (
     read_architecture,
 )
 
-DATASET = "br_pncp"
+DATASET = "br_mgi_pncp"
 MODELS_DIR = Path(__file__).resolve().parents[1]
 
 # plano_contratacao_anual is deliberately absent: it is deferred to a
@@ -450,8 +450,8 @@ def main() -> None:
     print(
         "\nNow run the formatters, or these files will differ from what is "
         "committed:\n"
-        "  uv run pre-commit run sqlfmt  --files models/br_pncp/*.sql\n"
-        "  uv run pre-commit run yamlfix --files models/br_pncp/schema.yml"
+        "  uv run pre-commit run sqlfmt  --files models/br_mgi_pncp/*.sql\n"
+        "  uv run pre-commit run yamlfix --files models/br_mgi_pncp/schema.yml"
     )
 
 
