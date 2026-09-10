@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import collections
 from pathlib import Path
+from typing import Any
 
 import pyarrow.dataset as ds
 
@@ -178,7 +179,54 @@ def main() -> int:
             f"{bad} contests where formal votes != sum of first preferences"
         )
 
-    # 5. Coverage summary.
+    # 5. The last count of the distribution must land on the same number the
+    #    final-distribution rows report. These come from different sources for the
+    #    House of Assembly — the count export spreadsheet and the results
+    #    fragment — so agreement is a real check, not a tautology.
+    print("\n=== last count of distribution vs final distribution total ===")
+    dop = load(root, "distribution_of_preferences")
+    final = {
+        (r["contest_id"], r["ballot_name"]): r["votes"]
+        for r in district
+        if r["count_type"] == "final_distribution"
+    }
+    running: dict[tuple[str, str], Any] = {}
+    for r in dop:
+        running[(r["contest_id"], r["ballot_name"])] = r[
+            "votes_progressive_total"
+        ]
+    ok = bad = 0
+    for key, value in running.items():
+        want = final.get(key)
+        if want is None or value is None:
+            continue
+        if int(value) == int(want):
+            ok += 1
+        else:
+            bad += 1
+            print(f"    {key}: distribution={value} final={want}")
+    print(f"  {ok} candidate totals agree, {bad} disagree")
+    if bad:
+        failures.append(
+            f"{bad} candidates where the distribution and final totals differ"
+        )
+
+    # 6. Every distribution row must name a full candidate, not a bare surname.
+    #    The count export labels its columns by surname alone; where a division
+    #    has two candidates sharing one, the join is ambiguous and is left
+    #    unresolved rather than guessed — so any bare surname here is a real gap.
+    bare = [r for r in dop if "," not in (r["ballot_name"] or "")]
+    print(
+        f"\n=== distribution rows with an unresolved surname: {len(bare)} ==="
+    )
+    if bare:
+        names = sorted({r["ballot_name"] for r in bare})
+        print(f"    {names[:10]}")
+        notes.append(
+            f"{len(bare)} distribution rows carry a surname that matched no unique candidate"
+        )
+
+    # 7. Coverage summary.
     print("\n=== coverage ===")
     per_election: collections.Counter = collections.Counter()
     for r in candidates:
