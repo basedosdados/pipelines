@@ -209,7 +209,14 @@ def main() -> None:
     wanted = {u.strip().upper() for u in args.ufs.split(",") if u.strip()}
     only = {t.strip().lower() for t in args.tables.split(",") if t.strip()}
     all_counts: dict[str, dict[str, int]] = {}
+    # The dicionario comes from the architecture alone, so asking for it only
+    # must not require the per-UF zips.
+    microdata_wanted = any(
+        _wanted(spec["slug"], only) for spec in constants.TABLES.values()
+    )
     for _code, sigla, zip_name in constants.UF_ZIPS:
+        if not microdata_wanted:
+            break
         if wanted and sigla not in wanted:
             continue
         zip_path = constants.INPUT_DIR / zip_name

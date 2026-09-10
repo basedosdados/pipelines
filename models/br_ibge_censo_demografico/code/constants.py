@@ -1,15 +1,28 @@
 """Constants for the Censo 2022 public-microdata onboarding."""
 
+import os
 from pathlib import Path
 
-GCP_PROJECT = "sandbox-507414"
+GCP_PROJECT = "basedosdados-dev"
 DATASET_ID = "br_ibge_censo_demografico"
 YEAR = 2022
-# Sandbox-only bucket for cleaned parquet + docs. Never basedosdados-dev.
-GCS_BUCKET = "sandbox-507414-br-ibge-censo-demografico"
-GCS_PREFIX = "br_ibge_censo_demografico"
 
-DATA_ROOT = Path("tmp") / "br_ibge_censo_demografico_data" / "data"
+# Staging lands in the dev lake. The prod tables are materialised by the
+# table-approve action on merge, never uploaded from here.
+STAGING_BUCKET = "basedosdados-dev"
+
+# Auxiliary-file bundles go to the prod bucket, one per table, under
+# auxiliary_files/<gcp_dataset_id>/<table_slug>/auxiliary_files.zip.
+AUX_BUCKET = "basedosdados"
+AUX_PREFIX = f"auxiliary_files/{DATASET_ID}"
+
+# Scratch data stays out of the repo tree. Override with CENSO_DATA_ROOT.
+DATA_ROOT = Path(
+    os.environ.get(
+        "CENSO_DATA_ROOT",
+        Path.home() / "Downloads" / f"{DATASET_ID}_data" / "data",
+    )
+)
 INPUT_DIR = DATA_ROOT / "input"
 OUTPUT_DIR = DATA_ROOT / "output"
 DOCS_DIR = DATA_ROOT / "docs"
@@ -23,6 +36,51 @@ FTP_DOCS = (
     "Microdados_e_Areas_de_Ponderacao/Documentacao/Layout%20e%20dicion%C3%A1rio"
 )
 LAYOUT_XLSX_NAME = "layout_acesso_publico.xlsx"
+
+# Documents bundled with every table: bundle name → (local name, source URL).
+# Renamed to something self-describing; the README records where each came from.
+DOC_FILES = {
+    "layout_microdados_acesso_publico.xlsx": (
+        LAYOUT_XLSX_NAME,
+        f"{FTP_DOCS}/Layout%20Microdados%20CD2022%20-%20acesso%20P%c3%bablico.xlsx",
+    ),
+    "dicionario_de_variaveis.pdf": (
+        "dicionario_variaveis.pdf",
+        f"{FTP_DOCS}/Dicion%c3%a1rio%20de%20Vari%c3%a1veis%20-%20Microdados%20CD2022.pdf",
+    ),
+}
+
+# Long-form documents left at the publisher: title → URL. Listed in the bundle
+# README instead of rehosted, per the auxiliary-files convention.
+DOC_LINKS = {
+    "Censo Demográfico 2022 — Microdados da amostra (página do IBGE)": (
+        "https://www.ibge.gov.br/estatisticas/sociais/populacao/"
+        "22827-censo-demografico-2022.html"
+    ),
+    "Diretório do FTP com a documentação completa": FTP_DOCS,
+}
+
+CITATION = (
+    "IBGE — Instituto Brasileiro de Geografia e Estatística. "
+    "Censo Demográfico 2022: microdados da amostra, arquivo de acesso público. "
+    "Rio de Janeiro: IBGE, 2024."
+)
+
+
+def auxiliary_files_url(table_slug: str) -> str:
+    """Public URL of a table's bundle, for the backend's auxiliaryFilesUrl.
+
+    Args:
+        table_slug: The table's slug, e.g. ``microdados_pessoa_2022``.
+
+    Returns:
+        The https URL of that table's ``auxiliary_files.zip``.
+    """
+    return (
+        f"https://storage.googleapis.com/{AUX_BUCKET}/"
+        f"{AUX_PREFIX}/{table_slug}/auxiliary_files.zip"
+    )
+
 
 # IBGE UF code (D0020 / P0020 / …) → sigla.
 UF_CODE_TO_SIGLA = {
