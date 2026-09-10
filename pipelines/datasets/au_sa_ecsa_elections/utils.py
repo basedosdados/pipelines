@@ -539,6 +539,7 @@ def build_result_district(
                         {
                             **block,
                             "count_type": count_type,
+                            "contestant_id": position,
                             "ballot_order_number": position,
                             "ballot_name": canonical_ballot_name(
                                 candidate.get("candidateName")
@@ -583,6 +584,7 @@ def _council_district_rows(
             {
                 **block,
                 "count_type": FIRST_PREFERENCE,
+                "contestant_id": str(party["id"]),
                 "ballot_order_number": None,
                 "ballot_name": None,
                 "party_code": record.get("partyId"),
@@ -673,6 +675,7 @@ def build_result_voting_centre(
                         "voting_centre_district_name": district_name,
                         "voting_centre_name": venue_name,
                         "voting_centre_type": venue_type,
+                        "contestant_id": position,
                         "ballot_order_number": position,
                         "ballot_name": canonical_ballot_name(
                             candidate.get("candidateName")
@@ -760,6 +763,7 @@ def _council_venue_rows(
                         "voting_centre_name": venue_name,
                         "voting_centre_type": venue_type,
                         "count_type": FIRST_PREFERENCE,
+                        "contestant_id": str(entry["id"]),
                         "ballot_order_number": None,
                         "ballot_name": None,
                         "party_code": record.get("partyId"),
@@ -1046,6 +1050,37 @@ def _to_date(value: str | None) -> str | None:
         return None
 
 
+_DETAIL_TYPE = re.compile(r"<h2>(.*?)</h2>", re.S)
+_DETAIL_FIELD = re.compile(
+    r'<span class="record-field"><b>(.*?)\s*</b>\s*<[^>]*>(.*?)</span>', re.S
+)
+_DETAIL_PERIOD = re.compile(r"(\d{4}-\d{2}-\d{2})\s*to\s*(\d{4}-\d{2}-\d{2})")
+
+# Labels as the detail page spells them, mapped to the table's columns.
+_DETAIL_LABELS = {
+    "For Party/Organisation/Individual": "return_for_name",
+    "Agent": "submitter_name",
+    "Date Lodged": "date_lodged",
+}
+
+
+def _parse_detail(html: str) -> dict[str, str | None]:
+    record: dict[str, str | None] = {}
+    kind = _DETAIL_TYPE.search(html)
+    record["return_type"] = _text_cell(kind.group(1)) if kind else None
+    for label, value in _DETAIL_FIELD.findall(html):
+        label = _text_cell(label) or ""
+        if label in _DETAIL_LABELS:
+            record[_DETAIL_LABELS[label]] = _text_cell(value)
+        elif label == "Period":
+            period = _DETAIL_PERIOD.search(value)
+            if period:
+                record["period_start_date"] = period.group(1)
+                record["period_end_date"] = period.group(2)
+    record["date_lodged"] = _to_date(record.get("date_lodged"))
+    return record
+
+
 def build_disclosure_return(root: pathlib.Path) -> pd.DataFrame:
     rows = []
     for portal, columns in _COLUMNS.items():
@@ -1053,33 +1088,50 @@ def build_disclosure_return(root: pathlib.Path) -> pd.DataFrame:
         pages = sorted(directory.glob("page_*.html"))
         if not pages:
             raise ValueError(f"{directory}: no harvested pages")
+        index: dict[str, dict] = {}
         for page in pages:
             html = page.read_text(encoding="utf-8")
             for return_id, body in _ROW.findall(html):
                 cells = [_text_cell(c) for c in _CELL.findall(body)]
-                # The row carries a trailing links cell the column list does
-                # not name, so the pairing is deliberately not strict.
-                record = dict(zip(columns, cells, strict=False))
-                start = _to_date(record.get("period_start_date"))
-                rows.append(
-                    {
-                        "year": int(start[:4]) if start else None,
-                        "return_id": return_id,
-                        "portal": portal,
-                        "return_type": record.get("return_type"),
-                        "date_lodged": _to_date(record.get("date_lodged")),
-                        "submitter_name": record.get("submitter_name"),
-                        "return_for_name": record.get("return_for_name"),
-                        "recipient_name": record.get("recipient_name"),
-                        "period_start_date": start,
-                        "period_end_date": _to_date(
-                            record.get("period_end_date")
-                        ),
-                        "declared_value": to_float(
-                            record.get("declared_value")
-                        ),
-                    }
-                )
+                # The row carries a trailing links cell the column list does not
+                # name, so the pairing is deliberately not strict.
+                index[return_id] = dict(zip(columns, cells, strict=False))
+
+        # The current portal paginates on a non-unique key, so consecutive pages
+        # overlap and 93 of its 924 returns are never served by the index at all.
+        # The detail pages are keyed on the id and are therefore the complete
+        # spine; the index still supplies the two fields the detail page omits.
+        detail: dict[str, dict] = {}
+        detail_dir = root / "disclosure" / f"{portal}_detail"
+        for page in sorted(detail_dir.glob("*.html")):
+            detail[page.stem] = _parse_detail(page.read_text(encoding="utf-8"))
+
+        for return_id in sorted(set(index) | set(detail), key=int):
+            record = index.get(return_id, {})
+            full = detail.get(return_id, {})
+            start = full.get("period_start_date") or _to_date(
+                record.get("period_start_date")
+            )
+            rows.append(
+                {
+                    "year": int(start[:4]) if start else None,
+                    "return_id": return_id,
+                    "portal": portal,
+                    "return_type": full.get("return_type")
+                    or record.get("return_type"),
+                    "date_lodged": full.get("date_lodged")
+                    or _to_date(record.get("date_lodged")),
+                    "submitter_name": full.get("submitter_name")
+                    or record.get("submitter_name"),
+                    "return_for_name": full.get("return_for_name")
+                    or record.get("return_for_name"),
+                    "recipient_name": record.get("recipient_name"),
+                    "period_start_date": start,
+                    "period_end_date": full.get("period_end_date")
+                    or _to_date(record.get("period_end_date")),
+                    "declared_value": to_float(record.get("declared_value")),
+                }
+            )
     frame = pd.DataFrame(rows).drop_duplicates(subset=["portal", "return_id"])
     missing = int(frame["year"].isna().sum())
     if missing:

@@ -145,6 +145,13 @@ OBS_DISTRICT_NAME = (
     "Frome foi substituído por Ngadjuri entre 2022 e 2026, e é a única mudança de "
     "nome entre os dois pleitos gerais."
 )
+OBS_CONTESTANT_ID = (
+    "Identificador da candidatura ou do grupo dentro da disputa, tal como a ECSA o "
+    "publica: a posição na cédula na Assembleia e o identificador do partido ou "
+    "grupo no Conselho Legislativo. É a única chave presente nas duas câmaras, já "
+    "que a posição na cédula é nula no Conselho e a letra do grupo é nula na "
+    "Assembleia e em todo o Conselho de 2022."
+)
 OBS_BALLOT_ORDER = (
     "Posição da pessoa candidata na cédula do distrito, publicada pela ECSA no "
     "campo candidateId. Aritmética sobre ela não tem sentido, por isso é publicada "
@@ -389,6 +396,14 @@ CONTEST_BLOCK = [
     DISTRICT_NAME,
 ]
 
+CONTESTANT_ID = C(
+    "contestant_id",
+    "STRING",
+    "Identificador da candidatura ou do grupo dentro da disputa",
+    "Identifier of the candidate or group within the contest",
+    "Identificador de la candidatura o del grupo dentro de la disputa",
+    observations=OBS_CONTESTANT_ID,
+)
 BALLOT_ORDER_NUMBER = C(
     "ballot_order_number",
     "STRING",
@@ -602,6 +617,7 @@ TABLES["result_district"] = [
         covered_by_dictionary="yes",
         observations=OBS_COUNT_TYPE_DISTRICT,
     ),
+    CONTESTANT_ID,
     BALLOT_ORDER_NUMBER,
     BALLOT_NAME,
     PARTY_CODE,
@@ -644,6 +660,7 @@ TABLES["result_voting_centre"] = [
         covered_by_dictionary="yes",
         observations=OBS_COUNT_TYPE_VENUE,
     ),
+    CONTESTANT_ID,
     BALLOT_ORDER_NUMBER,
     BALLOT_NAME,
     PARTY_CODE,
@@ -1068,6 +1085,19 @@ OBSERVATION_TRANSLATIONS: dict[str, tuple[str, str]] = {
         "Legislativo. Frome fue sustituido por Ngadjuri entre 2022 y 2026, y es el único "
         "cambio de nombre entre los dos comicios generales.",
     ),
+    OBS_CONTESTANT_ID: (
+        "Identifier of the candidate or group within the contest, as the ECSA "
+        "publishes it: the ballot position in the Assembly and the party or group "
+        "identifier in the Legislative Council. It is the only key present in both "
+        "chambers, since the ballot position is null in the Council and the group "
+        "letter is null in the Assembly and across the whole 2022 Council.",
+        "Identificador de la candidatura o del grupo dentro de la disputa, tal como "
+        "lo publica la ECSA: la posición en la boleta en la Asamblea y el "
+        "identificador del partido o grupo en el Consejo Legislativo. Es la única "
+        "clave presente en ambas cámaras, ya que la posición en la boleta es nula en "
+        "el Consejo y la letra del grupo es nula en la Asamblea y en todo el Consejo "
+        "de 2022.",
+    ),
     OBS_BALLOT_ORDER: (
         "Position of the candidate on the district ballot paper, published by the ECSA "
         "in the candidateId field. Arithmetic on it is meaningless, so it is published "
@@ -1394,7 +1424,7 @@ TABLE_META: dict[str, TableMeta] = {
         "elecciones parciales de distrito celebradas entre ellos. Sirve de clave para las "
         "demás tablas mediante election_id.",
         unique_key=["election_id"],
-        ignore_null_proportion=["council_seats_contested"],
+        # Measured: council_seats_contested is 40% non-null, clear of the floor.
         observation_levels=[("year", "year"), ("election", "election_id")],
     ),
     "candidate": TableMeta(
@@ -1445,18 +1475,11 @@ TABLE_META: dict[str, TableMeta] = {
             "election_id",
             "contest_id",
             "count_type",
-            "ballot_order_number",
-            "group_code",
+            "contestant_id",
         ],
-        nullable_key=["ballot_order_number", "group_code"],
-        ignore_null_proportion=[
-            "ballot_order_number",
-            "ballot_name",
-            "group_code",
-            "group_name",
-            "state_electoral_division_id",
-            "percentage",
-        ],
+        # Measured: group_code 0.6% and group_name 1.2% non-null, since only
+        # the Legislative Council rows carry a ballot group.
+        ignore_null_proportion=["group_code", "group_name"],
         observation_levels=[
             ("year", "year"),
             ("election", "election_id"),
@@ -1487,21 +1510,12 @@ TABLE_META: dict[str, TableMeta] = {
             "voting_centre_district_name",
             "voting_centre_name",
             "count_type",
-            "ballot_order_number",
-            "group_code",
+            "contestant_id",
         ],
-        nullable_key=["ballot_order_number", "group_code"],
-        ignore_null_proportion=[
-            "ballot_order_number",
-            "ballot_name",
-            "group_code",
-            "group_name",
-            "state_electoral_division_id",
-            "party_code",
-            "party_name",
-            "voting_centre_type",
-            "votes_informal",
-        ],
+        # The Council group columns are populated only by the 2026 Council
+        # detail, so they sit near the floor and would cross it if a future
+        # event published no Council breakdown.
+        ignore_null_proportion=["group_code", "group_name"],
         observation_levels=[
             ("year", "year"),
             ("election", "election_id"),
@@ -1535,17 +1549,8 @@ TABLE_META: dict[str, TableMeta] = {
             "round_number",
             "ballot_order_number",
         ],
-        ignore_null_proportion=[
-            "round_type",
-            "excluded_ballot_name",
-            "votes_excluded",
-            "votes_transferred",
-            "is_excluded",
-            "is_elected",
-            "party_code",
-            "party_name",
-            "state_electoral_division_id",
-        ],
+        # Measured: every column clears the floor, because the 2026 rows that
+        # carry the full distribution are 80% of the table.
         observation_levels=[
             ("year", "year"),
             ("election", "election_id"),
@@ -1572,7 +1577,7 @@ TABLE_META: dict[str, TableMeta] = {
             "district_name",
             "voting_centre_name",
         ],
-        ignore_null_proportion=["state_electoral_division_id"],
+        # Measured: every column clears the floor.
         observation_levels=[
             ("year", "year"),
             ("election", "election_id"),
@@ -1594,10 +1599,10 @@ TABLE_META: dict[str, TableMeta] = {
         "y los porcentajes correspondientes. Los contadores de locales de votación "
         "escrutados son publicados por la ECSA solo para el Consejo Legislativo.",
         unique_key=["year", "election_id", "contest_id"],
+        # Measured: 2.0% non-null, published for the Legislative Council only.
         ignore_null_proportion=[
             "polling_places_counted",
             "polling_places_total",
-            "state_electoral_division_id",
         ],
         observation_levels=[
             ("year", "year"),
@@ -1623,7 +1628,8 @@ TABLE_META: dict[str, TableMeta] = {
         "Australia Meridional prohibió las donaciones políticas a partir del 1 de julio "
         "de 2025.",
         unique_key=["portal", "return_id"],
-        ignore_null_proportion=["recipient_name", "declared_value"],
+        # Measured: recipient_name 23.5% and declared_value 97.4% non-null,
+        # both clear of the floor.
         observation_levels=[("year", "year"), ("other", "return_id")],
     ),
     "dicionario": TableMeta(

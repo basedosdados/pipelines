@@ -201,15 +201,24 @@ def download_disclosure_details() -> dict[str, int]:
     counts: dict[str, int] = {}
     for name, base in FUNDING_PORTALS.items():
         pages = sorted((INPUT / "disclosure" / name).glob("page_*.html"))
-        seen = {
-            int(rid)
+        instances = [
+            rid
             for page in pages
             for rid, _ in PAGE_ROW.findall(page.read_text(encoding="utf-8"))
-        }
+        ]
+        seen = {int(rid) for rid in instances}
         if not seen:
             raise RuntimeError(
                 f"{name}: no index pages harvested; run the index first"
             )
+        if len(seen) == len(instances):
+            # No page served a row twice, so the index enumerated every return and
+            # there is nothing for the detail sweep to recover.
+            log(
+                f"  {name}: index is complete ({len(seen)} returns), no detail sweep"
+            )
+            counts[name] = 0
+            continue
         target_dir = INPUT / "disclosure" / f"{name}_detail"
         target_dir.mkdir(parents=True, exist_ok=True)
         low = max(1, min(seen) - DETAIL_MARGIN)
