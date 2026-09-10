@@ -1,0 +1,17 @@
+{
+  "saved_at": "2026-09-10T11:45:00",
+  "dataset_slug": "nsw_elections",
+  "gcp_dataset_id": "au_nsw_nswec_elections",
+  "current_step": 2,
+  "completed_steps": [1],
+  "env": "staging",
+  "venv": "/Users/rdahis/.venvs/bd-pipelines-nsw",
+  "scratch": "~/Downloads/au_nsw_nswec_elections_data",
+  "events": {
+    "2011": {"base": "https://pastvtr.elections.nsw.gov.au/SGE2011", "home": "Vtrhome.htm", "bulk_xlsx": false, "pref_data": false},
+    "2015": {"base": "https://pastvtr.elections.nsw.gov.au/SGE2015", "home": "home.htm", "bulk_xlsx": true, "pref_data": "data/la/SGE2015%20LA%20Pref%20Data_NA_<District>.zip"},
+    "2019": {"base": "https://pastvtr.elections.nsw.gov.au/SG1901", "bulk_xlsx": true, "pref_data": "LA/<slug>/SGE2019%20LA%20Pref%20Data%20<District>.zip"},
+    "2023": {"base": "https://pastvtr.elections.nsw.gov.au/SG2301", "bulk_xlsx": true, "pref_data": "LA/<slug>/SG2301%20LA%20Pref%20Data%20<District>.zip"}
+  },
+  "licence": "CC BY 4.0 per www.elections.nsw.gov.au/copyright; pastvtr footer adopts that same notice"
+}
