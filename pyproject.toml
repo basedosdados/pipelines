@@ -236,6 +236,11 @@ project-excludes = [
   # with bare sibling imports (`common`), which pyrefly cannot resolve from the
   # repo root.
   "models/us_dot_fars/code",
+  # Same policy: the world_noaa_ghcn onboarding scripts run from their own
+  # directory with a bare sibling import (`constants`), and clean.py also
+  # imports the not-yet-created pipelines.datasets.world_noaa_ghcn package
+  # that the refresh pipeline will provide.
+  "models/world_noaa_ghcn/code",
   "models/us_harvard_cbdb/code",
   "models/us_cfpb_hmda/code",
   "models/world_aiddata_gcdf/code",
