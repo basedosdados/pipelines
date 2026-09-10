@@ -22,16 +22,25 @@ class constants(Enum):
         "undergraduate-applications-offers-and-acceptances-publications"
     )
 
-    #: The site serves 403 to an unadorned client.
-    HEADERS = {
-        "User-Agent": (
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36"
-        ),
-        "Accept": (
-            "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-        ),
-    }
+    #: The site sits behind Akamai with a Signal Sciences WAF
+    #: (``x-lagoon: ...sigsci-ingress-nginx...``). A hand-rolled User-Agent is
+    #: not enough: from the Kubernetes pool the WAF stalls a plain ``requests``
+    #: client rather than refusing it, so the request never returns at all.
+    #: curl_cffi reproduces Chrome's TLS and HTTP/2 fingerprint and sends its
+    #: own browser headers, which is why none are set here — overriding them
+    #: would contradict the fingerprint being impersonated.
+    IMPERSONATE = "chrome"
+
+    #: ``(connect, read)`` seconds. Deliberately modest. A stalled read here is
+    #: a block, not slowness: the 2026-09-04 run already carried a 300s read
+    #: timeout and merely spent 2h13m hitting it, so a longer leash only delays
+    #: the failure and risks the pod being evicted before it is ever reported.
+    REQUEST_TIMEOUT = (30, 120)
+
+    #: Bounded retry budget per URL: three attempts with 5s then 10s of
+    #: backoff, so an unreachable host costs about six minutes and then raises.
+    RETRY_ATTEMPTS = 3
+    RETRY_BACKOFF_SECONDS = 5
 
     #: Local filename -> regex matching that document's resource slug. The year
     #: is group 1 and the newest match wins, so a renamed release is picked up
