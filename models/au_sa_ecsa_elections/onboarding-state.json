@@ -1,5 +1,5 @@
 {
- "saved_at": "2026-09-10T14:00:00",
+ "saved_at": "2026-09-10T15:05:00",
  "dataset_slug": "sa_elections",
  "gcp_dataset_id": "au_sa_ecsa_elections",
  "worktree": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/ecsa-elections-onboard",
@@ -7,14 +7,40 @@
  "venv": "/Users/rdahis/.venvs/bd-pipelines-sa",
  "scratch": "/Users/rdahis/Downloads/au_sa_ecsa_elections_data",
  "env": "staging",
- "current_step": 1,
- "completed_steps": [],
+ "current_step": "checkpoint",
+ "completed_steps": [1, 2, 3, 4, 5, 6, 7, 8, 9, "9b"],
+ "staging_url": "https://staging.basedosdados.org/dataset/b2e707f6-b081-4cf8-a9d6-0435f13591f2",
+ "backend_ids": {
+  "dataset": "b2e707f6-b081-4cf8-a9d6-0435f13591f2",
+  "organization_au_ecsa": "fb3b16a5-8a4b-44f5-bf67-0f0deb9f38f6",
+  "area_au_sa": "5f5200ea-14d8-45b7-b2bc-937401d0198d",
+  "raw_source_results_api": "aefd984f-9472-4023-8f91-3d689fb34509",
+  "raw_source_funding_portals": "cf6fd76e-3f73-4c1f-95e2-e7e53aa03013"
+ },
+ "row_counts": {
+  "election": 5,
+  "candidate": 643,
+  "result_district": 2984,
+  "result_voting_centre": 41843,
+  "distribution_of_preferences": 3653,
+  "voting_centre": 1477,
+  "enrolment_turnout": 99,
+  "disclosure_return": 3530,
+  "dicionario": 58
+ },
+ "dbt": "9 models built, 66/66 tests pass",
+ "columns_registered": 130,
+ "remaining": [
+  "Human review at the checkpoint, then prod promotion (step 10), PR (step 11), merge, publish (step 13), scratch cleanup (step 14).",
+  "Step 12 (recurring pipeline) not built: see the report for the recommendation.",
+  "2010-2018 HTML era deferred: the API serves 2022 onwards only."
+ ],
  "notes": [
   "Write tool disabled: write files by piping a heredoc into the scratchpad wf.py helper.",
   "Shell redirect into a home path is blocked by a guard; use the pipe helper instead.",
-  "SA directory vintages 2011/2016/2021 are NOT identical - 18 ids are re-used between 2016 and 2021 naming different divisions. Pin 2021 and name-match.",
-  "area au_sa = 5f5200ea-14d8-45b7-b2bc-937401d0198d",
-  "organization au_ecsa does not exist yet; au_ecq, au_nswec, au_vec do.",
-  "dataset slug sa_elections is free."
+  "The shared venv ~/.venvs/bd-pipelines has a broken anyio and cannot import the MCP server; a fastmcp shim in the scratchpad lets bd-pipelines-sa import it instead.",
+  "SA directory vintages are NOT interchangeable: 18 ids are re-used between 2016 and 2021. Vintage 2021 is pinned and matched case-insensitively.",
+  "2022 seat allocation reproduced exactly: ALP 27, LIB 16, IND 4.",
+  "The funding2024 index paginates on a non-unique key and omits 93 of its 924 returns; detail pages by id are the complete spine."
  ]
 }
