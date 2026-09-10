@@ -1,15 +1,19 @@
 """
-Flows for au_abs_cpi — Prefect 3.
+Flows for au_abs_prices_inflation — Prefect 3.
 
-Australian Consumer Price Index (ABS). Every release ships the full history in
-the time-series spreadsheets, so each run is a **full replace**
-(``dump_mode="overwrite"``), not an incremental append. A single flow downloads
-the current release, rebuilds the quarterly and monthly tables, and materializes
-them. The source poll short-circuits the run until ABS publishes a newer month,
-which makes a scheduled run a cheap no-op between releases.
+The dataset spans the whole ABS "Price indexes and inflation" topic, and each
+ABS release has its own publication cadence, its own landing page and its own
+fact table. So there is **one flow per release**, each polling its own source
+and owning its own table: a release that fails to parse cannot block the
+others, and the crons spread naturally across the quarter.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``au_abs_cpi_flow``;
-the dev pool ignores the schedule, the prod pool activates it.
+Every ABS release ships the full history in its time-series spreadsheets, so
+each run is a **full replace** (``dump_mode="overwrite"``), not an incremental
+append. The source poll short-circuits a run until ABS publishes a newer
+period, which makes a scheduled run a cheap no-op between releases.
+
+Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers every flow defined
+here; the dev pool ignores the schedules, the prod pool activates them.
 """
 
 import shutil
@@ -17,8 +21,11 @@ import tempfile
 
 from prefect import flow
 
-from pipelines.datasets.au_abs_cpi.constants import constants
-from pipelines.datasets.au_abs_cpi.tasks import clean_cpi, download_cpi
+from pipelines.datasets.au_abs_prices_inflation.constants import constants
+from pipelines.datasets.au_abs_prices_inflation.tasks import (
+    clean_cpi,
+    download_cpi,
+)
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -39,10 +46,14 @@ from pipelines.utils.tasks import (
 )
 
 DATASET_ID = constants.DATASET_ID.value
+TABLE_ID = constants.TABLE_ID.value
 
+# ---------------------------------------------------------------------------
+# Consumer Price Index (former catalogue 6401.0) — monthly release
+# ---------------------------------------------------------------------------
 # Coverage spec per table.
 #
-# `monthly` is the high-frequency table, so it carries the BD Pro rolling
+# `cpi_monthly` is the high-frequency table, so it carries the BD Pro rolling
 # window: the most recent 6 months are pro-only, everything older is free.
 # Each run recomputes free_end = source_end - free_lag, rewrites both
 # DateTimeRanges, and re-issues the BigQuery Row Access Policies, so the window
@@ -50,14 +61,14 @@ DATASET_ID = constants.DATASET_ID.value
 # and a pro (is_closed=True) Coverage to already exist on the table, or
 # assert_coverage_topology raises before anything is written.
 #
-# `quarterly` refreshes only quarterly (less than monthly), so it stays fully
-# free.
-_COVERAGE = {
-    "quarterly": AllFree(
+# `cpi_quarterly` refreshes only quarterly (less than monthly), so it stays
+# fully free.
+_CPI_COVERAGE = {
+    "cpi_quarterly": AllFree(
         date_column=YearQuarter(year="year", quarter="quarter"),
         date_format=DateFormat.YEAR_MONTH,
     ),
-    "monthly": PartBdpro(
+    "cpi_monthly": PartBdpro(
         date_column=YearMonth(year="year", month="month"),
         date_format=DateFormat.YEAR_MONTH,
         free_lag=FreeLag(unit="months", value=6),
@@ -65,8 +76,8 @@ _COVERAGE = {
 }
 
 
-@flow(name="au_abs_cpi", log_prints=True)
-def au_abs_cpi_flow(
+@flow(name="au_abs_prices_inflation_cpi", log_prints=True)
+def au_abs_prices_inflation_cpi_flow(
     materialize_to_prod: bool = True,
     update_metadata: bool = True,
     force_run: bool = False,
@@ -93,7 +104,7 @@ def au_abs_cpi_flow(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="cpi"
     )
 
-    work_dir = tempfile.mkdtemp(prefix="au_abs_cpi_")
+    work_dir = tempfile.mkdtemp(prefix="au_abs_prices_inflation_cpi_")
     try:
         input_dir = download_cpi(work_dir=work_dir)
         result = clean_cpi(work_dir=work_dir, input_dir=input_dir)
@@ -102,7 +113,7 @@ def au_abs_cpi_flow(
         # Skip the run when ABS has not published a newer month (unless forced).
         has_new_data = poll_source_for_update_task(
             dataset_id=DATASET_ID,
-            table_id="monthly",
+            table_id="cpi_monthly",
             source_max_date=max_ym,
             env="prod",
             date_format="%Y-%m",
@@ -116,7 +127,7 @@ def au_abs_cpi_flow(
         # novo publicado, mesmo que a tabela não tenha sido atualizada.
         commit_source_update_task(
             dataset_id=DATASET_ID,
-            table_id="monthly",
+            table_id="cpi_monthly",
             source_max_date=max_ym,
             env="prod",
             date_format="%Y-%m",
@@ -124,7 +135,7 @@ def au_abs_cpi_flow(
             materialize_after_dump=materialize_to_prod,
         )
 
-        tables = list(constants.SOURCE_TABLES.value)  # quarterly, monthly
+        tables = [TABLE_ID[f] for f in constants.SOURCE_TABLES.value]
 
         # The dev materialization is the pre-arm validation path, not part of a
         # production run: it rebuilds and re-tests every table in
@@ -168,7 +179,7 @@ def au_abs_cpi_flow(
             )
 
         if update_metadata:
-            for table, coverage in _COVERAGE.items():
+            for table, coverage in _CPI_COVERAGE.items():
                 register_table_materialization_task(
                     dataset_id=DATASET_ID,
                     table_id=table,
@@ -185,6 +196,6 @@ def au_abs_cpi_flow(
 # 4th Wednesday from Feb 2027). Poll across the last week at 16:00 BRT; the
 # source-poll guard no-ops until a new month lands.
 # pyrefly: ignore [missing-attribute]
-au_abs_cpi_flow.deploy_schedules = [
+au_abs_prices_inflation_cpi_flow.deploy_schedules = [
     {"cron": "15 16 22,23,24,25,26,27,28 * *", "timezone": "America/Sao_Paulo"}
 ]

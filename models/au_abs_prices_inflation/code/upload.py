@@ -1,7 +1,7 @@
-"""Upload cleaned au_abs_cpi parquet tables to BigQuery.
+"""Upload cleaned au_abs_prices_inflation parquet tables to BigQuery.
 
 Usage:
-    uv run python models/au_abs_cpi/code/upload.py [--env dev|prod] [table_slug ...]
+    uv run python models/au_abs_prices_inflation/code/upload.py [--env dev|prod] [table_slug ...]
 
 --env dev (default) -> basedosdados-dev; --env prod -> basedosdados. Point
 GOOGLE_APPLICATION_CREDENTIALS at the matching service account. Uploads
@@ -26,7 +26,7 @@ if "--env" in _argv:
 else:
     ENV = "dev"
 BILLING_PROJECT = "basedosdados" if ENV == "prod" else "basedosdados-dev"
-DATASET_ID = "au_abs_cpi"
+DATASET_ID = "au_abs_prices_inflation"
 OUTPUT_ROOT = Path(__file__).resolve().parent.parent / "output"
 
 # Monkey-patch for requester-pays bucket
@@ -41,8 +41,8 @@ gcs.Client.bucket = _patched_bucket
 
 # (table_slug, expected_rows) — smallest first
 TABLES = [
-    ("quarterly", 23_662),
-    ("monthly", 65_178),
+    ("cpi_quarterly", 23_662),
+    ("cpi_monthly", 65_178),
 ]
 
 

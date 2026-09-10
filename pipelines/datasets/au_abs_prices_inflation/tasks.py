@@ -1,10 +1,13 @@
-"""Prefect 3 tasks for au_abs_cpi — thin wrappers over utils.py."""
+"""Prefect 3 tasks for the ABS Consumer Price Index release — wrappers over cpi.py."""
 
 from pathlib import Path
 
 from prefect import task
 
-from pipelines.datasets.au_abs_cpi.utils import clean_all, download_all
+from pipelines.datasets.au_abs_prices_inflation.cpi import (
+    clean_all,
+    download_all,
+)
 
 
 @task(retries=2, retry_delay_seconds=30)

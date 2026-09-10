@@ -1,10 +1,15 @@
-"""Constants for the au_abs_cpi (ABS Consumer Price Index, Australia) dataset."""
+"""Constants for the au_abs_prices_inflation dataset (ABS price indexes).
+
+The dataset covers the whole ABS "Price indexes and inflation" topic, one fact
+table per ABS release. This module holds the shared settings plus the
+Consumer Price Index (former catalogue 6401.0) release configuration.
+"""
 
 from enum import Enum
 
 
 class constants(Enum):
-    DATASET_ID = "au_abs_cpi"
+    DATASET_ID = "au_abs_prices_inflation"
 
     # ABS time-series workbook location.
     # Release slug is the latest reference period, e.g. "jun-2026".
@@ -31,6 +36,11 @@ class constants(Enum):
         "monthly": ["640101", "640103", "6401010"],
     }
 
+    # CPI release frequency -> output table slug. The dataset holds one fact
+    # table per ABS release, so the CPI tables carry the release prefix while
+    # the frequency keys above stay semantic (they drive PERIOD_COL/YOY_LAG).
+    TABLE_ID = {"quarterly": "cpi_quarterly", "monthly": "cpi_monthly"}
+
     # Measures we keep, normalised to output column names. Everything else
     # (Contribution, Change in Contribution, ...) is dropped.
     MEASURE_MAP = {
@@ -42,7 +52,7 @@ class constants(Enum):
 
     # Column order per output table (matches architecture CSVs).
     COLUMNS = {
-        "quarterly": [
+        "cpi_quarterly": [
             "year",
             "quarter",
             "region",
@@ -53,7 +63,7 @@ class constants(Enum):
             "percentage_change_period",
             "percentage_change_year",
         ],
-        "monthly": [
+        "cpi_monthly": [
             "year",
             "month",
             "region",
@@ -66,7 +76,7 @@ class constants(Enum):
         ],
     }
 
-    # Item ID map file (index_name -> ABS CL_CPI_INDEX code), bundled beside utils.
+    # Item ID map file (index_name -> ABS CL_CPI_INDEX code), bundled beside cpi.py.
     INDEX_CODES_FILE = "index_codes.csv"
 
     # Sub-annual period column and the year-over-year lag (in periods) per frequency.

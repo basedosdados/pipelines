@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: au_abs_cpi__quarterly
+  - name: au_abs_prices_inflation__cpi_quarterly
     description: >-
       Australian Consumer Price Index (ABS), quarterly. One row per quarter,
       region, and CPI item, from the September quarter 1948, with the original
@@ -48,7 +48,7 @@ models:
         description: >-
           Percentage change in the index from the same quarter of the previous
           year
-  - name: au_abs_cpi__monthly
+  - name: au_abs_prices_inflation__cpi_monthly
     description: >-
       Australian Consumer Price Index (ABS), monthly. One row per month, region,
       and CPI item, from September 2017, with the original (not seasonally
