@@ -95,23 +95,29 @@ def main() -> int:
         result_district["count_type"] == "two_candidate_preferred"
     ]
     mismatches = []
-    for contest, group in two_candidate.groupby("contest_id"):
+    checked = 0
+    # Group on the election as well as the contest: contest_id repeats across
+    # events, so grouping on it alone silently merges 2022 with 2026.
+    for (election, contest), group in two_candidate.groupby(
+        ["election_id", "contest_id"]
+    ):
         leader = group.loc[
             group["votes"].astype(int).idxmax(), "ballot_order_number"
         ]
         winner = candidate[
-            (candidate["contest_id"] == contest)
-            & (candidate["election_id"].isin(group["election_id"].unique()))
+            (candidate["election_id"] == election)
+            & (candidate["contest_id"] == contest)
             & (candidate["is_declared_elected"] == "yes")
         ]
-        if not winner.empty and leader not in set(
-            winner["ballot_order_number"]
-        ):
-            mismatches.append(contest)
+        if winner.empty:
+            continue
+        checked += 1
+        if leader not in set(winner["ballot_order_number"]):
+            mismatches.append(f"{election}/{contest}")
     ok &= check(
         "the elected candidate leads the two candidate preferred count everywhere",
-        not mismatches,
-        f"{len(mismatches)} mismatches: {mismatches[:5]}",
+        not mismatches and checked >= 94,
+        f"{checked} contests checked, {len(mismatches)} mismatches: {mismatches[:5]}",
     )
 
     print("Vote components")

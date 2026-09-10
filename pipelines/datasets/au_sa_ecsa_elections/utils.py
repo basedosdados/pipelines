@@ -233,7 +233,7 @@ def _name_to_position(static: dict) -> dict[str, dict[frozenset[str], str]]:
 
 
 def _district_first_preferences(
-    district: dict, change_shape: str
+    district: dict, change_shape: str, positions: dict | None = None
 ) -> dict[str, int]:
     """Ballot position -> total first preferences for one Assembly district.
 
@@ -246,10 +246,22 @@ def _district_first_preferences(
         for round_block in district.get("finalDistribution") or []:
             if str(round_block.get("roundNumber")) != "0":
                 continue
-            return {
-                str(r["candidateId"]): to_int(r["progressiveTotal"]) or 0
-                for r in round_block.get("candidateResults") or []
-            }
+            # candidateId here is the global candidate id (946-1381), not the
+            # ballot position (1-12) that keys every other block. The two value
+            # spaces do not overlap at all, so the only bridge is district plus
+            # name. Keying on it directly produced first-preference rows that
+            # joined to no candidate and carried a null name and party.
+            lookup = positions or {}
+            totals = {}
+            for result in round_block.get("candidateResults") or []:
+                position = lookup.get(name_key(result.get("candidateName")))
+                if position is None:
+                    raise ValueError(
+                        f"{district.get('districtId')}: no ballot position for "
+                        f"{result.get('candidateName')!r} in the distribution"
+                    )
+                totals[position] = to_int(result["progressiveTotal"]) or 0
+            return totals
     return {
         str(c["candidateId"]): (to_int(c.get("ordinaryVotes")) or 0)
         + (to_int(c.get("declarationVotes")) or 0)
@@ -367,7 +379,9 @@ def _elected_positions(district: dict, shape: str, names: dict) -> set[str]:
     if not pool:
         pool = {
             k: v
-            for k, v in _district_first_preferences(district, shape).items()
+            for k, v in _district_first_preferences(
+                district, shape, names
+            ).items()
         }
     if not pool:
         return set()
@@ -450,6 +464,12 @@ def _district_two_preferred(district: dict, field: str) -> dict[str, int]:
             position = str(entry["candidateId"])
             totals[position] += value
             seen.add(position)
+    # Where the declaration blocks exist, the candidate-level declaration field
+    # repeats them, so adding both double counts the declaration half. That
+    # reversed Narungga in 2026: the two candidate preferred count came out at
+    # 13,617 to 13,541 for the losing candidate instead of 12,001 to 12,078.
+    if district.get("declarations") or district.get("absentOrdinary"):
+        return {position: totals[position] for position in seen}
     # The legacy payload has no declaration blocks: it carries the declaration half
     # of each preferred count on the candidate record instead. Omitting it leaves
     # the count at roughly its ordinary component, which in 2022 reversed the
@@ -486,12 +506,15 @@ def build_result_district(
         change = load_api(root, date, "ha_change")
         shape = _shape(change)
         static_candidates = _static_candidates(static)
+        name_map = _name_to_position(static)
         for district in change["districts"]:
             district_name = district["districtId"]
             block = contest_block(event, HA, district_name, sed)
             catalogue = static_candidates.get(district_name, {})
 
-            first = _district_first_preferences(district, shape)
+            first = _district_first_preferences(
+                district, shape, name_map.get(district_name, {})
+            )
             ordinary = {
                 str(c["candidateId"]): to_int(c.get("ordinaryVotes"))
                 for c in district.get("candidates") or []
@@ -533,6 +556,11 @@ def build_result_district(
                     values.items(), key=lambda kv: int(kv[0])
                 ):
                     if value is None:
+                        continue
+                    if count_type != FIRST_PREFERENCE and value == 0:
+                        # A preferred count is defined over the final two
+                        # candidates only; the source writes 0 for everyone else
+                        # and publishing those zeros would read as a real result.
                         continue
                     candidate = catalogue.get(position, {})
                     rows.append(
@@ -929,10 +957,13 @@ def build_enrolment_turnout(
             d["districtName"]: len(d.get("candidates") or [])
             for d in static["districts"]
         }
+        name_map = _name_to_position(static)
         for district in change["districts"]:
             district_name = district["districtId"]
             block = contest_block(event, HA, district_name, sed)
-            first = _district_first_preferences(district, shape)
+            first = _district_first_preferences(
+                district, shape, name_map.get(district_name, {})
+            )
             formal = sum(v for v in first.values() if v)
             informal = sum(
                 to_int(p.get("informalVotes")) or 0

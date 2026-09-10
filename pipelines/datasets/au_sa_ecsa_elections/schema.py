@@ -198,10 +198,12 @@ OBS_LC_UNGROUPED = (
     "Em 2026 a soma fecha exatamente."
 )
 OBS_TWO_PREFERRED = (
-    "As duas apurações preferidas não são redundantes: divergem em 117 das 1.273 "
-    "linhas de 2022 e em 137 das 536 de 2026, porque a preferência entre dois "
+    "As duas apurações preferidas não são redundantes: a preferência entre dois "
     "partidos força a comparação entre os dois maiores partidos e a preferência "
-    "entre dois candidatos usa os dois mais votados."
+    "entre dois candidatos usa os dois mais votados. Em 2026 os blocos de voto por "
+    "declaração publicam apenas a preferência entre dois candidatos, portanto o "
+    "total de preferência entre dois partidos desse pleito cobre somente os votos "
+    "ordinários."
 )
 OBS_VENUE_NAME = (
     "Nome do local de votação. Nos blocos de voto por declaração e por ausência de "
@@ -1172,14 +1174,17 @@ OBSERVATION_TRANSLATIONS: dict[str, tuple[str, str]] = {
         "candidaturas sin grupo. En 2026 la suma cierra exactamente.",
     ),
     OBS_TWO_PREFERRED: (
-        "The two preferred counts are not redundant: they differ in 117 of the 1,273 "
-        "rows of 2022 and in 137 of the 536 of 2026, because the two party preferred "
-        "count forces the comparison between the two largest parties while the two "
-        "candidate preferred count uses the two best polling candidates.",
-        "Los dos escrutinios preferidos no son redundantes: difieren en 117 de las 1.273 "
-        "filas de 2022 y en 137 de las 536 de 2026, porque la preferencia entre dos "
+        "The two preferred counts are not redundant: the two party preferred count "
+        "forces the comparison between the two largest parties while the two candidate "
+        "preferred count uses the two best polling candidates. In 2026 the declaration "
+        "vote blocks publish only the two candidate preferred count, so that election's "
+        "two party preferred total covers ordinary votes alone.",
+        "Los dos escrutinios preferidos no son redundantes: la preferencia entre dos "
         "partidos fuerza la comparación entre los dos mayores partidos y la preferencia "
-        "entre dos candidatos usa los dos más votados.",
+        "entre dos candidatos usa los dos más votados. En 2026 los bloques de voto por "
+        "declaración publican solo la preferencia entre dos candidatos, por lo que el "
+        "total de preferencia entre dos partidos de ese comicio cubre únicamente los "
+        "votos ordinarios.",
     ),
     OBS_VENUE_NAME: (
         "Name of the voting centre. In the 2026 declaration and absent vote blocks the "
