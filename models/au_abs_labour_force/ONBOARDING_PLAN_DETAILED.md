@@ -257,3 +257,60 @@ Standard 11-step onboarding, stopping at the verification checkpoint before prod
 The dataset is already `published` in prod; it stays published, with its description
 refreshed for the extended coverage. New tables are registered `status.published` and go
 live when the merge materialises them.
+
+---
+
+## 11. Addendum — EQ06's industry column, verified 2026-09-10
+
+Two findings that **supersede §4's hardcoded-map instruction** for the ANZSIC division
+letter. Both were verified empirically against the extracted category lists.
+
+### EQ06 mixes two ANZSIC levels in one column (291 = 272 + 19)
+
+- **272 values are 3-digit group codes** — `010 Agriculture nfd`,
+  `011 Nursery and Floriculture Production`, … `969 …`.
+- **19 values are division-level `nfd` residuals** coded as the division letter plus `00`
+  — `A00 Agriculture, Forestry and Fishing nfd` … `S00 Other Services nfd`.
+
+The 19 are legitimate residual categories (respondents whose industry could not be coded
+to group level), **not** duplicates and **not** subtotals of the group rows. Summing all
+291 gives the correct total: keep them, and do not treat them as an aggregate to exclude.
+
+Consequences: `industry_group_code` must be **STRING** (it holds both `010` and `A00`),
+and `observations` must state that the column carries group-level codes plus 19
+division-level residuals.
+
+### Derive the division map from the data — do not hardcode it
+
+Parsing the letter from EQ06's `[A-S]00` rows and stripping the trailing ` nfd` yields
+**exactly 19 letters A–S**, whose labels equal the 19 division labels observed in
+EQ03/EQ05/EQ09/EQ10/EQ11/EQ12/EQ14 — set equality, zero missing, zero extra. Build the
+map that way and **assert** both the count and the set equality, raising otherwise. This
+beats a hardcoded map: no external source, no drift, and it self-validates against seven
+other cubes.
+
+Map the 272 group rows to a division by the ANZSIC 2006 subdivision (first two digits).
+Verified: **all 272 fall inside these ranges, zero orphans.**
+
+```
+A 01-05   B 06-10   C 11-25   D 26-29   E 30-32   F 33-38   G 39-43
+H 44-45   I 46-53   J 54-60   K 62-64   L 66-67   M 69-70   N 72-73
+O 75-77   P 80-82   Q 84-87   R 89-92   S 94-96
+```
+
+**Populate `industry_division_code` (A–S) and `industry_division` (label) on every row of
+`employment_industry`** — from the letter directly for the 19 residual rows, from the
+subdivision range for the 272 group rows — so the table carries a complete rollup key
+alongside `industry_group_code` / `industry_group`.
+
+### ANZSCO majors — hardcoding is fine, confirmed against the official classification
+
+The 8 labels in EQ07b/EQ09/EQ13 match the official ANZSCO major groups exactly:
+`1 Managers · 2 Professionals · 3 Technicians and Trades Workers · 4 Community and
+Personal Service Workers · 5 Clerical and Administrative Workers · 6 Sales Workers ·
+7 Machinery Operators and Drivers · 8 Labourers`. An 8-entry map with a full-coverage
+assertion is correct.
+
+Occupation columns carry their own `… nfd` residuals (`Managers nfd`, `Professionals
+nfd`, `Clerical and Administrative Workers nfd` among EQ07a's 51 sub-major values) —
+same treatment as industry: real categories, keep them.
