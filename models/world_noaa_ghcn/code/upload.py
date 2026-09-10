@@ -48,14 +48,17 @@ TABLES = ["dicionario", "station", "station_element_inventory", "observation"]
 _orig_bucket = gcs.Client.bucket
 
 
-def _patched_bucket(self, bucket_name, user_project=None):
+def _patched_bucket(self, bucket_name: str, user_project: str | None = None):
+    """Pin ``user_project`` so the requester-pays bucket accepts the request."""
     return _orig_bucket(self, bucket_name, user_project=BILLING_PROJECT)
 
 
 gcs.Client.bucket = _patched_bucket
 
 
-def _parquet_header(self, data_sample_path, csv_delimiter: str = ","):
+def _parquet_header(
+    self, data_sample_path: str | Path, csv_delimiter: str = ","
+) -> list[str]:
     """Read only the parquet schema, never the whole file.
 
     `basedosdados.upload.datatypes.Datatype.header` does
@@ -78,11 +81,31 @@ datatypes.Datatype.header = _parquet_header
 
 
 def local_rows(table: str) -> tuple[int, int]:
+    """Count rows and files in a table's local parquet output.
+
+    Args:
+        table: Table slug.
+
+    Returns:
+        Tuple of (total rows, number of parquet files).
+    """
     files = glob.glob(str(OUTPUT / table / "**" / "*.parquet"), recursive=True)
     return sum(pq.ParquetFile(f).metadata.num_rows for f in files), len(files)
 
 
 def upload_table(table: str) -> int:
+    """Upload one table to BigQuery staging and verify its row count.
+
+    Args:
+        table: Table slug.
+
+    Returns:
+        Row count reported by BigQuery.
+
+    Raises:
+        ValueError: If no parquet is found, or BigQuery disagrees with the
+            local count.
+    """
     path = OUTPUT / table
     expected, nfiles = local_rows(table)
     if nfiles == 0:
