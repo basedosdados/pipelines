@@ -2,15 +2,26 @@
 """QA the cleaned ABS Consumer Price Index output before upload."""
 
 import glob
+import os
 from pathlib import Path
 
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+# Scratch data (raw downloads, cleaned parquet) never lives in the repo: the
+# checkout sits inside Dropbox, so writing multi-GB output here would trigger a
+# sync and risk committing data. Default to ~/Downloads and allow an override.
+DATA_ROOT = Path(
+    os.environ.get(
+        "AU_ABS_PRICES_INFLATION_DATA",
+        Path.home() / "Downloads" / "au_abs_prices_inflation_data" / "cpi",
+    )
+)
 
 
 def load(table):
-    files = glob.glob(str(ROOT / "output" / table / "year=*/data.parquet"))
+    files = glob.glob(
+        str(DATA_ROOT / "output" / table / "year=*/data.parquet")
+    )
     df = pd.concat([pd.read_parquet(f) for f in files], ignore_index=True)
     # parquet is all-STRING; cast for checks
     for c in ("year",):

@@ -11,6 +11,7 @@ Usage:
 """
 
 import logging
+import os
 import sys
 from pathlib import Path
 
@@ -28,7 +29,15 @@ logging.basicConfig(
     datefmt="%H:%M:%S",
 )
 log = logging.getLogger("au_abs_prices_inflation")
-ROOT = Path(__file__).resolve().parents[1]
+# Scratch data (raw downloads, cleaned parquet) never lives in the repo: the
+# checkout sits inside Dropbox, so writing multi-GB output here would trigger a
+# sync and risk committing data. Default to ~/Downloads and allow an override.
+DATA_ROOT = Path(
+    os.environ.get(
+        "AU_ABS_PRICES_INFLATION_DATA",
+        Path.home() / "Downloads" / "au_abs_prices_inflation_data" / "cpi",
+    )
+)
 
 
 def main():
@@ -36,8 +45,8 @@ def main():
     for tbl in ("quarterly", "monthly"):
         if tbl not in want:
             continue
-        df = clean_frequency(tbl, str(ROOT / "input"))
-        n = write_partitioned(df, TABLE_ID[tbl], str(ROOT / "output"))
+        df = clean_frequency(tbl, str(DATA_ROOT / "input"))
+        n = write_partitioned(df, TABLE_ID[tbl], str(DATA_ROOT / "output"))
         log.info(
             "%s: %d rows | years %d-%d | %d regions | %d items",
             TABLE_ID[tbl],
