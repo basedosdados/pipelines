@@ -80,6 +80,21 @@ def _text(node: ET.Element | None, tag: str) -> str | None:
     return value or None
 
 
+def _attr(node: ET.Element, name: str) -> str | None:
+    """Value of an XML attribute, with blank treated as absent.
+
+    ``ElementTree`` returns ``""`` for an attribute that is present but empty, and the
+    ECQ venue block uses that for every unknown address component. Left as ``""`` those
+    reach BigQuery as empty strings rather than NULL, which understates the null rate
+    and — for ``state`` — breaks the directory foreign key, since ``""`` is not a state.
+    """
+    value = node.get(name)
+    if value is None:
+        return None
+    value = value.strip()
+    return value or None
+
+
 def _int(value) -> int | None:
     if value is None or value == "":
         return None
@@ -834,12 +849,12 @@ def _emit_count_round(
     # -- voting-centre results ----------------------------------------------------------
     for reporting_district, booth in iter_booths(count_round):
         centre_identity = identity | {
-            "voting_centre_id": booth.get("id"),
+            "voting_centre_id": _attr(booth, "id"),
             "count_status": status,
-            "voting_centre_name": booth.get("name"),
+            "voting_centre_name": _attr(booth, "name"),
             # typeDescription is unreliable (it repeats the centre name for some
             # booths), so only the code is published; labels live in dicionario.
-            "voting_centre_type_code": booth.get("typeCode"),
+            "voting_centre_type_code": _attr(booth, "typeCode"),
             "voting_centre_district_name": reporting_district
             or identity["district_name"],
             "votes_total": _int(_text(booth, "ballots")),
@@ -909,26 +924,26 @@ def build_voting_centres(
                     # The venue block also names events the archive does not declare
                     # (and MASC23, which is excluded); skip rather than invent an id.
                     continue
-                district_name = served.get("districtName")
+                district_name = _attr(served, "districtName")
                 rows.append(
                     {
                         "year": int(event["electionDay"][:4]),
                         "election_id": str(event["id"]),
-                        "voting_centre_id": booth.get("id"),
+                        "voting_centre_id": _attr(booth, "id"),
                         "state_electoral_division_id": seds.get(
                             _norm(district_name)
                         ),
                         "district_name": district_name,
-                        "voting_centre_name": booth.get("name"),
-                        "building_name": booth.get("buildingName"),
-                        "street_number": booth.get("streetNo"),
-                        "street_name": booth.get("streetName"),
-                        "locality": booth.get("locality"),
-                        "postcode": booth.get("postcode"),
-                        "state_abbreviation": booth.get("state"),
+                        "voting_centre_name": _attr(booth, "name"),
+                        "building_name": _attr(booth, "buildingName"),
+                        "street_number": _attr(booth, "streetNo"),
+                        "street_name": _attr(booth, "streetName"),
+                        "locality": _attr(booth, "locality"),
+                        "postcode": _attr(booth, "postcode"),
+                        "state_abbreviation": _attr(booth, "state"),
                         "latitude": _float(booth.get("latitude")),
                         "longitude": _float(booth.get("longitude")),
-                        "joint_type": served.get("jointType"),
+                        "joint_type": _attr(served, "jointType"),
                         "is_abolished": _yesno(booth.get("abolished")),
                     }
                 )
@@ -1244,7 +1259,7 @@ def build_dicionario(frames: dict[str, pd.DataFrame]) -> pd.DataFrame:
                     "id_tabela": table,
                     "nome_coluna": column,
                     "chave": key,
-                    "cobertura_temporal": "",
+                    "cobertura_temporal": None,
                     "valor": value,
                 }
             )
