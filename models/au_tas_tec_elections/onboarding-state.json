@@ -1,0 +1,41 @@
+{
+  "saved_at": "2026-09-10T04:00:00",
+  "dataset_slug": "tas_elections",
+  "gcp_dataset_id": "au_tas_tec_elections",
+  "current_step": 2,
+  "completed_steps": [1],
+  "env": "staging",
+  "notes": [
+    "venv: ~/.venvs/bd-pipelines-tas; MCP calls use ~/.venvs/bd-pipelines/bin/python (has fastmcp)",
+    "BD_SERVICE_ACCOUNT_DEV=~/.basedosdados/credentials/staging.json -> basedosdados-dev; dbt debug OK",
+    "scratch: ~/Downloads/au_tas_tec_elections_data"
+  ],
+  "resolved_ids": {
+    "area_au_tas": "e5145b53-65bf-4838-a62a-5bf4e2eaa58b",
+    "status_under_review": "47208305-325a-4da9-9222-ac6849405b78",
+    "status_published": "e16221de-ac30-4926-83d3-de219998dab3",
+    "license_cc_40": "a8f7a0a7-411b-4d06-916e-6debeddac49b",
+    "license_unknown": "77dfe32b-6a14-4490-806f-22af1f26c425",
+    "availability_online": "dd396d7d-0264-4c1f-bf0d-6efe2dc89cbe",
+    "theme_government": "6dd730bb-89ab-4dba-a1bf-a25ca1c35003",
+    "theme_politics": "c4e75f8c-29de-4b76-9607-657d4ac7f490",
+    "tags": {
+      "eleicao": "327ca750-b120-4d60-90ee-750a0f1fa79c",
+      "voto": "0f9f27ec-d0cf-4c73-8f19-6a7af438d120",
+      "partido": "a4dcbfbb-cf4e-4b92-adfe-9b16ab2c5a15",
+      "candidatura": "039717e7-b20d-4fcb-8792-9d6cb8ec9484",
+      "sistema_eleitoral": "689c119a-8b6c-4ea7-9960-95b3e8ee9ccd",
+      "preferencias": "df03ec27-975e-4f28-b3d7-66ad641fae0b",
+      "parlamento": "b361d298-b933-4fac-85e4-e65e778e9c97",
+      "legislativo": "08844878-ac8d-430a-88a2-17eda89f8e4a"
+    },
+    "organization_au_tec": "TO BE CREATED"
+  },
+  "geography_finding": {
+    "conclusion": "ABS state_electoral_division for TAS is an INTERSECTION of the two chambers (e.g. 'Bass (Launceston)') and matches NEITHER chamber 1:1. TAS House of Assembly divisions ARE coterminous with the Commonwealth electoral divisions, so the correct directory is commonwealth_electoral_division_2021 (ids 601-605).",
+    "sed_2011_vs_2016": "byte-identical for TAS (25 rows, same ids and names)",
+    "sed_2021": "differs: Denison->Clark, Apsley removed, Prosser added, ids shifted",
+    "ced_tas": {"601": "Bass", "602": "Braddon", "603": "Denison(2011,2016) / Clark(2021)", "604": "Franklin", "605": "Lyons"},
+    "legislative_council": "15 single-member divisions; NO directory exists that matches them 1:1 -> no FK, district_name only"
+  }
+}
