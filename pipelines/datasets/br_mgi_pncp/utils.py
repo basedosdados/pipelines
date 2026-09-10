@@ -1,7 +1,7 @@
-"""Pure download and cleaning functions for br_pncp. No Prefect imports.
+"""Pure download and cleaning functions for br_mgi_pncp. No Prefect imports.
 
 Both the recurring pipeline (``tasks.py``) and the one-shot onboarding scripts
-under ``models/br_pncp/code/`` import from here, so the transform exists in
+under ``models/br_mgi_pncp/code/`` import from here, so the transform exists in
 exactly one place.
 
 The PNCP consulta API has four constraints that shape the download:
@@ -52,7 +52,7 @@ from typing import Any
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from pipelines.datasets.br_pncp.constants import constants
+from pipelines.datasets.br_mgi_pncp.constants import constants
 
 BASE_URL = constants.BASE_URL.value
 USER_AGENT = constants.USER_AGENT.value
@@ -829,7 +829,7 @@ def clean_table(
 # dicionario
 # --------------------------------------------------------------------------- #
 
-# These two mappings are read by models/br_pncp/code/gen_dbt.py, which turns
+# These two mappings are read by models/br_mgi_pncp/code/gen_dbt.py, which turns
 # them into the dicionario dbt model. Nothing builds the dicionario in Python
 # any more: deriving it from a cleaned harvest was correct for the backfill and
 # silently wrong for every incremental run, which rebuilt it from a ten-day
