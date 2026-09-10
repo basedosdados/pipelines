@@ -46,6 +46,8 @@ from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
     DateOnly,
+    FreeLag,
+    PartBdpro,
     YearOnly,
 )
 from pipelines.utils.metadata.tasks import (
@@ -59,15 +61,31 @@ from pipelines.utils.tasks import (
     upload_to_gcs,
 )
 
-# Every table is fully public. GHCN-Daily is a work of the US federal
-# government, in the public domain under 17 U.S.C. 105, and the dataset was
-# published all-free — paywalling a rolling window now would retroactively
-# close data that is already open.
+# BD Pro rolling window.
 #
-# `dicionario` has no date column, so it takes no coverage spec at all.
+# Data Basis paywalls the most recent window of any table that refreshes
+# monthly or more often; everything older stays free. This dataset refreshes
+# weekly, so `observation` -- the high-frequency table -- carries the window:
+# the most recent 6 months are pro-only, the other ~113 years are free.
+#
+# The window rolls on its own. Every run recomputes free_end = source_end -
+# free_lag, rewrites both DateTimeRanges, and re-issues the BigQuery Row Access
+# Policies. There is nothing weekly to do by hand and the dbt model is
+# untouched -- the paywall lives in the Row Access Policies, not in SQL.
+#
+# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
+# Coverage to already exist on the table, or assert_coverage_topology raises
+# before anything is written. `code/set_bdpro_coverage.py` creates the pro
+# Coverage; it has been run against staging and prod.
+#
+# `station_element_inventory` is annual in granularity and stays fully free, as
+# lower-frequency tables in the same dataset do. `station` and `dicionario`
+# have no date column, so they take no coverage spec at all.
 _COVERAGE = {
-    "observation": AllFree(
-        date_column=DateOnly(col="date"), date_format=DateFormat.YEAR_MD
+    "observation": PartBdpro(
+        date_column=DateOnly(col="date"),
+        date_format=DateFormat.YEAR_MD,
+        free_lag=FreeLag(unit="months", value=6),
     ),
     "station_element_inventory": AllFree(
         date_column=YearOnly(col="last_year"), date_format=DateFormat.YEAR

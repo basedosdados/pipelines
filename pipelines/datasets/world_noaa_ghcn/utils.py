@@ -19,8 +19,8 @@ from datetime import date
 from pathlib import Path
 
 import pyarrow as pa
-import pyarrow.csv as pacsv
 import pyarrow.compute as pc
+import pyarrow.csv as pacsv
 import pyarrow.parquet as pq
 import requests
 
