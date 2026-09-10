@@ -207,6 +207,9 @@ models:
     au_abs_labour_force:
       +materialized: table
       +schema: au_abs_labour_force
+    au_abs_migration:
+      +materialized: table
+      +schema: au_abs_migration
     us_bls_qcew:
       +materialized: table
       +schema: us_bls_qcew
@@ -666,6 +669,9 @@ models:
     us_noaa_storm_events:
       +materialized: table
       +schema: us_noaa_storm_events
+    us_osha_enforcement:
+      +materialized: table
+      +schema: us_osha_enforcement
     world_ampas_oscar:
       +materialized: table
       +schema: world_ampas_oscar
