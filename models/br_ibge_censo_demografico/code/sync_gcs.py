@@ -80,7 +80,11 @@ def fetch_historical_dicionario(client: storage.Client) -> Path:
     blob_name = (
         f"staging/{constants.DATASET_ID}/dicionario/{DICIONARIO_HISTORICAL}"
     )
-    bucket = client.bucket(constants.STAGING_BUCKET)
+    # Both lake buckets are requester-pays, so every request needs a billing
+    # project of its own — the client's project is not enough.
+    bucket = client.bucket(
+        constants.STAGING_BUCKET, user_project=constants.STAGING_BUCKET
+    )
     blob = bucket.blob(blob_name)
     if not blob.exists():
         raise FileNotFoundError(
