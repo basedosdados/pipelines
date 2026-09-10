@@ -1,4 +1,4 @@
-"""Prefect 3 tasks for br_pncp — thin wrappers over utils.py."""
+"""Prefect 3 tasks for br_mgi_pncp — thin wrappers over utils.py."""
 
 from __future__ import annotations
 
@@ -7,8 +7,8 @@ from pathlib import Path
 
 from prefect import task
 
-from pipelines.datasets.br_pncp.constants import constants
-from pipelines.datasets.br_pncp.utils import (
+from pipelines.datasets.br_mgi_pncp.constants import constants
+from pipelines.datasets.br_mgi_pncp.utils import (
     clean_table,
     harvest,
 )
