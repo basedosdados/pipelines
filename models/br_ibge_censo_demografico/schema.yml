@@ -12577,67 +12577,67 @@ models:
           Total de moradores crianças com deficiência no domicílio
       - name: md0130
         description: >
-          MARCA DE IMPUTAÇÃO NA D0130
+          Marca de imputação na D0130
       - name: md0150
         description: >
-          MARCA DE IMPUTAÇÃO NA D0150
+          Marca de imputação na D0150
       - name: md0160
         description: >
-          MARCA DE IMPUTAÇÃO NA D0160
+          Marca de imputação na D0160
       - name: md0170
         description: >
-          MARCA DE IMPUTAÇÃO NA D0170
+          Marca de imputação na D0170
       - name: md0180
         description: >
-          MARCA DE IMPUTAÇÃO NA D0180
+          Marca de imputação na D0180
       - name: md0190
         description: >
-          MARCA DE IMPUTAÇÃO NA D0190
+          Marca de imputação na D0190
       - name: md0200
         description: >
-          MARCA DE IMPUTAÇÃO NA D0200
+          Marca de imputação na D0200
       - name: md0210
         description: >
-          MARCA DE IMPUTAÇÃO NA D0210
+          Marca de imputação na D0210
       - name: md0220
         description: >
-          MARCA DE IMPUTAÇÃO NA D0220
+          Marca de imputação na D0220
       - name: md0230
         description: >
-          MARCA DE IMPUTAÇÃO NA D0230
+          Marca de imputação na D0230
       - name: md0240
         description: >
-          MARCA DE IMPUTAÇÃO NA D0240
+          Marca de imputação na D0240
       - name: md0250
         description: >
-          MARCA DE IMPUTAÇÃO NA D0250
+          Marca de imputação na D0250
       - name: md0260
         description: >
-          MARCA DE IMPUTAÇÃO NA D0260
+          Marca de imputação na D0260
       - name: md0270
         description: >
-          MARCA DE IMPUTAÇÃO NA D0270
+          Marca de imputação na D0270
       - name: md0280
         description: >
-          MARCA DE IMPUTAÇÃO NA D0280
+          Marca de imputação na D0280
       - name: md0290
         description: >
-          MARCA DE IMPUTAÇÃO NA D0290
+          Marca de imputação na D0290
       - name: md0300
         description: >
-          MARCA DE IMPUTAÇÃO NA D0300
+          Marca de imputação na D0300
       - name: md0310
         description: >
-          MARCA DE IMPUTAÇÃO NA D0310
+          Marca de imputação na D0310
       - name: md0320
         description: >
-          MARCA DE IMPUTAÇÃO NA D0320
+          Marca de imputação na D0320
       - name: md0330
         description: >
-          MARCA DE IMPUTAÇÃO NA D0330
+          Marca de imputação na D0330
       - name: md0340
         description: >
-          MARCA DE IMPUTAÇÃO NA D0340
+          Marca de imputação na D0340
   - name: br_ibge_censo_demografico__microdados_pessoa_2022
     description: >
       Microdados da amostra do Censo Demográfico 2022 (acesso público): um registro
@@ -12975,7 +12975,7 @@ models:
       - name: p0940
         description: >
           Pessoa de 14 anos ou mais, ocupada, contribuinte de instituto de previdência
-          no trabalho principal, catogoria
+          no trabalho principal, categoria
       - name: p0950
         description: >
           Pessoas de 14 anos ou mais ocupada, categoria
@@ -13054,211 +13054,211 @@ models:
           Número de ordem de quem prestou as informações da pessoa, código
       - name: mp0150
         description: >
-          MARCA DE IMPUTAÇÃO NA P0150
+          Marca de imputação na P0150
       - name: mp0170
         description: >
-          MARCA DE IMPUTAÇÃO NA P0170
+          Marca de imputação na P0170
       - name: mp0180
         description: >
-          MARCA DE IMPUTAÇÃO NA P0180
+          Marca de imputação na P0180
       - name: mp0210
         description: >
-          MARCA DE IMPUTAÇÃO NA P0210
+          Marca de imputação na P0210
       - name: mp0230
         description: >
-          MARCA DE IMPUTAÇÃO NA P0230
+          Marca de imputação na P0230
       - name: mp0260
         description: >
-          MARCA DE IMPUTAÇÃO NA P0260
+          Marca de imputação na P0260
       - name: mp0270
         description: >
-          MARCA DE IMPUTAÇÃO NA P0270
+          Marca de imputação na P0270
       - name: mp0280
         description: >
-          MARCA DE IMPUTAÇÃO NA P0280
+          Marca de imputação na P0280
       - name: mp0290
         description: >
-          MARCA DE IMPUTAÇÃO NA P0290
+          Marca de imputação na P0290
       - name: mp0300
         description: >
-          MARCA DE IMPUTAÇÃO NA P0300
+          Marca de imputação na P0300
       - name: mp0310
         description: >
-          MARCA DE IMPUTAÇÃO NA P0310
+          Marca de imputação na P0310
       - name: mp0320
         description: >
-          MARCA DE IMPUTAÇÃO NA P0320
+          Marca de imputação na P0320
       - name: mp0330
         description: >
-          MARCA DE IMPUTAÇÃO NA P0330
+          Marca de imputação na P0330
       - name: mp0350
         description: >
-          MARCA DE IMPUTAÇÃO NA P0350
+          Marca de imputação na P0350
       - name: mp0360
         description: >
-          MARCA DE IMPUTAÇÃO NA P0360
+          Marca de imputação na P0360
       - name: mp0410
         description: >
-          MARCA DE IMPUTAÇÃO NA P0410
+          Marca de imputação na P0410
       - name: mp0411
         description: >
-          MARCA DE IMPUTAÇÃO NA P0411
+          Marca de imputação na P0411
       - name: mp0420
         description: >
-          MARCA DE IMPUTAÇÃO NA P0420
+          Marca de imputação na P0420
       - name: mp0430
         description: >
-          MARCA DE IMPUTAÇÃO NA P0430
+          Marca de imputação na P0430
       - name: mp0440
         description: >
-          MARCA DE IMPUTAÇÃO NA P0440
+          Marca de imputação na P0440
       - name: mp0450
         description: >
-          MARCA DE IMPUTAÇÃO NA P0450
+          Marca de imputação na P0450
       - name: mp0460
         description: >
-          MARCA DE IMPUTAÇÃO NA P0460
+          Marca de imputação na P0460
       - name: mp0480
         description: >
-          MARCA DE IMPUTAÇÃO NA P0480
+          Marca de imputação na P0480
       - name: mp0490
         description: >
-          MARCA DE IMPUTAÇÃO NA P0490
+          Marca de imputação na P0490
       - name: mp0520
         description: >
-          MARCA DE IMPUTAÇÃO NA P0520
+          Marca de imputação na P0520
       - name: mp0530
         description: >
-          MARCA DE IMPUTAÇÃO NA P0530
+          Marca de imputação na P0530
       - name: mp0540
         description: >
-          MARCA DE IMPUTAÇÃO NA P0540
+          Marca de imputação na P0540
       - name: mp0550
         description: >
-          MARCA DE IMPUTAÇÃO NA P0550
+          Marca de imputação na P0550
       - name: mp0560
         description: >
-          MARCA DE IMPUTAÇÃO NA P0560
+          Marca de imputação na P0560
       - name: mp0570
         description: >
-          MARCA DE IMPUTAÇÃO NA P0570
+          Marca de imputação na P0570
       - name: mp0600
         description: >
-          MARCA DE IMPUTAÇÃO NA P0600
+          Marca de imputação na P0600
       - name: mp0610
         description: >
-          MARCA DE IMPUTAÇÃO NA P0610
+          Marca de imputação na P0610
       - name: mp0640
         description: >
-          MARCA DE IMPUTAÇÃO NA P0640
+          Marca de imputação na P0640
       - name: mp0650
         description: >
-          MARCA DE IMPUTAÇÃO NA P0650
+          Marca de imputação na P0650
       - name: mp0660
         description: >
-          MARCA DE IMPUTAÇÃO NA P0660
+          Marca de imputação na P0660
       - name: mp0670
         description: >
-          MARCA DE IMPUTAÇÃO NA P0670
+          Marca de imputação na P0670
       - name: mp0680
         description: >
-          MARCA DE IMPUTAÇÃO NA P0680
+          Marca de imputação na P0680
       - name: mp0690
         description: >
-          MARCA DE IMPUTAÇÃO NA P0690
+          Marca de imputação na P0690
       - name: mp0700
         description: >
-          MARCA DE IMPUTAÇÃO NA P0700
+          Marca de imputação na P0700
       - name: mp0710
         description: >
-          MARCA DE IMPUTAÇÃO NA P0710
+          Marca de imputação na P0710
       - name: mp0720
         description: >
-          MARCA DE IMPUTAÇÃO NA P0720
+          Marca de imputação na P0720
       - name: mp0730
         description: >
-          MARCA DE IMPUTAÇÃO NA P0730
+          Marca de imputação na P0730
       - name: mp0740
         description: >
-          MARCA DE IMPUTAÇÃO NA P0740
+          Marca de imputação na P0740
       - name: mp0800
         description: >
-          MARCA DE IMPUTAÇÃO NA P0800
+          Marca de imputação na P0800
       - name: mp0810
         description: >
-          MARCA DE IMPUTAÇÃO NA P0810
+          Marca de imputação na P0810
       - name: mp0840
         description: >
-          MARCA DE IMPUTAÇÃO NA P0840
+          Marca de imputação na P0840
       - name: mp0850
         description: >
-          MARCA DE IMPUTAÇÃO NA P0850
+          Marca de imputação na P0850
       - name: mp0860
         description: >
-          MARCA DE IMPUTAÇÃO NA P0860
+          Marca de imputação na P0860
       - name: mp0870
         description: >
-          MARCA DE IMPUTAÇÃO NA P0870
+          Marca de imputação na P0870
       - name: mp0880
         description: >
-          MARCA DE IMPUTAÇÃO NA P0880
+          Marca de imputação na P0880
       - name: mp0890
         description: >
-          MARCA DE IMPUTAÇÃO NA P0890
+          Marca de imputação na P0890
       - name: mp0900
         description: >
-          MARCA DE IMPUTAÇÃO NA P0900
+          Marca de imputação na P0900
       - name: mp0990
         description: >
-          MARCA DE IMPUTAÇÃO NA P0990
+          Marca de imputação na P0990
       - name: mp1000
         description: >
-          MARCA DE IMPUTAÇÃO NA P1000
+          Marca de imputação na P1000
       - name: mp1010
         description: >
-          MARCA DE IMPUTAÇÃO NA P1010
+          Marca de imputação na P1010
       - name: mp1050
         description: >
-          MARCA DE IMPUTAÇÃO NA P1050
+          Marca de imputação na P1050
       - name: mp1060
         description: >
-          MARCA DE IMPUTAÇÃO NA P1060
+          Marca de imputação na P1060
       - name: mp1070
         description: >
-          MARCA DE IMPUTAÇÃO NA P1070
+          Marca de imputação na P1070
       - name: mp1080
         description: >
-          MARCA DE IMPUTAÇÃO NA P1080
+          Marca de imputação na P1080
       - name: mp1090
         description: >
-          MARCA DE IMPUTAÇÃO NA P1090
+          Marca de imputação na P1090
       - name: mp1100
         description: >
-          MARCA DE IMPUTAÇÃO NA P1100
+          Marca de imputação na P1100
       - name: mp1120
         description: >
-          MARCA DE IMPUTAÇÃO NA P1120
+          Marca de imputação na P1120
       - name: mp1130
         description: >
-          MARCA DE IMPUTAÇÃO NA P1130
+          Marca de imputação na P1130
       - name: mp1160
         description: >
-          MARCA DE IMPUTAÇÃO NA P1160
+          Marca de imputação na P1160
       - name: mp1170
         description: >
-          MARCA DE IMPUTAÇÃO NA P1170
+          Marca de imputação na P1170
       - name: mp1180
         description: >
-          MARCA DE IMPUTAÇÃO NA P1180
+          Marca de imputação na P1180
       - name: mp1200
         description: >
-          MARCA DE IMPUTAÇÃO NA P1200
+          Marca de imputação na P1200
       - name: mp1210
         description: >
-          MARCA DE IMPUTAÇÃO NA P1210
+          Marca de imputação na P1210
       - name: mp1220
         description: >
-          MARCA DE IMPUTAÇÃO NA P1220
+          Marca de imputação na P1220
   - name: br_ibge_censo_demografico__microdados_familia_2022
     description: >
       Microdados da amostra do Censo Demográfico 2022 (acesso público): um registro
@@ -13362,10 +13362,10 @@ models:
           Rendimento familiar, participação
       - name: mf0190
         description: >
-          MARCA DE IMPUTAÇÃO NA F019
+          Marca de imputação na F019
       - name: mf0200
         description: >
-          MARCA DE IMPUTAÇÃO NA F0200
+          Marca de imputação na F0200
   - name: br_ibge_censo_demografico__microdados_mortalidade_2022
     description: >
       Microdados da amostra do Censo Demográfico 2022 (acesso público): um registro
@@ -13427,11 +13427,11 @@ models:
           Pessoa falecida, idade calculada, categoria
       - name: mm0150
         description: >
-          MARCA DE IMPUTAÇÃO NA M0150
+          Marca de imputação na M0150
       - name: mm0160
         description: >
-          MARCA DE IMPUTAÇÃO NA M0160
+          Marca de imputação na M0160
       - name: mm0170
         description: >
-          MARCA DE IMPUTAÇÃO NA M0170
+          Marca de imputação na M0170
 # --- end censo 2022 public microdata ---

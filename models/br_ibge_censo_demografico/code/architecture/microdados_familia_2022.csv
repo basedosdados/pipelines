@@ -21,5 +21,5 @@ f0240,INT64,"Integrantes da família, homens, número",,no,,person,no,,F0240
 f0250,INT64,"Integrantes da família, mulheres, número",,no,,person,no,,F0250
 f0260,FLOAT64,Rendimento familiar per capita,,no,,BRL,no,,F0260
 f0270,INT64,"Rendimento familiar, participação",,no,,BRL,no,,F0270
-mf0190,STRING,MARCA DE IMPUTAÇÃO NA F019,,yes,,,no,Marca de imputação do IBGE,MF0190
-mf0200,STRING,MARCA DE IMPUTAÇÃO NA F0200,,yes,,,no,Marca de imputação do IBGE,MF0200
+mf0190,STRING,Marca de imputação na F019,,yes,,,no,Marca de imputação do IBGE,MF0190
+mf0200,STRING,Marca de imputação na F0200,,yes,,,no,Marca de imputação do IBGE,MF0200

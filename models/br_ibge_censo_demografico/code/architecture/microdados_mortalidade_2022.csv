@@ -11,6 +11,6 @@ situacao_domicilio,STRING,Situação do domicílio,,yes,,,no,,M0140
 m0150,STRING,"Ano de ocorrência do óbito de morador do domicílio, categoria",,yes,,,no,,M0150
 m0160,STRING,"Sexo da pessoa falecida do domicílio, categoria",,yes,,,no,,M0160
 m0170,STRING,"Pessoa falecida, idade calculada, categoria",,yes,,,no,,M0170
-mm0150,STRING,MARCA DE IMPUTAÇÃO NA M0150,,yes,,,no,Marca de imputação do IBGE,MM0150
-mm0160,STRING,MARCA DE IMPUTAÇÃO NA M0160,,yes,,,no,Marca de imputação do IBGE,MM0160
-mm0170,STRING,MARCA DE IMPUTAÇÃO NA M0170,,yes,,,no,Marca de imputação do IBGE,MM0170
+mm0150,STRING,Marca de imputação na M0150,,yes,,,no,Marca de imputação do IBGE,MM0150
+mm0160,STRING,Marca de imputação na M0160,,yes,,,no,Marca de imputação do IBGE,MM0160
+mm0170,STRING,Marca de imputação na M0170,,yes,,,no,Marca de imputação do IBGE,MM0170

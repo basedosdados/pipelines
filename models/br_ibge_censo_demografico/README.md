@@ -39,6 +39,16 @@ habitantes divulgados pelo IBGE.
 parquet; a UF vem no arquivo bruto como código de dois dígitos e é convertida para a sigla no
 `clean.py`.
 
+## Níveis de observação
+
+O grão de cada tabela de 2022 usa as entidades `person`, `household`, `family` e `death`,
+sempre com `state` (a geografia máxima do arquivo público é a UF, não o município) e `year`.
+
+A entidade **`family` foi criada para este conjunto** — o vocabulário do backend não tinha
+equivalente. Ficou na categoria `individual`, ao lado de `person` e `household`. Não usar
+`household` no lugar dela: um domicílio pode conter mais de uma família, e `microdados_familia`
+e `microdados_domicilio` têm contagens diferentes.
+
 ## Dicionário
 
 Um dicionário por conjunto, cobrindo as 14 tabelas de microdados de todos os anos. A staging
