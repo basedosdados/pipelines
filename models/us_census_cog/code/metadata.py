@@ -14,20 +14,57 @@ create_update_table fails once a table has one.
 """
 
 import json
+import os
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
 CODE_DIR = Path(__file__).resolve().parent
-sys.path.insert(0, str(CODE_DIR.parents[2]))
-sys.path.insert(
-    0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-)
+REPO_ROOT = CODE_DIR.parents[2]
+sys.path.insert(0, str(REPO_ROOT))
 
-import server  # noqa: E402
 from common import ARCHITECTURE, DATASET_ID  # noqa: E402
 
 from pipelines.datasets.us_census_cog.utils import load_cols  # noqa: E402
+
+
+def import_databasis_server():
+    """Import the Data Basis MCP server module, which holds the backend client.
+
+    The module lives outside this repository. Its location comes from
+    ``DATABASIS_MCP_DIR`` when set, and is otherwise found by looking for an
+    ``mcp`` checkout beside any ancestor of the repository root -- the extra
+    reach matters inside a git worktree, where the root sits several levels
+    deeper than usual. Either way this file carries no absolute path of its own.
+
+    Returns:
+        The imported ``server`` module.
+
+    Raises:
+        SystemExit: The directory holds no ``server.py``.
+    """
+    override = os.environ.get("DATABASIS_MCP_DIR")
+    candidates = (
+        [Path(override)]
+        if override
+        else [parent / "mcp" for parent in REPO_ROOT.parents]
+    )
+    for candidate in candidates:
+        if (candidate / "server.py").exists():
+            sys.path.insert(0, str(candidate))
+            break
+    else:
+        raise SystemExit(
+            "no mcp/server.py beside this repository. Point DATABASIS_MCP_DIR "
+            "at the Data Basis MCP checkout."
+        )
+    import server
+
+    return server
+
+
+server = import_databasis_server()
+
 
 IDS = CODE_DIR / "metadata_ids.json"
 # The per-table documentation bundles built by build_auxiliary_files.py. They

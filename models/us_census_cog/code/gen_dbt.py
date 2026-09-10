@@ -323,7 +323,16 @@ class _Dumper(yaml.SafeDumper):
     """Emit long descriptions as folded scalars without a trailing newline."""
 
 
-def _str_presenter(dumper, data):
+def _str_presenter(dumper: yaml.Dumper, data: str) -> yaml.nodes.ScalarNode:
+    """Represent a long single-line string as a folded scalar.
+
+    Args:
+        dumper: The active YAML dumper.
+        data: The string being written.
+
+    Returns:
+        The scalar node, folded when the string is long enough to wrap.
+    """
     if len(data) > 70 and "\n" not in data:
         return dumper.represent_scalar(
             "tag:yaml.org,2002:str", data, style=">"

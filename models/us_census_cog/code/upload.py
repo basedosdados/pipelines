@@ -41,7 +41,22 @@ BUCKET = "basedosdados-dev"
 _orig_bucket = gcs.Client.bucket
 
 
-def _patched_bucket(self, bucket_name, user_project=None):
+def _patched_bucket(
+    self: gcs.Client, bucket_name: str, user_project: str | None = None
+) -> gcs.Bucket:
+    """Return a bucket handle with the billing project always pinned.
+
+    The staging bucket is requester-pays, so every call needs a user project,
+    and callers inside the basedosdados SDK do not pass one.
+
+    Args:
+        self: The storage client the method is bound to.
+        bucket_name: Name of the bucket to open.
+        user_project: Ignored; the billing project is pinned instead.
+
+    Returns:
+        The bucket, billed to BILLING_PROJECT.
+    """
     return _orig_bucket(self, bucket_name, user_project=BILLING_PROJECT)
 
 

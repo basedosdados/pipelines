@@ -34,12 +34,30 @@ HEADER = [
 # Portuguese and Spanish share most of this vocabulary but not its accents, so
 # the two are spelled from a common base rather than by one pass over the file.
 # Only words that actually differ between the languages appear here.
+# Portuguese and Spanish share most of this vocabulary but not its accents, so
+# the two are spelled from a common base rather than by one pass over the file.
+# Text added to this file is written unaccented and gets its diacritics here, at
+# generation time, which is what keeps a later edit from shipping bare words --
+# every accent defect found in review so far came from a string added after an
+# earlier one-off pass over the source.
+SHARED_SPELLING = {
+    "codigo": "código",
+    "Codigo": "Código",
+    "codigos": "códigos",
+    "unico": "único",
+    "publico": "público",
+    "area": "área",
+    "areas": "áreas",
+    "numero": "número",
+    "Numero": "Número",
+    "matricula": "matrícula",
+    "digitos": "dígitos",
+    "dolares": "dólares",
+    "estatistico": "estadístico",
+}
 LANGUAGE_SPELLING = {
     "pt": {
         "referencia": "referência",
-        "publico": "público",
-        "estatistica": "estatística",
-        "Nao": "Não",
         "atribuida": "atribuída",
         "tres": "três",
         "mes": "mês",
@@ -48,30 +66,109 @@ LANGUAGE_SPELLING = {
         "funcao": "função",
         "funcoes": "funções",
         "correspondencia": "correspondência",
+        "Nao": "Não",
+        "nao": "não",
+        "ate": "até",
+        "Ate": "Até",
+        "endereco": "endereço",
+        "Endereco": "Endereço",
+        "diretorio": "diretório",
+        "municipio": "município",
+        "municipios": "municípios",
+        "estatistico": "estatístico",
+        "variavel": "variável",
+        "eletronico": "eletrônico",
+        "sitio": "sítio",
+        "pseudocodigo": "pseudocódigo",
+        "orgao": "órgão",
+        "nivel": "nível",
+        "regiao": "região",
+        "censitaria": "censitária",
+        "censitarios": "censitários",
+        "disponivel": "disponível",
+        "Disponivel": "Disponível",
+        "exercicio": "exercício",
+        "propria": "própria",
+        "estatisticas": "estatísticas",
+        "Descricao": "Descrição",
+        "descricao": "descrição",
+        "financas": "finanças",
+        "divida": "dívida",
+        "imputacao": "imputação",
+        "somatorio": "somatório",
+        "compoem": "compõem",
+        "posicoes": "posições",
+        "Extensao": "Extensão",
+        "extensao": "extensão",
+        "formulario": "formulário",
+        "selecao": "seleção",
+        "publicacao": "publicação",
+        "previdenciarios": "previdenciários",
+        "previdencia": "previdência",
+        "responsavel": "responsável",
+        "Designacao": "Designação",
+        "politica": "política",
+        "marco": "março",
+        "estavel": "estável",
+        "atribuido": "atribuído",
+        "alfabetico": "alfabético",
+        "California": "Califórnia",
+        "subcodigo": "subcódigo",
+        "Composicao": "Composição",
     },
     "es": {
         "Ano": "Año",
-        "publico": "público",
-        "publicacion": "publicación",
-        "Nomina": "Nómina",
-        "categoria": "categoría",
-        "poblacion": "población",
-        "region": "región",
-        "estadistica": "estadística",
         "ano": "año",
         "anos": "años",
         "funcao": "función",
         "funcoes": "funciones",
         "Populacao": "Población",
         "populacao": "población",
+        "poblacion": "población",
         "Categoria": "Categoría",
+        "categoria": "categoría",
+        "publicacion": "publicación",
+        "Nomina": "Nómina",
+        "nomina": "nómina",
+        "region": "región",
+        "estadistica": "estadística",
+        "estadisticas": "estadísticas",
+        "dias": "días",
+        "demas": "demás",
+        "imputacion": "imputación",
+        "extension": "extensión",
+        "Extension": "Extensión",
+        "subdivision": "subdivisión",
+        "geografico": "geográfico",
+        "foranea": "foránea",
+        "seleccion": "selección",
+        "Descripcion": "Descripción",
+        "descripcion": "descripción",
+        "ningun": "ningún",
+        "segun": "según",
+        "ensenanza": "enseñanza",
+        "aqui": "aquí",
+        "Designacion": "Designación",
+        "politica": "política",
+        "direccion": "dirección",
+        "Direccion": "Dirección",
+        "linea": "línea",
+        "pseudocodigo": "pseudocódigo",
+        "alfabetico": "alfabético",
+        "subcodigo": "subcódigo",
+        "Composicion": "Composición",
+        # "esta" is deliberately absent from both maps. It is the demonstrative
+        # in "esta unidad" and the verb in "está ubicada", and a blanket
+        # substitution turns the first into the second -- which is exactly the
+        # defect review found. Write "está" directly where the verb is meant.
     },
 }
 
 
 def spell(text: str, language: str) -> str:
     """Apply one language's spelling to a description written from the base."""
-    for base, accented in LANGUAGE_SPELLING[language].items():
+    mapping = {**SHARED_SPELLING, **LANGUAGE_SPELLING[language]}
+    for base, accented in mapping.items():
         text = re.sub(
             rf"(?<![A-Za-zÀ-ÿ]){re.escape(base)}(?![A-Za-zÀ-ÿ])",
             accented,
@@ -522,7 +619,7 @@ GOVERNMENT_UNIT = [
     col(
         "parent_government_id",
         "STRING",
-        "Identificador da unidade de governo a que está unidade e subordinada",
+        "Identificador da unidade de governo a que esta unidade é subordinada",
         "Identifier of the government unit this unit is dependent on",
         "Identificador de la unidad de gobierno a la que está subordinada",
         obs=(
@@ -1123,6 +1220,36 @@ PT_COLUMNS = {HEADER.index("description_pt"), HEADER.index("observations_pt")}
 ES_COLUMNS = {HEADER.index("description_es"), HEADER.index("observations_es")}
 
 
+# Words that must never reach the CSV bare, per language. Every accent defect
+# review found came from text added to this file after a one-off pass over it,
+# so this check runs on every generation rather than being remembered. It is
+# language-aware because the base forms differ: "Ano" is correct Portuguese and
+# wrong Spanish.
+FORBIDDEN_BARE = {
+    language: sorted(set(SHARED_SPELLING) | set(LANGUAGE_SPELLING[language]))
+    for language in ("pt", "es")
+}
+BARE_PATTERN = {
+    language: re.compile(
+        r"(?<![A-Za-zÀ-ÿ])(" + "|".join(words) + r")(?![A-Za-zÀ-ÿ])"
+    )
+    for language, words in FORBIDDEN_BARE.items()
+}
+
+
+def assert_spelled(rows: list[list[str]], table: str) -> None:
+    """Fail if any translated cell still carries an unaccented base word."""
+    for row in rows:
+        for index in sorted(PT_COLUMNS | ES_COLUMNS):
+            language = "pt" if index in PT_COLUMNS else "es"
+            found = BARE_PATTERN[language].findall(row[index])
+            if found:
+                raise SystemExit(
+                    f"{table}.{row[0]}: unaccented {sorted(set(found))} in "
+                    f"{HEADER[index]}"
+                )
+
+
 def main() -> None:
     """Write one architecture CSV per table."""
     ARCH.mkdir(parents=True, exist_ok=True)
@@ -1139,6 +1266,7 @@ def main() -> None:
             ]
             for row in rows
         ]
+        assert_spelled(spelled, table)
         with path.open("w", newline="") as fh:
             writer = csv.writer(fh, lineterminator="\n")
             writer.writerow(HEADER)

@@ -61,10 +61,9 @@ def directory_values() -> dict[str, list[str]]:
     """Fetch the directory key columns, caching them next to the output."""
     if CACHE.exists():
         return json.loads(CACHE.read_text())
-    sys.path.insert(
-        0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-    )
-    import server
+    from metadata import import_databasis_server
+
+    server = import_databasis_server()
 
     out = {}
     for column, (table, field) in DIRECTORIES.items():
