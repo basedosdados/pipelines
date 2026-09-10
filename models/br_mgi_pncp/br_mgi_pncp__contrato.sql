@@ -1,6 +1,6 @@
 {{
     config(
-        schema="br_pncp",
+        schema="br_mgi_pncp",
         alias="contrato",
         materialized="incremental",
         incremental_strategy="insert_overwrite",
@@ -60,7 +60,7 @@ select
     safe_cast(valor_parcela as float64) valor_parcela,
     safe_cast(valor_global as float64) valor_global,
     safe_cast(valor_acumulado as float64) valor_acumulado
-from {{ set_datalake_project("br_pncp_staging.contrato") }} as t
+from {{ set_datalake_project("br_mgi_pncp_staging.contrato") }} as t
 {% if is_incremental() and var("pncp_years", "") %}
     where safe_cast(ano as int64) in ({{ var("pncp_years") }})
 {% endif %}
