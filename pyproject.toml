@@ -202,6 +202,11 @@ ignore = [
 # renaming them would break the wire contract.
 "pipelines/utils/metadata/dto.py" = ["N815"]
 
+# ABS writes its own category labels with en dashes ("15–24", "2019–20") and
+# they are matched and emitted verbatim, so the ambiguous-unicode rules would
+# fire on real data values.
+"models/au_abs_household_income_wealth/code/*.py" = ["RUF001", "RUF002"]
+
 [tool.sqlfmt]
 exclude = ["target/**/*", "dbt_packages/**/*", ".venv/**/*"]
 
@@ -226,6 +231,10 @@ project-excludes = [
   # directory with bare sibling imports (`common`, `gen_dbt`), which pyrefly
   # cannot resolve from the repo root.
   "models/world_iati_activities/code",
+  # Same policy: the us_census_cog onboarding scripts run from their own
+  # directory with bare sibling imports (`common`), which pyrefly cannot resolve
+  # from the repo root.
+  "models/us_census_cog/code",
   # Same policy: the au_abs_population onboarding scripts (bootstrap, upload,
   # validation and the architecture/dbt generators) are standalone one-shot ETL
   # that manipulate sys.path and monkey-patch the GCS client; the reusable
@@ -276,6 +285,12 @@ project-excludes = [
   # pipelines/datasets/us_fema_openfema/ and is checked normally.
   "models/us_fema_openfema/code",
   "models/us_fbi_cde/code",
+  # Same policy: the au_abs_household_income_wealth onboarding scripts are
+  # standalone `.py` run from their own directory with bare sibling imports
+  # (`import cubes`, `import paper1351`, `import semantics`) resolved via a
+  # sys.path insert, which pyrefly cannot resolve from the repo root. The
+  # dataset is a one-off ABS release with no recurring pipeline.
+  "models/au_abs_household_income_wealth/code",
   # Same policy: br_sfb_sicar onboarding code is standalone `.py` (architecture.py,
   # gen_*.py, bootstrap_clean.py use bare `import architecture`/`import clean`,
   # sys.path-relative), unresolvable from the repo root. The pure transform is
