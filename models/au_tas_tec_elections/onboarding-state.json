@@ -1,5 +1,5 @@
 {
-  "saved_at": "2026-09-10T15:23:37",
+  "saved_at": "2026-09-10T15:24:24",
   "dataset_slug": "tas_elections",
   "gcp_dataset_id": "au_tas_tec_elections",
   "current_step": 10,
@@ -93,7 +93,8 @@
     "seat_allocation": "House of Assembly 25/25/35/35 seats for 2018/2021/2024/2025 \u2014 matches the TEC's documented 25 to 35 expansion at 2024",
     "lc_winners": "25 of 25 Legislative Council contests reproduce the elected member named on the TEC's own LCHistory summary pages",
     "polling_place_crossfoot": "552 candidate polling-place sums equal the division first-preference total, 0 disagree",
-    "formal_votes": "32 contests where formal votes equal the sum of first preferences, 0 disagree"
+    "formal_votes": "32 contests where formal votes equal the sum of first preferences, 0 disagree",
+    "provisional_count_check": "All 27 distribution fragments carry the TEC's FINAL marker. Five do not: the 2025 House of Assembly first-preference fragments. Rather than assume, each was cross-checked against that division's final count export \u2014 formal votes match to the vote in all five (Bass 67,450; Braddon 70,686; Clark 64,042; Franklin 73,007; Lyons 74,936). They are final; only the marker is missing."
   },
   "known_gaps": {
     "hoa_2014": "excluded \u2014 scrutiny sheets and polling-place first preferences are PDF only",
@@ -157,5 +158,6 @@
     "status": "published (staging only \u2014 prod untouched)",
     "verified": "8 tables, 111 columns, 18 observation levels, 8 cloud tables, 8 coverages 2018-2026, 8 table updates, 1 raw source linked per table; 1 org / 2 themes / 8 tags all non-empty"
   },
-  "known_backend_gap": "create_update_dataset in this MCP build exposes no usage_guide argument, so the CC BY 4.0 attribution requirement (\u00a9 Tasmanian Electoral Commission) could not be recorded on the dataset. Needs a Django admin edit or an MCP tool that exposes the field."
+  "known_backend_gap": "create_update_dataset in this MCP build exposes no usage_guide argument, so the CC BY 4.0 attribution requirement (\u00a9 Tasmanian Electoral Commission) could not be recorded on the dataset. Needs a Django admin edit or an MCP tool that exposes the field.",
+  "near_duplicate_rule": "Victoria's rule \u2014 latest print timestamp wins within (election, contest, report kind) \u2014 did not apply. TEC workbooks carry no readable print timestamp, and the only near-duplicates are the 2018 results pages' stale links to PPs/Braddon.xlsx, Denison.xlsx and Lyons.xlsx, which sit beside the live 2018-<Div>-first-prefs-by-polling-places.xlsx. All three return 404, so raise-on-non-2xx settled it with no arbitration needed. They are recorded in manifest.json under dead_urls rather than silently skipped."
 }
