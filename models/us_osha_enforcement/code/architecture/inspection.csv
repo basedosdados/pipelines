@@ -1,0 +1,36 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano de abertura da inspeção,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Derivado de open_date,
+inspection_id,STRING,Identificador único da inspeção (activity number) da OSHA,,no,,,no,,ACTIVITY_NR
+reporting_office_id,STRING,Código da jurisdição da OSHA (escritório federal ou plano estadual) responsável pela inspeção,,no,,,no,"Preserva zeros à esquerda (ex.: 0111100), por isso STRING",REPORTING_ID
+establishment_key,STRING,Chave interna do estabelecimento no sistema IMIS da OSHA,,no,,,no,"Preenchida em 58,6% das linhas; contém espaços internos e não é um identificador estável entre anos",HOST_EST_KEY
+establishment_name,STRING,Nome do estabelecimento inspecionado,,no,,,no,Para autônomos e microempresas o nome do estabelecimento é o nome da pessoa física citada,ESTAB_NAME
+site_address,STRING,Logradouro do local inspecionado,,no,,,no,,SITE_ADDRESS
+site_city,STRING,Município do local inspecionado,,no,,,no,,SITE_CITY
+site_state,STRING,Sigla postal do estado do local inspecionado,,no,,,no,"63 valores distintos: as 50 siglas USPS, DC, territórios (PR, VI, GU, AS, MP) e códigos históricos hoje extintos (CZ, JQ, PI, UK, FN, MQ). Por isso não há vínculo com o diretório de estados",SITE_STATE
+site_zip_code,STRING,CEP (ZIP code) de cinco dígitos do local inspecionado,,no,,,no,00000 é usado como sentinela de ausência,SITE_ZIP
+mailing_address,STRING,Logradouro do endereço de correspondência do empregador,,no,,,no,,MAIL_STREET
+mailing_city,STRING,Município do endereço de correspondência do empregador,,no,,,no,,MAIL_CITY
+mailing_state,STRING,Sigla postal do estado do endereço de correspondência do empregador,,no,,,no,"Contém valores fora do padrão USPS (ex.: AC, XX)",MAIL_STATE
+mailing_zip_code,STRING,CEP (ZIP code) do endereço de correspondência do empregador,,no,,,no,,MAIL_ZIP
+sic_code,STRING,"Código SIC de quatro dígitos do estabelecimento, na versão de 1987 do manual",,no,,,no,"Ausente em 17,5% das inspeções, sobretudo após a migração para NAICS; 5.027 valores têm apenas três dígitos",SIC_CODE
+naics_code,STRING,Código NAICS de seis dígitos do estabelecimento,,no,,,no,"A fonte não informa a safra do NAICS, que muda a cada cinco anos; por isso não há vínculo com um diretório NAICS específico",NAICS_CODE
+owner_type,STRING,"Tipo de empregador: privado, governo local, governo estadual ou federal",,yes,,,no,,OWNER_TYPE
+owner_code,STRING,"Código da agência federal empregadora, preenchido apenas quando owner_type indica governo federal",,no,,,no,,OWNER_CODE
+inspection_type,STRING,"Motivo da inspeção: acidente, denúncia, encaminhamento, programada, entre outros",,yes,,,no,,INSP_TYPE
+inspection_scope,STRING,"Escopo da inspeção: completa, parcial, apenas registros ou inspeção não realizada",,yes,,,no,,INSP_SCOPE
+no_inspection_reason,STRING,Motivo pelo qual a inspeção não foi realizada,,yes,,,no,,WHY_NO_INSP
+safety_health,STRING,Indica se a inspeção foi de segurança (S) ou de saúde ocupacional (H),,yes,,,no,,SAFETY_HLTH
+advance_notice,STRING,Indica se houve aviso prévio ao empregador sobre a inspeção,,yes,,,no,,ADV_NOTICE
+union_status,STRING,Indica se havia representação sindical dos trabalhadores durante a inspeção,,yes,,,no,,UNION_STATUS
+safety_program_manufacturing,STRING,Indica uso do guia de planejamento de segurança para a indústria de transformação,,yes,,,no,,SAFETY_MANUF
+safety_program_construction,STRING,Indica uso do guia de planejamento de segurança para a construção,,yes,,,no,,SAFETY_CONST
+safety_program_maritime,STRING,Indica uso do guia de planejamento de segurança para o setor marítimo,,yes,,,no,,SAFETY_MARIT
+health_program_manufacturing,STRING,Indica uso do guia de planejamento de saúde para a indústria de transformação,,yes,,,no,,HEALTH_MANUF
+health_program_construction,STRING,Indica uso do guia de planejamento de saúde para a construção,,yes,,,no,,HEALTH_CONST
+health_program_maritime,STRING,Indica uso do guia de planejamento de saúde para o setor marítimo,,yes,,,no,,HEALTH_MARIT
+migrant_labor,STRING,Indica inspeção de alojamento ou trabalho de mão de obra migrante,,yes,,,no,,MIGRANT
+employees_in_establishment,INT64,Número de empregados no estabelecimento inspecionado,,no,,employee,no,Valores como 9999999999 são sentinelas de preenchimento da fonte e foram mantidos fielmente,NR_IN_ESTAB
+open_date,DATE,Data de abertura da inspeção,,no,,,no,,OPEN_DATE
+closing_conference_date,DATE,Data da conferência de encerramento com o empregador,,no,,,no,"Contém erros de digitação da fonte, incluindo datas futuras (máximo observado 2112-12-05)",CLOSE_CONF_DATE
+close_case_date,DATE,Data de encerramento do caso,,no,,,no,"Contém erros de digitação da fonte, incluindo anos de um a três dígitos (mínimo observado 0120-11-18)",CLOSE_CASE_DATE
+case_modified_date,DATE,Data da última alteração na inspeção ou em suas violações,,no,,,no,Só passou a ser registrada em abril de 2004; nula para casos não alterados desde então,CASE_MOD_DATE
