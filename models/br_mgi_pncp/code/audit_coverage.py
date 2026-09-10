@@ -1,4 +1,4 @@
-"""Audit br_pncp harvest coverage without touching the API.
+"""Audit br_mgi_pncp harvest coverage without touching the API.
 
 Two failure modes matter, and neither is caught by dbt:
 
@@ -22,7 +22,7 @@ Both are answered from the chunk files and the harvest logs, so this costs
 the API nothing and can be run while a harvest is in flight.
 
 Usage:
-    uv run python models/br_pncp/code/audit_coverage.py [--table ...]
+    uv run python models/br_mgi_pncp/code/audit_coverage.py [--table ...]
 """
 
 from __future__ import annotations
@@ -39,11 +39,13 @@ from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from pipelines.datasets.br_pncp.constants import constants
-from pipelines.datasets.br_pncp.utils import windows
+from pipelines.datasets.br_mgi_pncp.constants import constants
+from pipelines.datasets.br_mgi_pncp.utils import windows
 
 DATA_DIR = Path(
-    os.environ.get("PNCP_DATA_DIR", Path.home() / "Downloads" / "br_pncp_data")
+    os.environ.get(
+        "PNCP_DATA_DIR", Path.home() / "Downloads" / "br_mgi_pncp_data"
+    )
 )
 PAGE_LINE = re.compile(r"(\S+) (\d{8}_\d{8}(?:_m\d{2})?) page (\d+)/(\d+)")
 
