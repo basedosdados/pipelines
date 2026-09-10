@@ -1,6 +1,6 @@
 {{
     config(
-        schema="br_pncp",
+        schema="br_mgi_pncp",
         alias="instrumento_cobranca",
         materialized="incremental",
         incremental_strategy="insert_overwrite",
@@ -39,7 +39,7 @@ select
     safe_cast(data_inclusao as date) data_inclusao,
     safe_cast(data_atualizacao as date) data_atualizacao,
     safe_cast(valor_nota_fiscal as float64) valor_nota_fiscal
-from {{ set_datalake_project("br_pncp_staging.instrumento_cobranca") }} as t
+from {{ set_datalake_project("br_mgi_pncp_staging.instrumento_cobranca") }} as t
 {% if is_incremental() and var("pncp_years", "") %}
     where safe_cast(ano as int64) in ({{ var("pncp_years") }})
 {% endif %}
