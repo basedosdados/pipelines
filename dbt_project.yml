@@ -258,6 +258,9 @@ models:
     us_congress_legislators:
       +materialized: table
       +schema: us_congress_legislators
+    world_oecd_education:
+      +materialized: table
+      +schema: world_oecd_education
     world_aiddata_gcdf:
       +materialized: table
       +schema: world_aiddata_gcdf
