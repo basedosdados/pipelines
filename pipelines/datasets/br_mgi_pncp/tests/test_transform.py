@@ -1,4 +1,4 @@
-"""Regression tests for the br_pncp transform.
+"""Regression tests for the br_mgi_pncp transform.
 
 Each case here is a failure that would be *silent* — the pipeline would run
 green and the table would be wrong. They run offline against fixtures shaped
@@ -16,8 +16,8 @@ from pathlib import Path
 import pyarrow.dataset as ds
 import pytest
 
-from pipelines.datasets.br_pncp import utils
-from pipelines.datasets.br_pncp.constants import constants
+from pipelines.datasets.br_mgi_pncp import utils
+from pipelines.datasets.br_mgi_pncp.constants import constants
 
 
 class TestValueConversion:
@@ -724,7 +724,7 @@ class TestDeferredTableScope:
     def _repo_root(self):
         from pathlib import Path
 
-        import pipelines.datasets.br_pncp.constants as c
+        import pipelines.datasets.br_mgi_pncp.constants as c
 
         return Path(c.__file__).resolve().parents[3]
 
@@ -746,21 +746,21 @@ class TestDeferredTableScope:
         ]
 
     def test_a_deferred_table_has_no_dbt_model(self):
-        models = self._repo_root() / "models" / "br_pncp"
+        models = self._repo_root() / "models" / "br_mgi_pncp"
         for table in constants.DEFERRED_TABLES.value:
-            sql = models / f"br_pncp__{table}.sql"
+            sql = models / f"br_mgi_pncp__{table}.sql"
             assert not sql.exists(), (
                 f"{sql.name} exists for a deferred table; table-approve would "
                 "try to materialise it with no staging data and abort the "
                 "whole PR"
             )
             schema = (models / "schema.yml").read_text(encoding="utf-8")
-            assert f"br_pncp__{table}" not in schema
+            assert f"br_mgi_pncp__{table}" not in schema
 
     def test_every_scoped_table_does_have_a_model(self):
-        models = self._repo_root() / "models" / "br_pncp"
+        models = self._repo_root() / "models" / "br_mgi_pncp"
         for table in constants.ALL_TABLES.value:
-            assert (models / f"br_pncp__{table}.sql").exists()
+            assert (models / f"br_mgi_pncp__{table}.sql").exists()
 
 
 class TestCoverageRegistrationScope:
@@ -773,7 +773,7 @@ class TestCoverageRegistrationScope:
     """
 
     def _coverage(self):
-        from pipelines.datasets.br_pncp import flows
+        from pipelines.datasets.br_mgi_pncp import flows
 
         return flows._COVERAGE
 
@@ -794,7 +794,7 @@ class TestCoverageRegistrationScope:
 
     def test_registration_skips_tables_without_a_spec(self):
         # Exercises the flow's own selection, not a copy of it.
-        from pipelines.datasets.br_pncp.flows import coverage_registrations
+        from pipelines.datasets.br_mgi_pncp.flows import coverage_registrations
 
         registered = [
             t for t, _ in coverage_registrations(constants.ALL_TABLES.value)
@@ -803,7 +803,7 @@ class TestCoverageRegistrationScope:
         assert set(registered) == set(constants.FACT_TABLES.value)
 
     def test_registration_never_includes_a_deferred_table(self):
-        from pipelines.datasets.br_pncp.flows import coverage_registrations
+        from pipelines.datasets.br_mgi_pncp.flows import coverage_registrations
 
         # Even if a deferred table were passed in by mistake, it has no place
         # in the run scope -- assert the scope itself excludes it.
@@ -1113,7 +1113,7 @@ class TestCoverageDateColumnsExist:
     """
 
     def test_every_spec_date_column_is_in_its_architecture(self):
-        from pipelines.datasets.br_pncp import flows
+        from pipelines.datasets.br_mgi_pncp import flows
 
         for table, spec in flows._COVERAGE.items():
             # A date_column names one column (DateOnly/YearOnly) or two
@@ -1128,7 +1128,7 @@ class TestCoverageDateColumnsExist:
                 )
 
     def test_specs_cover_exactly_the_tables_that_get_materialised(self):
-        from pipelines.datasets.br_pncp import flows
+        from pipelines.datasets.br_mgi_pncp import flows
 
         # dicionario has no date column and deliberately no spec; deferred
         # tables keep theirs so re-adding them needs no extra step.
@@ -1161,10 +1161,10 @@ class TestJobVariablesReachThePod:
     }
 
     def test_the_memory_ask_uses_the_key_the_pool_reads(self):
-        from pipelines.datasets.br_pncp import flows
+        from pipelines.datasets.br_mgi_pncp import flows
 
         # pyrefly: ignore [missing-attribute]
-        jv = flows.br_pncp_flow.job_variables
+        jv = flows.br_mgi_pncp_flow.job_variables
         assert "memory_limit" in jv, (
             "job_variables sets no memory_limit, so the pod gets the pool's "
             f"4Gi default however large `memory` is; got {jv}"
@@ -1175,13 +1175,13 @@ class TestJobVariablesReachThePod:
         )
 
     def test_no_job_variable_is_silently_dropped(self):
-        from pipelines.datasets.br_pncp import flows
+        from pipelines.datasets.br_mgi_pncp import flows
 
         # `memory` is kept deliberately: harmless, and it is what a reader
         # greps for. Everything else must be a real template variable.
         unknown = (
             # pyrefly: ignore [missing-attribute]
-            set(flows.br_pncp_flow.job_variables)
+            set(flows.br_mgi_pncp_flow.job_variables)
             - self.POOL_VARIABLES
             - {"memory"}
         )
@@ -1277,7 +1277,7 @@ class TestDicionarioIsDerivedFromTheModels:
             "pncp_gen_dbt",
             Path(__file__).resolve().parents[4]
             / "models"
-            / "br_pncp"
+            / "br_mgi_pncp"
             / "code"
             / "gen_dbt.py",
         )
@@ -1428,7 +1428,7 @@ class TestSourceFreshnessIsDayGranular:
 
     def test_the_poll_beats_a_mid_year_coverage(self):
         """The regression, stated as the comparison the flow actually makes."""
-        from pipelines.datasets.br_pncp.tasks import max_publication_date
+        from pipelines.datasets.br_mgi_pncp.tasks import max_publication_date
         from pipelines.utils.metadata.policy import should_update_raw_source
 
         summaries = [
@@ -1444,7 +1444,7 @@ class TestSourceFreshnessIsDayGranular:
 
     def test_a_run_of_only_backdated_amendments_still_no_ops(self):
         """The guard's actual job — don't re-materialize for old records."""
-        from pipelines.datasets.br_pncp.tasks import max_publication_date
+        from pipelines.datasets.br_mgi_pncp.tasks import max_publication_date
         from pipelines.utils.metadata.policy import should_update_raw_source
 
         source_max = max_publication_date.fn(
@@ -1455,7 +1455,7 @@ class TestSourceFreshnessIsDayGranular:
         )
 
     def test_an_empty_run_falls_back_below_any_coverage(self):
-        from pipelines.datasets.br_pncp.tasks import max_publication_date
+        from pipelines.datasets.br_mgi_pncp.tasks import max_publication_date
         from pipelines.utils.metadata.policy import should_update_raw_source
 
         source_max = max_publication_date.fn(
