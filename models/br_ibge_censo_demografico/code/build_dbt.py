@@ -35,7 +35,12 @@ KEYS = {
 
 DIR_FK = {
     "sigla_uf": ("br_bd_diretorios_brasil__uf", "sigla"),
-    "ano": ("br_bd_diretorios_data_tempo__ano", "ano"),
+    # `ano.ano`, não `ano`: no diretório a tabela e a coluna têm o mesmo nome,
+    # e em BigQuery o identificador nu resolve para a range variable da tabela
+    # (o struct da linha), não para a coluna. Com `field: ano` o teste falha
+    # com "No matching signature for operator = ... STRUCT<ano, bissexto>".
+    # `sigla_uf` não precisa disso porque a tabela é `uf` e a coluna, `sigla`.
+    "ano": ("br_bd_diretorios_data_tempo__ano", "ano.ano"),
 }
 
 # Piso de preenchimento por tabela e as colunas dispensadas. O `at_least` é a
