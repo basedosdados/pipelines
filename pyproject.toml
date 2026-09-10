@@ -357,6 +357,9 @@ project-excludes = [
     # imports pyrefly cannot resolve. The reusable transform lives in
     # pipelines/datasets/us_census_bps/utils.py, which is checked.
     "models/us_census_bps/code",
+  # The onboarding scripts import the databasis MCP server module by path,
+  # which is outside the repo, so pyrefly cannot resolve it from the root.
+  "models/us_osha_enforcement/code",
   "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
   "models/world_wb_mides/code/licitacao_item.ipynb",
   "models/world_olympedia_olympics/code/[[]code[]]world_olympedia_olympics.ipynb",
