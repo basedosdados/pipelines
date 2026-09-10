@@ -12,7 +12,21 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [inspection_id]
       - custom_dictionary_coverage:
-          columns_covered_by_dictionary: [owner_type, inspection_type, inspection_scope, no_inspection_reason, safety_health, advance_notice, union_status, safety_program_manufacturing, safety_program_construction, safety_program_maritime, health_program_manufacturing, health_program_construction, health_program_maritime, migrant_labor]
+          columns_covered_by_dictionary:
+            - owner_type
+            - inspection_type
+            - inspection_scope
+            - no_inspection_reason
+            - safety_health
+            - advance_notice
+            - union_status
+            - safety_program_manufacturing
+            - safety_program_construction
+            - safety_program_maritime
+            - health_program_manufacturing
+            - health_program_construction
+            - health_program_maritime
+            - migrant_labor
           dictionary_model: ref('us_osha_enforcement__dicionario')
       - not_null_proportion_multiple_columns:
           at_least: 0.05
@@ -270,15 +284,22 @@ models:
       evoluiu até o encerramento do caso.
     tests:
       - custom_unique_combinations_of_columns:
-          combination_of_columns: [inspection_id, citation_id, event_date, event_code, penalty_or_fta, penalty, abatement_date, violation_type]
+          combination_of_columns:
+            - inspection_id
+            - citation_id
+            - event_date
+            - event_code
+            - penalty_or_fta
+            - penalty
+            - abatement_date
+            - violation_type
           proportion_allowed_failures: 0.01
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [penalty_or_fta]
           dictionary_model: ref('us_osha_enforcement__dicionario')
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - fta_inspection_id
+          ignore_values: [fta_inspection_id]
     columns:
       - name: year
         description: >-
@@ -370,7 +391,12 @@ models:
       de atividades relacionadas.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [inspection_id, related_activity_id, related_type, related_safety, related_health]
+          combination_of_columns:
+            - inspection_id
+            - related_activity_id
+            - related_type
+            - related_safety
+            - related_health
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [related_safety, related_health]
           dictionary_model: ref('us_osha_enforcement__dicionario')
@@ -442,7 +468,10 @@ models:
       números de processo de planos estaduais.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [inspection_id, information_id, information_value]
+          combination_of_columns:
+            - inspection_id
+            - information_id
+            - information_value
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -479,7 +508,11 @@ models:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [accident_id]
       - custom_dictionary_coverage:
-          columns_covered_by_dictionary: [fatality, construction_end_use, project_type, project_cost]
+          columns_covered_by_dictionary:
+            - fatality
+            - construction_end_use
+            - project_type
+            - project_cost
           dictionary_model: ref('us_osha_enforcement__dicionario')
       - not_null_proportion_multiple_columns:
           at_least: 0.05
@@ -544,15 +577,16 @@ models:
       tabela dicionario.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [accident_id, inspection_id, injury_line_number]
+          combination_of_columns:
+            - accident_id
+            - inspection_id
+            - injury_line_number
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [sex, occupation_code]
           dictionary_model: ref('us_osha_enforcement__dicionario')
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - fall_distance
-            - fall_height
+          ignore_values: [fall_distance, fall_height]
     columns:
       - name: year
         description: >-
@@ -678,8 +712,7 @@ models:
           combination_of_columns: [id_tabela, nome_coluna, chave]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - cobertura_temporal
+          ignore_values: [cobertura_temporal]
     columns:
       - name: id_tabela
         description: >-
