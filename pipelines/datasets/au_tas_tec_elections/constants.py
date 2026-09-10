@@ -46,6 +46,176 @@ class constants(Enum):
         "legislative-council/Previous_Elections/Index.html",
     ]
 
+    # Every electoral event in the dataset: display name, chamber, polling day, and
+    # the URL path that owns its results pages.
+    #
+    # The path prefix is load-bearing, not decoration. The 2021 House of Assembly and
+    # the 2021 Legislative Council periodic elections were held on the same day and
+    # their index pages cross-link each other, so following sibling links alone pulls
+    # Derwent and Windermere into the House of Assembly event and Bass through Lyons
+    # into the Legislative Council one. Contests are assigned by path, never by
+    # reachability.
+    ELECTION_META = {
+        "hoa2018": (
+            "2018 House of Assembly Election",
+            "house_of_assembly",
+            "state_general",
+            "2018-03-03",
+            "/house-of-assembly/StateElection2018/",
+        ),
+        "hoa2021": (
+            "2021 House of Assembly Election",
+            "house_of_assembly",
+            "state_general",
+            "2021-05-01",
+            "/house-of-assembly/StateElection2021/",
+        ),
+        "hoa2024": (
+            "2024 House of Assembly Election",
+            "house_of_assembly",
+            "state_general",
+            "2024-03-23",
+            "/house-of-assembly/elections-2024/",
+        ),
+        "hoa2025": (
+            "2025 House of Assembly Election",
+            "house_of_assembly",
+            "state_general",
+            "2025-07-19",
+            "/house-of-assembly/elections-2025/",
+        ),
+        "lc2017pembroke": (
+            "2017 Pembroke Legislative Council By-election",
+            "legislative_council",
+            "state_by_election",
+            "2017-11-04",
+            "/legislative-council/Previous_Elections/Pembroke2017/",
+        ),
+        "lc2018": (
+            "2018 Legislative Council Elections",
+            "legislative_council",
+            "state_periodic",
+            "2018-05-05",
+            "/legislative-council/LegislativeCouncilElections_2018/",
+        ),
+        "lc2019": (
+            "2019 Legislative Council Elections",
+            "legislative_council",
+            "state_periodic",
+            "2019-05-04",
+            "/legislative-council/LegislativeCouncilElections_2019/",
+        ),
+        "lc2020": (
+            "2020 Legislative Council Elections",
+            "legislative_council",
+            "state_periodic",
+            "2020-08-01",
+            "/legislative-council/LegislativeCouncilElections_2020/",
+        ),
+        "lc2021": (
+            "2021 Legislative Council Elections",
+            "legislative_council",
+            "state_periodic",
+            "2021-05-01",
+            "/legislative-council/LegislativeCouncilElections_2021/",
+        ),
+        "lc2022pembroke": (
+            "2022 Pembroke Legislative Council By-election",
+            "legislative_council",
+            "state_by_election",
+            "2022-01-29",
+            "/legislative-council/legislative-council-byelection-2022/",
+        ),
+        "lc2022": (
+            "2022 Legislative Council Elections",
+            "legislative_council",
+            "state_periodic",
+            "2022-05-07",
+            "/legislative-council/legislative-council-elections-2022/",
+        ),
+        "lc2023": (
+            "2023 Legislative Council Elections",
+            "legislative_council",
+            "state_periodic",
+            "2023-05-06",
+            "/legislative-council/elections-2023/",
+        ),
+        "lc2024": (
+            "2024 Legislative Council Elections",
+            "legislative_council",
+            "state_periodic",
+            "2024-05-04",
+            "/legislative-council/elections-2024/",
+        ),
+        "lc2025": (
+            "2025 Legislative Council Elections",
+            "legislative_council",
+            "state_periodic",
+            "2025-05-03",
+            "/legislative-council/elections-2025/",
+        ),
+        "lc2026": (
+            "2026 Legislative Council Elections",
+            "legislative_council",
+            "state_periodic",
+            "2026-05-02",
+            "/legislative-council/elections-2026/",
+        ),
+    }
+
+    # Year index page each event's contests are discovered from.
+    ELECTION_INDEX = {
+        "hoa2018": "house-of-assembly/StateElection2018/Results/Results.html",
+        "hoa2021": "house-of-assembly/StateElection2021/index.html",
+        "hoa2024": "house-of-assembly/elections-2024/index.html",
+        "hoa2025": "house-of-assembly/elections-2025/index.html",
+        "lc2017pembroke": (
+            "legislative-council/Previous_Elections/Pembroke2017/index.html"
+        ),
+        "lc2018": (
+            "legislative-council/LegislativeCouncilElections_2018/Results/"
+            "LCElection18Results.html"
+        ),
+        "lc2019": (
+            "legislative-council/LegislativeCouncilElections_2019/Results/"
+            "LCElection19Results.html"
+        ),
+        "lc2020": (
+            "legislative-council/LegislativeCouncilElections_2020/Results/"
+            "LCElection20Results.html"
+        ),
+        "lc2021": "legislative-council/LegislativeCouncilElections_2021/index.html",
+        "lc2022": (
+            "legislative-council/legislative-council-elections-2022/index.html"
+        ),
+        "lc2022pembroke": (
+            "legislative-council/legislative-council-byelection-2022/index.html"
+        ),
+        "lc2023": "legislative-council/elections-2023/index.html",
+        "lc2024": "legislative-council/elections-2024/index.html",
+        "lc2025": "legislative-council/elections-2025/index.html",
+        "lc2026": "legislative-council/elections-2026/index.html",
+    }
+
+    # The House of Assembly grew from 25 seats to 35 at the 2024 election: five
+    # divisions returning 5 members each became five returning 7. This is an era
+    # break, not a continuity, and it changes the Hare-Clark quota.
+    SEATS_PER_HOA_DIVISION = {2018: 5, 2021: 5, 2024: 7, 2025: 7}
+
+    # House of Assembly divisions are coterminous with the five Commonwealth
+    # divisions, per the TEC: "These divisions have the same boundaries as the five
+    # Commonwealth House of Representatives divisions for Tasmania". Denison was
+    # renamed Clark by amendments that gained Royal Assent on 28 September 2018, so
+    # the 2018 election is fought as Denison and maps to the same seat.
+    HOA_DIVISION_TO_CED = {
+        "bass": "601",
+        "braddon": "602",
+        "clark": "603",
+        "denison": "603",
+        "franklin": "604",
+        "lyons": "605",
+    }
+
     TABLES = [
         "election",
         "candidate",

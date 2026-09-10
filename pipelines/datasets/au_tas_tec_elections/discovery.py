@@ -36,8 +36,21 @@ BASE = constants.BASE_URL.value
 DIV_RE = re.compile(r"results/([a-z][a-z_\-]{2,})/index\.html", re.I)
 
 
+def encode(url: str) -> str:
+    """Percent-encode the path so a literal space does not kill the request.
+
+    The per-division count exports are named "... - Export Count 90.xlsx", spaces
+    and all. ``urllib`` raises on the raw space, and the resulting failure looks
+    like a network error rather than a malformed URL.
+    """
+    parts = urllib.parse.urlsplit(url)
+    return urllib.parse.urlunsplit(
+        parts._replace(path=urllib.parse.quote(parts.path, safe="/%"))
+    )
+
+
 def fetch(url: str) -> tuple[int, bytes]:
-    req = urllib.request.Request(url, headers={"User-Agent": UA})
+    req = urllib.request.Request(encode(url), headers={"User-Agent": UA})
     try:
         with urllib.request.urlopen(req, timeout=45) as r:
             return r.status, r.read()
