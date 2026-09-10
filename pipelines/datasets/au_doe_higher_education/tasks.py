@@ -101,9 +101,12 @@ def delete_staging_partitions_task(
     credentials = get_credentials_from_env(
         mode="prod" if bucket_name == "basedosdados" else "staging"
     )
-    bucket = storage.Client(
-        credentials=credentials, project=bucket_name
-    ).bucket(bucket_name)
+    client = storage.Client(project=bucket_name, credentials=credentials)
+    # Both staging buckets are requester-pays, so every listing and delete has
+    # to name a billing project. Without `user_project` the first list_blobs
+    # 400s with "Bucket is a requester pays bucket but no user project
+    # provided" — after the download and the build have already run.
+    bucket = client.bucket(bucket_name, user_project=bucket_name)
     override = constants.PARTITION_OVERRIDE.value
     dataset = constants.DATASET_ID.value
 
@@ -111,8 +114,7 @@ def delete_staging_partitions_task(
         column = override.get(table, "year")
         for value in values:
             prefix = f"staging/{dataset}/{table}/{column}={value}/"
-            blobs = list(bucket.list_blobs(prefix=prefix))
-            for blob in blobs:
-                blob.delete()
+            blobs = list(client.list_blobs(bucket, prefix=prefix))
             if blobs:
+                bucket.delete_blobs(blobs)
                 print(f"cleared {prefix} ({len(blobs)} object(s))")
