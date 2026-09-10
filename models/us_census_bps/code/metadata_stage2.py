@@ -117,11 +117,30 @@ def register_source_update(env: str) -> int:
     for source in prior:
         level = by_url[source["url"]]
         latest = SOURCE_MAX_PERIOD[level]
+        # create_update_update duplicates the record when called without an
+        # id, and a raw data source carrying two Updates makes the pipeline's
+        # commit_source_update_task raise ("allUpdate: mais de um nó
+        # encontrado"), which killed a prod run. Read the existing id first.
+        query = (
+            '{ allUpdate(rawDataSource_Id: "'
+            + source["id"]
+            + '") { edges { node { id } } } }'
+        )
+        existing = [
+            server._strip_id(e["node"]["id"])
+            for e in server._gql(query, {}, env=env)["allUpdate"]["edges"]
+        ]
+        if len(existing) > 1:
+            raise RuntimeError(
+                f"{level}: raw source has {len(existing)} Update records; "
+                "the pipeline cannot resolve more than one. Delete the extras."
+            )
         server.create_update_update(
             entity_id=entity["month"],
             frequency=1,
             latest=latest,
             raw_data_source_id=source["id"],
+            id=existing[0] if existing else None,
             env=env,
         )
         print(f"source update {level:7s} -> {latest[:10]}")
