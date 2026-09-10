@@ -196,25 +196,32 @@ def _clean_standard_data(
     files: list[Path], table_id: str, config: dict
 ) -> str:
     """Clean standard CVM data (single file or multiple independent files)."""
-    all_data = []
+    if not files:
+        raise ValueError(
+            f"Nenhum arquivo de entrada para {table_id} — nada a limpar."
+        )
 
-    for file in files:
-        df = process_file(config=config, file_path=file)
-        df = apply_common_transformations(config, df)
-        all_data.append(df)
+    use_partitions = config.get("create_partition_columns", True)
 
-    if len(all_data) == 1:
-        final_df = all_data[0]
-    else:
-        final_df = pd.concat(all_data, ignore_index=True)
-
-    return save_output(
+    if not use_partitions:
+        df = apply_common_transformations(
+            config, process_file(config=config, file_path=files[0])
+        )
         # pyrefly: ignore [bad-argument-type]
-        config,
-        final_df,
-        table_id,
-        config.get("create_partition_columns", True),
-    )
+        return save_output(config, df, table_id, use_partitions=False)
+
+    # Cada arquivo é uma competência e vira uma partição própria, então salvar
+    # um por vez mantém o pico de memória no tamanho de um arquivo.
+    for file in files:
+        df = apply_common_transformations(
+            config, process_file(config=config, file_path=file)
+        )
+        # pyrefly: ignore [bad-argument-type]
+        save_output(config, df, table_id, use_partitions=True)
+
+    # pyrefly: ignore [unnecessary-type-conversion]
+    output_dir = cvm_constants.DATASET_DIR.value / str(table_id) / "output"
+    return str(output_dir)
 
 
 def _clean_cda_data(config: dict, input_dir: str | Path, table_id: str) -> str:
