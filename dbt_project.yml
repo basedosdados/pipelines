@@ -252,12 +252,18 @@ models:
     us_dot_bts_ontime:
       +materialized: table
       +schema: us_dot_bts_ontime
+    us_dot_fars:
+      +materialized: table
+      +schema: us_dot_fars
     us_nature_gerda:
       +materialized: table
       +schema: us_nature_gerda
     us_congress_legislators:
       +materialized: table
       +schema: us_congress_legislators
+    world_oecd_education:
+      +materialized: table
+      +schema: world_oecd_education
     world_aiddata_gcdf:
       +materialized: table
       +schema: world_aiddata_gcdf
