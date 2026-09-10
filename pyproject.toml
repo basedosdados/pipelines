@@ -231,6 +231,10 @@ project-excludes = [
   # directory with bare sibling imports (`common`, `gen_dbt`), which pyrefly
   # cannot resolve from the repo root.
   "models/world_iati_activities/code",
+  # Same policy: the us_census_cog onboarding scripts run from their own
+  # directory with bare sibling imports (`common`), which pyrefly cannot resolve
+  # from the repo root.
+  "models/us_census_cog/code",
   # Same policy: the au_abs_population onboarding scripts (bootstrap, upload,
   # validation and the architecture/dbt generators) are standalone one-shot ETL
   # that manipulate sys.path and monkey-patch the GCS client; the reusable
