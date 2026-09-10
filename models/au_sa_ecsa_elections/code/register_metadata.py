@@ -109,6 +109,57 @@ def existing_coverage(table_id: str) -> str | None:
     return None
 
 
+def existing_children(table_id: str) -> dict:
+    """Read the table's child records so a re-run updates instead of duplicating.
+
+    create_update_cloud_table, create_update_observation_level,
+    create_update_datetime_range and create_update_update do not match on a
+    natural key: called without an id they create a second record every time. A
+    second registration pass duplicated 55 records before this lookup existed.
+    """
+    query = (
+        f'{{ allTable(id: "{table_id}") {{ edges {{ node {{ '
+        "cloudTables { edges { node { id gcpTableId } } } "
+        "observationLevels { edges { node { id entity { slug } } } } "
+        "updates { edges { node { id entity { slug } } } } "
+        "coverages { edges { node { id isClosed "
+        "datetimeRanges { edges { node { id } } } } } } "
+        "} } } }"
+    )
+    edges = server._gql(query, {}, env=ENV)["allTable"]["edges"]
+    out = {
+        "cloud": {},
+        "levels": {},
+        "updates": {},
+        "coverage": None,
+        "range": None,
+    }
+    if not edges:
+        return out
+    node = edges[0]["node"]
+    for e in node["cloudTables"]["edges"]:
+        out["cloud"][e["node"]["gcpTableId"]] = server._strip_id(
+            e["node"]["id"]
+        )
+    for e in node["observationLevels"]["edges"]:
+        out["levels"].setdefault(
+            e["node"]["entity"]["slug"], server._strip_id(e["node"]["id"])
+        )
+    for e in node["updates"]["edges"]:
+        out["updates"].setdefault(
+            e["node"]["entity"]["slug"], server._strip_id(e["node"]["id"])
+        )
+    for e in node["coverages"]["edges"]:
+        if e["node"]["isClosed"]:
+            continue
+        out["coverage"] = server._strip_id(e["node"]["id"])
+        ranges = e["node"]["datetimeRanges"]["edges"]
+        if ranges:
+            out["range"] = server._strip_id(ranges[0]["node"]["id"])
+        break
+    return out
+
+
 def main() -> int:
     tables_meta = json.loads((META / "tables.json").read_text())
     existing = server.get_dataset(slug=DATASET_SLUG, env=ENV)
@@ -144,11 +195,15 @@ def main() -> int:
         table_id = table_ids[table]
         meta = tables_meta[table]
         levels = [tuple(x) for x in meta["observation_levels"]]
+        prior_children = existing_children(table_id)
 
         ol_ids: dict[str, str] = {}
         for entity_slug, _column in levels:
             ol_ids[entity_slug] = server.create_update_observation_level(
-                table_id=table_id, entity_id=ENTITY[entity_slug], env=ENV
+                table_id=table_id,
+                entity_id=ENTITY[entity_slug],
+                id=prior_children["levels"].get(entity_slug),
+                env=ENV,
             )["id"]
         if ol_ids:
             server.reorder_observation_levels(
@@ -200,12 +255,13 @@ def main() -> int:
             gcp_project_id=GCP_PROJECT,
             gcp_dataset_id=GCP_DATASET,
             gcp_table_id=table,
+            id=prior_children["cloud"].get(table),
             env=ENV,
         )
         coverage_id = server.create_update_coverage(
             table_id=table_id,
             area_id=AREA_AU_SA,
-            id=existing_coverage(table_id),
+            id=prior_children["coverage"],
             env=ENV,
         )["id"]
         start, end = COVERAGE[table]
@@ -214,6 +270,7 @@ def main() -> int:
             start_year=start,
             end_year=end,
             interval=1,
+            id=prior_children["range"],
             env=ENV,
         )
         server.create_update_update(
@@ -221,6 +278,7 @@ def main() -> int:
             frequency=FREQUENCY[table],
             latest=LAST_REFRESHED,
             table_id=table_id,
+            id=prior_children["updates"].get("year"),
             env=ENV,
         )
         log(f"    cloud table, coverage {start}-{end}, update: ok")
