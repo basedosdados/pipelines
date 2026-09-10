@@ -80,6 +80,25 @@ def _coverage_id_for_area(client, table_pk: str, area_slug: str) -> str | None:
     return nodes[0]["_id"] if nodes else None
 
 
+def _range_count(client, coverage_id: str) -> int:
+    """How many DateTimeRanges this coverage holds.
+
+    Needed because `MetadataClient.upsert_coverage_datetime_range` resolves the range
+    to write with `_query_id`, which raises as soon as a coverage has more than one --
+    the same by-design behaviour that forced this module to exist for multi-coverage
+    tables, one level further down.
+    """
+    query = """
+    query($coverage_Id: ID) {
+      allDatetimerange(coverage_Id: $coverage_Id) {
+        edges { node { _id } }
+      }
+    }
+    """
+    response = client._execute(query, {"coverage_Id": coverage_id})
+    return len(response["allDatetimerange"]["items"])
+
+
 def _span(
     billing_project: str,
     bq_project: str,
@@ -141,6 +160,27 @@ def refresh_state_coverage(
         raise ValueError(
             f"{DATASET_ID}.{table_id}: no coverage registered for br_{state.lower()}. "
             "Run models/br_bd_execucao_estadual/code/register_coverage.py first."
+        )
+
+    # A DISCONTINUOUS series is left alone, deliberately.
+    #
+    # Rio Grande do Sul carries seven ranges on one coverage because six months are
+    # absent from its own catalogue (2020-06, 2020-08, 2022-04, 2023-02, 2023-06,
+    # 2023-08). There is no way to advance "the" end year here without choosing which
+    # of the seven to rewrite, and the obvious choices are all wrong: collapsing them
+    # into 2012..2026 would advertise the six missing months as present, and letting
+    # the shared upsert pick one raises anyway.
+    #
+    # So a multi-range coverage is the responsibility of
+    # models/br_bd_execucao_estadual/code/register_coverage.py, whose `--check` mode
+    # reports when the data has outgrown the registered ranges. Skipping here costs an
+    # end month that does not advance on its own; the alternative costs a daily flow
+    # failure after a successful materialization, or silent overclaiming.
+    n_ranges = _range_count(client, coverage_id)
+    if n_ranges > 1:
+        return (
+            f"{table_id}/{state}: {n_ranges} ranges (discontinuous series), left for "
+            "register_coverage.py --check"
         )
 
     payload = {
