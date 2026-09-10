@@ -214,12 +214,14 @@ def world_noaa_ghcn_flow(
 # Weekly matches the reconstruction cadence and keeps the cost of rebuilding a
 # 3.19bn-row table proportionate; the source-poll guard makes a run with no new
 # observation day a cheap no-op. Tuesday 09:38 BRT is an otherwise-free slot.
+# pyrefly: ignore [missing-attribute]
 world_noaa_ghcn_flow.deploy_schedules = [
     {"cron": "38 9 * * 2", "timezone": "America/Sao_Paulo"}
 ]
 # Sized to the clean step: one year-partition is read into arrow whole, and the
 # largest is ~37M rows. `memory` alone is silently ignored by the work pool's
 # job template, which defaults to 4Gi — `memory_limit` is the one that applies.
+# pyrefly: ignore [missing-attribute]
 world_noaa_ghcn_flow.job_variables = {
     "memory": "12Gi",
     "memory_limit": "12Gi",
