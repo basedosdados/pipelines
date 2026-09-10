@@ -26,7 +26,7 @@ somewhere downstream:
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 # Directory foreign keys use the BACKEND slug (diretorios_au, diretorios_data_tempo),
 # not the BigQuery dataset id (br_bd_diretorios_*). An unresolved directory_column
@@ -634,3 +634,260 @@ def column_names(table: str) -> list[str]:
 
 def column_types(table: str) -> dict[str, str]:
     return {c.name: c.bigquery_type for c in TABLES[table]}
+
+
+# --------------------------------------------------------------------------------------
+# Table-level metadata (dbt schema.yml and the Data Basis backend both read this)
+# --------------------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class TableMeta:
+    name_pt: str
+    name_en: str
+    name_es: str
+    description_pt: str
+    description_en: str
+    description_es: str
+    unique_key: list[str] = field(default_factory=list)
+    ignore_null_proportion: list[str] = field(default_factory=list)
+    # Key columns the source allows to be NULL — part of the uniqueness key, but no
+    # not_null test is emitted for them.
+    nullable_key: list[str] = field(default_factory=list)
+
+
+_NULL_GEO = [
+    "state_electoral_division_id",
+    "commonwealth_electoral_division_id",
+]
+
+TABLE_META: dict[str, TableMeta] = {
+    "election": TableMeta(
+        "Eventos eleitorais",
+        "Electoral events",
+        "Eventos electorales",
+        "Catálogo dos eventos eleitorais estaduais da Tasmânia cobertos pelo conjunto: "
+        "eleições gerais da Casa de Assembleia e eleições periódicas e suplementares do "
+        "Conselho Legislativo. Serve de chave para todas as demais tabelas por "
+        "election_id.",
+        "Catalogue of the Tasmanian state electoral events covered by the dataset: House "
+        "of Assembly general elections and Legislative Council periodic and by-elections. "
+        "Acts as the key for every other table through election_id.",
+        "Catálogo de los eventos electorales estatales de Tasmania cubiertos por el "
+        "conjunto: elecciones generales de la Casa de Asamblea y elecciones periódicas y "
+        "parciales del Consejo Legislativo. Sirve de clave para las demás tablas mediante "
+        "election_id.",
+        unique_key=["election_id"],
+    ),
+    "candidate": TableMeta(
+        "Candidaturas",
+        "Candidates",
+        "Candidaturas",
+        "Pessoas candidatas em cada disputa, com partido, situação final e ordem de "
+        "eleição. A Casa de Assembleia usa rotação Robson, que embaralha a ordem das "
+        "candidaturas em cada cédula, por isso não há posição na cédula a publicar.",
+        "Candidates in each contest, with party, final status and order of election. The "
+        "House of Assembly uses Robson Rotation, which reorders candidates on every "
+        "ballot paper, so there is no ballot position to publish.",
+        "Personas candidatas en cada disputa, con partido, situación final y orden de "
+        "elección. La Casa de Asamblea usa rotación Robson, que altera el orden de las "
+        "candidaturas en cada boleta, por lo que no hay posición en la boleta que "
+        "publicar.",
+        unique_key=["year", "election_id", "contest_id", "ballot_name"],
+        ignore_null_proportion=[*_NULL_GEO, "election_order"],
+    ),
+    "enrolment_turnout": TableMeta(
+        "Inscrições e comparecimento",
+        "Enrolment and turnout",
+        "Inscripciones y participación",
+        "Uma linha por disputa, com pessoas inscritas, cédulas apuradas, votos válidos e "
+        "inválidos, quota e número de cadeiras. O voto é obrigatório nas duas câmaras em "
+        "todo o período coberto.",
+        "One row per contest, with enrolled electors, ballot papers counted, formal and "
+        "informal votes, quota and number of seats. Voting is compulsory in both chambers "
+        "throughout the period covered.",
+        "Una fila por disputa, con personas inscritas, boletas escrutadas, votos válidos e "
+        "inválidos, cuota y número de escaños. El voto es obligatorio en ambas cámaras "
+        "durante todo el período cubierto.",
+        unique_key=["year", "election_id", "contest_id"],
+        ignore_null_proportion=[
+            *_NULL_GEO,
+            "percentage_turnout",
+            "percentage_informal",
+            "votes_total",
+            "votes_informal",
+            "enrolment",
+            "quota",
+        ],
+    ),
+    "result_district": TableMeta(
+        "Resultados por divisão",
+        "Results by division",
+        "Resultados por división",
+        "Votos de cada pessoa candidata no total da divisão, por tipo de apuração. As "
+        "linhas de primeira preferência e de distribuição final não são recortes "
+        "redundantes do mesmo número, portanto filtre sempre por count_type.",
+        "Votes for each candidate across the whole division, by count type. The first "
+        "preference and final distribution rows are not redundant snapshots of the same "
+        "number, so always filter on count_type.",
+        "Votos de cada persona candidata en el total de la división, por tipo de "
+        "escrutinio. Las filas de primera preferencia y de distribución final no son "
+        "recortes redundantes del mismo número, por lo que conviene filtrar siempre por "
+        "count_type.",
+        unique_key=[
+            "year",
+            "election_id",
+            "contest_id",
+            "count_type",
+            "ballot_name",
+        ],
+        ignore_null_proportion=[
+            *_NULL_GEO,
+            "quotas",
+            "candidate_status",
+            "percentage_formal_votes",
+        ],
+    ),
+    "result_voting_centre": TableMeta(
+        "Resultados por local de votação",
+        "Results by voting centre",
+        "Resultados por local de votación",
+        "Votos de primeira preferência de cada pessoa candidata em cada local de votação, "
+        "com os totais do local repetidos em cada linha de candidatura. Inclui as "
+        "categorias de voto especial publicadas pela TEC na mesma tabela.",
+        "First preference votes for each candidate at each voting centre, with the centre "
+        "totals repeated on every candidate row. Includes the special vote categories the "
+        "TEC publishes in the same table.",
+        "Votos de primera preferencia de cada persona candidata en cada local de votación, "
+        "con los totales del local repetidos en cada fila de candidatura. Incluye las "
+        "categorías de voto especial que la TEC publica en la misma tabla.",
+        unique_key=[
+            "year",
+            "election_id",
+            "contest_id",
+            "voting_centre_name",
+            "ballot_name",
+        ],
+        ignore_null_proportion=[
+            *_NULL_GEO,
+            "votes_informal",
+            "votes_total",
+            "votes_formal",
+        ],
+    ),
+    "distribution_of_preferences": TableMeta(
+        "Distribuição de preferências",
+        "Distribution of preferences",
+        "Distribución de preferencias",
+        "Transferências de voto contagem a contagem, com o total acumulado de cada pessoa "
+        "candidata ao fim de cada contagem. Cobre a Casa de Assembleia a partir de 2024, "
+        "quando a TEC passou a publicar a folha de escrutínio em planilha, e o Conselho "
+        "Legislativo em todo o período.",
+        "Vote transfers count by count, with each candidate's running total at the end of "
+        "each count. Covers the House of Assembly from 2024, when the TEC began publishing "
+        "the scrutiny sheet as a spreadsheet, and the Legislative Council throughout.",
+        "Transferencias de voto escrutinio a escrutinio, con el total acumulado de cada "
+        "persona candidata al final de cada uno. Cubre la Casa de Asamblea desde 2024, "
+        "cuando la TEC empezó a publicar la hoja de escrutinio en planilla, y el Consejo "
+        "Legislativo en todo el período.",
+        unique_key=[
+            "year",
+            "election_id",
+            "contest_id",
+            "count_number",
+            "ballot_name",
+        ],
+        ignore_null_proportion=[
+            *_NULL_GEO,
+            "votes_exhausted",
+            "remarks",
+            "votes_transferred",
+            "votes_progressive_total",
+        ],
+    ),
+    "voting_centre": TableMeta(
+        "Locais de votação",
+        "Voting centres",
+        "Locales de votación",
+        "Locais de votação de cada evento eleitoral, com endereço, código postal e nível "
+        "de acessibilidade. O grão é uma linha por evento, local e divisão atendida.",
+        "Voting centres for each electoral event, with address, postcode and accessibility "
+        "level. The grain is one row per event, centre and division served.",
+        "Locales de votación de cada evento electoral, con dirección, código postal y "
+        "nivel de accesibilidad. El grano es una fila por evento, local y división "
+        "atendida.",
+        unique_key=[
+            "year",
+            "election_id",
+            "voting_centre_name",
+            "district_name",
+        ],
+        ignore_null_proportion=[
+            "location_within_premise",
+            "premise_address",
+            "postcode",
+            "premise_name",
+            "disabled_access",
+            "locality",
+        ],
+    ),
+    "dicionario": TableMeta(
+        "Dicionário",
+        "Dictionary",
+        "Diccionario",
+        "Correspondência entre as chaves codificadas das colunas do conjunto e o seu "
+        "significado.",
+        "Mapping between the coded keys used in the dataset's columns and their meaning.",
+        "Correspondencia entre las claves codificadas de las columnas del conjunto y su "
+        "significado.",
+        unique_key=["id_tabela", "nome_coluna", "chave"],
+        # Never populated: no dictionary key in this dataset changes meaning over
+        # time, so the column exists for schema conformity only.
+        ignore_null_proportion=["cobertura_temporal"],
+    ),
+}
+
+assert set(TABLE_META) == set(TABLES), (
+    f"TABLE_META and TABLES disagree: {set(TABLE_META) ^ set(TABLES)}"
+)
+
+
+def validate() -> None:
+    """Fail loudly on a duplicated column, an untyped quantity, or a bad description."""
+    for table, cols in TABLES.items():
+        names = [c.name for c in cols]
+        dupes = {n for n in names if names.count(n) > 1}
+        if dupes:
+            raise ValueError(f"{table}: duplicated columns {sorted(dupes)}")
+        for c in cols:
+            if (
+                c.bigquery_type in ("INT64", "FLOAT64")
+                and not c.measurement_unit
+            ):
+                raise ValueError(
+                    f"{table}.{c.name}: numeric column with no unit"
+                )
+            for lang, text in (
+                ("pt", c.description),
+                ("en", c.description_en),
+                ("es", c.description_es),
+            ):
+                if not text:
+                    raise ValueError(
+                        f"{table}.{c.name}: empty {lang} description"
+                    )
+                if text.endswith("."):
+                    raise ValueError(
+                        f"{table}.{c.name}: {lang} description ends with a period"
+                    )
+                if not text[0].isupper():
+                    raise ValueError(
+                        f"{table}.{c.name}: {lang} description is not capitalised"
+                    )
+            if c.name.startswith("id_") and table != "dicionario":
+                raise ValueError(
+                    f"{table}.{c.name}: English datasets take the _id suffix"
+                )
+
+
+validate()

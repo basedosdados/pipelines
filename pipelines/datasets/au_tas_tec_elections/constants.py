@@ -123,7 +123,7 @@ class constants(Enum):
             "2022 Pembroke Legislative Council By-election",
             "legislative_council",
             "state_by_election",
-            "2022-01-29",
+            "2022-09-10",
             "/legislative-council/legislative-council-byelection-2022/",
         ),
         "lc2022": (
@@ -151,7 +151,7 @@ class constants(Enum):
             "2025 Legislative Council Elections",
             "legislative_council",
             "state_periodic",
-            "2025-05-03",
+            "2025-05-24",
             "/legislative-council/elections-2025/",
         ),
         "lc2026": (
@@ -196,6 +196,19 @@ class constants(Enum):
         "lc2025": "legislative-council/elections-2025/index.html",
         "lc2026": "legislative-council/elections-2026/index.html",
     }
+
+    # Contests decided without a poll. The TEC publishes a results page for them
+    # that carries no table at all, which is easily mistaken for a scrape failure.
+    # Mersey 2021: "1 candidate (no ballot required) — GAFFNEY, Michael
+    # (Independent) elected unopposed."
+    UNOPPOSED = {
+        ("lc2021", "mersey"): ("GAFFNEY, Michael", "Independent"),
+    }
+
+    # Two divisions went to the polls as by-elections on the same day as the
+    # periodic elections around them, so their parent event is not uniformly one
+    # type: Huon 2022 (Bastian Seidel's seat) and Elwick 2024 (Josh Willie's).
+    CONCURRENT_BY_ELECTIONS = {("lc2022", "huon"), ("lc2024", "elwick")}
 
     # The House of Assembly grew from 25 seats to 35 at the 2024 election: five
     # divisions returning 5 members each became five returning 7. This is an era
