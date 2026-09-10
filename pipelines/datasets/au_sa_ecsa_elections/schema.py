@@ -184,6 +184,12 @@ OBS_COUNT_TYPE_VENUE = (
     "distritos de 2026, onde a fonte grava zero em todos os locais; em 2022 está "
     "presente nos 47."
 )
+OBS_LC_UNGROUPED = (
+    "No Conselho Legislativo os votos são publicados por grupo da cédula, e os "
+    "grupos não esgotam o total válido: em 2022 a soma dos 20 grupos fica 63 votos "
+    "abaixo do total publicado, diferença que corresponde a candidaturas sem grupo. "
+    "Em 2026 a soma fecha exatamente."
+)
 OBS_TWO_PREFERRED = (
     "As duas apurações preferidas não são redundantes: divergem em 117 das 1.273 "
     "linhas de 2022 e em 137 das 536 de 2026, porque a preferência entre dois "
@@ -198,8 +204,7 @@ OBS_VENUE_NAME = (
 OBS_VENUE_TYPE = (
     "Código do tipo de local de votação. O vocabulário muda entre os pleitos: "
     "apenas Polling Booth é comum a 2022 e 2026, e a ECSA não publica "
-    "correspondência entre os rótulos e os códigos curtos que usa em 2026. Os "
-    "rótulos estão na tabela dicionario."
+    "correspondência entre os rótulos e os códigos curtos que usa em 2026."
 )
 OBS_VENUE_TOTAL = "Total do local de votação, repetido em cada linha de candidatura ou de grupo."
 OBS_VENUE_DISTRICT = (
@@ -425,7 +430,6 @@ GROUP_CODE = C(
     "Letra do grupo na cédula do Conselho Legislativo",
     "Letter of the group on the Legislative Council ballot paper",
     "Letra del grupo en la boleta del Consejo Legislativo",
-    covered_by_dictionary="yes",
     original_name="groupId",
     observations=OBS_GROUP_CODE,
 )
@@ -436,7 +440,7 @@ GROUP_NAME = C(
     "Name of the group printed on the Legislative Council ballot paper",
     "Nombre del grupo impreso en la boleta del Consejo Legislativo",
     original_name="groupName",
-    observations=OBS_GROUP_NAME,
+    observations=OBS_LC_UNGROUPED,
 )
 VOTING_CENTRE_NAME = C(
     "voting_centre_name",
@@ -453,7 +457,6 @@ VOTING_CENTRE_TYPE = C(
     "Tipo do local de votação tal como publicado pela ECSA",
     "Type of the voting centre as published by the ECSA",
     "Tipo del local de votación tal como lo publica la ECSA",
-    covered_by_dictionary="yes",
     original_name="pollingPlaceType",
     observations=OBS_VENUE_TYPE,
 )
@@ -868,7 +871,6 @@ TABLES["disclosure_return"] = [
         "Tipo da declaração apresentada",
         "Type of the return lodged",
         "Tipo de la declaración presentada",
-        covered_by_dictionary="yes",
         original_name="RETURN TYPE",
         observations=OBS_DISCLOSURE_BAN,
     ),
@@ -1129,6 +1131,16 @@ OBSERVATION_TRANSLATIONS: dict[str, tuple[str, str]] = {
         "distritos de 2026, donde la fuente graba cero en todos los locales; en 2022 está "
         "presente en los 47.",
     ),
+    OBS_LC_UNGROUPED: (
+        "In the Legislative Council the votes are published by ballot group, and the "
+        "groups do not exhaust the formal total: in 2022 the sum of the 20 groups "
+        "falls 63 votes short of the published total, a difference that corresponds "
+        "to ungrouped candidates. In 2026 the sum reconciles exactly.",
+        "En el Consejo Legislativo los votos se publican por grupo de la boleta, y los "
+        "grupos no agotan el total válido: en 2022 la suma de los 20 grupos queda 63 "
+        "votos por debajo del total publicado, diferencia que corresponde a "
+        "candidaturas sin grupo. En 2026 la suma cierra exactamente.",
+    ),
     OBS_TWO_PREFERRED: (
         "The two preferred counts are not redundant: they differ in 117 of the 1,273 "
         "rows of 2022 and in 137 of the 536 of 2026, because the two party preferred "
@@ -1150,12 +1162,10 @@ OBSERVATION_TRANSLATIONS: dict[str, tuple[str, str]] = {
     OBS_VENUE_TYPE: (
         "Code for the type of voting centre. The vocabulary changes between elections: "
         "only Polling Booth is common to 2022 and 2026, and the ECSA publishes no "
-        "mapping between the labels and the short codes it uses in 2026. The labels are "
-        "in the dicionario table.",
+        "mapping between the labels and the short codes it uses in 2026.",
         "Código del tipo de local de votación. El vocabulario cambia entre comicios: solo "
         "Polling Booth es común a 2022 y 2026, y la ECSA no publica correspondencia entre "
-        "las etiquetas y los códigos cortos que usa en 2026. Las etiquetas están en la "
-        "tabla dicionario.",
+        "las etiquetas y los códigos cortos que usa en 2026.",
     ),
     OBS_VENUE_TOTAL: (
         "Voting centre total, repeated on every candidate or group row.",

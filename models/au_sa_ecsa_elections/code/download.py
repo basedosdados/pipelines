@@ -11,7 +11,9 @@ Two sources, on two different hosts.
 ``ecsa.sa.gov.au/html/funding2024/`` and ``ecsa.sa.gov.au/html/fdarchive/``
     Two server-rendered PHP indexes of campaign funding disclosure returns. Only
     the filing envelope is in HTML; the itemised gifts sit inside PDF
-    attachments and are not extracted here.
+    attachments and are not extracted here. The index of the current portal
+    paginates on a non-unique key and silently omits 93 of its 924 returns, so
+    every return is also fetched by id from its detail page.
 
 Every request raises on a non-2xx status, and nothing is skipped because a file
 happens to already exist: a stale or truncated artefact has to fail loudly rather
@@ -181,6 +183,54 @@ def download_disclosure() -> dict[str, int]:
     return counts
 
 
+# A detail page for an id that does not exist still answers 200, with a short stub
+# that carries no field labels. Existence is decided on content, never on status.
+DETAIL_MARKER = "Date Lodged"
+DETAIL_MARGIN = 60
+
+
+def download_disclosure_details() -> dict[str, int]:
+    """Fetch one detail page per return id, to close the index's pagination gap.
+
+    The current portal paginates on a non-unique sort key, so consecutive pages
+    overlap: 924 row instances resolve to only 831 distinct ids, and 93 returns
+    are never served by the index at all. Re-sweeping does not help — the
+    pagination is deterministic, so the same request returns the same rows. The
+    detail pages are keyed on the id itself and therefore complete.
+    """
+    counts: dict[str, int] = {}
+    for name, base in FUNDING_PORTALS.items():
+        pages = sorted((INPUT / "disclosure" / name).glob("page_*.html"))
+        seen = {
+            int(rid)
+            for page in pages
+            for rid, _ in PAGE_ROW.findall(page.read_text(encoding="utf-8"))
+        }
+        if not seen:
+            raise RuntimeError(
+                f"{name}: no index pages harvested; run the index first"
+            )
+        target_dir = INPUT / "disclosure" / f"{name}_detail"
+        target_dir.mkdir(parents=True, exist_ok=True)
+        low = max(1, min(seen) - DETAIL_MARGIN)
+        high = max(seen) + DETAIL_MARGIN
+        found = 0
+        log(
+            f"  {name}: probing ids {low}-{high} ({len(seen)} seen in the index)"
+        )
+        for ident in range(low, high + 1):
+            html = fetch(f"{base}view.php?ID={ident}").text
+            if DETAIL_MARKER not in html:
+                continue
+            (target_dir / f"{ident}.html").write_text(html, encoding="utf-8")
+            found += 1
+            if found % 100 == 0:
+                log(f"    {name}: {found} detail pages")
+        counts[name] = found
+        log(f"  {name}: {found} detail pages over ids {low}-{high}")
+    return counts
+
+
 def main(argv: list[str]) -> int:
     wanted = set(argv[1:]) or {"api", "disclosure"}
     summary: dict[str, object] = {}
@@ -190,6 +240,7 @@ def main(argv: list[str]) -> int:
     if "disclosure" in wanted:
         log("Disclosure returns")
         summary["disclosure"] = download_disclosure()
+        summary["disclosure_detail"] = download_disclosure_details()
     (data_dir() / "download_summary.json").write_text(
         json.dumps(summary, indent=1), encoding="utf-8"
     )
