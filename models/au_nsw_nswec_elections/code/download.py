@@ -118,6 +118,10 @@ EVENTS: dict[int, dict] = {
         "code": "SGE2011",
         "la_index": f"{BASE}/SGE2011/la_landing.htm",
         "lc_index": f"{BASE}/SGE2011/lc_landing.htm",
+        # 2011 publishes the Legislative Council as standalone pages rather than
+        # the per-chamber tree the later events use.
+        "lc_summary": f"{BASE}/SGE2011/lc_summary.htm",
+        "lc_finalcount": f"{BASE}/SGE2011/lc_finalcount.htm",
         "la_xlsx": None,
         "lc_xlsx": None,
         "pref": None,
@@ -208,6 +212,8 @@ def download_event(year: int) -> None:
         "elected_page",
         "lc_elected_page",
         "lc_fp_page",
+        "lc_summary",
+        "lc_finalcount",
     ):
         if event.get(key):
             status, size = fetch(event[key], ydir / f"{key}.html")
