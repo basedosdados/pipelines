@@ -248,6 +248,7 @@ def us_osha_enforcement_flow(
 # ample for the way this data is used, and 6 GB of downloads a day is not.
 # The minute is deliberately not 0 — a dozen pipelines already fire at :00 and
 # compete for BigQuery slots.
+# pyrefly: ignore [missing-attribute]
 us_osha_enforcement_flow.deploy_schedules = [
     {"cron": "47 4 * * 0", "timezone": "America/Sao_Paulo"}
 ]
@@ -256,6 +257,7 @@ us_osha_enforcement_flow.deploy_schedules = [
 # template, so a flow that sets only it runs on the pool default of 4Gi
 # whatever number it names. The clean step holds the citation-text and
 # narrative reassembly maps in memory.
+# pyrefly: ignore [missing-attribute]
 us_osha_enforcement_flow.job_variables = {
     "memory_limit": "12Gi",
     "memory_request": "4Gi",
