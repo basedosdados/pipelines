@@ -27,6 +27,7 @@ CONFIG = {
 
 
 def main() -> None:
+    """Generate a dbt model for every architecture CSV."""
     for path in sorted(ARCH.glob("*.csv")):
         table = path.stem
         with open(path, encoding="utf-8") as fh:
