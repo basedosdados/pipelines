@@ -1,5 +1,5 @@
 {
-  "saved_at": "2026-09-10T14:57:18",
+  "saved_at": "2026-09-10T15:00:11",
   "dataset_slug": "tas_elections",
   "gcp_dataset_id": "au_tas_tec_elections",
   "current_step": 9,
@@ -108,5 +108,20 @@
     "missing_dist_is_data": "a 404 on dist-<div>-m.html means the winner took an absolute majority on first preferences, not a scrape failure",
     "dead_links": "3 stale document links live on the 2018 results pages (PPs/Braddon.xlsx, Denison.xlsx, Lyons.xlsx) \u2014 recorded, not silently skipped",
     "url_spaces": "count export filenames contain spaces and a per-division count number; they must be percent-encoded and never constructed"
+  },
+  "auxiliary_files": {
+    "decision": "No per-table bundle. Step 6b deliberately skipped.",
+    "reasoning": "A bundle exists to make a table usable. Every column here is named and described in three languages, and every coded value is in the dicionario table, so nothing external is needed to read the data. The TEC's own documentation is reference material read once: the statutory Report on Parliamentary Elections runs to 7.7 MB (2024-2025) and 11.4 MB (2022-2024), both over the link-only threshold, and the per-election snapshots are 76 KB summaries. Per auxiliary-files, these are link-only.",
+    "link_only": [
+      "https://www.tec.tas.gov.au/info/Publications/ElectionReports/ (statutory reports, 1909 to 2025)",
+      "https://www.tec.tas.gov.au/info/Publications/ElectionSnapshots/ (per-election snapshots, 2020 to 2025)"
+    ]
+  },
+  "pipeline_assessment": {
+    "warranted": true,
+    "cadence": "The Legislative Council elects 2-3 of its 15 divisions every year, polling on a Saturday in May; by-elections fall in between; the House of Assembly is irregular (2018, 2021, 2024, 2025).",
+    "shape": "Annual, polling a few days across late May to July. The hard part, discovering each election's URLs, is already solved by discovery.py, which scrapes rather than constructs.",
+    "limitation": "ELECTION_META hardcodes each event's polling day, seat count and path prefix, so a new election needs a small constants edit once a year. The path prefix has changed shape four times since 2018, so deriving it automatically would be guesswork.",
+    "poll_granularity": "The source's max coverage date is a year and the coverage is YEAR granularity, so the poll comparison is well matched."
   }
 }
