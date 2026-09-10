@@ -16,19 +16,49 @@ import argparse
 import csv
 import datetime as dt
 import json
+import os
+import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-MCP_PATH = "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
+
+def _mcp_path() -> str:
+    """Where the databasis MCP checkout lives.
+
+    It is a separate repository, not a dependency of this one, so the path
+    cannot be assumed. DATABASIS_MCP_PATH wins; otherwise try the conventional
+    sibling checkout next to this repository, resolved through git so that a
+    worktree finds it too.
+    """
+    candidates = [os.environ.get("DATABASIS_MCP_PATH")]
+    try:
+        common = subprocess.run(
+            ["git", "rev-parse", "--git-common-dir"],
+            cwd=Path(__file__).resolve().parent,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+        candidates.append(str(Path(common).resolve().parent.parent / "mcp"))
+    except (OSError, subprocess.CalledProcessError):
+        pass
+    for candidate in candidates:
+        if candidate and (Path(candidate) / "server.py").is_file():
+            return candidate
+    raise RuntimeError(
+        "The databasis MCP checkout was not found. Set DATABASIS_MCP_PATH to the "
+        "directory containing server.py (https://github.com/basedosdados/mcp)."
+    )
+
 
 if TYPE_CHECKING:
-    # The databasis MCP server is a local checkout, absent from CI's environment,
-    # so it is imported for real only at runtime.
+    # The databasis MCP server is a separate checkout, absent from CI, so it is
+    # imported for real only at runtime.
     server: Any = None
 else:
-    sys.path.insert(0, MCP_PATH)
+    sys.path.insert(0, _mcp_path())
     import server
 
 CODE = Path(__file__).resolve().parent
@@ -373,15 +403,18 @@ TABLES = [
             "Chegadas e partidas de migrantes internacionais da Austrália por grupo de "
             "visto ou de cidadania, em trimestres civis. O ABS revisa esta série a cada "
             "divulgação trimestral da população, de modo que o ano preliminar pode "
-            "divergir das tabelas anuais.",
+            "divergir das tabelas anuais. O código de visto 03 (outros vistos) existe "
+            "apenas nesta série; as planilhas anuais o incluem apenas no total.",
             "Overseas migrant arrivals and departures for Australia by visa or "
             "citizenship group, in calendar quarters. ABS revises this series with each "
             "quarterly population release, so the preliminary year can differ from the "
-            "annual tables.",
+            "annual tables. Visa code 03 (other visas) exists only in this series; the "
+            "annual spreadsheets fold it into the total.",
             "Llegadas y salidas de migrantes internacionales de Australia por grupo de "
             "visado o de ciudadanía, en trimestres calendario. La ABS revisa esta serie "
             "en cada publicación trimestral de población, por lo que el año preliminar "
-            "puede diferir de las tablas anuales.",
+            "puede diferir de las tablas anuales. El código de visado 03 (otros visados) "
+            "existe solo en esta serie; las planillas anuales lo incluyen solo en el total.",
         ),
         ["year", "quarter"],
         (2006, 7, 2025, 12),
@@ -397,11 +430,14 @@ TABLES = [
         ),
         (
             "Chegadas e partidas de migrantes internacionais por grupo de visto ou de "
-            "cidadania e estado ou território de residência, em trimestres civis.",
+            "cidadania e estado ou território de residência, em trimestres civis. O "
+            "código de visto 03 (outros vistos) existe apenas nesta série.",
             "Overseas migrant arrivals and departures by visa or citizenship group and "
-            "state or territory of residence, in calendar quarters.",
+            "state or territory of residence, in calendar quarters. Visa code 03 (other "
+            "visas) exists only in this series.",
             "Llegadas y salidas de migrantes internacionales por grupo de visado o de "
-            "ciudadanía y estado o territorio de residencia, en trimestres calendario.",
+            "ciudadanía y estado o territorio de residencia, en trimestres calendario. El "
+            "código de visado 03 (otros visados) existe solo en esta serie.",
         ),
         ["year", "quarter", "state"],
         (2006, 7, 2025, 12),
@@ -541,14 +577,18 @@ def architecture(table_slug: str) -> list[dict]:
 def columns_payload(table_slug: str, env: str) -> str:
     """Architecture rows as the bulk_upsert_columns payload.
 
-    Directory links are rewritten to the backend dataset slug: the backend
-    resolves `diretorios_au.state:id_state`, not the GCP dataset id.
+    Directory links are rewritten twice: to the backend dataset slug, since the
+    backend resolves `diretorios_au.state:id_state` rather than the GCP dataset
+    id, and then through DIRECTORY_BY_ENV for the columns whose target is
+    spelled differently on this backend. Both rewrites are silent when wrong —
+    the link is accepted and the foreign key is left null.
     """
     payload = []
     for row in architecture(table_slug):
         directory = row["directory_column"].replace(
             "br_bd_diretorios_", "diretorios_"
         )
+        directory = DIRECTORY_BY_ENV.get(env, {}).get(directory, directory)
         payload.append(
             {
                 "name": row["name"],
@@ -806,10 +846,27 @@ def main() -> None:
             table_id=table_id, columns_json=columns_payload(slug, env), env=env
         )
 
+        if upsert.get("errors"):
+            raise RuntimeError(
+                f"{slug}: bulk_upsert_columns failed: {upsert['errors']}"
+            )
+
         columns = {
             c["name"]: server._strip_id(c["id"])
             for c in server._fetch_table_columns(table_id, env)
         }
+        # A column the backend rejected is simply absent from the read-back, and
+        # indexing it below would raise a KeyError far from the cause.
+        absent = [
+            row["name"]
+            for row in architecture(slug)
+            if row["name"] not in columns
+        ]
+        if absent:
+            raise RuntimeError(
+                f"{slug}: columns missing from the backend after upsert: {absent}"
+            )
+
         for row in architecture(slug):
             name = row["name"]
             entity_slug = COLUMN_ENTITY.get(name)

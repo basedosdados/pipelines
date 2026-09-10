@@ -50,7 +50,7 @@ spreadsheet's own totals for all 21 years.
 code as published, always present and covered by the `dicionario`;
 `country_iso3_code` is resolved to ISO 3166-1 alpha-3 and links to
 `br_bd_diretorios_mundo.pais`. 243 of the 250 published codes resolve. The seven
-that do not are the five residual "nec"/"nfd" categories, "Inadequately
+that do not are the four residual "nec"/"nfd" categories, "Inadequately
 Described", Kosovo and Spanish North Africa (no ISO 3166-1 code). Two mappings
 are deliberate approximations, both recorded in `code/sacc_iso3.csv`: SACC 2100
 spans the United Kingdom together with the Channel Islands and the Isle of Man

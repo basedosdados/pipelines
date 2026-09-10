@@ -143,13 +143,15 @@ DESCRIPTIONS = {
         "Chegadas e partidas de migrantes internacionais da Austrália por grupo de "
         "visto ou de cidadania, em trimestres civis. O ABS revisa esta série a cada "
         "divulgação trimestral da população, de modo que o ano preliminar pode "
-        "divergir das tabelas anuais, que refletem a divulgação anual. "
-        + ROUNDING
+        "divergir das tabelas anuais, que refletem a divulgação anual. O código de "
+        "visto 03 (outros vistos) existe apenas nesta série; as planilhas anuais o "
+        "incluem apenas no total. " + ROUNDING
     ),
     "overseas_visa_quarter_state": (
         "Chegadas e partidas de migrantes internacionais por grupo de visto ou de "
-        "cidadania e estado ou território de residência, em trimestres civis. "
-        + ROUNDING
+        "cidadania e estado ou território de residência, em trimestres civis. O código "
+        "de visto 03 (outros vistos) existe apenas nesta série; as planilhas anuais o "
+        "incluem apenas no total. " + ROUNDING
     ),
     "interstate_age_sex_australia": (
         "Migração interestadual na Austrália por grupo etário e sexo, uma linha por "

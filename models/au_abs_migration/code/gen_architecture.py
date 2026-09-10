@@ -158,12 +158,14 @@ def country_iso3_code() -> dict[str, str]:
         "Código ISO 3166-1 alfa-3 del país de nacimiento",
         directory="diretorios_mundo.pais:sigla_iso3",
         observations=(
-            "Links to the country directory on its ISO3 key. Resolved "
-            "from the SACC code during cleaning. Null for the residual SACC "
-            "categories, for Kosovo and Spanish North Africa (no ISO 3166-1 code), and "
-            "for SACC 2100, which spans the United Kingdom together with the Channel "
-            "Islands and the Isle of Man. The seven Antarctic territorial claims all "
-            "resolve to ATA"
+            "Links to the country directory on its ISO3 key. Resolved from the SACC "
+            "code during cleaning, and null wherever no ISO 3166-1 code applies: the "
+            "four residual 'not elsewhere classified' categories, 'Inadequately "
+            "Described', Kosovo and Spanish North Africa. Two mappings are documented "
+            "approximations of a SACC aggregate: 2100 covers the United Kingdom "
+            "together with the Channel Islands and the Isle of Man and is mapped to "
+            "GBR, and the seven Antarctic territorial claims all map to ATA. Use "
+            "country_of_birth_id where the exact SACC category matters"
         ),
     )
 

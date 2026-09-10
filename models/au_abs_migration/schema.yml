@@ -336,9 +336,10 @@ models:
       Chegadas e partidas de migrantes internacionais da Austrália por grupo de
       visto ou de cidadania, em trimestres civis. O ABS revisa esta série a cada
       divulgação trimestral da população, de modo que o ano preliminar pode divergir
-      das tabelas anuais, que refletem a divulgação anual. Os valores são
-      arredondados pelo ABS para a dezena mais próxima, de modo que os componentes
-      nem sempre somam os totais.
+      das tabelas anuais, que refletem a divulgação anual. O código de visto 03
+      (outros vistos) existe apenas nesta série; as planilhas anuais o incluem
+      apenas no total. Os valores são arredondados pelo ABS para a dezena mais
+      próxima, de modo que os componentes nem sempre somam os totais.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, quarter, visa_group_id]
@@ -371,9 +372,10 @@ models:
   - name: au_abs_migration__overseas_visa_quarter_state
     description: >-
       Chegadas e partidas de migrantes internacionais por grupo de visto ou de
-      cidadania e estado ou território de residência, em trimestres civis. Os
-      valores são arredondados pelo ABS para a dezena mais próxima, de modo que os
-      componentes nem sempre somam os totais.
+      cidadania e estado ou território de residência, em trimestres civis. O código
+      de visto 03 (outros vistos) existe apenas nesta série; as planilhas anuais o
+      incluem apenas no total. Os valores são arredondados pelo ABS para a dezena
+      mais próxima, de modo que os componentes nem sempre somam os totais.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, quarter, state_id, visa_group_id]

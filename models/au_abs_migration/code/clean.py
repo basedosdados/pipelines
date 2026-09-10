@@ -228,7 +228,22 @@ def read_visa_sheet(path: Path, sheet: str) -> pd.DataFrame:
             if cell is not None and str(cell).strip():
                 label = strip_footnote(cell)
                 break
-        if measure is None or label is None or label not in VISA_LABEL_TO_CODE:
+        if measure is None or label is None:
+            continue
+        if label not in VISA_LABEL_TO_CODE:
+            # A row carrying values is data. Skipping it because its label is
+            # unrecognised would drop a whole visa group silently, and
+            # validate_visa_mapping cannot see what never reached the merge:
+            # ABS renaming or adding a group has to stop the run instead.
+            if any(
+                row[position] is not None
+                for position in years
+                if position < len(row)
+            ):
+                raise RuntimeError(
+                    f"{path.name} {sheet}: unrecognised visa label {label!r}. "
+                    "ABS has renamed or added a group; update VISA_LABEL_TO_CODE."
+                )
             continue
         for position, year in years.items():
             value = row[position] if position < len(row) else None
@@ -411,7 +426,12 @@ def build_dicionario(
 def validate_country_totals(
     tables: dict[str, pd.DataFrame], input_dir: Path = INPUT_DIR
 ) -> None:
-    """The published Total row must equal the SDMX all-ages, all-persons series."""
+    """The published Total row must equal the SDMX all-ages, all-persons series.
+
+    This is what confirms both the sheet parse and the financial-year
+    convention, so a disagreement stops the run rather than printing a warning
+    the writes then ignore.
+    """
     published = read_country_totals(
         input_dir / COUNTRY_FILES["net"][0], "Table 1.1"
     )
@@ -424,16 +444,31 @@ def validate_country_totals(
     ].copy()
     sdmx["year"] = sdmx["TIME_PERIOD"].astype(int) - 1
     sdmx["value"] = sdmx["OBS_VALUE"].astype(float).astype(int)
+    # Outer, so a year present in only one source is a failure rather than a
+    # row that quietly drops out of the comparison.
     merged = published.merge(
-        sdmx[["year", "value"]], on="year", suffixes=("_xlsx", "_sdmx")
+        sdmx[["year", "value"]],
+        on="year",
+        how="outer",
+        validate="one_to_one",
+        indicator=True,
+        suffixes=("_xlsx", "_sdmx"),
     )
-    mismatch = merged[merged["value_xlsx"] != merged["value_sdmx"]]
+    unpaired = merged[merged["_merge"] != "both"]
+    mismatch = merged[
+        (merged["_merge"] == "both")
+        & (merged["value_xlsx"] != merged["value_sdmx"])
+    ]
     print(
         f"  country totals vs NOM_FY: {len(merged)} years compared, "
-        f"{len(mismatch)} mismatched"
+        f"{len(unpaired)} unpaired, {len(mismatch)} mismatched"
     )
-    if len(mismatch):
-        print(mismatch.to_string(index=False))
+    if len(unpaired) or len(mismatch):
+        print(pd.concat([unpaired, mismatch]).to_string(index=False))
+        raise RuntimeError(
+            "the spreadsheet's published totals do not reconcile with NOM_FY: "
+            f"{len(unpaired)} year(s) in only one source, {len(mismatch)} differing"
+        )
 
 
 def validate_visa_mapping(
