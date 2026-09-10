@@ -17,15 +17,27 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
-sys.path.insert(
-    0,
-    "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp",
+# The databasis MCP server is a plain Python module; importing it calls the same
+# code the mcp__databasis__* tools do. Its checkout is outside this repo, so its
+# location comes from BD_MCP_PATH rather than a hardcoded home directory.
+_MCP_PATH = os.environ.get(
+    "BD_MCP_PATH",
+    str(Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"),
 )
-import server
+if not Path(_MCP_PATH).is_dir():
+    raise SystemExit(
+        f"databasis MCP checkout not found at {_MCP_PATH!r}. "
+        "Set BD_MCP_PATH to its location."
+    )
+sys.path.insert(0, _MCP_PATH)
+
+import server  # noqa: E402
 
 ARCH = Path(__file__).parent / "architecture"
 DATASET_SLUG = "ghcn_daily"
@@ -75,9 +87,17 @@ def _lookup(category: str, slugs: tuple[str, ...], env: str) -> str:
     raise RuntimeError(f"{category} not found in {env} under any of {slugs}")
 
 
-def resolve(env: str) -> dict[str, str]:
-    """Look every reference id up by slug in the target environment."""
-    ids = {}
+def resolve(env: str) -> dict[str, Any]:
+    """Look every reference id up by slug in the target environment.
+
+    Args:
+        env: Backend environment, ``staging`` or ``prod``.
+
+    Returns:
+        Reference ids keyed by kind. Every value is an id string except
+        ``tags``, which is a list of them.
+    """
+    ids: dict[str, Any] = {}
     for kind, slug in REFERENCES.items():
         ids[kind] = _lookup(kind, (slug,), env)
     for key, slug in ENTITY_SLUGS.items():
@@ -292,12 +312,56 @@ RAW_SOURCES = [
 ]
 
 
+def existing_latest(update_id: str | None, env: str) -> str:
+    """Return an Update's stored ``latest``, or now if the record is new.
+
+    ``latest`` is when *we* last refreshed the table -- a wall clock, not a
+    coverage date -- and ``create_update_update`` requires it on every call.
+    This script writes metadata only, so re-stamping it would be a lie:
+    ``poll_source_for_update`` compares the source's max coverage date against
+    ``Table.Update.latest``, and a metadata rerun that advanced it would make
+    the recurring pipeline poll green while ingesting nothing.
+
+    Args:
+        update_id: Existing Update record id, or None when creating one.
+        env: Backend environment.
+
+    Returns:
+        The stored timestamp when the record exists, otherwise the current UTC
+        time in ISO 8601.
+    """
+    if update_id:
+        q = "query($id: ID!) { allUpdate(id: $id) { edges { node { latest } } } }"
+        edges = server._gql(q, {"id": update_id}, env=env)["allUpdate"][
+            "edges"
+        ]
+        if edges and edges[0]["node"].get("latest"):
+            return edges[0]["node"]["latest"]
+    return datetime.now(UTC).isoformat()
+
+
 def read_arch(table: str) -> list[dict]:
+    """Read one table's architecture CSV.
+
+    Args:
+        table: Table slug.
+
+    Returns:
+        One dict per column, in architecture order.
+    """
     with open(ARCH / f"{table}.csv", encoding="utf-8") as fh:
         return list(csv.DictReader(fh))
 
 
 def columns_json(table: str) -> str:
+    """Serialise a table's columns for ``bulk_upsert_columns``.
+
+    Args:
+        table: Table slug.
+
+    Returns:
+        JSON array of column definitions, in architecture order.
+    """
     cols = []
     for i, a in enumerate(read_arch(table)):
         cols.append(
@@ -318,6 +382,7 @@ def columns_json(table: str) -> str:
 
 
 def main() -> None:
+    """Register the dataset, tables, columns and coverage in one environment."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--env", default="staging", choices=["staging", "prod"])
     args = ap.parse_args()
@@ -461,16 +526,22 @@ def main() -> None:
                 env=env,
             )
 
+        # `latest` is when WE last refreshed the table -- a wall clock, not a
+        # coverage date. This script writes metadata only, so it must NOT bump
+        # an existing value: poll_source_for_update compares the source's max
+        # coverage date against Table.Update.latest, and a metadata rerun that
+        # advanced it would make the recurring pipeline poll green while
+        # ingesting nothing. Only stamp it when creating the record.
+        prev_update = (prev.get("updates") or [{}])[0]
         server.create_update_update(
-            id=(prev.get("updates") or [{}])[0].get("id"),
+            id=prev_update.get("id"),
             table_id=tid,
             # NCEI rewrites the current year daily and reconstructs the whole
-            # archive weekly, so the table refreshes daily once the recurring
-            # pipeline is armed. `latest` is when WE last refreshed -- a wall
-            # clock, not a coverage date.
+            # archive weekly, so the table refreshes daily once the pipeline is
+            # armed.
             entity_id=ids["entity_day"],
             frequency=1,
-            latest=datetime.now(UTC).isoformat(),
+            latest=existing_latest(prev_update.get("id"), env),
             env=env,
         )
         server.create_update_table(
