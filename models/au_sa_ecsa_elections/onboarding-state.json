@@ -1,15 +1,15 @@
 {
- "saved_at": "2026-09-10T15:05:00",
+ "saved_at": "2026-09-10T15:55:00",
  "dataset_slug": "sa_elections",
  "gcp_dataset_id": "au_sa_ecsa_elections",
  "worktree": "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/pipelines/.claude/worktrees/ecsa-elections-onboard",
  "branch": "data/au_sa_ecsa_elections",
  "venv": "/Users/rdahis/.venvs/bd-pipelines-sa",
  "scratch": "/Users/rdahis/Downloads/au_sa_ecsa_elections_data",
+ "scratch_kept": true,
  "env": "staging",
- "current_step": "checkpoint",
+ "current_step": "checkpoint (after 9b)",
  "completed_steps": [1, 2, 3, 4, 5, 6, 7, 8, 9, "9b"],
- "staging_url": "https://staging.basedosdados.org/dataset/b2e707f6-b081-4cf8-a9d6-0435f13591f2",
  "backend_ids": {
   "dataset": "b2e707f6-b081-4cf8-a9d6-0435f13591f2",
   "organization_au_ecsa": "fb3b16a5-8a4b-44f5-bf67-0f0deb9f38f6",
@@ -20,7 +20,7 @@
  "row_counts": {
   "election": 5,
   "candidate": 643,
-  "result_district": 2984,
+  "result_district": 2638,
   "result_voting_centre": 41843,
   "distribution_of_preferences": 3653,
   "voting_centre": 1477,
@@ -32,15 +32,18 @@
  "columns_registered": 130,
  "remaining": [
   "Human review at the checkpoint, then prod promotion (step 10), PR (step 11), merge, publish (step 13), scratch cleanup (step 14).",
-  "Step 12 (recurring pipeline) not built: see the report for the recommendation.",
+  "Step 12 (recurring pipeline) not built; see the report.",
   "2010-2018 HTML era deferred: the API serves 2022 onwards only."
  ],
  "notes": [
   "Write tool disabled: write files by piping a heredoc into the scratchpad wf.py helper.",
   "Shell redirect into a home path is blocked by a guard; use the pipe helper instead.",
-  "The shared venv ~/.venvs/bd-pipelines has a broken anyio and cannot import the MCP server; a fastmcp shim in the scratchpad lets bd-pipelines-sa import it instead.",
-  "SA directory vintages are NOT interchangeable: 18 ids are re-used between 2016 and 2021. Vintage 2021 is pinned and matched case-insensitively.",
+  "The shared venv ~/.venvs/bd-pipelines has a broken anyio and cannot import the MCP server; a fastmcp shim in the scratchpad lets bd-pipelines-sa import it.",
+  "SA directory vintages are NOT interchangeable: 18 ids are re-used between 2016 and 2021. Vintage 2021 is pinned, matched case-insensitively.",
   "2022 seat allocation reproduced exactly: ALP 27, LIB 16, IND 4.",
-  "The funding2024 index paginates on a non-unique key and omits 93 of its 924 returns; detail pages by id are the complete spine."
+  "funding2024 index paginates on a non-unique key and omits 93 of its 924 returns; detail pages by id are the complete spine.",
+  "2026 finalDistribution uses a global candidate id disjoint from the ballot position; bridged by district plus name.",
+  "The candidate-level declaration field repeats the declaration blocks in 2026; adding both reversed Narungga.",
+  "A second register_metadata run duplicated 55 child records; the writes are now idempotent and dedupe_metadata.py cleans up."
  ]
 }
