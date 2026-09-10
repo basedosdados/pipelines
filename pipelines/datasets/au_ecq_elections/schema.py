@@ -1292,11 +1292,12 @@ TABLE_META: dict[str, TableMeta] = {
         "Personas candidatas en cada disputa, con posición en la boleta, partido e "
         "indicación de elección. Reúne disputas estatales y municipales, distinguidas "
         "por government_level.",
-        ignore_null_proportion=[
-            "lga_id",
-            "lga_code",
-            "lga_name",
-            "party_code",
+        unique_key=[
+            "year",
+            "election_id",
+            "contest_id",
+            "contest_type",
+            "ballot_order_number",
         ],
     ),
     "enrolment_turnout": TableMeta(
@@ -1314,11 +1315,12 @@ TABLE_META: dict[str, TableMeta] = {
         "totales, válidos e inválidos y los porcentajes correspondientes. Los escrutinios "
         "preliminar y oficial no son recortes redundantes del mismo número, por lo que "
         "conviene filtrar siempre por count_status.",
-        ignore_null_proportion=[
-            "lga_id",
-            "lga_code",
-            "lga_name",
-            "voting_method",
+        unique_key=[
+            "year",
+            "election_id",
+            "contest_id",
+            "contest_type",
+            "count_status",
         ],
     ),
     "result_district": TableMeta(
@@ -1334,11 +1336,14 @@ TABLE_META: dict[str, TableMeta] = {
         "Votos de cada persona candidata en el total de la disputa, por etapa y tipo de "
         "escrutinio. La ECQ no publica escrutinio de preferencia entre dos partidos, solo "
         "primera preferencia y preferencia entre dos candidatos.",
-        ignore_null_proportion=[
-            "lga_id",
-            "lga_code",
-            "lga_name",
-            "party_code",
+        unique_key=[
+            "year",
+            "election_id",
+            "contest_id",
+            "contest_type",
+            "count_status",
+            "count_type",
+            "ballot_order_number",
         ],
     ),
     "result_voting_centre": TableMeta(
@@ -1351,11 +1356,16 @@ TABLE_META: dict[str, TableMeta] = {
         "with the voting centre totals repeated on every candidate row.",
         "Votos de cada persona candidata en cada local de votación, por etapa y tipo de "
         "escrutinio, con los totales del local repetidos en cada fila de candidatura.",
-        ignore_null_proportion=[
-            "lga_id",
-            "lga_code",
-            "lga_name",
-            "party_code",
+        unique_key=[
+            "year",
+            "election_id",
+            "contest_id",
+            "contest_type",
+            "count_status",
+            "count_type",
+            "voting_centre_id",
+            "voting_centre_district_name",
+            "ballot_order_number",
         ],
     ),
     "distribution_of_preferences": TableMeta(
@@ -1372,11 +1382,15 @@ TABLE_META: dict[str, TableMeta] = {
         "una fila por persona candidata excluida y persona candidata receptora. La ECQ "
         "también publica la misma distribución por local de votación, grano no incluido "
         "aquí.",
-        ignore_null_proportion=[
-            "lga_id",
-            "lga_code",
-            "lga_name",
-            "party_code",
+        unique_key=[
+            "year",
+            "election_id",
+            "contest_id",
+            "contest_type",
+            "count_status",
+            "distribution_number",
+            "excluded_ballot_order_number",
+            "ballot_order_number",
         ],
     ),
     "voting_centre": TableMeta(
@@ -1392,12 +1406,15 @@ TABLE_META: dict[str, TableMeta] = {
         "Locales de votación de cada evento electoral, con dirección y coordenadas. El "
         "grano es una fila por evento, local y distrito atendido: un local que atiende dos "
         "distritos aparece dos veces.",
-        ignore_null_proportion=[
-            "building_name",
-            "street_number",
-            "joint_type",
-            "state_electoral_division_id",
+        unique_key=[
+            "year",
+            "election_id",
+            "voting_centre_id",
+            "district_name",
         ],
+        # 11.3% populated: only the centres in a shared host/guest arrangement
+        # carry one. Measured, not assumed.
+        ignore_null_proportion=["joint_type"],
     ),
     "disclosure_gift": TableMeta(
         "Doações declaradas",
@@ -1413,11 +1430,20 @@ TABLE_META: dict[str, TableMeta] = {
         "reuniendo las exportaciones estatal y local. Las filas totalmente duplicadas son "
         "frecuentes y no son necesariamente errores, por lo que la tabla no publica clave "
         "primaria.",
+        # No key: fully duplicated rows are pervasive (28,328 rows, 27,771
+        # distinct, largest identical group 11) and are not necessarily errors,
+        # so no uniqueness test is emitted and no synthetic key is invented.
+        # Sparsity is measured on the pooled export and is time-dependent —
+        # election_name 13.6%, has_electoral_committee 11.5%,
+        # electoral_committee_name 7.5%. The latter two are state-only fields.
         ignore_null_proportion=[
             "election_name",
             "has_electoral_committee",
             "electoral_committee_name",
         ],
+        # 23 gifts carry neither a gift date nor an election, so no year can be
+        # inferred; year is nullable here and gets no not_null test.
+        nullable_key=["year"],
     ),
     "disclosure_expenditure": TableMeta(
         "Despesas eleitorais declaradas",
@@ -1432,11 +1458,9 @@ TABLE_META: dict[str, TableMeta] = {
         "Gastos electorales individuales declarados al Electronic Disclosure System de la "
         "ECQ, con el bien o servicio adquirido y su finalidad. La cobertura se concentra "
         "en los ciclos electorales y comienza en la práctica en 2019.",
-        ignore_null_proportion=[
-            "candidate_type",
-            "local_electorate_name",
-            "election_name",
-        ],
+        # No key, for the same reason as the gifts: 27,225 rows, 26,771 distinct,
+        # largest identical group 29. All four sparse columns measure above 50%
+        # once pooled, so none is ignored in the null-proportion test.
     ),
     "disclosure_return": TableMeta(
         "Declarações periódicas",
@@ -1463,6 +1487,10 @@ TABLE_META: dict[str, TableMeta] = {
         "Mapping between the coded keys used in the dataset's columns and their meaning.",
         "Correspondencia entre las claves codificadas de las columnas del conjunto y su "
         "significado.",
+        unique_key=["id_tabela", "nome_coluna", "chave"],
+        # Never populated: no dictionary key in this dataset changes meaning over
+        # time, so the column exists for schema conformity only.
+        ignore_null_proportion=["cobertura_temporal"],
     ),
 }
 
