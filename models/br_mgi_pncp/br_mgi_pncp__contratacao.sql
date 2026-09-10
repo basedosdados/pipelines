@@ -1,6 +1,6 @@
 {{
     config(
-        schema="br_pncp",
+        schema="br_mgi_pncp",
         alias="contratacao",
         materialized="incremental",
         incremental_strategy="insert_overwrite",
@@ -56,7 +56,7 @@ select
     safe_cast(valor_total_estimado as float64) valor_total_estimado,
     safe_cast(valor_total_homologado as float64) valor_total_homologado,
     safe_cast(link_sistema_origem as string) link_sistema_origem
-from {{ set_datalake_project("br_pncp_staging.contratacao") }} as t
+from {{ set_datalake_project("br_mgi_pncp_staging.contratacao") }} as t
 {% if is_incremental() and var("pncp_years", "") %}
     where safe_cast(ano as int64) in ({{ var("pncp_years") }})
 {% endif %}
