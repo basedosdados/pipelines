@@ -12425,7 +12425,10 @@ models:
             - chave
             - cobertura_temporal
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          # 0.90, não 0.95 como nas tabelas de 2022: `chave` está em 94,23%
+          # (222 nulos, todos nas tabelas de 1970-2010). Sobe para 0.95 quando
+          # o dicionário histórico for reconstruído a partir da fonte.
+          at_least: 0.9
     columns:
       - name: id_tabela
         description: ID Tabela
@@ -12447,6 +12450,11 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, sigla_uf, controle]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+          # Preenchida só para domicílios com a condição correspondente no
+          # questionário; vazia no restante por desenho da coleta.
+          ignore_values: [d0290]
     columns:
       - name: ano
         description: >
@@ -12639,6 +12647,78 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, sigla_uf, controle, numero_ordem]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+          # Variáveis condicionais do questionário: perguntadas apenas a quem se
+          # aplica (migrantes, indígenas e quilombolas, ocupados, quem estuda,
+          # quem tem renda), logo vazias na maioria das linhas por desenho.
+          ignore_values:
+            - p0230
+            - p0240
+            - p0250
+            - p0260
+            - p0270
+            - p0280
+            - p0290
+            - p0320
+            - p0330
+            - p0340
+            - p0350
+            - p0360
+            - p0370
+            - p0380
+            - p0390
+            - p0400
+            - p0410
+            - p0490
+            - p0530
+            - p0540
+            - p0550
+            - p0560
+            - p0570
+            - p0600
+            - p0610
+            - p0640
+            - p0660
+            - p0670
+            - p0680
+            - p0690
+            - p0700
+            - p0710
+            - p0720
+            - p0730
+            - p0740
+            - p0800
+            - p0810
+            - p0840
+            - p0850
+            - p0860
+            - p0870
+            - p0880
+            - p0890
+            - p0900
+            - p0930
+            - p0940
+            - p0950
+            - p0960
+            - p0990
+            - p1000
+            - p1010
+            - p1020
+            - p1050
+            - p1060
+            - p1070
+            - p1080
+            - p1090
+            - p1100
+            - p1110
+            - p1120
+            - p1130
+            - p1160
+            - p1170
+            - p1180
+            - p1190
+            - p1220
     columns:
       - name: ano
         description: >
@@ -13187,6 +13267,11 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, sigla_uf, controle, numero_ordem]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+          # Preenchidas só para famílias com a condição correspondente no
+          # questionário; vazias no restante por desenho da coleta.
+          ignore_values: [f0220, f0270]
     columns:
       - name: ano
         description: >
@@ -13289,6 +13374,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, sigla_uf, controle, numero_ordem]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
     columns:
       - name: ano
         description: >
