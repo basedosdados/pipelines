@@ -219,6 +219,9 @@ models:
     us_census_cbp:
       +materialized: table
       +schema: us_census_cbp
+    us_census_cog:
+      +materialized: table
+      +schema: us_census_cog
     us_census_cps:
       +materialized: table
       +schema: us_census_cps
