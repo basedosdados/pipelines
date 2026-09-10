@@ -1,9 +1,12 @@
 {
-  "saved_at": "2026-09-10T04:00:00",
+  "saved_at": "2026-09-10T14:13:08",
   "dataset_slug": "tas_elections",
   "gcp_dataset_id": "au_tas_tec_elections",
-  "current_step": 2,
-  "completed_steps": [1],
+  "current_step": 3,
+  "completed_steps": [
+    1,
+    2
+  ],
   "env": "staging",
   "notes": [
     "venv: ~/.venvs/bd-pipelines-tas; MCP calls use ~/.venvs/bd-pipelines/bin/python (has fastmcp)",
@@ -35,7 +38,36 @@
     "conclusion": "ABS state_electoral_division for TAS is an INTERSECTION of the two chambers (e.g. 'Bass (Launceston)') and matches NEITHER chamber 1:1. TAS House of Assembly divisions ARE coterminous with the Commonwealth electoral divisions, so the correct directory is commonwealth_electoral_division_2021 (ids 601-605).",
     "sed_2011_vs_2016": "byte-identical for TAS (25 rows, same ids and names)",
     "sed_2021": "differs: Denison->Clark, Apsley removed, Prosser added, ids shifted",
-    "ced_tas": {"601": "Bass", "602": "Braddon", "603": "Denison(2011,2016) / Clark(2021)", "604": "Franklin", "605": "Lyons"},
+    "ced_tas": {
+      "601": "Bass",
+      "602": "Braddon",
+      "603": "Denison(2011,2016) / Clark(2021)",
+      "604": "Franklin",
+      "605": "Lyons"
+    },
     "legislative_council": "15 single-member divisions; NO directory exists that matches them 1:1 -> no FK, district_name only"
+  },
+  "licence": {
+    "verdict": "CC BY 4.0 \u2014 confirmed, covers the results files",
+    "url": "https://www.tec.tas.gov.au/info/Copyright.html",
+    "quote": "Unless otherwise noted, the TEC has applied the Creative Commons Attribution 4.0 International Licence to all material on this website with the exception of: TEC logos, and content supplied by a third party.",
+    "attribution_required": "\u00a9 Tasmanian Electoral Commission",
+    "how_found": "tec.tas.gov.au/copyright 404s. The link lives in /navigation/footer.html, a w3-include-html client-side include present on every page including the results pages, so it is invisible to a plain crawl of the rendered HTML.",
+    "not_covered": "disclosures.tec.tas.gov.au is a separate host whose only legal page is a privacy statement with no licence grant. Static register mirrors under www.tec.tas.gov.au/disclosure-and-funding/ ARE on the covered host.",
+    "ckan": "No CKAN record anywhere points at tec.tas.gov.au (data.gov.au count 0).",
+    "license_id_to_use": "cc_40"
+  },
+  "source_shape": {
+    "w3_include_trap": "Result tables are injected client-side via w3-include-html; the payloads are sibling fragments fp-<div>-m.html and dist-<div>-m.html. A scrape of the rendered division page sees an empty shell and wrongly concludes the archived results were deleted.",
+    "path_moved": {
+      "2021": "StateElection2021/results/assets/",
+      "2024": "elections-2024/results/pdf/",
+      "2025": "elections-2025/results/downloads/"
+    },
+    "hoa_count_export_xlsx": "2024 and 2025 only; 2021/2018/2014 are PDF",
+    "hoa_inline_era": "2018 and earlier carry result tables inline, not in fragments",
+    "hoa_2014": "PDF only (scrutiny event sheet + first prefs by polling place)",
+    "denison_clark": "TEC Divisions.html: 'Following amendments to the Constitution Act, which gained Royal Assent on 28 September 2018, House of Assembly electoral names and boundaries were updated to match changes to Federal divisions' and 'Prior to 2018, the Division of Clark was known as the Division of Denison'. Same page: 'These divisions have the same boundaries as the five Commonwealth House of Representatives divisions for Tasmania.'",
+    "disclosure_register": "Populated from 1 Jul 2025: static HTML fragments under disclosure-and-funding/registers-and-reports/ on the CC-BY host. The Power Apps portal renders 'There are no records to display' as a template placeholder \u2014 not evidence of emptiness."
   }
 }
