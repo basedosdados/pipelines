@@ -1,12 +1,12 @@
-"""One-shot cleaning for the br_pncp onboarding.
+"""One-shot cleaning for the br_mgi_pncp onboarding.
 
-Front end for ``pipelines.datasets.br_pncp.utils.clean_table``, which is the
+Front end for ``pipelines.datasets.br_mgi_pncp.utils.clean_table``, which is the
 canonical transform shared with the recurring pipeline. ``replace=True`` here:
 the backfill produces the complete table, so the output tree is rebuilt from
 scratch rather than merged into.
 
 Usage:
-    uv run python models/br_pncp/code/clean.py [--tables ...]
+    uv run python models/br_mgi_pncp/code/clean.py [--tables ...]
 """
 
 from __future__ import annotations
@@ -19,11 +19,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from pipelines.datasets.br_pncp.constants import constants
-from pipelines.datasets.br_pncp.utils import DEDUP_KEYS, clean_table
+from pipelines.datasets.br_mgi_pncp.constants import constants
+from pipelines.datasets.br_mgi_pncp.utils import DEDUP_KEYS, clean_table
 
 DATA_DIR = Path(
-    os.environ.get("PNCP_DATA_DIR", Path.home() / "Downloads" / "br_pncp_data")
+    os.environ.get(
+        "PNCP_DATA_DIR", Path.home() / "Downloads" / "br_mgi_pncp_data"
+    )
 )
 
 
