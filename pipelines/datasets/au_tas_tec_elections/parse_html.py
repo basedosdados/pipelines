@@ -60,6 +60,22 @@ def to_float(text: str) -> float | None:
         return None
 
 
+SUBTOTAL = re.compile(r"^\s*(totals?\b|total ordinary|%\s*formal)", re.I)
+
+
+def is_subtotal(name: str) -> bool:
+    """Is this row/column a roll-up rather than a real voting centre?
+
+    Both the House of Assembly workbooks and the Legislative Council tables
+    interleave subtotals with the venues: a "Total Ordinary" line after the
+    election-day places, then the special-vote categories, then a grand "Total".
+    Summing everything without excluding them roughly doubles every candidate's
+    vote, and it does so consistently enough to look like a units problem rather
+    than a parsing one.
+    """
+    return bool(SUBTOTAL.match(name))
+
+
 def rows_of(table_html: str) -> list[list[tuple[str, str]]]:
     """Split a table into rows of ``(class_attr, cell_text)`` pairs."""
     out = []
@@ -285,6 +301,8 @@ def parse_lc_first_preferences(html: str) -> LcFirstPreferences:
         elif first.upper() == "TOTALS":
             label = "TOTALS"
         else:
+            continue
+        if label != "TOTALS" and is_subtotal(label):
             continue
         figures = [to_int(t) for c, t in cells if "figure" in c]
         n = len(res.candidates)

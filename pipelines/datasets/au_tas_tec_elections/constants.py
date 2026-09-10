@@ -84,13 +84,11 @@ class constants(Enum):
             "2025-07-19",
             "/house-of-assembly/elections-2025/",
         ),
-        "lc2017pembroke": (
-            "2017 Pembroke Legislative Council By-election",
-            "legislative_council",
-            "state_by_election",
-            "2017-11-04",
-            "/legislative-council/Previous_Elections/Pembroke2017/",
-        ),
+        # The 2017 Pembroke by-election is deliberately absent. Its results page
+        # survives but publishes only two provisional exclusion scenarios and the
+        # caveat that 394 postal votes were still outstanding — no final count was
+        # ever posted there. Including it would put a contest in the dataset with
+        # no result and no elected member.
         "lc2018": (
             "2018 Legislative Council Elections",
             "legislative_council",
@@ -169,9 +167,6 @@ class constants(Enum):
         "hoa2021": "house-of-assembly/StateElection2021/index.html",
         "hoa2024": "house-of-assembly/elections-2024/index.html",
         "hoa2025": "house-of-assembly/elections-2025/index.html",
-        "lc2017pembroke": (
-            "legislative-council/Previous_Elections/Pembroke2017/index.html"
-        ),
         "lc2018": (
             "legislative-council/LegislativeCouncilElections_2018/Results/"
             "LCElection18Results.html"

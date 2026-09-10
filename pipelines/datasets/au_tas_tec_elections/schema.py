@@ -888,6 +888,355 @@ def validate() -> None:
                 raise ValueError(
                     f"{table}.{c.name}: English datasets take the _id suffix"
                 )
+            if (
+                c.observations
+                and c.observations not in OBSERVATION_TRANSLATIONS
+            ):
+                raise ValueError(
+                    f"{table}.{c.name}: observation missing from "
+                    "OBSERVATION_TRANSLATIONS"
+                )
+
+
+# Every distinct `observations` note, with its English and Spanish rendering.
+# bulk_upsert_columns writes a bare `observations` key to Portuguese only, so
+# EN and ES have to be carried explicitly or the column ends up PT-only in the
+# backend. validate() fails on any note missing from this table.
+OBSERVATION_TRANSLATIONS: dict[str, tuple[str, str]] = {
+    "Coluna de particionamento. Vários eventos eleitorais podem "
+    "compartilhar o mesmo ano: em 2021 e em 2022 houve eleição da Casa de "
+    "Assembleia ou eleição suplementar no mesmo ano das eleições "
+    "periódicas do Conselho Legislativo.": (
+        "Partition column. Several electoral events can share the same "
+        "year: in 2021 and in 2022 there was a House of Assembly election "
+        "or a by-election in the same year as the periodic Legislative "
+        "Council elections.",
+        "Columna de particionamiento. Varios eventos electorales pueden "
+        "compartir el mismo año: en 2021 y en 2022 hubo una elección de la "
+        "Casa de la Asamblea o una elección suplementaria en el mismo año "
+        "que las elecciones periódicas del Consejo Legislativo.",
+    ),
+    "Chave da tabela. Assume valores como hoa2025, lc2024 e lc2022pembroke.": (
+        "Table key. Takes values such as hoa2025, lc2024 and lc2022pembroke.",
+        "Clave de la tabla. Toma valores como hoa2025, lc2024 y "
+        "lc2022pembroke.",
+    ),
+    "Assume os valores house_of_assembly e legislative_council. As duas "
+    "câmaras usam sistemas eleitorais diferentes e divisões geográficas "
+    "que se sobrepõem sem coincidir, por isso a coluna é definida por "
+    "disputa.": (
+        "Takes the values house_of_assembly and legislative_council. The "
+        "two chambers use different electoral systems and geographic "
+        "divisions that overlap without coinciding, so the column is "
+        "defined per contest.",
+        "Toma los valores house_of_assembly y legislative_council. Las dos "
+        "cámaras usan sistemas electorales diferentes y divisiones "
+        "geográficas que se superponen sin coincidir, por lo que la "
+        "columna se define por contienda.",
+    ),
+    "Assume os valores state_general, state_periodic e state_by_election. "
+    "As eleições do Conselho Legislativo são periódicas e escalonadas: "
+    "duas ou três divisões vão às urnas a cada ano, e não a câmara "
+    "inteira.": (
+        "Takes the values state_general, state_periodic and "
+        "state_by_election. Legislative Council elections are periodic and "
+        "staggered: two or three divisions go to the polls each year, and "
+        "not the whole chamber.",
+        "Toma los valores state_general, state_periodic y "
+        "state_by_election. Las elecciones del Consejo Legislativo son "
+        "periódicas y escalonadas: dos o tres divisiones acuden a las "
+        "urnas cada año, y no la cámara entera.",
+    ),
+    "A Casa de Assembleia passou de 25 para 35 cadeiras na eleição de "
+    "2024: as mesmas cinco divisões passaram a eleger 7 pessoas em vez de "
+    "5. É uma ruptura de série, não uma continuidade, e altera a quota de "
+    "Hare-Clark. O Conselho Legislativo elege uma pessoa por divisão.": (
+        "The House of Assembly went from 25 to 35 seats at the 2024 "
+        "election: the same five divisions began electing 7 people instead "
+        "of 5. This is a break in the series, not a continuity, and it "
+        "changes the Hare-Clark quota. The Legislative Council elects one "
+        "person per division.",
+        "La Casa de la Asamblea pasó de 25 a 35 escaños en la elección de "
+        "2024: las mismas cinco divisiones pasaron a elegir 7 personas en "
+        "lugar de 5. Es una ruptura de serie, no una continuidad, y altera "
+        "la cuota de Hare-Clark. El Consejo Legislativo elige una persona "
+        "por división.",
+    ),
+    "Chave estrangeira para a tabela election, presente em todas as "
+    "tabelas de resultados. Assume valores como hoa2025, lc2024 e "
+    "lc2022pembroke.": (
+        "Foreign key to the election table, present in every results "
+        "table. Takes values such as hoa2025, lc2024 and lc2022pembroke.",
+        "Clave foránea de la tabla election, presente en todas las tablas "
+        "de resultados. Toma valores como hoa2025, lc2024 y "
+        "lc2022pembroke.",
+    ),
+    "Concatenação de election_id e do slug da divisão, como em "
+    "hoa2025-bass. É único dentro do conjunto.": (
+        "Concatenation of election_id and the division slug, as in "
+        "hoa2025-bass. It is unique within the dataset.",
+        "Concatenación de election_id y del slug de la división, como en "
+        "hoa2025-bass. Es único dentro del conjunto.",
+    ),
+    "Assume o valor state. A coluna é definida por disputa, e não como "
+    "constante do conjunto, para que as eleições de governo local, também "
+    "administradas pela TEC e ainda não incluídas, possam ser "
+    "acrescentadas a estas mesmas tabelas sem reestruturá-las.": (
+        "Takes the value state. The column is defined per contest, and not "
+        "as a constant of the dataset, so that local government elections, "
+        "also administered by the TEC and not yet included, can be added "
+        "to these same tables without restructuring them.",
+        "Toma el valor state. La columna se define por contienda, y no "
+        "como constante del conjunto, para que las elecciones de gobierno "
+        "local, también administradas por la TEC y aún no incluidas, "
+        "puedan añadirse a estas mismas tablas sin reestructurarlas.",
+    ),
+    "Assume os valores house_of_assembly_division e "
+    "legislative_council_division.": (
+        "Takes the values house_of_assembly_division and "
+        "legislative_council_division.",
+        "Toma los valores house_of_assembly_division y "
+        "legislative_council_division.",
+    ),
+    "Assume os valores hare_clark e preferential. A Casa de Assembleia usa "
+    "Hare-Clark, o voto único transferível em divisões de múltiplas "
+    "cadeiras com rotação Robson; o Conselho Legislativo usa voto "
+    "preferencial em divisões de cadeira única.": (
+        "Takes the values hare_clark and preferential. The House of "
+        "Assembly uses Hare-Clark, the single transferable vote in multi- "
+        "member divisions with Robson Rotation; the Legislative Council "
+        "uses preferential voting in single-member divisions.",
+        "Toma los valores hare_clark y preferential. La Casa de la "
+        "Asamblea usa Hare-Clark, el voto único transferible en divisiones "
+        "plurinominales con rotación Robson; el Consejo Legislativo usa "
+        "voto preferencial en divisiones uninominales.",
+    ),
+    "Divisão da Casa de Assembleia ou divisão do Conselho Legislativo. "
+    "Denison é a mesma divisão que Clark: o nome mudou por emenda ao "
+    "Constitution Act sancionada em 28 de setembro de 2018, depois da "
+    "eleição de 2018 e antes da de 2021.": (
+        "House of Assembly division or Legislative Council division. "
+        "Denison is the same division as Clark: the name changed by an "
+        "amendment to the Constitution Act assented to on 28 September "
+        "2018, after the 2018 election and before the 2021 one.",
+        "División de la Casa de la Asamblea o división del Consejo "
+        "Legislativo. Denison es la misma división que Clark: el nombre "
+        "cambió por una enmienda al Constitution Act sancionada el 28 de "
+        "septiembre de 2018, después de la elección de 2018 y antes de la "
+        "de 2021.",
+    ),
+    "As cinco divisões da Casa de Assembleia coincidem com as cinco "
+    "divisões federais da Tasmânia, conforme a própria TEC: as divisões "
+    "estaduais têm as mesmas fronteiras das divisões federais da Câmara "
+    "dos Representantes. Denison, usada até 2018, corresponde a Clark. "
+    "Nulo em toda disputa do Conselho Legislativo, cujas 15 divisões não "
+    "têm correspondente federal.": (
+        "The five House of Assembly divisions coincide with Tasmania's "
+        "five federal divisions, according to the TEC itself: the state "
+        "divisions have the same boundaries as the federal House of "
+        "Representatives divisions. Denison, used until 2018, corresponds "
+        "to Clark. Null in every Legislative Council contest, whose 15 "
+        "divisions have no federal counterpart.",
+        "Las cinco divisiones de la Casa de la Asamblea coinciden con las "
+        "cinco divisiones federales de Tasmania, según la propia TEC: las "
+        "divisiones estatales tienen las mismas fronteras que las "
+        "divisiones federales de la Cámara de Representantes. Denison, "
+        "usada hasta 2018, corresponde a Clark. Nulo en toda contienda del "
+        "Consejo Legislativo, cuyas 15 divisiones no tienen "
+        "correspondiente federal.",
+    ),
+    "Nulo em todas as linhas. A camada state_electoral_division do ABS "
+    "para a Tasmânia não é a de nenhuma das duas câmaras, e sim a "
+    "interseção das duas, com 22 registros de nomes como Bass (Launceston) "
+    "e Clark (Elwick): o ABS precisa de uma camada sem sobreposição e a "
+    "Tasmânia tem dois sistemas que se sobrepõem. A coluna é mantida para "
+    "compatibilidade com os demais estados, onde ela é preenchida; aqui o "
+    "vínculo geográfico está em commonwealth_electoral_division_id.": (
+        "Null in every row. The ABS state_electoral_division layer for "
+        "Tasmania is neither chamber's, but rather the intersection of the "
+        "two, with 22 records named like Bass (Launceston) and Clark "
+        "(Elwick): the ABS needs a layer with no overlap and Tasmania has "
+        "two systems that overlap. The column is kept for compatibility "
+        "with the other states, where it is populated; here the geographic "
+        "link is in commonwealth_electoral_division_id.",
+        "Nulo en todas las filas. La capa state_electoral_division del ABS "
+        "para Tasmania no es la de ninguna de las dos cámaras, sino la "
+        "intersección de ambas, con 22 registros de nombres como Bass "
+        "(Launceston) y Clark (Elwick): el ABS necesita una capa sin "
+        "superposición y Tasmania tiene dos sistemas que se superponen. La "
+        "columna se mantiene por compatibilidad con los demás estados, "
+        "donde sí se rellena; aquí el vínculo geográfico está en "
+        "commonwealth_electoral_division_id.",
+    ),
+    'Formato "SOBRENOME, Prenomes". A Casa de Assembleia usa rotação '
+    "Robson, que embaralha a ordem das candidaturas em cada cédula, de "
+    "modo que não existe posição na cédula a publicar.": (
+        'Format "SURNAME, Given names". The House of Assembly uses '
+        "Robson Rotation, which shuffles the order of the candidates on "
+        "each ballot paper, so there is no ballot paper position to "
+        "publish.",
+        'Formato "APELLIDO, Nombres". La Casa de la Asamblea usa la '
+        "rotación Robson, que baraja el orden de las candidaturas en cada "
+        "boleta, de modo que no existe posición en la boleta que publicar.",
+    ),
+    "Reproduz o rótulo publicado pela TEC, incluindo Independent para "
+    "candidaturas sem partido.": (
+        "Reproduces the label published by the TEC, including Independent "
+        "for candidacies with no party.",
+        "Reproduce la etiqueta publicada por la TEC, incluido Independent "
+        "para candidaturas sin partido.",
+    ),
+    "Assume os valores yes e no.": (
+        "Takes the values yes and no.",
+        "Toma los valores yes y no.",
+    ),
+    "Número de ordem; aritmética sobre ele não tem sentido. Vai de 1 até o "
+    "número de cadeiras da divisão e é nulo para quem não foi eleito.": (
+        "Sequence number; arithmetic on it is meaningless. It runs from 1 "
+        "to the number of seats of the division and is null for those who "
+        "were not elected.",
+        "Número de orden; la aritmética sobre él no tiene sentido. Va de 1 "
+        "hasta el número de escaños de la división y es nulo para quienes "
+        "no fueron elegidos.",
+    ),
+    "Assume os valores elected, excluded e continuing. Continuing marca "
+    "quem permanecia na contagem no encerramento sem ter atingido a quota, "
+    "situação normal para a última cadeira de Hare-Clark.": (
+        "Takes the values elected, excluded and continuing. Continuing "
+        "marks those who were still in the count at its close without "
+        "having reached the quota, a normal situation for the last Hare- "
+        "Clark seat.",
+        "Toma los valores elected, excluded y continuing. Continuing marca "
+        "a quienes permanecían en el escrutinio al cierre sin haber "
+        "alcanzado la cuota, situación normal para el último escaño de "
+        "Hare-Clark.",
+    ),
+    "Quota de Droop, igual à parte inteira dos votos válidos divididos "
+    "pelo número de cadeiras mais um, somada de um. No Conselho "
+    "Legislativo, com uma cadeira, equivale à maioria absoluta.": (
+        "Droop quota, equal to the integer part of the formal votes "
+        "divided by the number of seats plus one, plus one. In the "
+        "Legislative Council, with one seat, it is equivalent to an "
+        "absolute majority.",
+        "Cuota de Droop, igual a la parte entera de los votos válidos "
+        "divididos por el número de escaños más uno, sumada de uno. En el "
+        "Consejo Legislativo, con un escaño, equivale a la mayoría "
+        "absoluta.",
+    ),
+    "Assume os valores first_preference e final_distribution. As duas não "
+    "são recortes redundantes do mesmo número: a primeira traz os votos de "
+    "primeira preferência e a segunda os votos após a distribuição "
+    "completa de preferências, portanto filtre sempre por count_type.": (
+        "Takes the values first_preference and final_distribution. The two "
+        "are not redundant slices of the same number: the first carries "
+        "the first preference votes and the second the votes after the "
+        "full distribution of preferences, so always filter by count_type.",
+        "Toma los valores first_preference y final_distribution. Las dos "
+        "no son recortes redundantes del mismo número: la primera trae los "
+        "votos de primera preferencia y la segunda los votos tras la "
+        "distribución completa de preferencias, por lo tanto filtre "
+        "siempre por count_type.",
+    ),
+    "Votos divididos pela quota da disputa. Publicado apenas para a Casa "
+    "de Assembleia, cujo sistema Hare-Clark elege quem atinge a quota; "
+    "nulo no Conselho Legislativo.": (
+        "Votes divided by the quota of the contest. Published only for the "
+        "House of Assembly, whose Hare-Clark system elects those who reach "
+        "the quota; null in the Legislative Council.",
+        "Votos divididos por la cuota de la contienda. Publicado solo para "
+        "la Casa de la Asamblea, cuyo sistema Hare-Clark elige a quienes "
+        "alcanzan la cuota; nulo en el Consejo Legislativo.",
+    ),
+    "Assume os valores elected, excluded e continuing. Preenchido apenas "
+    "nas linhas de count_type igual a final_distribution.": (
+        "Takes the values elected, excluded and continuing. Populated only "
+        "in the rows whose count_type equals final_distribution.",
+        "Toma los valores elected, excluded y continuing. Rellenado solo "
+        "en las filas cuyo count_type es igual a final_distribution.",
+    ),
+    "Inclui, além dos locais de votação do dia da eleição, as categorias "
+    "de voto especial publicadas pela TEC na mesma tabela, como voto "
+    "postal, voto antecipado e voto fora da divisão.": (
+        "Includes, besides the election day voting centres, the special "
+        "vote categories published by the TEC in the same table, such as "
+        "postal votes, early votes and out of division votes.",
+        "Incluye, además de los centros de votación del día de la "
+        "elección, las categorías de voto especial publicadas por la TEC "
+        "en la misma tabla, como el voto postal, el voto anticipado y el "
+        "voto fuera de la división.",
+    ),
+    "Total do local de votação, repetido em cada linha de pessoa candidata.": (
+        "Total for the voting centre, repeated on each candidate row.",
+        "Total del centro de votación, repetido en cada fila de persona "
+        "candidata.",
+    ),
+    "Número de ordem; aritmética sobre ele não tem sentido, por isso é "
+    "publicado como texto. A folha de escrutínio da Casa de Assembleia "
+    "agrupa contagens consecutivas de exclusão em intervalos, publicados "
+    "como 4 to 6.": (
+        "Sequence number; arithmetic on it is meaningless, which is why it "
+        "is published as text. The House of Assembly scrutiny sheet groups "
+        "consecutive exclusion counts into ranges, published as 4 to 6.",
+        "Número de orden; la aritmética sobre él no tiene sentido, por eso "
+        "se publica como texto. La hoja de escrutinio de la Casa de la "
+        "Asamblea agrupa escrutinios consecutivos de exclusión en "
+        "intervalos, publicados como 4 to 6.",
+    ),
+    "Negativo na linha da pessoa candidata excluída ou eleita cujos votos "
+    "estão sendo distribuídos.": (
+        "Negative on the row of the excluded or elected candidate whose "
+        "votes are being distributed.",
+        "Negativo en la fila de la persona candidata excluida o elegida "
+        "cuyos votos se están distribuyendo.",
+    ),
+    "Total da contagem, repetido em cada linha de pessoa candidata.": (
+        "Total for the count, repeated on each candidate row.",
+        "Total del escrutinio, repetido en cada fila de persona candidata.",
+    ),
+    "Texto livre da fonte, como PETERSEN excluded ou GLADE-WRIGHT elected. "
+    "Total da contagem, repetido em cada linha de pessoa candidata.": (
+        "Free text from the source, such as PETERSEN excluded or GLADE- "
+        "WRIGHT elected. Total for the count, repeated on each candidate "
+        "row.",
+        "Texto libre de la fuente, como PETERSEN excluded o GLADE-WRIGHT "
+        "elected. Total del escrutinio, repetido en cada fila de persona "
+        "candidata.",
+    ),
+    "Código postal, não uma quantidade; publicado como texto.": (
+        "Postcode, not a quantity; published as text.",
+        "Código postal, no una cantidad; publicado como texto.",
+    ),
+    "Constante em TAS. O vínculo com o diretório de estados é real, mas o "
+    "backend só aceita chave estrangeira para a coluna marcada como chave "
+    "primária do diretório, e a chave de diretorios_au.state é id_state, "
+    "não abbreviation.": (
+        "Constant at TAS. The link to the state directory is real, but the "
+        "backend only accepts a foreign key to the column marked as the "
+        "directory's primary key, and the key of diretorios_au.state is "
+        "id_state, not abbreviation.",
+        "Constante en TAS. El vínculo con el directorio de estados es "
+        "real, pero el backend solo acepta clave foránea a la columna "
+        "marcada como clave primaria del directorio, y la clave de "
+        "diretorios_au.state es id_state, no abbreviation.",
+    ),
+    "Assume os valores publicados pela TEC, entre eles Full, Assistance e "
+    "None.": (
+        "Takes the values published by the TEC, among them Full, "
+        "Assistance and None.",
+        "Toma los valores publicados por la TEC, entre ellos Full, "
+        "Assistance y None.",
+    ),
+    "O grão da tabela é uma linha por evento eleitoral, local de votação e "
+    "divisão atendida: um local que atende duas divisões aparece duas "
+    "vezes.": (
+        "The grain of the table is one row per electoral event, voting "
+        "centre and division served: a centre serving two divisions "
+        "appears twice.",
+        "El grano de la tabla es una fila por evento electoral, centro de "
+        "votación y división atendida: un centro que atiende dos "
+        "divisiones aparece dos veces.",
+    ),
+}
 
 
 validate()

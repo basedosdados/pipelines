@@ -24,6 +24,8 @@ from dataclasses import dataclass, field
 
 import openpyxl
 
+from pipelines.datasets.au_tas_tec_elections import parse_html
+
 TOTALS_COL = re.compile(r"\bTotals?$", re.I)
 
 
@@ -223,14 +225,27 @@ def parse_polling_place_results(path) -> dict[str, PollingPlaceResult]:
             if header_idx is None:
                 continue
             header = rows[header_idx]
-            places = [_cell(c) for c in header[1:] if _cell(c)]
+            all_places = [_cell(c) for c in header[1:] if _cell(c)]
+            # "Total Ordinary Votes" and the trailing "Total" are roll-ups sitting
+            # among the venues, not venues. Their indices are dropped from every
+            # row so the remaining columns stay aligned.
+            keep = [
+                i
+                for i, p in enumerate(all_places)
+                if not parse_html.is_subtotal(p)
+            ]
+            places = [all_places[i] for i in keep]
             res = PollingPlaceResult(division=sheet, places=places)
             pending: list[str] = []
             for row in rows[header_idx + 1 :]:
                 label = _cell(row[0] if row else "")
                 if not label:
                     continue
-                values = [_num(c) for c in row[1 : 1 + len(places)]]
+                raw_values = [_num(c) for c in row[1 : 1 + len(all_places)]]
+                values = [
+                    raw_values[i] if i < len(raw_values) else None
+                    for i in keep
+                ]
                 low = label.lower()
                 if low.startswith("total formal"):
                     res.formal = values
