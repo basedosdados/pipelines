@@ -74,6 +74,15 @@ SCOPED = {"observation"}
 
 
 def block(text: str, indent: int) -> str:
+    """Wrap text to fit a YAML block scalar at a given indent.
+
+    Args:
+        text: Text to wrap.
+        indent: Number of leading spaces per line.
+
+    Returns:
+        The wrapped, indented text.
+    """
     pad = " " * indent
     words, lines, cur = text.split(), [], ""
     for w in words:
@@ -87,6 +96,7 @@ def block(text: str, indent: int) -> str:
 
 
 def main() -> None:
+    """Generate ``schema.yml`` from the architecture CSVs."""
     out = ["---", "version: 2", "models:"]
     for table in (
         "dicionario",
@@ -127,7 +137,25 @@ def main() -> None:
             if c["name"] in NOT_NULL.get(table, []):
                 tests.append("not_null")
             if tests:
-                out.append(f"        tests: [{', '.join(tests)}]")
+                if scoped:
+                    # An unscoped not_null on a 3.19bn-row table full-scans that
+                    # column on every CI run and every table-approve. Scope it to
+                    # the most recent year: nullness is guaranteed at write time
+                    # by clean.py and re-checked by the per-year row-count gate,
+                    # and the recurring pipeline only ever rewrites recent
+                    # partitions, so that is where a regression would appear.
+                    # Safe here because the newest partition is a real calendar
+                    # year holding 20.9M rows, not a stub -- see
+                    # `reference_most_recent_year_scope_assumes_a_calendar`.
+                    out.append("        tests:")
+                    for t in tests:
+                        out.append(f"          - {t}:")
+                        out.append("              config:")
+                        out.append(
+                            "                where: __most_recent_year_en__"
+                        )
+                else:
+                    out.append(f"        tests: [{', '.join(tests)}]")
     (ROOT / "schema.yml").write_text("\n".join(out) + "\n", encoding="utf-8")
     print(f"wrote {ROOT / 'schema.yml'}")
 
