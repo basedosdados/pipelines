@@ -1397,8 +1397,17 @@ def build_session() -> object:
     )
 
 
-def request_with_retry(url: str, session: object, **kwargs) -> Any:
+def request_with_retry(
+    url: str, session: object, consume: bool = False, **kwargs
+) -> Any:
     """GET ``url`` with a bounded retry, raising rather than stalling.
+
+    With ``consume=True`` the body is read inside the retry and returned as
+    ``bytes``. That is not a convenience: under ``stream=True`` the response
+    returns as soon as the headers land, so a stall part-way through the body —
+    the very failure the streaming timeout exists to catch — is raised by
+    ``iter_content`` rather than by ``session.get``. Reading it outside the loop
+    would leave exactly that case unretried.
 
     The budget is deliberately small and the failure loud. The previous design
     nested a five-deep ``urllib3`` retry inside a three-deep Prefect task retry
@@ -1423,14 +1432,20 @@ def request_with_retry(url: str, session: object, **kwargs) -> Any:
             last = error
         else:
             status = response.status_code
-            if status < 400:
-                return response
             if 400 <= status < 500 and status != 429:
                 raise RuntimeError(
                     f"HTTP {status} for {url} — the source answered, so the "
                     "document is renamed or withdrawn rather than unreachable"
                 )
-            last = RuntimeError(f"HTTP {status} for {url}")
+            if status >= 400:
+                last = RuntimeError(f"HTTP {status} for {url}")
+            elif not consume:
+                return response
+            else:
+                try:
+                    return b"".join(response.iter_content())
+                except Exception as error:
+                    last = error
 
         if attempt < attempts:
             delay = backoff * attempt
@@ -1574,13 +1589,13 @@ def download_sources(
         # That is the intended rule: bound the stall, not the size.
         # Chunks are already decompressed, so the Brotli/gzip trap that needs
         # ``decode_content`` on a raw ``requests`` stream cannot arise here.
-        response = request_with_retry(
+        body = request_with_retry(
             url,
             session,
+            consume=True,
             headers={"Referer": resource_page_url(entry["slug"])},
             stream=True,
         )
-        body = b"".join(response.iter_content())  # type: ignore[union-attr]
 
         # A WAF challenge or an error page arrives with status 200 and would
         # otherwise be written out as a .xlsx, to fail much later somewhere
