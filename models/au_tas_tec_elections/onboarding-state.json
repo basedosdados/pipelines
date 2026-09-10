@@ -1,11 +1,17 @@
 {
-  "saved_at": "2026-09-10T14:13:08",
+  "saved_at": "2026-09-10T14:57:18",
   "dataset_slug": "tas_elections",
   "gcp_dataset_id": "au_tas_tec_elections",
-  "current_step": 3,
+  "current_step": 9,
   "completed_steps": [
     1,
-    2
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
   ],
   "env": "staging",
   "notes": [
@@ -69,5 +75,38 @@
     "hoa_2014": "PDF only (scrutiny event sheet + first prefs by polling place)",
     "denison_clark": "TEC Divisions.html: 'Following amendments to the Constitution Act, which gained Royal Assent on 28 September 2018, House of Assembly electoral names and boundaries were updated to match changes to Federal divisions' and 'Prior to 2018, the Division of Clark was known as the Division of Denison'. Same page: 'These divisions have the same boundaries as the five Commonwealth House of Representatives divisions for Tasmania.'",
     "disclosure_register": "Populated from 1 Jul 2025: static HTML fragments under disclosure-and-funding/registers-and-reports/ on the CC-BY host. The Power Apps portal renders 'There are no records to display' as a template placeholder \u2014 not evidence of emptiness."
+  },
+  "row_counts": {
+    "election": 14,
+    "candidate": 666,
+    "enrolment_turnout": 45,
+    "result_district": 1202,
+    "result_voting_centre": 35811,
+    "distribution_of_preferences": 12036,
+    "voting_centre": 853,
+    "dicionario": 50,
+    "_total": 50677
+  },
+  "validation": {
+    "dbt": "40/40 tests pass (dbt run 8/8, then dbt test)",
+    "seat_allocation": "House of Assembly 25/25/35/35 seats for 2018/2021/2024/2025 \u2014 matches the TEC's documented 25 to 35 expansion at 2024",
+    "lc_winners": "25 of 25 Legislative Council contests reproduce the elected member named on the TEC's own LCHistory summary pages",
+    "polling_place_crossfoot": "552 candidate polling-place sums equal the division first-preference total, 0 disagree",
+    "formal_votes": "32 contests where formal votes equal the sum of first preferences, 0 disagree"
+  },
+  "known_gaps": {
+    "hoa_2014": "excluded \u2014 scrutiny sheets and polling-place first preferences are PDF only",
+    "hoa_dop_pre_2024": "no distribution_of_preferences for 2018 or 2021; the count export is PDF until 2024",
+    "lc2021_polling_places": "Derwent, Mersey and Windermere 2021 publish a distribution but no first-preference-by-polling-place table",
+    "lc2017pembroke": "excluded \u2014 the page publishes only two provisional exclusion scenarios with 394 postal votes outstanding; no final count was ever posted",
+    "by_elections_in_periodic_events": "Huon 2022 and Elwick 2024 were by-elections held with the periodic elections; election_type records the parent event as state_periodic",
+    "sitting_member_flag": "the source marks sitting members with a bullet (class 'sitting' in the 2018 markup); parsed but not published as a column"
+  },
+  "source_traps": {
+    "w3_include": "result tables are injected client-side; the payloads are sibling fragments fp-<div>-m.html and dist-<div>-m.html",
+    "subtotal_columns": "both the XLSX and the HTML interleave 'Total Ordinary' and 'Total' roll-ups among the venues; summing them roughly doubles every candidate's vote",
+    "missing_dist_is_data": "a 404 on dist-<div>-m.html means the winner took an absolute majority on first preferences, not a scrape failure",
+    "dead_links": "3 stale document links live on the 2018 results pages (PPs/Braddon.xlsx, Denison.xlsx, Lyons.xlsx) \u2014 recorded, not silently skipped",
+    "url_spaces": "count export filenames contain spaces and a per-division count number; they must be percent-encoded and never constructed"
   }
 }
