@@ -292,7 +292,8 @@ OBSERVATIONS = {
     ),
     "2022 for the current release; ABS re-bases the projections every few years": (
         "2022 na publicação atual; o ABS reajusta a base das projeções a cada alguns anos",
-        "2022 en la publicación actual; el ABS rebasa las proyecciones cada algunos años",
+        "2022 en la publicación actual; el ABS cambia la base de las "
+        "proyecciones cada pocos años",
     ),
     (
         "ABS series 1(A) high, 29(B) medium and 45(C) low, which differ in their "

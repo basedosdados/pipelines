@@ -56,6 +56,11 @@ FKS = {
 
 # Columns legitimately sparse by construction; mirrored by the schema.yml
 # `ignore_values` lists. Kept here so the two cannot drift apart unnoticed.
+# The only LGA codes allowed to miss the ASGS 2021 directory. Kept identical to
+# the `ignore_values` list in schema.yml so a fourth restated code fails here,
+# before the upload, rather than in the dbt test after it.
+LGA_IGNORE = {"24700", "71500", "71700"}
+
 SPARSE = {
     "regional_sa2": ["population_density"],
     "regional_lga": ["population_density"],
@@ -106,7 +111,9 @@ def main(out_dir: str, dir_ids: str = "/tmp") -> int:
                 f"    FK {col} -> {dirname}: {len(got)} distinct, "
                 f"{len(missing)} unmatched {missing[:5]}"
             )
-            if missing and not (table == "regional_lga" and col == "lga_id"):
+            if table == "regional_lga" and col == "lga_id":
+                missing = [m for m in missing if m not in LGA_IGNORE]
+            if missing:
                 failures.append(f"{table}.{col}: unmatched {missing[:5]}")
 
         nn = (df.notna().mean() * 100).round(2)

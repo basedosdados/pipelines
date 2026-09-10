@@ -569,6 +569,13 @@ def main() -> None:
         print(
             f"  columns: created={res['created']} updated={res['updated']} errors={res['errors']}"
         )
+        # Fail here rather than a few lines down: an unupserted column makes the
+        # observation-level link raise a bare KeyError on a name the backend
+        # does not have, after the table is already partly registered.
+        if res["errors"]:
+            raise RuntimeError(
+                f"{table}: column upsert errors {res['errors']}"
+            )
 
         # Link each identifying column to its observation level, and re-assert
         # is_partition in the same call: update_column's booleans default to
