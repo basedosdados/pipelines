@@ -46,6 +46,9 @@ models:
     au_abs_national_accounts:
       +materialized: table
       +schema: au_abs_national_accounts
+    au_abs_household_income_wealth:
+      +materialized: table
+      +schema: au_abs_household_income_wealth
     au_abs_population:
       +materialized: table
       +schema: au_abs_population

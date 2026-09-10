@@ -47,6 +47,11 @@ BATCH = 6
 
 
 def expected_rows() -> dict[int, int]:
+    """Expected row count per year, from the independent pre-build count.
+
+    Returns:
+        Mapping of year to the number of rows that year's source file holds.
+    """
     with open(EXPECTED_CSV, encoding="utf-8") as fh:
         return {
             int(r["year"]): int(r["total_rows"]) for r in csv.DictReader(fh)
@@ -54,10 +59,27 @@ def expected_rows() -> dict[int, int]:
 
 
 def parquet_path(year: int) -> Path:
+    """Output path for one year's partition.
+
+    Args:
+        year: Calendar year.
+
+    Returns:
+        Path to that year's ``data.parquet``.
+    """
     return OUTPUT / "observation" / f"year={year}" / "data.parquet"
 
 
 def already_done(year: int, expect: int) -> bool:
+    """Whether a year's partition exists with the expected number of rows.
+
+    Args:
+        year: Calendar year.
+        expect: Expected row count for that year.
+
+    Returns:
+        True when the partition can be skipped on a resume.
+    """
     p = parquet_path(year)
     if not p.exists():
         return False
@@ -130,6 +152,7 @@ def download(year: int, attempts: int = 4) -> Path:
 
 
 def main() -> None:
+    """Download, clean and write the requested years."""
     ap = argparse.ArgumentParser()
     ap.add_argument("--years", help="comma-separated list")
     ap.add_argument("--from", dest="start", type=int, default=1763)
@@ -137,11 +160,20 @@ def main() -> None:
     args = ap.parse_args()
 
     expect = expected_rows()
-    years = (
-        [int(y) for y in args.years.split(",")]
-        if args.years
-        else [y for y in range(args.start, args.end + 1) if y in expect]
-    )
+    if args.years:
+        years = [int(y) for y in args.years.split(",")]
+        # An unknown year would die later on `expect[y]`, and a duplicate would
+        # start two downloads sharing one .part and one output path -- the
+        # second racing the first year's archive deletion. Reject both up front.
+        unknown = sorted(set(years) - expect.keys())
+        if unknown:
+            ap.error(
+                f"no expected row count for {unknown}; not in year_row_counts.csv"
+            )
+        if len(years) != len(set(years)):
+            ap.error("--years contains duplicates")
+    else:
+        years = [y for y in range(args.start, args.end + 1) if y in expect]
 
     t0 = time.time()
     written = skipped = 0
