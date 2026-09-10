@@ -21,7 +21,9 @@ from datetime import date
 from pathlib import Path
 
 DATA = Path(
-    os.environ.get("GHCN_DATA_DIR", os.path.expanduser("~/Downloads/world_noaa_ghcn_data"))
+    os.environ.get(
+        "GHCN_DATA_DIR", os.path.expanduser("~/Downloads/world_noaa_ghcn_data")
+    )
 )
 INPUT = DATA / "input"
 BUNDLES = DATA / "auxiliary_files"
