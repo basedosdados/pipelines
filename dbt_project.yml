@@ -207,6 +207,9 @@ models:
     au_abs_labour_force:
       +materialized: table
       +schema: au_abs_labour_force
+    au_abs_migration:
+      +materialized: table
+      +schema: au_abs_migration
     us_bls_qcew:
       +materialized: table
       +schema: us_bls_qcew
@@ -675,6 +678,9 @@ models:
     world_iati_activities:
       +materialized: table
       +schema: world_iati_activities
+    world_noaa_ghcn:
+      +materialized: table
+      +schema: world_noaa_ghcn
     world_iea_pirls:
       +materialized: table
       +schema: world_iea_pirls
