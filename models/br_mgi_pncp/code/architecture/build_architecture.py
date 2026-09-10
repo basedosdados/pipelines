@@ -1,4 +1,4 @@
-"""Generate the br_pncp architecture CSVs.
+"""Generate the br_mgi_pncp architecture CSVs.
 
 The column specs live here rather than in the CSVs so that the trilingual
 descriptions, types and directory links stay in one reviewable place. Run this
