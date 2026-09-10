@@ -1,8 +1,8 @@
-"""Constants for the br_pncp recurring pipeline (Prefect 3).
+"""Constants for the br_mgi_pncp recurring pipeline (Prefect 3).
 
 Portal Nacional de Contratações Públicas — procurement across federal, state and
 municipal government, from the PNCP consulta REST API. See
-``models/br_pncp/CLAUDE.md`` for the API traps this configuration encodes.
+``models/br_mgi_pncp/CLAUDE.md`` for the API traps this configuration encodes.
 """
 
 from enum import Enum
@@ -14,15 +14,15 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 class constants(Enum):
-    """Constants for the br_pncp pipeline.
+    """Constants for the br_mgi_pncp pipeline.
 
     Lowercase class name follows the repo-wide convention for dataset constant
     enums. ``ARCHITECTURE_DIR`` points at the architecture CSVs under
-    ``models/br_pncp/code/``, which are the schema source of truth for both this
+    ``models/br_mgi_pncp/code/``, which are the schema source of truth for both this
     pipeline and the one-shot bootstrap.
     """
 
-    DATASET_ID = "br_pncp"
+    DATASET_ID = "br_mgi_pncp"
 
     BASE_URL = "https://pncp.gov.br/api/consulta/v1/"
     USER_AGENT = (
@@ -30,7 +30,7 @@ class constants(Enum):
     )
 
     ARCHITECTURE_DIR = (
-        _REPO_ROOT / "models" / "br_pncp" / "code" / "architecture"
+        _REPO_ROOT / "models" / "br_mgi_pncp" / "code" / "architecture"
     )
 
     # tamanhoPagina is floored at 10 everywhere, but its ceiling is PER
@@ -222,5 +222,5 @@ class constants(Enum):
     # is never fetched, and deduplication cannot recover what was never
     # downloaded — the run still reports success. After any outage longer than
     # this, trigger a catch-up run with a wider `lookback_days` before trusting
-    # the schedule again. See models/br_pncp/CLAUDE.md.
+    # the schedule again. See models/br_mgi_pncp/CLAUDE.md.
     LOOKBACK_DAYS = 10
