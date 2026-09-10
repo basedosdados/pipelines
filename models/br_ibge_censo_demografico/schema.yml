@@ -13269,9 +13269,20 @@ models:
           combination_of_columns: [ano, sigla_uf, controle, numero_ordem]
       - not_null_proportion_multiple_columns:
           at_least: 0.95
-          # Preenchidas só para famílias com a condição correspondente no
-          # questionário; vazias no restante por desenho da coleta.
-          ignore_values: [f0220, f0270]
+          # Bloco do responsável pela família única ou convivente principal:
+          # vazio para as famílias conviventes secundárias, que são 5,84% do
+          # total — daí as seis primeiras ficarem em 94,16%. f0220 é o
+          # complemento exato (só as secundárias) e f0270 é a participação no
+          # rendimento familiar.
+          ignore_values:
+            - f0170
+            - f0180
+            - f0190
+            - f0200
+            - f0210
+            - f0230
+            - f0220
+            - f0270
     columns:
       - name: ano
         description: >
