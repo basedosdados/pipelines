@@ -1,17 +1,35 @@
 """
 Flows for br_bd_execucao_estadual — Prefect 3.
 
-State-government budget execution and procurement: Minas Gerais, Bahia, Pernambuco and
-São Paulo, ten published tables over 110.8M rows.
+State-government budget execution and procurement: Minas Gerais, Bahia, Pernambuco,
+São Paulo, Espírito Santo and Rio Grande do Sul -- ten published tables, and `despesa`
+alone carries 115.6M rows.
 
-TWO FLOWS, because the four sources refresh at very different speeds:
+THREE FLOWS, because the six sources refresh at very different speeds:
 
-* `br_bd_execucao_estadual_flow` — daily. MG, BA and PE are bulk file downloads, and
-  only the open exercise moves, so a daily pass re-fetches that year and rebuilds.
+* `br_bd_execucao_estadual_flow` — daily. MG, BA, PE, ES and RS are bulk file
+  downloads, and only the open exercises move, so a daily pass re-fetches those and
+  rebuilds.
 * `br_bd_execucao_estadual_sp_flow` — weekly. São Paulo has no bulk download at all;
   SIGEO is a WebForms consultation queried once per (exercise, órgão) at roughly 36 s
   each. One exercise is about twenty minutes and the full history took five hours, so
   SP must not gate the daily run.
+* `br_bd_execucao_estadual_rs_flow` — no schedule. A manual backfill route for RS
+  alone; see its docstring for when it earns its keep.
+
+ORDERING TRAP, if this dataset is ever bootstrapped into a fresh environment.
+
+`despesa` is ONE model unioning MG, PE, ES and RS, and those states are split across
+two flows. Whichever flow rebuilds `despesa` needs every one of those staging mirrors
+to exist already -- including the ones it does not upload itself. The first prod run
+learned this the expensive way: the daily flow downloaded ~20 GB over 7h50m, uploaded
+all 57 mirrors, then failed with
+
+    Not found: Table basedosdados-staging:...rs_despesa
+
+because RS had never uploaded. The flow that owns the missing mirror has to go FIRST.
+Recovery was cheap only because uploads precede the dbt phase, so the retry ran at
+`full_refresh=False` in 1h49m instead of repeating the download.
 
 WHY THIS PIPELINE IS LOAD-BEARING, not just a refresh convenience.
 
@@ -19,7 +37,7 @@ Almost every dataset here keeps one staging table per published table, named the
 which is the assumption `table-approve` makes when it syncs
 `staging/<dataset>/<published table>/` from the dev bucket to the prod one. This dataset
 has 49 staging mirrors -- one per SOURCE table -- feeding 10 published models through
-ephemeral per-state models, because harmonizing four states genuinely is a join across
+ephemeral per-state models, because harmonizing six states genuinely is a join across
 each one's dimensional export.
 
 So table-approve's sync matched nothing, merging the onboarding PR left
@@ -29,8 +47,10 @@ prod, by uploading them to the prod bucket itself. The first prod run therefore 
 be `full_refresh=True`, which downloads every exercise and uploads all 49; after that
 the daily incremental keeps them current.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers both flows; the dev pool
-ignores the schedule, the prod pool activates it (paused).
+Deploy: `.github/scripts/deploy_flows.py` auto-discovers all three flows; the dev pool
+ignores the schedule, the prod pool activates it (paused). The dev pool is only written
+by a PR carrying the `deploy-flow` label -- without it the deploy job skips and the
+staging deployments silently keep whatever they had.
 """
 
 import datetime
@@ -61,19 +81,15 @@ DATASET_ID = constants.DATASET_ID.value
 # once per state would run the same model twice for no gain.
 # ES is per-year bulk CSV like MG, so it belongs in the daily group rather
 # than the weekly one, which exists only for SP's per-(exercise, orgao) scrape.
-# RS is absent from both schedules, but no longer because reachability is unknown.
+# RS joined the daily group on 2026-09-10, once both preconditions it was waiting on
+# were met: a GKE worker CAN reach `dados.rs.gov.br` (a dev run fetched 19 archives and
+# 6.7M rows on 2026-09-09), and RS is in production (a full_refresh prod run loaded
+# 51,262,226 rows the same day). Its reachability was only ever path-dependent -- the
+# source refused a residential Australian ISP while answering a university range -- and
+# the cluster's path works.
 #
-# `dados.rs.gov.br` refused a residential Australian ISP outright while answering from a
-# university range, so the reachability is path-dependent and a cluster test was the only
-# way to settle it. That test has now run: a dev flow run on 2026-09-09 fetched 19
-# archives (0.27 GB) and cleaned 6,744,072 rows from the GKE worker. The source IS
-# reachable from the cluster.
-#
-# RS stays on its own flow only until it is in production, because the first prod run
-# must be `full_refresh=True` and RS alone is ~36 GB expanded -- worth its own pod rather
-# than added to a daily run that already carries four states. Move "RS" here once that
-# run has completed.
-DAILY_STATES = ["MG", "BA", "PE", "ES"]
+# A scoped RS pass is two exercises, about 8 minutes, which the daily run absorbs.
+DAILY_STATES = ["MG", "BA", "PE", "ES", "RS"]
 WEEKLY_STATES = ["SP"]
 
 
@@ -236,31 +252,32 @@ def br_bd_execucao_estadual_rs_flow(
     update_metadata: bool = True,
     full_refresh: bool = False,
 ) -> None:
-    """Refresh Rio Grande do Sul and rebuild `despesa`.
+    """Rebuild Rio Grande do Sul on its own. MANUAL BACKFILL ONLY -- no schedule.
 
-    Separate from the daily flow, and deployed WITHOUT a schedule, because RS's
-    reachability is path-dependent: `dados.rs.gov.br` refused a residential Australian
-    ISP outright while answering from a university range. A dev run from the cluster on
-    2026-09-09 settled that question -- 19 archives, 6,744,072 rows -- so the source is
-    reachable from GKE. The flow stays separate through the first prod run, which is
-    ~36 GB expanded and does not belong bolted onto four other states.
+    RS's routine refresh is the daily flow; this is not a second schedule and must
+    never become one. It is kept, rather than retired, for the one job the daily flow
+    does badly: a `full_refresh=True` pass over RS alone.
 
-    This flow exists so RS has a route to prod at all. `table-approve` cannot promote
-    this dataset -- it syncs `staging/<dataset>/<published table>/`, and the 49 staging
-    mirrors here are named after SOURCE tables -- so a flow run is the only way any
-    state reaches production.
+    A combined full refresh would hold every state's input and parquet in ONE pod's
+    work_dir at once -- `_run` uses a single tempdir for the whole run and only clears
+    it at the end -- and RS by itself is ~2.3 GB compressed / ~36 GB expanded on top of
+    MG, BA, PE and ES. Rebuilding RS's whole series through the daily flow therefore
+    risks the pod's ephemeral storage for no reason, when this flow does the same work
+    against the same tables in a pod of its own.
 
-    The dev run that answered the reachability question is done. What remains is the
-    first prod run at `full_refresh=True`; after that, move "RS" into DAILY_STATES and
-    retire this flow.
+    Reach for it when RS republishes history, or if the six months absent from its
+    catalogue (2020-06, 2020-08, 2022-04, 2023-02, 2023-06, 2023-08) ever appear. For
+    anything the open exercises cover, do nothing -- the daily flow has it.
+
+    Note that `despesa` unions four states, so this flow cannot build it unless MG, PE
+    and ES already have staging mirrors in the target environment. That is what made
+    the first prod run order-dependent; see the module docstring.
 
     Args:
         materialize_to_prod: As in the daily flow.
-        update_metadata: As in the daily flow. Leave False until `br_rs` coverages
-            exist in prod -- the refresh updates existing coverages and silently finds
-            nothing to do when there are none.
+        update_metadata: As in the daily flow.
         full_refresh: Re-download all 175 monthly archives instead of the open years.
-            Needed once, for the first prod run. ~2.3 GB compressed, ~36 GB expanded.
+            This is the reason the flow still exists.
     """
     # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
