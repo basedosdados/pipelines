@@ -28,7 +28,7 @@ import io
 import pathlib
 import re
 import zipfile
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 
 import pandas as pd
 
@@ -40,7 +40,7 @@ from pipelines.datasets.au_nsw_nswec_elections.schema import (
 # Event catalogue
 # --------------------------------------------------------------------------------------
 
-EVENTS: dict[int, dict[str, object]] = {
+EVENTS: dict[int, dict[str, str]] = {
     2011: {
         "election_id": "SGE2011",
         "date": "2011-03-26",
@@ -351,7 +351,7 @@ def lc_group_votes(root: pathlib.Path, year: int) -> pd.DataFrame:
 
 def contest_block(
     year: int, chamber: str, district: str | None, sed: dict[str, str]
-) -> dict[str, object]:
+) -> dict[str, str | None]:
     """The nine columns every results table carries, denormalised onto each row.
 
     Contest attributes are denormalised rather than normalised into a ``contest``
@@ -364,7 +364,7 @@ def contest_block(
         "election_id": EVENTS[year]["election_id"],
         "contest_id": contest_id(chamber, district or "state"),
         "state_electoral_division_id": sed.get(name)
-        if chamber == LA
+        if chamber == LA and name is not None
         else None,
         "chamber": chamber,
         "government_level": "state",
@@ -479,8 +479,14 @@ def build_candidate(root: pathlib.Path, sed: dict[str, str]) -> pd.DataFrame:
     return frame[column_names("candidate")]
 
 
-def _elected_la(root: pathlib.Path, year: int) -> set[tuple[str, str]]:
-    """``(district, ballot name)`` of the member returned in each Assembly district."""
+def _elected_la(
+    root: pathlib.Path, year: int
+) -> set[tuple[str, str, str | None]]:
+    """``(district, ballot name, party)`` of the member returned in each district.
+
+    The party is part of the key because 2011 identifies candidates by surname
+    alone; it is None for the later events, whose index page carries no party.
+    """
     if year == 2011:
         # The 2011 index reports the election-night standing, including seats still
         # undecided that night. The two candidate preferred table on each district
@@ -641,7 +647,7 @@ def _rvc_assembly(
         .groupby(venue_keys, dropna=False)[["_formal", "_informal"]]
         .sum()
     )
-    out = []
+    out: list[dict[str, object]] = []
     for _, row in bulk[formal].iterrows():
         district = _text(row["District"])
         venue = _text(row["Venue/Declaration Name"])
@@ -684,7 +690,7 @@ def _rvc_council(
         for c in bulk.columns
         if c not in LC_FIXED_COLUMNS and c not in LC_TOTAL_COLUMNS
     ]
-    out = []
+    out: list[dict[str, object]] = []
     for _, row in bulk.iterrows():
         district = _text(row["District"])
         venue = _text(row["Venue/Declaration Name"])
@@ -747,7 +753,9 @@ def build_result_district(
     return pd.DataFrame(rows)[column_names("result_district")]
 
 
-def _rd_row(block: dict[str, object], **kwargs: object) -> dict[str, object]:
+def _rd_row(
+    block: Mapping[str, object], **kwargs: object
+) -> dict[str, object]:
     base: dict[str, object] = {
         **block,
         "count_status": "final",
@@ -851,7 +859,7 @@ def _rd_assembly_2011(
 
 
 def _tcp_from_dop(
-    root: pathlib.Path, year: int, slug: str, block: dict[str, object]
+    root: pathlib.Path, year: int, slug: str, block: Mapping[str, object]
 ) -> list[dict[str, object]]:
     """Derive the two candidate preferred result from the last distribution count.
 
@@ -991,7 +999,7 @@ def _dop_frame(
             entry["progressive"] = col
 
     totals: dict[str, dict[str, str | None]] = {n: {} for n in counts}
-    candidates: list[tuple[str, str | None, list[object]]] = []
+    candidates: list[tuple[str | None, str | None, list[object]]] = []
     for row in body:
         label = _text(row[0])
         if label is None:
@@ -1003,7 +1011,7 @@ def _dop_frame(
                     # figure falls back to it.
                     col = entry[which] or entry["distributed"]
                     totals[number][field] = (
-                        _number(row[col]) if col is not None else None
+                        _number(row[col]) if isinstance(col, int) else None
                     )
             continue
         name, party = _split_dop_label(label)
@@ -1012,17 +1020,29 @@ def _dop_frame(
     rows = []
     for number in sorted(counts, key=int):
         entry = counts[number]
-        excluded_name, excluded_party = _split_dop_label(entry["excluded"])
+        # `counts` is heterogeneous by design: "excluded" holds a label, the other
+        # two hold column indices. Narrow on read rather than splitting the dict.
+        # The values are only ever None, a str label, or an int column index, so
+        # these isinstance tests select exactly what the bare truthiness tests they
+        # replace did: columns are numbered from 1, so no index is ever falsy.
+        excluded_label = entry["excluded"]
+        excluded_name, excluded_party = _split_dop_label(
+            excluded_label if isinstance(excluded_label, str) else None
+        )
         for name, party, row in candidates:
             distributed_col, progressive_col = (
                 entry["distributed"],
                 entry["progressive"],
             )
             distributed = (
-                _text(row[distributed_col]) if distributed_col else None
+                _text(row[distributed_col])
+                if isinstance(distributed_col, int)
+                else None
             )
             progressive = (
-                _text(row[progressive_col]) if progressive_col else None
+                _text(row[progressive_col])
+                if isinstance(progressive_col, int)
+                else None
             )
             if number == "1":
                 # Count 1 holds the first preference votes in a single column, and
@@ -1109,7 +1129,9 @@ def build_enrolment_turnout(
     2011 is absent: the NSWEC published no enrolment figure for that event, and a
     turnout row without a denominator would be a row of nulls.
     """
-    rows: list[dict[str, object]] = []
+    # `_turnout_council` returns None when an event published no Council votes; the
+    # comprehension at the end of the function drops those before the DataFrame.
+    rows: list[dict[str, object] | None] = []
     for year in BULK_YEARS:
         candidates = _candidate_counts(root, year)
         tables = read_tables(root / str(year) / "turnout_page.html")
@@ -1426,9 +1448,12 @@ def iter_ballot_preference(
 
 def _party_by_district(
     root: pathlib.Path, year: int
-) -> dict[str, dict[str, str]]:
+) -> dict[str, dict[str, str | None]]:
     bulk = bulk_la_formal(root, year)
-    out: dict[str, dict[str, str]] = {}
+    # Independents carry no party acronym, so the value is legitimately None. It is
+    # kept rather than dropped: `frame["CandidateName"].map(lookup)` must still
+    # resolve the candidate and yield a null party_code.
+    out: dict[str, dict[str, str | None]] = {}
     for _, row in (
         bulk[["District", "Candidate Ballot Name", "Party Acronym"]]
         .drop_duplicates()
