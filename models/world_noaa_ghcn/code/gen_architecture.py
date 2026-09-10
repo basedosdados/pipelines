@@ -25,8 +25,35 @@ HEADER = [
 
 
 def col(
-    name, typ, pt, en, es, *, dict_="no", unit="", obs="", orig="", cov=""
-):
+    name: str,
+    typ: str,
+    pt: str,
+    en: str,
+    es: str,
+    *,
+    dict_: str = "no",
+    unit: str = "",
+    obs: str = "",
+    orig: str = "",
+    cov: str = "",
+) -> dict[str, str]:
+    """Build one architecture row.
+
+    Args:
+        name: BigQuery column name.
+        typ: BigQuery type.
+        pt: Portuguese description.
+        en: English description.
+        es: Spanish description.
+        dict_: Whether a dicionario entry covers the column's values.
+        unit: Measurement unit, blank when the column is not a quantity.
+        obs: Free-text observations, pipe-separated per language.
+        orig: Column name in the raw source.
+        cov: Temporal coverage, blank when the same as the table's.
+
+    Returns:
+        The architecture row, keyed by HEADER.
+    """
     return {
         "name": name,
         "bigquery_type": typ,
@@ -376,6 +403,7 @@ TABLES = {
 
 
 def main() -> None:
+    """Write one architecture CSV per table."""
     out = Path(__file__).parent / "architecture"
     out.mkdir(parents=True, exist_ok=True)
     for table, cols in TABLES.items():
