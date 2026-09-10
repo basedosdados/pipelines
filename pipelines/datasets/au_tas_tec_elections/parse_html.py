@@ -161,7 +161,6 @@ def parse_ha(html: str) -> HaResult:
                         res.summary[label.strip().lower()] = val
             continue
         for cells in rows_of(block + "</table>"):
-            labels = {c: t for c, t in cells}
             name = next(
                 (
                     t
@@ -203,7 +202,6 @@ def parse_ha(html: str) -> HaResult:
                 val_f = to_float(figure)
                 if val_f is not None:
                     res.group_quotas[party] = val_f
-        _ = labels
     return res
 
 
