@@ -108,6 +108,14 @@ NOTES = {
 
 
 def build(table: str) -> Path:
+    """Build one table's documentation bundle.
+
+    Args:
+        table: Table slug to build a bundle for.
+
+    Returns:
+        Path to the written ``auxiliary_files.zip``.
+    """
     files = BUNDLE_CONTENTS[table]
     accessed = date.today().isoformat()
     readme = [
@@ -157,6 +165,7 @@ def build(table: str) -> Path:
 
 
 def main() -> None:
+    """Build every table's auxiliary-file bundle."""
     for table in BUNDLE_CONTENTS:
         p = build(table)
         print(f"{table}: {p} ({p.stat().st_size / 1024:.0f} KB)")
