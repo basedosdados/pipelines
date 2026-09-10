@@ -23,6 +23,7 @@ select
     safe_cast(contest_type as string) contest_type,
     safe_cast(voting_system as string) voting_system,
     safe_cast(district_name as string) district_name,
+    safe_cast(voting_centre_district_name as string) voting_centre_district_name,
     safe_cast(voting_centre_name as string) voting_centre_name,
     safe_cast(vote_type_code as string) vote_type_code,
     safe_cast(vote_sub_type as string) vote_sub_type,

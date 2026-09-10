@@ -652,6 +652,7 @@ def _rvc_assembly(
         out.append(
             {
                 **contest_block(year, LA, district, sed),
+                "voting_centre_district_name": district,
                 "voting_centre_name": venue,
                 "vote_type_code": _text(row["Vote Type"]),
                 "vote_sub_type": _text(row["Vote Sub Type"]),
@@ -695,9 +696,9 @@ def _rvc_council(
         # same meaning district_name carries in the voting_centre table. Without it
         # every "Postal" and "Absent" row would collide across 93 districts.
         block = contest_block(year, LC, None, sed)
-        block["district_name"] = district
         block["state_electoral_division_id"] = sed.get(district)
         shared = {
+            "voting_centre_district_name": district,
             "voting_centre_name": venue,
             "vote_type_code": _text(row["Vote Type"]),
             "vote_sub_type": _text(row["Vote Sub Type"]),
@@ -1298,7 +1299,7 @@ def build_voting_centre(
 
 def _registry_fields(detail: dict[str, object]) -> dict[str, object]:
     return {
-        "premises_name": detail.get("premises_name"),
+        "building_name": detail.get("building_name"),
         "address": detail.get("address"),
         "locality": detail.get("locality"),
         "postcode": detail.get("postcode"),
@@ -1351,7 +1352,7 @@ def _venue_registry(
             if district is None or venue is None:
                 continue
             out[(district, venue)] = {
-                "premises_name": _text(row.get(long)) if long else None,
+                "building_name": _text(row.get(long)) if long else None,
                 "address": _text(row.get(address)) if address else None,
                 "locality": _text(row.get("Locality")),
                 "postcode": _text(row.get("Postcode")),

@@ -20,7 +20,7 @@ select
     safe_cast(voting_centre_name as string) voting_centre_name,
     safe_cast(vote_type_code as string) vote_type_code,
     safe_cast(vote_sub_type as string) vote_sub_type,
-    safe_cast(premises_name as string) premises_name,
+    safe_cast(building_name as string) building_name,
     safe_cast(address as string) address,
     safe_cast(locality as string) locality,
     safe_cast(postcode as string) postcode,

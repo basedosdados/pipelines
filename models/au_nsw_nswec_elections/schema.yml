@@ -344,7 +344,7 @@ models:
             - contest_id
             - count_type
             - vote_sub_type
-            - district_name
+            - voting_centre_district_name
             - voting_centre_name
             - ballot_name
             - group_code
@@ -398,6 +398,10 @@ models:
         description: >-
           Voting system applied to the contest
       - name: district_name
+        description: >-
+          Name of the contest: the state electoral district, or State for the
+          Legislative Council
+      - name: voting_centre_district_name
         description: >-
           Name of the state electoral district served by the voting centre
         tests: [not_null]
@@ -573,11 +577,11 @@ models:
           at_least: 0.05
           ignore_values:
             - address
+            - building_name
             - latitude
             - locality
             - longitude
             - postcode
-            - premises_name
             - state_electoral_division_id
     columns:
       - name: year
@@ -615,7 +619,7 @@ models:
         description: >-
           Sub type of the vote as published by the NSWEC
         tests: [not_null]
-      - name: premises_name
+      - name: building_name
         description: >-
           Name of the premises hosting the voting centre
       - name: address

@@ -597,7 +597,7 @@ TABLES["result_district"] = [
 ]
 
 RVC_DISTRICT_NAME = C(
-    "district_name",
+    "voting_centre_district_name",
     "STRING",
     "Nome do distrito eleitoral estadual atendido pelo local de votação",
     "Name of the state electoral district served by the voting centre",
@@ -606,7 +606,7 @@ RVC_DISTRICT_NAME = C(
 )
 
 TABLES["result_voting_centre"] = [
-    *CONTEST_BLOCK[:-1],
+    *CONTEST_BLOCK,
     RVC_DISTRICT_NAME,
     VOTING_CENTRE_NAME,
     VOTE_TYPE_CODE,
@@ -812,7 +812,7 @@ TABLES["voting_centre"] = [
     VOTE_TYPE_CODE,
     VOTE_SUB_TYPE,
     C(
-        "premises_name",
+        "building_name",
         "STRING",
         "Nome do estabelecimento que sedia o local de votação",
         "Name of the premises hosting the voting centre",
@@ -1413,7 +1413,7 @@ TABLE_META: dict[str, TableMeta] = {
             "contest_id",
             "count_type",
             "vote_sub_type",
-            "district_name",
+            "voting_centre_district_name",
             "voting_centre_name",
             "ballot_name",
             "group_code",
@@ -1494,7 +1494,7 @@ TABLE_META: dict[str, TableMeta] = {
         ],
         ignore_null_proportion=[
             "state_electoral_division_id",
-            "premises_name",
+            "building_name",
             "address",
             "locality",
             "postcode",

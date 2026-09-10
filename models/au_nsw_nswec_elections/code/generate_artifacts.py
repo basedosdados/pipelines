@@ -59,7 +59,7 @@ def write_architecture() -> None:
         with open(
             ARCH_DIR / f"{table}.csv", "w", newline="", encoding="utf-8"
         ) as fh:
-            writer = csv.writer(fh)
+            writer = csv.writer(fh, lineterminator="\n")
             writer.writerow(ARCHITECTURE_HEADER)
             for column in columns:
                 writer.writerow(
