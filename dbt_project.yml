@@ -46,6 +46,9 @@ models:
     au_abs_national_accounts:
       +materialized: table
       +schema: au_abs_national_accounts
+    au_abs_population:
+      +materialized: table
+      +schema: au_abs_population
     au_alexander_politicians:
       +materialized: table
       +schema: au_alexander_politicians
