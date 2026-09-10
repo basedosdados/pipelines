@@ -54,24 +54,39 @@ models:
       - name: year
         description: >
           Ano da observação
-        tests: [not_null]
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
       - name: station_id
         description: >
           Código de identificação da estação no GHCN-Daily
-        tests: [not_null]
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
       - name: date
         description: >
           Data da observação
-        tests: [not_null]
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
       - name: element
         description: >
           Código do elemento meteorológico observado
-        tests: [not_null]
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
       - name: value
         description: >
           Valor observado do elemento, convertido para a unidade padrão indicada em
           measurement_unit
-        tests: [not_null]
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
       - name: measurement_unit
         description: >
           Unidade de medida do valor observado nesta linha
