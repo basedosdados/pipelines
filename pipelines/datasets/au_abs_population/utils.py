@@ -763,6 +763,9 @@ def write_partitioned(df: pd.DataFrame, table: str, out_dir: str) -> int:
     for year, part in frame.groupby("year", sort=True):
         if part.empty:
             continue
+        # The groupby key is typed as pandas' broad scalar union, but `year` is
+        # an integer column here, so the int() is safe.
+        # pyrefly: ignore [bad-argument-type]
         _write(part, Path(out_dir) / table / f"year={int(year)}")
         n += len(part)
     return n
