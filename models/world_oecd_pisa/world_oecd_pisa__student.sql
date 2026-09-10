@@ -19,7 +19,7 @@
 select
     safe_cast(year as int64) year,
     safe_cast(country_id_iso_3 as string) country_id_iso_3,
-    safe_cast(country_id_m49 as string) country_id_m49,
+    safe_cast(safe_cast(country_id_m49 as int64) as string) country_id_m49,
     safe_cast(school_id as string) school_id,
     safe_cast(student_id as string) student_id,
     safe_cast(assessment_type as string) assessment_type,

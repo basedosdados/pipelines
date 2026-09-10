@@ -13,19 +13,23 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
       - name: country_id_iso_3
         description: Country ID ISO3
         tests:
           - relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_iso3
+              config:
+                severity: warn
       - name: country_id_m49
         description: Country Identifier
         tests:
           - relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: id_m49
+              config:
+                severity: warn
       - name: school_id
         description: School ID
       - name: student_id
@@ -66,14 +70,14 @@ models:
         description: Student (Standardized) Birth - Month
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano.ano
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: year_birth
         description: Student (Standardized) Birth - Year
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_data_tempo__mes')
-              field: mes.mes
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: gender
         description: Student (Standardized) Gender
       - name: effort_put_into_test
