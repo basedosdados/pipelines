@@ -113,13 +113,18 @@ def _float(value) -> float | None:
         return None
 
 
-def _yesno(value: str | None) -> str | None:
-    """ECQ writes YES/NO and JSON writes true/false; publish a single vocabulary."""
+def _yesno(value: str | bool | None) -> str | None:
+    """ECQ writes YES/NO and JSON writes true/false; publish a single vocabulary.
+
+    The annotation admits ``bool`` because the JSON companions really do supply
+    booleans where the XML supplies ``YES``/``NO`` — that is the whole reason this
+    helper exists.
+    """
     if value is None or value == "":
         return None
     if isinstance(value, bool):
         return "yes" if value else "no"
-    lowered = str(value).strip().lower()
+    lowered = value.strip().lower()
     if lowered in {"yes", "true", "y"}:
         return "yes"
     if lowered in {"no", "false", "n"}:
@@ -156,6 +161,24 @@ def _voting_system(raw: str | None) -> str | None:
     if key not in VOTING_SYSTEMS:
         raise ValueError(f"unknown voting system {raw!r}")
     return VOTING_SYSTEMS[key]
+
+
+def _contest_type(raw: str | None) -> str:
+    """Map the XML's ``contestType``, raising rather than crashing on an absent one.
+
+    ``Element.get`` returns ``None`` for a missing attribute, and this file already
+    documents one attribute the ECQ leaves null on whole classes of contest
+    (``votingSystem`` on all 160 mayoral contests). A bare ``.lower()`` here would
+    surface that as an opaque ``AttributeError`` deep in the parse; an unknown value
+    would surface as a bare ``KeyError``. Both are named explicitly instead, matching
+    ``_voting_system`` and ``_count_status``.
+    """
+    if not raw:
+        raise ValueError("contest is missing contestType")
+    key = _norm(raw)
+    if key not in CONTEST_TYPES:
+        raise ValueError(f"unknown contest type {raw!r}")
+    return CONTEST_TYPES[key]
 
 
 def _count_status(raw: str | None) -> str:
@@ -447,7 +470,7 @@ def iter_contest_units(election: ET.Element) -> Iterator[ContestUnit]:
         lga_name = lga.get("electorateName")
         lga_code = lga.get("areaCode")
         for contest in lga.findall("contest"):
-            contest_type = CONTEST_TYPES[contest.get("contestType").lower()]
+            contest_type = _contest_type(contest.get("contestType"))
             inner = contest.find("districts")
             if inner is not None:
                 for district in inner.findall("district"):
@@ -980,8 +1003,16 @@ def _read_csv(path: Path) -> pd.DataFrame:
 
 
 def _blank_to_none(series: pd.Series) -> pd.Series:
+    """Empty and whitespace-only strings become NULL, not empty strings.
+
+    Written as an explicit object-dtype mask rather than ``where(..., other=None)``:
+    pandas accepts the latter at runtime but its stubs do not type it, and the CI
+    type check is the only place that surfaces.
+    """
     stripped = series.fillna("").astype(str).str.strip()
-    return stripped.where(stripped != "", other=None)
+    result = stripped.astype(object)
+    result[stripped == ""] = None
+    return result
 
 
 def build_disclosure_gift(input_dir: Path) -> pd.DataFrame:
@@ -1338,7 +1369,8 @@ def _to_all_string_table(frame: pd.DataFrame, columns) -> pa.Table:
             values = pd.to_datetime(series, errors="coerce")
             typed = pa.array(values, type=pa.timestamp("s"))
         else:
-            values = series.where(series.notna(), other=None)
+            values = series.astype(object)
+            values[series.isna()] = None
             typed = pa.array(
                 [None if v is None else str(v) for v in values],
                 type=pa.string(),
