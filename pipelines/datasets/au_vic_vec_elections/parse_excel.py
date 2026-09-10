@@ -387,7 +387,11 @@ class ReportHeader:
     contest_name: str
     stage: str
     print_datetime: datetime | None
-    sheet_names: tuple[str, ...]
+    # ``ExcelFile.sheet_names`` is ``list[int | str]``: pandas admits a positional
+    # sheet key alongside a named one. Every workbook here is named, but the field is
+    # only ever handed back to ``ExcelFile.parse``, which takes either — so the type
+    # is widened to match the source rather than asserting a name we never check.
+    sheet_names: tuple[int | str, ...]
 
     @property
     def contest_base(self) -> str:
@@ -1666,7 +1670,13 @@ _TWO_PARTY_METHODS = {
 }
 
 
-def _two_party_sheet(excel: pd.ExcelFile, preferred: str | None) -> str:
+def _two_party_sheet(excel: pd.ExcelFile, preferred: str | None) -> int | str:
+    """The sheet holding the two-party-preferred summary.
+
+    Returns whatever ``ExcelFile.sheet_names`` yields — ``int | str``, per the note on
+    ``ReportHeader.sheet_names`` — and the single caller passes it straight back to
+    ``ExcelFile.parse``, which accepts both.
+    """
     if preferred and preferred in excel.sheet_names:
         return preferred
     for sheet in excel.sheet_names:

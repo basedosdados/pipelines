@@ -95,7 +95,17 @@ def _to_all_string_table(frame: pd.DataFrame, columns) -> pa.Table:
             values = pd.to_datetime(series, errors="coerce")
             typed = pa.array(values, type=pa.timestamp("s"))
         else:
-            values = series.where(series.notna(), other=None)
+            # An explicit object-dtype mask, not ``where(..., other=None)``. A
+            # non-object series cannot hold ``None``, so pandas coerces it back to
+            # that dtype's own missing marker — ``NaN`` on a float column, ``pd.NA``
+            # on ``Int64``, ``NaT`` on a datetime — and the ``str(v)`` below would
+            # then write the literal ``"nan"``, ``"<NA>"`` or ``"NaT"``, none of
+            # which ``safe_cast`` turns back into a NULL. Casting to ``object``
+            # first lets the mask store a real ``None``. No such value ever reached
+            # the data — zero rows across all eight tables in dev — so this is a
+            # prospective fix, not a repair.
+            values = series.astype(object)
+            values[series.isna()] = None
             typed = pa.array(
                 [None if v is None else str(v) for v in values],
                 type=pa.string(),

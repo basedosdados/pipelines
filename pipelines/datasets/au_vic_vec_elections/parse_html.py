@@ -34,6 +34,7 @@ from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from io import StringIO
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -1174,14 +1175,16 @@ def check_consistency(
     tcp_sources = audit.tcp_sources if audit else {}
     enrolment = tables["enrolment_turnout"]
     results = tables["result_district"]
-    formal = {
-        str(row.contest_id): row.votes_formal
-        for row in enrolment.itertuples(index=False)
+    # ``itertuples`` fields carry pandas' whole scalar union rather than each column's
+    # real dtype, so the rows are read as ``Any``. ``votes_formal`` and ``year`` are
+    # integer columns and ``int()`` accepts every runtime type pandas can put there;
+    # the annotation says so instead of coercing through ``str()``, which would turn a
+    # float into an unparseable ``"3.0"``.
+    enrolment_rows: list[Any] = list(enrolment.itertuples(index=False))
+    formal: dict[str, Any] = {
+        str(row.contest_id): row.votes_formal for row in enrolment_rows
     }
-    years = {
-        str(row.contest_id): int(row.year)
-        for row in enrolment.itertuples(index=False)
-    }
+    years = {str(row.contest_id): int(row.year) for row in enrolment_rows}
 
     sums = (
         results.groupby(["contest_id", "count_type"], dropna=False)["votes"]
@@ -1192,8 +1195,10 @@ def check_consistency(
     rows: list[dict[str, object]] = []
 
     def add(
-        contest_id: str, check: str, actual: object, source: str = ""
+        contest_id: str, check: str, actual: Any, source: str = ""
     ) -> None:
+        # ``actual`` is a numpy scalar out of ``groupby(...).sum()``, which pandas
+        # types as a broad union; ``Any`` is what it actually is at the call sites.
         expected = formal.get(contest_id)
         rows.append(
             {

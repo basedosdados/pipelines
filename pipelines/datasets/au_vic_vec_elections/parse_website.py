@@ -1080,13 +1080,18 @@ def parse_all(
         if any(row["count_type"] == COUNT_TPP for row in district_rows):
             with_two_party.append(contest.district_name)
 
-        tcp_votes = [
-            row["votes"]
+        # ``votes`` is written by ``_to_int``, so it is ``int | None`` and nothing
+        # else; the record dicts are typed ``object``, so the narrowing is spelled
+        # out rather than left to an ``int()`` call that would also have silently
+        # accepted (and truncated) a float.
+        tcp_votes: list[int] = [
+            votes
             for row in district_rows
-            if row["count_type"] == COUNT_TCP and row["votes"] is not None
+            if row["count_type"] == COUNT_TCP
+            and isinstance(votes := row["votes"], int)
         ]
         if contest.formal_votes is not None and tcp_votes:
-            total = sum(int(value) for value in tcp_votes)
+            total = sum(tcp_votes)
             if total != contest.formal_votes:
                 formal_mismatch.append(
                     f"{contest.contest_id}: TCP sum {total} vs formal {contest.formal_votes} "
@@ -1103,11 +1108,11 @@ def parse_all(
                 voting_centre.extend(rows)
                 dropped_buckets += len(dropped)
                 centre_total = sum(
-                    int(row["votes"])
+                    votes
                     for row in rows
-                    if row["votes"] is not None
+                    if isinstance(votes := row["votes"], int)
                 )
-                district_total = sum(int(value) for value in tcp_votes)
+                district_total = sum(tcp_votes)
                 if centre_total and district_total != centre_total:
                     centre_gap.append(
                         f"{contest.contest_id}: 2CP by voting centre {centre_total} "
@@ -1149,7 +1154,7 @@ def parse_all(
         fetcher, contests_by_key
     )
 
-    election_records = [
+    election_records: list[dict[str, object]] = [
         {
             "year": event.year,
             "election_id": event.election_id,

@@ -26,6 +26,7 @@ import base64
 import json
 import re
 from collections import Counter
+from collections.abc import Hashable
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from pathlib import Path
@@ -379,8 +380,13 @@ def build_disclosure_gift(records: list[dict[str, Any]]) -> pd.DataFrame:
 # --------------------------------------------------------------------------------------
 
 
-def check_portal_totals(frame: pd.DataFrame) -> dict[str, int]:
-    """Total rows must be the sum of the two portals' rows."""
+def check_portal_totals(frame: pd.DataFrame) -> dict[Hashable, int]:
+    """Total rows must be the sum of the two portals' rows.
+
+    The keys are the ``_portal`` values, which are strings here; the return type says
+    ``Hashable`` because that is what ``value_counts().to_dict()`` guarantees, and
+    narrowing it would mean asserting a column dtype this function never checks.
+    """
     per_portal = frame["_portal"].value_counts().to_dict()
     total = int(sum(per_portal.values()))
     if total != len(frame):
