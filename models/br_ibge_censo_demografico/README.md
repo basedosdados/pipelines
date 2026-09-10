@@ -86,7 +86,7 @@ O `0.05` usado na maior parte do repositório só reprova coluna praticamente va
 |---|---|---|
 `microdados_pessoa_2022` | 0.95 | 66 colunas |
 `microdados_domicilio_2022` | 0.95 | `d0290` |
-`microdados_familia_2022` | 0.95 | `f0220`, `f0270` |
+`microdados_familia_2022` | 0.95 | 8 colunas |
 `microdados_mortalidade_2022` | 0.95 | — |
 `dicionario` | 0.90 | — |
 
@@ -109,7 +109,7 @@ reprovaria hoje. O ponto de virada é `0.9423`.
 `build_architecture.py` / `build_dbt.py` | geram as arquiteturas em `code/architecture/` e os modelos a partir do layout do IBGE |
 
 Os dados intermediários ficam fora da árvore do repositório, em
-`~/Downloads/br_ibge_censo_demografico_data/` (`CENSO_DATA_ROOT` sobrescreve). A carga escreve
+`~/Downloads/br_ibge_censo_demografico_data/data` (`CENSO_DATA_ROOT` sobrescreve). A carga escreve
 apenas `basedosdados-dev`; `sync_gcs.py::assert_dev_target` recusa qualquer outro destino,
 porque `dump_mode="overwrite"` apaga a tabela antes de recriá-la.
 

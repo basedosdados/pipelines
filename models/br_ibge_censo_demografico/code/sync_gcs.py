@@ -310,8 +310,20 @@ def main() -> None:
         # to the tables it describes.
         upload_bundles([s for s in slugs if s != "dicionario"])
     if args.delete_local:
-        delete_local()
-        print("local extracts removed")
+        # `delete_local` apaga output/, docs/ e input/ inteiros, não só o que
+        # esta execução subiu. Só é seguro depois de um sync completo e
+        # verificado; com --tables, --skip-staging ou --skip-aux o que ficou
+        # de fora seria perdido sem estar no bucket.
+        parcial = bool(wanted) or args.skip_staging or args.skip_aux
+        if parcial:
+            print(
+                "--delete-local ignorado: sync parcial "
+                f"(tables={sorted(wanted) or 'todas'}, "
+                f"skip_staging={args.skip_staging}, skip_aux={args.skip_aux})"
+            )
+        else:
+            delete_local()
+            print("local extracts removed")
 
 
 if __name__ == "__main__":

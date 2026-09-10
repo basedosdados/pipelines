@@ -38,6 +38,98 @@ DIR_FK = {
     "ano": ("br_bd_diretorios_data_tempo__ano", "ano"),
 }
 
+# Piso de preenchimento por tabela e as colunas dispensadas. O `at_least` é a
+# proporção mínima de NÃO nulos: a macro reprova quando
+# `nulos / total > 1 - at_least`. As dispensadas são variáveis condicionais do
+# questionário — perguntadas só a quem se aplica (migrantes, indígenas e
+# quilombolas, ocupados, quem estuda) — e vazias na maioria das linhas por
+# desenho da coleta. Medidas na tabela inteira; ver o README do conjunto.
+NOT_NULL_AT_LEAST = 0.95
+IGNORE_VALUES = {
+    "microdados_pessoa_2022": [
+        "p0230",
+        "p0240",
+        "p0250",
+        "p0260",
+        "p0270",
+        "p0280",
+        "p0290",
+        "p0320",
+        "p0330",
+        "p0340",
+        "p0350",
+        "p0360",
+        "p0370",
+        "p0380",
+        "p0390",
+        "p0400",
+        "p0410",
+        "p0490",
+        "p0530",
+        "p0540",
+        "p0550",
+        "p0560",
+        "p0570",
+        "p0600",
+        "p0610",
+        "p0640",
+        "p0660",
+        "p0670",
+        "p0680",
+        "p0690",
+        "p0700",
+        "p0710",
+        "p0720",
+        "p0730",
+        "p0740",
+        "p0800",
+        "p0810",
+        "p0840",
+        "p0850",
+        "p0860",
+        "p0870",
+        "p0880",
+        "p0890",
+        "p0900",
+        "p0930",
+        "p0940",
+        "p0950",
+        "p0960",
+        "p0990",
+        "p1000",
+        "p1010",
+        "p1020",
+        "p1050",
+        "p1060",
+        "p1070",
+        "p1080",
+        "p1090",
+        "p1100",
+        "p1110",
+        "p1120",
+        "p1130",
+        "p1160",
+        "p1170",
+        "p1180",
+        "p1190",
+        "p1220",
+    ],
+    "microdados_domicilio_2022": ["d0290"],
+    # Bloco do responsável pela família única ou convivente principal: vazio
+    # para as conviventes secundárias, que são 5,84% do total.
+    "microdados_familia_2022": [
+        "f0170",
+        "f0180",
+        "f0190",
+        "f0200",
+        "f0210",
+        "f0230",
+        "f0220",
+        "f0270",
+    ],
+    "microdados_mortalidade_2022": [],
+}
+
 MARKER_START = "# --- censo 2022 public microdata (generated) ---"
 MARKER_END = "# --- end censo 2022 public microdata ---"
 
@@ -96,8 +188,12 @@ def schema_fragment(slug: str, columns: list[dict[str, str]]) -> str:
     ]
     for col in key:
         lines.append(f"            - {col}")
-    # Wide sample-microdata tables are skip-pattern sparse; 2010 models
-    # also omit not_null_proportion. Unique + key not_null stay.
+    lines.append("      - not_null_proportion_multiple_columns:")
+    lines.append(f"          at_least: {NOT_NULL_AT_LEAST}")
+    dispensadas = IGNORE_VALUES.get(slug, [])
+    if dispensadas:
+        lines.append("          ignore_values:")
+        lines.extend(f"            - {c}" for c in dispensadas)
     lines.append("    columns:")
     for col in columns:
         text = (col["description"] or "").replace("\n", " ").strip() or col[
