@@ -116,6 +116,12 @@ OBS_VOTING_SYSTEM = (
     "single_transferable_vote, usado no Conselho Legislativo com voto acima e abaixo "
     "da linha. É definido por disputa: os dois coexistem em cada evento eleitoral."
 )
+OBS_RVC_DISTRICT = (
+    "É o distrito onde os votos foram apurados, e não a disputa. No Conselho "
+    "Legislativo, que é uma disputa estadual única, as cédulas ainda são apuradas "
+    "distrito a distrito, portanto contest_id assume o valor lc-state enquanto esta "
+    "coluna nomeia o distrito do local de votação."
+)
 OBS_BALLOT_ORDER = (
     "Número de ordem na cédula; aritmética sobre ele não tem sentido, por isso é "
     "publicado como texto."
@@ -145,9 +151,10 @@ OBS_VENUE_TOTAL = (
     "Total do local de votação, repetido em cada linha de candidatura."
 )
 OBS_COUNT_STATUS = (
-    "Assume os valores final, para 2015 em diante, e election_night, check_count e "
-    "check_count_and_declaration, os três estágios que a NSWEC publicou separadamente "
-    "em 2011. Filtre sempre por count_status ao comparar eventos."
+    "Assume o valor final de 2015 em diante. Em 2011 assume election_night, "
+    "check_count e check_count_and_declaration, os três estágios que a NSWEC publicou "
+    "separadamente, e post_election_night na tabela de preferência entre dois "
+    "candidatos daquele evento. Filtre sempre por count_status ao comparar eventos."
 )
 
 YEAR = C(
@@ -589,8 +596,18 @@ TABLES["result_district"] = [
     ),
 ]
 
+RVC_DISTRICT_NAME = C(
+    "district_name",
+    "STRING",
+    "Nome do distrito eleitoral estadual atendido pelo local de votação",
+    "Name of the state electoral district served by the voting centre",
+    "Nombre del distrito electoral estatal atendido por el local de votación",
+    observations=OBS_RVC_DISTRICT,
+)
+
 TABLES["result_voting_centre"] = [
-    *CONTEST_BLOCK,
+    *CONTEST_BLOCK[:-1],
+    RVC_DISTRICT_NAME,
     VOTING_CENTRE_NAME,
     VOTE_TYPE_CODE,
     VOTE_SUB_TYPE,
@@ -836,18 +853,6 @@ TABLES["voting_centre"] = [
         observations="Código postal, não uma quantidade; publicado como texto.",
     ),
     C(
-        "is_wheelchair_accessible",
-        "STRING",
-        "Indica o grau de acessibilidade do local de votação para cadeirantes",
-        "Wheelchair accessibility rating of the voting centre",
-        "Indica el grado de accesibilidad del local de votación para sillas de ruedas",
-        covered_by_dictionary="yes",
-        observations=(
-            "Publicado apenas no registro de locais de 2023. Nulo nos eventos "
-            "anteriores, para os quais a NSWEC não publica registro de locais."
-        ),
-    ),
-    C(
         "latitude",
         "FLOAT64",
         "Latitude do local de votação",
@@ -1060,6 +1065,10 @@ OBSERVATION_TRANSLATIONS: dict[str, tuple[str, str]] = {
         "Takes the values optional_preferential, used in the Legislative Assembly, and single_transferable_vote, used in the Legislative Council with above the line and below the line voting. Set per contest: the two coexist within each electoral event.",
         "Toma los valores optional_preferential, usado en la Asamblea Legislativa, y single_transferable_vote, usado en el Consejo Legislativo con voto por encima y por debajo de la línea. Se define por disputa: los dos coexisten en cada evento electoral.",
     ),
+    "É o distrito onde os votos foram apurados, e não a disputa. No Conselho Legislativo, que é uma disputa estadual única, as cédulas ainda são apuradas distrito a distrito, portanto contest_id assume o valor lc-state enquanto esta coluna nomeia o distrito do local de votação.": (
+        "The district where the votes were counted, not the contest. In the Legislative Council, which is a single statewide contest, ballot papers are still counted district by district, so contest_id takes the value lc-state while this column names the district of the voting centre.",
+        "Es el distrito donde se escrutaron los votos, y no la disputa. En el Consejo Legislativo, que es una disputa estatal única, las boletas se escrutan igualmente distrito a distrito, por lo que contest_id toma el valor lc-state mientras esta columna nombra el distrito del local de votación.",
+    ),
     "Número de ordem na cédula; aritmética sobre ele não tem sentido, por isso é publicado como texto.": (
         "Ballot order number; arithmetic on it is meaningless, so it is published as text.",
         "Número de orden en la boleta; la aritmética sobre él no tiene sentido, por eso se publica como texto.",
@@ -1088,9 +1097,9 @@ OBSERVATION_TRANSLATIONS: dict[str, tuple[str, str]] = {
         "Sequence number; arithmetic on it is meaningless. Published only for the Legislative Council, whose single transferable vote count elects across hundreds of counts.",
         "Número de orden; la aritmética sobre él no tiene sentido. Publicado solo para el Consejo Legislativo, cuyo escrutinio por voto único transferible elige a lo largo de cientos de escrutinios.",
     ),
-    "Assume os valores final, para 2015 em diante, e election_night, check_count e check_count_and_declaration, os três estágios que a NSWEC publicou separadamente em 2011. Filtre sempre por count_status ao comparar eventos.": (
-        "Takes the value final from 2015 onwards, and election_night, check_count and check_count_and_declaration, the three stages the NSWEC published separately in 2011. Always filter on count_status when comparing events.",
-        "Toma el valor final de 2015 en adelante, y election_night, check_count y check_count_and_declaration, las tres etapas que la NSWEC publicó por separado en 2011. Filtre siempre por count_status al comparar eventos.",
+    "Assume o valor final de 2015 em diante. Em 2011 assume election_night, check_count e check_count_and_declaration, os três estágios que a NSWEC publicou separadamente, e post_election_night na tabela de preferência entre dois candidatos daquele evento. Filtre sempre por count_status ao comparar eventos.": (
+        "Takes the value final from 2015 onwards. For 2011 it takes election_night, check_count and check_count_and_declaration, the three stages the NSWEC published separately, and post_election_night on that event's two candidate preferred table. Always filter on count_status when comparing events.",
+        "Toma el valor final de 2015 en adelante. En 2011 toma election_night, check_count y check_count_and_declaration, las tres etapas que la NSWEC publicó por separado, y post_election_night en la tabla de preferencia entre dos candidatos de ese evento. Filtre siempre por count_status al comparar eventos.",
     ),
     "Inscrições apuradas na data de fechamento do caderno eleitoral do evento, informada pela NSWEC na própria página de comparecimento.": (
         "Enrolment as at the close of the roll for the event, stated by the NSWEC on the turnout page itself.",
@@ -1296,14 +1305,24 @@ TABLE_META: dict[str, TableMeta] = {
         "Personas candidatas en cada disputa, con posición en la boleta, partido, "
         "grupo del Consejo Legislativo e indicación de elección. Reúne las dos "
         "cámaras, distinguidas por chamber.",
-        unique_key=["year", "election_id", "contest_id", "ballot_name"],
+        unique_key=[
+            "year",
+            "election_id",
+            "contest_id",
+            "ballot_name",
+            "party_code",
+        ],
         ignore_null_proportion=[
             "state_electoral_division_id",
             "group_code",
             "group_name",
             "elected_at_count",
             "ballot_order_number",
+            "party_code",
+            "party_name",
+            "candidate_given_names",
         ],
+        nullable_key=["party_code"],
         observation_levels={
             "year": ["year"],
             "district": ["contest_id"],
@@ -1351,6 +1370,7 @@ TABLE_META: dict[str, TableMeta] = {
             "count_status",
             "count_type",
             "ballot_name",
+            "party_code",
             "group_code",
         ],
         ignore_null_proportion=[
@@ -1360,8 +1380,11 @@ TABLE_META: dict[str, TableMeta] = {
             "quota_count",
             "ballot_order_number",
             "ballot_name",
+            "party_code",
+            "party_name",
+            "percentage",
         ],
-        nullable_key=["ballot_name", "group_code"],
+        nullable_key=["ballot_name", "group_code", "party_code"],
         observation_levels={
             "year": ["year"],
             "district": ["contest_id"],
@@ -1390,6 +1413,7 @@ TABLE_META: dict[str, TableMeta] = {
             "contest_id",
             "count_type",
             "vote_sub_type",
+            "district_name",
             "voting_centre_name",
             "ballot_name",
             "group_code",
@@ -1474,7 +1498,6 @@ TABLE_META: dict[str, TableMeta] = {
             "address",
             "locality",
             "postcode",
-            "is_wheelchair_accessible",
             "latitude",
             "longitude",
         ],
