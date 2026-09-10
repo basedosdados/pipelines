@@ -1186,7 +1186,10 @@ PARTITION_COLUMNS: dict[str, list[str]] = {
     name: ([] if name == "dicionario" else ["year"]) for name in TABLES
 }
 
-PARTITION_RANGE = {"start": 2016, "end": 2035, "interval": 1}
+# Starts at 2013, not at the 2016 start of the disclosure regime: 23 gift rows are
+# dated 2013-2015. Outside a start=2016 range they land in BigQuery's
+# __UNPARTITIONED__ bucket, which is not a load error and is therefore easy to miss.
+PARTITION_RANGE = {"start": 2013, "end": 2035, "interval": 1}
 
 
 def column_names(table: str) -> list[str]:

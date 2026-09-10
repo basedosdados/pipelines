@@ -66,7 +66,7 @@ gcs.Client.bucket = _patched_bucket
 TABLES = [
     ("election", 54),
     ("disclosure_return", 293),
-    ("dicionario", 47),
+    ("dicionario", 100),
     ("enrolment_turnout", 2_820),
     ("candidate", 4_356),
     ("distribution_of_preferences", 4_899),

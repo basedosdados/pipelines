@@ -33,6 +33,10 @@ EXPECTED = {
     "disclosure_gift": 28_328,
     "disclosure_expenditure": 27_225,
     "disclosure_return": 293,
+    # Not measured against the source: the dictionary is declared in
+    # utils.VOCABULARIES and its build already fails when a value observed in a
+    # cleaned table has no label. Pinned so a silent vocabulary edit shows up.
+    "dicionario": 100,
 }
 
 
