@@ -1,6 +1,6 @@
 {{
     config(
-        schema="br_pncp",
+        schema="br_mgi_pncp",
         alias="ata_registro_preco",
         materialized="incremental",
         incremental_strategy="insert_overwrite",
@@ -36,7 +36,7 @@ select
     safe_cast(data_cancelamento as date) data_cancelamento,
     safe_cast(data_publicacao as date) data_publicacao,
     safe_cast(data_atualizacao as date) data_atualizacao
-from {{ set_datalake_project("br_pncp_staging.ata_registro_preco") }} as t
+from {{ set_datalake_project("br_mgi_pncp_staging.ata_registro_preco") }} as t
 {% if is_incremental() and var("pncp_years", "") %}
     where safe_cast(ano as int64) in ({{ var("pncp_years") }})
 {% endif %}

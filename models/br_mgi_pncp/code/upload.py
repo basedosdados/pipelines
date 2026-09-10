@@ -1,7 +1,7 @@
-"""Upload cleaned br_pncp parquet to BigQuery dev staging.
+"""Upload cleaned br_mgi_pncp parquet to BigQuery dev staging.
 
 Usage:
-    uv run python models/br_pncp/code/upload.py [--table <slug>]
+    uv run python models/br_mgi_pncp/code/upload.py [--table <slug>]
 
 Dev only: billing and target project is basedosdados-dev. Prod table data is
 materialised by the table-approve action when the onboarding PR merges, never
@@ -35,12 +35,14 @@ from google.cloud import bigquery  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from pipelines.datasets.br_pncp.constants import constants  # noqa: E402
+from pipelines.datasets.br_mgi_pncp.constants import constants  # noqa: E402
 
 BILLING_PROJECT = "basedosdados-dev"  # DEV ONLY — never prod
-DATASET_ID = "br_pncp"
+DATASET_ID = "br_mgi_pncp"
 DATA_ROOT = Path(
-    os.environ.get("PNCP_DATA_DIR", Path.home() / "Downloads" / "br_pncp_data")
+    os.environ.get(
+        "PNCP_DATA_DIR", Path.home() / "Downloads" / "br_mgi_pncp_data"
+    )
 )
 OUTPUT_ROOT = DATA_ROOT / "output"
 
