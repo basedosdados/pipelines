@@ -46,6 +46,9 @@ models:
     au_abs_national_accounts:
       +materialized: table
       +schema: au_abs_national_accounts
+    au_abs_household_income_wealth:
+      +materialized: table
+      +schema: au_abs_household_income_wealth
     au_abs_population:
       +materialized: table
       +schema: au_abs_population
@@ -216,6 +219,9 @@ models:
     us_census_cbp:
       +materialized: table
       +schema: us_census_cbp
+    us_census_cog:
+      +materialized: table
+      +schema: us_census_cog
     us_census_cps:
       +materialized: table
       +schema: us_census_cps
