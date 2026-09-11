@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
-"""Bootstrap: clean the ABS CPI xlsx already in ../input into partitioned
-parquet in ../output (tables ``cpi_quarterly`` and ``cpi_monthly``).
+"""Bootstrap: clean the downloaded ABS workbooks into partitioned parquet.
 
-The cleaning transform lives in `pipelines.datasets.au_abs_prices_inflation.cpi` so the
-one-shot bootstrap and the recurring Prefect pipeline share one implementation.
-This CLI is just the initial-load entry point.
+Reads ``<data root>/input`` and writes ``<data root>/output/<table>``. The
+cleaning transforms live in ``pipelines.datasets.au_abs_prices_inflation`` so
+the one-shot bootstrap and the recurring Prefect pipeline share one
+implementation; this CLI is just the initial-load entry point.
 
 Usage:
-    uv run python models/au_abs_prices_inflation/code/clean_data.py [quarterly monthly]
+    uv run python models/au_abs_prices_inflation/code/clean_data.py [table ...]
+
+With no arguments it builds all seven tables.
 """
 
 import logging
@@ -18,10 +20,14 @@ from pathlib import Path
 from pipelines.datasets.au_abs_prices_inflation.constants import constants
 from pipelines.datasets.au_abs_prices_inflation.cpi import (
     clean_frequency,
+)
+from pipelines.datasets.au_abs_prices_inflation.cpi import (
+    write_partitioned as write_cpi,
+)
+from pipelines.datasets.au_abs_prices_inflation.releases import (
+    build_release,
     write_partitioned,
 )
-
-TABLE_ID = constants.TABLE_ID.value
 
 logging.basicConfig(
     level=logging.INFO,
@@ -29,32 +35,52 @@ logging.basicConfig(
     datefmt="%H:%M:%S",
 )
 log = logging.getLogger("au_abs_prices_inflation")
+
 # Scratch data (raw downloads, cleaned parquet) never lives in the repo: the
 # checkout sits inside Dropbox, so writing multi-GB output here would trigger a
 # sync and risk committing data. Default to ~/Downloads and allow an override.
 DATA_ROOT = Path(
     os.environ.get(
         "AU_ABS_PRICES_INFLATION_DATA",
-        Path.home() / "Downloads" / "au_abs_prices_inflation_data" / "cpi",
+        Path.home() / "Downloads" / "au_abs_prices_inflation_data",
     )
 )
 
+TABLE_ID = constants.TABLE_ID.value
+RELEASES = list(constants.RELEASES.value)
+
 
 def main():
-    want = set(sys.argv[1:]) or {"quarterly", "monthly"}
-    for tbl in ("quarterly", "monthly"):
-        if tbl not in want:
+    want = set(sys.argv[1:])
+    inp, out = DATA_ROOT / "input", DATA_ROOT / "output"
+
+    for frequency, table in TABLE_ID.items():
+        if want and table not in want:
             continue
-        df = clean_frequency(tbl, str(DATA_ROOT / "input"))
-        n = write_partitioned(df, TABLE_ID[tbl], str(DATA_ROOT / "output"))
+        df = clean_frequency(frequency, str(inp / "cpi"))
+        rows = write_cpi(df, table, str(out))
         log.info(
             "%s: %d rows | years %d-%d | %d regions | %d items",
-            TABLE_ID[tbl],
-            n,
+            table,
+            rows,
             df["year"].min(),
             df["year"].max(),
             df["region"].nunique(),
             df["index_name"].nunique(),
+        )
+
+    for release in RELEASES:
+        if want and release not in want:
+            continue
+        df = build_release(release, str(inp))
+        rows = write_partitioned(df, release, str(out))
+        log.info(
+            "%s: %d rows | years %d-%d | %d series",
+            release,
+            rows,
+            df["year"].min(),
+            df["year"].max(),
+            df["series_id"].nunique(),
         )
 
 

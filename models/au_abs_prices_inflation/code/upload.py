@@ -36,7 +36,7 @@ OUTPUT_ROOT = (
     Path(
         os.environ.get(
             "AU_ABS_PRICES_INFLATION_DATA",
-            Path.home() / "Downloads" / "au_abs_prices_inflation_data" / "cpi",
+            Path.home() / "Downloads" / "au_abs_prices_inflation_data",
         )
     )
     / "output"
@@ -53,7 +53,15 @@ def _patched_bucket(self, bucket_name, user_project=None):
 gcs.Client.bucket = _patched_bucket
 
 # Smallest first.
-TABLES = ["cpi_quarterly", "cpi_monthly"]
+TABLES = [
+    "dwelling_value",
+    "living_cost_index",
+    "cpi_quarterly",
+    "international_trade_price_index",
+    "wage_price_index",
+    "cpi_monthly",
+    "producer_price_index",
+]
 
 
 def local_rows(path: Path) -> int:

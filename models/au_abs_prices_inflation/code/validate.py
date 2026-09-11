@@ -13,7 +13,7 @@ import pandas as pd
 DATA_ROOT = Path(
     os.environ.get(
         "AU_ABS_PRICES_INFLATION_DATA",
-        Path.home() / "Downloads" / "au_abs_prices_inflation_data" / "cpi",
+        Path.home() / "Downloads" / "au_abs_prices_inflation_data",
     )
 )
 
