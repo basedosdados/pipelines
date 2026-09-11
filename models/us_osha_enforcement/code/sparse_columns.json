@@ -1,0 +1,33 @@
+{
+ "inspection": [
+  "safety_program_maritime",
+  "health_program_manufacturing",
+  "health_program_construction",
+  "health_program_maritime",
+  "migrant_labor"
+ ],
+ "violation": [
+  "deleted",
+  "emphasis_program",
+  "hazard_category",
+  "hazardous_substance_1",
+  "hazardous_substance_2",
+  "hazardous_substance_3",
+  "hazardous_substance_4",
+  "hazardous_substance_5",
+  "fta_inspection_id",
+  "fta_issuance_date",
+  "fta_contest_date",
+  "fta_final_order_date"
+ ],
+ "violation_event": [
+  "fta_inspection_id"
+ ],
+ "accident_injury": [
+  "fall_distance",
+  "fall_height"
+ ],
+ "dicionario": [
+  "cobertura_temporal"
+ ]
+}

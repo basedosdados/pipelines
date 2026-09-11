@@ -46,6 +46,12 @@ models:
     au_abs_national_accounts:
       +materialized: table
       +schema: au_abs_national_accounts
+    au_abs_household_income_wealth:
+      +materialized: table
+      +schema: au_abs_household_income_wealth
+    au_abs_population:
+      +materialized: table
+      +schema: au_abs_population
     au_alexander_politicians:
       +materialized: table
       +schema: au_alexander_politicians
@@ -207,12 +213,18 @@ models:
     au_abs_labour_force:
       +materialized: table
       +schema: au_abs_labour_force
+    au_abs_migration:
+      +materialized: table
+      +schema: au_abs_migration
     us_bls_qcew:
       +materialized: table
       +schema: us_bls_qcew
     us_census_cbp:
       +materialized: table
       +schema: us_census_cbp
+    us_census_cog:
+      +materialized: table
+      +schema: us_census_cog
     us_census_cps:
       +materialized: table
       +schema: us_census_cps
@@ -246,12 +258,18 @@ models:
     us_dot_bts_ontime:
       +materialized: table
       +schema: us_dot_bts_ontime
+    us_dot_fars:
+      +materialized: table
+      +schema: us_dot_fars
     us_nature_gerda:
       +materialized: table
       +schema: us_nature_gerda
     us_congress_legislators:
       +materialized: table
       +schema: us_congress_legislators
+    world_oecd_education:
+      +materialized: table
+      +schema: world_oecd_education
     world_aiddata_gcdf:
       +materialized: table
       +schema: world_aiddata_gcdf
@@ -537,9 +555,9 @@ models:
     br_ons_estimativa_custos:
       +materialized: table
       +schema: br_ons_estimativa_custos
-    br_pncp:
+    br_mgi_pncp:
       +materialized: table
-      +schema: br_pncp
+      +schema: br_mgi_pncp
     br_poder360_pesquisas:
       +materialized: table
       +schema: br_poder360_pesquisas
@@ -666,6 +684,9 @@ models:
     us_noaa_storm_events:
       +materialized: table
       +schema: us_noaa_storm_events
+    us_osha_enforcement:
+      +materialized: table
+      +schema: us_osha_enforcement
     world_ampas_oscar:
       +materialized: table
       +schema: world_ampas_oscar
@@ -675,6 +696,9 @@ models:
     world_iati_activities:
       +materialized: table
       +schema: world_iati_activities
+    world_noaa_ghcn:
+      +materialized: table
+      +schema: world_noaa_ghcn
     world_iea_pirls:
       +materialized: table
       +schema: world_iea_pirls
