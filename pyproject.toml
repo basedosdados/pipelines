@@ -242,6 +242,14 @@ project-excludes = [
   # which is type-checked.
   "models/au_abs_population/code",
   "models/us_noaa_storm_events/code",
+  # Same policy: the au_abs_labour_force Detailed-release onboarding scripts
+  # (architecture_detailed.py, clean_detailed.py, gen_dbt_detailed.py,
+  # upload_detailed.py, build_columns_json_detailed.py) are standalone one-shot
+  # ETL run from their own directory with bare sibling imports resolved via
+  # sys.path, plus a monkey-patched GCS client. The reusable transform for the
+  # monthly release lives in pipelines/datasets/au_abs_labour_force/utils.py and
+  # is type-checked normally.
+  "models/au_abs_labour_force/code",
   # Same policy: the us_dot_fars onboarding scripts run from their own directory
   # with bare sibling imports (`common`), which pyrefly cannot resolve from the
   # repo root.
