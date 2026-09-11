@@ -1184,6 +1184,7 @@ def build_disclosure_return(root: pathlib.Path) -> pd.DataFrame:
                 }
             )
     frame = pd.DataFrame(rows).drop_duplicates(subset=["portal", "return_id"])
+    # pyrefly: ignore [unnecessary-type-conversion]
     missing = int(frame["year"].isna().sum())
     if missing:
         # The partition key has to be complete: a null year cannot be written to a
