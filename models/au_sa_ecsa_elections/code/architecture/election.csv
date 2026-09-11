@@ -1,0 +1,12 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano do evento eleitoral,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de particionamento. Cada evento eleitoral estadual ocupa um único ano.,
+election_id,STRING,Identificador do evento eleitoral,,no,,,no,,
+election_name,STRING,Nome do evento eleitoral publicado pela ECSA,,no,,,no,,electionEvent
+election_type,STRING,Tipo do evento eleitoral,,yes,,,no,Assume os valores state_general_election e state_by_election.,electionType
+government_level,STRING,Esfera de governo do evento eleitoral,,yes,,,no,Assume o valor state em todas as linhas. As eleições de governo local são servidas pela mesma API e estão deliberadamente fora deste conjunto.,
+election_date,DATE,Data da votação,,no,,,no,,electionDate
+assembly_districts_contested,INT64,Número de distritos da Assembleia em disputa no evento,,no,,district,no,Distritos da Assembleia em disputa no evento: 47 nos pleitos gerais e 1 nas eleições suplementares.,
+council_seats_contested,INT64,Número de cadeiras do Conselho Legislativo em disputa no evento,,no,,seat,no,"Cadeiras do Conselho Legislativo em disputa no evento: 11 nos pleitos gerais e nulo nas eleições suplementares, que são apenas de distrito.",lcSeatsContested
+results_last_updated,DATETIME,Momento da última atualização dos resultados pela ECSA,,no,,,no,"Momento da última atualização dos resultados pela ECSA, publicado no próprio arquivo de resultados.",lastUpdated
+results_data_version,STRING,Versão do conjunto de resultados publicada pela ECSA,,no,,,no,"Versão do conjunto de resultados publicada pela ECSA, usada pela própria aplicação da comissão para buscar apenas o que mudou. Número de ordem, sem sentido aritmético.",dataVersion
+results_source_url,STRING,Endereço da API que serve os resultados do evento,,no,,,no,Endereço da rota da API da ECSA que serve os resultados do evento.,
