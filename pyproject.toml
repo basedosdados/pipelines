@@ -320,6 +320,13 @@ project-excludes = [
   # `sys.path.insert` — unresolvable from the repo root. The pure transform lives
   # in the typed `pipelines/datasets/au_aec_elections/`, which is checked.
   "models/au_aec_elections/code",
+  # Same policy: au_sa_ecsa_elections onboarding code is standalone one-shot
+  # `.py` run via `uv run` (download.py, clean.py, upload.py, crosscheck.py,
+  # generate_artifacts.py), and register_metadata.py, register_metadata_prod.py,
+  # verify_prod.py and dedupe_metadata.py drive the databasis MCP module through
+  # `sys.path.insert` — unresolvable from the repo root. The pure transform lives
+  # in the typed `pipelines/datasets/au_sa_ecsa_elections/`, which is checked.
+  "models/au_sa_ecsa_elections/code",
   "models/au_geoscape_gnaf/code",
   "models/us_cms_open_payments/code",
   "models/us_fec_campaign_finance/code",
@@ -381,6 +388,13 @@ project-excludes = [
   # The onboarding scripts import the databasis MCP server module by path,
   # which is outside the repo, so pyrefly cannot resolve it from the root.
   "models/us_osha_enforcement/code",
+  # Same policy: au_nsw_nswec_elections onboarding code is standalone one-shot
+  # `.py` (download.py, clean.py, upload.py, generate_artifacts.py,
+  # metadata_payload.py run via `uv run`), and register_metadata.py drives the
+  # databasis MCP `server` module through `sys.path.insert` — unresolvable from
+  # the repo root. The reusable transform lives in the typed
+  # `pipelines/datasets/au_nsw_nswec_elections/`, which is checked.
+  "models/au_nsw_nswec_elections/code",
   "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
   "models/world_wb_mides/code/licitacao_item.ipynb",
   "models/world_olympedia_olympics/code/[[]code[]]world_olympedia_olympics.ipynb",
