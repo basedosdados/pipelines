@@ -28,24 +28,50 @@ import server
 DATASET_SLUG = "budget"
 GCP_DATASET_ID = "au_treasury_budget"
 
-#: Organization. The staging backend already has a `treasury` org -- it is the
-#: **United States** Department of the Treasury, area `us` -- so the Australian
-#: one takes the `au_` prefix that every other Australian organization uses
-#: there (au_abs, au_ato, au_doe, au_rba). Production uses short slugs instead,
-#: so the prod promotion must decide between `treasury` and `au_treasury`.
-ORGANIZATION_SLUG = "au_treasury"
+#: Organization slug, which differs by environment and is not a mistake.
+#:
+#: Staging already has a `treasury` org -- it is the **United States** Department
+#: of the Treasury, area `us` -- so the Australian one takes the `au_` prefix that
+#: every other Australian organization uses there (au_abs, au_ato, au_doe,
+#: au_rba). Production has no Australian Treasury at all and names its Australian
+#: organizations with short slugs (abs, ato, doe, rba), so it takes `treasury`;
+#: the US body there is `u_s_department_of_treasury` and does not collide.
+ORGANIZATION_SLUGS = {
+    "staging": "au_treasury",
+    "prod": "treasury",
+    "dev": "au_treasury",
+}
 
 THEMES = ("economics", "government")
-TAGS = (
-    "orcamento",
-    "divida",
-    "gasto",
-    "receita",
-    "despesa",
-    "financas_publicas",
-    "politica_fiscal",
-    "projecao",
-)
+
+#: Tags, which are the same eight concepts under different slugs per environment:
+#: staging's vocabulary is Portuguese, production's is English. Both were scanned
+#: before choosing, and every slug below already exists -- no new tag is created.
+#: Deliberately absent: any tag naming Australia (that is the Coverage area) or
+#: restating a theme already attached.
+TAGS = {
+    "staging": (
+        "orcamento",
+        "divida",
+        "gasto",
+        "receita",
+        "despesa",
+        "financas_publicas",
+        "politica_fiscal",
+        "projecao",
+    ),
+    "prod": (
+        "budget",
+        "debt",
+        "spending",
+        "revenue",
+        "expenditure",
+        "public-finance",
+        "fiscal_policy",
+        "projection",
+    ),
+}
+TAGS["dev"] = TAGS["staging"]
 
 DATASET_NAME = (
     "Orçamento do Governo da Austrália",
@@ -245,6 +271,7 @@ def main() -> int:
     args = parser.parse_args()
     env = args.env
 
+    organization_slug = ORGANIZATION_SLUGS[env]
     ids = server.discover_ids(
         env=env,
         keys=["status", "entity", "license", "availability", "theme", "tag"],
@@ -260,10 +287,14 @@ def main() -> int:
     license_id = ids["license"]["cc_by"]
     availability_id = ids["availability"]["online"]
 
-    missing_tags = [t for t in TAGS if t not in ids["tag"]]
+    wanted_tags = TAGS[env]
+    missing_tags = [t for t in wanted_tags if t not in ids["tag"]]
     if missing_tags:
-        raise SystemExit(f"tags not in the vocabulary: {missing_tags}")
-    tag_ids = [ids["tag"][t] for t in TAGS]
+        raise SystemExit(
+            f"tags not in the {env} vocabulary: {missing_tags}. Scan it with "
+            "discover_ids and map them -- do not create near-duplicates."
+        )
+    tag_ids = [ids["tag"][t] for t in wanted_tags]
     theme_ids = [ids["theme"][t] for t in THEMES]
 
     # --- organization ----------------------------------------------------
@@ -271,10 +302,10 @@ def main() -> int:
     # lookup_id raises when the slug is absent, which is the normal first run.
     with contextlib.suppress(Exception):
         existing_org = server.lookup_id(
-            category="organization", slug=ORGANIZATION_SLUG, env=env
+            category="organization", slug=organization_slug, env=env
         )
     org = server.create_update_organization(
-        slug=ORGANIZATION_SLUG,
+        slug=organization_slug,
         name_pt="Tesouro da Austrália",
         name_en="Australian Treasury",
         name_es="Tesoro de Australia",
@@ -297,7 +328,7 @@ def main() -> int:
         env=env,
     )
     organization_id = strip(org["id"])
-    print(f"organization {ORGANIZATION_SLUG}: {organization_id}")
+    print(f"organization {organization_slug}: {organization_id}")
 
     # --- dataset ---------------------------------------------------------
     existing = server.get_dataset(slug=DATASET_SLUG, env=env)
