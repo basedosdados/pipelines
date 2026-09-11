@@ -79,9 +79,15 @@ models:
     au_qld_ecq_elections:
       +materialized: table
       +schema: au_qld_ecq_elections
+    au_sa_ecsa_elections:
+      +materialized: table
+      +schema: au_sa_ecsa_elections
     au_rba_statistical_tables:
       +materialized: table
       +schema: au_rba_statistical_tables
+    au_vic_vec_elections:
+      +materialized: table
+      +schema: au_vic_vec_elections
     br_anatel_banda_larga_fixa:
       +materialized: table
       +schema: br_anatel_banda_larga_fixa
@@ -115,6 +121,9 @@ models:
     au_nsw_bocsar_crime:
       +materialized: table
       +schema: au_nsw_bocsar_crime
+    au_nsw_nswec_elections:
+      +materialized: table
+      +schema: au_nsw_nswec_elections
     br_bcb_taxa_cambio:
       +materialized: table
       +schema: br_bcb_taxa_cambio
