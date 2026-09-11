@@ -45,9 +45,12 @@ from html import unescape
 from pathlib import Path
 from typing import Final
 
+# pyrefly: ignore [untyped-import]
 import openpyxl
 import pandas as pd
 import requests
+
+# pyrefly: ignore [untyped-import]
 import xlrd
 
 from pipelines.datasets.au_vic_vec_elections import schema

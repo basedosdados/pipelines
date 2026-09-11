@@ -34,6 +34,7 @@ NULL_PARTITION_ALLOWED: set[str] = set()
 
 def normalise_district(name: str) -> str:
     """Fold a district name to the crosswalk's comparison key."""
+    # pyrefly: ignore [unnecessary-type-conversion]
     name = re.sub(r"\s*\(.*\)\s*$", "", str(name))
     name = name.replace("-", " ").replace("'", "")
     name = re.sub(r"[^a-z0-9 ]", "", name.lower())
@@ -133,6 +134,7 @@ def write_partitioned(
         return arrow.num_rows
 
     if frame["year"].isna().any() and table not in NULL_PARTITION_ALLOWED:
+        # pyrefly: ignore [unnecessary-type-conversion]
         bad = int(frame["year"].isna().sum())
         raise ValueError(
             f"{table}: {bad} rows have a null partition year; decide explicitly "

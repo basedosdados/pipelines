@@ -161,7 +161,10 @@ _2PP_COALITION = "Liberal/National"
 def slug(text: str) -> str:
     """Lowercase, with every run of non-alphanumerics folded to a single underscore."""
     return re.sub(
-        r"_+", "_", re.sub(r"[^a-z0-9]+", "_", str(text).lower())
+        # pyrefly: ignore [unnecessary-type-conversion]
+        r"_+",
+        "_",
+        re.sub(r"[^a-z0-9]+", "_", str(text).lower()),
     ).strip("_")
 
 
@@ -194,6 +197,7 @@ def clean_int(value: Any) -> int | None:
     if isinstance(value, bool):
         return None
     if isinstance(value, (int,)):
+        # pyrefly: ignore [unnecessary-type-conversion]
         return int(value)
     if isinstance(value, float):
         return round(value)
@@ -2406,10 +2410,13 @@ def _check_voting_centre_totals(
         )
         if pd.isna(summed):
             continue
+        # pyrefly: ignore [unnecessary-type-conversion]
         if int(summed) != int(expected):
             messages.append(
                 f"{contest_id}: voting-centre first preferences sum to {int(summed):,} "
+                # pyrefly: ignore [unnecessary-type-conversion]
                 f"but the report's REGION TOTAL formal is {int(expected):,} "
+                # pyrefly: ignore [unnecessary-type-conversion]
                 f"(difference {int(summed) - int(expected):+,})"
             )
     return messages

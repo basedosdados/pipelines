@@ -394,6 +394,7 @@ def check_portal_totals(frame: pd.DataFrame) -> dict[Hashable, int]:
             f"portal counts {per_portal} do not sum to {len(frame)} rows"
         )
     print(f"check: {total} rows = {per_portal}", flush=True)
+    # pyrefly: ignore [unnecessary-type-conversion]
     return {portal: int(count) for portal, count in per_portal.items()}
 
 
