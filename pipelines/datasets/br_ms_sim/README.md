@@ -42,6 +42,16 @@ Execução de teste no pool de dev, sem tocar em produção:
 
 Os padrões escrevem em **produção**, mesmo saindo do pool de teste.
 
+## Qual ano entra
+
+Sem `ano`, o flow carrega o ano mais recente que existe na fonte, que é o ano em
+curso: o diretório preliminar publica o ano corrente antes de ele fechar.
+
+O poll compara esse ano com o fim da cobertura da tabela. Depois que a cobertura
+alcança o ano, as execuções seguintes encerram sem carregar nada, e as revisões
+que o DATASUS publicar naquele ano preliminar não entram. Para trazê-las, executar
+com `ano` preenchido ou com `force_run`.
+
 ## Formato da staging
 
 A staging é CSV desde a carga original. O particionado sai em

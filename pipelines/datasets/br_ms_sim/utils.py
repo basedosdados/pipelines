@@ -18,8 +18,6 @@ from dbfread import DBF
 
 from pipelines.datasets.br_ms_sim.constants import constants
 
-FINAL, PRELIM = "definitivo", "preliminar"
-
 
 def build_paths(table_id: str, ano: int) -> tuple[Path, Path]:
     """Cria os diretórios de trabalho do ano e devolve os dois caminhos.
@@ -71,18 +69,19 @@ def list_ftp_years(directory_url: str) -> set[int]:
 def get_source_max_year() -> str:
     """Devolve o ano mais recente publicado na fonte.
 
-    Considera os dois diretórios, já que o ano corrente costuma existir apenas
-    no preliminar. O valor é a competência do dado, não a data da consulta.
+    Considera todas as versões de `constants.SOURCES`, já que o ano corrente
+    costuma existir apenas no preliminar. O valor é a competência do dado, não a
+    data da consulta.
 
     Returns:
         O ano mais recente, no formato `%Y`.
 
     Raises:
-        RuntimeError: Se nenhum arquivo for encontrado nos dois diretórios.
+        RuntimeError: Se nenhum arquivo for encontrado em nenhuma das versões.
     """
-    years = list_ftp_years(constants.FTP_FINAL_DIR.value) | list_ftp_years(
-        constants.FTP_PRELIM_DIR.value
-    )
+    years: set[int] = set()
+    for urls in constants.SOURCES.value.values():
+        years |= list_ftp_years(urls["dir"])
     if not years:
         raise RuntimeError(
             "nenhum arquivo DO*.dbc encontrado no FTP do DATASUS — a fonte "
@@ -94,23 +93,24 @@ def get_source_max_year() -> str:
 def resolve_year_source(ano: int) -> str:
     """Diz de qual diretório o ano deve ser baixado.
 
-    O definitivo tem precedência sobre o preliminar. Um ano fechado pelo DATASUS
-    passa a existir nos dois diretórios, e reprocessá-lo substitui o dado
-    preliminar pelo definitivo.
+    Devolve a primeira versão de `constants.SOURCES` que tem o ano, e a ordem de
+    declaração lá é que dá ao definitivo precedência sobre o preliminar. Um ano
+    fechado pelo DATASUS passa a existir nos dois diretórios, e reprocessá-lo
+    substitui o dado preliminar pelo definitivo.
 
     Args:
         ano: Ano a resolver.
 
     Returns:
-        `"definitivo"` ou `"preliminar"`.
+        A chave da versão em `constants.SOURCES` — `"definitivo"` ou
+        `"preliminar"`.
 
     Raises:
-        FileNotFoundError: Se o ano não existir em nenhum dos dois diretórios.
+        FileNotFoundError: Se o ano não existir em nenhuma das versões.
     """
-    if ano in list_ftp_years(constants.FTP_FINAL_DIR.value):
-        return FINAL
-    if ano in list_ftp_years(constants.FTP_PRELIM_DIR.value):
-        return PRELIM
+    for source, urls in constants.SOURCES.value.items():
+        if ano in list_ftp_years(urls["dir"]):
+            return source
     raise FileNotFoundError(
         f"ano {ano} não está no FTP do DATASUS, nem definitivo nem preliminar"
     )
@@ -124,20 +124,17 @@ def download_year(ano: int, source: str, input_dir: Path) -> Path:
 
     Args:
         ano: Ano a baixar.
-        source: `"definitivo"` ou `"preliminar"`.
+        source: Versão do dado, chave de `constants.SOURCES`.
         input_dir: Diretório de destino.
 
     Returns:
         O diretório de destino.
 
     Raises:
+        KeyError: Se `source` não for uma chave de `constants.SOURCES`.
         RuntimeError: Se nenhuma das 27 UFs for baixada.
     """
-    template = (
-        constants.FTP_FINAL.value
-        if source == FINAL
-        else constants.FTP_PRELIM.value
-    )
+    template = constants.SOURCES.value[source]["file"]
 
     missing = []
     for sigla_uf in constants.UFS.value:
@@ -309,8 +306,8 @@ def parse_idade(value: object) -> float | None:
     """Converte a idade codificada do SIM em anos.
 
     O primeiro dígito é a unidade — 0 minutos, 1 horas, 2 dias, 3 meses, 4 anos,
-    5 anos acima de 100 — e os demais são a quantidade. Minutos e horas viram
-    zero; a unidade 0 não é tratada e devolve None, como na carga anterior.
+    5 anos acima de 100 — e os demais são a quantidade. Horas viram zero; a
+    unidade 0 não é tratada e devolve None, como na carga anterior.
 
     Args:
         value: Valor bruto do arquivo.
@@ -468,7 +465,7 @@ def clean_year(
     Args:
         table_id: Slug da tabela, que define as colunas de partição.
         ano: Ano processado.
-        source: `"definitivo"` ou `"preliminar"`.
+        source: Versão do dado, chave de `constants.SOURCES`.
         input_dir: Diretório com os arquivos `.dbc`.
         output_dir: Raiz do particionado.
 
@@ -482,7 +479,7 @@ def clean_year(
     partition_columns = table["partition_columns"]
     file_prefix = table["file_prefix"]
     municipios = load_municipios()
-    is_prelim = source == PRELIM
+    is_prelim = source == constants.PRELIM.value
     total = 0
 
     for filepath in sorted(input_dir.glob(f"{file_prefix}*{ano}.dbc")):
@@ -513,7 +510,7 @@ def download_table(table_id: str, ano: int, source: str) -> Path:
     Args:
         table_id: Slug da tabela.
         ano: Ano a baixar.
-        source: `"definitivo"` ou `"preliminar"`.
+        source: Versão do dado, chave de `constants.SOURCES`.
 
     Returns:
         O diretório de entrada com os arquivos baixados.
@@ -528,7 +525,7 @@ def clean_table(table_id: str, ano: int, source: str) -> Path:
     Args:
         table_id: Slug da tabela.
         ano: Ano a limpar.
-        source: `"definitivo"` ou `"preliminar"`.
+        source: Versão do dado, chave de `constants.SOURCES`.
 
     Returns:
         O diretório particionado, no formato esperado por `upload_to_gcs`.

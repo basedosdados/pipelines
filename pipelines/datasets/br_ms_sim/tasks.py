@@ -29,7 +29,8 @@ def resolve_year_source(ano: int) -> str:
         ano: Ano a resolver.
 
     Returns:
-        `"definitivo"` ou `"preliminar"`.
+        A chave da versão em `constants.SOURCES` — `"definitivo"` ou
+        `"preliminar"`.
     """
     return utils.resolve_year_source(ano)
 
@@ -41,7 +42,7 @@ def download_table(table_id: str, ano: int, source: str) -> Path:
     Args:
         table_id: Slug da tabela.
         ano: Ano a baixar.
-        source: `"definitivo"` ou `"preliminar"`.
+        source: Versão do dado, chave de `constants.SOURCES`.
 
     Returns:
         O diretório de entrada com os arquivos baixados.
@@ -56,7 +57,7 @@ def clean_table(table_id: str, ano: int, source: str) -> Path:
     Args:
         table_id: Slug da tabela.
         ano: Ano a limpar.
-        source: `"definitivo"` ou `"preliminar"`.
+        source: Versão do dado, chave de `constants.SOURCES`.
 
     Returns:
         O diretório particionado, no formato esperado por `upload_to_gcs`.

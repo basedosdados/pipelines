@@ -8,20 +8,30 @@ from enum import Enum
 class constants(Enum):
     """Constantes de br_ms_sim."""
 
-    FTP_FINAL = (
-        "ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/CID10/DORES/"
-        "DO{sigla_uf}{ano}.dbc"
-    )
-    FTP_PRELIM = (
-        "ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/PRELIM/DORES/"
-        "DO{sigla_uf}{ano}.dbc"
-    )
-    FTP_FINAL_DIR = (
-        "ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/CID10/DORES/"
-    )
-    FTP_PRELIM_DIR = (
-        "ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/PRELIM/DORES/"
-    )
+    # Versões do dado no FTP, em ordem de precedência: um ano fechado pelo
+    # DATASUS passa a existir nas duas, e o definitivo é o que vale.
+    SOURCES = {
+        "definitivo": {
+            "file": (
+                "ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/CID10/DORES/"
+                "DO{sigla_uf}{ano}.dbc"
+            ),
+            "dir": (
+                "ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/CID10/DORES/"
+            ),
+        },
+        "preliminar": {
+            "file": (
+                "ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/PRELIM/DORES/"
+                "DO{sigla_uf}{ano}.dbc"
+            ),
+            "dir": (
+                "ftp://ftp.datasus.gov.br/dissemin/publicos/SIM/PRELIM/DORES/"
+            ),
+        },
+    }
+
+    PRELIM = "preliminar"
 
     # Área de trabalho do pod. `input/` recebe os .dbc, `output/` o particionado
     # que sobe para o GCS.
