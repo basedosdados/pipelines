@@ -17,6 +17,17 @@ the run replaces exactly the partitions it rebuilt and leaves the rest alone,
 and the institution directory is merged rather than replaced for the same
 reason.
 
+That guard is partition-level, so it does not protect a loss *within* a
+partition, and `application_offer` has one. The onboarding read an appendix
+vintage that printed the original 2019-2021 columns beside the revised ones;
+neither downloadable appendix still does, so a refresh rebuilds those three
+year partitions carrying only `series = "Revised"` and the nine `"Original"`
+rows per year do not come back. Measured on the 2026-09-09 dev run: 171 rows
+before, 144 after. **This is accepted, not a bug** — the department's revised
+figures are taken as the current truth for those years. Do not "fix" the 27-row
+drop by reintroducing the delisted series. Whole years are still safe: 2025 was
+outside the release and survived untouched.
+
 Deploy: `.github/scripts/deploy_flows.py` auto-discovers
 `au_doe_higher_education_flow`; the dev pool ignores the schedule, the prod
 pool activates it (paused until armed in Django admin).
@@ -182,5 +193,11 @@ def au_doe_higher_education_flow(
 au_doe_higher_education_flow.deploy_schedules = [
     {"cron": "35 17 9 * *", "timezone": "America/Sao_Paulo"}
 ]
+# `memory` is not a variable of the work pool's job template, so it is dropped
+# without complaint and the pod gets the pool default of 4Gi no matter what
+# number is written here. `memory_limit` is the one that is actually applied.
 # pyrefly: ignore [missing-attribute]
-au_doe_higher_education_flow.job_variables = {"memory": "12Gi"}
+au_doe_higher_education_flow.job_variables = {
+    "memory_limit": "12Gi",
+    "memory_request": "2Gi",
+}

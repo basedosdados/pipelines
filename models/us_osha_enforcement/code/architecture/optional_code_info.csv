@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano de abertura da inspeção associada,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Derivado de inspection.open_date. Registros cujo inspection_id não existe em inspection recebem year = 9999,
+inspection_id,STRING,Identificador único da inspeção (activity number) da OSHA,,no,,,no,,ACTIVITY_NR
+information_type,STRING,Tipo da informação opcional; apenas o tipo N é publicado,,no,,,no,,OPT_TYPE
+information_id,STRING,Identificador da informação opcional,,no,,,no,A OSHA não publica o significado destes identificadores,OPT_ID
+information_value,STRING,Valor da informação opcional,,no,,,no,,OPT_VALUE
