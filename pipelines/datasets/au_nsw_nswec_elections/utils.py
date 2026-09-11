@@ -199,6 +199,9 @@ def flatten_columns(frame: pd.DataFrame) -> pd.DataFrame:
     frame.columns = [
         " | ".join(str(x) for x in col if "Unnamed" not in str(x))
         if isinstance(col, tuple)
+        # The stubs type a non-tuple label as ``str``; pandas allows any hashable, and
+        # these workbooks do carry integer header cells. The cast is load-bearing.
+        # pyrefly: ignore [unnecessary-type-conversion]
         else str(col)
         for col in frame.columns
     ]
