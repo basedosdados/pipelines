@@ -1,7 +1,11 @@
-# au_abs_cpi — Consumer Price Index, Australia (ABS)
+# au_abs_prices_inflation — Consumer Price Index, Australia (ABS)
+
+> Historical note: this plan was written when the CPI was its own dataset
+> (`au_abs_cpi`). It was generalized into `au_abs_prices_inflation` in Sep 2026;
+> the CPI tables are now `cpi_quarterly` and `cpi_monthly`.
 
 Onboarding plan and design record. Org `au_abs`, dataset slug `cpi`, GCP dataset
-`au_abs_cpi`, licence CC BY 4.0.
+`au_abs_prices_inflation`, licence CC BY 4.0.
 
 Source: Australian Bureau of Statistics, *Consumer Price Index, Australia*
 (former catalogue 6401.0).
@@ -83,7 +87,7 @@ repeats at two hierarchy levels with identical values (single-child groups:
 Communication, Education, Insurance, Rents, Tobacco, Household textiles, New
 dwelling purchase by owner-occupiers, Urban transport fares), the higher-level
 (parent) code is used. Map bundled at
-`pipelines/datasets/au_abs_cpi/index_codes.csv`.
+`pipelines/datasets/au_abs_prices_inflation/index_codes.csv`.
 
 Notes on modelling choices:
 - **No dictionary table.** Every column is either numeric or a readable label
@@ -110,7 +114,7 @@ Notes on modelling choices:
 - [x] 1 context — source, org, licence, coverage
 - [x] 2 architecture — this doc + code/architecture/*.csv
 - [x] 3 download — input/*.xlsx (5 tables)
-- [ ] 4 clean — pipelines/datasets/au_abs_cpi/utils.py (shared) + code/clean_data.py
+- [ ] 4 clean — pipelines/datasets/au_abs_prices_inflation/cpi.py (shared) + code/clean_data.py
 - [ ] 5 upload (dev) · 6 dbt · 7 validate · 8 discover · 9 metadata (dev)
 - [ ] — verification checkpoint —
 - [ ] 10 metadata (prod) · 11 PR · 12 monthly Prefect pipeline · 13 publish

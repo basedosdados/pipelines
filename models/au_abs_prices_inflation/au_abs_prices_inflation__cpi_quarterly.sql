@@ -1,12 +1,12 @@
 {{
     config(
-        schema="au_abs_cpi",
-        alias="monthly",
+        schema="au_abs_prices_inflation",
+        alias="cpi_quarterly",
         materialized="table",
         partition_by={
             "field": "year",
             "data_type": "int64",
-            "range": {"start": 2017, "end": 2031, "interval": 1},
+            "range": {"start": 1948, "end": 2031, "interval": 1},
         },
         cluster_by=["region", "index_name"],
     )
@@ -15,7 +15,7 @@
 
 select
     safe_cast(year as int64) year,
-    safe_cast(month as int64) month,
+    safe_cast(quarter as int64) quarter,
     safe_cast(region as string) region,
     safe_cast(index_code as string) index_code,
     safe_cast(index_name as string) index_name,
@@ -23,4 +23,4 @@ select
     safe_cast(index_number as float64) index_number,
     safe_cast(percentage_change_period as float64) percentage_change_period,
     safe_cast(percentage_change_year as float64) percentage_change_year
-from {{ set_datalake_project("au_abs_cpi_staging.monthly") }} as t
+from {{ set_datalake_project("au_abs_prices_inflation_staging.cpi_quarterly") }} as t
