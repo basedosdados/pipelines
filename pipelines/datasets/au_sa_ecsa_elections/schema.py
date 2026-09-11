@@ -1657,3 +1657,82 @@ TABLE_META: dict[str, TableMeta] = {
 assert set(TABLE_META) == set(TABLES), (
     f"TABLE_META and TABLES disagree: {set(TABLE_META) ^ set(TABLES)}"
 )
+
+# --------------------------------------------------------------------------------------
+# Dataset- and source-level metadata
+#
+# The backend registration reads these. They live here rather than in a hand-written
+# JSON so that `metadata/` staying gitignored (it carries per-environment ids) cannot
+# leave `register_metadata*.py` unrunnable from a clean checkout.
+# --------------------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class DatasetMeta:
+    name_pt: str
+    name_en: str
+    name_es: str
+    description_pt: str
+    description_en: str
+    description_es: str
+
+
+DATASET_META = DatasetMeta(
+    name_pt="Eleições estaduais da Austrália Meridional",
+    name_en="South Australian state elections",
+    name_es="Elecciones estatales de Australia Meridional",
+    description_pt="Resultados das eleições estaduais da Austrália Meridional publicados pela Comissão Eleitoral do estado (ECSA), cobrindo os pleitos gerais de 2022 e 2026 e as três eleições suplementares de distrito realizadas entre eles. Cobre as duas câmaras do Parlamento estadual: a Assembleia, eleita por voto preferencial obrigatório em 47 distritos, e o Conselho Legislativo, eleito por voto único transferível em uma circunscrição estadual única de 11 cadeiras por pleito. Inclui ainda as declarações de financiamento de campanha apresentadas à ECSA desde 2015, no nível da declaração e não da doação individual. Sobre a licença: a página de direitos autorais da ECSA licencia o conteúdo de ecsa.sa.gov.au sob a Creative Commons Australia Attribution 3.0 Licence, com atribuição a 'Government of South Australia 2011', mas essa concessão não alcança o servidor da API de resultados, que não publica declaração de licença alguma, e os portais de declarações de financiamento reservam todos os direitos; os dados são publicados aqui como registro público factual de resultados eleitorais declarados.",
+    description_en="Results of the South Australian state elections published by the state Electoral Commission (ECSA), covering the 2022 and 2026 general elections and the three district by-elections held between them. It covers both chambers of the state Parliament: the House of Assembly, elected by compulsory preferential voting in 47 districts, and the Legislative Council, elected by proportional single transferable vote in a single statewide division of 11 seats per election. It also carries the campaign funding disclosure returns lodged with the ECSA since 2015, at the level of the return rather than the individual gift. On licensing: the ECSA copyright page licenses the content of ecsa.sa.gov.au under the Creative Commons Australia Attribution 3.0 Licence, with attribution to 'Government of South Australia 2011', but that grant does not reach the results API host, which publishes no licence statement at all, and the funding disclosure portals reserve all rights; the data is published here as the factual public record of declared election results.",
+    description_es="Resultados de las elecciones estatales de Australia Meridional publicados por la Comisión Electoral del estado (ECSA), cubriendo los comicios generales de 2022 y 2026 y las tres elecciones parciales de distrito celebradas entre ellos. Cubre las dos cámaras del Parlamento estatal: la Asamblea, elegida por voto preferencial obligatorio en 47 distritos, y el Consejo Legislativo, elegido por voto único transferible en una circunscripción estatal única de 11 escaños por comicio. Incluye además las declaraciones de financiamiento de campaña presentadas a la ECSA desde 2015, al nivel de la declaración y no de la donación individual. Sobre la licencia: la página de derechos de autor de la ECSA licencia el contenido de ecsa.sa.gov.au bajo la Creative Commons Australia Attribution 3.0 Licence, con atribución a 'Government of South Australia 2011', pero esa concesión no alcanza al servidor de la API de resultados, que no publica declaración de licencia alguna, y los portales de declaraciones de financiamiento reservan todos los derechos; los datos se publican aquí como registro público factual de resultados electorales declarados.",
+)
+
+
+@dataclass(frozen=True)
+class RawSourceMeta:
+    """A place the data is published from.
+
+    Each table links to exactly ONE of these: the backend client raises when a table
+    carries two, which would make a recurring pipeline impossible to run.
+    """
+
+    name_pt: str
+    name_en: str
+    name_es: str
+    description_pt: str
+    description_en: str
+    description_es: str
+    url: str
+    has_structured_data: bool
+    is_free: bool
+    contains_api: bool
+    requires_registration: bool
+
+
+RAW_DATA_SOURCES: dict[str, RawSourceMeta] = {
+    "results_api": RawSourceMeta(
+        name_pt="API de resultados eleitorais da ECSA",
+        name_en="ECSA election results API",
+        name_es="API de resultados electorales de la ECSA",
+        description_pt="Endpoint aberto de gerenciamento de API que serve os resultados das eleições estaduais da Austrália Meridional para a aplicação result.ecsa.sa.gov.au da própria comissão. Publica, por evento eleitoral e por câmara, candidaturas, locais de votação, resultados por distrito e por local, e a distribuição de preferências. Nenhuma declaração de licença é publicada neste servidor, e a concessão Creative Commons Australia Attribution 3.0 da página de direitos autorais da ECSA refere-se ao conteúdo de ecsa.sa.gov.au, um servidor distinto; por isso a licença é registrada como desconhecida.",
+        description_en="Open API management endpoint that serves the South Australian state election results to the commission's own result.ecsa.sa.gov.au application. It publishes, per electoral event and per chamber, candidates, voting centres, results by district and by centre, and the distribution of preferences. No licence statement is published on this host, and the Creative Commons Australia Attribution 3.0 grant on the ECSA copyright page covers the content of ecsa.sa.gov.au, a different host; the licence is therefore recorded as unknown.",
+        description_es="Endpoint abierto de gestión de API que sirve los resultados de las elecciones estatales de Australia Meridional a la aplicación result.ecsa.sa.gov.au de la propia comisión. Publica, por evento electoral y por cámara, candidaturas, locales de votación, resultados por distrito y por local, y la distribución de preferencias. No se publica declaración de licencia alguna en este servidor, y la concesión Creative Commons Australia Attribution 3.0 de la página de derechos de autor de la ECSA se refiere al contenido de ecsa.sa.gov.au, un servidor distinto; por eso la licencia se registra como desconocida.",
+        url="https://apim-ecsa-production.azure-api.net/results-display/",
+        has_structured_data=True,
+        is_free=True,
+        contains_api=True,
+        requires_registration=False,
+    ),
+    "funding_portals": RawSourceMeta(
+        name_pt="Portais de declarações de financiamento da ECSA",
+        name_en="ECSA funding disclosure portals",
+        name_es="Portales de declaraciones de financiamiento de la ECSA",
+        description_pt="Índices em PHP das declarações de financiamento de campanha apresentadas à ECSA: o portal em vigor, a partir dos períodos de 2023, e o arquivo dos períodos de 2015 a 2023, em https://ecsa.sa.gov.au/html/fdarchive/. Publicam a declaração e o seu valor agregado; o detalhe por doação existe apenas dentro dos PDF anexados. As páginas trazem no rodapé a reserva de todos os direitos pela comissão, o que contradiz a concessão Creative Commons da página de direitos autorais do mesmo domínio; por isso a licença é registrada como desconhecida.",
+        description_en="PHP indexes of the campaign funding disclosure returns lodged with the ECSA: the portal in force, covering the 2023 periods onwards, and the archive of the 2015 to 2023 periods at https://ecsa.sa.gov.au/html/fdarchive/. They publish the return and its aggregate value; gift level detail exists only inside the attached PDFs. The pages carry an all rights reserved footer, which contradicts the Creative Commons grant on the copyright page of the same domain; the licence is therefore recorded as unknown.",
+        description_es="Índices en PHP de las declaraciones de financiamiento de campaña presentadas a la ECSA: el portal vigente, desde los períodos de 2023, y el archivo de los períodos de 2015 a 2023, en https://ecsa.sa.gov.au/html/fdarchive/. Publican la declaración y su valor agregado; el detalle por donación existe solo dentro de los PDF adjuntos. Las páginas llevan en el pie la reserva de todos los derechos por la comisión, lo que contradice la concesión Creative Commons de la página de derechos de autor del mismo dominio; por eso la licencia se registra como desconocida.",
+        url="https://ecsa.sa.gov.au/html/funding2024/",
+        has_structured_data=True,
+        is_free=True,
+        contains_api=False,
+        requires_registration=False,
+    ),
+}

@@ -11,11 +11,14 @@ Usage::
 
 from __future__ import annotations
 
+import dataclasses
 import json
 import pathlib
 
 from pipelines.datasets.au_sa_ecsa_elections.schema import (
+    DATASET_META,
     OBSERVATION_TRANSLATIONS,
+    RAW_DATA_SOURCES,
     TABLE_META,
     TABLES,
 )
@@ -76,7 +79,25 @@ def main() -> int:
     (OUT / "tables.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=1)
     )
-    print(f"wrote {len(TABLES)} column payloads and tables.json to {OUT}")
+    # The registration scripts also read these two. `metadata/` is gitignored
+    # repo-wide (it carries per-environment ids), so emitting them here is what
+    # keeps register_metadata*.py runnable from a clean checkout.
+    (OUT / "dataset.json").write_text(
+        json.dumps(
+            dataclasses.asdict(DATASET_META), ensure_ascii=False, indent=1
+        )
+    )
+    (OUT / "raw_data_sources.json").write_text(
+        json.dumps(
+            {k: dataclasses.asdict(v) for k, v in RAW_DATA_SOURCES.items()},
+            ensure_ascii=False,
+            indent=1,
+        )
+    )
+    print(
+        f"wrote {len(TABLES)} column payloads, tables.json, dataset.json and "
+        f"raw_data_sources.json to {OUT}"
+    )
     return 0
 
 
