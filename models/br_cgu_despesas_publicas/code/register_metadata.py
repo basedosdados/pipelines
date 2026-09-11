@@ -229,7 +229,15 @@ def main() -> None:
     ap.add_argument(
         "--publish",
         action="store_true",
-        help="flip the dataset to published (dev/staging only pre-merge)",
+        help="write the dataset record with status=published (dev/staging "
+        "pre-merge; prod only after merge + table-approve + verification)",
+    )
+    ap.add_argument(
+        "--under-review",
+        action="store_true",
+        help="write the dataset record with status=under_review, which hides it "
+        "from the production frontend. The correct state for prod until the PR "
+        "has merged and the prod tables actually exist.",
     )
     ap.add_argument(
         "--free-end",
@@ -405,9 +413,12 @@ def main() -> None:
         ),
     )
 
-    if args.publish:
+    if args.publish and args.under_review:
+        raise SystemExit("--publish and --under-review are mutually exclusive")
+    if args.publish or args.under_review:
+        status = ST_PUBLISHED if args.publish else ST_UNDER_REVIEW
         print(
-            "publish:",
+            "dataset:",
             server.create_update_dataset(
                 **DATASET_DESC,
                 slug=DATASET_SLUG,
@@ -429,7 +440,7 @@ def main() -> None:
                     "cdd72fa2-54c4-4925-af52-44a46fa7dbfc",  # ministerio
                     "e5e5ea0e-2239-4988-b4c6-0e9ebf62a98f",  # politica_fiscal
                 ],
-                status_id=ST_PUBLISHED,
+                status_id=status,
                 id=DATASET_ID,
                 env=env,
             ),
