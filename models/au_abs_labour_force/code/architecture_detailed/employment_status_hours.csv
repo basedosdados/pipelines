@@ -1,0 +1,11 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,Mid-quarter month
+quarter,INT64,"Reference quarter of the observation, from 1 to 4",,no,,quarter,no,"Derived from the ABS mid-quarter month: February is quarter 1, May is 2, August is 3 and November is 4.",Mid-quarter month
+month,INT64,"Reference month of the observation, from 1 to 12",,no,br_bd_diretorios_data_tempo.mes:mes,month,no,"The ABS mid-quarter month, always February, May, August or November.",Mid-quarter month
+status_in_employment,STRING,"Status in employment of the main job, such as employee with paid leave entitlements or owner manager of an incorporated enterprise",,no,,,no,"Finer than the status_in_employment column of the sibling monthly table, which carries a single rolled-up employee category; joining the two requires rolling the three employee categories up first.",Status in employment of main job
+hours_band,STRING,Range of hours actually worked in all jobs during the reference week,,no,,,no,,Hours actually worked in all jobs
+sex,STRING,Sex: males or females,,no,,,no,"The Detailed cubes publish males and females only. A persons total is not derived by summing the two, because ABS benchmarks and rounds its estimates independently, so the sum is not the published total.",Sex
+employed_full_time,FLOAT64,Number of persons employed full-time,,no,,person,no,Converted from ABS thousands to absolute persons,Employed full-time ('000)
+employed_part_time,FLOAT64,Number of persons employed part-time,,no,,person,no,Converted from ABS thousands to absolute persons,Employed part-time ('000)
+hours_worked_full_time,FLOAT64,Total hours actually worked in all jobs by persons employed full-time,,no,,hour,no,Converted from ABS thousands of hours to hours,Number of hours actually worked in all jobs (employed full-time) ('000 Hours)
+hours_worked_part_time,FLOAT64,Total hours actually worked in all jobs by persons employed part-time,,no,,hour,no,Converted from ABS thousands of hours to hours,Number of hours actually worked in all jobs (employed part-time) ('000 Hours)
