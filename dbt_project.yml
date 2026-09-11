@@ -85,6 +85,9 @@ models:
     au_rba_statistical_tables:
       +materialized: table
       +schema: au_rba_statistical_tables
+    au_treasury_budget:
+      +materialized: table
+      +schema: au_treasury_budget
     au_vic_vec_elections:
       +materialized: table
       +schema: au_vic_vec_elections
