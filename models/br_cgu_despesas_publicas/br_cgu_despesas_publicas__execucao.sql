@@ -44,7 +44,9 @@ select
     safe_cast(id_localizador as string) id_localizador,
     safe_cast(nome_localizador as string) nome_localizador,
     safe_cast(sigla_localizador as string) sigla_localizador,
-    safe_cast(descricao_complementar_localizador as string) descricao_complementar_localizador,
+    safe_cast(
+        descricao_complementar_localizador as string
+    ) descricao_complementar_localizador,
     safe_cast(id_autor_emenda as string) id_autor_emenda,
     safe_cast(nome_autor_emenda as string) nome_autor_emenda,
     safe_cast(id_categoria_economica as string) id_categoria_economica,

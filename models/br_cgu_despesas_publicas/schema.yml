@@ -44,119 +44,131 @@ models:
             where: __most_recent_year_month__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - id_autor_emenda
-            - nome_municipio
+          ignore_values: [id_autor_emenda, nome_municipio]
           config:
             where: __most_recent_year_month__
     columns:
       - name: ano
-        description: "Ano do lançamento da despesa"
+        description: Ano do lançamento da despesa
         tests:
           - not_null
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
       - name: mes
-        description: "Mês do lançamento da despesa"
+        description: Mês do lançamento da despesa
         tests:
           - not_null
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__mes')
               field: mes.mes
       - name: id_orgao_superior
-        description: "Código do órgão superior responsável pela despesa, em geral um ministério"
+        description: Código do órgão superior responsável pela despesa, em geral um
+          ministério
       - name: nome_orgao_superior
-        description: "Nome do órgão superior responsável pela despesa"
+        description: Nome do órgão superior responsável pela despesa
       - name: id_orgao_subordinado
-        description: "Código do órgão subordinado responsável pela despesa"
+        description: Código do órgão subordinado responsável pela despesa
       - name: nome_orgao_subordinado
-        description: "Nome do órgão subordinado responsável pela despesa"
+        description: Nome do órgão subordinado responsável pela despesa
       - name: id_unidade_gestora
-        description: "Código da unidade gestora, a unidade administrativa que executa o gasto no SIAFI"
+        description: Código da unidade gestora, a unidade administrativa que executa
+          o gasto no SIAFI
       - name: nome_unidade_gestora
-        description: "Nome da unidade gestora"
+        description: Nome da unidade gestora
       - name: id_gestao
-        description: "Código da gestão, que identifica o conjunto orçamentário-financeiro a que a unidade gestora pertence"
+        description: Código da gestão, que identifica o conjunto orçamentário-financeiro
+          a que a unidade gestora pertence
       - name: nome_gestao
-        description: "Nome da gestão"
+        description: Nome da gestão
       - name: id_unidade_orcamentaria
-        description: "Código da unidade orçamentária, menor nível da estrutura administrativa a que se aloca a dotação"
+        description: Código da unidade orçamentária, menor nível da estrutura administrativa
+          a que se aloca a dotação
       - name: nome_unidade_orcamentaria
-        description: "Nome da unidade orçamentária"
+        description: Nome da unidade orçamentária
       - name: id_funcao
-        description: "Código da função de governo em que a despesa foi classificada"
+        description: Código da função de governo em que a despesa foi classificada
       - name: nome_funcao
-        description: "Nome da função de governo em que a despesa foi classificada"
+        description: Nome da função de governo em que a despesa foi classificada
       - name: id_subfuncao
-        description: "Código da subfunção, que detalha a função em áreas de atuação mais específicas"
+        description: Código da subfunção, que detalha a função em áreas de atuação
+          mais específicas
       - name: nome_subfuncao
-        description: "Nome da subfunção"
+        description: Nome da subfunção
       - name: id_programa_orcamentario
-        description: "Código do programa orçamentário, instrumento do plano plurianual que articula ações para um objetivo"
+        description: Código do programa orçamentário, instrumento do plano plurianual
+          que articula ações para um objetivo
       - name: nome_programa_orcamentario
-        description: "Nome do programa orçamentário"
+        description: Nome do programa orçamentário
       - name: id_acao
-        description: "Código da ação orçamentária, menor unidade de programação que gera bem ou serviço"
+        description: Código da ação orçamentária, menor unidade de programação que
+          gera bem ou serviço
       - name: nome_acao
-        description: "Nome da ação orçamentária"
+        description: Nome da ação orçamentária
       - name: id_plano_orcamentario
-        description: "Código do plano orçamentário, subdivisão da ação usada no detalhamento gerencial da despesa"
+        description: Código do plano orçamentário, subdivisão da ação usada no detalhamento
+          gerencial da despesa
       - name: nome_plano_orcamentario
-        description: "Nome do plano orçamentário"
+        description: Nome do plano orçamentário
       - name: id_programa_governo
-        description: "Código do programa de governo associado à despesa"
+        description: Código do programa de governo associado à despesa
       - name: nome_programa_governo
-        description: "Nome do programa de governo associado à despesa"
+        description: Nome do programa de governo associado à despesa
       - name: sigla_uf
-        description: "Sigla da unidade da federação do localizador da despesa"
+        description: Sigla da unidade da federação do localizador da despesa
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
       - name: nome_municipio
-        description: "Nome do município do localizador da despesa"
+        description: Nome do município do localizador da despesa
       - name: id_subtitulo
-        description: "Código do subtítulo, que identifica a localização física ou o recorte da ação orçamentária"
+        description: Código do subtítulo, que identifica a localização física ou o
+          recorte da ação orçamentária
       - name: nome_subtitulo
-        description: "Nome do subtítulo"
+        description: Nome do subtítulo
       - name: id_localizador
-        description: "Código do localizador do gasto dentro da ação orçamentária"
+        description: Código do localizador do gasto dentro da ação orçamentária
       - name: nome_localizador
-        description: "Nome do localizador do gasto"
+        description: Nome do localizador do gasto
       - name: sigla_localizador
-        description: "Sigla do localizador do gasto"
+        description: Sigla do localizador do gasto
       - name: descricao_complementar_localizador
-        description: "Descrição complementar do localizador do gasto"
+        description: Descrição complementar do localizador do gasto
       - name: id_autor_emenda
-        description: "Código do autor da emenda parlamentar que originou a despesa"
+        description: Código do autor da emenda parlamentar que originou a despesa
       - name: nome_autor_emenda
-        description: "Nome do autor da emenda parlamentar que originou a despesa"
+        description: Nome do autor da emenda parlamentar que originou a despesa
       - name: id_categoria_economica
-        description: "Código da categoria econômica da despesa, que separa despesas correntes de despesas de capital"
+        description: Código da categoria econômica da despesa, que separa despesas
+          correntes de despesas de capital
       - name: nome_categoria_economica
-        description: "Nome da categoria econômica da despesa"
+        description: Nome da categoria econômica da despesa
       - name: id_grupo_despesa
-        description: "Código do grupo de natureza da despesa, por exemplo pessoal e encargos sociais, juros da dívida, investimentos"
+        description: Código do grupo de natureza da despesa, por exemplo pessoal e
+          encargos sociais, juros da dívida, investimentos
       - name: nome_grupo_despesa
-        description: "Nome do grupo de natureza da despesa"
+        description: Nome do grupo de natureza da despesa
       - name: id_elemento_despesa
-        description: "Código do elemento de despesa, que identifica o objeto do gasto"
+        description: Código do elemento de despesa, que identifica o objeto do gasto
       - name: nome_elemento_despesa
-        description: "Nome do elemento de despesa"
+        description: Nome do elemento de despesa
       - name: id_modalidade_despesa
-        description: "Código da modalidade de aplicação, que indica se o gasto é direto ou por transferência a outro ente"
+        description: Código da modalidade de aplicação, que indica se o gasto é direto
+          ou por transferência a outro ente
       - name: nome_modalidade_despesa
-        description: "Nome da modalidade de aplicação"
+        description: Nome da modalidade de aplicação
       - name: valor_empenhado
-        description: "Valor empenhado no mês, em reais correntes"
+        description: Valor empenhado no mês, em reais correntes
       - name: valor_liquidado
-        description: "Valor liquidado no mês, isto é, reconhecido como devido após a verificação da entrega, em reais correntes"
+        description: Valor liquidado no mês, isto é, reconhecido como devido após
+          a verificação da entrega, em reais correntes
       - name: valor_pago
-        description: "Valor efetivamente pago no mês, em reais correntes"
+        description: Valor efetivamente pago no mês, em reais correntes
       - name: valor_restos_pagar_inscritos
-        description: "Valor inscrito em restos a pagar, isto é, empenhado em exercício anterior e não pago até o seu encerramento, em reais correntes"
+        description: Valor inscrito em restos a pagar, isto é, empenhado em exercício
+          anterior e não pago até o seu encerramento, em reais correntes
       - name: valor_restos_pagar_cancelados
-        description: "Valor de restos a pagar cancelado no mês, em reais correntes"
+        description: Valor de restos a pagar cancelado no mês, em reais correntes
       - name: valor_restos_pagar_pagos
-        description: "Valor de restos a pagar efetivamente pago no mês, em reais correntes"
+        description: Valor de restos a pagar efetivamente pago no mês, em reais correntes
