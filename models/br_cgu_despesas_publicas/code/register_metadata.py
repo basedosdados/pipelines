@@ -95,6 +95,35 @@ TABLE_DESC = {
     ),
 }
 
+DATASET_DESC = {
+    "description_pt": (
+        "Despesas do Governo Federal brasileiro publicadas pelo Portal da Transparência "
+        "da Controladoria-Geral da União. Cobre a execução mensal da despesa nos "
+        "orçamentos fiscal e da seguridade social desde janeiro de 2014, com os valores "
+        "empenhado, liquidado e pago do exercício e a movimentação de restos a pagar, "
+        "detalhados por órgão, unidade gestora, unidade orçamentária, classificação "
+        "funcional-programática, plano orçamentário, localizador e natureza da despesa."
+    ),
+    "description_en": (
+        "Expenditure of the Brazilian Federal Government published by the Transparency "
+        "Portal of the Office of the Comptroller General. It covers the monthly execution "
+        "of expenditure under the fiscal and social security budgets since January 2014, "
+        "with amounts committed, verified and paid within the year plus the movement of "
+        "commitments carried over from previous years, broken down by agency, managing "
+        "unit, budget unit, functional-programmatic classification, budget plan, "
+        "localiser and expenditure nature."
+    ),
+    "description_es": (
+        "Gastos del Gobierno Federal brasileño publicados por el Portal da Transparência "
+        "de la Contraloría General de la Unión. Cubre la ejecución mensual del gasto en "
+        "los presupuestos fiscal y de seguridad social desde enero de 2014, con los "
+        "valores comprometido, liquidado y pagado del ejercicio y el movimiento de "
+        "residuos por pagar, detallados por órgano, unidad gestora, unidad "
+        "presupuestaria, clasificación funcional-programática, plan presupuestario, "
+        "localizador y naturaleza del gasto."
+    ),
+}
+
 RAW_NAME = "Portal da Transparência — Execução da Despesa"
 
 # Column -> observation level. Exactly the grain columns, nothing else: an
@@ -380,16 +409,25 @@ def main() -> None:
         print(
             "publish:",
             server.create_update_dataset(
+                **DATASET_DESC,
                 slug=DATASET_SLUG,
                 name_pt="Despesas Públicas",
                 name_en="Public Expenditures",
                 name_es="Gastos Públicos",
                 organization_ids=["b5de5696-57b0-4d79-9bce-35d0861464db"],
                 theme_ids=["6dd730bb-89ab-4dba-a1bf-a25ca1c35003"],
+                # Tag UUIDs are identical across staging and prod; only the slug
+                # language differs (orcamento/budget, despesa/expenditure,
+                # gasto/spending). `governo` is deliberately omitted: it merely
+                # restates the `government` theme, which is its own metadata field.
                 tag_ids=[
-                    "8648b1da-a80b-4eaf-89be-76dbe1e9d102",
-                    "2195dbbf-7f5f-437c-a71e-e1aab0ac2337",
-                    "83b37841-83b0-45e7-9455-b7b1008f1e30",
+                    "8648b1da-a80b-4eaf-89be-76dbe1e9d102",  # orcamento / budget
+                    "2195dbbf-7f5f-437c-a71e-e1aab0ac2337",  # despesa / expenditure
+                    "83b37841-83b0-45e7-9455-b7b1008f1e30",  # gasto / spending
+                    "f2ef59b9-90ec-4fd7-a43a-9e783a2ec9ae",  # federal
+                    "8b187427-519e-48cb-b0a6-5380086edf3b",  # transparencia
+                    "cdd72fa2-54c4-4925-af52-44a46fa7dbfc",  # ministerio
+                    "e5e5ea0e-2239-4988-b4c6-0e9ebf62a98f",  # politica_fiscal
                 ],
                 status_id=ST_PUBLISHED,
                 id=DATASET_ID,
