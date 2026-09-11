@@ -115,6 +115,9 @@ models:
     au_nsw_bocsar_crime:
       +materialized: table
       +schema: au_nsw_bocsar_crime
+    au_nsw_nswec_elections:
+      +materialized: table
+      +schema: au_nsw_nswec_elections
     br_bcb_taxa_cambio:
       +materialized: table
       +schema: br_bcb_taxa_cambio
