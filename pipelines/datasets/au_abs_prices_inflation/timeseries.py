@@ -45,7 +45,6 @@ _CATALOGUE_RE = re.compile(r"^(\d{4}\.\d)")
 # --------------------------------------------------------------------------- #
 def _get(url: str, session=None):
     """GET a URL with the ABS-accepted headers, raising on any error status."""
-    """GET a URL with the ABS-accepted headers, raising on any error status."""
     import requests
 
     getter = session or requests
