@@ -1,21 +1,33 @@
 #!/usr/bin/env python3
-"""QA the cleaned au_abs_cpi output before upload."""
+"""QA the cleaned ABS Consumer Price Index output before upload."""
 
 import glob
+import os
 from pathlib import Path
 
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+# Scratch data (raw downloads, cleaned parquet) never lives in the repo: the
+# checkout sits inside Dropbox, so writing multi-GB output here would trigger a
+# sync and risk committing data. Default to ~/Downloads and allow an override.
+DATA_ROOT = Path(
+    os.environ.get(
+        "AU_ABS_PRICES_INFLATION_DATA",
+        Path.home() / "Downloads" / "au_abs_prices_inflation_data",
+    )
+)
 
 
 def load(table):
-    files = glob.glob(str(ROOT / "output" / table / "year=*/data.parquet"))
+    """Read one cleaned table back from its partitioned parquet."""
+    files = glob.glob(
+        str(DATA_ROOT / "output" / table / "year=*/data.parquet")
+    )
     df = pd.concat([pd.read_parquet(f) for f in files], ignore_index=True)
     # parquet is all-STRING; cast for checks
     for c in ("year",):
         df[c] = df[c].astype(int)
-    pcol = "quarter" if table == "quarterly" else "month"
+    pcol = "quarter" if table == "cpi_quarterly" else "month"
     df[pcol] = df[pcol].astype(int)
     for c in (
         "index_number",
@@ -26,7 +38,7 @@ def load(table):
     return df, pcol
 
 
-for table in ("quarterly", "monthly"):
+for table in ("cpi_quarterly", "cpi_monthly"):
     df, pcol = load(table)
     print("=" * 80)
     print(
@@ -67,7 +79,7 @@ for table in ("quarterly", "monthly"):
 # QA: recompute year change from index for All groups Australia and compare to stored
 print("=" * 80)
 print("QA: computed-vs-stored YoY for All groups Australia (monthly)")
-df, pcol = load("monthly")
+df, pcol = load("cpi_monthly")
 ag = df[
     (df.index_name == "All groups CPI") & (df.region == "Australia")
 ].copy()
