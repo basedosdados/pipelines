@@ -22,6 +22,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
+# pyrefly: ignore [untyped-import]
 import openpyxl
 
 from pipelines.datasets.au_tas_tec_elections import parse_html
