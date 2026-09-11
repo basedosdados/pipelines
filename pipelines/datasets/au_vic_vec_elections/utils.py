@@ -54,9 +54,13 @@ def apply_sed_crosswalk(
     frame = frame.copy()
     is_assembly = frame["chamber"] == "legislative_assembly"
     keys = frame["district_name"].map(normalise_district)
-    frame["state_electoral_division_id"] = (
-        keys.map(crosswalk).where(is_assembly, other=None).astype("object")
-    )
+    # An explicit object-dtype mask, not ``where(..., other=None)`` — see the note in
+    # ``_to_all_string_table`` below. ``map`` already yields object dtype here, so the
+    # two are equivalent on this data; the explicit form keeps the trap shape out of
+    # the file entirely.
+    mapped = keys.map(crosswalk).astype("object")
+    mapped[~is_assembly] = None
+    frame["state_electoral_division_id"] = mapped
     return frame
 
 

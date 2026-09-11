@@ -369,9 +369,12 @@ def build_disclosure_gift(records: list[dict[str, Any]]) -> pd.DataFrame:
     frame["gift_value"] = frame["gift_value"].astype("float64")
     for column in ("date_made", "date_received"):
         # Kept as ``datetime.date`` objects so arrow infers DATE, not TIMESTAMP.
-        frame[column] = (
-            frame[column].astype("object").where(frame[column].notna(), None)
-        )
+        # An explicit object-dtype mask, not ``where(..., other=None)``: on a
+        # non-object series pandas coerces ``None`` back to that dtype's own missing
+        # marker, and the downstream stringify would then write ``"NaT"``.
+        values = frame[column].astype("object")
+        values[frame[column].isna()] = None
+        frame[column] = values
     return frame
 
 
@@ -411,6 +414,17 @@ def check_no_id_collisions(frame: pd.DataFrame) -> None:
     print("check: no donation_id collisions between the portals", flush=True)
 
 
+def _count(mask: pd.Series) -> int:
+    """Count the True values in a boolean mask.
+
+    ``Series.sum()`` returns ``numpy.int64``, not ``int`` — the pandas stubs say
+    otherwise, hence the suppression. The cast is load-bearing: ``numpy.int64`` is not
+    JSON-serialisable, and these counts end up in reports that are dumped.
+    """
+    # pyrefly: ignore [unnecessary-type-conversion]
+    return int(mask.sum())
+
+
 def check_gap_is_empty(frame: pd.DataFrame) -> int:
     """No disclosure should fall in the window between the two views."""
     effective = frame["date_received"].where(
@@ -419,7 +433,7 @@ def check_gap_is_empty(frame: pd.DataFrame) -> int:
     inside = effective.map(
         lambda value: isinstance(value, date) and GAP_START <= value <= GAP_END
     )
-    count = int(inside.sum())
+    count = _count(inside)
     print(f"check: {count} rows in the {GAP_START}..{GAP_END} gap", flush=True)
     return count
 
@@ -440,16 +454,16 @@ def check_null_dates_match_status(frame: pd.DataFrame) -> dict[str, Any]:
         null_mask = after[column].isna()
         status_mask = after["disclosure_status"] == status
         report[column] = {
-            "null_rows": int(null_mask.sum()),
-            f"{status}_rows": int(status_mask.sum()),
-            "null_and_status": int((null_mask & status_mask).sum()),
-            "null_not_status": int((null_mask & ~status_mask).sum()),
-            "status_not_null": int((status_mask & ~null_mask).sum()),
+            "null_rows": _count(null_mask),
+            f"{status}_rows": _count(status_mask),
+            "null_and_status": _count(null_mask & status_mask),
+            "null_not_status": _count(null_mask & ~status_mask),
+            "status_not_null": _count(status_mask & ~null_mask),
             "holds": bool((null_mask == status_mask).all()),
         }
         print(f"check: {column} vs {status} -> {report[column]}", flush=True)
-    report["before_2020_date_made_nulls"] = int(
-        frame[frame["_portal"] == "before_2020"]["date_made"].isna().sum()
+    report["before_2020_date_made_nulls"] = _count(
+        frame[frame["_portal"] == "before_2020"]["date_made"].isna()
     )
     return report
 

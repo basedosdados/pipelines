@@ -2484,7 +2484,7 @@ def _check_frame_against_formal(
     totals = subset.groupby("contest_id")["votes"].sum(min_count=1)
     messages: list[str] = []
     for contest_id, summed in totals.items():
-        expected = formal.get(contest_id)
+        expected = formal.get(str(contest_id))
         if expected is None or pd.isna(expected) or pd.isna(summed):
             continue
         if int(summed) != int(expected):
@@ -2532,8 +2532,8 @@ def _print_report(
             ["election_id", "contest_type", "contest_id"]
         ].itertuples():
             coverage.setdefault(
-                (row.election_id, row.contest_type), set()
-            ).add(row.contest_id)
+                (str(row.election_id), str(row.contest_type)), set()
+            ).add(str(row.contest_id))
     for (election_id, contest_type), contests in sorted(coverage.items()):
         print(f"  {election_id:20s} {contest_type:16s} {len(contests):>3}")
     for election_id, methods in sorted(report["two_party_methods"].items()):
