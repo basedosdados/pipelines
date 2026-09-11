@@ -122,7 +122,12 @@ TABLE_META: dict[str, dict] = {
         ),
         "observation_levels": {
             "state": ["geography"],
-            "industry": ["industry_group_code", "industry_group"],
+            "industry": [
+                "industry_division_code",
+                "industry_division",
+                "industry_group_code",
+                "industry_group",
+            ],
             "sex": ["sex"],
         },
         "coverage": (1984, 11, 2026, 2),

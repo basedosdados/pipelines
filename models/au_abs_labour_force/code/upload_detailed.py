@@ -1,18 +1,25 @@
-"""Upload the 12 cleaned Detailed-release tables to BigQuery.
+"""Upload the 12 cleaned Detailed-release tables to BigQuery (dev only).
 
 Usage:
-    uv run python models/au_abs_labour_force/code/upload_detailed.py [--env dev|prod] [table ...]
+    uv run python models/au_abs_labour_force/code/upload_detailed.py [table ...]
 
---env dev (default) -> basedosdados-dev; --env prod -> basedosdados. Point
-GOOGLE_APPLICATION_CREDENTIALS at the matching service account (this machine's
-config.toml is dev-only). Parquet is read from ``<data-root>/output/<table>``,
-where ``<data-root>`` defaults to ``~/Downloads/au_abs_labour_force_data`` and is
-overridable with ``AU_ABS_LF_DATA`` — never from the repo or from Dropbox.
+**Uploads to ``basedosdados-dev`` and nowhere else, by design.** Data Basis never
+writes prod from a workstation: the prod tables are materialised by the
+table-approve action when the onboarding PR merges. An ``--env prod`` switch was
+removed rather than fixed, because it could not have worked — ``bd.Table.create``
+and ``bd.Storage`` take their destination project from ``~/.basedosdados/config.toml``,
+not from anything this script sets, so the flag would have billed and verified
+against prod while still writing dev, or written dev while reporting prod.
+
+Parquet is read from ``<data-root>/output/<table>``, where ``<data-root>``
+defaults to ``~/Downloads/au_abs_labour_force_data`` and is overridable with
+``AU_ABS_LF_DATA`` — never from the repo or from Dropbox.
 
 Uploads sequentially (smallest first), verifies the staged row count against the
 expected shape, and stops on the first failure.
 """
 
+import argparse
 import os
 import sys
 import warnings
@@ -27,14 +34,25 @@ from google.cloud import bigquery  # noqa: E402
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from clean_detailed import EXPECTED_TABLE_ROWS  # noqa: E402
 
-_argv = sys.argv[1:]
-if "--env" in _argv:
-    _i = _argv.index("--env")
-    ENV = _argv[_i + 1]
-    _argv = _argv[:_i] + _argv[_i + 2 :]
-else:
-    ENV = "dev"
-BILLING_PROJECT = "basedosdados" if ENV == "prod" else "basedosdados-dev"
+_parser = argparse.ArgumentParser(
+    description="Upload the Detailed-release tables to basedosdados-dev."
+)
+_parser.add_argument(
+    "tables",
+    nargs="*",
+    # The empty list is a valid choice on purpose: argparse validates the
+    # nargs="*" default against `choices`, so omitting it makes "no table
+    # arguments" (meaning all 12) an error. metavar keeps it out of --help.
+    choices=[*sorted(EXPECTED_TABLE_ROWS), []],
+    metavar="TABLE",
+    help="tables to upload; default is all 12",
+)
+_argv = _parser.parse_args().tables
+
+# Fixed, not selectable. See the module docstring: prod is materialised by
+# table-approve on merge, and the SDK reads its destination from config.toml
+# regardless of anything set here, so an environment switch could only lie.
+BILLING_PROJECT = "basedosdados-dev"
 DATASET_ID = "au_abs_labour_force"
 DATA_ROOT = Path(
     os.environ.get(
@@ -102,7 +120,7 @@ def main():
         raise SystemExit(f"unknown table(s): {sorted(unknown)}")
     tables = [t for t in TABLES if not only or t in only]
     print(
-        f"=== uploading to {BILLING_PROJECT} (env={ENV}) from {OUTPUT_ROOT} ===",
+        f"=== uploading to {BILLING_PROJECT} from {OUTPUT_ROOT} ===",
         flush=True,
     )
     total = 0

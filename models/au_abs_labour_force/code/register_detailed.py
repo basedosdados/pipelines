@@ -21,21 +21,53 @@ and because a second partial call blanks the table names
 
 Usage:
     ~/.venvs/bd-pipelines/bin/python models/au_abs_labour_force/code/register_detailed.py \
-        [--env staging] [--publish] [table ...]
+        [--env staging|prod] [--publish] [table ...]
+
+Set DATABASIS_MCP_PATH if the databasis MCP checkout is not a sibling of
+this repository.
 """
 
 import argparse
+import os
 import sys
 from datetime import date
 from pathlib import Path
 
-sys.path.insert(
-    0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-)
+
+# The databasis MCP server is a separate checkout, not a dependency of this
+# repo, so its location has to come from the environment. DATABASIS_MCP_PATH
+# overrides; otherwise fall back to the conventional sibling checkout next to
+# this repository. Validated here so a missing checkout fails with a clear
+# message instead of an ImportError on `import server`.
+def _find_mcp() -> Path:
+    """Locate the databasis MCP checkout.
+
+    DATABASIS_MCP_PATH wins. Otherwise walk up from this file looking for a
+    sibling ``mcp/server.py`` — which finds it from a normal checkout and from
+    a git worktree under ``.claude/worktrees/``, where the repo root sits three
+    levels deeper than usual.
+    """
+    env = os.environ.get("DATABASIS_MCP_PATH")
+    if env:
+        return Path(env).expanduser()
+    for parent in Path(__file__).resolve().parents:
+        candidate = parent.parent / "mcp"
+        if (candidate / "server.py").is_file():
+            return candidate
+    return Path("mcp")
+
+
+_MCP_PATH = _find_mcp()
+if not (_MCP_PATH / "server.py").is_file():
+    raise SystemExit(
+        f"databasis MCP checkout not found at {_MCP_PATH}. Set "
+        f"DATABASIS_MCP_PATH to the directory containing server.py."
+    )
+sys.path.insert(0, str(_MCP_PATH))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import server
-from metadata_detailed import (
+import server  # noqa: E402  (import follows the sys.path bootstrap above)
+from metadata_detailed import (  # noqa: E402
     DATASET_DESCRIPTION,
     DATASET_SLUG,
     DATASET_TAGS,
@@ -99,7 +131,7 @@ def main() -> None:
     ap.add_argument(
         "--publish",
         action="store_true",
-        help="flip the dataset to published (dev/staging only)",
+        help="flip the dataset to published (dev/staging; prod is always published)",
     )
     ap.add_argument("tables", nargs="*")
     args = ap.parse_args()
@@ -153,7 +185,15 @@ def main() -> None:
             )
 
     # ── dataset: refresh description + tags, keep organizations/themes ──────
-    status_id = status["published"] if args.publish else status["under_review"]
+    # Prod is always published: this script only ever extends the existing,
+    # already-public dataset, so selecting under_review there would hide the
+    # live tables rather than stage a new one. On dev/staging the default stays
+    # under_review and --publish opts in.
+    status_id = (
+        status["published"]
+        if env == "prod" or args.publish
+        else status["under_review"]
+    )
     r = server.create_update_dataset(
         slug=DATASET_SLUG,
         name_pt=ds["name_pt"],

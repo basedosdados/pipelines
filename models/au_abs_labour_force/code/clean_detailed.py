@@ -25,6 +25,7 @@ import csv
 import json
 import logging
 import os
+import shutil
 import sys
 from pathlib import Path
 
@@ -605,6 +606,12 @@ def write_partitioned(df: pd.DataFrame, table: str, output_dir: Path) -> Path:
     string_schema = pa.schema([pa.field(a["name"], pa.string()) for a in arch])
     out = df[order].copy()
     tdir = output_dir / table
+    # Clear the table's tree first. Writing in place would leave partitions from
+    # an earlier run that this one no longer produces, and the upload publishes
+    # whatever is on disk - so those stale rows would reach BigQuery even though
+    # they are absent from the validated DataFrame.
+    if tdir.exists():
+        shutil.rmtree(tdir)
     total = 0
     for year, g in out.groupby("year", sort=True):
         pdir = tdir / f"year={int(year)}"
