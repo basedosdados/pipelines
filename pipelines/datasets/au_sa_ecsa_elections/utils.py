@@ -16,6 +16,7 @@ import json
 import pathlib
 import re
 from collections import defaultdict
+from typing import Any
 
 import pandas as pd
 
@@ -102,7 +103,7 @@ def canonical_ballot_name(name: str | None) -> str | None:
     return surname or given
 
 
-def to_int(value: object) -> int | None:
+def to_int(value: Any) -> int | None:
     if value is None or value == "":
         return None
     if isinstance(value, str):
@@ -115,7 +116,7 @@ def to_int(value: object) -> int | None:
         return None
 
 
-def to_float(value: object) -> float | None:
+def to_float(value: Any) -> float | None:
     if value is None or value == "":
         return None
     if isinstance(value, str):
@@ -167,6 +168,23 @@ def load_api(root: pathlib.Path, date: str, stem: str) -> dict | None:
     if not path.exists():
         return None
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def require_api(root: pathlib.Path, date: str, stem: str) -> dict:
+    """``load_api`` for a payload the caller cannot proceed without.
+
+    The two Council payloads are genuinely optional — a by-election contests no
+    Council seat, so every ``lc_*`` call site skips the event when they are
+    absent. The two Assembly payloads are not: every election ECSA lists has
+    them, and an election announced in ``ElectionDates.json`` before its results
+    files land would otherwise surface several frames down as a bare
+    ``'NoneType' object is not subscriptable``. ``build_election`` already
+    refused that case; this is the same refusal for the other builders.
+    """
+    payload = load_api(root, date, stem)
+    if payload is None:
+        raise ValueError(f"{date}: {stem} payload missing")
+    return payload
 
 
 def elections(root: pathlib.Path) -> list[dict]:
@@ -393,8 +411,8 @@ def build_candidate(root: pathlib.Path, sed: dict[str, str]) -> pd.DataFrame:
     rows = []
     for event in elections(root):
         date = event["electionDate"]
-        static = load_api(root, date, "ha_static")
-        change = load_api(root, date, "ha_change")
+        static = require_api(root, date, "ha_static")
+        change = require_api(root, date, "ha_change")
         shape = _shape(change)
         name_map = _name_to_position(static)
         change_districts = {d["districtId"]: d for d in change["districts"]}
@@ -489,11 +507,13 @@ def _district_two_preferred(district: dict, field: str) -> dict[str, int]:
 
 
 def _legacy_declaration(district: dict, field: str) -> dict[str, int]:
-    return {
-        str(c["candidateId"]): to_int(c.get(field))
-        for c in district.get("candidates") or []
-        if to_int(c.get(field)) is not None
-    }
+    out: dict[str, int] = {}
+    for c in district.get("candidates") or []:
+        value = to_int(c.get(field))
+        if value is None:
+            continue
+        out[str(c["candidateId"])] = value
+    return out
 
 
 def build_result_district(
@@ -502,8 +522,8 @@ def build_result_district(
     rows = []
     for event in elections(root):
         date = event["electionDate"]
-        static = load_api(root, date, "ha_static")
-        change = load_api(root, date, "ha_change")
+        static = require_api(root, date, "ha_static")
+        change = require_api(root, date, "ha_change")
         shape = _shape(change)
         static_candidates = _static_candidates(static)
         name_map = _name_to_position(static)
@@ -661,8 +681,8 @@ def build_result_voting_centre(
     rows = []
     for event in elections(root):
         date = event["electionDate"]
-        static = load_api(root, date, "ha_static")
-        change = load_api(root, date, "ha_change")
+        static = require_api(root, date, "ha_static")
+        change = require_api(root, date, "ha_change")
         static_candidates = _static_candidates(static)
         place_types = {
             (d["districtName"], p["pollingPlaceName"]): p.get(
@@ -818,8 +838,8 @@ def build_distribution_of_preferences(
     rows = []
     for event in elections(root):
         date = event["electionDate"]
-        static = load_api(root, date, "ha_static")
-        change = load_api(root, date, "ha_change")
+        static = require_api(root, date, "ha_static")
+        change = require_api(root, date, "ha_change")
         shape = _shape(change)
         static_candidates = _static_candidates(static)
         name_map = _name_to_position(static)
@@ -912,7 +932,7 @@ def build_voting_centre(
     rows = []
     for event in elections(root):
         date = event["electionDate"]
-        static = load_api(root, date, "ha_static")
+        static = require_api(root, date, "ha_static")
         for district in static["districts"]:
             district_name = district["districtName"]
             block = contest_block(event, HA, district_name, sed)
@@ -946,8 +966,8 @@ def build_enrolment_turnout(
     rows = []
     for event in elections(root):
         date = event["electionDate"]
-        static = load_api(root, date, "ha_static")
-        change = load_api(root, date, "ha_change")
+        static = require_api(root, date, "ha_static")
+        change = require_api(root, date, "ha_change")
         shape = _shape(change)
         enrolment = {
             d["districtName"]: to_int(d.get("districtEnrolled"))
