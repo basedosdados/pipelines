@@ -1,7 +1,8 @@
-"""Pure functions for the au_abs_cpi dataset: download + cleaning transform.
+"""Pure functions for the ABS Consumer Price Index release (former catalogue
+6401.0): download + cleaning transform.
 
 No Prefect imports here. The one-shot onboarding bootstrap
-(models/au_abs_cpi/code/clean_data.py) and the recurring Prefect pipeline both
+(models/au_abs_prices_inflation/code/clean_data.py) and the recurring Prefect pipeline both
 import these functions, so the cleaning transform lives in exactly one place.
 """
 
@@ -17,12 +18,13 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from pipelines.datasets.au_abs_cpi.constants import constants
+from pipelines.datasets.au_abs_prices_inflation.constants import constants
 
 MEASURE_MAP = constants.MEASURE_MAP.value
 COLUMNS = constants.COLUMNS.value
 PERIOD_COL = constants.PERIOD_COL.value
 YOY_LAG = constants.YOY_LAG.value
+TABLE_ID = constants.TABLE_ID.value
 
 _ARROW_TYPE = {
     "year": pa.int64(),
@@ -124,6 +126,7 @@ def _parse_desc(desc: str):
 
 
 def _safe_float(v):
+    """Parse one cell to float, returning None for blanks and ABS placeholders."""
     if v is None:
         return None
     if isinstance(v, (int, float)):
@@ -205,6 +208,7 @@ def parse_workbook(path: str) -> pd.DataFrame:
 # Build one output frequency from its source workbooks
 # --------------------------------------------------------------------------- #
 def clean_frequency(frequency: str, input_dir: str) -> pd.DataFrame:
+    """Build one CPI output frequency (quarterly or monthly) from its workbooks."""
     files = constants.SOURCE_TABLES.value[frequency]
     period_col = PERIOD_COL[frequency]
     lag = YOY_LAG[frequency]
@@ -285,7 +289,7 @@ def clean_frequency(frequency: str, input_dir: str) -> pd.DataFrame:
     if missing:
         raise ValueError(f"index_name(s) with no index_code: {missing}")
 
-    out = wide[COLUMNS[frequency]].copy()
+    out = wide[COLUMNS[TABLE_ID[frequency]]].copy()
     out["year"] = out["year"].astype("int64")
     out[period_col] = out[period_col].astype("int64")
     out["index_number"] = pd.to_numeric(
@@ -322,18 +326,20 @@ def _is_prev_period(frequency, df, prev_year, prev_period):
 def clean_all(input_dir: str, output_dir: str) -> dict[str, str]:
     """Build every table into partitioned parquet under output_dir.
 
-    Returns a mapping of table slug to its partition root, plus
+    Returns a mapping of output table slug (``cpi_quarterly`` /
+    ``cpi_monthly``) to its partition root, plus
     ``"max_year_month"`` — the latest ``"YYYY-MM"`` in the monthly table, which
     drives the source-update poll.
     """
     result: dict[str, str] = {}
     max_ym = None
     for freq in constants.SOURCE_TABLES.value:
+        table = TABLE_ID[freq]
         # pyrefly: ignore [unnecessary-type-conversion]
         df = clean_frequency(freq, str(input_dir))
         # pyrefly: ignore [unnecessary-type-conversion]
-        write_partitioned(df, freq, str(output_dir))
-        result[freq] = str(Path(output_dir) / freq)
+        write_partitioned(df, table, str(output_dir))
+        result[table] = str(Path(output_dir) / table)
         if freq == "monthly":
             last = df.sort_values(["year", "month"]).iloc[-1]
             max_ym = f"{int(last['year']):04d}-{int(last['month']):02d}"
