@@ -50,8 +50,27 @@ TABLE_ID = constants.TABLE_ID.value
 RELEASES = list(constants.RELEASES.value)
 
 
+def _selected(argv, known, what):
+    """Resolve the names requested on the command line against ``known``.
+
+    An unrecognised name raises rather than silently selecting nothing: the
+    loops below skip whatever they do not match, so a typo would otherwise
+    exit 0 having done no work at all, which reads exactly like success.
+    """
+    want = set(argv)
+    unknown = sorted(want - set(known))
+    if unknown:
+        raise SystemExit(
+            f"unknown {what}: {', '.join(unknown)}\n"
+            f"valid {what}: {', '.join(known)}"
+        )
+    return want
+
+
 def main():
-    want = set(sys.argv[1:])
+    """Build the tables named on the command line, or all seven."""
+    known = list(TABLE_ID.values()) + RELEASES
+    want = _selected(sys.argv[1:], known, "table")
     inp, out = DATA_ROOT / "input", DATA_ROOT / "output"
 
     for frequency, table in TABLE_ID.items():

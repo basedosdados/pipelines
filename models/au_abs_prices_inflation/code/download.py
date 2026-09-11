@@ -44,15 +44,35 @@ DATA_ROOT = Path(
 )
 
 
+def _selected(argv, known, what):
+    """Resolve the names requested on the command line against ``known``.
+
+    An unrecognised name raises rather than silently selecting nothing: the
+    loops below skip whatever they do not match, so a typo would otherwise
+    exit 0 having done no work at all, which reads exactly like success.
+    """
+    want = set(argv)
+    unknown = sorted(want - set(known))
+    if unknown:
+        raise SystemExit(
+            f"unknown {what}: {', '.join(unknown)}\n"
+            f"valid {what}: {', '.join(known)}"
+        )
+    return want
+
+
 def main():
-    want = set(sys.argv[1:])
+    """Download the releases named on the command line, or all of them."""
     releases = list(constants.RELEASES.value)
+    want = _selected(sys.argv[1:], ["cpi", *releases], "release")
     inp = DATA_ROOT / "input"
 
     if not want or "cpi" in want:
         (inp / "cpi").mkdir(parents=True, exist_ok=True)
-        slug = download_cpi(str(inp / "cpi"))
-        log.info("cpi: release %s", slug)
+        # cpi.download_all returns its output directory, not the release slug,
+        # so report what was actually fetched rather than mislabelling a path.
+        download_cpi(str(inp / "cpi"))
+        log.info("cpi: %d workbooks", len(list((inp / "cpi").glob("*.xlsx"))))
 
     for release in releases:
         if want and release not in want:

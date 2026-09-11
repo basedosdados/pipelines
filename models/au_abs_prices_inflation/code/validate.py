@@ -19,6 +19,7 @@ DATA_ROOT = Path(
 
 
 def load(table):
+    """Read one cleaned table back from its partitioned parquet."""
     files = glob.glob(
         str(DATA_ROOT / "output" / table / "year=*/data.parquet")
     )

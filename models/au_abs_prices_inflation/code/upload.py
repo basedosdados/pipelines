@@ -47,6 +47,7 @@ _orig_bucket = gcs.Client.bucket
 
 
 def _patched_bucket(self, bucket_name, user_project=None):
+    """Force the billing project: the staging bucket is requester-pays."""
     return _orig_bucket(self, bucket_name, user_project=BILLING_PROJECT)
 
 
@@ -73,6 +74,7 @@ def local_rows(path: Path) -> int:
 
 
 def upload_table(slug: str) -> int:
+    """Upload one table's partitioned parquet and verify nothing was lost."""
     path = OUTPUT_ROOT / slug
     if not path.exists():
         raise FileNotFoundError(f"Missing output path: {path}")
@@ -112,8 +114,26 @@ def upload_table(slug: str) -> int:
     return n
 
 
+def _selected(argv, known, what):
+    """Resolve the names requested on the command line against ``known``.
+
+    An unrecognised name raises rather than silently selecting nothing: the
+    loops below skip whatever they do not match, so a typo would otherwise
+    exit 0 having done no work at all, which reads exactly like success.
+    """
+    want = set(argv)
+    unknown = sorted(want - set(known))
+    if unknown:
+        raise SystemExit(
+            f"unknown {what}: {', '.join(unknown)}\n"
+            f"valid {what}: {', '.join(known)}"
+        )
+    return want
+
+
 def main():
-    only = set(_argv)
+    """Upload the tables named on the command line, or all seven."""
+    only = _selected(_argv, TABLES, "table")
     tables = [s for s in TABLES if not only or s in only]
     print(f"=== uploading to {BILLING_PROJECT} (env={ENV}) ===", flush=True)
     for slug in tables:

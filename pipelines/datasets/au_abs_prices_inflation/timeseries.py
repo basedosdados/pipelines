@@ -44,6 +44,8 @@ _CATALOGUE_RE = re.compile(r"^(\d{4}\.\d)")
 # Download
 # --------------------------------------------------------------------------- #
 def _get(url: str, session=None):
+    """GET a URL with the ABS-accepted headers, raising on any error status."""
+    """GET a URL with the ABS-accepted headers, raising on any error status."""
     import requests
 
     getter = session or requests
@@ -188,6 +190,7 @@ def parse_ts_workbook(path: str) -> tuple[list[dict], list[dict]]:
         data_start = max(label_at.values()) + 1
 
         def cell(label, j, _rows=rows, _at=label_at):
+            """Read one metadata cell for the series in column ``j``."""
             i = _at.get(label)
             if i is None:
                 return None

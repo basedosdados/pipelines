@@ -126,6 +126,7 @@ def _parse_desc(desc: str):
 
 
 def _safe_float(v):
+    """Parse one cell to float, returning None for blanks and ABS placeholders."""
     if v is None:
         return None
     if isinstance(v, (int, float)):
@@ -207,6 +208,7 @@ def parse_workbook(path: str) -> pd.DataFrame:
 # Build one output frequency from its source workbooks
 # --------------------------------------------------------------------------- #
 def clean_frequency(frequency: str, input_dir: str) -> pd.DataFrame:
+    """Build one CPI output frequency (quarterly or monthly) from its workbooks."""
     files = constants.SOURCE_TABLES.value[frequency]
     period_col = PERIOD_COL[frequency]
     lag = YOY_LAG[frequency]

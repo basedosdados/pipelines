@@ -48,6 +48,8 @@ _WPI_PAY_MEASURE = constants.WPI_PAY_MEASURE.value
 # Shared helpers
 # --------------------------------------------------------------------------- #
 def _norm(text: str) -> str:
+    """Lowercase and collapse whitespace, for vocabulary matching."""
+    """Lowercase and collapse whitespace, for vocabulary matching."""
     # pyrefly: ignore [unnecessary-type-conversion]
     return re.sub(r"\s+", " ", str(text)).strip().lower()
 
@@ -154,6 +156,8 @@ def _row_wage_price_index(meta: dict, parts: list[str]) -> dict:
 
 
 def _row_producer_price_index(meta: dict, parts: list[str]) -> dict:
+    """Producer Price Indexes: statistic; item; optional collection city."""
+    """Producer Price Indexes: statistic; item; optional collection city."""
     code, name = split_item_code(parts[1]) if len(parts) > 1 else (None, None)
     return {
         "statistic": statistic_of(parts[0]),
@@ -173,6 +177,16 @@ def _row_producer_price_index(meta: dict, parts: list[str]) -> dict:
 
 
 def _row_international_trade_price_index(meta: dict, parts: list[str]) -> dict:
+    """International Trade Price Indexes: statistic; item.
+
+    The import/export direction and the commodity classification both come from
+    the ABS table title, which is the only place either appears.
+    """
+    """International Trade Price Indexes: statistic; item.
+
+    The import/export direction and the commodity classification come from the
+    ABS table title, which is the only place either appears.
+    """
     code, name = split_item_code(parts[1]) if len(parts) > 1 else (None, None)
     return {
         "statistic": statistic_of(parts[0]),
@@ -190,6 +204,11 @@ def _row_international_trade_price_index(meta: dict, parts: list[str]) -> dict:
 
 
 def _row_living_cost_index(meta: dict, parts: list[str]) -> dict:
+    """Selected Living Cost Indexes: statistic; household type; commodity group."""
+    """Selected Living Cost Indexes: statistic; household type; commodity group.
+
+    The only release whose three description parts are always in a fixed order.
+    """
     return {
         "statistic": statistic_of(parts[0]),
         "household_type": parts[1],
@@ -343,6 +362,8 @@ def clean_all(
 # Write partitioned parquet (all-STRING, hive-partitioned by year)
 # --------------------------------------------------------------------------- #
 def _arrow_type(column: str) -> pa.DataType:
+    """Arrow type for one output column, before the all-STRING staging cast."""
+    """Arrow type for one output column, before the all-STRING staging cast."""
     if column in _INT_COLS:
         return pa.int64()
     if column in _FLOAT_COLS:
