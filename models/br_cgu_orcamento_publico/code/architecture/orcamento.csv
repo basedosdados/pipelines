@@ -1,0 +1,27 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,staging_name
+ano_exercicio,INT64,Ano do exercício financeiro a que se referem os valores orçamentários,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Coluna de partição; no staging é a chave hive ano_exercicio=YYYY, não uma coluna do arquivo",EXERCÍCIO,ano_exercicio
+id_orgao_superior,STRING,"Código do órgão superior responsável pela despesa, em geral um ministério",,no,,,no,,CÓDIGO ÓRGÃO SUPERIOR,codigo_orgao_superior
+nome_orgao_superior,STRING,Nome do órgão superior responsável pela despesa,,no,,,no,,NOME ÓRGÃO SUPERIOR,nome_orgao_superior
+id_orgao_subordinado,STRING,"Código do órgão subordinado responsável pela despesa, por exemplo uma autarquia ou fundação",,no,,,no,,CÓDIGO ÓRGÃO SUBORDINADO,codigo_orgao_subordinado
+nome_orgao_subordinado,STRING,Nome do órgão subordinado responsável pela despesa,,no,,,no,,NOME ÓRGÃO SUBORDINADO,nome_orgao_subordinado
+id_unidade_orcamentaria,STRING,"Código da unidade orçamentária, menor nível da estrutura administrativa a que se aloca a dotação",,no,,,no,,CÓDIGO UNIDADE ORÇAMENTÁRIA,codigo_unidade_orcamentaria
+nome_unidade_orcamentaria,STRING,Nome da unidade orçamentária,,no,,,no,,NOME UNIDADE ORÇAMENTÁRIA,nome_unidade_orcamentaria
+id_funcao,STRING,"Código da função de governo em que a despesa foi classificada, maior nível de agregação das áreas de atuação do setor público",,no,,,no,,CÓDIGO FUNÇÃO,codigo_funcao
+nome_funcao,STRING,Nome da função de governo em que a despesa foi classificada,,no,,,no,,NOME FUNÇÃO,nome_funcao
+id_subfuncao,STRING,"Código da subfunção, que detalha a função em áreas de atuação mais específicas",,no,,,no,,CÓDIGO SUBFUNÇÃO,codigo_subfuncao
+nome_subfuncao,STRING,Nome da subfunção,,no,,,no,,NOME SUBFUNÇÃO,nome_subfuncao
+id_programa_orcamentario,STRING,"Código do programa orçamentário, instrumento do plano plurianual que articula ações para um objetivo",,no,,,no,,CÓDIGO PROGRAMA ORÇAMENTÁRIO,codigo_programa_orcamentario
+nome_programa_orcamentario,STRING,Nome do programa orçamentário,,no,,,no,,NOME PROGRAMA ORÇAMENTÁRIO,nome_programa_orcamentario
+id_acao,STRING,"Código da ação orçamentária, menor unidade de programação que gera bem ou serviço",,no,,,no,,CÓDIGO AÇÃO,codigo_acao
+nome_acao,STRING,Nome da ação orçamentária,,no,,,no,,NOME AÇÃO,nome_acao
+id_categoria_economica,STRING,"Código da categoria econômica da despesa, que separa despesas correntes de despesas de capital",,no,,,no,,CÓDIGO CATEGORIA ECONÔMICA,codigo_categoria_economica
+nome_categoria_economica,STRING,Nome da categoria econômica da despesa,,no,,,no,,NOME CATEGORIA ECONÔMICA,nome_categoria_economica
+id_grupo_despesa,STRING,"Código do grupo de natureza da despesa, por exemplo pessoal e encargos sociais, juros da dívida, investimentos",,no,,,no,,CÓDIGO GRUPO DE DESPESA,codigo_grupo_de_despesa
+nome_grupo_despesa,STRING,Nome do grupo de natureza da despesa,,no,,,no,,NOME GRUPO DE DESPESA,nome_grupo_de_despesa
+id_elemento_despesa,STRING,"Código do elemento de despesa, que identifica o objeto do gasto, por exemplo diárias, material de consumo, obras",,no,,,no,,CÓDIGO ELEMENTO DE DESPESA,codigo_elemento_de_despesa
+nome_elemento_despesa,STRING,Nome do elemento de despesa,,no,,,no,,NOME ELEMENTO DE DESPESA,nome_elemento_de_despesa
+orcamento_inicial,FLOAT64,"Dotação inicial aprovada na lei orçamentária anual, em reais correntes",,no,,brl,no,,ORÇAMENTO INICIAL (R$),orcamento_inicial
+orcamento_atualizado,FLOAT64,"Dotação autorizada após créditos adicionais, cancelamentos e remanejamentos, em reais correntes",,no,,brl,no,,ORÇAMENTO ATUALIZADO (R$),orcamento_atualizado
+orcamento_empenhado,FLOAT64,"Valor empenhado, isto é, reservado do orçamento para honrar um compromisso assumido, em reais correntes",,no,,brl,no,,ORÇAMENTO EMPENHADO (R$),orcamento_empenhado
+orcamento_realizado,FLOAT64,"Valor realizado, correspondente à despesa liquidada no exercício, em reais correntes",,no,,brl,no,,ORÇAMENTO REALIZADO (R$),orcamento_realizado
+porcentagem_realizado_orcamento,FLOAT64,"Razão entre o orçamento realizado e o orçamento atualizado, em porcentagem",,no,,percent,no,Assume valores negativos quando a dotação autorizada é negativa; a fonte publica o valor com sufixo %,% REALIZADO DO ORÇAMENTO (COM RELAÇÃO AO ORÇAMENTO ATUALIZADO),porcentagem_realizado_orcamento
