@@ -320,6 +320,13 @@ project-excludes = [
   # `sys.path.insert` — unresolvable from the repo root. The pure transform lives
   # in the typed `pipelines/datasets/au_aec_elections/`, which is checked.
   "models/au_aec_elections/code",
+  # Same policy: au_sa_ecsa_elections onboarding code is standalone one-shot
+  # `.py` run via `uv run` (download.py, clean.py, upload.py, crosscheck.py,
+  # generate_artifacts.py), and register_metadata.py, register_metadata_prod.py,
+  # verify_prod.py and dedupe_metadata.py drive the databasis MCP module through
+  # `sys.path.insert` — unresolvable from the repo root. The pure transform lives
+  # in the typed `pipelines/datasets/au_sa_ecsa_elections/`, which is checked.
+  "models/au_sa_ecsa_elections/code",
   "models/au_geoscape_gnaf/code",
   "models/us_cms_open_payments/code",
   "models/us_fec_campaign_finance/code",
