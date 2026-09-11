@@ -128,11 +128,10 @@ def br_ms_sim__microdados(
         )
 
 
-# Os dois formatos: o template do work pool descarta em silêncio a chave
-# que não reconhece, e o pod cai no limite padrão.
+# `memory` não existe no template do work pool, que só conhece o par abaixo, e
+# chave fora do template é descartada em silêncio — o pod ficaria no padrão.
 # pyrefly: ignore [missing-attribute]
 br_ms_sim__microdados.job_variables = {
-    "memory": "8Gi",
     "memory_limit": "8Gi",
     "memory_request": "2Gi",
 }
