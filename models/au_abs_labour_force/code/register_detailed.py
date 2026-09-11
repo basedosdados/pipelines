@@ -59,6 +59,31 @@ NEW_TAGS = {
     "unemployment": ("desemprego", "unemployment", "desempleo"),
 }
 
+# The dataset slug and the tag vocabulary differ between backends: staging keeps
+# the fully qualified slug and Portuguese tag slugs, while prod uses a short
+# English dataset slug and English tag slugs. The underlying records are the
+# same — several tags share a UUID across the two backends under different
+# slugs — so both must be resolved per environment rather than reused.
+# Entities are resolved by slug through discover_ids and need no mapping here,
+# which matters because `industry` does NOT share a UUID across the backends.
+DATASET_SLUG_BY_ENV = {
+    "dev": "au_abs_labour_force",
+    "staging": "au_abs_labour_force",
+    "prod": "labour_force",
+}
+
+DATASET_TAGS_BY_ENV = {
+    "prod": [
+        "employment",
+        "unemployment",
+        "labor",
+        "occupation",
+        "economic-activity",
+        "workload",
+        "research",
+    ],
+}
+
 
 def log(msg: str) -> None:
     print(msg, flush=True)
@@ -79,6 +104,9 @@ def main() -> None:
     ap.add_argument("tables", nargs="*")
     args = ap.parse_args()
     env = args.env
+    global DATASET_SLUG, DATASET_TAGS
+    DATASET_SLUG = DATASET_SLUG_BY_ENV.get(env, DATASET_SLUG)
+    DATASET_TAGS = DATASET_TAGS_BY_ENV.get(env, DATASET_TAGS)
     want = [t for t in TABLE_META if not args.tables or t in set(args.tables)]
     unknown = set(args.tables) - set(TABLE_META)
     if unknown:
