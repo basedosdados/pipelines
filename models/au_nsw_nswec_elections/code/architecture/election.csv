@@ -1,0 +1,10 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano do evento eleitoral,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de particionamento. Cada eleição geral estadual ocupa um único ano.,
+election_id,STRING,Identificador do evento eleitoral atribuído pela NSWEC,,no,,,no,"Chave da tabela. Corresponde à raiz do site de resultados do evento, por exemplo SG2301 para 2023 e SGE2015 para 2015: a NSWEC mudou o padrão de nomes entre 2015 e 2019.",
+election_name,STRING,Nome do evento eleitoral,,no,,,no,,
+election_type,STRING,Tipo do evento eleitoral,,yes,,,no,"Assume o valor State General em todas as linhas. As eleições suplementares estaduais, publicadas sob os códigos SB, não estão neste conjunto.",
+government_level,STRING,Esfera de governo do evento eleitoral,,yes,,,no,Assume o valor state em todas as linhas deste conjunto.,
+election_date,DATE,Data da votação,,no,,,no,,
+results_archive_url,STRING,Endereço do site de resultados publicado pela NSWEC para o evento,,no,,,no,,
+assembly_districts,INT64,Número de distritos disputados na Assembleia Legislativa,,no,,seat,no,,
+council_seats_contested,INT64,Número de cadeiras disputadas no Conselho Legislativo,,no,,seat,no,"Metade das 42 cadeiras do Conselho Legislativo é renovada a cada eleição geral, para mandatos de oito anos.",
