@@ -79,6 +79,9 @@ models:
     au_qld_ecq_elections:
       +materialized: table
       +schema: au_qld_ecq_elections
+    au_sa_ecsa_elections:
+      +materialized: table
+      +schema: au_sa_ecsa_elections
     au_rba_statistical_tables:
       +materialized: table
       +schema: au_rba_statistical_tables
