@@ -78,6 +78,7 @@ COUNT_STAGES_2011 = {
 
 def slugify(name: str) -> str:
     """District display name to the slug the NSWEC uses in its own URLs."""
+    # pyrefly: ignore [unnecessary-type-conversion]
     return re.sub(r"[^a-z0-9]+", "-", str(name).strip().lower()).strip("-")
 
 
@@ -224,6 +225,7 @@ def read_bulk_la(root: pathlib.Path, year: int) -> pd.DataFrame:
     frame = pd.read_excel(
         root / str(year) / "la_xlsx.xlsx", sheet_name="Data", dtype=str
     )
+    # pyrefly: ignore [unnecessary-type-conversion]
     frame.columns = [str(c).strip() for c in frame.columns]
     return frame
 
@@ -245,6 +247,7 @@ def read_bulk_lc(root: pathlib.Path, year: int) -> pd.DataFrame:
     frame = pd.read_excel(
         root / str(year) / "lc_xlsx.xlsx", sheet_name="LC", dtype=str
     )
+    # pyrefly: ignore [unnecessary-type-conversion]
     frame.columns = [str(c).strip() for c in frame.columns]
     return frame
 
@@ -1138,6 +1141,7 @@ def build_enrolment_turnout(
         if not tables:
             continue
         frame = tables[0]
+        # pyrefly: ignore [unnecessary-type-conversion]
         columns = {str(c): c for c in frame.columns}
         enrolment_col = next(
             (c for c in columns if c.startswith("District Enrolment")), None
@@ -1237,8 +1241,10 @@ def _assembly_enrolment(
     frame = tables[0]
     column = next(
         (
+            # pyrefly: ignore [unnecessary-type-conversion]
             str(c)
             for c in frame.columns
+            # pyrefly: ignore [unnecessary-type-conversion]
             if str(c).startswith("District Enrolment")
         ),
         None,
@@ -1347,6 +1353,7 @@ def _venue_registry(
         if not path.exists():
             continue
         frame = pd.read_excel(path, sheet_name=1, dtype=str)
+        # pyrefly: ignore [unnecessary-type-conversion]
         frame.columns = [str(c).strip() for c in frame.columns]
         short = next(
             (
@@ -1428,6 +1435,7 @@ def iter_ballot_preference(
                     keep_default_na=False,
                     na_values=[""],
                 )
+        # pyrefly: ignore [unnecessary-type-conversion]
         frame.columns = [str(c).strip() for c in frame.columns]
         district = str(block["district_name"])
         lookup = parties.get(district, {})
