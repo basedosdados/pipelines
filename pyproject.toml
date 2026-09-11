@@ -408,6 +408,11 @@ project-excludes = [
   # the repo root. The reusable transform lives in the typed
   # `pipelines/datasets/au_nsw_nswec_elections/`, which is checked.
   "models/au_nsw_nswec_elections/code",
+  # Same policy: au_treasury_budget onboarding code is standalone one-shot `.py`
+  # run from its own directory, so its sibling imports (docx_tables, measures,
+  # releases) do not resolve from the repo root, and metadata.py drives the
+  # databasis MCP `server` module through `sys.path.insert`.
+  "models/au_treasury_budget/code",
   "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
   "models/world_wb_mides/code/licitacao_item.ipynb",
   "models/world_olympedia_olympics/code/[[]code[]]world_olympedia_olympics.ipynb",
