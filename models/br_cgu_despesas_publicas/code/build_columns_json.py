@@ -16,6 +16,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+# _spec.py is a sibling module reached through the sys.path insert above,
+# which pyrefly cannot follow when it checks the project as a whole.
+# pyrefly: ignore [missing-import]
 from _spec import SPEC
 
 OUT = Path(__file__).resolve().parent / "columns_json" / "execucao.json"
