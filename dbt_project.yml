@@ -40,9 +40,6 @@ models:
     af_afrobarometer_survey:
       +materialized: table
       +schema: af_afrobarometer_survey
-    au_abs_cpi:
-      +materialized: table
-      +schema: au_abs_cpi
     au_abs_national_accounts:
       +materialized: table
       +schema: au_abs_national_accounts
@@ -52,6 +49,9 @@ models:
     au_abs_population:
       +materialized: table
       +schema: au_abs_population
+    au_abs_prices_inflation:
+      +materialized: table
+      +schema: au_abs_prices_inflation
     au_alexander_politicians:
       +materialized: table
       +schema: au_alexander_politicians
