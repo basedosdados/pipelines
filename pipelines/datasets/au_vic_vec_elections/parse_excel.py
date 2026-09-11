@@ -161,9 +161,9 @@ _2PP_COALITION = "Liberal/National"
 def slug(text: str) -> str:
     """Lowercase, with every run of non-alphanumerics folded to a single underscore."""
     return re.sub(
-        # pyrefly: ignore [unnecessary-type-conversion]
         r"_+",
         "_",
+        # pyrefly: ignore [unnecessary-type-conversion]
         re.sub(r"[^a-z0-9]+", "_", str(text).lower()),
     ).strip("_")
 
