@@ -109,6 +109,36 @@ against itself:
   current dollars and medians of years share the column; the `unit` column says
   which, per cell.
 
+## Recurring refresh
+
+`pipelines/datasets/us_nsf_ncses/` holds one annual Prefect flow for both
+surveys. One flow rather than two: every table's `custom_dictionary_coverage`
+test reads `ref('us_nsf_ncses__dicionario')`, and the dictionary is written by
+the HERD half, so a SED-only flow would depend on a staging table it does not
+own.
+
+The flow reads the newest published HERD fiscal year and SED cycle straight off
+the NCSES pages, polls each against the registered coverage, and returns without
+downloading anything when neither has moved. When either has, it rebuilds
+*everything*: HERD retro-imputes prior years on each release and an SED cycle
+republishes its whole series, so appending only the newest partition would leave
+stale numbers behind.
+
+`dump_mode="append"` is deliberate. It ends in
+`st.upload(..., if_exists="replace")`, replacing each blob by name; `"overwrite"`
+calls `tb.delete(mode="all")`, which drops the materialized **production** table
+even from a dev-only run.
+
+Schedule: `34 7 5,12,19,26 8,9,10,11,12 *` (America/Sao_Paulo) — weekly through
+the August-to-December release window.
+
+**Not yet run.** Local checks pass — the flow imports, `deploy_flows` discovers
+it, and the source probes return FY2024 and cycle 2024 — but those cannot reach
+the upload, poll or dbt halves. The flow is not done until it has run on the dev
+pool with `{"materialize_to_prod": false, "update_metadata": false,
+"force_run": true}` and the logs show `dbt run OK` and `dbt test OK` for all
+seven tables. That needs the PR to carry the **`deploy-flow`** label.
+
 ## Running it
 
 ```sh
