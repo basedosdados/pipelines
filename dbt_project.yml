@@ -702,6 +702,9 @@ models:
     us_noaa_storm_events:
       +materialized: table
       +schema: us_noaa_storm_events
+    us_nsf_ncses:
+      +materialized: table
+      +schema: us_nsf_ncses
     us_osha_enforcement:
       +materialized: table
       +schema: us_osha_enforcement

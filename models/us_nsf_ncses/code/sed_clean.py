@@ -100,11 +100,13 @@ ESTIMATE_COLUMNS = [
     "reference_year",
     "table_id",
     "year",
+    "row_number",
+    "column_number",
     "row_label",
     "row_path",
     "row_level",
-    "column_group",
     "column_label",
+    "column_path",
     "unit",
     "value",
 ]
@@ -185,38 +187,51 @@ def year_or_none(text: str):
     return None
 
 
-def header_rows(ws, merged) -> tuple[list[str], list[str], int]:
-    """Return (group header, sub header, first data row index, 0-based).
+MAX_HEADER_ROW = 8
 
-    Row 4 is the header. When it carries merged horizontal spans, row 5 is a
-    second header row and the group labels are forward-filled across each span.
+
+def header_chains(ws, merged) -> tuple[list[list[str]], int]:
+    """Return (one label chain per column, first data row index, 0-based).
+
+    The header starts at row 4 and is as deep as its merged ranges reach: a
+    table with a plain header has none and is one row deep, while tables such
+    as 3-3 and 6-1 nest three rows (citizenship, then ethnicity, then race).
+    Reading only two rows collapses every race column onto the same pair of
+    labels, which is what made 1,804 key collisions in the 2024 cycle.
+
+    Horizontal merges spread their label across the span. Vertical merges are
+    left alone, so a column spanning the whole header contributes one label
+    rather than repeating it at every level.
     """
     grid = [[c.value for c in row] for row in ws.iter_rows()]
-    ncol = max(len(r) for r in grid[:6])
-    h1 = [cell_text(v) for v in grid[3]] + [""] * (ncol - len(grid[3]))
-    h2 = (
-        [cell_text(v) for v in grid[4]] + [""] * (ncol - len(grid[4]))
-        if len(grid) > 4
-        else [""] * ncol
-    )
+    ncol = max(len(r) for r in grid[:MAX_HEADER_ROW]) if grid else 0
 
-    spans = [
-        r
-        for r in merged
-        if r.min_row == 4 and r.max_row == 4 and r.max_col > r.min_col
-    ]
-    two_row = bool(spans)
-    if two_row:
-        for r in spans:
-            label = h1[r.min_col - 1]
-            for c in range(r.min_col, r.max_col):
-                h1[c] = label
-        # A column merged vertically over both header rows has no sub-label.
-        for r in merged:
-            if r.min_row == 4 and r.max_row == 5:
-                h2[r.min_col - 1] = ""
-        return h1, h2, 5
-    return h1, [""] * ncol, 4
+    # Grow the header block while a merged range that starts inside it reaches
+    # further down; the title merge on row 2 is outside the block and ignored.
+    last = 4
+    while True:
+        reach = max(
+            (r.max_row for r in merged if 4 <= r.min_row <= last),
+            default=last,
+        )
+        reach = min(reach, MAX_HEADER_ROW)
+        if reach == last:
+            break
+        last = reach
+
+    rows = []
+    for source in grid[3:last]:
+        labels = [cell_text(v) for v in source]
+        rows.append(labels + [""] * (ncol - len(labels)))
+    for r in merged:
+        if not (4 <= r.min_row <= last and r.max_col > r.min_col):
+            continue
+        label = rows[r.min_row - 4][r.min_col - 1]
+        for c in range(r.min_col, min(r.max_col, ncol)):
+            rows[r.min_row - 4][c] = label
+
+    chains = [[row[c] for row in rows if row[c]] for c in range(ncol)]
+    return chains, last
 
 
 def parse_workbook(path: Path, reference_year: int, publication_id: str):
@@ -234,18 +249,30 @@ def parse_workbook(path: Path, reference_year: int, publication_id: str):
     title = cell_text(grid[1][0].value)
     unit_statement = cell_text(grid[2][0].value).strip("()")
 
-    h1, h2, first_data = header_rows(ws, merged)
+    chains, first_data = header_chains(ws, merged)
 
     estimates: list[dict] = []
     ancestors: dict[int, str] = {}
     section_label = ""
+    # Some tables restate the column labels part way down the stub — table 4-4
+    # switches from "Median debt (dollars)" to a Number/Percent pair under each
+    # debt concept. Such a row has an empty stub and text in the value columns,
+    # and it re-labels every column below it until the next one.
+    overrides: dict[int, str] = {}
 
-    for row in grid[first_data:]:
+    for row_number, row in enumerate(grid[first_data:], start=first_data + 1):
         stub_cell = row[0]
         stub = cell_text(stub_cell.value)
         if FOOTNOTE_START.match(stub):
             break
         if not stub:
+            restated = {
+                i + 1: cell_text(c.value)
+                for i, c in enumerate(row[1:])
+                if parse_number(c.value) is None and cell_text(c.value)
+            }
+            if restated:
+                overrides = restated
             continue
         level = int(stub_cell.alignment.indent or 0)
         label = stub
@@ -265,26 +292,32 @@ def parse_workbook(path: Path, reference_year: int, publication_id: str):
             if value is None:
                 continue
             col = offset + 1
-            group = h1[col] if col < len(h1) else ""
-            sub = h2[col] if col < len(h2) else ""
-            group_year = year_or_none(group)
-            sub_year = year_or_none(sub)
-            year = stub_year or group_year or sub_year or reference_year
-            column_group = "" if group_year else group.strip()
-            column_label = "" if sub_year else sub.strip()
+            chain = chains[col] if col < len(chains) else []
+            # A header level that is just a year is the table's time axis, not
+            # a column label: it becomes `year` and drops out of the chain.
+            header_year = next(
+                (year_or_none(part) for part in chain if year_or_none(part)),
+                None,
+            )
+            labels = [part for part in chain if not year_or_none(part)]
+            if overrides.get(col):
+                labels = [*labels, overrides[col]]
+            year = stub_year or header_year or reference_year
+            column_label = labels[-1] if labels else ""
             estimates.append(
                 {
                     "reference_year": str(reference_year),
                     "table_id": table_id,
                     "year": str(year),
+                    "row_number": str(row_number),
+                    "column_number": str(col + 1),
                     "row_label": label,
                     "row_path": " > ".join(path_labels),
                     "row_level": str(level),
-                    "column_group": column_group,
                     "column_label": column_label,
+                    "column_path": " > ".join(labels),
                     "unit": infer_unit(
-                        column_label,
-                        column_group,
+                        *reversed(labels),
                         section_label,
                         unit_statement,
                     ),

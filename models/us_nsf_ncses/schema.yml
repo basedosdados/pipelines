@@ -1,0 +1,418 @@
+---
+version: 2
+models:
+  - name: us_nsf_ncses__herd_institution
+    description: >-
+      Instituições de ensino superior dos Estados Unidos pesquisadas pelo
+      levantamento HERD do NCSES, uma linha por instituição e ano fiscal, de
+      1972 a 2024. Reúne a era atual do levantamento (a partir do ano fiscal de
+      2010) e a anterior, o Survey of R&D Expenditures at Universities and
+      Colleges (1972 a 2009). A coluna unitid liga a instituição ao IPEDS, e
+      portanto às tabelas us_ed_ipeds e us_ed_college_scorecard.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, institution_id]
+      # combined_institution_id is ignored because it is populated only for the
+      # handful of institutions reported jointly before FY2010: 0.8 per cent of
+      # rows, measured.
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [combined_institution_id]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_nsf_ncses__dicionario')
+          columns_covered_by_dictionary:
+            - survey_form
+            - hbcu_indicator
+            - medical_school_indicator
+            - high_hispanic_enrollment_indicator
+            - institution_type_code
+            - highest_degree_code
+            - control_type_code
+            - fy09_pilot_indicator
+    columns:
+      - name: year
+        description: Ano fiscal da instituição a que se referem os dados
+        tests: [not_null]
+      - name: institution_id
+        description: >-
+          Código de identificação da instituição atribuído pelo NCSES
+        tests: [not_null]
+      - name: ncses_institution_id
+        description: Identificador interno da instituição no NCSES
+      # 1.6 per cent of the rows carrying a UNITID point at an institution the
+      # directory does not list, 38 of 1,072 distinct UNITIDs — mostly campuses
+      # that closed or merged before the directory's vintage. Measured.
+      - name: unitid
+        description: Código de identificação da instituição no IPEDS (UNITID)
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__higher_education_institution')
+              field: id_institution
+              proportion_allowed_failures: 0.05
+              config:
+                where: unitid is not null
+      - name: combined_institution_id
+        description: >-
+          Código da instituição com a qual esta é combinada no relatório
+      - name: survey_form
+        description: Versão do questionário respondida pela instituição no ano
+        tests: [not_null]
+      - name: institution_name
+        description: Nome da instituição
+        tests: [not_null]
+      - name: institution_city
+        description: Município em que a instituição está localizada
+      - name: state_abbreviation
+        description: >-
+          Sigla do estado norte-americano em que a instituição está localizada
+        tests:
+          # 'TT' is the Trust Territory of the Pacific Islands, carried by one
+          # row: Northern Marianas College in FY1993. It is not a current USPS
+          # state code, so the directory does not list it.
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: abbreviation
+              ignore_values: [TT]
+              proportion_allowed_failures: 0
+      - name: zip_code
+        description: Código postal (ZIP) da instituição
+      - name: hbcu_indicator
+        description: >-
+          Indica se a instituição é uma HBCU, faculdade ou universidade
+          historicamente negra
+      - name: medical_school_indicator
+        description: Indica se a instituição tem escola de medicina
+      - name: high_hispanic_enrollment_indicator
+        description: >-
+          Indica se a instituição tem alta matrícula de estudantes hispânicos
+      - name: institution_type_code
+        description: Código do tipo de instituição
+      - name: highest_degree_code
+        description: Código do grau mais alto concedido pela instituição
+      - name: control_type_code
+        description: Código do tipo de controle da instituição
+      - name: fy09_pilot_indicator
+        description: >-
+          Indica se a instituição participou do piloto da pesquisa HERD no ano
+          fiscal de 2009
+  - name: us_nsf_ncses__herd_expenditure
+    description: >-
+      Despesas de pesquisa e desenvolvimento declaradas por instituição de
+      ensino superior ao levantamento HERD do NCSES, de 1972 a 2024, em formato
+      longo: uma linha por instituição, ano fiscal e célula do questionário. As
+      células cobrem fonte de recursos, campo de pesquisa, agência federal
+      financiadora, tipo de custo, recursos estrangeiros, ensaios clínicos,
+      repasses recebidos e repassados e equipamentos capitalizados. Valores em
+      dólares correntes, convertidos dos milhares de dólares publicados pelo
+      NCSES.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - institution_id
+            - question_code
+            - question
+            - row_label
+            - column_label
+          config:
+            where: __most_recent_year_en__
+      # other_information and standardized_agency_name are ignored because both
+      # exist only for questionnaire item 10, which names an "other" federal
+      # agency: 0.8 per cent of rows, measured. status_code is ignored because
+      # only an imputed or estimated value carries one: 14.5 per cent of all
+      # rows but 3.4 per cent of FY2024, which is the year this test scopes to.
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - other_information
+            - standardized_agency_name
+            - status_code
+          config:
+            where: __most_recent_year_en__
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_nsf_ncses__dicionario')
+          columns_covered_by_dictionary: [survey_form, status_code]
+          config:
+            where: __most_recent_year_en__
+    columns:
+      - name: year
+        description: Ano fiscal da instituição a que se referem os dados
+        tests: [not_null]
+      - name: institution_id
+        description: >-
+          Código de identificação da instituição atribuído pelo NCSES
+        tests: [not_null]
+      - name: unitid
+        description: Código de identificação da instituição no IPEDS (UNITID)
+      - name: survey_form
+        description: Versão do questionário respondida pela instituição no ano
+        tests: [not_null]
+      - name: question_code
+        description: Código do item do questionário
+        tests: [not_null]
+      - name: question
+        description: Assunto do item do questionário
+        tests: [not_null]
+      - name: row_label
+        description: Rótulo da linha do item do questionário
+        tests: [not_null]
+      - name: column_label
+        description: Rótulo da coluna do item do questionário
+      - name: expenditure
+        description: >-
+          Despesa de pesquisa e desenvolvimento, em dólares correntes
+      - name: status_code
+        description: Código de situação do valor de despesa
+      - name: other_information
+        description: >-
+          Informação complementar registrada pela instituição para o item
+      - name: standardized_agency_name
+        description: >-
+          Nome padronizado pelo NCSES da agência federal informada no item 10
+  - name: us_nsf_ncses__herd_personnel
+    description: >-
+      Pessoal de pesquisa e desenvolvimento nas instituições pesquisadas pelo
+      HERD, em número de pessoas e em equivalentes de tempo integral, de 2010 a
+      2024. Os arquivos de uso público não trazem contagem de pessoal para os
+      anos fiscais de 2020 e 2021, e os equivalentes de tempo integral passaram
+      a ser coletados no ano fiscal de 2022.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - institution_id
+            - personnel_group
+            - personnel_function
+      # personnel_function is ignored because it is collected only from FY2022,
+      # and full_time_equivalent with it: a quarter of rows, measured. The two
+      # status codes sit just above the floor today (9.3 and 7.4 per cent) and
+      # should be re-measured when a new year is appended.
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [personnel_function, full_time_equivalent]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_nsf_ncses__dicionario')
+          columns_covered_by_dictionary:
+            - survey_form
+            - headcount_status_code
+            - full_time_equivalent_status_code
+    columns:
+      - name: year
+        description: Ano fiscal da instituição a que se referem os dados
+        tests: [not_null]
+      - name: institution_id
+        description: >-
+          Código de identificação da instituição atribuído pelo NCSES
+        tests: [not_null]
+      - name: unitid
+        description: Código de identificação da instituição no IPEDS (UNITID)
+      - name: survey_form
+        description: Versão do questionário respondida pela instituição no ano
+        tests: [not_null]
+      - name: personnel_group
+        description: Grupo de pessoal a que se refere a contagem
+        tests: [not_null]
+      - name: personnel_function
+        description: >-
+          Função de pesquisa e desenvolvimento exercida pelo pessoal
+      - name: headcount
+        description: >-
+          Número de pessoas que apoiam atividades de pesquisa e desenvolvimento
+      - name: headcount_status_code
+        description: Código de situação do valor de contagem
+      - name: full_time_equivalent
+        description: >-
+          Equivalentes de tempo integral do pessoal de pesquisa e desenvolvimento
+      - name: full_time_equivalent_status_code
+        description: >-
+          Código de situação do valor de equivalente de tempo integral
+  - name: us_nsf_ncses__herd_survey_item
+    description: >-
+      Itens do questionário HERD que não são despesas nem contagens de pessoal,
+      de 2010 a 2024: a composição dos recursos próprios da instituição
+      declarados como pesquisa financiada internamente, a inclusão de ensaios
+      clínicos no relatório do ano fiscal de 2009 e os limites de capitalização
+      de equipamentos e de software.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - institution_id
+            - question_code
+            - row_label
+            - column_label
+      # column_label is ignored because only the FY2012 collection asked item
+      # 01.1 about a second fiscal year: 4.9 per cent of rows, measured.
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [column_label]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_nsf_ncses__dicionario')
+          columns_covered_by_dictionary: [survey_form, response_code]
+    columns:
+      - name: year
+        description: Ano fiscal da instituição a que se referem os dados
+        tests: [not_null]
+      - name: institution_id
+        description: >-
+          Código de identificação da instituição atribuído pelo NCSES
+        tests: [not_null]
+      - name: unitid
+        description: Código de identificação da instituição no IPEDS (UNITID)
+      - name: survey_form
+        description: Versão do questionário respondida pela instituição no ano
+        tests: [not_null]
+      - name: question_code
+        description: Código do item do questionário
+        tests: [not_null]
+      - name: question
+        description: Assunto do item do questionário
+        tests: [not_null]
+      - name: row_label
+        description: Rótulo da linha do item do questionário
+        tests: [not_null]
+      - name: column_label
+        description: Rótulo da coluna do item do questionário
+      - name: response_code
+        description: >-
+          Resposta da instituição ao item, quando o item pede um código
+      - name: amount
+        description: Valor monetário informado no item, em dólares correntes
+      - name: other_information
+        description: >-
+          Informação complementar registrada pela instituição para o item
+  - name: us_nsf_ncses__sed_data_table
+    description: >-
+      Catálogo das tabelas de dados publicadas pelo Survey of Earned Doctorates
+      em cada ciclo da pesquisa: identificador, título, grupo temático e
+      declaração de unidade. Serve de índice para sed_estimate, que traz as
+      células dessas mesmas tabelas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [reference_year, table_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: reference_year
+        description: Ano do ciclo da pesquisa a que pertence a publicação
+        tests: [not_null]
+      - name: table_id
+        description: >-
+          Identificador da tabela publicada, no formato grupo-número
+        tests: [not_null]
+      - name: table_group
+        description: Grupo temático da tabela publicada
+        tests: [not_null]
+      - name: table_title
+        description: Título da tabela publicada
+        tests: [not_null]
+      - name: unit_statement
+        description: >-
+          Declaração de unidade impressa abaixo do título da tabela
+      - name: publication_id
+        description: Código da publicação do NCSES que contém a tabela
+        tests: [not_null]
+      - name: source_file
+        description: Nome do arquivo Excel de origem da tabela
+      - name: estimate_count
+        description: Número de células de dados extraídas da tabela
+  - name: us_nsf_ncses__sed_estimate
+    description: >-
+      Estimativas publicadas pelo Survey of Earned Doctorates em formato longo:
+      uma linha por célula das tabelas de dados do ciclo, com o caminho
+      hierárquico completo da linha e os rótulos de coluna preservados. Cobre
+      contagens de doutores por ano, campo, sexo, situação de cidadania,
+      etnia e raça, além de compromissos após a titulação, apoio financeiro,
+      dívida educacional, tempo até o título, salários e instituições de origem
+      e de titulação. A microdados individual do SED é de uso restrito e não
+      está aqui. Cada ciclo republica a própria série histórica, então filtre
+      pelo maior reference_year em vez de somar entre ciclos.
+    tests:
+      # Keyed on the worksheet position rather than on the labels: table 5-3
+      # indents two different sections at the same level, so two distinct rows
+      # share a row_path. Position is the identity of a published cell.
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - reference_year
+            - table_id
+            - row_number
+            - column_number
+      # column_label and column_path are ignored because a table whose header is
+      # a year leaves both empty: 28 per cent of rows, measured.
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [column_label, column_path]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_nsf_ncses__dicionario')
+          columns_covered_by_dictionary: [unit]
+    columns:
+      - name: reference_year
+        description: Ano do ciclo da pesquisa a que pertence a publicação
+        tests: [not_null]
+      - name: table_id
+        description: >-
+          Identificador da tabela publicada, no formato grupo-número
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_nsf_ncses__sed_data_table')
+              field: table_id
+      - name: year
+        description: Ano acadêmico a que o valor se refere
+        tests: [not_null]
+      - name: row_number
+        description: Número da linha da célula na planilha publicada
+        tests: [not_null]
+      - name: column_number
+        description: Número da coluna da célula na planilha publicada
+        tests: [not_null]
+      - name: row_label
+        description: Rótulo da linha da tabela publicada
+        tests: [not_null]
+      - name: row_path
+        description: >-
+          Caminho hierárquico completo da linha, do nível mais alto até ela
+        tests: [not_null]
+      - name: row_level
+        description: Profundidade da linha na hierarquia, começando em zero
+      - name: column_label
+        description: Rótulo mais específico do cabeçalho da coluna
+      - name: column_path
+        description: Caminho hierárquico completo do cabeçalho da coluna
+      - name: unit
+        description: Unidade em que o valor está expresso
+        tests: [not_null]
+      - name: value
+        description: Valor publicado da célula
+        tests: [not_null]
+  - name: us_nsf_ncses__dicionario
+    description: >-
+      Dicionário de valores codificados do conjunto us_nsf_ncses. Vários códigos
+      mudam de significado entre as duas eras do levantamento HERD, por isso
+      cada entrada traz sua própria cobertura temporal.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: Nome da tabela
+        tests: [not_null]
+      - name: nome_coluna
+        description: Nome da coluna
+        tests: [not_null]
+      - name: chave
+        description: Chave do dicionário, isto é, o valor armazenado na coluna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >-
+          Cobertura temporal em que a chave tem o significado indicado
+        tests: [not_null]
+      - name: valor
+        description: Significado da chave
+        tests: [not_null]

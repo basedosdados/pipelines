@@ -255,7 +255,6 @@ EXPENDITURE_COLUMNS = [
     "expenditure",
     "status_code",
     "other_information",
-    "other_information_status_code",
     "standardized_agency_name",
 ]
 
@@ -283,7 +282,6 @@ SURVEY_ITEM_COLUMNS = [
     "column_label",
     "response_code",
     "amount",
-    "status_code",
     "other_information",
 ]
 
@@ -458,10 +456,8 @@ def build_dicionario() -> list[dict]:
     }
     for table, column in [
         ("herd_expenditure", "status_code"),
-        ("herd_expenditure", "other_information_status_code"),
         ("herd_personnel", "headcount_status_code"),
         ("herd_personnel", "full_time_equivalent_status_code"),
-        ("herd_survey_item", "status_code"),
     ]:
         add([table], column, "1972(1)2024", status)
     add(
@@ -567,7 +563,6 @@ def main() -> int:
                             "column_label": clean(row.get("column")),
                             "response_code": "" if is_amount else value,
                             "amount": to_usd(value) if is_amount else "",
-                            "status_code": status,
                             "other_information": clean(row.get("othinfo")),
                         }
                     )
@@ -582,9 +577,6 @@ def main() -> int:
                             "expenditure": to_usd(row.get("data")),
                             "status_code": status,
                             "other_information": clean(row.get("othinfo")),
-                            "other_information_status_code": normalise_status(
-                                row.get("othinfo_s")
-                            ),
                             "standardized_agency_name": clean(
                                 row.get("standardized_agency_names")
                             ),

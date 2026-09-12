@@ -398,15 +398,11 @@ HERD_EXPENDITURE = [
         "Información complementaria registrada por la institución para el ítem",
         observations=(
             "No item 10 traz o nome da agência federal informada pela "
-            "instituição. Presente apenas a partir do ano fiscal de 2010"
+            "instituição. Presente apenas a partir do ano fiscal de 2010. O "
+            "campo de situação que a fonte publica ao lado deste (othinfo_s) "
+            "está vazio em todos os anos, por isso não foi incluído"
         ),
         original="othinfo",
-    ),
-    herd_status(
-        "other_information_status_code",
-        "informação complementar",
-        "additional information",
-        "información complementaria",
     ),
     col(
         "standardized_agency_name",
@@ -560,7 +556,6 @@ HERD_SURVEY_ITEM = [
         ),
         original="data",
     ),
-    herd_status("status_code", "resposta", "answer", "respuesta"),
     col(
         "other_information",
         "STRING",
@@ -569,7 +564,9 @@ HERD_SURVEY_ITEM = [
         "Información complementaria registrada por la institución para el ítem",
         observations=(
             "No item 01.1 traz o motivo de determinados tipos de recurso não "
-            "terem sido incluídos"
+            "terem sido incluídos. O campo de situação que a fonte publica ao "
+            "lado deste item está vazio em todos os anos, por isso não foi "
+            "incluído"
         ),
         original="othinfo",
     ),
@@ -691,6 +688,33 @@ SED_ESTIMATE = [
         original="(cabeçalho ou rótulo de linha)",
     ),
     col(
+        "row_number",
+        "STRING",
+        "Número da linha da célula na planilha publicada",
+        "Worksheet row number of the cell in the published table",
+        "Número de fila de la celda en la hoja publicada",
+        observations=(
+            "Posição, não uma quantidade: ordenar exige "
+            "safe_cast(row_number as int64). Junto de table_id e "
+            "column_number identifica a célula de forma única, o que os "
+            "rótulos nem sempre fazem — a tabela 5-3 recua duas seções "
+            "diferentes no mesmo nível e produz dois row_path iguais"
+        ),
+        original="(posição na planilha)",
+    ),
+    col(
+        "column_number",
+        "STRING",
+        "Número da coluna da célula na planilha publicada",
+        "Worksheet column number of the cell in the published table",
+        "Número de columna de la celda en la hoja publicada",
+        observations=(
+            "Posição, não uma quantidade: ordenar exige "
+            "safe_cast(column_number as int64)"
+        ),
+        original="(posição na planilha)",
+    ),
+    col(
         "row_label",
         "STRING",
         "Rótulo da linha da tabela publicada",
@@ -728,28 +752,30 @@ SED_ESTIMATE = [
         original="(recuo da coluna A)",
     ),
     col(
-        "column_group",
-        "STRING",
-        "Rótulo do grupo de colunas a que a célula pertence",
-        "Label of the column group the cell belongs to",
-        "Etiqueta del grupo de columnas al que pertenece la celda",
-        observations=(
-            "Primeira linha do cabeçalho, propagada pelas células mescladas. "
-            "Nulo quando o cabeçalho é um ano, já registrado em year"
-        ),
-        original="(linha 4 da planilha)",
-    ),
-    col(
         "column_label",
         "STRING",
-        "Rótulo da coluna a que a célula pertence",
-        "Label of the column the cell belongs to",
-        "Etiqueta de la columna a la que pertenece la celda",
+        "Rótulo mais específico do cabeçalho da coluna",
+        "Most specific header label of the column",
+        "Etiqueta más específica del encabezado de la columna",
         observations=(
-            "Segunda linha do cabeçalho. Nulo nas tabelas de cabeçalho simples "
-            "e quando o cabeçalho é um ano"
+            "Último nível de column_path. Nulo quando o cabeçalho da coluna é "
+            "apenas um ano, já registrado em year"
         ),
-        original="(linha 5 da planilha)",
+        original="(cabeçalho da planilha)",
+    ),
+    col(
+        "column_path",
+        "STRING",
+        "Caminho hierárquico completo do cabeçalho da coluna",
+        "Full hierarchical path of the column header",
+        "Ruta jerárquica completa del encabezado de la columna",
+        observations=(
+            "Níveis separados por ' > '. O cabeçalho tem de uma a três linhas, "
+            "reconstruídas a partir das células mescladas; algumas tabelas "
+            "reescrevem os rótulos no meio do corpo, e essa reescrita entra "
+            "como um nível adicional"
+        ),
+        original="(cabeçalho da planilha)",
     ),
     col(
         "unit",
