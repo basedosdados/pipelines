@@ -54,12 +54,17 @@ IPEDS UNITID, the same key as `us_ed_ipeds` and `us_ed_college_scorecard`.
 `us_ed_ipeds` types it `INT64`, so a join needs a cast:
 
 ```sql
-select h.year, h.expenditure, i.instnm
+select h.year, i.institution_name, h.expenditure / 1e9 as total_rd_usd_billion
 from `basedosdados.us_nsf_ncses.herd_expenditure` h
 join `basedosdados.us_ed_ipeds.hd` i
   on safe_cast(h.unitid as int64) = i.unitid and h.year = i.year
-where h.question = 'Source' and h.row_label = 'Total'
+where h.year = 2023 and h.question = 'Source' and h.row_label = 'Total'
+order by h.expenditure desc
 ```
+
+Run on dev, that returns UCSF at $2.05 billion, Penn at $1.95 billion and
+Michigan at $1.93 billion for FY2023 — the same order and the same magnitudes as
+NCSES's own published ranking.
 
 The source carries the UNITID only from FY2010. For FY1972–FY2009 it is carried
 back from the same NCSES institution id observed in FY2010 or later; an
@@ -80,6 +85,7 @@ against itself:
 | FY2010 total | $61.3 billion | $61.2 billion |
 | FY1990 total | $16.3 billion | $16.3 billion |
 | 2024 research doctorates (SED table 1-1) | 58,131 | 58,131 |
+| FY2023 top institution, joined through IPEDS | UCSF, $2.05 billion | UCSF, $2.05 billion |
 
 ## Things that will bite
 

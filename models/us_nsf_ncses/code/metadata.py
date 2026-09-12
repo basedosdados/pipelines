@@ -665,10 +665,62 @@ def register(env: str) -> dict:
     return report
 
 
+def set_dataset_status(env: str, status_id: str) -> dict:
+    """Re-register the dataset with a different status.
+
+    The API has no partial update, so every required field is passed again.
+    """
+    return server.create_update_dataset(
+        id=DATASET_ID,
+        slug=DATASET_SLUG,
+        name_pt=NAME_PT,
+        name_en=NAME_EN,
+        name_es=NAME_ES,
+        description_pt=DESCRIPTION_PT,
+        description_en=DESCRIPTION_EN,
+        description_es=DESCRIPTION_ES,
+        organization_ids=[ORGANIZATION_ID],
+        theme_ids=[
+            REFS["theme_science"],
+            REFS["theme_education"],
+            REFS["theme_economics"],
+        ],
+        tag_ids=resolve_tags(env),
+        status_id=status_id,
+        env=env,
+    )
+
+
+def rename_organization(env: str) -> dict:
+    """Shorten the NSF organization slug to `nsf`.
+
+    The organization also carries an unfilled Survey of Doctorate Recipients
+    shell, whose public URL changes with this rename.
+    """
+    return server.create_update_organization(
+        id=ORGANIZATION_ID,
+        slug="nsf",
+        name_pt="National Science Foundation (NSF)",
+        name_en="National Science Foundation (NSF)",
+        name_es="Fundación Nacional de la Ciencia (NSF)",
+        website="https://nsf.gov",
+        env=env,
+    )
+
+
 def main() -> int:
-    env = sys.argv[1] if len(sys.argv) > 1 else "staging"
+    args = sys.argv[1:]
+    env = next((a for a in args if not a.startswith("--")), "staging")
     if env not in {"staging", "prod"}:
         raise SystemExit("env must be 'staging' or 'prod'")
+    if "--rename-org" in args:
+        print(f"renaming the NSF organization slug on {env}")
+        print(rename_organization(env))
+        return 0
+    if "--publish" in args:
+        print(f"publishing us_nsf_ncses on {env}")
+        print(set_dataset_status(env, REFS["status_published"]))
+        return 0
     print(f"registering us_nsf_ncses metadata on {env}", flush=True)
     report = register(env)
     print(json.dumps(report, indent=1, ensure_ascii=False))
