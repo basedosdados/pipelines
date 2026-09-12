@@ -112,7 +112,7 @@ select
     safe_cast(ict_home as int64) ict_home,
     safe_cast(wle_ict_availability_home as float64) wle_ict_availability_home,
     safe_cast(ict_school as int64) ict_school,
-    safe_cast(wle_ict_availability_school as float64) wle_availability_usage_school,
+    safe_cast(wle_ict_availability_school as float64) wle_ict_availability_school,
     safe_cast(wle_home_possessions as float64) wle_home_possessions,
     safe_cast(wle_cultural_possessions as float64) wle_cultural_possessions,
     safe_cast(wle_home_educational_resources as float64) wle_home_educational_resources,

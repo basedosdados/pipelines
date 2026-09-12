@@ -185,7 +185,7 @@ models:
         description: ICT availability outside school (WLE)
       - name: ict_school
         description: ICT available at school
-      - name: wle_availability_usage_school
+      - name: wle_ict_availability_school
         description: ICT availability at school (WLE)
       - name: wle_home_possessions
         description: Home possessions index (WLE)
