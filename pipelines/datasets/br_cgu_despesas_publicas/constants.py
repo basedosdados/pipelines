@@ -29,6 +29,24 @@ class constants(Enum):
 
     BASE_URL = "https://portaldatransparencia.gov.br/download-de-dados/despesas-execucao"
 
+    # Per-table source endpoints. Both are monthly ZIPs on the same host and
+    # share the WAF pacing policy below, but their period column is formatted
+    # differently — execucao uses "AAAA/MM" at column 0 while favorecido uses
+    # "MM/AAAA" at column 10 — so both the format and the position are declared
+    # per table and never inferred.
+    PRODUCTS = {
+        "execucao": {
+            "url": "https://portaldatransparencia.gov.br/download-de-dados/despesas-execucao",
+            "period_format": "year_first",
+            "period_index": 0,
+        },
+        "favorecido": {
+            "url": "https://portaldatransparencia.gov.br/download-de-dados/despesas-favorecidos",
+            "period_format": "month_first",
+            "period_index": 10,
+        },
+    }
+
     USER_AGENT = (
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
         "(KHTML, like Gecko) Chrome/124.0 Safari/537.36 rdahis@basedosdados.org"

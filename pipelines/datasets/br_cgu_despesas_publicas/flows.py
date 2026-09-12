@@ -50,6 +50,7 @@ from pipelines.utils.tasks import (
 
 DATASET_ID = constants.DATASET_ID.value
 TABLE_ID = constants.TABLE_ID.value
+FAVORECIDO_TABLE_ID = "favorecido"
 
 # Monthly table, so the BD Pro rolling window applies: the most recent six
 # months are pro-only and everything older is free. register_table_materialization_task
@@ -208,5 +209,146 @@ br_cgu_despesas_publicas_flow.deploy_schedules = [
 # pyrefly: ignore [missing-attribute]
 br_cgu_despesas_publicas_flow.job_variables = {
     "memory_limit": "6Gi",
+    "memory_request": "2Gi",
+}
+
+
+# ---------------------------------------------------------------------------
+# favorecido — recebimentos por favorecido, a second monthly product on the
+# same host. It gets its own flow rather than a second table inside the
+# execucao flow: the two products are published independently, and execucao is
+# already live in production, so widening its flow would put a working pipeline
+# at risk for no gain.
+# ---------------------------------------------------------------------------
+
+_FAVORECIDO_COVERAGE = PartBdpro(
+    date_column=YearMonth(year="ano", month="mes"),
+    date_format=DateFormat.YEAR_MONTH,
+    free_lag=FreeLag(unit="months", value=6),
+)
+
+
+@flow(name="br_cgu_despesas_publicas_favorecido", log_prints=True)
+def br_cgu_despesas_publicas_favorecido_flow(
+    materialize_to_prod: bool = True,
+    update_metadata: bool = True,
+    force_run: bool = False,
+    months_back: int = 6,
+    full_refresh: bool = False,
+) -> None:
+    """Refresh br_cgu_despesas_publicas.favorecido from the Portal da Transparência.
+
+    Same shape as the execucao flow — trailing window, ``dump_mode="append"`` so
+    the window cannot erase history, and the same WAF pacing — but pointed at
+    the ``despesas-favorecidos`` product, whose period column is "MM/AAAA" at
+    index 10 rather than "AAAA/MM" at index 0. Both are declared in
+    ``constants.PRODUCTS`` and neither is inferred.
+
+    Args:
+        materialize_to_prod: Continue past the dev materialization to write the
+            prod staging bucket and run dbt against ``target="prod"``. Set False
+            to exercise only the dev half.
+        update_metadata: After a successful prod materialization, register table
+            coverage and commit the source update.
+        force_run: Materialize even when the portal has not regenerated the
+            current month since the last refresh.
+        months_back: Size of the trailing window of months to re-pull.
+        full_refresh: Re-pull every month from 2014-01. Slow — the full history
+            is ~26 GB of CSV and about an hour of paced downloading.
+    """
+    # pyrefly: ignore [unused-coroutine]
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=DATASET_ID, table_id=FAVORECIDO_TABLE_ID
+    )
+
+    work_dir = tempfile.mkdtemp(prefix="br_cgu_favorecido_")
+    try:
+        max_modified = probe_source(table=FAVORECIDO_TABLE_ID)
+
+        has_new_data = poll_source_for_update_task(
+            dataset_id=DATASET_ID,
+            table_id=FAVORECIDO_TABLE_ID,
+            source_max_date=max_modified,
+            env="prod",
+            date_format="%Y-%m-%d",
+            compare_against="table_update",
+        )
+        if not has_new_data and not force_run:
+            return
+
+        downloaded = download_despesas(
+            work_dir=work_dir,
+            months_back=months_back,
+            full_refresh=full_refresh,
+            table=FAVORECIDO_TABLE_ID,
+        )
+        result = clean_despesas(
+            work_dir=work_dir,
+            input_dir=downloaded["input_dir"],
+            months=downloaded["months"],
+            table=FAVORECIDO_TABLE_ID,
+        )
+        print(
+            f"cleaned {len(result['rows'])} months, {result['total']:,} rows "
+            f"(through {result['max_period']})"
+        )
+
+        commit_source_update_task(
+            dataset_id=DATASET_ID,
+            table_id=FAVORECIDO_TABLE_ID,
+            source_max_date=max_modified,
+            env="prod",
+            date_format="%Y-%m-%d",
+            update_metadata=update_metadata,
+            materialize_after_dump=materialize_to_prod,
+        )
+
+        bucket = "basedosdados" if materialize_to_prod else "basedosdados-dev"
+        target = "prod" if materialize_to_prod else "dev"
+        upload_to_gcs(
+            data_path=result["path"],
+            dataset_id=DATASET_ID,
+            table_id=FAVORECIDO_TABLE_ID,
+            bucket_name=bucket,
+            dump_mode="append",
+            source_format="parquet",
+        )
+        run_dbt(
+            dataset_id=DATASET_ID,
+            table_id=FAVORECIDO_TABLE_ID,
+            dbt_command="run",
+            target=target,
+        )
+        run_dbt(
+            dataset_id=DATASET_ID,
+            table_id=FAVORECIDO_TABLE_ID,
+            dbt_command="test",
+            target=target,
+        )
+
+        if materialize_to_prod and update_metadata:
+            register_table_materialization_task(
+                dataset_id=DATASET_ID,
+                table_id=FAVORECIDO_TABLE_ID,
+                coverage=_FAVORECIDO_COVERAGE,
+                env="prod",
+                bq_project="basedosdados",
+            )
+    finally:
+        shutil.rmtree(work_dir, ignore_errors=True)
+
+
+# CGU regenerates the favorecidos files a few days into each month, alongside
+# the execucao ones. Offset from the execucao flow so the two do not compete for
+# the same WAF budget or BigQuery slots.
+# pyrefly: ignore [missing-attribute]
+br_cgu_despesas_publicas_favorecido_flow.deploy_schedules = [
+    {"cron": "58 7 4,6,8,10 * *", "timezone": "America/Sao_Paulo"}
+]
+# A six-month window is ~900 MB of raw CSV and ~4.5M rows held one month at a
+# time. `memory` alone is silently dropped by the work pool template.
+# pyrefly: ignore [missing-attribute]
+br_cgu_despesas_publicas_favorecido_flow.job_variables = {
+    "memory_limit": "8Gi",
     "memory_request": "2Gi",
 }
