@@ -33,10 +33,13 @@ import zipfile
 from collections import defaultdict
 from pathlib import Path
 
+# pyrefly: ignore [untyped-import]
 import openpyxl
 import pyarrow as pa
 import pyarrow.parquet as pq
 import requests
+
+# pyrefly: ignore [untyped-import]
 from openpyxl.cell.rich_text import CellRichText
 
 # NCSES serves documents only to something that looks like a browser.
