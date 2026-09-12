@@ -37,6 +37,9 @@ def _cvm_fi_flow(table_id: str, cron: str, date_column_name: dict):
     return _flow
 
 
+# As seis tabelas rodam de 10 em 10 minutos a partir das 17h para não disputarem
+# slot no BigQuery no mesmo instante — a fonte é mensal, e o poll faz a run virar
+# no-op nos dias em que a CVM não publicou nada.
 br_cvm_fi__documentos_informe_diario = _cvm_fi_flow(
     table_id="documentos_informe_diario",
     cron="0 17 * * *",

@@ -1807,6 +1807,11 @@ models:
     description: >
       Titulares e substitutos das direções e coordenações do Senado Federal, com o
       setor dirigido, sua posição na hierarquia administrativa e o contato do titular.
+      A fonte só preenche o objeto `substituto` nos setores com substituição vigente
+      na data de extração — 11 dos 234 setores (4,7%) em 2026-09-07 e 20 dos 234 (8,5%)
+      em 2026-09-09 — e, quando o preenche, os quatro campos vêm sempre juntos. Por
+      serem esparsas por construção, essas colunas ficam fora do teste de proporção
+      de nulos.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -1815,6 +1820,11 @@ models:
             - matricula_titular
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values:
+            - matricula_substituto
+            - nome_substituto
+            - data_inicio_substituicao
+            - data_fim_substituicao
     columns:
       - name: data_extracao
         description: >

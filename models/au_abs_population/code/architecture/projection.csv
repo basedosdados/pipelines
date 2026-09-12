@@ -1,0 +1,11 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,"Year the population is projected for, at 30 June",2022(1)2071,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,
+projection_base_year,INT64,Year of the estimated resident population the projection is based on,,no,,year,no,2022 for the current release; ABS re-bases the projections every few years,
+series,STRING,"Projection series, high, medium or low",,no,,,no,"ABS series 1(A) high, 29(B) medium and 45(C) low, which differ in their assumed fertility, life expectancy, net overseas migration and interstate migration. The medium series is the one ABS describes as the most likely",
+geography_level,STRING,"Geographic level of the row, either state or australia",,no,,,no,"australia marks the national aggregate, which is not a state and therefore carries a null state_id; state marks one of the eight states and territories",
+state_id,STRING,Code of the Australian state or territory,,no,br_bd_diretorios_au.state:id_state,,no,"Null on national (australia) rows, which are not a state",
+region_name,STRING,"Name of the state, territory or national aggregate as published by the ABS",,no,,,no,,Data Item Description
+sex,STRING,Sex of the population counted,,no,,,no,"Male, Female or Persons, where Persons is the ABS-published total",Data Item Description
+age,STRING,Single year of age of the projected population,,no,,,no,"Single years 0 to 84 plus 85 and over for the states, and 0 to 99 plus 100 and over for Australia; stored as a string because the top group is not a number",Data Item Description
+series_id,STRING,ABS series identifier of the projected series,,no,,,no,Foreign key to the au_abs_population series table,Series ID
+projected_population,INT64,Projected population at 30 June,,no,,person,no,,value

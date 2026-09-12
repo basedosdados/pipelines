@@ -1,0 +1,146 @@
+{
+  "prod": {
+    "raw_sources": {
+      "apes": "eeff03c1-ff75-46ad-91fd-b080484a7655",
+      "finances": "f661bfc7-9f1f-4343-bd70-5fabaaeb4af3",
+      "gus": "e448d736-1213-4795-946b-5ff2d449903e",
+      "landing": "b293da80-0135-474b-afbe-b060281677de"
+    },
+    "tables": {
+      "dicionario": {
+        "cloud_table": "dfacb022-6a4e-4e4d-bca4-f052c4ad41a8",
+        "id": "ba96edff-3b37-4cdd-832d-3d0e9dd53f6f",
+        "levels": {}
+      },
+      "employment": {
+        "cloud_table": "db09b863-afcf-41a3-ad7a-c78c63358b08",
+        "coverage": "10878b94-9452-4266-85dc-76e6250736e7",
+        "datetime_range": "68ea6ea4-c4fb-4764-9efd-9c5f9499f3b9",
+        "id": "52a2b07b-2f39-4567-8623-69e928c10dab",
+        "levels": {
+          "agency": "6574198f-ba7f-48ea-8d5d-0e39fb48c8e6",
+          "item": "4fb65966-807e-4eea-beb6-bceb699fddc3",
+          "year": "79ff5713-0967-494c-a9b3-fe3c80ed398d"
+        },
+        "update": "60151614-0ecf-4151-9f00-3299287f3106"
+      },
+      "employment_unit": {
+        "cloud_table": "5d485109-1e40-4765-81e7-7dfa1999b53f",
+        "coverage": "17e69cb5-7660-40e8-9715-633958187793",
+        "datetime_range": "f13e70b5-d78b-4c2b-ac2c-dd3f73b6321c",
+        "id": "a0e0c2ce-067f-482f-8bbf-c4da9d3a437c",
+        "levels": {
+          "agency": "c69e9e7b-68a5-443b-ab0f-705641f9f2ef",
+          "year": "7255699d-9698-486e-a976-96bf46e530e5"
+        },
+        "update": "a02a4d10-8db1-4452-ba9c-565eb568c8b9"
+      },
+      "finance": {
+        "cloud_table": "95fb35f8-d98a-4137-9ab2-14c597b31e11",
+        "coverage": "f913d440-2f86-43af-82b9-f4ca3bb4e029",
+        "datetime_range": "8b37baca-f1fc-4e1a-9922-fad1b08b930f",
+        "id": "88d58d38-efd0-4a2d-b04f-da4e8d4b6eee",
+        "levels": {
+          "agency": "c151db88-3845-4c76-9b02-126cc0e79de6",
+          "item": "4ebd5ba0-368e-425b-a7f5-7e24276f2b11",
+          "year": "7a045096-a424-47b3-bf75-12de4ce7ab98"
+        },
+        "update": "384a6dd1-480b-4381-9571-7e90738bd840"
+      },
+      "finance_unit": {
+        "cloud_table": "ee18a242-d77b-4e79-afee-7d4dfc5f0eeb",
+        "coverage": "5d6d52e0-b856-4d61-970e-d8fa8f1b8bcb",
+        "datetime_range": "fc62beda-da9e-4018-b17a-f6fb8a87412a",
+        "id": "1e857bad-3ed5-4dfb-8211-f5316ec5df1c",
+        "levels": {
+          "agency": "ea58a69d-f987-4226-9d2a-d172a1661923",
+          "year": "ad1929cc-141a-4410-812e-1179faae7c19"
+        },
+        "update": "a5fdb7dd-da2a-4391-aa00-ab262136e11e"
+      },
+      "government_unit": {
+        "cloud_table": "23d76909-5f21-4874-8896-10dc2e413475",
+        "coverage": "25e89dcf-1871-4993-813d-cfb000c1552d",
+        "datetime_range": "dacd7771-c3d6-4fb4-b4bc-d872888896f0",
+        "id": "20e0aab8-3d57-4cc1-a46d-cd6c0665fa1d",
+        "levels": {
+          "agency": "65838257-3d0e-4c5a-8b53-7d2bae47d103",
+          "year": "8cb77b66-0476-4790-95fd-d51c3ebeac81"
+        },
+        "update": "46490d44-21ce-4ac8-ac40-fa7772d14eeb"
+      }
+    }
+  },
+  "staging": {
+    "raw_sources": {
+      "apes": "766111cc-988c-48bf-bc8c-3606cc94b684",
+      "finances": "f2f20342-85d7-4f67-a428-2e081f39ccd8",
+      "gus": "d39dad7f-ade0-4d2e-ac61-2a3a2457f18f",
+      "landing": "b293da80-0135-474b-afbe-b060281677de"
+    },
+    "tables": {
+      "dicionario": {
+        "cloud_table": "2f95b513-403f-409b-9755-2b35530ae1c3",
+        "id": "8e98ffa4-a802-4c9e-b0c3-30545a113ce9",
+        "levels": {}
+      },
+      "employment": {
+        "cloud_table": "bd9742c7-9a21-4d5f-9ff7-798371df1af1",
+        "coverage": "0e67de5e-56f6-47e0-ad52-e2cb0f5e0647",
+        "datetime_range": "d96a0c64-49f4-4583-b002-3876ce29926e",
+        "id": "46bef49b-cc01-4a0d-b041-6955a1387555",
+        "levels": {
+          "agency": "006f3591-a7d1-432f-900c-4dbc322322b5",
+          "item": "48539cdd-f876-45d8-84fb-d3b0f451922e",
+          "year": "c021f37c-1598-428f-8e76-a2cedcccce4e"
+        },
+        "update": "227d7452-07f7-4d95-b7f0-47e686b7aeef"
+      },
+      "employment_unit": {
+        "cloud_table": "d12d1ea1-90fb-4e1d-b071-130d6acbffd5",
+        "coverage": "3bd6a481-5ef2-4067-9ae4-12fd6e6e0f72",
+        "datetime_range": "adf74a3a-6207-4f0b-8266-ae82e84f69d0",
+        "id": "5b1fb7ff-3843-44ac-adb3-1df793cfa821",
+        "levels": {
+          "agency": "b3ae6c68-ddf6-4604-8568-7f99c3075c15",
+          "year": "e12c29bf-dcde-48aa-aa69-b666d96f78a7"
+        },
+        "update": "75790966-eae8-4d94-82af-faddbba7cdc6"
+      },
+      "finance": {
+        "cloud_table": "cc3bf54d-6923-4696-a28a-93d8f9f276d0",
+        "coverage": "4f479f53-0f6c-41d1-bfe6-34fb9e555ad6",
+        "datetime_range": "43c35eeb-8e1f-4ade-8dda-4d03cb720533",
+        "id": "6ea5a78f-d2ac-453e-8f59-25708490c7a9",
+        "levels": {
+          "agency": "34d6cf6d-1f08-4985-8ab0-c7421161a410",
+          "item": "307325ba-b239-4a23-aecf-aae561092b1f",
+          "year": "ea427d8d-0831-4839-9300-b8e9a1a1e382"
+        },
+        "update": "d86f2aa9-d523-4e28-b11f-9dac0d4228b5"
+      },
+      "finance_unit": {
+        "cloud_table": "040c8c68-b70c-4019-b6ca-8cb9979bc3c2",
+        "coverage": "dc52b051-6f15-4fe5-884e-d138a710928d",
+        "datetime_range": "408eaf8d-ef7b-4038-98e4-e55c1899d657",
+        "id": "960ad984-e426-4d5e-8439-4c938d632554",
+        "levels": {
+          "agency": "bdcb637e-fcc4-470b-99c3-1d2d1c89d870",
+          "year": "51c6c2ab-e31d-4af2-9dce-bd58577ac65f"
+        },
+        "update": "153fe797-23bf-4de3-8885-8345393772c6"
+      },
+      "government_unit": {
+        "cloud_table": "82c32787-d52e-4ed0-940a-6c35b952645a",
+        "coverage": "08d0491c-1b70-4372-a6ac-a574cdbbea58",
+        "datetime_range": "7c6445af-1379-4e7e-bc8b-60458a3f9f52",
+        "id": "c8dd53b9-6943-47e3-bb7d-c77ffdb83563",
+        "levels": {
+          "agency": "347e2d5f-4008-44fe-9f22-9d06da2e1074",
+          "year": "3c992563-c86b-4b26-9971-698f3212e06d"
+        },
+        "update": "58206f1f-47e8-4e4e-af1c-3cf31b09fa86"
+      }
+    }
+  }
+}

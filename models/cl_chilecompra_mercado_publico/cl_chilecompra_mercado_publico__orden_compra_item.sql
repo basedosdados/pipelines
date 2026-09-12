@@ -1,0 +1,120 @@
+{{
+    config(
+        schema="cl_chilecompra_mercado_publico",
+        alias="orden_compra_item",
+        materialized="incremental",
+        incremental_strategy="insert_overwrite",
+        partition_by={
+            "field": "ano",
+            "data_type": "int64",
+            "range": {"start": 2007, "end": 2031, "interval": 1},
+        },
+        cluster_by=["mes"],
+        pre_hook="{% if adapter.get_relation(this.database, this.schema, this.identifier) %}DROP ALL ROW ACCESS POLICIES ON {{ this }}{% else %}SELECT 1{% endif %}",
+    )
+}}
+
+
+select
+    safe_cast(ano as int64) ano,
+    safe_cast(mes as int64) mes,
+    safe_cast(id_orden_compra as string) id_orden_compra,
+    safe_cast(codigo_orden_compra as string) codigo_orden_compra,
+    safe_cast(url as string) url,
+    safe_cast(nombre as string) nombre,
+    safe_cast(descripcion as string) descripcion,
+    safe_cast(sigla_tipo as string) sigla_tipo,
+    safe_cast(procedencia as string) procedencia,
+    safe_cast(indicador_trato_directo as string) indicador_trato_directo,
+    safe_cast(indicador_compra_agil as string) indicador_compra_agil,
+    safe_cast(codigo_tipo as string) codigo_tipo,
+    safe_cast(sigla_tipo_abreviada as string) sigla_tipo_abreviada,
+    safe_cast(descripcion_tipo as string) descripcion_tipo,
+    safe_cast(id_plan_compra as string) id_plan_compra,
+    safe_cast(codigo_estado as string) codigo_estado,
+    safe_cast(estado as string) estado,
+    safe_cast(codigo_estado_proveedor as string) codigo_estado_proveedor,
+    safe_cast(estado_proveedor as string) estado_proveedor,
+    safe_cast(fecha_creacion as date) fecha_creacion,
+    safe_cast(fecha_envio as date) fecha_envio,
+    safe_cast(fecha_solicitud_cancelacion as date) fecha_solicitud_cancelacion,
+    safe_cast(fecha_ultima_modificacion as date) fecha_ultima_modificacion,
+    safe_cast(fecha_aceptacion as date) fecha_aceptacion,
+    safe_cast(fecha_cancelacion as date) fecha_cancelacion,
+    safe_cast(indicador_items as string) indicador_items,
+    safe_cast(promedio_calificacion as float64) promedio_calificacion,
+    safe_cast(cantidad_evaluacion as int64) cantidad_evaluacion,
+    safe_cast(moneda as string) moneda,
+    safe_cast(monto_total as float64) monto_total,
+    safe_cast(monto_total_clp as float64) monto_total_clp,
+    safe_cast(monto_impuestos as float64) monto_impuestos,
+    safe_cast(tipo_impuesto as string) tipo_impuesto,
+    safe_cast(monto_descuentos as float64) monto_descuentos,
+    safe_cast(monto_cargos as float64) monto_cargos,
+    safe_cast(monto_total_neto as float64) monto_total_neto,
+    safe_cast(porcentaje_iva as float64) porcentaje_iva,
+    safe_cast(codigo_unidad_compra as string) codigo_unidad_compra,
+    safe_cast(rut_unidad_compra as string) rut_unidad_compra,
+    safe_cast(nombre_unidad_compra as string) nombre_unidad_compra,
+    safe_cast(codigo_organismo as string) codigo_organismo,
+    safe_cast(nombre_organismo as string) nombre_organismo,
+    safe_cast(sector as string) sector,
+    safe_cast(actividad_comprador as string) actividad_comprador,
+    safe_cast(ciudad_unidad_compra as string) ciudad_unidad_compra,
+    safe_cast(id_region_unidad_compra as string) id_region_unidad_compra,
+    safe_cast(region_unidad_compra as string) region_unidad_compra,
+    safe_cast(pais_unidad_compra as string) pais_unidad_compra,
+    safe_cast(codigo_proveedor as string) codigo_proveedor,
+    safe_cast(rut_proveedor as string) rut_proveedor,
+    safe_cast(nombre_proveedor as string) nombre_proveedor,
+    safe_cast(codigo_sucursal_proveedor as string) codigo_sucursal_proveedor,
+    safe_cast(nombre_sucursal_proveedor as string) nombre_sucursal_proveedor,
+    safe_cast(actividad_proveedor as string) actividad_proveedor,
+    safe_cast(id_comuna_proveedor as string) id_comuna_proveedor,
+    safe_cast(comuna_proveedor as string) comuna_proveedor,
+    safe_cast(id_region_proveedor as string) id_region_proveedor,
+    safe_cast(region_proveedor as string) region_proveedor,
+    safe_cast(pais_proveedor as string) pais_proveedor,
+    safe_cast(financiamiento as string) financiamiento,
+    safe_cast(pais as string) pais,
+    safe_cast(codigo_tipo_despacho as string) codigo_tipo_despacho,
+    safe_cast(codigo_forma_pago as string) codigo_forma_pago,
+    safe_cast(forma_pago as string) forma_pago,
+    safe_cast(codigo_licitacion as string) codigo_licitacion,
+    safe_cast(codigo_convenio_marco as string) codigo_convenio_marco,
+    safe_cast(id_item as string) id_item,
+    safe_cast(codigo_categoria as string) codigo_categoria,
+    safe_cast(categoria as string) categoria,
+    safe_cast(codigo_producto_onu as string) codigo_producto_onu,
+    safe_cast(nombre_producto_generico as string) nombre_producto_generico,
+    safe_cast(rubro_n1 as string) rubro_n1,
+    safe_cast(rubro_n2 as string) rubro_n2,
+    safe_cast(rubro_n3 as string) rubro_n3,
+    safe_cast(especificacion_comprador as string) especificacion_comprador,
+    safe_cast(especificacion_proveedor as string) especificacion_proveedor,
+    safe_cast(cantidad as float64) cantidad,
+    safe_cast(unidad_medida as string) unidad_medida,
+    safe_cast(moneda_item as string) moneda_item,
+    safe_cast(precio_neto as float64) precio_neto,
+    safe_cast(monto_cargos_item as float64) monto_cargos_item,
+    safe_cast(monto_descuentos_item as float64) monto_descuentos_item,
+    safe_cast(monto_impuestos_item as float64) monto_impuestos_item,
+    safe_cast(monto_linea_neto as float64) monto_linea_neto
+from
+    {{
+        set_datalake_project(
+            "cl_chilecompra_mercado_publico_staging.orden_compra_item"
+        )
+    }} as t
+{% if is_incremental() %}
+        {%- set max_year_result = run_query(
+            "select max(ano) as max_year from " ~ this
+        ) -%}
+        {%- set max_year = 0 -%}
+        {%- if execute and max_year_result.rows[0][0] -%}
+            {%- set max_year = max_year_result.rows[0][0] -%}
+        {%- endif -%}
+    -- rebuild the trailing window the source rewrites; every partition it
+    -- touches is rebuilt in full from staging, which holds all of history
+    where t.ano >= '{{ max_year - 2 }}'
+{% endif %}

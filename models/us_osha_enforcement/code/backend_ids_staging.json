@@ -1,0 +1,97 @@
+{
+ "env": "staging",
+ "dataset_id": "173eabf2-489a-42da-b63a-89b87c6e8d04",
+ "org_id": "4cb6e6f2-b511-4e60-95b3-570de069f3cf",
+ "raw_data_source_ids": [
+  "24de510e-84d9-42fe-821c-d582479262eb"
+ ],
+ "account_id": "57",
+ "tables": {
+  "inspection": {
+   "id": "6240832d-663f-432d-a918-903908c450bb",
+   "observation_levels": {
+    "audit": "20e886e5-f705-47cd-bfbf-ac4d56683efd",
+    "state": "f29e6d66-fd68-4cab-9995-3a3237d0d681",
+    "year": "b90a4269-899c-43a3-bd2d-ed8e0f91a64d"
+   },
+   "columns": 35
+  },
+  "violation": {
+   "id": "64de83cf-bbdd-461b-8914-caedb08038fe",
+   "observation_levels": {
+    "citation": "8a7e2f89-f6b3-4ceb-9950-331f880e38e5",
+    "year": "400e578d-ea98-4f50-9923-22c3009c7f4e"
+   },
+   "columns": 29
+  },
+  "violation_event": {
+   "id": "8838685e-d089-469f-96f1-6759c5acc35d",
+   "observation_levels": {
+    "citation": "1cc91c39-b202-4629-bcc2-410579793780",
+    "year": "96450da2-dffb-42f6-965f-18574c9b22af"
+   },
+   "columns": 10
+  },
+  "violation_text": {
+   "id": "82e8696c-83df-4802-ab7b-bd9598c7bd5f",
+   "observation_levels": {
+    "citation": "ad775923-31e4-43e3-9708-ada83490803e",
+    "year": "73c8ee5e-a90e-4b07-96ed-fc03e9de5585"
+   },
+   "columns": 5
+  },
+  "related_activity": {
+   "id": "48ffb472-8370-4a81-ae75-999d2fec60e5",
+   "observation_levels": {
+    "audit": "77e87da7-e42a-4ee1-ab57-40b335c2ffcf",
+    "year": "bd729877-5424-4728-a895-bf1b429e2ffb"
+   },
+   "columns": 6
+  },
+  "emphasis_code": {
+   "id": "3ce778d3-d38b-4a92-bd36-ac67277af511",
+   "observation_levels": {
+    "audit": "634cbff4-8ddf-473d-b313-54d34fee05c0",
+    "year": "9fb9a4bc-e9d5-4e15-a243-991ef63c5d76"
+   },
+   "columns": 4
+  },
+  "optional_code_info": {
+   "id": "e86c15d6-4990-42a2-881a-ca45a8f131c2",
+   "observation_levels": {
+    "audit": "fbed4103-404c-4d21-8c8e-f187b79b0d2b",
+    "year": "77927a6b-2117-4b62-b389-ed42a55be8dc"
+   },
+   "columns": 5
+  },
+  "accident": {
+   "id": "6676afb3-dc94-41b5-8a25-9fb1b700d5b0",
+   "observation_levels": {
+    "crash": "fd0aa65a-2d7b-4c10-80ad-dcb5649b119c",
+    "year": "30afb3e7-8549-4ddc-a18a-5f83627c9a05"
+   },
+   "columns": 13
+  },
+  "accident_injury": {
+   "id": "a43bd86d-1467-4308-835b-bef497d03952",
+   "observation_levels": {
+    "person": "b66350d8-456b-4878-b7d6-1f3e94d092d2",
+    "year": "f9e43069-9f0f-4088-8611-84bb1823a9ad"
+   },
+   "columns": 21
+  },
+  "accident_narrative": {
+   "id": "95f87b0e-c06c-4496-b5fa-d2b627580aca",
+   "observation_levels": {
+    "crash": "77050844-c0e0-4c05-8442-99f2a7203315",
+    "year": "0fe0bf28-dc84-4b19-ad58-3945c8c2e1da"
+   },
+   "columns": 5
+  },
+  "dicionario": {
+   "id": "8a65fd42-1f3a-43db-a0c1-8e6ba9a6bc6b",
+   "observation_levels": {},
+   "columns": 5
+  }
+ }
+}

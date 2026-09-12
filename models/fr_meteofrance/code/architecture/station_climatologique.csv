@@ -1,0 +1,9 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+numero_poste,STRING,"Número Météo-France do posto, de oito dígitos",,no,,,no,,
+nom_poste,STRING,Nome usual do posto,,no,,,no,,
+id_departement,STRING,Código do departamento ou da coletividade ultramarina do posto,,no,br_bd_diretorios_fr.departement:id_departamento,,no,"Segue a codificação da Météo-France, que difere do Code officiel géographique do INSEE em dois pontos: a Córsega recebe 20, e não 2A ou 2B, e as coletividades de além-mar 984, 986, 987 e 988 não constam do diretório francês.",
+latitude,FLOAT64,"Latitude do posto, negativa ao sul do equador",,no,,degree,no,,
+longitude,FLOAT64,"Longitude do posto, negativa a oeste de Greenwich",,no,,degree,no,,
+altitude,FLOAT64,"Altitude do posto, medida no pé do abrigo ou do pluviômetro",,no,,meter,no,,
+date_edition,DATE,Data de edição da ficha climatológica do posto,,no,,,no,,
+geolocalisation,GEOGRAPHY,"Ponto geográfico do posto, em WGS 84",,no,,,no,,

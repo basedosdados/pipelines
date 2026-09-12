@@ -24,6 +24,7 @@ RUN apt-get update && \
     p7zip-full \
     python3-dev \
     traceroute \
+    unzip \
     wget \
     tesseract-ocr \
     python3-opencv \

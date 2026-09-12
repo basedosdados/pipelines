@@ -85,9 +85,12 @@ def clean_table(con: duckdb.DuckDBPyConnection, name: str, spec: dict) -> None:
         f"COPY ({query}) TO '{out_path}' (FORMAT PARQUET, COMPRESSION SNAPPY);"
     )
 
-    n = con.execute(
+    row = con.execute(
         f"SELECT COUNT(*) FROM read_parquet('{out_path}')"
-    ).fetchone()[0]
+    ).fetchone()
+    if row is None:  # pragma: no cover - a count always returns one row
+        raise RuntimeError(f"{name}: count query returned no row")
+    n = row[0]
     expected = spec["expected_rows"]
     status = "OK" if n == expected else "MISMATCH"
     print(f"rows written: {n:,}  expected: {expected:,}  [{status}]")
