@@ -1,0 +1,11 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,First calendar year of the Australian financial year the publishing release is named for,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,(document)
+source_release_id,STRING,Identifier of the release whose chart the row was read from,,no,,,no,,(document)
+source_release_label,STRING,Name of the release whose chart the row was read from,,no,,,no,,(document)
+series_release_id,STRING,Identifier of the release the plotted series reports,,no,,,no,"The chart plots two vintages side by side, so this differs from source_release_id on roughly half the rows. That comparison is the chart's purpose",(series heading)
+series_release_label,STRING,Name of the release the plotted series reports,,no,,,no,,(series heading)
+payment_program,STRING,Major payment program the growth rate describes,,yes,,,no,"Interest was renamed PDI, for public debt interest, in the 2026-27 Budget; both are recorded as public_debt_interest",(row label)
+projection_period_start_year,INT64,First calendar year of the financial year the growth rate is measured from,,no,,year,no,"Taken from the chart note or title of the publishing release, which states a window for each plotted series. It is the series release's own financial year, except for ndis_medium_term_only",(chart note)
+projection_period_end_year,INT64,First calendar year of the financial year the growth rate is measured to,,no,,year,no,"Ten years after the start year, except for ndis_medium_term_only, where the note gives a shorter window",(chart note)
+growth_basis,STRING,Whether the growth rate is nominal or real,,yes,,,no,Nominal throughout. The chart note compares these programs against nominal GDP growth and nothing in the chart is deflated,(chart note)
+average_annual_growth_percent,FLOAT64,"Average annual growth in the program's payments over the projection period, in per cent",,no,,percent,no,Some releases publish one decimal place and others four; both are stored as published,(plotted value)

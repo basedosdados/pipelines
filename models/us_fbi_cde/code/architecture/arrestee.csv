@@ -1,0 +1,22 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,"Ano de referência dos dados, usado como coluna de partição",,no,diretorios_data_tempo.ano:ano,year,no,,data_year
+state_abbr,STRING,"Sigla de duas letras do estado, distrito ou território da agência",,no,,,no,,state_abbr
+ori,STRING,"Originating Agency Identifier, o identificador da agência policial no programa UCR e a chave de junção entre as tabelas",,no,,,no,"Nove caracteres: o ORI de sete caracteres do NCIC seguido de um sufixo de duas posições que identifica a subunidade, '00' para a própria agência. Nine characters: the seven-character NCIC ORI followed by a two-digit sub-unit suffix, '00' for the agency itself.",ori
+arrestee_id,STRING,"Identificador da pessoa presa atribuído pelo FBI, único dentro do ano e do grupo de prisão",,no,,,no,,arrestee_id
+incident_id,STRING,"Identificador do incidente atribuído pelo FBI, único dentro do estado e do ano",,no,,,no,"Nulo nas prisões do Grupo B, que não têm relatório de incidente. Null for Group B arrests, which have no incident report.",incident_id
+arrest_group,STRING,Indica se a prisão vem de um relatório de incidente do Grupo A ou de um relatório de prisão do Grupo B,,yes,,,no,"As prisões do Grupo B chegam sem vínculo com incidente ou agência nos arquivos publicados, de modo que 'ori' e 'incident_id' são nulos e só o estado e o ano são conhecidos. Group B arrests arrive with no incident or agency link in the published files, so 'ori' and 'incident_id' are null and only the state and year are known.",
+arrestee_sequence_number,STRING,Número de ordem da pessoa presa dentro do incidente,,no,,,no,,arrestee_seq_num
+arrest_date,DATE,Data da prisão,,no,,,no,,arrest_date
+arrest_type_code,STRING,"Código do tipo de prisão, por exemplo em flagrante ou por mandado",,yes,,,no,,arrest_type_id
+multiple_arrestee_indicator,STRING,Indica se a prisão faz parte de uma prisão múltipla já contada em outro registro,,yes,,,no,,multiple_indicator
+offense_code,STRING,Código NIBRS da ofensa pela qual a pessoa foi presa,,yes,,,no,,offense_code
+age_code,STRING,"Código da faixa etária da pessoa presa, incluindo os códigos de desconhecido e de menor de um ano",,yes,,,no,,age_id
+age,INT64,"Idade exata da pessoa presa em anos, quando informada",,no,,year,no,,age_num
+age_range_low,INT64,"Limite inferior da faixa etária da pessoa presa, quando a idade exata não é informada",,no,,year,no,,age_range_low_num
+age_range_high,INT64,"Limite superior da faixa etária da pessoa presa, quando a idade exata não é informada",,no,,year,no,,age_range_high_num
+sex_code,STRING,Código do sexo da pessoa presa,,yes,,,no,,sex_code
+race_code,STRING,"Código da raça da pessoa presa, tal como registrado pela agência",,yes,,,no,,race_id
+ethnicity_code,STRING,Código da etnia hispânica ou latina da pessoa presa,,yes,,,no,Coletado apenas por parte das agências; a cobertura varia muito entre estados e anos. Collected by only some agencies; coverage varies widely across states and years.,ethnicity_id
+resident_status_code,STRING,Indica se a pessoa presa residia na localidade da prisão,,yes,,,no,,resident_code
+under_18_disposition_code,STRING,Código do encaminhamento dado a pessoas presas com menos de 18 anos,,yes,,,no,,under_18_disposition_code
+weapon_code,STRING,Código da arma portada pela pessoa no momento da prisão,,yes,,,no,Guarda-se o menor código quando há mais de uma arma. The lowest code is kept when more than one weapon was recorded.,weapon_id

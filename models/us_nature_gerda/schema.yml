@@ -1,0 +1,1821 @@
+---
+version: 2
+models:
+  - name: us_nature_gerda__county_council_county_harmonized_2021
+    description: >
+      County council election results aggregated to the county level at 2021 boundaries,
+      long by party
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, id_county, party]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - invalid_votes
+            - flag_unsuccessful_naive_merge
+            - flag_total_votes_incongruent
+    columns:
+      - name: year
+        description: >
+          Election year
+        tests: [not_null]
+      - name: id_county
+        description: >
+          County identifier, 5-digit Kreisschlüssel
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__county')
+              field: id_county
+              config:
+                severity: warn
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+              config:
+                severity: error
+      - name: eligible_voters
+        description: >
+          Number of eligible voters (Wahlberechtigte)
+      - name: voters
+        description: >
+          Number of voters including invalid ballots (Wähler)
+      - name: valid_votes
+        description: >
+          Number of valid votes (gültige Stimmen); counts votes not ballots under
+          multi-vote systems
+      - name: invalid_votes
+        description: >
+          Number of invalid votes (ungültige Stimmen)
+      - name: turnout
+        description: >
+          Voter turnout as a percentage (0-100), number_voters divided by eligible_voters
+          times 100, capped at 100
+      - name: flag_unsuccessful_naive_merge
+        description: >
+          1 if the boundary-harmonization merge fell back to an alternative match,
+          else 0
+      - name: flag_total_votes_incongruent
+        description: >
+          1 if summed party votes do not match valid_votes, else 0
+      - name: party
+        description: >
+          Party or list, GERDA normalized name
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__party')
+              field: id_party
+              config:
+                severity: warn
+      - name: vote_share
+        description: >
+          Party vote share as a percentage (0-100); denominator is number_voters for
+          federal and European, valid_votes otherwise
+  - name: us_nature_gerda__county_council_municipality
+    description: >
+      County council (Kreistag) election results reported at the municipality level
+      on original boundaries, long by party
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, id_municipality, party]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [invalid_votes]
+    columns:
+      - name: year
+        description: >
+          Election year
+        tests: [not_null]
+      - name: id_municipality
+        description: >
+          Municipality identifier, 8-digit Amtlicher Gemeindeschlüssel (AGS)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__municipality')
+              field: id_municipality
+              config:
+                severity: warn
+      - name: id_county
+        description: >
+          County identifier, 5-digit Kreisschlüssel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__county')
+              field: id_county
+              config:
+                severity: warn
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+              config:
+                severity: error
+      - name: municipality_name
+        description: >
+          Municipality name as reported by the source
+      - name: eligible_voters
+        description: >
+          Number of eligible voters (Wahlberechtigte)
+      - name: voters
+        description: >
+          Number of voters including invalid ballots (Wähler)
+      - name: valid_votes
+        description: >
+          Number of valid votes (gültige Stimmen); counts votes not ballots under
+          multi-vote systems
+      - name: invalid_votes
+        description: >
+          Number of invalid votes (ungültige Stimmen)
+      - name: turnout
+        description: >
+          Voter turnout as a percentage (0-100), number_voters divided by eligible_voters
+          times 100, capped at 100
+      - name: party
+        description: >
+          Party or list, GERDA normalized name
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__party')
+              field: id_party
+              config:
+                severity: warn
+      - name: vote_share
+        description: >
+          Party vote share as a percentage (0-100); denominator is number_voters for
+          federal and European, valid_votes otherwise
+  - name: us_nature_gerda__county_council_municipality_harmonized_2021
+    description: >
+      County council election results at the municipality level harmonized to 2021
+      boundaries, long by party
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, id_municipality, party]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - invalid_votes
+            - flag_unsuccessful_naive_merge
+            - flag_total_votes_incongruent
+    columns:
+      - name: year
+        description: >
+          Election year
+        tests: [not_null]
+      - name: id_municipality
+        description: >
+          Municipality identifier, 8-digit Amtlicher Gemeindeschlüssel (AGS)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__municipality')
+              field: id_municipality
+              config:
+                severity: warn
+      - name: id_county
+        description: >
+          County identifier, 5-digit Kreisschlüssel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__county')
+              field: id_county
+              config:
+                severity: warn
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+              config:
+                severity: error
+      - name: eligible_voters
+        description: >
+          Number of eligible voters (Wahlberechtigte)
+      - name: voters
+        description: >
+          Number of voters including invalid ballots (Wähler)
+      - name: valid_votes
+        description: >
+          Number of valid votes (gültige Stimmen); counts votes not ballots under
+          multi-vote systems
+      - name: invalid_votes
+        description: >
+          Number of invalid votes (ungültige Stimmen)
+      - name: turnout
+        description: >
+          Voter turnout as a percentage (0-100), number_voters divided by eligible_voters
+          times 100, capped at 100
+      - name: flag_unsuccessful_naive_merge
+        description: >
+          1 if the boundary-harmonization merge fell back to an alternative match,
+          else 0
+      - name: flag_total_votes_incongruent
+        description: >
+          1 if summed party votes do not match valid_votes, else 0
+      - name: party
+        description: >
+          Party or list, GERDA normalized name
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__party')
+              field: id_party
+              config:
+                severity: warn
+      - name: vote_share
+        description: >
+          Party vote share as a percentage (0-100); denominator is number_voters for
+          federal and European, valid_votes otherwise
+  - name: us_nature_gerda__county_council_seats
+    description: >
+      County council seat composition, a county-year panel (2008-2025) long by party,
+      with total and grouped seat counts
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, id_county, party]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - county_name
+            - county_type
+            - government_party
+            - seats_total
+            - seats_regional
+            - seats_other
+            - seats_local_other
+            - flag_seats_total_incongruent
+            - seats
+    columns:
+      - name: year
+        description: >
+          Election year
+        tests: [not_null]
+      - name: id_county
+        description: >
+          County identifier, 5-digit Kreisschlüssel
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__county')
+              field: id_county
+              config:
+                severity: warn
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+              config:
+                severity: error
+      - name: county_name
+        description: >
+          County name as reported by the source
+      - name: county_type
+        description: >
+          County type: Landkreis or kreisfreie Stadt
+      - name: government_party
+        description: >
+          Party of the county executive (Landrat or Oberbürgermeister); parteilos
+          denotes an independent
+      - name: seats_total
+        description: >
+          Total council size (all parties)
+      - name: seats_regional
+        description: >
+          Council seats won by regional parties
+      - name: seats_other
+        description: >
+          Council seats won by all other parties combined
+      - name: seats_local_other
+        description: >
+          Council seats held outside the six major parties (freie_wahler plus regional
+          plus other), comparable across years
+      - name: flag_seats_total_incongruent
+        description: >
+          1 if seats_total does not equal the sum of the party seat columns, else
+          0
+      - name: party
+        description: >
+          Party or list, GERDA normalized name
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__party')
+              field: id_party
+              config:
+                severity: warn
+      - name: seats
+        description: >
+          Council seats won by the party
+  - name: us_nature_gerda__european_municipality
+    description: >
+      European Parliament election results at the municipality level on original boundaries,
+      long by party. Vote shares are proportions of number_voters
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - id_municipality
+            - election_date
+            - party
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [election_date, invalid_votes, flag_turnout_above_1]
+    columns:
+      - name: year
+        description: >
+          Election year
+        tests: [not_null]
+      - name: election_date
+        description: >
+          Date of the election
+      - name: id_municipality
+        description: >
+          Municipality identifier, 8-digit Amtlicher Gemeindeschlüssel (AGS)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__municipality')
+              field: id_municipality
+              config:
+                severity: warn
+      - name: id_county
+        description: >
+          County identifier, 5-digit Kreisschlüssel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__county')
+              field: id_county
+              config:
+                severity: warn
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+              config:
+                severity: error
+      - name: eligible_voters
+        description: >
+          Number of eligible voters (Wahlberechtigte)
+      - name: voters
+        description: >
+          Number of voters including invalid ballots (Wähler)
+      - name: valid_votes
+        description: >
+          Number of valid votes (gültige Stimmen); counts votes not ballots under
+          multi-vote systems
+      - name: invalid_votes
+        description: >
+          Number of invalid votes (ungültige Stimmen)
+      - name: turnout
+        description: >
+          Voter turnout as a percentage (0-100), number_voters divided by eligible_voters
+          times 100, capped at 100
+      - name: flag_turnout_above_1
+        description: >
+          1 if turnout was capped at 1 (European elections), else 0
+      - name: party
+        description: >
+          Party or list, GERDA normalized name
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__party')
+              field: id_party
+              config:
+                severity: warn
+      - name: vote_share
+        description: >
+          Party vote share as a percentage (0-100); denominator is number_voters for
+          federal and European, valid_votes otherwise
+  - name: us_nature_gerda__european_municipality_harmonized_2021
+    description: >
+      European Parliament election results at the municipality level harmonized to
+      2021 boundaries, long by party
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - id_municipality
+            - election_date
+            - party
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - election_date
+            - invalid_votes
+            - flag_turnout_above_1
+            - flag_unsuccessful_naive_merge
+    columns:
+      - name: year
+        description: >
+          Election year
+        tests: [not_null]
+      - name: election_date
+        description: >
+          Date of the election
+      - name: id_municipality
+        description: >
+          Municipality identifier, 8-digit Amtlicher Gemeindeschlüssel (AGS)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__municipality')
+              field: id_municipality
+              config:
+                severity: warn
+      - name: id_county
+        description: >
+          County identifier, 5-digit Kreisschlüssel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__county')
+              field: id_county
+              config:
+                severity: warn
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+              config:
+                severity: error
+      - name: eligible_voters
+        description: >
+          Number of eligible voters (Wahlberechtigte)
+      - name: voters
+        description: >
+          Number of voters including invalid ballots (Wähler)
+      - name: valid_votes
+        description: >
+          Number of valid votes (gültige Stimmen); counts votes not ballots under
+          multi-vote systems
+      - name: invalid_votes
+        description: >
+          Number of invalid votes (ungültige Stimmen)
+      - name: turnout
+        description: >
+          Voter turnout as a percentage (0-100), number_voters divided by eligible_voters
+          times 100, capped at 100
+      - name: flag_turnout_above_1
+        description: >
+          1 if turnout was capped at 1 (European elections), else 0
+      - name: flag_unsuccessful_naive_merge
+        description: >
+          1 if the boundary-harmonization merge fell back to an alternative match,
+          else 0
+      - name: party
+        description: >
+          Party or list, GERDA normalized name
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__party')
+              field: id_party
+              config:
+                severity: warn
+      - name: vote_share
+        description: >
+          Party vote share as a percentage (0-100); denominator is number_voters for
+          federal and European, valid_votes otherwise
+  - name: us_nature_gerda__federal_constituency
+    description: >
+      Bundestag election results at the constituency (Wahlkreis) level, long by ballot
+      and party, with first and second votes. Vote shares are proportions of valid_votes
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - id_constituency
+            - election_date
+            - ballot
+            - party
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [election_date, invalid_votes]
+    columns:
+      - name: year
+        description: >
+          Election year
+        tests: [not_null]
+      - name: election_date
+        description: >
+          Date of the election
+      - name: id_constituency
+        description: >
+          Electoral constituency (Wahlkreis) identifier
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__constituency')
+              field: id_constituency
+              config:
+                severity: warn
+      - name: constituency_name
+        description: >
+          Electoral constituency (Wahlkreis) name
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+              config:
+                severity: error
+      - name: ballot
+        description: >
+          Ballot type: first_vote (Erststimme, candidate) or second_vote (Zweitstimme,
+          party list)
+        tests: [not_null]
+      - name: eligible_voters
+        description: >
+          Number of eligible voters (Wahlberechtigte)
+      - name: voters
+        description: >
+          Number of voters including invalid ballots (Wähler)
+      - name: valid_votes
+        description: >
+          Number of valid votes (gültige Stimmen); counts votes not ballots under
+          multi-vote systems
+      - name: invalid_votes
+        description: >
+          Number of invalid votes (ungültige Stimmen)
+      - name: turnout
+        description: >
+          Voter turnout as a percentage (0-100), number_voters divided by eligible_voters
+          times 100, capped at 100
+      - name: party
+        description: >
+          Party or list, GERDA normalized name
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__party')
+              field: id_party
+              config:
+                severity: warn
+      - name: votes
+        description: >
+          Votes cast for the party
+      - name: vote_share
+        description: >
+          Party vote share as a percentage (0-100); denominator is number_voters for
+          federal and European, valid_votes otherwise
+  - name: us_nature_gerda__federal_constituency_2021_on_2025
+    description: >
+      The 2021 Bundestag constituency result recomputed on the 2025 constituency boundaries,
+      long by ballot and party
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, id_constituency, ballot, party]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [boundary_change]
+    columns:
+      - name: year
+        description: >
+          Election year
+        tests: [not_null]
+      - name: id_constituency
+        description: >
+          Electoral constituency (Wahlkreis) identifier
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__constituency')
+              field: id_constituency
+              config:
+                severity: warn
+      - name: constituency_name
+        description: >
+          Electoral constituency (Wahlkreis) name
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+              config:
+                severity: error
+      - name: ballot
+        description: >
+          Ballot type: first_vote (Erststimme, candidate) or second_vote (Zweitstimme,
+          party list)
+        tests: [not_null]
+      - name: boundary_change
+        description: >
+          2025 constituency boundary status relative to 2021: unchanged, redrawn,
+          or new
+      - name: eligible_voters
+        description: >
+          Number of eligible voters (Wahlberechtigte)
+      - name: valid_votes
+        description: >
+          Number of valid votes (gültige Stimmen); counts votes not ballots under
+          multi-vote systems
+      - name: party
+        description: >
+          Party or list, GERDA normalized name
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__party')
+              field: id_party
+              config:
+                severity: warn
+      - name: vote_share
+        description: >
+          Party vote share as a percentage (0-100); denominator is number_voters for
+          federal and European, valid_votes otherwise
+  - name: us_nature_gerda__federal_county
+    description: >
+      Bundestag election results at the county (Kreis) level on original boundaries,
+      long by party, from 1953
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, id_county, election_date, party]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [election_date, invalid_votes, flag_briefwahl_agg]
+    columns:
+      - name: year
+        description: >
+          Election year
+        tests: [not_null]
+      - name: election_date
+        description: >
+          Date of the election
+      - name: id_county
+        description: >
+          County identifier, 5-digit Kreisschlüssel
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__county')
+              field: id_county
+              config:
+                severity: warn
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+              config:
+                severity: error
+      - name: eligible_voters
+        description: >
+          Number of eligible voters (Wahlberechtigte)
+      - name: voters
+        description: >
+          Number of voters including invalid ballots (Wähler)
+      - name: valid_votes
+        description: >
+          Number of valid votes (gültige Stimmen); counts votes not ballots under
+          multi-vote systems
+      - name: invalid_votes
+        description: >
+          Number of invalid votes (ungültige Stimmen)
+      - name: turnout
+        description: >
+          Voter turnout as a percentage (0-100), number_voters divided by eligible_voters
+          times 100, capped at 100
+      - name: flag_briefwahl_agg
+        description: >
+          1 for county-level mail-in aggregate rows (1994 and 1998 only), else 0
+      - name: party
+        description: >
+          Party or list, GERDA normalized name
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__party')
+              field: id_party
+              config:
+                severity: warn
+      - name: vote_share
+        description: >
+          Party vote share as a percentage (0-100); denominator is number_voters for
+          federal and European, valid_votes otherwise
+  - name: us_nature_gerda__federal_county_harmonized_2021
+    description: >
+      Bundestag election results at the county level harmonized to 2021 boundaries,
+      long by party
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, id_county, election_date, party]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - election_date
+            - invalid_votes
+            - flag_unsuccessful_naive_merge
+    columns:
+      - name: year
+        description: >
+          Election year
+        tests: [not_null]
+      - name: election_date
+        description: >
+          Date of the election
+      - name: id_county
+        description: >
+          County identifier, 5-digit Kreisschlüssel
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__county')
+              field: id_county
+              config:
+                severity: warn
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+              config:
+                severity: error
+      - name: eligible_voters
+        description: >
+          Number of eligible voters (Wahlberechtigte)
+      - name: voters
+        description: >
+          Number of voters including invalid ballots (Wähler)
+      - name: valid_votes
+        description: >
+          Number of valid votes (gültige Stimmen); counts votes not ballots under
+          multi-vote systems
+      - name: invalid_votes
+        description: >
+          Number of invalid votes (ungültige Stimmen)
+      - name: turnout
+        description: >
+          Voter turnout as a percentage (0-100), number_voters divided by eligible_voters
+          times 100, capped at 100
+      - name: flag_unsuccessful_naive_merge
+        description: >
+          1 if the boundary-harmonization merge fell back to an alternative match,
+          else 0
+      - name: party
+        description: >
+          Party or list, GERDA normalized name
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__party')
+              field: id_party
+              config:
+                severity: warn
+      - name: vote_share
+        description: >
+          Party vote share as a percentage (0-100); denominator is number_voters for
+          federal and European, valid_votes otherwise
+  - name: us_nature_gerda__federal_municipality
+    description: >
+      Bundestag (federal) election results at the municipality level on original boundaries,
+      long by party. Vote shares are proportions of number_voters
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - id_municipality
+            - election_date
+            - party
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - election_date
+            - invalid_votes
+            - flag_naive_turnout_above_1
+    columns:
+      - name: year
+        description: >
+          Election year
+        tests: [not_null]
+      - name: election_date
+        description: >
+          Date of the election
+      - name: id_municipality
+        description: >
+          Municipality identifier, 8-digit Amtlicher Gemeindeschlüssel (AGS)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__municipality')
+              field: id_municipality
+              config:
+                severity: warn
+      - name: id_county
+        description: >
+          County identifier, 5-digit Kreisschlüssel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__county')
+              field: id_county
+              config:
+                severity: warn
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+              config:
+                severity: error
+      - name: municipality_name
+        description: >
+          Municipality name as reported by the source
+      - name: eligible_voters
+        description: >
+          Number of eligible voters (Wahlberechtigte)
+      - name: voters
+        description: >
+          Number of voters including invalid ballots (Wähler)
+      - name: valid_votes
+        description: >
+          Number of valid votes (gültige Stimmen); counts votes not ballots under
+          multi-vote systems
+      - name: invalid_votes
+        description: >
+          Number of invalid votes (ungültige Stimmen)
+      - name: turnout
+        description: >
+          Voter turnout as a percentage (0-100), number_voters divided by eligible_voters
+          times 100, capped at 100
+      - name: flag_naive_turnout_above_1
+        description: >
+          1 if uncapped turnout exceeded 1, a mail-in allocation artifact, else 0
+      - name: party
+        description: >
+          Party or list, GERDA normalized name
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__party')
+              field: id_party
+              config:
+                severity: warn
+      - name: vote_share
+        description: >
+          Party vote share as a percentage (0-100); denominator is number_voters for
+          federal and European, valid_votes otherwise
+  - name: us_nature_gerda__federal_municipality_harmonized_2021
+    description: >
+      Bundestag election results at the municipality level harmonized to 2021 boundaries,
+      long by party
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - id_municipality
+            - election_date
+            - party
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - election_date
+            - invalid_votes
+            - flag_naive_turnout_above_1
+            - flag_unsuccessful_naive_merge
+            - flag_total_votes_incongruent
+    columns:
+      - name: year
+        description: >
+          Election year
+        tests: [not_null]
+      - name: election_date
+        description: >
+          Date of the election
+      - name: id_municipality
+        description: >
+          Municipality identifier, 8-digit Amtlicher Gemeindeschlüssel (AGS)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__municipality')
+              field: id_municipality
+              config:
+                severity: warn
+      - name: id_county
+        description: >
+          County identifier, 5-digit Kreisschlüssel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__county')
+              field: id_county
+              config:
+                severity: warn
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+              config:
+                severity: error
+      - name: municipality_name
+        description: >
+          Municipality name as reported by the source
+      - name: eligible_voters
+        description: >
+          Number of eligible voters (Wahlberechtigte)
+      - name: voters
+        description: >
+          Number of voters including invalid ballots (Wähler)
+      - name: valid_votes
+        description: >
+          Number of valid votes (gültige Stimmen); counts votes not ballots under
+          multi-vote systems
+      - name: invalid_votes
+        description: >
+          Number of invalid votes (ungültige Stimmen)
+      - name: turnout
+        description: >
+          Voter turnout as a percentage (0-100), number_voters divided by eligible_voters
+          times 100, capped at 100
+      - name: flag_naive_turnout_above_1
+        description: >
+          1 if uncapped turnout exceeded 1, a mail-in allocation artifact, else 0
+      - name: flag_unsuccessful_naive_merge
+        description: >
+          1 if the boundary-harmonization merge fell back to an alternative match,
+          else 0
+      - name: flag_total_votes_incongruent
+        description: >
+          1 if summed party votes do not match valid_votes, else 0
+      - name: party
+        description: >
+          Party or list, GERDA normalized name
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__party')
+              field: id_party
+              config:
+                severity: warn
+      - name: vote_share
+        description: >
+          Party vote share as a percentage (0-100); denominator is number_voters for
+          federal and European, valid_votes otherwise
+  - name: us_nature_gerda__federal_municipality_harmonized_2025
+    description: >
+      Bundestag election results at the municipality level harmonized to 2025 boundaries,
+      long by party
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - id_municipality
+            - election_date
+            - party
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - election_date
+            - invalid_votes
+            - flag_naive_turnout_above_1
+            - flag_unsuccessful_naive_merge
+            - flag_total_votes_incongruent
+    columns:
+      - name: year
+        description: >
+          Election year
+        tests: [not_null]
+      - name: election_date
+        description: >
+          Date of the election
+      - name: id_municipality
+        description: >
+          Municipality identifier, 8-digit Amtlicher Gemeindeschlüssel (AGS)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__municipality')
+              field: id_municipality
+              config:
+                severity: warn
+      - name: id_county
+        description: >
+          County identifier, 5-digit Kreisschlüssel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__county')
+              field: id_county
+              config:
+                severity: warn
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+              config:
+                severity: error
+      - name: municipality_name
+        description: >
+          Municipality name as reported by the source
+      - name: eligible_voters
+        description: >
+          Number of eligible voters (Wahlberechtigte)
+      - name: voters
+        description: >
+          Number of voters including invalid ballots (Wähler)
+      - name: valid_votes
+        description: >
+          Number of valid votes (gültige Stimmen); counts votes not ballots under
+          multi-vote systems
+      - name: invalid_votes
+        description: >
+          Number of invalid votes (ungültige Stimmen)
+      - name: turnout
+        description: >
+          Voter turnout as a percentage (0-100), number_voters divided by eligible_voters
+          times 100, capped at 100
+      - name: flag_naive_turnout_above_1
+        description: >
+          1 if uncapped turnout exceeded 1, a mail-in allocation artifact, else 0
+      - name: flag_unsuccessful_naive_merge
+        description: >
+          1 if the boundary-harmonization merge fell back to an alternative match,
+          else 0
+      - name: flag_total_votes_incongruent
+        description: >
+          1 if summed party votes do not match valid_votes, else 0
+      - name: party
+        description: >
+          Party or list, GERDA normalized name
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__party')
+              field: id_party
+              config:
+                severity: warn
+      - name: vote_share
+        description: >
+          Party vote share as a percentage (0-100); denominator is number_voters for
+          federal and European, valid_votes otherwise
+  - name: us_nature_gerda__municipal
+    description: >
+      Municipal council (Gemeinderat) election results on original boundaries, long
+      by party, with council seats for the major parties. Vote shares are proportions
+      of valid_votes
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - id_municipality
+            - election_date
+            - party
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [election_date, election_type, seats]
+    columns:
+      - name: year
+        description: >
+          Election year
+        tests: [not_null]
+      - name: election_date
+        description: >
+          Date of the election
+      - name: id_municipality
+        description: >
+          Municipality identifier, 8-digit Amtlicher Gemeindeschlüssel (AGS)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__municipality')
+              field: id_municipality
+              config:
+                severity: warn
+      - name: id_county
+        description: >
+          County identifier, 5-digit Kreisschlüssel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__county')
+              field: id_county
+              config:
+                severity: warn
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+              config:
+                severity: error
+      - name: election_type
+        description: >
+          Type of council election
+      - name: eligible_voters
+        description: >
+          Number of eligible voters (Wahlberechtigte)
+      - name: voters
+        description: >
+          Number of voters including invalid ballots (Wähler)
+      - name: valid_votes
+        description: >
+          Number of valid votes (gültige Stimmen); counts votes not ballots under
+          multi-vote systems
+      - name: turnout
+        description: >
+          Voter turnout as a percentage (0-100), number_voters divided by eligible_voters
+          times 100, capped at 100
+      - name: party
+        description: >
+          Party or list, GERDA normalized name
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__party')
+              field: id_party
+              config:
+                severity: warn
+      - name: vote_share
+        description: >
+          Party vote share as a percentage (0-100); denominator is number_voters for
+          federal and European, valid_votes otherwise
+      - name: seats
+        description: >
+          Council seats won by the party
+  - name: us_nature_gerda__municipal_harmonized_2021
+    description: >
+      Municipal council election results harmonized to 2021 boundaries, long by party
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - id_municipality
+            - election_date
+            - party
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - election_date
+            - election_type
+            - flag_unsuccessful_naive_merge
+            - seats
+    columns:
+      - name: year
+        description: >
+          Election year
+        tests: [not_null]
+      - name: election_date
+        description: >
+          Date of the election
+      - name: id_municipality
+        description: >
+          Municipality identifier, 8-digit Amtlicher Gemeindeschlüssel (AGS)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__municipality')
+              field: id_municipality
+              config:
+                severity: warn
+      - name: id_county
+        description: >
+          County identifier, 5-digit Kreisschlüssel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__county')
+              field: id_county
+              config:
+                severity: warn
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+              config:
+                severity: error
+      - name: election_type
+        description: >
+          Type of council election
+      - name: eligible_voters
+        description: >
+          Number of eligible voters (Wahlberechtigte)
+      - name: voters
+        description: >
+          Number of voters including invalid ballots (Wähler)
+      - name: valid_votes
+        description: >
+          Number of valid votes (gültige Stimmen); counts votes not ballots under
+          multi-vote systems
+      - name: turnout
+        description: >
+          Voter turnout as a percentage (0-100), number_voters divided by eligible_voters
+          times 100, capped at 100
+      - name: flag_unsuccessful_naive_merge
+        description: >
+          1 if the boundary-harmonization merge fell back to an alternative match,
+          else 0
+      - name: party
+        description: >
+          Party or list, GERDA normalized name
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__party')
+              field: id_party
+              config:
+                severity: warn
+      - name: vote_share
+        description: >
+          Party vote share as a percentage (0-100); denominator is number_voters for
+          federal and European, valid_votes otherwise
+      - name: seats
+        description: >
+          Council seats won by the party
+  - name: us_nature_gerda__municipal_harmonized_2025
+    description: >
+      Municipal council election results harmonized to 2025 boundaries, long by party
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - id_municipality
+            - election_date
+            - party
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - election_date
+            - election_type
+            - flag_unsuccessful_naive_merge
+            - seats
+    columns:
+      - name: year
+        description: >
+          Election year
+        tests: [not_null]
+      - name: election_date
+        description: >
+          Date of the election
+      - name: id_municipality
+        description: >
+          Municipality identifier, 8-digit Amtlicher Gemeindeschlüssel (AGS)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__municipality')
+              field: id_municipality
+              config:
+                severity: warn
+      - name: id_county
+        description: >
+          County identifier, 5-digit Kreisschlüssel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__county')
+              field: id_county
+              config:
+                severity: warn
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+              config:
+                severity: error
+      - name: election_type
+        description: >
+          Type of council election
+      - name: eligible_voters
+        description: >
+          Number of eligible voters (Wahlberechtigte)
+      - name: voters
+        description: >
+          Number of voters including invalid ballots (Wähler)
+      - name: valid_votes
+        description: >
+          Number of valid votes (gültige Stimmen); counts votes not ballots under
+          multi-vote systems
+      - name: turnout
+        description: >
+          Voter turnout as a percentage (0-100), number_voters divided by eligible_voters
+          times 100, capped at 100
+      - name: flag_unsuccessful_naive_merge
+        description: >
+          1 if the boundary-harmonization merge fell back to an alternative match,
+          else 0
+      - name: party
+        description: >
+          Party or list, GERDA normalized name
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__party')
+              field: id_party
+              config:
+                severity: warn
+      - name: vote_share
+        description: >
+          Party vote share as a percentage (0-100); denominator is number_voters for
+          federal and European, valid_votes otherwise
+      - name: seats
+        description: >
+          Council seats won by the party
+  - name: us_nature_gerda__state_constituency
+    description: >
+      State (Landtag) election results at the constituency (Wahlkreis) level, long
+      by ballot and party, for all 16 states
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - id_constituency
+            - election_date
+            - ballot
+            - party
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [election_date, invalid_votes]
+    columns:
+      - name: year
+        description: >
+          Election year
+        tests: [not_null]
+      - name: election_date
+        description: >
+          Date of the election
+      - name: id_constituency
+        description: >
+          Electoral constituency (Wahlkreis) identifier
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__constituency')
+              field: id_constituency
+              config:
+                severity: warn
+      - name: constituency_name
+        description: >
+          Electoral constituency (Wahlkreis) name
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+              config:
+                severity: error
+      - name: ballot
+        description: >
+          Ballot type: first_vote (Erststimme, candidate) or second_vote (Zweitstimme,
+          party list)
+        tests: [not_null]
+      - name: eligible_voters
+        description: >
+          Number of eligible voters (Wahlberechtigte)
+      - name: voters
+        description: >
+          Number of voters including invalid ballots (Wähler)
+      - name: valid_votes
+        description: >
+          Number of valid votes (gültige Stimmen); counts votes not ballots under
+          multi-vote systems
+      - name: invalid_votes
+        description: >
+          Number of invalid votes (ungültige Stimmen)
+      - name: turnout
+        description: >
+          Voter turnout as a percentage (0-100), number_voters divided by eligible_voters
+          times 100, capped at 100
+      - name: party
+        description: >
+          Party or list, GERDA normalized name
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__party')
+              field: id_party
+              config:
+                severity: warn
+      - name: votes
+        description: >
+          Votes cast for the party
+      - name: vote_share
+        description: >
+          Party vote share as a percentage (0-100); denominator is number_voters for
+          federal and European, valid_votes otherwise
+  - name: us_nature_gerda__state_municipality
+    description: >
+      State (Landtag) election results at the municipality level on original boundaries,
+      long by party. Vote shares are proportions of valid_votes
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - id_municipality
+            - election_date
+            - party
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - election_date
+            - invalid_votes
+            - flag_briefwahl_only
+            - flag_no_valid_votes
+            - flag_naive_turnout_above_1
+    columns:
+      - name: year
+        description: >
+          Election year
+        tests: [not_null]
+      - name: election_date
+        description: >
+          Date of the election
+      - name: id_municipality
+        description: >
+          Municipality identifier, 8-digit Amtlicher Gemeindeschlüssel (AGS)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__municipality')
+              field: id_municipality
+              config:
+                severity: warn
+      - name: id_county
+        description: >
+          County identifier, 5-digit Kreisschlüssel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__county')
+              field: id_county
+              config:
+                severity: warn
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+              config:
+                severity: error
+      - name: eligible_voters
+        description: >
+          Number of eligible voters (Wahlberechtigte)
+      - name: voters
+        description: >
+          Number of voters including invalid ballots (Wähler)
+      - name: valid_votes
+        description: >
+          Number of valid votes (gültige Stimmen); counts votes not ballots under
+          multi-vote systems
+      - name: invalid_votes
+        description: >
+          Number of invalid votes (ungültige Stimmen)
+      - name: turnout
+        description: >
+          Voter turnout as a percentage (0-100), number_voters divided by eligible_voters
+          times 100, capped at 100
+      - name: flag_briefwahl_only
+        description: >
+          1 if the row is a mail-in-only voting district (eligible_voters 0, valid_votes
+          above 0), else 0
+      - name: flag_no_valid_votes
+        description: >
+          1 if the row reports no valid votes, else 0
+      - name: flag_naive_turnout_above_1
+        description: >
+          1 if uncapped turnout exceeded 1, a mail-in allocation artifact, else 0
+      - name: party
+        description: >
+          Party or list, GERDA normalized name
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__party')
+              field: id_party
+              config:
+                severity: warn
+      - name: vote_share
+        description: >
+          Party vote share as a percentage (0-100); denominator is number_voters for
+          federal and European, valid_votes otherwise
+  - name: us_nature_gerda__state_municipality_harmonized_2021
+    description: >
+      State election results at the municipality level harmonized to 2021 boundaries,
+      long by party
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - id_municipality
+            - election_date
+            - party
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - election_date
+            - invalid_votes
+            - flag_harm_turnout_above_1
+            - flag_unsuccessful_naive_merge
+            - flag_other_party_residual
+    columns:
+      - name: year
+        description: >
+          Election year
+        tests: [not_null]
+      - name: election_date
+        description: >
+          Date of the election
+      - name: id_municipality
+        description: >
+          Municipality identifier, 8-digit Amtlicher Gemeindeschlüssel (AGS)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__municipality')
+              field: id_municipality
+              config:
+                severity: warn
+      - name: id_county
+        description: >
+          County identifier, 5-digit Kreisschlüssel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__county')
+              field: id_county
+              config:
+                severity: warn
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+              config:
+                severity: error
+      - name: eligible_voters
+        description: >
+          Number of eligible voters (Wahlberechtigte)
+      - name: voters
+        description: >
+          Number of voters including invalid ballots (Wähler)
+      - name: valid_votes
+        description: >
+          Number of valid votes (gültige Stimmen); counts votes not ballots under
+          multi-vote systems
+      - name: invalid_votes
+        description: >
+          Number of invalid votes (ungültige Stimmen)
+      - name: turnout
+        description: >
+          Voter turnout as a percentage (0-100), number_voters divided by eligible_voters
+          times 100, capped at 100
+      - name: flag_harm_turnout_above_1
+        description: >
+          1 if uncapped turnout exceeded 1 after harmonization, else 0
+      - name: flag_unsuccessful_naive_merge
+        description: >
+          1 if the boundary-harmonization merge fell back to an alternative match,
+          else 0
+      - name: flag_other_party_residual
+        description: >
+          1 if the other-party share was derived as a residual rather than reported,
+          else 0
+      - name: party
+        description: >
+          Party or list, GERDA normalized name
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__party')
+              field: id_party
+              config:
+                severity: warn
+      - name: vote_share
+        description: >
+          Party vote share as a percentage (0-100); denominator is number_voters for
+          federal and European, valid_votes otherwise
+  - name: us_nature_gerda__state_municipality_harmonized_2023
+    description: >
+      State election results at the municipality level harmonized to 2023 boundaries,
+      long by party
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - id_municipality
+            - election_date
+            - party
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - election_date
+            - invalid_votes
+            - flag_harm_turnout_above_1
+            - flag_unsuccessful_naive_merge
+            - flag_other_party_residual
+    columns:
+      - name: year
+        description: >
+          Election year
+        tests: [not_null]
+      - name: election_date
+        description: >
+          Date of the election
+      - name: id_municipality
+        description: >
+          Municipality identifier, 8-digit Amtlicher Gemeindeschlüssel (AGS)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__municipality')
+              field: id_municipality
+              config:
+                severity: warn
+      - name: id_county
+        description: >
+          County identifier, 5-digit Kreisschlüssel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__county')
+              field: id_county
+              config:
+                severity: warn
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+              config:
+                severity: error
+      - name: eligible_voters
+        description: >
+          Number of eligible voters (Wahlberechtigte)
+      - name: voters
+        description: >
+          Number of voters including invalid ballots (Wähler)
+      - name: valid_votes
+        description: >
+          Number of valid votes (gültige Stimmen); counts votes not ballots under
+          multi-vote systems
+      - name: invalid_votes
+        description: >
+          Number of invalid votes (ungültige Stimmen)
+      - name: turnout
+        description: >
+          Voter turnout as a percentage (0-100), number_voters divided by eligible_voters
+          times 100, capped at 100
+      - name: flag_harm_turnout_above_1
+        description: >
+          1 if uncapped turnout exceeded 1 after harmonization, else 0
+      - name: flag_unsuccessful_naive_merge
+        description: >
+          1 if the boundary-harmonization merge fell back to an alternative match,
+          else 0
+      - name: flag_other_party_residual
+        description: >
+          1 if the other-party share was derived as a residual rather than reported,
+          else 0
+      - name: party
+        description: >
+          Party or list, GERDA normalized name
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__party')
+              field: id_party
+              config:
+                severity: warn
+      - name: vote_share
+        description: >
+          Party vote share as a percentage (0-100); denominator is number_voters for
+          federal and European, valid_votes otherwise
+  - name: us_nature_gerda__state_municipality_harmonized_2025
+    description: >
+      State election results at the municipality level harmonized to 2025 boundaries,
+      long by party
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - id_municipality
+            - election_date
+            - party
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - election_date
+            - invalid_votes
+            - flag_harm_turnout_above_1
+            - flag_unsuccessful_naive_merge
+            - flag_other_party_residual
+    columns:
+      - name: year
+        description: >
+          Election year
+        tests: [not_null]
+      - name: election_date
+        description: >
+          Date of the election
+      - name: id_municipality
+        description: >
+          Municipality identifier, 8-digit Amtlicher Gemeindeschlüssel (AGS)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__municipality')
+              field: id_municipality
+              config:
+                severity: warn
+      - name: id_county
+        description: >
+          County identifier, 5-digit Kreisschlüssel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__county')
+              field: id_county
+              config:
+                severity: warn
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+              config:
+                severity: error
+      - name: eligible_voters
+        description: >
+          Number of eligible voters (Wahlberechtigte)
+      - name: voters
+        description: >
+          Number of voters including invalid ballots (Wähler)
+      - name: valid_votes
+        description: >
+          Number of valid votes (gültige Stimmen); counts votes not ballots under
+          multi-vote systems
+      - name: invalid_votes
+        description: >
+          Number of invalid votes (ungültige Stimmen)
+      - name: turnout
+        description: >
+          Voter turnout as a percentage (0-100), number_voters divided by eligible_voters
+          times 100, capped at 100
+      - name: flag_harm_turnout_above_1
+        description: >
+          1 if uncapped turnout exceeded 1 after harmonization, else 0
+      - name: flag_unsuccessful_naive_merge
+        description: >
+          1 if the boundary-harmonization merge fell back to an alternative match,
+          else 0
+      - name: flag_other_party_residual
+        description: >
+          1 if the other-party share was derived as a residual rather than reported,
+          else 0
+      - name: party
+        description: >
+          Party or list, GERDA normalized name
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_de__party')
+              field: id_party
+              config:
+                severity: warn
+      - name: vote_share
+        description: >-
+          Party vote share as a percentage (0-100); denominator is number_voters for
+          federal and European, valid_votes otherwise

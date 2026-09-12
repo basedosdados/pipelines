@@ -35,6 +35,7 @@ def get_data_source_max_date() -> tuple[datetime.datetime, datetime.date]:
         to be used as partition
     """
 
+    # pyrefly: ignore [not-iterable]
     max_folder_date, max_table_date = data_url(url=url)
     return max_folder_date, max_table_date
 
@@ -69,6 +70,7 @@ def main(
         log("Pasta destino input construído")
 
         # Define o caminho para a pasta de saída (output)
+        # pyrefly: ignore [bad-argument-type]
         output_path = destino_output(sufixo, max_last_modified_date)
 
         # Loop para baixar e processar os arquivos
@@ -82,15 +84,30 @@ def main(
                     asyncio.run(download_unzip_csv(url_download, input_path))
                     if tabela == "Estabelecimentos":
                         process_csv_estabelecimentos(
-                            input_path, output_path, max_last_modified_date, i
+                            # pyrefly: ignore [bad-argument-type]
+                            input_path,
+                            output_path,
+                            # pyrefly: ignore [bad-argument-type]
+                            max_last_modified_date,
+                            i,
                         )
                     elif tabela == "Socios":
                         process_csv_socios(
-                            input_path, output_path, max_last_modified_date, i
+                            # pyrefly: ignore [bad-argument-type]
+                            input_path,
+                            output_path,
+                            # pyrefly: ignore [bad-argument-type]
+                            max_last_modified_date,
+                            i,
                         )
                     elif tabela == "Empresas":
                         process_csv_empresas(
-                            input_path, output_path, max_last_modified_date, i
+                            # pyrefly: ignore [bad-argument-type]
+                            input_path,
+                            output_path,
+                            # pyrefly: ignore [bad-argument-type]
+                            max_last_modified_date,
+                            i,
                         )
             else:
                 nome_arquivo = f"{tabela}"
@@ -102,7 +119,13 @@ def main(
                     arquivos_baixados.append(nome_arquivo)
                     asyncio.run(download_unzip_csv(url_download, input_path))
                     process_csv_simples(
-                        input_path, output_path, max_last_modified_date, sufixo
+                        # pyrefly: ignore [bad-argument-type]
+                        input_path,
+                        output_path,
+                        # pyrefly: ignore [bad-argument-type]
+                        max_last_modified_date,
+                        sufixo,
                     )
 
+    # pyrefly: ignore [unbound-name]
     return output_path

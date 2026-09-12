@@ -171,13 +171,40 @@ class MetadataClient:
 
     # --------------------------------------------------------------- resolvers
     def get_table_id(self, dataset_id: str, table_id: str) -> str:
+        # pyrefly: ignore [bad-return]
         return self._backend._get_table_id_from_name(
             gcp_dataset_id=dataset_id, gcp_table_id=table_id
         )
 
-    def _raw_source_id(self, dataset_id: str, table_id: str) -> str | None:
+    def _raw_source_id(
+        self, dataset_id: str, table_id: str, url: str | None = None
+    ) -> str | None:
+        """Resolve o `_id` do `RawDataSource` ligado à tabela.
+
+        Com `url=None` (padrão) delega ao `_query_id`: devolve o único nó (ou
+        `None`) e levanta se a tabela tiver mais de uma fonte — comportamento
+        inalterado. Com `url` informado, busca todas as fontes da tabela e
+        filtra localmente pela URL exata, exigindo casar exatamente uma (o
+        backend não expõe filtro por `url`)."""
         table_pk = self.get_table_id(dataset_id, table_id)
-        return self._query_id("allRawdatasource", {"$tables_Id: ID": table_pk})
+        if url is None:
+            return self._query_id(
+                "allRawdatasource", {"$tables_Id: ID": table_pk}
+            )
+        query = (
+            "query($tables_Id: ID) { allRawdatasource(tables_Id: $tables_Id) "
+            "{ edges { node { _id, url } } } }"
+        )
+        response = self._execute(query, {"tables_Id": table_pk})
+        items = response["allRawdatasource"]["items"]
+        matches = [item for item in items if item.get("url") == url]
+        if len(matches) != 1:
+            raise ValueError(
+                f"allRawdatasource: esperava exatamente uma fonte com "
+                f"url={url!r} para {{'tables_Id': {table_pk}}}, encontrei "
+                f"{len(matches)}; verifique a url informada."
+            )
+        return matches[0]["_id"]
 
     # ------------------------------------------------------------------ leitura
     def get_table_status(self, dataset_id: str, table_id: str) -> str | None:
@@ -214,11 +241,49 @@ class MetadataClient:
         table_pk = self.get_table_id(dataset_id, table_id)
         return self._read_update_latest("$table_Id: ID", table_pk, "table_Id")
 
-    def get_raw_source_update_latest(
+    def get_coverage_max_date(
         self, dataset_id: str, table_id: str
     ) -> datetime.date | None:
-        """Lê o campo `latest` do `Update` vinculado ao `RawDataSource`."""
-        rds_id = self._raw_source_id(dataset_id, table_id)
+        """Lê a cobertura real (`Coverage.DateTimeRange`) e devolve o maior
+        `end` entre todas as faixas (free + pro). `None` se a tabela não tiver
+        nenhuma `Coverage.DateTimeRange` cadastrada.
+
+        Contraparte de `get_table_update_latest`: enquanto aquele lê um
+        timestamp de execução, este lê a competência de dados mais recente
+        que a tabela realmente cobre — a base de comparação usada pelo
+        `compare_against="coverage"` de `poll_source_for_update`.
+        """
+        table_pk = self.get_table_id(dataset_id, table_id)
+        query = """query($table_Id: ID) {
+            allCoverage(table_Id: $table_Id) {
+                edges { node { datetimeRanges {
+                    edges { node { endYear endMonth endDay } }
+                } } }
+            }
+        }"""
+        response = self._execute(query, {"table_Id": table_pk})
+        end_dates = []
+        for coverage in response["allCoverage"]["items"]:
+            for dtr in coverage["datetimeRanges"]["items"]:
+                year, month, day = (
+                    dtr["endYear"],
+                    dtr["endMonth"],
+                    dtr["endDay"],
+                )
+                if year is None:
+                    continue
+                end_dates.append(datetime.date(year, month or 1, day or 1))
+        return max(end_dates) if end_dates else None
+
+    def get_raw_source_update_latest(
+        self, dataset_id: str, table_id: str, url: str | None = None
+    ) -> datetime.date | None:
+        """Lê o campo `latest` do `Update` vinculado ao `RawDataSource`.
+
+        `url` seleciona a fonte específica (por URL exata) quando a tabela tem
+        mais de uma fonte ligada; `None` (padrão) mantém o comportamento de
+        fonte única."""
+        rds_id = self._raw_source_id(dataset_id, table_id, url=url)
         if rds_id is None:
             return None
         return self._read_update_latest(
@@ -241,10 +306,14 @@ class MetadataClient:
 
     # ------------------------------------------------------ escrita (1 por entidade)
     def upsert_raw_source_poll(
-        self, dataset_id: str, table_id: str, *, latest
+        self, dataset_id: str, table_id: str, *, latest, url: str | None = None
     ) -> str:
-        """Cria/atualiza o `Poll` ligado ao `RawDataSource`."""
-        rds_id = self._raw_source_id(dataset_id, table_id)
+        """Cria/atualiza o `Poll` ligado ao `RawDataSource`.
+
+        `url` seleciona a fonte específica (por URL exata) quando a tabela tem
+        mais de uma fonte ligada; `None` (padrão) mantém o comportamento de
+        fonte única."""
+        rds_id = self._raw_source_id(dataset_id, table_id, url=url)
         existing = self._query_id("allPoll", {"$rawDataSource_Id: ID": rds_id})
         if existing:
             return self._mutate(
@@ -252,15 +321,22 @@ class MetadataClient:
                 {"id": existing, "latest": _to_iso8601(latest)},
             )
         dto = PollInput(
-            rawDataSource=rds_id, latest=latest, entity=self._entity_id("day")
+            # pyrefly: ignore [bad-argument-type]
+            rawDataSource=rds_id,
+            latest=latest,
+            entity=self._entity_id("day"),
         )
         return self._mutate("CreateUpdatePoll", dto.model_dump())
 
     def upsert_raw_source_update(
-        self, dataset_id: str, table_id: str, *, latest
+        self, dataset_id: str, table_id: str, *, latest, url: str | None = None
     ) -> str:
-        """Cria/atualiza o `Update` ligado ao `RawDataSource`."""
-        rds_id = self._raw_source_id(dataset_id, table_id)
+        """Cria/atualiza o `Update` ligado ao `RawDataSource`.
+
+        `url` seleciona a fonte específica (por URL exata) quando a tabela tem
+        mais de uma fonte ligada; `None` (padrão) mantém o comportamento de
+        fonte única."""
+        rds_id = self._raw_source_id(dataset_id, table_id, url=url)
         existing = self._query_id(
             "allUpdate", {"$rawDataSource_Id: ID": rds_id}
         )
@@ -270,6 +346,7 @@ class MetadataClient:
                 {"id": existing, "latest": _to_iso8601(latest)},
             )
         dto = RawSourceUpdateInput(
+            # pyrefly: ignore [bad-argument-type]
             rawDataSource=rds_id,
             latest=latest,
             frequency=1,

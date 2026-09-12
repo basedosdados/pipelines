@@ -18,7 +18,8 @@ from pipelines.utils.metadata.domain import (
     YearMonth,
 )
 from pipelines.utils.metadata.tasks import (
-    register_source_poll_task,
+    commit_source_update_task,
+    poll_source_for_update_task,
     register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
@@ -37,11 +38,11 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
         dataset_id: str = "br_me_comex_stat",
         table_id: str = table_id,
         materialize_after_dump: bool = True,
-        dbt_alias: bool = True,
         update_metadata: bool = True,
         target: str = "prod",
         force_run: bool = False,
     ) -> None:
+        # pyrefly: ignore [unused-coroutine]
         rename_flow_run_dataset_table(
             prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
         )
@@ -49,15 +50,31 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
         last_date = parse_last_date(link=comex_constants.DOWNLOAD_LINK.value)
 
         if not force_run:
-            is_outdated = register_source_poll_task(
+            has_new_data = poll_source_for_update_task(
                 dataset_id=dataset_id,
                 table_id=table_id,
                 source_max_date=last_date,
                 env="prod",
                 date_format="%Y-%m",
+                compare_against="coverage",
             )
-            if not is_outdated:
+            if not has_new_data:
+                print(f"Tabela {table_id} já cobre a fonte — encerrando")
                 return
+
+        # A fonte é uma só para as quatro tabelas, então este Update é um
+        # ponteiro compartilhado: quem rodar primeiro no dia o avança. O gate
+        # acima continua por tabela, porque compara contra o Coverage de cada
+        # tabela, não contra este RawDataSource.Update.
+        commit_source_update_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=last_date,
+            env="prod",
+            date_format="%Y-%m",
+            update_metadata=update_metadata,
+            materialize_after_dump=materialize_after_dump,
+        )
 
         download_br_me_comex_stat(
             table_name=table_name,
@@ -70,6 +87,7 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
             table_name=table_name,
         )
 
+        # pyrefly: ignore [no-matching-overload]
         upload_to_gcs(
             data_path=filepath,
             dataset_id=dataset_id,
@@ -82,13 +100,13 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
             dataset_id=dataset_id,
             table_id=table_id,
             dbt_command="run/test",
-            dbt_alias=dbt_alias,
             target="dev",
         )
 
         if not materialize_after_dump:
             return
 
+        # pyrefly: ignore [no-matching-overload]
         upload_to_gcs(
             data_path=filepath,
             dataset_id=dataset_id,
@@ -101,7 +119,6 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
             dataset_id=dataset_id,
             table_id=table_id,
             dbt_command="run/test",
-            dbt_alias=dbt_alias,
             target=target,
         )
 
@@ -117,6 +134,7 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
                 bq_project="basedosdados",
             )
 
+    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
 

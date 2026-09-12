@@ -1,6 +1,4 @@
-"""
-Flows para br_cgu_pessoal_executivo_federal — Prefect 3.
-"""
+"""Flows para br_cgu_pessoal_executivo_federal — Prefect 3."""
 
 from prefect import flow
 
@@ -26,11 +24,11 @@ def br_cgu_pessoal_executivo_federal__terceirizados(
     dataset_id: str = "br_cgu_pessoal_executivo_federal",
     table_id: str = "terceirizados",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     update_metadata: bool = False,
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -51,7 +49,6 @@ def br_cgu_pessoal_executivo_federal__terceirizados(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -71,11 +68,11 @@ def br_cgu_pessoal_executivo_federal__terceirizados(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
 
+# pyrefly: ignore [missing-attribute]
 br_cgu_pessoal_executivo_federal__terceirizados.deploy_schedules = [
     {"cron": "0 0 28 2/4 *", "timezone": "America/Sao_Paulo"}
 ]

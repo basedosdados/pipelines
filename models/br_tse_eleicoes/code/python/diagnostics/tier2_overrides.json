@@ -1,0 +1,95 @@
+{
+ "consulta_coligacao_1990": {
+  "source": "override:transcribed from CONSULTA_LEGENDA_1990_AC.txt data row + Leia-me.pdf names (the Leia-me omits NOME_UE and SIGLA_COLIGACAO; data rows have 18 fields)",
+  "columns": [
+   "DATA_GERACAO",
+   "HORA_GERACAO",
+   "ANO_ELEICAO",
+   "NUM_TURNO",
+   "DESCRICAO_ELEICAO",
+   "SIGLA_UF",
+   "SIGLA_UE",
+   "NOME_UE",
+   "CODIGO_CARGO",
+   "DESCRICAO_CARGO",
+   "TIPO_LEGENDA",
+   "NUMERO_PARTIDO",
+   "SIGLA_PARTIDO",
+   "NOME_PARTIDO",
+   "SIGLA_COLIGACAO",
+   "NOME_COLIGACAO",
+   "COMPOSICAO_COLIGACAO",
+   "SEQUENCIAL_COLIGACAO"
+  ],
+  "has_header": false,
+  "notes": [
+   "1990 zip data files have no header; the bundled Leia-me.pdf lists 17 variables but real rows carry 18 fields (NOME_UE present after SIGLA_UE, SIGLA_COLIGACAO before NOME_COLIGACAO)."
+  ]
+ },
+ "votacao_candidato_uf_1954": {
+  "source": "override:copied from votacao_candidato_uf 1950/1958 leiame (1954 zip ships without Leia-me; layouts identical across 1945-1990)",
+  "columns": [
+   "DATA_GERACAO",
+   "HORA_GERACAO",
+   "ANO_ELEICAO",
+   "NUM_TURNO",
+   "DESCRICAO_ELEICAO",
+   "SIGLA_UF",
+   "SIGLA_UE",
+   "CODIGO_CARGO",
+   "NUMERO_CAND",
+   "SQ_CANDIDATO",
+   "NOME_CANDIDATO",
+   "NOME_URNA_CANDIDATO",
+   "DESCRICAO_CARGO",
+   "COD_SIT_CAND_SUPERIOR",
+   "DESC_SIT_CAND_SUPERIOR",
+   "CODIGO_SIT_CANDIDATO",
+   "DESC_SIT_CANDIDATO",
+   "CODIGO_SIT_CAND_TOT",
+   "DESC_SIT_CAND_TOT",
+   "NUMERO_PARTIDO",
+   "SIGLA_PARTIDO",
+   "NOME_PARTIDO",
+   "SEQUENCIAL_LEGENDA",
+   "NOME_COLIGACAO",
+   "COMPOSICAO_LEGENDA",
+   "TOTAL_VOTOS"
+  ],
+  "has_header": false,
+  "notes": [
+   "1950 and 1958 leiame layouts verified identical; 1954 files share the historical republication format."
+  ]
+ },
+ "detalhe_votacao_uf_1954": {
+  "source": "override:copied from detalhe_votacao_uf 1950/1958 leiame (1954 zip ships without Leia-me; layouts identical across 1945-1990)",
+  "columns": [
+   "DATA_GERACAO",
+   "HORA_GERACAO",
+   "ANO_ELEICAO",
+   "NUM_TURNO",
+   "DESCRICAO_ELEICAO",
+   "SIGLA_UF",
+   "SIGLA_UE",
+   "CODIGO_CARGO",
+   "DESCRICAO_CARGO",
+   "QTD_APTOS",
+   "QTD_COMPARECIMENTO",
+   "QTD_ABSTENCOES",
+   "QTD_VOTOS_NOMINAIS",
+   "QTD_VOTOS_BRANCOS",
+   "QTD_VOTOS_NULOS",
+   "QTD_VOTOS_LEGENDA",
+   "QTD_VOTOS_ANULADOS_APU_SEP",
+   "QTD_SECOES_TOT",
+   "QTD_SECOES_ANULADAS",
+   "QTD_SECOES_SEM_FUNCION",
+   "QTD_ZONAS_ELEITORAIS",
+   "QTD_JUNTAS_APURADORAS"
+  ],
+  "has_header": false,
+  "notes": [
+   "1950 and 1958 leiame layouts verified identical; 1954 files share the historical republication format."
+  ]
+ }
+}

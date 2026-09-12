@@ -36,11 +36,17 @@ def get_url_from_template(file) -> str:
     hrefs = [k for k in response.text.split('href="')[1:] if "zip" in k]
     zips = [k.split('"')[0] for k in hrefs]
     hrefs = [f"{download_page}{k}" for k in zips]
+    # pyrefly: ignore [bad-return]
     return [hrefs, zips]
 
 
 def download_unzip_csv(
-    urls, zips, chunk_size: int = 128, mkdir: bool = True, id="teste"
+    urls,
+    zips,
+    chunk_size: int = 128,
+    mkdir: bool = True,
+    id="teste",
+    # pyrefly: ignore [bad-return]
 ) -> str:
     if mkdir:
         os.makedirs(
@@ -72,6 +78,7 @@ def download_unzip_csv(
             except zipfile.BadZipFile:
                 log(f"O arquivo {file} não é um arquivo ZIP válido.")
 
+            # pyrefly: ignore [deprecated]
             os.system(
                 f'cd /tmp/data/br_ans_beneficiario/{id}/input; find . -type f ! -iname "*.csv" -delete'
             )
@@ -98,6 +105,7 @@ def download_unzip_csv(
         except zipfile.BadZipFile:
             log(f"O arquivo {zips} não é um arquivo ZIP válido.")
 
+        # pyrefly: ignore [deprecated]
         os.system(
             f'cd /tmp/data/br_ans_beneficiario/{id}/input; find . -type f ! -iname "*.csv" -delete'
         )
@@ -111,6 +119,7 @@ def parquet_partition(path):
         if nome_arquivo.endswith(".csv"):
             log(f"Carregando o arquivo: {nome_arquivo}")
 
+            # pyrefly: ignore [no-matching-overload]
             df = pd.read_csv(
                 f"{path}{nome_arquivo}",
                 sep=";",
@@ -127,8 +136,12 @@ def parquet_partition(path):
 
             df["ano"] = time_col.dt.year
             df["mes"] = time_col.dt.month
-            df["MODALIDADE_OPERADORA"] = df["MODALIDADE_OPERADORA"].apply(
-                remove_accents
+            # volta pra category depois do apply (remove_accents devolve str
+            # puro) — mantém a coluna leve para o fatiamento em to_partitions.
+            df["MODALIDADE_OPERADORA"] = (
+                df["MODALIDADE_OPERADORA"]
+                .apply(remove_accents)
+                .astype("category")
             )
             df = df.rename(
                 columns={
@@ -153,5 +166,12 @@ def parquet_partition(path):
             )
 
             log("Partição feita.")
+
+            # Sem isso, a memória de cada estado se acumula até o gc.collect()
+            # do loop de fora em crawler_ans, que só roda depois dos 27
+            # arquivos — já causou OOM num arquivo pequeno (AP) logo depois
+            # de processar um grande (MG).
+            del df
+            gc.collect()
 
     return "/tmp/data/br_ans_beneficiario/output/"

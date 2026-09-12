@@ -3,6 +3,7 @@ Tasks compartilhadas — Prefect 3.
 """
 
 import json
+import re
 from pathlib import Path
 from time import sleep
 from typing import Any
@@ -54,6 +55,89 @@ async def rename_flow_run_dataset_table(
 # ──────────────────────────────────────────────────────────────────────────────
 
 
+def _bq_safe_column_name(name: str) -> str:
+    """Normaliza um nome de coluna como o BigQuery faz ao inferir o schema.
+
+    As colunas que o crawler não renomeia chegam com o nome cru da fonte —
+    com espaço e acento, quando é o caso. Ao criar a tabela externa o
+    BigQuery troca cada caractere inválido por `_`, então `Nome do município`
+    vira `Nome_do_munic_pio`.
+
+    Args:
+        name: nome como vem do arquivo de dados.
+
+    Returns:
+        O nome com todo caractere fora de `[0-9a-zA-Z_]` trocado por `_`.
+    """
+    return re.sub(r"[^0-9a-zA-Z_]", "_", name)
+
+
+def _sync_staging_schema(
+    tb: bd.Table,
+    data_path: str | Path,
+    source_format: str,
+    billing_project_id: str,
+) -> None:
+    """Adiciona ao schema da staging as colunas que a fonte passou a trazer.
+
+    Em `dump_mode="append"` a tabela de staging só é criada quando ainda não
+    existe, então seu schema fica congelado na criação. Quando a fonte ganha uma
+    coluna, o arquivo novo a traz mas a definição da tabela externa não, e o dbt
+    quebra com `Unrecognized name` na primeira materialização seguinte.
+
+    A definição é alterada no lugar, pela API do BigQuery. O prefixo do GCS não é
+    tocado: recriar a tabela ou chamar `Storage.delete_table` apagaria todo o
+    histórico já carregado.
+
+    A operação é aditiva por decisão — só acrescenta colunas ausentes, nunca
+    remove nem reordena. Um arquivo parcial ou uma carga de um período só não
+    pode encolher o schema de uma tabela histórica.
+
+    A comparação é feita sobre os nomes normalizados por
+    `_bq_safe_column_name`: o arquivo traz o nome cru e a tabela guarda o nome
+    já sanitizado pelo BigQuery, então comparar as duas grafias direto acusa
+    coluna nova em toda execução. A coluna acrescentada também leva o nome
+    normalizado — o cru pode não ser um identificador válido.
+
+    Args:
+        tb: tabela `basedosdados` já instanciada, apontando para a staging.
+        data_path: arquivo ou diretório com os dados que serão carregados.
+        source_format: `"csv"` ou `"parquet"`.
+        billing_project_id: projeto GCP usado para faturar a chamada.
+    """
+    header_path = dump_header(data_path=data_path, source_format=source_format)
+    incoming = tb._load_staging_schema_from_data(
+        data_sample_path=header_path, source_format=source_format
+    )
+
+    client = bigquery.Client(project=billing_project_id)
+    table = client.get_table(tb.table_full_name["staging"])
+
+    current = {_bq_safe_column_name(field.name) for field in table.schema}
+    new_fields = [
+        bigquery.SchemaField(
+            name=_bq_safe_column_name(field.name),
+            field_type=field.field_type,
+        )
+        for field in incoming
+        if _bq_safe_column_name(field.name) not in current
+    ]
+
+    if not new_fields:
+        return
+
+    # O schema da tabela externa vive em `table.schema`; o do
+    # `external_data_configuration` fica vazio nas tabelas criadas pela lib.
+    # Arquivos antigos, sem a coluna, passam a devolver NULL para ela.
+    table.schema = list(table.schema) + new_fields
+    client.update_table(table, ["schema"])
+
+    print(
+        "Colunas novas na fonte adicionadas ao schema da staging: "
+        + ", ".join(field.name for field in new_fields)
+    )
+
+
 def _upload_to_gcs(
     data_path: str | Path,
     dataset_id: str,
@@ -102,6 +186,12 @@ def _upload_to_gcs(
             )
         else:
             print(f"Tabela já existe: {tb.table_full_name['staging']}")
+            _sync_staging_schema(
+                tb=tb,
+                data_path=data_path,
+                source_format=source_format,
+                billing_project_id=billing_project_id,
+            )
 
     elif dump_mode == "overwrite":
         if tb.table_exists(mode="staging"):
@@ -167,7 +257,7 @@ def upload_to_gcs(
 # ──────────────────────────────────────────────────────────────────────────────
 
 
-@task(retries=1, retry_delay_seconds=10)
+@task(retries=0)
 def run_dbt(
     dataset_id: str,
     table_id: str | None = None,
@@ -236,10 +326,21 @@ def run_dbt(
             if result.exception:
                 raise Exception(f"dbt {cmd} exception: {result.exception}")
             if not result.success:
+                run_result = getattr(result, "result", None)
+                if run_result is not None:
+                    for node_result in run_result.results:
+                        if node_result.status in {"error", "fail"}:
+                            print(node_result.node.name)
+                            print(node_result.message)
+
                 raise Exception(
                     f"dbt {cmd} falhou para {selected.as_posix()} (target={target})"
                 )
             print(f"dbt {cmd} OK: {selected.as_posix()} (target={target})")
+
+        if target == "prod" and table_id is not None and "run" in dbt_command:
+            print(f"Exportando {dataset_id}.{table_id} para GCS")
+            download_data_to_gcs.fn(dataset_id=dataset_id, table_id=table_id)
     finally:
         try:
             DBTArtifactUploader(
@@ -322,6 +423,7 @@ def download_data_to_gcs(
             return
         num_bytes = items[0]["uncompressedFileSize"] or 0
 
+    # pyrefly: ignore [unsupported-operation]
     if num_bytes > 1_000_000_000:
         log("Tabela > 1 GB — sem download disponível")
         return
@@ -331,6 +433,7 @@ def download_data_to_gcs(
     url_closed = url_paths["URL_DOWNLOAD_CLOSED"]
     query = f"SELECT * FROM `{project_id}.{dataset_id}.{table_id}`"
 
+    # pyrefly: ignore [unsupported-operation]
     if num_bytes >= 100_000_000:
         log("Tabela entre 100 MB e 1 GB — apenas BDPro")
         _execute_query_in_bigquery(

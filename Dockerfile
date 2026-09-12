@@ -24,6 +24,7 @@ RUN apt-get update && \
     p7zip-full \
     python3-dev \
     traceroute \
+    unzip \
     wget \
     tesseract-ocr \
     python3-opencv \
@@ -45,6 +46,10 @@ RUN uv export --locked --no-dev --no-hashes --no-emit-project -o /tmp/requiremen
     uv pip install --system --no-cache -r /tmp/requirements.txt
 
 # dbt deps — copia só os arquivos de configuração do dbt, não o código dos flows
+# DBT_PACKAGES_PATH garante que o dbt encontre os pacotes em /app/dbt_packages
+# em runtime (o flow roda a partir de um git clone, não de /app). Em dev local,
+# a variável não existe e o dbt_project.yml cai no default relativo 'dbt_packages'.
+ENV DBT_PACKAGES_PATH=/app/dbt_packages
 COPY packages.yml dbt_project.yml profiles.yml README.md ./
 RUN dbt deps
 

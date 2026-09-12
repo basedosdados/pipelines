@@ -1,0 +1,73 @@
+---
+version: 2
+models:
+  - name: au_abs_national_accounts__series
+    description: >-
+      Dictionary of the Australian System of National Accounts (ABS 5204.0) time
+      series. One row per ABS Series ID, giving its description, unit of measure,
+      the source ABS table it is published in, and its first and last observation
+      dates. All series are Original, Annual and ABS-classified as DERIVED, so
+      those constant fields are not stored.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [series_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: series_id
+        description: >-
+          ABS series identifier uniquely identifying a time series across all ABS
+          releases, such as A2420896J
+        tests: [not_null, unique]
+      - name: description
+        description: Full description of the data item as published by the ABS
+      - name: unit
+        description: >-
+          Unit of measure of the series as published by the ABS, such as $
+          Millions, Percent or Index Numbers
+      - name: source_table_no
+        description: Number of the source ABS 5204.0 table the series is published
+          in, from 1 to 72
+      - name: source_table_name
+        description: Name of the source ABS 5204.0 table the series is published in
+      - name: series_start
+        description: Date of the first observation of the series, dated to the end
+          of the financial year in June
+      - name: series_end
+        description: Date of the last observation of the series, dated to the end
+          of the financial year in June
+  - name: au_abs_national_accounts__observations
+    description: >-
+      Long time-series values of the Australian System of National Accounts (ABS
+      5204.0). One row per series and financial year. The unit of each value
+      varies by series and is given in the series table.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, series_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Calendar year in which the financial year of the observation ends, so
+          the financial year 2024-25 is stored as 2025
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: financial_year
+        description: Australian financial year of the observation in YYYY-YY format,
+          such as 2024-25
+        tests: [not_null]
+      - name: series_id
+        description: ABS series identifier linking the observation to the series table
+        tests:
+          - not_null
+          - relationships:
+              to: ref('au_abs_national_accounts__series')
+              field: series_id
+      - name: value
+        description: >-
+          Observed value of the series for the financial year, in the unit given
+          by the series table

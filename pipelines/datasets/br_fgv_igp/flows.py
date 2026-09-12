@@ -33,6 +33,7 @@ def _igp_flow(table_id: str, indice: str, periodo: str, cron: str | None):
             force_run=force_run,
         )
 
+    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = (
         [{"cron": cron, "timezone": "America/Sao_Paulo"}] if cron else []
     )

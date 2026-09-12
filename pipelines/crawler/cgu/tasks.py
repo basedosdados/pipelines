@@ -7,7 +7,6 @@ import os
 from datetime import datetime
 
 import pandas as pd
-import requests
 from prefect import task
 from tqdm import tqdm
 
@@ -20,6 +19,7 @@ from pipelines.crawler.cgu.utils import (
     partition_data_beneficios_cidadao,
     read_and_clean_csv,
     read_csv,
+    source_url_is_available,
 )
 from pipelines.utils.utils import log, to_partitions
 
@@ -28,6 +28,7 @@ TASK_RETRY_DELAY_SECONDS = global_constants.TASK_RETRY_DELAY.value
 
 
 @task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
+# pyrefly: ignore [bad-return]
 def partition_data(table_id: str, dataset_id: str) -> str:
     log("---------------------------- Read data ----------------------------")
     if dataset_id in ["br_cgu_cartao_pagamento", "br_cgu_licitacao_contrato"]:
@@ -67,6 +68,7 @@ def partition_data(table_id: str, dataset_id: str) -> str:
 
 
 @task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
+# pyrefly: ignore [bad-return]
 def read_and_partition_beneficios_cidadao(table_id: str) -> str:
     constants_cgu_beneficios_cidadao = (
         constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]
@@ -78,6 +80,7 @@ def read_and_partition_beneficios_cidadao(table_id: str) -> str:
             if nome_arquivo.endswith(".csv"):
                 log(f"Carregando o arquivo: {nome_arquivo}")
 
+                # pyrefly: ignore [no-matching-overload]
                 with pd.read_csv(
                     f"{constants_cgu_beneficios_cidadao['INPUT']}{nome_arquivo}",
                     sep=";",
@@ -178,8 +181,10 @@ def verify_all_url_exists_to_download(
     )
 
     for url in urls:
-        r = requests.get(url)
-        if r.status_code != 200:
+        available = source_url_is_available(
+            url=url, max_retries=1, wait_seconds=10
+        )
+        if not available:
             log(f"A URL {url=} não existe!")
             return False
         log(f"A URL {url=} existe!")

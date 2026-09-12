@@ -16,6 +16,7 @@ from pipelines.crawler.anatel.telefonia_movel.utils import (
     clean_csv_municipio,
     clean_csv_uf,
     get_year,
+    normalize_label,
     unzip_file,
 )
 from pipelines.utils.utils import log
@@ -23,6 +24,7 @@ from pipelines.utils.utils import log
 
 @task(retries=5, retry_delay_seconds=10)
 def join_tables_in_function(table_id, semestre, ano):
+    # pyrefly: ignore [deprecated]
     os.system(
         f"mkdir -p {anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}"
     )
@@ -70,6 +72,21 @@ def get_max_date_in_table_microdados(table_id, ano, semestre):
             encoding="utf-8",
             dtype=str,
         )
+
+        table_level = {
+            "densidade_brasil": "Brasil",
+            "densidade_uf": "UF",
+            "densidade_municipio": "Municipio",
+        }
+
+        level = table_level[table_id]
+
+        geography = df["Nível Geográfico Densidade"]
+
+        df = df[
+            geography.map(normalize_label) == normalize_label(level)
+        ].copy()
+
         df["data"] = df["Ano"] + "-" + df["Mês"]
 
         df["data"] = pd.to_datetime(df["data"], format="%Y-%m")

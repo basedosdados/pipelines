@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,"Ano da partida, derivado da data de início",,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Derivado de start_date,start_date
+match_id,STRING,Identificador único da partida,,no,,,no,"Grão de uma linha por match_id, equipe e jogador (~500 mil linhas)",match_id
+team_name,STRING,Nome da equipe do jogador na partida,,no,,,no,,team
+player_name,STRING,Nome do jogador conforme aparece na partida,,no,,,no,,player
+person_id,STRING,Identificador único do jogador resolvido pelo registro,,no,,,no,Resolvido pelas linhas de registro por partida; vazio se não resolvido,player_identifier

@@ -118,7 +118,9 @@ def test_compute_all_free_daily():
     )
     r = compute_coverage_ranges(spec, date(2026, 6, 15), IDS_BOTH)
     assert r.pro is None
+    # pyrefly: ignore [missing-attribute]
     assert r.free.coverage == FREE_ID
+    # pyrefly: ignore [missing-attribute]
     assert (r.free.endYear, r.free.endMonth, r.free.endDay) == (2026, 6, 15)
 
 
@@ -130,13 +132,59 @@ def test_compute_part_bdpro_monthly_syncs_and_lags():
     )
     r = compute_coverage_ranges(spec, date(2026, 6, 1), IDS_BOTH)
     # pro termina em 2026-06
+    # pyrefly: ignore [missing-attribute]
     assert (r.pro.endYear, r.pro.endMonth) == (2026, 6)
     # free termina 6 meses antes: 2025-12
+    # pyrefly: ignore [missing-attribute]
     assert (r.free.endYear, r.free.endMonth) == (2025, 12)
+    # pyrefly: ignore [missing-attribute]
     assert r.free.endDay is None  # granularidade mensal
-    # R11: pro começa onde free termina
-    assert (r.pro.startYear, r.pro.startMonth) == (2025, 12)
+    # R11: pro starts in the period after free ends — `free_end` is inclusive
+    # (the RAP grants `date <= free_end`), so free 2025-12 and pro 2026-01 do
+    # not overlap. See `test_compute_part_bdpro_ranges_never_overlap`.
+    # pyrefly: ignore [missing-attribute]
+    assert (r.pro.startYear, r.pro.startMonth) == (2026, 1)
     assert r.free_end == date(2025, 12, 1)
+
+
+def test_compute_part_bdpro_ranges_never_overlap():
+    """free e pro não podem reivindicar o mesmo período, em nenhuma
+    granularidade — inclusive nas viradas de ano/mês."""
+    monthly = PartBdpro(
+        date_column=YearMonth(year="ano", month="mes"),
+        date_format=DateFormat.YEAR_MONTH,
+        free_lag=FreeLag(unit="months", value=1),
+    )
+    r = compute_coverage_ranges(monthly, date(2026, 1, 1), IDS_BOTH)
+    # virada de ano: free termina 2025-12, pro começa 2026-01
+    # pyrefly: ignore [missing-attribute]
+    assert (r.free.endYear, r.free.endMonth) == (2025, 12)
+    # pyrefly: ignore [missing-attribute]
+    assert (r.pro.startYear, r.pro.startMonth) == (2026, 1)
+
+    annual = PartBdpro(
+        date_column=YearOnly(col="ano"),
+        date_format=DateFormat.YEAR,
+        free_lag=FreeLag(unit="years", value=2),
+    )
+    r = compute_coverage_ranges(annual, date(2026, 1, 1), IDS_BOTH)
+    # anual avança um ano, não um mês
+    # pyrefly: ignore [missing-attribute]
+    assert r.free.endYear == 2024
+    # pyrefly: ignore [missing-attribute]
+    assert (r.pro.startYear, r.pro.startMonth) == (2025, None)
+
+    daily = PartBdpro(
+        date_column=DateOnly(col="data"),
+        date_format=DateFormat.YEAR_MD,
+        free_lag=FreeLag(unit="days", value=30),
+    )
+    r = compute_coverage_ranges(daily, date(2026, 3, 2), IDS_BOTH)
+    # virada de mês: free termina 2026-01-31, pro começa 2026-02-01
+    # pyrefly: ignore [missing-attribute]
+    assert (r.free.endYear, r.free.endMonth, r.free.endDay) == (2026, 1, 31)
+    # pyrefly: ignore [missing-attribute]
+    assert (r.pro.startYear, r.pro.startMonth, r.pro.startDay) == (2026, 2, 1)
 
 
 def test_compute_all_bdpro_annual():
@@ -147,7 +195,9 @@ def test_compute_all_bdpro_annual():
         spec, date(2026, 1, 1), CoverageIds(pro=PRO_ID)
     )
     assert r.free is None
+    # pyrefly: ignore [missing-attribute]
     assert r.pro.endYear == 2026
+    # pyrefly: ignore [missing-attribute]
     assert r.pro.endMonth is None
 
 

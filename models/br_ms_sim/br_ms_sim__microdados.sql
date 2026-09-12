@@ -1,4 +1,5 @@
 -- Microdados SIM: carga 2020-2024; particao end: 2024 (ver README).
+-- Staging reprocessado com cleaning.py (circunstancia_obito, estado_civil).
 {{
     config(
         alias="microdados",

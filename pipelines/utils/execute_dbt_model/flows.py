@@ -64,6 +64,7 @@ def run_dbt_task(
         if result.exception:
             raise Exception(f"dbt {cmd} exception: {result.exception}")
         if not result.success:
+            # pyrefly: ignore [not-iterable]
             for event in result.result or []:
                 print(f"dbt | {getattr(event, 'message', event)}")
             raise Exception(f"dbt {cmd} falhou para {selected}")
@@ -104,11 +105,15 @@ def run_dbt_model_flow(
     )
 
     if download_csv_file and table_id is not None:
+        # pyrefly: ignore [no-matching-overload]
         download_data_to_gcs_task.submit(
             dataset_id=dataset_id,
             table_id=table_id,
             wait_for=[dbt_done],
-        )
+        ).result()
+    else:
+        dbt_done.result()
 
 
+# pyrefly: ignore [missing-attribute]
 run_dbt_model_flow.deploy_schedules = []

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from datetime import date
 
+from dateutil.relativedelta import relativedelta
 from pydantic import BaseModel
 
 from pipelines.utils.metadata.domain import (
@@ -107,6 +108,22 @@ def _components(d: date, fmt: DateFormat, position: str) -> dict:
     return out
 
 
+def _next_period(d: date, fmt: DateFormat) -> date:
+    """Avança `d` em um período, na granularidade do formato.
+
+    A cobertura free termina em `free_end` **inclusive** — a Row Access Policy
+    concede `allUsers` FILTER USING (date <= free_end). A cobertura pro portanto
+    começa no período seguinte; começar no próprio `free_end` faria as duas
+    coberturas reivindicarem o mesmo período e exageraria o paywall.
+    """
+    step = {
+        DateFormat.YEAR: relativedelta(years=1),
+        DateFormat.YEAR_MONTH: relativedelta(months=1),
+        DateFormat.YEAR_MD: relativedelta(days=1),
+    }[fmt]
+    return d + step
+
+
 def compute_coverage_ranges(
     spec: CoverageSpec, source_end: date, coverage_ids: CoverageIds
 ) -> CoverageRanges:
@@ -125,6 +142,7 @@ def compute_coverage_ranges(
     if isinstance(spec, AllFree):
         return CoverageRanges(
             free=DateTimeRangeInput(
+                # pyrefly: ignore [bad-argument-type]
                 coverage=coverage_ids.free,
                 **_components(source_end, fmt, "end"),
             ),
@@ -134,6 +152,7 @@ def compute_coverage_ranges(
     if isinstance(spec, AllBdpro):
         return CoverageRanges(
             pro=DateTimeRangeInput(
+                # pyrefly: ignore [bad-argument-type]
                 coverage=coverage_ids.pro,
                 **_components(source_end, fmt, "end"),
             )
@@ -142,13 +161,16 @@ def compute_coverage_ranges(
     # part_bdpro
     free_end = source_end - spec.free_lag.as_relativedelta()
     free = DateTimeRangeInput(
-        coverage=coverage_ids.free, **_components(free_end, fmt, "end")
+        # pyrefly: ignore [bad-argument-type]
+        coverage=coverage_ids.free,
+        **_components(free_end, fmt, "end"),
     )
     pro = DateTimeRangeInput(
+        # pyrefly: ignore [bad-argument-type]
         coverage=coverage_ids.pro,
         **_components(source_end, fmt, "end"),
-        **_components(
-            free_end, fmt, "start"
-        ),  # sincronização: pro começa onde a free termina
+        # free termina em free_end inclusive, então pro começa no período
+        # seguinte: as coberturas são mutuamente exclusivas.
+        **_components(_next_period(free_end, fmt), fmt, "start"),
     )
     return CoverageRanges(free=free, pro=pro, free_end=free_end)

@@ -215,12 +215,14 @@ COLUMN_ORDER = [
 
 
 def read_dbc(filepath: str, encoding: str = "iso-8859-1") -> pd.DataFrame:
+    # pyrefly: ignore [bad-assignment]
     filepath = Path(filepath)
     tmp_fd, tmp_path = tempfile.mkstemp(
         suffix=".dbf", dir=tempfile.gettempdir()
     )
     os.close(tmp_fd)
     try:
+        # pyrefly: ignore [unnecessary-type-conversion]
         dbc2dbf(str(filepath), tmp_path)
         table = DBF(tmp_path, encoding=encoding, load=True)
         return pd.DataFrame(iter(table))
@@ -271,22 +273,28 @@ def convert_municipio_resid_ocor(
 
 
 def parse_date(val: str) -> str | None:
+    # pyrefly: ignore [unnecessary-type-conversion]
     if not val or len(str(val).strip()) < 8 or str(val).strip() == "00000000":
         return None
+    # pyrefly: ignore [unnecessary-type-conversion]
     val = str(val).strip()
     return f"{val[4:8]}-{val[2:4]}-{val[0:2]}"
 
 
 def parse_hora(val: str) -> str | None:
+    # pyrefly: ignore [unnecessary-type-conversion]
     if not val or len(str(val).strip()) < 4:
         return None
+    # pyrefly: ignore [unnecessary-type-conversion]
     val = str(val).strip().zfill(4)
     return f"{val[0:2]}:{val[2:4]}:00"
 
 
 def parse_idade(val: str) -> float | None:
+    # pyrefly: ignore [unnecessary-type-conversion]
     if not val or len(str(val).strip()) < 2:
         return None
+    # pyrefly: ignore [unnecessary-type-conversion]
     val = str(val).strip()
     prefixo = val[0]
     try:
@@ -373,6 +381,17 @@ def recode_columns(df: pd.DataFrame) -> pd.DataFrame:
             "5": "uniao consensual",
         },
     )
+    col = "estado_civil"
+    if col in df.columns:
+        valid = {
+            "solteiro",
+            "casado",
+            "viuvo",
+            "separado judicialmente/divorciado",
+            "uniao consensual",
+        }
+        invalid = df[col].notna() & ~df[col].isin(valid)
+        df.loc[invalid, col] = None
     for col in ["escolaridade", "escolaridade_mae"]:
         _recode(
             df,
@@ -482,6 +501,11 @@ def recode_columns(df: pd.DataFrame) -> pd.DataFrame:
             "4": "outro",
         },
     )
+    col = "circunstancia_obito"
+    if col in df.columns:
+        valid = {"acidente", "suicidio", "homicidio", "outro"}
+        invalid = df[col].notna() & ~df[col].isin(valid)
+        df.loc[invalid, col] = None
     _recode(df, "acidente_trabalho", {"1": "sim", "2": "nao"})
     _recode(
         df,

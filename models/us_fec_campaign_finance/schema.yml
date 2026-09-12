@@ -1,0 +1,643 @@
+---
+version: 2
+models:
+  - name: us_fec_campaign_finance__candidate
+    description: >
+      Candidatos a cargos federais dos Estados Unidos registrados na Federal
+      Election Commission, uma linha por candidato por ciclo eleitoral de dois
+      anos. Inclui cargo disputado, estado e distrito, partido declarado,
+      situação de incumbência e o comitê de campanha principal.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, candidate_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [address_2, office_district]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - office
+            - incumbent_challenger_status
+            - candidate_status
+          dictionary_model: ref('us_fec_campaign_finance__dicionario')
+    columns:
+      - name: year
+        description: >
+          Ano do ciclo eleitoral de dois anos, identificado pelo ano par em que
+          termina
+        tests: [not_null]
+      - name: candidate_id
+        description: >
+          Identificador de nove caracteres do candidato atribuído pela FEC
+        tests: [not_null]
+      - name: principal_committee_id
+        description: >
+          Identificador do comitê de campanha principal do candidato no ciclo
+      - name: candidate_name
+        description: >
+          Nome do candidato conforme registrado na FEC
+      - name: party
+        description: >
+          Partido declarado pelo candidato
+      - name: election_year
+        description: >
+          Ano da eleição informado na declaração de candidatura
+      - name: office
+        description: >
+          Cargo disputado: H (Câmara), S (Senado) ou P (Presidência)
+      - name: office_state
+        description: >
+          Estado do cargo disputado
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: abbreviation
+              ignore_values: [US]
+      - name: office_district
+        description: >
+          Distrito eleitoral do cargo disputado; 00 para Senado e Presidência
+      - name: incumbent_challenger_status
+        description: >
+          Situação do candidato: I (incumbente), C (desafiante) ou O (cadeira
+          aberta)
+      - name: candidate_status
+        description: >
+          Situação do registro do candidato no ciclo
+      - name: address_1
+        description: >
+          Primeira linha do endereço postal do candidato
+      - name: address_2
+        description: >
+          Segunda linha do endereço postal do candidato
+      - name: city
+        description: >
+          Cidade do endereço postal do candidato
+      - name: state
+        description: >
+          Sigla do estado do endereço postal do candidato
+      - name: zip_code
+        description: >
+          Código postal (ZIP) do endereço do candidato
+  - name: us_fec_campaign_finance__committee
+    description: >
+      Comitês registrados na Federal Election Commission, uma linha por comitê
+      por ciclo eleitoral de dois anos. Abrange comitês de campanha de
+      candidatos à Câmara, ao Senado e à Presidência, comitês partidários, PACs,
+      Super PACs e PACs híbridos, com tesoureiro, tipo, designação e organização
+      conectada.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, committee_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - address_2
+            - candidate_id
+            - organization_type
+            - connected_organization_name
+            - treasurer_name
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - committee_designation
+            - committee_type
+            - filing_frequency
+            - organization_type
+          dictionary_model: ref('us_fec_campaign_finance__dicionario')
+    columns:
+      - name: year
+        description: >
+          Ano do ciclo eleitoral de dois anos, identificado pelo ano par em que
+          termina
+        tests: [not_null]
+      - name: committee_id
+        description: >
+          Identificador de nove caracteres do comitê atribuído pela FEC
+        tests: [not_null]
+      - name: candidate_id
+        description: >
+          Identificador do candidato associado, quando o comitê é de campanha
+      - name: committee_name
+        description: >
+          Nome do comitê conforme registrado na FEC
+      - name: treasurer_name
+        description: >
+          Nome do tesoureiro registrado do comitê
+      - name: committee_designation
+        description: >
+          Designação do comitê (principal, autorizado, PAC de liderança, entre
+          outras)
+      - name: committee_type
+        description: >
+          Tipo de comitê (campanha da Câmara, Senado, presidencial, PAC, partido,
+          Super PAC)
+      - name: party
+        description: >
+          Partido ao qual o comitê é filiado
+      - name: filing_frequency
+        description: >
+          Frequência de apresentação de relatórios do comitê
+      - name: organization_type
+        description: >
+          Categoria do grupo de interesse por trás do comitê
+      - name: connected_organization_name
+        description: >
+          Nome da organização conectada ou patrocinadora do comitê
+      - name: address_1
+        description: >
+          Primeira linha do endereço postal do comitê
+      - name: address_2
+        description: >
+          Segunda linha do endereço postal do comitê
+      - name: city
+        description: >
+          Cidade do endereço postal do comitê
+      - name: state
+        description: >
+          Sigla do estado do endereço postal do comitê
+      - name: zip_code
+        description: >
+          Código postal (ZIP) do endereço do comitê
+  - name: us_fec_campaign_finance__candidate_committee_link
+    description: >
+      Ligações entre candidatos e os comitês que os apoiam, uma linha por par
+      candidato-comitê por ciclo eleitoral. É a tabela que conecta candidate a
+      committee e, por meio de committee_id, às tabelas de transações.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, linkage_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [committee_type, committee_designation]
+          dictionary_model: ref('us_fec_campaign_finance__dicionario')
+    columns:
+      - name: year
+        description: >
+          Ano do ciclo eleitoral de dois anos, identificado pelo ano par em que
+          termina
+        tests: [not_null]
+      - name: candidate_id
+        description: >
+          Identificador do candidato
+        tests: [not_null]
+      - name: committee_id
+        description: >
+          Identificador do comitê ligado ao candidato
+        tests: [not_null]
+      - name: linkage_id
+        description: >
+          Identificador da ligação entre candidato e comitê
+      - name: candidate_election_year
+        description: >
+          Ano da eleição do candidato
+      - name: fec_election_year
+        description: >
+          Ano do ciclo eleitoral de dois anos ao qual a ligação se refere
+      - name: committee_type
+        description: >
+          Tipo do comitê ligado ao candidato
+      - name: committee_designation
+        description: >
+          Designação do comitê ligado ao candidato
+  - name: us_fec_campaign_finance__contribution_individual
+    description: >
+      Contribuições de pessoas físicas a comitês federais, uma linha por
+      itemização declarada à Federal Election Commission. Inclui nome, cidade,
+      estado, empregador e ocupação do contribuinte, além de valor, data e tipo
+      de transação. É o arquivo de maior volume da FEC.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, sub_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - other_id
+            - memo_code
+            - memo_text
+            - election_type_year
+            - contributor_employer
+            - contributor_occupation
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - amendment_indicator
+            - report_type
+            - transaction_type
+            - entity_type
+            - memo_code
+          dictionary_model: ref('us_fec_campaign_finance__dicionario')
+    columns:
+      - name: year
+        description: >
+          Ano do ciclo eleitoral de dois anos, identificado pelo ano par em que
+          termina
+        tests: [not_null]
+      - name: committee_id
+        description: >
+          Identificador de nove caracteres do comitê declarante atribuído pela FEC
+        tests: [not_null]
+      - name: other_id
+        description: >
+          Identificador FEC da contraparte quando ela é um comitê ou candidato
+          registrado
+      - name: transaction_id
+        description: >
+          Identificador da transação, único por comitê e por relatório
+      - name: sub_id
+        description: >
+          Número do registro na FEC, único em toda a base
+        tests: [not_null]
+      - name: file_number
+        description: >
+          Identificador do relatório em que a transação foi informada
+      - name: image_number
+        description: >
+          Número da imagem digitalizada do documento na FEC
+      - name: amendment_indicator
+        description: >
+          Indica se o relatório é novo, uma emenda ou uma rescisão
+      - name: report_type
+        description: >
+          Tipo de relatório apresentado à FEC
+      - name: election_type_year
+        description: >
+          Tipo de eleição e ano ao qual a transação se refere
+      - name: transaction_type
+        description: >
+          Código do tipo de transação
+      - name: entity_type
+        description: >
+          Tipo de entidade da contraparte (candidato, comitê, indivíduo,
+          organização)
+      - name: contributor_name
+        description: >
+          Nome do contribuinte
+      - name: contributor_city
+        description: >
+          Cidade do contribuinte
+      - name: contributor_state
+        description: >
+          Sigla de duas letras do estado do contribuinte
+      - name: contributor_zip_code
+        description: >
+          Código postal (ZIP) do contribuinte
+      - name: contributor_employer
+        description: >
+          Empregador do contribuinte
+      - name: contributor_occupation
+        description: >
+          Ocupação do contribuinte
+      - name: transaction_date
+        description: >
+          Data da transação
+      - name: transaction_amount
+        description: >
+          Valor da transação em dólares
+      - name: memo_code
+        description: >
+          Indicador de memorando; X sinaliza que o valor não entra no total do
+          relatório
+      - name: memo_text
+        description: >
+          Descrição textual da atividade informada no memorando
+  - name: us_fec_campaign_finance__contribution_committee
+    description: >
+      Contribuições de comitês a candidatos e despesas independentes, uma linha
+      por itemização declarada à Federal Election Commission. Cobre doações de
+      PACs e comitês partidários a campanhas, gastos independentes a favor e
+      contra candidatos e despesas coordenadas de partido.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, sub_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - other_id
+            - memo_code
+            - memo_text
+            - contributor_employer
+            - contributor_occupation
+            - candidate_id
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - amendment_indicator
+            - report_type
+            - transaction_type
+            - entity_type
+            - memo_code
+          dictionary_model: ref('us_fec_campaign_finance__dicionario')
+    columns:
+      - name: year
+        description: >
+          Ano do ciclo eleitoral de dois anos, identificado pelo ano par em que
+          termina
+        tests: [not_null]
+      - name: committee_id
+        description: >
+          Identificador de nove caracteres do comitê declarante atribuído pela FEC
+        tests: [not_null]
+      - name: other_id
+        description: >
+          Identificador FEC da contraparte quando ela é um comitê ou candidato
+          registrado
+      - name: candidate_id
+        description: >
+          Identificador do candidato beneficiário da contribuição ou da despesa
+      - name: transaction_id
+        description: >
+          Identificador da transação, único por comitê e por relatório
+      - name: sub_id
+        description: >
+          Número do registro na FEC, único em toda a base
+        tests: [not_null]
+      - name: file_number
+        description: >
+          Identificador do relatório em que a transação foi informada
+      - name: image_number
+        description: >
+          Número da imagem digitalizada do documento na FEC
+      - name: amendment_indicator
+        description: >
+          Indica se o relatório é novo, uma emenda ou uma rescisão
+      - name: report_type
+        description: >
+          Tipo de relatório apresentado à FEC
+      - name: election_type_year
+        description: >
+          Tipo de eleição e ano ao qual a transação se refere
+      - name: transaction_type
+        description: >
+          Código do tipo de transação
+      - name: entity_type
+        description: >
+          Tipo de entidade da contraparte (candidato, comitê, indivíduo,
+          organização)
+      - name: contributor_name
+        description: >
+          Nome do comitê contribuinte
+      - name: contributor_city
+        description: >
+          Cidade do comitê contribuinte
+      - name: contributor_state
+        description: >
+          Sigla de duas letras do estado do comitê contribuinte
+      - name: contributor_zip_code
+        description: >
+          Código postal (ZIP) do comitê contribuinte
+      - name: contributor_employer
+        description: >
+          Empregador do comitê contribuinte
+      - name: contributor_occupation
+        description: >
+          Ocupação do comitê contribuinte
+      - name: transaction_date
+        description: >
+          Data da transação
+      - name: transaction_amount
+        description: >
+          Valor da transação em dólares
+      - name: memo_code
+        description: >
+          Indicador de memorando; X sinaliza que o valor não entra no total do
+          relatório
+      - name: memo_text
+        description: >
+          Descrição textual da atividade informada no memorando
+  - name: us_fec_campaign_finance__committee_transaction
+    description: >
+      Transações entre comitês declaradas à Federal Election Commission, uma
+      linha por itemização. Inclui transferências entre comitês filiados,
+      recebimentos de comitês não registrados, empréstimos e reembolsos,
+      completando o fluxo de recursos entre PACs, partidos e campanhas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, sub_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - other_id
+            - memo_code
+            - memo_text
+            - election_type_year
+            - counterparty_employer
+            - counterparty_occupation
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - amendment_indicator
+            - report_type
+            - transaction_type
+            - entity_type
+            - memo_code
+          dictionary_model: ref('us_fec_campaign_finance__dicionario')
+    columns:
+      - name: year
+        description: >
+          Ano do ciclo eleitoral de dois anos, identificado pelo ano par em que
+          termina
+        tests: [not_null]
+      - name: committee_id
+        description: >
+          Identificador de nove caracteres do comitê declarante atribuído pela FEC
+        tests: [not_null]
+      - name: other_id
+        description: >
+          Identificador FEC da contraparte quando ela é um comitê ou candidato
+          registrado
+      - name: transaction_id
+        description: >
+          Identificador da transação, único por comitê e por relatório
+      - name: sub_id
+        description: >
+          Número do registro na FEC, único em toda a base
+        tests: [not_null]
+      - name: file_number
+        description: >
+          Identificador do relatório em que a transação foi informada
+      - name: image_number
+        description: >
+          Número da imagem digitalizada do documento na FEC
+      - name: amendment_indicator
+        description: >
+          Indica se o relatório é novo, uma emenda ou uma rescisão
+      - name: report_type
+        description: >
+          Tipo de relatório apresentado à FEC
+      - name: election_type_year
+        description: >
+          Tipo de eleição e ano ao qual a transação se refere
+      - name: transaction_type
+        description: >
+          Código do tipo de transação
+      - name: entity_type
+        description: >
+          Tipo de entidade da contraparte (candidato, comitê, indivíduo,
+          organização)
+      - name: counterparty_name
+        description: >
+          Nome do comitê ou entidade contraparte
+      - name: counterparty_city
+        description: >
+          Cidade do comitê ou entidade contraparte
+      - name: counterparty_state
+        description: >
+          Sigla de duas letras do estado do comitê ou entidade contraparte
+      - name: counterparty_zip_code
+        description: >
+          Código postal (ZIP) do comitê ou entidade contraparte
+      - name: counterparty_employer
+        description: >
+          Empregador do comitê ou entidade contraparte
+      - name: counterparty_occupation
+        description: >
+          Ocupação do comitê ou entidade contraparte
+      - name: transaction_date
+        description: >
+          Data da transação
+      - name: transaction_amount
+        description: >
+          Valor da transação em dólares
+      - name: memo_code
+        description: >
+          Indicador de memorando; X sinaliza que o valor não entra no total do
+          relatório
+      - name: memo_text
+        description: >
+          Descrição textual da atividade informada no memorando
+  - name: us_fec_campaign_finance__disbursement
+    description: >
+      Despesas operacionais de comitês federais informadas no Schedule B dos
+      formulários da Federal Election Commission, uma linha por desembolso.
+      Inclui beneficiário do pagamento, valor, data, finalidade declarada e
+      categoria de despesa.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, sub_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - back_reference_transaction_id
+            - election_type_year
+            - category
+            - category_description
+            - memo_code
+            - memo_text
+            - purpose
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - amendment_indicator
+            - report_type
+            - entity_type
+            - memo_code
+          dictionary_model: ref('us_fec_campaign_finance__dicionario')
+    columns:
+      - name: year
+        description: >
+          Ano do ciclo eleitoral de dois anos, identificado pelo ano par em que
+          termina
+        tests: [not_null]
+      - name: committee_id
+        description: >
+          Identificador de nove caracteres do comitê declarante atribuído pela FEC
+        tests: [not_null]
+      - name: back_reference_transaction_id
+        description: >
+          Identificador da transação relacionada dentro do mesmo relatório
+      - name: transaction_id
+        description: >
+          Identificador da transação, único por comitê e por relatório
+      - name: sub_id
+        description: >
+          Número do registro na FEC, único em toda a base
+        tests: [not_null]
+      - name: file_number
+        description: >
+          Identificador do relatório em que a transação foi informada
+      - name: image_number
+        description: >
+          Número da imagem digitalizada do documento na FEC
+      - name: amendment_indicator
+        description: >
+          Indica se o relatório é novo, uma emenda ou uma rescisão
+      - name: report_year
+        description: >
+          Ano do relatório em que a despesa foi informada
+      - name: report_type
+        description: >
+          Tipo de relatório apresentado à FEC
+      - name: line_number
+        description: >
+          Número da linha do formulário da FEC em que a despesa foi informada
+      - name: form_type
+        description: >
+          Código do formulário da FEC utilizado
+      - name: schedule_type
+        description: >
+          Código do anexo do formulário; SB corresponde ao Schedule B de despesas
+      - name: election_type_year
+        description: >
+          Tipo de eleição e ano ao qual a despesa se refere
+      - name: entity_type
+        description: >
+          Tipo de entidade do beneficiário do pagamento
+      - name: payee_name
+        description: >
+          Nome do beneficiário do pagamento
+      - name: payee_city
+        description: >
+          Cidade do beneficiário do pagamento
+      - name: payee_state
+        description: >
+          Sigla de duas letras do estado do beneficiário do pagamento
+      - name: payee_zip_code
+        description: >
+          Código postal (ZIP) do beneficiário do pagamento
+      - name: transaction_date
+        description: >
+          Data do desembolso
+      - name: transaction_amount
+        description: >
+          Valor do desembolso em dólares
+      - name: purpose
+        description: >
+          Descrição da finalidade do desembolso informada pelo comitê
+      - name: category
+        description: >
+          Código da categoria do desembolso
+      - name: category_description
+        description: >
+          Descrição da categoria do desembolso conforme informada no arquivo
+      - name: memo_code
+        description: >
+          Indicador de memorando; X sinaliza que o valor não entra no total do
+          relatório
+      - name: memo_text
+        description: >
+          Descrição textual da atividade informada no memorando
+  - name: us_fec_campaign_finance__dicionario
+    description: >
+      Dicionário de códigos do conjunto us_fec_campaign_finance. Uma linha por
+      combinação de tabela, coluna e código, com a descrição publicada pela
+      Federal Election Commission.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [cobertura_temporal]
+    columns:
+      - name: id_tabela
+        description: >
+          Nome da tabela à qual a coluna pertence
+        tests: [not_null]
+      - name: nome_coluna
+        description: >
+          Nome da coluna codificada
+        tests: [not_null]
+      - name: chave
+        description: >
+          Valor do código armazenado na coluna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >
+          Cobertura temporal em que a chave é válida
+      - name: valor
+        description: >-
+          Descrição correspondente ao código

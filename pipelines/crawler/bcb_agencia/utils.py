@@ -68,6 +68,7 @@ def sort_documents_by_date(docs_metadata: dict) -> list[dict] | None:
 def download_file(
     url: str,
     download_dir: Path,
+    # pyrefly: ignore [bad-function-definition]
     session: requests.Session = None,
     filename: str | None = None,
 ) -> Path | None:
@@ -441,6 +442,7 @@ def strip_dataframe_columns(dataframe: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: Updated DataFrame.
     """
+    # pyrefly: ignore [no-matching-overload]
     for col in dataframe.select_dtypes(include=["object", "string"]).columns:
         dataframe[col] = dataframe[col].str.strip()
     return dataframe

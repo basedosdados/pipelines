@@ -1,0 +1,295 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the survey data collection (fall of academic year for most components),,no,br_bd_diretorios_data_tempo.ano:ano,,no,,
+unitid,INT64,Unique identification number of the institution,,no,,,no,,unitid
+xtuit1,STRING,Imputation field for TUITION1 - In-district average tuition for full-time undergraduates,,no,,,no,,xtuit1
+tuition_in_district,FLOAT64,In-district average tuition for full-time undergraduates,,no,,,no,,tuition1
+xfee1,STRING,Imputation field for FEE1 - In-district required fees for full-time undergraduates,,no,,,no,,xfee1
+fee1,FLOAT64,In-district required fees for full-time undergraduates,,no,,,no,,fee1
+xhrchg1,STRING,Imputation field for HRCHG1 - In-district per credit hour charge for part-time undergraduates,,no,,,no,,xhrchg1
+hrchg1,FLOAT64,In-district per credit hour charge for part-time undergraduates,,no,,,no,,hrchg1
+xtuit2,STRING,Imputation field for TUITION2 - In-state average tuition for full-time undergraduates,,no,,,no,,xtuit2
+tuition_in_state,FLOAT64,In-state average tuition for full-time undergraduates,,no,,,no,,tuition2
+xfee2,STRING,Imputation field for FEE2 - In-state required fees for full-time undergraduates,,no,,,no,,xfee2
+fee2,FLOAT64,In-state required fees for full-time undergraduates,,no,,,no,,fee2
+xhrchg2,STRING,Imputation field for HRCHG2 - In-state per credit hour charge for part-time undergraduates,,no,,,no,,xhrchg2
+hrchg2,FLOAT64,In-state per credit hour charge for part-time undergraduates,,no,,,no,,hrchg2
+xtuit3,STRING,Imputation field for TUITION3 - Out-of-state average tuition for full-time undergraduates,,no,,,no,,xtuit3
+tuition_out_state,FLOAT64,Out-of-state average tuition for full-time undergraduates,,no,,,no,,tuition3
+xfee3,STRING,Imputation field for FEE3 - Out-of-state required fees for full-time undergraduates,,no,,,no,,xfee3
+fee3,FLOAT64,Out-of-state required fees for full-time undergraduates,,no,,,no,,fee3
+xhrchg3,STRING,Imputation field for HRCHG3 - Out-of-state per credit hour charge for part-time undergraduates,,no,,,no,,xhrchg3
+hrchg3,FLOAT64,Out-of-state per credit hour charge for part-time undergraduates,,no,,,no,,hrchg3
+xtuit5,STRING,Imputation field for TUITION5 - In-district average tuition full-time graduates,,no,,,no,,xtuit5
+tuition5,STRING,In-district average tuition full-time graduates,,no,,,no,,tuition5
+xfee5,STRING,Imputation field for FEE5 - In-district required fees for full-time graduates,,no,,,no,,xfee5
+fee5,STRING,In-district required fees for full-time graduates,,no,,,no,,fee5
+xhrchg5,STRING,Imputation field for HRCHG5 - In-district per credit hour charge part-time graduates,,no,,,no,,xhrchg5
+hrchg5,STRING,In-district per credit hour charge part-time graduates,,no,,,no,,hrchg5
+xtuit6,STRING,Imputation field for TUITION6 - In-state average tuition full-time graduates,,no,,,no,,xtuit6
+tuition6,STRING,In-state average tuition full-time graduates,,no,,,no,,tuition6
+xfee6,STRING,Imputation field for FEE6 - In-state required fees for full-time graduates,,no,,,no,,xfee6
+fee6,STRING,In-state required fees for full-time graduates,,no,,,no,,fee6
+xhrchg6,STRING,Imputation field for HRCHG6 - In-state per credit hour charge part-time graduates,,no,,,no,,xhrchg6
+hrchg6,STRING,In-state per credit hour charge part-time graduates,,no,,,no,,hrchg6
+xtuit7,STRING,Imputation field for TUITION7 - Out-of-state average tuition full-time graduates,,no,,,no,,xtuit7
+tuition7,STRING,Out-of-state average tuition full-time graduates,,no,,,no,,tuition7
+xfee7,STRING,Imputation field for FEE7 - Out-of-state required fees for full-time graduates,,no,,,no,,xfee7
+fee7,STRING,Out-of-state required fees for full-time graduates,,no,,,no,,fee7
+xhrchg7,STRING,Imputation field for HRCHG7 - Out-of-state per credit hour charge part-time graduates,,no,,,no,,xhrchg7
+hrchg7,STRING,Out-of-state per credit hour charge part-time graduates,,no,,,no,,hrchg7
+xispro1,STRING,Imputation field for ISPROF1 - Chiropractic: In-state tuition,,no,,,no,,xispro1
+isprof1,STRING,Chiropractic: In-state tuition,,no,,,no,,isprof1
+xispfe1,STRING,Imputation field for ISPFEE1 - Chiropractic: In-state required fees,,no,,,no,,xispfe1
+ispfee1,STRING,Chiropractic: In-state required fees,,no,,,no,,ispfee1
+xospro1,STRING,Imputation field for OSPROF1 - Chiropractic: Out-of-state tuition,,no,,,no,,xospro1
+osprof1,STRING,Chiropractic: Out-of-state tuition,,no,,,no,,osprof1
+xospfe1,STRING,Imputation field for OSPFEE1 - Chiropractic: Out-of-state required fees,,no,,,no,,xospfe1
+ospfee1,STRING,Chiropractic: Out-of-state required fees,,no,,,no,,ospfee1
+xispro2,STRING,Imputation field for ISPROF2 - Dentistry: In-state tuition,,no,,,no,,xispro2
+isprof2,STRING,Dentistry: In-state tuition,,no,,,no,,isprof2
+xispfe2,STRING,Imputation field for ISPFEE2 - Dentistry: In-state required fees,,no,,,no,,xispfe2
+ispfee2,STRING,Dentistry: In-state required fees,,no,,,no,,ispfee2
+xospro2,STRING,Imputation field for OSPROF2 - Dentistry: Out-of-state tuition,,no,,,no,,xospro2
+osprof2,STRING,Dentistry: Out-of-state tuition,,no,,,no,,osprof2
+xospfe2,STRING,Imputation field for OSPFEE2 - Dentistry: Out-of-state required fees,,no,,,no,,xospfe2
+ospfee2,STRING,Dentistry: Out-of-state required fees,,no,,,no,,ospfee2
+xispro3,STRING,Imputation field for ISPROF3 - Medicine: In-state tuition,,no,,,no,,xispro3
+isprof3,STRING,Medicine: In-state tuition,,no,,,no,,isprof3
+xispfe3,STRING,Imputation field for ISPFEE3 - Medicine: In-state required fees,,no,,,no,,xispfe3
+ispfee3,STRING,Medicine: In-state required fees,,no,,,no,,ispfee3
+xospro3,STRING,Imputation field for OSPROF3 - Medicine: Out-of-state tuition,,no,,,no,,xospro3
+osprof3,STRING,Medicine: Out-of-state tuition,,no,,,no,,osprof3
+xospfe3,STRING,Imputation field for OSPFEE3 - Medicine: Out-of-state required fees,,no,,,no,,xospfe3
+ospfee3,STRING,Medicine: Out-of-state required fees,,no,,,no,,ospfee3
+xispro4,STRING,Imputation field for ISPROF4 - Optometry: In-state tuition,,no,,,no,,xispro4
+isprof4,STRING,Optometry: In-state tuition,,no,,,no,,isprof4
+xispfe4,STRING,Imputation field for ISPFEE4 - Optometry: In-state required fees,,no,,,no,,xispfe4
+ispfee4,STRING,Optometry: In-state required fees,,no,,,no,,ispfee4
+xospro4,STRING,Imputation field for OSPROF4 - Optometry: Out-of-state tuition,,no,,,no,,xospro4
+osprof4,STRING,Optometry: Out-of-state tuition,,no,,,no,,osprof4
+xospfe4,STRING,Imputation field for OSPFEE4 - Optometry: Out-of-state required fees,,no,,,no,,xospfe4
+ospfee4,STRING,Optometry: Out-of-state required fees,,no,,,no,,ospfee4
+xispro5,STRING,Imputation field for ISPROF5 - Osteopathic Medicine: In-state tuition,,no,,,no,,xispro5
+isprof5,STRING,Osteopathic Medicine: In-state tuition,,no,,,no,,isprof5
+xispfe5,STRING,Imputation field for ISPFEE5 - Osteopathic Medicine: In-state required fees,,no,,,no,,xispfe5
+ispfee5,STRING,Osteopathic Medicine: In-state required fees,,no,,,no,,ispfee5
+xospro5,STRING,Imputation field for OSPROF5 - Osteopathic Medicine: Out-of-state tuition,,no,,,no,,xospro5
+osprof5,STRING,Osteopathic Medicine: Out-of-state tuition,,no,,,no,,osprof5
+xospfe5,STRING,Imputation field for OSPFEE5 - Osteopathic Medicine: Out-of-state required fees,,no,,,no,,xospfe5
+ospfee5,STRING,Osteopathic Medicine: Out-of-state required fees,,no,,,no,,ospfee5
+xispro6,STRING,Imputation field for ISPROF6 - Pharmacy: In-state tuition,,no,,,no,,xispro6
+isprof6,STRING,Pharmacy: In-state tuition,,no,,,no,,isprof6
+xispfe6,STRING,Imputation field for ISPFEE6 - Pharmacy: In-state required fees,,no,,,no,,xispfe6
+ispfee6,STRING,Pharmacy: In-state required fees,,no,,,no,,ispfee6
+xospro6,STRING,Imputation field for OSPROF6 - Pharmacy: Out-of-state tuition,,no,,,no,,xospro6
+osprof6,STRING,Pharmacy: Out-of-state tuition,,no,,,no,,osprof6
+xospfe6,STRING,Imputation field for OSPFEE6 - Pharmacy: Out-of-state required fees,,no,,,no,,xospfe6
+ospfee6,STRING,Pharmacy: Out-of-state required fees,,no,,,no,,ospfee6
+xispro7,STRING,Imputation field for ISPROF7 - Podiatry: In-state tuition,,no,,,no,,xispro7
+isprof7,STRING,Podiatry: In-state tuition,,no,,,no,,isprof7
+xispfe7,STRING,Imputation field for ISPFEE7 - Podiatry: In-state required fees,,no,,,no,,xispfe7
+ispfee7,STRING,Podiatry: In-state required fees,,no,,,no,,ispfee7
+xospro7,STRING,Imputation field for OSPROF7 - Podiatry: Out-of-state tuition,,no,,,no,,xospro7
+osprof7,STRING,Podiatry: Out-of-state tuition,,no,,,no,,osprof7
+xospfe7,STRING,Imputation field for OSPFEE7 - Podiatry: Out-of-state required fees,,no,,,no,,xospfe7
+ospfee7,STRING,Podiatry: Out-of-state required fees,,no,,,no,,ospfee7
+xispro8,STRING,Imputation field for ISPROF8 - Veterinary Medicine: In-state tuition,,no,,,no,,xispro8
+isprof8,STRING,Veterinary Medicine: In-state tuition,,no,,,no,,isprof8
+xispfe8,STRING,Imputation field for ISPFEE8 - Veterinary Medicine: In-state required fees,,no,,,no,,xispfe8
+ispfee8,STRING,Veterinary Medicine: In-state required fees,,no,,,no,,ispfee8
+xospro8,STRING,Imputation field for OSPROF8 - Veterinary Medicine: Out-of-state tuition,,no,,,no,,xospro8
+osprof8,STRING,Veterinary Medicine: Out-of-state tuition,,no,,,no,,osprof8
+xospfe8,STRING,Imputation field for OSPFEE8 - Veterinary Medicine: Out-of-state required fees,,no,,,no,,xospfe8
+ospfee8,STRING,Veterinary Medicine: Out-of-state required fees,,no,,,no,,ospfee8
+xispro9,STRING,Imputation field for ISPROF9 - Law: In-state tuition,,no,,,no,,xispro9
+isprof9,STRING,Law: In-state tuition,,no,,,no,,isprof9
+xispfe9,STRING,Imputation field for ISPFEE9 - Law: In-state required fees,,no,,,no,,xispfe9
+ispfee9,STRING,Law: In-state required fees,,no,,,no,,ispfee9
+xospro9,STRING,Imputation field for OSPROF9 - Law: Out-of-state tuition,,no,,,no,,xospro9
+osprof9,STRING,Law: Out-of-state tuition,,no,,,no,,osprof9
+xospfe9,STRING,Imputation field for OSPFEE9 - Law: Out-of-state required fees,,no,,,no,,xospfe9
+ospfee9,STRING,Law: Out-of-state required fees,,no,,,no,,ospfee9
+xchg1at0,STRING,Imputation field for CHG1AT0 - Published in-district tuition 2020-21,,no,,,no,,xchg1at0
+chg1at0,FLOAT64,Published in-district tuition 2020-21,,no,,,no,,chg1at0
+xchg1af0,STRING,Imputation field for CHG1AF0 - Published in-district fees 2020-21,,no,,,no,,xchg1af0
+chg1af0,FLOAT64,Published in-district fees 2020-21,,no,,,no,,chg1af0
+xchg1ay0,STRING,Imputation field for CHG1AY0 - Published in-district tuition and fees 2020-21,,no,,,no,,xchg1ay0
+chg1ay0,FLOAT64,Published in-district tuition and fees 2020-21,,no,,,no,,chg1ay0
+xchg1at1,STRING,Imputation field for CHG1AT1 - Published in-district tuition 2021-22,,no,,,no,,xchg1at1
+chg1at1,FLOAT64,Published in-district tuition 2021-22,,no,,,no,,chg1at1
+xchg1af1,STRING,Imputation field for CHG1AF1 - Published in-district fees 2021-22,,no,,,no,,xchg1af1
+chg1af1,FLOAT64,Published in-district fees 2021-22,,no,,,no,,chg1af1
+xchg1ay1,STRING,Imputation field for CHG1AY1 - Published in-district tuition and fees 2021-22,,no,,,no,,xchg1ay1
+chg1ay1,FLOAT64,Published in-district tuition and fees 2021-22,,no,,,no,,chg1ay1
+xchg1at2,STRING,Imputation field for CHG1AT2 - Published in-district tuition 2022-23,,no,,,no,,xchg1at2
+chg1at2,FLOAT64,Published in-district tuition 2022-23,,no,,,no,,chg1at2
+xchg1af2,STRING,Imputation field for CHG1AF2 - Published in-district fees 2022-23,,no,,,no,,xchg1af2
+chg1af2,FLOAT64,Published in-district fees 2022-23,,no,,,no,,chg1af2
+xchg1ay2,STRING,Imputation field for CHG1AY2 - Published in-district tuition and fees 2022-23,,no,,,no,,xchg1ay2
+chg1ay2,FLOAT64,Published in-district tuition and fees 2022-23,,no,,,no,,chg1ay2
+xchg1at3,STRING,Imputation field for CHG1AT3 - Published in-district tuition 2023-24,,no,,,no,,xchg1at3
+chg1at3,FLOAT64,Published in-district tuition 2023-24,,no,,,no,,chg1at3
+xchg1af3,STRING,Imputation field for CHG1AF3 - Published in-district fees 2023-24,,no,,,no,,xchg1af3
+chg1af3,FLOAT64,Published in-district fees 2023-24,,no,,,no,,chg1af3
+xchg1ay3,STRING,Imputation field for CHG1AY3 - Published in-district tuition and fees 2023-24,,no,,,no,,xchg1ay3
+chg1ay3,FLOAT64,Published in-district tuition and fees 2023-24,,no,,,no,,chg1ay3
+chg1tgtd,STRING,Published in-district tuition 2023-24 guaranteed percent increase (if applicable),,no,,,no,,chg1tgtd
+chg1fgtd,STRING,Published in-district fees 2023-24 guaranteed percent increase (if applicable),,no,,,no,,chg1fgtd
+xchg2at0,STRING,Imputation field for CHG2AT0 - Published in-state tuition 2020-21,,no,,,no,,xchg2at0
+chg2at0,FLOAT64,Published in-state tuition 2020-21,,no,,,no,,chg2at0
+xchg2af0,STRING,Imputation field for CHG2AF0 - Published in-state fees 2020-21,,no,,,no,,xchg2af0
+chg2af0,FLOAT64,Published in-state fees 2020-21,,no,,,no,,chg2af0
+xchg2ay0,STRING,Imputation field for CHG2AY0 - Published in-state tuition and fees 2020-21,,no,,,no,,xchg2ay0
+chg2ay0,FLOAT64,Published in-state tuition and fees 2020-21,,no,,,no,,chg2ay0
+xchg2at1,STRING,Imputation field for CHG2AT1 - Published in-state tuition 2021-22,,no,,,no,,xchg2at1
+chg2at1,FLOAT64,Published in-state tuition 2021-22,,no,,,no,,chg2at1
+xchg2af1,STRING,Imputation field for CHG2AF1 - Published in-state fees 2021-22,,no,,,no,,xchg2af1
+chg2af1,FLOAT64,Published in-state fees 2021-22,,no,,,no,,chg2af1
+xchg2ay1,STRING,Imputation field for CHG2AY1 - Published in-state tuition and fees 2021-22,,no,,,no,,xchg2ay1
+chg2ay1,FLOAT64,Published in-state tuition and fees 2021-22,,no,,,no,,chg2ay1
+xchg2at2,STRING,Imputation field for CHG2AT2 - Published in-state tuition 2022-23,,no,,,no,,xchg2at2
+chg2at2,FLOAT64,Published in-state tuition 2022-23,,no,,,no,,chg2at2
+xchg2af2,STRING,Imputation field for CHG2AF2 - Published in-state fees 2022-23,,no,,,no,,xchg2af2
+chg2af2,FLOAT64,Published in-state fees 2022-23,,no,,,no,,chg2af2
+xchg2ay2,STRING,Imputation field for CHG2AY2 - Published in-state tuition and fees 2022-23,,no,,,no,,xchg2ay2
+chg2ay2,FLOAT64,Published in-state tuition and fees 2022-23,,no,,,no,,chg2ay2
+xchg2at3,STRING,Imputation field for CHG2AT3 - Published in-state tuition 2023-24,,no,,,no,,xchg2at3
+chg2at3,FLOAT64,Published in-state tuition 2023-24,,no,,,no,,chg2at3
+xchg2af3,STRING,Imputation field for CHG2AF3 - Published in-state fees 2023-24,,no,,,no,,xchg2af3
+chg2af3,FLOAT64,Published in-state fees 2023-24,,no,,,no,,chg2af3
+xchg2ay3,STRING,Imputation field for CHG2AY3 - Published in-state tuition and fees 2023-24,,no,,,no,,xchg2ay3
+chg2ay3,FLOAT64,Published in-state tuition and fees 2023-24,,no,,,no,,chg2ay3
+chg2tgtd,STRING,Published in-state tuition 2023-24 guaranteed percent increase (if applicable),,no,,,no,,chg2tgtd
+chg2fgtd,STRING,Published in-state fees 2023-24 guaranteed percent increase (if applicable),,no,,,no,,chg2fgtd
+xchg3at0,STRING,Imputation field for CHG3AT0 - Published out-of-state tuition 2020-21,,no,,,no,,xchg3at0
+chg3at0,FLOAT64,Published out-of-state tuition 2020-21,,no,,,no,,chg3at0
+xchg3af0,STRING,Imputation field for CHG3AF0 - Published out-of-state fees 2020-21,,no,,,no,,xchg3af0
+chg3af0,FLOAT64,Published out-of-state fees 2020-21,,no,,,no,,chg3af0
+xchg3ay0,STRING,Imputation field for CHG3AY0 - Published out-of-state tuition and fees 2020-21,,no,,,no,,xchg3ay0
+chg3ay0,FLOAT64,Published out-of-state tuition and fees 2020-21,,no,,,no,,chg3ay0
+xchg3at1,STRING,Imputation field for CHG3AT1 - Published out-of-state tuition 2021-22,,no,,,no,,xchg3at1
+chg3at1,FLOAT64,Published out-of-state tuition 2021-22,,no,,,no,,chg3at1
+xchg3af1,STRING,Imputation field for CHG3AF1 - Published out-of-state fees 2021-22,,no,,,no,,xchg3af1
+chg3af1,FLOAT64,Published out-of-state fees 2021-22,,no,,,no,,chg3af1
+xchg3ay1,STRING,Imputation field for CHG3AY1 - Published out-of-state tuition and fees 2021-22,,no,,,no,,xchg3ay1
+chg3ay1,FLOAT64,Published out-of-state tuition and fees 2021-22,,no,,,no,,chg3ay1
+xchg3at2,STRING,Imputation field for CHG3AT2 - Published out-of-state tuition 2022-23,,no,,,no,,xchg3at2
+chg3at2,FLOAT64,Published out-of-state tuition 2022-23,,no,,,no,,chg3at2
+xchg3af2,STRING,Imputation field for CHG3AF2 - Published out-of-state fees 2022-23,,no,,,no,,xchg3af2
+chg3af2,FLOAT64,Published out-of-state fees 2022-23,,no,,,no,,chg3af2
+xchg3ay2,STRING,Imputation field for CHG3AY2 - Published out-of-state tuition and fees 2022-23,,no,,,no,,xchg3ay2
+chg3ay2,FLOAT64,Published out-of-state tuition and fees 2022-23,,no,,,no,,chg3ay2
+xchg3at3,STRING,Imputation field for CHG3AT3 - Published out-of-state tuition 2023-24,,no,,,no,,xchg3at3
+chg3at3,FLOAT64,Published out-of-state tuition 2023-24,,no,,,no,,chg3at3
+xchg3af3,STRING,Imputation field for CHG3AF3 - Published out-of-state fees 2023-24,,no,,,no,,xchg3af3
+chg3af3,FLOAT64,Published out-of-state fees 2023-24,,no,,,no,,chg3af3
+xchg3ay3,STRING,Imputation field for CHG3AY3 - Published out-of-state tuition and fees 2023-24,,no,,,no,,xchg3ay3
+chg3ay3,FLOAT64,Published out-of-state tuition and fees 2023-24,,no,,,no,,chg3ay3
+chg3tgtd,STRING,Published out-of-state tuition 2023-24 guaranteed percent increase (if applicable),,no,,,no,,chg3tgtd
+chg3fgtd,STRING,Published out-of-state fees 2023-24 guaranteed percent increase (if applicable),,no,,,no,,chg3fgtd
+xchg4ay0,STRING,Imputation field for CHG4AY0 - Books and supplies 2020-21,,no,,,no,,xchg4ay0
+chg4ay0,FLOAT64,Books and supplies 2020-21,,no,,,no,,chg4ay0
+xchg4ay1,STRING,Imputation field for CHG4AY1 - Books and supplies 2021-22,,no,,,no,,xchg4ay1
+chg4ay1,FLOAT64,Books and supplies 2021-22,,no,,,no,,chg4ay1
+xchg4ay2,STRING,Imputation field for CHG4AY2 - Books and supplies 2022-23,,no,,,no,,xchg4ay2
+chg4ay2,FLOAT64,Books and supplies 2022-23,,no,,,no,,chg4ay2
+xchg4ay3,STRING,Imputation field for CHG4AY3 - Books and supplies 2023-24,,no,,,no,,xchg4ay3
+chg4ay3,FLOAT64,Books and supplies 2023-24,,no,,,no,,chg4ay3
+xchg5ay0,STRING,"Imputation field for CHG5AY0 - On campus, food and housing 2020-21",,no,,,no,,xchg5ay0
+chg5ay0,STRING,"On campus, food and housing 2020-21",,no,,,no,,chg5ay0
+xchg5ay1,STRING,"Imputation field for CHG5AY1 - On campus, food and housing 2021-22",,no,,,no,,xchg5ay1
+chg5ay1,STRING,"On campus, food and housing 2021-22",,no,,,no,,chg5ay1
+xchg5ay2,STRING,"Imputation field for CHG5AY2 - On campus, food and housing 2022-23",,no,,,no,,xchg5ay2
+chg5ay2,STRING,"On campus, food and housing 2022-23",,no,,,no,,chg5ay2
+xchg5ay3,STRING,"Imputation field for CHG5AY3 - On campus, food and housing 2023-24",,no,,,no,,xchg5ay3
+chg5ay3,STRING,"On campus, food and housing 2023-24",,no,,,no,,chg5ay3
+xchg6ay0,STRING,"Imputation field for CHG6AY0 - On campus, other expenses 2020-21",,no,,,no,,xchg6ay0
+chg6ay0,STRING,"On campus, other expenses 2020-21",,no,,,no,,chg6ay0
+xchg6ay1,STRING,"Imputation field for CHG6AY1 - On campus, other expenses 2021-22",,no,,,no,,xchg6ay1
+chg6ay1,STRING,"On campus, other expenses 2021-22",,no,,,no,,chg6ay1
+xchg6ay2,STRING,"Imputation field for CHG6AY2 - On campus, other expenses 2022-23",,no,,,no,,xchg6ay2
+chg6ay2,STRING,"On campus, other expenses 2022-23",,no,,,no,,chg6ay2
+xchg6ay3,STRING,"Imputation field for CHG6AY3 - On campus, other expenses 2023-24",,no,,,no,,xchg6ay3
+chg6ay3,STRING,"On campus, other expenses 2023-24",,no,,,no,,chg6ay3
+xchg7ay0,STRING,"Imputation field for CHG7AY0 - Off campus (not with family), food and housing 2020-21",,no,,,no,,xchg7ay0
+chg7ay0,FLOAT64,"Off campus (not with family), food and housing 2020-21",,no,,,no,,chg7ay0
+xchg7ay1,STRING,"Imputation field for CHG7AY1 - Off campus (not with family), food and housing 2021-22",,no,,,no,,xchg7ay1
+chg7ay1,FLOAT64,"Off campus (not with family), food and housing 2021-22",,no,,,no,,chg7ay1
+xchg7ay2,STRING,"Imputation field for CHG7AY2 - Off campus (not with family), food and housing 2022-23",,no,,,no,,xchg7ay2
+chg7ay2,FLOAT64,"Off campus (not with family), food and housing 2022-23",,no,,,no,,chg7ay2
+xchg7ay3,STRING,"Imputation field for CHG7AY3 - Off campus (not with family), food and housing 2023-24",,no,,,no,,xchg7ay3
+chg7ay3,FLOAT64,"Off campus (not with family), food and housing 2023-24",,no,,,no,,chg7ay3
+xchg8ay0,STRING,"Imputation field for CHG8AY0 - Off campus (not with family), other expenses 2020-21",,no,,,no,,xchg8ay0
+chg8ay0,FLOAT64,"Off campus (not with family), other expenses 2020-21",,no,,,no,,chg8ay0
+xchg8ay1,STRING,"Imputation field for CHG8AY1 - Off campus (not with family), other expenses 2021-22",,no,,,no,,xchg8ay1
+chg8ay1,FLOAT64,"Off campus (not with family), other expenses 2021-22",,no,,,no,,chg8ay1
+xchg8ay2,STRING,"Imputation field for CHG8AY2 - Off campus (not with family), other expenses 2022-23",,no,,,no,,xchg8ay2
+chg8ay2,FLOAT64,"Off campus (not with family), other expenses 2022-23",,no,,,no,,chg8ay2
+xchg8ay3,STRING,"Imputation field for CHG8AY3 - Off campus (not with family), other expenses 2023-24",,no,,,no,,xchg8ay3
+chg8ay3,FLOAT64,"Off campus (not with family), other expenses 2023-24",,no,,,no,,chg8ay3
+xchg9ay0,STRING,"Imputation field for CHG9AY0 - Off campus (with family), other expenses 2020-21",,no,,,no,,xchg9ay0
+chg9ay0,FLOAT64,"Off campus (with family), other expenses 2020-21",,no,,,no,,chg9ay0
+xchg9ay1,STRING,"Imputation field for CHG9AY1 - Off campus (with family), other expenses 2021-22",,no,,,no,,xchg9ay1
+chg9ay1,FLOAT64,"Off campus (with family), other expenses 2021-22",,no,,,no,,chg9ay1
+xchg9ay2,STRING,"Imputation field for CHG9AY2 - Off campus (with family), other expenses 2022-23",,no,,,no,,xchg9ay2
+chg9ay2,FLOAT64,"Off campus (with family), other expenses 2022-23",,no,,,no,,chg9ay2
+xchg9ay3,STRING,"Imputation field for CHG9AY3 - Off campus (with family), other expenses 2023-24",,no,,,no,,xchg9ay3
+chg9ay3,FLOAT64,"Off campus (with family), other expenses 2023-24",,no,,,no,,chg9ay3
+xcmpfee1,STRING,Imputation field for CMPFEE1 - In-district comprehensive fee for full-time undergraduates,,no,,,no,,xcmpfee1
+cmpfee1,STRING,In-district comprehensive fee for full-time undergraduates,,no,,,no,,cmpfee1
+xcmpfee2,STRING,Imputation field for CMPFEE2 - In-state comprehensive fee for full-time undergraduates,,no,,,no,,xcmpfee2
+cmpfee2,STRING,In-state comprehensive fee for full-time undergraduates,,no,,,no,,cmpfee2
+xcmpfee3,STRING,Imputation field for CMPFEE3 - Out-of-state comprehensive fee for full-time undergraduates,,no,,,no,,xcmpfee3
+cmpfee3,STRING,Out-of-state comprehensive fee for full-time undergraduates,,no,,,no,,cmpfee3
+xcmp1ay0,STRING,Imputation field for CMP1AY0 - In-district comprehensive fee 2009-10,,no,,,no,,xcmp1ay0
+cmp1ay0,STRING,In-district comprehensive fee 2009-10,,no,,,no,,cmp1ay0
+xcmp1ay1,STRING,Imputation field for CMP1AY1 - In-district comprehensive fee 2010-11,,no,,,no,,xcmp1ay1
+cmp1ay1,STRING,In-district comprehensive fee 2010-11,,no,,,no,,cmp1ay1
+xcmp1ay2,STRING,Imputation field for CMP1AY2 - In-district comprehensive fee 2011-12,,no,,,no,,xcmp1ay2
+cmp1ay2,STRING,In-district comprehensive fee 2011-12,,no,,,no,,cmp1ay2
+xcmp1ay3,STRING,Imputation field for CMP1AY3 - In-district comprehensive fee 2012-13,,no,,,no,,xcmp1ay3
+cmp1ay3,STRING,In-district comprehensive fee 2012-13,,no,,,no,,cmp1ay3
+cmp1gtd,STRING,In-district comprehensive fee 2011-12 guaranteed percent increase,,no,,,no,,cmp1gtd
+xcmp2ay0,STRING,Imputation field for CMP2AY0 - In-state comprehensive fee 2009-10,,no,,,no,,xcmp2ay0
+cmp2ay0,STRING,In-state comprehensive fee 2009-10,,no,,,no,,cmp2ay0
+xcmp2ay1,STRING,Imputation field for CMP2AY1 - In-state comprehensive fee 2010-11,,no,,,no,,xcmp2ay1
+cmp2ay1,STRING,In-state comprehensive fee 2010-11,,no,,,no,,cmp2ay1
+xcmp2ay2,STRING,Imputation field for CMP2AY2 - In-state comprehensive fee 2011-12,,no,,,no,,xcmp2ay2
+cmp2ay2,STRING,In-state comprehensive fee 2011-12,,no,,,no,,cmp2ay2
+xcmp2ay3,STRING,Imputation field for CMP2AY3 - In-state comprehensive fee 2012-13,,no,,,no,,xcmp2ay3
+cmp2ay3,STRING,In-state comprehensive fee 2012-13,,no,,,no,,cmp2ay3
+cmp2gtd,STRING,In-state comprehensive fee 2011-12 guaranteed percent increase,,no,,,no,,cmp2gtd
+xcmp3ay0,STRING,Imputation field for CMP3AY0 - Out-of-state comprehensive fee 2009-10,,no,,,no,,xcmp3ay0
+cmp3ay0,STRING,Out-of-state comprehensive fee 2009-10,,no,,,no,,cmp3ay0
+xcmp3ay1,STRING,Imputation field for CMP3AY1 - Out-of-state comprehensive fee 2010-11,,no,,,no,,xcmp3ay1
+cmp3ay1,STRING,Out-of-state comprehensive fee 2010-11,,no,,,no,,cmp3ay1
+xcmp3ay2,STRING,Imputation field for CMP3AY2 - Out-of-state comprehensive fee 2011-12,,no,,,no,,xcmp3ay2
+cmp3ay2,STRING,Out-of-state comprehensive fee 2011-12,,no,,,no,,cmp3ay2
+xcmp3ay3,STRING,Imputation field for CMP3AY3 - Out-of-state comprehensive fee 2012-13,,no,,,no,,xcmp3ay3
+cmp3ay3,STRING,Out-of-state comprehensive fee 2012-13,,no,,,no,,cmp3ay3
+cmp3gtd,STRING,Out-of-state comprehensive fee 2011-12 guaranteed percent increase,,no,,,no,,cmp3gtd
+xispro10,STRING,Imputation field for ISPROF10 - Theology: In-state tuition,,no,,,no,,xispro10
+isprof10,STRING,Theology: In-state tuition,,no,,,no,,isprof10
+xispfe10,STRING,Imputation field for ISPFEE10 - Theology: In-state required fees,,no,,,no,,xispfe10
+ispfee10,STRING,Theology: In-state required fees,,no,,,no,,ispfee10
+xospro10,STRING,Imputation field for OSPROF10 - Theology: Out-of-state tuition,,no,,,no,,xospro10
+osprof10,STRING,Theology: Out-of-state tuition,,no,,,no,,osprof10
+xospfe10,STRING,Imputation field for OSPFEE10 - Theology: Out-of-state required fees,,no,,,no,,xospfe10
+ospfee10,STRING,Theology: Out-of-state required fees,,no,,,no,,ospfee10
+xispro11,STRING,Imputation field for ISPROF11 - Other first-professional: In-state tuition,,no,,,no,,xispro11
+isprof11,STRING,Other first-professional: In-state tuition,,no,,,no,,isprof11
+xispfe11,STRING,Imputation field for ISPFEE11 - Other first-professional: In-state required fees,,no,,,no,,xispfe11
+ispfee11,STRING,Other first-professional: In-state required fees,,no,,,no,,ispfee11
+xospro11,STRING,Imputation field for OSPROF11 - Other first-professional: Out-of-state tuition,,no,,,no,,xospro11
+osprof11,STRING,Other first-professional: Out-of-state tuition,,no,,,no,,osprof11
+xospfe11,STRING,Imputation field for OSPFEE11 - Other first-professional: Out-of-state required fees,,no,,,no,,xospfe11
+ospfee11,STRING,Other first-professional: Out-of-state required fees,,no,,,no,,ospfee11
+cindon,STRING,Total price for in-district students living on campus  2005-06,,no,,,no,,cindon
+cindoff,FLOAT64,Total price for in-district students living off campus (not with family)  2005-06,,no,,,no,,cindoff
+cindfam,FLOAT64,Total price for in-district students living off campus (with family)  2005-06,,no,,,no,,cindfam
+cinson,STRING,Total price for in-state students living on campus 2005-06,,no,,,no,,cinson
+cinsoff,FLOAT64,Total price for in-state students living off campus (not with family)  2005-06,,no,,,no,,cinsoff
+cinsfam,FLOAT64,Total price for in-state students living off campus (with family)  2005-06,,no,,,no,,cinsfam
+cotson,STRING,Total price for out-of-state students living on campus 2005-06,,no,,,no,,cotson
+cotsoff,FLOAT64,Total price for out-of-state students living off campus (not with family)  2005-06,,no,,,no,,cotsoff
+cotsfam,FLOAT64,Total price for out-of-state students living off campus (with family)  2005-06,,no,,,no,,cotsfam

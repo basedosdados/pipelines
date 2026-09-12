@@ -1,0 +1,12 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano de início do período de referência da declaração,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Coluna de particionamento, derivada da data de início do período de referência da declaração.",
+return_id,STRING,Identificador da declaração no portal que a publica,,no,,,no,"Esta tabela cobre a declaração, não as doações individuais. O detalhe por doação existe apenas dentro dos PDF anexados a cada declaração e não é extraído aqui.",ID
+portal,STRING,Portal da ECSA que publica a declaração,,yes,,,no,"Assume os valores funding2024, o portal em vigor a partir de 2023, e fdarchive, o arquivo dos períodos de 2018 a 2023. Os dois publicam colunas diferentes: só o portal em vigor traz a entidade beneficiária.",
+return_type,STRING,Tipo da declaração apresentada,,no,,,no,"A Austrália Meridional proibiu doações políticas a partir de 1º de julho de 2025, o que muda quais declarações passam a existir a partir dessa data.",RETURN TYPE
+date_lodged,DATE,Data em que a declaração foi apresentada,,no,,,no,,DATE LODGED
+submitter_name,STRING,Nome de quem apresentou a declaração,,no,,,no,,SUBMITTER
+return_for_name,STRING,Nome da entidade à qual a declaração se refere,,no,,,no,,FOR
+recipient_name,STRING,Nome da entidade beneficiária declarada,,no,,,no,,RECIPIENT
+period_start_date,DATE,Data inicial do período de referência da declaração,,no,,,no,,FROM
+period_end_date,DATE,Data final do período de referência da declaração,,no,,,no,,TO
+declared_value,FLOAT64,"Valor agregado declarado, em dólares australianos",,no,,AUD,no,"Valor agregado da declaração tal como publicado no índice. Não é a soma verificada das doações, que só constam do PDF anexo.",VALUE

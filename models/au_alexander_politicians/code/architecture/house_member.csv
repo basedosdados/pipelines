@@ -1,0 +1,11 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_politician,STRING,Identificador único do político,,no,,,no,,uniqueID
+id_state,STRING,Código do estado ou território da divisão eleitoral,,no,br_bd_diretorios_au.state:id_state,,no,"Derivado da sigla do estado da fonte (NSW, VIC, QLD, SA, WA, TAS, NT, ACT)",stateOfDivision
+abbreviation_state,STRING,Sigla do estado ou território da divisão eleitoral,,no,,,no,,stateOfDivision
+division,STRING,Nome da divisão eleitoral (assento) da Câmara dos Representantes,,no,,,no,"Sem chave estrangeira formal: inclui divisões históricas, extintas ou renomeadas, ausentes dos recortes 2016/2021 do diretório commonwealth_electoral_division",division
+date_start,DATE,Data de início do mandato na divisão,,no,,,no,,mpFrom
+date_end,DATE,Data de término do mandato na divisão,,no,,,no,,mpTo
+end_reason,STRING,Motivo do término do mandato na divisão,,no,,,no,"Rótulos livres da fonte, com pequenas inconsistências de grafia",mpEndReason
+indicator_entered_at_by_election,BOOLEAN,Indica se o político assumiu a divisão em uma eleição suplementar (by-election),,no,,,no,"Valores originais inconsistentes (1, Yes, No) normalizados para valores booleanos",enteredAtByElection
+indicator_changed_seat,BOOLEAN,"Indica se o político deixou a divisão por mudança de assento, e não por derrota ou aposentadoria",,no,,,no,"Na fonte, apenas o valor 1 aparece; ausência foi preenchida como false",mpChangedSeat
+comments,STRING,Comentários sobre o mandato na Câmara dos Representantes,,no,,,no,,mpComments

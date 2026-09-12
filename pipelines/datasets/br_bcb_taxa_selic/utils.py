@@ -59,6 +59,7 @@ def get_selic_data() -> pd.DataFrame:
             tm.sleep(3)
 
     # Extract the currency data from the JSON response
+    # pyrefly: ignore [unbound-name]
     data = json_response
 
     # Convert the data into a DataFrame
@@ -88,7 +89,9 @@ def treat_selic_df(df: pd.DataFrame, table_id: str) -> pd.DataFrame:
 
 
 def treat_market_expectations_df(
-    df: pd.DataFrame, table_id: str
+    df: pd.DataFrame,
+    table_id: str,
+    # pyrefly: ignore [bad-return]
 ) -> pd.DataFrame:
     """
     Performs data treatment on a market expectations DataFrame.
@@ -114,8 +117,11 @@ def treat_market_expectations_df(
         url_architecture=taxa_selic_constants.ARCHITECTURE_URL.value[
             "expectativa_mercado_mensal"
         ],
+        # pyrefly: ignore [unexpected-keyword]
         rename_columns=True,
+        # pyrefly: ignore [unexpected-keyword]
         set_order=True,
+        # pyrefly: ignore [unexpected-keyword]
         adjust_data_types=False,
     )
 
@@ -136,6 +142,7 @@ def save_input(df: pd.DataFrame, table_id: str) -> str:
     # Define the folder path for storing the file
     folder = f"tmp/{table_id}/input/"
     # Create the folder if it doesn't exist
+    # pyrefly: ignore [deprecated]
     os.system(f"mkdir -p {folder}")
     # Define the full file path for the CSV file
     full_filepath = f"{folder}/{table_id}.csv"
@@ -161,6 +168,7 @@ def save_output(df: pd.DataFrame, table_id: str) -> str:
     # Define the folder path for storing the file
     folder = f"tmp/{table_id}/output/"
     # Create the folder if it doesn't exist
+    # pyrefly: ignore [deprecated]
     os.system(f"mkdir -p {folder}")
     # Define the full file path for the CSV file
     full_filepath = f"{folder}/{table_id}.csv"
@@ -197,6 +205,7 @@ def download_and_unzip(url, path):
         list: unziped files in a given folder
     """
 
+    # pyrefly: ignore [deprecated]
     os.system(f"mkdir -p {path}")
 
     http_response = urlopen(url)

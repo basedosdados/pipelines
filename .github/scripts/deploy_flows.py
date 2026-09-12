@@ -99,6 +99,7 @@ def deploy_flow(
             schedules=schedules,
             job_variables=job_variables,
             build=False,
+            paused=True,  # schedules activated by backend sync (prod) or manually (dev)
         )
         status = (
             "(sem schedule)"

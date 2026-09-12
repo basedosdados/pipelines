@@ -112,6 +112,7 @@ def has_new_tweets(bearer_token: str, table_id: str) -> bool:
             df = pd.read_csv(url_data, dtype={"id": str})
             dfs.append(df)
 
+        # pyrefly: ignore [not-callable]
         df = dfs[0].append(dfs[1:])
         ids = df.id.to_list()
         df1 = df1[~df1["id"].isin(ids)]
@@ -163,6 +164,7 @@ def crawler_metricas(
                     {id_field: json_response["data"]["non_public_metrics"]}
                 )
             except KeyError:
+                # pyrefly: ignore [unbound-name]
                 log(json_response["errors"])
         else:
             temp_dict.update(
@@ -196,8 +198,10 @@ def crawler_metricas(
         json_response = r.json()
         result = json_response["data"]["public_metrics"]
     except KeyError:
+        # pyrefly: ignore [unbound-name]
         log(json_response["errors"])
 
+    # pyrefly: ignore [unbound-name]
     df["following_count"] = result["following_count"]
     df["followers_count"] = result["followers_count"]
     df["tweet_count"] = result["tweet_count"]
@@ -228,6 +232,7 @@ def crawler_metricas(
     full_filepath = f"/tmp/data/{table_id}/upload_ts={int(datetime.now().timestamp())!s}/{table_id}.csv"
     folder = full_filepath.replace(table_id + ".csv", "")
     log(folder)
+    # pyrefly: ignore [deprecated]
     os.system(f"mkdir -p {folder}")
     df.to_csv(full_filepath, index=False)
 
@@ -248,12 +253,14 @@ def crawler_real_time(
     ga4 = GA4RealTimeReport(property_id)
     response = ga4.query_report(lst_dimension, lst_metric, 100, True)
 
+    # pyrefly: ignore [bad-argument-type]
     df = pd.DataFrame(response["rows"], columns=response["headers"])
 
     now = datetime.now().strftime("%Y-%m-%d")
 
     filepath = f"/tmp/data/date={now}/pageviews.csv"
     partition_path = filepath.replace("pageviews.csv", "")
+    # pyrefly: ignore [deprecated]
     os.system(f"mkdir -p {partition_path}")
 
     df.to_csv(filepath, index=False)
@@ -324,6 +331,7 @@ def crawler_report_ga(view_id: str, metrics: list | None = None) -> str:
 
     filepath = f"/tmp/data/reference_date={now}/users.csv"
     partition_path = filepath.replace("users.csv", "")
+    # pyrefly: ignore [deprecated]
     os.system(f"mkdir -p {partition_path}")
 
     df.to_csv(filepath, index=False)
@@ -341,7 +349,9 @@ def get_data_from_sheet(
     """Get the data from a Google Sheet, and return a DataFrame."""
     google_sheet = create_google_sheet_url(sheet_id, sheet_name)
     if isinstance(usecols, int):
+        # pyrefly: ignore [bad-assignment]
         usecols = list(range(usecols))
+    # pyrefly: ignore [no-matching-overload]
     dff = pd.read_csv(google_sheet, usecols=usecols)
     if "valor" in dff.columns and dff["valor"].dtype == "object":
         dff["valor"] = dff["valor"].str.replace(",", ".")

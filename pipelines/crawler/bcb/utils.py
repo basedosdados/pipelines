@@ -209,7 +209,10 @@ def create_folder_structure(id_tabela: str) -> Path:
 
 
 def create_tables(
-    data: pd.DataFrame, id_tabela: str, download_dir: Path
+    data: pd.DataFrame,
+    id_tabela: str,
+    download_dir: Path,
+    # pyrefly: ignore [bad-return]
 ) -> str:
     """
     Downloads, transforms, and saves tables in Parquet format.
@@ -225,6 +228,7 @@ def create_tables(
     """
     config = Constants.sicor_to_bd_table_names.value.get(id_tabela)
 
+    # pyrefly: ignore [unsupported-operation]
     renames = config["table_schema"]
 
     colunas_originais = list(renames.keys())
@@ -297,6 +301,7 @@ def create_tables(
         log(f"Parquet saved successfully to: {filename}")
 
 
+# pyrefly: ignore [bad-return]
 def create_empreendimento(id_tabela: str, download_dir: Path) -> str:
     """
     Downloads, transforms, and saves the empreendimento table in CSV format.
@@ -311,6 +316,7 @@ def create_empreendimento(id_tabela: str, download_dir: Path) -> str:
     link = "https://www.bcb.gov.br/htms/sicor/Empreendimento.csv"
     config = Constants.sicor_to_bd_table_names.value.get(id_tabela)
 
+    # pyrefly: ignore [unsupported-operation]
     renames = config["table_schema"]
 
     colunas_originais = list(renames.keys())
@@ -406,6 +412,7 @@ def create_dictionary() -> str:
             # SICOR CSVs use latin-1 encoding and ; or , as sep
             # Some CSVs with sep="," have the entire line in quotes, which breaks pandas parsing.
             # The solution found was to download with requests and fix the problematic lines before passing to pandas. More verbose but it works :)
+            # pyrefly: ignore [bad-argument-type]
             response = requests.get(url, headers=headers)
             content = response.content.decode("latin-1")
 
@@ -416,23 +423,32 @@ def create_dictionary() -> str:
                 if (
                     line.startswith('"')
                     and line.endswith('"')
-                    and (sep + '""') in line
+                    and (sep + '""') in line  # pyrefly: ignore [unsupported-operation]
                 ):
                     line = line[1:-1].replace('""', '"')
                 fixed_lines.append(line)
 
             fixed_content = "\n".join(fixed_lines)
 
+            # pyrefly: ignore [no-matching-overload]
             df = pd.read_csv(
                 StringIO(fixed_content),
                 sep=sep,
                 dtype=str,
             )
             chave_src_col = next(
-                k for k, v in colunas_map.items() if v == "chave"
+                # pyrefly: ignore [missing-attribute]
+                k
+                # pyrefly: ignore [missing-attribute]
+                for k, v in colunas_map.items()
+                if v == "chave"
             )
             valor_src_col = next(
-                k for k, v in colunas_map.items() if v == "valor"
+                # pyrefly: ignore [missing-attribute]
+                k
+                # pyrefly: ignore [missing-attribute]
+                for k, v in colunas_map.items()
+                if v == "valor"
             )
 
             temp_df = pd.DataFrame()

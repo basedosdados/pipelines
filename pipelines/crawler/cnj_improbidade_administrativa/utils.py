@@ -205,6 +205,7 @@ def parse_table_relevant_data(tree) -> dict[str, list[str]]:
         else:
             hash_map[label_lhs] = [label_rhs]
 
+    # pyrefly: ignore [bad-return]
     return hash_map
 
 

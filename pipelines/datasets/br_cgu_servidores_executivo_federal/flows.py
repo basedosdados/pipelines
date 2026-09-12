@@ -1,5 +1,20 @@
 """
 Flows para br_cgu_servidores_executivo_federal — Prefect 3.
+
+Cada flow corresponde a uma tabela do conjunto e combina um ou mais
+pacotes/subsistemas do Portal da Transparência (SIAPE, BACEN, Militares,
+DEFESA, Reserva/Reforma).
+
+Disponibilidade tudo-ou-nada: o Portal publica os subsistemas em datas
+escalonadas dentro do mês. O gate ``verify_all_url_exists_to_download`` exige
+que todos os subsistemas da tabela estejam disponíveis antes de baixar; se
+algum ainda não foi publicado, o flow encerra sem persistir e tenta novamente
+no próximo run. Assim, um mês só é ingerido quando está completo.
+
+Dependência de User-Agent: requisições sem User-Agent de browser são
+bloqueadas pelo Portal com HTTP 405. Por isso as chamadas usam
+``source_url_is_available``, que envia o UA e ainda trata o HTTP 202 (retornado
+enquanto o ZIP é gerado de forma assíncrona).
 """
 
 from prefect import flow
@@ -17,7 +32,6 @@ def _flow_factory(table_id: str, cron: str):
         table_id: str = table_id,
         relative_month: int = 1,
         materialize_after_dump: bool = True,
-        dbt_alias: bool = True,
         update_metadata: bool = True,
         target: str = "prod",
         force_run: bool = False,
@@ -27,12 +41,12 @@ def _flow_factory(table_id: str, cron: str):
             table_id=table_id,
             relative_month=relative_month,
             materialize_after_dump=materialize_after_dump,
-            dbt_alias=dbt_alias,
             update_metadata=update_metadata,
             target=target,
             force_run=force_run,
         )
 
+    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
 

@@ -1,3 +1,6 @@
+-- Dicionario: microdados sem de-para chave/valor (colunas em texto no cleaning.py).
+-- Staging atualizado via update_dicionario.py; mantidas entradas de
+-- municipio_causa_idade_sexo_raca.
 {{ config(alias="dicionario", schema="br_ms_sim") }}
 
 select
