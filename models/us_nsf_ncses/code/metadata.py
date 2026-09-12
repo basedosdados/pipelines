@@ -18,6 +18,7 @@ Run with the shared venv, which has fastmcp and requests:
 from __future__ import annotations
 
 import csv
+import datetime
 import json
 import sys
 from pathlib import Path
@@ -33,12 +34,16 @@ sys.path.insert(
     ),
 )
 
+import server
+
 CODE_DIR = Path(__file__).resolve().parent
 ARCH_DIR = CODE_DIR / "architecture"
 
 DATASET_ID = "60aaf560-d82a-42b9-bf86-155d18b8c5bf"
 DATASET_SLUG = "ncses"
 GCP_DATASET = "us_nsf_ncses"
+ORGANIZATION_ID = "72c64ec6-4504-4352-ac6e-e1493601b417"
+TODAY = f"{datetime.date.today().isoformat()}T00:00:00+00:00"
 
 NAME_PT = "Estatísticas de Ciência e Engenharia do NCSES (HERD e SED)"
 NAME_EN = "NCSES Science and Engineering Statistics (HERD and SED)"
@@ -120,6 +125,21 @@ REFS = {
     "entity_document": "1d5e94c7-65e7-405b-b788-4d5975eddde9",
     "license_ppdl": "8ab5a987-34e6-4f37-86a1-13e97ca498e3",
     "availability_online": "dd396d7d-0264-4c1f-bf0d-6efe2dc89cbe",
+}
+
+# Per-table auxiliary file bundle, written by auxiliary_files.py. The bucket is
+# requester-pays, so an anonymous fetch of these URLs returns HTTP 400 — true of
+# every production table using the field, not of this dataset in particular.
+AUXILIARY_BASE = "https://storage.googleapis.com/basedosdados-dev/auxiliary_files/us_nsf_ncses"
+
+# Partition column per table; dicionario has none.
+PARTITIONS = {
+    "herd_institution": "year",
+    "herd_expenditure": "year",
+    "herd_personnel": "year",
+    "herd_survey_item": "year",
+    "sed_data_table": "reference_year",
+    "sed_estimate": "reference_year",
 }
 
 HERD_LEVELS = ("year", "institution")
@@ -398,29 +418,251 @@ def architecture(table: str) -> list[dict]:
 
 
 def columns_payload(table: str) -> str:
-    """Build the bulk_upsert_columns payload from the architecture CSV."""
+    """Build the bulk_upsert_columns payload from the architecture CSV.
+
+    Every description and every observation goes in all three languages:
+    bulk_upsert_columns writes a bare ``description`` or ``observations`` key as
+    Portuguese only, which is how thousands of production columns ended up
+    single-language.
+    """
     payload = []
-    for i, row in enumerate(architecture(table)):
+    for row in architecture(table):
         entry = {
             "name": row["name"],
-            "bigquery_type": row["bigquery_type"].lower(),
-            "description": row["description"],
+            "bigquery_type": row["bigquery_type"],
+            "description_pt": row["description"],
             "description_en": row["description_en"],
             "description_es": row["description_es"],
-            "covered_by_dictionary": row["covered_by_dictionary"] == "yes",
-            "has_sensitive_data": row["has_sensitive_data"] == "yes",
-            "is_partition": row["name"] in {"year", "reference_year"}
-            and i == 0,
-            "order": i,
+            "covered_by_dictionary": row["covered_by_dictionary"],
+            "has_sensitive_data": row["has_sensitive_data"],
         }
-        if row["directory_column"]:
-            entry["directory_column"] = row["directory_column"]
-        if row["measurement_unit"]:
-            entry["measurement_unit"] = row["measurement_unit"]
+        for key in (
+            "directory_column",
+            "measurement_unit",
+            "temporal_coverage",
+        ):
+            if row[key]:
+                entry[key] = row[key]
         if row["observations"]:
-            entry["observations"] = row["observations"]
+            entry["observations_pt"] = row["observations"]
+            entry["observations_en"] = row["observations_en"]
+            entry["observations_es"] = row["observations_es"]
         payload.append(entry)
     return json.dumps(payload, ensure_ascii=False)
+
+
+def resolve_tags(env: str) -> list[str]:
+    """Resolve the dataset's tags, whose slugs differ between environments.
+
+    Staging spells them in Portuguese and production in English while the ids
+    match, so each candidate is tried under both spellings and the ones that
+    do not exist are reported rather than created.
+    """
+    candidates = [
+        ("doutorado", "doctorate"),
+        ("pesquisa", "research"),
+        ("renda", "income"),
+        ("salario", "salary"),
+        ("trabalho", "labor"),
+        ("universidade", "university"),
+        ("ciencia", "science"),
+        ("financiamento", "funding"),
+    ]
+    ids, missing = [], []
+    for pt, en in candidates:
+        for slug in (pt, en):
+            try:
+                found = server.lookup_id(category="tag", slug=slug, env=env)
+            except Exception:
+                continue
+            if found.get("id"):
+                ids.append(found["id"])
+                break
+        else:
+            missing.append(f"{pt}/{en}")
+    if missing:
+        print(f"  tags not present on {env}, skipped: {', '.join(missing)}")
+    return sorted(set(ids))
+
+
+def register(env: str) -> dict:
+    """Register the dataset, its raw sources and its seven tables."""
+    account = server.get_authenticated_account(env=env)
+    account_id = account["id"]
+    area_us = server.lookup_id(category="area", slug="us", env=env)["id"]
+
+    dataset = server.create_update_dataset(
+        id=DATASET_ID,
+        slug=DATASET_SLUG,
+        name_pt=NAME_PT,
+        name_en=NAME_EN,
+        name_es=NAME_ES,
+        description_pt=DESCRIPTION_PT,
+        description_en=DESCRIPTION_EN,
+        description_es=DESCRIPTION_ES,
+        organization_ids=[ORGANIZATION_ID],
+        theme_ids=[
+            REFS["theme_science"],
+            REFS["theme_education"],
+            REFS["theme_economics"],
+        ],
+        tag_ids=resolve_tags(env),
+        status_id=REFS["status_under_review"],
+        env=env,
+    )
+    print(f"dataset {DATASET_SLUG}: {dataset}")
+
+    # Raw sources are matched on URL so a re-run updates rather than appends.
+    by_url = {
+        existing_source["url"]: existing_source["id"]
+        for existing_source in server.get_raw_data_sources(
+            dataset_slug=DATASET_SLUG, env=env
+        )
+    }
+    source_ids: dict[str, list[str]] = {}
+    for source in RAW_SOURCES:
+        created = server.create_update_raw_data_source(
+            dataset_id=DATASET_ID,
+            name_pt=source["name_pt"],
+            name_en=source["name_en"],
+            name_es=source["name_es"],
+            url=source["url"],
+            license_id=REFS["license_ppdl"],
+            availability_id=REFS["availability_online"],
+            has_structured_data=True,
+            is_free=True,
+            requires_registration=False,
+            id=by_url.get(source["url"]),
+            env=env,
+        )
+        print(f"raw source {source['name_en']}: {created}")
+        for table in source["tables"]:
+            source_ids.setdefault(table, []).append(created["id"])
+
+    existing = server.get_dataset(slug=DATASET_SLUG, env=env).get("tables", {})
+    report = {}
+    for spec in TABLES:
+        slug = spec["slug"]
+        prior = existing.get(slug, {})
+        table = server.create_update_table(
+            id=prior.get("id"),
+            slug=slug,
+            name_pt=spec["name_pt"],
+            name_en=spec["name_en"],
+            name_es=spec["name_es"],
+            description_pt=spec["description_pt"],
+            description_en=spec["description_en"],
+            description_es=spec["description_es"],
+            dataset_id=DATASET_ID,
+            status_id=REFS["status_published"],
+            published_by_ids=[account_id],
+            data_cleaned_by_ids=[account_id],
+            raw_data_source_ids=source_ids.get(slug, []),
+            auxiliary_files_url=(
+                ""
+                if slug == "dicionario"
+                else f"{AUXILIARY_BASE}/{slug}/auxiliary_files.zip"
+            ),
+            env=env,
+        )
+        table_id = table["id"]
+
+        # create_update_* is not idempotent: called without an id it appends a
+        # second observation level, cloud table, coverage or update rather than
+        # replacing the first, so every existing record's id is reused.
+        prior_levels = {
+            level["entity_id"]: level["id"]
+            for level in prior.get("observation_levels", [])
+        }
+        levels = {}
+        for level in spec["levels"]:
+            entity_id = REFS[f"entity_{level}"]
+            created = server.create_update_observation_level(
+                id=prior_levels.get(entity_id),
+                table_id=table_id,
+                entity_id=entity_id,
+                env=env,
+            )
+            levels[level] = created["id"]
+
+        cloud_tables = prior.get("cloud_tables", [])
+        server.create_update_cloud_table(
+            id=cloud_tables[0]["id"] if cloud_tables else None,
+            table_id=table_id,
+            gcp_project_id=(
+                "basedosdados" if env == "prod" else "basedosdados-dev"
+            ),
+            gcp_dataset_id=GCP_DATASET,
+            gcp_table_id=slug,
+            env=env,
+        )
+
+        coverages = prior.get("coverages", [])
+        coverage = server.create_update_coverage(
+            id=coverages[0]["id"] if coverages else None,
+            table_id=table_id,
+            area_id=area_us,
+            env=env,
+        )
+        ranges = coverages[0].get("datetime_ranges", []) if coverages else []
+        server.create_update_datetime_range(
+            id=ranges[0]["id"] if ranges else None,
+            coverage_id=coverage["id"],
+            start_year=spec["start"],
+            end_year=spec["end"],
+            interval=1,
+            env=env,
+        )
+        updates = prior.get("updates", [])
+        server.create_update_update(
+            id=updates[0]["id"] if updates else None,
+            table_id=table_id,
+            entity_id=REFS["entity_year"],
+            frequency=1,
+            lag=1,
+            latest=TODAY,
+            env=env,
+        )
+
+        written = server.bulk_upsert_columns(
+            table_id=table_id,
+            columns_json=columns_payload(slug),
+            env=env,
+        )
+
+        # bulk_upsert_columns neither links a column to its observation level
+        # nor sets is_partition, and a bare update_column would clear the flag,
+        # so both are written together, per column, here.
+        by_name = {
+            c["name"]: c["id"]
+            for c in server.get_dataset(slug=DATASET_SLUG, env=env)["tables"][
+                slug
+            ]["columns"]
+        }
+        partition = PARTITIONS.get(slug, "")
+        wanted = dict(spec["level_columns"])
+        if partition and partition not in wanted.values():
+            wanted["__partition__"] = partition
+        for level, column in wanted.items():
+            if column not in by_name:
+                raise RuntimeError(f"{slug}: no column {column} to link")
+            server.update_column(
+                column_id=by_name[column],
+                column_name=column,
+                table_id=table_id,
+                observation_level_id=levels.get(level),
+                is_partition=column == partition,
+                env=env,
+            )
+        report[slug] = {"id": table_id, "columns": written}
+        print(f"table {slug}: {written}")
+
+    server.reorder_tables(
+        dataset_slug=DATASET_SLUG,
+        table_slugs=[t["slug"] for t in TABLES],
+        env=env,
+    )
+    return report
 
 
 def main() -> int:
@@ -428,7 +670,8 @@ def main() -> int:
     if env not in {"staging", "prod"}:
         raise SystemExit("env must be 'staging' or 'prod'")
     print(f"registering us_nsf_ncses metadata on {env}", flush=True)
-    print(json.dumps({"dataset": DATASET_ID, "tables": len(TABLES)}))
+    report = register(env)
+    print(json.dumps(report, indent=1, ensure_ascii=False))
     return 0
 
 

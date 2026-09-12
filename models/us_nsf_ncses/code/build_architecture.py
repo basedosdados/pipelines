@@ -30,7 +30,196 @@ HEADER = [
     "original_name",
     "description_en",
     "description_es",
+    "observations_en",
+    "observations_es",
 ]
+
+# Portuguese observation text -> (English, Spanish). Keyed on the Portuguese
+# so the 48 call sites below stay single-language and cannot drift out of
+# step with their translations.
+OBSERVATION_TRANSLATIONS = {
+    "Vários códigos mudaram de significado entre as duas eras da pesquisa, por isso cada entrada traz sua própria cobertura": (
+        "Several codes changed meaning between the two eras of the survey, so each entry carries its own coverage",
+        "Varios códigos cambiaron de significado entre las dos eras de la encuesta, por eso cada entrada trae su propia cobertura",
+    ),
+    "Coluna de partição. O ano fiscal varia por instituição; a Questão 17 do questionário registra o mês de encerramento, que não consta do arquivo de uso público": (
+        "Partition column. The fiscal year varies by institution; questionnaire item 17 records the month it ends, which the public use file does not carry",
+        "Columna de partición. El año fiscal varía por institución; el ítem 17 del cuestionario registra el mes de cierre, que no consta en el archivo de uso público",
+    ),
+    "Chamado 'fice' nos arquivos de 1972 a 2009 e 'inst_id' a partir de 2010; é o mesmo código nas duas eras": (
+        "Called 'fice' in the 1972 to 2009 files and 'inst_id' from 2010; it is the same code in both eras",
+        "Llamado 'fice' en los archivos de 1972 a 2009 e 'inst_id' desde 2010; es el mismo código en las dos eras",
+    ),
+    "Presente na fonte a partir do ano fiscal de 2010. Para 1972-2009 é transportado do mesmo institution_id observado em 2010 ou depois; instituições que deixaram a pesquisa antes de 2010 ficam nulas": (
+        "Present in the source from fiscal year 2010. For 1972-2009 it is carried back from the same institution_id observed in 2010 or later; institutions that left the survey before 2010 stay null",
+        "Presente en la fuente desde el año fiscal de 2010. Para 1972-2009 se traslada desde el mismo institution_id observado en 2010 o después; las instituciones que dejaron la encuesta antes de 2010 quedan nulas",
+    ),
+    "O formulário curto existe a partir do ano fiscal de 2012, para instituições com menos de US$ 1 milhão em P&D total": (
+        "The short form exists from fiscal year 2012, for institutions with less than $1 million in total R&D",
+        "El formulario corto existe desde el año fiscal de 2012, para instituciones con menos de 1 millón de dólares en I+D total",
+    ),
+    "Os códigos foram harmonizados pelo NCSES com o formato do ano fiscal de 2024 dentro de cada era. Itens com o prefixo 'NA_' não têm número no questionário": (
+        "NCSES harmonised the codes with the fiscal year 2024 format within each era. Items prefixed 'NA_' have no questionnaire number",
+        "El NCSES armonizó los códigos con el formato del año fiscal de 2024 dentro de cada era. Los ítems con el prefijo 'NA_' no tienen número en el cuestionario",
+    ),
+    "Necessário junto de question_code para identificar o item: de 1972 a 2009 o mesmo código cobre assuntos diferentes": (
+        "Needed alongside question_code to identify the item: from 1972 to 2009 the same code covers different subjects",
+        "Necesario junto a question_code para identificar el ítem: de 1972 a 2009 el mismo código cubre asuntos diferentes",
+    ),
+    "Conforme o item, identifica a fonte de recursos, o campo de pesquisa, o tipo de despesa ou a agência federal": (
+        "Depending on the item, it names the source of funds, the field of research, the type of cost or the federal agency",
+        "Según el ítem, identifica la fuente de recursos, el campo de investigación, el tipo de gasto o la agencia federal",
+    ),
+    "Conforme o item, identifica a agência federal, a origem federal ou não federal dos recursos ou a fonte não federal. Vazio nos itens de uma única coluna": (
+        "Depending on the item, it names the federal agency, whether the funds are federal or nonfederal, or the nonfederal source. Empty on single-column items",
+        "Según el ítem, identifica la agencia federal, el origen federal o no federal de los recursos o la fuente no federal. Vacío en los ítems de una sola columna",
+    ),
+    "O NCSES publica os valores em milhares de dólares; aqui estão multiplicados por mil, de modo que a precisão de origem é o milhar. Valores em dólares correntes, sem deflacionamento": (
+        "NCSES publishes the values in thousands of dollars; here they are multiplied by a thousand, so the source precision is the thousand. Current dollars, not deflated",
+        "El NCSES publica los valores en miles de dólares; aquí están multiplicados por mil, de modo que la precisión de origen es el millar. Dólares corrientes, sin deflactar",
+    ),
+    "Vazio indica resposta normal. Os arquivos de 1972 a 2009 gravam o mesmo código em maiúsculas e minúsculas; aqui está padronizado em minúsculas": (
+        "Empty means a normal response. The 1972 to 2009 files write the same code in upper and lower case; here it is standardised to lower case",
+        "Vacío indica respuesta normal. Los archivos de 1972 a 2009 graban el mismo código en mayúsculas y minúsculas; aquí está estandarizado en minúsculas",
+    ),
+    "No item 10 traz o nome da agência federal informada pela instituição. Presente apenas a partir do ano fiscal de 2010. O campo de situação que a fonte publica ao lado deste (othinfo_s) está vazio em todos os anos, por isso não foi incluído": (
+        "On item 10 it carries the name of the federal agency the institution reported. Present only from fiscal year 2010. The status field the source publishes beside it (othinfo_s) is empty in every year, so it is not included",
+        "En el ítem 10 trae el nombre de la agencia federal informada por la institución. Presente solo desde el año fiscal de 2010. El campo de situación que la fuente publica junto a este (othinfo_s) está vacío en todos los años, por eso no se incluyó",
+    ),
+    "Presente apenas no formulário padrão a partir do ano fiscal de 2010": (
+        "Present only on the standard form from fiscal year 2010",
+        "Presente solo en el formulario estándar desde el año fiscal de 2010",
+    ),
+    "Presente apenas a partir do ano fiscal de 2010": (
+        "Present only from fiscal year 2010",
+        "Presente solo desde el año fiscal de 2010",
+    ),
+    "Presente apenas de 1972 a 2009. O valor de origem '000000', que significa 'não combinar', é gravado como nulo": (
+        "Present only from 1972 to 2009. The source value '000000', which means \"do not combine\", is written as null",
+        "Presente solo de 1972 a 2009. El valor de origen '000000', que significa \"no combinar\", se graba como nulo",
+    ),
+    "Sem vínculo de diretório: br_bd_diretorios_us.state é chaveado no código FIPS (id_state), não na sigla. A checagem referencial é feita por teste dbt contra a coluna abbreviation. O marcador de origem '??', que indica agregação de instituições, é nulo aqui": (
+        "No directory link: br_bd_diretorios_us.state is keyed on the FIPS code (id_state), not on the abbreviation. The referential check runs as a dbt test against the abbreviation column instead. The source marker '??', which flags an aggregation of institutions, is null here",
+        "Sin vínculo de directorio: br_bd_diretorios_us.state está clavado en el código FIPS (id_state), no en la sigla. La comprobación referencial se hace con una prueba dbt contra la columna abbreviation. El marcador de origen '??', que indica agregación de instituciones, es nulo aquí",
+    ),
+    "O marcador de origem '?????', que indica agregação de instituições, é nulo aqui": (
+        "The source marker '?????', which flags an aggregation of institutions, is null here",
+        "El marcador de origen '?????', que indica agregación de instituciones, es nulo aquí",
+    ),
+    "O conjunto de códigos muda entre 1972-2009 e 2010-2024": (
+        "The code set changes between 1972-2009 and 2010-2024",
+        "El conjunto de códigos cambia entre 1972-2009 y 2010-2024",
+    ),
+    "Os códigos de 1972-2009 referem-se ao grau mais alto em ciência e engenharia e não são comparáveis aos de 2010-2024": (
+        "The 1972-2009 codes describe the highest science and engineering degree and are not comparable with the 2010-2024 ones",
+        "Los códigos de 1972-2009 se refieren al grado más alto en ciencia e ingeniería y no son comparables con los de 2010-2024",
+    ),
+    "Presente apenas nos arquivos de 1972 a 2009": (
+        "Present only in the 1972 to 2009 files",
+        "Presente solo en los archivos de 1972 a 2009",
+    ),
+    "De 2010 a 2019 distingue pesquisadores principais e demais integrantes; de 2010 a 2015 há também a contagem de pós-doutorandos": (
+        "From 2010 to 2019 it separates principal investigators from other personnel; from 2010 to 2015 it also carries the postdoc count",
+        "De 2010 a 2019 distingue investigadores principales y demás integrantes; de 2010 a 2015 también trae el conteo de posdoctorandos",
+    ),
+    "Preenchido a partir do ano fiscal de 2022": (
+        "Populated from fiscal year 2022",
+        "Completado desde el año fiscal de 2022",
+    ),
+    "Os arquivos de uso público não trazem contagem de pessoal para os anos fiscais de 2020 e 2021": (
+        "The public use files carry no personnel count for fiscal years 2020 and 2021",
+        "Los archivos de uso público no traen conteo de personal para los años fiscales de 2020 y 2021",
+    ),
+    "Coletado a partir do ano fiscal de 2022": (
+        "Collected from fiscal year 2022",
+        "Recolectado desde el año fiscal de 2022",
+    ),
+    "O item 01.1 registra a composição dos recursos próprios da instituição, o item 05.1 a inclusão de ensaios clínicos no relatório do ano fiscal de 2009 e o item 13 os limites de capitalização": (
+        "Item 01.1 records what the institution counted as its own funds, item 05.1 whether clinical trials were included in the fiscal year 2009 report, and item 13 the capitalization thresholds",
+        "El ítem 01.1 registra la composición de los recursos propios de la institución, el ítem 05.1 la inclusión de ensayos clínicos en el informe del año fiscal de 2009 y el ítem 13 los límites de capitalización",
+    ),
+    "No ano fiscal de 2012 o item 01.1 foi respondido também para o ano fiscal de 2011, registrado nesta coluna": (
+        "In fiscal year 2012 item 01.1 was answered for fiscal year 2011 as well, recorded in this column",
+        "En el año fiscal de 2012 el ítem 01.1 se respondió también para el año fiscal de 2011, registrado en esta columna",
+    ),
+    "Nulo nos itens cuja resposta é um valor monetário": (
+        "Null on the items whose answer is a monetary value",
+        "Nulo en los ítems cuya respuesta es un valor monetario",
+    ),
+    "Preenchido apenas no item 13, que registra os limites de capitalização de equipamentos e de software. O NCSES publica o valor em milhares de dólares; aqui está multiplicado por mil": (
+        "Populated only on item 13, which records the capitalization thresholds for equipment and software. NCSES publishes the value in thousands of dollars; here it is multiplied by a thousand",
+        "Completado solo en el ítem 13, que registra los límites de capitalización de equipos y de software. El NCSES publica el valor en miles de dólares; aquí está multiplicado por mil",
+    ),
+    "No item 01.1 traz o motivo de determinados tipos de recurso não terem sido incluídos. O campo de situação que a fonte publica ao lado deste item está vazio em todos os anos, por isso não foi incluído": (
+        "On item 01.1 it carries why particular kinds of funds were left out. The status field the source publishes beside this item is empty in every year, so it is not included",
+        "En el ítem 01.1 trae el motivo por el que ciertos tipos de recursos no se incluyeron. El campo de situación que la fuente publica junto a este ítem está vacío en todos los años, por eso no se incluyó",
+    ),
+    "Coluna de partição. Cada ciclo republica a própria série histórica, então um ciclo é uma safra fechada: para os números correntes, filtre pelo maior reference_year em vez de somar entre ciclos": (
+        "Partition column. Each cycle republishes its own history, so a cycle is a closed vintage: for the current numbers, filter to the largest reference_year rather than summing across cycles",
+        "Columna de partición. Cada ciclo republica su propia serie histórica, así que un ciclo es una cosecha cerrada: para los números corrientes, filtre por el mayor reference_year en vez de sumar entre ciclos",
+    ),
+    "Por exemplo, '1-5' para a Tabela 1-5": (
+        "For example, '1-5' for Table 1-5",
+        "Por ejemplo, '1-5' para la Tabla 1-5",
+    ),
+    "Os grupos reúnem tendências, compromissos após a titulação, características do campo e demográficas, apoio financeiro e dívida, histórico educacional, salários, instituições, perfis estatísticos e planos após a titulação": (
+        "The groups gather trends, postgraduation commitments, field and demographic characteristics, financial support and debt, educational background, salaries, institutions, statistical profiles and postgraduation plans",
+        "Los grupos reúnen tendencias, compromisos tras la titulación, características del campo y demográficas, apoyo financiero y deuda, historial educativo, salarios, instituciones, perfiles estadísticos y planes tras la titulación",
+    ),
+    "Texto literal da fonte, como 'Number and percent'. A unidade resolvida por célula está na coluna unit de sed_estimate": (
+        "Verbatim text from the source, such as 'Number and percent'. The unit resolved per cell is in sed_estimate's unit column",
+        "Texto literal de la fuente, como 'Number and percent'. La unidad resuelta por celda está en la columna unit de sed_estimate",
+    ),
+    "Por exemplo, 'nsf25349' para o ciclo de 2024": (
+        "For example, 'nsf25349' for the 2024 cycle",
+        "Por ejemplo, 'nsf25349' para el ciclo de 2024",
+    ),
+    "Igual ao número de linhas de sed_estimate para a tabela": (
+        "Equal to the number of sed_estimate rows for the table",
+        "Igual al número de filas de sed_estimate para la tabla",
+    ),
+    "Lido do eixo temporal da tabela, esteja ele nas linhas ou nas colunas. Nas tabelas sem eixo temporal é igual a reference_year. O ano acadêmico de 2024 vai de 1 de julho de 2023 a 30 de junho de 2024": (
+        "Read from the table's time axis, whether that runs down the rows or across the columns. On a table with no time axis it equals reference_year. Academic year 2024 runs from 1 July 2023 to 30 June 2024",
+        "Leído del eje temporal de la tabla, esté en las filas o en las columnas. En las tablas sin eje temporal es igual a reference_year. El año académico de 2024 va del 1 de julio de 2023 al 30 de junio de 2024",
+    ),
+    "Posição, não uma quantidade: ordenar exige safe_cast(row_number as int64). Junto de table_id e column_number identifica a célula de forma única, o que os rótulos nem sempre fazem — a tabela 5-3 recua duas seções diferentes no mesmo nível e produz dois row_path iguais": (
+        "A position, not a quantity: ordering needs safe_cast(row_number as int64). With table_id and column_number it identifies the cell uniquely, which the labels do not always do — table 5-3 indents two different sections at the same level and so publishes two identical row_path values",
+        "Una posición, no una cantidad: ordenar exige safe_cast(row_number as int64). Junto con table_id y column_number identifica la celda de forma única, lo que las etiquetas no siempre hacen — la tabla 5-3 sangra dos secciones diferentes al mismo nivel y produce dos row_path iguales",
+    ),
+    "Posição, não uma quantidade: ordenar exige safe_cast(column_number as int64)": (
+        "A position, not a quantity: ordering needs safe_cast(column_number as int64)",
+        "Una posición, no una cantidad: ordenar exige safe_cast(column_number as int64)",
+    ),
+    "Marcadores de nota de rodapé, gravados como sobrescrito na planilha, foram removidos": (
+        "Footnote markers, written as superscript in the worksheet, have been removed",
+        "Los marcadores de nota al pie, grabados como superíndice en la hoja, fueron eliminados",
+    ),
+    "Níveis separados por ' > '. Reconstruído a partir do recuo da célula na planilha, que é como o NCSES marca a hierarquia de campos e características": (
+        "Levels separated by ' > '. Reconstructed from the cell's indentation in the worksheet, which is how NCSES marks the hierarchy of fields and characteristics",
+        "Niveles separados por ' > '. Reconstruido a partir de la sangría de la celda en la hoja, que es como el NCSES marca la jerarquía de campos y características",
+    ),
+    "Ordinal, não uma quantidade. Igual ao número de níveis em row_path menos um": (
+        "An ordinal, not a quantity. Equal to the number of levels in row_path minus one",
+        "Un ordinal, no una cantidad. Igual al número de niveles en row_path menos uno",
+    ),
+    "Último nível de column_path. Nulo quando o cabeçalho da coluna é apenas um ano, já registrado em year": (
+        "The last level of column_path. Null when the column header is only a year, already recorded in year",
+        "Último nivel de column_path. Nulo cuando el encabezado de la columna es solo un año, ya registrado en year",
+    ),
+    "Níveis separados por ' > '. O cabeçalho tem de uma a três linhas, reconstruídas a partir das células mescladas; algumas tabelas reescrevem os rótulos no meio do corpo, e essa reescrita entra como um nível adicional": (
+        "Levels separated by ' > '. The header runs one to three rows, reconstructed from the merged cells; some tables restate the labels part way down the body, and that restatement enters as a further level",
+        "Niveles separados por ' > '. El encabezado tiene de una a tres filas, reconstruidas a partir de las celdas combinadas; algunas tablas reescriben las etiquetas en medio del cuerpo, y esa reescritura entra como un nivel adicional",
+    ),
+    "Resolvida por célula a partir do rótulo mais específico disponível: o da coluna, o do grupo de colunas, o da seção da linha e, por fim, a declaração de unidade da tabela": (
+        "Resolved per cell from the most specific label available: the column's, the column group's, the row section's and, last, the table's unit statement",
+        "Resuelta por celda a partir de la etiqueta más específica disponible: la de la columna, la del grupo de columnas, la de la sección de la fila y, por último, la declaración de unidad de la tabla",
+    ),
+    "A unidade varia por célula e está na coluna unit, por isso não há unidade de medida única para esta coluna. Contagens de pessoas, porcentagens, dólares correntes e medianas de anos convivem na mesma coluna. Células suprimidas ou não aplicáveis na fonte são nulas": (
+        "The unit varies by cell and is in the unit column, so there is no single measurement unit for this one. Counts of people, percentages, current dollars and medians of years live in the same column. Cells the source suppresses or marks not applicable are null",
+        "La unidad varía por celda y está en la columna unit, por eso no hay una unidad de medida única para esta columna. Conteos de personas, porcentajes, dólares corrientes y medianas de años conviven en la misma columna. Las celdas suprimidas o no aplicables en la fuente son nulas",
+    ),
+}
+
 
 YEAR_FK = "diretorios_data_tempo.ano:ano"
 INSTITUTION_FK = "diretorios_us.higher_education_institution:id_institution"
@@ -51,7 +240,14 @@ def col(
     observations="",
     original="",
 ):
-    """Assemble one architecture row."""
+    """Assemble one architecture row, translating its observations."""
+    if observations and observations not in OBSERVATION_TRANSLATIONS:
+        raise SystemExit(
+            f"{name}: no translation for observations {observations!r}"
+        )
+    observations_en, observations_es = (
+        OBSERVATION_TRANSLATIONS[observations] if observations else ("", "")
+    )
     return {
         "name": name,
         "bigquery_type": bq_type,
@@ -65,6 +261,8 @@ def col(
         "original_name": original,
         "description_en": en,
         "description_es": es,
+        "observations_en": observations_en,
+        "observations_es": observations_es,
     }
 
 
