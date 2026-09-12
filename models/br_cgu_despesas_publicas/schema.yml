@@ -172,3 +172,83 @@ models:
         description: Valor de restos a pagar cancelado no mês, em reais correntes
       - name: valor_restos_pagar_pagos
         description: Valor de restos a pagar efetivamente pago no mês, em reais correntes
+  - name: br_cgu_despesas_publicas__favorecido
+    description: >-
+      Recebimentos de recursos federais por favorecido, mês a mês: quanto cada
+      pessoa física, pessoa jurídica ou entidade recebeu de cada unidade gestora
+      do Governo Federal. Fonte: Portal da Transparência (CGU), um arquivo por mês
+      desde janeiro de 2014. ATENÇÃO: id_favorecido NÃO identifica unicamente uma
+      pessoa física. A fonte publica o CPF mascarado no formato ***.123.456-**, e
+      a máscara colide entre pessoas distintas: em 2025, 54,4% dos CPFs mascarados
+      (402.230 de 739.246) aparecem com mais de um nome, chegando a dez nomes no
+      mesmo código. Agregar pagamentos por id_favorecido soma pessoas diferentes.
+      Para CNPJ o código é confiável — apenas 2 de 261.146 aparecem com mais de um
+      nome. Some por nome_favorecido junto com id_favorecido, ou restrinja a CNPJ,
+      conforme o uso.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - id_favorecido
+            - nome_favorecido
+            - sigla_uf
+            - nome_municipio
+            - id_orgao_superior
+            - id_orgao
+            - id_unidade_gestora
+          config:
+            where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_month__
+    columns:
+      - name: ano
+        description: Ano do lançamento do recebimento
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês do lançamento do recebimento
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_favorecido
+        description: 'Código do favorecido: CNPJ para pessoa jurídica, CPF parcialmente
+          mascarado para pessoa física'
+      - name: nome_favorecido
+        description: Nome ou razão social do favorecido do pagamento
+      - name: sigla_uf
+        description: Sigla da unidade da federação do favorecido
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              config:
+                # 'EX' (exterior) and '-1' (sem informação) are documented
+                # source sentinels, not UFs — 0.59% of rows. Excluding them
+                # keeps the test meaningful for real UF codes instead of
+                # deleting it. The placeholder is string-substituted by
+                # custom_get_where_subquery, so it composes with a filter.
+                where: __most_recent_year_month__ and sigla_uf not in ('EX', '-1')
+      - name: nome_municipio
+        description: Nome do município do favorecido
+      - name: id_orgao_superior
+        description: Código do órgão superior pagador, em geral um ministério
+      - name: nome_orgao_superior
+        description: Nome do órgão superior pagador
+      - name: id_orgao
+        description: Código do órgão pagador
+      - name: nome_orgao
+        description: Nome do órgão pagador
+      - name: id_unidade_gestora
+        description: Código da unidade gestora que efetuou o pagamento
+      - name: nome_unidade_gestora
+        description: Nome da unidade gestora que efetuou o pagamento
+      - name: valor_recebido
+        description: Valor recebido pelo favorecido no mês, em reais correntes
