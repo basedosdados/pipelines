@@ -385,7 +385,9 @@ def main() -> None:
     for path in sorted(ARCH.glob("*.csv")):
         table = path.stem
         cols = []
-        for r in csv.DictReader(open(path, newline="")):
+        with open(path, newline="") as fh:
+            rows = list(csv.DictReader(fh))
+        for r in rows:
             desc = pick(table, r["name"], DESC)
             if desc is None:
                 missing.append(f"{table}.{r['name']} (description)")
