@@ -51,6 +51,8 @@ MAX_BLOCK_RETRIES = constants.MAX_BLOCK_RETRIES.value
 _TIMEOUT = 600
 # Hive partition keys; carried by the directory path, not by the parquet file.
 PARTITION_COLUMNS = ("ano", "mes")
+PRODUCTS = constants.PRODUCTS.value
+DEFAULT_TABLE = constants.TABLE_ID.value
 
 
 class SourceChallengedError(RuntimeError):
@@ -62,9 +64,9 @@ class SourceChallengedError(RuntimeError):
     """
 
 
-def read_architecture() -> list[dict]:
-    """Load the architecture CSV — column order, types and source mapping."""
-    path = constants.ARCHITECTURE_DIR.value / "execucao.csv"
+def read_architecture(table: str = DEFAULT_TABLE) -> list[dict]:
+    """Load a table's architecture CSV — column order, types, source mapping."""
+    path = constants.ARCHITECTURE_DIR.value / f"{table}.csv"
     with open(path, encoding="utf-8", newline="") as fh:
         arch = list(csv.DictReader(fh))
     if not arch:
@@ -87,8 +89,8 @@ def _session() -> requests.Session:
     return s
 
 
-def month_url(year: int, month: int) -> str:
-    return f"{BASE_URL}/{year}{month:02d}"
+def month_url(year: int, month: int, table: str = DEFAULT_TABLE) -> str:
+    return f"{PRODUCTS[table]['url']}/{year}{month:02d}"
 
 
 def _check_not_challenged(response: requests.Response, label: str) -> None:
@@ -127,7 +129,9 @@ def _parse_last_modified(response: requests.Response) -> datetime:
     )
 
 
-def probe_latest(session: requests.Session | None = None) -> str:
+def probe_latest(
+    session: requests.Session | None = None, table: str = DEFAULT_TABLE
+) -> str:
     """Return the current month's ``Last-Modified`` as ``YYYY-MM-DD``.
 
     Costs a single HEAD. Each month here carries its own timestamp — 2014-01 was
@@ -147,7 +151,7 @@ def probe_latest(session: requests.Session | None = None) -> str:
     candidates.append((prev // 12, prev % 12 + 1))
     for year, month in candidates:
         r = session.head(
-            month_url(year, month), allow_redirects=True, timeout=60
+            month_url(year, month, table), allow_redirects=True, timeout=60
         )
         _check_not_challenged(r, f"{year}-{month:02d}")
         if r.status_code == 200:
@@ -164,6 +168,7 @@ def download_month(
     input_dir: Path,
     session: requests.Session | None = None,
     skip_existing: bool = True,
+    table: str = DEFAULT_TABLE,
 ) -> Path | None:
     """Download one month's ZIP and extract its CSV into ``input_dir``.
 
@@ -181,7 +186,7 @@ def download_month(
     session = session or _session()
     input_dir.mkdir(parents=True, exist_ok=True)
     label = f"{year}-{month:02d}"
-    r = session.get(month_url(year, month), timeout=_TIMEOUT)
+    r = session.get(month_url(year, month, table), timeout=_TIMEOUT)
     _check_not_challenged(r, label)
     if r.status_code == 403:
         log.info("%s: not published (HTTP 403)", label)
@@ -204,6 +209,7 @@ def download_all(
     input_dir: Path,
     months: list[tuple[int, int]] | None = None,
     session: requests.Session | None = None,
+    table: str = DEFAULT_TABLE,
 ) -> list[tuple[int, int]]:
     """Download every published month, pacing to stay under the WAF rate rule.
 
@@ -242,7 +248,9 @@ def download_all(
                 time.sleep(REQUEST_DELAY)
 
         try:
-            path = download_month(year, month, input_dir, session=session)
+            path = download_month(
+                year, month, input_dir, session=session, table=table
+            )
         except SourceChallengedError as exc:
             blocked += 1
             if blocked > MAX_BLOCK_RETRIES:
@@ -295,11 +303,27 @@ def parse_number(value: str) -> str:
     return value.replace(".", "").replace(",", ".")
 
 
-def _check_header(label: str, header: list[str], arch: list[dict]) -> None:
-    """Fail loudly when the source layout drifts from the architecture."""
-    expected = [PERIOD_COLUMN] + [
+def expected_header(arch: list[dict], table: str = DEFAULT_TABLE) -> list[str]:
+    """The source header this table must have, in source order.
+
+    The architecture lists BD columns in BD order, with the partition columns
+    first; the period column they derive from sits at ``period_index`` in the
+    file — 0 for execucao, 10 for favorecido — so it is re-inserted there rather
+    than assumed to lead.
+    """
+    data = [
         a["original_name"] for a in arch if a["name"] not in PARTITION_COLUMNS
     ]
+    out = list(data)
+    out.insert(PRODUCTS[table]["period_index"], PERIOD_COLUMN)
+    return out
+
+
+def _check_header(
+    label: str, header: list[str], arch: list[dict], table: str = DEFAULT_TABLE
+) -> None:
+    """Fail loudly when the source layout drifts from the architecture."""
+    expected = expected_header(arch, table)
     if len(header) != len(expected):
         raise RuntimeError(
             f"{label}: expected {len(expected)} columns, got {len(header)}"
@@ -311,8 +335,25 @@ def _check_header(label: str, header: list[str], arch: list[dict]) -> None:
             )
 
 
+def expected_period(year: int, month: int, table: str = DEFAULT_TABLE) -> str:
+    """The literal the period column must carry for this table and month.
+
+    ``despesas-execucao`` writes "AAAA/MM" and ``despesas-favorecidos`` writes
+    "MM/AAAA". Assuming one format for both silently swaps year and month for
+    every month <= 12, which is all of them.
+    """
+    if PRODUCTS[table]["period_format"] == "month_first":
+        return f"{month:02d}/{year}"
+    return f"{year}/{month:02d}"
+
+
 def clean_month(
-    csv_path: Path, year: int, month: int, output_dir: Path, arch: list[dict]
+    csv_path: Path,
+    year: int,
+    month: int,
+    output_dir: Path,
+    arch: list[dict],
+    table: str = DEFAULT_TABLE,
 ) -> int:
     """Clean one month into ``<output_dir>/ano=<y>/mes=<m>/data.parquet``.
 
@@ -326,6 +367,7 @@ def clean_month(
     keys, carried by the directory path.
     """
     label = f"{year}-{month:02d}"
+    period_index = PRODUCTS[table]["period_index"]
     data_cols = [a for a in arch if a["name"] not in PARTITION_COLUMNS]
     names = [a["name"] for a in data_cols]
     numeric = {a["name"] for a in data_cols if a["bigquery_type"] == "FLOAT64"}
@@ -334,19 +376,20 @@ def clean_month(
     rows = 0
     with open(csv_path, encoding=ENCODING, newline="") as fh:
         reader = csv.reader(fh, delimiter=DELIMITER)
-        _check_header(label, next(reader), arch)
+        _check_header(label, next(reader), arch, table)
         for raw in reader:
             if len(raw) != len(names) + 1:
                 raise RuntimeError(
                     f"{label}: row {rows + 2} has {len(raw)} fields, "
                     f"expected {len(names) + 1}"
                 )
-            period = raw[0].strip()
-            if period != f"{year}/{month:02d}":
+            period = raw[period_index].strip()
+            if period != expected_period(year, month, table):
                 raise RuntimeError(
                     f"{label}: row {rows + 2} carries period {period!r}"
                 )
-            for name, value in zip(names, raw[1:], strict=True):
+            values = raw[:period_index] + raw[period_index + 1 :]
+            for name, value in zip(names, values, strict=True):
                 v = value.strip()
                 columns[name].append(
                     (parse_number(v) if name in numeric else v) or None
@@ -372,19 +415,27 @@ def clean_month(
 
 
 def clean_all(
-    input_dir: Path, output_dir: Path, months: list[tuple[int, int]]
+    input_dir: Path,
+    output_dir: Path,
+    months: list[tuple[int, int]],
+    table: str = DEFAULT_TABLE,
 ) -> dict:
     """Clean every downloaded month into one hive-partitioned directory.
 
     Returns ``{"path": <table dir>, "rows": {"YYYY-MM": n}, "total": n,
     "max_period": "YYYY-MM"}``.
     """
-    arch = read_architecture()
-    table_dir = output_dir / constants.TABLE_ID.value
+    arch = read_architecture(table)
+    table_dir = output_dir / table
     rows = {}
     for year, month in sorted(months):
         rows[f"{year}-{month:02d}"] = clean_month(
-            input_dir / f"{year}{month:02d}.csv", year, month, table_dir, arch
+            input_dir / f"{year}{month:02d}.csv",
+            year,
+            month,
+            table_dir,
+            arch,
+            table,
         )
     total = sum(rows.values())
     log.info("cleaned %d months, %d rows total", len(rows), total)
