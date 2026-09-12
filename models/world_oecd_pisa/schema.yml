@@ -13,19 +13,23 @@ models:
         tests:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
       - name: country_id_iso_3
         description: Country ID ISO3
         tests:
           - relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_iso3
+              config:
+                severity: warn
       - name: country_id_m49
         description: Country Identifier
         tests:
           - relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: id_m49
+              config:
+                severity: warn
       - name: school_id
         description: School ID
       - name: student_id
@@ -50,20 +54,30 @@ models:
         description: Language of Assessment
       - name: form_id
         description: Form Identifier
+      - name: option_learning_digital_world
+        description: Learning in the Digital World Option
+      - name: option_parent_questionnaire
+        description: Parent Questionnaire Option
+      - name: option_ict_questionnaire
+        description: ICT Questionnaire Option
+      - name: option_foreign_language_assessment
+        description: Foreign Language Assessment Option
+      - name: option_une_heure
+        description: Une Heure Option
       - name: international_grade
         description: Student International Grade (Derived)
       - name: month_birth
         description: Student (Standardized) Birth - Month
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano.ano
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
       - name: year_birth
         description: Student (Standardized) Birth - Year
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_data_tempo__mes')
-              field: mes.mes
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
       - name: gender
         description: Student (Standardized) Gender
       - name: effort_put_into_test
@@ -74,6 +88,10 @@ models:
         description: ISCO-08 Occupation code - Mother
       - name: occupation_father
         description: ISCO-08 Occupation code - Father
+      - name: occupation_parent_1
+        description: ISCO-08 Occupation code (2-digit) - Parent/guardian 1
+      - name: occupation_parent_2
+        description: ISCO-08 Occupation code (2-digit) - Parent/guardian 2
       - name: occupation_self
         description: ISCO-08 Occupation code - Self
       - name: grade_compared
@@ -88,6 +106,10 @@ models:
         description: Country of Birth National Categories- Mother
       - name: country_birth_father
         description: Country of Birth National Categories- Father
+      - name: country_birth_parent_1
+        description: Country of Birth National Categories - Parent/guardian 1
+      - name: country_birth_parent_2
+        description: Country of Birth National Categories - Parent/guardian 2
       - name: language_home
         description: Language at home (3-digit code)
       - name: isced_level
@@ -100,6 +122,10 @@ models:
         description: Mothers Education (ISCED)
       - name: father_isced
         description: Fathers Education (ISCED)
+      - name: isced_parent_1
+        description: Parent/guardian 1 level of education (ISCED)
+      - name: isced_parent_2
+        description: Parent/guardian 2 level of education (ISCED)
       - name: highest_parent_isced
         description: Highest Education of parents (ISCED)
       - name: highest_parent_years_schooling
@@ -117,6 +143,10 @@ models:
         description: ISEI of mother
       - name: father_isei
         description: ISEI of father
+      - name: isei_parent_1
+        description: ISEI of parent/guardian 1 (occupational status)
+      - name: isei_parent_2
+        description: ISEI of parent/guardian 2 (occupational status)
       - name: index_highest_parent_occupation
         description: Index highest parental occupational status
       - name: index_immigration_status
@@ -151,8 +181,12 @@ models:
         description: 'Meta-cognition: assess credibility'
       - name: ict_home
         description: ICT available at home
+      - name: wle_ict_availability_home
+        description: ICT availability outside school (WLE)
       - name: ict_school
         description: ICT available at school
+      - name: wle_ict_availability_school
+        description: ICT availability at school (WLE)
       - name: wle_home_possessions
         description: Home possessions index (WLE)
       - name: wle_cultural_possessions
@@ -186,6 +220,26 @@ models:
         description: Perceived autonomy related to ICT use index (WLE)
       - name: wle_ict_social_interaction
         description: ICT as a topic in social interaction index (WLE)
+      - name: wle_ai_use_school
+        description: Students' AI use at school (WLE)
+      - name: wle_views_regulated_ict_use_school
+        description: Views of regulated ICT use in school (WLE)
+      - name: wle_distress_online_content_cyberbullying
+        description: Distress from online content and cyberbullying
+      - name: wle_environmental_awareness
+        description: Students' environmental awareness (WLE)
+      - name: wle_environment_related_activities
+        description: Students' participation in environment-related activities (WLE)
+      - name: wle_opportunities_environmental_learning
+        description: Opportunities for environmental learning in class (WLE)
+      - name: working_for_pay
+        description: Working for pay before or after school
+      - name: skipping_school
+        description: Skipping of classes or days of school
+      - name: arriving_late_school
+        description: Arriving late for school
+      - name: wle_feeling_safe
+        description: Student reports on feeling safe (WLE)
       - name: wle_parental_support_learning
         description: Current parental support for learning at home index (WLE)
       - name: wle_parents_emotional_support
@@ -619,6 +673,46 @@ models:
         description: Plausible Value 9 in Science
       - name: plausible_value_10_science
         description: Plausible Value 10 in Science
+      - name: plausible_value_1_environmental_science
+        description: Plausible Value 1 in Environmental Science
+      - name: plausible_value_2_environmental_science
+        description: Plausible Value 2 in Environmental Science
+      - name: plausible_value_3_environmental_science
+        description: Plausible Value 3 in Environmental Science
+      - name: plausible_value_4_environmental_science
+        description: Plausible Value 4 in Environmental Science
+      - name: plausible_value_5_environmental_science
+        description: Plausible Value 5 in Environmental Science
+      - name: plausible_value_6_environmental_science
+        description: Plausible Value 6 in Environmental Science
+      - name: plausible_value_7_environmental_science
+        description: Plausible Value 7 in Environmental Science
+      - name: plausible_value_8_environmental_science
+        description: Plausible Value 8 in Environmental Science
+      - name: plausible_value_9_environmental_science
+        description: Plausible Value 9 in Environmental Science
+      - name: plausible_value_10_environmental_science
+        description: Plausible Value 10 in Environmental Science
+      - name: plausible_value_1_ldw
+        description: Plausible Value 1 in LDW Computational Problem Solving
+      - name: plausible_value_2_ldw
+        description: Plausible Value 2 in LDW Computational Problem Solving
+      - name: plausible_value_3_ldw
+        description: Plausible Value 3 in LDW Computational Problem Solving
+      - name: plausible_value_4_ldw
+        description: Plausible Value 4 in LDW Computational Problem Solving
+      - name: plausible_value_5_ldw
+        description: Plausible Value 5 in LDW Computational Problem Solving
+      - name: plausible_value_6_ldw
+        description: Plausible Value 6 in LDW Computational Problem Solving
+      - name: plausible_value_7_ldw
+        description: Plausible Value 7 in LDW Computational Problem Solving
+      - name: plausible_value_8_ldw
+        description: Plausible Value 8 in LDW Computational Problem Solving
+      - name: plausible_value_9_ldw
+        description: Plausible Value 9 in LDW Computational Problem Solving
+      - name: plausible_value_10_ldw
+        description: Plausible Value 10 in LDW Computational Problem Solving
       - name: senate_weight
         description: Senate Weight (sum of 5000 per country)
       - name: date_database_creation

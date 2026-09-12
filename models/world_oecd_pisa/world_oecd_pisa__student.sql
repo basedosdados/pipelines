@@ -8,7 +8,7 @@
             "data_type": "int64",
             "range": {
                 "start": 2015,
-                "end": 2022,
+                "end": 2025,
                 "interval": 1,
             },
         },
@@ -19,7 +19,7 @@
 select
     safe_cast(year as int64) year,
     safe_cast(country_id_iso_3 as string) country_id_iso_3,
-    safe_cast(country_id_m49 as string) country_id_m49,
+    safe_cast(safe_cast(country_id_m49 as int64) as string) country_id_m49,
     safe_cast(school_id as string) school_id,
     safe_cast(student_id as string) student_id,
     safe_cast(assessment_type as string) assessment_type,
@@ -31,6 +31,13 @@ select
     safe_cast(language_questionnaire as string) language_questionnaire,
     safe_cast(language_assessment as string) language_assessment,
     safe_cast(form_id as string) form_id,
+    safe_cast(option_learning_digital_world as string) option_learning_digital_world,
+    safe_cast(option_parent_questionnaire as string) option_parent_questionnaire,
+    safe_cast(option_ict_questionnaire as string) option_ict_questionnaire,
+    safe_cast(
+        option_foreign_language_assessment as string
+    ) option_foreign_language_assessment,
+    safe_cast(option_une_heure as string) option_une_heure,
     safe_cast(international_grade as string) international_grade,
     safe_cast(month_birth as int64) month_birth,
     safe_cast(year_birth as int64) year_birth,
@@ -39,6 +46,8 @@ select
     safe_cast(effort_would_have_invested as int64) effort_would_have_invested,
     safe_cast(occupation_mother as string) occupation_mother,
     safe_cast(occupation_father as string) occupation_father,
+    safe_cast(occupation_parent_1 as string) occupation_parent_1,
+    safe_cast(occupation_parent_2 as string) occupation_parent_2,
     safe_cast(occupation_self as string) occupation_self,
     safe_cast(grade_compared as int64) grade_compared,
     safe_cast(age as float64) age,
@@ -46,12 +55,16 @@ select
     safe_cast(country_birth_self as string) country_birth_self,
     safe_cast(country_birth_mother as string) country_birth_mother,
     safe_cast(country_birth_father as string) country_birth_father,
+    safe_cast(country_birth_parent_1 as string) country_birth_parent_1,
+    safe_cast(country_birth_parent_2 as string) country_birth_parent_2,
     safe_cast(language_home as string) language_home,
     safe_cast(isced_level as string) isced_level,
     safe_cast(isced_designation as string) isced_designation,
     safe_cast(isced_orientation as string) isced_orientation,
     safe_cast(mother_isced as string) mother_isced,
     safe_cast(father_isced as string) father_isced,
+    safe_cast(isced_parent_1 as string) isced_parent_1,
+    safe_cast(isced_parent_2 as string) isced_parent_2,
     safe_cast(highest_parent_isced as string) highest_parent_isced,
     safe_cast(highest_parent_years_schooling as int64) highest_parent_years_schooling,
     safe_cast(
@@ -68,6 +81,8 @@ select
     ) highest_parent_international_years_schooling,
     safe_cast(mother_isei as float64) mother_isei,
     safe_cast(father_isei as float64) father_isei,
+    safe_cast(isei_parent_1 as float64) isei_parent_1,
+    safe_cast(isei_parent_2 as float64) isei_parent_2,
     safe_cast(
         index_highest_parent_occupation as float64
     ) index_highest_parent_occupation,
@@ -95,7 +110,9 @@ select
         meta_cognition_assess_credibility as float64
     ) meta_cognition_assess_credibility,
     safe_cast(ict_home as int64) ict_home,
+    safe_cast(wle_ict_availability_home as float64) wle_ict_availability_home,
     safe_cast(ict_school as int64) ict_school,
+    safe_cast(wle_ict_availability_school as float64) wle_ict_availability_school,
     safe_cast(wle_home_possessions as float64) wle_home_possessions,
     safe_cast(wle_cultural_possessions as float64) wle_cultural_possessions,
     safe_cast(wle_home_educational_resources as float64) wle_home_educational_resources,
@@ -120,6 +137,24 @@ select
     safe_cast(wle_ict_competence as float64) wle_ict_competence,
     safe_cast(wle_ict_autonomy as float64) wle_ict_autonomy,
     safe_cast(wle_ict_social_interaction as float64) wle_ict_social_interaction,
+    safe_cast(wle_ai_use_school as float64) wle_ai_use_school,
+    safe_cast(
+        wle_views_regulated_ict_use_school as float64
+    ) wle_views_regulated_ict_use_school,
+    safe_cast(
+        wle_distress_online_content_cyberbullying as float64
+    ) wle_distress_online_content_cyberbullying,
+    safe_cast(wle_environmental_awareness as float64) wle_environmental_awareness,
+    safe_cast(
+        wle_environment_related_activities as float64
+    ) wle_environment_related_activities,
+    safe_cast(
+        wle_opportunities_environmental_learning as float64
+    ) wle_opportunities_environmental_learning,
+    safe_cast(working_for_pay as float64) working_for_pay,
+    safe_cast(skipping_school as float64) skipping_school,
+    safe_cast(arriving_late_school as float64) arriving_late_school,
+    safe_cast(wle_feeling_safe as float64) wle_feeling_safe,
     safe_cast(wle_parental_support_learning as float64) wle_parental_support_learning,
     safe_cast(wle_parents_emotional_support as float64) wle_parents_emotional_support,
     safe_cast(
@@ -359,6 +394,46 @@ select
     safe_cast(plausible_value_8_science as float64) plausible_value_8_science,
     safe_cast(plausible_value_9_science as float64) plausible_value_9_science,
     safe_cast(plausible_value_10_science as float64) plausible_value_10_science,
+    safe_cast(
+        plausible_value_1_environmental_science as float64
+    ) plausible_value_1_environmental_science,
+    safe_cast(
+        plausible_value_2_environmental_science as float64
+    ) plausible_value_2_environmental_science,
+    safe_cast(
+        plausible_value_3_environmental_science as float64
+    ) plausible_value_3_environmental_science,
+    safe_cast(
+        plausible_value_4_environmental_science as float64
+    ) plausible_value_4_environmental_science,
+    safe_cast(
+        plausible_value_5_environmental_science as float64
+    ) plausible_value_5_environmental_science,
+    safe_cast(
+        plausible_value_6_environmental_science as float64
+    ) plausible_value_6_environmental_science,
+    safe_cast(
+        plausible_value_7_environmental_science as float64
+    ) plausible_value_7_environmental_science,
+    safe_cast(
+        plausible_value_8_environmental_science as float64
+    ) plausible_value_8_environmental_science,
+    safe_cast(
+        plausible_value_9_environmental_science as float64
+    ) plausible_value_9_environmental_science,
+    safe_cast(
+        plausible_value_10_environmental_science as float64
+    ) plausible_value_10_environmental_science,
+    safe_cast(plausible_value_1_ldw as float64) plausible_value_1_ldw,
+    safe_cast(plausible_value_2_ldw as float64) plausible_value_2_ldw,
+    safe_cast(plausible_value_3_ldw as float64) plausible_value_3_ldw,
+    safe_cast(plausible_value_4_ldw as float64) plausible_value_4_ldw,
+    safe_cast(plausible_value_5_ldw as float64) plausible_value_5_ldw,
+    safe_cast(plausible_value_6_ldw as float64) plausible_value_6_ldw,
+    safe_cast(plausible_value_7_ldw as float64) plausible_value_7_ldw,
+    safe_cast(plausible_value_8_ldw as float64) plausible_value_8_ldw,
+    safe_cast(plausible_value_9_ldw as float64) plausible_value_9_ldw,
+    safe_cast(plausible_value_10_ldw as float64) plausible_value_10_ldw,
     safe_cast(senate_weight as float64) senate_weight,
     safe_cast(
         case
