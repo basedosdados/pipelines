@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+id_tabela,STRING,Nome da tabela,,no,,,no,,(derivado),Table name,Nombre de la tabla
+nome_coluna,STRING,Nome da coluna,,no,,,no,,(derivado),Column name,Nombre de la columna
+chave,STRING,"Chave do dicionário, isto é, o valor armazenado na coluna",,no,,,no,,(derivado),"Dictionary key, that is, the value stored in the column","Clave del diccionario, es decir, el valor almacenado en la columna"
+cobertura_temporal,STRING,Cobertura temporal em que a chave tem o significado indicado,,no,,,no,"Vários códigos mudaram de significado entre as duas eras da pesquisa, por isso cada entrada traz sua própria cobertura",(derivado),Temporal coverage over which the key carries the stated meaning,Cobertura temporal en la que la clave tiene el significado indicado
+valor,STRING,Significado da chave,,no,,,no,,(derivado),Meaning of the key,Significado de la clave

@@ -1,0 +1,877 @@
+"""Write the architecture CSVs for us_nsf_ncses.
+
+The architecture table is the source of truth for column names, types,
+descriptions and directory links; the dbt models and the backend metadata are
+both generated from it.
+
+Run
+---
+    python models/us_nsf_ncses/code/build_architecture.py
+"""
+
+from __future__ import annotations
+
+import csv
+import sys
+from pathlib import Path
+
+ARCH_DIR = Path(__file__).resolve().parent / "architecture"
+
+HEADER = [
+    "name",
+    "bigquery_type",
+    "description",
+    "temporal_coverage",
+    "covered_by_dictionary",
+    "directory_column",
+    "measurement_unit",
+    "has_sensitive_data",
+    "observations",
+    "original_name",
+    "description_en",
+    "description_es",
+]
+
+YEAR_FK = "diretorios_data_tempo.ano:ano"
+INSTITUTION_FK = "diretorios_us.higher_education_institution:id_institution"
+
+
+def col(
+    name,
+    bq_type,
+    pt,
+    en,
+    es,
+    *,
+    coverage="",
+    dictionary="no",
+    directory="",
+    unit="",
+    sensitive="no",
+    observations="",
+    original="",
+):
+    """Assemble one architecture row."""
+    return {
+        "name": name,
+        "bigquery_type": bq_type,
+        "description": pt,
+        "temporal_coverage": coverage,
+        "covered_by_dictionary": dictionary,
+        "directory_column": directory,
+        "measurement_unit": unit,
+        "has_sensitive_data": sensitive,
+        "observations": observations,
+        "original_name": original,
+        "description_en": en,
+        "description_es": es,
+    }
+
+
+# --------------------------------------------------------------------------
+# Columns shared by the HERD fact tables.
+# --------------------------------------------------------------------------
+
+HERD_YEAR = col(
+    "year",
+    "INT64",
+    "Ano fiscal da instituição a que se referem os dados",
+    "Institution fiscal year the data describe",
+    "Año fiscal de la institución al que se refieren los datos",
+    directory=YEAR_FK,
+    unit="year",
+    observations=(
+        "Coluna de partição. O ano fiscal varia por instituição; a Questão 17 "
+        "do questionário registra o mês de encerramento, que não consta do "
+        "arquivo de uso público"
+    ),
+    original="year",
+)
+
+
+def herd_institution_id(observations=""):
+    return col(
+        "institution_id",
+        "STRING",
+        "Código de identificação da instituição atribuído pelo NCSES",
+        "NCSES institution identification code",
+        "Código de identificación de la institución asignado por el NCSES",
+        observations=observations
+        or (
+            "Chamado 'fice' nos arquivos de 1972 a 2009 e 'inst_id' a partir de "
+            "2010; é o mesmo código nas duas eras"
+        ),
+        original="inst_id / fice",
+    )
+
+
+def herd_unitid():
+    return col(
+        "unitid",
+        "STRING",
+        (
+            "Código de identificação da instituição no IPEDS (UNITID). Mesma "
+            "chave das tabelas us_ed_ipeds e us_ed_college_scorecard; como em "
+            "us_ed_ipeds o tipo é INT64, o cruzamento exige "
+            "safe_cast(unitid as int64)"
+        ),
+        (
+            "IPEDS institution identifier (UNITID). The same key as us_ed_ipeds "
+            "and us_ed_college_scorecard; us_ed_ipeds types it INT64, so a join "
+            "needs safe_cast(unitid as int64)"
+        ),
+        (
+            "Código de identificación de la institución en IPEDS (UNITID). La "
+            "misma clave que us_ed_ipeds y us_ed_college_scorecard; en "
+            "us_ed_ipeds el tipo es INT64, por lo que el cruce exige "
+            "safe_cast(unitid as int64)"
+        ),
+        directory=INSTITUTION_FK,
+        observations=(
+            "Presente na fonte a partir do ano fiscal de 2010. Para 1972-2009 é "
+            "transportado do mesmo institution_id observado em 2010 ou depois; "
+            "instituições que deixaram a pesquisa antes de 2010 ficam nulas"
+        ),
+        original="ipeds_unitid",
+    )
+
+
+def herd_survey_form():
+    return col(
+        "survey_form",
+        "STRING",
+        "Versão do questionário respondida pela instituição no ano",
+        "Questionnaire version the institution answered in the year",
+        "Versión del cuestionario respondida por la institución en el año",
+        dictionary="yes",
+        observations=(
+            "O formulário curto existe a partir do ano fiscal de 2012, para "
+            "instituições com menos de US$ 1 milhão em P&D total"
+        ),
+        original="(nome do arquivo)",
+    )
+
+
+def herd_status(name, subject_pt, subject_en, subject_es):
+    return col(
+        name,
+        "STRING",
+        f"Código de situação do valor de {subject_pt}",
+        f"Status code for the {subject_en} value",
+        f"Código de situación del valor de {subject_es}",
+        dictionary="yes",
+        observations=(
+            "Vazio indica resposta normal. Os arquivos de 1972 a 2009 gravam o "
+            "mesmo código em maiúsculas e minúsculas; aqui está padronizado em "
+            "minúsculas"
+        ),
+        original="status",
+    )
+
+
+# --------------------------------------------------------------------------
+# herd_institution
+# --------------------------------------------------------------------------
+
+HERD_INSTITUTION = [
+    HERD_YEAR,
+    herd_institution_id(),
+    col(
+        "ncses_institution_id",
+        "STRING",
+        "Identificador interno da instituição no NCSES",
+        "NCSES internal institution identifier",
+        "Identificador interno de la institución en el NCSES",
+        observations="Presente apenas a partir do ano fiscal de 2010",
+        original="ncses_inst_id",
+    ),
+    herd_unitid(),
+    col(
+        "combined_institution_id",
+        "STRING",
+        "Código da instituição com a qual esta é combinada no relatório",
+        "Identifier of the institution this one is combined with for reporting",
+        "Código de la institución con la que esta se combina en el informe",
+        observations=(
+            "Presente apenas de 1972 a 2009. O valor de origem '000000', que "
+            "significa 'não combinar', é gravado como nulo"
+        ),
+        original="fice_combined",
+    ),
+    herd_survey_form(),
+    col(
+        "institution_name",
+        "STRING",
+        "Nome da instituição",
+        "Institution name",
+        "Nombre de la institución",
+        original="inst_name_long",
+    ),
+    col(
+        "institution_city",
+        "STRING",
+        "Município em que a instituição está localizada",
+        "City where the institution is located",
+        "Ciudad en la que se ubica la institución",
+        original="inst_city",
+    ),
+    col(
+        "state_abbreviation",
+        "STRING",
+        "Sigla do estado norte-americano em que a instituição está localizada",
+        "Abbreviation of the U.S. state where the institution is located",
+        "Sigla del estado estadounidense en el que se ubica la institución",
+        observations=(
+            "Sem vínculo de diretório: br_bd_diretorios_us.state é chaveado no "
+            "código FIPS (id_state), não na sigla. A checagem referencial é "
+            "feita por teste dbt contra a coluna abbreviation. O marcador de "
+            "origem '??', que indica agregação de instituições, é nulo aqui"
+        ),
+        original="inst_state_code / inst_state",
+    ),
+    col(
+        "zip_code",
+        "STRING",
+        "Código postal (ZIP) da instituição",
+        "Institution ZIP code",
+        "Código postal (ZIP) de la institución",
+        observations=(
+            "O marcador de origem '?????', que indica agregação de "
+            "instituições, é nulo aqui"
+        ),
+        original="inst_zip",
+    ),
+    col(
+        "hbcu_indicator",
+        "STRING",
+        "Indica se a instituição é uma HBCU (faculdade ou universidade "
+        "historicamente negra)",
+        "Whether the institution is a historically black college or university",
+        "Indica si la institución es una HBCU (universidad históricamente negra)",
+        dictionary="yes",
+        observations="O conjunto de códigos muda entre 1972-2009 e 2010-2024",
+        original="hbcu_flag",
+    ),
+    col(
+        "medical_school_indicator",
+        "STRING",
+        "Indica se a instituição tem escola de medicina",
+        "Whether the institution has a medical school",
+        "Indica si la institución tiene escuela de medicina",
+        dictionary="yes",
+        original="med_sch_flag / has_med_sch_flag",
+    ),
+    col(
+        "high_hispanic_enrollment_indicator",
+        "STRING",
+        "Indica se a instituição tem alta matrícula de estudantes hispânicos",
+        "Whether the institution is a high Hispanic enrollment institution",
+        "Indica si la institución tiene alta matrícula de estudiantes hispanos",
+        dictionary="yes",
+        observations="O conjunto de códigos muda entre 1972-2009 e 2010-2024",
+        original="hhe_flag",
+    ),
+    col(
+        "institution_type_code",
+        "STRING",
+        "Código do tipo de instituição",
+        "Institution type code",
+        "Código del tipo de institución",
+        dictionary="yes",
+        original="toi_code",
+    ),
+    col(
+        "highest_degree_code",
+        "STRING",
+        "Código do grau mais alto concedido pela instituição",
+        "Code for the highest degree the institution grants",
+        "Código del grado más alto que otorga la institución",
+        dictionary="yes",
+        observations=(
+            "Os códigos de 1972-2009 referem-se ao grau mais alto em ciência e "
+            "engenharia e não são comparáveis aos de 2010-2024"
+        ),
+        original="hdg_code",
+    ),
+    col(
+        "control_type_code",
+        "STRING",
+        "Código do tipo de controle da instituição",
+        "Institution control type code",
+        "Código del tipo de control de la institución",
+        dictionary="yes",
+        original="toc_code",
+    ),
+    col(
+        "fy09_pilot_indicator",
+        "STRING",
+        "Indica se a instituição participou do piloto da pesquisa HERD no ano "
+        "fiscal de 2009",
+        "Whether the institution took part in the FY2009 HERD pilot survey",
+        "Indica si la institución participó en el piloto de la encuesta HERD en "
+        "el año fiscal 2009",
+        dictionary="yes",
+        observations="Presente apenas nos arquivos de 1972 a 2009",
+        original="pilot_fy09_flag",
+    ),
+]
+
+# --------------------------------------------------------------------------
+# herd_expenditure
+# --------------------------------------------------------------------------
+
+HERD_EXPENDITURE = [
+    HERD_YEAR,
+    herd_institution_id(),
+    herd_unitid(),
+    herd_survey_form(),
+    col(
+        "question_code",
+        "STRING",
+        "Código do item do questionário",
+        "Questionnaire item code",
+        "Código del ítem del cuestionario",
+        observations=(
+            "Os códigos foram harmonizados pelo NCSES com o formato do ano "
+            "fiscal de 2024 dentro de cada era. Itens com o prefixo 'NA_' não "
+            "têm número no questionário"
+        ),
+        original="questionnaire_no",
+    ),
+    col(
+        "question",
+        "STRING",
+        "Assunto do item do questionário",
+        "Subject of the questionnaire item",
+        "Asunto del ítem del cuestionario",
+        observations=(
+            "Necessário junto de question_code para identificar o item: de "
+            "1972 a 2009 o mesmo código cobre assuntos diferentes"
+        ),
+        original="question",
+    ),
+    col(
+        "row_label",
+        "STRING",
+        "Rótulo da linha do item do questionário",
+        "Row label of the questionnaire item",
+        "Etiqueta de la fila del ítem del cuestionario",
+        observations=(
+            "Conforme o item, identifica a fonte de recursos, o campo de "
+            "pesquisa, o tipo de despesa ou a agência federal"
+        ),
+        original="row",
+    ),
+    col(
+        "column_label",
+        "STRING",
+        "Rótulo da coluna do item do questionário",
+        "Column label of the questionnaire item",
+        "Etiqueta de la columna del ítem del cuestionario",
+        observations=(
+            "Conforme o item, identifica a agência federal, a origem federal "
+            "ou não federal dos recursos ou a fonte não federal. Vazio nos "
+            "itens de uma única coluna"
+        ),
+        original="column",
+    ),
+    col(
+        "expenditure",
+        "FLOAT64",
+        "Despesa de pesquisa e desenvolvimento, em dólares correntes",
+        "Research and development expenditure, in current dollars",
+        "Gasto en investigación y desarrollo, en dólares corrientes",
+        unit="USD",
+        observations=(
+            "O NCSES publica os valores em milhares de dólares; aqui estão "
+            "multiplicados por mil, de modo que a precisão de origem é o "
+            "milhar. Valores em dólares correntes, sem deflacionamento"
+        ),
+        original="data",
+    ),
+    herd_status("status_code", "despesa", "expenditure", "gasto"),
+    col(
+        "other_information",
+        "STRING",
+        "Informação complementar registrada pela instituição para o item",
+        "Additional information the institution recorded for the item",
+        "Información complementaria registrada por la institución para el ítem",
+        observations=(
+            "No item 10 traz o nome da agência federal informada pela "
+            "instituição. Presente apenas a partir do ano fiscal de 2010"
+        ),
+        original="othinfo",
+    ),
+    herd_status(
+        "other_information_status_code",
+        "informação complementar",
+        "additional information",
+        "información complementaria",
+    ),
+    col(
+        "standardized_agency_name",
+        "STRING",
+        "Nome padronizado pelo NCSES da agência federal informada no item 10",
+        "NCSES standardized name of the federal agency reported in item 10",
+        "Nombre normalizado por el NCSES de la agencia federal informada en el "
+        "ítem 10",
+        observations=(
+            "Presente apenas no formulário padrão a partir do ano fiscal de 2010"
+        ),
+        original="standardized_agency_names",
+    ),
+]
+
+# --------------------------------------------------------------------------
+# herd_personnel
+# --------------------------------------------------------------------------
+
+HERD_PERSONNEL = [
+    HERD_YEAR,
+    herd_institution_id(),
+    herd_unitid(),
+    herd_survey_form(),
+    col(
+        "personnel_group",
+        "STRING",
+        "Grupo de pessoal a que se refere a contagem",
+        "Personnel group the count refers to",
+        "Grupo de personal al que se refiere el conteo",
+        observations=(
+            "De 2010 a 2019 distingue pesquisadores principais e demais "
+            "integrantes; de 2010 a 2015 há também a contagem de pós-doutorandos"
+        ),
+        original="row",
+    ),
+    col(
+        "personnel_function",
+        "STRING",
+        "Função de pesquisa e desenvolvimento exercida pelo pessoal",
+        "Research and development function the personnel perform",
+        "Función de investigación y desarrollo que ejerce el personal",
+        observations="Preenchido a partir do ano fiscal de 2022",
+        original="column",
+    ),
+    col(
+        "headcount",
+        "INT64",
+        "Número de pessoas que apoiam atividades de pesquisa e desenvolvimento",
+        "Number of people supporting research and development activities",
+        "Número de personas que apoyan actividades de investigación y desarrollo",
+        unit="person",
+        observations=(
+            "Os arquivos de uso público não trazem contagem de pessoal para os "
+            "anos fiscais de 2020 e 2021"
+        ),
+        original="data",
+    ),
+    herd_status("headcount_status_code", "contagem", "headcount", "conteo"),
+    col(
+        "full_time_equivalent",
+        "FLOAT64",
+        "Equivalentes de tempo integral do pessoal de pesquisa e desenvolvimento",
+        "Full-time equivalents of research and development personnel",
+        "Equivalentes de tiempo completo del personal de investigación y "
+        "desarrollo",
+        unit="full_time_equivalent",
+        observations="Coletado a partir do ano fiscal de 2022",
+        original="data",
+    ),
+    herd_status(
+        "full_time_equivalent_status_code",
+        "equivalente de tempo integral",
+        "full-time equivalent",
+        "equivalente de tiempo completo",
+    ),
+]
+
+# --------------------------------------------------------------------------
+# herd_survey_item
+# --------------------------------------------------------------------------
+
+HERD_SURVEY_ITEM = [
+    HERD_YEAR,
+    herd_institution_id(),
+    herd_unitid(),
+    herd_survey_form(),
+    col(
+        "question_code",
+        "STRING",
+        "Código do item do questionário",
+        "Questionnaire item code",
+        "Código del ítem del cuestionario",
+        observations=(
+            "O item 01.1 registra a composição dos recursos próprios da "
+            "instituição, o item 05.1 a inclusão de ensaios clínicos no "
+            "relatório do ano fiscal de 2009 e o item 13 os limites de "
+            "capitalização"
+        ),
+        original="questionnaire_no",
+    ),
+    col(
+        "question",
+        "STRING",
+        "Assunto do item do questionário",
+        "Subject of the questionnaire item",
+        "Asunto del ítem del cuestionario",
+        original="question",
+    ),
+    col(
+        "row_label",
+        "STRING",
+        "Rótulo da linha do item do questionário",
+        "Row label of the questionnaire item",
+        "Etiqueta de la fila del ítem del cuestionario",
+        original="row",
+    ),
+    col(
+        "column_label",
+        "STRING",
+        "Rótulo da coluna do item do questionário",
+        "Column label of the questionnaire item",
+        "Etiqueta de la columna del ítem del cuestionario",
+        observations=(
+            "No ano fiscal de 2012 o item 01.1 foi respondido também para o "
+            "ano fiscal de 2011, registrado nesta coluna"
+        ),
+        original="column",
+    ),
+    col(
+        "response_code",
+        "STRING",
+        "Resposta da instituição ao item, quando o item pede um código",
+        "Institution's answer to the item, when the item asks for a code",
+        "Respuesta de la institución al ítem, cuando el ítem pide un código",
+        dictionary="yes",
+        observations="Nulo nos itens cuja resposta é um valor monetário",
+        original="data",
+    ),
+    col(
+        "amount",
+        "FLOAT64",
+        "Valor monetário informado no item, em dólares correntes",
+        "Monetary value reported in the item, in current dollars",
+        "Valor monetario informado en el ítem, en dólares corrientes",
+        unit="USD",
+        observations=(
+            "Preenchido apenas no item 13, que registra os limites de "
+            "capitalização de equipamentos e de software. O NCSES publica o "
+            "valor em milhares de dólares; aqui está multiplicado por mil"
+        ),
+        original="data",
+    ),
+    herd_status("status_code", "resposta", "answer", "respuesta"),
+    col(
+        "other_information",
+        "STRING",
+        "Informação complementar registrada pela instituição para o item",
+        "Additional information the institution recorded for the item",
+        "Información complementaria registrada por la institución para el ítem",
+        observations=(
+            "No item 01.1 traz o motivo de determinados tipos de recurso não "
+            "terem sido incluídos"
+        ),
+        original="othinfo",
+    ),
+]
+
+# --------------------------------------------------------------------------
+# SED
+# --------------------------------------------------------------------------
+
+SED_REFERENCE_YEAR = col(
+    "reference_year",
+    "INT64",
+    "Ano do ciclo da pesquisa a que pertence a publicação",
+    "Survey cycle year the publication belongs to",
+    "Año del ciclo de la encuesta al que pertenece la publicación",
+    directory=YEAR_FK,
+    unit="year",
+    observations=(
+        "Coluna de partição. Cada ciclo republica a própria série histórica, "
+        "então um ciclo é uma safra fechada: para os números correntes, filtre "
+        "pelo maior reference_year em vez de somar entre ciclos"
+    ),
+    original="(publicação)",
+)
+
+SED_TABLE_ID = col(
+    "table_id",
+    "STRING",
+    "Identificador da tabela publicada, no formato grupo-número",
+    "Published table identifier, as group-number",
+    "Identificador de la tabla publicada, en formato grupo-número",
+    observations="Por exemplo, '1-5' para a Tabela 1-5",
+    original="Table 1-5",
+)
+
+SED_DATA_TABLE = [
+    SED_REFERENCE_YEAR,
+    SED_TABLE_ID,
+    col(
+        "table_group",
+        "STRING",
+        "Grupo temático da tabela publicada",
+        "Thematic group of the published table",
+        "Grupo temático de la tabla publicada",
+        observations=(
+            "Os grupos reúnem tendências, compromissos após a titulação, "
+            "características do campo e demográficas, apoio financeiro e "
+            "dívida, histórico educacional, salários, instituições, perfis "
+            "estatísticos e planos após a titulação"
+        ),
+        original="Table 1-5",
+    ),
+    col(
+        "table_title",
+        "STRING",
+        "Título da tabela publicada",
+        "Title of the published table",
+        "Título de la tabla publicada",
+        original="(linha 2 da planilha)",
+    ),
+    col(
+        "unit_statement",
+        "STRING",
+        "Declaração de unidade impressa abaixo do título da tabela",
+        "Unit statement printed under the table title",
+        "Declaración de unidad impresa debajo del título de la tabla",
+        observations=(
+            "Texto literal da fonte, como 'Number and percent'. A unidade "
+            "resolvida por célula está na coluna unit de sed_estimate"
+        ),
+        original="(linha 3 da planilha)",
+    ),
+    col(
+        "publication_id",
+        "STRING",
+        "Código da publicação do NCSES que contém a tabela",
+        "NCSES publication identifier that contains the table",
+        "Código de la publicación del NCSES que contiene la tabla",
+        observations="Por exemplo, 'nsf25349' para o ciclo de 2024",
+        original="(nome do arquivo)",
+    ),
+    col(
+        "source_file",
+        "STRING",
+        "Nome do arquivo Excel de origem da tabela",
+        "Name of the source Excel workbook for the table",
+        "Nombre del archivo Excel de origen de la tabla",
+        original="(nome do arquivo)",
+    ),
+    col(
+        "estimate_count",
+        "INT64",
+        "Número de células de dados extraídas da tabela",
+        "Number of data cells extracted from the table",
+        "Número de celdas de datos extraídas de la tabla",
+        unit="unit",
+        observations="Igual ao número de linhas de sed_estimate para a tabela",
+        original="(calculado)",
+    ),
+]
+
+SED_ESTIMATE = [
+    SED_REFERENCE_YEAR,
+    SED_TABLE_ID,
+    col(
+        "year",
+        "INT64",
+        "Ano acadêmico a que o valor se refere",
+        "Academic year the value refers to",
+        "Año académico al que se refiere el valor",
+        directory=YEAR_FK,
+        unit="year",
+        observations=(
+            "Lido do eixo temporal da tabela, esteja ele nas linhas ou nas "
+            "colunas. Nas tabelas sem eixo temporal é igual a reference_year. "
+            "O ano acadêmico de 2024 vai de 1 de julho de 2023 a 30 de junho "
+            "de 2024"
+        ),
+        original="(cabeçalho ou rótulo de linha)",
+    ),
+    col(
+        "row_label",
+        "STRING",
+        "Rótulo da linha da tabela publicada",
+        "Row label of the published table",
+        "Etiqueta de la fila de la tabla publicada",
+        observations=(
+            "Marcadores de nota de rodapé, gravados como sobrescrito na "
+            "planilha, foram removidos"
+        ),
+        original="(coluna A da planilha)",
+    ),
+    col(
+        "row_path",
+        "STRING",
+        "Caminho hierárquico completo da linha, do nível mais alto até ela",
+        "Full hierarchical path of the row, from the top level down to it",
+        "Ruta jerárquica completa de la fila, desde el nivel más alto hasta ella",
+        observations=(
+            "Níveis separados por ' > '. Reconstruído a partir do recuo da "
+            "célula na planilha, que é como o NCSES marca a hierarquia de "
+            "campos e características"
+        ),
+        original="(recuo da coluna A)",
+    ),
+    col(
+        "row_level",
+        "STRING",
+        "Profundidade da linha na hierarquia, começando em zero",
+        "Depth of the row in the hierarchy, starting at zero",
+        "Profundidad de la fila en la jerarquía, empezando en cero",
+        observations=(
+            "Ordinal, não uma quantidade. Igual ao número de níveis em "
+            "row_path menos um"
+        ),
+        original="(recuo da coluna A)",
+    ),
+    col(
+        "column_group",
+        "STRING",
+        "Rótulo do grupo de colunas a que a célula pertence",
+        "Label of the column group the cell belongs to",
+        "Etiqueta del grupo de columnas al que pertenece la celda",
+        observations=(
+            "Primeira linha do cabeçalho, propagada pelas células mescladas. "
+            "Nulo quando o cabeçalho é um ano, já registrado em year"
+        ),
+        original="(linha 4 da planilha)",
+    ),
+    col(
+        "column_label",
+        "STRING",
+        "Rótulo da coluna a que a célula pertence",
+        "Label of the column the cell belongs to",
+        "Etiqueta de la columna a la que pertenece la celda",
+        observations=(
+            "Segunda linha do cabeçalho. Nulo nas tabelas de cabeçalho simples "
+            "e quando o cabeçalho é um ano"
+        ),
+        original="(linha 5 da planilha)",
+    ),
+    col(
+        "unit",
+        "STRING",
+        "Unidade em que o valor está expresso",
+        "Unit the value is expressed in",
+        "Unidad en la que se expresa el valor",
+        dictionary="yes",
+        observations=(
+            "Resolvida por célula a partir do rótulo mais específico "
+            "disponível: o da coluna, o do grupo de colunas, o da seção da "
+            "linha e, por fim, a declaração de unidade da tabela"
+        ),
+        original="(derivado)",
+    ),
+    col(
+        "value",
+        "FLOAT64",
+        "Valor publicado da célula",
+        "Published value of the cell",
+        "Valor publicado de la celda",
+        observations=(
+            "A unidade varia por célula e está na coluna unit, por isso não há "
+            "unidade de medida única para esta coluna. Contagens de pessoas, "
+            "porcentagens, dólares correntes e medianas de anos convivem na "
+            "mesma coluna. Células suprimidas ou não aplicáveis na fonte são "
+            "nulas"
+        ),
+        original="(célula de dados)",
+    ),
+]
+
+# --------------------------------------------------------------------------
+# dicionario
+# --------------------------------------------------------------------------
+
+DICIONARIO = [
+    col(
+        "id_tabela",
+        "STRING",
+        "Nome da tabela",
+        "Table name",
+        "Nombre de la tabla",
+        original="(derivado)",
+    ),
+    col(
+        "nome_coluna",
+        "STRING",
+        "Nome da coluna",
+        "Column name",
+        "Nombre de la columna",
+        original="(derivado)",
+    ),
+    col(
+        "chave",
+        "STRING",
+        "Chave do dicionário, isto é, o valor armazenado na coluna",
+        "Dictionary key, that is, the value stored in the column",
+        "Clave del diccionario, es decir, el valor almacenado en la columna",
+        original="(derivado)",
+    ),
+    col(
+        "cobertura_temporal",
+        "STRING",
+        "Cobertura temporal em que a chave tem o significado indicado",
+        "Temporal coverage over which the key carries the stated meaning",
+        "Cobertura temporal en la que la clave tiene el significado indicado",
+        observations=(
+            "Vários códigos mudaram de significado entre as duas eras da "
+            "pesquisa, por isso cada entrada traz sua própria cobertura"
+        ),
+        original="(derivado)",
+    ),
+    col(
+        "valor",
+        "STRING",
+        "Significado da chave",
+        "Meaning of the key",
+        "Significado de la clave",
+        original="(derivado)",
+    ),
+]
+
+TABLES = {
+    "herd_institution": HERD_INSTITUTION,
+    "herd_expenditure": HERD_EXPENDITURE,
+    "herd_personnel": HERD_PERSONNEL,
+    "herd_survey_item": HERD_SURVEY_ITEM,
+    "sed_data_table": SED_DATA_TABLE,
+    "sed_estimate": SED_ESTIMATE,
+    "dicionario": DICIONARIO,
+}
+
+
+def main() -> int:
+    ARCH_DIR.mkdir(parents=True, exist_ok=True)
+    for table, columns in TABLES.items():
+        names = [c["name"] for c in columns]
+        if len(names) != len(set(names)):
+            raise SystemExit(f"{table}: duplicate column names")
+        for c in columns:
+            numeric = c["bigquery_type"] in {"INT64", "FLOAT64"}
+            # sed_estimate.value mixes units by design; unit lives in a column.
+            exempt = table == "sed_estimate" and c["name"] == "value"
+            if numeric and not c["measurement_unit"] and not exempt:
+                raise SystemExit(
+                    f"{table}.{c['name']}: numeric without a unit"
+                )
+            for field in ("description", "description_en", "description_es"):
+                if c[field].rstrip().endswith("."):
+                    raise SystemExit(
+                        f"{table}.{c['name']}: {field} ends with a period"
+                    )
+        with open(
+            ARCH_DIR / f"{table}.csv", "w", newline="", encoding="utf-8"
+        ) as f:
+            writer = csv.DictWriter(f, fieldnames=HEADER, lineterminator="\n")
+            writer.writeheader()
+            writer.writerows(columns)
+        print(f"{table}.csv: {len(columns)} columns")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
