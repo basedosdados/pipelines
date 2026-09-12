@@ -14,7 +14,7 @@ from pipelines.datasets.br_cgu_despesas_publicas.utils import (
 
 
 @task(retries=2, retry_delay_seconds=300)
-def probe_source() -> str:
+def probe_source(table: str = "execucao") -> str:
     """Return when the portal last regenerated the current month, ``YYYY-MM-DD``.
 
     One HEAD request. Unlike ``orcamento-despesa``, each month here carries its
@@ -25,12 +25,15 @@ def probe_source() -> str:
     Retries are spaced five minutes apart because the failure worth retrying is
     an AWS WAF rate block, which a fast retry only deepens.
     """
-    return probe_latest()
+    return probe_latest(table=table)
 
 
 @task(retries=2, retry_delay_seconds=600)
 def download_despesas(
-    work_dir: str, months_back: int = 6, full_refresh: bool = False
+    work_dir: str,
+    months_back: int = 6,
+    full_refresh: bool = False,
+    table: str = "execucao",
 ) -> dict:
     """Download the months to refresh into ``<work_dir>/input``.
 
@@ -53,12 +56,14 @@ def download_despesas(
         start_index = now.year * 12 + (now.month - 1) - max(months_back - 1, 0)
         first = (start_index // 12, start_index % 12 + 1)
         wanted = month_range(first=first)
-    months = download_all(input_dir, months=wanted)
+    months = download_all(input_dir, months=wanted, table=table)
     return {"input_dir": str(input_dir), "months": [list(m) for m in months]}
 
 
 @task
-def clean_despesas(work_dir: str, input_dir: str, months: list) -> dict:
+def clean_despesas(
+    work_dir: str, input_dir: str, months: list, table: str = "execucao"
+) -> dict:
     """Clean the downloaded months into hive-partitioned all-STRING parquet.
 
     Returns:
@@ -68,5 +73,6 @@ def clean_despesas(work_dir: str, input_dir: str, months: list) -> dict:
         Path(input_dir),
         Path(work_dir) / "output",
         [tuple(m) for m in months],
+        table=table,
     )
     return {**result, "path": str(result["path"])}

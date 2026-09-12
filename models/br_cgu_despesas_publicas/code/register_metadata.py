@@ -42,7 +42,6 @@ import server
 CODE = Path(__file__).resolve().parent
 DATASET_SLUG = "despesas_publicas"
 DATASET_ID = "ef31c5c6-452f-4eaa-8d61-128b45e65823"
-TABLE_SLUG = "execucao"
 GCP_DATASET_ID = "br_cgu_despesas_publicas"
 
 # Same UUIDs on staging and prod — verified 2026-09-11.
@@ -56,6 +55,7 @@ ENT = {
     "month": "f9659fea-e9bb-4177-9ca0-54076a8c0932",
     "agency": "24326cfe-d061-4e4c-86be-dbcd0d8943ce",
     "expenditure": "5e4f445b-02e4-4eda-b06e-8d16fe2a8741",
+    "other": "1b3a7364-3e76-4416-8af7-d52824da2d24",
 }
 ACCOUNT = {"staging": "57", "prod": "4"}
 
@@ -124,7 +124,6 @@ DATASET_DESC = {
     ),
 }
 
-RAW_NAME = "Portal da Transparência — Execução da Despesa"
 
 # Column -> observation level. Exactly the grain columns, nothing else: an
 # unlinked level renders as "Não informado" on the site.
@@ -148,7 +147,84 @@ OL_FOR_COLUMN = {
 PARTITION_COLUMNS = {"ano", "mes"}
 
 
-def read_state(env: str) -> dict:
+TABLES = {
+    "execucao": {
+        "names": TABLE_NAMES,
+        "desc": TABLE_DESC,
+        "raw_name": "Portal da Transparência — Execução da Despesa",
+        "raw_names_en_es": (
+            "Transparency Portal — Expenditure Execution",
+            "Portal da Transparência — Ejecución del Gasto",
+        ),
+        "raw_url": "https://portaldatransparencia.gov.br/download-de-dados/despesas-execucao",
+        "raw_desc": (
+            "Arquivos CSV mensais de execução da despesa federal, um ZIP por mês desde janeiro de 2014",
+            "Monthly CSV files of federal expenditure execution, one ZIP per month since January 2014",
+            "Archivos CSV mensuales de ejecución del gasto federal, un ZIP por mes desde enero de 2014",
+        ),
+        "ols": OL_FOR_COLUMN,
+    },
+    "favorecido": {
+        "names": {
+            "name_pt": "Recebimentos por Favorecido",
+            "name_en": "Receipts by Recipient",
+            "name_es": "Cobros por Beneficiario",
+        },
+        "desc": {
+            "description_pt": (
+                "Recebimentos de recursos federais por favorecido, mês a mês: quanto cada "
+                "pessoa física, pessoa jurídica ou entidade recebeu de cada unidade gestora "
+                "do Governo Federal, com a localização do favorecido. Fonte: Portal da "
+                "Transparência, Controladoria-Geral da União. Atenção: id_favorecido não "
+                "identifica unicamente uma pessoa física, porque a fonte publica o CPF "
+                "mascarado e a máscara colide entre pessoas distintas — em 2025, 54,4% dos "
+                "CPFs mascarados aparecem com mais de um nome. Para CNPJ o código é confiável."
+            ),
+            "description_en": (
+                "Receipts of federal funds by recipient, month by month: how much each "
+                "individual, company or entity received from each managing unit of the "
+                "Brazilian Federal Government, with the recipient's location. Source: "
+                "Transparency Portal, Office of the Comptroller General of Brazil. Note that "
+                "id_favorecido does not uniquely identify an individual, because the source "
+                "publishes a masked CPF and the mask collides between different people — in "
+                "2025, 54.4% of masked CPFs appear with more than one name. For CNPJ the code "
+                "is reliable."
+            ),
+            "description_es": (
+                "Cobros de recursos federales por beneficiario, mes a mes: cuánto recibió "
+                "cada persona física, persona jurídica o entidad de cada unidad gestora del "
+                "Gobierno Federal brasileño, con la ubicación del beneficiario. Fuente: "
+                "Portal da Transparência, Contraloría General de la Unión. Atención: "
+                "id_favorecido no identifica unívocamente a una persona física, porque la "
+                "fuente publica el CPF enmascarado y la máscara colisiona entre personas "
+                "distintas — en 2025, el 54,4% de los CPF enmascarados aparecen con más de un "
+                "nombre. Para CNPJ el código es confiable."
+            ),
+        },
+        "raw_name": "Portal da Transparência — Recebimentos por Favorecido",
+        "raw_names_en_es": (
+            "Transparency Portal — Receipts by Recipient",
+            "Portal da Transparência — Cobros por Beneficiario",
+        ),
+        "raw_url": "https://portaldatransparencia.gov.br/download-de-dados/despesas-favorecidos",
+        "raw_desc": (
+            "Arquivos CSV mensais de recebimentos por favorecido, um ZIP por mês desde janeiro de 2014",
+            "Monthly CSV files of receipts by recipient, one ZIP per month since January 2014",
+            "Archivos CSV mensuales de cobros por beneficiario, un ZIP por mes desde enero de 2014",
+        ),
+        "ols": {
+            "ano": "year",
+            "mes": "month",
+            "id_favorecido": "other",
+            "id_orgao_superior": "agency",
+            "id_orgao": "agency",
+            "id_unidade_gestora": "agency",
+        },
+    },
+}
+
+
+def read_state(env: str, table_slug: str) -> dict:
     q = """query($slug:String!){ allDataset(slug:$slug){ edges{ node{ id
       tables{ edges{ node{ id slug
         rawDataSource{ edges{ node{ id namePt } } }
@@ -161,7 +237,7 @@ def read_state(env: str) -> dict:
     r = server._gql(q, {"slug": DATASET_SLUG}, env=env)
     ds = r["allDataset"]["edges"][0]["node"]
     tables = {e["node"]["slug"]: e["node"] for e in ds["tables"]["edges"]}
-    t = tables.get(TABLE_SLUG)
+    t = tables.get(table_slug)
     strip = server._strip_id
     if t is None:
         return {
@@ -225,6 +301,12 @@ def _id(result) -> str:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--env", default="staging", choices=["staging", "prod"])
+    ap.add_argument(
+        "--table",
+        default="execucao",
+        choices=sorted(TABLES),
+        help="table slug",
+    )
     ap.add_argument("--apply", action="store_true")
     ap.add_argument(
         "--publish",
@@ -251,8 +333,10 @@ def main() -> None:
     )
     args = ap.parse_args()
     env = args.env
+    table_slug = args.table
+    cfg = TABLES[table_slug]
 
-    st = read_state(env)
+    st = read_state(env, table_slug)
     print(
         json.dumps(
             {
@@ -270,27 +354,27 @@ def main() -> None:
 
     raw = server.create_update_raw_data_source(
         dataset_id=DATASET_ID,
-        name_pt=RAW_NAME,
-        name_en="Transparency Portal — Expenditure Execution",
-        name_es="Portal da Transparência — Ejecución del Gasto",
-        url="https://portaldatransparencia.gov.br/download-de-dados/despesas-execucao",
+        name_pt=cfg["raw_name"],
+        name_en=cfg["raw_names_en_es"][0],
+        name_es=cfg["raw_names_en_es"][1],
+        url=cfg["raw_url"],
         license_id=LIC_UNKNOWN,
         availability_id=AVAIL_ONLINE,
-        description_pt="Arquivos CSV mensais de execução da despesa federal, um ZIP por mês desde janeiro de 2014",
-        description_en="Monthly CSV files of federal expenditure execution, one ZIP per month since January 2014",
-        description_es="Archivos CSV mensuales de ejecución del gasto federal, un ZIP por mes desde enero de 2014",
+        description_pt=cfg["raw_desc"][0],
+        description_en=cfg["raw_desc"][1],
+        description_es=cfg["raw_desc"][2],
         has_structured_data=True,
         is_free=True,
         contains_api=False,
         requires_registration=False,
-        id=st["raw"].get(RAW_NAME),
+        id=st["raw"].get(cfg["raw_name"]),
         env=env,
     )
     raw_id = _id(raw)
     print("raw source:", raw_id)
 
     table = server.create_update_table(
-        slug=TABLE_SLUG,
+        slug=table_slug,
         dataset_id=DATASET_ID,
         status_id=ST_PUBLISHED,
         published_by_ids=[account],
@@ -298,13 +382,15 @@ def main() -> None:
         raw_data_source_ids=[raw_id],
         id=st["table_id"],
         env=env,
-        **TABLE_NAMES,
-        **TABLE_DESC,
+        **cfg["names"],
+        **cfg["desc"],
     )
     table_id = _id(table)
     print("table:", table_id)
 
-    payload = json.loads((CODE / "columns_json" / "execucao.json").read_text())
+    payload = json.loads(
+        (CODE / "columns_json" / f"{table_slug}.json").read_text()
+    )
     print(
         "columns:",
         server.bulk_upsert_columns(
@@ -314,9 +400,9 @@ def main() -> None:
         ),
     )
 
-    st = read_state(env)
+    st = read_state(env, table_slug)
     ol_ids = {}
-    for slug in ("year", "month", "agency", "expenditure"):
+    for slug in dict.fromkeys(cfg["ols"].values()):
         ol_ids[slug] = _id(
             server.create_update_observation_level(
                 table_id=table_id,
@@ -327,8 +413,8 @@ def main() -> None:
         )
         print("OL", slug, ol_ids[slug])
 
-    st = read_state(env)
-    for col, slug in OL_FOR_COLUMN.items():
+    st = read_state(env, table_slug)
+    for col, slug in cfg["ols"].items():
         cid = st["columns"].get(col)
         if not cid:
             print("  !! missing column", col)
@@ -343,7 +429,7 @@ def main() -> None:
             is_partition=col in PARTITION_COLUMNS,
             env=env,
         )
-    print("linked", len(OL_FOR_COLUMN), "columns to observation levels")
+    print("linked", len(cfg["ols"]), "columns to observation levels")
 
     gcp_project = "basedosdados-dev" if env == "staging" else "basedosdados"
     print(
@@ -352,7 +438,7 @@ def main() -> None:
             table_id=table_id,
             gcp_project_id=gcp_project,
             gcp_dataset_id=GCP_DATASET_ID,
-            gcp_table_id=TABLE_SLUG,
+            gcp_table_id=table_slug,
             id=st["cloud"],
             env=env,
         ),
@@ -451,7 +537,7 @@ def main() -> None:
         json.dumps(
             {
                 k: (len(v) if isinstance(v, (dict, list)) else v)
-                for k, v in read_state(env).items()
+                for k, v in read_state(env, table_slug).items()
             },
             indent=1,
         ),

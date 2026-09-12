@@ -1,7 +1,8 @@
 """Upload the cleaned br_cgu_despesas_publicas parquet to BigQuery.
 
 Usage:
-    uv run python models/br_cgu_despesas_publicas/code/upload.py [--env dev|prod]
+    uv run python models/br_cgu_despesas_publicas/code/upload.py \
+        [--env dev|prod] [--table execucao|favorecido]
 
 ``--env dev`` (default) targets ``basedosdados-dev``. Prod is never uploaded from
 a laptop — the prod table is materialised by the table-approve action on merge —
@@ -31,11 +32,21 @@ if "--env" in _argv:
 
 BILLING_PROJECT = "basedosdados" if ENV == "prod" else "basedosdados-dev"
 DATASET_ID = "br_cgu_despesas_publicas"
-TABLE_ID = "execucao"
+
+if "--table" in _argv:
+    TABLE_ID = _argv[_argv.index("--table") + 1]
+else:
+    TABLE_ID = "execucao"
+
+# Each table keeps its own scratch tree; override with the matching env var.
+_DEFAULT_DATA = {
+    "execucao": "br_cgu_despesas_publicas_data",
+    "favorecido": "br_cgu_favorecidos_data",
+}[TABLE_ID]
 DATA = Path(
     os.environ.get(
         "BR_CGU_DESPESAS_DATA",
-        Path.home() / "Downloads" / "br_cgu_despesas_publicas_data",
+        Path.home() / "Downloads" / _DEFAULT_DATA,
     )
 )
 
