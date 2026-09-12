@@ -123,3 +123,40 @@ uv run python models/us_bls_employment/code/upload.py --env dev
 uv run dbt run  --select us_bls_employment
 uv run dbt test --select us_bls_employment
 ```
+
+## Verification (dev/staging, 2026-09-12)
+
+| Check | Result |
+|---|---|
+| Upload row counts vs cleaning | 5/5 exact |
+| `dbt run --select us_bls_employment` | PASS=5, ERROR=0 |
+| `dbt test --select us_bls_employment` | PASS=67, FAIL=0, ERROR=0 |
+| Directory foreign keys | 0 unmatched across all 8 links |
+| Dictionary coverage | 0 uncovered values across 31 coded columns |
+| `month` NULL exactly where `period_id = 'M13'` | 4/4 tables |
+| Seasonal adjustment present as both S and U | 4/4 tables, distinct series ids |
+
+Spot checks against published BLS figures: CES total nonfarm payroll employment
+158,913k (Jul 2026) and 159,075k (Aug, preliminary); average hourly earnings of
+all employees, total private, $37.65; Texas unemployment rate 4.5% seasonally
+adjusted; JOLTS quits rate 1.9%. Autauga County, AL for March 2026 satisfies the
+labor-force identity exactly — 28,151 employed plus 714 unemployed equals a
+labor force of 28,865, and 714/28,865 rounds to the published 2.5%.
+
+## BD Pro
+
+All four fact tables refresh monthly, so each carries the standard rolling
+window: the most recent 6 months are BD Pro, everything older is free. Both
+coverages exist with `is_closed` set on the Coverage and on its DateTimeRange,
+and the ranges do not overlap. Nothing is paywalled until the pipeline is armed
+— the Row Access Policies are issued by the first armed run.
+
+## Not done here
+
+- Auxiliary-file bundles are in `gs://basedosdados-dev`, not the prod bucket:
+  this machine's service account has no `storage.objects.create` on
+  `gs://basedosdados`. Both buckets are requester-pays, so every published
+  `auxiliaryFilesUrl` returns HTTP 400 to an anonymous fetch — verified, and the
+  same for all 84 production tables using the field.
+- Prod table data is materialised by the table-approve action when the PR
+  merges, not from here.
