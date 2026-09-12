@@ -307,6 +307,18 @@ def main() -> None:
         choices=sorted(TABLES),
         help="table slug",
     )
+    ap.add_argument(
+        "--table-status",
+        default="published",
+        choices=["published", "under_review"],
+        help="status for the TABLE record. Use under_review when registering a "
+        "new table on prod before its BigQuery table exists: the dataset may "
+        "already be published, so a published table would be listed on the site "
+        "while broken. Prod metadata must exist before a recurring flow's dev "
+        "gate runs — the poll resolves the table against the prod backend and "
+        "raises IndexError otherwise — and under_review satisfies that without "
+        "publishing anything.",
+    )
     ap.add_argument("--apply", action="store_true")
     ap.add_argument(
         "--publish",
@@ -376,7 +388,11 @@ def main() -> None:
     table = server.create_update_table(
         slug=table_slug,
         dataset_id=DATASET_ID,
-        status_id=ST_PUBLISHED,
+        status_id=(
+            ST_PUBLISHED
+            if args.table_status == "published"
+            else ST_UNDER_REVIEW
+        ),
         published_by_ids=[account],
         data_cleaned_by_ids=[account],
         raw_data_source_ids=[raw_id],
