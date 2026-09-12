@@ -206,6 +206,12 @@ def convert_municipio_6_to_7(
 def parse_date(value: object) -> str | None:
     """Converte uma data no formato `DDMMAAAA`.
 
+    Ano acima de `MAX_YEAR` é erro de digitação, e não data — `25069202` é o ano
+    9202. Vira nulo, senão o valor cai fora do diretório de tempo e derruba o
+    teste de relacionamento da coluna. O limite é só superior: os anos de três
+    dígitos em `data_nascimento_mae` (978 por 1978) e a sentinela 1899 de
+    `data_recebimento` são o que a fonte publica, e ficam como estão.
+
     Args:
         value: Valor bruto do arquivo.
 
@@ -216,6 +222,8 @@ def parse_date(value: object) -> str | None:
         return None
     text = str(value).strip()
     if len(text) < 8 or not text.isdigit() or text == "00000000":
+        return None
+    if int(text[4:8]) > constants.MAX_YEAR.value:
         return None
     return f"{text[4:8]}-{text[2:4]}-{text[0:2]}"
 

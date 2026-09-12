@@ -22,6 +22,10 @@ class constants(Enum):
 
     SOURCE_FORMAT = "csv"
 
+    # Teto de plausibilidade para o ano de uma data. Acima disso é digitação
+    # errada, e o valor não existe no diretório de tempo.
+    MAX_YEAR = 2100
+
     UFS = [
         "AC",
         "AL",

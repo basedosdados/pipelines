@@ -90,7 +90,7 @@ utils.clean_table("microdados", 2024)
 
 ## Diferenças em relação à carga local
 
-O flow substitui `models/br_ms_sinasc/code/br_ms_sinasc_etl.py`, com duas
+O flow substitui `models/br_ms_sinasc/code/br_ms_sinasc_etl.py`, com três
 mudanças de comportamento:
 
 - **`id_municipio_mae`** era convertido duas vezes — primeiro de 6 para 7
@@ -102,6 +102,14 @@ mudanças de comportamento:
   ser convertida como as demais. O `DNRES` não traz o bloco de cartório em 2018
   nem em 2024, então `cartorio`, `registro_cartorio` e `data_registro_cartorio`
   saem nulas.
+- **Data com ano acima de `MAX_YEAR`** (2100) vira nula, em todas as colunas de
+  data. São erros de digitação — `25069202`, o ano 9202 —, e o valor cai fora do
+  diretório de tempo e derruba o teste de relacionamento da coluna. A carga
+  antiga também os nulificava, mas por acidente: convertia com
+  `pd.to_datetime(errors="coerce")`, e o `Timestamp` do pandas estoura em 2262.
+  O limite é só superior; os anos de três dígitos em `data_nascimento_mae` (978
+  por 1978) e a sentinela 1899 de `data_recebimento` são o que a fonte publica e
+  passam intactos.
 
 ## Pontos de atenção
 
