@@ -573,9 +573,7 @@ models:
         description: Categoria Escola Privada
       - name: conveniada_poder_publico
         description: Conveniada Poder Público
-      - name: restricao_atendimento
-        description: regulacao_conselho_educacao
-      - name: Regulamentação pelo Conselho de Educação
+      - name: regulacao_conselho_educacao
         description: Regulamentação pelo Conselho de Educação
       - name: porte
         description: Porte
