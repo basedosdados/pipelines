@@ -112,20 +112,35 @@ DESCRIPTION_ES = (
     "sistema forma."
 )
 
-# Reference ids resolved from discover_ids; identical on staging and prod for
-# everything except the tag slugs, which the script re-resolves per environment.
-REFS = {
-    "status_under_review": "47208305-325a-4da9-9222-ac6849405b78",
-    "status_published": "e16221de-ac30-4926-83d3-de219998dab3",
-    "theme_economics": "ad6a413a-e882-4dd6-a497-8a62eec8511b",
-    "theme_science": "dc2e153b-8b1f-42ad-beac-7d450c9953b5",
-    "theme_education": "011ab0e3-d5b3-47c8-807f-81c07897fe12",
-    "entity_year": "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
-    "entity_institution": "cc6669a8-4c95-4250-b04b-1a9724546e62",
-    "entity_document": "1d5e94c7-65e7-405b-b788-4d5975eddde9",
-    "license_ppdl": "8ab5a987-34e6-4f37-86a1-13e97ca498e3",
-    "availability_online": "dd396d7d-0264-4c1f-bf0d-6efe2dc89cbe",
+# Reference slugs, resolved against whichever backend is being written. Never
+# hardcode the ids: most happen to match across environments, but the
+# higher_education_institution entity does not (cc6669a8 on staging,
+# b39d2987 on prod), and copying the staging id into prod would silently file
+# every HERD table under the wrong entity.
+REF_SLUGS = {
+    "status_under_review": ("status", "under_review"),
+    "status_published": ("status", "published"),
+    "theme_economics": ("theme", "economics"),
+    "theme_science": ("theme", "science-technology"),
+    "theme_education": ("theme", "education"),
+    "entity_year": ("entity", "year"),
+    "entity_institution": ("entity", "higher_education_institution"),
+    "entity_document": ("entity", "document"),
+    "license_ppdl": ("license", "ppdl"),
+    "availability_online": ("availability", "online"),
+    "area_us": ("area", "us"),
 }
+
+
+def resolve_refs(env: str) -> dict[str, str]:
+    """Look every reference id up in the target backend."""
+    refs = {}
+    for key, (category, slug) in REF_SLUGS.items():
+        refs[key] = server.lookup_id(category=category, slug=slug, env=env)[
+            "id"
+        ]
+    return refs
+
 
 # Per-table auxiliary file bundle, written by auxiliary_files.py. The bucket is
 # requester-pays, so an anonymous fetch of these URLs returns HTTP 400 — true of
@@ -451,45 +466,46 @@ def columns_payload(table: str) -> str:
     return json.dumps(payload, ensure_ascii=False)
 
 
-def resolve_tags(env: str) -> list[str]:
-    """Resolve the dataset's tags, whose slugs differ between environments.
+# Tags, by id. The ids are stable across environments but the slugs are not —
+# staging spells them in Portuguese and production in English, and not always
+# the same English word: `financiamento` on staging is `financing` on prod, so
+# resolving by slug silently dropped it from the first prod registration.
+# No tag for "science": that would restate the science-technology theme, which
+# the dataset already carries, and tags are not for duplicating other metadata.
+TAG_IDS = {
+    "6c3ab030-1bd3-4910-82f7-1f399c302ca9": "doutorado / doctorate",
+    "4ae52b90-bc5e-49b3-92f6-c5e86ae5a241": "pesquisa / research",
+    "343275c0-ab19-4be5-bfa2-530180a501ee": "renda / income",
+    "1d05dabf-1ed7-46e3-8c68-8628752cdf39": "salario / salary",
+    "161d4c2e-a61e-481d-8821-3f70b534c063": "trabalho / labor",
+    "21d15e6c-d39b-4c79-800f-5a13a6e797d3": "universidade / university",
+    "25cde861-2c55-4c85-9c5a-48048953c6d4": "financiamento / financing",
+}
 
-    Staging spells them in Portuguese and production in English while the ids
-    match, so each candidate is tried under both spellings and the ones that
-    do not exist are reported rather than created.
-    """
-    candidates = [
-        ("doutorado", "doctorate"),
-        ("pesquisa", "research"),
-        ("renda", "income"),
-        ("salario", "salary"),
-        ("trabalho", "labor"),
-        ("universidade", "university"),
-        ("ciencia", "science"),
-        ("financiamento", "funding"),
-    ]
+
+def resolve_tags(env: str) -> list[str]:
+    """Return the dataset's tag ids, checking each one exists in this backend."""
+    query = (
+        "query($id: ID!) { allTag(id: $id) { edges { node { id slug } } } }"
+    )
     ids, missing = [], []
-    for pt, en in candidates:
-        for slug in (pt, en):
-            try:
-                found = server.lookup_id(category="tag", slug=slug, env=env)
-            except Exception:
-                continue
-            if found.get("id"):
-                ids.append(found["id"])
-                break
+    for tag_id, label in TAG_IDS.items():
+        edges = server._gql(query, {"id": tag_id}, env=env)["allTag"]["edges"]
+        if edges:
+            ids.append(tag_id)
         else:
-            missing.append(f"{pt}/{en}")
+            missing.append(label)
     if missing:
-        print(f"  tags not present on {env}, skipped: {', '.join(missing)}")
-    return sorted(set(ids))
+        print(f"  tags absent from {env}, skipped: {', '.join(missing)}")
+    return ids
 
 
 def register(env: str) -> dict:
     """Register the dataset, its raw sources and its seven tables."""
+    refs = resolve_refs(env)
     account = server.get_authenticated_account(env=env)
     account_id = account["id"]
-    area_us = server.lookup_id(category="area", slug="us", env=env)["id"]
+    area_us = refs["area_us"]
 
     dataset = server.create_update_dataset(
         id=DATASET_ID,
@@ -502,12 +518,12 @@ def register(env: str) -> dict:
         description_es=DESCRIPTION_ES,
         organization_ids=[ORGANIZATION_ID],
         theme_ids=[
-            REFS["theme_science"],
-            REFS["theme_education"],
-            REFS["theme_economics"],
+            refs["theme_science"],
+            refs["theme_education"],
+            refs["theme_economics"],
         ],
         tag_ids=resolve_tags(env),
-        status_id=REFS["status_under_review"],
+        status_id=refs["status_under_review"],
         env=env,
     )
     print(f"dataset {DATASET_SLUG}: {dataset}")
@@ -527,8 +543,8 @@ def register(env: str) -> dict:
             name_en=source["name_en"],
             name_es=source["name_es"],
             url=source["url"],
-            license_id=REFS["license_ppdl"],
-            availability_id=REFS["availability_online"],
+            license_id=refs["license_ppdl"],
+            availability_id=refs["availability_online"],
             has_structured_data=True,
             is_free=True,
             requires_registration=False,
@@ -554,7 +570,7 @@ def register(env: str) -> dict:
             description_en=spec["description_en"],
             description_es=spec["description_es"],
             dataset_id=DATASET_ID,
-            status_id=REFS["status_published"],
+            status_id=refs["status_published"],
             published_by_ids=[account_id],
             data_cleaned_by_ids=[account_id],
             raw_data_source_ids=source_ids.get(slug, []),
@@ -576,7 +592,7 @@ def register(env: str) -> dict:
         }
         levels = {}
         for level in spec["levels"]:
-            entity_id = REFS[f"entity_{level}"]
+            entity_id = refs[f"entity_{level}"]
             created = server.create_update_observation_level(
                 id=prior_levels.get(entity_id),
                 table_id=table_id,
@@ -617,7 +633,7 @@ def register(env: str) -> dict:
         server.create_update_update(
             id=updates[0]["id"] if updates else None,
             table_id=table_id,
-            entity_id=REFS["entity_year"],
+            entity_id=refs["entity_year"],
             frequency=1,
             lag=1,
             latest=TODAY,
@@ -665,11 +681,13 @@ def register(env: str) -> dict:
     return report
 
 
-def set_dataset_status(env: str, status_id: str) -> dict:
+def set_dataset_status(env: str, status: str) -> dict:
     """Re-register the dataset with a different status.
 
     The API has no partial update, so every required field is passed again.
     """
+    status_id = resolve_refs(env)[f"status_{status}"]
+    refs = resolve_refs(env)
     return server.create_update_dataset(
         id=DATASET_ID,
         slug=DATASET_SLUG,
@@ -681,9 +699,9 @@ def set_dataset_status(env: str, status_id: str) -> dict:
         description_es=DESCRIPTION_ES,
         organization_ids=[ORGANIZATION_ID],
         theme_ids=[
-            REFS["theme_science"],
-            REFS["theme_education"],
-            REFS["theme_economics"],
+            refs["theme_science"],
+            refs["theme_education"],
+            refs["theme_economics"],
         ],
         tag_ids=resolve_tags(env),
         status_id=status_id,
@@ -719,7 +737,7 @@ def main() -> int:
         return 0
     if "--publish" in args:
         print(f"publishing us_nsf_ncses on {env}")
-        print(set_dataset_status(env, REFS["status_published"]))
+        print(set_dataset_status(env, "published"))
         return 0
     print(f"registering us_nsf_ncses metadata on {env}", flush=True)
     report = register(env)
