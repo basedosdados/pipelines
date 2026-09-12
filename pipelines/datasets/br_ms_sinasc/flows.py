@@ -33,21 +33,21 @@ from pipelines.utils.tasks import (
 def br_ms_sinasc__microdados(
     dataset_id: str = "br_ms_sinasc",
     table_id: str = "microdados",
-    ano: int | None = None,
+    anos: list[int] | None = None,
     materialize_after_dump: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
-    """Carrega um ano do SINASC, do FTP do DATASUS até a materialização."""
+    """Carrega anos do SINASC, do FTP do DATASUS até a materialização."""
     # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    backfill = ano is not None
+    backfill = anos is not None
     source_max_year = get_source_max_year()
-    ano = int(ano if backfill else source_max_year)
+    anos = anos if backfill else [int(source_max_year)]
 
     if not force_run and not backfill:
         has_new_data = poll_source_for_update_task(
@@ -73,19 +73,24 @@ def br_ms_sinasc__microdados(
             materialize_after_dump=materialize_after_dump,
         )
 
-    print(f"Carregando {ano}")
+    # Cada ano tem diretório próprio, então os particionados coexistem e o dbt
+    # roda uma vez só no fim: o modelo é `materialized="table"`, e rodar por ano
+    # reconstruiria a série inteira a cada ano.
+    filepaths = []
+    for ano in anos:
+        print(f"Carregando {ano}")
+        download_table(table_id=table_id, ano=ano)
+        filepaths.append(clean_table(table_id=table_id, ano=ano))
 
-    download_table(table_id=table_id, ano=ano)
-    filepath = clean_table(table_id=table_id, ano=ano)
-
-    upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        bucket_name="basedosdados-dev",
-        dump_mode="append",
-        source_format="csv",
-    )
+    for filepath in filepaths:
+        upload_to_gcs(
+            data_path=filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            bucket_name="basedosdados-dev",
+            dump_mode="append",
+            source_format="csv",
+        )
 
     run_dbt(
         dataset_id=dataset_id,
@@ -97,14 +102,15 @@ def br_ms_sinasc__microdados(
     if not materialize_after_dump:
         return
 
-    upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        bucket_name="basedosdados",
-        dump_mode="append",
-        source_format="csv",
-    )
+    for filepath in filepaths:
+        upload_to_gcs(
+            data_path=filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            bucket_name="basedosdados",
+            dump_mode="append",
+            source_format="csv",
+        )
 
     run_dbt(
         dataset_id=dataset_id,

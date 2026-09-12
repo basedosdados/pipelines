@@ -274,10 +274,8 @@ def process_file(
         municipios: De-para devolvido por `load_municipios`.
 
     Returns:
-        Os dados renomeados e convertidos.
-
-    Raises:
-        ValueError: Se o arquivo trouxer coluna fora de `RENAME`.
+        Os dados renomeados e convertidos. Coluna fora de `RENAME` é descartada
+        por `ensure_schema_columns`, que devolve só as colunas de `COLUMNS`.
     """
     dataframe = read_dbc(filepath)
 
@@ -286,14 +284,6 @@ def process_file(
     dataframe = dataframe.astype(str).replace(
         {"None": None, "nan": None, "": None, "NA": None}
     )
-
-    # `ensure_schema_columns` descartaria a coluna nova em silêncio.
-    unmapped = sorted(set(dataframe.columns) - set(constants.RENAME.value))
-    if unmapped:
-        raise ValueError(
-            f"{sigla_uf} {ano}: coluna nova na fonte — {', '.join(unmapped)}. "
-            "Mapeie em `RENAME` antes de carregar."
-        )
 
     dataframe = dataframe.rename(columns=constants.RENAME.value)
     # `DTRECORIG` e `DTRECORIGA` apontam para o mesmo destino: se algum ano

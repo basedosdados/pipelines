@@ -27,7 +27,7 @@ dicionário antes de mexer aqui.
 
 | Parâmetro | Padrão | Efeito |
 |---|---|---|
-| `ano` | vazio | Vazio pega o ano mais recente da fonte. Preenchido é backfill: o flow pula o poll e não mexe no metadado da fonte |
+| `anos` | vazio | Vazio pega o ano mais recente da fonte. Preenchido é backfill (`[2018, 2019, 2020]`): o flow pula o poll e não mexe no metadado da fonte |
 | `materialize_after_dump` | `True` | Sobe para prod e materializa lá |
 | `update_metadata` | `True` | Registra a cobertura materializada |
 | `force_run` | `False` | Materializa mesmo sem novidade na fonte |
@@ -42,20 +42,37 @@ Os padrões escrevem em **produção**, mesmo saindo do pool de teste.
 
 ## Qual ano entra
 
-Sem `ano`, o flow carrega o ano mais recente que existe na fonte, que aqui é o
-último ano fechado: o flow lê só o diretório definitivo.
+Sem `anos`, o flow carrega o ano mais recente que existe na fonte, que aqui é o
+último ano fechado: o flow lê só o diretório definitivo. Com `anos` preenchido,
+carrega a lista inteira numa execução só, um ano de cada vez, e o dbt roda uma
+vez no fim — o modelo é `materialized="table"`, então rodar por ano
+reconstruiria a série toda a cada ano.
 
 O poll compara esse ano com o fim da cobertura da tabela. Depois que a cobertura
 alcança o ano, as execuções seguintes encerram sem carregar nada, e as revisões
 que o DATASUS publicar em anos já fechados não entram. Para trazê-las, executar
-com `ano` preenchido ou com `force_run`.
+com `anos` preenchido ou com `force_run`.
 
 ## Formato da staging
 
 A staging é CSV desde a carga original. O particionado sai em
-`ano=<ano>/sigla_uf=<UF>/data.csv` e sobe com `dump_mode="append"`: os caminhos
-são fixos, então reenviar um ano sobrescreve aquele ano e preserva o resto da
-série. `overwrite` apagaria o prefixo inteiro, com ele 1996 em diante.
+`ano=<ano>/sigla_uf=<UF>/data.csv` e sobe com `dump_mode="append"`: reenviar um
+ano substitui os arquivos de mesmo nome e preserva o resto da série.
+`overwrite` apagaria o prefixo inteiro, com ele 1994 em diante.
+
+**Ressalva para 1994 e 1995.** Esses dois anos ainda vêm do `microdados.csv` que
+a carga antiga gravou; de 1996 em diante o arquivo é `data.csv`. Como `append`
+não apaga nada e a staging lê todo arquivo do prefixo, recarregá-los deixaria os
+dois na partição e o ano sairia em dobro — apagar o velho antes:
+
+```bash
+gcloud storage rm --billing-project=basedosdados-dev \
+  "gs://basedosdados-dev/staging/br_ms_sinasc/microdados/ano=1994/sigla_uf=*/microdados.csv"
+```
+
+O flow não alcança esses anos: a fonte os serve em outro diretório
+(`SINASC/1994_1995/Dados/DNRES/`, com nomes `DNR<UF><ANO>`), que este código não
+lê. Pedi-los em `anos` falha com `nenhuma UF baixada`.
 
 Trocar para parquet exigiria recriar a tabela externa e, com ela, recarregar
 toda a série.
@@ -73,7 +90,7 @@ utils.clean_table("microdados", 2024)
 
 ## Diferenças em relação à carga local
 
-O flow substitui `models/br_ms_sinasc/code/br_ms_sinasc_etl.py`, com três
+O flow substitui `models/br_ms_sinasc/code/br_ms_sinasc_etl.py`, com duas
 mudanças de comportamento:
 
 - **`id_municipio_mae`** era convertido duas vezes — primeiro de 6 para 7
@@ -85,10 +102,6 @@ mudanças de comportamento:
   ser convertida como as demais. O `DNRES` não traz o bloco de cartório em 2018
   nem em 2024, então `cartorio`, `registro_cartorio` e `data_registro_cartorio`
   saem nulas.
-- **Coluna nova na fonte** era detectada comparando o cabeçalho com o do ano
-  anterior, o que exigia ter os dois anos baixados, e a coluna sem mapeamento
-  era descartada em silêncio. Agora a limpeza levanta `ValueError` nomeando a
-  coluna fora de `RENAME`.
 
 ## Pontos de atenção
 
