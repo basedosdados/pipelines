@@ -400,13 +400,20 @@ def shard_by_year(input_dir: Path, prog: str, stage_dir: Path) -> int:
     for i, name in enumerate(names):
         df = read_tsv(input_dir / prog / name)
         df = df.rename(columns={"footnote_codes": "footnote_id"})
+        # `-` and the empty string are both "not published". Masking them is
+        # equivalent to replacing them with None and types cleanly, where a
+        # dict-with-None does not.
+        value = df["value"]
         df["value"] = pd.to_numeric(
-            df["value"].replace({"-": None, "": None}), errors="coerce"
+            value.where(~value.isin(["-", ""])), errors="coerce"
         )
-        df["footnote_id"] = df["footnote_id"].replace({"": None})
+        footnote = df["footnote_id"]
+        df["footnote_id"] = footnote.where(footnote != "")
         df["year"] = pd.to_numeric(df["year"], errors="coerce").astype("int64")
         total += len(df)
         for year, g in df.groupby("year", sort=False):
+            # `year` is int64 by the line above; the groupby key is untyped.
+            # pyrefly: ignore [bad-argument-type]
             d = stage_dir / f"year={int(year)}"
             d.mkdir(exist_ok=True)
             pq.write_table(
