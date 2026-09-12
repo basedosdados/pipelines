@@ -48,6 +48,9 @@ class BQReader(Protocol):
     def read_max_date(
         self, dataset_id: str, table_id: str, coverage: CoverageSpec
     ) -> datetime.date: ...
+    def read_min_date(
+        self, dataset_id: str, table_id: str, coverage: CoverageSpec
+    ) -> datetime.date: ...
     def last_modified(
         self, dataset_id: str, table_id: str
     ) -> datetime.datetime: ...
@@ -292,8 +295,18 @@ def register_table_materialization(
     coverage_ids = client.get_coverage_ids(dataset_id, table_id)
     policy.assert_coverage_topology(coverage, coverage_ids)
 
+    # Só part_bdpro precisa do início da série (para o range free sair completo
+    # e não inverter); evita um scan extra nos demais tiers.
+    source_start = (
+        bq.read_min_date(dataset_id, table_id, coverage)
+        if isinstance(coverage, PartBdpro)
+        else None
+    )
+
     # Cálculo puro dos ranges de cobertura.
-    ranges = policy.compute_coverage_ranges(coverage, source_end, coverage_ids)
+    ranges = policy.compute_coverage_ranges(
+        coverage, source_end, coverage_ids, source_start=source_start
+    )
     for dtr in ranges.to_list():
         client.upsert_coverage_datetime_range(dtr)
 
