@@ -130,7 +130,7 @@ uv run dbt test --select us_bls_employment
 |---|---|
 | Upload row counts vs cleaning | 5/5 exact |
 | `dbt run --select us_bls_employment` | PASS=5, ERROR=0 |
-| `dbt test --select us_bls_employment` | PASS=67, FAIL=0, ERROR=0 |
+| `dbt test --select us_bls_employment` | PASS=46, FAIL=0, ERROR=0 |
 | Directory foreign keys | 0 unmatched across all 8 links |
 | Dictionary coverage | 0 uncovered values across 31 coded columns |
 | `month` NULL exactly where `period_id = 'M13'` | 4/4 tables |
