@@ -44,6 +44,8 @@ def tool(fn):
 
 DATASET_SLUG = "piaac"
 GCP_DATASET = "world_oecd_piaac"
+# Auxiliary bundles live in the public, non-requester-pays bucket in every env.
+AUXILIARY_BUCKET = "basedosdados-public"
 BUCKET_URL = "https://storage.googleapis.com/{bucket}/auxiliary_files/{ds}/{table}/auxiliary_files.zip"
 
 DATASET_NAME = {
@@ -501,7 +503,6 @@ def main() -> None:
     parser.add_argument("--publish", action="store_true")
     args = parser.parse_args()
     env = args.env
-    bucket = "basedosdados" if env == "prod" else "basedosdados-dev"
     gcp_project = "basedosdados" if env == "prod" else "basedosdados-dev"
 
     today = dt.datetime.now(dt.UTC).replace(microsecond=0).isoformat()
@@ -624,7 +625,7 @@ def main() -> None:
             published_by_ids=[account_id],
             data_cleaned_by_ids=[account_id],
             auxiliary_files_url=BUCKET_URL.format(
-                bucket=bucket, ds=GCP_DATASET, table=table_slug
+                bucket=AUXILIARY_BUCKET, ds=GCP_DATASET, table=table_slug
             ),
             raw_data_source_ids=[source_ids[TABLE_SOURCE[table_slug]]],
             env=env,

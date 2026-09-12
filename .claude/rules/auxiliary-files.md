@@ -53,41 +53,49 @@ Rule of thumb: if it is over ~5 MB and a user would read it once, link it.
 ## Where auxiliary files are stored
 
 ```text
-gs://basedosdados/auxiliary_files/<gcp_dataset_id>/<table_slug>/auxiliary_files.zip
+gs://basedosdados-public/auxiliary_files/<gcp_dataset_id>/<table_slug>/auxiliary_files.zip
 ```
 
 recorded as the matching public URL:
 
 ```text
-https://storage.googleapis.com/basedosdados/auxiliary_files/<gcp_dataset_id>/<table_slug>/auxiliary_files.zip
+https://storage.googleapis.com/basedosdados-public/auxiliary_files/<gcp_dataset_id>/<table_slug>/auxiliary_files.zip
 ```
 
-Use the **prod** bucket (`basedosdados`) for anything that will be published. Most
-existing rows point at `basedosdados-dev`, which is a historical accident, not the
-convention.
-
-### Known bug: these links do not resolve for the public
-
-Both buckets are **requester-pays**, so an anonymous request returns HTTP 400:
+**Use `basedosdados-public`, not `basedosdados` or `basedosdados-dev`.** The two
+data-lake buckets are requester-pays, which makes every link served from them
+return HTTP 400 to an anonymous visitor:
 
 ```xml
 <Error><Code>UserProjectMissing</Code>
 <Message>Bucket is a requester pays bucket but no user project provided.</Message></Error>
 ```
 
-As of 2026-08-21 **all 84** production tables whose `auxiliaryFilesUrl` points at
-GCS are affected — every one of those links is dead for a site visitor.
+Requester-pays is a bucket-level billing setting; it cannot be scoped to a
+prefix, and the objects being world-readable does not help — `allUsers` already
+holds `roles/storage.objectViewer` on `basedosdados-dev` and the links are dead
+regardless. Turning it off on a data-lake bucket is not an option either: it
+would make hundreds of terabytes of egress anonymously billable.
 
-Follow the convention anyway: a per-table bundle in the documented location is
-correct, and the fix is one bucket setting, not 84 bespoke hosting decisions. But
-**verify and report the real status** rather than assuming the link works:
+`basedosdados-public` is not requester-pays and is already how the public reaches
+Data Basis data — it serves the one-click table downloads under
+`one-click-download/<gcp_dataset_id>/<table_slug>/` that `pipelines/utils/tasks.py`
+exports to and the website streams. Auxiliary bundles sit beside them under
+`auxiliary_files/`.
+
+### Always verify the link anonymously
+
+The bucket choice is the whole fix, so confirm it rather than assuming:
 
 ```bash
 curl -sI "<auxiliaryFilesUrl>" | head -1
 ```
 
 Never state that auxiliary files are "available at" a URL you have not fetched
-anonymously. If it returns 400, say so in the onboarding summary.
+without credentials. A 400 means you used a requester-pays bucket.
+
+`.github/scripts/migrate_auxiliary_files.py verify --env prod` runs this check
+across every registered `auxiliaryFilesUrl` at once.
 
 ## Every bundle carries a README
 
@@ -133,6 +141,6 @@ why.
 - [ ] At most one raw data source linked per table
 - [ ] Bundles are per table and contain only that table's documents
 - [ ] Every bundle has a README with citation, per-file provenance and download dates
-- [ ] Uploaded to the prod bucket under `auxiliary_files/<gcp_dataset_id>/<table_slug>/`
+- [ ] Uploaded to `gs://basedosdados-public` under `auxiliary_files/<gcp_dataset_id>/<table_slug>/`
 - [ ] `auxiliary_files_url` set on every table that has a bundle
 - [ ] Each published URL fetched anonymously and its real status reported

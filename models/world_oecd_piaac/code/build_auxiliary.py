@@ -235,20 +235,17 @@ def upload_bundles(bucket_name: str, billing_project: str) -> None:
     """Upload each bundle to the documented auxiliary_files path and report the
     status an anonymous visitor actually gets.
 
-    Both Data Basis buckets are requester-pays, so the published URL returns
-    HTTP 400 UserProjectMissing to the public. That is a bucket setting, not
-    something this dataset can fix, but it must be reported rather than assumed
-    away -- see .claude/rules/auxiliary-files.md.
+    Bundles go to gs://basedosdados-public, which is not requester-pays -- the
+    two data-lake buckets are, and anything served from them returns HTTP 400
+    UserProjectMissing to the public. See .claude/rules/auxiliary-files.md.
     """
     import urllib.error
     import urllib.request
 
     from google.cloud import storage
 
-    # Both buckets are requester-pays, so the client and the bucket handle must
-    # bill the project matching the target env, not a hardcoded dev project.
     client = storage.Client(project=billing_project)
-    bucket = client.bucket(bucket_name, user_project=billing_project)
+    bucket = client.bucket(bucket_name)
     for table_slug in BUNDLES:
         archive = BUNDLE_ROOT / table_slug / "auxiliary_files.zip"
         blob_path = f"auxiliary_files/world_oecd_piaac/{table_slug}/auxiliary_files.zip"
@@ -278,10 +275,10 @@ def main() -> None:
 
     argv = sys.argv[1:]
     if "--upload" in argv:
-        env = argv[argv.index("--env") + 1] if "--env" in argv else "dev"
-        bucket_name = "basedosdados" if env == "prod" else "basedosdados-dev"
+        # Auxiliary bundles are public in both envs; the bucket does not vary.
+        bucket_name = "basedosdados-public"
         print(f"\n=== uploading to gs://{bucket_name}/auxiliary_files/ ===")
-        upload_bundles(bucket_name, billing_project=bucket_name)
+        upload_bundles(bucket_name, billing_project="basedosdados")
 
 
 if __name__ == "__main__":
