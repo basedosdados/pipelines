@@ -1,0 +1,647 @@
+---
+version: 2
+models:
+  - name: us_census_trade__import
+    description: >-
+      Importações mensais de mercadorias dos Estados Unidos por código de
+      seis dígitos do Sistema Harmonizado, país parceiro e distrito aduaneiro
+      de entrada, publicadas pelo U.S. Census Bureau. Cada linha traz o valor
+      das importações gerais e o valor das importações para consumo, que são
+      medidas distintas e sobrepostas e não devem ser somadas, além de valor
+      CIF, despesas, imposto calculado, duas quantidades com suas unidades e
+      a repartição por modal aéreo e marítimo. É a única das seis tabelas de
+      fatos que traz quantidade e imposto. Complementa world_cepii_baci em
+      vez de repeti-la: o BACI é o painel mundial anual reconciliado,
+      enquanto esta tabela é a fonte nacional norte-americana em frequência
+      mensal e com detalhe de distrito aduaneiro
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - country_code
+            - district_code
+            - hs6_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+          # Sparse by the source's structure, NOT
+          # yet measured -- see build_dbt.py.
+          ignore_values:
+            - consumption_quantity_2
+            - general_quantity_2
+            - quantity_2_unit
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_census_trade__dicionario')
+          columns_covered_by_dictionary:
+            - country_code
+            - district_code
+            - hs_revision
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da estatística mensal
+        tests: [not_null]
+      - name: month
+        description: >-
+          Mês de referência da estatística, de 1 a 12
+        tests: [not_null]
+      - name: country_code
+        description: >-
+          Código do país parceiro na Schedule C do Census Bureau
+        tests: [not_null]
+      - name: country_iso3_code
+        description: >-
+          Sigla ISO 3166-1 alfa-3 do país parceiro
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: country_iso2_code
+        description: >-
+          Sigla ISO 3166-1 alfa-2 do país parceiro
+      - name: district_code
+        description: >-
+          Código do distrito aduaneiro na Schedule D do Census Bureau
+        tests: [not_null]
+      - name: hs6_code
+        description: >-
+          Código de 6 dígitos da mercadoria no Sistema Harmonizado
+        tests: [not_null]
+      - name: hs4_code
+        description: >-
+          Código de 4 dígitos da posição do Sistema Harmonizado
+      - name: hs2_code
+        description: >-
+          Código de 2 dígitos do capítulo do Sistema Harmonizado
+      - name: hs_revision
+        description: >-
+          Revisão do Sistema Harmonizado vigente no ano de referência
+      - name: general_value
+        description: >-
+          Valor das importações gerais no mês
+      - name: general_cif_value
+        description: >-
+          Valor CIF das importações gerais no mês
+      - name: general_charges
+        description: >-
+          Despesas de seguro e frete das importações gerais no mês
+      - name: general_quantity_1
+        description: >-
+          Primeira quantidade das importações gerais no mês
+      - name: general_quantity_2
+        description: >-
+          Segunda quantidade das importações gerais no mês
+      - name: consumption_value
+        description: >-
+          Valor das importações para consumo no mês
+      - name: consumption_cif_value
+        description: >-
+          Valor CIF das importações para consumo no mês
+      - name: consumption_charges
+        description: >-
+          Despesas de seguro e frete das importações para consumo no mês
+      - name: consumption_quantity_1
+        description: >-
+          Primeira quantidade das importações para consumo no mês
+      - name: consumption_quantity_2
+        description: >-
+          Segunda quantidade das importações para consumo no mês
+      - name: quantity_1_unit
+        description: >-
+          Unidade de medida da quantidade 1
+      - name: quantity_2_unit
+        description: >-
+          Unidade de medida da quantidade 2
+      - name: dutiable_value
+        description: >-
+          Valor tributável das importações para consumo no mês
+      - name: calculated_duty
+        description: >-
+          Imposto de importação calculado sobre as importações para consumo
+          no mês
+      - name: air_value
+        description: >-
+          Valor transportado por via aérea no mês
+      - name: air_shipping_weight
+        description: >-
+          Peso embarcado por via aérea no mês
+      - name: vessel_value
+        description: >-
+          Valor transportado por via marítima no mês
+      - name: vessel_shipping_weight
+        description: >-
+          Peso embarcado por via marítima no mês
+      - name: containerized_vessel_value
+        description: >-
+          Valor transportado em contêineres por via marítima no mês
+      - name: containerized_vessel_shipping_weight
+        description: >-
+          Peso embarcado em contêineres por via marítima no mês
+      - name: card_count
+        description: >-
+          Número de registros administrativos agregados na linha
+  - name: us_census_trade__export
+    description: >-
+      Exportações mensais de mercadorias dos Estados Unidos por código de
+      seis dígitos do Sistema Harmonizado, país parceiro e distrito aduaneiro
+      de saída, publicadas pelo U.S. Census Bureau. O valor é FAS, medido no
+      porto de saída e sem frete e seguro internacionais. A coluna
+      domestic_foreign_code separa exportações de mercadorias produzidas nos
+      Estados Unidos das reexportações de mercadorias estrangeiras e é uma
+      dimensão da linha, de modo que o total exportado é a soma das duas
+      categorias. Complementa world_cepii_baci: painel mundial anual
+      reconciliado lá, fonte nacional mensal com detalhe de distrito aqui
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - country_code
+            - district_code
+            - hs6_code
+            - domestic_foreign_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+          # Sparse by the source's structure, NOT
+          # yet measured -- see build_dbt.py.
+          ignore_values: [quantity_2, quantity_2_unit]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_census_trade__dicionario')
+          columns_covered_by_dictionary:
+            - country_code
+            - district_code
+            - domestic_foreign_code
+            - hs_revision
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da estatística mensal
+        tests: [not_null]
+      - name: month
+        description: >-
+          Mês de referência da estatística, de 1 a 12
+        tests: [not_null]
+      - name: country_code
+        description: >-
+          Código do país parceiro na Schedule C do Census Bureau
+        tests: [not_null]
+      - name: country_iso3_code
+        description: >-
+          Sigla ISO 3166-1 alfa-3 do país parceiro
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: country_iso2_code
+        description: >-
+          Sigla ISO 3166-1 alfa-2 do país parceiro
+      - name: district_code
+        description: >-
+          Código do distrito aduaneiro na Schedule D do Census Bureau
+        tests: [not_null]
+      - name: hs6_code
+        description: >-
+          Código de 6 dígitos da mercadoria no Sistema Harmonizado
+        tests: [not_null]
+      - name: hs4_code
+        description: >-
+          Código de 4 dígitos da posição do Sistema Harmonizado
+      - name: hs2_code
+        description: >-
+          Código de 2 dígitos do capítulo do Sistema Harmonizado
+      - name: hs_revision
+        description: >-
+          Revisão do Sistema Harmonizado vigente no ano de referência
+      - name: domestic_foreign_code
+        description: >-
+          Indicador de exportação doméstica ou reexportação
+        tests: [not_null]
+      - name: total_value
+        description: >-
+          Valor total das exportações no mês
+      - name: quantity_1
+        description: >-
+          Primeira quantidade exportada no mês
+      - name: quantity_2
+        description: >-
+          Segunda quantidade exportada no mês
+      - name: quantity_1_unit
+        description: >-
+          Unidade de medida da quantidade 1
+      - name: quantity_2_unit
+        description: >-
+          Unidade de medida da quantidade 2
+      - name: air_value
+        description: >-
+          Valor transportado por via aérea no mês
+      - name: air_shipping_weight
+        description: >-
+          Peso embarcado por via aérea no mês
+      - name: vessel_value
+        description: >-
+          Valor transportado por via marítima no mês
+      - name: vessel_shipping_weight
+        description: >-
+          Peso embarcado por via marítima no mês
+      - name: containerized_vessel_value
+        description: >-
+          Valor transportado em contêineres por via marítima no mês
+      - name: containerized_vessel_shipping_weight
+        description: >-
+          Peso embarcado em contêineres por via marítima no mês
+      - name: card_count
+        description: >-
+          Número de registros administrativos agregados na linha
+  - name: us_census_trade__import_port
+    description: >-
+      Importações mensais de mercadorias dos Estados Unidos por código de
+      seis dígitos do Sistema Harmonizado, país parceiro e porto de entrada,
+      publicadas pelo U.S. Census Bureau. O endpoint por porto publica apenas
+      as importações gerais e a repartição por modal: valor para consumo,
+      imposto e quantidade existem somente na tabela import, por distrito
+      aduaneiro. Os dois primeiros dígitos de port_code são o distrito
+      aduaneiro, o que permite reconciliar as duas tabelas
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - country_code
+            - port_code
+            - hs6_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_census_trade__dicionario')
+          columns_covered_by_dictionary: [country_code, hs_revision, port_code]
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da estatística mensal
+        tests: [not_null]
+      - name: month
+        description: >-
+          Mês de referência da estatística, de 1 a 12
+        tests: [not_null]
+      - name: country_code
+        description: >-
+          Código do país parceiro na Schedule C do Census Bureau
+        tests: [not_null]
+      - name: country_iso3_code
+        description: >-
+          Sigla ISO 3166-1 alfa-3 do país parceiro
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: country_iso2_code
+        description: >-
+          Sigla ISO 3166-1 alfa-2 do país parceiro
+      - name: port_code
+        description: >-
+          Código do porto na Schedule D do Census Bureau
+        tests: [not_null]
+      - name: hs6_code
+        description: >-
+          Código de 6 dígitos da mercadoria no Sistema Harmonizado
+        tests: [not_null]
+      - name: hs4_code
+        description: >-
+          Código de 4 dígitos da posição do Sistema Harmonizado
+      - name: hs2_code
+        description: >-
+          Código de 2 dígitos do capítulo do Sistema Harmonizado
+      - name: hs_revision
+        description: >-
+          Revisão do Sistema Harmonizado vigente no ano de referência
+      - name: general_value
+        description: >-
+          Valor das importações gerais no mês
+      - name: air_value
+        description: >-
+          Valor transportado por via aérea no mês
+      - name: air_shipping_weight
+        description: >-
+          Peso embarcado por via aérea no mês
+      - name: vessel_value
+        description: >-
+          Valor transportado por via marítima no mês
+      - name: vessel_shipping_weight
+        description: >-
+          Peso embarcado por via marítima no mês
+      - name: containerized_vessel_value
+        description: >-
+          Valor transportado em contêineres por via marítima no mês
+      - name: containerized_vessel_shipping_weight
+        description: >-
+          Peso embarcado em contêineres por via marítima no mês
+  - name: us_census_trade__export_port
+    description: >-
+      Exportações mensais de mercadorias dos Estados Unidos por código de
+      seis dígitos do Sistema Harmonizado, país parceiro e porto de saída,
+      publicadas pelo U.S. Census Bureau. O endpoint por porto não publica
+      quantidade nem a separação entre exportação doméstica e reexportação,
+      que existem somente na tabela export, por distrito aduaneiro. Os dois
+      primeiros dígitos de port_code são o distrito aduaneiro
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - country_code
+            - port_code
+            - hs6_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_census_trade__dicionario')
+          columns_covered_by_dictionary: [country_code, hs_revision, port_code]
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da estatística mensal
+        tests: [not_null]
+      - name: month
+        description: >-
+          Mês de referência da estatística, de 1 a 12
+        tests: [not_null]
+      - name: country_code
+        description: >-
+          Código do país parceiro na Schedule C do Census Bureau
+        tests: [not_null]
+      - name: country_iso3_code
+        description: >-
+          Sigla ISO 3166-1 alfa-3 do país parceiro
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: country_iso2_code
+        description: >-
+          Sigla ISO 3166-1 alfa-2 do país parceiro
+      - name: port_code
+        description: >-
+          Código do porto na Schedule D do Census Bureau
+        tests: [not_null]
+      - name: hs6_code
+        description: >-
+          Código de 6 dígitos da mercadoria no Sistema Harmonizado
+        tests: [not_null]
+      - name: hs4_code
+        description: >-
+          Código de 4 dígitos da posição do Sistema Harmonizado
+      - name: hs2_code
+        description: >-
+          Código de 2 dígitos do capítulo do Sistema Harmonizado
+      - name: hs_revision
+        description: >-
+          Revisão do Sistema Harmonizado vigente no ano de referência
+      - name: total_value
+        description: >-
+          Valor total das exportações no mês
+      - name: air_value
+        description: >-
+          Valor transportado por via aérea no mês
+      - name: air_shipping_weight
+        description: >-
+          Peso embarcado por via aérea no mês
+      - name: vessel_value
+        description: >-
+          Valor transportado por via marítima no mês
+      - name: vessel_shipping_weight
+        description: >-
+          Peso embarcado por via marítima no mês
+      - name: containerized_vessel_value
+        description: >-
+          Valor transportado em contêineres por via marítima no mês
+      - name: containerized_vessel_shipping_weight
+        description: >-
+          Peso embarcado em contêineres por via marítima no mês
+  - name: us_census_trade__import_state
+    description: >-
+      Importações mensais de mercadorias dos Estados Unidos por código de
+      seis dígitos do Sistema Harmonizado, país parceiro e estado de destino
+      declarado, publicadas pelo U.S. Census Bureau. O endpoint por estado
+      não publica quantidade nem imposto. O estado de destino é o declarado
+      na entrada e não necessariamente onde a mercadoria é consumida
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - country_code
+            - state_abbreviation
+            - hs6_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+          # Sparse by the source's structure, NOT
+          # yet measured -- see build_dbt.py.
+          ignore_values: [state_id]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_census_trade__dicionario')
+          columns_covered_by_dictionary: [country_code, hs_revision]
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da estatística mensal
+        tests: [not_null]
+      - name: month
+        description: >-
+          Mês de referência da estatística, de 1 a 12
+        tests: [not_null]
+      - name: country_code
+        description: >-
+          Código do país parceiro na Schedule C do Census Bureau
+        tests: [not_null]
+      - name: country_iso3_code
+        description: >-
+          Sigla ISO 3166-1 alfa-3 do país parceiro
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: country_iso2_code
+        description: >-
+          Sigla ISO 3166-1 alfa-2 do país parceiro
+      - name: state_abbreviation
+        description: >-
+          Sigla de duas letras do estado dos Estados Unidos
+        tests: [not_null]
+      - name: state_id
+        description: >-
+          Código FIPS do estado dos Estados Unidos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: hs6_code
+        description: >-
+          Código de 6 dígitos da mercadoria no Sistema Harmonizado
+        tests: [not_null]
+      - name: hs4_code
+        description: >-
+          Código de 4 dígitos da posição do Sistema Harmonizado
+      - name: hs2_code
+        description: >-
+          Código de 2 dígitos do capítulo do Sistema Harmonizado
+      - name: hs_revision
+        description: >-
+          Revisão do Sistema Harmonizado vigente no ano de referência
+      - name: general_value
+        description: >-
+          Valor das importações gerais no mês
+      - name: consumption_value
+        description: >-
+          Valor das importações para consumo no mês
+      - name: air_value
+        description: >-
+          Valor transportado por via aérea no mês
+      - name: air_shipping_weight
+        description: >-
+          Peso embarcado por via aérea no mês
+      - name: vessel_value
+        description: >-
+          Valor transportado por via marítima no mês
+      - name: vessel_shipping_weight
+        description: >-
+          Peso embarcado por via marítima no mês
+      - name: containerized_vessel_value
+        description: >-
+          Valor transportado em contêineres por via marítima no mês
+      - name: containerized_vessel_shipping_weight
+        description: >-
+          Peso embarcado em contêineres por via marítima no mês
+  - name: us_census_trade__export_state
+    description: >-
+      Exportações mensais de mercadorias dos Estados Unidos por código de
+      seis dígitos do Sistema Harmonizado, país parceiro e estado de origem
+      do movimento, publicadas pelo U.S. Census Bureau. O estado de origem do
+      movimento é a localização do exportador e não necessariamente onde a
+      mercadoria foi produzida, ressalva que o próprio Census Bureau faz. O
+      endpoint por estado não publica quantidade
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - country_code
+            - state_abbreviation
+            - hs6_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+          # Sparse by the source's structure, NOT
+          # yet measured -- see build_dbt.py.
+          ignore_values: [state_id]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_census_trade__dicionario')
+          columns_covered_by_dictionary: [country_code, hs_revision]
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da estatística mensal
+        tests: [not_null]
+      - name: month
+        description: >-
+          Mês de referência da estatística, de 1 a 12
+        tests: [not_null]
+      - name: country_code
+        description: >-
+          Código do país parceiro na Schedule C do Census Bureau
+        tests: [not_null]
+      - name: country_iso3_code
+        description: >-
+          Sigla ISO 3166-1 alfa-3 do país parceiro
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: country_iso2_code
+        description: >-
+          Sigla ISO 3166-1 alfa-2 do país parceiro
+      - name: state_abbreviation
+        description: >-
+          Sigla de duas letras do estado dos Estados Unidos
+        tests: [not_null]
+      - name: state_id
+        description: >-
+          Código FIPS do estado dos Estados Unidos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: hs6_code
+        description: >-
+          Código de 6 dígitos da mercadoria no Sistema Harmonizado
+        tests: [not_null]
+      - name: hs4_code
+        description: >-
+          Código de 4 dígitos da posição do Sistema Harmonizado
+      - name: hs2_code
+        description: >-
+          Código de 2 dígitos do capítulo do Sistema Harmonizado
+      - name: hs_revision
+        description: >-
+          Revisão do Sistema Harmonizado vigente no ano de referência
+      - name: total_value
+        description: >-
+          Valor total das exportações no mês
+      - name: air_value
+        description: >-
+          Valor transportado por via aérea no mês
+      - name: air_shipping_weight
+        description: >-
+          Peso embarcado por via aérea no mês
+      - name: vessel_value
+        description: >-
+          Valor transportado por via marítima no mês
+      - name: vessel_shipping_weight
+        description: >-
+          Peso embarcado por via marítima no mês
+      - name: containerized_vessel_value
+        description: >-
+          Valor transportado em contêineres por via marítima no mês
+      - name: containerized_vessel_shipping_weight
+        description: >-
+          Peso embarcado em contêineres por via marítima no mês
+  - name: us_census_trade__dicionario
+    description: >-
+      Dicionário com as traduções dos códigos usados nas seis tabelas de
+      fatos de us_census_trade. Construído a partir das listas de códigos
+      publicadas pelo Census Bureau — a Schedule C para países e a Schedule D
+      para distritos aduaneiros e portos — e não a partir dos valores
+      observados numa janela de meses, de modo que a cobertura é completa e
+      não se limita ao que foi negociado nos meses baixados por último
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+    columns:
+      - name: id_tabela
+        description: >-
+          Nome da tabela à qual a coluna pertence
+        tests: [not_null]
+      - name: nome_coluna
+        description: >-
+          Nome da coluna codificada
+        tests: [not_null]
+      - name: chave
+        description: >-
+          Valor codificado
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >-
+          Cobertura temporal do valor codificado
+      - name: valor
+        description: >-
+          Valor traduzido do código
