@@ -1,0 +1,385 @@
+---
+version: 2
+models:
+  - name: us_sec_edgar__submission
+    description: >
+      Uma linha por submissão XBRL protocolada na SEC cujos valores foram
+      renderizados nas demonstrações financeiras principais, com os dados
+      cadastrais do registrante (CIK, nome, setor SIC, endereços, país e estado
+      de constituição) e os atributos do protocolo (formulário, período, ano e
+      período fiscal, datas de protocolo e aceitação). Chave: número de adesão
+      dentro do trimestre de divulgação.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, quarter, accession_number]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [additional_ciks]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - filer_status
+            - well_known_seasoned_issuer
+            - fiscal_period
+            - previous_report
+            - detail
+          dictionary_model: ref('us_sec_edgar__dicionario')
+    columns:
+      - name: year
+        description: >
+          Ano de divulgação do conjunto de dados trimestral
+        tests: [not_null]
+      - name: quarter
+        description: >
+          Trimestre de divulgação do conjunto de dados
+        tests: [not_null]
+      - name: accession_number
+        description: >
+          Número de adesão (accession number) da submissão no EDGAR
+        tests: [not_null]
+      - name: cik
+        description: >
+          Central Index Key (CIK) do registrante
+        tests: [not_null]
+      - name: company_name
+        description: >
+          Nome do registrante
+      - name: sic
+        description: >
+          Código de classificação industrial padrão (SIC) do registrante
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__sic')
+              field: id_sic
+      - name: ein
+        description: >
+          Número de identificação de empregador (EIN) do registrante
+      - name: former_name
+        description: >
+          Nome anterior mais recente do registrante
+      - name: former_name_change_date
+        description: >
+          Data da mudança a partir do nome anterior
+      - name: country_business
+        description: >
+          País do endereço comercial do registrante
+      - name: state_business
+        description: >
+          Estado ou província do endereço comercial do registrante
+      - name: city_business
+        description: >
+          Cidade do endereço comercial do registrante
+      - name: zip_business
+        description: >
+          Código postal do endereço comercial do registrante
+      - name: address1_business
+        description: >
+          Primeira linha do logradouro do endereço comercial do registrante
+      - name: address2_business
+        description: >
+          Segunda linha do logradouro do endereço comercial do registrante
+      - name: phone_business
+        description: >
+          Telefone do endereço comercial do registrante
+      - name: country_mailing
+        description: >
+          País do endereço de correspondência do registrante
+      - name: state_mailing
+        description: >
+          Estado ou província do endereço de correspondência do registrante
+      - name: city_mailing
+        description: >
+          Cidade do endereço de correspondência do registrante
+      - name: zip_mailing
+        description: >
+          Código postal do endereço de correspondência do registrante
+      - name: address1_mailing
+        description: >
+          Primeira linha do logradouro do endereço de correspondência do registrante
+      - name: address2_mailing
+        description: >
+          Segunda linha do logradouro do endereço de correspondência do registrante
+      - name: country_incorporation
+        description: >
+          País de constituição do registrante
+      - name: state_incorporation
+        description: >
+          Estado ou província de constituição do registrante
+      - name: filer_status
+        description: >
+          Situação do registrante perante a SEC no momento da submissão
+      - name: well_known_seasoned_issuer
+        description: >
+          Indicador de emissor sazonal amplamente conhecido (WKSI)
+      - name: fiscal_year_end
+        description: >
+          Fim do exercício fiscal do registrante
+      - name: form
+        description: >
+          Tipo de formulário da submissão
+      - name: period
+        description: >
+          Data do balanço patrimonial da submissão
+      - name: fiscal_year
+        description: >
+          Ano fiscal de referência da submissão
+      - name: fiscal_period
+        description: >
+          Período fiscal de referência dentro do ano fiscal
+      - name: filed_date
+        description: >
+          Data do protocolo do registrante junto à SEC
+      - name: accepted_datetime
+        description: >
+          Data e hora de aceitação do protocolo pela SEC
+      - name: previous_report
+        description: >
+          Indicador de que a submissão foi posteriormente aditada
+      - name: detail
+        description: >
+          Indicador de que a submissão XBRL contém divulgações quantitativas
+          detalhadas
+      - name: instance
+        description: >
+          Nome do documento de instância XBRL submetido
+      - name: quantity_ciks
+        description: >
+          Número de registrantes incluídos na submissão consolidada
+      - name: additional_ciks
+        description: >
+          CIKs adicionais dos corregistrantes incluídos na submissão
+  - name: us_sec_edgar__numeric_fact
+    description: >
+      Uma linha por valor numérico das demonstrações financeiras principais
+      renderizadas pela SEC, conforme protocolado. Cada linha identifica a
+      submissão, o marcador (tag) da taxonomia XBRL e sua versão, o período, a
+      unidade de medida, o eixo dimensional (segments) e o corregistrante. Duas
+      inconsistências da fonte são toleradas nos testes. Primeira: a chave
+      documentada pela SEC não é única em 212 casos (434 linhas de 181.351.169,
+      ou 0,0002%), quando o declarante reaproveita o mesmo identificador de
+      membro em segments para contratos distintos e as duas linhas trazem
+      valores diferentes. Segunda: quatro números de adesão de 2013Q1 aparecem
+      em num.txt sem a linha correspondente em sub.txt (1.953 linhas), e são
+      excluídos do teste de integridade referencial.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns:
+            - year
+            - quarter
+            - accession_number
+            - tag
+            - version
+            - period_end_date
+            - quantity_quarters
+            - unit_of_measure
+            - segments
+            - coregistrant
+          proportion_allowed_failures: 0.0001
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [footnote, coregistrant]
+    columns:
+      - name: year
+        description: >
+          Ano de divulgação do conjunto de dados trimestral
+        tests: [not_null]
+      - name: quarter
+        description: >
+          Trimestre de divulgação do conjunto de dados
+        tests: [not_null]
+      - name: accession_number
+        description: >
+          Número de adesão (accession number) da submissão no EDGAR
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('us_sec_edgar__submission')
+              field: accession_number
+              ignore_values:
+                - 0001084048-13-000002
+                - 0001193125-13-087866
+                - 0001193125-13-087869
+                - 0001524777-13-000093
+      - name: tag
+        description: >
+          Identificador do marcador (tag) da taxonomia XBRL
+        tests: [not_null]
+      - name: version
+        description: >
+          Versão da taxonomia em que o marcador foi definido
+        tests: [not_null]
+      - name: period_end_date
+        description: >
+          Data final do período a que o valor se refere
+      - name: quantity_quarters
+        description: >
+          Número de trimestres cobertos pelo valor
+      - name: unit_of_measure
+        description: >
+          Unidade de medida do valor
+      - name: segments
+        description: >
+          Eixos e membros XBRL que qualificam o valor
+      - name: coregistrant
+        description: >
+          Corregistrante, empresa controladora ou outra entidade a que o valor se
+          refere
+      - name: value
+        description: >
+          Valor numérico reportado
+      - name: footnote
+        description: >
+          Texto das notas de rodapé associadas ao valor
+  - name: us_sec_edgar__tag
+    description: >
+      Uma linha por marcador (tag) da taxonomia XBRL usado nas submissões do
+      trimestre, padrão ou customizado pelo declarante, com tipo de dado,
+      natureza temporal, saldo contábil natural, rótulo e documentação. Os
+      marcadores se repetem a cada trimestre de divulgação em que são usados;
+      para obter a dimensão única, aplique select distinct sobre tag e version.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, quarter, tag, version]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - custom
+            - abstract
+            - datatype
+            - period_type
+            - balance
+          dictionary_model: ref('us_sec_edgar__dicionario')
+    columns:
+      - name: year
+        description: >
+          Ano de divulgação do conjunto de dados trimestral
+        tests: [not_null]
+      - name: quarter
+        description: >
+          Trimestre de divulgação do conjunto de dados
+        tests: [not_null]
+      - name: tag
+        description: >
+          Identificador do marcador (tag) da taxonomia XBRL
+        tests: [not_null]
+      - name: version
+        description: >
+          Versão da taxonomia em que o marcador foi definido
+        tests: [not_null]
+      - name: custom
+        description: >
+          Indicador de marcador customizado pelo declarante
+      - name: abstract
+        description: >
+          Indicador de que o marcador não representa um fato numérico
+      - name: datatype
+        description: >
+          Tipo de dado do marcador
+      - name: period_type
+        description: >
+          Natureza temporal do valor do marcador
+      - name: balance
+        description: >
+          Saldo contábil natural do marcador monetário
+      - name: label
+        description: >
+          Rótulo de documentação do marcador
+      - name: documentation
+        description: >
+          Definição detalhada do marcador
+  - name: us_sec_edgar__presentation
+    description: >
+      Uma linha por linha das demonstrações financeiras principais tal como
+      apresentadas pelo declarante, indicando a demonstração, o relatório, a
+      ordem da linha, o marcador atribuído e o rótulo exibido. Um mesmo marcador
+      pode aparecer em mais de uma demonstração da mesma submissão.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - quarter
+            - accession_number
+            - report
+            - line
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - statement
+            - parenthetical
+            - render_file
+            - negating
+          dictionary_model: ref('us_sec_edgar__dicionario')
+    columns:
+      - name: year
+        description: >
+          Ano de divulgação do conjunto de dados trimestral
+        tests: [not_null]
+      - name: quarter
+        description: >
+          Trimestre de divulgação do conjunto de dados
+        tests: [not_null]
+      - name: accession_number
+        description: >
+          Número de adesão (accession number) da submissão no EDGAR
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_sec_edgar__submission')
+              field: accession_number
+      - name: report
+        description: >
+          Identificador do relatório dentro das demonstrações financeiras
+        tests: [not_null]
+      - name: line
+        description: >
+          Ordem de apresentação da linha dentro do relatório
+        tests: [not_null]
+      - name: statement
+        description: >
+          Demonstração financeira a que o relatório pertence
+      - name: parenthetical
+        description: >
+          Indicador de valor apresentado entre parênteses no corpo da demonstração
+      - name: render_file
+        description: >
+          Tipo de arquivo de dados interativos renderizado no EDGAR
+      - name: tag
+        description: >
+          Identificador do marcador (tag) da taxonomia XBRL
+      - name: version
+        description: >
+          Versão da taxonomia em que o marcador foi definido
+      - name: preferred_label
+        description: >
+          Texto apresentado na linha da demonstração financeira
+      - name: negating
+        description: >
+          Indicador de que o rótulo preferencial inverte o sinal do valor
+  - name: us_sec_edgar__dicionario
+    description: >
+      Dicionário de valores codificados das demais tabelas do conjunto: uma
+      linha por combinação de tabela, coluna, chave e rótulo legível.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+    columns:
+      - name: id_tabela
+        description: >
+          Nome da tabela à qual a coluna pertence
+        tests: [not_null]
+      - name: nome_coluna
+        description: >
+          Nome da coluna codificada
+        tests: [not_null]
+      - name: chave
+        description: >
+          Valor codificado
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >
+          Cobertura temporal do mapeamento
+      - name: valor
+        description: >
+          Rótulo legível correspondente à chave
+        tests: [not_null]

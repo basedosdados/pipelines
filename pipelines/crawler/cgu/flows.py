@@ -59,7 +59,6 @@ def _materialize_and_metadata(
     filepath: str,
     dataset_id: str,
     table_id: str,
-    dbt_alias: bool,
     target: str,
     materialize_after_dump: bool,
     update_metadata: bool,
@@ -81,7 +80,6 @@ def _materialize_and_metadata(
             particionamento.
         dataset_id: id do dataset no BigQuery (ex. `br_cgu_servidores_publicos`).
         table_id: id da tabela dentro do dataset.
-        dbt_alias: repassado ao `run_dbt`; indica se o modelo usa alias.
         target: target do dbt na etapa de prod. A etapa de dev é sempre
             `dev`, independente deste valor.
         materialize_after_dump: se falso, para depois do dbt em dev e não
@@ -106,7 +104,6 @@ def _materialize_and_metadata(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -125,7 +122,6 @@ def _materialize_and_metadata(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -144,7 +140,6 @@ def _run_cgu_cartao_pagamento(
     table_id: str,
     relative_month: int,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool,
@@ -160,7 +155,6 @@ def _run_cgu_cartao_pagamento(
         relative_month: quantos meses somar à última data registrada nos
             metadados para chegar no período a baixar.
         materialize_after_dump: se verdadeiro, materializa também em prod.
-        dbt_alias: repassado ao `run_dbt`.
         update_metadata: se verdadeiro, atualiza cobertura da tabela e o
             Update da fonte original.
         target: target do dbt na etapa de prod.
@@ -205,7 +199,6 @@ def _run_cgu_cartao_pagamento(
         filepath=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dbt_alias=dbt_alias,
         target=target,
         materialize_after_dump=materialize_after_dump,
         update_metadata=update_metadata,
@@ -218,7 +211,6 @@ def _run_cgu_servidores_publicos(
     table_id: str,
     relative_month: int,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool,
@@ -235,7 +227,6 @@ def _run_cgu_servidores_publicos(
         relative_month: quantos meses somar à última data registrada nos
             metadados para chegar no período a baixar.
         materialize_after_dump: se verdadeiro, materializa também em prod.
-        dbt_alias: repassado ao `run_dbt`.
         update_metadata: se verdadeiro, atualiza cobertura da tabela e o
             Update da fonte original.
         target: target do dbt na etapa de prod.
@@ -288,7 +279,6 @@ def _run_cgu_servidores_publicos(
         filepath=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dbt_alias=dbt_alias,
         target=target,
         materialize_after_dump=materialize_after_dump,
         update_metadata=update_metadata,
@@ -301,7 +291,6 @@ def _run_cgu_licitacao_contrato(
     table_id: str,
     relative_month: int,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool,
@@ -314,7 +303,6 @@ def _run_cgu_licitacao_contrato(
         relative_month: quantos meses somar à última data registrada nos
             metadados para chegar no período a baixar.
         materialize_after_dump: se verdadeiro, materializa também em prod.
-        dbt_alias: repassado ao `run_dbt`.
         update_metadata: se verdadeiro, atualiza cobertura da tabela e o
             Update da fonte original.
         target: target do dbt na etapa de prod.
@@ -359,7 +347,6 @@ def _run_cgu_licitacao_contrato(
         filepath=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dbt_alias=dbt_alias,
         target=target,
         materialize_after_dump=materialize_after_dump,
         update_metadata=update_metadata,
@@ -372,7 +359,6 @@ def _run_cgu_beneficios_cidadao(
     table_id: str,
     relative_month: int,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool,
@@ -390,7 +376,6 @@ def _run_cgu_beneficios_cidadao(
         relative_month: quantos meses somar à última data registrada nos
             metadados para chegar no período a baixar.
         materialize_after_dump: se verdadeiro, materializa também em prod.
-        dbt_alias: repassado ao `run_dbt`.
         update_metadata: se verdadeiro, atualiza cobertura da tabela e o
             Update da fonte original.
         target: target do dbt na etapa de prod.
@@ -435,7 +420,6 @@ def _run_cgu_beneficios_cidadao(
         filepath=filepath,
         dataset_id=dataset_id,
         table_id=table_id,
-        dbt_alias=dbt_alias,
         target=target,
         materialize_after_dump=materialize_after_dump,
         update_metadata=update_metadata,

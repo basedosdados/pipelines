@@ -121,27 +121,41 @@ def world_wb_wdi_flow(
 
         tables = constants.ALL_TABLES.value
 
-        # Dev: upload staging + materialize/test.
-        for table in tables:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados-dev",
-                dump_mode="overwrite",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run/test",
-                target="dev",
-            )
-
+        # The dev materialization is the pre-arm validation path, not part of a
+        # production run: it rebuilds and re-tests every table in
+        # basedosdados-dev, which nothing downstream reads. Running it on an
+        # armed run doubled the BigQuery bytes billed for no signal — prod
+        # runs the same models and the same tests seconds later.
         if not materialize_to_prod:
+            # Dev: sobe e roda TODAS as tabelas antes de testar qualquer
+            # uma — data/country_indicator/indicator_time testam relationships contra
+            # ref('world_wb_wdi__indicators'), que é construída depois delas.
+            for table in tables:
+                upload_to_gcs(
+                    data_path=result[table],
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    bucket_name="basedosdados-dev",
+                    dump_mode="overwrite",
+                    source_format="parquet",
+                )
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="run",
+                    target="dev",
+                )
+            for table in tables:
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="test",
+                    target="dev",
+                )
             return
 
-        # Prod: upload staging + materialize/test.
+        # Prod: sobe e roda TODAS as tabelas antes de testar qualquer uma
+        # (mesma razão da fase de dev).
         for table in tables:
             upload_to_gcs(
                 data_path=result[table],
@@ -154,7 +168,14 @@ def world_wb_wdi_flow(
             run_dbt(
                 dataset_id=DATASET_ID,
                 table_id=table,
-                dbt_command="run/test",
+                dbt_command="run",
+                target="prod",
+            )
+        for table in tables:
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="test",
                 target="prod",
             )
 
@@ -181,7 +202,7 @@ def world_wb_wdi_flow(
 # this ingests the annual update whenever the World Bank publishes it.
 # pyrefly: ignore [missing-attribute]
 world_wb_wdi_flow.deploy_schedules = [
-    {"cron": "0 16 15 3,6,9,12 *", "timezone": "America/Sao_Paulo"}
+    {"cron": "20 16 15 3,6,9,12 *", "timezone": "America/Sao_Paulo"}
 ]
 # The clean step melts the wide file into ~26M rows in pandas; give the worker
 # headroom.

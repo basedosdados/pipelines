@@ -32,6 +32,7 @@ import pandas as pd
 # pipeline and this one-shot bootstrap must not drift apart.
 from pipelines.datasets.mx_sesnsp_incidencia_delictiva.utils import (
     MONTHS,  # noqa: F401 (re-exported for callers/tests of this module)
+    _read_source_csv,
     melt_wide,
     write_partition,
 )
@@ -73,11 +74,12 @@ def clean_table(table, sample=None):
     muni, victimas = TABLES[table]
     src = find_csv(table)
     log.info("%s <- %s", table, src.name)
-    # read all as string (embedded commas handled by csv quoting); latin-1
-    reader = pd.read_csv(
-        src, encoding="latin-1", dtype=str, nrows=sample, chunksize=None
-    )
-    df = reader
+    # All-string read (embedded commas handled by csv quoting). The encoding and
+    # header spelling are resolved by the shared reader — SESNSP is not stable
+    # across releases, and the bootstrap must not drift from the pipeline.
+    df = _read_source_csv(src)
+    if sample is not None:
+        df = df.head(sample)
     total = 0
     years = sorted(
         pd.to_numeric(df["Año"], errors="coerce").dropna().astype(int).unique()

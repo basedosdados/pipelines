@@ -31,6 +31,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: sigla_uf not in ('GB')
       - name: email
         description: Endereço de e-mail do gabinete
       - name: url_foto

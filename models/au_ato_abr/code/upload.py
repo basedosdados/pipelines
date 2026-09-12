@@ -9,6 +9,7 @@ prints the staging row count for each table so it can be checked against the
 cleaning-step totals.
 """
 
+import os
 import sys
 import warnings
 from pathlib import Path
@@ -31,7 +32,13 @@ else:
     ENV = "dev"
 BILLING_PROJECT = "basedosdados" if ENV == "prod" else "basedosdados-dev"
 DATASET_ID = "au_ato_abr"
-OUTPUT_ROOT = Path(__file__).resolve().parent.parent / "output"
+# Scratch data lives outside the repo (never under Dropbox); overridable via env.
+OUTPUT_ROOT = Path(
+    os.environ.get(
+        "ABR_OUTPUT_DIR",
+        Path.home() / "Downloads/au_ato_abr_data/output",
+    )
+)
 
 _orig_bucket = gcs.Client.bucket
 

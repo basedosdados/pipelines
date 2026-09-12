@@ -1,3 +1,5 @@
+-- Dados de 2026 reprocessados em 2026-08-21 a partir dos arquivos do TSE
+-- gerados em 19/08/2026, apos o encerramento do registro de candidaturas.
 {{
     config(
         schema="br_tse_eleicoes",
@@ -24,6 +26,5 @@ select
     safe_cast(valor_item as float64) valor_item
 from
     {{ set_datalake_project("br_tse_eleicoes_staging.bens_candidato") }} as t
-
     -- Rematerialized from the refactored pipeline (PR #1476).
     

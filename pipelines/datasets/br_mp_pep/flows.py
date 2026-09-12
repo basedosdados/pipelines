@@ -37,7 +37,6 @@ def br_mp_pep__cargos_funcoes(
     dataset_id: str = "br_mp_pep",
     table_id: str = "cargos_funcoes",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
@@ -76,7 +75,6 @@ def br_mp_pep__cargos_funcoes(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -95,7 +93,6 @@ def br_mp_pep__cargos_funcoes(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 

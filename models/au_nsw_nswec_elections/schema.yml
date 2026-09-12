@@ -1,0 +1,750 @@
+---
+version: 2
+models:
+  - name: au_nsw_nswec_elections__election
+    description: >-
+      Catalogue of the New South Wales state general elections covered by the
+      dataset, with the date of the poll, the number of Legislative Assembly
+      districts and the number of Legislative Council seats contested. Acts as
+      the key for every other table through election_id.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [election_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Year of the electoral event
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          NSWEC identifier of the electoral event
+        tests: [not_null]
+      - name: election_name
+        description: >-
+          Name of the electoral event
+      - name: election_type
+        description: >-
+          Type of the electoral event
+      - name: government_level
+        description: >-
+          Level of government of the electoral event
+      - name: election_date
+        description: >-
+          Date of the poll
+      - name: results_archive_url
+        description: >-
+          URL of the results site published by the NSWEC for the event
+      - name: assembly_districts
+        description: >-
+          Number of districts contested in the Legislative Assembly
+      - name: council_seats_contested
+        description: >-
+          Number of seats contested in the Legislative Council
+  - name: au_nsw_nswec_elections__candidate
+    description: >-
+      Candidates in each contest, with ballot position, party, Legislative
+      Council group and declared elected status. Pools both chambers, told
+      apart by chamber.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - election_id
+            - contest_id
+            - ballot_name
+            - party_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - ballot_order_number
+            - candidate_given_names
+            - elected_at_count
+            - group_code
+            - group_name
+            - party_code
+            - party_name
+            - state_electoral_division_id
+    columns:
+      - name: year
+        description: >-
+          Year of the electoral event
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          NSWEC identifier of the electoral event
+        tests: [not_null]
+      - name: contest_id
+        description: >-
+          Identifier of the contest within the electoral event
+        tests: [not_null]
+      - name: state_electoral_division_id
+        description: >-
+          Australian Statistical Geography Standard 2021 code of the state
+          electoral division
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state_electoral_division_2021')
+              field: id_state_electoral_division
+      - name: chamber
+        description: >-
+          Chamber of the New South Wales Parliament being contested
+      - name: government_level
+        description: >-
+          Level of government of the contest
+      - name: contest_type
+        description: >-
+          Type of seat contested
+      - name: voting_system
+        description: >-
+          Voting system applied to the contest
+      - name: district_name
+        description: >-
+          Name of the contest: the state electoral district, or State for the
+          Legislative Council
+      - name: ballot_order_number
+        description: >-
+          Position of the candidate on the ballot paper
+      - name: ballot_name
+        description: >-
+          Name of the candidate as printed on the ballot paper
+        tests: [not_null]
+      - name: candidate_surname
+        description: >-
+          Surname of the candidate
+      - name: candidate_given_names
+        description: >-
+          Given names of the candidate
+      - name: party_code
+        description: >-
+          Abbreviation of the candidate's party
+      - name: party_name
+        description: >-
+          Registered name of the candidate's party
+      - name: group_code
+        description: >-
+          Letter of the group on the Legislative Council ballot paper
+      - name: group_name
+        description: >-
+          Name of the group printed on the Legislative Council ballot paper
+      - name: is_declared_elected
+        description: >-
+          Whether the candidate was declared elected in the contest
+      - name: elected_at_count
+        description: >-
+          Number of the count at which the candidate was elected
+  - name: au_nsw_nswec_elections__enrolment_turnout
+    description: >-
+      One row per contest, with enrolled electors, ballot papers counted,
+      formal and informal votes and the corresponding shares. Turnout is
+      published per district in the Legislative Assembly and once, statewide,
+      for the Legislative Council.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - election_id
+            - contest_id
+            - count_status
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [state_electoral_division_id]
+    columns:
+      - name: year
+        description: >-
+          Year of the electoral event
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          NSWEC identifier of the electoral event
+        tests: [not_null]
+      - name: contest_id
+        description: >-
+          Identifier of the contest within the electoral event
+        tests: [not_null]
+      - name: state_electoral_division_id
+        description: >-
+          Australian Statistical Geography Standard 2021 code of the state
+          electoral division
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state_electoral_division_2021')
+              field: id_state_electoral_division
+      - name: chamber
+        description: >-
+          Chamber of the New South Wales Parliament being contested
+      - name: government_level
+        description: >-
+          Level of government of the contest
+      - name: contest_type
+        description: >-
+          Type of seat contested
+      - name: voting_system
+        description: >-
+          Voting system applied to the contest
+      - name: district_name
+        description: >-
+          Name of the contest: the state electoral district, or State for the
+          Legislative Council
+      - name: count_status
+        description: >-
+          Stage of the count the row refers to
+        tests: [not_null]
+      - name: number_to_elect
+        description: >-
+          Number of seats to be filled in the contest
+      - name: candidates_count
+        description: >-
+          Number of candidates in the contest
+      - name: enrolment
+        description: >-
+          Number of electors enrolled in the contest
+      - name: votes_total
+        description: >-
+          Total ballot papers counted
+      - name: votes_formal
+        description: >-
+          Total formal votes
+      - name: votes_informal
+        description: >-
+          Total informal ballot papers
+      - name: percentage_informal
+        description: >-
+          Informal ballot papers as a share of the total count
+      - name: percentage_roll_counted
+        description: >-
+          Ballot papers counted as a share of enrolled electors
+  - name: au_nsw_nswec_elections__result_district
+    description: >-
+      Votes counted across the whole contest, in long form by count_type:
+      first preference, above the line group vote and two candidate preferred.
+      The NSWEC publishes no two party preferred count.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - election_id
+            - contest_id
+            - count_status
+            - count_type
+            - ballot_name
+            - party_code
+            - group_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - ballot_name
+            - ballot_order_number
+            - group_code
+            - group_name
+            - party_code
+            - party_name
+            - percentage
+            - quota_count
+            - state_electoral_division_id
+    columns:
+      - name: year
+        description: >-
+          Year of the electoral event
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          NSWEC identifier of the electoral event
+        tests: [not_null]
+      - name: contest_id
+        description: >-
+          Identifier of the contest within the electoral event
+        tests: [not_null]
+      - name: state_electoral_division_id
+        description: >-
+          Australian Statistical Geography Standard 2021 code of the state
+          electoral division
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state_electoral_division_2021')
+              field: id_state_electoral_division
+      - name: chamber
+        description: >-
+          Chamber of the New South Wales Parliament being contested
+      - name: government_level
+        description: >-
+          Level of government of the contest
+      - name: contest_type
+        description: >-
+          Type of seat contested
+      - name: voting_system
+        description: >-
+          Voting system applied to the contest
+      - name: district_name
+        description: >-
+          Name of the contest: the state electoral district, or State for the
+          Legislative Council
+      - name: count_status
+        description: >-
+          Stage of the count the row refers to
+        tests: [not_null]
+      - name: count_type
+        description: >-
+          Type of count the votes refer to
+        tests: [not_null]
+      - name: ballot_order_number
+        description: >-
+          Position of the candidate on the ballot paper
+      - name: ballot_name
+        description: >-
+          Name of the candidate as printed on the ballot paper
+      - name: party_code
+        description: >-
+          Abbreviation of the candidate's party
+      - name: party_name
+        description: >-
+          Registered name of the candidate's party
+      - name: group_code
+        description: >-
+          Letter of the group on the Legislative Council ballot paper
+      - name: group_name
+        description: >-
+          Name of the group printed on the Legislative Council ballot paper
+      - name: votes
+        description: >-
+          Votes counted on the row
+      - name: percentage
+        description: >-
+          Row votes as a share of the formal votes in the contest
+      - name: quota_count
+        description: >-
+          Row votes expressed in Legislative Council quotas
+  - name: au_nsw_nswec_elections__result_voting_centre
+    description: >-
+      Votes counted at each voting centre and for each declaration vote type,
+      with the voting centre totals repeated on every row. Covers first
+      preference per candidate in the Legislative Assembly and the above the
+      line group vote in the Legislative Council.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - election_id
+            - contest_id
+            - count_type
+            - vote_sub_type
+            - voting_centre_district_name
+            - voting_centre_name
+            - ballot_name
+            - group_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - ballot_name
+            - ballot_order_number
+            - group_code
+            - group_name
+            - party_code
+            - party_name
+            - state_electoral_division_id
+            - votes_above_the_line
+            - votes_below_the_line
+    columns:
+      - name: year
+        description: >-
+          Year of the electoral event
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          NSWEC identifier of the electoral event
+        tests: [not_null]
+      - name: contest_id
+        description: >-
+          Identifier of the contest within the electoral event
+        tests: [not_null]
+      - name: state_electoral_division_id
+        description: >-
+          Australian Statistical Geography Standard 2021 code of the state
+          electoral division
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state_electoral_division_2021')
+              field: id_state_electoral_division
+      - name: chamber
+        description: >-
+          Chamber of the New South Wales Parliament being contested
+      - name: government_level
+        description: >-
+          Level of government of the contest
+      - name: contest_type
+        description: >-
+          Type of seat contested
+      - name: voting_system
+        description: >-
+          Voting system applied to the contest
+      - name: district_name
+        description: >-
+          Name of the contest: the state electoral district, or State for the
+          Legislative Council
+      - name: voting_centre_district_name
+        description: >-
+          Name of the state electoral district served by the voting centre
+        tests: [not_null]
+      - name: voting_centre_name
+        description: >-
+          Name of the voting centre, or of the declaration vote type
+        tests: [not_null]
+      - name: vote_type_code
+        description: >-
+          Code for the type of vote
+      - name: vote_sub_type
+        description: >-
+          Sub type of the vote as published by the NSWEC
+        tests: [not_null]
+      - name: count_type
+        description: >-
+          Type of count the votes refer to
+        tests: [not_null]
+      - name: ballot_order_number
+        description: >-
+          Position of the candidate on the ballot paper
+      - name: ballot_name
+        description: >-
+          Name of the candidate as printed on the ballot paper
+      - name: party_code
+        description: >-
+          Abbreviation of the candidate's party
+      - name: party_name
+        description: >-
+          Registered name of the candidate's party
+      - name: group_code
+        description: >-
+          Letter of the group on the Legislative Council ballot paper
+      - name: group_name
+        description: >-
+          Name of the group printed on the Legislative Council ballot paper
+      - name: votes
+        description: >-
+          Votes counted on the row at the voting centre
+      - name: votes_above_the_line
+        description: >-
+          Total above the line votes at the voting centre
+      - name: votes_below_the_line
+        description: >-
+          Total below the line votes at the voting centre
+      - name: votes_formal
+        description: >-
+          Total formal votes at the voting centre
+      - name: votes_informal
+        description: >-
+          Total informal ballot papers at the voting centre
+      - name: votes_total
+        description: >-
+          Total ballot papers counted at the voting centre
+  - name: au_nsw_nswec_elections__distribution_of_preferences
+    description: >-
+      Vote transfers in the Legislative Assembly distribution of preferences:
+      one row per count and candidate, with the votes transferred, the running
+      total and the count totals. The final count defines the two candidate
+      preferred result.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - election_id
+            - contest_id
+            - distribution_number
+            - ballot_name
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - excluded_ballot_name
+            - excluded_party_code
+            - state_electoral_division_id
+            - votes_progressive_total
+            - votes_transferred
+    columns:
+      - name: year
+        description: >-
+          Year of the electoral event
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          NSWEC identifier of the electoral event
+        tests: [not_null]
+      - name: contest_id
+        description: >-
+          Identifier of the contest within the electoral event
+        tests: [not_null]
+      - name: state_electoral_division_id
+        description: >-
+          Australian Statistical Geography Standard 2021 code of the state
+          electoral division
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state_electoral_division_2021')
+              field: id_state_electoral_division
+      - name: chamber
+        description: >-
+          Chamber of the New South Wales Parliament being contested
+      - name: government_level
+        description: >-
+          Level of government of the contest
+      - name: contest_type
+        description: >-
+          Type of seat contested
+      - name: voting_system
+        description: >-
+          Voting system applied to the contest
+      - name: district_name
+        description: >-
+          Name of the contest: the state electoral district, or State for the
+          Legislative Council
+      - name: distribution_number
+        description: >-
+          Number of the count in the distribution of preferences
+        tests: [not_null]
+      - name: excluded_ballot_name
+        description: >-
+          Ballot name of the candidate excluded at this count
+      - name: excluded_party_code
+        description: >-
+          Party abbreviation of the candidate excluded at this count
+      - name: ballot_name
+        description: >-
+          Name of the candidate as printed on the ballot paper
+        tests: [not_null]
+      - name: party_code
+        description: >-
+          Abbreviation of the candidate's party
+      - name: votes_transferred
+        description: >-
+          Votes transferred to the candidate at this count
+      - name: votes_progressive_total
+        description: >-
+          Running total for the candidate after this count
+      - name: is_excluded
+        description: >-
+          Whether the candidate was excluded at this count
+      - name: is_elected
+        description: >-
+          Whether the candidate stood elected after this count
+      - name: votes_in_count
+        description: >-
+          Total votes remaining in the count after this count
+      - name: votes_exhausted
+        description: >-
+          Votes exhausted at this count, with no valid next preference
+      - name: votes_exhausted_total
+        description: >-
+          Running total of exhausted votes after this count
+      - name: absolute_majority
+        description: >-
+          Absolute majority required after this count
+  - name: au_nsw_nswec_elections__voting_centre
+    description: >-
+      Voting centres and declaration vote types for each electoral event, by
+      district served. The address, accessibility rating and coordinates come
+      from the venue registry, which the NSWEC publishes for 2023 only.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - election_id
+            - district_name
+            - voting_centre_name
+            - vote_sub_type
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - address
+            - building_name
+            - latitude
+            - locality
+            - longitude
+            - postcode
+            - state_electoral_division_id
+    columns:
+      - name: year
+        description: >-
+          Year of the electoral event
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          NSWEC identifier of the electoral event
+        tests: [not_null]
+      - name: state_electoral_division_id
+        description: >-
+          Australian Statistical Geography Standard 2021 code of the state
+          electoral division
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state_electoral_division_2021')
+              field: id_state_electoral_division
+      - name: district_name
+        description: >-
+          Name of the district served by the voting centre
+        tests: [not_null]
+      - name: voting_centre_name
+        description: >-
+          Name of the voting centre, or of the declaration vote type
+        tests: [not_null]
+      - name: vote_type_code
+        description: >-
+          Code for the type of vote
+      - name: vote_sub_type
+        description: >-
+          Sub type of the vote as published by the NSWEC
+        tests: [not_null]
+      - name: building_name
+        description: >-
+          Name of the premises hosting the voting centre
+      - name: address
+        description: >-
+          Street address of the voting centre
+      - name: locality
+        description: >-
+          Locality or suburb of the voting centre
+      - name: postcode
+        description: >-
+          Postcode of the voting centre
+      - name: latitude
+        description: >-
+          Latitude of the voting centre
+      - name: longitude
+        description: >-
+          Longitude of the voting centre
+      - name: is_in_results
+        description: >-
+          Whether the voting centre appears in the counted results of the
+          event
+  - name: au_nsw_nswec_elections__ballot_preference
+    description: >-
+      One row per Legislative Assembly ballot paper and marked preference,
+      with the candidate indicated, the preference as marked and the
+      preference actually used in the count. Each informal ballot paper
+      occupies a single row. This is the finest grain the NSWEC publishes and
+      it allows any two candidate preferred pair to be recomputed.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - election_id
+            - contest_id
+            - voting_centre_name
+            - ballot_paper_id
+            - ballot_name
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - ballot_name
+            - party_code
+            - preference_counted_number
+            - preference_number
+            - state_electoral_division_id
+    columns:
+      - name: year
+        description: >-
+          Year of the electoral event
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: election_id
+        description: >-
+          NSWEC identifier of the electoral event
+        tests: [not_null]
+      - name: contest_id
+        description: >-
+          Identifier of the contest within the electoral event
+        tests: [not_null]
+      - name: state_electoral_division_id
+        description: >-
+          Australian Statistical Geography Standard 2021 code of the state
+          electoral division
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_au__state_electoral_division_2021')
+              field: id_state_electoral_division
+      - name: chamber
+        description: >-
+          Chamber of the New South Wales Parliament being contested
+      - name: district_name
+        description: >-
+          Name of the contest: the state electoral district, or State for the
+          Legislative Council
+      - name: voting_centre_name
+        description: >-
+          Name of the voting centre, or of the declaration vote type
+        tests: [not_null]
+      - name: ballot_paper_id
+        description: >-
+          Identifier of the ballot paper assigned by the NSWEC at data capture
+        tests: [not_null]
+      - name: formality
+        description: >-
+          Formality of the ballot paper
+      - name: ballot_name
+        description: >-
+          Name of the candidate as printed on the ballot paper
+      - name: party_code
+        description: >-
+          Abbreviation of the candidate's party
+      - name: preference_number
+        description: >-
+          Preference as marked by the elector on the ballot paper
+      - name: preference_counted_number
+        description: >-
+          Preference actually used in the count
+  - name: au_nsw_nswec_elections__dicionario
+    description: >-
+      Translations of the coded columns of the dataset: for each table and
+      column, the meaning of each stored key.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: >-
+          Slug of the table described by the dictionary entry
+        tests: [not_null]
+      - name: nome_coluna
+        description: >-
+          Name of the column described by the dictionary entry
+        tests: [not_null]
+      - name: chave
+        description: >-
+          Coded key value stored in the column
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >-
+          Temporal coverage of the dictionary entry
+      - name: valor
+        description: >-
+          Meaning of the coded key

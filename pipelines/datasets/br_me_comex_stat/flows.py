@@ -18,9 +18,9 @@ from pipelines.utils.metadata.domain import (
     YearMonth,
 )
 from pipelines.utils.metadata.tasks import (
-    check_source_is_ahead_of_table_task,
-    register_source_coverage_task,
-    sync_table_coverage_task,
+    commit_source_update_task,
+    poll_source_for_update_task,
+    register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
     rename_flow_run_dataset_table,
@@ -38,7 +38,6 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
         dataset_id: str = "br_me_comex_stat",
         table_id: str = table_id,
         materialize_after_dump: bool = True,
-        dbt_alias: bool = True,
         update_metadata: bool = True,
         target: str = "prod",
         force_run: bool = False,
@@ -50,24 +49,32 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
 
         last_date = parse_last_date(link=comex_constants.DOWNLOAD_LINK.value)
 
+        if not force_run:
+            has_new_data = poll_source_for_update_task(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                source_max_date=last_date,
+                env="prod",
+                date_format="%Y-%m",
+                compare_against="coverage",
+            )
+            if not has_new_data:
+                print(f"Tabela {table_id} já cobre a fonte — encerrando")
+                return
+
         # A fonte é uma só para as quatro tabelas, então este Update é um
         # ponteiro compartilhado: quem rodar primeiro no dia o avança. O gate
-        # abaixo continua por tabela, porque compara contra o Table.Update.
-        register_source_coverage_task(
+        # acima continua por tabela, porque compara contra o Coverage de cada
+        # tabela, não contra este RawDataSource.Update.
+        commit_source_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             source_max_date=last_date,
             env="prod",
             date_format="%Y-%m",
+            update_metadata=update_metadata,
+            materialize_after_dump=materialize_after_dump,
         )
-
-        if not force_run and not check_source_is_ahead_of_table_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            env="prod",
-        ):
-            print(f"Tabela {table_id} já cobre a fonte — encerrando")
-            return
 
         download_br_me_comex_stat(
             table_name=table_name,
@@ -93,7 +100,6 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
             dataset_id=dataset_id,
             table_id=table_id,
             dbt_command="run/test",
-            dbt_alias=dbt_alias,
             target="dev",
         )
 
@@ -113,12 +119,11 @@ def _comex_flow(table_id: str, table_name: str, table_type: str, cron: str):
             dataset_id=dataset_id,
             table_id=table_id,
             dbt_command="run/test",
-            dbt_alias=dbt_alias,
             target=target,
         )
 
         if update_metadata:
-            sync_table_coverage_task(
+            register_table_materialization_task(
                 dataset_id=dataset_id,
                 table_id=table_id,
                 coverage=PartBdpro(

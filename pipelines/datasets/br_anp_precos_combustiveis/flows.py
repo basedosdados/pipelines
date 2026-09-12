@@ -35,7 +35,6 @@ def br_anp_precos_combustiveis__microdados(
     dataset_id: str = "br_anp_precos_combustiveis",
     table_id: str = "microdados",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
@@ -88,7 +87,6 @@ def br_anp_precos_combustiveis__microdados(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -107,7 +105,6 @@ def br_anp_precos_combustiveis__microdados(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 

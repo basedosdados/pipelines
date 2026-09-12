@@ -256,3 +256,749 @@ models:
       - name: underutilisation_rate
         description: >-
           Sum of the unemployment rate and the underemployment rate
+  - name: au_abs_labour_force__employment_industry
+    description: >-
+      Quarterly employed persons and hours actually worked in all jobs by
+      ANZSIC 2006 industry group of the main job, state and territory and sex,
+      from the ceased ABS Labour Force Detailed release.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - geography
+            - industry_group_code
+            - sex
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: month
+        description: >-
+          Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: geography
+        description: >-
+          Geographic area: one of the eight Australian states and territories
+        tests: [not_null]
+      - name: industry_division_code
+        description: >-
+          ANZSIC 2006 division letter, from A to S
+        tests: [not_null]
+      - name: industry_division
+        description: >-
+          ANZSIC 2006 division of the main job
+      - name: industry_group_code
+        description: >-
+          ANZSIC 2006 group code of the main job
+        tests: [not_null]
+      - name: industry_group
+        description: >-
+          ANZSIC 2006 group of the main job
+      - name: sex
+        description: >-
+          Sex: males or females
+        tests: [not_null]
+      - name: employed_full_time
+        description: >-
+          Number of persons employed full-time
+      - name: employed_part_time
+        description: >-
+          Number of persons employed part-time
+      - name: hours_worked_full_time
+        description: >-
+          Total hours actually worked in all jobs by persons employed full-time
+      - name: hours_worked_part_time
+        description: >-
+          Total hours actually worked in all jobs by persons employed part-time
+  - name: au_abs_labour_force__employment_industry_region
+    description: >-
+      Quarterly employed persons and hours actually worked in all jobs by
+      ANZSIC 2006 industry division of the main job, greater capital city or
+      rest of state area and sex.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - gccsa
+            - industry_division_code
+            - sex
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: month
+        description: >-
+          Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: gccsa
+        description: >-
+          Greater capital city or rest of state area under the ASGS
+        tests: [not_null]
+      - name: industry_division_code
+        description: >-
+          ANZSIC 2006 division letter, from A to S
+        tests: [not_null]
+      - name: industry_division
+        description: >-
+          ANZSIC 2006 division of the main job
+      - name: sex
+        description: >-
+          Sex: males or females
+        tests: [not_null]
+      - name: employed_full_time
+        description: >-
+          Number of persons employed full-time
+      - name: employed_part_time
+        description: >-
+          Number of persons employed part-time
+      - name: hours_worked_full_time
+        description: >-
+          Total hours actually worked in all jobs by persons employed full-time
+      - name: hours_worked_part_time
+        description: >-
+          Total hours actually worked in all jobs by persons employed part-time
+  - name: au_abs_labour_force__employment_industry_age
+    description: >-
+      Quarterly employed persons and hours actually worked in all jobs for
+      Australia by ANZSIC 2006 industry division of the main job and five-year
+      age group.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - industry_division_code
+            - age_group
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: month
+        description: >-
+          Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: industry_division_code
+        description: >-
+          ANZSIC 2006 division letter, from A to S
+        tests: [not_null]
+      - name: industry_division
+        description: >-
+          ANZSIC 2006 division of the main job
+      - name: age_group
+        description: >-
+          Age group in years
+        tests: [not_null]
+      - name: employed_full_time
+        description: >-
+          Number of persons employed full-time
+      - name: employed_part_time
+        description: >-
+          Number of persons employed part-time
+      - name: hours_worked_full_time
+        description: >-
+          Total hours actually worked in all jobs by persons employed full-time
+      - name: hours_worked_part_time
+        description: >-
+          Total hours actually worked in all jobs by persons employed part-time
+  - name: au_abs_labour_force__employment_industry_hours
+    description: >-
+      Quarterly employed persons and hours worked for Australia by ANZSIC 2006
+      industry division of the main job and band of hours worked, on three
+      hours concepts: hours usually worked in all jobs, hours actually worked
+      in main job and hours usually worked in main job.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - industry_division_code
+            - hours_measure
+            - hours_band
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: month
+        description: >-
+          Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: industry_division_code
+        description: >-
+          ANZSIC 2006 division letter, from A to S
+        tests: [not_null]
+      - name: industry_division
+        description: >-
+          ANZSIC 2006 division of the main job
+      - name: hours_measure
+        description: >-
+          Hours concept the band applies to: hours usually worked in all jobs,
+          hours actually worked in main job, or hours usually worked in main
+          job
+        tests: [not_null]
+      - name: hours_band
+        description: >-
+          Range of hours worked in the reference week
+        tests: [not_null]
+      - name: employed_full_time
+        description: >-
+          Number of persons employed full-time
+      - name: employed_part_time
+        description: >-
+          Number of persons employed part-time
+      - name: hours_worked_full_time
+        description: >-
+          Total hours worked by persons employed full-time, on the hours
+          concept given by hours_measure
+      - name: hours_worked_part_time
+        description: >-
+          Total hours worked by persons employed part-time, on the hours
+          concept given by hours_measure
+  - name: au_abs_labour_force__employment_industry_status
+    description: >-
+      Quarterly employed persons and hours actually worked in all jobs for
+      Australia by ANZSIC 2006 industry division of the main job and status in
+      employment.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - industry_division_code
+            - status_in_employment
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: month
+        description: >-
+          Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: industry_division_code
+        description: >-
+          ANZSIC 2006 division letter, from A to S
+        tests: [not_null]
+      - name: industry_division
+        description: >-
+          ANZSIC 2006 division of the main job
+      - name: status_in_employment
+        description: >-
+          Status in employment of the main job, such as employee with paid
+          leave entitlements or owner manager of an incorporated enterprise
+        tests: [not_null]
+      - name: employed_full_time
+        description: >-
+          Number of persons employed full-time
+      - name: employed_part_time
+        description: >-
+          Number of persons employed part-time
+      - name: hours_worked_full_time
+        description: >-
+          Total hours actually worked in all jobs by persons employed full-time
+      - name: hours_worked_part_time
+        description: >-
+          Total hours actually worked in all jobs by persons employed part-time
+  - name: au_abs_labour_force__employment_industry_occupation
+    description: >-
+      Quarterly employed persons and hours actually worked in all jobs for
+      Australia by ANZSIC 2006 industry division, ANZSCO 2013 occupation major
+      group of the main job and sex.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - industry_division_code
+            - occupation_major_code
+            - sex
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: month
+        description: >-
+          Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: industry_division_code
+        description: >-
+          ANZSIC 2006 division letter, from A to S
+        tests: [not_null]
+      - name: industry_division
+        description: >-
+          ANZSIC 2006 division of the main job
+      - name: occupation_major_code
+        description: >-
+          ANZSCO major group code, from 1 to 8
+        tests: [not_null]
+      - name: occupation_major
+        description: >-
+          ANZSCO major group of the main job
+      - name: occupation_classification
+        description: >-
+          Occupation classification the labels belong to
+      - name: sex
+        description: >-
+          Sex: males or females
+        tests: [not_null]
+      - name: employed_full_time
+        description: >-
+          Number of persons employed full-time
+      - name: employed_part_time
+        description: >-
+          Number of persons employed part-time
+      - name: hours_worked_full_time
+        description: >-
+          Total hours actually worked in all jobs by persons employed full-time
+      - name: hours_worked_part_time
+        description: >-
+          Total hours actually worked in all jobs by persons employed part-time
+  - name: au_abs_labour_force__employment_occupation
+    description: >-
+      Quarterly employed persons and hours actually worked in all jobs for
+      Australia by ANZSCO 2013 occupation sub-major group of the main job, sex
+      and age group.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - occupation_sub_major
+            - sex
+            - age_group
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: month
+        description: >-
+          Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: occupation_sub_major
+        description: >-
+          ANZSCO sub-major group of the main job
+        tests: [not_null]
+      - name: occupation_classification
+        description: >-
+          Occupation classification the labels belong to
+      - name: sex
+        description: >-
+          Sex: males or females
+        tests: [not_null]
+      - name: age_group
+        description: >-
+          Age group in years
+        tests: [not_null]
+      - name: employed_full_time
+        description: >-
+          Number of persons employed full-time
+      - name: employed_part_time
+        description: >-
+          Number of persons employed part-time
+      - name: hours_worked_full_time
+        description: >-
+          Total hours actually worked in all jobs by persons employed full-time
+      - name: hours_worked_part_time
+        description: >-
+          Total hours actually worked in all jobs by persons employed part-time
+  - name: au_abs_labour_force__employment_occupation_age
+    description: >-
+      Quarterly employed persons and hours actually worked in all jobs for
+      Australia by ANZSCO 2013 occupation major group of the main job and
+      five-year age group.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - occupation_major_code
+            - age_group
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: month
+        description: >-
+          Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: occupation_major_code
+        description: >-
+          ANZSCO major group code, from 1 to 8
+        tests: [not_null]
+      - name: occupation_major
+        description: >-
+          ANZSCO major group of the main job
+      - name: occupation_classification
+        description: >-
+          Occupation classification the labels belong to
+      - name: age_group
+        description: >-
+          Age group in years
+        tests: [not_null]
+      - name: employed_full_time
+        description: >-
+          Number of persons employed full-time
+      - name: employed_part_time
+        description: >-
+          Number of persons employed part-time
+      - name: hours_worked_full_time
+        description: >-
+          Total hours actually worked in all jobs by persons employed full-time
+      - name: hours_worked_part_time
+        description: >-
+          Total hours actually worked in all jobs by persons employed part-time
+  - name: au_abs_labour_force__employment_occupation_status
+    description: >-
+      Quarterly employed persons and hours actually worked in all jobs for
+      Australia by ANZSCO 2013 occupation major group of the main job and
+      status in employment.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - occupation_major_code
+            - status_in_employment
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: month
+        description: >-
+          Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: occupation_major_code
+        description: >-
+          ANZSCO major group code, from 1 to 8
+        tests: [not_null]
+      - name: occupation_major
+        description: >-
+          ANZSCO major group of the main job
+      - name: occupation_classification
+        description: >-
+          Occupation classification the labels belong to
+      - name: status_in_employment
+        description: >-
+          Status in employment of the main job, such as employee with paid
+          leave entitlements or owner manager of an incorporated enterprise
+        tests: [not_null]
+      - name: employed_full_time
+        description: >-
+          Number of persons employed full-time
+      - name: employed_part_time
+        description: >-
+          Number of persons employed part-time
+      - name: hours_worked_full_time
+        description: >-
+          Total hours actually worked in all jobs by persons employed full-time
+      - name: hours_worked_part_time
+        description: >-
+          Total hours actually worked in all jobs by persons employed part-time
+  - name: au_abs_labour_force__employment_status_hours
+    description: >-
+      Quarterly employed persons and hours actually worked in all jobs for
+      Australia by status in employment of the main job, band of hours actually
+      worked in all jobs and sex.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - status_in_employment
+            - hours_band
+            - sex
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: month
+        description: >-
+          Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: status_in_employment
+        description: >-
+          Status in employment of the main job, such as employee with paid
+          leave entitlements or owner manager of an incorporated enterprise
+        tests: [not_null]
+      - name: hours_band
+        description: >-
+          Range of hours actually worked in all jobs during the reference week
+        tests: [not_null]
+      - name: sex
+        description: >-
+          Sex: males or females
+        tests: [not_null]
+      - name: employed_full_time
+        description: >-
+          Number of persons employed full-time
+      - name: employed_part_time
+        description: >-
+          Number of persons employed part-time
+      - name: hours_worked_full_time
+        description: >-
+          Total hours actually worked in all jobs by persons employed full-time
+      - name: hours_worked_part_time
+        description: >-
+          Total hours actually worked in all jobs by persons employed part-time
+  - name: au_abs_labour_force__employment_job_tenure
+    description: >-
+      Quarterly employed persons and hours actually worked in all jobs by time
+      spent with the current employer or in the current business, state and
+      territory and sex.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, month, geography, tenure_band, sex]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: month
+        description: >-
+          Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: geography
+        description: >-
+          Geographic area: one of the eight Australian states and territories
+        tests: [not_null]
+      - name: tenure_band
+        description: >-
+          Time spent with the current employer or in the current business
+        tests: [not_null]
+      - name: sex
+        description: >-
+          Sex: males or females
+        tests: [not_null]
+      - name: employed_full_time
+        description: >-
+          Number of persons employed full-time
+      - name: employed_part_time
+        description: >-
+          Number of persons employed part-time
+      - name: hours_worked_full_time
+        description: >-
+          Total hours actually worked in all jobs by persons employed full-time
+      - name: hours_worked_part_time
+        description: >-
+          Total hours actually worked in all jobs by persons employed part-time
+  - name: au_abs_labour_force__unemployment_duration
+    description: >-
+      Monthly unemployed persons and weeks spent searching for a job by
+      duration of job search, broken down by state and territory or, for
+      Australia, by age group.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - geography
+            - duration_band
+            - age_group
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: >-
+          Reference month of the observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: geography
+        description: >-
+          Geographic area: Australia (national) or one of the eight states and
+          territories
+        tests: [not_null]
+      - name: duration_band
+        description: >-
+          Duration of job search
+        tests: [not_null]
+      - name: age_group
+        description: >-
+          Age group in years; total covers persons aged 15 years and over
+        tests: [not_null]
+      - name: unemployed_total
+        description: >-
+          Number of unemployed persons
+      - name: unemployed_looked_for_full_time
+        description: >-
+          Number of unemployed persons who looked for full-time work
+      - name: unemployed_looked_for_part_time
+        description: >-
+          Number of unemployed persons who looked for only part-time work
+      - name: weeks_searching
+        description: >-
+          Total weeks spent searching for a job by unemployed persons

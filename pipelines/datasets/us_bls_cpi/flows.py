@@ -128,24 +128,28 @@ def us_bls_cpi_flow(
 
         tables = constants.ALL_TABLES.value
 
-        # Dev: upload staging + materialize/test.
-        for table in tables:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados-dev",
-                dump_mode="overwrite",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run/test",
-                target="dev",
-            )
-
+        # The dev materialization is the pre-arm validation path, not part of a
+        # production run: it rebuilds and re-tests every table in
+        # basedosdados-dev, which nothing downstream reads. Running it on an
+        # armed run doubled the BigQuery bytes billed for no signal — prod
+        # runs the same models and the same tests seconds later.
         if not materialize_to_prod:
+            # Dev: upload staging + materialize/test.
+            for table in tables:
+                upload_to_gcs(
+                    data_path=result[table],
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    bucket_name="basedosdados-dev",
+                    dump_mode="overwrite",
+                    source_format="parquet",
+                )
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="run/test",
+                    target="dev",
+                )
             return
 
         # Prod: upload staging + materialize/test.
@@ -186,7 +190,7 @@ def us_bls_cpi_flow(
 # actually appears.
 # pyrefly: ignore [missing-attribute]
 us_bls_cpi_flow.deploy_schedules = [
-    {"cron": "0 16 10,11,12,13,14,15 * *", "timezone": "America/Sao_Paulo"}
+    {"cron": "5 16 10,11,12,13,14,15 * *", "timezone": "America/Sao_Paulo"}
 ]
 # The clean step holds ~4M rows in pandas; give the worker headroom.
 # pyrefly: ignore [missing-attribute]

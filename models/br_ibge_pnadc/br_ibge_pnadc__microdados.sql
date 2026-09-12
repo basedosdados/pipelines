@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2012, "end": 2025, "interval": 1},
+            "range": {"start": 2012, "end": 2031, "interval": 1},
         },
         cluster_by="sigla_uf",
         labels={"tema": "economia"},
@@ -459,5 +459,19 @@ with
                 )
         {% endif %}
     )
-select {% for column in columns %} `{{ column.name }}`, {% endfor %}
+select
+    {% for column in columns %}
+        {% if column.data_type == "STRING" and column.name.startswith("V") %}
+            (
+                case
+                    when
+                        length(trim(`{{ column.name }}`)) > 1
+                        and left(trim(`{{ column.name }}`), 1) = '0'
+                    then substr(trim(`{{ column.name }}`), 2)
+                    else trim(`{{ column.name }}`)
+                end
+            ) as `{{ column.name }}`,
+        {% else %} `{{ column.name }}`,
+        {% endif %}
+    {% endfor %}
 from microdados

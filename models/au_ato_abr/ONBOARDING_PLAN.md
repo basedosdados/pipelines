@@ -49,6 +49,27 @@ degenerate; the pro Coverage + policies go live with the pipeline (step 12).
 - `code/architecture/*.csv` — BD architecture source of truth (built from JSON).
 - `au_ato_abr__*.sql`, `schema.yml` — dbt models + tests.
 
+## Recurring pipeline (step 12)
+`pipelines/datasets/au_ato_abr/` — weekly Prefect 3 flow `au_ato_abr_flow`.
+- **Poll-first**: HEAD the ZIPs, compare `Last-Modified` against `Table.Update.latest`
+  (`compare_against="table_update"`); download the ~1 GB payload only when the source
+  republishes. `Table.Update.latest` was set to 2026-08-14 (after the onboarded
+  snapshot), so the poll correctly skips until a newer snapshot lands.
+- **Stacking**: staging upload `dump_mode="overwrite"` (current snapshot); the
+  **incremental** dbt models append the new `extraction_date` partition to prod.
+- **Shared transform**: `utils.py` holds the pure download+clean functions; the
+  bootstrap `code/clean_data.py` imports them (DRY). Output is **all-STRING** parquet
+  (upload_to_gcs staging requirement).
+- **Tier**: `_COVERAGE` sets **PartBdpro** (`free_lag=6 months`) on entity/other_name/dgr.
+  **Before arming**: (1) confirm the free_lag (weekly register → a shorter lag e.g.
+  `weeks=4` narrows the initial free-tier lockout); (2) create the **pro Coverage**
+  (`is_closed=True`) on each of the 3 tables in prod, or the first armed run hard-fails
+  at `assert_coverage_topology`; (3) the first armed run applies the BigQuery Row Access
+  Policies (paywall goes live). Deploy lands **paused**; arm via Django admin.
+- **Deploy**: PR needs the **`deploy-flow`** label for the dev-pool registration, then a
+  dev run with `{materialize_to_prod:False, update_metadata:False, force_run:True}` is
+  the definition of done (local checks can't reach the upload/poll/dbt-prod paths).
+
 ## Workflow status
 1. context ✓  2. architecture ✓  3. download ✓  4. clean (running)
 5. upload dev — pending  6. dbt ✓ (written)  7. validate — pending

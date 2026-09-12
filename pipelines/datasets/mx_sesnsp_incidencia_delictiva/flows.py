@@ -115,24 +115,28 @@ def mx_sesnsp_incidencia_delictiva_flow(
         if not has_new_data and not force_run:
             return
 
-        # Dev: upload staging + materialize/test.
-        for table in tables:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados-dev",
-                dump_mode="overwrite",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run/test",
-                target="dev",
-            )
-
+        # The dev materialization is the pre-arm validation path, not part of a
+        # production run: it rebuilds and re-tests every table in
+        # basedosdados-dev, which nothing downstream reads. Running it on an
+        # armed run doubled the BigQuery bytes billed for no signal — prod
+        # runs the same models and the same tests seconds later.
         if not materialize_to_prod:
+            # Dev: upload staging + materialize/test.
+            for table in tables:
+                upload_to_gcs(
+                    data_path=result[table],
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    bucket_name="basedosdados-dev",
+                    dump_mode="overwrite",
+                    source_format="parquet",
+                )
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="run/test",
+                    target="dev",
+                )
             return
 
         # Prod: upload staging + materialize/test.
@@ -181,7 +185,7 @@ def mx_sesnsp_incidencia_delictiva_flow(
 # few days; the source-poll guard no-ops until a new month actually appears.
 # pyrefly: ignore [missing-attribute]
 mx_sesnsp_incidencia_delictiva_flow.deploy_schedules = [
-    {"cron": "0 9 20,21,22,23,24 * *", "timezone": "America/Mexico_City"}
+    {"cron": "20 9 20,21,22,23,24 * *", "timezone": "America/Mexico_City"}
 ]
 # The municipal melt holds ~1.7M rows in pandas; give the worker headroom.
 # pyrefly: ignore [missing-attribute]

@@ -135,6 +135,12 @@ def gen_schema() -> None:
         parts.append("    tests:")
         parts.append("      - not_null_proportion_multiple_columns:")
         parts.append("          at_least: 0.05")
+        # Scope the full-table scan to the newest year (partition-pruned) so the
+        # annual pipeline's dbt test stays well under the BigQuery daily query
+        # quota; `year` is the English-dataset partition column (see the
+        # __most_recent_year_en__ branch in macros/custom_get_where_subquery.sql).
+        parts.append("          config:")
+        parts.append("            where: __most_recent_year_en__")
         if ignore:
             parts.append("          ignore_values:")
             parts += [f"            - {c}" for c in ignore]

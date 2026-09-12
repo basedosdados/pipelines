@@ -30,7 +30,6 @@ def _run_rf(
     table_id: str,
     chunksize: int,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool = False,
@@ -94,7 +93,6 @@ def _run_rf(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -114,7 +112,6 @@ def _run_rf(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 

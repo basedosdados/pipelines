@@ -13,6 +13,7 @@ Work through steps in order. Do not skip steps.
 4.  clean                write and run data cleaning code → partitioned parquet
 5.  upload               upload parquet to BigQuery dev
 6.  dbt                  write .sql and schema.yml files
+6b. auxiliary            bundle the source's documentation per table -> GCS
 7.  validate             run DBT tests and data quality checks; fix or flag errors
 8.  discover             resolve all reference IDs from backend (dev)
 9.  metadata             register metadata in dev backend (dataset status = under_review)
@@ -60,10 +61,16 @@ cleaning transform is shared with `models/<ds>/code/` rather than duplicated.
 `us_bls_cpi` it passed while three separate bugs waited in the upload, the poll, and the
 staging schema. Step 12 is not finished until the flow has run on the **dev pool** with
 `{"materialize_to_prod": False, "update_metadata": False, "force_run": True}` and the logs
-show `dbt run OK` + `dbt test OK` for every table. Two traps around that run:
+show `dbt run OK` + `dbt test OK` for every table. Three traps around that run:
 
 - The PR needs the **`deploy-flow` label** or the staging deploy is `skipped` and nothing
   is deployed — silently.
+- The label only covers a PR that changes **`flows.py`**. `deploy_flows.py` keeps only
+  files defining a `Flow`, so a fix in `utils.py`/`tasks.py`/`*_clean.py` deploys
+  **nothing** while the job still reports `pass`, and the trigger then runs whatever
+  branch the deployment already pointed at. Confirm the clone path in the logs is
+  `/app/pipelines-<your-branch>/`, not `/app/pipelines-main/`. See
+  `prefect-pipeline-conventions`.
 - The defaults are `materialize_to_prod=True, update_metadata=True`, and the metadata
   tasks are pinned `env="prod"` even from the dev pool. A run triggered with `{}` writes
   **prod** data and metadata and applies the paywall.
@@ -99,6 +106,27 @@ the free/pro `is_closed` polarity, and what is verifiable locally.
 The upload/dbt/metadata halves run on the deployed worker (prod is not exercisable
 locally).
 
+## Step 6b - auxiliary files (only when the source publishes documentation)
+
+Many sources ship codebooks, questionnaires, technical reports and import scripts
+alongside the data, and some datasets are unusable without them. Follow
+`auxiliary-files` for where each document goes: a raw data source (a place data is
+published from), an auxiliary file (a per-table bundle in GCS, recorded in
+`Table.auxiliaryFilesUrl`), or a link in the bundle README (large, stable
+long-form PDFs).
+
+Two things to know before reporting success:
+
+- **The published links are currently dead for the public.** Both GCS buckets are
+  requester-pays, so an anonymous fetch returns `UserProjectMissing`; all 84
+  production tables using the field are affected. Ship the bundle in the documented
+  location anyway, but `curl -sI` each URL with no credentials and report what it
+  actually returns.
+- **Some publishers block scripted downloads.** `www.oecd.org` serves `.zip` only to
+  a real browser. Fetch through the browser tools rather than dropping the document.
+
+Skip this step entirely for a source that publishes data and nothing else.
+
 ## Verification checkpoint (between steps 9 and 10)
 
 After step 9 succeeds, output the following checklist and **wait for explicit approval** before proceeding to step 10:
@@ -110,6 +138,7 @@ After step 9 succeeds, output the following checklist and **wait for explicit ap
 ✓ Columns: <counts per table>
 ✓ Coverage: <start>–<end>
 ✓ Cloud tables: OK
+✓ Auxiliary files: <per-table bundles, and the real anonymous HTTP status of each URL>
 ✓ Verify at: https://development.basedosdados.org/dataset/<id>
 
 Table order set: <list in order, or "default">
