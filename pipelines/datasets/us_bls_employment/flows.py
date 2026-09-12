@@ -183,12 +183,12 @@ def us_bls_employment_flow(
 
 # BLS releases the Employment Situation (CES + LAUS national) on the first
 # Friday, state LAUS mid-month, SAE and JOLTS later in the month. Poll daily
-# across the second half of the month at 16:20 BRT; the source-poll guard
+# across the second half of the month at 16:17 BRT; the source-poll guard
 # no-ops until a new reference month actually appears. The minute is chosen to
 # avoid the crowded :00 and :05 slots.
 # pyrefly: ignore [missing-attribute]
 us_bls_employment_flow.deploy_schedules = [
-    {"cron": "20 16 16,17,18,19,20,21 * *", "timezone": "America/Sao_Paulo"}
+    {"cron": "17 16 16,17,18,19,20,21 * *", "timezone": "America/Sao_Paulo"}
 ]
 # The clean step shards 2.6 GB of flat files through pandas one file at a time
 # and holds at most one year of LAUS (~500k rows) in memory at once.
