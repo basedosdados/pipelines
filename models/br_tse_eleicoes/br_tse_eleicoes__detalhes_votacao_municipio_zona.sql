@@ -47,4 +47,3 @@ from
     }} as t
 
     -- Rematerialized from the refactored pipeline (PR #1476).
-    
