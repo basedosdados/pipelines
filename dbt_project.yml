@@ -327,6 +327,9 @@ models:
     br_cgu_dados_abertos:
       +materialized: table
       +schema: br_cgu_dados_abertos
+    br_cgu_despesas_publicas:
+      +materialized: table
+      +schema: br_cgu_despesas_publicas
     br_cgu_emendas_parlamentares:
       +materialized: table
       +schema: br_cgu_emendas_parlamentares
