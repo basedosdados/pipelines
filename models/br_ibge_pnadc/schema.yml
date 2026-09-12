@@ -2070,6 +2070,9 @@ models:
         tests:
           - dbt_utils.not_null_proportion:
               at_least: 0.01
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: id_uf
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
