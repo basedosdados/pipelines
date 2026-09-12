@@ -1,0 +1,174 @@
+---
+version: 2
+models:
+  - name: br_cgu_despesas_publicas__execucao
+    description: >-
+      Execução mensal da despesa do Governo Federal nos orçamentos fiscal e da
+      seguridade social: valores empenhado, liquidado e pago do exercício e
+      movimentação de restos a pagar, por órgão, unidade gestora, unidade
+      orçamentária, função, subfunção, programa, ação, plano orçamentário,
+      localizador e natureza da despesa. Fonte: Portal da Transparência (CGU), um
+      arquivo por mês desde janeiro de 2014. A fonte reedita meses já encerrados
+      em datas distintas, então cada atualização reconstrói a série inteira.
+      Diferentemente da tabela anual de orçamento, aqui as linhas têm chave única,
+      mas ela exige nome_autor_emenda: id_autor_emenda é vazio em cerca de 97% das
+      linhas e não distingue 'SEM EMENDA' de 'Informação do autor não disponível'.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_orgao_superior
+            - id_orgao_subordinado
+            - id_unidade_gestora
+            - id_gestao
+            - id_unidade_orcamentaria
+            - id_funcao
+            - id_subfuncao
+            - id_programa_orcamentario
+            - id_acao
+            - id_plano_orcamentario
+            - id_programa_governo
+            - id_subtitulo
+            - id_localizador
+            - id_autor_emenda
+            - id_categoria_economica
+            - id_grupo_despesa
+            - id_elemento_despesa
+            - id_modalidade_despesa
+            - nome_plano_orcamentario
+            - sigla_uf
+            - nome_municipio
+            - sigla_localizador
+            - descricao_complementar_localizador
+            - nome_autor_emenda
+          config:
+            where: __most_recent_year_month__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [id_autor_emenda, nome_municipio]
+          config:
+            where: __most_recent_year_month__
+    columns:
+      - name: ano
+        description: Ano do lançamento da despesa
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês do lançamento da despesa
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_orgao_superior
+        description: Código do órgão superior responsável pela despesa, em geral um
+          ministério
+      - name: nome_orgao_superior
+        description: Nome do órgão superior responsável pela despesa
+      - name: id_orgao_subordinado
+        description: Código do órgão subordinado responsável pela despesa
+      - name: nome_orgao_subordinado
+        description: Nome do órgão subordinado responsável pela despesa
+      - name: id_unidade_gestora
+        description: Código da unidade gestora, a unidade administrativa que executa
+          o gasto no SIAFI
+      - name: nome_unidade_gestora
+        description: Nome da unidade gestora
+      - name: id_gestao
+        description: Código da gestão, que identifica o conjunto orçamentário-financeiro
+          a que a unidade gestora pertence
+      - name: nome_gestao
+        description: Nome da gestão
+      - name: id_unidade_orcamentaria
+        description: Código da unidade orçamentária, menor nível da estrutura administrativa
+          a que se aloca a dotação
+      - name: nome_unidade_orcamentaria
+        description: Nome da unidade orçamentária
+      - name: id_funcao
+        description: Código da função de governo em que a despesa foi classificada
+      - name: nome_funcao
+        description: Nome da função de governo em que a despesa foi classificada
+      - name: id_subfuncao
+        description: Código da subfunção, que detalha a função em áreas de atuação
+          mais específicas
+      - name: nome_subfuncao
+        description: Nome da subfunção
+      - name: id_programa_orcamentario
+        description: Código do programa orçamentário, instrumento do plano plurianual
+          que articula ações para um objetivo
+      - name: nome_programa_orcamentario
+        description: Nome do programa orçamentário
+      - name: id_acao
+        description: Código da ação orçamentária, menor unidade de programação que
+          gera bem ou serviço
+      - name: nome_acao
+        description: Nome da ação orçamentária
+      - name: id_plano_orcamentario
+        description: Código do plano orçamentário, subdivisão da ação usada no detalhamento
+          gerencial da despesa
+      - name: nome_plano_orcamentario
+        description: Nome do plano orçamentário
+      - name: id_programa_governo
+        description: Código do programa de governo associado à despesa
+      - name: nome_programa_governo
+        description: Nome do programa de governo associado à despesa
+      - name: sigla_uf
+        description: Sigla da unidade da federação do localizador da despesa
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: nome_municipio
+        description: Nome do município do localizador da despesa
+      - name: id_subtitulo
+        description: Código do subtítulo, que identifica a localização física ou o
+          recorte da ação orçamentária
+      - name: nome_subtitulo
+        description: Nome do subtítulo
+      - name: id_localizador
+        description: Código do localizador do gasto dentro da ação orçamentária
+      - name: nome_localizador
+        description: Nome do localizador do gasto
+      - name: sigla_localizador
+        description: Sigla do localizador do gasto
+      - name: descricao_complementar_localizador
+        description: Descrição complementar do localizador do gasto
+      - name: id_autor_emenda
+        description: Código do autor da emenda parlamentar que originou a despesa
+      - name: nome_autor_emenda
+        description: Nome do autor da emenda parlamentar que originou a despesa
+      - name: id_categoria_economica
+        description: Código da categoria econômica da despesa, que separa despesas
+          correntes de despesas de capital
+      - name: nome_categoria_economica
+        description: Nome da categoria econômica da despesa
+      - name: id_grupo_despesa
+        description: Código do grupo de natureza da despesa, por exemplo pessoal e
+          encargos sociais, juros da dívida, investimentos
+      - name: nome_grupo_despesa
+        description: Nome do grupo de natureza da despesa
+      - name: id_elemento_despesa
+        description: Código do elemento de despesa, que identifica o objeto do gasto
+      - name: nome_elemento_despesa
+        description: Nome do elemento de despesa
+      - name: id_modalidade_despesa
+        description: Código da modalidade de aplicação, que indica se o gasto é direto
+          ou por transferência a outro ente
+      - name: nome_modalidade_despesa
+        description: Nome da modalidade de aplicação
+      - name: valor_empenhado
+        description: Valor empenhado no mês, em reais correntes
+      - name: valor_liquidado
+        description: Valor liquidado no mês, isto é, reconhecido como devido após
+          a verificação da entrega, em reais correntes
+      - name: valor_pago
+        description: Valor efetivamente pago no mês, em reais correntes
+      - name: valor_restos_pagar_inscritos
+        description: Valor inscrito em restos a pagar, isto é, empenhado em exercício
+          anterior e não pago até o seu encerramento, em reais correntes
+      - name: valor_restos_pagar_cancelados
+        description: Valor de restos a pagar cancelado no mês, em reais correntes
+      - name: valor_restos_pagar_pagos
+        description: Valor de restos a pagar efetivamente pago no mês, em reais correntes

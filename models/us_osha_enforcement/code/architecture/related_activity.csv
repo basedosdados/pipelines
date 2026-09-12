@@ -1,0 +1,7 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano de abertura da inspeção associada,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Derivado de inspection.open_date. Registros cujo inspection_id não existe em inspection recebem year = 9999,
+inspection_id,STRING,Identificador único da inspeção (activity number) da OSHA,,no,,,no,,ACTIVITY_NR
+related_activity_id,STRING,Identificador da atividade relacionada,,no,,,no,,REL_ACT_NR
+related_type,STRING,Tipo da atividade relacionada,,no,,,no,"A OSHA não publica a legenda dos códigos A, C, I, N e R, que por isso não constam do dicionário",REL_TYPE
+related_safety,STRING,Indica que a denúncia ou encaminhamento relacionado trata de segurança (X),,yes,,,no,,REL_SAFETY
+related_health,STRING,Indica que a denúncia ou encaminhamento relacionado trata de saúde ocupacional (X),,yes,,,no,,REL_HEALTH

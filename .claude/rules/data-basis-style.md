@@ -99,7 +99,7 @@ Always declare these in the `directory_column` field of architecture tables:
 |-------------|-------------|
 | `ano` | `br_bd_diretorios_data_tempo.ano:ano` |
 | `mes` | `br_bd_diretorios_data_tempo.mes:mes` |
-| `sigla_uf` | `br_bd_diretorios_brasil.uf:sigla_uf` |
+| `sigla_uf` | `br_bd_diretorios_brasil.uf:sigla` — the directory's key column is `sigla`, **not** `sigla_uf` |
 | `id_municipio` | `br_bd_diretorios_brasil.municipio:id_municipio` |
 | `id_pais` | `br_bd_diretorios_mundo.pais:id_pais` |
 

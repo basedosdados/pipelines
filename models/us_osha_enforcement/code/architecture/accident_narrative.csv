@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano do acidente,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Derivado de accident.event_date,
+accident_id,STRING,Identificador do acidente a que a narrativa se refere,,no,,,no,,SUMMARY_NR
+narrative,STRING,Narrativa da investigação do acidente,,no,,,yes,"Remontada juntando as linhas de line_nr em ordem. A fonte usa duas quebras de linha diferentes: registros antigos quebram em exatamente 80 caracteres no meio da palavra (junção sem separador) e registros novos quebram na palavra consumindo o espaço (junção com espaço). O critério é por registro: se toda linha não final tem exatamente 80 caracteres, junta-se sem separador",
+line_count,INT64,Número de linhas do arquivo de origem que compõem a narrativa,,no,,line,no,,
+wrap_style,STRING,"Regime de quebra de linha do registro na fonte, usado na remontagem",,yes,,,no,,
