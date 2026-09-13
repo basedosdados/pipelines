@@ -20,40 +20,16 @@ from pipelines.datasets.br_ibge_ipca.constants import (
     MES_CATEGORIA_MUNICIPIO_TABLE_ID,
     MES_CATEGORIA_RM_TABLE_ID,
 )
-from pipelines.datasets.br_ibge_ipca.tasks import (
-    make_check_for_update,
-    make_download_data,
-)
-from pipelines.utils.stage_dispatch import (
-    CheckThenDownloadPipeline,
-    Etapa,
-    deploy_tags,
-)
-
-
-def _make_pipeline(table_id: str) -> CheckThenDownloadPipeline:
-    return CheckThenDownloadPipeline(
-        dataset_id=DATASET_ID,
-        table_id=table_id,
-        check_for_update=make_check_for_update(table_id),
-        download_data=make_download_data(table_id),
-        # Mesma granularidade do flow antigo (`_run_ibge_inflacao`, que já
-        # compara coverage com date_format="%Y-%m" — o dado é mensal, sem dia).
-        date_format="%Y-%m",
-    )
-
-
-_mes_brasil_pipeline = _make_pipeline(MES_BRASIL_TABLE_ID)
-_mes_categoria_brasil_pipeline = _make_pipeline(MES_CATEGORIA_BRASIL_TABLE_ID)
-_mes_categoria_rm_pipeline = _make_pipeline(MES_CATEGORIA_RM_TABLE_ID)
-_mes_categoria_municipio_pipeline = _make_pipeline(
-    MES_CATEGORIA_MUNICIPIO_TABLE_ID
-)
-
+from pipelines.datasets.br_ibge_ipca.tasks import make_pipeline
+from pipelines.utils.stage_dispatch import Etapa, deploy_tags
 
 # ──────────────────────────────────────────────────────────────────────────────
 # mes_brasil
+# check_update: br_ibge_ipca__mes_brasil
+# download: br_ibge_ipca__mes_brasil
 # ──────────────────────────────────────────────────────────────────────────────
+
+_mes_brasil_pipeline = make_pipeline(MES_BRASIL_TABLE_ID)
 
 
 @flow(name=_mes_brasil_pipeline.check_update_flow_name, log_prints=True)
@@ -83,7 +59,11 @@ _mes_brasil_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # mes_categoria_brasil
+# check_update: br_ibge_ipca__mes_categoria_brasil
+# download: br_ibge_ipca__mes_categoria_brasil
 # ──────────────────────────────────────────────────────────────────────────────
+
+_mes_categoria_brasil_pipeline = make_pipeline(MES_CATEGORIA_BRASIL_TABLE_ID)
 
 
 @flow(
@@ -121,7 +101,11 @@ _mes_categoria_brasil_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # mes_categoria_rm
+# check_update: br_ibge_ipca__mes_categoria_rm
+# download: br_ibge_ipca__mes_categoria_rm
 # ──────────────────────────────────────────────────────────────────────────────
+
+_mes_categoria_rm_pipeline = make_pipeline(MES_CATEGORIA_RM_TABLE_ID)
 
 
 @flow(
@@ -159,7 +143,13 @@ _mes_categoria_rm_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # mes_categoria_municipio
+# check_update: br_ibge_ipca__mes_categoria_municipio
+# download: br_ibge_ipca__mes_categoria_municipio
 # ──────────────────────────────────────────────────────────────────────────────
+
+_mes_categoria_municipio_pipeline = make_pipeline(
+    MES_CATEGORIA_MUNICIPIO_TABLE_ID
+)
 
 
 @flow(

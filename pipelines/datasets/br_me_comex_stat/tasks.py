@@ -14,9 +14,16 @@ from pipelines.crawler.me_comex_stat.tasks import (
     download_br_me_comex_stat,
     parse_last_date,
 )
-from pipelines.datasets.br_me_comex_stat.constants import TABLE_SPECS
+from pipelines.datasets.br_me_comex_stat.constants import (
+    DATASET_ID,
+    TABLE_SPECS,
+)
 from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
-from pipelines.utils.stage_dispatch import CheckResult, DownloadResult
+from pipelines.utils.stage_dispatch import (
+    CheckResult,
+    DownloadResult,
+    pipeline_factory,
+)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # As 4 tabelas (município/NCM x exportação/importação) — ver constants.py
@@ -94,3 +101,13 @@ def make_download_data(table_id: str) -> Callable[[dict], DownloadResult]:
         )
 
     return download_data
+
+
+make_pipeline = pipeline_factory(
+    DATASET_ID,
+    # Mesma função pras 4 tabelas -- a fonte de check é única,
+    # compartilhada (ver banner acima).
+    lambda _table_id: br_me_comex_stat_check_for_update,
+    make_download_data,
+    date_format="%Y-%m",
+)

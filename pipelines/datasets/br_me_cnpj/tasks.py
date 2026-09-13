@@ -7,13 +7,18 @@ from datetime import datetime
 
 from pipelines.crawler.me_cnpj.constants import constants as constants_cnpj
 from pipelines.crawler.me_cnpj.tasks import get_data_source_max_date, main
+from pipelines.datasets.br_me_cnpj.constants import DATASET_ID
 from pipelines.utils.metadata.domain import (
     DateFormat,
     NonHistorical,
     PartBdpro,
     YearMonth,
 )
-from pipelines.utils.stage_dispatch import CheckResult, DownloadResult
+from pipelines.utils.stage_dispatch import (
+    CheckResult,
+    DownloadResult,
+    pipeline_factory,
+)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # As 4 tabelas (issue #1867) — ver constants.py
@@ -79,3 +84,15 @@ def make_download_data(table_id: str) -> Callable[[dict], DownloadResult]:
         )
 
     return download_data
+
+
+make_pipeline = pipeline_factory(
+    DATASET_ID,
+    make_check_for_update,
+    make_download_data,
+    # Mesma granularidade do flow antigo (`_run_me_cnpj`, que já
+    # compara coverage com date_format="%Y-%m"). `compare_against` fica no
+    # default da cápsula ("coverage") pra 3 das 4 tabelas — só `simples`
+    # sobrescreve na chamada (`flows.py`).
+    date_format="%Y-%m",
+)

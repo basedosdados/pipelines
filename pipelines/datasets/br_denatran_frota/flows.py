@@ -14,36 +14,16 @@ from pipelines.datasets.br_denatran_frota.constants import (
     MUNICIPIO_TIPO_TABLE_ID,
     UF_TIPO_TABLE_ID,
 )
-from pipelines.datasets.br_denatran_frota.tasks import (
-    make_check_for_update,
-    make_download_data,
-)
-from pipelines.utils.stage_dispatch import (
-    CheckThenDownloadPipeline,
-    Etapa,
-    deploy_tags,
-)
-
-
-def _make_pipeline(table_id: str) -> CheckThenDownloadPipeline:
-    return CheckThenDownloadPipeline(
-        dataset_id=DATASET_ID,
-        table_id=table_id,
-        check_for_update=make_check_for_update(table_id),
-        download_data=make_download_data(table_id),
-        # Mesma granularidade do flow antigo (`_run_denatran`, que já
-        # compara coverage com date_format="%Y-%m" — o dado é mensal).
-        date_format="%Y-%m",
-    )
-
-
-_uf_tipo_pipeline = _make_pipeline(UF_TIPO_TABLE_ID)
-_municipio_tipo_pipeline = _make_pipeline(MUNICIPIO_TIPO_TABLE_ID)
-
+from pipelines.datasets.br_denatran_frota.tasks import make_pipeline
+from pipelines.utils.stage_dispatch import Etapa, deploy_tags
 
 # ──────────────────────────────────────────────────────────────────────────────
 # uf_tipo
+# check_update: br_denatran_frota__uf_tipo
+# download: br_denatran_frota__uf_tipo
 # ──────────────────────────────────────────────────────────────────────────────
+
+_uf_tipo_pipeline = make_pipeline(UF_TIPO_TABLE_ID)
 
 
 @flow(name=_uf_tipo_pipeline.check_update_flow_name, log_prints=True)
@@ -73,7 +53,11 @@ _uf_tipo_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # municipio_tipo
+# check_update: br_denatran_frota__municipio_tipo
+# download: br_denatran_frota__municipio_tipo
 # ──────────────────────────────────────────────────────────────────────────────
+
+_municipio_tipo_pipeline = make_pipeline(MUNICIPIO_TIPO_TABLE_ID)
 
 
 @flow(name=_municipio_tipo_pipeline.check_update_flow_name, log_prints=True)

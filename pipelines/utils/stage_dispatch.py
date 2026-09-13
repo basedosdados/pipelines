@@ -260,6 +260,49 @@ def dispatch_mat_test(
     )
 
 
+def pipeline_factory(
+    dataset_id: str,
+    check_for_update_factory: Callable[[str], Callable[[], CheckResult]],
+    download_data_factory: Callable[[str], Callable[[dict], DownloadResult]],
+    **shared_kwargs,
+) -> Callable[..., "CheckThenDownloadPipeline"]:
+    """
+    Fábrica de `CheckThenDownloadPipeline` pra quando um `flows.py` declara
+    várias tabelas do mesmo dataset (ver `pipelines/datasets/br_ms_cnes/flows.py`,
+    13 tabelas). Fixa `dataset_id` e qualquer kwarg comum entre as tabelas
+    (`date_format`, `compare_against`, ...) — cada chamada só precisa do
+    `table_id`:
+
+        _make_pipeline = pipeline_factory(
+            DATASET_ID, make_check_for_update, make_download_data,
+            date_format="%Y-%m",
+        )
+        _mes_brasil_pipeline = _make_pipeline(MES_BRASIL_TABLE_ID)
+
+    `check_for_update_factory`/`download_data_factory` recebem `table_id` e
+    devolvem o callable correspondente — normalmente `make_check_for_update`/
+    `make_download_data` de `tasks.py`. Quando a checagem é uma função só,
+    compartilhada por todas as tabelas (a fonte é única — ver
+    `pipelines/datasets/br_me_caged/flows.py`), passe `lambda _: minha_funcao_unica`
+    em vez de uma fábrica de verdade.
+
+    Kwargs passados na chamada (não na fábrica) sobrescrevem os fixados —
+    necessário quando uma tabela foge da regra geral (ex.
+    `br_me_cnpj.simples`, `compare_against="table_update"` só nela).
+    """
+
+    def make(table_id: str, **overrides) -> CheckThenDownloadPipeline:
+        return CheckThenDownloadPipeline(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            check_for_update=check_for_update_factory(table_id),
+            download_data=download_data_factory(table_id),
+            **{**shared_kwargs, **overrides},
+        )
+
+    return make
+
+
 class CheckThenDownloadPipeline:
     """
     Interface recomendada pra um `flows.py` de dataset na variante padrão

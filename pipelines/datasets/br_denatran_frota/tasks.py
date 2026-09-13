@@ -33,7 +33,11 @@ from pipelines.datasets.br_denatran_frota.utils import (
 )
 from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
 from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
-from pipelines.utils.stage_dispatch import CheckResult, DownloadResult
+from pipelines.utils.stage_dispatch import (
+    CheckResult,
+    DownloadResult,
+    pipeline_factory,
+)
 from pipelines.utils.utils import log
 
 
@@ -495,7 +499,11 @@ def make_download_data(table_id: str) -> Callable[[dict], DownloadResult]:
     return download_data
 
 
-@task
-def get_denatran_date(filename: str) -> datetime.date:
-    year, month = get_year_month_from_filename(filename)
-    return datetime.date(year, month, 1)
+make_pipeline = pipeline_factory(
+    DATASET_ID,
+    make_check_for_update,
+    make_download_data,
+    # Mesma granularidade do flow antigo (`_run_denatran`, que já
+    # compara coverage com date_format="%Y-%m" — o dado é mensal).
+    date_format="%Y-%m",
+)

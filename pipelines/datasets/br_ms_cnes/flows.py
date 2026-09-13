@@ -30,53 +30,16 @@ from pipelines.datasets.br_ms_cnes.constants import (
     REGRA_CONTRATUAL_TABLE_ID,
     SERVICO_ESPECIALIZADO_TABLE_ID,
 )
-from pipelines.datasets.br_ms_cnes.tasks import (
-    make_check_for_update,
-    make_download_data,
-)
-from pipelines.utils.stage_dispatch import (
-    CheckThenDownloadPipeline,
-    Etapa,
-    deploy_tags,
-)
-
-
-def _make_pipeline(table_id: str) -> CheckThenDownloadPipeline:
-    return CheckThenDownloadPipeline(
-        dataset_id=DATASET_ID,
-        table_id=table_id,
-        check_for_update=make_check_for_update(table_id),
-        download_data=make_download_data(table_id),
-        # Mesma granularidade do flow antigo (`_run_cnes`, que já compara
-        # coverage com date_format="%Y-%m" — arquivos DATASUS são mensais).
-        date_format="%Y-%m",
-    )
-
-
-_profissional_pipeline = _make_pipeline(PROFISSIONAL_TABLE_ID)
-_estabelecimento_pipeline = _make_pipeline(ESTABELECIMENTO_TABLE_ID)
-_equipe_pipeline = _make_pipeline(EQUIPE_TABLE_ID)
-_leito_pipeline = _make_pipeline(LEITO_TABLE_ID)
-_equipamento_pipeline = _make_pipeline(EQUIPAMENTO_TABLE_ID)
-_estabelecimento_ensino_pipeline = _make_pipeline(
-    ESTABELECIMENTO_ENSINO_TABLE_ID
-)
-_dados_complementares_pipeline = _make_pipeline(DADOS_COMPLEMENTARES_TABLE_ID)
-_estabelecimento_filantropico_pipeline = _make_pipeline(
-    ESTABELECIMENTO_FILANTROPICO_TABLE_ID
-)
-_gestao_metas_pipeline = _make_pipeline(GESTAO_METAS_TABLE_ID)
-_habilitacao_pipeline = _make_pipeline(HABILITACAO_TABLE_ID)
-_incentivos_pipeline = _make_pipeline(INCENTIVOS_TABLE_ID)
-_regra_contratual_pipeline = _make_pipeline(REGRA_CONTRATUAL_TABLE_ID)
-_servico_especializado_pipeline = _make_pipeline(
-    SERVICO_ESPECIALIZADO_TABLE_ID
-)
-
+from pipelines.datasets.br_ms_cnes.tasks import make_pipeline
+from pipelines.utils.stage_dispatch import Etapa, deploy_tags
 
 # ──────────────────────────────────────────────────────────────────────────────
 # profissional
+# check_update: br_ms_cnes__profissional
+# download: br_ms_cnes__profissional
 # ──────────────────────────────────────────────────────────────────────────────
+
+_profissional_pipeline = make_pipeline(PROFISSIONAL_TABLE_ID)
 
 
 @flow(name=_profissional_pipeline.check_update_flow_name, log_prints=True)
@@ -106,7 +69,11 @@ _profissional_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # estabelecimento
+# check_update: br_ms_cnes__estabelecimento
+# download: br_ms_cnes__estabelecimento
 # ──────────────────────────────────────────────────────────────────────────────
+
+_estabelecimento_pipeline = make_pipeline(ESTABELECIMENTO_TABLE_ID)
 
 
 @flow(name=_estabelecimento_pipeline.check_update_flow_name, log_prints=True)
@@ -136,7 +103,11 @@ _estabelecimento_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # equipe
+# check_update: br_ms_cnes__equipe
+# download: br_ms_cnes__equipe
 # ──────────────────────────────────────────────────────────────────────────────
+
+_equipe_pipeline = make_pipeline(EQUIPE_TABLE_ID)
 
 
 @flow(name=_equipe_pipeline.check_update_flow_name, log_prints=True)
@@ -166,7 +137,11 @@ _equipe_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # leito
+# check_update: br_ms_cnes__leito
+# download: br_ms_cnes__leito
 # ──────────────────────────────────────────────────────────────────────────────
+
+_leito_pipeline = make_pipeline(LEITO_TABLE_ID)
 
 
 @flow(name=_leito_pipeline.check_update_flow_name, log_prints=True)
@@ -196,7 +171,11 @@ _leito_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # equipamento
+# check_update: br_ms_cnes__equipamento
+# download: br_ms_cnes__equipamento
 # ──────────────────────────────────────────────────────────────────────────────
+
+_equipamento_pipeline = make_pipeline(EQUIPAMENTO_TABLE_ID)
 
 
 @flow(name=_equipamento_pipeline.check_update_flow_name, log_prints=True)
@@ -226,7 +205,13 @@ _equipamento_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # estabelecimento_ensino
+# check_update: br_ms_cnes__estabelecimento_ensino
+# download: br_ms_cnes__estabelecimento_ensino
 # ──────────────────────────────────────────────────────────────────────────────
+
+_estabelecimento_ensino_pipeline = make_pipeline(
+    ESTABELECIMENTO_ENSINO_TABLE_ID
+)
 
 
 @flow(
@@ -263,7 +248,11 @@ _estabelecimento_ensino_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # dados_complementares
+# check_update: br_ms_cnes__dados_complementares
+# download: br_ms_cnes__dados_complementares
 # ──────────────────────────────────────────────────────────────────────────────
+
+_dados_complementares_pipeline = make_pipeline(DADOS_COMPLEMENTARES_TABLE_ID)
 
 
 @flow(
@@ -297,7 +286,13 @@ _dados_complementares_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # estabelecimento_filantropico
+# check_update: br_ms_cnes__estabelecimento_filantropico
+# download: br_ms_cnes__estabelecimento_filantropico
 # ──────────────────────────────────────────────────────────────────────────────
+
+_estabelecimento_filantropico_pipeline = make_pipeline(
+    ESTABELECIMENTO_FILANTROPICO_TABLE_ID
+)
 
 
 @flow(
@@ -335,7 +330,11 @@ _estabelecimento_filantropico_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # gestao_metas
+# check_update: br_ms_cnes__gestao_metas
+# download: br_ms_cnes__gestao_metas
 # ──────────────────────────────────────────────────────────────────────────────
+
+_gestao_metas_pipeline = make_pipeline(GESTAO_METAS_TABLE_ID)
 
 
 @flow(name=_gestao_metas_pipeline.check_update_flow_name, log_prints=True)
@@ -365,7 +364,11 @@ _gestao_metas_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # habilitacao
+# check_update: br_ms_cnes__habilitacao
+# download: br_ms_cnes__habilitacao
 # ──────────────────────────────────────────────────────────────────────────────
+
+_habilitacao_pipeline = make_pipeline(HABILITACAO_TABLE_ID)
 
 
 @flow(name=_habilitacao_pipeline.check_update_flow_name, log_prints=True)
@@ -395,7 +398,11 @@ _habilitacao_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # incentivos
+# check_update: br_ms_cnes__incentivos
+# download: br_ms_cnes__incentivos
 # ──────────────────────────────────────────────────────────────────────────────
+
+_incentivos_pipeline = make_pipeline(INCENTIVOS_TABLE_ID)
 
 
 @flow(name=_incentivos_pipeline.check_update_flow_name, log_prints=True)
@@ -425,7 +432,11 @@ _incentivos_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # regra_contratual
+# check_update: br_ms_cnes__regra_contratual
+# download: br_ms_cnes__regra_contratual
 # ──────────────────────────────────────────────────────────────────────────────
+
+_regra_contratual_pipeline = make_pipeline(REGRA_CONTRATUAL_TABLE_ID)
 
 
 @flow(name=_regra_contratual_pipeline.check_update_flow_name, log_prints=True)
@@ -455,7 +466,11 @@ _regra_contratual_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # servico_especializado
+# check_update: br_ms_cnes__servico_especializado
+# download: br_ms_cnes__servico_especializado
 # ──────────────────────────────────────────────────────────────────────────────
+
+_servico_especializado_pipeline = make_pipeline(SERVICO_ESPECIALIZADO_TABLE_ID)
 
 
 @flow(

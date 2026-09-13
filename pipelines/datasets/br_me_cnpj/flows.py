@@ -30,43 +30,16 @@ from pipelines.datasets.br_me_cnpj.constants import (
     SIMPLES_TABLE_ID,
     SOCIOS_TABLE_ID,
 )
-from pipelines.datasets.br_me_cnpj.tasks import (
-    make_check_for_update,
-    make_download_data,
-)
-from pipelines.utils.stage_dispatch import (
-    CheckThenDownloadPipeline,
-    Etapa,
-    deploy_tags,
-)
-
-
-def _make_pipeline(
-    table_id: str, compare_against: str = "coverage"
-) -> CheckThenDownloadPipeline:
-    return CheckThenDownloadPipeline(
-        dataset_id=DATASET_ID,
-        table_id=table_id,
-        check_for_update=make_check_for_update(table_id),
-        download_data=make_download_data(table_id),
-        # Mesma granularidade do flow antigo (`_run_me_cnpj`, que já
-        # compara coverage com date_format="%Y-%m").
-        date_format="%Y-%m",
-        compare_against=compare_against,
-    )
-
-
-_empresas_pipeline = _make_pipeline(EMPRESAS_TABLE_ID)
-_socios_pipeline = _make_pipeline(SOCIOS_TABLE_ID)
-_estabelecimentos_pipeline = _make_pipeline(ESTABELECIMENTOS_TABLE_ID)
-_simples_pipeline = _make_pipeline(
-    SIMPLES_TABLE_ID, compare_against=SIMPLES_COMPARE_AGAINST
-)
-
+from pipelines.datasets.br_me_cnpj.tasks import make_pipeline
+from pipelines.utils.stage_dispatch import Etapa, deploy_tags
 
 # ──────────────────────────────────────────────────────────────────────────────
 # empresas
+# check_update: br_me_cnpj__empresas
+# download: br_me_cnpj__empresas
 # ──────────────────────────────────────────────────────────────────────────────
+
+_empresas_pipeline = make_pipeline(EMPRESAS_TABLE_ID)
 
 
 @flow(name=_empresas_pipeline.check_update_flow_name, log_prints=True)
@@ -98,7 +71,11 @@ _empresas_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # socios
+# check_update: br_me_cnpj__socios
+# download: br_me_cnpj__socios
 # ──────────────────────────────────────────────────────────────────────────────
+
+_socios_pipeline = make_pipeline(SOCIOS_TABLE_ID)
 
 
 @flow(name=_socios_pipeline.check_update_flow_name, log_prints=True)
@@ -130,7 +107,11 @@ _socios_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # estabelecimentos
+# check_update: br_me_cnpj__estabelecimentos
+# download: br_me_cnpj__estabelecimentos
 # ──────────────────────────────────────────────────────────────────────────────
+
+_estabelecimentos_pipeline = make_pipeline(ESTABELECIMENTOS_TABLE_ID)
 
 
 @flow(name=_estabelecimentos_pipeline.check_update_flow_name, log_prints=True)
@@ -166,7 +147,13 @@ _estabelecimentos_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # simples — NonHistorical, compare_against="table_update" (ver constants.py)
+# check_update: br_me_cnpj__simples
+# download: br_me_cnpj__simples
 # ──────────────────────────────────────────────────────────────────────────────
+
+_simples_pipeline = make_pipeline(
+    SIMPLES_TABLE_ID, compare_against=SIMPLES_COMPARE_AGAINST
+)
 
 
 @flow(name=_simples_pipeline.check_update_flow_name, log_prints=True)

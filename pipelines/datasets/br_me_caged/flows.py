@@ -19,45 +19,18 @@ from pipelines.datasets.br_me_caged.constants import (
     MICRODADOS_MOVIMENTACAO_FORA_PRAZO_TABLE_ID,
     MICRODADOS_MOVIMENTACAO_TABLE_ID,
 )
-from pipelines.datasets.br_me_caged.tasks import (
-    br_me_caged_check_for_update,
-    make_download_data,
-)
-from pipelines.utils.stage_dispatch import (
-    CheckThenDownloadPipeline,
-    Etapa,
-    deploy_tags,
-)
-
-
-def _make_pipeline(table_id: str) -> CheckThenDownloadPipeline:
-    return CheckThenDownloadPipeline(
-        dataset_id=DATASET_ID,
-        table_id=table_id,
-        # Mesma checagem (leve, via FTP) pras 3 tabelas — ver banner em
-        # tasks.py.
-        check_for_update=br_me_caged_check_for_update,
-        download_data=make_download_data(table_id),
-        # Mesma granularidade do flow antigo (`_run_me_caged`, que já
-        # compara coverage com date_format="%Y-%m" — o dado é mensal, sem dia).
-        date_format="%Y-%m",
-    )
-
-
-_microdados_movimentacao_pipeline = _make_pipeline(
-    MICRODADOS_MOVIMENTACAO_TABLE_ID
-)
-_microdados_movimentacao_fora_prazo_pipeline = _make_pipeline(
-    MICRODADOS_MOVIMENTACAO_FORA_PRAZO_TABLE_ID
-)
-_microdados_movimentacao_excluida_pipeline = _make_pipeline(
-    MICRODADOS_MOVIMENTACAO_EXCLUIDA_TABLE_ID
-)
-
+from pipelines.datasets.br_me_caged.tasks import make_pipeline
+from pipelines.utils.stage_dispatch import Etapa, deploy_tags
 
 # ──────────────────────────────────────────────────────────────────────────────
 # microdados_movimentacao
+# check_update: br_me_caged__microdados_movimentacao
+# download: br_me_caged__microdados_movimentacao
 # ──────────────────────────────────────────────────────────────────────────────
+
+_microdados_movimentacao_pipeline = make_pipeline(
+    MICRODADOS_MOVIMENTACAO_TABLE_ID
+)
 
 
 @flow(
@@ -95,7 +68,13 @@ _microdados_movimentacao_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # microdados_movimentacao_fora_prazo
+# check_update: br_me_caged__microdados_movimentacao_fora_prazo
+# download: br_me_caged__microdados_movimentacao_fora_prazo
 # ──────────────────────────────────────────────────────────────────────────────
+
+_microdados_movimentacao_fora_prazo_pipeline = make_pipeline(
+    MICRODADOS_MOVIMENTACAO_FORA_PRAZO_TABLE_ID
+)
 
 
 @flow(
@@ -133,7 +112,13 @@ _microdados_movimentacao_fora_prazo_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # microdados_movimentacao_excluida
+# check_update: br_me_caged__microdados_movimentacao_excluida
+# download: br_me_caged__microdados_movimentacao_excluida
 # ──────────────────────────────────────────────────────────────────────────────
+
+_microdados_movimentacao_excluida_pipeline = make_pipeline(
+    MICRODADOS_MOVIMENTACAO_EXCLUIDA_TABLE_ID
+)
 
 
 @flow(

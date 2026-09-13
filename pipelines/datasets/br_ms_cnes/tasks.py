@@ -15,7 +15,11 @@ from pipelines.crawler.datasus.tasks import (
 from pipelines.datasets.br_ms_cnes.constants import DATASET_ID
 from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
 from pipelines.utils.metadata.tasks import task_get_api_most_recent_date
-from pipelines.utils.stage_dispatch import CheckResult, DownloadResult
+from pipelines.utils.stage_dispatch import (
+    CheckResult,
+    DownloadResult,
+    pipeline_factory,
+)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # As 13 tabelas (issue #1867) — ver constants.py
@@ -91,3 +95,13 @@ def make_download_data(table_id: str) -> Callable[[dict], DownloadResult]:
         )
 
     return download_data
+
+
+make_pipeline = pipeline_factory(
+    DATASET_ID,
+    make_check_for_update,
+    make_download_data,
+    # Mesma granularidade do flow antigo (`_run_cnes`, que já compara
+    # coverage com date_format="%Y-%m" — arquivos DATASUS são mensais).
+    date_format="%Y-%m",
+)

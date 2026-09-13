@@ -16,38 +16,16 @@ from pipelines.datasets.br_me_comex_stat.constants import (
     NCM_EXPORTACAO_TABLE_ID,
     NCM_IMPORTACAO_TABLE_ID,
 )
-from pipelines.datasets.br_me_comex_stat.tasks import (
-    br_me_comex_stat_check_for_update,
-    make_download_data,
-)
-from pipelines.utils.stage_dispatch import (
-    CheckThenDownloadPipeline,
-    Etapa,
-    deploy_tags,
-)
-
-
-def _make_pipeline(table_id: str) -> CheckThenDownloadPipeline:
-    return CheckThenDownloadPipeline(
-        dataset_id=DATASET_ID,
-        table_id=table_id,
-        # Mesma função pras 4 tabelas -- a fonte de check é única,
-        # compartilhada (ver banner em tasks.py).
-        check_for_update=br_me_comex_stat_check_for_update,
-        download_data=make_download_data(table_id),
-        date_format="%Y-%m",
-    )
-
-
-_municipio_exportacao_pipeline = _make_pipeline(MUNICIPIO_EXPORTACAO_TABLE_ID)
-_municipio_importacao_pipeline = _make_pipeline(MUNICIPIO_IMPORTACAO_TABLE_ID)
-_ncm_exportacao_pipeline = _make_pipeline(NCM_EXPORTACAO_TABLE_ID)
-_ncm_importacao_pipeline = _make_pipeline(NCM_IMPORTACAO_TABLE_ID)
-
+from pipelines.datasets.br_me_comex_stat.tasks import make_pipeline
+from pipelines.utils.stage_dispatch import Etapa, deploy_tags
 
 # ──────────────────────────────────────────────────────────────────────────────
 # municipio_exportacao
+# check_update: br_me_comex_stat__municipio_exportacao
+# download: br_me_comex_stat__municipio_exportacao
 # ──────────────────────────────────────────────────────────────────────────────
+
+_municipio_exportacao_pipeline = make_pipeline(MUNICIPIO_EXPORTACAO_TABLE_ID)
 
 
 @flow(
@@ -85,7 +63,11 @@ _municipio_exportacao_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # municipio_importacao
+# check_update: br_me_comex_stat__municipio_importacao
+# download: br_me_comex_stat__municipio_importacao
 # ──────────────────────────────────────────────────────────────────────────────
+
+_municipio_importacao_pipeline = make_pipeline(MUNICIPIO_IMPORTACAO_TABLE_ID)
 
 
 @flow(
@@ -123,7 +105,11 @@ _municipio_importacao_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # ncm_exportacao
+# check_update: br_me_comex_stat__ncm_exportacao
+# download: br_me_comex_stat__ncm_exportacao
 # ──────────────────────────────────────────────────────────────────────────────
+
+_ncm_exportacao_pipeline = make_pipeline(NCM_EXPORTACAO_TABLE_ID)
 
 
 @flow(
@@ -161,7 +147,11 @@ _ncm_exportacao_pipeline.download_deployment = (
 
 # ──────────────────────────────────────────────────────────────────────────────
 # ncm_importacao
+# check_update: br_me_comex_stat__ncm_importacao
+# download: br_me_comex_stat__ncm_importacao
 # ──────────────────────────────────────────────────────────────────────────────
+
+_ncm_importacao_pipeline = make_pipeline(NCM_IMPORTACAO_TABLE_ID)
 
 
 @flow(

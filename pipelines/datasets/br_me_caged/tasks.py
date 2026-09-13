@@ -16,7 +16,11 @@ from pipelines.crawler.me_caged.tasks import (
 )
 from pipelines.datasets.br_me_caged.constants import DATASET_ID
 from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
-from pipelines.utils.stage_dispatch import CheckResult, DownloadResult
+from pipelines.utils.stage_dispatch import (
+    CheckResult,
+    DownloadResult,
+    pipeline_factory,
+)
 
 # ──────────────────────────────────────────────────────────────────────────────
 # As 3 tabelas (issue #1867) — ver constants.py
@@ -84,3 +88,16 @@ def make_download_data(table_id: str) -> Callable[[dict], DownloadResult]:
         )
 
     return download_data
+
+
+make_pipeline = pipeline_factory(
+    DATASET_ID,
+    # Mesma checagem (leve, via FTP) pras 3 tabelas — ver banner acima.
+    # `check_for_update_factory` recebe `table_id`, mas aqui ignoramos: a
+    # fonte é única, compartilhada.
+    lambda _table_id: br_me_caged_check_for_update,
+    make_download_data,
+    # Mesma granularidade do flow antigo (`_run_me_caged`, que já
+    # compara coverage com date_format="%Y-%m" — o dado é mensal, sem dia).
+    date_format="%Y-%m",
+)
