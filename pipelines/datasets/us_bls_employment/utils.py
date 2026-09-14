@@ -14,6 +14,7 @@ documentation says it is for.
 """
 
 import csv
+import json
 import logging
 import re
 import shutil
@@ -414,6 +415,24 @@ _RAW_SCHEMA = pa.schema(
 )
 
 
+def _source_manifest(input_dir: Path, prog: str) -> list[list]:
+    """Identify the observation files a program would be built from right now.
+
+    Name and size are enough to notice a refreshed download: BLS republishes the
+    whole history on every release, so a new period always changes the size.
+
+    Args:
+        input_dir: Root of the downloaded files.
+        prog: BLS program directory.
+
+    Returns:
+        Sorted ``[name, size]`` pairs, JSON-serializable.
+    """
+    d = input_dir / prog
+    names = _data_files(prog, {f.name for f in d.iterdir()})
+    return sorted([n, (d / n).stat().st_size] for n in names)
+
+
 def shard_by_year(input_dir: Path, prog: str, stage_dir: Path) -> int:
     """Pass 1 — split every observation file for a program into per-year shards.
 
@@ -572,6 +591,12 @@ def build_program(
         if len(months):
             latest = max(latest, (int(sub["year"].iloc[0]), int(months.max())))
     shutil.rmtree(stage_dir)
+    # Record what this table was built from, so build_dicionario can prove it is
+    # derived from the same snapshot rather than from whatever happens to be on
+    # disk.
+    (output_dir / table / "_source.json").write_text(
+        json.dumps(_source_manifest(input_dir, prog))
+    )
     years = sorted(
         int(p.name[5:]) for p in (output_dir / table).glob("year=*")
     )
@@ -775,15 +800,24 @@ def build_dicionario(input_dir: Path, output_dir: Path) -> Path:
     # The composite footnote labels are read back out of the built tables, so a
     # dictionary built against an empty output directory is silently short those
     # entries rather than wrong in any visible way. Fail instead.
-    unbuilt = [
-        t
-        for t in constants.DATA_TABLES.value
-        if not any((output_dir / t).glob("year=*/data.parquet"))
-    ]
-    if unbuilt:
+    stale = []
+    for table in constants.DATA_TABLES.value:
+        manifest = output_dir / table / "_source.json"
+        if not any((output_dir / table).glob("year=*/data.parquet")):
+            stale.append(f"{table} (not built)")
+        elif not manifest.exists():
+            stale.append(f"{table} (no manifest)")
+        elif json.loads(manifest.read_text()) != _source_manifest(
+            input_dir, PROGRAMS[table]
+        ):
+            # Parquet being present is not enough: it may predate a
+            # re-download, in which case the composite labels would describe
+            # the previous snapshot.
+            stale.append(f"{table} (built from different input files)")
+    if stale:
         raise FileNotFoundError(
-            "dicionario is derived partly from the built tables; build these "
-            f"first: {', '.join(unbuilt)}"
+            "dicionario is derived partly from the built tables and must come "
+            f"from the same inputs; rebuild: {', '.join(stale)}"
         )
     rows = []
     for table, sources in _DICT_SOURCES.items():
