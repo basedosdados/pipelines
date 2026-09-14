@@ -772,6 +772,19 @@ def build_dicionario(input_dir: Path, output_dir: Path) -> Path:
     Returns:
         The dictionary's output directory.
     """
+    # The composite footnote labels are read back out of the built tables, so a
+    # dictionary built against an empty output directory is silently short those
+    # entries rather than wrong in any visible way. Fail instead.
+    unbuilt = [
+        t
+        for t in constants.DATA_TABLES.value
+        if not any((output_dir / t).glob("year=*/data.parquet"))
+    ]
+    if unbuilt:
+        raise FileNotFoundError(
+            "dicionario is derived partly from the built tables; build these "
+            f"first: {', '.join(unbuilt)}"
+        )
     rows = []
     for table, sources in _DICT_SOURCES.items():
         for column, prog, fname, code_col, label_col in sources:
