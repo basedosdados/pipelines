@@ -32,6 +32,7 @@ from __future__ import annotations
 import logging
 import subprocess
 import tempfile
+import time
 import unicodedata
 from pathlib import Path
 
@@ -55,6 +56,13 @@ _USER_AGENT = (
     "AppleWebKit/537.36 (KHTML, like Gecko) "
     "Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
 )
+
+# The portal is flaky: a reset connection (curl exit 35) and an HTTP 502 from
+# Extract were both seen minutes apart from a request that returned the full
+# CSV. Both clear on a retry, so every attempt is repeated before giving up.
+_DOWNLOAD_ATTEMPTS = 3
+_RETRY_WAIT_SECONDS = 15
+_CURL_TIMEOUT_SECONDS = 600
 
 # CSV source column → staging column name
 _COL_RENAME = {
@@ -154,10 +162,10 @@ _MUNICIPIO_NAME_FIXES: dict[tuple[str, str], str] = {
 def download_catalogo(input_dir: Path) -> Path:
     """Download the INEP school catalog CSV from OBIEE.
 
-    Uses curl via subprocess to work around the server's TLS fingerprint check.
-    Two requests are issued:
-      1. GET dashboard page to obtain an anonymous session cookie.
-      2. POST with Action=Extract to receive the full CSV (~85 MB, ~212k rows).
+    Retries the whole cookie + Extract round, because the portal's two failure
+    modes surface in different places: a reset connection makes curl exit
+    non-zero, while a 502 comes back as a successful curl carrying an HTML
+    body.
 
     Args:
         input_dir: Directory where the raw CSV will be saved.
@@ -166,11 +174,48 @@ def download_catalogo(input_dir: Path) -> Path:
         Path to the downloaded CSV file.
 
     Raises:
-        RuntimeError: If either curl call fails or the response is not CSV.
+        RuntimeError: If every attempt fails.
     """
     input_dir.mkdir(parents=True, exist_ok=True)
     csv_path = input_dir / "catalogo_escolas.csv"
 
+    for attempt in range(1, _DOWNLOAD_ATTEMPTS + 1):
+        try:
+            return _download_catalogo_once(csv_path)
+        except RuntimeError as error:
+            # Drop the partial body so --skip-download cannot reuse it.
+            csv_path.unlink(missing_ok=True)
+            if attempt == _DOWNLOAD_ATTEMPTS:
+                raise
+            log.warning(
+                "Attempt %d/%d failed (%s). Retrying in %ds...",
+                attempt,
+                _DOWNLOAD_ATTEMPTS,
+                error,
+                _RETRY_WAIT_SECONDS,
+            )
+            time.sleep(_RETRY_WAIT_SECONDS)
+
+    raise RuntimeError("download_catalogo exhausted its attempts")
+
+
+def _download_catalogo_once(csv_path: Path) -> Path:
+    """Run one cookie + Extract round against the OBIEE portal.
+
+    Uses curl via subprocess to work around the server's TLS fingerprint check.
+    Two requests are issued:
+      1. GET dashboard page to obtain an anonymous session cookie.
+      2. POST with Action=Extract to receive the full CSV (~85 MB, ~212k rows).
+
+    Args:
+        csv_path: Destination of the downloaded CSV.
+
+    Returns:
+        ``csv_path``.
+
+    Raises:
+        RuntimeError: If either curl call fails or the response is not CSV.
+    """
     with tempfile.NamedTemporaryFile(
         suffix=".txt", delete=False
     ) as cookie_file:
@@ -180,7 +225,7 @@ def download_catalogo(input_dir: Path) -> Path:
         log.info(
             "Step 1/2: obtaining anonymous session cookies from INEP OBIEE..."
         )
-        _curl(
+        run_curl(
             [
                 "curl",
                 "-s",
@@ -203,7 +248,7 @@ def download_catalogo(input_dir: Path) -> Path:
         log.info(
             "Step 2/2: downloading school catalog via OBIEE Extract (~85 MB)..."
         )
-        result = _curl(
+        result = run_curl(
             [
                 "curl",
                 "-s",
@@ -253,15 +298,34 @@ def download_catalogo(input_dir: Path) -> Path:
     return csv_path
 
 
-def _curl(
+def run_curl(
     cmd: list[str], *, label: str, capture_stdout: bool = False
 ) -> subprocess.CompletedProcess:
-    result = subprocess.run(
-        cmd,
-        capture_output=capture_stdout,
-        text=capture_stdout,
-        check=False,
-    )
+    """Run a curl command, raising on a non-zero exit or a timeout.
+
+    Args:
+        cmd: The full curl argv.
+        label: Step name used in the error message.
+        capture_stdout: Whether to capture stdout, needed to read ``-w``.
+
+    Returns:
+        The completed process.
+
+    Raises:
+        RuntimeError: If curl exits non-zero or exceeds the timeout.
+    """
+    try:
+        result = subprocess.run(
+            cmd,
+            capture_output=capture_stdout,
+            text=capture_stdout,
+            check=False,
+            timeout=_CURL_TIMEOUT_SECONDS,
+        )
+    except subprocess.TimeoutExpired as error:
+        raise RuntimeError(
+            f"curl timed out ({label}) after {_CURL_TIMEOUT_SECONDS}s"
+        ) from error
     if result.returncode != 0:
         raise RuntimeError(f"curl failed ({label}): exit {result.returncode}")
     return result
