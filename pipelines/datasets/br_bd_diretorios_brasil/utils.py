@@ -16,6 +16,15 @@ Flow:
 
 This is implemented via subprocess curl (not requests) because the server
 resets TLS connections from Python's ssl library but accepts curl's fingerprint.
+
+Directory accumulation
+----------------------
+The catalog carries only the schools currently in the INEP register — the
+source prunes schools extinct in earlier years. Loading it as-is would drop
+those schools from the directory, breaking joins from datasets that still
+reference their ``id_escola``. So ``clean_catalogo`` unions the catalog with
+the published directory and records the outcome per school in
+``situacao_catalogo``.
 """
 
 from __future__ import annotations
@@ -91,7 +100,14 @@ _STAGING_COLS = [
     "outras_ofertas_educacionais",
     "latitude",
     "longitude",
+    "situacao_catalogo",
 ]
+
+# Whether the school is still in the INEP catalog. Readable labels, not codes,
+# so the column needs no dicionario table (this dataset has none).
+_SITUACAO_CATALOGO = "situacao_catalogo"
+_PRESENTE = "Presente"
+_AUSENTE = "Ausente"
 
 # PyArrow schema — all STRING (staging convention; dbt safe_casts to final types)
 _PA_SCHEMA = pa.schema([(col, pa.string()) for col in _STAGING_COLS])
@@ -108,12 +124,15 @@ _MUNICIPIO_NAME_FIXES: dict[tuple[str, str], str] = {
         "MG",
     ): "3105509",  # "do" → "de" (Barão de Monte Alto)
     ("Dona Euzébia", "MG"): "3122900",  # z → s (Eusébia)
+    ("Passa Vinte", "MG"): "3147808",  # space → hyphen (Passa-Vinte)
+    ("São Tomé das Letras", "MG"): "3165206",  # Tomé → Thomé
     ("Poxoréu", "MT"): "5107008",  # u → o (Poxoréo)
     ("Santo Antônio de Leverger", "MT"): "5107800",  # "de" → "do"
     ("Santa Izabel do Pará", "PA"): "1506500",  # z → s (Isabel)
     ("Iguaracy", "PE"): "2606903",  # y → i (Iguaraci)
     ("Arez", "RN"): "2401206",  # z → s (Arês — accent only handled by norm)
     ("Assú", "RN"): "2400208",  # Assú → Açu (different word)
+    ("Januário Cicco", "RN"): "2410306",  # renamed to Serra Caiada
     ("Olho d'Água do Borges", "RN"): "2408409",  # space → hyphen before d'Água
     (
         "São Luiz do Anauá",
@@ -126,8 +145,6 @@ _MUNICIPIO_NAME_FIXES: dict[tuple[str, str], str] = {
     ("Florínea", "SP"): "3516101",  # nea → nia (Florínia)
     ("São Luiz do Paraitinga", "SP"): "3550001",  # z → s (São Luís)
     ("Tabocão", "TO"): "1708254",  # renamed to Fortaleza do Tabocão
-    # MG: Passa Vinte, São Tomé das Letras — not in BD+ municipio; left NULL
-    # RN: Januário Cicco — not in BD+ municipio; left NULL
 }
 
 
@@ -290,22 +307,19 @@ def build_municipio_lookup(municipio_csv: Path) -> dict[tuple[str, str], str]:
     return build_municipio_lookup_from_df(mun)
 
 
-def build_municipio_lookup_from_bq(
-    billing_project_id: str = "basedosdados-dev",
-    credentials_path: str | None = None,
-) -> dict[tuple[str, str], str]:
-    """Build lookup reading ``basedosdados.br_bd_diretorios_brasil.municipio`` from BigQuery.
+def _bq_client(billing_project_id: str, credentials_path: str | None):
+    """Build a BigQuery client from a service account key or from ADC.
 
     Uses google-cloud-bigquery directly (not basedosdados.read_table) to avoid
     the browser-based OAuth flow that blocks headless environments.
 
     Args:
-        billing_project_id: GCP project to bill the query to (default: basedosdados-dev).
-        credentials_path: Path to a service account JSON key. If None, falls back to
-            ``~/.basedosdados/credentials/staging.json`` then ADC.
+        billing_project_id: GCP project to bill the query to.
+        credentials_path: Path to a service account JSON key. If None, falls
+            back to ``~/.basedosdados/credentials/staging.json`` then ADC.
 
     Returns:
-        Dict mapping (nome_upper, sigla_uf) to the 7-digit IBGE code string.
+        An authenticated ``google.cloud.bigquery.Client``.
     """
     from google.cloud import bigquery
     from google.oauth2 import service_account
@@ -324,9 +338,25 @@ def build_municipio_lookup_from_bq(
         )
         log.info("Using credentials from %s", credentials_path)
 
-    client = bigquery.Client(
-        project=billing_project_id, credentials=credentials
-    )
+    return bigquery.Client(project=billing_project_id, credentials=credentials)
+
+
+def build_municipio_lookup_from_bq(
+    billing_project_id: str = "basedosdados-dev",
+    credentials_path: str | None = None,
+) -> dict[tuple[str, str], str]:
+    """Build lookup reading the municipio directory from BigQuery.
+
+    Args:
+        billing_project_id: GCP project to bill the query to (default:
+            basedosdados-dev).
+        credentials_path: Path to a service account JSON key; see
+            ``_bq_client``.
+
+    Returns:
+        Dict mapping (nome_upper, sigla_uf) to the 7-digit IBGE code string.
+    """
+    client = _bq_client(billing_project_id, credentials_path)
     log.info(
         "Reading municipio from BigQuery (billing=%s)...", billing_project_id
     )
@@ -338,10 +368,46 @@ def build_municipio_lookup_from_bq(
     return build_municipio_lookup_from_df(mun)
 
 
+def fetch_diretorio_publicado(
+    billing_project_id: str = "basedosdados-dev",
+    credentials_path: str | None = None,
+) -> pd.DataFrame:
+    """Read the published escola directory from BigQuery.
+
+    Feeds the union in ``clean_catalogo``: schools the INEP catalog no longer
+    carries are kept from here instead of being dropped.
+
+    Args:
+        billing_project_id: GCP project to bill the query to (default:
+            basedosdados-dev).
+        credentials_path: Path to a service account JSON key; see
+            ``_bq_client``.
+
+    Returns:
+        One row per ``id_escola`` in
+        ``basedosdados.br_bd_diretorios_brasil.escola``, holding the staging
+        columns that predate ``situacao_catalogo``.
+    """
+    client = _bq_client(billing_project_id, credentials_path)
+    cols = [col for col in _STAGING_COLS if col != _SITUACAO_CATALOGO]
+    query = f"""
+        SELECT {", ".join(cols)}
+        FROM `basedosdados.br_bd_diretorios_brasil.escola`
+    """
+    log.info(
+        "Reading published escola directory (billing=%s)...",
+        billing_project_id,
+    )
+    diretorio = client.query(query).to_dataframe()
+    log.info("published directory: %d rows", len(diretorio))
+    return diretorio
+
+
 def clean_catalogo(
     csv_path: Path,
     output_dir: Path,
     municipio_lookup: dict[tuple[str, str], str] | None = None,
+    diretorio_publicado: pd.DataFrame | None = None,
 ) -> Path:
     """Clean the raw INEP catalog CSV and write a Parquet file for staging.
 
@@ -354,6 +420,11 @@ def clean_catalogo(
         The dbt model accepts nulls here; add a ``relationships`` test once the
         lookup covers >95% of rows.
 
+    situacao_catalogo:
+        ``Presente`` for every school in the catalog. Schools that are in
+        ``diretorio_publicado`` but no longer in the catalog are appended as
+        ``Ausente``, keeping their last known attributes.
+
     Output:
         ``output_dir/escola/data.parquet``  (no partition; escola is a static
         directory table, not partitioned by year).
@@ -362,6 +433,9 @@ def clean_catalogo(
         csv_path: Path to the raw CSV from ``download_catalogo``.
         output_dir: Root output directory.
         municipio_lookup: Optional mapping from ``build_municipio_lookup``.
+        diretorio_publicado: Optional DataFrame from
+            ``fetch_diretorio_publicado``. When omitted, schools dropped by
+            the source are dropped from the directory too.
 
     Returns:
         Path to the written Parquet file.
@@ -378,9 +452,16 @@ def clean_catalogo(
     #   3. NULL for the few municipalities not found in the directory
     if municipio_lookup:
 
-        def _resolve_id_municipio(row: pd.Series) -> str | None:
-            nome = str(row["nome_municipio"]).strip()
-            uf = str(row["sigla_uf"]).strip()
+        def _resolve_id_municipio(nome: str, uf: str) -> str | None:
+            """Resolve id_municipio from a municipality name and state.
+
+            Args:
+                nome: Municipality name as published by OBIEE.
+                uf: State abbreviation.
+
+            Returns:
+                The 7-digit IBGE code, or None when the name is unknown.
+            """
             # pass 1: manual fix
             fix = _MUNICIPIO_NAME_FIXES.get((nome, uf))
             if fix:
@@ -388,7 +469,12 @@ def clean_catalogo(
             # pass 2: normalized lookup
             return municipio_lookup.get((_norm(nome), uf))
 
-        df["id_municipio"] = df.apply(_resolve_id_municipio, axis=1)
+        nomes = df["nome_municipio"].astype(str).str.strip()
+        ufs = df["sigla_uf"].astype(str).str.strip()
+        df["id_municipio"] = [
+            _resolve_id_municipio(nome, uf)
+            for nome, uf in zip(nomes, ufs, strict=True)
+        ]
         matched = df["id_municipio"].notna().sum()
         log.info(
             "id_municipio: %d/%d rows matched (%.1f%%)",
@@ -414,6 +500,27 @@ def clean_catalogo(
 
     # Drop the raw name column (not in staging schema)
     df = df.drop(columns=["nome_municipio"], errors="ignore")
+
+    # Keep the schools the source no longer carries, flagged as absent
+    df[_SITUACAO_CATALOGO] = _PRESENTE
+    if diretorio_publicado is not None:
+        no_catalogo = df["id_escola"].astype(str).str.strip()
+        publicado = diretorio_publicado.copy()
+        publicado["id_escola"] = publicado["id_escola"].astype(str).str.strip()
+        ausentes = publicado[~publicado["id_escola"].isin(no_catalogo)]
+        ausentes = ausentes.assign(**{_SITUACAO_CATALOGO: _AUSENTE})
+        log.info(
+            "situacao_catalogo: %d Presente, %d Ausente",
+            len(df),
+            len(ausentes),
+        )
+        df = pd.concat([df, ausentes], ignore_index=True)
+    else:
+        log.warning(
+            "diretorio_publicado not provided — schools removed from the INEP "
+            "catalog will be dropped from the directory. Pass the DataFrame "
+            "from fetch_diretorio_publicado to keep them."
+        )
 
     # Ensure all staging columns exist (fill missing with None)
     for col in _STAGING_COLS:

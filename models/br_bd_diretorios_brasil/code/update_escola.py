@@ -72,6 +72,7 @@ def main() -> None:
         build_municipio_lookup_from_bq,
         clean_catalogo,
         download_catalogo,
+        fetch_diretorio_publicado,
     )
 
     # 1. Download
@@ -90,12 +91,20 @@ def main() -> None:
             billing_project_id=args.billing_project
         )
 
-    # 3. Clean → parquet
-    parquet_path = clean_catalogo(
-        csv_path, args.output, municipio_lookup=lookup
+    # 3. Diretório publicado (escolas que saíram do catálogo)
+    diretorio_publicado = fetch_diretorio_publicado(
+        billing_project_id=args.billing_project
     )
 
-    # 4. Optional upload
+    # 4. Clean → parquet
+    parquet_path = clean_catalogo(
+        csv_path,
+        args.output,
+        municipio_lookup=lookup,
+        diretorio_publicado=diretorio_publicado,
+    )
+
+    # 5. Optional upload
     if args.upload:
         _upload(parquet_path)
     else:
