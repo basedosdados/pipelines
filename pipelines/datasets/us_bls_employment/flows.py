@@ -26,6 +26,7 @@ from pipelines.datasets.us_bls_employment.constants import constants
 from pipelines.datasets.us_bls_employment.tasks import (
     clean_employment,
     download_employment,
+    peek_employment,
 )
 from pipelines.utils.metadata.domain import (
     DateFormat,
@@ -45,11 +46,6 @@ from pipelines.utils.tasks import (
 )
 
 DATASET_ID = constants.DATASET_ID.value
-
-# The table the source poll is anchored to. CES national is released first each
-# month, so it is the earliest signal that BLS has published a new reference
-# period; a full replace rebuilds every table regardless of which one moved.
-POLL_TABLE = "ces_national"
 
 # Coverage spec per table.
 #
@@ -102,33 +98,51 @@ def us_bls_employment_flow(
 
     work_dir = tempfile.mkdtemp(prefix="us_bls_employment_")
     try:
-        input_dir = download_employment(work_dir=work_dir)
-        result = clean_employment(work_dir=work_dir, input_dir=input_dir)
-        max_ym = result["max_year_month"]
+        # Poll before downloading. The `.series` catalogues are ~10 MB and carry
+        # each program's latest published period, so an unchanged source costs
+        # that rather than 2.6 GB and a full rebuild.
+        source_max = peek_employment(work_dir=work_dir)
 
-        has_new_data = poll_source_for_update_task(
-            dataset_id=DATASET_ID,
-            table_id=POLL_TABLE,
-            source_max_date=max_ym,
-            env="prod",
-            date_format="%Y-%m",
-            compare_against="coverage",
-        )
-        if not has_new_data and not force_run:
+        # Each program releases on its own calendar — CES leads the others by a
+        # month — so each table is polled against its own coverage. Anchoring on
+        # one table would let a later-releasing program advance unnoticed
+        # whenever the anchor had already moved.
+        fresh = {
+            table: poll_source_for_update_task(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                source_max_date=source_max[table],
+                env="prod",
+                date_format="%Y-%m",
+                compare_against="coverage",
+            )
+            for table in constants.DATA_TABLES.value
+            if table in source_max
+        }
+        if not any(fresh.values()) and not force_run:
+            print(f"No program has published a new period: {source_max}")
             return
 
-        # Commit the source Update before materializing: if the flow fails
-        # midway, the source metadata still records that BLS had published a
-        # newer month, even though the tables were not refreshed.
-        commit_source_update_task(
-            dataset_id=DATASET_ID,
-            table_id=POLL_TABLE,
-            source_max_date=max_ym,
-            env="prod",
-            date_format="%Y-%m",
-            update_metadata=update_metadata,
-            materialize_after_dump=materialize_to_prod,
-        )
+        input_dir = download_employment(work_dir=work_dir)
+        result = clean_employment(work_dir=work_dir, input_dir=input_dir)
+
+        # Commit each source's Update from the cleaned data rather than from the
+        # peek: the cleaned value is the period actually present in the table.
+        # Committed before materializing, so a mid-flow failure still records
+        # that the source had published.
+        for table in constants.DATA_TABLES.value:
+            summary = result.get(f"{table}_summary")
+            if not summary:
+                continue
+            commit_source_update_task(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                source_max_date=summary["max_year_month"],
+                env="prod",
+                date_format="%Y-%m",
+                update_metadata=update_metadata,
+                materialize_after_dump=materialize_to_prod,
+            )
 
         tables = constants.ALL_TABLES.value
         env, bucket = (

@@ -96,11 +96,19 @@ def build(table: str, prog: str) -> Path:
     src = DATA_ROOT / "input" / prog
     out = DATA_ROOT / "auxiliary" / table
     out.mkdir(parents=True, exist_ok=True)
-    files = []
+    files, missing = [], []
     for suffix in ["txt", *constants.DIM_FILES.value[prog]]:
         path = src / f"{prog}.{suffix}"
         if path.exists():
             files.append((path, RENAME.get(suffix, f"{suffix}.tsv")))
+        else:
+            missing.append(path.name)
+    # A bundle that quietly drops a document still reports success, and the gap
+    # only shows up when someone opens the zip looking for the codebook.
+    if missing:
+        raise FileNotFoundError(
+            f"{table}: documentation not downloaded: {', '.join(missing)}"
+        )
     contents = "\n".join(
         f"- `{name}` — from `{p.name}`"
         for p, name in sorted(files, key=lambda x: x[1])

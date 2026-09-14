@@ -7,7 +7,24 @@ from prefect import task
 from pipelines.datasets.us_bls_employment.utils import (
     clean_all,
     download_flatfiles,
+    peek_max_periods,
 )
+
+
+@task(retries=2, retry_delay_seconds=30)
+def peek_employment(work_dir: str) -> dict:
+    """Read each program's latest published period from its `.series` catalogue.
+
+    About 10 MB, against 2.6 GB for the observation files, so the source poll
+    can decide whether a run is worth doing before anything large is fetched.
+
+    Args:
+        work_dir: Directory to download into; files land in ``<work_dir>/input``.
+
+    Returns:
+        Mapping of table slug to its latest published period, ``"YYYY-MM"``.
+    """
+    return peek_max_periods(Path(work_dir) / "input")
 
 
 @task(retries=2, retry_delay_seconds=30)

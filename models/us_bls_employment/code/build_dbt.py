@@ -72,7 +72,11 @@ DESCRIPTIONS = {
         "de desemprego do Local Area Unemployment Statistics (LAUS), para "
         "estados, condados, áreas metropolitanas e micropolitanas, cidades e "
         "demais áreas locais dos Estados Unidos. Uma linha por série, ano e "
-        "período, com ajuste sazonal identificado como dimensão."
+        "período, com ajuste sazonal identificado como dimensão. Quatro áreas "
+        "censitárias do Alasca extintas antes da delimitação atual de condados "
+        "(02201, 02232, 02261, 02280) aparecem entre 1990 e 2019 e não resolvem "
+        "contra o diretório de condados; o teste de relacionamento de county_id "
+        "as trata como exceção declarada."
     ),
     "jolts": (
         "Vagas abertas, contratações e desligamentos do Job Openings and Labor "

@@ -75,6 +75,49 @@ def _data_files(prog: str, names) -> list[str]:
     return sorted(n for n in names if re.match(spec, n))
 
 
+_MONTH_PERIOD = re.compile(r"^M(0[1-9]|1[0-2])$")
+
+
+def peek_max_periods(input_dir: Path) -> dict[str, str]:
+    """Read each program's latest published period without downloading the data.
+
+    Only the `.series` catalogues are fetched — about 10 MB across the four
+    programs, against 2.6 GB for the observation files. Each catalogue carries
+    ``end_year`` and ``end_period`` per series, so the latest period a program
+    has published is available before committing to the full download. This is
+    what makes a scheduled run between releases genuinely cheap.
+
+    Args:
+        input_dir: Directory to download the catalogues into; created if absent.
+
+    Returns:
+        Mapping of table slug to its latest published period, ``"YYYY-MM"``.
+        A program with no monthly period is absent from the mapping.
+    """
+    session = requests.Session()
+    session.headers["User-Agent"] = constants.USER_AGENT.value
+    out = {}
+    for table, prog in PROGRAMS.items():
+        d = input_dir / prog
+        d.mkdir(parents=True, exist_ok=True)
+        name = f"{prog}.series"
+        r = session.get(
+            f"{constants.BASE_URL.value}/{prog}/{name}", timeout=(30, 300)
+        )
+        r.raise_for_status()
+        (d / name).write_bytes(r.content)
+        df = read_tsv(d / name)
+        monthly = df[df["end_period"].str.match(_MONTH_PERIOD)]
+        if monthly.empty:
+            continue
+        period = (
+            monthly["end_year"] + "-" + monthly["end_period"].str.slice(1)
+        ).max()
+        out[table] = period
+        log.info(f"{table}: source latest {period}")
+    return out
+
+
 def download_flatfiles(input_dir: Path) -> Path:
     """Fetch every dimension and observation file for the four programs.
 

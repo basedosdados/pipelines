@@ -51,14 +51,21 @@ def main() -> None:
     argv = sys.argv[1:]
     download = "--download" in argv
     want = [a for a in argv if not a.startswith("--")]
-    tables = want or constants.DATA_TABLES.value
+    tables = want or constants.ALL_TABLES.value
+    unknown = set(tables) - set(constants.ALL_TABLES.value)
+    if unknown:
+        raise SystemExit(
+            f"unknown table(s): {', '.join(sorted(unknown))}. "
+            f"Choose from: {', '.join(constants.ALL_TABLES.value)}"
+        )
     inp, out = DATA_ROOT / "input", DATA_ROOT / "output"
     if download:
         download_flatfiles(inp)
     summary = {}
-    for table in tables:
+    # `dicionario` is not a program, so it never goes through build_program.
+    for table in [t for t in tables if t != "dicionario"]:
         summary[table] = build_program(inp, out, out / "_shards", table)
-    if not want or "dicionario" in want:
+    if "dicionario" in tables:
         build_dicionario(inp, out)
     print(json.dumps(summary, indent=2))
 

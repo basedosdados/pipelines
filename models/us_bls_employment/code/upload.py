@@ -31,6 +31,8 @@ if "--env" in _argv:
     _argv = _argv[:_i] + _argv[_i + 2 :]
 else:
     ENV = "dev"
+if ENV not in ("dev", "prod"):
+    raise SystemExit(f"--env must be dev or prod, got {ENV!r}")
 BILLING_PROJECT = "basedosdados" if ENV == "prod" else "basedosdados-dev"
 DATASET_ID = "us_bls_employment"
 OUTPUT_ROOT = (
@@ -119,6 +121,14 @@ def upload_table(slug: str, expected_rows: int) -> int:
 def main() -> None:
     """Upload every requested table, stopping on the first failure."""
     only = set(_argv)
+    known = {s for s, _ in TABLES}
+    # Without this an unknown slug selects nothing and the run still reports
+    # ALL TABLES UPLOADED, which reads exactly like a successful upload.
+    if only - known:
+        raise SystemExit(
+            f"unknown table(s): {', '.join(sorted(only - known))}. "
+            f"Choose from: {', '.join(sorted(known))}"
+        )
     tables = [(s, r) for s, r in TABLES if not only or s in only]
     print(f"=== uploading to {BILLING_PROJECT} (env={ENV}) ===", flush=True)
     for slug, expected in tables:
