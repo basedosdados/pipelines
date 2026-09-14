@@ -20,6 +20,4 @@ select
     safe_cast(schedule as string) schedule,
     safe_cast(item_code as string) item_code,
     safe_cast(value as float64) value
-from
-    {{ set_datalake_project("us_ffiec_bank_reporting_staging.call_report_item") }}
-    as t
+from {{ set_datalake_project("us_ffiec_bank_reporting_staging.call_report_item") }} as t

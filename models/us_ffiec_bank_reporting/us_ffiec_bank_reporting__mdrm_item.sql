@@ -21,6 +21,4 @@ select
     safe_cast(start_date as date) start_date,
     safe_cast(end_date as date) end_date,
     safe_cast(series_glossary as string) series_glossary
-from
-    {{ set_datalake_project("us_ffiec_bank_reporting_staging.mdrm_item") }}
-    as t
+from {{ set_datalake_project("us_ffiec_bank_reporting_staging.mdrm_item") }} as t

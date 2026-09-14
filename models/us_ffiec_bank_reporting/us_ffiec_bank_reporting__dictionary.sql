@@ -13,6 +13,4 @@ select
     safe_cast(key as string) key,
     safe_cast(temporal_coverage as string) temporal_coverage,
     safe_cast(value as string) value
-from
-    {{ set_datalake_project("us_ffiec_bank_reporting_staging.dictionary") }}
-    as t
+from {{ set_datalake_project("us_ffiec_bank_reporting_staging.dictionary") }} as t

@@ -1046,7 +1046,9 @@ def _write_cra_tract(year: int, crosswalk, bad_length: Counter) -> int:
             cols["rssd_id"].append(crosswalk.get((respondent, agency)))
             cols["state_id"].append(state)
             cols["county_id"].append(county_id)
-            cols["msa_md_id"].append(_cra_field(line[slice(*lay["msa_md_id"])]))
+            cols["msa_md_id"].append(
+                _cra_field(line[slice(*lay["msa_md_id"])])
+            )
             cols["census_tract_id"].append(
                 _census_tract(county_id, line[lo:hi])
             )

@@ -14,27 +14,25 @@ models:
           at_least: 0.05
       - custom_dictionary_coverage_eng:
           dictionary_model: ref('us_ffiec_bank_reporting__dictionary')
-          columns_covered_by_dictionary:
-            - call_report_form_id
+          columns_covered_by_dictionary: [call_report_form_id]
     columns:
       - name: year
         description: >
           Year of the reporting quarter
-        tests:
-          - not_null
+        tests: [not_null]
       - name: quarter
         description: >
           Calendar quarter of the report, 1 to 4
-        tests:
-          - not_null
+        tests: [not_null]
       - name: report_date
         description: >
           Last calendar day of the reporting quarter
       - name: rssd_id
         description: >
-          RSSD identifier assigned by the Federal Reserve, unique per institution and stable across name and charter changes; the join key across every table in this dataset and the correspondent of `cert` in us_fdic_bankfind
-        tests:
-          - not_null
+          RSSD identifier assigned by the Federal Reserve, unique per institution
+          and stable across name and charter changes; the join key across every table
+          in this dataset and the correspondent of `cert` in us_fdic_bankfind
+        tests: [not_null]
       - name: fdic_cert_id
         description: >
           FDIC certificate number, the institution key used by us_fdic_bankfind
@@ -85,8 +83,7 @@ models:
             where: __most_recent_year_en__
       - custom_dictionary_coverage_eng:
           dictionary_model: ref('us_ffiec_bank_reporting__dictionary')
-          columns_covered_by_dictionary:
-            - schedule
+          columns_covered_by_dictionary: [schedule]
           config:
             where: __most_recent_year_en__
     columns:
@@ -109,17 +106,22 @@ models:
           Last calendar day of the reporting quarter
       - name: rssd_id
         description: >
-          RSSD identifier assigned by the Federal Reserve, unique per institution and stable across name and charter changes; the join key across every table in this dataset and the correspondent of `cert` in us_fdic_bankfind
+          RSSD identifier assigned by the Federal Reserve, unique per institution
+          and stable across name and charter changes; the join key across every table
+          in this dataset and the correspondent of `cert` in us_fdic_bankfind
         tests:
           - not_null:
               config:
                 where: __most_recent_year_en__
       - name: schedule
         description: >
-          Call Report schedule the item was filed on, such as RC for the balance sheet or RI for the income statement
+          Call Report schedule the item was filed on, such as RC for the balance sheet
+          or RI for the income statement
       - name: item_code
         description: >
-          Eight-character MDRM identifier: a four-character mnemonic giving the report and consolidation basis, then the four-character item number; joins to mdrm_item for the item's name, type and unit
+          Eight-character MDRM identifier: a four-character mnemonic giving the report
+          and consolidation basis, then the four-character item number; joins to mdrm_item
+          for the item's name, type and unit
         tests:
           - not_null:
               config:
@@ -145,27 +147,25 @@ models:
           at_least: 0.05
       - custom_dictionary_coverage_eng:
           dictionary_model: ref('us_ffiec_bank_reporting__dictionary')
-          columns_covered_by_dictionary:
-            - federal_reserve_district_id
+          columns_covered_by_dictionary: [federal_reserve_district_id]
     columns:
       - name: year
         description: >
           Year of the reporting quarter
-        tests:
-          - not_null
+        tests: [not_null]
       - name: quarter
         description: >
           Calendar quarter of the report, 1 to 4
-        tests:
-          - not_null
+        tests: [not_null]
       - name: report_date
         description: >
           Last calendar day of the reporting quarter
       - name: rssd_id
         description: >
-          RSSD identifier assigned by the Federal Reserve, unique per institution and stable across name and charter changes; the join key across every table in this dataset and the correspondent of `cert` in us_fdic_bankfind
-        tests:
-          - not_null
+          RSSD identifier assigned by the Federal Reserve, unique per institution
+          and stable across name and charter changes; the join key across every table
+          in this dataset and the correspondent of `cert` in us_fdic_bankfind
+        tests: [not_null]
       - name: name
         description: >
           Legal name of the holding company
@@ -262,14 +262,17 @@ models:
           Last calendar day of the reporting quarter
       - name: rssd_id
         description: >
-          RSSD identifier assigned by the Federal Reserve, unique per institution and stable across name and charter changes; the join key across every table in this dataset and the correspondent of `cert` in us_fdic_bankfind
+          RSSD identifier assigned by the Federal Reserve, unique per institution
+          and stable across name and charter changes; the join key across every table
+          in this dataset and the correspondent of `cert` in us_fdic_bankfind
         tests:
           - not_null:
               config:
                 where: __most_recent_year_en__
       - name: item_code
         description: >
-          Eight-character MDRM identifier of the FR Y-9C item; joins to mdrm_item for the item's name, type and unit
+          Eight-character MDRM identifier of the FR Y-9C item; joins to mdrm_item
+          for the item's name, type and unit
         tests:
           - not_null:
               config:
@@ -293,24 +296,24 @@ models:
           at_least: 0.05
       - custom_dictionary_coverage_eng:
           dictionary_model: ref('us_ffiec_bank_reporting__dictionary')
-          columns_covered_by_dictionary:
-            - item_type
+          columns_covered_by_dictionary: [item_type]
     columns:
       - name: item_code
         description: >
-          Eight-character MDRM identifier, the concatenation of mnemonic and item number
-        tests:
-          - not_null
+          Eight-character MDRM identifier, the concatenation of mnemonic and item
+          number
+        tests: [not_null]
       - name: mnemonic
         description: >
-          First four characters of the identifier, naming the report series and the consolidation basis, such as RCON for domestic offices or RCFD for consolidated domestic and foreign offices
-        tests:
-          - not_null
+          First four characters of the identifier, naming the report series and the
+          consolidation basis, such as RCON for domestic offices or RCFD for consolidated
+          domestic and foreign offices
+        tests: [not_null]
       - name: item_number
         description: >
-          Last four characters of the identifier, naming the item itself; the same number carries the same meaning across reporting forms
-        tests:
-          - not_null
+          Last four characters of the identifier, naming the item itself; the same
+          number carries the same meaning across reporting forms
+        tests: [not_null]
       - name: name
         description: >
           Item name as published in the MDRM data dictionary
@@ -319,16 +322,19 @@ models:
           Full item definition as published in the MDRM
       - name: item_type
         description: >
-          MDRM item type: F financial, D derived, R rate, P percentage, S structure, E examination, J projected
+          MDRM item type: F financial, D derived, R rate, P percentage, S structure,
+          E examination, J projected
       - name: measurement_unit
         description: >
           Unit of the values carried for this item in call_report_item and holding_company_item
       - name: is_flag
         description: >
-          Whether the item is a yes/no answer or an indicator code rather than a magnitude, 1 for yes
+          Whether the item is a yes/no answer or an indicator code rather than a magnitude,
+          1 for yes
       - name: is_confidential
         description: >
-          Whether the MDRM marks the item as confidential and therefore not publicly disclosed, 1 for yes
+          Whether the MDRM marks the item as confidential and therefore not publicly
+          disclosed, 1 for yes
       - name: reporting_form
         description: >
           Reporting forms that collect the item, separated by semicolons
@@ -350,7 +356,19 @@ models:
       disclosure files carry no per-tract loan amounts.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, respondent_id, agency_id, loan_type, action_taken, state_id, county_id, msa_md_id, assessment_area_id, tract_income_group, report_level, measure_band]
+          combination_of_columns:
+            - year
+            - respondent_id
+            - agency_id
+            - loan_type
+            - action_taken
+            - state_id
+            - county_id
+            - msa_md_id
+            - assessment_area_id
+            - tract_income_group
+            - report_level
+            - measure_band
           config:
             where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
@@ -375,27 +393,33 @@ models:
                 where: __most_recent_year_en__
       - name: respondent_id
         description: >
-          Respondent identifier assigned by the institution's supervisory agency; unique only together with agency and year, and not an RSSD
+          Respondent identifier assigned by the institution's supervisory agency;
+          unique only together with agency and year, and not an RSSD
         tests:
           - not_null:
               config:
                 where: __most_recent_year_en__
       - name: agency_id
         description: >
-          Supervisory agency that assigned the respondent identifier: occ, frs, fdic, or ots for the Office of Thrift Supervision, which was abolished in 2011 and appears only up to 2010
+          Supervisory agency that assigned the respondent identifier: occ, frs, fdic,
+          or ots for the Office of Thrift Supervision, which was abolished in 2011
+          and appears only up to 2010
         tests:
           - not_null:
               config:
                 where: __most_recent_year_en__
       - name: rssd_id
         description: >
-          RSSD identifier of the reporting institution, taken from the CRA transmittal sheet for the same respondent, agency and year; the join key to institution, call_report_item and holding_company
+          RSSD identifier of the reporting institution, taken from the CRA transmittal
+          sheet for the same respondent, agency and year; the join key to institution,
+          call_report_item and holding_company
       - name: loan_type
         description: >
           Whether the row covers small business or small farm lending
       - name: action_taken
         description: >
-          Whether the loans were originated by the reporting institution or purchased from another lender
+          Whether the loans were originated by the reporting institution or purchased
+          from another lender
       - name: state_id
         description: >
           Two-digit state FIPS code
@@ -426,7 +450,8 @@ models:
                 where: __most_recent_year_en__
       - name: msa_md_id
         description: >
-          Metropolitan statistical area or metropolitan division code as defined by OMB
+          Metropolitan statistical area or metropolitan division code as defined by
+          OMB
       - name: assessment_area_id
         description: >
           Assessment area number the institution assigned to the area
@@ -435,16 +460,19 @@ models:
           Whether the assessment area covers only part of the county, 1 for yes
       - name: is_split_county
         description: >
-          Whether the county is split across more than one assessment area, 1 for yes
+          Whether the county is split across more than one assessment area, 1 for
+          yes
       - name: population_classification
         description: >
           Whether the county has fewer or more than 500,000 residents
       - name: tract_income_group
         description: >
-          Income group of the census tracts the lending is grouped into, as a share of area median family income
+          Income group of the census tracts the lending is grouped into, as a share
+          of area median family income
       - name: report_level
         description: >
-          Geographic and assessment-area level the row totals over, from a single county up to a nationwide total
+          Geographic and assessment-area level the row totals over, from a single
+          county up to a nationwide total
       - name: measure_band
         description: >
           Loan size or borrower revenue band the count and amount refer to
@@ -465,7 +493,13 @@ models:
       cra_lending, which is only published at county level.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, respondent_id, agency_id, county_id, census_tract_id, assessment_area_id]
+          combination_of_columns:
+            - year
+            - respondent_id
+            - agency_id
+            - county_id
+            - census_tract_id
+            - assessment_area_id
           config:
             where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
@@ -474,8 +508,7 @@ models:
             where: __most_recent_year_en__
       - custom_dictionary_coverage_eng:
           dictionary_model: ref('us_ffiec_bank_reporting__dictionary')
-          columns_covered_by_dictionary:
-            - tract_income_group
+          columns_covered_by_dictionary: [tract_income_group]
           config:
             where: __most_recent_year_en__
     columns:
@@ -488,21 +521,26 @@ models:
                 where: __most_recent_year_en__
       - name: respondent_id
         description: >
-          Respondent identifier assigned by the institution's supervisory agency; unique only together with agency and year, and not an RSSD
+          Respondent identifier assigned by the institution's supervisory agency;
+          unique only together with agency and year, and not an RSSD
         tests:
           - not_null:
               config:
                 where: __most_recent_year_en__
       - name: agency_id
         description: >
-          Supervisory agency that assigned the respondent identifier: occ, frs, fdic, or ots for the Office of Thrift Supervision, which was abolished in 2011 and appears only up to 2010
+          Supervisory agency that assigned the respondent identifier: occ, frs, fdic,
+          or ots for the Office of Thrift Supervision, which was abolished in 2011
+          and appears only up to 2010
         tests:
           - not_null:
               config:
                 where: __most_recent_year_en__
       - name: rssd_id
         description: >
-          RSSD identifier of the reporting institution, taken from the CRA transmittal sheet for the same respondent, agency and year; the join key to institution, call_report_item and holding_company
+          RSSD identifier of the reporting institution, taken from the CRA transmittal
+          sheet for the same respondent, agency and year; the join key to institution,
+          call_report_item and holding_company
       - name: state_id
         description: >
           Two-digit state FIPS code
@@ -533,10 +571,12 @@ models:
                 where: __most_recent_year_en__
       - name: msa_md_id
         description: >
-          Metropolitan statistical area or metropolitan division code as defined by OMB
+          Metropolitan statistical area or metropolitan division code as defined by
+          OMB
       - name: census_tract_id
         description: >
-          Eleven-digit census tract identifier, the county FIPS code followed by the six-digit tract number
+          Eleven-digit census tract identifier, the county FIPS code followed by the
+          six-digit tract number
       - name: assessment_area_id
         description: >
           Assessment area number the institution assigned to the area
@@ -545,13 +585,15 @@ models:
           Whether the assessment area covers only part of the county, 1 for yes
       - name: is_split_county
         description: >
-          Whether the county is split across more than one assessment area, 1 for yes
+          Whether the county is split across more than one assessment area, 1 for
+          yes
       - name: population_classification
         description: >
           Whether the county has fewer or more than 500,000 residents
       - name: tract_income_group
         description: >
-          Income group of the census tracts the lending is grouped into, as a share of area median family income
+          Income group of the census tracts the lending is grouped into, as a share
+          of area median family income
   - name: us_ffiec_bank_reporting__cra_respondent
     description: >
       The institutions that filed CRA data each year, from the transmittal sheet.
@@ -566,21 +608,23 @@ models:
       - name: year
         description: >
           Year the institution reported CRA data for
-        tests:
-          - not_null
+        tests: [not_null]
       - name: respondent_id
         description: >
-          Respondent identifier assigned by the institution's supervisory agency; unique only together with agency and year, and not an RSSD
-        tests:
-          - not_null
+          Respondent identifier assigned by the institution's supervisory agency;
+          unique only together with agency and year, and not an RSSD
+        tests: [not_null]
       - name: agency_id
         description: >
-          Supervisory agency that assigned the respondent identifier: occ, frs, fdic, or ots for the Office of Thrift Supervision, which was abolished in 2011 and appears only up to 2010
-        tests:
-          - not_null
+          Supervisory agency that assigned the respondent identifier: occ, frs, fdic,
+          or ots for the Office of Thrift Supervision, which was abolished in 2011
+          and appears only up to 2010
+        tests: [not_null]
       - name: rssd_id
         description: >
-          RSSD identifier of the reporting institution, taken from the CRA transmittal sheet for the same respondent, agency and year; the join key to institution, call_report_item and holding_company
+          RSSD identifier of the reporting institution, taken from the CRA transmittal
+          sheet for the same respondent, agency and year; the join key to institution,
+          call_report_item and holding_company
       - name: name
         description: >
           Name of the reporting institution
@@ -610,29 +654,24 @@ models:
           combination_of_columns: [table_id, column_name, key]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - temporal_coverage
+          ignore_values: [temporal_coverage]
     columns:
       - name: table_id
         description: >
           Name of the table the coded column belongs to
-        tests:
-          - not_null
+        tests: [not_null]
       - name: column_name
         description: >
           Name of the coded column
-        tests:
-          - not_null
+        tests: [not_null]
       - name: key
         description: >
           Value as stored in the column
-        tests:
-          - not_null
+        tests: [not_null]
       - name: temporal_coverage
         description: >
           Years the key applies to, blank when it applies to the table's whole span
       - name: value
         description: >
           Meaning of the key
-        tests:
-          - not_null
+        tests: [not_null]

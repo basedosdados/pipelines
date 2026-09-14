@@ -31,6 +31,4 @@ select
     safe_cast(measure_band as string) measure_band,
     safe_cast(loan_count as int64) loan_count,
     safe_cast(loan_amount as float64) loan_amount
-from
-    {{ set_datalake_project("us_ffiec_bank_reporting_staging.cra_lending") }}
-    as t
+from {{ set_datalake_project("us_ffiec_bank_reporting_staging.cra_lending") }} as t

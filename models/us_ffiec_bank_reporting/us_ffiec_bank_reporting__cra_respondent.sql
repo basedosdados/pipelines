@@ -24,6 +24,4 @@ select
     safe_cast(zip_code as string) zip_code,
     safe_cast(tax_id as string) tax_id,
     safe_cast(total_assets as float64) total_assets
-from
-    {{ set_datalake_project("us_ffiec_bank_reporting_staging.cra_respondent") }}
-    as t
+from {{ set_datalake_project("us_ffiec_bank_reporting_staging.cra_respondent") }} as t

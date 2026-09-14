@@ -32,6 +32,4 @@ select
     safe_cast(bank_count as int64) bank_count,
     safe_cast(is_financial_holding_company as string) is_financial_holding_company,
     safe_cast(is_savings_loan_holding_company as string) is_savings_loan_holding_company
-from
-    {{ set_datalake_project("us_ffiec_bank_reporting_staging.holding_company") }}
-    as t
+from {{ set_datalake_project("us_ffiec_bank_reporting_staging.holding_company") }} as t

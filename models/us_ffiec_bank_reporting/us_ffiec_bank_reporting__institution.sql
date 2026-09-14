@@ -28,6 +28,4 @@ select
     safe_cast(zip_code as string) zip_code,
     safe_cast(call_report_form_id as string) call_report_form_id,
     safe_cast(last_submission_updated_at as datetime) last_submission_updated_at
-from
-    {{ set_datalake_project("us_ffiec_bank_reporting_staging.institution") }}
-    as t
+from {{ set_datalake_project("us_ffiec_bank_reporting_staging.institution") }} as t

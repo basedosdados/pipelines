@@ -27,5 +27,8 @@ select
     safe_cast(population_classification as string) population_classification,
     safe_cast(tract_income_group as string) tract_income_group
 from
-    {{ set_datalake_project("us_ffiec_bank_reporting_staging.cra_assessment_area_tract") }}
-    as t
+    {{
+        set_datalake_project(
+            "us_ffiec_bank_reporting_staging.cra_assessment_area_tract"
+        )
+    }} as t
