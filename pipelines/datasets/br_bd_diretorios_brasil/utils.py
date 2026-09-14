@@ -489,6 +489,11 @@ def clean_catalogo(
         ``diretorio_publicado`` but no longer in the catalog are appended as
         ``Ausente``, keeping their last known attributes.
 
+    Blank values:
+        Every text column is stripped and blank-only values become null —
+        OBIEE writes missing coordinates as a run of spaces, which
+        ``na_values`` does not treat as missing.
+
     Output:
         ``output_dir/escola/data.parquet``  (no partition; escola is a static
         directory table, not partitioned by year).
@@ -592,6 +597,14 @@ def clean_catalogo(
             df[col] = None
 
     df = df[_STAGING_COLS]
+
+    # OBIEE pads missing latitude/longitude with spaces instead of leaving the
+    # field empty, so na_values=[""] does not catch them and the column ends
+    # up claiming a coordinate that is only whitespace.
+    for col in _STAGING_COLS:
+        if df[col].dtype == object:
+            stripped = df[col].str.strip()
+            df[col] = stripped.mask(stripped == "", None)
 
     # Cast to all-STRING PyArrow table (staging convention — dbt safe_casts later)
     table = pa.Table.from_pandas(df, schema=_PA_SCHEMA, preserve_index=False)
