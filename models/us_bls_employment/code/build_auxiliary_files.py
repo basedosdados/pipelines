@@ -102,11 +102,15 @@ def build(table: str, prog: str) -> Path:
         if path.exists():
             files.append((path, RENAME.get(suffix, f"{suffix}.tsv")))
     contents = "\n".join(
-        f"- `{name}` — from `{p.name}`" for p, name in sorted(files, key=lambda x: x[1])
+        f"- `{name}` — from `{p.name}`"
+        for p, name in sorted(files, key=lambda x: x[1])
     )
     readme = README.format(
-        table=table, prog=prog, name=NAMES[table],
-        url=f"{BASE}/{prog}/", contents=contents,
+        table=table,
+        prog=prog,
+        name=NAMES[table],
+        url=f"{BASE}/{prog}/",
+        contents=contents,
         today=date.today().isoformat(),
     )
     zpath = out / "auxiliary_files.zip"
@@ -114,7 +118,9 @@ def build(table: str, prog: str) -> Path:
         z.writestr("README.md", readme)
         for path, name in files:
             z.write(path, name)
-    print(f"{table}: {len(files) + 1} files, {zpath.stat().st_size / 1e6:.1f} MB")
+    print(
+        f"{table}: {len(files) + 1} files, {zpath.stat().st_size / 1e6:.1f} MB"
+    )
     return zpath
 
 
