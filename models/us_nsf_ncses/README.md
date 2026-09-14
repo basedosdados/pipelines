@@ -132,12 +132,27 @@ even from a dev-only run.
 Schedule: `34 7 5,12,19,26 8,9,10,11,12 *` (America/Sao_Paulo) — weekly through
 the August-to-December release window.
 
-**Not yet run.** Local checks pass — the flow imports, `deploy_flows` discovers
-it, and the source probes return FY2024 and cycle 2024 — but those cannot reach
-the upload, poll or dbt halves. The flow is not done until it has run on the dev
-pool with `{"materialize_to_prod": false, "update_metadata": false,
-"force_run": true}` and the logs show `dbt run OK` and `dbt test OK` for all
-seven tables. That needs the PR to carry the **`deploy-flow`** label.
+**The discovered cycle is threaded all the way through, never re-read from the
+module constants.** `download_all` fetches only the cycle `check_source` found,
+so `clean_all` passes that year to both cleaners: `clean_sed(cycles=...)` and
+`build_dicionario(herd_end_year=, sed_end_year=)`. `CYCLES` and the
+`*_ONBOARDED_*` constants are fallbacks for the one-shot bootstrap scripts
+alone. Iterating them in the pipeline would send a 2025 refresh looking for
+`sed2024_xlsx.zip` in a pod that only ever downloaded `sed2025_xlsx.zip`, and
+would ship a dictionary still claiming its codes stop at 2024.
+
+The source `Update` is committed **right after a positive poll**, not after
+materialization: it records what NCSES published, which is true from the moment
+the poll confirms it and stays true if a later step fails. The poll compares
+against `Coverage`, never against that record, so the early write cannot stall
+the next run.
+
+**Dev run: green.** Run `a857c46a-4394-4c2a-98c7-1242f992e12c`, 37 minutes, with
+`{"materialize_to_prod": false, "update_metadata": false, "force_run": true}` —
+7/7 `dbt run OK`, 7/7 `dbt test OK`, all seven uploads to `basedosdados-dev`, no
+log line touching prod. That run needed the PR to carry the **`deploy-flow`**
+label. The prod upload half runs for the first time when the flow is armed; no
+table is `part_bdpro`, so no Row Access Policies are ever issued.
 
 ## Running it
 

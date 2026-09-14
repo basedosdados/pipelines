@@ -226,21 +226,48 @@ INSTITUTION_FK = "diretorios_us.higher_education_institution:id_institution"
 
 
 def col(
-    name,
-    bq_type,
-    pt,
-    en,
-    es,
+    name: str,
+    bq_type: str,
+    pt: str,
+    en: str,
+    es: str,
     *,
-    coverage="",
-    dictionary="no",
-    directory="",
-    unit="",
-    sensitive="no",
-    observations="",
-    original="",
-):
-    """Assemble one architecture row, translating its observations."""
+    coverage: str = "",
+    dictionary: str = "no",
+    directory: str = "",
+    unit: str = "",
+    sensitive: str = "no",
+    observations: str = "",
+    original: str = "",
+) -> dict[str, str]:
+    """Assemble one architecture row, translating its observations.
+
+    Args:
+        name: BigQuery column name, snake_case.
+        bq_type: BigQuery type, chosen by arithmetic meaning rather than by the
+            source's storage format.
+        pt: Portuguese description, no trailing period.
+        en: English description.
+        es: Spanish description.
+        coverage: Temporal coverage in ``START(INTERVAL)END`` notation. Empty
+            means the column inherits the table's coverage.
+        dictionary: ``"yes"`` when the stored values are codes the ``dicionario``
+            table decodes.
+        directory: Data Basis directory foreign key, ``<dataset>.<table>:<col>``.
+        measurement_unit is passed as ``unit``: required on every numeric column
+            except ``sed_estimate.value``, which mixes units by design.
+        sensitive: ``"yes"`` when the column carries sensitive data.
+        observations: Portuguese free-text note. Must have an entry in
+            :data:`OBSERVATION_TRANSLATIONS`.
+        original: The column's name in the raw source.
+
+    Returns:
+        One row keyed by :data:`HEADER`, ready for the architecture CSV.
+
+    Raises:
+        SystemExit: If ``observations`` has no registered translation, which
+            would otherwise ship a Portuguese-only note to the backend.
+    """
     if observations and observations not in OBSERVATION_TRANSLATIONS:
         raise SystemExit(
             f"{name}: no translation for observations {observations!r}"
@@ -287,7 +314,16 @@ HERD_YEAR = col(
 )
 
 
-def herd_institution_id(observations=""):
+def herd_institution_id(observations: str = "") -> dict[str, str]:
+    """The NCSES institution code, shared by both survey eras.
+
+    Args:
+        observations: Overrides the default note, for tables where the column
+            needs a different caveat.
+
+    Returns:
+        The ``institution_id`` architecture row.
+    """
     return col(
         "institution_id",
         "STRING",
@@ -303,7 +339,12 @@ def herd_institution_id(observations=""):
     )
 
 
-def herd_unitid():
+def herd_unitid() -> dict[str, str]:
+    """The IPEDS UNITID, the join key to ``us_ed_ipeds``.
+
+    Returns:
+        The ``unitid`` architecture row.
+    """
     return col(
         "unitid",
         "STRING",
@@ -334,7 +375,12 @@ def herd_unitid():
     )
 
 
-def herd_survey_form():
+def herd_survey_form() -> dict[str, str]:
+    """Which questionnaire version the institution answered.
+
+    Returns:
+        The ``survey_form`` architecture row.
+    """
     return col(
         "survey_form",
         "STRING",
@@ -350,7 +396,20 @@ def herd_survey_form():
     )
 
 
-def herd_status(name, subject_pt, subject_en, subject_es):
+def herd_status(
+    name: str, subject_pt: str, subject_en: str, subject_es: str
+) -> dict[str, str]:
+    """A status code qualifying one measured value.
+
+    Args:
+        name: Column name for this particular status column.
+        subject_pt: Portuguese name of the value the status qualifies.
+        subject_en: English name of that value.
+        subject_es: Spanish name of that value.
+
+    Returns:
+        The status architecture row.
+    """
     return col(
         name,
         "STRING",
@@ -1069,6 +1128,17 @@ TABLES = {
 
 
 def main() -> int:
+    """Write every table's architecture CSV, validating it first.
+
+    Returns:
+        0 on success; the process exits non-zero on any validation failure.
+
+    Raises:
+        SystemExit: On a duplicate column name, a numeric column with no
+            measurement unit, or a description ending in a period. These are
+            the defects that are expensive to undo once the columns are
+            registered in the backend, so they abort the build.
+    """
     ARCH_DIR.mkdir(parents=True, exist_ok=True)
     for table, columns in TABLES.items():
         names = [c["name"] for c in columns]

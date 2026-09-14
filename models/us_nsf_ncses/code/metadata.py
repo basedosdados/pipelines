@@ -9,7 +9,8 @@ Columns come from the architecture CSVs, so the registered types, descriptions
 and directory links cannot drift from the dbt models, which are generated from
 the same files.
 
-Run with the shared venv, which has fastmcp and requests:
+Run with the shared venv, which has fastmcp and requests. The databasis MCP
+checkout it imports ``server`` from is located via ``DATABASIS_MCP_DIR``:
 
     ~/.venvs/bd-pipelines/bin/python models/us_nsf_ncses/code/metadata.py staging
     ~/.venvs/bd-pipelines/bin/python models/us_nsf_ncses/code/metadata.py prod
@@ -20,21 +21,39 @@ from __future__ import annotations
 import csv
 import datetime
 import json
+import os
 import sys
 from pathlib import Path
 
-sys.path.insert(
-    0,
-    str(
+# `server` is the databasis MCP server, which lives in its own repository rather
+# than in this one, so it cannot be imported as a declared dependency. This is
+# the house pattern for one-shot metadata scripts (`au_abs_population`,
+# `au_aec_elections`, `au_nsw_nswec_elections`, `au_sa_ecsa_elections` all do
+# the same). Override the checkout location with DATABASIS_MCP_DIR; the default
+# is only a convenience for the machine this was onboarded from.
+MCP_DIR = Path(
+    os.environ.get(
+        "DATABASIS_MCP_DIR",
         Path.home()
         / "Monash Uni Enterprise Dropbox"
         / "Ricardo Dahis"
         / "BD"
-        / "mcp"
-    ),
-)
+        / "mcp",
+    )
+).expanduser()
+sys.path.insert(0, str(MCP_DIR))
 
-import server
+try:
+    import server
+except ModuleNotFoundError as exc:  # pragma: no cover - operator feedback only
+    raise SystemExit(
+        f"cannot import the databasis MCP server from {MCP_DIR}.\n"
+        "Clone https://github.com/basedosdados/mcp and point DATABASIS_MCP_DIR "
+        "at it, e.g.\n"
+        "    DATABASIS_MCP_DIR=~/src/mcp \\\n"
+        "        ~/.venvs/bd-pipelines/bin/python "
+        "models/us_nsf_ncses/code/metadata.py staging"
+    ) from exc
 
 CODE_DIR = Path(__file__).resolve().parent
 ARCH_DIR = CODE_DIR / "architecture"

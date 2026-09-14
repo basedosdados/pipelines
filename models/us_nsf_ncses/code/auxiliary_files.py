@@ -228,6 +228,11 @@ def upload(bundle: pathlib.Path, tables: list[str]) -> list[str]:
 
 
 def main() -> int:
+    """Build both per-survey bundles, and upload them when asked.
+
+    Returns:
+        0 on success, non-zero if any upload failed.
+    """
     herd = build("herd", HERD_FILES, HERD_README)
     sed = build("sed", SED_FILES, SED_README)
     if "--upload" not in sys.argv:

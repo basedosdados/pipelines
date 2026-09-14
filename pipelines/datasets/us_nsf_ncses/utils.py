@@ -67,6 +67,14 @@ FIRST_HERD_YEAR = 1972
 # The first year a short-form file exists.
 FIRST_SHORT_FORM_YEAR = 2012
 
+# The cycle this dataset was onboarded from. These are fallbacks for the
+# one-shot bootstrap scripts, which rebuild the onboarded vintage exactly; the
+# recurring pipeline discovers the real years from NCSES and passes them in, so
+# nothing downstream should read these literals to decide what "current" is.
+LAST_ONBOARDED_HERD_YEAR = 2024
+FIRST_ONBOARDED_SED_CYCLE = 2024
+LAST_ONBOARDED_SED_CYCLE = 2024
+
 
 def fetch(url: str, destination: Path, attempts: int = 10) -> Path:
     """Download a URL to a path, resuming until the size matches the server's.
@@ -448,14 +456,32 @@ def write_partition(
     return len(rows)
 
 
-def build_dicionario() -> list[dict]:
+def build_dicionario(
+    herd_end_year: int = LAST_ONBOARDED_HERD_YEAR,
+    sed_end_year: int = LAST_ONBOARDED_SED_CYCLE,
+) -> list[dict]:
     """Value -> label for every coded column, per survey era.
 
     Codes are taken from the NCSES "Guide for Public Use Data Files" (FY2024).
     The two eras use different code sets for the same concepts, so each entry
     carries its own temporal coverage.
+
+    The open era's coverage ends at the newest year actually processed, not at a
+    literal: a refresh that ingests FY2025 must not ship a dictionary that still
+    claims to stop at FY2024, or every coded value in the new partition would
+    sit outside its own dictionary coverage.
+
+    Args:
+        herd_end_year: Newest HERD fiscal year in this build. Closes the open
+            HERD era's temporal coverage.
+        sed_end_year: Newest SED cycle in this build. Closes the coverage of the
+            ``sed_estimate.unit`` codes.
+
+    Returns:
+        One dict per dictionary row, keyed by :data:`DICIONARIO_COLUMNS`.
     """
-    new = "2010(1)2024"
+    herd_all = f"1972(1){herd_end_year}"
+    new = f"2010(1){herd_end_year}"
     old = "1972(1)2009"
     entries: list[tuple[str, str, str, str, str]] = []
 
@@ -470,7 +496,7 @@ def build_dicionario() -> list[dict]:
     add(
         all_tables,
         "survey_form",
-        "1972(1)2024",
+        herd_all,
         {
             "standard": "Standard form questionnaire",
             "short": "Short form questionnaire (institutions under $1 million "
@@ -498,7 +524,7 @@ def build_dicionario() -> list[dict]:
     add(
         ["herd_institution"],
         "medical_school_indicator",
-        "1972(1)2024",
+        herd_all,
         {
             "F": "Does not have a medical school",
             "N": "Null; information was not included",
@@ -527,7 +553,7 @@ def build_dicionario() -> list[dict]:
     add(
         ["herd_institution"],
         "institution_type_code",
-        "1972(1)2024",
+        herd_all,
         {"1": "Academic"},
     )
     add(
@@ -560,7 +586,7 @@ def build_dicionario() -> list[dict]:
     add(
         ["herd_institution"],
         "control_type_code",
-        "1972(1)2024",
+        herd_all,
         {
             "1": "Public",
             "2": "Private",
@@ -589,11 +615,11 @@ def build_dicionario() -> list[dict]:
         ("herd_personnel", "headcount_status_code"),
         ("herd_personnel", "full_time_equivalent_status_code"),
     ]:
-        add([table], column, "1972(1)2024", status)
+        add([table], column, herd_all, status)
     add(
         ["herd_survey_item"],
         "response_code",
-        "2010(1)2024",
+        new,
         {"-1": "Don't know", "0": "No", "1": "Yes"},
     )
     # SED published tables mix units within one table, so sed_estimate carries
@@ -601,7 +627,7 @@ def build_dicionario() -> list[dict]:
     add(
         ["sed_estimate"],
         "unit",
-        "2024(1)2024",
+        f"{FIRST_ONBOARDED_SED_CYCLE}(1){sed_end_year}",
         {
             "number": "Count of doctorate recipients or institutions",
             "percent": "Percentage, on a 0 to 100 scale",
@@ -614,8 +640,12 @@ def build_dicionario() -> list[dict]:
     return [dict(zip(DICIONARIO_COLUMNS, e, strict=True)) for e in entries]
 
 
-# Survey cycle -> NCSES publication id. One entry per onboarded cycle.
-CYCLES = {2024: "nsf25349"}
+# Survey cycle -> NCSES publication id, for the onboarded vintage only. The
+# recurring pipeline does NOT read this: it passes `clean_sed` the cycle that
+# `latest_sed_publication` discovered and `download_sed` actually fetched.
+# Iterating this map in the pipeline would make a refresh look for
+# `sed2024_xlsx.zip` in a pod that only ever downloaded the new cycle's ZIP.
+CYCLES = {LAST_ONBOARDED_SED_CYCLE: "nsf25349"}
 
 TABLE_ID_RE = re.compile(r"^Table\s+(\d+)[\u2013-](\d+)")
 FOOTNOTE_START = re.compile(
@@ -897,12 +927,21 @@ def extract_cycle(
     return out
 
 
-def clean_herd(input_dir: Path, output_dir: Path) -> dict[str, Path]:
+def clean_herd(
+    input_dir: Path,
+    output_dir: Path,
+    sed_end_year: int = LAST_ONBOARDED_SED_CYCLE,
+) -> dict[str, Path]:
     """Clean every HERD public use file into partitioned all-STRING parquet.
+
+    Also writes the shared ``dicionario``, which covers both surveys' coded
+    columns — which is why the SED cycle has to reach this far.
 
     Args:
         input_dir: Directory holding the downloaded ``herd_*.zip`` files.
         output_dir: Root the partitioned parquet is written under.
+        sed_end_year: Newest SED cycle in this build, for the dictionary's
+            ``sed_estimate.unit`` coverage. Defaults to the onboarded vintage.
 
     Returns:
         Table slug -> the table's output directory, for ``upload_to_gcs``.
@@ -1055,7 +1094,10 @@ def clean_herd(input_dir: Path, output_dir: Path) -> dict[str, Path]:
             flush=True,
         )
 
-    dicionario = build_dicionario()
+    # Coverage follows what this build actually produced, not a literal.
+    dicionario = build_dicionario(
+        herd_end_year=max(files_by_year), sed_end_year=sed_end_year
+    )
     out = output_dir / "dicionario"
     out.mkdir(parents=True, exist_ok=True)
     schema = pa.schema([(c, pa.string()) for c in DICIONARIO_COLUMNS])
@@ -1103,19 +1145,28 @@ def clean_herd(input_dir: Path, output_dir: Path) -> dict[str, Path]:
 
 
 def clean_sed(
-    input_dir: Path, output_dir: Path, work_dir: Path
+    input_dir: Path,
+    output_dir: Path,
+    work_dir: Path,
+    cycles: dict[int, str] | None = None,
 ) -> dict[str, Path]:
-    """Parse every published SED data table of every onboarded cycle.
+    """Parse every published SED data table of the given cycles.
 
     Args:
         input_dir: Directory holding the downloaded ``sed<year>_xlsx.zip``.
         output_dir: Root the partitioned parquet is written under.
         work_dir: Scratch directory the workbooks are unpacked into.
+        cycles: Reference year -> NCSES publication id, for the cycles actually
+            downloaded into ``input_dir``. Defaults to :data:`CYCLES`, the
+            onboarded vintage, which is what the bootstrap script wants. The
+            recurring pipeline must pass the cycle it discovered — a fresh pod
+            holds only that cycle's ZIP, so defaulting here would send a 2025
+            refresh looking for ``sed2024_xlsx.zip``.
 
     Returns:
         Table slug -> the table's output directory, for ``upload_to_gcs``.
     """
-    for reference_year, publication_id in sorted(CYCLES.items()):
+    for reference_year, publication_id in sorted((cycles or CYCLES).items()):
         folder = extract_cycle(
             input_dir, work_dir, reference_year, publication_id
         )

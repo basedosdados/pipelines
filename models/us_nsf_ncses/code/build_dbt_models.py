@@ -42,11 +42,35 @@ CAST = {
 
 
 def read_architecture(table: str) -> list[dict]:
+    """Read one table's architecture CSV.
+
+    Args:
+        table: Table slug, matching the CSV's stem.
+
+    Returns:
+        One dict per column, in the architecture's own order — which is the
+        order the generated model must select in.
+    """
     with open(ARCH_DIR / f"{table}.csv", encoding="utf-8") as f:
         return list(csv.DictReader(f))
 
 
 def render(table: str) -> str:
+    """Render one dbt model from its architecture CSV.
+
+    The architecture is the single source of truth: column order and types come
+    from it, so a generated model cannot drift from the registered metadata.
+
+    Args:
+        table: Table slug.
+
+    Returns:
+        The complete ``.sql`` model text, ending in a newline.
+
+    Raises:
+        KeyError: If a column declares a BigQuery type with no cast in
+            :data:`CAST`.
+    """
     columns = read_architecture(table)
     config = [
         "{{",
@@ -79,6 +103,11 @@ def render(table: str) -> str:
 
 
 def main() -> int:
+    """Regenerate every dbt model from the architecture CSVs.
+
+    Returns:
+        0 on success.
+    """
     tables = sorted(p.stem for p in ARCH_DIR.glob("*.csv"))
     for table in tables:
         path = MODEL_DIR / f"{DATASET}__{table}.sql"

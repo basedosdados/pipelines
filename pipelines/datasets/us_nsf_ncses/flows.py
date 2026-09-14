@@ -95,9 +95,11 @@ def us_nsf_ncses_flow(
             prod staging bucket and run dbt against ``target="prod"``. Set False
             to exercise only the dev half — required for a safe test run, since
             the default writes production.
-        update_metadata: After a successful prod materialization, register table
-            coverage and commit the source updates. Has no effect when
-            ``materialize_to_prod`` is False.
+        update_metadata: Write metadata to the prod backend — the source
+            Update, committed as soon as a poll reports a new year, and the
+            table coverage, registered after a successful prod materialization.
+            Set False for a test run: the metadata tasks are pinned
+            ``env="prod"`` regardless of which pool the run is on.
         force_run: Materialize even when neither source poll reports a new year.
     """
     # pyrefly: ignore [unused-coroutine]
@@ -129,10 +131,36 @@ def us_nsf_ncses_flow(
         print("neither HERD nor SED has published a newer year; nothing to do")
         return
 
+    # Commit the source Update here, not after materialization.
+    # `commit_source_update_task` records what NCSES *published*, which is true
+    # the moment the poll confirms it and stays true if a later step fails; the
+    # poll compares against `Coverage` (`compare_against="coverage"`), never
+    # against this record, so an early write cannot stall the next run. Only the
+    # survey whose poll actually reported a new year is committed — `force_run`
+    # re-materializes without claiming the source published anything.
+    # `materialize_to_prod` gates it too: these tasks are pinned `env="prod"`
+    # whichever pool the run is on, so a dev-only validation run must not touch
+    # production metadata.
+    if update_metadata and materialize_to_prod:
+        for is_new, poll_table, year in (
+            (herd_is_new, constants.HERD_POLL_TABLE.value, herd_year),
+            (sed_is_new, constants.SED_POLL_TABLE.value, sed_year),
+        ):
+            if is_new:
+                commit_source_update_task(
+                    dataset_id=DATASET_ID,
+                    table_id=poll_table,
+                    source_max_date=year,
+                    env="prod",
+                    date_format=DATE_FORMAT,
+                )
+
     work_dir = tempfile.mkdtemp(prefix="us_nsf_ncses_")
     try:
         input_dir = download_all(work_dir=work_dir, source=source)
-        produced = clean_all(work_dir=work_dir, input_dir=input_dir)
+        produced = clean_all(
+            work_dir=work_dir, input_dir=input_dir, source=source
+        )
 
         tables = constants.ALL_TABLES.value
 
@@ -180,23 +208,6 @@ def us_nsf_ncses_flow(
                     env="prod",
                     bq_project="basedosdados",
                 )
-            # Last, and only after prod succeeded: the source Update records
-            # what NCSES published, so writing it earlier would claim a refresh
-            # that did not happen.
-            commit_source_update_task(
-                dataset_id=DATASET_ID,
-                table_id=constants.HERD_POLL_TABLE.value,
-                source_max_date=herd_year,
-                env="prod",
-                date_format=DATE_FORMAT,
-            )
-            commit_source_update_task(
-                dataset_id=DATASET_ID,
-                table_id=constants.SED_POLL_TABLE.value,
-                source_max_date=sed_year,
-                env="prod",
-                date_format=DATE_FORMAT,
-            )
     finally:
         # Covers both early returns and any exception. The k8s work pool gives
         # each run a fresh pod, but a process worker reuses its filesystem, and

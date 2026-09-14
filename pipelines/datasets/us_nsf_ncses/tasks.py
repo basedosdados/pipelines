@@ -56,17 +56,34 @@ def download_all(work_dir: str, source: dict) -> str:
 
 
 @task
-def clean_all(work_dir: str, input_dir: str) -> dict:
+def clean_all(work_dir: str, input_dir: str, source: dict) -> dict:
     """Build all seven tables from the downloaded files.
+
+    The discovered cycle is threaded through rather than read from the module
+    constants: ``download_all`` fetches only the cycle ``check_source`` found,
+    so cleaning the onboarded vintage instead would look for a ZIP this pod
+    never downloaded, and the dictionary would claim a coverage that stops
+    before the year just ingested.
 
     Args:
         work_dir: Directory to write into; tables land under ``<work_dir>/output``.
         input_dir: Directory holding the downloads, from :func:`download_all`.
+        source: The result of :func:`check_source`.
 
     Returns:
         Table slug -> its partitioned output directory, as strings.
     """
     root = Path(work_dir)
-    produced = clean_herd(Path(input_dir), root / "output")
-    produced.update(clean_sed(Path(input_dir), root / "output", root / "work"))
+    sed_year = int(source["sed_year"])
+    produced = clean_herd(
+        Path(input_dir), root / "output", sed_end_year=sed_year
+    )
+    produced.update(
+        clean_sed(
+            Path(input_dir),
+            root / "output",
+            root / "work",
+            cycles={sed_year: source["sed_publication_id"]},
+        )
+    )
     return {table: str(path) for table, path in produced.items()}

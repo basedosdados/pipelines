@@ -345,6 +345,14 @@ models:
       - custom_dictionary_coverage:
           dictionary_model: ref('us_nsf_ncses__dicionario')
           columns_covered_by_dictionary: [unit]
+      # The catalogue is keyed on (reference_year, table_id), so checking
+      # table_id alone would let a cell of one cycle satisfy the test against a
+      # different cycle's catalogue row. Declared at model level with an
+      # explicit column_name so both sides of the join carry the whole key.
+      - relationships:
+          column_name: concat(reference_year, '|', table_id)
+          to: ref('us_nsf_ncses__sed_data_table')
+          field: concat(reference_year, '|', table_id)
     columns:
       - name: reference_year
         description: Ano do ciclo da pesquisa a que pertence a publicação
@@ -352,11 +360,7 @@ models:
       - name: table_id
         description: >-
           Identificador da tabela publicada, no formato grupo-número
-        tests:
-          - not_null
-          - relationships:
-              to: ref('us_nsf_ncses__sed_data_table')
-              field: table_id
+        tests: [not_null]
       - name: year
         description: Ano acadêmico a que o valor se refere
         tests: [not_null]
