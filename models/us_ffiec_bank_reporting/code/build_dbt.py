@@ -3,6 +3,17 @@
 Everything is derived from schema_def.py, so a column added there reaches the
 SQL, the schema and the architecture CSV in one step.
 
+Regeneration is a TWO-step process. This script emits the models and schema;
+the repo's sqlfmt and yamlfix pre-commit hooks then normalise line wrapping and
+list style. Run
+
+    python build_dbt.py && pre-commit run --files models/us_ffiec_bank_reporting/schema.yml models/us_ffiec_bank_reporting/*.sql
+
+or pre-commit.ci will push an autofix commit on top of yours, and your next
+regeneration will diff against it forever. The from-clause is emitted
+pre-collapsed here because that one is easy to match; the rest is left to the
+formatters rather than reimplementing their wrapping rules.
+
 Two things here are deliberate and easy to get wrong:
 
   * Test scoping lives INSIDE each test, never in a model-level `config:` block.
@@ -161,9 +172,11 @@ def model_sql(table: str) -> str:
         + "\n".join(config)
         + "\n    )\n}}\n\n\nselect\n"
         + "\n".join(lines)
-        + "\nfrom\n"
-        + f'    {{{{ set_datalake_project("{DATASET}_staging.{table}") }}}}\n'
-        + "    as t\n"
+        # The repo's sqlfmt pre-commit hook collapses the from-clause onto one
+        # line. Emitting it pre-collapsed keeps regeneration idempotent instead
+        # of flip-flopping against the hook on every commit.
+        + "\nfrom "
+        + f'{{{{ set_datalake_project("{DATASET}_staging.{table}") }}}} as t\n'
     )
 
 
