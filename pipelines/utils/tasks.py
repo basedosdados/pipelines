@@ -17,6 +17,7 @@ from google.cloud.bigquery import TableReference
 from prefect import task
 
 from pipelines.utils.gcs import DBTArtifactUploader, dump_header
+from pipelines.utils.utils import log
 from pipelines.utils.vault import get_credentials_from_secret
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -291,7 +292,7 @@ def run_dbt(
     if target == "prod":
         with open("/credentials-prod/prod.json") as f:
             sa = json.loads(f.read())
-        print(
+        log(
             f"dbt target=prod | project={sa['project_id']} | account={sa['client_email']}"
         )
 
@@ -320,26 +321,46 @@ def run_dbt(
             if vars_dict:
                 cli_args.extend(["--vars", json.dumps(vars_dict)])
 
-            print(f"dbt {' '.join(cli_args)}")
+            log(f"dbt {' '.join(cli_args)}")
             result = runner.invoke(cli_args)
 
             if result.exception:
                 raise Exception(f"dbt {cmd} exception: {result.exception}")
             if not result.success:
+                failed_names = []
                 run_result = getattr(result, "result", None)
                 if run_result is not None:
                     for node_result in run_result.results:
-                        if node_result.status in {"error", "fail"}:
-                            print(node_result.node.name)
-                            print(node_result.message)
+                        if node_result.status not in {"error", "fail"}:
+                            continue
+                        failed_names.append(node_result.node.name)
+                        log(f"Falhou: {node_result.node.name}", "error")
+                        column_name = getattr(
+                            node_result.node, "column_name", None
+                        )
+                        if column_name:
+                            log(f"  coluna: {column_name}", "error")
+                        log(f"  {node_result.message}", "error")
+                        compiled_code = getattr(
+                            node_result.node, "compiled_code", None
+                        )
+                        if compiled_code:
+                            log(
+                                f"  query compilada:\n{compiled_code}",
+                                "error",
+                            )
 
-                raise Exception(
-                    f"dbt {cmd} falhou para {selected.as_posix()} (target={target})"
+                detail = (
+                    f" — {', '.join(failed_names)}" if failed_names else ""
                 )
-            print(f"dbt {cmd} OK: {selected.as_posix()} (target={target})")
+                raise Exception(
+                    f"dbt {cmd} falhou para {selected.as_posix()} "
+                    f"(target={target}){detail}"
+                )
+            log(f"dbt {cmd} OK: {selected.as_posix()} (target={target})")
 
         if target == "prod" and table_id is not None and "run" in dbt_command:
-            print(f"Exportando {dataset_id}.{table_id} para GCS")
+            log(f"Exportando {dataset_id}.{table_id} para GCS")
             download_data_to_gcs.fn(dataset_id=dataset_id, table_id=table_id)
     finally:
         try:
@@ -347,7 +368,7 @@ def run_dbt(
                 dataset_id=dataset_id, table_id=table_id, target=target
             ).run()
         except Exception as e:
-            print(f"Aviso: falha ao subir artefatos dbt: {e}")
+            log(f"Aviso: falha ao subir artefatos dbt: {e}", "warning")
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -390,8 +411,6 @@ def download_data_to_gcs(
     - 100 MB - 1 GB: apenas BDPro
     - < 100 MB: open + BDPro (se tiver row access policy bdpro_filter)
     """
-    from pipelines.utils.utils import log
-
     if not billing_project_id:
         billing_project_id = project_id
 
