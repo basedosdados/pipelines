@@ -48,12 +48,19 @@ These cost the most time and recur across states.
    on SC — and the mismatch guard then rejects a file that is perfectly fine, four times
    in a row, with a message blaming the source.
 
-8. **A source can use the same character as an escape AND as data.** SC's backslash
-   escapes a quote in `empenho_201101` (`\\"Split\\"`) and is literal in
-   `liquidacao_201106` (`"3932532\\"`, a document number). Each global setting loses
-   exactly one record in the file the other handles. When that happens, pick the
-   convention **per record** and let the field count decide — do not average the two, and
-   do not relax the parser.
+8. **A source can use the same character as an escape AND as data — choose the
+   convention per FILE, and verify by parsing the whole file.** SC's backslash escapes a
+   quote in `empenho_201101` (`\\"Split\\"`) and is literal in `liquidacao_201106`
+   (`"3932532\\"`, a document number). Each global setting loses records in the file the
+   other handles.
+
+   **Per-record repair is not enough, and knowing why matters.** Under the wrong
+   convention a record does not merely land with the wrong field count — it can split
+   into TWO records, so the boundary itself is wrong and there is no raw record left to
+   re-read. `liquidacao_202402` row 10018 does exactly that (82,095 records instead of
+   82,094) because its free text holds both `\\"` and a real newline. Parse the file
+   under each candidate, count records that miss the expected width, and keep the
+   convention that places all of them.
 
 9. **Number format differs per state and must be checked, never reused.** MG plain
    (`52.50`) · PE US with leading space (` 43200.0`) · BA, ES, RS, SC comma decimal with
