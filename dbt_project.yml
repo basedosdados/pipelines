@@ -204,6 +204,9 @@ models:
     us_bls_cpi:
       +materialized: table
       +schema: us_bls_cpi
+    us_treasury_fiscaldata:
+      +materialized: table
+      +schema: us_treasury_fiscaldata
     us_bls_employment:
       +materialized: table
       +schema: us_bls_employment
