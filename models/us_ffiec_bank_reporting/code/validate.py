@@ -24,7 +24,12 @@ from collections import defaultdict
 from pathlib import Path
 
 import pyarrow.parquet as pq
-from common import (
+
+# The shared transform lives in the pipelines package so the recurring flow and
+# this one-shot onboarding script use exactly one implementation.
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+from pipelines.datasets.us_ffiec_bank_reporting.common import (
     BHC_FIRST,
     BHC_LAST,
     CALL_FIRST,
@@ -34,7 +39,7 @@ from common import (
     OUTPUT_DIR,
     quarters,
 )
-from schema_def import TABLES
+from pipelines.datasets.us_ffiec_bank_reporting.schema_def import TABLES
 
 BILLING_PROJECT = "basedosdados-dev"
 DATASET_ID = "us_ffiec_bank_reporting"

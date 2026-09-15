@@ -26,9 +26,14 @@ Two things here are deliberate and easy to get wrong:
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
-from schema_def import TABLES
+# The shared transform lives in the pipelines package so the recurring flow and
+# this one-shot onboarding script use exactly one implementation.
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+from pipelines.datasets.us_ffiec_bank_reporting.schema_def import TABLES
 
 DATASET = "us_ffiec_bank_reporting"
 MODEL_DIR = Path(__file__).resolve().parents[1]
