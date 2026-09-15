@@ -378,3 +378,189 @@ def br_senatran_estatisticas__municipio_combustivel(
 br_senatran_estatisticas__municipio_combustivel.deploy_schedules = [
     {"cron": "40 21 10-30 * *", "timezone": "America/Sao_Paulo"}
 ]
+
+
+@flow(
+    name="br_senatran_estatisticas__municipio_cor",
+    log_prints=True,
+)
+def br_senatran_estatisticas__municipio_cor(
+    dataset_id: str = "br_senatran_estatisticas",
+    table_id: str = "municipio_cor",
+    materialize_after_dump: bool = True,
+    update_metadata: bool = True,
+    target: str = "prod",
+    force_run: bool = False,
+    backfill_start: str | None = None,
+) -> None:
+    _run_breakdown(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        layout_key="municipio_cor",
+        materialize_after_dump=materialize_after_dump,
+        update_metadata=update_metadata,
+        target=target,
+        force_run=force_run,
+        backfill_start=backfill_start,
+    )
+
+
+# pyrefly: ignore [missing-attribute]
+br_senatran_estatisticas__municipio_cor.deploy_schedules = [
+    {"cron": "5 22 10-30 * *", "timezone": "America/Sao_Paulo"}
+]
+
+
+@flow(
+    name="br_senatran_estatisticas__municipio_potencia",
+    log_prints=True,
+)
+def br_senatran_estatisticas__municipio_potencia(
+    dataset_id: str = "br_senatran_estatisticas",
+    table_id: str = "municipio_potencia",
+    materialize_after_dump: bool = True,
+    update_metadata: bool = True,
+    target: str = "prod",
+    force_run: bool = False,
+    backfill_start: str | None = None,
+) -> None:
+    _run_breakdown(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        layout_key="municipio_potencia",
+        materialize_after_dump=materialize_after_dump,
+        update_metadata=update_metadata,
+        target=target,
+        force_run=force_run,
+        backfill_start=backfill_start,
+    )
+
+
+# pyrefly: ignore [missing-attribute]
+br_senatran_estatisticas__municipio_potencia.deploy_schedules = [
+    {"cron": "15 22 10-30 * *", "timezone": "America/Sao_Paulo"}
+]
+
+
+@flow(
+    name="br_senatran_estatisticas__municipio_restricao",
+    log_prints=True,
+)
+def br_senatran_estatisticas__municipio_restricao(
+    dataset_id: str = "br_senatran_estatisticas",
+    table_id: str = "municipio_restricao",
+    materialize_after_dump: bool = True,
+    update_metadata: bool = True,
+    target: str = "prod",
+    force_run: bool = False,
+    backfill_start: str | None = None,
+) -> None:
+    _run_breakdown(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        layout_key="municipio_restricao",
+        materialize_after_dump=materialize_after_dump,
+        update_metadata=update_metadata,
+        target=target,
+        force_run=force_run,
+        backfill_start=backfill_start,
+    )
+
+
+# pyrefly: ignore [missing-attribute]
+br_senatran_estatisticas__municipio_restricao.deploy_schedules = [
+    {"cron": "25 22 10-30 * *", "timezone": "America/Sao_Paulo"}
+]
+
+
+@flow(
+    name="br_senatran_estatisticas__municipio_cep",
+    log_prints=True,
+)
+def br_senatran_estatisticas__municipio_cep(
+    dataset_id: str = "br_senatran_estatisticas",
+    table_id: str = "municipio_cep",
+    materialize_after_dump: bool = True,
+    update_metadata: bool = True,
+    target: str = "prod",
+    force_run: bool = False,
+    backfill_start: str | None = None,
+) -> None:
+    _run_breakdown(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        layout_key="municipio_cep",
+        materialize_after_dump=materialize_after_dump,
+        update_metadata=update_metadata,
+        target=target,
+        force_run=force_run,
+        backfill_start=backfill_start,
+    )
+
+
+# pyrefly: ignore [missing-attribute]
+br_senatran_estatisticas__municipio_cep.deploy_schedules = [
+    {"cron": "35 22 10-30 * *", "timezone": "America/Sao_Paulo"}
+]
+
+
+@flow(
+    name="br_senatran_estatisticas__municipio_ano_fabricacao_modelo",
+    log_prints=True,
+)
+def br_senatran_estatisticas__municipio_ano_fabricacao_modelo(
+    dataset_id: str = "br_senatran_estatisticas",
+    table_id: str = "municipio_ano_fabricacao_modelo",
+    materialize_after_dump: bool = True,
+    update_metadata: bool = True,
+    target: str = "prod",
+    force_run: bool = False,
+    backfill_start: str | None = None,
+) -> None:
+    _run_breakdown(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        layout_key="municipio_ano_fabricacao_modelo",
+        materialize_after_dump=materialize_after_dump,
+        update_metadata=update_metadata,
+        target=target,
+        force_run=force_run,
+        backfill_start=backfill_start,
+    )
+
+
+# pyrefly: ignore [missing-attribute]
+br_senatran_estatisticas__municipio_ano_fabricacao_modelo.deploy_schedules = [
+    {"cron": "45 22 10-30 * *", "timezone": "America/Sao_Paulo"}
+]
+
+
+@flow(
+    name="br_senatran_estatisticas__municipio_tipo_especie_eixos",
+    log_prints=True,
+)
+def br_senatran_estatisticas__municipio_tipo_especie_eixos(
+    dataset_id: str = "br_senatran_estatisticas",
+    table_id: str = "municipio_tipo_especie_eixos",
+    materialize_after_dump: bool = True,
+    update_metadata: bool = True,
+    target: str = "prod",
+    force_run: bool = False,
+    backfill_start: str | None = None,
+) -> None:
+    _run_breakdown(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        layout_key="municipio_tipo_especie_eixos",
+        materialize_after_dump=materialize_after_dump,
+        update_metadata=update_metadata,
+        target=target,
+        force_run=force_run,
+        backfill_start=backfill_start,
+    )
+
+
+# pyrefly: ignore [missing-attribute]
+br_senatran_estatisticas__municipio_tipo_especie_eixos.deploy_schedules = [
+    {"cron": "55 22 10-30 * *", "timezone": "America/Sao_Paulo"}
+]
