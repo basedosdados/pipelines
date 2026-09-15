@@ -25,7 +25,11 @@ import re
 import zipfile
 from pathlib import Path
 
-from common import INPUT_DIR, ITEM_TYPE_UNIT, is_numeric_item
+from pipelines.datasets.us_ffiec_bank_reporting.common import (
+    INPUT_DIR,
+    ITEM_TYPE_UNIT,
+    is_numeric_item,
+)
 
 MDRM_ZIP = INPUT_DIR / "mdrm" / "MDRM.zip"
 

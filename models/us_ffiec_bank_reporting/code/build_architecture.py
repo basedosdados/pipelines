@@ -8,9 +8,18 @@ pinned to "\\n" -- otherwise regeneration and the hook flip-flop forever.
 from __future__ import annotations
 
 import csv
+import sys
+from pathlib import Path
 
-from common import ARCH_DIR
-from schema_def import ARCH_HEADER, TABLES
+# The shared transform lives in the pipelines package so the recurring flow and
+# this one-shot onboarding script use exactly one implementation.
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+from pipelines.datasets.us_ffiec_bank_reporting.common import ARCH_DIR
+from pipelines.datasets.us_ffiec_bank_reporting.schema_def import (
+    ARCH_HEADER,
+    TABLES,
+)
 
 
 def main() -> None:

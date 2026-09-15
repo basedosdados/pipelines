@@ -41,7 +41,8 @@ DIR_YEAR = "br_bd_diretorios_data_tempo.ano:ano"
 _RSSD_DESC = (
     "RSSD identifier assigned by the Federal Reserve, unique per institution and "
     "stable across name and charter changes; the join key across every table in "
-    "this dataset and the correspondent of `cert` in us_fdic_bankfind"
+    "this dataset. To reach us_fdic_bankfind, join through institution.fdic_cert_id, "
+    "which carries the FDIC certificate"
 )
 
 # --------------------------------------------------------------------------
@@ -580,7 +581,7 @@ TABLES["cra_assessment_area_tract"] = [
         "STRING",
         "Eleven-digit census tract identifier, the county FIPS code followed by the "
         "six-digit tract number",
-        obs="Not linked to the census tract directory: the file spans three decennial "
+        obs="Not linked to the census tract directory: the file spans four decennial "
         "tract vintages (1990, 2000, 2010 and 2020 boundaries in different years) "
         "and the source does not restate earlier years onto current boundaries, so "
         "a single-vintage foreign key would be wrong for most of the series.",

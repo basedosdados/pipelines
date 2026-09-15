@@ -7,10 +7,17 @@ Portuguese-slot `description` the Data Basis architecture schema defines.
 from __future__ import annotations
 
 import csv
+import sys
+from pathlib import Path
 
-from common import CODE_DIR
-from schema_def import TABLES
+# The shared transform lives in the pipelines package so the recurring flow and
+# this one-shot onboarding script use exactly one implementation.
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
 from translations import DESCRIPTIONS
+
+from pipelines.datasets.us_ffiec_bank_reporting.common import CODE_DIR
+from pipelines.datasets.us_ffiec_bank_reporting.schema_def import TABLES
 
 OUT_DIR = CODE_DIR / "architecture_trilingual"
 
