@@ -220,6 +220,7 @@ build-backend = "hatchling.build"
 [tool.pyrefly]
 project-excludes = [
   "pipelines/{{cookiecutter.pipeline_name}}",
+  "models/us_ffiec_bank_reporting/code",
   "models/world_oecd_education/code",
   "models/br_tse_eleicoes/code",
   "models/us_nih_reporter/code",
