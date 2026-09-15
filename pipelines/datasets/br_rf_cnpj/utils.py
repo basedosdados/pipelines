@@ -715,16 +715,21 @@ def get_table_unique_keys(table_id: str, column: str):
     Returns:
         pd.DataFrame: A DataFrame containing the unique keys from the specified table and column.
     """
+    # A staging é tabela externa sobre CSV acumulado por competência: ler uma
+    # coluna custa o arquivo inteiro, de todos os meses. A materializada é
+    # nativa e particionada, então a leitura é só da coluna pedida.
     query = f"""WITH tmp_split AS(
     SELECT
-        split(safe_cast({column} AS STRING),",") AS chave 
-    FROM `basedosdados-dev.br_rf_cnpj_staging.{table_id}`
+        split(safe_cast({column} AS STRING),",") AS chave
+    FROM `basedosdados-dev.br_rf_cnpj.{table_id}`
     )
     SELECT DISTINCT chave
     FROM tmp_split,
     UNNEST(chave) AS chave"""
     uniques = bd.read_sql(
-        query=query, from_file=True, billing_project_id="basedosdados"
+        query=query,
+        from_file=True,
+        billing_project_id=os.getenv("BD_BILLING_PROJECT_ID", "basedosdados"),
     )["chave"].unique()
     df_uniques = pd.DataFrame(uniques, columns=["chave"])
     df_uniques.loc[df_uniques["chave"] == "", "chave"] = None
