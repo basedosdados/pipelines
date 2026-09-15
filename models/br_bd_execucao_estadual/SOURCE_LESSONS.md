@@ -215,6 +215,33 @@ says so rather than carrying a schedule that will silently never refresh.
   non-200 as "no data" records those years as genuine gaps.
 - `per_page` caps at 1000; 2000 returns 400 rather than silently truncating.
 
+### RJ
+- **The catalogue is at `dadosabertos.rj.gov.br`.** `dados.rj.gov.br` is NXDOMAIN and
+  `transparencia.rj.gov.br` is a WordPress brochure, which is why earlier surveys filed
+  RJ as geo-blocked. It was the hostname, not a block — though the host does separately
+  require a Brazilian IP.
+- **`tfe-despesa` is a cumulative year-end SNAPSHOT, not a monthly series.** Every file
+  carries exactly one `Posição`: `12/YYYY` for a closed exercise, the latest month for
+  the open one (`07/2025`). So the grain is budget line x exercise and the values are
+  positions, not movements. Reading `Posição` as "the month this row belongs to" and
+  unioning it into a monthly table would put a cumulative annual figure beside monthly
+  movements under the same column names.
+- **It therefore fits none of the existing tables.** Not `despesa` (no empenho, no
+  creditor, no sub-annual date); not `despesa_mensal` (that is month x line, RJ has one
+  month per year); not `despesa_anual` (that is creditor x line x year, RJ has no
+  creditor). Where it belongs is a schema decision and is deliberately left open —
+  `clean_rj.py` stages it and stops.
+- **2019 and 2021 are each published twice** as separate resources of identical size —
+  the ES `Despesas-2013.csv` trap. De-duplicate on the CKAN resource id, not the name.
+- **Five preamble lines precede the header** (ministry, secretariat, subsecretariat,
+  "Transparência Fiscal", date range). A reader that assumes row 0 is the header treats
+  the first data row as column names.
+- TLS connections drop mid-download; every fetch needs retries and a short file must be
+  rejected rather than kept. Unlike RS and SC the files are plain latin-1 — duckdb's
+  strict reader accepts all ten — and every row has exactly 41 fields.
+- Size: 176,525 rows over 2016-2025, ~101 MB. Totals run R$60.8bn (2016) to R$107.3bn
+  (2024) empenhado, consistent with the state budget.
+
 ### CE
 - **Double-gated**: a country block *and* a JS anti-bot challenge on the HTML. The
   challenge serves an identical ~247 KB page for every URL with HTTP 200 — the tell is

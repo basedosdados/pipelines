@@ -480,3 +480,47 @@ PB_JSON_STRING_FIELDS = ("participantes", "documentos")
 # `vencedor` is left NULL rather than derived. Deriving it is the BA mistake: there,
 # 84% of rows labelled `Perdedor` also carried a positive homologated value.
 PB_HAS_LOSING_BIDS = False
+
+
+# --------------------------------------------------------------------------- RJ
+
+# **The catalogue is at `dadosabertos.rj.gov.br`, not `dados.rj.gov.br`.** The latter is
+# NXDOMAIN and `transparencia.rj.gov.br` is a WordPress brochure, which is why earlier
+# surveys filed RJ as geo-blocked. It is not: the hostname was wrong.
+#
+# The host does, separately, require a Brazilian IP, and it drops TLS connections
+# mid-download often enough that every fetch needs retries.
+RJ_CKAN = "https://dadosabertos.rj.gov.br/api/3/action/package_show"
+
+# SEFAZ's `tfe-despesa` is the only real fiscal series in a 1,119-package catalogue whose
+# fiscal content is otherwise a per-agency PDF dump. It is described as a D+1 mirror of
+# SIAFE-Rio.
+RJ_PACKAGE = "tfe-despesa"
+RJ_TABLE = "rj_despesa"
+
+# **RJ is NOT transaction grain and must not be advertised as such.** `Posição` is a
+# month (`07/2025`), there is no creditor and no empenho number. It is a month x
+# budget-line aggregate carrying Empenhado / Liquidado / Pago / Dotado Atual / Dotação
+# Inicial / Despesa Autorizada on one row -- exactly the `despesa_mensal` grain that
+# already exists for Bahia.
+RJ_FIRST_YEAR, RJ_LAST_YEAR = 2016, 2025
+
+# The export carries **five preamble lines** before the header:
+#   Governo do Estado do Rio de Janeiro / Secretaria de Estado de Fazenda /
+#   Subsecretaria de Politica Fiscal / Transparência Fiscal /
+#   Despesa Generica entre 01/01/2025 e 01/12/2025
+# A reader that assumes row 0 is the header silently treats the first data row as names.
+RJ_PREAMBLE_LINES = 5
+
+RJ_SEP = ";"
+RJ_ENCODING = "cp1252"
+
+# Dimension columns are quoted, value columns are not, and the decimal separator is a
+# comma with no thousands separator -- the BA/ES/RS/SC convention.
+RJ_DECIMAL_COMMA = True
+
+# **2019 and 2021 are each published TWICE** as separate resources of identical size.
+# The ES `Despesas-2013.csv` trap: a name-keyed dict silently keeps one, and a glob over
+# the resource list double-counts the year. Resources are therefore de-duplicated on the
+# CKAN resource id and the exercise is taken from the file name.
+RJ_DUPLICATED_YEARS = (2019, 2021)
