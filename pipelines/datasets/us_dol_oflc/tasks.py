@@ -80,29 +80,6 @@ def clean_program(
 
 
 @task
-def partition_paths(program_result: dict, years: list[int]) -> list[str]:
-    """Hive partition directories written for one program, one per fiscal year.
-
-    Uploading the partition directories rather than the table root keeps a
-    refresh from touching fiscal years the run did not rebuild.
-
-    Args:
-        program_result: The return value of :func:`clean_program`.
-        years: Fiscal years the run rebuilt.
-
-    Returns:
-        One ``<output>/<program>/year=<FY>`` path per fiscal year that was
-        actually written, as strings.
-    """
-    root = Path(program_result["path"])
-    return [
-        str(root / f"year={fy}")
-        for fy in years
-        if (root / f"year={fy}").exists()
-    ]
-
-
-@task
 def dataset_id() -> str:
     """The BigQuery dataset id the flow writes to.
 
