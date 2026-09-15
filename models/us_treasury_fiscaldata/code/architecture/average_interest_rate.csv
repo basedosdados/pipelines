@@ -1,0 +1,8 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Calendar year of the record date,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column derived from record_date,record_date
+month,INT64,Calendar month of the record date,,no,br_bd_diretorios_data_tempo.mes:mes,month,no,Derived from record_date,record_date
+record_date,DATE,Last day of the month the average interest rate reports,,no,,,no,Monthly series,record_date
+fiscal_year,INT64,"U.S. federal fiscal year of the record date, running October through September",,no,,year,no,,record_fiscal_year
+security_type,STRING,"Broad Treasury security class, such as Marketable, Non-marketable, or Interest-bearing Debt",,no,,,no,Human-readable label,security_type_desc
+security_desc,STRING,"Specific Treasury security the rate applies to, such as Treasury Notes, Treasury Bonds, or Savings Bonds",,no,,,no,Human-readable label,security_desc
+avg_interest_rate,FLOAT64,"Average interest rate the Treasury pays on the outstanding security, as an annual percentage",,no,,percent,no,,avg_interest_rate_amt
