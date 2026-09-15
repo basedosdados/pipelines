@@ -76,7 +76,6 @@ def _sync_staging_schema(
     tb: bd.Table,
     data_path: str | Path,
     source_format: str,
-    billing_project_id: str,
 ) -> None:
     """Adiciona ao schema da staging as colunas que a fonte passou a trazer.
 
@@ -103,14 +102,17 @@ def _sync_staging_schema(
         tb: tabela `basedosdados` já instanciada, apontando para a staging.
         data_path: arquivo ou diretório com os dados que serão carregados.
         source_format: `"csv"` ou `"parquet"`.
-        billing_project_id: projeto GCP usado para faturar a chamada.
     """
     header_path = dump_header(data_path=data_path, source_format=source_format)
     incoming = tb._load_staging_schema_from_data(
         data_sample_path=header_path, source_format=source_format
     )
 
-    client = bigquery.Client(project=billing_project_id)
+    # O cliente tem que ser o da própria lib: `bigquery.Client()` sem
+    # credencial cai no ADC do pod, que não é o principal com acesso à
+    # staging — o `get_table` estoura 403 em dataset novo e o
+    # `update_table` estoura 403 sempre.
+    client = tb.client["bigquery_staging"]
     table = client.get_table(tb.table_full_name["staging"])
 
     current = {_bq_safe_column_name(field.name) for field in table.schema}
@@ -190,7 +192,6 @@ def _upload_to_gcs(
                 tb=tb,
                 data_path=data_path,
                 source_format=source_format,
-                billing_project_id=billing_project_id,
             )
 
     elif dump_mode == "overwrite":
