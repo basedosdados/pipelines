@@ -6,8 +6,13 @@ state Courts of Accounts. This dataset covers the **state executives' own spendi
 from each state's own transparency portal over its financial system (SIAFI-MG, FIPLAN-BA,
 e-Fisco-PE, SIAFEM-SP).
 
-**Status:** complete. MG, BA, PE and SP built, validated and registered on staging
-(10 tables, 110.8M rows, dbt 38/38).
+**Status:** MG, BA, PE, SP, ES and RS live in production (10 tables, ~125.7M rows).
+Santa Catarina is in progress — code and models written, harvest running, nothing
+uploaded or registered yet.
+
+**Source defects and access constraints are recorded in
+[`SOURCE_LESSONS.md`](SOURCE_LESSONS.md).** Read it before touching `code/download_*.py`
+or `code/clean_*.py`; it exists so a re-run does not rediscover the same traps.
 
 ---
 
@@ -26,6 +31,9 @@ harmonization problem is the same; the inputs are not.
 | BA | `dados.ba.gov.br` CKAN (`despesas`, `licitacoes`, `contratos`, `notas-fiscais`) | FIPLAN, SIMPAS/SAEB | despesa **2013+**, licitação **2004+** | daily D-1 | bulk ZIP |
 | PE | `dados.pe.gov.br` CKAN (`todas-despesas-detalhadas`, `all-pagamentos`) | e-Fisco | **2008–2026** | annual snapshots + current year | bulk CSV, cc-by |
 | SP | SIGEO Lei 131 (`fazenda.sp.gov.br/SigeoLei131`) | SIAFEM/SP | **2010–2026** | daily | WebForms scrape → CSV export |
+| ES | `dados.es.gov.br` CKAN (`portal-da-transparencia-*`) | SIGEFES, SIGA | **2009–2026** | daily | bulk CSV, cc-by |
+| RS | `dados.rs.gov.br` CKAN (CAGE `Gasto-RS`) | FPE/CAGE | **2012–2026** | monthly ZIPs | bulk ZIP, CC0 |
+| SC | `transparencia.sc.gov.br` export endpoint (`documentos/exportcsv`) | SIGEF | **2011–2026** | daily | JSON/CSV API — **not** the CKAN bulk files, which are unparseable |
 
 A browser User-Agent is required on `dados.mg.gov.br` (bare curl gets 403).
 

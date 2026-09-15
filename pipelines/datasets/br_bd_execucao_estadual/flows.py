@@ -89,7 +89,7 @@ DATASET_ID = constants.DATASET_ID.value
 # the cluster's path works.
 #
 # A scoped RS pass is two exercises, about 8 minutes, which the daily run absorbs.
-DAILY_STATES = ["MG", "BA", "PE", "ES", "RS"]
+DAILY_STATES = ["MG", "BA", "PE", "ES", "RS", "SC"]
 WEEKLY_STATES = ["SP"]
 
 

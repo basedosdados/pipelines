@@ -179,12 +179,36 @@ def refresh_sp(work_dir: str, year: int, full: bool) -> None:
     clean_sp.main()
 
 
+def refresh_sc(work_dir: str, year: int, full: bool) -> None:
+    """Santa Catarina, year-scoped, one API request per (visão, month).
+
+    SC comes from the transparency portal's export endpoint rather than its CKAN bulk
+    files -- see `models/br_bd_execucao_estadual/code/download_sc.py` for why the bulk
+    files cannot be parsed at all.
+
+    A scoped run re-fetches the open exercises' months for all three visões, which is
+    roughly 72 requests. The full series is 2011-2026, about 576 requests and ~26M rows.
+    Each month is checked against the row count the portal publishes for the same
+    filters, so a truncated export fails the run instead of being stored short.
+    """
+    _ensure_code_on_path(work_dir)
+    # pyrefly: ignore [missing-import]
+    import clean_sc
+
+    # pyrefly: ignore [missing-import]
+    import download_sc
+
+    download_sc.main(years=_years(year, full))
+    clean_sc.main()
+
+
 REFRESHERS = {
     "MG": refresh_mg,
     "BA": refresh_ba,
     "PE": refresh_pe,
     "ES": refresh_es,
     "RS": refresh_rs,
+    "SC": refresh_sc,
     "SP": refresh_sp,
 }
 

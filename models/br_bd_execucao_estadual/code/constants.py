@@ -333,3 +333,83 @@ RS_PHASE_COLUMN = "FaseGasto"
 # (`***.195.606-**`) and ES (`###.743.147-##`) there is no partial identifier at all
 # for natural persons.
 RS_NULL_DOCUMENT = "000.000.000-00"
+
+
+# --------------------------------------------------------------------------- SC
+
+# **SC is ingested from the portal's own export endpoint, NOT from its CKAN bulk
+# files.** `dados.sc.gov.br` does publish `empenhos-<ano>.csv`, and those files cannot
+# be parsed: `dehistoricoempenho` is free text carrying both embedded newlines and
+# semicolons while the fields are effectively unquoted (705 double quotes in 400k
+# lines). Splitting on `;` yields the correct 34 fields on only 32,444 of ~200,000
+# physical lines. With no quoting there is no way to recover record boundaries from the
+# text, so `strict_mode=false` would mis-parse rather than reject -- the BA lesson.
+#
+# The export endpoint returns the same data correctly quoted, and is better in three
+# further ways: all three phases instead of empenho alone, 2011+ instead of 2021+, and
+# two extra columns. The CKAN files are kept only as an independent cross-check.
+SC_API = "https://api-portal-transparencia.apps.sm.okd4.ciasc.sc.gov.br/api"
+SC_CKAN = "https://dados.sc.gov.br/api/3/action/package_show"
+
+# `visao` is the REQUIRED discriminator. Omitting it, or sending the `tipoconsulta`
+# name that reads more naturally, returns HTTP 422 from `exportcsv` -- and a bare `[]`
+# from `/documentos`, which looks like "no data" rather than a bad request.
+#
+# Only these three exist. The portal renders cards for `pagamento-extraorcamentario`
+# and `retencao` as well, but both are 422 here, so extraorçamentário is reachable only
+# through the frozen CKAN snapshot.
+SC_VISOES = ("empenho", "liquidacao", "pagamento")
+
+# Period parameters, read out of the portal's Angular bundle: it builds
+# `documentos/exportcsv?<solrParams>` with `anomesinifiltro`/`anomesfimfiltro` set to
+# `f"{ano}{mes:02d}"`. Harvest a month at a time -- one month of empenho is ~12.6 MB
+# and the whole series is ~26M rows.
+SC_PERIOD_PARAMS = ("anomesinifiltro", "anomesfimfiltro")
+
+# 2010 and earlier return 0 rows for all three visões.
+SC_FIRST_YEAR, SC_LAST_YEAR = 2011, 2026
+
+SC_TABLES = {
+    "empenho": "sc_empenho",
+    "liquidacao": "sc_liquidacao",
+    "pagamento": "sc_pagamento",
+}
+
+SC_SEP = ";"
+
+# **cp1252, despite `Content-Type: text/csv; charset=UTF-8`.** duckdb answers
+# `Invalid Input Error: File is not latin-1 encoded`, the same signature as RS. The
+# header is wrong, not the data; transcode before reading. Python's latin-1 would
+# decode it silently and ship mojibake, so never "try utf-8, else latin-1" here.
+# "utf-8 strict, else cp1252" IS a valid discriminator, because UTF-8 is
+# self-validating and cp1252 leaves five bytes undefined -- unlike latin-1, which
+# accepts anything.
+SC_ENCODING = "cp1252"
+
+# Comma decimal, no thousands separator (`25742,5`) -- the BA and ES convention, and
+# the opposite of SP. `try_cast` without `replace(',', '.')` NULLs every non-integer
+# value silently: on 2022-03 that turned R$2.90bn into R$632M, a wrong number that
+# looked entirely plausible.
+SC_DECIMAL_COMMA = True
+
+# `cdtipoempenho` 3 (Anulação) and 4 (Estorno) are **already signed negative** in the
+# export, so a plain SUM is the correct net. Do not take absolute values and do not
+# filter them out.
+SC_TIPO_EMPENHO = {1: "Emissão", 2: "Reforço", 3: "Anulação", 4: "Estorno"}
+
+# The JSON sibling of `exportcsv` reports `lista.total` for the same filters, which is
+# the control total for the CSV: on 2022-03 empenho both are 13,402 and the four
+# `cdtipoempenho` subtotals match the export to the cent. download_sc verifies every
+# month against it, so a truncated export is rejected rather than stored short.
+SC_COUNT_ENDPOINT = "documentos"
+SC_EXPORT_ENDPOINT = "documentos/exportcsv"
+
+# SC ships one document per phase, like RS, and the phases are natively keyed:
+# liquidação carries `nunotaempenhooriginal`, and pagamento carries `nunotaliquidacao`
+# AND `nunotaempenhooriginal` AND `nuordembancaria`. Only PB otherwise publishes the
+# complete chain. The pivot onto the canonical `despesa` row happens in dbt.
+SC_EMPENHO_KEY = "nunotaempenho"
+SC_EMPENHO_FK = "nunotaempenhooriginal"
+
+# CPFs are masked `***.997.739-**` (the MG convention); CNPJs are published in full.
+SC_MASKED_CPF_MARKER = "*"

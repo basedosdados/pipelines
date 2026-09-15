@@ -21,7 +21,10 @@ models:
       aqui elas são pivotadas para uma linha por empenho, e a retenção — que é
       descontada de dentro do pagamento — fica de fora para não contá-la duas vezes.
       Seis meses não constam do catálogo do RS: 2020-06, 2020-08, 2022-04, 2023-02,
-      2023-06 e 2023-08.
+      2023-06 e 2023-08. Santa Catarina também publica uma linha por movimento
+      (emissão, reforço, anulação, estorno), pivotada aqui para uma linha por empenho;
+      ao contrário do RS, a retenção catarinense É somada, porque lá ela é um documento
+      de pagamento próprio e não um desconto dentro de outro.
     # Sem teste de unicidade, e isso é deliberado: a tabela não tem chave de linha. Em
     # 2023 Minas Gerais publica 9,3% de linhas integralmente idênticas (mesmo empenho,
     # documento, data e valor), o que a fonte permite. Não são multiplicação do modelo:
