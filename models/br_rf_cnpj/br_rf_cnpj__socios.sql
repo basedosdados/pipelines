@@ -10,7 +10,7 @@
         },
     )
 }}
--- Atualizado em 2026-08-11
+-- Atualizado em 2026-09-15
 with
     cnpj_socios as (
         select
