@@ -186,6 +186,35 @@ says so rather than carrying a schedule that will silently never refresh.
 - `situacao` in the `pagamento` table means different things in PE and SC, so a
   `situacao = 'PAGA'` filter drops SC entirely.
 
+### PB
+- **The survey's row estimate was 5x low.** It extrapolated from 2024-01 (5,514 empenhos),
+  which is atypically small; the year is **320,201**. January is not a representative
+  month in a Brazilian exercise — never size a source from one.
+- **`codigoLicitacao` is a MODALITY, not a tender id** — 17 distinct values whose labels
+  are DISPENSA - SERVICOS, PREGAO - PRESENCIAL, OBRAS - CONCORRENCIA. The SP
+  `ddlLicitacao` trap. The real tender link is `numeroProcessoCompras`, which is
+  space-padded and present on **446 of 320,201** rows (0.14%).
+- **`contrato` is junk on every row**: `'SN'`, `'S/N'`, `'sn'`, `'NT'`, `'-'`. It is
+  populated 100% of the time, so a coverage check passes while the field carries nothing.
+- **The payment ledger uses a different organisational code system from the empenho.**
+  `ordem_cronologica_pagamentos.codigoUnidadeGestora` has **0** overlap with the
+  empenho's `codigoUnidade` and 6 of 17 with `codigoOrgao`, while
+  `liquidacoes.codigoOrgao` matches **42 of 42**. So liquidação joins and pagamento does
+  not, and `pagamento_pb.id_empenho_bd` is null rather than wrong. The survey's
+  "complete empenho -> liquidação -> pagamento chain" is only half true.
+- **`numeroEmpenho` fans out ~8x on its own**; the key is
+  (ano, codigoOrgao, codigoUnidade, numeroEmpenho), and dropping the órgão still
+  collides ~5,700 rows a year.
+- **`valorDespesa` is the net** (`valorEmpenhado + valorAnulado`, exact to the cent).
+  `valorEmpenhado` is gross.
+- **`participantes` and `documentos` are JSON STRINGS, not arrays.** Iterating the raw
+  value walks characters; a length check reports 240 (the string) instead of 1 (the
+  record). Participants carry no win/lose flag and run ~1.8 per tender, so they are
+  awarded suppliers, not a bidder list — `vencedor` stays null (the BA rule).
+- 2014 and earlier return **HTTP 400**, not an empty result, so a reader that treats
+  non-200 as "no data" records those years as genuine gaps.
+- `per_page` caps at 1000; 2000 returns 400 rather than silently truncating.
+
 ### CE
 - **Double-gated**: a country block *and* a JS anti-bot challenge on the HTML. The
   challenge serves an identical ~247 KB page for every URL with HTTP 200 — the tell is

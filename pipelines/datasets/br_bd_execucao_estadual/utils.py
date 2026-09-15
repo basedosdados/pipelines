@@ -202,6 +202,25 @@ def refresh_sc(work_dir: str, year: int, full: bool) -> None:
     clean_sc.main()
 
 
+def refresh_pb(work_dir: str, year: int, full: bool) -> None:
+    """Paraíba, year-scoped, one paginated API sweep per (endpoint, month).
+
+    `ano` and `mes` are required on every despesas endpoint, so a scoped run re-fetches
+    only the open exercises' months. Each period is checked against the API's own
+    `paginacao.total` before it is kept, so a harvest that drops a page fails rather
+    than writing a file a resume would treat as complete.
+    """
+    _ensure_code_on_path(work_dir)
+    # pyrefly: ignore [missing-import]
+    import clean_pb
+
+    # pyrefly: ignore [missing-import]
+    import download_pb
+
+    download_pb.main(years=_years(year, full))
+    clean_pb.main()
+
+
 REFRESHERS = {
     "MG": refresh_mg,
     "BA": refresh_ba,
@@ -209,6 +228,7 @@ REFRESHERS = {
     "ES": refresh_es,
     "RS": refresh_rs,
     "SC": refresh_sc,
+    "PB": refresh_pb,
     "SP": refresh_sp,
 }
 

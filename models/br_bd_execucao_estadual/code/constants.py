@@ -413,3 +413,70 @@ SC_EMPENHO_FK = "nunotaempenhooriginal"
 
 # CPFs are masked `***.997.739-**` (the MG convention); CNPJs are published in full.
 SC_MASKED_CPF_MARKER = "*"
+
+
+# --------------------------------------------------------------------------- PB
+
+# Paraíba publishes a real REST API behind its CKAN shopfront. `dados.pb.gov.br` is a
+# catalogue with 8 packages; the data is here, with an OpenAPI spec at
+# `/api/v1/swagger.json` describing 39 endpoints. (The `/swagger/` UI path does not
+# serve the spec -- read the URL out of the HTML, or go straight to swagger.json.)
+PB_API = "https://api.dados.pb.gov.br/api/v1"
+
+# `ano` and `mes` are REQUIRED on every despesas endpoint, which is a gift rather than a
+# constraint: the harvest chunks itself and an incremental refresh is free.
+# `/compras/*` takes `ano` only.
+PB_DESPESA_ENDPOINTS = {
+    "notas_empenho": "pb_empenho",
+    "liquidacoes": "pb_liquidacao",
+    "ordem_cronologica_pagamentos": "pb_pagamento",
+}
+PB_COMPRAS_ENDPOINTS = {
+    "contratacoes": "pb_contratacao",
+    "itens_contratacoes": "pb_contratacao_item",
+}
+
+# `per_page` is capped at 1000; 2000 returns HTTP 400 rather than silently truncating.
+PB_PER_PAGE = 1000
+
+# 2014 and earlier return **HTTP 400**, not an empty result -- the API rejects the year
+# outright, so an "empty means no data" reader would mistake a rejection for a gap.
+PB_FIRST_YEAR, PB_LAST_YEAR = 2015, 2026
+
+# Response envelope: {"dados": [...], "paginacao": {total, pagina, itens_por_pagina,
+# total_paginas}}. `paginacao.total` is the control total for the harvest, the same role
+# `lista.total` plays for SC.
+PB_ENVELOPE_ROWS = "dados"
+PB_ENVELOPE_PAGE = "paginacao"
+
+# **PB is the only source here with all three phase values on ONE empenho row**
+# (`valorEmpenhado`, `valorLiquidado`, `valorPago`, plus `valorAnulado`,
+# `valorSuplementado` and `valorPagamentoAnulado`). So unlike SC and RS it needs no
+# pivot -- it maps onto `despesa` directly, the way MG and ES do.
+#
+# It also publishes `codigoMunicipio` / `nomeMunicipio`, the municipality of the spend,
+# which only RS otherwise carries. The canonical `despesa` schema has no column for it.
+PB_EMPENHO_VALUES = ("valorEmpenhado", "valorLiquidado", "valorPago")
+
+# `numeroEmpenho` is an INTEGER that restarts per exercise and per unit. Measured over
+# the whole of 2024 (320,201 rows):
+#
+#   numeroEmpenho                     40,626 distinct   fan-out x7.88
+#   (ano, unidade, numero)           317,300 distinct   fan-out x1.01  (2,773 collisions)
+#   (ano, orgao, unidade, numero)    320,201 distinct   UNIQUE
+#
+# So the órgão is load-bearing: a unidade code is reused across órgãos, and dropping it
+# collides ~5,700 rows a year. `numeroEmpenho` alone fans out nearly eightfold.
+PB_EMPENHO_KEY = ("ano", "codigoOrgao", "codigoUnidade", "numeroEmpenho")
+
+# `participantes` and `documentos` arrive as **JSON strings**, not nested arrays, so they
+# must be json.loads()'d before use -- iterating the raw value walks characters and a
+# length check reports the string length (240) rather than the record count (1).
+PB_JSON_STRING_FIELDS = ("participantes", "documentos")
+
+# Participant records carry `lote, item, quantidade, cnpj, razao_social, nome_fantasia,
+# valor_ofertado, valor_licitado, valor_total_licitado` and **no win/lose flag**, at
+# roughly 1.8 per tender -- these are awarded suppliers, not the full bidder list. So
+# `vencedor` is left NULL rather than derived. Deriving it is the BA mistake: there,
+# 84% of rows labelled `Perdedor` also carried a positive homologated value.
+PB_HAS_LOSING_BIDS = False

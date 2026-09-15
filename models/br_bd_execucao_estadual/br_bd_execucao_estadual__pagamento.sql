@@ -36,3 +36,6 @@ from {{ ref("br_bd_execucao_estadual__pagamento_pe") }}
 union all
 select *
 from {{ ref("br_bd_execucao_estadual__pagamento_sc") }}
+union all
+select *
+from {{ ref("br_bd_execucao_estadual__pagamento_pb") }}
