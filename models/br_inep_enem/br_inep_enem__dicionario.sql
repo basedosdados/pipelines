@@ -1,5 +1,6 @@
 {{ config(alias="dicionario", schema="br_inep_enem") }}
 
+-- atualizado em fev-2026. Acrescenta o dicionários das tabelas de 2024
 select
     safe_cast(id_tabela as string) id_tabela,
     safe_cast(nome_coluna as string) nome_coluna,
