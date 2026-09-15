@@ -30,6 +30,11 @@ DATA_ROOT = Path(
 
 
 def main() -> None:
+    """Download (unless ``--skip-download``) and clean the sector files.
+
+    Writes the partitioned all-STRING parquet under ``<US_USDA_NASS_DATA>/output``
+    and prints a per-table row-count summary.
+    """
     ap = argparse.ArgumentParser()
     ap.add_argument(
         "--skip-download",

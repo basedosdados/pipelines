@@ -47,7 +47,20 @@ OUTPUT_ROOT = (
 _orig_bucket = gcs.Client.bucket
 
 
-def _patched_bucket(self, bucket_name, user_project=None):
+def _patched_bucket(
+    self: gcs.Client, bucket_name: str, user_project: str | None = None
+) -> "gcs.Bucket":
+    """Return a bucket handle billed to ``BILLING_PROJECT`` (requester-pays).
+
+    Args:
+        self: The storage client (this replaces ``gcs.Client.bucket``).
+        bucket_name: The bucket to open.
+        user_project: Ignored; the billing project is forced to
+            ``BILLING_PROJECT``.
+
+    Returns:
+        The bucket handle with ``user_project`` set for requester-pays access.
+    """
     return _orig_bucket(self, bucket_name, user_project=BILLING_PROJECT)
 
 
@@ -68,6 +81,14 @@ TABLES = [
 
 
 def parquet_rows(path: Path) -> int:
+    """Count rows across a table's cleaned parquet partitions.
+
+    Args:
+        path: The table's output directory (holds ``year=*/data.parquet``).
+
+    Returns:
+        The total row count.
+    """
     # Glob files (not the dir) so pyarrow reads `year` from the file column
     # rather than inferring it from the hive path (string-vs-int conflict).
     files = [str(p) for p in path.rglob("*.parquet")]
@@ -75,6 +96,18 @@ def parquet_rows(path: Path) -> int:
 
 
 def upload_table(slug: str) -> int:
+    """Upload one cleaned table to BigQuery staging and verify its row count.
+
+    Args:
+        slug: Table slug (a key of :data:`TABLES`).
+
+    Returns:
+        The row count read back from BigQuery.
+
+    Raises:
+        FileNotFoundError: If the table's output directory is missing.
+        ValueError: If the uploaded row count differs from the parquet count.
+    """
     path = OUTPUT_ROOT / slug
     if not path.exists():
         raise FileNotFoundError(f"Missing output path: {path}")
@@ -112,7 +145,20 @@ def upload_table(slug: str) -> int:
 
 
 def main() -> None:
+    """Upload the selected tables (or all of them) to BigQuery, smallest first.
+
+    Reads table slugs from the command line (after ``--env``); with none given,
+    uploads every table in :data:`TABLES`. Exits non-zero on the first failure.
+
+    Raises:
+        ValueError: If any positional argument is not a known table slug.
+    """
     only = set(_argv)
+    unknown = only.difference(TABLES)
+    if unknown:
+        raise ValueError(
+            f"unknown table(s): {sorted(unknown)}; valid: {TABLES}"
+        )
     tables = [s for s in TABLES if not only or s in only]
     print(f"=== uploading to {BILLING_PROJECT} (env={ENV}) ===", flush=True)
     for slug in tables:

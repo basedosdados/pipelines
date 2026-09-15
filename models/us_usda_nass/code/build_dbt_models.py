@@ -50,12 +50,30 @@ _CAST = {
 }
 
 
-def read_arch(table):
+def read_arch(table: str) -> list[tuple[str, str]]:
+    """Read ``(column name, bigquery_type)`` pairs from a table's architecture CSV.
+
+    Args:
+        table: Table slug.
+
+    Returns:
+        The columns as ``(name, bigquery_type)`` tuples, in architecture order.
+    """
     with open(ARCH / f"{table}.csv", encoding="utf-8") as f:
         return [(r["name"], r["bigquery_type"]) for r in csv.DictReader(f)]
 
 
-def build_fact(table):
+def build_fact(table: str) -> str:
+    """Render the dbt SQL for one per-grain fact model.
+
+    Args:
+        table: Fact-table slug.
+
+    Returns:
+        The model SQL: a ``safe_cast`` projection over the all-STRING staging
+        table, year-partitioned, deduplicated to one row per natural key with a
+        ``qualify row_number()``.
+    """
     cols = read_arch(table)
     names = [n for n, _ in cols]
     selects = ",\n        ".join(_CAST[t].format(c=n) for n, t in cols)
@@ -113,7 +131,8 @@ from {{ set_datalake_project("us_usda_nass_staging.dicionario") }} as t
 """
 
 
-def main():
+def main() -> None:
+    """Write every fact model plus the dicionario model to the dataset directory."""
     for t in FACT_TABLES:
         (ROOT / f"us_usda_nass__{t}.sql").write_text(
             build_fact(t), encoding="utf-8"

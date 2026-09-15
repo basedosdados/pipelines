@@ -59,14 +59,33 @@ GRAIN_PT = {
 }
 
 
-def grain_of(table):
+def grain_of(table: str) -> str:
+    """Return a fact table's geographic grain suffix.
+
+    Args:
+        table: Fact-table slug.
+
+    Returns:
+        One of ``national``, ``state``, ``agricultural_district`` or ``county``.
+
+    Raises:
+        ValueError: If the slug has no recognized grain suffix.
+    """
     for g in ("agricultural_district", "national", "state", "county"):
         if table.endswith("_" + g):
             return g
     raise ValueError(table)
 
 
-def source_pt(table):
+def source_pt(table: str) -> str:
+    """Return the Portuguese source phrase for a table (census vs. survey).
+
+    Args:
+        table: Fact-table slug.
+
+    Returns:
+        The source-program description, in Portuguese.
+    """
     return (
         "Censo Agropecuário quinquenal do USDA NASS QuickStats"
         if table.startswith("census_of_agriculture")
@@ -74,17 +93,43 @@ def source_pt(table):
     )
 
 
-def read_arch(table):
+def read_arch(table: str) -> list[tuple[str, str]]:
+    """Read ``(column name, Portuguese description)`` pairs from an architecture CSV.
+
+    Args:
+        table: Table slug.
+
+    Returns:
+        The columns as ``(name, description)`` tuples, in architecture order.
+    """
     with open(ARCH / f"{table}.csv", encoding="utf-8") as f:
         return [(r["name"], r["description"]) for r in csv.DictReader(f)]
 
 
-def block_scalar(text, indent):
+def block_scalar(text: str, indent: int) -> str:
+    """Render ``text`` as a YAML folded (``>``) block scalar at ``indent`` spaces.
+
+    Args:
+        text: The scalar content (single line).
+        indent: Number of spaces to indent the folded content.
+
+    Returns:
+        The ``>``-prefixed block-scalar string.
+    """
     pad = " " * indent
     return f">\n{pad}" + text
 
 
-def build_fact(table):
+def build_fact(table: str) -> str:
+    """Render the ``schema.yml`` model block for one per-grain fact table.
+
+    Args:
+        table: Fact-table slug.
+
+    Returns:
+        The YAML model block: description, table-level tests (unique key,
+        not-null proportion, dictionary coverage) and per-column entries.
+    """
     cols = read_arch(table)
     names = [n for n, _ in cols]
     key = [n for n in names if n in KEY_SET]
@@ -136,7 +181,8 @@ DICIONARIO = """  - name: us_usda_nass__dicionario
         description: Rótulo legível correspondente à chave"""
 
 
-def main():
+def main() -> None:
+    """Write ``schema.yml`` for all fact tables plus the dicionario model."""
     out = ["---", "version: 2", "models:"]
     for t in FACT_TABLES:
         out.append(build_fact(t))

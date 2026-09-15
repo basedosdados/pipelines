@@ -23,6 +23,7 @@ from __future__ import annotations
 import csv
 import gzip
 import re
+import shutil
 from pathlib import Path
 
 import pyarrow as pa
@@ -51,6 +52,14 @@ _FACT_TABLES = frozenset(constants.FACT_TABLES.value)
 
 
 def _read_arch_order(table: str) -> list[str]:
+    """Read a table's column order from its architecture CSV.
+
+    Args:
+        table: Fact-table slug (an architecture CSV ``<table>.csv`` must exist).
+
+    Returns:
+        The column names, in architecture order.
+    """
     with open(_ARCH_DIR / f"{table}.csv", encoding="utf-8") as f:
         return [r["name"] for r in csv.DictReader(f)]
 
@@ -60,6 +69,15 @@ _ARCH: dict[str, tuple[list[str], pa.Schema]] = {}
 
 
 def _arch(table: str) -> tuple[list[str], pa.Schema]:
+    """Return a table's ``(column order, all-string arrow schema)``, cached.
+
+    Args:
+        table: Fact-table slug.
+
+    Returns:
+        A tuple of the architecture column order and a matching all-string
+        :class:`pyarrow.Schema` (staging is all-STRING by house convention).
+    """
     if table not in _ARCH:
         order = _read_arch_order(table)
         _ARCH[table] = (
@@ -143,6 +161,15 @@ def clean_cv(raw: str) -> str | None:
 # Row filter + build
 # --------------------------------------------------------------------------- #
 def _seed_keep(f: list[str]) -> bool:
+    """Return whether a raw row matches the curated seed (commodity/geo/freq/stat).
+
+    Args:
+        f: The raw row split into fields, indexed by :data:`_IDX`.
+
+    Returns:
+        True if the row's commodity, geography level, frequency and statistic
+        category all fall inside the seed scope.
+    """
     if f[_IDX["COMMODITY_DESC"]] not in constants.SEED_COMMODITIES.value:
         return False
     if f[_IDX["AGG_LEVEL_DESC"]] not in constants.SEED_GEO_LEVELS.value:
@@ -220,6 +247,15 @@ def build_row(f: list[str]) -> tuple[str, int, dict] | None:
 def _write_part(
     rows: list[dict], table: str, table_dir: Path, year: int, part: int
 ) -> None:
+    """Write one buffered flush of rows to a numbered part file for a year.
+
+    Args:
+        rows: The buffered rows (dicts keyed by architecture column name).
+        table: Fact-table slug.
+        table_dir: Output directory for this table (``<output>/<table>``).
+        year: Partition year; the part lands under ``year=<year>/``.
+        part: Monotonic flush counter, used to name ``part-<part>.parquet``.
+    """
     order, schema = _arch(table)
     pdir = table_dir / f"year={year}"
     pdir.mkdir(parents=True, exist_ok=True)
@@ -261,6 +297,15 @@ def build_dicionario_rows() -> list[tuple]:
 
 
 def _write_dicionario(output_dir: Path, rows: list[tuple]) -> Path:
+    """Write the dicionario rows to ``<output>/dicionario/data.parquet``.
+
+    Args:
+        output_dir: Root output directory.
+        rows: The dicionario rows from :func:`build_dicionario_rows`.
+
+    Returns:
+        The dicionario output directory.
+    """
     ddir = output_dir / "dicionario"
     ddir.mkdir(parents=True, exist_ok=True)
     names = [
@@ -293,11 +338,25 @@ def clean_all(input_dir: Path, output_dir: Path) -> dict:
     input_dir = Path(input_dir)
     output_dir = Path(output_dir)
     gz_files = sorted(input_dir.glob("qs.*.txt.gz"))
-    if not gz_files:
-        raise FileNotFoundError(f"no qs.*.txt.gz files in {input_dir}")
+    # Require exactly one bulk file per sector: a missing sector would silently
+    # publish partial data (e.g. under --skip-download) and a stale extra file
+    # would duplicate records.
+    expected = {f"qs.{sector}.txt.gz" for sector in constants.SECTORS.value}
+    actual = {p.name for p in gz_files}
+    if actual != expected:
+        raise ValueError(
+            f"invalid bulk file set in {input_dir}: "
+            f"missing={sorted(expected - actual)}, "
+            f"unexpected={sorted(actual - expected)}"
+        )
 
     tables = list(constants.FACT_TABLES.value)
     table_dirs = {t: output_dir / t for t in tables}
+    # Clear any prior snapshot before rebuilding: the bootstrap reuses a
+    # persistent output_dir, so a year dropped by a later source (or the
+    # dicionario from an earlier run) must not survive into the new upload.
+    for d in (*table_dirs.values(), output_dir / "dicionario"):
+        shutil.rmtree(d, ignore_errors=True)
     buffers: dict[tuple[str, int], list[dict]] = {}
     counts = {t: 0 for t in tables}
     buffered = 0
@@ -319,7 +378,11 @@ def clean_all(input_dir: Path, output_dir: Path) -> dict:
         print(f"  streaming {gz.name} ...", flush=True)
         with gzip.open(gz, "rt", encoding="utf-8", errors="replace") as fh:
             header = next(fh, "")
-            if not header.startswith("SOURCE_DESC"):
+            # Validate the full header, not just the first column: a reordered
+            # 39-column file would still pass a startswith check while _IDX read
+            # every field from the wrong position and silently corrupt the rows.
+            source_columns = header.rstrip("\r\n").split("\t")
+            if source_columns != constants.RAW_COLUMNS.value:
                 raise ValueError(
                     f"unexpected header in {gz.name}: {header[:60]!r}"
                 )

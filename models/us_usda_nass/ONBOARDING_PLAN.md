@@ -14,8 +14,9 @@ different thing, referenced in the descriptions and left untouched.
 The 5 QuickStats bulk sector files at <https://www.nass.usda.gov/datasets/>
 (`qs.{animals_products,crops,demographics,economics,environmental}_YYYYMMDD.txt.gz`,
 ~2.5 GB compressed). Together they are the entire QuickStats database:
-tab-separated, 39 UPPERCASE columns, `SOURCE_DESC ∈ {CENSUS, SURVEY}`. Both output
-tables are a `SOURCE_DESC` filter on the same files. The QuickStats API
+tab-separated, 39 UPPERCASE columns, `SOURCE_DESC ∈ {CENSUS, SURVEY}`. The two
+source programs (SURVEY, CENSUS) split by `SOURCE_DESC` on the same files and
+then by geography grain into the seven published fact tables. The QuickStats API
 (<https://quickstats.nass.usda.gov/api>, free key) is the incremental source but
 is **not** used for the bulk load — paging it by commodity-year is the fragile
 surface that sank the earlier attempt.
@@ -63,7 +64,7 @@ Raw downloads and cleaned parquet live under `~/Downloads/us_usda_nass_data/`
 ## Pipeline
 
 Annual bulk refresh, `dump_mode="overwrite"` (files ship full history). AllFree
-coverage on both tables (BD Pro deferred). Run all tables, then test all tables
+coverage on every fact table (BD Pro deferred). Run all tables, then test all tables
 (the fact tables' `custom_dictionary_coverage` test references the dicionario).
 `job_variables` uses `memory_limit` (bare `memory` is silently ignored). Verify a
 manual dev run before arming. Follow-up: a load-time-based poll for true
@@ -72,5 +73,5 @@ continuous (intra-year) refresh — the v1 poll is year-granularity.
 ## Measured seed volumes (2026-09-14 dry-count)
 
 crops SURVEY 8.53M (COUNTY 7.03M) + CENSUS 1.74M ≈ 10.3M; animals_products SURVEY
-0.42M + CENSUS 1.47M ≈ 1.9M. Total across the 5 files ≈ 13–15M rows across the two
-fact tables — bounded and tractable.
+0.42M + CENSUS 1.47M ≈ 1.9M. Total across the 5 files ≈ 13–15M rows across the
+seven published fact tables — bounded and tractable.

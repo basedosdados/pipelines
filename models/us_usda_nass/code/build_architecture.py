@@ -336,6 +336,16 @@ FACT_TABLES = [
 
 
 def table_columns(grain: str) -> list[str]:
+    """Return a fact table's column order for a given geographic grain.
+
+    Args:
+        grain: One of ``national``, ``state``, ``agricultural_district`` or
+            ``county``.
+
+    Returns:
+        The column names: ``year``, the grain's geography columns, then the
+        common descriptive/value columns.
+    """
     return ["year", *GEO[grain], *COMMON]
 
 
@@ -399,6 +409,14 @@ DICIONARIO_COLUMNS = [
 
 
 def _row_from_def(name: str) -> dict:
+    """Build an architecture-CSV row for a shared column from ``COLUMN_DEFS``.
+
+    Args:
+        name: Column name (a key of ``COLUMN_DEFS``).
+
+    Returns:
+        The row as a dict keyed by the architecture ``HEADER`` fields.
+    """
     btype, pt, en, es, cbd, unit, obs, orig = COLUMN_DEFS[name]
     return {
         "name": name,
@@ -417,6 +435,16 @@ def _row_from_def(name: str) -> dict:
 
 
 def _row_from_tuple(col: tuple) -> dict:
+    """Build an architecture-CSV row from a full column tuple (dicionario cols).
+
+    Args:
+        col: A 9-tuple ``(name, bigquery_type, pt, en, es,
+            covered_by_dictionary, measurement_unit, observations,
+            original_name)``.
+
+    Returns:
+        The row as a dict keyed by the architecture ``HEADER`` fields.
+    """
     name, btype, pt, en, es, cbd, unit, obs, orig = col
     return {
         "name": name,
@@ -434,7 +462,13 @@ def _row_from_tuple(col: tuple) -> dict:
     }
 
 
-def write_csv(path, rows):
+def write_csv(path: Path, rows: list[dict]) -> None:
+    """Write architecture rows to a CSV with the standard ``HEADER`` columns.
+
+    Args:
+        path: Destination CSV path.
+        rows: Row dicts keyed by the architecture ``HEADER`` fields.
+    """
     with open(path, "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=HEADER, lineterminator="\n")
         w.writeheader()
@@ -443,7 +477,8 @@ def write_csv(path, rows):
     print(f"  wrote {path.name} ({len(rows)} columns)")
 
 
-def main():
+def main() -> None:
+    """Write the architecture CSV for every fact table plus the dicionario."""
     ARCH_DIR.mkdir(parents=True, exist_ok=True)
     for slug, grain in FACT_TABLES:
         rows = [_row_from_def(n) for n in table_columns(grain)]

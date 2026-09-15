@@ -28,8 +28,22 @@ TABLES = [
 ]
 
 
-def build(table: str) -> list[dict]:
-    cols = []
+ColumnEntry = dict[str, str | bool]
+
+
+def build(table: str) -> list[ColumnEntry]:
+    """Build the ``columns_json`` payload for one table from its architecture CSV.
+
+    Args:
+        table: Table slug (an architecture CSV ``<table>.csv`` must exist).
+
+    Returns:
+        One entry per column, each carrying name, bigquery_type, the three
+        description languages, the ``covered_by_dictionary`` and
+        ``has_sensitive_data`` booleans, and optional measurement_unit /
+        observations when present in the CSV.
+    """
+    cols: list[ColumnEntry] = []
     with open(ARCH / f"{table}.csv", encoding="utf-8") as f:
         for r in csv.DictReader(f):
             entry = {
@@ -54,6 +68,7 @@ def build(table: str) -> list[dict]:
 
 
 def main() -> None:
+    """Write one ``columns_json`` file per table under ``code/columns_json/``."""
     OUT.mkdir(parents=True, exist_ok=True)
     for t in TABLES:
         cols = build(t)
