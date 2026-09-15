@@ -258,6 +258,7 @@ def download_bhc(
     npw = cffi_requests.Session(impersonate=IMPERSONATE)
     warmed: set[int] = set()
     fetched = 0
+    blocked: list[str] = []
     for y, q in wanted:
         out = dest_dir / f"bhcf_{y}Q{q}.txt"
         if _good_text(out):
@@ -289,6 +290,18 @@ def download_bhc(
             r = npw.get(
                 NPW_BHCF_URL.format(name=name), timeout=DOWNLOAD_TIMEOUT
             )
+            if r.status_code == 403:
+                # A block is not an absence. www.ffiec.gov answers this host
+                # with 403 and a ~245 KB CAPTCHA page while serving the same
+                # curl_cffi request from a residential address. Treating it as
+                # "not published" would quietly publish a holding_company_item
+                # missing every recent quarter, and report success.
+                _log(
+                    f"bhc {y}Q{q}: NPW returned 403/{len(r.content)}B "
+                    "-- BLOCKED, not absent"
+                )
+                blocked.append(f"{y}Q{q}")
+                continue
             if r.status_code != 200 or r.content[:2] != b"PK":
                 _log(
                     f"bhc {y}Q{q}: NPW returned {r.status_code}/"
@@ -310,6 +323,14 @@ def download_bhc(
                 out.write_bytes(payload)
         fetched += 1
         _log(f"bhc {y}Q{q}: {out.stat().st_size / 1e6:.1f} MB")
+    if blocked:
+        raise RuntimeError(
+            f"bhc: NPW refused {len(blocked)} quarter(s) with HTTP 403: "
+            f"{blocked}. www.ffiec.gov blocks this host, and those quarters "
+            "ARE published -- continuing would silently drop them from "
+            "holding_company_item. See "
+            "reference_ffiec_waf_blocks_the_prefect_worker."
+        )
     _log(
         f"bhc: {fetched} new files, {len(list(dest_dir.glob('*.txt')))} total"
     )
