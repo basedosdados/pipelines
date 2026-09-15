@@ -124,7 +124,7 @@ class constants(Enum):
         "votacao_proposicao": f"/tmp/output/votacao_proposicao/votacoesProposicoes_{ANO_ATUAL}.csv",
         # ! - > Deputado
         "deputado": "/tmp/output/deputado/deputados.csv",
-        "deputado_ocupacao": "/tmp/output/deputadosOcupacoes.csv",
+        "deputado_ocupacao": "/tmp/output/deputado_ocupacao/deputadosOcupacoes.csv",
         "deputado_profissao": "/tmp/output/deputado_profissao/deputadosProfissoes.csv",
         # ! - > Licitação
         "licitacao": f"/tmp/output/licitacao/licitacoes_{ANO_ATUAL}.csv",
