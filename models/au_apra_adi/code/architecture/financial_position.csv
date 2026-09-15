@@ -1,0 +1,44 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the quarter-end observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,
+quarter,INT64,"Reference quarter of the observation, from 1 to 4",,no,,quarter,no,"APRA labels each quarter by its final month: Q1 March, Q2 June, Q3 September, Q4 December",
+institution_type,STRING,Authorised deposit-taking institution type or grouping,,yes,,,no,APRA institution groupings; some do not report every statement (e.g. foreign branch banks report no capital adequacy),
+cash_and_liquid_assets,FLOAT64,Cash and liquid assets,,no,,AUD million,no,Values in millions of Australian dollars,Cash and liquid assets
+securities,FLOAT64,Securities,,no,,AUD million,no,Values in millions of Australian dollars,Securities
+acceptances_of_customers,FLOAT64,Acceptances of customers,,no,,AUD million,no,Values in millions of Australian dollars,Acceptances of customers
+gross_loans_and_advances,FLOAT64,Gross loans and advances,,no,,AUD million,no,Values in millions of Australian dollars,Gross loans and advances
+total_housing,FLOAT64,Total housing,,no,,AUD million,no,Values in millions of Australian dollars,Total housing
+term,FLOAT64,Term,,no,,AUD million,no,Values in millions of Australian dollars,Term
+gross_loans_and_advances__other,FLOAT64,Other,,no,,AUD million,no,Values in millions of Australian dollars,Other
+lending_provisions,FLOAT64,Lending provisions,,no,,AUD million,no,Values in millions of Australian dollars,Lending provisions
+net_loans_and_advances,FLOAT64,Net loans and advances,,no,,AUD million,no,Values in millions of Australian dollars,Net loans and advances
+fixed_assets,FLOAT64,Fixed assets,,no,,AUD million,no,Values in millions of Australian dollars,Fixed assets
+intangible_assets,FLOAT64,Intangible assets,,no,,AUD million,no,Values in millions of Australian dollars,Intangible assets
+other_assets,FLOAT64,Other assets,,no,,AUD million,no,Values in millions of Australian dollars,Other assets
+total_assets,FLOAT64,Total assets,,no,,AUD million,no,Values in millions of Australian dollars,Total assets
+acceptances,FLOAT64,Acceptances,,no,,AUD million,no,Values in millions of Australian dollars,Acceptances
+deposits,FLOAT64,Deposits,,no,,AUD million,no,Values in millions of Australian dollars,Deposits
+call_on_demand,FLOAT64,Call/on demand,,no,,AUD million,no,Values in millions of Australian dollars,Call/on demand
+term_deposits,FLOAT64,Term deposits,,no,,AUD million,no,Values in millions of Australian dollars,Term deposits
+certificates_of_deposit,FLOAT64,Certificates of deposit,,no,,AUD million,no,Values in millions of Australian dollars,Certificates of deposit
+income_tax_liability,FLOAT64,Income tax liability,,no,,AUD million,no,Values in millions of Australian dollars,Income tax liability
+provisions,FLOAT64,Provisions,,no,,AUD million,no,Values in millions of Australian dollars,Provisions
+employee_entitlements,FLOAT64,Employee entitlements,,no,,AUD million,no,Values in millions of Australian dollars,Employee entitlements
+provisions__other,FLOAT64,Other,,no,,AUD million,no,Values in millions of Australian dollars,Other
+other_short_term_borrowings,FLOAT64,Other short-term borrowings,,no,,AUD million,no,Values in millions of Australian dollars,Other short-term borrowings
+long_term_borrowings,FLOAT64,Long-term borrowings,,no,,AUD million,no,Values in millions of Australian dollars,Long-term borrowings
+creditors_and_other_liabilities,FLOAT64,Creditors and other liabilities,,no,,AUD million,no,Values in millions of Australian dollars,Creditors and other liabilities
+total_liabilities,FLOAT64,Total liabilities,,no,,AUD million,no,Values in millions of Australian dollars,Total liabilities
+share_capital,FLOAT64,Share capital,,no,,AUD million,no,Values in millions of Australian dollars,Share capital
+reserves,FLOAT64,Reserves,,no,,AUD million,no,Values in millions of Australian dollars,Reserves
+retained_profits,FLOAT64,Retained profits,,no,,AUD million,no,Values in millions of Australian dollars,Retained profits
+provisions__other__2,FLOAT64,Other,,no,,AUD million,no,Values in millions of Australian dollars,Other
+total_shareholders_equity,FLOAT64,Total shareholders' equity,,no,,AUD million,no,Values in millions of Australian dollars,Total shareholders' equity
+number_of_entities,INT64,Number of entities,,no,,unit,no,,Number of entities
+gross_loans_and_advances__intra_group,FLOAT64,Intra-group,,no,,AUD million,no,Values in millions of Australian dollars,Intra-group
+due_from_overseas_operations_of_the_adi,FLOAT64,Due from overseas operations of the ADI,,no,,AUD million,no,Values in millions of Australian dollars,Due from overseas operations of the ADI
+due_from_non_residents,FLOAT64,Due from non-residents (excluding intra-company transactions),,no,,AUD million,no,Values in millions of Australian dollars,Due from non-residents (excluding intra-company transactions)
+deposits__intra_group,FLOAT64,Intra-group,,no,,AUD million,no,Values in millions of Australian dollars,Intra-group
+due_to_overseas_operations_of_the_adi,FLOAT64,Due to overseas operations of the ADI,,no,,AUD million,no,Values in millions of Australian dollars,Due to overseas operations of the ADI
+due_to_non_residents,FLOAT64,Due to non-residents (excluding intra-company transactions),,no,,AUD million,no,Values in millions of Australian dollars,Due to non-residents (excluding intra-company transactions)
+other_investments,FLOAT64,Other investments,,no,,AUD million,no,Values in millions of Australian dollars,Other investments
+due_to_clearing_houses_and_financial_institutions,FLOAT64,Due to clearing houses and financial institutions,,no,,AUD million,no,Values in millions of Australian dollars,Due to clearing houses and financial institutions

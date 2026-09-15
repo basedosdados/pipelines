@@ -55,6 +55,9 @@ models:
     au_alexander_politicians:
       +materialized: table
       +schema: au_alexander_politicians
+    au_apra_adi:
+      +materialized: table
+      +schema: au_apra_adi
     au_apra_superannuation:
       +materialized: table
       +schema: au_apra_superannuation

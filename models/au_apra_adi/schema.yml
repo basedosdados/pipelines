@@ -1,0 +1,585 @@
+---
+version: 2
+models:
+  - name: au_apra_adi__financial_performance
+    description: >-
+      Quarterly financial performance of APRA-regulated authorised deposit-taking institutions (ADIs) by institution type, from the September 2004 quarter. One row per quarter and institution type, with interest, fee, expense and profit flows in millions of Australian dollars. Source: APRA Quarterly ADI Performance.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, quarter, institution_type]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the quarter-end observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: institution_type
+        description: >-
+          Authorised deposit-taking institution type or grouping
+        tests: [not_null]
+      - name: interest_income
+        description: >-
+          Interest income
+      - name: cash_and_liquid_assets
+        description: >-
+          Cash and liquid assets
+      - name: loans_and_advances
+        description: >-
+          Loans and advances
+      - name: housing_loans
+        description: >-
+          Housing loans
+      - name: term_loans
+        description: >-
+          Term loans
+      - name: interest_income__other
+        description: >-
+          Other
+      - name: other_interest_earning_assets
+        description: >-
+          Other interest earning assets
+      - name: interest_expense
+        description: >-
+          Interest expense
+      - name: deposits
+        description: >-
+          Deposits
+      - name: borrowings
+        description: >-
+          Borrowings
+      - name: other_interest_bearing_liabilities
+        description: >-
+          Other interest bearing liabilities
+      - name: net_interest_income
+        description: >-
+          Net interest income
+      - name: other_operating_income
+        description: >-
+          Other operating income
+      - name: fee_and_commission
+        description: >-
+          Fee and commission
+      - name: lending
+        description: >-
+          Lending
+      - name: transaction_deposit_account_service_fee
+        description: >-
+          Transaction/deposit account service fee
+      - name: other_fee_based_activities
+        description: >-
+          Other fee based activities
+      - name: other_operating_income__other
+        description: >-
+          Other
+      - name: total_operating_income
+        description: >-
+          Total operating income
+      - name: charge_for_bad_or_doubtful_debts
+        description: >-
+          Charge for bad or doubtful debts
+      - name: total_operating_expenses
+        description: >-
+          Total operating expenses
+      - name: personnel
+        description: >-
+          Personnel
+      - name: fees_and_commissions
+        description: >-
+          Fees and commissions
+      - name: total_operating_expenses__other
+        description: >-
+          Other
+      - name: profit_before_tax
+        description: >-
+          Profit before tax
+      - name: income_tax
+        description: >-
+          Income tax
+      - name: net_profit_after_taxa
+        description: >-
+          Net profit (loss) after taxa
+      - name: number_of_entities
+        description: >-
+          Number of entities
+      - name: operating_expenses__other
+        description: >-
+          Other
+  - name: au_apra_adi__financial_position
+    description: >-
+      Quarterly financial position (balance sheet) of APRA-regulated ADIs by institution type, from the September 2004 quarter. One row per quarter and institution type, with assets, liabilities and equity in millions of Australian dollars. Source: APRA Quarterly ADI Performance.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, quarter, institution_type]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the quarter-end observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: institution_type
+        description: >-
+          Authorised deposit-taking institution type or grouping
+        tests: [not_null]
+      - name: cash_and_liquid_assets
+        description: >-
+          Cash and liquid assets
+      - name: securities
+        description: >-
+          Securities
+      - name: acceptances_of_customers
+        description: >-
+          Acceptances of customers
+      - name: gross_loans_and_advances
+        description: >-
+          Gross loans and advances
+      - name: total_housing
+        description: >-
+          Total housing
+      - name: term
+        description: >-
+          Term
+      - name: gross_loans_and_advances__other
+        description: >-
+          Other
+      - name: lending_provisions
+        description: >-
+          Lending provisions
+      - name: net_loans_and_advances
+        description: >-
+          Net loans and advances
+      - name: fixed_assets
+        description: >-
+          Fixed assets
+      - name: intangible_assets
+        description: >-
+          Intangible assets
+      - name: other_assets
+        description: >-
+          Other assets
+      - name: total_assets
+        description: >-
+          Total assets
+      - name: acceptances
+        description: >-
+          Acceptances
+      - name: deposits
+        description: >-
+          Deposits
+      - name: call_on_demand
+        description: >-
+          Call/on demand
+      - name: term_deposits
+        description: >-
+          Term deposits
+      - name: certificates_of_deposit
+        description: >-
+          Certificates of deposit
+      - name: income_tax_liability
+        description: >-
+          Income tax liability
+      - name: provisions
+        description: >-
+          Provisions
+      - name: employee_entitlements
+        description: >-
+          Employee entitlements
+      - name: provisions__other
+        description: >-
+          Other
+      - name: other_short_term_borrowings
+        description: >-
+          Other short-term borrowings
+      - name: long_term_borrowings
+        description: >-
+          Long-term borrowings
+      - name: creditors_and_other_liabilities
+        description: >-
+          Creditors and other liabilities
+      - name: total_liabilities
+        description: >-
+          Total liabilities
+      - name: share_capital
+        description: >-
+          Share capital
+      - name: reserves
+        description: >-
+          Reserves
+      - name: retained_profits
+        description: >-
+          Retained profits
+      - name: provisions__other__2
+        description: >-
+          Other
+      - name: total_shareholders_equity
+        description: >-
+          Total shareholders' equity
+      - name: number_of_entities
+        description: >-
+          Number of entities
+      - name: gross_loans_and_advances__intra_group
+        description: >-
+          Intra-group
+      - name: due_from_overseas_operations_of_the_adi
+        description: >-
+          Due from overseas operations of the ADI
+      - name: due_from_non_residents
+        description: >-
+          Due from non-residents (excluding intra-company transactions)
+      - name: deposits__intra_group
+        description: >-
+          Intra-group
+      - name: due_to_overseas_operations_of_the_adi
+        description: >-
+          Due to overseas operations of the ADI
+      - name: due_to_non_residents
+        description: >-
+          Due to non-residents (excluding intra-company transactions)
+      - name: other_investments
+        description: >-
+          Other investments
+      - name: due_to_clearing_houses_and_financial_institutions
+        description: >-
+          Due to clearing houses and financial institutions
+  - name: au_apra_adi__performance_ratios
+    description: >-
+      Quarterly performance ratios of APRA-regulated ADIs by institution type, from the September 2004 quarter. One row per quarter and institution type, with profitability, efficiency, capital and liquidity ratios and their dollar inputs. Source: APRA Quarterly ADI Performance.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, quarter, institution_type]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the quarter-end observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: institution_type
+        description: >-
+          Authorised deposit-taking institution type or grouping
+        tests: [not_null]
+      - name: net_interest_income
+        description: >-
+          Net interest income ($m)
+      - name: total_operating_income
+        description: >-
+          Total operating income ($m)
+      - name: total_operating_expenses
+        description: >-
+          Operating expenses ($m)
+      - name: net_profit_after_tax
+        description: >-
+          Net profit (loss) after tax ($m)
+      - name: average_total_assets
+        description: >-
+          Average total assets ($m)
+      - name: average_total_shareholders_equity
+        description: >-
+          Average total shareholders' equity ($m)
+      - name: net_interest_income_to_assets
+        description: >-
+          Net interest income to assets
+      - name: operating_income_to_assets
+        description: >-
+          Operating income to assets
+      - name: operating_expenses_to_assets
+        description: >-
+          Operating expenses to assets
+      - name: profit_margin
+        description: >-
+          Profit margin
+      - name: return_on_assets
+        description: >-
+          Return on assets (after tax)
+      - name: return_on_equity
+        description: >-
+          Return on equity (after tax)
+      - name: other_operating_income
+        description: >-
+          Other operating income ($m)
+      - name: fee_and_commission_income
+        description: >-
+          Fee and commission income ($m)
+      - name: total_operating_income__2
+        description: >-
+          Total operating income ($m)
+      - name: operating_expenses__2
+        description: >-
+          Operating expenses ($m)
+      - name: personnel_expenses
+        description: >-
+          Personnel expenses ($m)
+      - name: non_interest_income_share
+        description: >-
+          Non-interest income share
+      - name: fee_income_to_total_operating_income
+        description: >-
+          Fee income to total operating income
+      - name: cost_to_income
+        description: >-
+          Cost to income
+      - name: personnel_to_operating_expenses
+        description: >-
+          Personnel to operating expenses
+      - name: total_assets
+        description: >-
+          Total assets ($m)
+      - name: average_net_loans_and_advances
+        description: >-
+          Average net loans and advances ($m)
+      - name: average_deposits
+        description: >-
+          Average deposits ($m)
+      - name: growth_in_total_assets
+        description: >-
+          Growth in total assets
+      - name: net_loans_to_deposits
+        description: >-
+          Net loans to deposits
+      - name: deposits_to_assets
+        description: >-
+          Deposits to assets
+      - name: equity_to_deposits
+        description: >-
+          Equity to deposits
+      - name: total_capital_base
+        description: >-
+          Total capital base ($m)
+      - name: total_risk_weighted_assets
+        description: >-
+          Total risk weighted assets ($m)
+      - name: total_capital_ratio
+        description: >-
+          Total capital ratio
+      - name: total_impaired_facilities
+        description: >-
+          Total impaired facilities ($m)
+      - name: impaired_facilities_to_loans_and_advances
+        description: >-
+          Impaired facilities to loans and advances
+      - name: gross_loans_and_advances
+        description: >-
+          Gross loans and advances ($m)
+      - name: total_non_performing_exposures
+        description: >-
+          Total non-performing exposures ($m)
+      - name: non_performing_to_loans_and_advances
+        description: >-
+          Non-performing to loans and advances
+      - name: total_lcr_liquid_assets
+        description: >-
+          Total LCR liquid assets ($m)
+      - name: net_cash_outflows
+        description: >-
+          Net cash outflows ($m)
+      - name: liquidity_coverage_ratio
+        description: >-
+          Liquidity coverage ratio (LCR)
+      - name: total_adjusted_minimum_liquidity_holdings
+        description: >-
+          Total adjusted minimum liquidity holdings (MLH) ($m)
+      - name: adjusted_liability_base
+        description: >-
+          Adjusted liability base ($m)
+      - name: mlh_ratio
+        description: >-
+          MLH ratio
+      - name: number_of_entities
+        description: >-
+          Number of entities
+      - name: capital_ratio
+        description: >-
+          Capital ratio
+      - name: total_loans_and_advances
+        description: >-
+          Total loans and advances ($m)
+  - name: au_apra_adi__capital_adequacy
+    description: >-
+      Quarterly capital adequacy of APRA-regulated ADIs by institution type, long format (one row per quarter, institution type and measure). Spans the pre-Basel III and Basel III regimes. Source: APRA Quarterly ADI Performance.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, quarter, institution_type, measure]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the quarter-end observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: institution_type
+        description: >-
+          Authorised deposit-taking institution type or grouping
+        tests: [not_null]
+      - name: measure
+        description: >-
+          Coded measure within the statement (see dictionary for the label)
+        tests: [not_null]
+      - name: unit
+        description: >-
+          Unit of the value: aud_million, proportion or unit
+      - name: value
+        description: >-
+          Reported value of the measure (unit given by the unit column; NULL when not applicable or confidentiality-masked)
+  - name: au_apra_adi__asset_quality
+    description: >-
+      Quarterly asset quality of APRA-regulated ADIs by institution type, long format (one row per quarter, institution type and measure): impaired and past-due facilities, provisions and non-performing exposures. Source: APRA Quarterly ADI Performance.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, quarter, institution_type, measure]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the quarter-end observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: institution_type
+        description: >-
+          Authorised deposit-taking institution type or grouping
+        tests: [not_null]
+      - name: measure
+        description: >-
+          Coded measure within the statement (see dictionary for the label)
+        tests: [not_null]
+      - name: unit
+        description: >-
+          Unit of the value: aud_million, proportion or unit
+      - name: value
+        description: >-
+          Reported value of the measure (unit given by the unit column; NULL when not applicable or confidentiality-masked)
+  - name: au_apra_adi__liquidity_lcr
+    description: >-
+      Quarterly Liquidity Coverage Ratio (LCR) reporting of APRA-regulated ADIs by institution type, long format (one row per quarter, institution type and measure). Source: APRA Quarterly ADI Performance.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, quarter, institution_type, measure]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the quarter-end observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: institution_type
+        description: >-
+          Authorised deposit-taking institution type or grouping
+        tests: [not_null]
+      - name: measure
+        description: >-
+          Coded measure within the statement (see dictionary for the label)
+        tests: [not_null]
+      - name: unit
+        description: >-
+          Unit of the value: aud_million, proportion or unit
+      - name: value
+        description: >-
+          Reported value of the measure (unit given by the unit column; NULL when not applicable or confidentiality-masked)
+  - name: au_apra_adi__liquidity_mlh
+    description: >-
+      Quarterly Minimum Liquidity Holdings (MLH) reporting of APRA-regulated ADIs by institution type, long format (one row per quarter, institution type and measure). Source: APRA Quarterly ADI Performance.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, quarter, institution_type, measure]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the quarter-end observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: institution_type
+        description: >-
+          Authorised deposit-taking institution type or grouping
+        tests: [not_null]
+      - name: measure
+        description: >-
+          Coded measure within the statement (see dictionary for the label)
+        tests: [not_null]
+      - name: unit
+        description: >-
+          Unit of the value: aud_million, proportion or unit
+      - name: value
+        description: >-
+          Reported value of the measure (unit given by the unit column; NULL when not applicable or confidentiality-masked)
+  - name: au_apra_adi__dicionario
+    description: >-
+      Dictionary mapping the coded columns (institution_type, and measure in the long tables) of the au_apra_adi tables to their labels.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+    columns:
+      - name: id_tabela
+        description: >-
+          Slug of the au_apra_adi table the dictionary entry describes
+        tests: [not_null]
+      - name: nome_coluna
+        description: >-
+          Name of the column the dictionary entry describes
+        tests: [not_null]
+      - name: chave
+        description: >-
+          Coded value (key) exactly as stored in the data
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >-
+          Temporal coverage of the key
+      - name: valor
+        description: >-
+          Human-readable label corresponding to the coded value
