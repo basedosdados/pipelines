@@ -1,0 +1,8 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Calendar year of the record date,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column derived from record_date,record_date
+record_date,DATE,Last day of the quarter the exchange rate reports,,no,,,no,Quarterly Treasury reporting rate,record_date
+effective_date,DATE,Date the exchange rate takes effect for reporting purposes,,no,,,no,May differ from record_date when a rate is revised mid-quarter,effective_date
+country,STRING,Country whose currency the rate converts,,no,,,no,"Free-text English country name; the source carries no ISO code, so no directory link",country
+currency,STRING,Currency the rate converts to U.S. dollars,,no,,,no,Human-readable label,currency
+country_currency_desc,STRING,"Country and currency combined, as published by the Treasury",,no,,,no,Unique with record_date; some countries report more than one currency,country_currency_desc
+exchange_rate,FLOAT64,"Units of the foreign currency per one U.S. dollar, the Treasury reporting rate",,no,,,no,"Unit varies by row (foreign currency per USD), so no single column-level measurement unit applies",exchange_rate
