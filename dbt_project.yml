@@ -690,9 +690,15 @@ models:
     us_ed_nces_ccd:
       +materialized: table
       +schema: us_ed_nces_ccd
+    us_eia_consumption:
+      +materialized: table
+      +schema: us_eia_consumption
     us_eia_electricity:
       +materialized: table
       +schema: us_eia_electricity
+    us_eia_seds:
+      +materialized: table
+      +schema: us_eia_seds
     us_epa_tri:
       +materialized: table
       +schema: us_epa_tri
