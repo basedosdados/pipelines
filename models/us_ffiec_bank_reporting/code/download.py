@@ -77,6 +77,18 @@ def _good_text(path: Path, min_bytes: int = 1024) -> bool:
     return path.exists() and path.stat().st_size >= min_bytes
 
 
+def _is_bhcf(content: bytes) -> bool:
+    """Does this look like a BHCF extract rather than an error page?
+
+    A size check alone is not enough: an HTTP 200 carrying an HTML error page is
+    comfortably over 1 KB, and once written it satisfies `_good_text` and is
+    skipped forever on later runs -- the cached-error-page trap. Every BHCF
+    file, comma-era and caret-era alike, names RSSD9001 in its header row.
+    """
+    head = content[:4096].upper()
+    return b"RSSD9001" in head
+
+
 # --------------------------------------------------------------------------
 # FFIEC CDR -- Call Report bulk data
 # --------------------------------------------------------------------------
@@ -217,10 +229,15 @@ def download_bhc() -> None:
             r = requests.get(
                 url, timeout=900, headers={"User-Agent": BROWSER_UA}
             )
-            if r.status_code != 200 or len(r.content) < 1024:
+            if (
+                r.status_code != 200
+                or len(r.content) < 1024
+                or not _is_bhcf(r.content)
+            ):
                 _log(
                     f"bhc {y}Q{q}: Chicago Fed returned {r.status_code}/"
-                    f"{len(r.content)}B -- not published, skipped"
+                    f"{len(r.content)}B without an RSSD9001 header -- "
+                    "not published, skipped"
                 )
                 continue
             out.write_bytes(r.content)
@@ -241,7 +258,14 @@ def download_bhc() -> None:
                 if not inner:
                     _log(f"bhc {y}Q{q}: NPW zip has no .txt member -- skipped")
                     continue
-                out.write_bytes(z.read(inner[0]))
+                payload = z.read(inner[0])
+                if not _is_bhcf(payload):
+                    _log(
+                        f"bhc {y}Q{q}: NPW .txt member has no RSSD9001 "
+                        "header -- skipped"
+                    )
+                    continue
+                out.write_bytes(payload)
         fetched += 1
         _log(f"bhc {y}Q{q}: {out.stat().st_size / 1e6:.1f} MB")
     _log(
