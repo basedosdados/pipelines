@@ -59,8 +59,8 @@ apenas o snapshot mais atual dos códigos.
 O conteúdo vem de duas origens, unidas no modelo:
 
 - **Arquivos de dicionário publicados pela própria Receita Federal** junto
-  com a publicação mensal: arquivo de `Cnaes`, `Naturezas`, `Qualificacoes`,
-  `Municipios`, `Paises`, `Motivos`. Esses arquivos são baixados
+  com a publicação mensal: arquivo de `Qualificacoes`, `Paises` e `Motivos`.
+  Esses arquivos são baixados
   e processados por `process_csv_dicionario`
   (`pipelines/crawler/rf_cnpj/utils.py`), que lê cada CSV `chave;valor` e adiciona `id_tabela`/`nome_coluna` para identificar a qual tabela e coluna cada código pertence.
 - **Entradas manuais** (`dicionario_not_found`, no modelo dbt), cobrindo
@@ -68,6 +68,23 @@ O conteúdo vem de duas origens, unidas no modelo:
   da Receita Federal (ex.: códigos `36`, `994`/`393`, `8`/`9`/`32` sem
   correspondência na fonte). Sem essas entradas, os valores ficam sem
   tradução no dicionário.
+
+CNAE (principal e secundária), natureza jurídica e município não entram no
+dicionário: são resolvidos pelos diretórios de `br_bd_diretorios_brasil`,
+declarados como `directory_column` das respectivas colunas.
+
+As chaves de cada relacionamento vêm de `get_table_unique_keys`, que consulta a
+tabela **materializada** (`basedosdados-dev.br_rf_cnpj.<tabela>`), não a
+staging. A staging é tabela externa sobre CSV acumulado por competência, onde
+ler uma coluna custa o arquivo inteiro de todos os meses; a materializada é
+nativa e particionada, e cobra só a coluna consultada. O dicionário passa
+portanto a depender da materialização das demais tabelas, e seu flow roda às
+14:35, depois das quatro.
+
+O projeto que fatura essas consultas é definido por `BD_BILLING_PROJECT_ID`,
+com `basedosdados` como padrão. Execuções fora do worker precisam apontá-la
+para `basedosdados-dev`, onde a credencial de desenvolvimento tem permissão de
+criar job.
 
 Como `simples` e `dicionario` não têm cobertura temporal por competência
 (`NonHistorical`), o polling dessas tabelas compara contra `Table.Update`
