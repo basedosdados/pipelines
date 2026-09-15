@@ -1,0 +1,14 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year the assessment area was reported for,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,Activity Year
+respondent_id,STRING,"Respondent identifier assigned by the institution's supervisory agency; unique only together with agency and year, and not an RSSD",,no,,,no,,Respondent ID
+agency_id,STRING,"Supervisory agency that assigned the respondent identifier: occ, frs, fdic, or ots for the Office of Thrift Supervision, which was abolished in 2011 and appears only up to 2010",,no,,,no,,Agency Code
+rssd_id,STRING,"RSSD identifier of the reporting institution, taken from the CRA transmittal sheet for the same respondent, agency and year; the join key to institution, call_report_item and holding_company",,no,,,no,,
+state_id,STRING,Two-digit state FIPS code,,no,br_bd_diretorios_us.state:id_state,,no,,State
+county_id,STRING,"Five-digit county FIPS code, the state code followed by the county code",,no,br_bd_diretorios_us.county:id_county,,no,,State + County
+msa_md_id,STRING,Metropolitan statistical area or metropolitan division code as defined by OMB,,no,,,no,NA outside a metropolitan area.,MSA/MD
+census_tract_id,STRING,"Eleven-digit census tract identifier, the county FIPS code followed by the six-digit tract number",,no,,,no,"Not linked to the census tract directory: the file spans three decennial tract vintages (1990, 2000, 2010 and 2020 boundaries in different years) and the source does not restate earlier years onto current boundaries, so a single-vintage foreign key would be wrong for most of the series.",Census Tract
+assessment_area_id,STRING,Assessment area number the institution assigned to the area,,no,,,no,NA for tracts outside any assessment area.,Assessment Area Number
+is_partial_county,STRING,"Whether the assessment area covers only part of the county, 1 for yes",,no,,,no,,Partial County Indicator
+is_split_county,STRING,"Whether the county is split across more than one assessment area, 1 for yes",,no,,,no,,Split County Indicator
+population_classification,STRING,"Whether the county has fewer or more than 500,000 residents",,no,,,no,,Population Classification
+tract_income_group,STRING,"Income group of the census tracts the lending is grouped into, as a share of area median family income",,yes,,,no,,Income Group
