@@ -14,6 +14,7 @@ def _camara_flow(table_id: str, cron: str):
         name=f"br_camara_dados_abertos__{table_id}",
         log_prints=True,
     )
+    # Comment para deploy
     def _flow(
         dataset_id: str = "br_camara_dados_abertos",
         table_id: str = table_id,
