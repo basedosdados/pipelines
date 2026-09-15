@@ -291,6 +291,9 @@ models:
     world_oecd_education:
       +materialized: table
       +schema: world_oecd_education
+    world_oecd_revenue_statistics:
+      +materialized: table
+      +schema: world_oecd_revenue_statistics
     world_aiddata_gcdf:
       +materialized: table
       +schema: world_aiddata_gcdf
