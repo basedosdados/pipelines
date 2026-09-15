@@ -231,6 +231,10 @@ project-excludes = [
   # directory with bare sibling imports (`common`, `gen_dbt`), which pyrefly
   # cannot resolve from the repo root.
   "models/world_iati_activities/code",
+  # Same policy, narrowed to the one file that needs it: us_nsf_ncses's metadata
+  # script imports the databasis MCP server through sys.path, which pyrefly
+  # cannot resolve. The rest of models/us_nsf_ncses/code stays type-checked.
+  "models/us_nsf_ncses/code/metadata.py",
   # Same policy: the us_census_cog onboarding scripts run from their own
   # directory with bare sibling imports (`common`), which pyrefly cannot resolve
   # from the repo root.
