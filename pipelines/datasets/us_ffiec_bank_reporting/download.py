@@ -60,6 +60,14 @@ HIDDEN_RE = re.compile(
 )
 
 
+# Per-request ceiling for a bulk file. The largest of these is ~25 MB, so a
+# request still running after five minutes is not slow, it is blocked -- the
+# FFIEC WAF stalls rather than refusing, and a 30-minute timeout turned that
+# into an hour of silence with no way to tell a hang from a long download.
+# The retry loops around these give a blocked host several chances anyway.
+DOWNLOAD_TIMEOUT = 300
+
+
 def _log(msg: str) -> None:
     print(f"[{time.strftime('%H:%M:%S')}] {msg}", flush=True)
 
@@ -187,7 +195,7 @@ def download_call(
         r = session.post(
             CDR_BULK_URL,
             data=payload,
-            timeout=1800,
+            timeout=DOWNLOAD_TIMEOUT,
             headers={"Referer": CDR_BULK_URL},
             stream=True,
         )
@@ -223,7 +231,9 @@ def download_mdrm() -> None:
         _log("mdrm: already present")
         return
     r = requests.get(
-        MDRM_ZIP_URL, timeout=600, headers={"User-Agent": BROWSER_UA}
+        MDRM_ZIP_URL,
+        timeout=DOWNLOAD_TIMEOUT,
+        headers={"User-Agent": BROWSER_UA},
     )
     r.raise_for_status()
     out.write_bytes(r.content)
@@ -255,7 +265,9 @@ def download_bhc(
         if y <= BHC_CHICAGOFED_LAST_YEAR:
             url = CHICAGOFED_BHCF_URL.format(yymm=f"{y % 100:02d}{3 * q:02d}")
             r = requests.get(
-                url, timeout=900, headers={"User-Agent": BROWSER_UA}
+                url,
+                timeout=DOWNLOAD_TIMEOUT,
+                headers={"User-Agent": BROWSER_UA},
             )
             if (
                 r.status_code != 200
@@ -274,7 +286,9 @@ def download_bhc(
                 npw.get(NPW_FIN_PAGE.format(year=y), timeout=180)
                 warmed.add(y)
             name = f"BHCF{yyyymmdd(y, q)}.ZIP"
-            r = npw.get(NPW_BHCF_URL.format(name=name), timeout=900)
+            r = npw.get(
+                NPW_BHCF_URL.format(name=name), timeout=DOWNLOAD_TIMEOUT
+            )
             if r.status_code != 200 or r.content[:2] != b"PK":
                 _log(
                     f"bhc {y}Q{q}: NPW returned {r.status_code}/"
@@ -337,8 +351,15 @@ def download_cra(
                 if attempt:
                     time.sleep(5 * 2 ** (attempt - 1))
                 try:
+                    # Logged before the request, not after: when the WAF stalls
+                    # this line is the only evidence of which file is hanging.
+                    _log(
+                        f"cra {year} {kind}: GET {name} "
+                        f"(attempt {attempt + 1}/5)"
+                    )
                     r = session.get(
-                        CRA_FLAT_URL.format(name=name), timeout=1800
+                        CRA_FLAT_URL.format(name=name),
+                        timeout=DOWNLOAD_TIMEOUT,
                     )
                 except Exception as exc:  # transport error, same treatment
                     _log(f"cra {year} {kind}: {type(exc).__name__}, retrying")

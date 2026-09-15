@@ -25,6 +25,11 @@ from datetime import datetime
 
 from prefect import flow
 
+# `log_prints=True` on both flows: the download and clean modules report
+# progress with `print()`, which Prefect otherwise discards. Without it a run
+# shows the poll and then nothing for the next hour, so a genuine hang is
+# indistinguishable from a long dbt build. Matches au_abs_population and the
+# other flows that wrap print-logging transforms.
 from pipelines.datasets.us_ffiec_bank_reporting.constants import (
     constants as ffiec_constants,
 )
@@ -104,7 +109,7 @@ def _materialise(tables, output_root, bucket_name, target):
         )
 
 
-@flow(name="us_ffiec_bank_reporting_quarterly")
+@flow(name="us_ffiec_bank_reporting_quarterly", log_prints=True)
 def us_ffiec_bank_reporting_quarterly_flow(
     materialize_to_prod: bool = True,
     update_metadata: bool = True,
@@ -164,7 +169,7 @@ def us_ffiec_bank_reporting_quarterly_flow(
             )
 
 
-@flow(name="us_ffiec_bank_reporting_cra")
+@flow(name="us_ffiec_bank_reporting_cra", log_prints=True)
 def us_ffiec_bank_reporting_cra_flow(
     materialize_to_prod: bool = True,
     update_metadata: bool = True,
