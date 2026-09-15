@@ -216,6 +216,9 @@ models:
     us_fdic_bankfind:
       +materialized: table
       +schema: us_fdic_bankfind
+    us_ffiec_bank_reporting:
+      +materialized: table
+      +schema: us_ffiec_bank_reporting
     us_fed_fred:
       +materialized: table
       +schema: us_fed_fred
