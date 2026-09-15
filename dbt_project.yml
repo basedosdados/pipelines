@@ -204,6 +204,9 @@ models:
     us_bls_cpi:
       +materialized: table
       +schema: us_bls_cpi
+    us_bls_employment:
+      +materialized: table
+      +schema: us_bls_employment
     us_bls_oes:
       +materialized: table
       +schema: us_bls_oes
