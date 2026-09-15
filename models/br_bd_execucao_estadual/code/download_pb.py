@@ -56,9 +56,13 @@ def _get(session: requests.Session, url: str, params: dict, retries: int = 4):
     for attempt in range(retries):
         try:
             r = session.get(url, params=params, timeout=300)
-            if r.status_code == 400:
-                # A rejected year/month, not an empty one. Distinguishing these is the
-                # whole point: 2014 and earlier are 400 here.
+            if r.status_code in (400, 404):
+                # A period the API will not serve, which is NOT the same as an empty
+                # one -- and there are two distinct reasons for it. 2014 and earlier
+                # return **400** (before coverage begins). A month that has not
+                # happened yet returns **404**: the sweep runs to December of the
+                # current exercise, so every month after today is a 404 and an
+                # unhandled one crashes the run at the first future month.
                 return None, None
             r.raise_for_status()
             body = r.json()

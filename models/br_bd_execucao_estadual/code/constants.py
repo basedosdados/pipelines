@@ -439,8 +439,11 @@ PB_COMPRAS_ENDPOINTS = {
 # `per_page` is capped at 1000; 2000 returns HTTP 400 rather than silently truncating.
 PB_PER_PAGE = 1000
 
-# 2014 and earlier return **HTTP 400**, not an empty result -- the API rejects the year
-# outright, so an "empty means no data" reader would mistake a rejection for a gap.
+# Two non-200s mean "this period is not served", and they are not the same thing:
+# 2014 and earlier return **HTTP 400** (before coverage begins), while a month that has
+# not happened yet returns **HTTP 404**. Neither is an empty result, and an "empty means
+# no data" reader would record a rejection as a genuine gap. Handling only the 400
+# crashes the sweep at the first future month of the open exercise.
 PB_FIRST_YEAR, PB_LAST_YEAR = 2015, 2026
 
 # Response envelope: {"dados": [...], "paginacao": {total, pagina, itens_por_pagina,
