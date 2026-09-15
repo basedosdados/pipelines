@@ -7,8 +7,15 @@ from each state's own transparency portal over its financial system (SIAFI-MG, F
 e-Fisco-PE, SIAFEM-SP).
 
 **Status:** MG, BA, PE, SP, ES and RS live in production (10 tables, ~125.7M rows).
-Santa Catarina is in progress — code and models written, harvest running, nothing
-uploaded or registered yet.
+
+Three states are in progress on `data/br_bd_execucao_estadual_states`, none of them yet
+in BigQuery:
+
+| UF | State of play |
+|---|---|
+| **SC** | code, models and pipeline wiring complete; empenho (2.95M) and liquidação (10.30M) cleaned and reconciled exactly against the portal's published totals |
+| **PB** | code and models complete; empenho harvested, remaining endpoints in progress |
+| **RJ** | downloaded and staged (176,525 rows); **no model wired** — it is a cumulative year-end snapshot and fits none of the existing tables, which is a schema decision left open |
 
 **Source defects and access constraints are recorded in
 [`SOURCE_LESSONS.md`](SOURCE_LESSONS.md).** Read it before touching `code/download_*.py`
@@ -34,6 +41,8 @@ harmonization problem is the same; the inputs are not.
 | ES | `dados.es.gov.br` CKAN (`portal-da-transparencia-*`) | SIGEFES, SIGA | **2009–2026** | daily | bulk CSV, cc-by |
 | RS | `dados.rs.gov.br` CKAN (CAGE `Gasto-RS`) | FPE/CAGE | **2012–2026** | monthly ZIPs | bulk ZIP, CC0 |
 | SC | `transparencia.sc.gov.br` export endpoint (`documentos/exportcsv`) | SIGEF | **2011–2026** | daily | JSON/CSV API — **not** the CKAN bulk files, which are unparseable |
+| PB | `api.dados.pb.gov.br/api/v1` (CGE-PB REST, 39 endpoints) | SIAF-PB | **2015–2026** | daily | JSON API, `ano`+`mes` required, `per_page` max 1000 |
+| RJ | `dadosabertos.rj.gov.br` CKAN (`tfe-despesa`) | SIAFE-Rio | **2016–2025** | D+1 | bulk CSV — **needs a Brazilian IP**; staged only, see below |
 
 A browser User-Agent is required on `dados.mg.gov.br` (bare curl gets 403).
 
