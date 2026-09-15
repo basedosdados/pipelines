@@ -42,7 +42,20 @@ These cost the most time and recur across states.
 6. **Pace every scraped or rate-limited source; never burst.** Two separate IP-wide
    blocks were self-inflicted on CE by concurrency that a serial loop would have avoided.
 
-7. **Number format differs per state and must be checked, never reused.** MG plain
+7. **One file, one parser definition.** If a downloader counts rows and a cleaner
+   parses them, they must use the *same* reader settings. A default `csv.reader` and one
+   with `escapechar='\\'` disagree on exactly the pathological rows — one row in ~82,000
+   on SC — and the mismatch guard then rejects a file that is perfectly fine, four times
+   in a row, with a message blaming the source.
+
+8. **A source can use the same character as an escape AND as data.** SC's backslash
+   escapes a quote in `empenho_201101` (`\\"Split\\"`) and is literal in
+   `liquidacao_201106` (`"3932532\\"`, a document number). Each global setting loses
+   exactly one record in the file the other handles. When that happens, pick the
+   convention **per record** and let the field count decide — do not average the two, and
+   do not relax the parser.
+
+9. **Number format differs per state and must be checked, never reused.** MG plain
    (`52.50`) · PE US with leading space (` 43200.0`) · BA, ES, RS, SC comma decimal with
    no thousands separator (`2643000,00`) · **SP `.` thousands AND `,` decimal**
    (`2.693.456,58`), where 76% of values carry a separator, so BA's

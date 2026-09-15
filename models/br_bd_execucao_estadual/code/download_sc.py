@@ -22,8 +22,6 @@ happens in `clean_sc.py`, so `input/` stays a faithful mirror of the source.
 from __future__ import annotations
 
 import argparse
-import csv
-import io
 import json
 import sys
 import time
@@ -32,6 +30,7 @@ from pathlib import Path
 import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import clean_sc
 from constants import (
     BROWSER_UA,
     INPUT_DIR,
@@ -41,7 +40,6 @@ from constants import (
     SC_EXPORT_ENDPOINT,
     SC_FIRST_YEAR,
     SC_LAST_YEAR,
-    SC_SEP,
     SC_VISOES,
 )
 
@@ -111,27 +109,17 @@ def _decode(raw: bytes) -> str:
 
 
 def count_records(raw: bytes) -> int:
-    """Records in the export, counted with the SAME reader `clean_sc` parses with.
+    """Records in the export, counted exactly the way `clean_sc` parses them.
 
-    Not by counting newlines: `dehistoricoempenho` and `deobservacao` are free text and
-    legitimately contain real newlines inside quoted fields.
-
-    **The reader configuration is load-bearing and must match `clean_sc._reader`
-    exactly.** A default `csv.reader` -- no `escapechar`, and a `StringIO` that
-    translates newlines -- disagrees with it on precisely the rows SC backslash-escapes,
-    and the disagreement is one row in ~82,000. That produced a month this downloader
-    refused four times in a row as "82,095 rows, expected 82,094" when the file was
-    fine and the two counters simply parsed it differently.
+    **This must not be an independent implementation.** SC uses a backslash as an escape
+    character in some files and as literal data in others; under the wrong convention a
+    single record can SPLIT IN TWO, so two parsers with different settings disagree on
+    the row count itself. That is not hypothetical -- it rejected liquidação 2024-02
+    four times as "82,095 rows, expected 82,094" when the file was fine and the counters
+    simply disagreed. `clean_sc.parse_records` picks the convention per file; this
+    reuses it so the download check and the clean can never drift apart.
     """
-    text = _decode(raw)
-    reader = csv.reader(
-        io.StringIO(text, newline=""),
-        delimiter=SC_SEP,
-        quotechar='"',
-        doublequote=True,
-        escapechar="\\",
-    )
-    return sum(1 for _ in reader) - 1
+    return len(clean_sc.parse_records(_decode(raw))[0]) - 1
 
 
 def fetch_month(

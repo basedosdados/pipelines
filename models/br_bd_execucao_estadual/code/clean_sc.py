@@ -93,27 +93,6 @@ def _decode(raw: bytes) -> str:
         )
 
 
-class _TrackedLines:
-    """Line iterator that remembers which physical lines fed the current record.
-
-    `csv.reader` consumes from an iterator and does not report how many lines a record
-    spanned, but the per-record fallback in `_recover` needs the record's raw source.
-    Wrapping the iterator is the cheapest way to keep both.
-    """
-
-    def __init__(self, lines: list[str]) -> None:
-        self._lines = iter(lines)
-        self.consumed: list[str] = []
-
-    def __iter__(self) -> _TrackedLines:
-        return self
-
-    def __next__(self) -> str:
-        line = next(self._lines)
-        self.consumed.append(line)
-        return line
-
-
 def _rows(source, escapechar):
     """A CSV reader over `source` using one escaping convention."""
     return csv.reader(
@@ -130,6 +109,50 @@ def _reparse(raw_record: str, escapechar):
         return next(_rows(io.StringIO(raw_record, newline=""), escapechar))
     except (csv.Error, StopIteration):
         return None
+
+
+ESCAPE_CONVENTIONS: tuple = (None, "\\")
+
+
+def parse_records(text: str) -> tuple[list[list[str]], object]:
+    """Parse one export, choosing the escaping convention PER FILE.
+
+    **SC uses a backslash as an escape character in some files and as literal data in
+    others, and the choice cannot be made globally or per record.** Measured:
+
+        liquidacao_201104   escapechar=None  0 bad   escapechar='\\'  1 bad
+        liquidacao_201106   escapechar=None  0 bad   escapechar='\\'  1 bad
+        liquidacao_202402   escapechar=None  2 bad   escapechar='\\'  0 bad
+
+    `liquidacao_201106` carries the document number `"3932532\\"`, where the backslash
+    is the value's last character and the quote after it closes the field.
+    `liquidacao_202402` carries `\\"a empresa ...\\"` inside a free-text field that also
+    contains a real newline -- under the wrong convention that ONE record splits into
+    TWO (82,095 instead of 82,094), which is why a per-record repair cannot fix it: the
+    record boundary itself is wrong.
+
+    So both conventions are tried over the whole file and the one that places every
+    record wins. Ties and total failures fall through to `_recover`, which resolves a
+    single stubborn record structurally.
+    """
+    best: tuple[list[list[str]], object] | None = None
+    best_bad = None
+    for escapechar in ESCAPE_CONVENTIONS:
+        try:
+            rows = list(_rows(io.StringIO(text, newline=""), escapechar))
+        except csv.Error:
+            continue
+        if not rows:
+            continue
+        width = len(rows[0])
+        bad = sum(1 for r in rows[1:] if r and len(r) != width)
+        if best_bad is None or bad < best_bad:
+            best, best_bad = (rows, escapechar), bad
+        if bad == 0:
+            break
+    if best is None:
+        raise SystemExit("no escaping convention could parse the file at all")
+    return best
 
 
 def _raw_header(text: str) -> list[str]:
@@ -175,19 +198,17 @@ def _reemit(text: str, dest: Path, header: list[str]) -> tuple[str, int]:
                 quotechar="",
                 escapechar=None,
             )
-            tracked = _TrackedLines(text.splitlines(keepends=True))
-            # Primary convention: standard CSV, backslash as ordinary data. Records it
-            # cannot place are re-read individually by `_recover`.
-            for i, row in enumerate(_rows(tracked, None)):
-                raw_record = "".join(tracked.consumed)
-                tracked.consumed.clear()
+            records, escapechar = parse_records(text)
+            for i, row in enumerate(records):
                 if i == 0:
                     writer.writerow(header)
                     continue
                 if not row:
                     continue
                 if len(row) != len(header):
-                    row = _recover(raw_record, header, dest.name, i)
+                    row = _recover(
+                        SC_SEP.join(row), header, dest.name, i, escapechar
+                    )
                     repaired += 1
                 # Real newlines inside free-text fields survive the quote-aware parse
                 # and would become row breaks in an unquoted file.
@@ -207,34 +228,22 @@ def _reemit(text: str, dest: Path, header: list[str]) -> tuple[str, int]:
 
 
 def _recover(
-    raw_record: str, header: list[str], name: str, index: int
+    raw_record: str,
+    header: list[str],
+    name: str,
+    index: int,
+    escapechar: object,
 ) -> list[str]:
-    """Re-read one record the primary convention could not place.
+    """Place one record the file's chosen convention still could not.
 
-    **SC uses a backslash as an escape character in some files and as literal data in
-    others, and no single setting reads both.** Measured on the 2011 files:
+    `parse_records` has already picked whichever escaping convention places every other
+    record, so reaching here means one record is malformed under both. The last resort
+    is BA's: trust the unambiguous `;` separator rather than the quoting.
 
-        escapechar=None   liquidacao_201104  0 bad    empenho_201101  1 bad (37 of 36)
-        escapechar='\\'    liquidacao_201104  1 bad    empenho_201101  0 bad
-
-    The two failures are different records. `empenho_201101` carries `\\"Split\\"`, where
-    the backslash escapes a quote. `liquidacao_201106` carries the document number
-    `"3932532\\"`, where the backslash is the final character of the value and the quote
-    after it closes the field -- and that same record's `nmorgao` legitimately contains
-    semicolons inside its quotes. Reading either record under the other convention
-    loses it.
-
-    So the convention is chosen PER RECORD and the field count decides. A structural
-    split on the unambiguous `;` is the last resort -- BA's answer to the same defect --
-    and is accepted only when it yields the expected width AND leaves the final column
+    It is accepted only when it yields the expected width AND leaves the final column
     numeric. That second test is what separates this from `strict_mode=false`, which
-    mis-parses silently.
+    mis-parses silently -- a repair that shifted the fields would fail it.
     """
-    for escapechar in ("\\", None):
-        row = _reparse(raw_record, escapechar)
-        if row is not None and len(row) == len(header):
-            return row
-
     fields = [f.strip('"') for f in raw_record.rstrip("\r\n").split(SC_SEP)]
     if len(fields) == len(header):
         try:
@@ -247,7 +256,7 @@ def _recover(
         return fields
 
     raise SystemExit(
-        f"{name}: row {index} could not be read under either escaping convention "
+        f"{name}: row {index} could not be placed under escapechar={escapechar!r} "
         f"(structural split gives {len(fields)}, expected {len(header)}). The export's "
         f"shape has changed; measure it before relaxing anything."
     )
