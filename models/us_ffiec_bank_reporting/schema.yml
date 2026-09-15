@@ -1,0 +1,677 @@
+---
+version: 2
+models:
+  - name: us_ffiec_bank_reporting__institution
+    description: >
+      Roster of every bank that filed a Call Report, one row per institution and
+      reporting quarter. Carries the identifiers that link the bank across
+      regulators: the Federal Reserve RSSD, the FDIC certificate that joins to
+      us_fdic_bankfind, the OCC charter number and the former OTS docket number.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, quarter, rssd_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage_eng:
+          dictionary_model: ref('us_ffiec_bank_reporting__dictionary')
+          columns_covered_by_dictionary: [call_report_form_id]
+    columns:
+      - name: year
+        description: >
+          Year of the reporting quarter
+        tests: [not_null]
+      - name: quarter
+        description: >
+          Calendar quarter of the report, 1 to 4
+        tests: [not_null]
+      - name: report_date
+        description: >
+          Last calendar day of the reporting quarter
+      - name: rssd_id
+        description: >
+          RSSD identifier assigned by the Federal Reserve, unique per institution
+          and stable across name and charter changes; the join key across every table
+          in this dataset and the correspondent of `cert` in us_fdic_bankfind
+        tests: [not_null]
+      - name: fdic_cert_id
+        description: >
+          FDIC certificate number, the institution key used by us_fdic_bankfind
+      - name: occ_charter_id
+        description: >
+          OCC charter number for nationally chartered banks
+      - name: ots_docket_id
+        description: >
+          Former OTS docket number for thrift institutions
+      - name: aba_routing_id
+        description: >
+          Primary ABA routing number
+      - name: name
+        description: >
+          Legal name of the financial institution
+      - name: address
+        description: >
+          Street address of the institution's main office
+      - name: city
+        description: >
+          City of the institution's main office
+      - name: state_abbreviation
+        description: >
+          Two-letter postal abbreviation of the state of the main office
+      - name: zip_code
+        description: >
+          ZIP code of the institution's main office
+      - name: call_report_form_id
+        description: >
+          Call Report form the institution filed for the quarter
+      - name: last_submission_updated_at
+        description: >
+          Timestamp at which the institution last updated its submission for the quarter
+  - name: us_ffiec_bank_reporting__call_report_item
+    description: >
+      Every value every bank reported on its quarterly Call Report, one row per
+      institution, quarter and MDRM item code. Long rather than wide because the
+      item set changes every few quarters as lines are added and retired. Join
+      mdrm_item on item_code for the item's name, type and unit.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, quarter, rssd_id, item_code]
+          config:
+            where: __most_recent_year_en__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+      - custom_dictionary_coverage_eng:
+          dictionary_model: ref('us_ffiec_bank_reporting__dictionary')
+          columns_covered_by_dictionary: [schedule]
+          config:
+            where: __most_recent_year_en__
+    columns:
+      - name: year
+        description: >
+          Year of the reporting quarter
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+      - name: quarter
+        description: >
+          Calendar quarter of the report, 1 to 4
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+      - name: report_date
+        description: >
+          Last calendar day of the reporting quarter
+      - name: rssd_id
+        description: >
+          RSSD identifier assigned by the Federal Reserve, unique per institution
+          and stable across name and charter changes; the join key across every table
+          in this dataset and the correspondent of `cert` in us_fdic_bankfind
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+      - name: schedule
+        description: >
+          Call Report schedule the item was filed on, such as RC for the balance sheet
+          or RI for the income statement
+      - name: item_code
+        description: >
+          Eight-character MDRM identifier: a four-character mnemonic giving the report
+          and consolidation basis, then the four-character item number; joins to mdrm_item
+          for the item's name, type and unit
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+      - name: value
+        description: >
+          Value the institution reported for the item
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+  - name: us_ffiec_bank_reporting__holding_company
+    description: >
+      Roster of every bank holding company that filed financial reports with the
+      Federal Reserve, one row per company and reporting quarter. June and
+      December quarters carry about 4,200 companies and March and September about
+      420, because the FR Y-9SP filed by smaller holding companies is semiannual
+      while the FR Y-9C is quarterly.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, quarter, rssd_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage_eng:
+          dictionary_model: ref('us_ffiec_bank_reporting__dictionary')
+          columns_covered_by_dictionary: [federal_reserve_district_id]
+    columns:
+      - name: year
+        description: >
+          Year of the reporting quarter
+        tests: [not_null]
+      - name: quarter
+        description: >
+          Calendar quarter of the report, 1 to 4
+        tests: [not_null]
+      - name: report_date
+        description: >
+          Last calendar day of the reporting quarter
+      - name: rssd_id
+        description: >
+          RSSD identifier assigned by the Federal Reserve, unique per institution
+          and stable across name and charter changes; the join key across every table
+          in this dataset and the correspondent of `cert` in us_fdic_bankfind
+        tests: [not_null]
+      - name: name
+        description: >
+          Legal name of the holding company
+      - name: short_name
+        description: >
+          Abbreviated name of the holding company
+      - name: address
+        description: >
+          Street address of the holding company's physical location
+      - name: city
+        description: >
+          City of the holding company's physical location
+      - name: state_abbreviation
+        description: >
+          Two-letter postal abbreviation of the state of the physical location
+      - name: zip_code
+        description: >
+          ZIP code of the holding company's physical location
+      - name: county_id
+        description: >
+          Five-digit FIPS code of the county of the physical location
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              ignore_values:
+                - '09001'
+                - '09003'
+                - '09005'
+                - '09007'
+                - '09009'
+                - '09011'
+                - '09013'
+                - '09015'
+                - '12025'
+      - name: tax_id
+        description: >
+          Employer identification number of the entity
+      - name: charter_type_id
+        description: >
+          Charter type code assigned by the Federal Reserve
+      - name: organization_type_id
+        description: >
+          Organization type code assigned by the Federal Reserve
+      - name: primary_activity_id
+        description: >
+          NAICS code of the entity's primary activity, 551111 for a bank holding company
+      - name: federal_reserve_district_id
+        description: >
+          Federal Reserve district that supervises the entity, 1 to 12
+      - name: bank_count
+        description: >
+          Number of banks the holding company controls
+      - name: is_financial_holding_company
+        description: >
+          Whether the entity has elected financial holding company status, 1 for yes
+      - name: is_savings_loan_holding_company
+        description: >
+          Whether the entity is a savings and loan holding company, 1 for yes
+  - name: us_ffiec_bank_reporting__holding_company_item
+    description: >
+      Every value bank holding companies reported on their financial filings with
+      the Federal Reserve, one row per company, quarter and MDRM item code. It
+      spans two forms: the quarterly consolidated FR Y-9C, whose codes begin with
+      BHCK, BHCA or BHDM, and the semiannual FR Y-9SP filed by smaller holding
+      companies, whose codes begin with BHSP. Join mdrm_item on item_code for the
+      item's name, type, unit and reporting form.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, quarter, rssd_id, item_code]
+          config:
+            where: __most_recent_year_en__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+    columns:
+      - name: year
+        description: >
+          Year of the reporting quarter
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+      - name: quarter
+        description: >
+          Calendar quarter of the report, 1 to 4
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+      - name: report_date
+        description: >
+          Last calendar day of the reporting quarter
+      - name: rssd_id
+        description: >
+          RSSD identifier assigned by the Federal Reserve, unique per institution
+          and stable across name and charter changes; the join key across every table
+          in this dataset and the correspondent of `cert` in us_fdic_bankfind
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+      - name: item_code
+        description: >
+          Eight-character MDRM identifier of the FR Y-9C item; joins to mdrm_item
+          for the item's name, type and unit
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+      - name: value
+        description: >
+          Value the holding company reported for the item
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+  - name: us_ffiec_bank_reporting__mdrm_item
+    description: >
+      The Federal Reserve's Micro Data Reference Manual: the authoritative
+      catalogue of every item code collected on every regulatory report, and the
+      crosswalk that makes call_report_item and holding_company_item readable.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [item_code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage_eng:
+          dictionary_model: ref('us_ffiec_bank_reporting__dictionary')
+          columns_covered_by_dictionary: [item_type]
+    columns:
+      - name: item_code
+        description: >
+          Eight-character MDRM identifier, the concatenation of mnemonic and item
+          number
+        tests: [not_null]
+      - name: mnemonic
+        description: >
+          First four characters of the identifier, naming the report series and the
+          consolidation basis, such as RCON for domestic offices or RCFD for consolidated
+          domestic and foreign offices
+        tests: [not_null]
+      - name: item_number
+        description: >
+          Last four characters of the identifier, naming the item itself; the same
+          number carries the same meaning across reporting forms
+        tests: [not_null]
+      - name: name
+        description: >
+          Item name as published in the MDRM data dictionary
+      - name: description
+        description: >
+          Full item definition as published in the MDRM
+      - name: item_type
+        description: >
+          MDRM item type: F financial, D derived, R rate, P percentage, S structure,
+          E examination, J projected
+      - name: measurement_unit
+        description: >
+          Unit of the values carried for this item in call_report_item and holding_company_item
+      - name: is_flag
+        description: >
+          Whether the item is a yes/no answer or an indicator code rather than a magnitude,
+          1 for yes
+      - name: is_confidential
+        description: >
+          Whether the MDRM marks the item as confidential and therefore not publicly
+          disclosed, 1 for yes
+      - name: reporting_form
+        description: >
+          Reporting forms that collect the item, separated by semicolons
+      - name: start_date
+        description: >
+          First date on which the item was collected
+      - name: end_date
+        description: >
+          Last date on which the item was collected
+      - name: series_glossary
+        description: >
+          MDRM glossary entry for the mnemonic
+  - name: us_ffiec_bank_reporting__cra_lending
+    description: >
+      Small business and small farm lending disclosed under the Community
+      Reinvestment Act, by institution, year, county and census tract income
+      group, split into loan size and borrower revenue bands. Reported only by
+      large institutions, and aggregated by the FFIEC to county level -- the
+      disclosure files carry no per-tract loan amounts.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - respondent_id
+            - agency_id
+            - loan_type
+            - action_taken
+            - state_id
+            - county_id
+            - msa_md_id
+            - assessment_area_id
+            - tract_income_group
+            - report_level
+            - measure_band
+          config:
+            where: __most_recent_year_en__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+      - custom_dictionary_coverage_eng:
+          dictionary_model: ref('us_ffiec_bank_reporting__dictionary')
+          columns_covered_by_dictionary:
+            - tract_income_group
+            - report_level
+            - measure_band
+          config:
+            where: __most_recent_year_en__
+    columns:
+      - name: year
+        description: >
+          Year the lending activity was reported for
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+      - name: respondent_id
+        description: >
+          Respondent identifier assigned by the institution's supervisory agency;
+          unique only together with agency and year, and not an RSSD
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+      - name: agency_id
+        description: >
+          Supervisory agency that assigned the respondent identifier: occ, frs, fdic,
+          or ots for the Office of Thrift Supervision, which was abolished in 2011
+          and appears only up to 2010
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+      - name: rssd_id
+        description: >
+          RSSD identifier of the reporting institution, taken from the CRA transmittal
+          sheet for the same respondent, agency and year; the join key to institution,
+          call_report_item and holding_company
+      - name: loan_type
+        description: >
+          Whether the row covers small business or small farm lending
+      - name: action_taken
+        description: >
+          Whether the loans were originated by the reporting institution or purchased
+          from another lender
+      - name: state_id
+        description: >
+          Two-digit state FIPS code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+              config:
+                where: __most_recent_year_en__
+      - name: county_id
+        description: >
+          Five-digit county FIPS code, the state code followed by the county code
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              ignore_values:
+                - '09001'
+                - '09003'
+                - '09005'
+                - '09007'
+                - '09009'
+                - '09011'
+                - '09013'
+                - '09015'
+                - '12025'
+              config:
+                where: __most_recent_year_en__
+      - name: msa_md_id
+        description: >
+          Metropolitan statistical area or metropolitan division code as defined by
+          OMB
+      - name: assessment_area_id
+        description: >
+          Assessment area number the institution assigned to the area
+      - name: is_partial_county
+        description: >
+          Whether the assessment area covers only part of the county, 1 for yes
+      - name: is_split_county
+        description: >
+          Whether the county is split across more than one assessment area, 1 for
+          yes
+      - name: population_classification
+        description: >
+          Whether the county has fewer or more than 500,000 residents
+      - name: tract_income_group
+        description: >
+          Income group of the census tracts the lending is grouped into, as a share
+          of area median family income
+      - name: report_level
+        description: >
+          Geographic and assessment-area level the row totals over, from a single
+          county up to a nationwide total
+      - name: measure_band
+        description: >
+          Loan size or borrower revenue band the count and amount refer to
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+      - name: loan_count
+        description: >
+          Number of loans in the band
+      - name: loan_amount
+        description: >
+          Total amount of the loans in the band
+  - name: us_ffiec_bank_reporting__cra_assessment_area_tract
+    description: >
+      The census tracts that make up each institution's CRA assessment areas, one
+      row per institution, year and tract. The tract-level companion to
+      cra_lending, which is only published at county level.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - respondent_id
+            - agency_id
+            - county_id
+            - census_tract_id
+            - assessment_area_id
+          config:
+            where: __most_recent_year_en__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+      - custom_dictionary_coverage_eng:
+          dictionary_model: ref('us_ffiec_bank_reporting__dictionary')
+          columns_covered_by_dictionary: [tract_income_group]
+          config:
+            where: __most_recent_year_en__
+    columns:
+      - name: year
+        description: >
+          Year the assessment area was reported for
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+      - name: respondent_id
+        description: >
+          Respondent identifier assigned by the institution's supervisory agency;
+          unique only together with agency and year, and not an RSSD
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+      - name: agency_id
+        description: >
+          Supervisory agency that assigned the respondent identifier: occ, frs, fdic,
+          or ots for the Office of Thrift Supervision, which was abolished in 2011
+          and appears only up to 2010
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+      - name: rssd_id
+        description: >
+          RSSD identifier of the reporting institution, taken from the CRA transmittal
+          sheet for the same respondent, agency and year; the join key to institution,
+          call_report_item and holding_company
+      - name: state_id
+        description: >
+          Two-digit state FIPS code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+              config:
+                where: __most_recent_year_en__
+      - name: county_id
+        description: >
+          Five-digit county FIPS code, the state code followed by the county code
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              ignore_values:
+                - '09001'
+                - '09003'
+                - '09005'
+                - '09007'
+                - '09009'
+                - '09011'
+                - '09013'
+                - '09015'
+                - '12025'
+              config:
+                where: __most_recent_year_en__
+      - name: msa_md_id
+        description: >
+          Metropolitan statistical area or metropolitan division code as defined by
+          OMB
+      - name: census_tract_id
+        description: >
+          Eleven-digit census tract identifier, the county FIPS code followed by the
+          six-digit tract number
+      - name: assessment_area_id
+        description: >
+          Assessment area number the institution assigned to the area
+      - name: is_partial_county
+        description: >
+          Whether the assessment area covers only part of the county, 1 for yes
+      - name: is_split_county
+        description: >
+          Whether the county is split across more than one assessment area, 1 for
+          yes
+      - name: population_classification
+        description: >
+          Whether the county has fewer or more than 500,000 residents
+      - name: tract_income_group
+        description: >
+          Income group of the census tracts the lending is grouped into, as a share
+          of area median family income
+  - name: us_ffiec_bank_reporting__cra_respondent
+    description: >
+      The institutions that filed CRA data each year, from the transmittal sheet.
+      The only CRA file carrying the RSSD identifier, and therefore the bridge
+      between the CRA tables and the rest of this dataset.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, respondent_id, agency_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >
+          Year the institution reported CRA data for
+        tests: [not_null]
+      - name: respondent_id
+        description: >
+          Respondent identifier assigned by the institution's supervisory agency;
+          unique only together with agency and year, and not an RSSD
+        tests: [not_null]
+      - name: agency_id
+        description: >
+          Supervisory agency that assigned the respondent identifier: occ, frs, fdic,
+          or ots for the Office of Thrift Supervision, which was abolished in 2011
+          and appears only up to 2010
+        tests: [not_null]
+      - name: rssd_id
+        description: >
+          RSSD identifier of the reporting institution, taken from the CRA transmittal
+          sheet for the same respondent, agency and year; the join key to institution,
+          call_report_item and holding_company
+      - name: name
+        description: >
+          Name of the reporting institution
+      - name: address
+        description: >
+          Street address of the reporting institution
+      - name: city
+        description: >
+          City of the reporting institution
+      - name: state_abbreviation
+        description: >
+          Two-letter postal abbreviation of the institution's state
+      - name: zip_code
+        description: >
+          ZIP code of the reporting institution
+      - name: tax_id
+        description: >
+          Employer identification number of the institution
+      - name: total_assets
+        description: >
+          Total assets reported on the prior year-end Call Report
+  - name: us_ffiec_bank_reporting__dictionary
+    description: >
+      Dictionary of the coded values used by the columns in this dataset.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [table_id, column_name, key]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [temporal_coverage]
+    columns:
+      - name: table_id
+        description: >
+          Name of the table the coded column belongs to
+        tests: [not_null]
+      - name: column_name
+        description: >
+          Name of the coded column
+        tests: [not_null]
+      - name: key
+        description: >
+          Value as stored in the column
+        tests: [not_null]
+      - name: temporal_coverage
+        description: >
+          Years the key applies to, blank when it applies to the table's whole span
+      - name: value
+        description: >
+          Meaning of the key
+        tests: [not_null]
