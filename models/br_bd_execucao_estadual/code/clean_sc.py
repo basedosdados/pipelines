@@ -93,31 +93,48 @@ def _decode(raw: bytes) -> str:
         )
 
 
-def _reader(text: str):
-    """A reader that accepts BOTH quote-escaping conventions the export mixes.
+class _TrackedLines:
+    """Line iterator that remembers which physical lines fed the current record.
 
-    SC escapes an embedded double quote two different ways, sometimes in the same file:
-    doubled (`""`, the CSV standard) and backslashed (`\\"`). 2011-01 carries 7 of the
-    second and 5 of the first; 2013-06 has 55 doubled and no backslashes; 2016-01 has
-    neither. No single duckdb setting reads both -- `escape='"'` dies on the backslash
-    form with `Value with unterminated quote found`, and `escape='\\'` would die on the
-    doubled form.
-
-    Python's csv module does support both at once, so the parse happens here and the
-    rows are handed to duckdb in a format with no quoting at all (see `clean_month`).
+    `csv.reader` consumes from an iterator and does not report how many lines a record
+    spanned, but the per-record fallback in `_recover` needs the record's raw source.
+    Wrapping the iterator is the cheapest way to keep both.
     """
+
+    def __init__(self, lines: list[str]) -> None:
+        self._lines = iter(lines)
+        self.consumed: list[str] = []
+
+    def __iter__(self) -> _TrackedLines:
+        return self
+
+    def __next__(self) -> str:
+        line = next(self._lines)
+        self.consumed.append(line)
+        return line
+
+
+def _rows(source, escapechar):
+    """A CSV reader over `source` using one escaping convention."""
     return csv.reader(
-        io.StringIO(text, newline=""),
+        source,
         delimiter=SC_SEP,
         quotechar='"',
         doublequote=True,
-        escapechar="\\",
+        escapechar=escapechar,
     )
+
+
+def _reparse(raw_record: str, escapechar):
+    try:
+        return next(_rows(io.StringIO(raw_record, newline=""), escapechar))
+    except (csv.Error, StopIteration):
+        return None
 
 
 def _raw_header(text: str) -> list[str]:
     """Column names exactly as the export writes them."""
-    return next(_reader(text))
+    return next(_rows(io.StringIO(text, newline=""), None))
 
 
 def _header_of(text: str) -> list[str]:
@@ -142,14 +159,14 @@ def _reemit(text: str, dest: Path, header: list[str]) -> tuple[str, int]:
     against the whole text, not sampled: a control byte appearing as data is exactly
     what RS's 2016-02 file turned out to contain.
 
-    Rows whose field count differs from the header are a hard failure, not a repair:
-    unlike RS, where the surplus provably belonged to the last column, nothing here
-    establishes where a stray field came from.
+    A record the primary convention cannot place is re-read by `_recover` rather than
+    dropped or forced. Anything `_recover` cannot resolve is a hard failure.
     """
     for out_sep in OUT_SEP_CANDIDATES:
         if out_sep in text:
             continue
         rows = 0
+        repaired = 0
         with dest.open("w", encoding="utf-8", newline="") as fh:
             writer = csv.writer(
                 fh,
@@ -158,27 +175,81 @@ def _reemit(text: str, dest: Path, header: list[str]) -> tuple[str, int]:
                 quotechar="",
                 escapechar=None,
             )
-            for i, row in enumerate(_reader(text)):
+            tracked = _TrackedLines(text.splitlines(keepends=True))
+            # Primary convention: standard CSV, backslash as ordinary data. Records it
+            # cannot place are re-read individually by `_recover`.
+            for i, row in enumerate(_rows(tracked, None)):
+                raw_record = "".join(tracked.consumed)
+                tracked.consumed.clear()
                 if i == 0:
                     writer.writerow(header)
                     continue
                 if not row:
                     continue
                 if len(row) != len(header):
-                    raise SystemExit(
-                        f"{dest.name}: row {i} has {len(row)} fields, expected "
-                        f"{len(header)}. The export's quoting has changed shape; "
-                        f"measure it before relaxing anything."
-                    )
+                    row = _recover(raw_record, header, dest.name, i)
+                    repaired += 1
                 # Real newlines inside free-text fields survive the quote-aware parse
                 # and would become row breaks in an unquoted file.
                 writer.writerow(
                     [c.replace("\r", " ").replace("\n", " ") for c in row]
                 )
                 rows += 1
+        if repaired:
+            print(
+                f"    {dest.name}: {repaired} row(s) repaired as literal quotes",
+                flush=True,
+            )
         return out_sep, rows
     raise SystemExit(
         f"{dest.name}: every candidate delimiter occurs in the source"
+    )
+
+
+def _recover(
+    raw_record: str, header: list[str], name: str, index: int
+) -> list[str]:
+    """Re-read one record the primary convention could not place.
+
+    **SC uses a backslash as an escape character in some files and as literal data in
+    others, and no single setting reads both.** Measured on the 2011 files:
+
+        escapechar=None   liquidacao_201104  0 bad    empenho_201101  1 bad (37 of 36)
+        escapechar='\\'    liquidacao_201104  1 bad    empenho_201101  0 bad
+
+    The two failures are different records. `empenho_201101` carries `\\"Split\\"`, where
+    the backslash escapes a quote. `liquidacao_201106` carries the document number
+    `"3932532\\"`, where the backslash is the final character of the value and the quote
+    after it closes the field -- and that same record's `nmorgao` legitimately contains
+    semicolons inside its quotes. Reading either record under the other convention
+    loses it.
+
+    So the convention is chosen PER RECORD and the field count decides. A structural
+    split on the unambiguous `;` is the last resort -- BA's answer to the same defect --
+    and is accepted only when it yields the expected width AND leaves the final column
+    numeric. That second test is what separates this from `strict_mode=false`, which
+    mis-parses silently.
+    """
+    for escapechar in ("\\", None):
+        row = _reparse(raw_record, escapechar)
+        if row is not None and len(row) == len(header):
+            return row
+
+    fields = [f.strip('"') for f in raw_record.rstrip("\r\n").split(SC_SEP)]
+    if len(fields) == len(header):
+        try:
+            float(fields[-1].replace(",", ".").strip())
+        except ValueError:
+            raise SystemExit(
+                f"{name}: row {index} split to {len(fields)} fields but its last column "
+                f"is {fields[-1]!r}, not a number -- the fields are shifted."
+            ) from None
+        return fields
+
+    raise SystemExit(
+        f"{name}: row {index} could not be read under either escaping convention "
+        f"(structural split gives {len(fields)}, expected {len(header)}). The export's "
+        f"shape has changed; measure it before relaxing anything."
     )
 
 

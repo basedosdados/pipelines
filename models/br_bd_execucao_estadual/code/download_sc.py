@@ -111,13 +111,27 @@ def _decode(raw: bytes) -> str:
 
 
 def count_records(raw: bytes) -> int:
-    """Records in the export, counted quote-aware.
+    """Records in the export, counted with the SAME reader `clean_sc` parses with.
 
     Not by counting newlines: `dehistoricoempenho` and `deobservacao` are free text and
     legitimately contain real newlines inside quoted fields.
+
+    **The reader configuration is load-bearing and must match `clean_sc._reader`
+    exactly.** A default `csv.reader` -- no `escapechar`, and a `StringIO` that
+    translates newlines -- disagrees with it on precisely the rows SC backslash-escapes,
+    and the disagreement is one row in ~82,000. That produced a month this downloader
+    refused four times in a row as "82,095 rows, expected 82,094" when the file was
+    fine and the two counters simply parsed it differently.
     """
     text = _decode(raw)
-    return sum(1 for _ in csv.reader(io.StringIO(text), delimiter=SC_SEP)) - 1
+    reader = csv.reader(
+        io.StringIO(text, newline=""),
+        delimiter=SC_SEP,
+        quotechar='"',
+        doublequote=True,
+        escapechar="\\",
+    )
+    return sum(1 for _ in reader) - 1
 
 
 def fetch_month(
