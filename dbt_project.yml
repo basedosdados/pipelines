@@ -663,6 +663,9 @@ models:
     us_sec_edgar:
       +materialized: table
       +schema: us_sec_edgar
+    us_usda_nass:
+      +materialized: table
+      +schema: us_usda_nass
     us_state_foreign_assistance:
       +materialized: table
       +schema: us_state_foreign_assistance
