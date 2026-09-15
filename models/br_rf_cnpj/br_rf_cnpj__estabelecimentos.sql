@@ -11,7 +11,7 @@
         cluster_by=["sigla_uf"],
     )
 }}
--- Atualizado em 2026-08-11
+-- Atualizado em 2026-09-15
 with
     cnpj_estabelecimentos as (
         select
