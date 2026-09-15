@@ -227,7 +227,9 @@ def _rf_cnpj_flow(table_id: str, cron: str):
     return _flow
 
 
-br_rf_cnpj__dicionario = _rf_cnpj_flow(table_id="dicionario", cron="0 5 * * *")
+br_rf_cnpj__dicionario = _rf_cnpj_flow(
+    table_id="dicionario", cron="35 14 * * *"
+)
 br_rf_cnpj__empresas = _rf_cnpj_flow(table_id="empresas", cron="0 6 * * *")
 br_rf_cnpj__socios = _rf_cnpj_flow(table_id="socios", cron="0 7 * * *")
 br_rf_cnpj__simples = _rf_cnpj_flow(table_id="simples", cron="0 8 * * *")
