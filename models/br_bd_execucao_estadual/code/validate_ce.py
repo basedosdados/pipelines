@@ -23,12 +23,12 @@ spans, and the absence of the source defects the cleaner is supposed to have rem
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
+import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -95,23 +95,22 @@ def check_no_sentinels(checks: list) -> None:
     """
     print("\n== null sentinel removed")
     for table in CE_TABLES.values():
-        files = sorted((OUTPUT_DIR / table).glob("*.parquet"))
         found = 0
-        for f in files:
+        checked = 0
+        for f in sorted((OUTPUT_DIR / table).glob("*.parquet")):
             t = pq.read_table(f)
+            checked += t.num_rows
             for column in t.itercolumns():
-                found += sum(
-                    1
-                    for chunk in column.chunks
-                    for value in chunk.to_pylist()
-                    if value == CE_NULL_SENTINEL
+                # pyarrow compute, not a Python loop: these tables run to millions of
+                # rows across ~80 columns, and `to_pylist()` on all of it is minutes.
+                found += (
+                    pc.sum(pc.equal(column, CE_NULL_SENTINEL)).as_py() or 0
                 )
-            if found:
-                break
         _fail(
             checks,
             found == 0,
-            f"{table}: {found} literal {CE_NULL_SENTINEL!r} value(s)",
+            f"{table}: {found} literal {CE_NULL_SENTINEL!r} value(s) "
+            f"across {checked:,} rows",
         )
 
 
@@ -205,33 +204,51 @@ def check_2023_duplicate(checks: list) -> None:
 
 
 def check_duplicate_attachment(checks: list) -> None:
-    """Dataset 170 publishes `NPD+4BI.csv` twice. Are the two the same file?"""
+    """Dataset 170 publishes `NPD+4BI.csv` twice. Are the two the same data?
+
+    Measured, not assumed, because the answer decides whether staging both
+    double-counts the bimestre or whether keying the download on the file NAME would
+    have silently thrown half of it away.
+    """
     print("\n== dataset 170: NPD+4BI.csv published twice")
-    digests: dict[str, list[tuple[str, int]]] = defaultdict(list)
-    for meta in sorted((CE_INPUT / "pagamento").glob("170__*.meta.json")):
-        src = Path(str(meta)[: -len(".meta.json")])
-        if "NPD_4BI.csv" not in src.name and "NPD+4BI.csv" not in src.name:
-            continue
-        raw = src.read_bytes()
-        digests[hashlib.sha256(raw).hexdigest()].append((src.name, len(raw)))
-    if len(digests) < 1:
-        _fail(checks, False, "neither copy of NPD+4BI.csv is on disk")
+    copies = sorted(
+        Path(str(meta)[: -len(".meta.json")])
+        for meta in (CE_INPUT / "pagamento").glob(
+            "170__*NPD+4BI.csv.meta.json"
+        )
+    )
+    if len(copies) != 2:
+        _fail(
+            checks,
+            False,
+            f"expected 2 copies of NPD+4BI.csv, found {len(copies)}",
+        )
         return
-    for digest, files in digests.items():
-        print(f"        {digest[:16]}  {files}")
-    copies = sum(len(v) for v in digests.values())
+
+    loaded = []
+    for src in copies:
+        rows, sep = clean_ce.read_rows(src)
+        header = clean_ce._header_of(rows[0])
+        body, _ = clean_ce._normalise_widths(rows[1:], header, sep)
+        loaded.append({tuple(r) for r in body})
+        print(
+            f"        {src.name}: {len(body):,} rows, {src.stat().st_size:,} bytes"
+        )
+
+    first, second = loaded
+    shared = first & second
+    print(f"        rows in both: {len(shared):,}")
+    # Disjoint is the good outcome and the one measured on 2026-09-16: the two
+    # listings are two HALVES of the bimestre sharing a file name, not two copies of
+    # it. Keeping both is then correct, and a name-keyed download would have lost one.
     _fail(
         checks,
-        True,
-        f"{copies} copy/copies on disk resolving to {len(digests)} distinct "
-        f"content(s) -- "
-        + (
-            "the two listings are byte-identical"
-            if len(digests) == 1 and copies > 1
-            else "the two listings differ and both are staged; de-duplicate in dbt"
-            if copies > 1
-            else "only one copy was downloaded"
-        ),
+        len(shared) == 0,
+        f"the two listings are disjoint ({len(first):,} + {len(second):,} rows, "
+        f"{len(shared):,} shared), so both are kept"
+        if len(shared) == 0
+        else f"the two listings share {len(shared):,} rows -- staging both "
+        f"double-counts them; de-duplicate before this is published",
     )
 
 

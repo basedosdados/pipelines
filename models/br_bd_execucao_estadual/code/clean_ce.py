@@ -612,21 +612,50 @@ def clean_file(
     for year, group in sorted(by_year.items()):
         if not group:
             continue
+        if not year:
+            # **A row with no exercise is a damaged duplicate, not a row.**
+            # `NPD+5BI1.csv` (dataset 170) holds 39,998 genuine 2025 rows AND a second
+            # copy of all 100,893 rows of `NPD+5BI2.csv` with the first six columns --
+            # exercicio, unidade_gestora, unidade_executora, numero, natureza,
+            # justificativa -- blanked out. Verified: the 100,893 damaged rows reduce to
+            # 98,322 distinct tails on columns 6-27, and part 2's rows reduce to the
+            # same 98,322, with every one present in both. Part 2 carries all six
+            # identifying columns populated on all 100,893 rows.
+            #
+            # Kept, they would inflate the 5th bimestre of 2025 by 2.5x with rows that
+            # cannot be attributed to an exercise, a unidade or a document number. This
+            # is the only place in the 216 files where the exercise is ever blank.
+            print(
+                f"    {source.name}: dropped {len(group):,} row(s) with no exercise "
+                f"(damaged duplicate -- see the comment in clean_file)",
+                flush=True,
+            )
+            continue
         # Columns the era does not publish are written as nulls, not as "", so a
         # missing column is distinguishable downstream from a present-but-blank one.
-        arrays = [
-            pa.array(
-                [
-                    None
-                    if name not in index
-                    or (value := g[index[name]]) == CE_NULL_SENTINEL
-                    else value
-                    for g in group
-                ],
-                type=pa.string(),
+        #
+        # They are also the majority: a 22-column era is written into an 81-column
+        # superset, so 59 of every 81 arrays are entirely null. Building those with a
+        # Python comprehension costs one interpreted iteration per row per absent
+        # column -- on a 90,000-row file that is 5.3M operations to produce nothing.
+        # `pa.nulls` allocates them directly.
+        arrays = []
+        for name in superset:
+            if name not in index:
+                arrays.append(pa.nulls(len(group), pa.string()))
+                continue
+            column = index[name]
+            arrays.append(
+                pa.array(
+                    [
+                        None
+                        if (value := g[column]) == CE_NULL_SENTINEL
+                        else value
+                        for g in group
+                    ],
+                    type=pa.string(),
+                )
             )
-            for name in superset
-        ]
         table = pa.Table.from_arrays(arrays, names=superset)
         stem = source.name.rsplit(".", 1)[0]
         dest = out_dir / f"data_{year or 'sem_exercicio'}__{stem}.parquet"

@@ -409,6 +409,39 @@ says so rather than carrying a schedule that will silently never refresh.
   `Número`. `Credor` in the modern era is a name carrying a partial CNPJ/CPF prefix in
   the same field (`54.212.382 FELLIPE BARBOSA DA SILVA`), not two columns.
 
+**Files that share a name, and files that duplicate each other**
+
+- **`NPD+5BI1.csv` (dataset 170) contains a damaged second copy of `NPD+5BI2.csv`.**
+  It has 140,891 data rows: 39,998 genuine ones carrying `exercicio = 2025`, and
+  **100,893 with the first six columns -- `exercicio`, `unidade_gestora`,
+  `unidade_executora`, `numero`, `natureza`, `justificativa` -- blanked out**. Those
+  100,893 reduce to 98,322 distinct values on columns 6-27, `NPD+5BI2.csv` has exactly
+  100,893 rows reducing to the same 98,322, and every one is present in both. Part 2
+  carries all six identifying columns populated on all 100,893 rows.
+
+  Kept, they inflate the 5th bimestre of 2025 by 2.5x with rows attributable to no
+  exercise, no unidade and no document number. `clean_ce` drops rows with no exercise
+  and says how many. **This is the only place in the 216 files where the exercise is
+  ever blank**, which is what makes the rule safe to apply generally.
+
+- **`NPD+4BI.csv` is listed twice in dataset 170 -- and the two are NOT duplicates.**
+  They share **zero** rows and zero `(exercicio, unidade_gestora, numero)` keys:
+  60,907 rows (26.1 MB) and 63,803 rows (27.6 MB), disjoint. They are two *halves* of
+  the bimestre published under one file name. Both must be staged.
+
+  This is why the downloader names its destination `<dataset>__<sha1 prefix>__<name>`.
+  A name-keyed download overwrites the first with the second and loses 60,907 rows
+  with nothing to show for it -- and the loss looks exactly like the source having
+  published one file.
+
+  The general rule: **when a catalogue lists the same file name twice, measure the
+  overlap before deciding it is a duplicate.** The ES `Despesas-2013.csv` case was a
+  real duplicate; this one is a split, and the two need opposite handling.
+
+- `numero_processo_administrativo_despesa` is destroyed by scientific notation in the
+  modern CSVs too (`4,60420029762026E+016`), the same defect as `classiforcamcompl`
+  but in a plain CSV rather than an Excel export.
+
 **Broken headers**
 
 - `notas-de-empenho-ago-dez-2018.csv.zip` names its creditor column
