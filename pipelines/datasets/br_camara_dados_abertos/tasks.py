@@ -8,10 +8,10 @@ import requests
 from prefect import task
 
 from pipelines.constants import constants
-from pipelines.crawler.camara_dados_abertos.constants import (
+from pipelines.datasets.br_camara_dados_abertos.constants import (
     constants as constants_camara,
 )
-from pipelines.crawler.camara_dados_abertos.utils import (
+from pipelines.datasets.br_camara_dados_abertos.utils import (
     download_and_read_data,
 )
 from pipelines.utils.utils import log
@@ -110,6 +110,16 @@ def save_data(table_id: str) -> str:
 
         if table_id == "licitacao_pedido":
             df_year[["observacoes"]] = df_year[["observacoes"]].apply(
+                lambda x: (
+                    str(x)
+                    .replace(";", " ")
+                    .replace("\n", " ")
+                    .replace("\r", " ")
+                )
+            )
+
+        if table_id == "licitacao_contrato":
+            df_year[["objeto"]] = df_year[["objeto"]].apply(
                 lambda x: (
                     str(x)
                     .replace(";", " ")

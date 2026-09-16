@@ -4,8 +4,20 @@ Flows para br_camara_dados_abertos — Prefect 3.
 
 from prefect import flow
 
-from pipelines.crawler.camara_dados_abertos.flows import (
-    _run_camara_dados_abertos,
+from pipelines.datasets.br_camara_dados_abertos.constants import (
+    update_metadata_variable_dictionary,
+)
+from pipelines.datasets.br_camara_dados_abertos.tasks import (
+    check_if_url_is_valid,
+    save_data,
+)
+from pipelines.utils.metadata.tasks import (
+    register_table_materialization_task,
+)
+from pipelines.utils.tasks import (
+    rename_flow_run_dataset_table,
+    run_dbt,
+    upload_to_gcs,
 )
 
 
@@ -14,7 +26,6 @@ def _camara_flow(table_id: str, cron: str):
         name=f"br_camara_dados_abertos__{table_id}",
         log_prints=True,
     )
-    # Comment para deploy
     def _flow(
         dataset_id: str = "br_camara_dados_abertos",
         table_id: str = table_id,
@@ -23,14 +34,65 @@ def _camara_flow(table_id: str, cron: str):
         target: str = "prod",
         force_run: bool = False,
     ) -> None:
-        _run_camara_dados_abertos(
+        # pyrefly: ignore [unused-coroutine]
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
+
+        url_ok = check_if_url_is_valid(table_id)
+        if not url_ok and not force_run:
+            print(f"URL não disponível para {table_id}; encerrando.")
+            return
+
+        filepath = save_data(table_id=table_id)
+
+        upload_to_gcs(
+            data_path=filepath,
             dataset_id=dataset_id,
             table_id=table_id,
-            materialize_after_dump=materialize_after_dump,
-            update_metadata=update_metadata,
-            target=target,
-            force_run=force_run,
+            bucket_name="basedosdados-dev",
+            dump_mode="append",
+            source_format="csv",
         )
+
+        run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_command="run/test",
+            target="dev",
+        )
+
+        if not materialize_after_dump:
+            return
+
+        upload_to_gcs(
+            data_path=filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            bucket_name="basedosdados",
+            dump_mode="append",
+            source_format="csv",
+        )
+
+        run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_command="run/test",
+            target=target,
+        )
+
+        if update_metadata:
+            coverage = update_metadata_variable_dictionary(
+                table_id=table_id, dataset_id=dataset_id
+            )
+            if coverage is not None:
+                register_table_materialization_task(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    coverage=coverage,
+                    env="prod",
+                    bq_project="basedosdados",
+                )
 
     # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
