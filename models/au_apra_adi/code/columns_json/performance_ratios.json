@@ -1,0 +1,482 @@
+[
+  {
+    "name": "year",
+    "bigquery_type": "INT64",
+    "description_pt": "Ano de referência da observação (fim do trimestre)",
+    "description_en": "Reference year of the quarter-end observation",
+    "description_es": "Año de referencia de la observación (fin del trimestre)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "directory_column": "br_bd_diretorios_data_tempo.ano:ano",
+    "measurement_unit": "year"
+  },
+  {
+    "name": "quarter",
+    "bigquery_type": "INT64",
+    "description_pt": "Trimestre de referência da observação, de 1 a 4",
+    "description_en": "Reference quarter of the observation, from 1 to 4",
+    "description_es": "Trimestre de referencia de la observación, de 1 a 4",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "quarter"
+  },
+  {
+    "name": "institution_type",
+    "bigquery_type": "STRING",
+    "description_pt": "Tipo de instituição autorizada a receber depósitos (ADI) ou agrupamento",
+    "description_en": "Authorised deposit-taking institution type or grouping",
+    "description_es": "Tipo de institución autorizada para recibir depósitos (ADI) o agrupamiento",
+    "covered_by_dictionary": true,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "net_interest_income",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Receita líquida de juros",
+    "description_en": "Net interest income ($m)",
+    "description_es": "Ingresos netos por intereses",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "total_operating_income",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Receita operacional total",
+    "description_en": "Total operating income ($m)",
+    "description_es": "Ingresos operativos totales",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "total_operating_expenses",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Despesas operacionais totais",
+    "description_en": "Operating expenses ($m)",
+    "description_es": "Gastos operativos totales",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "net_profit_after_tax",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Lucro (prejuízo) líquido após impostos",
+    "description_en": "Net profit (loss) after tax ($m)",
+    "description_es": "Beneficio (pérdida) neto después de impuestos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "average_total_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Ativos totais médios",
+    "description_en": "Average total assets ($m)",
+    "description_es": "Activos totales promedio",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "average_total_shareholders_equity",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Patrimônio líquido total médio dos acionistas",
+    "description_en": "Average total shareholders' equity ($m)",
+    "description_es": "Patrimonio neto total promedio de los accionistas",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "net_interest_income_to_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Receita líquida de juros sobre ativos",
+    "description_en": "Net interest income to assets",
+    "description_es": "Ingresos netos por intereses sobre activos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "proportion"
+  },
+  {
+    "name": "operating_income_to_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Receita operacional sobre ativos",
+    "description_en": "Operating income to assets",
+    "description_es": "Ingresos operativos sobre activos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "proportion"
+  },
+  {
+    "name": "operating_expenses_to_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Despesas operacionais sobre ativos",
+    "description_en": "Operating expenses to assets",
+    "description_es": "Gastos operativos sobre activos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "proportion"
+  },
+  {
+    "name": "profit_margin",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Margem de lucro",
+    "description_en": "Profit margin",
+    "description_es": "Margen de beneficio",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "proportion"
+  },
+  {
+    "name": "return_on_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Retorno sobre ativos (após impostos)",
+    "description_en": "Return on assets (after tax)",
+    "description_es": "Rentabilidad sobre activos (después de impuestos)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "return_on_equity",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Retorno sobre patrimônio líquido (após impostos)",
+    "description_en": "Return on equity (after tax)",
+    "description_es": "Rentabilidad sobre el patrimonio neto (después de impuestos)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "other_operating_income",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Outras receitas operacionais",
+    "description_en": "Other operating income ($m)",
+    "description_es": "Otros ingresos operativos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "fee_and_commission_income",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Receita de tarifas e comissões",
+    "description_en": "Fee and commission income ($m)",
+    "description_es": "Ingresos por comisiones y tarifas",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "total_operating_income__2",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Receita operacional total",
+    "description_en": "Total operating income ($m)",
+    "description_es": "Ingresos operativos totales",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "operating_expenses__2",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Despesas operacionais",
+    "description_en": "Operating expenses ($m)",
+    "description_es": "Gastos operativos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "personnel_expenses",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Despesas com pessoal",
+    "description_en": "Personnel expenses ($m)",
+    "description_es": "Gastos de personal",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "non_interest_income_share",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Participação da receita não decorrente de juros",
+    "description_en": "Non-interest income share",
+    "description_es": "Participación de los ingresos no financieros",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "proportion"
+  },
+  {
+    "name": "fee_income_to_total_operating_income",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Receita de tarifas sobre receita operacional total",
+    "description_en": "Fee income to total operating income",
+    "description_es": "Ingresos por comisiones sobre ingresos operativos totales",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "cost_to_income",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Índice de eficiência (custo sobre receita)",
+    "description_en": "Cost to income",
+    "description_es": "Ratio de eficiencia (coste sobre ingresos)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "proportion"
+  },
+  {
+    "name": "personnel_to_operating_expenses",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Despesas com pessoal sobre despesas operacionais",
+    "description_en": "Personnel to operating expenses",
+    "description_es": "Gastos de personal sobre gastos operativos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "total_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Ativos totais",
+    "description_en": "Total assets ($m)",
+    "description_es": "Activos totales",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "average_net_loans_and_advances",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Empréstimos e adiantamentos líquidos médios",
+    "description_en": "Average net loans and advances ($m)",
+    "description_es": "Préstamos y anticipos netos promedio",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "average_deposits",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Depósitos médios",
+    "description_en": "Average deposits ($m)",
+    "description_es": "Depósitos promedio",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "growth_in_total_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Crescimento dos ativos totais",
+    "description_en": "Growth in total assets",
+    "description_es": "Crecimiento de los activos totales",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "proportion"
+  },
+  {
+    "name": "net_loans_to_deposits",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Empréstimos líquidos sobre depósitos",
+    "description_en": "Net loans to deposits",
+    "description_es": "Préstamos netos sobre depósitos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "proportion"
+  },
+  {
+    "name": "deposits_to_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Depósitos sobre ativos",
+    "description_en": "Deposits to assets",
+    "description_es": "Depósitos sobre activos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "proportion"
+  },
+  {
+    "name": "equity_to_deposits",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Patrimônio líquido sobre depósitos",
+    "description_en": "Equity to deposits",
+    "description_es": "Patrimonio neto sobre depósitos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "proportion"
+  },
+  {
+    "name": "total_capital_base",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Base de capital total",
+    "description_en": "Total capital base ($m)",
+    "description_es": "Base de capital total",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "total_risk_weighted_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Ativos ponderados pelo risco totais",
+    "description_en": "Total risk weighted assets ($m)",
+    "description_es": "Activos ponderados por riesgo totales",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "total_capital_ratio",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Índice de capital total",
+    "description_en": "Total capital ratio",
+    "description_es": "Ratio de capital total",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "proportion"
+  },
+  {
+    "name": "total_impaired_facilities",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Operações problemáticas totais",
+    "description_en": "Total impaired facilities ($m)",
+    "description_es": "Facilidades deterioradas totales",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "impaired_facilities_to_loans_and_advances",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Operações problemáticas sobre empréstimos e adiantamentos",
+    "description_en": "Impaired facilities to loans and advances",
+    "description_es": "Facilidades deterioradas sobre préstamos y anticipos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "proportion"
+  },
+  {
+    "name": "gross_loans_and_advances",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Empréstimos e adiantamentos brutos",
+    "description_en": "Gross loans and advances ($m)",
+    "description_es": "Préstamos y anticipos brutos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "total_non_performing_exposures",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Exposições inadimplentes totais",
+    "description_en": "Total non-performing exposures ($m)",
+    "description_es": "Exposiciones morosas totales",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "non_performing_to_loans_and_advances",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Inadimplência sobre empréstimos e adiantamentos",
+    "description_en": "Non-performing to loans and advances",
+    "description_es": "Exposiciones morosas sobre préstamos y anticipos",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "proportion"
+  },
+  {
+    "name": "total_lcr_liquid_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Ativos líquidos totais do LCR",
+    "description_en": "Total LCR liquid assets ($m)",
+    "description_es": "Activos líquidos totales del LCR",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "net_cash_outflows",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Saídas líquidas de caixa",
+    "description_en": "Net cash outflows ($m)",
+    "description_es": "Salidas netas de efectivo",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "liquidity_coverage_ratio",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Índice de cobertura de liquidez (LCR)",
+    "description_en": "Liquidity coverage ratio (LCR)",
+    "description_es": "Ratio de cobertura de liquidez (LCR)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "proportion"
+  },
+  {
+    "name": "total_adjusted_minimum_liquidity_holdings",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Reservas mínimas de liquidez ajustadas totais (MLH)",
+    "description_en": "Total adjusted minimum liquidity holdings (MLH) ($m)",
+    "description_es": "Tenencias mínimas de liquidez ajustadas totales (MLH)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "adjusted_liability_base",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Base de passivos ajustada",
+    "description_en": "Adjusted liability base ($m)",
+    "description_es": "Base de pasivos ajustada",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "mlh_ratio",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Índice MLH",
+    "description_en": "MLH ratio",
+    "description_es": "Ratio MLH",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "proportion"
+  },
+  {
+    "name": "number_of_entities",
+    "bigquery_type": "INT64",
+    "description_pt": "Número de entidades",
+    "description_en": "Number of entities",
+    "description_es": "Número de entidades",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "unit"
+  },
+  {
+    "name": "capital_ratio",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Índice de capital",
+    "description_en": "Capital ratio",
+    "description_es": "Ratio de capital",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "proportion"
+  },
+  {
+    "name": "total_loans_and_advances",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Empréstimos e adiantamentos totais",
+    "description_en": "Total loans and advances ($m)",
+    "description_es": "Préstamos y anticipos totales",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  }
+]
