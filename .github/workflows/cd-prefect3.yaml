@@ -8,14 +8,61 @@ jobs:
   deploy-production:
     name: deploy flows (basedosdados)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Find last successful deploy commit
+        id: last-success
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |-
+          if ! base_sha=$(gh api "repos/${{ github.repository }}/actions/workflows/cd-prefect3.yaml/runs?status=success&branch=main" \
+            --jq '.workflow_runs[0].head_sha // empty'); then
+            echo "Falha ao consultar o último deploy bem-sucedido — cai pro --all."
+            base_sha=""
+          fi
+          if [ -z "$base_sha" ]; then
+            echo "Nenhum deploy de prod anterior bem-sucedido encontrado — cai pro --all."
+          else
+            echo "Último deploy de prod bem-sucedido: $base_sha"
+          fi
+          echo "base_sha=$base_sha" >> "$GITHUB_OUTPUT"
+      - name: Get changed flow files since last successful deploy
+        id: changed-files
+        if: steps.last-success.outputs.base_sha != ''
+        uses: tj-actions/changed-files@v47
+        with:
+          base_sha: ${{ steps.last-success.outputs.base_sha }}
+          files: pipelines/**/*.py
+      - name: List changed files
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: echo "Flows alterados:${{ steps.changed-files.outputs.all_changed_files }}"
       - name: Install uv
+        if: steps.changed-files.outputs.any_changed == 'true' || steps.last-success.outputs.base_sha
+          == ''
         uses: astral-sh/setup-uv@v5
       - name: Install dependencies
+        if: steps.changed-files.outputs.any_changed == 'true' || steps.last-success.outputs.base_sha
+          == ''
         run: uv sync --locked --no-dev
-      - name: Deploy all flows to basedosdados
+      - name: Deploy changed flows to basedosdados
+        if: steps.changed-files.outputs.any_changed == 'true'
+        env:
+          PREFECT_API_URL: https://prefect3.basedosdados.org/api
+          PREFECT_API_KEY: ${{ secrets.PREFECT3_AUTH_TOKEN }}
+        run: |-
+          uv run python .github/scripts/deploy_flows.py \
+            --pool basedosdados \
+            --branch ${{ github.ref_name }} \
+            --changed ${{ steps.changed-files.outputs.all_changed_files }}
+      - name: Deploy all flows to basedosdados (fallback — sem deploy anterior pra
+          comparar)
+        if: steps.last-success.outputs.base_sha == ''
         env:
           PREFECT_API_URL: https://prefect3.basedosdados.org/api
           PREFECT_API_KEY: ${{ secrets.PREFECT3_AUTH_TOKEN }}
