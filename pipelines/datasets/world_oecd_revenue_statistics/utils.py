@@ -176,6 +176,46 @@ def _iso3_set() -> set:
         return {r["sigla_iso3"] for r in csv.DictReader(f)}
 
 
+# ── download (chunked by area; resume-safe) ──────────────────────────────────
+def download_all(input_dir: Path, version: str | None = None) -> Path:
+    """Download the whole comparative cube, one codes-only CSV per REF_AREA.
+
+    Resume-safe. NOTE: the OECD host Cloudflare-challenges heavy automated pulls
+    (see the module docstring / project memory), so this can be blocked on a
+    Prefect worker; the on-demand flow accepts a pre-staged ``input_dir`` for that
+    case. Returns ``input_dir``.
+    """
+    import io
+
+    version = version or constants.DEFAULT_VERSION.value
+    base = f"{SDMX}/data/{FLOW_REF},{version}"
+    input_dir = Path(input_dir)
+    input_dir.mkdir(parents=True, exist_ok=True)
+
+    cache = input_dir / "_areas.txt"
+    if cache.exists():
+        areas = [a for a in cache.read_text().split() if a]
+    else:
+        body = get(
+            f"{base}/......?format=csvfile&startPeriod=2021&endPeriod=2021"
+        )
+        if body is None:
+            raise RuntimeError("could not fetch area universe")
+        areas = sorted(
+            {r["REF_AREA"] for r in csv.DictReader(io.StringIO(body))}
+        )
+        cache.write_text("\n".join(areas))
+
+    for a in areas:
+        dst = input_dir / f"{a}.csv"
+        if dst.exists() and dst.stat().st_size > 0:
+            continue
+        body = get(f"{base}/{a}......?format=csvfile")
+        if body and not body.startswith(("Could not", "No Results")):
+            dst.write_text(body)
+    return input_dir
+
+
 # ── transform (wide pivot) ───────────────────────────────────────────────────
 def build_revenue(
     input_dir: Path, codelists: dict, version: str
