@@ -329,6 +329,7 @@ def run_dbt(
                 failed_names = []
                 run_result = getattr(result, "result", None)
                 if run_result is not None:
+                    separator = "─" * 80
                     for node_result in run_result.results:
                         if node_result.status not in {"error", "fail"}:
                             continue
@@ -348,6 +349,7 @@ def run_dbt(
                                 f"  query compilada:\n{compiled_code}",
                                 "error",
                             )
+                        log(separator, "error")
 
                 detail = (
                     f" — {', '.join(failed_names)}" if failed_names else ""
