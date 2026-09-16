@@ -238,7 +238,7 @@ def _pivot_area(df: pd.DataFrame) -> pd.DataFrame:
         "Int64"
     )
     val = pd.to_numeric(d["OBS_VALUE"], errors="coerce")
-    mult = pd.to_numeric(d.get("UNIT_MULT"), errors="coerce").fillna(0)
+    mult = pd.to_numeric(d["UNIT_MULT"], errors="coerce").fillna(0)
 
     dup = d.duplicated(subset=[*_GRAIN, "UNIT_MEASURE"], keep=False)
     if dup.any():
@@ -292,7 +292,7 @@ def _pivot_area(df: pd.DataFrame) -> pd.DataFrame:
         }
     ).drop(columns=["TIME_PERIOD"])
     # normalize sentinel currency "_Z" (means not-applicable) to null
-    out["currency"] = out["currency"].replace({"_Z": pd.NA})
+    out["currency"] = out["currency"].where(out["currency"].ne("_Z"))
     return out
 
 
@@ -320,6 +320,7 @@ def write_partitioned(df: pd.DataFrame, output_dir: Path) -> Path:
     tdir = Path(output_dir) / "revenue"
     total = 0
     for year, g in df.dropna(subset=["year"]).groupby("year", sort=True):
+        # pyrefly: ignore [bad-argument-type]
         pdir = tdir / f"year={int(year)}"
         pdir.mkdir(parents=True, exist_ok=True)
         pq.write_table(
