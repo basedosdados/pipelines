@@ -37,7 +37,16 @@ import pyarrow.parquet as pq
 # Jurisdiction codes, mirroring download.JURISDICTIONS.values() (kept local so
 # this module has no cross-script import; the recurring pipeline centralizes both).
 JUR_CODES = [
-    "australia", "act", "et", "nsw", "nt", "qld", "sa", "tas", "vic", "wa",
+    "australia",
+    "act",
+    "et",
+    "nsw",
+    "nt",
+    "qld",
+    "sa",
+    "tas",
+    "vic",
+    "wa",
 ]
 
 OUTPUT_ROOT = Path(
