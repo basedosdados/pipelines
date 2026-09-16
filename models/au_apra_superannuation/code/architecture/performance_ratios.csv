@@ -1,0 +1,16 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the quarter-end observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,
+quarter,INT64,"Reference quarter of the observation, from 1 to 4",,no,,quarter,no,"APRA labels each quarter by its final month: Q1 March, Q2 June, Q3 September, Q4 December",
+fund_type,STRING,"Superannuation fund type: all (whole industry), corporate, industry, public sector or retail funds",,yes,,,no,APRA regulates only these fund types; self-managed super funds (SMSFs) are regulated by the ATO and are not covered,
+net_assets_beginning,FLOAT64,Net assets available to pay benefits at the beginning of the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Net assets at beginning of the period ($m)
+net_cash_flows,FLOAT64,"Net cash flows during the quarter, an input to the rate-of-return calculation",,no,,AUD million,no,Values in millions of Australian dollars,Net cash flows ($m)
+cash_flow_adjusted_net_assets,FLOAT64,"Cash-flow adjusted net assets, an input to the rate-of-return calculation",,no,,AUD million,no,Values in millions of Australian dollars,Cash flow adjusted net assets ($m)
+investment_income,FLOAT64,Investment income earned during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Investment income ($m)
+investment_expense,FLOAT64,Investment expense used in the rate-of-return calculation,,no,,AUD million,no,Values in millions of Australian dollars,Investment expense ($m)
+operating_income,FLOAT64,Operating income during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Operating income ($m)
+administration_and_operating_expense,FLOAT64,Administration and operating expense used in the rate-of-return calculation,,no,,AUD million,no,Values in millions of Australian dollars,Administration and operating expense ($m)
+income_tax_expense_benefit,FLOAT64,Income tax expense or benefit for the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Income tax expense/benefit ($m)
+net_earnings_after_tax,FLOAT64,Net earnings after tax during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Net earnings after tax ($m)
+rate_of_return,FLOAT64,"Quarterly rate of return, expressed as a proportion (e.g. 0.056 = 5.6%)",,no,,proportion,no,Dimensionless proportion; APRA labels it a percentage but stores a fraction,Rate of Return (%)
+five_year_annualised_rate_of_return,FLOAT64,"Five-year annualised rate of return, expressed as a proportion",,no,,proportion,no,Dimensionless proportion; APRA labels it a percentage but stores a fraction,Five year annualised Rate of Return (%)
+number_of_entities,INT64,Number of superannuation entities in the fund type,,no,,unit,no,,Number of entities
