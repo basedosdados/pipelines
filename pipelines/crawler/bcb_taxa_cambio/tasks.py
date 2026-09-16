@@ -12,7 +12,20 @@ from pipelines.crawler.bcb_taxa_cambio.utils import (
     save_input,
     treat_currency_df,
 )
+from pipelines.crawler.bcb_taxa_cambio.utils import (
+    get_source_max_date as _get_source_max_date,
+)
 from pipelines.utils.utils import log, to_partitions
+
+
+@task
+def get_source_max_date() -> str:
+    """Devolve a última data de cotação publicada pelo PTAX, em %Y-%m-%d.
+
+    Returns:
+        str: Data da cotação mais recente, no formato %Y-%m-%d.
+    """
+    return _get_source_max_date()
 
 
 @task

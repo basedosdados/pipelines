@@ -6,6 +6,7 @@ from prefect import flow
 
 from pipelines.crawler.bcb_taxa_cambio.tasks import (
     get_data_taxa_cambio,
+    get_source_max_date,
     treat_data_taxa_cambio,
 )
 from pipelines.utils.metadata.domain import (
@@ -14,6 +15,8 @@ from pipelines.utils.metadata.domain import (
     DateOnly,
 )
 from pipelines.utils.metadata.tasks import (
+    commit_source_update_task,
+    poll_source_for_update_task,
     register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
@@ -38,9 +41,10 @@ def br_bcb_taxa_cambio__taxa_cambio(
 ) -> None:
     """Carrega as cotações do PTAX, do Olinda até a materialização.
 
-    `anos` vazio baixa o ano corrente — é o que a execução agendada faz. Passar
-    uma lista recarrega esses anos, para consertar partição incompleta ou
-    duplicada.
+    `anos` vazio baixa o ano corrente e só age se a fonte tiver publicado data
+    mais nova que a cobertura da tabela — é o que a execução agendada faz.
+    Passar uma lista recarrega esses anos sem consultar a fonte, para consertar
+    partição incompleta ou duplicada.
     """
     # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
@@ -48,11 +52,34 @@ def br_bcb_taxa_cambio__taxa_cambio(
     )
 
     backfill = anos is not None
-    # None é o ano corrente; `year_bounds` resolve isso no download.
     anos_alvo: list[int | None] = list(anos) if backfill else [None]
 
-    # Cada ano cai numa partição própria, então os particionados coexistem no
-    # mesmo diretório e o upload sai uma vez só no fim.
+    if not backfill:
+        source_max_date = get_source_max_date()
+
+        if not force_run:
+            has_new_data = poll_source_for_update_task(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                source_max_date=source_max_date,
+                env="prod",
+                date_format=DateFormat.YEAR_MD,
+                compare_against="coverage",
+            )
+            if not has_new_data:
+                print(f"Não há atualizações para a tabela {table_id}!")
+                return
+
+        commit_source_update_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=source_max_date,
+            env="prod",
+            date_format=DateFormat.YEAR_MD,
+            update_metadata=update_metadata,
+            materialize_after_dump=materialize_after_dump,
+        )
+
     output_paths = []
     for ano in anos_alvo:
         print(f"Carregando {ano or 'ano corrente'}")
