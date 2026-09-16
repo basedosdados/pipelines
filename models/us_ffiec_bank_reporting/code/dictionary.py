@@ -170,6 +170,17 @@ DICTIONARY: dict[tuple[str, str], Entries] = {
 }
 
 
+# Keys that do not apply to the whole span of their table, in the BD notation
+# START(INTERVAL)END. Report levels 140/150/160 appear only in the 1996-2003
+# CRA files; leaving their coverage blank would claim they are valid for
+# 2004-2024 too, where they never occur.
+KEY_COVERAGE: dict[tuple[str, str, str], str] = {
+    ("cra_lending", "report_level", "140"): "1996(1)2003",
+    ("cra_lending", "report_level", "150"): "1996(1)2003",
+    ("cra_lending", "report_level", "160"): "1996(1)2003",
+}
+
+
 def rows() -> list[dict[str, str]]:
     out: list[dict[str, str]] = []
     for (table, column), entries in DICTIONARY.items():
@@ -179,7 +190,9 @@ def rows() -> list[dict[str, str]]:
                     "table_id": table,
                     "column_name": column,
                     "key": key,
-                    "temporal_coverage": "",
+                    "temporal_coverage": KEY_COVERAGE.get(
+                        (table, column, key), ""
+                    ),
                     "value": value,
                 }
             )
