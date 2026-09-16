@@ -2,6 +2,7 @@
 General purpose functions for the br_tse_eleicoes project
 """
 
+import tempfile
 import unicodedata
 import zipfile
 from datetime import datetime
@@ -96,7 +97,7 @@ class BrTseEleicoes:
         self.remove = {
             remove.upper(): "" for remove in tse_constants.REMOVES.value
         }
-        self.base_path = Path("tmp", "data")
+        self.base_path = Path(tempfile.gettempdir(), "data", table_id)
         self.path_input = self.base_path / "input"
         self.path_output = self.base_path / "output"
         self.df_main = self.df_complement = self.path_main = (
@@ -109,7 +110,6 @@ class BrTseEleicoes:
         """
         for url in self.urls:
             self.download_extract_zip(url.format(year=self.year))
-            print(f"SELF PATH: {self.base_path}")
 
     def download_extract_zip(self, url: str, chunk_size=128) -> None:
         """
