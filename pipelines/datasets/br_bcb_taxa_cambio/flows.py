@@ -52,7 +52,7 @@ def br_bcb_taxa_cambio__taxa_cambio(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    backfill = anos is not None
+    backfill = bool(anos)
     anos_alvo: list[int | None] = list(anos) if backfill else [None]
 
     if not backfill:
