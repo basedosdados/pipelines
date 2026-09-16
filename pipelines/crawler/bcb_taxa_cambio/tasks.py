@@ -16,13 +16,14 @@ from pipelines.utils.utils import log, to_partitions
 
 
 @task
-def get_data_taxa_cambio(table_id: str) -> str:
+def get_data_taxa_cambio(table_id: str, ano: int | None = None) -> str:
     """
     Retrieves data from an API for multiple currencies, concatenates the resulting dataframes,
     saves the final dataframe to a file, and returns the full file path.
 
     Args:
         table_id (str): The identifier for the table.
+        ano (int | None): Year to download. None means the current year.
 
     Returns:
         str: The full file path where the data is saved.
@@ -35,7 +36,7 @@ def get_data_taxa_cambio(table_id: str) -> str:
     for currency in available_currencies():
         log(f"downloading data for {currency['simbolo']}")
         # Retrieve data for each currency
-        df = get_currency_data(currency)
+        df = get_currency_data(currency, ano=ano)
         log("download task successfully !")
 
         # Append the dataframe to the list

@@ -30,22 +30,41 @@ from pipelines.utils.tasks import (
 def br_bcb_taxa_cambio__taxa_cambio(
     dataset_id: str = "br_bcb_taxa_cambio",
     table_id: str = "taxa_cambio",
+    anos: list[int] | None = None,
     materialize_after_dump: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
+    """Carrega as cotações do PTAX, do Olinda até a materialização.
+
+    `anos` vazio baixa o ano corrente — é o que a execução agendada faz. Passar
+    uma lista recarrega esses anos, para consertar partição incompleta ou
+    duplicada.
+    """
     # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
 
-    get_data_taxa_cambio(table_id=table_id)
-    file_info = treat_data_taxa_cambio(table_id=table_id)
+    backfill = anos is not None
+    # None é o ano corrente; `year_bounds` resolve isso no download.
+    anos_alvo: list[int | None] = list(anos) if backfill else [None]
+
+    # Cada ano cai numa partição própria, então os particionados coexistem no
+    # mesmo diretório e o upload sai uma vez só no fim.
+    output_paths = []
+    for ano in anos_alvo:
+        print(f"Carregando {ano or 'ano corrente'}")
+        get_data_taxa_cambio(table_id=table_id, ano=ano)
+        file_info = treat_data_taxa_cambio(table_id=table_id)
+        # pyrefly: ignore [bad-index]
+        output_paths.append(file_info["save_output_path"])
+
+    save_output_path = output_paths[-1]
 
     upload_to_gcs(
-        # pyrefly: ignore [bad-index]
-        data_path=file_info["save_output_path"],
+        data_path=save_output_path,
         dataset_id=dataset_id,
         table_id=table_id,
         bucket_name="basedosdados-dev",
@@ -63,8 +82,7 @@ def br_bcb_taxa_cambio__taxa_cambio(
         return
 
     upload_to_gcs(
-        # pyrefly: ignore [bad-index]
-        data_path=file_info["save_output_path"],
+        data_path=save_output_path,
         dataset_id=dataset_id,
         table_id=table_id,
         bucket_name="basedosdados",
