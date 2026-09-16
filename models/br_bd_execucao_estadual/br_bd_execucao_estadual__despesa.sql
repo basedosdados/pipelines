@@ -49,3 +49,6 @@ from {{ ref("br_bd_execucao_estadual__despesa_sc") }}
 union all
 select *
 from {{ ref("br_bd_execucao_estadual__despesa_pb") }}
+union all
+select *
+from {{ ref("br_bd_execucao_estadual__despesa_ce") }}
