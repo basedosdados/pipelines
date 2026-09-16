@@ -1,0 +1,138 @@
+---
+version: 2
+models:
+  - name: world_oecd_socx__expenditure
+    description: >-
+      Gasto social público e privado por área de política (velhice, sobreviventes,
+      incapacidade, saúde, família, programas de mercado de trabalho, desemprego,
+      habitação e outras), por origem do financiamento (público, privado
+      obrigatório e privado voluntário) e natureza da prestação (em dinheiro ou em
+      espécie), expresso como proporção do PIB, do gasto público total, em dólares
+      por habitante em PPC e em moeda nacional. Base agregada do OECD Social
+      Expenditure Database (SOCX).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - reference_area
+            - frequency
+            - measure
+            - unit_measure
+            - expenditure_source
+            - spending_type
+            - programme_type
+            - price_base
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [base_period]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('world_oecd_socx__dicionario')
+          columns_covered_by_dictionary:
+            - reference_area
+            - frequency
+            - measure
+            - unit_measure
+            - expenditure_source
+            - spending_type
+            - programme_type
+            - price_base
+            - currency
+            - decimals
+            - obs_status
+            - unit_multiplier
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da observação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: >-
+          Código ISO 3166-1 alfa-3 do país da observação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: reference_area
+        description: >-
+          Área de referência da observação: país, entidade subnacional ou agregado
+      - name: frequency
+        description: >-
+          Periodicidade da série
+      - name: measure
+        description: >-
+          Grandeza medida pela observação
+      - name: unit_measure
+        description: >-
+          Unidade em que a observação está expressa
+      - name: expenditure_source
+        description: >-
+          Origem do financiamento do gasto social: público, privado obrigatório ou
+          privado voluntário, e suas combinações
+      - name: spending_type
+        description: >-
+          Natureza da prestação social: em dinheiro, em espécie ou o total
+      - name: programme_type
+        description: >-
+          Área de política social e programa: velhice, sobreviventes, incapacidade,
+          saúde, família, programas de mercado de trabalho, desemprego, habitação
+          e
+          outras, com seus subprogramas
+      - name: price_base
+        description: >-
+          Base de preços do valor monetário: corrente ou constante
+      - name: obs_value
+        description: >-
+          Valor da observação
+      - name: base_period
+        description: >-
+          Ano-base usado quando o valor está a preços constantes
+      - name: currency
+        description: >-
+          Moeda em que o valor monetário está expresso
+      - name: decimals
+        description: >-
+          Número de casas decimais com que a fonte publica o valor
+      - name: obs_status
+        description: >-
+          Situação da observação, incluindo o motivo de ausência do valor
+      - name: unit_multiplier
+        description: >-
+          Potência de dez pela qual o valor deve ser multiplicado
+      - name: source_flow
+        description: >-
+          Dataflow SDMX de onde a linha foi extraída
+      - name: source_flow_version
+        description: >-
+          Versão do dataflow SDMX de onde a linha foi extraída
+  - name: world_oecd_socx__dicionario
+    description: >-
+      Rótulos das colunas codificadas deste conjunto, extraídos das listas de
+      códigos SDMX publicadas pela OCDE. As tabelas de fatos carregam apenas
+      códigos: os rótulos são metadados de estrutura, não dados.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+    columns:
+      - name: id_tabela
+        description: >-
+          Tabela deste conjunto a que a entrada se refere
+        tests: [not_null]
+      - name: nome_coluna
+        description: >-
+          Coluna codificada a que a entrada se refere
+        tests: [not_null]
+      - name: chave
+        description: >-
+          Código tal como aparece na coluna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >-
+          Cobertura temporal da entrada, vazia quando igual à da tabela
+      - name: valor
+        description: >-
+          Rótulo que a OCDE publica para o código
+        tests: [not_null]
