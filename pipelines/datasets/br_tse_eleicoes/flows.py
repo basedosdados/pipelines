@@ -1,56 +1,148 @@
 """
-Flows for br_tse_eleicoes
+Flow compartilhado para br_tse_eleicoes — Prefect 3.
 """
 
-from copy import deepcopy
+from prefect import flow
 
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
-
-from pipelines.constants import constants
-from pipelines.crawler.tse_eleicoes.flows import flow_br_tse_eleicoes
-
-# Tabela: candidatos
-
-br_tse_eleicoes_candidatos = deepcopy(flow_br_tse_eleicoes)
-br_tse_eleicoes_candidatos.name = "br_tse_eleicoes.candidatos"
-br_tse_eleicoes_candidatos.code_owners = ["luiz"]
-br_tse_eleicoes_candidatos.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_tse_eleicoes_candidatos.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
+from pipelines.datasets.br_tse_eleicoes.tasks import (
+    flows_control,
+    get_data_source_max_date,
+    preparing_data,
 )
-# br_tse_eleicoes_candidatos.schedule = schedule_candidatos
+from pipelines.utils.metadata.domain import (
+    AllFree,
+    DateFormat,
+    YearOnly,
+)
+from pipelines.utils.metadata.tasks import (
+    commit_source_update_task,
+    poll_source_for_update_task,
+    register_table_materialization_task,
+)
+from pipelines.utils.tasks import (
+    rename_flow_run_dataset_table,
+    run_dbt,
+    upload_to_gcs,
+)
 
-# Tabela: bens_candidato
-br_tse_eleicoes_bens_candidato = deepcopy(flow_br_tse_eleicoes)
-br_tse_eleicoes_bens_candidato.name = "br_tse_eleicoes.bens_candidato"
-br_tse_eleicoes_bens_candidato.code_owners = ["luiz"]
-br_tse_eleicoes_bens_candidato.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-br_tse_eleicoes_bens_candidato.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# br_tse_eleicoes_bens_candidato.schedule = schedule_bens
 
-# Tabela: despesas_candidato
-br_tse_eleicoes_despesas_candidato = deepcopy(flow_br_tse_eleicoes)
-br_tse_eleicoes_despesas_candidato.name = "br_tse_eleicoes.despesas_candidato"
-br_tse_eleicoes_despesas_candidato.code_owners = ["luiz"]
-br_tse_eleicoes_despesas_candidato.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
-)
-br_tse_eleicoes_despesas_candidato.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
-)
-# br_tse_eleicoes_despesas_candidato.schedule = schedule_despesa
+def _tse_flow(table_id: str, cron: str | None):
+    @flow(
+        name=f"br_tse_eleicoes__{table_id}",
+        log_prints=True,
+    )
+    def _flow(
+        dataset_id: str = "br_tse_eleicoes",
+        table_id: str = table_id,
+        year: int | str = 2026,
+        materialize_after_dump: bool = True,
+        dbt_alias: bool = True,
+        update_metadata: bool = True,
+        force_run: bool = False,
+    ) -> None:
+        # pyrefly: ignore [unused-coroutine]
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
 
-# Tabela: receitas_candidato
-br_tse_eleicoes_receitas_candidato = deepcopy(flow_br_tse_eleicoes)
-br_tse_eleicoes_receitas_candidato.name = "br_tse_eleicoes.receitas_candidato"
-br_tse_eleicoes_receitas_candidato.code_owners = ["luiz"]
-br_tse_eleicoes_receitas_candidato.storage = GCS(
-    constants.GCS_FLOWS_BUCKET.value
+        flow = flows_control(table_id=table_id, mode="prod", year=year)
+        data_source_max_date = get_data_source_max_date(flow_class=flow)
+
+        if not force_run:
+            has_new_data = poll_source_for_update_task(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                source_max_date=data_source_max_date,
+                env="prod",
+                date_format="%Y-%m-%d",
+                compare_against="table_update",
+            )
+            if not has_new_data:
+                return
+
+        # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+        # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+        # novo publicado, mesmo que a tabela não tenha sido atualizada.
+        commit_source_update_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=data_source_max_date,
+            env="prod",
+            date_format="%Y-%m-%d",
+            update_metadata=update_metadata,
+            materialize_after_dump=materialize_after_dump,
+        )
+
+        ready_data_path = preparing_data(flow_class=flow)
+
+        upload_to_gcs(
+            data_path=ready_data_path,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            bucket_name="basedosdados-dev",
+            dump_mode="append",
+        )
+
+        run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_command="run/test",
+            dbt_alias=dbt_alias,
+            target="dev",
+        )
+
+        if not materialize_after_dump:
+            return
+
+        upload_to_gcs(
+            data_path=ready_data_path,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            bucket_name="basedosdados",
+            dump_mode="append",
+        )
+
+        run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_command="run/test",
+            dbt_alias=dbt_alias,
+            target="prod",
+        )
+
+        if update_metadata:
+            # Legado lia data_eleicao (DATE) mas formatava p/ "%Y" → cobertura
+            # year-only. O domínio refatorado proíbe DateOnly+YEAR (R4); a coluna
+            # `ano` (partição canônica das tabelas TSE) dá a mesma granularidade
+            # ano-only de forma R4-limpa. ⚠ oráculo in-pod: comparar só o ano.
+            register_table_materialization_task(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                coverage=AllFree(
+                    date_column=YearOnly(col="ano"),
+                    date_format=DateFormat.YEAR,
+                ),
+                env="prod",
+                bq_project="basedosdados",
+            )
+
+    # pyrefly: ignore [missing-attribute]
+    _flow.deploy_schedules = (
+        [{"cron": cron, "timezone": "America/Sao_Paulo"}] if cron else []
+    )
+    return _flow
+
+
+# Schedules eram comentados no Prefect 0 — mantém sem cron por enquanto.
+br_tse_eleicoes__candidatos = _tse_flow(
+    table_id="candidatos", cron="0 5 * * *"
 )
-br_tse_eleicoes_receitas_candidato.run_config = KubernetesRun(
-    image=constants.DOCKER_IMAGE.value
+br_tse_eleicoes__bens_candidato = _tse_flow(
+    table_id="bens_candidato", cron="30 5 * * *"
 )
-# br_tse_eleicoes_receitas_candidato.schedule = schedule_receita
+br_tse_eleicoes__despesas_candidato = _tse_flow(
+    table_id="despesas_candidato", cron="0 6 * * *"
+)
+br_tse_eleicoes__receitas_candidato = _tse_flow(
+    table_id="receitas_candidato", cron="30 6 * * *"
+)

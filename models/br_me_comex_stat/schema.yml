@@ -24,7 +24,7 @@ models:
         description: ID Sistema Harmonizado
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_mundo__sistema_harmonizado')
+              to: ref('br_bd_diretorios_comercio_internacional__sistema_harmonizado')
               field: id_sh4
               config:
                 where: __most_recent_year_month__
@@ -35,7 +35,7 @@ models:
         tests:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
-              field: sigla_pais_iso3
+              field: sigla_iso3
               ignore_values: [ANT, CSK, SCG, PCZ]
               config:
                 where: __most_recent_year_month__
@@ -76,7 +76,7 @@ models:
         description: ID Sistema Harmonizado
         tests:
           - relationships:
-              to: ref('br_bd_diretorios_mundo__sistema_harmonizado')
+              to: ref('br_bd_diretorios_comercio_internacional__sistema_harmonizado')
               field: id_sh4
               config:
                 where: __most_recent_year_month__
@@ -87,7 +87,7 @@ models:
         tests:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
-              field: sigla_pais_iso3
+              field: sigla_iso3
               ignore_values: [ANT, CSK, SCG, PCZ]
               config:
                 where: __most_recent_year_month__
@@ -149,7 +149,7 @@ models:
         tests:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
-              field: sigla_pais_iso3
+              field: sigla_iso3
               ignore_values: [ANT, CSK, SCG, PCZ]
               config:
                 where: __most_recent_year_month__
@@ -212,12 +212,12 @@ models:
         tests:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
-              field: sigla_pais_iso3
+              field: sigla_iso3
               ignore_values: [ANT, CSK, SCG, PCZ]
               config:
                 where: __most_recent_year_month__
       - name: sigla_uf_ncm
-        description: Sigla da Unidade da Federação - Nomenclatura Comum do Mercosu
+        description: Sigla da Unidade da Federação - Nomenclatura Comum do Mercosul
       - name: id_via
         description: ID Via de Transporte
       - name: id_urf

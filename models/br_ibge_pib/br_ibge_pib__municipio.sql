@@ -1,4 +1,6 @@
 {{ config(alias="municipio", schema="br_ibge_pib") }}
+
+
 select
     safe_cast(id_municipio as string) id_municipio,
     safe_cast(ano as int64) ano,

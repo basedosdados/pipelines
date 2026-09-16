@@ -1,0 +1,2642 @@
+---
+version: 2
+models:
+  - name: us_census_cps__org
+    description: >-
+      Extrato de grupos de rotação de saída (ORG) da Current Population Survey, reproduzido
+      com os programas de harmonização do CEPR. Uma linha por pessoa de 16 anos ou
+      mais
+      entrevistada em um mês de rotação de saída (grupos 4 e 8), com rendimentos,
+      horas e o
+      peso de rendimentos (orgwgt). Os identificadores de domicílio não são únicos
+      em toda a
+      série: a chave (year, month, hhid, hhid2, hrsample, hrsersuf, hhnum, lineno)
+      repete-se
+      em 0,21%-0,26% das linhas de 1979-1988 e em 8,6%/8,4% das de 1994/1995, quando
+      os campos
+      amostrais do CPS mudaram; a duplicidade vem da fonte e está presente também
+      nos extratos
+      publicados pelo CEPR.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - hhid
+            - hhid2
+            - hrsample
+            - hrsersuf
+            - hhnum
+            - lineno
+          proportion_allowed_failures: 0.05
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - cow2
+            - unemdur
+            - jobloser
+            - jobleaver
+            - entrant
+            - certgov
+            - pdemp1
+            - pdemp2
+            - nmemp1
+            - nmemp2
+            - ind12
+            - occ11
+            - reason94
+            - absent79
+            - absent94
+            - abpaid
+            - unempt
+            - imphrs
+    columns:
+      - name: year
+        description: >-
+          Ano
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: >-
+          Mês
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_state
+        description: >-
+          Código FIPS do estado (2 dígitos, com zero à esquerda)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: id_county
+        description: >-
+          Código FIPS do condado (5 dígitos, com zeros à esquerda)
+      - name: minsamp
+        description: >-
+          Mês na amostra (grupo de rotação 1-8)
+      - name: hhid
+        description: >-
+          Identificador do domicílio
+      - name: hhid2
+        description: >-
+          Identificador do domicílio, parte 2
+      - name: hrsample
+        description: >-
+          Identificador amostral do domicílio
+      - name: hrsersuf
+        description: >-
+          Sufixo serial do domicílio
+      - name: hhnum
+        description: >-
+          Contador de domicílio na unidade amostral
+      - name: hrlonglk
+        description: >-
+          Indicador de vínculo longitudinal do domicílio
+      - name: lineno
+        description: >-
+          Número de linha da pessoa no domicílio
+      - name: fnlwgt
+        description: >-
+          Peso amostral básico final
+      - name: orgwgt
+        description: >-
+          Peso de rendimentos (rotação de saída)
+      - name: lonwgt
+        description: >-
+          Peso longitudinal
+      - name: famwgt
+        description: >-
+          Peso familiar
+      - name: age
+        description: >-
+          Idade em anos
+      - name: female
+        description: >-
+          Sexo feminino
+      - name: wbho
+        description: >-
+          Raça/etnia (branca, negra, hispânica, outra)
+      - name: wbhao
+        description: >-
+          Raça/etnia, incluindo asiática
+      - name: wbhom
+        description: >-
+          Raça/etnia, incluindo raça mista
+      - name: wbhaom
+        description: >-
+          Raça/etnia, incluindo asiática e mista
+      - name: racehpia
+        description: >-
+          Havaiano nativo/ilhéu do Pacífico (incl. combinações)
+      - name: racehpi
+        description: >-
+          Havaiano nativo/ilhéu do Pacífico apenas
+      - name: racea
+        description: >-
+          Origem asiática detalhada
+      - name: forborn
+        description: >-
+          Nascido no exterior
+      - name: citizen
+        description: >-
+          Cidadão dos EUA
+      - name: prcitshp
+        description: >-
+          Situação de cidadania
+      - name: arrived
+        description: >-
+          Período de chegada aos EUA
+      - name: prinusyr
+        description: >-
+          Ano de entrada nos EUA
+      - name: penatvty
+        description: >-
+          País de nascimento
+      - name: pemntvty
+        description: >-
+          País de nascimento da mãe
+      - name: pefntvty
+        description: >-
+          País de nascimento do pai
+      - name: vet
+        description: >-
+          Veterano
+      - name: married
+        description: >-
+          Casado
+      - name: marstat
+        description: >-
+          Estado civil
+      - name: ownchild
+        description: >-
+          Número de filhos próprios no domicílio
+      - name: ch02
+        description: >-
+          Filho próprio de 0-2 anos presente
+      - name: ch05
+        description: >-
+          Filho próprio de 0-5 anos presente
+      - name: ch35
+        description: >-
+          Filho próprio de 3-5 anos presente
+      - name: ch613
+        description: >-
+          Filho próprio de 6-13 anos presente
+      - name: ch1417
+        description: >-
+          Filho próprio de 14-17 anos presente
+      - name: famrel84
+        description: >-
+          Relação familiar (definição pré-1994)
+      - name: famrel94
+        description: >-
+          Relação familiar (definição 1994+)
+      - name: famrel
+        description: >-
+          Relação familiar
+      - name: relahh
+        description: >-
+          Relação com o chefe do domicílio (código original do CPS, 1979-1988)
+      - name: hoh79
+        description: >-
+          Chefe do domicílio (definição pré-1994)
+      - name: refper
+        description: >-
+          Pessoa de referência do domicílio
+      - name: faminc
+        description: >-
+          Faixa de renda familiar
+      - name: lfstat
+        description: >-
+          Situação na força de trabalho
+      - name: empl
+        description: >-
+          Ocupado
+      - name: unem
+        description: >-
+          Desempregado
+      - name: nilf
+        description: >-
+          Fora da força de trabalho
+      - name: selfemp
+        description: >-
+          Autônomo (não constituído), trabalho principal
+      - name: selfinc
+        description: >-
+          Autônomo (constituído), trabalho principal
+      - name: pubsect
+        description: >-
+          Trabalhador do setor público, trabalho principal
+      - name: pubfed
+        description: >-
+          Trabalhador do governo federal, trabalho principal
+      - name: pubst
+        description: >-
+          Trabalhador do governo estadual, trabalho principal
+      - name: publoc
+        description: >-
+          Trabalhador do governo local, trabalho principal
+      - name: cow1
+        description: >-
+          Posição na ocupação, trabalho principal
+      - name: cow2
+        description: >-
+          Posição na ocupação, segundo trabalho
+      - name: unemdur
+        description: >-
+          Duração do desemprego em semanas
+      - name: jobloser
+        description: >-
+          Desempregado que perdeu o emprego
+      - name: jobleaver
+        description: >-
+          Desempregado que deixou o emprego
+      - name: entrant
+        description: >-
+          Ingressante ou reingressante desempregado
+      - name: unmem
+        description: >-
+          Membro de sindicato
+      - name: uncov
+        description: >-
+          Coberto por contrato sindical
+      - name: union
+        description: >-
+          Sindicalizado ou coberto
+      - name: cert
+        description: >-
+          Possui certificação ou licença profissional
+      - name: certgov
+        description: >-
+          Certificação emitida pelo governo
+      - name: schenrl
+        description: >-
+          Matriculado no ensino médio ou superior na semana anterior
+      - name: schhs
+        description: >-
+          Matriculado no ensino médio
+      - name: schcol
+        description: >-
+          Matriculado no ensino superior
+      - name: schft
+        description: >-
+          Estudante em tempo integral
+      - name: schpt
+        description: >-
+          Estudante em tempo parcial
+      - name: multjob
+        description: >-
+          Possui mais de um emprego
+      - name: multjobn
+        description: >-
+          Número de empregos
+      - name: pdemp1
+        description: >-
+          Autônomo geralmente tem empregados, trabalho principal
+      - name: pdemp2
+        description: >-
+          Autônomo geralmente tem empregados, segundo trabalho
+      - name: nmemp1
+        description: >-
+          Número de empregados pagos, trabalho principal
+      - name: nmemp2
+        description: >-
+          Número de empregados pagos, segundo trabalho
+      - name: state
+        description: >-
+          Código censitário do estado no CPS (não é o código FIPS)
+      - name: metro
+        description: >-
+          Situação de área metropolitana
+      - name: centcity
+        description: >-
+          Residência em cidade central
+      - name: suburb
+        description: >-
+          Residência em subúrbio
+      - name: rural
+        description: >-
+          Residência não metropolitana (rural)
+      - name: cmsacode05
+        description: >-
+          Código de área estatística combinada (defs. 2005)
+      - name: cmsacode14
+        description: >-
+          Código de área estatística combinada (defs. 2014)
+      - name: fipscounty
+        description: >-
+          Código FIPS do condado dentro do estado (sem zeros à esquerda); 0 quando
+          o condado não é
+          identificado
+      - name: principalcty
+        description: >-
+          Código da cidade principal individual dentro da área metropolitana
+      - name: smsastat05
+        description: >-
+          Código FIPS da CBSA metropolitana (defs. 2005)
+      - name: smsastat14
+        description: >-
+          Código FIPS da CBSA metropolitana (defs. 2014)
+      - name: cbsasz
+        description: >-
+          Classe de tamanho populacional da CBSA
+      - name: nyc
+        description: >-
+          Área metropolitana de Nova York
+      - name: la
+        description: >-
+          Área metropolitana de Los Angeles
+      - name: educ
+        description: >-
+          Escolaridade
+      - name: educ92
+        description: >-
+          Escolaridade (codificação pós-1991)
+      - name: ind_nber
+        description: >-
+          Indústria, 2 dígitos (codificação NBER)
+      - name: ind_2d
+        description: >-
+          Indústria, 2 dígitos
+      - name: ind70
+        description: >-
+          Indústria, 3 dígitos (Census/SIC 1970)
+      - name: ind80
+        description: >-
+          Indústria, 3 dígitos (Census/SIC 1980)
+      - name: ind03
+        description: >-
+          Indústria, 3 dígitos (Census/NAICS 2002)
+      - name: ind09
+        description: >-
+          Indústria, 3 dígitos (Census/NAICS 2007)
+      - name: ind12
+        description: >-
+          Indústria, 3 dígitos (Census/NAICS 2012)
+      - name: ind14
+        description: >-
+          Indústria, 3 dígitos (Census/NAICS 2012, def. 2014)
+      - name: ind_m03
+        description: >-
+          Recodificação de indústria principal
+      - name: agric
+        description: >-
+          Indústria agrícola
+      - name: manuf
+        description: >-
+          Indústria de transformação
+      - name: servs
+        description: >-
+          Indústria de serviços
+      - name: docc70
+        description: >-
+          Ocupação, 2 dígitos (codificação 1970)
+      - name: docc80
+        description: >-
+          Ocupação, 2 dígitos (codificação 1980)
+      - name: docc03
+        description: >-
+          Ocupação, 2 dígitos (codificação 2002)
+      - name: occ70
+        description: >-
+          Ocupação, 3 dígitos (codificação 1970)
+      - name: occ80
+        description: >-
+          Ocupação, 3 dígitos (codificação 1980)
+      - name: occ03
+        description: >-
+          Ocupação, 3 dígitos (codificação 2002)
+      - name: occ11
+        description: >-
+          Ocupação, 3 dígitos (codificação 2011)
+      - name: occ12
+        description: >-
+          Ocupação, 3 dígitos (codificação 2012)
+      - name: occ_m03
+        description: >-
+          Recodificação de ocupação principal
+      - name: manag83
+        description: >-
+          Gerente (codificação 1983)
+      - name: manag03
+        description: >-
+          Gerente (codificação 2003)
+      - name: hourslwa
+        description: >-
+          Horas trabalhadas na semana anterior, todos os empregos
+      - name: hourslw
+        description: >-
+          Horas trabalhadas na semana anterior, todos os empregos
+      - name: hourslwm
+        description: >-
+          Horas trabalhadas na semana anterior, trabalho principal
+      - name: reason79
+        description: >-
+          Motivo de <35 horas na semana anterior (pré-1994)
+      - name: reason94
+        description: >-
+          Motivo de <35 horas na semana anterior (1994+)
+      - name: absent79
+        description: >-
+          Motivo de ausência do trabalho (pré-1994)
+      - name: absent94
+        description: >-
+          Motivo de ausência do trabalho (1994+)
+      - name: abpaid
+        description: >-
+          Remunerado pelo tempo ausente na semana anterior
+      - name: uhours
+        description: >-
+          Horas habituais por semana, trabalho principal
+      - name: uhourse
+        description: >-
+          Horas habituais por semana, trabalho principal (editado)
+      - name: why3579
+        description: >-
+          Motivo de habitualmente <35 horas (pré-1994)
+      - name: why3594
+        description: >-
+          Motivo de habitualmente <35 horas (1994+)
+      - name: ptecon
+        description: >-
+          Tempo parcial por razões econômicas
+      - name: unempt
+        description: >-
+          Desempregado buscando trabalho de tempo parcial
+      - name: prhrusl
+        description: >-
+          Horas habituais por semana (CPS Básico)
+      - name: hrsvary
+        description: >-
+          Horas habituais variam, trabalho principal
+      - name: pehrusl1
+        description: >-
+          Horas habituais por semana, trabalho principal (BLS)
+      - name: pehrusl2
+        description: >-
+          Horas habituais por semana, segundo trabalho (BLS)
+      - name: pehruslt
+        description: >-
+          Horas habituais por semana, todos os empregos (BLS)
+      - name: peernhro
+        description: >-
+          Horas habituais, rendimentos da rotação de saída (BLS)
+      - name: imphrs
+        description: >-
+          Horas habituais, trabalho principal (imputado)
+      - name: hrsimptd
+        description: >-
+          Indicador de horas habituais imputadas
+      - name: uhoursi
+        description: >-
+          Horas habituais com imputação
+      - name: blsimpt
+        description: >-
+          Indicador de horas semanais alocadas pelo BLS
+      - name: blsimph
+        description: >-
+          Indicador de rendimento por hora alocado pelo BLS
+      - name: blsimpw
+        description: >-
+          Indicador de rendimento semanal alocado pelo BLS
+      - name: paidhre
+        description: >-
+          Pago por hora, trabalho principal
+      - name: weekpay
+        description: >-
+          Rendimento semanal habitual, trabalho principal
+      - name: uearnwke
+        description: >-
+          Rendimento semanal habitual (editado)
+      - name: uearnwk
+        description: >-
+          Rendimento semanal habitual
+      - name: earnwke
+        description: >-
+          Rendimento semanal, trabalho principal
+      - name: peernuot
+        description: >-
+          Geralmente recebe horas extras, gorjetas ou comissões
+      - name: otcrec
+        description: >-
+          Recebe horas extras, gorjetas ou comissões
+      - name: otcamt
+        description: >-
+          Valor semanal de horas extras, gorjetas e comissões
+      - name: wage1
+        description: >-
+          Salário por hora (trabalhadores horistas)
+      - name: wage2
+        description: >-
+          Salário por hora (trabalhadores não horistas)
+      - name: wage3
+        description: >-
+          Salário por hora (exclui extras, gorjetas, comissões)
+      - name: wage4
+        description: >-
+          Salário por hora (inclui extras, gorjetas, comissões)
+      - name: rw
+        description: >-
+          Salário-hora real
+      - name: rw_ot
+        description: >-
+          Salário-hora real incluindo extras, gorjetas, comissões
+      - name: tc
+        description: >-
+          Indicador de rendimento semanal com teto (topcode)
+      - name: proxy
+        description: >-
+          Resposta própria ou por terceiro
+      - name: wholine
+        description: >-
+          Número de linha do respondente
+      - name: reltoref
+        description: >-
+          Relação com a pessoa de referência
+  - name: us_census_cps__basic_monthly
+    description: >-
+      Extrato mensal básico da Current Population Survey, reproduzido com os programas
+      de
+      harmonização do CEPR. Uma linha por pessoa de 16 anos ou mais entrevistada no
+      mês, em
+      todos os oito grupos de rotação, com situação na força de trabalho, características
+      demográficas e o peso amostral básico. Contém as mesmas colunas do extrato org,
+      exceto
+      as 21 específicas de rendimentos da rotação de saída. Os identificadores de
+      domicílio
+      não são únicos em 1994 e 1995 (11,3% e 9,6% das linhas), quando os campos amostrais
+      do
+      CPS mudaram; a duplicidade vem da fonte.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns:
+            - year
+            - month
+            - hhid
+            - hhid2
+            - hrsample
+            - hrsersuf
+            - hhnum
+            - lineno
+          proportion_allowed_failures: 0.05
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - famrel84
+            - cow2
+            - unemdur
+            - jobloser
+            - jobleaver
+            - entrant
+            - certgov
+            - pdemp1
+            - pdemp2
+            - nmemp1
+            - nmemp2
+            - ind70
+            - ind12
+            - docc70
+            - occ70
+            - occ11
+            - hourslwa
+            - reason79
+            - reason94
+            - absent79
+            - absent94
+            - abpaid
+            - uhours
+            - why3579
+            - unempt
+    columns:
+      - name: year
+        description: >-
+          Ano
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: >-
+          Mês
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_state
+        description: >-
+          Código FIPS do estado (2 dígitos, com zero à esquerda)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: id_county
+        description: >-
+          Código FIPS do condado (5 dígitos, com zeros à esquerda)
+      - name: minsamp
+        description: >-
+          Mês na amostra (grupo de rotação 1-8)
+      - name: hhid
+        description: >-
+          Identificador do domicílio
+      - name: hhid2
+        description: >-
+          Identificador do domicílio, parte 2
+      - name: hrsample
+        description: >-
+          Identificador amostral do domicílio
+      - name: hrsersuf
+        description: >-
+          Sufixo serial do domicílio
+      - name: hhnum
+        description: >-
+          Contador de domicílio na unidade amostral
+      - name: hrlonglk
+        description: >-
+          Indicador de vínculo longitudinal do domicílio
+      - name: lineno
+        description: >-
+          Número de linha da pessoa no domicílio
+      - name: fnlwgt
+        description: >-
+          Peso amostral básico final
+      - name: orgwgt
+        description: >-
+          Peso de rendimentos (rotação de saída)
+      - name: lonwgt
+        description: >-
+          Peso longitudinal
+      - name: famwgt
+        description: >-
+          Peso familiar
+      - name: age
+        description: >-
+          Idade em anos
+      - name: female
+        description: >-
+          Sexo feminino
+      - name: wbho
+        description: >-
+          Raça/etnia (branca, negra, hispânica, outra)
+      - name: wbhao
+        description: >-
+          Raça/etnia, incluindo asiática
+      - name: wbhom
+        description: >-
+          Raça/etnia, incluindo raça mista
+      - name: wbhaom
+        description: >-
+          Raça/etnia, incluindo asiática e mista
+      - name: racehpia
+        description: >-
+          Havaiano nativo/ilhéu do Pacífico (incl. combinações)
+      - name: racehpi
+        description: >-
+          Havaiano nativo/ilhéu do Pacífico apenas
+      - name: racea
+        description: >-
+          Origem asiática detalhada
+      - name: forborn
+        description: >-
+          Nascido no exterior
+      - name: citizen
+        description: >-
+          Cidadão dos EUA
+      - name: prcitshp
+        description: >-
+          Situação de cidadania
+      - name: arrived
+        description: >-
+          Período de chegada aos EUA
+      - name: prinusyr
+        description: >-
+          Ano de entrada nos EUA
+      - name: penatvty
+        description: >-
+          País de nascimento
+      - name: pemntvty
+        description: >-
+          País de nascimento da mãe
+      - name: pefntvty
+        description: >-
+          País de nascimento do pai
+      - name: vet
+        description: >-
+          Veterano
+      - name: married
+        description: >-
+          Casado
+      - name: marstat
+        description: >-
+          Estado civil
+      - name: ownchild
+        description: >-
+          Número de filhos próprios no domicílio
+      - name: ch02
+        description: >-
+          Filho próprio de 0-2 anos presente
+      - name: ch05
+        description: >-
+          Filho próprio de 0-5 anos presente
+      - name: ch35
+        description: >-
+          Filho próprio de 3-5 anos presente
+      - name: ch613
+        description: >-
+          Filho próprio de 6-13 anos presente
+      - name: ch1417
+        description: >-
+          Filho próprio de 14-17 anos presente
+      - name: famrel84
+        description: >-
+          Relação familiar (definição pré-1994)
+      - name: famrel94
+        description: >-
+          Relação familiar (definição 1994+)
+      - name: famrel
+        description: >-
+          Relação familiar
+      - name: refper
+        description: >-
+          Pessoa de referência do domicílio
+      - name: faminc
+        description: >-
+          Faixa de renda familiar
+      - name: lfstat
+        description: >-
+          Situação na força de trabalho
+      - name: empl
+        description: >-
+          Ocupado
+      - name: unem
+        description: >-
+          Desempregado
+      - name: nilf
+        description: >-
+          Fora da força de trabalho
+      - name: selfemp
+        description: >-
+          Autônomo (não constituído), trabalho principal
+      - name: selfinc
+        description: >-
+          Autônomo (constituído), trabalho principal
+      - name: pubsect
+        description: >-
+          Trabalhador do setor público, trabalho principal
+      - name: pubfed
+        description: >-
+          Trabalhador do governo federal, trabalho principal
+      - name: pubst
+        description: >-
+          Trabalhador do governo estadual, trabalho principal
+      - name: publoc
+        description: >-
+          Trabalhador do governo local, trabalho principal
+      - name: cow1
+        description: >-
+          Posição na ocupação, trabalho principal
+      - name: cow2
+        description: >-
+          Posição na ocupação, segundo trabalho
+      - name: unemdur
+        description: >-
+          Duração do desemprego em semanas
+      - name: jobloser
+        description: >-
+          Desempregado que perdeu o emprego
+      - name: jobleaver
+        description: >-
+          Desempregado que deixou o emprego
+      - name: entrant
+        description: >-
+          Ingressante ou reingressante desempregado
+      - name: unmem
+        description: >-
+          Membro de sindicato
+      - name: uncov
+        description: >-
+          Coberto por contrato sindical
+      - name: union
+        description: >-
+          Sindicalizado ou coberto
+      - name: cert
+        description: >-
+          Possui certificação ou licença profissional
+      - name: certgov
+        description: >-
+          Certificação emitida pelo governo
+      - name: schenrl
+        description: >-
+          Matriculado no ensino médio ou superior na semana anterior
+      - name: schhs
+        description: >-
+          Matriculado no ensino médio
+      - name: schcol
+        description: >-
+          Matriculado no ensino superior
+      - name: schft
+        description: >-
+          Estudante em tempo integral
+      - name: schpt
+        description: >-
+          Estudante em tempo parcial
+      - name: multjob
+        description: >-
+          Possui mais de um emprego
+      - name: multjobn
+        description: >-
+          Número de empregos
+      - name: pdemp1
+        description: >-
+          Autônomo geralmente tem empregados, trabalho principal
+      - name: pdemp2
+        description: >-
+          Autônomo geralmente tem empregados, segundo trabalho
+      - name: nmemp1
+        description: >-
+          Número de empregados pagos, trabalho principal
+      - name: nmemp2
+        description: >-
+          Número de empregados pagos, segundo trabalho
+      - name: state
+        description: >-
+          Código censitário do estado no CPS (não é o código FIPS)
+      - name: metro
+        description: >-
+          Situação de área metropolitana
+      - name: centcity
+        description: >-
+          Residência em cidade central
+      - name: suburb
+        description: >-
+          Residência em subúrbio
+      - name: rural
+        description: >-
+          Residência não metropolitana (rural)
+      - name: cmsacode05
+        description: >-
+          Código de área estatística combinada (defs. 2005)
+      - name: cmsacode14
+        description: >-
+          Código de área estatística combinada (defs. 2014)
+      - name: fipscounty
+        description: >-
+          Código FIPS do condado dentro do estado (sem zeros à esquerda); 0 quando
+          o condado não é
+          identificado
+      - name: principalcty
+        description: >-
+          Código da cidade principal individual dentro da área metropolitana
+      - name: smsastat05
+        description: >-
+          Código FIPS da CBSA metropolitana (defs. 2005)
+      - name: smsastat14
+        description: >-
+          Código FIPS da CBSA metropolitana (defs. 2014)
+      - name: cbsasz
+        description: >-
+          Classe de tamanho populacional da CBSA
+      - name: nyc
+        description: >-
+          Área metropolitana de Nova York
+      - name: la
+        description: >-
+          Área metropolitana de Los Angeles
+      - name: educ
+        description: >-
+          Escolaridade
+      - name: educ92
+        description: >-
+          Escolaridade (codificação pós-1991)
+      - name: ind_nber
+        description: >-
+          Indústria, 2 dígitos (codificação NBER)
+      - name: ind_2d
+        description: >-
+          Indústria, 2 dígitos
+      - name: ind70
+        description: >-
+          Indústria, 3 dígitos (Census/SIC 1970)
+      - name: ind80
+        description: >-
+          Indústria, 3 dígitos (Census/SIC 1980)
+      - name: ind03
+        description: >-
+          Indústria, 3 dígitos (Census/NAICS 2002)
+      - name: ind09
+        description: >-
+          Indústria, 3 dígitos (Census/NAICS 2007)
+      - name: ind12
+        description: >-
+          Indústria, 3 dígitos (Census/NAICS 2012)
+      - name: ind14
+        description: >-
+          Indústria, 3 dígitos (Census/NAICS 2012, def. 2014)
+      - name: ind_m03
+        description: >-
+          Recodificação de indústria principal
+      - name: agric
+        description: >-
+          Indústria agrícola
+      - name: manuf
+        description: >-
+          Indústria de transformação
+      - name: servs
+        description: >-
+          Indústria de serviços
+      - name: docc70
+        description: >-
+          Ocupação, 2 dígitos (codificação 1970)
+      - name: docc80
+        description: >-
+          Ocupação, 2 dígitos (codificação 1980)
+      - name: docc03
+        description: >-
+          Ocupação, 2 dígitos (codificação 2002)
+      - name: occ70
+        description: >-
+          Ocupação, 3 dígitos (codificação 1970)
+      - name: occ80
+        description: >-
+          Ocupação, 3 dígitos (codificação 1980)
+      - name: occ03
+        description: >-
+          Ocupação, 3 dígitos (codificação 2002)
+      - name: occ11
+        description: >-
+          Ocupação, 3 dígitos (codificação 2011)
+      - name: occ12
+        description: >-
+          Ocupação, 3 dígitos (codificação 2012)
+      - name: occ_m03
+        description: >-
+          Recodificação de ocupação principal
+      - name: manag83
+        description: >-
+          Gerente (codificação 1983)
+      - name: manag03
+        description: >-
+          Gerente (codificação 2003)
+      - name: hourslwa
+        description: >-
+          Horas trabalhadas na semana anterior, todos os empregos
+      - name: hourslw
+        description: >-
+          Horas trabalhadas na semana anterior, todos os empregos
+      - name: hourslwm
+        description: >-
+          Horas trabalhadas na semana anterior, trabalho principal
+      - name: reason79
+        description: >-
+          Motivo de <35 horas na semana anterior (pré-1994)
+      - name: reason94
+        description: >-
+          Motivo de <35 horas na semana anterior (1994+)
+      - name: absent79
+        description: >-
+          Motivo de ausência do trabalho (pré-1994)
+      - name: absent94
+        description: >-
+          Motivo de ausência do trabalho (1994+)
+      - name: abpaid
+        description: >-
+          Remunerado pelo tempo ausente na semana anterior
+      - name: uhours
+        description: >-
+          Horas habituais por semana, trabalho principal
+      - name: uhourse
+        description: >-
+          Horas habituais por semana, trabalho principal (editado)
+      - name: why3579
+        description: >-
+          Motivo de habitualmente <35 horas (pré-1994)
+      - name: why3594
+        description: >-
+          Motivo de habitualmente <35 horas (1994+)
+      - name: ptecon
+        description: >-
+          Tempo parcial por razões econômicas
+      - name: unempt
+        description: >-
+          Desempregado buscando trabalho de tempo parcial
+      - name: prhrusl
+        description: >-
+          Horas habituais por semana (CPS Básico)
+      - name: hrsvary
+        description: >-
+          Horas habituais variam, trabalho principal
+      - name: pehrusl1
+        description: >-
+          Horas habituais por semana, trabalho principal (BLS)
+      - name: pehrusl2
+        description: >-
+          Horas habituais por semana, segundo trabalho (BLS)
+      - name: pehruslt
+        description: >-
+          Horas habituais por semana, todos os empregos (BLS)
+      - name: peernhro
+        description: >-
+          Horas habituais, rendimentos da rotação de saída (BLS)
+      - name: imphrs
+        description: >-
+          Horas habituais, trabalho principal (imputado)
+      - name: hrsimptd
+        description: >-
+          Indicador de horas habituais imputadas
+      - name: uhoursi
+        description: >-
+          Horas habituais com imputação
+      - name: blsimpt
+        description: >-
+          Indicador de horas semanais alocadas pelo BLS
+      - name: tc
+        description: >-
+          Indicador de rendimento semanal com teto (topcode)
+  - name: us_census_cps__march
+    description: >-
+      Extrato do suplemento anual socioeconômico (ASEC/March) da Current Population
+      Survey,
+      reproduzido com os programas de harmonização do CEPR. Uma linha por pessoa,
+      com renda
+      por fonte, cobertura de saúde, pobreza, experiência de trabalho no ano anterior
+      e
+      migração. O ano de 2014 traz as duas amostras do redesenho: a tradicional de
+      5/8
+      (research = 0) e a de 3/8 (research = 1), que não se sobrepõem.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, hhseq, pppos, perno]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - id
+            - wgtalt
+            - fmwgtalt
+            - hhwgtalt
+            - ethhisp03
+            - hhrel8088
+            - relhdh8088
+            - famrel8088
+            - chspval
+            - chspyn
+            - firmsz89
+            - lkwrk_wk
+            - indly2d_80
+            - indly2d_83
+            - ind2d_80
+            - ind2d_83
+            - ind2d_89
+            - indly3d_80
+            - indly3d_83
+            - indly3d_92
+            - indly3d_03
+            - indly3d_13
+            - ind3d_80
+            - ind3d_83
+            - ind3d_92
+            - ind3d_03
+            - ind3d_13
+            - occ2d_80
+            - occ2d_83
+            - occ2d_89
+            - occly2d_80
+            - occly2d_83
+            - occ3d_80
+            - occ3d_83
+            - occ3d_92
+            - occ3d_95
+            - occ3d_03
+            - occ3d_11
+            - occly3d_80
+            - occly3d_83
+            - occly3d_92
+            - occly3d_95
+            - occly3d_03
+            - occly3d_11
+            - manag83
+            - manag89
+            - managly83
+            - payabslw
+            - incp_ssres2
+            - incp_ssires1
+            - incp_ssires2
+            - incp_comp
+            - incp_comp_tc
+            - incp_divo
+            - incf_ss_tc
+            - incf_comp
+            - incf_comp_tc
+            - incf_divo
+            - incf_divo_tc
+            - rincp_comp
+            - rincp_divo
+            - rincf_comp
+            - rincf_divo
+            - ccs
+            - ccshh
+            - ccshh_num
+            - pvcrsf
+            - pvratio_sf
+            - mig5_flag
+    columns:
+      - name: year
+        description: >-
+          Ano
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: >-
+          Mês
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_state
+        description: >-
+          Código FIPS do estado (2 dígitos, com zero à esquerda)
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: mis
+        description: >-
+          Mês na amostra
+      - name: hhid
+        description: >-
+          Identificador do domicílio
+      - name: hhid2
+        description: >-
+          Identificador do domicílio, parte 2
+      - name: hhseq
+        description: >-
+          Identificador do domicílio no arquivo
+      - name: pppos
+        description: >-
+          Parte final do identificador único do domicílio
+      - name: perno
+        description: >-
+          Número da pessoa
+      - name: id
+        description: >-
+          Identificador único da pessoa
+      - name: parno
+        description: >-
+          Número de linha do pai/mãe no domicílio
+      - name: spouseno
+        description: >-
+          Número de linha do cônjuge no domicílio
+      - name: famno
+        description: >-
+          Número de linha da família no domicílio
+      - name: hjrid
+        description: >-
+          Identificador HJR
+      - name: peridh
+        description: >-
+          Identificador único da pessoa no domicílio
+      - name: parid
+        description: >-
+          Identificador único do pai/mãe
+      - name: spouseid
+        description: >-
+          Identificador único do cônjuge
+      - name: fnlwgt
+        description: >-
+          Peso amostral básico final
+      - name: wgt
+        description: >-
+          Peso da pessoa, março
+      - name: wgtalt
+        description: >-
+          Peso alternativo da pessoa, março
+      - name: famwgt
+        description: >-
+          Peso familiar
+      - name: fmwgtalt
+        description: >-
+          Peso familiar alternativo
+      - name: hhwgt
+        description: >-
+          Peso do domicílio
+      - name: hhwgtalt
+        description: >-
+          Peso alternativo do domicílio
+      - name: research
+        description: >-
+          Na subamostra de pesquisa 3/8 (2014)
+      - name: age
+        description: >-
+          Idade em anos
+      - name: popstat
+        description: >-
+          Situação populacional (adulto/criança)
+      - name: female
+        description: >-
+          Sexo feminino
+      - name: wbho
+        description: >-
+          Raça/etnia (branca, negra, hispânica, outra)
+      - name: wbhao
+        description: >-
+          Raça/etnia, incluindo asiática
+      - name: wbhaom
+        description: >-
+          Raça/etnia, incluindo asiática e mista
+      - name: ethasian
+        description: >-
+          Detalhe de origem asiática
+      - name: ethhisp03
+        description: >-
+          Detalhe de origem hispânica (esquema 2003)
+      - name: ethhisp14
+        description: >-
+          Detalhe de origem hispânica (esquema 2014)
+      - name: racehpia
+        description: >-
+          Havaiano nativo/ilhéu do Pacífico (incl. combinações)
+      - name: racehpi
+        description: >-
+          Havaiano nativo/ilhéu do Pacífico apenas
+      - name: forborn
+        description: >-
+          Nascido no exterior
+      - name: citizen
+        description: >-
+          Cidadão dos EUA
+      - name: citstat
+        description: >-
+          Situação de cidadania
+      - name: arrived
+        description: >-
+          Período de chegada aos EUA
+      - name: peinusyr
+        description: >-
+          Ano de mudança definitiva para os EUA
+      - name: penatvty
+        description: >-
+          País de nascimento
+      - name: pemntvty
+        description: >-
+          País de nascimento da mãe
+      - name: pefntvty
+        description: >-
+          País de nascimento do pai
+      - name: veteran
+        description: >-
+          Veterano
+      - name: hprsmort
+        description: >-
+          Presença de hipoteca no domicílio
+      - name: married
+        description: >-
+          Casado
+      - name: marstat
+        description: >-
+          Estado civil
+      - name: hhrel
+        description: >-
+          Relação no domicílio
+      - name: hhrel8088
+        description: >-
+          Relação no domicílio (1980-1988)
+      - name: hhrel2
+        description: >-
+          Relação no domicílio (curta)
+      - name: hhrel3
+        description: >-
+          Relação no domicílio (curta-média)
+      - name: relhdh
+        description: >-
+          Relação com o chefe do domicílio
+      - name: relhdh8088
+        description: >-
+          Relação com o chefe do domicílio (1980-1988)
+      - name: exphhr
+        description: >-
+          Relação ampliada com o chefe do domicílio
+      - name: perhh
+        description: >-
+          Número de pessoas no domicílio
+      - name: famhh
+        description: >-
+          Número de famílias no domicílio
+      - name: nhhchild
+        description: >-
+          Número de membros do domicílio com menos de 18 anos
+      - name: hhchild
+        description: >-
+          Membros do domicílio com menos de 18 anos
+      - name: pfrel
+        description: >-
+          Relação com a família primária
+      - name: pftype
+        description: >-
+          Composição da família primária
+      - name: famrel
+        description: >-
+          Relação familiar
+      - name: famrel8088
+        description: >-
+          Relação familiar (1980-1988)
+      - name: famtyp
+        description: >-
+          Tipo de família
+      - name: hjrnum
+        description: >-
+          Número HJR
+      - name: nfchild
+        description: >-
+          Número de membros da família com menos de 18 anos
+      - name: fchild
+        description: >-
+          Membros da família com menos de 18 anos
+      - name: child
+        description: >-
+          Indicador de criança
+      - name: careval
+        description: >-
+          Gasto do domicílio com creche/cuidado infantil
+      - name: chspval
+        description: >-
+          Valor pago de pensão alimentícia para filhos
+      - name: chspyn
+        description: >-
+          Obrigado a pagar pensão alimentícia
+      - name: wkslyr
+        description: >-
+          Semanas trabalhadas no ano anterior
+      - name: hrslyr
+        description: >-
+          Horas trabalhadas por semana no ano anterior
+      - name: clslyr
+        description: >-
+          Posição na ocupação no ano anterior
+      - name: ftptlyr
+        description: >-
+          Tempo integral/parcial e situação no ano anterior
+      - name: wksrec
+        description: >-
+          Semanas trabalhadas no ano anterior (recodificação)
+      - name: firmsz89
+        description: >-
+          Tamanho da empresa (esquema 1989)
+      - name: firmsz11
+        description: >-
+          Tamanho da empresa (esquema 2011)
+      - name: firmsz
+        description: >-
+          Tamanho da empresa
+      - name: unmem
+        description: >-
+          Membro de sindicato
+      - name: uncov
+        description: >-
+          Coberto por contrato sindical
+      - name: union
+        description: >-
+          Sindicalizado ou coberto
+      - name: wrk
+        description: >-
+          Situação de trabalho no ano anterior
+      - name: lkwrklyr
+        description: >-
+          Não trabalhadores que procuraram trabalho no ano anterior
+      - name: lkwrk_wk
+        description: >-
+          Semanas procurando trabalho no ano anterior
+      - name: rsnpt
+        description: >-
+          Motivo de <35 horas por semana no ano anterior
+      - name: rsnnowrk
+        description: >-
+          Motivo de não ter trabalhado no ano anterior
+      - name: lfstat
+        description: >-
+          Situação na força de trabalho
+      - name: empl
+        description: >-
+          Ocupado
+      - name: unem
+        description: >-
+          Desempregado
+      - name: nilf
+        description: >-
+          Fora da força de trabalho
+      - name: selfemp
+        description: >-
+          Autônomo (não constituído), trabalho principal
+      - name: selfinc
+        description: >-
+          Autônomo (constituído), trabalho principal
+      - name: pubsect
+        description: >-
+          Trabalhador do setor público, trabalho principal
+      - name: pubfed
+        description: >-
+          Trabalhador do governo federal, trabalho principal
+      - name: pubst
+        description: >-
+          Trabalhador do governo estadual, trabalho principal
+      - name: publoc
+        description: >-
+          Trabalhador do governo local, trabalho principal
+      - name: schenrl
+        description: >-
+          Matriculado no ensino médio ou superior na semana anterior
+      - name: schhs
+        description: >-
+          Matriculado no ensino médio
+      - name: schcol
+        description: >-
+          Matriculado no ensino superior
+      - name: schft
+        description: >-
+          Estudante em tempo integral
+      - name: schpt
+        description: >-
+          Estudante em tempo parcial
+      - name: cert
+        description: >-
+          Possui certificação ou licença profissional
+      - name: certgov
+        description: >-
+          Certificação emitida pelo governo
+      - name: state
+        description: >-
+          Código censitário do estado no CPS (não é o código FIPS)
+      - name: csr
+        description: >-
+          Situação da cidade
+      - name: centcity
+        description: >-
+          Residência em cidade central
+      - name: suburb
+        description: >-
+          Residência em subúrbio
+      - name: rural
+        description: >-
+          Residência não metropolitana (rural)
+      - name: educ
+        description: >-
+          Escolaridade
+      - name: educ2
+        description: >-
+          Nível de escolaridade (alternativo)
+      - name: educ92
+        description: >-
+          Escolaridade (codificação pós-1991)
+      - name: indly2d_80
+        description: >-
+          Indústria, 2 dígitos (esquema 1980), no ano anterior
+      - name: indly2d_83
+        description: >-
+          Indústria, 2 dígitos (esquema 1983), no ano anterior
+      - name: indly2d_03
+        description: >-
+          Indústria, 2 dígitos (esquema 2003), no ano anterior
+      - name: ind2d_80
+        description: >-
+          Indústria, 2 dígitos (esquema 1980), na semana anterior
+      - name: ind2d_83
+        description: >-
+          Indústria, 2 dígitos (esquema 1983), na semana anterior
+      - name: ind2d_89
+        description: >-
+          Indústria, 2 dígitos (esquema 1989), na semana anterior
+      - name: ind2d_03
+        description: >-
+          Indústria, 2 dígitos (esquema 2003), na semana anterior
+      - name: indly3d_80
+        description: >-
+          Indústria, 3 dígitos (esquema 1980), no ano anterior
+      - name: indly3d_83
+        description: >-
+          Indústria, 3 dígitos (esquema 1983), no ano anterior
+      - name: indly3d_92
+        description: >-
+          Indústria, 3 dígitos (esquema 1992), no ano anterior
+      - name: indly3d_03
+        description: >-
+          Indústria, 3 dígitos (esquema 2003), no ano anterior
+      - name: indly3d_13
+        description: >-
+          Indústria, 3 dígitos (esquema 2013), no ano anterior
+      - name: indly3d_14
+        description: >-
+          Indústria, 3 dígitos (esquema 2014), no ano anterior
+      - name: ind3d_80
+        description: >-
+          Indústria, 3 dígitos (esquema 1980), na semana anterior
+      - name: ind3d_83
+        description: >-
+          Indústria, 3 dígitos (esquema 1983), na semana anterior
+      - name: ind3d_92
+        description: >-
+          Indústria, 3 dígitos (esquema 1992), na semana anterior
+      - name: ind3d_03
+        description: >-
+          Indústria, 3 dígitos (esquema 2003), na semana anterior
+      - name: ind3d_13
+        description: >-
+          Indústria, 3 dígitos (esquema 2013), na semana anterior
+      - name: ind3d_14
+        description: >-
+          Indústria, 3 dígitos (esquema 2014), na semana anterior
+      - name: occ2d_80
+        description: >-
+          Ocupação, 2 dígitos (esquema 1980), na semana anterior
+      - name: occ2d_83
+        description: >-
+          Ocupação, 2 dígitos (esquema 1983), na semana anterior
+      - name: occ2d_89
+        description: >-
+          Ocupação, 2 dígitos (esquema 1989), na semana anterior
+      - name: occ2d_03
+        description: >-
+          Ocupação, 2 dígitos (esquema 2003), na semana anterior
+      - name: occly2d_80
+        description: >-
+          Ocupação, 2 dígitos (esquema 1980), no ano anterior
+      - name: occly2d_83
+        description: >-
+          Ocupação, 2 dígitos (esquema 1983), no ano anterior
+      - name: occly2d_03
+        description: >-
+          Ocupação, 2 dígitos (esquema 2003), no ano anterior
+      - name: occ3d_80
+        description: >-
+          Ocupação, 3 dígitos (esquema 1980), na semana anterior
+      - name: occ3d_83
+        description: >-
+          Ocupação, 3 dígitos (esquema 1983), na semana anterior
+      - name: occ3d_92
+        description: >-
+          Ocupação, 3 dígitos (esquema 1992), na semana anterior
+      - name: occ3d_95
+        description: >-
+          Ocupação, 3 dígitos (esquema 1995), na semana anterior
+      - name: occ3d_03
+        description: >-
+          Ocupação, 3 dígitos (esquema 2003), na semana anterior
+      - name: occ3d_11
+        description: >-
+          Ocupação, 3 dígitos (esquema 2011), na semana anterior
+      - name: occ3d_13
+        description: >-
+          Ocupação, 3 dígitos (esquema 2013), na semana anterior
+      - name: occly3d_80
+        description: >-
+          Ocupação, 3 dígitos (esquema 1980), no ano anterior
+      - name: occly3d_83
+        description: >-
+          Ocupação, 3 dígitos (esquema 1983), no ano anterior
+      - name: occly3d_92
+        description: >-
+          Ocupação, 3 dígitos (esquema 1992), no ano anterior
+      - name: occly3d_95
+        description: >-
+          Ocupação, 3 dígitos (esquema 1995), no ano anterior
+      - name: occly3d_03
+        description: >-
+          Ocupação, 3 dígitos (esquema 2003), no ano anterior
+      - name: occly3d_11
+        description: >-
+          Ocupação, 3 dígitos (esquema 2011), no ano anterior
+      - name: occly3d_13
+        description: >-
+          Ocupação, 3 dígitos (esquema 2013), no ano anterior
+      - name: manag83
+        description: >-
+          Gerente (esquema 1983), na semana anterior
+      - name: manag89
+        description: >-
+          Gerente (esquema 1989), na semana anterior
+      - name: manag03
+        description: >-
+          Gerente (esquema 2003), na semana anterior
+      - name: managly83
+        description: >-
+          Gerente (esquema 1983), no ano anterior
+      - name: managly03
+        description: >-
+          Gerente (esquema 2003), no ano anterior
+      - name: weeks
+        description: >-
+          Semanas trabalhadas no ano anterior
+      - name: uhours
+        description: >-
+          Horas habituais por semana, trabalho principal
+      - name: hours
+        description: >-
+          Horas trabalhadas na semana anterior
+      - name: fulltimely
+        description: >-
+          Jornada de tempo integral no ano anterior
+      - name: fulltimelw
+        description: >-
+          Jornada de tempo integral na semana anterior
+      - name: payabslw
+        description: >-
+          Remunerado pelo tempo ausente na semana anterior
+      - name: incp_all
+        description: >-
+          Renda total (nominal)
+      - name: incp_all_tc
+        description: >-
+          Indicador de topo (topcode): renda total
+      - name: incp_ern
+        description: >-
+          Renda do trabalho (nominal)
+      - name: incp_ern_tc
+        description: >-
+          Indicador de topo (topcode): renda do trabalho
+      - name: incp_wag
+        description: >-
+          Renda de salários (nominal)
+      - name: incp_wag_tc
+        description: >-
+          Indicador de topo (topcode): renda de salários
+      - name: hrearn
+        description: >-
+          Rendimento por hora (nominal)
+      - name: hrwage
+        description: >-
+          Salário por hora (nominal)
+      - name: incp_sefrm
+        description: >-
+          Renda de trabalho autônomo agrícola (nominal)
+      - name: incp_sefrm_tc
+        description: >-
+          Indicador de topo (topcode): renda de trabalho autônomo agrícola
+      - name: incp_senf
+        description: >-
+          Renda de trabalho autônomo não agrícola (nominal)
+      - name: incp_senf_tc
+        description: >-
+          Indicador de topo (topcode): renda de trabalho autônomo não agrícola
+      - name: incp_se
+        description: >-
+          Renda de trabalho autônomo (nominal)
+      - name: incp_se_tc
+        description: >-
+          Indicador de topo (topcode): renda de trabalho autônomo
+      - name: incp_uer
+        description: >-
+          Renda de fontes não laborais (nominal)
+      - name: incp_uer_tc
+        description: >-
+          Indicador de topo (topcode): renda de fontes não laborais
+      - name: incp_paw
+        description: >-
+          Renda de assistência social (nominal)
+      - name: incp_paw_tc
+        description: >-
+          Indicador de topo (topcode): renda de assistência social
+      - name: inc_paw_mnt
+        description: >-
+          Meses de recebimento de assistência social
+      - name: incp_cs
+        description: >-
+          Renda de pensão alimentícia para filhos (nominal)
+      - name: incp_alm
+        description: >-
+          Renda de pensão ao ex-cônjuge (nominal)
+      - name: incp_csalm
+        description: >-
+          Renda de pensão alimentícia e ao ex-cônjuge (nominal)
+      - name: incp_cs_tc
+        description: >-
+          Indicador de topo (topcode): renda de pensão alimentícia para filhos
+      - name: incp_ss
+        description: >-
+          Renda de previdência social ou aposentadoria ferroviária (nominal)
+      - name: incp_ss_tc
+        description: >-
+          Indicador de topo (topcode): renda de previdência social ou aposentadoria
+          ferroviária
+      - name: incp_ssi
+        description: >-
+          Renda de seguridade suplementar (SSI) (nominal)
+      - name: incp_ssi_tc
+        description: >-
+          Indicador de topo (topcode): renda de seguridade suplementar (SSI)
+      - name: incp_ssres1
+        description: >-
+          Motivo do recebimento de previdência social 1
+      - name: incp_ssres2
+        description: >-
+          Motivo do recebimento de previdência social 2
+      - name: incp_ssires1
+        description: >-
+          Motivo do recebimento de seguridade suplementar 1
+      - name: incp_ssires2
+        description: >-
+          Motivo do recebimento de seguridade suplementar 2
+      - name: incp_comp
+        description: >-
+          Renda de seguro-desemprego, indenização, veteranos e pensões públicas (nominal)
+      - name: incp_comp_tc
+        description: >-
+          Indicador de topo (topcode): renda de seguro-desemprego, indenização, veteranos
+          e
+          pensões públicas
+      - name: incp_uc
+        description: >-
+          Renda de seguro-desemprego (nominal)
+      - name: incp_wcp
+        description: >-
+          Renda de indenização trabalhista (nominal)
+      - name: incp_vet
+        description: >-
+          Renda de pagamentos a veteranos (nominal)
+      - name: incp_srv
+        description: >-
+          Renda de pensão por morte (nominal)
+      - name: incp_dis
+        description: >-
+          Renda de invalidez (nominal)
+      - name: incp_ret
+        description: >-
+          Renda de aposentadoria (nominal)
+      - name: incp_ret_tc
+        description: >-
+          Indicador de topo (topcode): renda de aposentadoria
+      - name: incp_ed
+        description: >-
+          Renda de auxílio educacional (nominal)
+      - name: incp_ed_tc
+        description: >-
+          Indicador de topo (topcode): renda de auxílio educacional
+      - name: incp_rnt
+        description: >-
+          Renda de aluguéis (nominal)
+      - name: incp_rnt_tc
+        description: >-
+          Indicador de topo (topcode): renda de aluguéis
+      - name: incp_int
+        description: >-
+          Renda de juros, dividendos e aluguéis líquidos (nominal)
+      - name: incp_int_tc
+        description: >-
+          Indicador de topo (topcode): renda de juros, dividendos e aluguéis líquidos
+      - name: incp_fin
+        description: >-
+          Renda de auxílio financeiro de terceiros (nominal)
+      - name: incp_fin_tc
+        description: >-
+          Indicador de topo (topcode): renda de auxílio financeiro de terceiros
+      - name: incp_divo
+        description: >-
+          Renda de dividendos, aluguéis e fundos (nominal)
+      - name: incp_div
+        description: >-
+          Renda de dividendos (nominal)
+      - name: incp_div_tc
+        description: >-
+          Indicador de topo (topcode): renda de dividendos
+      - name: incp_oth
+        description: >-
+          Renda de outras fontes (nominal)
+      - name: incp_oth_tc
+        description: >-
+          Indicador de topo (topcode): renda de outras fontes
+      - name: incf_pct
+        description: >-
+          Percentil nacional de renda familiar
+      - name: incf_all
+        description: >-
+          Renda familiar total (nominal)
+      - name: incf_all_tc
+        description: >-
+          Indicador de topo (topcode): renda familiar total
+      - name: incf_ern
+        description: >-
+          Renda familiar do trabalho (nominal)
+      - name: incf_ern_tc
+        description: >-
+          Indicador de topo (topcode): renda familiar do trabalho
+      - name: incf_wag
+        description: >-
+          Renda familiar de salários (nominal)
+      - name: incf_wag_tc
+        description: >-
+          Indicador de topo (topcode): renda familiar de salários
+      - name: incf_sefrm
+        description: >-
+          Renda familiar de trabalho autônomo agrícola (nominal)
+      - name: incf_sefrm_tc
+        description: >-
+          Indicador de topo (topcode): renda familiar de trabalho autônomo agrícola
+      - name: incf_senf
+        description: >-
+          Renda familiar de trabalho autônomo não agrícola (nominal)
+      - name: incf_senf_tc
+        description: >-
+          Indicador de topo (topcode): renda familiar de trabalho autônomo não agrícola
+      - name: incf_se
+        description: >-
+          Renda familiar de trabalho autônomo (nominal)
+      - name: incf_se_tc
+        description: >-
+          Indicador de topo (topcode): renda familiar de trabalho autônomo
+      - name: incf_uer
+        description: >-
+          Renda familiar de fontes não laborais (nominal)
+      - name: incf_uer_tc
+        description: >-
+          Indicador de topo (topcode): renda familiar de fontes não laborais
+      - name: incf_paw
+        description: >-
+          Renda familiar de assistência social (nominal)
+      - name: incf_paw_tc
+        description: >-
+          Indicador de topo (topcode): renda familiar de assistência social
+      - name: incf_cs
+        description: >-
+          Renda familiar de pensão alimentícia para filhos (nominal)
+      - name: incf_alm
+        description: >-
+          Renda familiar de pensão ao ex-cônjuge (nominal)
+      - name: incf_csalm
+        description: >-
+          Renda familiar de pensão alimentícia e ao ex-cônjuge (nominal)
+      - name: incf_ss
+        description: >-
+          Renda familiar de previdência social ou aposentadoria ferroviária (nominal)
+      - name: incf_ss_tc
+        description: >-
+          Indicador de topo (topcode): renda familiar de previdência social ou aposentadoria
+          ferroviária
+      - name: incf_ssi
+        description: >-
+          Renda familiar de seguridade suplementar (SSI) (nominal)
+      - name: incf_ssi_tc
+        description: >-
+          Indicador de topo (topcode): renda familiar de seguridade suplementar (SSI)
+      - name: incf_comp
+        description: >-
+          Renda familiar de seguro-desemprego, indenização, veteranos e pensões públicas
+          (nominal)
+      - name: incf_comp_tc
+        description: >-
+          Indicador de topo (topcode): renda familiar de seguro-desemprego, indenização,
+          veteranos
+          e pensões públicas
+      - name: incf_uc
+        description: >-
+          Renda familiar de seguro-desemprego (nominal)
+      - name: incf_wcp
+        description: >-
+          Renda familiar de indenização trabalhista (nominal)
+      - name: incf_vet
+        description: >-
+          Renda familiar de pagamentos a veteranos (nominal)
+      - name: incf_srv
+        description: >-
+          Renda familiar de pensão por morte (nominal)
+      - name: incf_dis
+        description: >-
+          Renda familiar de invalidez (nominal)
+      - name: incf_ret
+        description: >-
+          Renda familiar de aposentadoria (nominal)
+      - name: incf_ret_tc
+        description: >-
+          Indicador de topo (topcode): renda familiar de aposentadoria
+      - name: incf_ed
+        description: >-
+          Renda familiar de auxílio educacional (nominal)
+      - name: incf_rnt
+        description: >-
+          Renda familiar de aluguéis (nominal)
+      - name: incf_int
+        description: >-
+          Renda familiar de juros, dividendos e aluguéis líquidos (nominal)
+      - name: incf_int_tc
+        description: >-
+          Indicador de topo (topcode): renda familiar de juros, dividendos e aluguéis
+          líquidos
+      - name: incf_fin
+        description: >-
+          Renda familiar de auxílio financeiro de terceiros (nominal)
+      - name: incf_divo
+        description: >-
+          Renda familiar de dividendos, aluguéis e fundos (nominal)
+      - name: incf_div
+        description: >-
+          Renda familiar de dividendos (nominal)
+      - name: incf_divo_tc
+        description: >-
+          Indicador de topo (topcode): renda familiar de dividendos, aluguéis e fundos
+      - name: incf_oth
+        description: >-
+          Renda familiar de outras fontes (nominal)
+      - name: inch_pct
+        description: >-
+          Percentil nacional de renda domiciliar
+      - name: inch_5pct
+        description: >-
+          Percentil nacional de renda domiciliar (variante)
+      - name: inch_all
+        description: >-
+          Renda domiciliar total (nominal)
+      - name: inch_ern
+        description: >-
+          Renda domiciliar do trabalho (nominal)
+      - name: inch_wag
+        description: >-
+          Renda domiciliar de salários (nominal)
+      - name: inch_sefrm
+        description: >-
+          Renda domiciliar de trabalho autônomo agrícola (nominal)
+      - name: inch_senf
+        description: >-
+          Renda domiciliar de trabalho autônomo não agrícola (nominal)
+      - name: inch_se
+        description: >-
+          Renda domiciliar de trabalho autônomo (nominal)
+      - name: inch_uer
+        description: >-
+          Renda domiciliar de fontes não laborais (nominal)
+      - name: inch_paw
+        description: >-
+          Renda domiciliar de assistência social (nominal)
+      - name: inch_cs
+        description: >-
+          Renda domiciliar de pensão alimentícia para filhos (nominal)
+      - name: inch_alm
+        description: >-
+          Renda domiciliar de pensão ao ex-cônjuge (nominal)
+      - name: inch_ss
+        description: >-
+          Renda domiciliar de previdência social ou aposentadoria ferroviária (nominal)
+      - name: inch_ssi
+        description: >-
+          Renda domiciliar de seguridade suplementar (SSI) (nominal)
+      - name: inch_uc
+        description: >-
+          Renda domiciliar de seguro-desemprego (nominal)
+      - name: inch_wcp
+        description: >-
+          Renda domiciliar de indenização trabalhista (nominal)
+      - name: inch_vet
+        description: >-
+          Renda domiciliar de pagamentos a veteranos (nominal)
+      - name: inch_srv
+        description: >-
+          Renda domiciliar de pensão por morte (nominal)
+      - name: inch_dis
+        description: >-
+          Renda domiciliar de invalidez (nominal)
+      - name: inch_ret
+        description: >-
+          Renda domiciliar de aposentadoria (nominal)
+      - name: inch_ed
+        description: >-
+          Renda domiciliar de auxílio educacional (nominal)
+      - name: inch_rnt
+        description: >-
+          Renda domiciliar de aluguéis (nominal)
+      - name: inch_int
+        description: >-
+          Renda domiciliar de juros, dividendos e aluguéis líquidos (nominal)
+      - name: inch_fin
+        description: >-
+          Renda domiciliar de auxílio financeiro de terceiros (nominal)
+      - name: inch_div
+        description: >-
+          Renda domiciliar de dividendos (nominal)
+      - name: inch_oth
+        description: >-
+          Renda domiciliar de outras fontes (nominal)
+      - name: rincp_all
+        description: >-
+          Renda total (real)
+      - name: rincp_ern
+        description: >-
+          Renda do trabalho (real)
+      - name: rincp_wag
+        description: >-
+          Renda de salários (real)
+      - name: rincp_sefrm
+        description: >-
+          Renda de trabalho autônomo agrícola (real)
+      - name: rincp_senf
+        description: >-
+          Renda de trabalho autônomo não agrícola (real)
+      - name: rincp_se
+        description: >-
+          Renda de trabalho autônomo (real)
+      - name: rincp_uer
+        description: >-
+          Renda de fontes não laborais (real)
+      - name: rincp_paw
+        description: >-
+          Renda de assistência social (real)
+      - name: rincp_cs
+        description: >-
+          Renda de pensão alimentícia para filhos (real)
+      - name: rincp_alm
+        description: >-
+          Renda de pensão ao ex-cônjuge (real)
+      - name: rincp_csalm
+        description: >-
+          Renda de pensão alimentícia e ao ex-cônjuge (real)
+      - name: rincp_ss
+        description: >-
+          Renda de previdência social ou aposentadoria ferroviária (real)
+      - name: rincp_ssi
+        description: >-
+          Renda de seguridade suplementar (SSI) (real)
+      - name: rincp_comp
+        description: >-
+          Renda de seguro-desemprego, indenização, veteranos e pensões públicas (real)
+      - name: rincp_uc
+        description: >-
+          Renda de seguro-desemprego (real)
+      - name: rincp_wcp
+        description: >-
+          Renda de indenização trabalhista (real)
+      - name: rincp_vet
+        description: >-
+          Renda de pagamentos a veteranos (real)
+      - name: rincp_srv
+        description: >-
+          Renda de pensão por morte (real)
+      - name: rincp_dis
+        description: >-
+          Renda de invalidez (real)
+      - name: rincp_ret
+        description: >-
+          Renda de aposentadoria (real)
+      - name: rincp_ed
+        description: >-
+          Renda de auxílio educacional (real)
+      - name: rincp_rnt
+        description: >-
+          Renda de aluguéis (real)
+      - name: rincp_int
+        description: >-
+          Renda de juros, dividendos e aluguéis líquidos (real)
+      - name: rincp_fin
+        description: >-
+          Renda de auxílio financeiro de terceiros (real)
+      - name: rincp_divo
+        description: >-
+          Renda de dividendos, aluguéis e fundos (real)
+      - name: rincp_div
+        description: >-
+          Renda de dividendos (real)
+      - name: rincp_oth
+        description: >-
+          Renda de outras fontes (real)
+      - name: rincf_all
+        description: >-
+          Renda familiar total (real)
+      - name: rincf_ern
+        description: >-
+          Renda familiar do trabalho (real)
+      - name: rincf_wag
+        description: >-
+          Renda familiar de salários (real)
+      - name: rincf_sefrm
+        description: >-
+          Renda familiar de trabalho autônomo agrícola (real)
+      - name: rincf_senf
+        description: >-
+          Renda familiar de trabalho autônomo não agrícola (real)
+      - name: rincf_se
+        description: >-
+          Renda familiar de trabalho autônomo (real)
+      - name: rincf_uer
+        description: >-
+          Renda familiar de fontes não laborais (real)
+      - name: rincf_paw
+        description: >-
+          Renda familiar de assistência social (real)
+      - name: rincf_cs
+        description: >-
+          Renda familiar de pensão alimentícia para filhos (real)
+      - name: rincf_alm
+        description: >-
+          Renda familiar de pensão ao ex-cônjuge (real)
+      - name: rincf_csalm
+        description: >-
+          Renda familiar de pensão alimentícia e ao ex-cônjuge (real)
+      - name: rincf_ss
+        description: >-
+          Renda familiar de previdência social ou aposentadoria ferroviária (real)
+      - name: rincf_ssi
+        description: >-
+          Renda familiar de seguridade suplementar (SSI) (real)
+      - name: rincf_comp
+        description: >-
+          Renda familiar de seguro-desemprego, indenização, veteranos e pensões públicas
+          (real)
+      - name: rincf_uc
+        description: >-
+          Renda familiar de seguro-desemprego (real)
+      - name: rincf_wcp
+        description: >-
+          Renda familiar de indenização trabalhista (real)
+      - name: rincf_vet
+        description: >-
+          Renda familiar de pagamentos a veteranos (real)
+      - name: rincf_srv
+        description: >-
+          Renda familiar de pensão por morte (real)
+      - name: rincf_dis
+        description: >-
+          Renda familiar de invalidez (real)
+      - name: rincf_ret
+        description: >-
+          Renda familiar de aposentadoria (real)
+      - name: rincf_ed
+        description: >-
+          Renda familiar de auxílio educacional (real)
+      - name: rincf_rnt
+        description: >-
+          Renda familiar de aluguéis (real)
+      - name: rincf_int
+        description: >-
+          Renda familiar de juros, dividendos e aluguéis líquidos (real)
+      - name: rincf_fin
+        description: >-
+          Renda familiar de auxílio financeiro de terceiros (real)
+      - name: rincf_divo
+        description: >-
+          Renda familiar de dividendos, aluguéis e fundos (real)
+      - name: rincf_div
+        description: >-
+          Renda familiar de dividendos (real)
+      - name: rincf_oth
+        description: >-
+          Renda familiar de outras fontes (real)
+      - name: rinch_all
+        description: >-
+          Renda domiciliar total (real)
+      - name: rinch_ern
+        description: >-
+          Renda domiciliar do trabalho (real)
+      - name: rinch_wag
+        description: >-
+          Renda domiciliar de salários (real)
+      - name: rinch_sefrm
+        description: >-
+          Renda domiciliar de trabalho autônomo agrícola (real)
+      - name: rinch_senf
+        description: >-
+          Renda domiciliar de trabalho autônomo não agrícola (real)
+      - name: rinch_se
+        description: >-
+          Renda domiciliar de trabalho autônomo (real)
+      - name: rinch_uer
+        description: >-
+          Renda domiciliar de fontes não laborais (real)
+      - name: rinch_paw
+        description: >-
+          Renda domiciliar de assistência social (real)
+      - name: rinch_cs
+        description: >-
+          Renda domiciliar de pensão alimentícia para filhos (real)
+      - name: rinch_alm
+        description: >-
+          Renda domiciliar de pensão ao ex-cônjuge (real)
+      - name: rinch_ss
+        description: >-
+          Renda domiciliar de previdência social ou aposentadoria ferroviária (real)
+      - name: rinch_ssi
+        description: >-
+          Renda domiciliar de seguridade suplementar (SSI) (real)
+      - name: rinch_uc
+        description: >-
+          Renda domiciliar de seguro-desemprego (real)
+      - name: rinch_wcp
+        description: >-
+          Renda domiciliar de indenização trabalhista (real)
+      - name: rinch_vet
+        description: >-
+          Renda domiciliar de pagamentos a veteranos (real)
+      - name: rinch_srv
+        description: >-
+          Renda domiciliar de pensão por morte (real)
+      - name: rinch_dis
+        description: >-
+          Renda domiciliar de invalidez (real)
+      - name: rinch_ret
+        description: >-
+          Renda domiciliar de aposentadoria (real)
+      - name: rinch_ed
+        description: >-
+          Renda domiciliar de auxílio educacional (real)
+      - name: rinch_rnt
+        description: >-
+          Renda domiciliar de aluguéis (real)
+      - name: rinch_int
+        description: >-
+          Renda domiciliar de juros, dividendos e aluguéis líquidos (real)
+      - name: rinch_fin
+        description: >-
+          Renda domiciliar de auxílio financeiro de terceiros (real)
+      - name: rinch_div
+        description: >-
+          Renda domiciliar de dividendos (real)
+      - name: rinch_oth
+        description: >-
+          Renda domiciliar de outras fontes (real)
+      - name: rhrearn
+        description: >-
+          Rendimento por hora (real)
+      - name: rhrwage
+        description: >-
+          Salário por hora (real)
+      - name: fshh
+        description: >-
+          Alguém no domicílio recebe vale-alimentação (food stamps)
+      - name: fshh_val
+        description: >-
+          Valor de vale-alimentação recebido pelo domicílio
+      - name: fshh_num
+        description: >-
+          Número de pessoas no domicílio recebendo vale-alimentação
+      - name: fshh_mon
+        description: >-
+          Número de meses com vale-alimentação no domicílio
+      - name: flhh
+        description: >-
+          Crianças no domicílio com merenda gratuita ou subsidiada
+      - name: flhh_num
+        description: >-
+          Número de crianças no domicílio com merenda gratuita ou subsidiada
+      - name: public
+        description: >-
+          Domicílio em habitação pública
+      - name: rentsub
+        description: >-
+          Subsídio de aluguel para o domicílio
+      - name: energy
+        description: >-
+          Domicílio recebeu auxílio energia
+      - name: energy_val
+        description: >-
+          Valor do auxílio energia recebido pelo domicílio
+      - name: wichh
+        description: >-
+          Alguém no domicílio recebeu assistência WIC
+      - name: wichh_num
+        description: >-
+          Número de pessoas no domicílio recebendo WIC
+      - name: wicp
+        description: >-
+          Pessoa recebeu assistência WIC
+      - name: ccs
+        description: >-
+          Recebeu serviços de creche/cuidado infantil
+      - name: ccshh
+        description: >-
+          Alguém no domicílio recebeu serviços de creche
+      - name: ccshh_num
+        description: >-
+          Número de pessoas no domicílio que receberam creche
+      - name: ccspaid
+        description: >-
+          Alguém no domicílio pagou por creche no ano anterior
+      - name: tanf
+        description: >-
+          Assistência pública (TANF/AFDC)
+      - name: taxinc
+        description: >-
+          Renda tributável estimada
+      - name: filestat
+        description: >-
+          Situação do declarante de imposto
+      - name: margtax
+        description: >-
+          Alíquota marginal de imposto
+      - name: agi
+        description: >-
+          Renda bruta ajustada estimada
+      - name: fedret
+        description: >-
+          Contribuição federal de aposentadoria estimada
+      - name: fica
+        description: >-
+          Contribuição previdenciária (FICA) estimada
+      - name: fedtaxbc
+        description: >-
+          Imposto federal devido antes de créditos (estimado)
+      - name: fedtaxac
+        description: >-
+          Imposto federal devido após créditos (estimado)
+      - name: sttaxbc
+        description: >-
+          Imposto estadual devido antes de créditos (estimado)
+      - name: sttaxac
+        description: >-
+          Imposto estadual devido após créditos (estimado)
+      - name: child_tc
+        description: >-
+          Crédito tributário por filho estimado
+      - name: achild_tc
+        description: >-
+          Crédito tributário adicional por filho estimado
+      - name: eitc
+        description: >-
+          Crédito por renda do trabalho (EITC) estimado
+      - name: prptax
+        description: >-
+          Imposto anual sobre a propriedade
+      - name: povfam
+        description: >-
+          Família em situação de pobreza
+      - name: povuniv
+        description: >-
+          Pessoa no universo de pobreza
+      - name: povpp
+        description: >-
+          Pessoa em situação de pobreza
+      - name: pvlfam
+        description: >-
+          Linha de pobreza da família
+      - name: pvlpp
+        description: >-
+          Linha de pobreza da pessoa
+      - name: pvcfam
+        description: >-
+          Limiar da linha de pobreza da família
+      - name: pvcrsf
+        description: >-
+          Limiar da linha de pobreza da subfamília relacionada
+      - name: pvratio_fam
+        description: >-
+          Razão entre renda familiar e a linha de baixa renda
+      - name: pvratio_sf
+        description: >-
+          Razão entre renda da subfamília e a linha de baixa renda
+      - name: hins
+        description: >-
+          Plano de saúde
+      - name: hipriv
+        description: >-
+          Plano de saúde, privado
+      - name: hiep
+        description: >-
+          Plano de saúde, fornecido pelo empregador (privado)
+      - name: hipind
+        description: >-
+          Plano de saúde, adquirido individualmente
+      - name: himcaid
+        description: >-
+          Plano de saúde, Medicaid
+      - name: himcare
+        description: >-
+          Plano de saúde, Medicare
+      - name: hiothpub
+        description: >-
+          Plano de saúde, CHAMPUS ou saúde militar
+      - name: hipub
+        description: >-
+          Plano de saúde, público
+      - name: hiprivc
+        description: >-
+          Criança coberta por plano privado
+      - name: hiepc
+        description: >-
+          Criança coberta por plano do empregador
+      - name: hipindc
+        description: >-
+          Criança coberta por plano privado individual
+      - name: hiprivc_none
+        description: >-
+          Criança não coberta por plano privado
+      - name: himcc
+        description: >-
+          Criança coberta por Medicaid
+      - name: hischip
+        description: >-
+          Criança coberta por S-CHIP, sem Medicaid
+      - name: hiepdep
+        description: >-
+          Coberto como dependente em plano do empregador
+      - name: hipindep
+        description: >-
+          Coberto como dependente em plano privado individual
+      - name: hiprivdep
+        description: >-
+          Dependente coberto por plano do empregador ou privado
+      - name: hiepsp
+        description: >-
+          Coberto pelo plano do empregador do cônjuge
+      - name: hipindsp
+        description: >-
+          Coberto pelo plano privado individual do cônjuge
+      - name: hiprivsp
+        description: >-
+          Coberto pelo plano privado do cônjuge
+      - name: hi_emp
+        description: >-
+          Coberto por plano do próprio empregador/sindicato
+      - name: higj_all
+        description: >-
+          Plano do próprio empregador/sindicato, totalmente pago pelo empregador
+      - name: higj_part
+        description: >-
+          Plano do próprio empregador/sindicato, parcialmente pago
+      - name: higj_none
+        description: >-
+          Plano do próprio empregador/sindicato, sem pagamento do empregador
+      - name: higj_allprt
+        description: >-
+          Plano do próprio empregador/sindicato, total ou parcialmente pago
+      - name: higj_pind
+        description: >-
+          Coberto por plano privado próprio adquirido individualmente
+      - name: higj_priv
+        description: >-
+          Coberto por plano privado próprio
+      - name: fhipval
+        description: >-
+          Gasto da família com prêmios de plano de saúde
+      - name: fmoop
+        description: >-
+          Gasto direto da família com saúde
+      - name: fotcval
+        description: >-
+          Gasto da família com produtos de saúde de venda livre
+      - name: fmedval
+        description: >-
+          Gasto da família com cuidados e equipamentos médicos
+      - name: pmoop
+        description: >-
+          Gasto direto anual da pessoa com saúde
+      - name: phipval
+        description: >-
+          Gasto anual da pessoa com prêmios de plano de saúde
+      - name: potcval
+        description: >-
+          Gasto da pessoa com produtos de saúde de venda livre
+      - name: pmedval
+        description: >-
+          Gasto da pessoa com cuidados e equipamentos médicos
+      - name: dis_work
+        description: >-
+          Limitação de trabalho por deficiência
+      - name: dis_drs
+        description: >-
+          Dificuldade para vestir-se ou tomar banho
+      - name: dis_ear
+        description: >-
+          Dificuldade auditiva
+      - name: dis_eye
+        description: >-
+          Dificuldade visual (cegueira)
+      - name: dis_out
+        description: >-
+          Dificuldade para fazer tarefas fora de casa
+      - name: dis_phy
+        description: >-
+          Dificuldade para subir escadas
+      - name: dis_rem
+        description: >-
+          Dificuldade para lembrar-se
+      - name: dis_flg
+        description: >-
+          Uma ou mais deficiências
+      - name: pension
+        description: >-
+          Pensão, participação do empregado
+      - name: pensemp
+        description: >-
+          Pensão, patrocínio do empregador
+      - name: mig
+        description: >-
+          Migração
+      - name: mig_flag
+        description: >-
+          Migração, indicador de imputação
+      - name: mstatei
+        description: >-
+          Migração, imputação no nível estadual ou inferior
+      - name: mcountyi
+        description: >-
+          Migração, imputação no nível de condado ou inferior
+      - name: mmcdi
+        description: >-
+          Migração, imputação no nível de MCD ou inferior
+      - name: mplacei
+        description: >-
+          Migração, imputação apenas no nível de localidade
+      - name: mnyci
+        description: >-
+          Migração, imputação para condado em NYC
+      - name: mig5
+        description: >-
+          Migração há 5 anos
+      - name: mig5_flag
+        description: >-
+          Migração há 5 anos, indicador de imputação
+      - name: m5statei
+        description: >-
+          Migração há 5 anos, imputação no nível estadual ou inferior
+      - name: m5countyi
+        description: >-
+          Migração há 5 anos, imputação no nível de condado ou inferior
+      - name: m5mcdi
+        description: >-
+          Migração há 5 anos, imputação no nível de MCD ou inferior
+      - name: m5placei
+        description: >-
+          Migração há 5 anos, imputação apenas no nível de localidade
+      - name: m5nyci
+        description: >-
+          Migração há 5 anos, imputação para condado em NYC
+      - name: mig_m
+        description: >-
+          Migração, áreas metropolitanas
+      - name: mig5_m
+        description: >-
+          Migração há 5 anos, áreas metropolitanas
+      - name: mig_r
+        description: >-
+          Migração, região
+      - name: mig5_r
+        description: >-
+          Migração há 5 anos, região
+      - name: mig_mr
+        description: >-
+          Situação metropolitana da residência no ano anterior
+      - name: mig5_mr
+        description: >-
+          Situação metropolitana da residência há 5 anos
+      - name: mig_rr
+        description: >-
+          Região de residência no ano anterior
+      - name: mig5_rr
+        description: >-
+          Região de residência há 5 anos
+      - name: mig_sh
+        description: >-
+          Não migrante
+      - name: mig5_sh
+        description: >-
+          Não migrante há 5 anos
+      - name: st_lyr
+        description: >-
+          Estado de residência em março do ano anterior
+      - name: st_5yr
+        description: >-
+          Estado de residência em março de cinco anos atrás
+      - name: resmove
+        description: >-
+          Principais motivos da mudança
+      - name: resmove11
+        description: >-
+          Principais motivos da mudança (esquema 2011)
+  - name: us_census_cps__dictionary
+    description: >-
+      Dicionário das colunas categóricas das tabelas org, basic_monthly e march. Uma
+      linha por
+      (tabela, coluna, chave, cobertura temporal), com o rótulo correspondente. Os
+      rótulos vêm
+      dos conjuntos de valores do CEPR quando existem; indicadores 0/1 e o mês na
+      amostra são
+      rotulados de forma explícita. Chaves cuja correspondência muda ao longo do tempo
+      (esquemas de indústria e ocupação, por exemplo) aparecem em linhas distintas,
+      cada uma
+      com sua cobertura temporal.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: >-
+          Nome da tabela à qual a coluna pertence
+      - name: nome_coluna
+        description: >-
+          Nome da coluna categórica descrita pelo dicionário
+      - name: chave
+        description: >-
+          Código ou valor assumido pela coluna categórica
+      - name: cobertura_temporal
+        description: >-
+          Cobertura temporal da chave
+      - name: valor
+        description: >-
+          Rótulo correspondente ao código da coluna categórica

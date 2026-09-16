@@ -1,3 +1,4 @@
+-- atualizado em 2026-08-04
 {{
     config(
         schema="br_tse_filiacao_partidaria",
@@ -11,6 +12,7 @@
         cluster_by=["sigla_uf"],
     )
 }}
+
 with
     tabela as (
         select

@@ -79,6 +79,7 @@ models:
             - ano
             - mes
             - id_municipio
+            - cnpj_basico
             - cnpj_agencia
             - id_verbete
           config:

@@ -122,8 +122,6 @@ models:
         description: Gols no primeiro tempo do time mandante
       - name: gols_1_tempo_visitante
         description: Gols no primeiro tempo do time visitante
-      - name: penalti
-        description: Indicador se o jogo foi para os pênaltis
       - name: escanteios_mandante
         description: Escanteios do time mandante
       - name: escanteios_visitante

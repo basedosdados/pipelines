@@ -1,0 +1,215 @@
+"""Upload the cleaned parquet of us_fec_campaign_finance to BigQuery dev staging.
+
+    python upload.py                 # every table
+    python upload.py candidate       # one table
+
+Targets basedosdados-dev only. Prod table data is never uploaded from here: it is
+materialized by the GitHub table-approve action when the onboarding PR merges
+(.claude/rules/onboarding-workflow.md).
+
+Verifies each staging table's BigQuery row count against the local parquet row count
+and stops at the first mismatch, so a partial upload cannot be mistaken for a good one.
+
+Requires ~/.basedosdados/config.toml. The GCS bucket is requester-pays, so
+gcs.Client.bucket is monkeypatched to pin user_project to the billing project.
+"""
+
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+import basedosdados as bd
+import google.cloud.storage as gcs
+import pyarrow.parquet as pq
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+from pipelines.datasets.us_fec_campaign_finance import (
+    utils as fec,
+)
+
+BILLING_PROJECT = "basedosdados-dev"
+
+# FEC_RSYNC=1 uploads via gcloud storage rsync instead of bd.Table.create's python
+# resumable session — required for contribution_individual (15 GB).
+RSYNC = os.environ.get("FEC_RSYNC") == "1"
+# Resume an interrupted rsync instead of clearing the prefix first.
+RSYNC_RESUME = os.environ.get("FEC_RSYNC_RESUME") == "1"
+DATASET_ID = "us_fec_campaign_finance"
+
+TABLES = [
+    "candidate",
+    "committee",
+    "candidate_committee_link",
+    "contribution_individual",
+    "contribution_committee",
+    "committee_transaction",
+    "disbursement",
+    "dicionario",
+]
+
+_orig_bucket = gcs.Client.bucket
+
+
+def _patched_bucket(self, bucket_name, user_project=None):
+    return _orig_bucket(self, bucket_name, user_project=BILLING_PROJECT)
+
+
+gcs.Client.bucket = _patched_bucket
+
+
+def _credentials_path() -> str:
+    """Path to the service-account key basedosdados is configured to use.
+
+    Read from ~/.basedosdados/config.toml so gcloud and the python client cannot
+    drift onto different identities. The file itself is never opened here — only
+    its path is passed to gcloud.
+    """
+    import tomli
+
+    cfg = tomli.loads(
+        (Path.home() / ".basedosdados" / "config.toml").read_text()
+    )
+    return cfg["gcloud-projects"]["staging"]["credentials_path"]
+
+
+def local_rows(table: str) -> tuple[int, int]:
+    files = sorted((fec.OUTPUT / table).rglob("*.parquet"))
+    return sum(pq.ParquetFile(f).metadata.num_rows for f in files), len(files)
+
+
+def bq_rows(table: str) -> int:
+    result = bd.read_sql(
+        f"select count(*) as n from "
+        f"`{BILLING_PROJECT}.{DATASET_ID}_staging.{table}`",
+        billing_project_id=BILLING_PROJECT,
+        from_file=True,
+    )
+    return int(result["n"].iloc[0])
+
+
+def rsync_to_gcs(table: str) -> None:
+    """Push a table's parquet tree to its staging prefix with `gcloud storage rsync`.
+
+    bd.Table.create uploads through a single-threaded python resumable session, which
+    does not survive a 15 GB transfer: contribution_individual died partway with
+    `SSLError(5, '[SYS] unknown error')` after ~20 minutes, with no resume. rsync is
+    parallel, retries internally, and skips blobs already present, so a failure costs
+    only the file it was on.
+
+    `gcloud storage`, not `gsutil`: gsutil still carries Python 2 code and dies on
+    these files with `module 'sys' has no attribute 'maxint'`. Under `-m` it swallows
+    the per-object error and only reports "1 files/objects could not be copied",
+    which reads like a transient fault rather than a hard incompatibility.
+
+    The blob layout is identical to bd's — staging/<ds>/<table>/year=YYYY/data.parquet
+    — so the external table cannot tell which path uploaded it.
+    """
+    src = str(fec.OUTPUT / table)
+    dest = f"gs://{BILLING_PROJECT}/staging/{DATASET_ID}/{table}"
+    print(f"[{table}] rsync {src} -> {dest}")
+
+    # Drive gcloud with the same service account the rest of this script uses,
+    # rather than whatever user credentials happen to be cached. Those expire, and
+    # when they do gcloud fails with "Reauthentication failed. cannot prompt during
+    # non-interactive execution" — which cannot be recovered from inside a script.
+    env = {
+        **os.environ,
+        "CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE": _credentials_path(),
+    }
+    subprocess.run(
+        [
+            "gcloud",
+            "storage",
+            "rsync",
+            "-r",
+            f"--billing-project={BILLING_PROJECT}",
+            src,
+            dest,
+        ],
+        check=True,
+        env=env,
+    )
+
+
+def create_external_table(table: str) -> None:
+    """Create the staging external table over an already-populated GCS prefix.
+
+    Schema comes from the 0-row 00_header.parquet, so this never reads a multi-GB
+    file into pandas — the same reason that stub exists for the table-approve action.
+    """
+    bq_table = bd.Table(dataset_id=DATASET_ID, table_id=table)
+    bq_table.create(
+        path=str(fec.OUTPUT / table),
+        source_format="parquet",
+        if_table_exists="replace",
+        if_storage_data_exists="pass",  # data is already there from the rsync
+        if_dataset_exists="pass",
+    )
+
+
+def upload_table(table: str) -> None:
+    path = fec.OUTPUT / table
+    if not path.exists():
+        raise SystemExit(
+            f"{table}: nothing cleaned at {path} — run clean.py first"
+        )
+
+    expected, nfiles = local_rows(table)
+    print(f"[{table}] local: {expected:,} rows in {nfiles} parquet file(s)")
+
+    if RSYNC:
+        # Clear the prefix first, exactly as the non-rsync path does. rsync only adds
+        # and overwrites; it does not remove objects that no longer exist locally, so
+        # skipping this would leave a stale partition layout sitting alongside the new
+        # one and the external table would read both — silently double-counting.
+        #
+        # FEC_RSYNC_RESUME=1 skips that delete so an interrupted transfer picks up
+        # where it stopped instead of re-sending 13 GB. Only safe when the local
+        # layout has not changed since the prefix was last cleared — otherwise the
+        # double-counting above is exactly what you get. The row-count check at the
+        # end of this function is the backstop.
+        if not RSYNC_RESUME:
+            bd.Storage(dataset_id=DATASET_ID, table_id=table).delete_table(
+                mode="staging", not_found_ok=True
+            )
+        rsync_to_gcs(table)
+        create_external_table(table)
+    else:
+        # Clear the staging prefix first: leftover objects from an earlier shape
+        # produce BigQuery partition-key conflicts on the external table.
+        storage = bd.Storage(dataset_id=DATASET_ID, table_id=table)
+        storage.delete_table(mode="staging", not_found_ok=True)
+
+        bq_table = bd.Table(dataset_id=DATASET_ID, table_id=table)
+        bq_table.create(
+            path=str(path),
+            source_format="parquet",
+            if_table_exists="replace",
+            if_storage_data_exists="replace",
+            if_dataset_exists="pass",
+        )
+
+    got = bq_rows(table)
+    if got != expected:
+        raise SystemExit(
+            f"{table}: BigQuery has {got:,} rows, local parquet has {expected:,}"
+        )
+    print(f"[{table}] uploaded and verified: {got:,} rows")
+
+
+def main(argv: list[str]) -> None:
+    tables = argv or TABLES
+    unknown = set(tables) - set(TABLES)
+    if unknown:
+        raise SystemExit(f"unknown table(s): {sorted(unknown)}")
+    for table in tables:
+        upload_table(table)
+    print(
+        "\nall requested tables uploaded to "
+        f"{BILLING_PROJECT}.{DATASET_ID}_staging"
+    )
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])

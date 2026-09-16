@@ -1,0 +1,364 @@
+---
+version: 2
+models:
+  - name: us_noaa_storm_events__event
+    description: >-
+      Um registro por evento meteorológico severo registrado pelo National
+      Weather Service nos Estados Unidos e em suas águas costeiras desde 1950,
+      com início e fim, localização, tipo de evento, magnitude, mortos,
+      feridos e estimativas de danos materiais e às lavouras. Fonte do NOAA
+      Storm Data. A cobertura por tipo de evento não é uniforme ao longo do
+      período: apenas tornados são registrados de 1950 a 1954; tornado, vento
+      de tempestade e granizo de 1955 a 1995; e o conjunto completo de tipos
+      somente a partir de 1996. Uma contagem de eventos por ano ao longo de
+      todo o período, sem separar por tipo, mede a expansão do registro e não
+      a ocorrência de eventos. Os valores de danos são publicados pela fonte
+      como texto com sufixo de magnitude e aqui decodificados para dólares
+      correntes, com a forma original preservada nas colunas
+      damage_property_source e damage_crops_source. Complementa
+      us_fema_openfema: este conjunto traz o evento meteorológico tal como
+      observado pelo serviço de meteorologia, enquanto o FEMA traz a decisão
+      administrativa de declarar desastre e o auxílio pago em decorrência
+      dela.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [event_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          # Empty by construction on non-tornado and
+          # non-hurricane events, which are 96%+ of the table.
+          ignore_values:
+            - hurricane_category
+            - tornado_scale
+            - tornado_other_wfo
+            - tornado_other_state_abbreviation
+            - tornado_other_cz_fips
+            - tornado_other_cz_name
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_noaa_storm_events__dicionario')
+          columns_covered_by_dictionary:
+            - event_type
+            - cz_type
+            - magnitude_type
+            - flood_cause
+            - tornado_scale
+            - data_source
+    columns:
+      - name: year
+        description: >-
+          Ano-calendário do início do evento
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: >-
+          Mês-calendário do início do evento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: event_id
+        description: >-
+          Identificador do evento atribuído pelo NWS
+        tests: [not_null]
+      - name: episode_id
+        description: >-
+          Identificador do episódio a que o evento pertence, atribuído pelo
+          NWS
+      - name: state_id
+        description: >-
+          Código FIPS de duas posições do estado, território ou distrito onde
+          o evento ocorreu
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: county_id
+        description: >-
+          Código FIPS de cinco posições do condado onde o evento ocorreu
+      - name: state_name
+        description: >-
+          Nome do estado, território ou zona marítima onde o evento ocorreu,
+          conforme publicado
+      - name: state_fips_nws
+        description: >-
+          Código de estado atribuído pelo NWS, conforme publicado
+      - name: cz_type
+        description: >-
+          Indica se o evento foi registrado por condado (C), por zona de
+          previsão do NWS (Z) ou por zona marítima (M)
+      - name: cz_fips
+        description: >-
+          Código do condado ou da zona de previsão onde o evento ocorreu,
+          conforme publicado
+      - name: cz_name
+        description: >-
+          Nome do condado, da zona de previsão ou da zona marítima onde o
+          evento ocorreu
+      - name: wfo
+        description: >-
+          Sigla do escritório de previsão do NWS responsável pela área em que
+          o evento ocorreu
+      - name: event_type
+        description: >-
+          Tipo de evento meteorológico
+      - name: begin_datetime
+        description: >-
+          Data e hora do início do evento, no fuso horário local indicado em
+          timezone
+      - name: end_datetime
+        description: >-
+          Data e hora do fim do evento, no fuso horário local indicado em
+          timezone
+      - name: timezone
+        description: >-
+          Fuso horário local a que se referem begin_datetime e end_datetime
+      - name: injuries_direct
+        description: >-
+          Número de feridos causados diretamente pelo evento
+      - name: injuries_indirect
+        description: >-
+          Número de feridos causados indiretamente pelo evento
+      - name: deaths_direct
+        description: >-
+          Número de mortes causadas diretamente pelo evento
+      - name: deaths_indirect
+        description: >-
+          Número de mortes causadas indiretamente pelo evento
+      - name: damage_property
+        description: >-
+          Valor estimado dos danos materiais causados pelo evento, em dólares
+          correntes
+      - name: damage_property_source
+        description: >-
+          Valor dos danos materiais na forma textual publicada pela fonte, com
+          o sufixo de magnitude
+      - name: damage_crops
+        description: >-
+          Valor estimado dos danos às lavouras causados pelo evento, em
+          dólares correntes
+      - name: damage_crops_source
+        description: >-
+          Valor dos danos às lavouras na forma textual publicada pela fonte,
+          com o sufixo de magnitude
+      - name: source
+        description: >-
+          Origem do relato do evento
+      - name: magnitude
+        description: >-
+          Magnitude medida ou estimada do evento
+      - name: magnitude_type
+        description: >-
+          Forma de obtenção da magnitude do vento
+      - name: flood_cause
+        description: >-
+          Causa relatada ou estimada da inundação
+      - name: hurricane_category
+        description: >-
+          Categoria do furacão na escala Saffir-Simpson
+      - name: tornado_scale
+        description: >-
+          Intensidade do tornado na escala Fujita ou Fujita Melhorada
+      - name: tornado_length
+        description: >-
+          Extensão do trajeto percorrido pelo tornado em solo
+      - name: tornado_width
+        description: >-
+          Largura do trajeto percorrido pelo tornado em solo
+      - name: tornado_other_wfo
+        description: >-
+          Sigla do escritório de previsão do NWS para o qual o tornado seguiu
+          ao cruzar a fronteira da área de responsabilidade
+      - name: tornado_other_state_abbreviation
+        description: >-
+          Sigla de duas letras do estado para o qual o tornado seguiu
+      - name: tornado_other_cz_fips
+        description: >-
+          Código do condado para o qual o tornado seguiu
+      - name: tornado_other_cz_name
+        description: >-
+          Nome do condado para o qual o tornado seguiu
+      - name: begin_range
+        description: >-
+          Distância entre o ponto inicial do evento e a localidade de
+          referência indicada em begin_location
+      - name: begin_azimuth
+        description: >-
+          Direção do ponto inicial do evento em relação à localidade de
+          referência, na rosa dos ventos de 16 pontos
+      - name: begin_location
+        description: >-
+          Localidade de referência a partir da qual se medem begin_range e
+          begin_azimuth
+      - name: end_range
+        description: >-
+          Distância entre o ponto final do evento e a localidade de referência
+          indicada em end_location
+      - name: end_azimuth
+        description: >-
+          Direção do ponto final do evento em relação à localidade de
+          referência, na rosa dos ventos de 16 pontos
+      - name: end_location
+        description: >-
+          Localidade de referência a partir da qual se medem end_range e
+          end_azimuth
+      - name: begin_latitude
+        description: >-
+          Latitude do ponto inicial do evento, em graus decimais
+      - name: begin_longitude
+        description: >-
+          Longitude do ponto inicial do evento, em graus decimais
+      - name: end_latitude
+        description: >-
+          Latitude do ponto final do evento, em graus decimais
+      - name: end_longitude
+        description: >-
+          Longitude do ponto final do evento, em graus decimais
+      - name: episode_narrative
+        description: >-
+          Descrição do episódio meteorológico a que o evento pertence,
+          redigida pelo NWS
+      - name: event_narrative
+        description: >-
+          Descrição do evento, redigida pelo NWS
+      - name: data_source
+        description: >-
+          Meio pelo qual o registro entrou na base
+  - name: us_noaa_storm_events__fatality
+    description: >-
+      Um registro por morte atribuída a um evento meteorológico severo, ligada
+      ao evento por event_id, com idade, sexo, tipo de local e se a morte foi
+      causada direta ou indiretamente pelo evento. Fonte do NOAA Storm Data. O
+      identificador fatality_id não é único em todo o período porque a fonte
+      reiniciou a numeração; a chave da tabela é o par (event_id,
+      fatality_id).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [event_id, fatality_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_noaa_storm_events__dicionario')
+          columns_covered_by_dictionary: [fatality_type, sex, location]
+    columns:
+      - name: year
+        description: >-
+          Ano-calendário do evento a que a morte é atribuída
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: event_id
+        description: >-
+          Identificador do evento a que a morte é atribuída, atribuído pelo
+          NWS
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_noaa_storm_events__event')
+              field: event_id
+      - name: fatality_id
+        description: >-
+          Identificador da morte atribuído pelo NWS
+        tests: [not_null]
+      - name: fatality_datetime
+        description: >-
+          Data e hora da morte
+      - name: fatality_type
+        description: >-
+          Indica se a morte foi causada direta (D) ou indiretamente (I) pelo
+          evento
+      - name: age
+        description: >-
+          Idade da vítima em anos completos
+      - name: sex
+        description: >-
+          Sexo da vítima
+      - name: location
+        description: >-
+          Tipo de local em que a vítima se encontrava
+  - name: us_noaa_storm_events__event_location
+    description: >-
+      Um registro por ponto geográfico associado a um evento meteorológico
+      severo, ligado ao evento por event_id, com latitude e longitude e a
+      localidade de referência a partir da qual a distância e o azimute são
+      medidos. Fonte do NOAA Storm Data. Um mesmo evento pode ter vários
+      pontos, numerados em location_index. A cobertura começa em 1996, com
+      dois registros isolados em 1972 e nenhum nos demais anos anteriores.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [event_id, location_index]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano-calendário do evento a que a localização pertence
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: event_id
+        description: >-
+          Identificador do evento a que a localização pertence, atribuído pelo
+          NWS
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_noaa_storm_events__event')
+              field: event_id
+      - name: episode_id
+        description: >-
+          Identificador do episódio a que o evento pertence, atribuído pelo
+          NWS
+      - name: location_index
+        description: >-
+          Número de ordem da localização dentro do mesmo evento
+        tests: [not_null]
+      - name: location_range
+        description: >-
+          Distância entre o ponto registrado e a localidade de referência
+          indicada em location_name
+      - name: location_azimuth
+        description: >-
+          Direção do ponto registrado em relação à localidade de referência,
+          na rosa dos ventos de 16 pontos
+      - name: location_name
+        description: >-
+          Localidade de referência a partir da qual se medem location_range e
+          location_azimuth
+      - name: latitude
+        description: >-
+          Latitude do ponto registrado, em graus decimais
+      - name: longitude
+        description: >-
+          Longitude do ponto registrado, em graus decimais
+  - name: us_noaa_storm_events__dicionario
+    description: >-
+      Registro dos valores assumidos pelas colunas codificadas das tabelas
+      event e fatality, com a cobertura temporal de cada valor. A fonte
+      publica rótulos legíveis na maior parte dessas colunas, de modo que
+      valor repete chave onde não há código a traduzir; a coluna
+      cobertura_temporal é o que expõe que o vocabulário de event_type não é
+      estável ao longo do período.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+    columns:
+      - name: id_tabela
+        description: Nome da tabela a que a coluna codificada pertence
+        tests: [not_null]
+      - name: nome_coluna
+        description: Nome da coluna codificada
+        tests: [not_null]
+      - name: chave
+        description: Valor armazenado na coluna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: Anos em que o valor aparece, na notação início(intervalo)fim
+      - name: valor
+        description: Significado do valor armazenado

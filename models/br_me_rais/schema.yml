@@ -50,6 +50,7 @@ models:
             - indicador_cei_vinculado
             - indicador_trabalho_parcial
             - indicador_trabalho_intermitente
+            - indicador_vinculo_abandonado
             - faixa_remuneracao_media_sm
             - faixa_remuneracao_dezembro_sm
             - tipo_salario
@@ -71,6 +72,19 @@ models:
             - bairros_rj
             - regioes_administrativas_df
           dictionary_model: ref('br_me_rais__dicionario')
+          config:
+            where: __most_recent_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year__
+          ignore_values:
+            - tipo_salario
+            - valor_salario_contratual
+            - subatividade_ibge
+            - cbo_1994
+            - grau_instrucao_1985_2005
+            - id_municipio_trabalho
     columns:
       - name: ano
         description: Ano
@@ -78,6 +92,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: sigla_uf
         description: Sigla da Unidade da Federação
         tests:
@@ -86,12 +102,16 @@ models:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
               ignore_values: [IGNORADO]
+              config:
+                where: __most_recent_year__
       - name: id_municipio
         description: ID Município - IBGE 7 Dígitos
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+              config:
+                where: __most_recent_year__
       - name: tipo_vinculo
         description: Tipo do Vínculo
       - name: vinculo_ativo_3112
@@ -119,11 +139,17 @@ models:
       - name: quantidade_horas_contratadas
         description: Quantidade de Horas Contratadas
       - name: id_municipio_trabalho
-        description: ID Município de Trabalho
+        description: >-
+          ID Município de Trabalho. A fonte deixou de informar o município a partir
+          de 2023 e passou a enviar o código 999999 (não informado), que não tem
+          correspondência no diretório de municípios; a coluna está preenchida em
+          menos de 0,4% das linhas de 2023 em diante
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+              config:
+                where: __most_recent_year__
       - name: quantidade_dias_afastamento
         description: Quantidade de Dias sob Afastamento
       - name: indicador_cei_vinculado
@@ -132,6 +158,8 @@ models:
         description: Indicador Trabalho Parcial
       - name: indicador_trabalho_intermitente
         description: Indicador Trabalho Intermitente
+      - name: indicador_vinculo_abandonado
+        description: Indicador de Vínculo Abandonado
       - name: faixa_remuneracao_media_sm
         description: Faixa Remuneração Média (Salários Mínimos)
       - name: valor_remuneracao_media_sm
@@ -191,6 +219,8 @@ models:
                 - '342525'
                 - '{ñ cla'
                 - '722225'
+              config:
+                where: __most_recent_year__
         description: Classificação Brasileira de Ocupações (CBO) 2002
       - name: faixa_etaria
         description: Faixa Etária
@@ -218,20 +248,32 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__subatividade_ibge')
               field: id_subatividade
+              config:
+                where: __most_recent_year__
       - name: subsetor_ibge
         description: Subsetor - IBGE
       - name: cnae_1
         description: Classificação Nacional de Atividades Econômicas (CNAE) 1.0
       - name: cnae_2
         description: Classificação Nacional de Atividades Econômicas (CNAE) 2.0
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__cnae_2')
+              field: classe
+              ignore_values: ['99999', '86305']
+              tags: [cnae_2]
+              config:
+                where: __most_recent_year__
       - name: cnae_2_subclasse
         description: Classificação Nacional de Atividades Econômicas (CNAE) 2.0 Subclasse
         tests:
           - custom_relationships:
               to: ref('br_bd_diretorios_brasil__cnae_2')
               field: subclasse
-              ignore_values: ['9999999', '8630505']
+              ignore_values: ['9999997', 00000-1, '8630505', '3312101', '9999999']  # cnae excluídas: https://www.lefisc.com.br/dim/plantoes/22-07-2020/Decreto10410.htm
               tags: [cnae_2_subclasse]
+              config:
+                where: __most_recent_year__
       - name: tamanho_estabelecimento
         description: Tamanho do Estabelecimento
       - name: tipo_estabelecimento
@@ -265,6 +307,11 @@ models:
             - tipo_estabelecimento
             - natureza_estabelecimento
           dictionary_model: ref('br_me_rais__dicionario')
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year__
+          ignore_values: [natureza_estabelecimento, subatividade_ibge]
     columns:
       - name: ano
         description: Ano

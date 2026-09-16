@@ -1,0 +1,97 @@
+---
+version: 2
+models:
+  - name: br_inmet_bdmep__microdados  ## modelo dbt.sql que está no diretório
+    description: Microdados do Instituto Nacional de Meteorologia
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.40
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data, hora, id_estacao]
+          config:
+            where: __most_recent_year_month__
+    columns:
+      - name: ano
+        description: Ano
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: data
+        description: Data
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: hora
+        description: Hora (UTC)
+      - name: mes
+        description: Mês
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_estacao
+        description: ID da estação meteorológica
+        tests: [not_null]
+      - name: precipitacao_total
+        description: Precipitação total, horária
+      - name: pressao_atm_hora
+        description: Pressão atmosférica ao nível da estação, horária
+      - name: pressao_atm_max
+        description: Pressão atmosférica máxima ao nível da estação, na hora anterior
+      - name: pressao_atm_min
+        description: Pressão atmosférica mínima ao nível da estação, na hora anterior
+      - name: radiacao_global
+        description: Radiação global
+      - name: temperatura_bulbo_hora
+        description: Temperatura do ar - bulbo seco, horária
+      - name: temperatura_orvalho_hora
+        description: Temperatura do ponto de orvalho, horária
+      - name: temperatura_max
+        description: Temperatura máxima, hora anterior
+      - name: temperatura_min
+        description: Temperatura mínima, hora anterior
+      - name: temperatura_orvalho_max
+        description: Temperatura de orvalho máxima, hora anterior
+      - name: temperatura_orvalho_min
+        description: Temperatura de orvalho mínima, hora anterior
+      - name: umidade_rel_max
+        description: Umidade relativa máxima, hora anterior
+      - name: umidade_rel_min
+        description: Umidade relativa mínima, hora anterior
+      - name: umidade_rel_hora
+        description: Umidade relativa, horária
+      - name: vento_direcao
+        description: Direção do vento
+      - name: vento_rajada_max
+        description: Vento, rajada máxima
+      - name: vento_velocidade
+        description: Vento, velocidade horária
+  - name: br_inmet_bdmep__estacao  ## modelo dbt.sql que está no diretório
+    description: Estações meteorológicas do Instituto Nacional de Meteorologia
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_estacao]
+    columns:
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_estacao
+        description: ID da estação meteorológica
+        tests: [not_null]
+      - name: estacao
+        description: Nome da estação meteorológica
+      - name: data_fundacao
+        description: Data de fundação da estação meteorológica
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: geolocalizacao
+        description: Latitude e longitude da estação meteorológica
+      - name: altitude
+        description: Altitude da estação meteorológica

@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_tabela,STRING,Slug of the au_doe_higher_education_finances table the entry describes,,no,,,no,,
+nome_coluna,STRING,Name of the column the entry describes,,no,,,no,,
+chave,STRING,Coded value (key) exactly as stored in the data,,no,,,no,,
+cobertura_temporal,STRING,Temporal coverage of the entry,,no,,,no,,
+valor,STRING,Meaning of the coded value,,no,,,no,,

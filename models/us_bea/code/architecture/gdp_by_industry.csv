@@ -1,0 +1,10 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+year,INT64,Ano de referência,,no,,year,no,,TimePeriod,Reference year,Año de referencia
+quarter,INT64,Trimestre,,no,,quarter,no,Valores de 1 a 4; nulo para frequência não trimestral.,TimePeriod,Quarter,Trimestre
+frequency,STRING,Frequência da série,,yes,,,no,"A (anual/annual), Q (trimestral/quarterly), M (mensal/monthly).",Frequency,Series frequency,Frecuencia de la serie
+table_id,STRING,Identificador da tabela BEA,,yes,,,no,"Por exemplo, 1.",TableName,BEA table identifier,Identificador de la tabla BEA
+table_description,STRING,Descrição da tabela de PIB por indústria,,no,,,no,,TableID,Description of the GDP-by-industry table,Descripción de la tabla de PIB por industria
+industry,STRING,Código de indústria BEA,,yes,,,no,,Industry,BEA industry code,Código de industria BEA
+industry_description,STRING,Descrição da indústria ou do componente,,no,,,no,"Nas tabelas de composição (por exemplo, TableID 6, 7, 25, 26) identifica o componente do agregado, não a indústria.",IndustrYDescription,Description of the industry or component,Descripción de la industria o del componente
+value,FLOAT64,Valor observado,,no,,,no,"Na unidade indicada em unit e unit_mult; a unidade varia por linha (dólares correntes, dólares encadeados, índice, porcentagem), por isso measurement_unit fica em branco.",DataValue,Observed value,Valor observado
+note_ref,STRING,Referência de nota de rodapé da BEA para a observação,,no,,,no,,NoteRef,BEA footnote reference for the observation,Referencia de nota al pie de la BEA para la observación

@@ -1,0 +1,308 @@
+---
+version: 2
+models:
+  - name: world_un_wpp__demographic_indicators
+    description: >
+      Annual demographic indicators by country from the United Nations World
+      Population Prospects, 2024 revision. Covers population stocks, fertility,
+      mortality, life expectancy, and migration for countries and areas only
+      (no aggregates). Values for 1950-2023 are estimates; values for 2024-2100
+      (population stocks through 2101) are Medium-variant projections. Counts
+      (population, births, deaths, migrations) are expressed in thousands;
+      crude rates are per 1,000 population. Rows for year 2101 carry only the
+      1 January total population stock; all other indicators are null in that
+      year. Population doubling time is null when the growth rate is zero or
+      negative.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, country_iso3_code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >
+          Year of reference. 1950-2023 are estimates; 2024 onwards are
+          Medium-variant projections
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: >
+          Country or area ISO 3166-1 alpha-3 code
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+              ignore_values: [XKX]
+      - name: total_population_1_january
+        description: >
+          Total population on 1 January, both sexes combined, in thousands
+      - name: total_population_1_july
+        description: >
+          Total population on 1 July (mid-year), both sexes combined, in
+          thousands
+      - name: total_population_male_1_july
+        description: >
+          Male population on 1 July (mid-year), in thousands
+      - name: total_population_female_1_july
+        description: >
+          Female population on 1 July (mid-year), in thousands
+      - name: population_density
+        description: >
+          Population density on 1 July, persons per square kilometer
+      - name: population_sex_ratio
+        description: >
+          Population sex ratio on 1 July, males per 100 females
+      - name: median_age
+        description: >
+          Median age of the population on 1 July, in years
+      - name: natural_change
+        description: >
+          Natural change of the population (births minus deaths), in thousands
+      - name: rate_natural_change
+        description: >
+          Rate of natural change of the population, per 1,000 population
+      - name: population_change
+        description: >
+          Total population change (natural change plus net migration), in
+          thousands
+      - name: population_growth_rate
+        description: >
+          Population growth rate, in percentage
+      - name: population_doubling_time
+        description: >
+          Population annual doubling time, in years. Null when the growth rate
+          is zero or negative
+      - name: births
+        description: >
+          Number of live births, both sexes combined, in thousands
+      - name: births_women_age_15_19
+        description: >
+          Number of live births to women aged 15 to 19 years, in thousands
+      - name: crude_birth_rate
+        description: >
+          Crude birth rate, births per 1,000 population
+      - name: total_fertility_rate
+        description: >
+          Total fertility rate, live births per woman
+      - name: net_reproduction_rate
+        description: >
+          Net reproduction rate, surviving daughters per woman
+      - name: mean_age_childbearing
+        description: >
+          Mean age of childbearing, in years
+      - name: sex_ratio_at_birth
+        description: >
+          Sex ratio at birth, male births per female birth
+      - name: total_deaths
+        description: >
+          Total number of deaths, both sexes combined, in thousands
+      - name: total_deaths_male
+        description: >
+          Number of male deaths, in thousands
+      - name: total_deaths_female
+        description: >
+          Number of female deaths, in thousands
+      - name: crude_death_rate
+        description: >
+          Crude death rate, deaths per 1,000 population
+      - name: life_expectancy_at_birth
+        description: >
+          Life expectancy at birth, both sexes combined, in years
+      - name: life_expectancy_at_birth_male
+        description: >
+          Male life expectancy at birth, in years
+      - name: life_expectancy_at_birth_female
+        description: >
+          Female life expectancy at birth, in years
+      - name: life_expectancy_at_15
+        description: >
+          Life expectancy at age 15, both sexes combined, in years
+      - name: life_expectancy_at_15_male
+        description: >
+          Male life expectancy at age 15, in years
+      - name: life_expectancy_at_15_female
+        description: >
+          Female life expectancy at age 15, in years
+      - name: life_expectancy_at_65
+        description: >
+          Life expectancy at age 65, both sexes combined, in years
+      - name: life_expectancy_at_65_male
+        description: >
+          Male life expectancy at age 65, in years
+      - name: life_expectancy_at_65_female
+        description: >
+          Female life expectancy at age 65, in years
+      - name: life_expectancy_at_80
+        description: >
+          Life expectancy at age 80, both sexes combined, in years
+      - name: life_expectancy_at_80_male
+        description: >
+          Male life expectancy at age 80, in years
+      - name: life_expectancy_at_80_female
+        description: >
+          Female life expectancy at age 80, in years
+      - name: infant_deaths
+        description: >
+          Number of infant deaths (under age 1), both sexes combined, in
+          thousands
+      - name: infant_mortality_rate
+        description: >
+          Infant mortality rate, infant deaths per 1,000 live births
+      - name: live_births_surviving_age_1
+        description: >
+          Number of live births surviving to age 1, both sexes combined, in
+          thousands
+      - name: under_5_deaths
+        description: >
+          Number of deaths under age 5, both sexes combined, in thousands
+      - name: under_5_mortality_rate
+        description: >
+          Under-5 mortality rate, deaths under age 5 per 1,000 live births
+      - name: mortality_before_age_40
+        description: >
+          Mortality before age 40, both sexes combined, deaths under age 40
+          per 1,000 live births
+      - name: mortality_before_age_40_male
+        description: >
+          Male mortality before age 40, deaths under age 40 per 1,000 male
+          live births
+      - name: mortality_before_age_40_female
+        description: >
+          Female mortality before age 40, deaths under age 40 per 1,000 female
+          live births
+      - name: mortality_before_age_60
+        description: >
+          Mortality before age 60, both sexes combined, deaths under age 60
+          per 1,000 live births
+      - name: mortality_before_age_60_male
+        description: >
+          Male mortality before age 60, deaths under age 60 per 1,000 male
+          live births
+      - name: mortality_before_age_60_female
+        description: >
+          Female mortality before age 60, deaths under age 60 per 1,000 female
+          live births
+      - name: mortality_between_age_15_50
+        description: >
+          Mortality between age 15 and 50, both sexes combined, deaths under
+          age 50 per 1,000 alive at age 15
+      - name: mortality_between_age_15_50_male
+        description: >
+          Male mortality between age 15 and 50, deaths under age 50 per 1,000
+          males alive at age 15
+      - name: mortality_between_age_15_50_female
+        description: >
+          Female mortality between age 15 and 50, deaths under age 50 per
+          1,000 females alive at age 15
+      - name: mortality_between_age_15_60
+        description: >
+          Mortality between age 15 and 60, both sexes combined, deaths under
+          age 60 per 1,000 alive at age 15
+      - name: mortality_between_age_15_60_male
+        description: >
+          Male mortality between age 15 and 60, deaths under age 60 per 1,000
+          males alive at age 15
+      - name: mortality_between_age_15_60_female
+        description: >
+          Female mortality between age 15 and 60, deaths under age 60 per
+          1,000 females alive at age 15
+      - name: net_migrations
+        description: >
+          Net number of migrants (immigrants minus emigrants), in thousands
+      - name: net_migration_rate
+        description: >
+          Net migration rate, per 1,000 population
+  - name: world_un_wpp__population_age_group_sex
+    description: >
+      Population by country, year, five-year age group, and sex from the
+      United Nations World Population Prospects, 2024 revision. Population is
+      the stock on 1 January, in thousands, for countries and areas only (no
+      aggregates). Values for 1950-2023 are estimates; values for 2024-2101
+      are Medium-variant projections.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, country_iso3_code, age_group]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >
+          Year of reference. 1950-2023 are estimates; 2024 onwards are
+          Medium-variant projections
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: >
+          Country or area ISO 3166-1 alpha-3 code
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+              ignore_values: [XKX]
+      - name: age_group
+        description: >
+          Five-year age group, from 0-4 to 100+ (21 groups)
+        tests: [not_null]
+      - name: population_male
+        description: >
+          Male population on 1 January, in thousands
+      - name: population_female
+        description: >
+          Female population on 1 January, in thousands
+      - name: population_total
+        description: >
+          Total population on 1 January, both sexes combined, in thousands
+  - name: world_un_wpp__population_single_age_sex
+    description: >
+      Population by country, year, single age, and sex from the United Nations
+      World Population Prospects, 2024 revision. Population is the stock on
+      1 July (mid-year), in thousands, for countries and areas only (no
+      aggregates). Values for 1950-2023 are estimates; values for 2024-2100
+      are Medium-variant projections.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, country_iso3_code, age]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >
+          Year of reference. 1950-2023 are estimates; 2024 onwards are
+          Medium-variant projections
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: >
+          Country or area ISO 3166-1 alpha-3 code
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+              ignore_values: [XKX]
+      - name: age
+        description: >
+          Single age in completed years, from 0 to 100. Age 100 is the
+          open-ended group 100 and over
+        tests: [not_null]
+      - name: population_male
+        description: >
+          Male population on 1 July (mid-year), in thousands
+      - name: population_female
+        description: >
+          Female population on 1 July (mid-year), in thousands
+      - name: population_total
+        description: >-
+          Total population on 1 July (mid-year), both sexes combined, in
+          thousands

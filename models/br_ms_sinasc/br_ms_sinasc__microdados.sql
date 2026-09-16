@@ -6,12 +6,22 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 1994, "end": 2023, "interval": 1},
+            "range": {"start": 1994, "end": 2029, "interval": 1},
         },
         cluster_by="sigla_uf",
     )
 }}
+
 with
+    codigos_uf_ibge as (
+        select cast(id_uf as string) as codigo_uf
+        from `basedosdados.br_bd_diretorios_brasil.uf`
+    ),
+
+    municipios_validos as (
+        select id_municipio from `basedosdados.br_bd_diretorios_brasil.municipio`
+    ),
+
     municipio_mae_6 as (
         select distinct id_municipio, id_municipio_6
         from {{ set_datalake_project("br_ms_sinasc_staging.microdados") }} mm6
@@ -19,11 +29,28 @@ with
             `basedosdados.br_bd_diretorios_brasil.municipio` m
             on m.id_municipio_6 = mm6.id_municipio_mae
     )
+
 select
     safe_cast(ano as int64) ano,
     safe_cast(sigla_uf as string) sigla_uf,
     safe_cast(sequencial_nascimento as string) sequencial_nascimento,
-    safe_cast(id_municipio_nascimento as string) id_municipio_nascimento,
+
+    safe_cast(
+        case
+            when
+                length(id_municipio_nascimento) = 7
+                and right(id_municipio_nascimento, 5) = '00000'
+                and left(id_municipio_nascimento, 2)
+                in (select codigo_uf from codigos_uf_ibge)
+            then null
+            when
+                id_municipio_nascimento
+                not in (select id_municipio from municipios_validos)
+            then null
+            else id_municipio_nascimento
+        end as string
+    ) id_municipio_nascimento,
+
     safe_cast(local_nascimento as string) local_nascimento,
     safe_cast(codigo_estabelecimento as string) codigo_estabelecimento,
     safe_cast(data_nascimento as date) data_nascimento,
@@ -48,22 +75,68 @@ select
     safe_cast(quantidade_filhos_mortos as int64) quantidade_filhos_mortos,
     safe_cast(id_pais_mae as string) id_pais_mae,
     safe_cast(id_uf_mae as string) id_uf_mae,
+
     safe_cast(
         case
             when length(id_municipio_mae) = 6
             then
-                (
-                    select id_municipio
-                    from municipio_mae_6 m1
-                    where m1.id_municipio_6 = t.id_municipio_mae
-                )
+                case
+                    when
+                        (
+                            select id_municipio
+                            from municipio_mae_6 m1
+                            where m1.id_municipio_6 = t.id_municipio_mae
+                        )
+                        is null
+                    then null
+                    when
+                        right(id_municipio_mae, 5) = '00000'
+                        and left(id_municipio_mae, 2)
+                        in (select codigo_uf from codigos_uf_ibge)
+                    then null
+                    else
+                        (
+                            select id_municipio
+                            from municipio_mae_6 m1
+                            where m1.id_municipio_6 = t.id_municipio_mae
+                        )
+                end
             when length(id_municipio_mae) = 7
-            then id_municipio_mae
+            then
+                case
+                    when
+                        right(id_municipio_mae, 5) = '00000'
+                        and left(id_municipio_mae, 2)
+                        in (select codigo_uf from codigos_uf_ibge)
+                    then null
+                    when
+                        id_municipio_mae
+                        not in (select id_municipio from municipios_validos)
+                    then null
+                    else id_municipio_mae
+                end
             else null
         end as string
     ) id_municipio_mae,
+
     safe_cast(id_pais_residencia as string) id_pais_residencia,
-    safe_cast(id_municipio_residencia as string) id_municipio_residencia,
+
+    safe_cast(
+        case
+            when
+                length(id_municipio_residencia) = 7
+                and right(id_municipio_residencia, 5) = '00000'
+                and left(id_municipio_residencia, 2)
+                in (select codigo_uf from codigos_uf_ibge)
+            then null
+            when
+                id_municipio_residencia
+                not in (select id_municipio from municipios_validos)
+            then null
+            else id_municipio_residencia
+        end as string
+    ) id_municipio_residencia,
+
     safe_cast(data_nascimento_mae as date) data_nascimento_mae,
     safe_cast(idade_mae as int64) idade_mae,
     safe_cast(escolaridade_mae as string) escolaridade_mae,

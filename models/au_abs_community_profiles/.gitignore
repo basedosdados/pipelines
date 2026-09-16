@@ -1,0 +1,7 @@
+# Raw downloads and cleaned outputs — never commit data
+input/
+output/
+
+# Generated metadata artifacts (regenerate via code/gen_*.py; embed env-specific IDs)
+code/columns_json/
+code/tables_meta.json

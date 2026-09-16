@@ -1,0 +1,11 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_party,STRING,"Party or list, GERDA normalized name",,no,,,no,,id_party
+name,STRING,Party name in English (ParlGov) or a readable form of the GERDA name,,no,,,no,,name
+name_short,STRING,Short party name (ParlGov),,no,,,no,,name_short
+family,STRING,Party family (ParlGov),,no,,,no,,family
+left_right,FLOAT64,Left-right ideology score from ParlGov (0 left to 10 right),,no,,,no,,left_right
+parlgov_party_id,STRING,ParlGov party identifier,,no,,,no,,parlgov_party_id
+is_far_right,STRING,"1 if classified far right by GERDA, else 0",,no,,,no,,is_far_right
+is_far_left,STRING,"1 if classified far left by GERDA (excluding Die Linke/PDS), else 0",,no,,,no,,is_far_left
+is_cdu_csu,STRING,"1 if the party is CDU or CSU, else 0",,no,,,no,,is_cdu_csu
+category,STRING,"Row category: party, residual_other, local_voter_groups, or independents",,no,,,no,,category

@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano de abertura da inspeção associada,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Derivado de inspection.open_date. Registros cujo inspection_id não existe em inspection recebem year = 9999,
+inspection_id,STRING,Identificador único da inspeção (activity number) da OSHA,,no,,,no,,ACTIVITY_NR
+citation_id,STRING,"Identificador da citação: número da citação, do item e do grupo do item",,no,,,no,,CITATION_ID
+text,STRING,Texto integral da descrição da violação,,no,,,yes,"Remontado juntando as linhas de line_nr em ordem, separadas por espaço",
+line_count,INT64,Número de linhas do arquivo de origem que compõem o texto,,no,,line,no,,

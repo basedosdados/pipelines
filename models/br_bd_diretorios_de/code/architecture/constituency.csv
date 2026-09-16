@@ -1,0 +1,5 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_constituency,STRING,Constituency identifier: federal_<nr> or state_<state>_<nr>,,no,,,no,,id_constituency
+constituency_type,STRING,Level of the constituency: federal or state,,no,,,no,,constituency_type
+id_state,STRING,"State identifier, 2-digit Land code",,no,br_bd_diretorios_de.state:id_state,,no,,id_state
+name,STRING,Constituency (Wahlkreis) name,,no,,,no,,name

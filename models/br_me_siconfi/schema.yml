@@ -9,7 +9,7 @@ models:
     columns:
       - name: ano
         description: Ano
-        test: [not_null]
+        tests: [not_null]
       - name: sigla_uf
         description: Sigla da unidade da federação
         tests:
@@ -40,7 +40,7 @@ models:
     columns:
       - name: ano
         description: Ano
-        test: [not_null]
+        tests: [not_null]
       - name: sigla_uf
         description: Sigla da unidade da federação
         tests:
@@ -60,11 +60,11 @@ models:
       - name: conta
         description: Conta
       - name: estagio_bd
-        description: Estágio - Compatibilizado pela Base dos Dados
+        description: Estágio - Base dos Dados
       - name: id_conta_bd
-        description: ID Conta - Compatibilizado pela Base dos Dados
+        description: ID Conta - Base dos Dados
       - name: conta_bd
-        description: Conta - Compatibilizado pela Base dos Dados
+        description: Conta - Base dos Dados
       - name: valor
         description: Valor
   - name: br_me_siconfi__municipio_despesas_orcamentarias
@@ -75,7 +75,7 @@ models:
     columns:
       - name: ano
         description: Ano
-        test: [not_null]
+        tests: [not_null]
       - name: sigla_uf
         description: Sigla da unidade da federação
         tests:
@@ -95,11 +95,11 @@ models:
       - name: conta
         description: Conta
       - name: estagio_bd
-        description: Estágio - Compatibilizado pela Base dos Dados
+        description: Estágio - Base dos Dados
       - name: id_conta_bd
-        description: ID Conta - Compatibilizado pela Base dos Dados
+        description: ID Conta - Base dos Dados
       - name: conta_bd
-        description: Conta - Compatibilizado pela Base dos Dados
+        description: Conta - Base dos Dados
       - name: valor
         description: Valor
   - name: br_me_siconfi__municipio_receitas_orcamentarias
@@ -110,7 +110,7 @@ models:
     columns:
       - name: ano
         description: Ano
-        test: [not_null]
+        tests: [not_null]
       - name: sigla_uf
         description: Sigla da unidade da federação
         tests:
@@ -130,11 +130,11 @@ models:
       - name: conta
         description: Conta
       - name: estagio_bd
-        description: Estágio - Compatibilizado pela Base dos Dados
+        description: Estágio - Base dos Dados
       - name: id_conta_bd
-        description: ID Conta - Compatibilizado pela Base dos Dados
+        description: ID Conta - Base dos Dados
       - name: conta_bd
-        description: Conta - Compatibilizado pela Base dos Dados
+        description: Conta - Base dos Dados
       - name: valor
         description: Valor
   - name: br_me_siconfi__uf_despesas_funcao
@@ -145,19 +145,13 @@ models:
     columns:
       - name: ano
         description: Ano
-        test: [not_null]
+        tests: [not_null]
       - name: sigla_uf
         description: Sigla da unidade da federação
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-      - name: id_uf
-        description: ID da Unidade da Federação
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_brasil__uf')
-              field: id_uf
       - name: estagio
         description: Estágio
       - name: portaria
@@ -165,11 +159,11 @@ models:
       - name: conta
         description: Conta
       - name: estagio_bd
-        description: Estágio - Compatibilizado pela Base dos Dados
+        description: Estágio - Base dos Dados
       - name: id_conta_bd
-        description: ID Conta - Compatibilizado pela Base dos Dados
+        description: ID Conta - Base dos Dados
       - name: conta_bd
-        description: Conta - Compatibilizado pela Base dos Dados
+        description: Conta - Base dos Dados
       - name: valor
         description: Valor
   - name: br_me_siconfi__uf_despesas_orcamentarias
@@ -180,19 +174,13 @@ models:
     columns:
       - name: ano
         description: Ano
-        test: [not_null]
+        tests: [not_null]
       - name: sigla_uf
         description: Sigla da unidade da federação
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-      - name: id_uf
-        description: ID da Unidade da Federação
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_brasil__uf')
-              field: id_uf
       - name: estagio
         description: Estágio
       - name: portaria
@@ -200,11 +188,338 @@ models:
       - name: conta
         description: Conta
       - name: estagio_bd
-        description: Estágio - Compatibilizado pela Base dos Dados
+        description: Estágio - Base dos Dados
       - name: id_conta_bd
-        description: ID Conta - Compatibilizado pela Base dos Dados
+        description: ID Conta - Base dos Dados
       - name: conta_bd
-        description: Conta - Compatibilizado pela Base dos Dados
+        description: Conta - Base dos Dados
+      - name: valor
+        description: Valor
+  - name: br_me_siconfi__brasil_despesas_funcao
+    description: Tabela de despesas por função a nível federal.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests: [not_null]
+      - name: estagio
+        description: Estágio
+      - name: portaria
+        description: Portaria
+      - name: conta
+        description: Conta
+      - name: estagio_bd
+        description: Estágio - Base dos Dados
+      - name: id_conta_bd
+        description: ID Conta - Base dos Dados
+      - name: conta_bd
+        description: Conta - Base dos Dados
+      - name: valor
+        description: Valor
+  - name: br_me_siconfi__brasil_despesas_orcamentarias
+    description: Tabela de despesas orçamentárias a nível federal.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests: [not_null]
+      - name: estagio
+        description: Estágio
+      - name: portaria
+        description: Portaria
+      - name: conta
+        description: Conta
+      - name: estagio_bd
+        description: Estágio - Base dos Dados
+      - name: id_conta_bd
+        description: ID Conta - Base dos Dados
+      - name: conta_bd
+        description: Conta - Base dos Dados
+      - name: valor
+        description: Valor
+  - name: br_me_siconfi__brasil_execucao_restos_pagar
+    description: Tabela de execução de restos a pagar a nível federal.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [estagio_bd, id_conta_bd, conta_bd]
+    columns:
+      - name: ano
+        description: Ano
+        tests: [not_null]
+      - name: estagio
+        description: Estágio
+      - name: portaria
+        description: Portaria
+      - name: conta
+        description: Conta
+      - name: estagio_bd
+        description: Estágio - Base dos Dados
+      - name: id_conta_bd
+        description: ID Conta - Base dos Dados
+      - name: conta_bd
+        description: Conta - Base dos Dados
+      - name: valor
+        description: Valor
+  - name: br_me_siconfi__brasil_execucao_restos_pagar_funcao
+    description: Tabela de execução de restos a pagar por função a nível federal.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [estagio_bd, id_conta_bd, conta_bd]
+    columns:
+      - name: ano
+        description: Ano
+        tests: [not_null]
+      - name: estagio
+        description: Estágio
+      - name: portaria
+        description: Portaria
+      - name: conta
+        description: Conta
+      - name: estagio_bd
+        description: Estágio - Base dos Dados
+      - name: id_conta_bd
+        description: ID Conta - Base dos Dados
+      - name: conta_bd
+        description: Conta - Base dos Dados
+      - name: valor
+        description: Valor
+  - name: br_me_siconfi__brasil_receitas_orcamentarias
+    description: Tabela de receitas orçamentárias a nível federal.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests: [not_null]
+      - name: estagio
+        description: Estágio
+      - name: portaria
+        description: Portaria
+      - name: conta
+        description: Conta
+      - name: estagio_bd
+        description: Estágio - Base dos Dados
+      - name: id_conta_bd
+        description: ID Conta - Base dos Dados
+      - name: conta_bd
+        description: Conta - Base dos Dados
+      - name: valor
+        description: Valor
+  - name: br_me_siconfi__brasil_variacoes_patrimoniais
+    description: Tabela de variações patrimoniais a nível federal.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [id_conta_bd, conta_bd]
+    columns:
+      - name: ano
+        description: Ano
+        tests: [not_null]
+      - name: portaria
+        description: Portaria
+      - name: conta
+        description: Conta
+      - name: id_conta_bd
+        description: ID Conta - Base dos Dados
+      - name: conta_bd
+        description: Conta - Base dos Dados
+      - name: valor
+        description: Valor
+  - name: br_me_siconfi__municipio_execucao_restos_pagar
+    description: Tabela de execução de restos a pagar a nível de município.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [estagio_bd, id_conta_bd, conta_bd]
+    columns:
+      - name: ano
+        description: Ano
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: estagio
+        description: Estágio
+      - name: portaria
+        description: Portaria
+      - name: conta
+        description: Conta
+      - name: estagio_bd
+        description: Estágio - Base dos Dados
+      - name: id_conta_bd
+        description: ID Conta - Base dos Dados
+      - name: conta_bd
+        description: Conta - Base dos Dados
+      - name: valor
+        description: Valor
+  - name: br_me_siconfi__municipio_execucao_restos_pagar_funcao
+    description: Tabela de execução de restos a pagar por função a nível de município.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [estagio_bd, id_conta_bd, conta_bd]
+    columns:
+      - name: ano
+        description: Ano
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: estagio
+        description: Estágio
+      - name: portaria
+        description: Portaria
+      - name: conta
+        description: Conta
+      - name: estagio_bd
+        description: Estágio - Base dos Dados
+      - name: id_conta_bd
+        description: ID Conta - Base dos Dados
+      - name: conta_bd
+        description: Conta - Base dos Dados
+      - name: valor
+        description: Valor
+  - name: br_me_siconfi__municipio_variacoes_patrimoniais
+    description: Tabela de variações patrimoniais a nível de município.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [id_conta_bd, conta_bd]
+    columns:
+      - name: ano
+        description: Ano
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: ID Município - IBGE 7 Dígitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: portaria
+        description: Portaria
+      - name: conta
+        description: Conta
+      - name: id_conta_bd
+        description: ID Conta - Base dos Dados
+      - name: conta_bd
+        description: Conta - Base dos Dados
+      - name: valor
+        description: Valor
+  - name: br_me_siconfi__uf_execucao_restos_pagar
+    description: Tabela de execução de restos a pagar a nível de UF.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [estagio_bd, id_conta_bd, conta_bd]
+    columns:
+      - name: ano
+        description: Ano
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: estagio
+        description: Estágio
+      - name: portaria
+        description: Portaria
+      - name: conta
+        description: Conta
+      - name: estagio_bd
+        description: Estágio - Base dos Dados
+      - name: id_conta_bd
+        description: ID Conta - Base dos Dados
+      - name: conta_bd
+        description: Conta - Base dos Dados
+      - name: valor
+        description: Valor
+  - name: br_me_siconfi__uf_execucao_restos_pagar_funcao
+    description: Tabela de execução de restos a pagar por função a nível de UF.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [estagio_bd, id_conta_bd, conta_bd]
+    columns:
+      - name: ano
+        description: Ano
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: estagio
+        description: Estágio
+      - name: portaria
+        description: Portaria
+      - name: conta
+        description: Conta
+      - name: estagio_bd
+        description: Estágio - Base dos Dados
+      - name: id_conta_bd
+        description: ID Conta - Base dos Dados
+      - name: conta_bd
+        description: Conta - Base dos Dados
+      - name: valor
+        description: Valor
+  - name: br_me_siconfi__uf_variacoes_patrimoniais
+    description: Tabela de variações patrimoniais a nível de UF.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [id_conta_bd, conta_bd]
+    columns:
+      - name: ano
+        description: Ano
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: portaria
+        description: Portaria
+      - name: conta
+        description: Conta
+      - name: id_conta_bd
+        description: ID Conta - Base dos Dados
+      - name: conta_bd
+        description: Conta - Base dos Dados
       - name: valor
         description: Valor
   - name: br_me_siconfi__uf_receitas_orcamentarias
@@ -215,19 +530,13 @@ models:
     columns:
       - name: ano
         description: Ano
-        test: [not_null]
+        tests: [not_null]
       - name: sigla_uf
         description: Sigla da unidade da federação
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
-      - name: id_uf
-        description: ID da Unidade da Federação
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_brasil__uf')
-              field: id_uf
       - name: estagio
         description: Estágio
       - name: portaria
@@ -235,10 +544,10 @@ models:
       - name: conta
         description: Conta
       - name: estagio_bd
-        description: Estágio - Compatibilizado pela Base dos Dados
+        description: Estágio - Base dos Dados
       - name: id_conta_bd
-        description: ID Conta - Compatibilizado pela Base dos Dados
+        description: ID Conta - Base dos Dados
       - name: conta_bd
-        description: Conta - Compatibilizado pela Base dos Dados
+        description: Conta - Base dos Dados
       - name: valor
         description: Valor

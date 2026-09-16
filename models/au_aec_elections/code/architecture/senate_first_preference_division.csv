@@ -1,0 +1,20 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+year,INT64,Ano do evento eleitoral,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de particionamento. Vários eventos podem compartilhar o mesmo ano,,Year of the electoral event,Año del evento electoral
+state_abbreviation,STRING,Sigla do estado ou território,,no,br_bd_diretorios_au.state:abbreviation,,no,,StateAb,State or territory abbreviation,Sigla del estado o territorio
+election_id,STRING,Identificador do evento eleitoral atribuído pela AEC,,no,,,no,Corresponde ao Event ID usado nas URLs de results.aec.gov.au,,AEC identifier of the electoral event,Identificador del evento electoral asignado por la AEC
+division_id,STRING,Identificador da divisão eleitoral federal atribuído pela AEC,,no,,,no,Identificador próprio da AEC; não corresponde ao código CED do ABS,DivisionID,AEC identifier of the Commonwealth electoral division,Identificador de la división electoral federal asignado por la AEC
+division_name,STRING,Nome da divisão eleitoral federal,,no,,,no,,DivisionNm,Name of the Commonwealth electoral division,Nombre de la división electoral federal
+group_abbreviation,STRING,Letra do grupo na cédula do Senado,,no,,,no,Publicado como Ticket até 2019 e como Group a partir de 2022,Group,Ballot group letter on the Senate ballot paper,Letra del grupo en la boleta del Senado
+ballot_position,STRING,Posição da pessoa candidata na cédula,,no,,,no,Número de ordem; aritmética sobre ele não tem sentido,BallotPosition,Position of the candidate on the ballot paper,Posición de la persona candidata en la boleta
+candidate_id,STRING,Identificador da pessoa candidata atribuído pela AEC,,no,,,no,,CandidateID,AEC identifier of the candidate,Identificador de la persona candidata asignado por la AEC
+candidate_details,STRING,Descrição da pessoa candidata ou da linha acima da cédula,,no,,,no,,CandidateDetails,Description of the candidate or of the above-the-line ballot row,Descripción de la persona candidata o de la línea superior de la boleta
+party_abbreviation,STRING,Sigla do partido da pessoa candidata,,no,,,no,,PartyAb,Abbreviation of the candidate's party,Sigla del partido de la persona candidata
+party_name,STRING,Nome do partido da pessoa candidata,,no,,,no,,PartyName,Name of the candidate's party,Nombre del partido de la persona candidata
+elected,STRING,Indica se a pessoa candidata foi eleita neste evento,,yes,,,no,,Elected,Whether the candidate was elected at this event,Indica si la persona candidata fue elegida en este evento
+historic_elected,STRING,Indica se a pessoa candidata ocupava a cadeira antes deste evento,,yes,,,no,,HistoricElected,Whether the candidate held the seat before this event,Indica si la persona candidata ocupaba el escaño antes de este evento
+ordinary_votes,INT64,Votos ordinários,,no,,vote,no,,OrdinaryVotes,Ordinary votes,Votos ordinarios
+absent_votes,INT64,Votos de ausentes,,no,,vote,no,,AbsentVotes,Absent votes,Votos de ausentes
+provisional_votes,INT64,Votos provisórios,,no,,vote,no,,ProvisionalVotes,Provisional votes,Votos provisionales
+pre_poll_votes,INT64,Votos antecipados,,no,,vote,no,,PrePollVotes,Pre-poll votes,Votos anticipados
+postal_votes,INT64,Votos por correio,,no,,vote,no,,PostalVotes,Postal votes,Votos por correo
+total_votes,INT64,Total de votos,,no,,vote,no,,TotalVotes,Total votes,Total de votos
