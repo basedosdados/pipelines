@@ -1,8 +1,8 @@
 name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
 year,INT64,Reference year of the observation,1927(1)2026,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,TIME_PERIOD
 quarter,INT64,"Reference quarter of the observation, from 1 to 4",,no,,quarter,no,,TIME_PERIOD
-country_id,STRING,ISO 3166-1 alpha-3 code of the reference economy,,no,br_bd_diretorios_mundo.pais:sigla_iso3,,no,"Empty for the four BIS aggregates (World, advanced economies, emerging market economies, euro area)",REF_AREA
-reference_area_code,STRING,BIS reference area code as published,,no,,,no,"ISO 3166-1 alpha-2 for economies; 4T, 5R, XM or XW for the BIS aggregates. Retained verbatim from the BIS series key",REF_AREA
+country_id,STRING,ISO 3166-1 alpha-3 code of the reference economy,,no,br_bd_diretorios_mundo.pais:sigla_iso3,,no,One row per individual economy; the BIS reference-area aggregates are excluded,REF_AREA
+reference_area_code,STRING,BIS reference area code as published,,no,,,no,ISO 3166-1 alpha-2 code retained verbatim from the BIS series key,REF_AREA
 reference_area_name,STRING,Name of the reference economy or aggregate,,no,,,no,,REF_AREA
 value_type,STRING,Whether the series is nominal or real (deflated by consumer prices),,no,,,no,,VALUE
 measure,STRING,Statistic reported by the series,,no,,,no,"index for the price index level, or year-on-year change for the percentage change over the same quarter of the previous year",UNIT_MEASURE

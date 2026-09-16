@@ -50,7 +50,7 @@ def _patched_bucket(self, bucket_name, user_project=None):
 gcs.Client.bucket = _patched_bucket
 
 # (table_slug, expected_rows)
-TABLES = [("price_index", 35_652)]
+TABLES = [("price_index", 33_976)]
 
 
 def upload_table(slug: str, expected_rows: int) -> int:

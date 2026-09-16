@@ -140,10 +140,13 @@ def build_price_index(input_dir: Path) -> pd.DataFrame:
         }
     )
 
-    # Fail loud on unmapped dimensions rather than shipping silent NULLs.
-    non_agg = ~out["reference_area_code"].isin(_AGGREGATES)
+    # Keep only individual economies: drop the four BIS aggregates (World,
+    # advanced economies, emerging market economies, euro area), which have no
+    # ISO3 country. Every remaining row must then map to an ISO3 — fail loud
+    # rather than ship a silent NULL country_id.
+    out = out[~out["reference_area_code"].isin(_AGGREGATES)].copy()
     unmapped = sorted(
-        set(out.loc[non_agg & out["country_id"].isna(), "reference_area_code"])
+        set(out.loc[out["country_id"].isna(), "reference_area_code"])
     )
     if unmapped:
         raise ValueError(
@@ -219,9 +222,13 @@ def clean_all(input_dir: Path, output_dir: Path) -> dict:
         output_dir: Root output directory.
 
     Returns:
-        Mapping with ``"price_index"`` -> its output directory and
-        ``"max_year_quarter"`` -> the latest ``"YYYY-Qn"`` in the data, used to
-        poll whether the BIS has published a new quarter. None if empty.
+        Mapping with ``"price_index"`` -> its output directory,
+        ``"max_year_quarter"`` -> the latest ``"YYYY-Qn"`` (human form), and
+        ``"max_year_month"`` -> the same period as ``"YYYY-MM"`` with
+        month = quarter*3. The source poll compares a ``"%Y-%m"`` string against
+        the coverage, which for a YearQuarter column is stored as
+        ``MAX(DATE(year, quarter*3, 1))`` — so the pollable form is the
+        year-MONTH, not the year-quarter. Both are None if the data is empty.
     """
     df = build_price_index(input_dir)
     result: dict[str, object] = {
@@ -229,9 +236,10 @@ def clean_all(input_dir: Path, output_dir: Path) -> dict:
     }
     if len(df):
         last = df.sort_values(["year", "quarter"]).iloc[-1]
-        result["max_year_quarter"] = (
-            f"{int(last['year'])}-Q{int(last['quarter'])}"
-        )
+        y, q = int(last["year"]), int(last["quarter"])
+        result["max_year_quarter"] = f"{y}-Q{q}"
+        result["max_year_month"] = f"{y}-{q * 3:02d}"
     else:
         result["max_year_quarter"] = None
+        result["max_year_month"] = None
     return result

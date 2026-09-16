@@ -5,12 +5,12 @@ models:
     description: >-
       BIS selected residential property prices, one row per reference economy,
       quarter, value type (nominal or real) and statistic (index level or
-      year-on-year change). Covers 57 economies plus four BIS aggregates (world,
-      advanced economies, emerging market economies, euro area) at quarterly
-      frequency, with index levels on the common 2010 = 100 base. Compiled by the
-      BIS from national sources whose methods differ, so cross-country levels are
-      not comparable — only growth rates and rebased indices are. The BIS series
-      key is retained verbatim in bis_series_key for traceability.
+      year-on-year change). Covers 57 economies at quarterly frequency, with
+      index levels on the common 2010 = 100 base; the BIS reference-area
+      aggregates are excluded. Compiled by the BIS from national sources whose
+      methods differ, so cross-country levels are not comparable — only growth
+      rates and rebased indices are. The BIS series key is retained verbatim in
+      bis_series_key for traceability.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [bis_series_key, year, quarter]
@@ -28,10 +28,9 @@ models:
         description: Reference quarter of the observation, from 1 to 4
         tests: [not_null]
       - name: country_id
-        description: >-
-          ISO 3166-1 alpha-3 code of the reference economy; empty for the four
-          BIS aggregates
+        description: ISO 3166-1 alpha-3 code of the reference economy
         tests:
+          - not_null
           - relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_iso3

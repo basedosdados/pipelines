@@ -16,8 +16,8 @@ table `price_index`, quarterly, with a recurring quarterly Prefect pipeline.
 The BIS publishes two residential property price datasets:
 
 - `WS_SPP` (**selected**) — headline national series, uniform: all quarterly, a
-  single common **2010 = 100** base, Nominal/Real × Index/YoY, 57 economies + 4
-  aggregates. Every observation is `OBS_CONF = Free`.
+  single common **2010 = 100** base, Nominal/Real × Index/YoY, 57 economies (the
+  4 BIS aggregates are dropped at onboarding). Every observation is `OBS_CONF = Free`.
 - `WS_DPP` (**detailed**) — 347 series across 15 real-estate types × 13 covered
   areas, **mixed frequencies** (Q/M/A/H), **72 different base years**, some in
   currency levels (EUR, PLN). Also entirely `Free` / `All users` in the public
@@ -32,15 +32,17 @@ dataset if the granular breakdowns are wanted.
 
 ## Table `price_index` (LONG)
 
-One row per (reference area, quarter, value type, statistic). 35,652 rows,
-1927-Q1 → 2026-Q1. Australia present 1970-Q1 → 2026-Q1.
+One row per (economy, quarter, value type, statistic). 33,976 rows, 57
+economies, 1927-Q1 → 2026-Q1. Australia present 1970-Q1 → 2026-Q1. The four BIS
+reference-area aggregates (World, advanced economies, emerging market economies,
+euro area) are excluded — every row is an individual economy keyed to an ISO3.
 
 | column | type | notes |
 |---|---|---|
 | `year` | INT64 (partition) | FK `br_bd_diretorios_data_tempo.ano` |
 | `quarter` | INT64 (1–4) | matches `au_abs_prices_inflation.dwelling_value` (year+quarter both INT64) for a clean `USING(year, quarter)` join |
-| `country_id` | STRING (ISO3) | FK `br_bd_diretorios_mundo.pais:sigla_iso3`; NULL for the 4 aggregates |
-| `reference_area_code` | STRING | BIS code verbatim (`AU`, `XW`, `4T`, `5R`, `XM`) — keeps the aggregates |
+| `country_id` | STRING (ISO3) | FK `br_bd_diretorios_mundo.pais:sigla_iso3`; always populated |
+| `reference_area_code` | STRING | BIS ISO2 code verbatim (`AU`, `US`, …) |
 | `reference_area_name` | STRING | BIS label |
 | `value_type` | STRING | `Nominal` / `Real` |
 | `measure` | STRING | `index` / `year-on-year change` |
