@@ -101,9 +101,6 @@ NOT_NULL = {
     "dictionary": ["table_id", "column_name", "key", "value"],
 }
 
-# Columns that are legitimately sparse, so the 5% not-null floor does not apply.
-# Measured on the built tables by validate.py rather than guessed -- see
-# reference_measured_ignore_values_drift.
 # Columns exempt from the 5% not-null floor. MEASURED on the built tables, not
 # guessed: no column in any of the nine tables comes close to the floor. The
 # sparsest is cra_lending.report_level at 38% populated (it is blank on rows
@@ -289,7 +286,11 @@ TABLE_DESCRIPTION = {
         "Federal Reserve, one row per company and reporting quarter. June and\n"
         "December quarters carry about 4,200 companies and March and September about\n"
         "420, because the FR Y-9SP filed by smaller holding companies is semiannual\n"
-        "while the FR Y-9C is quarterly."
+        "while the FR Y-9C is quarterly.\n"
+        "Retired county FIPS codes are excluded from the county foreign-key test:\n"
+        "the county directory carries a single vintage, while this table spans the\n"
+        "2022 Connecticut county-to-planning-region change and the 1997 recoding of\n"
+        "Dade County, Florida."
     ),
     "holding_company_item": (
         "Every value bank holding companies reported on their financial filings with\n"
@@ -309,12 +310,20 @@ TABLE_DESCRIPTION = {
         "Reinvestment Act, by institution, year, county and census tract income\n"
         "group, split into loan size and borrower revenue bands. Reported only by\n"
         "large institutions, and aggregated by the FFIEC to county level -- the\n"
-        "disclosure files carry no per-tract loan amounts."
+        "disclosure files carry no per-tract loan amounts.\n"
+        "Retired county FIPS codes are excluded from the county foreign-key test:\n"
+        "the county directory carries a single vintage, while this table spans the\n"
+        "2022 Connecticut county-to-planning-region change and the 1997 recoding of\n"
+        "Dade County, Florida."
     ),
     "cra_assessment_area_tract": (
         "The census tracts that make up each institution's CRA assessment areas, one\n"
         "row per institution, year and tract. The tract-level companion to\n"
-        "cra_lending, which is only published at county level."
+        "cra_lending, which is only published at county level.\n"
+        "Retired county FIPS codes are excluded from the county foreign-key test:\n"
+        "the county directory carries a single vintage, while this table spans the\n"
+        "2022 Connecticut county-to-planning-region change and the 1997 recoding of\n"
+        "Dade County, Florida."
     ),
     "cra_respondent": (
         "The institutions that filed CRA data each year, from the transmittal sheet.\n"
