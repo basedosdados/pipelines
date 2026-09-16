@@ -259,8 +259,8 @@ DATASET_DESCRIPTION = (
     "empresas dos dados hipotecários de us_cfpb_hmda. Todos os itens são "
     "identificados pelo código do MDRM, o dicionário oficial do Federal Reserve, "
     "que acompanha o conjunto como tabela própria. O identificador RSSD é a chave "
-    "de junção entre todas as tabelas e corresponde ao certificado FDIC usado em "
-    "us_fdic_bankfind.",
+    "de junção entre todas as tabelas deste conjunto; a ponte para us_fdic_bankfind "
+    "é a coluna institution.fdic_cert_id, que carrega o certificado da FDIC.",
     "The full regulatory filings of the United States banking system: the quarterly "
     "Call Report schedules of every bank (2009-2026), the FR Y-9C consolidated "
     "financial statements of bank holding companies (1986-2026), and the annual "
@@ -271,8 +271,9 @@ DATASET_DESCRIPTION = (
     "small-business-credit counterpart to the already-onboarded us_cfpb_hmda "
     "mortgage data. Every item is identified by its MDRM code, the Federal Reserve's "
     "official data dictionary, which ships with the dataset as its own table. The "
-    "RSSD identifier is the join key across every table and corresponds to the FDIC "
-    "certificate used in us_fdic_bankfind.",
+    "RSSD identifier is the join key across every table in this dataset; the bridge "
+    "to us_fdic_bankfind is institution.fdic_cert_id, which carries the FDIC "
+    "certificate.",
     "Los informes regulatorios completos del sistema bancario de los Estados Unidos: "
     "los anexos trimestrales del Call Report de todos los bancos (2009-2026), los "
     "estados consolidados FR Y-9C de las sociedades controladoras de bancos "
@@ -284,8 +285,9 @@ DATASET_DESCRIPTION = (
     "crédito a pequeñas empresas de los datos hipotecarios de us_cfpb_hmda. Todas "
     "las partidas se identifican por el código del MDRM, el diccionario oficial de "
     "la Reserva Federal, que acompaña al conjunto como tabla propia. El "
-    "identificador RSSD es la clave de unión entre todas las tablas y corresponde al "
-    "certificado FDIC usado en us_fdic_bankfind.",
+    "identificador RSSD es la clave de unión entre todas las tablas de este "
+    "conjunto; el puente hacia us_fdic_bankfind es institution.fdic_cert_id, que "
+    "lleva el certificado de la FDIC.",
 )
 
 TAGS = [
