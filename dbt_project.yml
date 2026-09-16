@@ -747,6 +747,9 @@ models:
     world_ampas_oscar:
       +materialized: table
       +schema: world_ampas_oscar
+    world_bis_property_prices:
+      +materialized: table
+      +schema: world_bis_property_prices
     world_dasanaike_sage:
       +materialized: table
       +schema: world_dasanaike_sage
