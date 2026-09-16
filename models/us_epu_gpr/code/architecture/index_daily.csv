@@ -1,0 +1,9 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,year
+month,INT64,"Reference month of the observation, from 1 to 12",,no,br_bd_diretorios_data_tempo.mes:mes,month,no,,month
+day,INT64,"Reference day of the month, from 1 to 31",,no,,day,no,,day
+date,DATE,Calendar date of the observation,,no,,,no,,date
+country_id,STRING,ISO 3166-1 alpha-3 code of the country the series refers to,,no,br_bd_diretorios_mundo.pais:sigla_iso3,,no,"NULL for the global daily GPR series; USA for the daily EPU series",country
+index_family,STRING,"Index family: epu (Economic Policy Uncertainty) or gpr (Geopolitical Risk)",,yes,,,no,,index_family
+index_name,STRING,Coded identifier of the specific index series; labels are in the dicionario table,,yes,,,no,,index_name
+value,FLOAT64,Value of the index for the given series and date,,no,,index,no,"Index points (base = 100 in the series' reference window)",value
