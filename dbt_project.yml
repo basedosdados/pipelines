@@ -306,6 +306,9 @@ models:
     world_oecd_revenue_statistics:
       +materialized: table
       +schema: world_oecd_revenue_statistics
+    world_oecd_socx:
+      +materialized: table
+      +schema: world_oecd_socx
     world_aiddata_gcdf:
       +materialized: table
       +schema: world_aiddata_gcdf
@@ -717,6 +720,9 @@ models:
     us_epa_tri:
       +materialized: table
       +schema: us_epa_tri
+    us_epu_gpr:
+      +materialized: table
+      +schema: us_epu_gpr
     us_fema_openfema:
       +materialized: table
       +schema: us_fema_openfema
