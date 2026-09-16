@@ -12,7 +12,7 @@
     )
 }}
 
-
+-- Avaliado em 2026-07-31
 with
     sia_add_municipios as (
         -- Adicionar id_municipio de 7 dígitos

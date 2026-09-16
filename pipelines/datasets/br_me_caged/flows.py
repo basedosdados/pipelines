@@ -18,7 +18,8 @@ from pipelines.utils.metadata.domain import (
     YearMonth,
 )
 from pipelines.utils.metadata.tasks import (
-    register_source_poll_task,
+    commit_source_update_task,
+    poll_source_for_update_task,
     register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
@@ -33,11 +34,11 @@ def _run_me_caged(
     dataset_id: str,
     table_id: str,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -45,16 +46,30 @@ def _run_me_caged(
     source_last_date = get_source_last_date()
 
     if not force_run:
-        is_outdated = register_source_poll_task(
+        has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             source_max_date=source_last_date,
             env="prod",
             date_format="%Y-%m",
+            compare_against="coverage",
         )
-        if not is_outdated:
+        if not has_new_data:
             print(f"No updates for table {table_id}!")
             return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=source_last_date,
+        env="prod",
+        date_format="%Y-%m",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
 
     table_last_date = get_table_last_date(dataset_id, table_id)
     _input_dir, output_dir = build_table_paths(table_id)
@@ -78,7 +93,6 @@ def _run_me_caged(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -97,7 +111,6 @@ def _run_me_caged(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -123,7 +136,6 @@ def _caged_flow(table_id: str, cron: str):
         dataset_id: str = "br_me_caged",
         table_id: str = table_id,
         materialize_after_dump: bool = True,
-        dbt_alias: bool = True,
         update_metadata: bool = True,
         target: str = "prod",
         force_run: bool = False,
@@ -132,12 +144,12 @@ def _caged_flow(table_id: str, cron: str):
             dataset_id=dataset_id,
             table_id=table_id,
             materialize_after_dump=materialize_after_dump,
-            dbt_alias=dbt_alias,
             update_metadata=update_metadata,
             target=target,
             force_run=force_run,
         )
 
+    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
 

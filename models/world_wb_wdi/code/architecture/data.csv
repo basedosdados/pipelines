@@ -1,0 +1,5 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano de referência da observação,1960(1)2025,no,,,no,,
+country_id,STRING,"Código do país ou agregado regional, no padrão do Banco Mundial",,no,,,no,"Inclui países e agregados regionais/de renda (ex.: WLD, ARB, AFE)",Country Code
+indicator_id,STRING,Código do indicador WDI,,yes,,,no,,Indicator Code
+value,FLOAT64,Valor observado do indicador,,no,,,no,A unidade depende do indicador; ver measurement_unit na tabela indicators,value

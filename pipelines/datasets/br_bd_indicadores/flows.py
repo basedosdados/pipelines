@@ -29,7 +29,6 @@ def _upload_and_dbt(
     dataset_id: str,
     table_id: str,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     target: str,
 ) -> None:
     upload_to_gcs(
@@ -43,7 +42,6 @@ def _upload_and_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
     if not materialize_after_dump:
@@ -59,7 +57,6 @@ def _upload_and_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -69,9 +66,9 @@ def br_bd_indicadores__twitter_metrics(
     dataset_id: str = _DATASET,
     table_id: str = "twitter_metrics",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     target: str = "prod",
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -98,7 +95,6 @@ def br_bd_indicadores__twitter_metrics(
         dataset_id,
         table_id,
         materialize_after_dump,
-        dbt_alias,
         target,
     )
 
@@ -107,14 +103,12 @@ def br_bd_indicadores__twitter_metrics(
 def br_bd_indicadores__twitter_metrics_agg(
     dataset_id: str = _DATASET,
     table_id: str = "twitter_metrics_agg",
-    dbt_alias: bool = True,
     target: str = "prod",
 ) -> None:
     run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
     download_data_to_gcs(dataset_id=dataset_id, table_id=table_id)
@@ -125,6 +119,7 @@ def br_bd_indicadores__page_views(
     dataset_id: str = _DATASET,
     table_id: str = "page_views",
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -155,9 +150,9 @@ def br_bd_indicadores__website_user(
     dataset_id: str = _DATASET,
     table_id: str = "website_user",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     target: str = "prod",
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -178,7 +173,6 @@ def br_bd_indicadores__website_user(
         dataset_id,
         table_id,
         materialize_after_dump,
-        dbt_alias,
         target,
     )
 
@@ -189,11 +183,11 @@ def _sheet_flow_body(
     sheet_id: str,
     sheet_name: str,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     target: str,
     filename: str,
     usecols: int | None = None,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -209,7 +203,6 @@ def _sheet_flow_body(
         dataset_id,
         table_id,
         materialize_after_dump,
-        dbt_alias,
         target,
     )
 
@@ -221,7 +214,6 @@ def br_bd_indicadores__contabilidade(
     sheet_id: str = "1jtZAV2SFEdEX99DumpUQ1LjZE2vcSgvL4DNo4n6HIec",
     sheet_name: str = "transacoes_anonimizado",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     target: str = "prod",
 ) -> None:
     _sheet_flow_body(
@@ -230,7 +222,6 @@ def br_bd_indicadores__contabilidade(
         sheet_id,
         sheet_name,
         materialize_after_dump,
-        dbt_alias,
         target,
         "contabilidade",
     )
@@ -243,7 +234,6 @@ def br_bd_indicadores__receitas_planejadas(
     sheet_id: str = "1fHp1NNUyhFIAAJ9bZOdZ2i9PSLIbkjSjMcGAlaxur90",
     sheet_name: str = "receitas_planejadas_anonimizado",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     target: str = "prod",
 ) -> None:
     _sheet_flow_body(
@@ -252,7 +242,6 @@ def br_bd_indicadores__receitas_planejadas(
         sheet_id,
         sheet_name,
         materialize_after_dump,
-        dbt_alias,
         target,
         "receitas_planejadas",
     )
@@ -265,7 +254,6 @@ def br_bd_indicadores__equipes(
     sheet_id: str = "1gLJyoxiFeIRn7FKiP3Fpbr04bScVuhmF",
     sheet_name: str = "equipes",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     target: str = "prod",
 ) -> None:
     _sheet_flow_body(
@@ -274,7 +262,6 @@ def br_bd_indicadores__equipes(
         sheet_id,
         sheet_name,
         materialize_after_dump,
-        dbt_alias,
         target,
         "equipes",
         usecols=6,
@@ -288,7 +275,6 @@ def br_bd_indicadores__pessoas(
     sheet_id: str = "1cQj9ItJoO_AQElRT2ngpHZXhFCSpQCrV",
     sheet_name: str = "pessoas",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     target: str = "prod",
 ) -> None:
     _sheet_flow_body(
@@ -297,7 +283,6 @@ def br_bd_indicadores__pessoas(
         sheet_id,
         sheet_name,
         materialize_after_dump,
-        dbt_alias,
         target,
         "pessoas",
         usecols=9,
@@ -305,11 +290,19 @@ def br_bd_indicadores__pessoas(
 
 
 # Schedules — apenas contabilidade e receitas tinham schedule no Prefect 0
+# pyrefly: ignore [missing-attribute]
 br_bd_indicadores__contabilidade.deploy_schedules = []
+# pyrefly: ignore [missing-attribute]
 br_bd_indicadores__receitas_planejadas.deploy_schedules = []
+# pyrefly: ignore [missing-attribute]
 br_bd_indicadores__twitter_metrics.deploy_schedules = []
+# pyrefly: ignore [missing-attribute]
 br_bd_indicadores__twitter_metrics_agg.deploy_schedules = []
+# pyrefly: ignore [missing-attribute]
 br_bd_indicadores__page_views.deploy_schedules = []
+# pyrefly: ignore [missing-attribute]
 br_bd_indicadores__website_user.deploy_schedules = []
+# pyrefly: ignore [missing-attribute]
 br_bd_indicadores__equipes.deploy_schedules = []
+# pyrefly: ignore [missing-attribute]
 br_bd_indicadores__pessoas.deploy_schedules = []

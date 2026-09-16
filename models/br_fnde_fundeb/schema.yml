@@ -1,0 +1,125 @@
+---
+models:
+  - name: br_fnde_fundeb__indicador_estadual
+    description: >-
+      Indicadores legais e educacionais dos estados e do Distrito Federal,
+      calculados pelo FNDE a partir das declarações bimestrais no SIOPE. Uma
+      linha por unidade da federação, bimestre e indicador.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, bimestre, sigla_uf, id_indicador]
+      # As duas colunas de valor ficam de fora porque cada linha preenche
+      # exatamente uma delas: valor_percentual é ~60% não-nula e valor_real
+      # ~40%, por desenho.
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+          ignore_values: [valor_percentual, valor_real]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [id_indicador]
+          dictionary_model: ref('br_fnde_fundeb__dicionario')
+    columns:
+      - name: ano
+        description: Ano do exercício financeiro declarado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: bimestre
+        description: >-
+          Bimestre do exercício a que se refere a declaração, de 1 a 6
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__bimestre')
+              field: bimestre.bimestre
+      - name: sigla_uf
+        description: Sigla da unidade federativa do ente declarante
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_indicador
+        description: Código do indicador no SIOPE
+      - name: codigo_indicador
+        description: >-
+          Código de exibição do indicador, no formato grupo.item
+      - name: valor_percentual
+        description: Valor do indicador, quando expresso em percentual
+      - name: valor_real
+        description: Valor do indicador, quando expresso em reais
+  - name: br_fnde_fundeb__indicador_municipal
+    description: >-
+      Indicadores legais e educacionais dos municípios, calculados pelo FNDE a
+      partir das declarações bimestrais no SIOPE. Uma linha por município,
+      bimestre e indicador.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, bimestre, id_municipio, id_indicador]
+      # As duas colunas de valor ficam de fora porque cada linha preenche
+      # exatamente uma delas: valor_percentual é ~60% não-nula e valor_real
+      # ~40%, por desenho.
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+          ignore_values: [valor_percentual, valor_real]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [id_indicador]
+          dictionary_model: ref('br_fnde_fundeb__dicionario')
+    columns:
+      - name: ano
+        description: Ano do exercício financeiro declarado
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: bimestre
+        description: >-
+          Bimestre do exercício a que se refere a declaração, de 1 a 6
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__bimestre')
+              field: bimestre.bimestre
+      - name: sigla_uf
+        description: Sigla da unidade federativa do ente declarante
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: Código IBGE de 7 dígitos do município declarante
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_indicador
+        description: Código do indicador no SIOPE
+      - name: codigo_indicador
+        description: >-
+          Código de exibição do indicador, no formato grupo.item
+      - name: valor_percentual
+        description: Valor do indicador, quando expresso em percentual
+      - name: valor_real
+        description: Valor do indicador, quando expresso em reais
+  - name: br_fnde_fundeb__dicionario
+    description: >-
+      Dicionário para tradução dos códigos do conjunto br_fnde_fundeb. Para
+      traduzir códigos compartilhados entre instituições, como id_municipio,
+      buscar por diretórios
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
+    columns:
+      - name: id_tabela
+        description: ID Tabela
+      - name: nome_coluna
+        description: Nome da coluna
+      - name: chave
+        description: Chave
+      - name: cobertura_temporal
+        description: Cobertura Temporal
+      - name: valor
+        description: Valor

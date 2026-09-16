@@ -2,14 +2,20 @@
 Script de deploy de flows para o Prefect 3.
 
 Uso:
-  # Deploy de flows alterados em um PR (dev)
+  # Deploy de arquivos específicos, sem expansão (uso manual)
   python deploy_flows.py --pool basedosdados-dev --branch feat/meu-flow --files pipelines/datasets/meu_dataset/flows.py
 
-  # Deploy de todos os flows (prod, ao mergear na main)
+  # Deploy a partir de uma lista de arquivos alterados (CI, dev e prod) —
+  # expande pra pasta inteira do dataset e escala pra --all quando a
+  # mudança é em infra compartilhada (ver expand_changed_files)
+  python deploy_flows.py --pool basedosdados-dev --branch feat/meu-flow --changed pipelines/datasets/meu_dataset/tasks.py
+
+  # Deploy de todos os flows (recuperação manual, ex. depois de um drift)
   python deploy_flows.py --pool basedosdados --branch main --all
 """
 
 import argparse
+import glob
 import importlib.util
 import os
 import sys
@@ -20,6 +26,77 @@ from prefect.runner.storage import GitRepository
 from prefect.schedules import Cron
 
 REPO_URL = "https://github.com/basedosdados/pipelines.git"
+
+# Pastas cuja mudança pode afetar deploy de flows em mais de um dataset
+# (lógica compartilhada, ex. CheckThenDownloadPipeline em stage_dispatch.py,
+# ou um crawler usado por vários datasets como pipelines/crawler/datasus) —
+# não dá pra saber quais datasets são afetados sem reprocessar tudo, então
+# escala pra --all nesse caso, em vez de arriscar deixar algo desatualizado.
+SHARED_PREFIXES = ("pipelines/utils/", "pipelines/crawler/")
+
+
+def all_python_files() -> list[str]:
+    """Lista todo arquivo `.py` de `pipelines/`, exceto `__init__.py`.
+
+    Usado tanto por `--all` quanto como fallback de
+    `expand_changed_files()` quando a mudança exige redeploy completo.
+
+    Returns:
+        Caminhos relativos à raiz do repo de todo `.py` em `pipelines/`,
+        exceto `__init__.py`.
+    """
+    files = []
+    for root, _, filenames in os.walk("pipelines"):
+        for filename in filenames:
+            if filename.endswith(".py") and filename != "__init__.py":
+                files.append(os.path.join(root, filename))
+    return files
+
+
+def expand_changed_files(changed: list[str]) -> list[str] | None:
+    """Expande uma lista de arquivos alterados pra decidir o que deployar.
+
+    `deploy_flow()` só registra um flow se o arquivo processado contém
+    literalmente um objeto `Flow` — `tasks.py`/`constants.py` nunca
+    definem `@flow`. Mas `deploy_tags`/`job_variables`/`deploy_schedules`
+    de um flow costumam ser computados a partir de constantes de
+    `constants.py` e atribuídos dentro do `flows.py` na hora da
+    importação (ver `pipelines/datasets/br_ibge_ipca/flows.py`). Se só
+    `constants.py` mudar, sem `flows.py` mudar junto, o deploy seletivo
+    "não veria" a mudança e o flow ficaria com metadado desatualizado no
+    Prefect — silenciosamente, sem erro. Por isso, mudança em qualquer
+    arquivo de `pipelines/datasets/<dataset>/` expande pra todos os `.py`
+    daquela pasta, recursivamente, não só o que mudou.
+
+    Args:
+        changed: caminhos de arquivos `.py` alterados, relativos à raiz
+            do repo (ex. saída do `tj-actions/changed-files`).
+
+    Returns:
+        Lista ordenada e sem duplicatas de arquivos a passar pro deploy,
+        com cada mudança em `pipelines/datasets/<dataset>/` expandida pra
+        todos os `.py` daquele dataset. `None` se algum arquivo alterado
+        estiver em `SHARED_PREFIXES` — sinal pra quem chamar escalar pra
+        `--all`, já que o impacto não é computável sem reprocessar tudo.
+    """
+    expanded: set[str] = set()
+
+    for file_path in changed:
+        normalized = file_path.replace(os.sep, "/")
+
+        if normalized.startswith(SHARED_PREFIXES):
+            return None
+
+        parts = normalized.split("/")
+        if parts[:2] == ["pipelines", "datasets"] and len(parts) > 2:
+            dataset_dir = "/".join(parts[:3])
+            expanded.update(
+                glob.glob(f"{dataset_dir}/**/*.py", recursive=True)
+            )
+        else:
+            expanded.add(file_path)
+
+    return sorted(expanded)
 
 
 def load_flows_from_file(file_path: str) -> dict[str, Flow]:
@@ -99,6 +176,7 @@ def deploy_flow(
             schedules=schedules,
             job_variables=job_variables,
             build=False,
+            paused=True,  # schedules activated by backend sync (prod) or manually (dev)
         )
         status = (
             "(sem schedule)"
@@ -112,14 +190,32 @@ def deploy_flow(
         return False
 
 
-def main():
+def main() -> None:
+    """Ponto de entrada da CLI.
+
+    Lê os argumentos de linha de comando (`--pool`, `--branch`, e
+    exatamente um de `--files`/`--changed`/`--all`) e deploya os flows
+    selecionados. Sai com código 0 sem deployar nada se nenhum dos três
+    foi especificado, ou com código 1 se algum flow falhou ao registrar.
+    """
     parser = argparse.ArgumentParser(description="Deploy de flows Prefect 3")
     parser.add_argument("--pool", required=True, help="Nome do Work Pool")
     parser.add_argument(
         "--branch", required=True, help="Branch do repositório"
     )
     parser.add_argument(
-        "--files", nargs="*", help="Arquivos específicos para deploy"
+        "--files",
+        nargs="*",
+        help="Arquivos específicos para deploy, sem expansão (uso manual)",
+    )
+    parser.add_argument(
+        "--changed",
+        nargs="*",
+        help=(
+            "Arquivos alterados (ex. saída do tj-actions/changed-files) — "
+            "expandido por dataset e escalado pra --all quando necessário, "
+            "ver expand_changed_files()"
+        ),
     )
     parser.add_argument(
         "--all", action="store_true", help="Deploy de todos os flows"
@@ -129,14 +225,21 @@ def main():
     files_to_process = []
 
     if args.all:
-        for root, _, files in os.walk("pipelines"):
-            for file in files:
-                if file.endswith(".py") and file != "__init__.py":
-                    files_to_process.append(os.path.join(root, file))
+        files_to_process = all_python_files()
+    elif args.changed is not None:
+        expanded = expand_changed_files(args.changed)
+        if expanded is None:
+            print(
+                "Mudança em infra compartilhada "
+                f"({', '.join(SHARED_PREFIXES)}) — escalando para --all.\n"
+            )
+            files_to_process = all_python_files()
+        else:
+            files_to_process = expanded
     elif args.files:
         files_to_process = args.files
     else:
-        print("Nenhum arquivo especificado. Use --files ou --all.")
+        print("Nenhum arquivo especificado. Use --files, --changed ou --all.")
         sys.exit(0)
 
     print(f"\nWork Pool : {args.pool}")

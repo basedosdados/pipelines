@@ -1,5 +1,15 @@
 """
-Flows for br_rf_cno — Prefect 3.
+Flows for br_rf_cno (Cadastro Nacional de Obras — Receita Federal) — Prefect 3.
+
+Um flow por tabela (microdados, vinculos, areas, cnaes), gerado por `_cno_flow` e
+delegando a `_run_rf` (crawler compartilhado `rf`). Contexto da fonte, do WAF e das
+particularidades por tabela: ver `pipelines/datasets/br_rf_cno/README.md`.
+
+A data de partição é gravada sem componente de hora (date-only); com hora, o
+`safe_cast(data as date)` do model virava NULL e o filtro incremental nunca inseria.
+
+O `process_file` escreve parquet, então o `_run_rf` declara `source_format="parquet"`
+no upload: com o default `"csv"`, o `dump_header` procura arquivo que não existe.
 """
 
 from prefect import flow
@@ -17,7 +27,6 @@ def _cno_flow(table_id: str, cron: str):
         table_id: str = table_id,
         chunksize: int = 100000,
         materialize_after_dump: bool = True,
-        dbt_alias: bool = True,
         update_metadata: bool = True,
         target: str = "prod",
         force_run: bool = False,
@@ -27,12 +36,12 @@ def _cno_flow(table_id: str, cron: str):
             table_id=table_id,
             chunksize=chunksize,
             materialize_after_dump=materialize_after_dump,
-            dbt_alias=dbt_alias,
             update_metadata=update_metadata,
             target=target,
             force_run=force_run,
         )
 
+    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
 

@@ -1,0 +1,13 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+address_code,STRING,Código único do lugar,,no,,,no,,c_addr_id
+name_pinyin,STRING,Nome do lugar em pinyin,,no,,,no,,c_name
+name_chinese,STRING,Nome do lugar em caracteres chineses,,no,,,no,,c_name_chn
+first_year,INT64,Primeiro ano de existência da unidade administrativa,,no,,year,no,,c_firstyear
+last_year,INT64,Último ano de existência da unidade administrativa,,no,,year,no,,c_lastyear
+admin_type,STRING,Tipo administrativo do lugar (texto),,no,,,no,,c_admin_type
+admin_category_code,STRING,Código da categoria administrativa do lugar,,yes,,,no,,c_admin_cat_code
+longitude,FLOAT64,Longitude do lugar em graus decimais,,no,,degree,no,,x_coord
+latitude,FLOAT64,Latitude do lugar em graus decimais,,no,,degree,no,,y_coord
+chgis_point_id,STRING,Identificador do ponto correspondente no CHGIS (China Historical GIS),,no,,,no,,CHGIS_PT_ID
+alt_names,STRING,Nomes alternativos do lugar,,no,,,no,,c_alt_names
+notes,STRING,"Notas textuais livres sobre o registro, conforme o CBDB",,no,,,no,,c_notes

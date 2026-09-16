@@ -1,0 +1,7 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_sa2_2016,STRING,Código da Statistical Area Level 2 (SA2) na edição de 2016,,no,,,no,,SA2_MAINCODE_2016
+name_sa2_2016,STRING,Nome da Statistical Area Level 2 (SA2) na edição de 2016,,no,,,no,,SA2_NAME_2016
+id_sa2_2021,STRING,Código da Statistical Area Level 2 (SA2) na edição de 2021,,no,,,no,,SA2_CODE_2021
+name_sa2_2021,STRING,Nome da Statistical Area Level 2 (SA2) na edição de 2021,,no,,,no,,SA2_NAME_2021
+ratio,FLOAT64,"Proporção da população da região de origem (2016) alocada à região de destino (2021), de 0 a 1",,no,,,no,Peso de apporcionamento adimensional; some 1 por região de origem,RATIO_FROM_TO
+quality_indicator,STRING,"Indicador geral de qualidade da correspondência (Good, Acceptable, Poor)",,no,,,no,,OVERALL_QUALITY_INDICATOR

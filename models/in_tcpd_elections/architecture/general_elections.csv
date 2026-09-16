@@ -1,0 +1,45 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano em que a eleição foi realizada,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,Year
+month,STRING,Mês em que os resultados da eleição foram anunciados,,no,br_bd_diretorios_data_tempo.mes:mes,,no,,month
+state_acronym,STRING,Código de duas letras da unidade federativa (estado ou território) da Índia,,no,br_bd_diretorios_in.state:acronym,,no,,State_Name
+assembly_number,STRING,Número da legislatura conforme a ECI (Lok Sabha para eleições gerais; Vidhan Sabha para estaduais),,no,,,no,Mapeia para o ciclo eleitoral (ex.: 17 na Lok Sabha corresponde a 2019); ver codebook.,Assembly_No
+constituency_number,STRING,Número do distrito eleitoral atribuído pela ECI; pode variar entre delimitações,,no,,,no,,Constituency_No
+constituency_name,STRING,Nome do distrito eleitoral conforme a ECI,,no,,,no,,Constituency_Name
+constituency_type,STRING,"Tipo de reserva do distrito eleitoral: geral (GEN), reservado para castas registradas (SC) ou tribos registradas (ST)",,yes,,,no,,Constituency_Type
+sub_region,STRING,"Sub-região do estado à qual o distrito eleitoral pertence, atribuída pelo TCPD",,no,,,no,,Sub_Region
+poll_type,STRING,"Indica se a eleição foi regular (0) ou suplementar/bye-poll (1 = primeira, 2 = segunda, e assim por diante)",,yes,,,no,,Poll_No
+delimitation_id,STRING,"Número da delimitação de distritos eleitorais (1 a 4), correspondente a períodos de fronteiras eleitorais",,yes,,,no,,DelimID
+position,STRING,"Posição (classificação) do candidato no distrito eleitoral, ordenada pela participação nos votos",,no,,,no,,Position
+candidate_id,STRING,Identificador único do candidato (pessoa) atribuído pelo TCPD via resolução de entidades (Surf); vincula o mesmo indivíduo entre eleições gerais e estaduais,,no,,,no,Sem significado intrínseco e estável apenas dentro desta versão (2023-06) dos dados. Nulo em linhas NOTA.,pid
+candidate_name,STRING,Nome do candidato conforme a ECI,,no,,,no,,Candidate
+candidate_sex,STRING,Sexo do candidato,,yes,,,no,,Sex
+candidate_type,STRING,Categoria do candidato,,yes,,,no,,Candidate_Type
+party,STRING,"Sigla do partido pelo qual o candidato concorreu, conforme a ECI",,no,,,no,,Party
+party_id,STRING,Identificador único do partido atribuído pelo TCPD,,no,,,no,Sem significado intrínseco; estável apenas dentro desta versão dos dados.,Party_ID
+party_type,STRING,"Classificação do partido pelo TCPD: partido nacional, estadual, local ou candidato independente",,no,,,no,,Party_Type_TCPD
+votes,INT64,Número de votos recebidos pelo candidato,,no,,vote,no,,Votes
+valid_votes,INT64,Total de votos válidos de todos os candidatos no distrito eleitoral,,no,,vote,no,,Valid_Votes
+voters,INT64,Número total de eleitores registrados no distrito eleitoral,,no,,elector,no,,Electors
+candidates,INT64,Número de candidatos que disputaram o distrito eleitoral,,no,,candidate,no,,N_Cand
+turnout_percentage,FLOAT64,Percentual de comparecimento no distrito eleitoral (votos válidos dividido por eleitores),,no,,percent,no,A fonte contém valores fora do intervalo 0 a 100 (erros de contagem de eleitores na origem); preservados por fidelidade.,Turnout_Percentage
+vote_share_percentage,FLOAT64,Percentual de votos recebidos pelo candidato (votos dividido por votos válidos),,no,,percent,no,,Vote_Share_Percentage
+margin_votes,INT64,Diferença de votos entre o candidato e o candidato de posição imediatamente seguinte,,no,,vote,no,,Margin
+margin_percentage,FLOAT64,Diferença percentual de participação nos votos entre o candidato e o de posição seguinte,,no,,percent,no,,Margin_Percentage
+enop,FLOAT64,"Número efetivo de partidos no distrito eleitoral (índice de Laakso e Taagepera, derivado das participações nos votos)",,no,,,no,Índice adimensional.,ENOP
+deposit_lost,BOOLEAN,Indica se o candidato perdeu o depósito eleitoral,,no,,,no,,Deposit_Lost
+incumbent,BOOLEAN,Indica se o candidato era membro em exercício da casa legislativa no momento da eleição,,no,,,no,,Incumbent
+recontest,BOOLEAN,Indica se o candidato disputou a eleição imediatamente anterior,,no,,,no,,Recontest
+last_poll,BOOLEAN,Indica se esta foi a última eleição realizada no distrito antes da dissolução da legislatura,,no,,,no,,last_poll
+contested,INT64,"Número de vezes que o candidato disputou eleições até esta, inclusive",,no,,election,no,,Contested
+terms,INT64,"Número de legislaturas distintas em que o candidato venceu, inclusive esta",,no,,term,no,,No_Terms
+turncoat,BOOLEAN,Indica se o candidato trocou de partido em relação à eleição imediatamente anterior,,no,,,no,,Turncoat
+same_constituency,BOOLEAN,Indica se o candidato disputou o mesmo distrito eleitoral em sua disputa anterior,,no,,,no,Vazio quando não há disputa anterior.,Same_Constituency
+same_party,BOOLEAN,Indica se o candidato disputou pelo mesmo partido em sua disputa anterior,,no,,,no,Vazio quando não há disputa anterior.,Same_Party
+last_party,STRING,Sigla do partido pelo qual o candidato disputou em sua disputa anterior,,no,,,no,,Last_Party
+last_party_id,STRING,Identificador do partido pelo qual o candidato disputou em sua disputa anterior,,no,,,no,,Last_Party_ID
+last_constituency_name,STRING,Nome do distrito eleitoral que o candidato disputou em sua disputa anterior,,no,,,no,,Last_Constituency_Name
+education_level,STRING,Nível de escolaridade do candidato conforme declarado na candidatura (fonte: ADR/MyNeta),,no,,,no,Disponível apenas para subconjunto de candidatos.,MyNeta_education
+profession_main_category,STRING,Categoria da profissão principal do candidato (classificação do TCPD; fonte: ADR/MyNeta),,no,,,no,,TCPD_Prof_Main
+profession_main_type,STRING,Tipo da profissão principal do candidato dentro da categoria (fonte: ADR/MyNeta),,no,,,no,,TCPD_Prof_Main_Desc
+profession_secondary_category,STRING,Categoria da profissão secundária do candidato (classificação do TCPD; fonte: ADR/MyNeta),,no,,,no,,TCPD_Prof_Second
+profession_secondary_type,STRING,Tipo da profissão secundária do candidato dentro da categoria (fonte: ADR/MyNeta),,no,,,no,,TCPD_Prof_Second_Desc

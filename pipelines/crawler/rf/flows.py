@@ -14,7 +14,8 @@ from pipelines.utils.metadata.domain import (
     PartBdpro,
 )
 from pipelines.utils.metadata.tasks import (
-    register_source_poll_task,
+    commit_source_update_task,
+    poll_source_for_update_task,
     register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
@@ -29,12 +30,12 @@ def _run_rf(
     table_id: str,
     chunksize: int,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool = False,
 ) -> None:
     """Lógica completa do flow Receita Federal. Chamada pelos flows de cada dataset."""
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -42,19 +43,34 @@ def _run_rf(
     last_update_original_source = check_need_for_update(dataset_id=dataset_id)
 
     if not force_run:
-        is_outdated = register_source_poll_task(
+        has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             source_max_date=last_update_original_source,
             env="prod",
             date_format="%Y-%m-%d",
+            compare_against="coverage",
         )
 
-        if not is_outdated:
+        if not has_new_data:
             return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=last_update_original_source,
+        env="prod",
+        date_format="%Y-%m-%d",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
 
     crawl(dataset_id=dataset_id, input_dir="input")
 
+    # pyrefly: ignore [no-matching-overload]
     path = process_file(
         dataset_id=dataset_id,
         table_id=table_id,
@@ -70,13 +86,13 @@ def _run_rf(
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode="append",
+        source_format="parquet",
     )
 
     run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -89,13 +105,13 @@ def _run_rf(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode="append",
+        source_format="parquet",
     )
 
     run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 

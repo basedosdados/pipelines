@@ -15,7 +15,8 @@ from pipelines.utils.metadata.domain import (
     YearOnly,
 )
 from pipelines.utils.metadata.tasks import (
-    register_source_poll_task,
+    commit_source_update_task,
+    poll_source_for_update_task,
     register_table_materialization_task,
 )
 from pipelines.utils.tasks import (
@@ -33,11 +34,11 @@ def br_cgu_emendas_parlamentares__microdados(
     dataset_id: str = "br_cgu_emendas_parlamentares",
     table_id: str = "microdados",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -45,15 +46,29 @@ def br_cgu_emendas_parlamentares__microdados(
     max_modified_time = get_last_modified_time()
 
     if not force_run:
-        is_outdated = register_source_poll_task(
+        has_new_data = poll_source_for_update_task(
             dataset_id=dataset_id,
             table_id=table_id,
             source_max_date=max_modified_time,
             env="prod",
             date_format="%Y-%m-%d",
+            compare_against="table_update",
         )
-        if not is_outdated:
+        if not has_new_data:
             return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=max_modified_time,
+        env="prod",
+        date_format="%Y-%m-%d",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
 
     output_path = convert_str_to_float()
 
@@ -70,7 +85,6 @@ def br_cgu_emendas_parlamentares__microdados(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -90,7 +104,6 @@ def br_cgu_emendas_parlamentares__microdados(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -108,6 +121,7 @@ def br_cgu_emendas_parlamentares__microdados(
         )
 
 
+# pyrefly: ignore [missing-attribute]
 br_cgu_emendas_parlamentares__microdados.deploy_schedules = [
     {"cron": "30 19 * * *", "timezone": "America/Sao_Paulo"}
 ]

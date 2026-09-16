@@ -1,74 +1,41 @@
 """
-Flows for {{cookiecutter.pipeline_name}}
+Flows for {{cookiecutter.pipeline_name}} — Prefect 3.
 """
 
 ###############################################################################
 #
-# Aqui é onde devem ser definidos os flows da pipeline.
-# Cada flow representa uma sequência de passos que serão executados
-# em ordem.
+# Aqui é onde devem ser definidos os flows da pipeline (Prefect 3).
 #
-# Mais informações sobre flows podem ser encontradas na documentação do
-# Prefect: https://docs.prefect.io/core/concepts/flows.html
+# Cada flow é uma função decorada com `@flow`. Os passos são chamadas de
+# tasks (funções decoradas com `@task`, definidas em `tasks.py`) executadas
+# na ordem do corpo da função.
 #
-# Existem diversas maneiras de declarar flows. No entanto, a maneira mais
-# conveniente e recomendada pela documentação é usar a API funcional.
-# Em essência, isso implica simplesmente na chamada de funções, passando
-# os parâmetros necessários para a execução em cada uma delas.
+# O deploy é feito por `.github/scripts/deploy_flows.py`, que descobre os
+# objetos `Flow` deste arquivo automaticamente — não é preciso registrar
+# storage nem run_config manualmente.
 #
-# Também, após a definição de um flow, para o adequado funcionamento, é
-# mandatório configurar alguns parâmetros dele, os quais são:
-# - storage: onde esse flow está armazenado. No caso, o storage é o
-#   próprio módulo Python que contém o flow. Sendo assim, deve-se
-#   configurar o storage como o pipelines.{{cookiecutter.pipeline_name}}
-# - run_config: para o caso de execução em cluster Kubernetes, que é
-#   provavelmente o caso, é necessário configurar o run_config com a
-#   imagem Docker que será usada para executar o flow. Assim sendo,
-#   basta usar constants.DOCKER_IMAGE.value, que é automaticamente
-#   gerado.
-# - schedule (opcional): para o caso de execução em intervalos regulares,
-#   deve-se utilizar algum dos schedules definidos em schedules.py
+# O agendamento é definido inline no próprio objeto do flow, via
+# `<flow>.deploy_schedules`, uma lista de dicts `{"cron": ..., "timezone": ...}`.
+# Em `dev` os schedules são ignorados; em `prod` são ativados na sincronização
+# com o backend. Veja https://crontab.guru/ para montar a expressão cron.
 #
-# Um exemplo de flow, considerando todos os pontos acima, é o seguinte:
+# Documentação: https://docs.prefect.io/v3/
 #
-# -----------------------------------------------------------------------------
-# from prefect import task
-# from prefect import Flow
-# from prefect.run_configs import KubernetesRun
-# from prefect.storage import GCS
-# from pipelines.constants import constants
-# from my_tasks import my_task, another_task
-# from my_schedules import some_schedule
-#
-# with Flow("my_flow") as flow:
-#     a = my_task(param1=1, param2=2)
-#     b = another_task(a, param3=3)
-#
-# flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-# flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# flow.schedule = some_schedule
-# -----------------------------------------------------------------------------
-#
-# Abaixo segue um código para exemplificação, que pode ser removido.
+# Abaixo segue um código de exemplo, que pode ser removido.
 #
 ###############################################################################
 
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+from prefect import flow
 
-from pipelines.constants import constants
-from pipelines.datasets.{{cookiecutter.pipeline_name}}.schedules import schedule
 from pipelines.datasets.{{cookiecutter.pipeline_name}}.tasks import say_hello
-from pipelines.utils.decorators import Flow
 
-with Flow(
-    name="{{cookiecutter.pipeline_name}}",
-    code_owners=[
-        "discord-username",
-    ]
-) as flow:
-    say_hello()
 
-flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-flow.schedule = schedule
+@flow(name="{{cookiecutter.pipeline_name}}", log_prints=True)
+def {{cookiecutter.pipeline_name}}_flow(name: str = "World") -> None:
+    say_hello(name=name)
+
+
+# Agendamento (opcional). Remova se o flow não deve rodar em intervalos fixos.
+{{cookiecutter.pipeline_name}}_flow.deploy_schedules = [
+    {"cron": "0 14 * * 1", "timezone": "America/Sao_Paulo"}  # segundas, 14:00
+]

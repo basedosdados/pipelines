@@ -1,0 +1,219 @@
+---
+version: 2
+models:
+  - name: fr_insee_sirene__unite_legale
+    description: >
+      Estoque atual das unidades legais (unités légales, SIREN) do repertório SIRENE
+      do INSEE. Uma linha por SIREN no snapshot mensal. Muitas colunas são
+      legitimamente esparsas (pessoas físicas vs. morais).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data, siren]
+    columns:
+      - name: data
+        description: Data do snapshot mensal
+        tests: [not_null]
+      - name: ano
+        description: Ano do snapshot
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: siren
+        description: Número SIREN da unidade legal
+        tests: [not_null]
+      - name: categorie_juridique
+        description: Categoria jurídica (nível III INSEE)
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_fr__categorie_juridique')
+              field: categoria_juridica
+      - name: activite_principale
+        description: Atividade principal (código APE / NAF rév.2)
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_fr__naf_rev2')
+              field: naf_rev2.naf_rev2
+              config:
+                where: nomenclature_activite_principale = 'NAFRev2'
+      - name: activite_principale_naf25
+        description: Atividade principal em NAF 2025
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_fr__naf_2025')
+              field: naf_2025.naf_2025
+              config:
+                where: activite_principale_naf25 is not null
+  - name: fr_insee_sirene__etablissement
+    description: >
+      Estoque atual dos estabelecimentos (établissements, SIRET) do repertório SIRENE,
+      com geolocalização do INSEE (cobre a França exceto Mayotte). Uma linha por SIRET.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data, siret]
+    columns:
+      - name: data
+        description: Data do snapshot mensal
+        tests: [not_null]
+      - name: ano
+        description: Ano do snapshot
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: siren
+        description: Número SIREN da unidade legal
+        tests: [not_null]
+      - name: siret
+        description: Número SIRET do estabelecimento
+        tests: [not_null]
+      - name: code_commune
+        description: Código INSEE da comuna do estabelecimento
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_fr__commune')
+              field: id_comuna
+              config:
+                where: code_commune is not null
+      - name: code_commune_geolocalisation
+        description: Código INSEE da comuna (geolocalização)
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_fr__commune')
+              field: id_comuna
+              config:
+                where: code_commune_geolocalisation is not null
+      - name: activite_principale
+        description: Atividade principal (código APE / NAF rév.2)
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_fr__naf_rev2')
+              field: naf_rev2.naf_rev2
+              config:
+                where: nomenclature_activite_principale = 'NAFRev2'
+      - name: activite_principale_naf25
+        description: Atividade principal em NAF 2025
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_fr__naf_2025')
+              field: naf_2025.naf_2025
+              config:
+                where: activite_principale_naf25 is not null
+  - name: fr_insee_sirene__unite_legale_historique
+    description: >
+      Histórico das variáveis das unidades legais (SIREN) do SIRENE. Uma linha por
+      período de validade (SIREN × date_debut). Por ser um histórico, contém códigos
+      retirados das nomenclaturas atuais, ignorados nos testes de FK: (1) o código
+      sentinela de atividade não atribuída "00.00Z" (598.682 linhas, 1,32% do escopo
+      NAFRev2), fora da nomenclatura NAF rév.2; e (2) 38 códigos de categoria jurídica
+      (nível III) descontinuados pelo INSEE, ausentes da nomenclatura atual (253.895
+      linhas, 0,36%). Ambos ocorrem apenas em períodos históricos — as tabelas de
+      estoque atual passam nos testes de FK sem exceções.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data, siren, date_debut]
+    columns:
+      - name: data
+        description: Data do snapshot mensal
+        tests: [not_null]
+      - name: siren
+        description: Número SIREN da unidade legal
+        tests: [not_null]
+      - name: date_debut
+        description: Data de início do período de validade
+      - name: categorie_juridique
+        description: Categoria jurídica no período
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_fr__categorie_juridique')
+              field: categoria_juridica
+              ignore_values:
+                - '5498'
+                - '2200'
+                - '5720'
+                - '5400'
+                - '6500'
+                - '7510'
+                - '5500'
+                - '5200'
+                - '6200'
+                - '2100'
+                - '2300'
+                - '6300'
+                - '9200'
+                - '7520'
+                - '8200'
+                - '8400'
+                - '4100'
+                - '9100'
+                - '3200'
+                - '5100'
+                - '5300'
+                - '8100'
+                - '5669'
+                - '7130'
+                - '7100'
+                - '6588'
+                - '3100'
+                - '7200'
+                - '8300'
+                - '6412'
+                - '6332'
+                - '3299'
+                - '6414'
+                - '7300'
+                - '6413'
+                - '5600'
+                - '3208'
+                - '6400'
+      - name: activite_principale
+        description: Atividade principal no período (APE / NAF rév.2)
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_fr__naf_rev2')
+              field: naf_rev2.naf_rev2
+              ignore_values: [00.00Z]
+              config:
+                where: nomenclature_activite_principale = 'NAFRev2'
+  - name: fr_insee_sirene__etablissement_historique
+    description: >
+      Histórico das variáveis dos estabelecimentos (SIRET) do SIRENE. Uma linha por
+      período de validade (SIRET × date_debut).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [data, siret, date_debut]
+    columns:
+      - name: data
+        description: Data do snapshot mensal
+        tests: [not_null]
+      - name: siret
+        description: Número SIRET do estabelecimento
+        tests: [not_null]
+      - name: date_debut
+        description: Data de início do período de validade
+      - name: activite_principale
+        description: Atividade principal no período (APE / NAF rév.2)
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_fr__naf_rev2')
+              field: naf_rev2.naf_rev2
+              config:
+                where: nomenclature_activite_principale = 'NAFRev2'
+  - name: fr_insee_sirene__dicionario
+    description: >
+      Dicionário das variáveis codificadas do dataset fr_insee_sirene (statut_diffusion,
+      sexe, tranche_effectifs, etat_administratif, caractere_employeur, categorie_entreprise,
+      economie_sociale_solidaire, nomenclature_activite_principale, type_voie).
+    columns:
+      - name: id_tabela
+        description: Tabela à qual a chave se aplica
+      - name: nome_coluna
+        description: Coluna codificada
+      - name: chave
+        description: Valor codificado
+      - name: cobertura_temporal
+        description: Cobertura temporal da chave
+      - name: valor
+        description: Rótulo correspondente à chave

@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_tabela,STRING,Nome da tabela à qual a chave e o valor se referem,,no,,,no,,
+nome_coluna,STRING,Nome da coluna à qual a chave e o valor se referem,,no,,,no,,
+chave,STRING,Código presente nos dados da coluna,,no,,,no,,
+cobertura_temporal,STRING,Cobertura temporal a que se aplica o par chave-valor,,no,,,no,,
+valor,STRING,Rótulo correspondente ao código na coluna,,no,,,no,,

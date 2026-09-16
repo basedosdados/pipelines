@@ -75,6 +75,7 @@ def flatten(d: dict, parent_key="", sep="_") -> dict:
     for k, v in d.items():
         new_key = parent_key + sep + k if parent_key else k
         if isinstance(v, collections.MutableMapping):
+            # pyrefly: ignore [bad-argument-type]
             items.extend(flatten(v, new_key, sep=sep).items())
         else:
             items.append((new_key, v))
@@ -143,7 +144,9 @@ class GA4RealTimeReport:
                         for metric_value in row.metric_values
                     ]
                 )
+            # pyrefly: ignore [unsupported-operation]
             output["headers"] = headers
+            # pyrefly: ignore [unsupported-operation]
             output["rows"] = rows
             return output
         except Exception as e:
@@ -229,6 +232,7 @@ def parse_data(response) -> pd.DataFrame:
     data = pd.json_normalize(reports["data"]["rows"])
     data_dimensions = pd.DataFrame(data["dimensions"].tolist())
     data_metrics = pd.DataFrame(data["metrics"].tolist())
+    # pyrefly: ignore [not-callable]
     data_metrics = data_metrics.applymap(lambda x: x["values"])
     data_metrics = pd.DataFrame(data_metrics[0].tolist())
     result = pd.concat(

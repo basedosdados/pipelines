@@ -1,0 +1,11 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+year,INT64,Ano do evento eleitoral,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de particionamento. Vários eventos podem compartilhar o mesmo ano,,Year of the electoral event,Año del evento electoral
+disclosure_type,STRING,"Tipo de declaração: anual, de eleição ou de referendo",,yes,,,no,,,"Type of disclosure: annual, election or referendum","Tipo de declaración: anual, de elección o de referendo"
+financial_year,STRING,"Exercício financeiro australiano da declaração, no formato original da AEC",,no,,,no,A AEC usa dois formatos ao longo do tempo: 1998-1999 até 2010-2011 e 2011-12 em diante,Financial Year,"Australian financial year of the return, in the AEC's original format","Ejercicio financiero australiano de la declaración, en el formato original de la AEC"
+election_name,STRING,Nome do evento eleitoral ao qual a declaração se refere,,no,,,no,,Event,Name of the electoral event the return relates to,Nombre del evento electoral al que se refiere la declaración
+return_type,STRING,Categoria da declaração no Transparency Register,,yes,,,no,,Return Type,Category of the return in the Transparency Register,Categoría de la declaración en el Transparency Register
+direction,STRING,Lado da declaração de onde a doação foi extraída: declarada pelo doador ou pelo recebedor,,yes,,,no,A mesma doação pode aparecer nos dois lados; filtre por direction para evitar dupla contagem,,Side of the return the donation was taken from: reported by the donor or by the recipient,Lado de la declaración del que se extrajo la donación: declarada por el donante o por el receptor
+donor_name,STRING,Nome de quem fez a doação,,no,,,no,,,Name of the donor,Nombre de quien hizo la donación
+recipient_name,STRING,Nome de quem recebeu a doação,,no,,,no,,,Name of the recipient,Nombre de quien recibió la donación
+donation_date,DATE,Data da doação,,no,,,no,Ausente em parte das declarações antigas,,Date of the donation,Fecha de la donación
+value,FLOAT64,Valor da doação em dólares australianos,,no,,AUD,no,,,Value of the donation in Australian dollars,Valor de la donación en dólares australianos

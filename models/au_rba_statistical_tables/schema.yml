@@ -1,0 +1,160 @@
+---
+version: 2
+models:
+  - name: au_rba_statistical_tables__data
+    description: >-
+      Long time-series table of Reserve Bank of Australia statistical-table
+      observations, one row per statistical table, series and date, with the
+      observed value. The unit of value varies by series and is given in the
+      units column of the series catalogue. Covers only series whose every named
+      source publishes under CC BY 4.0 (RBA, APRA, ABS).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [table_id, series_id, date]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      # Composite foreign key to the series catalogue. dbt's built-in
+      # `relationships` test takes a single field, and series_id alone is not
+      # unique across tables, so the key is compared as a concatenation.
+      - dbt_utils.expression_is_true:
+          expression: >-
+            concat(table_id, '|', series_id) in (
+              select concat(s.table_id, '|', s.series_id)
+              from {{ ref('au_rba_statistical_tables__series') }} as s
+            )
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: date
+        description: >-
+          Observation date, using the RBA's own dating convention: the end of the
+          period for monthly, quarterly and semiannual series, and the exact date
+          for daily series
+        tests: [not_null]
+      - name: table_id
+        description: >-
+          Code of the RBA statistical table the series belongs to, such as F1, D3
+          or B13.1
+        tests: [not_null]
+      - name: series_id
+        description: >-
+          Series mnemonic assigned by the RBA, unique only in combination with
+          table_id
+        tests: [not_null]
+      - name: value
+        description: >-
+          Observed value of the series; the unit depends on the series and is
+          given in the units column of the series table
+  - name: au_rba_statistical_tables__series
+    description: >-
+      Metadata catalogue with one row per series in the dataset: title,
+      description, unit, frequency, statistical treatment, originating source
+      agency, publication date and coverage dates. Keyed by table_id and
+      series_id together, because the RBA reuses 228 mnemonics across the B13.1.2
+      and B13.2.1 tables for different measures.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [table_id, series_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [observation_start, observation_end]
+    columns:
+      - name: table_id
+        description: >-
+          Code of the RBA statistical table, such as F1, D3 or B13.1
+        tests: [not_null]
+      - name: series_id
+        description: Series mnemonic assigned by the RBA
+        tests: [not_null]
+      - name: table_name
+        description: Name of the RBA statistical table the series belongs to
+      - name: title
+        description: Descriptive title of the series
+      - name: description
+        description: Detailed description of the series provided by the RBA
+      - name: frequency
+        description: >-
+          Observation frequency of the series, normalised to a controlled
+          vocabulary (Daily, Weekly, Monthly, Quarterly, Semiannual, Yearly, As
+          announced, See notes)
+      - name: series_type
+        description: >-
+          Statistical treatment applied to the series, such as Original,
+          Seasonally adjusted or Trend
+      - name: units
+        description: >-
+          Unit of measure of the series values, which defines the unit of the
+          value column in the data table
+      - name: source
+        description: >-
+          Agency responsible for compiling the series, preserved to carry the
+          attribution required by CC BY 4.0
+      - name: publication_date
+        description: Publication date of the statistical table containing the series
+      - name: observation_start
+        description: Date of the first available observation of the series
+      - name: observation_end
+        description: >-
+          Date of the last available observation of the series; null for series
+          that carry no numeric observations
+  - name: au_rba_statistical_tables__series_break
+    description: >-
+      Structural breaks documented by the RBA for the banking and financial
+      aggregate tables, one row per break, giving the date, break type, affected
+      series title and the institutional change that caused it. Use it to
+      distinguish genuine discontinuities in the level series from data errors.
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [break_type]
+          dictionary_model: ref('au_rba_statistical_tables__dicionario')
+    columns:
+      - name: table_id
+        description: Code of the RBA statistical table the break refers to
+        tests: [not_null]
+      - name: table_name
+        description: Name of the RBA statistical table the break refers to
+      - name: date
+        description: Date on which the break in the series occurred
+        tests: [not_null]
+      - name: break_type
+        description: >-
+          Code for the type of break in the series, decoded in the dicionario
+          table
+      - name: series_title
+        description: >-
+          Title of the affected series as written by the RBA; free text that does
+          not necessarily match the title column of the series table
+      - name: details
+        description: >-
+          Description of the institution or reporting change that caused the
+          break
+  - name: au_rba_statistical_tables__dicionario
+    description: >-
+      Dictionary of the coded values used in the dataset, mapping each key to a
+      human-readable label.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+    columns:
+      - name: id_tabela
+        description: >-
+          Slug of the au_rba_statistical_tables table the dictionary entry
+          describes
+        tests: [not_null]
+      - name: nome_coluna
+        description: Name of the column the dictionary entry describes
+        tests: [not_null]
+      - name: chave
+        description: Coded value exactly as stored in the data
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: Temporal coverage of the key
+      - name: valor
+        description: Human-readable label corresponding to the coded value

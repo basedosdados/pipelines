@@ -16,7 +16,6 @@ def _cvm_fi_flow(table_id: str, cron: str, date_column_name: dict):
         dataset_id: str = "br_cvm_fi",
         table_id: str = table_id,
         materialize_after_dump: bool = True,
-        dbt_alias: bool = True,
         update_metadata: bool = True,
         target: str = "prod",
         force_run: bool = False,
@@ -27,17 +26,20 @@ def _cvm_fi_flow(table_id: str, cron: str, date_column_name: dict):
             table_id=table_id,
             date_column_name=date_column_name,
             materialize_after_dump=materialize_after_dump,
-            dbt_alias=dbt_alias,
             update_metadata=update_metadata,
             target=target,
             force_run=force_run,
             url=url,
         )
 
+    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
 
 
+# As seis tabelas rodam de 10 em 10 minutos a partir das 17h para não disputarem
+# slot no BigQuery no mesmo instante — a fonte é mensal, e o poll faz a run virar
+# no-op nos dias em que a CVM não publicou nada.
 br_cvm_fi__documentos_informe_diario = _cvm_fi_flow(
     table_id="documentos_informe_diario",
     cron="0 17 * * *",

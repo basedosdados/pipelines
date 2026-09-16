@@ -1,0 +1,309 @@
+---
+version: 2
+models:
+  - name: us_eia_consumption__utility
+    description: >-
+      Um registro por empresa de eletricidade por ano, conforme o quadro de
+      empresas do Formulário EIA-861: nome, tipo de propriedade, unidade
+      federativa e região de confiabilidade da NERC. utility_id é o
+      identificador atribuído pela EIA e é a chave de junção estável com o
+      conjunto us_eia_electricity e entre os formulários da EIA. O conjunto de
+      empresas que preenchem esse quadro varia de ano para ano, de modo que a
+      contagem de linhas por ano não é constante; isso reflete quem declarou,
+      não uma falha de cobertura.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, utility_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano-calendário de referência do formulário
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: utility_id
+        description: >-
+          Identificador da empresa (Utility Number) atribuído pela EIA; é a
+          chave de junção estável com o conjunto us_eia_electricity e entre os
+          formulários da EIA
+        tests: [not_null]
+      - name: utility_name
+        description: >-
+          Nome da empresa conforme declarado no formulário
+      - name: state_id
+        description: >-
+          Código FIPS do estado dos Estados Unidos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: ownership_type
+        description: >-
+          Tipo de propriedade da empresa, conforme a EIA (por exemplo,
+          Investor Owned, Municipal, Cooperative, Federal, Political
+          Subdivision, Power Marketer)
+      - name: nerc_region
+        description: >-
+          Região de confiabilidade da NERC em que a empresa opera (por
+          exemplo, WECC, SERC, RFC)
+  - name: us_eia_consumption__retail_sales
+    description: >-
+      Vendas de eletricidade a consumidores finais por empresa, unidade
+      federativa, tipo de serviço e setor de consumo, conforme o Anexo 4 do
+      Formulário EIA-861: receita, vendas em MWh, número de consumidores e um
+      preço médio derivado. A fonte publica os setores em formato largo; aqui
+      a tabela está em formato longo, uma linha por setor, e o setor Total foi
+      descartado por ser a soma dos demais. Somar vendas ou receita sobre a
+      coluna service_type inteira conta a mesma energia duas vezes: em
+      mercados reestruturados a mesma energia aparece como Delivery (entregue
+      pela distribuidora) e como Energy (vendida pela comercializadora). Para
+      um total sem dupla contagem, some apenas Bundled e Energy, excluindo
+      Delivery. O preço médio é derivado como receita dividida por vendas e é
+      nulo onde não há vendas. A partir de 2013 uma empresa declara uma linha
+      por autoridade de balanceamento (ba_code), o que faz parte da chave.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns:
+            - year
+            - utility_id
+            - state_id
+            - part
+            - service_type
+            - ba_code
+            - customer_sector
+          proportion_allowed_failures: 0.001
+      - not_null_proportion_multiple_columns:
+          config:
+            # The macro reads every column at dbt compile, so it is
+            # scoped to the most recent year on the large tables.
+            where: __most_recent_year_en__
+          at_least: 0.05
+          # Measured over the parquet: each is a field the form
+          # collects for a minority of rows, or stopped collecting.
+          ignore_values: [data_type]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_eia_consumption__dicionario')
+          columns_covered_by_dictionary: [part, data_type]
+    columns:
+      - name: year
+        description: >-
+          Ano-calendário de referência do formulário
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: utility_id
+        description: >-
+          Identificador da empresa (Utility Number) atribuído pela EIA; é a
+          chave de junção estável com o conjunto us_eia_electricity e entre os
+          formulários da EIA
+        tests: [not_null]
+      - name: utility_name
+        description: >-
+          Nome da empresa conforme declarado no formulário
+      - name: state_id
+        description: >-
+          Código FIPS do estado dos Estados Unidos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: ownership_type
+        description: >-
+          Tipo de propriedade da empresa, conforme a EIA (por exemplo,
+          Investor Owned, Municipal, Cooperative, Federal, Political
+          Subdivision, Power Marketer)
+      - name: ba_code
+        description: >-
+          Código da autoridade de balanceamento (balancing authority) da
+          empresa; coletado a partir de 2012
+      - name: part
+        description: >-
+          Parte do Anexo 4 do formulário em que a linha foi declarada,
+          indicando o tipo de arranjo de serviço
+        tests: [not_null]
+      - name: service_type
+        description: >-
+          Tipo de serviço prestado: Bundled (energia e distribuição), Energy
+          (só energia) ou Delivery (só distribuição)
+        tests: [not_null]
+      - name: data_type
+        description: >-
+          Indica se o valor foi observado (declarado pelo respondente) ou
+          imputado pela EIA
+      - name: customer_sector
+        description: >-
+          Setor de consumo final: residencial, comercial, industrial ou
+          transporte
+        tests: [not_null]
+      - name: sales_mwh
+        description: >-
+          Vendas de eletricidade a consumidores finais no setor
+      - name: revenue_usd
+        description: >-
+          Receita com vendas a consumidores finais no setor, convertida de
+          milhares de dólares para dólares
+      - name: customer_count
+        description: >-
+          Número de consumidores finais atendidos no setor
+      - name: average_price_cents_kwh
+        description: >-
+          Preço médio ao consumidor final no setor, derivado como receita
+          dividida por vendas
+  - name: us_eia_consumption__service_territory
+    description: >-
+      Um registro por empresa, ano e condado atendido, conforme o arquivo de
+      território de serviço do Formulário EIA-861, publicado como arquivo
+      próprio a partir de 2012: a empresa, o condado e se ela preencheu o
+      formulário simplificado. county_id resolve o código FIPS do condado a
+      partir do nome declarado, dentro da unidade federativa.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, utility_id, state_id, county_name]
+      - not_null_proportion_multiple_columns:
+          config:
+            # The macro reads every column at dbt compile, so it is
+            # scoped to the most recent year on the large tables.
+            where: __most_recent_year_en__
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_eia_consumption__dicionario')
+          columns_covered_by_dictionary: [short_form]
+    columns:
+      - name: year
+        description: >-
+          Ano-calendário de referência do formulário
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: utility_id
+        description: >-
+          Identificador da empresa (Utility Number) atribuído pela EIA; é a
+          chave de junção estável com o conjunto us_eia_electricity e entre os
+          formulários da EIA
+        tests: [not_null]
+      - name: utility_name
+        description: >-
+          Nome da empresa conforme declarado no formulário
+      - name: state_id
+        description: >-
+          Código FIPS do estado dos Estados Unidos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: county_id
+        description: >-
+          Código FIPS do condado atendido pela empresa
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+      - name: county_name
+        description: >-
+          Nome do condado atendido, conforme declarado
+        tests: [not_null]
+      - name: short_form
+        description: >-
+          Indica se a empresa preencheu o formulário simplificado (EIA-861S)
+  - name: us_eia_consumption__eia861m
+    description: >-
+      Vendas mensais de eletricidade a consumidores finais por unidade
+      federativa e setor de consumo, conforme o Formulário EIA-861M: receita,
+      vendas em MWh, número de consumidores e preço médio, de 1990 ao mês mais
+      recente publicado. A fonte publica os setores em formato largo; aqui a
+      tabela está em formato longo, uma linha por setor. O setor Other aparece
+      apenas na série histórica de 1990 a 2009, quando a EIA o coletava como
+      um setor residual; a partir de 2010 restam quatro setores. state_code
+      cobre as unidades federativas, o total nacional e os territórios;
+      state_id resolve o código FIPS apenas para as unidades federativas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, month, state_code, customer_sector]
+      - not_null_proportion_multiple_columns:
+          config:
+            # The macro reads every column at dbt compile, so it is
+            # scoped to the most recent year on the large tables.
+            where: __most_recent_year_en__
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Ano-calendário de referência do formulário
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: >-
+          Mês de referência (1 a 12)
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: state_id
+        description: >-
+          Código FIPS do estado dos Estados Unidos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: state_code
+        description: >-
+          Código postal de dois caracteres do estado ou território conforme a
+          fonte
+        tests: [not_null]
+      - name: customer_sector
+        description: >-
+          Setor de consumo final: residencial, comercial, industrial ou
+          transporte
+        tests: [not_null]
+      - name: data_status
+        description: >-
+          Situação do dado do mês: preliminar ou final
+      - name: sales_mwh
+        description: >-
+          Vendas de eletricidade a consumidores finais no setor no mês
+      - name: revenue_usd
+        description: >-
+          Receita com vendas a consumidores finais no setor no mês, convertida
+          de milhares de dólares para dólares
+      - name: customer_count
+        description: >-
+          Número de consumidores finais atendidos no setor no mês
+      - name: average_price_cents_kwh
+        description: >-
+          Preço médio ao consumidor final no setor no mês, conforme publicado
+          pela fonte
+  - name: us_eia_consumption__dicionario
+    description: >-
+      Registro dos valores assumidos pelas colunas codificadas das tabelas de
+      vendas no varejo e de território de serviço, com o significado de cada
+      código e a cobertura temporal em que ele aparece.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+    columns:
+      - name: id_tabela
+        description: Nome da tabela a que a coluna codificada pertence
+        tests: [not_null]
+      - name: nome_coluna
+        description: Nome da coluna codificada
+        tests: [not_null]
+      - name: chave
+        description: Valor armazenado na coluna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: Anos em que o valor aparece, na notação início(intervalo)fim
+      - name: valor
+        description: Significado do valor armazenado

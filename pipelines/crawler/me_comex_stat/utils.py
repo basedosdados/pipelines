@@ -124,8 +124,10 @@ def validate_table(
     """
 
     # Infer trade type from filename
+    # pyrefly: ignore [unnecessary-type-conversion]
     if "imp" in str(filename).lower():
         trade_type = "imp"
+    # pyrefly: ignore [unnecessary-type-conversion]
     elif "exp" in str(filename).lower():
         trade_type = "exp"
     else:
@@ -142,8 +144,9 @@ def validate_table(
 
     for validation_file in validation_file_list:
         if (
+            # pyrefly: ignore [unnecessary-type-conversion]
             table_type in str(validation_file).lower()
-            and trade_type in str(validation_file).lower()
+            and trade_type in str(validation_file).lower()  # pyrefly: ignore [unnecessary-type-conversion]
         ):
             df_validation = pd.read_csv(
                 f"{validation_dir}{validation_file}", sep=";"

@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+# pyrefly: ignore [missing-module-attribute]
 from pipelines.utils.metadata.tasks import check_if_data_is_outdated_by_size
 
 

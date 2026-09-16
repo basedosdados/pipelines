@@ -1,0 +1,200 @@
+[
+  {
+    "name": "year",
+    "bigquery_type": "INT64",
+    "description_pt": "Ano de referência da observação",
+    "description_en": "Reference year of the observation",
+    "description_es": "Año de referencia de la observación",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "directory_column": "br_bd_diretorios_data_tempo.ano:ano",
+    "measurement_unit": "year"
+  },
+  {
+    "name": "month",
+    "bigquery_type": "INT64",
+    "description_pt": "Mês de referência da observação, de 1 a 12",
+    "description_en": "Reference month of the observation, from 1 to 12",
+    "description_es": "Mes de referencia de la observación, de 1 a 12",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "directory_column": "br_bd_diretorios_data_tempo.mes:mes",
+    "measurement_unit": "month"
+  },
+  {
+    "name": "geography",
+    "bigquery_type": "STRING",
+    "description_pt": "Área geográfica: Austrália (nacional) ou um dos oito estados e territórios",
+    "description_en": "Geographic area: Australia (national) or one of the eight states and territories",
+    "description_es": "Área geográfica: Australia (nacional) o uno de los ocho estados y territorios",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "sex",
+    "bigquery_type": "STRING",
+    "description_pt": "Sexo: pessoas (total), homens ou mulheres",
+    "description_en": "Sex: persons (all), males or females",
+    "description_es": "Sexo: personas (total), hombres o mujeres",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "age_group",
+    "bigquery_type": "STRING",
+    "description_pt": "Faixa etária em anos; total abrange pessoas com 15 anos ou mais",
+    "description_en": "Age group in years; total covers persons aged 15 years and over",
+    "description_es": "Grupo de edad en años; total abarca personas de 15 años o más",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "adjustment_type",
+    "bigquery_type": "STRING",
+    "description_pt": "Ajuste da série temporal: original, ajustada sazonalmente ou tendência",
+    "description_en": "Time series adjustment: original, seasonally adjusted or trend",
+    "description_es": "Ajuste de la serie temporal: original, ajustada estacionalmente o tendencia",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "employed_total",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Número de pessoas ocupadas",
+    "description_en": "Number of employed persons",
+    "description_es": "Número de personas ocupadas",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "person"
+  },
+  {
+    "name": "employed_full_time",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Número de pessoas ocupadas em tempo integral",
+    "description_en": "Number of persons employed full-time",
+    "description_es": "Número de personas ocupadas a tiempo completo",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "person"
+  },
+  {
+    "name": "employed_part_time",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Número de pessoas ocupadas em tempo parcial",
+    "description_en": "Number of persons employed part-time",
+    "description_es": "Número de personas ocupadas a tiempo parcial",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "person"
+  },
+  {
+    "name": "unemployed_total",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Número de pessoas desempregadas",
+    "description_en": "Number of unemployed persons",
+    "description_es": "Número de personas desempleadas",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "person"
+  },
+  {
+    "name": "unemployed_looked_for_full_time",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Número de pessoas desempregadas que procuraram trabalho em tempo integral",
+    "description_en": "Number of unemployed persons who looked for full-time work",
+    "description_es": "Número de personas desempleadas que buscaron trabajo a tiempo completo",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "person"
+  },
+  {
+    "name": "unemployed_looked_for_part_time",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Número de pessoas desempregadas que procuraram apenas trabalho em tempo parcial",
+    "description_en": "Number of unemployed persons who looked for only part-time work",
+    "description_es": "Número de personas desempleadas que buscaron solo trabajo a tiempo parcial",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "person"
+  },
+  {
+    "name": "labour_force_total",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Força de trabalho total, ocupados mais desempregados",
+    "description_en": "Total labour force, employed plus unemployed",
+    "description_es": "Fuerza laboral total, ocupados más desempleados",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "person"
+  },
+  {
+    "name": "not_in_labour_force",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Número de pessoas fora da força de trabalho",
+    "description_en": "Number of persons not in the labour force",
+    "description_es": "Número de personas fuera de la fuerza laboral",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "person"
+  },
+  {
+    "name": "civilian_population_15_over",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "População civil com 15 anos ou mais",
+    "description_en": "Civilian population aged 15 years and over",
+    "description_es": "Población civil de 15 años o más",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "person"
+  },
+  {
+    "name": "unemployment_rate",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Pessoas desempregadas como porcentagem da força de trabalho",
+    "description_en": "Unemployed persons as a percentage of the labour force",
+    "description_es": "Personas desempleadas como porcentaje de la fuerza laboral",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "percent"
+  },
+  {
+    "name": "unemployment_rate_looked_for_full_time",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Taxa de desemprego entre quem procurou trabalho em tempo integral",
+    "description_en": "Unemployment rate among those who looked for full-time work",
+    "description_es": "Tasa de desempleo entre quienes buscaron trabajo a tiempo completo",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "percent"
+  },
+  {
+    "name": "unemployment_rate_looked_for_part_time",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Taxa de desemprego entre quem procurou apenas trabalho em tempo parcial",
+    "description_en": "Unemployment rate among those who looked for only part-time work",
+    "description_es": "Tasa de desempleo entre quienes buscaron solo trabajo a tiempo parcial",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "percent"
+  },
+  {
+    "name": "participation_rate",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Força de trabalho como porcentagem da população civil com 15 anos ou mais",
+    "description_en": "Labour force as a percentage of the civilian population aged 15 years and over",
+    "description_es": "Fuerza laboral como porcentaje de la población civil de 15 años o más",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "percent"
+  },
+  {
+    "name": "employment_to_population_ratio",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Pessoas ocupadas como porcentagem da população civil com 15 anos ou mais",
+    "description_en": "Employed persons as a percentage of the civilian population aged 15 years and over",
+    "description_es": "Personas ocupadas como porcentaje de la población civil de 15 años o más",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "percent"
+  }
+]

@@ -1,0 +1,3022 @@
+---
+version: 2
+models:
+  - name: us_bls_atus__respondent
+    description: >-
+      ATUS respondent file: one record per interviewed respondent per year, with labor
+      force status, earnings, the ATUS final weight, and derived time-use totals.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, tucaseid]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the ATUS interview (diary year).
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: tucaseid
+        description: >-
+          ATUS case identification number; primary key that links all ATUS files.
+          First four digits are the interview year.
+        tests: [not_null]
+      - name: tulineno
+        description: >-
+          ATUS person line number identifying each individual within the household.
+      - name: tespuhrs
+        description: >-
+          Usual hours of work per week of spouse or unmarried partner
+      - name: trdtind1
+        description: >-
+          Detailed industry recode (main job)
+      - name: trdtocc1
+        description: >-
+          Detailed occupation recode (main job)
+      - name: trernhly
+        description: >-
+          Hourly earnings at main job (2 implied decimals)
+      - name: trernupd
+        description: >-
+          Earnings update flag
+      - name: trhernal
+        description: >-
+          TRERNHLY: allocation flag
+      - name: trhhchild
+        description: >-
+          Presence of household children < 18
+      - name: trimind1
+        description: >-
+          Intermediate industry recode (main job)
+      - name: trmjind1
+        description: >-
+          Major industry recode (main job)
+      - name: trmjocc1
+        description: >-
+          Major occupation recode (main job)
+      - name: trmjocgr
+        description: >-
+          Major occupation category (main job)
+      - name: trnhhchild
+        description: >-
+          Presence of own non-household child < 18
+      - name: trnumhou
+        description: >-
+          Number of people living in respondent's household
+      - name: trohhchild
+        description: >-
+          Presence of own household children < 18
+      - name: trtalone
+        description: >-
+          Total nonwork-related time respondent spent alone (in minutes)
+      - name: trtcc
+        description: >-
+          Total time spent during diary day providing secondary childcare for household
+          and own nonhousehold children < 13 (in minutes)
+      - name: trthhfamily
+        description: >-
+          Total nonwork-related time respondent spent with household family members
+          (in minutes)
+      - name: trtnochild
+        description: >-
+          Total nonwork-related time respondent spent with nonown children < 18 (in
+          minutes)
+      - name: trtnohh
+        description: >-
+          Total time spent during diary day providing secondary childcare for nonown
+          household children < 13 (in minutes)
+      - name: trto
+        description: >-
+          Total time spent during diary day providing secondary childcare for own
+          children < 13 (in minutes)
+      - name: trtohh
+        description: >-
+          Total time spent during diary day providing secondary childcare for own
+          household children < 13 (in minutes)
+      - name: trtohhchild
+        description: >-
+          Total nonwork-related time respondent spent with own household children
+          < 18 (in minutes)
+      - name: trtonhh
+        description: >-
+          Total time spent during diary day providing secondary childcare for own
+          nonhousehold children < 13 (in minutes)
+      - name: trtonhhchild
+        description: >-
+          Total nonwork-related time respondent spent with own nonhousehold children
+          < 18 (in minutes)
+      - name: trtsponly
+        description: >-
+          Total nonwork-related time respondent spent with spouse only (in minutes)
+      - name: trtspouse
+        description: >-
+          Total nonwork-related time respondent spent with spouse (others may be present)
+          (in minutes)
+      - name: trtunmpart
+        description: >-
+          Total nonwork-related time respondent spent with unmarried partner (others
+          may be present) (in minutes)
+      - name: trwernal
+        description: >-
+          TRERNWA: allocation flag
+      - name: tthr
+        description: >-
+          Hourly pay topcode flag
+      - name: ttot
+        description: >-
+          Overtime amount topcode flag
+      - name: ttwk
+        description: >-
+          Weekly earnings topcode flag
+      - name: tuabsot
+        description: >-
+          In the last seven days, did you have a job either full or part time?
+      - name: teabsrsn
+        description: >-
+          What was the main reason you were absent from your job last week?
+      - name: teern
+        description: >-
+          Total weekly overtime earnings (2 implied decimals)
+      - name: teernh1o
+        description: >-
+          Excluding overtime pay, tips, and commissions, what is your hourly rate
+          of pay on your main job? (2 implied decimals)
+      - name: teernh2
+        description: >-
+          Excluding overtime pay, tips, and commissions, what is your hourly rate
+          of pay on your main job? (2 implied decimals)
+      - name: teernhro
+        description: >-
+          How many hours do you usually work per week at this rate?
+      - name: teernhry
+        description: >-
+          Hourly/non-hourly status
+      - name: teernper
+        description: >-
+          For your main job, what is the easiest way for you to report your total
+          earnings before taxes or other deductions: hourly, weekly, annually, or
+          some other way?
+      - name: teernrt
+        description: >-
+          Even though you told me it is easier to report your earnings another way,
+          are you paid at an hourly rate on this job?
+      - name: teernuot
+        description: >-
+          Do you usually receive overtime pay, tips, or commissions at your main job?
+      - name: teernwkp
+        description: >-
+          How many weeks a year do you get paid?
+      - name: tehrftpt
+        description: >-
+          Do you usually work more than 35 hours per week at your job(s)/family business?
+      - name: tehrusl1
+        description: >-
+          How many hours per week do you usually work at your main job?
+      - name: tehrusl2
+        description: >-
+          How many hours per week do you usually work at your other job(s)?
+      - name: teio1cow
+        description: >-
+          Individual class of worker code (main job)
+      - name: teio1icd
+        description: >-
+          Industry code (main job)
+      - name: teio1ocd
+        description: >-
+          Occupation code (main job)
+      - name: telayavl
+        description: >-
+          Could you have returned to work in the last seven days if you had been recalled?
+      - name: telaylk
+        description: >-
+          Even though you expect to be called back to work, have you been looking
+          for work during the last four weeks?
+      - name: telkavl
+        description: >-
+          Could you have started a job in the last seven days if one had been offered?
+      - name: telkm1
+        description: >-
+          What are all of the things you have done to find work during the last 4
+          weeks? (first method)
+      - name: teret1
+        description: >-
+          Do you currently want a job, either full or part time?
+      - name: teschft
+        description: >-
+          Are you enrolled as a full-time or part-time student?
+      - name: tubus
+        description: >-
+          Does anyone in the household own a business or a farm?
+      - name: tubus1
+        description: >-
+          In the last seven days, did you do any unpaid work in the family business
+          or farm?
+      - name: tubus2ot
+        description: >-
+          Do you receive payments or profits from the business?
+      - name: tubusl1
+        description: >-
+          TULINENO of farm or business owner (first owner)
+      - name: tubusl2
+        description: >-
+          TULINENO of farm or business owner (second owner)
+      - name: tubusl3
+        description: >-
+          TULINENO of farm or business owner (third owner)
+      - name: tubusl4
+        description: >-
+          TULINENO of farm or business owner (fourth owner)
+      - name: tucc2
+        description: >-
+          Time first household child < 13 woke up
+      - name: tucc4
+        description: >-
+          Time last household child < 13 went to bed
+      - name: tufwk
+        description: >-
+          In the last seven days did you do any work for pay or profit?
+      - name: tuio1mfg
+        description: >-
+          Is this business or organization mainly manufacturing, retail trade, wholesale
+          trade, or something else? (main job)
+      - name: tuiodp1
+        description: >-
+          Last time we spoke to someone in this household, you were reported to work
+          for (employer's name). Do you still work for (employer's name)? (main job)
+      - name: tuiodp2
+        description: >-
+          Have the usual activities and duties of your job changed since (month of
+          CPS interview)? (main job)
+      - name: tuiodp3
+        description: >-
+          Last time we spoke to someone in this household, you were reported as (occupation)
+          and your usual duties were (activities). Is this an accurate description
+          of your current job? (main job)
+      - name: tulay
+        description: >-
+          During the last seven days were you on layoff from your job?
+      - name: tulay6m
+        description: >-
+          Have you been given any indication that you will be recalled to work within
+          the next 6 months?
+      - name: tulayavr
+        description: >-
+          Why could you not have started a job in the last week?
+      - name: tulaydt
+        description: >-
+          Has your employer given you a date to return to work? (to layoff job)
+      - name: tulk
+        description: >-
+          Have you been doing anything to find work during the last four weeks?
+      - name: tulkavr
+        description: >-
+          Why could you not have started a job last week?
+      - name: tulkdk1
+        description: >-
+          You said you have been trying to find work. How did you go about looking?
+          (first method)
+      - name: tulkdk2
+        description: >-
+          TULKDK1 text: (second method)
+      - name: tulkdk3
+        description: >-
+          TULKDK1 text: (third method)
+      - name: tulkdk4
+        description: >-
+          TULKDK1 text: (fourth method)
+      - name: tulkm2
+        description: >-
+          What are all of the things you have done to find work during the last 4
+          weeks? (second method)
+      - name: tulkm3
+        description: >-
+          TULKM2 text: (third method)
+      - name: tulkm4
+        description: >-
+          TULKM2 text: (fourth method)
+      - name: tulkm5
+        description: >-
+          TULKM2 text: (fifth method)
+      - name: tulkm6
+        description: >-
+          TULKM2 text: (sixth method)
+      - name: tulkps1
+        description: >-
+          Can you tell me more about what you did to search for work? (first method)
+      - name: tulkps2
+        description: >-
+          TULKPS1 text: (second method)
+      - name: tulkps3
+        description: >-
+          TULKPS1 text: (third method)
+      - name: tulkps4
+        description: >-
+          TULKPS1 text: (fourth method)
+      - name: tumonth
+        description: >-
+          Month of the diary day (1-12).
+      - name: trtccc
+        description: >-
+          Total nonwork-related time respondent spent with customers, clients, and
+          co-workers (in minutes)
+      - name: trtcctot
+        description: >-
+          Total time spent during diary day providing secondary childcare for all
+          children < 13 (in minutes)
+      - name: trtchild
+        description: >-
+          Total nonwork-related time respondent spent with household or nonhousehold
+          children < 18 (in minutes)
+      - name: trtcoc
+        description: >-
+          Total time spent during diary day providing secondary childcare for nonown,
+          nonhousehold children < 13 (in minutes)
+      - name: trtfamily
+        description: >-
+          Total nonwork-related time respondent spent with family members (in minutes)
+      - name: trtfriend
+        description: >-
+          Total nonwork-related time respondent spent with friends (in minutes)
+      - name: trthh
+        description: >-
+          Total time spent during diary day providing secondary childcare for household
+          children < 13 (in minutes)
+      - name: tudis2
+        description: >-
+          Do you have a disability that prevents you from accepting any kind of work
+          during the next six months?
+      - name: turetot
+        description: >-
+          The last time we spoke to someone in this household you were reported to
+          be retired. Are you still retired?
+      - name: tuspabs
+        description: >-
+          In the last seven days, did your spouse or unmarried partner have a job
+          either full or part time?
+      - name: tuspusft
+        description: >-
+          Does your spouse or unmarried partner usually work 35 hours or more per
+          week?
+      - name: tuspwk
+        description: >-
+          In the last seven days, did your spouse or unmarried partner do any work
+          for pay or profit?
+      - name: tremodr
+        description: >-
+          Eating and Health Module respondent
+      - name: tucc9
+        description: >-
+          Are the non-own, non-household children you cared for in TUCC8 related to
+          you?
+      - name: tudiarydate
+        description: >-
+          Date of the diary day, formatted YYYYMMDD.
+      - name: tudis
+        description: >-
+          Last time we spoke to someone in this household you were reported to have
+          a disability. Does your disability prevent you from doing any kind of work
+          for the next six months?
+      - name: tudis1
+        description: >-
+          Does your disability prevent you from accepting any kind of work during
+          the next six months?
+      - name: trchildnum
+        description: >-
+          Number of household children < 18
+      - name: tudiaryday
+        description: >-
+          Day of the week of diary day (day of the week about which the , respondent
+          was interviewed)
+      - name: trernwa
+        description: >-
+          Weekly earnings at main job (2 implied decimals)
+      - name: trholiday
+        description: >-
+          Flag to indicate if diary day was a holiday
+      - name: trspftpt
+        description: >-
+          Full time or part time employment status of spouse or unmarried , partner
+      - name: trsppres
+        description: >-
+          Presence of the respondent's spouse or unmarried partner in the , household
+      - name: trdpftpt
+        description: >-
+          Full time or part time employment status of respondent
+      - name: tufnwgtp
+        description: >-
+          ATUS final (statistical) weight created with the 2006 weighting method;
+          use to produce population estimates.
+      - name: tespempnot
+        description: >-
+          Employment status of spouse or unmarried partner
+      - name: teschlvl
+        description: >-
+          Would that be high school, college, or university?
+      - name: teschenr
+        description: >-
+          Are you enrolled in high school, college, or university?
+      - name: temjot
+        description: >-
+          In the last seven days did you have more than one job?
+      - name: telfs
+        description: >-
+          Labor force status of the respondent (edited).
+      - name: tehruslt
+        description: >-
+          Total hours usually worked per week (sum of TEHRUSL1 and , TEHRUSL2)
+      - name: tryhhchild
+        description: >-
+          Age of youngest household child < 18
+      - name: trwbmodr
+        description: >-
+          Well-Being Module respondent indicator.
+      - name: trtalone_wk
+        description: >-
+          Total work- and nonwork-related time respondent spent alone (in minutes)
+      - name: trtccc_wk
+        description: >-
+          Total work- and nonwork-related time respondent spent with customers, clients,
+          and coworkers (in minutes)
+      - name: trlvmodr
+        description: >-
+          Leave module respondent
+      - name: trtec
+        description: >-
+          Total time spent providing eldercare (in minutes)
+      - name: tuecytd
+        description: >-
+          Did you provide any eldercare or assistance yesterday?
+      - name: tuelder
+        description: >-
+          Not including financial assistance or help you provided as part of your
+          paid job, since the first of [REF_MONTH], have you provided any care of
+          assistance for an adult who needed help because of a condition related to
+          aging?
+      - name: tuelfreq
+        description: >-
+          How often did you provide this care?
+      - name: tuelnum
+        description: >-
+          Since the first of [REF_MONTH], how many people have you provided this care
+          to?
+      - name: tu20fwgt
+        description: >-
+          ATUS final weight created with the 2020 (pandemic) weighting method; used
+          for 2019-2020 estimates.
+  - name: us_bls_atus__roster
+    description: >-
+      ATUS household roster: age, sex, and relationship to the respondent for each
+      household member and the respondent's nonhousehold children under 18.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, tucaseid, tulineno]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the ATUS interview (diary year).
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: tucaseid
+        description: >-
+          ATUS case identification number; primary key that links all ATUS files.
+          First four digits are the interview year.
+        tests: [not_null]
+      - name: tulineno
+        description: >-
+          ATUS person line number identifying each individual within the household.
+        tests: [not_null]
+      - name: terrp
+        description: >-
+          Relationship of the person to the ATUS respondent.
+      - name: teage
+        description: >-
+          Age of the person in years (topcoded at 80 for years ≤ 2004 and at 85 for
+          years ≥ 2005).
+      - name: tesex
+        description: >-
+          Sex of the person (1 = male, 2 = female).
+  - name: us_bls_atus__cps
+    description: >-
+      ATUS-CPS file: Current Population Survey demographics for each household member,
+      collected 2 to 5 months before the ATUS interview.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, tucaseid, tulineno]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the ATUS interview (diary year).
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: tucaseid
+        description: >-
+          ATUS case identification number; primary key that links all ATUS files.
+          First four digits are the interview year.
+        tests: [not_null]
+      - name: tulineno
+        description: >-
+          ATUS person line number identifying each individual within the household.
+        tests: [not_null]
+      - name: gediv
+        description: >-
+          Division
+      - name: gemetsta
+        description: >-
+          Metropolitan status (1990 definitions)
+      - name: gepseucl
+        description: >-
+          Scrambled pseudo primary sampling unit (PSU) cluster
+      - name: gepseust
+        description: >-
+          Scrambled pseudo primary sampling unit (PSU) collapsed stratum
+      - name: gereg
+        description: >-
+          Region
+      - name: gestfips
+        description: >-
+          Federal Processing Information Standards (FIPS) state code
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+      - name: gtcbsa
+        description: >-
+          Specific metropolitan core based statistical area (CBSA) code
+      - name: gtco
+        description: >-
+          Federal Processing Standards (FIPS) county code
+      - name: gtmetsta
+        description: >-
+          Metropolitan status
+      - name: hefaminc
+        description: >-
+          Family income
+      - name: hehousut
+        description: >-
+          Type of housing unit
+      - name: hephoneo
+        description: >-
+          Is a telephone interview acceptable?
+      - name: hetelavl
+        description: >-
+          Is there a telephone elsewhere on which people in this household can be
+          contacted?
+      - name: hetelhhd
+        description: >-
+          Is there a telephone in this house/apartment?
+      - name: hetenure
+        description: >-
+          Are your living quarters owned, rented for cash, or occupied without payment
+          of cash rent?
+      - name: hrhhid
+        description: >-
+          Household ID (15-digit identifier)
+      - name: hrhhid2
+        description: >-
+          Household ID part 2 (5-digit identifier)
+      - name: hrhtype
+        description: >-
+          Household type
+      - name: hrintsta
+        description: >-
+          Interview status
+      - name: hrlonglk
+        description: >-
+          Longitudinal link indicator
+      - name: hrmis
+        description: >-
+          Month in sample
+      - name: hrmonth
+        description: >-
+          Month of interview
+      - name: hrnumhou
+        description: >-
+          Total number of persons in the household (household members)
+      - name: hrsample
+        description: >-
+          Sample ID (4-character identifier)
+      - name: hrsersuf
+        description: >-
+          Serial suffix
+      - name: hryear4
+        description: >-
+          Year of interview
+      - name: hubus
+        description: >-
+          Does anyone in this household have a business or a farm?
+      - name: hubusl1
+        description: >-
+          PULINENO of farm or business owner (first owner)
+      - name: hubusl2
+        description: >-
+          PULINENO of farm or business owner (second owner)
+      - name: hubusl3
+        description: >-
+          PULINENO of farm or business owner (third owner)
+      - name: hubusl4
+        description: >-
+          PULINENO of farm or business owner (fourth owner)
+      - name: hufaminc
+        description: >-
+          Family income
+      - name: hufinal
+        description: >-
+          Final outcome code
+      - name: huhhnum
+        description: >-
+          Household number
+      - name: huinttyp
+        description: >-
+          Type of interview
+      - name: huprscnt
+        description: >-
+          Number of actual and attempted personal contacts
+      - name: hurespli
+        description: >-
+          PULINENO of the current respondent
+      - name: huspnish
+        description: >-
+          Is Spanish the only language spoken by all members of this household who
+          are 15 years and older?
+      - name: hxfaminc
+        description: >-
+          HEFAMINC: allocation flag
+      - name: peabspdo
+        description: >-
+          Are you being paid by your employer for any of the time off last week?
+      - name: peabsrsn
+        description: >-
+          What was the main reason you were absent from work last week?
+      - name: peafever
+        description: >-
+          Did you ever serve on active duty in the U.S. Armed Forces?
+      - name: peafnow
+        description: >-
+          Are you now in the Armed Forces?
+      - name: peafwhen
+        description: >-
+          I was told that you served on active duty of the U.S. Armed Forces. When
+          did you serve?
+      - name: peafwhn1
+        description: >-
+          When did you serve in the Armed Forces? (first period)
+      - name: peafwhn2
+        description: >-
+          When did you serve in the Armed Forces? (second period)
+      - name: peafwhn3
+        description: >-
+          When did you serve in the Armed Forces? (third period)
+      - name: peafwhn4
+        description: >-
+          When did you serve in the Armed Forces? (fourth period)
+      - name: pecert1
+        description: >-
+          Does this person have a currently active professional certification or a
+          state or industry license?
+      - name: pecert2
+        description: >-
+          Were any of this person's certifications or licenses issued by the federal,
+          state, or local government?
+      - name: pecert3
+        description: >-
+          Earlier you told me that this person had a currently active professional
+          certification or license. Is this certification or license required for
+          the [job, main job, job from which person was on layoff, job from which
+          person last worked]?
+      - name: pecohab
+        description: >-
+          PULINENO of cohabiting partner
+      - name: pecyc
+        description: >-
+          How many years of college credit have you completed?
+      - name: pedadtyp
+        description: >-
+          Is household child a biological, step or adopted child?
+      - name: pedipged
+        description: >-
+          How did you get your high school diploma?
+      - name: pedisdrs
+        description: >-
+          Does this person have difficulty dressing or bathing?
+      - name: pedisear
+        description: >-
+          Is this person deaf or does this person have serious difficulty hearing?
+      - name: pediseye
+        description: >-
+          Is this person blind or does this person have serious difficulty seeing
+          even when wearing glasses?
+      - name: pedisout
+        description: >-
+          Because of a physical, mental, or emotional condition does this person have
+          difficulty doing errands alone such as visiting a doctor's office or shopping?
+      - name: pedisphy
+        description: >-
+          Do you have serious difficulty walking or climbing stairs?
+      - name: pedisrem
+        description: >-
+          Because of a physical, mental, or emotional condition, does this person
+          have serious difficulty concentrating, remembering, or making decisions?
+      - name: pedw4wk
+        description: >-
+          Did you do any of this work during the last 4 weeks?
+      - name: pedwavl
+        description: >-
+          Last week, could you have started a job if one had been offered?
+      - name: pedwavr
+        description: >-
+          Why could you not have started a job if one had been offered last week?
+      - name: pedwlko
+        description: >-
+          Did you look for work any time in the last 12 months?
+      - name: pedwlkwk
+        description: >-
+          And since you left that job or business have you looked for work?
+      - name: pedwrsn
+        description: >-
+          What is the main reason you were not looking for work during the last 4
+          weeks?
+      - name: pedwwk
+        description: >-
+          Did you actually work at a job or business during the last 12 months?
+      - name: pedwwnto
+        description: >-
+          Do you currently want a job, either full or part time?
+      - name: peeduca
+        description: >-
+          What is the highest level of school you have completed or the , highest
+          degree you have received?
+      - name: peern
+        description: >-
+          Total weekly overtime earnings (2 implied decimals)
+      - name: peerncov
+        description: >-
+          On this job, are you covered by a union or employee association contract?
+      - name: peernh1o
+        description: >-
+          Excluding overtime pay, tips, and commissions, what is your hourly rate
+          of pay on your main job? (2 implied decimals)
+      - name: peernh2
+        description: >-
+          Excluding overtime pay, tips, and commissions, what is your hourly rate
+          of pay on your main job? (2 implied decimals)
+      - name: peernhro
+        description: >-
+          How many hours do you usually work per week at this rate?
+      - name: peernhry
+        description: >-
+          Hourly/non-hourly status
+      - name: peernlab
+        description: >-
+          On this job, are you a member of a labor union or of an employee association
+          similar to a union?
+      - name: peernper
+        description: >-
+          For your main job, what is the easiest way for you to report your total
+          earnings before taxes or other deductions: hourly, weekly, annually, or
+          some other way?
+      - name: peernrt
+        description: >-
+          Even though you told me it is easier to report your earnings another way,
+          are you paid at an hourly rate on your main job?
+      - name: peernuot
+        description: >-
+          Do you usually receive overtime pay, tips, or commissions at your job?
+      - name: peernwkp
+        description: >-
+          How many weeks a year do you get paid?
+      - name: pefntvty
+        description: >-
+          In what country was your father born?
+      - name: pegr6cor
+        description: >-
+          Did you complete six or more graduate or professional school courses?
+      - name: pegrprof
+        description: >-
+          Since completing your bachelor's degree, have you taken any graduate or
+          professional school courses for credit?
+      - name: pehgcomp
+        description: >-
+          What was the highest grade of regular school you completed before receiving
+          your GED?
+      - name: pehract1
+        description: >-
+          Last week, how many hours did you actually work at your main job?
+      - name: pehract2
+        description: >-
+          Last week, how many hours did you actually work at your other job(s)?
+      - name: pehractt
+        description: >-
+          Total hours actually worked last week (sum of PEHRACT1 and PEHRACT2)
+      - name: pehravl
+        description: >-
+          Last week, could you have worked full time if the hours had been available?
+      - name: pehrftpt
+        description: >-
+          Do you usually work more than 35 hours per week at your job(s)/family business?
+      - name: pehrrsn1
+        description: >-
+          What is your main reason for working part time?
+      - name: pehrrsn2
+        description: >-
+          What is the main reason you do not want to work full time?
+      - name: pehrrsn3
+        description: >-
+          What is the main reason you worked less than 35 hours last week?
+      - name: pehrusl1
+        description: >-
+          How many hours per week do you usually work at your main job?
+      - name: pehrusl2
+        description: >-
+          How many hours per week do you usually work at your other job(s)?
+      - name: pehruslt
+        description: >-
+          Total hours usually worked per week (sum of PEHRUSL1 and PEHRUSL2)
+      - name: pehrwant
+        description: >-
+          Do you want to work a full time work week of 35 hours or more per week?
+      - name: pehspnon
+        description: >-
+          Are you Spanish, Hispanic, or Latino?
+      - name: peio1cow
+        description: >-
+          Individual class of worker (main job)
+      - name: peio1icd
+        description: >-
+          Industry code (main job)
+      - name: peio1ocd
+        description: >-
+          Occupation code (main job)
+      - name: peio2cow
+        description: >-
+          Individual class of worker (second job)
+      - name: peio2icd
+        description: >-
+          Industry code (second job)
+      - name: peio2ocd
+        description: >-
+          Occupation code (second job)
+      - name: pejhrsn
+        description: >-
+          What is the main reason you left your last job?
+      - name: pejhwant
+        description: >-
+          Do you intend to look for work during the next 12 months?
+      - name: pejhwko
+        description: >-
+          Have you worked at a job or business at any time in the last 12 months?
+      - name: pelayavl
+        description: >-
+          Could you have returned to work during the last seven days if you had been
+          recalled?
+      - name: pelaydur
+        description: >-
+          Duration of layoff (number of weeks)
+      - name: pelayfto
+        description: >-
+          Is the job from which you are on layoff a full time job of 35 hours or more
+          per week?
+      - name: pelaylk
+        description: >-
+          Even though you are to be called back to work, have you been looking for
+          work during the last 4 weeks?
+      - name: pelkavl
+        description: >-
+          Could you have started a job in the last seven days if one had been offered?
+      - name: pelkdur
+        description: >-
+          Duration of job seeking (number of weeks)
+      - name: pelkfto
+        description: >-
+          Are you seeking a full time or part time job?
+      - name: pelkll1o
+        description: >-
+          Before you started looking for work, what were you doing: working, going
+          to school, or something else?
+      - name: pelkll2o
+        description: >-
+          Did you lose or quit that job, or was it a temporary job that ended?
+      - name: pelklwo
+        description: >-
+          When did you last work?
+      - name: pelkm1
+        description: >-
+          What are all of the things you have done to find work during the last 4
+          weeks? (first method)
+      - name: pelndad
+        description: >-
+          PULINENO of father
+      - name: pelnmom
+        description: >-
+          PULINENO of mother
+      - name: pemaritl
+        description: >-
+          Are you now married, widowed, divorced, separated, or never married?
+      - name: pemjnum
+        description: >-
+          Altogether, how many jobs did you have?
+      - name: pemjot
+        description: >-
+          In the last seven days, did you have more than one job?
+      - name: pemlr
+        description: >-
+          Monthly labor force recode
+      - name: pemntvty
+        description: >-
+          In what country was your mother born?
+      - name: pemomtyp
+        description: >-
+          Is household child a biological, step, or adopted child?
+      - name: pems123
+        description: >-
+          Was your master's degree program a one-year, two-year, or three-year program?
+      - name: penatvty
+        description: >-
+          In what country were you born?
+      - name: penlfact
+        description: >-
+          What best describes your situation at this time? For example, are you disabled,
+          ill, in school, taking care of house or family, or something else?
+      - name: penlfjh
+        description: >-
+          When did you last work at a job or business?
+      - name: penlfret
+        description: >-
+          Are you retired from a job or business?
+      - name: peparent
+        description: >-
+          PULINENO of parent
+      - name: pepdemp1
+        description: >-
+          Does this person usually have any paid employees?
+      - name: pepdemp2
+        description: >-
+          Does this person usually have any paid employees?
+      - name: peret1
+        description: >-
+          Do you currently want a job, either full or part time?
+      - name: perrp
+        description: >-
+          How is this person related to you? ATUS-CPS data: Variables collected in
+          CPS June 2025 _______________________________________________________________________________________________________
+      - name: peschenr
+        description: >-
+          Last week, were you enrolled in a high school, college, or university?
+      - name: peschft
+        description: >-
+          Are you enrolled in school as a full-time or part-time student?
+      - name: peschlvl
+        description: >-
+          Would that be high school, college, or university?
+      - name: pesex
+        description: >-
+          Sex
+      - name: pespouse
+        description: >-
+          PULINENO of spouse
+      - name: prabsrea
+        description: >-
+          Reason not at work by pay status ATUS-CPS data: Variables collected in CPS
+          June 2025 _______________________________________________________________________________________________________
+      - name: pragna
+        description: >-
+          Agricultural/non-agricultural industry
+      - name: prcitshp
+        description: >-
+          Citizenship status
+      - name: prcivlf
+        description: >-
+          Civilian labor force
+      - name: prcow1
+        description: >-
+          Class of worker recode (main job)
+      - name: prcow2
+        description: >-
+          Class of worker recode (second job)
+      - name: prcowpg
+        description: >-
+          Class of worker - private or government
+      - name: prdasian
+        description: >-
+          Detailed Asian race recode
+      - name: prdisc
+        description: >-
+          Discouraged worker recode
+      - name: prdisflg
+        description: >-
+          Does this person have any of these disabilities?
+      - name: prdtcow1
+        description: >-
+          Detailed class of worker recode (main job)
+      - name: prdtcow2
+        description: >-
+          Detailed class of worker recode (second job)
+      - name: prdthsp
+        description: >-
+          Detailed Hispanic origin group
+      - name: prdtind1
+        description: >-
+          Detailed industry recode (main job)
+      - name: prdtind2
+        description: >-
+          Detailed industry recode (second job)
+      - name: prdtocc1
+        description: >-
+          Detailed occupation recode (main job)
+      - name: prdtocc2
+        description: >-
+          Detailed occupation recode (second job)
+      - name: premp
+        description: >-
+          Employed persons recode
+      - name: premphrs
+        description: >-
+          Reason not at work or hours at work
+      - name: prempnot
+        description: >-
+          Employed, unemployed, or not in the labor force
+      - name: prerelg
+        description: >-
+          Earnings edit eligibility flag
+      - name: prernhly
+        description: >-
+          Hourly earnings at main job (2 implied decimals)
+      - name: prernwa
+        description: >-
+          Weekly earnings at main job (2 implied decimals)
+      - name: prexplf
+        description: >-
+          Experienced labor force employment
+      - name: prfamnum
+        description: >-
+          Family number recode
+      - name: prfamrel
+        description: >-
+          Family relationship code
+      - name: prfamtyp
+        description: >-
+          Family type recode
+      - name: prftlf
+        description: >-
+          Full time labor force
+      - name: prhernal
+        description: >-
+          PRERNHLY: allocation flag
+      - name: prhrusl
+        description: >-
+          Usual hours worked weekly
+      - name: primind1
+        description: >-
+          Intermediate industry recode (main job)
+      - name: primind2
+        description: >-
+          Intermediate industry recode (second job)
+      - name: prinuyer
+        description: >-
+          Immigrant's year of entry into the U.S. ATUS-CPS data: Variables collected
+          in CPS June 2025 _______________________________________________________________________________________________________
+      - name: prioelg
+        description: >-
+          Industry and occupation edit eligibility flag
+      - name: prjobsea
+        description: >-
+          Job search recode
+      - name: prmarsta
+        description: >-
+          Marital status based on Armed Forces participation
+      - name: prmjind1
+        description: >-
+          Major industry recode (main job)
+      - name: prmjind2
+        description: >-
+          Major industry recode (second job)
+      - name: prmjocc1
+        description: >-
+          Major occupation recode (main job)
+      - name: prmjocc2
+        description: >-
+          Major occupation recode (second job)
+      - name: prmjocgr
+        description: >-
+          Major occupation categories (main job)
+      - name: prnagpws
+        description: >-
+          Non-agricultural private wage and salary workers recode
+      - name: prnagws
+        description: >-
+          Non-agricultural wage and salary workers recode
+      - name: prnlfsch
+        description: >-
+          Not in labor force activity - in school or not in school
+      - name: prnmchld
+        description: >-
+          Number of own children < 18 years of age
+      - name: prpertyp
+        description: >-
+          Type of person recode
+      - name: prpthrs
+        description: >-
+          At work 1-34 hours by hours at work
+      - name: prptrea
+        description: >-
+          Detailed reason for part time work
+      - name: prsjmj
+        description: >-
+          Single/multiple jobholder
+      - name: prtage
+        description: >-
+          Age
+      - name: prunedur
+        description: >-
+          Duration of unemployment (number of weeks)
+      - name: pruntype
+        description: >-
+          Reason for unemployment
+      - name: prwernal
+        description: >-
+          PRERNWA: allocation flag
+      - name: prwksch
+        description: >-
+          Labor force by time worked or lost
+      - name: prwkstat
+        description: >-
+          Full time or part time work status
+      - name: prwntjob
+        description: >-
+          Not in labor force recode - want a job or other not in labor force
+      - name: ptdtrace
+        description: >-
+          Race (topcoded)
+      - name: pthr
+        description: >-
+          Hourly pay topcode flag
+      - name: ptnmemp1
+        description: >-
+          Excluding all owners, how many paid employees does this person usually have?
+      - name: ptnmemp2
+        description: >-
+          Excluding all owners, how many paid employee does this person usually have?
+      - name: ptot
+        description: >-
+          Weekly overtime amount topcode flag
+      - name: ptwk
+        description: >-
+          Weekly earnings topcode flag
+      - name: puabsot
+        description: >-
+          In the last seven days, did you have a job either full or part time?
+      - name: puafever
+        description: >-
+          Did you ever serve on active duty in the U.S. Armed Forces?
+      - name: pubus1
+        description: >-
+          Last week, did you do any unpaid work in the family business or farm?
+      - name: pubus2ot
+        description: >-
+          Do you receive any payments or profits from the business?
+      - name: pudis
+        description: >-
+          Last time we spoke to someone in this household, you were reported to have
+          a disability. Does your disability continue to prevent you from accepting
+          any kind of work during the next six months?
+      - name: pudis1
+        description: >-
+          Does your disability prevent you from accepting any kind of work during
+          the next six months?
+      - name: pudis2
+        description: >-
+          Do you have a disability that prevents you from accepting any kind of work
+          during the next six months?
+      - name: puhroff1
+        description: >-
+          Last week, did you lose or take off any hours from your job for any reason
+          such as illness, slack work, vacation, or holiday?
+      - name: puhroff2
+        description: >-
+          How many hours did you take off?
+      - name: puhrot1
+        description: >-
+          Last week, did you work any overtime or extra hours? (main job)
+      - name: puhrot2
+        description: >-
+          How many additional hours did you work?
+      - name: pujhdp1o
+        description: >-
+          Did you do any of this work in the last 4 weeks?
+      - name: pulay
+        description: >-
+          During the last seven days, were you on layoff from a job?
+      - name: pulay6m
+        description: >-
+          Have you been given any indication that you will be recalled to work within
+          the next 6 months?
+      - name: pulayavr
+        description: >-
+          Why could you not have started a job in the last week?
+      - name: pulaydt
+        description: >-
+          Has your employer given you a date to return to work? (to layoff job)
+      - name: pulineno
+        description: >-
+          Person line number
+      - name: pulk
+        description: >-
+          Have you been doing anything to find work during the last 4 weeks?
+      - name: pulkavr
+        description: >-
+          Why could you not have started a job last week?
+      - name: pulkdk1
+        description: >-
+          You said you have been trying to find work. How did you go about looking?
+          (first method)
+      - name: pulkdk2
+        description: >-
+          PULKDK1 text: (second method)
+      - name: pulkdk3
+        description: >-
+          PULKDK1 text: (third method)
+      - name: pulkdk4
+        description: >-
+          PULKDK1 text: (fourth method)
+      - name: pulkm2
+        description: >-
+          What are all of the things you have been doing to find work during the last
+          4 weeks? (second method)
+      - name: pulkm3
+        description: >-
+          PULKM2 text: (third method)
+      - name: pulkm4
+        description: >-
+          PULKM2 text: (fourth method)
+      - name: pulkm5
+        description: >-
+          PULKM2 text: (fifth method)
+      - name: pulkm6
+        description: >-
+          PULKM2 text: (sixth method)
+      - name: pulkps1
+        description: >-
+          Can you tell me more about what you did to search for work? (first method)
+      - name: pulkps2
+        description: >-
+          PULKPS1 text: (second method)
+      - name: pulkps3
+        description: >-
+          PULKPS1 text: (third method)
+      - name: pulkps4
+        description: >-
+          PULKPS1 text: (fourth method)
+      - name: pupelig
+        description: >-
+          Interview status of each person in the household
+      - name: puretot
+        description: >-
+          Last month you were reported to be retired. Are you still retired?
+      - name: puslfprx
+        description: >-
+          Labor force information collected by self or proxy response
+      - name: puwk
+        description: >-
+          Last week, did you do any work for either pay or profit?
+      - name: tratusr
+        description: >-
+          ATUS respondent
+      - name: tubwgt
+        description: >-
+          ATUS base weight
+      - name: ptcovid1
+        description: >-
+          At any time in the LAST 4 weeks, did you telework or work at home for pay
+          BECAUSE OF THE CORONAVIRUS PANDEMIC?
+      - name: ptcovid2
+        description: >-
+          At any time in the LAST 4 WEEKS, were you unable to work because your EMPLOYER
+          CLOSED OR LOST BUSINESS due to the Coronavirus?
+      - name: ptcovid3
+        description: >-
+          Did you receive any pay from your EMPLOYER for the hours you DID NOT work
+          in the last 4 weeks?
+      - name: ptcovid4
+        description: >-
+          Did the Coronavirus pandemic prevent you from looking for work in the LAST
+          4 WEEKS?
+      - name: ptcovid5w
+        description: >-
+          At any time in the last 4 weeks, did you need medical care for something
+          other than Coronavirus, but not get it because of the Coronavirus pandemic?
+      - name: pepar1
+        description: >-
+          PULINENO of first parent
+      - name: pepar2
+        description: >-
+          PULINENO of second parent
+      - name: pepar1typ
+        description: >-
+          Type of PEPAR1
+      - name: pepar2typ
+        description: >-
+          Type of PEPAR2
+      - name: prernmin
+        description: >-
+          Federally mandated minimum wage rate flag
+      - name: ptcovr1
+        description: >-
+          At any time LAST WEEK did (you/name) telework or work at home for pay?
+      - name: ptcovr2
+        description: >-
+          LAST WEEK, (you/name) worked (# hours worked last week at all jobs) hours
+          (total/at all jobs). How many of these hours did (you/name) telework or
+          work at home for pay?
+      - name: ptcovr3
+        description: >-
+          Did (you/name) telework or work at home for pay in February 2020 before
+          the COVID-19 pandemic started?
+      - name: ptcovr4
+        description: >-
+          LAST WEEK, did (you/name) do more, less, or the same amount of telework
+          or work at home for pay as in February 2020 (before the COVID-19 pandemic)?
+      - name: pxcovr1
+        description: >-
+          PTCOVR1: allocation flag
+      - name: pxcovr2
+        description: >-
+          PTCOVR2: allocation flag
+      - name: pxcovr3
+        description: >-
+          PTCOVR3: allocation flag
+      - name: pxcovr4
+        description: >-
+          PTCOVR4: allocation flag
+      - name: pttlwk
+        description: >-
+          Telework at home
+      - name: pttlwkhr
+        description: >-
+          Number of hours teleworked
+      - name: pxtlwk
+        description: >-
+          PTTLWK: allocation flag
+      - name: pxtlwkhr
+        description: >-
+          PTTLWKHR: allocation flag
+  - name: us_bls_atus__activity
+    description: >-
+      ATUS activity file: one record per activity episode in the 24-hour diary, with
+      the activity code, start/stop times, location, and secondary childcare/eldercare
+      information.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, tucaseid, tuactivity_n]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the ATUS interview (diary year).
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: tucaseid
+        description: >-
+          ATUS case identification number; primary key that links all ATUS files.
+          First four digits are the interview year.
+        tests: [not_null]
+      - name: tuactivity_n
+        description: >-
+          Activity line number sequencing the activities reported on the diary day.
+        tests: [not_null]
+      - name: tuactdur24
+        description: >-
+          Duration of activity in minutes (last activity truncated at 4:00 a.m.)
+      - name: tucc5
+        description: >-
+          Was at least one of your own household children < 13 in your care during
+          this activity?
+      - name: tucc5b
+        description: >-
+          Was at least one of your non-own household children < 13 in your care during
+          this activity?
+      - name: trtcctot_ln
+        description: >-
+          Total time spent during activity providing secondary childcare for all children
+          < 13 (in minutes)
+      - name: trtcc_ln
+        description: >-
+          Total time spent during activity providing secondary child care for household
+          and own nonhousehold children < 13 (in minutes)
+      - name: trtcoc_ln
+        description: >-
+          Total time spent during activity providing secondary child care for nonown,
+          nonhousehold children <13 (in minutes)
+      - name: tustarttim
+        description: >-
+          Activity start time
+      - name: tustoptime
+        description: >-
+          Activity stop time
+      - name: trcodep
+        description: >-
+          Pooled six-digit activity code
+      - name: trtier1p
+        description: >-
+          Pooled lexicon tier 1: 1st and 2nd digits of 6-digit activity code
+      - name: trtier2p
+        description: >-
+          Pooled lexicon tiers 1 and 2: 1st four digits of 6-digit activity code
+      - name: tucc8
+        description: >-
+          Other than household or own non-household children < 13, was there a child
+          0-12 in your care during this activity?
+      - name: tucumdur
+        description: >-
+          Cumulative duration of activity lengths in minutes; last activity not truncated
+          at 4:00am or 1440 minutes (cumulative total of TUACTDUR for each TUCASEID)
+      - name: tucumdur24
+        description: >-
+          Cumulative duration of activity lengths in minutes; last activity truncated
+          at 4:00am or 1440 minutes (cumulative total of TUACTDUR24 for each TUCASEID)
+      - name: tuactdur
+        description: >-
+          Duration of activity in minutes (last activity not truncated at 4:00 a.m.)
+      - name: tr_03cc57
+        description: >-
+          Was a household or own non-household child < 13 in your care during this
+          activity?
+      - name: trto_ln
+        description: >-
+          Total time spent during activity providing secondary childcare for own children
+          < 13 (in minutes)
+      - name: trtonhh_ln
+        description: >-
+          Total time spent during activity providing secondary childcare for own nonhousehold
+          children < 13 (in minutes)
+      - name: trtohh_ln
+        description: >-
+          Total time spent during activity providing secondary childcare for own household
+          children < 13 (in minutes)
+      - name: trthh_ln
+        description: >-
+          Total time spent during activity providing secondary childcare for household
+          children < 13 (in minutes)
+      - name: trtnohh_ln
+        description: >-
+          Total time spent during activity providing secondary childcare for nonown
+          household children < 13 (in minutes)
+      - name: tewhere
+        description: >-
+          Location or mode of transportation where the activity took place.
+      - name: tucc7
+        description: >-
+          Was at least one of your own non-household children < 13 in your care during
+          this activity?
+      - name: trwbelig
+        description: >-
+          Flag indicating whether the case was eligible for the Well-Being Module.
+      - name: trtec_ln
+        description: >-
+          Time (in minutes) spent providing eldercare by activity
+      - name: tuec24
+        description: >-
+          At which times or during which activities did you provide that care or assistance
+          yesterday?
+      - name: tudurstop
+        description: >-
+          Method for reporting activity duration
+  - name: us_bls_atus__who
+    description: >-
+      ATUS who file: the people who were present during each activity episode.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - tucaseid
+            - tuactivity_n
+            - tuwho_code
+            - tulineno
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the ATUS interview (diary year).
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: tucaseid
+        description: >-
+          ATUS case identification number; primary key that links all ATUS files.
+          First four digits are the interview year.
+        tests: [not_null]
+      - name: tulineno
+        description: >-
+          ATUS person line number identifying each individual within the household.
+        tests: [not_null]
+      - name: tuactivity_n
+        description: >-
+          Activity line number sequencing the activities reported on the diary day.
+        tests: [not_null]
+      - name: trwhona
+        description: >-
+          Who information not asked for activity
+      - name: tuwho_code
+        description: >-
+          Code identifying who was present with the respondent during the activity.
+        tests: [not_null]
+  - name: us_bls_atus__activity_summary
+    description: >-
+      ATUS activity summary reshaped to long form: total minutes each respondent spent
+      on each six-digit activity code on the diary day (only non-zero durations are
+      stored).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, tucaseid, activity_code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the ATUS interview (diary year).
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: tucaseid
+        description: >-
+          ATUS case identification number; primary key that links all ATUS files.
+          First four digits are the interview year.
+        tests: [not_null]
+      - name: activity_code
+        description: >-
+          Six-digit ATUS activity code (2003-24 Coding Lexicon) that time was reported
+          against.
+        tests: [not_null]
+      - name: duration_minutes
+        description: >-
+          Total minutes the respondent spent doing the activity on the diary day.
+  - name: us_bls_atus__eldercare_roster
+    description: >-
+      ATUS eldercare roster (2011 onward): one record per eldercare recipient, with
+      the recipient's age, relationship, and duration of care provided.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, tucaseid, tueclno]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the ATUS interview (diary year).
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: tucaseid
+        description: >-
+          ATUS case identification number; primary key that links all ATUS files.
+          First four digits are the interview year.
+        tests: [not_null]
+      - name: teage_ec
+        description: >-
+          Age of the eldercare recipient in years (topcoded at 85).
+      - name: teeldur
+        description: >-
+          How long have you provided care to [NAME]?
+      - name: teelwho
+        description: >-
+          Who did you give this care to?
+      - name: teelyrs
+        description: >-
+          How many years have you provided care (to this person)?
+      - name: trelhh
+        description: >-
+          Eldercare recipient is a household member
+      - name: tueclno
+        description: >-
+          Line number of eldercare recipient
+        tests: [not_null]
+      - name: tulineno
+        description: >-
+          ATUS person line number identifying each individual within the household.
+  - name: us_bls_atus__replicate_weights
+    description: >-
+      ATUS replicate final weights: 160 replicate weights per case, used for variance
+      and standard-error estimation.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, tucaseid]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the ATUS interview (diary year).
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: tucaseid
+        description: >-
+          ATUS case identification number; primary key that links all ATUS files.
+          First four digits are the interview year.
+        tests: [not_null]
+      - name: tufnwgtp001
+        description: >-
+          Replicate final weight 1 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp002
+        description: >-
+          Replicate final weight 2 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp003
+        description: >-
+          Replicate final weight 3 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp004
+        description: >-
+          Replicate final weight 4 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp005
+        description: >-
+          Replicate final weight 5 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp006
+        description: >-
+          Replicate final weight 6 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp007
+        description: >-
+          Replicate final weight 7 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp008
+        description: >-
+          Replicate final weight 8 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp009
+        description: >-
+          Replicate final weight 9 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp010
+        description: >-
+          Replicate final weight 10 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp011
+        description: >-
+          Replicate final weight 11 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp012
+        description: >-
+          Replicate final weight 12 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp013
+        description: >-
+          Replicate final weight 13 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp014
+        description: >-
+          Replicate final weight 14 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp015
+        description: >-
+          Replicate final weight 15 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp016
+        description: >-
+          Replicate final weight 16 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp017
+        description: >-
+          Replicate final weight 17 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp018
+        description: >-
+          Replicate final weight 18 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp019
+        description: >-
+          Replicate final weight 19 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp020
+        description: >-
+          Replicate final weight 20 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp021
+        description: >-
+          Replicate final weight 21 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp022
+        description: >-
+          Replicate final weight 22 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp023
+        description: >-
+          Replicate final weight 23 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp024
+        description: >-
+          Replicate final weight 24 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp025
+        description: >-
+          Replicate final weight 25 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp026
+        description: >-
+          Replicate final weight 26 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp027
+        description: >-
+          Replicate final weight 27 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp028
+        description: >-
+          Replicate final weight 28 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp029
+        description: >-
+          Replicate final weight 29 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp030
+        description: >-
+          Replicate final weight 30 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp031
+        description: >-
+          Replicate final weight 31 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp032
+        description: >-
+          Replicate final weight 32 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp033
+        description: >-
+          Replicate final weight 33 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp034
+        description: >-
+          Replicate final weight 34 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp035
+        description: >-
+          Replicate final weight 35 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp036
+        description: >-
+          Replicate final weight 36 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp037
+        description: >-
+          Replicate final weight 37 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp038
+        description: >-
+          Replicate final weight 38 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp039
+        description: >-
+          Replicate final weight 39 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp040
+        description: >-
+          Replicate final weight 40 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp041
+        description: >-
+          Replicate final weight 41 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp042
+        description: >-
+          Replicate final weight 42 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp043
+        description: >-
+          Replicate final weight 43 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp044
+        description: >-
+          Replicate final weight 44 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp045
+        description: >-
+          Replicate final weight 45 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp046
+        description: >-
+          Replicate final weight 46 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp047
+        description: >-
+          Replicate final weight 47 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp048
+        description: >-
+          Replicate final weight 48 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp049
+        description: >-
+          Replicate final weight 49 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp050
+        description: >-
+          Replicate final weight 50 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp051
+        description: >-
+          Replicate final weight 51 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp052
+        description: >-
+          Replicate final weight 52 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp053
+        description: >-
+          Replicate final weight 53 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp054
+        description: >-
+          Replicate final weight 54 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp055
+        description: >-
+          Replicate final weight 55 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp056
+        description: >-
+          Replicate final weight 56 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp057
+        description: >-
+          Replicate final weight 57 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp058
+        description: >-
+          Replicate final weight 58 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp059
+        description: >-
+          Replicate final weight 59 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp060
+        description: >-
+          Replicate final weight 60 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp061
+        description: >-
+          Replicate final weight 61 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp062
+        description: >-
+          Replicate final weight 62 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp063
+        description: >-
+          Replicate final weight 63 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp064
+        description: >-
+          Replicate final weight 64 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp065
+        description: >-
+          Replicate final weight 65 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp066
+        description: >-
+          Replicate final weight 66 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp067
+        description: >-
+          Replicate final weight 67 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp068
+        description: >-
+          Replicate final weight 68 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp069
+        description: >-
+          Replicate final weight 69 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp070
+        description: >-
+          Replicate final weight 70 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp071
+        description: >-
+          Replicate final weight 71 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp072
+        description: >-
+          Replicate final weight 72 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp073
+        description: >-
+          Replicate final weight 73 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp074
+        description: >-
+          Replicate final weight 74 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp075
+        description: >-
+          Replicate final weight 75 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp076
+        description: >-
+          Replicate final weight 76 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp077
+        description: >-
+          Replicate final weight 77 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp078
+        description: >-
+          Replicate final weight 78 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp079
+        description: >-
+          Replicate final weight 79 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp080
+        description: >-
+          Replicate final weight 80 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp081
+        description: >-
+          Replicate final weight 81 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp082
+        description: >-
+          Replicate final weight 82 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp083
+        description: >-
+          Replicate final weight 83 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp084
+        description: >-
+          Replicate final weight 84 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp085
+        description: >-
+          Replicate final weight 85 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp086
+        description: >-
+          Replicate final weight 86 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp087
+        description: >-
+          Replicate final weight 87 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp088
+        description: >-
+          Replicate final weight 88 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp089
+        description: >-
+          Replicate final weight 89 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp090
+        description: >-
+          Replicate final weight 90 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp091
+        description: >-
+          Replicate final weight 91 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp092
+        description: >-
+          Replicate final weight 92 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp093
+        description: >-
+          Replicate final weight 93 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp094
+        description: >-
+          Replicate final weight 94 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp095
+        description: >-
+          Replicate final weight 95 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp096
+        description: >-
+          Replicate final weight 96 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp097
+        description: >-
+          Replicate final weight 97 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp098
+        description: >-
+          Replicate final weight 98 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp099
+        description: >-
+          Replicate final weight 99 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp100
+        description: >-
+          Replicate final weight 100 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp101
+        description: >-
+          Replicate final weight 101 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp102
+        description: >-
+          Replicate final weight 102 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp103
+        description: >-
+          Replicate final weight 103 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp104
+        description: >-
+          Replicate final weight 104 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp105
+        description: >-
+          Replicate final weight 105 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp106
+        description: >-
+          Replicate final weight 106 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp107
+        description: >-
+          Replicate final weight 107 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp108
+        description: >-
+          Replicate final weight 108 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp109
+        description: >-
+          Replicate final weight 109 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp110
+        description: >-
+          Replicate final weight 110 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp111
+        description: >-
+          Replicate final weight 111 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp112
+        description: >-
+          Replicate final weight 112 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp113
+        description: >-
+          Replicate final weight 113 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp114
+        description: >-
+          Replicate final weight 114 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp115
+        description: >-
+          Replicate final weight 115 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp116
+        description: >-
+          Replicate final weight 116 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp117
+        description: >-
+          Replicate final weight 117 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp118
+        description: >-
+          Replicate final weight 118 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp119
+        description: >-
+          Replicate final weight 119 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp120
+        description: >-
+          Replicate final weight 120 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp121
+        description: >-
+          Replicate final weight 121 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp122
+        description: >-
+          Replicate final weight 122 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp123
+        description: >-
+          Replicate final weight 123 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp124
+        description: >-
+          Replicate final weight 124 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp125
+        description: >-
+          Replicate final weight 125 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp126
+        description: >-
+          Replicate final weight 126 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp127
+        description: >-
+          Replicate final weight 127 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp128
+        description: >-
+          Replicate final weight 128 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp129
+        description: >-
+          Replicate final weight 129 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp130
+        description: >-
+          Replicate final weight 130 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp131
+        description: >-
+          Replicate final weight 131 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp132
+        description: >-
+          Replicate final weight 132 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp133
+        description: >-
+          Replicate final weight 133 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp134
+        description: >-
+          Replicate final weight 134 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp135
+        description: >-
+          Replicate final weight 135 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp136
+        description: >-
+          Replicate final weight 136 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp137
+        description: >-
+          Replicate final weight 137 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp138
+        description: >-
+          Replicate final weight 138 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp139
+        description: >-
+          Replicate final weight 139 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp140
+        description: >-
+          Replicate final weight 140 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp141
+        description: >-
+          Replicate final weight 141 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp142
+        description: >-
+          Replicate final weight 142 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp143
+        description: >-
+          Replicate final weight 143 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp144
+        description: >-
+          Replicate final weight 144 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp145
+        description: >-
+          Replicate final weight 145 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp146
+        description: >-
+          Replicate final weight 146 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp147
+        description: >-
+          Replicate final weight 147 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp148
+        description: >-
+          Replicate final weight 148 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp149
+        description: >-
+          Replicate final weight 149 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp150
+        description: >-
+          Replicate final weight 150 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp151
+        description: >-
+          Replicate final weight 151 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp152
+        description: >-
+          Replicate final weight 152 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp153
+        description: >-
+          Replicate final weight 153 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp154
+        description: >-
+          Replicate final weight 154 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp155
+        description: >-
+          Replicate final weight 155 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp156
+        description: >-
+          Replicate final weight 156 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp157
+        description: >-
+          Replicate final weight 157 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp158
+        description: >-
+          Replicate final weight 158 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp159
+        description: >-
+          Replicate final weight 159 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+      - name: tufnwgtp160
+        description: >-
+          Replicate final weight 160 of 160, used for variance/standard-error estimation
+          via the replicate-weights method.
+  - name: us_bls_atus__pandemic_replicate_weights
+    description: >-
+      ATUS pandemic-method replicate final weights (2019-2020): 160 replicate weights
+      per case under the 2020 weighting method.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, tucaseid]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the ATUS interview (diary year).
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: tucaseid
+        description: >-
+          ATUS case identification number; primary key that links all ATUS files.
+          First four digits are the interview year.
+        tests: [not_null]
+      - name: tu20fwgt001
+        description: >-
+          Replicate final weight 1 of 160 (2020 pandemic weighting method), used for
+          variance/standard-error estimation.
+      - name: tu20fwgt002
+        description: >-
+          Replicate final weight 2 of 160 (2020 pandemic weighting method), used for
+          variance/standard-error estimation.
+      - name: tu20fwgt003
+        description: >-
+          Replicate final weight 3 of 160 (2020 pandemic weighting method), used for
+          variance/standard-error estimation.
+      - name: tu20fwgt004
+        description: >-
+          Replicate final weight 4 of 160 (2020 pandemic weighting method), used for
+          variance/standard-error estimation.
+      - name: tu20fwgt005
+        description: >-
+          Replicate final weight 5 of 160 (2020 pandemic weighting method), used for
+          variance/standard-error estimation.
+      - name: tu20fwgt006
+        description: >-
+          Replicate final weight 6 of 160 (2020 pandemic weighting method), used for
+          variance/standard-error estimation.
+      - name: tu20fwgt007
+        description: >-
+          Replicate final weight 7 of 160 (2020 pandemic weighting method), used for
+          variance/standard-error estimation.
+      - name: tu20fwgt008
+        description: >-
+          Replicate final weight 8 of 160 (2020 pandemic weighting method), used for
+          variance/standard-error estimation.
+      - name: tu20fwgt009
+        description: >-
+          Replicate final weight 9 of 160 (2020 pandemic weighting method), used for
+          variance/standard-error estimation.
+      - name: tu20fwgt010
+        description: >-
+          Replicate final weight 10 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt011
+        description: >-
+          Replicate final weight 11 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt012
+        description: >-
+          Replicate final weight 12 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt013
+        description: >-
+          Replicate final weight 13 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt014
+        description: >-
+          Replicate final weight 14 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt015
+        description: >-
+          Replicate final weight 15 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt016
+        description: >-
+          Replicate final weight 16 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt017
+        description: >-
+          Replicate final weight 17 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt018
+        description: >-
+          Replicate final weight 18 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt019
+        description: >-
+          Replicate final weight 19 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt020
+        description: >-
+          Replicate final weight 20 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt021
+        description: >-
+          Replicate final weight 21 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt022
+        description: >-
+          Replicate final weight 22 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt023
+        description: >-
+          Replicate final weight 23 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt024
+        description: >-
+          Replicate final weight 24 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt025
+        description: >-
+          Replicate final weight 25 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt026
+        description: >-
+          Replicate final weight 26 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt027
+        description: >-
+          Replicate final weight 27 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt028
+        description: >-
+          Replicate final weight 28 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt029
+        description: >-
+          Replicate final weight 29 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt030
+        description: >-
+          Replicate final weight 30 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt031
+        description: >-
+          Replicate final weight 31 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt032
+        description: >-
+          Replicate final weight 32 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt033
+        description: >-
+          Replicate final weight 33 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt034
+        description: >-
+          Replicate final weight 34 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt035
+        description: >-
+          Replicate final weight 35 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt036
+        description: >-
+          Replicate final weight 36 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt037
+        description: >-
+          Replicate final weight 37 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt038
+        description: >-
+          Replicate final weight 38 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt039
+        description: >-
+          Replicate final weight 39 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt040
+        description: >-
+          Replicate final weight 40 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt041
+        description: >-
+          Replicate final weight 41 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt042
+        description: >-
+          Replicate final weight 42 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt043
+        description: >-
+          Replicate final weight 43 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt044
+        description: >-
+          Replicate final weight 44 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt045
+        description: >-
+          Replicate final weight 45 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt046
+        description: >-
+          Replicate final weight 46 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt047
+        description: >-
+          Replicate final weight 47 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt048
+        description: >-
+          Replicate final weight 48 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt049
+        description: >-
+          Replicate final weight 49 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt050
+        description: >-
+          Replicate final weight 50 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt051
+        description: >-
+          Replicate final weight 51 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt052
+        description: >-
+          Replicate final weight 52 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt053
+        description: >-
+          Replicate final weight 53 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt054
+        description: >-
+          Replicate final weight 54 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt055
+        description: >-
+          Replicate final weight 55 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt056
+        description: >-
+          Replicate final weight 56 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt057
+        description: >-
+          Replicate final weight 57 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt058
+        description: >-
+          Replicate final weight 58 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt059
+        description: >-
+          Replicate final weight 59 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt060
+        description: >-
+          Replicate final weight 60 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt061
+        description: >-
+          Replicate final weight 61 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt062
+        description: >-
+          Replicate final weight 62 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt063
+        description: >-
+          Replicate final weight 63 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt064
+        description: >-
+          Replicate final weight 64 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt065
+        description: >-
+          Replicate final weight 65 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt066
+        description: >-
+          Replicate final weight 66 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt067
+        description: >-
+          Replicate final weight 67 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt068
+        description: >-
+          Replicate final weight 68 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt069
+        description: >-
+          Replicate final weight 69 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt070
+        description: >-
+          Replicate final weight 70 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt071
+        description: >-
+          Replicate final weight 71 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt072
+        description: >-
+          Replicate final weight 72 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt073
+        description: >-
+          Replicate final weight 73 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt074
+        description: >-
+          Replicate final weight 74 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt075
+        description: >-
+          Replicate final weight 75 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt076
+        description: >-
+          Replicate final weight 76 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt077
+        description: >-
+          Replicate final weight 77 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt078
+        description: >-
+          Replicate final weight 78 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt079
+        description: >-
+          Replicate final weight 79 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt080
+        description: >-
+          Replicate final weight 80 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt081
+        description: >-
+          Replicate final weight 81 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt082
+        description: >-
+          Replicate final weight 82 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt083
+        description: >-
+          Replicate final weight 83 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt084
+        description: >-
+          Replicate final weight 84 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt085
+        description: >-
+          Replicate final weight 85 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt086
+        description: >-
+          Replicate final weight 86 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt087
+        description: >-
+          Replicate final weight 87 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt088
+        description: >-
+          Replicate final weight 88 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt089
+        description: >-
+          Replicate final weight 89 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt090
+        description: >-
+          Replicate final weight 90 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt091
+        description: >-
+          Replicate final weight 91 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt092
+        description: >-
+          Replicate final weight 92 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt093
+        description: >-
+          Replicate final weight 93 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt094
+        description: >-
+          Replicate final weight 94 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt095
+        description: >-
+          Replicate final weight 95 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt096
+        description: >-
+          Replicate final weight 96 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt097
+        description: >-
+          Replicate final weight 97 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt098
+        description: >-
+          Replicate final weight 98 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt099
+        description: >-
+          Replicate final weight 99 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt100
+        description: >-
+          Replicate final weight 100 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt101
+        description: >-
+          Replicate final weight 101 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt102
+        description: >-
+          Replicate final weight 102 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt103
+        description: >-
+          Replicate final weight 103 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt104
+        description: >-
+          Replicate final weight 104 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt105
+        description: >-
+          Replicate final weight 105 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt106
+        description: >-
+          Replicate final weight 106 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt107
+        description: >-
+          Replicate final weight 107 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt108
+        description: >-
+          Replicate final weight 108 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt109
+        description: >-
+          Replicate final weight 109 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt110
+        description: >-
+          Replicate final weight 110 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt111
+        description: >-
+          Replicate final weight 111 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt112
+        description: >-
+          Replicate final weight 112 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt113
+        description: >-
+          Replicate final weight 113 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt114
+        description: >-
+          Replicate final weight 114 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt115
+        description: >-
+          Replicate final weight 115 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt116
+        description: >-
+          Replicate final weight 116 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt117
+        description: >-
+          Replicate final weight 117 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt118
+        description: >-
+          Replicate final weight 118 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt119
+        description: >-
+          Replicate final weight 119 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt120
+        description: >-
+          Replicate final weight 120 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt121
+        description: >-
+          Replicate final weight 121 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt122
+        description: >-
+          Replicate final weight 122 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt123
+        description: >-
+          Replicate final weight 123 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt124
+        description: >-
+          Replicate final weight 124 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt125
+        description: >-
+          Replicate final weight 125 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt126
+        description: >-
+          Replicate final weight 126 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt127
+        description: >-
+          Replicate final weight 127 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt128
+        description: >-
+          Replicate final weight 128 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt129
+        description: >-
+          Replicate final weight 129 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt130
+        description: >-
+          Replicate final weight 130 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt131
+        description: >-
+          Replicate final weight 131 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt132
+        description: >-
+          Replicate final weight 132 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt133
+        description: >-
+          Replicate final weight 133 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt134
+        description: >-
+          Replicate final weight 134 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt135
+        description: >-
+          Replicate final weight 135 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt136
+        description: >-
+          Replicate final weight 136 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt137
+        description: >-
+          Replicate final weight 137 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt138
+        description: >-
+          Replicate final weight 138 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt139
+        description: >-
+          Replicate final weight 139 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt140
+        description: >-
+          Replicate final weight 140 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt141
+        description: >-
+          Replicate final weight 141 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt142
+        description: >-
+          Replicate final weight 142 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt143
+        description: >-
+          Replicate final weight 143 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt144
+        description: >-
+          Replicate final weight 144 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt145
+        description: >-
+          Replicate final weight 145 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt146
+        description: >-
+          Replicate final weight 146 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt147
+        description: >-
+          Replicate final weight 147 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt148
+        description: >-
+          Replicate final weight 148 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt149
+        description: >-
+          Replicate final weight 149 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt150
+        description: >-
+          Replicate final weight 150 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt151
+        description: >-
+          Replicate final weight 151 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt152
+        description: >-
+          Replicate final weight 152 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt153
+        description: >-
+          Replicate final weight 153 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt154
+        description: >-
+          Replicate final weight 154 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt155
+        description: >-
+          Replicate final weight 155 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt156
+        description: >-
+          Replicate final weight 156 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt157
+        description: >-
+          Replicate final weight 157 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt158
+        description: >-
+          Replicate final weight 158 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt159
+        description: >-
+          Replicate final weight 159 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+      - name: tu20fwgt160
+        description: >-
+          Replicate final weight 160 of 160 (2020 pandemic weighting method), used
+          for variance/standard-error estimation.
+  - name: us_bls_atus__case_history
+    description: >-
+      ATUS case history and survey methodology file (2005 onward): interview outcome
+      codes, reported-activity counts, and interviewer/case identifiers.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, tucaseid]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the ATUS interview (diary year).
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: tucaseid
+        description: >-
+          ATUS case identification number; primary key that links all ATUS files.
+          First four digits are the interview year.
+        tests: [not_null]
+      - name: tr1intst
+        description: >-
+          Interview status 1
+      - name: tr2intst
+        description: >-
+          Interview status 2
+      - name: trfnlout
+        description: >-
+          Final outcome code
+      - name: trincen2
+        description: >-
+          Incentive expansion case
+      - name: tuavgdur
+        description: >-
+          Average duration of all reported diary activities (in minutes)
+      - name: tua_id
+        description: >-
+          Unique anonymous adjudicator ID
+      - name: tucpsdp
+        description: >-
+          Is the ATUS designated person the same as the CPS respondent?
+      - name: tuc_id
+        description: >-
+          Unique anonymous coder ID
+      - name: tudqual2
+        description: >-
+          Collected from interviewer after interview: why do you think the data should
+          not be used?
+      - name: tuincent
+        description: >-
+          Incentive/non-incentive case
+      - name: tuintdqual
+        description: >-
+          Collected from interviewer after interview: is there any reason this interview
+          should not be used?
+      - name: tuintid
+        description: >-
+          Unique anonymous ATUS interviewer ID
+      - name: tuintrodate
+        description: >-
+          Day of month in which the case was introduced (panel day)
+      - name: tuintropanmonth
+        description: >-
+          Month in which the case was introduced (panel month)
+      - name: tuintropanyear
+        description: >-
+          Year in which the case was introduced (panel year)
+      - name: tulngskl
+        description: >-
+          Non-English language
+      - name: tutotactno
+        description: >-
+          Total number of activities reported in diary
+      - name: tuv_id
+        description: >-
+          Unique anonymous verifier ID

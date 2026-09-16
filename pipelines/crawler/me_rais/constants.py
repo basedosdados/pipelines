@@ -64,6 +64,8 @@ class constants(Enum):
         "Região Adm DF - Código": "regioes_administrativas_df",
         "CNAE 2.0 Subclasse": "cnae_2_subclasse",
         "CNAE 2.0 Subclasse - Código": "cnae_2_subclasse",
+        # Sem acento de propósito — ver README §6.2.
+        "CNAE 2.0 Subclasse - Codigo": "cnae_2_subclasse",
         "Tamanho Estabelecimento": "tamanho",
         "Tamanho Estabelecimento - Código": "tamanho",
         "Tipo Estab": "tipo",
@@ -103,6 +105,12 @@ class constants(Enum):
         "bairros_rj",
         "regioes_administrativas_df",
     ]
+
+    # Colunas emitidas vazias de propósito — ver README §6.5.
+    ESTAB_ABSENT_IN_SOURCE = (
+        "natureza",
+        "subatividade_ibge",
+    )
 
     # Column rename for microdados_vinculos
     VINCULOS_RENAME = {
@@ -189,6 +197,10 @@ class constants(Enum):
         "CNAE 2.0 Classe - Código": "cnae_2",
         "CNAE 2.0 Subclasse": "cnae_2_subclasse",
         "CNAE 2.0 Subclasse - Código": "cnae_2_subclasse",
+        # Sem acento de propósito — ver README §6.2.
+        "CNAE 2.0 Subclasse - Codigo": "cnae_2_subclasse",
+        "Categoria Trabalhador - Código": "categoria_trabalhador",
+        "Categoria Trabalhador - Codigo": "categoria_trabalhador",
         "Tamanho Estabelecimento": "tamanho_estabelecimento",
         "Tamanho Estabelecimento - Código": "tamanho_estabelecimento",
         "Tipo Estab": "tipo_estabelecimento",
@@ -279,4 +291,14 @@ class constants(Enum):
         "bairros_fortaleza",
         "bairros_rj",
         "regioes_administrativas_df",
+        "categoria_trabalhador",
     ]
+
+    # Mesmo papel de ESTAB_ABSENT_IN_SOURCE, para microdados_vinculos.
+    VINCULOS_ABSENT_IN_SOURCE = (
+        "tipo_salario",
+        "valor_salario_contratual",
+        "subatividade_ibge",
+        "cbo_1994",
+        "grau_instrucao_1985_2005",
+    )

@@ -1,0 +1,309 @@
+---
+version: 2
+models:
+  - name: au_doe_higher_education_finances__income_statement
+    description: >-
+      Adjusted statement of financial performance of Australian higher education
+      providers, one row per provider, year, sector and revenue or expense line.
+      Sourced from the Department of Education Finance Publication.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - institution_id
+            - institution_type
+            - line_number
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the financial statement, ending 31 December
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: institution_id
+        description: >-
+          Identifier of the Australian higher education institution
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_au__higher_education_institution')
+              field: id_higher_education_institution
+      - name: institution_type
+        description: >-
+          Sector of the provider the amount covers: whole institution, its higher
+          education operations, or its vocational education operations
+        tests: [not_null]
+      - name: line_number
+        description: >-
+          Position of the line within the statement, in the order the source
+          presents it
+        tests: [not_null]
+      - name: line_item
+        description: >-
+          Line of the adjusted statement of financial performance the amount reports
+        tests: [not_null]
+      - name: line_item_internal
+        description: >-
+          Internal name of the line in the department's reporting cube, where the
+          source publishes one
+      - name: value
+        description: >-
+          Amount reported for the line
+  - name: au_doe_higher_education_finances__balance_sheet
+    description: >-
+      Adjusted statement of financial position of Australian higher education
+      providers, one row per provider, year and asset, liability or equity line.
+      Sourced from the Department of Education Finance Publication.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - institution_id
+            - institution_type
+            - line_number
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the financial statement, ending 31 December
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: institution_id
+        description: >-
+          Identifier of the Australian higher education institution
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_au__higher_education_institution')
+              field: id_higher_education_institution
+      - name: institution_type
+        description: >-
+          Sector of the provider the amount covers: whole institution, its higher
+          education operations, or its vocational education operations
+        tests: [not_null]
+      - name: line_number
+        description: >-
+          Position of the line within the statement, in the order the source
+          presents it
+        tests: [not_null]
+      - name: line_item
+        description: >-
+          Line of the adjusted statement of financial position the amount reports
+        tests: [not_null]
+      - name: line_item_internal
+        description: >-
+          Internal name of the line in the department's reporting cube, where the
+          source publishes one
+      - name: value
+        description: >-
+          Amount reported for the line
+  - name: au_doe_higher_education_finances__equity_movement
+    description: >-
+      Adjusted statement of changes in equity and comprehensive income of Australian
+      higher education providers, one row per provider, year and movement line.
+      Sourced from the Department of Education Finance Publication.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - institution_id
+            - institution_type
+            - line_number
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the financial statement, ending 31 December
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: institution_id
+        description: >-
+          Identifier of the Australian higher education institution
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_au__higher_education_institution')
+              field: id_higher_education_institution
+      - name: institution_type
+        description: >-
+          Sector of the provider the amount covers: whole institution, its higher
+          education operations, or its vocational education operations
+        tests: [not_null]
+      - name: line_number
+        description: >-
+          Position of the line within the statement, in the order the source
+          presents it
+        tests: [not_null]
+      - name: line_item
+        description: >-
+          Line of the adjusted statement of changes in equity and comprehensive
+          income the amount reports
+        tests: [not_null]
+      - name: line_item_internal
+        description: >-
+          Internal name of the line in the department's reporting cube, where the
+          source publishes one
+      - name: value
+        description: >-
+          Amount reported for the line
+  - name: au_doe_higher_education_finances__cash_flow
+    description: >-
+      Adjusted statement of cash flows of Australian higher education providers, one
+      row per provider, year and cash flow line. Sourced from the Department of
+      Education Finance Publication.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - institution_id
+            - institution_type
+            - line_number
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the financial statement, ending 31 December
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: institution_id
+        description: >-
+          Identifier of the Australian higher education institution
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_au__higher_education_institution')
+              field: id_higher_education_institution
+      - name: institution_type
+        description: >-
+          Sector of the provider the amount covers: whole institution, its higher
+          education operations, or its vocational education operations
+        tests: [not_null]
+      - name: line_number
+        description: >-
+          Position of the line within the statement, in the order the source
+          presents it
+        tests: [not_null]
+      - name: line_item
+        description: >-
+          Line of the adjusted statement of cash flows the amount reports
+        tests: [not_null]
+      - name: line_item_internal
+        description: >-
+          Internal name of the line in the department's reporting cube, where the
+          source publishes one
+      - name: value
+        description: >-
+          Amount reported for the line
+  - name: au_doe_higher_education_finances__research_income
+    description: >-
+      Research and development income of Australian higher education providers, one
+      row per provider, year, category and sub-category. Collected through the
+      Higher Education Research Data Collection (HERDC) and used to allocate
+      research block grants. A null amount means the sub-category was not in use
+      that year.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - institution_id
+            - category
+            - sub_category
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the reported research income
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: institution_id
+        description: >-
+          Identifier of the Australian higher education institution
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_au__higher_education_institution')
+              field: id_higher_education_institution
+      - name: category
+        description: >-
+          HERDC research income category, from 1 to 4
+        tests: [not_null]
+      - name: sub_category
+        description: >-
+          HERDC research income sub-category within the category
+        tests: [not_null]
+      - name: amount
+        description: >-
+          Research income reported for the sub-category
+  - name: au_doe_higher_education_finances__line_item
+    description: >-
+      Which line item labels appear in each financial statement and over which
+      years. The department relabels items across the series, so this is the map
+      needed to read a long panel on any single line.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [statement, line_item]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: statement
+        description: >-
+          Financial statement table the line item belongs to
+        tests: [not_null]
+      - name: line_item
+        description: >-
+          Line item label as printed by the source
+        tests: [not_null]
+      - name: first_year
+        description: >-
+          First year the label appears in the series
+      - name: last_year
+        description: >-
+          Last year the label appears in the series
+      - name: n_years
+        description: >-
+          Number of years the label appears in the series
+  - name: au_doe_higher_education_finances__dicionario
+    description: >-
+      Dictionary of the coded values used across the
+      au_doe_higher_education_finances tables.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: >-
+          Slug of the au_doe_higher_education_finances table the entry describes
+      - name: nome_coluna
+        description: >-
+          Name of the column the entry describes
+      - name: chave
+        description: >-
+          Coded value (key) exactly as stored in the data
+      - name: cobertura_temporal
+        description: >-
+          Temporal coverage of the entry
+      - name: valor
+        description: >-
+          Meaning of the coded value
