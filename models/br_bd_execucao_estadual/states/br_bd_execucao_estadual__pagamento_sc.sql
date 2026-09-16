@@ -44,7 +44,28 @@ select
         safe.parse_datetime('%Y-%m-%d %H:%M:%S', substr(trim(dtlancamento), 1, 19))
     ) as data,
     'SC' as sigla_uf,
-    concat('SC-', trim(cdunidadegestora), '|', trim(nupagamento)) as id_pagamento_bd,
+    -- SC restarts payment numbering per unidade gestora, and one `nupagamento` covers
+    -- several liquidação lines, so `<ug>|<nupagamento>` alone repeats (30,909 excess over
+    -- 2011-2026, all with a distinct nunotaliquidacao or value, none a duplicate row). No
+    -- natural line id exists: the composite
+    -- (ug, nupagamento, nunotaliquidacao, nuidentificacao, vlpagamento, dtlancamento) is
+    -- exactly unique across all 13.3M rows, so the id is a Data Basis surrogate in the PE
+    -- pattern -- the payment key plus the line's position within it, sequenced WITHIN
+    -- (ug, nupagamento) so reloading one month cannot renumber another (a nupagamento is
+    -- confined to a single date).
+    concat(
+        'SC-', trim(cdunidadegestora), '|', trim(nupagamento), '-',
+        row_number() over (
+            partition by trim(cdunidadegestora), trim(nupagamento)
+            order by
+                trim(nunotaliquidacao),
+                trim(nunotaempenhooriginal),
+                trim(nmtipopagamento),
+                vlpagamento,
+                trim(dtlancamento),
+                trim(nuidentificacao)
+        )
+    ) as id_pagamento_bd,
     nullif(trim(nuordembancaria), '') as numero_ordem_bancaria,
     concat('SC-', trim(ugempenhooriginal)) as id_empenho_bd,
     nullif(trim(nunotaempenhooriginal), '') as numero_empenho,
