@@ -756,3 +756,65 @@ models:
         description: Valor total homologado ao fornecedor em reais correntes
       - name: categoria
         description: Categoria do processo de aquisição
+  - name: br_bd_execucao_estadual__contrato
+    description: >
+      Contratos dos governos estaduais: os instrumentos contratuais celebrados, com
+      objeto, contratado, vigência e valor. Uma linha por contrato. Existe para Espírito
+      Santo, Santa Catarina e Rio Grande do Sul, os três estados que publicam um cadastro
+      de contratos. Complementa as tabelas de execução: o contrato é o compromisso, a
+      execução é o gasto contra ele; ligue à licitação por numero_processo quando
+      presente. Só contratos: a base do ES, que mistura contratos com autorizações de
+      compra e ordens de fornecimento, é filtrada para os documentos do tipo Contrato.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sigla_uf, id_contrato_bd]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano de assinatura ou início de vigência do contrato; nulo quando a data está
+          ausente ou é claramente inválida na origem
+      - name: sigla_uf
+        description: Sigla da unidade da federação do governo estadual
+        tests: [not_null]
+      - name: id_contrato_bd
+        description: >
+          Identificador único do contrato construído pela Data Basis, no formato
+          <sigla_uf>-<unidade gestora>-<número do contrato>-<sequência>
+      - name: numero_contrato
+        description: Número do contrato na origem
+      - name: numero_processo
+        description: Número do processo ou licitação que originou o contrato, quando informado
+      - name: id_unidade_gestora
+        description: Código da unidade gestora (órgão) contratante
+      - name: nome_unidade_gestora
+        description: Nome da unidade gestora (órgão) contratante
+      - name: objeto
+        description: Objeto do contrato
+      - name: modalidade
+        description: Modalidade da licitação ou do procedimento que originou o contrato
+      - name: tipo_contrato
+        description: >
+          Tipo do instrumento. No Rio Grande do Sul distingue os quatro cadastros
+          (fornecimento de bens, locação, obras e serviços de engenharia, serviços de
+          terceiros); no Espírito Santo é sempre Contrato
+      - name: documento_contratado
+        description: >
+          CPF ou CNPJ do contratado; nulo no Rio Grande do Sul, que publica apenas o nome
+      - name: nome_contratado
+        description: Nome ou razão social do contratado
+      - name: situacao
+        description: Situação do contrato; nula no Rio Grande do Sul, que não a publica
+      - name: data_assinatura
+        description: >
+          Data de assinatura ou celebração; no Rio Grande do Sul, a data de publicação no
+          Diário Oficial, quando é a única disponível
+      - name: data_inicio_vigencia
+        description: Data de início da vigência do contrato
+      - name: data_fim_vigencia
+        description: Data de fim da vigência do contrato
+      - name: valor_inicial
+        description: Valor inicial do contrato em reais correntes
+      - name: valor_atual
+        description: Valor atual do contrato em reais correntes, após aditivos quando informado
