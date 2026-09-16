@@ -40,6 +40,8 @@ class constants(Enum):
     ABSOLUTE_UNITS = {"XDC", "USD"}  # apply UNIT_MULT to these
 
     DATA_TABLES = ["revenue"]
+    # every table materialised (data + dictionary), in upload/dbt order
+    ALL_TABLES = ["revenue", "dicionario"]
 
     # Repo-relative architecture directory (single source of truth).
     ARCHITECTURE_DIR = (
