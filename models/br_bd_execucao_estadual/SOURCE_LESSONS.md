@@ -39,8 +39,13 @@ These cost the most time and recur across states.
    in these sources are routinely unique only *within* a unidade gestora. MG's glob
    collision and SC's per-UG numbering are the same class of bug.
 
-6. **Pace every scraped or rate-limited source; never burst.** Two separate IP-wide
-   blocks were self-inflicted on CE by concurrency that a serial loop would have avoided.
+6. **Pace every scraped or rate-limited source; never burst -- but confirm a refusal is
+   a block before treating it as one.** Two CE incidents were recorded as self-inflicted
+   IP-wide blocks. They were not: the downloader was omitting a required query parameter,
+   and the resulting HTTP 403 is byte-identical to a block. The whole 216-file set then
+   downloaded serially with zero refusals. Pacing is still right -- a serial 1.2 s loop
+   costs nothing here -- but "we got blocked" is a diagnosis, and it needs the same
+   evidence as any other. See CE below.
 
 7. **One file, one parser definition.** If a downloader counts rows and a cleaner
    parses them, they must use the *same* reader settings. A default `csv.reader` and one
@@ -290,6 +295,147 @@ says so rather than carrying a schedule that will silently never refresh.
 - Attachment URLs are content-addressed (`/attachments/<sha1>/store/<sha256>/<name>`) and
   rotate on republish, which is daily for the empenho dataset. A saved URL manifest goes
   stale.
+
+#### CE, measured on the full 216-file download (2026-09-16)
+
+**Access**
+
+- **`?force_download=true` is REQUIRED on every `/attachments/` URL.** Without it the
+  server answers **HTTP 403 with a 9-byte `forbidden` body** for a URL that serves the
+  file perfectly with it. Verified by alternating the two forms against one URL four
+  times in a row: `403 / 206 / 403 / 206`, seconds apart. It is the parameter, not a
+  rate limit and not an IP block.
+
+  **This overturns the previous entry.** CE was recorded as having IP-blocked us twice
+  in one day; the downloader was building URLs without the parameter, so every request
+  403'd and the escalating 60/120/180/240 s backoff made it look like a hardening block.
+  The 9-byte `forbidden` body is real and the magic-byte check is still right -- but
+  check the query parameter before concluding CE has blocked you. All 216 manifest URLs
+  captured 12 hours earlier were still live and downloaded serially at ~1.2 s with zero
+  refusals.
+
+- **The challenge tell is the invariant LENGTH, not the status.** Dataset detail pages
+  return HTTP 200 at 246,688 bytes (id 168) and 246,689 (id 179) -- two completely
+  different datasets, a one-byte difference. The portal **homepage is not challenged**
+  (41,195 bytes of real HTML), so "the host answers" proves nothing about the catalogue.
+
+**Shape of the series**
+
+- **Eleven schemas across three phases**: six for empenho, three for pagamento, two for
+  liquidação. They are not a restyling of one schema -- **the eras publish different
+  things**. 2006-2013 empenho carries `cod_gestora`/`cod_credor`/`cod_item_natureza`
+  plus `cod_ne_original` and `cod_tipo_empenho`, i.e. an SC-style movement model.
+  2014-2018 carries codes *and* names plus tender and contract columns. 2019+ carries
+  **labels only** -- no CNPJ, no budget code, no contract, no tender. A dbt model that
+  treats CE as one series will silently lose whichever half it did not model.
+
+- **2019 Q4 empenho is a different product entirely.** `4º Trimestre 2019.xlsx` has
+  **7 columns** (`exercicio, numero, data_de_emissao, secretaria_orgao,
+  unidade_executora, beneficiario, valor_pago`) and 23,810 rows, against 26,482 /
+  91,183 / 66,718 for Q1-Q3 of the same year in the 22-column schema. It has no
+  `valor_empenhado` at all. So **2019 empenho is effectively three quarters**, and any
+  annual total for 2019 is understated by roughly a quarter with nothing null to show
+  for it.
+
+- **Dataset 31 splits one exercise across two schemas.** "Notas de Empenho - 2018" holds
+  three `.rar` files covering Jan-Jul in the 32-column legacy schema *and*
+  `notas-de-empenho-ago-dez-2018.csv.zip` covering Aug-Dec in the 22-column modern one.
+  Complementary, not duplicated -- but a reader that picks one format per dataset loses
+  half the year.
+
+**Defects that survive a width check**
+
+- **The legacy exports pad a varying number of unnamed, always-empty trailing columns**
+  onto the header and every row: 0, 1, 2, 10, 25 and 56 measured across files of the
+  same series. Taken at face value that reports six schemas for empenho where there is
+  one.
+
+- **Free text is quoted inconsistently**, so a value containing the separator splits the
+  record: `pagamento de diária e ajuda de custo mês de abril, portaria 585/2018`,
+  `F, TARCISIO G. PARENTE - ME`, `PAGAMENTO OBRA DE ENGENHARIA 2015, SEM RETENÇÃO DE
+  ISS ...`. It is **not one column per schema**: legacy empenho splits
+  `especificacaogeral` in most cases and `razaosocialcredor` in others
+  (`...,3301349000151,F,8825,2200010012015C,...`). And `especificacaogeral` sometimes
+  holds a comma-separated LIST -- course participants, seized equipment with serial
+  numbers -- so one value can split a row into dozens of fields.
+
+- **The worst case is a row with the RIGHT width and the WRONG columns.** A stray comma
+  inside a run of empty columns shifts every later value one column right, and the
+  file's trailing padding absorbs the overflow, so the row arrives at exactly the
+  expected field count. Measured on `npd-2017-terceiro-trimestre` by the position of
+  `DESEMBOLSO`, which the schema fixes at column 7:
+
+  | width | col of DESEMBOLSO | rows | |
+  |---|---|---|---|
+  | 36 | 7 | 133,265 | correct |
+  | 36 | 8 | **342** | **shifted, invisible to a width check** |
+  | 37 | 9 | 367 | shifted, caught by width |
+  | 38-42 | 10-14 | 165 | shifted, caught by width |
+
+  Those 342 rows load with a CNPJ in `valor`, a date in `grupofin` and a creditor name
+  in `cpfcnpjcredor` -- every column populated, nothing null, nothing to notice. **They
+  are only detectable because some columns are constrained to dates, times, years and
+  money.** `clean_ce._place` repairs on that basis and refuses when more than one repair
+  survives the type check. 1,295 rows were repaired in total across the series.
+
+  The generalisable rule: **where a source pads on the right, field count proves
+  nothing. Validate the column types.**
+
+**Values**
+
+- **36,760,936 fields hold the literal string `NULL`** -- across 104 files, every
+  modern (2018+) liquidação and pagamento file and no empenho file. It is not confined
+  to a few columns: `efeito` carries 2,214,732 of them against ~4.5M pagamento rows,
+  roughly half the column, as do `servico_bancario`, `banco_pagamento` and `data_atual`.
+  Staged verbatim it is a string that is not null, so `count(x)` counts 2.2M phantom
+  values and a `group by` grows a "NULL" category. `clean_ce` writes it as a real null.
+
+- **`classiforcamcompl` is 100% destroyed by Excel.** Every one of the 37,968 rows of
+  `ned-2017-primeirotrimestre` renders it in scientific notation
+  (`"4,6200003041225E+040"`, with a Brazilian comma in the mantissa), collapsing the
+  budget classification to **502 distinct values where `classiforcamreduz` has 4,222**.
+  The full code is not recoverable; use the reduced code.
+
+- **The decimal separator differs by era**, so there is no dataset-wide convention:
+  legacy `.rar` and the 2018 CSVs use a dot (`8100.00`, `391653.84`), the modern CSVs a
+  comma inside quotes (`"14145,17"`), and the `.xlsx`/`.xls` files carry native numbers.
+  A dbt model applying one convention to the whole table nulls three of the four.
+
+- One file of the 216 has its own dialect: **`notas_de_empenho_2026.csv` is
+  semicolon-separated and cp1252** where the other 215 are comma and UTF-8. Both are
+  probed per file.
+
+- Grain is **empenho x budget line**: 2025 has 196,255 rows over 30,600 distinct
+  `Número`. `Credor` in the modern era is a name carrying a partial CNPJ/CPF prefix in
+  the same field (`54.212.382 FELLIPE BARBOSA DA SILVA`), not two columns.
+
+**Broken headers**
+
+- `notas-de-empenho-ago-dez-2018.csv.zip` names its creditor column
+  `translation missing: pt-BR.integration/expenses/ned.spreadsheet.worksheets.default
+  .header.razao_social_credor` -- a failed i18n lookup rendered as a column name.
+- `npd-2013-quarto-trimestre.rar` names its first column **`are`**; the other three
+  quarters of 2013 name it `num_ano`, the remaining 48 names are identical, and every
+  value in the column is `2013`.
+
+Both are renamed through `constants.CE_HEADER_FIXES` rather than carried into staging.
+
+**Tooling**
+
+- **`rarfile` lists a member it cannot read.** Without an external `unrar`/`unar` it
+  fails mid-stream (`BadRarFile: Failed the read enough data: req=1500 got=41`) rather
+  than refusing up front -- a truncated read that looks like a short file. `bsdtar`
+  (libarchive, present on macOS) reads all 86 archives whole.
+- A container's extension is a hint: dispatch on magic bytes, not the name.
+
+**No control total**
+
+- **CE publishes no row count, no money total and no per-category subtotal** -- its own
+  `Inventário de dados` lists only name, content, órgão and creation date. Unlike SC
+  (`lista.total`) or SP (grid totals), there is nothing external to reconcile against.
+  The checks that do exist are internal to the catalogue: 2023 empenho is published
+  twice (dataset 145 quarterly, dataset 152 consolidated) and dataset 170 lists
+  `NPD+4BI.csv` twice with different content hashes. `validate_ce.py` uses those.
 
 ---
 
