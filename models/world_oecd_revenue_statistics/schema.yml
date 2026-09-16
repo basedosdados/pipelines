@@ -1,0 +1,118 @@
+---
+version: 2
+models:
+  - name: world_oecd_revenue_statistics__revenue
+    description: >-
+      Receitas tributárias e não tributárias por categoria de imposto da
+      classificação da OCDE, nível de governo, país e ano, no Banco de Dados
+      Global de Estatísticas de Receita da OCDE. Uma linha por país, ano, nível de
+      governo e categoria de imposto, com o valor expresso como percentagem do
+      PIB, percentagem da receita do mesmo nível de governo, percentagem da
+      categoria de imposto superior, em moeda nacional e em dólares dos Estados
+      Unidos. A classificação de impostos é hierárquica; use tax_category_parent_id
+      para evitar dupla contagem ao somar categorias.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - reference_area
+            - government_level_id
+            - tax_category_id
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - country_iso3_code
+            - tax_category_parent_id
+            - tax_category_code
+            - pct_institutional_sector
+            - pct_revenue_category
+            - value_national_currency
+            - value_usd
+            - currency
+      - custom_dictionary_coverage:
+          dictionary_model: ref('world_oecd_revenue_statistics__dicionario')
+          columns_covered_by_dictionary:
+            - government_level_id
+            - tax_category_id
+            - tax_category_parent_id
+            - observation_status
+    columns:
+      - name: year
+        description: >-
+          Ano de referência da observação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: country_iso3_code
+        description: >-
+          Código ISO 3166-1 alfa-3 do país da observação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso3
+      - name: reference_area
+        description: >-
+          Área de referência da observação: um país ou um agregado, no código de
+          área SDMX da OCDE
+        tests: [not_null]
+      - name: government_level_id
+        description: >-
+          Nível de governo que arrecada a receita (setor institucional do SCN)
+        tests: [not_null]
+      - name: tax_category_id
+        description: >-
+          Categoria de imposto na classificação da OCDE (código T_)
+        tests: [not_null]
+      - name: tax_category_parent_id
+        description: >-
+          Categoria de imposto imediatamente superior na hierarquia da OCDE
+      - name: tax_category_code
+        description: >-
+          Código numérico da OCDE da categoria de imposto
+      - name: pct_gdp
+        description: >-
+          Receita como percentagem do PIB
+      - name: pct_institutional_sector
+        description: >-
+          Receita como percentagem da receita total do mesmo nível de governo
+      - name: pct_revenue_category
+        description: >-
+          Receita como percentagem da categoria de imposto imediatamente superior
+      - name: value_national_currency
+        description: >-
+          Receita em moeda nacional, na moeda indicada em currency
+      - name: value_usd
+        description: >-
+          Receita em dólares dos Estados Unidos
+      - name: currency
+        description: >-
+          Código ISO 4217 da moeda nacional usada em value_national_currency
+      - name: observation_status
+        description: >-
+          Situação da observação segundo a OCDE
+      - name: source_flow_version
+        description: >-
+          Versão do dataflow SDMX da OCDE de onde a linha foi extraída
+  - name: world_oecd_revenue_statistics__dicionario
+    description: >-
+      Dicionário das colunas codificadas da tabela revenue: nível de governo,
+      categoria de imposto, categoria de imposto superior e situação da
+      observação, com o rótulo legível de cada valor.
+    columns:
+      - name: id_tabela
+        description: >-
+          Slug da tabela descrita pela entrada do dicionário
+      - name: nome_coluna
+        description: >-
+          Nome da coluna descrita pela entrada do dicionário
+      - name: chave
+        description: >-
+          Valor codificado (chave) exatamente como armazenado nos dados
+      - name: cobertura_temporal
+        description: >-
+          Cobertura temporal da chave
+      - name: valor
+        description: >-
+          Rótulo legível correspondente ao valor codificado
