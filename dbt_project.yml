@@ -300,6 +300,9 @@ models:
     world_oecd_revenue_statistics:
       +materialized: table
       +schema: world_oecd_revenue_statistics
+    world_oecd_socx:
+      +materialized: table
+      +schema: world_oecd_socx
     world_aiddata_gcdf:
       +materialized: table
       +schema: world_aiddata_gcdf
