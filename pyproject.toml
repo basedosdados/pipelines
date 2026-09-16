@@ -223,6 +223,7 @@ project-excludes = [
   "models/us_ffiec_bank_reporting/code",
   "models/world_oecd_education/code",
   "models/world_oecd_revenue_statistics/code",
+  "models/world_oecd_socx/code",
   "models/br_tse_eleicoes/code",
   "models/us_nih_reporter/code",
   # Same policy: the us_cms_hcris onboarding scripts run from their own
