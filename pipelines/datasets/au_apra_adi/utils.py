@@ -22,7 +22,7 @@ import re
 from collections import Counter
 from pathlib import Path
 
-import openpyxl
+import openpyxl  # pyrefly: ignore [untyped-import]
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
