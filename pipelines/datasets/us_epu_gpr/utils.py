@@ -477,6 +477,7 @@ def write_partitioned(df: pd.DataFrame, table: str, output_dir: Path) -> Path:
     tdir = output_dir / table
     if "year" in out.columns and table != "dicionario":
         for year, g in out.groupby("year", sort=True):
+            # pyrefly: ignore [bad-argument-type]
             pdir = tdir / f"year={int(year)}"
             pdir.mkdir(parents=True, exist_ok=True)
             _write_group(g, typed_schema, string_schema, pdir / "data.parquet")
