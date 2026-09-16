@@ -67,6 +67,9 @@ models:
     au_ato_taxation_statistics:
       +materialized: table
       +schema: au_ato_taxation_statistics
+    au_dcceew_greenhouse:
+      +materialized: table
+      +schema: au_dcceew_greenhouse
     au_doe_higher_education_finances:
       +materialized: table
       +schema: au_doe_higher_education_finances
