@@ -1,0 +1,152 @@
+[
+  {
+    "name": "year",
+    "bigquery_type": "INT64",
+    "description_pt": "Ano de referência da observação (fim do trimestre)",
+    "description_en": "Reference year of the quarter-end observation",
+    "description_es": "Año de referencia de la observación (fin del trimestre)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "directory_column": "br_bd_diretorios_data_tempo.ano:ano",
+    "measurement_unit": "year"
+  },
+  {
+    "name": "quarter",
+    "bigquery_type": "INT64",
+    "description_pt": "Trimestre de referência da observação, de 1 a 4",
+    "description_en": "Reference quarter of the observation, from 1 to 4",
+    "description_es": "Trimestre de referencia de la observación, de 1 a 4",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "quarter"
+  },
+  {
+    "name": "fund_type",
+    "bigquery_type": "STRING",
+    "description_pt": "Tipo de fundo de previdência: todos (indústria total), corporativo, setorial (industry), setor público ou varejo (retail)",
+    "description_en": "Superannuation fund type: all (whole industry), corporate, industry, public sector or retail funds",
+    "description_es": "Tipo de fondo de jubilación: todos (industria total), corporativo, sectorial (industry), sector público o minorista (retail)",
+    "covered_by_dictionary": true,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "net_assets_beginning",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Ativos líquidos disponíveis para pagar benefícios no início do trimestre",
+    "description_en": "Net assets available to pay benefits at the beginning of the quarter",
+    "description_es": "Activos netos disponibles para pagar beneficios al inicio del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "net_cash_flows",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Fluxos de caixa líquidos no trimestre, insumo do cálculo da taxa de retorno",
+    "description_en": "Net cash flows during the quarter, an input to the rate-of-return calculation",
+    "description_es": "Flujos de caja netos en el trimestre, insumo del cálculo de la tasa de retorno",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "cash_flow_adjusted_net_assets",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Ativos líquidos ajustados pelo fluxo de caixa, insumo do cálculo da taxa de retorno",
+    "description_en": "Cash-flow adjusted net assets, an input to the rate-of-return calculation",
+    "description_es": "Activos netos ajustados por el flujo de caja, insumo del cálculo de la tasa de retorno",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "investment_income",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Receita de investimentos no trimestre",
+    "description_en": "Investment income earned during the quarter",
+    "description_es": "Ingresos por inversiones en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "investment_expense",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Despesa de investimento usada no cálculo da taxa de retorno",
+    "description_en": "Investment expense used in the rate-of-return calculation",
+    "description_es": "Gasto de inversión usado en el cálculo de la tasa de retorno",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "operating_income",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Receita operacional no trimestre",
+    "description_en": "Operating income during the quarter",
+    "description_es": "Ingresos operativos en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "administration_and_operating_expense",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Despesa administrativa e operacional usada no cálculo da taxa de retorno",
+    "description_en": "Administration and operating expense used in the rate-of-return calculation",
+    "description_es": "Gasto administrativo y operativo usado en el cálculo de la tasa de retorno",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "income_tax_expense_benefit",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Despesa ou benefício de imposto de renda no trimestre",
+    "description_en": "Income tax expense or benefit for the quarter",
+    "description_es": "Gasto o beneficio por impuesto a la renta en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "net_earnings_after_tax",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Resultado líquido após impostos no trimestre",
+    "description_en": "Net earnings after tax during the quarter",
+    "description_es": "Resultado neto después de impuestos en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "rate_of_return",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Taxa de retorno trimestral, expressa como proporção (por exemplo, 0,056 = 5,6%)",
+    "description_en": "Quarterly rate of return, expressed as a proportion (e.g. 0.056 = 5.6%)",
+    "description_es": "Tasa de retorno trimestral, expresada como proporción (por ejemplo, 0,056 = 5,6%)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "proportion"
+  },
+  {
+    "name": "five_year_annualised_rate_of_return",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Taxa de retorno anualizada de cinco anos, expressa como proporção",
+    "description_en": "Five-year annualised rate of return, expressed as a proportion",
+    "description_es": "Tasa de retorno anualizada de cinco años, expresada como proporción",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "proportion"
+  },
+  {
+    "name": "number_of_entities",
+    "bigquery_type": "INT64",
+    "description_pt": "Número de entidades de previdência no tipo de fundo",
+    "description_en": "Number of superannuation entities in the fund type",
+    "description_es": "Número de entidades de jubilación en el tipo de fondo",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "unit"
+  }
+]
