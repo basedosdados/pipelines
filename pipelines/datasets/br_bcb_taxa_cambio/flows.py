@@ -10,9 +10,10 @@ from pipelines.crawler.bcb_taxa_cambio.tasks import (
     treat_data_taxa_cambio,
 )
 from pipelines.utils.metadata.domain import (
-    AllBdpro,
     DateFormat,
     DateOnly,
+    FreeLag,
+    PartBdpro,
 )
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -127,9 +128,10 @@ def br_bcb_taxa_cambio__taxa_cambio(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=AllBdpro(
+            coverage=PartBdpro(
                 date_column=DateOnly(col="data_cotacao"),
                 date_format=DateFormat.YEAR_MD,
+                free_lag=FreeLag(unit="months", value=6),
             ),
             env="prod",
             bq_project="basedosdados",

@@ -78,9 +78,18 @@ Uma única fonte original, "Dados Abertos BCB". A tabela precisa continuar com u
 só: `_raw_source_id` levanta erro quando encontra mais de uma, e isso interrompe o
 poll.
 
-A tabela inteira está atrás do BD Pro — `AllBdpro` no `flows.py`, com uma só
-Coverage, marcada `is_closed=True`. Não existe Row Access Policy, porque
-`needs_row_access_policy` vale apenas para `PartBdpro`.
+A janela recente fica atrás do BD Pro e o histórico é livre — `PartBdpro` com
+defasagem de seis meses no `flows.py`. São duas Coverages, a livre com
+`is_closed=False` e a paga com `is_closed=True`, cada uma com seu intervalo de
+datas, também marcado. As faixas não se sobrepõem: a livre termina num dia e a paga
+começa no seguinte.
+
+O corte se move sozinho. A cada execução, `register_table_materialization` lê a data
+máxima no BigQuery, recalcula o fim da faixa livre, reescreve os dois intervalos e
+reemite as Row Access Policies no BigQuery. O modelo dbt não participa disso.
+
+A primeira execução armada é a primeira vez que essas políticas são aplicadas nesta
+tabela — até lá ela segue sem nenhuma, apesar de marcada como paga.
 
 ### Unidades de medida
 
@@ -117,29 +126,27 @@ dev estiver assim, uma PR com essa etiqueta substitui os dois anos de prod pelos
 dev. Corrigir dev com o parâmetro `anos` resolve os dois lados de uma vez, porque o
 espelhamento também remove o arquivo órfão.
 
-## Pendências
+## Limitações conhecidas
 
-- [ ] Recarregar 2023 e 2024 em dev, com `anos: [2023, 2024]` e
-      `materialize_after_dump: false`.
-- [ ] Os anos de 1984 a 1988 têm linhas repetidas em ambas as staging, entre 108 e
-      1.465 por ano, e 1993, 1996, 1997, 1999, 2000, 2001, 2003 e 2004 têm entre 9 e
-      51. Falta apurar se vêm da fonte ou da carga original.
-- [ ] O `Update` da fonte está com `latest` vazio e não há nenhum `Poll`. O flow
-      grava os dois, mas só em execução com `update_metadata` e
-      `materialize_after_dump` ligados. A entidade `month` desse Update é o valor
-      que `upsert_raw_source_update` fixa para qualquer fonte.
-- [ ] A Coverage está marcada como paga e o intervalo de datas dentro dela como
-      livre. São campos separados e precisam coincidir.
-- [ ] Trocar `AllBdpro` por `PartBdpro`. A convenção libera o histórico e cobra só a
-      janela recente em tabela que atualiza mensalmente ou mais; no repositório, 63
-      flows usam `PartBdpro` e 4 usam `AllBdpro`. A Coverage livre precisa existir
-      antes da troca, com o início da série, senão `assert_coverage_topology`
-      interrompe a execução — e o pipeline nunca escreve o início da faixa livre.
-- [ ] A tabela não tem `auxiliary_files_url`. A especificação dos campos é o
-      documento a empacotar.
-- [ ] A descrição de `tipo_boletim` lista três tipos; a especificação lista quatro,
-      incluindo "Fechamento Interbancário".
-- [ ] As descrições de `cotacao_compra` e `cotacao_venda` terminam com ponto, que a
-      convenção não usa.
-- [ ] O horário é `0 8 * * *`. O minuto 0 concentra execuções no mesmo instante e
-      disputa slot do BigQuery.
+**Linhas repetidas em anos antigos.** Para a mesma combinação de data, hora, moeda e
+tipo de boletim, há duplicatas em 1984–1988, entre 108 e 1.465 por ano, e em 1993,
+1996, 1997, 1999, 2000, 2001, 2003 e 2004, entre 9 e 51 por ano. Estão nas duas
+staging, e não se sabe se vêm da fonte ou da carga original. Quem precisa de
+unicidade deduplica por essa combinação.
+
+**A tabela não tem `auxiliary_files_url`.** A documentação do BCB — a especificação
+dos campos e o estudo da metodologia — está apenas linkada acima. O lugar dela é
+`gs://basedosdados/auxiliary_files/br_bcb_taxa_cambio/taxa_cambio/`, e escrever
+nesse bucket exige credencial que a máquina de desenvolvimento não tem: a conta de
+serviço disponível só tem `storage.objects.get` e `storage.objects.list` ali.
+
+**A descrição de `tipo_boletim` lista três tipos.** A especificação lista quatro,
+incluindo "Fechamento Interbancário".
+
+**O horário é `0 8 * * *`.** O minuto 0 concentra execuções no mesmo instante e
+disputa slot do BigQuery.
+
+**As descrições do BigQuery podem divergir da API.** O `check_metadata` compara os
+dois textos sem tolerância, e o lado do BigQuery só é regravado por `dbt run` —
+`dbt test` não toca nele. Depois de editar descrição no `schema.yaml` ou na API, é
+preciso rodar o modelo antes de abrir PR.
