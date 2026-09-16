@@ -36,4 +36,4 @@ jobs:
           uv run python .github/scripts/deploy_flows.py \
             --pool basedosdados-dev \
             --branch ${{ github.head_ref }} \
-            --files ${{ steps.changed-files.outputs.all_changed_files }}
+            --changed ${{ steps.changed-files.outputs.all_changed_files }}
