@@ -97,7 +97,7 @@ class BrTseEleicoes:
         self.remove = {
             remove.upper(): "" for remove in tse_constants.REMOVES.value
         }
-        self.base_path = Path(tempfile.gettempdir(), "data")
+        self.base_path = Path(tempfile.gettempdir(), "data", table_id)
         self.path_input = self.base_path / "input"
         self.path_output = self.base_path / "output"
         self.df_main = self.df_complement = self.path_main = (
@@ -305,6 +305,12 @@ class DespesasCandidato(BrTseEleicoes):
                 "0"
             )
 
+        # Eleições de abrangência estadual ou federal não possuem "SG_UE" numérico e sim SG_UF
+        # pyrefly: ignore [missing-attribute]
+        self.df_main.loc[
+            # pyrefly: ignore [unsupported-operation]
+            ~self.df_main["SG_UE"].astype(str).str.isdigit(), "SG_UE"
+        ] = None
         # pyrefly: ignore [missing-attribute]
         self.df_main = self.df_main.merge(
             municipios,
@@ -365,6 +371,12 @@ class ReceitasCandidato(BrTseEleicoes):
                 "0"
             )
 
+        # Eleições de abrangência estadual ou federal não possuem "SG_UE" numérico e sim SG_UF
+        # pyrefly: ignore [missing-attribute]
+        self.df_main.loc[
+            # pyrefly: ignore [unsupported-operation]
+            ~self.df_main["SG_UE"].astype(str).str.isdigit(), "SG_UE"
+        ] = None
         # pyrefly: ignore [missing-attribute]
         self.df_main = self.df_main.merge(
             municipios,
