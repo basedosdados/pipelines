@@ -27,6 +27,7 @@ from utils import (  # type: ignore
     clean_all,
     download_zip,
     find_workbook,
+    load_municipio_ids,
     load_uf_map,
 )
 
@@ -40,7 +41,7 @@ LINHAS_ESPERADAS_2025 = {
     "tempo_ensino": 311_976,
     "sexo_raca_cor": 601_668,
     "docente_etapa_ensino": 1_136_484,
-    "docente_localizacao": 534_816,
+    "docente_localizacao": 1_002_780,
     "docente_escolaridade": 428_967,
     "docente_deficiencia": 122_562,
     "docente_faixa_etaria_sexo": 857_934,
@@ -120,8 +121,16 @@ def main() -> int:
 
     # sem billing_project_id: mapa fixo, nenhuma consulta ao BigQuery
     uf_map = load_uf_map()
+    municipios = load_municipio_ids()
+    print(
+        "municípios: diretório da Base dos Dados"
+        if municipios
+        else "municípios: sem BigQuery, as tabelas são comparadas entre si"
+    )
 
-    written = clean_all(workbook, uf_map, YEAR, args.output, args.tables)
+    written = clean_all(
+        workbook, uf_map, YEAR, args.output, args.tables, municipios
+    )
     ok = report(written, check=not args.no_check)
 
     print(f"\nsaída em {args.output}")

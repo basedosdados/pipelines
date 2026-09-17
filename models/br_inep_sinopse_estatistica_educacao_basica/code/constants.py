@@ -9,6 +9,12 @@ from pathlib import Path
 
 REDES_PUBLICAS = ("Federal", "Estadual", "Municipal")
 
+#: As redes publicadas pelas tabelas de matrícula.
+REDES = (*REDES_PUBLICAS, "Privada")
+
+#: As tabelas de docente publicam também `Pública`, a soma das três públicas.
+REDES_COM_PUBLICA = (*REDES, "Pública")
+
 TOTAL = "Total"
 
 NIVEIS_PUBLICA = ("Rede Pública", "Pública")
@@ -547,6 +553,14 @@ sheets_docente_localizacao = {
     "Educação Especial - Classes Exclusivas": "2.70",
 }
 
+#: Além de urbana e rural, a tabela publica o total da etapa, que no cabeçalho
+#: fica fora do nível de localização — daí o `agregado` em `header_renames`.
+BLOCOS_DOCENTE_LOCALIZACAO = {
+    "Total": "total",
+    "Urbana": "urbana",
+    "Rural": "rural",
+}
+
 sheets_docente_escolaridade = {
     "Educacao Basica": "2.5",
     "Educacao Infantil - Creche": "2.13",
@@ -1003,19 +1017,6 @@ RENAMES_DOCENTE_REGIME_CONTRATO = {
         "Estadual.3": "Contrato CLT_Estadual",
         "Municipal.3": "Contrato CLT_Municipal",
     },
-}
-
-RENAMES_DOCENTE_LOCALIZACAO = {
-    "Unnamed: 1": "uf",
-    "Unnamed: 3": "id_municipio",
-    "Unnamed: 16": "urbana_federal",
-    "Unnamed: 17": "urbana_estadual",
-    "Unnamed: 18": "urbana_municipal",
-    "Unnamed: 19": "urbana_privada",
-    "Unnamed: 26": "rural_federal",
-    "Unnamed: 27": "rural_estadual",
-    "Unnamed: 28": "rural_municipal",
-    "Unnamed: 29": "rural_privada",
 }
 
 RENAMES_DOCENTE_ESCOLARIDADE = {

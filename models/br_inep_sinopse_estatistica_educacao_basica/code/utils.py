@@ -28,6 +28,7 @@ import pandas as pd
 import requests
 import urllib3.exceptions
 from constants import (  # type: ignore
+    BLOCOS_DOCENTE_LOCALIZACAO,
     BLOCOS_ETAPA_ENSINO_SERIE,
     BLOCOS_LOCALIZACAO,
     BLOCOS_TEMPO_ENSINO,
@@ -45,12 +46,13 @@ from constants import (  # type: ignore
     NIVEL_LOCALIZACAO,
     NIVEL_TEMPO_ENSINO,
     RACA_COR,
+    REDES,
+    REDES_COM_PUBLICA,
     REDES_PUBLICAS,
     RENAMES_DOCENTE_DEFICIENCIA,
     RENAMES_DOCENTE_ESCOLARIDADE,
     RENAMES_DOCENTE_ETAPA_ENSINO,
     RENAMES_DOCENTE_FAIXA_ETARIA_SEXO,
-    RENAMES_DOCENTE_LOCALIZACAO,
     RENAMES_DOCENTE_REGIME_CONTRATO,
     RENAMES_FAIXA_ETARIA,
     TOTAL,
@@ -172,6 +174,8 @@ def column_paths(
 def rede_columns(
     paths: dict[int, tuple[str, ...]],
     under: str | None = None,
+    agregado: str | None = None,
+    com_publica: bool = False,
 ) -> dict[tuple[str, str], int]:
     """Acha a coluna de cada par (bloco, rede).
 
@@ -188,10 +192,16 @@ def rede_columns(
             de `localizacao` e `tempo_ensino` repetem, antes dele, o total por
             rede da etapa inteira — colunas que têm a mesma forma e outro
             significado.
+        agregado: nome a dar ao bloco das colunas de rede que ficam direto sob
+            o título da aba, o total da etapa. Sem ele essas colunas são
+            descartadas junto com o resto que está fora de `under`.
+        com_publica: também devolve a rede `Pública`, que é
+            `Rede Pública / Total`. As tabelas de matrícula publicam só as três
+            redes públicas; as de docente publicam a soma delas.
 
     Returns:
         Mapa de (bloco, rede) para índice da coluna, com `rede` em
-        Federal/Estadual/Municipal/Privada. O bloco agregado da aba é ignorado.
+        Federal/Estadual/Municipal/Privada, mais Pública se pedida.
 
     Raises:
         ValueError: se `under` não existe no cabeçalho da aba, ou se duas
@@ -205,15 +215,20 @@ def rede_columns(
     for idx, path in sorted(paths.items()):
         if len(path) < 3:
             continue
-        if under is not None and under not in path:
-            continue
         bloco, nivel, folha = path[-3], path[-2], path[-1]
 
         if nivel in NIVEIS_PUBLICA and folha in REDES_PUBLICAS:
             rede = folha
+        elif nivel in NIVEIS_PUBLICA and folha == TOTAL and com_publica:
+            rede = "Pública"
         elif nivel in NIVEIS_PRIVADA and folha == TOTAL:
             rede = "Privada"
         else:
+            continue
+
+        if len(path) == 3 and agregado is not None:
+            bloco = agregado  # a rede está logo abaixo do título da aba
+        elif under is not None and under not in path:
             continue
 
         if bloco in NIVEIS_AGREGADOS:
@@ -230,7 +245,9 @@ def rede_columns(
 
 
 def build_renames(
-    found: dict[tuple[str, str], int], prefixes: dict[str, str]
+    found: dict[tuple[str, str], int],
+    prefixes: dict[str, str],
+    redes: tuple[str, ...] = REDES,
 ) -> dict[str, str]:
     """Monta o dicionário de renomeação do pandas a partir do cabeçalho.
 
@@ -239,9 +256,14 @@ def build_renames(
     indexado por nome e não por posição, uma renomeação de bloco pelo INEP falha
     aqui em vez de virar número errado publicado.
 
+    Args:
+        found: saída de `rede_columns`.
+        prefixes: nome do bloco na planilha -> prefixo interno.
+        redes: as redes que todo bloco tem de ter.
+
     Raises:
         ValueError: se um bloco declarado não existe na aba, se a aba traz um
-            bloco não declarado, ou se algum bloco não tem as quatro redes.
+            bloco não declarado, ou se algum bloco não tem todas as redes.
     """
     blocos = {bloco for bloco, _ in found}
     declarados = set(prefixes)
@@ -256,13 +278,13 @@ def build_renames(
 
     renames: dict[str, str] = {}
     for bloco, prefix in prefixes.items():
-        redes = {rede for b, rede in found if b == bloco}
-        esperadas = {*REDES_PUBLICAS, "Privada"}
-        if redes != esperadas:
+        encontradas = {rede for b, rede in found if b == bloco}
+        if encontradas != set(redes):
             raise ValueError(
-                f"bloco {bloco!r} sem as quatro redes: {sorted(redes)}"
+                f"bloco {bloco!r} sem as redes {sorted(redes)}: "
+                f"{sorted(encontradas)}"
             )
-        for rede in esperadas:
+        for rede in redes:
             renames[f"Unnamed: {found[(bloco, rede)]}"] = (
                 f"{prefix}_{rede.lower()}"
             )
@@ -353,6 +375,26 @@ def load_uf_map(billing_project_id: str | None = None) -> dict[str, str]:
     return {row["nome"]: row["sigla"] for row in directory.to_dict("records")}
 
 
+def load_municipio_ids(
+    billing_project_id: str | None = None,
+) -> set[str] | None:
+    """Ids do diretório de municípios, ou None sem acesso ao BigQuery.
+
+    O número de municípios muda entre edições, então não cabe no código: o
+    script de 2024 comparava com 5.570 escrito à mão, que 2025 contraria. Sem o
+    diretório, `clean_all` compara as tabelas entre si, o que não prova que a
+    planilha traz todos os municípios, mas pega uma tabela que perdeu alguns.
+    """
+    if billing_project_id is None:
+        return None
+
+    directory = bd.read_sql(
+        "SELECT id_municipio FROM `basedosdados.br_bd_diretorios_brasil.municipio`",
+        billing_project_id=billing_project_id,
+    )
+    return set(directory["id_municipio"].astype("string"))
+
+
 # ---------------------------------------------------------------- apoio
 
 
@@ -417,22 +459,25 @@ def read_and_rename(
     return out
 
 
-def only_municipality_rows(
-    df: pd.DataFrame, *, strip: bool = True
-) -> pd.DataFrame:
-    """Mantém só as linhas de município, descartando as de total e região.
+def municipio_as_string(values: pd.Series) -> pd.Series:
+    """Id do município como texto, mesmo onde o pandas leu a coluna como número.
 
-    `strip=False` reproduz o filtro mais frouxo de `docente_etapa_ensino` e
-    `docente_regime_contrato`, que compara com um espaço único em vez de
-    descartar qualquer valor em branco.
+    Em algumas abas a coluna de código vem sem texto nenhum e o pandas a lê como
+    float, porque as linhas de região e de total ficam vazias. Converter direto
+    para texto produz `'1100015.0'`, e o município aparece duas vezes na tabela,
+    com e sem o sufixo — foi o que 2025 publicou em `docente_etapa_ensino`.
     """
-    if strip:
-        valid = df["id_municipio"].notna() & (
-            df["id_municipio"].str.strip() != ""
-        )
-    else:
-        valid = df["id_municipio"].notna() & (df["id_municipio"] != " ")
-    return df.loc[valid]
+    if pd.api.types.is_numeric_dtype(values):
+        return values.astype("Int64").astype("string")
+    return values.astype("string").str.strip()
+
+
+def only_municipality_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """Normaliza o id do município e descarta as linhas de total e região."""
+    municipio = municipio_as_string(df["id_municipio"])
+    return df.assign(id_municipio=municipio).loc[
+        municipio.notna() & (municipio != "")
+    ]
 
 
 def melt_sheets(
@@ -442,7 +487,6 @@ def melt_sheets(
     value_vars: Callable[[pd.DataFrame], list[str]],
     var_name: str,
     value_name: str,
-    strip_municipio: bool = True,
 ) -> pd.DataFrame:
     """Empilha as abas no formato longo, marcando de qual aba cada linha veio.
 
@@ -451,7 +495,7 @@ def melt_sheets(
     """
     frames = [
         df.assign(**{label_column: label})
-        .pipe(only_municipality_rows, strip=strip_municipio)
+        .pipe(only_municipality_rows)
         .pipe(
             lambda d: pd.melt(
                 d,
@@ -496,6 +540,8 @@ def header_renames(
     skiprows: int = 8,
     per_sheet_blocos: bool = False,
     under: str | None = None,
+    agregado: str | None = None,
+    redes: tuple[str, ...] = REDES,
 ) -> dict[str, dict[str, str]]:
     """Renomeação de cada aba, derivada do cabeçalho em vez da posição.
 
@@ -510,6 +556,9 @@ def header_renames(
         skiprows: usado quando `sheets` não traz o valor por aba.
         per_sheet_blocos: `blocos` é indexado pelo nome interno da aba.
         under: repassado a `rede_columns`, para recortar o trecho do cabeçalho.
+        agregado: repassado a `rede_columns`, para nomear o bloco do total.
+        redes: as redes esperadas em cada bloco; `REDES_COM_PUBLICA` nas tabelas
+            de docente, que publicam também a soma das redes públicas.
 
     Returns:
         Nome interno da aba -> mapa de renomeação do pandas.
@@ -531,8 +580,11 @@ def header_renames(
                         N_COLS_HEADER,
                     ),
                     under=under,
+                    agregado=agregado,
+                    com_publica="Pública" in redes,
                 ),
                 declarados,  # type: ignore[arg-type]
+                redes=redes,
             ),
         }
 
@@ -815,7 +867,6 @@ def _melt_docente(
     uf_map: dict[str, str],
     *,
     label_column: str,
-    strip_municipio: bool = True,
 ) -> pd.DataFrame:
     """Parte comum das tabelas de docente: empilha, resolve UF e tipa.
 
@@ -833,10 +884,8 @@ def _melt_docente(
             ],
             var_name="coluna",
             value_name="quantidade_docente",
-            strip_municipio=strip_municipio,
         )
         .assign(
-            id_municipio=lambda d: d["id_municipio"].astype("string"),
             quantidade_docente=lambda d: d["quantidade_docente"].astype(
                 "Int64"
             ),
@@ -855,9 +904,7 @@ def clean_docente_etapa_ensino(
         per_sheet_renames=True,
         keep_renamed_order=True,
     )
-    return _melt_docente(
-        dfs, uf_map, label_column="tipo_classe", strip_municipio=False
-    ).rename(
+    return _melt_docente(dfs, uf_map, label_column="tipo_classe").rename(
         columns={
             "coluna": "etapa_ensino",
             "quantidade_docente": "quantidade_docentes",
@@ -879,12 +926,21 @@ def clean_docente_localizacao(
     dfs = read_and_rename(
         workbook,
         sheets_docente_localizacao,
-        RENAMES_DOCENTE_LOCALIZACAO,
+        header_renames(
+            workbook,
+            sheets_docente_localizacao,
+            BLOCOS_DOCENTE_LOCALIZACAO,
+            skiprows=10,
+            under=NIVEL_LOCALIZACAO,
+            agregado=TOTAL,
+            redes=REDES_COM_PUBLICA,
+        ),
         skiprows=10,
+        per_sheet_renames=True,
     )
     return _melt_docente(dfs, uf_map, label_column="etapa_ensino").assign(
-        rede=lambda d: d["coluna"].apply(suffix),
-        localizacao=lambda d: d["coluna"].apply(prefix),
+        rede=lambda d: d["coluna"].apply(suffix).str.title(),
+        localizacao=lambda d: d["coluna"].apply(prefix).str.title(),
     )[
         [
             "id_municipio",
@@ -981,9 +1037,7 @@ def clean_docente_regime_contrato(
         RENAMES_DOCENTE_REGIME_CONTRATO,
         per_sheet_renames=True,
     )
-    return _melt_docente(
-        dfs, uf_map, label_column="etapa_ensino", strip_municipio=False
-    ).assign(
+    return _melt_docente(dfs, uf_map, label_column="etapa_ensino").assign(
         rede=lambda d: d["coluna"].apply(suffix),
         regime_contrato=lambda d: d["coluna"].apply(prefix),
     )[
@@ -1036,14 +1090,55 @@ def write_partitioned(
     return written
 
 
+def check_municipios(
+    df: pd.DataFrame, table_id: str, esperados: set[str] | None
+) -> set[str]:
+    """Confere os municípios da tabela contra `esperados` e os devolve.
+
+    Args:
+        df: tabela já tratada.
+        table_id: nome da tabela, para a mensagem de erro.
+        esperados: conjunto do diretório da Base dos Dados, ou None na primeira
+            tabela quando não há acesso ao BigQuery.
+
+    Raises:
+        ValueError: se a tabela não tem exatamente os municípios esperados.
+    """
+    municipios = set(df["id_municipio"].astype("string").str.strip().dropna())
+    if esperados is None:
+        return municipios
+
+    if faltando := esperados - municipios:
+        raise ValueError(
+            f"{table_id}: faltam {len(faltando)} municípios, entre eles "
+            f"{sorted(faltando)[:5]}"
+        )
+    if sobrando := municipios - esperados:
+        raise ValueError(
+            f"{table_id}: {len(sobrando)} municípios a mais, entre eles "
+            f"{sorted(sobrando)[:5]}"
+        )
+    return municipios
+
+
 def clean_all(
     workbook: Path,
     uf_map: dict[str, str],
     year: int,
     output_dir: Path,
     tables: Iterable[str] | None = None,
+    municipios: set[str] | None = None,
 ) -> dict[str, int]:
     """Limpa e escreve as tabelas pedidas (todas, por padrão).
+
+    Args:
+        workbook: caminho da planilha.
+        uf_map: nome da unidade da federação -> sigla.
+        year: ano da edição, que vira partição.
+        output_dir: onde escrever.
+        tables: quais tabelas tratar.
+        municipios: ids esperados, de `load_municipio_ids`. Sem eles, a primeira
+            tabela tratada define o conjunto e as demais são comparadas com ela.
 
     Returns:
         Tabela -> número de linhas escritas.
@@ -1052,12 +1147,13 @@ def clean_all(
     if unknown := set(selected) - set(CLEANERS):
         raise ValueError(f"tabelas desconhecidas: {sorted(unknown)}")
 
-    return {
-        table_id: write_partitioned(
-            CLEANERS[table_id](workbook, uf_map), table_id, year, output_dir
-        )
-        for table_id in selected
-    }
+    written: dict[str, int] = {}
+    for table_id in selected:
+        df = CLEANERS[table_id](workbook, uf_map)
+        municipios = check_municipios(df, table_id, municipios)
+        written[table_id] = write_partitioned(df, table_id, year, output_dir)
+
+    return written
 
 
 def upload_tables(

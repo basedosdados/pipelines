@@ -180,11 +180,11 @@ categoria.
 
 ## Limitações conhecidas
 
-- `faixa_etaria` e as abas de `docente_*` selecionam colunas por índice de
-  posição, com o risco descrito em "Leitura do cabeçalho da planilha".
+- `faixa_etaria` e as demais abas de `docente_*` selecionam colunas por índice
+  de posição, com o risco descrito em "Leitura do cabeçalho da planilha".
   `RENAMES_DOCENTE_ETAPA_ENSINO` é o maior desses mapeamentos. Migrá-las exige
-  generalizar `rede_columns`, porque o último nível do cabeçalho dessas abas não
-  é a rede, e sim faixa de idade, escolaridade ou regime de contrato.
+  outra função de busca, porque o último nível do cabeçalho dessas abas não é a
+  rede, e sim faixa de idade, escolaridade ou regime de contrato.
 - A verificação de que a planilha traz todos os municípios está desativada. O
   `assert` original comparava com o valor fixo de 5.570 municípios, que 2025
   contraria (são 5.572). A comparação deve ser feita com o diretório de
