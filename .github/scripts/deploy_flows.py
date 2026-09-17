@@ -19,6 +19,7 @@ import glob
 import importlib.util
 import os
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 from prefect import Flow
@@ -142,7 +143,25 @@ def deploy_flow(
     file_path: str,
     pool_name: str,
     branch_name: str,
-) -> bool:
+) -> tuple[bool, str]:
+    """Registra um flow no Prefect 3.
+
+    Não imprime nada diretamente — devolve a mensagem pronta pra quem
+    chamar imprimir. Isso é o que permite chamar essa função de várias
+    threads ao mesmo tempo (`main()`, via `ThreadPoolExecutor`) sem
+    linhas de saída de flows diferentes se misturando no meio.
+
+    Args:
+        flow: Objeto `Flow` do Prefect já carregado do arquivo.
+        flow_name: Nome do flow (chave usada como `name=` do deployment).
+        file_path: Caminho do arquivo onde o flow foi encontrado.
+        pool_name: Work Pool de destino (`basedosdados` ou `basedosdados-dev`).
+        branch_name: Branch do repositório a partir da qual o Prefect vai
+            ler o código do flow em runtime.
+
+    Returns:
+        Tupla `(sucesso, mensagem)` pronta pra impressão.
+    """
     entrypoint = f"{file_path}:{flow_name}"
     is_dev = "dev" in pool_name
 
@@ -159,8 +178,6 @@ def deploy_flow(
         ]
 
     job_variables = getattr(flow, "job_variables", None)
-
-    print(f"  Registrando {flow_name} → {entrypoint}")
 
     try:
         flow.from_source(
@@ -183,11 +200,9 @@ def deploy_flow(
             if not schedules
             else f"com schedules: {schedules}"
         )
-        print(f"  ✓ {flow_name} registrado {status}")
-        return True
+        return True, f"  ✓ {flow_name} registrado {status}"
     except Exception as e:
-        print(f"  ✗ Falha ao registrar {flow_name}: {e}")
-        return False
+        return False, f"  ✗ Falha ao registrar {flow_name}: {e}"
 
 
 def main() -> None:
@@ -220,6 +235,12 @@ def main() -> None:
     parser.add_argument(
         "--all", action="store_true", help="Deploy de todos os flows"
     )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=8,
+        help="Quantos flows registrar em paralelo (default: 8)",
+    )
     args = parser.parse_args()
 
     files_to_process = []
@@ -244,9 +265,11 @@ def main() -> None:
 
     print(f"\nWork Pool : {args.pool}")
     print(f"Branch    : {args.branch}")
-    print(f"Arquivos  : {len(files_to_process)}\n")
+    print(f"Arquivos  : {len(files_to_process)}")
+    print(f"Workers   : {args.workers}\n")
 
-    success, skipped, failed = 0, 0, 0
+    skipped = 0
+    to_deploy: list[tuple[Flow, str, str]] = []
 
     for file_path in files_to_process:
         if not os.path.exists(file_path):
@@ -260,7 +283,24 @@ def main() -> None:
             continue
 
         for name, flow_obj in flows.items():
-            ok = deploy_flow(flow_obj, name, file_path, args.pool, args.branch)
+            to_deploy.append((flow_obj, name, file_path))
+
+    print(
+        f"\nRegistrando {len(to_deploy)} flow(s) (até {args.workers} em paralelo)...\n"
+    )
+
+    success, failed = 0, 0
+
+    with ThreadPoolExecutor(max_workers=args.workers) as executor:
+        futures = {
+            executor.submit(
+                deploy_flow, flow_obj, name, file_path, args.pool, args.branch
+            ): name
+            for flow_obj, name, file_path in to_deploy
+        }
+        for future in as_completed(futures):
+            ok, message = future.result()
+            print(message)
             if ok:
                 success += 1
             else:
