@@ -55,6 +55,12 @@ models:
     au_alexander_politicians:
       +materialized: table
       +schema: au_alexander_politicians
+    au_apra_adi:
+      +materialized: table
+      +schema: au_apra_adi
+    au_apra_superannuation:
+      +materialized: table
+      +schema: au_apra_superannuation
     au_aec_elections:
       +materialized: table
       +schema: au_aec_elections
@@ -67,6 +73,9 @@ models:
     au_ato_taxation_statistics:
       +materialized: table
       +schema: au_ato_taxation_statistics
+    au_dcceew_greenhouse:
+      +materialized: table
+      +schema: au_dcceew_greenhouse
     au_doe_higher_education_finances:
       +materialized: table
       +schema: au_doe_higher_education_finances
@@ -204,6 +213,12 @@ models:
     us_bls_cpi:
       +materialized: table
       +schema: us_bls_cpi
+    us_treasury_fiscaldata:
+      +materialized: table
+      +schema: us_treasury_fiscaldata
+    us_bls_employment:
+      +materialized: table
+      +schema: us_bls_employment
     us_bls_oes:
       +materialized: table
       +schema: us_bls_oes
@@ -213,6 +228,9 @@ models:
     us_fdic_bankfind:
       +materialized: table
       +schema: us_fdic_bankfind
+    us_ffiec_bank_reporting:
+      +materialized: table
+      +schema: us_ffiec_bank_reporting
     us_fed_fred:
       +materialized: table
       +schema: us_fed_fred
@@ -285,6 +303,12 @@ models:
     world_oecd_education:
       +materialized: table
       +schema: world_oecd_education
+    world_oecd_revenue_statistics:
+      +materialized: table
+      +schema: world_oecd_revenue_statistics
+    world_oecd_socx:
+      +materialized: table
+      +schema: world_oecd_socx
     world_aiddata_gcdf:
       +materialized: table
       +schema: world_aiddata_gcdf
@@ -660,6 +684,9 @@ models:
     us_sec_edgar:
       +materialized: table
       +schema: us_sec_edgar
+    us_usda_nass:
+      +materialized: table
+      +schema: us_usda_nass
     us_state_foreign_assistance:
       +materialized: table
       +schema: us_state_foreign_assistance
@@ -681,12 +708,21 @@ models:
     us_ed_nces_ccd:
       +materialized: table
       +schema: us_ed_nces_ccd
+    us_eia_consumption:
+      +materialized: table
+      +schema: us_eia_consumption
     us_eia_electricity:
       +materialized: table
       +schema: us_eia_electricity
+    us_eia_seds:
+      +materialized: table
+      +schema: us_eia_seds
     us_epa_tri:
       +materialized: table
       +schema: us_epa_tri
+    us_epu_gpr:
+      +materialized: table
+      +schema: us_epu_gpr
     us_fema_openfema:
       +materialized: table
       +schema: us_fema_openfema
@@ -702,12 +738,18 @@ models:
     us_noaa_storm_events:
       +materialized: table
       +schema: us_noaa_storm_events
+    us_nsf_ncses:
+      +materialized: table
+      +schema: us_nsf_ncses
     us_osha_enforcement:
       +materialized: table
       +schema: us_osha_enforcement
     world_ampas_oscar:
       +materialized: table
       +schema: world_ampas_oscar
+    world_bis_property_prices:
+      +materialized: table
+      +schema: world_bis_property_prices
     world_dasanaike_sage:
       +materialized: table
       +schema: world_dasanaike_sage
