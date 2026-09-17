@@ -15,7 +15,7 @@ Uso:
 
 Nome do deployment: em prod, é `<flow_name>` (mesmo nome de sempre — não
 mude, `sync-deployments`/`set_deployment_schedule_active` no backend
-dependem disso). Em dev, é `<flow_name>-dev`, um registro separado do de
+dependem disso). Em dev, é `dev-<flow_name>`, um registro separado do de
 prod — nunca compartilham o mesmo nome, pra um deploy de PR não "roubar"
 o deployment de prod movendo-o pro pool dev.
 """
@@ -175,9 +175,9 @@ def deploy_flow(
     # pool — `work_pool_name` é só um campo mutável do mesmo registro. Usar
     # o mesmo `name` em prod e dev faz o deploy de uma PR "roubar" o
     # deployment de prod, movendo-o pro pool dev e zerando o schedule (ver
-    # issue de colisão de nomes). O sufixo `-dev` garante que cada ambiente
+    # issue de colisão de nomes). O prefixo `dev-` garante que cada ambiente
     # tenha seu próprio registro, sem nunca competir pelo mesmo pool.
-    deployment_name = f"{flow_name}-dev" if is_dev else flow_name
+    deployment_name = f"dev-{flow_name}" if is_dev else flow_name
 
     schedules = getattr(flow, "deploy_schedules", None)
     if is_dev:

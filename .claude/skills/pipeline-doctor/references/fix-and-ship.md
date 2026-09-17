@@ -76,13 +76,13 @@ Get the exact deployment name from
 `scripts/deployments.py` (the `DEPLOYMENT` column) — `run_deployment` wants
 `<flow>/<deployment>` and must contain exactly one `/`.
 
-**The dev deployment name carries a `-dev` suffix** (e.g.
-`some_flow/some_flow_flow-dev`), distinct from the prod one
+**The dev deployment name carries a `dev-` prefix** (e.g.
+`some_flow/dev-some_flow_flow`), distinct from the prod one
 (`some_flow/some_flow_flow`) — `deploy_flows.py` gives each environment its
 own deployment record so a PR's dev deploy never overwrites prod's (they
 used to share one name; the dev deploy would silently move that single
 deployment into the dev pool and wipe its schedule). Don't guess the
-`-dev` suffix by hand — always read it from `deployments.py`'s output,
+`dev-` prefix by hand — always read it from `deployments.py`'s output,
 since it's the actual name currently registered, not a value you can
 reliably reconstruct.
 
