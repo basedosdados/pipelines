@@ -33,35 +33,33 @@ _pipeline = CheckThenDownloadPipeline(
 
 
 @flow(name=_pipeline.check_update_flow_name, log_prints=True)
-def us_cfpb_hmda_check_update_flow() -> None:
+def us_cfpb_hmda_check_update() -> None:
     _pipeline.run_check_update()
 
 
 # pyrefly: ignore [missing-attribute]
-us_cfpb_hmda_check_update_flow.deploy_tags = deploy_tags(
+us_cfpb_hmda_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
 # CFPB publica o Snapshot anual ~meados de ano; sonda alguns dias por mês
 # entre mar-ago (mesmo cron do flow antigo) — o check_for_update é barato
 # (streaming, poucos KB), então roda com folga.
 # pyrefly: ignore [missing-attribute]
-us_cfpb_hmda_check_update_flow.deploy_schedules = [
+us_cfpb_hmda_check_update.deploy_schedules = [
     {"cron": "25 16 8,9,10 3,4,5,6,7,8 *", "timezone": "America/Sao_Paulo"}
 ]
 
 
 @flow(name=_pipeline.download_flow_name, log_prints=True)
-def us_cfpb_hmda_download_flow(download_params: dict) -> None:
+def us_cfpb_hmda_download(download_params: dict) -> None:
     _pipeline.run_download(download_params)
 
 
 # pyrefly: ignore [missing-attribute]
-us_cfpb_hmda_download_flow.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.DOWNLOAD
-)
+us_cfpb_hmda_download.deploy_tags = deploy_tags(DATASET_ID, Etapa.DOWNLOAD)
 # Reconstrói todo o histórico (FIRST_YEAR..max_year) a cada run — vários GB
 # por ano; mesmo `job_variables` do flow monolítico antigo, agora isolado
 # só nesta etapa (check_update não precisa dessa memória).
 # pyrefly: ignore [missing-attribute]
-us_cfpb_hmda_download_flow.job_variables = {"memory": "8Gi"}
-_pipeline.download_deployment = us_cfpb_hmda_download_flow.fn.__name__
+us_cfpb_hmda_download.job_variables = {"memory": "8Gi"}
+_pipeline.download_deployment = us_cfpb_hmda_download.fn.__name__

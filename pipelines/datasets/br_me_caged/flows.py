@@ -37,13 +37,13 @@ _microdados_movimentacao_pipeline = make_pipeline(
     name=_microdados_movimentacao_pipeline.check_update_flow_name,
     log_prints=True,
 )
-def br_me_caged_microdados_movimentacao_check_update_flow() -> None:
+def br_me_caged_microdados_movimentacao_check_update() -> None:
     _microdados_movimentacao_pipeline.run_check_update()
 
 
 # pyrefly: ignore [missing-attribute]
-br_me_caged_microdados_movimentacao_check_update_flow.deploy_tags = (
-    deploy_tags(DATASET_ID, Etapa.CHECK_UPDATE)
+br_me_caged_microdados_movimentacao_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE
 )
 
 
@@ -51,18 +51,18 @@ br_me_caged_microdados_movimentacao_check_update_flow.deploy_tags = (
     name=_microdados_movimentacao_pipeline.download_flow_name,
     log_prints=True,
 )
-def br_me_caged_microdados_movimentacao_download_flow(
+def br_me_caged_microdados_movimentacao_download(
     download_params: dict,
 ) -> None:
     _microdados_movimentacao_pipeline.run_download(download_params)
 
 
 # pyrefly: ignore [missing-attribute]
-br_me_caged_microdados_movimentacao_download_flow.deploy_tags = deploy_tags(
+br_me_caged_microdados_movimentacao_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.DOWNLOAD
 )
 _microdados_movimentacao_pipeline.download_deployment = (
-    br_me_caged_microdados_movimentacao_download_flow.fn.__name__
+    br_me_caged_microdados_movimentacao_download.fn.__name__
 )
 
 
@@ -81,13 +81,13 @@ _microdados_movimentacao_fora_prazo_pipeline = make_pipeline(
     name=_microdados_movimentacao_fora_prazo_pipeline.check_update_flow_name,
     log_prints=True,
 )
-def br_me_caged_microdados_movimentacao_fora_prazo_check_update_flow() -> None:
+def br_me_caged_microdados_movimentacao_fora_prazo_check_update() -> None:
     _microdados_movimentacao_fora_prazo_pipeline.run_check_update()
 
 
 # pyrefly: ignore [missing-attribute]
-br_me_caged_microdados_movimentacao_fora_prazo_check_update_flow.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+br_me_caged_microdados_movimentacao_fora_prazo_check_update.deploy_tags = (
+    deploy_tags(DATASET_ID, Etapa.CHECK_UPDATE)
 )
 
 
@@ -95,18 +95,18 @@ br_me_caged_microdados_movimentacao_fora_prazo_check_update_flow.deploy_tags = d
     name=_microdados_movimentacao_fora_prazo_pipeline.download_flow_name,
     log_prints=True,
 )
-def br_me_caged_microdados_movimentacao_fora_prazo_download_flow(
+def br_me_caged_microdados_movimentacao_fora_prazo_download(
     download_params: dict,
 ) -> None:
     _microdados_movimentacao_fora_prazo_pipeline.run_download(download_params)
 
 
 # pyrefly: ignore [missing-attribute]
-br_me_caged_microdados_movimentacao_fora_prazo_download_flow.deploy_tags = (
+br_me_caged_microdados_movimentacao_fora_prazo_download.deploy_tags = (
     deploy_tags(DATASET_ID, Etapa.DOWNLOAD)
 )
 _microdados_movimentacao_fora_prazo_pipeline.download_deployment = (
-    br_me_caged_microdados_movimentacao_fora_prazo_download_flow.fn.__name__
+    br_me_caged_microdados_movimentacao_fora_prazo_download.fn.__name__
 )
 
 
@@ -125,12 +125,12 @@ _microdados_movimentacao_excluida_pipeline = make_pipeline(
     name=_microdados_movimentacao_excluida_pipeline.check_update_flow_name,
     log_prints=True,
 )
-def br_me_caged_microdados_movimentacao_excluida_check_update_flow() -> None:
+def br_me_caged_microdados_movimentacao_excluida_check_update() -> None:
     _microdados_movimentacao_excluida_pipeline.run_check_update()
 
 
 # pyrefly: ignore [missing-attribute]
-br_me_caged_microdados_movimentacao_excluida_check_update_flow.deploy_tags = (
+br_me_caged_microdados_movimentacao_excluida_check_update.deploy_tags = (
     deploy_tags(DATASET_ID, Etapa.CHECK_UPDATE)
 )
 
@@ -139,16 +139,16 @@ br_me_caged_microdados_movimentacao_excluida_check_update_flow.deploy_tags = (
     name=_microdados_movimentacao_excluida_pipeline.download_flow_name,
     log_prints=True,
 )
-def br_me_caged_microdados_movimentacao_excluida_download_flow(
+def br_me_caged_microdados_movimentacao_excluida_download(
     download_params: dict,
 ) -> None:
     _microdados_movimentacao_excluida_pipeline.run_download(download_params)
 
 
 # pyrefly: ignore [missing-attribute]
-br_me_caged_microdados_movimentacao_excluida_download_flow.deploy_tags = (
+br_me_caged_microdados_movimentacao_excluida_download.deploy_tags = (
     deploy_tags(DATASET_ID, Etapa.DOWNLOAD)
 )
 _microdados_movimentacao_excluida_pipeline.download_deployment = (
-    br_me_caged_microdados_movimentacao_excluida_download_flow.fn.__name__
+    br_me_caged_microdados_movimentacao_excluida_download.fn.__name__
 )

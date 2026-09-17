@@ -37,12 +37,12 @@ _informacao_consolidada_pipeline = CheckThenDownloadPipeline(
     name=_informacao_consolidada_pipeline.check_update_flow_name,
     log_prints=True,
 )
-def br_ans_beneficiario_informacao_consolidada_check_update_flow() -> None:
+def br_ans_beneficiario_informacao_consolidada_check_update() -> None:
     _informacao_consolidada_pipeline.run_check_update()
 
 
 # pyrefly: ignore [missing-attribute]
-br_ans_beneficiario_informacao_consolidada_check_update_flow.deploy_tags = (
+br_ans_beneficiario_informacao_consolidada_check_update.deploy_tags = (
     deploy_tags(DATASET_ID, Etapa.CHECK_UPDATE)
 )
 
@@ -51,24 +51,24 @@ br_ans_beneficiario_informacao_consolidada_check_update_flow.deploy_tags = (
     name=_informacao_consolidada_pipeline.download_flow_name,
     log_prints=True,
 )
-def br_ans_beneficiario_informacao_consolidada_download_flow(
+def br_ans_beneficiario_informacao_consolidada_download(
     download_params: dict,
 ) -> None:
     _informacao_consolidada_pipeline.run_download(download_params)
 
 
 # pyrefly: ignore [missing-attribute]
-br_ans_beneficiario_informacao_consolidada_download_flow.deploy_tags = (
-    deploy_tags(DATASET_ID, Etapa.DOWNLOAD)
+br_ans_beneficiario_informacao_consolidada_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.DOWNLOAD
 )
 # Pico medido em produção após otimizar parquet_partition (category dtype +
 # del/gc.collect() por estado): ~1.78Gi. ~1.7x de margem sobre esse valor —
 # mesmo tier do flow antigo, já que o download pesado (crawler_ans) continua
 # acontecendo aqui.
 # pyrefly: ignore [missing-attribute]
-br_ans_beneficiario_informacao_consolidada_download_flow.job_variables = {
+br_ans_beneficiario_informacao_consolidada_download.job_variables = {
     "memory": "3Gi"
 }
 _informacao_consolidada_pipeline.download_deployment = (
-    br_ans_beneficiario_informacao_consolidada_download_flow.fn.__name__
+    br_ans_beneficiario_informacao_consolidada_download.fn.__name__
 )

@@ -129,15 +129,16 @@ def deployment_name(
     `mat_test` é genérico (um deployment só, compartilhado por todos os
     datasets, ver `pipelines/utils/metadata/flows.py`) — nome fixo. As
     outras etapas seguem o padrão de `@flow(name="<etapa>: <dataset_id>")`
-    (ver `_flow_name`) numa função `<etapa>_flow` — default de
-    `deployment` quando não informado.
+    (ver `_flow_name`) numa função `<etapa>` (sem sufixo `_flow` — ver
+    `pipelines/datasets/br_ibge_ipca/flows.py`) — default de `deployment`
+    quando não informado.
 
     `deployment`: sobrescreve a segunda metade (depois da barra) quando a
-    variável do flow não se chama literalmente `<etapa>_flow`. Necessário
+    variável do flow não se chama literalmente `<etapa>`. Necessário
     quando vários datasets/pilotos compartilham o mesmo arquivo
     `flows.py` — `deploy_flows.py` descobre flows pelo nome da variável
     no módulo (`vars(module)`), então duas pipelines no mesmo arquivo não
-    podem ter as duas uma variável `check_update_flow` (a segunda
+    podem ter as duas uma variável `check_update` (a segunda
     sobrescreveria a primeira no namespace do módulo, e o
     `deploy_flows.py` nunca veria a primeira). Cada uma precisa de um
     nome de variável próprio, e esse nome precisa bater com o que foi de
@@ -145,7 +146,7 @@ def deployment_name(
     """
     if etapa == Etapa.MAT_TEST:
         return "mat_test/mat_test_flow"
-    return f"{_flow_name(dataset_id, etapa)}/{deployment or f'{etapa}_flow'}"
+    return f"{_flow_name(dataset_id, etapa)}/{deployment or str(etapa)}"
 
 
 def check_update_and_dispatch(
@@ -183,7 +184,7 @@ def check_update_and_dispatch(
 
     `next_deployment` repassa pro `deployment_name()` — só precisa ser
     informado quando a variável do flow de `next_etapa` não se chama
-    literalmente `<etapa>_flow` (ver docstring de `deployment_name`).
+    literalmente `<etapa>` (ver docstring de `deployment_name`).
 
     `poll_source_for_update_task`/`commit_source_update_task` vêm de
     `pipelines.utils.metadata.tasks` — o mesmo par usado pelos datasets
@@ -349,18 +350,18 @@ class CheckThenDownloadPipeline:
         )
 
         @flow(name=_pipeline.check_update_flow_name, log_prints=True)
-        def check_update_flow() -> None:
+        def check_update() -> None:
             _pipeline.run_check_update()
-        check_update_flow.deploy_tags = deploy_tags(DATASET_ID, Etapa.CHECK_UPDATE)
+        check_update.deploy_tags = deploy_tags(DATASET_ID, Etapa.CHECK_UPDATE)
 
         @flow(name=_pipeline.download_flow_name, log_prints=True)
-        def download_flow(download_params: dict) -> None:
+        def download(download_params: dict) -> None:
             _pipeline.run_download(download_params)
-        download_flow.deploy_tags = deploy_tags(DATASET_ID, Etapa.DOWNLOAD)
+        download.deploy_tags = deploy_tags(DATASET_ID, Etapa.DOWNLOAD)
 
     Quando vários pilotos/datasets dividem o mesmo `flows.py` (`deploy_flows.py`
     descobre flows pelo nome da variável no módulo, então duas pipelines no
-    mesmo arquivo não podem ter as duas uma variável `download_flow` —
+    mesmo arquivo não podem ter as duas uma variável `download` —
     ver `pipelines/datasets/test_dataset/flows.py`), seta o
     `download_deployment` **depois** que o flow existir, a partir do
     `__name__` da própria função — não repita o nome como string solta no
@@ -371,10 +372,10 @@ class CheckThenDownloadPipeline:
         _pipeline = CheckThenDownloadPipeline(...)
 
         @flow(name=_pipeline.download_flow_name, log_prints=True)
-        def meu_download_flow(download_params: dict) -> None:
+        def meu_download(download_params: dict) -> None:
             _pipeline.run_download(download_params)
-        meu_download_flow.deploy_tags = deploy_tags(...)
-        _pipeline.download_deployment = meu_download_flow.fn.__name__
+        meu_download.deploy_tags = deploy_tags(...)
+        _pipeline.download_deployment = meu_download.fn.__name__
     """
 
     def __init__(

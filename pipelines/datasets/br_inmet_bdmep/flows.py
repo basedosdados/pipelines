@@ -38,25 +38,25 @@ _microdados_pipeline = CheckThenDownloadPipeline(
 
 
 @flow(name=_microdados_pipeline.check_update_flow_name, log_prints=True)
-def br_inmet_bdmep_microdados_check_update_flow() -> None:
+def br_inmet_bdmep_microdados_check_update() -> None:
     _microdados_pipeline.run_check_update()
 
 
 # pyrefly: ignore [missing-attribute]
-br_inmet_bdmep_microdados_check_update_flow.deploy_tags = deploy_tags(
+br_inmet_bdmep_microdados_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
 
 
 @flow(name=_microdados_pipeline.download_flow_name, log_prints=True)
-def br_inmet_bdmep_microdados_download_flow(download_params: dict) -> None:
+def br_inmet_bdmep_microdados_download(download_params: dict) -> None:
     _microdados_pipeline.run_download(download_params)
 
 
 # pyrefly: ignore [missing-attribute]
-br_inmet_bdmep_microdados_download_flow.deploy_tags = deploy_tags(
+br_inmet_bdmep_microdados_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.DOWNLOAD
 )
 _microdados_pipeline.download_deployment = (
-    br_inmet_bdmep_microdados_download_flow.fn.__name__
+    br_inmet_bdmep_microdados_download.fn.__name__
 )
