@@ -119,10 +119,10 @@ def save_data(table_id: str) -> str:
             )
 
         if table_id == "licitacao_contrato":
-            df_year[["objeto"]] = df_year[["objeto"]].apply(
+            df_year["objeto"] = df_year["objeto"].apply(
                 lambda x: (
                     str(x)
-                    .replace(";", " ")
+                    .replace(";", ",")
                     .replace("\n", " ")
                     .replace("\r", " ")
                 )

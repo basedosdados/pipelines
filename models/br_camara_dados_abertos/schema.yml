@@ -867,6 +867,7 @@ models:
             - id_licitacao
             - id_contrato
             - situacao_contrato
+            - valor_total
             - data_fim_ultima_vigencia
       - not_null_proportion_multiple_columns:
           at_least: 0.05
