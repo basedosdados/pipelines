@@ -3,8 +3,9 @@
 ## Contexto
 
 Microdados do Censo Escolar da Educação Básica, publicados anualmente pelo
-INEP. O conjunto tem três tabelas: `escola`, uma linha por escola; `turma`, uma
-linha por turma; e `dicionario`.
+INEP. O conjunto publica cinco tabelas — `escola`, `turma`, `matricula`,
+`docente` e `dicionario` —, das quais três têm modelo dbt aqui: `escola`, uma
+linha por escola; `turma`, uma linha por turma; e `dicionario`.
 
 A partir de 2025 o INEP passou a distribuir os microdados em arquivos
 separados — Escola, Matrícula, Turma, Docente, Gestor Escolar e Curso Técnico —
@@ -19,10 +20,13 @@ onde antes havia um único arquivo largo (`microdados_ed_basica_2024.csv`, com
 | `code/constants.py` | Constantes da edição: caminhos, URL, arquivos do microdado |
 | `code/utils.py` | Funções do tratamento, em cinco seções: fonte, arquitetura, leitura, montagem e saída |
 | `code/run_local.py` | Orquestrador para execução local |
-| `code/turma_2024.py` | Tratamento da tabela `turma` |
-| `code/main.py` | Tratamento de `turma` a partir do que já está no bucket |
-| `code/join_tables_escola.py` | Junta `escola_2023` e `escola_2024` na `escola` |
-| `code/br_inep_censo_escolar_2024.ipynb` | Tratamento da edição 2024 |
+| `code/turma_2024.py` | Tratamento da `turma`, edição 2024 |
+| `code/main.py` | Tratamento da `turma` de 2021 a 2023, a partir do bucket |
+| `code/join_tables_escola.py` | Junção de `escola_2023` e `escola_2024` na `escola`, já executada |
+| `code/br_inep_censo_escolar_2024.ipynb` | Tratamento da `escola`, edição 2024 |
+
+Os quatro últimos são de edições anteriores. A `turma` está em 2024;
+`escola_2023` e `escola_2024` não existem mais.
 
 As funções de `utils.py` não dependem de estado global: recebem o caminho do
 arquivo e a arquitetura, e devolvem `DataFrame`. Servem tanto a um script de
@@ -55,9 +59,10 @@ desenvolvimento — ao contrário de `bd.read_sql`, que falha na máquina local.
 
 | Comportamento | Tratamento |
 |---|---|
-| A URL de 2025 termina em sublinhado (`microdados_censo_escolar_2025_.zip`), que é a republicação de julho de 2026 | `URL` em `censo_escolar_2025.py` |
+| A URL de 2025 termina em sublinhado (`microdados_censo_escolar_2025_.zip`), que é a republicação de julho de 2026 | `URL`, em `constants.py` |
 | Os arquivos dessa republicação ganharam sufixo `_V2`, e no Gestor Escolar o sufixo veio minúsculo (`_v2`) | `find_csv` procura pelo começo do nome, sem diferenciar caixa |
-| O zip tem 512 MB, e o servidor aceita requisição por faixa | Dá para ler o dicionário de dados e os cabeçalhos sem baixar o arquivo inteiro |
+| O zip tem 512 MB, e o download e a extração são demorados | `prepare_input` pula cada etapa que já está feita |
+| `SG_UF` vem vazio em uma escola de 2025, com o código do município preenchido | `fill_sigla_uf` completa pelos dois primeiros dígitos do código, e a escrita falha se sobrar linha sem partição |
 
 ## A arquitetura descreve todos os anos
 
@@ -71,10 +76,14 @@ ano tratado, e `renames_da_fonte` levanta erro se, ainda assim, um nome de
 origem mapear para dois nomes da Base dos Dados. Sem esse corte a coluna cai no
 nome aposentado e a corrente sai inteiramente nula.
 
-## Colunas sem origem em 2025
+## Colunas preenchidas com nulo
 
-Trinta e oito colunas da tabela não têm coluna correspondente em nenhum dos
-arquivos de 2025 e são preenchidas com nulo. Elas se dividem em três grupos:
+Em 2025, 102 das 455 colunas da tabela saem nulas. Sessenta e quatro delas têm
+cobertura temporal encerrada antes de 2025: são colunas que a tabela guarda de
+anos anteriores.
+
+As outras 38 estão com cobertura corrente e não têm coluna correspondente em
+nenhum dos arquivos de 2025. Dividem-se em três grupos:
 
 - **16 colunas de profissionais** (`profissional_psicologo`,
   `profissional_bibliotecario`, `profissional_tradutor_libras` e as demais
@@ -86,13 +95,13 @@ arquivos de 2025 e são preenchidas com nulo. Elas se dividem em três grupos:
   `IN_ESP_CC`, `IN_ESP_CE`) e as seis `quantidade_matricula_medio_tecnico*`.
 - **5 colunas paradas há mais tempo**: `material_especifico_quilombola`,
   `material_especifico_indigena`, `material_especifico_nao_utiliza`,
-  `programa_brasil_alfabetizado` e `final_semana`. A arquitetura só declara
-  coluna de origem até 2022, e o último ano com valor publicado é 2018 — mesmo
-  assim a cobertura temporal delas segue declarada como corrente.
+  `programa_brasil_alfabetizado` e `final_semana`. A arquitetura declara coluna
+  de origem para elas até 2022 e cobertura temporal corrente, mas o último ano
+  com valor publicado é 2018.
 
-A lista é impressa a cada execução. Vale conferi-la: em 2025 as duas colunas de
-poder público apareciam nela por defeito do tratamento, e não por ausência na
-fonte.
+`run_local.py` imprime a lista a cada execução, separada nesses dois grupos. É
+por ela que se distingue o que a fonte deixou de trazer do que o tratamento
+perdeu no caminho.
 
 ## Verificação de colunas
 
