@@ -219,6 +219,31 @@ def deploy_flow(
         return False, f"  ✗ Falha ao registrar {deployment_name}: {e}"
 
 
+def _positive_int(value: str) -> int:
+    """Valida `--workers` como argparse `type=`.
+
+    `ThreadPoolExecutor(max_workers=...)` levanta `ValueError` não tratado
+    pra qualquer valor <= 0, derrubando o script antes de registrar
+    qualquer flow. Rejeitar aqui, no parse, dá um erro de CLI claro em vez
+    disso.
+
+    Args:
+        value: String recebida da linha de comando.
+
+    Returns:
+        O valor convertido pra `int`.
+
+    Raises:
+        argparse.ArgumentTypeError: Se `value` não for um inteiro positivo.
+    """
+    parsed = int(value)
+    if parsed <= 0:
+        raise argparse.ArgumentTypeError(
+            f"--workers precisa ser um inteiro positivo, recebeu {value!r}"
+        )
+    return parsed
+
+
 def main() -> None:
     """Ponto de entrada da CLI.
 
@@ -251,7 +276,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--workers",
-        type=int,
+        type=_positive_int,
         default=8,
         help="Quantos flows registrar em paralelo (default: 8)",
     )
