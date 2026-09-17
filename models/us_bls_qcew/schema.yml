@@ -1,0 +1,2101 @@
+---
+version: 2
+models:
+  - name: us_bls_qcew__naics_quarterly_national
+    description: >-
+      QCEW NAICS quarterly employment and wage totals at the national level, one row
+      per area, ownership, industry, aggregation level, and size class.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - qtr
+            - area_fips
+            - own_code
+            - industry_code
+            - agglvl_code
+            - size_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - disclosure_code
+            - lq_disclosure_code
+            - lq_qtrly_estabs
+            - lq_month1_emplvl
+            - lq_month2_emplvl
+            - lq_month3_emplvl
+            - lq_total_qtrly_wages
+            - lq_taxable_qtrly_wages
+            - lq_qtrly_contributions
+            - lq_avg_wkly_wage
+            - oty_disclosure_code
+            - oty_qtrly_estabs_chg
+            - oty_qtrly_estabs_pct_chg
+            - oty_month1_emplvl_chg
+            - oty_month1_emplvl_pct_chg
+            - oty_month2_emplvl_chg
+            - oty_month2_emplvl_pct_chg
+            - oty_month3_emplvl_chg
+            - oty_month3_emplvl_pct_chg
+            - oty_total_qtrly_wages_chg
+            - oty_total_qtrly_wages_pct_chg
+            - oty_taxable_qtrly_wages_chg
+            - oty_taxable_qtrly_wages_pct_chg
+            - oty_qtrly_contributions_chg
+            - oty_qtrly_contributions_pct_chg
+            - oty_avg_wkly_wage_chg
+            - oty_avg_wkly_wage_pct_chg
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: qtr
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: area_fips
+        description: >-
+          National area code (U.S. total and special U.S.-wide aggregates)
+        tests: [not_null]
+      - name: own_code
+        description: >-
+          Ownership code identifying the sector (private, federal, state, local government)
+        tests: [not_null]
+      - name: industry_code
+        description: >-
+          Industry code (NAICS, supersector, or aggregate pseudo-code)
+        tests: [not_null]
+      - name: agglvl_code
+        description: >-
+          Aggregation-level code indicating the geographic and industry summarization
+          of the row
+        tests: [not_null]
+      - name: size_code
+        description: >-
+          Establishment size-class code, 0 for all sizes
+        tests: [not_null]
+      - name: disclosure_code
+        description: >-
+          Disclosure flag: N when the figure is not disclosable, blank otherwise
+      - name: qtrly_estabs
+        description: >-
+          Count of establishments in the quarter
+      - name: month1_emplvl
+        description: >-
+          Employment level in the first month of the quarter
+      - name: month2_emplvl
+        description: >-
+          Employment level in the second month of the quarter
+      - name: month3_emplvl
+        description: >-
+          Employment level in the third month of the quarter
+      - name: total_qtrly_wages
+        description: >-
+          Total wages paid in the quarter
+      - name: taxable_qtrly_wages
+        description: >-
+          Wages subject to unemployment-insurance taxation in the quarter
+      - name: qtrly_contributions
+        description: >-
+          Unemployment-insurance contributions in the quarter
+      - name: avg_wkly_wage
+        description: >-
+          Average weekly wage in the quarter
+      - name: lq_disclosure_code
+        description: >-
+          Disclosure flag for the location quotient: N when not disclosable, blank
+          otherwise
+      - name: lq_qtrly_estabs
+        description: >-
+          Location quotient of the establishment count relative to the U.S., rounded
+          to hundredths
+      - name: lq_month1_emplvl
+        description: >-
+          Location quotient of first-month employment relative to the U.S., rounded
+          to hundredths
+      - name: lq_month2_emplvl
+        description: >-
+          Location quotient of second-month employment relative to the U.S., rounded
+          to hundredths
+      - name: lq_month3_emplvl
+        description: >-
+          Location quotient of third-month employment relative to the U.S., rounded
+          to hundredths
+      - name: lq_total_qtrly_wages
+        description: >-
+          Location quotient of total quarterly wages relative to the U.S., rounded
+          to hundredths
+      - name: lq_taxable_qtrly_wages
+        description: >-
+          Location quotient of taxable quarterly wages relative to the U.S., rounded
+          to hundredths
+      - name: lq_qtrly_contributions
+        description: >-
+          Location quotient of quarterly contributions relative to the U.S., rounded
+          to hundredths
+      - name: lq_avg_wkly_wage
+        description: >-
+          Location quotient of the average weekly wage relative to the U.S., rounded
+          to hundredths
+      - name: oty_disclosure_code
+        description: >-
+          Disclosure flag for the over-the-year change: N when not disclosable, blank
+          otherwise
+      - name: oty_qtrly_estabs_chg
+        description: >-
+          Over-the-year change in the establishment count
+      - name: oty_qtrly_estabs_pct_chg
+        description: >-
+          Over-the-year percent change in the establishment count, rounded to tenths
+      - name: oty_month1_emplvl_chg
+        description: >-
+          Over-the-year change in first-month employment
+      - name: oty_month1_emplvl_pct_chg
+        description: >-
+          Over-the-year percent change in first-month employment, rounded to tenths
+      - name: oty_month2_emplvl_chg
+        description: >-
+          Over-the-year change in second-month employment
+      - name: oty_month2_emplvl_pct_chg
+        description: >-
+          Over-the-year percent change in second-month employment, rounded to tenths
+      - name: oty_month3_emplvl_chg
+        description: >-
+          Over-the-year change in third-month employment
+      - name: oty_month3_emplvl_pct_chg
+        description: >-
+          Over-the-year percent change in third-month employment, rounded to tenths
+      - name: oty_total_qtrly_wages_chg
+        description: >-
+          Over-the-year change in total quarterly wages
+      - name: oty_total_qtrly_wages_pct_chg
+        description: >-
+          Over-the-year percent change in total quarterly wages, rounded to tenths
+      - name: oty_taxable_qtrly_wages_chg
+        description: >-
+          Over-the-year change in taxable quarterly wages
+      - name: oty_taxable_qtrly_wages_pct_chg
+        description: >-
+          Over-the-year percent change in taxable quarterly wages, rounded to tenths
+      - name: oty_qtrly_contributions_chg
+        description: >-
+          Over-the-year change in quarterly contributions
+      - name: oty_qtrly_contributions_pct_chg
+        description: >-
+          Over-the-year percent change in quarterly contributions, rounded to tenths
+      - name: oty_avg_wkly_wage_chg
+        description: >-
+          Over-the-year change in the average weekly wage
+      - name: oty_avg_wkly_wage_pct_chg
+        description: >-
+          Over-the-year percent change in the average weekly wage, rounded to tenths
+  - name: us_bls_qcew__naics_quarterly_state
+    description: >-
+      QCEW NAICS quarterly employment and wage totals at the state level, one row
+      per area, ownership, industry, aggregation level, and size class.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - qtr
+            - area_fips
+            - own_code
+            - industry_code
+            - agglvl_code
+            - size_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - disclosure_code
+            - lq_disclosure_code
+            - lq_qtrly_estabs
+            - lq_month1_emplvl
+            - lq_month2_emplvl
+            - lq_month3_emplvl
+            - lq_total_qtrly_wages
+            - lq_taxable_qtrly_wages
+            - lq_qtrly_contributions
+            - lq_avg_wkly_wage
+            - oty_disclosure_code
+            - oty_qtrly_estabs_chg
+            - oty_qtrly_estabs_pct_chg
+            - oty_month1_emplvl_chg
+            - oty_month1_emplvl_pct_chg
+            - oty_month2_emplvl_chg
+            - oty_month2_emplvl_pct_chg
+            - oty_month3_emplvl_chg
+            - oty_month3_emplvl_pct_chg
+            - oty_total_qtrly_wages_chg
+            - oty_total_qtrly_wages_pct_chg
+            - oty_taxable_qtrly_wages_chg
+            - oty_taxable_qtrly_wages_pct_chg
+            - oty_qtrly_contributions_chg
+            - oty_qtrly_contributions_pct_chg
+            - oty_avg_wkly_wage_chg
+            - oty_avg_wkly_wage_pct_chg
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: qtr
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: area_fips
+        description: >-
+          Statewide area code (SS000)
+        tests: [not_null]
+      - name: id_state
+        description: >-
+          State FIPS code (2-digit)
+      - name: own_code
+        description: >-
+          Ownership code identifying the sector (private, federal, state, local government)
+        tests: [not_null]
+      - name: industry_code
+        description: >-
+          Industry code (NAICS, supersector, or aggregate pseudo-code)
+        tests: [not_null]
+      - name: agglvl_code
+        description: >-
+          Aggregation-level code indicating the geographic and industry summarization
+          of the row
+        tests: [not_null]
+      - name: size_code
+        description: >-
+          Establishment size-class code, 0 for all sizes
+        tests: [not_null]
+      - name: disclosure_code
+        description: >-
+          Disclosure flag: N when the figure is not disclosable, blank otherwise
+      - name: qtrly_estabs
+        description: >-
+          Count of establishments in the quarter
+      - name: month1_emplvl
+        description: >-
+          Employment level in the first month of the quarter
+      - name: month2_emplvl
+        description: >-
+          Employment level in the second month of the quarter
+      - name: month3_emplvl
+        description: >-
+          Employment level in the third month of the quarter
+      - name: total_qtrly_wages
+        description: >-
+          Total wages paid in the quarter
+      - name: taxable_qtrly_wages
+        description: >-
+          Wages subject to unemployment-insurance taxation in the quarter
+      - name: qtrly_contributions
+        description: >-
+          Unemployment-insurance contributions in the quarter
+      - name: avg_wkly_wage
+        description: >-
+          Average weekly wage in the quarter
+      - name: lq_disclosure_code
+        description: >-
+          Disclosure flag for the location quotient: N when not disclosable, blank
+          otherwise
+      - name: lq_qtrly_estabs
+        description: >-
+          Location quotient of the establishment count relative to the U.S., rounded
+          to hundredths
+      - name: lq_month1_emplvl
+        description: >-
+          Location quotient of first-month employment relative to the U.S., rounded
+          to hundredths
+      - name: lq_month2_emplvl
+        description: >-
+          Location quotient of second-month employment relative to the U.S., rounded
+          to hundredths
+      - name: lq_month3_emplvl
+        description: >-
+          Location quotient of third-month employment relative to the U.S., rounded
+          to hundredths
+      - name: lq_total_qtrly_wages
+        description: >-
+          Location quotient of total quarterly wages relative to the U.S., rounded
+          to hundredths
+      - name: lq_taxable_qtrly_wages
+        description: >-
+          Location quotient of taxable quarterly wages relative to the U.S., rounded
+          to hundredths
+      - name: lq_qtrly_contributions
+        description: >-
+          Location quotient of quarterly contributions relative to the U.S., rounded
+          to hundredths
+      - name: lq_avg_wkly_wage
+        description: >-
+          Location quotient of the average weekly wage relative to the U.S., rounded
+          to hundredths
+      - name: oty_disclosure_code
+        description: >-
+          Disclosure flag for the over-the-year change: N when not disclosable, blank
+          otherwise
+      - name: oty_qtrly_estabs_chg
+        description: >-
+          Over-the-year change in the establishment count
+      - name: oty_qtrly_estabs_pct_chg
+        description: >-
+          Over-the-year percent change in the establishment count, rounded to tenths
+      - name: oty_month1_emplvl_chg
+        description: >-
+          Over-the-year change in first-month employment
+      - name: oty_month1_emplvl_pct_chg
+        description: >-
+          Over-the-year percent change in first-month employment, rounded to tenths
+      - name: oty_month2_emplvl_chg
+        description: >-
+          Over-the-year change in second-month employment
+      - name: oty_month2_emplvl_pct_chg
+        description: >-
+          Over-the-year percent change in second-month employment, rounded to tenths
+      - name: oty_month3_emplvl_chg
+        description: >-
+          Over-the-year change in third-month employment
+      - name: oty_month3_emplvl_pct_chg
+        description: >-
+          Over-the-year percent change in third-month employment, rounded to tenths
+      - name: oty_total_qtrly_wages_chg
+        description: >-
+          Over-the-year change in total quarterly wages
+      - name: oty_total_qtrly_wages_pct_chg
+        description: >-
+          Over-the-year percent change in total quarterly wages, rounded to tenths
+      - name: oty_taxable_qtrly_wages_chg
+        description: >-
+          Over-the-year change in taxable quarterly wages
+      - name: oty_taxable_qtrly_wages_pct_chg
+        description: >-
+          Over-the-year percent change in taxable quarterly wages, rounded to tenths
+      - name: oty_qtrly_contributions_chg
+        description: >-
+          Over-the-year change in quarterly contributions
+      - name: oty_qtrly_contributions_pct_chg
+        description: >-
+          Over-the-year percent change in quarterly contributions, rounded to tenths
+      - name: oty_avg_wkly_wage_chg
+        description: >-
+          Over-the-year change in the average weekly wage
+      - name: oty_avg_wkly_wage_pct_chg
+        description: >-
+          Over-the-year percent change in the average weekly wage, rounded to tenths
+  - name: us_bls_qcew__naics_quarterly_county
+    description: >-
+      QCEW NAICS quarterly employment and wage totals at the county level, one row
+      per area, ownership, industry, aggregation level, and size class.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - qtr
+            - area_fips
+            - own_code
+            - industry_code
+            - agglvl_code
+            - size_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - disclosure_code
+            - lq_disclosure_code
+            - lq_qtrly_estabs
+            - lq_month1_emplvl
+            - lq_month2_emplvl
+            - lq_month3_emplvl
+            - lq_total_qtrly_wages
+            - lq_taxable_qtrly_wages
+            - lq_qtrly_contributions
+            - lq_avg_wkly_wage
+            - oty_disclosure_code
+            - oty_qtrly_estabs_chg
+            - oty_qtrly_estabs_pct_chg
+            - oty_month1_emplvl_chg
+            - oty_month1_emplvl_pct_chg
+            - oty_month2_emplvl_chg
+            - oty_month2_emplvl_pct_chg
+            - oty_month3_emplvl_chg
+            - oty_month3_emplvl_pct_chg
+            - oty_total_qtrly_wages_chg
+            - oty_total_qtrly_wages_pct_chg
+            - oty_taxable_qtrly_wages_chg
+            - oty_taxable_qtrly_wages_pct_chg
+            - oty_qtrly_contributions_chg
+            - oty_qtrly_contributions_pct_chg
+            - oty_avg_wkly_wage_chg
+            - oty_avg_wkly_wage_pct_chg
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: qtr
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: area_fips
+        description: >-
+          County FIPS code (5-digit)
+        tests: [not_null]
+      - name: own_code
+        description: >-
+          Ownership code identifying the sector (private, federal, state, local government)
+        tests: [not_null]
+      - name: industry_code
+        description: >-
+          Industry code (NAICS, supersector, or aggregate pseudo-code)
+        tests: [not_null]
+      - name: agglvl_code
+        description: >-
+          Aggregation-level code indicating the geographic and industry summarization
+          of the row
+        tests: [not_null]
+      - name: size_code
+        description: >-
+          Establishment size-class code, 0 for all sizes
+        tests: [not_null]
+      - name: disclosure_code
+        description: >-
+          Disclosure flag: N when the figure is not disclosable, blank otherwise
+      - name: qtrly_estabs
+        description: >-
+          Count of establishments in the quarter
+      - name: month1_emplvl
+        description: >-
+          Employment level in the first month of the quarter
+      - name: month2_emplvl
+        description: >-
+          Employment level in the second month of the quarter
+      - name: month3_emplvl
+        description: >-
+          Employment level in the third month of the quarter
+      - name: total_qtrly_wages
+        description: >-
+          Total wages paid in the quarter
+      - name: taxable_qtrly_wages
+        description: >-
+          Wages subject to unemployment-insurance taxation in the quarter
+      - name: qtrly_contributions
+        description: >-
+          Unemployment-insurance contributions in the quarter
+      - name: avg_wkly_wage
+        description: >-
+          Average weekly wage in the quarter
+      - name: lq_disclosure_code
+        description: >-
+          Disclosure flag for the location quotient: N when not disclosable, blank
+          otherwise
+      - name: lq_qtrly_estabs
+        description: >-
+          Location quotient of the establishment count relative to the U.S., rounded
+          to hundredths
+      - name: lq_month1_emplvl
+        description: >-
+          Location quotient of first-month employment relative to the U.S., rounded
+          to hundredths
+      - name: lq_month2_emplvl
+        description: >-
+          Location quotient of second-month employment relative to the U.S., rounded
+          to hundredths
+      - name: lq_month3_emplvl
+        description: >-
+          Location quotient of third-month employment relative to the U.S., rounded
+          to hundredths
+      - name: lq_total_qtrly_wages
+        description: >-
+          Location quotient of total quarterly wages relative to the U.S., rounded
+          to hundredths
+      - name: lq_taxable_qtrly_wages
+        description: >-
+          Location quotient of taxable quarterly wages relative to the U.S., rounded
+          to hundredths
+      - name: lq_qtrly_contributions
+        description: >-
+          Location quotient of quarterly contributions relative to the U.S., rounded
+          to hundredths
+      - name: lq_avg_wkly_wage
+        description: >-
+          Location quotient of the average weekly wage relative to the U.S., rounded
+          to hundredths
+      - name: oty_disclosure_code
+        description: >-
+          Disclosure flag for the over-the-year change: N when not disclosable, blank
+          otherwise
+      - name: oty_qtrly_estabs_chg
+        description: >-
+          Over-the-year change in the establishment count
+      - name: oty_qtrly_estabs_pct_chg
+        description: >-
+          Over-the-year percent change in the establishment count, rounded to tenths
+      - name: oty_month1_emplvl_chg
+        description: >-
+          Over-the-year change in first-month employment
+      - name: oty_month1_emplvl_pct_chg
+        description: >-
+          Over-the-year percent change in first-month employment, rounded to tenths
+      - name: oty_month2_emplvl_chg
+        description: >-
+          Over-the-year change in second-month employment
+      - name: oty_month2_emplvl_pct_chg
+        description: >-
+          Over-the-year percent change in second-month employment, rounded to tenths
+      - name: oty_month3_emplvl_chg
+        description: >-
+          Over-the-year change in third-month employment
+      - name: oty_month3_emplvl_pct_chg
+        description: >-
+          Over-the-year percent change in third-month employment, rounded to tenths
+      - name: oty_total_qtrly_wages_chg
+        description: >-
+          Over-the-year change in total quarterly wages
+      - name: oty_total_qtrly_wages_pct_chg
+        description: >-
+          Over-the-year percent change in total quarterly wages, rounded to tenths
+      - name: oty_taxable_qtrly_wages_chg
+        description: >-
+          Over-the-year change in taxable quarterly wages
+      - name: oty_taxable_qtrly_wages_pct_chg
+        description: >-
+          Over-the-year percent change in taxable quarterly wages, rounded to tenths
+      - name: oty_qtrly_contributions_chg
+        description: >-
+          Over-the-year change in quarterly contributions
+      - name: oty_qtrly_contributions_pct_chg
+        description: >-
+          Over-the-year percent change in quarterly contributions, rounded to tenths
+      - name: oty_avg_wkly_wage_chg
+        description: >-
+          Over-the-year change in the average weekly wage
+      - name: oty_avg_wkly_wage_pct_chg
+        description: >-
+          Over-the-year percent change in the average weekly wage, rounded to tenths
+  - name: us_bls_qcew__naics_quarterly_metro
+    description: >-
+      QCEW NAICS quarterly employment and wage totals at the metro level, one row
+      per area, ownership, industry, aggregation level, and size class.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - qtr
+            - area_fips
+            - own_code
+            - industry_code
+            - agglvl_code
+            - size_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - disclosure_code
+            - lq_disclosure_code
+            - lq_qtrly_estabs
+            - lq_month1_emplvl
+            - lq_month2_emplvl
+            - lq_month3_emplvl
+            - lq_total_qtrly_wages
+            - lq_taxable_qtrly_wages
+            - lq_qtrly_contributions
+            - lq_avg_wkly_wage
+            - oty_disclosure_code
+            - oty_qtrly_estabs_chg
+            - oty_qtrly_estabs_pct_chg
+            - oty_month1_emplvl_chg
+            - oty_month1_emplvl_pct_chg
+            - oty_month2_emplvl_chg
+            - oty_month2_emplvl_pct_chg
+            - oty_month3_emplvl_chg
+            - oty_month3_emplvl_pct_chg
+            - oty_total_qtrly_wages_chg
+            - oty_total_qtrly_wages_pct_chg
+            - oty_taxable_qtrly_wages_chg
+            - oty_taxable_qtrly_wages_pct_chg
+            - oty_qtrly_contributions_chg
+            - oty_qtrly_contributions_pct_chg
+            - oty_avg_wkly_wage_chg
+            - oty_avg_wkly_wage_pct_chg
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: qtr
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: area_fips
+        description: >-
+          QCEW metropolitan-area code (MSA, CSA, or Micropolitan)
+        tests: [not_null]
+      - name: own_code
+        description: >-
+          Ownership code identifying the sector (private, federal, state, local government)
+        tests: [not_null]
+      - name: industry_code
+        description: >-
+          Industry code (NAICS, supersector, or aggregate pseudo-code)
+        tests: [not_null]
+      - name: agglvl_code
+        description: >-
+          Aggregation-level code indicating the geographic and industry summarization
+          of the row
+        tests: [not_null]
+      - name: size_code
+        description: >-
+          Establishment size-class code, 0 for all sizes
+        tests: [not_null]
+      - name: disclosure_code
+        description: >-
+          Disclosure flag: N when the figure is not disclosable, blank otherwise
+      - name: qtrly_estabs
+        description: >-
+          Count of establishments in the quarter
+      - name: month1_emplvl
+        description: >-
+          Employment level in the first month of the quarter
+      - name: month2_emplvl
+        description: >-
+          Employment level in the second month of the quarter
+      - name: month3_emplvl
+        description: >-
+          Employment level in the third month of the quarter
+      - name: total_qtrly_wages
+        description: >-
+          Total wages paid in the quarter
+      - name: taxable_qtrly_wages
+        description: >-
+          Wages subject to unemployment-insurance taxation in the quarter
+      - name: qtrly_contributions
+        description: >-
+          Unemployment-insurance contributions in the quarter
+      - name: avg_wkly_wage
+        description: >-
+          Average weekly wage in the quarter
+      - name: lq_disclosure_code
+        description: >-
+          Disclosure flag for the location quotient: N when not disclosable, blank
+          otherwise
+      - name: lq_qtrly_estabs
+        description: >-
+          Location quotient of the establishment count relative to the U.S., rounded
+          to hundredths
+      - name: lq_month1_emplvl
+        description: >-
+          Location quotient of first-month employment relative to the U.S., rounded
+          to hundredths
+      - name: lq_month2_emplvl
+        description: >-
+          Location quotient of second-month employment relative to the U.S., rounded
+          to hundredths
+      - name: lq_month3_emplvl
+        description: >-
+          Location quotient of third-month employment relative to the U.S., rounded
+          to hundredths
+      - name: lq_total_qtrly_wages
+        description: >-
+          Location quotient of total quarterly wages relative to the U.S., rounded
+          to hundredths
+      - name: lq_taxable_qtrly_wages
+        description: >-
+          Location quotient of taxable quarterly wages relative to the U.S., rounded
+          to hundredths
+      - name: lq_qtrly_contributions
+        description: >-
+          Location quotient of quarterly contributions relative to the U.S., rounded
+          to hundredths
+      - name: lq_avg_wkly_wage
+        description: >-
+          Location quotient of the average weekly wage relative to the U.S., rounded
+          to hundredths
+      - name: oty_disclosure_code
+        description: >-
+          Disclosure flag for the over-the-year change: N when not disclosable, blank
+          otherwise
+      - name: oty_qtrly_estabs_chg
+        description: >-
+          Over-the-year change in the establishment count
+      - name: oty_qtrly_estabs_pct_chg
+        description: >-
+          Over-the-year percent change in the establishment count, rounded to tenths
+      - name: oty_month1_emplvl_chg
+        description: >-
+          Over-the-year change in first-month employment
+      - name: oty_month1_emplvl_pct_chg
+        description: >-
+          Over-the-year percent change in first-month employment, rounded to tenths
+      - name: oty_month2_emplvl_chg
+        description: >-
+          Over-the-year change in second-month employment
+      - name: oty_month2_emplvl_pct_chg
+        description: >-
+          Over-the-year percent change in second-month employment, rounded to tenths
+      - name: oty_month3_emplvl_chg
+        description: >-
+          Over-the-year change in third-month employment
+      - name: oty_month3_emplvl_pct_chg
+        description: >-
+          Over-the-year percent change in third-month employment, rounded to tenths
+      - name: oty_total_qtrly_wages_chg
+        description: >-
+          Over-the-year change in total quarterly wages
+      - name: oty_total_qtrly_wages_pct_chg
+        description: >-
+          Over-the-year percent change in total quarterly wages, rounded to tenths
+      - name: oty_taxable_qtrly_wages_chg
+        description: >-
+          Over-the-year change in taxable quarterly wages
+      - name: oty_taxable_qtrly_wages_pct_chg
+        description: >-
+          Over-the-year percent change in taxable quarterly wages, rounded to tenths
+      - name: oty_qtrly_contributions_chg
+        description: >-
+          Over-the-year change in quarterly contributions
+      - name: oty_qtrly_contributions_pct_chg
+        description: >-
+          Over-the-year percent change in quarterly contributions, rounded to tenths
+      - name: oty_avg_wkly_wage_chg
+        description: >-
+          Over-the-year change in the average weekly wage
+      - name: oty_avg_wkly_wage_pct_chg
+        description: >-
+          Over-the-year percent change in the average weekly wage, rounded to tenths
+  - name: us_bls_qcew__naics_annual_national
+    description: >-
+      QCEW NAICS annual-average employment and wage totals at the national level,
+      one row per area, ownership, industry, aggregation level, and size class.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - area_fips
+            - own_code
+            - industry_code
+            - agglvl_code
+            - size_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - disclosure_code
+            - lq_disclosure_code
+            - lq_annual_avg_estabs
+            - lq_annual_avg_emplvl
+            - lq_total_annual_wages
+            - lq_taxable_annual_wages
+            - lq_annual_contributions
+            - lq_annual_avg_wkly_wage
+            - lq_avg_annual_pay
+            - oty_disclosure_code
+            - oty_annual_avg_estabs_chg
+            - oty_annual_avg_estabs_pct_chg
+            - oty_annual_avg_emplvl_chg
+            - oty_annual_avg_emplvl_pct_chg
+            - oty_total_annual_wages_chg
+            - oty_total_annual_wages_pct_chg
+            - oty_taxable_annual_wages_chg
+            - oty_taxable_annual_wages_pct_chg
+            - oty_annual_contributions_chg
+            - oty_annual_contributions_pct_chg
+            - oty_annual_avg_wkly_wage_chg
+            - oty_annual_avg_wkly_wage_pct_chg
+            - oty_avg_annual_pay_chg
+            - oty_avg_annual_pay_pct_chg
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: area_fips
+        description: >-
+          National area code (U.S. total and special U.S.-wide aggregates)
+        tests: [not_null]
+      - name: own_code
+        description: >-
+          Ownership code identifying the sector (private, federal, state, local government)
+        tests: [not_null]
+      - name: industry_code
+        description: >-
+          Industry code (NAICS, supersector, or aggregate pseudo-code)
+        tests: [not_null]
+      - name: agglvl_code
+        description: >-
+          Aggregation-level code indicating the geographic and industry summarization
+          of the row
+        tests: [not_null]
+      - name: size_code
+        description: >-
+          Establishment size-class code, 0 for all sizes
+        tests: [not_null]
+      - name: disclosure_code
+        description: >-
+          Disclosure flag: N when the figure is not disclosable, blank otherwise
+      - name: annual_avg_estabs
+        description: >-
+          Annual average of quarterly establishment counts
+      - name: annual_avg_emplvl
+        description: >-
+          Annual average of monthly employment levels
+      - name: total_annual_wages
+        description: >-
+          Sum of the four quarters' total wages for the year
+      - name: taxable_annual_wages
+        description: >-
+          Sum of the four quarters' taxable wages for the year
+      - name: annual_contributions
+        description: >-
+          Sum of the four quarters' unemployment-insurance contributions for the year
+      - name: annual_avg_wkly_wage
+        description: >-
+          Average weekly wage based on the year's employment and total wages
+      - name: avg_annual_pay
+        description: >-
+          Average annual pay based on the year's employment and wage levels
+      - name: lq_disclosure_code
+        description: >-
+          Disclosure flag for the location quotient: N when not disclosable, blank
+          otherwise
+      - name: lq_annual_avg_estabs
+        description: >-
+          Location quotient of the annual average establishment count relative to
+          the U.S., rounded to hundredths
+      - name: lq_annual_avg_emplvl
+        description: >-
+          Location quotient of annual average employment relative to the U.S., rounded
+          to hundredths
+      - name: lq_total_annual_wages
+        description: >-
+          Location quotient of total annual wages relative to the U.S., rounded to
+          hundredths
+      - name: lq_taxable_annual_wages
+        description: >-
+          Location quotient of taxable annual wages relative to the U.S., rounded
+          to hundredths
+      - name: lq_annual_contributions
+        description: >-
+          Location quotient of annual contributions relative to the U.S., rounded
+          to hundredths
+      - name: lq_annual_avg_wkly_wage
+        description: >-
+          Location quotient of the annual average weekly wage relative to the U.S.,
+          rounded to hundredths
+      - name: lq_avg_annual_pay
+        description: >-
+          Location quotient of average annual pay relative to the U.S., rounded to
+          hundredths
+      - name: oty_disclosure_code
+        description: >-
+          Disclosure flag for the over-the-year change: N when not disclosable, blank
+          otherwise
+      - name: oty_annual_avg_estabs_chg
+        description: >-
+          Over-the-year change in the annual average establishment count
+      - name: oty_annual_avg_estabs_pct_chg
+        description: >-
+          Over-the-year percent change in the annual average establishment count,
+          rounded to tenths
+      - name: oty_annual_avg_emplvl_chg
+        description: >-
+          Over-the-year change in annual average employment
+      - name: oty_annual_avg_emplvl_pct_chg
+        description: >-
+          Over-the-year percent change in annual average employment, rounded to tenths
+      - name: oty_total_annual_wages_chg
+        description: >-
+          Over-the-year change in total annual wages
+      - name: oty_total_annual_wages_pct_chg
+        description: >-
+          Over-the-year percent change in total annual wages, rounded to tenths
+      - name: oty_taxable_annual_wages_chg
+        description: >-
+          Over-the-year change in taxable annual wages
+      - name: oty_taxable_annual_wages_pct_chg
+        description: >-
+          Over-the-year percent change in taxable annual wages, rounded to tenths
+      - name: oty_annual_contributions_chg
+        description: >-
+          Over-the-year change in annual contributions
+      - name: oty_annual_contributions_pct_chg
+        description: >-
+          Over-the-year percent change in annual contributions, rounded to tenths
+      - name: oty_annual_avg_wkly_wage_chg
+        description: >-
+          Over-the-year change in the annual average weekly wage
+      - name: oty_annual_avg_wkly_wage_pct_chg
+        description: >-
+          Over-the-year percent change in the annual average weekly wage, rounded
+          to tenths
+      - name: oty_avg_annual_pay_chg
+        description: >-
+          Over-the-year change in average annual pay
+      - name: oty_avg_annual_pay_pct_chg
+        description: >-
+          Over-the-year percent change in average annual pay, rounded to tenths
+  - name: us_bls_qcew__naics_annual_state
+    description: >-
+      QCEW NAICS annual-average employment and wage totals at the state level, one
+      row per area, ownership, industry, aggregation level, and size class.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - area_fips
+            - own_code
+            - industry_code
+            - agglvl_code
+            - size_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - disclosure_code
+            - lq_disclosure_code
+            - lq_annual_avg_estabs
+            - lq_annual_avg_emplvl
+            - lq_total_annual_wages
+            - lq_taxable_annual_wages
+            - lq_annual_contributions
+            - lq_annual_avg_wkly_wage
+            - lq_avg_annual_pay
+            - oty_disclosure_code
+            - oty_annual_avg_estabs_chg
+            - oty_annual_avg_estabs_pct_chg
+            - oty_annual_avg_emplvl_chg
+            - oty_annual_avg_emplvl_pct_chg
+            - oty_total_annual_wages_chg
+            - oty_total_annual_wages_pct_chg
+            - oty_taxable_annual_wages_chg
+            - oty_taxable_annual_wages_pct_chg
+            - oty_annual_contributions_chg
+            - oty_annual_contributions_pct_chg
+            - oty_annual_avg_wkly_wage_chg
+            - oty_annual_avg_wkly_wage_pct_chg
+            - oty_avg_annual_pay_chg
+            - oty_avg_annual_pay_pct_chg
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: area_fips
+        description: >-
+          Statewide area code (SS000)
+        tests: [not_null]
+      - name: id_state
+        description: >-
+          State FIPS code (2-digit)
+      - name: own_code
+        description: >-
+          Ownership code identifying the sector (private, federal, state, local government)
+        tests: [not_null]
+      - name: industry_code
+        description: >-
+          Industry code (NAICS, supersector, or aggregate pseudo-code)
+        tests: [not_null]
+      - name: agglvl_code
+        description: >-
+          Aggregation-level code indicating the geographic and industry summarization
+          of the row
+        tests: [not_null]
+      - name: size_code
+        description: >-
+          Establishment size-class code, 0 for all sizes
+        tests: [not_null]
+      - name: disclosure_code
+        description: >-
+          Disclosure flag: N when the figure is not disclosable, blank otherwise
+      - name: annual_avg_estabs
+        description: >-
+          Annual average of quarterly establishment counts
+      - name: annual_avg_emplvl
+        description: >-
+          Annual average of monthly employment levels
+      - name: total_annual_wages
+        description: >-
+          Sum of the four quarters' total wages for the year
+      - name: taxable_annual_wages
+        description: >-
+          Sum of the four quarters' taxable wages for the year
+      - name: annual_contributions
+        description: >-
+          Sum of the four quarters' unemployment-insurance contributions for the year
+      - name: annual_avg_wkly_wage
+        description: >-
+          Average weekly wage based on the year's employment and total wages
+      - name: avg_annual_pay
+        description: >-
+          Average annual pay based on the year's employment and wage levels
+      - name: lq_disclosure_code
+        description: >-
+          Disclosure flag for the location quotient: N when not disclosable, blank
+          otherwise
+      - name: lq_annual_avg_estabs
+        description: >-
+          Location quotient of the annual average establishment count relative to
+          the U.S., rounded to hundredths
+      - name: lq_annual_avg_emplvl
+        description: >-
+          Location quotient of annual average employment relative to the U.S., rounded
+          to hundredths
+      - name: lq_total_annual_wages
+        description: >-
+          Location quotient of total annual wages relative to the U.S., rounded to
+          hundredths
+      - name: lq_taxable_annual_wages
+        description: >-
+          Location quotient of taxable annual wages relative to the U.S., rounded
+          to hundredths
+      - name: lq_annual_contributions
+        description: >-
+          Location quotient of annual contributions relative to the U.S., rounded
+          to hundredths
+      - name: lq_annual_avg_wkly_wage
+        description: >-
+          Location quotient of the annual average weekly wage relative to the U.S.,
+          rounded to hundredths
+      - name: lq_avg_annual_pay
+        description: >-
+          Location quotient of average annual pay relative to the U.S., rounded to
+          hundredths
+      - name: oty_disclosure_code
+        description: >-
+          Disclosure flag for the over-the-year change: N when not disclosable, blank
+          otherwise
+      - name: oty_annual_avg_estabs_chg
+        description: >-
+          Over-the-year change in the annual average establishment count
+      - name: oty_annual_avg_estabs_pct_chg
+        description: >-
+          Over-the-year percent change in the annual average establishment count,
+          rounded to tenths
+      - name: oty_annual_avg_emplvl_chg
+        description: >-
+          Over-the-year change in annual average employment
+      - name: oty_annual_avg_emplvl_pct_chg
+        description: >-
+          Over-the-year percent change in annual average employment, rounded to tenths
+      - name: oty_total_annual_wages_chg
+        description: >-
+          Over-the-year change in total annual wages
+      - name: oty_total_annual_wages_pct_chg
+        description: >-
+          Over-the-year percent change in total annual wages, rounded to tenths
+      - name: oty_taxable_annual_wages_chg
+        description: >-
+          Over-the-year change in taxable annual wages
+      - name: oty_taxable_annual_wages_pct_chg
+        description: >-
+          Over-the-year percent change in taxable annual wages, rounded to tenths
+      - name: oty_annual_contributions_chg
+        description: >-
+          Over-the-year change in annual contributions
+      - name: oty_annual_contributions_pct_chg
+        description: >-
+          Over-the-year percent change in annual contributions, rounded to tenths
+      - name: oty_annual_avg_wkly_wage_chg
+        description: >-
+          Over-the-year change in the annual average weekly wage
+      - name: oty_annual_avg_wkly_wage_pct_chg
+        description: >-
+          Over-the-year percent change in the annual average weekly wage, rounded
+          to tenths
+      - name: oty_avg_annual_pay_chg
+        description: >-
+          Over-the-year change in average annual pay
+      - name: oty_avg_annual_pay_pct_chg
+        description: >-
+          Over-the-year percent change in average annual pay, rounded to tenths
+  - name: us_bls_qcew__naics_annual_county
+    description: >-
+      QCEW NAICS annual-average employment and wage totals at the county level, one
+      row per area, ownership, industry, aggregation level, and size class.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - area_fips
+            - own_code
+            - industry_code
+            - agglvl_code
+            - size_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - disclosure_code
+            - lq_disclosure_code
+            - lq_annual_avg_estabs
+            - lq_annual_avg_emplvl
+            - lq_total_annual_wages
+            - lq_taxable_annual_wages
+            - lq_annual_contributions
+            - lq_annual_avg_wkly_wage
+            - lq_avg_annual_pay
+            - oty_disclosure_code
+            - oty_annual_avg_estabs_chg
+            - oty_annual_avg_estabs_pct_chg
+            - oty_annual_avg_emplvl_chg
+            - oty_annual_avg_emplvl_pct_chg
+            - oty_total_annual_wages_chg
+            - oty_total_annual_wages_pct_chg
+            - oty_taxable_annual_wages_chg
+            - oty_taxable_annual_wages_pct_chg
+            - oty_annual_contributions_chg
+            - oty_annual_contributions_pct_chg
+            - oty_annual_avg_wkly_wage_chg
+            - oty_annual_avg_wkly_wage_pct_chg
+            - oty_avg_annual_pay_chg
+            - oty_avg_annual_pay_pct_chg
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: area_fips
+        description: >-
+          County FIPS code (5-digit)
+        tests: [not_null]
+      - name: own_code
+        description: >-
+          Ownership code identifying the sector (private, federal, state, local government)
+        tests: [not_null]
+      - name: industry_code
+        description: >-
+          Industry code (NAICS, supersector, or aggregate pseudo-code)
+        tests: [not_null]
+      - name: agglvl_code
+        description: >-
+          Aggregation-level code indicating the geographic and industry summarization
+          of the row
+        tests: [not_null]
+      - name: size_code
+        description: >-
+          Establishment size-class code, 0 for all sizes
+        tests: [not_null]
+      - name: disclosure_code
+        description: >-
+          Disclosure flag: N when the figure is not disclosable, blank otherwise
+      - name: annual_avg_estabs
+        description: >-
+          Annual average of quarterly establishment counts
+      - name: annual_avg_emplvl
+        description: >-
+          Annual average of monthly employment levels
+      - name: total_annual_wages
+        description: >-
+          Sum of the four quarters' total wages for the year
+      - name: taxable_annual_wages
+        description: >-
+          Sum of the four quarters' taxable wages for the year
+      - name: annual_contributions
+        description: >-
+          Sum of the four quarters' unemployment-insurance contributions for the year
+      - name: annual_avg_wkly_wage
+        description: >-
+          Average weekly wage based on the year's employment and total wages
+      - name: avg_annual_pay
+        description: >-
+          Average annual pay based on the year's employment and wage levels
+      - name: lq_disclosure_code
+        description: >-
+          Disclosure flag for the location quotient: N when not disclosable, blank
+          otherwise
+      - name: lq_annual_avg_estabs
+        description: >-
+          Location quotient of the annual average establishment count relative to
+          the U.S., rounded to hundredths
+      - name: lq_annual_avg_emplvl
+        description: >-
+          Location quotient of annual average employment relative to the U.S., rounded
+          to hundredths
+      - name: lq_total_annual_wages
+        description: >-
+          Location quotient of total annual wages relative to the U.S., rounded to
+          hundredths
+      - name: lq_taxable_annual_wages
+        description: >-
+          Location quotient of taxable annual wages relative to the U.S., rounded
+          to hundredths
+      - name: lq_annual_contributions
+        description: >-
+          Location quotient of annual contributions relative to the U.S., rounded
+          to hundredths
+      - name: lq_annual_avg_wkly_wage
+        description: >-
+          Location quotient of the annual average weekly wage relative to the U.S.,
+          rounded to hundredths
+      - name: lq_avg_annual_pay
+        description: >-
+          Location quotient of average annual pay relative to the U.S., rounded to
+          hundredths
+      - name: oty_disclosure_code
+        description: >-
+          Disclosure flag for the over-the-year change: N when not disclosable, blank
+          otherwise
+      - name: oty_annual_avg_estabs_chg
+        description: >-
+          Over-the-year change in the annual average establishment count
+      - name: oty_annual_avg_estabs_pct_chg
+        description: >-
+          Over-the-year percent change in the annual average establishment count,
+          rounded to tenths
+      - name: oty_annual_avg_emplvl_chg
+        description: >-
+          Over-the-year change in annual average employment
+      - name: oty_annual_avg_emplvl_pct_chg
+        description: >-
+          Over-the-year percent change in annual average employment, rounded to tenths
+      - name: oty_total_annual_wages_chg
+        description: >-
+          Over-the-year change in total annual wages
+      - name: oty_total_annual_wages_pct_chg
+        description: >-
+          Over-the-year percent change in total annual wages, rounded to tenths
+      - name: oty_taxable_annual_wages_chg
+        description: >-
+          Over-the-year change in taxable annual wages
+      - name: oty_taxable_annual_wages_pct_chg
+        description: >-
+          Over-the-year percent change in taxable annual wages, rounded to tenths
+      - name: oty_annual_contributions_chg
+        description: >-
+          Over-the-year change in annual contributions
+      - name: oty_annual_contributions_pct_chg
+        description: >-
+          Over-the-year percent change in annual contributions, rounded to tenths
+      - name: oty_annual_avg_wkly_wage_chg
+        description: >-
+          Over-the-year change in the annual average weekly wage
+      - name: oty_annual_avg_wkly_wage_pct_chg
+        description: >-
+          Over-the-year percent change in the annual average weekly wage, rounded
+          to tenths
+      - name: oty_avg_annual_pay_chg
+        description: >-
+          Over-the-year change in average annual pay
+      - name: oty_avg_annual_pay_pct_chg
+        description: >-
+          Over-the-year percent change in average annual pay, rounded to tenths
+  - name: us_bls_qcew__naics_annual_metro
+    description: >-
+      QCEW NAICS annual-average employment and wage totals at the metro level, one
+      row per area, ownership, industry, aggregation level, and size class.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - area_fips
+            - own_code
+            - industry_code
+            - agglvl_code
+            - size_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - disclosure_code
+            - lq_disclosure_code
+            - lq_annual_avg_estabs
+            - lq_annual_avg_emplvl
+            - lq_total_annual_wages
+            - lq_taxable_annual_wages
+            - lq_annual_contributions
+            - lq_annual_avg_wkly_wage
+            - lq_avg_annual_pay
+            - oty_disclosure_code
+            - oty_annual_avg_estabs_chg
+            - oty_annual_avg_estabs_pct_chg
+            - oty_annual_avg_emplvl_chg
+            - oty_annual_avg_emplvl_pct_chg
+            - oty_total_annual_wages_chg
+            - oty_total_annual_wages_pct_chg
+            - oty_taxable_annual_wages_chg
+            - oty_taxable_annual_wages_pct_chg
+            - oty_annual_contributions_chg
+            - oty_annual_contributions_pct_chg
+            - oty_annual_avg_wkly_wage_chg
+            - oty_annual_avg_wkly_wage_pct_chg
+            - oty_avg_annual_pay_chg
+            - oty_avg_annual_pay_pct_chg
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: area_fips
+        description: >-
+          QCEW metropolitan-area code (MSA, CSA, or Micropolitan)
+        tests: [not_null]
+      - name: own_code
+        description: >-
+          Ownership code identifying the sector (private, federal, state, local government)
+        tests: [not_null]
+      - name: industry_code
+        description: >-
+          Industry code (NAICS, supersector, or aggregate pseudo-code)
+        tests: [not_null]
+      - name: agglvl_code
+        description: >-
+          Aggregation-level code indicating the geographic and industry summarization
+          of the row
+        tests: [not_null]
+      - name: size_code
+        description: >-
+          Establishment size-class code, 0 for all sizes
+        tests: [not_null]
+      - name: disclosure_code
+        description: >-
+          Disclosure flag: N when the figure is not disclosable, blank otherwise
+      - name: annual_avg_estabs
+        description: >-
+          Annual average of quarterly establishment counts
+      - name: annual_avg_emplvl
+        description: >-
+          Annual average of monthly employment levels
+      - name: total_annual_wages
+        description: >-
+          Sum of the four quarters' total wages for the year
+      - name: taxable_annual_wages
+        description: >-
+          Sum of the four quarters' taxable wages for the year
+      - name: annual_contributions
+        description: >-
+          Sum of the four quarters' unemployment-insurance contributions for the year
+      - name: annual_avg_wkly_wage
+        description: >-
+          Average weekly wage based on the year's employment and total wages
+      - name: avg_annual_pay
+        description: >-
+          Average annual pay based on the year's employment and wage levels
+      - name: lq_disclosure_code
+        description: >-
+          Disclosure flag for the location quotient: N when not disclosable, blank
+          otherwise
+      - name: lq_annual_avg_estabs
+        description: >-
+          Location quotient of the annual average establishment count relative to
+          the U.S., rounded to hundredths
+      - name: lq_annual_avg_emplvl
+        description: >-
+          Location quotient of annual average employment relative to the U.S., rounded
+          to hundredths
+      - name: lq_total_annual_wages
+        description: >-
+          Location quotient of total annual wages relative to the U.S., rounded to
+          hundredths
+      - name: lq_taxable_annual_wages
+        description: >-
+          Location quotient of taxable annual wages relative to the U.S., rounded
+          to hundredths
+      - name: lq_annual_contributions
+        description: >-
+          Location quotient of annual contributions relative to the U.S., rounded
+          to hundredths
+      - name: lq_annual_avg_wkly_wage
+        description: >-
+          Location quotient of the annual average weekly wage relative to the U.S.,
+          rounded to hundredths
+      - name: lq_avg_annual_pay
+        description: >-
+          Location quotient of average annual pay relative to the U.S., rounded to
+          hundredths
+      - name: oty_disclosure_code
+        description: >-
+          Disclosure flag for the over-the-year change: N when not disclosable, blank
+          otherwise
+      - name: oty_annual_avg_estabs_chg
+        description: >-
+          Over-the-year change in the annual average establishment count
+      - name: oty_annual_avg_estabs_pct_chg
+        description: >-
+          Over-the-year percent change in the annual average establishment count,
+          rounded to tenths
+      - name: oty_annual_avg_emplvl_chg
+        description: >-
+          Over-the-year change in annual average employment
+      - name: oty_annual_avg_emplvl_pct_chg
+        description: >-
+          Over-the-year percent change in annual average employment, rounded to tenths
+      - name: oty_total_annual_wages_chg
+        description: >-
+          Over-the-year change in total annual wages
+      - name: oty_total_annual_wages_pct_chg
+        description: >-
+          Over-the-year percent change in total annual wages, rounded to tenths
+      - name: oty_taxable_annual_wages_chg
+        description: >-
+          Over-the-year change in taxable annual wages
+      - name: oty_taxable_annual_wages_pct_chg
+        description: >-
+          Over-the-year percent change in taxable annual wages, rounded to tenths
+      - name: oty_annual_contributions_chg
+        description: >-
+          Over-the-year change in annual contributions
+      - name: oty_annual_contributions_pct_chg
+        description: >-
+          Over-the-year percent change in annual contributions, rounded to tenths
+      - name: oty_annual_avg_wkly_wage_chg
+        description: >-
+          Over-the-year change in the annual average weekly wage
+      - name: oty_annual_avg_wkly_wage_pct_chg
+        description: >-
+          Over-the-year percent change in the annual average weekly wage, rounded
+          to tenths
+      - name: oty_avg_annual_pay_chg
+        description: >-
+          Over-the-year change in average annual pay
+      - name: oty_avg_annual_pay_pct_chg
+        description: >-
+          Over-the-year percent change in average annual pay, rounded to tenths
+  - name: us_bls_qcew__sic_quarterly_national
+    description: >-
+      QCEW SIC quarterly employment and wage totals at the national level, one row
+      per area, ownership, industry, aggregation level, and size class.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - qtr
+            - area_fips
+            - own_code
+            - industry_code
+            - agglvl_code
+            - size_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [disclosure_code]
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: qtr
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: area_fips
+        description: >-
+          National area code (U.S. total and special U.S.-wide aggregates)
+        tests: [not_null]
+      - name: own_code
+        description: >-
+          Ownership code identifying the sector (private, federal, state, local government)
+        tests: [not_null]
+      - name: industry_code
+        description: >-
+          SIC industry code, carrying the SIC_ prefix
+        tests: [not_null]
+      - name: agglvl_code
+        description: >-
+          Aggregation-level code indicating the geographic and industry summarization
+          of the row
+        tests: [not_null]
+      - name: size_code
+        description: >-
+          Establishment size-class code, 0 for all sizes
+        tests: [not_null]
+      - name: disclosure_code
+        description: >-
+          Disclosure flag: N when the figure is not disclosable, blank otherwise
+      - name: qtrly_estabs
+        description: >-
+          Count of establishments in the quarter
+      - name: month1_emplvl
+        description: >-
+          Employment level in the first month of the quarter
+      - name: month2_emplvl
+        description: >-
+          Employment level in the second month of the quarter
+      - name: month3_emplvl
+        description: >-
+          Employment level in the third month of the quarter
+      - name: total_qtrly_wages
+        description: >-
+          Total wages paid in the quarter
+      - name: taxable_qtrly_wages
+        description: >-
+          Wages subject to unemployment-insurance taxation in the quarter
+      - name: qtrly_contributions
+        description: >-
+          Unemployment-insurance contributions in the quarter
+      - name: avg_wkly_wage
+        description: >-
+          Average weekly wage in the quarter
+  - name: us_bls_qcew__sic_quarterly_state
+    description: >-
+      QCEW SIC quarterly employment and wage totals at the state level, one row per
+      area, ownership, industry, aggregation level, and size class.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - qtr
+            - area_fips
+            - own_code
+            - industry_code
+            - agglvl_code
+            - size_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [disclosure_code]
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: qtr
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: area_fips
+        description: >-
+          Statewide area code (SS000)
+        tests: [not_null]
+      - name: id_state
+        description: >-
+          State FIPS code (2-digit)
+      - name: own_code
+        description: >-
+          Ownership code identifying the sector (private, federal, state, local government)
+        tests: [not_null]
+      - name: industry_code
+        description: >-
+          SIC industry code, carrying the SIC_ prefix
+        tests: [not_null]
+      - name: agglvl_code
+        description: >-
+          Aggregation-level code indicating the geographic and industry summarization
+          of the row
+        tests: [not_null]
+      - name: size_code
+        description: >-
+          Establishment size-class code, 0 for all sizes
+        tests: [not_null]
+      - name: disclosure_code
+        description: >-
+          Disclosure flag: N when the figure is not disclosable, blank otherwise
+      - name: qtrly_estabs
+        description: >-
+          Count of establishments in the quarter
+      - name: month1_emplvl
+        description: >-
+          Employment level in the first month of the quarter
+      - name: month2_emplvl
+        description: >-
+          Employment level in the second month of the quarter
+      - name: month3_emplvl
+        description: >-
+          Employment level in the third month of the quarter
+      - name: total_qtrly_wages
+        description: >-
+          Total wages paid in the quarter
+      - name: taxable_qtrly_wages
+        description: >-
+          Wages subject to unemployment-insurance taxation in the quarter
+      - name: qtrly_contributions
+        description: >-
+          Unemployment-insurance contributions in the quarter
+      - name: avg_wkly_wage
+        description: >-
+          Average weekly wage in the quarter
+  - name: us_bls_qcew__sic_quarterly_county
+    description: >-
+      QCEW SIC quarterly employment and wage totals at the county level, one row per
+      area, ownership, industry, aggregation level, and size class.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - qtr
+            - area_fips
+            - own_code
+            - industry_code
+            - agglvl_code
+            - size_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [disclosure_code]
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: qtr
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: area_fips
+        description: >-
+          County FIPS code (5-digit)
+        tests: [not_null]
+      - name: own_code
+        description: >-
+          Ownership code identifying the sector (private, federal, state, local government)
+        tests: [not_null]
+      - name: industry_code
+        description: >-
+          SIC industry code, carrying the SIC_ prefix
+        tests: [not_null]
+      - name: agglvl_code
+        description: >-
+          Aggregation-level code indicating the geographic and industry summarization
+          of the row
+        tests: [not_null]
+      - name: size_code
+        description: >-
+          Establishment size-class code, 0 for all sizes
+        tests: [not_null]
+      - name: disclosure_code
+        description: >-
+          Disclosure flag: N when the figure is not disclosable, blank otherwise
+      - name: qtrly_estabs
+        description: >-
+          Count of establishments in the quarter
+      - name: month1_emplvl
+        description: >-
+          Employment level in the first month of the quarter
+      - name: month2_emplvl
+        description: >-
+          Employment level in the second month of the quarter
+      - name: month3_emplvl
+        description: >-
+          Employment level in the third month of the quarter
+      - name: total_qtrly_wages
+        description: >-
+          Total wages paid in the quarter
+      - name: taxable_qtrly_wages
+        description: >-
+          Wages subject to unemployment-insurance taxation in the quarter
+      - name: qtrly_contributions
+        description: >-
+          Unemployment-insurance contributions in the quarter
+      - name: avg_wkly_wage
+        description: >-
+          Average weekly wage in the quarter
+  - name: us_bls_qcew__sic_quarterly_metro
+    description: >-
+      QCEW SIC quarterly employment and wage totals at the metro level, one row per
+      area, ownership, industry, aggregation level, and size class.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - qtr
+            - area_fips
+            - own_code
+            - industry_code
+            - agglvl_code
+            - size_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [disclosure_code]
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: qtr
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: area_fips
+        description: >-
+          QCEW metropolitan-area code (MSA, CSA, or Micropolitan)
+        tests: [not_null]
+      - name: own_code
+        description: >-
+          Ownership code identifying the sector (private, federal, state, local government)
+        tests: [not_null]
+      - name: industry_code
+        description: >-
+          SIC industry code, carrying the SIC_ prefix
+        tests: [not_null]
+      - name: agglvl_code
+        description: >-
+          Aggregation-level code indicating the geographic and industry summarization
+          of the row
+        tests: [not_null]
+      - name: size_code
+        description: >-
+          Establishment size-class code, 0 for all sizes
+        tests: [not_null]
+      - name: disclosure_code
+        description: >-
+          Disclosure flag: N when the figure is not disclosable, blank otherwise
+      - name: qtrly_estabs
+        description: >-
+          Count of establishments in the quarter
+      - name: month1_emplvl
+        description: >-
+          Employment level in the first month of the quarter
+      - name: month2_emplvl
+        description: >-
+          Employment level in the second month of the quarter
+      - name: month3_emplvl
+        description: >-
+          Employment level in the third month of the quarter
+      - name: total_qtrly_wages
+        description: >-
+          Total wages paid in the quarter
+      - name: taxable_qtrly_wages
+        description: >-
+          Wages subject to unemployment-insurance taxation in the quarter
+      - name: qtrly_contributions
+        description: >-
+          Unemployment-insurance contributions in the quarter
+      - name: avg_wkly_wage
+        description: >-
+          Average weekly wage in the quarter
+  - name: us_bls_qcew__sic_annual_national
+    description: >-
+      QCEW SIC annual-average employment and wage totals at the national level, one
+      row per area, ownership, industry, aggregation level, and size class.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - area_fips
+            - own_code
+            - industry_code
+            - agglvl_code
+            - size_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [disclosure_code]
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: area_fips
+        description: >-
+          National area code (U.S. total and special U.S.-wide aggregates)
+        tests: [not_null]
+      - name: own_code
+        description: >-
+          Ownership code identifying the sector (private, federal, state, local government)
+        tests: [not_null]
+      - name: industry_code
+        description: >-
+          SIC industry code, carrying the SIC_ prefix
+        tests: [not_null]
+      - name: agglvl_code
+        description: >-
+          Aggregation-level code indicating the geographic and industry summarization
+          of the row
+        tests: [not_null]
+      - name: size_code
+        description: >-
+          Establishment size-class code, 0 for all sizes
+        tests: [not_null]
+      - name: disclosure_code
+        description: >-
+          Disclosure flag: N when the figure is not disclosable, blank otherwise
+      - name: annual_avg_estabs
+        description: >-
+          Annual average of quarterly establishment counts
+      - name: annual_avg_emplvl
+        description: >-
+          Annual average of monthly employment levels
+      - name: total_annual_wages
+        description: >-
+          Sum of the four quarters' total wages for the year
+      - name: taxable_annual_wages
+        description: >-
+          Sum of the four quarters' taxable wages for the year
+      - name: annual_contributions
+        description: >-
+          Sum of the four quarters' unemployment-insurance contributions for the year
+      - name: annual_avg_wkly_wage
+        description: >-
+          Average weekly wage based on the year's employment and total wages
+      - name: avg_annual_pay
+        description: >-
+          Average annual pay based on the year's employment and wage levels
+  - name: us_bls_qcew__sic_annual_state
+    description: >-
+      QCEW SIC annual-average employment and wage totals at the state level, one row
+      per area, ownership, industry, aggregation level, and size class.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - area_fips
+            - own_code
+            - industry_code
+            - agglvl_code
+            - size_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [disclosure_code]
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: area_fips
+        description: >-
+          Statewide area code (SS000)
+        tests: [not_null]
+      - name: id_state
+        description: >-
+          State FIPS code (2-digit)
+      - name: own_code
+        description: >-
+          Ownership code identifying the sector (private, federal, state, local government)
+        tests: [not_null]
+      - name: industry_code
+        description: >-
+          SIC industry code, carrying the SIC_ prefix
+        tests: [not_null]
+      - name: agglvl_code
+        description: >-
+          Aggregation-level code indicating the geographic and industry summarization
+          of the row
+        tests: [not_null]
+      - name: size_code
+        description: >-
+          Establishment size-class code, 0 for all sizes
+        tests: [not_null]
+      - name: disclosure_code
+        description: >-
+          Disclosure flag: N when the figure is not disclosable, blank otherwise
+      - name: annual_avg_estabs
+        description: >-
+          Annual average of quarterly establishment counts
+      - name: annual_avg_emplvl
+        description: >-
+          Annual average of monthly employment levels
+      - name: total_annual_wages
+        description: >-
+          Sum of the four quarters' total wages for the year
+      - name: taxable_annual_wages
+        description: >-
+          Sum of the four quarters' taxable wages for the year
+      - name: annual_contributions
+        description: >-
+          Sum of the four quarters' unemployment-insurance contributions for the year
+      - name: annual_avg_wkly_wage
+        description: >-
+          Average weekly wage based on the year's employment and total wages
+      - name: avg_annual_pay
+        description: >-
+          Average annual pay based on the year's employment and wage levels
+  - name: us_bls_qcew__sic_annual_county
+    description: >-
+      QCEW SIC annual-average employment and wage totals at the county level, one
+      row per area, ownership, industry, aggregation level, and size class.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - area_fips
+            - own_code
+            - industry_code
+            - agglvl_code
+            - size_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [disclosure_code]
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: area_fips
+        description: >-
+          County FIPS code (5-digit)
+        tests: [not_null]
+      - name: own_code
+        description: >-
+          Ownership code identifying the sector (private, federal, state, local government)
+        tests: [not_null]
+      - name: industry_code
+        description: >-
+          SIC industry code, carrying the SIC_ prefix
+        tests: [not_null]
+      - name: agglvl_code
+        description: >-
+          Aggregation-level code indicating the geographic and industry summarization
+          of the row
+        tests: [not_null]
+      - name: size_code
+        description: >-
+          Establishment size-class code, 0 for all sizes
+        tests: [not_null]
+      - name: disclosure_code
+        description: >-
+          Disclosure flag: N when the figure is not disclosable, blank otherwise
+      - name: annual_avg_estabs
+        description: >-
+          Annual average of quarterly establishment counts
+      - name: annual_avg_emplvl
+        description: >-
+          Annual average of monthly employment levels
+      - name: total_annual_wages
+        description: >-
+          Sum of the four quarters' total wages for the year
+      - name: taxable_annual_wages
+        description: >-
+          Sum of the four quarters' taxable wages for the year
+      - name: annual_contributions
+        description: >-
+          Sum of the four quarters' unemployment-insurance contributions for the year
+      - name: annual_avg_wkly_wage
+        description: >-
+          Average weekly wage based on the year's employment and total wages
+      - name: avg_annual_pay
+        description: >-
+          Average annual pay based on the year's employment and wage levels
+  - name: us_bls_qcew__sic_annual_metro
+    description: >-
+      QCEW SIC annual-average employment and wage totals at the metro level, one row
+      per area, ownership, industry, aggregation level, and size class.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - area_fips
+            - own_code
+            - industry_code
+            - agglvl_code
+            - size_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [disclosure_code]
+    columns:
+      - name: year
+        description: >-
+          Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: area_fips
+        description: >-
+          QCEW metropolitan-area code (MSA, CSA, or Micropolitan)
+        tests: [not_null]
+      - name: own_code
+        description: >-
+          Ownership code identifying the sector (private, federal, state, local government)
+        tests: [not_null]
+      - name: industry_code
+        description: >-
+          SIC industry code, carrying the SIC_ prefix
+        tests: [not_null]
+      - name: agglvl_code
+        description: >-
+          Aggregation-level code indicating the geographic and industry summarization
+          of the row
+        tests: [not_null]
+      - name: size_code
+        description: >-
+          Establishment size-class code, 0 for all sizes
+        tests: [not_null]
+      - name: disclosure_code
+        description: >-
+          Disclosure flag: N when the figure is not disclosable, blank otherwise
+      - name: annual_avg_estabs
+        description: >-
+          Annual average of quarterly establishment counts
+      - name: annual_avg_emplvl
+        description: >-
+          Annual average of monthly employment levels
+      - name: total_annual_wages
+        description: >-
+          Sum of the four quarters' total wages for the year
+      - name: taxable_annual_wages
+        description: >-
+          Sum of the four quarters' taxable wages for the year
+      - name: annual_contributions
+        description: >-
+          Sum of the four quarters' unemployment-insurance contributions for the year
+      - name: annual_avg_wkly_wage
+        description: >-
+          Average weekly wage based on the year's employment and total wages
+      - name: avg_annual_pay
+        description: >-
+          Average annual pay based on the year's employment and wage levels
+  - name: us_bls_qcew__dicionario
+    description: >-
+      Dictionary mapping the coded columns of us_bls_qcew (ownership, aggregation
+      level, size class, industry, and area) to their labels.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+    columns:
+      - name: id_tabela
+        description: >-
+          Slug of the us_bls_qcew table the dictionary entry describes
+        tests: [not_null]
+      - name: nome_coluna
+        description: >-
+          Name of the column the dictionary entry describes
+        tests: [not_null]
+      - name: chave
+        description: >-
+          Coded value (key) exactly as stored in the data
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >-
+          Temporal coverage of the key
+      - name: valor
+        description: >-
+          Human-readable label corresponding to the coded value

@@ -57,6 +57,7 @@ from pathlib import Path
 INPUT_DIR = Path("<dataset_root>/input")
 INPUT_DIR.mkdir(parents=True, exist_ok=True)
 
+
 def download_file(url: str, dest: Path, retries: int = 3) -> None:
     for attempt in range(retries):
         try:
@@ -69,7 +70,7 @@ def download_file(url: str, dest: Path, retries: int = 3) -> None:
             return
         except requests.RequestException as e:
             if attempt < retries - 1:
-                time.sleep(2 ** attempt)
+                time.sleep(2**attempt)
             else:
                 raise RuntimeError(f"Failed to download {url}: {e}") from e
 ```

@@ -11,6 +11,8 @@ import sys
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+
+# pyrefly: ignore [untyped-import]
 import yaml
 
 HERE = pathlib.Path(__file__).resolve().parent
@@ -189,6 +191,7 @@ def build_committee():
             add(tid, None, tid, s(c.get("name")), ctype, False, is_current, c)
             for sub in c.get("subcommittees", []):
                 sid = s(sub.get("thomas_id"))
+                # pyrefly: ignore [unsupported-operation]
                 full = tid + sid
                 add(
                     full,

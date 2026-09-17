@@ -79,14 +79,21 @@ join basedosdados.<gcp_dataset_id>.<table_slug> on ...
   - Municipal: `output/<table_slug>/ano=<year>/sigla_uf=<uf>/data.parquet`
   - State: `output/<table_slug>/ano=<year>/sigla_uf=<uf>/data.parquet`
   - National: `output/<table_slug>/ano=<year>/data.parquet`
-- Always build an explicit `pa.Schema` to prevent INT64/FLOAT64 type mismatches across partitions.
-- **Exception — parquet uploaded by a Prefect pipeline via `upload_to_gcs`.** There the
-  staging table's schema is inferred from a header that `gcs.py::dump_header` stringifies,
-  so typed parquet is rejected (`has type DOUBLE which does not match the target cpp_type
-  STRING_PIECE`). Build the table with the architecture's real types as above, then **cast
-  to an all-string schema via arrow** (never `astype(str)` — it turns NULL into `"nan"`)
-  before writing. See "Staging parquet must be all-STRING" in `prefect-pipeline-conventions`.
-  This applies only to the pipeline path; the one-shot onboarding upload keeps typed parquet.
+- Build an explicit `pa.Schema` for a stable column order across partitions, but make
+  **every column STRING**. Staging is all-STRING by house convention, and the dbt model
+  `safe_cast`s each column to its architecture type — so the staging schema carries order,
+  not types.
+- **Both upload paths must write all-STRING** — the one-shot onboarding upload *and* the
+  Prefect-pipeline `upload_to_gcs` path. They share one staging dataset, so a typed onboarding
+  external table left behind collides with the pipeline's later all-STRING overwrite: dbt then
+  reads a stale typed table against string files (`has type BYTE_ARRAY which does not match the
+  target cpp_type INT32`) or `safe_cast`s a still-typed column (`Invalid cast from INT64 to
+  DATE`). Keeping both all-STRING removes the divergence. (`gcs.py::dump_header` also stringifies
+  the pipeline's staging header, so typed parquet is rejected there regardless.)
+- **Cast to string via arrow, never `astype(str)`** (which renders NULL as the literal `"nan"`,
+  which `safe_cast` will not turn back into NULL); pass the architecture's real types through
+  first so `year` serializes as `"1959"`, not `"1959.0"`. See "Staging parquet must be
+  all-STRING" in `prefect-pipeline-conventions.md`.
 
 ## Upload prerequisites
 

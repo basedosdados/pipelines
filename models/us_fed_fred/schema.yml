@@ -1,0 +1,80 @@
+---
+version: 2
+models:
+  - name: us_fed_fred__observation
+    description: >-
+      Long time-series table of FRED observations for the openly-redistributable
+      public-domain subset of series, one row per series and date, with the
+      observed value. The unit of value varies by series and is given in the
+      series catalog table.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [series_id, date]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: date
+        description: >-
+          Observation date (exact date for daily series; first day of the period
+          for weekly, monthly, quarterly, and annual series)
+        tests: [not_null]
+      - name: series_id
+        description: FRED series identifier
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_fed_fred__series')
+              field: series_id
+      - name: value
+        description: >-
+          Observed value of the series; the unit depends on the series and is
+          given in the units column of the series table
+  - name: us_fed_fred__series
+    description: >-
+      Metadata catalog with one row per FRED series in the dataset: title, unit,
+      frequency, seasonal adjustment, originating source agency, release, coverage
+      dates, and descriptive notes.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [series_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: series_id
+        description: FRED series identifier, unique per row
+        tests: [not_null]
+      - name: title
+        description: Descriptive title of the series
+      - name: units
+        description: Unit of measure of the series values
+      - name: units_short
+        description: Short form of the unit of measure
+      - name: frequency
+        description: Observation frequency of the series
+      - name: frequency_short
+        description: Short code for the observation frequency
+      - name: seasonal_adjustment
+        description: Seasonal adjustment type of the series
+      - name: seasonal_adjustment_short
+        description: Short code for the seasonal adjustment type
+      - name: observation_start
+        description: Date of the first available observation of the series
+      - name: observation_end
+        description: Date of the last available observation of the series
+      - name: last_updated
+        description: Date and time the series was last updated on FRED
+      - name: source_name
+        description: >-
+          Originating source agency of the series, used to enforce the
+          public-domain redistribution scope
+      - name: release_name
+        description: FRED release the series belongs to
+      - name: notes
+        description: Descriptive and methodological notes provided by FRED

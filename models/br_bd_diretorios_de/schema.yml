@@ -1,0 +1,140 @@
+---
+version: 2
+models:
+  - name: br_bd_diretorios_de__state
+    description: >
+      Directory of the 16 German federal states (Bundesländer), keyed by the 2-digit
+      Land code
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_state]
+    columns:
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests: [not_null, unique]
+      - name: state_abbreviation
+        description: >
+          Official state abbreviation (e.g. BY, NW)
+      - name: name
+        description: >
+          State name in German
+      - name: name_en
+        description: >
+          State name in English
+  - name: br_bd_diretorios_de__county
+    description: >
+      Directory of German counties (Kreise and kreisfreie Städte) at 2021 boundaries,
+      keyed by the 5-digit county code
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_county]
+    columns:
+      - name: id_county
+        description: >
+          County identifier, 5-digit Kreisschlüssel
+        tests: [not_null, unique]
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+      - name: name
+        description: >
+          County name in German
+  - name: br_bd_diretorios_de__municipality
+    description: >
+      Directory of German municipalities (Gemeinden) at 2021 boundaries, keyed by
+      the 8-digit Amtlicher Gemeindeschlüssel
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_municipality]
+    columns:
+      - name: id_municipality
+        description: >
+          Municipality identifier, 8-digit Amtlicher Gemeindeschlüssel (AGS)
+        tests: [not_null, unique]
+      - name: id_county
+        description: >
+          County identifier, 5-digit Kreisschlüssel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__county')
+              field: id_county
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+      - name: name
+        description: >
+          Municipality name in German
+  - name: br_bd_diretorios_de__constituency
+    description: >
+      Directory of German electoral constituencies (Wahlkreise), federal (Bundestag)
+      and state (Landtag). Identity reflects the most recent election; constituencies
+      are periodically redrawn
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_constituency]
+    columns:
+      - name: id_constituency
+        description: >
+          Constituency identifier: federal_<nr> or state_<state>_<nr>
+        tests: [not_null, unique]
+      - name: constituency_type
+        description: >
+          Level of the constituency: federal or state
+      - name: id_state
+        description: >
+          State identifier, 2-digit Land code
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_de__state')
+              field: id_state
+      - name: name
+        description: >
+          Constituency (Wahlkreis) name
+  - name: br_bd_diretorios_de__party
+    description: >
+      Directory of German parties and lists using GERDA normalized names, enriched
+      with ParlGov attributes where available
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_party]
+    columns:
+      - name: id_party
+        description: >
+          Party or list, GERDA normalized name
+        tests: [not_null, unique]
+      - name: name
+        description: >
+          Party name in English (ParlGov) or a readable form of the GERDA name
+      - name: name_short
+        description: >
+          Short party name (ParlGov)
+      - name: family
+        description: >
+          Party family (ParlGov)
+      - name: left_right
+        description: >
+          Left-right ideology score from ParlGov (0 left to 10 right)
+      - name: parlgov_party_id
+        description: >
+          ParlGov party identifier
+      - name: is_far_right
+        description: >
+          1 if classified far right by GERDA, else 0
+      - name: is_far_left
+        description: >
+          1 if classified far left by GERDA (excluding Die Linke/PDS), else 0
+      - name: is_cdu_csu
+        description: >
+          1 if the party is CDU or CSU, else 0
+      - name: category
+        description: >-
+          Row category: party, residual_other, local_voter_groups, or independents

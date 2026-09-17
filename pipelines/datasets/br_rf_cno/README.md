@@ -241,3 +241,17 @@ com o `left join` de `sigla_uf` já aplicado). Não precisou `--full-refresh` ne
 ### 2026-07-17 — migração de metadados no backend (`br_me_cno` → `br_rf_cno`)
 As cloud tables/colunas do backend apontavam para o `br_me_cno` (vazio); reconciliadas para o
 `br_rf_cno` e a `areas` registrada do zero. Ver a seção *Metadados no backend* acima.
+
+### 2026-08-13 — `source_format` quebrou o upload das 4 tabelas
+O `upload_to_gcs` do `crawler/rf/flows.py` nunca passou `source_format`, caindo no default
+`"csv"` enquanto o `process_file` escreve parquet. O parâmetro errado era inofensivo até
+`beba2076` (#1677), que introduziu o `_sync_staging_schema` no ramo `dump_mode="append"` com
+staging já existente — ele chama `dump_header(source_format)`, que varre o diretório atrás de
+`.csv` e levanta `FileNotFoundError: Nenhum arquivo csv encontrado em br_rf_cno/output/<tabela>`.
+As quatro tabelas falharam no upload de dev, depois de limpar os parquets com sucesso.
+
+O `RawDataSource.Update` avançou para `2026-08-13` mesmo assim (o `commit_source_update_task`
+roda antes do crawl, por desenho). Sem consequência para as execuções seguintes: o poll compara
+contra a cobertura, que não se moveu.
+
+**Fix:** `source_format="parquet"` nos dois `upload_to_gcs` (dev e prod).

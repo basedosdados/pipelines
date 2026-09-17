@@ -1,0 +1,7 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the index value,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,Year
+zip_code_3,STRING,Three-digit USPS ZIP code prefix,,no,,,no,"USPS ZIP prefixes are not ZCTAs, so no link to br_bd_diretorios_us.zcta_2020 is declared",Three-Digit ZIP Code
+annual_change_percent,FLOAT64,Percentage change in the index from the previous year,,no,,percent,no,"Null in the first year of each series, which has no previous year",Annual Change (%)
+index_nsa,FLOAT64,"Annual house price index, not seasonally adjusted, with the first year of the series set to 100",,no,,index,no,,HPI
+index_nsa_1990_base,FLOAT64,Annual house price index rescaled so that 1990 equals 100,,no,,index,no,Null where the series does not reach 1990,HPI with 1990 base
+index_nsa_2000_base,FLOAT64,Annual house price index rescaled so that 2000 equals 100,,no,,index,no,Null where the series does not reach 2000,HPI with 2000 base

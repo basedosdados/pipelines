@@ -1,0 +1,1025 @@
+id_tabela,nome_coluna,chave,cobertura_temporal,valor
+provider,entity_type_code,1,,Individual
+provider,entity_type_code,2,,Organization
+provider,sex_code,M,,Male
+provider,sex_code,F,,Female
+provider,sex_code,U,,Undisclosed
+provider,sex_code,X,,Undisclosed
+provider,is_sole_proprietor,X,,Not answered
+provider,is_sole_proprietor,Y,,Yes
+provider,is_sole_proprietor,N,,No
+provider,is_organization_subpart,X,,Not answered
+provider,is_organization_subpart,Y,,Yes
+provider,is_organization_subpart,N,,No
+provider,other_organization_name_type_code,1,,Former name (individual)
+provider,other_organization_name_type_code,2,,Professional name (individual)
+provider,other_organization_name_type_code,3,,Doing business as (organization)
+provider,other_organization_name_type_code,4,,Former legal business name (organization)
+provider,other_organization_name_type_code,5,,Other name (individual or organization)
+provider,other_organization_name_type_code,6,,"Organization has other names, listed in the other_name table"
+provider,other_last_name_type_code,1,,Former name (individual)
+provider,other_last_name_type_code,2,,Professional name (individual)
+provider,other_last_name_type_code,3,,Doing business as (organization)
+provider,other_last_name_type_code,4,,Former legal business name (organization)
+provider,other_last_name_type_code,5,,Other name (individual or organization)
+taxonomy,is_primary_taxonomy,X,,Not answered
+taxonomy,is_primary_taxonomy,Y,,Yes
+taxonomy,is_primary_taxonomy,N,,No
+taxonomy,taxonomy_group_code,193200000X,,Multi-specialty group: a business group of one or more individual practitioners who practice in different areas of specialization
+taxonomy,taxonomy_group_code,193400000X,,Single specialty group: a business group of one or more individual practitioners who all practice in the same area of specialization
+other_identifier,other_identifier_type_code,01,,Other
+other_identifier,other_identifier_type_code,05,,Medicaid
+other_name,other_organization_name_type_code,1,,Former name (individual)
+other_name,other_organization_name_type_code,2,,Professional name (individual)
+other_name,other_organization_name_type_code,3,,Doing business as (organization)
+other_name,other_organization_name_type_code,4,,Former legal business name (organization)
+other_name,other_organization_name_type_code,5,,Other name (individual or organization)
+endpoint,endpoint_type,DIRECT,,Direct messaging address
+endpoint,endpoint_type,CONNECT,,CONNECT URL
+endpoint,endpoint_type,SOAP,,SOAP URL
+endpoint,endpoint_type,FHIR,,FHIR URL
+endpoint,endpoint_type,REST,,RESTful URL
+endpoint,endpoint_type,OTHERS,,Other URL
+endpoint,use_code,DIRECT,,Direct
+endpoint,use_code,HIE,,Health information exchange (HIE)
+endpoint,use_code,OTHER,,Other
+endpoint,content_type,CSV,,CSV
+endpoint,content_type,OTHER,,Other
+endpoint,affiliation,Y,,Yes
+endpoint,affiliation,N,,No
+provider,mailing_address_country_code,AD,,Andorra
+provider,mailing_address_country_code,AE,,United Arab Emirates
+provider,mailing_address_country_code,AF,,Afghanistan
+provider,mailing_address_country_code,AG,,Antigua and Barbuda
+provider,mailing_address_country_code,AI,,Anguilla
+provider,mailing_address_country_code,AL,,Albania
+provider,mailing_address_country_code,AM,,Armenia
+provider,mailing_address_country_code,AN,,Netherlands Antilles
+provider,mailing_address_country_code,AO,,Angola
+provider,mailing_address_country_code,AQ,,Antarctica
+provider,mailing_address_country_code,AR,,Argentina
+provider,mailing_address_country_code,AS,,American Samoa
+provider,mailing_address_country_code,AT,,Austria
+provider,mailing_address_country_code,AU,,Australia
+provider,mailing_address_country_code,AW,,Aruba
+provider,mailing_address_country_code,AX,,Aland Islands
+provider,mailing_address_country_code,AZ,,Azerbaijan
+provider,mailing_address_country_code,BA,,Bosnia and Herzegovina
+provider,mailing_address_country_code,BB,,Barbados
+provider,mailing_address_country_code,BD,,Bangladesh
+provider,mailing_address_country_code,BE,,Belgium
+provider,mailing_address_country_code,BF,,Burkina Faso
+provider,mailing_address_country_code,BG,,Bulgaria
+provider,mailing_address_country_code,BH,,Bahrain
+provider,mailing_address_country_code,BI,,Burundi
+provider,mailing_address_country_code,BJ,,Benin
+provider,mailing_address_country_code,BM,,Bermuda
+provider,mailing_address_country_code,BN,,Brunei Darussalam
+provider,mailing_address_country_code,BO,,Bolivia
+provider,mailing_address_country_code,BR,,Brazil
+provider,mailing_address_country_code,BS,,Bahamas
+provider,mailing_address_country_code,BT,,Bhutan
+provider,mailing_address_country_code,BV,,Bouvet Island
+provider,mailing_address_country_code,BW,,Botswana
+provider,mailing_address_country_code,BY,,Belarus
+provider,mailing_address_country_code,BZ,,Belize
+provider,mailing_address_country_code,CA,,Canada
+provider,mailing_address_country_code,CC,,Cocos (Keeling) Islands
+provider,mailing_address_country_code,CD,,"Congo, the Democratic Republic of the"
+provider,mailing_address_country_code,CF,,Central African Republic
+provider,mailing_address_country_code,CG,,Congo
+provider,mailing_address_country_code,CH,,Switzerland
+provider,mailing_address_country_code,CI,,Côte D'Ivoire
+provider,mailing_address_country_code,CK,,Cook Islands
+provider,mailing_address_country_code,CL,,Chile
+provider,mailing_address_country_code,CM,,Cameroon
+provider,mailing_address_country_code,CN,,China
+provider,mailing_address_country_code,CO,,Colombia
+provider,mailing_address_country_code,CR,,Costa Rica
+provider,mailing_address_country_code,CS,,Serbia and Montenegro
+provider,mailing_address_country_code,CU,,Cuba
+provider,mailing_address_country_code,CV,,Cape Verde
+provider,mailing_address_country_code,CX,,Christmas Island
+provider,mailing_address_country_code,CY,,Cyprus
+provider,mailing_address_country_code,CZ,,Czech Republic
+provider,mailing_address_country_code,DE,,Germany
+provider,mailing_address_country_code,DJ,,Djibouti
+provider,mailing_address_country_code,DK,,Denmark
+provider,mailing_address_country_code,DM,,Dominica
+provider,mailing_address_country_code,DO,,Dominican Republic
+provider,mailing_address_country_code,DZ,,Algeria
+provider,mailing_address_country_code,EC,,Ecuador
+provider,mailing_address_country_code,EE,,Estonia
+provider,mailing_address_country_code,EG,,Egypt
+provider,mailing_address_country_code,EH,,Western Sahara
+provider,mailing_address_country_code,ER,,Eritrea
+provider,mailing_address_country_code,ES,,Spain
+provider,mailing_address_country_code,ET,,Ethiopia
+provider,mailing_address_country_code,FI,,Finland
+provider,mailing_address_country_code,FJ,,Fiji
+provider,mailing_address_country_code,FK,,Falkland Islands (Malvinas)
+provider,mailing_address_country_code,FM,,"Micronesia, Federated States of"
+provider,mailing_address_country_code,FO,,Faroe Islands
+provider,mailing_address_country_code,FR,,France
+provider,mailing_address_country_code,GA,,Gabon
+provider,mailing_address_country_code,GB,,Great Britain (UK)
+provider,mailing_address_country_code,GD,,Grenada
+provider,mailing_address_country_code,GE,,Georgia
+provider,mailing_address_country_code,GF,,French Guiana
+provider,mailing_address_country_code,GG,,Guernsey
+provider,mailing_address_country_code,GH,,Ghana
+provider,mailing_address_country_code,GI,,Gibraltar
+provider,mailing_address_country_code,GL,,Greenland
+provider,mailing_address_country_code,GM,,Gambia
+provider,mailing_address_country_code,GN,,Guinea
+provider,mailing_address_country_code,GP,,Guadeloupe
+provider,mailing_address_country_code,GQ,,Equatorial Guinea
+provider,mailing_address_country_code,GR,,Greece
+provider,mailing_address_country_code,GS,,South Georgia and the South Sandwich Islands
+provider,mailing_address_country_code,GT,,Guatemala
+provider,mailing_address_country_code,GU,,Guam
+provider,mailing_address_country_code,GW,,Guinea-Bissau
+provider,mailing_address_country_code,GY,,Guyana
+provider,mailing_address_country_code,HK,,Hong Kong
+provider,mailing_address_country_code,HM,,Heard Island and Mcdonald Islands
+provider,mailing_address_country_code,HN,,Honduras
+provider,mailing_address_country_code,HR,,Croatia
+provider,mailing_address_country_code,HT,,Haiti
+provider,mailing_address_country_code,HU,,Hungary
+provider,mailing_address_country_code,ID,,Indonesia
+provider,mailing_address_country_code,IE,,Ireland
+provider,mailing_address_country_code,IL,,Israel
+provider,mailing_address_country_code,IM,,Isle of Man
+provider,mailing_address_country_code,IN,,India
+provider,mailing_address_country_code,IO,,British Indian Ocean Territory
+provider,mailing_address_country_code,IQ,,Iraq
+provider,mailing_address_country_code,IR,,"Iran, Islamic Republic of"
+provider,mailing_address_country_code,IS,,Iceland
+provider,mailing_address_country_code,IT,,Italy
+provider,mailing_address_country_code,JE,,Jersey
+provider,mailing_address_country_code,JM,,Jamaica
+provider,mailing_address_country_code,JO,,Jordan
+provider,mailing_address_country_code,JP,,Japan
+provider,mailing_address_country_code,KE,,Kenya
+provider,mailing_address_country_code,KG,,Kyrgyzstan
+provider,mailing_address_country_code,KH,,Cambodia
+provider,mailing_address_country_code,KI,,Kiribati
+provider,mailing_address_country_code,KM,,Comoros
+provider,mailing_address_country_code,KN,,Saint Kitts and Nevis
+provider,mailing_address_country_code,KP,,"Korea, Democratic People'S Republic of"
+provider,mailing_address_country_code,KR,,"Korea, Republic of"
+provider,mailing_address_country_code,KW,,Kuwait
+provider,mailing_address_country_code,KY,,Cayman Islands
+provider,mailing_address_country_code,KZ,,Kazakhstan
+provider,mailing_address_country_code,LA,,Lao People'S Democratic Republic
+provider,mailing_address_country_code,LB,,Lebanon
+provider,mailing_address_country_code,LC,,Saint Lucia
+provider,mailing_address_country_code,LI,,Liechtenstein
+provider,mailing_address_country_code,LK,,Sri Lanka
+provider,mailing_address_country_code,LR,,Liberia
+provider,mailing_address_country_code,LS,,Lesotho
+provider,mailing_address_country_code,LT,,Lithuania
+provider,mailing_address_country_code,LU,,Luxembourg
+provider,mailing_address_country_code,LV,,Latvia
+provider,mailing_address_country_code,LY,,Libyan Arab Jamahiriya
+provider,mailing_address_country_code,MA,,Morocco
+provider,mailing_address_country_code,MC,,Monaco
+provider,mailing_address_country_code,MD,,"Moldova, Republic of"
+provider,mailing_address_country_code,MG,,Madagascar
+provider,mailing_address_country_code,MH,,Marshall Islands
+provider,mailing_address_country_code,MK,,"Macedonia, the Former Yugoslav Republic of"
+provider,mailing_address_country_code,ML,,Mali
+provider,mailing_address_country_code,MM,,Myanmar
+provider,mailing_address_country_code,MN,,Mongolia
+provider,mailing_address_country_code,MO,,Macao
+provider,mailing_address_country_code,MP,,Northern Mariana Islands
+provider,mailing_address_country_code,MQ,,Martinique
+provider,mailing_address_country_code,MR,,Mauritania
+provider,mailing_address_country_code,MS,,Montserrat
+provider,mailing_address_country_code,MT,,Malta
+provider,mailing_address_country_code,MU,,Mauritius
+provider,mailing_address_country_code,MV,,Maldives
+provider,mailing_address_country_code,MW,,Malawi
+provider,mailing_address_country_code,MX,,Mexico
+provider,mailing_address_country_code,MY,,Malaysia
+provider,mailing_address_country_code,MZ,,Mozambique
+provider,mailing_address_country_code,NA,,Namibia
+provider,mailing_address_country_code,NC,,New Caledonia
+provider,mailing_address_country_code,NE,,Niger
+provider,mailing_address_country_code,NF,,Norfolk Island
+provider,mailing_address_country_code,NG,,Nigeria
+provider,mailing_address_country_code,NI,,Nicaragua
+provider,mailing_address_country_code,NL,,Netherlands
+provider,mailing_address_country_code,NO,,Norway
+provider,mailing_address_country_code,NP,,Nepal
+provider,mailing_address_country_code,NR,,Nauru
+provider,mailing_address_country_code,NU,,Niue
+provider,mailing_address_country_code,NZ,,New Zealand
+provider,mailing_address_country_code,OM,,Oman
+provider,mailing_address_country_code,PA,,Panama
+provider,mailing_address_country_code,PE,,Peru
+provider,mailing_address_country_code,PF,,French Polynesia
+provider,mailing_address_country_code,PG,,Papua New Guinea
+provider,mailing_address_country_code,PH,,Philippines
+provider,mailing_address_country_code,PK,,Pakistan
+provider,mailing_address_country_code,PL,,Poland
+provider,mailing_address_country_code,PM,,Saint Pierre and Miquelon
+provider,mailing_address_country_code,PN,,Pitcairn
+provider,mailing_address_country_code,PR,,Puerto Rico
+provider,mailing_address_country_code,PS,,"Palestinian Territory, Occupied"
+provider,mailing_address_country_code,PT,,Portugal
+provider,mailing_address_country_code,PW,,Palau
+provider,mailing_address_country_code,PY,,Paraguay
+provider,mailing_address_country_code,QA,,Qatar
+provider,mailing_address_country_code,RE,,Reunion
+provider,mailing_address_country_code,RO,,Romania
+provider,mailing_address_country_code,RU,,Russian Federation
+provider,mailing_address_country_code,RW,,Rwanda
+provider,mailing_address_country_code,SA,,Saudi Arabia
+provider,mailing_address_country_code,SB,,Solomon Islands
+provider,mailing_address_country_code,SC,,Seychelles
+provider,mailing_address_country_code,SD,,Sudan
+provider,mailing_address_country_code,SE,,Sweden
+provider,mailing_address_country_code,SG,,Singapore
+provider,mailing_address_country_code,SH,,Saint Helena
+provider,mailing_address_country_code,SI,,Slovenia
+provider,mailing_address_country_code,SJ,,Svalbard and Jan Mayen
+provider,mailing_address_country_code,SK,,Slovakia
+provider,mailing_address_country_code,SL,,Sierra Leone
+provider,mailing_address_country_code,SM,,San Marino
+provider,mailing_address_country_code,SN,,Senegal
+provider,mailing_address_country_code,SO,,Somalia
+provider,mailing_address_country_code,SR,,Suriname
+provider,mailing_address_country_code,ST,,Sao Tome and Principe
+provider,mailing_address_country_code,SV,,El Salvador
+provider,mailing_address_country_code,SY,,Syrian Arab Republic
+provider,mailing_address_country_code,SZ,,Swaziland
+provider,mailing_address_country_code,TC,,Turks and Caicos Islands
+provider,mailing_address_country_code,TD,,Chad
+provider,mailing_address_country_code,TF,,French Southern Territories
+provider,mailing_address_country_code,TG,,Togo
+provider,mailing_address_country_code,TH,,Thailand
+provider,mailing_address_country_code,TJ,,Tajikistan
+provider,mailing_address_country_code,TK,,Tokelau
+provider,mailing_address_country_code,TL,,Timor-Leste
+provider,mailing_address_country_code,TM,,Turkmenistan
+provider,mailing_address_country_code,TN,,Tunisia
+provider,mailing_address_country_code,TO,,Tonga
+provider,mailing_address_country_code,TR,,Turkey
+provider,mailing_address_country_code,TT,,Trinidad and Tobago
+provider,mailing_address_country_code,TV,,Tuvalu
+provider,mailing_address_country_code,TW,,Taiwan
+provider,mailing_address_country_code,TZ,,"Tanzania, United Republic of"
+provider,mailing_address_country_code,UA,,Ukraine
+provider,mailing_address_country_code,UG,,Uganda
+provider,mailing_address_country_code,UM,,United States Minor Outlying Islands
+provider,mailing_address_country_code,US,,United States
+provider,mailing_address_country_code,UY,,Uruguay
+provider,mailing_address_country_code,UZ,,Uzbekistan
+provider,mailing_address_country_code,VA,,Holy See (Vatican City State)
+provider,mailing_address_country_code,VC,,Saint Vincent and the Grenadines
+provider,mailing_address_country_code,VE,,Venezuela
+provider,mailing_address_country_code,VG,,"Virgin Islands, British"
+provider,mailing_address_country_code,VI,,"Virgin Islands, U.S."
+provider,mailing_address_country_code,VN,,Viet Nam
+provider,mailing_address_country_code,VU,,Vanuatu
+provider,mailing_address_country_code,WF,,Wallis and Futuna
+provider,mailing_address_country_code,WS,,Samoa
+provider,mailing_address_country_code,XK,,Kosovo
+provider,mailing_address_country_code,YE,,Yemen
+provider,mailing_address_country_code,YT,,Mayotte
+provider,mailing_address_country_code,ZA,,South Africa
+provider,mailing_address_country_code,ZM,,Zambia
+provider,mailing_address_country_code,ZW,,Zimbabwe
+provider,practice_address_country_code,AD,,Andorra
+provider,practice_address_country_code,AE,,United Arab Emirates
+provider,practice_address_country_code,AF,,Afghanistan
+provider,practice_address_country_code,AG,,Antigua and Barbuda
+provider,practice_address_country_code,AI,,Anguilla
+provider,practice_address_country_code,AL,,Albania
+provider,practice_address_country_code,AM,,Armenia
+provider,practice_address_country_code,AN,,Netherlands Antilles
+provider,practice_address_country_code,AO,,Angola
+provider,practice_address_country_code,AQ,,Antarctica
+provider,practice_address_country_code,AR,,Argentina
+provider,practice_address_country_code,AS,,American Samoa
+provider,practice_address_country_code,AT,,Austria
+provider,practice_address_country_code,AU,,Australia
+provider,practice_address_country_code,AW,,Aruba
+provider,practice_address_country_code,AX,,Aland Islands
+provider,practice_address_country_code,AZ,,Azerbaijan
+provider,practice_address_country_code,BA,,Bosnia and Herzegovina
+provider,practice_address_country_code,BB,,Barbados
+provider,practice_address_country_code,BD,,Bangladesh
+provider,practice_address_country_code,BE,,Belgium
+provider,practice_address_country_code,BF,,Burkina Faso
+provider,practice_address_country_code,BG,,Bulgaria
+provider,practice_address_country_code,BH,,Bahrain
+provider,practice_address_country_code,BI,,Burundi
+provider,practice_address_country_code,BJ,,Benin
+provider,practice_address_country_code,BM,,Bermuda
+provider,practice_address_country_code,BN,,Brunei Darussalam
+provider,practice_address_country_code,BO,,Bolivia
+provider,practice_address_country_code,BR,,Brazil
+provider,practice_address_country_code,BS,,Bahamas
+provider,practice_address_country_code,BT,,Bhutan
+provider,practice_address_country_code,BV,,Bouvet Island
+provider,practice_address_country_code,BW,,Botswana
+provider,practice_address_country_code,BY,,Belarus
+provider,practice_address_country_code,BZ,,Belize
+provider,practice_address_country_code,CA,,Canada
+provider,practice_address_country_code,CC,,Cocos (Keeling) Islands
+provider,practice_address_country_code,CD,,"Congo, the Democratic Republic of the"
+provider,practice_address_country_code,CF,,Central African Republic
+provider,practice_address_country_code,CG,,Congo
+provider,practice_address_country_code,CH,,Switzerland
+provider,practice_address_country_code,CI,,Côte D'Ivoire
+provider,practice_address_country_code,CK,,Cook Islands
+provider,practice_address_country_code,CL,,Chile
+provider,practice_address_country_code,CM,,Cameroon
+provider,practice_address_country_code,CN,,China
+provider,practice_address_country_code,CO,,Colombia
+provider,practice_address_country_code,CR,,Costa Rica
+provider,practice_address_country_code,CS,,Serbia and Montenegro
+provider,practice_address_country_code,CU,,Cuba
+provider,practice_address_country_code,CV,,Cape Verde
+provider,practice_address_country_code,CX,,Christmas Island
+provider,practice_address_country_code,CY,,Cyprus
+provider,practice_address_country_code,CZ,,Czech Republic
+provider,practice_address_country_code,DE,,Germany
+provider,practice_address_country_code,DJ,,Djibouti
+provider,practice_address_country_code,DK,,Denmark
+provider,practice_address_country_code,DM,,Dominica
+provider,practice_address_country_code,DO,,Dominican Republic
+provider,practice_address_country_code,DZ,,Algeria
+provider,practice_address_country_code,EC,,Ecuador
+provider,practice_address_country_code,EE,,Estonia
+provider,practice_address_country_code,EG,,Egypt
+provider,practice_address_country_code,EH,,Western Sahara
+provider,practice_address_country_code,ER,,Eritrea
+provider,practice_address_country_code,ES,,Spain
+provider,practice_address_country_code,ET,,Ethiopia
+provider,practice_address_country_code,FI,,Finland
+provider,practice_address_country_code,FJ,,Fiji
+provider,practice_address_country_code,FK,,Falkland Islands (Malvinas)
+provider,practice_address_country_code,FM,,"Micronesia, Federated States of"
+provider,practice_address_country_code,FO,,Faroe Islands
+provider,practice_address_country_code,FR,,France
+provider,practice_address_country_code,GA,,Gabon
+provider,practice_address_country_code,GB,,Great Britain (UK)
+provider,practice_address_country_code,GD,,Grenada
+provider,practice_address_country_code,GE,,Georgia
+provider,practice_address_country_code,GF,,French Guiana
+provider,practice_address_country_code,GG,,Guernsey
+provider,practice_address_country_code,GH,,Ghana
+provider,practice_address_country_code,GI,,Gibraltar
+provider,practice_address_country_code,GL,,Greenland
+provider,practice_address_country_code,GM,,Gambia
+provider,practice_address_country_code,GN,,Guinea
+provider,practice_address_country_code,GP,,Guadeloupe
+provider,practice_address_country_code,GQ,,Equatorial Guinea
+provider,practice_address_country_code,GR,,Greece
+provider,practice_address_country_code,GS,,South Georgia and the South Sandwich Islands
+provider,practice_address_country_code,GT,,Guatemala
+provider,practice_address_country_code,GU,,Guam
+provider,practice_address_country_code,GW,,Guinea-Bissau
+provider,practice_address_country_code,GY,,Guyana
+provider,practice_address_country_code,HK,,Hong Kong
+provider,practice_address_country_code,HM,,Heard Island and Mcdonald Islands
+provider,practice_address_country_code,HN,,Honduras
+provider,practice_address_country_code,HR,,Croatia
+provider,practice_address_country_code,HT,,Haiti
+provider,practice_address_country_code,HU,,Hungary
+provider,practice_address_country_code,ID,,Indonesia
+provider,practice_address_country_code,IE,,Ireland
+provider,practice_address_country_code,IL,,Israel
+provider,practice_address_country_code,IM,,Isle of Man
+provider,practice_address_country_code,IN,,India
+provider,practice_address_country_code,IO,,British Indian Ocean Territory
+provider,practice_address_country_code,IQ,,Iraq
+provider,practice_address_country_code,IR,,"Iran, Islamic Republic of"
+provider,practice_address_country_code,IS,,Iceland
+provider,practice_address_country_code,IT,,Italy
+provider,practice_address_country_code,JE,,Jersey
+provider,practice_address_country_code,JM,,Jamaica
+provider,practice_address_country_code,JO,,Jordan
+provider,practice_address_country_code,JP,,Japan
+provider,practice_address_country_code,KE,,Kenya
+provider,practice_address_country_code,KG,,Kyrgyzstan
+provider,practice_address_country_code,KH,,Cambodia
+provider,practice_address_country_code,KI,,Kiribati
+provider,practice_address_country_code,KM,,Comoros
+provider,practice_address_country_code,KN,,Saint Kitts and Nevis
+provider,practice_address_country_code,KP,,"Korea, Democratic People'S Republic of"
+provider,practice_address_country_code,KR,,"Korea, Republic of"
+provider,practice_address_country_code,KW,,Kuwait
+provider,practice_address_country_code,KY,,Cayman Islands
+provider,practice_address_country_code,KZ,,Kazakhstan
+provider,practice_address_country_code,LA,,Lao People'S Democratic Republic
+provider,practice_address_country_code,LB,,Lebanon
+provider,practice_address_country_code,LC,,Saint Lucia
+provider,practice_address_country_code,LI,,Liechtenstein
+provider,practice_address_country_code,LK,,Sri Lanka
+provider,practice_address_country_code,LR,,Liberia
+provider,practice_address_country_code,LS,,Lesotho
+provider,practice_address_country_code,LT,,Lithuania
+provider,practice_address_country_code,LU,,Luxembourg
+provider,practice_address_country_code,LV,,Latvia
+provider,practice_address_country_code,LY,,Libyan Arab Jamahiriya
+provider,practice_address_country_code,MA,,Morocco
+provider,practice_address_country_code,MC,,Monaco
+provider,practice_address_country_code,MD,,"Moldova, Republic of"
+provider,practice_address_country_code,MG,,Madagascar
+provider,practice_address_country_code,MH,,Marshall Islands
+provider,practice_address_country_code,MK,,"Macedonia, the Former Yugoslav Republic of"
+provider,practice_address_country_code,ML,,Mali
+provider,practice_address_country_code,MM,,Myanmar
+provider,practice_address_country_code,MN,,Mongolia
+provider,practice_address_country_code,MO,,Macao
+provider,practice_address_country_code,MP,,Northern Mariana Islands
+provider,practice_address_country_code,MQ,,Martinique
+provider,practice_address_country_code,MR,,Mauritania
+provider,practice_address_country_code,MS,,Montserrat
+provider,practice_address_country_code,MT,,Malta
+provider,practice_address_country_code,MU,,Mauritius
+provider,practice_address_country_code,MV,,Maldives
+provider,practice_address_country_code,MW,,Malawi
+provider,practice_address_country_code,MX,,Mexico
+provider,practice_address_country_code,MY,,Malaysia
+provider,practice_address_country_code,MZ,,Mozambique
+provider,practice_address_country_code,NA,,Namibia
+provider,practice_address_country_code,NC,,New Caledonia
+provider,practice_address_country_code,NE,,Niger
+provider,practice_address_country_code,NF,,Norfolk Island
+provider,practice_address_country_code,NG,,Nigeria
+provider,practice_address_country_code,NI,,Nicaragua
+provider,practice_address_country_code,NL,,Netherlands
+provider,practice_address_country_code,NO,,Norway
+provider,practice_address_country_code,NP,,Nepal
+provider,practice_address_country_code,NR,,Nauru
+provider,practice_address_country_code,NU,,Niue
+provider,practice_address_country_code,NZ,,New Zealand
+provider,practice_address_country_code,OM,,Oman
+provider,practice_address_country_code,PA,,Panama
+provider,practice_address_country_code,PE,,Peru
+provider,practice_address_country_code,PF,,French Polynesia
+provider,practice_address_country_code,PG,,Papua New Guinea
+provider,practice_address_country_code,PH,,Philippines
+provider,practice_address_country_code,PK,,Pakistan
+provider,practice_address_country_code,PL,,Poland
+provider,practice_address_country_code,PM,,Saint Pierre and Miquelon
+provider,practice_address_country_code,PN,,Pitcairn
+provider,practice_address_country_code,PR,,Puerto Rico
+provider,practice_address_country_code,PS,,"Palestinian Territory, Occupied"
+provider,practice_address_country_code,PT,,Portugal
+provider,practice_address_country_code,PW,,Palau
+provider,practice_address_country_code,PY,,Paraguay
+provider,practice_address_country_code,QA,,Qatar
+provider,practice_address_country_code,RE,,Reunion
+provider,practice_address_country_code,RO,,Romania
+provider,practice_address_country_code,RU,,Russian Federation
+provider,practice_address_country_code,RW,,Rwanda
+provider,practice_address_country_code,SA,,Saudi Arabia
+provider,practice_address_country_code,SB,,Solomon Islands
+provider,practice_address_country_code,SC,,Seychelles
+provider,practice_address_country_code,SD,,Sudan
+provider,practice_address_country_code,SE,,Sweden
+provider,practice_address_country_code,SG,,Singapore
+provider,practice_address_country_code,SH,,Saint Helena
+provider,practice_address_country_code,SI,,Slovenia
+provider,practice_address_country_code,SJ,,Svalbard and Jan Mayen
+provider,practice_address_country_code,SK,,Slovakia
+provider,practice_address_country_code,SL,,Sierra Leone
+provider,practice_address_country_code,SM,,San Marino
+provider,practice_address_country_code,SN,,Senegal
+provider,practice_address_country_code,SO,,Somalia
+provider,practice_address_country_code,SR,,Suriname
+provider,practice_address_country_code,ST,,Sao Tome and Principe
+provider,practice_address_country_code,SV,,El Salvador
+provider,practice_address_country_code,SY,,Syrian Arab Republic
+provider,practice_address_country_code,SZ,,Swaziland
+provider,practice_address_country_code,TC,,Turks and Caicos Islands
+provider,practice_address_country_code,TD,,Chad
+provider,practice_address_country_code,TF,,French Southern Territories
+provider,practice_address_country_code,TG,,Togo
+provider,practice_address_country_code,TH,,Thailand
+provider,practice_address_country_code,TJ,,Tajikistan
+provider,practice_address_country_code,TK,,Tokelau
+provider,practice_address_country_code,TL,,Timor-Leste
+provider,practice_address_country_code,TM,,Turkmenistan
+provider,practice_address_country_code,TN,,Tunisia
+provider,practice_address_country_code,TO,,Tonga
+provider,practice_address_country_code,TR,,Turkey
+provider,practice_address_country_code,TT,,Trinidad and Tobago
+provider,practice_address_country_code,TV,,Tuvalu
+provider,practice_address_country_code,TW,,Taiwan
+provider,practice_address_country_code,TZ,,"Tanzania, United Republic of"
+provider,practice_address_country_code,UA,,Ukraine
+provider,practice_address_country_code,UG,,Uganda
+provider,practice_address_country_code,UM,,United States Minor Outlying Islands
+provider,practice_address_country_code,US,,United States
+provider,practice_address_country_code,UY,,Uruguay
+provider,practice_address_country_code,UZ,,Uzbekistan
+provider,practice_address_country_code,VA,,Holy See (Vatican City State)
+provider,practice_address_country_code,VC,,Saint Vincent and the Grenadines
+provider,practice_address_country_code,VE,,Venezuela
+provider,practice_address_country_code,VG,,"Virgin Islands, British"
+provider,practice_address_country_code,VI,,"Virgin Islands, U.S."
+provider,practice_address_country_code,VN,,Viet Nam
+provider,practice_address_country_code,VU,,Vanuatu
+provider,practice_address_country_code,WF,,Wallis and Futuna
+provider,practice_address_country_code,WS,,Samoa
+provider,practice_address_country_code,XK,,Kosovo
+provider,practice_address_country_code,YE,,Yemen
+provider,practice_address_country_code,YT,,Mayotte
+provider,practice_address_country_code,ZA,,South Africa
+provider,practice_address_country_code,ZM,,Zambia
+provider,practice_address_country_code,ZW,,Zimbabwe
+practice_location,address_country_code,AD,,Andorra
+practice_location,address_country_code,AE,,United Arab Emirates
+practice_location,address_country_code,AF,,Afghanistan
+practice_location,address_country_code,AG,,Antigua and Barbuda
+practice_location,address_country_code,AI,,Anguilla
+practice_location,address_country_code,AL,,Albania
+practice_location,address_country_code,AM,,Armenia
+practice_location,address_country_code,AN,,Netherlands Antilles
+practice_location,address_country_code,AO,,Angola
+practice_location,address_country_code,AQ,,Antarctica
+practice_location,address_country_code,AR,,Argentina
+practice_location,address_country_code,AS,,American Samoa
+practice_location,address_country_code,AT,,Austria
+practice_location,address_country_code,AU,,Australia
+practice_location,address_country_code,AW,,Aruba
+practice_location,address_country_code,AX,,Aland Islands
+practice_location,address_country_code,AZ,,Azerbaijan
+practice_location,address_country_code,BA,,Bosnia and Herzegovina
+practice_location,address_country_code,BB,,Barbados
+practice_location,address_country_code,BD,,Bangladesh
+practice_location,address_country_code,BE,,Belgium
+practice_location,address_country_code,BF,,Burkina Faso
+practice_location,address_country_code,BG,,Bulgaria
+practice_location,address_country_code,BH,,Bahrain
+practice_location,address_country_code,BI,,Burundi
+practice_location,address_country_code,BJ,,Benin
+practice_location,address_country_code,BM,,Bermuda
+practice_location,address_country_code,BN,,Brunei Darussalam
+practice_location,address_country_code,BO,,Bolivia
+practice_location,address_country_code,BR,,Brazil
+practice_location,address_country_code,BS,,Bahamas
+practice_location,address_country_code,BT,,Bhutan
+practice_location,address_country_code,BV,,Bouvet Island
+practice_location,address_country_code,BW,,Botswana
+practice_location,address_country_code,BY,,Belarus
+practice_location,address_country_code,BZ,,Belize
+practice_location,address_country_code,CA,,Canada
+practice_location,address_country_code,CC,,Cocos (Keeling) Islands
+practice_location,address_country_code,CD,,"Congo, the Democratic Republic of the"
+practice_location,address_country_code,CF,,Central African Republic
+practice_location,address_country_code,CG,,Congo
+practice_location,address_country_code,CH,,Switzerland
+practice_location,address_country_code,CI,,Côte D'Ivoire
+practice_location,address_country_code,CK,,Cook Islands
+practice_location,address_country_code,CL,,Chile
+practice_location,address_country_code,CM,,Cameroon
+practice_location,address_country_code,CN,,China
+practice_location,address_country_code,CO,,Colombia
+practice_location,address_country_code,CR,,Costa Rica
+practice_location,address_country_code,CS,,Serbia and Montenegro
+practice_location,address_country_code,CU,,Cuba
+practice_location,address_country_code,CV,,Cape Verde
+practice_location,address_country_code,CX,,Christmas Island
+practice_location,address_country_code,CY,,Cyprus
+practice_location,address_country_code,CZ,,Czech Republic
+practice_location,address_country_code,DE,,Germany
+practice_location,address_country_code,DJ,,Djibouti
+practice_location,address_country_code,DK,,Denmark
+practice_location,address_country_code,DM,,Dominica
+practice_location,address_country_code,DO,,Dominican Republic
+practice_location,address_country_code,DZ,,Algeria
+practice_location,address_country_code,EC,,Ecuador
+practice_location,address_country_code,EE,,Estonia
+practice_location,address_country_code,EG,,Egypt
+practice_location,address_country_code,EH,,Western Sahara
+practice_location,address_country_code,ER,,Eritrea
+practice_location,address_country_code,ES,,Spain
+practice_location,address_country_code,ET,,Ethiopia
+practice_location,address_country_code,FI,,Finland
+practice_location,address_country_code,FJ,,Fiji
+practice_location,address_country_code,FK,,Falkland Islands (Malvinas)
+practice_location,address_country_code,FM,,"Micronesia, Federated States of"
+practice_location,address_country_code,FO,,Faroe Islands
+practice_location,address_country_code,FR,,France
+practice_location,address_country_code,GA,,Gabon
+practice_location,address_country_code,GB,,Great Britain (UK)
+practice_location,address_country_code,GD,,Grenada
+practice_location,address_country_code,GE,,Georgia
+practice_location,address_country_code,GF,,French Guiana
+practice_location,address_country_code,GG,,Guernsey
+practice_location,address_country_code,GH,,Ghana
+practice_location,address_country_code,GI,,Gibraltar
+practice_location,address_country_code,GL,,Greenland
+practice_location,address_country_code,GM,,Gambia
+practice_location,address_country_code,GN,,Guinea
+practice_location,address_country_code,GP,,Guadeloupe
+practice_location,address_country_code,GQ,,Equatorial Guinea
+practice_location,address_country_code,GR,,Greece
+practice_location,address_country_code,GS,,South Georgia and the South Sandwich Islands
+practice_location,address_country_code,GT,,Guatemala
+practice_location,address_country_code,GU,,Guam
+practice_location,address_country_code,GW,,Guinea-Bissau
+practice_location,address_country_code,GY,,Guyana
+practice_location,address_country_code,HK,,Hong Kong
+practice_location,address_country_code,HM,,Heard Island and Mcdonald Islands
+practice_location,address_country_code,HN,,Honduras
+practice_location,address_country_code,HR,,Croatia
+practice_location,address_country_code,HT,,Haiti
+practice_location,address_country_code,HU,,Hungary
+practice_location,address_country_code,ID,,Indonesia
+practice_location,address_country_code,IE,,Ireland
+practice_location,address_country_code,IL,,Israel
+practice_location,address_country_code,IM,,Isle of Man
+practice_location,address_country_code,IN,,India
+practice_location,address_country_code,IO,,British Indian Ocean Territory
+practice_location,address_country_code,IQ,,Iraq
+practice_location,address_country_code,IR,,"Iran, Islamic Republic of"
+practice_location,address_country_code,IS,,Iceland
+practice_location,address_country_code,IT,,Italy
+practice_location,address_country_code,JE,,Jersey
+practice_location,address_country_code,JM,,Jamaica
+practice_location,address_country_code,JO,,Jordan
+practice_location,address_country_code,JP,,Japan
+practice_location,address_country_code,KE,,Kenya
+practice_location,address_country_code,KG,,Kyrgyzstan
+practice_location,address_country_code,KH,,Cambodia
+practice_location,address_country_code,KI,,Kiribati
+practice_location,address_country_code,KM,,Comoros
+practice_location,address_country_code,KN,,Saint Kitts and Nevis
+practice_location,address_country_code,KP,,"Korea, Democratic People'S Republic of"
+practice_location,address_country_code,KR,,"Korea, Republic of"
+practice_location,address_country_code,KW,,Kuwait
+practice_location,address_country_code,KY,,Cayman Islands
+practice_location,address_country_code,KZ,,Kazakhstan
+practice_location,address_country_code,LA,,Lao People'S Democratic Republic
+practice_location,address_country_code,LB,,Lebanon
+practice_location,address_country_code,LC,,Saint Lucia
+practice_location,address_country_code,LI,,Liechtenstein
+practice_location,address_country_code,LK,,Sri Lanka
+practice_location,address_country_code,LR,,Liberia
+practice_location,address_country_code,LS,,Lesotho
+practice_location,address_country_code,LT,,Lithuania
+practice_location,address_country_code,LU,,Luxembourg
+practice_location,address_country_code,LV,,Latvia
+practice_location,address_country_code,LY,,Libyan Arab Jamahiriya
+practice_location,address_country_code,MA,,Morocco
+practice_location,address_country_code,MC,,Monaco
+practice_location,address_country_code,MD,,"Moldova, Republic of"
+practice_location,address_country_code,MG,,Madagascar
+practice_location,address_country_code,MH,,Marshall Islands
+practice_location,address_country_code,MK,,"Macedonia, the Former Yugoslav Republic of"
+practice_location,address_country_code,ML,,Mali
+practice_location,address_country_code,MM,,Myanmar
+practice_location,address_country_code,MN,,Mongolia
+practice_location,address_country_code,MO,,Macao
+practice_location,address_country_code,MP,,Northern Mariana Islands
+practice_location,address_country_code,MQ,,Martinique
+practice_location,address_country_code,MR,,Mauritania
+practice_location,address_country_code,MS,,Montserrat
+practice_location,address_country_code,MT,,Malta
+practice_location,address_country_code,MU,,Mauritius
+practice_location,address_country_code,MV,,Maldives
+practice_location,address_country_code,MW,,Malawi
+practice_location,address_country_code,MX,,Mexico
+practice_location,address_country_code,MY,,Malaysia
+practice_location,address_country_code,MZ,,Mozambique
+practice_location,address_country_code,NA,,Namibia
+practice_location,address_country_code,NC,,New Caledonia
+practice_location,address_country_code,NE,,Niger
+practice_location,address_country_code,NF,,Norfolk Island
+practice_location,address_country_code,NG,,Nigeria
+practice_location,address_country_code,NI,,Nicaragua
+practice_location,address_country_code,NL,,Netherlands
+practice_location,address_country_code,NO,,Norway
+practice_location,address_country_code,NP,,Nepal
+practice_location,address_country_code,NR,,Nauru
+practice_location,address_country_code,NU,,Niue
+practice_location,address_country_code,NZ,,New Zealand
+practice_location,address_country_code,OM,,Oman
+practice_location,address_country_code,PA,,Panama
+practice_location,address_country_code,PE,,Peru
+practice_location,address_country_code,PF,,French Polynesia
+practice_location,address_country_code,PG,,Papua New Guinea
+practice_location,address_country_code,PH,,Philippines
+practice_location,address_country_code,PK,,Pakistan
+practice_location,address_country_code,PL,,Poland
+practice_location,address_country_code,PM,,Saint Pierre and Miquelon
+practice_location,address_country_code,PN,,Pitcairn
+practice_location,address_country_code,PR,,Puerto Rico
+practice_location,address_country_code,PS,,"Palestinian Territory, Occupied"
+practice_location,address_country_code,PT,,Portugal
+practice_location,address_country_code,PW,,Palau
+practice_location,address_country_code,PY,,Paraguay
+practice_location,address_country_code,QA,,Qatar
+practice_location,address_country_code,RE,,Reunion
+practice_location,address_country_code,RO,,Romania
+practice_location,address_country_code,RU,,Russian Federation
+practice_location,address_country_code,RW,,Rwanda
+practice_location,address_country_code,SA,,Saudi Arabia
+practice_location,address_country_code,SB,,Solomon Islands
+practice_location,address_country_code,SC,,Seychelles
+practice_location,address_country_code,SD,,Sudan
+practice_location,address_country_code,SE,,Sweden
+practice_location,address_country_code,SG,,Singapore
+practice_location,address_country_code,SH,,Saint Helena
+practice_location,address_country_code,SI,,Slovenia
+practice_location,address_country_code,SJ,,Svalbard and Jan Mayen
+practice_location,address_country_code,SK,,Slovakia
+practice_location,address_country_code,SL,,Sierra Leone
+practice_location,address_country_code,SM,,San Marino
+practice_location,address_country_code,SN,,Senegal
+practice_location,address_country_code,SO,,Somalia
+practice_location,address_country_code,SR,,Suriname
+practice_location,address_country_code,ST,,Sao Tome and Principe
+practice_location,address_country_code,SV,,El Salvador
+practice_location,address_country_code,SY,,Syrian Arab Republic
+practice_location,address_country_code,SZ,,Swaziland
+practice_location,address_country_code,TC,,Turks and Caicos Islands
+practice_location,address_country_code,TD,,Chad
+practice_location,address_country_code,TF,,French Southern Territories
+practice_location,address_country_code,TG,,Togo
+practice_location,address_country_code,TH,,Thailand
+practice_location,address_country_code,TJ,,Tajikistan
+practice_location,address_country_code,TK,,Tokelau
+practice_location,address_country_code,TL,,Timor-Leste
+practice_location,address_country_code,TM,,Turkmenistan
+practice_location,address_country_code,TN,,Tunisia
+practice_location,address_country_code,TO,,Tonga
+practice_location,address_country_code,TR,,Turkey
+practice_location,address_country_code,TT,,Trinidad and Tobago
+practice_location,address_country_code,TV,,Tuvalu
+practice_location,address_country_code,TW,,Taiwan
+practice_location,address_country_code,TZ,,"Tanzania, United Republic of"
+practice_location,address_country_code,UA,,Ukraine
+practice_location,address_country_code,UG,,Uganda
+practice_location,address_country_code,UM,,United States Minor Outlying Islands
+practice_location,address_country_code,US,,United States
+practice_location,address_country_code,UY,,Uruguay
+practice_location,address_country_code,UZ,,Uzbekistan
+practice_location,address_country_code,VA,,Holy See (Vatican City State)
+practice_location,address_country_code,VC,,Saint Vincent and the Grenadines
+practice_location,address_country_code,VE,,Venezuela
+practice_location,address_country_code,VG,,"Virgin Islands, British"
+practice_location,address_country_code,VI,,"Virgin Islands, U.S."
+practice_location,address_country_code,VN,,Viet Nam
+practice_location,address_country_code,VU,,Vanuatu
+practice_location,address_country_code,WF,,Wallis and Futuna
+practice_location,address_country_code,WS,,Samoa
+practice_location,address_country_code,XK,,Kosovo
+practice_location,address_country_code,YE,,Yemen
+practice_location,address_country_code,YT,,Mayotte
+practice_location,address_country_code,ZA,,South Africa
+practice_location,address_country_code,ZM,,Zambia
+practice_location,address_country_code,ZW,,Zimbabwe
+endpoint,affiliation_address_country_code,AD,,Andorra
+endpoint,affiliation_address_country_code,AE,,United Arab Emirates
+endpoint,affiliation_address_country_code,AF,,Afghanistan
+endpoint,affiliation_address_country_code,AG,,Antigua and Barbuda
+endpoint,affiliation_address_country_code,AI,,Anguilla
+endpoint,affiliation_address_country_code,AL,,Albania
+endpoint,affiliation_address_country_code,AM,,Armenia
+endpoint,affiliation_address_country_code,AN,,Netherlands Antilles
+endpoint,affiliation_address_country_code,AO,,Angola
+endpoint,affiliation_address_country_code,AQ,,Antarctica
+endpoint,affiliation_address_country_code,AR,,Argentina
+endpoint,affiliation_address_country_code,AS,,American Samoa
+endpoint,affiliation_address_country_code,AT,,Austria
+endpoint,affiliation_address_country_code,AU,,Australia
+endpoint,affiliation_address_country_code,AW,,Aruba
+endpoint,affiliation_address_country_code,AX,,Aland Islands
+endpoint,affiliation_address_country_code,AZ,,Azerbaijan
+endpoint,affiliation_address_country_code,BA,,Bosnia and Herzegovina
+endpoint,affiliation_address_country_code,BB,,Barbados
+endpoint,affiliation_address_country_code,BD,,Bangladesh
+endpoint,affiliation_address_country_code,BE,,Belgium
+endpoint,affiliation_address_country_code,BF,,Burkina Faso
+endpoint,affiliation_address_country_code,BG,,Bulgaria
+endpoint,affiliation_address_country_code,BH,,Bahrain
+endpoint,affiliation_address_country_code,BI,,Burundi
+endpoint,affiliation_address_country_code,BJ,,Benin
+endpoint,affiliation_address_country_code,BM,,Bermuda
+endpoint,affiliation_address_country_code,BN,,Brunei Darussalam
+endpoint,affiliation_address_country_code,BO,,Bolivia
+endpoint,affiliation_address_country_code,BR,,Brazil
+endpoint,affiliation_address_country_code,BS,,Bahamas
+endpoint,affiliation_address_country_code,BT,,Bhutan
+endpoint,affiliation_address_country_code,BV,,Bouvet Island
+endpoint,affiliation_address_country_code,BW,,Botswana
+endpoint,affiliation_address_country_code,BY,,Belarus
+endpoint,affiliation_address_country_code,BZ,,Belize
+endpoint,affiliation_address_country_code,CA,,Canada
+endpoint,affiliation_address_country_code,CC,,Cocos (Keeling) Islands
+endpoint,affiliation_address_country_code,CD,,"Congo, the Democratic Republic of the"
+endpoint,affiliation_address_country_code,CF,,Central African Republic
+endpoint,affiliation_address_country_code,CG,,Congo
+endpoint,affiliation_address_country_code,CH,,Switzerland
+endpoint,affiliation_address_country_code,CI,,Côte D'Ivoire
+endpoint,affiliation_address_country_code,CK,,Cook Islands
+endpoint,affiliation_address_country_code,CL,,Chile
+endpoint,affiliation_address_country_code,CM,,Cameroon
+endpoint,affiliation_address_country_code,CN,,China
+endpoint,affiliation_address_country_code,CO,,Colombia
+endpoint,affiliation_address_country_code,CR,,Costa Rica
+endpoint,affiliation_address_country_code,CS,,Serbia and Montenegro
+endpoint,affiliation_address_country_code,CU,,Cuba
+endpoint,affiliation_address_country_code,CV,,Cape Verde
+endpoint,affiliation_address_country_code,CX,,Christmas Island
+endpoint,affiliation_address_country_code,CY,,Cyprus
+endpoint,affiliation_address_country_code,CZ,,Czech Republic
+endpoint,affiliation_address_country_code,DE,,Germany
+endpoint,affiliation_address_country_code,DJ,,Djibouti
+endpoint,affiliation_address_country_code,DK,,Denmark
+endpoint,affiliation_address_country_code,DM,,Dominica
+endpoint,affiliation_address_country_code,DO,,Dominican Republic
+endpoint,affiliation_address_country_code,DZ,,Algeria
+endpoint,affiliation_address_country_code,EC,,Ecuador
+endpoint,affiliation_address_country_code,EE,,Estonia
+endpoint,affiliation_address_country_code,EG,,Egypt
+endpoint,affiliation_address_country_code,EH,,Western Sahara
+endpoint,affiliation_address_country_code,ER,,Eritrea
+endpoint,affiliation_address_country_code,ES,,Spain
+endpoint,affiliation_address_country_code,ET,,Ethiopia
+endpoint,affiliation_address_country_code,FI,,Finland
+endpoint,affiliation_address_country_code,FJ,,Fiji
+endpoint,affiliation_address_country_code,FK,,Falkland Islands (Malvinas)
+endpoint,affiliation_address_country_code,FM,,"Micronesia, Federated States of"
+endpoint,affiliation_address_country_code,FO,,Faroe Islands
+endpoint,affiliation_address_country_code,FR,,France
+endpoint,affiliation_address_country_code,GA,,Gabon
+endpoint,affiliation_address_country_code,GB,,Great Britain (UK)
+endpoint,affiliation_address_country_code,GD,,Grenada
+endpoint,affiliation_address_country_code,GE,,Georgia
+endpoint,affiliation_address_country_code,GF,,French Guiana
+endpoint,affiliation_address_country_code,GG,,Guernsey
+endpoint,affiliation_address_country_code,GH,,Ghana
+endpoint,affiliation_address_country_code,GI,,Gibraltar
+endpoint,affiliation_address_country_code,GL,,Greenland
+endpoint,affiliation_address_country_code,GM,,Gambia
+endpoint,affiliation_address_country_code,GN,,Guinea
+endpoint,affiliation_address_country_code,GP,,Guadeloupe
+endpoint,affiliation_address_country_code,GQ,,Equatorial Guinea
+endpoint,affiliation_address_country_code,GR,,Greece
+endpoint,affiliation_address_country_code,GS,,South Georgia and the South Sandwich Islands
+endpoint,affiliation_address_country_code,GT,,Guatemala
+endpoint,affiliation_address_country_code,GU,,Guam
+endpoint,affiliation_address_country_code,GW,,Guinea-Bissau
+endpoint,affiliation_address_country_code,GY,,Guyana
+endpoint,affiliation_address_country_code,HK,,Hong Kong
+endpoint,affiliation_address_country_code,HM,,Heard Island and Mcdonald Islands
+endpoint,affiliation_address_country_code,HN,,Honduras
+endpoint,affiliation_address_country_code,HR,,Croatia
+endpoint,affiliation_address_country_code,HT,,Haiti
+endpoint,affiliation_address_country_code,HU,,Hungary
+endpoint,affiliation_address_country_code,ID,,Indonesia
+endpoint,affiliation_address_country_code,IE,,Ireland
+endpoint,affiliation_address_country_code,IL,,Israel
+endpoint,affiliation_address_country_code,IM,,Isle of Man
+endpoint,affiliation_address_country_code,IN,,India
+endpoint,affiliation_address_country_code,IO,,British Indian Ocean Territory
+endpoint,affiliation_address_country_code,IQ,,Iraq
+endpoint,affiliation_address_country_code,IR,,"Iran, Islamic Republic of"
+endpoint,affiliation_address_country_code,IS,,Iceland
+endpoint,affiliation_address_country_code,IT,,Italy
+endpoint,affiliation_address_country_code,JE,,Jersey
+endpoint,affiliation_address_country_code,JM,,Jamaica
+endpoint,affiliation_address_country_code,JO,,Jordan
+endpoint,affiliation_address_country_code,JP,,Japan
+endpoint,affiliation_address_country_code,KE,,Kenya
+endpoint,affiliation_address_country_code,KG,,Kyrgyzstan
+endpoint,affiliation_address_country_code,KH,,Cambodia
+endpoint,affiliation_address_country_code,KI,,Kiribati
+endpoint,affiliation_address_country_code,KM,,Comoros
+endpoint,affiliation_address_country_code,KN,,Saint Kitts and Nevis
+endpoint,affiliation_address_country_code,KP,,"Korea, Democratic People'S Republic of"
+endpoint,affiliation_address_country_code,KR,,"Korea, Republic of"
+endpoint,affiliation_address_country_code,KW,,Kuwait
+endpoint,affiliation_address_country_code,KY,,Cayman Islands
+endpoint,affiliation_address_country_code,KZ,,Kazakhstan
+endpoint,affiliation_address_country_code,LA,,Lao People'S Democratic Republic
+endpoint,affiliation_address_country_code,LB,,Lebanon
+endpoint,affiliation_address_country_code,LC,,Saint Lucia
+endpoint,affiliation_address_country_code,LI,,Liechtenstein
+endpoint,affiliation_address_country_code,LK,,Sri Lanka
+endpoint,affiliation_address_country_code,LR,,Liberia
+endpoint,affiliation_address_country_code,LS,,Lesotho
+endpoint,affiliation_address_country_code,LT,,Lithuania
+endpoint,affiliation_address_country_code,LU,,Luxembourg
+endpoint,affiliation_address_country_code,LV,,Latvia
+endpoint,affiliation_address_country_code,LY,,Libyan Arab Jamahiriya
+endpoint,affiliation_address_country_code,MA,,Morocco
+endpoint,affiliation_address_country_code,MC,,Monaco
+endpoint,affiliation_address_country_code,MD,,"Moldova, Republic of"
+endpoint,affiliation_address_country_code,MG,,Madagascar
+endpoint,affiliation_address_country_code,MH,,Marshall Islands
+endpoint,affiliation_address_country_code,MK,,"Macedonia, the Former Yugoslav Republic of"
+endpoint,affiliation_address_country_code,ML,,Mali
+endpoint,affiliation_address_country_code,MM,,Myanmar
+endpoint,affiliation_address_country_code,MN,,Mongolia
+endpoint,affiliation_address_country_code,MO,,Macao
+endpoint,affiliation_address_country_code,MP,,Northern Mariana Islands
+endpoint,affiliation_address_country_code,MQ,,Martinique
+endpoint,affiliation_address_country_code,MR,,Mauritania
+endpoint,affiliation_address_country_code,MS,,Montserrat
+endpoint,affiliation_address_country_code,MT,,Malta
+endpoint,affiliation_address_country_code,MU,,Mauritius
+endpoint,affiliation_address_country_code,MV,,Maldives
+endpoint,affiliation_address_country_code,MW,,Malawi
+endpoint,affiliation_address_country_code,MX,,Mexico
+endpoint,affiliation_address_country_code,MY,,Malaysia
+endpoint,affiliation_address_country_code,MZ,,Mozambique
+endpoint,affiliation_address_country_code,NA,,Namibia
+endpoint,affiliation_address_country_code,NC,,New Caledonia
+endpoint,affiliation_address_country_code,NE,,Niger
+endpoint,affiliation_address_country_code,NF,,Norfolk Island
+endpoint,affiliation_address_country_code,NG,,Nigeria
+endpoint,affiliation_address_country_code,NI,,Nicaragua
+endpoint,affiliation_address_country_code,NL,,Netherlands
+endpoint,affiliation_address_country_code,NO,,Norway
+endpoint,affiliation_address_country_code,NP,,Nepal
+endpoint,affiliation_address_country_code,NR,,Nauru
+endpoint,affiliation_address_country_code,NU,,Niue
+endpoint,affiliation_address_country_code,NZ,,New Zealand
+endpoint,affiliation_address_country_code,OM,,Oman
+endpoint,affiliation_address_country_code,PA,,Panama
+endpoint,affiliation_address_country_code,PE,,Peru
+endpoint,affiliation_address_country_code,PF,,French Polynesia
+endpoint,affiliation_address_country_code,PG,,Papua New Guinea
+endpoint,affiliation_address_country_code,PH,,Philippines
+endpoint,affiliation_address_country_code,PK,,Pakistan
+endpoint,affiliation_address_country_code,PL,,Poland
+endpoint,affiliation_address_country_code,PM,,Saint Pierre and Miquelon
+endpoint,affiliation_address_country_code,PN,,Pitcairn
+endpoint,affiliation_address_country_code,PR,,Puerto Rico
+endpoint,affiliation_address_country_code,PS,,"Palestinian Territory, Occupied"
+endpoint,affiliation_address_country_code,PT,,Portugal
+endpoint,affiliation_address_country_code,PW,,Palau
+endpoint,affiliation_address_country_code,PY,,Paraguay
+endpoint,affiliation_address_country_code,QA,,Qatar
+endpoint,affiliation_address_country_code,RE,,Reunion
+endpoint,affiliation_address_country_code,RO,,Romania
+endpoint,affiliation_address_country_code,RU,,Russian Federation
+endpoint,affiliation_address_country_code,RW,,Rwanda
+endpoint,affiliation_address_country_code,SA,,Saudi Arabia
+endpoint,affiliation_address_country_code,SB,,Solomon Islands
+endpoint,affiliation_address_country_code,SC,,Seychelles
+endpoint,affiliation_address_country_code,SD,,Sudan
+endpoint,affiliation_address_country_code,SE,,Sweden
+endpoint,affiliation_address_country_code,SG,,Singapore
+endpoint,affiliation_address_country_code,SH,,Saint Helena
+endpoint,affiliation_address_country_code,SI,,Slovenia
+endpoint,affiliation_address_country_code,SJ,,Svalbard and Jan Mayen
+endpoint,affiliation_address_country_code,SK,,Slovakia
+endpoint,affiliation_address_country_code,SL,,Sierra Leone
+endpoint,affiliation_address_country_code,SM,,San Marino
+endpoint,affiliation_address_country_code,SN,,Senegal
+endpoint,affiliation_address_country_code,SO,,Somalia
+endpoint,affiliation_address_country_code,SR,,Suriname
+endpoint,affiliation_address_country_code,ST,,Sao Tome and Principe
+endpoint,affiliation_address_country_code,SV,,El Salvador
+endpoint,affiliation_address_country_code,SY,,Syrian Arab Republic
+endpoint,affiliation_address_country_code,SZ,,Swaziland
+endpoint,affiliation_address_country_code,TC,,Turks and Caicos Islands
+endpoint,affiliation_address_country_code,TD,,Chad
+endpoint,affiliation_address_country_code,TF,,French Southern Territories
+endpoint,affiliation_address_country_code,TG,,Togo
+endpoint,affiliation_address_country_code,TH,,Thailand
+endpoint,affiliation_address_country_code,TJ,,Tajikistan
+endpoint,affiliation_address_country_code,TK,,Tokelau
+endpoint,affiliation_address_country_code,TL,,Timor-Leste
+endpoint,affiliation_address_country_code,TM,,Turkmenistan
+endpoint,affiliation_address_country_code,TN,,Tunisia
+endpoint,affiliation_address_country_code,TO,,Tonga
+endpoint,affiliation_address_country_code,TR,,Turkey
+endpoint,affiliation_address_country_code,TT,,Trinidad and Tobago
+endpoint,affiliation_address_country_code,TV,,Tuvalu
+endpoint,affiliation_address_country_code,TW,,Taiwan
+endpoint,affiliation_address_country_code,TZ,,"Tanzania, United Republic of"
+endpoint,affiliation_address_country_code,UA,,Ukraine
+endpoint,affiliation_address_country_code,UG,,Uganda
+endpoint,affiliation_address_country_code,UM,,United States Minor Outlying Islands
+endpoint,affiliation_address_country_code,US,,United States
+endpoint,affiliation_address_country_code,UY,,Uruguay
+endpoint,affiliation_address_country_code,UZ,,Uzbekistan
+endpoint,affiliation_address_country_code,VA,,Holy See (Vatican City State)
+endpoint,affiliation_address_country_code,VC,,Saint Vincent and the Grenadines
+endpoint,affiliation_address_country_code,VE,,Venezuela
+endpoint,affiliation_address_country_code,VG,,"Virgin Islands, British"
+endpoint,affiliation_address_country_code,VI,,"Virgin Islands, U.S."
+endpoint,affiliation_address_country_code,VN,,Viet Nam
+endpoint,affiliation_address_country_code,VU,,Vanuatu
+endpoint,affiliation_address_country_code,WF,,Wallis and Futuna
+endpoint,affiliation_address_country_code,WS,,Samoa
+endpoint,affiliation_address_country_code,XK,,Kosovo
+endpoint,affiliation_address_country_code,YE,,Yemen
+endpoint,affiliation_address_country_code,YT,,Mayotte
+endpoint,affiliation_address_country_code,ZA,,South Africa
+endpoint,affiliation_address_country_code,ZM,,Zambia
+endpoint,affiliation_address_country_code,ZW,,Zimbabwe

@@ -108,6 +108,7 @@ def get_count_lines(file_name: str) -> bool:
     )
 
     data = int(data["total"][0])
+    # pyrefly: ignore [unnecessary-type-conversion]
     df = int(df.shape[0])
 
     log(f"Quantidade de linhas no BigQuery: {data}")

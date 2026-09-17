@@ -33,6 +33,7 @@ def parse_last_date(link: str) -> str:
     result = soup.select_one(css_selector)
 
     # Extrai mês e ano
+    # pyrefly: ignore [missing-attribute]
     mes_ano = result.text.split("-")[-1].strip()
 
     # Extrai ano
@@ -66,6 +67,7 @@ def parse_last_date(link: str) -> str:
 def download_br_me_comex_stat(
     table_name: str,
     year_download: str,
+    # pyrefly: ignore [bad-return]
 ) -> ZipFile:
     """
     This task creates directories to temporary input and output files
@@ -187,4 +189,5 @@ def clean_br_me_comex_stat(
             )
             del df
 
+    # pyrefly: ignore [bad-return]
     return f"/tmp/br_me_comex_stat/{table_name}/output"

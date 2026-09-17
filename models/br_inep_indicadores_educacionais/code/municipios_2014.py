@@ -10,14 +10,23 @@ import basedosdados as bd
 import pandas as pd
 import requests
 from constants import (  # type: ignore
+    # pyrefly: ignore [missing-module-attribute]
     rename_afd,
+    # pyrefly: ignore [missing-module-attribute]
     rename_atu,
+    # pyrefly: ignore [missing-module-attribute]
     rename_dsu,
+    # pyrefly: ignore [missing-module-attribute]
     rename_had,
+    # pyrefly: ignore [missing-module-attribute]
     rename_icg,
+    # pyrefly: ignore [missing-module-attribute]
     rename_ied,
+    # pyrefly: ignore [missing-module-attribute]
     rename_tdi,
+    # pyrefly: ignore [missing-module-attribute]
     rename_tnr,
+    # pyrefly: ignore [missing-module-attribute]
     rename_tx,
 )
 

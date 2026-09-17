@@ -17,11 +17,13 @@ VARIAVEIS = ["108"]  # As variáveis da tabela
 NIVEL_GEOGRAFICO = "N6"  # N6 = Municipal
 LOCALIDADES = "all"
 ANOS_BAIXADOS = [
+    # pyrefly: ignore [missing-attribute]
     int(glob.os.path.basename(f).split(".")[0])
     for f in glob.glob(
         f"{Path.cwd()}/output/producao_pecuaria/ovinos_tosquiados/json/*.json"
     )
 ]
+# pyrefly: ignore [unnecessary-type-conversion]
 ANOS_RESTANTES = [int(ANO) for ANO in PERIODOS if ANO not in ANOS_BAIXADOS]
 
 
@@ -70,7 +72,7 @@ async def main(years: list[int], variables: list[str]) -> None:
                 try:
                     response = await future
                     responses.append(response)
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     print(f"Request timed out for {url}")
             os.makedirs(
                 f"{Path.cwd()}/output/producao_pecuaria/ovinos_tosquiados/json/",

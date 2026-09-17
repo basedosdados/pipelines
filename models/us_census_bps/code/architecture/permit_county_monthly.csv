@@ -1,0 +1,15 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the survey period,2000(1)2026,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,Survey Date
+month,INT64,"Reference month of the survey period, from 1 to 12",2000(1)2026,no,br_bd_diretorios_data_tempo.mes:mes,month,no,,Survey Date
+county_id,STRING,"Five-digit FIPS county code, state code followed by county code",,no,diretorios_us.county:id_county,,no,,FIPS State + FIPS County
+state_id,STRING,Two-digit FIPS state code,,no,diretorios_us.state:id_state,,no,,FIPS State
+region_id,STRING,"Census region code, from 1 to 4",,yes,,,no,,Region Code
+division_id,STRING,"Census division code, from 1 to 9",,yes,,,no,,Division Code
+structure_type,STRING,"Type of residential structure, by the number of housing units in the building",,yes,,,no,"Census structure type codes: 101 single-family, 103 two-family, 104 three- and four-family, 105 five-or-more-family. Summing the four codes reproduces the published total for the geography",column block
+county_name,STRING,"Name of the county, as published",,no,,,no,,County Name
+buildings,INT64,Number of buildings authorized by building permits,,no,,building,no,Estimate with imputation: reported data for responding permit offices plus imputed data for non-respondents. This is the series to use by default,Bldgs
+units,INT64,Number of housing units authorized by building permits,,no,,housing_unit,no,Estimate with imputation: reported data for responding permit offices plus imputed data for non-respondents. This is the series to use by default,Units
+valuation,INT64,"Construction valuation of the buildings authorized, in US dollars",,no,,usd,no,Estimate with imputation: reported data for responding permit offices plus imputed data for non-respondents. This is the series to use by default,Value
+buildings_reported,INT64,"Number of buildings authorized, counting reporting permit offices only",,no,,building,no,Reported only: counts data from responding permit offices and makes no imputation for non-respondents. Lower than the estimate with imputation,Bldgs rep
+units_reported,INT64,"Number of housing units authorized, counting reporting permit offices only",,no,,housing_unit,no,Reported only: counts data from responding permit offices and makes no imputation for non-respondents. Lower than the estimate with imputation,Units rep
+valuation_reported,INT64,"Construction valuation of the buildings authorized, in US dollars, counting reporting permit offices only",,no,,usd,no,Reported only: counts data from responding permit offices and makes no imputation for non-respondents. Lower than the estimate with imputation,Value rep

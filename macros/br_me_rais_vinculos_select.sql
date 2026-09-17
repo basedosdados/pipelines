@@ -1,4 +1,8 @@
-{% macro vinculos_select(source_table, has_vinculo_abandonado=false) %}
+{% macro vinculos_select(
+    source_table,
+    has_vinculo_abandonado=false,
+    has_categoria_trabalhador=false
+) %}
     select
         safe_cast(ano as int64) ano,
         safe_cast(sigla_uf as string) sigla_uf,
@@ -89,6 +93,9 @@
             ) indicador_vinculo_abandonado,
         {% else %} cast(null as string) as indicador_vinculo_abandonado,
         {% endif %}
+        {% if has_categoria_trabalhador %}
+            safe_cast(categoria_trabalhador as string) categoria_trabalhador,
+        {% endif %}
         case
             when faixa_remuneracao_media_sm = '00'
             then '0'
@@ -163,7 +170,7 @@
             cast(regexp_replace(subsetor_ibge, r'^0+', '') as int64) as string
         ) as subsetor_ibge,
         safe_cast(cbo_1994 as string) cbo_1994,
-        safe_cast(cbo_2002 as string) cbo_2002,
+        lpad(safe_cast(cbo_2002 as string), 6, '0') cbo_2002,
         coalesce(cnae1_dir.cnae_1, safe_cast(t.cnae_1 as string)) as cnae_1,
         left(lpad(cnae_2_subclasse, 7, '0'), 5) as cnae_2,
         lpad(cnae_2_subclasse, 7, '0') as cnae_2_subclasse,

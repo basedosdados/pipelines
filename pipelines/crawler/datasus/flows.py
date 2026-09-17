@@ -36,12 +36,12 @@ def _run_cnes(
     dataset_id: str,
     table_id: str,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool,
     year_month_to_extract: str = "",
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -60,10 +60,24 @@ def _run_cnes(
             source_max_date=source_max_date,
             env="prod",
             date_format="%Y-%m",
+            compare_against="coverage",
         )
         if not has_new_data:
             print("Fonte CNES sem novidade — encerrando")
             return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=source_max_date,
+        env="prod",
+        date_format="%Y-%m",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
 
     if not ftp_files:
         print("force_run=True mas FTP não retornou arquivos — encerrando")
@@ -74,22 +88,25 @@ def _run_cnes(
     )
     decompress_dbc(file_list=dbc_files, dataset_id=dataset_id)
     csv_files = decompress_dbf(file_list=dbc_files, table_id=table_id)
+    # pyrefly: ignore [no-matching-overload]
     files_path = pre_process_files(
         file_list=csv_files, dataset_id=dataset_id, table_id=table_id
     )
 
+    # `pre_process_files` grava parquet. Sem declarar o formato, o `dump_header`
+    # chamado pelo `_sync_staging_schema` procura .csv e não encontra nada.
     upload_to_gcs(
         data_path=files_path,
         dataset_id=dataset_id,
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode="append",
+        source_format="parquet",
     )
     run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -102,12 +119,12 @@ def _run_cnes(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode="append",
+        source_format="parquet",
     )
     run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -123,21 +140,11 @@ def _run_cnes(
             bq_project="basedosdados",
         )
 
-        if source_max_date is not None:
-            commit_source_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=source_max_date,
-                env="prod",
-                date_format="%Y-%m",
-            )
-
 
 def _run_dbf_to_parquet(
     dataset_id: str,
     table_id: str,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool,
@@ -146,6 +153,7 @@ def _run_dbf_to_parquet(
     year_month_to_extract: str = "",
 ) -> None:
     """Shared logic for SIA/SIH (DBF→Parquet pipeline)."""
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -164,10 +172,24 @@ def _run_dbf_to_parquet(
             source_max_date=source_max_date,
             env="prod",
             date_format="%Y-%m",
+            compare_against="coverage",
         )
         if not has_new_data:
             print(f"Fonte {fonte_label} sem novidade — encerrando")
             return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=source_max_date,
+        env="prod",
+        date_format="%Y-%m",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
 
     if not ftp_files:
         print("force_run=True mas FTP não retornou arquivos — encerrando")
@@ -193,7 +215,6 @@ def _run_dbf_to_parquet(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -212,7 +233,6 @@ def _run_dbf_to_parquet(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -228,15 +248,6 @@ def _run_dbf_to_parquet(
             bq_project="basedosdados",
         )
 
-        if source_max_date is not None:
-            commit_source_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=source_max_date,
-                env="prod",
-                date_format="%Y-%m",
-            )
-
 
 def _run_siasus(**kwargs) -> None:
     _run_dbf_to_parquet(source_format="csv", fonte_label="SIA", **kwargs)
@@ -250,11 +261,11 @@ def _run_sinan(
     dataset_id: str,
     table_id: str,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool,
 ) -> None:
+    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -270,10 +281,24 @@ def _run_sinan(
             source_max_date=data_source_max_date,
             env="prod",
             date_format="%Y-%m-%d",
+            compare_against="coverage",
         )
         if not has_new_data:
             print("Sem atualizações na fonte SINAN — encerrando")
             return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=data_source_max_date,
+        env="prod",
+        date_format="%Y-%m-%d",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
 
     ftp_files = list_datasus_table_without_date(
         dataset_id=dataset_id, table_id=table_id
@@ -297,7 +322,6 @@ def _run_sinan(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -315,7 +339,6 @@ def _run_sinan(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -330,12 +353,3 @@ def _run_sinan(
             env="prod",
             bq_project="basedosdados",
         )
-
-        if data_source_max_date is not None:
-            commit_source_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=data_source_max_date,
-                env="prod",
-                date_format="%Y-%m-%d",
-            )

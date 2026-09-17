@@ -201,6 +201,7 @@ def access_ftp_download_files_async(
             f"------ The following files were downloaded: {dbc_files_path_list}"
         )
 
+    # pyrefly: ignore [unbound-name]
     return dbc_files_path_list
 
 
@@ -228,11 +229,13 @@ def decompress_dbc(file_list: list, dataset_id: str) -> None:
                 check=True,
             )
             log(f"------ Removing {file.split('/')[-1]} file")
+            # pyrefly: ignore [deprecated]
             os.system(f"rm -f {file}")
         else:
             log(f"Skipping non-DBC file: {file}")
 
     log(f"------ Removing {blast_dir}")
+    # pyrefly: ignore [deprecated]
     os.system(f"rm -rf {blast_dir}")
 
 
@@ -267,8 +270,10 @@ def decompress_dbf(file_list: list, table_id: str) -> str:
         if file.endswith(".dbf"):
             file = file.replace("output", "input")
             log(f"------ Removing {file.split('/')[-1]}")
+            # pyrefly: ignore [deprecated]
             os.system(f"rm -f {file}")
 
+    # pyrefly: ignore [bad-return]
     return csv_file_list
 
 
@@ -312,12 +317,15 @@ def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
         ):
             concatenated_df = pd.concat([concatenated_df, chunk_df])
 
+            # pyrefly: ignore [not-callable, unbound-name]
             processed_df = post_process_function(concatenated_df)
 
+        # pyrefly: ignore [unbound-name]
         processed_df = processed_df.astype(str)
         output_path = file.replace(".csv", ".parquet")
         processed_df.to_parquet(output_path, index=None, compression="gzip")
 
+        # pyrefly: ignore [deprecated]
         os.system(f"rm -f {file}")
 
     log("Post-processing complete")
@@ -419,4 +427,5 @@ def get_last_modified_date_in_sinan_tablen(
             )
 
     ftp.close()
+    # pyrefly: ignore [bad-return, unbound-name]
     return final_date

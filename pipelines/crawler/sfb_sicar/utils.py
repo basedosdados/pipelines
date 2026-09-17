@@ -1,254 +1,614 @@
-"""
-Utils for br_sfb_sicar
+"""Download + cleaning transform for br_sfb_sicar (Cadastro Ambiental Rural).
+
+Pure functions (no Prefect) — the single canonical location for the transform.
+The recurring pipeline wraps them in @task (see tasks.py); the one-shot bootstrap
+in ``models/br_sfb_sicar/code/clean.py`` re-exports them so the two cannot drift.
+
+Per theme zip: read ALL ``.shp`` parts (large UFs split into ``_1.shp``,
+``_2.shp``, …), reproject SIRGAS 2000 (EPSG:4674) -> WGS84 (EPSG:4326), emit WKT.
+Geometry validity repair is left to BigQuery on ingest
+(``st_geogfromtext(make_valid => true)``) — GEOS ``make_valid`` on a single dense
+Amazonas ``app`` feature OOMs the worker. Output is an ALL-STRING parquet dataset
+(the dbt model ``safe_cast``s every column), partitioned by ``data`` (snapshot)
+and ``sigla_uf``. All-string is mandatory: ``upload_to_gcs`` infers the staging
+schema from a stringified header, so typed parquet is rejected — cast via arrow
+(None-for-NaN), never ``astype(str)`` which would render NULL as ``"nan"``.
 """
 
+import contextlib
+import ctypes
+import glob
 import os
-import shutil
 import tempfile
 import time as tm
 import zipfile
 from datetime import datetime
 
-import fiona
 import geopandas as gpd
-import httpx
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+import pyogrio
+from shapely.geometry.base import BaseGeometry
 
-from pipelines.utils.utils import log
+from pipelines.crawler.sfb_sicar.constants import architecture as arch
+
+WGS84 = "EPSG:4326"
+SIRGAS = "EPSG:4674"
 
 
-def unpack_zip(zip_file_path: str) -> str:
+# ── glibc malloc tuning (Linux workers only; no-op on macOS/non-glibc) ────────
+# The clean churns through millions of tiny per-feature GEOS/shapely/WKT
+# allocations. On the deployed Linux worker, glibc opens ``8 x ncores`` malloc
+# arenas by default and each retains freed memory, so RSS balloons ~10x the
+# real working set — a dense Amazonas ``app`` chunk that peaks at ~3.6 GB on a
+# (non-glibc) macOS laptop OOMed the 32 GiB worker. The Docker image sets
+# MALLOC_ARENA_MAX in the environment (read by glibc before Python starts,
+# which is the reliable path), and the flow re-sets it via ``job_variables``;
+# this ``mallopt`` call and the per-chunk ``malloc_trim`` are the in-process
+# backstops for that same fix.
+try:
+    _LIBC = ctypes.CDLL("libc.so.6")
+    _LIBC.mallopt(-8, 2)  # M_ARENA_MAX = -8: cap arenas at 2
+except OSError:
+    _LIBC = None  # not glibc (macOS) — nothing to tune
+
+
+def _malloc_trim() -> None:
+    """Return freed heap memory to the OS after a chunk (glibc only)."""
+    if _LIBC is not None:
+        _LIBC.malloc_trim(0)
+
+
+def container_memory_limit_gb() -> float | None:
+    """Best-effort read of this container's memory limit, in GiB.
+
+    Returns ``None`` when unlimited or unreadable (e.g. macOS). Used to log the
+    pod's real limit — a ``job_variables`` key the work pool template does not
+    recognize is silently dropped, so the pod can end up on a small default
+    limit rather than the requested one.
     """
-    Descompacta um arquivo ZIP em um diretório temporário.
-
-    Args:
-        zip_file_path (str): Caminho para o arquivo ZIP.
-
-    Retorna:
-        str: Caminho do diretório temporário onde os arquivos foram extraídos.
-
-    Exceções:
-        zipfile.BadZipFile: Se o arquivo ZIP estiver corrompido ou inválido.
-    """
-    temp_dir = tempfile.mkdtemp()
-
-    with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
+    for path in (
+        "/sys/fs/cgroup/memory.max",  # cgroup v2
+        "/sys/fs/cgroup/memory/memory.limit_in_bytes",  # cgroup v1
+    ):
         try:
-            zip_ref.extractall(temp_dir)
-        except zipfile.BadZipFile as e:
-            log(
-                f"O arquivo zip {zip_file_path.split('/')[-1]} está provavelmente corrompido. {e}"
-            )
-            raise e
-    return temp_dir
+            with open(path) as fh:
+                raw = fh.read().strip()
+        except OSError:
+            continue
+        if raw == "max":
+            return None
+        try:
+            val = int(raw)
+        except ValueError:
+            continue
+        # cgroup v1 reports a huge sentinel when unlimited.
+        if val >= 1 << 62:
+            return None
+        return val / 1024**3
+    return None
 
 
-def convert_shp_to_parquet(
-    shp_file_path: str,
-    output_parquet_path: str,
-    uf_relase_dates: dict,
-    sigla_uf: str,
-    chunk_size: int = 100000,
-) -> None:
-    """
-    Converte um arquivo .shp para o formato Parquet, incluindo a geometria como WKT e processando em chunks.
-
-    Args:
-        shp_file_path (str): Caminho para o arquivo .shp.
-        output_parquet_path (str): Caminho onde o arquivo Parquet será salvo.
-        uf_relase_dates (dict): Dicionário com as datas de lançamento por estado.
-        sigla_uf (str): Sigla do estado sendo processado.
-        chunk_size (int): Número de registros a serem processados por chunk.
-
-    Exceções:
-        FileNotFoundError: Se o arquivo .shp não for encontrado.
-        ValueError: Se houver erro na conversão de data ou formatação incorreta.
-        RuntimeError: Se houver problemas na conversão da geometria para WKT.
-    """
-    try:
-        # Obter a data de atualização a partir das informações do estado
-        date = datetime.strptime(
-            uf_relase_dates[sigla_uf], "%d/%m/%Y"
-        ).strftime("%Y-%m-%d")
-        log(f"A data de atualização do CAR do Estado {sigla_uf} foi {date}")
-    except ValueError as e:
-        log(
-            f"Erro ao converter a data de lançamento para {sigla_uf}. Verifique o formato no dicionário. {e}"
-        )
-        raise e
-
-    # Abrir o shapefile usando fiona
-    try:
-        log(f"Lendo arquivo {shp_file_path}")
-        with fiona.open(shp_file_path, "r") as src:
-            total_features = len(src)
-            log(f"Total de registros no shapefile: {total_features}")
-
-            features = []
-            writer = None  # Inicializa o writer como None
-
-            for i, feature in enumerate(src, 1):
-                features.append(feature)
-                # Quando atingir o tamanho do chunk ou último registro
-                if len(features) == chunk_size or i == total_features:
-                    # Converter lista de features para GeoDataFrame
-                    gdf_chunk = gpd.GeoDataFrame.from_features(
-                        features, crs=src.crs
-                    )
-                    try:
-                        # Convertendo geometria para WKT
-                        gdf_chunk["geometry"] = gdf_chunk["geometry"].apply(
-                            lambda geom: geom.wkt
-                        )
-                    except Exception as e:
-                        log(
-                            f"Erro ao converter a geometria para WKT no chunk que termina no registro {i}. {e}"
-                        )
-                        raise RuntimeError(
-                            f"Erro na conversão de geometria para WKT: {e}"
-                        ) from e
-
-                    # Adicionar a data de atualização
-                    gdf_chunk["data_atualizacao_car"] = date
-
-                    # Converter para pandas DataFrame
-                    df_chunk = pd.DataFrame(gdf_chunk)
-
-                    # Converter para PyArrow Table
-                    table_chunk = pa.Table.from_pandas(df_chunk)
-
-                    # Inicializar o ParquetWriter com o esquema na primeira iteração
-                    if writer is None:
-                        schema = table_chunk.schema
-                        writer = pq.ParquetWriter(output_parquet_path, schema)
-
-                    # Escrever o chunk no arquivo Parquet
-                    writer.write_table(table_chunk)
-                    log(f"Chunk até registro {i} escrito no arquivo Parquet.")
-
-                    # Limpar lista de features
-                    features = []
-                    del gdf_chunk, df_chunk, table_chunk
-
-            # Fechar o writer após escrever todos os chunks
-            if writer is not None:
-                writer.close()
-
-    except FileNotFoundError as e:
-        log(f"Arquivo .shp {shp_file_path} não encontrado. {e}")
-        raise e
-    except Exception as e:
-        log(f"Erro inesperado ao processar o arquivo {shp_file_path}: {e}")
-        raise e
-
-    log(f"Arquivo Parquet {output_parquet_path} salvo com sucesso.")
-
-
-def process_all_files(
-    zip_folder: str, output_folder: str, uf_relase_dates: dict
-) -> None:
-    """
-    Processa todos os arquivos ZIP em um diretório, descompactando-os e convertendo os arquivos .shp para Parquet.
-
-    Args:
-        zip_folder (str): Caminho para o diretório contendo os arquivos ZIP.
-        output_folder (str): Caminho para o diretório onde os arquivos Parquet serão salvos.
-        uf_relase_dates (dict): Dicionário com as datas de lançamento dos dados por estado.
-    """
-    for zip_filename in os.listdir(zip_folder):
-        if zip_filename.endswith(".zip"):
-            zip_file_path = os.path.join(zip_folder, zip_filename)
-            sigla_uf = zip_filename.split("_")[0]
-            data_particao = datetime.today().strftime("%Y-%m-%d")
-
-            # Descompactar o arquivo em diretório temporário
-            unpacked_dir = unpack_zip(zip_file_path)
-
-            try:
-                # Encontrar o arquivo .shp
-                shp_file = next(
-                    (
-                        f
-                        for f in os.listdir(unpacked_dir)
-                        if f.endswith(".shp")
-                    ),
-                    None,
-                )
-
-                if shp_file:
-                    shp_file_path = os.path.join(unpacked_dir, shp_file)
-                    sigla_uf_dir = os.path.join(
-                        output_folder,
-                        f"data_extracao={data_particao}/sigla_uf={sigla_uf}",
-                    )
-                    os.makedirs(sigla_uf_dir, exist_ok=True)
-
-                    output_parquet_path = os.path.join(
-                        sigla_uf_dir,
-                        f"{os.path.splitext(shp_file)[0]}.parquet",
-                    )
-                    log(f"Salvando {output_parquet_path}")
-
-                    # Converte shapefile para Parquet com geometria em formato WKT
-                    convert_shp_to_parquet(
-                        shp_file_path,
-                        output_parquet_path,
-                        uf_relase_dates,
-                        sigla_uf,
-                    )
-
-            finally:
-                # Remove o diretório temporário após o processamento
-                shutil.rmtree(unpacked_dir)
-                log(f"Diretório temporário {unpacked_dir} removido.")
-
-            # Remover o arquivo ZIP após o processamento
-            os.remove(zip_file_path)
-            log(f"Arquivo ZIP {zip_file_path} removido.")
-
-
+# ── download ────────────────────────────────────────────────────────────────
 def retry_download_car(
-    car, state: str, polygon: bool, folder: str, max_retries: int = 8
+    car,
+    state: str,
+    polygon: str,
+    folder: str,
+    tries: int = 25,
+    max_retries: int = 8,
 ) -> None:
-    """
-    Faz o download do CAR com tentativas em caso de falhas.
-    *NOTE* : A API do CAR é muito instável e timeouts ocorrem com frequência. Por isso a necessidade de tentativas sucessivas de estabelecer conexão e
-    finalizar o download.
+    """Download one state x theme, retrying until a valid zip exists.
+
+    The CAR API is unstable — read timeouts, transient 5xx, and captcha misses
+    are frequent — and ``download_state`` can even return *without* writing a
+    usable zip (a silent failure that would otherwise surface only later as a
+    ``FileNotFoundError`` in the clean step, killing the whole run). So each
+    attempt is verified: the expected ``<UF>_<POLYGON>.zip`` must exist and be a
+    valid zip, else the attempt is treated as a failure, any partial file is
+    removed, and the download is retried. Each ``download_state`` call itself
+    makes ``tries`` captcha attempts (solved by SICAR via Tesseract OCR).
 
     Args:
-        car: Objeto responsável pelo download.
-        state (str): Sigla do estado.
-        polygon (bool): Se o download deve incluir ou não o polígono.
-        folder (str): Diretório onde o arquivo será salvo.
-        max_retries (int): Número máximo de tentativas de download (padrão: 8).
+        car: A ``SICAR.Sicar`` instance.
+        state: Two-letter UF code (SICAR's State enum accepts the string).
+        polygon: SICAR Polygon enum value, e.g. ``"AREA_IMOVEL"``, ``"APPS"``.
+        folder: Directory the zip is written into (``<UF>_<POLYGON>.zip``).
+        tries: Captcha attempts per ``download_state`` call.
+        max_retries: Attempts wrapping the whole download.
 
-    Exceções:
-        httpx.ReadTimeout: Se ocorrer um timeout ao tentar o download.
-        Exception: Qualquer outro erro inesperado durante o processo de download.
+    Raises:
+        RuntimeError: If no valid zip is produced after ``max_retries`` attempts.
     """
-    retries = 0
-    success = False
-
-    while retries < max_retries and not success:
+    expected = os.path.join(folder, f"{state}_{polygon}.zip")
+    last_err: str = "no attempt made"
+    for attempt in range(max_retries):
         try:
-            car.download_state(state=state, polygon=polygon, folder=folder)
-            success = True
-            log(f"Download do estado {state} concluído com sucesso.")
-        except httpx.ReadTimeout as e:
-            retries += 1
-            log(
-                f"Erro de timeout ao baixar {state}. Tentativa {retries} de {max_retries}. Exceção: {e}"
+            car.download_state(
+                state=state, polygon=polygon, folder=folder, tries=tries
             )
-            log("Tentando novamente em 8 segundos.")
+            if os.path.exists(expected) and zipfile.is_zipfile(expected):
+                return
+            last_err = f"download_state produced no valid zip at {expected}"
+        except Exception as exc:
+            # The CAR API fails many ways (timeouts, 5xx, captcha) — retry all.
+            last_err = f"{type(exc).__name__}: {exc}"
+        # Drop any partial/invalid file so the retry starts clean.
+        if os.path.exists(expected) and not zipfile.is_zipfile(expected):
+            with contextlib.suppress(OSError):
+                os.remove(expected)
+        print(
+            f"download retry {attempt + 1}/{max_retries} for "
+            f"{state} {polygon}: {last_err}"
+        )
+        if attempt < max_retries - 1:
             tm.sleep(8)
-            if retries >= max_retries:
-                log(
-                    f"Falha ao baixar o estado {state} após {max_retries} tentativas."
+    raise RuntimeError(
+        f"download failed for {state} {polygon} after {max_retries} "
+        f"attempts: {last_err}"
+    )
+
+
+def release_dates_to_iso(release_dates: dict) -> dict:
+    """Normalize SICAR's ``get_release_dates`` to ``{UF: 'YYYY-MM-DD'}``.
+
+    ``get_release_dates`` returns ``{State: 'dd/mm/yyyy'}`` (keys are State
+    enums, which are ``str`` subclasses). Both the enum ``.value`` and a bare
+    string key resolve to the two-letter UF code.
+
+    Args:
+        release_dates: The raw mapping from ``Sicar().get_release_dates()``.
+
+    Returns:
+        ``{uf_code: 'YYYY-MM-DD'}``, skipping any UF whose date fails to parse.
+    """
+    out = {}
+    for state, value in release_dates.items():
+        uf = getattr(state, "value", state)
+        try:
+            iso = datetime.strptime(str(value), "%d/%m/%Y").date().isoformat()
+        except (ValueError, TypeError):
+            continue
+        out[str(uf)] = iso
+    return out
+
+
+def max_release_iso(release_iso: dict) -> str | None:
+    """Return the newest per-UF release date (ISO), the source ``max_date``.
+
+    This is the ``latest period`` helper used for the source-update poll: the
+    freshest snapshot the source currently advertises across all UFs.
+
+    Args:
+        release_iso: ``{uf: 'YYYY-MM-DD'}`` from :func:`release_dates_to_iso`.
+
+    Returns:
+        The maximum ISO date string, or ``None`` if the map is empty.
+    """
+    return max(release_iso.values()) if release_iso else None
+
+
+# ── cleaning transform (canonical; bootstrap re-exports these) ───────────────
+def read_theme_zip(zip_path: str) -> gpd.GeoDataFrame:
+    """Read and concatenate ALL ``.shp`` parts inside a theme zip.
+
+    Large UFs ship a theme split across ``_1.shp``, ``_2.shp``, … — the old
+    crawler read only the first part and silently dropped the rest. Every part
+    is read and concatenated here.
+
+    Args:
+        zip_path: Path to a ``<UF>_<THEME>.zip`` download.
+
+    Returns:
+        One GeoDataFrame with all parts stacked, in the source CRS.
+
+    Raises:
+        FileNotFoundError: If the zip contains no ``.shp``.
+    """
+    with tempfile.TemporaryDirectory() as td:
+        with zipfile.ZipFile(zip_path) as z:
+            z.extractall(td)
+        parts = sorted(glob.glob(os.path.join(td, "*.shp")))
+        if not parts:
+            raise FileNotFoundError(f"no .shp in {zip_path}")
+        frames = [gpd.read_file(p) for p in parts]
+        crs = frames[0].crs or SIRGAS
+        gdf = gpd.GeoDataFrame(pd.concat(frames, ignore_index=True), crs=crs)
+    return gdf
+
+
+def geometry_to_wkt(gdf: gpd.GeoDataFrame) -> pd.Series:
+    """Reproject SIRGAS 2000 -> WGS84 and return WKT strings (None for empty).
+
+    Validity repair is deliberately NOT done here. GEOS ``make_valid`` on a
+    self-intersecting Amazonas ``app`` multipolygon (hundreds of thousands of
+    vertices tracing every watercourse) can balloon to gigabytes for a *single*
+    feature and OOMs the worker no matter how small the chunk. It is also
+    redundant: every dbt model ingests the WKT via
+    ``safe.st_geogfromtext(geometria, make_valid => true)``, so BigQuery repairs
+    the geometry on load. WKT serialization does not require validity, so the raw
+    (winding-corrected by pyogrio on read) geometry is emitted as-is.
+    """
+    if gdf.crs is None:
+        gdf = gdf.set_crs(SIRGAS)
+    geom = gdf.to_crs(WGS84).geometry
+
+    def _wkt(g):
+        if g is None or g.is_empty:
+            return None
+        return (
+            g.wkt if isinstance(g, BaseGeometry) and not g.is_empty else None
+        )
+
+    return geom.map(_wkt)
+
+
+def _num_str(series: pd.Series) -> pd.Series:
+    """Numeric -> string, NaN/inf -> None (never the literal ``'nan'``)."""
+
+    def f(v):
+        if v is None or pd.isna(v):
+            return None
+        return repr(float(v))
+
+    return series.map(f)
+
+
+def _date_str(series: pd.Series) -> pd.Series:
+    """``dd/mm/yyyy`` -> ``'YYYY-MM-DD'`` string, unparseable -> None."""
+
+    def f(v):
+        if v is None or (isinstance(v, float) and pd.isna(v)):
+            return None
+        s = str(v).strip()
+        if s in ("", "None", "nan", "0", "00/00/0000"):
+            return None
+        try:
+            return datetime.strptime(s, "%d/%m/%Y").date().isoformat()
+        except ValueError:
+            return None
+
+    return series.map(f)
+
+
+def _str(series: pd.Series) -> pd.Series:
+    def f(v):
+        if v is None or (isinstance(v, float) and pd.isna(v)):
+            return None
+        s = str(v).strip()
+        return s if s not in ("", "None", "nan") else None
+
+    return series.map(f)
+
+
+def build_table_df(
+    table: str, gdf: gpd.GeoDataFrame, snapshot_iso: str, sigla_uf: str
+) -> pd.DataFrame:
+    """Map a raw theme GeoDataFrame to the architecture's all-string columns.
+
+    ``sigla_uf`` and ``id_municipio`` are derived from the authoritative CAR key
+    ``cod_imovel`` (``UF-IBGE7-HASH``) so they stay internally consistent.
+
+    Args:
+        table: Output table slug (an ``arch.TABLES`` key).
+        gdf: Raw theme GeoDataFrame.
+        snapshot_iso: Per-UF release date, ``'YYYY-MM-DD'``.
+        sigla_uf: UF code (fallback when ``cod_imovel`` is absent).
+
+    Returns:
+        An all-string DataFrame in architecture column order.
+    """
+    spec = arch.TABLES[table]
+    n = len(gdf)
+    cod = (
+        gdf["cod_imovel"].astype("string")
+        if "cod_imovel" in gdf
+        else pd.Series([None] * n)
+    )
+    out = {}
+    for col in spec:
+        name, src, typ = col["name"], col["src"], col["type"]
+        if src == "__snapshot__":
+            out[name] = pd.Series([snapshot_iso] * n)
+        elif src == "__uf_cod__":
+            out[name] = (
+                _str(gdf["cod_estado"])
+                if "cod_estado" in gdf
+                else pd.Series([sigla_uf] * n)
+            )
+        elif src == "__uf_split__":
+            out[name] = cod.map(
+                lambda c: c.split("-")[0] if isinstance(c, str) else sigla_uf
+            )
+        elif src == "__muni_split__":
+            out[name] = cod.map(
+                lambda c: (
+                    c.split("-")[1]
+                    if isinstance(c, str) and len(c.split("-")) > 1
+                    else None
                 )
-                raise e
-        except Exception as e:
-            if retries >= max_retries:
-                log(f"Erro inesperado ao baixar {state}: {e}")
-                raise e
+            )
+        elif src == "__wkt__":
+            out[name] = geometry_to_wkt(gdf)
+        elif typ == "FLOAT64":
+            out[name] = (
+                _num_str(gdf[src]) if src in gdf else pd.Series([None] * n)
+            )
+        elif typ == "DATE":
+            out[name] = (
+                _date_str(gdf[src]) if src in gdf else pd.Series([None] * n)
+            )
+        else:  # STRING
+            out[name] = _str(gdf[src]) if src in gdf else pd.Series([None] * n)
+    return pd.DataFrame(out)
+
+
+def filter_to_uf(gdf: gpd.GeoDataFrame, sigla_uf: str):
+    """Keep only rows whose ``cod_imovel`` UF-prefix matches this file's UF.
+
+    A handful of properties from a neighbouring state (border/administrative
+    quirks) appear in a UF's download; they are ingested from their own UF's file
+    under that UF's snapshot date, so drop them here to avoid a property landing
+    under two snapshot dates.
+
+    Returns:
+        A ``(gdf, dropped_count)`` tuple.
+    """
+    if "cod_imovel" not in gdf:
+        return gdf, 0
+    pref = gdf["cod_imovel"].astype("string").str.split("-").str[0]
+    keep = pref == sigla_uf
+    return gdf.loc[keep].reset_index(drop=True), (~keep).sum()
+
+
+def all_string_schema(columns) -> pa.Schema:
+    return pa.schema([(c, pa.string()) for c in columns])
+
+
+def write_table_partitioned(
+    df: pd.DataFrame, out_root: str, table: str
+) -> str:
+    """Write hive-partitioned parquet (``data``, ``sigla_uf`` are the keys).
+
+    All columns are cast to arrow string before writing so BigQuery's inferred
+    (all-STRING) staging schema accepts the files.
+
+    Args:
+        df: The all-string DataFrame from :func:`build_table_df`.
+        out_root: Output root; the table lands under ``<out_root>/<table>/``.
+        table: Table slug.
+
+    Returns:
+        The table's output directory.
+    """
+    root = os.path.join(out_root, table)
+    table_pa = pa.Table.from_pandas(
+        df, schema=all_string_schema(list(df.columns)), preserve_index=False
+    )
+    pq.write_to_dataset(
+        table_pa,
+        root_path=root,
+        partition_cols=["data", "sigla_uf"],
+        compression="snappy",
+        existing_data_behavior="overwrite_or_ignore",
+    )
+    return root
+
+
+def _adaptive_chunk_size(
+    shp: str,
+    budget_bytes: int,
+    cap: int,
+    floor: int = 200,
+    windows: int = 5,
+    per_window: int = 128,
+) -> tuple[int, int]:
+    """Return ``(n_features, chunk)``, sizing chunks by geometry bytes not count.
+
+    Feature-count chunking OOMs on vertex-dense themes: an Amazonas ``app`` (APP
+    strips follow every watercourse) feature carries orders of magnitude more
+    vertices than an ``area_imovel`` boundary, so a fixed 50k chunk that is a few
+    GB for one table is tens of GB for the other.
+
+    Sizing off the file *head* is not enough — the dense features cluster deep in
+    the file, so a 256-feature head probe read Amazonas ``app`` at ~3 KB/feat and
+    still OOMed at a 50k chunk (densest window ~45 KB/feat). This samples
+    ``windows`` evenly spaced blocks and sizes off the **densest** block's WKB
+    bytes per feature, so the estimate is driven by the worst region rather than
+    a lucky sparse head. With ``make_valid`` moved to BigQuery (see
+    :func:`geometry_to_wkt`), the remaining peak is only the shapely load, the
+    reproject copy, and WKT expansion — a few times the chunk's raw WKB — so a
+    256 MB budget keeps peak near 1 GB, well under the 32 GiB worker.
+    """
+    n = int(pyogrio.read_info(shp)["features"])
+    if n == 0:
+        return 0, cap
+    per = 1.0
+    for i in range(windows):
+        pos = min(int(i * n / windows), max(n - 1, 0))
+        take = min(per_window, n - pos)
+        if take <= 0:
+            continue
+        g = gpd.GeoDataFrame(
+            pyogrio.read_dataframe(shp, skip_features=pos, max_features=take)
+        ).geometry
+        b = int(g.to_wkb().map(lambda x: len(x) if x else 0).sum())
+        per = max(per, b / take)
+    chunk = max(floor, min(cap, int(budget_bytes / per)))
+    print(
+        f"  {os.path.basename(shp)}: {n} feats, "
+        f"~{per / 1024:.1f}KB/feat(densest window) -> chunk={chunk}"
+    )
+    return n, chunk
+
+
+def partition_dir(
+    out_root: str, table: str, snapshot_iso: str, sigla_uf: str
+) -> str:
+    """The hive partition directory ``<out_root>/<table>/data=…/sigla_uf=…``."""
+    return os.path.join(
+        out_root, table, f"data={snapshot_iso}", f"sigla_uf={sigla_uf}"
+    )
+
+
+def extract_theme_zip(zip_path: str, dest: str) -> list[str]:
+    """Extract a theme zip to ``dest``; return its sorted ``.shp`` part paths.
+
+    Large UFs split a theme across ``_1.shp``, ``_2.shp``, … — all are returned.
+
+    Raises:
+        FileNotFoundError: If the zip contains no ``.shp``.
+    """
+    with zipfile.ZipFile(zip_path) as z:
+        z.extractall(dest)
+    parts = sorted(glob.glob(os.path.join(dest, "*.shp")))
+    if not parts:
+        raise FileNotFoundError(f"no .shp in {zip_path}")
+    return parts
+
+
+def plan_shp_ranges(
+    parts: list[str], budget_bytes: int, cap: int = 25000
+) -> list[tuple[str, int, int]]:
+    """Split extracted ``.shp`` parts into geometry-budgeted feature ranges.
+
+    Returns ``[(shp_path, start, count), …]`` — one entry per chunk, sized by
+    :func:`_adaptive_chunk_size` so each range holds ~``budget_bytes`` of raw
+    geometry. The recurring pipeline cleans each range in its own subprocess.
+    """
+    ranges = []
+    for shp in parts:
+        n_feats, chunk = _adaptive_chunk_size(
+            shp, budget_bytes=budget_bytes, cap=cap
+        )
+        for start in range(0, max(n_feats, 1), chunk):
+            ranges.append((shp, start, chunk))
+    return ranges
+
+
+# Features reprojected + WKT-serialized per inner batch. This — not the range
+# size — is what bounds peak memory: reprojecting and WKT-encoding a whole
+# vertex-dense range at once (an Amazonas ``app`` range is ~256 MB of raw
+# geometry that balloons ~50x through the reproject copy + WKT strings) is what
+# OOMs a 12 GiB pod. Encoding 64 features at a time and appending each to the
+# open ParquetWriter caps the transient to one batch's expansion, whatever the
+# range's density, while the part file still holds the entire range.
+_WKT_BATCH = 64
+
+
+def clean_shp_range(
+    shp: str,
+    start: int,
+    count: int,
+    part_dir: str,
+    table: str,
+    snapshot_iso: str,
+    sigla_uf: str,
+    file_idx: int,
+) -> tuple[int, int]:
+    """Clean ONE feature range ``[start, start+count)`` into one parquet part.
+
+    This is the smallest unit of work and the one the recurring pipeline runs in
+    a fresh short-lived subprocess (see
+    :mod:`pipelines.crawler.sfb_sicar._clean_runner`). Two bounds stack to keep
+    memory flat: (1) the process exits after writing its single part, so the OS
+    reclaims all of its memory and glibc arena growth cannot accumulate range to
+    range; (2) the reproject + WKT serialization runs in ``_WKT_BATCH``-feature
+    batches appended to one ``ParquetWriter``, so peak is one batch's expansion,
+    not the whole range's — the range's own reproject + WKT off a 256 MB raw
+    budget otherwise balloons past 12 GiB on dense Amazonas ``app``.
+
+    Reprojects SIRGAS 2000 -> WGS84 and emits WKT; BigQuery repairs validity on
+    ingest (see :func:`geometry_to_wkt`). Writes
+    ``<part_dir>/part-<file_idx>.parquet`` (all-STRING payload).
+
+    Returns:
+        A ``(rows_written, dropped_foreign_uf)`` tuple.
+    """
+    os.makedirs(part_dir, exist_ok=True)
+    gdf = gpd.GeoDataFrame(
+        pyogrio.read_dataframe(shp, skip_features=start, max_features=count)
+    )
+    if len(gdf) == 0:
+        return 0, 0
+    if gdf.crs is None:
+        gdf = gdf.set_crs(SIRGAS)
+    gdf, dropped = filter_to_uf(gdf, sigla_uf)
+    if len(gdf) == 0:
+        return 0, dropped
+
+    out_path = os.path.join(part_dir, f"part-{file_idx:05d}.parquet")
+    payload: list[str] | None = None
+    writer: pq.ParquetWriter | None = None
+    total = 0
+    try:
+        for i in range(0, len(gdf), _WKT_BATCH):
+            sub = gdf.iloc[i : i + _WKT_BATCH].reset_index(drop=True)
+            df = build_table_df(table, sub, snapshot_iso, sigla_uf)
+            if payload is None:
+                payload = [
+                    c for c in df.columns if c not in ("data", "sigla_uf")
+                ]
+            batch = pa.Table.from_pandas(
+                df[payload],
+                schema=all_string_schema(payload),
+                preserve_index=False,
+            )
+            if writer is None:
+                writer = pq.ParquetWriter(
+                    out_path, batch.schema, compression="snappy"
+                )
+            writer.write_table(batch)
+            total += len(df)
+    finally:
+        if writer is not None:
+            writer.close()
+    return total, dropped
+
+
+def clean_theme_chunked(
+    zip_path: str,
+    out_root: str,
+    table: str,
+    snapshot_iso: str,
+    sigla_uf: str,
+    chunk_size: int | None = None,
+    budget_bytes: int = 96 * 1024 * 1024,
+) -> tuple[int, int]:
+    """Clean a whole theme zip in-process, one geometry-budgeted range at a time.
+
+    Convenience wrapper for local / one-shot bootstrap use, where a single
+    long-lived process is fine (macOS malloc does not fragment the way the Linux
+    worker's glibc does). The recurring pipeline instead runs each range from
+    :func:`plan_shp_ranges` in its own subprocess via
+    :mod:`pipelines.crawler.sfb_sicar._clean_runner` — see :func:`clean_shp_range`
+    for why per-range process isolation is what keeps the worker bounded.
+
+    Args:
+        zip_path: The downloaded ``<UF>_<THEME>.zip``.
+        out_root: Parquet output root.
+        table: Output table slug.
+        snapshot_iso: Per-UF release date, ``'YYYY-MM-DD'`` (the ``data`` key).
+        sigla_uf: UF code (the ``sigla_uf`` key).
+        chunk_size: Hard cap on features per range; ``None`` uses 25000.
+        budget_bytes: Raw-geometry byte budget per range.
+
+    Returns:
+        A ``(rows_written, dropped_foreign_uf)`` tuple.
+    """
+    cap = chunk_size or 25000
+    part_dir = partition_dir(out_root, table, snapshot_iso, sigla_uf)
+    rows = 0
+    dropped = 0
+    with tempfile.TemporaryDirectory() as td:
+        parts = extract_theme_zip(zip_path, td)
+        ranges = plan_shp_ranges(parts, budget_bytes=budget_bytes, cap=cap)
+        for idx, (shp, start, count) in enumerate(ranges):
+            r, d = clean_shp_range(
+                shp, start, count, part_dir, table, snapshot_iso, sigla_uf, idx
+            )
+            rows += r
+            dropped += d
+            _malloc_trim()
+    return rows, dropped

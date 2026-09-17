@@ -17,7 +17,7 @@ _TYPE_ALIASES: dict[str, str] = {
 
 
 def get_datasets_tables_from_modified_files(
-    modified_files: list[str],  # type: ignore
+    modified_files: list[str],
 ) -> list[tuple[str, str, bool, bool]]:
     """
     Returns a list of (dataset_id, table_id) from the list of modified files.
@@ -33,9 +33,14 @@ def get_datasets_tables_from_modified_files(
     """
     # Convert to Path
     modified_files_paths: list[Path] = [Path(file) for file in modified_files]
-    # Get SQL files
+    # Get SQL files. Only dbt models live under `models/` (model-paths in
+    # dbt_project.yml); a `.sql` under tests-dbt/, macros/, or analysis/ is a
+    # generic test or macro, not a table, so deriving (dataset, table) from its
+    # path points at a dataset that does not exist and 404s. Restrict to models.
     sql_files: list[Path] = [
-        file for file in modified_files_paths if file.suffix == ".sql"
+        file
+        for file in modified_files_paths
+        if file.suffix == ".sql" and file.parts and file.parts[0] == "models"
     ]
 
     datasets_tables: list[tuple[str, str, bool, bool]] = [
@@ -91,10 +96,10 @@ def get_bigquery_columns(
     WHERE table_name = '{table}'
     """
 
-    columns = bd.read_sql(
+    df = bd.read_sql(
         query=query, billing_project_id=billing_project_id, from_file=True
     )
-    return columns
+    return df
 
 
 def normalize_type(t: str) -> str:
@@ -113,14 +118,14 @@ def normalize_type(t: str) -> str:
 
 @dataclass
 class DescriptionError:
-    lhs: str
-    rhs: str
+    bq_desc: str
+    api_desc: str
 
 
 @dataclass
 class TypeError:
-    lhs: str
-    rhs: str
+    bq_type: str
+    api_type: str
 
 
 @dataclass
@@ -128,27 +133,31 @@ class NotFoundError:
     message: str
 
 
+type Errors = list[NotFoundError | TypeError | DescriptionError]
+
+
 @dataclass
-class Evaluate:
+class ColumnResult:
     column_name: str
-    errors: list[NotFoundError | TypeError | DescriptionError]
+    errors: Errors
 
 
-def evaluate_row(row: pd.Series) -> Evaluate:
+def get_column_errors(row: pd.Series) -> ColumnResult:
     """
     Evaluate a merged row from BigQuery vs API and return column status.
     """
-    errors: list[NotFoundError | TypeError | DescriptionError] = []
+    errors: Errors = []
 
     if row["_merge"] == "left_only":
-        errors.append(NotFoundError(message="Column not found in API"))
+        errors.append(NotFoundError(message="Not found in API"))
     elif row["_merge"] == "right_only":
-        errors.append(NotFoundError(message="Column not found in BigQuery"))
+        errors.append(NotFoundError(message="Not found in BigQuery"))
     else:
         bq_type = normalize_type(str(row["data_type"]))
         api_type = normalize_type(str(row["bigquery_type"]))
+
         if bq_type != api_type:
-            errors.append(TypeError(lhs=bq_type, rhs=api_type))
+            errors.append(TypeError(bq_type=bq_type, api_type=api_type))
 
         bq_desc = row.get("description_bq", "")
         api_desc = row.get("description_api", "")
@@ -156,14 +165,19 @@ def evaluate_row(row: pd.Series) -> Evaluate:
         if bq_desc != api_desc:
             errors.append(
                 DescriptionError(
-                    lhs=bq_desc if pd.notna(bq_desc) else "",
-                    rhs=api_desc if pd.notna(api_desc) else "",
+                    bq_desc=bq_desc if pd.notna(bq_desc) else "",
+                    api_desc=api_desc if pd.notna(api_desc) else "",
                 )
             )
 
-    # pyrefly: ignore [bad-assignment]
-    column_name: str = row.get("column_name", row.get("name", ""))
-    return Evaluate(column_name=column_name, errors=errors)
+    bq_name = row.get("column_name")
+    api_name = row.get("name")
+    column_name = bq_name if pd.notna(bq_name) else api_name
+
+    if not isinstance(column_name, str):
+        raise Exception(f"Failed to get column_name for pandas series {row}")
+
+    return ColumnResult(column_name=column_name, errors=errors)
 
 
 def merge_metadata(dataset: str, table_name: str) -> pd.DataFrame:
@@ -195,22 +209,21 @@ def merge_metadata(dataset: str, table_name: str) -> pd.DataFrame:
 
 def validate_table_metadata(
     dataset: str, table_name: str
-) -> tuple[str, str, list[Evaluate]]:
+) -> tuple[str, str, list[ColumnResult]]:
     """
     Validate metadata of a single table.
     """
     df_merged = merge_metadata(dataset, table_name)
-    results = [evaluate_row(row) for _, row in df_merged.iterrows()]
+    results = [get_column_errors(row) for _, row in df_merged.iterrows()]
 
     return (dataset, table_name, results)
 
 
-RED = "\033[31m"
-GREEN = "\033[32m"
-RESET = "\033[0m"
-
-
 def colored_char_diff(lhs: str, rhs: str) -> tuple[str, str]:
+    red = "\033[31m"
+    green = "\033[32m"
+    reset = "\033[0m"
+
     def esc(s):
         return s.replace("\r", "\\r").replace("\n", "\\n")
 
@@ -221,17 +234,19 @@ def colored_char_diff(lhs: str, rhs: str) -> tuple[str, str]:
             out_lhs.append(esc(lhs[i1:i2]))
             out_rhs.append(esc(rhs[j1:j2]))
         elif op == "replace":
-            out_lhs.append(f"{RED}{esc(lhs[i1:i2])}{RESET}")
-            out_rhs.append(f"{GREEN}{esc(rhs[j1:j2])}{RESET}")
+            out_lhs.append(f"{red}{esc(lhs[i1:i2])}{reset}")
+            out_rhs.append(f"{green}{esc(rhs[j1:j2])}{reset}")
         elif op == "delete":
-            out_lhs.append(f"{RED}{esc(lhs[i1:i2])}{RESET}")
+            out_lhs.append(f"{red}{esc(lhs[i1:i2])}{reset}")
         elif op == "insert":
-            out_rhs.append(f"{GREEN}{esc(rhs[j1:j2])}{RESET}")
+            out_rhs.append(f"{green}{esc(rhs[j1:j2])}{reset}")
 
     return "".join(out_lhs), "".join(out_rhs)
 
 
-def raise_if_metadata_errors(results: list[tuple[str, str, list[Evaluate]]]):
+def raise_if_metadata_errors(
+    results: list[tuple[str, str, list[ColumnResult]]],
+):
     """
     Check validation results and raise an Exception with detailed info if errors exist.
     """
@@ -255,8 +270,8 @@ def raise_if_metadata_errors(results: list[tuple[str, str, list[Evaluate]]]):
                                 print(f"     BQ: `{bq}`")
                                 print(f"    API: `{api}`\n")
                             case TypeError(lhs, rhs):
-                                print(f"     BQ: `{lhs}`")
-                                print(f"    API: `{rhs}`\n")
+                                print(f"     BQ Datatype: `{lhs}`")
+                                print(f"    API Datatype: `{rhs}`\n")
 
     if error_exists:
         print("⚠️ Metadata discrepancies found. See the output")

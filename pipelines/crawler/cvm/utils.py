@@ -159,6 +159,7 @@ def save_output(
     config: str, df: pd.DataFrame, table_id: str, use_partitions: bool = True
 ) -> str:
     """Save the processed data to output directory."""
+    # pyrefly: ignore [unnecessary-type-conversion]
     output_dir = cvm_constants.DATASET_DIR.value / str(table_id) / "output"
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -166,6 +167,7 @@ def save_output(
         to_partitions(
             df,
             partition_columns=["ano", "mes"],
+            # pyrefly: ignore [bad-argument-type]
             savepath=output_dir,
         )
     else:

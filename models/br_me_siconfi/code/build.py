@@ -30,6 +30,7 @@ import pandas as pd
 _here = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, _here)
 
+# pyrefly: ignore [missing-import]
 from tables_final.shared import _init_worker, process_year_task  # noqa: E402
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,358 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Census reference year; for 5-year estimates this is the final year of the 5-year period,,no,br_bd_diretorios_data_tempo.ano:ano,,no,Partition column (hive path 'ano=' in staging).,ano
+period,STRING,ACS estimate period: 1-year or 5-year,,no,,,no,"Values: 1-year, 5-year. Part of the logical key.",
+rt,STRING,Record Type,,yes,,,no,,RT
+serialno,STRING,Housing unit/GQ person serial number,,no,,,no,Housing-unit/person serial identifier.,SERIALNO
+division,STRING,Division code based on 2020 Census definitions,,yes,,,no,,DIVISION
+sporder,STRING,Person number,,yes,,,no,,SPORDER
+puma,STRING,"Public use microdata area code (PUMA) based on 2020 Census definition (areas with population of 100,000 or more, use with STATE for unique code)",,no,,,no,Geographic code; PUMA vintage varies by year (D6) — no directory FK in v1.,PUMA
+region,STRING,Region code based on 2020 Census definitions,,yes,,,no,,REGION
+state,STRING,State Code based on 2020 Census definitions,,no,br_bd_diretorios_us.state:id_state,,no,,STATE
+adjinc,STRING,Adjustment factor for income and earnings dollar amounts (6 implied decimal places),,no,,,no,Adjustment factor with 6 implied decimal places (divide by 1e6).,ADJINC
+pwgtp,INT64,Person's weight,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP
+agep,INT64,Age,,no,,years,no,,AGEP
+cit,STRING,Citizenship status,,yes,,,no,,CIT
+citwp,INT64,Year of naturalization write-in,,no,,year,no,,CITWP
+cow,STRING,Class of worker,,yes,,,no,,COW
+ddrs,STRING,Self-care difficulty,,yes,,,no,,DDRS
+dear,STRING,Hearing difficulty,,yes,,,no,,DEAR
+deye,STRING,Vision difficulty,,yes,,,no,,DEYE
+dout,STRING,Independent living difficulty,,yes,,,no,,DOUT
+dphy,STRING,Ambulatory difficulty,,yes,,,no,,DPHY
+drat,STRING,Veteran service-connected disability rating (percentage),,yes,,,no,,DRAT
+dratx,STRING,Veteran service-connected disability rating (checkbox),,yes,,,no,,DRATX
+drem,STRING,Cognitive difficulty,,yes,,,no,,DREM
+eng,STRING,Ability to speak English,,yes,,,no,,ENG
+fer,STRING,Gave birth to child within the past 12 months,,yes,,,no,,FER
+gcl,STRING,Grandparents living with grandchildren,,yes,,,no,,GCL
+gcm,STRING,Length of time responsible for grandchildren,,yes,,,no,,GCM
+gcr,STRING,Grandparents responsible for grandchildren,,yes,,,no,,GCR
+himrks,STRING,Subsidized Marketplace Coverage,,yes,,,no,,HIMRKS
+hins1,STRING,Insurance through a current or former employer or union,,yes,,,no,,HINS1
+hins2,STRING,Insurance purchased directly from an insurance company,,yes,,,no,,HINS2
+hins3,STRING,"Medicare, for people 65 and older, or people with certain disabilities",,yes,,,no,,HINS3
+hins4,STRING,"Medicaid, Medical Assistance, or any kind of government-assistance plan for those with low incomes or a disability",,yes,,,no,,HINS4
+hins5,STRING,TRICARE or other military health care,,yes,,,no,,HINS5
+hins6,STRING,VA (enrolled for VA health care),,yes,,,no,,HINS6
+hins7,STRING,Indian Health Service,,yes,,,no,,HINS7
+intp,INT64,"Interest, dividends, and net rental income past 12 months (use ADJINC to adjust to constant dollars)",,no,,USD,no,,INTP
+jwmnp,INT64,Travel time to work,,no,,minutes,no,,JWMNP
+jwrip,INT64,Vehicle occupancy,,no,,percent,no,,JWRIP
+jwtrns,STRING,Means of transportation to work,,yes,,,no,,JWTRNS
+lanx,STRING,Language other than English spoken at home,,yes,,,no,,LANX
+mar,STRING,Marital status,,yes,,,no,,MAR
+marhd,STRING,Divorced in the past 12 months,,yes,,,no,,MARHD
+marhm,STRING,Married in the past 12 months,,yes,,,no,,MARHM
+marht,STRING,Number of times married,,yes,,,no,,MARHT
+marhw,STRING,Widowed in the past 12 months,,yes,,,no,,MARHW
+marhyp,INT64,Year last married,,no,,year,no,,MARHYP
+mig,STRING,Mobility status (lived here 1 year ago),,yes,,,no,,MIG
+mil,STRING,Military service,,yes,,,no,,MIL
+mlpa,STRING,Served September 2001 or later (Post 9/11),,yes,,,no,,MLPA
+mlpb,STRING,Served August 1990 through August 2001 (including the Persian Gulf War),,yes,,,no,,MLPB
+mlpcd,STRING,Served June 1975 through July 1990,,yes,,,no,,MLPCD
+mlpe,STRING,Served August 1964 through May 1975 (including the Vietnam War),,yes,,,no,,MLPE
+mlpfg,STRING,Served February 1955 through July 1964,,yes,,,no,,MLPFG
+mlpik,STRING,Peacetime service before May 1950,,yes,,,no,,MLPIK
+mlphj,STRING,Wartime service between December 1941 and January 1955 (including the Korean War and World War II),,yes,,,no,,MLPHJ
+nwab,STRING,Temporary absence from work (UNEDITED - See 'Employment Status Recode' (ESR)),,yes,,,no,,NWAB
+nwav,STRING,Available for work (UNEDITED - See 'Employment Status Recode' (ESR)),,yes,,,no,,NWAV
+nwla,STRING,On layoff from work (UNEDITED - See 'Employment Status Recode' (ESR)),,yes,,,no,,NWLA
+nwlk,STRING,Looking for work (UNEDITED - See 'Employment Status Recode' (ESR)),,yes,,,no,,NWLK
+nwre,STRING,Informed of recall (UNEDITED - See 'Employment Status Recode' (ESR)),,yes,,,no,,NWRE
+oip,INT64,All other income past 12 months (use ADJINC to adjust to constant dollars),,no,,USD,no,,OIP
+pap,INT64,Public assistance income past 12 months (use ADJINC to adjust to constant dollars),,no,,USD,no,,PAP
+relshipp,STRING,Relationship,,yes,,,no,,RELSHIPP
+retp,INT64,Retirement income past 12 months (use ADJINC to adjust to constant dollars),,no,,USD,no,,RETP
+sch,STRING,School enrollment,,yes,,,no,,SCH
+schg,STRING,Grade level attending,,yes,,,no,,SCHG
+schl,STRING,Educational attainment,,yes,,,no,,SCHL
+semp,INT64,Self-employment income past 12 months (use ADJINC to adjust SEMP to constant dollars),,no,,USD,no,,SEMP
+sex,STRING,Sex,,yes,,,no,,SEX
+ssip,INT64,Supplementary Security Income past 12 months (use ADJINC to adjust SSIP to constant dollars),,no,,USD,no,,SSIP
+ssp,INT64,Social Security income past 12 months (use ADJINC to adjust SSP to constant dollars),,no,,USD,no,,SSP
+wagp,INT64,Wages or salary income past 12 months (use ADJINC to adjust WAGP to constant dollars),,no,,USD,no,,WAGP
+wkhp,INT64,Usual hours worked per week past 12 months,,no,,hours,no,,WKHP
+wkl,STRING,When last worked,,yes,,,no,,WKL
+wkwn,INT64,Weeks worked during past 12 months,,no,,weeks,no,,WKWN
+wrk,STRING,Worked last week,,yes,,,no,,WRK
+yoep,INT64,Year of entry,,no,,year,no,,YOEP
+anc,STRING,Ancestry recode,,yes,,,no,,ANC
+anc1p,STRING,Recoded Detailed Ancestry - first entry,,yes,,,no,,ANC1P
+anc2p,STRING,Recoded Detailed Ancestry - second entry,,yes,,,no,,ANC2P
+decade,STRING,Decade of entry,,yes,,,no,,DECADE
+dis,STRING,Disability recode,,yes,,,no,,DIS
+drivesp,STRING,Number of vehicles calculated from JWRI,,yes,,,no,,DRIVESP
+esp,STRING,Employment status of parents,,yes,,,no,,ESP
+esr,STRING,Employment status recode,,yes,,,no,,ESR
+fod1p,STRING,Recoded field of degree - first entry,,yes,,,no,,FOD1P
+fod2p,STRING,Recoded field of degree - second entry,,yes,,,no,,FOD2P
+hicov,STRING,Health insurance coverage recode,,yes,,,no,,HICOV
+hisp,STRING,Recoded detailed Hispanic origin,,yes,,,no,,HISP
+indp,STRING,Industry recode for 2023 and later based on 2022 IND codes,,yes,,,no,,INDP
+jwap,STRING,Time of arrival at work - hour and minute,,yes,,,no,,JWAP
+jwdp,STRING,Time of departure for work - hour and minute,,yes,,,no,,JWDP
+lanp,STRING,Language spoken at home,,yes,,,no,,LANP
+migpuma,STRING,Migration PUMA based on 2020 Census definition,,no,,,no,Geographic code; PUMA vintage varies by year (D6) — no directory FK in v1.,MIGPUMA
+migsp,STRING,Migration recode - State or foreign country code,,yes,,,no,,MIGSP
+msp,STRING,"Married, spouse present/spouse absent",,yes,,,no,,MSP
+naicsp,STRING,North American Industry Classification System (NAICS) recode for 2023 and later based on 2022 NAICS codes,,yes,,,no,,NAICSP
+nativity,STRING,Nativity,,yes,,,no,,NATIVITY
+nop,STRING,Nativity of parent,,yes,,,no,,NOP
+oc,STRING,Own child,,yes,,,no,,OC
+occp,STRING,Occupation recode for 2018 and later based on 2018 OCC codes,,yes,,,no,,OCCP
+paoc,STRING,Presence and age of own children,,yes,,,no,,PAOC
+pernp,INT64,Total person's earnings (use ADJINC to adjust to constant dollars),,no,,USD,no,,PERNP
+pincp,INT64,Total person's income (use ADJINC to adjust to constant dollars),,no,,USD,no,,PINCP
+pobp,STRING,Place of birth (Recode),,yes,,,no,,POBP
+povpip,INT64,Income-to-poverty ratio recode,,no,,percent,no,,POVPIP
+powpuma,STRING,Place of work PUMA based on 2020 Census definition,,no,,,no,Geographic code; PUMA vintage varies by year (D6) — no directory FK in v1.,POWPUMA
+powsp,STRING,Place of work - State or foreign country recode,,yes,,,no,,POWSP
+privcov,STRING,Private health insurance coverage recode,,yes,,,no,,PRIVCOV
+pubcov,STRING,Public health coverage recode,,yes,,,no,,PUBCOV
+qtrbir,STRING,Quarter of birth,,yes,,,no,,QTRBIR
+rac1p,STRING,Recoded detailed race code,,yes,,,no,,RAC1P
+rac2p,STRING,Recoded detailed race code,,yes,,,no,,RAC2P
+rac3p,STRING,Recoded detailed race code,,yes,,,no,,RAC3P
+racaian,STRING,American Indian and Alaska Native recode (American Indian and Alaska Native alone or in combination with one or more other races),,yes,,,no,,RACAIAN
+racasn,STRING,Asian recode (Asian alone or in combination with one or more other races),,yes,,,no,,RACASN
+racblk,STRING,Black or African American recode (Black alone or in combination with one or more other races),,yes,,,no,,RACBLK
+racnh,STRING,Native Hawaiian recode (Native Hawaiian alone or in combination with one or more other races),,yes,,,no,,RACNH
+racnum,STRING,Number of major race groups represented,,yes,,,no,,RACNUM
+racpi,STRING,Other Pacific Islander recode (Other Pacific Islander alone or in combination with one or more other races),,yes,,,no,,RACPI
+racsor,STRING,Some other race recode (Some other race alone or in combination with one or more other races),,yes,,,no,,RACSOR
+racwht,STRING,White recode (White alone or in combination with one or more other races),,yes,,,no,,RACWHT
+rc,STRING,Related child,,yes,,,no,,RC
+sciengp,STRING,Field of Degree Science and Engineering Flag - NSF Definition,,yes,,,no,,SCIENGP
+sciengrlp,STRING,Field of Degree Science and Engineering Related Flag - NSF Definition,,yes,,,no,,SCIENGRLP
+sfn,STRING,Subfamily number,,yes,,,no,,SFN
+sfr,STRING,Subfamily relationship,,yes,,,no,,SFR
+socp,STRING,Standard Occupational Classification (SOC) codes for 2018 and later based on 2018 SOC codes,,yes,,,no,,SOCP
+vpsp,STRING,Veteran period of service,,yes,,,no,,VPSP
+waob,STRING,World area of birth,,yes,,,no,,WAOB
+fagep,STRING,Age allocation flag,,yes,,,no,,FAGEP
+fancp,STRING,Ancestry allocation flag,,yes,,,no,,FANCP
+fcitp,STRING,Citizenship allocation flag,,yes,,,no,,FCITP
+fcitwp,STRING,Year of naturalization write-in allocation flag,,yes,,,no,,FCITWP
+fcowp,STRING,Class of worker allocation flag,,yes,,,no,,FCOWP
+fddrsp,STRING,Self-care difficulty allocation flag,,yes,,,no,,FDDRSP
+fdearp,STRING,Hearing difficulty allocation flag,,yes,,,no,,FDEARP
+fdeyep,STRING,Vision difficulty allocation flag,,yes,,,no,,FDEYEP
+fdisp,STRING,Disability recode allocation flag,,yes,,,no,,FDISP
+fdoutp,STRING,Independent living difficulty allocation flag,,yes,,,no,,FDOUTP
+fdphyp,STRING,Ambulatory difficulty allocation flag,,yes,,,no,,FDPHYP
+fdratp,STRING,Disability rating percentage allocation flag,,yes,,,no,,FDRATP
+fdratxp,STRING,Disability rating checkbox allocation flag,,yes,,,no,,FDRATXP
+fdremp,STRING,Cognitive difficulty allocation flag,,yes,,,no,,FDREMP
+fengp,STRING,Ability to speak English allocation flag,,yes,,,no,,FENGP
+fesrp,STRING,Employment status recode allocation flag,,yes,,,no,,FESRP
+fferp,STRING,Gave birth to child within the past 12 months allocation flag,,yes,,,no,,FFERP
+ffodp,STRING,Field of Degree allocation flag,,yes,,,no,,FFODP
+fgclp,STRING,Grandparents living with grandchildren allocation flag,,yes,,,no,,FGCLP
+fgcmp,STRING,Length of time responsible for grandchildren allocation flag,,yes,,,no,,FGCMP
+fgcrp,STRING,Grandparents responsible for grandchildren allocation flag,,yes,,,no,,FGCRP
+fhicovp,STRING,Health insurance coverage recode allocation flag,,yes,,,no,,FHICOVP
+fhimrksp,STRING,Subsidized Marketplace Coverage allocation flag,,yes,,,no,,FHIMRKSP
+fhins1p,STRING,Insurance through a current or former employer or union allocation flag,,yes,,,no,,FHINS1P
+fhins2p,STRING,Insurance purchased directly from an insurance company allocation flag,,yes,,,no,,FHINS2P
+fhins3c,STRING,Medicare coverage given through the eligibility coverage edit,,yes,,,no,,FHINS3C
+fhins3p,STRING,"Medicare, for people 65 or older, or people with certain disabilities allocation flag",,yes,,,no,,FHINS3P
+fhins4c,STRING,Medicaid coverage given through the eligibility coverage edit,,yes,,,no,,FHINS4C
+fhins4p,STRING,"Medicaid, medical assistance, or any kind of government-assistance plan for people with low incomes or a disability allocation flag",,yes,,,no,,FHINS4P
+fhins5c,STRING,TRICARE coverage given through the eligibility coverage edit,,yes,,,no,,FHINS5C
+fhins5p,STRING,TRICARE or other military health care allocation flag,,yes,,,no,,FHINS5P
+fhins6p,STRING,VA (enrolled for VA health care) allocation flag,,yes,,,no,,FHINS6P
+fhins7p,STRING,Indian health service allocation flag,,yes,,,no,,FHINS7P
+fhisp,STRING,Detailed Hispanic origin allocation flag,,yes,,,no,,FHISP
+findp,STRING,Industry allocation flag,,yes,,,no,,FINDP
+fintp,STRING,"Interest, dividend, and net rental income allocation flag",,yes,,,no,,FINTP
+fjwdp,STRING,Time of departure to work allocation flag,,yes,,,no,,FJWDP
+fjwmnp,STRING,Travel time to work allocation flag,,yes,,,no,,FJWMNP
+fjwrip,STRING,Vehicle occupancy allocation flag,,yes,,,no,,FJWRIP
+fjwtrnsp,STRING,Means of transportation to work allocation flag,,yes,,,no,,FJWTRNSP
+flanp,STRING,Language spoken at home allocation flag,,yes,,,no,,FLANP
+flanxp,STRING,Language other than English allocation flag,,yes,,,no,,FLANXP
+fmarp,STRING,Marital status allocation flag,,yes,,,no,,FMARP
+fmarhdp,STRING,Divorced in the past 12 months allocation flag,,yes,,,no,,FMARHDP
+fmarhmp,STRING,Married in the past 12 months allocation flag,,yes,,,no,,FMARHMP
+fmarhtp,STRING,Times married allocation flag,,yes,,,no,,FMARHTP
+fmarhwp,STRING,Widowed in the past 12 months allocation flag,,yes,,,no,,FMARHWP
+fmarhyp,STRING,Year last married allocation flag,,yes,,,no,,FMARHYP
+fmigp,STRING,Mobility status allocation flag,,yes,,,no,,FMIGP
+fmigsp,STRING,Migration state or foreign country allocation flag,,yes,,,no,,FMIGSP
+fmilpp,STRING,Military periods of service allocation flag,,yes,,,no,,FMILPP
+fmilsp,STRING,Military service allocation flag,,yes,,,no,,FMILSP
+foccp,STRING,Occupation allocation flag,,yes,,,no,,FOCCP
+foip,STRING,All other income allocation flag,,yes,,,no,,FOIP
+fpap,STRING,Public assistance income allocation flag,,yes,,,no,,FPAP
+fpernp,STRING,Total person's earnings allocation flag,,yes,,,no,,FPERNP
+fpincp,STRING,Total person's income allocation flag,,yes,,,no,,FPINCP
+fpobp,STRING,Place of birth allocation flag,,yes,,,no,,FPOBP
+fpowsp,STRING,Place of work state allocation flag,,yes,,,no,,FPOWSP
+fprivcovp,STRING,Private health insurance coverage recode allocation flag,,yes,,,no,,FPRIVCOVP
+fpubcovp,STRING,Public health coverage recode allocation flag,,yes,,,no,,FPUBCOVP
+fracp,STRING,Detailed race allocation flag,,yes,,,no,,FRACP
+frelshipp,STRING,Relationship allocation flag,,yes,,,no,,FRELSHIPP
+fretp,STRING,Retirement income allocation flag,,yes,,,no,,FRETP
+fschgp,STRING,Grade attending allocation flag,,yes,,,no,,FSCHGP
+fschlp,STRING,Highest education allocation flag,,yes,,,no,,FSCHLP
+fschp,STRING,School enrollment allocation flag,,yes,,,no,,FSCHP
+fsemp,STRING,Self-employment income allocation flag,,yes,,,no,,FSEMP
+fsexp,STRING,Sex allocation flag,,yes,,,no,,FSEXP
+fssip,STRING,Supplementary Security Income allocation flag,,yes,,,no,,FSSIP
+fssp,STRING,Social Security income allocation flag,,yes,,,no,,FSSP
+fwagp,STRING,Wages and salary income allocation flag,,yes,,,no,,FWAGP
+fwkhp,STRING,Usual hours worked per week past 12 months allocation flag,,yes,,,no,,FWKHP
+fwklp,STRING,Last worked allocation flag,,yes,,,no,,FWKLP
+fwkwnp,STRING,Weeks worked past 12 months allocation flag,,yes,,,no,,FWKWNP
+fwrkp,STRING,Worked last week allocation flag,,yes,,,no,,FWRKP
+fyoep,STRING,Year of entry allocation flag,,yes,,,no,,FYOEP
+pwgtp1,INT64,Person's Weight replicate 1,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP1
+pwgtp2,INT64,Person's Weight replicate 2,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP2
+pwgtp3,INT64,Person's Weight replicate 3,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP3
+pwgtp4,INT64,Person's Weight replicate 4,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP4
+pwgtp5,INT64,Person's Weight replicate 5,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP5
+pwgtp6,INT64,Person's Weight replicate 6,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP6
+pwgtp7,INT64,Person's Weight replicate 7,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP7
+pwgtp8,INT64,Person's Weight replicate 8,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP8
+pwgtp9,INT64,Person's Weight replicate 9,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP9
+pwgtp10,INT64,Person's Weight replicate 10,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP10
+pwgtp11,INT64,Person's Weight replicate 11,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP11
+pwgtp12,INT64,Person's Weight replicate 12,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP12
+pwgtp13,INT64,Person's Weight replicate 13,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP13
+pwgtp14,INT64,Person's Weight replicate 14,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP14
+pwgtp15,INT64,Person's Weight replicate 15,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP15
+pwgtp16,INT64,Person's Weight replicate 16,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP16
+pwgtp17,INT64,Person's Weight replicate 17,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP17
+pwgtp18,INT64,Person's Weight replicate 18,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP18
+pwgtp19,INT64,Person's Weight replicate 19,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP19
+pwgtp20,INT64,Person's Weight replicate 20,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP20
+pwgtp21,INT64,Person's Weight replicate 21,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP21
+pwgtp22,INT64,Person's Weight replicate 22,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP22
+pwgtp23,INT64,Person's Weight replicate 23,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP23
+pwgtp24,INT64,Person's Weight replicate 24,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP24
+pwgtp25,INT64,Person's Weight replicate 25,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP25
+pwgtp26,INT64,Person's Weight replicate 26,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP26
+pwgtp27,INT64,Person's Weight replicate 27,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP27
+pwgtp28,INT64,Person's Weight replicate 28,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP28
+pwgtp29,INT64,Person's Weight replicate 29,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP29
+pwgtp30,INT64,Person's Weight replicate 30,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP30
+pwgtp31,INT64,Person's Weight replicate 31,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP31
+pwgtp32,INT64,Person's Weight replicate 32,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP32
+pwgtp33,INT64,Person's Weight replicate 33,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP33
+pwgtp34,INT64,Person's Weight replicate 34,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP34
+pwgtp35,INT64,Person's Weight replicate 35,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP35
+pwgtp36,INT64,Person's Weight replicate 36,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP36
+pwgtp37,INT64,Person's Weight replicate 37,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP37
+pwgtp38,INT64,Person's Weight replicate 38,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP38
+pwgtp39,INT64,Person's Weight replicate 39,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP39
+pwgtp40,INT64,Person's Weight replicate 40,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP40
+pwgtp41,INT64,Person's Weight replicate 41,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP41
+pwgtp42,INT64,Person's Weight replicate 42,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP42
+pwgtp43,INT64,Person's Weight replicate 43,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP43
+pwgtp44,INT64,Person's Weight replicate 44,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP44
+pwgtp45,INT64,Person's Weight replicate 45,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP45
+pwgtp46,INT64,Person's Weight replicate 46,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP46
+pwgtp47,INT64,Person's Weight replicate 47,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP47
+pwgtp48,INT64,Person's Weight replicate 48,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP48
+pwgtp49,INT64,Person's Weight replicate 49,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP49
+pwgtp50,INT64,Person's Weight replicate 50,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP50
+pwgtp51,INT64,Person's Weight replicate 51,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP51
+pwgtp52,INT64,Person's Weight replicate 52,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP52
+pwgtp53,INT64,Person's Weight replicate 53,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP53
+pwgtp54,INT64,Person's Weight replicate 54,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP54
+pwgtp55,INT64,Person's Weight replicate 55,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP55
+pwgtp56,INT64,Person's Weight replicate 56,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP56
+pwgtp57,INT64,Person's Weight replicate 57,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP57
+pwgtp58,INT64,Person's Weight replicate 58,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP58
+pwgtp59,INT64,Person's Weight replicate 59,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP59
+pwgtp60,INT64,Person's Weight replicate 60,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP60
+pwgtp61,INT64,Person's Weight replicate 61,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP61
+pwgtp62,INT64,Person's Weight replicate 62,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP62
+pwgtp63,INT64,Person's Weight replicate 63,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP63
+pwgtp64,INT64,Person's Weight replicate 64,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP64
+pwgtp65,INT64,Person's Weight replicate 65,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP65
+pwgtp66,INT64,Person's Weight replicate 66,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP66
+pwgtp67,INT64,Person's Weight replicate 67,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP67
+pwgtp68,INT64,Person's Weight replicate 68,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP68
+pwgtp69,INT64,Person's Weight replicate 69,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP69
+pwgtp70,INT64,Person's Weight replicate 70,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP70
+pwgtp71,INT64,Person's Weight replicate 71,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP71
+pwgtp72,INT64,Person's Weight replicate 72,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP72
+pwgtp73,INT64,Person's Weight replicate 73,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP73
+pwgtp74,INT64,Person's Weight replicate 74,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP74
+pwgtp75,INT64,Person's Weight replicate 75,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP75
+pwgtp76,INT64,Person's Weight replicate 76,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP76
+pwgtp77,INT64,Person's Weight replicate 77,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP77
+pwgtp78,INT64,Person's Weight replicate 78,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP78
+pwgtp79,INT64,Person's Weight replicate 79,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP79
+pwgtp80,INT64,Person's Weight replicate 80,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,PWGTP80
+adjust,STRING,Adjustment factor for dollar amounts (6 implied decimal places),,no,,,no,Adjustment factor with 6 implied decimal places (divide by 1e6).,ADJUST
+dwrk,STRING,Difficulty working,,yes,,,no,,DWRK
+jwtr,STRING,Means of transportation to work,,yes,,,no,,JWTR
+mily,STRING,Years of active duty military service,,yes,,,no,,MILY
+mlpc,STRING,Served September 1980 - July 1990,,yes,,,no,,MLPC
+mlpd,STRING,Served May 1975 - August 1980,,yes,,,no,,MLPD
+mlpf,STRING,Served March 1961 - July 1964,,yes,,,no,,MLPF
+mlpg,STRING,Served February 1955 - February 1961,,yes,,,no,,MLPG
+mlph,STRING,Served Korean War (July 1950 - January 1955),,yes,,,no,,MLPH
+mlpi,STRING,Served January 1947 - June 1950,,yes,,,no,,MLPI
+mlpj,STRING,Served World War II (December 1941 - December 1946),,yes,,,no,,MLPJ
+mlpk,STRING,Served November 1941 or earlier,,yes,,,no,,MLPK
+rel,STRING,Relationship,,yes,,,no,,REL
+wkw,STRING,Weeks worked during past 12 months,,yes,,,no,,WKW
+uwrk,STRING,Worked last week (UNEDITED–See “Employment Status Recode” (ESR)),,yes,,,no,,UWRK
+ds,STRING,Disability recode,,yes,,,no,,DS
+racnhpi,STRING,Native Hawaiian and Other Pacific Islander recode (Native Hawaiian and Other Pacific Islander alone or in combination with one or more other races),,yes,,,no,,RACNHPI
+vps,STRING,Veteran period of service,,yes,,,no,,VPS
+fdwrkp,STRING,Difficulty working allocation flag,,yes,,,no,,FDWRKP
+fjwtrp,STRING,Means of transportation to work allocation flag,,yes,,,no,,FJWTRP
+fmilyp,STRING,Years of military service allocation flag,,yes,,,no,,FMILYP
+frelp,STRING,Relationship allocation flag,,yes,,,no,,FRELP
+fwkwp,STRING,Weeks worked past 12 months allocation flag,,yes,,,no,,FWKWP
+relp,STRING,Relationship,,yes,,,no,,RELP
+sspa,STRING,Same sex spouse recode,,yes,,,no,,SSPA
+indp02,STRING,Industry 2002 recode,,yes,,,no,,INDP02
+naicsp02,STRING,NAICS 2002 Industry code,,yes,,,no,,NAICSP02
+occp02,STRING,Occupation recode for data collected in 2009 based on 2002 OCC codes,,yes,,,no,,OCCP02
+socp00,STRING,SOC Occupation code for data collected in 2009 based on 2000 SOC codes,,yes,,,no,,SOCP00
+occp10,STRING,Occupation recode for data collected in 2011 based on 2010 OCC codes,,yes,,,no,,OCCP10
+socp10,STRING,SOC Occupation code for data collected in 2011 based on 2010 SOC codes,,yes,,,no,,SOCP10
+indp07,STRING,Industry 2007 recode,,yes,,,no,,INDP07
+naicsp07,STRING,NAICS 2007 Industry code,,yes,,,no,,NAICSP07
+puma00,STRING,Public use microdata area code (PUMA) based on Census 2000 definition for data collected prior to 2012. Use in combination with PUMA10,,no,,,no,Geographic code; PUMA vintage varies by year (D6) — no directory FK in v1.,PUMA00
+puma10,STRING,"Public use microdata area code (PUMA) based on 2010 Census definition for data years 2012-2021 (areas with population of 100,000 or more, use with ST for unique code)",,yes,,,no,,PUMA10
+citwp05,STRING,Year of naturalization write-in for data collected prior to 2012,,yes,,,no,,CITWP05
+citwp12,STRING,Year of naturalization write-in for data collected in 2012 or later,,yes,,,no,,CITWP12
+marhyp05,STRING,Year last married for data collected prior to 2012,,yes,,,no,,MARHYP05
+marhyp12,STRING,Year last married for data collected in 2012 or later,,yes,,,no,,MARHYP12
+yoep05,STRING,Year of entry for data collected prior to 2012,,yes,,,no,,YOEP05
+yoep12,STRING,Year of entry for data collected in 2012 or later,,yes,,,no,,YOEP12
+anc1p05,STRING,Recoded Detailed Ancestry for data collected prior to 2012 - first entry,,yes,,,no,,ANC1P05
+anc1p12,STRING,Recoded Detailed Ancestry for data collected in 2012 or later - first entry,,yes,,,no,,ANC1P12
+anc2p05,STRING,Recoded Detailed Ancestry for data collected prior to 2012 - second entry,,yes,,,no,,ANC2P05
+anc2p12,STRING,Recoded Detailed Ancestry for data collected in 2012 or later - second entry,,yes,,,no,,ANC2P12
+lanp05,STRING,Language spoken at home for data collected prior to 2012,,yes,,,no,,LANP05
+lanp12,STRING,Language spoken at home for data collected in 2012 or later,,yes,,,no,,LANP12
+migpuma00,STRING,Migration PUMA based on Census 2000 definition for data collected prior to 2012,,no,,,no,Geographic code; PUMA vintage varies by year (D6) — no directory FK in v1.,MIGPUMA00
+migpuma10,STRING,Migration PUMA based on 2010 Census definition for data years 2012-2021,,yes,,,no,,MIGPUMA10
+migsp05,STRING,Migration recode for data collected prior to 2012 - State or foreign country code,,yes,,,no,,MIGSP05
+migsp12,STRING,Migration recode for data collected in 2012 or later - State or foreign country code,,yes,,,no,,MIGSP12
+occp12,STRING,Occupation recode for data collected in 2012 or later based on 2010 OCC codes,,yes,,,no,,OCCP12
+pobp05,STRING,Place of birth (Recode) for data collected prior to 2012,,yes,,,no,,POBP05
+pobp12,STRING,Place of birth (Recode) for data collected in 2012 or later,,yes,,,no,,POBP12
+powpuma00,STRING,Place of work PUMA based on Census 2000 definition for data collected prior to 2012,,no,,,no,Geographic code; PUMA vintage varies by year (D6) — no directory FK in v1.,POWPUMA00
+powpuma10,STRING,Place of work PUMA based on 2010 Census definitions for data years 2012-2021,,yes,,,no,,POWPUMA10
+powsp05,STRING,Place of work for data collected prior to 2012 - State or foreign country recode,,yes,,,no,,POWSP05
+powsp12,STRING,Place of work for data collected in 2012 or later - State or foreign country recode,,yes,,,no,,POWSP12
+rac2p05,STRING,Recoded detailed race code for data collected prior to 2012,,yes,,,no,,RAC2P05
+rac2p12,STRING,Recoded detailed race code for data collected in 2012 or later,,yes,,,no,,RAC2P12
+rac3p05,STRING,Recoded detailed race code for data collected prior to 2012,,yes,,,no,,RAC3P05
+rac3p12,STRING,Recoded detailed race code for data collected in 2012 or later,,yes,,,no,,RAC3P12
+socp12,STRING,SOC Occupation recode for data collected in 2012 or later based on 2010 SOC codes,,yes,,,no,,SOCP12
+puma20,STRING,"Public use microdata area code (PUMA) based on 2020 Census definition for data years 2022 and later (areas with population of 100,000 or more, use with ST for unique code)",,yes,,,no,,PUMA20
+migpuma20,STRING,Migration PUMA based on 2020 Census definition for data years 2022 and later,,yes,,,no,,MIGPUMA20
+powpuma20,STRING,Place of work PUMA based on 2020 Census definitions for data years 2022 and later,,yes,,,no,,POWPUMA20
+rac2p19,STRING,Recoded detailed race code for data years prior to 2023,,yes,,,no,,RAC2P19
+rac2p23,STRING,Recoded detailed race code for data year 2023,,yes,,,no,,RAC2P23
+rac2p24,STRING,Recoded detailed race code for data year 2024,,yes,,,no,,RAC2P24

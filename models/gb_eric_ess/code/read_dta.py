@@ -16,6 +16,7 @@ import re
 import sys
 from collections import Counter
 
+# pyrefly: ignore [missing-import]
 import pyreadstat
 
 DTA = sys.argv[1]
@@ -85,5 +86,6 @@ print(
     "  bq types:",
     dict(Counter(r["bq_type"] for r in rows)),
     "| coded (n_cats>0):",
+    # pyrefly: ignore [unsupported-operation]
     sum(1 for r in rows if r["n_cats"] > 0),
 )

@@ -8,6 +8,8 @@ from pathlib import Path
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+
+# pyrefly: ignore [untyped-import]
 import yaml
 
 BASE = Path(__file__).resolve().parents[1] / "data"
@@ -1108,9 +1110,15 @@ def clean_naics_1997():
     return _naics_hierarchy(df, "naics_1997")
 
 
-def clean_soc_2018():
+def _clean_soc_structure(filename, slug):
+    # SOC structure files (2000, 2010, 2018) share one layout: a header row
+    # whose first cell is "Major Group", then one code per row placed in the
+    # Major/Minor/Broad/Detailed column that matches its level, with the
+    # occupation title in a trailing column. The title column is 4 in 2010 and
+    # 2018 but 5 in 2000 (which carries an extra blank separator column), so it
+    # is detected rather than hardcoded.
     raw = pd.read_excel(
-        INPUT / "soc" / "soc_structure_2018.xlsx",
+        INPUT / "soc" / filename,
         sheet_name=0,
         header=None,
         dtype=str,
@@ -1119,10 +1127,16 @@ def clean_soc_2018():
         raw.iloc[:, 0].astype(str).str.strip() == "Major Group"
     ][0]
     data = raw.iloc[header_idx + 1 :].copy()
+    tail = data.iloc[:, 4:]
+    title_col = 4 + int(tail.notna().sum().to_numpy().argmax())
     level_cols = {0: "major", 1: "minor", 2: "broad", 3: "detailed"}
     rows = []
     for _, r in data.iterrows():
-        title = str(r.iloc[4]).strip() if pd.notna(r.iloc[4]) else None
+        title = (
+            str(r.iloc[title_col]).strip()
+            if pd.notna(r.iloc[title_col])
+            else None
+        )
         for col_idx, level in level_cols.items():
             val = r.iloc[col_idx]
             if pd.notna(val) and str(val).strip():
@@ -1154,10 +1168,12 @@ def clean_soc_2018():
         ]:
             row[col] = names.get(row[parent]) if row[parent] else None
         if row["id_major_group"]:
+            # pyrefly: ignore [unsupported-operation]
             assert code[:2] == row["id_major_group"][:2], (
                 f"soc hierarchy mismatch: {code}"
             )
         if row["id_broad_occupation"]:
+            # pyrefly: ignore [unsupported-operation]
             assert code[:5] == row["id_broad_occupation"][:5], (
                 f"soc hierarchy mismatch: {code}"
             )
@@ -1173,7 +1189,19 @@ def clean_soc_2018():
         ("id_broad_occupation", pa.string()),
         ("name_broad_occupation", pa.string()),
     ]
-    return write_table(df, "soc_2018", fields)
+    return write_table(df, slug, fields)
+
+
+def clean_soc_2000():
+    return _clean_soc_structure("soc_structure_2000.xlsx", "soc_2000")
+
+
+def clean_soc_2010():
+    return _clean_soc_structure("soc_structure_2010.xls", "soc_2010")
+
+
+def clean_soc_2018():
+    return _clean_soc_structure("soc_structure_2018.xlsx", "soc_2018")
 
 
 # Census industry/occupation code lists, one directory table per vintage.
@@ -1261,6 +1289,7 @@ def clean_census_io(slug, filename, sheet, kind):
     if code_col is None:
         raise ValueError(f"census_io: no code column found in {filename}")
     rows = []
+    # pyrefly: ignore [unsupported-operation]
     for i in range(header_idx + 1, len(df)):
         raw = [_io_cell(x) for x in df.iloc[i].tolist()]
         code = raw[code_col] if code_col < len(raw) else ""
@@ -1305,6 +1334,8 @@ PRIMARY_KEYS = {
     "naics_2022": "id_naics",
     "naics_1997": "id_naics",
     **{slug: "id_naics" for slug, _f in NAICS_VINTAGES},
+    "soc_2000": "id_soc",
+    "soc_2010": "id_soc",
     "soc_2018": "id_soc",
     **{
         slug: (
@@ -1340,6 +1371,8 @@ def main():
             (slug, lambda sl=slug, fn=fn: clean_naics_vintage(sl, fn))
             for slug, fn in NAICS_VINTAGES
         ],
+        ("soc_2000", clean_soc_2000),
+        ("soc_2010", clean_soc_2010),
         ("soc_2018", clean_soc_2018),
         ("puma_2020", lambda: clean_puma_2020(results["state"])),
         *[
