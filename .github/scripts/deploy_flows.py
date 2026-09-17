@@ -12,6 +12,12 @@ Uso:
 
   # Deploy de todos os flows (recuperação manual, ex. depois de um drift)
   python deploy_flows.py --pool basedosdados --branch main --all
+
+Nome do deployment: em prod, é `<flow_name>` (mesmo nome de sempre — não
+mude, `sync-deployments`/`set_deployment_schedule_active` no backend
+dependem disso). Em dev, é `dev-<flow_name>`, um registro separado do de
+prod — nunca compartilham o mesmo nome, pra um deploy de PR não "roubar"
+o deployment de prod movendo-o pro pool dev.
 """
 
 import argparse
@@ -19,6 +25,7 @@ import glob
 import importlib.util
 import os
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 from prefect import Flow
@@ -142,9 +149,35 @@ def deploy_flow(
     file_path: str,
     pool_name: str,
     branch_name: str,
-) -> bool:
+) -> tuple[bool, str]:
+    """Registra um flow no Prefect 3.
+
+    Não imprime nada diretamente — devolve a mensagem pronta pra quem
+    chamar imprimir. Isso é o que permite chamar essa função de várias
+    threads ao mesmo tempo (`main()`, via `ThreadPoolExecutor`) sem
+    linhas de saída de flows diferentes se misturando no meio.
+
+    Args:
+        flow: Objeto `Flow` do Prefect já carregado do arquivo.
+        flow_name: Nome do flow.
+        file_path: Caminho do arquivo onde o flow foi encontrado.
+        pool_name: Work Pool de destino (`basedosdados` ou `basedosdados-dev`).
+        branch_name: Branch do repositório a partir da qual o Prefect vai
+            ler o código do flow em runtime.
+
+    Returns:
+        Tupla `(sucesso, mensagem)` pronta pra impressão.
+    """
     entrypoint = f"{file_path}:{flow_name}"
     is_dev = "dev" in pool_name
+
+    # O Prefect identifica um deployment por `<flow>/<name>`, não pelo work
+    # pool — `work_pool_name` é só um campo mutável do mesmo registro. Usar
+    # o mesmo `name` em prod e dev faz o deploy de uma PR "roubar" o
+    # deployment de prod, movendo-o pro pool dev e zerando o schedule (ver
+    # issue de colisão de nomes). O prefixo `dev-` garante que cada ambiente
+    # tenha seu próprio registro, sem nunca competir pelo mesmo pool.
+    deployment_name = f"dev-{flow_name}" if is_dev else flow_name
 
     schedules = getattr(flow, "deploy_schedules", None)
     if is_dev:
@@ -164,8 +197,6 @@ def deploy_flow(
     # not set the attribute keep their exact prior behavior.
     concurrency_limit = getattr(flow, "concurrency_limit", None)
 
-    print(f"  Registrando {flow_name} → {entrypoint}")
-
     try:
         flow.from_source(
             source=GitRepository(
@@ -174,7 +205,7 @@ def deploy_flow(
             ),
             entrypoint=entrypoint,
         ).deploy(
-            name=flow_name,
+            name=deployment_name,
             work_pool_name=pool_name,
             tags=["automated-deploy"],
             schedules=schedules,
@@ -188,11 +219,34 @@ def deploy_flow(
             if not schedules
             else f"com schedules: {schedules}"
         )
-        print(f"  ✓ {flow_name} registrado {status}")
-        return True
+        return True, f"  ✓ {deployment_name} registrado {status}"
     except Exception as e:
-        print(f"  ✗ Falha ao registrar {flow_name}: {e}")
-        return False
+        return False, f"  ✗ Falha ao registrar {deployment_name}: {e}"
+
+
+def _positive_int(value: str) -> int:
+    """Valida `--workers` como argparse `type=`.
+
+    `ThreadPoolExecutor(max_workers=...)` levanta `ValueError` não tratado
+    pra qualquer valor <= 0, derrubando o script antes de registrar
+    qualquer flow. Rejeitar aqui, no parse, dá um erro de CLI claro em vez
+    disso.
+
+    Args:
+        value: String recebida da linha de comando.
+
+    Returns:
+        O valor convertido pra `int`.
+
+    Raises:
+        argparse.ArgumentTypeError: Se `value` não for um inteiro positivo.
+    """
+    parsed = int(value)
+    if parsed <= 0:
+        raise argparse.ArgumentTypeError(
+            f"--workers precisa ser um inteiro positivo, recebeu {value!r}"
+        )
+    return parsed
 
 
 def main() -> None:
@@ -225,6 +279,12 @@ def main() -> None:
     parser.add_argument(
         "--all", action="store_true", help="Deploy de todos os flows"
     )
+    parser.add_argument(
+        "--workers",
+        type=_positive_int,
+        default=8,
+        help="Quantos flows registrar em paralelo (default: 8)",
+    )
     args = parser.parse_args()
 
     files_to_process = []
@@ -249,9 +309,11 @@ def main() -> None:
 
     print(f"\nWork Pool : {args.pool}")
     print(f"Branch    : {args.branch}")
-    print(f"Arquivos  : {len(files_to_process)}\n")
+    print(f"Arquivos  : {len(files_to_process)}")
+    print(f"Workers   : {args.workers}\n")
 
-    success, skipped, failed = 0, 0, 0
+    skipped = 0
+    to_deploy: list[tuple[Flow, str, str]] = []
 
     for file_path in files_to_process:
         if not os.path.exists(file_path):
@@ -265,7 +327,24 @@ def main() -> None:
             continue
 
         for name, flow_obj in flows.items():
-            ok = deploy_flow(flow_obj, name, file_path, args.pool, args.branch)
+            to_deploy.append((flow_obj, name, file_path))
+
+    print(
+        f"\nRegistrando {len(to_deploy)} flow(s) (até {args.workers} em paralelo)...\n"
+    )
+
+    success, failed = 0, 0
+
+    with ThreadPoolExecutor(max_workers=args.workers) as executor:
+        futures = {
+            executor.submit(
+                deploy_flow, flow_obj, name, file_path, args.pool, args.branch
+            ): name
+            for flow_obj, name, file_path in to_deploy
+        }
+        for future in as_completed(futures):
+            ok, message = future.result()
+            print(message)
             if ok:
                 success += 1
             else:
