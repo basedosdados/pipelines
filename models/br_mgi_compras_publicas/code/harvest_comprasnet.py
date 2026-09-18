@@ -67,6 +67,37 @@ PHASES = ("list", "crosswalk", "detail")
 _local = threading.local()
 
 
+class Progress:
+    """Log every ``every`` completions, so a multi-day run is observable.
+
+    Without this a phase is silent until the month ends, and a stalled run is
+    indistinguishable from a slow one.
+    """
+
+    def __init__(self, label: str, total: int, every: int = 500) -> None:
+        self.label, self.total, self.every = label, total, every
+        self.done = 0
+        self.started = time.time()
+        self.lock = threading.Lock()
+
+    def tick(self) -> None:
+        with self.lock:
+            self.done += 1
+            if self.done % self.every and self.done != self.total:
+                return
+            elapsed = time.time() - self.started
+            rate = self.done / elapsed if elapsed else 0.0
+            remaining = (self.total - self.done) / rate if rate else 0.0
+            logger.info(
+                "%s %d/%d (%.1f req/s, ~%.0f min left)",
+                self.label,
+                self.done,
+                self.total,
+                rate,
+                remaining / 60,
+            )
+
+
 def data_dir() -> Path:
     """The path named by ``COMPRAS_DATA_DIR``, or the default under Downloads."""
     root = os.environ.get("COMPRAS_DATA_DIR")
@@ -211,6 +242,8 @@ def run_detail(
         _write_chunk("evento", month, [], expected=0)
         return 0, 0
 
+    progress = Progress(f"detail {month}", len(crosswalk))
+
     def detail(row: dict) -> tuple[list[dict], list[dict]]:
         session = _session()
         id_compra, prgcod = row["id_compra"], row["prgcod"]
@@ -222,6 +255,7 @@ def run_detail(
         page = fetch_page(session, "termo_homologacao", prgcod)
         if page:
             events = parse_termo_homologacao(page, id_compra)
+        progress.tick()
         return offers, events
 
     with ThreadPoolExecutor(workers) as pool:

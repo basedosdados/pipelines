@@ -43,7 +43,14 @@ DATE_FMT = "%d/%m/%Y"
 # Modalidade 5 is Pregao Eletronico; 3 is Concorrencia Eletronica. The list page
 # returns the code as the third component of each row anchor.
 ROW_KEY_RE = re.compile(r'href="#(\d+)-(\d+)-(\d+)"')
-PRGCOD_RE = re.compile(r"termoHomologacao\((\d+)\s*,")
+#: ``prgcod`` appears in whichever detail links the pregao actually has.
+#: Keying on ``termoHomologacao`` alone drops every revoked and abandoned
+#: pregao — 17% of a September 2019 sample — which is precisely the tail this
+#: dataset exists to cover, since the API drops it too.
+PRGCOD_RE = re.compile(
+    r"(?:termoHomologacao|resultadoFornecedor|termoAdjudicacaoJulgamento"
+    r"|Declaracoes|exibeQuadro|AtaCadReserva)\((\d{3,9})\s*[,)]"
+)
 CNPJ_RE = r"\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}"
 CPF_RE = r"\d{3}\.\d{3}\.\d{3}-\d{2}"
 FORNECEDOR_RE = re.compile(
@@ -159,6 +166,10 @@ def fetch_prgcod(
     ``prgcod`` is dense over roughly 100..1_182_019 but no page that takes it
     echoes the UASG code back, so it cannot be enumerated into a joinable key —
     this crosswalk hop is unavoidable.
+
+    The id is read from any of the detail links the page carries. A revoked or
+    abandoned pregao has no termo de homologacao, but still links
+    ``resultadoFornecedor`` and ``Declaracoes`` with the same id.
     """
     params = {
         "co_no_uasg": uasg,
