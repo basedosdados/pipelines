@@ -192,7 +192,29 @@ def download_table(table_id: str, ano: str) -> Path:
     return input_dir
 
 
-def read_chunks(path: Path, table_id: str) -> Iterator[pd.DataFrame]:
+def check_year(chunk: pd.DataFrame, ano: str, origem: Path) -> None:
+    """Confere que o bloco traz só a edição pedida.
+
+    O arquivo é escolhido pelo nome, mas a partição sai da coluna `ano` do
+    conteúdo. Sem esta conferência, um arquivo republicado com o nome de um ano
+    e o dado de outro cairia na partição errada em silêncio.
+
+    Args:
+        chunk: Bloco já renomeado.
+        ano: Edição pedida, no formato `%Y`.
+        origem: Arquivo de onde o bloco veio, para a mensagem de erro.
+
+    Raises:
+        ValueError: Se o bloco trouxer ano diferente do pedido, ou nenhum.
+    """
+    anos = set(chunk["ano"].dropna().unique())
+    if anos != {ano}:
+        raise ValueError(
+            f"{origem.name}: esperava só a edição {ano}, achei {sorted(anos)}"
+        )
+
+
+def read_chunks(path: Path, table_id: str, ano: str) -> Iterator[pd.DataFrame]:
     """Lê o CSV em blocos, já renomeado e na ordem da arquitetura.
 
     Tudo entra como texto: a staging é toda STRING por convenção da casa, e o
@@ -202,6 +224,7 @@ def read_chunks(path: Path, table_id: str) -> Iterator[pd.DataFrame]:
     Args:
         path: CSV da fonte.
         table_id: Slug da tabela.
+        ano: Edição pedida, no formato `%Y`.
 
     Yields:
         Cada bloco com as colunas da arquitetura, na ordem dela.
@@ -218,6 +241,8 @@ def read_chunks(path: Path, table_id: str) -> Iterator[pd.DataFrame]:
         chunksize=constants.CHUNK_SIZE.value,
     ):
         chunk = chunk.rename(columns=rename)
+        if "ano" in chunk.columns:
+            check_year(chunk, ano, path)
         for column in constants.BOOLEAN_COLUMNS.value & set(chunk.columns):
             chunk[column] = chunk[column].map({"0": "false", "1": "true"})
         yield chunk[columns]
@@ -254,7 +279,7 @@ def clean_table(table_id: str, ano: str) -> Path:
         )
 
     write_partitions(
-        read_chunks(arquivos[0], table_id),
+        read_chunks(arquivos[0], table_id, ano),
         constants.TABLES.value[table_id]["partition_columns"],
         output_dir,
     )

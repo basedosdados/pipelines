@@ -86,6 +86,14 @@ A gravação usa um schema fixo e todo texto. Sem ele, um bloco em que a coluna
 venha inteira nula viraria tipo nulo e o `ParquetWriter` recusaria o bloco
 seguinte por divergência de schema.
 
+**O ano é conferido contra o conteúdo, não só contra o nome do arquivo.** A
+edição a baixar sai do nome do zip listado na página do INEP, e o CSV é escolhido
+pelo prefixo e pelo ano — mas a partição vem da coluna `ano` de dentro do
+arquivo. `check_year` recusa o bloco cujo ano não seja o pedido, de modo que um
+arquivo republicado com o nome de um ano e o dado de outro falhe alto em vez de
+cair na partição errada. O questionário não tem coluna de ano e fica de fora da
+conferência.
+
 **Execução verde não quer dizer que ingeriu.** Quando o poll não acha novidade, o
 flow encerra e o painel do Prefect fica verde do mesmo jeito — para saber se
 entrou dado, leia o log ou veja se a cobertura andou.
