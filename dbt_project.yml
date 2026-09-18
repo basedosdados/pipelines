@@ -312,6 +312,9 @@ models:
     world_aiddata_gcdf:
       +materialized: table
       +schema: world_aiddata_gcdf
+    world_cepii_baci:
+      +materialized: table
+      +schema: world_cepii_baci
     world_cricsheet:
       +materialized: table
       +schema: world_cricsheet
