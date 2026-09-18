@@ -24,7 +24,6 @@ from pipelines.datasets.us_dol_oflc.tasks import (
     clean_program,
     download_program,
     fiscal_years_to_refresh,
-    partition_paths,
 )
 from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
 from pipelines.utils.metadata.tasks import (
@@ -130,20 +129,31 @@ def us_dol_oflc_flow(
         )
         target = "dev" if not materialize_to_prod else "prod"
 
-        # Upload one hive partition per refreshed fiscal year, with
-        # dump_mode="append": the closed years already in the staging prefix must
-        # survive, and "overwrite" would delete the whole prefix — and the prod
-        # table with it.
+        # Upload the table root, never an individual `year=<FY>` directory.
+        # `Storage.upload` derives each object's hive partition from the file's
+        # path *relative to the path it is given*, so handing it the partition
+        # directory leaves that relative path empty and the object lands at the
+        # prefix root as `staging/<dataset>/<table>/data.parquet`. BigQuery then
+        # reads one object with no partition key and the whole external table
+        # fails: "Incompatible partition schemas. Expected schema
+        # ([year:TYPE_STRING]) has 1 columns. Observed schema ([]) has 0
+        # columns."
+        #
+        # Uploading the root does not widen what the run touches: `build` writes
+        # only the refreshed fiscal years into this run's own temp directory, so
+        # the root holds exactly those partitions. Combined with
+        # dump_mode="append" — "overwrite" would delete the whole prefix, and the
+        # prod table with it — the closed years already in the staging prefix are
+        # left alone.
         for program in PROGRAMS:
-            for path in partition_paths(results[program], years):
-                upload_to_gcs(
-                    data_path=path,
-                    dataset_id=DATASET_ID,
-                    table_id=program,
-                    bucket_name=bucket,
-                    dump_mode="append",
-                    source_format="parquet",
-                )
+            upload_to_gcs(
+                data_path=results[program]["path"],
+                dataset_id=DATASET_ID,
+                table_id=program,
+                bucket_name=bucket,
+                dump_mode="append",
+                source_format="parquet",
+            )
 
         # Build every table before testing any of them: the dictionary-coverage
         # tests read a sibling model, and interleaving run/test per table fails
