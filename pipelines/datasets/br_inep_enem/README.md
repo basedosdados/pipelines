@@ -120,10 +120,24 @@ Sem `backfill_years`, o flow carrega apenas a edição corrente da fonte.
 publica soma de verificação, então não há como trocar isso por uma conferência de
 integridade.
 
-**O servidor derruba conexão com frequência**, às vezes já no handshake. A
-repetição fica na sessão HTTP (`build_session`), e não só no `@task`: assim vale
-também para quem chama as funções na mão, e um reset não recomeça os 530 MB do
-zero. As tasks mantêm `retries=3` por cima disso.
+**O servidor derruba conexão com frequência**, às vezes já no handshake, às vezes
+no meio dos 530 MB. Duas defesas, em camadas:
+
+- a sessão HTTP (`build_session`) repete o estabelecimento da conexão e o erro
+  transitório. Fica nela, e não só no `@task`, para valer também para quem chama
+  as funções na mão;
+- o `download_zip` **retoma de onde parou**. O `download.inep.gov.br` aceita
+  `Range` (`accept-ranges: bytes`), então uma queda no meio deixa o pedaço em
+  disco e a tentativa seguinte pede só o que falta, anexando ao arquivo. É por
+  isso que o `input/` não é apagado entre tentativas — só os CSVs da edição
+  anterior é que saem, antes de extrair a nova.
+
+Duas proteções em volta disso: se o servidor ignorar o `Range` e devolver o corpo
+inteiro (`200` em vez de `206`), o download recomeça do zero em vez de anexar e
+corromper o arquivo; e ao final o tamanho é conferido contra o que o servidor
+anunciou, para um encerramento limpo mas curto não passar por completo.
+
+As tasks mantêm `retries=3` por cima de tudo.
 
 **O nome do arquivo dentro do zip muda de edição para edição.** O CSV é escolhido
 pelo prefixo e pelo ano, nunca por caminho fixo — o INEP já acrescentou sufixo de

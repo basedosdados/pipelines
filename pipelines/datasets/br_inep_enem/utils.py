@@ -51,17 +51,16 @@ def build_session() -> requests.Session:
     return session
 
 
-def build_paths(table_id: str, clear_input: bool = False) -> tuple[Path, Path]:
+def build_paths(table_id: str) -> tuple[Path, Path]:
     """Cria os diretórios de trabalho da tabela.
 
     O `output/` é apagado a cada chamada, de modo que sobra de uma execução
-    anterior não entre no upload seguinte. O `input/` só é apagado no download,
-    porque a limpeza precisa do que ele acabou de baixar — mas num backfill, que
-    percorre vários anos, ele tem de ser esvaziado entre um ano e outro.
+    anterior não entre no upload seguinte. O `input/` é preservado, porque a
+    limpeza precisa do que o download acabou de escrever e porque o zip parcial
+    de uma tentativa interrompida é o que permite retomar a seguinte.
 
     Args:
         table_id: Slug da tabela.
-        clear_input: Se True, apaga também o `input/`.
 
     Returns:
         Os caminhos de `input/` e de `output/`, nessa ordem.
@@ -69,8 +68,6 @@ def build_paths(table_id: str, clear_input: bool = False) -> tuple[Path, Path]:
     base = Path(constants.PATH.value) / table_id
     input_dir, output_dir = base / "input", base / "output"
     shutil.rmtree(output_dir, ignore_errors=True)
-    if clear_input:
-        shutil.rmtree(input_dir, ignore_errors=True)
     input_dir.mkdir(parents=True, exist_ok=True)
     output_dir.mkdir(parents=True, exist_ok=True)
     return input_dir, output_dir
@@ -142,6 +139,46 @@ def resolve_years(
     return anos
 
 
+def download_zip(url: str, zip_path: Path) -> None:
+    """Baixa o zip, retomando de onde parou se já houver pedaço em disco.
+
+    O servidor do INEP derruba conexão no meio da transferência, e são 530 MB.
+    Ele aceita `Range`, então a tentativa seguinte pede só o que falta e anexa.
+
+    Args:
+        url: Endereço do zip.
+        zip_path: Onde gravar; existindo, o download é retomado a partir do
+            tamanho atual.
+
+    Raises:
+        OSError: Se o arquivo terminar menor do que o servidor anunciou.
+    """
+    baixado = zip_path.stat().st_size if zip_path.exists() else 0
+    headers = dict(HEADERS)
+    if baixado:
+        headers["Range"] = f"bytes={baixado}-"
+
+    esperado = 0
+    with build_session().get(
+        url, headers=headers, verify=False, stream=True, timeout=30 * 60
+    ) as response:
+        if baixado and response.status_code == 416:
+            return
+        response.raise_for_status()
+        if baixado and response.status_code != 206:
+            baixado = 0
+        esperado = baixado + int(response.headers.get("Content-Length", 0))
+        with open(zip_path, "ab" if baixado else "wb") as file:
+            for chunk in response.iter_content(chunk_size=15 * 1024 * 1024):
+                file.write(chunk)
+
+    if esperado and zip_path.stat().st_size != esperado:
+        raise OSError(
+            f"{zip_path.name}: terminou com {zip_path.stat().st_size} bytes, "
+            f"esperava {esperado}"
+        )
+
+
 def download_table(table_id: str, ano: str) -> Path:
     """Baixa o zip da edição e extrai só o CSV que a tabela usa.
 
@@ -157,18 +194,15 @@ def download_table(table_id: str, ano: str) -> Path:
     Raises:
         FileNotFoundError: Se o zip não tiver o CSV esperado da tabela.
     """
-    input_dir, _ = build_paths(table_id, clear_input=True)
+    input_dir, _ = build_paths(table_id)
     url = constants.DOWNLOAD_LINK.value.format(ano=ano)
     zip_path = input_dir / f"microdados_enem_{ano}.zip"
     prefixo = constants.TABLES.value[table_id]["file_prefix"]
 
-    with build_session().get(
-        url, headers=HEADERS, verify=False, stream=True, timeout=30 * 60
-    ) as response:
-        response.raise_for_status()
-        with open(zip_path, "wb") as file:
-            for chunk in response.iter_content(chunk_size=15 * 1024 * 1024):
-                file.write(chunk)
+    for antigo in input_dir.glob("*.csv"):
+        antigo.unlink()
+
+    download_zip(url, zip_path)
 
     with ZipFile(zip_path) as archive:
         membros = [
