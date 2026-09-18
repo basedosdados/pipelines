@@ -50,6 +50,10 @@ from pipelines.datasets.br_mgi_compras_publicas.comprasnet import (  # noqa: E40
     parse_fornecedor_resultado,
     parse_termo_homologacao,
 )
+from pipelines.datasets.br_mgi_compras_publicas.utils import (  # noqa: E402
+    load_architecture,
+    write_chunk,
+)
 
 logger = logging.getLogger("comprasnet")
 
@@ -256,6 +260,37 @@ def consolidate(table: str) -> Path:
     return target
 
 
+def to_parquet(table: str) -> int:
+    """Write the month chunks of one table as hive-partitioned parquet.
+
+    Output lands under ``<data root>/output/<table>/ano=<year>/data.parquet``,
+    the layout upload.py expects. Every column is written as STRING: staging is
+    all-STRING by house convention, the dbt model safe_casts each column back,
+    and a typed staging table would collide with any later overwrite.
+    """
+    columns = load_architecture(table)
+    by_year: dict[str, list[dict]] = {}
+    for month in months(FIRST_MONTH, LAST_MONTH):
+        if not _chunk_done(table, month):
+            continue
+        for row in _read_chunk(table, month):
+            by_year.setdefault(row["ano"], []).append(row)
+    root = data_dir().parent / "output" / table
+    total = 0
+    for ano, rows in sorted(by_year.items()):
+        total += write_chunk(
+            rows, columns, root / f"ano={ano}" / "data.parquet"
+        )
+    logger.info(
+        "parquet %s: %d rows across %d years -> %s",
+        table,
+        total,
+        len(by_year),
+        root,
+    )
+    return total
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -272,6 +307,7 @@ def main() -> None:
         "--force", action="store_true", help="redo completed chunks"
     )
     parser.add_argument("--consolidate", action="store_true")
+    parser.add_argument("--to-parquet", action="store_true")
     args = parser.parse_args()
 
     logging.basicConfig(
@@ -281,6 +317,11 @@ def main() -> None:
     if args.consolidate:
         for table in ("oferta", "evento", "crosswalk"):
             consolidate(table)
+        return
+
+    if args.to_parquet:
+        for table in ("oferta", "evento"):
+            to_parquet(table)
         return
 
     started = time.time()
