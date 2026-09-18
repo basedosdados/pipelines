@@ -1169,8 +1169,13 @@ def upload_tables(
     `source_format="csv"` é explícito por decisão: a convenção do repositório
     pede parquet todo STRING, mas o staging deste conjunto já é CSV desde as
     edições anteriores, e mudar o formato agora divergiria dos anos que já estão
-    lá. `if_storage_data_exists="replace"` apaga o prefixo antes de subir, o que
-    impede partição duplicada quando o nome do arquivo muda.
+    lá.
+
+    `if_storage_data_exists="replace"` sobrescreve **arquivo por arquivo**, e não
+    o prefixo inteiro: os anos que não estão em `output_dir` continuam onde
+    estão. Por isso o nome do arquivo tem de bater com o que já está no bucket —
+    a tabela externa lê tudo que houver no prefixo, e um nome diferente
+    duplicaria a partição em silêncio. Aqui é `data.csv`, nos 19 anos.
     """
     wanted = set(tables) if tables is not None else None
     for directory in sorted(output_dir.iterdir()):

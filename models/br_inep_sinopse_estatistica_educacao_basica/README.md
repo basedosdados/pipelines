@@ -27,6 +27,7 @@ entre anos.
 | `code/constants.py` | Constantes da edição: caminhos, URL, abas, blocos e dicionários de renomeação |
 | `code/utils.py` | Funções do tratamento, em seis seções: cabeçalho, fonte, apoio, matrícula, docente e saída |
 | `code/run_local.py` | Orquestrador para execução local, sem acesso ao BigQuery |
+| `code/upload.py` | Carga do que está em `output/` para o staging de `basedosdados-dev` |
 | `code/sinopse_2024.py` | Tratamento de 2024, com todo o código em um único script |
 | `code_docente/` | Scripts das tabelas de docente de edições anteriores |
 
@@ -60,8 +61,12 @@ federação, em `<saída>/<tabela>/ano=<ano>/sigla_uf=<uf>/data.csv`.
 retorna código de erro quando divergem. Ao alterar a transformação, atualize essa
 referência no mesmo commit.
 
-`run_local.py` não envia dados ao BigQuery. O envio é feito por
-`utils.upload_tables`, que não tem chamador.
+`run_local.py` não envia dados ao BigQuery. O envio é feito por `upload.py`:
+
+```bash
+uv run python upload.py                        # as tabelas em output/
+uv run python upload.py -t localizacao         # uma tabela
+```
 
 ### Execução sem service account
 
@@ -157,9 +162,11 @@ o staging é CSV**, porque as edições anteriores foram carregadas nesse format
 troca faria a tabela externa divergir dos anos já publicados. `upload_tables`
 passa `source_format="csv"` de forma explícita.
 
-`upload_tables` também passa `if_storage_data_exists="replace"`, que remove o
-prefixo no bucket antes da carga. Sem isso, uma carga com nome de arquivo
-diferente duplica a partição.
+`upload_tables` também passa `if_storage_data_exists="replace"`, que sobrescreve
+arquivo por arquivo, e não o prefixo inteiro: os anos ausentes de `output/`
+continuam no bucket como estão. Por isso o nome do arquivo tem de bater com o
+que já está lá — a tabela externa lê tudo que houver no prefixo, e um nome
+diferente duplicaria a partição em silêncio. Aqui é `data.csv`, nos 19 anos.
 
 ## Categorias de educação profissional em 2025
 

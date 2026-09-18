@@ -43,6 +43,11 @@ with
                     "br_inep_sinopse_estatistica_educacao_basica_staging.docente_etapa_ensino"
                 )
             }}
+    ),
+
+    tabela_2 as (
+        select *, trim(regexp_extract(tipo_classe, r'-([^-]*)$')) as sufixo
+        from tabela_1
     )
 
 select
@@ -50,7 +55,14 @@ select
     sigla_uf,
     id_municipio,
     etapa_ensino,
-    trim(regexp_extract(tipo_classe, r'^(.*)-[^-]*$')) as tipo_classe,
-    trim(regexp_extract(tipo_classe, r'-([^-]*)$')) as rede,
+    case
+        when sufixo in ('Federal', 'Estadual', 'Municipal', 'Privada', 'Pública')
+        then trim(regexp_extract(tipo_classe, r'^(.*)-[^-]*$'))
+        else tipo_classe
+    end as tipo_classe,
+    case
+        when sufixo in ('Federal', 'Estadual', 'Municipal', 'Privada', 'Pública')
+        then sufixo
+    end as rede,
     quantidade_docente
-from tabela_1
+from tabela_2

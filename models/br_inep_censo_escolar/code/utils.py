@@ -316,9 +316,13 @@ def write_partitioned(
 def upload_table(output_dir: Path, dataset_id: str, table_id: str) -> None:
     """Sobe o diretório da tabela para o staging de `basedosdados-dev`.
 
-    `if_storage_data_exists="replace"` apaga o prefixo antes de subir, o que
-    impede partição duplicada quando o nome do arquivo muda. Produção não é
-    tocada aqui — quem materializa `basedosdados.<dataset>.*` é o
+    `if_storage_data_exists="replace"` sobrescreve **arquivo por arquivo**, e não
+    o prefixo inteiro: os anos que não estão em `output_dir` continuam onde
+    estão. Por isso o nome do arquivo tem de bater com o que já está no bucket —
+    a tabela externa lê tudo que houver no prefixo, e um nome diferente
+    duplicaria a partição em silêncio. Aqui é `escola.csv`, nos 19 anos.
+
+    Produção não é tocada aqui — quem materializa `basedosdados.<dataset>.*` é o
     `table-approve` no merge.
     """
     table = bd.Table(dataset_id=dataset_id, table_id=table_id)

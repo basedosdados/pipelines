@@ -28,7 +28,7 @@ select
         end as string
     ) id_municipio,
     safe_cast(rede as string) rede,
-    safe_cast(etapa_ensino as string) etapa_ensino,
+    safe_cast(replace(etapa_ensino, "–", "-") as string) etapa_ensino,
     safe_cast(localizacao as string) localizacao,
     safe_cast(quantidade_matricula as int64) quantidade_matricula,
 from

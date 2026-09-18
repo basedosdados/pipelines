@@ -20,13 +20,11 @@ onde antes havia um único arquivo largo (`microdados_ed_basica_2024.csv`, com
 | `code/constants.py` | Constantes da edição: caminhos, URL, arquivos do microdado |
 | `code/utils.py` | Funções do tratamento, em cinco seções: fonte, arquitetura, leitura, montagem e saída |
 | `code/run_local.py` | Orquestrador para execução local |
+| `code/upload.py` | Carga do que está em `output/` para o staging de `basedosdados-dev` |
 | `code/turma_2024.py` | Tratamento da `turma`, edição 2024 |
 | `code/main.py` | Tratamento da `turma` de 2021 a 2023, a partir do bucket |
-| `code/join_tables_escola.py` | Junção de `escola_2023` e `escola_2024` na `escola`, já executada |
-| `code/br_inep_censo_escolar_2024.ipynb` | Tratamento da `escola`, edição 2024 |
 
-Os quatro últimos são de edições anteriores. A `turma` está em 2024;
-`escola_2023` e `escola_2024` não existem mais.
+Os dois últimos são de edições anteriores e tratam a `turma`, que segue em 2024.
 
 As funções de `utils.py` não dependem de estado global: recebem o caminho do
 arquivo e a arquitetura, e devolvem `DataFrame`. Servem tanto a um script de
@@ -49,7 +47,13 @@ O download e a extração acontecem só se os CSVs não estiverem em disco.
 
 A saída é um CSV por unidade da federação, em
 `<saída>/escola/ano=<ano>/sigla_uf=<uf>/escola.csv`. `run_local.py` não envia
-nada ao BigQuery; o envio é feito por `utils.upload_table`.
+nada ao BigQuery; o envio é feito por `upload.py`.
+
+A carga sobrescreve arquivo por arquivo, e não o prefixo inteiro: os anos
+ausentes de `output/` continuam no bucket como estão. Por isso o nome do arquivo
+tem de bater com o que já está lá — a tabela externa lê tudo que houver no
+prefixo, e um nome diferente duplicaria a partição em silêncio. Aqui é
+`escola.csv`, nos 19 anos.
 
 O schema da tabela publicada é lido pela API de metadados (`get_table`), que
 não cria job no BigQuery e por isso funciona com a credencial de

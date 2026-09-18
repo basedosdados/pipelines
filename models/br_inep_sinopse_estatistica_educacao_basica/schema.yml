@@ -6,8 +6,16 @@ models:
       etapas e subetapas de ensino, além da discriminação dos anos para Anos Iniciais
       e Finais do Ensino Fundamental, bem como as série do Ensino Médio
     tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_municipio
+            - rede
+            - etapa_ensino
+            - serie
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
+          ignore_values: [serie]
     columns:
       - name: ano
         description: Ano
@@ -40,8 +48,14 @@ models:
     description: A base conta com o total de matrículas por município, etapa de ensino
       e grupo etário dos alunos
     tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_municipio
+            - etapa_ensino
+            - faixa_etaria
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: ano
         description: Ano
@@ -68,7 +82,23 @@ models:
       - name: quantidade_matricula
         description: Número de matrículas
   - name: br_inep_sinopse_estatistica_educacao_basica__localizacao
-    description: A base conta com o total de matrículas por município, rede e localização
+    description: >
+      A base conta com o total de matrículas por município, rede e localização.
+      Brasília tem duas linhas por combinação na creche, em 2007, 2008, 2009,
+      2010 e 2012 — 40 linhas —, então o teste de unicidade cobre 2013 em
+      diante, até esses anos serem reprocessados.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_municipio
+            - rede
+            - etapa_ensino
+            - localizacao
+          config:
+            where: ano >= 2013
+      - not_null_proportion_multiple_columns:
+          at_least: 0.95
     columns:
       - name: ano
         description: Ano
@@ -101,8 +131,15 @@ models:
     description: A base conta com o total de matrículas por município para todas as
       etapas de ensino e o tempo ofertado de aulas, seja integral ou regular
     tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_municipio
+            - rede
+            - etapa_ensino
+            - tempo_ensino
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: ano
         description: Ano
@@ -135,8 +172,15 @@ models:
     description: A base conta com o total de matrículas por município para todas as
       etapas de ensino, sexo e raça/cor
     tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_municipio
+            - etapa_ensino
+            - sexo
+            - raca_cor
       - not_null_proportion_multiple_columns:
-          at_least: 0.05
+          at_least: 0.95
     columns:
       - name: ano
         description: Ano
@@ -375,6 +419,7 @@ models:
             - rede
       - not_null_proportion_multiple_columns:
           at_least: 0.95
+          ignore_values: [rede]
     columns:
       - name: ano
         description: Ano
