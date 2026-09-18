@@ -13,6 +13,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [snapshot_date, address_detail_pid]
+          config:
+            where: __most_recent__(snapshot_date)
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -31,6 +33,8 @@ models:
             - location_description
             - private_street
             - property_pid
+          config:
+            where: __most_recent__(snapshot_date)
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - flat_type
@@ -41,6 +45,8 @@ models:
             - confidence
             - primary_secondary
           dictionary_model: ref('au_geoscape_gnaf__dicionario')
+          config:
+            where: __most_recent__(snapshot_date)
     columns:
       - name: snapshot_date
         description: Data do snapshot (release) trimestral do G-NAF
@@ -51,12 +57,16 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent__(snapshot_date)
       - name: id_state
         description: Código do estado ou território australiano (1 a 9)
         tests:
           - relationships:
               to: ref('br_bd_diretorios_au__state')
               field: id_state
+              config:
+                where: __most_recent__(snapshot_date)
       - name: address_detail_pid
         description: Identificador persistente único do endereço
         tests: [not_null]
@@ -68,9 +78,13 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [snapshot_date, street_locality_pid]
+          config:
+            where: __most_recent__(snapshot_date)
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [date_retired, street_suffix]
+          config:
+            where: __most_recent__(snapshot_date)
       - custom_dictionary_coverage:
           columns_covered_by_dictionary:
             - street_type
@@ -78,6 +92,8 @@ models:
             - street_class
             - gnaf_reliability
           dictionary_model: ref('au_geoscape_gnaf__dicionario')
+          config:
+            where: __most_recent__(snapshot_date)
     columns:
       - name: snapshot_date
         description: Data do snapshot (release) trimestral do G-NAF
@@ -88,12 +104,16 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent__(snapshot_date)
       - name: id_state
         description: Código do estado ou território australiano (1 a 9)
         tests:
           - relationships:
               to: ref('br_bd_diretorios_au__state')
               field: id_state
+              config:
+                where: __most_recent__(snapshot_date)
       - name: street_locality_pid
         description: Identificador persistente único da rua/localidade
         tests: [not_null]
@@ -105,12 +125,18 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [snapshot_date, locality_pid]
+          config:
+            where: __most_recent__(snapshot_date)
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [date_retired, primary_postcode]
+          config:
+            where: __most_recent__(snapshot_date)
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [locality_class, gnaf_reliability]
           dictionary_model: ref('au_geoscape_gnaf__dicionario')
+          config:
+            where: __most_recent__(snapshot_date)
     columns:
       - name: snapshot_date
         description: Data do snapshot (release) trimestral do G-NAF
@@ -121,12 +147,16 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent__(snapshot_date)
       - name: id_state
         description: Código do estado ou território australiano (1 a 9)
         tests:
           - relationships:
               to: ref('br_bd_diretorios_au__state')
               field: id_state
+              config:
+                where: __most_recent__(snapshot_date)
       - name: locality_pid
         description: Identificador persistente único da localidade
         tests: [not_null]
