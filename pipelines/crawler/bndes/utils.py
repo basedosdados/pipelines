@@ -29,6 +29,7 @@ from pipelines.crawler.bndes.constants import (
     constants,
     constants_administracao_publica,
     constants_exportacao_bens,
+    constants_exportacao_servicos,
 )
 from pipelines.utils.utils import log
 
@@ -60,6 +61,52 @@ def get_source_last_modified(url: str) -> datetime:
     return last_modified_date
 
 
+def get_datastore_row_count(resource_id: str) -> int:
+    """
+    Le quantas linhas o datastore do CKAN declara para o recurso.
+
+    Serve de contraprova para downloads sem Content-Length (o
+    /datastore/dump responde chunked, entao o download_csv nao consegue
+    validar o tamanho): o clean compara este total com as linhas lidas.
+
+    Args:
+        resource_id (str): ID do recurso no CKAN.
+
+    Returns:
+        int: total de linhas do recurso no datastore.
+    """
+    response = httpx.get(
+        "https://dadosabertos.bndes.gov.br/api/3/action/datastore_search",
+        params={"resource_id": resource_id, "limit": 0},
+    )
+    response.raise_for_status()
+
+    return int(response.json()["result"]["total"])
+
+
+def assert_row_count(rows_read: int, resource_id: str) -> None:
+    """
+    Falha alto quando o CSV baixado tem menos linhas do que a fonte declara.
+
+    Args:
+        rows_read (int): linhas lidas do CSV baixado.
+        resource_id (str): ID do recurso no CKAN.
+
+    Raises:
+        ValueError: quando as contagens divergem.
+    """
+    rows_expected = get_datastore_row_count(resource_id)
+
+    if rows_read != rows_expected:
+        raise ValueError(
+            f"CSV incompleto: {rows_read} linhas lidas, "
+            f"{rows_expected} declaradas pelo datastore do recurso "
+            f"{resource_id}."
+        )
+
+    log(f"Contagem de linhas confere com a fonte: {rows_read}")
+
+
 def parse_decimal_ptbr(s: pd.Series) -> pd.Series:
     """
     Normaliza o separador decimal pt-BR do CSV (virgula -> ponto).
@@ -84,6 +131,7 @@ def download_csv(
     dest: Path,
     url: str,
     chunk_size: int = 1024 * 1024,
+    validate_size: bool = True,
 ) -> Path:
     """
     Baixa o CSV consolidado streamando p/ disco, com resume via Range.
@@ -99,13 +147,19 @@ def download_csv(
         dest (Path): Caminho de destino do arquivo .csv.
         url (str): URL de download (DOWNLOAD_URL da tabela).
         chunk_size (int): Tamanho do bloco de escrita (bytes).
+        validate_size (bool): confere o tamanho final contra o
+            Content-Length/Content-Range da resposta. Passe False para
+            endpoints que respondem chunked (sem Content-Length) e ignoram
+            Range, como o /datastore/dump do CKAN.
 
     Returns:
         Path: O proprio `dest`, ja com o arquivo completo.
     """
 
     Path.mkdir(dest.parent, parents=True, exist_ok=True)
-    bytes_downloaded = dest.stat().st_size if dest.is_file() else 0
+    bytes_downloaded = (
+        dest.stat().st_size if validate_size and dest.is_file() else 0
+    )
 
     headers = (
         {"Range": f"bytes={bytes_downloaded}-"} if bytes_downloaded else {}
@@ -131,6 +185,10 @@ def download_csv(
         with open(dest, mode=mode) as fd:
             for chunk in response.iter_bytes(chunk_size=chunk_size):
                 fd.write(chunk)
+
+        if not validate_size:
+            log(f"Download concluído: {dest.stat().st_size} bytes em {dest}")
+            return dest
 
         if response.status_code == 200:
             file_length = int(response.headers["Content-Length"])
@@ -499,17 +557,25 @@ def clean_administracao_publica(csv_path: Path, output_dir: Path) -> Path:
     return output_dir
 
 
-def _split_setor_subsetor(setor_subsetor: pd.Series) -> pd.DataFrame:
+def _split_setor_subsetor(
+    setor_subsetor: pd.Series, setores_conhecidos: tuple[str, ...]
+) -> pd.DataFrame:
     """
     Separa o campo composto `SETOR/SUBSETOR` casando o setor por prefixo.
 
     Nem o primeiro nem o ultimo "/" servem de corte: `COMERCIO/SERVICOS` tem
     barra no proprio nome e aparece tanto sozinho quanto seguido de subsetor
     (`COMERCIO/SERVICOS/COMERCIO VAREJISTA`). O setor e casado contra
-    SETORES, do rotulo mais longo para o mais curto, e o resto e o subsetor.
+    `setores_conhecidos`, do rotulo mais longo para o mais curto, e o resto e
+    o subsetor.
+
+    Cada tabela passa a sua lista: bens e servicos publicam grafias diferentes
+    do mesmo agrupamento (`COMERCIO/SERVICOS` e `COMERCIO E SERVICOS`).
 
     Args:
         setor_subsetor (pd.Series): coluna original concatenada.
+        setores_conhecidos (tuple[str, ...]): rotulos de setor publicados na
+            tabela.
 
     Returns:
         pd.DataFrame: colunas `setor_bndes` e `subsetor_bndes`.
@@ -517,9 +583,7 @@ def _split_setor_subsetor(setor_subsetor: pd.Series) -> pd.DataFrame:
     Raises:
         ValueError: quando algum valor nao comeca por um setor conhecido.
     """
-    setores = sorted(
-        constants_exportacao_bens.SETORES.value, key=len, reverse=True
-    )
+    setores = sorted(setores_conhecidos, key=len, reverse=True)
     padrao = "|".join(re.escape(setor) for setor in setores)
 
     partes = setor_subsetor.str.extract(rf"^({padrao})(?:/(.+))?$")
@@ -538,24 +602,26 @@ def _split_setor_subsetor(setor_subsetor: pd.Series) -> pd.DataFrame:
     return partes.rename(columns={0: "setor_bndes", 1: "subsetor_bndes"})
 
 
-def _normalize_garantia(garantia: pd.Series) -> pd.Series:
+def _normalize_garantia(
+    garantia: pd.Series, rotulos_compostos: tuple[str, ...]
+) -> pd.Series:
     """
     Unifica as grafias de `tipo_garantia`.
 
     Padroniza o separador de tipos combinados para " / ", protegendo antes os
-    rotulos de ROTULOS_COMPOSTOS, que tem "/" no proprio nome.
+    rotulos que tem "/" no proprio nome.
 
     Args:
         garantia (pd.Series): coluna original.
+        rotulos_compostos (tuple[str, ...]): rotulos cuja "/" e parte do nome,
+            na grafia em que a tabela os publica.
 
     Returns:
         pd.Series: coluna com as grafias unificadas.
     """
-    protegida = garantia.str.replace(
-        "Seguro de Crédito", "Seguro de crédito", regex=False
-    )
+    protegida = garantia
 
-    for rotulo in constants_exportacao_bens.ROTULOS_COMPOSTOS.value:
+    for rotulo in rotulos_compostos:
         esquerda, direita = rotulo.split("/")
         protegida = protegida.str.replace(
             rf"{esquerda}\s*/\s*{direita}",
@@ -590,10 +656,15 @@ def _transform_exportacao_bens(df: pd.DataFrame) -> pd.DataFrame:
     df = df.apply(lambda c: c.str.strip())
 
     df[["setor_bndes", "subsetor_bndes"]] = _split_setor_subsetor(
-        df["setor_subsetor"]
+        df["setor_subsetor"], constants_exportacao_bens.SETORES.value
     )
 
-    df["tipo_garantia"] = _normalize_garantia(df["tipo_garantia"])
+    df["tipo_garantia"] = _normalize_garantia(
+        df["tipo_garantia"].str.replace(
+            "Seguro de Crédito", "Seguro de crédito", regex=False
+        ),
+        constants_exportacao_bens.ROTULOS_COMPOSTOS.value,
+    )
 
     df["sigla_moeda"] = df["sigla_moeda"].replace(
         constants_exportacao_bens.MOEDA.value
@@ -646,6 +717,157 @@ def clean_exportacao_bens(csv_path: Path, output_dir: Path) -> Path:
         table = pa.Table.from_pandas(
             group[columns],
             schema=constants_exportacao_bens.SCHEMA.value,
+            preserve_index=False,
+        )
+
+        # pyrefly: ignore [bad-argument-type]
+        table_path = output_dir / f"ano={int(year)}"
+
+        table_path.mkdir(parents=True, exist_ok=True)
+
+        pq.write_table(
+            table, table_path / "data.parquet", compression="snappy"
+        )
+
+    log(
+        f"Limpeza concluída: {len(df)} linhas em {df['ano'].nunique()} "
+        f"partições (anos) -> {output_dir}"
+    )
+    return output_dir
+
+
+def _fix_descricao_encoding(descricao: pd.Series) -> pd.Series:
+    """
+    Corrige o byte 0x90 solto em `descricao_operacao`.
+
+    A fonte publica cinco linhas com 0x90 no meio de uma palavra, em quatro
+    grafias que corrompem a mesma palavra de formas diferentes — nao ha regra
+    generica que acerte as quatro, entao a substituicao e explicita.
+
+    Args:
+        descricao (pd.Series): coluna original.
+
+    Returns:
+        pd.Series: coluna sem o byte invalido.
+
+    Raises:
+        ValueError: quando sobra 0x90 fora das grafias conhecidas, sinal de que
+            a fonte trouxe uma corrupcao nova e o mapa precisa ser revisto.
+    """
+    corrigida = descricao.replace(
+        constants_exportacao_servicos.DESCRICAO_CORRECOES.value, regex=True
+    )
+
+    restantes = corrigida.str.contains("\x90", regex=False, na=False)
+    if restantes.any():
+        raise ValueError(
+            f"{restantes.sum()} linha(s) com o byte 0x90 fora das "
+            "grafias conhecidas em descricao_da_operacao: "
+            f"{corrigida[restantes].unique().tolist()}"
+        )
+
+    return corrigida
+
+
+def _transform_exportacao_servicos(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Limpa o CSV de operacoes_exportacao_servicos (tudo string na entrada).
+
+    Descarta o `_id` do datastore, renomeia para os nomes BD, quebra
+    setor_subsetor em setor_bndes/subsetor_bndes, normaliza tipo_garantia e
+    sigla_moeda, corrige o encoding de descricao_operacao, corta a data ISO do
+    dump para %Y-%m-%d e deriva o ano da contratacao.
+
+    Nao converte decimal: o dump do datastore ja publica ponto como separador
+    (o download direto, em cp1252, e que viria com virgula).
+
+    Args:
+        df (pd.DataFrame): CSV cru lido com dtype=str.
+
+    Returns:
+        pd.DataFrame: colunas de ORDER_COLUMNS (inclui `ano`).
+
+    Raises:
+        ValueError: quando alguma data_contratacao nao casa com %Y-%m-%d.
+    """
+    df = df.drop(columns=constants_exportacao_servicos.DROP_COLUMNS.value)
+
+    df = df.rename(columns=constants_exportacao_servicos.RENAME.value)
+
+    df = df.apply(lambda c: c.str.strip())
+
+    df[["setor_bndes", "subsetor_bndes"]] = _split_setor_subsetor(
+        df["setor_subsetor"], constants_exportacao_servicos.SETORES.value
+    )
+
+    df["tipo_garantia"] = _normalize_garantia(
+        df["tipo_garantia"],
+        constants_exportacao_servicos.ROTULOS_COMPOSTOS.value,
+    )
+
+    df["sigla_moeda"] = df["sigla_moeda"].replace(
+        constants_exportacao_servicos.MOEDA.value
+    )
+
+    df["descricao_operacao"] = _fix_descricao_encoding(
+        df["descricao_operacao"]
+    )
+
+    # o dump traz "1998-07-24T00:00:00"; a hora e sempre zero e nao integra a
+    # arquitetura (a coluna e DATE).
+    df["data_contratacao"] = df["data_contratacao"].str.slice(0, 10)
+
+    df["ano"] = pd.to_datetime(
+        df["data_contratacao"], format="%Y-%m-%d", errors="coerce"
+    ).dt.year.astype("Int64")
+
+    n_sem_ano = int(df["ano"].isna().sum())
+    if n_sem_ano:
+        raise ValueError(
+            f"{n_sem_ano} linha(s) com data_contratacao fora do formato "
+            "%Y-%m-%d: o ano particiona o parquet, entao a fonte mudou de "
+            "formato e o clean precisa ser revisto."
+        )
+
+    return df[constants_exportacao_servicos.ORDER_COLUMNS.value]
+
+
+def clean_exportacao_servicos(csv_path: Path, output_dir: Path) -> Path:
+    """
+    Le o CSV de operacoes_exportacao_servicos e grava Parquet por ano.
+
+    Arquivo pequeno -> le inteiro (sem chunk). Confere a contagem de linhas
+    contra o datastore antes de transformar: o dump responde chunked, sem
+    Content-Length, entao o download_csv nao consegue validar o tamanho e essa
+    e a unica contraprova de que o arquivo veio inteiro.
+
+    Args:
+        csv_path (Path): CSV bruto baixado.
+        output_dir (Path): raiz de saida; grava output_dir/ano=<ano>/data.parquet.
+
+    Returns:
+        Path: `output_dir`.
+    """
+    shutil.rmtree(output_dir, ignore_errors=True)
+    df = pd.read_csv(csv_path, sep=",", encoding="utf-8", dtype=str)
+
+    assert_row_count(
+        rows_read=len(df),
+        resource_id=constants_exportacao_servicos.CKAN_RESOURCE_ID.value,
+    )
+
+    df = _transform_exportacao_servicos(df)
+
+    columns = [
+        c
+        for c in constants_exportacao_servicos.ORDER_COLUMNS.value
+        if c != "ano"
+    ]
+
+    for year, group in df.groupby("ano"):
+        table = pa.Table.from_pandas(
+            group[columns],
+            schema=constants_exportacao_servicos.SCHEMA.value,
             preserve_index=False,
         )
 

@@ -1,4 +1,4 @@
--- Último retrato promovido: 2026-08-06
+-- Último retrato promovido: 2026-09-02
 --
 -- Esta linha é o gatilho da promoção: a action table-approve só age sobre
 -- arquivos .sql alterados na PR. Ao subir um retrato novo, bumpar a data.

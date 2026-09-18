@@ -1,0 +1,164 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Fall year of the school year the record refers to (2020 denotes school year 2020-21),,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,year
+agency_id,STRING,"NCES local education agency (school district) identification number, or LEAID (7 characters: 2-digit state FIPS followed by a 5-digit agency number)",,no,br_bd_diretorios_us.school_district:id_school_district,,no,Zero-padded to 7 characters on load; the source strips leading zeros in the enrollment extracts.,leaid
+state_id,STRING,State FIPS code as reported by the CCD,,yes,,,no,"Zero-padded to 2 characters. The CCD extends the state FIPS list with codes for jurisdictions that are not states (58 Department of Defense schools overseas, 59 Bureau of Indian Education, 61 and 63 Department of Defense domestic and overseas areas), so this column is not a strict foreign key into the state directory.",fips
+census_id,STRING,US Census Bureau 14-digit government identification number,,no,,,no,,censusid
+enrollment_fall_responsible,INT64,Students for which the reporting local education agency is financially responsible,,no,,person,no,,enrollment_fall_responsible
+enrollment_fall_school,INT64,Students enrolled in schools operated by the reporting local education agency,,no,,person,no,,enrollment_fall_school
+rev_total,FLOAT64,Total revenue,,no,,usd,no,,rev_total
+rev_fed_total,FLOAT64,Total federal revenue,,no,,usd,no,,rev_fed_total
+rev_fed_state_title_i,FLOAT64,Federal revenue through the state for Title I,,no,,usd,no,,rev_fed_state_title_i
+rev_fed_state_idea,FLOAT64,Federal revenue through the state for the Individuals with Disabilities Education Act,,no,,usd,no,,rev_fed_state_idea
+rev_fed_state_vocational,FLOAT64,Federal revenue through the state for vocational and tech education,,no,,usd,no,,rev_fed_state_vocational
+rev_fed_state_eff_instruction,FLOAT64,Federal revenue through state for effective instructional practices,,no,,usd,no,,rev_fed_state_eff_instruction
+rev_fed_state_supp_ed,FLOAT64,Federal revenue through state to support student achievement,,no,,usd,no,,rev_fed_state_supp_ed
+rev_fed_state_supp_21st_lc,FLOAT64,Federal revenue through state to 21st century learning centers,,no,,usd,no,,rev_fed_state_supp_21st_LC
+rev_fed_state_rural_lowinc_sch,FLOAT64,Federal revenue through state for rural low-income schools,,no,,usd,no,,rev_fed_state_rural_lowinc_sch
+rev_fed_state_bilingual_ed,FLOAT64,Federal revenue through the state for bilingual education,,no,,usd,no,,rev_fed_state_bilingual_ed
+rev_fed_state_other,FLOAT64,Federal revenue through the state for other purposes,,no,,usd,no,,rev_fed_state_other
+rev_fed_child_nutrition_act,FLOAT64,Federal revenue through the state for the Child Nutrition Act,,no,,usd,no,,rev_fed_child_nutrition_act
+rev_fed_nonspec,FLOAT64,Federal revenue for nonspecified purposes,,no,,usd,no,,rev_fed_nonspec
+rev_fed_direct_impact_aid,FLOAT64,Direct federal revenue for impact aid,,no,,usd,no,,rev_fed_direct_impact_aid
+rev_fed_direct_indian_ed,FLOAT64,Direct federal revenue for Indian Education,,no,,usd,no,,rev_fed_direct_indian_ed
+rev_fed_direct_rural_achievement,FLOAT64,Federal revenue through state support small and rural district achievement,,no,,usd,no,,rev_fed_direct_rural_achievement
+rev_fed_direct_other,FLOAT64,Direct federal revenue for other purposes,,no,,usd,no,,rev_fed_direct_other
+rev_state_total,FLOAT64,Total state revenue,,no,,usd,no,,rev_state_total
+rev_state_gen_formula_assist,FLOAT64,State revenue from general formula assistance,,no,,usd,no,,rev_state_gen_formula_assist
+rev_state_staff_improve,FLOAT64,State revenue for staff improvement programs,,no,,usd,no,,rev_state_staff_improve
+rev_state_special_ed,FLOAT64,State revenue for special education programs,,no,,usd,no,,rev_state_special_ed
+rev_state_compens_basic_ed,FLOAT64,State revenue for compensatory and basic skills programs,,no,,usd,no,,rev_state_compens_basic_ed
+rev_state_bilingual_ed,FLOAT64,State revenue for bilingual education,,no,,usd,no,,rev_state_bilingual_ed
+rev_state_gifted_talented,FLOAT64,State revenue for gifted and talented programs,,no,,usd,no,,rev_state_gifted_talented
+rev_state_vocational_ed,FLOAT64,State revenue for vocational education programs,,no,,usd,no,,rev_state_vocational_ed
+rev_state_sch_lunch,FLOAT64,State revenue for school lunch programs,,no,,usd,no,,rev_state_sch_lunch
+rev_state_outlay_capital_debt,FLOAT64,State revenue for capital outlay and debt services programs,,no,,usd,no,,rev_state_outlay_capital_debt
+rev_state_transportation,FLOAT64,State revenue for transportation programs,,no,,usd,no,,rev_state_transportation
+rev_state_oth_prog,FLOAT64,State revenue for other programs,,no,,usd,no,,rev_state_oth_prog
+rev_state_nonspec,FLOAT64,State revenue for nonspecified purposes,,no,,usd,no,,rev_state_nonspec
+rev_state_employee_benefits,FLOAT64,"State revenue, on behalf of the local education agency, for employee benefits",,no,,usd,no,,rev_state_employee_benefits
+rev_state_not_employee_benefits,FLOAT64,"State revenue, on behalf of the local education agency, for other benefits than employee benefits",,no,,usd,no,,rev_state_not_employee_benefits
+rev_local_total,FLOAT64,Total local revenue,,no,,usd,no,,rev_local_total
+rev_local_parent_govt,FLOAT64,Local revenue from parent government contributions,,no,,usd,no,,rev_local_parent_govt
+rev_local_prop_tax,FLOAT64,Local revenue from property taxes,,no,,usd,no,,rev_local_prop_tax
+rev_local_sales_tax,FLOAT64,Local revenue from general sales taxes,,no,,usd,no,,rev_local_sales_tax
+rev_local_utility_tax,FLOAT64,Local revenue from public utility taxes,,no,,usd,no,,rev_local_utility_tax
+rev_local_income_tax,FLOAT64,Local revenue from individual and corporate income taxes,,no,,usd,no,,rev_local_income_tax
+rev_local_other_tax,FLOAT64,Local revenue from all other taxes,,no,,usd,no,,rev_local_other_tax
+rev_local_other_sch_systems,FLOAT64,Local revenue from other school systems,,no,,usd,no,,rev_local_other_sch_systems
+rev_local_cities_counties,FLOAT64,Local revenue from cities and counties,,no,,usd,no,,rev_local_cities_counties
+rev_local_tuition_fees,FLOAT64,Local revenue from tuition fees from pupils and parents,,no,,usd,no,,rev_local_tuition_fees
+rev_local_transportation_fees,FLOAT64,Local revenue from transportation fees from pupils and parents,,no,,usd,no,,rev_local_transportation_fees
+rev_local_sch_lunch,FLOAT64,Local revenue from school lunches,,no,,usd,no,,rev_local_sch_lunch
+rev_local_textbook_sales_rents,FLOAT64,Local revenue from textbook sales and rentals,,no,,usd,no,,rev_local_textbook_sales_rents
+rev_local_dist_activ_receipts,FLOAT64,Local revenue from district activity receipts,,no,,usd,no,,rev_local_dist_activ_receipts
+rev_local_student_fees_nonspec,FLOAT64,Local revenue from nonspecified student fees,,no,,usd,no,,rev_local_student_fees_nonspec
+rev_local_oth_sales_serv,FLOAT64,Local revenue from other sales and services,,no,,usd,no,,rev_local_oth_sales_serv
+rev_local_rents_royalties,FLOAT64,Local revenue from rents and royalties,,no,,usd,no,,rev_local_rents_royalties
+rev_local_property_sale,FLOAT64,Local revenue from property sales,,no,,usd,no,,rev_local_property_sale
+rev_local_interest_earnings,FLOAT64,Local revenue from interest earnings,,no,,usd,no,,rev_local_interest_earnings
+rev_local_fines_forfeits,FLOAT64,Local revenue from fines and forfeits,,no,,usd,no,,rev_local_fines_forfeits
+rev_local_private_contrib,FLOAT64,Local revenue from private contributions,,no,,usd,no,,rev_local_private_contrib
+rev_local_misc,FLOAT64,Local revenue from miscellaneous sources,,no,,usd,no,,rev_local_misc
+rev_nces,FLOAT64,"NCES local revenue, Census Bureau state revenue",,no,,usd,no,,rev_nces
+exp_total,FLOAT64,Total expenditures,,no,,usd,no,,exp_total
+exp_current_elsec_total,FLOAT64,Total current expenditures for elementary and secondary education,,no,,usd,no,,exp_current_elsec_total
+exp_current_instruction_total,FLOAT64,Total current expenditures for instruction,,no,,usd,no,,exp_current_instruction_total
+exp_instruction,FLOAT64,Expenditures on instruction,,no,,usd,no,,exp_instruction
+payments_private_schools,FLOAT64,Payments to private schools,,no,,usd,no,,payments_private_schools
+payments_charter_schools,FLOAT64,Payments to charter schools,,no,,usd,no,,payments_charter_schools
+exp_current_supp_serve_total,FLOAT64,Total current expenditures for support services,,no,,usd,no,,exp_current_supp_serve_total
+exp_current_pupils,FLOAT64,Current expenditures for pupil support services,,no,,usd,no,,exp_current_pupils
+exp_current_instruc_staff,FLOAT64,Current expenditures for instructional staff support services,,no,,usd,no,,exp_current_instruc_staff
+exp_current_general_admin,FLOAT64,Current expenditures for general administration support services,,no,,usd,no,,exp_current_general_admin
+exp_current_sch_admin,FLOAT64,Current expenditures for school administration support services,,no,,usd,no,,exp_current_sch_admin
+exp_current_operation_plant,FLOAT64,Current expenditures for support services for operation and maintenance of plant,,no,,usd,no,,exp_current_operation_plant
+exp_current_student_transport,FLOAT64,Current expenditures for student transportation support services,,no,,usd,no,,exp_current_student_transport
+exp_current_bco,FLOAT64,"Current expenditures for business, central, and other support services",,no,,usd,no,,exp_current_bco
+exp_current_supp_serv_nonspec,FLOAT64,Current expenditures for support services for nonspecified purposes,,no,,usd,no,,exp_current_supp_serv_nonspec
+exp_current_other,FLOAT64,Total current expenditures for other elementary or secondary,,no,,usd,no,,exp_current_other
+exp_current_food_serv,FLOAT64,Current expenditures for food services,,no,,usd,no,,exp_current_food_serv
+exp_current_enterprise,FLOAT64,Current expenditures for enterprise operations,,no,,usd,no,,exp_current_enterprise
+exp_current_other_elsec,FLOAT64,Current expenditures for other elementary or secondary school purposes,,no,,usd,no,,exp_current_other_elsec
+exp_nonelsec,FLOAT64,Total non-elementary or secondary school expenditures,,no,,usd,no,,exp_nonelsec
+exp_nonelsec_community_serv,FLOAT64,Non-elementary or secondary school expenditures for community services,,no,,usd,no,,exp_nonelsec_community_serv
+exp_nonelsec_adult_education,FLOAT64,Non-elementary or secondary school expenditures for adult education,,no,,usd,no,,exp_nonelsec_adult_education
+exp_nonelsec_other,FLOAT64,Non-elementary or secondary school expenditures for other purposes,,no,,usd,no,,exp_nonelsec_other
+outlay_capital_total,FLOAT64,Total capital outlay expenditures,,no,,usd,no,,outlay_capital_total
+outlay_capital_construction,FLOAT64,Capital outlay for construction,,no,,usd,no,,outlay_capital_construction
+outlay_capital_land_structures,FLOAT64,Capital outlay for land and existing structures,,no,,usd,no,,outlay_capital_land_structures
+outlay_capital_instruc_equip,FLOAT64,Capital outlay for instructional equipment,,no,,usd,no,,outlay_capital_instruc_equip
+outlay_capital_other_equip,FLOAT64,Capital outlay for other equipment,,no,,usd,no,,outlay_capital_other_equip
+outlay_capital_nonspec_equip,FLOAT64,Capital outlay for nonspecified equipment,,no,,usd,no,,outlay_capital_nonspec_equip
+payments_state_govt,FLOAT64,Payments to state governments,,no,,usd,no,,payments_state_govt
+payments_local_govt,FLOAT64,Payments to local governments,,no,,usd,no,,payments_local_govt
+payments_other_sch_system,FLOAT64,Payments to other school systems,,no,,usd,no,,payments_other_sch_system
+debt_interest,FLOAT64,Interest on debt,,no,,usd,no,,debt_interest
+salaries_total,FLOAT64,Total salary amount,,no,,usd,no,,salaries_total
+salaries_instruction,FLOAT64,Salaries for instruction,,no,,usd,no,,salaries_instruction
+salaries_teachers_regular_prog,FLOAT64,Teacher salaries for regular education programs,,no,,usd,no,,salaries_teachers_regular_prog
+salaries_teachers_sped,FLOAT64,Teacher salaries for special education programs,,no,,usd,no,,salaries_teachers_sped
+salaries_teachers_vocational,FLOAT64,Teacher salaries for vocational education programs,,no,,usd,no,,salaries_teachers_vocational
+salaries_teachers_other_ed,FLOAT64,Teacher salaries for other education programs,,no,,usd,no,,salaries_teachers_other_ed
+salaries_supp_pupils,FLOAT64,Salaries for pupil support services,,no,,usd,no,,salaries_supp_pupils
+salaries_supp_instruc_staff,FLOAT64,Salaries for instructional staff support services,,no,,usd,no,,salaries_supp_instruc_staff
+salaries_supp_general_admin,FLOAT64,Salaries for general administration support services,,no,,usd,no,,salaries_supp_general_admin
+salaries_supp_sch_admin,FLOAT64,Salaries for school administration support services,,no,,usd,no,,salaries_supp_sch_admin
+salaries_supp_operation_plant,FLOAT64,Salaries for support services for operation and maintenance of plant,,no,,usd,no,,salaries_supp_operation_plant
+salaries_supp_stud_transport,FLOAT64,Salaries for student transportation support services,,no,,usd,no,,salaries_supp_stud_transport
+salaries_supp_bco,FLOAT64,"Salaries for business, central, and other support services",,no,,usd,no,,salaries_supp_bco
+salaries_food_service,FLOAT64,Salaries for food services,,no,,usd,no,,salaries_food_service
+benefits_employee_total,FLOAT64,Total employee benefits (dollars),,no,,usd,no,,benefits_employee_total
+benefits_employee_instruction,FLOAT64,Employee benefits for instruction (dollars),,no,,usd,no,,benefits_employee_instruction
+benefits_supp_pupils,FLOAT64,Employee benefits for pupil support services (dollars),,no,,usd,no,,benefits_supp_pupils
+benefits_supp_instruc_staff,FLOAT64,Employee benefits for instructional staff support services (dollars),,no,,usd,no,,benefits_supp_instruc_staff
+benefits_supp_general_admin,FLOAT64,Employee benefits for general administration support services (dollars),,no,,usd,no,,benefits_supp_general_admin
+benefits_supp_sch_admin,FLOAT64,Employee benefits for school administration support services (dollars),,no,,usd,no,,benefits_supp_sch_admin
+benefits_supp_operation_plant,FLOAT64,Employee benefits for support services for operation and maintenance of plant (dollars),,no,,usd,no,,benefits_supp_operation_plant
+benefits_supp_stud_transport,FLOAT64,Employee benefits for student transportation support services (dollars),,no,,usd,no,,benefits_supp_stud_transport
+benefits_supp_bco,FLOAT64,"Employee benefits for business, central, and other support services (dollars)",,no,,usd,no,,benefits_supp_bco
+benefits_food_service,FLOAT64,Employee benefits for food services (dollars),,no,,usd,no,,benefits_food_service
+benefits_enterprise_operations,FLOAT64,Employee benefits for enterprise operations (dollars),,no,,usd,no,,benefits_enterprise_operations
+exp_textbooks,FLOAT64,Expenditures on textbooks,,no,,usd,no,,exp_textbooks
+debt_longterm_outstand_beg_fy,FLOAT64,Long-term debt outstanding at beginning of fiscal year,,no,,usd,no,,debt_longterm_outstand_beg_FY
+debt_longterm_issued_fy,FLOAT64,Long-term debt issued during fiscal year,,no,,usd,no,,debt_longterm_issued_FY
+debt_longterm_retired_fy,FLOAT64,Long-term debt retired during fiscal year,,no,,usd,no,,debt_longterm_retired_FY
+debt_longterm_outstand_end_fy,FLOAT64,Long-term debt outstanding at end of fiscal year,,no,,usd,no,,debt_longterm_outstand_end_FY
+debt_shortterm_outstand_beg_fy,FLOAT64,Short-term debt outstanding at beginning of fiscal year,,no,,usd,no,"The source variable list labels this column with the opposite end of the fiscal year, contradicting both the column name and the long-term debt columns. The name is followed here; check against the F-33 form before relying on it.",debt_shortterm_outstand_beg_FY
+debt_shortterm_outstand_end_fy,FLOAT64,Short-term debt outstanding at end of fiscal year,,no,,usd,no,"The source variable list labels this column with the opposite end of the fiscal year, contradicting both the column name and the long-term debt columns. The name is followed here; check against the F-33 form before relying on it.",debt_shortterm_outstand_end_FY
+assets_sinking_fund,FLOAT64,Assets in a sinking fund (dollars),,no,,usd,no,,assets_sinking_fund
+assets_bond_fund,FLOAT64,Assets in a bond fund (dollars),,no,,usd,no,,assets_bond_fund
+assets_other,FLOAT64,Assets in other funds (dollars),,no,,usd,no,,assets_other
+exp_utilities_energy,FLOAT64,Expenditures for utilities and energy services,,no,,usd,no,,exp_utilities_energy
+exp_tech_supplies_services,FLOAT64,Expenditures for technology-related supplies and purchased services,,no,,usd,no,,exp_tech_supplies_services
+exp_tech_equipment,FLOAT64,Expenditures for technology-related equipment,,no,,usd,no,,exp_tech_equipment
+exp_current_state_local_funds,FLOAT64,Current expenditures from state and local funds,,no,,usd,no,,exp_current_state_local_funds
+exp_current_federal_funds,FLOAT64,Current expenditures from federal funds,,no,,usd,no,,exp_current_federal_funds
+exp_current_resa,FLOAT64,Current expenditures made by regional education service agencies on behalf of the local education agency,,no,,usd,no,,exp_current_resa
+exp_sped_current,FLOAT64,Current special education expenditures,,no,,usd,no,,exp_sped_current
+exp_sped_instruction,FLOAT64,Current special education expenditures for instruction,,no,,usd,no,,exp_sped_instruction
+exp_sped_pupil_support_services,FLOAT64,Current special education expenditures for pupil support services,,no,,usd,no,,exp_sped_pupil_support_services
+exp_sped_staff_support_services,FLOAT64,Current special education expenditures for instructional support services,,no,,usd,no,,exp_sped_staff_support_services
+exp_sped_trans_support_services,FLOAT64,Current special education expenditures for Transportation services,,no,,usd,no,,exp_sped_trans_support_services
+rev_cares_act_relief_esser,FLOAT64,Federal CARES Act revenues (ESSER),,no,,usd,no,,rev_cares_act_relief_esser
+rev_cares_act_relief_geer,FLOAT64,Federal CARES Act revenues (GEER),,no,,usd,no,,rev_cares_act_relief_geer
+rev_cares_act_relief_esf_rem,FLOAT64,Federal CARES Act revenues (Education Stabilization Fund - Rethink K12 Models),,no,,usd,no,,rev_cares_act_relief_esf_rem
+rev_cares_act_relief_esf_rwp,FLOAT64,Federal CARES Act revenues (Education Stabilization Fund - Reimagine Workforce Preparation),,no,,usd,no,,rev_cares_act_relief_esf_rwp
+rev_cares_act_relief_serv,FLOAT64,Federal CARES Act revenues (Project School Emergency Response to Violence),,no,,usd,no,,rev_cares_act_relief_serv
+rev_cares_act_relief_crf,FLOAT64,Federal CARES Act revenues (Coronavirus Relief Fund),,no,,usd,no,,rev_cares_act_relief_crf
+exp_cares_act_current,FLOAT64,Expenditures using Federal COVID relief funds,,no,,usd,no,,exp_cares_act_current
+exp_cares_act_instruction,FLOAT64,Expenditures using Federal COVID relief funds on instruction,,no,,usd,no,,exp_cares_act_instruction
+exp_cares_act_support_services,FLOAT64,Expenditures using Federal COVID relief funds on support services,,no,,usd,no,,exp_cares_act_support_services
+exp_cares_act_outlay,FLOAT64,Expenditures using Federal COVID relief funds on capital outlay,,no,,usd,no,,exp_cares_act_outlay
+exp_cares_act_tech_service,FLOAT64,Expenditures using Federal COVID relief funds on Technology and related support services,,no,,usd,no,,exp_cares_act_tech_service
+exp_cares_act_tech_equipment,FLOAT64,Expenditures using Federal COVID relief funds on Technology and equipment,,no,,usd,no,,exp_cares_act_tech_equipment
+rev_crrsa_esser_ii,FLOAT64,Federal CRRSA Act revenues (ESSER II),,no,,usd,no,,rev_crrsa_esser_ii
+rev_arp_esser,FLOAT64,Federal ARP Act revenues (ESSER),,no,,usd,no,,rev_arp_esser
+rev_crrsa_geer_ii,FLOAT64,Federal CRRSA Act revenues (GEER II),,no,,usd,no,,rev_crrsa_geer_ii
+rev_state_local_recovery_funds,FLOAT64,Revenue from State and Local COVID-19 Fiscal recovery measures,,no,,usd,no,,rev_state_local_recovery_funds
+exp_cares_act_tech_plant,FLOAT64,Expenditures using Federal COVID relief funds on PLANT maintenance ,,no,,usd,no,,exp_cares_act_tech_plant
+exp_cares_act_food,FLOAT64,Expenditures using Federal COVID relief funds on Food Services,,no,,usd,no,,exp_cares_act_food
+rev_fed_state_math_sci_teach,FLOAT64,"Federal revenue through the state for math, science, and teacher quality",,no,,usd,no,,rev_fed_state_math_sci_teach
+rev_fed_state_drug_free,FLOAT64,Federal revenue through the state for safe and drug-free schools,,no,,usd,no,,rev_fed_state_drug_free
+rev_fed_arra,FLOAT64,Federal revenue from the American Recovery and Reinvestment Act,,no,,usd,no,,rev_fed_arra
+exp_current_arra,FLOAT64,Current expenditures for the American Recovery and Reinvestment Act,,no,,usd,no,,exp_current_arra
+outlay_capital_arra,FLOAT64,Capital outlay for the American Recovery and Reinvestment Act,,no,,usd,no,,outlay_capital_arra

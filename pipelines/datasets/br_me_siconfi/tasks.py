@@ -7,6 +7,40 @@ from prefect import task
 from pipelines.datasets.br_me_siconfi import utils
 
 
+# No retries: the only failure this task raises is a crosswalk gap, which is
+# deterministic — retrying would re-fetch and re-scan the archive twice more
+# before reporting the same keys. Transient GCS errors are absorbed per year
+# inside ``scan_keys_archive`` instead.
+@task
+def preflight(
+    work_dir: str,
+    start_year: int,
+    end_year: int,
+    levels: tuple[str, ...],
+    archive_bucket: str,
+) -> int:
+    """Check the crosswalk against the archived raw JSON, before the download.
+
+    The download is ~17h of an ~18h run, so a crosswalk gap used to cost a full
+    day before it was reported. This raises the same error in ~6 minutes. It is
+    an early exit rather than a gate — see
+    :func:`pipelines.datasets.br_me_siconfi.utils.preflight_crosswalk`.
+
+    Args:
+        work_dir: Run scratch directory.
+        start_year: First window year (inclusive).
+        end_year: Last window year (inclusive).
+        levels: Government levels this run will build.
+        archive_bucket: Bucket holding the raw archive.
+
+    Returns:
+        Number of distinct account keys checked (0 when no archive was found).
+    """
+    return utils.preflight_crosswalk(
+        work_dir, start_year, end_year, levels, archive_bucket
+    )
+
+
 @task(retries=2, retry_delay_seconds=60)
 def download(
     work_dir: str,

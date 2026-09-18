@@ -345,7 +345,7 @@ def is_empty(lista):
 def read_dbf_save_parquet_chunks(
     file_list: list,
     table_id: str,
-    dataset_id: str = "br_ms_sia",
+    dataset_id: str,
     chunk_size: int = 100000,
 ) -> str:
     """
