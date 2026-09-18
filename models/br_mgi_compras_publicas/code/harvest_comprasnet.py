@@ -51,6 +51,7 @@ from pipelines.datasets.br_mgi_compras_publicas.comprasnet import (  # noqa: E40
     parse_termo_homologacao,
 )
 from pipelines.datasets.br_mgi_compras_publicas.utils import (  # noqa: E402
+    COERCERS,
     load_architecture,
     write_chunk,
 )
@@ -63,6 +64,10 @@ DEFAULT_DATA_DIR = (
 FIRST_MONTH = "2001-06"
 LAST_MONTH = "2024-01"
 PHASES = ("list", "crosswalk", "detail")
+#: Chunk directory names are the BigQuery table names, so a chunk dir maps to
+#: its architecture CSV without a lookup.
+TABLE_OFERTA = "pregao_item_oferta"
+TABLE_EVENTO = "pregao_item_evento"
 
 _local = threading.local()
 
@@ -229,17 +234,17 @@ def run_detail(
     month: str, workers: int, force: bool = False
 ) -> tuple[int, int]:
     if (
-        _chunk_done("oferta", month)
-        and _chunk_done("evento", month)
+        _chunk_done(TABLE_OFERTA, month)
+        and _chunk_done(TABLE_EVENTO, month)
         and not force
     ):
-        return len(_read_chunk("oferta", month)), len(
-            _read_chunk("evento", month)
+        return len(_read_chunk(TABLE_OFERTA, month)), len(
+            _read_chunk(TABLE_EVENTO, month)
         )
     crosswalk = _read_chunk("crosswalk", month)
     if not crosswalk:
-        _write_chunk("oferta", month, [], expected=0)
-        _write_chunk("evento", month, [], expected=0)
+        _write_chunk(TABLE_OFERTA, month, [], expected=0)
+        _write_chunk(TABLE_EVENTO, month, [], expected=0)
         return 0, 0
 
     progress = Progress(f"detail {month}", len(crosswalk))
@@ -262,8 +267,8 @@ def run_detail(
         results = list(pool.map(detail, crosswalk))
     offers = [row for pair in results for row in pair[0]]
     events = [row for pair in results for row in pair[1]]
-    _write_chunk("oferta", month, offers, expected=len(crosswalk))
-    _write_chunk("evento", month, events, expected=len(crosswalk))
+    _write_chunk(TABLE_OFERTA, month, offers, expected=len(crosswalk))
+    _write_chunk(TABLE_EVENTO, month, events, expected=len(crosswalk))
     logger.info(
         "detail %s: %d offers, %d events from %d pregoes",
         month,
@@ -302,13 +307,26 @@ def to_parquet(table: str) -> int:
     all-STRING by house convention, the dbt model safe_casts each column back,
     and a typed staging table would collide with any later overwrite.
     """
-    columns = load_architecture(table)
+    # `ano` is encoded in the directory name, so it must not also be a column
+    # inside the file: pyarrow refuses to merge a string column against the
+    # int32 it infers from the hive key, and upload.py's header helper makes the
+    # same assumption when it seeds the 0-row schema blob.
+    columns = [c for c in load_architecture(table) if c.name != "ano"]
     by_year: dict[str, list[dict]] = {}
     for month in months(FIRST_MONTH, LAST_MONTH):
         if not _chunk_done(table, month):
             continue
         for row in _read_chunk(table, month):
-            by_year.setdefault(row["ano"], []).append(row)
+            # The scraper emits every field as text; write_chunk casts through
+            # each column's real type before stringifying, so coerce first with
+            # the dataset's own rules rather than a parallel implementation.
+            typed = {
+                column.name: COERCERS[column.bigquery_type](
+                    row.get(column.name) or None
+                )
+                for column in columns
+            }
+            by_year.setdefault(row["ano"], []).append(typed)
     root = data_dir().parent / "output" / table
     total = 0
     for ano, rows in sorted(by_year.items()):
@@ -349,17 +367,17 @@ def main() -> None:
     )
 
     if args.consolidate:
-        for table in ("oferta", "evento", "crosswalk"):
+        for table in (TABLE_OFERTA, TABLE_EVENTO, "crosswalk"):
             consolidate(table)
         return
 
     if args.to_parquet:
-        for table in ("oferta", "evento"):
+        for table in (TABLE_OFERTA, TABLE_EVENTO):
             to_parquet(table)
         return
 
     started = time.time()
-    totals = {"pregoes": 0, "resolved": 0, "oferta": 0, "evento": 0}
+    totals = {"pregoes": 0, "resolved": 0, TABLE_OFERTA: 0, TABLE_EVENTO: 0}
     for month in months(args.start, args.end):
         if "list" in args.phases:
             totals["pregoes"] += run_list(month, args.force)
@@ -369,8 +387,8 @@ def main() -> None:
             )
         if "detail" in args.phases:
             offers, events = run_detail(month, args.workers, args.force)
-            totals["oferta"] += offers
-            totals["evento"] += events
+            totals[TABLE_OFERTA] += offers
+            totals[TABLE_EVENTO] += events
     logger.info(
         "done in %.1f min: %s",
         (time.time() - started) / 60,
