@@ -295,24 +295,33 @@ def br_bd_execucao_estadual_rs_flow(
 def br_bd_execucao_estadual_seed_frozen_prod_flow(
     materialize_to_prod: bool = True,
     download_billing_project: str = "basedosdados",
+    mirrors: list[str] | None = None,
+    rebuild_tables: list[str] | None = None,
 ) -> None:
-    """Seed the FROZEN staging mirrors into prod staging, one time. MANUAL -- no schedule.
+    """Copy already-built staging mirrors from the dev bucket into prod. MANUAL.
 
-    `ce_empenho`, `ce_pagamento`, `ce_liquidacao`, `sc_contrato` and `rs_contrato`
-    (constants.FROZEN_PROD_MIRRORS) are produced by no refresher: Ceará's portal is
-    WAF + geo-blocked and the SC/RS contract registries are one-shot bootstrap loads.
-    Their cleaned parquet already sits in the dev staging bucket. This flow copies it
-    forward to the prod bucket and creates the matching `basedosdados-staging` external
-    tables through `upload_to_gcs`, exactly as a refresh upload would -- table-approve
-    cannot, because it looks for per-published-table prefixes this dataset does not have.
+    Two bootstrap jobs share this one mechanism -- copy a mirror's cleaned parquet from
+    `basedosdados-dev` to `basedosdados` and create the `basedosdados-staging` external
+    table through `upload_to_gcs`, exactly as a refresh upload would (table-approve
+    cannot: it looks for per-published-table prefixes this dataset does not have):
 
-    It uploads mirrors ONLY. The daily flow -- which now routes `liquidacao` and
-    `contrato` in TABLES_BY_STATE -- is what rebuilds the published tables, once these
-    frozen mirrors and the re-scrapable states (SC, PB, ES, RS) are in prod staging. So
-    the order for the first prod materialization is: run THIS once, then run the daily
-    flow with `full_refresh=True`.
+    * The FROZEN mirrors (`mirrors=None`, the default -> constants.FROZEN_PROD_MIRRORS):
+      `ce_*`, `sc_contrato`, `rs_contrato`. No refresher produces these -- Ceará's portal
+      is WAF + geo-blocked, the SC/RS contract registries are one-shot -- so they live in
+      prod only by being copied here, and stay frozen.
+    * A re-scrapable state's mirrors already built in dev, when re-running the whole
+      daily flow to reach one late state would cost hours. SC/PB's first prod load used
+      `mirrors=[sc_empenho, sc_liquidacao, sc_pagamento, pb_empenho, pb_liquidacao,
+      pb_pagamento]` because those mirrors already existed in dev; a fresh clean was not
+      worth another ~20 GB download of the five states ahead of them. Going forward the
+      daily flow keeps SC/PB current from source -- this is a bootstrap, not their
+      refresh path.
 
-    Re-running is safe (idempotent overwrite) but unnecessary -- the mirrors never move.
+    Pass `rebuild_tables` to run those published models against `target="prod"` after the
+    upload, materialising them in one shot -- their other union mirrors must already be in
+    prod staging. Omit it to upload mirrors only and let the daily flow rebuild.
+
+    Re-running is safe (idempotent overwrite).
 
     PROD POOL ONLY. Like `transfer_files_to_prod_flow`, this reads the requester-pays
     `basedosdados-dev` bucket billed to `download_billing_project`, which must be a
@@ -329,7 +338,13 @@ def br_bd_execucao_estadual_seed_frozen_prod_flow(
         download_billing_project: Project billed for the requester-pays read of the dev
             staging bucket. Must grant the worker SA `serviceusage.services.use`;
             `basedosdados` on the prod pool.
+        mirrors: Staging mirrors to copy. None means constants.FROZEN_PROD_MIRRORS.
+        rebuild_tables: Published models to `dbt run` against prod after the copy. None
+            means copy only.
     """
+    mirrors = (
+        mirrors if mirrors is not None else constants.FROZEN_PROD_MIRRORS.value
+    )
     # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Seed prod staging: ",
@@ -337,10 +352,11 @@ def br_bd_execucao_estadual_seed_frozen_prod_flow(
         table_id="contrato",
     )
     bucket = "basedosdados" if materialize_to_prod else "basedosdados-dev"
+    target = "prod" if materialize_to_prod else "dev"
     billing = download_billing_project
     work_dir = tempfile.mkdtemp(prefix="br_bd_execucao_estadual_seed_")
     try:
-        for mirror in constants.FROZEN_PROD_MIRRORS.value:
+        for mirror in mirrors:
             path = download_frozen_mirror(
                 mirror=mirror, work_dir=work_dir, billing_project=billing
             )
@@ -354,6 +370,21 @@ def br_bd_execucao_estadual_seed_frozen_prod_flow(
                 bucket_name=bucket,
                 dump_mode="overwrite",
                 source_format="parquet",
+            )
+        # Run every model before testing any: relationships tests read sibling models.
+        for table_id in rebuild_tables or []:
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table_id,
+                dbt_command="run",
+                target=target,
+            )
+        for table_id in rebuild_tables or []:
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table_id,
+                dbt_command="test",
+                target=target,
             )
     finally:
         shutil.rmtree(work_dir, ignore_errors=True)
