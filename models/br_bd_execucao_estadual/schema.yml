@@ -351,12 +351,16 @@ models:
     description: >
       Liquidações dos governos estaduais no nível do documento de liquidação, a fase
       intermediária da execução (empenho, liquidação, pagamento). Uma linha por
-      lançamento, com data, valor, credor e o vínculo com o empenho. Existe apenas para
+      lançamento, com data, valor, credor e o vínculo com o empenho. Existe apenas
+      para
       Santa Catarina, Paraíba e Ceará, as três fontes que publicam o documento de
-      liquidação separadamente; nos demais estados a liquidação aparece só como a coluna
-      valor_liquidado em despesa. Ligue a despesa por id_empenho_bd (nulo no Ceará, cujo
+      liquidação separadamente; nos demais estados a liquidação aparece só como a
+      coluna
+      valor_liquidado em despesa. Ligue a despesa por id_empenho_bd (nulo no Ceará,
+      cujo
       sistema de códigos de unidade gestora não resolve para o empenho). A soma de
-      valor_liquidado não equivale a despesa.valor_liquidado: esta tabela é o razão de
+      valor_liquidado não equivale a despesa.valor_liquidado: esta tabela é o razão
+      de
       movimentos e inclui anulações de liquidação.
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -377,14 +381,16 @@ models:
       - name: id_liquidacao_bd
         description: >
           Identificador único da liquidação construído pela Data Basis, no formato
-          <sigla_uf>-<chave da liquidação>-<sequência dentro dela>, porque o número do
+          <sigla_uf>-<chave da liquidação>-<sequência dentro dela>, porque o número
+          do
           documento pode se repetir dentro de uma unidade gestora
       - name: numero_liquidacao
         description: Número do documento de liquidação na origem
       - name: id_empenho_bd
         description: >
           Identificador do empenho liquidado, no mesmo formato de despesa.id_empenho_bd,
-          para ligar a liquidação à execução; nulo no Ceará, onde a fonte não resolve o
+          para ligar a liquidação à execução; nulo no Ceará, onde a fonte não resolve
+          o
           vínculo
       - name: numero_empenho
         description: Número da nota de empenho liquidada
@@ -400,10 +406,10 @@ models:
         description: Observação ou tipo de documento da liquidação, quando informado
       - name: valor_liquidado
         description: >
-          Valor liquidado em reais correntes. Já vem com sinal na Paraíba (a anulação de
+          Valor liquidado em reais correntes. Já vem com sinal na Paraíba (a anulação
+          de
           liquidação é negativa na origem) e é líquido da anulação do próprio documento
           nos demais
-
   - name: br_bd_execucao_estadual__relacionamentos
     description: >
       Ponte entre processos licitatórios e empenhos. Existe apenas onde a fonte publica
@@ -761,9 +767,11 @@ models:
       Contratos dos governos estaduais: os instrumentos contratuais celebrados, com
       objeto, contratado, vigência e valor. Uma linha por contrato. Existe para Espírito
       Santo, Santa Catarina e Rio Grande do Sul, os três estados que publicam um cadastro
-      de contratos. Complementa as tabelas de execução: o contrato é o compromisso, a
+      de contratos. Complementa as tabelas de execução: o contrato é o compromisso,
+      a
       execução é o gasto contra ele; ligue à licitação por numero_processo quando
-      presente. Só contratos: a base do ES, que mistura contratos com autorizações de
+      presente. Só contratos: a base do ES, que mistura contratos com autorizações
+      de
       compra e ordens de fornecimento, é filtrada para os documentos do tipo Contrato.
     tests:
       - dbt_utils.unique_combination_of_columns:
@@ -773,7 +781,8 @@ models:
     columns:
       - name: ano
         description: >
-          Ano de assinatura ou início de vigência do contrato; nulo quando a data está
+          Ano de assinatura ou início de vigência do contrato; nulo quando a data
+          está
           ausente ou é claramente inválida na origem
       - name: sigla_uf
         description: Sigla da unidade da federação do governo estadual
@@ -785,7 +794,8 @@ models:
       - name: numero_contrato
         description: Número do contrato na origem
       - name: numero_processo
-        description: Número do processo ou licitação que originou o contrato, quando informado
+        description: Número do processo ou licitação que originou o contrato, quando
+          informado
       - name: id_unidade_gestora
         description: Código da unidade gestora (órgão) contratante
       - name: nome_unidade_gestora
@@ -797,18 +807,21 @@ models:
       - name: tipo_contrato
         description: >
           Tipo do instrumento. No Rio Grande do Sul distingue os quatro cadastros
-          (fornecimento de bens, locação, obras e serviços de engenharia, serviços de
+          (fornecimento de bens, locação, obras e serviços de engenharia, serviços
+          de
           terceiros); no Espírito Santo é sempre Contrato
       - name: documento_contratado
         description: >
-          CPF ou CNPJ do contratado; nulo no Rio Grande do Sul, que publica apenas o nome
+          CPF ou CNPJ do contratado; nulo no Rio Grande do Sul, que publica apenas
+          o nome
       - name: nome_contratado
         description: Nome ou razão social do contratado
       - name: situacao
         description: Situação do contrato; nula no Rio Grande do Sul, que não a publica
       - name: data_assinatura
         description: >
-          Data de assinatura ou celebração; no Rio Grande do Sul, a data de publicação no
+          Data de assinatura ou celebração; no Rio Grande do Sul, a data de publicação
+          no
           Diário Oficial, quando é a única disponível
       - name: data_inicio_vigencia
         description: Data de início da vigência do contrato
@@ -817,4 +830,5 @@ models:
       - name: valor_inicial
         description: Valor inicial do contrato em reais correntes
       - name: valor_atual
-        description: Valor atual do contrato em reais correntes, após aditivos quando informado
+        description: Valor atual do contrato em reais correntes, após aditivos quando
+          informado

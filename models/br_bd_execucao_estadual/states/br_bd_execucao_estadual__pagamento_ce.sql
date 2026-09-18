@@ -3,26 +3,37 @@
 -- Ceará payments (Notas de Pagamento Direto), mapped onto the canonical `pagamento`
 -- schema. Source: Portal da Transparência do Ceará, the pagamento exports, 2012-2026.
 -- 7,792,663 rows in three naming eras (constants.CE_SCHEMAS['pagamento']): legacy
--- 2012-2016 (`num_ano`, `cod_*`, `vlr_*`), mid 2017 (`exercicio`, `numero`, bank fields)
--- and portal 2018+ (`unidade_gestora`, `valor`). Each row populates one era's columns, so
+-- 2012-2016 (`num_ano`, `cod_*`, `vlr_*`), mid 2017 (`exercicio`, `numero`, bank
+-- fields)
+-- and portal 2018+ (`unidade_gestora`, `valor`). Each row populates one era's
+-- columns, so
 -- every field is a COALESCE across the eras.
 --
--- GRAIN: one payment movement, the same as PE and SC -- the ledger includes anulações and
+-- GRAIN: one payment movement, the same as PE and SC -- the ledger includes anulações
+-- and
 -- non-settled statuses, and the sum of `valor_pago` is NOT required to equal
 -- `despesa.valor_pago`.
 --
--- **id_empenho_bd is NULL for CE, measured, not omitted.** The portal era -- 4,489,489 of
--- 7,792,663 rows -- carries no empenho number at all (0.6% populated), and where legacy and
--- mid do carry one, CE's payment gestora code system does not resolve to the empenho's (the
--- same mismatch that blocks the liquidação link: only 120 of 982 gestora codes overlap and
--- the empenho número fans out ~93x). Emitting a link would resolve to the wrong empenho, so
+-- **id_empenho_bd is NULL for CE, measured, not omitted.** The portal era --
+-- 4,489,489 of
+-- 7,792,663 rows -- carries no empenho number at all (0.6% populated), and where
+-- legacy and
+-- mid do carry one, CE's payment gestora code system does not resolve to the
+-- empenho's (the
+-- same mismatch that blocks the liquidação link: only 120 of 982 gestora codes
+-- overlap and
+-- the empenho número fans out ~93x). Emitting a link would resolve to the wrong
+-- empenho, so
 -- the column is null and `numero_empenho` carries the raw reference where present (the
 -- PB-pagamento precedent).
 --
--- **id_pagamento_bd is a Data Basis surrogate** (PE/SC/PB pattern): the payment key plus a
--- sequence within it. `(exercicio, gestora, numero)` is unique for the portal and mid eras
+-- **id_pagamento_bd is a Data Basis surrogate** (PE/SC/PB pattern): the payment key
+-- plus a
+-- sequence within it. `(exercicio, gestora, numero)` is unique for the portal and mid
+-- eras
 -- but repeats ~1.8% in the legacy era, so the row_number guarantees uniqueness; it is
--- sequenced within (exercicio, gestora, numero) so a reload cannot renumber another key.
+-- sequenced within (exercicio, gestora, numero) so a reload cannot renumber another
+-- key.
 --
 -- **valor_pago is NET of the row's own anulação column** (legacy vlr_pagamento -
 -- vlr_anulacao_pagamento; mid/portal valor - valoranulado), and decimals parse with
@@ -34,17 +45,13 @@ with
     ),
     base as (
         select
-            coalesce(
-                nullif(trim(exercicio), ''), nullif(trim(num_ano), '')
-            ) as exe,
+            coalesce(nullif(trim(exercicio), ''), nullif(trim(num_ano), '')) as exe,
             coalesce(
                 nullif(trim(unidade_gestora), ''),
                 nullif(trim(unidadegestora), ''),
                 nullif(trim(cod_gestora), '')
             ) as ug,
-            coalesce(
-                nullif(trim(numero), ''), nullif(trim(cod_np), '')
-            ) as np,
+            coalesce(nullif(trim(numero), ''), nullif(trim(cod_np), '')) as np,
             coalesce(
                 nullif(trim(numeroned), ''), nullif(trim(cod_ne), '')
             ) as numero_empenho,
@@ -79,8 +86,9 @@ with
             -- net paid: legacy vlr_pagamento - vlr_anulacao_pagamento; later eras
             -- valor - valoranulado. valoranulado is empty in the portal era.
             coalesce(
-                safe_cast(replace(vlr_pagamento, ',', '.') as float64)
-                - coalesce(safe_cast(replace(vlr_anulacao_pagamento, ',', '.') as float64), 0),
+                safe_cast(replace(vlr_pagamento, ',', '.') as float64) - coalesce(
+                    safe_cast(replace(vlr_anulacao_pagamento, ',', '.') as float64), 0
+                ),
                 safe_cast(replace(valor, ',', '.') as float64)
                 - coalesce(safe_cast(replace(valoranulado, ',', '.') as float64), 0)
             ) as valor_pago
@@ -93,15 +101,23 @@ select
     data as data,
     'CE' as sigla_uf,
     concat(
-        'CE-', exe, '-', ug, '-', np, '-',
+        'CE-',
+        exe,
+        '-',
+        ug,
+        '-',
+        np,
+        '-',
         row_number() over (
             partition by exe, ug, np
             order by numero_empenho, valor_pago, doc_credor, data
         )
     ) as id_pagamento_bd,
     np as numero_ordem_bancaria,
-    -- See header: CE's payment gestora code does not resolve to the empenho, and the portal
-    -- era carries no empenho number, so the link is left null rather than emitted wrong.
+    -- See header: CE's payment gestora code does not resolve to the empenho, and the
+    -- portal
+    -- era carries no empenho number, so the link is left null rather than emitted
+    -- wrong.
     safe_cast(null as string) as id_empenho_bd,
     numero_empenho as numero_empenho,
     situacao as situacao,

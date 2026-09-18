@@ -2,7 +2,8 @@
 
 -- Espírito Santo contracts. Source: es_contrato staging (dados.es.gov.br SIGA), the
 -- rows whose TipoDocumento is a contract. The es_contrato dataset also carries purchase
--- authorizations, supply orders and empenho notes -- ~60k of its 78.6k rows -- which are
+-- authorizations, supply orders and empenho notes -- ~60k of its 78.6k rows -- which
+-- are
 -- excluded here so the table holds contracts only (SC and RS publish contracts only).
 -- Dates are %d/%m/%Y and values comma-decimal; the SQL-Server floor 1753 and the stray
 -- 5024 in the file-name year are treated as no year.
@@ -10,24 +11,28 @@ with
     fonte as (
         select *
         from {{ set_datalake_project("br_bd_execucao_estadual_staging.es_contrato") }}
-        where upper(trim(TipoDocumento)) = 'CONTRATO'
+        where upper(trim(tipodocumento)) = 'CONTRATO'
     ),
     base as (
         select
-            safe.parse_date('%d/%m/%Y', substr(trim(DataCelebracao), 1, 10)) as dt_assin,
-            safe.parse_date('%d/%m/%Y', substr(trim(DataInicioVigencia), 1, 10)) as dt_ini,
-            safe.parse_date('%d/%m/%Y', substr(trim(DataFimVigencia), 1, 10)) as dt_fim,
-            nullif(trim(IdOrgao), '') as id_ug,
-            nullif(trim(NomeOrgao), '') as nome_ug,
-            nullif(trim(NumeroDocumento), '') as numero_contrato,
-            nullif(trim(NumeroProcesso), '') as numero_processo,
-            nullif(trim(Objeto), '') as objeto,
-            nullif(trim(ModalidadeProcesso), '') as modalidade,
-            nullif(trim(CnpjFornecedor), '') as documento_contratado,
-            nullif(trim(Fornecedor), '') as nome_contratado,
-            nullif(trim(Situacao), '') as situacao,
-            safe_cast(replace(ValorInicial, ',', '.') as float64) as valor_inicial,
-            safe_cast(replace(ValorFinal, ',', '.') as float64) as valor_atual
+            safe.parse_date(
+                '%d/%m/%Y', substr(trim(datacelebracao), 1, 10)
+            ) as dt_assin,
+            safe.parse_date(
+                '%d/%m/%Y', substr(trim(datainiciovigencia), 1, 10)
+            ) as dt_ini,
+            safe.parse_date('%d/%m/%Y', substr(trim(datafimvigencia), 1, 10)) as dt_fim,
+            nullif(trim(idorgao), '') as id_ug,
+            nullif(trim(nomeorgao), '') as nome_ug,
+            nullif(trim(numerodocumento), '') as numero_contrato,
+            nullif(trim(numeroprocesso), '') as numero_processo,
+            nullif(trim(objeto), '') as objeto,
+            nullif(trim(modalidadeprocesso), '') as modalidade,
+            nullif(trim(cnpjfornecedor), '') as documento_contratado,
+            nullif(trim(fornecedor), '') as nome_contratado,
+            nullif(trim(situacao), '') as situacao,
+            safe_cast(replace(valorinicial, ',', '.') as float64) as valor_inicial,
+            safe_cast(replace(valorfinal, ',', '.') as float64) as valor_atual
         from fonte
     )
 select
@@ -37,7 +42,11 @@ select
     end as ano,
     'ES' as sigla_uf,
     concat(
-        'ES-', coalesce(id_ug, 'SEMUG'), '-', numero_contrato, '-',
+        'ES-',
+        coalesce(id_ug, 'SEMUG'),
+        '-',
+        numero_contrato,
+        '-',
         row_number() over (
             partition by id_ug, numero_contrato
             order by dt_assin, valor_inicial, nome_contratado

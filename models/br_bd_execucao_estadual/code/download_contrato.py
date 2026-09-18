@@ -8,6 +8,7 @@ Neither needs a Brazilian IP. Resources are addressed by their CKAN download URL
 which are stable for these two packages; if a URL 404s, re-resolve it from
 `package_show?id=<slug>`. Output goes to input/{sc_contrato,rs_contrato}/.
 """
+
 from __future__ import annotations
 
 import os
@@ -19,8 +20,15 @@ BROWSER_UA = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
     "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36"
 )
-IN = Path(os.environ.get("EXEC_ESTADUAL_DATA_DIR",
-          Path.home() / "Downloads" / "br_state_budget_data")) / "input"
+IN = (
+    Path(
+        os.environ.get(
+            "EXEC_ESTADUAL_DATA_DIR",
+            Path.home() / "Downloads" / "br_state_budget_data",
+        )
+    )
+    / "input"
+)
 
 SC_BASE = "https://dados.sc.gov.br/dataset/93dab950-e805-4388-8418-cfb3b73f1623/resource"
 SC_FILES = {
@@ -38,7 +46,9 @@ RS_FILES = {
 
 def fetch(url: str, dest: Path) -> None:
     dest.parent.mkdir(parents=True, exist_ok=True)
-    with requests.get(url, headers={"User-Agent": BROWSER_UA}, timeout=300, stream=True) as r:
+    with requests.get(
+        url, headers={"User-Agent": BROWSER_UA}, timeout=300, stream=True
+    ) as r:
         r.raise_for_status()
         with open(dest, "wb") as f:
             for chunk in r.iter_content(chunk_size=1 << 20):

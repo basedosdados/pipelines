@@ -45,16 +45,25 @@ select
     ) as data,
     'SC' as sigla_uf,
     -- SC restarts payment numbering per unidade gestora, and one `nupagamento` covers
-    -- several liquidação lines, so `<ug>|<nupagamento>` alone repeats (30,909 excess over
-    -- 2011-2026, all with a distinct nunotaliquidacao or value, none a duplicate row). No
+    -- several liquidação lines, so `<ug>|<nupagamento>` alone repeats (30,909 excess
+    -- over
+    -- 2011-2026, all with a distinct nunotaliquidacao or value, none a duplicate
+    -- row). No
     -- natural line id exists: the composite
-    -- (ug, nupagamento, nunotaliquidacao, nuidentificacao, vlpagamento, dtlancamento) is
-    -- exactly unique across all 13.3M rows, so the id is a Data Basis surrogate in the PE
+    -- (ug, nupagamento, nunotaliquidacao, nuidentificacao, vlpagamento, dtlancamento)
+    -- is
+    -- exactly unique across all 13.3M rows, so the id is a Data Basis surrogate in
+    -- the PE
     -- pattern -- the payment key plus the line's position within it, sequenced WITHIN
-    -- (ug, nupagamento) so reloading one month cannot renumber another (a nupagamento is
+    -- (ug, nupagamento) so reloading one month cannot renumber another (a nupagamento
+    -- is
     -- confined to a single date).
     concat(
-        'SC-', trim(cdunidadegestora), '|', trim(nupagamento), '-',
+        'SC-',
+        trim(cdunidadegestora),
+        '|',
+        trim(nupagamento),
+        '-',
         row_number() over (
             partition by trim(cdunidadegestora), trim(nupagamento)
             order by

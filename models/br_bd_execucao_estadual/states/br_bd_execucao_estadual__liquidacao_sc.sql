@@ -4,12 +4,15 @@
 -- transparency portal (`visao=liquidacao`), 2011-2026, 10,295,205 rows.
 --
 -- SC carries the empenho of origin on every liquidação (`ugempenhooriginal`), so
--- `id_empenho_bd` joins `despesa`/`pagamento` natively on the composite key -- the same one
+-- `id_empenho_bd` joins `despesa`/`pagamento` natively on the composite key -- the
+-- same one
 -- used throughout SC (`450022|2011NE000085`), never the bare document number, which
--- restarts per unidade gestora. Retenção is a separate document here, included as its own
+-- restarts per unidade gestora. Retenção is a separate document here, included as its
+-- own
 -- row (see the note in `despesa_sc`).
 --
--- id_liquidacao_bd is a Data Basis surrogate (the SC/PE/PB pattern): the liquidação key plus
+-- id_liquidacao_bd is a Data Basis surrogate (the SC/PE/PB pattern): the liquidação
+-- key plus
 -- the line's position within it, sequenced within (ugliquidacao, nunotaliquidacao) so a
 -- monthly reload cannot renumber another.
 with
@@ -31,7 +34,11 @@ select
     ) as data,
     'SC' as sigla_uf,
     concat(
-        'SC-', trim(ugliquidacao), '|', trim(nunotaliquidacao), '-',
+        'SC-',
+        trim(ugliquidacao),
+        '|',
+        trim(nunotaliquidacao),
+        '-',
         row_number() over (
             partition by trim(ugliquidacao), trim(nunotaliquidacao)
             order by

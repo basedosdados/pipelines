@@ -17,6 +17,7 @@ Everything is written as STRING (house convention; the dbt model safe_casts). Da
 from the XLSX are emitted as 'YYYY-MM-DD HH:MM:SS' and whole numbers without a '.0'
 tail, via arrow, so safe_cast recovers them and NULL never becomes the string 'nan'.
 """
+
 from __future__ import annotations
 
 import csv
@@ -30,10 +31,24 @@ import openpyxl  # pyrefly: ignore [untyped-import]
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-IN = Path(os.environ.get("EXEC_ESTADUAL_DATA_DIR",
-          Path.home() / "Downloads" / "br_state_budget_data")) / "input"
-OUT = Path(os.environ.get("EXEC_ESTADUAL_DATA_DIR",
-           Path.home() / "Downloads" / "br_state_budget_data")) / "output"
+IN = (
+    Path(
+        os.environ.get(
+            "EXEC_ESTADUAL_DATA_DIR",
+            Path.home() / "Downloads" / "br_state_budget_data",
+        )
+    )
+    / "input"
+)
+OUT = (
+    Path(
+        os.environ.get(
+            "EXEC_ESTADUAL_DATA_DIR",
+            Path.home() / "Downloads" / "br_state_budget_data",
+        )
+    )
+    / "output"
+)
 
 RS_FILES = {
     "contratos-de-fornecimento-de-bens": "Fornecimento de Bens",
@@ -86,8 +101,13 @@ def clean_sc() -> int:
 
 def _read_rs_csv(raw: bytes) -> tuple[list[str], list[list[str]]]:
     txt = raw.decode("cp1252")
-    rdr = csv.reader(io.StringIO(txt), delimiter=";", quotechar='"',
-                     doublequote=True, escapechar="\\")
+    rdr = csv.reader(
+        io.StringIO(txt),
+        delimiter=";",
+        quotechar='"',
+        doublequote=True,
+        escapechar="\\",
+    )
     rows = list(rdr)
     # Lowercase the header: the four files disagree on case (Cod_Orgao vs cod_orgao,
     # UO vs uo), and BigQuery treats column names case-insensitively, so the variants
@@ -132,11 +152,15 @@ def clean_rs() -> int:
                 else:
                     data[h].append(None)
             total += 1
-    table = pa.table({h: pa.array(data[h], type=pa.string()) for h in superset})
+    table = pa.table(
+        {h: pa.array(data[h], type=pa.string()) for h in superset}
+    )
     dest = OUT / "rs_contrato"
     dest.mkdir(parents=True, exist_ok=True)
     pq.write_table(table, dest / "data.parquet", compression="snappy")
-    print(f"  rs_contrato: {total:,} rows, {len(superset)} cols, {ragged} ragged row(s)")
+    print(
+        f"  rs_contrato: {total:,} rows, {len(superset)} cols, {ragged} ragged row(s)"
+    )
     return total
 
 

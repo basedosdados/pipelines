@@ -46,14 +46,24 @@ select
     ) as data,
     'PB' as sigla_uf,
     -- One `numeroap` (ordem de pagamento) settles many liquidação lines, so
-    -- `<ano>-<ug>-<numeroap>` alone repeats (311,853 excess over 2015-2026). There is no
+    -- `<ano>-<ug>-<numeroap>` alone repeats (311,853 excess over 2015-2026). There is
+    -- no
     -- byte-identical duplicate row -- the composite
-    -- (ano, ug, numeroap, liquidacao, numeroempenho, valorpago, cnpjcpfcredor) is exactly
-    -- unique -- so the id is a Data Basis surrogate in the PE/SC pattern: the payment key
+    -- (ano, ug, numeroap, liquidacao, numeroempenho, valorpago, cnpjcpfcredor) is
+    -- exactly
+    -- unique -- so the id is a Data Basis surrogate in the PE/SC pattern: the payment
+    -- key
     -- plus the line's position within it, sequenced WITHIN (ano, ug, numeroap) so
-    -- reloading one month cannot renumber another (a numeroap is confined to one month).
+    -- reloading one month cannot renumber another (a numeroap is confined to one
+    -- month).
     concat(
-        'PB-', trim(ano), '-', trim(codigounidadegestora), '-', trim(numeroap), '-',
+        'PB-',
+        trim(ano),
+        '-',
+        trim(codigounidadegestora),
+        '-',
+        trim(numeroap),
+        '-',
         row_number() over (
             partition by trim(ano), trim(codigounidadegestora), trim(numeroap)
             order by

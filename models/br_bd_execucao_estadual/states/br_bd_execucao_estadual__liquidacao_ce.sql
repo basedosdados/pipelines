@@ -1,15 +1,20 @@
 {{ config(materialized="ephemeral") }}
 
--- Ceará liquidações, at the liquidação-document level. Source: Portal da Transparência do
+-- Ceará liquidações, at the liquidação-document level. Source: Portal da
+-- Transparência do
 -- Ceará, the liquidação exports (NLD), 2015-2026, 3,603,925 rows in two naming eras
 -- (constants.CE_SCHEMAS['liquidacao']): 2015-2017 and 2018-2026. Each row populates one
 -- era's columns, so every field is a COALESCE across them.
 --
--- **id_empenho_bd is NULL** -- CE's liquidação gestora code system does not resolve to the
--- empenho (only 120 of 982 gestora codes overlap and the empenho número fans out ~93x, so
--- no key joins reliably), the same limitation recorded in `despesa_ce` and `pagamento_ce`.
+-- **id_empenho_bd is NULL** -- CE's liquidação gestora code system does not resolve
+-- to the
+-- empenho (only 120 of 982 gestora codes overlap and the empenho número fans out
+-- ~93x, so
+-- no key joins reliably), the same limitation recorded in `despesa_ce` and
+-- `pagamento_ce`.
 -- `numero_empenho` carries the raw reference. valor_liquidado is net of the row's own
--- anulação column; `credor` is a name and the source publishes no creditor document here
+-- anulação column; `credor` is a name and the source publishes no creditor document
+-- here
 -- (only the ordenador's CPF, a different party), so documento_credor is null.
 with
     fonte as (
@@ -32,7 +37,9 @@ with
                 nullif(trim(numeroned), '')
             ) as numero_empenho,
             coalesce(
-                safe.parse_date('%Y-%m-%d', substr(trim(data_do_documento_da_despesa), 1, 10)),
+                safe.parse_date(
+                    '%Y-%m-%d', substr(trim(data_do_documento_da_despesa), 1, 10)
+                ),
                 safe.parse_date('%Y-%m-%d', substr(trim(datadocdespesa), 1, 10)),
                 safe.parse_date('%Y-%m-%d', substr(trim(data_emissao), 1, 10)),
                 safe.parse_date('%Y-%m-%d', substr(trim(dataemissao), 1, 10)),
@@ -48,9 +55,9 @@ with
                 nullif(trim(tipo_de_documento_da_despesa), ''),
                 nullif(trim(tipodocdespesa), '')
             ) as descricao,
-            safe_cast(replace(valor, ',', '.') as float64)
-            - coalesce(safe_cast(replace(valoranulado, ',', '.') as float64), 0)
-                as valor_liquidado
+            safe_cast(replace(valor, ',', '.') as float64) - coalesce(
+                safe_cast(replace(valoranulado, ',', '.') as float64), 0
+            ) as valor_liquidado
         from fonte
     )
 select
@@ -59,7 +66,13 @@ select
     data as data,
     'CE' as sigla_uf,
     concat(
-        'CE-', exe, '-', ug, '-', numero_liquidacao, '-',
+        'CE-',
+        exe,
+        '-',
+        ug,
+        '-',
+        numero_liquidacao,
+        '-',
         row_number() over (
             partition by exe, ug, numero_liquidacao
             order by numero_empenho, valor_liquidado, data

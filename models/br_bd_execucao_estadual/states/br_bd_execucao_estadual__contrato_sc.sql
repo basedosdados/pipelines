@@ -1,9 +1,12 @@
 {{ config(materialized="ephemeral") }}
 
--- Santa Catarina contracts. Source: sc_contrato staging, the dados.sc.gov.br "Contratos"
+-- Santa Catarina contracts. Source: sc_contrato staging, the dados.sc.gov.br
+-- "Contratos"
 -- package read from its XLSX (the CKAN CSV carries the same unquoted free-text defect
--- that made SC's empenho CSV unparseable, and there is no portal contrato view). One row
--- per contract; (unidade gestora, nucontrato) is unique. Dates are 'YYYY-MM-DD HH:MM:SS.s'
+-- that made SC's empenho CSV unparseable, and there is no portal contrato view). One
+-- row
+-- per contract; (unidade gestora, nucontrato) is unique. Dates are 'YYYY-MM-DD
+-- HH:MM:SS.s'
 -- and values dot-decimal; some DTFIMATUAL run to the year 3031 and are read as no date.
 with
     fonte as (
@@ -12,21 +15,21 @@ with
     ),
     base as (
         select
-            safe.parse_date('%Y-%m-%d', substr(trim(DTASSINATURA), 1, 10)) as dt_assin,
-            safe.parse_date('%Y-%m-%d', substr(trim(DTINICIO), 1, 10)) as dt_ini,
-            safe.parse_date('%Y-%m-%d', substr(trim(DTFIMATUAL), 1, 10)) as dt_fim,
-            nullif(trim(CDUNIDADEGESTORA), '') as id_ug,
-            nullif(trim(NMUNIDADEGESTORA), '') as nome_ug,
-            nullif(trim(NUCONTRATO), '') as numero_contrato,
-            nullif(trim(NUPROCESSO), '') as numero_processo,
-            nullif(trim(OBJETO), '') as objeto,
-            nullif(trim(NMMODALIDADE), '') as modalidade,
-            nullif(trim(DETIPOCONTRATO), '') as tipo_contrato,
-            nullif(trim(IDCONTRATADO), '') as documento_contratado,
-            nullif(trim(CONTRATADO), '') as nome_contratado,
-            nullif(trim(SITUACAO), '') as situacao,
-            safe_cast(replace(VLORIGINAL, ',', '.') as float64) as valor_inicial,
-            safe_cast(replace(VLATUAL, ',', '.') as float64) as valor_atual
+            safe.parse_date('%Y-%m-%d', substr(trim(dtassinatura), 1, 10)) as dt_assin,
+            safe.parse_date('%Y-%m-%d', substr(trim(dtinicio), 1, 10)) as dt_ini,
+            safe.parse_date('%Y-%m-%d', substr(trim(dtfimatual), 1, 10)) as dt_fim,
+            nullif(trim(cdunidadegestora), '') as id_ug,
+            nullif(trim(nmunidadegestora), '') as nome_ug,
+            nullif(trim(nucontrato), '') as numero_contrato,
+            nullif(trim(nuprocesso), '') as numero_processo,
+            nullif(trim(objeto), '') as objeto,
+            nullif(trim(nmmodalidade), '') as modalidade,
+            nullif(trim(detipocontrato), '') as tipo_contrato,
+            nullif(trim(idcontratado), '') as documento_contratado,
+            nullif(trim(contratado), '') as nome_contratado,
+            nullif(trim(situacao), '') as situacao,
+            safe_cast(replace(vloriginal, ',', '.') as float64) as valor_inicial,
+            safe_cast(replace(vlatual, ',', '.') as float64) as valor_atual
         from fonte
     )
 select
@@ -36,7 +39,11 @@ select
     end as ano,
     'SC' as sigla_uf,
     concat(
-        'SC-', coalesce(id_ug, 'SEMUG'), '-', numero_contrato, '-',
+        'SC-',
+        coalesce(id_ug, 'SEMUG'),
+        '-',
+        numero_contrato,
+        '-',
         row_number() over (
             partition by id_ug, numero_contrato
             order by dt_assin, valor_inicial, nome_contratado

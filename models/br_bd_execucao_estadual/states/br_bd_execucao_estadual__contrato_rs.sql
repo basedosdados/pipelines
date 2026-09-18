@@ -5,12 +5,15 @@
 -- locação, obras e serviços de engenharia, serviços de terceiros) unioned to the
 -- superset of their columns, with the file's type carried in `tipo_contrato`.
 --
--- The four files disagree on which dates and value column they publish: fornecimento and
--- obras give a publication date (`datapublicacaodoe`) and a free-text `vigencia`, locação
+-- The four files disagree on which dates and value column they publish: fornecimento
+-- and
+-- obras give a publication date (`datapublicacaodoe`) and a free-text `vigencia`,
+-- locação
 -- gives `datainiciovigencia`/`datafimvigencia`, serviços gives
 -- `datainiciovigenciacontrato`/`datafimvigenciacontrato` and `valorcontrato` instead of
 -- `valor`. RS publishes the contractor's NAME but no CNPJ, and no contract status, so
--- documento_contratado and situacao are null. Dates are %d/%m/%Y and values comma-decimal.
+-- documento_contratado and situacao are null. Dates are %d/%m/%Y and values
+-- comma-decimal.
 with
     fonte as (
         select *
@@ -18,17 +21,30 @@ with
     ),
     base as (
         select
-            safe.parse_date('%d/%m/%Y', substr(trim(datainiciovigencia), 1, 10)) as dt_ini_loc,
-            safe.parse_date('%d/%m/%Y', substr(trim(datainiciovigenciacontrato), 1, 10)) as dt_ini_serv,
-            safe.parse_date('%d/%m/%Y', substr(trim(datafimvigencia), 1, 10)) as dt_fim_loc,
-            safe.parse_date('%d/%m/%Y', substr(trim(datafimvigenciacontrato), 1, 10)) as dt_fim_serv,
-            safe.parse_date('%d/%m/%Y', substr(trim(datapublicacaodoe), 1, 10)) as dt_doe,
+            safe.parse_date(
+                '%d/%m/%Y', substr(trim(datainiciovigencia), 1, 10)
+            ) as dt_ini_loc,
+            safe.parse_date(
+                '%d/%m/%Y', substr(trim(datainiciovigenciacontrato), 1, 10)
+            ) as dt_ini_serv,
+            safe.parse_date(
+                '%d/%m/%Y', substr(trim(datafimvigencia), 1, 10)
+            ) as dt_fim_loc,
+            safe.parse_date(
+                '%d/%m/%Y', substr(trim(datafimvigenciacontrato), 1, 10)
+            ) as dt_fim_serv,
+            safe.parse_date(
+                '%d/%m/%Y', substr(trim(datapublicacaodoe), 1, 10)
+            ) as dt_doe,
             nullif(trim(cod_orgao), '') as id_ug,
             nullif(trim(orgao), '') as nome_ug,
             nullif(trim(numerocontrato), '') as numero_contrato,
             nullif(trim(numeroprocesso), '') as numero_processo,
             nullif(trim(objeto), '') as objeto,
-            coalesce(nullif(trim(tipoprocedimento), ''), nullif(trim(procedimentolicitatorio), '')) as modalidade,
+            coalesce(
+                nullif(trim(tipoprocedimento), ''),
+                nullif(trim(procedimentolicitatorio), '')
+            ) as modalidade,
             nullif(trim(tipo_contrato), '') as tipo_contrato,
             nullif(trim(contratada), '') as nome_contratado,
             coalesce(
@@ -39,12 +55,18 @@ with
     )
 select
     case
-        when extract(year from coalesce(dt_ini_loc, dt_ini_serv, dt_doe)) between 1990 and 2030
+        when
+            extract(year from coalesce(dt_ini_loc, dt_ini_serv, dt_doe))
+            between 1990 and 2030
         then extract(year from coalesce(dt_ini_loc, dt_ini_serv, dt_doe))
     end as ano,
     'RS' as sigla_uf,
     concat(
-        'RS-', coalesce(id_ug, 'SEMUG'), '-', numero_contrato, '-',
+        'RS-',
+        coalesce(id_ug, 'SEMUG'),
+        '-',
+        numero_contrato,
+        '-',
         row_number() over (
             partition by id_ug, numero_contrato
             order by tipo_contrato, valor, nome_contratado
