@@ -1,3 +1,4 @@
+-- PR #1693: ignore_values id_municipio 9999994/9999999 (schema.yml)
 {{ config(alias="evolucao_mensal_cisp", schema="br_rj_isp_estatisticas_seguranca") }}
 select
     safe_cast(ano as int64) ano,

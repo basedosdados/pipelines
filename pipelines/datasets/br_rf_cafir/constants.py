@@ -21,11 +21,6 @@ class constants(Enum):
         "Priority": "u=0, i",
     }
 
-    PATH = [
-        "/tmp/input/br_rf_cafir",
-        "/tmp/output/br_rf_cafir",
-    ]
-
     TABLE = ["imoveis_rurais"]
 
     COLUMN_NAMES = [

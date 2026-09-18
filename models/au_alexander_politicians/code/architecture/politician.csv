@@ -1,0 +1,22 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_politician,STRING,"Identificador único do político, geralmente sobrenome seguido do ano de nascimento",,no,,,no,,uniqueID
+id_wikidata,STRING,Identificador do político na Wikidata (código Q),,no,,,no,,wikidataID
+id_aph,STRING,Identificador do político no Parliamentary Handbook do Parlamento da Austrália (APH),,no,,,no,Incorporado a partir do arquivo uniqueID_to_aphID.csv (relação 1:1); 5 identificadores do arquivo de origem sem correspondência na tabela principal foram descartados,aphID
+surname,STRING,Sobrenome do político,,no,,,no,,surname
+all_other_names,STRING,Demais nomes do político,,no,,,no,,allOtherNames
+first_name,STRING,Primeiro nome do político,,no,,,no,,firstName
+common_name,STRING,"Nome pelo qual o político era mais conhecido, quando diferente do primeiro nome",,no,,,no,,commonName
+display_name,STRING,"Nome de exibição, composto por sobrenome e nome comum ou primeiro nome",,no,,,no,,displayName
+earlier_or_later_names,STRING,"Nomes anteriores ou posteriores, usados sobretudo para registrar mudança de nome após casamento",,no,,,no,,earlierOrLaterNames
+title,STRING,"Título honorífico do político (Dr, Sir, Dame), usado de forma inconsistente na fonte",,no,,,no,,title
+gender,STRING,Gênero do político,,no,,,no,,gender
+birth_date,DATE,Data de nascimento do político,,no,,,no,Vazia quando apenas o ano de nascimento é conhecido; ver birth_year,birthDate
+birth_year,INT64,"Ano de nascimento do político, preenchido apenas quando a data completa é desconhecida",,no,,year,no,,birthYear
+birth_place,STRING,"Local de nascimento do político, majoritariamente extraído da Wikidata",,no,,,no,,birthPlace
+death_date,DATE,Data de falecimento do político,,no,,,no,,deathDate
+indicator_member,BOOLEAN,Indica se o político foi membro da Câmara dos Representantes (câmara baixa),,no,,,no,,member
+indicator_senator,BOOLEAN,Indica se o político foi membro do Senado (câmara alta),,no,,,no,,senator
+indicator_prime_minister,BOOLEAN,Indica se o político foi Primeiro-Ministro da Austrália,,no,,,no,"Na fonte, apenas o valor 1 aparece; ausência foi preenchida como false",wasPrimeMinister
+url_wikipedia,STRING,URL da página do político na Wikipédia,,no,,,no,,wikipedia
+url_adb,STRING,URL da entrada do político no Australian Dictionary of Biography (ADB),,no,,,no,,adb
+comments,STRING,Comentários e ressalvas sobre o registro do político,,no,,,no,,comments

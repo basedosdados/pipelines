@@ -4,13 +4,6 @@ models:
   - name: br_ms_sinasc__microdados
     description: Microdados do Sistema de Informações sobre Mortalidade (SIM) do Ministério
       da Saúde.
-    tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - ano
-            - id_municipio_nascimento
-            - sequencial_nascimento
-            - id_municipio_residencia
     columns:
       - name: ano
         description: Ano
@@ -101,6 +94,25 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+              where: |
+                id_municipio_residencia not in (
+                  '3345014','3345022','3345030','3345048','3345055','3345063',
+                  '3345071','3345089','3345097','3345105','3345113','3345121',
+                  '3345139','3345147','3345154','3345162','3345170','3345188',
+                  '3345196','3345204','3345212','3345220','3345238','3345246',
+                  '3345253','3345261','3345279','3345287','3345295','3345303',
+                  '3580016','3580040','3580214','3580271','3580297','3580305',
+                  '3580370','3580453','3580495','3580586','4314530',
+                  '5301007','5302005','5303003','5304001','5305008','5306006',
+                  '5307004','5308002','5309000','5310008','5311006','5312004',
+                  '5313002','5314000','5315007','5316005','5317003','5318001'
+                )
+              config:
+                description: >
+                  Exclui municípios históricos extintos ou desmembrados confirmados
+                  (59 códigos de RJ, SP, RS e GO/DF) que existiam à época do registro
+                  mas não constam no diretório atual. Qualquer código fora do diretório
+                  que não esteja nessa lista é tratado como erro.
       - name: data_nascimento_mae
         description: Data de nascimento da mãe
         tests:

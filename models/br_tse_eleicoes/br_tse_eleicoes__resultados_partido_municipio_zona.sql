@@ -32,3 +32,6 @@ from
             "br_tse_eleicoes_staging.resultados_partido_municipio_zona"
         )
     }} as t
+
+    -- Rematerialized from the refactored pipeline (PR #1476).
+    

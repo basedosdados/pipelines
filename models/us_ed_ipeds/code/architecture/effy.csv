@@ -1,0 +1,152 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the survey data collection (fall of academic year for most components),,no,br_bd_diretorios_data_tempo.ano:ano,,no,,
+unitid,INT64,Unique identification number of the institution,,no,,,no,,unitid
+effyalev,FLOAT64,Level and degree/certificate-seeking status of student,,no,,,no,,effyalev
+effylev,INT64,Undergraduate or graduate level of student,,no,,,no,,effylev
+lstudy,INT64,Original level of study on survey form,,no,,,no,,lstudy
+xeytotlt,STRING,Imputation field for EFYTOTLT - Grand total,,no,,,no,,xeytotlt
+efytotlt,FLOAT64,Grand total,,no,,,no,,efytotlt
+xeytotlm,STRING,Imputation field for EFYTOTLM - Grand total men,,no,,,no,,xeytotlm
+efytotlm,FLOAT64,Grand total men,,no,,,no,,efytotlm
+xeytotlw,STRING,Imputation field for EFYTOTLW - Grand total women,,no,,,no,,xeytotlw
+efytotlw,FLOAT64,Grand total women,,no,,,no,,efytotlw
+xefyaiat,STRING,Imputation field for EFYAIANT - American Indian or Alaska Native total,,no,,,no,,xefyaiat
+efyaiant,FLOAT64,American Indian or Alaska Native total,,no,,,no,,efyaiant
+xefyaiam,STRING,Imputation field for EFYAIANM - American Indian or Alaska Native men,,no,,,no,,xefyaiam
+efyaianm,FLOAT64,American Indian or Alaska Native men,,no,,,no,,efyaianm
+xefyaiaw,STRING,Imputation field for EFYAIANW - American Indian or Alaska Native women,,no,,,no,,xefyaiaw
+efyaianw,FLOAT64,American Indian or Alaska Native women,,no,,,no,,efyaianw
+xefyasit,STRING,Imputation field for EFYASIAT - Asian total,,no,,,no,,xefyasit
+efyasiat,FLOAT64,Asian total,,no,,,no,,efyasiat
+xefyasim,STRING,Imputation field for EFYASIAM - Asian men,,no,,,no,,xefyasim
+efyasiam,FLOAT64,Asian men,,no,,,no,,efyasiam
+xefyasiw,STRING,Imputation field for EFYASIAW - Asian women,,no,,,no,,xefyasiw
+efyasiaw,FLOAT64,Asian women,,no,,,no,,efyasiaw
+xefybkat,STRING,Imputation field for EFYBKAAT - Black or African American total,,no,,,no,,xefybkat
+efybkaat,FLOAT64,Black or African American total,,no,,,no,,efybkaat
+xefybkam,STRING,Imputation field for EFYBKAAM - Black or African American men,,no,,,no,,xefybkam
+efybkaam,FLOAT64,Black or African American men,,no,,,no,,efybkaam
+xefybkaw,STRING,Imputation field for EFYBKAAW - Black or African American women,,no,,,no,,xefybkaw
+efybkaaw,FLOAT64,Black or African American women,,no,,,no,,efybkaaw
+xefyhist,STRING,Imputation field for EFYHISPT - Hispanic or Latino total,,no,,,no,,xefyhist
+efyhispt,FLOAT64,Hispanic or Latino total,,no,,,no,,efyhispt
+xefyhism,STRING,Imputation field for EFYHISPM - Hispanic or Latino men,,no,,,no,,xefyhism
+efyhispm,FLOAT64,Hispanic or Latino men,,no,,,no,,efyhispm
+xefyhisw,STRING,Imputation field for EFYHISPW - Hispanic or Latino women,,no,,,no,,xefyhisw
+efyhispw,FLOAT64,Hispanic or Latino women,,no,,,no,,efyhispw
+xefynhpt,STRING,Imputation field for EFYNHPIT - Native Hawaiian or Other Pacific Islander total,,no,,,no,,xefynhpt
+efynhpit,FLOAT64,Native Hawaiian or Other Pacific Islander total,,no,,,no,,efynhpit
+xefynhpm,STRING,Imputation field for EFYNHPIM - Native Hawaiian or Other Pacific Islander men,,no,,,no,,xefynhpm
+efynhpim,FLOAT64,Native Hawaiian or Other Pacific Islander men,,no,,,no,,efynhpim
+xefynhpw,STRING,Imputation field for EFYNHPIW - Native Hawaiian or Other Pacific Islander women,,no,,,no,,xefynhpw
+efynhpiw,FLOAT64,Native Hawaiian or Other Pacific Islander women,,no,,,no,,efynhpiw
+xefywhit,STRING,Imputation field for EFYWHITT - White total,,no,,,no,,xefywhit
+efywhitt,FLOAT64,White total,,no,,,no,,efywhitt
+xefywhim,STRING,Imputation field for EFYWHITM - White men,,no,,,no,,xefywhim
+efywhitm,FLOAT64,White men,,no,,,no,,efywhitm
+xefywhiw,STRING,Imputation field for EFYWHITW - White women,,no,,,no,,xefywhiw
+efywhitw,FLOAT64,White women,,no,,,no,,efywhitw
+xefy2mot,STRING,Imputation field for EFY2MORT - Two or more races total,,no,,,no,,xefy2mot
+efy2mort,FLOAT64,Two or more races total,,no,,,no,,efy2mort
+xefy2mom,STRING,Imputation field for EFY2MORM - Two or more races men,,no,,,no,,xefy2mom
+efy2morm,FLOAT64,Two or more races men,,no,,,no,,efy2morm
+xefy2mow,STRING,Imputation field for EFY2MORW - Two or more races women,,no,,,no,,xefy2mow
+efy2morw,FLOAT64,Two or more races women,,no,,,no,,efy2morw
+xeyunknt,STRING,Imputation field for EFYUNKNT - Race/ethnicity unknown total,,no,,,no,,xeyunknt
+efyunknt,FLOAT64,Race/ethnicity unknown total,,no,,,no,,efyunknt
+xeyunknm,STRING,Imputation field for EFYUNKNM - Race/ethnicity unknown men,,no,,,no,,xeyunknm
+efyunknm,FLOAT64,Race/ethnicity unknown men,,no,,,no,,efyunknm
+xeyunknw,STRING,Imputation field for EFYUNKNW - Race/ethnicity unknown women,,no,,,no,,xeyunknw
+efyunknw,FLOAT64,Race/ethnicity unknown women,,no,,,no,,efyunknw
+xeynralt,STRING,Imputation field for EFYNRALT - U.S. Nonresident total,,no,,,no,,xeynralt
+efynralt,FLOAT64,U.S. Nonresident total,,no,,,no,,efynralt
+xeynralm,STRING,Imputation field for EFYNRALM - U.S. Nonresident men,,no,,,no,,xeynralm
+efynralm,FLOAT64,U.S. Nonresident men,,no,,,no,,efynralm
+xeynralw,STRING,Imputation field for EFYNRALW - U.S. Nonresident women,,no,,,no,,xeynralw
+efynralw,FLOAT64,U.S. Nonresident women,,no,,,no,,efynralw
+xefyguun,STRING,Imputation field for EFYGUUN - Gender unknown,,no,,,no,,xefyguun
+efyguun,STRING,Gender unknown,,no,,,no,,efyguun
+xefyguan,STRING,Imputation field for EFYGUAN - Another gender,,no,,,no,,xefyguan
+efyguan,STRING,Another gender,,no,,,no,,efyguan
+xefyguto,STRING,Imputation field for EFYGUTOT - Total of gender unknown and  another gender,,no,,,no,,xefyguto
+efygutot,STRING,Total of gender unknown and  another gender,,no,,,no,,efygutot
+xefygukn,STRING,Imputation field for EFYGUKN - Total gender reported as one of the mutually exclusive binary categories (Men/Women),,no,,,no,,xefygukn
+efygukn,STRING,Total gender reported as one of the mutually exclusive binary categories (Men/Women),,no,,,no,,efygukn
+xfyrac03,STRING,Imputation field for FYRACE03 - Black non-Hispanic men - old,,no,,,no,,xfyrac03
+fyrace03,FLOAT64,Black non-Hispanic men - old,,no,,,no,,fyrace03
+xfyrac04,STRING,Imputation field for FYRACE04 - Black non-Hispanic women - old,,no,,,no,,xfyrac04
+fyrace04,FLOAT64,Black non-Hispanic women - old,,no,,,no,,fyrace04
+xfyrac05,STRING,Imputation field for FYRACE05 - American Indian or Alaska Native men - old,,no,,,no,,xfyrac05
+fyrace05,FLOAT64,American Indian or Alaska Native men - old,,no,,,no,,fyrace05
+xfyrac06,STRING,Imputation field for FYRACE06 - American Indian or Alaska Native women - old,,no,,,no,,xfyrac06
+fyrace06,FLOAT64,American Indian or Alaska Native women - old,,no,,,no,,fyrace06
+xfyrac07,STRING,Imputation field for FYRACE07 - Asian or Pacific Islander men - old,,no,,,no,,xfyrac07
+fyrace07,FLOAT64,Asian or Pacific Islander men - old,,no,,,no,,fyrace07
+xfyrac08,STRING,Imputation field for FYRACE08 - Asian or Pacific Islander women - old,,no,,,no,,xfyrac08
+fyrace08,FLOAT64,Asian or Pacific Islander women - old,,no,,,no,,fyrace08
+xfyrac09,STRING,Imputation field for FYRACE09 - Hispanic men - old,,no,,,no,,xfyrac09
+fyrace09,FLOAT64,Hispanic men - old,,no,,,no,,fyrace09
+xfyrac10,STRING,Imputation field for FYRACE10 - Hispanic women - old,,no,,,no,,xfyrac10
+fyrace10,FLOAT64,Hispanic women - old,,no,,,no,,fyrace10
+xfyrac11,STRING,Imputation field for FYRACE11 - White non-Hispanic men - old,,no,,,no,,xfyrac11
+fyrace11,FLOAT64,White non-Hispanic men - old,,no,,,no,,fyrace11
+xfyrac12,STRING,Imputation field for FYRACE12 - White non-Hispanic women - old,,no,,,no,,xfyrac12
+fyrace12,FLOAT64,White non-Hispanic women - old,,no,,,no,,fyrace12
+xfyrac18,STRING,Imputation field for FYRACE18 - Black non-Hispanic  total - old,,no,,,no,,xfyrac18
+fyrace18,FLOAT64,Black non-Hispanic  total - old,,no,,,no,,fyrace18
+xfyrac19,STRING,Imputation field for FYRACE19 - American Indian or Alaska Native total - old,,no,,,no,,xfyrac19
+fyrace19,FLOAT64,American Indian or Alaska Native total - old,,no,,,no,,fyrace19
+xfyrac20,STRING,Imputation field for FYRACE20 - Asian or Pacific Islander total - old,,no,,,no,,xfyrac20
+fyrace20,FLOAT64,Asian or Pacific Islander total - old,,no,,,no,,fyrace20
+xfyrac21,STRING,Imputation field for FYRACE21 - Hispanic total - old,,no,,,no,,xfyrac21
+fyrace21,FLOAT64,Hispanic total - old,,no,,,no,,fyrace21
+xfyrac22,STRING,Imputation field for FYRACE22 - White non-Hispanic total - old,,no,,,no,,xfyrac22
+fyrace22,FLOAT64,White non-Hispanic total - old,,no,,,no,,fyrace22
+xdveyait,STRING,Imputation field for DVEYAIT - American Indian or Alaska Native total - derived,,no,,,no,,xdveyait
+dveyait,FLOAT64,American Indian or Alaska Native total - derived,,no,,,no,,dveyait
+xdveyaim,STRING,Imputation field for DVEYAIM - American Indian or Alaska Native men - derived,,no,,,no,,xdveyaim
+dveyaim,FLOAT64,American Indian or Alaska Native men - derived,,no,,,no,,dveyaim
+xdveyaiw,STRING,Imputation field for DVEYAIW - American Indian or Alaska Native women - derived,,no,,,no,,xdveyaiw
+dveyaiw,FLOAT64,American Indian or Alaska Native women - derived,,no,,,no,,dveyaiw
+xdveyapt,STRING,Imputation field for DVEYAPT - Asian/Native Hawaiian/Other Pacific Islander total - derived,,no,,,no,,xdveyapt
+dveyapt,FLOAT64,Asian/Native Hawaiian/Other Pacific Islander total - derived,,no,,,no,,dveyapt
+xdveyapm,STRING,Imputation field for DVEYAPM - Asian/Native Hawaiian/Other Pacific Islander men - derived,,no,,,no,,xdveyapm
+dveyapm,FLOAT64,Asian/Native Hawaiian/Other Pacific Islander men - derived,,no,,,no,,dveyapm
+xdveyapw,STRING,Imputation field for DVEYAPW - Asian/Native Hawaiian/Other Pacific Islander women - derived,,no,,,no,,xdveyapw
+dveyapw,FLOAT64,Asian/Native Hawaiian/Other Pacific Islander women - derived,,no,,,no,,dveyapw
+xdveybkt,STRING,Imputation field for DVEYBKT - Black or African American/Black non-Hispanic total - derived,,no,,,no,,xdveybkt
+dveybkt,FLOAT64,Black or African American/Black non-Hispanic total - derived,,no,,,no,,dveybkt
+xdveybkm,STRING,Imputation field for DVEYBKM - Black or African American/Black non-Hispanic men - derived,,no,,,no,,xdveybkm
+dveybkm,FLOAT64,Black or African American/Black non-Hispanic men - derived,,no,,,no,,dveybkm
+xdveybkw,STRING,Imputation field for DVEYBKW - Black or African American/Black non-Hispanic women - derived,,no,,,no,,xdveybkw
+dveybkw,FLOAT64,Black or African American/Black non-Hispanic women - derived,,no,,,no,,dveybkw
+xdveyhst,STRING,Imputation field for DVEYHST - Hispanic or Latino/Hispanic  total - derived,,no,,,no,,xdveyhst
+dveyhst,FLOAT64,Hispanic or Latino/Hispanic  total - derived,,no,,,no,,dveyhst
+xdveyhsm,STRING,Imputation field for DVEYHSM - Hispanic or Latino/Hispanic  men - derived,,no,,,no,,xdveyhsm
+dveyhsm,FLOAT64,Hispanic or Latino/Hispanic  men - derived,,no,,,no,,dveyhsm
+xdveyhsw,STRING,Imputation field for DVEYHSW - Hispanic or Latino/Hispanic  women - derived,,no,,,no,,xdveyhsw
+dveyhsw,FLOAT64,Hispanic or Latino/Hispanic  women - derived,,no,,,no,,dveyhsw
+xdveywht,STRING,Imputation field for DVEYWHT - White/White non-Hispanic total - derived,,no,,,no,,xdveywht
+dveywht,FLOAT64,White/White non-Hispanic total - derived,,no,,,no,,dveywht
+xdveywhm,STRING,Imputation field for DVEYWHM - White/White non-Hispanic men - derived,,no,,,no,,xdveywhm
+dveywhm,FLOAT64,White/White non-Hispanic men - derived,,no,,,no,,dveywhm
+xdveywhw,STRING,Imputation field for DVEYWHW - White/White non-Hispanic women - derived,,no,,,no,,xdveywhw
+dveywhw,FLOAT64,White/White non-Hispanic women - derived,,no,,,no,,dveywhw
+xfyrac01,STRING,Imputation field for FYRACE01 - Nonresident alien men,,no,,,no,,xfyrac01
+fyrace01,FLOAT64,Nonresident alien men,,no,,,no,,fyrace01
+xfyrac02,STRING,Imputation field for FYRACE02 - Nonresident alien women,,no,,,no,,xfyrac02
+fyrace02,FLOAT64,Nonresident alien women,,no,,,no,,fyrace02
+xfyrac13,STRING,Imputation field for FYRACE13 - Race/ethnicity unknown men,,no,,,no,,xfyrac13
+fyrace13,FLOAT64,Race/ethnicity unknown men,,no,,,no,,fyrace13
+xfyrac14,STRING,Imputation field for FYRACE14 - Race/ethnicity unknown women,,no,,,no,,xfyrac14
+fyrace14,FLOAT64,Race/ethnicity unknown women,,no,,,no,,fyrace14
+xfyrac15,STRING,Imputation field for FYRACE15 - Grand total men,,no,,,no,,xfyrac15
+fyrace15,FLOAT64,Grand total men,,no,,,no,,fyrace15
+xfyrac16,STRING,Imputation field for FYRACE16 - Grand total women,,no,,,no,,xfyrac16
+fyrace16,FLOAT64,Grand total women,,no,,,no,,fyrace16
+xfyrac17,STRING,Imputation field for FYRACE17 - Nonresident alien total,,no,,,no,,xfyrac17
+fyrace17,FLOAT64,Nonresident alien total,,no,,,no,,fyrace17
+xfyrac23,STRING,Imputation field for FYRACE23 - Race/ethnicity unknown total,,no,,,no,,xfyrac23
+fyrace23,FLOAT64,Race/ethnicity unknown total,,no,,,no,,fyrace23
+xfyrac24,STRING,Imputation field for FYRACE24 - Grand total,,no,,,no,,xfyrac24
+fyrace24,FLOAT64,Grand total,,no,,,no,,fyrace24

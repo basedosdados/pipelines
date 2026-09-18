@@ -4,18 +4,17 @@ Deffining table schemas in constants.py is a common practice in our repo
 This validator should be easily integrated within several pipelines
 """
 
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, model_validator
 
 
 class TableSchemaValidator(BaseModel):
     source_columns: set[str]
     expected_columns: set[str]
 
-    @root_validator(pre=False)
-    @classmethod
-    def validate_columns(cls, values):
-        source = values.get("source_columns")
-        expected = values.get("expected_columns")
+    @model_validator(mode="after")
+    def validate_columns(self):
+        source = self.source_columns
+        expected = self.expected_columns
 
         missing = expected - source
 
@@ -31,7 +30,7 @@ class TableSchemaValidator(BaseModel):
                 f"There are columns in the source schema being ignorated. {extra}"
             )
 
-        return values
+        return self
 
 
 def validate_schema(source_columns: list[str], expected_columns: list[str]):

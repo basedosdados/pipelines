@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,
+date,DATE,Calendar date of the recorded incidents,,no,,,no,,Date
+offence_category,STRING,BOCSAR offence category mapped from the published offence label,,no,,,no,Mapped from the leaf offence label via the offence hierarchy,
+offence_subcategory,STRING,Offence label as published in the daily file (leaf of the offence hierarchy),,no,,,no,,
+incidents,INT64,Number of criminal incidents recorded by the NSW Police Force,,no,,incident,no,,

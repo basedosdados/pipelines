@@ -1,0 +1,868 @@
+---
+version: 2
+models:
+  - name: us_census_cbp__national
+    description: 'County Business Patterns, national totals: establishments, employment
+      (week of March 12) and payroll by 6-digit NAICS industry and legal form of organization,
+      with breakdowns by establishment employment-size class, annual 1998-2023.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, naics, lfo]
+      - not_null_proportion_multiple_columns:
+          at_least: 1.0
+          ignore_values:
+            - employment_flag
+            - employment_noise_flag
+            - payroll_first_quarter_noise_flag
+            - payroll_annual_noise_flag
+            - establishments_1_4
+            - employment_1_4
+            - employment_1_4_flag
+            - employment_1_4_noise_flag
+            - payroll_first_quarter_1_4
+            - payroll_first_quarter_1_4_noise_flag
+            - payroll_annual_1_4
+            - payroll_annual_1_4_noise_flag
+            - establishments_5_9
+            - employment_5_9
+            - employment_5_9_flag
+            - employment_5_9_noise_flag
+            - payroll_first_quarter_5_9
+            - payroll_first_quarter_5_9_noise_flag
+            - payroll_annual_5_9
+            - payroll_annual_5_9_noise_flag
+            - establishments_10_19
+            - employment_10_19
+            - employment_10_19_flag
+            - employment_10_19_noise_flag
+            - payroll_first_quarter_10_19
+            - payroll_first_quarter_10_19_noise_flag
+            - payroll_annual_10_19
+            - payroll_annual_10_19_noise_flag
+            - establishments_20_49
+            - employment_20_49
+            - employment_20_49_flag
+            - employment_20_49_noise_flag
+            - payroll_first_quarter_20_49
+            - payroll_first_quarter_20_49_noise_flag
+            - payroll_annual_20_49
+            - payroll_annual_20_49_noise_flag
+            - establishments_50_99
+            - employment_50_99
+            - employment_50_99_flag
+            - employment_50_99_noise_flag
+            - payroll_first_quarter_50_99
+            - payroll_first_quarter_50_99_noise_flag
+            - payroll_annual_50_99
+            - payroll_annual_50_99_noise_flag
+            - establishments_100_249
+            - employment_100_249
+            - employment_100_249_flag
+            - employment_100_249_noise_flag
+            - payroll_first_quarter_100_249
+            - payroll_first_quarter_100_249_noise_flag
+            - payroll_annual_100_249
+            - payroll_annual_100_249_noise_flag
+            - establishments_250_499
+            - employment_250_499
+            - employment_250_499_flag
+            - employment_250_499_noise_flag
+            - payroll_first_quarter_250_499
+            - payroll_first_quarter_250_499_noise_flag
+            - payroll_annual_250_499
+            - payroll_annual_250_499_noise_flag
+            - establishments_500_999
+            - employment_500_999
+            - employment_500_999_flag
+            - employment_500_999_noise_flag
+            - payroll_first_quarter_500_999
+            - payroll_first_quarter_500_999_noise_flag
+            - payroll_annual_500_999
+            - payroll_annual_500_999_noise_flag
+            - establishments_1000
+            - employment_1000
+            - employment_1000_flag
+            - employment_1000_noise_flag
+            - payroll_first_quarter_1000
+            - payroll_first_quarter_1000_noise_flag
+            - payroll_annual_1000
+            - payroll_annual_1000_noise_flag
+    columns:
+      - name: year
+        description: Reference year
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: naics
+        description: NAICS industry code at its published aggregation level (2 to
+          6 digits); vintage varies by year, see naics_version
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__naics_1997')
+              field: id_naics
+              config:
+                where: naics_version = '1997'
+              ignore_values: ['95', '99']
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__naics_2002')
+              field: id_naics
+              config:
+                where: naics_version = '2002'
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__naics_2007')
+              field: id_naics
+              config:
+                where: naics_version = '2007'
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__naics_2012')
+              field: id_naics
+              config:
+                where: naics_version = '2012'
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__naics_2017')
+              field: id_naics
+              config:
+                where: naics_version = '2017'
+      - name: naics_version
+        description: NAICS classification vintage the code follows (1997, 2002, 2007,
+          2012, 2017)
+      - name: lfo
+        description: Legal form of organization of the establishments
+      - name: establishments
+        description: Number of establishments
+      - name: employment
+        description: Number of paid employees during the week of March 12
+      - name: employment_flag
+        description: Data-suppression flag marking the employment-size range of a
+          withheld cell (1998 to 2016 suppression era)
+      - name: employment_noise_flag
+        description: Noise-infusion flag for employment from 2017 onward; G, H, J
+          indicate increasing noise, D and S indicate withheld
+      - name: payroll_first_quarter
+        description: First-quarter payroll in current U.S. dollars
+      - name: payroll_first_quarter_noise_flag
+        description: Noise-infusion flag for first-quarter payroll
+      - name: payroll_annual
+        description: Annual payroll in current U.S. dollars
+      - name: payroll_annual_noise_flag
+        description: Noise-infusion flag for annual payroll
+      - name: establishments_1_4
+        description: Number of establishments with 1 to 4 employees
+      - name: employment_1_4
+        description: Number of paid employees during the week of March 12 in establishments
+          with 1 to 4 employees
+      - name: employment_1_4_flag
+        description: Data-suppression flag for employment in establishments with 1
+          to 4 employees
+      - name: employment_1_4_noise_flag
+        description: Noise-infusion flag for employment in establishments with 1 to
+          4 employees
+      - name: payroll_first_quarter_1_4
+        description: First-quarter payroll in current U.S. dollars for establishments
+          with 1 to 4 employees
+      - name: payroll_first_quarter_1_4_noise_flag
+        description: Noise-infusion flag for first-quarter payroll in establishments
+          with 1 to 4 employees
+      - name: payroll_annual_1_4
+        description: Annual payroll in current U.S. dollars for establishments with
+          1 to 4 employees
+      - name: payroll_annual_1_4_noise_flag
+        description: Noise-infusion flag for annual payroll in establishments with
+          1 to 4 employees
+      - name: establishments_5_9
+        description: Number of establishments with 5 to 9 employees
+      - name: employment_5_9
+        description: Number of paid employees during the week of March 12 in establishments
+          with 5 to 9 employees
+      - name: employment_5_9_flag
+        description: Data-suppression flag for employment in establishments with 5
+          to 9 employees
+      - name: employment_5_9_noise_flag
+        description: Noise-infusion flag for employment in establishments with 5 to
+          9 employees
+      - name: payroll_first_quarter_5_9
+        description: First-quarter payroll in current U.S. dollars for establishments
+          with 5 to 9 employees
+      - name: payroll_first_quarter_5_9_noise_flag
+        description: Noise-infusion flag for first-quarter payroll in establishments
+          with 5 to 9 employees
+      - name: payroll_annual_5_9
+        description: Annual payroll in current U.S. dollars for establishments with
+          5 to 9 employees
+      - name: payroll_annual_5_9_noise_flag
+        description: Noise-infusion flag for annual payroll in establishments with
+          5 to 9 employees
+      - name: establishments_10_19
+        description: Number of establishments with 10 to 19 employees
+      - name: employment_10_19
+        description: Number of paid employees during the week of March 12 in establishments
+          with 10 to 19 employees
+      - name: employment_10_19_flag
+        description: Data-suppression flag for employment in establishments with 10
+          to 19 employees
+      - name: employment_10_19_noise_flag
+        description: Noise-infusion flag for employment in establishments with 10
+          to 19 employees
+      - name: payroll_first_quarter_10_19
+        description: First-quarter payroll in current U.S. dollars for establishments
+          with 10 to 19 employees
+      - name: payroll_first_quarter_10_19_noise_flag
+        description: Noise-infusion flag for first-quarter payroll in establishments
+          with 10 to 19 employees
+      - name: payroll_annual_10_19
+        description: Annual payroll in current U.S. dollars for establishments with
+          10 to 19 employees
+      - name: payroll_annual_10_19_noise_flag
+        description: Noise-infusion flag for annual payroll in establishments with
+          10 to 19 employees
+      - name: establishments_20_49
+        description: Number of establishments with 20 to 49 employees
+      - name: employment_20_49
+        description: Number of paid employees during the week of March 12 in establishments
+          with 20 to 49 employees
+      - name: employment_20_49_flag
+        description: Data-suppression flag for employment in establishments with 20
+          to 49 employees
+      - name: employment_20_49_noise_flag
+        description: Noise-infusion flag for employment in establishments with 20
+          to 49 employees
+      - name: payroll_first_quarter_20_49
+        description: First-quarter payroll in current U.S. dollars for establishments
+          with 20 to 49 employees
+      - name: payroll_first_quarter_20_49_noise_flag
+        description: Noise-infusion flag for first-quarter payroll in establishments
+          with 20 to 49 employees
+      - name: payroll_annual_20_49
+        description: Annual payroll in current U.S. dollars for establishments with
+          20 to 49 employees
+      - name: payroll_annual_20_49_noise_flag
+        description: Noise-infusion flag for annual payroll in establishments with
+          20 to 49 employees
+      - name: establishments_50_99
+        description: Number of establishments with 50 to 99 employees
+      - name: employment_50_99
+        description: Number of paid employees during the week of March 12 in establishments
+          with 50 to 99 employees
+      - name: employment_50_99_flag
+        description: Data-suppression flag for employment in establishments with 50
+          to 99 employees
+      - name: employment_50_99_noise_flag
+        description: Noise-infusion flag for employment in establishments with 50
+          to 99 employees
+      - name: payroll_first_quarter_50_99
+        description: First-quarter payroll in current U.S. dollars for establishments
+          with 50 to 99 employees
+      - name: payroll_first_quarter_50_99_noise_flag
+        description: Noise-infusion flag for first-quarter payroll in establishments
+          with 50 to 99 employees
+      - name: payroll_annual_50_99
+        description: Annual payroll in current U.S. dollars for establishments with
+          50 to 99 employees
+      - name: payroll_annual_50_99_noise_flag
+        description: Noise-infusion flag for annual payroll in establishments with
+          50 to 99 employees
+      - name: establishments_100_249
+        description: Number of establishments with 100 to 249 employees
+      - name: employment_100_249
+        description: Number of paid employees during the week of March 12 in establishments
+          with 100 to 249 employees
+      - name: employment_100_249_flag
+        description: Data-suppression flag for employment in establishments with 100
+          to 249 employees
+      - name: employment_100_249_noise_flag
+        description: Noise-infusion flag for employment in establishments with 100
+          to 249 employees
+      - name: payroll_first_quarter_100_249
+        description: First-quarter payroll in current U.S. dollars for establishments
+          with 100 to 249 employees
+      - name: payroll_first_quarter_100_249_noise_flag
+        description: Noise-infusion flag for first-quarter payroll in establishments
+          with 100 to 249 employees
+      - name: payroll_annual_100_249
+        description: Annual payroll in current U.S. dollars for establishments with
+          100 to 249 employees
+      - name: payroll_annual_100_249_noise_flag
+        description: Noise-infusion flag for annual payroll in establishments with
+          100 to 249 employees
+      - name: establishments_250_499
+        description: Number of establishments with 250 to 499 employees
+      - name: employment_250_499
+        description: Number of paid employees during the week of March 12 in establishments
+          with 250 to 499 employees
+      - name: employment_250_499_flag
+        description: Data-suppression flag for employment in establishments with 250
+          to 499 employees
+      - name: employment_250_499_noise_flag
+        description: Noise-infusion flag for employment in establishments with 250
+          to 499 employees
+      - name: payroll_first_quarter_250_499
+        description: First-quarter payroll in current U.S. dollars for establishments
+          with 250 to 499 employees
+      - name: payroll_first_quarter_250_499_noise_flag
+        description: Noise-infusion flag for first-quarter payroll in establishments
+          with 250 to 499 employees
+      - name: payroll_annual_250_499
+        description: Annual payroll in current U.S. dollars for establishments with
+          250 to 499 employees
+      - name: payroll_annual_250_499_noise_flag
+        description: Noise-infusion flag for annual payroll in establishments with
+          250 to 499 employees
+      - name: establishments_500_999
+        description: Number of establishments with 500 to 999 employees
+      - name: employment_500_999
+        description: Number of paid employees during the week of March 12 in establishments
+          with 500 to 999 employees
+      - name: employment_500_999_flag
+        description: Data-suppression flag for employment in establishments with 500
+          to 999 employees
+      - name: employment_500_999_noise_flag
+        description: Noise-infusion flag for employment in establishments with 500
+          to 999 employees
+      - name: payroll_first_quarter_500_999
+        description: First-quarter payroll in current U.S. dollars for establishments
+          with 500 to 999 employees
+      - name: payroll_first_quarter_500_999_noise_flag
+        description: Noise-infusion flag for first-quarter payroll in establishments
+          with 500 to 999 employees
+      - name: payroll_annual_500_999
+        description: Annual payroll in current U.S. dollars for establishments with
+          500 to 999 employees
+      - name: payroll_annual_500_999_noise_flag
+        description: Noise-infusion flag for annual payroll in establishments with
+          500 to 999 employees
+      - name: establishments_1000
+        description: Number of establishments with 1,000 or more employees
+      - name: employment_1000
+        description: Number of paid employees during the week of March 12 in establishments
+          with 1,000 or more employees
+      - name: employment_1000_flag
+        description: Data-suppression flag for employment in establishments with 1,000
+          or more employees
+      - name: employment_1000_noise_flag
+        description: Noise-infusion flag for employment in establishments with 1,000
+          or more employees
+      - name: payroll_first_quarter_1000
+        description: First-quarter payroll in current U.S. dollars for establishments
+          with 1,000 or more employees
+      - name: payroll_first_quarter_1000_noise_flag
+        description: Noise-infusion flag for first-quarter payroll in establishments
+          with 1,000 or more employees
+      - name: payroll_annual_1000
+        description: Annual payroll in current U.S. dollars for establishments with
+          1,000 or more employees
+      - name: payroll_annual_1000_noise_flag
+        description: Noise-infusion flag for annual payroll in establishments with
+          1,000 or more employees
+  - name: us_census_cbp__state
+    description: 'County Business Patterns, by state: establishments, employment (week
+      of March 12) and payroll by state, NAICS industry and legal form of organization,
+      with breakdowns by establishment employment-size class, annual 1998-2023.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, id_state, naics, lfo]
+          config:
+            where: __most_recent_year_en__
+      - not_null_proportion_multiple_columns:
+          at_least: 1.0
+          ignore_values:
+            - employment_flag
+            - employment_noise_flag
+            - payroll_first_quarter_noise_flag
+            - payroll_annual_noise_flag
+            - establishments_1_4
+            - employment_1_4
+            - employment_1_4_flag
+            - employment_1_4_noise_flag
+            - payroll_first_quarter_1_4
+            - payroll_first_quarter_1_4_noise_flag
+            - payroll_annual_1_4
+            - payroll_annual_1_4_noise_flag
+            - establishments_5_9
+            - employment_5_9
+            - employment_5_9_flag
+            - employment_5_9_noise_flag
+            - payroll_first_quarter_5_9
+            - payroll_first_quarter_5_9_noise_flag
+            - payroll_annual_5_9
+            - payroll_annual_5_9_noise_flag
+            - establishments_10_19
+            - employment_10_19
+            - employment_10_19_flag
+            - employment_10_19_noise_flag
+            - payroll_first_quarter_10_19
+            - payroll_first_quarter_10_19_noise_flag
+            - payroll_annual_10_19
+            - payroll_annual_10_19_noise_flag
+            - establishments_20_49
+            - employment_20_49
+            - employment_20_49_flag
+            - employment_20_49_noise_flag
+            - payroll_first_quarter_20_49
+            - payroll_first_quarter_20_49_noise_flag
+            - payroll_annual_20_49
+            - payroll_annual_20_49_noise_flag
+            - establishments_50_99
+            - employment_50_99
+            - employment_50_99_flag
+            - employment_50_99_noise_flag
+            - payroll_first_quarter_50_99
+            - payroll_first_quarter_50_99_noise_flag
+            - payroll_annual_50_99
+            - payroll_annual_50_99_noise_flag
+            - establishments_100_249
+            - employment_100_249
+            - employment_100_249_flag
+            - employment_100_249_noise_flag
+            - payroll_first_quarter_100_249
+            - payroll_first_quarter_100_249_noise_flag
+            - payroll_annual_100_249
+            - payroll_annual_100_249_noise_flag
+            - establishments_250_499
+            - employment_250_499
+            - employment_250_499_flag
+            - employment_250_499_noise_flag
+            - payroll_first_quarter_250_499
+            - payroll_first_quarter_250_499_noise_flag
+            - payroll_annual_250_499
+            - payroll_annual_250_499_noise_flag
+            - establishments_500_999
+            - employment_500_999
+            - employment_500_999_flag
+            - employment_500_999_noise_flag
+            - payroll_first_quarter_500_999
+            - payroll_first_quarter_500_999_noise_flag
+            - payroll_annual_500_999
+            - payroll_annual_500_999_noise_flag
+            - establishments_1000
+            - employment_1000
+            - employment_1000_flag
+            - employment_1000_noise_flag
+            - payroll_first_quarter_1000
+            - payroll_first_quarter_1000_noise_flag
+            - payroll_annual_1000
+            - payroll_annual_1000_noise_flag
+          config:
+            where: __most_recent_year_en__
+    columns:
+      - name: year
+        description: Reference year
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+              config:
+                where: __most_recent_year_en__
+      - name: id_state
+        description: FIPS state code
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+              config:
+                where: __most_recent_year_en__
+      - name: naics
+        description: NAICS industry code at its published aggregation level (2 to
+          6 digits); vintage varies by year, see naics_version
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__naics_2017')
+              field: id_naics
+              config:
+                where: __most_recent_year_en__
+      - name: naics_version
+        description: NAICS classification vintage the code follows (1997, 2002, 2007,
+          2012, 2017)
+      - name: lfo
+        description: Legal form of organization of the establishments
+      - name: establishments
+        description: Number of establishments
+      - name: employment
+        description: Number of paid employees during the week of March 12
+      - name: employment_flag
+        description: Data-suppression flag marking the employment-size range of a
+          withheld cell (1998 to 2016 suppression era)
+      - name: employment_noise_flag
+        description: Noise-infusion flag for employment from 2017 onward; G, H, J
+          indicate increasing noise, D and S indicate withheld
+      - name: payroll_first_quarter
+        description: First-quarter payroll in current U.S. dollars
+      - name: payroll_first_quarter_noise_flag
+        description: Noise-infusion flag for first-quarter payroll
+      - name: payroll_annual
+        description: Annual payroll in current U.S. dollars
+      - name: payroll_annual_noise_flag
+        description: Noise-infusion flag for annual payroll
+      - name: establishments_1_4
+        description: Number of establishments with 1 to 4 employees
+      - name: employment_1_4
+        description: Number of paid employees during the week of March 12 in establishments
+          with 1 to 4 employees
+      - name: employment_1_4_flag
+        description: Data-suppression flag for employment in establishments with 1
+          to 4 employees
+      - name: employment_1_4_noise_flag
+        description: Noise-infusion flag for employment in establishments with 1 to
+          4 employees
+      - name: payroll_first_quarter_1_4
+        description: First-quarter payroll in current U.S. dollars for establishments
+          with 1 to 4 employees
+      - name: payroll_first_quarter_1_4_noise_flag
+        description: Noise-infusion flag for first-quarter payroll in establishments
+          with 1 to 4 employees
+      - name: payroll_annual_1_4
+        description: Annual payroll in current U.S. dollars for establishments with
+          1 to 4 employees
+      - name: payroll_annual_1_4_noise_flag
+        description: Noise-infusion flag for annual payroll in establishments with
+          1 to 4 employees
+      - name: establishments_5_9
+        description: Number of establishments with 5 to 9 employees
+      - name: employment_5_9
+        description: Number of paid employees during the week of March 12 in establishments
+          with 5 to 9 employees
+      - name: employment_5_9_flag
+        description: Data-suppression flag for employment in establishments with 5
+          to 9 employees
+      - name: employment_5_9_noise_flag
+        description: Noise-infusion flag for employment in establishments with 5 to
+          9 employees
+      - name: payroll_first_quarter_5_9
+        description: First-quarter payroll in current U.S. dollars for establishments
+          with 5 to 9 employees
+      - name: payroll_first_quarter_5_9_noise_flag
+        description: Noise-infusion flag for first-quarter payroll in establishments
+          with 5 to 9 employees
+      - name: payroll_annual_5_9
+        description: Annual payroll in current U.S. dollars for establishments with
+          5 to 9 employees
+      - name: payroll_annual_5_9_noise_flag
+        description: Noise-infusion flag for annual payroll in establishments with
+          5 to 9 employees
+      - name: establishments_10_19
+        description: Number of establishments with 10 to 19 employees
+      - name: employment_10_19
+        description: Number of paid employees during the week of March 12 in establishments
+          with 10 to 19 employees
+      - name: employment_10_19_flag
+        description: Data-suppression flag for employment in establishments with 10
+          to 19 employees
+      - name: employment_10_19_noise_flag
+        description: Noise-infusion flag for employment in establishments with 10
+          to 19 employees
+      - name: payroll_first_quarter_10_19
+        description: First-quarter payroll in current U.S. dollars for establishments
+          with 10 to 19 employees
+      - name: payroll_first_quarter_10_19_noise_flag
+        description: Noise-infusion flag for first-quarter payroll in establishments
+          with 10 to 19 employees
+      - name: payroll_annual_10_19
+        description: Annual payroll in current U.S. dollars for establishments with
+          10 to 19 employees
+      - name: payroll_annual_10_19_noise_flag
+        description: Noise-infusion flag for annual payroll in establishments with
+          10 to 19 employees
+      - name: establishments_20_49
+        description: Number of establishments with 20 to 49 employees
+      - name: employment_20_49
+        description: Number of paid employees during the week of March 12 in establishments
+          with 20 to 49 employees
+      - name: employment_20_49_flag
+        description: Data-suppression flag for employment in establishments with 20
+          to 49 employees
+      - name: employment_20_49_noise_flag
+        description: Noise-infusion flag for employment in establishments with 20
+          to 49 employees
+      - name: payroll_first_quarter_20_49
+        description: First-quarter payroll in current U.S. dollars for establishments
+          with 20 to 49 employees
+      - name: payroll_first_quarter_20_49_noise_flag
+        description: Noise-infusion flag for first-quarter payroll in establishments
+          with 20 to 49 employees
+      - name: payroll_annual_20_49
+        description: Annual payroll in current U.S. dollars for establishments with
+          20 to 49 employees
+      - name: payroll_annual_20_49_noise_flag
+        description: Noise-infusion flag for annual payroll in establishments with
+          20 to 49 employees
+      - name: establishments_50_99
+        description: Number of establishments with 50 to 99 employees
+      - name: employment_50_99
+        description: Number of paid employees during the week of March 12 in establishments
+          with 50 to 99 employees
+      - name: employment_50_99_flag
+        description: Data-suppression flag for employment in establishments with 50
+          to 99 employees
+      - name: employment_50_99_noise_flag
+        description: Noise-infusion flag for employment in establishments with 50
+          to 99 employees
+      - name: payroll_first_quarter_50_99
+        description: First-quarter payroll in current U.S. dollars for establishments
+          with 50 to 99 employees
+      - name: payroll_first_quarter_50_99_noise_flag
+        description: Noise-infusion flag for first-quarter payroll in establishments
+          with 50 to 99 employees
+      - name: payroll_annual_50_99
+        description: Annual payroll in current U.S. dollars for establishments with
+          50 to 99 employees
+      - name: payroll_annual_50_99_noise_flag
+        description: Noise-infusion flag for annual payroll in establishments with
+          50 to 99 employees
+      - name: establishments_100_249
+        description: Number of establishments with 100 to 249 employees
+      - name: employment_100_249
+        description: Number of paid employees during the week of March 12 in establishments
+          with 100 to 249 employees
+      - name: employment_100_249_flag
+        description: Data-suppression flag for employment in establishments with 100
+          to 249 employees
+      - name: employment_100_249_noise_flag
+        description: Noise-infusion flag for employment in establishments with 100
+          to 249 employees
+      - name: payroll_first_quarter_100_249
+        description: First-quarter payroll in current U.S. dollars for establishments
+          with 100 to 249 employees
+      - name: payroll_first_quarter_100_249_noise_flag
+        description: Noise-infusion flag for first-quarter payroll in establishments
+          with 100 to 249 employees
+      - name: payroll_annual_100_249
+        description: Annual payroll in current U.S. dollars for establishments with
+          100 to 249 employees
+      - name: payroll_annual_100_249_noise_flag
+        description: Noise-infusion flag for annual payroll in establishments with
+          100 to 249 employees
+      - name: establishments_250_499
+        description: Number of establishments with 250 to 499 employees
+      - name: employment_250_499
+        description: Number of paid employees during the week of March 12 in establishments
+          with 250 to 499 employees
+      - name: employment_250_499_flag
+        description: Data-suppression flag for employment in establishments with 250
+          to 499 employees
+      - name: employment_250_499_noise_flag
+        description: Noise-infusion flag for employment in establishments with 250
+          to 499 employees
+      - name: payroll_first_quarter_250_499
+        description: First-quarter payroll in current U.S. dollars for establishments
+          with 250 to 499 employees
+      - name: payroll_first_quarter_250_499_noise_flag
+        description: Noise-infusion flag for first-quarter payroll in establishments
+          with 250 to 499 employees
+      - name: payroll_annual_250_499
+        description: Annual payroll in current U.S. dollars for establishments with
+          250 to 499 employees
+      - name: payroll_annual_250_499_noise_flag
+        description: Noise-infusion flag for annual payroll in establishments with
+          250 to 499 employees
+      - name: establishments_500_999
+        description: Number of establishments with 500 to 999 employees
+      - name: employment_500_999
+        description: Number of paid employees during the week of March 12 in establishments
+          with 500 to 999 employees
+      - name: employment_500_999_flag
+        description: Data-suppression flag for employment in establishments with 500
+          to 999 employees
+      - name: employment_500_999_noise_flag
+        description: Noise-infusion flag for employment in establishments with 500
+          to 999 employees
+      - name: payroll_first_quarter_500_999
+        description: First-quarter payroll in current U.S. dollars for establishments
+          with 500 to 999 employees
+      - name: payroll_first_quarter_500_999_noise_flag
+        description: Noise-infusion flag for first-quarter payroll in establishments
+          with 500 to 999 employees
+      - name: payroll_annual_500_999
+        description: Annual payroll in current U.S. dollars for establishments with
+          500 to 999 employees
+      - name: payroll_annual_500_999_noise_flag
+        description: Noise-infusion flag for annual payroll in establishments with
+          500 to 999 employees
+      - name: establishments_1000
+        description: Number of establishments with 1,000 or more employees
+      - name: employment_1000
+        description: Number of paid employees during the week of March 12 in establishments
+          with 1,000 or more employees
+      - name: employment_1000_flag
+        description: Data-suppression flag for employment in establishments with 1,000
+          or more employees
+      - name: employment_1000_noise_flag
+        description: Noise-infusion flag for employment in establishments with 1,000
+          or more employees
+      - name: payroll_first_quarter_1000
+        description: First-quarter payroll in current U.S. dollars for establishments
+          with 1,000 or more employees
+      - name: payroll_first_quarter_1000_noise_flag
+        description: Noise-infusion flag for first-quarter payroll in establishments
+          with 1,000 or more employees
+      - name: payroll_annual_1000
+        description: Annual payroll in current U.S. dollars for establishments with
+          1,000 or more employees
+      - name: payroll_annual_1000_noise_flag
+        description: Noise-infusion flag for annual payroll in establishments with
+          1,000 or more employees
+  - name: us_census_cbp__county
+    description: 'County Business Patterns, by county: establishments, employment
+      (week of March 12) and payroll by county and NAICS industry, with establishment
+      counts by employment-size class, annual 1998-2023. Two documented source characteristics:
+      (a) a county part of 999 marks establishments not allocated to a specific county
+      (statewide), and early years use the county vintage of their reference year
+      (pre-2022 Connecticut counties, dissolved Alaska boroughs, Dade County FL),
+      so about 1.2% of rows do not match the current county directory; (b) the 1999
+      source file repeats a block for FIPS 01045 (Dale County, AL), leaving one conflicting
+      duplicate key at NAICS 62111 out of 48.7M rows.'
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, id_county, naics]
+          config:
+            where: __most_recent_year_en__
+      - not_null_proportion_multiple_columns:
+          at_least: 1.0
+          ignore_values:
+            - employment_flag
+            - employment_noise_flag
+            - payroll_first_quarter_noise_flag
+            - payroll_annual_noise_flag
+            - establishments_1_4
+            - establishments_5_9
+            - establishments_10_19
+            - establishments_20_49
+            - establishments_50_99
+            - establishments_100_249
+            - establishments_250_499
+            - establishments_500_999
+            - establishments_1000
+            - establishments_1000_1499
+            - establishments_1500_2499
+            - establishments_2500_4999
+            - establishments_5000_more
+          config:
+            where: __most_recent_year_en__
+    columns:
+      - name: year
+        description: Reference year
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+              config:
+                where: __most_recent_year_en__
+      - name: id_state
+        description: FIPS state code
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: id_state
+              config:
+                where: __most_recent_year_en__
+      - name: id_county
+        description: FIPS county code, five digits (state + county); a county part
+          of 999 means establishments not allocated to a specific county (statewide)
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+              proportion_allowed_failures: 0.02
+              config:
+                where: __most_recent_year_en__
+      - name: naics
+        description: NAICS industry code at its published aggregation level (2 to
+          6 digits); vintage varies by year, see naics_version
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__naics_2017')
+              field: id_naics
+              config:
+                where: __most_recent_year_en__
+      - name: naics_version
+        description: NAICS classification vintage the code follows (1997, 2002, 2007,
+          2012, 2017)
+      - name: establishments
+        description: Number of establishments
+      - name: employment
+        description: Number of paid employees during the week of March 12
+      - name: employment_flag
+        description: Data-suppression flag marking the employment-size range of a
+          withheld cell (1998 to 2016 suppression era)
+      - name: employment_noise_flag
+        description: Noise-infusion flag for employment from 2017 onward; G, H, J
+          indicate increasing noise, D and S indicate withheld
+      - name: payroll_first_quarter
+        description: First-quarter payroll in current U.S. dollars
+      - name: payroll_first_quarter_noise_flag
+        description: Noise-infusion flag for first-quarter payroll
+      - name: payroll_annual
+        description: Annual payroll in current U.S. dollars
+      - name: payroll_annual_noise_flag
+        description: Noise-infusion flag for annual payroll
+      - name: establishments_1_4
+        description: Number of establishments with 1 to 4 employees
+      - name: establishments_5_9
+        description: Number of establishments with 5 to 9 employees
+      - name: establishments_10_19
+        description: Number of establishments with 10 to 19 employees
+      - name: establishments_20_49
+        description: Number of establishments with 20 to 49 employees
+      - name: establishments_50_99
+        description: Number of establishments with 50 to 99 employees
+      - name: establishments_100_249
+        description: Number of establishments with 100 to 249 employees
+      - name: establishments_250_499
+        description: Number of establishments with 250 to 499 employees
+      - name: establishments_500_999
+        description: Number of establishments with 500 to 999 employees
+      - name: establishments_1000
+        description: Number of establishments with 1,000 or more employees
+      - name: establishments_1000_1499
+        description: Number of establishments with 1,000 to 1,499 employees
+      - name: establishments_1500_2499
+        description: Number of establishments with 1,500 to 2,499 employees
+      - name: establishments_2500_4999
+        description: Number of establishments with 2,500 to 4,999 employees
+      - name: establishments_5000_more
+        description: Number of establishments with 5,000 or more employees
+  - name: us_census_cbp__dicionario
+    description: Dictionary of coded values used across the us_census_cbp tables (legal
+      form of organization, NAICS vintage, and disclosure/noise flags).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 1.0
+    columns:
+      - name: id_tabela
+        description: Table name the key belongs to
+        tests: [not_null]
+      - name: nome_coluna
+        description: Column name the key belongs to
+        tests: [not_null]
+      - name: chave
+        description: Coded value as stored in the data
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: Temporal coverage of the key
+      - name: valor
+        description: Human-readable label of the coded value
+        tests: [not_null]

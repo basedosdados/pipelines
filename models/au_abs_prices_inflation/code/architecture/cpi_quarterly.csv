@@ -1,0 +1,10 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the index observation,1948(1)2026,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,
+quarter,INT64,"Reference quarter of the index observation, from 1 to 4",,no,,quarter,no,ABS labels each quarter by its final month (Q1 March, Q2 June, Q3 September, Q4 December),
+region,STRING,Capital city of the price collection or the national aggregate,,no,,,no,"Values are the eight capital cities plus Australia; for the CPI, Australia denotes the weighted average of the eight capital cities. Could map to a GCCSA geography directory in the future",region
+index_code,STRING,ABS Consumer Price Index item code identifying the expenditure category,,no,,,no,"ABS CL_CPI_INDEX code (e.g. 10001 = All groups CPI); identifies the product observation level. For the eight names ABS repeats at two hierarchy levels with identical values, the higher-level (parent) code is used",
+index_name,STRING,Consumer Price Index item label in the ABS expenditure hierarchy,,no,,,no,"124 items from All groups CPI down through the 11 groups, sub-groups and expenditure classes; preserved in ABS hierarchical order",index_name
+serie_id,STRING,ABS time series identifier of the index-number series,,no,,,no,Stable ABS Series ID (A-code) for the index number series of this item and region; unique per item and region (the series key),serie_id
+index_number,FLOAT64,Original Consumer Price Index level for the item and region relative to the ABS reference base period,,no,,index,no,Not seasonally adjusted; ABS re-references all series to a common base period,index_value
+percentage_change_period,FLOAT64,Percentage change in the index from the previous quarter,,no,,percent,no,Computed by Data Basis from the index series; QA-checked against ABS-published quarterly change,
+percentage_change_year,FLOAT64,Percentage change in the index from the same quarter of the previous year,,no,,percent,no,Computed by Data Basis from the index series,

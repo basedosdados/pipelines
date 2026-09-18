@@ -1,0 +1,11 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the quarterly observation,1981(1)2025,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,
+quarter,INT64,"Reference quarter of the observation, from 1 to 4",,no,,quarter,no,"ABS labels each quarter by its final month (Q1 March, Q2 June, Q3 September, Q4 December)",
+geography_level,STRING,"Geographic level of the row, either state or australia",,no,,,no,"australia marks the national aggregate, which is not a state and therefore carries a null state_id; state marks one of the eight states and territories",
+state_id,STRING,Code of the Australian state or territory,,no,br_bd_diretorios_au.state:id_state,,no,"Null on national (australia) rows, which are not a state",
+region_name,STRING,"Name of the state, territory or national aggregate as published by the ABS",,no,,,no,,Data Item Description
+sex,STRING,Sex of the population counted,,no,,,no,"Male, Female or Persons; series that ABS does not break down by sex are reported as Persons, which is what they count",Data Item Description
+measure,STRING,Demographic measure reported by the series,,no,,,no,"Includes estimated_resident_population, natural_increase, net_overseas_migration, net_interstate_migration, births, deaths and the interstate and overseas movement flows",Data Item Description
+unit,STRING,Unit the value is published in,,no,,,no,"Persons or Number for the state-level series, 000 for the Australia-only series ABS publishes in thousands, and Percent for the percentage change series. Where the same measure was published in both thousands and persons, the persons figure is kept",Unit
+series_id,STRING,ABS series identifier of the observation,,no,,,no,Foreign key to the au_abs_population series table,Series ID
+value,FLOAT64,Observed value of the series for the quarter,,no,,,no,"Unit varies by row and is given by the unit column, so no fixed measurement unit is set here",

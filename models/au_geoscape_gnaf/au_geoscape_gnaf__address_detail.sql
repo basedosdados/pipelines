@@ -1,0 +1,60 @@
+{{
+    config(
+        schema="au_geoscape_gnaf",
+        alias="address_detail",
+        materialized="incremental",
+        partition_by={
+            "field": "snapshot_date",
+            "data_type": "date",
+        },
+        cluster_by=["year", "id_state"],
+    )
+}}
+select
+    safe_cast(snapshot_date as date) snapshot_date,
+    safe_cast(extract(year from date(snapshot_date)) as int64) year,
+    safe_cast(id_state as string) id_state,
+    safe_cast(address_detail_pid as string) address_detail_pid,
+    safe_cast(date_created as date) date_created,
+    safe_cast(date_last_modified as date) date_last_modified,
+    safe_cast(date_retired as date) date_retired,
+    safe_cast(building_name as string) building_name,
+    safe_cast(lot_number_prefix as string) lot_number_prefix,
+    safe_cast(lot_number as string) lot_number,
+    safe_cast(lot_number_suffix as string) lot_number_suffix,
+    safe_cast(flat_type as string) flat_type,
+    safe_cast(flat_number_prefix as string) flat_number_prefix,
+    safe_cast(flat_number as string) flat_number,
+    safe_cast(flat_number_suffix as string) flat_number_suffix,
+    safe_cast(level_type as string) level_type,
+    safe_cast(level_number_prefix as string) level_number_prefix,
+    safe_cast(level_number as string) level_number,
+    safe_cast(level_number_suffix as string) level_number_suffix,
+    safe_cast(number_first_prefix as string) number_first_prefix,
+    safe_cast(number_first as string) number_first,
+    safe_cast(number_first_suffix as string) number_first_suffix,
+    safe_cast(number_last_prefix as string) number_last_prefix,
+    safe_cast(number_last as string) number_last,
+    safe_cast(number_last_suffix as string) number_last_suffix,
+    safe_cast(street_locality_pid as string) street_locality_pid,
+    safe_cast(location_description as string) location_description,
+    safe_cast(locality_pid as string) locality_pid,
+    safe_cast(alias_principal as string) alias_principal,
+    safe_cast(postcode as string) postcode,
+    safe_cast(private_street as string) private_street,
+    safe_cast(legal_parcel_id as string) legal_parcel_id,
+    safe_cast(confidence as string) confidence,
+    safe_cast(address_site_pid as string) address_site_pid,
+    safe_cast(level_geocoded as string) level_geocoded,
+    safe_cast(property_pid as string) property_pid,
+    safe_cast(gnaf_property_pid as string) gnaf_property_pid,
+    safe_cast(primary_secondary as string) primary_secondary,
+    safe_cast(geocode_type as string) geocode_type,
+    safe_cast(longitude as float64) longitude,
+    safe_cast(latitude as float64) latitude,
+    safe_cast(id_mb_2016 as string) id_mb_2016,
+    safe_cast(id_mb_2021 as string) id_mb_2021
+from {{ set_datalake_project("au_geoscape_gnaf_staging.address_detail") }} as t
+{% if is_incremental() %}
+    where safe_cast(snapshot_date as date) > (select max(snapshot_date) from {{ this }})
+{% endif %}

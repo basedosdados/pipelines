@@ -152,6 +152,7 @@ if __name__ == "__main__":
     for json_path in JSON_FALTANTES:
         print(f"ANO = {json_path.stem}")
         print("Criando DataFrame com os dados do arquivo...")
+        # pyrefly: ignore [no-matching-overload]
         df = pd.DataFrame.from_dict(parse_file(json_path), dtype=str)
         print("Transformando o DataFrame...")
         df = transform_df(df)

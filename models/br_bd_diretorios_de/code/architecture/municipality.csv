@@ -1,0 +1,5 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_municipality,STRING,"Municipality identifier, 8-digit Amtlicher Gemeindeschlüssel (AGS)",,no,,,no,,id_municipality
+id_county,STRING,"County identifier, 5-digit Kreisschlüssel",,no,br_bd_diretorios_de.county:id_county,,no,,id_county
+id_state,STRING,"State identifier, 2-digit Land code",,no,br_bd_diretorios_de.state:id_state,,no,,id_state
+name,STRING,Municipality name in German,,no,,,no,,name

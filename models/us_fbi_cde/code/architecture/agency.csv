@@ -1,0 +1,32 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,"Ano de referência dos dados, usado como coluna de partição",,no,diretorios_data_tempo.ano:ano,year,no,,data_year
+ori,STRING,"Originating Agency Identifier, o identificador da agência policial no programa UCR e a chave de junção entre as tabelas",,no,,,no,"Nove caracteres: o ORI de sete caracteres do NCIC seguido de um sufixo de duas posições que identifica a subunidade, '00' para a própria agência. Nine characters: the seven-character NCIC ORI followed by a two-digit sub-unit suffix, '00' for the agency itself.",ori
+state_id,STRING,"Código FIPS de duas posições do estado, distrito ou território",,no,diretorios_us.state:id_state,,no,Derivado na limpeza a partir da sigla do estado. Derived during cleaning from the state abbreviation.,state_abbr
+state_abbr,STRING,"Sigla de duas letras do estado, distrito ou território da agência",,no,,,no,,state_abbr
+county_id,STRING,Código FIPS de cinco posições do condado principal da agência,,no,diretorios_us.county:id_county,,no,A fonte publica apenas o nome do condado; o código é obtido na limpeza pelo cruzamento com a lista ANSI de condados do Census e é nulo quando o nome não tem correspondência única. The source publishes county names only; the code is matched during cleaning against the Census ANSI county list and is null when the name has no unique match.,county_name
+county_name,STRING,"Nome do condado principal atendido pela agência, tal como publicado",,no,,,no,Agências que atendem mais de um condado aparecem com os nomes separados por vírgula. Agencies serving more than one county appear with the names separated by commas.,county_name
+agency_name,STRING,Nome público da agência policial,,no,,,no,,pub_agency_name
+agency_unit,STRING,"Unidade ou subdivisão da agência, quando a agência reporta por unidade",,no,,,no,,pub_agency_unit
+agency_type,STRING,"Tipo de agência, por exemplo cidade, condado, universidade ou polícia estadual",,no,,,no,,agency_type_name
+division_name,STRING,Divisão censitária dos Estados Unidos em que a agência se localiza,,no,,,no,,division_name
+region_name,STRING,Região censitária dos Estados Unidos em que a agência se localiza,,no,,,no,,region_name
+population_group_code,STRING,"Código do grupo populacional do UCR, que classifica a agência por porte e tipo de jurisdição",,yes,,,no,,population_group_code
+population_group_description,STRING,Descrição do grupo populacional do UCR,,no,,,no,,population_group_desc
+core_city_flag,STRING,Indica se a agência atende a cidade núcleo de uma área metropolitana,,yes,,,no,,core_city_indication
+population,INT64,População residente coberta pela jurisdição da agência no ano,,no,,inhabitant,no,,population
+officer_count,INT64,Número de policiais juramentados empregados pela agência,,no,,person,no,,officer_ct
+civilian_count,INT64,Número de funcionários civis empregados pela agência,,no,,person,no,,civilian_ct
+employee_count,INT64,"Número total de empregados da agência, somando policiais e civis",,no,,person,no,,total_pe_ct
+male_officer_count,INT64,Número de policiais juramentados do sexo masculino,,no,,person,no,,male_officer_ct
+male_civilian_count,INT64,Número de funcionários civis do sexo masculino,,no,,person,no,,male_cilvilian_ct
+female_officer_count,INT64,Número de policiais juramentados do sexo feminino,,no,,person,no,,female_officer_ct
+female_civilian_count,INT64,Número de funcionárias civis do sexo feminino,,no,,person,no,,female_cilvilian_ct
+employee_per_1000_inhabitants,FLOAT64,Empregados da agência por mil habitantes da jurisdição,,no,,employee_per_1000_inhabitants,no,,pe_ct_per_1000
+summary_months_reported,INT64,"Último mês do ano para o qual a agência enviou o formulário resumido Return A, de 0 a 12",,no,,month,no,"É o mês mais alto recebido, não a contagem de meses completos: uma agência que só enviou outubro também registra 10. Use com 'population' para construir pesos de cobertura. This is the highest month received, not a count of complete months: an agency that filed only October also records 10. Use together with 'population' to build coverage weights.",number_of_months_reported
+nibrs_months_reported,INT64,"Número de meses do ano em que a agência enviou um relatório NIBRS de incidente ou um relatório zero, de 0 a 12",,no,,month,no,Calculado na limpeza a partir da tabela mensal do NIBRS. Derived during cleaning from the NIBRS monthly table.,nibrs_month
+nibrs_participated,STRING,Indica se a agência participou do NIBRS no ano,,yes,,,no,,nibrs_participated
+nibrs_start_date,DATE,Data em que a agência começou a enviar dados no formato NIBRS,,no,,,no,,nibrs_start_date
+covered_by_ori,STRING,ORI da agência que envia os dados de criminalidade em nome desta agência,,no,,,no,"Quando preenchido, os crimes desta agência estão contados na agência indicada e somá-las duplica os registros. When populated, this agency's crimes are counted under the named agency and summing both double counts.",covered_by
+officer_killed_felonious_count,INT64,Número de policiais mortos por atos criminosos no ano,,no,,person,no,,number_of_officers_killed_by_felonious_acts
+officer_killed_accidental_count,INT64,Número de policiais mortos por atos acidentais ou negligentes no ano,,no,,person,no,,number_of_officers_killed_accidental
+officer_assaulted_count,INT64,Número de agressões contra policiais registradas no ano,,no,,assault,no,,number_of_officers_assaulted

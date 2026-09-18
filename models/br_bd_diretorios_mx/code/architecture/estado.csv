@@ -1,0 +1,4 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_estado,STRING,"Clave geoestadística de la entidad federativa según INEGI, de dos dígitos",,no,,,no,Llave primaria. Clave AGEE del Marco Geoestadístico del INEGI,cve_ent
+nombre,STRING,Nombre de la entidad federativa,,no,,,no,,nomgeo
+abreviatura,STRING,Abreviatura oficial de la entidad federativa,,no,,,no,,nom_abrev

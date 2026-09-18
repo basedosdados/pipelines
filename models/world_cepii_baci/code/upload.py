@@ -1,0 +1,102 @@
+"""Upload cleaned world_cepii_baci / trade-directory parquet to BigQuery dev staging.
+
+Usage:
+    uv run python models/world_cepii_baci/code/upload.py [table_slug ...]
+
+Point GOOGLE_APPLICATION_CREDENTIALS at the basedosdados-dev key (staging.json).
+Uploads sequentially (smallest first); stops on first failure.
+"""
+
+import sys
+import warnings
+from pathlib import Path
+
+warnings.filterwarnings("ignore")
+
+import basedosdados as bd  # noqa: E402
+import google.cloud.storage as gcs  # noqa: E402
+from google.cloud import bigquery  # noqa: E402
+
+BILLING_PROJECT = "basedosdados-dev"
+OUTPUT_ROOT = Path.home() / "Downloads" / "world_cepii_baci_data" / "output"
+
+# Monkey-patch for requester-pays bucket
+_orig_bucket = gcs.Client.bucket
+
+
+def _patched_bucket(self, bucket_name, user_project=None):
+    return _orig_bucket(self, bucket_name, user_project=BILLING_PROJECT)
+
+
+gcs.Client.bucket = _patched_bucket
+
+# (dataset_id, table_slug, expected_rows) — smallest first
+TABLES = [
+    ("br_bd_diretorios_comercio_internacional", "sitc", 788),
+    ("br_bd_diretorios_comercio_internacional", "hs1992", 5_022),
+    ("br_bd_diretorios_comercio_internacional", "hs2017", 5_384),
+    ("br_bd_diretorios_comercio_internacional", "hs1996", 5_115),
+    ("br_bd_diretorios_comercio_internacional", "hs2002", 5_223),
+    ("br_bd_diretorios_comercio_internacional", "hs2007", 5_050),
+    ("br_bd_diretorios_comercio_internacional", "hs2012", 5_202),
+    ("br_bd_diretorios_comercio_internacional", "hs2022", 5_609),
+    ("world_cepii_baci", "complexity_country", 12_633),
+    ("world_cepii_baci", "complexity_product", 49_420),
+    ("world_cepii_baci", "trade_hs22", 33_900_195),
+    ("world_cepii_baci", "trade_hs17", 89_207_221),
+    ("world_cepii_baci", "trade_hs12", 142_112_452),
+    ("world_cepii_baci", "trade_hs07", 187_878_072),
+    ("world_cepii_baci", "trade_sitc", 184_961_866),
+    ("world_cepii_baci", "trade_hs02", 229_376_229),
+    ("world_cepii_baci", "trade_hs96", 266_028_708),
+    ("world_cepii_baci", "trade_hs92", 269_894_500),
+]
+
+
+def upload_table(dataset_id: str, slug: str, expected_rows: int) -> int:
+    path = OUTPUT_ROOT / slug
+    if not path.exists():
+        raise FileNotFoundError(f"Missing output path: {path}")
+
+    st = bd.Storage(dataset_id=dataset_id, table_id=slug)
+    try:
+        st.delete_table(mode="staging", not_found_ok=True)
+    except Exception as e:
+        print(f"  [warn] staging prefix cleanup: {e}")
+
+    bd.Table(dataset_id=dataset_id, table_id=slug).create(
+        path=str(path),
+        source_format="parquet",
+        if_table_exists="replace",
+        if_storage_data_exists="replace",
+        if_dataset_exists="pass",
+    )
+
+    client = bigquery.Client(project=BILLING_PROJECT)
+    q = f"select count(*) as n from `{BILLING_PROJECT}.{dataset_id}_staging.{slug}`"
+    n = next(iter(client.query(q).result())).n
+    status = "OK" if n == expected_rows else "ROW MISMATCH"
+    print(
+        f"  {dataset_id}.{slug}: {n:,} rows (expected {expected_rows:,}) — {status}"
+    )
+    if n != expected_rows:
+        raise ValueError(f"{slug}: {n:,} != expected {expected_rows:,}")
+    return n
+
+
+def main():
+    only = set(sys.argv[1:])
+    tables = [t for t in TABLES if not only or t[1] in only]
+    print(f"=== uploading to {BILLING_PROJECT} ===", flush=True)
+    for dataset_id, slug, expected in tables:
+        print(f"=== {dataset_id}.{slug} ===", flush=True)
+        try:
+            upload_table(dataset_id, slug, expected)
+        except Exception as e:
+            print(f"  FAILED: {type(e).__name__}: {e}")
+            sys.exit(1)
+    print("DONE")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,3 +1,5 @@
+-- Dados de 2026 reprocessados em 2026-08-21 a partir dos arquivos do TSE
+-- gerados em 19/08/2026, apos o encerramento do registro de candidaturas.
 {{
     config(
         schema="br_tse_eleicoes",
@@ -6,7 +8,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 1990, "end": 2024, "interval": 2},
+            "range": {"start": 1990, "end": 2030, "interval": 2},
         },
         cluster_by=["sigla_uf"],
     )
@@ -16,7 +18,7 @@ select
     safe_cast(turno as int64) turno,
     safe_cast(id_eleicao as string) id_eleicao,
     safe_cast(tipo_eleicao as string) tipo_eleicao,
-    safe_cast(data_eleicao as string) data_eleicao,
+    safe.parse_date('%d/%m/%Y', data_eleicao) data_eleicao,
     safe_cast(sigla_uf as string) sigla_uf,
     safe_cast(id_municipio as string) id_municipio,
     safe_cast(id_municipio_tse as string) id_municipio_tse,
@@ -33,4 +35,8 @@ select
     safe_cast(sigla_federacao as string) sigla_federacao,
     safe_cast(composicao_federacao as string) composicao_federacao,
     safe_cast(situacao_legenda as string) situacao_legenda
-from {{ set_datalake_project("br_tse_eleicoes_staging.partidos") }} as t
+from
+    {{ set_datalake_project("br_tse_eleicoes_staging.partidos") }} as t
+
+    -- Rematerialized from the refactored pipeline (PR #1476).
+    

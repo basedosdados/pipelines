@@ -2,64 +2,92 @@
 version: 2
 models:
   - name: br_cgu_orcamento_publico__orcamento
-    description: Orçamento Público do Governo Federal
+    description: >-
+      Execução orçamentária anual da despesa da União nos orçamentos fiscal e da
+      seguridade social, com dotação inicial, dotação autorizada, valor empenhado
+      e valor realizado, detalhados pela classificação institucional,
+      funcional-programática e pela natureza da despesa. Fonte: Portal da
+      Transparência (CGU), um arquivo por exercício desde 2014. A fonte republica
+      os exercícios encerrados, então cada atualização reconstrói a série inteira.
+      As colunas de classificação NÃO formam chave única: o arquivo agrega por
+      dimensões que não publica (subtítulo/localizador e fonte de recursos), de
+      modo que uma mesma combinação de órgão, unidade orçamentária, função,
+      programa, ação e natureza da despesa aparece em até 10 linhas com valores
+      distintos. Para o detalhe que desambigua essas linhas, use a execução mensal
+      da despesa.
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.95
     columns:
       - name: ano_exercicio
-        description: Ano do exercício a que se referem os valores
+        description: Ano do exercício financeiro a que se referem os valores orçamentários
         tests:
+          - not_null
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
       - name: id_orgao_superior
-        description: Código do Órgão Superior responsável pela despesa.
+        description: Código do órgão superior responsável pela despesa, em geral um
+          ministério
       - name: nome_orgao_superior
-        description: Nome do Órgão Superior responsável pela despesa.
+        description: Nome do órgão superior responsável pela despesa
       - name: id_orgao_subordinado
-        description: Código do Órgão Subordinado responsável pela despesa.
+        description: Código do órgão subordinado responsável pela despesa, por exemplo
+          uma autarquia ou fundação
       - name: nome_orgao_subordinado
-        description: Nome do Órgão Subordinado responsável pela despesa.
+        description: Nome do órgão subordinado responsável pela despesa
       - name: id_unidade_orcamentaria
-        description: Código da Unidade Orçamentária responsável pela despesa.
+        description: Código da unidade orçamentária, menor nível da estrutura administrativa
+          a que se aloca a dotação
       - name: nome_unidade_orcamentaria
-        description: Nome da Unidade Orçamentária responsável pela despesa.
+        description: Nome da unidade orçamentária
       - name: id_funcao
-        description: Código da Função em que foi classificada a despesa.
+        description: Código da função de governo em que a despesa foi classificada,
+          maior nível de agregação das áreas de atuação do setor público
       - name: nome_funcao
-        description: Nome da Função em que foi classificada a despesa.
+        description: Nome da função de governo em que a despesa foi classificada
       - name: id_subfuncao
-        description: Código da Subfunção em que foi classificada a despesa.
+        description: Código da subfunção, que detalha a função em áreas de atuação
+          mais específicas
       - name: nome_subfuncao
-        description: Nome da Subfunção em que foi classificada a despesa.
+        description: Nome da subfunção
       - name: id_programa_orcamentario
-        description: Código do Programa em que foi classificada a despesa.
+        description: Código do programa orçamentário, instrumento do plano plurianual
+          que articula ações para um objetivo
       - name: nome_programa_orcamentario
-        description: Nome do Programa em que foi classificada a despesa.
+        description: Nome do programa orçamentário
       - name: id_acao
-        description: Código da ação orçamentária em que foi classificada a despesa.
+        description: Código da ação orçamentária, menor unidade de programação que
+          gera bem ou serviço
       - name: nome_acao
-        description: Nome da ação orçamentária em que foi classificada a despesa.
+        description: Nome da ação orçamentária
       - name: id_categoria_economica
-        description: Código da categoria econômica
+        description: Código da categoria econômica da despesa, que separa despesas
+          correntes de despesas de capital
       - name: nome_categoria_economica
-        description: Nome da categoria econômica
+        description: Nome da categoria econômica da despesa
       - name: id_grupo_despesa
-        description: Código do grupo de despesa
+        description: Código do grupo de natureza da despesa, por exemplo pessoal e
+          encargos sociais, juros da dívida, investimentos
       - name: nome_grupo_despesa
-        description: Nome do grupo de despesa
+        description: Nome do grupo de natureza da despesa
       - name: id_elemento_despesa
-        description: Código do elemento da despesa
+        description: Código do elemento de despesa, que identifica o objeto do gasto,
+          por exemplo diárias, material de consumo, obras
       - name: nome_elemento_despesa
-        description: Nome do elemento da despesa
+        description: Nome do elemento de despesa
       - name: orcamento_inicial
-        description: Valor do orçamento inicial
+        description: Dotação inicial aprovada na lei orçamentária anual, em reais
+          correntes
       - name: orcamento_atualizado
-        description: Valor do orçamento atualizado
+        description: Dotação autorizada após créditos adicionais, cancelamentos e
+          remanejamentos, em reais correntes
       - name: orcamento_empenhado
-        description: Valor do orçamento empenhado
+        description: Valor empenhado, isto é, reservado do orçamento para honrar um
+          compromisso assumido, em reais correntes
       - name: orcamento_realizado
-        description: Valor do orçamento realizado
+        description: Valor realizado, correspondente à despesa liquidada no exercício,
+          em reais correntes
       - name: porcentagem_realizado_orcamento
-        description: Pordentagm Realizado do orçamento
+        description: Razão entre o orçamento realizado e o orçamento atualizado, em
+          porcentagem

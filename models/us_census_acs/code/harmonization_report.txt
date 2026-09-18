@@ -1,0 +1,12 @@
+
+===== microdata_person: 357 columns =====
+  STRING=256 (dict-covered=245), INT64=101 (of which 81 replicate weights)
+  folded pure-renames (0): []
+  kept historical/vintage cols not in modern dict (0): []
+  numeric cols needing UNIT review (0): []
+
+===== microdata_household: 267 columns =====
+  STRING=160 (dict-covered=152), INT64=107 (of which 81 replicate weights)
+  folded pure-renames (0): []
+  kept historical/vintage cols not in modern dict (0): []
+  numeric cols needing UNIT review (0): []

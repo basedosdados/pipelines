@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+table_id,STRING,Nome da tabela à qual a entrada do dicionário se refere,,no,,,no,,table_id
+column_name,STRING,Nome da coluna à qual a entrada do dicionário se refere,,no,,,no,,column_name
+key,STRING,Chave (valor codificado) presente na coluna da tabela,,no,,,no,,key
+temporal_coverage,STRING,Cobertura temporal da entrada do dicionário,,no,,,no,,temporal_coverage
+value,STRING,Rótulo correspondente à chave codificada,,no,,,no,,value
