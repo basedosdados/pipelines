@@ -12,6 +12,8 @@ models:
     tests:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent__(data_extracao)
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - data_extracao
@@ -19,6 +21,8 @@ models:
             - id_municipio
             - id_cobrade
             - data_ocorrencia
+          config:
+            where: __most_recent__(data_extracao)
     columns:
       - name: data_extracao
         description: >-
@@ -31,6 +35,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent__(data_extracao)
       - name: id_municipio
         description: >-
           Identificador do município no IBGE
@@ -39,6 +45,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+              config:
+                where: __most_recent__(data_extracao)
       - name: id_cobrade
         description: >-
           Código COBRADE da tipologia do desastre
