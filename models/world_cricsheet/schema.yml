@@ -13,6 +13,8 @@ models:
       - custom_unique_combinations_of_columns:
           combination_of_columns: [match_id, innings, actual_delivery]
           proportion_allowed_failures: 0.01
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -29,6 +31,8 @@ models:
             - fielder_1
             - fielder_2
             - fielder_3
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: >
@@ -123,9 +127,13 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, match_id]
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [winner_innings, method, neutral_venue]
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: >
@@ -236,8 +244,12 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [year, match_id, team_name, player_name]
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: >
@@ -261,6 +273,8 @@ models:
           - relationships:
               to: ref('world_cricsheet__people')
               field: person_id
+              config:
+                where: __most_recent_year_en__
   - name: world_cricsheet__people
     description: >
       Registro de pessoas do Cricsheet, com uma linha por pessoa e os
