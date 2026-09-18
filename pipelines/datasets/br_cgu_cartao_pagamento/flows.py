@@ -7,6 +7,7 @@ from prefect import flow
 from pipelines.crawler.cgu.flows import _run_cgu_cartao_pagamento
 
 
+## Update 2026-09-18
 def _flow_factory(table_id: str, cron: str):
     @flow(
         name=f"br_cgu_cartao_pagamento__{table_id}",
