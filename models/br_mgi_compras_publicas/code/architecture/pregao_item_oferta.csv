@@ -1,0 +1,15 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+ano,INT64,Ano do pregão,2001(1)2024,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Coluna de particionamento, derivada dos quatro últimos dígitos de id_compra",,Year of the reverse auction,Año del pregón
+id_compra,STRING,Identificador do pregão no SIASG,,no,,,no,"Junta com licitacao_pregao e licitacao_item_pregao. Reconstruído a partir da chave do ComprasNet como UASG (6) + modalidade (2) + número (5) + ano (4)",,Identifier of the reverse auction in SIASG,Identificador del pregón en el SIASG
+numero_item,STRING,Número do item dentro do pregão,,no,,,no,Junta com numero_item_licitacao em licitacao_item,,Number of the item within the reverse auction,Número del ítem dentro del pregón
+cnpj_cpf_fornecedor,STRING,CNPJ ou CPF do fornecedor vencedor do item,,no,,,yes,"O campo traz CNPJ na quase totalidade dos casos, mas pessoas físicas aparecem com CPF não mascarado, por isso a marcação de dado sensível",,Taxpayer id of the supplier that won the item,Identificación fiscal del proveedor adjudicatario del ítem
+nome_fornecedor,STRING,Razão social do fornecedor vencedor do item,,no,,,no,,,Company name of the supplier that won the item,Razón social del proveedor adjudicatario del ítem
+descricao_item,STRING,Descrição do item conforme o catálogo,,no,,,no,,,Catalogue description of the item,Descripción del ítem según el catálogo
+unidade_fornecimento,STRING,Unidade de fornecimento do item,,no,,,no,,,Unit of supply of the item,Unidad de suministro del ítem
+quantidade,FLOAT64,Quantidade adjudicada ao fornecedor,,no,,unit,no,,,Quantity awarded to the supplier,Cantidad adjudicada al proveedor
+valor_unitario,FLOAT64,Valor unitário ofertado pelo fornecedor,,no,,BRL,no,,,Unit price offered by the supplier,Valor unitario ofrecido por el proveedor
+valor_global,FLOAT64,Valor total ofertado pelo fornecedor para o item,,no,,BRL,no,,,Total price offered by the supplier for the item,Valor total ofrecido por el proveedor para el ítem
+marca,STRING,Marca do produto ofertado,,no,,,no,Texto livre preenchido pelo fornecedor; presente em cerca de 97% das linhas,,Brand of the product offered,Marca del producto ofrecido
+fabricante,STRING,Fabricante do produto ofertado,,no,,,no,Texto livre preenchido pelo fornecedor,,Manufacturer of the product offered,Fabricante del producto ofrecido
+modelo_versao,STRING,Modelo ou versão do produto ofertado,,no,,,no,Texto livre preenchido pelo fornecedor,,Model or version of the product offered,Modelo o versión del producto ofrecido
+descricao_detalhada_ofertada,STRING,Descrição detalhada do objeto ofertado pelo fornecedor,,no,,,no,"Texto livre preenchido pelo fornecedor, distinto da descrição de catálogo em descricao_item",,Detailed description of the object offered by the supplier,Descripción detallada del objeto ofrecido por el proveedor
