@@ -22,7 +22,7 @@ from pipelines.utils.metadata.domain import (
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
-    register_table_materialization_task,
+    sync_table_coverage_task,
 )
 from pipelines.utils.tasks import (
     rename_flow_run_dataset_table,
@@ -125,7 +125,7 @@ def br_fnde_fundeb(
         return
 
     for table_id in TABLES:
-        register_table_materialization_task(
+        sync_table_coverage_task(
             dataset_id=dataset_id,
             table_id=table_id,
             coverage=_COVERAGE,
