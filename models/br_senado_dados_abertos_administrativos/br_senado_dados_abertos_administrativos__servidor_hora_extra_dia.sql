@@ -2,7 +2,8 @@
     config(
         schema="br_senado_dados_abertos_administrativos",
         alias="servidor_hora_extra_dia",
-        materialized="table",
+        materialized="incremental",
+        incremental_strategy="insert_overwrite",
         partition_by={
             "field": "ano",
             "data_type": "int64",

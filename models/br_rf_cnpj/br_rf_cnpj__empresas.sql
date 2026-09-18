@@ -11,7 +11,7 @@
     )
 }}
 
--- Atualizado em 2026-08-11
+-- Atualizado em 2026-09-15
 with
     cnpj_empresas as (
         select
@@ -30,8 +30,8 @@ with
         where
             porte != "porte"
             {% if is_incremental() %}
-                and safe.parse_date('%Y-%m', data_referencia)
-                > (select max(data_referencia) from {{ this }})
+                and data_referencia
+                > format_date('%Y-%m', (select max(data_referencia) from {{ this }}))
         {% else %}
             -- Dados históricos até 2023-04-30 foram migrados do modelo
             -- br_me_cnpj.estabelecimentos

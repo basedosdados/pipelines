@@ -40,27 +40,66 @@ models:
     af_afrobarometer_survey:
       +materialized: table
       +schema: af_afrobarometer_survey
-    au_abs_cpi:
-      +materialized: table
-      +schema: au_abs_cpi
     au_abs_national_accounts:
       +materialized: table
       +schema: au_abs_national_accounts
+    au_abs_household_income_wealth:
+      +materialized: table
+      +schema: au_abs_household_income_wealth
+    au_abs_population:
+      +materialized: table
+      +schema: au_abs_population
+    au_abs_prices_inflation:
+      +materialized: table
+      +schema: au_abs_prices_inflation
     au_alexander_politicians:
       +materialized: table
       +schema: au_alexander_politicians
+    au_apra_adi:
+      +materialized: table
+      +schema: au_apra_adi
+    au_apra_superannuation:
+      +materialized: table
+      +schema: au_apra_superannuation
+    au_aec_elections:
+      +materialized: table
+      +schema: au_aec_elections
+    au_tas_tec_elections:
+      +materialized: table
+      +schema: au_tas_tec_elections
     au_ato_abr:
       +materialized: table
       +schema: au_ato_abr
     au_ato_taxation_statistics:
       +materialized: table
       +schema: au_ato_taxation_statistics
+    au_dcceew_greenhouse:
+      +materialized: table
+      +schema: au_dcceew_greenhouse
+    au_doe_higher_education_finances:
+      +materialized: table
+      +schema: au_doe_higher_education_finances
+    au_doe_higher_education:
+      +materialized: table
+      +schema: au_doe_higher_education
     au_geoscape_gnaf:
       +materialized: table
       +schema: au_geoscape_gnaf
+    au_qld_ecq_elections:
+      +materialized: table
+      +schema: au_qld_ecq_elections
+    au_sa_ecsa_elections:
+      +materialized: table
+      +schema: au_sa_ecsa_elections
     au_rba_statistical_tables:
       +materialized: table
       +schema: au_rba_statistical_tables
+    au_treasury_budget:
+      +materialized: table
+      +schema: au_treasury_budget
+    au_vic_vec_elections:
+      +materialized: table
+      +schema: au_vic_vec_elections
     br_anatel_banda_larga_fixa:
       +materialized: table
       +schema: br_anatel_banda_larga_fixa
@@ -94,6 +133,9 @@ models:
     au_nsw_bocsar_crime:
       +materialized: table
       +schema: au_nsw_bocsar_crime
+    au_nsw_nswec_elections:
+      +materialized: table
+      +schema: au_nsw_nswec_elections
     br_bcb_taxa_cambio:
       +materialized: table
       +schema: br_bcb_taxa_cambio
@@ -115,6 +157,12 @@ models:
     br_bd_diretorios_brasil:
       +materialized: table
       +schema: br_bd_diretorios_brasil
+    br_bd_diretorios_cl:
+      +materialized: table
+      +schema: br_bd_diretorios_cl
+    cl_res_empresas:
+      +materialized: table
+      +schema: cl_res_empresas
     br_bd_diretorios_de:
       +materialized: table
       +schema: br_bd_diretorios_de
@@ -124,6 +172,9 @@ models:
     fr_insee_sirene:
       +materialized: table
       +schema: fr_insee_sirene
+    fr_meteofrance:
+      +materialized: table
+      +schema: fr_meteofrance
     br_bd_diretorios_in:
       +materialized: table
       +schema: br_bd_diretorios_in
@@ -139,6 +190,14 @@ models:
     br_bd_diretorios_mx:
       +materialized: table
       +schema: br_bd_diretorios_mx
+    br_bd_execucao_estadual:
+      +materialized: table
+      +schema: br_bd_execucao_estadual
+      # One ephemeral model per state, unioned by the published parent. Ephemeral keeps
+      # compiled SQL, published tables and storage identical to a single monolith while
+      # letting each state be reviewed and rebuilt on its own.
+      states:
+        +materialized: ephemeral
     mx_sesnsp_incidencia_delictiva:
       +materialized: table
       +schema: mx_sesnsp_incidencia_delictiva
@@ -154,39 +213,102 @@ models:
     us_bls_cpi:
       +materialized: table
       +schema: us_bls_cpi
+    us_treasury_fiscaldata:
+      +materialized: table
+      +schema: us_treasury_fiscaldata
+    us_bls_employment:
+      +materialized: table
+      +schema: us_bls_employment
     us_bls_oes:
       +materialized: table
       +schema: us_bls_oes
+    us_census_bps:
+      +materialized: table
+      +schema: us_census_bps
+    us_fdic_bankfind:
+      +materialized: table
+      +schema: us_fdic_bankfind
+    us_ffiec_bank_reporting:
+      +materialized: table
+      +schema: us_ffiec_bank_reporting
     us_fed_fred:
       +materialized: table
       +schema: us_fed_fred
+    us_fhfa_hpi:
+      +materialized: table
+      +schema: us_fhfa_hpi
+    us_epa_ghgrp:
+      +materialized: table
+      +schema: us_epa_ghgrp
+    au_aph_hansard:
+      +materialized: table
+      +schema: au_aph_hansard
     au_abs_labour_force:
       +materialized: table
       +schema: au_abs_labour_force
+    au_abs_migration:
+      +materialized: table
+      +schema: au_abs_migration
     us_bls_qcew:
       +materialized: table
       +schema: us_bls_qcew
     us_census_cbp:
       +materialized: table
       +schema: us_census_cbp
+    us_census_cog:
+      +materialized: table
+      +schema: us_census_cog
     us_census_cps:
       +materialized: table
       +schema: us_census_cps
+    us_census_lodes:
+      +materialized: table
+      +schema: us_census_lodes
+    us_cfpb_complaints:
+      +materialized: table
+      +schema: us_cfpb_complaints
     us_cfpb_hmda:
       +materialized: table
       +schema: us_cfpb_hmda
+    us_cms_hcris:
+      +materialized: table
+      +schema: us_cms_hcris
     us_cms_open_payments:
       +materialized: table
       +schema: us_cms_open_payments
+    us_hhs_nppes:
+      +materialized: table
+      +schema: us_hhs_nppes
+    us_irs_form990:
+      +materialized: table
+      +schema: us_irs_form990
+    us_nchs_vital_statistics:
+      +materialized: table
+      +schema: us_nchs_vital_statistics
     us_fec_campaign_finance:
       +materialized: table
       +schema: us_fec_campaign_finance
+    us_dot_bts_ontime:
+      +materialized: table
+      +schema: us_dot_bts_ontime
+    us_dot_fars:
+      +materialized: table
+      +schema: us_dot_fars
     us_nature_gerda:
       +materialized: table
       +schema: us_nature_gerda
     us_congress_legislators:
       +materialized: table
       +schema: us_congress_legislators
+    world_oecd_education:
+      +materialized: table
+      +schema: world_oecd_education
+    world_oecd_revenue_statistics:
+      +materialized: table
+      +schema: world_oecd_revenue_statistics
+    world_oecd_socx:
+      +materialized: table
+      +schema: world_oecd_socx
     world_aiddata_gcdf:
       +materialized: table
       +schema: world_aiddata_gcdf
@@ -229,6 +351,9 @@ models:
     br_cgu_dados_abertos:
       +materialized: table
       +schema: br_cgu_dados_abertos
+    br_cgu_despesas_publicas:
+      +materialized: table
+      +schema: br_cgu_despesas_publicas
     br_cgu_emendas_parlamentares:
       +materialized: table
       +schema: br_cgu_emendas_parlamentares
@@ -271,15 +396,18 @@ models:
     br_datahackers_state_data:
       +materialized: table
       +schema: br_datahackers_state_data
-    br_denatran_frota:
+    br_senatran_estatisticas:
       +materialized: table
-      +schema: br_denatran_frota
+      +schema: br_senatran_estatisticas
     br_fbsp_absp:
       +materialized: table
       +schema: br_fbsp_absp
     br_fgv_igp:
       +materialized: table
       +schema: br_fgv_igp
+    br_fnde_fundeb:
+      +materialized: table
+      +schema: br_fnde_fundeb
     br_geobr_mapas:
       +materialized: table
       +schema: br_geobr_mapas
@@ -421,6 +549,9 @@ models:
     br_mg_belohorizonte_smfa_iptu:
       +materialized: table
       +schema: br_mg_belohorizonte_smfa_iptu
+    br_mgi_compras_publicas:
+      +materialized: table
+      +schema: br_mgi_compras_publicas
     br_mma_sinpatinhas:
       +materialized: table
       +schema: br_mma_sinpatinhas
@@ -466,6 +597,9 @@ models:
     br_ons_estimativa_custos:
       +materialized: table
       +schema: br_ons_estimativa_custos
+    br_mgi_pncp:
+      +materialized: table
+      +schema: br_mgi_pncp
     br_poder360_pesquisas:
       +materialized: table
       +schema: br_poder360_pesquisas
@@ -523,6 +657,9 @@ models:
     br_tse_filiacao_partidaria:
       +materialized: table
       +schema: br_tse_filiacao_partidaria
+    cl_chilecompra_mercado_publico:
+      +materialized: table
+      +schema: cl_chilecompra_mercado_publico
     gb_eric_ess:
       +materialized: table
       +schema: gb_eric_ess
@@ -547,21 +684,81 @@ models:
     us_sec_edgar:
       +materialized: table
       +schema: us_sec_edgar
+    us_usda_nass:
+      +materialized: table
+      +schema: us_usda_nass
+    us_state_foreign_assistance:
+      +materialized: table
+      +schema: us_state_foreign_assistance
+    us_stanford_dime:
+      +materialized: table
+      +schema: us_stanford_dime
     us_census_acs:
       +materialized: table
       +schema: us_census_acs
+    us_dol_oflc:
+      +materialized: table
+      +schema: us_dol_oflc
+    us_ed_college_scorecard:
+      +materialized: table
+      +schema: us_ed_college_scorecard
     us_ed_ipeds:
       +materialized: table
       +schema: us_ed_ipeds
+    us_ed_nces_ccd:
+      +materialized: table
+      +schema: us_ed_nces_ccd
+    us_eia_consumption:
+      +materialized: table
+      +schema: us_eia_consumption
+    us_eia_electricity:
+      +materialized: table
+      +schema: us_eia_electricity
+    us_eia_seds:
+      +materialized: table
+      +schema: us_eia_seds
+    us_epa_tri:
+      +materialized: table
+      +schema: us_epa_tri
+    us_epu_gpr:
+      +materialized: table
+      +schema: us_epu_gpr
+    us_fema_openfema:
+      +materialized: table
+      +schema: us_fema_openfema
+    us_fbi_cde:
+      +materialized: table
+      +schema: us_fbi_cde
     us_medsl_elections:
       +materialized: table
       +schema: us_medsl_elections
+    us_nih_reporter:
+      +materialized: table
+      +schema: us_nih_reporter
+    us_noaa_storm_events:
+      +materialized: table
+      +schema: us_noaa_storm_events
+    us_nsf_ncses:
+      +materialized: table
+      +schema: us_nsf_ncses
+    us_osha_enforcement:
+      +materialized: table
+      +schema: us_osha_enforcement
     world_ampas_oscar:
       +materialized: table
       +schema: world_ampas_oscar
+    world_bis_property_prices:
+      +materialized: table
+      +schema: world_bis_property_prices
     world_dasanaike_sage:
       +materialized: table
       +schema: world_dasanaike_sage
+    world_iati_activities:
+      +materialized: table
+      +schema: world_iati_activities
+    world_noaa_ghcn:
+      +materialized: table
+      +schema: world_noaa_ghcn
     world_iea_pirls:
       +materialized: table
       +schema: world_iea_pirls

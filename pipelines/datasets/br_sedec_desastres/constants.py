@@ -40,7 +40,7 @@ class constants(Enum):
     BASE_URL = "https://s2id.mi.gov.br/paginas/relatorios/"
 
     # Âncoras de texto do painel do relatório. Ainda SEM USO: são o estado final
-    # da raspagem (ancorar por texto), não o atual — ver o roadmap da task.
+    # da raspagem (ancorar por texto), não o atual.
     PANEL_TITLE = "Reconhecimentos vigentes"
     EXPORT_BUTTON_LABEL = "Exportar CSV"
 
@@ -92,9 +92,9 @@ class constants(Enum):
 
     # Ordem, tipo e nome de origem das colunas da tabela final.
     #
-    # Espelha a planilha de arquitetura, que fica em task_davi/bndes/ e não é
-    # versionada junto do pipeline — por isso o schema precisa estar aqui, e não
-    # lido de um CSV. Ao mexer na planilha, mexer aqui também.
+    # Espelha a planilha de arquitetura, que não é versionada junto do pipeline —
+    # por isso o schema precisa estar aqui, e não lido de um CSV. Ao mexer na
+    # planilha, mexer aqui também.
     #
     # `original_name` vazio = coluna que não vem da fonte. COBRADE aparece duas
     # vezes de propósito: um campo da fonte que virá duas colunas.

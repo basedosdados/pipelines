@@ -1,0 +1,935 @@
+---
+version: 2
+models:
+  - name: us_fdic_bankfind__institution
+    description: >-
+      Directory of every institution the FDIC has registered, active or closed, with
+      its identifiers,
+      charter and supervisory classification, location, key dates and a snapshot of
+      its latest
+      reported financials. One row per FDIC certificate number.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [cert]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [insurance_end_date]
+    columns:
+      - name: extraction_date
+        description: Date the institution directory was extracted from the FDIC API
+      - name: cert
+        description: FDIC certificate number identifying the institution
+        tests: [not_null]
+      - name: name
+        description: Legal name of the institution
+      - name: rssd_id
+        description: Federal Reserve RSSD identifier
+      - name: uninum
+        description: FDIC unique number for the institution
+      - name: lei
+        description: Legal Entity Identifier
+      - name: occ_charter_number
+        description: Charter number assigned by the OCC
+      - name: ots_docket_number
+        description: Docket number assigned by the former OTS
+      - name: previous_name
+        description: Most recent previous name of the institution
+      - name: holding_company_rssd_id
+        description: RSSD identifier of the regulatory top holding company
+      - name: holding_company_name
+        description: Name of the regulatory top holding company
+      - name: holding_company_city
+        description: City of the regulatory top holding company
+      - name: holding_company_state
+        description: State abbreviation of the regulatory top holding company
+      - name: holding_company_type
+        description: Type of bank holding company
+      - name: parent_cert
+        description: FDIC certificate number of the bank that directly owns this one
+      - name: ultimate_cert
+        description: FDIC certificate number the institution ultimately maps to
+      - name: successor_cert
+        description: >-
+          FDIC certificate number the institution became after a merger or conversion
+      - name: institution_class
+        description: Charter and supervisory class of the institution
+      - name: class_code
+        description: Numeric subcategory of the institution class
+      - name: chartering_agency
+        description: Agency that granted the institution's charter
+      - name: primary_regulator
+        description: Primary federal regulator
+      - name: secondary_regulator
+        description: Secondary regulator
+      - name: is_state_chartered
+        description: Whether the institution holds a state charter
+      - name: is_federally_chartered
+        description: Whether the institution holds a federal charter
+      - name: specialization_group
+        description: Asset concentration group the institution falls into
+      - name: ownership_type
+        description: Whether the institution is stock-owned or mutually owned
+      - name: is_subchapter_s
+        description: Whether the institution is a Subchapter S corporation
+      - name: is_community_bank
+        description: Whether the institution meets the FDIC community bank definition
+      - name: minority_status
+        description: Minority depository institution status
+      - name: trust_powers
+        description: Trust powers granted to the institution
+      - name: is_agricultural_lender
+        description: Whether the institution is classified as an agricultural lender
+      - name: is_credit_card_institution
+        description: Whether the institution is classified as a credit card institution
+      - name: is_insured_foreign_branch
+        description: Whether the institution is an insured office of a foreign bank
+      - name: files_call_report_31
+        description: Whether the institution files the FFIEC 031 Call Report
+      - name: is_fdic_insured
+        description: Whether the institution is insured by the FDIC
+      - name: primary_insurance_fund
+        description: Deposit insurance fund the institution belongs to
+      - name: insurance_date
+        description: Date deposit insurance took effect
+      - name: insurance_end_date
+        description: Date deposit insurance ended
+      - name: is_insured_commercial_bank
+        description: Whether the institution is an insured commercial bank
+      - name: is_insured_savings_institution
+        description: Whether the institution is an insured savings institution
+      - name: is_active
+        description: Whether the institution was operating at the extraction date
+      - name: established_date
+        description: Date the institution began operating
+      - name: end_date
+        description: Date the institution ceased to exist as a separate entity
+      - name: last_structure_change_date
+        description: Effective date of the most recent structure change
+      - name: last_structure_change_process_date
+        description: Date the most recent structure change was processed
+      - name: structure_change_code
+        description: Code of the most recent structure change
+      - name: is_in_conservatorship
+        description: Whether the institution is in conservatorship
+      - name: is_de_novo
+        description: Whether the institution is newly chartered
+      - name: last_update_date
+        description: Date the FDIC last updated the record
+      - name: address
+        description: Street address of the main office
+      - name: city
+        description: City of the main office
+      - name: county
+        description: County of the main office
+      - name: state_abbreviation
+        description: Two-letter state abbreviation of the main office
+      - name: state_name
+        description: State name of the main office
+      - name: county_id
+        description: FIPS state and county code of the main office
+      - name: zip_code
+        description: ZIP code of the main office
+      - name: latitude
+        description: Latitude of the main office
+      - name: longitude
+        description: Longitude of the main office
+      - name: cbsa_id
+        description: Core Based Statistical Area code of the main office
+      - name: cbsa_name
+        description: Core Based Statistical Area name of the main office
+      - name: csa_id
+        description: Combined Statistical Area code of the main office
+      - name: csa_name
+        description: Combined Statistical Area name of the main office
+      - name: fdic_region
+        description: FDIC geographic region
+      - name: fdic_supervisory_region
+        description: FDIC supervisory region
+      - name: federal_reserve_district
+        description: Federal Reserve district the institution belongs to
+      - name: occ_district
+        description: OCC district the institution belongs to
+      - name: website
+        description: Primary internet address of the institution
+      - name: financial_report_date
+        description: Quarter end the financial snapshot columns refer to
+      - name: total_assets
+        description: Total assets
+      - name: total_deposits
+        description: Total deposits
+      - name: domestic_deposits
+        description: Deposits held in domestic offices
+      - name: equity_capital
+        description: Total equity capital
+      - name: net_income
+        description: Net income for the year to date
+      - name: return_on_assets
+        description: Net income as a percent of average total assets
+      - name: return_on_equity
+        description: Net income as a percent of average equity
+      - name: domestic_offices
+        description: Number of domestic offices
+      - name: foreign_offices
+        description: Number of foreign offices
+  - name: us_fdic_bankfind__indicator
+    description: >-
+      Dictionary of the quarterly line items the FDIC reports, giving each one a readable
+      name, the FDIC's definition, the unit its values are expressed in, and the matching
+      column in the financials table when it has one. Decodes financials_indicator.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [indicator_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: indicator_id
+        description: FDIC mnemonic of the line item
+        tests: [not_null]
+      - name: name
+        description: Readable name of the line item
+      - name: description
+        description: Definition of the line item as published by the FDIC
+      - name: measurement_unit
+        description: 'Unit the value is expressed in: USD, percent or unit'
+      - name: is_ratio
+        description: Whether the line item is a ratio computed by the FDIC
+      - name: is_quarterly
+        description: Whether the line item covers the quarter rather than the year
+          to date
+      - name: is_flag
+        description: Whether the line item is a binary flag rather than a measure
+      - name: financials_column
+        description: Name of the matching column in the financials table
+  - name: us_fdic_bankfind__financials
+    description: >-
+      Quarterly Call Report financials for every FDIC-insured institution, covering
+      the balance
+      sheet, income statement, asset quality, capital and the FDIC's performance ratios.
+      One
+      row per institution and quarter, holding the headline line items; the complete
+      set of
+      line items is in financials_indicator. Dollar amounts are in whole dollars,
+      converted
+      from the thousands the FDIC publishes.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, quarter, cert]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - loans_to_nondep_financial_inst_con
+            - total_deposits_for_ratio
+    columns:
+      - name: year
+        description: Calendar year of the quarterly report
+        tests: [not_null]
+      - name: quarter
+        description: Calendar quarter of the report, 1 to 4
+        tests: [not_null]
+      - name: report_date
+        description: Last day of the quarter the report covers
+        tests: [not_null]
+      - name: cert
+        description: FDIC certificate number identifying the institution
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('us_fdic_bankfind__institution')
+              field: cert
+              proportion_allowed_failures: 0.02
+      - name: rssd_id
+        description: Federal Reserve RSSD identifier of the institution
+      - name: net_income_quarterly_netincq
+        description: >-
+          Quarterly net interest income plus total noninterest income plus realized
+          gains
+          (losses) on securities and extraordinary items, less total noninterest expense,
+          loan loss provisions and income taxes.
+      - name: equity_capital
+        description: >-
+          Total equity capital (includes preferred and common stock, surplus and undivided
+          profits).
+      - name: tier_1_risk_based_capital_ratio
+        description: Tier 1 Risk-Based Capital Ratio
+      - name: net_discontinued_operations
+        description: Net Discontinued Operations
+      - name: total_fiduciary_and_related_assets
+        description: Total Fiduciary and Related Assets
+      - name: loans_to_individuals_ratio
+        description: Loans to Individuals Ratio
+      - name: cash_dividends_to_net_income_ytd_only
+        description: Cash Dividends to Net Income (YTD Only)
+      - name: premises_and_fixed_assets
+        description: Premises and Fixed Assets
+      - name: real_estate_principal_securitised_asset_sold
+        description: Real Estate Principal Securitised Asset Sold - Cons
+      - name: intangible_assets
+        description: Intangible Assets
+      - name: nonresidential_chargeoff_per_nonresidential_ratio
+        description: Nonresidential Charge-Off/Nonresidential Loans
+      - name: off_balance_sheet_derivatives_ratio
+        description: Off-Balance Sheet Derivatives
+      - name: number_of_us_offices
+        description: >-
+          The number of offices operated by an FDIC-insured institution in all commonwealths
+          and terrirtories of the US, along with those in freely associated states
+          under the
+          Compact of Free Association
+      - name: n_90_d_p_per_d_total_loans_loss_sh
+        description: 90+ D P/D Total Loans - Loss Sh
+      - name: all_other_loans_and_leases_including_farm_ratio
+        description: All Other Loans & Leases (Including Farm)
+      - name: securities_gains_and_losses
+        description: Securities Gains and Losses
+      - name: efficiency_ratio
+        description: Efficiency Ratio
+      - name: common_equity_tier_1_capital_ratio
+        description: Common Equity Tier 1 Capital Ratio
+      - name: multifamily_real_estate_chargeoff_per_multi_ratio
+        description: Multifamily Real Estate Charge-Off/Multi Real Estate Ln
+      - name: deposits_held_in_domestic_offices
+        description: >-
+          The sum of all domestic office deposits, including demand deposits, money
+          market
+          deposits, other savings deposits and time deposits.
+      - name: income_before_disc_opr_ratio
+        description: Income Before Disc Opr
+      - name: interest_income_to_earning_assets_ratio
+        description: Interest Income to Earning Assets Ratio
+      - name: bank_equity_capital_per_assets
+        description: Bank Equity Capital/Assets
+      - name: net_income
+        description: >-
+          Net interest income plus total noninterest income plus realized gains (losses)
+          on
+          securities and extraordinary items, less total noninterest expense, loan
+          loss provisions
+          and income taxes.
+      - name: net_loans_and_leases_per_deposits_ratio
+        description: Net Loans & Leases/Deposits
+      - name: number_of_foreign_offices_ratio
+        description: >-
+          The number of foreign offices (outside the U.S.) operated by the institution.
+      - name: nonaccrual_total_assets
+        description: Nonaccrual-Total Assets
+      - name: net_chargeoffs_per_loans_and_leases_ratio
+        description: Net Charge-Offs/Loans & Leases
+      - name: estimated_uninsured_deposits
+        description: >-
+          Estimated Uninsured Deposits in Domestic Offices and in Insured Branches
+          in US Territories
+          and Possessions
+      - name: noninterest_bearing_deposits_dom
+        description: Noninterest-Bearing Deposits-Dom
+      - name: loan_loss_reserve_per_gross_loans_and_leases_ratio
+        description: Loan Loss Reserve/Gross Loans & Leases
+      - name: sold_w_per_recourse_n_per_secur_oth
+        description: Sold W/Recourse N/Secur. - Oth
+      - name: real_estate_principal_securitised_asset_sold_szlnres
+        description: Real Estate Principal Securitised Asset Sold-Res
+      - name: commercial_real_estate_chargeoff_per_comm_ratio
+        description: Commercial Real Estate Charge-Off/Comm Real Estate Ln
+      - name: total_interest_expense
+        description: Total Interest Expense
+      - name: deposit_liabilities_after_exclusions
+        description: Deposit Liabilities After Exclusions
+      - name: core_deposits
+        description: Core Deposits
+      - name: call_form_number
+        description: TBD
+      - name: federal_reserve_id_number
+        description: Federal Reserve Id Number
+      - name: community_bank_ratio
+        description: Community Bank Ratio
+      - name: securities
+        description: Securities
+      - name: loan_loss_prov_per_nt_chg_offs_ratio
+        description: Loan Loss Prov/Nt Chg-Offs
+      - name: nonperf_assets_per_total_assets
+        description: Nonperf Assets/Total Assets
+      - name: loan_loss_reserve_per_n_per_c_loans_ratio
+        description: Loan Loss Reserve/N/C Loans
+      - name: number_of_full_time_employees
+        description: Number of Full Time Employees
+      - name: total_assets
+        description: >-
+          The sum of all assets owned by the institution including cash, loans, securities,
+          bank premises and other assets. This total does not include off-balance-sheet
+          accounts.
+      - name: n_per_c_multifamly_real_estate_per_ratio
+        description: N/C Multifamly Real Estate/Multifamly Real Estate
+      - name: n_per_c_const_real_estate_per_const_real_ratio
+        description: N/C Const Real Estate/Const Real Estate
+      - name: nonaccrual_total_loans_loss_sh
+        description: Nonaccrual Total Loans - Loss Sh
+      - name: net_loans_and_leases_to_core_deposits_ratio
+        description: Net Loans and Leases to Core Deposits Ratio
+      - name: real_estate_principal_securitised_asset_sold_szlauto
+        description: Real Estate Principal Securitised Asset Sold - Auto
+      - name: n_90_days_p_per_d_total_assets
+        description: 90+ Days P/D-Total Assets
+      - name: n_30_89_days_p_per_d_total_assets
+        description: 30-89 Days P/D-Total Assets
+      - name: total_allowable_exclusions_including_foreign
+        description: Total Allowable Exclusions (Including Foreign Deposits)
+      - name: total_liabilities
+        description: Total Liabilities
+      - name: applicable_income_taxes
+        description: Applicable Income Taxes
+      - name: trading_accounts
+        description: Trading Accounts
+      - name: net_interest_margin
+        description: Net Interest Margin
+      - name: estimated_insured_deposits
+        description: Estimated Insured Deposits
+      - name: net_operating_income_adj
+        description: Net Operating Income-Adj
+      - name: net_operating_income_adj_per_assets
+        description: Net Operating Income-Adj/Assets
+      - name: commercial_and_industrial_loans_ratio
+        description: Commercial & Industrial Loans Ratio
+      - name: carry_amt_loss_share_ore
+        description: Carry Amt Loss Share- Ore
+      - name: provisions_for_credit_losses_ratio
+        description: Provisions for Credit Losses
+      - name: real_estate_chargeoff_per_real_estate_loans_ratio
+        description: Real Estate Charge-Off/Real Estate Loans
+      - name: total_interest_income
+        description: Total Interest Income
+      - name: net_inc_bank_and_minority_int
+        description: Net Inc - Bank & Minority Int
+      - name: sale_of_capital_stock
+        description: Sale of Capital Stock
+      - name: unused_commit_total
+        description: Unused Commit-Total
+      - name: carry_amt_loss_share_lnls
+        description: Carry Amt Loss Share-Lnls
+      - name: total_loans_and_leases_net_chargeoffs
+        description: Total Loans & Leases Net Charge-Offs
+      - name: earning_assets_per_total_assets_ratio
+        description: Earning Assets / Total Assets
+      - name: n_per_c_lns_and_ls_per_gross_lns_and_ls_ratio
+        description: N/C Lns & Ls/Gross Lns & Ls
+      - name: loans_and_leases_net
+        description: Loans and Leases-Net
+      - name: loans_to_nondep_financial_inst_con
+        description: >-
+          LOANS TO NONDEPOSITORY FINANCIAL INSTITUTIONS ON A CONSOLIDATED BANK BASIS.
+          NOTE:
+          1) REPORTED IN THE CATEGORY OF LOANS TO NONDEPOSITORY FINANCIAL INSTITUTIONS
+          AND
+          ALL OTHER LOANS. 2) THIS ITEM IS NOT REPORTED BY FORM 041 OR 051 FILERS.
+      - name: loans_to_nondep_financial_inst_dom
+        description: >-
+          LOANS TO NONDEPOSITORY FINANCIAL INSTITUTIONS HELD IN DOMESTIC OFFICES.
+      - name: total_deposits_for_ratio
+        description: Total Deposits-for
+      - name: n_per_c_nonfarm_nonresidential_real_estate_ratio
+        description: N/C Nonfarm Nonresidential Real Estate/Nonresidential Real Estate
+      - name: return_on_assets_roa
+        description: >-
+          Net income after taxes and extraordinary items (annualized) as a percent
+          of average
+          total assets.
+      - name: n_30_89_d_p_per_d_total_loans_loss_sh
+        description: 30-89 D P/D Total Loans-Loss Sh
+      - name: cash_dividends_on_comm_and_pref
+        description: Cash Dividends On Comm & Pref
+      - name: retained_earnings_per_avg_bk_equity_ratio
+        description: Retained Earnings/Avg Bk Equity
+      - name: return_on_equity_roe
+        description: >-
+          Annualized net income as a percent of average equity on a consolidated basis.     Note:
+          If retained earnings are  negative, the ratio is shown as NA.
+      - name: real_estate_principal_securitised_asset_sold_szlnhel
+        description: Real Estate Principal Securitised Asset Sold - Hel
+      - name: real_estate_principal_securitised_asset_sold_szlncrcd
+        description: Real Estate Principal Securitised Asset Sold - Crcd
+      - name: noninterest_exp_per_average_assets
+        description: Noninterest Exp/Average Assets
+      - name: real_estate_principal_securitised_asset_sold_szlnoth
+        description: Real Estate Principal Securitised Asset Sold - Oth
+      - name: fed_funds_and_repos_sold
+        description: Fed Funds & Repos Sold
+      - name: cash_and_due_from_depository_inst
+        description: Cash & Due From Depository Inst
+      - name: carry_amt_loss_share_oth_asset
+        description: Carry Amt Loss Share -Oth Asset
+      - name: number_of_domestic_offices
+        description: >-
+          The number of domestic offices (including headquarters) operated by active
+          institutions
+          in the 50 states of the U.S.A.
+      - name: sold_w_per_recourse_n_per_secur_res
+        description: Sold W/Recourse N/Secur.- Res
+      - name: n_per_c_real_estate_lns_per_real_estate_ratio
+        description: N/C Real Estate Lns/Real Estate
+      - name: all_oth_assets_ratio
+        description: All Oth Assets Ratio
+      - name: other_real_estate_owned
+        description: Other Real Estate Owned
+      - name: const_real_estate_chargeoff_per_const_real_ratio
+        description: Const Real Estate Charge-Off/Const Real Estate Loans
+      - name: n_per_c_1_4_family_real_estate_per_1_4_ratio
+        description: N/C 1-4 Family Real Estate/1-4 Family Real Estate
+      - name: interest_bearing_deposits_dom
+        description: Interest-Bearing Deposits-Dom
+      - name: commercial_and_industrial_loans_ratio_idntcir
+        description: Commercial & Industrial Loans
+      - name: interest_expense_to_earning_assets_ratio
+        description: Interest Expense to Earning Assets Ratio
+      - name: leverage_ratio_pca
+        description: Leverage Ratio-PCA
+      - name: n_1_4_fam_real_estate_chargeoff_per_1_4_fam_ratio
+        description: 1-4 Fam Real Estate Charge-Off/1-4 Fam Loans
+      - name: assets_per_employee_in_million
+        description: Assets Per Employee in Million
+      - name: all_oth_assets
+        description: All Oth Assets
+      - name: pretax_return_on_assets
+        description: >-
+          Annualized pre-tax net income as a percent of average assets. Note: Includes
+          extraordinary
+          items and other adjustments, net of taxes.
+      - name: pre_tax_net_income_operating_income
+        description: Pre-Tax Net Income Operating Income
+      - name: tot_domestic_deposit_per_asset_ratio
+        description: Tot Domestic Deposit / Asset
+      - name: nc_commercial_real_estate_per_commercial_ratio
+        description: Nc Commercial Real Estate/Commercial Real Estate
+      - name: total_deposit_liab_bef_exclusion
+        description: Total Deposit Liab Bef Exclusion
+      - name: noninterest_inc_per_average_assets
+        description: Noninterest Inc/Average Assets
+      - name: loans_to_individuals_ratio_idntconr
+        description: Loans to Individuals
+      - name: credit_loss_prov_per_ave_assets
+        description: Credit Loss Prov/Ave Assets
+      - name: total_noninterest_expense
+        description: Total Noninterest Expense
+      - name: net_loans_and_leases_per_assets
+        description: Net Loans & Leases/Assets
+      - name: total_deposits
+        description: >-
+          The sum of all deposits including demand deposits, money market deposits,
+          other
+          savings deposits, time deposits and deposits in foreign offices.
+      - name: all_other_loans_and_leases_including_farm_ratio_idncothr
+        description: All other loans & leases (including farm )
+      - name: net_interest_income
+        description: Net Interest Income
+      - name: total_rbc_ratio_pca
+        description: Total RBC Ratio-PCA
+      - name: real_estate_principal_securitised_asset_sold_szlnci
+        description: Real Estate Principal Securitised Asset Sold - Ci
+      - name: carry_amt_loss_share_debt_sec
+        description: Carry Amt Loss Share -Debt Sec
+      - name: noncurrent_loans_which_are_wholly_or_ratio
+        description: >-
+          Noncurrent Loans Which Are Wholly or Partially Guaranteed By The U.S. Government
+          Ratio
+      - name: earnings_coverage_of_net_loan_chargeoffs_x_ratio
+        description: Earnings Coverage of Net Loan Charge-Offs (X)
+      - name: number_of_fiduciary_accounts_and_related
+        description: Number of Fiduciary Accounts and Related Asset Accounts
+      - name: total_noninterest_income
+        description: Total Noninterest Income
+      - name: total_equity_capital
+        description: Total Equity Capital
+      - name: real_estate_loans
+        description: Real Estate Loans
+      - name: commercial_and_industrial_loans
+        description: Commercial and Industrial Loans
+      - name: consumer_loans_other
+        description: Consumer Loans-Other
+      - name: agricultural_loans
+        description: Agricultural Loans
+      - name: real_estate_construction_and_land_develop
+        description: Real Estate Construction & Land Develop
+      - name: real_estate_nonfarm_nonresidential_prop
+        description: Real Estate Nonfarm Nonresidential Prop
+      - name: real_estate_1_4_family
+        description: Real Estate 1-4 Family
+      - name: real_estate_multifamily
+        description: Real Estate Multifamily
+      - name: allow_for_loans_loss_adjusted
+        description: Allow for Loans Loss Adjusted
+      - name: loans_and_leases_total_ratio
+        description: Loans and Leases-Total
+      - name: noninterest_bearing_deposits
+        description: Noninterest-Bearing Deposits
+      - name: interest_bearing_deposits
+        description: Interest-Bearing Deposits
+      - name: num_deposits_acc_equal_or_less_than_equal_to
+        description: Num Deposits Acc Equal or Less Than Equal to $250,000
+      - name: num_deposits_acc_greater_than_250_000
+        description: Num Deposits Acc Greater Than $250,000
+      - name: u_s_treasury_and_agency
+        description: U.S. Treasury & Agency
+      - name: municipal_securities
+        description: Municipal Securities
+      - name: oth_borrowed_funds
+        description: Oth Borrowed Funds
+      - name: quarterly_return_on_assets
+        description: >-
+          Quarterly net income after taxes and extraordinary items as a percent of
+          average
+          total assets.
+      - name: quarterly_return_on_equity
+        description: >-
+          Quarterly net income (including gains or losses on securities and extraordinary
+          items) as a percentage of average total equity capital.
+      - name: tier_1_rbc_adjusted_llr_pca
+        description: Tier 1 RBC Adjusted Llr - PCA
+      - name: total_loans_and_leases_chargeoffs
+        description: Total Loans & Leases Charge-Offs
+      - name: total_loans_and_leases_recoveries
+        description: Total Loans & Leases Recoveries
+      - name: additional_noninterest_income
+        description: Additional Noninterest Income
+      - name: additional_noninterest_income_quarterly
+        description: Additional Noninterest Income Quarterly
+      - name: additional_noninterest_expense
+        description: Additional Noninterest Expense
+      - name: additional_noninterest_expense_quarterly
+        description: Additional Noninterest Expense Quarterly
+      - name: real_estate_loan_recoveries_domestic_offices
+        description: Real Estate Loan Recoveries Domestic Offices
+      - name: real_estate_loan_recoveries_domestic_offices_crreoffdomq
+        description: Real Estate Loan Recoveries Domestic Offices Quarterly
+      - name: est_uninsured_deposits_in_dom_off_in_insured
+        description: >-
+          Est Uninsured Deposits in Dom-Off in Insured Branches in US Terr and Possessions
+      - name: real_estate_loan_chargeoffs_domestic_offices
+        description: Real Estate Loan Charge-Offs Domestic Offices
+      - name: real_estate_loan_chargeoffs_domestic_offices_drreoffdomq
+        description: Real Estate Loan Charge-Offs Domestic Offices Quarterly
+      - name: total_liabilities_and_capital
+        description: Total Liabilities & Capital
+      - name: loans_to_depository_institutions_and
+        description: Loans to Depository Institutions and Acceptance of Other Banks
+      - name: loans_and_leases_unearned_inc
+        description: Loans & Leases + Unearned Inc
+      - name: loans_and_leases_total_adjusted
+        description: Loans and Leases-Total Adjusted
+      - name: loans_and_leases_gross
+        description: Loans and Leases, Gross
+      - name: real_estate_loans_dom
+        description: Real Estate Loans-Dom
+      - name: real_estate_loans_adjusted
+        description: Real Estate Loans Adjusted
+      - name: leases
+        description: Leases
+      - name: nonaccrual_loans_and_leases
+        description: Nonaccrual-Loans & Leases
+      - name: n_90_real_estate_loans_in_domestic_offices
+        description: 90+ Real Estate Loans in Domestic Offices
+      - name: total_n_per_c_loans_and_leases
+        description: Total N/C-Loans & Leases
+      - name: net_chargeoffs_all_other_loans_and_leases
+        description: Net Charge-offs All other loans & leases (including farm) Numerator
+      - name: real_estate_loan_net_chargeoffs_domestic
+        description: Real Estate Loan Net Charge-Offs Domestic Offices
+      - name: real_estate_loan_net_chargeoffs_domestic_ntreoffdomq
+        description: Real Estate Loan Net Charge-Offs Domestic Offices Quarterly
+      - name: n_1_4_fam_real_estate_chargeoff_per_1_4_fam
+        description: 1-4 Fam Real Estate Charge-Off/1-4 Fam Loans Quarterly Ratio
+      - name: real_estate_loan_net_chargeoffs_quarterly
+        description: Real Estate Loan Net Charge-Offs Quarterly Ratio
+      - name: time_deposits_over_100m
+        description: Time Deposits Over $100M
+      - name: other_assets
+        description: Other Assets
+      - name: domestic_multi_service_offices
+        description: >-
+          The number of multiple service domestic offices operated by an institution.
+      - name: nondomestic_offices
+        description: The number of nondomestic offices operated by an institution.
+      - name: domestic_other_offices
+        description: >-
+          The number of domestic non-multiple service offices operated by an institution.
+      - name: sod_offices
+        description: >-
+          The number of offices operated by an institution based on the summary of
+          deposits
+          definition of offices.
+      - name: total_offices
+        description: The total number of offices operated by an institution.
+      - name: u_s_and_other_area_offices
+        description: >-
+          The number of domestic and U.S terrirtories offices operated by an institution.
+      - name: p_per_d_30_89_real_estate_loans_in_domestic
+        description: P/D 30-89 Real Estate Loans in Domestic Offices
+      - name: n_90_days_p_per_d_loans_and_leases
+        description: 90+ Days P/D-Loans & Leases
+      - name: n_90_real_estate_loans_in_domestic_offices_p9relndo
+        description: 90+ Real Estate Loans in Domestic Offices
+      - name: pre_tax_net_income_operating_income_quarterly
+        description: Pre-Tax Net Income Operating Income Quarterly
+      - name: securities_af
+        description: Securities-Af
+      - name: equity_securities_not_held_for_trading
+        description: Equity Securities Not Held for Trading
+      - name: securities_ha
+        description: Securities-Ha
+      - name: priv_issued_res_mortgage_backed_securities
+        description: Priv Issued Res Mortgage-Backed Securities
+      - name: u_s_treasury_securities
+        description: U.S. Treasury Securities
+      - name: number_of_states_with_offices
+        description: The number of states with offices (including its main office).
+      - name: interest_bearing_cash_and_due
+        description: Interest-Bearing Cash & Due
+      - name: total_loans_and_leases_recoveries_quarterly
+        description: Total Loans & Leases Recoveries Quarterly
+      - name: total_loans_and_leases_chargeoffs_quarterly
+        description: Total Loans & Leases Charge-Offs Quarterly
+      - name: deposit_interest_expense
+        description: Deposit Interest Expense
+      - name: deposit_interest_expense_dom
+        description: Deposit Interest Expense-Dom
+      - name: deposit_interest_expense_dom_quarterly
+        description: Deposit Interest Expense-Dom Quarterly
+      - name: total_interest_expense_annually
+        description: Total Interest Expense Annually
+      - name: total_interest_expense_quarterly_eintxq
+        description: Total Interest Expense Quarterly
+      - name: total_interest_expense_quarterly
+        description: Total Interest Expense Quarterly
+      - name: all_other_noninterest_expense_quarterly
+        description: All Other Noninterest Expense Quarterly
+      - name: all_other_noninterest_expense
+        description: All Other Noninterest Expense
+      - name: premises_and_fixed_assets_expense
+        description: Premises & Fixed Assets Expense
+      - name: premises_and_fixed_assets_expense_quarterly
+        description: Premises & Fixed Assets Expense Quarterly
+      - name: cash_dividends_on_comm_and_pref_quarterly
+        description: Cash Dividends On Comm & Pref Quarterly
+      - name: up_net_and_other_capital_comp
+        description: Up-Net & Other Capital Comp
+      - name: salaries_and_employee_benefits
+        description: Salaries and Employee Benefits
+      - name: salaries_and_employee_benefits_quarterly
+        description: Salaries and Employee Benefits Quarterly
+      - name: income_before_inc_taxes_and_disc
+        description: Income Before Inc Taxes & Disc
+      - name: loan_income_ann
+        description: Loan Income-Ann
+      - name: loan_income_dom
+        description: Loan Income-Dom
+      - name: loan_income_dom_quarterly
+        description: Loan Income-Dom Quarterly
+      - name: loan_and_lease_income_ann
+        description: Loan & Lease Income-Ann
+      - name: loan_and_lease_income_qtr
+        description: Loan & Lease Income-Qtr
+      - name: loan_income_qtr
+        description: Loan Income-Qtr
+      - name: total_interest_income_quarterly
+        description: Total Interest Income Quarterly
+      - name: iras_and_keogh_plans_deposits
+        description: Iras and Keogh Plans-Deposits
+      - name: total_security_income
+        description: Total Security Income
+      - name: total_security_income_ann
+        description: Total Security Income-Ann
+      - name: total_security_income_quarterly
+        description: Total Security Income Quarterly
+      - name: applicable_income_taxes_ann
+        description: Applicable Income Taxes-Ann
+      - name: applicable_income_taxes_quarterly
+        description: Applicable Income Taxes Quarterly
+      - name: applicable_income_taxes_qtr_ann
+        description: Applicable Income Taxes-Qtr-Ann
+      - name: executive_officer_loans_amount
+        description: Executive Officer Loans-Amount
+      - name: allowance_for_loan_and_leases
+        description: Allowance for Loan and Leases
+      - name: nonaccrual_commercial_and_industrial_loans
+        description: Nonaccrual-Commercial and Industrial Loans
+      - name: net_income_quarterly
+        description: Net income - quarterly
+      - name: net_operating_income_qtr
+        description: Net Operating Income-Qtr
+      - name: cost_of_funding_earning_assets_quarterly
+        description: Cost of Funding Earning Assets Quarterly
+      - name: avg_total_assets
+        description: Avg Total Assets
+      - name: deposits_institution_loans
+        description: Deposits Institution Loans
+      - name: interest_rate_total_contracts
+        description: Interest Rate-Total Contracts
+      - name: total_available_for_sale_at_amortized_cost
+        description: >-
+          Total Available-for-Sale At Amortized Cost Securities On A Consolidated
+          Basis
+      - name: total_held_to_maturity_at_fair_value
+        description: >-
+          Total Held-to-Maturity At Fair Value Securities On A Consolidated Basis
+      - name: securities_mv
+        description: Securities-Mv
+      - name: pledged_securities
+        description: Pledged Securities
+      - name: trading_liabilities
+        description: Trading Liabilities
+      - name: unearned_income
+        description: Unearned Income
+      - name: long_term_assets_5_years_qbp
+        description: Long-Term Assets (5+ Years)-QBP
+      - name: average_assets_adjusted_pca
+        description: Average Assets-Adjusted-PCA
+      - name: noninterest_bearing_cash_and_due
+        description: Noninterest-Bearing Cash & Due
+      - name: net_operating_cash_flow_ann
+        description: Net Operating Cash Flow-Ann
+      - name: net_operating_cash_flow_ann_quarterly
+        description: NET OPERATING CASH FLOW-ANN Quarterly
+      - name: commercial_loan_recoveries
+        description: Commercial Loan Recoveries
+      - name: commercial_loan_recoveries_quarterly
+        description: Commercial Loan Recoveries Quarterly
+      - name: other_consumer_loan_recoveries
+        description: Other Consumer Loan Recoveries
+      - name: other_consumer_loan_recoveries_quarterly
+        description: Other Consumer Loan Recoveries Quarterly
+      - name: consumer_loan_recoveries_quarterly
+        description: Consumer Loan Recoveries Quarterly
+      - name: credit_card_loan_recoveries
+        description: Credit Card Loan Recoveries
+      - name: credit_card_loan_recoveries_quarterly
+        description: Credit Card Loan Recoveries Quarterly
+      - name: lease_recoveries
+        description: Lease Recoveries
+      - name: lease_recoveries_quarterly
+        description: Lease Recoveries Quarterly
+      - name: real_estate_loan_recoveries
+        description: Real Estate Loan Recoveries
+      - name: farmland_real_estate_ln_recoveries
+        description: Farmland Real Estate Ln Recoveries
+      - name: farmland_real_estate_ln_recoveries_qtr
+        description: Farmland Real Estate Ln Recoveries-Qtr
+      - name: construction_real_estate_ln_recover_qtr
+        description: Construction Real Estate Ln Recover-Qtr
+      - name: construction_real_estate_ln_recoveries
+        description: Construction Real Estate Ln Recoveries
+      - name: line_of_credit_real_estate_ln_recoveries
+        description: Line of Credit Real Estate Ln Recoveries
+      - name: line_of_credit_real_estate_ln_recoveries_crrelocq
+        description: Line of Credit Real Estate Ln Recoveries Quarterly
+      - name: multifamily_real_estate_ln_recoveries_qtr
+        description: Multifamily Real Estate Ln Recoveries-Qtr
+      - name: multifamily_res_real_estate_ln_recoveries
+        description: Multifamily Res Real Estate Ln Recoveries
+      - name: nonfarm_nonresidential_real_estate_ln
+        description: Nonfarm Nonresidential Real Estate Ln Recoveries
+      - name: nonfarm_nonresidential_real_estate_ln_crrenrsq
+        description: Nonfarm Nonresidential Real Estate Ln Recover-Qtr
+      - name: real_estate_loan_recoveries_quarterly
+        description: Real Estate Loan Recoveries Quarterly
+      - name: real_estate_loans_1_4_family_recoveries
+        description: Real Estate Loans 1-4 Family Recoveries
+      - name: real_estate_loans_1_4_family_recover_qtr
+        description: Real Estate Loans 1-4 Family Recover-Qtr
+      - name: commercial_loan_chargeoffs
+        description: Commercial Loan Charge-Offs
+      - name: commercial_loan_chargeoffs_quarterly
+        description: Commercial Loan Charge-Offs Quarterly
+      - name: other_consumer_loan_chargeoffs
+        description: Other Consumer Loan Charge-Offs
+      - name: other_consumer_loan_chargeoffs_quarterly
+        description: Other Consumer Loan Charge-Offs Quarterly
+      - name: consumer_loan_chargeoffs_quarterly
+        description: Consumer Loan Charge-Offs Quarterly
+      - name: credit_card_loan_chargeoffs
+        description: Credit Card Loan Charge-Offs
+      - name: credit_card_loan_chargeoffs_quarterly
+        description: Credit Card Loan Charge-Offs Quarterly
+      - name: lease_chargeoffs
+        description: Lease Charge-Offs
+      - name: lease_chargeoffs_quarterly
+        description: Lease Charge-Offs Quarterly
+      - name: real_estate_loan_chargeoffs
+        description: Real Estate Loan Charge-Offs
+      - name: farmland_real_estate_ln_chargeoffs
+        description: Farmland Real Estate Ln Charge-Offs
+      - name: construction_real_estate_ln_chargeoffs
+        description: Construction Real Estate Ln Charge-Offs
+      - name: line_of_credit_real_estate_ln_chargeoffs
+        description: Line of Credit Real Estate Ln Charge-Offs
+      - name: line_of_credit_real_estate_ln_chargeoffs_drrelocq
+        description: Line of Credit Real Estate Ln Charge-Offs Quarterly
+      - name: multifamily_res_real_estate_ln_chargeoff
+        description: Multifamily Res Real Estate Ln Charge-Off
+      - name: nonfarm_nonresidential_real_estate_ln_drrenres
+        description: Nonfarm Nonresidential Real Estate Ln Charge-Offs
+      - name: real_estate_loan_chargeoffs_quarterly
+        description: Real Estate Loan Charge-Offs Quarterly
+      - name: real_estate_loans_1_4_family_chargeoffs
+        description: Real Estate Loans 1-4 Family Charge-Offs
+      - name: real_estate_loans_1_4_family_chg_offs_qtr
+        description: Real Estate Loans 1-4 Family Chg-Offs-Qtr
+      - name: efficiency_ratio_expense
+        description: Efficiency Ratio Expense
+  - name: us_fdic_bankfind__financials_indicator
+    description: >-
+      Every quarterly line item the FDIC reports, in long form: one row per institution,
+      quarter
+      and line item. Covers all reported items rather than the headline selection
+      in financials,
+      at the cost of needing a join to the indicator table to read. Rows exist only
+      where
+      the institution reported the item.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, quarter, cert, indicator_id]
+          config:
+            where: __most_recent_year_en__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+    columns:
+      - name: year
+        description: Calendar year of the quarterly report
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+      - name: quarter
+        description: Calendar quarter of the report, 1 to 4
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+      - name: report_date
+        description: Last day of the quarter the report covers
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+      - name: cert
+        description: FDIC certificate number identifying the institution
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+          - custom_relationships:
+              to: ref('us_fdic_bankfind__institution')
+              field: cert
+              proportion_allowed_failures: 0.02
+              config:
+                where: __most_recent_year_en__
+      - name: indicator_id
+        description: FDIC mnemonic of the reported line item
+        tests:
+          - not_null:
+              config:
+                where: __most_recent_year_en__
+          - relationships:
+              to: ref('us_fdic_bankfind__indicator')
+              field: indicator_id
+              config:
+                where: __most_recent_year_en__
+      - name: value
+        description: Reported value of the line item

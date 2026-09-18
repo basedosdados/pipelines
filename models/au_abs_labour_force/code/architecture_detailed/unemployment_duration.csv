@@ -1,0 +1,10 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,Mid-quarter month
+month,INT64,"Reference month of the observation, from 1 to 12",,no,br_bd_diretorios_data_tempo.mes:mes,month,no,Derived from the monthly reference period.,Month
+geography,STRING,Geographic area: Australia (national) or one of the eight states and territories,,no,,,no,"States and territories follow the ASGS (2011) state and territory structure. To be linked to br_bd_diretorios_au once that directory carries a state table. Australia carries the rows broken down by age group, which ABS publishes for the nation only.",State and territory (STT): ASGS (2011)
+duration_band,STRING,Duration of job search,,no,,,no,,Duration of job search
+age_group,STRING,Age group in years; total covers persons aged 15 years and over,,no,,,no,"Six broad bands from 15-24 years to 65 years and over, published for Australia only. The sentinel total carries the rows broken down by state and territory instead, which ABS publishes without an age breakdown.",Age
+unemployed_total,FLOAT64,Number of unemployed persons,,no,,person,no,Converted from ABS thousands to absolute persons,Unemployed total ('000)
+unemployed_looked_for_full_time,FLOAT64,Number of unemployed persons who looked for full-time work,,no,,person,no,Converted from ABS thousands to absolute persons,Unemployed looked for full-time work ('000)
+unemployed_looked_for_part_time,FLOAT64,Number of unemployed persons who looked for only part-time work,,no,,person,no,Converted from ABS thousands to absolute persons,Unemployed looked for only part-time work ('000)
+weeks_searching,FLOAT64,Total weeks spent searching for a job by unemployed persons,,no,,week,no,Converted from ABS thousands of weeks to weeks,Number of weeks searching for job ('000 Weeks)

@@ -24,10 +24,14 @@ dependencies = [
   "click<9.0.0,>=8.0.3",
   "cloudpickle==2.0.0",
   "croniter==1.0.15",
+  # www.dol.gov (Akamai) rejects requests/curl/wget on the TLS fingerprint
+  # alone; curl_cffi impersonates Chrome and is admitted. Used by us_dol_oflc.
+  "curl-cffi>=0.7,<1.0",
   "dask==2021.11.2",
   "distributed==2021.11.2",
   "docker>=6,<7",
   "docopt==0.6.2",
+  "duckdb>=1.0,<2.0",
   "fake-useragent<2.0.0,>=1.1.3",
   "fsspec>=2022.5.0",
   "google-analytics-data==0.17.0",
@@ -198,6 +202,11 @@ ignore = [
 # renaming them would break the wire contract.
 "pipelines/utils/metadata/dto.py" = ["N815"]
 
+# ABS writes its own category labels with en dashes ("15–24", "2019–20") and
+# they are matched and emitted verbatim, so the ambiguous-unicode rules would
+# fire on real data values.
+"models/au_abs_household_income_wealth/code/*.py" = ["RUF001", "RUF002"]
+
 [tool.sqlfmt]
 exclude = ["target/**/*", "dbt_packages/**/*", ".venv/**/*"]
 
@@ -211,12 +220,93 @@ build-backend = "hatchling.build"
 [tool.pyrefly]
 project-excludes = [
   "pipelines/{{cookiecutter.pipeline_name}}",
+  "models/us_ffiec_bank_reporting/code",
+  "models/world_oecd_education/code",
+  "models/world_oecd_revenue_statistics/code",
+  "models/world_oecd_socx/code",
   "models/br_tse_eleicoes/code",
+  "models/us_nih_reporter/code",
+  # Same policy: the us_cms_hcris onboarding scripts run from their own
+  # directory with bare sibling imports (`common`, `measures`, `schema`),
+  # which pyrefly cannot resolve from the repo root.
+  "models/us_cms_hcris/code",
+  # Same policy: the world_iati_activities onboarding scripts run from their own
+  # directory with bare sibling imports (`common`, `gen_dbt`), which pyrefly
+  # cannot resolve from the repo root.
+  "models/world_iati_activities/code",
+  # Same policy, narrowed to the one file that needs it: us_nsf_ncses's metadata
+  # script imports the databasis MCP server through sys.path, which pyrefly
+  # cannot resolve. The rest of models/us_nsf_ncses/code stays type-checked.
+  "models/us_nsf_ncses/code/metadata.py",
+  # Same policy: the us_census_cog onboarding scripts run from their own
+  # directory with bare sibling imports (`common`), which pyrefly cannot resolve
+  # from the repo root.
+  "models/us_census_cog/code",
+  # Same policy: the au_abs_population onboarding scripts (bootstrap, upload,
+  # validation and the architecture/dbt generators) are standalone one-shot ETL
+  # that manipulate sys.path and monkey-patch the GCS client; the reusable
+  # transform they call lives in pipelines/datasets/au_abs_population/utils.py,
+  # which is type-checked.
+  "models/au_abs_population/code",
+  "models/us_noaa_storm_events/code",
+  # Same policy: the au_abs_labour_force Detailed-release onboarding scripts
+  # (architecture_detailed.py, clean_detailed.py, gen_dbt_detailed.py,
+  # upload_detailed.py, build_columns_json_detailed.py) are standalone one-shot
+  # ETL run from their own directory with bare sibling imports resolved via
+  # sys.path, plus a monkey-patched GCS client. The reusable transform for the
+  # monthly release lives in pipelines/datasets/au_abs_labour_force/utils.py and
+  # is type-checked normally.
+  "models/au_abs_labour_force/code",
+  # Same policy: the us_dot_fars onboarding scripts run from their own directory
+  # with bare sibling imports (`common`), which pyrefly cannot resolve from the
+  # repo root.
+  "models/us_dot_fars/code",
+  # Same policy: the world_noaa_ghcn onboarding scripts run from their own
+  # directory with a bare sibling import (`constants`), and clean.py also
+  # imports the not-yet-created pipelines.datasets.world_noaa_ghcn package
+  # that the refresh pipeline will provide.
+  "models/world_noaa_ghcn/code",
   "models/us_harvard_cbdb/code",
   "models/us_cfpb_hmda/code",
   "models/world_aiddata_gcdf/code",
   "models/us_fed_fred/code",
   "models/br_senado_dados_abertos_administrativos/code",
+  # Same policy: the us_stanford_dime onboarding scripts are standalone `.py`
+  # using bare sys.path-relative imports (`import architecture`, `import clean`)
+  # that pyrefly cannot resolve from the repo root.
+  "models/us_stanford_dime/code",
+  # Same policy for the us_irs_form990 one-shot onboarding scripts.
+  "models/us_irs_form990/code",
+  # Same policy for the us_eia_electricity one-shot onboarding scripts: they run
+  # from their own directory with bare sibling imports (`from common import ...`,
+  # `import metadata_spec`) plus a sys.path insert to reach the databasis MCP
+  # server module, none of which pyrefly can resolve from the repo root. The
+  # transform they share lives in pipelines/datasets/us_eia_electricity/ and is
+  # checked normally.
+  "models/us_eia_electricity/code",
+  # Same policy for the us_eia_consumption and us_eia_seds one-shot onboarding
+  # scripts: bare sibling imports plus a sys.path insert to reach the databasis
+  # MCP server module. Their shared transforms live in pipelines/datasets/ and
+  # are checked normally.
+  "models/us_eia_consumption/code",
+  "models/us_eia_seds/code",
+  # Same policy: the us_cfpb_complaints onboarding scripts are standalone `.py`
+  # run from their own directory with bare sibling imports (`from common import
+  # ...`), which pyrefly cannot resolve from the repo root.
+  "models/us_cfpb_complaints/code",
+  # Same policy for the us_fema_openfema build scripts: they are standalone
+  # `.py` run from their own directory, importing sibling modules by bare name
+  # (`import glossary`, `import tables`, `import legends`), which pyrefly
+  # cannot resolve from the repo root. The pure transform they share lives in
+  # pipelines/datasets/us_fema_openfema/ and is checked normally.
+  "models/us_fema_openfema/code",
+  "models/us_fbi_cde/code",
+  # Same policy: the au_abs_household_income_wealth onboarding scripts are
+  # standalone `.py` run from their own directory with bare sibling imports
+  # (`import cubes`, `import paper1351`, `import semantics`) resolved via a
+  # sys.path insert, which pyrefly cannot resolve from the repo root. The
+  # dataset is a one-off ABS release with no recurring pipeline.
+  "models/au_abs_household_income_wealth/code",
   # Same policy: br_sfb_sicar onboarding code is standalone `.py` (architecture.py,
   # gen_*.py, bootstrap_clean.py use bare `import architecture`/`import clean`,
   # sys.path-relative), unresolvable from the repo root. The pure transform is
@@ -233,9 +323,31 @@ project-excludes = [
   # unresolvable from the repo root. One-shot onboarding code, not the typed
   # `pipelines/` framework, consistent with the model-ETL-not-type-checked policy.
   "models/world_oecd_piaac/code",
+  # Same policy: us_dot_bts_ontime onboarding code is standalone one-shot `.py`
+  # (download.py, clean.py, upload.py, validate.py, register_columns.py,
+  # link_observation_levels.py, promote_to_prod.py) run via `uv run`. It uses bare
+  # `import gen_columns_json` resolved through sys.path.insert, and
+  # importlib.util.spec_from_file_location for the databasis MCP module — neither
+  # resolvable from the repo root. The recurring pipeline's own transform lives in
+  # the type-checked `pipelines/datasets/us_dot_bts_ontime/`, which is NOT excluded.
+  "models/us_dot_bts_ontime/code",
+  "models/us_epa_tri/code",
   # Same policy: br_bd_diretorios_mundo ISCO/ISIC directory build/upload code is
   # standalone one-shot `.py` run via `uv run`, outside the typed framework.
   "models/br_bd_diretorios_mundo/code",
+  # Same policy: au_aec_elections onboarding code is standalone one-shot `.py` run
+  # via `uv run` (clean.py, upload.py, validate.py, build_*.py), and
+  # register_metadata.py drives the databasis MCP module through
+  # `sys.path.insert` — unresolvable from the repo root. The pure transform lives
+  # in the typed `pipelines/datasets/au_aec_elections/`, which is checked.
+  "models/au_aec_elections/code",
+  # Same policy: au_sa_ecsa_elections onboarding code is standalone one-shot
+  # `.py` run via `uv run` (download.py, clean.py, upload.py, crosscheck.py,
+  # generate_artifacts.py), and register_metadata.py, register_metadata_prod.py,
+  # verify_prod.py and dedupe_metadata.py drive the databasis MCP module through
+  # `sys.path.insert` — unresolvable from the repo root. The pure transform lives
+  # in the typed `pipelines/datasets/au_sa_ecsa_elections/`, which is checked.
+  "models/au_sa_ecsa_elections/code",
   "models/au_geoscape_gnaf/code",
   "models/us_cms_open_payments/code",
   "models/us_fec_campaign_finance/code",
@@ -248,6 +360,67 @@ project-excludes = [
   # typed `pipelines/` framework. The shared transform lives in the typed
   # pipelines/datasets/us_bls_oes/ and is type-checked there.
   "models/us_bls_oes/code",
+  # Same policy: us_fdic_bankfind onboarding code is standalone `.py`
+  # (catalog.py, build_*.py, download_and_clean.py, upload.py, validate.py,
+  # register_metadata.py run via `uv run`) — one-shot onboarding code outside
+  # the typed `pipelines/` framework. The pure transform lives in
+  # pipelines/datasets/us_fdic_bankfind/utils.py and is type-checked there.
+  "models/us_fdic_bankfind/code",
+  # Same policy: br_bd_diretorios_cl onboarding code is standalone one-shot `.py`
+  # (clean.py, upload.py run via `uv run --with ...`) outside the typed
+  # `pipelines/` framework. It also imports `pdfplumber`, an optional dependency
+  # used only by the `--validate` name cross-check and deliberately kept out of
+  # pyproject, since the directory is a static one-off load with no pipeline.
+  "models/br_bd_diretorios_cl/code",
+  # Same policy: cl_chilecompra_mercado_publico onboarding code is standalone
+  # one-shot `.py` (build_columns_json.py, generate_dbt.py, upload.py,
+  # register_metadata.py run via `uv run`) using bare `import metadata_spec` /
+  # `import descriptions_i18n` and the databasis MCP's `import server`, all
+  # resolved via sys.path.insert and unresolvable from the repo root. The shared
+  # transform lives in the typed pipelines/datasets/cl_chilecompra_mercado_publico/
+  # and is type-checked there.
+  "models/cl_chilecompra_mercado_publico/code",
+  # Same policy: br_bd_execucao_estadual onboarding code is standalone one-shot
+  # `.py` (download_*.py, clean_*.py, upload.py, validate_*.py,
+  # register_columns.py run via `uv run`) using bare `import constants` /
+  # `import translations` resolved via sys.path.insert — unresolvable from the
+  # repo root. One-shot onboarding code outside the typed `pipelines/` framework.
+  "models/br_bd_execucao_estadual/code",
+  # Same policy: fr_meteofrance onboarding code is standalone one-shot `.py`
+  # (gen_artifacts.py, probe_codes.py, validate.py, clim_gen_artifacts.py,
+  # clim_upload.py run via `uv run`) using bare `import schema_map` /
+  # `import descriptions_i18n` resolved via sys.path — unresolvable from the
+  # repo root. The shared transform lives in the typed
+  # pipelines/datasets/fr_meteofrance/ and is type-checked there.
+  "models/fr_meteofrance/code",
+  # Same policy: br_ibge_censo_demografico 2022 onboarding code is standalone
+  # one-shot `.py` (build_*.py, clean.py, upload.py, process.py) using bare
+  # `import constants` resolved via sys.path.insert — unresolvable from the
+  # repo root. One-shot onboarding code outside the typed `pipelines/` framework.
+  "models/br_ibge_censo_demografico/code",
+  # One-shot onboarding code for br_mgi_compras_publicas: standalone `.py`
+  # run via `uv run` with bare imports resolved through sys.path. The shared
+  # transform lives in the typed pipelines/datasets/br_mgi_compras_publicas/.
+  "models/br_mgi_compras_publicas/code",
+    # Standalone one-shot onboarding ETL: sibling-module and out-of-repo
+    # imports pyrefly cannot resolve. The reusable transform lives in
+    # pipelines/datasets/us_census_bps/utils.py, which is checked.
+    "models/us_census_bps/code",
+  # The onboarding scripts import the databasis MCP server module by path,
+  # which is outside the repo, so pyrefly cannot resolve it from the root.
+  "models/us_osha_enforcement/code",
+  # Same policy: au_nsw_nswec_elections onboarding code is standalone one-shot
+  # `.py` (download.py, clean.py, upload.py, generate_artifacts.py,
+  # metadata_payload.py run via `uv run`), and register_metadata.py drives the
+  # databasis MCP `server` module through `sys.path.insert` — unresolvable from
+  # the repo root. The reusable transform lives in the typed
+  # `pipelines/datasets/au_nsw_nswec_elections/`, which is checked.
+  "models/au_nsw_nswec_elections/code",
+  # Same policy: au_treasury_budget onboarding code is standalone one-shot `.py`
+  # run from its own directory, so its sibling imports (docx_tables, measures,
+  # releases) do not resolve from the repo root, and metadata.py drives the
+  # databasis MCP `server` module through `sys.path.insert`.
+  "models/au_treasury_budget/code",
   "models/br_tse_eleicoes/code/[[]dbt[]]br_tse_eleicoes.ipynb",
   "models/world_wb_mides/code/licitacao_item.ipynb",
   "models/world_olympedia_olympics/code/[[]code[]]world_olympedia_olympics.ipynb",
