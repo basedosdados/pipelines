@@ -49,6 +49,18 @@ consistência com `microdados`, que é a mesma coluna e está em produção desd
 
 Uma linha por inscrito, particionada por `ano`. Sai de `RESULTADOS_<ano>.csv`.
 
+**A edição de 2025 abriu a correção da redação por avaliador**, acrescentando 28
+colunas: `nota_redacao_avaliador_1..4`, as vinte
+`nota_redacao_competencia_<1..5>_avaliador_<1..4>` e
+`presenca_redacao_avaliador_1..4`. Elas são nulas em 2024, que publicava só a
+nota consolidada — é o que faz o arquivo da fonte crescer de 1,68 GB para
+2,1 GB. As quatro `presenca_redacao_avaliador_*` são codificadas como a
+`presenca_redacao`, mas **ainda não estão no `dicionario`**, e por isso ficaram
+fora do `custom_dictionary_coverage`.
+
+Coluna que uma edição não traz sai nula, e o log lista quais foram — a tabela
+cobre de 2024 em diante e o INEP mexe no conjunto de colunas entre edições.
+
 É o arquivo grande do conjunto. A limpeza lê em blocos e grava em fluxo, com um
 `ParquetWriter` aberto por partição, de modo que a memória do pod não acompanha o
 tamanho do arquivo. O flow pede `memory_limit` de 8Gi porque o `/tmp` do pod conta

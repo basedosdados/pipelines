@@ -248,12 +248,34 @@ def check_year(chunk: pd.DataFrame, ano: str, origem: Path) -> None:
         )
 
 
+def read_source_columns(path: Path) -> list[str]:
+    """Nomes das colunas do CSV, sem ler o resto dele.
+
+    Args:
+        path: CSV da fonte.
+
+    Returns:
+        As colunas na ordem em que a fonte as declara.
+    """
+    return list(
+        pd.read_csv(
+            path,
+            sep=constants.SEPARATOR.value,
+            encoding=constants.ENCODING.value,
+            nrows=0,
+        ).columns
+    )
+
+
 def read_chunks(path: Path, table_id: str, ano: str) -> Iterator[pd.DataFrame]:
-    """Lê o CSV em blocos, já renomeado e na ordem da arquitetura.
+    """Lê o CSV em blocos, já renomeado e na ordem da tabela publicada.
 
     Tudo entra como texto: a staging é toda STRING por convenção da casa, e o
     `.sql` faz `safe_cast` de cada coluna. Ler como texto também evita que o
     pandas transforme código de município em float e devolva `3550308.0`.
+
+    A tabela cobre várias edições, e o INEP acrescenta e aposenta coluna entre
+    elas, então o que a edição não traz sai nulo — e é listado no log.
 
     Args:
         path: CSV da fonte.
@@ -261,10 +283,20 @@ def read_chunks(path: Path, table_id: str, ano: str) -> Iterator[pd.DataFrame]:
         ano: Edição pedida, no formato `%Y`.
 
     Yields:
-        Cada bloco com as colunas da arquitetura, na ordem dela.
+        Cada bloco com as colunas da tabela publicada, na ordem dela.
     """
     rename = constants.RENAME.value[table_id]
     columns = constants.COLUMNS.value[table_id]
+
+    na_fonte = {
+        rename[nome] for nome in read_source_columns(path) if nome in rename
+    }
+    ausentes = [coluna for coluna in columns if coluna not in na_fonte]
+    if ausentes:
+        print(
+            f"{path.name}: {len(ausentes)} colunas da tabela não existem nesta "
+            f"edição e saem nulas: {ausentes}"
+        )
 
     for chunk in pd.read_csv(
         path,
@@ -279,7 +311,10 @@ def read_chunks(path: Path, table_id: str, ano: str) -> Iterator[pd.DataFrame]:
             check_year(chunk, ano, path)
         for column in constants.BOOLEAN_COLUMNS.value & set(chunk.columns):
             chunk[column] = chunk[column].map({"0": "false", "1": "true"})
-        yield chunk[columns]
+        # `reindex`, e não `chunk[columns]`: a tabela cobre várias edições e o
+        # INEP acrescenta e aposenta coluna entre elas. O que a edição não traz
+        # sai nulo, listado acima.
+        yield chunk.reindex(columns=columns)
 
 
 def clean_table(table_id: str, ano: str) -> Path:

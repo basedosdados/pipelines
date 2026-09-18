@@ -91,6 +91,21 @@ class constants(Enum):
             "NU_NOTA_COMP4": "nota_redacao_competencia_4",
             "NU_NOTA_COMP5": "nota_redacao_competencia_5",
             "NU_NOTA_REDACAO": "nota_redacao",
+            **{
+                f"TP_STATUS_REDACAO_AV{n}": f"presenca_redacao_avaliador_{n}"
+                for n in range(1, 5)
+            },
+            **{
+                f"NU_NOTA_COMP{c}_AV{n}": (
+                    f"nota_redacao_competencia_{c}_avaliador_{n}"
+                )
+                for c in range(1, 6)
+                for n in range(1, 5)
+            },
+            **{
+                f"NU_NOTA_AV{n}": f"nota_redacao_avaliador_{n}"
+                for n in range(1, 5)
+            },
         },
         "questionario_socioeconomico": {
             "NU_INSCRICAO": "id_inscricao",
@@ -153,6 +168,13 @@ class constants(Enum):
             "nota_redacao_competencia_4",
             "nota_redacao_competencia_5",
             "nota_redacao",
+            *(f"presenca_redacao_avaliador_{n}" for n in range(1, 5)),
+            *(
+                f"nota_redacao_competencia_{c}_avaliador_{n}"
+                for c in range(1, 6)
+                for n in range(1, 5)
+            ),
+            *(f"nota_redacao_avaliador_{n}" for n in range(1, 5)),
         ],
         "questionario_socioeconomico": [
             "id_inscricao",

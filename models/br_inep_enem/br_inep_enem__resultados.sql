@@ -51,5 +51,73 @@ select
     safe_cast(nota_redacao_competencia_3 as float64) nota_redacao_competencia_3,
     safe_cast(nota_redacao_competencia_4 as float64) nota_redacao_competencia_4,
     safe_cast(nota_redacao_competencia_5 as float64) nota_redacao_competencia_5,
-    safe_cast(nota_redacao as float64) nota_redacao
+    safe_cast(nota_redacao as float64) nota_redacao,
+    safe_cast(presenca_redacao_avaliador_1 as string) presenca_redacao_avaliador_1,
+    safe_cast(presenca_redacao_avaliador_2 as string) presenca_redacao_avaliador_2,
+    safe_cast(presenca_redacao_avaliador_3 as string) presenca_redacao_avaliador_3,
+    safe_cast(presenca_redacao_avaliador_4 as string) presenca_redacao_avaliador_4,
+    safe_cast(
+        nota_redacao_competencia_1_avaliador_1 as float64
+    ) nota_redacao_competencia_1_avaliador_1,
+    safe_cast(
+        nota_redacao_competencia_1_avaliador_2 as float64
+    ) nota_redacao_competencia_1_avaliador_2,
+    safe_cast(
+        nota_redacao_competencia_1_avaliador_3 as float64
+    ) nota_redacao_competencia_1_avaliador_3,
+    safe_cast(
+        nota_redacao_competencia_1_avaliador_4 as float64
+    ) nota_redacao_competencia_1_avaliador_4,
+    safe_cast(
+        nota_redacao_competencia_2_avaliador_1 as float64
+    ) nota_redacao_competencia_2_avaliador_1,
+    safe_cast(
+        nota_redacao_competencia_2_avaliador_2 as float64
+    ) nota_redacao_competencia_2_avaliador_2,
+    safe_cast(
+        nota_redacao_competencia_2_avaliador_3 as float64
+    ) nota_redacao_competencia_2_avaliador_3,
+    safe_cast(
+        nota_redacao_competencia_2_avaliador_4 as float64
+    ) nota_redacao_competencia_2_avaliador_4,
+    safe_cast(
+        nota_redacao_competencia_3_avaliador_1 as float64
+    ) nota_redacao_competencia_3_avaliador_1,
+    safe_cast(
+        nota_redacao_competencia_3_avaliador_2 as float64
+    ) nota_redacao_competencia_3_avaliador_2,
+    safe_cast(
+        nota_redacao_competencia_3_avaliador_3 as float64
+    ) nota_redacao_competencia_3_avaliador_3,
+    safe_cast(
+        nota_redacao_competencia_3_avaliador_4 as float64
+    ) nota_redacao_competencia_3_avaliador_4,
+    safe_cast(
+        nota_redacao_competencia_4_avaliador_1 as float64
+    ) nota_redacao_competencia_4_avaliador_1,
+    safe_cast(
+        nota_redacao_competencia_4_avaliador_2 as float64
+    ) nota_redacao_competencia_4_avaliador_2,
+    safe_cast(
+        nota_redacao_competencia_4_avaliador_3 as float64
+    ) nota_redacao_competencia_4_avaliador_3,
+    safe_cast(
+        nota_redacao_competencia_4_avaliador_4 as float64
+    ) nota_redacao_competencia_4_avaliador_4,
+    safe_cast(
+        nota_redacao_competencia_5_avaliador_1 as float64
+    ) nota_redacao_competencia_5_avaliador_1,
+    safe_cast(
+        nota_redacao_competencia_5_avaliador_2 as float64
+    ) nota_redacao_competencia_5_avaliador_2,
+    safe_cast(
+        nota_redacao_competencia_5_avaliador_3 as float64
+    ) nota_redacao_competencia_5_avaliador_3,
+    safe_cast(
+        nota_redacao_competencia_5_avaliador_4 as float64
+    ) nota_redacao_competencia_5_avaliador_4,
+    safe_cast(nota_redacao_avaliador_1 as float64) nota_redacao_avaliador_1,
+    safe_cast(nota_redacao_avaliador_2 as float64) nota_redacao_avaliador_2,
+    safe_cast(nota_redacao_avaliador_3 as float64) nota_redacao_avaliador_3,
+    safe_cast(nota_redacao_avaliador_4 as float64) nota_redacao_avaliador_4
 from {{ set_datalake_project("br_inep_enem_staging.resultados") }} as t

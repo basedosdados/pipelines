@@ -423,6 +423,62 @@ models:
         description: Nota da competência 5
       - name: nota_redacao
         description: Nota da prova de redação
+      - name: presenca_redacao_avaliador_1
+        description: Situação da redação segundo o avaliador 1
+      - name: presenca_redacao_avaliador_2
+        description: Situação da redação segundo o avaliador 2
+      - name: presenca_redacao_avaliador_3
+        description: Situação da redação segundo o avaliador 3
+      - name: presenca_redacao_avaliador_4
+        description: Situação da redação segundo o avaliador 4
+      - name: nota_redacao_competencia_1_avaliador_1
+        description: Nota da competência 1 atribuída pelo avaliador 1
+      - name: nota_redacao_competencia_1_avaliador_2
+        description: Nota da competência 1 atribuída pelo avaliador 2
+      - name: nota_redacao_competencia_1_avaliador_3
+        description: Nota da competência 1 atribuída pelo avaliador 3
+      - name: nota_redacao_competencia_1_avaliador_4
+        description: Nota da competência 1 atribuída pelo avaliador 4
+      - name: nota_redacao_competencia_2_avaliador_1
+        description: Nota da competência 2 atribuída pelo avaliador 1
+      - name: nota_redacao_competencia_2_avaliador_2
+        description: Nota da competência 2 atribuída pelo avaliador 2
+      - name: nota_redacao_competencia_2_avaliador_3
+        description: Nota da competência 2 atribuída pelo avaliador 3
+      - name: nota_redacao_competencia_2_avaliador_4
+        description: Nota da competência 2 atribuída pelo avaliador 4
+      - name: nota_redacao_competencia_3_avaliador_1
+        description: Nota da competência 3 atribuída pelo avaliador 1
+      - name: nota_redacao_competencia_3_avaliador_2
+        description: Nota da competência 3 atribuída pelo avaliador 2
+      - name: nota_redacao_competencia_3_avaliador_3
+        description: Nota da competência 3 atribuída pelo avaliador 3
+      - name: nota_redacao_competencia_3_avaliador_4
+        description: Nota da competência 3 atribuída pelo avaliador 4
+      - name: nota_redacao_competencia_4_avaliador_1
+        description: Nota da competência 4 atribuída pelo avaliador 1
+      - name: nota_redacao_competencia_4_avaliador_2
+        description: Nota da competência 4 atribuída pelo avaliador 2
+      - name: nota_redacao_competencia_4_avaliador_3
+        description: Nota da competência 4 atribuída pelo avaliador 3
+      - name: nota_redacao_competencia_4_avaliador_4
+        description: Nota da competência 4 atribuída pelo avaliador 4
+      - name: nota_redacao_competencia_5_avaliador_1
+        description: Nota da competência 5 atribuída pelo avaliador 1
+      - name: nota_redacao_competencia_5_avaliador_2
+        description: Nota da competência 5 atribuída pelo avaliador 2
+      - name: nota_redacao_competencia_5_avaliador_3
+        description: Nota da competência 5 atribuída pelo avaliador 3
+      - name: nota_redacao_competencia_5_avaliador_4
+        description: Nota da competência 5 atribuída pelo avaliador 4
+      - name: nota_redacao_avaliador_1
+        description: Nota da redação atribuída pelo avaliador 1
+      - name: nota_redacao_avaliador_2
+        description: Nota da redação atribuída pelo avaliador 2
+      - name: nota_redacao_avaliador_3
+        description: Nota da redação atribuída pelo avaliador 3
+      - name: nota_redacao_avaliador_4
+        description: Nota da redação atribuída pelo avaliador 4
   - name: br_inep_enem__questionario_socioeconomico_2024
     description: Respostas do questionário socioeconômico de 2024.
     tests:
