@@ -307,6 +307,37 @@ TABLES: dict[str, DbtTable] = {
             "nas tabelas licitacao_item_pregao e compra_sem_licitacao_item"
         ),
     ),
+    # --- ComprasNet legado scrape (not from the API) -----------------------
+    # Both tables are raspadas from the ComprasNet HTML, so they carry no source
+    # timestamp; dedup falls back to the default content-based collapse, which
+    # is right here because a chunk can only be re-harvested identically.
+    "pregao_item_oferta": DbtTable(
+        key=["id_compra", "numero_item", "cnpj_cpf_fornecedor"],
+        year_range=R_LEGADO,
+        scope_tests=True,
+        # Supplier-typed free text: marca is absent on ~3% of rows, fabricante
+        # and modelo rather more often, and none of them is required.
+        ignore_values=["marca", "fabricante", "modelo_versao"],
+        description=(
+            "Propostas vencedoras por item dos pregões eletrônicos da Lei 8.666, com marca, "
+            "fabricante, modelo e a descrição detalhada do objeto ofertado pelo fornecedor. "
+            "Uma linha por item e fornecedor vencedor"
+        ),
+    ),
+    "pregao_item_evento": DbtTable(
+        key=["id_compra", "numero_item", "ordem_evento"],
+        year_range=R_LEGADO,
+        scope_tests=True,
+        # numero_grupo is set only for items disputed in a lot (~18%);
+        # nome_responsavel is empty for automatic system events, and observacoes
+        # is empty on most homologations.
+        ignore_values=["numero_grupo", "nome_responsavel", "observacoes"],
+        description=(
+            "Linha do tempo de adjudicação, homologação, cancelamento e volta de fase por item "
+            "dos pregões eletrônicos da Lei 8.666, incluindo itens cancelados, desertos e "
+            "fracassados. Uma linha por evento de item"
+        ),
+    ),
     "licitacao_item_pregao": DbtTable(
         dedup_order="data_alteracao",
         key=["id_compra_item"],

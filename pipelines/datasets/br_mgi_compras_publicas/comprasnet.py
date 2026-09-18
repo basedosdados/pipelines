@@ -75,14 +75,33 @@ def _text(fragment: str) -> str:
     ).strip()
 
 
-def _money(raw: str | None) -> str:
-    """``R$ 1.234,5600`` -> ``1234.5600``; empty string when absent."""
+def _number(raw: str | None) -> str:
+    """``R$ 1.234,5600`` -> ``1234.5600``; empty string when absent.
+
+    The pt-BR thousands separator is the dot, so it must go before the comma
+    becomes the decimal point. Applied to quantities as well as money: a
+    quantity of 21,500 units prints as ``21.500``, which would otherwise reach
+    BigQuery as 21.5.
+    """
     if not raw:
         return ""
     cleaned = raw.replace("R$", "").strip()
     if not cleaned or cleaned in {"-", "--"}:
         return ""
     return cleaned.replace(".", "").replace(",", ".")
+
+
+def _iso_datetime(raw: str) -> str:
+    """``25/09/2019 15:15:56`` -> ``2019-09-25 15:15:56``.
+
+    Staging is all-STRING and the dbt model applies a bare
+    ``safe_cast(... as datetime)``, which returns NULL for a dd/mm/yyyy string.
+    Normalising here keeps the generated SQL uniform across every table instead
+    of teaching the generator a per-column parse.
+    """
+    date_part, _, time_part = raw.partition(" ")
+    day, month, year = date_part.split("/")
+    return f"{year}-{month}-{day} {time_part}"
 
 
 def compose_id_compra(numprp: str, uasg: str, modalidade: str) -> str:
@@ -286,14 +305,14 @@ def parse_fornecedor_resultado(
             current = {
                 "ano": ano,
                 "id_compra": id_compra,
-                "documento_fornecedor": documento,
+                "cnpj_cpf_fornecedor": documento,
                 "nome_fornecedor": nome,
                 "numero_item": cells[0],
                 "descricao_item": cells[1],
                 "unidade_fornecimento": cells[2],
-                "quantidade": cells[3],
-                "valor_unitario": _money(cells[4]),
-                "valor_global": _money(cells[5]),
+                "quantidade": _number(cells[3]),
+                "valor_unitario": _number(cells[4]),
+                "valor_global": _number(cells[5]),
                 "marca": "",
                 "fabricante": "",
                 "modelo_versao": "",
@@ -347,7 +366,7 @@ def parse_termo_homologacao(page: str, id_compra: str) -> list[dict[str, str]]:
                     "numero_grupo": numero_grupo,
                     "ordem_evento": str(ordem),
                     "nome_evento": cells[0],
-                    "data_hora_evento": cells[1],
+                    "data_hora_evento": _iso_datetime(cells[1]),
                     "nome_responsavel": "" if cells[2] == "-" else cells[2],
                     "observacoes": cells[3],
                 }

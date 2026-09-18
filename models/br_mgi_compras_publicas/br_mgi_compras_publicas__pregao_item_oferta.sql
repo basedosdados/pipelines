@@ -30,9 +30,3 @@ select
 from
     {{ set_datalake_project("br_mgi_compras_publicas_staging.pregao_item_oferta") }}
     as t
-qualify
-    row_number() over (
-        partition by ano, id_compra, numero_item, cnpj_cpf_fornecedor
-        order by cast(valor_global as string) desc
-    )
-    = 1

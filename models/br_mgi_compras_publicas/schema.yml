@@ -1320,6 +1320,115 @@ models:
       - name: data_alteracao
         description: >-
           Data e hora da última alteração do registro
+  - name: br_mgi_compras_publicas__pregao_item_oferta
+    description: >-
+      Propostas vencedoras por item dos pregões eletrônicos da Lei 8.666, com marca,
+      fabricante, modelo e a descrição detalhada do objeto ofertado pelo fornecedor.
+      Uma linha por item e fornecedor vencedor
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_compra, numero_item, cnpj_cpf_fornecedor]
+          config:
+            where: __most_recent_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [fabricante, marca, modelo_versao]
+          config:
+            where: __most_recent_year__
+    columns:
+      - name: ano
+        description: >-
+          Ano do pregão
+        tests: [not_null]
+      - name: id_compra
+        description: >-
+          Identificador do pregão no SIASG
+        tests: [not_null]
+      - name: numero_item
+        description: >-
+          Número do item dentro do pregão
+        tests: [not_null]
+      - name: cnpj_cpf_fornecedor
+        description: >-
+          CNPJ ou CPF do fornecedor vencedor do item
+        tests: [not_null]
+      - name: nome_fornecedor
+        description: >-
+          Razão social do fornecedor vencedor do item
+      - name: descricao_item
+        description: >-
+          Descrição do item conforme o catálogo
+      - name: unidade_fornecimento
+        description: >-
+          Unidade de fornecimento do item
+      - name: quantidade
+        description: >-
+          Quantidade adjudicada ao fornecedor
+      - name: valor_unitario
+        description: >-
+          Valor unitário ofertado pelo fornecedor
+      - name: valor_global
+        description: >-
+          Valor total ofertado pelo fornecedor para o item
+      - name: marca
+        description: >-
+          Marca do produto ofertado
+      - name: fabricante
+        description: >-
+          Fabricante do produto ofertado
+      - name: modelo_versao
+        description: >-
+          Modelo ou versão do produto ofertado
+      - name: descricao_detalhada_ofertada
+        description: >-
+          Descrição detalhada do objeto ofertado pelo fornecedor
+  - name: br_mgi_compras_publicas__pregao_item_evento
+    description: >-
+      Linha do tempo de adjudicação, homologação, cancelamento e volta de fase por
+      item dos pregões eletrônicos da Lei 8.666, incluindo itens cancelados, desertos
+      e fracassados. Uma linha por evento de item
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_compra, numero_item, ordem_evento]
+          config:
+            where: __most_recent_year__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [nome_responsavel, numero_grupo, observacoes]
+          config:
+            where: __most_recent_year__
+    columns:
+      - name: ano
+        description: >-
+          Ano do pregão
+        tests: [not_null]
+      - name: id_compra
+        description: >-
+          Identificador do pregão no SIASG
+        tests: [not_null]
+      - name: numero_item
+        description: >-
+          Número do item dentro do pregão
+        tests: [not_null]
+      - name: numero_grupo
+        description: >-
+          Número do grupo ou lote em que o item foi disputado
+      - name: ordem_evento
+        description: >-
+          Posição do evento na sequência de eventos do item
+        tests: [not_null]
+      - name: nome_evento
+        description: >-
+          Tipo do evento registrado para o item
+      - name: data_hora_evento
+        description: >-
+          Data e hora do evento
+      - name: nome_responsavel
+        description: >-
+          Nome do agente público que registrou o evento
+      - name: observacoes
+        description: >-
+          Observações registradas junto ao evento
   - name: br_mgi_compras_publicas__licitacao_item_pregao
     description: >-
       Resultado dos itens dos pregões da Lei 8.666/1993, com menor lance, valor negociado
@@ -2017,127 +2126,3 @@ models:
       - name: valor
         description: >-
           Significado da chave
-  - name: br_mgi_compras_publicas__pregao_item_oferta
-    description: >-
-      Propostas vencedoras por item dos pregões eletrônicos do regime da Lei
-      8.666, raspadas das páginas de resultado por fornecedor do ComprasNet
-      (2001-2024). Traz marca, fabricante, modelo e a descrição detalhada do
-      objeto efetivamente ofertado pelo fornecedor, informações que não existem
-      em nenhuma API da Compras.gov.br. Junta com licitacao_pregao e
-      licitacao_item_pregao por id_compra
-    tests:
-      - custom_unique_combinations_of_columns:
-          combination_of_columns: [id_compra, numero_item, cnpj_cpf_fornecedor]
-          proportion_allowed_failures: 0.0005
-      - not_null_proportion_multiple_columns:
-          at_least: 0.05
-          ignore_values: [marca, fabricante, modelo_versao]
-          config:
-            where: __most_recent_year__
-    columns:
-      - name: ano
-        description: >-
-          Ano do pregão
-        tests:
-          - not_null
-          - relationships:
-              to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano.ano
-              config:
-                where: __most_recent_year__
-      - name: id_compra
-        description: >-
-          Identificador do pregão no SIASG
-        tests: [not_null]
-      - name: numero_item
-        description: >-
-          Número do item dentro do pregão
-        tests: [not_null]
-      - name: cnpj_cpf_fornecedor
-        description: >-
-          CNPJ ou CPF do fornecedor vencedor do item
-      - name: nome_fornecedor
-        description: >-
-          Razão social do fornecedor vencedor do item
-      - name: descricao_item
-        description: >-
-          Descrição do item conforme o catálogo
-      - name: unidade_fornecimento
-        description: >-
-          Unidade de fornecimento do item
-      - name: quantidade
-        description: >-
-          Quantidade adjudicada ao fornecedor
-      - name: valor_unitario
-        description: >-
-          Valor unitário ofertado pelo fornecedor
-      - name: valor_global
-        description: >-
-          Valor total ofertado pelo fornecedor para o item
-      - name: marca
-        description: >-
-          Marca do produto ofertado
-      - name: fabricante
-        description: >-
-          Fabricante do produto ofertado
-      - name: modelo_versao
-        description: >-
-          Modelo ou versão do produto ofertado
-      - name: descricao_detalhada_ofertada
-        description: >-
-          Descrição detalhada do objeto ofertado pelo fornecedor
-  - name: br_mgi_compras_publicas__pregao_item_evento
-    description: >-
-      Linha do tempo de eventos por item dos pregões eletrônicos do regime da
-      Lei 8.666, raspada dos termos de homologação do ComprasNet (2001-2024).
-      Registra adjudicação, homologação, cancelamento e volta de fase com data,
-      hora e agente responsável, e inclui itens cancelados, desertos ou
-      fracassados, que a tabela licitacao_item_pregao não cobre por depender da
-      data de homologação
-    tests:
-      - custom_unique_combinations_of_columns:
-          combination_of_columns: [id_compra, numero_item, ordem_evento]
-          proportion_allowed_failures: 0.0005
-      - not_null_proportion_multiple_columns:
-          at_least: 0.05
-          ignore_values: [numero_grupo, nome_responsavel, observacoes]
-          config:
-            where: __most_recent_year__
-    columns:
-      - name: ano
-        description: >-
-          Ano do pregão
-        tests:
-          - not_null
-          - relationships:
-              to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano.ano
-              config:
-                where: __most_recent_year__
-      - name: id_compra
-        description: >-
-          Identificador do pregão no SIASG
-        tests: [not_null]
-      - name: numero_item
-        description: >-
-          Número do item dentro do pregão
-        tests: [not_null]
-      - name: numero_grupo
-        description: >-
-          Número do grupo ou lote em que o item foi disputado
-      - name: ordem_evento
-        description: >-
-          Posição do evento na sequência de eventos do item
-        tests: [not_null]
-      - name: nome_evento
-        description: >-
-          Tipo do evento registrado para o item
-      - name: data_hora_evento
-        description: >-
-          Data e hora do evento
-      - name: nome_responsavel
-        description: >-
-          Nome do agente público que registrou o evento
-      - name: observacoes
-        description: >-
-          Observações registradas junto ao evento
