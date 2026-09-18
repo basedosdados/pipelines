@@ -56,6 +56,13 @@ class constants(Enum):
         # RS publishes no tenders at all, and `dicionario` does not read `rs_despesa`,
         # so RS feeds exactly one table.
         "RS": ["despesa"],
+        # SC publishes no tenders either, but it does publish a payment document, so it
+        # is the second state in `pagamento` after PE.
+        "SC": ["despesa", "pagamento"],
+        # PB has no tender table of its own in this dataset: `codigoLicitacao` is a
+        # modality code, and `numeroProcessoCompras` reaches a compras process on only
+        # 0.14% of empenho rows.
+        "PB": ["despesa", "pagamento"],
         "SP": ["despesa_anual"],
     }
 
@@ -75,6 +82,10 @@ class constants(Enum):
     # mirror below to the prod bucket itself.
     STAGING_BY_STATE = {
         "RS": ["rs_despesa"],
+        # One mirror per phase. SC publishes a document per movement, and the pivot onto
+        # the canonical `despesa` row happens in dbt, not here.
+        "SC": ["sc_empenho", "sc_liquidacao", "sc_pagamento"],
+        "PB": ["pb_empenho", "pb_liquidacao", "pb_pagamento"],
         "ES": [
             "es_despesa",
             "es_licitacao",
