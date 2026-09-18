@@ -294,6 +294,7 @@ def br_bd_execucao_estadual_rs_flow(
 @flow(name="br_bd_execucao_estadual_seed_frozen_prod", log_prints=True)
 def br_bd_execucao_estadual_seed_frozen_prod_flow(
     materialize_to_prod: bool = True,
+    download_billing_project: str = "basedosdados",
 ) -> None:
     """Seed the FROZEN staging mirrors into prod staging, one time. MANUAL -- no schedule.
 
@@ -313,9 +314,21 @@ def br_bd_execucao_estadual_seed_frozen_prod_flow(
 
     Re-running is safe (idempotent overwrite) but unnecessary -- the mirrors never move.
 
+    PROD POOL ONLY. Like `transfer_files_to_prod_flow`, this reads the requester-pays
+    `basedosdados-dev` bucket billed to `download_billing_project`, which must be a
+    project where the worker's SA holds `serviceusage.services.use`. That is
+    `basedosdados` on the prod pool. The dev pool's SA lacks it, so a dev dry run 403s
+    on the very first read -- there is no dev exercise of this flow, and the read half
+    is instead proven by the repo's `download_files_from_bucket_folders` utility, which
+    reads the same bucket the same way.
+
     Args:
         materialize_to_prod: Write the prod bucket (`basedosdados`). False writes the
-            dev bucket instead, a dry run that touches nothing in production.
+            dev bucket instead -- only meaningful from the prod pool, where the SA can
+            still bill the requester-pays read.
+        download_billing_project: Project billed for the requester-pays read of the dev
+            staging bucket. Must grant the worker SA `serviceusage.services.use`;
+            `basedosdados` on the prod pool.
     """
     # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
@@ -324,7 +337,7 @@ def br_bd_execucao_estadual_seed_frozen_prod_flow(
         table_id="contrato",
     )
     bucket = "basedosdados" if materialize_to_prod else "basedosdados-dev"
-    billing = "basedosdados" if materialize_to_prod else "basedosdados-dev"
+    billing = download_billing_project
     work_dir = tempfile.mkdtemp(prefix="br_bd_execucao_estadual_seed_")
     try:
         for mirror in constants.FROZEN_PROD_MIRRORS.value:
