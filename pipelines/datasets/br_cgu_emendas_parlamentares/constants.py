@@ -3,8 +3,6 @@ from enum import Enum
 
 class constants(Enum):
     URL = "https://portaldatransparencia.gov.br/download-de-dados/emendas-parlamentares/UNICO"
-    INPUT = "/tmp/input/"
-    OUTPUT = "/tmp/output/"
     VALUES_FLOAT = [
         "Valor Empenhado",
         "Valor Liquidado",

@@ -4,7 +4,7 @@ Flows para br_cgu_emendas_parlamentares — Prefect 3.
 
 from prefect import flow
 
-from pipelines.crawler.cgu_emendas_parlamentares.tasks import (
+from pipelines.datasets.br_cgu_emendas_parlamentares.tasks import (
     convert_str_to_float,
     get_last_modified_time,
 )
