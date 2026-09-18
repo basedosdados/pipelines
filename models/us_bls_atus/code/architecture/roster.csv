@@ -1,0 +1,7 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the ATUS interview (diary year).,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column. Derived from the first four digits of tucaseid.,TUYEAR
+tucaseid,STRING,ATUS case identification number; primary key that links all ATUS files. First four digits are the interview year.,,no,,,no,,TUCASEID
+tulineno,STRING,ATUS person line number identifying each individual within the household.,,no,,,no,,TULINENO
+terrp,STRING,Relationship of the person to the ATUS respondent.,,yes,,,no,,TERRP
+teage,INT64,Age of the person in years (topcoded at 80 for years ≤ 2004 and at 85 for years ≥ 2005).,,no,,year,no,,TEAGE
+tesex,STRING,"Sex of the person (1 = male, 2 = female).",,yes,,,no,,TESEX

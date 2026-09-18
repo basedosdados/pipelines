@@ -1,11 +1,9 @@
 import os
-from datetime import timedelta
 
 import basedosdados as bd
 import pandas as pd
 from prefect import task
 
-from pipelines.constants import constants
 from pipelines.crawler.isp.constants import (
     constants as isp_constants,
 )
@@ -56,10 +54,7 @@ def read_data(file_name: str) -> pd.DataFrame:
     return df
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task(retries=3, retry_delay_seconds=30)
 def clean_data(
     file_name: str,
 ):
@@ -109,11 +104,11 @@ def get_count_lines(file_name: str) -> bool:
 
     data = bd.read_sql(
         query(file_name),
-        billing_project_id="basedosdados",  #
         from_file=True,
     )
 
     data = int(data["total"][0])
+    # pyrefly: ignore [unnecessary-type-conversion]
     df = int(df.shape[0])
 
     log(f"Quantidade de linhas no BigQuery: {data}")

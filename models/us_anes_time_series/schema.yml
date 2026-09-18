@@ -1,0 +1,186 @@
+---
+version: 2
+models:
+  - name: us_anes_time_series__cumulative
+    description: >
+      ANES Time Series Cumulative Data File (1948-2024): pooled cross-section
+      respondents with harmonized variables (VCF codes) asked in three or more
+      ANES Time Series studies. One row per respondent per study year.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, VCF0006]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - VCF0376c
+            - VCF0376d
+            - VCF0377a
+            - VCF0377b
+            - VCF0377c
+            - VCF0377d
+            - VCF0378a
+            - VCF0378b
+            - VCF0378c
+            - VCF0378d
+            - VCF0379a
+            - VCF0379b
+            - VCF0379c
+            - VCF0379d
+            - VCF0382c
+            - VCF0382d
+            - VCF0383a
+            - VCF0383b
+            - VCF0383c
+            - VCF0383d
+            - VCF0384a
+            - VCF0384b
+            - VCF0384c
+            - VCF0384d
+            - VCF0385a
+            - VCF0385b
+            - VCF0385c
+            - VCF0385d
+            - VCF0388c
+            - VCF0388d
+            - VCF0389a
+            - VCF0389b
+            - VCF0389c
+            - VCF0389d
+            - VCF0390a
+            - VCF0390b
+            - VCF0390c
+            - VCF0390d
+            - VCF0391a
+            - VCF0391b
+            - VCF0391c
+            - VCF0391d
+            - VCF0394c
+            - VCF0394d
+            - VCF0395a
+            - VCF0395b
+            - VCF0395c
+            - VCF0395d
+            - VCF0396a
+            - VCF0396b
+            - VCF0396c
+            - VCF0396d
+            - VCF0397a
+            - VCF0397b
+            - VCF0397c
+            - VCF0397d
+            - VCF0477c
+            - VCF0477d
+            - VCF0478a
+            - VCF0478b
+            - VCF0478c
+            - VCF0478d
+            - VCF0479a
+            - VCF0479b
+            - VCF0479c
+            - VCF0479d
+            - VCF0480a
+            - VCF0480b
+            - VCF0480c
+            - VCF0480d
+            - VCF0483c
+            - VCF0483d
+            - VCF0484a
+            - VCF0484b
+            - VCF0484c
+            - VCF0484d
+            - VCF0485a
+            - VCF0485b
+            - VCF0485c
+            - VCF0485d
+            - VCF0486a
+            - VCF0486b
+            - VCF0486c
+            - VCF0486d
+            - VCF0489c
+            - VCF0489d
+            - VCF0490a
+            - VCF0490b
+            - VCF0490c
+            - VCF0490d
+            - VCF0491a
+            - VCF0491b
+            - VCF0491c
+            - VCF0491d
+            - VCF0492a
+            - VCF0492b
+            - VCF0492c
+            - VCF0492d
+            - VCF0495c
+            - VCF0495d
+            - VCF0496a
+            - VCF0496b
+            - VCF0496c
+            - VCF0496d
+            - VCF0497a
+            - VCF0497b
+            - VCF0497c
+            - VCF0497d
+            - VCF0498a
+            - VCF0498b
+            - VCF0498c
+            - VCF0498d
+            - VCF1022a
+            - VCF1022b
+            - VCF1023a
+            - VCF1023b
+            - VCF1024a
+            - VCF1024b
+            - VCF1025a
+            - VCF1025b
+            - VCF1027a
+            - VCF1027b
+            - VCF1028a
+            - VCF1028b
+            - VCF1029a
+            - VCF1029b
+            - VCF1030a
+            - VCF1030b
+            - VCF1031a
+            - VCF1031b
+            - VCF1034a
+            - VCF1034b
+            - VCF1035a
+            - VCF1035b
+            - VCF1036a
+            - VCF1036b
+            - VCF1037a
+            - VCF1037b
+            - VCF1039a
+            - VCF1039b
+            - VCF1040a
+            - VCF1040b
+            - VCF1041a
+            - VCF1041b
+            - VCF1042a
+            - VCF1042b
+            - VCF1043a
+            - VCF1043b
+    columns:
+      - name: year
+        description: Year of study
+        tests: [not_null]
+      - name: VCF0006
+        description: 'Study respondent number: year-level case ID'
+        tests: [not_null]
+      - name: VCF0006a
+        description: Unique respondent number (cross-year ID for panel cases)
+        tests: [not_null]
+  - name: us_anes_time_series__dicionario
+    description: >
+      Dictionary of coded values for the cumulative table: for each categorical
+      column, the code (chave) and its English label (valor) per the ANES codebook.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [nome_coluna, chave, cobertura_temporal]
+    columns:
+      - name: nome_coluna
+        description: Name of the categorical column described by the dictionary
+        tests: [not_null]
+      - name: chave
+        description: Code or value taken by the categorical column
+        tests: [not_null]

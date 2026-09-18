@@ -42,7 +42,7 @@ async def main(years, categories):
                 try:
                     response = await future
                     responses.append(response)
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     print(f"Request timed out for {url}")
             os.makedirs("./output/silvicultura/json/", exist_ok=True)
             with open(f"./output/silvicultura/json/{year}.json", "a") as f:

@@ -1,0 +1,21 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Election year.,,no,br_bd_diretorios_data_tempo.ano:ano,,no,,year
+date,DATE,Election date.,,no,br_bd_diretorios_data_tempo.data:data,,no,Absent for 2016.,date
+stage,STRING,"Electoral stage: GEN, PRI or RUNOFF.",,no,,,no,,stage
+id_state,STRING,"State FIPS code (2-digit, zero-padded).",,no,br_bd_diretorios_us.state:id_state,,no,,state_fips
+id_county,STRING,"County FIPS code (5-digit, zero-padded); blank for non-county reporting units.",,no,br_bd_diretorios_us.county:id_county,,no,,county_fips
+id_jurisdiction,STRING,"Jurisdiction FIPS code (10-digit): the reporting subdivision, equal to the county except in New England, Wisconsin and Alaska.",,no,,,no,Absent for 2016.,jurisdiction_fips
+jurisdiction_name,STRING,"Jurisdiction name (county, or town in New England, Wisconsin and Alaska).",,no,,,no,,jurisdiction_name
+precinct,STRING,Precinct name as reported by the source; *FLOATING* denotes returns reported above the precinct level.,,no,,,no,,precinct
+office,STRING,"Office contested, standardized (e.g. US PRESIDENT, US SENATE, GOVERNOR, STATE HOUSE).",,no,,,no,,office
+office_category,STRING,"Office group of the source file: PRESIDENT, SENATE, HOUSE, STATE or LOCAL.",,no,,,no,,dataverse
+district,STRING,"District of the office; zero-padded number, STATEWIDE, or blank.",,no,,,no,,district
+magnitude,INT64,Number of seats elected for the office (usually 1).,,no,,,no,Absent for 2016.,magnitude
+candidate,STRING,"Candidate name; also OVERVOTES, UNDERVOTES, WRITE-IN.",,no,,,no,,candidate
+party_detailed,STRING,"Full party label of the ballot line, uppercase; fusion lines joined with a slash.",,no,,,no,,party_detailed
+party_simplified,STRING,"Party collapsed to DEMOCRAT, REPUBLICAN, LIBERTARIAN or OTHER.",,no,,,no,,party_simplified
+indicator_special,BOOLEAN,Whether the contest was a special election.,,no,,,no,,special
+indicator_writein,BOOLEAN,Whether the candidate was a write-in.,,no,,,no,,writein
+mode,STRING,Mode of voting; TOTAL when not broken down by mode.,,no,,,no,,mode
+votes,INT64,Votes received by the candidate on this ballot line in this precinct.,,no,,,no,,votes
+indicator_readme_check,BOOLEAN,Whether the source README notes a caveat for this row (2018-2022 only).,,no,,,no,,readme_check

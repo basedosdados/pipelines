@@ -1,107 +1,91 @@
 """
-test flow for basedosdados
+Flows de teste para a função download_data_to_gcs.
 """
 
-###############################################################################
-#
-# Aqui é onde devem ser definidos os flows do projeto.
-# Cada flow representa uma sequência de passos que serão executados
-# em ordem.
-#
-# Mais informações sobre flows podem ser encontradas na documentação do
-# Prefect: https://docs.prefect.io/core/concepts/flows.html
-#
-# De modo a manter consistência na codebase, todo o código escrito passará
-# pelo pylint. Todos os warnings e erros devem ser corrigidos.
-#
-# Existem diversas maneiras de declarar flows. No entanto, a maneira mais
-# conveniente e recomendada pela documentação é usar a API funcional.
-# Em essência, isso implica simplesmente na chamada de funções, passando
-# os parâmetros necessários para a execução em cada uma delas.
-#
-# Também, após a definição de um flow, para o adequado funcionamento, é
-# mandatório configurar alguns parâmetros dele, os quais são:
-# - storage: onde esse flow está armazenado. No caso, o storage é o
-#   próprio módulo Python que contém o flow. Sendo assim, deve-se
-#   configurar o storage como o pipelines.basedosdados
-# - run_config: para o caso de execução em cluster Kubernetes, que é
-#   provavelmente o caso, é necessário configurar o run_config com a
-#   imagem Docker que será usada para executar o flow. Assim sendo,
-#   basta usar constants.DOCKER_IMAGE.value, que é automaticamente
-#   gerado.
-# - schedule (opcional): para o caso de execução em intervalos regulares,
-#   deve-se utilizar algum dos schedules definidos em schedules.py
-#
-# Um exemplo de flow, considerando todos os pontos acima, é o seguinte:
-#
-# -----------------------------------------------------------------------------
-# from prefect import task
-# from prefect import Flow
-# from prefect.run_configs import KubernetesRun
-# from prefect.storage import GCS
-# from pipelines.constants import constants
-# from my_tasks import my_task, another_task
-# from my_schedules import some_schedule
-#
-# with Flow("my_flow") as flow:
-#     a = my_task(param1=1, param2=2)
-#     b = another_task(a, param3=3)
-#
-# flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-# flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# flow.schedule = some_schedule
-# -----------------------------------------------------------------------------
-#
-# Abaixo segue um código para exemplificação, que pode ser removido.
-#
-###############################################################################
+from prefect import flow
 
-from prefect import Parameter
-from prefect.run_configs import KubernetesRun
-from prefect.storage import GCS
+from pipelines.utils.tasks import run_dbt
 
-from pipelines.constants import constants
-from pipelines.datasets.test_dataset.tasks import get_data_path
-from pipelines.utils.decorators import Flow
-from pipelines.utils.tasks import (
-    create_table_dev_and_upload_to_gcs,
-    create_table_prod_gcs_and_run_dbt,
-    run_dbt,
+DATASET_ID = "test_dataset"
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Testes de download_data_to_gcs — um flow por condição de tamanho
+#
+# Cada flow chama run_dbt com target="prod", que ao final dispara
+# download_data_to_gcs automaticamente. Os modelos dbt usam FARM_FINGERPRINT
+# para gerar dados sintéticos com tamanhos previsíveis.
+#
+# Caso 1 — ate 100 MB, sem bdpro_filter  → exporta open
+# Caso 2 — ate 100 MB, com bdpro_filter  → exporta open + BDPro (post-hook no .sql)
+# Caso 3 — 100 MB-1 GB                 → exporta apenas BDPro
+# Caso 4 — acima 1 GB                      → sem export (retorna cedo)
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+@flow(
+    name="test_dataset: download_data_to_gcs (ate 100 MB sem bdpro)",
+    flow_run_name="test download_data_to_gcs: open only",
+    log_prints=True,
 )
-
-# from pipelines.datasets.test_pipeline.schedules import every_five_minutes
-
-
-with Flow(name="test_flow") as test_flow:
-    # BigQuery parameters
-    dataset_id = Parameter("dataset_id", default="test_dataset")
-    table_id = Parameter("table_id", default="test_table")
-
-    path = get_data_path()
-
-    wait_upload_table = create_table_dev_and_upload_to_gcs(
-        data_path=path,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dump_mode="overwrite",
-        upstream_tasks=[path],
+def test_download_data_to_gcs_open_only_flow() -> None:
+    run_dbt(
+        dataset_id=DATASET_ID,
+        table_id="tabela_pequena",
+        dbt_command="run",
+        target="prod",
     )
 
-    wait_for_materialization = run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        upstream_tasks=[wait_upload_table],
+
+@flow(
+    name="test_dataset: download_data_to_gcs (ate 100 MB com bdpro)",
+    flow_run_name="test download_data_to_gcs: open and bdpro",
+    log_prints=True,
+)
+def test_download_data_to_gcs_open_and_bdpro_flow() -> None:
+    run_dbt(
+        dataset_id=DATASET_ID,
+        table_id="tabela_pequena_bdpro",
+        dbt_command="run",
+        target="prod",
     )
 
-    create_table_prod_gcs_and_run_dbt(
-        data_path=path,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dump_mode="overwrite",
-        upstream_tasks=[wait_for_materialization],
+
+@flow(
+    name="test_dataset: download_data_to_gcs (100 MB-1 GB)",
+    flow_run_name="test download_data_to_gcs: bdpro only",
+    log_prints=True,
+)
+def test_download_data_to_gcs_bdpro_only_flow() -> None:
+    run_dbt(
+        dataset_id=DATASET_ID,
+        table_id="tabela_media",
+        dbt_command="run",
+        target="prod",
     )
 
-test_flow.storage = GCS(constants.GCS_FLOWS_BUCKET.value)
-test_flow.run_config = KubernetesRun(image=constants.DOCKER_IMAGE.value)
-# test_flow.schedule = every_five_minutes
+
+@flow(
+    name="test_dataset: download_data_to_gcs (acima 1 GB)",
+    flow_run_name="test download_data_to_gcs: skip large",
+    log_prints=True,
+)
+def test_download_data_to_gcs_skip_large_flow() -> None:
+    run_dbt(
+        dataset_id=DATASET_ID,
+        table_id="tabela_grande",
+        dbt_command="run",
+        target="prod",
+    )
+
+
+@flow(
+    name="test_dataset: download_data_to_gcs (suite)",
+    flow_run_name="test download_data_to_gcs: all cases",
+    log_prints=True,
+)
+def test_download_data_to_gcs_all_cases_flow() -> None:
+    test_download_data_to_gcs_open_only_flow()
+    test_download_data_to_gcs_open_and_bdpro_flow()
+    test_download_data_to_gcs_bdpro_only_flow()
+    test_download_data_to_gcs_skip_large_flow()

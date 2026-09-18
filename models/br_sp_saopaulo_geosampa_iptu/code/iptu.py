@@ -28,7 +28,9 @@ def to_partitions(
         )
     """
 
+    # pyrefly: ignore [implicit-import]
     if isinstance(data, (pd.core.frame.DataFrame)):
+        # pyrefly: ignore [bad-assignment]
         savepath = Path(savepath)
 
         # create unique combinations between partition columns
@@ -54,6 +56,7 @@ def to_partitions(
             df_filter = df_filter.drop(columns=partition_columns)
 
             # create folder tree
+            # pyrefly: ignore [unsupported-operation]
             filter_save_path = Path(savepath / "/".join(patitions_values))
             filter_save_path.mkdir(parents=True, exist_ok=True)
             file_filter_save_path = Path(filter_save_path) / "data.csv"

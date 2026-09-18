@@ -62,6 +62,7 @@ def create_columns_order(dict: dict[str, str]) -> list[str]:
     """
     ordered_list = dict.values()
 
+    # pyrefly: ignore [bad-return]
     return ordered_list
 
 
@@ -90,6 +91,7 @@ def check_tipo_fase(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+# pyrefly: ignore [bad-return]
 def download_files(file_name: str, save_dir: str) -> str:
     """
     Downloads CSV files from a list of URLs and saves them to a specified directory.

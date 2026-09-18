@@ -1,0 +1,9 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the survey data collection (fall of academic year for most components),,no,br_bd_diretorios_data_tempo.ano:ano,,no,,
+unitid,INT64,Unique identification number of the institution,,no,,,no,,unitid
+efcstate,FLOAT64,State of residence when student was first admitted,,no,,,no,,efcstate
+line,INT64,State of residence  (original line number on survey form),,no,,,no,,line
+xefres01,STRING,Imputation field for EFRES01 - First-time degree/certificate-seeking undergraduate students,,no,,,no,,xefres01
+efres01,INT64,First-time degree/certificate-seeking undergraduate students,,no,,,no,,efres01
+xefres02,STRING,Imputation field for EFRES02 - First-time degree/certificate-seeking undergraduate students who graduated from high school in the past 12 months,,no,,,no,,xefres02
+efres02,FLOAT64,First-time degree/certificate-seeking undergraduate students who graduated from high school in the past 12 months,,no,,,no,,efres02

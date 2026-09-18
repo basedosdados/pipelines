@@ -1,0 +1,7 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,
+month,INT64,"Reference month of the observation, from 1 to 12",,no,br_bd_diretorios_data_tempo.mes:mes,month,no,,
+lga_name,STRING,Name of the Local Government Area in New South Wales,,no,,,no,Identified by name only in the source; intended FK to br_bd_diretorios_au once that directory is live,LGA
+offence_category,STRING,"BOCSAR offence category, the top level of the offence classification",,no,,,no,,Offence category
+offence_subcategory,STRING,"BOCSAR offence subcategory, the detailed offence type within the category",,no,,,no,,Subcategory
+incidents,INT64,Number of criminal incidents recorded by the NSW Police Force,,no,,incident,no,,

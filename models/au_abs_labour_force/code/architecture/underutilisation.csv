@@ -1,0 +1,11 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,TIME_PERIOD
+month,INT64,"Reference month of the observation, from 1 to 12",,no,br_bd_diretorios_data_tempo.mes:mes,month,no,Derived from the monthly reference period,TIME_PERIOD
+geography,STRING,Geographic area: Australia (national) or one of the eight states and territories,,no,,,no,Australia is the national aggregate; states and territories follow the ASGS. To be linked to br_bd_diretorios_au once that directory is published,REGION
+sex,STRING,"Sex: persons (all), males or females",,no,,,no,Persons is the total across males and females,SEX
+age_group,STRING,Age group in years; total covers persons aged 15 years and over,,no,,,no,ABS standard age groupings; the set of groups available varies by geography,AGE
+adjustment_type,STRING,"Time series adjustment: original, seasonally adjusted or trend",,no,,,no,,TSEST
+underemployed_total,FLOAT64,Number of underemployed persons,,no,,person,no,Converted from ABS thousands to absolute persons,Underemployed total
+underemployment_ratio,FLOAT64,Underemployed persons as a percentage of employed persons,,no,,percent,no,,Underemployment ratio (proportion of employed)
+underemployment_rate,FLOAT64,Underemployed persons as a percentage of the labour force,,no,,percent,no,,Underemployment rate (proportion of labour force)
+underutilisation_rate,FLOAT64,Sum of the unemployment rate and the underemployment rate,,no,,percent,no,,Underutilisation rate

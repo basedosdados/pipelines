@@ -1,0 +1,14 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano do programa a que o registro se refere,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Derivada do nome do arquivo publicado pelo CMS, que não traz o ano do programa como coluna neste relatório.",
+covered_recipient_npi,STRING,National Provider Identifier (NPI) do médico ou profissional não médico,,no,,,yes,Identificador nacional de prestador; armazenado como STRING por não admitir aritmética.,Covered_Recipient_NPI
+reporting_entity_id,STRING,Identificador único do fabricante ou GPO que declarou o pagamento,,no,,,no,,AMGPO_ID
+recipient_id,STRING,Identificador do beneficiário: perfil do profissional ou CCN do hospital universitário,,no,,,no,,Recipient_ID
+recipient_type,STRING,"Tipo de beneficiário: médico, profissional não médico ou hospital universitário",,yes,,,no,,Recipient_Type
+first_name,STRING,Primeiro nome do profissional beneficiário,,no,,,yes,,Covered_Recipient_Profile_First_Name
+middle_name,STRING,Nome do meio do profissional beneficiário,,no,,,yes,,Covered_Recipient_Profile_Middle_Name
+last_name,STRING,Sobrenome do profissional beneficiário,,no,,,yes,,Covered_Recipient_Profile_Last_Name
+teaching_hospital_name,STRING,"Nome do hospital universitário, conforme a lista de hospitais universitários do CMS",,no,,,no,,Teaching_Hospital_Name
+payment_type,STRING,"Categoria de pagamento agregada: geral, pesquisa ou participação societária",,yes,,,no,,Payment_Type
+reporting_entity_name,STRING,Nome do fabricante ou GPO que efetuou o pagamento,,no,,,no,,AMGPO_Name
+transaction_count,INT64,Quantidade de transações agregadas no registro,,no,,,no,"Contagem adimensional, sem unidade de medida aplicável.",Number_of_Transaction
+amount_total,FLOAT64,"Valor total agregado no registro, em dólares americanos",,no,,usd,no,,Total_Amount

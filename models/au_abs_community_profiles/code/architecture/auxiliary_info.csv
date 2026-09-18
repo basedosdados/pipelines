@@ -1,0 +1,12 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+profile,STRING,Perfil do Censo (GCP ou TSP),,no,,,no,,profile
+census_year,INT64,"Ano do Censo (2011, 2016 ou 2021)",,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,census_year
+table_code,STRING,"Código da tabela do perfil (por exemplo G01, B01, T01)",,no,,,no,,table_code
+table_name,STRING,Nome da tabela do perfil,,no,,,no,,table_name
+table_population,STRING,"População da tabela (Persons, Families, Dwellings)",,no,,,no,,table_population
+cell_code,STRING,Código da célula (variável); chave de junção com as tabelas de dados,,no,,,no,,cell_code
+long_description,STRING,Descrição longa (codificada) da célula fornecida pela ABS,,no,,,no,,long_description
+heading,STRING,Rótulo da coluna da célula no perfil,,no,,,no,,heading
+datapack_part,STRING,Arquivo CSV do DataPack em que a célula aparece (inclui partes A/B/C),,no,,,no,,datapack_part
+statistic_type,STRING,"Tipo de estatística da célula (count, median ou average)",,no,,,no,,statistic_type
+measurement_unit,STRING,"Unidade de medida da célula (por exemplo persons, dwellings, $/weekly, years)",,no,,,no,,measurement_unit

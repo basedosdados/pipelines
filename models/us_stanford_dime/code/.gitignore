@@ -1,0 +1,5 @@
+# Generated at run time, not source: the backfill's resume state and the
+# rendered sheet payload are both reproducible from architecture.py.
+backfill_state.json
+architecture_sheets.json
+sparsity.json

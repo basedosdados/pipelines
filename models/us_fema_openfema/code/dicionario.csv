@@ -1,0 +1,785 @@
+id_tabela,nome_coluna,chave,cobertura_temporal,valor
+disaster_declaration,declaration_type,DR,,Major disaster declaration
+disaster_declaration,declaration_type,EM,,Emergency declaration
+disaster_declaration,declaration_type,FM,,Fire management assistance declaration
+public_assistance_project,damage_category_code,A,,Debris removal
+public_assistance_project,damage_category_code,B,,Emergency protective measures
+public_assistance_project,damage_category_code,C,,Roads and bridges
+public_assistance_project,damage_category_code,D,,Water control facilities
+public_assistance_project,damage_category_code,E,,Buildings and equipment
+public_assistance_project,damage_category_code,F,,Utilities
+public_assistance_project,damage_category_code,G,,"Parks, recreational facilities and other items"
+public_assistance_project,damage_category_code,I,,Building code management and enforcement
+public_assistance_project,damage_category_code,Z,,Management and direct administrative costs
+nfip_claim,basement_enclosure_crawlspace_type,0,,None
+nfip_claim,basement_enclosure_crawlspace_type,1,,Finished basement or enclosure
+nfip_claim,basement_enclosure_crawlspace_type,2,,Unfinished basement or enclosure
+nfip_claim,basement_enclosure_crawlspace_type,3,,Crawlspace
+nfip_claim,basement_enclosure_crawlspace_type,4,,Subgrade crawlspace
+nfip_claim,crs_class_code,1,,"CRS class 1, 45% premium discount inside the special flood hazard area"
+nfip_claim,crs_class_code,2,,"CRS class 2, 40% premium discount inside the special flood hazard area"
+nfip_claim,crs_class_code,3,,"CRS class 3, 35% premium discount inside the special flood hazard area"
+nfip_claim,crs_class_code,4,,"CRS class 4, 30% premium discount inside the special flood hazard area"
+nfip_claim,crs_class_code,5,,"CRS class 5, 25% premium discount inside the special flood hazard area"
+nfip_claim,crs_class_code,6,,"CRS class 6, 20% premium discount inside the special flood hazard area"
+nfip_claim,crs_class_code,7,,"CRS class 7, 15% premium discount inside the special flood hazard area"
+nfip_claim,crs_class_code,8,,"CRS class 8, 10% premium discount inside the special flood hazard area"
+nfip_claim,crs_class_code,9,,"CRS class 9, 5% premium discount inside the special flood hazard area"
+nfip_claim,crs_class_code,10,,"CRS class 10, no premium discount"
+nfip_claim,elevation_certificate_indicator,1,,"No elevation certificate; effective before 1 October 1982, rated at no-base-flood-elevation +2 to +4 feet"
+nfip_claim,elevation_certificate_indicator,2,,"No elevation certificate; effective on or after 1 October 1982, rated at no-elevation-certificate rates"
+nfip_claim,elevation_certificate_indicator,3,,"Elevation certificate with a base flood elevation, rated with base flood elevation"
+nfip_claim,elevation_certificate_indicator,4,,"Elevation certificate without a base flood elevation, rated at no-base-flood-elevation rates"
+nfip_claim,elevation_certificate_indicator,A,,Basement or subgrade crawlspace
+nfip_claim,elevation_certificate_indicator,B,,Fill or crawlspace
+nfip_claim,elevation_certificate_indicator,C,,"Piles, piers or columns with enclosure"
+nfip_claim,elevation_certificate_indicator,D,,"Piles, piers or columns without enclosure"
+nfip_claim,elevation_certificate_indicator,E,,Slab on grade
+nfip_claim,rated_flood_zone,A,,"Special flood hazard area, no base flood elevation on the FIRM"
+nfip_claim,rated_flood_zone,AE,,Special flood hazard area with a base flood elevation on the FIRM
+nfip_claim,rated_flood_zone,A99,,Special flood hazard area protected by a flood control system under construction
+nfip_claim,rated_flood_zone,AH,,Special flood hazard area subject to shallow ponding
+nfip_claim,rated_flood_zone,AHB,,"Special flood hazard area subject to shallow ponding, with a base flood elevation"
+nfip_claim,rated_flood_zone,AO,,Special flood hazard area subject to sheet flow
+nfip_claim,rated_flood_zone,AOB,,"Special flood hazard area subject to sheet flow, with a base flood elevation"
+nfip_claim,rated_flood_zone,AR,,Special flood hazard area with temporarily increased risk from a decertified flood protection system
+nfip_claim,rated_flood_zone,B,,Moderate flood hazard from the primary water source; superseded by zone X in 1986
+nfip_claim,rated_flood_zone,C,,Minimal flood hazard from the primary water source; superseded by zone X in 1986
+nfip_claim,rated_flood_zone,D,,"Possible but undetermined flood hazard, not analysed"
+nfip_claim,rated_flood_zone,V,,"Coastal high hazard area, no base flood elevation on the FIRM"
+nfip_claim,rated_flood_zone,VE,,Coastal high hazard area with a base flood elevation on the FIRM
+nfip_claim,rated_flood_zone,X,,"Moderate to minimal flood hazard, outside the special flood hazard area"
+nfip_claim,rated_flood_zone,AA,,Not a documented FIRM zone; reported value retained as published
+nfip_claim,rated_flood_zone,AS,,Not a documented FIRM zone; reported value retained as published
+nfip_claim,rated_flood_zone,A01,,"Special flood hazard area with a base flood elevation, numbered zone A1"
+nfip_claim,rated_flood_zone,V01,,"Coastal high hazard area with a base flood elevation, numbered zone V1"
+nfip_claim,rated_flood_zone,A02,,"Special flood hazard area with a base flood elevation, numbered zone A2"
+nfip_claim,rated_flood_zone,V02,,"Coastal high hazard area with a base flood elevation, numbered zone V2"
+nfip_claim,rated_flood_zone,A03,,"Special flood hazard area with a base flood elevation, numbered zone A3"
+nfip_claim,rated_flood_zone,V03,,"Coastal high hazard area with a base flood elevation, numbered zone V3"
+nfip_claim,rated_flood_zone,A04,,"Special flood hazard area with a base flood elevation, numbered zone A4"
+nfip_claim,rated_flood_zone,V04,,"Coastal high hazard area with a base flood elevation, numbered zone V4"
+nfip_claim,rated_flood_zone,A05,,"Special flood hazard area with a base flood elevation, numbered zone A5"
+nfip_claim,rated_flood_zone,V05,,"Coastal high hazard area with a base flood elevation, numbered zone V5"
+nfip_claim,rated_flood_zone,A06,,"Special flood hazard area with a base flood elevation, numbered zone A6"
+nfip_claim,rated_flood_zone,V06,,"Coastal high hazard area with a base flood elevation, numbered zone V6"
+nfip_claim,rated_flood_zone,A07,,"Special flood hazard area with a base flood elevation, numbered zone A7"
+nfip_claim,rated_flood_zone,V07,,"Coastal high hazard area with a base flood elevation, numbered zone V7"
+nfip_claim,rated_flood_zone,A08,,"Special flood hazard area with a base flood elevation, numbered zone A8"
+nfip_claim,rated_flood_zone,V08,,"Coastal high hazard area with a base flood elevation, numbered zone V8"
+nfip_claim,rated_flood_zone,A09,,"Special flood hazard area with a base flood elevation, numbered zone A9"
+nfip_claim,rated_flood_zone,V09,,"Coastal high hazard area with a base flood elevation, numbered zone V9"
+nfip_claim,rated_flood_zone,A10,,"Special flood hazard area with a base flood elevation, numbered zone A10"
+nfip_claim,rated_flood_zone,V10,,"Coastal high hazard area with a base flood elevation, numbered zone V10"
+nfip_claim,rated_flood_zone,A11,,"Special flood hazard area with a base flood elevation, numbered zone A11"
+nfip_claim,rated_flood_zone,V11,,"Coastal high hazard area with a base flood elevation, numbered zone V11"
+nfip_claim,rated_flood_zone,A12,,"Special flood hazard area with a base flood elevation, numbered zone A12"
+nfip_claim,rated_flood_zone,V12,,"Coastal high hazard area with a base flood elevation, numbered zone V12"
+nfip_claim,rated_flood_zone,A13,,"Special flood hazard area with a base flood elevation, numbered zone A13"
+nfip_claim,rated_flood_zone,V13,,"Coastal high hazard area with a base flood elevation, numbered zone V13"
+nfip_claim,rated_flood_zone,A14,,"Special flood hazard area with a base flood elevation, numbered zone A14"
+nfip_claim,rated_flood_zone,V14,,"Coastal high hazard area with a base flood elevation, numbered zone V14"
+nfip_claim,rated_flood_zone,A15,,"Special flood hazard area with a base flood elevation, numbered zone A15"
+nfip_claim,rated_flood_zone,V15,,"Coastal high hazard area with a base flood elevation, numbered zone V15"
+nfip_claim,rated_flood_zone,A16,,"Special flood hazard area with a base flood elevation, numbered zone A16"
+nfip_claim,rated_flood_zone,V16,,"Coastal high hazard area with a base flood elevation, numbered zone V16"
+nfip_claim,rated_flood_zone,A17,,"Special flood hazard area with a base flood elevation, numbered zone A17"
+nfip_claim,rated_flood_zone,V17,,"Coastal high hazard area with a base flood elevation, numbered zone V17"
+nfip_claim,rated_flood_zone,A18,,"Special flood hazard area with a base flood elevation, numbered zone A18"
+nfip_claim,rated_flood_zone,V18,,"Coastal high hazard area with a base flood elevation, numbered zone V18"
+nfip_claim,rated_flood_zone,A19,,"Special flood hazard area with a base flood elevation, numbered zone A19"
+nfip_claim,rated_flood_zone,V19,,"Coastal high hazard area with a base flood elevation, numbered zone V19"
+nfip_claim,rated_flood_zone,A20,,"Special flood hazard area with a base flood elevation, numbered zone A20"
+nfip_claim,rated_flood_zone,V20,,"Coastal high hazard area with a base flood elevation, numbered zone V20"
+nfip_claim,rated_flood_zone,A21,,"Special flood hazard area with a base flood elevation, numbered zone A21"
+nfip_claim,rated_flood_zone,V21,,"Coastal high hazard area with a base flood elevation, numbered zone V21"
+nfip_claim,rated_flood_zone,A22,,"Special flood hazard area with a base flood elevation, numbered zone A22"
+nfip_claim,rated_flood_zone,V22,,"Coastal high hazard area with a base flood elevation, numbered zone V22"
+nfip_claim,rated_flood_zone,A23,,"Special flood hazard area with a base flood elevation, numbered zone A23"
+nfip_claim,rated_flood_zone,V23,,"Coastal high hazard area with a base flood elevation, numbered zone V23"
+nfip_claim,rated_flood_zone,A24,,"Special flood hazard area with a base flood elevation, numbered zone A24"
+nfip_claim,rated_flood_zone,V24,,"Coastal high hazard area with a base flood elevation, numbered zone V24"
+nfip_claim,rated_flood_zone,A25,,"Special flood hazard area with a base flood elevation, numbered zone A25"
+nfip_claim,rated_flood_zone,V25,,"Coastal high hazard area with a base flood elevation, numbered zone V25"
+nfip_claim,rated_flood_zone,A26,,"Special flood hazard area with a base flood elevation, numbered zone A26"
+nfip_claim,rated_flood_zone,V26,,"Coastal high hazard area with a base flood elevation, numbered zone V26"
+nfip_claim,rated_flood_zone,A27,,"Special flood hazard area with a base flood elevation, numbered zone A27"
+nfip_claim,rated_flood_zone,V27,,"Coastal high hazard area with a base flood elevation, numbered zone V27"
+nfip_claim,rated_flood_zone,A28,,"Special flood hazard area with a base flood elevation, numbered zone A28"
+nfip_claim,rated_flood_zone,V28,,"Coastal high hazard area with a base flood elevation, numbered zone V28"
+nfip_claim,rated_flood_zone,A29,,"Special flood hazard area with a base flood elevation, numbered zone A29"
+nfip_claim,rated_flood_zone,V29,,"Coastal high hazard area with a base flood elevation, numbered zone V29"
+nfip_claim,rated_flood_zone,A30,,"Special flood hazard area with a base flood elevation, numbered zone A30"
+nfip_claim,rated_flood_zone,V30,,"Coastal high hazard area with a base flood elevation, numbered zone V30"
+nfip_claim,location_of_contents,1,,"Basement, enclosure, crawlspace or subgrade crawlspace only"
+nfip_claim,location_of_contents,2,,"Basement, enclosure, crawlspace or subgrade crawlspace and above"
+nfip_claim,location_of_contents,3,,"Lowest floor only, above ground level, no basement or enclosure"
+nfip_claim,location_of_contents,4,,"Lowest floor above ground level and higher floors, no basement or enclosure"
+nfip_claim,location_of_contents,5,,"Above ground level, more than one full floor"
+nfip_claim,location_of_contents,6,,"Manufactured or mobile home, or travel trailer on a foundation"
+nfip_claim,location_of_contents,7,,Enclosure or crawlspace and above
+nfip_claim,number_of_floors_in_insured_building,1,,One floor
+nfip_claim,number_of_floors_in_insured_building,2,,Two floors
+nfip_claim,number_of_floors_in_insured_building,3,,Three or more floors
+nfip_claim,number_of_floors_in_insured_building,4,,Split-level
+nfip_claim,number_of_floors_in_insured_building,5,,"Manufactured or mobile home, or travel trailer on a foundation"
+nfip_claim,number_of_floors_in_insured_building,6,,"Townhouse or rowhouse with three or more floors, RCBAP low-rise only"
+nfip_claim,obstruction_type,10,,Free of obstruction
+nfip_claim,obstruction_type,15,,"With obstruction: enclosure or crawlspace with proper openings, not used for rating; not applicable in V zones"
+nfip_claim,obstruction_type,20,,"With obstruction: under 300 sq ft with breakaway walls, no machinery below the lowest elevated floor, or machinery at or above the base flood elevation"
+nfip_claim,obstruction_type,24,,"With obstruction: under 300 sq ft with breakaway walls or finished enclosure, machinery below the base flood elevation"
+nfip_claim,obstruction_type,30,,"With obstruction: 300 sq ft or more with breakaway walls, no machinery below the base flood elevation"
+nfip_claim,obstruction_type,34,,"With obstruction: 300 sq ft or more with breakaway walls or finished enclosure, machinery below the base flood elevation"
+nfip_claim,obstruction_type,40,,"With obstruction: no walls, machinery below the base flood elevation"
+nfip_claim,obstruction_type,50,,"With obstruction: non-breakaway walls, crawlspace or finished enclosure, no machinery below the lowest elevated floor"
+nfip_claim,obstruction_type,54,,"With obstruction: non-breakaway walls, crawlspace or finished enclosure, machinery below the lowest elevated floor"
+nfip_claim,obstruction_type,60,,With obstruction
+nfip_claim,obstruction_type,70,,"With certification, subgrade crawlspace in an A zone"
+nfip_claim,obstruction_type,80,,"Without certification, subgrade crawlspace, all zones"
+nfip_claim,obstruction_type,90,,"With enclosure: elevated building with an elevator below the base flood elevation in an A zone, no other enclosure"
+nfip_claim,obstruction_type,91,,"Free of obstruction: elevated building in a V zone with lattice, slats or shutters enclosing the elevator below the base flood elevation"
+nfip_claim,obstruction_type,92,,"With enclosure: elevated building with an elevator below the base flood elevation in an A zone, enclosure without proper openings"
+nfip_claim,obstruction_type,94,,"With obstruction: elevated building with an elevator below the base flood elevation in a V zone, no other obstruction"
+nfip_claim,obstruction_type,95,,"With obstruction: elevated building in a V zone with an unfinished breakaway wall obstruction and elevator below the base flood elevation, no machinery below it"
+nfip_claim,obstruction_type,96,,With obstruction: elevated building in a V zone with a breakaway wall obstruction and an elevator below the base flood elevation
+nfip_claim,obstruction_type,97,,"With obstruction: elevated building in a V zone with an elevator and building machinery below the base flood elevation, no other obstruction"
+nfip_claim,obstruction_type,98,,"With obstruction: elevated building in a V zone with a breakaway wall obstruction, an elevator and building machinery below the base flood elevation"
+nfip_claim,occupancy_type,1,,Single family residence
+nfip_claim,occupancy_type,2,,Residential building with 2 to 4 units
+nfip_claim,occupancy_type,3,,Residential building with more than 4 units
+nfip_claim,occupancy_type,4,,Non-residential building
+nfip_claim,occupancy_type,6,,Non-residential business
+nfip_claim,occupancy_type,11,,"Risk Rating 2.0: single-family residential building, excluding a mobile home or a unit within a multi-unit building"
+nfip_claim,occupancy_type,12,,"Risk Rating 2.0: residential non-condominium building with 2 to 4 units, all units insured"
+nfip_claim,occupancy_type,13,,"Risk Rating 2.0: residential non-condominium building with 5 or more units, all units insured"
+nfip_claim,occupancy_type,14,,Risk Rating 2.0: residential mobile or manufactured home
+nfip_claim,occupancy_type,15,,Risk Rating 2.0: residential condominium association covering a building with one or more units
+nfip_claim,occupancy_type,16,,Risk Rating 2.0: single residential unit within a multi-unit building
+nfip_claim,occupancy_type,17,,Risk Rating 2.0: non-residential mobile or manufactured home
+nfip_claim,occupancy_type,18,,Risk Rating 2.0: non-residential building
+nfip_claim,occupancy_type,19,,Risk Rating 2.0: non-residential unit within a multi-unit building
+nfip_claim,rate_method,1,,Manual
+nfip_claim,rate_method,2,,Specific
+nfip_claim,rate_method,3,,Alternative
+nfip_claim,rate_method,4,,V-zone risk factor rating form
+nfip_claim,rate_method,5,,Underinsured condominium master policy
+nfip_claim,rate_method,6,,Provisional
+nfip_claim,rate_method,7,,"Preferred Risk Policy, outside the special flood hazard area"
+nfip_claim,rate_method,8,,Tentative
+nfip_claim,rate_method,9,,Mortgage Portfolio Protection Program policy
+nfip_claim,rate_method,A,,Optional post-1981 V zone
+nfip_claim,rate_method,B,,"Pre-FIRM policy with elevation rating, manual rate tables"
+nfip_claim,rate_method,E,,FEMA pre-FIRM special rates
+nfip_claim,rate_method,F,,Leased federal property
+nfip_claim,rate_method,G,,Group Flood Insurance Policy
+nfip_claim,rate_method,I,,"Incomplete data, provisional rating at renewal"
+nfip_claim,rate_method,P,,"Preferred Risk Policy eligibility extension, first renewal year"
+nfip_claim,rate_method,Q,,"Preferred Risk Policy eligibility extension, later renewals"
+nfip_claim,rate_method,R,,Newly mapped into the special flood hazard area
+nfip_claim,rate_method,S,,FEMA special rates
+nfip_claim,rate_method,T,,Severe repetitive loss property; invalid from 1 October 2013
+nfip_claim,rate_method,W,,"Pre-FIRM policy with elevation rating, submit-for-rate"
+nfip_claim,rate_method,RE,,"Risk Rating 2.0, rates calculated by FEMA from risk factors"
+nfip_claim,building_deductible_code,0,,$500
+nfip_claim,building_deductible_code,1,,"$1,000"
+nfip_claim,building_deductible_code,2,,"$2,000"
+nfip_claim,building_deductible_code,3,,"$3,000"
+nfip_claim,building_deductible_code,4,,"$4,000"
+nfip_claim,building_deductible_code,5,,"$5,000"
+nfip_claim,building_deductible_code,9,,$750
+nfip_claim,building_deductible_code,A,,"$10,000"
+nfip_claim,building_deductible_code,B,,"$15,000"
+nfip_claim,building_deductible_code,C,,"$20,000"
+nfip_claim,building_deductible_code,D,,"$25,000"
+nfip_claim,building_deductible_code,E,,"$50,000"
+nfip_claim,building_deductible_code,F,,"$1,250"
+nfip_claim,building_deductible_code,G,,"$1,500"
+nfip_claim,building_deductible_code,H,,$200 - Used only in Group Flood Insurance Policies
+nfip_claim,cause_of_damage,0,,Other causes
+nfip_claim,cause_of_damage,1,,Tidal water overflow
+nfip_claim,cause_of_damage,2,,"Stream, river or lake overflow"
+nfip_claim,cause_of_damage,3,,Alluvial fan overflow
+nfip_claim,cause_of_damage,4,,Accumulation of rainfall or snowmelt
+nfip_claim,cause_of_damage,7,,"Erosion, demolition; only for a loss before 23 September 1995"
+nfip_claim,cause_of_damage,8,,"Erosion, removal; only for a loss before 23 September 1995"
+nfip_claim,cause_of_damage,9,,"Earth movement: landslide, land subsidence or sinkhole"
+nfip_claim,cause_of_damage,A,,Closed basin lake
+nfip_claim,cause_of_damage,B,,Expedited claim handling without site inspection
+nfip_claim,cause_of_damage,C,,Expedited claim handling with follow-up site inspection
+nfip_claim,cause_of_damage,D,,Expedited claim handling by remote adjustment
+nfip_claim,cause_of_damage,5,,Not documented by FEMA; reported value retained as published
+nfip_claim,cause_of_damage,6,,Not documented by FEMA; reported value retained as published
+nfip_claim,cause_of_damage,@,,Not documented by FEMA; reported value retained as published
+nfip_claim,cause_of_damage,N,,Not documented by FEMA; reported value retained as published
+nfip_claim,cause_of_damage,Z,,Not documented by FEMA; reported value retained as published
+nfip_claim,condominium_coverage_type_code,N,,Not a Condominium
+nfip_claim,condominium_coverage_type_code,U,,Individual Condominium Unit insured by a unit owner or by an association
+nfip_claim,condominium_coverage_type_code,A,,Condominium Association
+nfip_claim,condominium_coverage_type_code,H,,Condominium Master Policy (RCBAP) High-Rise
+nfip_claim,condominium_coverage_type_code,L,,Condominium Master Policy (RCBAP) Low-Rise
+nfip_claim,contents_deductible_code,0,,$500
+nfip_claim,contents_deductible_code,1,,"$1,000"
+nfip_claim,contents_deductible_code,2,,"$2,000"
+nfip_claim,contents_deductible_code,3,,"$3,000"
+nfip_claim,contents_deductible_code,4,,"$4,000"
+nfip_claim,contents_deductible_code,5,,"$5,000"
+nfip_claim,contents_deductible_code,9,,$750
+nfip_claim,contents_deductible_code,A,,"$10,000"
+nfip_claim,contents_deductible_code,B,,"$15,000"
+nfip_claim,contents_deductible_code,C,,"$20,000"
+nfip_claim,contents_deductible_code,D,,"$25,000"
+nfip_claim,contents_deductible_code,E,,"$50,000"
+nfip_claim,contents_deductible_code,F,,"$1,250"
+nfip_claim,contents_deductible_code,G,,"$1,500"
+nfip_claim,contents_deductible_code,H,,$200 - Used only in Group Flood Insurance Policies
+nfip_claim,disaster_assistance_coverage_required,0,,Not required
+nfip_claim,disaster_assistance_coverage_required,1,,Small Business Administration
+nfip_claim,disaster_assistance_coverage_required,2,,Federal Emergency Management Agency
+nfip_claim,disaster_assistance_coverage_required,3,,Not documented by FEMA; reported value retained as published
+nfip_claim,disaster_assistance_coverage_required,4,,Department of Health and Human Services; cancelled 1 October 2009
+nfip_claim,disaster_assistance_coverage_required,5,,Other agency
+nfip_claim,flood_characteristics_indicator,1,,Velocity Flow
+nfip_claim,flood_characteristics_indicator,2,,Low-Velocity Flow or Ponding
+nfip_claim,flood_characteristics_indicator,3,,Wave Action
+nfip_claim,flood_characteristics_indicator,4,,Mudflow
+nfip_claim,flood_characteristics_indicator,5,,Erosion
+nfip_claim,non_payment_reason_contents,01,,Claim denied that was less than deductible
+nfip_claim,non_payment_reason_contents,02,,Seepage
+nfip_claim,non_payment_reason_contents,03,,Backup drains
+nfip_claim,non_payment_reason_contents,04,,Shrubs not covered
+nfip_claim,non_payment_reason_contents,05,,Sea wall
+nfip_claim,non_payment_reason_contents,06,,Not actual flood
+nfip_claim,non_payment_reason_contents,07,,Loss in progress
+nfip_claim,non_payment_reason_contents,08,,Failure to pursue claim
+nfip_claim,non_payment_reason_contents,09,,Debris removal only
+nfip_claim,non_payment_reason_contents,10,,Fire
+nfip_claim,non_payment_reason_contents,11,,Fence damage
+nfip_claim,non_payment_reason_contents,12,,Hydrostatic pressure
+nfip_claim,non_payment_reason_contents,13,,Drainage clogged
+nfip_claim,non_payment_reason_contents,14,,Boat piers
+nfip_claim,non_payment_reason_contents,15,,"Not insured, damage before inception of policy"
+nfip_claim,non_payment_reason_contents,16,,"Not insured, wind damage"
+nfip_claim,non_payment_reason_contents,17,,Type of erosion not included in definition of flood or flooding
+nfip_claim,non_payment_reason_contents,18,,Landslide
+nfip_claim,non_payment_reason_contents,19,,Type of mudflow not included in definition of flood or flooding
+nfip_claim,non_payment_reason_contents,20,,No demonstrable damage
+nfip_claim,non_payment_reason_contents,97,,Other
+nfip_claim,non_payment_reason_contents,98,,Error-delete claim (no assignment)
+nfip_claim,non_payment_reason_contents,99,,Erroneous assignment
+nfip_claim,non_payment_reason_building,01,,Claim denied that was less than deductible
+nfip_claim,non_payment_reason_building,02,,Seepage
+nfip_claim,non_payment_reason_building,03,,Backup drains
+nfip_claim,non_payment_reason_building,04,,Shrubs not covered
+nfip_claim,non_payment_reason_building,05,,Sea wall
+nfip_claim,non_payment_reason_building,06,,Not actual flood
+nfip_claim,non_payment_reason_building,07,,Loss in progress
+nfip_claim,non_payment_reason_building,08,,Failure to pursue claim
+nfip_claim,non_payment_reason_building,09,,Debris removal only
+nfip_claim,non_payment_reason_building,10,,Fire
+nfip_claim,non_payment_reason_building,11,,Fence damage
+nfip_claim,non_payment_reason_building,12,,Hydrostatic pressure
+nfip_claim,non_payment_reason_building,13,,Drainage clogged
+nfip_claim,non_payment_reason_building,14,,Boat piers
+nfip_claim,non_payment_reason_building,15,,"Not insured, damage before inception of policy"
+nfip_claim,non_payment_reason_building,16,,"Not insured, wind damage"
+nfip_claim,non_payment_reason_building,17,,Type of erosion not included in definition of flood or flooding
+nfip_claim,non_payment_reason_building,18,,Landslide
+nfip_claim,non_payment_reason_building,19,,Type of mudflow not included in definition of flood or flooding
+nfip_claim,non_payment_reason_building,20,,No demonstrable damage
+nfip_claim,non_payment_reason_building,97,,Other
+nfip_claim,non_payment_reason_building,98,,Error-delete claim (no assignment)
+nfip_claim,non_payment_reason_building,99,,Erroneous assignment
+nfip_claim,replacement_cost_basis,R,,Replacement Cost Basis
+nfip_claim,replacement_cost_basis,A,,Actual Cash Value Basis
+nfip_claim,flood_zone_current,A,,"Special flood hazard area, no base flood elevation on the FIRM"
+nfip_claim,flood_zone_current,AE,,Special flood hazard area with a base flood elevation on the FIRM
+nfip_claim,flood_zone_current,A99,,Special flood hazard area protected by a flood control system under construction
+nfip_claim,flood_zone_current,AH,,Special flood hazard area subject to shallow ponding
+nfip_claim,flood_zone_current,AHB,,"Special flood hazard area subject to shallow ponding, with a base flood elevation"
+nfip_claim,flood_zone_current,AO,,Special flood hazard area subject to sheet flow
+nfip_claim,flood_zone_current,AOB,,"Special flood hazard area subject to sheet flow, with a base flood elevation"
+nfip_claim,flood_zone_current,AR,,Special flood hazard area with temporarily increased risk from a decertified flood protection system
+nfip_claim,flood_zone_current,B,,Moderate flood hazard from the primary water source; superseded by zone X in 1986
+nfip_claim,flood_zone_current,C,,Minimal flood hazard from the primary water source; superseded by zone X in 1986
+nfip_claim,flood_zone_current,D,,"Possible but undetermined flood hazard, not analysed"
+nfip_claim,flood_zone_current,V,,"Coastal high hazard area, no base flood elevation on the FIRM"
+nfip_claim,flood_zone_current,VE,,Coastal high hazard area with a base flood elevation on the FIRM
+nfip_claim,flood_zone_current,X,,"Moderate to minimal flood hazard, outside the special flood hazard area"
+nfip_claim,flood_zone_current,AA,,Not a documented FIRM zone; reported value retained as published
+nfip_claim,flood_zone_current,AS,,Not a documented FIRM zone; reported value retained as published
+nfip_claim,flood_zone_current,A01,,"Special flood hazard area with a base flood elevation, numbered zone A1"
+nfip_claim,flood_zone_current,V01,,"Coastal high hazard area with a base flood elevation, numbered zone V1"
+nfip_claim,flood_zone_current,A02,,"Special flood hazard area with a base flood elevation, numbered zone A2"
+nfip_claim,flood_zone_current,V02,,"Coastal high hazard area with a base flood elevation, numbered zone V2"
+nfip_claim,flood_zone_current,A03,,"Special flood hazard area with a base flood elevation, numbered zone A3"
+nfip_claim,flood_zone_current,V03,,"Coastal high hazard area with a base flood elevation, numbered zone V3"
+nfip_claim,flood_zone_current,A04,,"Special flood hazard area with a base flood elevation, numbered zone A4"
+nfip_claim,flood_zone_current,V04,,"Coastal high hazard area with a base flood elevation, numbered zone V4"
+nfip_claim,flood_zone_current,A05,,"Special flood hazard area with a base flood elevation, numbered zone A5"
+nfip_claim,flood_zone_current,V05,,"Coastal high hazard area with a base flood elevation, numbered zone V5"
+nfip_claim,flood_zone_current,A06,,"Special flood hazard area with a base flood elevation, numbered zone A6"
+nfip_claim,flood_zone_current,V06,,"Coastal high hazard area with a base flood elevation, numbered zone V6"
+nfip_claim,flood_zone_current,A07,,"Special flood hazard area with a base flood elevation, numbered zone A7"
+nfip_claim,flood_zone_current,V07,,"Coastal high hazard area with a base flood elevation, numbered zone V7"
+nfip_claim,flood_zone_current,A08,,"Special flood hazard area with a base flood elevation, numbered zone A8"
+nfip_claim,flood_zone_current,V08,,"Coastal high hazard area with a base flood elevation, numbered zone V8"
+nfip_claim,flood_zone_current,A09,,"Special flood hazard area with a base flood elevation, numbered zone A9"
+nfip_claim,flood_zone_current,V09,,"Coastal high hazard area with a base flood elevation, numbered zone V9"
+nfip_claim,flood_zone_current,A10,,"Special flood hazard area with a base flood elevation, numbered zone A10"
+nfip_claim,flood_zone_current,V10,,"Coastal high hazard area with a base flood elevation, numbered zone V10"
+nfip_claim,flood_zone_current,A11,,"Special flood hazard area with a base flood elevation, numbered zone A11"
+nfip_claim,flood_zone_current,V11,,"Coastal high hazard area with a base flood elevation, numbered zone V11"
+nfip_claim,flood_zone_current,A12,,"Special flood hazard area with a base flood elevation, numbered zone A12"
+nfip_claim,flood_zone_current,V12,,"Coastal high hazard area with a base flood elevation, numbered zone V12"
+nfip_claim,flood_zone_current,A13,,"Special flood hazard area with a base flood elevation, numbered zone A13"
+nfip_claim,flood_zone_current,V13,,"Coastal high hazard area with a base flood elevation, numbered zone V13"
+nfip_claim,flood_zone_current,A14,,"Special flood hazard area with a base flood elevation, numbered zone A14"
+nfip_claim,flood_zone_current,V14,,"Coastal high hazard area with a base flood elevation, numbered zone V14"
+nfip_claim,flood_zone_current,A15,,"Special flood hazard area with a base flood elevation, numbered zone A15"
+nfip_claim,flood_zone_current,V15,,"Coastal high hazard area with a base flood elevation, numbered zone V15"
+nfip_claim,flood_zone_current,A16,,"Special flood hazard area with a base flood elevation, numbered zone A16"
+nfip_claim,flood_zone_current,V16,,"Coastal high hazard area with a base flood elevation, numbered zone V16"
+nfip_claim,flood_zone_current,A17,,"Special flood hazard area with a base flood elevation, numbered zone A17"
+nfip_claim,flood_zone_current,V17,,"Coastal high hazard area with a base flood elevation, numbered zone V17"
+nfip_claim,flood_zone_current,A18,,"Special flood hazard area with a base flood elevation, numbered zone A18"
+nfip_claim,flood_zone_current,V18,,"Coastal high hazard area with a base flood elevation, numbered zone V18"
+nfip_claim,flood_zone_current,A19,,"Special flood hazard area with a base flood elevation, numbered zone A19"
+nfip_claim,flood_zone_current,V19,,"Coastal high hazard area with a base flood elevation, numbered zone V19"
+nfip_claim,flood_zone_current,A20,,"Special flood hazard area with a base flood elevation, numbered zone A20"
+nfip_claim,flood_zone_current,V20,,"Coastal high hazard area with a base flood elevation, numbered zone V20"
+nfip_claim,flood_zone_current,A21,,"Special flood hazard area with a base flood elevation, numbered zone A21"
+nfip_claim,flood_zone_current,V21,,"Coastal high hazard area with a base flood elevation, numbered zone V21"
+nfip_claim,flood_zone_current,A22,,"Special flood hazard area with a base flood elevation, numbered zone A22"
+nfip_claim,flood_zone_current,V22,,"Coastal high hazard area with a base flood elevation, numbered zone V22"
+nfip_claim,flood_zone_current,A23,,"Special flood hazard area with a base flood elevation, numbered zone A23"
+nfip_claim,flood_zone_current,V23,,"Coastal high hazard area with a base flood elevation, numbered zone V23"
+nfip_claim,flood_zone_current,A24,,"Special flood hazard area with a base flood elevation, numbered zone A24"
+nfip_claim,flood_zone_current,V24,,"Coastal high hazard area with a base flood elevation, numbered zone V24"
+nfip_claim,flood_zone_current,A25,,"Special flood hazard area with a base flood elevation, numbered zone A25"
+nfip_claim,flood_zone_current,V25,,"Coastal high hazard area with a base flood elevation, numbered zone V25"
+nfip_claim,flood_zone_current,A26,,"Special flood hazard area with a base flood elevation, numbered zone A26"
+nfip_claim,flood_zone_current,V26,,"Coastal high hazard area with a base flood elevation, numbered zone V26"
+nfip_claim,flood_zone_current,A27,,"Special flood hazard area with a base flood elevation, numbered zone A27"
+nfip_claim,flood_zone_current,V27,,"Coastal high hazard area with a base flood elevation, numbered zone V27"
+nfip_claim,flood_zone_current,A28,,"Special flood hazard area with a base flood elevation, numbered zone A28"
+nfip_claim,flood_zone_current,V28,,"Coastal high hazard area with a base flood elevation, numbered zone V28"
+nfip_claim,flood_zone_current,A29,,"Special flood hazard area with a base flood elevation, numbered zone A29"
+nfip_claim,flood_zone_current,V29,,"Coastal high hazard area with a base flood elevation, numbered zone V29"
+nfip_claim,flood_zone_current,A30,,"Special flood hazard area with a base flood elevation, numbered zone A30"
+nfip_claim,flood_zone_current,V30,,"Coastal high hazard area with a base flood elevation, numbered zone V30"
+nfip_claim,building_description_code,1,,Main house
+nfip_claim,building_description_code,2,,Detached guest house
+nfip_claim,building_description_code,3,,Detached garage
+nfip_claim,building_description_code,4,,Agricultural building
+nfip_claim,building_description_code,5,,Warehouse
+nfip_claim,building_description_code,6,,"Pool house, clubhouse or recreation building"
+nfip_claim,building_description_code,7,,Tool or storage shed
+nfip_claim,building_description_code,8,,Other
+nfip_claim,building_description_code,9,,Barn
+nfip_claim,building_description_code,10,,Apartment building
+nfip_claim,building_description_code,11,,Apartment unit
+nfip_claim,building_description_code,12,,Cooperative building
+nfip_claim,building_description_code,13,,Cooperative unit
+nfip_claim,building_description_code,14,,Commercial building
+nfip_claim,building_description_code,15,,"Condominium, entire building"
+nfip_claim,building_description_code,16,,Condominium unit
+nfip_claim,building_description_code,17,,House of worship
+nfip_claim,building_description_code,18,,Manufactured or mobile home
+nfip_claim,building_description_code,19,,Travel trailer
+nfip_claim,building_description_code,20,,Townhouse or rowhouse
+nfip_claim,building_description_code,21,,Not documented by FEMA; reported value retained as published
+nfip_claim,building_description_code,32,,Not documented by FEMA; reported value retained as published
+nfip_claim,building_description_code,34,,Not documented by FEMA; reported value retained as published
+nfip_claim,foundation_type,0,,Not reported
+nfip_claim,foundation_type,1,,Slab
+nfip_claim,foundation_type,2,,Basement
+nfip_claim,foundation_type,3,,Crawlspace
+nfip_claim,foundation_type,4,,"Elevated without enclosure, on posts, piles or piers"
+nfip_claim,foundation_type,5,,"Elevated with enclosure, on posts, piles or piers"
+nfip_claim,foundation_type,6,,"Elevated with enclosure, not on posts, piles or piers"
+nfip_policy,basement_enclosure_crawlspace_type,0,,None
+nfip_policy,basement_enclosure_crawlspace_type,1,,Finished basement or enclosure
+nfip_policy,basement_enclosure_crawlspace_type,2,,Unfinished basement or enclosure
+nfip_policy,basement_enclosure_crawlspace_type,3,,Crawlspace
+nfip_policy,basement_enclosure_crawlspace_type,4,,Subgrade crawlspace
+nfip_policy,condominium_coverage_type_code,N,,Not a Condominium
+nfip_policy,condominium_coverage_type_code,U,,Individual Condominium Unit insured by a unit owner or by an association
+nfip_policy,condominium_coverage_type_code,A,,Condominium Association
+nfip_policy,condominium_coverage_type_code,H,,Condominium Master Policy (RCBAP) High-Rise
+nfip_policy,condominium_coverage_type_code,L,,Condominium Master Policy (RCBAP) Low-Rise
+nfip_policy,crs_class_code,1,,"CRS class 1, 45% premium discount inside the special flood hazard area"
+nfip_policy,crs_class_code,2,,"CRS class 2, 40% premium discount inside the special flood hazard area"
+nfip_policy,crs_class_code,3,,"CRS class 3, 35% premium discount inside the special flood hazard area"
+nfip_policy,crs_class_code,4,,"CRS class 4, 30% premium discount inside the special flood hazard area"
+nfip_policy,crs_class_code,5,,"CRS class 5, 25% premium discount inside the special flood hazard area"
+nfip_policy,crs_class_code,6,,"CRS class 6, 20% premium discount inside the special flood hazard area"
+nfip_policy,crs_class_code,7,,"CRS class 7, 15% premium discount inside the special flood hazard area"
+nfip_policy,crs_class_code,8,,"CRS class 8, 10% premium discount inside the special flood hazard area"
+nfip_policy,crs_class_code,9,,"CRS class 9, 5% premium discount inside the special flood hazard area"
+nfip_policy,crs_class_code,10,,"CRS class 10, no premium discount"
+nfip_policy,building_deductible_code,0,,$500
+nfip_policy,building_deductible_code,1,,"$1,000"
+nfip_policy,building_deductible_code,2,,"$2,000"
+nfip_policy,building_deductible_code,3,,"$3,000"
+nfip_policy,building_deductible_code,4,,"$4,000"
+nfip_policy,building_deductible_code,5,,"$5,000"
+nfip_policy,building_deductible_code,9,,$750
+nfip_policy,building_deductible_code,A,,"$10,000"
+nfip_policy,building_deductible_code,B,,"$15,000"
+nfip_policy,building_deductible_code,C,,"$20,000"
+nfip_policy,building_deductible_code,D,,"$25,000"
+nfip_policy,building_deductible_code,E,,"$50,000"
+nfip_policy,building_deductible_code,F,,"$1,250"
+nfip_policy,building_deductible_code,G,,"$1,500"
+nfip_policy,building_deductible_code,H,,$200 - Used only in Group Flood Insurance Policies
+nfip_policy,contents_deductible_code,0,,$500
+nfip_policy,contents_deductible_code,1,,"$1,000"
+nfip_policy,contents_deductible_code,2,,"$2,000"
+nfip_policy,contents_deductible_code,3,,"$3,000"
+nfip_policy,contents_deductible_code,4,,"$4,000"
+nfip_policy,contents_deductible_code,5,,"$5,000"
+nfip_policy,contents_deductible_code,9,,$750
+nfip_policy,contents_deductible_code,A,,"$10,000"
+nfip_policy,contents_deductible_code,B,,"$15,000"
+nfip_policy,contents_deductible_code,C,,"$20,000"
+nfip_policy,contents_deductible_code,D,,"$25,000"
+nfip_policy,contents_deductible_code,E,,"$50,000"
+nfip_policy,contents_deductible_code,F,,"$1,250"
+nfip_policy,contents_deductible_code,G,,"$1,500"
+nfip_policy,contents_deductible_code,H,,$200 - Used only in Group Flood Insurance Policies
+nfip_policy,elevation_certificate_indicator,1,,"No elevation certificate; effective before 1 October 1982, rated at no-base-flood-elevation +2 to +4 feet"
+nfip_policy,elevation_certificate_indicator,2,,"No elevation certificate; effective on or after 1 October 1982, rated at no-elevation-certificate rates"
+nfip_policy,elevation_certificate_indicator,3,,"Elevation certificate with a base flood elevation, rated with base flood elevation"
+nfip_policy,elevation_certificate_indicator,4,,"Elevation certificate without a base flood elevation, rated at no-base-flood-elevation rates"
+nfip_policy,elevation_certificate_indicator,A,,Basement or subgrade crawlspace
+nfip_policy,elevation_certificate_indicator,B,,Fill or crawlspace
+nfip_policy,elevation_certificate_indicator,C,,"Piles, piers or columns with enclosure"
+nfip_policy,elevation_certificate_indicator,D,,"Piles, piers or columns without enclosure"
+nfip_policy,elevation_certificate_indicator,E,,Slab on grade
+nfip_policy,rated_flood_zone,A,,"Special flood hazard area, no base flood elevation on the FIRM"
+nfip_policy,rated_flood_zone,AE,,Special flood hazard area with a base flood elevation on the FIRM
+nfip_policy,rated_flood_zone,A99,,Special flood hazard area protected by a flood control system under construction
+nfip_policy,rated_flood_zone,AH,,Special flood hazard area subject to shallow ponding
+nfip_policy,rated_flood_zone,AHB,,"Special flood hazard area subject to shallow ponding, with a base flood elevation"
+nfip_policy,rated_flood_zone,AO,,Special flood hazard area subject to sheet flow
+nfip_policy,rated_flood_zone,AOB,,"Special flood hazard area subject to sheet flow, with a base flood elevation"
+nfip_policy,rated_flood_zone,AR,,Special flood hazard area with temporarily increased risk from a decertified flood protection system
+nfip_policy,rated_flood_zone,B,,Moderate flood hazard from the primary water source; superseded by zone X in 1986
+nfip_policy,rated_flood_zone,C,,Minimal flood hazard from the primary water source; superseded by zone X in 1986
+nfip_policy,rated_flood_zone,D,,"Possible but undetermined flood hazard, not analysed"
+nfip_policy,rated_flood_zone,V,,"Coastal high hazard area, no base flood elevation on the FIRM"
+nfip_policy,rated_flood_zone,VE,,Coastal high hazard area with a base flood elevation on the FIRM
+nfip_policy,rated_flood_zone,X,,"Moderate to minimal flood hazard, outside the special flood hazard area"
+nfip_policy,rated_flood_zone,AA,,Not a documented FIRM zone; reported value retained as published
+nfip_policy,rated_flood_zone,AS,,Not a documented FIRM zone; reported value retained as published
+nfip_policy,rated_flood_zone,A01,,"Special flood hazard area with a base flood elevation, numbered zone A1"
+nfip_policy,rated_flood_zone,V01,,"Coastal high hazard area with a base flood elevation, numbered zone V1"
+nfip_policy,rated_flood_zone,A02,,"Special flood hazard area with a base flood elevation, numbered zone A2"
+nfip_policy,rated_flood_zone,V02,,"Coastal high hazard area with a base flood elevation, numbered zone V2"
+nfip_policy,rated_flood_zone,A03,,"Special flood hazard area with a base flood elevation, numbered zone A3"
+nfip_policy,rated_flood_zone,V03,,"Coastal high hazard area with a base flood elevation, numbered zone V3"
+nfip_policy,rated_flood_zone,A04,,"Special flood hazard area with a base flood elevation, numbered zone A4"
+nfip_policy,rated_flood_zone,V04,,"Coastal high hazard area with a base flood elevation, numbered zone V4"
+nfip_policy,rated_flood_zone,A05,,"Special flood hazard area with a base flood elevation, numbered zone A5"
+nfip_policy,rated_flood_zone,V05,,"Coastal high hazard area with a base flood elevation, numbered zone V5"
+nfip_policy,rated_flood_zone,A06,,"Special flood hazard area with a base flood elevation, numbered zone A6"
+nfip_policy,rated_flood_zone,V06,,"Coastal high hazard area with a base flood elevation, numbered zone V6"
+nfip_policy,rated_flood_zone,A07,,"Special flood hazard area with a base flood elevation, numbered zone A7"
+nfip_policy,rated_flood_zone,V07,,"Coastal high hazard area with a base flood elevation, numbered zone V7"
+nfip_policy,rated_flood_zone,A08,,"Special flood hazard area with a base flood elevation, numbered zone A8"
+nfip_policy,rated_flood_zone,V08,,"Coastal high hazard area with a base flood elevation, numbered zone V8"
+nfip_policy,rated_flood_zone,A09,,"Special flood hazard area with a base flood elevation, numbered zone A9"
+nfip_policy,rated_flood_zone,V09,,"Coastal high hazard area with a base flood elevation, numbered zone V9"
+nfip_policy,rated_flood_zone,A10,,"Special flood hazard area with a base flood elevation, numbered zone A10"
+nfip_policy,rated_flood_zone,V10,,"Coastal high hazard area with a base flood elevation, numbered zone V10"
+nfip_policy,rated_flood_zone,A11,,"Special flood hazard area with a base flood elevation, numbered zone A11"
+nfip_policy,rated_flood_zone,V11,,"Coastal high hazard area with a base flood elevation, numbered zone V11"
+nfip_policy,rated_flood_zone,A12,,"Special flood hazard area with a base flood elevation, numbered zone A12"
+nfip_policy,rated_flood_zone,V12,,"Coastal high hazard area with a base flood elevation, numbered zone V12"
+nfip_policy,rated_flood_zone,A13,,"Special flood hazard area with a base flood elevation, numbered zone A13"
+nfip_policy,rated_flood_zone,V13,,"Coastal high hazard area with a base flood elevation, numbered zone V13"
+nfip_policy,rated_flood_zone,A14,,"Special flood hazard area with a base flood elevation, numbered zone A14"
+nfip_policy,rated_flood_zone,V14,,"Coastal high hazard area with a base flood elevation, numbered zone V14"
+nfip_policy,rated_flood_zone,A15,,"Special flood hazard area with a base flood elevation, numbered zone A15"
+nfip_policy,rated_flood_zone,V15,,"Coastal high hazard area with a base flood elevation, numbered zone V15"
+nfip_policy,rated_flood_zone,A16,,"Special flood hazard area with a base flood elevation, numbered zone A16"
+nfip_policy,rated_flood_zone,V16,,"Coastal high hazard area with a base flood elevation, numbered zone V16"
+nfip_policy,rated_flood_zone,A17,,"Special flood hazard area with a base flood elevation, numbered zone A17"
+nfip_policy,rated_flood_zone,V17,,"Coastal high hazard area with a base flood elevation, numbered zone V17"
+nfip_policy,rated_flood_zone,A18,,"Special flood hazard area with a base flood elevation, numbered zone A18"
+nfip_policy,rated_flood_zone,V18,,"Coastal high hazard area with a base flood elevation, numbered zone V18"
+nfip_policy,rated_flood_zone,A19,,"Special flood hazard area with a base flood elevation, numbered zone A19"
+nfip_policy,rated_flood_zone,V19,,"Coastal high hazard area with a base flood elevation, numbered zone V19"
+nfip_policy,rated_flood_zone,A20,,"Special flood hazard area with a base flood elevation, numbered zone A20"
+nfip_policy,rated_flood_zone,V20,,"Coastal high hazard area with a base flood elevation, numbered zone V20"
+nfip_policy,rated_flood_zone,A21,,"Special flood hazard area with a base flood elevation, numbered zone A21"
+nfip_policy,rated_flood_zone,V21,,"Coastal high hazard area with a base flood elevation, numbered zone V21"
+nfip_policy,rated_flood_zone,A22,,"Special flood hazard area with a base flood elevation, numbered zone A22"
+nfip_policy,rated_flood_zone,V22,,"Coastal high hazard area with a base flood elevation, numbered zone V22"
+nfip_policy,rated_flood_zone,A23,,"Special flood hazard area with a base flood elevation, numbered zone A23"
+nfip_policy,rated_flood_zone,V23,,"Coastal high hazard area with a base flood elevation, numbered zone V23"
+nfip_policy,rated_flood_zone,A24,,"Special flood hazard area with a base flood elevation, numbered zone A24"
+nfip_policy,rated_flood_zone,V24,,"Coastal high hazard area with a base flood elevation, numbered zone V24"
+nfip_policy,rated_flood_zone,A25,,"Special flood hazard area with a base flood elevation, numbered zone A25"
+nfip_policy,rated_flood_zone,V25,,"Coastal high hazard area with a base flood elevation, numbered zone V25"
+nfip_policy,rated_flood_zone,A26,,"Special flood hazard area with a base flood elevation, numbered zone A26"
+nfip_policy,rated_flood_zone,V26,,"Coastal high hazard area with a base flood elevation, numbered zone V26"
+nfip_policy,rated_flood_zone,A27,,"Special flood hazard area with a base flood elevation, numbered zone A27"
+nfip_policy,rated_flood_zone,V27,,"Coastal high hazard area with a base flood elevation, numbered zone V27"
+nfip_policy,rated_flood_zone,A28,,"Special flood hazard area with a base flood elevation, numbered zone A28"
+nfip_policy,rated_flood_zone,V28,,"Coastal high hazard area with a base flood elevation, numbered zone V28"
+nfip_policy,rated_flood_zone,A29,,"Special flood hazard area with a base flood elevation, numbered zone A29"
+nfip_policy,rated_flood_zone,V29,,"Coastal high hazard area with a base flood elevation, numbered zone V29"
+nfip_policy,rated_flood_zone,A30,,"Special flood hazard area with a base flood elevation, numbered zone A30"
+nfip_policy,rated_flood_zone,V30,,"Coastal high hazard area with a base flood elevation, numbered zone V30"
+nfip_policy,location_of_contents,1,,"Basement, enclosure, crawlspace or subgrade crawlspace only"
+nfip_policy,location_of_contents,2,,"Basement, enclosure, crawlspace or subgrade crawlspace and above"
+nfip_policy,location_of_contents,3,,"Lowest floor only, above ground level, no basement or enclosure"
+nfip_policy,location_of_contents,4,,"Lowest floor above ground level and higher floors, no basement or enclosure"
+nfip_policy,location_of_contents,5,,"Above ground level, more than one full floor"
+nfip_policy,location_of_contents,6,,"Manufactured or mobile home, or travel trailer on a foundation"
+nfip_policy,location_of_contents,7,,Enclosure or crawlspace and above
+nfip_policy,number_of_floors_in_insured_building,1,,One floor
+nfip_policy,number_of_floors_in_insured_building,2,,Two floors
+nfip_policy,number_of_floors_in_insured_building,3,,Three or more floors
+nfip_policy,number_of_floors_in_insured_building,4,,Split-level
+nfip_policy,number_of_floors_in_insured_building,5,,"Manufactured or mobile home, or travel trailer on a foundation"
+nfip_policy,number_of_floors_in_insured_building,6,,"Townhouse or rowhouse with three or more floors, RCBAP low-rise only"
+nfip_policy,obstruction_type,10,,Free of obstruction
+nfip_policy,obstruction_type,15,,"With obstruction: enclosure or crawlspace with proper openings, not used for rating; not applicable in V zones"
+nfip_policy,obstruction_type,20,,"With obstruction: under 300 sq ft with breakaway walls, no machinery below the lowest elevated floor, or machinery at or above the base flood elevation"
+nfip_policy,obstruction_type,24,,"With obstruction: under 300 sq ft with breakaway walls or finished enclosure, machinery below the base flood elevation"
+nfip_policy,obstruction_type,30,,"With obstruction: 300 sq ft or more with breakaway walls, no machinery below the base flood elevation"
+nfip_policy,obstruction_type,34,,"With obstruction: 300 sq ft or more with breakaway walls or finished enclosure, machinery below the base flood elevation"
+nfip_policy,obstruction_type,40,,"With obstruction: no walls, machinery below the base flood elevation"
+nfip_policy,obstruction_type,50,,"With obstruction: non-breakaway walls, crawlspace or finished enclosure, no machinery below the lowest elevated floor"
+nfip_policy,obstruction_type,54,,"With obstruction: non-breakaway walls, crawlspace or finished enclosure, machinery below the lowest elevated floor"
+nfip_policy,obstruction_type,60,,With obstruction
+nfip_policy,obstruction_type,70,,"With certification, subgrade crawlspace in an A zone"
+nfip_policy,obstruction_type,80,,"Without certification, subgrade crawlspace, all zones"
+nfip_policy,obstruction_type,90,,"With enclosure: elevated building with an elevator below the base flood elevation in an A zone, no other enclosure"
+nfip_policy,obstruction_type,91,,"Free of obstruction: elevated building in a V zone with lattice, slats or shutters enclosing the elevator below the base flood elevation"
+nfip_policy,obstruction_type,92,,"With enclosure: elevated building with an elevator below the base flood elevation in an A zone, enclosure without proper openings"
+nfip_policy,obstruction_type,94,,"With obstruction: elevated building with an elevator below the base flood elevation in a V zone, no other obstruction"
+nfip_policy,obstruction_type,95,,"With obstruction: elevated building in a V zone with an unfinished breakaway wall obstruction and elevator below the base flood elevation, no machinery below it"
+nfip_policy,obstruction_type,96,,With obstruction: elevated building in a V zone with a breakaway wall obstruction and an elevator below the base flood elevation
+nfip_policy,obstruction_type,97,,"With obstruction: elevated building in a V zone with an elevator and building machinery below the base flood elevation, no other obstruction"
+nfip_policy,obstruction_type,98,,"With obstruction: elevated building in a V zone with a breakaway wall obstruction, an elevator and building machinery below the base flood elevation"
+nfip_policy,occupancy_type,1,,Single family residence
+nfip_policy,occupancy_type,2,,Residential building with 2 to 4 units
+nfip_policy,occupancy_type,3,,Residential building with more than 4 units
+nfip_policy,occupancy_type,4,,Non-residential building
+nfip_policy,occupancy_type,6,,Non-residential business
+nfip_policy,occupancy_type,11,,"Risk Rating 2.0: single-family residential building, excluding a mobile home or a unit within a multi-unit building"
+nfip_policy,occupancy_type,12,,"Risk Rating 2.0: residential non-condominium building with 2 to 4 units, all units insured"
+nfip_policy,occupancy_type,13,,"Risk Rating 2.0: residential non-condominium building with 5 or more units, all units insured"
+nfip_policy,occupancy_type,14,,Risk Rating 2.0: residential mobile or manufactured home
+nfip_policy,occupancy_type,15,,Risk Rating 2.0: residential condominium association covering a building with one or more units
+nfip_policy,occupancy_type,16,,Risk Rating 2.0: single residential unit within a multi-unit building
+nfip_policy,occupancy_type,17,,Risk Rating 2.0: non-residential mobile or manufactured home
+nfip_policy,occupancy_type,18,,Risk Rating 2.0: non-residential building
+nfip_policy,occupancy_type,19,,Risk Rating 2.0: non-residential unit within a multi-unit building
+nfip_policy,policy_term_indicator,1,,One year
+nfip_policy,policy_term_indicator,3,,"Three years, for policies effective before 1 May 1999"
+nfip_policy,policy_term_indicator,9,,"Other term, between one and three years"
+nfip_policy,policy_term_indicator,0,,Not documented by FEMA; reported value retained as published
+nfip_policy,policy_term_indicator,2,,Not documented by FEMA; reported value retained as published
+nfip_policy,policy_term_indicator,4,,Not documented by FEMA; reported value retained as published
+nfip_policy,policy_term_indicator,5,,Not documented by FEMA; reported value retained as published
+nfip_policy,policy_term_indicator,6,,Not documented by FEMA; reported value retained as published
+nfip_policy,rate_method,1,,Manual
+nfip_policy,rate_method,2,,Specific
+nfip_policy,rate_method,3,,Alternative
+nfip_policy,rate_method,4,,V-zone risk factor rating form
+nfip_policy,rate_method,5,,Underinsured condominium master policy
+nfip_policy,rate_method,6,,Provisional
+nfip_policy,rate_method,7,,"Preferred Risk Policy, outside the special flood hazard area"
+nfip_policy,rate_method,8,,Tentative
+nfip_policy,rate_method,9,,Mortgage Portfolio Protection Program policy
+nfip_policy,rate_method,A,,Optional post-1981 V zone
+nfip_policy,rate_method,B,,"Pre-FIRM policy with elevation rating, manual rate tables"
+nfip_policy,rate_method,E,,FEMA pre-FIRM special rates
+nfip_policy,rate_method,F,,Leased federal property
+nfip_policy,rate_method,G,,Group Flood Insurance Policy
+nfip_policy,rate_method,I,,"Incomplete data, provisional rating at renewal"
+nfip_policy,rate_method,P,,"Preferred Risk Policy eligibility extension, first renewal year"
+nfip_policy,rate_method,Q,,"Preferred Risk Policy eligibility extension, later renewals"
+nfip_policy,rate_method,R,,Newly mapped into the special flood hazard area
+nfip_policy,rate_method,S,,FEMA special rates
+nfip_policy,rate_method,T,,Severe repetitive loss property; invalid from 1 October 2013
+nfip_policy,rate_method,W,,"Pre-FIRM policy with elevation rating, submit-for-rate"
+nfip_policy,rate_method,RE,,"Risk Rating 2.0, rates calculated by FEMA from risk factors"
+nfip_policy,regular_emergency_program_indicator,R,,Regular Program
+nfip_policy,regular_emergency_program_indicator,E,,Emergency Program
+nfip_policy,cancellation_voidance_reason_code,01,,Building Sold or Removed
+nfip_policy,cancellation_voidance_reason_code,02,,Contents Sold or Removed (contents-only policy)
+nfip_policy,cancellation_voidance_reason_code,03,,Policy Canceled and Rewritten to Establish a Common Expiration
+nfip_policy,cancellation_voidance_reason_code,04,,Duplicate Policies (NFIP)
+nfip_policy,cancellation_voidance_reason_code,05,,Non-Payment
+nfip_policy,cancellation_voidance_reason_code,06,,Ineligible Risk
+nfip_policy,cancellation_voidance_reason_code,08,,No Insurable Interest
+nfip_policy,cancellation_voidance_reason_code,09,,PMR (Physical Map Revision) or LOMR ( Letter of Map Revision) with Lender Release
+nfip_policy,cancellation_voidance_reason_code,10,,Closed Basin Lake (ineligible)
+nfip_policy,cancellation_voidance_reason_code,16,,FEMA Letter of Determination with Lender Release
+nfip_policy,cancellation_voidance_reason_code,17,,Duplicate Policy from Source Other than the NFIP (Legacy System)
+nfip_policy,cancellation_voidance_reason_code,20,,LOMA (Letter of Map Amendment) with Lender Release
+nfip_policy,cancellation_voidance_reason_code,21,,SRL (Severe Repetitive Loss) Written with Incorrect Insurer
+nfip_policy,cancellation_voidance_reason_code,22,,Cancel/Rewrite Due to Misrating
+nfip_policy,cancellation_voidance_reason_code,23,,Fraud
+nfip_policy,cancellation_voidance_reason_code,24,,Cancel/Rewrite to PRP after Map Revision
+nfip_policy,cancellation_voidance_reason_code,25,,Cancel/Rewrite to Process HFIAA Refund
+nfip_policy,cancellation_voidance_reason_code,26,,Duplicate Policy from Source Other than the NFIP
+nfip_policy,cancellation_voidance_reason_code,27,,Property becomes ineligible for coverage during policy term (effective after 10/1/2021)
+nfip_policy,cancellation_voidance_reason_code,28,,Insurance no longer required by lender (effective after 10/1/2021)
+nfip_policy,cancellation_voidance_reason_code,29,,Building physically altered and no longer eligible for NFIP coverage (effective after 10/1/2021)
+nfip_policy,cancellation_voidance_reason_code,30,,Insufficient premium to retain coverage (effective after 10/1/2021)
+nfip_policy,cancellation_voidance_reason_code,45,,Certain Condominium Units Covered by Dwelling Policy and by RCBAP (Residential Condominium Building Association Policy)
+nfip_policy,cancellation_voidance_reason_code,50,,Policy Required by Mortgagee in Error
+nfip_policy,cancellation_voidance_reason_code,52,,Mortgage Paid Off
+nfip_policy,cancellation_voidance_reason_code,60,,Voidance Prior to Effective Date
+nfip_policy,cancellation_voidance_reason_code,70,,Voidance Due to Credit Card Error (Legacy System)
+nfip_policy,cancellation_voidance_reason_code,UN,,Unknown
+nfip_policy,subsidized_rate_type,E,,Emergency Program (based on Program Type)
+nfip_policy,subsidized_rate_type,N,,Not subsidized
+nfip_policy,subsidized_rate_type,P,,Pre-FIRM subsidized
+nfip_policy,premium_payment_indicator,1,,Credit or debit card
+nfip_policy,premium_payment_indicator,2,,Cash or check
+nfip_policy,enclosure_type_code,F,,Fully
+nfip_policy,enclosure_type_code,P,,Partially
+nfip_policy,enclosure_type_code,N,,None
+nfip_policy,building_description_code,1,,Main house
+nfip_policy,building_description_code,2,,Detached guest house
+nfip_policy,building_description_code,3,,Detached garage
+nfip_policy,building_description_code,4,,Agricultural building
+nfip_policy,building_description_code,5,,Warehouse
+nfip_policy,building_description_code,6,,"Pool house, clubhouse or recreation building"
+nfip_policy,building_description_code,7,,Tool or storage shed
+nfip_policy,building_description_code,8,,Other
+nfip_policy,building_description_code,9,,Barn
+nfip_policy,building_description_code,10,,Apartment building
+nfip_policy,building_description_code,11,,Apartment unit
+nfip_policy,building_description_code,12,,Cooperative building
+nfip_policy,building_description_code,13,,Cooperative unit
+nfip_policy,building_description_code,14,,Commercial building
+nfip_policy,building_description_code,15,,"Condominium, entire building"
+nfip_policy,building_description_code,16,,Condominium unit
+nfip_policy,building_description_code,17,,House of worship
+nfip_policy,building_description_code,18,,Manufactured or mobile home
+nfip_policy,building_description_code,19,,Travel trailer
+nfip_policy,building_description_code,20,,Townhouse or rowhouse
+nfip_policy,building_description_code,21,,Not documented by FEMA; reported value retained as published
+nfip_policy,building_description_code,32,,Not documented by FEMA; reported value retained as published
+nfip_policy,building_description_code,34,,Not documented by FEMA; reported value retained as published
+nfip_policy,insurance_to_value_code,1,,Less than .50
+nfip_policy,insurance_to_value_code,2,,.50 - .74
+nfip_policy,insurance_to_value_code,3,,.75 or More
+nfip_policy,insurance_to_value_code,V1,,"V30, and VE ratings"
+nfip_policy,waiting_period_type,S,,Standard
+nfip_policy,waiting_period_type,C,,Loan Closing
+nfip_policy,waiting_period_type,M,,Map Revision
+nfip_policy,waiting_period_type,N,,No waiting period
+nfip_policy,waiting_period_type,W,,Post-Wildfire
+nfip_policy,rollover_transfer_code,N,,New Issue
+nfip_policy,rollover_transfer_code,R,,Rollover / Renewal
+nfip_policy,rollover_transfer_code,E,,"(Canceled effective May 1, 2005)"
+nfip_policy,rollover_transfer_code,Z,,"Rewritten for TRRP cancellation reason codes 22, 24 and 25"
+nfip_policy,rollover_transfer_code,T,,Transfer
+nfip_policy,rollover_transfer_code,O,,"RiskRating 2.0 Opt-In option. Only available until March 31, 2022"
+nfip_policy,disaster_assistance_coverage_required,0,,Not required
+nfip_policy,disaster_assistance_coverage_required,1,,Small Business Administration
+nfip_policy,disaster_assistance_coverage_required,2,,Federal Emergency Management Agency
+nfip_policy,disaster_assistance_coverage_required,3,,Not documented by FEMA; reported value retained as published
+nfip_policy,disaster_assistance_coverage_required,4,,Department of Health and Human Services; cancelled 1 October 2009
+nfip_policy,disaster_assistance_coverage_required,5,,Other agency
+nfip_policy,grandfathering_type_code,1,,No Grandfathering
+nfip_policy,grandfathering_type_code,2,,Grandfathering Built to Code
+nfip_policy,grandfathering_type_code,3,,Grandfathering Continuous Coverage
+nfip_policy,flood_zone_current,A,,"Special flood hazard area, no base flood elevation on the FIRM"
+nfip_policy,flood_zone_current,AE,,Special flood hazard area with a base flood elevation on the FIRM
+nfip_policy,flood_zone_current,A99,,Special flood hazard area protected by a flood control system under construction
+nfip_policy,flood_zone_current,AH,,Special flood hazard area subject to shallow ponding
+nfip_policy,flood_zone_current,AHB,,"Special flood hazard area subject to shallow ponding, with a base flood elevation"
+nfip_policy,flood_zone_current,AO,,Special flood hazard area subject to sheet flow
+nfip_policy,flood_zone_current,AOB,,"Special flood hazard area subject to sheet flow, with a base flood elevation"
+nfip_policy,flood_zone_current,AR,,Special flood hazard area with temporarily increased risk from a decertified flood protection system
+nfip_policy,flood_zone_current,B,,Moderate flood hazard from the primary water source; superseded by zone X in 1986
+nfip_policy,flood_zone_current,C,,Minimal flood hazard from the primary water source; superseded by zone X in 1986
+nfip_policy,flood_zone_current,D,,"Possible but undetermined flood hazard, not analysed"
+nfip_policy,flood_zone_current,V,,"Coastal high hazard area, no base flood elevation on the FIRM"
+nfip_policy,flood_zone_current,VE,,Coastal high hazard area with a base flood elevation on the FIRM
+nfip_policy,flood_zone_current,X,,"Moderate to minimal flood hazard, outside the special flood hazard area"
+nfip_policy,flood_zone_current,AA,,Not a documented FIRM zone; reported value retained as published
+nfip_policy,flood_zone_current,AS,,Not a documented FIRM zone; reported value retained as published
+nfip_policy,flood_zone_current,A01,,"Special flood hazard area with a base flood elevation, numbered zone A1"
+nfip_policy,flood_zone_current,V01,,"Coastal high hazard area with a base flood elevation, numbered zone V1"
+nfip_policy,flood_zone_current,A02,,"Special flood hazard area with a base flood elevation, numbered zone A2"
+nfip_policy,flood_zone_current,V02,,"Coastal high hazard area with a base flood elevation, numbered zone V2"
+nfip_policy,flood_zone_current,A03,,"Special flood hazard area with a base flood elevation, numbered zone A3"
+nfip_policy,flood_zone_current,V03,,"Coastal high hazard area with a base flood elevation, numbered zone V3"
+nfip_policy,flood_zone_current,A04,,"Special flood hazard area with a base flood elevation, numbered zone A4"
+nfip_policy,flood_zone_current,V04,,"Coastal high hazard area with a base flood elevation, numbered zone V4"
+nfip_policy,flood_zone_current,A05,,"Special flood hazard area with a base flood elevation, numbered zone A5"
+nfip_policy,flood_zone_current,V05,,"Coastal high hazard area with a base flood elevation, numbered zone V5"
+nfip_policy,flood_zone_current,A06,,"Special flood hazard area with a base flood elevation, numbered zone A6"
+nfip_policy,flood_zone_current,V06,,"Coastal high hazard area with a base flood elevation, numbered zone V6"
+nfip_policy,flood_zone_current,A07,,"Special flood hazard area with a base flood elevation, numbered zone A7"
+nfip_policy,flood_zone_current,V07,,"Coastal high hazard area with a base flood elevation, numbered zone V7"
+nfip_policy,flood_zone_current,A08,,"Special flood hazard area with a base flood elevation, numbered zone A8"
+nfip_policy,flood_zone_current,V08,,"Coastal high hazard area with a base flood elevation, numbered zone V8"
+nfip_policy,flood_zone_current,A09,,"Special flood hazard area with a base flood elevation, numbered zone A9"
+nfip_policy,flood_zone_current,V09,,"Coastal high hazard area with a base flood elevation, numbered zone V9"
+nfip_policy,flood_zone_current,A10,,"Special flood hazard area with a base flood elevation, numbered zone A10"
+nfip_policy,flood_zone_current,V10,,"Coastal high hazard area with a base flood elevation, numbered zone V10"
+nfip_policy,flood_zone_current,A11,,"Special flood hazard area with a base flood elevation, numbered zone A11"
+nfip_policy,flood_zone_current,V11,,"Coastal high hazard area with a base flood elevation, numbered zone V11"
+nfip_policy,flood_zone_current,A12,,"Special flood hazard area with a base flood elevation, numbered zone A12"
+nfip_policy,flood_zone_current,V12,,"Coastal high hazard area with a base flood elevation, numbered zone V12"
+nfip_policy,flood_zone_current,A13,,"Special flood hazard area with a base flood elevation, numbered zone A13"
+nfip_policy,flood_zone_current,V13,,"Coastal high hazard area with a base flood elevation, numbered zone V13"
+nfip_policy,flood_zone_current,A14,,"Special flood hazard area with a base flood elevation, numbered zone A14"
+nfip_policy,flood_zone_current,V14,,"Coastal high hazard area with a base flood elevation, numbered zone V14"
+nfip_policy,flood_zone_current,A15,,"Special flood hazard area with a base flood elevation, numbered zone A15"
+nfip_policy,flood_zone_current,V15,,"Coastal high hazard area with a base flood elevation, numbered zone V15"
+nfip_policy,flood_zone_current,A16,,"Special flood hazard area with a base flood elevation, numbered zone A16"
+nfip_policy,flood_zone_current,V16,,"Coastal high hazard area with a base flood elevation, numbered zone V16"
+nfip_policy,flood_zone_current,A17,,"Special flood hazard area with a base flood elevation, numbered zone A17"
+nfip_policy,flood_zone_current,V17,,"Coastal high hazard area with a base flood elevation, numbered zone V17"
+nfip_policy,flood_zone_current,A18,,"Special flood hazard area with a base flood elevation, numbered zone A18"
+nfip_policy,flood_zone_current,V18,,"Coastal high hazard area with a base flood elevation, numbered zone V18"
+nfip_policy,flood_zone_current,A19,,"Special flood hazard area with a base flood elevation, numbered zone A19"
+nfip_policy,flood_zone_current,V19,,"Coastal high hazard area with a base flood elevation, numbered zone V19"
+nfip_policy,flood_zone_current,A20,,"Special flood hazard area with a base flood elevation, numbered zone A20"
+nfip_policy,flood_zone_current,V20,,"Coastal high hazard area with a base flood elevation, numbered zone V20"
+nfip_policy,flood_zone_current,A21,,"Special flood hazard area with a base flood elevation, numbered zone A21"
+nfip_policy,flood_zone_current,V21,,"Coastal high hazard area with a base flood elevation, numbered zone V21"
+nfip_policy,flood_zone_current,A22,,"Special flood hazard area with a base flood elevation, numbered zone A22"
+nfip_policy,flood_zone_current,V22,,"Coastal high hazard area with a base flood elevation, numbered zone V22"
+nfip_policy,flood_zone_current,A23,,"Special flood hazard area with a base flood elevation, numbered zone A23"
+nfip_policy,flood_zone_current,V23,,"Coastal high hazard area with a base flood elevation, numbered zone V23"
+nfip_policy,flood_zone_current,A24,,"Special flood hazard area with a base flood elevation, numbered zone A24"
+nfip_policy,flood_zone_current,V24,,"Coastal high hazard area with a base flood elevation, numbered zone V24"
+nfip_policy,flood_zone_current,A25,,"Special flood hazard area with a base flood elevation, numbered zone A25"
+nfip_policy,flood_zone_current,V25,,"Coastal high hazard area with a base flood elevation, numbered zone V25"
+nfip_policy,flood_zone_current,A26,,"Special flood hazard area with a base flood elevation, numbered zone A26"
+nfip_policy,flood_zone_current,V26,,"Coastal high hazard area with a base flood elevation, numbered zone V26"
+nfip_policy,flood_zone_current,A27,,"Special flood hazard area with a base flood elevation, numbered zone A27"
+nfip_policy,flood_zone_current,V27,,"Coastal high hazard area with a base flood elevation, numbered zone V27"
+nfip_policy,flood_zone_current,A28,,"Special flood hazard area with a base flood elevation, numbered zone A28"
+nfip_policy,flood_zone_current,V28,,"Coastal high hazard area with a base flood elevation, numbered zone V28"
+nfip_policy,flood_zone_current,A29,,"Special flood hazard area with a base flood elevation, numbered zone A29"
+nfip_policy,flood_zone_current,V29,,"Coastal high hazard area with a base flood elevation, numbered zone V29"
+nfip_policy,flood_zone_current,A30,,"Special flood hazard area with a base flood elevation, numbered zone A30"
+nfip_policy,flood_zone_current,V30,,"Coastal high hazard area with a base flood elevation, numbered zone V30"
+nfip_policy,building_purpose,R,,"Residential, 100%"
+nfip_policy,building_purpose,N,,"Non-residential, 100%"
+nfip_policy,building_purpose,M,,Mixed use
+nfip_policy,building_over_water_type,1,,Not over water
+nfip_policy,building_over_water_type,2,,Partially over water
+nfip_policy,building_over_water_type,3,,Fully or entirely over water
+nfip_policy,foundation_type,0,,Not reported
+nfip_policy,foundation_type,1,,Slab
+nfip_policy,foundation_type,2,,Basement
+nfip_policy,foundation_type,3,,Crawlspace
+nfip_policy,foundation_type,4,,"Elevated without enclosure, on posts, piles or piers"
+nfip_policy,foundation_type,5,,"Elevated with enclosure, on posts, piles or piers"
+nfip_policy,foundation_type,6,,"Elevated with enclosure, not on posts, piles or piers"

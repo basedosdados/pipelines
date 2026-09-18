@@ -17,7 +17,7 @@ select
     safe_cast(id_eleicao as string) id_eleicao,
     safe_cast(tipo_eleicao as string) tipo_eleicao,
     safe_cast(data_eleicao as date) data_eleicao,
-    safe_cast(sigla_uf as string) sigla_uf,
+    nullif(safe_cast(sigla_uf as string), '') sigla_uf,
     safe_cast(id_municipio as string) id_municipio,
     safe_cast(id_municipio_tse as string) id_municipio_tse,
     safe_cast(titulo_eleitoral_candidato as string) titulo_eleitoral_candidato,
@@ -59,7 +59,9 @@ select
     safe_cast(tipo_fornecedor as string) tipo_fornecedor,
     safe_cast(esfera_partidaria_fornecedor as string) esfera_partidaria_fornecedor,
     safe_cast(sigla_uf_fornecedor as string) sigla_uf_fornecedor,
-    safe_cast(id_municipio_tse_fornecedor as string) id_municipio_tse_fornecedor,
+    safe_cast(
+        regexp_replace(id_municipio_tse_fornecedor, r'\.0$', '') as string
+    ) id_municipio_tse_fornecedor,
     safe_cast(
         sequencial_candidato_fornecedor as string
     ) sequencial_candidato_fornecedor,
@@ -67,4 +69,8 @@ select
     safe_cast(numero_partido_fornecedor as string) numero_partido_fornecedor,
     safe_cast(sigla_partido_fornecedor as string) sigla_partido_fornecedor,
     safe_cast(cargo_fornecedor as string) cargo_fornecedor
-from {{ set_datalake_project("br_tse_eleicoes_staging.despesas_candidato") }} as t
+from
+    {{ set_datalake_project("br_tse_eleicoes_staging.despesas_candidato") }} as t
+
+    -- Rematerialized from the refactored pipeline (PR #1476).
+    

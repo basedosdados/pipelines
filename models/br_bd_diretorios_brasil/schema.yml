@@ -303,8 +303,8 @@ models:
           T42 T43 T44 T45 T46 T47 T48 T49 T50 X42 X43 X44 X45 X46 X47 X48 X49 X60
           X61 X62 X63 X64 X65 X66 X67 X68 X69 Y12 Y13 Y14 Y15 Y16 Y49 Y50 Y51 Z64
           Z65)
-      - name: cid_datasus
-        description: Indica se a origem do CID-10 vem do DATASUS
+      - name: indicador_registro_ativo
+        description: Indicador de que o código CID-10 está ativo
   - name: br_bd_diretorios_brasil__cid_9
     description: Diretório da Classificação Internacional de Doenças (CID) 9.
     tests:
@@ -573,9 +573,7 @@ models:
         description: Categoria Escola Privada
       - name: conveniada_poder_publico
         description: Conveniada Poder Público
-      - name: restricao_atendimento
-        description: regulacao_conselho_educacao
-      - name: Regulamentação pelo Conselho de Educação
+      - name: regulacao_conselho_educacao
         description: Regulamentação pelo Conselho de Educação
       - name: porte
         description: Porte
@@ -587,6 +585,11 @@ models:
         description: Latitude
       - name: longitude
         description: Longitude
+      - name: situacao_catalogo
+        description: >-
+          Indica se a escola consta no catálogo mais recente do Inep
+          (Presente) ou se saiu do registro da fonte e foi mantida no
+          diretório (Ausente)
   - name: br_bd_diretorios_brasil__etnia_indigena
     description: Diretório das etnias indígenas nos Sistemas de Informação Ambulatorial
       e Hospitalar - SIA/SUS e SIH/SUS - 'https://bvsms.saude.gov.br/bvs/saudelegis/sas/2010/prt0508_28_09_2010.html'

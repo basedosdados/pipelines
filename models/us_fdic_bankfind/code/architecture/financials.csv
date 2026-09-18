@@ -1,0 +1,291 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Calendar year of the quarterly report,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Partition column, derived from the report date",REPDTE
+quarter,INT64,"Calendar quarter of the report, 1 to 4",,no,,quarter,no,Derived from the report date,REPDTE
+report_date,DATE,Last day of the quarter the report covers,,no,,,no,"Call Reports are filed as of 31 March, 30 June, 30 September and 31 December",REPDTE
+cert,STRING,FDIC certificate number identifying the institution,,no,,,no,"Stable across name changes; the primary institution key. Joins to institution.cert, enforced as a dbt relationships test",CERT
+rssd_id,STRING,Federal Reserve RSSD identifier of the institution,,no,,,no,"Second identifier carried by the FDIC, used to join to Federal Reserve and FFIEC sources",RSSDID
+net_income_quarterly_netincq,FLOAT64,"Quarterly net interest income plus total noninterest income plus realized gains (losses) on securities and extraordinary items, less total noninterest expense, loan loss provisions and income taxes.",,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",NETINCQ
+equity_capital,FLOAT64,"Total equity capital (includes preferred and common stock, surplus and undivided profits).",,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",EQ
+tier_1_risk_based_capital_ratio,FLOAT64,Tier 1 Risk-Based Capital Ratio,,no,,percent,no,,IDT1RWAJR
+net_discontinued_operations,FLOAT64,Net Discontinued Operations,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",EXTRA
+total_fiduciary_and_related_assets,FLOAT64,Total Fiduciary and Related Assets,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",TFRA
+loans_to_individuals_ratio,FLOAT64,Loans to Individuals Ratio,,no,,percent,no,,IDNCCONR
+cash_dividends_to_net_income_ytd_only,FLOAT64,Cash Dividends to Net Income (YTD Only),,no,,percent,no,,EQCDIVNTINC
+premises_and_fixed_assets,FLOAT64,Premises and Fixed Assets,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",BKPREM
+real_estate_principal_securitised_asset_sold,FLOAT64,Real Estate Principal Securitised Asset Sold - Cons,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",SZLNCON
+intangible_assets,FLOAT64,Intangible Assets,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",INTAN
+nonresidential_chargeoff_per_nonresidential_ratio,FLOAT64,Nonresidential Charge-Off/Nonresidential Loans,,no,,percent,no,,NTRENRSR
+off_balance_sheet_derivatives_ratio,FLOAT64,Off-Balance Sheet Derivatives,,no,,percent,no,,OBSDIR
+number_of_us_offices,FLOAT64,"The number of offices operated by an FDIC-insured institution in all commonwealths and terrirtories of the US, along with those in freely associated states under the Compact of Free Association",,no,,unit,no,,OFFOA
+n_90_d_p_per_d_total_loans_loss_sh,FLOAT64,90+ D P/D Total Loans - Loss Sh,,no,,percent,no,,P9LTOT
+all_other_loans_and_leases_including_farm_ratio,FLOAT64,All Other Loans & Leases (Including Farm),,no,,percent,no,,NTALLOTHR
+securities_gains_and_losses,FLOAT64,Securities Gains and Losses,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",IGLSEC
+efficiency_ratio,FLOAT64,Efficiency Ratio,,no,,percent,no,,EEFFR
+common_equity_tier_1_capital_ratio,FLOAT64,Common Equity Tier 1 Capital Ratio,,no,,percent,no,,IDT1CER
+multifamily_real_estate_chargeoff_per_multi_ratio,FLOAT64,Multifamily Real Estate Charge-Off/Multi Real Estate Ln,,no,,percent,no,,NTREMULR
+deposits_held_in_domestic_offices,FLOAT64,"The sum of all domestic office deposits, including demand deposits, money market deposits, other savings deposits and time deposits.",,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DEPDOM
+income_before_disc_opr_ratio,FLOAT64,Income Before Disc Opr,,no,,percent,no,,IBEFXTR
+interest_income_to_earning_assets_ratio,FLOAT64,Interest Income to Earning Assets Ratio,,no,,percent,no,,INTINCY
+bank_equity_capital_per_assets,FLOAT64,Bank Equity Capital/Assets,,no,,percent,no,,EQV
+net_income,FLOAT64,"Net interest income plus total noninterest income plus realized gains (losses) on securities and extraordinary items, less total noninterest expense, loan loss provisions and income taxes.",,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",NETINC
+net_loans_and_leases_per_deposits_ratio,FLOAT64,Net Loans & Leases/Deposits,,no,,percent,no,,LNLSDEPR
+number_of_foreign_offices_ratio,FLOAT64,The number of foreign offices (outside the U.S.) operated by the institution.,,no,,percent,no,,OFFFOR
+nonaccrual_total_assets,FLOAT64,Nonaccrual-Total Assets,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",NAASSET
+net_chargeoffs_per_loans_and_leases_ratio,FLOAT64,Net Charge-Offs/Loans & Leases,,no,,percent,no,,NTLNLSR
+estimated_uninsured_deposits,FLOAT64,Estimated Uninsured Deposits in Domestic Offices and in Insured Branches in US Territories and Possessions,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DEPUNINS
+noninterest_bearing_deposits_dom,FLOAT64,Noninterest-Bearing Deposits-Dom,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DEPNIDOM
+loan_loss_reserve_per_gross_loans_and_leases_ratio,FLOAT64,Loan Loss Reserve/Gross Loans & Leases,,no,,percent,no,,LNATRESR
+sold_w_per_recourse_n_per_secur_oth,FLOAT64,Sold W/Recourse N/Secur. - Oth,,no,,percent,no,,ASDROTH
+real_estate_principal_securitised_asset_sold_szlnres,FLOAT64,Real Estate Principal Securitised Asset Sold-Res,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",SZLNRES
+commercial_real_estate_chargeoff_per_comm_ratio,FLOAT64,Commercial Real Estate Charge-Off/Comm Real Estate Ln,,no,,percent,no,,NTCOMRER
+total_interest_expense,FLOAT64,Total Interest Expense,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",EINTEXP
+deposit_liabilities_after_exclusions,FLOAT64,Deposit Liabilities After Exclusions,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DEPCSBQ
+core_deposits,FLOAT64,Core Deposits,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",COREDEP
+call_form_number,FLOAT64,TBD,,no,,unit,no,,CALLFORM
+federal_reserve_id_number,FLOAT64,Federal Reserve Id Number,,no,,unit,no,,RSSDID
+community_bank_ratio,FLOAT64,Community Bank Ratio,,no,,percent,no,,CBLRIND
+securities,FLOAT64,Securities,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",SC
+loan_loss_prov_per_nt_chg_offs_ratio,FLOAT64,Loan Loss Prov/Nt Chg-Offs,,no,,percent,no,,ELNANTR
+nonperf_assets_per_total_assets,FLOAT64,Nonperf Assets/Total Assets,,no,,percent,no,,NPERFV
+loan_loss_reserve_per_n_per_c_loans_ratio,FLOAT64,Loan Loss Reserve/N/C Loans,,no,,percent,no,,LNRESNCR
+number_of_full_time_employees,FLOAT64,Number of Full Time Employees,,no,,unit,no,,NUMEMP
+total_assets,FLOAT64,"The sum of all assets owned by the institution including cash, loans, securities, bank premises and other assets. This total does not include off-balance-sheet accounts.",,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",ASSET
+n_per_c_multifamly_real_estate_per_ratio,FLOAT64,N/C Multifamly Real Estate/Multifamly Real Estate,,no,,percent,no,,NCREMULR
+n_per_c_const_real_estate_per_const_real_ratio,FLOAT64,N/C Const Real Estate/Const Real Estate,,no,,percent,no,,NCRECONR
+nonaccrual_total_loans_loss_sh,FLOAT64,Nonaccrual Total Loans - Loss Sh,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",NALTOT
+net_loans_and_leases_to_core_deposits_ratio,FLOAT64,Net Loans and Leases to Core Deposits Ratio,,no,,percent,no,,IDLNCORR
+real_estate_principal_securitised_asset_sold_szlauto,FLOAT64,Real Estate Principal Securitised Asset Sold - Auto,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",SZLAUTO
+n_90_days_p_per_d_total_assets,FLOAT64,90+ Days P/D-Total Assets,,no,,percent,no,,P9ASSET
+n_30_89_days_p_per_d_total_assets,FLOAT64,30-89 Days P/D-Total Assets,,no,,percent,no,,P3ASSET
+total_allowable_exclusions_including_foreign,FLOAT64,Total Allowable Exclusions (Including Foreign Deposits),,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DEPALLEX
+total_liabilities,FLOAT64,Total Liabilities,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LIAB
+applicable_income_taxes,FLOAT64,Applicable Income Taxes,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",ITAX
+trading_accounts,FLOAT64,Trading Accounts,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",TRADE
+net_interest_margin,FLOAT64,Net Interest Margin,,no,,percent,no,,NIMY
+estimated_insured_deposits,FLOAT64,Estimated Insured Deposits,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DEPINS
+net_operating_income_adj,FLOAT64,Net Operating Income-Adj,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",NOIJ
+net_operating_income_adj_per_assets,FLOAT64,Net Operating Income-Adj/Assets,,no,,percent,no,,NOIJY
+commercial_and_industrial_loans_ratio,FLOAT64,Commercial & Industrial Loans Ratio,,no,,percent,no,,IDNCCIR
+carry_amt_loss_share_ore,FLOAT64,Carry Amt Loss Share- Ore,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LSAORE
+provisions_for_credit_losses_ratio,FLOAT64,Provisions for Credit Losses,,no,,percent,no,,ELNATR
+real_estate_chargeoff_per_real_estate_loans_ratio,FLOAT64,Real Estate Charge-Off/Real Estate Loans,,no,,percent,no,,NTRER
+total_interest_income,FLOAT64,Total Interest Income,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",INTINC
+net_inc_bank_and_minority_int,FLOAT64,Net Inc - Bank & Minority Int,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",NETINBM
+sale_of_capital_stock,FLOAT64,Sale of Capital Stock,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",EQCSTKRX
+unused_commit_total,FLOAT64,Unused Commit-Total,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",UC
+carry_amt_loss_share_lnls,FLOAT64,Carry Amt Loss Share-Lnls,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LSALNLS
+total_loans_and_leases_net_chargeoffs,FLOAT64,Total Loans & Leases Net Charge-Offs,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",NTLNLS
+earning_assets_per_total_assets_ratio,FLOAT64,Earning Assets / Total Assets,,no,,percent,no,,ERNASTR
+n_per_c_lns_and_ls_per_gross_lns_and_ls_ratio,FLOAT64,N/C Lns & Ls/Gross Lns & Ls,,no,,percent,no,,NCLNLSR
+loans_and_leases_net,FLOAT64,Loans and Leases-Net,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LNLSNET
+loans_to_nondep_financial_inst_con,FLOAT64,LOANS TO NONDEPOSITORY FINANCIAL INSTITUTIONS ON A CONSOLIDATED BANK BASIS. NOTE: 1) REPORTED IN THE CATEGORY OF LOANS TO NONDEPOSITORY FINANCIAL INSTITUTIONS AND ALL OTHER LOANS. 2) THIS ITEM IS NOT REPORTED BY FORM 041 OR 051 FILERS.,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LNNDEPC
+loans_to_nondep_financial_inst_dom,FLOAT64,LOANS TO NONDEPOSITORY FINANCIAL INSTITUTIONS HELD IN DOMESTIC OFFICES.,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LNNDEPD
+total_deposits_for_ratio,FLOAT64,Total Deposits-for,,no,,percent,no,,DEPFOR
+n_per_c_nonfarm_nonresidential_real_estate_ratio,FLOAT64,N/C Nonfarm Nonresidential Real Estate/Nonresidential Real Estate,,no,,percent,no,,NCRENRER
+return_on_assets_roa,FLOAT64,Net income after taxes and extraordinary items (annualized) as a percent of average total assets.,,no,,percent,no,,ROA
+n_30_89_d_p_per_d_total_loans_loss_sh,FLOAT64,30-89 D P/D Total Loans-Loss Sh,,no,,percent,no,,P3LTOT
+cash_dividends_on_comm_and_pref,FLOAT64,Cash Dividends On Comm & Pref,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",EQCDIV
+retained_earnings_per_avg_bk_equity_ratio,FLOAT64,Retained Earnings/Avg Bk Equity,,no,,percent,no,,ROEINJR
+return_on_equity_roe,FLOAT64,"Annualized net income as a percent of average equity on a consolidated basis.     Note: If retained earnings are  negative, the ratio is shown as NA.",,no,,percent,no,,ROE
+real_estate_principal_securitised_asset_sold_szlnhel,FLOAT64,Real Estate Principal Securitised Asset Sold - Hel,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",SZLNHEL
+real_estate_principal_securitised_asset_sold_szlncrcd,FLOAT64,Real Estate Principal Securitised Asset Sold - Crcd,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",SZLNCRCD
+noninterest_exp_per_average_assets,FLOAT64,Noninterest Exp/Average Assets,,no,,percent,no,,NONIXAY
+real_estate_principal_securitised_asset_sold_szlnoth,FLOAT64,Real Estate Principal Securitised Asset Sold - Oth,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",SZLNOTH
+fed_funds_and_repos_sold,FLOAT64,Fed Funds & Repos Sold,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",FREPO
+cash_and_due_from_depository_inst,FLOAT64,Cash & Due From Depository Inst,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CHBAL
+carry_amt_loss_share_oth_asset,FLOAT64,Carry Amt Loss Share -Oth Asset,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LSAOA
+number_of_domestic_offices,FLOAT64,The number of domestic offices (including headquarters) operated by active institutions in the 50 states of the U.S.A.,,no,,unit,no,,OFFDOM
+sold_w_per_recourse_n_per_secur_res,FLOAT64,Sold W/Recourse N/Secur.- Res,,no,,percent,no,,ASDRRES
+n_per_c_real_estate_lns_per_real_estate_ratio,FLOAT64,N/C Real Estate Lns/Real Estate,,no,,percent,no,,NCRER
+all_oth_assets_ratio,FLOAT64,All Oth Assets Ratio,,no,,percent,no,,AOAR
+other_real_estate_owned,FLOAT64,Other Real Estate Owned,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",ORE
+const_real_estate_chargeoff_per_const_real_ratio,FLOAT64,Const Real Estate Charge-Off/Const Real Estate Loans,,no,,percent,no,,NTRECOSR
+n_per_c_1_4_family_real_estate_per_1_4_ratio,FLOAT64,N/C 1-4 Family Real Estate/1-4 Family Real Estate,,no,,percent,no,,NCRERESR
+interest_bearing_deposits_dom,FLOAT64,Interest-Bearing Deposits-Dom,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DEPIDOM
+commercial_and_industrial_loans_ratio_idntcir,FLOAT64,Commercial & Industrial Loans,,no,,percent,no,,IDNTCIR
+interest_expense_to_earning_assets_ratio,FLOAT64,Interest Expense to Earning Assets Ratio,,no,,percent,no,,INTEXPY
+leverage_ratio_pca,FLOAT64,Leverage Ratio-PCA,,no,,percent,no,,RBC1AAJ
+n_1_4_fam_real_estate_chargeoff_per_1_4_fam_ratio,FLOAT64,1-4 Fam Real Estate Charge-Off/1-4 Fam Loans,,no,,percent,no,,NTRERESR
+assets_per_employee_in_million,FLOAT64,Assets Per Employee in Million,,no,,unit,no,,ASTEMPM
+all_oth_assets,FLOAT64,All Oth Assets,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",AOA
+pretax_return_on_assets,FLOAT64,"Annualized pre-tax net income as a percent of average assets. Note: Includes extraordinary items and other adjustments, net of taxes.",,no,,percent,no,,ROAPTX
+pre_tax_net_income_operating_income,FLOAT64,Pre-Tax Net Income Operating Income,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",PTAXNETINC
+tot_domestic_deposit_per_asset_ratio,FLOAT64,Tot Domestic Deposit / Asset,,no,,percent,no,,DEPDASTR
+nc_commercial_real_estate_per_commercial_ratio,FLOAT64,Nc Commercial Real Estate/Commercial Real Estate,,no,,percent,no,,NCCOMRER
+total_deposit_liab_bef_exclusion,FLOAT64,Total Deposit Liab Bef Exclusion,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DEPBEFEX
+noninterest_inc_per_average_assets,FLOAT64,Noninterest Inc/Average Assets,,no,,percent,no,,NONIIAY
+loans_to_individuals_ratio_idntconr,FLOAT64,Loans to Individuals,,no,,percent,no,,IDNTCONR
+credit_loss_prov_per_ave_assets,FLOAT64,Credit Loss Prov/Ave Assets,,no,,percent,no,,ELNATRY
+total_noninterest_expense,FLOAT64,Total Noninterest Expense,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",NONIX
+net_loans_and_leases_per_assets,FLOAT64,Net Loans & Leases/Assets,,no,,percent,no,,LNLSNTV
+total_deposits,FLOAT64,"The sum of all deposits including demand deposits, money market deposits, other savings deposits, time deposits and deposits in foreign offices.",,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DEP
+all_other_loans_and_leases_including_farm_ratio_idncothr,FLOAT64,All other loans & leases (including farm ),,no,,percent,no,,IDNCOTHR
+net_interest_income,FLOAT64,Net Interest Income,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",NIM
+total_rbc_ratio_pca,FLOAT64,Total RBC Ratio-PCA,,no,,percent,no,,RBCRWAJ
+real_estate_principal_securitised_asset_sold_szlnci,FLOAT64,Real Estate Principal Securitised Asset Sold - Ci,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",SZLNCI
+carry_amt_loss_share_debt_sec,FLOAT64,Carry Amt Loss Share -Debt Sec,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LSASCDBT
+noncurrent_loans_which_are_wholly_or_ratio,FLOAT64,Noncurrent Loans Which Are Wholly or Partially Guaranteed By The U.S. Government Ratio,,no,,percent,no,,IDNCGTPR
+earnings_coverage_of_net_loan_chargeoffs_x_ratio,FLOAT64,Earnings Coverage of Net Loan Charge-Offs (X),,no,,percent,no,,IDERNCVR
+number_of_fiduciary_accounts_and_related,FLOAT64,Number of Fiduciary Accounts and Related Asset Accounts,,no,,unit,no,,NFAA
+total_noninterest_income,FLOAT64,Total Noninterest Income,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",NONII
+total_equity_capital,FLOAT64,Total Equity Capital,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",EQTOT
+real_estate_loans,FLOAT64,Real Estate Loans,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LNRE
+commercial_and_industrial_loans,FLOAT64,Commercial and Industrial Loans,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LNCI
+consumer_loans_other,FLOAT64,Consumer Loans-Other,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LNCONOTH
+agricultural_loans,FLOAT64,Agricultural Loans,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LNAG
+real_estate_construction_and_land_develop,FLOAT64,Real Estate Construction & Land Develop,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LNRECONS
+real_estate_nonfarm_nonresidential_prop,FLOAT64,Real Estate Nonfarm Nonresidential Prop,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LNRENRES
+real_estate_1_4_family,FLOAT64,Real Estate 1-4 Family,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LNRERES
+real_estate_multifamily,FLOAT64,Real Estate Multifamily,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LNREMULT
+allow_for_loans_loss_adjusted,FLOAT64,Allow for Loans Loss Adjusted,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LNATRES
+loans_and_leases_total_ratio,FLOAT64,Loans and Leases-Total,,no,,percent,no,,LNLSGR
+noninterest_bearing_deposits,FLOAT64,Noninterest-Bearing Deposits,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DEPNI
+interest_bearing_deposits,FLOAT64,Interest-Bearing Deposits,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DEPI
+num_deposits_acc_equal_or_less_than_equal_to,FLOAT64,"Num Deposits Acc Equal or Less Than Equal to $250,000",,no,,unit,no,,DEPSMB
+num_deposits_acc_greater_than_250_000,FLOAT64,"Num Deposits Acc Greater Than $250,000",,no,,unit,no,,DEPLGB
+u_s_treasury_and_agency,FLOAT64,U.S. Treasury & Agency,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",SCUS
+municipal_securities,FLOAT64,Municipal Securities,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",SCMUNI
+oth_borrowed_funds,FLOAT64,Oth Borrowed Funds,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",OTHBRF
+quarterly_return_on_assets,FLOAT64,Quarterly net income after taxes and extraordinary items as a percent of average total assets.,,no,,percent,no,,ROAQ
+quarterly_return_on_equity,FLOAT64,Quarterly net income (including gains or losses on securities and extraordinary items) as a percentage of average total equity capital.,,no,,percent,no,,ROEQ
+tier_1_rbc_adjusted_llr_pca,FLOAT64,Tier 1 RBC Adjusted Llr - PCA,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",RBCT1J
+total_loans_and_leases_chargeoffs,FLOAT64,Total Loans & Leases Charge-Offs,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRLNLS
+total_loans_and_leases_recoveries,FLOAT64,Total Loans & Leases Recoveries,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRLNLS
+additional_noninterest_income,FLOAT64,Additional Noninterest Income,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",ADDNONII
+additional_noninterest_income_quarterly,FLOAT64,Additional Noninterest Income Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",ADDNONIIQ
+additional_noninterest_expense,FLOAT64,Additional Noninterest Expense,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",ADDNONINTEXP
+additional_noninterest_expense_quarterly,FLOAT64,Additional Noninterest Expense Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",ADDNONINTEXPQ
+real_estate_loan_recoveries_domestic_offices,FLOAT64,Real Estate Loan Recoveries Domestic Offices,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRREOFFDOM
+real_estate_loan_recoveries_domestic_offices_crreoffdomq,FLOAT64,Real Estate Loan Recoveries Domestic Offices Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRREOFFDOMQ
+est_uninsured_deposits_in_dom_off_in_insured,FLOAT64,Est Uninsured Deposits in Dom-Off in Insured Branches in US Terr and Possessions,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DEPUNA
+real_estate_loan_chargeoffs_domestic_offices,FLOAT64,Real Estate Loan Charge-Offs Domestic Offices,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRREOFFDOM
+real_estate_loan_chargeoffs_domestic_offices_drreoffdomq,FLOAT64,Real Estate Loan Charge-Offs Domestic Offices Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRREOFFDOMQ
+total_liabilities_and_capital,FLOAT64,Total Liabilities & Capital,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LIABEQ
+loans_to_depository_institutions_and,FLOAT64,Loans to Depository Institutions and Acceptance of Other Banks,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LNDEPAOBK
+loans_and_leases_unearned_inc,FLOAT64,Loans & Leases + Unearned Inc,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LNLS
+loans_and_leases_total_adjusted,FLOAT64,Loans and Leases-Total Adjusted,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LNLSGRJ
+loans_and_leases_gross,FLOAT64,"Loans and Leases, Gross",,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LNLSGRS
+real_estate_loans_dom,FLOAT64,Real Estate Loans-Dom,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LNREDOM
+real_estate_loans_adjusted,FLOAT64,Real Estate Loans Adjusted,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LNREJ
+leases,FLOAT64,Leases,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LS
+nonaccrual_loans_and_leases,FLOAT64,Nonaccrual-Loans & Leases,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",NALNLS
+n_90_real_estate_loans_in_domestic_offices,FLOAT64,90+ Real Estate Loans in Domestic Offices,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",NARELNDO
+total_n_per_c_loans_and_leases,FLOAT64,Total N/C-Loans & Leases,,no,,percent,no,,NCLNLS
+net_chargeoffs_all_other_loans_and_leases,FLOAT64,Net Charge-offs All other loans & leases (including farm) Numerator,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",NTALLOTHNUM
+real_estate_loan_net_chargeoffs_domestic,FLOAT64,Real Estate Loan Net Charge-Offs Domestic Offices,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",NTREOFFDOM
+real_estate_loan_net_chargeoffs_domestic_ntreoffdomq,FLOAT64,Real Estate Loan Net Charge-Offs Domestic Offices Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",NTREOFFDOMQ
+n_1_4_fam_real_estate_chargeoff_per_1_4_fam,FLOAT64,1-4 Fam Real Estate Charge-Off/1-4 Fam Loans Quarterly Ratio,,no,,percent,no,,NTRERESRQ
+real_estate_loan_net_chargeoffs_quarterly,FLOAT64,Real Estate Loan Net Charge-Offs Quarterly Ratio,,no,,percent,no,,NTRERQ
+time_deposits_over_100m,FLOAT64,Time Deposits Over $100M,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",NTRTMLG
+other_assets,FLOAT64,Other Assets,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",OA
+domestic_multi_service_offices,FLOAT64,The number of multiple service domestic offices operated by an institution.,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",OFFDMULT
+nondomestic_offices,FLOAT64,The number of nondomestic offices operated by an institution.,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",OFFNDOM
+domestic_other_offices,FLOAT64,The number of domestic non-multiple service offices operated by an institution.,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",OFFOTH
+sod_offices,FLOAT64,The number of offices operated by an institution based on the summary of deposits definition of offices.,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",OFFSOD
+total_offices,FLOAT64,The total number of offices operated by an institution.,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",OFFTOT
+u_s_and_other_area_offices,FLOAT64,The number of domestic and U.S terrirtories offices operated by an institution.,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",OFFUSOA
+p_per_d_30_89_real_estate_loans_in_domestic,FLOAT64,P/D 30-89 Real Estate Loans in Domestic Offices,,no,,percent,no,,P3RELNDO
+n_90_days_p_per_d_loans_and_leases,FLOAT64,90+ Days P/D-Loans & Leases,,no,,percent,no,,P9LNLS
+n_90_real_estate_loans_in_domestic_offices_p9relndo,FLOAT64,90+ Real Estate Loans in Domestic Offices,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",P9RELNDO
+pre_tax_net_income_operating_income_quarterly,FLOAT64,Pre-Tax Net Income Operating Income Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",PTAXNETINCQ
+securities_af,FLOAT64,Securities-Af,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",SCAF
+equity_securities_not_held_for_trading,FLOAT64,Equity Securities Not Held for Trading,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",SCEQNFT
+securities_ha,FLOAT64,Securities-Ha,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",SCHA
+priv_issued_res_mortgage_backed_securities,FLOAT64,Priv Issued Res Mortgage-Backed Securities,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",SCRMBPI
+u_s_treasury_securities,FLOAT64,U.S. Treasury Securities,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",SCUST
+number_of_states_with_offices,FLOAT64,The number of states with offices (including its main office).,,no,,unit,no,,OFFSTATE
+interest_bearing_cash_and_due,FLOAT64,Interest-Bearing Cash & Due,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CHBALI
+total_loans_and_leases_recoveries_quarterly,FLOAT64,Total Loans & Leases Recoveries Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRLNLSQ
+total_loans_and_leases_chargeoffs_quarterly,FLOAT64,Total Loans & Leases Charge-Offs Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRLNLSQ
+deposit_interest_expense,FLOAT64,Deposit Interest Expense,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",EDEP
+deposit_interest_expense_dom,FLOAT64,Deposit Interest Expense-Dom,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",EDEPDOM
+deposit_interest_expense_dom_quarterly,FLOAT64,Deposit Interest Expense-Dom Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",EDEPDOMQ
+total_interest_expense_annually,FLOAT64,Total Interest Expense Annually,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",EINTEXPA
+total_interest_expense_quarterly_eintxq,FLOAT64,Total Interest Expense Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",EINTXQ
+total_interest_expense_quarterly,FLOAT64,Total Interest Expense Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",EINTXQA
+all_other_noninterest_expense_quarterly,FLOAT64,All Other Noninterest Expense Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",EOTHNINQ
+all_other_noninterest_expense,FLOAT64,All Other Noninterest Expense,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",EOTHNINT
+premises_and_fixed_assets_expense,FLOAT64,Premises & Fixed Assets Expense,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",EPREMAGG
+premises_and_fixed_assets_expense_quarterly,FLOAT64,Premises & Fixed Assets Expense Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",EPREMAGQ
+cash_dividends_on_comm_and_pref_quarterly,FLOAT64,Cash Dividends On Comm & Pref Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",EQCDIVQ
+up_net_and_other_capital_comp,FLOAT64,Up-Net & Other Capital Comp,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",EQUPTOT
+salaries_and_employee_benefits,FLOAT64,Salaries and Employee Benefits,,no,,unit,no,,ESAL
+salaries_and_employee_benefits_quarterly,FLOAT64,Salaries and Employee Benefits Quarterly,,no,,unit,no,,ESALQ
+income_before_inc_taxes_and_disc,FLOAT64,Income Before Inc Taxes & Disc,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",IBEFTAX
+loan_income_ann,FLOAT64,Loan Income-Ann,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",ILNA
+loan_income_dom,FLOAT64,Loan Income-Dom,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",ILNDOM
+loan_income_dom_quarterly,FLOAT64,Loan Income-Dom Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",ILNDOMQ
+loan_and_lease_income_ann,FLOAT64,Loan & Lease Income-Ann,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",ILNLSA
+loan_and_lease_income_qtr,FLOAT64,Loan & Lease Income-Qtr,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",ILNLSQ
+loan_income_qtr,FLOAT64,Loan Income-Qtr,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",ILNQ
+total_interest_income_quarterly,FLOAT64,Total Interest Income Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",INTINQ
+iras_and_keogh_plans_deposits,FLOAT64,Iras and Keogh Plans-Deposits,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",IRAKEOGH
+total_security_income,FLOAT64,Total Security Income,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",ISC
+total_security_income_ann,FLOAT64,Total Security Income-Ann,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",ISCA
+total_security_income_quarterly,FLOAT64,Total Security Income Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",ISCQ
+applicable_income_taxes_ann,FLOAT64,Applicable Income Taxes-Ann,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",ITAXA
+applicable_income_taxes_quarterly,FLOAT64,Applicable Income Taxes Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",ITAXQ
+applicable_income_taxes_qtr_ann,FLOAT64,Applicable Income Taxes-Qtr-Ann,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",ITAXQA
+executive_officer_loans_amount,FLOAT64,Executive Officer Loans-Amount,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LNEXAMT
+allowance_for_loan_and_leases,FLOAT64,Allowance for Loan and Leases,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LNLSRES
+nonaccrual_commercial_and_industrial_loans,FLOAT64,Nonaccrual-Commercial and Industrial Loans,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",NACI
+net_income_quarterly,FLOAT64,Net income - quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",NETINCQA
+net_operating_income_qtr,FLOAT64,Net Operating Income-Qtr,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",NOIQ
+cost_of_funding_earning_assets_quarterly,FLOAT64,Cost of Funding Earning Assets Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",INTEXPYQ
+avg_total_assets,FLOAT64,Avg Total Assets,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",AVASSET
+deposits_institution_loans,FLOAT64,Deposits Institution Loans,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",LNDEP
+interest_rate_total_contracts,FLOAT64,Interest Rate-Total Contracts,,no,,percent,no,,RT
+total_available_for_sale_at_amortized_cost,FLOAT64,Total Available-for-Sale At Amortized Cost Securities On A Consolidated Basis,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",SCAA
+total_held_to_maturity_at_fair_value,FLOAT64,Total Held-to-Maturity At Fair Value Securities On A Consolidated Basis,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",SCHF
+securities_mv,FLOAT64,Securities-Mv,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",SCMV
+pledged_securities,FLOAT64,Pledged Securities,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",SCPLEDGE
+trading_liabilities,FLOAT64,Trading Liabilities,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",TRADEL
+unearned_income,FLOAT64,Unearned Income,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",UNINC
+long_term_assets_5_years_qbp,FLOAT64,Long-Term Assets (5+ Years)-QBP,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",ASSTLT
+average_assets_adjusted_pca,FLOAT64,Average Assets-Adjusted-PCA,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",AVASSETJ
+noninterest_bearing_cash_and_due,FLOAT64,Noninterest-Bearing Cash & Due,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CHBALNI
+net_operating_cash_flow_ann,FLOAT64,Net Operating Cash Flow-Ann,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CHFLA
+net_operating_cash_flow_ann_quarterly,FLOAT64,NET OPERATING CASH FLOW-ANN Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CHFLQ
+commercial_loan_recoveries,FLOAT64,Commercial Loan Recoveries,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRCI
+commercial_loan_recoveries_quarterly,FLOAT64,Commercial Loan Recoveries Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRCIQ
+other_consumer_loan_recoveries,FLOAT64,Other Consumer Loan Recoveries,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRCONOTH
+other_consumer_loan_recoveries_quarterly,FLOAT64,Other Consumer Loan Recoveries Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRCONOTQ
+consumer_loan_recoveries_quarterly,FLOAT64,Consumer Loan Recoveries Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRCONQ
+credit_card_loan_recoveries,FLOAT64,Credit Card Loan Recoveries,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRCRCD
+credit_card_loan_recoveries_quarterly,FLOAT64,Credit Card Loan Recoveries Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRCRCDQ
+lease_recoveries,FLOAT64,Lease Recoveries,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRLS
+lease_recoveries_quarterly,FLOAT64,Lease Recoveries Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRLSQ
+real_estate_loan_recoveries,FLOAT64,Real Estate Loan Recoveries,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRRE
+farmland_real_estate_ln_recoveries,FLOAT64,Farmland Real Estate Ln Recoveries,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRREAG
+farmland_real_estate_ln_recoveries_qtr,FLOAT64,Farmland Real Estate Ln Recoveries-Qtr,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRREAGQ
+construction_real_estate_ln_recover_qtr,FLOAT64,Construction Real Estate Ln Recover-Qtr,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRRECONQ
+construction_real_estate_ln_recoveries,FLOAT64,Construction Real Estate Ln Recoveries,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRRECONS
+line_of_credit_real_estate_ln_recoveries,FLOAT64,Line of Credit Real Estate Ln Recoveries,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRRELOC
+line_of_credit_real_estate_ln_recoveries_crrelocq,FLOAT64,Line of Credit Real Estate Ln Recoveries Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRRELOCQ
+multifamily_real_estate_ln_recoveries_qtr,FLOAT64,Multifamily Real Estate Ln Recoveries-Qtr,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRREMULQ
+multifamily_res_real_estate_ln_recoveries,FLOAT64,Multifamily Res Real Estate Ln Recoveries,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRREMULT
+nonfarm_nonresidential_real_estate_ln,FLOAT64,Nonfarm Nonresidential Real Estate Ln Recoveries,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRRENRES
+nonfarm_nonresidential_real_estate_ln_crrenrsq,FLOAT64,Nonfarm Nonresidential Real Estate Ln Recover-Qtr,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRRENRSQ
+real_estate_loan_recoveries_quarterly,FLOAT64,Real Estate Loan Recoveries Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRREQ
+real_estate_loans_1_4_family_recoveries,FLOAT64,Real Estate Loans 1-4 Family Recoveries,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRRERES
+real_estate_loans_1_4_family_recover_qtr,FLOAT64,Real Estate Loans 1-4 Family Recover-Qtr,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",CRRERESQ
+commercial_loan_chargeoffs,FLOAT64,Commercial Loan Charge-Offs,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRCI
+commercial_loan_chargeoffs_quarterly,FLOAT64,Commercial Loan Charge-Offs Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRCIQ
+other_consumer_loan_chargeoffs,FLOAT64,Other Consumer Loan Charge-Offs,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRCONOTH
+other_consumer_loan_chargeoffs_quarterly,FLOAT64,Other Consumer Loan Charge-Offs Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRCONOTQ
+consumer_loan_chargeoffs_quarterly,FLOAT64,Consumer Loan Charge-Offs Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRCONQ
+credit_card_loan_chargeoffs,FLOAT64,Credit Card Loan Charge-Offs,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRCRCD
+credit_card_loan_chargeoffs_quarterly,FLOAT64,Credit Card Loan Charge-Offs Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRCRCDQ
+lease_chargeoffs,FLOAT64,Lease Charge-Offs,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRLS
+lease_chargeoffs_quarterly,FLOAT64,Lease Charge-Offs Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRLSQ
+real_estate_loan_chargeoffs,FLOAT64,Real Estate Loan Charge-Offs,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRRE
+farmland_real_estate_ln_chargeoffs,FLOAT64,Farmland Real Estate Ln Charge-Offs,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRREAG
+construction_real_estate_ln_chargeoffs,FLOAT64,Construction Real Estate Ln Charge-Offs,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRRECONS
+line_of_credit_real_estate_ln_chargeoffs,FLOAT64,Line of Credit Real Estate Ln Charge-Offs,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRRELOC
+line_of_credit_real_estate_ln_chargeoffs_drrelocq,FLOAT64,Line of Credit Real Estate Ln Charge-Offs Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRRELOCQ
+multifamily_res_real_estate_ln_chargeoff,FLOAT64,Multifamily Res Real Estate Ln Charge-Off,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRREMULT
+nonfarm_nonresidential_real_estate_ln_drrenres,FLOAT64,Nonfarm Nonresidential Real Estate Ln Charge-Offs,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRRENRES
+real_estate_loan_chargeoffs_quarterly,FLOAT64,Real Estate Loan Charge-Offs Quarterly,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRREQ
+real_estate_loans_1_4_family_chargeoffs,FLOAT64,Real Estate Loans 1-4 Family Charge-Offs,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRRERES
+real_estate_loans_1_4_family_chg_offs_qtr,FLOAT64,Real Estate Loans 1-4 Family Chg-Offs-Qtr,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DRRERESQ
+efficiency_ratio_expense,FLOAT64,Efficiency Ratio Expense,,no,,percent,no,,EEFF

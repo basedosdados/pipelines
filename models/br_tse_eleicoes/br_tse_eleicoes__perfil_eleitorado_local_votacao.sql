@@ -42,3 +42,6 @@ from
             "br_tse_eleicoes_staging.perfil_eleitorado_local_votacao"
         )
     }} as t
+
+    -- Rematerialized from the refactored pipeline (PR #1476).
+    

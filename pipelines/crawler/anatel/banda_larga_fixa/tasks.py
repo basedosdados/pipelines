@@ -1,10 +1,8 @@
 import os
-from datetime import timedelta
 
 import pandas as pd
 from prefect import task
 
-from pipelines.constants import constants
 from pipelines.crawler.anatel.banda_larga_fixa.constants import (
     constants as anatel_constants,
 )
@@ -19,11 +17,9 @@ from pipelines.crawler.anatel.banda_larga_fixa.utils import (
 from pipelines.utils.utils import log
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task(retries=5, retry_delay_seconds=10)
 def join_tables_in_function(table_id: str, ano):
+    # pyrefly: ignore [deprecated]
     os.system(
         f"mkdir -p {anatel_constants.TABLES_OUTPUT_PATH.value[table_id]}"
     )
@@ -42,10 +38,7 @@ def join_tables_in_function(table_id: str, ano):
     return anatel_constants.TABLES_OUTPUT_PATH.value[table_id]
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task(retries=5, retry_delay_seconds=10)
 def get_max_date_in_table_microdados(table_id: str, ano: int):
     if table_id == "microdados":
         log(

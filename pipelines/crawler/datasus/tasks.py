@@ -4,17 +4,16 @@ Tasks for br_ms_cnes
 
 import asyncio
 import os
-from datetime import datetime, timedelta
+import subprocess
+from datetime import date, datetime
 from ftplib import FTP
 
 import basedosdados as bd
 import pandas as pd
 from prefect import task
-from prefect.tasks.shell import ShellTask
 from simpledbf import Dbf5
 from tqdm import tqdm
 
-from pipelines.constants import constants
 from pipelines.crawler.datasus.constants import (
     constants as datasus_constants,
 )
@@ -43,10 +42,7 @@ from pipelines.utils.metadata.utils import get_api_most_recent_date, get_url
 from pipelines.utils.utils import log
 
 
-@task(
-    max_retries=2,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task(retries=2, retry_delay_seconds=30)
 def check_files_to_parse(
     dataset_id: str,
     table_id: str,
@@ -114,10 +110,17 @@ def check_files_to_parse(
     return list_files
 
 
-@task(
-    max_retries=2,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task(retries=2, retry_delay_seconds=30)
+def get_datasus_source_max_date(ftp_files: list[str]) -> date | None:
+    """Max year-month across the selected DATASUS FTP files, as a date (YYYY-MM-01)."""
+    if not ftp_files:
+        return None
+    yymm = max(file.split("/")[-1][4:8] for file in ftp_files)
+    # %y pivots 00-68 -> 2000s, 69-99 -> 1900s; fine for DATASUS coverage.
+    return datetime.strptime(yymm, "%y%m").date()
+
+
+@task(retries=2, retry_delay_seconds=30)
 def list_datasus_table_without_date(table_id: str, dataset_id: str):
     datasus_database = datasus_constants.DATASUS_DATABASE.value[dataset_id]
     datasus_database_table = datasus_constants.DATASUS_DATABASE_TABLE.value[
@@ -132,10 +135,7 @@ def list_datasus_table_without_date(table_id: str, dataset_id: str):
     return available_dbs
 
 
-@task(
-    max_retries=constants.TASK_MAX_RETRIES.value,
-    retry_delay=timedelta(seconds=constants.TASK_RETRY_DELAY.value),
-)
+@task(retries=3, retry_delay_seconds=30)
 def access_ftp_download_files_async(
     file_list: list,
     dataset_id: str,
@@ -201,6 +201,7 @@ def access_ftp_download_files_async(
             f"------ The following files were downloaded: {dbc_files_path_list}"
         )
 
+    # pyrefly: ignore [unbound-name]
     return dbc_files_path_list
 
 
@@ -209,59 +210,33 @@ def decompress_dbc(file_list: list, dataset_id: str) -> None:
     """
     Convert dbc to dbf format
     """
+    blast_dir = f"/tmp/{dataset_id}/blast-dbf"
 
-    # ShellTask to create the blast-dbf directory
-    create_dir_task = ShellTask(
-        name="Create blast-dbf Directory",
-        command=f"mkdir -p /tmp/{dataset_id}/blast-dbf",
-        return_all=True,
-        log_stderr=True,
-    )
-
-    # ShellTask to clone the blast-dbf repository
-    clone_repo_task = ShellTask(
-        name="Clone blast-dbf Repository",
-        command=f"git clone https://github.com/eaglebh/blast-dbf /tmp/{dataset_id}/blast-dbf",
-        return_all=True,
-        log_stderr=True,
-    )
-
-    # ShellTask to build the blast-dbf repository
-    compile_blast_dbf = ShellTask(
-        name="Build blast-dbf",
-        command=f"cd /tmp/{dataset_id}/blast-dbf && make",
-        return_all=True,
-        log_stderr=True,
-    )
-
-    create_dir_task.run()
+    subprocess.run(["mkdir", "-p", blast_dir], check=True)
     log("------ Cloning blast-dbf repository")
-    clone_repo_task.run()
+    subprocess.run(
+        ["git", "clone", "https://github.com/eaglebh/blast-dbf", blast_dir],
+        check=False,
+    )
     log("------ Compiling blast-dbf repository")
-    compile_blast_dbf.run()
+    subprocess.run(["make"], cwd=blast_dir, check=True)
 
     for file in tqdm(file_list):
-        # Check if the file has a .dbc extension
         if file.endswith(".dbc"):
-            # Execute blast-dbf on the file
-            decompress_task = ShellTask(
-                name=f"Decompress {file}",
-                command=f"/tmp/{dataset_id}/blast-dbf/blast-dbf {file} {file.replace('.dbc', '.dbf')}",
-                return_all=True,
-                log_stderr=True,
-            )
             log(f"------ Decompressing {file.split('/')[-1]} file")
-            decompress_task.run()
+            subprocess.run(
+                [f"{blast_dir}/blast-dbf", file, file.replace(".dbc", ".dbf")],
+                check=True,
+            )
             log(f"------ Removing {file.split('/')[-1]} file")
+            # pyrefly: ignore [deprecated]
             os.system(f"rm -f {file}")
-
         else:
             log(f"Skipping non-DBC file: {file}")
 
-    log("------ Removing dbc files")
-
-    log(f"------ Removing /tmp/{dataset_id}/blast-dbf")
-    os.system(f"rm -rf /tmp/{dataset_id}/blast-dbf")
+    log(f"------ Removing {blast_dir}")
+    # pyrefly: ignore [deprecated]
+    os.system(f"rm -rf {blast_dir}")
 
 
 @task
@@ -295,8 +270,10 @@ def decompress_dbf(file_list: list, table_id: str) -> str:
         if file.endswith(".dbf"):
             file = file.replace("output", "input")
             log(f"------ Removing {file.split('/')[-1]}")
+            # pyrefly: ignore [deprecated]
             os.system(f"rm -f {file}")
 
+    # pyrefly: ignore [bad-return]
     return csv_file_list
 
 
@@ -340,12 +317,15 @@ def pre_process_files(file_list: list, dataset_id: str, table_id: str) -> str:
         ):
             concatenated_df = pd.concat([concatenated_df, chunk_df])
 
+            # pyrefly: ignore [not-callable, unbound-name]
             processed_df = post_process_function(concatenated_df)
 
+        # pyrefly: ignore [unbound-name]
         processed_df = processed_df.astype(str)
         output_path = file.replace(".csv", ".parquet")
         processed_df.to_parquet(output_path, index=None, compression="gzip")
 
+        # pyrefly: ignore [deprecated]
         os.system(f"rm -f {file}")
 
     log("Post-processing complete")
@@ -365,7 +345,7 @@ def is_empty(lista):
 def read_dbf_save_parquet_chunks(
     file_list: list,
     table_id: str,
-    dataset_id: str = "br_ms_sia",
+    dataset_id: str,
     chunk_size: int = 100000,
 ) -> str:
     """
@@ -447,4 +427,5 @@ def get_last_modified_date_in_sinan_tablen(
             )
 
     ftp.close()
+    # pyrefly: ignore [bad-return, unbound-name]
     return final_date

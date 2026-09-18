@@ -1,0 +1,61 @@
+id_tabela,nome_coluna,chave,cobertura_temporal,valor,valor_en,valor_es
+release,release_category,5.1,,Emissões fugitivas para o ar,Fugitive air emissions,Emisiones fugitivas al aire
+release,release_category,5.2,,Emissões por chaminé,Stack air emissions,Emisiones por chimenea
+release,release_category,5.3,,Lançamentos em águas superficiais,Surface water discharges,Vertidos a aguas superficiales
+release,release_category,5.4,1987(1)1995,Injeção subterrânea (todos os poços; substituída por 5.4.1 e 5.4.2 em 1996),Underground injection (all wells; replaced by 5.4.1 and 5.4.2 in 1996),Inyección subterránea (todos los pozos; reemplazada por 5.4.1 y 5.4.2 en 1996)
+release,release_category,5.4.1,1996(1),Injeção subterrânea em poços Classe I,Underground injection to Class I wells,Inyección subterránea en pozos Clase I
+release,release_category,5.4.2,1996(1),Injeção subterrânea em poços Classe II-V,Underground injection to Class II-V wells,Inyección subterránea en pozos Clase II-V
+release,release_category,5.5.1,1987(1)1995,Aterros no local (todos; substituído por 5.5.1A e 5.5.1B em 1996),On-site landfills (all; replaced by 5.5.1A and 5.5.1B in 1996),Rellenos en el sitio (todos; reemplazado por 5.5.1A y 5.5.1B en 1996)
+release,release_category,5.5.1A,1996(1),Aterros RCRA Subtítulo C no local,On-site RCRA Subtitle C landfills,Rellenos RCRA Subtítulo C en el sitio
+release,release_category,5.5.1B,1996(1),Outros aterros no local,Other on-site landfills,Otros rellenos en el sitio
+release,release_category,5.5.2,,Tratamento no solo/aplicação agrícola no local,On-site land treatment/application farming,Tratamiento en suelo/aplicación agrícola en el sitio
+release,release_category,5.5.3,1987(1)2002,Lagoas de contenção no local (todas; substituído por 5.5.3A e 5.5.3B em 2003),On-site surface impoundments (all; replaced by 5.5.3A and 5.5.3B in 2003),Lagunas de contención en el sitio (todas; reemplazado por 5.5.3A y 5.5.3B en 2003)
+release,release_category,5.5.3A,2003(1),Lagoas de contenção RCRA Subtítulo C no local,On-site RCRA Subtitle C surface impoundments,Lagunas de contención RCRA Subtítulo C en el sitio
+release,release_category,5.5.3B,2003(1),Outras lagoas de contenção no local,Other on-site surface impoundments,Otras lagunas de contención en el sitio
+release,release_category,5.5.4,,Outras disposições no solo no local,Other on-site land disposal,Otras disposiciones en suelo en el sitio
+release,release_category,6.1_RELEASE,,"Transferências para POTW, parcela considerada liberada","Transfers to POTWs, share counted as released","Transferencias a POTW, parte considerada liberada"
+release,release_category,6.1_TREATMENT,,"Transferências para POTW, parcela considerada tratada","Transfers to POTWs, share counted as treated","Transferencias a POTW, parte considerada tratada"
+release,release_category,M10,,M10 Somente armazenamento,M10 Storage only,M10 Solo almacenamiento
+release,release_category,M41,,M41 Solidificação/estabilização (apenas metais e compostos metálicos),M41 Solidification/stabilization (metals and metal compounds only),M41 Solidificación/estabilización (solo metales y compuestos metálicos)
+release,release_category,M62,,M62 Tratamento de efluentes exceto POTW (apenas metais e compostos metálicos),M62 Wastewater treatment excluding POTWs (metals and metal compounds only),M62 Tratamiento de aguas residuales excepto POTW (solo metales y compuestos metálicos)
+release,release_category,M40_METAL,,M40 Solidificação/estabilização de metal (contada como disposição),M40 Solidification/stabilization of a metal (counted as disposal),M40 Solidificación/estabilización de un metal (contada como disposición)
+release,release_category,M61_METAL,,M61 Tratamento de efluentes exceto POTW de metal (contado como disposição),M61 Wastewater treatment excluding POTWs of a metal (counted as disposal),M61 Tratamiento de aguas residuales excepto POTW de un metal (contado como disposición)
+release,release_category,M71,1987(1)2002,M71 Injeção subterrânea (substituído por M81 e M82 em 2003),M71 Underground injection (replaced by M81 and M82 in 2003),M71 Inyección subterránea (reemplazado por M81 y M82 en 2003)
+release,release_category,M81,2003(1),M81 Injeção subterrânea em poços Classe I,M81 Underground injection to Class I wells,M81 Inyección subterránea en pozos Clase I
+release,release_category,M82,2003(1),M82 Injeção subterrânea em poços Classe II-V,M82 Underground injection to Class II-V wells,M82 Inyección subterránea en pozos Clase II-V
+release,release_category,M72,1987(1)2001,"M72 Aterros/lagoas de disposição (substituído por M63, M64 e M65 em 2002)","M72 Landfills/disposal surface impoundments (replaced by M63, M64 and M65 in 2002)","M72 Rellenos/lagunas de disposición (reemplazado por M63, M64 y M65 en 2002)"
+release,release_category,M63,2002(1)2002,M63 Lagoa de contenção (substituído por M66 e M67 em 2003),M63 Surface impoundment (replaced by M66 and M67 in 2003),M63 Laguna de contención (reemplazado por M66 y M67 en 2003)
+release,release_category,M66,2003(1),M66 Lagoas de contenção RCRA Subtítulo C,M66 RCRA Subtitle C surface impoundments,M66 Lagunas de contención RCRA Subtítulo C
+release,release_category,M67,2003(1),M67 Outras lagoas de contenção,M67 Other surface impoundments,M67 Otras lagunas de contención
+release,release_category,M64,2002(1),M64 Outros aterros,M64 Other landfills,M64 Otros rellenos
+release,release_category,M65,2002(1),M65 Aterros RCRA Subtítulo C,M65 RCRA Subtitle C landfills,M65 Rellenos RCRA Subtítulo C
+release,release_category,M73,,M73 Tratamento no solo,M73 Land treatment,M73 Tratamiento en suelo
+release,release_category,M79,,M79 Outras disposições no solo,M79 Other land disposal,M79 Otras disposiciones en suelo
+release,release_category,M90,,M90 Outra gestão fora do local,M90 Other off-site management,M90 Otra gestión fuera del sitio
+release,release_category,M94,,M94 Transferência a intermediário de resíduos para disposição,M94 Transfer to waste broker for disposal,M94 Transferencia a intermediario de residuos para disposición
+release,release_category,M99,,M99 Desconhecido,M99 Unknown,M99 Desconocido
+release,release_category,M20,,M20 Recuperação de solventes/orgânicos,M20 Solvents/organics recovery,M20 Recuperación de solventes/orgánicos
+release,release_category,M24,,M24 Recuperação de metais,M24 Metals recovery,M24 Recuperación de metales
+release,release_category,M26,,M26 Outro reuso ou recuperação,M26 Other reuse or recovery,M26 Otro reúso o recuperación
+release,release_category,M28,,M28 Regeneração de ácido,M28 Acid regeneration,M28 Regeneración de ácido
+release,release_category,M93,,M93 Transferência a intermediário de resíduos para reciclagem,M93 Transfer to waste broker for recycling,M93 Transferencia a intermediario de residuos para reciclaje
+release,release_category,M56,,M56 Recuperação de energia,M56 Energy recovery,M56 Recuperación de energía
+release,release_category,M92,,M92 Transferência a intermediário de resíduos para recuperação de energia,M92 Transfer to waste broker for energy recovery,M92 Transferencia a intermediario de residuos para recuperación de energía
+release,release_category,M40_NON_METAL,,M40 Solidificação/estabilização de não metal (contada como tratamento),M40 Solidification/stabilization of a non-metal (counted as treatment),M40 Solidificación/estabilización de un no metal (contada como tratamiento)
+release,release_category,M50,,M50 Incineração/tratamento térmico,M50 Incineration/thermal treatment,M50 Incineración/tratamiento térmico
+release,release_category,M54,,M54 Incineração/valor combustível insignificante,M54 Incineration/insignificant fuel value,M54 Incineración/valor combustible insignificante
+release,release_category,M61_NON_METAL,,M61 Tratamento de efluentes exceto POTW de não metal (contado como tratamento),M61 Wastewater treatment excluding POTWs of a non-metal (counted as treatment),M61 Tratamiento de aguas residuales excepto POTW de un no metal (contado como tratamiento)
+release,release_category,M69,,M69 Outro tratamento de resíduos,M69 Other waste treatment,M69 Otro tratamiento de residuos
+release,release_category,M95,,M95 Transferência a intermediário de resíduos para tratamento,M95 Transfer to waste broker for waste treatment,M95 Transferencia a intermediario de residuos para tratamiento
+release,release_category,6.2_UNCLASSIFIED,,Transferências fora do local não classificadas (código M91 transferência a intermediário e transferências sem código específico),Unclassified off-site transfers (code M91 transfers to waste broker and transfers without a specific code),Transferencias fuera del sitio no clasificadas (código M91 transferencia a intermediario y transferencias sin código específico)
+release,management_category,on_site_release,,"Liberação no local para ar, água e solo (seção 5 do Form R)","On-site release to air, water and land (Form R section 5)","Liberación en el sitio al aire, agua y suelo (sección 5 del Form R)"
+release,management_category,off_site_release,,"Transferência fora do local para liberação ou disposição, incluindo a parcela de POTW considerada liberada","Off-site transfer for release or disposal, including the POTW share counted as released","Transferencia fuera del sitio para liberación o disposición, incluida la parte de POTW considerada liberada"
+release,management_category,off_site_recycling,,Transferência fora do local para reciclagem,Off-site transfer for recycling,Transferencia fuera del sitio para reciclaje
+release,management_category,off_site_energy_recovery,,Transferência fora do local para recuperação de energia,Off-site transfer for energy recovery,Transferencia fuera del sitio para recuperación de energía
+release,management_category,off_site_treatment,,"Transferência fora do local para tratamento, incluindo a parcela de POTW considerada tratada","Off-site transfer for treatment, including the POTW share counted as treated","Transferencia fuera del sitio para tratamiento, incluida la parte de POTW considerada tratada"
+release,management_category,off_site_unclassified,,Transferência fora do local sem código de gestão específico,Off-site transfer without a specific management code,Transferencia fuera del sitio sin código de gestión específico
+form,form_type,R,,"Form R, relatório completo de liberações e demais gestões de resíduo","Form R, full report of releases and other waste management","Form R, informe completo de liberaciones y demás gestión de residuos"
+form,form_type,A,,"Form A, declaração de certificação, sem quantidades informadas","Form A certification statement, no quantities reported","Form A, declaración de certificación, sin cantidades informadas"
+chemical,classification,TRI,,Substância geral da seção 313 do EPCRA,General EPCRA section 313 chemical,Sustancia general de la sección 313 del EPCRA
+chemical,classification,PBT,,"Substância persistente, bioacumulativa e tóxica","Persistent, bioaccumulative and toxic chemical","Sustancia persistente, bioacumulativa y tóxica"
+chemical,classification,Dioxin,,Dioxina ou composto similar (informado em gramas),Dioxin or dioxin-like compound (reported in grams),Dioxina o compuesto similar (informado en gramos)

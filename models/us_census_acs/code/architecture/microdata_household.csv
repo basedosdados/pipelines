@@ -1,0 +1,268 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Census reference year; for 5-year estimates this is the final year of the 5-year period,,no,br_bd_diretorios_data_tempo.ano:ano,,no,Partition column (hive path 'ano=' in staging).,ano
+period,STRING,ACS estimate period: 1-year or 5-year,,no,,,no,"Values: 1-year, 5-year. Part of the logical key.",
+rt,STRING,Record Type,,yes,,,no,,RT
+serialno,STRING,Housing unit/GQ person serial number,,no,,,no,Housing-unit/person serial identifier.,SERIALNO
+division,STRING,Division code based on 2020 Census definitions,,yes,,,no,,DIVISION
+puma,STRING,"Public use microdata area code (PUMA) based on 2020 Census definition (areas with population of 100,000 or more, use with STATE for unique code)",,no,,,no,Geographic code; PUMA vintage varies by year (D6) — no directory FK in v1.,PUMA
+region,STRING,Region code based on 2020 Census definitions,,yes,,,no,,REGION
+state,STRING,State Code based on 2020 Census definitions,,no,br_bd_diretorios_us.state:id_state,,no,,STATE
+adjhsg,STRING,Adjustment factor for housing dollar amounts (6 implied decimal places),,no,,,no,Adjustment factor with 6 implied decimal places (divide by 1e6).,ADJHSG
+adjinc,STRING,Adjustment factor for income and earnings dollar amounts (6 implied decimal places),,no,,,no,Adjustment factor with 6 implied decimal places (divide by 1e6).,ADJINC
+wgtp,INT64,Housing Unit Weight,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP
+np,INT64,Number of persons in this household,,no,,persons,no,,NP
+typehugq,STRING,Type of unit,,yes,,,no,,TYPEHUGQ
+accessinet,STRING,Access to the Internet,,yes,,,no,,ACCESSINET
+acr,STRING,Lot size,,yes,,,no,,ACR
+ags,STRING,"Sales of Agriculture Products (yearly sales, no adjustment factor is applied)",,yes,,,no,,AGS
+bath,STRING,Bathtub or shower,,yes,,,no,,BATH
+bdsp,INT64,Number of bedrooms,,no,,bedrooms,no,,BDSP
+bld,STRING,Units in structure,,yes,,,no,,BLD
+broadbnd,STRING,Cellular data plan for a smartphone or other mobile device,,yes,,,no,,BROADBND
+compothx,STRING,Other computer equipment,,yes,,,no,,COMPOTHX
+conp,INT64,"Condominium and/or homeowners association fee (monthly amount, use ADJHSG to adjust CONP to constant dollars)",,no,,USD,no,,CONP
+dialup,STRING,Dial-up service,,yes,,,no,,DIALUP
+elefp,STRING,Electricity cost flag variable,,yes,,,no,,ELEFP
+elep,INT64,"Electricity cost (monthly cost, use ADJHSG to adjust ELEP to constant dollars)",,no,,USD,no,,ELEP
+fs,STRING,Yearly food stamp/Supplemental Nutrition Assistance Program (SNAP) recipiency,,yes,,,no,,FS
+fulfp,STRING,Fuel cost flag variable,,yes,,,no,,FULFP
+fulp,INT64,"Fuel cost (yearly cost for fuels other than gas and electricity, use ADJHSG to adjust FULP to constant dollars)",,no,,USD,no,,FULP
+gasfp,STRING,Gas cost flag variable,,yes,,,no,,GASFP
+gasp,INT64,"Gas cost (monthly cost, use ADJHSG to adjust GASP to constant dollars)",,no,,USD,no,,GASP
+hfl,STRING,House heating fuel,,yes,,,no,,HFL
+hispeed,STRING,"Broadband (high speed) Internet service such as cable, fiber optic, or DSL service",,yes,,,no,,HISPEED
+hotwat,STRING,Water heater (Puerto Rico only),,yes,,,no,,HOTWAT
+insp,INT64,"Fire/hazard/flood insurance (yearly amount, use ADJHSG to adjust INSP to constant dollars)",,no,,USD,no,,INSP
+laptop,STRING,Laptop or desktop,,yes,,,no,,LAPTOP
+mhp,INT64,"Mobile home costs (yearly amount, use ADJHSG to adjust MHP to constant dollars)",,no,,USD,no,,MHP
+mrgi,STRING,First mortgage payment includes fire/hazard/flood insurance,,yes,,,no,,MRGI
+mrgp,INT64,"First mortgage payment (monthly amount, use ADJHSG to adjust MRGP to constant dollars)",,no,,USD,no,,MRGP
+mrgt,STRING,First mortgage payment includes real estate taxes,,yes,,,no,,MRGT
+mrgx,STRING,First mortgage status,,yes,,,no,,MRGX
+othsvcex,STRING,Other Internet service,,yes,,,no,,OTHSVCEX
+refr,STRING,Refrigerator,,yes,,,no,,REFR
+rmsp,INT64,Number of rooms,,no,,rooms,no,,RMSP
+rntm,STRING,Meals included in rent,,yes,,,no,,RNTM
+rntp,INT64,Monthly rent (use ADJHSG to adjust RNTP to constant dollars),,no,,USD,no,,RNTP
+rwat,STRING,Hot and cold running water,,yes,,,no,,RWAT
+rwatpr,STRING,Running water,,yes,,,no,,RWATPR
+satellite,STRING,Satellite Internet service,,yes,,,no,,SATELLITE
+sink,STRING,Sink with a faucet,,yes,,,no,,SINK
+smartphone,STRING,Smartphone,,yes,,,no,,SMARTPHONE
+smp,INT64,"Total payment on all second and junior mortgages and home equity loans (monthly amount, use ADJHSG to adjust SMP to constant dollars)",,no,,USD,no,,SMP
+stov,STRING,Stove or range,,yes,,,no,,STOV
+tablet,STRING,Tablet or other portable wireless computer,,yes,,,no,,TABLET
+tel,STRING,Telephone service,,yes,,,no,,TEL
+ten,STRING,Tenure,,yes,,,no,,TEN
+vacdur,STRING,Vacancy duration,,yes,,,no,,VACDUR
+vacoth,STRING,Other vacancy status,,yes,,,no,,VACOTH
+vacs,STRING,Vacancy status,,yes,,,no,,VACS
+valp,INT64,Property value,,no,,USD,no,,VALP
+veh,STRING,Vehicles available (capacity of 1 ton or less),,yes,,,no,,VEH
+watfp,STRING,Water cost flag variable,,yes,,,no,,WATFP
+watp,INT64,"Water cost (yearly cost, use ADJHSG to adjust WATP to constant dollars)",,no,,USD,no,,WATP
+yrblt,STRING,When structure first built,,yes,,,no,,YRBLT
+cplt,STRING,Couple Type,,yes,,,no,,CPLT
+fincp,INT64,"Family income (past 12 months, use ADJINC to adjust FINCP to constant dollars)",,no,,USD,no,,FINCP
+fparc,STRING,Family presence and age of related children,,yes,,,no,,FPARC
+grntp,INT64,"Gross rent (monthly amount, use ADJHSG to adjust GRNTP to constant dollars)",,no,,USD,no,,GRNTP
+grpip,INT64,Gross rent as a percentage of household income past 12 months,,no,,percent,no,,GRPIP
+hhl,STRING,Household language,,yes,,,no,,HHL
+hhlanp,STRING,Detailed household language,,yes,,,no,,HHLANP
+hhldragep,INT64,Age of the householder,,no,,years,no,,HHLDRAGEP
+hhldrhisp,STRING,Recoded detailed Hispanic origin of the householder,,yes,,,no,,HHLDRHISP
+hhldrrac1p,STRING,Recoded detailed race code of the householder,,yes,,,no,,HHLDRRAC1P
+hht,STRING,Household/family type,,yes,,,no,,HHT
+hht2,STRING,Household/family type (includes cohabiting),,yes,,,no,,HHT2
+hincp,INT64,"Household income (past 12 months, use ADJINC to adjust HINCP to constant dollars)",,no,,USD,no,,HINCP
+hugcl,STRING,Household with grandparent living with grandchildren,,yes,,,no,,HUGCL
+hupac,STRING,HH presence and age of children,,yes,,,no,,HUPAC
+hupaoc,STRING,HH presence and age of own children,,yes,,,no,,HUPAOC
+huparc,STRING,HH presence and age of related children,,yes,,,no,,HUPARC
+kit,STRING,Complete kitchen facilities,,yes,,,no,,KIT
+lngi,STRING,Limited English speaking household,,yes,,,no,,LNGI
+multg,STRING,Multigenerational household,,yes,,,no,,MULTG
+mv,STRING,When moved into this house or apartment,,yes,,,no,,MV
+noc,INT64,Number of own children in household (unweighted),,no,,persons,no,,NOC
+npf,INT64,Number of persons in family (unweighted),,no,,persons,no,,NPF
+npp,STRING,Grandparent headed household with no parent present,,yes,,,no,,NPP
+nr,STRING,Presence of nonrelative in household,,yes,,,no,,NR
+nrc,INT64,Number of related children in household (unweighted),,no,,persons,no,,NRC
+ocpip,INT64,Selected monthly owner costs as a percentage of household income during the past 12 months,,no,,percent,no,,OCPIP
+partner,STRING,Unmarried partner household,,yes,,,no,,PARTNER
+plm,STRING,Complete plumbing facilities,,yes,,,no,,PLM
+plmprp,STRING,Complete plumbing facilities for Puerto Rico,,yes,,,no,,PLMPRP
+psf,STRING,Presence of subfamilies in household,,yes,,,no,,PSF
+r18,STRING,Presence of persons under 18 years in household (unweighted),,yes,,,no,,R18
+r60,STRING,Presence of persons 60 years and over in household (unweighted),,yes,,,no,,R60
+r65,STRING,Presence of persons 65 years and over in household (unweighted),,yes,,,no,,R65
+resmode,STRING,Response mode,,yes,,,no,,RESMODE
+smocp,INT64,Selected monthly owner costs (use ADJHSG to adjust SMOCP to constant dollars),,no,,USD,no,,SMOCP
+smx,STRING,Second or junior mortgage or home equity loan status,,yes,,,no,,SMX
+srnt,STRING,Specified rental unit,,yes,,,no,,SRNT
+sval,STRING,Specified owner unit,,yes,,,no,,SVAL
+taxamt,INT64,Property taxes (yearly real estate taxes),,no,,USD,no,,TAXAMT
+wif,STRING,Workers in family during the past 12 months,,yes,,,no,,WIF
+wkexrel,STRING,Work experience of householder and spouse,,yes,,,no,,WKEXREL
+workstat,STRING,Work status of householder or spouse in family households,,yes,,,no,,WORKSTAT
+faccessp,STRING,Access to the Internet allocation flag,,yes,,,no,,FACCESSP
+facrp,STRING,Lot size allocation flag,,yes,,,no,,FACRP
+fagsp,STRING,Sales of Agricultural Products allocation flag,,yes,,,no,,FAGSP
+fbathp,STRING,Bathtub or shower allocation flag,,yes,,,no,,FBATHP
+fbdsp,STRING,Number of bedrooms allocation flag,,yes,,,no,,FBDSP
+fbldp,STRING,Units in structure allocation flag,,yes,,,no,,FBLDP
+fbroadbndp,STRING,Cellular data plan for a smartphone or other mobile device allocation flag,,yes,,,no,,FBROADBNDP
+fcompothxp,STRING,Other computer equipment allocation flag,,yes,,,no,,FCOMPOTHXP
+fconp,STRING,Condominium and/or homeowners association fee (monthly amount) allocation flag,,yes,,,no,,FCONP
+fdialupp,STRING,Dial-up service allocation flag,,yes,,,no,,FDIALUPP
+felep,STRING,Electricity cost (monthly cost) allocation flag,,yes,,,no,,FELEP
+ffincp,STRING,Family income (past 12 months) allocation flag,,yes,,,no,,FFINCP
+ffsp,STRING,Yearly food stamp/Supplemental Nutrition Assistance Program (SNAP) recipiency allocation flag,,yes,,,no,,FFSP
+ffulp,STRING,Fuel cost (yearly cost for fuels other than gas and electricity) allocation flag,,yes,,,no,,FFULP
+fgasp,STRING,Gas cost (monthly cost) allocation flag,,yes,,,no,,FGASP
+fgrntp,STRING,Gross rent (monthly amount) allocation flag,,yes,,,no,,FGRNTP
+fhflp,STRING,House heating fuel allocation flag,,yes,,,no,,FHFLP
+fhincp,STRING,Household income (past 12 months) allocation flag,,yes,,,no,,FHINCP
+fhispeedp,STRING,"Broadband (high speed) Internet service such as cable, fiber optic, or DSL service allocation flag",,yes,,,no,,FHISPEEDP
+fhotwatp,STRING,Water heater allocation flag (Puerto Rico only),,yes,,,no,,FHOTWATP
+finsp,STRING,"Fire, hazard, flood insurance (yearly amount) allocation flag",,yes,,,no,,FINSP
+fkitp,STRING,Complete kitchen facilities allocation flag,,yes,,,no,,FKITP
+flaptopp,STRING,Laptop or desktop allocation flag,,yes,,,no,,FLAPTOPP
+fmhp,STRING,Mobile home costs (yearly amount) allocation flag,,yes,,,no,,FMHP
+fmrgip,STRING,"First mortgage payment includes fire, hazard, flood insurance allocation flag",,yes,,,no,,FMRGIP
+fmrgp,STRING,First mortgage payment (monthly amount) allocation flag,,yes,,,no,,FMRGP
+fmrgtp,STRING,First mortgage payment includes real estate taxes allocation flag,,yes,,,no,,FMRGTP
+fmrgxp,STRING,First mortgage status allocation flag,,yes,,,no,,FMRGXP
+fmvp,STRING,When moved into this house or apartment allocation flag,,yes,,,no,,FMVP
+fothsvcexp,STRING,Other Internet service allocation flag,,yes,,,no,,FOTHSVCEXP
+fplmp,STRING,Complete plumbing facilities allocation flag,,yes,,,no,,FPLMP
+fplmprp,STRING,Complete plumbing facilities allocation flag for Puerto Rico,,yes,,,no,,FPLMPRP
+frefrp,STRING,Refrigerator allocation flag,,yes,,,no,,FREFRP
+frmsp,STRING,Number of rooms allocation flag,,yes,,,no,,FRMSP
+frntmp,STRING,Meals included in rent allocation flag,,yes,,,no,,FRNTMP
+frntp,STRING,Monthly rent allocation flag,,yes,,,no,,FRNTP
+frwatp,STRING,Hot and cold running water allocation flag,,yes,,,no,,FRWATP
+frwatprp,STRING,Running water allocation flag for Puerto Rico,,yes,,,no,,FRWATPRP
+fsatellitep,STRING,Satellite Internet service allocation flag,,yes,,,no,,FSATELLITEP
+fsinkp,STRING,Sink with a faucet allocation flag,,yes,,,no,,FSINKP
+fsmartphonp,STRING,Smartphone allocation flag,,yes,,,no,,FSMARTPHONP
+fsmocp,STRING,Selected monthly owner cost allocation flag,,yes,,,no,,FSMOCP
+fsmp,STRING,Total payment on second and junior mortgages and home equity loans (monthly amount) allocation flag,,yes,,,no,,FSMP
+fsmxhp,STRING,Home equity loan status allocation flag,,yes,,,no,,FSMXHP
+fsmxsp,STRING,Second mortgage status allocation flag,,yes,,,no,,FSMXSP
+fstovp,STRING,Stove or range allocation flag,,yes,,,no,,FSTOVP
+ftabletp,STRING,Tablet or other portable wireless computer allocation flag,,yes,,,no,,FTABLETP
+ftaxp,STRING,Property taxes (yearly amount) allocation flag,,yes,,,no,,FTAXP
+ftelp,STRING,Telephone service allocation flag,,yes,,,no,,FTELP
+ftenp,STRING,Tenure allocation flag,,yes,,,no,,FTENP
+fvacdurp,STRING,Vacancy duration allocation flag,,yes,,,no,,FVACDURP
+fvacothp,STRING,Other vacancy allocation flag,,yes,,,no,,FVACOTHP
+fvacsp,STRING,Vacancy status allocation flag,,yes,,,no,,FVACSP
+fvalp,STRING,Property value allocation flag,,yes,,,no,,FVALP
+fvehp,STRING,Vehicles available allocation flag,,yes,,,no,,FVEHP
+fwatp,STRING,Water cost (yearly cost) allocation flag,,yes,,,no,,FWATP
+fyrbltp,STRING,When structure first built allocation flag,,yes,,,no,,FYRBLTP
+wgtp1,INT64,Housing Weight replicate 1,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP1
+wgtp2,INT64,Housing Weight replicate 2,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP2
+wgtp3,INT64,Housing Weight replicate 3,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP3
+wgtp4,INT64,Housing Weight replicate 4,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP4
+wgtp5,INT64,Housing Weight replicate 5,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP5
+wgtp6,INT64,Housing Weight replicate 6,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP6
+wgtp7,INT64,Housing Weight replicate 7,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP7
+wgtp8,INT64,Housing Weight replicate 8,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP8
+wgtp9,INT64,Housing Weight replicate 9,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP9
+wgtp10,INT64,Housing Weight replicate 10,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP10
+wgtp11,INT64,Housing Weight replicate 11,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP11
+wgtp12,INT64,Housing Weight replicate 12,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP12
+wgtp13,INT64,Housing Weight replicate 13,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP13
+wgtp14,INT64,Housing Weight replicate 14,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP14
+wgtp15,INT64,Housing Weight replicate 15,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP15
+wgtp16,INT64,Housing Weight replicate 16,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP16
+wgtp17,INT64,Housing Weight replicate 17,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP17
+wgtp18,INT64,Housing Weight replicate 18,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP18
+wgtp19,INT64,Housing Weight replicate 19,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP19
+wgtp20,INT64,Housing Weight replicate 20,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP20
+wgtp21,INT64,Housing Weight replicate 21,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP21
+wgtp22,INT64,Housing Weight replicate 22,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP22
+wgtp23,INT64,Housing Weight replicate 23,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP23
+wgtp24,INT64,Housing Weight replicate 24,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP24
+wgtp25,INT64,Housing Weight replicate 25,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP25
+wgtp26,INT64,Housing Weight replicate 26,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP26
+wgtp27,INT64,Housing Weight replicate 27,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP27
+wgtp28,INT64,Housing Weight replicate 28,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP28
+wgtp29,INT64,Housing Weight replicate 29,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP29
+wgtp30,INT64,Housing Weight replicate 30,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP30
+wgtp31,INT64,Housing Weight replicate 31,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP31
+wgtp32,INT64,Housing Weight replicate 32,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP32
+wgtp33,INT64,Housing Weight replicate 33,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP33
+wgtp34,INT64,Housing Weight replicate 34,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP34
+wgtp35,INT64,Housing Weight replicate 35,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP35
+wgtp36,INT64,Housing Weight replicate 36,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP36
+wgtp37,INT64,Housing Weight replicate 37,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP37
+wgtp38,INT64,Housing Weight replicate 38,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP38
+wgtp39,INT64,Housing Weight replicate 39,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP39
+wgtp40,INT64,Housing Weight replicate 40,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP40
+wgtp41,INT64,Housing Weight replicate 41,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP41
+wgtp42,INT64,Housing Weight replicate 42,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP42
+wgtp43,INT64,Housing Weight replicate 43,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP43
+wgtp44,INT64,Housing Weight replicate 44,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP44
+wgtp45,INT64,Housing Weight replicate 45,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP45
+wgtp46,INT64,Housing Weight replicate 46,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP46
+wgtp47,INT64,Housing Weight replicate 47,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP47
+wgtp48,INT64,Housing Weight replicate 48,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP48
+wgtp49,INT64,Housing Weight replicate 49,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP49
+wgtp50,INT64,Housing Weight replicate 50,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP50
+wgtp51,INT64,Housing Weight replicate 51,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP51
+wgtp52,INT64,Housing Weight replicate 52,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP52
+wgtp53,INT64,Housing Weight replicate 53,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP53
+wgtp54,INT64,Housing Weight replicate 54,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP54
+wgtp55,INT64,Housing Weight replicate 55,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP55
+wgtp56,INT64,Housing Weight replicate 56,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP56
+wgtp57,INT64,Housing Weight replicate 57,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP57
+wgtp58,INT64,Housing Weight replicate 58,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP58
+wgtp59,INT64,Housing Weight replicate 59,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP59
+wgtp60,INT64,Housing Weight replicate 60,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP60
+wgtp61,INT64,Housing Weight replicate 61,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP61
+wgtp62,INT64,Housing Weight replicate 62,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP62
+wgtp63,INT64,Housing Weight replicate 63,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP63
+wgtp64,INT64,Housing Weight replicate 64,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP64
+wgtp65,INT64,Housing Weight replicate 65,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP65
+wgtp66,INT64,Housing Weight replicate 66,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP66
+wgtp67,INT64,Housing Weight replicate 67,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP67
+wgtp68,INT64,Housing Weight replicate 68,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP68
+wgtp69,INT64,Housing Weight replicate 69,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP69
+wgtp70,INT64,Housing Weight replicate 70,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP70
+wgtp71,INT64,Housing Weight replicate 71,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP71
+wgtp72,INT64,Housing Weight replicate 72,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP72
+wgtp73,INT64,Housing Weight replicate 73,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP73
+wgtp74,INT64,Housing Weight replicate 74,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP74
+wgtp75,INT64,Housing Weight replicate 75,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP75
+wgtp76,INT64,Housing Weight replicate 76,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP76
+wgtp77,INT64,Housing Weight replicate 77,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP77
+wgtp78,INT64,Housing Weight replicate 78,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP78
+wgtp79,INT64,Housing Weight replicate 79,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP79
+wgtp80,INT64,Housing Weight replicate 80,,no,,,no,Dimensionless statistical replicate weight (no measurement unit).,WGTP80
+adjust,STRING,Adjustment factor for dollar amounts (6 implied decimal places),,no,,,no,Adjustment factor with 6 implied decimal places (divide by 1e6).,ADJUST
+type,STRING,Type of unit,,yes,,,no,,TYPE
+bus,STRING,Business or medical office on property,,yes,,,no,,BUS
+ybl,STRING,When structure first built,,yes,,,no,,YBL
+fes,STRING,Family type and employment status,,yes,,,no,,FES
+taxp,STRING,"Property taxes (yearly amount, no adjustment factor is applied)",,yes,,,no,,TAXP
+fbusp,STRING,Business or medical office on property allocation flag,,yes,,,no,,FBUSP
+fmvyp,STRING,When moved into this house or apartment allocation,,yes,,,no,,FMVYP
+fyblp,STRING,When structure first built allocation flag,,yes,,,no,,FYBLP
+toil,STRING,Flush toilet,,yes,,,no,,TOIL
+ftoilp,STRING,Flush toilet allocation flag,,yes,,,no,,FTOILP
+access,STRING,Access to the Internet,,yes,,,no,,ACCESS
+dsl,STRING,DSL service,,yes,,,no,,DSL
+fiberop,STRING,Fiber-optic Internet service,,yes,,,no,,FIBEROP
+handheld,STRING,Handheld computer,,yes,,,no,,HANDHELD
+modem,STRING,Cable Internet service,,yes,,,no,,MODEM
+ssmc,STRING,Same-sex married couple households,,yes,,,no,,SSMC
+fdslp,STRING,DSL service allocation flag,,yes,,,no,,FDSLP
+ffiberopp,STRING,Fiber-optic Internet service allocation flag,,yes,,,no,,FFIBEROPP
+fhandheldp,STRING,Handheld computer allocation flag,,yes,,,no,,FHANDHELDP
+fmodemp,STRING,Cable Internet service allocation flag,,yes,,,no,,FMODEMP
+puma00,STRING,Public use microdata area code (PUMA) based on Census 2000 definition for data collected prior to 2012. Use in combination with PUMA10,,no,,,no,Geographic code; PUMA vintage varies by year (D6) — no directory FK in v1.,PUMA00
+puma10,STRING,"Public use microdata area code (PUMA) based on 2010 Census definition for data years 2012-2021 (areas with population of 100,000 or more, use with ST for unique code)",,yes,,,no,,PUMA10
+puma20,STRING,"Public use microdata area code (PUMA) based on 2020 Census definition for data years 2022 and later (areas with population of 100,000 or more, use with ST for unique code)",,yes,,,no,,PUMA20
