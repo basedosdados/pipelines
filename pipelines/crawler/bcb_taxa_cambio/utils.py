@@ -43,18 +43,76 @@ def create_url_currency(start_date: str, end_date: str, moeda="USD") -> str:
     return search_url
 
 
-def first_day_of_current_year():
-    current_year = datetime.datetime.now().year
-    first_day = datetime.datetime(current_year, 1, 1)
-    return first_day
+def year_bounds(ano: int | None = None) -> tuple[str, str]:
+    """Devolve o primeiro e o último dia do ano, no formato da API (%m-%d-%Y).
+
+    `ano=None` significa o ano corrente, terminando hoje — é o que a execução
+    agendada faz. Para um ano passado o fim é 31 de dezembro; para o ano corrente
+    é hoje, porque a API rejeita data final no futuro.
+
+    Args:
+        ano (int | None): Ano a baixar. None usa o ano corrente.
+
+    Returns:
+        tuple[str, str]: Data inicial e data final, ambas em %m-%d-%Y.
+
+    Raises:
+        ValueError: Se o ano pedido ainda não começou.
+    """
+    today = datetime.datetime.now(tz=pytz.UTC).date()
+    ano = today.year if ano is None else ano
+
+    start = datetime.date(ano, 1, 1)
+    if start > today:
+        raise ValueError(f"ano {ano} ainda não começou")
+
+    end = min(datetime.date(ano, 12, 31), today)
+    return start.strftime("%m-%d-%Y"), end.strftime("%m-%d-%Y")
 
 
-def get_currency_data(currency: dict) -> pd.DataFrame:
+def get_source_max_date(lookback_days: int = 15) -> str:
+    """Devolve a última data de cotação publicada pelo PTAX, em %Y-%m-%d.
+
+    Consulta apenas o dólar: as dez moedas saem no mesmo boletim, então a data
+    máxima dele vale para a tabela inteira. A janela é curta de propósito —
+    serve só para achar o último dia útil publicado, e 15 dias cobrem feriado
+    prolongado sem baixar o ano todo.
+
+    Args:
+        lookback_days (int): Tamanho da janela consultada, em dias corridos.
+
+    Returns:
+        str: Data da cotação mais recente, no formato %Y-%m-%d.
+
+    Raises:
+        ValueError: Se a fonte não devolver nenhuma cotação na janela.
+    """
+    today = datetime.datetime.now(tz=pytz.UTC).date()
+    start = today - datetime.timedelta(days=lookback_days)
+
+    url = create_url_currency(
+        start.strftime("%m-%d-%Y"), today.strftime("%m-%d-%Y"), "USD"
+    )
+    data = connect_to_endpoint_json(url)["value"]
+
+    if not data:
+        raise ValueError(
+            f"PTAX não devolveu cotação nos últimos {lookback_days} dias"
+        )
+
+    # dataHoraCotacao vem como "%Y-%m-%d %H:%M:%S.%f"; os 10 primeiros são a data.
+    max_date = max(row["dataHoraCotacao"][:10] for row in data)
+    log(f"última data publicada na fonte: {max_date}")
+    return max_date
+
+
+def get_currency_data(currency: dict, ano: int | None = None) -> pd.DataFrame:
     """
     Retrieves currency data for a specific currency from an API endpoint.
 
     Args:
         currency (dict): A dictionary containing information about the currency.
+        ano (int | None): Year to download. None means the current year.
 
     Returns:
         pd.DataFrame: A Pandas DataFrame containing the retrieved currency data.
@@ -64,16 +122,10 @@ def get_currency_data(currency: dict) -> pd.DataFrame:
 
     """
 
-    # Get the start date as 14 days before the current date
-    start_day = first_day_of_current_year()
-    start_day = start_day.strftime("%m-%d-%Y")
+    start_day, end_day = year_bounds(ano)
 
     # Log the start day
     log(f"start day: {start_day}")
-
-    # Calculate the end date as the current date
-    now = datetime.datetime.now(tz=pytz.UTC)
-    end_day = now.strftime("%m-%d-%Y")
 
     # Log the end day
     log(f"end day: {end_day}")

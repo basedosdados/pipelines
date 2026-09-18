@@ -45,9 +45,9 @@ models:
         tests: [not_null]
       - name: cotacao_compra
         description: 'Cotação de compra da moeda consultada contra a unidade monetária
-          corrente: unidade monetária corrente/[moeda].'
+          corrente: unidade monetária corrente/[moeda]'
         tests: [not_null]
       - name: cotacao_venda
         description: 'Cotação de venda da moeda consultada contra a unidade monetária
-          corrente: unidade monetária corrente/[moeda].'
+          corrente: unidade monetária corrente/[moeda]'
         tests: [not_null]
