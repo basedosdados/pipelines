@@ -125,3 +125,128 @@ models:
         description: Descrição do id_sitc4 em inglês
       - name: nome_curto_ingles
         description: Descrição abreviada do id_sitc4 em inglês
+  - name: br_bd_diretorios_comercio_internacional__hs1996
+    description: >
+      Diretório de produtos do Sistema Harmonizado, revisão de 1996 (SH6), com os
+      códigos exatos dessa revisão. Fonte: arquivo de códigos de produto do CEPII
+      BACI.
+      Usado como chave estrangeira pela tabela de comércio classificada nessa revisão.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [comercio_internacional]
+          combination_of_columns: [id_sh6]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.97
+    columns:
+      - name: id_sh6
+        description: Identificador de 6 dígitos do Sistema Harmonizado (SH6), revisão
+          1996
+        tests: [not_null]
+      - name: id_sh4
+        description: Identificador de 4 dígitos do Sistema Harmonizado (SH4), revisão
+          1996
+      - name: id_sh2
+        description: Identificador de 2 dígitos do Sistema Harmonizado (SH2), revisão
+          1996
+      - name: nome_ingles
+        description: Descrição do id_sh6 em inglês
+  - name: br_bd_diretorios_comercio_internacional__hs2002
+    description: >
+      Diretório de produtos do Sistema Harmonizado, revisão de 2002 (SH6), com os
+      códigos exatos dessa revisão. Fonte: arquivo de códigos de produto do CEPII
+      BACI.
+      Usado como chave estrangeira pela tabela de comércio classificada nessa revisão.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [comercio_internacional]
+          combination_of_columns: [id_sh6]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.97
+    columns:
+      - name: id_sh6
+        description: Identificador de 6 dígitos do Sistema Harmonizado (SH6), revisão
+          2002
+        tests: [not_null]
+      - name: id_sh4
+        description: Identificador de 4 dígitos do Sistema Harmonizado (SH4), revisão
+          2002
+      - name: id_sh2
+        description: Identificador de 2 dígitos do Sistema Harmonizado (SH2), revisão
+          2002
+      - name: nome_ingles
+        description: Descrição do id_sh6 em inglês
+  - name: br_bd_diretorios_comercio_internacional__hs2007
+    description: >
+      Diretório de produtos do Sistema Harmonizado, revisão de 2007 (SH6), com os
+      códigos exatos dessa revisão. Fonte: arquivo de códigos de produto do CEPII
+      BACI.
+      Usado como chave estrangeira pela tabela de comércio classificada nessa revisão.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [comercio_internacional]
+          combination_of_columns: [id_sh6]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.97
+    columns:
+      - name: id_sh6
+        description: Identificador de 6 dígitos do Sistema Harmonizado (SH6), revisão
+          2007
+        tests: [not_null]
+      - name: id_sh4
+        description: Identificador de 4 dígitos do Sistema Harmonizado (SH4), revisão
+          2007
+      - name: id_sh2
+        description: Identificador de 2 dígitos do Sistema Harmonizado (SH2), revisão
+          2007
+      - name: nome_ingles
+        description: Descrição do id_sh6 em inglês
+  - name: br_bd_diretorios_comercio_internacional__hs2012
+    description: >
+      Diretório de produtos do Sistema Harmonizado, revisão de 2012 (SH6), com os
+      códigos exatos dessa revisão. Fonte: arquivo de códigos de produto do CEPII
+      BACI.
+      Usado como chave estrangeira pela tabela de comércio classificada nessa revisão.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [comercio_internacional]
+          combination_of_columns: [id_sh6]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.97
+    columns:
+      - name: id_sh6
+        description: Identificador de 6 dígitos do Sistema Harmonizado (SH6), revisão
+          2012
+        tests: [not_null]
+      - name: id_sh4
+        description: Identificador de 4 dígitos do Sistema Harmonizado (SH4), revisão
+          2012
+      - name: id_sh2
+        description: Identificador de 2 dígitos do Sistema Harmonizado (SH2), revisão
+          2012
+      - name: nome_ingles
+        description: Descrição do id_sh6 em inglês
+  - name: br_bd_diretorios_comercio_internacional__hs2022
+    description: >
+      Diretório de produtos do Sistema Harmonizado, revisão de 2022 (SH6), com os
+      códigos exatos dessa revisão. Fonte: arquivo de códigos de produto do CEPII
+      BACI.
+      Usado como chave estrangeira pela tabela de comércio classificada nessa revisão.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          tags: [comercio_internacional]
+          combination_of_columns: [id_sh6]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.97
+    columns:
+      - name: id_sh6
+        description: Identificador de 6 dígitos do Sistema Harmonizado (SH6), revisão
+          2022
+        tests: [not_null]
+      - name: id_sh4
+        description: Identificador de 4 dígitos do Sistema Harmonizado (SH4), revisão
+          2022
+      - name: id_sh2
+        description: Identificador de 2 dígitos do Sistema Harmonizado (SH2), revisão
+          2022
+      - name: nome_ingles
+        description: Descrição do id_sh6 em inglês
