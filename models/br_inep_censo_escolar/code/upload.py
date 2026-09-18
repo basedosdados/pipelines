@@ -26,6 +26,11 @@ from utils import upload_table  # type: ignore
 
 
 def parse_args() -> argparse.Namespace:
+    """Lê os argumentos da linha de comando.
+
+    Returns:
+        Os argumentos já validados, com `output`.
+    """
     parser = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -40,6 +45,11 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
+    """Sobe para o staging a tabela que está em `output/`.
+
+    Returns:
+        0 quando a carga termina; 1 quando não há dados em `output/`.
+    """
     args = parse_args()
 
     if not (args.output / TABLE_ID).is_dir():

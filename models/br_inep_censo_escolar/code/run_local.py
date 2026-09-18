@@ -56,6 +56,11 @@ LINHAS_ESPERADAS = 214_192
 
 
 def parse_args() -> argparse.Namespace:
+    """Lê os argumentos da linha de comando.
+
+    Returns:
+        Os argumentos já validados, com `output` e `no_check`.
+    """
     parser = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -75,6 +80,12 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
+    """Trata a edição corrente do Censo e escreve as partições em `output/`.
+
+    Returns:
+        0 quando a contagem bate com `LINHAS_ESPERADAS`; 1 quando diverge e a
+        conferência não foi desligada com `--no-check`.
+    """
     args = parse_args()
 
     INPUT.mkdir(parents=True, exist_ok=True)

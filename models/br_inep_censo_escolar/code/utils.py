@@ -45,6 +45,12 @@ def prepare_input(
 
     Cada etapa é pulada se já estiver feita: o zip tem 512 MB e a extração é
     demorada, então não vale repetir nenhuma das duas à toa.
+
+    Args:
+        url: endereço do zip do microdado.
+        zip_path: onde guardar o zip baixado.
+        input_dir: onde extrair, e onde procurar os CSVs que já estão em disco.
+        tabelas: tabelas cujos CSVs precisam existir ao final.
     """
     try:
         for tabela in tabelas:
@@ -58,6 +64,11 @@ def download_zip(url: str, zip_path: Path, extract_to: Path) -> None:
 
     O certificado de download.inep.gov.br não valida, daí `verify=False`. São
     512 MB, e o servidor derruba a conexão com frequência.
+
+    Args:
+        url: endereço do zip do microdado.
+        zip_path: onde guardar o zip; existindo, o download é pulado.
+        extract_to: diretório onde extrair o conteúdo.
     """
     if not zip_path.exists():
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -109,8 +120,10 @@ def find_csv(input_dir: Path, tabela: str, ano: int = ANO) -> Path:
 def read_architecture_table(url_architecture: str) -> pd.DataFrame:
     """Lê a tabela de arquitetura publicada no Google Sheets."""
     url = url_architecture.replace("edit#gid=", "export?format=csv&gid=")
+    response = requests.get(url, timeout=60)
+    response.raise_for_status()
     architecture = pd.read_csv(
-        StringIO(requests.get(url, timeout=60).content.decode("utf-8"))
+        StringIO(response.content.decode("utf-8"))
     ).query("name != '(excluido)'")
     return architecture.replace(np.nan, "", regex=True).drop(
         columns=["Unnamed: 0", "Unnamed: 1"], errors="ignore"

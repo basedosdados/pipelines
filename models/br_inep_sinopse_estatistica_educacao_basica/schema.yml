@@ -2,9 +2,12 @@
 version: 2
 models:
   - name: br_inep_sinopse_estatistica_educacao_basica__etapa_ensino_serie
-    description: A base conta com o total de matrículas por município para todas as
-      etapas e subetapas de ensino, além da discriminação dos anos para Anos Iniciais
-      e Finais do Ensino Fundamental, bem como as série do Ensino Médio
+    description: >
+      A base conta com o total de matrículas por município para todas as etapas
+      e subetapas de ensino, além da discriminação dos anos para Anos Iniciais e
+      Finais do Ensino Fundamental, bem como as séries do Ensino Médio. A coluna
+      `serie` é nula nas linhas de total por etapa, que não discriminam série, e
+      por isso fica fora do teste de proporção de nulos.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -408,7 +411,12 @@ models:
       - name: quantidade_docente
         description: Número de docentes
   - name: br_inep_sinopse_estatistica_educacao_basica__docente_etapa_ensino
-    description: A base conta com o total de docentes por etapa ensino
+    description: >
+      A base conta com o total de docentes por etapa de ensino. A coluna `rede`
+      só é preenchida quando o rótulo da planilha termina em nome de rede
+      (Federal, Estadual, Municipal, Privada ou Pública); nas linhas de total,
+      que não discriminam rede, é nula, e por isso fica fora do teste de
+      proporção de nulos.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

@@ -340,6 +340,11 @@ def find_workbook(input_dir: Path) -> Path:
 def read_sheet(
     workbook: Path, sheet_name: str, skiprows: int = 8
 ) -> pd.DataFrame:
+    """Lê uma aba da Sinopse, sem as linhas de título acima do cabeçalho.
+
+    A altura do título varia por aba, então `skiprows` é declarado em cada
+    chamada; 8 é o caso mais comum.
+    """
     return pd.read_excel(workbook, sheet_name=sheet_name, skiprows=skiprows)
 
 
@@ -648,6 +653,11 @@ def serie_from_column(value: str) -> str | None:
 def clean_etapa_ensino_serie(
     workbook: Path, uf_map: dict[str, str]
 ) -> pd.DataFrame:
+    """Matrículas por município, etapa de ensino, série e rede.
+
+    `serie` sai nula nas etapas que não se desdobram em série, porque a tabela
+    guarda tanto o total da etapa quanto a abertura por ano ou série.
+    """
     dfs = read_and_rename(
         workbook,
         sheets_etapa_ensino_serie,
@@ -695,6 +705,7 @@ def clean_etapa_ensino_serie(
 
 
 def clean_faixa_etaria(workbook: Path, uf_map: dict[str, str]) -> pd.DataFrame:
+    """Matrículas por município, etapa de ensino e faixa etária."""
     dfs = read_and_rename(
         workbook,
         sheets_faixa_etaria,
@@ -731,6 +742,7 @@ def clean_faixa_etaria(workbook: Path, uf_map: dict[str, str]) -> pd.DataFrame:
 
 
 def clean_localizacao(workbook: Path, uf_map: dict[str, str]) -> pd.DataFrame:
+    """Matrículas por município, etapa de ensino, localização e rede."""
     dfs = read_and_rename(
         workbook,
         sheets_localizacao,
@@ -776,6 +788,7 @@ def clean_localizacao(workbook: Path, uf_map: dict[str, str]) -> pd.DataFrame:
 
 
 def clean_tempo_ensino(workbook: Path, uf_map: dict[str, str]) -> pd.DataFrame:
+    """Matrículas por município, etapa de ensino, tempo de ensino e rede."""
     dfs = read_and_rename(
         workbook,
         sheets_tempo_ensino,
@@ -823,6 +836,7 @@ def clean_tempo_ensino(workbook: Path, uf_map: dict[str, str]) -> pd.DataFrame:
 def clean_sexo_raca_cor(
     workbook: Path, uf_map: dict[str, str]
 ) -> pd.DataFrame:
+    """Matrículas por município, etapa de ensino, sexo e raça/cor."""
     dfs = read_and_rename(
         workbook, sheets_sexo_raca_cor, renames_sexo_raca_cor, skiprows=9
     )
@@ -897,6 +911,11 @@ def _melt_docente(
 def clean_docente_etapa_ensino(
     workbook: Path, uf_map: dict[str, str]
 ) -> pd.DataFrame:
+    """Docentes por município, etapa de ensino e tipo de classe.
+
+    A rede não sai daqui: ela vem no sufixo de `tipo_classe` e é separada no
+    modelo dbt, que só a reconhece quando o sufixo é nome de rede.
+    """
     dfs = read_and_rename(
         workbook,
         sheets_docente_etapa_ensino,
@@ -923,6 +942,11 @@ def clean_docente_etapa_ensino(
 def clean_docente_localizacao(
     workbook: Path, uf_map: dict[str, str]
 ) -> pd.DataFrame:
+    """Docentes por município, etapa de ensino, localização e rede.
+
+    Inclui o agregado `Total` da localização e a rede `Pública`, que somam a
+    abertura e existem nas edições anteriores.
+    """
     dfs = read_and_rename(
         workbook,
         sheets_docente_localizacao,
@@ -956,6 +980,7 @@ def clean_docente_localizacao(
 def clean_docente_escolaridade(
     workbook: Path, uf_map: dict[str, str]
 ) -> pd.DataFrame:
+    """Docentes por município, escolaridade e tipo de classe."""
     dfs = read_and_rename(
         workbook,
         sheets_docente_escolaridade,
@@ -978,6 +1003,7 @@ def clean_docente_escolaridade(
 def clean_docente_deficiencia(
     workbook: Path, uf_map: dict[str, str]
 ) -> pd.DataFrame:
+    """Docentes por município, tipo de deficiência e tipo de classe."""
     dfs = read_and_rename(
         workbook,
         sheets_docente_deficiencia,
@@ -1001,6 +1027,7 @@ def clean_docente_deficiencia(
 def clean_docente_faixa_etaria_sexo(
     workbook: Path, uf_map: dict[str, str]
 ) -> pd.DataFrame:
+    """Docentes por município, etapa de ensino, faixa etária e sexo."""
     dfs = read_and_rename(
         workbook,
         sheets_docente_faixa_etaria_sexo,
@@ -1031,6 +1058,7 @@ def clean_docente_faixa_etaria_sexo(
 def clean_docente_regime_contrato(
     workbook: Path, uf_map: dict[str, str]
 ) -> pd.DataFrame:
+    """Docentes por município, etapa de ensino, regime de contrato e rede."""
     dfs = read_and_rename(
         workbook,
         sheets_docente_regime_contrato,
@@ -1078,7 +1106,17 @@ def write_partitioned(
 
     Returns:
         Quantas linhas foram escritas.
+
+    Raises:
+        ValueError: se alguma linha não tem sigla da unidade da federação. O
+            `groupby` a descartaria sem dizer nada, e o município sumiria da
+            tabela.
     """
+    if (sem_uf := df["sigla_uf"].isna().sum()) > 0:
+        raise ValueError(
+            f"{table_id}: {sem_uf} linhas sem sigla_uf, que é partição"
+        )
+
     written = 0
     for sigla_uf, partition in df.groupby("sigla_uf"):
         path = output_dir / table_id / f"ano={year}" / f"sigla_uf={sigla_uf}"

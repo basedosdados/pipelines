@@ -50,6 +50,12 @@ LINHAS_ESPERADAS_2025 = {
 
 
 def parse_args() -> argparse.Namespace:
+    """Lê os argumentos da linha de comando.
+
+    Returns:
+        Os argumentos já validados, com `tables`, `output`, `skip_download` e
+        `no_check`.
+    """
     parser = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -107,6 +113,12 @@ def report(written: dict[str, int], check: bool) -> bool:
 
 
 def main() -> int:
+    """Trata a Sinopse da edição corrente e escreve as partições em `output/`.
+
+    Returns:
+        0 quando as contagens batem com `LINHAS_ESPERADAS_2025`; 1 quando
+        divergem e a conferência não foi desligada com `--no-check`.
+    """
     args = parse_args()
 
     INPUT.mkdir(parents=True, exist_ok=True)

@@ -192,10 +192,12 @@ categoria.
   `RENAMES_DOCENTE_ETAPA_ENSINO` é o maior desses mapeamentos. Migrá-las exige
   outra função de busca, porque o último nível do cabeçalho dessas abas não é a
   rede, e sim faixa de idade, escolaridade ou regime de contrato.
-- A verificação de que a planilha traz todos os municípios está desativada. O
-  `assert` original comparava com o valor fixo de 5.570 municípios, que 2025
-  contraria (são 5.572). A comparação deve ser feita com o diretório de
-  municípios do ano.
+- A verificação de municípios depende de acesso ao BigQuery. Com
+  `billing_project_id`, `clean_all` compara cada tabela com o diretório de
+  municípios; sem ele, a primeira tabela define o conjunto de referência e as
+  demais são comparadas com ela, o que pega uma tabela que perdeu municípios mas
+  não prova que a planilha traz todos. Em 2025 são 5.571 municípios, iguais aos
+  do diretório.
 - O `end` do `partition_by` é exclusivo no BigQuery. Com `end: 2025`, as linhas de
   2025 ficam na partição `__UNPARTITIONED__`; a convenção do repositório é o
   último ano mais cinco.
