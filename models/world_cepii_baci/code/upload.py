@@ -32,9 +32,13 @@ gcs.Client.bucket = _patched_bucket
 
 # (dataset_id, table_slug, expected_rows) — smallest first
 TABLES = [
+    ("br_bd_diretorios_comercio_internacional", "sitc", 788),
     ("br_bd_diretorios_comercio_internacional", "hs1992", 5_022),
     ("br_bd_diretorios_comercio_internacional", "hs2017", 5_384),
+    ("world_cepii_baci", "complexity_country", 12_633),
+    ("world_cepii_baci", "complexity_product", 49_420),
     ("world_cepii_baci", "trade_hs17", 89_207_221),
+    ("world_cepii_baci", "trade_sitc", 184_961_866),
     ("world_cepii_baci", "trade_hs92", 269_894_500),
 ]
 

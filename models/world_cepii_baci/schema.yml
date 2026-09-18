@@ -169,3 +169,134 @@ models:
         description: Trade flow value in thousands of current USD
       - name: quantity
         description: Trade flow quantity in metric tons
+  - name: world_cepii_baci__trade_sitc
+    description: >
+      Bilateral international trade flows by product, classified under the Standard
+      International Trade Classification revision 2 (SITC-4), from the Harvard Growth
+      Lab Atlas of Economic Complexity. One row per year, exporter, importer and
+      product, carrying both legs of the reported flow. Values in current USD.
+      Coverage 1962-2024. Note this table has a different lineage from the BACI trade
+      tables in this dataset: it is cleaned by the Growth Lab, reports values in USD
+      rather than thousands of USD, and reports no quantities.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - id_country_exporter
+            - id_country_importer
+            - product_code
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Year of the trade flow
+        tests: [not_null]
+      - name: id_country_exporter
+        description: Exporter country, UN M49 numeric code
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: id_m49
+              # Growth Lab augmented-M49 codes absent from the standard M49
+              # directory: 530=Netherlands Antilles (dissolved 2010),
+              # 999="Areas, not specified".
+              ignore_values: ['530', '999']
+      - name: id_country_importer
+        description: Importer country, UN M49 numeric code
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: id_m49
+              # Growth Lab augmented-M49 codes absent from the standard M49
+              # directory: 530=Netherlands Antilles (dissolved 2010),
+              # 999="Areas, not specified".
+              ignore_values: ['530', '999']
+      - name: product_code
+        description: Product code, SITC revision 2 at the 4-digit level
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_comercio_internacional__sitc')
+              field: id_sitc4
+      - name: export_value
+        description: Value exported from the exporter to the importer, in current
+          USD
+      - name: import_value
+        description: Value imported by the exporter from the importer, in current
+          USD
+  - name: world_cepii_baci__complexity_country
+    description: >
+      Economic Complexity Index (ECI), Complexity Outlook Index (COI), export
+      diversity and the ten-year growth projection, per country and year, computed
+      by
+      the Harvard Growth Lab over SITC revision 2 trade data. One row per year,
+      classification and country. Coverage 1962-2024.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, classification, id_country]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Year of the complexity measure
+        tests: [not_null]
+      - name: classification
+        description: Trade classification the measure was computed over
+        tests: [not_null]
+      - name: id_country
+        description: Country, UN M49 numeric code
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: id_m49
+              # Growth Lab augmented-M49 codes absent from the standard M49
+              # directory: 530=Netherlands Antilles (dissolved 2010),
+              # 999="Areas, not specified".
+              ignore_values: ['530', '999']
+      - name: eci
+        description: Economic Complexity Index of the country in the year
+      - name: coi
+        description: Complexity Outlook Index, the complexity of nearby products
+      - name: diversity
+        description: Number of products the country exports with revealed comparative
+          advantage of at least 1
+      - name: growth_projection
+        description: Projected annualised growth over the following ten years, in
+          percentage points
+      - name: export_value
+        description: Total value exported by the country, in current USD
+      - name: import_value
+        description: Total value imported by the country, in current USD
+  - name: world_cepii_baci__complexity_product
+    description: >
+      Product Complexity Index (PCI) per product and year, computed by the Harvard
+      Growth Lab over SITC revision 2 trade data at the 4-digit level. One row per
+      year, classification and product. Coverage 1962-2024.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, classification, product_code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Year of the complexity measure
+        tests: [not_null]
+      - name: classification
+        description: Trade classification the measure was computed over
+        tests: [not_null]
+      - name: product_code
+        description: Product code, SITC revision 2 at the 4-digit level
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_comercio_internacional__sitc')
+              field: id_sitc4
+      - name: pci
+        description: Product Complexity Index of the product in the year
+      - name: export_value
+        description: Total value exported worldwide for the product, in current USD
+      - name: import_value
+        description: Total value imported worldwide for the product, in current USD
