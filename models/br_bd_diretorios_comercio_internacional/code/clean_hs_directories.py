@@ -8,10 +8,17 @@ relationship test is exact (no tolerance).
 Directory tables keep the Portuguese directory-family naming convention (id_sh*/nome_*),
 even though BACI only ships English names — PT/ES are left for a later enrichment pass.
 
-Input : ~/Downloads/world_cepii_baci_data/input/product_codes_HS<rev>_V202601.csv
+The product-codes file ships inside each revision's BACI zip, so it is read
+straight out of the archive; a loose extracted copy is used when present, which
+keeps older working directories valid.
+
+Input : ~/Downloads/world_cepii_baci_data/input/BACI_HS<rev>_V202601.zip
+        (or an extracted product_codes_HS<rev>_V202601.csv beside it)
 Output: ~/Downloads/world_cepii_baci_data/output/<table>/data.parquet
 """
 
+import io
+import zipfile
 from pathlib import Path
 
 import pandas as pd
@@ -23,8 +30,19 @@ INPUT = DATA_ROOT / "input"
 OUTPUT = DATA_ROOT / "output"
 VERSION = "V202601"
 
-# BACI revision code -> Data Basis directory table slug
-REVISIONS = {"HS92": "hs1992", "HS17": "hs2017"}
+# BACI revision code -> Data Basis directory table slug.
+# One directory per revision, so each trade table's relationship test is exact:
+# the same HS6 code means different goods across revisions (010111 is
+# "pure-bred breeding horses" in HS92 but 010121 in HS17).
+REVISIONS = {
+    "HS92": "hs1992",
+    "HS96": "hs1996",
+    "HS02": "hs2002",
+    "HS07": "hs2007",
+    "HS12": "hs2012",
+    "HS17": "hs2017",
+    "HS22": "hs2022",
+}
 
 SCHEMA = pa.schema(
     [
@@ -36,9 +54,25 @@ SCHEMA = pa.schema(
 )
 
 
+def _read_product_codes(rev: str) -> pd.DataFrame:
+    """Read a revision's product-codes CSV, from the zip or a loose copy."""
+    name = f"product_codes_{rev}_{VERSION}.csv"
+    loose = INPUT / name
+    if loose.exists():
+        return pd.read_csv(loose, dtype={"code": str})
+    zip_path = INPUT / f"BACI_{rev}_{VERSION}.zip"
+    if not zip_path.exists():
+        raise FileNotFoundError(f"Neither {loose} nor {zip_path} is present")
+    with zipfile.ZipFile(zip_path) as zf:
+        member = next(m for m in zf.namelist() if m.endswith(name))
+        with zf.open(member) as fh:
+            return pd.read_csv(
+                io.TextIOWrapper(fh, encoding="utf-8"), dtype={"code": str}
+            )
+
+
 def build_one(rev: str, table_slug: str) -> int:
-    src = INPUT / f"product_codes_{rev}_{VERSION}.csv"
-    df = pd.read_csv(src, dtype={"code": str})
+    df = _read_product_codes(rev)
     df["code"] = df["code"].str.strip().str.zfill(6)
     out = (
         pd.DataFrame(
