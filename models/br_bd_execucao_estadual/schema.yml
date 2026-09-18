@@ -21,7 +21,10 @@ models:
       aqui elas são pivotadas para uma linha por empenho, e a retenção — que é
       descontada de dentro do pagamento — fica de fora para não contá-la duas vezes.
       Seis meses não constam do catálogo do RS: 2020-06, 2020-08, 2022-04, 2023-02,
-      2023-06 e 2023-08.
+      2023-06 e 2023-08. Santa Catarina também publica uma linha por movimento
+      (emissão, reforço, anulação, estorno), pivotada aqui para uma linha por empenho;
+      ao contrário do RS, a retenção catarinense É somada, porque lá ela é um documento
+      de pagamento próprio e não um desconto dentro de outro.
     # Sem teste de unicidade, e isso é deliberado: a tabela não tem chave de linha. Em
     # 2023 Minas Gerais publica 9,3% de linhas integralmente idênticas (mesmo empenho,
     # documento, data e valor), o que a fonte permite. Não são multiplicação do modelo:
@@ -280,9 +283,9 @@ models:
       Pagamentos dos governos estaduais no nível do documento de pagamento (ordem
       bancária). Uma linha por lançamento, com data, valor, credor e o vínculo com
       o
-      empenho. Equivale à tabela pagamento do MiDES e existe apenas para Pernambuco,
-      a
-      única fonte do conjunto que publica execução em nível de documento de pagamento.
+      empenho. Equivale à tabela pagamento do MiDES e existe para os estados que
+      publicam execução em nível de documento de pagamento: Pernambuco, Santa Catarina,
+      Paraíba e Ceará.
       Uma mesma ordem bancária paga vários empenhos. A soma de valor_pago não equivale
       a
       despesa.valor_pago: aquela é o total pago do empenho no exercício, esta traz
@@ -344,6 +347,69 @@ models:
         description: Finalidade do pagamento informada na ordem bancária
       - name: valor_pago
         description: Valor da ordem bancária em reais correntes
+  - name: br_bd_execucao_estadual__liquidacao
+    description: >
+      Liquidações dos governos estaduais no nível do documento de liquidação, a fase
+      intermediária da execução (empenho, liquidação, pagamento). Uma linha por
+      lançamento, com data, valor, credor e o vínculo com o empenho. Existe apenas
+      para
+      Santa Catarina, Paraíba e Ceará, as três fontes que publicam o documento de
+      liquidação separadamente; nos demais estados a liquidação aparece só como a
+      coluna
+      valor_liquidado em despesa. Ligue a despesa por id_empenho_bd (nulo no Ceará,
+      cujo
+      sistema de códigos de unidade gestora não resolve para o empenho). A soma de
+      valor_liquidado não equivale a despesa.valor_liquidado: esta tabela é o razão
+      de
+      movimentos e inclui anulações de liquidação.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sigla_uf, id_liquidacao_bd]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano do exercício em que a liquidação foi lançada
+        tests: [not_null]
+      - name: mes
+        description: Mês do lançamento da liquidação
+      - name: data
+        description: Data do lançamento da liquidação
+      - name: sigla_uf
+        description: Sigla da unidade da federação do governo estadual
+        tests: [not_null]
+      - name: id_liquidacao_bd
+        description: >
+          Identificador único da liquidação construído pela Data Basis, no formato
+          <sigla_uf>-<chave da liquidação>-<sequência dentro dela>, porque o número
+          do
+          documento pode se repetir dentro de uma unidade gestora
+      - name: numero_liquidacao
+        description: Número do documento de liquidação na origem
+      - name: id_empenho_bd
+        description: >
+          Identificador do empenho liquidado, no mesmo formato de despesa.id_empenho_bd,
+          para ligar a liquidação à execução; nulo no Ceará, onde a fonte não resolve
+          o
+          vínculo
+      - name: numero_empenho
+        description: Número da nota de empenho liquidada
+      - name: nome_unidade_gestora
+        description: Nome da unidade gestora (na Paraíba, o nome do órgão)
+      - name: documento_credor
+        description: >
+          CPF ou CNPJ do credor da liquidação, quando a fonte o publica; ausente no
+          Ceará, que traz apenas o nome
+      - name: nome_credor
+        description: Nome ou razão social do credor da liquidação
+      - name: descricao
+        description: Observação ou tipo de documento da liquidação, quando informado
+      - name: valor_liquidado
+        description: >
+          Valor liquidado em reais correntes. Já vem com sinal na Paraíba (a anulação
+          de
+          liquidação é negativa na origem) e é líquido da anulação do próprio documento
+          nos demais
   - name: br_bd_execucao_estadual__relacionamentos
     description: >
       Ponte entre processos licitatórios e empenhos. Existe apenas onde a fonte publica
@@ -696,3 +762,73 @@ models:
         description: Valor total homologado ao fornecedor em reais correntes
       - name: categoria
         description: Categoria do processo de aquisição
+  - name: br_bd_execucao_estadual__contrato
+    description: >
+      Contratos dos governos estaduais: os instrumentos contratuais celebrados, com
+      objeto, contratado, vigência e valor. Uma linha por contrato. Existe para Espírito
+      Santo, Santa Catarina e Rio Grande do Sul, os três estados que publicam um cadastro
+      de contratos. Complementa as tabelas de execução: o contrato é o compromisso,
+      a
+      execução é o gasto contra ele; ligue à licitação por numero_processo quando
+      presente. Só contratos: a base do ES, que mistura contratos com autorizações
+      de
+      compra e ordens de fornecimento, é filtrada para os documentos do tipo Contrato.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sigla_uf, id_contrato_bd]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano de assinatura ou início de vigência do contrato; nulo quando a data
+          está
+          ausente ou é claramente inválida na origem
+      - name: sigla_uf
+        description: Sigla da unidade da federação do governo estadual
+        tests: [not_null]
+      - name: id_contrato_bd
+        description: >
+          Identificador único do contrato construído pela Data Basis, no formato
+          <sigla_uf>-<unidade gestora>-<número do contrato>-<sequência>
+      - name: numero_contrato
+        description: Número do contrato na origem
+      - name: numero_processo
+        description: Número do processo ou licitação que originou o contrato, quando
+          informado
+      - name: id_unidade_gestora
+        description: Código da unidade gestora (órgão) contratante
+      - name: nome_unidade_gestora
+        description: Nome da unidade gestora (órgão) contratante
+      - name: objeto
+        description: Objeto do contrato
+      - name: modalidade
+        description: Modalidade da licitação ou do procedimento que originou o contrato
+      - name: tipo_contrato
+        description: >
+          Tipo do instrumento. No Rio Grande do Sul distingue os quatro cadastros
+          (fornecimento de bens, locação, obras e serviços de engenharia, serviços
+          de
+          terceiros); no Espírito Santo é sempre Contrato
+      - name: documento_contratado
+        description: >
+          CPF ou CNPJ do contratado; nulo no Rio Grande do Sul, que publica apenas
+          o nome
+      - name: nome_contratado
+        description: Nome ou razão social do contratado
+      - name: situacao
+        description: Situação do contrato; nula no Rio Grande do Sul, que não a publica
+      - name: data_assinatura
+        description: >
+          Data de assinatura ou celebração; no Rio Grande do Sul, a data de publicação
+          no
+          Diário Oficial, quando é a única disponível
+      - name: data_inicio_vigencia
+        description: Data de início da vigência do contrato
+      - name: data_fim_vigencia
+        description: Data de fim da vigência do contrato
+      - name: valor_inicial
+        description: Valor inicial do contrato em reais correntes
+      - name: valor_atual
+        description: Valor atual do contrato em reais correntes, após aditivos quando
+          informado
