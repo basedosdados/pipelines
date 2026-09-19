@@ -8,10 +8,13 @@ linhas antes do upload.
 
 import re
 import shutil
+import struct
+import zlib
 from collections.abc import Iterator
 from pathlib import Path
 from zipfile import ZipFile
 
+import inflate64
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -25,6 +28,11 @@ from pipelines.datasets.br_inep_enem.constants import constants
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 HEADERS = {"User-Agent": "Mozilla/5.0"}
+
+# Código do deflate64 no cabeçalho do zip, e o bloco de leitura do stream
+# comprimido. Cada bloco infla para cerca de quatro vezes o seu tamanho.
+DEFLATE64 = 9
+CHUNK_SIZE = 4 * 1024 * 1024
 
 
 def build_session() -> requests.Session:
@@ -179,6 +187,58 @@ def download_zip(url: str, zip_path: Path) -> None:
         )
 
 
+def extract_member(
+    archive: ZipFile, zip_path: Path, member: str, destination: Path
+) -> None:
+    """Grava um membro do zip em disco, inclusive quando vem em deflate64.
+
+    A edição 2025 publica o CSV de resultados em deflate64, que a biblioteca
+    padrão não descomprime — `ZipFile.open` levanta `NotImplementedError`. O
+    `inflate64`, que já vem instalado com o `py7zr`, lê esse formato, mas
+    trabalha sobre os bytes crus: por isso o stream comprimido é lido direto do
+    arquivo, a partir do fim do cabeçalho local do membro.
+
+    Args:
+        archive: Zip aberto, de onde sai o cabeçalho do membro.
+        zip_path: Caminho do mesmo zip, relido byte a byte no caso deflate64.
+        member: Nome do membro dentro do zip.
+        destination: Arquivo a escrever.
+
+    Raises:
+        OSError: Se o stream acabar cedo ou o CRC não bater com o do zip.
+    """
+    info = archive.getinfo(member)
+    if info.compress_type != DEFLATE64:
+        with archive.open(info) as source, open(destination, "wb") as file:
+            shutil.copyfileobj(source, file, length=15 * 1024 * 1024)
+        return
+
+    crc = 0
+    with open(zip_path, "rb") as source, open(destination, "wb") as file:
+        source.seek(info.header_offset)
+        header = source.read(30)
+        if header[:4] != b"PK\x03\x04":
+            raise OSError(f"{member}: cabeçalho local ausente no zip")
+        name_len, extra_len = struct.unpack_from("<HH", header, 26)
+        source.seek(name_len + extra_len, 1)
+
+        inflater = inflate64.Inflater()
+        remaining = info.compress_size
+        while remaining:
+            chunk = source.read(min(CHUNK_SIZE, remaining))
+            if not chunk:
+                raise OSError(
+                    f"{member}: faltaram {remaining} bytes do stream comprimido"
+                )
+            remaining -= len(chunk)
+            data = inflater.inflate(chunk)
+            crc = zlib.crc32(data, crc)
+            file.write(data)
+
+    if crc != info.CRC:
+        raise OSError(f"{member}: CRC {crc:08x}, o zip anuncia {info.CRC:08x}")
+
+
 def download_table(table_id: str, ano: str) -> Path:
     """Baixa o zip da edição e extrai só o CSV que a tabela usa.
 
@@ -217,10 +277,9 @@ def download_table(table_id: str, ano: str) -> Path:
                 f"achei {len(membros)}: {membros}"
             )
         alvo = membros[0]
-        with archive.open(alvo) as origem:
-            destino = input_dir / alvo.rsplit("/", 1)[-1]
-            with open(destino, "wb") as file:
-                shutil.copyfileobj(origem, file, length=15 * 1024 * 1024)
+        extract_member(
+            archive, zip_path, alvo, input_dir / alvo.rsplit("/", 1)[-1]
+        )
 
     zip_path.unlink()
     return input_dir
