@@ -39,7 +39,7 @@ repos:
           - --exclude
           - target/**/*
   - repo: https://github.com/tconbeer/sqlfmt
-    rev: v0.32.0
+    rev: v0.27.0  # Keep sync with pyproject.toml
     hooks:
       - id: sqlfmt
         language_version: python
