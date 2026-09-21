@@ -766,8 +766,8 @@ models:
     description: >
       Contratos dos governos estaduais: os instrumentos contratuais celebrados, com
       objeto, contratado, vigência e valor. Uma linha por contrato. Existe para Espírito
-      Santo, Santa Catarina e Rio Grande do Sul, os três estados que publicam um cadastro
-      de contratos. Complementa as tabelas de execução: o contrato é o compromisso,
+      Santo, Santa Catarina, Rio Grande do Sul e Rondônia, os quatro estados que publicam
+      um cadastro de contratos. Complementa as tabelas de execução: o contrato é o compromisso,
       a
       execução é o gasto contra ele; ligue à licitação por numero_processo quando
       presente. Só contratos: a base do ES, que mistura contratos com autorizações

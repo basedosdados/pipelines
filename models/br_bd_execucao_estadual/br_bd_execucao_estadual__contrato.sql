@@ -16,8 +16,8 @@
 -- Contratos dos governos estaduais: os instrumentos contratuais celebrados, com objeto,
 -- contratado, vigência e valor. Uma linha por contrato.
 --
--- Existe para os três estados que publicam um cadastro de contratos: Espírito Santo,
--- Santa Catarina e Rio Grande do Sul. Complementa as tabelas de execução (`despesa`,
+-- Existe para os quatro estados que publicam um cadastro de contratos: Espírito Santo,
+-- Santa Catarina, Rio Grande do Sul e Rondônia. Complementa as tabelas de execução (`despesa`,
 -- `liquidacao`, `pagamento`): o contrato é o compromisso, a execução é o gasto contra
 -- ele. Ligue à licitação por `numero_processo` quando presente.
 --
@@ -42,3 +42,6 @@ from {{ ref("br_bd_execucao_estadual__contrato_sc") }}
 union all
 select *
 from {{ ref("br_bd_execucao_estadual__contrato_rs") }}
+union all
+select *
+from {{ ref("br_bd_execucao_estadual__contrato_ro") }}
