@@ -33,7 +33,7 @@ def build_urls(
     month: int,
     table_id: str,
     # pyrefly: ignore [bad-return]
-) -> str:
+) -> str | list:
     """
     Constructs URLs based on the provided parameters.
 
@@ -138,7 +138,7 @@ def download_file(
         if not os.path.exists(input):
             # pyrefly: ignore [bad-argument-type]
             os.makedirs(input)
-        url: str = build_urls(
+        url = build_urls(
             # pyrefly: ignore [bad-argument-type]
             url=value_constants["URL"],
             year=next_date_in_api.year,
@@ -147,7 +147,7 @@ def download_file(
             dataset_id=dataset_id,
         )
 
-        if dataset_id == "br_cgu_beneficios_cidadao":
+        if dataset_id == "br_cgu_beneficios_cidadao" and isinstance(url, str):
             url = url.rstrip("/")
             headers = {
                 "User-Agent": constants.BROWSERS_USER_AGENT.value["chrome"]
@@ -156,8 +156,22 @@ def download_file(
         else:
             headers = None
             status = (
-                requests.get(url=url, headers=headers, timeout=30).status_code
-                == 200
+                (
+                    requests.get(
+                        url=url, headers=headers, timeout=30
+                    ).status_code
+                    == 200
+                )
+                if isinstance(url, str)
+                else all(
+                    [
+                        requests.get(
+                            url=_url, headers=headers, timeout=30
+                        ).status_code
+                        == 200
+                        for _url in url
+                    ]
+                )
             )
 
         if status:
@@ -358,7 +372,7 @@ def last_date_in_metadata(
     next_date_in_api = last_date_in_api + relativedelta(months=relative_month)
     value_constants = constants.TABELAS.value[dataset_id][table_id]
     while next_date_in_api <= datetime.datetime.now().date() and not status:
-        url: str = build_urls(
+        urls = build_urls(
             # pyrefly: ignore [bad-argument-type]
             url=value_constants["URL"],
             year=next_date_in_api.year,
@@ -369,11 +383,14 @@ def last_date_in_metadata(
         log("Check dates")
         log(f"Last date in API: {last_date_in_api}")
         log(f"Next date in API: {next_date_in_api}")
-        status = source_url_is_available(url)
+        if isinstance(urls, list):
+            status = all([source_url_is_available(url) for url in urls])
+        else:
+            status = source_url_is_available(urls)
         next_date_in_api = next_date_in_api + relativedelta(
             months=relative_month
         )
-
+    next_date_in_api = next_date_in_api - relativedelta(months=relative_month)
     return last_date_in_api, next_date_in_api
 
 
