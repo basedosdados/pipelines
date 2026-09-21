@@ -7,7 +7,8 @@
 -- value (no aditivo-adjusted amount) and no vigência start, contract status or
 -- contractor/UG split beyond name+code, so valor_atual repeats valor_inicial (the RS
 -- convention) and data_inicio_vigencia/situacao are null. `origem` is the originating
--- procedure (Dispensa / Inexigibilidade / "Pregão Eletrônico/<n>/<ano>" / …) -> modalidade.
+-- procedure (Dispensa / Inexigibilidade / "Pregão Eletrônico/<n>/<ano>" / …) ->
+-- modalidade.
 with
     fonte as (
         select *
@@ -15,22 +16,25 @@ with
     ),
     base as (
         select
-            safe.parse_date('%Y-%m-%d', substr(trim(dataAssinatura), 1, 10)) as dt_assin,
-            safe.parse_date('%Y-%m-%d', substr(trim(dataElaboracao), 1, 10)) as dt_elab,
-            safe.parse_date('%Y-%m-%d', substr(trim(dataVigencia), 1, 10)) as dt_fim,
-            nullif(trim(codigoUg), '') as id_ug,
-            nullif(trim(nomeUg), '') as nome_ug,
-            nullif(trim(numeroDocumento), '') as numero_contrato,
-            nullif(trim(numeroProcesso), '') as numero_processo,
+            safe.parse_date(
+                '%Y-%m-%d', substr(trim(dataassinatura), 1, 10)
+            ) as dt_assin,
+            safe.parse_date('%Y-%m-%d', substr(trim(dataelaboracao), 1, 10)) as dt_elab,
+            safe.parse_date('%Y-%m-%d', substr(trim(datavigencia), 1, 10)) as dt_fim,
+            nullif(trim(codigoug), '') as id_ug,
+            nullif(trim(nomeug), '') as nome_ug,
+            nullif(trim(numerodocumento), '') as numero_contrato,
+            nullif(trim(numeroprocesso), '') as numero_processo,
             nullif(trim(objeto), '') as objeto,
             nullif(trim(origem), '') as modalidade,
-            nullif(trim(cnpj_Cpf), '') as documento_contratado,
+            nullif(trim(cnpj_cpf), '') as documento_contratado,
             nullif(trim(empresa), '') as nome_contratado,
             -- strip "R$", the non-breaking space, spaces and thousands dots, then the
             -- comma decimal -> a number. Everything but digits, comma and minus goes.
             safe_cast(
-                replace(regexp_replace(valorInicial, r'[^0-9,-]', ''), ',', '.')
-                as float64
+                replace(
+                    regexp_replace(valorinicial, r'[^0-9,-]', ''), ',', '.'
+                ) as float64
             ) as valor
         from fonte
     )

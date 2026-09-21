@@ -17,7 +17,8 @@
 -- contratado, vigência e valor. Uma linha por contrato.
 --
 -- Existe para os quatro estados que publicam um cadastro de contratos: Espírito Santo,
--- Santa Catarina, Rio Grande do Sul e Rondônia. Complementa as tabelas de execução (`despesa`,
+-- Santa Catarina, Rio Grande do Sul e Rondônia. Complementa as tabelas de execução
+-- (`despesa`,
 -- `liquidacao`, `pagamento`): o contrato é o compromisso, a execução é o gasto contra
 -- ele. Ligue à licitação por `numero_processo` quando presente.
 --

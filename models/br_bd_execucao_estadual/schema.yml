@@ -654,18 +654,37 @@ models:
   - name: br_bd_execucao_estadual__despesa_dotacao
     description: >
       Execução orçamentária da despesa por dotação (linha orçamentária), em posição
-      anual, só para o Rio de Janeiro -- o único estado que publica a execução nesse grão.
+      anual, só para o Rio de Janeiro -- o único estado que publica a execução nesse
+      grão.
       Diferente de despesa (documento de empenho, com credor e data) e de despesa_mensal
       (movimento mensal), cada linha é a POSIÇÃO acumulada da execução ao fim do exercício,
-      por linha orçamentária completa: dotação inicial e atual, empenhado, liquidado, pago,
-      restos a pagar e o desembolso total. Uma linha por (exercício, dotação); mes guarda o
-      mês da posição (12 nos exercícios encerrados, o mês mais recente no aberto). Cerca de
-      55 das 176 mil linhas repetem a chave orçamentária na origem, toleradas no teste de
+      por linha orçamentária completa: dotação inicial e atual, empenhado, liquidado,
+      pago,
+      restos a pagar e o desembolso total. Uma linha por (exercício, dotação); mes
+      guarda o
+      mês da posição (12 nos exercícios encerrados, o mês mais recente no aberto).
+      Cerca de
+      55 das 176 mil linhas repetem a chave orçamentária na origem, toleradas no teste
+      de
       unicidade.
     tests:
       - custom_unique_combinations_of_columns:
           combination_of_columns:
-            [ano, id_unidade_gestora, unidade_orcamentaria, orgao, funcao, subfuncao, programa, acao, gestao, modalidade_aplicacao, categoria_economica, grupo_despesa, fonte_recurso, elemento_despesa, subelemento_despesa]
+            - ano
+            - id_unidade_gestora
+            - unidade_orcamentaria
+            - orgao
+            - funcao
+            - subfuncao
+            - programa
+            - acao
+            - gestao
+            - modalidade_aplicacao
+            - categoria_economica
+            - grupo_despesa
+            - fonte_recurso
+            - elemento_despesa
+            - subelemento_despesa
           proportion_allowed_failures: 0.01
       - not_null_proportion_multiple_columns:
           at_least: 0.05
@@ -675,7 +694,8 @@ models:
         tests: [not_null]
       - name: mes
         description: >
-          Mês da posição no exercício (12 nos exercícios encerrados; o mês mais recente no
+          Mês da posição no exercício (12 nos exercícios encerrados; o mês mais recente
+          no
           exercício aberto)
       - name: sigla_uf
         description: Sigla da unidade da federação do governo estadual
@@ -876,7 +896,8 @@ models:
       Contratos dos governos estaduais: os instrumentos contratuais celebrados, com
       objeto, contratado, vigência e valor. Uma linha por contrato. Existe para Espírito
       Santo, Santa Catarina, Rio Grande do Sul e Rondônia, os quatro estados que publicam
-      um cadastro de contratos. Complementa as tabelas de execução: o contrato é o compromisso,
+      um cadastro de contratos. Complementa as tabelas de execução: o contrato é o
+      compromisso,
       a
       execução é o gasto contra ele; ligue à licitação por numero_processo quando
       presente. Só contratos: a base do ES, que mistura contratos com autorizações
