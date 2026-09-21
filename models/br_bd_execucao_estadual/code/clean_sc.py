@@ -195,7 +195,10 @@ def _reemit(text: str, dest: Path, header: list[str]) -> tuple[str, int]:
                 fh,
                 delimiter=out_sep,
                 quoting=csv.QUOTE_NONE,
-                quotechar="",
+                # quotechar must be a 1-char string or None; "" raises TypeError. None
+                # is how QUOTE_NONE disables quoting. out_sep is verified absent from
+                # the text above, so no field ever needs escaping (escapechar stays None).
+                quotechar=None,
                 escapechar=None,
             )
             records, escapechar = parse_records(text)
