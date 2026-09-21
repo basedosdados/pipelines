@@ -265,16 +265,25 @@ def run_detail(
     progress = Progress(f"detail {month}", len(crosswalk))
 
     def detail(row: dict) -> tuple[list[dict], list[dict]]:
+        # Same contract as the crosswalk worker: nothing may escape. fetch_page
+        # only catches requests.RequestException, so a DNS outage, an OSError
+        # from a disturbed venv, or a parse failure on malformed HTML would all
+        # reach pool.map and end the run. Losing one pregao is cheap; losing the
+        # month in flight and the process is not.
         session = _session()
         id_compra, prgcod = row["id_compra"], row["prgcod"]
         offers: list[dict] = []
         events: list[dict] = []
-        page = fetch_page(session, "fornecedor_resultado", prgcod)
-        if page:
-            offers = parse_fornecedor_resultado(page, id_compra)
-        page = fetch_page(session, "termo_homologacao", prgcod)
-        if page:
-            events = parse_termo_homologacao(page, id_compra)
+        try:
+            page = fetch_page(session, "fornecedor_resultado", prgcod)
+            if page:
+                offers = parse_fornecedor_resultado(page, id_compra)
+            page = fetch_page(session, "termo_homologacao", prgcod)
+            if page:
+                events = parse_termo_homologacao(page, id_compra)
+        except Exception:
+            logger.warning("detail prgcod=%s failed", prgcod, exc_info=False)
+            offers, events = [], []
         progress.tick()
         return offers, events
 

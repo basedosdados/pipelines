@@ -56,7 +56,7 @@ for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
     rm -f "$DATA/.failure_notified"
     echo "$(date '+%Y-%m-%d %H:%M:%S') SUPERVISOR starting attempt $attempt" >> "$LOG"
     "$PYTHON" models/br_mgi_compras_publicas/code/harvest_comprasnet.py \
-        --start "$START" --end "$END" --workers 8 >> "$LOG" 2>&1
+        --start "$START" --end "$END" --workers "${WORKERS:-8}" >> "$LOG" 2>&1
     code=$?
     SECONDS_THIS_RUN=$((SECONDS - run_started))
     if [ "$code" -eq 0 ]; then
