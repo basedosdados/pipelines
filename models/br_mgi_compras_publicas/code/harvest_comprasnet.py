@@ -213,10 +213,25 @@ def run_crosswalk(month: str, workers: int, force: bool = False) -> int:
         _write_chunk("crosswalk", month, [], expected=0)
         return 0
 
+    progress = Progress(f"crosswalk {month}", len(listed))
+
     def resolve(row: dict) -> dict | None:
-        prgcod = fetch_prgcod(
-            _session(), row["numprp"], row["uasg"], row["modalidade"]
-        )
+        # Nothing raised from inside a worker may escape: pool.map re-raises on
+        # the first failed future and ends the whole run. A 5-day harvest died
+        # at hour 7 to one dropped connection because this was missing.
+        try:
+            prgcod = fetch_prgcod(
+                _session(), row["numprp"], row["uasg"], row["modalidade"]
+            )
+        except Exception:
+            logger.warning(
+                "crosswalk %s/%s failed",
+                row["uasg"],
+                row["numprp"],
+                exc_info=False,
+            )
+            prgcod = None
+        progress.tick()
         if not prgcod:
             return None
         return {**row, "prgcod": prgcod}

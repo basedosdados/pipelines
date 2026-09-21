@@ -160,6 +160,7 @@ def fetch_prgcod(
     uasg: str,
     modalidade: str,
     timeout: int = 240,
+    retries: int = 3,
 ) -> str | None:
     """Resolve the internal pregao surrogate key needed by the detail pages.
 
@@ -183,12 +184,27 @@ def fetch_prgcod(
         "f_tpPregao": "E",
         "f_lstICMS": "T",
     }
-    response = session.get(BASE + "ata2.asp", params=params, timeout=timeout)
-    if response.status_code != 200:
-        return None
-    response.encoding = "latin-1"
-    match = PRGCOD_RE.search(response.text)
-    return match.group(1) if match else None
+    for attempt in range(retries):
+        try:
+            response = session.get(
+                BASE + "ata2.asp", params=params, timeout=timeout
+            )
+        except requests.RequestException:
+            # ComprasNet drops connections sporadically over a long run. One
+            # dropped connection must never end a multi-day harvest.
+            if attempt == retries - 1:
+                logger.warning(
+                    "crosswalk %s/%s: connection failed", uasg, numprp
+                )
+                return None
+            time.sleep(2 * (attempt + 1))
+            continue
+        if response.status_code != 200:
+            return None
+        response.encoding = "latin-1"
+        match = PRGCOD_RE.search(response.text)
+        return match.group(1) if match else None
+    return None
 
 
 def fetch_page(
