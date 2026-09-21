@@ -17,6 +17,8 @@ class constants(Enum):
         "liquidacao",
         "despesa_mensal",
         "despesa_anual",
+        # RJ-only: the annual execution position by budget appropriation line.
+        "despesa_dotacao",
         "empenho_credor",
         "licitacao",
         "licitacao_item",
@@ -175,6 +177,9 @@ class constants(Enum):
     #     API geo-fences non-BR), which the worker may not have, so freezing it is doubly
     #     safe. `contrato` is a low-churn registry, so freezing it is intentional rather
     #     than a limitation. (es_contrato is NOT frozen -- refresh_es produces it.)
+    #   * rj_despesa -- Rio de Janeiro's annual execution position, feeding despesa_dotacao
+    #     (a RJ-only table). dadosabertos.rj.gov.br geo-fences non-BR, and RJ publishes one
+    #     year-end snapshot per exercise, so a daily refresh buys nothing; seeded once.
     FROZEN_PROD_MIRRORS = [
         "ce_empenho",
         "ce_pagamento",
@@ -182,6 +187,7 @@ class constants(Enum):
         "sc_contrato",
         "rs_contrato",
         "ro_contrato",
+        "rj_despesa",
     ]
 
     # São Paulo's SIGEO is a WebForms scrape at roughly 36 s per (exercise, órgão).

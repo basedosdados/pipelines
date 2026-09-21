@@ -651,6 +651,115 @@ models:
         description: >
           Valor pago no exercício referente a restos a pagar de exercícios anteriores,
           mantido separado de valor_pago para não duplicar a contagem no ano do empenho
+  - name: br_bd_execucao_estadual__despesa_dotacao
+    description: >
+      Execução orçamentária da despesa por dotação (linha orçamentária), em posição
+      anual, só para o Rio de Janeiro -- o único estado que publica a execução nesse grão.
+      Diferente de despesa (documento de empenho, com credor e data) e de despesa_mensal
+      (movimento mensal), cada linha é a POSIÇÃO acumulada da execução ao fim do exercício,
+      por linha orçamentária completa: dotação inicial e atual, empenhado, liquidado, pago,
+      restos a pagar e o desembolso total. Uma linha por (exercício, dotação); mes guarda o
+      mês da posição (12 nos exercícios encerrados, o mês mais recente no aberto). Cerca de
+      55 das 176 mil linhas repetem a chave orçamentária na origem, toleradas no teste de
+      unicidade.
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns:
+            [ano, id_unidade_gestora, unidade_orcamentaria, orgao, funcao, subfuncao, programa, acao, gestao, modalidade_aplicacao, categoria_economica, grupo_despesa, fonte_recurso, elemento_despesa, subelemento_despesa]
+          proportion_allowed_failures: 0.01
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano do exercício da posição orçamentária
+        tests: [not_null]
+      - name: mes
+        description: >
+          Mês da posição no exercício (12 nos exercícios encerrados; o mês mais recente no
+          exercício aberto)
+      - name: sigla_uf
+        description: Sigla da unidade da federação do governo estadual
+        tests: [not_null]
+      - name: id_unidade_gestora
+        description: Código da unidade gestora
+      - name: nome_unidade_gestora
+        description: Nome da unidade gestora
+      - name: unidade_orcamentaria
+        description: Código da unidade orçamentária
+      - name: nome_unidade_orcamentaria
+        description: Nome da unidade orçamentária
+      - name: orgao
+        description: Código do órgão
+      - name: nome_orgao
+        description: Nome do órgão
+      - name: poder
+        description: Código do poder
+      - name: nome_poder
+        description: Nome do poder
+      - name: tipo_administracao
+        description: Tipo de administração (direta ou indireta)
+      - name: funcao
+        description: Código da função de governo
+      - name: nome_funcao
+        description: Nome da função de governo
+      - name: subfuncao
+        description: Código da subfunção de governo
+      - name: nome_subfuncao
+        description: Nome da subfunção de governo
+      - name: programa
+        description: Código do programa orçamentário
+      - name: nome_programa
+        description: Nome do programa orçamentário
+      - name: acao
+        description: Código da ação (projeto ou atividade) orçamentária
+      - name: nome_acao
+        description: Nome da ação (projeto ou atividade) orçamentária
+      - name: categoria_economica
+        description: Código da categoria econômica da despesa
+      - name: nome_categoria_economica
+        description: Nome da categoria econômica da despesa
+      - name: grupo_despesa
+        description: Código do grupo de natureza da despesa
+      - name: nome_grupo_despesa
+        description: Nome do grupo de natureza da despesa
+      - name: modalidade_aplicacao
+        description: Código da modalidade de aplicação
+      - name: nome_modalidade_aplicacao
+        description: Nome da modalidade de aplicação
+      - name: elemento_despesa
+        description: Código do elemento de despesa
+      - name: nome_elemento_despesa
+        description: Nome do elemento de despesa
+      - name: subelemento_despesa
+        description: Código do subelemento de despesa
+      - name: nome_subelemento_despesa
+        description: Nome do subelemento de despesa
+      - name: fonte_recurso
+        description: Código da fonte de recurso
+      - name: nome_fonte_recurso
+        description: Nome da fonte de recurso
+      - name: gestao
+        description: Código da gestão
+      - name: nome_gestao
+        description: Nome da gestão
+      - name: valor_dotacao_inicial
+        description: Dotação inicial da linha orçamentária em reais correntes
+      - name: valor_dotacao_atual
+        description: Dotação atualizada da linha orçamentária em reais correntes
+      - name: valor_despesa_autorizada
+        description: Despesa autorizada em reais correntes
+      - name: valor_empenhado
+        description: Valor empenhado acumulado no exercício em reais correntes
+      - name: valor_liquidado
+        description: Valor liquidado acumulado no exercício em reais correntes
+      - name: valor_pago
+        description: Valor pago acumulado no exercício em reais correntes
+      - name: valor_restos_a_pagar
+        description: Restos a pagar ainda a pagar em reais correntes
+      - name: valor_restos_a_pagar_pago
+        description: Restos a pagar já pagos em reais correntes
+      - name: valor_total_desembolsado
+        description: Total desembolsado no exercício em reais correntes
   - name: br_bd_execucao_estadual__empenho_credor
     description: >
       Empenhos e seus credores, sem valores. Existe para estados cuja fonte publica
