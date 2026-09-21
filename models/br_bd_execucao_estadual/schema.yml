@@ -685,7 +685,12 @@ models:
             - fonte_recurso
             - elemento_despesa
             - subelemento_despesa
-          proportion_allowed_failures: 0.01
+          # This test measures the LARGEST duplicate-key group over the row count, not the
+          # repeated-row share. The 55 dups are all pairs, so the largest group is 2 of
+          # 176,525 rows (~0.0000113); 0.0001 sits ~9x above that -- loose enough for the
+          # known pairs, tight enough that any real duplication regression (a group past
+          # ~17 rows) would fail.
+          proportion_allowed_failures: 0.0001
       - not_null_proportion_multiple_columns:
           at_least: 0.05
     columns:
@@ -903,6 +908,9 @@ models:
       presente. Só contratos: a base do ES, que mistura contratos com autorizações
       de
       compra e ordens de fornecimento, é filtrada para os documentos do tipo Contrato.
+      Rondônia não publica tipo de contrato, situação nem data de início de vigência, e
+      traz um único valor, então nesses contratos tipo_contrato, situacao e
+      data_inicio_vigencia são nulos e valor_atual repete valor_inicial.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [sigla_uf, id_contrato_bd]

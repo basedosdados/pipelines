@@ -84,6 +84,7 @@ def fetch_ro_contratos(dest: Path) -> None:
     while True:
         got: list | None = None
         for attempt in range(4):
+            last = attempt == 3
             try:
                 r = requests.get(
                     RO_API,
@@ -91,17 +92,31 @@ def fetch_ro_contratos(dest: Path) -> None:
                     headers={"User-Agent": BROWSER_UA},
                     timeout=120,
                 )
+                # A 404 is how the API marks the page past the last row. But a transient
+                # 404 (or a 5xx, or a truncated body) must not end the sweep early and
+                # store a short mirror, so validate and decode INSIDE the retry: accept a
+                # 404 as the end only once the retries are spent, and refuse a missing or
+                # non-list `resultados` rather than treating it as an empty final page.
+                if r.status_code == 404:
+                    if last:
+                        got = []
+                        break
+                    raise RuntimeError(
+                        "404 -- retrying in case it is transient"
+                    )
+                r.raise_for_status()
+                payload = r.json().get("resultados")
+                if not isinstance(payload, list):
+                    raise RuntimeError(
+                        f"resultados is {type(payload).__name__}, not a list"
+                    )
+                got = payload
+                break
             except Exception:
-                if attempt == 3:
+                if last:
                     raise
                 time.sleep(3)
-                continue
-            if r.status_code == 404:
-                got = []  # the API 404s once you page past the last row
-                break
-            r.raise_for_status()
-            got = r.json().get("resultados") or []
-            break
+        # an empty result -- a real empty last page, or a 404 that survived every retry
         if not got:
             break
         rows.extend(got)
