@@ -23,6 +23,7 @@ select distinct
     safe_cast(id_referencia_bacen as string) id_referencia_bacen,
     safe_cast(numero_ordem as string) numero_ordem,
     safe_cast(id_situacao_operacao as string) id_situacao_operacao,
+    safe_cast(indicador_renegociacao as string) indicador_renegociacao,
     safe_cast(valor_medio_diario as float64) valor_medio_diario,
     safe_cast(valor_medio_diario_vincendo as float64) valor_medio_diario_vincendo,
     safe_cast(valor_ultimo_dia as float64) valor_ultimo_dia

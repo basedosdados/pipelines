@@ -109,6 +109,7 @@ def partition_data(
     column_name: nome da coluna a ser usada para particionar os dados
     output_directory: diretório onde os arquivos CSV serão salvos
     """
+    # pyrefly: ignore [not-callable]
     unique_values = df[column_name].unique()
     log(f"Valores únicos: {unique_values}")
     for value in unique_values:

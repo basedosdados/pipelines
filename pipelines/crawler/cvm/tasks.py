@@ -63,6 +63,7 @@ def extract_links_and_dates(
                 log(data.strip())
                 if data and re.match(date_pattern, data.strip()):
                     dates_update.append(
+                        # pyrefly: ignore [missing-attribute]
                         re.match(date_pattern, data.strip()).group(0)
                     )
     else:
@@ -74,6 +75,7 @@ def extract_links_and_dates(
                 log(data.strip())
                 if data and re.match(date_pattern, data.strip()):
                     dates_update.append(
+                        # pyrefly: ignore [missing-attribute]
                         re.match(date_pattern, data.strip()).group(0)
                     )
 
@@ -83,6 +85,7 @@ def extract_links_and_dates(
         "data_hoje": datetime.now().strftime("%Y-%m-%d"),
     }
     df = pd.DataFrame(dados)
+    # pyrefly: ignore [missing-attribute]
     df.ultima_atualizacao = df.ultima_atualizacao.apply(
         lambda x: datetime.strptime(x, "%d-%b-%Y %H:%M").strftime("%Y-%m-%d")
     )
@@ -129,6 +132,7 @@ def download_unzip(
         The path to the downloaded file(s) directory.
     """
 
+    # pyrefly: ignore [unnecessary-type-conversion]
     input_dir = cvm_constants.DATASET_DIR.value / str(table_id) / "input"
     input_dir.mkdir(parents=True, exist_ok=True)
 
@@ -161,6 +165,7 @@ def download_unzip(
         except zipfile.BadZipFile:
             log(f"O arquivo {file} não é um arquivo ZIP válido.")
 
+    # pyrefly: ignore [bad-return]
     return input_dir
 
 
@@ -191,24 +196,32 @@ def _clean_standard_data(
     files: list[Path], table_id: str, config: dict
 ) -> str:
     """Clean standard CVM data (single file or multiple independent files)."""
-    all_data = []
+    if not files:
+        raise ValueError(
+            f"Nenhum arquivo de entrada para {table_id} — nada a limpar."
+        )
 
+    use_partitions = config.get("create_partition_columns", True)
+
+    if not use_partitions:
+        df = apply_common_transformations(
+            config, process_file(config=config, file_path=files[0])
+        )
+        # pyrefly: ignore [bad-argument-type]
+        return save_output(config, df, table_id, use_partitions=False)
+
+    # Cada arquivo é uma competência e vira uma partição própria, então salvar
+    # um por vez mantém o pico de memória no tamanho de um arquivo.
     for file in files:
-        df = process_file(config=config, file_path=file)
-        df = apply_common_transformations(config, df)
-        all_data.append(df)
+        df = apply_common_transformations(
+            config, process_file(config=config, file_path=file)
+        )
+        # pyrefly: ignore [bad-argument-type]
+        save_output(config, df, table_id, use_partitions=True)
 
-    if len(all_data) == 1:
-        final_df = all_data[0]
-    else:
-        final_df = pd.concat(all_data, ignore_index=True)
-
-    return save_output(
-        config,
-        final_df,
-        table_id,
-        config.get("create_partition_columns", True),
-    )
+    # pyrefly: ignore [unnecessary-type-conversion]
+    output_dir = cvm_constants.DATASET_DIR.value / str(table_id) / "output"
+    return str(output_dir)
 
 
 def _clean_cda_data(config: dict, input_dir: str | Path, table_id: str) -> str:
@@ -228,13 +241,16 @@ def _clean_cda_data(config: dict, input_dir: str | Path, table_id: str) -> str:
 
             # CDA-specific: add block information
             match = re.search(r"(BLC_[1-8])", file.name)
+            # pyrefly: ignore [missing-attribute]
             df["bloco"] = match.group(1)
 
             df_concat = pd.concat([df_concat, df], ignore_index=True)
 
         df_concat = apply_common_transformations(config, df_concat)
+        # pyrefly: ignore [bad-argument-type]
         save_output(config, df_concat, table_id, use_partitions=True)
 
+    # pyrefly: ignore [unnecessary-type-conversion]
     output_dir = cvm_constants.DATASET_DIR.value / str(table_id) / "output"
     return str(output_dir)
 
@@ -249,7 +265,9 @@ def _clean_perfil_data(
         # Standard processing
         df = process_file(config=config, file_path=file)
         df = apply_common_transformations(config, df)
+        # pyrefly: ignore [bad-argument-type]
         save_output(config, df, table_id, use_partitions=True)
 
+    # pyrefly: ignore [unnecessary-type-conversion]
     output_dir = cvm_constants.DATASET_DIR.value / str(table_id) / "output"
     return str(output_dir)

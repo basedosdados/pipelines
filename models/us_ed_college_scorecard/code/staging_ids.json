@@ -1,0 +1,33 @@
+{
+  "env": "staging",
+  "dataset_id": "2ae9ce23-150e-4839-bf58-52b1226a2e6b",
+  "dataset_slug": "college_scorecard",
+  "organization_id": "b1058375-2429-474e-aab4-24ce1a172b70",
+  "raw_data_source_id": "f730312e-0154-46a0-8ab2-84f0683e7d80",
+  "account_id": "57",
+  "area_us_id": "61a2c232-c649-4b41-a5a3-1467b7393e11",
+  "entity": {
+    "year": "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+    "higher_education_institution": "cc6669a8-4c95-4250-b04b-1a9724546e62",
+    "degree": "d5850ee7-7610-4aa5-816f-0468afa52d6e"
+  },
+  "status": {
+    "under_review": "47208305-325a-4da9-9222-ac6849405b78",
+    "published": "e16221de-ac30-4926-83d3-de219998dab3"
+  },
+  "license_cc0": "7fb71004-2abe-4fc8-a258-e2aac27c71d9",
+  "availability_online": "dd396d7d-0264-4c1f-bf0d-6efe2dc89cbe",
+  "tables": {
+    "institution": "e29a1703-8f20-4954-9506-bf459ddf6ede",
+    "field_of_study": "8c703f38-bd03-4aea-ad4d-92f42146fbdf",
+    "earnings": "6ccbd5fd-1290-42b0-ab13-a817f3240688",
+    "cost": "34543e42-065b-4902-a7ce-f32c0dfb571c",
+    "aid_debt": "5ee4c133-541b-49ca-848e-72be2fb633bc",
+    "completion": "e8cd976f-8212-4c9f-96e8-cb369d701ae9",
+    "repayment": "7fbbe0bf-ed9c-4ee4-a299-9927ab164052",
+    "academics": "1c95aef4-c4e3-4a1f-9da5-3b079b0ecfe4",
+    "student_body": "843c0189-4498-4dd3-88af-df7951441808",
+    "variable": "d2da4d97-680e-4fd4-8ee2-dd973e4efc18",
+    "dicionario": "067ea0ac-f709-4932-8a1b-af56034fecd5"
+  }
+}

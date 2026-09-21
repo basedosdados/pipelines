@@ -1,3 +1,4 @@
+-- atualizado em 2026-08-04
 {{
     config(
         schema="br_tse_filiacao_partidaria",

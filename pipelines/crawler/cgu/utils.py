@@ -26,7 +26,12 @@ from pipelines.utils.utils import download_and_unzip_file, log
 
 
 def build_urls(
-    dataset_id: str, url: str, year: int, month: int, table_id: str
+    dataset_id: str,
+    url: str,
+    year: int,
+    month: int,
+    table_id: str,
+    # pyrefly: ignore [bad-return]
 ) -> str:
     """
     Constructs URLs based on the provided parameters.
@@ -58,6 +63,7 @@ def build_urls(
             url_completa = f"{url}{year}{str(month).zfill(2)}_{table_name}/"
             log(f"URL -> {url_completa}")
             list_url.append(url_completa)
+        # pyrefly: ignore [bad-return]
         return list_url
 
 
@@ -90,7 +96,10 @@ def build_input(table_id):
 
 
 def download_file(
-    dataset_id: str, table_id: str, relative_month=int
+    dataset_id: str,
+    table_id: str,
+    relative_month=int,
+    # pyrefly: ignore [bad-return]
 ) -> datetime.date:
     """
     Downloads and unzips a file from a specified URL based on the given table ID, year, and month.
@@ -110,6 +119,7 @@ def download_file(
     last_date_in_api, next_date_in_api = last_date_in_metadata(
         dataset_id=dataset_id,
         table_id=table_id,
+        # pyrefly: ignore [bad-argument-type]
         relative_month=relative_month,
     )
 
@@ -136,9 +146,11 @@ def download_file(
         input = value_constants["INPUT"]
 
         if not os.path.exists(input):
+            # pyrefly: ignore [bad-argument-type]
             os.makedirs(input)
 
         url: str = build_urls(
+            # pyrefly: ignore [bad-argument-type]
             url=value_constants["URL"],
             year=next_date_in_api.year,
             month=next_date_in_api.month,
@@ -163,7 +175,11 @@ def download_file(
         if status:
             log(f"------------------ URL = {url} ------------------")
             download_and_unzip_file(
-                url, value_constants["INPUT"], headers=headers
+                # pyrefly: ignore [bad-argument-type]
+                url,
+                # pyrefly: ignore [bad-argument-type]
+                value_constants["INPUT"],
+                headers=headers,
             )
             return next_date_in_api
         else:
@@ -197,6 +213,7 @@ def download_file(
                 last_date_in_api, next_date_in_api = last_date_in_metadata(
                     dataset_id=dataset_id,
                     table_id=table_id,
+                    # pyrefly: ignore [bad-argument-type]
                     relative_month=relative_month,
                 )
             else:
@@ -222,17 +239,22 @@ def load_municipio() -> None:
         + "-"
         + municipio["sigla_uf"]
     )
+    # pyrefly: ignore [bad-return]
     return municipio
 
 
 def get_similar_cities_process(city):
     municipio = load_municipio()
+    # pyrefly: ignore [unsupported-operation]
     results = process.extractOne(city, municipio["cidade_uf"], score_cutoff=70)
     return results[0] if results else None
 
 
 def read_csv(
-    dataset_id: str, table_id: str, column_replace: list[str] | None
+    dataset_id: str,
+    table_id: str,
+    column_replace: list[str] | None,
+    # pyrefly: ignore [bad-return]
 ) -> pd.DataFrame:
     """
     Reads a CSV file from a specified path and processes its columns.
@@ -373,6 +395,7 @@ def last_date_in_metadata(
 
             else:
                 log(f"URL não encontrada: {url}")
+        # pyrefly: ignore [unbound-name]
         return last_date_in_api, next_date_in_api
     else:
         next_date_in_api = last_date_in_api + relativedelta(
@@ -412,6 +435,7 @@ def create_column_month(df: pd.DataFrame, csv_path: str) -> str:
     """
     df["mes"] = int(csv_path[4:6])
 
+    # pyrefly: ignore [bad-return]
     return df
 
 
@@ -480,6 +504,7 @@ def read_and_clean_csv(table_id: str) -> pd.DataFrame:
     if len(append_dataframe) > 1:
         df = pd.concat(append_dataframe)
 
+    # pyrefly: ignore [unbound-name]
     return df
 
 
@@ -531,7 +556,12 @@ def get_source(table_name: str, source: str) -> str:
 
 
 def partition_data_beneficios_cidadao(
-    table_id: str, df, coluna1: str, coluna2: str, counter
+    table_id: str,
+    df,
+    coluna1: str,
+    coluna2: str,
+    counter,
+    # pyrefly: ignore [bad-return]
 ) -> str:
     if table_id == "novo_bolsa_familia":
         unique_anos = df[coluna1].unique().tolist()

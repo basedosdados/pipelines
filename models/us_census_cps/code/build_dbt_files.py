@@ -361,14 +361,17 @@ def write_schema(nonnull):
                 tests.append(("not_null", None))
             if name == "year" and spec["start"]:
                 tests.append(
+                    # pyrefly: ignore [bad-argument-type]
                     ("rel", ("br_bd_diretorios_data_tempo__ano", "ano.ano"))
                 )
             if name == "month" and spec["start"]:
                 tests.append(
+                    # pyrefly: ignore [bad-argument-type]
                     ("rel", ("br_bd_diretorios_data_tempo__mes", "mes.mes"))
                 )
             if name == "id_state":
                 tests.append(
+                    # pyrefly: ignore [bad-argument-type]
                     ("rel", ("br_bd_diretorios_us__state", "id_state"))
                 )
             # id_county carries a directory FK but is deliberately *not* tested:
@@ -384,7 +387,9 @@ def write_schema(nonnull):
                     out.append("          - not_null")
                 else:
                     out.append("          - relationships:")
+                    # pyrefly: ignore [unsupported-operation]
                     out.append(f"              to: ref('{arg[0]}')")
+                    # pyrefly: ignore [unsupported-operation]
                     out.append(f"              field: {arg[1]}")
         print(
             f"  {table}: {len(names)} columns, {len(sparse)} below the 5% non-null floor"

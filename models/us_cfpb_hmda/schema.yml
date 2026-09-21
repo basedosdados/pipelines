@@ -1,0 +1,517 @@
+---
+version: 2
+models:
+  - name: us_cfpb_hmda__loan_application_register
+    description: >
+      Registro de empréstimo/solicitação (LAR) do HMDA, esquema moderno pós-2017,
+      um registro por solicitação de crédito hipotecário reportada por instituição
+      coberta, com termos do empréstimo, geografia e demografia do solicitante
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+          ignore_values:
+            - total_points_and_fees
+            - prepayment_penalty_term
+            - multifamily_affordable_units
+            - applicant_ethnicity_2
+            - applicant_ethnicity_3
+            - applicant_ethnicity_4
+            - applicant_ethnicity_5
+            - co_applicant_ethnicity_2
+            - co_applicant_ethnicity_3
+            - co_applicant_ethnicity_4
+            - co_applicant_ethnicity_5
+            - applicant_race_2
+            - applicant_race_3
+            - applicant_race_4
+            - applicant_race_5
+            - co_applicant_race_2
+            - co_applicant_race_3
+            - co_applicant_race_4
+            - co_applicant_race_5
+            - aus_3
+            - aus_4
+            - aus_5
+            - denial_reason_2
+            - denial_reason_3
+            - denial_reason_4
+    columns:
+      - name: year
+        description: >
+          Ano-calendário a que se refere o registro de empréstimo ou solicitação
+        tests: [not_null]
+      - name: state_abbreviation
+        description: >
+          Código de dois caracteres do estado (EUA) onde se localiza o imóvel
+      - name: county_id
+        description: >
+          Código FIPS de estado e condado (cinco dígitos) do imóvel
+      - name: census_tract_id
+        description: >
+          Código do setor censitário (census tract) de 11 dígitos do imóvel
+      - name: msa_md_id
+        description: >
+          Código de cinco dígitos da área estatística metropolitana (MSA) ou divisão
+          metropolitana (MD) derivado
+      - name: lei
+        description: >
+          Identificador de entidade jurídica (LEI) da instituição financeira declarante
+      - name: conforming_loan_limit
+        description: >
+          Indica se o valor do empréstimo excede o limite de empréstimo conforme das
+          GSE
+      - name: derived_loan_product_type
+        description: >
+          Tipo de produto de empréstimo derivado dos campos tipo de empréstimo e situação
+          da garantia
+      - name: derived_dwelling_category
+        description: >
+          Categoria de habitação derivada dos campos método de construção e número
+          de unidades
+      - name: derived_ethnicity
+        description: >
+          Etnia agregada derivada dos campos de etnia do solicitante e do cossolicitante
+      - name: derived_race
+        description: >
+          Raça agregada derivada dos campos de raça do solicitante e do cossolicitante
+      - name: derived_sex
+        description: >
+          Sexo agregado derivado dos campos de sexo do solicitante e do cossolicitante
+      - name: action_taken
+        description: >
+          Ação tomada sobre o empréstimo ou solicitação
+      - name: purchaser_type
+        description: >
+          Tipo de entidade que comprou o empréstimo da instituição declarante
+      - name: preapproval
+        description: >
+          Indica se o empréstimo ou solicitação envolveu pedido de pré-aprovação
+      - name: loan_type
+        description: >
+          Tipo de empréstimo (convencional, FHA, VA ou RHS/FSA)
+      - name: loan_purpose
+        description: >
+          Finalidade do empréstimo ou solicitação
+      - name: lien_status
+        description: >
+          Situação da garantia (lien) do imóvel que assegura o empréstimo
+      - name: reverse_mortgage
+        description: >
+          Indica se o empréstimo é uma hipoteca reversa
+      - name: open_end_line_of_credit
+        description: >
+          Indica se o empréstimo é uma linha de crédito rotativo (open-end)
+      - name: business_or_commercial_purpose
+        description: >
+          Indica se o empréstimo tem finalidade empresarial ou comercial
+      - name: loan_amount
+        description: >
+          Valor do empréstimo concedido ou solicitado, em dólares
+      - name: loan_to_value_ratio
+        description: >
+          Razão entre o valor da dívida garantida pelo imóvel e o valor do imóvel,
+          em percentual
+      - name: interest_rate
+        description: >
+          Taxa de juros do empréstimo, em percentual
+      - name: rate_spread
+        description: >
+          Diferença entre a APR do empréstimo e a taxa média de oferta prime (APOR),
+          em pontos percentuais
+      - name: hoepa_status
+        description: >
+          Indica se o empréstimo é uma hipoteca de alto custo (HOEPA)
+      - name: total_loan_costs
+        description: >
+          Total dos custos do empréstimo, em dólares
+      - name: total_points_and_fees
+        description: >
+          Total de pontos e taxas cobrados no empréstimo, em dólares
+      - name: origination_charges
+        description: >
+          Total das cobranças de originação pagas pelo tomador, em dólares
+      - name: discount_points
+        description: >
+          Pontos de desconto pagos ao credor para reduzir a taxa de juros, em dólares
+      - name: lender_credits
+        description: >
+          Valor dos créditos concedidos pelo credor, em dólares
+      - name: loan_term
+        description: >
+          Número de meses até o vencimento ou término da obrigação legal
+      - name: prepayment_penalty_term
+        description: >
+          Prazo, em meses, de eventual penalidade por pagamento antecipado
+      - name: intro_rate_period
+        description: >
+          Número de meses até a primeira possível alteração da taxa de juros após
+          o fechamento
+      - name: negative_amortization
+        description: >
+          Indica se os termos contratuais preveem amortização negativa
+      - name: interest_only_payment
+        description: >
+          Indica se os termos contratuais preveem pagamento somente de juros
+      - name: balloon_payment
+        description: >
+          Indica se os termos contratuais preveem pagamento balão (balloon)
+      - name: other_nonamortizing_features
+        description: >
+          Indica se os termos contratuais preveem outras características não amortizantes
+      - name: property_value
+        description: >
+          Valor do imóvel que garante o empréstimo, arredondado ao milhar de dólares
+          mais próximo
+      - name: construction_method
+        description: >
+          Método de construção da habitação (construída no local ou pré-fabricada)
+      - name: occupancy_type
+        description: >
+          Tipo de ocupação da habitação (residência principal, secundária ou investimento)
+      - name: manufactured_home_secured_property_type
+        description: >
+          Indica se a garantia é casa pré-fabricada com terreno ou apenas a casa
+      - name: manufactured_home_land_property_interest
+        description: >
+          Tipo de direito do solicitante sobre o terreno da casa pré-fabricada
+      - name: total_units
+        description: >
+          Número de unidades habitacionais do imóvel, em faixas (1-4, 5-24, 25-49,
+          50-99, 100-149, mais de 149)
+      - name: multifamily_affordable_units
+        description: >
+          Número de unidades habitacionais com aluguel acessível (income-restricted)
+          em imóvel multifamiliar
+      - name: income
+        description: >
+          Renda anual bruta considerada na decisão de crédito
+      - name: debt_to_income_ratio
+        description: >
+          Razão entre dívida mensal total e renda mensal total, em faixas percentuais
+      - name: applicant_credit_score_type
+        description: >
+          Nome e versão do modelo de score de crédito usado para o solicitante
+      - name: co_applicant_credit_score_type
+        description: >
+          Nome e versão do modelo de score de crédito usado para o cossolicitante
+      - name: applicant_ethnicity_1
+        description: >
+          Etnia do solicitante ou tomador (primeira informada)
+      - name: applicant_ethnicity_2
+        description: >
+          Etnia do solicitante ou tomador (segunda informada)
+      - name: applicant_ethnicity_3
+        description: >
+          Etnia do solicitante ou tomador (terceira informada)
+      - name: applicant_ethnicity_4
+        description: >
+          Etnia do solicitante ou tomador (quarta informada)
+      - name: applicant_ethnicity_5
+        description: >
+          Etnia do solicitante ou tomador (quinta informada)
+      - name: co_applicant_ethnicity_1
+        description: >
+          Etnia do primeiro cossolicitante ou cotomador (primeira informada)
+      - name: co_applicant_ethnicity_2
+        description: >
+          Etnia do primeiro cossolicitante ou cotomador (segunda informada)
+      - name: co_applicant_ethnicity_3
+        description: >
+          Etnia do primeiro cossolicitante ou cotomador (terceira informada)
+      - name: co_applicant_ethnicity_4
+        description: >
+          Etnia do primeiro cossolicitante ou cotomador (quarta informada)
+      - name: co_applicant_ethnicity_5
+        description: >
+          Etnia do primeiro cossolicitante ou cotomador (quinta informada)
+      - name: applicant_ethnicity_observed
+        description: >
+          Indica se a etnia do solicitante foi coletada por observação visual ou sobrenome
+      - name: co_applicant_ethnicity_observed
+        description: >
+          Indica se a etnia do cossolicitante foi coletada por observação visual ou
+          sobrenome
+      - name: applicant_race_1
+        description: >
+          Raça do solicitante ou tomador (primeira informada)
+      - name: applicant_race_2
+        description: >
+          Raça do solicitante ou tomador (segunda informada)
+      - name: applicant_race_3
+        description: >
+          Raça do solicitante ou tomador (terceira informada)
+      - name: applicant_race_4
+        description: >
+          Raça do solicitante ou tomador (quarta informada)
+      - name: applicant_race_5
+        description: >
+          Raça do solicitante ou tomador (quinta informada)
+      - name: co_applicant_race_1
+        description: >
+          Raça do primeiro cossolicitante ou cotomador (primeira informada)
+      - name: co_applicant_race_2
+        description: >
+          Raça do primeiro cossolicitante ou cotomador (segunda informada)
+      - name: co_applicant_race_3
+        description: >
+          Raça do primeiro cossolicitante ou cotomador (terceira informada)
+      - name: co_applicant_race_4
+        description: >
+          Raça do primeiro cossolicitante ou cotomador (quarta informada)
+      - name: co_applicant_race_5
+        description: >
+          Raça do primeiro cossolicitante ou cotomador (quinta informada)
+      - name: applicant_race_observed
+        description: >
+          Indica se a raça do solicitante foi coletada por observação visual ou sobrenome
+      - name: co_applicant_race_observed
+        description: >
+          Indica se a raça do cossolicitante foi coletada por observação visual ou
+          sobrenome
+      - name: applicant_sex
+        description: >
+          Sexo do solicitante ou tomador
+      - name: co_applicant_sex
+        description: >
+          Sexo do primeiro cossolicitante ou cotomador
+      - name: applicant_sex_observed
+        description: >
+          Indica se o sexo do solicitante foi coletado por observação visual ou sobrenome
+      - name: co_applicant_sex_observed
+        description: >
+          Indica se o sexo do cossolicitante foi coletado por observação visual ou
+          sobrenome
+      - name: applicant_age
+        description: >
+          Idade do solicitante ou tomador, em faixas etárias
+      - name: co_applicant_age
+        description: >
+          Idade do primeiro cossolicitante ou cotomador, em faixas etárias
+      - name: applicant_age_above_62
+        description: >
+          Indica se a idade do solicitante é 62 anos ou mais
+      - name: co_applicant_age_above_62
+        description: >
+          Indica se a idade do cossolicitante é 62 anos ou mais
+      - name: submission_of_application
+        description: >
+          Indica se a solicitação foi apresentada diretamente à instituição
+      - name: initially_payable_to_institution
+        description: >
+          Indica se a obrigação era inicialmente pagável à instituição
+      - name: aus_1
+        description: >
+          Sistema de decisão automatizada (AUS) usado para avaliar a solicitação (primeiro
+          informado)
+      - name: aus_2
+        description: >
+          Sistema de decisão automatizada (AUS) usado para avaliar a solicitação (segundo
+          informado)
+      - name: aus_3
+        description: >
+          Sistema de decisão automatizada (AUS) usado para avaliar a solicitação (terceiro
+          informado)
+      - name: aus_4
+        description: >
+          Sistema de decisão automatizada (AUS) usado para avaliar a solicitação (quarto
+          informado)
+      - name: aus_5
+        description: >
+          Sistema de decisão automatizada (AUS) usado para avaliar a solicitação (quinto
+          informado)
+      - name: denial_reason_1
+        description: >
+          Motivo principal da negação (primeiro informado)
+      - name: denial_reason_2
+        description: >
+          Motivo principal da negação (segundo informado)
+      - name: denial_reason_3
+        description: >
+          Motivo principal da negação (terceiro informado)
+      - name: denial_reason_4
+        description: >
+          Motivo principal da negação (quarto informado)
+      - name: tract_population
+        description: >
+          População total do setor censitário
+      - name: tract_minority_population_percent
+        description: >
+          Percentual da população minoritária em relação à população total do setor
+          censitário
+      - name: ffiec_msa_md_median_family_income
+        description: >
+          Renda familiar mediana FFIEC da MSA/MD, em dólares
+      - name: tract_to_msa_income_percentage
+        description: >
+          Percentual da renda familiar mediana do setor em relação à da MSA/MD
+      - name: tract_owner_occupied_units
+        description: >
+          Número de habitações ocupadas pelo proprietário no setor censitário
+      - name: tract_one_to_four_family_homes
+        description: >
+          Número de habitações construídas para até quatro famílias no setor censitário
+      - name: tract_median_age_of_housing_units
+        description: >
+          Idade mediana das habitações do setor censitário, em anos
+  - name: us_cfpb_hmda__loan_application_register_legacy
+    description: >
+      Registro de empréstimo/solicitação (LAR) do HMDA, esquema legado 2007-2017,
+      um registro por solicitação de crédito hipotecário, com esquema anterior à expansão
+      do Dodd-Frank (sem LEI; chave respondent_id + agency_code)
+    tests:
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: __most_recent_year_en__
+          ignore_values:
+            - rate_spread
+            - applicant_race_2
+            - applicant_race_3
+            - applicant_race_4
+            - applicant_race_5
+            - co_applicant_race_2
+            - co_applicant_race_3
+            - co_applicant_race_4
+            - co_applicant_race_5
+            - denial_reason_2
+            - denial_reason_3
+    columns:
+      - name: year
+        description: >
+          Ano de referência do registro de empréstimo/solicitação
+        tests: [not_null]
+      - name: state_id
+        description: >
+          Código FIPS de duas posições do estado dos EUA
+      - name: county_id
+        description: >
+          Código FIPS de cinco posições do condado
+      - name: census_tract_id
+        description: >
+          Código do setor censitário do Census Bureau
+      - name: msa_md_id
+        description: >
+          Código da área metropolitana ou divisão metropolitana (MSA/MD)
+      - name: respondent_id
+        description: >
+          Identificador da instituição declarante no ano de referência
+      - name: agency_code
+        description: >
+          Código da agência federal supervisora que recebeu o registro
+      - name: loan_type
+        description: >
+          Tipo de empréstimo (convencional, FHA, VA, FSA/RHS)
+      - name: property_type
+        description: >
+          Tipo de imóvel (1-4 famílias, multifamiliar, casa pré-fabricada)
+      - name: loan_purpose
+        description: >
+          Finalidade do empréstimo (compra, melhoria, refinanciamento)
+      - name: owner_occupancy
+        description: >
+          Ocupação do imóvel pelo proprietário como residência principal
+      - name: preapproval
+        description: >
+          Indicador de solicitação de pré-aprovação
+      - name: action_taken
+        description: >
+          Ação tomada sobre a solicitação (originado, negado, retirado, etc.)
+      - name: loan_amount
+        description: >
+          Valor do empréstimo em dólares
+      - name: income
+        description: >
+          Renda bruta anual considerada na decisão, em dólares
+      - name: rate_spread
+        description: >
+          Diferença entre a APR do empréstimo e a taxa de referência (spread)
+      - name: hoepa_status
+        description: >
+          Indicador de empréstimo de alto custo sob o HOEPA
+      - name: lien_status
+        description: >
+          Posição da garantia (primeira, subordinada)
+      - name: purchaser_type
+        description: >
+          Tipo de comprador do empréstimo no mercado secundário
+      - name: applicant_ethnicity
+        description: >
+          Etnia do solicitante (código único, esquema pré-2018)
+      - name: co_applicant_ethnicity
+        description: >
+          Etnia do cossolicitante (código único, esquema pré-2018)
+      - name: applicant_race_1
+        description: >
+          Primeira raça informada pelo solicitante
+      - name: applicant_race_2
+        description: >
+          Segunda raça informada pelo solicitante
+      - name: applicant_race_3
+        description: >
+          Terceira raça informada pelo solicitante
+      - name: applicant_race_4
+        description: >
+          Quarta raça informada pelo solicitante
+      - name: applicant_race_5
+        description: >
+          Quinta raça informada pelo solicitante
+      - name: co_applicant_race_1
+        description: >
+          Primeira raça informada pelo cossolicitante
+      - name: co_applicant_race_2
+        description: >
+          Segunda raça informada pelo cossolicitante
+      - name: co_applicant_race_3
+        description: >
+          Terceira raça informada pelo cossolicitante
+      - name: co_applicant_race_4
+        description: >
+          Quarta raça informada pelo cossolicitante
+      - name: co_applicant_race_5
+        description: >
+          Quinta raça informada pelo cossolicitante
+      - name: applicant_sex
+        description: >
+          Sexo do solicitante
+      - name: co_applicant_sex
+        description: >
+          Sexo do cossolicitante
+      - name: denial_reason_1
+        description: >
+          Primeiro motivo de negação da solicitação
+      - name: denial_reason_2
+        description: >
+          Segundo motivo de negação da solicitação
+      - name: denial_reason_3
+        description: >
+          Terceiro motivo de negação da solicitação
+      - name: tract_population
+        description: >
+          População total do setor censitário
+      - name: tract_minority_population_percent
+        description: >
+          Percentual de população de minorias no setor censitário
+      - name: hud_median_family_income
+        description: >
+          Renda familiar mediana da MSA/MD definida pelo HUD, em dólares
+      - name: tract_to_msa_income_percentage
+        description: >
+          Razão entre a renda mediana do setor e a da MSA/MD, em percentual
+      - name: tract_owner_occupied_units
+        description: >
+          Número de domicílios ocupados pelo proprietário no setor censitário
+      - name: tract_one_to_four_family_homes
+        description: >
+          Número de domicílios de 1 a 4 famílias no setor censitário
+  - name: us_cfpb_hmda__dicionario
+    description: >
+      Dicionário de valores codificados das tabelas de LAR do HMDA (chave -> significado),
+      por tabela e coluna
+    columns:
+      - name: id_tabela
+      - name: nome_coluna
+      - name: chave
+      - name: cobertura_temporal
+      - name: valor

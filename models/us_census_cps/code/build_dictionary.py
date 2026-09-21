@@ -141,9 +141,11 @@ def main():
             if col in MIS_COLS:
                 if not vals or not vals <= {str(i) for i in range(1, 9)}:
                     raise ValueError(
+                        # pyrefly: ignore [bad-specialization]
                         f"{table}.{col}: month-in-sample codes must be a "
                         f"non-empty subset of 1-8, got {sorted(vals)}"
                     )
+                # pyrefly: ignore [no-matching-overload]
                 for code in sorted(vals, key=int):
                     rows.append(
                         (table, col, code, cov, f"Month in sample {code}")
@@ -153,11 +155,14 @@ def main():
             # ---- source 2: binary flag ----
             if not vals or not vals <= set(BINARY):
                 raise ValueError(
+                    # pyrefly: ignore [bad-specialization]
                     f"{table}.{col} is flagged covered_by_dictionary=yes but has no "
                     f"CEPR label set and takes non-binary or empty values "
                     f"{sorted(vals)[:12]}"
                 )
+            # pyrefly: ignore [bad-specialization]
             for code in sorted(vals):
+                # pyrefly: ignore [bad-index]
                 rows.append((table, col, code, cov, BINARY[code]))
 
         print(

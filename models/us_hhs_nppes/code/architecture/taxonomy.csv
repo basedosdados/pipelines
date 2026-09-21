@@ -1,0 +1,10 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+extraction_date,DATE,Data de referência do snapshot mensal do NPPES; cada extração é uma fotografia completa do cadastro e as extrações são empilhadas,,no,,,no,Partition column; taken from the end of the source file name date range,(file name date range)
+npi,STRING,"Identificador Nacional de Prestador (NPI), código numérico de 10 dígitos que identifica de forma única o prestador de serviços de saúde",,no,,,no,,NPI
+taxonomy_sequence,STRING,Posição da taxonomia na lista de até 15 taxonomias informadas pelo prestador,,no,,,no,"Slot number 1-15 in the source's repeating group; ordering is the source's, not a ranking",(repeating group index)
+taxonomy_code,STRING,"Código de taxonomia de prestador de serviços de saúde, de 10 caracteres, que identifica a especialidade ou o tipo de prestador",,no,,,no,Code set is maintained by NUCC and licensed by the AMA; the labels are not redistributed in this dataset,Healthcare Provider Taxonomy Code_1..15
+is_primary_taxonomy,STRING,Indica se esta é a taxonomia primária do prestador; há no máximo uma por NPI,,yes,,,no,,Healthcare Provider Primary Taxonomy Switch_1..15
+license_number,STRING,Número da licença profissional associada a esta taxonomia,,no,,,yes,"CMS masks values reported as SSN, ITIN or EIN; those masks are mapped to null here",Provider License Number_1..15
+license_state_code,STRING,Sigla de duas letras do estado que emitiu a licença profissional,,no,br_bd_diretorios_us.state:abbreviation,,no,,Provider License Number State Code_1..15
+taxonomy_group_code,STRING,Código do grupo de taxonomia declarado pela organização,,yes,,,no,"Split from the source field, which concatenates code and label",Healthcare Provider Taxonomy Group_1..15
+taxonomy_group_name,STRING,Descrição do grupo de taxonomia exatamente como declarada na fonte,,no,,,no,Free text; the same code appears with more than one wording,Healthcare Provider Taxonomy Group_1..15

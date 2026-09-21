@@ -16,7 +16,6 @@ def _isp_flow(table_id: str, cron: str):
         dataset_id: str = "br_rj_isp_estatisticas_seguranca",
         table_id: str = table_id,
         materialize_after_dump: bool = True,
-        dbt_alias: bool = True,
         update_metadata: bool = True,
         target: str = "prod",
         force_run: bool = False,
@@ -25,16 +24,17 @@ def _isp_flow(table_id: str, cron: str):
             dataset_id=dataset_id,
             table_id=table_id,
             materialize_after_dump=materialize_after_dump,
-            dbt_alias=dbt_alias,
             update_metadata=update_metadata,
             target=target,
             force_run=force_run,
         )
 
+    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
     return _flow
 
 
+# PR #1693: evolucao_mensal_cisp — ignore_values id_municipio (9999994, 9999999)
 br_rj_isp_estatisticas_seguranca__evolucao_mensal_cisp = _isp_flow(
     "evolucao_mensal_cisp", "5 10 * * *"
 )

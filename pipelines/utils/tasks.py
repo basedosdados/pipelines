@@ -3,6 +3,7 @@ Tasks compartilhadas — Prefect 3.
 """
 
 import json
+import re
 from pathlib import Path
 from time import sleep
 from typing import Any
@@ -16,6 +17,7 @@ from google.cloud.bigquery import TableReference
 from prefect import task
 
 from pipelines.utils.gcs import DBTArtifactUploader, dump_header
+from pipelines.utils.utils import log
 from pipelines.utils.vault import get_credentials_from_secret
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -52,6 +54,89 @@ async def rename_flow_run_dataset_table(
 # ──────────────────────────────────────────────────────────────────────────────
 # Upload GCS
 # ──────────────────────────────────────────────────────────────────────────────
+
+
+def _bq_safe_column_name(name: str) -> str:
+    """Normaliza um nome de coluna como o BigQuery faz ao inferir o schema.
+
+    As colunas que o crawler não renomeia chegam com o nome cru da fonte —
+    com espaço e acento, quando é o caso. Ao criar a tabela externa o
+    BigQuery troca cada caractere inválido por `_`, então `Nome do município`
+    vira `Nome_do_munic_pio`.
+
+    Args:
+        name: nome como vem do arquivo de dados.
+
+    Returns:
+        O nome com todo caractere fora de `[0-9a-zA-Z_]` trocado por `_`.
+    """
+    return re.sub(r"[^0-9a-zA-Z_]", "_", name)
+
+
+def _sync_staging_schema(
+    tb: bd.Table,
+    data_path: str | Path,
+    source_format: str,
+) -> None:
+    """Adiciona ao schema da staging as colunas que a fonte passou a trazer.
+
+    Em `dump_mode="append"` a tabela de staging só é criada quando ainda não
+    existe, então seu schema fica congelado na criação. Quando a fonte ganha uma
+    coluna, o arquivo novo a traz mas a definição da tabela externa não, e o dbt
+    quebra com `Unrecognized name` na primeira materialização seguinte.
+
+    A definição é alterada no lugar, pela API do BigQuery. O prefixo do GCS não é
+    tocado: recriar a tabela ou chamar `Storage.delete_table` apagaria todo o
+    histórico já carregado.
+
+    A operação é aditiva por decisão — só acrescenta colunas ausentes, nunca
+    remove nem reordena. Um arquivo parcial ou uma carga de um período só não
+    pode encolher o schema de uma tabela histórica.
+
+    A comparação é feita sobre os nomes normalizados por
+    `_bq_safe_column_name`: o arquivo traz o nome cru e a tabela guarda o nome
+    já sanitizado pelo BigQuery, então comparar as duas grafias direto acusa
+    coluna nova em toda execução. A coluna acrescentada também leva o nome
+    normalizado — o cru pode não ser um identificador válido.
+
+    Args:
+        tb: tabela `basedosdados` já instanciada, apontando para a staging.
+        data_path: arquivo ou diretório com os dados que serão carregados.
+        source_format: `"csv"` ou `"parquet"`.
+    """
+    header_path = dump_header(data_path=data_path, source_format=source_format)
+    incoming = tb._load_staging_schema_from_data(
+        data_sample_path=header_path, source_format=source_format
+    )
+
+    # O cliente da lib é quem criou a tabela externa e escreve no prefixo. Abrir
+    # um `bigquery.Client` aqui cairia no ADC do pod, sem permissão de update.
+    client = tb.client["bigquery_staging"]
+    table = client.get_table(tb.table_full_name["staging"])
+
+    current = {_bq_safe_column_name(field.name) for field in table.schema}
+    new_fields = [
+        bigquery.SchemaField(
+            name=_bq_safe_column_name(field.name),
+            field_type=field.field_type,
+        )
+        for field in incoming
+        if _bq_safe_column_name(field.name) not in current
+    ]
+
+    if not new_fields:
+        return
+
+    # O schema da tabela externa vive em `table.schema`; o do
+    # `external_data_configuration` fica vazio nas tabelas criadas pela lib.
+    # Arquivos antigos, sem a coluna, passam a devolver NULL para ela.
+    table.schema = list(table.schema) + new_fields
+    client.update_table(table, ["schema"])
+
+    print(
+        "Colunas novas na fonte adicionadas ao schema da staging: "
+        + ", ".join(field.name for field in new_fields)
+    )
 
 
 def _upload_to_gcs(
@@ -102,6 +187,11 @@ def _upload_to_gcs(
             )
         else:
             print(f"Tabela já existe: {tb.table_full_name['staging']}")
+            _sync_staging_schema(
+                tb=tb,
+                data_path=data_path,
+                source_format=source_format,
+            )
 
     elif dump_mode == "overwrite":
         if tb.table_exists(mode="staging"):
@@ -201,7 +291,7 @@ def run_dbt(
     if target == "prod":
         with open("/credentials-prod/prod.json") as f:
             sa = json.loads(f.read())
-        print(
+        log(
             f"dbt target=prod | project={sa['project_id']} | account={sa['client_email']}"
         )
 
@@ -230,30 +320,56 @@ def run_dbt(
             if vars_dict:
                 cli_args.extend(["--vars", json.dumps(vars_dict)])
 
-            print(f"dbt {' '.join(cli_args)}")
+            log(f"dbt {' '.join(cli_args)}")
             result = runner.invoke(cli_args)
 
             if result.exception:
                 raise Exception(f"dbt {cmd} exception: {result.exception}")
             if not result.success:
+                failed_names = []
                 run_result = getattr(result, "result", None)
                 if run_result is not None:
+                    separator = "─" * 80
                     for node_result in run_result.results:
-                        if node_result.status in {"error", "fail"}:
-                            print(node_result.node.name)
-                            print(node_result.message)
+                        if node_result.status not in {"error", "fail"}:
+                            continue
+                        failed_names.append(node_result.node.name)
+                        log(f"Falhou: {node_result.node.name}", "error")
+                        column_name = getattr(
+                            node_result.node, "column_name", None
+                        )
+                        if column_name:
+                            log(f"  coluna: {column_name}", "error")
+                        log(f"  {node_result.message}", "error")
+                        compiled_code = getattr(
+                            node_result.node, "compiled_code", None
+                        )
+                        if compiled_code:
+                            log(
+                                f"  query compilada:\n{compiled_code}",
+                                "error",
+                            )
+                        log(separator, "error")
 
-                raise Exception(
-                    f"dbt {cmd} falhou para {selected.as_posix()} (target={target})"
+                detail = (
+                    f" — {', '.join(failed_names)}" if failed_names else ""
                 )
-            print(f"dbt {cmd} OK: {selected.as_posix()} (target={target})")
+                raise Exception(
+                    f"dbt {cmd} falhou para {selected.as_posix()} "
+                    f"(target={target}){detail}"
+                )
+            log(f"dbt {cmd} OK: {selected.as_posix()} (target={target})")
+
+        if target == "prod" and table_id is not None and "run" in dbt_command:
+            log(f"Exportando {dataset_id}.{table_id} para GCS")
+            download_data_to_gcs.fn(dataset_id=dataset_id, table_id=table_id)
     finally:
         try:
             DBTArtifactUploader(
                 dataset_id=dataset_id, table_id=table_id, target=target
             ).run()
         except Exception as e:
-            print(f"Aviso: falha ao subir artefatos dbt: {e}")
+            log(f"Aviso: falha ao subir artefatos dbt: {e}", "warning")
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -296,8 +412,6 @@ def download_data_to_gcs(
     - 100 MB - 1 GB: apenas BDPro
     - < 100 MB: open + BDPro (se tiver row access policy bdpro_filter)
     """
-    from pipelines.utils.utils import log
-
     if not billing_project_id:
         billing_project_id = project_id
 
@@ -329,6 +443,7 @@ def download_data_to_gcs(
             return
         num_bytes = items[0]["uncompressedFileSize"] or 0
 
+    # pyrefly: ignore [unsupported-operation]
     if num_bytes > 1_000_000_000:
         log("Tabela > 1 GB — sem download disponível")
         return
@@ -338,6 +453,7 @@ def download_data_to_gcs(
     url_closed = url_paths["URL_DOWNLOAD_CLOSED"]
     query = f"SELECT * FROM `{project_id}.{dataset_id}.{table_id}`"
 
+    # pyrefly: ignore [unsupported-operation]
     if num_bytes >= 100_000_000:
         log("Tabela entre 100 MB e 1 GB — apenas BDPro")
         _execute_query_in_bigquery(

@@ -1,5 +1,16 @@
 """
 Flows for br_ms_cnes — Prefect 3.
+
+A lógica está em `pipelines/crawler/datasus/flows.py::_run_cnes`, compartilhado
+com br_ms_sia, br_ms_sih e br_ms_sinan.
+
+Atenção ao deployar: o `cd-prefect3-staging.yaml` registra apenas os flows
+declarados nos arquivos que a PR altera, e o crawler não declara nenhum `@flow`.
+Uma PR que mexa só nele deploya zero flows com o job em verde — é preciso tocar
+este arquivo para que os 13 flows do conjunto cheguem ao pool de dev.
+
+Vale para toda PR seguinte, não só a que criou este aviso: se o diff não incluir
+este arquivo, o deploy sai "0 registrados, N pulados" e passa.
 """
 
 from prefect import flow
@@ -16,7 +27,6 @@ def _cnes_flow(table_id: str, cron: str | None):
         dataset_id: str = "br_ms_cnes",
         table_id: str = table_id,
         materialize_after_dump: bool = True,
-        dbt_alias: bool = True,
         update_metadata: bool = True,
         target: str = "prod",
         force_run: bool = False,
@@ -26,7 +36,6 @@ def _cnes_flow(table_id: str, cron: str | None):
             dataset_id=dataset_id,
             table_id=table_id,
             materialize_after_dump=materialize_after_dump,
-            dbt_alias=dbt_alias,
             update_metadata=update_metadata,
             target=target,
             force_run=force_run,
@@ -34,6 +43,7 @@ def _cnes_flow(table_id: str, cron: str | None):
         )
 
     if cron:
+        # pyrefly: ignore [missing-attribute]
         _flow.deploy_schedules = [
             {"cron": cron, "timezone": "America/Sao_Paulo"}
         ]

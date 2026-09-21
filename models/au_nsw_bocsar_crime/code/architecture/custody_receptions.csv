@@ -1,0 +1,8 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,
+month,INT64,"Reference month of the observation, from 1 to 12",,no,br_bd_diretorios_data_tempo.mes:mes,month,no,,
+custody_system,STRING,Custody system the record refers to (adult or youth),,no,,,no,Derived from which BOCSAR custody report the row came from,
+reception_status,STRING,"Legal status at reception into custody (remand, sentenced or unknown)",,no,,,no,,Reception Status
+aboriginality,STRING,"Aboriginal status of the person (Aboriginal, Non-Aboriginal or Unknown)",,no,,,no,,Aboriginality
+sex,STRING,Sex of the person (Female or Male),,no,,,no,,Gender
+receptions,INT64,Number of receptions into custody during the month,,no,,reception,no,,Count

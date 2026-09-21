@@ -10,6 +10,8 @@ import datetime
 from unittest.mock import patch
 
 import pytest
+
+# pyrefly: ignore [missing-import]
 from conftest import FakeBQ, FakeMetadataClient
 
 from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
@@ -129,6 +131,38 @@ def test_commit_source_update_task_writes_raw_source_update():
     mk.assert_called_once_with(env="prod")
     assert result is None
     assert fake.written_entities == ["raw_source_update"]
+
+
+@pytest.mark.parametrize(
+    ("update_metadata", "materialize_after_dump", "source_max_date"),
+    [
+        (False, True, "2026-04"),
+        (True, False, "2026-04"),
+        (True, True, None),
+    ],
+)
+def test_commit_source_update_task_noop_when_gated_off(
+    update_metadata, materialize_after_dump, source_max_date
+):
+    """Os gates (update_metadata/materialize_after_dump/source_max_date) são
+    resolvidos dentro da task — o flow não precisa mais envolver a chamada
+    num `if`."""
+    fake = FakeMetadataClient()
+    with patch(
+        "pipelines.utils.metadata.tasks.MetadataClient", return_value=fake
+    ) as mk:
+        result = commit_source_update_task.fn(
+            "br_ibge_ipca",
+            "mes_brasil",
+            source_max_date=source_max_date,
+            env="prod",
+            date_format="%Y-%m",
+            update_metadata=update_metadata,
+            materialize_after_dump=materialize_after_dump,
+        )
+    mk.assert_not_called()
+    assert result is None
+    assert fake.written_entities == []
 
 
 def test_materialization_task_builds_client_and_bq_and_delegates():

@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+id_tabela,STRING,Slug da tabela de au_abs_migration descrita pela entrada,,no,,,no,,,Slug of the au_abs_migration table the entry describes,Slug de la tabla de au_abs_migration que describe la entrada
+nome_coluna,STRING,Nome da coluna descrita pela entrada,,no,,,no,,,Name of the column the entry describes,Nombre de la columna que describe la entrada
+chave,STRING,"Valor da chave, conforme armazenado na coluna",,no,,,no,,,"Key value, as stored in the column","Valor de la clave, tal como se almacena en la columna"
+cobertura_temporal,STRING,Cobertura temporal da entrada,,no,,,no,,,Temporal coverage of the entry,Cobertura temporal de la entrada
+valor,STRING,Descrição da chave,,no,,,no,,,Description of the key,Descripción de la clave

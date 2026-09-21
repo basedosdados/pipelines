@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+id_tabela,STRING,Nome da tabela do conjunto us_epa_ghgrp que a entrada do dicionário descreve,,no,,,no,,id_tabela,Slug of the us_epa_ghgrp table the dictionary entry describes,Nombre de la tabla del conjunto us_epa_ghgrp que describe la entrada del diccionario
+nome_coluna,STRING,Nome da coluna que a entrada do dicionário descreve,,no,,,no,,nome_coluna,Name of the column the dictionary entry describes,Nombre de la columna que describe la entrada del diccionario
+chave,STRING,Código armazenado na coluna,,no,,,no,,chave,Code stored in the column,Código almacenado en la columna
+cobertura_temporal,STRING,Cobertura temporal da entrada do dicionário,,no,,,no,,cobertura_temporal,Temporal coverage of the dictionary entry,Cobertura temporal de la entrada del diccionario
+valor,STRING,Rótulo correspondente ao código,,no,,,no,,valor,Label the code stands for,Etiqueta correspondiente al código

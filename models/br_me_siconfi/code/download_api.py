@@ -170,6 +170,7 @@ def run_worker(args, chunk_i, n_chunks, out_dir):
         if not cod_ibge:
             continue
 
+        # pyrefly: ignore [unnecessary-type-conversion]
         n_digits = len(str(cod_ibge))
         if n_digits == 1:
             sub = "brasil"

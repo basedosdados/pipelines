@@ -1,0 +1,5376 @@
+{
+ "contratacao": {
+  "n_rows": 742,
+  "fields": {
+   "idCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "94300103950352025",
+     "92666603900102025",
+     "10212203900152025"
+    ]
+   },
+   "numeroControlePNCP": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "07954480000179-1-007677/2025",
+     "22217896000106-1-000015/2025",
+     "63025530000104-1-001904/2025"
+    ]
+   },
+   "anoCompraPncp": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025",
+     "2024",
+     "2026"
+    ]
+   },
+   "sequencialCompraPncp": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "7677",
+     "15",
+     "1904"
+    ]
+   },
+   "orgaoEntidadeCnpj": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "07954480000179",
+     "22217896000106",
+     "63025530000104"
+    ]
+   },
+   "orgaoSubrogadoCnpj": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 99.9,
+    "ex": [
+     "10695891000100"
+    ]
+   },
+   "codigoOrgao": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "57870",
+     "73944",
+     "38114"
+    ]
+   },
+   "orgaoEntidadeRazaoSocial": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "ESTADO DO CEARA",
+     "SECRETARIA DE ESTADO DE TRANSPORTE E DESENVOLVIMENTO URBANO",
+     "UNIVERSIDADE DE SAO PAULO"
+    ]
+   },
+   "orgaoSubrogadoRazaoSocial": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 99.9,
+    "ex": [
+     "INSTITUTO FEDERAL DE EDUCACAO, CIENCIA E TECNOLOGIA DO TRIANGULO MINEI"
+    ]
+   },
+   "orgaoEntidadeEsferaId": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "E",
+     "F",
+     "M"
+    ]
+   },
+   "orgaoSubrogadoEsferaId": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 99.9,
+    "ex": [
+     "F"
+    ]
+   },
+   "orgaoEntidadePoderId": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "N",
+     "E",
+     "L"
+    ]
+   },
+   "orgaoSubrogadoPoderId": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 99.9,
+    "ex": [
+     "E"
+    ]
+   },
+   "unidadeOrgaoCodigoUnidade": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "943001",
+     "926666",
+     "102122"
+    ]
+   },
+   "unidadeSubrogadaCodigoUnidade": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 99.9,
+    "ex": [
+     "158312"
+    ]
+   },
+   "unidadeOrgaoNomeUnidade": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "GOVERNO DO ESTADO DO CEARÁ",
+     "EAL-SECRET DE EST DE TRANSPORTE E DES URBANO",
+     "ESP-FACULDADE DE ODONTOLOGIA DE BAURU - USP"
+    ]
+   },
+   "unidadeSubrogadaNomeUnidade": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 99.9,
+    "ex": [
+     "INST.FED.TRIANGULO MINEIRO/CAMPUS UBERLANDIA"
+    ]
+   },
+   "unidadeOrgaoUfSigla": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "CE",
+     "AL",
+     "SP"
+    ]
+   },
+   "unidadeSubrogadaUfSigla": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 99.9,
+    "ex": [
+     "MG"
+    ]
+   },
+   "unidadeOrgaoMunicipioNome": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "FORTALEZA",
+     "MACEIÓ",
+     "BAURU"
+    ]
+   },
+   "unidadeSubrogadaMunicipioNome": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 99.9,
+    "ex": [
+     "UBERLÂNDIA"
+    ]
+   },
+   "unidadeOrgaoCodigoIbge": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2304400",
+     "2704302",
+     "3506003"
+    ]
+   },
+   "unidadeSubrogadaCodigoIbge": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 99.9,
+    "ex": [
+     "3170206"
+    ]
+   },
+   "numeroCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "95035",
+     "90010",
+     "90015"
+    ]
+   },
+   "modalidadeIdPncp": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "4",
+     "5",
+     "6"
+    ]
+   },
+   "codigoModalidade": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "3",
+     "5",
+     "6"
+    ]
+   },
+   "modalidadeNome": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Concorrência - Eletrônica",
+     "Concorrência - Presencial",
+     "Pregão - Eletrônico"
+    ]
+   },
+   "srp": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "False",
+     "True"
+    ]
+   },
+   "modoDisputaIdPncp": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "3",
+     "1",
+     "2"
+    ]
+   },
+   "codigoModoDisputa": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "3",
+     "1",
+     "2"
+    ]
+   },
+   "amparoLegalCodigoPncp": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2",
+     "1",
+     "159"
+    ]
+   },
+   "amparoLegalNome": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Lei 14.133/2021, Art. 28, II ",
+     "Lei 14.133/2021, Art. 28, I",
+     "Lei 14.981/2024,  art. 2º, II (Calamidade pública)"
+    ]
+   },
+   "amparoLegalDescricao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "concorrência: modalidade de licitação para contratação de bens e servi",
+     "pregão: modalidade de licitação obrigatória para aquisição de bens e s",
+     "Reduzir pela metade os prazos mínimos de que tratam o art. 55 e o § 3º"
+    ]
+   },
+   "informacaoComplementar": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 31.1,
+    "ex": [
+     "Este edital está disponível gratuitamente nos sítios www.portalcompras",
+     " Para as respostas de esclarecimentos e impugnações deste edital acess",
+     " Para as respostas de esclarecimentos e impugnações deste edital acess"
+    ]
+   },
+   "processo": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "22001135790202451",
+     "01800.51225/2024",
+     "154.00004193/2025"
+    ]
+   },
+   "objetoCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Execução da obra de construção de uma Escola de Ensino Médio, tipo I, ",
+     "Contratação de serviços de empresa especializada em engenharia para ob",
+     "Adequação posto de transformação e instalação do qgbt - ortodontia/odo"
+    ]
+   },
+   "existeResultado": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "True",
+     "False"
+    ]
+   },
+   "orcamentoSigilosoCodigo": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1"
+    ]
+   },
+   "orcamentoSigilosoDescricao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Compra sem sigilo"
+    ]
+   },
+   "situacaoCompraIdPncp": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1",
+     "4",
+     "3"
+    ]
+   },
+   "situacaoCompraNomePncp": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Divulgada no PNCP",
+     "Suspensa",
+     "Anulada"
+    ]
+   },
+   "tipoInstrumentoConvocatorioCodigoPncp": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1",
+     "2",
+     "3"
+    ]
+   },
+   "tipoInstrumentoConvocatorioNome": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Edital",
+     "Aviso de Contratação Direta",
+     "Ato que autoriza a Contratação Direta"
+    ]
+   },
+   "modoDisputaNomePncp": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Aberto-Fechado",
+     "Aberto",
+     "Fechado"
+    ]
+   },
+   "valorTotalEstimado": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "15682737.8",
+     "26543586.19",
+     "164645.51"
+    ]
+   },
+   "valorTotalHomologado": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 11.5,
+    "ex": [
+     "11009281.9356",
+     "13441081.3342",
+     "146200.0"
+    ]
+   },
+   "dataInclusaoPncp": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025-06-02T07:15:39",
+     "2025-06-02T07:16:23",
+     "2025-06-02T07:16:48"
+    ]
+   },
+   "dataAtualizacaoPncp": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025-06-02T07:15:39",
+     "2025-06-02T07:16:23",
+     "2025-08-14T07:25:08"
+    ]
+   },
+   "dataPublicacaoPncp": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025-06-02T07:15:39",
+     "2025-06-02T07:16:23",
+     "2025-06-02T07:16:48"
+    ]
+   },
+   "dataAberturaPropostaPncp": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 39.5,
+    "ex": [
+     "2025-06-03T08:00:00",
+     "2025-06-02T08:00:00",
+     "2025-08-14T08:00:00"
+    ]
+   },
+   "dataEncerramentoPropostaPncp": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 39.5,
+    "ex": [
+     "2025-06-18T09:30:00",
+     "2025-07-16T10:00:00",
+     "2025-09-01T09:00:00"
+    ]
+   },
+   "contratacaoExcluida": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "False"
+    ]
+   }
+  }
+ },
+ "contratacao_item": {
+  "n_rows": 200,
+  "fields": {
+   "idCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "92554307001552025",
+     "78432006900062025",
+     "46058607000052025"
+    ]
+   },
+   "idCompraItem": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "9255430700155202500001",
+     "7843200690006202500001",
+     "7843200690006202500002"
+    ]
+   },
+   "idContratacaoPNCP": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "08258295000102-1-000026/2025",
+     "00394502001205-1-000485/2025",
+     "01834835000100-1-000005/2025"
+    ]
+   },
+   "unidadeOrgaoCodigoUnidade": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "925543",
+     "784320",
+     "460586"
+    ]
+   },
+   "orgaoEntidadeCnpj": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "08258295000102",
+     "00394502001205",
+     "01834835000100"
+    ]
+   },
+   "numeroItemPncp": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1",
+     "2",
+     "3"
+    ]
+   },
+   "numeroItemCompra": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1",
+     "2",
+     "3"
+    ]
+   },
+   "numeroGrupo": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "0"
+    ]
+   },
+   "descricaoResumida": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Locação de imóvel Locação de imóvel",
+     "Locação Cobertura Desmontável",
+     "Gráfico - Confecção Selo / Convite / Impressos / CertificadoEnvelope"
+    ]
+   },
+   "materialOuServico": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "S",
+     "M"
+    ]
+   },
+   "materialOuServicoNome": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Serviço",
+     "Material"
+    ]
+   },
+   "codigoClasse": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 21.0,
+    "ex": [
+     "4320",
+     "9320",
+     "6510"
+    ]
+   },
+   "codigoGrupo": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 81.0,
+    "ex": [
+     "721",
+     "732",
+     "859"
+    ]
+   },
+   "codItemCatalogo": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 2.0,
+    "ex": [
+     "4316",
+     "21164",
+     "18724"
+    ]
+   },
+   "descricaodetalhada": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 2.0,
+    "ex": [
+     "Locação de imóvel Locação de imóvel",
+     "Locação de Tenda 6x6 com 2 Fechamento Lateral, pelo período de 5 dias ",
+     "Locação de Boxtruss 2X2, pelo período de 5 dias (11 à 15 de junho de 2"
+    ]
+   },
+   "unidadeMedida": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "UNIDADE",
+     "PÁGINA",
+     "Unidade  "
+    ]
+   },
+   "orcamentoSigiloso": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "False",
+     "True"
+    ]
+   },
+   "itemCategoriaIdPncp": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "3"
+    ]
+   },
+   "itemCategoriaNome": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Informática (TIC)"
+    ]
+   },
+   "criterioJulgamentoIdPncp": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "7",
+     "1",
+     "2"
+    ]
+   },
+   "criterioJulgamentoNome": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Não se aplica",
+     "Menor preço",
+     "Maior desconto"
+    ]
+   },
+   "situacaoCompraItem": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2",
+     "4",
+     "5"
+    ]
+   },
+   "situacaoCompraItemNome": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Homologado",
+     "Deserto",
+     "Fracassado"
+    ]
+   },
+   "tipoBeneficio": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "5",
+     "1"
+    ]
+   },
+   "tipoBeneficioNome": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Não se aplica",
+     "Participação exclusiva para ME/EPP"
+    ]
+   },
+   "incentivoProdutivoBasico": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "False"
+    ]
+   },
+   "quantidade": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "60.0",
+     "2.0",
+     "1.0"
+    ]
+   },
+   "valorUnitarioEstimado": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1100.0",
+     "2750.0",
+     "2800.0"
+    ]
+   },
+   "valorTotal": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "66000.0",
+     "5500.0",
+     "2800.0"
+    ]
+   },
+   "temResultado": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 7.5,
+    "ex": [
+     "True"
+    ]
+   },
+   "codFornecedor": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 7.5,
+    "ex": [
+     "06957112454",
+     "51739136000159",
+     "37859291000188"
+    ]
+   },
+   "nomeFornecedor": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 7.5,
+    "ex": [
+     "LAURELENA BARATA GURGEL DUTRA",
+     "51.739.136 DAYANE DO CARMO MARTINS",
+     "LAIANE SILVA DANTAS DOS SANTOS 44198982830"
+    ]
+   },
+   "quantidadeResultado": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 7.5,
+    "ex": [
+     "60.0",
+     "2.0",
+     "1.0"
+    ]
+   },
+   "valorUnitarioResultado": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 7.5,
+    "ex": [
+     "1100.0",
+     "2648.0",
+     "2630.5"
+    ]
+   },
+   "valorTotalResultado": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 7.5,
+    "ex": [
+     "66000.0",
+     "5296.0",
+     "2630.5"
+    ]
+   },
+   "dataInclusaoPncp": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025-06-01T10:26:43",
+     "2025-06-01T10:54:43",
+     "2025-06-01T16:35:55"
+    ]
+   },
+   "dataAtualizacaoPncp": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025-06-01T10:29:47",
+     "2025-06-06T17:06:11",
+     "2025-06-06T17:06:22"
+    ]
+   },
+   "dataResultado": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 7.5,
+    "ex": [
+     "2025-06-01 00:00:00.0000000",
+     "2025-06-06 00:00:00.0000000",
+     "2025-06-10 00:00:00.0000000"
+    ]
+   },
+   "margemPreferenciaNormal": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "False"
+    ]
+   },
+   "percentualMargemPreferenciaNormal": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "margemPreferenciaAdicional": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "False"
+    ]
+   },
+   "percentualMargemPreferenciaAdicional": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "codigoNCM": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 99.5,
+    "ex": [
+     "30051090"
+    ]
+   },
+   "descricaoNCM": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "numeroControlePNCPCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "08258295000102-1-000026/2025",
+     "00394502001205-1-000485/2025",
+     "01834835000100-1-000005/2025"
+    ]
+   },
+   "codigoPdm": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 21.0,
+    "ex": [
+     "3721",
+     "55",
+     "30274"
+    ]
+   },
+   "nomePdm": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 21.0,
+    "ex": [
+     "BOMBA D'ÁGUA - PEÇA/COMPONENTE",
+     "LENÇOL BORRACHA",
+     "COMPRESSA CAMPO OPERATÓRIO"
+    ]
+   }
+  }
+ },
+ "contratacao_item_resultado": {
+  "n_rows": 200,
+  "fields": {
+   "idCompraItem": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1201950590117202400001",
+     "1201950590117202400008",
+     "1201950590117202400015"
+    ]
+   },
+   "idCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "12019505901172024",
+     "12019505901562024",
+     "12019505902062024"
+    ]
+   },
+   "idContratacaoPNCP": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "00394429000100-1-001661/2024",
+     "00394429000100-1-002010/2024",
+     "00394429000100-1-003153/2024"
+    ]
+   },
+   "unidadeOrgaoCodigoUnidade": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "120195",
+     "783401",
+     "460586"
+    ]
+   },
+   "unidadeOrgaoUfSigla": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "RJ",
+     "RN",
+     "AL"
+    ]
+   },
+   "numeroItemPncp": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1",
+     "8",
+     "15"
+    ]
+   },
+   "sequencialResultado": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1"
+    ]
+   },
+   "niFornecedor": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "03952368000148",
+     "24476108000113",
+     "52469209000100"
+    ]
+   },
+   "tipoPessoa": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "PJ",
+     "PF",
+     "PE"
+    ]
+   },
+   "nomeRazaoSocialFornecedor": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "HOSPLIFE COMERCIO DE EQUIPAMENTOS HOSPITALARES LTDA",
+     "PHELCOM TECHNOLOGIES S/A",
+     "PETERSON JOSE BERNARDO LTDA"
+    ]
+   },
+   "codigoPais": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "BRA",
+     "GBR"
+    ]
+   },
+   "indicadorSubcontratacao": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "False"
+    ]
+   },
+   "ordemClassificacaoSrp": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 21.5,
+    "ex": [
+     "1"
+    ]
+   },
+   "quantidadeHomologada": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "5.0",
+     "4.0",
+     "20.0"
+    ]
+   },
+   "valorUnitarioHomologado": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "22390.0",
+     "17900.0",
+     "26500.0"
+    ]
+   },
+   "valorTotalHomologado": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "111950.0",
+     "71600.0",
+     "106000.0"
+    ]
+   },
+   "percentualDesconto": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "0.0",
+     "27.5",
+     "50.0"
+    ]
+   },
+   "situacaoCompraItemResultadoId": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1"
+    ]
+   },
+   "situacaoCompraItemResultadoNome": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Informado"
+    ]
+   },
+   "motivoCancelamento": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "porteFornecedorId": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1",
+     "3",
+     "5"
+    ]
+   },
+   "porteFornecedorNome": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "ME",
+     "Demais",
+     "Não Informado"
+    ]
+   },
+   "naturezaJuridicaNome": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 8.0,
+    "ex": [
+     "Sociedade Empresária Limitada",
+     "Sociedade Anônima Fechada",
+     "Sociedade de Economia Mista"
+    ]
+   },
+   "naturezaJuridicaId": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 8.0,
+    "ex": [
+     "2062",
+     "2054",
+     "2038"
+    ]
+   },
+   "dataInclusaoPncp": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025-06-01T22:52:20",
+     "2025-06-01T22:52:28",
+     "2025-06-01T22:52:21"
+    ]
+   },
+   "dataAtualizacaoPncp": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025-06-01T22:52:20",
+     "2025-06-01T22:52:28",
+     "2025-06-01T22:52:21"
+    ]
+   },
+   "dataCancelamentoPncp": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "dataResultadoPncp": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025-06-01T00:00:00",
+     "2025-06-02T00:00:00"
+    ]
+   },
+   "numeroControlePNCPCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "00394429000100-1-001661/2024",
+     "00394429000100-1-002010/2024",
+     "00394429000100-1-003153/2024"
+    ]
+   },
+   "orgaoEntidadeCnpj": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "00394429000100",
+     "00394502001205",
+     "01834835000100"
+    ]
+   },
+   "aplicacaoMargemPreferencia": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "False"
+    ]
+   },
+   "amparoLegalMargemPreferenciaId": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "amparoLegalMargemPreferenciaNome": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "aplicacaoBeneficioMeepp": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "True",
+     "False"
+    ]
+   },
+   "aplicacaoCriterioDesempate": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "True",
+     "False"
+    ]
+   },
+   "amparoLegalCriterioDesempateId": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 97.0,
+    "ex": [
+     "148",
+     "157",
+     "146"
+    ]
+   },
+   "amparoLegalCriterioDesempateNome": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "moedaEstrangeiraId": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "dataCotacaoMoedaEstrangeira": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "valorNominalMoedaEstrangeira": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "paisOrigemProdutoServicoId": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "timezoneCotacaoMoedaEstrangeira": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   }
+  }
+ },
+ "ata_registro_preco": {
+  "n_rows": 200,
+  "fields": {
+   "numeroAtaRegistroPreco": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "00009/2024",
+     "00210/2024",
+     "00887/2024"
+    ]
+   },
+   "codigoUnidadeGerenciadora": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "985853",
+     "153065",
+     "150247"
+    ]
+   },
+   "nomeUnidadeGerenciadora": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "PREFEITURA MUNICIPAL DE MARICA",
+     "UNIVERSIDADE FEDERAL DA PARAIBA",
+     "COMPLEXO HOSPITALAR E DE SAUDE DA UFBA"
+    ]
+   },
+   "codigoOrgao": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "95320",
+     "26240",
+     "26232"
+    ]
+   },
+   "nomeOrgao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "ESTADO DO RIO DE JANEIRO",
+     "UNIVERSIDADE FEDERAL DA PARAIBA",
+     "UNIVERSIDADE FEDERAL DA BAHIA"
+    ]
+   },
+   "linkAtaPNCP": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "https://pncp.gov.br/app/atas/29131075000193/2024/8/1",
+     "https://pncp.gov.br/app/atas/24098477000110/2024/361/2",
+     "https://pncp.gov.br/app/atas/15180714000104/2024/332/9"
+    ]
+   },
+   "linkCompraPNCP": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "https://pncp.gov.br/app/editais/29131075000193/2024/000008",
+     "https://pncp.gov.br/app/editais/24098477000110/2024/000361",
+     "https://pncp.gov.br/app/editais/15180714000104/2024/000332"
+    ]
+   },
+   "numeroCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "90011",
+     "90010",
+     "90138"
+    ]
+   },
+   "anoCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2024",
+     "2025"
+    ]
+   },
+   "codigoModalidadeCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "05"
+    ]
+   },
+   "nomeModalidadeCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Pregão"
+    ]
+   },
+   "dataAssinatura": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025-06-03",
+     "2025-03-25",
+     "2025-06-02"
+    ]
+   },
+   "dataVigenciaInicial": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025-06-03",
+     "2025-06-04",
+     "2025-06-06"
+    ]
+   },
+   "dataVigenciaFinal": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2026-06-03",
+     "2026-06-04",
+     "2026-06-08"
+    ]
+   },
+   "valorTotal": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "293567.0",
+     "4104034.69",
+     "19500.0"
+    ]
+   },
+   "statusAta": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Ata de Registro de Preços",
+     "Cancelada"
+    ]
+   },
+   "objeto": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Registro de preços para contratação de empresa especializada no fornec",
+     "Eventual aquisição de APARELHOS, EQUIPAMENTOS E UTENSÍLIOS MÉDICOS, HO",
+     "A presente Ata tem por objeto o registro de preços para a eventual aqu"
+    ]
+   },
+   "quantidadeItens": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1",
+     "172",
+     "2"
+    ]
+   },
+   "dataHoraAtualizacao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025-06-04T10:20:42",
+     "2025-06-03T09:09:13",
+     "2025-06-03T08:58:40"
+    ]
+   },
+   "dataHoraInclusao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2024-07-15T10:19:58",
+     "2025-03-20T15:56:52",
+     "2025-03-25T13:28:32"
+    ]
+   },
+   "dataHoraExclusao": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "ataExcluido": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "False"
+    ]
+   },
+   "numeroControlePncpAta": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "29131075000193-1-000008/2024-000001",
+     "24098477000110-1-000361/2024-000002",
+     "15180714000104-1-000332/2024-000009"
+    ]
+   },
+   "numeroControlePncpCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "29131075000193-1-000008/2024",
+     "24098477000110-1-000361/2024",
+     "15180714000104-1-000332/2024"
+    ]
+   },
+   "idCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "98585305900112024",
+     "15306505900102024",
+     "15024705901382024"
+    ]
+   }
+  }
+ },
+ "ata_registro_preco_item": {
+  "n_rows": 200,
+  "fields": {
+   "numeroAtaRegistroPreco": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "11000/2025",
+     "00235/2025",
+     "00050/2025"
+    ]
+   },
+   "codigoUnidadeGerenciadora": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "257036",
+     "986249",
+     "160161"
+    ]
+   },
+   "numeroCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "90008",
+     "90036",
+     "90003"
+    ]
+   },
+   "anoCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025",
+     "2024"
+    ]
+   },
+   "codigoModalidadeCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "05"
+    ]
+   },
+   "dataAssinatura": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025-05-05T00:00:00",
+     "2025-05-28T00:00:00",
+     "2025-05-30T00:00:00"
+    ]
+   },
+   "dataVigenciaInicial": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025-06-01",
+     "2025-06-02"
+    ]
+   },
+   "dataVigenciaFinal": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2026-06-01",
+     "2026-06-02",
+     "2026-05-15"
+    ]
+   },
+   "numeroItem": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "00001",
+     "00002",
+     "00003"
+    ]
+   },
+   "codigoItem": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "22233",
+     "22314",
+     "459670"
+    ]
+   },
+   "descricaoItem": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Locação de Energia Ininterrupta (Nobreak) 100KVA",
+     "Locação de Energia Ininterrupta (Nobreak) 20KVA",
+     "Locação de Energia Ininterrupta (Nobreak) 6KVA"
+    ]
+   },
+   "tipoItem": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Serviço",
+     "Material"
+    ]
+   },
+   "quantidadeHomologadaItem": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1.0",
+     "9.0",
+     "3000.0"
+    ]
+   },
+   "classificacaoFornecedor": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "001"
+    ]
+   },
+   "niFornecedor": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "15911324000159",
+     "09624705000154",
+     "01620321000151"
+    ]
+   },
+   "nomeRazaoSocialFornecedor": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "PRO-INFO ENERGIA ININTERRUPTA E INFORMATICA LTDA",
+     "PAPA DOCE COMERCIO DE PRODUTOS EM GERAL LTDA",
+     "ACC CONSTRUCAO E SERVICOS GERAIS LTDA - ME"
+    ]
+   },
+   "quantidadeHomologadaVencedor": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1",
+     "9",
+     "3000"
+    ]
+   },
+   "valorUnitario": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "130000.0",
+     "35000.0",
+     "10200.0"
+    ]
+   },
+   "valorTotal": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "130000.0",
+     "35000.0",
+     "10200.0"
+    ]
+   },
+   "maximoAdesao": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1.0",
+     "18.0",
+     "0.0"
+    ]
+   },
+   "nomeUnidadeGerenciadora": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "DISTRITO SANIT.ESP.INDIGENA MATO GROSSO SUL",
+     "PREFEITURA MUNICIPAL DE BOTUCATU",
+     "2º BATALHAO DE INFANTARIA DE SELVA"
+    ]
+   },
+   "nomeModalidadeCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Pregão"
+    ]
+   },
+   "idCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "25703605900082025",
+     "98624905900362025",
+     "16016105900032025"
+    ]
+   },
+   "numeroControlePncpCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "00394544000185-1-000403/2025",
+     "46634101000115-1-000064/2025",
+     "00394452000103-1-010044/2025"
+    ]
+   },
+   "dataHoraInclusao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025-05-05T18:06:34",
+     "2025-05-30T08:32:41",
+     "2025-06-02T11:13:35"
+    ]
+   },
+   "dataHoraAtualizacao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025-05-05T18:06:34",
+     "2025-05-30T08:32:41",
+     "2025-06-02T11:13:35"
+    ]
+   },
+   "quantidadeEmpenhada": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "0.0"
+    ]
+   },
+   "percentualMaiorDesconto": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "0.0"
+    ]
+   },
+   "situacaoSicaf": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1"
+    ]
+   },
+   "dataHoraExclusao": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "itemExcluido": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "False"
+    ]
+   },
+   "numeroControlePncpAta": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "00394544000185-1-000403/2025-000001",
+     "46634101000115-1-000064/2025-000005",
+     "00394452000103-1-010044/2025-000001"
+    ]
+   },
+   "codigoPdm": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 14.0,
+    "ex": [
+     "19716",
+     "948",
+     "2025"
+    ]
+   },
+   "nomePdm": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 14.0,
+    "ex": [
+     "MASSA DE TOMATE",
+     "SUCO",
+     "ÁCIDO SALICÍLICO"
+    ]
+   }
+  }
+ },
+ "contrato": {
+  "n_rows": 400,
+  "fields": {
+   "codigoOrgao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "52000",
+     "26000"
+    ]
+   },
+   "nomeOrgao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "MINISTERIO DA DEFESA",
+     "MINISTERIO DA EDUCACAO"
+    ]
+   },
+   "codigoUnidadeGestora": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "110798",
+     "112408",
+     "110404"
+    ]
+   },
+   "nomeUnidadeGestora": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "ESCOLA SUPERIOR DE DEFESA",
+     "HOSPITAL DAS FORCAS ARMADAS",
+     "DEPARTAMENTO DE ADMINISTRACAO INTERNA-MD"
+    ]
+   },
+   "codigoUnidadeGestoraOrigemContrato": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "110798",
+     "112408",
+     "110404"
+    ]
+   },
+   "nomeUnidadeGestoraOrigemContrato": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "ESCOLA SUPERIOR DE DEFESA",
+     "HOSPITAL DAS FORCAS ARMADAS",
+     "DEPARTAMENTO DE ADMINISTRACAO INTERNA-MD"
+    ]
+   },
+   "receitaDespesa": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "D",
+     "S"
+    ]
+   },
+   "numeroContrato": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "00014/2024",
+     "00016/2024",
+     "00051/2024"
+    ]
+   },
+   "codigoUnidadeRealizadoraCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.2,
+    "ex": [
+     "110798",
+     "112408",
+     "110404"
+    ]
+   },
+   "nomeUnidadeRealizadoraCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.2,
+    "ex": [
+     "ESCOLA SUPERIOR DE DEFESA",
+     "HOSPITAL DAS FORCAS ARMADAS",
+     "DEPARTAMENTO DE ADMINISTRACAO INTERNA-MD"
+    ]
+   },
+   "numeroCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.2,
+    "ex": [
+     "90043/2023",
+     "90044/2023",
+     "00074/2025"
+    ]
+   },
+   "codigoModalidadeCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "07",
+     "05",
+     "06"
+    ]
+   },
+   "nomeModalidadeCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Inexigibilidade",
+     "Pregão",
+     "Dispensa"
+    ]
+   },
+   "codigoTipo": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "50",
+     "51",
+     "98"
+    ]
+   },
+   "nomeTipo": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Contrato",
+     "Credenciamento",
+     "Outros"
+    ]
+   },
+   "codigoCategoria": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "60",
+     "48",
+     "999"
+    ]
+   },
+   "nomeCategoria": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Compras",
+     "Serviços",
+     "Serviços de Saúde"
+    ]
+   },
+   "codigoSubcategoria": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 92.8,
+    "ex": [
+     "ORIGEM3",
+     "ORIGEM2",
+     "sociedade-empresaria"
+    ]
+   },
+   "nomeSubcategoria": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 92.8,
+    "ex": [
+     "N/D",
+     "RFB",
+     "SOCIEDADE EMPRESÁRIA LIMITADA"
+    ]
+   },
+   "niFornecedor": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "07522669000192",
+     "00082024000137",
+     "00025841000153"
+    ]
+   },
+   "nomeRazaoSocialFornecedor": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "NEOENERGIA DISTRIBUICAO BRASILIA S.A.",
+     "COMPANHIA DE SANEAMENTO AMBIENTAL DO DISTRITO FEDERAL",
+     "HOSPITAL SANTA LUCIA S/A"
+    ]
+   },
+   "processo": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "60094.001619/2024-47",
+     "60094.001623/2024-13",
+     "60550.034074/2024-21"
+    ]
+   },
+   "objeto": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "PRESTAÇÃO DE SERVIÇOS COMUNS DE FORNECIMENTO DE ENERGIA ELÉTRICA.",
+     "O PRESENTE CONTRATO TEM POR OBJETO A PRESTAÇÃO, DE FORMA CONTÍNUA, DOS",
+     "PRESTAÇÃO DE SERVIÇOS DE SAÚDE EM ASSISTÊNCIA MÉDICO-HOSPITALAR, AMBUL"
+    ]
+   },
+   "informacoesComplementares": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 7.0,
+    "ex": [
+     "",
+     "CAMERAS DE VIDEO - PV",
+     "GRAVADOR DIGITAL"
+    ]
+   },
+   "dataVigenciaInicial": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025-01-01T00:00:00",
+     "2025-01-02T00:00:00",
+     "2025-01-03T00:00:00"
+    ]
+   },
+   "dataVigenciaFinal": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 3.0,
+    "ex": [
+     "2030-01-01T00:00:00",
+     "2027-01-02T00:00:00",
+     "2030-01-02T00:00:00"
+    ]
+   },
+   "valorGlobal": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1160883.48",
+     "139732.44",
+     "5000000.0"
+    ]
+   },
+   "numeroParcelas": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1",
+     "12",
+     "60"
+    ]
+   },
+   "valorParcela": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1160883.48",
+     "139732.44",
+     "416666.6667"
+    ]
+   },
+   "valorAcumulado": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 40.2,
+    "ex": [
+     "69653008.8",
+     "5000000.04",
+     "4500000.0"
+    ]
+   },
+   "totalDespesasAcessorias": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "dataHoraInclusao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2024-11-25T15:59:03",
+     "2024-12-30T11:34:05",
+     "2025-02-18T10:02:45"
+    ]
+   },
+   "numeroControlePncpContrato": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 81.2,
+    "ex": [
+     "03277610000125-2-000591/2024",
+     "03277610000125-2-000573/2024",
+     "03277610000125-2-000752/2024"
+    ]
+   },
+   "numeroControlePncpCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 3.0,
+    "ex": [
+     "03277610000125-1-000485/2023",
+     "03277610000125-1-000513/2023",
+     "03277610000125-1-000026/2025"
+    ]
+   },
+   "idCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "11079807900432023",
+     "11079807900442023",
+     "11240807000742025"
+    ]
+   },
+   "dataHoraExclusao": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "contratoExcluido": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "False"
+    ]
+   },
+   "unidadesRequisitantes": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 21.0,
+    "ex": [
+     "110798",
+     "112408",
+     "CR-PV - DIRAF"
+    ]
+   }
+  }
+ },
+ "contrato_item": {
+  "n_rows": 400,
+  "fields": {
+   "codigoOrgao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "52000",
+     "26000"
+    ]
+   },
+   "codigoUnidadeGestora": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "110798",
+     "112408",
+     "110404"
+    ]
+   },
+   "codigoUnidadeGestoraOrigemContrato": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "110798",
+     "112408",
+     "110404"
+    ]
+   },
+   "codigoUnidadeRealizadoraCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "110798",
+     "112408",
+     "110404"
+    ]
+   },
+   "codigoModalidadeCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "07",
+     "05",
+     "06"
+    ]
+   },
+   "numeroContrato": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "00014/2024",
+     "00051/2024",
+     "00054/2024"
+    ]
+   },
+   "niFornecedor": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "07522669000192",
+     "00025841000153",
+     "00511816000180"
+    ]
+   },
+   "nomeRazaoSocialFornecedor": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "NEOENERGIA DISTRIBUICAO BRASILIA S.A.",
+     "HOSPITAL SANTA LUCIA S/A",
+     "HOSPITAL PRONTONORTE S/A"
+    ]
+   },
+   "processo": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "60094.001619/2024-47",
+     "60550.034074/2024-21",
+     "60550.034273/2024-39"
+    ]
+   },
+   "dataVigenciaInicial": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025-01-01T00:00:00",
+     "2025-01-02T00:00:00",
+     "2025-01-03T00:00:00"
+    ]
+   },
+   "dataVigenciaFinal": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 3.2,
+    "ex": [
+     "2030-01-01T00:00:00",
+     "2027-01-02T00:00:00",
+     "2030-01-02T00:00:00"
+    ]
+   },
+   "valorGlobal": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1160883.48",
+     "5000000.0",
+     "4500000.0"
+    ]
+   },
+   "tipoItem": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Serviço",
+     "Material"
+    ]
+   },
+   "codigoItem": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "4120",
+     "12920",
+     "14265"
+    ]
+   },
+   "descricaoIitem": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "ENERGIA ELÉTRICA - FORNECIMENTO MERCADO REGULADO",
+     "ASSISTÊNCIA MÉDICA - HOSPITALAR / DOMICILIAR COMPLEMENTAR DESAÚDE / CO",
+     "COLETA DE LIXO - RESIDENCIAL / COMERCIAL / INDUSTRIAL"
+    ]
+   },
+   "quantidadeItem": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "12",
+     "1",
+     "96"
+    ]
+   },
+   "valorUnitarioItem": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "96740.29",
+     "5000000.0",
+     "4500000.0"
+    ]
+   },
+   "valorTotalItem": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1160883.48",
+     "5000000.0",
+     "4500000.0"
+    ]
+   },
+   "dataHoraInclusao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2024-11-25T15:59:05",
+     "2025-02-18T10:02:46",
+     "2025-02-18T10:29:47"
+    ]
+   },
+   "numeroControlePncpContrato": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 11.2,
+    "ex": [
+     "03277610000125-2-000591/2024",
+     "03277610000125-2-000573/2024",
+     "03277610000125-2-000752/2024"
+    ]
+   },
+   "idCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "11079807900432023",
+     "11240807000742025",
+     "11240807000762025"
+    ]
+   },
+   "dataHoraExclusaoContrato": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "contratoExcluido": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "False"
+    ]
+   },
+   "nomeOrgao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "MINISTERIO DA DEFESA",
+     "MINISTERIO DA EDUCACAO"
+    ]
+   },
+   "nomeUnidadeGestora": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "ESCOLA SUPERIOR DE DEFESA",
+     "HOSPITAL DAS FORCAS ARMADAS",
+     "DEPARTAMENTO DE ADMINISTRACAO INTERNA-MD"
+    ]
+   },
+   "nomeUnidadeGestoraOrigemContrato": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "ESCOLA SUPERIOR DE DEFESA",
+     "HOSPITAL DAS FORCAS ARMADAS",
+     "DEPARTAMENTO DE ADMINISTRACAO INTERNA-MD"
+    ]
+   },
+   "nomeUnidadeRealizadoraCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "ESCOLA SUPERIOR DE DEFESA",
+     "HOSPITAL DAS FORCAS ARMADAS",
+     "DEPARTAMENTO DE ADMINISTRACAO INTERNA-MD"
+    ]
+   },
+   "nomeModalidadeCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Inexigibilidade",
+     "Pregão",
+     "Dispensa"
+    ]
+   },
+   "numeroCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "90043/2023",
+     "00074/2025",
+     "00076/2025"
+    ]
+   },
+   "dataHoraExclusaoItem": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 80.8,
+    "ex": [
+     "2025-03-20T11:53:00",
+     "2025-05-22T15:37:38",
+     "2025-02-07T09:11:58"
+    ]
+   },
+   "contratoItemExcluido": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "False",
+     "True"
+    ]
+   },
+   "numeroItem": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "00001",
+     "00002",
+     "00003"
+    ]
+   },
+   "esfera": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Federal"
+    ]
+   },
+   "poder": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 3.2,
+    "ex": [
+     "Executivo"
+    ]
+   },
+   "numeroControlePncpCompra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "03277610000125-1-000485/2023",
+     "03277610000125-1-000026/2025",
+     "03277610000125-1-000025/2025"
+    ]
+   }
+  }
+ },
+ "orgao": {
+  "n_rows": 500,
+  "fields": {
+   "codigoOrgao": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "97000",
+     "93000",
+     "95000"
+    ]
+   },
+   "nomeOrgao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "REGIAO CENTRO-OESTE",
+     "REGIAO NORTE",
+     "REGIAO SUDESTE"
+    ]
+   },
+   "nomeMnemonicoOrgao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "REGIAO CENTRO-OESTE",
+     "REGIAO NORTE",
+     "REGIAO SUDESTE"
+    ]
+   },
+   "cnpjCpfOrgao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "0",
+     "00000000000191",
+     "00000208000100"
+    ]
+   },
+   "codigoOrgaoVinculado": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 8.8,
+    "ex": [
+     "99900",
+     "20101",
+     "33000"
+    ]
+   },
+   "cnpjCpfOrgaoVinculado": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 8.8,
+    "ex": [
+     "0",
+     "00394411000109",
+     "00394528000192"
+    ]
+   },
+   "nomeOrgaoVinculado": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 8.8,
+    "ex": [
+     "REPUBLICA FEDERATIVA DO BRASIL",
+     "PRESIDENCIA DA REPUBLICA",
+     "MINISTERIO DA PREVIDENCIA SOCIAL"
+    ]
+   },
+   "codigoOrgaoSuperior": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 13.0,
+    "ex": [
+     "20000",
+     "20101",
+     "52000"
+    ]
+   },
+   "cnpjCpfOrgaoSuperior": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 13.0,
+    "ex": [
+     "00394411000109",
+     "03277610000125",
+     "0"
+    ]
+   },
+   "nomeOrgaoSuperior": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 13.0,
+    "ex": [
+     "PRESIDENCIA DA REPUBLICA - PRES",
+     "PRESIDENCIA DA REPUBLICA",
+     "MINISTERIO DEFESA"
+    ]
+   },
+   "codigoTipoAdministracao": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "11",
+     "7",
+     "3"
+    ]
+   },
+   "nomeTipoAdministracao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "ADMINISTRACAO DIRETA ESTADUAL",
+     "FUNDOS",
+     "AUTARQUIA"
+    ]
+   },
+   "poder": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 6.4,
+    "ex": [
+     "E",
+     "L"
+    ]
+   },
+   "esfera": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 6.4,
+    "ex": [
+     "E",
+     "M",
+     "F"
+    ]
+   },
+   "usoSisg": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "False",
+     "True"
+    ]
+   },
+   "statusOrgao": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "True"
+    ]
+   },
+   "dataHoraMovimento": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2007-11-30T23:00:00",
+     "2004-12-29T11:58:00",
+     "2000-02-17T16:58:00"
+    ]
+   }
+  }
+ },
+ "unidade_administrativa": {
+  "n_rows": 1000,
+  "fields": {
+   "codigoUasg": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "030204",
+     "080101",
+     "060030"
+    ]
+   },
+   "nomeUasg": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "TCU - SECRETARIA DE INFORMATICA",
+     "ESP-GABINETE DO SECRETARIO SEC. EDUCACAO",
+     "DIRETORIA DO FORO DA 11ª CJM"
+    ]
+   },
+   "usoSisg": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "False",
+     "True"
+    ]
+   },
+   "adesaoSiasg": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "True",
+     "False"
+    ]
+   },
+   "siglaUf": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "DF",
+     "SP",
+     "PE"
+    ]
+   },
+   "codigoMunicipio": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 4.9,
+    "ex": [
+     "97012",
+     "71072",
+     "25313"
+    ]
+   },
+   "codigoMunicipioIbge": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 5.9,
+    "ex": [
+     "5300108",
+     "3550308",
+     "2611606"
+    ]
+   },
+   "nomeMunicipioIbge": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 5.9,
+    "ex": [
+     "BRASÍLIA",
+     "SÃO PAULO",
+     "RECIFE"
+    ]
+   },
+   "codigoUnidadePolo": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "30001",
+     "990000",
+     "0"
+    ]
+   },
+   "nomeUnidadePolo": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 63.0,
+    "ex": [
+     "TCU-TRIBUNAL DE CONTAS DA UNIAO/DF",
+     "ESP-SECRETARIA DE GESTAO E GOVERNO DIGITAL",
+     "COORDENACAO-GERAL DE SERVICOS GERAIS"
+    ]
+   },
+   "codigoUnidadeEspelho": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "0"
+    ]
+   },
+   "nomeUnidadeEspelho": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "uasgCadastradora": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "False",
+     "True"
+    ]
+   },
+   "cnpjCpfUasg": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "",
+     "0",
+     "530352000159"
+    ]
+   },
+   "codigoOrgao": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "3000",
+     "95561",
+     "13014"
+    ]
+   },
+   "cnpjCpfOrgao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "00414607000118",
+     "46384111000140",
+     "00497552002796"
+    ]
+   },
+   "cnpjCpfOrgaoVinculado": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 27.1,
+    "ex": [
+     "46379400000150",
+     "00394460000141",
+     "0"
+    ]
+   },
+   "cnpjCpfOrgaoSuperior": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 28.2,
+    "ex": [
+     "0",
+     "00394411000109",
+     "10571982000125"
+    ]
+   },
+   "codigoSiorg": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "",
+     "A1472",
+     "A375"
+    ]
+   },
+   "statusUasg": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "True",
+     "False"
+    ]
+   },
+   "dataImplantacaoSidec": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 34.2,
+    "ex": [
+     "1999-07-15T03:00:00.000+00:00",
+     "2012-02-10T02:00:00.000+00:00",
+     "2013-05-28T03:00:00.000+00:00"
+    ]
+   },
+   "dataHoraMovimento": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025-06-11T18:30:00",
+     "2024-03-20T11:46:00",
+     "2025-02-21T18:11:00"
+    ]
+   }
+  }
+ },
+ "fornecedor": {
+  "n_rows": 400,
+  "fields": {
+   "ativo": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "True",
+     "False"
+    ]
+   },
+   "cnpj": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 10.0,
+    "ex": [
+     "00000000000191",
+     "00000028000129",
+     "00000166000108"
+    ]
+   },
+   "cpf": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 90.0,
+    "ex": [
+     "***007562**",
+     "***012001**",
+     "***034287**"
+    ]
+   },
+   "habilitadoLicitar": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "True",
+     "False"
+    ]
+   },
+   "codigoCnae": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 10.0,
+    "ex": [
+     "6422100",
+     "6203100",
+     "4120400"
+    ]
+   },
+   "nomeCnae": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 10.0,
+    "ex": [
+     "BANCOS MÚLTIPLOS, COM CARTEIRA COMERCIAL",
+     "DESENVOLVIMENTO E LICENCIAMENTO DE PROGRAMAS DE COMPUTADOR NÃO-CUSTOMI",
+     "CONSTRUÇÃO DE EDIFÍCIOS"
+    ]
+   },
+   "nomeMunicipio": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "BRASÍLIA",
+     "São Paulo",
+     "Manaus"
+    ]
+   },
+   "naturezaJuridicaId": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 10.0,
+    "ex": [
+     "2038",
+     "2062",
+     "2054"
+    ]
+   },
+   "naturezaJuridicaNome": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 10.0,
+    "ex": [
+     "SOCIEDADE DE ECONOMIA MISTA",
+     "SOCIEDADE EMPRESÁRIA LIMITADA",
+     "SOCIEDADE ANÔNIMA FECHADA"
+    ]
+   },
+   "porteEmpresaId": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 10.0,
+    "ex": [
+     "5",
+     "3",
+     "1"
+    ]
+   },
+   "porteEmpresaNome": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 10.0,
+    "ex": [
+     "DEMAIS",
+     "EMPRESA DE PEQUENO PORTE",
+     "MICROEMPRESA"
+    ]
+   },
+   "nomeRazaoSocialFornecedor": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "BANCO DO BRASIL SA",
+     "TARGET ENGENHARIA E CONSULTORIA LTDA.",
+     "IRMAOS RODOPOULOS LTDA"
+    ]
+   },
+   "ufSigla": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "DF",
+     "SP",
+     "AM"
+    ]
+   }
+  }
+ },
+ "catalogo_material": {
+  "n_rows": 200,
+  "fields": {
+   "codigoItem": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "206504",
+     "243756",
+     "399016"
+    ]
+   },
+   "codigoGrupo": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "71",
+     "68",
+     "65"
+    ]
+   },
+   "nomeGrupo": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "MOBILIÁRIOS",
+     "SUBSTÂNCIAS E PRODUTOS QUÍMICOS",
+     "EQUIPAMENTOS E ARTIGOS PARA USO MÉDICO, DENTÁRIO E VETERINÁRIO"
+    ]
+   },
+   "codigoClasse": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "7110",
+     "6810",
+     "6510"
+    ]
+   },
+   "nomeClasse": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "MOBILIÁRIO PARA ESCRITÓRIO",
+     "PRODUTOS QUÍMICOS",
+     "MATERIAIS CIRÚRGICOS PARA CURATIVOS"
+    ]
+   },
+   "codigoPdm": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "313",
+     "10081",
+     "439"
+    ]
+   },
+   "nomePdm": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "CADEIRA ESCRITÓRIO",
+     "BETA-NICOTINAMIDA ADENINA DINUCLEOTÍDEO",
+     "FITA HIPOALERGÊNICA"
+    ]
+   },
+   "descricaoItem": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "CADEIRA ESCRITÓRIO, MATERIAL ESTRUTURA: TUBO AÇO , MATERIAL REVESTIMEN",
+     "CADEIRA ESCRITÓRIO, MATERIAL REVESTIMENTO ASSENTO E ENCOSTO: TECIDO 10",
+     "BETA-NICOTINAMIDA ADENINA DINUCLEOTÍDEO, ASPECTO FÍSICO: PÓ BRANCO HIG"
+    ]
+   },
+   "statusItem": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "True",
+     "False"
+    ]
+   },
+   "itemSustentavel": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "False",
+     "True"
+    ]
+   },
+   "codigo_ncm": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 86.5,
+    "ex": [
+     "84717010",
+     "90211020",
+     "73089010"
+    ]
+   },
+   "descricao_ncm": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "aplica_margem_preferencia": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 86.5,
+    "ex": [
+     "True",
+     "False"
+    ]
+   },
+   "dataHoraAtualizacao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2021-10-16T09:43:08.030221",
+     "2021-12-01T18:18:08.34599",
+     "2022-04-28T03:00:19.150259"
+    ]
+   }
+  }
+ },
+ "catalogo_servico": {
+  "n_rows": 200,
+  "fields": {
+   "codigoSecao": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "9",
+     "7",
+     "8"
+    ]
+   },
+   "nomeSecao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "SERVIÇOS DA COMUNIDADE, PESSOAIS E SOCIAIS E OUTROS SERVIÇOS",
+     "SERVIÇOS FINANCEIROS E AFINS; SERVIÇOS IMOBILIÁRIOS; SERVI- ÇOS DE LEA",
+     "SERVIÇOS DE ARQUITETURA, DESENHOS TÉCNICOS, PESQUISA E DESENVOLVIMENTO"
+    ]
+   },
+   "codigoDivisao": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "93",
+     "73",
+     "87"
+    ]
+   },
+   "nomeDivisao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "SERVIÇO SOCIAL E DE SAÚDE",
+     "SERVIÇOS DE LEASING OU ALUGUEL SEM OPERADOR",
+     "SERVIÇOS DE MANUTENÇÃO,REPARO E INSTALAÇÃO(EXCETO DA CONSTRUÇÃO)"
+    ]
+   },
+   "codigoGrupo": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "931",
+     "731",
+     "871"
+    ]
+   },
+   "nomeGrupo": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "SERVIÇOS DE SAÚDE HUMANA",
+     "SERVIÇOS DE LEASING OU ALUGUEL VEÍCULOS A MOTOR, FERROVIÁRIOEMBARCAÇÕE",
+     "SERVIÇOS DE MANUTENÇÃO E REPARO DE PRODUTOS FABRICADOS DE METAL,MAQUIN"
+    ]
+   },
+   "codigoClasse": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 14.5,
+    "ex": [
+     "9311",
+     "7312",
+     "1711"
+    ]
+   },
+   "nomeClasse": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 14.5,
+    "ex": [
+     "SERVIÇOS HOSPITALARES",
+     "SERVIÇOS DE LEASING OU ALUGUEL DE OUTROS TIPOS DE MAQUINARIAE EQUIPAME",
+     "SERVIÇOS DE ANÁLISE DA DADOS E INDICADORES DE TIC"
+    ]
+   },
+   "codigoSubclasse": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 99.5,
+    "ex": [
+     "97990"
+    ]
+   },
+   "nomeSubclasse": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 99.5,
+    "ex": [
+     "OUTROS SERVIÇOS DIVERSOS/MISCELÂNEA N.C.P"
+    ]
+   },
+   "codigoServico": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "7250",
+     "7420",
+     "7501"
+    ]
+   },
+   "nomeServico": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "ENDOSCOPIA DIGESTIVA CIRURGICA - DRENAGEM CAVITARIA POR LAPAROSCOPIA",
+     "TRAQUEOSCOPIA COM DILATACAO PARA ESTENOSE",
+     "BRONCOSCOPIA FLEXIVEL PARA RETIRADA DE CORPO ESTRANHO"
+    ]
+   },
+   "codigoCpc": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "9311",
+     "7312",
+     "871"
+    ]
+   },
+   "exclusivoCentralCompras": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "False"
+    ]
+   },
+   "statusServico": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "True",
+     "False"
+    ]
+   },
+   "dataHoraAtualizacao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2021-10-16T09:09:59.689615",
+     "2024-04-25T00:59:59.172259",
+     "2024-04-27T00:59:59.289684"
+    ]
+   }
+  }
+ },
+ "licitacao": {
+  "n_rows": 400,
+  "fields": {
+   "id_compra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "15830305000062015",
+     "15307905000472015",
+     "15812505000042015"
+    ]
+   },
+   "identificador": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1583030562015",
+     "15307905472015",
+     "1581250542015"
+    ]
+   },
+   "numero_processo": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "23346001270201517",
+     "072060/2015-41   ",
+     "23348000561201578"
+    ]
+   },
+   "uasg": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "158303",
+     "153079",
+     "158125"
+    ]
+   },
+   "modalidade": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "5",
+     "3",
+     "1"
+    ]
+   },
+   "nome_modalidade": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "PREGÃO",
+     "CONCORRÊNCIA",
+     "CONVITE"
+    ]
+   },
+   "numero_aviso": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "62015",
+     "472015",
+     "42015"
+    ]
+   },
+   "situacao_aviso": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Publicado"
+    ]
+   },
+   "tipo_pregao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "eletronico",
+     "presencial"
+    ]
+   },
+   "tipo_recurso": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Nacional"
+    ]
+   },
+   "nome_responsavel": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "RENATO MARCOS SANDI SILVA",
+     "FAUSTO FERNANDES FILHO",
+     "DIEGO DOS SANTOS"
+    ]
+   },
+   "funcao_responsavel": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Pregoeiro Oficial",
+     "Coordenador da Comissão de Licitação",
+     "Coordenador de Compras e Licitações"
+    ]
+   },
+   "numero_itens": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "90",
+     "5",
+     "1"
+    ]
+   },
+   "valor_estimado_total": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 11.5,
+    "ex": [
+     "3542.4",
+     "5246.0",
+     "27117.96"
+    ]
+   },
+   "valor_homologado_total": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "13523.66",
+     "13243.82",
+     "31973.11"
+    ]
+   },
+   "informacoes_gerais": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 57.8,
+    "ex": [
+     "O Edital e seus anexos enco ntram-se disponíveis nos sites www.compras",
+     "O valor mensal mínimo para o aluguel será de R$ 300,00",
+     "O edital estará disponível em site.ufsm.br"
+    ]
+   },
+   "objeto": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Pregão Eletrônico Aquisição futura d e LUBRIFICANTES; MATERIAIS DE PRO",
+     "Pregão Eletrônico Aquisição com inst alação, de móveis sob medida, des",
+     "Pregão Eletrônico Contratação de emp resa especializada para prestação"
+    ]
+   },
+   "endereco_entrega_edital": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Estrada de Muzambinho Km 35 - Bairro Morro Preto - Cx Posta 02 - /MG",
+     "Rua Xv de Novembro, 1299 - Centro/PR",
+     "Rua Das Missões Nº 100 - /SC"
+    ]
+   },
+   "codigo_municipio_uasg": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "48810",
+     "75353",
+     "80470"
+    ]
+   },
+   "data_abertura_proposta": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 39.8,
+    "ex": [
+     "2015-06-16",
+     "2015-06-17",
+     "2015-06-18"
+    ]
+   },
+   "data_entrega_edital": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2015-06-03",
+     "2015-06-02",
+     "2015-06-05"
+    ]
+   },
+   "data_entrega_proposta": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2015-06-03",
+     "2015-07-20",
+     "2015-06-02"
+    ]
+   },
+   "data_publicacao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2015-06-03",
+     "2015-06-02",
+     "2015-06-05"
+    ]
+   },
+   "dt_alteracao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2016-05-10T16:52:57",
+     "2015-08-24T14:26:06",
+     "2015-07-06T09:30:42"
+    ]
+   },
+   "pertence14133": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "False"
+    ]
+   }
+  }
+ },
+ "licitacao_pregao": {
+  "n_rows": 200,
+  "fields": {
+   "id_compra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "13508205000142015",
+     "32500105000012015",
+     "92521305000442015"
+    ]
+   },
+   "co_processo": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "53/2015",
+     "PE.EPE.001/2015",
+     "5.096/2015"
+    ]
+   },
+   "co_portaria": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "019/2015",
+     "CI S/N",
+     "Portaria nº 2445/2015-GP"
+    ]
+   },
+   "co_uasg": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "no_ausg": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "EMBRAPA COCAIS/SÃO LUIS/MA",
+     "EMPRESA DE PESQUISA ENERGÉTICA",
+     "PREFEITURA MUNICIPAL DE MARABÁ"
+    ]
+   },
+   "co_orgao": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "22202",
+     "32314",
+     "93420"
+    ]
+   },
+   "no_orgao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "EMPRESA BRASILEIRA DE PESQUISA AGROPECUARIA",
+     "EMPRESA DE PESQUISA ENERGéTICA",
+     "ESTADO DO PARA"
+    ]
+   },
+   "numero": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "ds_situacao_pregao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "homologado",
+     "aberto",
+     "deserto"
+    ]
+   },
+   "ds_tipo_pregao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "eletronico"
+    ]
+   },
+   "ds_tipo_pregao_compra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "SISPP",
+     "SISRP"
+    ]
+   },
+   "tx_objeto": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Objeto: Pregão Eletrônico -  Contratação de empresa, por empreitada a ",
+     "Objeto: Pregão Eletrônico -  Serviços de diagramação, editoração, revi",
+     "Objeto: Pregão Eletrônico -  Registro de preços para eventual aquisiçã"
+    ]
+   },
+   "valor_estimado_total": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "300000.00",
+     "4100.00",
+     "449478.89"
+    ]
+   },
+   "valor_homologado_total": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "300000.00",
+     "2290.00",
+     "0.00"
+    ]
+   },
+   "dt_portaria": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2015-07-16T00:00:00",
+     "2015-05-13T00:00:00",
+     "2015-04-24T00:00:00"
+    ]
+   },
+   "dt_data_edital": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2015-06-01T00:00:00",
+     "2015-06-02T00:00:00",
+     "2015-06-03T00:00:00"
+    ]
+   },
+   "dt_inicio_proposta": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2015-06-01T08:00:00",
+     "2015-06-01T09:00:00",
+     "2015-06-15T08:00:00"
+    ]
+   },
+   "dt_fim_proposta": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2015-06-12T10:00:00",
+     "2015-06-15T10:00:00",
+     "2015-06-16T10:00:00"
+    ]
+   },
+   "dt_alteracao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2024-03-01T08:12:00",
+     "2024-02-05T11:08:00",
+     "2020-03-26T15:55:48.5"
+    ]
+   },
+   "dt_encerramento": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 1.5,
+    "ex": [
+     "2015-09-18T15:19:25",
+     "2015-07-03T15:56:59",
+     "2015-08-21T11:54:15"
+    ]
+   },
+   "dt_resultado": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 15.0,
+    "ex": [
+     "2015-06-15T15:18:38.94",
+     "2015-07-13T12:12:41.507",
+     "2015-07-09T13:25:21.357"
+    ]
+   },
+   "pertence14133": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "False"
+    ]
+   }
+  }
+ },
+ "licitacao_item": {
+  "n_rows": 1600,
+  "fields": {
+   "numero_licitacao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "255000011819971",
+     "364001011019971",
+     "36400101919971"
+    ]
+   },
+   "uasg": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "255000",
+     "364001",
+     "110052"
+    ]
+   },
+   "nome_uasg": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "MS-FUNDACAO NACIONAL DE SAUDE/DF",
+     "CNPQ - ADMINISTRACAO CENTRAL/DF",
+     "RADIOBRAS - EMP.BRASILEIRA DE COMUNICACAO S/A"
+    ]
+   },
+   "modalidade": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1",
+     "2",
+     "3"
+    ]
+   },
+   "nome_modalidade": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "CONVITE",
+     "TOMADA DE PREÇOS",
+     "CONCORRÊNCIA"
+    ]
+   },
+   "numero_aviso": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "181997",
+     "101997",
+     "91997"
+    ]
+   },
+   "numero_item_licitacao": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1",
+     "2",
+     "4"
+    ]
+   },
+   "codigo_item_material": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 43.4,
+    "ex": [
+     "28916",
+     "4111",
+     "29769"
+    ]
+   },
+   "nome_material": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 43.4,
+    "ex": [
+     "'\"MICROCOMPUTADOR\"', EQUIPAMENTO DE PROCESSAMENTO DE DADOS NOME",
+     "MEDALHA, MEDALHA NOME",
+     "FITA FONOGRAFICA, FITA FONOGRAFICA NOME"
+    ]
+   },
+   "codigo_item_servico": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 56.6,
+    "ex": [
+     "10022",
+     "9997",
+     "3735"
+    ]
+   },
+   "nome_servico": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 56.6,
+    "ex": [
+     "TRANSCRICAO DE TEXTO",
+     "GRAFICO - FORMULARIOS CONTINUOS",
+     "GRAFICO - FORMULARIOS PLANOS"
+    ]
+   },
+   "cnpj_fornecedor": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 67.1,
+    "ex": [
+     "89248504000139",
+     "02406041000108",
+     "02914947000133"
+    ]
+   },
+   "nome_fornecedor": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 67.1,
+    "ex": [
+     "LAUDIR VALDIR MILBRADT",
+     "CASA  DA  MERENDA DISTRIBUIDORA DEALIMENTOS LTDA",
+     "VALCIDE JORGE DA SILVA"
+    ]
+   },
+   "quantidade": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 1.8,
+    "ex": [
+     "1",
+     "240",
+     "2"
+    ]
+   },
+   "unidade": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 3.4,
+    "ex": [
+     "MILHEIRO",
+     "UN",
+     "CAIXA"
+    ]
+   },
+   "descricao_item": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "",
+     "conjunto de concentradores remotos padrao ethernet, modelo mesa",
+     "60 mm. de diametro , 3mm de espessura, 140 gramas de peso ouro 22 kila"
+    ]
+   },
+   "beneficio": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Nao possui tratamento diferenciado para ME/EPP/COOPERATIVA"
+    ]
+   },
+   "valor_estimado": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "0.0",
+     "73.8",
+     "142.8"
+    ]
+   },
+   "decreto_7174": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "false"
+    ]
+   },
+   "criterio_julgamento": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Menor Valor",
+     "Maior Desconto"
+    ]
+   },
+   "cpf_vencedor": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 72.7,
+    "ex": [
+     "",
+     "ESTRANGEIRO",
+     "39089673091"
+    ]
+   },
+   "nome_vencedor_pf": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 93.0,
+    "ex": [
+     "CADMUS JOURNAL SERVICES",
+     "PAULO ROBERTO LASTE              -",
+     "MARIA ELIZABETH DINIZ BARROS"
+    ]
+   },
+   "sustentavel": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 43.4,
+    "ex": [
+     "0"
+    ]
+   },
+   "dt_alteracao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025-06-03T11:05:00",
+     "2019-09-20T09:08:00",
+     "2024-04-03T16:45:00"
+    ]
+   },
+   "id_compra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "25500001000181997",
+     "36400101000101997",
+     "36400101000091997"
+    ]
+   },
+   "id_compra_item": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2550000100018199700001",
+     "3640010100010199700001",
+     "3640010100009199700001"
+    ]
+   }
+  }
+ },
+ "licitacao_item_pregao": {
+  "n_rows": 200,
+  "fields": {
+   "id_compra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "08001205000282015",
+     "12000105000072015",
+     "92589405000202015"
+    ]
+   },
+   "id_compra_item": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "0800120500028201500001",
+     "1200010500007201500037",
+     "1200010500007201500036"
+    ]
+   },
+   "decreto_7174": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 9.5,
+    "ex": [
+     "TRUE",
+     "FALSE"
+    ]
+   },
+   "situacao_item": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "homologado",
+     "cancelado no julgamento",
+     "cancelado"
+    ]
+   },
+   "descricao_item": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "SOFTWARE APLICATIVO",
+     "CESTA BÁSICA - GÊNEROS ALIMENTÍCIOS",
+     "MEDIDOR VAZÃO"
+    ]
+   },
+   "descricao_detalhada_item": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Licença de software Adobe Creative Cloud for teams por meio de subscri",
+     "CAQUI",
+     "BROTO DE FEIJÃO"
+    ]
+   },
+   "margem_preferencial": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "FALSE"
+    ]
+   },
+   "tratamento_diferenciado": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "quantidade_item": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "11",
+     "50",
+     "100"
+    ]
+   },
+   "unidade_fornecimento": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 9.5,
+    "ex": [
+     "Unidade",
+     "KG",
+     "PEÇA"
+    ]
+   },
+   "valor_estimado_item": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "4293.32",
+     "10.92",
+     "18.00"
+    ]
+   },
+   "menor_lance": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 10.0,
+    "ex": [
+     "2408.00",
+     "6.65",
+     "3.00"
+    ]
+   },
+   "valor_negociado": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 93.0,
+    "ex": [
+     "18500.00",
+     "220000.00",
+     "180.00"
+    ]
+   },
+   "valor_homologado_item": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 16.0,
+    "ex": [
+     "2408.00",
+     "6.65",
+     "3.00"
+    ]
+   },
+   "fornecedor_vencedor": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "no_adjudic": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 7.0,
+    "ex": [
+     "LUANDA DOS SANTOS BASTOS",
+     "MARIA ALICE CEZAR DE CARVALHO",
+     "JARINA SODRE DA COSTA"
+    ]
+   },
+   "no_hom": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "PATRICIA AIMEE BRUEL ANTONIO",
+     "ARY SOARES MESQUITA",
+     "ANDRE BORGES DE SOUZA"
+    ]
+   },
+   "dt_encerramento": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2015-05-18",
+     "2015-05-28",
+     "2015-05-29"
+    ]
+   },
+   "dt_adjudic": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 7.0,
+    "ex": [
+     "2015-05-28",
+     "2015-05-18",
+     "2015-05-29"
+    ]
+   },
+   "dt_hom": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2015-06-02"
+    ]
+   },
+   "dt_alteracao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025-05-13T15:43:00",
+     "2025-05-30T08:21:00",
+     "2020-03-26T15:55:48.5"
+    ]
+   }
+  }
+ },
+ "compra_sem_licitacao": {
+  "n_rows": 400,
+  "fields": {
+   "id_compra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "16009307000012015",
+     "16009307000022015",
+     "16009307000032015"
+    ]
+   },
+   "co_orgao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "52121",
+     "25000",
+     "30203"
+    ]
+   },
+   "co_orgao_superior": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "20101",
+     "20000",
+     "28000"
+    ]
+   },
+   "co_uasg": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "160093",
+     "160262",
+     "170137"
+    ]
+   },
+   "no_ausg": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "38  BATALHAO DE INFANTARIA/MEX/ES",
+     "1 REGIMENTO DE CARROS DE COMBATE/RS",
+     "DELEGACIA DA REC.FEDERAL EM P.PRUDENTE/SP"
+    ]
+   },
+   "co_modalidade_licitacao": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "7",
+     "6"
+    ]
+   },
+   "ds_lei": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "nu_processo": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "01               ",
+     "2                ",
+     "3/2015           "
+    ]
+   },
+   "qt_total_item": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1",
+     "2",
+     "4"
+    ]
+   },
+   "vr_estimado": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.5,
+    "ex": [
+     "206000.0",
+     "535600.0",
+     "72950.0"
+    ]
+   },
+   "nu_aviso_licitacao": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1",
+     "2",
+     "3"
+    ]
+   },
+   "ds_objeto_licitacao": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "ds_fundamento_legal": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Fundamento Legal: Art. 25º, Caput da Lei nº 8.666 de 21/06/1993.",
+     "Fundamento Legal: Art. 24º, Inciso II da Lei nº 8.666 de 21/06/1993.",
+     "Fundamento Legal: Art. 24º, Inciso XXII da Lei nº 8.666 de 21/06/1993."
+    ]
+   },
+   "ds_justificativa": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Justificativa: Prestação de serviços médicos, do tipo credenciamento c",
+     "Justificativa: Serviço de decoração.",
+     "Justificativa: Valor abaixo do limite legal."
+    ]
+   },
+   "no_responsavel_decl_disp": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "LUIZ FERNANDO AZEVEDO DELAGE",
+     "ADILSON AKIRA TORIGOE",
+     "OLAVO OLIVEIRA DA CRUZ"
+    ]
+   },
+   "no_cargo_resp_decl_disp": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Ordenador de Despesas",
+     "Chefe Substituto da Sapol",
+     "Gestor de Compras"
+    ]
+   },
+   "no_responsavel_ratificacao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "CARLOS ALBERTO NEIVA BARCELLOS",
+     "",
+     "CAMILA HERZOG KOCH"
+    ]
+   },
+   "no_cargo_resp_ratificacao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Comandante da 1ª Região Militar",
+     "",
+     "Ordenadora de Despesas"
+    ]
+   },
+   "dt_declaracao_dispensa": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2014-11-26",
+     "2014-12-23",
+     "2014-12-30"
+    ]
+   },
+   "dt_ratificacao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 47.2,
+    "ex": [
+     "2014-11-28",
+     "2015-01-02",
+     "2014-12-31"
+    ]
+   },
+   "dt_publicacao": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "dt_ano_aviso": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2015",
+     "2005"
+    ]
+   },
+   "dt_alteracao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025-04-24",
+     "2023-07-06",
+     "2018-08-09"
+    ]
+   },
+   "pertence14133": {
+    "types": [
+     "bool"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "False"
+    ]
+   }
+  }
+ },
+ "compra_sem_licitacao_item": {
+  "n_rows": 200,
+  "fields": {
+   "co_conjunto_materiais": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "0",
+     "388926",
+     "31372"
+    ]
+   },
+   "co_servico": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "17663",
+     "5479",
+     "25232"
+    ]
+   },
+   "ds_detalhada": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 19.5,
+    "ex": [
+     "Curso de formação de pregoeiro.",
+     "Contratação de empresa para afiação de facas e lâminas.",
+     "Contratação de treinamento de pessoal, conforme APE e anexos para dois"
+    ]
+   },
+   "in_tipo_fornecedor_vencedor": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "PJ",
+     "PF"
+    ]
+   },
+   "no_fornecedor_vencedor": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "ESCOLA DE ADMINISTRACAO FAZENDARIA",
+     "PRESSIGRAF COMERCIO E SERVICOS GRAFICOS LTDA - EPP",
+     "VALORH CONSULTORIA E TREINAMENTO LTDA - ME"
+    ]
+   },
+   "no_conjunto_materiais": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 49.5,
+    "ex": [
+     "FREON",
+     "PLACA CIRCUITO IMPRESSO",
+     "REDE INFORMATICA - PECA / ACESSORIO"
+    ]
+   },
+   "no_marca_material": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 20.0,
+    "ex": [
+     "arthrex",
+     "Sem Marca",
+     "evice / j&j"
+    ]
+   },
+   "no_servico": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 80.0,
+    "ex": [
+     "CURSO APERFEICOAMENTO / ESPECIALIZACAO PROFISSIONAL",
+     "MANUTENCAO - EQUIPAMENTOS GRAFICOS",
+     "PAGAMENTO INSCRICAO EVENTOS"
+    ]
+   },
+   "no_unidade_medida": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Unidade",
+     "UNIDADE",
+     "UN"
+    ]
+   },
+   "nu_cnpj_vencedor": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 1.5,
+    "ex": [
+     "02317176000105",
+     "01812762000155",
+     "14003755000154"
+    ]
+   },
+   "nu_cpf_vencedor": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 98.5,
+    "ex": [
+     "***308103**",
+     "***555395**",
+     "***997908**"
+    ]
+   },
+   "qt_material_alt": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1",
+     "3",
+     "6"
+    ]
+   },
+   "vr_estimado": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1004.0",
+     "7956.0",
+     "10674.0"
+    ]
+   },
+   "in_material_servico": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "servico",
+     "material"
+    ]
+   },
+   "dt_publicacao": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "id_compra": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "16029306000142015",
+     "15200406000502015",
+     "17007507000022015"
+    ]
+   },
+   "id_compra_item": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1602930600014201500001",
+     "1520040600050201500001",
+     "1700750700002201500001"
+    ]
+   },
+   "co_uasg": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "160293",
+     "152004",
+     "170075"
+    ]
+   },
+   "co_modalidade_licitacao": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "6",
+     "7"
+    ]
+   },
+   "no_modalidade_licitacao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Dispensa",
+     "Inexigibilidade"
+    ]
+   },
+   "nu_aviso_licitacao": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "14",
+     "50",
+     "2"
+    ]
+   },
+   "dt_ano_aviso_licitacao": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2015"
+    ]
+   },
+   "nu_inciso": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "02",
+     "01",
+     "00"
+    ]
+   },
+   "nu_processo": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "21               ",
+     "23119000074201561",
+     "10580000122201561"
+    ]
+   },
+   "qt_total_item": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2",
+     "1",
+     "4"
+    ]
+   },
+   "ds_objeto_licitacao": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "ds_fundamento_legal": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Fundamento Legal: Art. 24º, Inciso II da Lei nº 8.666 de 21/06/1993.",
+     "Fundamento Legal: Art. 25º, Inciso II da Lei nº 8.666 de 21/06/1993.",
+     "Fundamento Legal: Art. 25º, Inciso I da Lei nº 8.666 de 21/06/1993."
+    ]
+   },
+   "ds_justificativa": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Justificativa: Realizar a capacitação de agentes desta UASG em estabel",
+     "Justificativa: Valor abaixo de R$8.000,00 reais.",
+     "Justificativa: Efetivação do Plano Plurianual do MF/2015, viabilizando"
+    ]
+   },
+   "nu_cpf_resp_decl_disp": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "nu_cpf_resp_ratificacao": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "nu_cpf_resp_publicacao": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "no_responsavel_decl_disp": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "ALEXANDRE GIL DE MELO",
+     "JOAO RICARDO MELO FIGUEIREDO",
+     "ELTON MONTALVAO"
+    ]
+   },
+   "no_cargo_resp_decl_disp": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "Ordenador de Despesas",
+     "Diretora Geral do Ibc",
+     "Gerente Drl/samf/ba"
+    ]
+   },
+   "no_responsavel_ratificacao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "",
+     "EVERALDO MANOEL LUZ",
+     "SERGIO PEREIRA"
+    ]
+   },
+   "no_cargo_resp_ratificacao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "",
+     "Superintendente de Administração Mf/ba",
+     "Diretor"
+    ]
+   },
+   "nu_item_material": {
+    "types": [
+     "int"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "1"
+    ]
+   },
+   "vr_estimado_item": {
+    "types": [
+     "float"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "693.0",
+     "7956.0",
+     "10674.0"
+    ]
+   },
+   "ds_fabricante": {
+    "types": [],
+    "null_pct": 100.0,
+    "ex": []
+   },
+   "dt_alteracao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "2025-06-09T14:32:00",
+     "2025-06-03T09:23:00",
+     "2025-04-17T14:33:00"
+    ]
+   },
+   "co_orgao": {
+    "types": [
+     "str"
+    ],
+    "null_pct": 0.0,
+    "ex": [
+     "52121",
+     "26000",
+     "25000"
+    ]
+   }
+  }
+ }
+}

@@ -44,16 +44,31 @@ def build_table_paths(
 
 
 @task
-def get_data_source_date_and_url() -> tuple[datetime, str]:
-    """Return the url for the PNAD microdata file for a given year and month.
+def get_data_source_date_and_url(
+    year: int | None = None, quarter: int | None = None
+) -> tuple[datetime, str]:
+    """Escolhe o arquivo de microdados a baixar no FTP do IBGE.
+
+    O ano faz parte do caminho da URL (`.../Microdados/{year}/`), e cada pasta
+    traz um arquivo por trimestre. A função devolve um arquivo só.
+
     Args:
-        year (int): Year of the microdata file.
-        quarter (int): Quarter of the microdata file.
+        year: ano da pasta a consultar. `None` (padrão) usa o ano corrente, via
+            `get_extraction_year`.
+        quarter: trimestre a baixar, de 1 a 4. `None` (padrão) devolve o arquivo
+            de modificação mais recente da pasta — é o caminho da execução
+            agendada, que busca o trimestre recém-publicado.
+
     Returns:
-        str: url
+        Uma tupla `(last_modified, url)`: a data de modificação do arquivo
+        escolhido, no fuso do FTP, e a URL para baixá-lo.
+
+    Raises:
+        Exception: se a listagem devolver erro HTTP, se a pasta não tiver nenhum
+            `.zip`, ou se o trimestre pedido não existir nela.
     """
 
-    year = get_extraction_year()
+    year = year or get_extraction_year()
 
     download_page = pnad_constants.URL_PREFIX.value.format(year=year)
 
@@ -65,14 +80,32 @@ def get_data_source_date_and_url() -> tuple[datetime, str]:
         )
 
     soup = BeautifulSoup(response.text)
+
     hrefs = [row.get("href") for row in soup.select("tr td a")]
     dates = [
         row.text.strip().split(" ")[0]
         for row in soup.select("table td:nth-child(3)")
     ]
-    dados = dict(zip(dates, hrefs, strict=False))
-    last_update = max(dados.keys())
-    filename = dados[last_update]
+    files = [
+        (href, date)
+        for href, date in zip(hrefs, dates, strict=False)
+        if href and href.endswith(".zip")
+    ]
+
+    if not files:
+        raise Exception("Nenhum arquivo .zip encontrado")
+
+    if quarter is None:
+        candidates = files
+    else:
+        candidates = [
+            f for f in files if f[0].startswith(f"PNADC_{quarter:02d}{year}")
+        ]
+
+        if not candidates:
+            raise Exception(f"Trimestre {quarter} de {year} não encontrado.")
+
+    filename, last_update = max(candidates, key=lambda item: item[1])
 
     last_modified = datetime.strptime(last_update, "%Y-%m-%d")
     url = download_page + f"{filename}"
@@ -87,6 +120,7 @@ def download_txt(url, chunk_size=128, mkdir=False) -> str:
     Gets all csv files from a url and saves them to a directory.
     """
     if mkdir:
+        # pyrefly: ignore [deprecated]
         os.system("mkdir -p /tmp/data/input/")
 
     request_headers = {
@@ -101,6 +135,7 @@ def download_txt(url, chunk_size=128, mkdir=False) -> str:
 
     with zipfile.ZipFile(save_path) as z:
         z.extractall("/tmp/data/input")
+    # pyrefly: ignore [deprecated]
     os.system('cd /tmp/data/input; find . -type f ! -iname "*.txt" -delete')
     filepath = glob("/tmp/data/input/*.txt")[0]
 
@@ -118,6 +153,7 @@ def build_partitions(input_path: str | Path, output_dir: str | Path) -> str:
     filepaths = glob(f"{input_path}/*.txt")
     log(f"Found filepaths of interest {filepaths}")
     filepath = filepaths[0] if len(filepaths) > 0 else filepaths
+    # pyrefly: ignore [no-matching-overload]
     chunks = pd.read_fwf(
         filepath,
         widths=pnad_constants.COLUMNS_WIDTHS.value,

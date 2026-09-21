@@ -38,6 +38,7 @@ def get_data_source_stf_max_date():
 )
 # make_partition
 def make_partitions(df):
+    # pyrefly: ignore [bad-argument-type]
     partition_data(df, "data_decisao", stf_constants.STF_OUTPUT.value)
     return stf_constants.STF_OUTPUT.value
 

@@ -18,6 +18,8 @@ from pathlib import Path
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+
+# pyrefly: ignore [missing-import]
 import pyreadstat
 
 ROOT = Path(__file__).resolve().parents[1]

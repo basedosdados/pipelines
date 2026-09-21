@@ -1,0 +1,5 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_state,STRING,"State identifier, 2-digit Land code",,no,,,no,,id_state
+state_abbreviation,STRING,"Official state abbreviation (e.g. BY, NW)",,no,,,no,,state_abbreviation
+name,STRING,State name in German,,no,,,no,,name
+name_en,STRING,State name in English,,no,,,no,,name_en

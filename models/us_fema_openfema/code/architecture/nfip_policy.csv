@@ -1,0 +1,91 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,"Ano de referência, usado como coluna de partição",,no,diretorios_data_tempo.ano:ano,year,no,Derived during cleaning: year of policy_effective_date,policyEffectiveDate
+state_abbreviation,STRING,"Sigla de duas letras do estado, distrito ou território",,no,,,no,"Não vinculado ao diretório de estados, que é chaveado pelo código FIPS e não pela sigla; a integridade é verificada por teste dbt",propertyState
+county_id,STRING,Código FIPS de cinco posições do condado,,no,diretorios_us.county:id_county,,no,Derivado na limpeza; nulo quando a fonte não identifica um condado. Derived during cleaning: first 5 digits of census_geoid,
+census_tract_id,STRING,Código de onze posições do setor censitário (census tract),,no,,,no,"Derivado dos onze primeiros dígitos de census_geoid. A vintage do código censitário não é documentada pela FEMA, portanto não há ligação com o diretório de setores censitários. Derived during cleaning: first 11 digits of census_geoid",
+census_block_group_id,STRING,Código de doze posições do grupo de quadras censitário (block group),,no,,,no,"Doze dígitos: estado, condado, setor censitário e grupo de quadras",censusGeoid
+policy_id,STRING,Identificador único da apólice atribuído pela OpenFEMA,,no,,,no,,id
+policy_effective_date,DATE,Data de início de vigência da apólice de inundação,,no,,,no,,policyEffectiveDate
+agriculture_structure_indicator,BOOLEAN,Indica se o imóvel foi declarado como estrutura agrícola na proposta,,no,,,no,,agricultureStructureIndicator
+as_of_date,DATETIME,Data de vigência dos dados no arquivo: quando o registro foi criado ou atualizado pela última vez no sistema de origem,,no,,,no,,asOfDate
+base_flood_elevation,FLOAT64,"Cota de inundação base em pés, elevação com 1% de chance anual de ser atingida ou superada",,no,,foot,no,,baseFloodElevation
+basement_enclosure_crawlspace_type,STRING,"Tipo de porão, área fechada ou vão sanitário do imóvel segurado",,yes,,,no,,basementEnclosureCrawlspaceType
+cancellation_date_of_flood_policy,DATE,"Data de cancelamento da apólice de inundação, quando houver",,no,,,no,,cancellationDateOfFloodPolicy
+condominium_coverage_type_code,STRING,Código do tipo de cobertura de condomínio contratada para a edificação,,yes,,,no,,condominiumCoverageTypeCode
+construction,BOOLEAN,Indica se a edificação está em obras,,no,,,no,,construction
+crs_class_code,STRING,"Classificação do Community Rating System usada para tarifar a apólice, que determina o desconto no prêmio",,yes,,,no,,crsClassCode
+building_deductible_code,STRING,Código da franquia aplicável à edificação principal e às acessórias,,yes,,,no,,buildingDeductibleCode
+contents_deductible_code,STRING,Código da franquia aplicável ao conteúdo,,yes,,,no,,contentsDeductibleCode
+elevated_building_indicator,BOOLEAN,Indica se o imóvel atende à definição de edificação elevada do NFIP,,no,,,no,,elevatedBuildingIndicator
+elevation_certificate_indicator,STRING,Indica se a apólice foi tarifada com Elevation Certificate,,yes,,,no,,elevationCertificateIndicator
+elevation_difference,INT64,Diferença em pés entre a elevação do piso mais baixo usado na tarifação e a cota de inundação base,,no,,foot,no,,elevationDifference
+federal_policy_fee,INT64,"Valor da taxa federal da apólice, em dólares",,no,,usd,no,,federalPolicyFee
+rated_flood_zone,STRING,Zona de inundação do FIRM usada para tarifar o imóvel segurado,,yes,,,no,,ratedFloodZone
+hfiaa_surcharge,INT64,"Sobretaxa anual instituída pelo HFIAA, obrigatória em apólices novas e renovadas a partir de 1 de abril de 2015, em dólares",,no,,usd,no,,hfiaaSurcharge
+house_of_worship_indicator,BOOLEAN,Indica se o imóvel foi declarado como templo religioso na proposta,,no,,,no,,houseOfWorshipIndicator
+location_of_contents,STRING,Código que indica onde o conteúdo segurado está situado dentro da edificação,,yes,,,no,,locationOfContents
+lowest_adjacent_grade,FLOAT64,"Cota natural mais baixa adjacente à estrutura segurada antes de escavação ou aterro, em pés",,no,,foot,no,,lowestAdjacentGrade
+lowest_floor_elevation,FLOAT64,"Elevação em pés do piso mais baixo da edificação, incluindo porão, área fechada ou vão sanitário",,no,,foot,no,,lowestFloorElevation
+non_profit_indicator,BOOLEAN,Indica se o imóvel foi declarado como pertencente a entidade sem fins lucrativos na proposta,,no,,,no,,nonProfitIndicator
+number_of_floors_in_insured_building,STRING,Código que indica o número de pavimentos da edificação segurada,,yes,,,no,,numberOfFloorsInInsuredBuilding
+obstruction_type,STRING,Código que descreve o tipo de obstrução presente sob uma edificação elevada,,yes,,,no,,obstructionType
+occupancy_type,STRING,Código que indica o uso e o tipo de ocupação da estrutura segurada,,yes,,,no,,occupancyType
+original_construction_date,DATE,Data original de construção da edificação,,no,,,no,,originalConstructionDate
+original_nb_date,DATE,Data original de emissão da apólice de inundação,,no,,,no,,originalNBDate
+policy_cost,INT64,"Custo total da apólice em dólares, somando prêmio calculado, contribuição ao fundo de reserva, taxa federal e sobretaxa HFIAA",,no,,usd,no,,policyCost
+policy_count,INT64,Número de unidades seguradas em situação ativa,,no,,,no,Contagem sem unidade de medida cadastrada no back-end,policyCount
+policy_termination_date,DATE,"Data em que a apólice deixou de vigorar, por cancelamento ou por decurso do prazo",,no,,,no,,policyTerminationDate
+policy_term_indicator,STRING,Código do prazo de vigência da apólice,,yes,,,no,,policyTermIndicator
+post_firm_construction_indicator,BOOLEAN,Indica se a construção começou após a publicação do FIRM,,no,,,no,,postFIRMConstructionIndicator
+primary_residence_indicator,BOOLEAN,Indica se a edificação é residência principal do segurado,,no,,,no,,primaryResidenceIndicator
+rate_method,STRING,Código do método de tarifação aplicado à apólice,,yes,,,no,,rateMethod
+regular_emergency_program_indicator,STRING,"Código da fase do NFIP em que a comunidade participa, que determina a cobertura disponível",,yes,,,no,,regularEmergencyProgramIndicator
+small_business_indicator_building,BOOLEAN,Indica se o segurado é uma pequena empresa,,no,,,no,,smallBusinessIndicatorBuilding
+total_building_insurance_coverage,INT64,"Importância segurada da edificação, em dólares inteiros",,no,,usd,no,,totalBuildingInsuranceCoverage
+total_contents_insurance_coverage,INT64,"Importância segurada do conteúdo, em dólares inteiros",,no,,usd,no,,totalContentsInsuranceCoverage
+total_insurance_premium_of_the_policy,INT64,Prêmio total da apólice em dólares inteiros; valores negativos indicam restituição,,no,,usd,no,,totalInsurancePremiumOfThePolicy
+cancellation_voidance_reason_code,STRING,Código do motivo de cancelamento ou anulação da apólice,,yes,,,no,,cancellationVoidanceReasonCode
+subsidized_rate_type,STRING,Código que indica se a apólice foi tarifada com subsídio e de que tipo,,yes,,,no,,subsidizedRateType
+icc_premium,INT64,"Prêmio da cobertura Increased Cost of Compliance antes de descontos, em dólares inteiros",,no,,usd,no,,iccPremium
+reserve_fund_assessment,INT64,"Contribuição ao fundo de reserva informada pela seguradora, em dólares",,no,,usd,no,,reserveFundAssessment
+community_probation_surcharge,INT64,"Sobretaxa de probation calculada pela seguradora para tarifar a apólice, em dólares inteiros",,no,,usd,no,,communityProbationSurcharge
+premium_payment_indicator,STRING,Código do meio de pagamento usado para contratar a apólice,,yes,,,no,,premiumPaymentIndicator
+building_replacement_cost,INT64,"Custo estimado de reposição da edificação em dólares inteiros, conforme informado pela seguradora",,no,,usd,no,,buildingReplacementCost
+basic_building_rate,FLOAT64,Taxa básica da edificação escolhida pela seguradora,,no,,usd,no,,basicBuildingRate
+additional_building_rate,FLOAT64,Taxa adicional da edificação escolhida pela seguradora,,no,,usd,no,,additionalBuildingRate
+basic_contents_rate,FLOAT64,Taxa básica do conteúdo escolhida pela seguradora,,no,,usd,no,,basicContentsRate
+additional_contents_rate,FLOAT64,Taxa adicional do conteúdo escolhida pela seguradora,,no,,usd,no,,additionalContentsRate
+enclosure_type_code,STRING,Código que indica a existência e o tipo de área fechada abaixo do piso elevado mais baixo,,yes,,,no,,enclosureTypeCode
+building_description_code,STRING,Código que descreve o uso da edificação segurada,,yes,,,no,,buildingDescriptionCode
+insurance_to_value_code,STRING,Código da razão entre a cobertura contratada para a edificação e seu custo de reposição,,yes,,,no,,insuranceToValueCode
+post_firm_vzone_indicator,BOOLEAN,"Indica, para a tarifação de zona V pós-FIRM de 1981, se foi apresentada certificação nos termos da seção 60.3(e)(4)",,no,,,no,,postFirmVzoneIndicator
+floodproofed_indicator,BOOLEAN,Indica se a estrutura segurada é à prova de inundação,,no,,,no,,floodproofedIndicator
+waiting_period_type,STRING,Código do tipo de carência aplicado à emissão da apólice,,yes,,,no,,waitingPeriodType
+rollover_transfer_code,STRING,Código do tipo de novo negócio informado pela seguradora,,yes,,,no,,rolloverTransferCode
+endorsement_effective_date,DATE,Data em que um endosso da apólice entra em vigor,,no,,,no,,endorsementEffectiveDate
+property_purchase_date,DATE,Data em que o imóvel segurado foi adquirido,,no,,,no,,propertyPurchaseDate
+rental_property_indicator,BOOLEAN,Indica se o imóvel é destinado a locação,,no,,,no,,rentalPropertyIndicator
+tenant_indicator,BOOLEAN,Indica que o segurado é locatário e não proprietário do imóvel,,no,,,no,,tenantIndicator
+state_owned_indicator,BOOLEAN,Indica se o imóvel segurado pertence ao estado,,no,,,no,,stateOwnedIndicator
+disaster_assistance_coverage_required,STRING,Código da agência federal que exigiu a contratação do seguro de inundação como condição de auxílio em desastre,,yes,,,no,,disasterAssistanceCoverageRequiredCode
+mandatory_purchase_flag,BOOLEAN,Indica se a apólice é exigida pelo credor hipotecário,,no,,,no,,mandatoryPurchaseFlag
+grandfathering_type_code,STRING,"Código do tipo de grandfathering aplicado à tarifação, quando houver",,yes,,,no,,grandfatheringTypeCode
+nfip_rated_community_number,STRING,Código de seis posições da comunidade NFIP usada na tarifação,,no,,,no,,nfipRatedCommunityNumber
+nfip_community_number_current,STRING,Código de seis posições da comunidade NFIP atual do imóvel,,no,,,no,,nfipCommunityNumberCurrent
+nfip_community_name,STRING,Nome da entidade político-administrativa responsável por adotar e fazer cumprir as normas de planície de inundação,,no,,,no,,nfipCommunityName
+program_type_indicator,BOOLEAN,Indica se o imóvel se qualifica para a cobertura do programa de emergência em vez da cobertura regular,,no,,,no,,programTypeIndicator
+map_panel_number,STRING,"Número do painel do FIRM do imóvel, corrente ou usado na tarifação",,no,,,no,,mapPanelNumber
+map_panel_suffix,STRING,"Sufixo do painel do FIRM do imóvel, corrente ou usado na tarifação",,no,,,no,,mapPanelSuffix
+flood_zone_current,STRING,Zona de inundação do FIRM em que o imóvel segurado se situa atualmente,,yes,,,no,,floodZoneCurrent
+fema_region,INT64,Número da região da FEMA em que o imóvel segurado se situa,,no,,,no,Número da região da FEMA; sem unidade de medida cadastrada no back-end,femaRegion
+reported_city,STRING,Cidade do imóvel segurado conforme informada pelas seguradoras parceiras Write Your Own,,no,,,no,,reportedCity
+reported_zip_code,STRING,Código postal de cinco dígitos do imóvel segurado conforme informado pelas seguradoras parceiras,,no,,,no,Normalizado para cinco dígitos: strings vazias viram nulo e valores ZIP+4 são truncados,reportedZipCode
+latitude,FLOAT64,"Latitude aproximada da edificação segurada, arredondada a uma casa decimal pela FEMA",,no,,,no,"Sem unidade de medida cadastrada no back-end (graus decimais). Arredondada a uma casa decimal na origem: é a localização aproximada, não o endereço do imóvel",latitude
+longitude,FLOAT64,"Longitude aproximada da edificação segurada, arredondada a uma casa decimal pela FEMA",,no,,,no,"Sem unidade de medida cadastrada no back-end (graus decimais). Arredondada a uma casa decimal na origem: é a localização aproximada, não o endereço do imóvel",longitude
+building_on_federal_land,BOOLEAN,Indica se a edificação atende à definição do NFIP de estar situada em terra federal,,no,,,no,,buildingOnFederalLand
+building_purpose,STRING,"Código que indica se a edificação é residencial, não residencial ou de uso misto",,yes,,,no,,buildingPurpose
+seasonally_occupied,BOOLEAN,Indica se a edificação atende à definição de ocupação sazonal do NFIP,,no,,,no,,seasonallyOccupied
+full_risk_premium,INT64,"Prêmio devido pelo imóvel com base no risco de inundação apurado e no custo integral das perdas previstas, em dólares",,no,,usd,no,,fullRiskPremium
+building_over_water_type,STRING,"Código que indica se a edificação segurada está total, parcial ou nada sobre a água",,yes,,,no,,buildingOverWaterType
+foundation_type,STRING,Código do tipo de fundação da edificação,,yes,,,no,,foundationType
+pre_firm_construction_indicator,BOOLEAN,Indica se a construção começou antes da publicação do FIRM,,no,,,no,,preFIRMConstructionIndicator

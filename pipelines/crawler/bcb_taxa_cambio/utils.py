@@ -98,6 +98,7 @@ def get_currency_data(currency: dict) -> pd.DataFrame:
             tm.sleep(3)
 
     # Extract the currency data from the JSON response
+    # pyrefly: ignore [unbound-name]
     data = json_response["value"]
 
     # Convert the data into a DataFrame
@@ -161,6 +162,7 @@ def save_input(df: pd.DataFrame, table_id: str) -> str:
     # Define the folder path for storing the file
     folder = f"tmp/{table_id}/input/"
     # Create the folder if it doesn't exist
+    # pyrefly: ignore [deprecated]
     os.system(f"mkdir -p {folder}")
     # Define the full file path for the CSV file
     full_filepath = f"{folder}/{table_id}.csv"
@@ -186,6 +188,7 @@ def save_output(df: pd.DataFrame, table_id: str) -> str:
     # Define the folder path for storing the file
     folder = f"tmp/{table_id}/output/"
     # Create the folder if it doesn't exist
+    # pyrefly: ignore [deprecated]
     os.system(f"mkdir -p {folder}")
     # Define the full file path for the CSV file
     full_filepath = f"{folder}/{table_id}.csv"
@@ -222,6 +225,7 @@ def download_and_unzip(url, path):
         list: unziped files in a given folder
     """
 
+    # pyrefly: ignore [deprecated]
     os.system(f"mkdir -p {path}")
 
     http_response = urlopen(url)
