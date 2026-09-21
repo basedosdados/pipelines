@@ -282,13 +282,13 @@ models:
         description: Indica se o inscrito fez a prova com intuito de apenas treinar
           seus conhecimentos
       - name: id_municipio_prova
-        description: ID Município da escola em que estudou - IBGE 7 Dígitos
+        description: ID Município da cidade da prova - IBGE 7 Dígitos
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
       - name: sigla_uf_prova
-        description: Sigla da unidade da federação da escola em que estudou
+        description: Sigla da unidade da federação da prova
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
