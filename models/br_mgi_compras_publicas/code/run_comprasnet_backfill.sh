@@ -50,6 +50,10 @@ trap release_lock EXIT INT TERM
 fast_failures=0
 for attempt in $(seq 1 "$MAX_ATTEMPTS"); do
     run_started=$SECONDS
+    # The watchdog writes .failure_notified when it pings about a terminal
+    # failure. Clearing it here means a later failure can ping again, while a
+    # single failure never pings twice.
+    rm -f "$DATA/.failure_notified"
     echo "$(date '+%Y-%m-%d %H:%M:%S') SUPERVISOR starting attempt $attempt" >> "$LOG"
     "$PYTHON" models/br_mgi_compras_publicas/code/harvest_comprasnet.py \
         --start "$START" --end "$END" --workers 8 >> "$LOG" 2>&1
