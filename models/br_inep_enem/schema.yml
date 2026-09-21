@@ -203,19 +203,19 @@ models:
       - name: respostas_matematica
         description: Vetor com as respostas da parte objetiva da prova de Matemática
       - name: gabarito_ciencias_natureza
-        description: 'Vetor com o gabarito da parte objetiva da prova  de Ciências
+        description: 'Vetor com o gabarito da parte objetiva da prova de Ciências
           da Natureza (Obs.: as 45 primeiras posições deste campo são referentes ao
           respectivo gabarito)'
       - name: gabarito_ciencias_humanas
-        description: 'Vetor com o gabarito da parte objetiva da prova  de Ciências
+        description: 'Vetor com o gabarito da parte objetiva da prova de Ciências
           Humanas (Obs.: as 45 primeiras posições deste campo são referentes ao respectivo
           gabarito)'
       - name: gabarito_linguagens_codigos
-        description: 'Vetor com o gabarito da parte objetiva da prova  de Linguagens
+        description: 'Vetor com o gabarito da parte objetiva da prova de Linguagens
           e Códigos (Obs.: as 45 primeiras posições deste campo são referentes ao
           respectivo gabarito)'
       - name: gabarito_matematica
-        description: 'Vetor com o gabarito da parte objetiva da prova  de Matemática
+        description: 'Vetor com o gabarito da parte objetiva da prova de Matemática
           (Obs.: as 45 primeiras posições deste campo são referentes ao respectivo
           gabarito)'
       - name: lingua_estrangeira
@@ -396,19 +396,19 @@ models:
       - name: respostas_matematica
         description: Vetor com as respostas da parte objetiva da prova de Matemática
       - name: gabarito_ciencias_natureza
-        description: 'Vetor com o gabarito da parte objetiva da prova  de Ciências
+        description: 'Vetor com o gabarito da parte objetiva da prova de Ciências
           da Natureza (Obs.: as 45 primeiras posições deste campo são referentes ao
           respectivo gabarito)'
       - name: gabarito_ciencias_humanas
-        description: 'Vetor com o gabarito da parte objetiva da prova  de Ciências
+        description: 'Vetor com o gabarito da parte objetiva da prova de Ciências
           Humanas (Obs.: as 45 primeiras posições deste campo são referentes ao respectivo
           gabarito)'
       - name: gabarito_linguagens_codigos
-        description: 'Vetor com o gabarito da parte objetiva da prova  de Linguagens
+        description: 'Vetor com o gabarito da parte objetiva da prova de Linguagens
           e Códigos (Obs.: as 45 primeiras posições deste campo são referentes ao
           respectivo gabarito)'
       - name: gabarito_matematica
-        description: 'Vetor com o gabarito da parte objetiva da prova  de Matemática
+        description: 'Vetor com o gabarito da parte objetiva da prova de Matemática
           (Obs.: as 45 primeiras posições deste campo são referentes ao respectivo
           gabarito)'
       - name: lingua_estrangeira
