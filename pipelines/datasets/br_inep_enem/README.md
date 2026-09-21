@@ -77,6 +77,69 @@ de existir. Um flow agendado falharia no poll de uma tabela que ainda não foi
 criada. A transformação está em `utils.py` como as outras, e a carga de uma
 edição nova é feita à mão depois que a tabela existe.
 
+## O dicionário muda a cada edição
+
+O `dicionario` é a parte do conjunto que uma edição nova mais costuma quebrar, e
+não por descuido: há códigos do ENEM cujo significado depende do ano. Enquanto
+faltarem, o `custom_dictionary_coverage` de `participantes` ou de `resultados`
+falha, sempre com a mesma cara — `Got N results, configured to fail if != 0`.
+
+Três casos, em ordem de quanto enganam:
+
+**Os códigos de prova são renumerados todo ano.** `tipo_prova_ciencias_natureza`,
+`_ciencias_humanas`, `_linguagens_codigos` e `_matematica` (os `CO_PROVA_*` da
+fonte) recebem uma faixa nova a cada edição — 2025 trouxe 74 códigos inéditos.
+Esse caso falha alto e é o menos perigoso.
+
+**`ano_conclusao` é uma escala relativa à edição.** `1` é sempre o ano anterior ao
+exame, e o último código é "Antes de <ano>". Entre 2024 e 2025 **todas** as chaves
+mudam de significado:
+
+| chave | em 2024 | em 2025 |
+|---|---|---|
+| 1 | 2023 | 2024 |
+| 2 | 2022 | 2023 |
+| 17 | 2007 | 2008 |
+| 18 | Antes de 2007 | 2007 |
+| 19 | — | Antes de 2007 |
+
+Só a chave nova faz o teste falhar; as outras dezoito existem e passam, lendo
+errado por um ano. **Uma edição nova exige o conjunto completo de
+`ano_conclusao` com a cobertura temporal daquela edição**, não só o código novo.
+
+**`situacao_conclusao` cita o ano no próprio rótulo** — "concluirei o Ensino
+Médio em 2025", "após 2025" (chaves 2 e 3). As chaves não mudam, então o teste
+nunca acusa; o texto é que fica defasado. As chaves 1 e 4 são estáveis.
+
+O `microdados` já resolve `situacao_conclusao` assim: uma linha por edição para
+as chaves 2 e 3, e cobertura composta (`1999(1)2001,2003(1)2010`) nas estáveis.
+
+### De onde saem os rótulos
+
+Do `DICIONÁRIO/Dicionário_Microdados_Enem_<ano>.xlsx`, dentro do próprio zip, nas
+abas `PARTICIPANTES_<ano>` e `RESULTADOS_<ano>`. São ~45 KB armazenados sem
+compressão, então dá para lê-lo por requisição de faixa, sem baixar o zip.
+
+**Não usar o `ITENS_PROVA_<ano>.csv` para os códigos de prova.** Ele só cobre a
+aplicação regular — em 2025 vai até o código 1582, sem as reaplicações 1583–1634
+— e o `TX_COR` traz a cor crua, com quatro `LARANJA` e três `ROXA` por área, sem
+distinguir ledor, ampliada, superampliada ou libras.
+
+### Como carregar
+
+O dicionário é dado em bucket, não código:
+`gs://basedosdados-dev/staging/br_inep_enem/dicionario/dicionario.csv`, arquivo
+único com as colunas `id_tabela,nome_coluna,chave,cobertura_temporal,valor`.
+**Sobrescrever esse mesmo nome** — subir com outro nome faria a tabela externa ler
+os dois e duplicar o dicionário — e depois `dbt run --select
+br_inep_enem__dicionario`.
+
+Antes de estender a cobertura de uma linha de `2024` para `2024(1)2025`, conferir
+que a chave continua no dicionário oficial da edição nova **e** que ela aparece no
+dado. `cor_raca` mostra por quê: a chave `6` ("Não dispõe da informação") existe em
+2024, o dicionário de 2025 lista apenas `0` a `5`, e nenhuma linha de 2025 traz o
+`6`. Ela fica com cobertura `2024`, enquanto as outras seis passam a `2024(1)2025`.
+
 ## Como o pipeline está organizado
 
 `constants.py` guarda tudo que varia por tabela, `utils.py` as funções puras,
@@ -155,6 +218,22 @@ As tasks mantêm `retries=3` por cima de tudo.
 pelo prefixo e pelo ano, nunca por caminho fixo — o INEP já acrescentou sufixo de
 revisão (`_V2`) em outros conjuntos depois da publicação.
 
+**O método de compressão também muda, e a biblioteca padrão não lê todos.** O
+`RESULTADOS_2025.csv` vem em **deflate64** (método 9), que o `zipfile` não
+descomprime: `ZipFile.open` levanta `NotImplementedError: That compression method
+is not supported`. As retentativas do `@task` não ajudam, porque o zip baixa
+inteiro e o erro acontece ao abrir o membro.
+
+É só esse membro — todo o resto da edição de 2025 está *store*, e 2024 é deflate.
+`extract_member` cobre o caso: quando o método não é deflate64, usa o
+`ZipFile.open` de sempre; quando é, lê o stream comprimido direto do arquivo, a
+partir do fim do cabeçalho local do membro, e infla com **`inflate64`**, que já
+vem instalado como dependência do `py7zr`. Confere o CRC ao final, porque esse
+caminho não passa pela verificação que o `ZipFile.open` faz sozinho.
+
+O pacote `zipfile-deflate64` do PyPI resolveria o mesmo problema, mas está parado
+desde 2023, com wheels até cp310, e a imagem roda Python 3.12.
+
 ## Ao abrir uma edição nova
 
 1. Conferir se o layout bate com o da edição anterior. Os arquivos
@@ -164,5 +243,9 @@ revisão (`_V2`) em outros conjuntos depois da publicação.
    `.sql` junto.
 3. Criar `.sql`, entrada no `schema.yml` e tabela no backend para o
    `questionario_socioeconomico_<ano>`.
-4. Estender o `range` do `partition_by` nos `.sql` de `participantes` e
+4. Atualizar o `dicionario` com os códigos da edição, a partir do xlsx do zip:
+   os `CO_PROVA_*` inteiros, o conjunto completo de `ano_conclusao`, as chaves 2
+   e 3 de `situacao_conclusao`, e a cobertura das chaves que seguem valendo. Ver
+   "O dicionário muda a cada edição".
+5. Estender o `range` do `partition_by` nos `.sql` de `participantes` e
    `resultados` se a edição passar do `end` declarado. O `end` é exclusivo.
