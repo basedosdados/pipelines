@@ -483,6 +483,96 @@ models:
         description: Nota da redação atribuída pelo avaliador 3
       - name: nota_redacao_avaliador_4
         description: Nota da redação atribuída pelo avaliador 4
+  - name: br_inep_enem__questionario_socioeconomico_2025
+    description: Respostas do questionário socioeconômico de 2025.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_inscricao]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - q001
+            - q002
+            - q003
+            - q004
+            - q005
+            - q006
+            - q007
+            - q008
+            - q009
+            - q010
+            - q011
+            - q012
+            - q013
+            - q014
+            - q015
+            - q016
+            - q017
+            - q018
+            - q019
+            - q020
+            - q021
+            - q022
+            - q023
+          dictionary_model: ref('br_inep_enem__dicionario')
+    columns:
+      - name: id_inscricao
+        description: Máscara do número de inscrição no ENEM
+      - name: q001
+        description: Até que série seu pai, ou o homem responsável por você, estudou?
+      - name: q002
+        description: Até que série sua mãe, ou a mulher responsável por você, estudou?
+      - name: q003
+        description: A partir da apresentação de algumas ocupações divididas em grupos
+          ordenados, indique o grupo que contempla a ocupação mais próxima da ocupação
+          do seu pai ou do homem responsável por você. (Se ele não estiver trabalhando,
+          escolha uma ocupação pensando no último trabalho dele).
+      - name: q004
+        description: A partir da apresentação de algumas ocupações divididas em grupos
+          ordenados, indique o grupo que contempla a ocupação mais próxima da ocupação
+          da sua mãe ou da mulher responsável por você. (Se ela não estiver trabalhando,
+          escolha uma ocupação pensando no último trabalho dela).
+      - name: q005
+        description: Incluindo você, quantas pessoas moram atualmente em sua residência?
+      - name: q006
+        description: Você possui renda?
+      - name: q007
+        description: Qual é a renda mensal de sua família? (Considere a sua renda
+          com a das pessoas que moram com você)
+      - name: q008
+        description: Em sua casa, você ou a pessoa responsável pela sua família costuma
+          contratar os serviços de um(a) empregado(a) doméstico(a)?
+      - name: q009
+        description: Em sua casa, existe banheiro?
+      - name: q010
+        description: Em sua casa, existe quarto para dormir?
+      - name: q011
+        description: Incluindo você, as pessoas com quem você mora têm carro?
+      - name: q012
+        description: Incluindo você, as pessoas com quem você mora têm motocicleta?
+      - name: q013
+        description: Em sua casa, existe geladeira?
+      - name: q014
+        description: Em sua casa, existe freezer independente (vertical ou horizontal)?
+          (Não considere a segunda porta da geladeira.)
+      - name: q015
+        description: Em sua casa, existe máquina de lavar roupa? (Não considere o
+          tanquinho)
+      - name: q016
+        description: Em sua casa, existe micro-ondas?
+      - name: q017
+        description: Em sua casa, existe aspirador de pó?
+      - name: q018
+        description: Em sua casa, existe aparelho de TV?
+      - name: q019
+        description: Em sua casa, existe TV por assinatura?
+      - name: q020
+        description: Em sua casa, existe acesso à internet por rede wi-fi?
+      - name: q021
+        description: Em sua casa, existe computador/notebook?
+      - name: q022
+        description: Incluindo você, as pessoas com quem você mora têm telefone celular?
+      - name: q023
+        description: Em que tipo de escola você frequentou ou frequenta o Ensino Médio?
   - name: br_inep_enem__questionario_socioeconomico_2024
     description: Respostas do questionário socioeconômico de 2024.
     tests:
