@@ -25,4 +25,4 @@ select
         then "70-100"
     end as faixa_etaria
 from `basedosdados.br_tse_eleicoes.candidatos`
-where ano = 2022
+where ano in (2022, 2026)

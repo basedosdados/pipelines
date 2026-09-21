@@ -15,7 +15,7 @@ with
             initcap(origem_despesa) as origem,
             sum(valor_despesa) as valor
         from `basedosdados.br_tse_eleicoes.despesas_candidato`
-        where ano = 2022
+        where ano in (2022, 2026)
         group by 1, 2, 3, 4
     ),
 
@@ -27,7 +27,7 @@ with
             initcap(origem_receita) as origem,
             sum(valor_receita) as valor
         from `basedosdados.br_tse_eleicoes.receitas_candidato`
-        where ano = 2022
+        where ano in (2022, 2026)
         group by 1, 2, 3, 4
     ),
 
