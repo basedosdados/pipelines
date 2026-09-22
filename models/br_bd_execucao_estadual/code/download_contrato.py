@@ -1,17 +1,21 @@
-"""Download the SC and RS state-contract sources.
+"""Download the SC, RS and RO state-contract sources.
 
 SC: dados.sc.gov.br "contratos" package, the XLSX rendition (the CSV/JSON carry SC's
     unparseable-free-text defect; the XLSX is structured).
 RS: dados.rs.gov.br "contratos-do-estado" package, four typed CSV/zip files.
+RO: the CGE-RO public API (`transparencia.api.ro.gov.br/api/v1/contratos`), paginated
+    JSON. Unlike SC/RS this one NEEDS a Brazilian IP -- the host geo-fences non-BR.
 
-Neither needs a Brazilian IP. Resources are addressed by their CKAN download URLs,
-which are stable for these two packages; if a URL 404s, re-resolve it from
-`package_show?id=<slug>`. Output goes to input/{sc_contrato,rs_contrato}/.
+SC/RS resources are addressed by their CKAN download URLs, which are stable for those
+two packages; if a URL 404s, re-resolve it from `package_show?id=<slug>`. Output goes to
+input/{sc_contrato,rs_contrato,ro_contrato}/.
 """
 
 from __future__ import annotations
 
+import json
 import os
+import time
 from pathlib import Path
 
 import requests
@@ -44,6 +48,9 @@ RS_FILES = {
 }
 
 
+RO_API = "https://transparencia.api.ro.gov.br/api/v1/contratos"
+
+
 def fetch(url: str, dest: Path) -> None:
     dest.parent.mkdir(parents=True, exist_ok=True)
     with requests.get(
@@ -56,6 +63,75 @@ def fetch(url: str, dest: Path) -> None:
     print(f"  {dest.name}: {dest.stat().st_size:,} bytes")
 
 
+def fetch_ro_contratos(dest: Path) -> None:
+    """Harvest RO's contract registry from the CGE-RO public API.
+
+    One paginated sweep, no date filter, PageSize capped at 100 (~13.3k rows). NEEDS a
+    Brazilian IP -- the host geo-fences non-BR callers -- and is slow, so each page is
+    retried before giving up.
+
+    Three of the API's own signals are unreliable and MUST NOT be used to stop, all
+    measured on 2026-09-21: `ultimaPagina` is `False` even on the real last page;
+    `totalElementos`/`totalDePaginas` over-report by ~100 (13,362 / 134 pages claimed,
+    13,262 rows / 133 pages actually served); and requesting the page after the last
+    (page 134 here) returns **404**, not an empty result. So the sweep stops on the first
+    of: a short page (fewer than PageSize rows) or a 404. Asserting against the reported
+    total would falsely fail every run.
+    """
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    rows: list[dict] = []
+    page = 1
+    while True:
+        got: list | None = None
+        for attempt in range(4):
+            last = attempt == 3
+            try:
+                r = requests.get(
+                    RO_API,
+                    params={"Page": page, "PageSize": 100},
+                    headers={"User-Agent": BROWSER_UA},
+                    timeout=120,
+                )
+                # A 404 is how the API marks the page past the last row. But a transient
+                # 404 (or a 5xx, or a truncated body) must not end the sweep early and
+                # store a short mirror, so validate and decode INSIDE the retry: accept a
+                # 404 as the end only once the retries are spent, and refuse a missing or
+                # non-list `resultados` rather than treating it as an empty final page.
+                if r.status_code == 404:
+                    if last:
+                        got = []
+                        break
+                    raise RuntimeError(
+                        "404 -- retrying in case it is transient"
+                    )
+                r.raise_for_status()
+                payload = r.json().get("resultados")
+                if not isinstance(payload, list):
+                    raise RuntimeError(
+                        f"resultados is {type(payload).__name__}, not a list"
+                    )
+                got = payload
+                break
+            except Exception:
+                if last:
+                    raise
+                time.sleep(3)
+        # an empty result -- a real empty last page, or a 404 that survived every retry
+        if not got:
+            break
+        rows.extend(got)
+        if len(got) < 100:  # a short page is the real last page
+            break
+        page += 1
+    if not rows:
+        raise RuntimeError(
+            "ro_contrato: harvested 0 rows -- the API or the IP is wrong"
+        )
+    with open(dest, "w", encoding="utf-8") as f:
+        json.dump(rows, f, ensure_ascii=False)
+    print(f"  ro_contrato: {len(rows):,} rows -> {dest.name}")
+
+
 def main() -> None:
     print("SC contratos")
     for name, url in SC_FILES.items():
@@ -63,6 +139,8 @@ def main() -> None:
     print("RS contratos-do-estado")
     for name, url in RS_FILES.items():
         fetch(url, IN / "rs_contrato" / name)
+    print("RO contratos (CGE-RO API, needs a Brazilian IP)")
+    fetch_ro_contratos(IN / "ro_contrato" / "contratos.json")
 
 
 if __name__ == "__main__":
