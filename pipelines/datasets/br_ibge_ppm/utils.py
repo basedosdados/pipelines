@@ -14,6 +14,8 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
+import pyarrow as pa
+import pyarrow.parquet as pq
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -410,26 +412,58 @@ def clean_table(table_id: str, ano: str) -> Path:
     write_partitions(
         dataframe,
         constants.TABLES.value[table_id]["partition_columns"],
+        build_schema(table_id),
         output_dir,
     )
     return output_dir
 
 
+def build_schema(table_id: str) -> pa.Schema:
+    """Monta o schema do parquet da tabela, sem as colunas de partição.
+
+    Texto em tudo, menos as colunas que a staging já declara como `INT64`. A
+    tabela externa da staging foi criada pela carga manual, que gravava parquet
+    tipado, e o seu schema fica congelado: em `dump_mode="append"` o
+    `upload_to_gcs` só recria a tabela quando ela não existe, e o
+    `_sync_staging_schema` é aditivo — acrescenta coluna, nunca troca tipo.
+    Gravar texto numa coluna declarada `INT64` faz o BigQuery recusar o arquivo.
+
+    Args:
+        table_id: Slug da tabela.
+
+    Returns:
+        O schema, na ordem em que as colunas são gravadas.
+    """
+    table = constants.TABLES.value[table_id]
+    integers = table["integer_columns"]
+    return pa.schema(
+        [
+            (
+                column,
+                pa.int64() if column in integers else pa.string(),
+            )
+            for column in table["columns"]
+            if column not in table["partition_columns"]
+        ]
+    )
+
+
 def write_partitions(
     dataframe: pd.DataFrame,
     partition_columns: list[str],
+    schema: pa.Schema,
     output_dir: Path,
 ) -> None:
-    """Grava em partições Hive com todas as colunas como texto.
-
-    A staging é toda STRING por convenção da casa, e o `.sql` faz `safe_cast` de
-    cada coluna.
+    """Grava em partições Hive, uma coluna por campo do schema.
 
     Args:
-        dataframe: Dados a gravar.
+        dataframe: Dados a gravar, todos como texto.
         partition_columns: Colunas que compõem o caminho da partição.
+        schema: Schema do parquet, vindo de `build_schema`.
         output_dir: Raiz do particionado.
     """
+    integers = [field.name for field in schema if field.type == pa.int64()]
+
     for keys, group in dataframe.groupby(partition_columns, dropna=False):
         keys = keys if isinstance(keys, tuple) else (keys,)
         partition = output_dir.joinpath(
@@ -439,8 +473,21 @@ def write_partitions(
             )
         )
         partition.mkdir(parents=True, exist_ok=True)
-        # `astype(str)` escreveria NULL como a string "nan", que o `safe_cast`
-        # não desfaz.
-        group.drop(columns=partition_columns).map(
-            lambda value: None if pd.isna(value) else str(value)
-        ).to_parquet(partition / "data.parquet", compression="snappy")
+
+        group = group.drop(columns=partition_columns)
+        # `astype(str)` escreveria NULL como a string "nan", e `astype(int)` não
+        # aceita nulo; o `Int64` do pandas é inteiro que admite ausente.
+        for column in group.columns:
+            group[column] = (
+                pd.to_numeric(group[column]).astype("Int64")
+                if column in integers
+                else group[column].map(
+                    lambda value: None if pd.isna(value) else str(value)
+                )
+            )
+
+        pq.write_table(
+            pa.Table.from_pandas(group, schema=schema, preserve_index=False),
+            partition / "data.parquet",
+            compression="snappy",
+        )

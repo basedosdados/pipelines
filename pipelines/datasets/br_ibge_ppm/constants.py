@@ -34,13 +34,16 @@ class constants(Enum):
 
     # Uma entrada por tabela. `series` lista as requisições que compõem a tabela:
     # cada uma é um par agregado/variável do SIDRA e a coluna que ela alimenta.
-    # `unit_column` marca a variável de onde sai a coluna `unidade`.
+    # `unit_column` marca a variável de onde sai a coluna `unidade`, e
+    # `integer_columns` as colunas que a staging declara como `INT64` — o resto
+    # do parquet sai como texto.
     #
     # As categorias são as da classificação, menos os subtotais que a API
     # publica junto: `0` (Total) nas três classificações e `79366` (Peixes) na
     # aquicultura, que somam as categorias seguintes e dobrariam a produção.
     TABLES = {
         "efetivo_rebanhos": {
+            "integer_columns": ["quantidade"],
             "first_year": 1974,
             "label_column": "tipo_rebanho",
             "partition_columns": ["ano"],
@@ -73,6 +76,7 @@ class constants(Enum):
             ],
         },
         "producao_origem_animal": {
+            "integer_columns": ["quantidade", "valor"],
             "first_year": 1974,
             "label_column": "produto",
             "partition_columns": ["ano"],
@@ -118,6 +122,7 @@ class constants(Enum):
             ],
         },
         "producao_aquicultura": {
+            "integer_columns": ["quantidade", "valor"],
             "first_year": 2013,
             "label_column": "produto",
             "partition_columns": ["ano"],
@@ -197,6 +202,7 @@ class constants(Enum):
             ],
         },
         "producao_pecuaria": {
+            "integer_columns": ["ovinos_tosquiados", "vacas_ordenhadas"],
             "first_year": 1974,
             "label_column": None,
             "partition_columns": ["ano"],

@@ -1,10 +1,8 @@
 # br_ibge_ppm — Pesquisa Pecuária Municipal
 
 A PPM é uma pesquisa anual do IBGE, feita em todos os municípios do país, sobre o rebanho
-existente na data de referência e a produção de origem animal do ano. O IBGE divulga o ano de
-referência em setembro do ano seguinte.
-
-Quatro tabelas, todas municipais e anuais:
+existente na data de referência e a produção de origem animal do ano. O ano de referência é
+divulgado em setembro do ano seguinte.
 
 | Tabela | O que traz | Desde |
 |---|---|---|
@@ -13,9 +11,9 @@ Quatro tabelas, todas municipais e anuais:
 | `producao_aquicultura` | quantidade e valor por produto de aquicultura | 2013 |
 | `producao_pecuaria` | vacas ordenhadas e ovinos tosquiados | 1974 |
 
-## De onde vem o dado
+## A fonte
 
-Da API v3 de agregados do IBGE, um agregado do SIDRA por tabela. Cada requisição pede um ano,
+API v3 de agregados do IBGE, um agregado do SIDRA por tabela. Cada requisição pede um ano,
 uma variável, uma categoria e os 5.570 municípios de uma vez (`localidades=N6[all]`).
 
 | Tabela | agregado | variáveis | classificação | categorias |
@@ -25,76 +23,59 @@ uma variável, uma categoria e os 5.570 municípios de uma vez (`localidades=N6[
 | `producao_aquicultura` | 3940 | 4146 (quantidade), 215 (valor) | 654 | 24 produtos |
 | `producao_pecuaria` | 95 (ovinos tosquiados), 94 (vacas ordenhadas) | 108, 107 | — | — |
 
-Até onde a fonte publicou se lê em `/agregados/<id>/metadados`, no campo
-`periodicidade.fim` — é ele que o flow compara com o intervalo que a tabela já cobre. Quando
-a tabela junta dois agregados, vale o menor dos dois anos: a linha só existe quando os dois
-lados existem.
+Até onde a fonte publicou está em `/agregados/<id>/metadados`, no campo `periodicidade.fim`.
+Numa tabela que junta dois agregados vale o menor dos dois anos: a linha só se monta quando os
+dois lados existem.
 
-## Decisões
+## Tratamento
 
-**Os subtotais não entram.** As três classificações publicam a categoria `0` (Total), e a da
-aquicultura publica também `79366` (Peixes), que soma as categorias de peixe seguintes. As
-duas somam linhas já presentes e dobrariam a produção do município, então a lista de
-categorias em `constants.py` é a da classificação menos esses subtotais.
+**Subtotais ficam de fora.** As três classificações publicam a categoria `0` (Total), e a da
+aquicultura publica também `79366` (Peixes), que soma as categorias de peixe seguintes. Somam
+linhas já presentes, então a lista em `constants.TABLES` é a da classificação menos esses dois.
 
-**A junção entre variáveis é externa.** Quantidade e valor vêm de variáveis diferentes do
-SIDRA, e um município pode aparecer numa e faltar na outra. O código manual anterior usava
-junção interna na `producao_pecuaria` e perdia município: em 2024 são 5.569 municípios contra
-os 5.541 que estão na staging hoje.
+**A junção entre variáveis é externa.** Quantidade e valor vêm de variáveis diferentes, e um
+município pode aparecer numa e faltar na outra; junção interna descartaria essas linhas, que os
+modelos aceitam.
 
-**A sigla da UF sai do nome da localidade por expressão regular.** A API devolve hoje
-`"São Paulo (SP)"` e antes devolvia `"São Paulo - SP"`; o código manual cortava no hífen, o
-que hoje devolveria o nome inteiro no lugar da sigla. A expressão aceita os dois formatos.
+**A sigla da UF sai do nome da localidade por expressão regular**, que aceita os dois formatos
+que a API usa: `São Paulo (SP)` e `São Paulo - SP`.
 
-**`-`, `..`, `...` e `X` são nulo.** São os símbolos que a API usa para dado inexistente,
-valor arredondado a zero e dado omitido. Sem isso a coluna sobe como texto e o `safe_cast` do
-`.sql` devolve nulo em silêncio.
+**`-`, `..`, `...` e `X` viram nulo.** São os símbolos da API para dado inexistente, valor
+arredondado a zero e dado omitido.
 
-**A `unidade` da `producao_origem_animal` só sai da variável de quantidade.** A unidade
-descreve o produto (`Mil litros` para leite, `Mil dúzias` para ovos), e a variável 215 traz a
-moeda do ano — `Mil Cruzeiros` até 1985, `Mil Reais` de 1994 em diante. Misturar as duas
-deixaria a coluna alternando entre unidade de produto e nome de moeda.
-
-**A staging sobe toda como texto.** É a convenção da casa, e o `.sql` faz `safe_cast` de cada
-coluna. `astype(str)` não serve: escreveria nulo como a string `"nan"`, que o `safe_cast` não
-desfaz.
+**A `unidade` de `producao_origem_animal` sai da variável 106.** Ela descreve o produto
+(`Mil litros` para leite, `Mil dúzias` para ovos), enquanto a variável 215 traz a moeda do ano
+— `Mil Cruzeiros` até 1985, `Mil Reais` de 1994 em diante.
 
 **Os modelos descartam a linha vazia.** A fonte devolve uma linha para cada par município ×
-produto, e cerca de 90% vem sem produção. O filtro está no `.sql`
-(`where quantidade is not null`), não na limpeza — a staging guarda o que a fonte mandou.
+produto e cerca de 90% vem sem produção. O filtro está no `.sql`
+(`where quantidade is not null`); a staging guarda o que a fonte mandou.
 
-## O que a carga manual deixou para trás
+## Staging
 
-Até esta pipeline o conjunto se atualizava rodando script na mão, um par
-`api_to_json.py` + `json_to_parquet.py` por tabela em `models/br_ibge_ppm/<tabela>/code/`.
-Dois defeitos vieram de lá:
+O parquet sai **tipado**, e não todo como texto: `constants.integer_columns` lista as colunas
+que a tabela externa declara `INT64` e o `build_schema` monta o resto como texto. Os dois lados
+têm que continuar batendo — o schema da externa fica congelado, porque em `dump_mode="append"`
+o `upload_to_gcs` só cria a tabela quando ela não existe e o `_sync_staging_schema` acrescenta
+coluna, nunca troca tipo. Texto numa coluna `INT64` faz o BigQuery recusar o arquivo.
 
-- **Faltavam dois rebanhos.** A lista de categorias do `efetivo_rebanhos` trazia
-  `"267732796"`, que é `2677` (Ovino) e `32796` (Galináceos - total) grudados. A API aceita o
-  id inventado e responde com a categoria em branco, então a tabela ficou com nove rebanhos,
-  um deles sem nome, e **Ovino e Galináceos - total não existem em produção em nenhum ano**.
-  Corrigido aqui: 2024 passa de 50.103 para 55.670 linhas na staging.
-- **`producao_pecuaria` perdia município**, pela junção interna descrita acima.
+Passar a staging para texto, como manda a convenção da casa, exige apagar as tabelas externas
+**e** os prefixos no GCS e recarregar 1974–2024 de uma vez: os arquivos já gravados são todos
+tipados.
 
-Antes do primeiro run também é preciso **derrubar as quatro tabelas externas de staging**. O
-script antigo gravava parquet tipado, e a definição das externas ficou com
-`quantidade`/`valor` como `INT64`; lendo os arquivos novos, todos texto, o BigQuery recusa
-(`has type BYTE_ARRAY which does not match the target cpp_type INT32`).
+Nas colunas de texto o nulo é gravado como `None` — `astype(str)` escreveria a string `"nan"`,
+que o `safe_cast` do `.sql` não desfaz.
 
 ## Atualização
 
-Um flow por tabela, todos chamando `run_ibge_ppm`. O horário fica na janela de divulgação —
-dias 15 a 20 de setembro e de outubro —, porque um cron mensal olharia a fonte doze vezes por
-ano para não fazer nada em dez.
+Um flow por tabela, todos chamando `run_ibge_ppm`, agendados nos dias 15 a 20 de setembro e de
+outubro, que é a janela de divulgação.
 
-Parâmetros que importam:
-
-- `backfill_years` recarrega anos específicos (`["2023", "2024"]`) e, quando vem preenchido,
-  pula o poll: é o caminho para recuperar ano que ficou para trás.
-- `materialize_after_dump=False` e `update_metadata=False` mantêm a execução em dev. Os
-  padrões escrevem em produção, mesmo quando o run sai do pool de teste.
+- `backfill_years` carrega anos específicos (`["2023", "2024"]`) e pula o poll.
+- `materialize_after_dump=False` e `update_metadata=False` prendem a execução em dev. Os
+  padrões dos dois são `True` e escrevem em produção, mesmo saindo do pool de teste.
 - `force_run=True` ignora o poll.
 
-O poll compara o ano publicado pela fonte com o intervalo de datas registrado na tabela. O de
-produção diz 2024 desde a carga de 2024 que nunca chegou lá, então **a primeira execução
-precisa de `backfill_years`**, ou ela encerra achando que não há novidade — e encerra verde.
+O poll compara o ano publicado pela fonte com o intervalo de datas registrado na tabela em
+produção. Quando o registro está à frente do que a tabela de fato tem, ele não vê novidade e o
+flow encerra — em verde, sem carregar nada; carregar nesse caso pede `backfill_years`.
