@@ -8,6 +8,7 @@ from pipelines.datasets.br_ms_sinasc.tasks import (
     clean_table,
     download_table,
     get_source_max_year,
+    resolve_year_source,
 )
 from pipelines.utils.metadata.domain import (
     AllFree,
@@ -78,9 +79,12 @@ def br_ms_sinasc__microdados(
     # reconstruiria a série inteira a cada ano.
     filepaths = []
     for ano in anos:
-        print(f"Carregando {ano}")
-        download_table(table_id=table_id, ano=ano)
-        filepaths.append(clean_table(table_id=table_id, ano=ano))
+        source = resolve_year_source(ano)
+        print(f"Carregando {ano} a partir do diretório {source}")
+        download_table(table_id=table_id, ano=ano, source=source)
+        filepaths.append(
+            clean_table(table_id=table_id, ano=ano, source=source)
+        )
 
     for filepath in filepaths:
         upload_to_gcs(
