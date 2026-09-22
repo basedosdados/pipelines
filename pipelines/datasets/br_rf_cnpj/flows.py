@@ -2,8 +2,6 @@
 Flows for br_rf_cnpj — Prefect 3.
 """
 
-import os
-
 from prefect import flow
 
 from pipelines.datasets.br_rf_cnpj.constants import constants as constants_cnpj
@@ -226,19 +224,6 @@ def _rf_cnpj_flow(table_id: str, cron: str):
 
     # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
-    # A fonte da Receita Federal bloqueia IPs fora do Brasil (iac#155); o valor
-    # real vem de uma env var no deploy (nunca commitado), lida aqui em tempo de
-    # deploy e embutida no job_variables da deployment. `env` precisa ser lista
-    # de {name, value}, não dict plano (schema do work pool, pipelines#1893).
-    # pyrefly: ignore [missing-attribute]
-    _flow.job_variables = {
-        "env": [
-            {
-                "name": "BRASIL_PROXY_URL",
-                "value": os.environ.get("BRASIL_PROXY_URL", ""),
-            },
-        ],
-    }
     return _flow
 
 
