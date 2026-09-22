@@ -1,4 +1,5 @@
 {{ config(alias="dicionario", schema="br_rf_cno", materialized="table") }}
+-- Atualizado em 2026-09-17
 select
     safe_cast(id_tabela as string) id_tabela,
     safe_cast(nome_coluna as string) nome_coluna,
