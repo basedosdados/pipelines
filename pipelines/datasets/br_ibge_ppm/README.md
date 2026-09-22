@@ -13,8 +13,8 @@ divulgado em setembro do ano seguinte.
 
 ## A fonte
 
-API v3 de agregados do IBGE, um agregado do SIDRA por tabela. Cada requisição pede um ano,
-uma variável, uma categoria e os 5.570 municípios de uma vez (`localidades=N6[all]`).
+API v3 de agregados do IBGE, um ou mais agregados do SIDRA por tabela. Cada requisição pede
+um ano, uma variável, uma categoria e os 5.570 municípios de uma vez (`localidades=N6[all]`).
 
 | Tabela | agregado | variáveis | classificação | categorias |
 |---|---|---|---|---|

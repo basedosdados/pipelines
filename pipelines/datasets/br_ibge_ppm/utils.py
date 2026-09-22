@@ -51,24 +51,39 @@ def build_session() -> requests.Session:
     return session
 
 
-def build_paths(table_id: str) -> tuple[Path, Path]:
-    """Cria os diretórios de trabalho da tabela.
-
-    O `output/` é apagado a cada chamada, de modo que sobra de uma execução
-    anterior não entre no upload seguinte.
+def build_input_dir(table_id: str) -> Path:
+    """Cria o diretório de entrada da tabela.
 
     Args:
         table_id: Slug da tabela.
 
     Returns:
-        Os caminhos de `input/` e de `output/`, nessa ordem.
+        O caminho de `input/`.
     """
-    base = Path(constants.PATH.value) / table_id
-    input_dir, output_dir = base / "input", base / "output"
-    shutil.rmtree(output_dir, ignore_errors=True)
+    input_dir = Path(constants.PATH.value) / table_id / "input"
     input_dir.mkdir(parents=True, exist_ok=True)
+    return input_dir
+
+
+def build_output_dir(table_id: str, ano: str) -> Path:
+    """Cria o diretório de saída do ano.
+
+    Um diretório por ano, apagado a cada chamada: sobra de uma execução anterior
+    não entra no upload seguinte, e num backfill o particionado de um ano
+    sobrevive ao processamento do próximo — a subida para produção só acontece
+    depois que o dbt de dev passa.
+
+    Args:
+        table_id: Slug da tabela.
+        ano: Ano processado, no formato `%Y`.
+
+    Returns:
+        O caminho de `output/<ano>/`.
+    """
+    output_dir = Path(constants.PATH.value) / table_id / "output" / ano
+    shutil.rmtree(output_dir, ignore_errors=True)
     output_dir.mkdir(parents=True, exist_ok=True)
-    return input_dir, output_dir
+    return output_dir
 
 
 def get_source_max_date(table_id: str) -> str:
@@ -193,7 +208,7 @@ def download_table(table_id: str, ano: str) -> Path:
     Returns:
         O diretório de entrada com os JSONs baixados.
     """
-    input_dir, _ = build_paths(table_id)
+    input_dir = build_input_dir(table_id)
     session = build_session()
 
     for antigo in input_dir.glob("*.json"):
@@ -380,7 +395,8 @@ def clean_table(table_id: str, ano: str) -> Path:
     Raises:
         ValueError: Se a fonte não devolver nenhuma linha para o ano.
     """
-    input_dir, output_dir = build_paths(table_id)
+    input_dir = build_input_dir(table_id)
+    output_dir = build_output_dir(table_id, ano)
     label_column = constants.TABLES.value[table_id]["label_column"]
     columns = constants.TABLES.value[table_id]["columns"]
 

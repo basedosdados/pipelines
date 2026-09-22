@@ -96,9 +96,11 @@ def run_ibge_ppm(
         source_max_date=source_max_date,
     )
 
+    filepaths = []
     for ano in anos:
         download_table(table_id=table_id, ano=ano)
         filepath = clean_table(table_id=table_id, ano=ano)
+        filepaths.append(filepath)
 
         upload_to_gcs(
             data_path=filepath,
@@ -109,16 +111,6 @@ def run_ibge_ppm(
             source_format=source_format,
         )
 
-        if materialize_after_dump:
-            upload_to_gcs(
-                data_path=filepath,
-                dataset_id=dataset_id,
-                table_id=table_id,
-                bucket_name="basedosdados",
-                dump_mode=dump_mode,
-                source_format=source_format,
-            )
-
     run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
@@ -128,6 +120,16 @@ def run_ibge_ppm(
 
     if not materialize_after_dump:
         return
+
+    for filepath in filepaths:
+        upload_to_gcs(
+            data_path=filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            bucket_name="basedosdados",
+            dump_mode=dump_mode,
+            source_format=source_format,
+        )
 
     run_dbt(
         dataset_id=dataset_id,
