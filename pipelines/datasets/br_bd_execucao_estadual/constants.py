@@ -17,6 +17,8 @@ class constants(Enum):
         "liquidacao",
         "despesa_mensal",
         "despesa_anual",
+        # RJ-only: the annual execution position by budget appropriation line.
+        "despesa_dotacao",
         "empenho_credor",
         "licitacao",
         "licitacao_item",
@@ -169,17 +171,23 @@ class constants(Enum):
     #   * ce_* -- Ceará's transparency portal is WAF + geo-blocked and cannot be
     #     re-scraped from the worker, so CE is a one-time load. Its rows reach despesa,
     #     pagamento and liquidacao through those models' unions.
-    #   * sc_contrato, rs_contrato -- the SC and RS contract registries are CKAN bulk
-    #     files handled by download_contrato.py / clean_contrato.py, which are one-shot
-    #     bootstrap scripts, not part of refresh_sc / refresh_rs. `contrato` is a
-    #     low-churn registry, so freezing it is intentional rather than a limitation.
-    #     (es_contrato is NOT frozen -- refresh_es produces it every run.)
+    #   * sc_contrato, rs_contrato, ro_contrato -- the SC/RS/RO contract registries are
+    #     handled by download_contrato.py / clean_contrato.py, one-shot bootstrap scripts,
+    #     not part of refresh_sc / refresh_rs. RO additionally needs a Brazilian IP (its
+    #     API geo-fences non-BR), which the worker may not have, so freezing it is doubly
+    #     safe. `contrato` is a low-churn registry, so freezing it is intentional rather
+    #     than a limitation. (es_contrato is NOT frozen -- refresh_es produces it.)
+    #   * rj_despesa -- Rio de Janeiro's annual execution position, feeding despesa_dotacao
+    #     (a RJ-only table). dadosabertos.rj.gov.br geo-fences non-BR, and RJ publishes one
+    #     year-end snapshot per exercise, so a daily refresh buys nothing; seeded once.
     FROZEN_PROD_MIRRORS = [
         "ce_empenho",
         "ce_pagamento",
         "ce_liquidacao",
         "sc_contrato",
         "rs_contrato",
+        "ro_contrato",
+        "rj_despesa",
     ]
 
     # São Paulo's SIGEO is a WebForms scrape at roughly 36 s per (exercise, órgão).
