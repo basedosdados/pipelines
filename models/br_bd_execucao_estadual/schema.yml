@@ -908,7 +908,8 @@ models:
       presente. Só contratos: a base do ES, que mistura contratos com autorizações
       de
       compra e ordens de fornecimento, é filtrada para os documentos do tipo Contrato.
-      Rondônia não publica tipo de contrato, situação nem data de início de vigência, e
+      Rondônia não publica tipo de contrato, situação nem data de início de vigência,
+      e
       traz um único valor, então nesses contratos tipo_contrato, situacao e
       data_inicio_vigencia são nulos e valor_atual repete valor_inicial.
     tests:
