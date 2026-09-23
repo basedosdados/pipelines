@@ -29,6 +29,7 @@ import server
 from constants import CENSUS_YEAR, DATA_ROOT, DATASET_ID
 
 PAYLOAD_DIR = DATA_ROOT / "metadata_payloads"
+AUX_URLS = DATA_ROOT / "aux" / "urls.json"
 
 # --- staging reference ids (re-resolve for prod; they differ per environment) --
 IDS = {
@@ -138,6 +139,22 @@ TABLES: dict[str, dict] = {
 }
 
 
+def auxiliary_urls() -> dict[str, str]:
+    """Per-table auxiliary-file URLs written by build_auxiliary_files.py.
+
+    These currently return HTTP 400 to anonymous visitors: the only bucket
+    writable from here is requester-pays. The field is still set, because the
+    bundle is in the documented location and the fix is one bucket migration,
+    not six bespoke hosting decisions.
+    """
+    if not AUX_URLS.exists():
+        print(
+            f"  ! no auxiliary URLs at {AUX_URLS}; run build_auxiliary_files.py --upload"
+        )
+        return {}
+    return json.loads(AUX_URLS.read_text("utf-8"))
+
+
 def existing_state(env: str) -> dict:
     """Read back what already exists, so a re-run updates instead of duplicating."""
     dataset = server.get_dataset(slug=DATASET_ID, env=env)
@@ -149,6 +166,7 @@ def existing_state(env: str) -> dict:
 def register(env: str, gcp_project: str) -> None:
     state = existing_state(env)
     tables_state = state.get("tables", {})
+    aux = auxiliary_urls()
 
     for slug, spec in TABLES.items():
         print(f"\n[{slug}]")
@@ -172,6 +190,7 @@ def register(env: str, gcp_project: str) -> None:
             published_by_ids=[IDS["account"]],
             data_cleaned_by_ids=[IDS["account"]],
             raw_data_source_ids=[IDS["raw_data_source"]],
+            auxiliary_files_url=aux.get(slug),
             env=env,
         )
         if isinstance(result, str):
