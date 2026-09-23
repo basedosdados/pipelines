@@ -140,5 +140,5 @@ def br_bcb_taxa_cambio__taxa_cambio(
 
 # pyrefly: ignore [missing-attribute]
 br_bcb_taxa_cambio__taxa_cambio.deploy_schedules = [
-    {"cron": "0 8 * * *", "timezone": "America/Sao_Paulo"}
+    {"cron": "40 8 * * *", "timezone": "America/Sao_Paulo"}
 ]

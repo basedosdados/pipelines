@@ -35,7 +35,9 @@ models:
         description: Tipo da moeda. O tipo determina a fórmula de calculo da paridade
         tests: [not_null]
       - name: tipo_boletim
-        description: Tipo do boletim (eg. Abertura, Intermediário e Fechamento)
+        description: >-
+          Tipo do boletim: Abertura, Intermediário, Fechamento ou Fechamento
+          Interbancário (este só entre 1999-10-27 e 2011-06-30)
         tests: [not_null]
       - name: paridade_compra
         description: Paridade de compra da moeda consultada contra o dólar

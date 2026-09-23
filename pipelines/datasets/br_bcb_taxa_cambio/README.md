@@ -8,7 +8,7 @@ intermediários e fechamento.
 - **Página da fonte:** <https://dadosabertos.bcb.gov.br/dataset/taxas-de-cambio-todos-os-boletins-diarios>
 - **Especificação dos campos:** <https://www.bcb.gov.br/conteudo/dadosabertos/BCBDepin/gnastportal-dados-abertostaxas-de-cambio---todos-os-boletins-diarios.pdf>
 - **Tabela:** `basedosdados.br_bcb_taxa_cambio.taxa_cambio`
-- **Série:** começa em 1984-11-29; o euro entra em 2002-01-02
+- **Série:** começa em 1984-11-29; o euro entra em 1998-12-31
 
 ## Estrutura
 
@@ -31,7 +31,7 @@ models/br_bcb_taxa_cambio/
 
 ## Como o flow funciona
 
-Roda todo dia às 8h de São Paulo.
+Roda todo dia às 8h40 de São Paulo.
 
 Primeiro pergunta ao PTAX qual foi a última data publicada, consultando só o dólar
 numa janela de quinze dias — as dez moedas saem no mesmo boletim, então a data do
@@ -101,50 +101,13 @@ contra o dólar cuja orientação depende de `tipo_moeda` — `USD/[moeda]` no t
 `[moeda]/USD` no tipo B —, então nenhum valor fixo descreveria a coluna. As três
 colunas envolvidas trazem essa observação nos três idiomas.
 
-## Divergência entre as duas staging
-
-O modelo lê staging diferente conforme o target: `dev` lê `basedosdados-dev` e
-`prod` lê `basedosdados-staging`. O flow sobe para as duas de forma independente, e
-elas não batem em dois anos:
-
-| ano | `basedosdados-dev` | `basedosdados-staging` |
-| --- | --- | --- |
-| 2023 | 9.280 | 20.470, das quais 12.390 distintas |
-| 2024 | 100 | 12.560 |
-
-Esses dois anos respondem por toda a diferença entre os totais, 780.601 contra
-804.251. Os demais anos batem linha a linha.
-
-Em prod, o 2023 tem um `data.parquet` de 2023-08-24 convivendo com o `data.csv` de
-2023-12-29, e a tabela externa lê os dois. Em dev, o 2023 é um `data.csv` parado em
-2023-09-27, e o 2024 nunca foi carregado além de 100 linhas.
-
-Isso importa na hora do merge: o `table-approve` espelha `basedosdados-dev` por cima
-de `basedosdados`, apagando o prefixo de destino antes de copiar
-(`push_table_to_bq`, em `.github/workflows/scripts/prefect_run_dbt.py`). Enquanto
-dev estiver assim, uma PR com essa etiqueta substitui os dois anos de prod pelos de
-dev. Corrigir dev com o parâmetro `anos` resolve os dois lados de uma vez, porque o
-espelhamento também remove o arquivo órfão.
-
 ## Limitações conhecidas
 
-**Linhas repetidas em anos antigos.** Para a mesma combinação de data, hora, moeda e
-tipo de boletim, há duplicatas em 1984–1988, entre 108 e 1.465 por ano, e em 1993,
-1996, 1997, 1999, 2000, 2001, 2003 e 2004, entre 9 e 51 por ano. Estão nas duas
-staging, e não se sabe se vêm da fonte ou da carga original. Quem precisa de
-unicidade deduplica por essa combinação.
-
-**A tabela não tem `auxiliary_files_url`.** A documentação do BCB — a especificação
-dos campos e o estudo da metodologia — está apenas linkada acima. O lugar dela é
-`gs://basedosdados/auxiliary_files/br_bcb_taxa_cambio/taxa_cambio/`, e escrever
-nesse bucket exige credencial que a máquina de desenvolvimento não tem: a conta de
-serviço disponível só tem `storage.objects.get` e `storage.objects.list` ali.
-
-**A descrição de `tipo_boletim` lista três tipos.** A especificação lista quatro,
-incluindo "Fechamento Interbancário".
-
-**O horário é `0 8 * * *`.** O minuto 0 concentra execuções no mesmo instante e
-disputa slot do BigQuery.
+**Linhas repetidas vindas da fonte.** Em 1984–1988, 1993, 1996, 1997, 2000, 2001,
+2003 e 2004, a API do PTAX devolve mais de um registro para a mesma data, hora, moeda
+e tipo de boletim, de 9 a 1.465 por ano. Parte repete os valores e parte traz
+cotações diferentes. A tabela guarda os registros como a fonte publica, e quem
+precisa de unicidade deduplica por essa combinação.
 
 **As descrições do BigQuery podem divergir da API.** O `check_metadata` compara os
 dois textos sem tolerância, e o lado do BigQuery só é regravado por `dbt run` —
