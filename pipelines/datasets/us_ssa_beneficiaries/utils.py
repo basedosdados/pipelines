@@ -851,6 +851,7 @@ def reconcile_year(
     max_positive: float = MAX_POSITIVE_GAP,
     max_shortfall: float = MAX_SHORTFALL,
     national_tolerance: float = NATIONAL_SUM_TOLERANCE,
+    expected_county_areas: set[str] | None = None,
 ) -> dict:
     """Check one year's counties against SSA's state totals, and the states
     against SSA's published national total.
@@ -879,6 +880,21 @@ def reconcile_year(
     by_state = (
         _total_slice(county).groupby("state_name")[count_col].sum(min_count=1)
     )
+
+    # A state whose county rows vanished would otherwise slip through the
+    # "publishes no county detail" skip below, which exists for the District of
+    # Columbia and the territories: with nothing to sum there is no gap to
+    # measure. Compare against the areas that carry county detail in most
+    # years rather than trusting this year's own shape.
+    if expected_county_areas is not None:
+        present = {a for a, v in by_state.items() if not pd.isna(v) and v}
+        missing = expected_county_areas - present
+        if missing:
+            raise ReconciliationError(
+                f"{year}: no county rows for {sorted(missing)}, which carry "
+                f"county detail in other years -- a dropped block, not a gap "
+                f"in the source"
+            )
 
     worst_state, worst_gap = None, 0.0
     for area, total in published.items():
@@ -926,13 +942,41 @@ def reconcile_year(
     }
 
 
+def expected_county_areas(county: pd.DataFrame, count_col: str) -> set[str]:
+    """Areas that carry county detail in most years.
+
+    Used to tell "this area never publishes county detail" -- the District of
+    Columbia and the territories -- apart from "this area's county rows went
+    missing", which the per-state gap check cannot see because a vanished block
+    leaves nothing to compare.
+    """
+    per_year = (
+        county[county[count_col].notna()]
+        .groupby("year")["state_name"]
+        .unique()
+    )
+    years = len(per_year)
+    counts: dict[str, int] = {}
+    for areas in per_year:
+        for area in areas:
+            counts[area] = counts.get(area, 0) + 1
+    return {area for area, n in counts.items() if n > years / 2}
+
+
 def reconcile_all(
     county: pd.DataFrame, state: pd.DataFrame, count_col: str
 ) -> pd.DataFrame:
     """Run :func:`reconcile_year` over every year present."""
+    expected = expected_county_areas(county, count_col)
     return pd.DataFrame(
         [
-            reconcile_year(county, state, int(y), count_col)
+            reconcile_year(
+                county,
+                state,
+                int(y),
+                count_col,
+                expected_county_areas=expected,
+            )
             for y in sorted(state["year"].unique())
         ]
     )

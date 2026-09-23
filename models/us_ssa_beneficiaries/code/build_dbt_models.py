@@ -63,14 +63,39 @@ TABLE_DESCRIPTIONS = {
 # the state separates them, while county_id still separates Baltimore county
 # from Baltimore city, which share a name and a state.
 UNIQUE_KEYS = {
-    "oasdi_county": ["year", "state_id", "county_name", "county_id",
-                     "benefit_type", "age_group", "sex"],
-    "oasdi_state": ["year", "state_or_area", "benefit_type", "age_group", "sex"],
+    "oasdi_county": [
+        "year",
+        "state_id",
+        "county_name",
+        "county_id",
+        "benefit_type",
+        "age_group",
+        "sex",
+    ],
+    "oasdi_state": [
+        "year",
+        "state_or_area",
+        "benefit_type",
+        "age_group",
+        "sex",
+    ],
     "oasdi_population_share": ["year", "state_or_area", "population_group"],
-    "ssi_county": ["year", "state_id", "county_name", "county_id",
-                   "eligibility_category", "age_group", "oasdi_concurrent"],
-    "ssi_state": ["year", "state_or_area", "eligibility_category", "age_group",
-                  "oasdi_concurrent"],
+    "ssi_county": [
+        "year",
+        "state_id",
+        "county_name",
+        "county_id",
+        "eligibility_category",
+        "age_group",
+        "oasdi_concurrent",
+    ],
+    "ssi_state": [
+        "year",
+        "state_or_area",
+        "eligibility_category",
+        "age_group",
+        "oasdi_concurrent",
+    ],
 }
 
 NOT_NULL = {
