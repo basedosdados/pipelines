@@ -220,6 +220,11 @@ build-backend = "hatchling.build"
 [tool.pyrefly]
 project-excludes = [
   "pipelines/{{cookiecutter.pipeline_name}}",
+  # Same policy: the cl_ine_censo onboarding scripts run from their own
+  # directory with bare sibling imports (`constants`, `dictionary`), and they
+  # call pyarrow.compute kernels (utf8_trim_whitespace, unique) that pyrefly
+  # cannot see because pyarrow generates them at import time.
+  "models/cl_ine_censo/code",
   "models/us_ffiec_bank_reporting/code",
   "models/world_oecd_education/code",
   "models/world_oecd_revenue_statistics/code",
