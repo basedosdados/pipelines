@@ -104,6 +104,15 @@ Hawaii has five counties of which two are suppressed. An excess has no benign
 explanation, so that side is held tight. The gate runs inside `clean_all`, so a
 mis-parsed year raises rather than reaching BigQuery.
 
+## Auxiliary files
+
+None. SSA publishes no codebook, questionnaire or import script for this
+series: the JSON files carry their own schema metadata, and the explanatory
+notes are part of that metadata rather than separate documents. Those notes are
+captured in the column descriptions and `observations`. The annual editions are
+also available as long-form PDFs, which belong in the link-only category and are
+reachable from the raw data source URL.
+
 ## Known gaps
 
 - **The SSI federal/state supplement split is not available from this series.**
