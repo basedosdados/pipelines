@@ -471,6 +471,7 @@ def main() -> int:
     status_table = status_published
     refreshed = get_ds(slug=DATASET_SLUG, env=env)
     table_ids = {s: t["id"] for s, t in refreshed.get("tables", {}).items()}
+    created_ids: dict[str, str] = {}
 
     for slug, (geo, first_year) in TABLES.items():
         pt, en, es, dpt, den, des = TABLE_TEXT[slug]
@@ -490,6 +491,9 @@ def main() -> int:
             id=bare(table_ids.get(slug)),
         )
         tid = bare(t["id"])
+        if tid is None:
+            raise RuntimeError(f"{slug}: backend returned no table id")
+        created_ids[slug] = tid
         tool("bulk_upsert_columns")(
             table_id=tid, columns_json=columns_json(slug), env=env
         )
@@ -588,11 +592,14 @@ def main() -> int:
             f"  table {slug:24s} columns + 2 OLs + coverage {first_year}-{LAST_YEAR}"
         )
 
-    # Deferred: link each table to its single raw source, re-passing every field.
+    # Deferred: link each table to its single raw source, re-passing every
+    # field because create_update_* does no partial update. The table ids come
+    # from the loop above rather than a fresh get_dataset, which costs ~25s a
+    # call and was being made once per link.
     for slug, key in SOURCE_OF.items():
         pt, en, es, dpt, den, des = TABLE_TEXT[slug]
         tool("create_update_table")(
-            id=bare(get_ds(slug=DATASET_SLUG, env=env)["tables"][slug]["id"]),
+            id=created_ids[slug],
             slug=slug,
             name_pt=pt,
             name_en=en,
