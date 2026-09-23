@@ -95,7 +95,7 @@ def build_input(table_id):
         value_input = f"{input}"
         if not os.path.exists(value_input):
             os.makedirs(value_input)
-            print(value_input)
+            log(value_input)
         list_input.append(value_input)
     return list_input
 
@@ -190,7 +190,7 @@ def download_file(
             return last_date_in_api
 
     elif dataset_id == "br_cgu_servidores_executivo_federal":
-        url = build_urls(
+        urls = build_urls(
             dataset_id=dataset_id,
             table_id=table_id,
             # pyrefly: ignore [bad-argument-type]
@@ -199,25 +199,19 @@ def download_file(
             month=next_date_in_api.month,
         )
         input_dirs = build_input(table_id)
-        log(f"------------------ URL = {url} ------------------")
+        log(f"------------------ URL = {urls} ------------------")
 
         headers = {"User-Agent": constants.BROWSERS_USER_AGENT.value["chrome"]}
 
-        for urls, input_dir in zip(url, input_dirs, strict=False):
-            status = source_url_is_available(url=urls)
+        for url, input_dir in zip(urls, input_dirs, strict=False):
+            log(f"Validating: {url}")
+            status = source_url_is_available(url=url)
             if status:
                 destino = f"{value_constants['INPUT']}/{input_dir}"
-                download_and_unzip_file(urls, destino, headers=headers)
-
-                last_date_in_api, next_date_in_api = last_date_in_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    # pyrefly: ignore [bad-argument-type]
-                    relative_month=relative_month,
-                )
+                download_and_unzip_file(url, destino, headers=headers)
             else:
                 log(
-                    f"URL indisponível (não publicada ou bloqueada), pulando: {urls}",
+                    f"URL indisponível (não publicada ou bloqueada), pulando: {url}",
                     level="warning",
                 )
 
@@ -371,7 +365,12 @@ def last_date_in_metadata(
     status = False
     next_date_in_api = last_date_in_api + relativedelta(months=relative_month)
     value_constants = constants.TABELAS.value[dataset_id][table_id]
-    while next_date_in_api <= datetime.datetime.now().date() and not status:
+    _range_counter = 0
+    while (
+        next_date_in_api <= datetime.datetime.now().date()
+        and not status
+        and constants.MAX_MONTH_RANGE.value > _range_counter
+    ):
         urls = build_urls(
             # pyrefly: ignore [bad-argument-type]
             url=value_constants["URL"],
@@ -390,6 +389,7 @@ def last_date_in_metadata(
         next_date_in_api = next_date_in_api + relativedelta(
             months=relative_month
         )
+        _range_counter += 1
     next_date_in_api = next_date_in_api - relativedelta(months=relative_month)
     return last_date_in_api, next_date_in_api
 
@@ -630,10 +630,16 @@ def source_url_is_available(
             url=url, headers=headers, stream=True, timeout=30
         ) as response:
             if response.status_code == 200:
+                time.sleep(5)
                 return True
             elif response.status_code == 202:
                 log(f"preparando ZIP, tentativa {t}")
                 time.sleep(wait_seconds)
+            elif response.status_code == 405:
+                log(
+                    f"Requisição com status code: {response.status_code}. Retry {t}"
+                )
+                time.sleep(15)
             else:
                 log(
                     f"Comportamento inesperado, requisição com status code: {response.status_code}"

@@ -12,6 +12,7 @@ class constants(Enum):
     Constant values for the br_cgu_cartao_pagamento project
     """
 
+    MAX_MONTH_RANGE = 6
     TABELAS = {
         # ! ================================ CGU - Cartão de Pagamento ===========================================
         "br_cgu_cartao_pagamento": {
