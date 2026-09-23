@@ -1366,7 +1366,6 @@ models:
       - name: id_zona
         description: >
           Identificador único de zona censal
-        tests: [not_null]
       - name: n_per
         description: >
           Personas censadas en el area

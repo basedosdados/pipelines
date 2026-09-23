@@ -27,6 +27,12 @@ PRIMARY_KEYS = {
     "dicionario": ["id_tabela", "nome_coluna", "chave"],
 }
 
+# Key columns that are legitimately NULL on part of a unioned table, so they
+# carry the uniqueness test but NOT not_null. zona_localidad unions INE's Zonal
+# and Localidades layers: only the zone rows have a census zone id, and the
+# 9,736 locality rows correctly have none.
+NULLABLE_KEY_COLUMNS = {("zona_localidad", "id_zona")}
+
 # Columns excluded from not_null_proportion_multiple_columns because they are
 # sparse BY CONSTRUCTION, so the 5% floor tells us nothing about data quality.
 # Measured non-null proportions are given.
@@ -229,7 +235,8 @@ def build_schema() -> str:
                 f"        description: {yaml_block(column['description'], 10)}"
             )
             tests = []
-            if name in PRIMARY_KEYS[table] or name in ("ano", "id_comuna"):
+            is_key = name in PRIMARY_KEYS[table] or name in ("ano", "id_comuna")
+            if is_key and (table, name) not in NULLABLE_KEY_COLUMNS:
                 tests.append("not_null")
             if name in DIRECTORY_TESTS and table != "dicionario":
                 model, field = DIRECTORY_TESTS[name]
