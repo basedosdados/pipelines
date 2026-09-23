@@ -91,14 +91,14 @@ TABLE_DESCRIPTIONS = {
         "poblacion, hogares y viviendas por manzana urbana o entidad rural, con "
         "la geometria del poligono. Union de las capas cartograficas Manzanas y "
         "Entidades publicadas por el INE; la columna nivel_geografico indica el "
-        "origen de cada fila."
+        "origen de cada fila. Sumar n_per sobre esta tabla da 18.226.208 personas y no el total censal de 18.480.432: la cartografia no tiene poligono para los registros contenedores comunales (113.447 personas sin geografia a nivel de manzana) ni para las personas censadas en viviendas colectivas o en situacion de calle."
     ),
     "zona_localidad": (
         "Base zona-localidad del Censo 2024 de Chile: 189 variables agregadas de "
         "poblacion, hogares y viviendas por zona censal urbana o localidad rural, "
         "con la geometria del poligono. Union de las capas cartograficas Zonal y "
         "Localidades publicadas por el INE; la columna nivel_geografico indica el "
-        "origen de cada fila."
+        "origen de cada fila. Sumar n_per sobre esta tabla da 18.226.208 personas y no el total censal de 18.480.432: la cartografia no tiene poligono para los registros contenedores comunales (113.447 personas sin geografia a nivel de manzana) ni para las personas censadas en viviendas colectivas o en situacion de calle."
     ),
     "dicionario": (
         "Diccionario de las columnas codificadas del Censo 2024 de Chile, con una "
@@ -235,7 +235,10 @@ def build_schema() -> str:
                 f"        description: {yaml_block(column['description'], 10)}"
             )
             tests = []
-            is_key = name in PRIMARY_KEYS[table] or name in ("ano", "id_comuna")
+            is_key = name in PRIMARY_KEYS[table] or name in (
+                "ano",
+                "id_comuna",
+            )
             if is_key and (table, name) not in NULLABLE_KEY_COLUMNS:
                 tests.append("not_null")
             if name in DIRECTORY_TESTS and table != "dicionario":

@@ -526,7 +526,11 @@ models:
       poblacion, hogares y viviendas por manzana urbana o entidad rural, con
       la geometria del poligono. Union de las capas cartograficas Manzanas y
       Entidades publicadas por el INE; la columna nivel_geografico indica el
-      origen de cada fila.
+      origen de cada fila. Sumar n_per sobre esta tabla da 18.226.208 personas
+      y no el total censal de 18.480.432: la cartografia no tiene poligono
+      para los registros contenedores comunales (113.447 personas sin
+      geografia a nivel de manzana) ni para las personas censadas en viviendas
+      colectivas o en situacion de calle.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [manzent]
@@ -1272,7 +1276,11 @@ models:
       poblacion, hogares y viviendas por zona censal urbana o localidad rural,
       con la geometria del poligono. Union de las capas cartograficas Zonal y
       Localidades publicadas por el INE; la columna nivel_geografico indica el
-      origen de cada fila.
+      origen de cada fila. Sumar n_per sobre esta tabla da 18.226.208 personas
+      y no el total censal de 18.480.432: la cartografia no tiene poligono
+      para los registros contenedores comunales (113.447 personas sin
+      geografia a nivel de manzana) ni para las personas censadas en viviendas
+      colectivas o en situacion de calle.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_zona, id_localidad]

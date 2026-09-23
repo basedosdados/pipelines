@@ -140,7 +140,11 @@ def build(table: str) -> tuple[list[dict], list[str]]:
             "description_pt": portuguese,
             "description_en": english,
             "covered_by_dictionary": row["covered_by_dictionary"] == "yes",
-            "is_partition": row["name"] in ("ano", "id_region"),
+            # BigQuery allows ONE partition column and the published tables
+            # partition by ano and cluster by id_comuna. id_region is only a
+            # hive key in the staging file layout, so it is NOT a partition
+            # of the published table and must not be flagged as one.
+            "is_partition": row["name"] == "ano",
         }
         if row["directory_column"]:
             entry["directory_column"] = row["directory_column"]

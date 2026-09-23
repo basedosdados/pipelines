@@ -25,9 +25,8 @@ from pathlib import Path
 sys.path.insert(
     0, str(Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp")
 )
-import server  # noqa: E402
-
-from constants import CENSUS_YEAR, DATA_ROOT, DATASET_ID  # noqa: E402
+import server
+from constants import CENSUS_YEAR, DATA_ROOT, DATASET_ID
 
 PAYLOAD_DIR = DATA_ROOT / "metadata_payloads"
 
@@ -101,9 +100,9 @@ TABLES: dict[str, dict] = {
     "manzana_entidad": {
         "names": ("Manzana-entidade", "Block-entity", "Manzana-entidad"),
         "descriptions": (
-            "Base manzana-entidade do Censo 2024 do Chile: 189 variaveis agregadas de populacao, lares e domicilios por manzana urbana ou entidade rural, com a geometria do poligono. Uniao das camadas cartograficas Manzanas e Entidades publicadas pelo INE; a coluna nivel_geografico indica a origem de cada linha.",
-            "Block-entity base of Chile's 2024 Census: 189 aggregated population, household and dwelling variables per urban block or rural entity, with the polygon geometry. Union of INE's Manzanas and Entidades cartographic layers; the nivel_geografico column records each row's origin.",
-            "Base manzana-entidad del Censo 2024 de Chile: 189 variables agregadas de poblacion, hogares y viviendas por manzana urbana o entidad rural, con la geometria del poligono. Union de las capas cartograficas Manzanas y Entidades publicadas por el INE; la columna nivel_geografico indica el origen de cada fila.",
+            "Base manzana-entidade do Censo 2024 do Chile: 189 variaveis agregadas de populacao, lares e domicilios por manzana urbana ou entidade rural, com a geometria do poligono. Uniao das camadas cartograficas Manzanas e Entidades publicadas pelo INE; a coluna nivel_geografico indica a origem de cada linha. Somar n_per nesta tabela da 18.226.208 pessoas e nao o total censitario de 18.480.432: a cartografia nao tem poligono para os registros contenedores comunais (113.447 pessoas sem geografia no nivel da manzana) nem para as pessoas recenseadas em domicilios coletivos ou em situacao de rua.",
+            "Block-entity base of Chile's 2024 Census: 189 aggregated population, household and dwelling variables per urban block or rural entity, with the polygon geometry. Union of INE's Manzanas and Entidades cartographic layers; the nivel_geografico column records each row's origin. Summing n_per over this table gives 18,226,208 people rather than the census total of 18,480,432: the cartography has no polygon for the commune-container records (113,447 people with no block-level geography), nor for people enumerated in collective dwellings or living on the street.",
+            "Base manzana-entidad del Censo 2024 de Chile: 189 variables agregadas de poblacion, hogares y viviendas por manzana urbana o entidad rural, con la geometria del poligono. Union de las capas cartograficas Manzanas y Entidades publicadas por el INE; la columna nivel_geografico indica el origen de cada fila. Sumar n_per sobre esta tabla da 18.226.208 personas y no el total censal de 18.480.432: la cartografia no tiene poligono para los registros contenedores comunales (113.447 personas sin geografia a nivel de manzana) ni para las personas censadas en viviendas colectivas o en situacion de calle.",
         ),
         "levels": [
             ("year", "ano"),
@@ -114,9 +113,9 @@ TABLES: dict[str, dict] = {
     "zona_localidad": {
         "names": ("Zona-localidade", "Zone-locality", "Zona-localidad"),
         "descriptions": (
-            "Base zona-localidade do Censo 2024 do Chile: 189 variaveis agregadas de populacao, lares e domicilios por zona censitaria urbana ou localidade rural, com a geometria do poligono. Uniao das camadas cartograficas Zonal e Localidades publicadas pelo INE; a coluna nivel_geografico indica a origem de cada linha.",
-            "Zone-locality base of Chile's 2024 Census: 189 aggregated population, household and dwelling variables per urban census zone or rural locality, with the polygon geometry. Union of INE's Zonal and Localidades cartographic layers; the nivel_geografico column records each row's origin.",
-            "Base zona-localidad del Censo 2024 de Chile: 189 variables agregadas de poblacion, hogares y viviendas por zona censal urbana o localidad rural, con la geometria del poligono. Union de las capas cartograficas Zonal y Localidades publicadas por el INE; la columna nivel_geografico indica el origen de cada fila.",
+            "Base zona-localidade do Censo 2024 do Chile: 189 variaveis agregadas de populacao, lares e domicilios por zona censitaria urbana ou localidade rural, com a geometria do poligono. Uniao das camadas cartograficas Zonal e Localidades publicadas pelo INE; a coluna nivel_geografico indica a origem de cada linha. Somar n_per nesta tabela da 18.226.208 pessoas e nao o total censitario de 18.480.432: a cartografia nao tem poligono para os registros contenedores comunais (113.447 pessoas sem geografia no nivel da manzana) nem para as pessoas recenseadas em domicilios coletivos ou em situacao de rua.",
+            "Zone-locality base of Chile's 2024 Census: 189 aggregated population, household and dwelling variables per urban census zone or rural locality, with the polygon geometry. Union of INE's Zonal and Localidades cartographic layers; the nivel_geografico column records each row's origin. Summing n_per over this table gives 18,226,208 people rather than the census total of 18,480,432: the cartography has no polygon for the commune-container records (113,447 people with no block-level geography), nor for people enumerated in collective dwellings or living on the street.",
+            "Base zona-localidad del Censo 2024 de Chile: 189 variables agregadas de poblacion, hogares y viviendas por zona censal urbana o localidad rural, con la geometria del poligono. Union de las capas cartograficas Zonal y Localidades publicadas por el INE; la columna nivel_geografico indica el origen de cada fila. Sumar n_per sobre esta tabla da 18.226.208 personas y no el total censal de 18.480.432: la cartografia no tiene poligono para los registros contenedores comunales (113.447 personas sin geografia a nivel de manzana) ni para las personas censadas en viviendas colectivas o en situacion de calle.",
         ),
         "levels": [
             ("year", "ano"),
@@ -218,7 +217,8 @@ def register(env: str, gcp_project: str) -> None:
         # so is_partition has to be re-passed or it is silently cleared.
         refreshed = existing_state(env)["tables"].get(slug, {})
         column_ids = {
-            column["name"]: column["id"] for column in refreshed.get("columns", [])
+            column["name"]: column["id"]
+            for column in refreshed.get("columns", [])
         }
         linked = 0
         for column_name, level_id in level_ids.items():
@@ -231,12 +231,14 @@ def register(env: str, gcp_project: str) -> None:
                 column_name=column_name,
                 table_id=table_id,
                 observation_level_id=level_id,
-                is_partition=column_name in ("ano", "id_region"),
+                is_partition=column_name == "ano",
                 env=env,
             )
             linked += 1
         if level_ids:
-            print(f"  linked {linked}/{len(level_ids)} column(s) to their level")
+            print(
+                f"  linked {linked}/{len(level_ids)} column(s) to their level"
+            )
 
         # --- cloud table ----------------------------------------------------
         cloud = (current.get("cloud_tables") or [{}])[0]
@@ -279,7 +281,9 @@ def register(env: str, gcp_project: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--env", default="staging", choices=["staging", "prod"])
+    parser.add_argument(
+        "--env", default="staging", choices=["staging", "prod"]
+    )
     args = parser.parse_args()
     gcp_project = "basedosdados" if args.env == "prod" else "basedosdados-dev"
     if args.env == "prod":
