@@ -166,6 +166,9 @@ models:
     cl_res_empresas:
       +materialized: table
       +schema: cl_res_empresas
+    cl_ine_ene:
+      +materialized: table
+      +schema: cl_ine_ene
     br_bd_diretorios_de:
       +materialized: table
       +schema: br_bd_diretorios_de
