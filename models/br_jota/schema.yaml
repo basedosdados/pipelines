@@ -4,6 +4,7 @@ models:
   - name: br_jota__eleicao_perfil_candidato_2022
     description: Descreve o perfil dos candidatos da eleição de 2022
     columns:
+      - name: ano
       - name: sequencial
       - name: ano_sequencial_candidato
       - name: nome_urna
@@ -17,6 +18,7 @@ models:
   - name: br_jota__eleicao_prestacao_contas_candidato_2022
     description: Informações de prestação de contas no nível de candidato
     columns:
+      - name: ano
       - name: sequencial
       - name: ano_sequencial_candidato
       - name: nome_urna

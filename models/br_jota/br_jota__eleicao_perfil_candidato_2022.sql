@@ -5,6 +5,7 @@
 }}
 
 select
+    ano,
     sequencial,
     concat(ano, sequencial) as ano_sequencial_candidato,
     nome_urna,
