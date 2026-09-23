@@ -1,0 +1,1552 @@
+{
+ "authored": {
+  "ano": {
+   "description": {
+    "en": "Year of the moving quarter the record belongs to",
+    "pt": "Ano do trimestre móvel a que corresponde o registro"
+   },
+   "observations": {
+    "en": "Partition column. It is the year of the CENTRAL month of the moving quarter, not the year of the interview: the quarter centred on January covers December of the previous year. Name in the source: ano_trimestre",
+    "pt": "Coluna de partição. É o ano do mês CENTRAL do trimestre móvel, não o ano da entrevista: o trimestre centrado em janeiro abrange dezembro do ano anterior. Nome na fonte: ano_trimestre"
+   }
+  },
+  "ano_encuesta": {
+   "description": {
+    "en": "Year of the data collection period",
+    "pt": "Ano do período de coleta de dados"
+   },
+   "observations": {
+    "en": "Does not necessarily match ano: in the moving quarter centred on January, collection covers December of the previous year",
+    "pt": "Não coincide necessariamente com ano: no trimestre móvel centrado em janeiro a coleta abrange dezembro do ano anterior"
+   }
+  },
+  "b13_ciiu_rev3": {
+   "description": {
+    "en": "Industry of the firm under ISIC Rev. 3",
+    "pt": "Ramo de atividade econômica da empresa segundo a CIIU Rev. 3"
+   }
+  },
+  "b14_ciiu_rev3": {
+   "description": {
+    "en": "Industry of the firm paying the wage, under ISIC Rev. 3",
+    "pt": "Ramo de atividade econômica da empresa que paga o salário, segundo a CIIU Rev. 3"
+   }
+  },
+  "c8": {
+   "description": {
+    "en": "How many fewer hours than usual the person worked last week",
+    "pt": "Quantas horas a menos do que o habitual trabalhou na semana passada"
+   }
+  },
+  "categoria_ocupacion": {
+   "description": {
+    "en": "Status in employment, under the Chilean adaptation of the International Classification of Status in Employment (ICSE-93)",
+    "pt": "Categoria na ocupação, segundo a adaptação chilena da Classificação Internacional da Situação no Emprego (CISE-93)"
+   }
+  },
+  "cd": {
+   "description": {
+    "en": "Dependent contractor",
+    "pt": "Contratante dependente"
+   }
+  },
+  "e16_ciuo08": {
+   "description": {
+    "en": "Major occupational group of the previous job under ISCO-08",
+    "pt": "Grande grupo ocupacional do emprego anterior segundo a CIUO-08"
+   }
+  },
+  "e16_ciuo88": {
+   "description": {
+    "en": "Major occupational group of the previous job under ISCO-88",
+    "pt": "Grande grupo ocupacional do emprego anterior segundo a CIUO-88"
+   }
+  },
+  "e18_ciiu_rev3": {
+   "description": {
+    "en": "Industry of the previous job, under ISIC Rev. 3",
+    "pt": "Ramo de atividade econômica do emprego anterior, segundo a CIIU Rev. 3"
+   }
+  },
+  "e19_otro": {
+   "description": {
+    "en": "Specifies e19 = Other reasons for dismissal or resignation",
+    "pt": "Especifica e19 = Outros motivos de demissão ou de pedido de demissão"
+   }
+  },
+  "e3_total": {
+   "description": {
+    "en": "Number of job search steps taken, summing the affirmative answers across e3_1 to e3_12",
+    "pt": "Número de providências de procura de emprego realizadas, soma das respostas afirmativas entre e3_1 e e3_12"
+   }
+  },
+  "edad": {
+   "description": {
+    "en": "Age of the person during the survey's reference week, 0 to 120 years",
+    "pt": "Idade da pessoa durante a semana de referência da pesquisa, de 0 a 120 anos"
+   }
+  },
+  "edu2": {
+   "description": {
+    "en": "Educational level the declared grade corresponds to",
+    "pt": "Nível educacional a que corresponde a série declarada"
+   }
+  },
+  "efectivas": {
+   "description": {
+    "en": "Hours actually worked in the reference week, 0 to 168",
+    "pt": "Horas efetivamente trabalhadas na semana de referência, de 0 a 168"
+   },
+   "observations": {
+    "en": "STRING rather than INT64 for the same reason as habituales: it holds the codes 888 (does not know) and 999 (no answer) alongside the hours. Built from c2_1_1, c2_1_2, c2_1_3, c6 and c8",
+    "pt": "STRING e não INT64 pela mesma razão que habituales: contém os códigos 888 (Não sabe) e 999 (Não responde) junto com as horas. Variável construída a partir de c2_1_1, c2_1_2, c2_1_3, c6 e c8"
+   }
+  },
+  "estrato": {
+   "description": {
+    "en": "Sampling stratum",
+    "pt": "Estrato amostral"
+   }
+  },
+  "estrato_15": {
+   "description": {
+    "en": "Sampling stratum under the 15-region division",
+    "pt": "Estrato amostral sob a divisão de 15 regiões"
+   }
+  },
+  "fact": {
+   "description": {
+    "en": "Quarterly expansion factor built on the 2002 Census population projections",
+    "pt": "Fator de expansão trimestral construído sobre as projeções populacionais do Censo 2002"
+   },
+   "observations": {
+    "en": "Discontinued: in force only up to the OND 2019 quarter. Use fact_cal for the whole series",
+    "pt": "Descontinuado: vigente apenas até o trimestre OND 2019. Para toda a série use fact_cal"
+   }
+  },
+  "fact_cal": {
+   "description": {
+    "en": "Calibrated quarterly expansion factor",
+    "pt": "Fator de expansão trimestral calibrado"
+   },
+   "observations": {
+    "en": "Calibrated expansion factor, available for the whole series from the EFM 2010 quarter on. The source publishes it with a decimal comma; here it is converted to a point. It is the only valid weight for expanding the sample",
+    "pt": "Fator de expansão calibrado, disponível para a totalidade da série desde o trimestre EFM 2010. A fonte o publica com vírgula decimal; aqui é convertido para ponto. É a única ponderação válida para expandir a amostra"
+   }
+  },
+  "fta": {
+   "description": {
+    "en": "Extended labour force",
+    "pt": "Força de trabalho ampliada"
+   }
+  },
+  "ftp": {
+   "description": {
+    "en": "Potential labour force",
+    "pt": "Força de trabalho potencial"
+   }
+  },
+  "habituales": {
+   "description": {
+    "en": "Usual hours of work in the reference week, 1 to 168",
+    "pt": "Horas habituais de trabalho na semana de referência, de 1 a 168"
+   },
+   "observations": {
+    "en": "STRING rather than INT64 because the column mixes hours with the non-response codes 888 (does not know) and 999 (no answer): casting it to an integer would leave those as 888- and 999-hour working weeks. Filter both values out before doing arithmetic. Built from c2_1_1, c2_1_2 and c2_1_3",
+    "pt": "STRING e não INT64 porque a coluna mistura horas com os códigos de não resposta 888 (Não sabe) e 999 (Não responde): convertê-la para inteiro os deixaria como jornadas de 888 e 999 horas. Filtre esses dois valores antes de fazer aritmética. Variável construída a partir de c2_1_1, c2_1_2 e c2_1_3"
+   }
+  },
+  "i13_total": {
+   "description": {
+    "en": "Number of measures to fund household expenses, summing the affirmative answers across i13_1 to i13_11",
+    "pt": "Número de medidas para financiar as despesas do domicílio, soma das respostas afirmativas entre i13_1 e i13_11"
+   }
+  },
+  "id": {
+   "description": {
+    "en": "Internal record identifier of the database",
+    "pt": "Identificador interno de registro da base de dados"
+   }
+  },
+  "id_comuna": {
+   "description": {
+    "en": "CUT code of the commune where the respondent lives",
+    "pt": "Código CUT da comuna de residência da pessoa entrevistada"
+   },
+   "observations": {
+    "en": "The source publishes the code without leading zeros; here it is padded to 5 digits. It joins br_bd_diretorios_cl.comuna without exception. The commune identifies the sampled dwelling: the ENE's sample design does NOT support commune-level estimates",
+    "pt": "A fonte publica o código sem zeros à esquerda; aqui é preenchido com 5 dígitos. Casa com br_bd_diretorios_cl.comuna sem exceções. A comuna identifica a habitação sorteada: o desenho amostral da ENE NÃO contempla estimativas comunais"
+   }
+  },
+  "id_directorio": {
+   "description": {
+    "en": "Block or section: identifies the cluster corresponding to the primary sampling unit, called a block in the urban stratum and a section in RAU and rural strata",
+    "pt": "Quarteirão ou seção: identifica o conglomerado correspondente à unidade primária de amostragem, denominado quarteirão no estrato urbano e seção em RAU e rural"
+   },
+   "observations": {
+    "en": "Replaced by conglomerado from the NDE 2019 quarter on. Under the older scheme the cluster was called a block in the urban stratum and a section in RAU and rural strata",
+    "pt": "Substituída por conglomerado a partir do trimestre NDE 2019. No esquema antigo o conglomerado chamava-se quarteirão no estrato urbano e seção em RAU e rural"
+   }
+  },
+  "id_identificacion": {
+   "description": {
+    "en": "Unique household identifier",
+    "pt": "Identificador único do domicílio"
+   },
+   "observations": {
+    "en": "Identifies the household within the moving quarter. It is not a panel identifier across quarters",
+    "pt": "Identifica o domicílio dentro do trimestre móvel. Não é um identificador de painel entre trimestres"
+   }
+  },
+  "id_provincia": {
+   "description": {
+    "en": "CUT code of the province where the respondent lives",
+    "pt": "Código CUT da província de residência da pessoa entrevistada"
+   },
+   "observations": {
+    "en": "The source publishes the code without leading zeros; here it is padded to 3 digits",
+    "pt": "A fonte publica o código sem zeros à esquerda; aqui é preenchido com 3 dígitos"
+   }
+  },
+  "id_region": {
+   "description": {
+    "en": "CUT code of the region where the respondent lives",
+    "pt": "Código CUT da região de residência da pessoa entrevistada"
+   },
+   "observations": {
+    "en": "The source publishes the code without leading zeros (1 to 16); here it is padded to 2 digits so it joins the directory. INE has recoded the whole series from 2010 onwards to the current 16-region division, so even the oldest files already contain Ñuble (16)",
+    "pt": "A fonte publica o código sem zeros à esquerda (1 a 16); aqui é preenchido com 2 dígitos para que case com o diretório. O INE recodificou toda a série desde 2010 para a divisão vigente de 16 regiões, de modo que os arquivos antigos já incluem Ñuble (16)"
+   }
+  },
+  "idisp": {
+   "description": {
+    "en": "Available future starter",
+    "pt": "Iniciante disponível"
+   }
+  },
+  "idrph": {
+   "observations": {
+    "en": "Person identifier within the moving quarter. Its format changes across the series and it does not allow the same person to be followed between quarters",
+    "pt": "Identificador de pessoa dentro do trimestre móvel. Seu formato muda ao longo da série e não permite acompanhar a mesma pessoa entre trimestres"
+   }
+  },
+  "inhab": {
+   "description": {
+    "en": "Habitually inactive persons",
+    "pt": "Inativos habituais"
+   }
+  },
+  "mes": {
+   "description": {
+    "en": "Central month of the moving quarter the record belongs to, 1 to 12",
+    "pt": "Mês central do trimestre móvel a que corresponde o registro, de 1 a 12"
+   },
+   "observations": {
+    "en": "Partition column. Central month of the moving quarter; the quarter spans the preceding month, the central one and the following one. Name in the source: mes_central",
+    "pt": "Coluna de partição. Mês central do trimestre móvel; o trimestre abrange o mês anterior, o mês central e o seguinte. Nome na fonte: mes_central"
+   }
+  },
+  "mes_encuesta": {
+   "description": {
+    "en": "Month of the data collection period, 1 to 12",
+    "pt": "Mês do período de coleta de dados, de 1 a 12"
+   },
+   "observations": {
+    "en": "Month in which the person was interviewed, within the moving quarter's three months",
+    "pt": "Mês em que a pessoa foi entrevistada, dentro dos três meses do trimestre móvel"
+   }
+  },
+  "mig2_cod": {
+   "description": {
+    "en": "Commune where the person lived five years ago",
+    "pt": "Comuna em que vivia há cinco anos"
+   }
+  },
+  "mig3_cod": {
+   "description": {
+    "en": "Country where the person lived five years ago",
+    "pt": "País em que vivia há cinco anos"
+   }
+  },
+  "mig5_cod": {
+   "description": {
+    "en": "Commune where the person's mother lived when they were born",
+    "pt": "Comuna em que vivia sua mãe quando a pessoa nasceu"
+   }
+  },
+  "mig6_cod": {
+   "description": {
+    "en": "Country where the person's mother lived when they were born",
+    "pt": "País em que vivia sua mãe quando a pessoa nasceu"
+   }
+  },
+  "n_dependencias": {
+   "description": {
+    "en": "Total count of economic or organisational dependence dimensions observed in the main job of an independent employed person",
+    "pt": "Número total de âmbitos de dependência econômica ou organizacional observados na ocupação principal de uma pessoa ocupada independente"
+   }
+  },
+  "nacionalidad": {
+   "description": {
+    "en": "Nationality of the respondent",
+    "pt": "Nacionalidade da pessoa entrevistada"
+   }
+  },
+  "nivel": {
+   "description": {
+    "en": "Highest educational level completed",
+    "pt": "Nível educacional mais alto aprovado"
+   }
+  },
+  "nro_linea": {
+   "description": {
+    "en": "Person's line number within the questionnaire",
+    "pt": "Número de linha da pessoa dentro do questionário"
+   }
+  },
+  "ocup_honorarios": {
+   "description": {
+    "en": "For the work done, did you issue a professional fee receipt?",
+    "pt": "Pelo trabalho realizado, emitiu recibo de honorários?"
+   }
+  },
+  "orig2": {
+   "description": {
+    "en": "Indigenous or native people the person declares belonging to",
+    "pt": "Povo indígena ou originário ao qual a pessoa declara pertencer"
+   }
+  },
+  "orig3": {
+   "description": {
+    "en": "Indigenous or native people declared, when orig2 is \"Other\"",
+    "pt": "Povo indígena ou originário declarado, quando orig2 é «Outro»"
+   }
+  },
+  "proveedor": {
+   "description": {
+    "en": "Whether the person is the household's main economic provider",
+    "pt": "Indica se a pessoa é a provedora econômica principal do domicílio"
+   }
+  },
+  "r_p_c_15": {
+   "description": {
+    "en": "Commune code under the 15-region division",
+    "pt": "Código da comuna sob a divisão de 15 regiões"
+   }
+  },
+  "region_15": {
+   "description": {
+    "en": "Region code under the 15-region division",
+    "pt": "Código da região sob a divisão de 15 regiões"
+   }
+  },
+  "sector": {
+   "description": {
+    "en": "Institutional sector of the job",
+    "pt": "Setor institucional da ocupação"
+   }
+  }
+ },
+ "text": {
+  "(Potencial) (Potencial) (Habitual) Corresponde a la condición de actividad económica específica. Corresponde a la clasificación de todas las personas de 15 años y más, según su situación laboral, basado en un esquema denominado código sumario": {
+   "en": "The specific labour force status: the classification of all persons aged 15 and over by their labour situation, under the scheme known as the summary code",
+   "pt": "Corresponde à condição de atividade econômica específica: a classificação de todas as pessoas de 15 anos ou mais segundo sua situação laboral, com base no esquema denominado código sumário"
+  },
+  "0 – 7 Incorporada como nueva dimensión de análisis, véase": {
+   "en": "Values from 0 to 7. Added as a new dimension of analysis",
+   "pt": "Valores de 0 a 7. Incorporada como nova dimensão de análise"
+  },
+  "1 – 10 Descontinuada. Vigente entre MAM 2020 Variable construida a partir de sumatoria": {
+   "en": "Values from 1 to 10. Discontinued, in force between MAM 2020 and OND 2021. Built as a sum",
+   "pt": "Valores de 1 a 10. Descontinuada, vigente entre MAM 2020 e OND 2021. Variável construída a partir de um somatório"
+  },
+  "1 – 11 Variable construida a partir de sumatoria": {
+   "en": "Values from 1 to 11. Built as a sum",
+   "pt": "Valores de 1 a 11. Variável construída a partir de um somatório"
+  },
+  "A pesar de que no buscó trabajo, ¿desea trabajar para generar un ingreso?": {
+   "en": "Although you did not look for work, do you want to work to earn an income?",
+   "pt": "Apesar de não ter procurado trabalho, deseja trabalhar para gerar renda?"
+  },
+  "A través de la contabilidad, ¿se pueden separar los gastos del negocio con los del hogar?": {
+   "en": "Do the accounts allow the business's expenses to be separated from the household's?",
+   "pt": "Pela contabilidade, é possível separar as despesas do negócio das do domicílio?"
+  },
+  "Actividad principal: Días a la semana contratados o acordados": {
+   "en": "Main activity: days per week contracted or agreed",
+   "pt": "Atividade principal: dias por semana contratados ou acordados"
+  },
+  "Actividad principal: Días a la semana trabajados habitualmente": {
+   "en": "Main activity: days per week usually worked",
+   "pt": "Atividade principal: dias por semana habitualmente trabalhados"
+  },
+  "Actividad principal: Días contratados o acordados en el turno": {
+   "en": "Main activity: days contracted or agreed in the shift",
+   "pt": "Atividade principal: dias contratados ou acordados no turno"
+  },
+  "Actividad principal: Días de descanso": {
+   "en": "Main activity: rest days",
+   "pt": "Atividade principal: dias de descanso"
+  },
+  "Actividad principal: Días de descanso contratados o acordados en el turno": {
+   "en": "Main activity: rest days contracted or agreed in the shift",
+   "pt": "Atividade principal: dias de descanso contratados ou acordados no turno"
+  },
+  "Actividad principal: Días trabajados habitualmente en el turno": {
+   "en": "Main activity: days usually worked in the shift",
+   "pt": "Atividade principal: dias habitualmente trabalhados no turno"
+  },
+  "Actividad principal: Horas diarias contratadas o acordadas": {
+   "en": "Main activity: daily hours contracted or agreed",
+   "pt": "Atividade principal: horas diárias contratadas ou acordadas"
+  },
+  "Actividad principal: Horas diarias contratadas o acordadas en el turno": {
+   "en": "Main activity: daily hours contracted or agreed in the shift",
+   "pt": "Atividade principal: horas diárias contratadas ou acordadas no turno"
+  },
+  "Actividad principal: Horas diarias trabajadas habitualmente": {
+   "en": "Main activity: daily hours usually worked",
+   "pt": "Atividade principal: horas diárias habitualmente trabalhadas"
+  },
+  "Actividad principal: Horas diarias trabajadas habitualmente en el turno": {
+   "en": "Main activity: daily hours usually worked in the shift",
+   "pt": "Atividade principal: horas diárias habitualmente trabalhadas no turno"
+  },
+  "Actividad principal: Total horas contratadas o acordadas en el turno": {
+   "en": "Main activity: total hours contracted or agreed in the shift",
+   "pt": "Atividade principal: total de horas contratadas ou acordadas no turno"
+  },
+  "Actividad principal: Total horas semanales contratadas o acordadas": {
+   "en": "Main activity: total weekly hours contracted or agreed",
+   "pt": "Atividade principal: total de horas semanais contratadas ou acordadas"
+  },
+  "Actividad principal: Total horas semanales trabajadas habitualmente": {
+   "en": "Main activity: total weekly hours usually worked",
+   "pt": "Atividade principal: total de horas semanais habitualmente trabalhadas"
+  },
+  "Actividad principal: Total horas trabajadas habitualmente en el turno": {
+   "en": "Main activity: total hours usually worked in the shift",
+   "pt": "Atividade principal: total de horas habitualmente trabalhadas no turno"
+  },
+  "Actividad secundaria: Días a la semana trabajados habitualmente": {
+   "en": "Secondary activity: days per week usually worked",
+   "pt": "Atividade secundária: dias por semana habitualmente trabalhados"
+  },
+  "Actividad secundaria: Horas diarias trabajadas habitualmente": {
+   "en": "Secondary activity: daily hours usually worked",
+   "pt": "Atividade secundária: horas diárias habitualmente trabalhadas"
+  },
+  "Actividad secundaria: Total horas semanales trabajadas habitualmente": {
+   "en": "Secondary activity: total weekly hours usually worked",
+   "pt": "Atividade secundária: total de horas semanais habitualmente trabalhadas"
+  },
+  "Al momento de recibir sus ingresos": {
+   "en": "At the time of receiving income",
+   "pt": "No momento de receber seus rendimentos"
+  },
+  "Aunque no trabajó la semana pasada, ¿tenía durante dicho periodo un empleo, negocio u otra actividad por la que recibe o recibirá un pago en dinero o en especie?": {
+   "en": "Although you did not work last week, did you have during that period a job, business or other activity for which you receive or will receive payment in cash or in kind?",
+   "pt": "Embora não tenha trabalhado na semana passada, tinha nesse período um emprego, negócio ou outra atividade pela qual recebe ou receberá pagamento em dinheiro ou em espécie?"
+  },
+  "Año de última búsqueda de empleo": {
+   "en": "Year of the last job search",
+   "pt": "Ano da última procura de emprego"
+  },
+  "Año hasta cuando trabajó en esa ocupación o actividad": {
+   "en": "Year up to which the person worked in that occupation or activity",
+   "pt": "Ano até o qual trabalhou nessa ocupação ou atividade"
+  },
+  "CINE 1997 (nivel)": {
+   "en": "ISCED 1997 (level)",
+   "pt": "CINE 1997 (nível)"
+  },
+  "CINE 2011 (categoría)": {
+   "en": "ISCED 2011 (category)",
+   "pt": "CINE 2011 (categoria)"
+  },
+  "CINE 2011 (nivel)": {
+   "en": "ISCED 2011 (level)",
+   "pt": "CINE 2011 (nível)"
+  },
+  "Categoría 2 Resto de Área Urbana (RAU) dejó de utilizarse a partir de EFM 2022": {
+   "en": "Category 2, Rest of Urban Area (RAU), stopped being used from EFM 2022 on",
+   "pt": "A categoria 2, Resto de Área Urbana (RAU), deixou de ser utilizada a partir de EFM 2022"
+  },
+  "Clasificación Internacional de la Situación en la Ocupación (CISO-18) - Primer nivel jerárquico": {
+   "en": "International Classification of Status in Employment (ICSE-18) - first hierarchical level",
+   "pt": "Classificação Internacional da Situação na Ocupação (CISO-18) - primeiro nível hierárquico"
+  },
+  "Clasificación Internacional de la Situación en la Ocupación (CISO-18) - Segundo nivel jerárquico": {
+   "en": "International Classification of Status in Employment (ICSE-18) - second hierarchical level",
+   "pt": "Classificação Internacional da Situação na Ocupação (CISO-18) - segundo nível hierárquico"
+  },
+  "Comparando con sus ingresos habituales, ¿cuánto de los ingresos de su actividad principal recibió en el mes anterior? 1 Más de la mitad 2 La mitad 3 Menos de la mitad 4 No recibió ingresos": {
+   "en": "Compared with your usual income, how much of your main activity's income did you receive in the previous month? 1 More than half 2 Half 3 Less than half 4 Received no income",
+   "pt": "Comparando com seus rendimentos habituais, quanto dos rendimentos da sua atividade principal recebeu no mês anterior? 1 Mais da metade 2 A metade 3 Menos da metade 4 Não recebeu rendimentos"
+  },
+  "Comparando los ingresos recibidos por su actividad principal en mes anterior, respecto a sus ingresos habituales, ¿disminuyeron, se mantuvieron o aumentaron?": {
+   "en": "Compared with your usual income, did the income from your main activity in the previous month fall, stay the same or rise?",
+   "pt": "Comparando os rendimentos recebidos pela sua atividade principal no mês anterior com seus rendimentos habituais, eles diminuíram, mantiveram-se ou aumentaram?"
+  },
+  "Condición de actividad": {
+   "en": "Labour force status",
+   "pt": "Condição de atividade"
+  },
+  "Conglomerado Vigente desde NDE 2019 a la fecha": {
+   "en": "Cluster. In force from NDE 2019 to date",
+   "pt": "Conglomerado. Vigente desde NDE 2019 até a data atual"
+  },
+  "Contratista dependiente clasificado/a como asalariado/a": {
+   "en": "Dependent contractor classified as an employee",
+   "pt": "Contratante dependente classificado como assalariado"
+  },
+  "Contratista dependiente clasificado/a como cuenta propia": {
+   "en": "Dependent contractor classified as own-account",
+   "pt": "Contratante dependente classificado como conta própria"
+  },
+  "Corresponde a ajuste realizado a variable": {
+   "en": "An adjustment applied to the source variable",
+   "pt": "Corresponde a um ajuste realizado sobre a variável de origem"
+  },
+  "Corresponde a la condición de actividad económica general. Corresponde a la clasificación de todas las personas de 15 años y más, según su situación laboral, basado en un esquema denominado código sumario": {
+   "en": "The general labour force status: the classification of all persons aged 15 and over by their labour situation, under the scheme known as the summary code",
+   "pt": "Corresponde à condição de atividade econômica geral: a classificação de todas as pessoas de 15 anos ou mais segundo sua situação laboral, com base no esquema denominado código sumário"
+  },
+  "Corresponde a una pregunta": {
+   "en": "Corresponds to a questionnaire item",
+   "pt": "Corresponde a uma pergunta do questionário"
+  },
+  "Corresponde a una pregunta abierta": {
+   "en": "Corresponds to an open-ended question",
+   "pt": "Corresponde a uma pergunta aberta"
+  },
+  "Corresponde al sexo declarado respecto a la persona entrevistada (INE, 2022b)": {
+   "en": "The sex declared for the person interviewed (INE, 2022b)",
+   "pt": "Corresponde ao sexo declarado da pessoa entrevistada (INE, 2022b)"
+  },
+  "Cuando nació, ¿en qué comuna o país vivía su madre?": {
+   "en": "When you were born, in which commune or country did your mother live?",
+   "pt": "Quando nasceu, em que comuna ou país vivia sua mãe?"
+  },
+  "Curso más alto aprobado 1 – 8": {
+   "en": "Highest grade completed, 1 to 8",
+   "pt": "Série mais alta aprovada, de 1 a 8"
+  },
+  "Código sumario de empleo específico": {
+   "en": "Summary employment code, specific version",
+   "pt": "Código sumário de emprego, versão específica"
+  },
+  "Código sumario de empleo general": {
+   "en": "Summary employment code, general version",
+   "pt": "Código sumário de emprego, versão geral"
+  },
+  "Desagregación a un dígito de Clasificación Internacional Normalizada de la Educación (CINE) 1997 (UNESCO, 2006). Véase INE (2025)": {
+   "en": "One-digit breakdown of the International Standard Classification of Education (ISCED) 1997 (UNESCO, 2006). See INE (2025)",
+   "pt": "Desagregação a um dígito da Classificação Internacional Normalizada da Educação (CINE) 1997 (UNESCO, 2006). Ver INE (2025)"
+  },
+  "Descontinuada. Producida entre EFM 2010 y DEF 2020": {
+   "en": "Discontinued. Produced between EFM 2010 and DEF 2020",
+   "pt": "Descontinuada. Produzida entre EFM 2010 e DEF 2020"
+  },
+  "Descontinuada. Producida entre EFM 2010 y JJA 2017 (véase Anexo 4)": {
+   "en": "Discontinued. Produced between EFM 2010 and JJA 2017 (see Annex 4)",
+   "pt": "Descontinuada. Produzida entre EFM 2010 e JJA 2017 (ver Anexo 4)"
+  },
+  "Descontinuada. Producida entre EFM 2010 y OND 2019": {
+   "en": "Discontinued. Produced between EFM 2010 and OND 2019",
+   "pt": "Descontinuada. Produzida entre EFM 2010 e OND 2019"
+  },
+  "Descontinuada. Producida entre EFM 2010 y OND 2019. En esta sección se caracteriza la búsqueda de empleo, tanto en personas ocupadas como en no ocupadas, así como también la disponibilidad para comenzar a trabajar": {
+   "en": "Discontinued. Produced between EFM 2010 and OND 2019. This section characterises job search, among both the employed and the non-employed, and availability to start work",
+   "pt": "Descontinuada. Produzida entre EFM 2010 e OND 2019. Esta seção caracteriza a procura de emprego, tanto entre ocupados quanto entre não ocupados, e a disponibilidade para começar a trabalhar"
+  },
+  "Descontinuada. Producida entre EFM 2010 y OND 2019. Responden ocupados/as y no ocupados/as": {
+   "en": "Discontinued. Produced between EFM 2010 and OND 2019. Answered by both the employed and the non-employed",
+   "pt": "Descontinuada. Produzida entre EFM 2010 e OND 2019. Respondem ocupados e não ocupados"
+  },
+  "Descontinuada. Producida entre Inicialmente estas preguntas se incorporaron para caracterizar impacto de pandemia de COVID-19 en la pérdida de ocupaciones. Se mantuvieron en el tiempo dada la utilidad analítica respecto al análisis de la anterior ocupación": {
+   "en": "Discontinued. These questions were added to characterise the COVID-19 pandemic's impact on job loss, and were kept for their analytical use in studying the previous job",
+   "pt": "Descontinuada. Estas perguntas foram inicialmente incorporadas para caracterizar o impacto da pandemia de COVID-19 na perda de ocupações, e foram mantidas pela utilidade analítica na análise da ocupação anterior"
+  },
+  "Descontinuada. Producida entre MAM 2020 y NDE 2022. Su inclusión fue recomendada por OIT en el contexto del impacto de la pandemia de COVID-19 en la población ocupada (INE, 2020b)": {
+   "en": "Discontinued. Produced between MAM 2020 and NDE 2022. Its inclusion was recommended by the ILO in the context of the COVID-19 pandemic's impact on the employed population (INE, 2020b)",
+   "pt": "Descontinuada. Produzida entre MAM 2020 e NDE 2022. Sua inclusão foi recomendada pela OIT no contexto do impacto da pandemia de COVID-19 sobre a população ocupada (INE, 2020b)"
+  },
+  "Descontinuada. Vigente entre MAM 2020 y OND2021": {
+   "en": "Discontinued. In force between MAM 2020 and OND 2021",
+   "pt": "Descontinuada. Vigente entre MAM 2020 e OND 2021"
+  },
+  "Duración de la ocupación declarada (en meses) INE (2026)": {
+   "en": "Declared duration of the job, in months. INE (2026)",
+   "pt": "Duração da ocupação declarada, em meses. INE (2026)"
+  },
+  "Durante este período en que no trabajó, ¿siguió recibiendo sueldo o ganancias?": {
+   "en": "During that period when you did not work, did you keep receiving pay or earnings?",
+   "pt": "Durante esse período em que não trabalhou, continuou recebendo salário ou ganhos?"
+  },
+  "Durante la semana de referencia, además del trabajo descrito, ¿tuvo algún otro empleo o hizo algún negocio, \"pololo\" u actividad remunerada por cuenta": {
+   "en": "During the reference week, besides the job described, did you have any other job or do any business, casual work or paid own-account activity",
+   "pt": "Durante a semana de referência, além do trabalho descrito, teve algum outro emprego ou fez algum negócio, bico ou atividade remunerada por conta própria"
+  },
+  "Durante las últimas cuatro semanas: a) ¿Hizo gestiones para iniciar un negocio o actividad por cuenta propia?, b) ¿Logró un acuerdo o contrato de trabajo para iniciar un empleo?": {
+   "en": "In the last four weeks: a) did you take steps to start a business or own-account activity? b) did you secure an agreement or contract to start a job?",
+   "pt": "Nas últimas quatro semanas: a) tomou providências para iniciar um negócio ou atividade por conta própria? b) conseguiu um acordo ou contrato de trabalho para iniciar um emprego?"
+  },
+  "Día de última búsqueda de empleo Valor entre 1 y 31, dependiendo del mes": {
+   "en": "Day of the last job search, between 1 and 31 depending on the month",
+   "pt": "Dia da última procura de emprego, valor entre 1 e 31 conforme o mês"
+  },
+  "Días adicionales a la semana que podría trabajar habitualmente en su actividad principal u otro trabajo": {
+   "en": "Additional days per week the person could usually work in their main activity or another job",
+   "pt": "Dias adicionais por semana que poderia trabalhar habitualmente na sua atividade principal ou em outro trabalho"
+  },
+  "E23_otro. Especifica e23 = Otra razón de renuncia recomendadas por OIT en el contexto del impacto de la pandemia de COVID -19 en la población no ocupada (INE, 2020c)": {
+   "en": "E23_otro. Specifies e23 = Another reason for resigning, among those the ILO recommended in the context of the COVID-19 pandemic's impact on the non-employed population (INE, 2020c)",
+   "pt": "E23_otro. Especifica e23 = Outro motivo de pedido de demissão, entre os recomendados pela OIT no contexto do impacto da pandemia de COVID-19 sobre a população não ocupada (INE, 2020c)"
+  },
+  "E24_otro. Especifica e24 = Otra razón de renuncia recomendadas por OIT en el contexto del impacto de la pandemia de COVID -19 en la población no ocupada (INE, 2020c)": {
+   "en": "E24_otro. Specifies e24 = Another reason for resigning, among those the ILO recommended in the context of the COVID-19 pandemic's impact on the non-employed population (INE, 2020c)",
+   "pt": "E24_otro. Especifica e24 = Outro motivo de pedido de demissão, entre os recomendados pela OIT no contexto do impacto da pandemia de COVID-19 sobre a população não ocupada (INE, 2020c)"
+  },
+  "El negocio, empresa o institución donde trabajó la semana pasada era": {
+   "en": "The business, firm or institution where you worked last week was",
+   "pt": "O negócio, empresa ou instituição onde trabalhou na semana passada era"
+  },
+  "En el trabajo, ¿utiliza algún tipo de maquinaria?": {
+   "en": "At work, do you use any kind of machinery?",
+   "pt": "No trabalho, utiliza algum tipo de maquinário?"
+  },
+  "En el trabajo, ¿utiliza algún vehículo de transporte?": {
+   "en": "At work, do you use any transport vehicle?",
+   "pt": "No trabalho, utiliza algum veículo de transporte?"
+  },
+  "En ese empleo, le otorgan cotización en sistema de salud": {
+   "en": "In that job, health system contributions are provided",
+   "pt": "Nesse emprego, concedem contribuição ao sistema de saúde"
+  },
+  "En ese empleo, le otorgan cotización en sistema previsional o de pensión": {
+   "en": "In that job, pension system contributions are provided",
+   "pt": "Nesse emprego, concedem contribuição ao sistema previdenciário ou de pensão"
+  },
+  "En ese empleo, le otorgan cotización por seguro de desempleo": {
+   "en": "In that job, unemployment insurance contributions are provided",
+   "pt": "Nesse emprego, concedem contribuição ao seguro-desemprego"
+  },
+  "En ese empleo, le otorgan días pagados por enfermedad": {
+   "en": "In that job, paid sick days are provided",
+   "pt": "Nesse emprego, concedem dias pagos por doença"
+  },
+  "En ese empleo, le otorgan permiso por maternidad o paternidad": {
+   "en": "In that job, maternity or paternity leave is provided",
+   "pt": "Nesse emprego, concedem licença maternidade ou paternidade"
+  },
+  "En ese empleo, le otorgan servicio de guarderías infantiles": {
+   "en": "In that job, childcare services are provided",
+   "pt": "Nesse emprego, concedem serviço de creche"
+  },
+  "En ese empleo, le otorgan vacaciones anuales": {
+   "en": "In that job, annual leave is provided",
+   "pt": "Nesse emprego, concedem férias anuais"
+  },
+  "En ese empleo, ¿tiene contrato escrito?": {
+   "en": "In that job, do you have a written contract?",
+   "pt": "Nesse emprego, tem contrato escrito?"
+  },
+  "En ese trabajo ¿emplea personas para su negocio o actividad? No incluya a miembros de su familia no remunerados": {
+   "en": "In that job, do you employ people for your business or activity? Do not include unpaid family members",
+   "pt": "Nesse trabalho, emprega pessoas para seu negócio ou atividade? Não inclua familiares não remunerados"
+  },
+  "En este trabajo, ¿tiene derecho, aunque no utilice, a días pagados por enfermedad?": {
+   "en": "In this job, are you entitled, even if you do not use it, to paid sick days?",
+   "pt": "Nesse trabalho, tem direito, ainda que não utilize, a dias pagos por doença?"
+  },
+  "En este trabajo, ¿tiene derecho, aunque no utilice, a permiso por maternidad o paternidad?": {
+   "en": "In this job, are you entitled, even if you do not use it, to maternity or paternity leave?",
+   "pt": "Nesse trabalho, tem direito, ainda que não utilize, a licença maternidade ou paternidade?"
+  },
+  "En este trabajo, ¿tiene derecho, aunque no utilice, a servicio de guardería infantil?": {
+   "en": "In this job, are you entitled, even if you do not use it, to childcare services?",
+   "pt": "Nesse trabalho, tem direito, ainda que não utilize, a serviço de creche?"
+  },
+  "En este trabajo, ¿tiene derecho, aunque no utilice, a vacaciones anuales?": {
+   "en": "In this job, are you entitled, even if you do not use it, to annual leave?",
+   "pt": "Nesse trabalho, tem direito, ainda que não utilize, a férias anuais?"
+  },
+  "En la semana que terminó el domingo pasado, ¿dónde realizó principalmente sus tareas?": {
+   "en": "In the week that ended last Sunday, where did you mainly carry out your tasks?",
+   "pt": "Na semana encerrada no domingo passado, onde realizou principalmente suas tarefas?"
+  },
+  "En las cuatro últimas semanas, hasta el domingo de la semana de referencia, ¿ha tratado de encontrar algún empleo o ha hecho alguna gestión para crear su propia empresa o negocio?": {
+   "en": "In the last four weeks, up to the Sunday of the reference week, have you tried to find a job or taken any step to set up your own firm or business?",
+   "pt": "Nas últimas quatro semanas, até o domingo da semana de referência, tentou encontrar algum emprego ou tomou alguma providência para criar sua própria empresa ou negócio?"
+  },
+  "En su trabajo, ¿quién decide el tipo de producto o servicio que destina a la venta?": {
+   "en": "In your job, who decides the type of product or service offered for sale?",
+   "pt": "No seu trabalho, quem decide o tipo de produto ou serviço destinado à venda?"
+  },
+  "En su trabajo, ¿quién decide sobre el horario de trabajo?": {
+   "en": "In your job, who decides the working hours?",
+   "pt": "No seu trabalho, quem decide o horário de trabalho?"
+  },
+  "En su trabajo, ¿quién decide sobre el lugar, rutas o zonas donde realiza su actividad?": {
+   "en": "In your job, who decides the place, routes or areas where you carry out your activity?",
+   "pt": "No seu trabalho, quem decide o local, as rotas ou as zonas onde realiza sua atividade?"
+  },
+  "En su trabajo, ¿quién decide sobre el precio de productos o servicios ofrecidos?": {
+   "en": "In your job, who decides the price of the products or services offered?",
+   "pt": "No seu trabalho, quem decide o preço dos produtos ou serviços oferecidos?"
+  },
+  "En todo el país, ¿cuántas personas trabajan en esa empresa, negocio, institución que le paga o actividad por cuenta propia? 1 Menos de 5 2 De 5 a 10 personas 3 Entre 11 y 49 4 Entre 50 y 199 5 200 y más personas": {
+   "en": "Across the country, how many people work in that firm, business, paying institution or own-account activity? 1 Fewer than 5 2 From 5 to 10 3 Between 11 and 49 4 Between 50 and 199 5 200 or more",
+   "pt": "Em todo o país, quantas pessoas trabalham nessa empresa, negócio, instituição que lhe paga ou atividade por conta própria? 1 Menos de 5 2 De 5 a 10 pessoas 3 Entre 11 e 49 4 Entre 50 e 199 5 200 ou mais pessoas"
+  },
+  "Entonces, ¿trabajaría menos horas, aunque esto suponga una reducción proporcional de su sueldo?": {
+   "en": "Would you then work fewer hours, even if that meant a proportional cut in your pay?",
+   "pt": "Então, trabalharia menos horas, ainda que isso implique uma redução proporcional do seu salário?"
+  },
+  "Entre EFM 2020 y NDE 2019, el código 1 identificaba al jefe o jefa de hogar, concepto que fue reemplazado por proveedor/a principal a partir de DEF 2020": {
+   "en": "Between EFM 2010 and NDE 2019, code 1 identified the head of household, a concept replaced by main provider from DEF 2020 on",
+   "pt": "Entre EFM 2010 e NDE 2019, o código 1 identificava o chefe ou a chefe do domicílio, conceito substituído por pessoa provedora principal a partir de DEF 2020"
+  },
+  "Ese otro trabajo, ¿lo hacía para su propia empresa, negocio o actividad por cuenta propia?": {
+   "en": "Was that other job done for your own firm, business or own-account activity?",
+   "pt": "Esse outro trabalho era feito para sua própria empresa, negócio ou atividade por conta própria?"
+  },
+  "Ese trabajo, ¿fue realizado para la empresa o negocio perteneciente a un miembro de su hogar?": {
+   "en": "Was that job done for a firm or business belonging to a member of your household?",
+   "pt": "Esse trabalho foi realizado para a empresa ou negócio pertencente a um membro do seu domicílio?"
+  },
+  "Especifica a6 = Otras razones de ausencia del trabajo Pregunta abierta": {
+   "en": "Specifies a6 = Other reasons for absence from work. Open-ended question",
+   "pt": "Especifica a6 = Outros motivos de ausência do trabalho. Pergunta aberta"
+  },
+  "Especifica b16 = En otros lugares Pregunta abierta": {
+   "en": "Specifies b16 = In other places. Open-ended question",
+   "pt": "Especifica b16 = Em outros lugares. Pergunta aberta"
+  },
+  "Especifica c9 = Otras razones de un número de horas diferente a lo habitual abierta": {
+   "en": "Specifies c9 = Other reasons for a number of hours different from usual. Open-ended question",
+   "pt": "Especifica c9 = Outros motivos para um número de horas diferente do habitual. Pergunta aberta"
+  },
+  "Especifica e12 = Otras razones de no disponibilidad Solo responden no ocupados/as": {
+   "en": "Specifies e12 = Other reasons for unavailability. Answered only by the non-employed",
+   "pt": "Especifica e12 = Outros motivos de indisponibilidade. Respondem apenas os não ocupados"
+  },
+  "Especifica e9 = Otras razones de no búsqueda Solo responden no ocupados/as": {
+   "en": "Specifies e9 = Other reasons for not searching. Answered only by the non-employed",
+   "pt": "Especifica e9 = Outros motivos para não procurar trabalho. Respondem apenas os não ocupados"
+  },
+  "Especifica orig2=20 (Otro). Pregunta abierta. Vigente desde EFM 2020 a la fecha como": {
+   "en": "Specifies orig2 = 20 (Other). Open-ended question. In force from EFM 2020 to date, as a new dimension of analysis",
+   "pt": "Especifica orig2 = 20 (Outro). Pergunta aberta. Vigente desde EFM 2020 até a data atual, como nova dimensão de análise"
+  },
+  "Estado civil  o conyugal": {
+   "en": "Marital or conjugal status",
+   "pt": "Estado civil ou conjugal"
+  },
+  "Está contratado o tiene un acuerdo de trabajo…": {
+   "en": "You are employed under a contract or have a working agreement…",
+   "pt": "Está contratado ou tem um acordo de trabalho…"
+  },
+  "Fuerza de trabajo": {
+   "en": "Labour force",
+   "pt": "Força de trabalho"
+  },
+  "Gestión de búsqueda de empleo:  Se inscribió o revisó los anuncios en la Oficina Municipal de Empleo (OMIL)": {
+   "en": "Job search step: registered with or checked listings at the municipal employment office (OMIL)",
+   "pt": "Providência de procura de emprego: inscreveu-se ou consultou os anúncios no escritório municipal de emprego (OMIL)"
+  },
+  "Gestión de búsqueda de empleo: Actualizó su currículum publicado en internet enviado anteriormente": {
+   "en": "Job search step: updated a CV posted online or previously sent",
+   "pt": "Providência de procura de emprego: atualizou o currículo publicado na internet ou enviado anteriormente"
+  },
+  "Gestión de búsqueda de empleo: Consultó con agencias de empleo": {
+   "en": "Job search step: contacted employment agencies",
+   "pt": "Providência de procura de emprego: consultou agências de emprego"
+  },
+  "Gestión de búsqueda de empleo: Consultó directamente con empleadores": {
+   "en": "Job search step: approached employers directly",
+   "pt": "Providência de procura de emprego: consultou diretamente empregadores"
+  },
+  "Gestión de búsqueda de empleo: Envió currículum a empresas/instituciones": {
+   "en": "Job search step: sent a CV to firms or institutions",
+   "pt": "Providência de procura de emprego: enviou currículo a empresas ou instituições"
+  },
+  "Gestión de búsqueda de empleo: Estuvo buscando clientes o pedidos": {
+   "en": "Job search step: looked for clients or orders",
+   "pt": "Providência de procura de emprego: esteve buscando clientes ou encomendas"
+  },
+  "Gestión de búsqueda de empleo: Nada": {
+   "en": "Job search step: none",
+   "pt": "Providência de procura de emprego: nenhuma"
+  },
+  "Gestión de búsqueda de empleo: Participó en una prueba o entrevista para la contratación": {
+   "en": "Job search step: took a test or attended a hiring interview",
+   "pt": "Providência de procura de emprego: participou de uma prova ou entrevista de contratação"
+  },
+  "Gestión de búsqueda de empleo: Pidió a conocidos o familiares que le recomendaran o le avisaran algún trabajo": {
+   "en": "Job search step: asked acquaintances or relatives to recommend them or tell them about work",
+   "pt": "Providência de procura de emprego: pediu a conhecidos ou familiares que o recomendassem ou avisassem sobre algum trabalho"
+  },
+  "Gestión de búsqueda de empleo: Puso anuncios (diarios, internet, radios, revistas, etc.)": {
+   "en": "Job search step: placed advertisements (newspapers, internet, radio, magazines, etc.)",
+   "pt": "Providência de procura de emprego: publicou anúncios (jornais, internet, rádio, revistas, etc.)"
+  },
+  "Gestión de búsqueda de empleo: Realizó gestiones para establecerse por su cuenta": {
+   "en": "Job search step: took steps to set up on their own account",
+   "pt": "Providência de procura de emprego: tomou providências para estabelecer-se por conta própria"
+  },
+  "Gestión de búsqueda de empleo: Revisó y contestó anuncios (diarios, internet, etc.)": {
+   "en": "Job search step: checked and answered advertisements (newspapers, internet, etc.)",
+   "pt": "Providência de procura de emprego: consultou e respondeu anúncios (jornais, internet, etc.)"
+  },
+  "Grupo de ocupación según CIUO-08": {
+   "en": "Major occupational group under ISCO-08",
+   "pt": "Grande grupo ocupacional segundo a CIUO-08"
+  },
+  "Grupo de ocupación según CIUO-88 entre EFM 2010 y EFM 2019": {
+   "en": "Major occupational group under ISCO-88, between EFM 2010 and EFM 2019",
+   "pt": "Grande grupo ocupacional segundo a CIUO-88, entre EFM 2010 e EFM 2019"
+  },
+  "Grupo ocupacional del empleo EFM 2010 y EFM 2019": {
+   "en": "Major occupational group of the previous job, EFM 2010 to EFM 2019",
+   "pt": "Grande grupo ocupacional do emprego anterior, EFM 2010 a EFM 2019"
+  },
+  "Grupo ocupacional del empleo EFM 2010 y OND 2019": {
+   "en": "Major occupational group of the previous job, EFM 2010 to OND 2019",
+   "pt": "Grande grupo ocupacional do emprego anterior, EFM 2010 a OND 2019"
+  },
+  "Hasta el domingo de la semana pasada, ¿cuándo fue la última vez que buscó trabajo?": {
+   "en": "Up to last Sunday, when was the last time you looked for work?",
+   "pt": "Até o domingo da semana passada, quando foi a última vez que procurou trabalho?"
+  },
+  "Horas diarias adicionales a la semana que podría trabajar habitualmente en su actividad principal u otro trabajo": {
+   "en": "Additional daily hours per week the person could usually work in their main activity or another job",
+   "pt": "Horas diárias adicionais por semana que poderia trabalhar habitualmente na sua atividade principal ou em outro trabalho"
+  },
+  "Identificada en el cuestionario. 6  Disponible en https://www.bcn.cl/leychile/navegar?idNorma=1115064": {
+   "en": "Identified in the questionnaire. Available at https://www.bcn.cl/leychile/navegar?idNorma=1115064",
+   "pt": "Identificada no questionário. Disponível em https://www.bcn.cl/leychile/navegar?idNorma=1115064"
+  },
+  "Identificador único de personas": {
+   "en": "Unique person identifier",
+   "pt": "Identificador único de pessoas"
+  },
+  "Inadecuación por educativo": {
+   "en": "Educational mismatch between schooling and occupation",
+   "pt": "Inadequação educacional entre a escolaridade e a ocupação"
+  },
+  "Incorporada a partir de JJA 2020,": {
+   "en": "Added from JJA 2020 on",
+   "pt": "Incorporada a partir de JJA 2020"
+  },
+  "Incorporada a partir de JJA 2020, recomendadas por OIT en el contexto del impacto de la pandemia de COVID -19 en la población no ocupada (INE, 2020c)": {
+   "en": "Added from JJA 2020 on, among those the ILO recommended in the context of the COVID-19 pandemic's impact on the non-employed population (INE, 2020c)",
+   "pt": "Incorporada a partir de JJA 2020, entre as recomendadas pela OIT no contexto do impacto da pandemia de COVID-19 sobre a população não ocupada (INE, 2020c)"
+  },
+  "Incorporada a partir de JJA 2020, recomendadas por OIT en el contexto del impacto de la pandemia de COVID -19 en la población no ocupada (INE, 2020c). Variable construida a partir de respuestas a e21_mes y e21_ano": {
+   "en": "Added from JJA 2020 on, among those the ILO recommended in the context of the COVID-19 pandemic's impact on the non-employed population (INE, 2020c). Built from the answers to e21_mes and e21_ano",
+   "pt": "Incorporada a partir de JJA 2020, entre as recomendadas pela OIT no contexto do impacto da pandemia de COVID-19 sobre a população não ocupada (INE, 2020c). Variável construída a partir das respostas a e21_mes e e21_ano"
+  },
+  "Incorporada a partir de JJA 2020, recomendadas por OIT en el contexto del impacto de la pandemia o reemplazo cuenta propia económicas fenómeno natural o siniestro del COVID-19 cuenta propia por la pandemia del COVID-19 de COVID -19 en la población no ocupada (INE, 2020c)": {
+   "en": "Added from JJA 2020 on, among those the ILO recommended in the context of the COVID-19 pandemic's impact on the non-employed population (INE, 2020c)",
+   "pt": "Incorporada a partir de JJA 2020, entre as recomendadas pela OIT no contexto do impacto da pandemia de COVID-19 sobre a população não ocupada (INE, 2020c)"
+  },
+  "Incorporada como nueva dimensión de análisis, véase": {
+   "en": "Added as a new dimension of analysis",
+   "pt": "Incorporada como nova dimensão de análise"
+  },
+  "Incorporada como nueva dimensión de análisis, véase INE (2026)": {
+   "en": "Added as a new dimension of analysis, see INE (2026)",
+   "pt": "Incorporada como nova dimensão de análise, ver INE (2026)"
+  },
+  "Incorporada como nueva dimensión de análisis, véase INE, 2024c": {
+   "en": "Added as a new dimension of analysis, see INE, 2024c",
+   "pt": "Incorporada como nova dimensão de análise, ver INE, 2024c"
+  },
+  "Independientemente de lo que acaba de decir, ¿hizo algún negocio, \"pololo\" u otra actividad por cuenta propia por lo menos durante una hora?": {
+   "en": "Regardless of what you have just said, did you do any business, casual work or other own-account activity for at least one hour?",
+   "pt": "Independentemente do que acabou de dizer, fez algum negócio, bico ou outra atividade por conta própria por pelo menos uma hora?"
+  },
+  "Institucional": {
+   "en": "Institutional sector",
+   "pt": "Setor institucional"
+  },
+  "La duración de ese contrato o acuerdo de trabajo es": {
+   "en": "The duration of that contract or working agreement is",
+   "pt": "A duração desse contrato ou acordo de trabalho é"
+  },
+  "La empresa, negocio o actividad en la que trabaja, ¿está registrada en el Servicio de Impuestos Internos (SII) o tiene iniciación de actividades?": {
+   "en": "Is the firm, business or activity you work in registered with the tax authority (SII) or has it filed a start of activities?",
+   "pt": "A empresa, negócio ou atividade em que trabalha está registrada no Servicio de Impuestos Internos (SII) ou tem início de atividades?"
+  },
+  "La empresa, negocio o actividad en la que trabaja, ¿se encuentra registrada como…": {
+   "en": "The firm, business or activity you work in is registered as…",
+   "pt": "A empresa, negócio ou atividade em que trabalha está registrada como…"
+  },
+  "La empresa, negocio o actividad por cuenta propia…": {
+   "en": "The firm, business or own-account activity…",
+   "pt": "A empresa, negócio ou atividade por conta própria…"
+  },
+  "La empresa, negocio o institución que le paga su sueldo, ¿cuenta con los servicios de un contador o tiene oficina de contabilidad?": {
+   "en": "Does the firm, business or institution that pays your wage use an accountant's services or have an accounting office?",
+   "pt": "A empresa, negócio ou instituição que lhe paga o salário conta com os serviços de um contador ou tem escritório de contabilidade?"
+  },
+  "La empresa, negocio o institución que le paga su sueldo, ¿está registrada en el Servicio de Impuestos Internos (SII) o tiene iniciación de actividades?": {
+   "en": "Is the firm, business or institution that pays your wage registered with the tax authority (SII) or has it filed a start of activities?",
+   "pt": "A empresa, negócio ou instituição que lhe paga o salário está registrada no Servicio de Impuestos Internos (SII) ou tem início de atividades?"
+  },
+  "La semana pasada, es decir, entre lunes y domingo, ¿trabajó por lo menos una hora?": {
+   "en": "Last week, that is between Monday and Sunday, did you work at least one hour?",
+   "pt": "Na semana passada, ou seja, entre segunda e domingo, trabalhou pelo menos uma hora?"
+  },
+  "La semana pasada, ¿trabajó menos horas que las habituales en su actividad principal?": {
+   "en": "Last week, did you work fewer hours than usual in your main activity?",
+   "pt": "Na semana passada, trabalhou menos horas que o habitual na sua atividade principal?"
+  },
+  "La semana pasada, ¿trabajó más horas que las habituales en su actividad principal? (sobre tiempo u horas extras, pagadas o no)": {
+   "en": "Last week, did you work more hours than usual in your main activity? (overtime or extra hours, paid or not)",
+   "pt": "Na semana passada, trabalhou mais horas que o habitual na sua atividade principal? (sobreaviso ou horas extras, pagas ou não)"
+  },
+  "Medidas de financiamiento de gastos del hogar: Búsqueda de otro trabajo": {
+   "en": "Measure to fund household expenses: look for another job",
+   "pt": "Medida para financiar as despesas do domicílio: procurar outro trabalho"
+  },
+  "Medidas de financiamiento de gastos del hogar: Esperar ayuda de instituciones sin fines de lucro (ONG's, Iglesia, etc.)": {
+   "en": "Measure to fund household expenses: wait for help from non-profit institutions (NGOs, the church, etc.)",
+   "pt": "Medida para financiar as despesas do domicílio: esperar ajuda de instituições sem fins lucrativos (ONGs, igreja, etc.)"
+  },
+  "Medidas de financiamiento de gastos del hogar: Esperar ayuda de un familiar, vecinos o amigos": {
+   "en": "Measure to fund household expenses: wait for help from a relative, neighbours or friends",
+   "pt": "Medida para financiar as despesas do domicílio: esperar ajuda de um familiar, vizinhos ou amigos"
+  },
+  "Medidas de financiamiento de gastos del hogar: Esperar ayuda del Estado": {
+   "en": "Measure to fund household expenses: wait for help from the State",
+   "pt": "Medida para financiar as despesas do domicílio: esperar ajuda do Estado"
+  },
+  "Medidas de financiamiento de gastos del hogar: No hará nada": {
+   "en": "Measure to fund household expenses: will do nothing",
+   "pt": "Medida para financiar as despesas do domicílio: não fará nada"
+  },
+  "Medidas de financiamiento de gastos del hogar: No responde": {
+   "en": "Measure to fund household expenses: no answer",
+   "pt": "Medida para financiar as despesas do domicílio: não responde"
+  },
+  "Medidas de financiamiento de gastos del hogar: No sabe": {
+   "en": "Measure to fund household expenses: does not know",
+   "pt": "Medida para financiar as despesas do domicílio: não sabe"
+  },
+  "Medidas de financiamiento de gastos del hogar: Reducir gastos del hogar": {
+   "en": "Measure to fund household expenses: cut household spending",
+   "pt": "Medida para financiar as despesas do domicílio: reduzir as despesas do domicílio"
+  },
+  "Medidas de financiamiento de gastos del hogar: Solicitar un préstamo a un familiar": {
+   "en": "Measure to fund household expenses: ask a relative for a loan",
+   "pt": "Medida para financiar as despesas do domicílio: pedir empréstimo a um familiar"
+  },
+  "Medidas de financiamiento de gastos del hogar: Solicitar un préstamo bancario": {
+   "en": "Measure to fund household expenses: take out a bank loan",
+   "pt": "Medida para financiar as despesas do domicílio: pedir empréstimo bancário"
+  },
+  "Medidas de financiamiento de gastos del hogar: Trabajar más horas en actividad principal": {
+   "en": "Measure to fund household expenses: work more hours in the main activity",
+   "pt": "Medida para financiar as despesas do domicílio: trabalhar mais horas na atividade principal"
+  },
+  "Medidas de financiamiento de gastos del hogar: Usar ahorros": {
+   "en": "Measure to fund household expenses: draw on savings",
+   "pt": "Medida para financiar as despesas do domicílio: usar poupança"
+  },
+  "Medidas de financiamiento de gastos del hogar: Utilizar tarjeta o línea de crédito": {
+   "en": "Measure to fund household expenses: use a credit card or credit line",
+   "pt": "Medida para financiar as despesas do domicílio: utilizar cartão ou linha de crédito"
+  },
+  "Mes de última búsqueda de empleo": {
+   "en": "Month of the last job search",
+   "pt": "Mês da última procura de emprego"
+  },
+  "Mes hasta cuando trabajó en esa ocupació n o actividad": {
+   "en": "Month up to which the person worked in that occupation or activity",
+   "pt": "Mês até o qual trabalhou nessa ocupação ou atividade"
+  },
+  "Nacionalidad del Módulo A: Situación laboral en la semana de referencia Variable Nombre variable Cód. Nombre del código": {
+   "en": "Nationality",
+   "pt": "Nacionalidade"
+  },
+  "Número de gestiones realizadas para buscar empleo de valores afirmativos entre e3_1 y": {
+   "en": "Number of job search steps taken, summing the affirmative answers across e3_1 to e3_12",
+   "pt": "Número de providências tomadas para procurar emprego, somando as respostas afirmativas entre e3_1 e e3_12"
+  },
+  "Número de línea de persona Corresponde al orden con el cual la persona fue": {
+   "en": "Person line number. The order in which the person was identified in the questionnaire",
+   "pt": "Número de linha da pessoa. Corresponde à ordem em que a pessoa foi identificada no questionário"
+  },
+  "Número de medidas de financiamiento de gastos del hogar y OND2021. de valores afirmativos entre i13_1 y": {
+   "en": "Number of measures to fund household expenses, summing the affirmative answers across i13_1 to i13_11",
+   "pt": "Número de medidas para financiar as despesas do domicílio, somando as respostas afirmativas entre i13_1 e i13_11"
+  },
+  "Número del hogar dentro de la vivienda": {
+   "en": "Household number within the dwelling",
+   "pt": "Número do domicílio dentro da habitação"
+  },
+  "Número exacto, hasta 10 personas Valores de 1 a 10": {
+   "en": "Exact number of people employed, up to 10. Values from 1 to 10",
+   "pt": "Número exato de pessoas empregadas, até 10. Valores de 1 a 10"
+  },
+  "Ocupado/a que buscó un empleo": {
+   "en": "Employed person who looked for a job",
+   "pt": "Pessoa ocupada que procurou um emprego"
+  },
+  "Ocupado/a que trabajó de manera involuntaria a tiempo parcial": {
+   "en": "Employed person working part time involuntarily",
+   "pt": "Pessoa ocupada que trabalhou involuntariamente em tempo parcial"
+  },
+  "Ocupado/a según formalidad de su ocupación": {
+   "en": "Employed person by the formality of their job",
+   "pt": "Pessoa ocupada segundo a formalidade da sua ocupação"
+  },
+  "Ocupado/a según sector Variable incorporada a partir de trimestre JAS 2017": {
+   "en": "Employed person by institutional sector. Added from the JAS 2017 quarter on",
+   "pt": "Pessoa ocupada segundo o setor institucional. Variável incorporada a partir do trimestre JAS 2017"
+  },
+  "Para la realización del trabajo, ¿requiere de un local, establecimiento o predio?": {
+   "en": "Does carrying out the work require premises, an establishment or a property?",
+   "pt": "Para a realização do trabalho, requer um local, estabelecimento ou imóvel?"
+  },
+  "Parentesco con proveedor/a principal del hogar": {
+   "en": "Relationship to the household's main provider",
+   "pt": "Parentesco com a pessoa provedora principal do domicílio"
+  },
+  "Participación en asociación de funcionarios": {
+   "en": "Membership of a public employees' association",
+   "pt": "Participação em associação de servidores"
+  },
+  "Participación en asociación gremial": {
+   "en": "Membership of a trade association",
+   "pt": "Participação em associação patronal"
+  },
+  "Participación en colegio profesional": {
+   "en": "Membership of a professional body",
+   "pt": "Participação em conselho profissional"
+  },
+  "Participación en otro tipo de organizaciones": {
+   "en": "Membership of another kind of organisation",
+   "pt": "Participação em outro tipo de organização"
+  },
+  "Participación en sindicato": {
+   "en": "Trade union membership",
+   "pt": "Participação em sindicato"
+  },
+  "Participante en organizaciones de trabajadores": {
+   "en": "Member of a workers' organisation",
+   "pt": "Participante em organizações de trabalhadores"
+  },
+  "Permite identificar el conglomerado correspondiente a la unidad primaria de muestreo": {
+   "en": "Identifies the cluster corresponding to the primary sampling unit",
+   "pt": "Permite identificar o conglomerado correspondente à unidade primária de amostragem"
+  },
+  "Pero, si se diera la posibilidad, ¿estaría disponible para trabajar más horas a la semana?": {
+   "en": "But if the opportunity arose, would you be available to work more hours a week?",
+   "pt": "Mas, se houvesse a possibilidade, estaria disponível para trabalhar mais horas por semana?"
+  },
+  "Persona ocupada dependiente con riesgo económico": {
+   "en": "Dependent employed person bearing economic risk",
+   "pt": "Pessoa ocupada dependente com risco econômico"
+  },
+  "Persona ocupada dependiente cuyo empleador no le paga cotizaciones": {
+   "en": "Dependent employed person whose employer pays no social contributions for them",
+   "pt": "Pessoa ocupada dependente cujo empregador não paga contribuições por ela"
+  },
+  "Persona ocupada dependiente que recibe forma de pago diferente a sueldo, salario o jornal": {
+   "en": "Dependent employed person paid in a form other than a wage, salary or daily rate",
+   "pt": "Pessoa ocupada dependente que recebe forma de pagamento diferente de salário, ordenado ou diária"
+  },
+  "Persona ocupada independiente con dependencia económica": {
+   "en": "Independent employed person with economic dependence",
+   "pt": "Pessoa ocupada independente com dependência econômica"
+  },
+  "Persona ocupada independiente con dependencia organizativa": {
+   "en": "Independent employed person with organisational dependence",
+   "pt": "Pessoa ocupada independente com dependência organizacional"
+  },
+  "Persona ocupada independiente con dependencia tanto económica como organizativa": {
+   "en": "Independent employed person with both economic and organisational dependence",
+   "pt": "Pessoa ocupada independente com dependência tanto econômica quanto organizacional"
+  },
+  "Plataforma digital sujeta a Ley 21.431 (ocupación principal)": {
+   "en": "Digital platform covered by Law 21,431, in the main job",
+   "pt": "Plataforma digital sujeita à Lei 21.431, na ocupação principal"
+  },
+  "Plataforma digital sujeta a Ley 21.431 (ocupación secundaria)": {
+   "en": "Digital platform covered by Law 21,431, in the secondary job",
+   "pt": "Plataforma digital sujeita à Lei 21.431, na ocupação secundária"
+  },
+  "Población en edad de trabajar": {
+   "en": "Working-age population",
+   "pt": "População em idade ativa"
+  },
+  "Por el trabajo realizado, ¿entregó una boleta de honorarios?\"": {
+   "en": "For the work done, did you issue a professional fee receipt?",
+   "pt": "Pelo trabalho realizado, emitiu recibo de honorários?"
+  },
+  "Por ese trabajo, ¿recibió o recibirá un pago en dinero o en especie?": {
+   "en": "For that work, did you receive or will you receive payment in cash or in kind?",
+   "pt": "Por esse trabalho, recebeu ou receberá pagamento em dinheiro ou em espécie?"
+  },
+  "Por ese trabajo…": {
+   "en": "For that work…",
+   "pt": "Por esse trabalho…"
+  },
+  "Por su actividad principal, ¿su pago fue a través de sueldo, salario o jornal?": {
+   "en": "For your main activity, were you paid a wage, salary or daily rate?",
+   "pt": "Pela sua atividade principal, o pagamento foi por salário, ordenado ou diária?"
+  },
+  "Por su actividad principal, ¿su pago fue mediante propina?": {
+   "en": "For your main activity, were you paid in tips?",
+   "pt": "Pela sua atividade principal, o pagamento foi por gorjeta?"
+  },
+  "Por su actividad principal, ¿su pago fue mediante un cobro por servicio prestado?": {
+   "en": "For your main activity, were you paid by charging for a service rendered?",
+   "pt": "Pela sua atividade principal, o pagamento foi por cobrança de serviço prestado?"
+  },
+  "Por su actividad principal, ¿su pago fue obtenido mediante ganancias o utilidades de una actividad?": {
+   "en": "For your main activity, did your pay come from the earnings or profits of an activity?",
+   "pt": "Pela sua atividade principal, o pagamento veio de ganhos ou lucros de uma atividade?"
+  },
+  "Por su actividad principal, ¿su pago fue por comisión?": {
+   "en": "For your main activity, were you paid on commission?",
+   "pt": "Pela sua atividade principal, o pagamento foi por comissão?"
+  },
+  "Por su actividad principal, ¿su pago fue por pieza o unidad vendida?": {
+   "en": "For your main activity, were you paid by the piece or unit sold?",
+   "pt": "Pela sua atividade principal, o pagamento foi por peça ou unidade vendida?"
+  },
+  "Pregunta abierta Variable incorporada a partir Véase INE, 2022b": {
+   "en": "Open-ended question. Added from the EFM 2020 quarter on. See INE, 2022b",
+   "pt": "Pergunta aberta. Variável incorporada a partir do trimestre EFM 2020. Ver INE, 2022b"
+  },
+  "Producida entre EFM 2010 y OND 2019": {
+   "en": "Produced between EFM 2010 and OND 2019",
+   "pt": "Produzida entre EFM 2010 e OND 2019"
+  },
+  "Rama de actividad económica de empresa (adaptación de CIIU Rev. 4.cl)": {
+   "en": "Industry of the firm, under the Chilean adaptation of ISIC Rev. 4",
+   "pt": "Ramo de atividade econômica da empresa, segundo a adaptação chilena da CIIU Rev. 4"
+  },
+  "Rama de actividad económica de empresa Rev. 3 entre EFM 2010 y OND 2016": {
+   "en": "Industry of the firm under ISIC Rev. 3, between EFM 2010 and OND 2016",
+   "pt": "Ramo de atividade econômica da empresa segundo a CIIU Rev. 3, entre EFM 2010 e OND 2016"
+  },
+  "Rama de actividad económica de empresa que (adaptación de CIIU Rev. 4.cl)": {
+   "en": "Industry of the firm paying the wage, under the Chilean adaptation of ISIC Rev. 4",
+   "pt": "Ramo de atividade econômica da empresa que paga o salário, segundo a adaptação chilena da CIIU Rev. 4"
+  },
+  "Rama de actividad económica de empresa que entre EFM 2010 y OND 2016": {
+   "en": "Industry of the firm paying the wage, between EFM 2010 and OND 2016",
+   "pt": "Ramo de atividade econômica da empresa que paga o salário, entre EFM 2010 e OND 2016"
+  },
+  "Rama de actividad económica de la empresa o institución que le paga el sueldo o de la que es dueña la persona ocupada (ajustada)": {
+   "en": "Industry of the firm or institution paying the wage, or owned by the employed person, adjusted",
+   "pt": "Ramo de atividade econômica da empresa ou instituição que paga o salário ou da qual a pessoa ocupada é proprietária, ajustado"
+  },
+  "Rama de actividad económica del empleo anterior según CAENES (adaptación d e CIIU Rev. 4.cl)": {
+   "en": "Industry of the previous job under CAENES, the Chilean adaptation of ISIC Rev. 4",
+   "pt": "Ramo de atividade econômica do emprego anterior segundo o CAENES, adaptação chilena da CIIU Rev. 4"
+  },
+  "Realizó ese trabajo… actividad por cuenta propia?": {
+   "en": "Did you do that work… as an own-account activity?",
+   "pt": "Realizou esse trabalho… como atividade por conta própria?"
+  },
+  "Responden ocupados/as y no ocupados/as": {
+   "en": "Answered by both the employed and the non-employed",
+   "pt": "Respondem ocupados e não ocupados"
+  },
+  "Responden ocupados/as y no ocupados/as. Descontinuada. Producida entre EFM 2010 y OND 2019": {
+   "en": "Answered by both the employed and the non-employed. Discontinued, produced between EFM 2010 and OND 2019",
+   "pt": "Respondem ocupados e não ocupados. Descontinuada, produzida entre EFM 2010 e OND 2019"
+  },
+  "Responden ocupados/as y no ocupados/as. Sólo identifica realización de gestión. En caso contrario, no existe valor": {
+   "en": "Answered by both the employed and the non-employed. It only records that the step was taken; otherwise there is no value",
+   "pt": "Respondem ocupados e não ocupados. Identifica apenas a realização da providência; caso contrário, não há valor"
+  },
+  "Semana de última búsqueda de empleo": {
+   "en": "Week of the last job search",
+   "pt": "Semana da última procura de emprego"
+  },
+  "Sexo": {
+   "en": "Sex",
+   "pt": "Sexo"
+  },
+  "Señala al proveedor económico principal del": {
+   "en": "Indicates the household's main economic provider",
+   "pt": "Indica a pessoa provedora econômica principal do domicílio"
+  },
+  "Si de usted dependiera, ¿trabajaría habitualmente más horas de las que trabaja en la actualidad?": {
+   "en": "If it were up to you, would you usually work more hours than you currently do?",
+   "pt": "Se dependesse de você, trabalharia habitualmente mais horas do que trabalha atualmente?"
+  },
+  "Si durante la semana pasada, hubiera encontrado un trabajo, ¿estaría disponible para comenzar a trabajar de este lunes que viene al otro?": {
+   "en": "If you had found a job last week, would you have been available to start work between this coming Monday and the next?",
+   "pt": "Se durante a semana passada tivesse encontrado um trabalho, estaria disponível para começar a trabalhar entre a próxima segunda-feira e a seguinte?"
+  },
+  "Si las restricciones por la pandemia del COVID- 19 se terminaran en las próximas cuatro semanas, ¿cree que podrá volver a su trabajo?": {
+   "en": "If the COVID-19 pandemic restrictions ended in the next four weeks, do you think you could return to your job?",
+   "pt": "Se as restrições da pandemia de COVID-19 terminassem nas próximas quatro semanas, acredita que poderá voltar ao seu trabalho?"
+  },
+  "Situación en la ocupación (CISO-18) - Tercer nivel jerárquico (forma A)": {
+   "en": "Status in employment (ICSE-18), third hierarchical level, form A",
+   "pt": "Situação na ocupação (CISO-18), terceiro nível hierárquico, forma A"
+  },
+  "Situación en la ocupación (CISO-18) - Tercer nivel jerárquico (forma B)": {
+   "en": "Status in employment (ICSE-18), third hierarchical level, form B",
+   "pt": "Situação na ocupação (CISO-18), terceiro nível hierárquico, forma B"
+  },
+  "Solo responden no ocupados/as": {
+   "en": "Answered only by the non-employed",
+   "pt": "Respondem apenas os não ocupados"
+  },
+  "Solo responden no ocupados/as. Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022": {
+   "en": "Answered only by the non-employed. Added from the EFM 2020 quarter on. See INE, 2022",
+   "pt": "Respondem apenas os não ocupados. Variável incorporada a partir do trimestre EFM 2020. Ver INE, 2022"
+  },
+  "Solo responden ocupados/as": {
+   "en": "Answered only by the employed",
+   "pt": "Respondem apenas os ocupados"
+  },
+  "Su contrato o acuerdo definido es…": {
+   "en": "Your fixed-term contract or agreement is…",
+   "pt": "Seu contrato ou acordo por prazo determinado é…"
+  },
+  "Su empleador, ¿cotiza por usted en el sistema de salud (público o privado)?": {
+   "en": "Does your employer contribute on your behalf to the health system, public or private?",
+   "pt": "Seu empregador contribui por você para o sistema de saúde, público ou privado?"
+  },
+  "Su empleador, ¿cotiza por usted en el sistema de seguro de desempleo?": {
+   "en": "Does your employer contribute on your behalf to unemployment insurance?",
+   "pt": "Seu empregador contribui por você para o seguro-desemprego?"
+  },
+  "Su empleador, ¿cotiza por usted en el sistema previsional o de pensión?": {
+   "en": "Does your employer contribute on your behalf to the pension system?",
+   "pt": "Seu empregador contribui por você para o sistema previdenciário ou de pensão?"
+  },
+  "Su trabajo en ese hogar es…": {
+   "en": "Your work in that household is…",
+   "pt": "Seu trabalho nesse domicílio é…"
+  },
+  "Tipo de estrato": {
+   "en": "Type of sampling stratum",
+   "pt": "Tipo de estrato amostral"
+  },
+  "Total horas adicionales a la semana que podría trabajar habitualmente en su actividad principal u otro trabajo": {
+   "en": "Total additional hours per week the person could usually work in their main activity or another job",
+   "pt": "Total de horas adicionais por semana que poderia trabalhar habitualmente na sua atividade principal ou em outro trabalho"
+  },
+  "Tramo de edad": {
+   "en": "Age group",
+   "pt": "Faixa etária"
+  },
+  "Tramos desde hasta cuando trabajó en esa ocupación o actividad": {
+   "en": "Time band up to which the person worked in that occupation or activity",
+   "pt": "Faixa de tempo até quando trabalhou nessa ocupação ou atividade"
+  },
+  "Término de nivel educacional": {
+   "en": "Completion of the educational level",
+   "pt": "Conclusão do nível educacional"
+  },
+  "Variable construida a partir de respuesta en variable edad": {
+   "en": "Built from the answer given in the variable edad",
+   "pt": "Variável construída a partir da resposta na variável edad"
+  },
+  "Variable incorporada a partir de trimestre EFM 2020": {
+   "en": "Added from the EFM 2020 quarter on",
+   "pt": "Variável incorporada a partir do trimestre EFM 2020"
+  },
+  "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2021c": {
+   "en": "Added from the EFM 2020 quarter on. See INE, 2021c",
+   "pt": "Variável incorporada a partir do trimestre EFM 2020. Ver INE, 2021c"
+  },
+  "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022": {
+   "en": "Added from the EFM 2020 quarter on. See INE, 2022",
+   "pt": "Variável incorporada a partir do trimestre EFM 2020. Ver INE, 2022"
+  },
+  "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022b": {
+   "en": "Added from the EFM 2020 quarter on. See INE, 2022b",
+   "pt": "Variável incorporada a partir do trimestre EFM 2020. Ver INE, 2022b"
+  },
+  "Variable incorporada a partir de trimestre JAS 2017": {
+   "en": "Added from the JAS 2017 quarter on",
+   "pt": "Variável incorporada a partir do trimestre JAS 2017"
+  },
+  "Variable incorporada a partir de trimestre NDE 2019 en reemplazo de la variable b11 descontinuada (ver Anexo 6). Su uso permite determinar la clasificación de informalidad laboral": {
+   "en": "Added from the NDE 2019 quarter on, replacing the discontinued variable b11 (see Annex 6). It is what makes the labour informality classification possible",
+   "pt": "Variável incorporada a partir do trimestre NDE 2019 em substituição à variável b11, descontinuada (ver Anexo 6). Seu uso permite determinar a classificação de informalidade laboral"
+  },
+  "Verificación de respuesta entregada con Directorio de Empresas del INE": {
+   "en": "Check of the reported answer against INE's Business Register",
+   "pt": "Verificação da resposta informada contra o Diretório de Empresas do INE"
+  },
+  "Vigente desde EFM 2010 a la fecha": {
+   "en": "In force from EFM 2010 to date",
+   "pt": "Vigente desde EFM 2010 até a data atual"
+  },
+  "Vigente desde EFM 2010 a la fecha. Equivale a edu1 y se mantiene solo con fines de comparabilidad": {
+   "en": "In force from EFM 2010 to date. Equivalent to edu1 and kept only for comparability",
+   "pt": "Vigente desde EFM 2010 até a data atual. Equivale a edu1 e é mantida apenas para fins de comparabilidade"
+  },
+  "Vigente desde EFM 2010 a la fecha. Equivale a edu3 y se mantiene solo con fines de comparabilidad": {
+   "en": "In force from EFM 2010 to date. Equivalent to edu3 and kept only for comparability",
+   "pt": "Vigente desde EFM 2010 até a data atual. Equivale a edu3 e é mantida apenas para fins de comparabilidade"
+  },
+  "Vigente desde EFM 2020 a la fecha": {
+   "en": "In force from EFM 2020 to date",
+   "pt": "Vigente desde EFM 2020 até a data atual"
+  },
+  "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2021c)": {
+   "en": "In force from EFM 2020 to date, as a new dimension of analysis (INE, 2021c)",
+   "pt": "Vigente desde EFM 2020 até a data atual, como nova dimensão de análise (INE, 2021c)"
+  },
+  "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2021d). Las preguntas sobre informalidad laboral son parte de la sección B “ Caracterización de la actividad principal ”. Se presentan separadas de ésta sólo con fines expositivos. 7": {
+   "en": "In force from EFM 2020 to date, as a new dimension of analysis (INE, 2021d). The labour informality questions belong to section B, Characterisation of the main activity, and are presented separately only for clarity",
+   "pt": "Vigente desde EFM 2020 até a data atual, como nova dimensão de análise (INE, 2021d). As perguntas sobre informalidade laboral fazem parte da seção B, Caracterização da atividade principal, e são apresentadas separadamente apenas por clareza expositiva"
+  },
+  "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)": {
+   "en": "In force from EFM 2020 to date, as a new dimension of analysis (INE, 2026)",
+   "pt": "Vigente desde EFM 2020 até a data atual, como nova dimensão de análise (INE, 2026)"
+  },
+  "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026) Las siguientes preguntas se incorporaron en el cuestionario de la ENE a partir del trimestre MAM 2020, permaneciendo vigentes hasta OND 2021. Fueron recomendadas por OIT en el contexto del impacto de la pandemia de COVID-19 en la población ocupada": {
+   "en": "In force from EFM 2020 to date, as a new dimension of analysis (INE, 2026). The following questions entered the ENE questionnaire from the MAM 2020 quarter and ran until OND 2021, recommended by the ILO in the context of the COVID-19 pandemic's impact on the employed population",
+   "pt": "Vigente desde EFM 2020 até a data atual, como nova dimensão de análise (INE, 2026). As perguntas seguintes foram incorporadas ao questionário da ENE a partir do trimestre MAM 2020 e vigoraram até OND 2021, recomendadas pela OIT no contexto do impacto da pandemia de COVID-19 sobre a população ocupada"
+  },
+  "Vigente desde EFM 2020 a la fecha. Réplica de variable edu4 creada con fines analíticos. Corresponde a cuestionario vigente": {
+   "en": "In force from EFM 2020 to date. A copy of the variable edu4 created for analytical use, matching the current questionnaire",
+   "pt": "Vigente desde EFM 2020 até a data atual. Réplica da variável edu4 criada para fins analíticos, correspondente ao questionário vigente"
+  },
+  "Vigente desde EFM 2020 a la fecha. Réplica de variable estudia_actual creada con fines analíticos. Corresponde a cuestionario vigente": {
+   "en": "In force from EFM 2020 to date. A copy of the variable estudia_actual created for analytical use, matching the current questionnaire",
+   "pt": "Vigente desde EFM 2020 até a data atual. Réplica da variável estudia_actual criada para fins analíticos, correspondente ao questionário vigente"
+  },
+  "Vigente desde JAS 2017 a la fecha (INE, 2017)": {
+   "en": "In force from JAS 2017 to date (INE, 2017)",
+   "pt": "Vigente desde JAS 2017 até a data atual (INE, 2017)"
+  },
+  "Vigente desde JAS 2017 a la fecha (INE, 2017). El nombre no se publica por estar regido por secreto estadístico": {
+   "en": "In force from JAS 2017 to date (INE, 2017). The name is not published because it is covered by statistical confidentiality",
+   "pt": "Vigente desde JAS 2017 até a data atual (INE, 2017). O nome não é publicado por estar sujeito a sigilo estatístico"
+  },
+  "Vigente desde JAS 2017 a la fecha (INE, 2017). Variable creada tras la identificación de la empresa en registros administrativos. La información es utilizada para definir formalidad del sector económico al cual pertenece la empresa. 7 Las preguntas sobre informalidad laboral fueron incorporadas a la ENE en el mes de julio de 2017, siendo el primer trimestre móvil con información para la totalidad de la muestra el correspondiente a julio-septiembre de ese mismo año. Para mayores antecedentes metodológicos información, véase INE, 2020b": {
+   "en": "In force from JAS 2017 to date (INE, 2017). Created after identifying the firm in administrative records, and used to define the formality of the economic sector the firm belongs to. The labour informality questions entered the ENE in July 2017, the first moving quarter covering the whole sample being July-September of that year. For methodological detail see INE, 2020b",
+   "pt": "Vigente desde JAS 2017 até a data atual (INE, 2017). Variável criada após a identificação da empresa em registros administrativos, usada para definir a formalidade do setor econômico a que a empresa pertence. As perguntas sobre informalidade laboral entraram na ENE em julho de 2017, e o primeiro trimestre móvel com informação para toda a amostra foi julho-setembro do mesmo ano. Para detalhes metodológicos, ver INE, 2020b"
+  },
+  "Vigente desde JAS 2017 a la fecha (véase Anexo 4)": {
+   "en": "In force from JAS 2017 to date (see Annex 4)",
+   "pt": "Vigente desde JAS 2017 até a data atual (ver Anexo 4)"
+  },
+  "Vigente desde JAS 2017 a la fecha como nueva dimensión de análisis (INE, 2024b)": {
+   "en": "In force from JAS 2017 to date, as a new dimension of analysis (INE, 2024b)",
+   "pt": "Vigente desde JAS 2017 até a data atual, como nova dimensão de análise (INE, 2024b)"
+  },
+  "Y, ¿desde cuándo trabaja para ese empleador, en ese negocio o actividad por cuenta propia? Año": {
+   "en": "And since when have you worked for that employer, in that business or own-account activity? Year",
+   "pt": "E desde quando trabalha para esse empregador, nesse negócio ou atividade por conta própria? Ano"
+  },
+  "Y, ¿desde cuándo trabaja para ese empleador, en ese negocio o actividad por cuenta propia? Mes": {
+   "en": "And since when have you worked for that employer, in that business or own-account activity? Month",
+   "pt": "E desde quando trabalha para esse empregador, nesse negócio ou atividade por conta própria? Mês"
+  },
+  "Y, ¿hasta cuándo trabajó en esa ocupación o actividad? Año": {
+   "en": "And until when did you work in that occupation or activity? Year",
+   "pt": "E até quando trabalhou nessa ocupação ou atividade? Ano"
+  },
+  "Y, ¿hasta cuándo trabajó en esa ocupación o actividad? Mes": {
+   "en": "And until when did you work in that occupation or activity? Month",
+   "pt": "E até quando trabalhou nessa ocupação ou atividade? Mês"
+  },
+  "adentro afuera Descontinuada. Producida entre EFM 2010 y OND 2019": {
+   "en": "Discontinued. Produced between EFM 2010 and OND 2019",
+   "pt": "Descontinuada. Produzida entre EFM 2010 e OND 2019"
+  },
+  "anterior según CIUO 08 . Producida entre": {
+   "en": "Refers to the previous job under ISCO-08",
+   "pt": "Refere-se à ocupação anterior segundo a CIUO-08"
+  },
+  "¿A cuál de los siguientes niveles": {
+   "en": "Which of the following educational levels it corresponds to",
+   "pt": "A qual dos seguintes níveis educacionais corresponde"
+  },
+  "¿A través de cuál aplicación móvil o plataforma web realiza su segundo trabajo? de trimestre EFM 2020": {
+   "en": "Through which mobile app or web platform do you do your second job? From the EFM 2020 quarter on",
+   "pt": "Por meio de qual aplicativo móvel ou plataforma web realiza seu segundo trabalho? A partir do trimestre EFM 2020"
+  },
+  "¿A través de cuál aplicación móvil o plataforma web realiza su trabajo? de trimestre EFM 2020": {
+   "en": "Through which mobile app or web platform do you do your work? From the EFM 2020 quarter on",
+   "pt": "Por meio de qual aplicativo móvel ou plataforma web realiza seu trabalho? A partir do trimestre EFM 2020"
+  },
+  "¿Cuál es el carácter temporal del trabajo que busca?": {
+   "en": "What is the temporal nature of the job you are looking for?",
+   "pt": "Qual é o caráter temporal do trabalho que procura?"
+  },
+  "¿Cuál es el curso o año más alto aprobado?": {
+   "en": "What is the highest grade or year completed?",
+   "pt": "Qual é a série ou ano mais alto aprovado?"
+  },
+  "¿Cuál es el motivo principal por el cual está buscando otro trabajo?": {
+   "en": "What is the main reason you are looking for another job?",
+   "pt": "Qual é o motivo principal pelo qual está procurando outro trabalho?"
+  },
+  "¿Cuál es el nombre de la empresa, negocio o institución que le paga su sueldo?": {
+   "en": "What is the name of the firm, business or institution that pays your wage?",
+   "pt": "Qual é o nome da empresa, negócio ou instituição que lhe paga o salário?"
+  },
+  "¿Cuál es la razón por la cual no trabaja más horas?": {
+   "en": "What is the reason you do not work more hours?",
+   "pt": "Qual é o motivo pelo qual não trabalha mais horas?"
+  },
+  "¿Cuál fue el motivo de su despido?": {
+   "en": "What was the reason for your dismissal?",
+   "pt": "Qual foi o motivo da sua demissão?"
+  },
+  "¿Cuál fue el motivo de su renuncia?": {
+   "en": "What was the reason for your resignation?",
+   "pt": "Qual foi o motivo do seu pedido de demissão?"
+  },
+  "¿Cuál fue la principal razón por la cual trabajó un número de horas diferente a lo habitual durante la semana pasada en su actividad principal?": {
+   "en": "What was the main reason you worked a number of hours different from usual last week in your main activity?",
+   "pt": "Qual foi a principal razão pela qual trabalhou um número de horas diferente do habitual na semana passada na sua atividade principal?"
+  },
+  "¿Cuántas horas menos de las": {
+   "en": "How many fewer hours than usual did you work last week?",
+   "pt": "Quantas horas a menos do que o habitual trabalhou na semana passada?"
+  },
+  "¿Cuántas horas más de las habituales trabajó la semana pasada?": {
+   "en": "How many more hours than usual did you work last week?",
+   "pt": "Quantas horas a mais do que o habitual trabalhou na semana passada?"
+  },
+  "¿Desde cuándo ha estado buscando trabajo?": {
+   "en": "Since when have you been looking for work?",
+   "pt": "Desde quando está procurando trabalho?"
+  },
+  "¿Desde cuándo ha estado buscando trabajo? 1 Enero 2 Febrero 3 Marzo 4 Abril 5 Mayo 6 Junio 7 Julio 8 Agosto 9 Septiembre 10 Octubre 11 Noviembre 12 Diciembre 999 Mes desconocido": {
+   "en": "Since when have you been looking for work? 1 January 2 February 3 March 4 April 5 May 6 June 7 July 8 August 9 September 10 October 11 November 12 December 999 Month unknown",
+   "pt": "Desde quando está procurando trabalho? 1 Janeiro 2 Fevereiro 3 Março 4 Abril 5 Maio 6 Junho 7 Julho 8 Agosto 9 Setembro 10 Outubro 11 Novembro 12 Dezembro 999 Mês desconhecido"
+  },
+  "¿Durante cuánto tiempo trabajó en ese empleo o actividad por cuenta propia? En años": {
+   "en": "For how long did you work in that job or own-account activity? In years",
+   "pt": "Por quanto tempo trabalhou nesse emprego ou atividade por conta própria? Em anos"
+  },
+  "¿Durante cuánto tiempo trabajó en ese empleo o actividad por cuenta propia? En meses": {
+   "en": "For how long did you work in that job or own-account activity? In months",
+   "pt": "Por quanto tempo trabalhou nesse emprego ou atividade por conta própria? Em meses"
+  },
+  "¿El pago por su actividad principal fue a través de sueldo, salario o jornal?": {
+   "en": "Was the pay for your main activity a wage, salary or daily rate?",
+   "pt": "O pagamento pela sua atividade principal foi por salário, ordenado ou diária?"
+  },
+  "¿En cuál de las siguientes categorías se encontraba en ese trabajo?": {
+   "en": "Which of the following categories were you in for that job?",
+   "pt": "Em qual das seguintes categorias se encontrava nesse trabalho?"
+  },
+  "¿En cuánto tiempo más volverá a trabajar?": {
+   "en": "How long until you go back to work?",
+   "pt": "Em quanto tempo voltará a trabalhar?"
+  },
+  "¿En qué comuna se ubica la empresa, negocio, institución o actividad por cuenta propia donde realizó su trabajo?": {
+   "en": "In which commune is the firm, business, institution or own-account activity where you did your work located?",
+   "pt": "Em que comuna se localiza a empresa, negócio, instituição ou atividade por conta própria onde realizou seu trabalho?"
+  },
+  "¿En qué país vivía hace cinco años?": {
+   "en": "In which country did you live five years ago?",
+   "pt": "Em que país vivia há cinco anos?"
+  },
+  "¿En qué región se ubica la empresa, negocio, institución o actividad por cuenta propia donde realizó su trabajo?": {
+   "en": "In which region is the firm, business, institution or own-account activity where you did your work located?",
+   "pt": "Em que região se localiza a empresa, negócio, instituição ou atividade por conta própria onde realizou seu trabalho?"
+  },
+  "¿Este segundo trabajo lo realizó a través de una aplicación móvil o plataforma Web?": {
+   "en": "Did you do that second job through a mobile app or web platform?",
+   "pt": "Esse segundo trabalho foi realizado por meio de um aplicativo móvel ou plataforma web?"
+  },
+  "¿Ha hecho algo para conseguir trabajo dentro de los últimos doce meses?": {
+   "en": "Have you done anything to find work in the last twelve months?",
+   "pt": "Fez algo para conseguir trabalho nos últimos doze meses?"
+  },
+  "¿Ha tenido anteriormente algún empleo o alguna actividad por cuenta propia que durara por lo menos durante un mes?": {
+   "en": "Have you previously had a job or own-account activity lasting at least one month?",
+   "pt": "Teve anteriormente algum emprego ou atividade por conta própria que durasse pelo menos um mês?"
+  },
+  "¿Le pagan habitualmente las horas extras en su actividad principal?": {
+   "en": "Are you usually paid for overtime in your main activity?",
+   "pt": "Habitualmente lhe pagam as horas extras na sua atividade principal?"
+  },
+  "¿Por qué dejó ese empleo, negocio o actividad por cuenta propia?": {
+   "en": "Why did you leave that job, business or own-account activity?",
+   "pt": "Por que deixou esse emprego, negócio ou atividade por conta própria?"
+  },
+  "¿Por qué motivo no estaría disponible para trabajar?": {
+   "en": "Why would you not be available to work?",
+   "pt": "Por qual motivo não estaria disponível para trabalhar?"
+  },
+  "¿Por qué razón no buscó un empleo o no ha hecho preparativos para iniciar o reanudar una actividad por cuenta propia durante las últimas cuatro semanas?": {
+   "en": "Why did you not look for a job or prepare to start or resume an own-account activity in the last four weeks?",
+   "pt": "Por qual razão não procurou emprego nem fez preparativos para iniciar ou retomar uma atividade por conta própria nas últimas quatro semanas?"
+  },
+  "¿Por qué razón no trabajó la semana pasada?": {
+   "en": "Why did you not work last week?",
+   "pt": "Por qual razão não trabalhou na semana passada?"
+  },
+  "¿Por qué razón ya no tiene ese empleo, negocio o actividad por cuenta propia?": {
+   "en": "Why do you no longer have that job, business or own-account activity?",
+   "pt": "Por qual razão já não tem esse emprego, negócio ou atividade por conta própria?"
+  },
+  "¿Quién es el propietario o arrendatario del local, instalación o predio donde trabaja?": {
+   "en": "Who owns or rents the premises, facility or property where you work?",
+   "pt": "Quem é o proprietário ou locatário do local, instalação ou imóvel onde trabalha?"
+  },
+  "¿Quién es el propietario o arrendatario del vehículo de transporte que utiliza en su trabajo?": {
+   "en": "Who owns or rents the transport vehicle you use at work?",
+   "pt": "Quem é o proprietário ou locatário do veículo de transporte que utiliza no trabalho?"
+  },
+  "¿Quién es propietario o arrendatario de las máquinas con las que trabaja?": {
+   "en": "Who owns or rents the machinery you work with?",
+   "pt": "Quem é o proprietário ou locatário das máquinas com as quais trabalha?"
+  },
+  "¿Qué tipo de jornada de trabajo está buscando?": {
+   "en": "What kind of working hours are you looking for?",
+   "pt": "Que tipo de jornada de trabalho está procurando?"
+  },
+  "¿Qué tipo de jornada tiene en su trabajo?": {
+   "en": "What kind of working hours do you have in your job?",
+   "pt": "Que tipo de jornada tem no seu trabalho?"
+  },
+  "¿Realizó su trabajo en solamente una comuna?": {
+   "en": "Did you do your work in only one commune?",
+   "pt": "Realizou seu trabalho em apenas uma comuna?"
+  },
+  "¿Se considera perteneciente a algún pueblo indígena u originario?": {
+   "en": "Do you consider yourself to belong to an indigenous or native people?",
+   "pt": "Considera-se pertencente a algum povo indígena ou originário?"
+  },
+  "¿Se encuentra estudiando actualmente en un establecimiento educacional?": {
+   "en": "Are you currently studying at an educational establishment?",
+   "pt": "Está estudando atualmente em um estabelecimento de ensino?"
+  },
+  "¿Se encuentra estudiando actualmente?": {
+   "en": "Are you currently studying?",
+   "pt": "Está estudando atualmente?"
+  },
+  "¿Su trabajo lo realiza a través de una aplicación móvil o plataforma Web?": {
+   "en": "Do you do your work through a mobile app or web platform?",
+   "pt": "Realiza seu trabalho por meio de um aplicativo móvel ou plataforma web?"
+  },
+  "¿Terminó el nivel antes declarado?": {
+   "en": "Did you complete the level declared above?",
+   "pt": "Concluiu o nível declarado anteriormente?"
+  },
+  "¿Trabaja por sistema de turno?": {
+   "en": "Do you work on a shift system?",
+   "pt": "Trabalha por sistema de turnos?"
+  },
+  "Ámbitos totales de dependencia económica y/u organizativas observadas en la INE (2026). ocupación principal de persona ocupada independiente": {
+   "en": "Total count of economic and organisational dependence dimensions observed in the main job of an independent employed person. INE (2026)",
+   "pt": "Total de âmbitos de dependência econômica e/ou organizacional observados na ocupação principal de pessoa ocupada independente. INE (2026)"
+  }
+ }
+}
