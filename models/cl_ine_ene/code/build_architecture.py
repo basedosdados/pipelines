@@ -160,6 +160,25 @@ OBS_NOISE = re.compile(
 )
 
 
+#: A well-formed observation starts with a capital. The codebook's Observaciones
+#: column sits beside two others, and when pypdf flattens a page it sometimes
+#: interleaves them into a mid-sentence jumble ("adentro afuera Descontinuada.",
+#: "cuenta propia pronto permanentes estudios actividad"). Such a fragment cannot
+#: be repaired, and publishing it in three languages would be worse than silence.
+GARBLED_START = re.compile(r"^[a-záéíóúñ¿]|^[)\]]")
+#: Sentences that ARE well-formed can be salvaged from the tail of a jumble.
+SALVAGEABLE = re.compile(
+    r"((?:Vigente desde|Descontinuada|Producida entre|Incorporada|Variable incorporada|"
+    r"Solo responden|Responden|Corresponde)[^.]*\.?)\s*$"
+)
+
+
+def salvage(text: str) -> str:
+    """Keep a trailing well-formed sentence out of a flattening jumble, else nothing."""
+    match = SALVAGEABLE.search(text)
+    return match.group(1).strip(" .") if match else ""
+
+
 def clean_observation(text: str) -> str:
     text = OBS_NOISE.sub(" ", text)
     text = " ".join(text.split()).strip(" .;")
@@ -171,7 +190,10 @@ def clean_observation(text: str) -> str:
         if key and key not in seen:
             seen.add(key)
             kept.append(sentence.strip())
-    return " ".join(kept).strip(" .;")
+    text = " ".join(kept).strip(" .;")
+    if text and GARBLED_START.match(text):
+        return salvage(text)
+    return text
 
 
 def temporal_coverage(first: str, last: str) -> str:
@@ -200,6 +222,7 @@ def undocumented(
 
 def build(universe, codebook, profile):
     rows, problems, complete = [], [], []
+    observation_parts: dict[str, dict] = {}
     for entry in universe:
         source_name = entry["name"]
         name = RENAMES.get(source_name, source_name)
@@ -258,6 +281,16 @@ def build(universe, codebook, profile):
         book_obs = clean_observation(book.get("obs", ""))
         if book_obs and not observation:
             observation = book_obs
+
+        # Kept apart from the rendered Spanish so build_i18n.py can regenerate the
+        # boilerplate from per-language templates instead of translating it back.
+        observation_parts[name] = {
+            "override": OVERRIDES["observations"].get(name, ""),
+            "source": "" if OVERRIDES["observations"].get(name) else book_obs,
+            "undocumented": [],
+            "retired": [],
+            "description_is_mine": name in OVERRIDES["descriptions"],
+        }
         if missing:
             shown = ", ".join(missing[:12]) + (
                 " ..." if len(missing) > 12 else ""
@@ -270,7 +303,13 @@ def build(universe, codebook, profile):
                 f"{observation}. {note}".strip(". ") if observation else note
             )
 
+        observation_parts[name]["undocumented"] = missing
+
         if entry["last_period"] != SERIES_LAST:
+            observation_parts[name]["retired"] = [
+                entry["first_period"],
+                entry["last_period"],
+            ]
             retired = f"Descontinuada: publicada entre {entry['first_period']} y {entry['last_period']}"
             observation = (
                 f"{retired}. {observation}".strip() if observation else retired
@@ -292,7 +331,7 @@ def build(universe, codebook, profile):
                 "original_name": source_name if source_name != name else "",
             }
         )
-    return rows, problems, complete
+    return rows, problems, complete, observation_parts
 
 
 FIELDS = [
@@ -321,7 +360,9 @@ def main():
     codebook = json.loads((HERE / "codebook_parsed.json").read_text())
     profile = json.loads(pathlib.Path(args.profile).read_text())
 
-    rows, problems, complete = build(universe, codebook, profile)
+    rows, problems, complete, observation_parts = build(
+        universe, codebook, profile
+    )
 
     missing = [r["name"] for r in rows if not r["description"]]
     print(f"{len(rows)} columns; {len(missing)} without a description")
@@ -351,6 +392,12 @@ def main():
     # Columns whose dicionario is demonstrably complete against every value in
     # the data. schema.yml scopes custom_dictionary_coverage to exactly these, so
     # the test asserts something true instead of failing on the source's own gaps.
+    parts_path = HERE / "observation_parts.json"
+    parts_path.write_text(
+        json.dumps(observation_parts, ensure_ascii=False, indent=1) + "\n"
+    )
+    print(f"wrote {parts_path}")
+
     listing = HERE / "dictionary_complete.json"
     listing.write_text(json.dumps(complete, indent=1) + "\n")
     print(
