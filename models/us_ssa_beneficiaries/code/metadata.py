@@ -36,32 +36,20 @@ DATASET_SLUG = "beneficiaries"
 GCP_DATASET = "us_ssa_beneficiaries"
 LAST_YEAR = 2025
 
-# Tag slugs are Portuguese on staging and English on prod for the same records,
-# so they are resolved per environment rather than hardcoded once.
-TAG_SLUGS = {
-    "staging": [
-        "previdencia_social",
-        "aposentadoria",
-        "renda",
-        "assistencia_social",
-    ],
-    "dev": [
-        "previdencia_social",
-        "aposentadoria",
-        "renda",
-        "assistencia_social",
-    ],
-    "prod": [
-        "social_security",
-        "retirement",
-        "income",
-        "social_assistance",
-        "previdencia_social",
-        "aposentadoria",
-        "renda",
-        "assistencia_social",
-    ],
-}
+# Tags are resolved by id, not by slug. The same tag record carries a
+# Portuguese slug on staging and an English one on prod -- `social_security`
+# there is `previdencia_social` here -- while the uuid is identical in both, so
+# a slug list silently resolves to a different set per environment (or to
+# nothing). Every id below was verified to exist in both.
+TAG_IDS = [
+    "f65ee194-5c5b-4b2c-ad1c-4992116fdaf3",  # social_security / previdencia_social
+    "641b9ee7-b84b-4360-95f7-655ee79988e6",  # retirement / aposentadoria
+    "343275c0-ab19-4be5-bfa2-530180a501ee",  # income / renda
+    "953c03ab-7c6a-4a4d-b417-5f2ddd8cf225",  # social-assistance / assistencia_social
+    "9abafd88-b9a6-45ee-8aad-6a1c1bf30834",  # benefit / auxilio
+    "cdad2bb6-e1b9-45cd-8da6-f8f18c76f942",  # transfer / transferencia
+    "fb53b9ac-0762-49ab-a03e-014a28faabe0",  # elderly / terceira_idade
+]
 THEME_SLUGS = ["economics", "population"]
 
 # table -> (geographic entity, first year); None means no coverage spec
@@ -414,15 +402,7 @@ def main() -> int:
     entity = {k: uid("entity", k) for k in ("county", "state", "year")}
     themes = [uid("theme", s) for s in THEME_SLUGS]
 
-    tags, missing = [], []
-    for slug in TAG_SLUGS[env]:
-        try:
-            tags.append(uid("tag", slug))
-        except Exception:
-            missing.append(slug)
-    tags = list(dict.fromkeys(tags))
-    if missing:
-        print(f"  tags not on {env} (skipped): {missing}")
+    tags = TAG_IDS
     print(f"  {len(tags)} tags, {len(themes)} themes")
 
     org = tool("create_update_organization")(
