@@ -5,17 +5,22 @@
 # 16 GB machine on `persona`. The rewrite streams in Arrow batches, but a guard
 # costs nothing and means a regression stalls the job instead of the laptop.
 #
-# Usage: ./run_guarded.sh [--limit-gb N] <table> [<table> ...]
+# Usage: ./run_guarded.sh [--limit-gb N] [--script clean.py|upload.py] <arg> [<arg> ...]
 set -uo pipefail
 
 LIMIT_GB=6
-if [[ "${1:-}" == "--limit-gb" ]]; then
-    LIMIT_GB="$2"; shift 2
-fi
+SCRIPT=clean.py
+while true; do
+    case "${1:-}" in
+        --limit-gb) LIMIT_GB="$2"; shift 2 ;;
+        --script)   SCRIPT="$2";   shift 2 ;;
+        *) break ;;
+    esac
+done
 LIMIT_KB=$((LIMIT_GB * 1024 * 1024))
 PYTHON="${PYTHON:-$HOME/.venvs/bd-pipelines/bin/python}"
 
-"$PYTHON" clean.py "$@" &
+"$PYTHON" "$SCRIPT" "$@" &
 PID=$!
 
 PEAK=0

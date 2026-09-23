@@ -1,0 +1,2031 @@
+---
+version: 2
+models:
+  - name: cl_ine_censo__persona
+    description: >
+      Microdatos de personas del Censo de Poblacion y Vivienda 2024 de Chile,
+      con una fila por persona censada. El maximo nivel de desagregacion
+      geografica es la comuna: el INE no publica la manzana ni la zona censal
+      de cada persona por control de divulgacion estadistica, de modo que esta
+      tabla NO se puede cruzar con manzana_entidad ni zona_localidad.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_vivienda, id_hogar, id_persona]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - asistencia_parv
+            - asistencia_basica
+            - asistencia_media
+            - asistencia_superior
+            - p26_llegada_periodo
+            - p28_pueblo_pert
+      - custom_dictionary_coverage:
+          dictionary_model: ref('cl_ine_censo__dicionario')
+          columns_covered_by_dictionary:
+            - comuna_bajo_umbral
+            - area
+            - tipo_operativo
+            - sexo
+            - edad_quinquenal
+            - parentesco
+            - p23_est_civil
+            - p24_lug_resid5
+            - p24_lug_resid5_esp
+            - p25_lug_nacimiento
+            - p25_lug_nacimiento_rec
+            - p25_lug_nacimiento_esp
+            - p26_llegada_periodo
+            - p27_nacionalidad
+            - p27_nacionalidad_esp
+            - p27_nacionalidad_rec
+            - p28_autoid_pueblo
+            - p28_pueblo_pert
+            - p29_afrodescendencia_rec
+            - p29_afrodescendencia
+            - p30_lengua_indigena
+            - p30_lengua_indigena_rec
+            - p31_religion
+            - p31_religion_rec
+            - p32a_dificultad_ver
+            - p32b_dificultad_oir
+            - p32c_dificultad_mover
+            - p32d_dificultad_cogni
+            - p32e_dificultad_cuidado
+            - p32f_dificultad_comunic
+            - discapacidad
+            - p33_edu_asiste
+            - asistencia_parv
+            - asistencia_basica
+            - asistencia_media
+            - asistencia_superior
+            - p37_alfabet
+            - cine11
+            - sit_fuerza_trabajo
+            - p40_cise_rec
+            - depend_econ_deficit_hab
+            - cod_ciuo
+            - cod_caenes
+            - p44_lug_trab
+            - p44_lug_trab_esp
+            - p45_medio_transporte
+            - div_genero
+    columns:
+      - name: ano
+        description: >
+          Ano del levantamiento censal
+        tests: [not_null]
+      - name: id_region
+        description: >
+          Codigo unico territorial (CUT) de la region, de dos digitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_cl__region')
+              field: id_region
+      - name: id_provincia
+        description: >
+          Codigo unico territorial (CUT) de la provincia, de tres digitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_cl__provincia')
+              field: id_provincia
+      - name: id_comuna
+        description: >
+          Codigo unico territorial (CUT) de la comuna, de cinco digitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_cl__comuna')
+              field: id_comuna
+      - name: id_vivienda
+        description: >
+          Identificador de la vivienda, unico en todo el pais
+        tests: [not_null]
+      - name: id_hogar
+        description: >
+          Identificador del hogar dentro de la vivienda
+        tests: [not_null]
+      - name: id_persona
+        description: >
+          Identificador de la persona dentro del hogar
+        tests: [not_null]
+      - name: comuna_bajo_umbral
+        description: >
+          Comuna con menos de 6.000 personas censadas
+      - name: area
+        description: >
+          Estrato censal urbano o rural en que se ubica el registro
+      - name: tipo_operativo
+        description: >
+          Tipo de operativo
+      - name: sexo
+        description: >
+          ¿Cuál es su sexo?
+      - name: edad
+        description: >
+          ¿Cuántos años cumplidos tiene?
+      - name: edad_quinquenal
+        description: >
+          Edad en quinquenios
+      - name: parentesco
+        description: >
+          ¿Qué relación de parentesco tiene con la jefa o jefe de hogar?
+      - name: p23_est_civil
+        description: >
+          ¿Cuál es su estado conyugal o civil actual?
+      - name: p24_lug_resid5
+        description: >
+          ¿En qué comuna o país vivía en abril de 2019?
+      - name: p24_lug_resid5_esp
+        description: >
+          Lugar específico de residencia hace 5 años
+      - name: p25_lug_nacimiento
+        description: >
+          Cuándo nació, ¿en qué comuna o país vivía su madre?
+      - name: p25_lug_nacimiento_rec
+        description: >
+          Indica si la persona nacio en Chile o en el extranjero
+      - name: p25_lug_nacimiento_esp
+        description: >
+          Lugar específico de nacimiento
+      - name: p26_llegada_periodo
+        description: >
+          ¿En qué año llegó a vivir a Chile?
+      - name: p27_nacionalidad
+        description: >
+          ¿Cuál es su nacionalidad?
+      - name: p27_nacionalidad_esp
+        description: >
+          Pais de nacionalidad
+      - name: p27_nacionalidad_rec
+        description: >
+          Nacionalidad chilena
+      - name: p28_autoid_pueblo
+        description: >
+          ¿Es o se considera perteneciente a algún pueblo indígena u originario?
+      - name: p28_pueblo_pert
+        description: >
+          Pueblo originario al que declara pertenecer la persona que se
+          autoidentifico como indigena en p28_autoid_pueblo
+      - name: p29_afrodescendencia_rec
+        description: >
+          Afrodescendencia
+      - name: p29_afrodescendencia
+        description: >
+          De acuerdo con sus antepasados, tradiciones y cultura, es o se
+          considera:
+      - name: p30_lengua_indigena
+        description: >
+          ¿Habla o entiende una de las siguientes lenguas indígenas u originarias?
+      - name: p30_lengua_indigena_rec
+        description: >
+          Habla o entiende alguna lengua originaria
+      - name: p31_religion
+        description: >
+          ¿Cuál es su religión o credo?
+      - name: p31_religion_rec
+        description: >
+          Tiene religión o credo
+      - name: p32a_dificultad_ver
+        description: >
+          ¿Tiene dificultad para ver, aun usando anteojos o lentes?
+      - name: p32b_dificultad_oir
+        description: >
+          ¿Tiene dificultad para oír, aun usando un dispositivo auditivo
+      - name: p32c_dificultad_mover
+        description: >
+          ¿Tiene dificultad para caminar o subir escaleras?
+      - name: p32d_dificultad_cogni
+        description: >
+          ¿Tiene dificultad para recordar o concentrarse?
+      - name: p32e_dificultad_cuidado
+        description: >
+          ¿Tiene dificultad para realizar tareas de cuidado personal, como bañarse
+          o vestirse?
+      - name: p32f_dificultad_comunic
+        description: >
+          ¿Tiene dificultad para hablar o comunicarse usando su idioma habitual,
+          por ejemplo, entender o ser entendido por otras personas?
+      - name: discapacidad
+        description: >
+          Condicion de discapacidad, derivada del conjunto de preguntas de
+          dificultad funcional p32a a p32f
+      - name: p33_edu_asiste
+        description: >
+          ¿Asiste actualmente a la educación formal? Incluye educación parvularia,
+          especial, básica, media y superior
+      - name: asistencia_parv
+        description: >
+          Asistencia a nivel de educación parvularia o preescolar
+      - name: asistencia_basica
+        description: >
+          Asistencia a nivel de educación básica
+      - name: asistencia_media
+        description: >
+          Asistencia a nivel de educación media
+      - name: asistencia_superior
+        description: >
+          Asistencia a nivel de educación superior
+      - name: p37_alfabet
+        description: >
+          ¿Sabe leer y escribir?
+      - name: escolaridad
+        description: >
+          Años de escolaridad
+      - name: cine11
+        description: >
+          Logro educativo de acuerdo con la Clasificación Internacional
+          Normalizada de la Educación
+      - name: sit_fuerza_trabajo
+        description: >
+          Situación en la fuerza de trabajo
+      - name: p40_cise_rec
+        description: >
+          Categoria ocupacional en el empleo (CISE recodificada): independiente,
+          dependiente o trabajador no remunerado
+      - name: depend_econ_deficit_hab
+        description: >
+          Dependencia económica
+      - name: cod_ciuo
+        description: >
+          CIUO-08.CL a 1 dígito
+      - name: cod_caenes
+        description: >
+          CAENES a 1 dígito
+      - name: p44_lug_trab
+        description: >
+          ¿En qué comuna o país se ubica su trabajo?
+      - name: p44_lug_trab_esp
+        description: >
+          Lugar de trabajo
+      - name: p45_medio_transporte
+        description: >
+          ¿Cuál es el medio de transporte principal que utiliza para dirigirse a
+          su lugar de trabajo?
+      - name: p46a_tot_hijs_nac
+        description: >
+          ¿Cuántas hijas e hijos nacidos vivos ha tenido en total?
+      - name: p46b_hijas_nac
+        description: >
+          Del total de hijas e hijos nacidos vivos, ¿cuántas son mujeres?
+      - name: p46c_hijos_nac
+        description: >
+          Del total de hijas e hijos nacidos vivos, ¿cuántos son hombres?
+      - name: p47a_tot_hijs_sobrev
+        description: >
+          ¿Cuántas hijas e hijos están vivos actualmente?
+      - name: p47b_hijas_sobrev
+        description: >
+          Del total de hijas e hijos que se encuentran vivos, ¿cuántas son
+          mujeres?
+      - name: p47c_hijos_sobrev
+        description: >
+          Del total de hijas e hijos que se encuentran vivos, ¿cuántos son
+          hombres?
+      - name: p48_anio_nac_uh
+        description: >
+          ¿En qué mes y año nació su última hija o hijo nacido vivo? Año
+      - name: p48_mes_nac_uh
+        description: >
+          ¿En qué mes y año nació su última hija o hijo nacido vivo? Mes
+      - name: div_genero
+        description: >
+          Diversidades de género
+  - name: cl_ine_censo__hogar
+    description: >
+      Microdatos de hogares del Censo de Poblacion y Vivienda 2024 de Chile,
+      con una fila por hogar censado. Se vincula con vivienda por id_vivienda
+      y con persona por id_vivienda e id_hogar.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_vivienda, id_hogar]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          dictionary_model: ref('cl_ine_censo__dicionario')
+          columns_covered_by_dictionary:
+            - comuna_bajo_umbral
+            - area
+            - tipo_operativo
+            - p12_tenencia_viv
+            - p13_comb_cocina
+            - p14_comb_calefaccion
+            - p15a_serv_tel_movil
+            - p15b_serv_compu
+            - p15c_serv_tablet
+            - p15d_serv_internet_fija
+            - p15e_serv_internet_movil
+            - p15f_serv_internet_satelital
+            - tipologia_hogar
+    columns:
+      - name: ano
+        description: >
+          Ano del levantamiento censal
+        tests: [not_null]
+      - name: id_region
+        description: >
+          Codigo unico territorial (CUT) de la region, de dos digitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_cl__region')
+              field: id_region
+      - name: id_provincia
+        description: >
+          Codigo unico territorial (CUT) de la provincia, de tres digitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_cl__provincia')
+              field: id_provincia
+      - name: id_comuna
+        description: >
+          Codigo unico territorial (CUT) de la comuna, de cinco digitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_cl__comuna')
+              field: id_comuna
+      - name: id_vivienda
+        description: >
+          Identificador de la vivienda, unico en todo el pais
+        tests: [not_null]
+      - name: id_hogar
+        description: >
+          Identificador del hogar dentro de la vivienda
+        tests: [not_null]
+      - name: comuna_bajo_umbral
+        description: >
+          Comuna con menos de 6.000 personas censadas
+      - name: area
+        description: >
+          Estrato censal urbano o rural en que se ubica el registro
+      - name: tipo_operativo
+        description: >
+          Tipo de operativo
+      - name: p12_tenencia_viv
+        description: >
+          Tenencia de la vivienda
+      - name: p13_comb_cocina
+        description: >
+          Fuente de energía o combustible para cocinar
+      - name: p14_comb_calefaccion
+        description: >
+          Fuente de energía o combustible para calefaccionar
+      - name: p15a_serv_tel_movil
+        description: >
+          Dispone de telefono movil en el hogar
+      - name: p15b_serv_compu
+        description: >
+          Dispone de computador en el hogar
+      - name: p15c_serv_tablet
+        description: >
+          Dispone de tablet en el hogar
+      - name: p15d_serv_internet_fija
+        description: >
+          Dispone de conexion a internet fija en el hogar
+      - name: p15e_serv_internet_movil
+        description: >
+          Dispone de conexion a internet movil en el hogar
+      - name: p15f_serv_internet_satelital
+        description: >
+          Dispone de conexion a internet satelital en el hogar
+      - name: tipologia_hogar
+        description: >
+          Tipologia del hogar segun su composicion: unipersonal, nuclear, extenso,
+          compuesto o sin nucleo
+  - name: cl_ine_censo__vivienda
+    description: >
+      Microdatos de viviendas del Censo de Poblacion y Vivienda 2024 de Chile,
+      con una fila por vivienda censada. El total publicado por el INE
+      (7.642.716) es menor que el numero de filas porque excluye los
+      operativos de vivienda colectiva, que aqui aparecen como registros con
+      las preguntas de vivienda en nulo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_vivienda]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - p11c_num_hogar
+      - custom_dictionary_coverage:
+          dictionary_model: ref('cl_ine_censo__dicionario')
+          columns_covered_by_dictionary:
+            - comuna_bajo_umbral
+            - area
+            - tipo_operativo
+            - p2_tipo_vivienda
+            - p3a_estado_ocupacion
+            - p3b_estado_ocupacion
+            - p4a_mat_paredes
+            - p4b_mat_techo
+            - p4c_mat_piso
+            - p6_fuente_agua
+            - p7_distrib_agua
+            - p8_serv_hig
+            - p9_fuente_elect
+            - p10_basura
+            - p11b_comparte_gasto
+            - indice_hacinamiento
+    columns:
+      - name: ano
+        description: >
+          Ano del levantamiento censal
+        tests: [not_null]
+      - name: id_region
+        description: >
+          Codigo unico territorial (CUT) de la region, de dos digitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_cl__region')
+              field: id_region
+      - name: id_provincia
+        description: >
+          Codigo unico territorial (CUT) de la provincia, de tres digitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_cl__provincia')
+              field: id_provincia
+      - name: id_comuna
+        description: >
+          Codigo unico territorial (CUT) de la comuna, de cinco digitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_cl__comuna')
+              field: id_comuna
+      - name: id_vivienda
+        description: >
+          Identificador de la vivienda, unico en todo el pais
+        tests: [not_null]
+      - name: comuna_bajo_umbral
+        description: >
+          Comuna con menos de 6.000 personas censadas
+      - name: area
+        description: >
+          Estrato censal urbano o rural en que se ubica el registro
+      - name: tipo_operativo
+        description: >
+          Tipo de operativo
+      - name: cant_hog
+        description: >
+          Número de hogares censados en la vivienda particular
+      - name: cant_per
+        description: >
+          Número de personas censadas en la vivienda
+      - name: p2_tipo_vivienda
+        description: >
+          Tipo de vivienda particular
+      - name: p3a_estado_ocupacion
+        description: >
+          Estado de ocupación de la vivienda
+      - name: p3b_estado_ocupacion
+        description: >
+          Estado de ocupación de la vivienda (detalle)
+      - name: p4a_mat_paredes
+        description: >
+          ¿Cuál es el material de construcción en las paredes exteriores?
+      - name: p4b_mat_techo
+        description: >
+          ¿Cuál es el material de construcción en la cubierta del techo?
+      - name: p4c_mat_piso
+        description: >
+          ¿Cuál es el material de construcción en el piso?
+      - name: p5_num_dormitorios
+        description: >
+          ¿Cuántas piezas de esta vivienda se usan exclusivamente como dormitorio?
+      - name: p6_fuente_agua
+        description: >
+          El agua que usa esta vivienda proviene principalmente de:
+      - name: p7_distrib_agua
+        description: >
+          ¿Cuál es el sistema de distribución del agua en esta vivienda?
+      - name: p8_serv_hig
+        description: >
+          El servicio higiénico (WC) principal de esta vivienda es o está:
+      - name: p9_fuente_elect
+        description: >
+          La electricidad de esta vivienda proviene principalmente de:
+      - name: p10_basura
+        description: >
+          ¿Cuál es el principal medio de eliminación de basura de esta vivienda?
+      - name: p11a_num_personas
+        description: >
+          ¿Cuántas personas residen habitualmente en esta vivienda?
+      - name: p11b_comparte_gasto
+        description: >
+          1. De las personas que residen habitualmente en esta vivienda, ¿todas
+          comparten los gastos para alimentación?
+      - name: p11c_num_hogar
+        description: >
+          2. ¿Cuántos grupos tienen gastos separados de alimentación?
+      - name: indice_hacinamiento
+        description: >
+          Índice de hacinamiento
+  - name: cl_ine_censo__manzana_entidad
+    description: >
+      Base manzana-entidad del Censo 2024 de Chile: 189 variables agregadas de
+      poblacion, hogares y viviendas por manzana urbana o entidad rural, con
+      la geometria del poligono. Union de las capas cartograficas Manzanas y
+      Entidades publicadas por el INE; la columna nivel_geografico indica el
+      origen de cada fila.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [manzent]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - geometria
+    columns:
+      - name: ano
+        description: >
+          Ano del levantamiento censal
+        tests: [not_null]
+      - name: id_region
+        description: >
+          Codigo unico territorial (CUT) de la region, de dos digitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_cl__region')
+              field: id_region
+      - name: id_provincia
+        description: >
+          Codigo unico territorial (CUT) de la provincia, de tres digitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_cl__provincia')
+              field: id_provincia
+      - name: id_comuna
+        description: >
+          Codigo unico territorial (CUT) de la comuna, de cinco digitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_cl__comuna')
+              field: id_comuna
+      - name: nivel_geografico
+        description: >
+          Nivel geografico del registro, que indica de cual de las dos capas
+          cartograficas de INE proviene la fila
+      - name: nombre_region
+        description: >
+          Nombre de la region
+      - name: nombre_provincia
+        description: >
+          Nombre de la provincia
+      - name: nombre_comuna
+        description: >
+          Nombre de la comuna
+      - name: area_c
+        description: >
+          Estrato censal urbano o rural del area cartografica
+      - name: manzent
+        description: >
+          Código único identificador de manzana / entidad
+        tests: [not_null]
+      - name: nombre_distrito
+        description: >
+          Nombre del distrito censal
+      - name: cod_distrito
+        description: >
+          Número de distrito
+      - name: cod_localidad
+        description: >
+          Código de localidad urbana/rural
+      - name: cod_zona
+        description: >
+          Código de zonal censal
+      - name: nombre_localidad
+        description: >
+          Nombre de la localidad
+      - name: cod_entidad
+        description: >
+          Código de entidad poblada urbana/rural
+      - name: cod_manzana
+        description: >
+          Código de manzana urbana/aldea
+      - name: nombre_entidad
+        description: >
+          Nombre de la entidad poblada
+      - name: tipo_mz
+        description: >
+          Tipo de manzana censal: URBANO para manzanas urbanas y ALDEA para
+          manzanas de aldea. Nulo en los registros de entidad rural
+      - name: cod_categoria
+        description: >
+          Código de categoria de entidad
+      - name: categoria
+        description: >
+          Categoria de la entidad poblada segun INE: Ciudad, Pueblo, Aldea,
+          Caserio, Parcela-Hijuela, Comunidad Indigena, entre otras
+      - name: mz_base_censo
+        description: >
+          Indica si el poligono forma parte de la cartografia base del censo (1) o
+          fue incorporado como area complementaria (0)
+      - name: id_entidad
+        description: >
+          Identificador único de entidad agrupada (no considera división
+          distrital)
+      - name: id_localidad
+        description: >
+          Identificador único de localidad agrupada (no considera división
+          distrital)
+      - name: id_distrito
+        description: >
+          Identificador único de distrito
+      - name: id_zona
+        description: >
+          Identificador único de zona censal
+      - name: n_per
+        description: >
+          Personas censadas en el area
+      - name: n_hombres
+        description: >
+          Hombres censados en el area
+      - name: n_mujeres
+        description: >
+          Mujeres censadas en el area
+      - name: n_edad_0_5
+        description: >
+          Personas de 0 a 5 años
+      - name: n_edad_6_13
+        description: >
+          Personas de 6 a 13 años
+      - name: n_edad_14_17
+        description: >
+          Personas de 14 a 17 años
+      - name: n_edad_18_24
+        description: >
+          Personas de 18 a 24 años
+      - name: n_edad_25_44
+        description: >
+          Personas de 25 a 44 años
+      - name: n_edad_45_59
+        description: >
+          Personas de 45 a 59 años
+      - name: n_edad_60_mas
+        description: >
+          Personas de 60 años o más
+      - name: prom_edad
+        description: >
+          Promedio de edad
+      - name: n_inmigrantes
+        description: >
+          Personas inmigrantes internacionales (Lugar de nacimiento fuera de
+          Chile)
+      - name: n_nacionalidad
+        description: >
+          Personas con otra nacionalidad (no considera aquellos con doble
+          nacionalidad)
+      - name: n_pueblos_orig
+        description: >
+          Personas que son o se consideran pertenecientes a un pueblo originario
+      - name: n_afrodescendencia
+        description: >
+          Personas que son o se consideran afrodescendientes
+      - name: n_lengua_indigena
+        description: >
+          Personas que hablan o entienden alguna lengua indígena u originaria
+      - name: n_religion
+        description: >
+          Personas que tienen una religión o credo
+      - name: n_dificultad_ver
+        description: >
+          Personas con mucha dificultad o no pueden: Ver, aun usando anteojos
+      - name: n_dificultad_oir
+        description: >
+          Personas con mucha dificultad o no pueden: Oír, aun usando un
+          dispositivo auditivo
+      - name: n_dificultad_mover
+        description: >
+          Personas con mucha dificultad o no pueden: Caminar o subir escaleras
+      - name: n_dificultad_cogni
+        description: >
+          Personas con mucha dificultad o no pueden: Recordar o concentrarse
+      - name: n_dificultad_cuidado
+        description: >
+          Personas con mucha dificultad o no pueden: Realizar tareas de cuidado
+          personas, como bañarse o vestirse
+      - name: n_dificultad_comunic
+        description: >
+          Personas con mucha dificultad o no pueden: Hablar o comunicarse usando
+          su idioma habitual
+      - name: n_discapacidad
+        description: >
+          Personas con discapacidad (declara mucha dificultad o imposibilidad para
+          realizar algunas de las actividades del módulo de salud)
+      - name: n_estcivcon_casado
+        description: >
+          Personas con estado civil o conyugal: Casado
+      - name: n_estcivcon_conviviente
+        description: >
+          Personas con estado civil o conyugal: Conviviente o pareja sin acuerdo
+          de unión civil
+      - name: n_estcivcon_conv_civil
+        description: >
+          Personas con estado civil o conyugal: Conviviente civil (con acuerdo de
+          unión civil)
+      - name: n_estcivcon_anul_sep_div
+        description: >
+          Personas con estado civil o conyugal: Anulado, separado o divorciado
+      - name: n_estcivcon_viudo
+        description: >
+          Personas con estado civil o conyugal: Viudo
+      - name: n_estcivcon_soltero
+        description: >
+          Personas con estado civil o conyugal: Soltero
+      - name: prom_escolaridad18
+        description: >
+          Promedio de escolaridad de personas de 18 años o más
+      - name: n_asistencia_parv
+        description: >
+          Personas de 0 a 5 años que asisten a: Educación parvularia
+      - name: n_asistencia_basica
+        description: >
+          Personas de 6 a 13 años que asisten a: Educación básica
+      - name: n_asistencia_media
+        description: >
+          Personas de 14 a 17 años que asisten a: Educación media
+      - name: n_asistencia_superior
+        description: >
+          Personas de 18 a 24 años que asisten a: Educación superior
+      - name: n_cine_nunca_curso_primera_infancia
+        description: >
+          Personas con logro educacional más alto alcanzado (CINE11): Menor a
+          primaria (incluye nunca cursó un programa educativo y Educación de la
+          primera infancia)
+      - name: n_cine_primaria
+        description: >
+          Personas con logro educacional más alto alcanzado (CINE11): Primaria
+          (incluye Primaria en forma parcial, Educación primaria (nivel 1) y
+          Educación primaria (nivel 2))
+      - name: n_cine_secundaria
+        description: >
+          Personas con logro educacional más alto alcanzado (CINE11): Secundaria
+          (incluye Educación secundaria, con orientación general y con orientación
+          vocacional)
+      - name: n_cine_terciaria_maestria_doctorado
+        description: >
+          Personas con logro educacional más alto alcanzado (CINE11): Avanzado
+          (incluye Educación terciaria de ciclo corto, con orientación vocacional,
+          Grado de educación terciaria o nivel equivalente, Maestría y Nivel de
+          doctorado o equivalente)
+      - name: n_cine_especial_diferencial
+        description: >
+          Personas con logro educacional más alto alcanzado (CINE11): Educación
+          especial o diferencial
+      - name: n_analfabet
+        description: >
+          Personas de 15 años o más que no saben leer o escribir
+      - name: n_ocupado
+        description: >
+          Personas de 15 años o más ocupadas
+      - name: n_desocupado
+        description: >
+          Personas de 15 años o más desocupadas
+      - name: n_fuera_fuerza_trabajo
+        description: >
+          Personas de 15 años o más fuera de la fuerza de trabajo
+      - name: n_cise_rec_independientes
+        description: >
+          Personas de 15 años o más ocupadas independientes
+      - name: n_cise_rec_dependientes
+        description: >
+          Personas de 15 años o más ocupadas dependientes
+      - name: n_cise_rec_trabajador_no_remunerado
+        description: >
+          Personas de 15 años o más ocupadas trabajadores no remunerados
+      - name: n_ciuo_1
+        description: >
+          Personas ocupadas del grupo de CIUO: Directores, gerentes y
+          administradores
+      - name: n_ciuo_2
+        description: >
+          Personas ocupadas del grupo de CIUO: Profesionales, científicos e
+          intelectuales
+      - name: n_ciuo_3
+        description: >
+          Personas ocupadas del grupo de CIUO: Técnicos y profesionales de nivel
+          medio
+      - name: n_ciuo_4
+        description: >
+          Personas ocupadas del grupo de CIUO: Personal de apoyo administrativo
+      - name: n_ciuo_5
+        description: >
+          Personas ocupadas del grupo de CIUO: Trabajadores de los servicios y
+          vendedores de comercios y mercados
+      - name: n_ciuo_6
+        description: >
+          Personas ocupadas del grupo de CIUO: Agricultores y trabajadores
+          calificados agropecuarios, forestales y pesqueros
+      - name: n_ciuo_7
+        description: >
+          Personas ocupadas del grupo de CIUO: Artesanos y operarios de oficios
+      - name: n_ciuo_8
+        description: >
+          Personas ocupadas del grupo de CIUO: Operadores de instalaciones,
+          máquinas y ensambladores
+      - name: n_ciuo_9
+        description: >
+          Personas ocupadas del grupo de CIUO: Ocupaciones elementales
+      - name: n_ciuo_0
+        description: >
+          Personas ocupadas del grupo de CIUO: Ocupaciones de las fuerzas armadas
+      - name: n_caenes_a
+        description: >
+          Personas ocupadas en actividades de CAENES: Agricultura, ganadería,
+          silvicultura y pesca
+      - name: n_caenes_b
+        description: >
+          Personas ocupadas en actividades de CAENES: Explotación de minas y
+          canteras
+      - name: n_caenes_c
+        description: >
+          Personas ocupadas en actividades de CAENES: Industrias manufactureras
+      - name: n_caenes_d
+        description: >
+          Personas ocupadas en actividades de CAENES: Suministro de electricidad,
+          gas, vapor y aire acondicionado
+      - name: n_caenes_e
+        description: >
+          Personas ocupadas en actividades de CAENES: Suministro de agua;
+          evacuación de aguas residuales, gestión de desechos y descontaminación
+      - name: n_caenes_f
+        description: >
+          Personas ocupadas en actividades de CAENES: Construcción
+      - name: n_caenes_g
+        description: >
+          Personas ocupadas en actividades de CAENES: Comercio al por mayor y al
+          por menor; reparación de vehículos automotores y motocicletas
+      - name: n_caenes_h
+        description: >
+          Personas ocupadas en actividades de CAENES: Transporte y almacenamiento
+      - name: n_caenes_i
+        description: >
+          Personas ocupadas en actividades de CAENES: Actividades de alojamiento y
+          de servicio de comidas
+      - name: n_caenes_j
+        description: >
+          Personas ocupadas en actividades de CAENES: Información y comunicaciones
+      - name: n_caenes_k
+        description: >
+          Personas ocupadas en actividades de CAENES: Actividades financieras y de
+          seguros
+      - name: n_caenes_l
+        description: >
+          Personas ocupadas en actividades de CAENES: Actividades inmobiliarias
+      - name: n_caenes_m
+        description: >
+          Personas ocupadas en actividades de CAENES: Actividades profesionales,
+          científicas y técnicas
+      - name: n_caenes_n
+        description: >
+          Personas ocupadas en actividades de CAENES: Actividades de servicios
+          administrativos y de apoyo
+      - name: n_caenes_o
+        description: >
+          Personas ocupadas en actividades de CAENES: Administración pública y
+          defensa; planes de seguridad social de afiliación obligatoria
+      - name: n_caenes_p
+        description: >
+          Personas ocupadas en actividades de CAENES: Enseñanza
+      - name: n_caenes_q
+        description: >
+          Personas ocupadas en actividades de CAENES: Actividades de atención de
+          la salud humana y de asistencia social
+      - name: n_caenes_r
+        description: >
+          Personas ocupadas en actividades de CAENES: Actividades artísticas, de
+          entretenimiento y recreativas
+      - name: n_caenes_s
+        description: >
+          Personas ocupadas en actividades de CAENES: Otras actividades de
+          servicios
+      - name: n_caenes_t
+        description: >
+          Personas ocupadas en actividades de CAENES: Actividades de los hogares
+          como empleadores; actividades no diferenciadas de los hogares como
+          productores de bienes y servicios para uso propio
+      - name: n_caenes_u
+        description: >
+          Personas ocupadas en actividades de CAENES: Actividades de
+          organizaciones y órganos extraterritoriales
+      - name: n_transporte_auto
+        description: >
+          Personas ocupadas fuera de su vivienda cuyo medio de transporte
+          principal es: Auto particular
+      - name: n_transporte_publico
+        description: >
+          Personas ocupadas fuera de su vivienda cuyo medio de transporte
+          principal es: transporte público
+      - name: n_transporte_camina
+        description: >
+          Personas ocupadas fuera de su vivienda cuyo medio de transporte
+          principal es: Caminando
+      - name: n_transporte_bicicleta
+        description: >
+          Personas ocupadas fuera de su vivienda cuyo medio de transporte
+          principal es: Bicicleta
+      - name: n_transporte_motocicleta
+        description: >
+          Personas ocupadas fuera de su vivienda cuyo medio de transporte
+          principal es: Motocicleta
+      - name: n_transporte_cab_lan_bote
+        description: >
+          Personas ocupadas fuera de su vivienda cuyo medio de transporte
+          principal es: Caballo, lancha o bote
+      - name: n_transporte_otros
+        description: >
+          Personas ocupadas fuera de su vivienda cuyo medio de transporte
+          principal es: Otro medio
+      - name: n_hog
+        description: >
+          Hogares censados en el area
+      - name: prom_per_hog
+        description: >
+          Promedio de personas por hogar
+      - name: n_hog_unipersonales
+        description: >
+          Hogares unipersonales
+      - name: n_hog_60
+        description: >
+          Hogares compuestos solo de personas de 60 años o más
+      - name: n_hog_menores
+        description: >
+          Hogares con al menos una persona de 0 a 14 años
+      - name: n_jefatura_mujer
+        description: >
+          Hogares con jefatura de hogar femenina
+      - name: n_tenencia_propia_pagada
+        description: >
+          Hogares con tenencia de la vivienda: propia pagada
+      - name: n_tenencia_propia_pagandose
+        description: >
+          Hogares con tenencia de la vivienda: propia pagándose
+      - name: n_tenencia_arrendada_contrato
+        description: >
+          Hogares con tenencia de la vivienda: arrendada con contrato
+      - name: n_tenencia_arrendada_sin_contrato
+        description: >
+          Hogares con tenencia de la vivienda: arrendada sin contrato
+      - name: n_tenencia_cedida_trabajo
+        description: >
+          Hogares con tenencia de la vivienda: cedida por trabajo o servicio
+      - name: n_tenencia_cedida_familiar
+        description: >
+          Hogares con tenencia de la vivienda: cedida por familiar u otro
+      - name: n_tenencia_otro
+        description: >
+          Hogares con tenencia de la vivienda: otro (usufructo, ocupada de hecho,
+          propiedad en sucesión o litigio)
+      - name: n_comb_cocina_gas
+        description: >
+          Hogares con energía o combustible para cocinar: gas
+      - name: n_comb_cocina_parafina
+        description: >
+          Hogares con energía o combustible para cocinar: parafina o pretróleo
+      - name: n_comb_cocina_lena
+        description: >
+          Hogares con energía o combustible para cocinar: leña
+      - name: n_comb_cocina_pellet
+        description: >
+          Hogares con energía o combustible para cocinar: pellet
+      - name: n_comb_cocina_carbon
+        description: >
+          Hogares con energía o combustible para cocinar: carbón
+      - name: n_comb_cocina_electricidad
+        description: >
+          Hogares con energía o combustible para cocinar: electricidad
+      - name: n_comb_cocina_solar
+        description: >
+          Hogares con energía o combustible para cocinar: energía solar
+      - name: n_comb_cocina_no_utiliza
+        description: >
+          Hogares con energía o combustible para cocinar: no utiliza fuente de
+          energía
+      - name: n_comb_calefaccion_gas
+        description: >
+          Hogares con energía o combustible para calefaccionar: gas
+      - name: n_comb_calefaccion_parafina
+        description: >
+          Hogares con energía o combustible para calefaccionar: parafina o
+          pretróleo
+      - name: n_comb_calefaccion_lena
+        description: >
+          Hogares con energía o combustible para calefaccionar: leña
+      - name: n_comb_calefaccion_pellet
+        description: >
+          Hogares con energía o combustible para calefaccionar: pellet
+      - name: n_comb_calefaccion_carbon
+        description: >
+          Hogares con energía o combustible para calefaccionar: carbón
+      - name: n_comb_calefaccion_electricidad
+        description: >
+          Hogares con energía o combustible para calefaccionar: electricidad
+      - name: n_comb_calefaccion_otra
+        description: >
+          Hogares con energía o combustible para calefaccionar: otra
+      - name: n_comb_calefaccion_no_utiliza
+        description: >
+          Hogares con energía o combustible para calefaccionar: no utiliza fuente
+          de energía
+      - name: n_serv_tel_movil
+        description: >
+          Hogares con disponibilidad equipos o servicios: teléfono móvil, celular
+          o smartphone
+      - name: n_serv_compu
+        description: >
+          Hogares con disponibilidad equipos o servicios: computador
+      - name: n_serv_tablet
+        description: >
+          Hogares con disponibilidad equipos o servicios: tablet
+      - name: n_serv_internet_fija
+        description: >
+          Hogares con disponibilidad equipos o servicios: internet fija
+      - name: n_serv_internet_movil
+        description: >
+          Hogares con disponibilidad equipos o servicios: internet móvil
+      - name: n_serv_internet_satelital
+        description: >
+          Hogares con disponibilidad equipos o servicios: internet por conexión
+          satelital
+      - name: n_internet
+        description: >
+          Hogares con acceso a internet
+      - name: n_vp
+        description: >
+          Viviendas particulares
+      - name: n_vp_ocupada
+        description: >
+          Viviendas particulares ocupadas
+      - name: n_vp_desocupada
+        description: >
+          Viviendas particulares desocupadas
+      - name: n_tipo_viv_casa
+        description: >
+          Viviendas con tipo de vivienda: casa
+      - name: n_tipo_viv_depto
+        description: >
+          Viviendas con tipo de vivienda: departamento
+      - name: n_tipo_viv_indigena
+        description: >
+          Viviendas con tipo de vivienda: vivienda tradicional indígena
+      - name: n_tipo_viv_pieza
+        description: >
+          Viviendas con tipo de vivienda: pieza en casa antigua o conventillo
+      - name: n_tipo_viv_mediagua
+        description: >
+          Viviendas con tipo de vivienda: mediagua, mejora, etc
+      - name: n_tipo_viv_movil
+        description: >
+          Viviendas con tipo de vivienda: móvil
+      - name: n_tipo_viv_otro
+        description: >
+          Viviendas con tipo de vivienda: otro tipo de vivienda
+      - name: n_dormitorios_1
+        description: >
+          Número de viviendas con 1 dormitorio
+      - name: n_dormitorios_2
+        description: >
+          Número de viviendas con 2 dormitorios
+      - name: n_dormitorios_3
+        description: >
+          Número de viviendas con 3 dormitorios
+      - name: n_dormitorios_4
+        description: >
+          Número de viviendas con 4 dormitorios
+      - name: n_dormitorios_5
+        description: >
+          Número de viviendas con 5 dormitorios
+      - name: n_dormitorios_6_o_mas
+        description: >
+          Número de viviendas con 6 dormitorios o más
+      - name: n_viv_hacinadas
+        description: >
+          Viviendas hacinadas
+      - name: n_viv_irrecuperables
+        description: >
+          Viviendas irrecuperables
+      - name: n_hog_allegados
+        description: >
+          Hogares allegados
+      - name: n_nucleos_hacinados_allegados
+        description: >
+          Núcleos hacinados allegados
+      - name: n_viv_no_ampliables
+        description: >
+          Hogares que residen en viviendas hacinadas no ampliables
+      - name: n_deficit_cuantitativo
+        description: >
+          Déficit habitacional cuantitativo
+      - name: n_mat_paredes_hormigon
+        description: >
+          Viviendas con materialidad paredes: hormigón armado
+      - name: n_mat_paredes_albanileria
+        description: >
+          Viviendas con materialidad paredes: albañilería
+      - name: n_mat_paredes_tabique_forrado
+        description: >
+          Viviendas con materialidad paredes: tabique forrado por ambas caras
+      - name: n_mat_paredes_tabique_sin_forro
+        description: >
+          Viviendas con materialidad paredes: tabique sin forro interior
+      - name: n_mat_paredes_artesanal
+        description: >
+          Viviendas con materialidad paredes: adobe, barro, pirca, quincha u otro
+          material artesanal
+      - name: n_mat_paredes_precarios
+        description: >
+          Viviendas con materialidad paredes: materiales precarios o de desecho
+      - name: n_mat_techo_tejas
+        description: >
+          Viviendas con materialidad techo: tejas o tejuelas de arcilla,
+          metálicas, de cemento, de madera, asfálticas o plásticas
+      - name: n_mat_techo_hormigon
+        description: >
+          Viviendas con materialidad techo: losa hormigón
+      - name: n_mat_techo_zinc
+        description: >
+          Viviendas con materialidad techo: planchas metálicas de zinc, cobre, etc
+      - name: n_mat_techo_fibrocemento
+        description: >
+          Viviendas con materialidad techo: planchas de fibrocemento tipo
+          pizarreño
+      - name: n_mat_techo_fonolita
+        description: >
+          Viviendas con materialidad techo: fonolita o plancha de fieltro embreado
+      - name: n_mat_techo_paja
+        description: >
+          Viviendas con materialidad techo: paja, coirón, totora o caña
+      - name: n_mat_techo_precarios
+        description: >
+          Viviendas con materialidad techo: materiales precarios o de desecho
+      - name: n_mat_techo_sin_cubierta
+        description: >
+          Viviendas con materialidad techo: sin cubierta sólida de techo
+      - name: n_mat_piso_radier_con_revestimiento
+        description: >
+          Viviendas con materialidad piso: parquet, piso flotante, cerámico,
+          madera, alfombra, flexit, cubrepiso u otro similar: sobre radier o vigas
+          de madera
+      - name: n_mat_piso_radier_sin_revestimiento
+        description: >
+          Viviendas con materialidad piso: radier sin revestimiento
+      - name: n_mat_piso_baldosa_cemento
+        description: >
+          Viviendas con materialidad piso: baldosa de cemento
+      - name: n_mat_piso_capa_cemento
+        description: >
+          Viviendas con materialidad piso: capa de cemento sobre tierra
+      - name: n_mat_piso_tierra
+        description: >
+          Viviendas con materialidad piso: tierra
+      - name: n_fuente_agua_publica
+        description: >
+          Viviendas cuya fuente de agua es: red pública
+      - name: n_fuente_agua_pozo
+        description: >
+          Viviendas cuya fuente de agua es: pozo o noria
+      - name: n_fuente_agua_camion
+        description: >
+          Viviendas cuya fuente de agua es: camión aljibe
+      - name: n_fuente_agua_rio
+        description: >
+          Viviendas cuya fuente de agua es: río, vertiente, estero, canal, etc
+      - name: n_distrib_agua_llave
+        description: >
+          Viviendas con sistema de distribución: llave dentro de la vivienda
+      - name: n_distrib_agua_llave_fuera
+        description: >
+          Viviendas con sistema de distribución: con llave dentro del sitio, fuera
+          de la vivienda
+      - name: n_distrib_agua_acarreo
+        description: >
+          Viviendas con sistema de distribución: no tiene sistema, la acarrea
+      - name: n_serv_hig_alc_dentro
+        description: >
+          Viviendas con servicio higiénico: dentro de la vivienda, conectado al
+          alcantarillado
+      - name: n_serv_hig_alc_fuera
+        description: >
+          Viviendas con servicio higiénico: fuera de la vivienda, conectado al
+          alcantarillado
+      - name: n_serv_hig_fosa
+        description: >
+          Viviendas con servicio higiénico: conectado a una fosa séptica
+      - name: n_serv_hig_pozo
+        description: >
+          Viviendas con servicio higiénico: conectado a pozo negro
+      - name: n_serv_hig_acequia_canal
+        description: >
+          Viviendas con servicio higiénico: en un cajón sobre acequia o canal
+      - name: n_serv_hig_cajon_otro
+        description: >
+          Viviendas con servicio higiénico: en un cajón conectado a otro sistema
+      - name: n_serv_hig_bano_quimico
+        description: >
+          Viviendas con servicio higiénico: baño químico
+      - name: n_serv_hig_bano_seco
+        description: >
+          Viviendas con servicio higiénico: conectado a baño seco
+      - name: n_serv_hig_no_tiene
+        description: >
+          Viviendas con servicio higiénico: no tiene servicio higiénico
+      - name: n_fuente_elect_publica
+        description: >
+          Viviendas con electricidad: red pública
+      - name: n_fuente_elect_diesel
+        description: >
+          Viviendas con electricidad: generador diésel o bencina
+      - name: n_fuente_elect_solar
+        description: >
+          Viviendas con electricidad: placa solar
+      - name: n_fuente_elect_eolica
+        description: >
+          Viviendas con electricidad: energía eólica
+      - name: n_fuente_elect_otro
+        description: >
+          Viviendas con electricidad: otro
+      - name: n_fuente_elect_no_tiene
+        description: >
+          Viviendas con electricidad: no tiene energía eléctrica
+      - name: n_basura_servicios
+        description: >
+          Viviendas con eliminación de basura: la recogen los servicios de aseo
+      - name: n_basura_entierra
+        description: >
+          Viviendas con eliminación de basura: la entierra o la quema
+      - name: n_basura_eriazo
+        description: >
+          Viviendas con eliminación de basura: la deja en terreno eriazo, quebrada
+          o zanja
+      - name: n_basura_rio
+        description: >
+          Viviendas con eliminación de basura: la tira al río, laguna o mar
+      - name: n_basura_otro
+        description: >
+          Viviendas con eliminación de basura: otro
+      - name: geometria
+        description: >
+          Poligono del area censal
+  - name: cl_ine_censo__zona_localidad
+    description: >
+      Base zona-localidad del Censo 2024 de Chile: 189 variables agregadas de
+      poblacion, hogares y viviendas por zona censal urbana o localidad rural,
+      con la geometria del poligono. Union de las capas cartograficas Zonal y
+      Localidades publicadas por el INE; la columna nivel_geografico indica el
+      origen de cada fila.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_zona, id_localidad]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - geometria
+    columns:
+      - name: ano
+        description: >
+          Ano del levantamiento censal
+        tests: [not_null]
+      - name: id_region
+        description: >
+          Codigo unico territorial (CUT) de la region, de dos digitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_cl__region')
+              field: id_region
+      - name: id_provincia
+        description: >
+          Codigo unico territorial (CUT) de la provincia, de tres digitos
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_cl__provincia')
+              field: id_provincia
+      - name: id_comuna
+        description: >
+          Codigo unico territorial (CUT) de la comuna, de cinco digitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_cl__comuna')
+              field: id_comuna
+      - name: nivel_geografico
+        description: >
+          Nivel geografico del registro, que indica de cual de las dos capas
+          cartograficas de INE proviene la fila
+      - name: nombre_region
+        description: >
+          Nombre de la region
+      - name: nombre_provincia
+        description: >
+          Nombre de la provincia
+      - name: nombre_comuna
+        description: >
+          Nombre de la comuna
+      - name: area_c
+        description: >
+          Estrato censal urbano o rural del area cartografica
+      - name: nombre_distrito
+        description: >
+          Nombre del distrito censal
+      - name: cod_distrito
+        description: >
+          Número de distrito
+      - name: cod_localidad
+        description: >
+          Código de localidad urbana/rural
+      - name: cod_zona
+        description: >
+          Código de zonal censal
+      - name: nombre_localidad
+        description: >
+          Nombre de la localidad
+      - name: cod_entidad
+        description: >
+          Código de entidad poblada urbana/rural
+      - name: nombre_entidad
+        description: >
+          Nombre de la entidad poblada
+      - name: cod_categoria
+        description: >
+          Código de categoria de entidad
+      - name: categoria
+        description: >
+          Categoria de la entidad poblada segun INE: Ciudad, Pueblo, Aldea,
+          Caserio, Parcela-Hijuela, Comunidad Indigena, entre otras
+      - name: id_entidad
+        description: >
+          Identificador único de entidad agrupada (no considera división
+          distrital)
+      - name: id_localidad
+        description: >
+          Identificador único de localidad agrupada (no considera división
+          distrital)
+        tests: [not_null]
+      - name: id_distrito
+        description: >
+          Identificador único de distrito
+      - name: id_zona
+        description: >
+          Identificador único de zona censal
+        tests: [not_null]
+      - name: n_per
+        description: >
+          Personas censadas en el area
+      - name: n_hombres
+        description: >
+          Hombres censados en el area
+      - name: n_mujeres
+        description: >
+          Mujeres censadas en el area
+      - name: n_edad_0_5
+        description: >
+          Personas de 0 a 5 años
+      - name: n_edad_6_13
+        description: >
+          Personas de 6 a 13 años
+      - name: n_edad_14_17
+        description: >
+          Personas de 14 a 17 años
+      - name: n_edad_18_24
+        description: >
+          Personas de 18 a 24 años
+      - name: n_edad_25_44
+        description: >
+          Personas de 25 a 44 años
+      - name: n_edad_45_59
+        description: >
+          Personas de 45 a 59 años
+      - name: n_edad_60_mas
+        description: >
+          Personas de 60 años o más
+      - name: prom_edad
+        description: >
+          Promedio de edad
+      - name: n_inmigrantes
+        description: >
+          Personas inmigrantes internacionales (Lugar de nacimiento fuera de
+          Chile)
+      - name: n_nacionalidad
+        description: >
+          Personas con otra nacionalidad (no considera aquellos con doble
+          nacionalidad)
+      - name: n_pueblos_orig
+        description: >
+          Personas que son o se consideran pertenecientes a un pueblo originario
+      - name: n_afrodescendencia
+        description: >
+          Personas que son o se consideran afrodescendientes
+      - name: n_lengua_indigena
+        description: >
+          Personas que hablan o entienden alguna lengua indígena u originaria
+      - name: n_religion
+        description: >
+          Personas que tienen una religión o credo
+      - name: n_dificultad_ver
+        description: >
+          Personas con mucha dificultad o no pueden: Ver, aun usando anteojos
+      - name: n_dificultad_oir
+        description: >
+          Personas con mucha dificultad o no pueden: Oír, aun usando un
+          dispositivo auditivo
+      - name: n_dificultad_mover
+        description: >
+          Personas con mucha dificultad o no pueden: Caminar o subir escaleras
+      - name: n_dificultad_cogni
+        description: >
+          Personas con mucha dificultad o no pueden: Recordar o concentrarse
+      - name: n_dificultad_cuidado
+        description: >
+          Personas con mucha dificultad o no pueden: Realizar tareas de cuidado
+          personas, como bañarse o vestirse
+      - name: n_dificultad_comunic
+        description: >
+          Personas con mucha dificultad o no pueden: Hablar o comunicarse usando
+          su idioma habitual
+      - name: n_discapacidad
+        description: >
+          Personas con discapacidad (declara mucha dificultad o imposibilidad para
+          realizar algunas de las actividades del módulo de salud)
+      - name: n_estcivcon_casado
+        description: >
+          Personas con estado civil o conyugal: Casado
+      - name: n_estcivcon_conviviente
+        description: >
+          Personas con estado civil o conyugal: Conviviente o pareja sin acuerdo
+          de unión civil
+      - name: n_estcivcon_conv_civil
+        description: >
+          Personas con estado civil o conyugal: Conviviente civil (con acuerdo de
+          unión civil)
+      - name: n_estcivcon_anul_sep_div
+        description: >
+          Personas con estado civil o conyugal: Anulado, separado o divorciado
+      - name: n_estcivcon_viudo
+        description: >
+          Personas con estado civil o conyugal: Viudo
+      - name: n_estcivcon_soltero
+        description: >
+          Personas con estado civil o conyugal: Soltero
+      - name: prom_escolaridad18
+        description: >
+          Promedio de escolaridad de personas de 18 años o más
+      - name: n_asistencia_parv
+        description: >
+          Personas de 0 a 5 años que asisten a: Educación parvularia
+      - name: n_asistencia_basica
+        description: >
+          Personas de 6 a 13 años que asisten a: Educación básica
+      - name: n_asistencia_media
+        description: >
+          Personas de 14 a 17 años que asisten a: Educación media
+      - name: n_asistencia_superior
+        description: >
+          Personas de 18 a 24 años que asisten a: Educación superior
+      - name: n_cine_nunca_curso_primera_infancia
+        description: >
+          Personas con logro educacional más alto alcanzado (CINE11): Menor a
+          primaria (incluye nunca cursó un programa educativo y Educación de la
+          primera infancia)
+      - name: n_cine_primaria
+        description: >
+          Personas con logro educacional más alto alcanzado (CINE11): Primaria
+          (incluye Primaria en forma parcial, Educación primaria (nivel 1) y
+          Educación primaria (nivel 2))
+      - name: n_cine_secundaria
+        description: >
+          Personas con logro educacional más alto alcanzado (CINE11): Secundaria
+          (incluye Educación secundaria, con orientación general y con orientación
+          vocacional)
+      - name: n_cine_terciaria_maestria_doctorado
+        description: >
+          Personas con logro educacional más alto alcanzado (CINE11): Avanzado
+          (incluye Educación terciaria de ciclo corto, con orientación vocacional,
+          Grado de educación terciaria o nivel equivalente, Maestría y Nivel de
+          doctorado o equivalente)
+      - name: n_cine_especial_diferencial
+        description: >
+          Personas con logro educacional más alto alcanzado (CINE11): Educación
+          especial o diferencial
+      - name: n_analfabet
+        description: >
+          Personas de 15 años o más que no saben leer o escribir
+      - name: n_ocupado
+        description: >
+          Personas de 15 años o más ocupadas
+      - name: n_desocupado
+        description: >
+          Personas de 15 años o más desocupadas
+      - name: n_fuera_fuerza_trabajo
+        description: >
+          Personas de 15 años o más fuera de la fuerza de trabajo
+      - name: n_cise_rec_independientes
+        description: >
+          Personas de 15 años o más ocupadas independientes
+      - name: n_cise_rec_dependientes
+        description: >
+          Personas de 15 años o más ocupadas dependientes
+      - name: n_cise_rec_trabajador_no_remunerado
+        description: >
+          Personas de 15 años o más ocupadas trabajadores no remunerados
+      - name: n_ciuo_1
+        description: >
+          Personas ocupadas del grupo de CIUO: Directores, gerentes y
+          administradores
+      - name: n_ciuo_2
+        description: >
+          Personas ocupadas del grupo de CIUO: Profesionales, científicos e
+          intelectuales
+      - name: n_ciuo_3
+        description: >
+          Personas ocupadas del grupo de CIUO: Técnicos y profesionales de nivel
+          medio
+      - name: n_ciuo_4
+        description: >
+          Personas ocupadas del grupo de CIUO: Personal de apoyo administrativo
+      - name: n_ciuo_5
+        description: >
+          Personas ocupadas del grupo de CIUO: Trabajadores de los servicios y
+          vendedores de comercios y mercados
+      - name: n_ciuo_6
+        description: >
+          Personas ocupadas del grupo de CIUO: Agricultores y trabajadores
+          calificados agropecuarios, forestales y pesqueros
+      - name: n_ciuo_7
+        description: >
+          Personas ocupadas del grupo de CIUO: Artesanos y operarios de oficios
+      - name: n_ciuo_8
+        description: >
+          Personas ocupadas del grupo de CIUO: Operadores de instalaciones,
+          máquinas y ensambladores
+      - name: n_ciuo_9
+        description: >
+          Personas ocupadas del grupo de CIUO: Ocupaciones elementales
+      - name: n_ciuo_0
+        description: >
+          Personas ocupadas del grupo de CIUO: Ocupaciones de las fuerzas armadas
+      - name: n_caenes_a
+        description: >
+          Personas ocupadas en actividades de CAENES: Agricultura, ganadería,
+          silvicultura y pesca
+      - name: n_caenes_b
+        description: >
+          Personas ocupadas en actividades de CAENES: Explotación de minas y
+          canteras
+      - name: n_caenes_c
+        description: >
+          Personas ocupadas en actividades de CAENES: Industrias manufactureras
+      - name: n_caenes_d
+        description: >
+          Personas ocupadas en actividades de CAENES: Suministro de electricidad,
+          gas, vapor y aire acondicionado
+      - name: n_caenes_e
+        description: >
+          Personas ocupadas en actividades de CAENES: Suministro de agua;
+          evacuación de aguas residuales, gestión de desechos y descontaminación
+      - name: n_caenes_f
+        description: >
+          Personas ocupadas en actividades de CAENES: Construcción
+      - name: n_caenes_g
+        description: >
+          Personas ocupadas en actividades de CAENES: Comercio al por mayor y al
+          por menor; reparación de vehículos automotores y motocicletas
+      - name: n_caenes_h
+        description: >
+          Personas ocupadas en actividades de CAENES: Transporte y almacenamiento
+      - name: n_caenes_i
+        description: >
+          Personas ocupadas en actividades de CAENES: Actividades de alojamiento y
+          de servicio de comidas
+      - name: n_caenes_j
+        description: >
+          Personas ocupadas en actividades de CAENES: Información y comunicaciones
+      - name: n_caenes_k
+        description: >
+          Personas ocupadas en actividades de CAENES: Actividades financieras y de
+          seguros
+      - name: n_caenes_l
+        description: >
+          Personas ocupadas en actividades de CAENES: Actividades inmobiliarias
+      - name: n_caenes_m
+        description: >
+          Personas ocupadas en actividades de CAENES: Actividades profesionales,
+          científicas y técnicas
+      - name: n_caenes_n
+        description: >
+          Personas ocupadas en actividades de CAENES: Actividades de servicios
+          administrativos y de apoyo
+      - name: n_caenes_o
+        description: >
+          Personas ocupadas en actividades de CAENES: Administración pública y
+          defensa; planes de seguridad social de afiliación obligatoria
+      - name: n_caenes_p
+        description: >
+          Personas ocupadas en actividades de CAENES: Enseñanza
+      - name: n_caenes_q
+        description: >
+          Personas ocupadas en actividades de CAENES: Actividades de atención de
+          la salud humana y de asistencia social
+      - name: n_caenes_r
+        description: >
+          Personas ocupadas en actividades de CAENES: Actividades artísticas, de
+          entretenimiento y recreativas
+      - name: n_caenes_s
+        description: >
+          Personas ocupadas en actividades de CAENES: Otras actividades de
+          servicios
+      - name: n_caenes_t
+        description: >
+          Personas ocupadas en actividades de CAENES: Actividades de los hogares
+          como empleadores; actividades no diferenciadas de los hogares como
+          productores de bienes y servicios para uso propio
+      - name: n_caenes_u
+        description: >
+          Personas ocupadas en actividades de CAENES: Actividades de
+          organizaciones y órganos extraterritoriales
+      - name: n_transporte_auto
+        description: >
+          Personas ocupadas fuera de su vivienda cuyo medio de transporte
+          principal es: Auto particular
+      - name: n_transporte_publico
+        description: >
+          Personas ocupadas fuera de su vivienda cuyo medio de transporte
+          principal es: transporte público
+      - name: n_transporte_camina
+        description: >
+          Personas ocupadas fuera de su vivienda cuyo medio de transporte
+          principal es: Caminando
+      - name: n_transporte_bicicleta
+        description: >
+          Personas ocupadas fuera de su vivienda cuyo medio de transporte
+          principal es: Bicicleta
+      - name: n_transporte_motocicleta
+        description: >
+          Personas ocupadas fuera de su vivienda cuyo medio de transporte
+          principal es: Motocicleta
+      - name: n_transporte_cab_lan_bote
+        description: >
+          Personas ocupadas fuera de su vivienda cuyo medio de transporte
+          principal es: Caballo, lancha o bote
+      - name: n_transporte_otros
+        description: >
+          Personas ocupadas fuera de su vivienda cuyo medio de transporte
+          principal es: Otro medio
+      - name: n_hog
+        description: >
+          Hogares censados en el area
+      - name: prom_per_hog
+        description: >
+          Promedio de personas por hogar
+      - name: n_hog_unipersonales
+        description: >
+          Hogares unipersonales
+      - name: n_hog_60
+        description: >
+          Hogares compuestos solo de personas de 60 años o más
+      - name: n_hog_menores
+        description: >
+          Hogares con al menos una persona de 0 a 14 años
+      - name: n_jefatura_mujer
+        description: >
+          Hogares con jefatura de hogar femenina
+      - name: n_tenencia_propia_pagada
+        description: >
+          Hogares con tenencia de la vivienda: propia pagada
+      - name: n_tenencia_propia_pagandose
+        description: >
+          Hogares con tenencia de la vivienda: propia pagándose
+      - name: n_tenencia_arrendada_contrato
+        description: >
+          Hogares con tenencia de la vivienda: arrendada con contrato
+      - name: n_tenencia_arrendada_sin_contrato
+        description: >
+          Hogares con tenencia de la vivienda: arrendada sin contrato
+      - name: n_tenencia_cedida_trabajo
+        description: >
+          Hogares con tenencia de la vivienda: cedida por trabajo o servicio
+      - name: n_tenencia_cedida_familiar
+        description: >
+          Hogares con tenencia de la vivienda: cedida por familiar u otro
+      - name: n_tenencia_otro
+        description: >
+          Hogares con tenencia de la vivienda: otro (usufructo, ocupada de hecho,
+          propiedad en sucesión o litigio)
+      - name: n_comb_cocina_gas
+        description: >
+          Hogares con energía o combustible para cocinar: gas
+      - name: n_comb_cocina_parafina
+        description: >
+          Hogares con energía o combustible para cocinar: parafina o pretróleo
+      - name: n_comb_cocina_lena
+        description: >
+          Hogares con energía o combustible para cocinar: leña
+      - name: n_comb_cocina_pellet
+        description: >
+          Hogares con energía o combustible para cocinar: pellet
+      - name: n_comb_cocina_carbon
+        description: >
+          Hogares con energía o combustible para cocinar: carbón
+      - name: n_comb_cocina_electricidad
+        description: >
+          Hogares con energía o combustible para cocinar: electricidad
+      - name: n_comb_cocina_solar
+        description: >
+          Hogares con energía o combustible para cocinar: energía solar
+      - name: n_comb_cocina_no_utiliza
+        description: >
+          Hogares con energía o combustible para cocinar: no utiliza fuente de
+          energía
+      - name: n_comb_calefaccion_gas
+        description: >
+          Hogares con energía o combustible para calefaccionar: gas
+      - name: n_comb_calefaccion_parafina
+        description: >
+          Hogares con energía o combustible para calefaccionar: parafina o
+          pretróleo
+      - name: n_comb_calefaccion_lena
+        description: >
+          Hogares con energía o combustible para calefaccionar: leña
+      - name: n_comb_calefaccion_pellet
+        description: >
+          Hogares con energía o combustible para calefaccionar: pellet
+      - name: n_comb_calefaccion_carbon
+        description: >
+          Hogares con energía o combustible para calefaccionar: carbón
+      - name: n_comb_calefaccion_electricidad
+        description: >
+          Hogares con energía o combustible para calefaccionar: electricidad
+      - name: n_comb_calefaccion_otra
+        description: >
+          Hogares con energía o combustible para calefaccionar: otra
+      - name: n_comb_calefaccion_no_utiliza
+        description: >
+          Hogares con energía o combustible para calefaccionar: no utiliza fuente
+          de energía
+      - name: n_serv_tel_movil
+        description: >
+          Hogares con disponibilidad equipos o servicios: teléfono móvil, celular
+          o smartphone
+      - name: n_serv_compu
+        description: >
+          Hogares con disponibilidad equipos o servicios: computador
+      - name: n_serv_tablet
+        description: >
+          Hogares con disponibilidad equipos o servicios: tablet
+      - name: n_serv_internet_fija
+        description: >
+          Hogares con disponibilidad equipos o servicios: internet fija
+      - name: n_serv_internet_movil
+        description: >
+          Hogares con disponibilidad equipos o servicios: internet móvil
+      - name: n_serv_internet_satelital
+        description: >
+          Hogares con disponibilidad equipos o servicios: internet por conexión
+          satelital
+      - name: n_internet
+        description: >
+          Hogares con acceso a internet
+      - name: n_vp
+        description: >
+          Viviendas particulares
+      - name: n_vp_ocupada
+        description: >
+          Viviendas particulares ocupadas
+      - name: n_vp_desocupada
+        description: >
+          Viviendas particulares desocupadas
+      - name: n_tipo_viv_casa
+        description: >
+          Viviendas con tipo de vivienda: casa
+      - name: n_tipo_viv_depto
+        description: >
+          Viviendas con tipo de vivienda: departamento
+      - name: n_tipo_viv_indigena
+        description: >
+          Viviendas con tipo de vivienda: vivienda tradicional indígena
+      - name: n_tipo_viv_pieza
+        description: >
+          Viviendas con tipo de vivienda: pieza en casa antigua o conventillo
+      - name: n_tipo_viv_mediagua
+        description: >
+          Viviendas con tipo de vivienda: mediagua, mejora, etc
+      - name: n_tipo_viv_movil
+        description: >
+          Viviendas con tipo de vivienda: móvil
+      - name: n_tipo_viv_otro
+        description: >
+          Viviendas con tipo de vivienda: otro tipo de vivienda
+      - name: n_dormitorios_1
+        description: >
+          Número de viviendas con 1 dormitorio
+      - name: n_dormitorios_2
+        description: >
+          Número de viviendas con 2 dormitorios
+      - name: n_dormitorios_3
+        description: >
+          Número de viviendas con 3 dormitorios
+      - name: n_dormitorios_4
+        description: >
+          Número de viviendas con 4 dormitorios
+      - name: n_dormitorios_5
+        description: >
+          Número de viviendas con 5 dormitorios
+      - name: n_dormitorios_6_o_mas
+        description: >
+          Número de viviendas con 6 dormitorios o más
+      - name: n_viv_hacinadas
+        description: >
+          Viviendas hacinadas
+      - name: n_viv_irrecuperables
+        description: >
+          Viviendas irrecuperables
+      - name: n_hog_allegados
+        description: >
+          Hogares allegados
+      - name: n_nucleos_hacinados_allegados
+        description: >
+          Núcleos hacinados allegados
+      - name: n_viv_no_ampliables
+        description: >
+          Hogares que residen en viviendas hacinadas no ampliables
+      - name: n_deficit_cuantitativo
+        description: >
+          Déficit habitacional cuantitativo
+      - name: n_mat_paredes_hormigon
+        description: >
+          Viviendas con materialidad paredes: hormigón armado
+      - name: n_mat_paredes_albanileria
+        description: >
+          Viviendas con materialidad paredes: albañilería
+      - name: n_mat_paredes_tabique_forrado
+        description: >
+          Viviendas con materialidad paredes: tabique forrado por ambas caras
+      - name: n_mat_paredes_tabique_sin_forro
+        description: >
+          Viviendas con materialidad paredes: tabique sin forro interior
+      - name: n_mat_paredes_artesanal
+        description: >
+          Viviendas con materialidad paredes: adobe, barro, pirca, quincha u otro
+          material artesanal
+      - name: n_mat_paredes_precarios
+        description: >
+          Viviendas con materialidad paredes: materiales precarios o de desecho
+      - name: n_mat_techo_tejas
+        description: >
+          Viviendas con materialidad techo: tejas o tejuelas de arcilla,
+          metálicas, de cemento, de madera, asfálticas o plásticas
+      - name: n_mat_techo_hormigon
+        description: >
+          Viviendas con materialidad techo: losa hormigón
+      - name: n_mat_techo_zinc
+        description: >
+          Viviendas con materialidad techo: planchas metálicas de zinc, cobre, etc
+      - name: n_mat_techo_fibrocemento
+        description: >
+          Viviendas con materialidad techo: planchas de fibrocemento tipo
+          pizarreño
+      - name: n_mat_techo_fonolita
+        description: >
+          Viviendas con materialidad techo: fonolita o plancha de fieltro embreado
+      - name: n_mat_techo_paja
+        description: >
+          Viviendas con materialidad techo: paja, coirón, totora o caña
+      - name: n_mat_techo_precarios
+        description: >
+          Viviendas con materialidad techo: materiales precarios o de desecho
+      - name: n_mat_techo_sin_cubierta
+        description: >
+          Viviendas con materialidad techo: sin cubierta sólida de techo
+      - name: n_mat_piso_radier_con_revestimiento
+        description: >
+          Viviendas con materialidad piso: parquet, piso flotante, cerámico,
+          madera, alfombra, flexit, cubrepiso u otro similar: sobre radier o vigas
+          de madera
+      - name: n_mat_piso_radier_sin_revestimiento
+        description: >
+          Viviendas con materialidad piso: radier sin revestimiento
+      - name: n_mat_piso_baldosa_cemento
+        description: >
+          Viviendas con materialidad piso: baldosa de cemento
+      - name: n_mat_piso_capa_cemento
+        description: >
+          Viviendas con materialidad piso: capa de cemento sobre tierra
+      - name: n_mat_piso_tierra
+        description: >
+          Viviendas con materialidad piso: tierra
+      - name: n_fuente_agua_publica
+        description: >
+          Viviendas cuya fuente de agua es: red pública
+      - name: n_fuente_agua_pozo
+        description: >
+          Viviendas cuya fuente de agua es: pozo o noria
+      - name: n_fuente_agua_camion
+        description: >
+          Viviendas cuya fuente de agua es: camión aljibe
+      - name: n_fuente_agua_rio
+        description: >
+          Viviendas cuya fuente de agua es: río, vertiente, estero, canal, etc
+      - name: n_distrib_agua_llave
+        description: >
+          Viviendas con sistema de distribución: llave dentro de la vivienda
+      - name: n_distrib_agua_llave_fuera
+        description: >
+          Viviendas con sistema de distribución: con llave dentro del sitio, fuera
+          de la vivienda
+      - name: n_distrib_agua_acarreo
+        description: >
+          Viviendas con sistema de distribución: no tiene sistema, la acarrea
+      - name: n_serv_hig_alc_dentro
+        description: >
+          Viviendas con servicio higiénico: dentro de la vivienda, conectado al
+          alcantarillado
+      - name: n_serv_hig_alc_fuera
+        description: >
+          Viviendas con servicio higiénico: fuera de la vivienda, conectado al
+          alcantarillado
+      - name: n_serv_hig_fosa
+        description: >
+          Viviendas con servicio higiénico: conectado a una fosa séptica
+      - name: n_serv_hig_pozo
+        description: >
+          Viviendas con servicio higiénico: conectado a pozo negro
+      - name: n_serv_hig_acequia_canal
+        description: >
+          Viviendas con servicio higiénico: en un cajón sobre acequia o canal
+      - name: n_serv_hig_cajon_otro
+        description: >
+          Viviendas con servicio higiénico: en un cajón conectado a otro sistema
+      - name: n_serv_hig_bano_quimico
+        description: >
+          Viviendas con servicio higiénico: baño químico
+      - name: n_serv_hig_bano_seco
+        description: >
+          Viviendas con servicio higiénico: conectado a baño seco
+      - name: n_serv_hig_no_tiene
+        description: >
+          Viviendas con servicio higiénico: no tiene servicio higiénico
+      - name: n_fuente_elect_publica
+        description: >
+          Viviendas con electricidad: red pública
+      - name: n_fuente_elect_diesel
+        description: >
+          Viviendas con electricidad: generador diésel o bencina
+      - name: n_fuente_elect_solar
+        description: >
+          Viviendas con electricidad: placa solar
+      - name: n_fuente_elect_eolica
+        description: >
+          Viviendas con electricidad: energía eólica
+      - name: n_fuente_elect_otro
+        description: >
+          Viviendas con electricidad: otro
+      - name: n_fuente_elect_no_tiene
+        description: >
+          Viviendas con electricidad: no tiene energía eléctrica
+      - name: n_basura_servicios
+        description: >
+          Viviendas con eliminación de basura: la recogen los servicios de aseo
+      - name: n_basura_entierra
+        description: >
+          Viviendas con eliminación de basura: la entierra o la quema
+      - name: n_basura_eriazo
+        description: >
+          Viviendas con eliminación de basura: la deja en terreno eriazo, quebrada
+          o zanja
+      - name: n_basura_rio
+        description: >
+          Viviendas con eliminación de basura: la tira al río, laguna o mar
+      - name: n_basura_otro
+        description: >
+          Viviendas con eliminación de basura: otro
+      - name: geometria
+        description: >
+          Poligono del area censal
+  - name: cl_ine_censo__dicionario
+    description: >
+      Diccionario de las columnas codificadas del Censo 2024 de Chile, con una
+      fila por combinacion de tabla, columna y codigo. Incluye los codigos
+      centinela -99 (no respuesta) y -66 (valor suprimido por anonimizacion).
+      Las etiquetas provienen del diccionario Redatam oficial CPV2024.dicX.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: >
+          Nombre de la tabla a la que pertenece la columna codificada
+        tests: [not_null]
+      - name: nome_coluna
+        description: >
+          Nombre de la columna codificada
+        tests: [not_null]
+      - name: chave
+        description: >
+          Codigo almacenado en la columna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >
+          Cobertura temporal de la correspondencia entre codigo y etiqueta
+      - name: valor
+        description: >
+          Etiqueta correspondiente al codigo
