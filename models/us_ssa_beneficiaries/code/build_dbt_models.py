@@ -136,36 +136,23 @@ NOT_NULL = {
 }
 
 # Columns that are legitimately sparse, so the not-null-proportion test would
-# otherwise fail on them.
+# otherwise fail on them. Measured, not guessed: everything else in these
+# tables is above 93% non-null, including county_id (99.99% / 99.49%) and
+# state_id, so they stay under test -- they are the most defect-prone columns
+# in the dataset and excluding them would gut the check.
+#
+# The `*_note` columns are near-empty by design: a note is only set when a
+# value is missing. `ssi_county.payment_amount_month` is 14.15% non-null
+# because SSA publishes the county payment total only for the total category,
+# one of seven.
 IGNORE_SPARSE = {
-    "oasdi_county": [
-        "county_id",
-        "beneficiary_count_note",
-        "benefit_amount_month_note",
-    ],
-    "oasdi_state": [
-        "state_id",
-        "beneficiary_count_note",
-        "benefit_amount_month_note",
-        "beneficiary_count",
-    ],
-    "oasdi_population_share": [
-        "state_id",
-        "population_note",
-        "percentage_receiving_oasdi_note",
-    ],
-    "ssi_county": [
-        "county_id",
-        "payment_amount_month",
-        "recipient_count_note",
-        "payment_amount_month_note",
-    ],
-    "ssi_state": [
-        "state_id",
-        "payment_amount_month",
-        "recipient_count_note",
-        "payment_amount_month_note",
-    ],
+    "oasdi_county": ["beneficiary_count_note", "benefit_amount_month_note"],
+    "oasdi_state": ["beneficiary_count_note", "benefit_amount_month_note"],
+    "oasdi_population_share": ["population_note",
+                               "percentage_receiving_oasdi_note"],
+    "ssi_county": ["recipient_count_note", "payment_amount_month",
+                   "payment_amount_month_note"],
+    "ssi_state": ["recipient_count_note", "payment_amount_month_note"],
     "dicionario": ["cobertura_temporal"],
 }
 

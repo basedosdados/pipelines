@@ -23,4 +23,6 @@ select
     safe_cast(beneficiary_count_note as string) beneficiary_count_note,
     safe_cast(benefit_amount_month as int64) benefit_amount_month,
     safe_cast(benefit_amount_month_note as string) benefit_amount_month_note
-from {{ set_datalake_project("us_ssa_beneficiaries_staging.oasdi_state") }} as t
+from
+    {{ set_datalake_project("us_ssa_beneficiaries_staging.oasdi_state") }}
+    as t

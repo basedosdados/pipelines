@@ -15,4 +15,6 @@ select
     safe_cast(valor as string) valor,
     safe_cast(valor_en as string) valor_en,
     safe_cast(valor_es as string) valor_es
-from {{ set_datalake_project("us_ssa_beneficiaries_staging.dicionario") }} as t
+from
+    {{ set_datalake_project("us_ssa_beneficiaries_staging.dicionario") }}
+    as t

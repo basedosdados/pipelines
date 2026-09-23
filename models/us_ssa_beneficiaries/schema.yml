@@ -46,10 +46,7 @@ models:
             - sex
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - county_id
-            - beneficiary_count_note
-            - benefit_amount_month_note
+          ignore_values: [beneficiary_count_note, benefit_amount_month_note]
     columns:
       - name: year
         description: Ano de referência, correspondente à edição anual de dezembro
@@ -98,10 +95,7 @@ models:
           combination_of_columns: [year, state_or_area, population_group]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - state_id
-            - population_note
-            - percentage_receiving_oasdi_note
+          ignore_values: [population_note, percentage_receiving_oasdi_note]
     columns:
       - name: year
         description: Ano de referência, correspondente à edição anual de dezembro
@@ -141,11 +135,7 @@ models:
             - sex
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - state_id
-            - beneficiary_count_note
-            - benefit_amount_month_note
-            - beneficiary_count
+          ignore_values: [beneficiary_count_note, benefit_amount_month_note]
     columns:
       - name: year
         description: Ano de referência, correspondente à edição anual de dezembro
@@ -196,9 +186,8 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
-            - county_id
-            - payment_amount_month
             - recipient_count_note
+            - payment_amount_month
             - payment_amount_month_note
     columns:
       - name: year
@@ -253,11 +242,7 @@ models:
             - oasdi_concurrent
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - state_id
-            - payment_amount_month
-            - recipient_count_note
-            - payment_amount_month_note
+          ignore_values: [recipient_count_note, payment_amount_month_note]
     columns:
       - name: year
         description: Ano de referência, correspondente à edição anual de dezembro
