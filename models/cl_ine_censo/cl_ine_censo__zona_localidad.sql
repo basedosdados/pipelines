@@ -71,10 +71,14 @@ select
     safe_cast(n_asistencia_basica as int64) n_asistencia_basica,
     safe_cast(n_asistencia_media as int64) n_asistencia_media,
     safe_cast(n_asistencia_superior as int64) n_asistencia_superior,
-    safe_cast(n_cine_nunca_curso_primera_infancia as int64) n_cine_nunca_curso_primera_infancia,
+    safe_cast(
+        n_cine_nunca_curso_primera_infancia as int64
+    ) n_cine_nunca_curso_primera_infancia,
     safe_cast(n_cine_primaria as int64) n_cine_primaria,
     safe_cast(n_cine_secundaria as int64) n_cine_secundaria,
-    safe_cast(n_cine_terciaria_maestria_doctorado as int64) n_cine_terciaria_maestria_doctorado,
+    safe_cast(
+        n_cine_terciaria_maestria_doctorado as int64
+    ) n_cine_terciaria_maestria_doctorado,
     safe_cast(n_cine_especial_diferencial as int64) n_cine_especial_diferencial,
     safe_cast(n_analfabet as int64) n_analfabet,
     safe_cast(n_ocupado as int64) n_ocupado,
@@ -82,7 +86,9 @@ select
     safe_cast(n_fuera_fuerza_trabajo as int64) n_fuera_fuerza_trabajo,
     safe_cast(n_cise_rec_independientes as int64) n_cise_rec_independientes,
     safe_cast(n_cise_rec_dependientes as int64) n_cise_rec_dependientes,
-    safe_cast(n_cise_rec_trabajador_no_remunerado as int64) n_cise_rec_trabajador_no_remunerado,
+    safe_cast(
+        n_cise_rec_trabajador_no_remunerado as int64
+    ) n_cise_rec_trabajador_no_remunerado,
     safe_cast(n_ciuo_1 as int64) n_ciuo_1,
     safe_cast(n_ciuo_2 as int64) n_ciuo_2,
     safe_cast(n_ciuo_3 as int64) n_ciuo_3,
@@ -130,7 +136,9 @@ select
     safe_cast(n_tenencia_propia_pagada as int64) n_tenencia_propia_pagada,
     safe_cast(n_tenencia_propia_pagandose as int64) n_tenencia_propia_pagandose,
     safe_cast(n_tenencia_arrendada_contrato as int64) n_tenencia_arrendada_contrato,
-    safe_cast(n_tenencia_arrendada_sin_contrato as int64) n_tenencia_arrendada_sin_contrato,
+    safe_cast(
+        n_tenencia_arrendada_sin_contrato as int64
+    ) n_tenencia_arrendada_sin_contrato,
     safe_cast(n_tenencia_cedida_trabajo as int64) n_tenencia_cedida_trabajo,
     safe_cast(n_tenencia_cedida_familiar as int64) n_tenencia_cedida_familiar,
     safe_cast(n_tenencia_otro as int64) n_tenencia_otro,
@@ -193,8 +201,12 @@ select
     safe_cast(n_mat_techo_paja as int64) n_mat_techo_paja,
     safe_cast(n_mat_techo_precarios as int64) n_mat_techo_precarios,
     safe_cast(n_mat_techo_sin_cubierta as int64) n_mat_techo_sin_cubierta,
-    safe_cast(n_mat_piso_radier_con_revestimiento as int64) n_mat_piso_radier_con_revestimiento,
-    safe_cast(n_mat_piso_radier_sin_revestimiento as int64) n_mat_piso_radier_sin_revestimiento,
+    safe_cast(
+        n_mat_piso_radier_con_revestimiento as int64
+    ) n_mat_piso_radier_con_revestimiento,
+    safe_cast(
+        n_mat_piso_radier_sin_revestimiento as int64
+    ) n_mat_piso_radier_sin_revestimiento,
     safe_cast(n_mat_piso_baldosa_cemento as int64) n_mat_piso_baldosa_cemento,
     safe_cast(n_mat_piso_capa_cemento as int64) n_mat_piso_capa_cemento,
     safe_cast(n_mat_piso_tierra as int64) n_mat_piso_tierra,

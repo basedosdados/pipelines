@@ -404,8 +404,7 @@ models:
           combination_of_columns: [id_vivienda]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - p11c_num_hogar
+          ignore_values: [p11c_num_hogar]
       - custom_dictionary_coverage:
           dictionary_model: ref('cl_ine_censo__dicionario')
           columns_covered_by_dictionary:
@@ -536,8 +535,7 @@ models:
           combination_of_columns: [manzent]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - geometria
+          ignore_values: [geometria]
     columns:
       - name: ano
         description: >
@@ -1286,8 +1284,7 @@ models:
           combination_of_columns: [id_zona, id_localidad]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
-          ignore_values:
-            - geometria
+          ignore_values: [geometria]
     columns:
       - name: ano
         description: >
@@ -2034,5 +2031,5 @@ models:
         description: >
           Cobertura temporal de la correspondencia entre codigo y etiqueta
       - name: valor
-        description: >
+        description: >-
           Etiqueta correspondiente al codigo
