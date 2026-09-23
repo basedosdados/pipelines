@@ -2,6 +2,7 @@
 Constantes de br_ibge_ppm.
 """
 
+import re
 from enum import Enum
 
 
@@ -18,12 +19,12 @@ class constants(Enum):
 
     PATH = "/tmp/br_ibge_ppm/"
 
-    # O que a API devolve no lugar de um número: sem informação, valor
-    # arredondado a zero, dado omitido por sigilo.
+    KEY_COLUMNS = ["ano", "sigla_uf", "id_municipio"]
+
+    UF_PATTERN = re.compile(r"[(-]\s*([A-Z]{2})\)?$")
+
     NULL_VALUES = ("-", "..", "...", "X", "")
 
-    # Unidades da variável 215 (valor da produção). A coluna `unidade` descreve a
-    # quantidade produzida, então a moeda do ano não entra nela.
     MONETARY_UNITS = (
         "Mil Cruzeiros",
         "Mil Cruzados",
@@ -32,15 +33,6 @@ class constants(Enum):
         "Mil Reais",
     )
 
-    # Uma entrada por tabela. `series` lista as requisições que compõem a tabela:
-    # cada uma é um par agregado/variável do SIDRA e a coluna que ela alimenta.
-    # `unit_column` marca a variável de onde sai a coluna `unidade`, e
-    # `integer_columns` as colunas que a staging declara como `INT64` — o resto
-    # do parquet sai como texto.
-    #
-    # As categorias são as da classificação, menos os subtotais que a API
-    # publica junto: `0` (Total) nas três classificações e `79366` (Peixes) na
-    # aquicultura, que somam as categorias seguintes e dobrariam a produção.
     TABLES = {
         "efetivo_rebanhos": {
             "integer_columns": ["quantidade"],

@@ -7,7 +7,6 @@ linhas antes do upload.
 """
 
 import json
-import re
 import shutil
 from functools import reduce
 from pathlib import Path
@@ -21,12 +20,6 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 from pipelines.datasets.br_ibge_ppm.constants import constants
-
-KEY_COLUMNS = ["ano", "sigla_uf", "id_municipio"]
-
-# "São Paulo (SP)" é o formato atual do nome da localidade; "São Paulo - SP" é o
-# que a API devolvia antes, e o que o código anterior esperava.
-UF_PATTERN = re.compile(r"[(-]\s*([A-Z]{2})\)?$")
 
 
 def build_session() -> requests.Session:
@@ -113,9 +106,14 @@ def get_source_max_date(table_id: str) -> str:
             timeout=120,
         )
         response.raise_for_status()
-        anos.append(int(response.json()["periodicidade"]["fim"]))
 
-    return str(min(anos))
+        periodicidade_anos = int(response.json()["periodicidade"]["fim"])
+
+        anos.append(periodicidade_anos)
+
+    date_str = str(min(anos))
+
+    return date_str
 
 
 def resolve_years(
@@ -246,7 +244,7 @@ def parse_uf(nome: str) -> str:
     Raises:
         ValueError: Se o nome não terminar com a sigla.
     """
-    match = UF_PATTERN.search(nome.strip())
+    match = constants.UF_PATTERN.value.search(nome.strip())
     if not match:
         raise ValueError(f"não achei a sigla da UF em {nome!r}")
     return match.group(1)
@@ -256,6 +254,7 @@ def build_row(
     serie: dict[str, Any],
     series: dict[str, Any],
     ano: str,
+    label_column: str | None,
     label: str | None,
     unidade: str | None,
 ) -> dict[str, str | None]:
@@ -265,6 +264,8 @@ def build_row(
         serie: Série de um município, como a API a devolve.
         series: Especificação da série.
         ano: Ano pedido, no formato `%Y`.
+        label_column: Coluna que recebe o nome da categoria, ou `None` quando o
+            agregado não tem classificação.
         label: Nome da categoria, quando o agregado tem classificação.
         unidade: Unidade da variável, quando a série carrega a coluna.
 
@@ -285,8 +286,8 @@ def build_row(
         "id_municipio": serie["localidade"]["id"],
         series["column"]: serie["serie"][ano],
     }
-    if label is not None:
-        row[series["label_column"]] = label
+    if label_column is not None and label is not None:
+        row[label_column] = label
     if series.get("unit_column"):
         row[series["unit_column"]] = unidade
     return row
@@ -311,7 +312,6 @@ def parse_series(
         Uma linha por município, com as colunas de chave, a coluna de valor da
         série e, quando a série carrega a unidade, a coluna `unidade`.
     """
-    series = {**series, "label_column": label_column}
     linhas = []
 
     for variavel in payload:
@@ -333,7 +333,8 @@ def parse_series(
                     serie,
                     series,
                     ano,
-                    label if label_column else None,
+                    label_column,
+                    label,
                     unidade,
                 )
                 for serie in resultado["series"]
@@ -404,7 +405,9 @@ def clean_table(table_id: str, ano: str) -> Path:
     if not partes:
         raise ValueError(f"{table_id}: a fonte não devolveu dado para {ano}")
 
-    chaves = KEY_COLUMNS + ([label_column] if label_column else [])
+    chaves = constants.KEY_COLUMNS.value + (
+        [label_column] if label_column else []
+    )
     dataframe = reduce(
         lambda esquerda, direita: esquerda.merge(
             direita, on=chaves, how="outer"
@@ -416,8 +419,6 @@ def clean_table(table_id: str, ano: str) -> Path:
     for column in valores:
         if column not in dataframe.columns:
             dataframe[column] = None
-    # Dicionário, e não lista: `replace(lista, None)` faz o pandas preencher
-    # para baixo em vez de anular.
     dataframe[valores] = dataframe[valores].replace(
         dict.fromkeys(constants.NULL_VALUES.value)
     )
@@ -491,8 +492,6 @@ def write_partitions(
         partition.mkdir(parents=True, exist_ok=True)
 
         group = group.drop(columns=partition_columns)
-        # `astype(str)` escreveria NULL como a string "nan", e `astype(int)` não
-        # aceita nulo; o `Int64` do pandas é inteiro que admite ausente.
         for column in group.columns:
             group[column] = (
                 pd.to_numeric(group[column]).astype("Int64")

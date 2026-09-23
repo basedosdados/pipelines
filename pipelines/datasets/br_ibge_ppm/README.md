@@ -27,6 +27,12 @@ Até onde a fonte publicou está em `/agregados/<id>/metadados`, no campo `perio
 Numa tabela que junta dois agregados vale o menor dos dois anos: a linha só se monta quando os
 dois lados existem.
 
+`constants.TABLES` guarda esse mapa. Cada tabela lista as suas `series` — um par
+agregado/variável, a coluna que a série alimenta e as categorias a pedir —, as colunas na
+ordem publicada, a coluna de partição, a de rótulo da categoria e o primeiro ano da série.
+`unit_column` marca a série de onde sai a `unidade`; `integer_columns`, as colunas que a
+staging declara `INT64`.
+
 ## Tratamento
 
 **Subtotais ficam de fora.** As três classificações publicam a categoria `0` (Total), e a da
@@ -41,7 +47,8 @@ modelos aceitam.
 que a API usa: `São Paulo (SP)` e `São Paulo - SP`.
 
 **`-`, `..`, `...` e `X` viram nulo.** São os símbolos da API para dado inexistente, valor
-arredondado a zero e dado omitido.
+arredondado a zero e dado omitido. A troca usa dicionário, e não lista: `replace(lista, None)`
+faz o pandas preencher para baixo em vez de anular.
 
 **A `unidade` de `producao_origem_animal` sai da variável 106.** Ela descreve o produto
 (`Mil litros` para leite, `Mil dúzias` para ovos), enquanto a variável 215 traz a moeda do ano
@@ -64,7 +71,8 @@ Passar a staging para texto, como manda a convenção da casa, exige apagar as t
 tipados.
 
 Nas colunas de texto o nulo é gravado como `None` — `astype(str)` escreveria a string `"nan"`,
-que o `safe_cast` do `.sql` não desfaz.
+que o `safe_cast` do `.sql` não desfaz. Nas numéricas o tipo é o `Int64` do pandas, inteiro que
+admite ausente, porque `astype(int)` não aceita nulo.
 
 ## Atualização
 
