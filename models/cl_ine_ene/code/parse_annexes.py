@@ -53,6 +53,8 @@ FOOTNOTE = re.compile(
 #: applies the fix or reports that it is no longer needed.
 ANNEX_FIXES = {
     "pode r ejecutivo": "poder ejecutivo",
+    # CAENES section G, one of the most frequent industry codes.
+    "Comerci o al por mayor": "Comercio al por mayor",
 }
 
 APPLIES_TO = {

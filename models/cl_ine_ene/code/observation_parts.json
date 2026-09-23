@@ -95,14 +95,14 @@
   "source": "Número de línea de persona Corresponde al orden con el cual la persona fue",
   "undocumented": [],
   "retired": [],
-  "description_is_mine": false
+  "description_is_mine": true
  },
  "proveedor": {
   "override": "",
   "source": "",
   "undocumented": [],
   "retired": [],
-  "description_is_mine": false
+  "description_is_mine": true
  },
  "parentesco": {
   "override": "",
@@ -183,7 +183,7 @@
    "0"
   ],
   "retired": [],
-  "description_is_mine": false
+  "description_is_mine": true
  },
  "orig1": {
   "override": "",
@@ -246,7 +246,7 @@
   "source": "",
   "undocumented": [],
   "retired": [],
-  "description_is_mine": false
+  "description_is_mine": true
  },
  "edu3": {
   "override": "",
@@ -940,7 +940,7 @@
   "source": "",
   "undocumented": [],
   "retired": [],
-  "description_is_mine": false
+  "description_is_mine": true
  },
  "c9": {
   "override": "",
@@ -1107,7 +1107,7 @@
   "source": "1 – 11 Variable construida a partir de sumatoria",
   "undocumented": [],
   "retired": [],
-  "description_is_mine": false
+  "description_is_mine": true
  },
  "e4": {
   "override": "",
@@ -1310,7 +1310,7 @@
   "source": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2021c",
   "undocumented": [],
   "retired": [],
-  "description_is_mine": false
+  "description_is_mine": true
  },
  "asocia": {
   "override": "",
@@ -1417,7 +1417,7 @@
   "source": "0 – 7 Incorporada como nueva dimensión de análisis, véase",
   "undocumented": [],
   "retired": [],
-  "description_is_mine": false
+  "description_is_mine": true
  },
  "cdi": {
   "override": "",
@@ -1584,7 +1584,7 @@
    "0"
   ],
   "retired": [],
-  "description_is_mine": false
+  "description_is_mine": true
  },
  "r_p_rev4cl_caenes": {
   "override": "",
@@ -1831,7 +1831,7 @@
    "2020-06",
    "2021-11"
   ],
-  "description_is_mine": false
+  "description_is_mine": true
  },
  "b11": {
   "override": "",
@@ -1937,13 +1937,13 @@
  },
  "e16_ciuo08": {
   "override": "",
-  "source": "Producida entre",
+  "source": "",
   "undocumented": [],
   "retired": [
    "2017-02",
    "2019-11"
   ],
-  "description_is_mine": false
+  "description_is_mine": true
  },
  "e17": {
   "override": "",
@@ -1977,13 +1977,13 @@
  },
  "e19_otro": {
   "override": "",
-  "source": "Descontinuada. Producida entre Inicialmente estas preguntas se incorporaron para caracterizar impacto de pandemia de COVID-19 en la pérdida de ocupaciones. Se mantuvieron en el tiempo dada la utilidad analítica respecto al análisis de la anterior ocupación",
+  "source": "",
   "undocumented": [],
   "retired": [
    "2010-02",
    "2019-11"
   ],
-  "description_is_mine": false
+  "description_is_mine": true
  },
  "id": {
   "override": "",
@@ -2007,7 +2007,7 @@
  },
  "b1_ciuo88": {
   "override": "",
-  "source": "Producida",
+  "source": "",
   "undocumented": [],
   "retired": [
    "2010-02",
@@ -2017,13 +2017,13 @@
  },
  "e16_ciuo88": {
   "override": "",
-  "source": "Producida entre",
+  "source": "",
   "undocumented": [],
   "retired": [
    "2010-02",
    "2019-02"
   ],
-  "description_is_mine": false
+  "description_is_mine": true
  },
  "region_15": {
   "override": "",
@@ -2154,7 +2154,7 @@
    "2010-02",
    "2016-11"
   ],
-  "description_is_mine": false
+  "description_is_mine": true
  },
  "b14_ciiu_rev3": {
   "override": "",
@@ -2164,7 +2164,7 @@
    "2010-02",
    "2016-11"
   ],
-  "description_is_mine": false
+  "description_is_mine": true
  },
  "e18_ciiu_rev3": {
   "override": "",

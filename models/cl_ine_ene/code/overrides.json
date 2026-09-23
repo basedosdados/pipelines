@@ -40,7 +40,22 @@
     "ano_encuesta": "Año del período de recolección de datos",
     "mes_encuesta": "Mes del período de recolección de datos, de 1 a 12",
     "orig2": "Pueblo indígena u originario al que la persona declara pertenecer",
-    "orig3": "Pueblo indígena u originario declarado, cuando orig2 es «Otro»"
+    "orig3": "Pueblo indígena u originario declarado, cuando orig2 es «Otro»",
+    "nro_linea": "Número de línea de la persona dentro del cuestionario",
+    "nacionalidad": "Nacionalidad de la persona encuestada",
+    "proveedor": "Indica si la persona es la proveedora económica principal del hogar",
+    "sector": "Sector institucional de la ocupación",
+    "edu2": "Nivel educacional al que corresponde el curso declarado",
+    "c8": "Cuántas horas menos de las habituales trabajó la semana pasada",
+    "e3_total": "Número de gestiones de búsqueda de empleo realizadas, suma de las respuestas afirmativas entre e3_1 y e3_12",
+    "i13_total": "Número de medidas de financiamiento de gastos del hogar, suma de las respuestas afirmativas entre i13_1 e i13_11",
+    "n_dependencias": "Número total de ámbitos de dependencia económica u organizativa observados en la ocupación principal de una persona ocupada independiente",
+    "ocup_honorarios": "Por el trabajo realizado, ¿entregó una boleta de honorarios?",
+    "e16_ciuo08": "Grupo ocupacional del empleo anterior según CIUO-08",
+    "e16_ciuo88": "Grupo ocupacional del empleo anterior según CIUO-88",
+    "b13_ciiu_rev3": "Rama de actividad económica de la empresa según CIIU Rev. 3",
+    "b14_ciiu_rev3": "Rama de actividad económica de la empresa que paga el sueldo, según CIIU Rev. 3",
+    "e19_otro": "Especifica e19 = Otras razones de despido o de renuncia"
   },
   "observations": {
     "ano": "Columna de partición. Es el año del mes CENTRAL del trimestre móvil, no el año de la entrevista: el trimestre centrado en enero abarca diciembre del año anterior. Nombre en la fuente: ano_trimestre",

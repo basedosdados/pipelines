@@ -173,10 +173,26 @@ SALVAGEABLE = re.compile(
 )
 
 
+#: A salvaged clause that ends on a preposition or conjunction was cut mid-sentence
+#: ("Producida entre"). Publishing it says less than nothing, and translating it
+#: would mean inventing the missing half.
+TRUNCATED_TAIL = re.compile(
+    r"\b(entre|desde|hasta|de|del|para|por|con|a|en|y|o)$", re.I
+)
+
+
 def salvage(text: str) -> str:
     """Keep a trailing well-formed sentence out of a flattening jumble, else nothing."""
     match = SALVAGEABLE.search(text)
-    return match.group(1).strip(" .") if match else ""
+    if not match:
+        return ""
+    kept = match.group(1).strip(" .")
+    # One or two words is a stub, not a sentence: the salvage regex anchors on a
+    # leading keyword, so "Producida entre EFM 2010 y OND 2019" survives while a
+    # bare "Producida" does not.
+    if len(kept.split()) < 3 or TRUNCATED_TAIL.search(kept):
+        return ""
+    return kept
 
 
 def clean_observation(text: str) -> str:
@@ -192,7 +208,13 @@ def clean_observation(text: str) -> str:
             kept.append(sentence.strip())
     text = " ".join(kept).strip(" .;")
     if text and GARBLED_START.match(text):
-        return salvage(text)
+        text = salvage(text)
+    # The noise patterns above can over-consume — "Ver detalle ... en Anexo
+    # Descontinuada. Producida" has no period before "Descontinuada", so stripping
+    # the cross-reference takes it too and leaves the bare stub "Producida".
+    # Whatever the route, a one- or two-word remnant is not an observation.
+    if len(text.split()) < 3 or TRUNCATED_TAIL.search(text.strip(" .")):
+        return ""
     return text
 
 
@@ -238,7 +260,10 @@ def build(universe, codebook, profile):
         if description:
             description = description[0].upper() + description[1:]
 
-        stats = profile.get(source_name, {})
+        # build_profile.py reads the cleaned parquet, whose columns already carry
+        # the published names, so a renamed column has no entry under its source
+        # name — and the numeric checks below would silently skip it.
+        stats = profile.get(name) or profile.get(source_name, {})
         observed = set(stats.get("values", []))
 
         if name in NUMERIC:

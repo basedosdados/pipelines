@@ -27,6 +27,7 @@ from pipelines.datasets.cl_ine_ene.constants import constants
 from pipelines.datasets.cl_ine_ene.tasks import (
     anchor_fingerprint,
     download_and_clean,
+    last_ingested_period,
     probe_source_max_period,
 )
 from pipelines.utils.metadata.domain import (
@@ -116,11 +117,12 @@ def cl_ine_ene_flow(
             date_format="%Y-%m",
             compare_against="coverage",
         )
-        if not has_new_data and not force_run and not full_refresh:
-            return
 
-        # Guard against a silent rewrite of the whole back-series. Skipped on a
-        # full refresh, which is the remedy rather than the thing being guarded.
+        # Guard against a silent rewrite of the whole back-series. This runs BEFORE
+        # the no-new-data return: a recalibration republishes the history without
+        # adding a quarter, so the poll reports nothing new and that is precisely
+        # the case the canary exists to catch. Skipped only on a full refresh,
+        # which is the remedy rather than the thing being guarded.
         if not full_refresh:
             fingerprint = anchor_fingerprint(work_dir=work_dir)
             drifted = (
@@ -139,11 +141,37 @@ def cl_ine_ene_flow(
                     "quarter would leave superseded weights in every older partition."
                 )
 
-        first = (
-            f"{constants.FIRST_PERIOD.value[0]}-{constants.FIRST_PERIOD.value[1]:02d}"
-            if full_refresh
-            else source_max
+        if not has_new_data and not force_run and not full_refresh:
+            return
+
+        series_start = (
+            f"{constants.FIRST_PERIOD.value[0]}-"
+            f"{constants.FIRST_PERIOD.value[1]:02d}"
         )
+        if full_refresh:
+            first = series_start
+        else:
+            # Resume from the quarter after the newest one already ingested, not
+            # from the source's newest. The poll only reports THAT the source is
+            # ahead, never by how much, so starting at source_max would silently
+            # skip every period that appeared while the flow was paused or failing.
+            bq_project = (
+                "basedosdados" if materialize_to_prod else "basedosdados-dev"
+            )
+            last = last_ingested_period(bq_project=bq_project)
+            if last is None:
+                first = series_start
+            else:
+                year, month = (int(part) for part in last.split("-"))
+                year, month = (
+                    (year + 1, 1) if month == 12 else (year, month + 1)
+                )
+                first = f"{year}-{month:02d}"
+            if first > source_max:
+                print(
+                    f"nothing to ingest: already hold {last}, source has {source_max}"
+                )
+                return
         result = download_and_clean(
             work_dir=work_dir, first=first, last=source_max
         )

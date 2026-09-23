@@ -20,6 +20,24 @@
     "pt": "Não coincide necessariamente com ano: no trimestre móvel centrado em janeiro a coleta abrange dezembro do ano anterior"
    }
   },
+  "b13_ciiu_rev3": {
+   "description": {
+    "en": "Industry of the firm under ISIC Rev. 3",
+    "pt": "Ramo de atividade econômica da empresa segundo a CIIU Rev. 3"
+   }
+  },
+  "b14_ciiu_rev3": {
+   "description": {
+    "en": "Industry of the firm paying the wage, under ISIC Rev. 3",
+    "pt": "Ramo de atividade econômica da empresa que paga o salário, segundo a CIIU Rev. 3"
+   }
+  },
+  "c8": {
+   "description": {
+    "en": "How many fewer hours than usual the person worked last week",
+    "pt": "Quantas horas a menos do que o habitual trabalhou na semana passada"
+   }
+  },
   "categoria_ocupacion": {
    "description": {
     "en": "Status in employment, under the Chilean adaptation of the International Classification of Status in Employment (ICSE-93)",
@@ -32,16 +50,46 @@
     "pt": "Contratante dependente"
    }
   },
+  "e16_ciuo08": {
+   "description": {
+    "en": "Major occupational group of the previous job under ISCO-08",
+    "pt": "Grande grupo ocupacional do emprego anterior segundo a CIUO-08"
+   }
+  },
+  "e16_ciuo88": {
+   "description": {
+    "en": "Major occupational group of the previous job under ISCO-88",
+    "pt": "Grande grupo ocupacional do emprego anterior segundo a CIUO-88"
+   }
+  },
   "e18_ciiu_rev3": {
    "description": {
     "en": "Industry of the previous job, under ISIC Rev. 3",
     "pt": "Ramo de atividade econômica do emprego anterior, segundo a CIIU Rev. 3"
    }
   },
+  "e19_otro": {
+   "description": {
+    "en": "Specifies e19 = Other reasons for dismissal or resignation",
+    "pt": "Especifica e19 = Outros motivos de demissão ou de pedido de demissão"
+   }
+  },
+  "e3_total": {
+   "description": {
+    "en": "Number of job search steps taken, summing the affirmative answers across e3_1 to e3_12",
+    "pt": "Número de providências de procura de emprego realizadas, soma das respostas afirmativas entre e3_1 e e3_12"
+   }
+  },
   "edad": {
    "description": {
     "en": "Age of the person during the survey's reference week, 0 to 120 years",
     "pt": "Idade da pessoa durante a semana de referência da pesquisa, de 0 a 120 anos"
+   }
+  },
+  "edu2": {
+   "description": {
+    "en": "Educational level the declared grade corresponds to",
+    "pt": "Nível educacional a que corresponde a série declarada"
    }
   },
   "efectivas": {
@@ -106,6 +154,12 @@
    "observations": {
     "en": "STRING rather than INT64 because the column mixes hours with the non-response codes 888 (does not know) and 999 (no answer): casting it to an integer would leave those as 888- and 999-hour working weeks. Filter both values out before doing arithmetic. Built from c2_1_1, c2_1_2 and c2_1_3",
     "pt": "STRING e não INT64 porque a coluna mistura horas com os códigos de não resposta 888 (Não sabe) e 999 (Não responde): convertê-la para inteiro os deixaria como jornadas de 888 e 999 horas. Filtre esses dois valores antes de fazer aritmética. Variável construída a partir de c2_1_1, c2_1_2 e c2_1_3"
+   }
+  },
+  "i13_total": {
+   "description": {
+    "en": "Number of measures to fund household expenses, summing the affirmative answers across i13_1 to i13_11",
+    "pt": "Número de medidas para financiar as despesas do domicílio, soma das respostas afirmativas entre i13_1 e i13_11"
    }
   },
   "id": {
@@ -226,10 +280,34 @@
     "pt": "País em que vivia sua mãe quando a pessoa nasceu"
    }
   },
+  "n_dependencias": {
+   "description": {
+    "en": "Total count of economic or organisational dependence dimensions observed in the main job of an independent employed person",
+    "pt": "Número total de âmbitos de dependência econômica ou organizacional observados na ocupação principal de uma pessoa ocupada independente"
+   }
+  },
+  "nacionalidad": {
+   "description": {
+    "en": "Nationality of the respondent",
+    "pt": "Nacionalidade da pessoa entrevistada"
+   }
+  },
   "nivel": {
    "description": {
     "en": "Highest educational level completed",
     "pt": "Nível educacional mais alto aprovado"
+   }
+  },
+  "nro_linea": {
+   "description": {
+    "en": "Person's line number within the questionnaire",
+    "pt": "Número de linha da pessoa dentro do questionário"
+   }
+  },
+  "ocup_honorarios": {
+   "description": {
+    "en": "For the work done, did you issue a professional fee receipt?",
+    "pt": "Pelo trabalho realizado, emitiu recibo de honorários?"
    }
   },
   "orig2": {
@@ -244,6 +322,12 @@
     "pt": "Povo indígena ou originário declarado, quando orig2 é «Outro»"
    }
   },
+  "proveedor": {
+   "description": {
+    "en": "Whether the person is the household's main economic provider",
+    "pt": "Indica se a pessoa é a provedora econômica principal do domicílio"
+   }
+  },
   "r_p_c_15": {
    "description": {
     "en": "Commune code under the 15-region division",
@@ -254,6 +338,12 @@
    "description": {
     "en": "Region code under the 15-region division",
     "pt": "Código da região sob a divisão de 15 regiões"
+   }
+  },
+  "sector": {
+   "description": {
+    "en": "Institutional sector of the job",
+    "pt": "Setor institucional da ocupação"
    }
   }
  },
@@ -641,10 +731,6 @@
   "Especifica e12 = Otras razones de no disponibilidad Solo responden no ocupados/as": {
    "en": "Specifies e12 = Other reasons for unavailability. Answered only by the non-employed",
    "pt": "Especifica e12 = Outros motivos de indisponibilidade. Respondem apenas os não ocupados"
-  },
-  "Especifica e19 = Otras razones de despido o de renuncia EFM 2010 y OND 2019": {
-   "en": "Specifies e19 = Other reasons for dismissal or resignation. EFM 2010 to OND 2019",
-   "pt": "Especifica e19 = Outros motivos de demissão ou de pedido de demissão. EFM 2010 a OND 2019"
   },
   "Especifica e9 = Otras razones de no búsqueda Solo responden no ocupados/as": {
    "en": "Specifies e9 = Other reasons for not searching. Answered only by the non-employed",
@@ -1037,14 +1123,6 @@
   "Pregunta abierta Variable incorporada a partir Véase INE, 2022b": {
    "en": "Open-ended question. Added from the EFM 2020 quarter on. See INE, 2022b",
    "pt": "Pergunta aberta. Variável incorporada a partir do trimestre EFM 2020. Ver INE, 2022b"
-  },
-  "Producida": {
-   "en": "Produced by INE",
-   "pt": "Produzida pelo INE"
-  },
-  "Producida entre": {
-   "en": "Produced by INE",
-   "pt": "Produzida pelo INE"
   },
   "Producida entre EFM 2010 y OND 2019": {
    "en": "Produced between EFM 2010 and OND 2019",

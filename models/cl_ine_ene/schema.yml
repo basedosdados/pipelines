@@ -335,10 +335,10 @@ models:
           - not_null
       - name: nro_linea
         description: >
-          Identificada en el cuestionario. 6  Disponible en https://www.bcn.cl/leychile/navegar?idNorma=1115064
+          Número de línea de la persona dentro del cuestionario
       - name: proveedor
         description: >
-          Señala al proveedor económico principal del
+          Indica si la persona es la proveedora económica principal del hogar
       - name: parentesco
         description: >
           Parentesco con proveedor/a principal del hogar
@@ -375,7 +375,7 @@ models:
           País en que vivía su madre cuando la persona nació
       - name: nacionalidad
         description: >
-          Nacionalidad del Módulo A: Situación laboral en la semana de referencia Variable Nombre variable Cód. Nombre del código
+          Nacionalidad de la persona encuestada
       - name: orig1
         description: >
           ¿Se considera perteneciente a algún pueblo indígena u originario?
@@ -402,7 +402,7 @@ models:
           ¿Cuál es el curso o año más alto aprobado?
       - name: edu2
         description: >
-          ¿A cuál de los siguientes niveles
+          Nivel educacional al que corresponde el curso declarado
       - name: edu3
         description: >
           ¿Terminó el nivel antes declarado?
@@ -681,7 +681,7 @@ models:
           La semana pasada, ¿trabajó menos horas que las habituales en su actividad principal?
       - name: c8
         description: >
-          ¿Cuántas horas menos de las
+          Cuántas horas menos de las habituales trabajó la semana pasada
       - name: c9
         description: >
           ¿Cuál fue la principal razón por la cual trabajó un número de horas diferente a lo habitual durante la semana pasada en su actividad principal?
@@ -747,7 +747,7 @@ models:
           Gestión de búsqueda de empleo: Nada
       - name: e3_total
         description: >
-          Número de gestiones realizadas para buscar empleo de valores afirmativos entre e3_1 y
+          Número de gestiones de búsqueda de empleo realizadas, suma de las respuestas afirmativas entre e3_1 y e3_12
       - name: e4
         description: >
           ¿Cuál es el motivo principal por el cual está buscando otro trabajo?
@@ -828,7 +828,7 @@ models:
           ¿El pago por su actividad principal fue a través de sueldo, salario o jornal?
       - name: ocup_honorarios
         description: >
-          Por el trabajo realizado, ¿entregó una boleta de honorarios?'
+          Por el trabajo realizado, ¿entregó una boleta de honorarios?
       - name: asocia
         description: >
           Participante en organizaciones de trabajadores
@@ -873,7 +873,7 @@ models:
           Persona ocupada dependiente con riesgo económico
       - name: n_dependencias
         description: >
-          Ámbitos totales de dependencia económica y/u organizativas observadas en la INE (2026). ocupación principal de persona ocupada independiente
+          Número total de ámbitos de dependencia económica u organizativa observados en la ocupación principal de una persona ocupada independiente
       - name: cdi
         description: >
           Contratista dependiente clasificado/a como cuenta propia
@@ -942,7 +942,7 @@ models:
           Ocupado/a según formalidad de su ocupación
       - name: sector
         description: >
-          Institucional
+          Sector institucional de la ocupación
       - name: r_p_rev4cl_caenes
         description: >
           Rama de actividad económica de la empresa o institución que le paga el sueldo o de la que es dueña la persona ocupada (ajustada)
@@ -1018,7 +1018,7 @@ models:
           Medidas de financiamiento de gastos del hogar: No responde
       - name: i13_total
         description: >
-          Número de medidas de financiamiento de gastos del hogar y OND2021. de valores afirmativos entre i13_1 y
+          Número de medidas de financiamiento de gastos del hogar, suma de las respuestas afirmativas entre i13_1 e i13_11
       - name: b11
         description: >
           Al momento de recibir sus ingresos
@@ -1051,7 +1051,7 @@ models:
           ¿Durante cuánto tiempo trabajó en ese empleo o actividad por cuenta propia? En años
       - name: e16_ciuo08
         description: >
-          Grupo ocupacional del empleo EFM 2010 y OND 2019
+          Grupo ocupacional del empleo anterior según CIUO-08
       - name: e17
         description: >
           ¿En cuál de las siguientes categorías se encontraba en ese trabajo?
@@ -1063,7 +1063,7 @@ models:
           ¿Por qué dejó ese empleo, negocio o actividad por cuenta propia?
       - name: e19_otro
         description: >
-          Especifica e19 = Otras razones de despido o de renuncia EFM 2010 y OND 2019
+          Especifica e19 = Otras razones de despido o de renuncia
       - name: id
         description: >
           Identificador interno de registro de la base de datos
@@ -1075,7 +1075,7 @@ models:
           Grupo de ocupación según CIUO-88 entre EFM 2010 y EFM 2019
       - name: e16_ciuo88
         description: >
-          Grupo ocupacional del empleo EFM 2010 y EFM 2019
+          Grupo ocupacional del empleo anterior según CIUO-88
       - name: region_15
         description: >
           Código de la región bajo la división de 15 regiones
@@ -1108,10 +1108,10 @@ models:
           En ese empleo, le otorgan servicio de guarderías infantiles
       - name: b13_ciiu_rev3
         description: >
-          Rama de actividad económica de empresa que entre EFM 2010 y OND 2016
+          Rama de actividad económica de la empresa según CIIU Rev. 3
       - name: b14_ciiu_rev3
         description: >
-          Rama de actividad económica de empresa Rev. 3 entre EFM 2010 y OND 2016
+          Rama de actividad económica de la empresa que paga el sueldo, según CIIU Rev. 3
       - name: e18_ciiu_rev3
         description: >
           Rama de actividad económica del empleo anterior, según CIIU Rev. 3

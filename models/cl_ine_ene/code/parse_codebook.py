@@ -49,6 +49,12 @@ PATTERN = re.compile(
 CODE = re.compile(
     r"^\s*(\d{1,5})\s*[:.\-\u2013]\s*(.+?)\s*$"
 )  # ":" mostly, but the PDF also has "1." and an en dash
+#: A numbered section heading ("5.3.3 Informalidad laboral", "6.1 Indicadores")
+#: is indistinguishable from a code once CODE accepts "." as a separator: it parses
+#: as code 5 with the label "3.3 Informalidad laboral". That is how `activ` — whose
+#: only real values are 1, 2 and 3 — acquired a category 5 reading "4.2 Factores de
+#: expansión". Reject headings before CODE ever sees them.
+SECTION_HEADING = re.compile(r"^\s*\d+(\.\d+)+\s+[A-ZÁÉÍÓÚÑ]")
 INLINE_FIRST_CODE = re.compile(r"^(.*?\S)\s+(\d{1,5}):\s*(\S.*)$")
 # A value RANGE ("1 - 168", "2010 - 2026") flattens to look exactly like a
 # code/label pair once the en dash is lost. Checked AFTER the Observaciones tail
@@ -102,7 +108,11 @@ def parse(year: int):
             desc, cats, obs = [], [], []
             for raw in text[end_of_name:stop].splitlines():
                 line = raw.strip()
-                if not line or NOISE.match(line.lower()):
+                if (
+                    not line
+                    or NOISE.match(line.lower())
+                    or SECTION_HEADING.match(line)
+                ):
                     continue
                 m = CODE.match(line)
                 if m:
