@@ -368,7 +368,10 @@ def write_csv(table: str, rows: list[dict[str, str]]) -> None:
     ARCHITECTURE_DIR.mkdir(parents=True, exist_ok=True)
     path = ARCHITECTURE_DIR / f"{table}.csv"
     with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=FIELDS)
+        # csv.writer defaults to a \r\n terminator, which the repo's
+        # mixed-line-ending hook rewrites on every commit. Emit LF so
+        # regenerating the architecture is a no-op against a clean tree.
+        writer = csv.DictWriter(handle, fieldnames=FIELDS, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
     print(f"  {table:18s} {len(rows):>4d} columns -> {path.name}")

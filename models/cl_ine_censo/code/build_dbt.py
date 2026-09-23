@@ -10,6 +10,9 @@ the primary keys, and the non-null proportions that decide `ignore_values`.
 from __future__ import annotations
 
 import csv
+import subprocess
+import sys
+from pathlib import Path
 
 from constants import ARCHITECTURE_DIR, CENSUS_YEAR, DATASET_ID
 
@@ -259,7 +262,32 @@ def build_schema() -> str:
     return "\n".join(out) + "\n"
 
 
+def run_repo_hooks(paths):
+    """Hand the generated files to the repo's own pre-commit hooks.
+
+    sqlfmt wraps the long safe_cast lines this generator emits, and yamlfix
+    reformats schema.yml. Both are pinned in .pre-commit-config.yaml, so
+    running them here - rather than reimplementing their formatting - keeps
+    regeneration a no-op against a clean tree instead of a fight with CI.
+
+    Uses the venv's pre-commit directly. Never `uv run`, which re-syncs the
+    shared venv and has broken dbt and both MCP servers mid-session.
+    """
+    pre_commit = Path(sys.executable).parent / "pre-commit"
+    if not pre_commit.exists():
+        print("  (pre-commit not found; run it before committing)")
+        return
+    subprocess.run(
+        [str(pre_commit), "run", "--files", *[str(p) for p in paths]],
+        check=False,
+        capture_output=True,
+        cwd=MODEL_DIR.parent.parent,
+    )
+    print(f"  repo hooks applied to {len(paths)} file(s)")
+
+
 def main() -> None:
+    written: list[Path] = []
     for table in (
         "persona",
         "hogar",
@@ -270,11 +298,15 @@ def main() -> None:
     ):
         path = MODEL_DIR / f"{DATASET_ID}__{table}.sql"
         path.write_text(build_sql(table), encoding="utf-8")
+        written.append(path)
         print(f"  {path.name}")
 
     schema = MODEL_DIR / "schema.yml"
     schema.write_text(build_schema(), encoding="utf-8")
+    written.append(schema)
     print(f"  {schema.name}")
+
+    run_repo_hooks(written)
 
 
 if __name__ == "__main__":

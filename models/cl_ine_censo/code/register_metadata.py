@@ -194,8 +194,8 @@ def existing_state(env: str) -> dict:
 
 
 def register(env: str, gcp_project: str) -> None:
-    IDS = IDS_BY_ENV[env]
-    ENTITIES = ENTITIES_BY_ENV[env]
+    ids = IDS_BY_ENV[env]
+    entities = ENTITIES_BY_ENV[env]
     state = existing_state(env)
     tables_state = state.get("tables", {})
     aux = auxiliary_urls()
@@ -211,17 +211,17 @@ def register(env: str, gcp_project: str) -> None:
         result = server.create_update_table(
             id=table_id,
             slug=slug,
-            dataset_id=IDS["dataset"],
+            dataset_id=ids["dataset"],
             name_pt=name_pt,
             name_en=name_en,
             name_es=name_es,
             description_pt=desc_pt,
             description_en=desc_en,
             description_es=desc_es,
-            status_id=IDS["status_table"],
-            published_by_ids=[IDS["account"]],
-            data_cleaned_by_ids=[IDS["account"]],
-            raw_data_source_ids=[IDS["raw_data_source"]],
+            status_id=ids["status_table"],
+            published_by_ids=[ids["account"]],
+            data_cleaned_by_ids=[ids["account"]],
+            raw_data_source_ids=[ids["raw_data_source"]],
             auxiliary_files_url=aux.get(slug),
             env=env,
         )
@@ -240,7 +240,7 @@ def register(env: str, gcp_project: str) -> None:
             level = server.create_update_observation_level(
                 id=existing_levels.get(entity_slug),
                 table_id=table_id,
-                entity_id=ENTITIES[entity_slug],
+                entity_id=entities[entity_slug],
                 env=env,
             )
             if isinstance(level, str):
@@ -312,7 +312,7 @@ def register(env: str, gcp_project: str) -> None:
         cov = server.create_update_coverage(
             id=coverage.get("id"),
             table_id=table_id,
-            area_id=IDS["area_cl"],
+            area_id=ids["area_cl"],
             env=env,
         )
         if isinstance(cov, str):
