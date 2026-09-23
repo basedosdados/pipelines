@@ -54,30 +54,23 @@ TABLE_DESCRIPTIONS = {
 }
 
 # The logical key of each table, for the uniqueness test.
+#
+# The county tables key on state_id + county_name + county_id, not county_id
+# alone. county_id is NULL for the handful of rows SSA publishes with no
+# resolvable code -- the "Unknown" county rows and entities abolished before
+# ANSI codes were first published -- and dbt's uniqueness test groups NULLs
+# together, so county_id alone collides across those rows. Adding the name and
+# the state separates them, while county_id still separates Baltimore county
+# from Baltimore city, which share a name and a state.
 UNIQUE_KEYS = {
-    "oasdi_county": ["year", "county_id", "benefit_type", "age_group", "sex"],
-    "oasdi_state": [
-        "year",
-        "state_or_area",
-        "benefit_type",
-        "age_group",
-        "sex",
-    ],
+    "oasdi_county": ["year", "state_id", "county_name", "county_id",
+                     "benefit_type", "age_group", "sex"],
+    "oasdi_state": ["year", "state_or_area", "benefit_type", "age_group", "sex"],
     "oasdi_population_share": ["year", "state_or_area", "population_group"],
-    "ssi_county": [
-        "year",
-        "county_id",
-        "eligibility_category",
-        "age_group",
-        "oasdi_concurrent",
-    ],
-    "ssi_state": [
-        "year",
-        "state_or_area",
-        "eligibility_category",
-        "age_group",
-        "oasdi_concurrent",
-    ],
+    "ssi_county": ["year", "state_id", "county_name", "county_id",
+                   "eligibility_category", "age_group", "oasdi_concurrent"],
+    "ssi_state": ["year", "state_or_area", "eligibility_category", "age_group",
+                  "oasdi_concurrent"],
 }
 
 NOT_NULL = {
