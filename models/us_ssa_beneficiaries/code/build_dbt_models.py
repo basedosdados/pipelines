@@ -148,10 +148,15 @@ NOT_NULL = {
 IGNORE_SPARSE = {
     "oasdi_county": ["beneficiary_count_note", "benefit_amount_month_note"],
     "oasdi_state": ["beneficiary_count_note", "benefit_amount_month_note"],
-    "oasdi_population_share": ["population_note",
-                               "percentage_receiving_oasdi_note"],
-    "ssi_county": ["recipient_count_note", "payment_amount_month",
-                   "payment_amount_month_note"],
+    "oasdi_population_share": [
+        "population_note",
+        "percentage_receiving_oasdi_note",
+    ],
+    "ssi_county": [
+        "recipient_count_note",
+        "payment_amount_month",
+        "payment_amount_month_note",
+    ],
     "ssi_state": ["recipient_count_note", "payment_amount_month_note"],
     "dicionario": ["cobertura_temporal"],
 }
@@ -250,13 +255,20 @@ def main() -> None:
         # the dicionario. The dictionary is derived from the data, so it cannot
         # drift in Python -- this checks the same thing in BigQuery, where a
         # stale dicionario upload would show up.
-        covered = [r["name"] for _, r in arch.iterrows()
-                   if r["covered_by_dictionary"] == "yes"]
+        covered = [
+            r["name"]
+            for _, r in arch.iterrows()
+            if r["covered_by_dictionary"] == "yes"
+        ]
         if covered:
-            model_tests.append({"custom_dictionary_coverage": {
-                "dictionary_model": f"ref('{DATASET}__dicionario')",
-                "columns_covered_by_dictionary": covered,
-            }})
+            model_tests.append(
+                {
+                    "custom_dictionary_coverage": {
+                        "dictionary_model": f"ref('{DATASET}__dicionario')",
+                        "columns_covered_by_dictionary": covered,
+                    }
+                }
+            )
 
         models.append(
             {

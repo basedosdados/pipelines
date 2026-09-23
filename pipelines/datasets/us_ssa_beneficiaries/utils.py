@@ -331,6 +331,14 @@ def resolve_county_ids(
 # city, Virginia in 2014, the year after the city was abolished and merged back
 # into Bedford County -- so reading it as "less than $500 beneficiaries" would
 # be nonsense. Hence a note map per measure kind.
+# SSA publishes every benefit and payment amount in thousands of dollars --
+# the annual table headers say "(in thousands of dollars)", though the JSON
+# metadata mislabels the unit as "dollars". The stored columns are in dollars,
+# so the published figures are multiplied by this. The source has already
+# rounded to the nearest thousand, so every stored amount ends in three zeros:
+# the conversion changes the unit, not the precision.
+THOUSANDS = 1000
+
 AMOUNT_NOTES = {
     "(x)": "suppressed_disclosure",
     "a": "less_than_500_dollars",
@@ -436,8 +444,14 @@ def _melt(
     value_col: str,
     county_ids: list[str | None] | None = None,
     notes: dict[str, str] = AMOUNT_NOTES,
+    scale: int = 1,
 ) -> pd.DataFrame:
-    """Melt wide measures into one row per (key, category) with a note column."""
+    """Melt wide measures into one row per (key, category) with a note column.
+
+    ``scale`` multiplies every parsed value. SSA publishes benefit and payment
+    amounts in thousands of dollars; passing :data:`THOUSANDS` converts them to
+    dollars.
+    """
     out = []
     for idx, r in enumerate(rows):
         base = {
@@ -462,6 +476,8 @@ def _melt(
                     f"measure {m!r} (suffix {suffix!r}) has no category mapping"
                 )
             value, note = parse_value(r.get(m), notes)
+            if value is not None and scale != 1:
+                value *= scale
             rec = dict(base)
             rec[dims[0]], rec[dims[1]], rec[dims[2]] = cat
             rec[value_col] = value
@@ -561,6 +577,7 @@ def build_oasdi_county(input_dir: Path) -> pd.DataFrame:
         OASDI_DIMS,
         "benefit_amount_month",
         resolve_county_ids(rows5, county_xw, city_xw),
+        scale=THOUSANDS,
     )
     df = _merge_count_and_amount(counts, amounts, _COUNTY_KEYS)
 
@@ -655,6 +672,7 @@ def build_oasdi_state(input_dir: Path) -> pd.DataFrame:
         OASDI_CATEGORIES,
         OASDI_DIMS,
         "benefit_amount_month",
+        scale=THOUSANDS,
     )
     drop = ["county_or_city", "county_id", "join_key"]
     counts = counts.drop(columns=drop, errors="ignore")
@@ -735,6 +753,7 @@ def build_ssi_county(input_dir: Path) -> pd.DataFrame:
         SSI_DIMS,
         "payment_amount_month",
         ids,
+        scale=THOUSANDS,
     )
     df = _merge_count_and_amount(counts, amounts, keys)
     df = df[df["county_or_city"] != STATE_TOTAL_LABEL]
@@ -792,6 +811,7 @@ def build_ssi_state(input_dir: Path) -> pd.DataFrame:
         SSI_CATEGORIES,
         SSI_DIMS,
         "payment_amount_month",
+        scale=THOUSANDS,
     )
     drop = ["county_or_city", "county_id", "join_key"]
     counts = counts.drop(columns=drop, errors="ignore")

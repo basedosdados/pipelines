@@ -21,6 +21,8 @@ HEADER = [
     "measurement_unit",
     "has_sensitive_data",
     "observations",
+    "observations_en",
+    "observations_es",
     "original_name",
     "description_en",
     "description_es",
@@ -31,8 +33,26 @@ C = {}
 
 
 def col(
-    name, bq, pt, en, es, dic="no", directory="", unit="", obs="", original=""
+    name,
+    bq,
+    pt,
+    en,
+    es,
+    dic="no",
+    directory="",
+    unit="",
+    obs="",
+    original="",
+    obs_en="",
+    obs_es="",
 ):
+    """Define one column.
+
+    ``obs`` is the Portuguese observations text; ``obs_en`` and ``obs_es`` are
+    its translations. Passing only ``obs`` would put Portuguese text in the
+    English and Spanish fields, which is how thousands of production columns
+    ended up nominally trilingual and actually Portuguese.
+    """
     C[name] = dict(
         name=name,
         bigquery_type=bq,
@@ -43,6 +63,8 @@ def col(
         measurement_unit=unit,
         has_sensitive_data="no",
         observations=obs,
+        observations_en=obs_en or obs,
+        observations_es=obs_es or obs,
         original_name=original,
         description_en=en,
         description_es=es,
@@ -59,6 +81,8 @@ col(
     unit="year",
     obs="As estatísticas são um retrato do mês de dezembro do ano de referência.",
     original="month",
+    obs_en="The statistics are a snapshot of December of the reference year.",
+    obs_es="Las estadísticas son una instantánea de diciembre del año de referencia.",
 )
 
 col(
@@ -71,6 +95,8 @@ col(
     obs="Nulo nas linhas que não correspondem a um estado: 'All areas' (total nacional), "
     "'Other', 'Foreign countries' e 'Unknown'.",
     original="ansi",
+    obs_en="Null on rows that do not correspond to a state: 'All areas' (the national total), 'Other', 'Foreign countries' and 'Unknown'.",
+    obs_es="Nulo en las filas que no corresponden a un estado: 'All areas' (el total nacional), 'Other', 'Foreign countries' y 'Unknown'.",
 )
 
 col(
@@ -87,6 +113,8 @@ col(
     "censitárias do Alasca, cidades independentes da Virgínia que voltaram a ser "
     "municípios).",
     original="ansi",
+    obs_en="SSA only began publishing the ANSI code in the 2008 (OASDI) or 2009 (SSI) edition; for earlier years the code was reconstructed from SSA's own file, matching state and county name against the years that are already coded. It stays null for the 'Unknown' rows and for entities abolished before coding began (Alaska census areas, Virginia independent cities that reverted to towns).",
+    obs_es="La SSA solo comenzó a publicar el código ANSI en la edición de 2008 (OASDI) o 2009 (SSI); para los años anteriores el código se reconstruyó a partir del propio archivo de la SSA, cruzando estado y nombre del condado con los años ya codificados. Permanece nulo para las filas 'Unknown' y para entidades abolidas antes de la codificación (áreas censales de Alaska, ciudades independientes de Virginia que volvieron a ser municipios).",
 )
 
 col(
@@ -108,6 +136,8 @@ col(
     "listadas em ordem alfabética junto aos condados; a partir de 2008 o sufixo é "
     "omitido e elas aparecem em bloco separado.",
     original="county_or_city",
+    obs_en="Up to the 2007 edition independent cities carried the ' City' suffix and were listed alphabetically among the counties; from 2008 the suffix is dropped and they appear in a separate block.",
+    obs_es="Hasta la edición de 2007 las ciudades independientes llevaban el sufijo ' City' y se listaban alfabéticamente junto a los condados; a partir de 2008 el sufijo se omite y aparecen en un bloque separado.",
 )
 
 col(
@@ -120,6 +150,8 @@ col(
     "'Other', 'Foreign countries' e 'Unknown'. Filtre por state_id não nulo para obter "
     "apenas estados e territórios.",
     original="state_or_area",
+    obs_en="Includes the national total ('All areas'), the territories and the residual categories 'Other', 'Foreign countries' and 'Unknown'. Filter on a non-null state_id for states and territories only.",
+    obs_es="Incluye el total nacional ('All areas'), los territorios y las categorías residuales 'Other', 'Foreign countries' y 'Unknown'. Filtre por state_id no nulo para obtener solo estados y territorios.",
 )
 
 col(
@@ -133,6 +165,8 @@ col(
     "('men', 'women') são um recorte do subconjunto de 65 anos ou mais e não devem ser "
     "somadas aos tipos de benefício.",
     original="measure",
+    obs_en="The nine benefit types sum to the value of 'total'. The rows with a sex ('men', 'women') are a cut of the 65-or-older subset and must not be added to the benefit types.",
+    obs_es="Los nueve tipos de beneficio suman el valor de 'total'. Las filas con sexo ('men', 'women') son un recorte del subconjunto de 65 años o más y no deben sumarse a los tipos de beneficio.",
 )
 
 col(
@@ -144,6 +178,8 @@ col(
     dic="yes",
     obs="'aged' e 'blind_or_disabled' somam o valor de 'total'.",
     original="measure",
+    obs_en="'aged' and 'blind_or_disabled' sum to the value of 'total'.",
+    obs_es="'aged' y 'blind_or_disabled' suman el valor de 'total'.",
 )
 
 col(
@@ -156,6 +192,8 @@ col(
     obs="É um recorte alternativo do total, não um subconjunto do tipo de benefício ou da "
     "categoria de elegibilidade.",
     original="measure",
+    obs_en="It is an alternative cut of the total, not a subset of the benefit type or the eligibility category.",
+    obs_es="Es un recorte alternativo del total, no un subconjunto del tipo de beneficio o de la categoría de elegibilidad.",
 )
 
 col(
@@ -194,10 +232,12 @@ col(
     "Número de beneficiários do OASDI em current-payment status",
     "Number of OASDI beneficiaries in current-payment status",
     "Número de beneficiarios del OASDI en current-payment status",
-    unit="persons",
+    unit="person",
     obs="Valores de condado são arredondados pela fonte. Nulo quando suprimido ou "
     "indisponível; veja beneficiary_count_note para o motivo. Nunca preenchido com zero.",
     original="persons_*",
+    obs_en="County values are rounded by the source. Null when suppressed or unavailable; see beneficiary_count_note for the reason. Never filled with zero.",
+    obs_es="Los valores de condado son redondeados por la fuente. Nulo cuando está suprimido o no disponible; vea beneficiary_count_note para el motivo. Nunca se completa con cero.",
 )
 
 col(
@@ -206,35 +246,58 @@ col(
     "Número de recebedores do SSI",
     "Number of SSI recipients",
     "Número de beneficiarios del SSI",
-    unit="persons",
+    unit="person",
     obs="Nulo quando suprimido ou indisponível; veja recipient_count_note para o motivo. "
     "Nunca preenchido com zero.",
     original="persons_*",
+    obs_en="Null when suppressed or unavailable; see recipient_count_note for the reason. Never filled with zero.",
+    obs_es="Nulo cuando está suprimido o no disponible; vea recipient_count_note para el motivo. Nunca se completa con cero.",
 )
 
 col(
     "benefit_amount_month",
     "INT64",
-    "Valor total dos benefícios do OASDI pagos no mês de dezembro, em milhares de dólares",
-    "Total OASDI benefits paid in the month of December, in thousands of dollars",
-    "Monto total de los beneficios del OASDI pagados en el mes de diciembre, en miles de dólares",
-    unit="thousand_dollars",
+    "Valor total dos benefícios do OASDI pagos no mês de dezembro, em dólares",
+    "Total OASDI benefits paid in the month of December, in dollars",
+    "Monto total de los beneficios del OASDI pagados en el mes de diciembre, en dólares",
+    unit="usd",
     obs="A fonte publica o valor em milhares de dólares ('in thousands of dollars' no "
-    "cabeçalho da tabela anual), apesar de o metadado JSON registrar a unidade como "
-    "'dollars'. Nulo quando suprimido ou indisponível.",
+    "cabeçalho da tabela anual, apesar de o metadado JSON registrar a unidade como "
+    "'dollars'); aqui ele é convertido para dólares. A SSA já arredondou para o milhar "
+    "mais próximo, de modo que todo valor termina em três zeros: a conversão muda a "
+    "unidade, não a precisão. Nulo quando suprimido ou indisponível.",
+    obs_en="The source publishes the value in thousands of dollars ('in thousands of "
+    "dollars' in the annual table header, although the JSON metadata records the unit "
+    "as 'dollars'); it is converted to dollars here. SSA has already rounded to the "
+    "nearest thousand, so every value ends in three zeros: the conversion changes the "
+    "unit, not the precision. Null when suppressed or unavailable.",
+    obs_es="La fuente publica el valor en miles de dólares ('in thousands of dollars' "
+    "en el encabezado de la tabla anual, aunque el metadato JSON registra la unidad "
+    "como 'dollars'); aquí se convierte a dólares. La SSA ya redondeó al millar más "
+    "cercano, de modo que todo valor termina en tres ceros: la conversión cambia la "
+    "unidad, no la precisión. Nulo cuando está suprimido o no disponible.",
     original="benefits_month_total_*",
 )
 
 col(
     "payment_amount_month",
     "INT64",
-    "Valor total dos pagamentos do SSI no mês de dezembro, em milhares de dólares",
-    "Total SSI payments in the month of December, in thousands of dollars",
-    "Monto total de los pagos del SSI en el mes de diciembre, en miles de dólares",
-    unit="thousand_dollars",
+    "Valor total dos pagamentos do SSI no mês de dezembro, em dólares",
+    "Total SSI payments in the month of December, in dollars",
+    "Monto total de los pagos del SSI en el mes de diciembre, en dólares",
+    unit="usd",
     obs="A fonte publica o valor em milhares de dólares, apesar de o metadado JSON "
-    "registrar a unidade como 'dollars'. No nível de condado o valor só existe na "
-    "linha de total.",
+    "registrar a unidade como 'dollars'; aqui ele é convertido para dólares. A SSA já "
+    "arredondou para o milhar mais próximo, de modo que todo valor termina em três "
+    "zeros. No nível de condado o valor só existe na linha de total.",
+    obs_en="The source publishes the value in thousands of dollars, although the JSON "
+    "metadata records the unit as 'dollars'; it is converted to dollars here. SSA has "
+    "already rounded to the nearest thousand, so every value ends in three zeros. At "
+    "county level the value exists only on the total row.",
+    obs_es="La fuente publica el valor en miles de dólares, aunque el metadato JSON "
+    "registra la unidad como 'dollars'; aquí se convierte a dólares. La SSA ya redondeó "
+    "al millar más cercano, de modo que todo valor termina en tres ceros. A nivel de "
+    "condado el valor solo existe en la fila de total.",
     original="payments_month_*",
 )
 
@@ -244,9 +307,11 @@ col(
     "População residente estimada em 1º de julho do ano de referência",
     "Estimated resident population as of July 1 of the reference year",
     "Población residente estimada al 1 de julio del año de referencia",
-    unit="persons",
+    unit="person",
     obs="Estimativa do Census Bureau, não da SSA.",
     original="persons_us_pop*",
+    obs_en="A Census Bureau estimate, not an SSA one.",
+    obs_es="Una estimación del Census Bureau, no de la SSA.",
 )
 
 col(
@@ -258,6 +323,8 @@ col(
     unit="percent",
     obs="Não pode ser recalculado a partir dos valores estaduais.",
     original="percent_us_pop*_oasdi",
+    obs_en="It cannot be recomputed from the state values.",
+    obs_es="No puede recalcularse a partir de los valores estatales.",
 )
 
 for base in [
@@ -276,6 +343,8 @@ for base in [
         f"Motivo por el cual {base} es nulo",
         dic="yes",
         obs="Nulo quando o valor está presente.",
+        obs_en="Null when the value is present.",
+        obs_es="Nulo cuando el valor está presente.",
         original="",
     )
 
@@ -412,6 +481,8 @@ def main() -> None:
             measurement_unit="",
             has_sensitive_data="no",
             observations="",
+            observations_en="",
+            observations_es="",
             original_name="",
             description_en=en,
             description_es=es,

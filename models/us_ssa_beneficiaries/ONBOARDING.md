@@ -51,11 +51,16 @@ meaningful within one consistent slice. SSI mirrors this with
 
 ## Source characteristics handled in the transform
 
-**Amounts are in thousands of dollars.** The published table headers say so; the
-JSON metadata says `unit: dollars`, which is wrong. Dec 2024 OASDI is 68,455,973
-beneficiaries against a total of 125,577,970, i.e. $1,834 a month, not $1.83.
-Values are stored as published rather than multiplied out, because the source
-has already rounded to the nearest thousand.
+**Amounts are stored in dollars, converted from the published thousands.**
+The annual table headers say "(in thousands of dollars)"; the JSON metadata
+mislabels the unit as `dollars`. Dec 2024 OASDI is 68,455,973 beneficiaries
+against a published total of 125,577,970, so the figures are thousands. Stored
+as dollars, that total is $125,577,970,000, an average monthly benefit of
+$1,834.43, which matches SSA's own published average. SSI works out at $744.63.
+
+SSA has already rounded to the nearest thousand, so **every stored amount ends
+in three zeros**: the conversion changes the unit, not the precision. That
+caveat is on the column in all three languages.
 
 **Suppression is carried, never zeroed.** SSA marks disclosure suppression with
 `(X)` (39,773 cells in `ssi_county`) and "less than $500" with `a`. Both become

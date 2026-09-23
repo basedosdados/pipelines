@@ -29,11 +29,17 @@ def columns_json(table: str) -> str:
         if r["measurement_unit"]:
             entry["measurement_unit"] = r["measurement_unit"]
         if r["observations"]:
-            # Observations are per-language; leaving EN/ES blank is how
-            # thousands of production columns ended up Portuguese-only.
+            # Per-language, not the Portuguese text copied three times: a bare
+            # `observations` key is written to Portuguese and leaves EN and ES
+            # blank, which is how thousands of production columns ended up
+            # nominally trilingual and actually Portuguese.
             entry["observations_pt"] = r["observations"]
-            entry["observations_en"] = r["observations"]
-            entry["observations_es"] = r["observations"]
+            entry["observations_en"] = (
+                r["observations_en"] or r["observations"]
+            )
+            entry["observations_es"] = (
+                r["observations_es"] or r["observations"]
+            )
         out.append(entry)
     return json.dumps(out, ensure_ascii=False)
 

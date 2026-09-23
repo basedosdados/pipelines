@@ -1,315 +1,345 @@
 ---
 version: 2
 models:
-  - name: us_ssa_beneficiaries__dicionario
-    description: Dicionário de valores para as colunas codificadas das tabelas do
-      conjunto.
+- name: us_ssa_beneficiaries__dicionario
+  description: Dicionário de valores para as colunas codificadas das tabelas do conjunto.
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      combination_of_columns:
+      - id_tabela
+      - nome_coluna
+      - chave
+  - not_null_proportion_multiple_columns:
+      at_least: 0.05
+      ignore_values:
+      - cobertura_temporal
+  columns:
+  - name: id_tabela
+    description: Nome da tabela à qual a coluna pertence
     tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [id_tabela, nome_coluna, chave]
-      - not_null_proportion_multiple_columns:
-          at_least: 0.05
-          ignore_values: [cobertura_temporal]
-    columns:
-      - name: id_tabela
-        description: Nome da tabela à qual a coluna pertence
-        tests: [not_null]
-      - name: nome_coluna
-        description: Nome da coluna codificada
-        tests: [not_null]
-      - name: chave
-        description: Valor da chave armazenado na coluna
-        tests: [not_null]
-      - name: cobertura_temporal
-        description: Cobertura temporal da chave
-      - name: valor
-        description: Descrição da chave em português
-      - name: valor_en
-        description: Descrição da chave em inglês
-      - name: valor_es
-        description: Descrição da chave em espanhol
-  - name: us_ssa_beneficiaries__oasdi_county
-    description: 'Número de beneficiários do OASDI (Old-Age, Survivors, and Disability
-      Insurance) em current-payment status e valor total dos benefícios pagos, por
-      condado, ano, tipo de benefício, faixa etária e sexo. Formato longo: cada linha
-      é uma combinação de condado, ano e categoria. As linhas de total estadual publicadas
-      pela fonte foram movidas para oasdi_state.'
+    - not_null
+  - name: nome_coluna
+    description: Nome da coluna codificada
     tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - year
-            - state_id
-            - county_name
-            - county_id
-            - benefit_type
-            - age_group
-            - sex
-      - not_null_proportion_multiple_columns:
-          at_least: 0.05
-          ignore_values: [beneficiary_count_note, benefit_amount_month_note]
-      - custom_dictionary_coverage:
-          dictionary_model: ref('us_ssa_beneficiaries__dicionario')
-          columns_covered_by_dictionary:
-            - benefit_type
-            - age_group
-            - sex
-            - beneficiary_count_note
-            - benefit_amount_month_note
-    columns:
-      - name: year
-        description: Ano de referência, correspondente à edição anual de dezembro
-        tests: [not_null]
-      - name: state_id
-        description: Código ANSI (FIPS) de dois dígitos do estado
-        tests:
-          - not_null
-          - relationships:
-              to: ref('br_bd_diretorios_us__state')
-              field: id_state
-      - name: county_id
-        description: Código ANSI (FIPS) de cinco dígitos do condado ou cidade independente
-      - name: state_name
-        description: Nome do estado ou área
-        tests: [not_null]
-      - name: county_name
-        description: Nome do condado ou cidade independente, conforme publicado pela
-          SSA
-        tests: [not_null]
-      - name: benefit_type
-        description: Tipo de benefício do OASDI
-        tests: [not_null]
-      - name: age_group
-        description: Faixa etária do beneficiário
-        tests: [not_null]
-      - name: sex
-        description: Sexo do beneficiário, disponível apenas para a faixa de 65 anos
-          ou mais
-        tests: [not_null]
-      - name: beneficiary_count
-        description: Número de beneficiários do OASDI em current-payment status
-      - name: beneficiary_count_note
-        description: Motivo pelo qual beneficiary_count está nulo
-      - name: benefit_amount_month
-        description: Valor total dos benefícios do OASDI pagos no mês de dezembro,
-          em milhares de dólares
-      - name: benefit_amount_month_note
-        description: Motivo pelo qual benefit_amount_month está nulo
-  - name: us_ssa_beneficiaries__oasdi_population_share
-    description: População residente estimada e percentual dela que recebe benefícios
-      do OASDI, por estado ou área e ano, para a população total e para a população
-      de 65 anos ou mais.
+    - not_null
+  - name: chave
+    description: Valor da chave armazenado na coluna
     tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: [year, state_or_area, population_group]
-      - not_null_proportion_multiple_columns:
-          at_least: 0.05
-          ignore_values: [population_note, percentage_receiving_oasdi_note]
-      - custom_dictionary_coverage:
-          dictionary_model: ref('us_ssa_beneficiaries__dicionario')
-          columns_covered_by_dictionary:
-            - population_group
-            - population_note
-            - percentage_receiving_oasdi_note
-    columns:
-      - name: year
-        description: Ano de referência, correspondente à edição anual de dezembro
-        tests: [not_null]
-      - name: state_id
-        description: Código ANSI (FIPS) de dois dígitos do estado
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_us__state')
-              field: id_state
-      - name: state_or_area
-        description: Estado, território ou categoria agregada
-        tests: [not_null]
-      - name: population_group
-        description: Grupo populacional de referência
-        tests: [not_null]
-      - name: population
-        description: População residente estimada em 1º de julho do ano de referência
-      - name: population_note
-        description: Motivo pelo qual population está nulo
-      - name: percentage_receiving_oasdi
-        description: Percentual do grupo populacional que recebe benefícios do OASDI
-      - name: percentage_receiving_oasdi_note
-        description: Motivo pelo qual percentage_receiving_oasdi está nulo
-  - name: us_ssa_beneficiaries__oasdi_state
-    description: Número de beneficiários do OASDI em current-payment status e valor
-      total dos benefícios pagos, por estado ou área, ano, tipo de benefício, faixa
-      etária e sexo. Inclui territórios, o total nacional ('All areas') e as categorias
-      residuais 'Other', 'Foreign countries' e 'Unknown'.
+    - not_null
+  - name: cobertura_temporal
+    description: Cobertura temporal da chave
+  - name: valor
+    description: Descrição da chave em português
+  - name: valor_en
+    description: Descrição da chave em inglês
+  - name: valor_es
+    description: Descrição da chave em espanhol
+- name: us_ssa_beneficiaries__oasdi_county
+  description: 'Número de beneficiários do OASDI (Old-Age, Survivors, and Disability Insurance)
+    em current-payment status e valor total dos benefícios pagos, por condado, ano, tipo de
+    benefício, faixa etária e sexo. Formato longo: cada linha é uma combinação de condado,
+    ano e categoria. As linhas de total estadual publicadas pela fonte foram movidas para
+    oasdi_state.'
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      combination_of_columns:
+      - year
+      - state_id
+      - county_name
+      - county_id
+      - benefit_type
+      - age_group
+      - sex
+  - not_null_proportion_multiple_columns:
+      at_least: 0.05
+      ignore_values:
+      - beneficiary_count_note
+      - benefit_amount_month_note
+  - custom_dictionary_coverage:
+      dictionary_model: ref('us_ssa_beneficiaries__dicionario')
+      columns_covered_by_dictionary:
+      - benefit_type
+      - age_group
+      - sex
+      - beneficiary_count_note
+      - benefit_amount_month_note
+  columns:
+  - name: year
+    description: Ano de referência, correspondente à edição anual de dezembro
     tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - year
-            - state_or_area
-            - benefit_type
-            - age_group
-            - sex
-      - not_null_proportion_multiple_columns:
-          at_least: 0.05
-          ignore_values: [beneficiary_count_note, benefit_amount_month_note]
-      - custom_dictionary_coverage:
-          dictionary_model: ref('us_ssa_beneficiaries__dicionario')
-          columns_covered_by_dictionary:
-            - benefit_type
-            - age_group
-            - sex
-            - beneficiary_count_note
-            - benefit_amount_month_note
-    columns:
-      - name: year
-        description: Ano de referência, correspondente à edição anual de dezembro
-        tests: [not_null]
-      - name: state_id
-        description: Código ANSI (FIPS) de dois dígitos do estado
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_us__state')
-              field: id_state
-      - name: state_or_area
-        description: Estado, território ou categoria agregada
-        tests: [not_null]
-      - name: benefit_type
-        description: Tipo de benefício do OASDI
-        tests: [not_null]
-      - name: age_group
-        description: Faixa etária do beneficiário
-        tests: [not_null]
-      - name: sex
-        description: Sexo do beneficiário, disponível apenas para a faixa de 65 anos
-          ou mais
-        tests: [not_null]
-      - name: beneficiary_count
-        description: Número de beneficiários do OASDI em current-payment status
-      - name: beneficiary_count_note
-        description: Motivo pelo qual beneficiary_count está nulo
-      - name: benefit_amount_month
-        description: Valor total dos benefícios do OASDI pagos no mês de dezembro,
-          em milhares de dólares
-      - name: benefit_amount_month_note
-        description: Motivo pelo qual benefit_amount_month está nulo
-  - name: us_ssa_beneficiaries__ssi_county
-    description: Número de recebedores do SSI (Supplemental Security Income) e valor
-      total dos pagamentos, por condado, ano, categoria de elegibilidade, faixa etária
-      e recebimento simultâneo de OASDI. Formato longo. O valor dos pagamentos só
-      é publicado para o total do condado.
+    - not_null
+  - name: state_id
+    description: Código ANSI (FIPS) de dois dígitos do estado
     tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - year
-            - state_id
-            - county_name
-            - county_id
-            - eligibility_category
-            - age_group
-            - oasdi_concurrent
-      - not_null_proportion_multiple_columns:
-          at_least: 0.05
-          ignore_values:
-            - recipient_count_note
-            - payment_amount_month
-            - payment_amount_month_note
-      - custom_dictionary_coverage:
-          dictionary_model: ref('us_ssa_beneficiaries__dicionario')
-          columns_covered_by_dictionary:
-            - eligibility_category
-            - age_group
-            - oasdi_concurrent
-            - recipient_count_note
-            - payment_amount_month_note
-    columns:
-      - name: year
-        description: Ano de referência, correspondente à edição anual de dezembro
-        tests: [not_null]
-      - name: state_id
-        description: Código ANSI (FIPS) de dois dígitos do estado
-        tests:
-          - not_null
-          - relationships:
-              to: ref('br_bd_diretorios_us__state')
-              field: id_state
-      - name: county_id
-        description: Código ANSI (FIPS) de cinco dígitos do condado ou cidade independente
-      - name: state_name
-        description: Nome do estado ou área
-        tests: [not_null]
-      - name: county_name
-        description: Nome do condado ou cidade independente, conforme publicado pela
-          SSA
-        tests: [not_null]
-      - name: eligibility_category
-        description: Categoria de elegibilidade ao SSI
-        tests: [not_null]
-      - name: age_group
-        description: Faixa etária do beneficiário
-        tests: [not_null]
-      - name: oasdi_concurrent
-        description: Indica se o recorte é o dos recebedores de SSI que também recebem
-          OASDI
-        tests: [not_null]
-      - name: recipient_count
-        description: Número de recebedores do SSI
-      - name: recipient_count_note
-        description: Motivo pelo qual recipient_count está nulo
-      - name: payment_amount_month
-        description: Valor total dos pagamentos do SSI no mês de dezembro, em milhares
-          de dólares
-      - name: payment_amount_month_note
-        description: Motivo pelo qual payment_amount_month está nulo
-  - name: us_ssa_beneficiaries__ssi_state
-    description: Número de recebedores do SSI e valor total dos pagamentos, por estado
-      ou área, ano, categoria de elegibilidade, faixa etária e recebimento simultâneo
-      de OASDI. Inclui territórios e o total nacional ('All areas').
+    - not_null
+    - relationships:
+        to: ref('br_bd_diretorios_us__state')
+        field: id_state
+  - name: county_id
+    description: Código ANSI (FIPS) de cinco dígitos do condado ou cidade independente
+  - name: state_name
+    description: Nome do estado ou área
     tests:
-      - dbt_utils.unique_combination_of_columns:
-          combination_of_columns:
-            - year
-            - state_or_area
-            - eligibility_category
-            - age_group
-            - oasdi_concurrent
-      - not_null_proportion_multiple_columns:
-          at_least: 0.05
-          ignore_values: [recipient_count_note, payment_amount_month_note]
-      - custom_dictionary_coverage:
-          dictionary_model: ref('us_ssa_beneficiaries__dicionario')
-          columns_covered_by_dictionary:
-            - eligibility_category
-            - age_group
-            - oasdi_concurrent
-            - recipient_count_note
-            - payment_amount_month_note
-    columns:
-      - name: year
-        description: Ano de referência, correspondente à edição anual de dezembro
-        tests: [not_null]
-      - name: state_id
-        description: Código ANSI (FIPS) de dois dígitos do estado
-        tests:
-          - relationships:
-              to: ref('br_bd_diretorios_us__state')
-              field: id_state
-      - name: state_or_area
-        description: Estado, território ou categoria agregada
-        tests: [not_null]
-      - name: eligibility_category
-        description: Categoria de elegibilidade ao SSI
-        tests: [not_null]
-      - name: age_group
-        description: Faixa etária do beneficiário
-        tests: [not_null]
-      - name: oasdi_concurrent
-        description: Indica se o recorte é o dos recebedores de SSI que também recebem
-          OASDI
-        tests: [not_null]
-      - name: recipient_count
-        description: Número de recebedores do SSI
-      - name: recipient_count_note
-        description: Motivo pelo qual recipient_count está nulo
-      - name: payment_amount_month
-        description: Valor total dos pagamentos do SSI no mês de dezembro, em milhares
-          de dólares
-      - name: payment_amount_month_note
-        description: Motivo pelo qual payment_amount_month está nulo
+    - not_null
+  - name: county_name
+    description: Nome do condado ou cidade independente, conforme publicado pela SSA
+    tests:
+    - not_null
+  - name: benefit_type
+    description: Tipo de benefício do OASDI
+    tests:
+    - not_null
+  - name: age_group
+    description: Faixa etária do beneficiário
+    tests:
+    - not_null
+  - name: sex
+    description: Sexo do beneficiário, disponível apenas para a faixa de 65 anos ou mais
+    tests:
+    - not_null
+  - name: beneficiary_count
+    description: Número de beneficiários do OASDI em current-payment status
+  - name: beneficiary_count_note
+    description: Motivo pelo qual beneficiary_count está nulo
+  - name: benefit_amount_month
+    description: Valor total dos benefícios do OASDI pagos no mês de dezembro, em dólares
+  - name: benefit_amount_month_note
+    description: Motivo pelo qual benefit_amount_month está nulo
+- name: us_ssa_beneficiaries__oasdi_population_share
+  description: População residente estimada e percentual dela que recebe benefícios do OASDI,
+    por estado ou área e ano, para a população total e para a população de 65 anos ou mais.
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      combination_of_columns:
+      - year
+      - state_or_area
+      - population_group
+  - not_null_proportion_multiple_columns:
+      at_least: 0.05
+      ignore_values:
+      - population_note
+      - percentage_receiving_oasdi_note
+  - custom_dictionary_coverage:
+      dictionary_model: ref('us_ssa_beneficiaries__dicionario')
+      columns_covered_by_dictionary:
+      - population_group
+      - population_note
+      - percentage_receiving_oasdi_note
+  columns:
+  - name: year
+    description: Ano de referência, correspondente à edição anual de dezembro
+    tests:
+    - not_null
+  - name: state_id
+    description: Código ANSI (FIPS) de dois dígitos do estado
+    tests:
+    - relationships:
+        to: ref('br_bd_diretorios_us__state')
+        field: id_state
+  - name: state_or_area
+    description: Estado, território ou categoria agregada
+    tests:
+    - not_null
+  - name: population_group
+    description: Grupo populacional de referência
+    tests:
+    - not_null
+  - name: population
+    description: População residente estimada em 1º de julho do ano de referência
+  - name: population_note
+    description: Motivo pelo qual population está nulo
+  - name: percentage_receiving_oasdi
+    description: Percentual do grupo populacional que recebe benefícios do OASDI
+  - name: percentage_receiving_oasdi_note
+    description: Motivo pelo qual percentage_receiving_oasdi está nulo
+- name: us_ssa_beneficiaries__oasdi_state
+  description: Número de beneficiários do OASDI em current-payment status e valor total dos
+    benefícios pagos, por estado ou área, ano, tipo de benefício, faixa etária e sexo. Inclui
+    territórios, o total nacional ('All areas') e as categorias residuais 'Other', 'Foreign
+    countries' e 'Unknown'.
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      combination_of_columns:
+      - year
+      - state_or_area
+      - benefit_type
+      - age_group
+      - sex
+  - not_null_proportion_multiple_columns:
+      at_least: 0.05
+      ignore_values:
+      - beneficiary_count_note
+      - benefit_amount_month_note
+  - custom_dictionary_coverage:
+      dictionary_model: ref('us_ssa_beneficiaries__dicionario')
+      columns_covered_by_dictionary:
+      - benefit_type
+      - age_group
+      - sex
+      - beneficiary_count_note
+      - benefit_amount_month_note
+  columns:
+  - name: year
+    description: Ano de referência, correspondente à edição anual de dezembro
+    tests:
+    - not_null
+  - name: state_id
+    description: Código ANSI (FIPS) de dois dígitos do estado
+    tests:
+    - relationships:
+        to: ref('br_bd_diretorios_us__state')
+        field: id_state
+  - name: state_or_area
+    description: Estado, território ou categoria agregada
+    tests:
+    - not_null
+  - name: benefit_type
+    description: Tipo de benefício do OASDI
+    tests:
+    - not_null
+  - name: age_group
+    description: Faixa etária do beneficiário
+    tests:
+    - not_null
+  - name: sex
+    description: Sexo do beneficiário, disponível apenas para a faixa de 65 anos ou mais
+    tests:
+    - not_null
+  - name: beneficiary_count
+    description: Número de beneficiários do OASDI em current-payment status
+  - name: beneficiary_count_note
+    description: Motivo pelo qual beneficiary_count está nulo
+  - name: benefit_amount_month
+    description: Valor total dos benefícios do OASDI pagos no mês de dezembro, em dólares
+  - name: benefit_amount_month_note
+    description: Motivo pelo qual benefit_amount_month está nulo
+- name: us_ssa_beneficiaries__ssi_county
+  description: Número de recebedores do SSI (Supplemental Security Income) e valor total dos
+    pagamentos, por condado, ano, categoria de elegibilidade, faixa etária e recebimento simultâneo
+    de OASDI. Formato longo. O valor dos pagamentos só é publicado para o total do condado.
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      combination_of_columns:
+      - year
+      - state_id
+      - county_name
+      - county_id
+      - eligibility_category
+      - age_group
+      - oasdi_concurrent
+  - not_null_proportion_multiple_columns:
+      at_least: 0.05
+      ignore_values:
+      - recipient_count_note
+      - payment_amount_month
+      - payment_amount_month_note
+  - custom_dictionary_coverage:
+      dictionary_model: ref('us_ssa_beneficiaries__dicionario')
+      columns_covered_by_dictionary:
+      - eligibility_category
+      - age_group
+      - oasdi_concurrent
+      - recipient_count_note
+      - payment_amount_month_note
+  columns:
+  - name: year
+    description: Ano de referência, correspondente à edição anual de dezembro
+    tests:
+    - not_null
+  - name: state_id
+    description: Código ANSI (FIPS) de dois dígitos do estado
+    tests:
+    - not_null
+    - relationships:
+        to: ref('br_bd_diretorios_us__state')
+        field: id_state
+  - name: county_id
+    description: Código ANSI (FIPS) de cinco dígitos do condado ou cidade independente
+  - name: state_name
+    description: Nome do estado ou área
+    tests:
+    - not_null
+  - name: county_name
+    description: Nome do condado ou cidade independente, conforme publicado pela SSA
+    tests:
+    - not_null
+  - name: eligibility_category
+    description: Categoria de elegibilidade ao SSI
+    tests:
+    - not_null
+  - name: age_group
+    description: Faixa etária do beneficiário
+    tests:
+    - not_null
+  - name: oasdi_concurrent
+    description: Indica se o recorte é o dos recebedores de SSI que também recebem OASDI
+    tests:
+    - not_null
+  - name: recipient_count
+    description: Número de recebedores do SSI
+  - name: recipient_count_note
+    description: Motivo pelo qual recipient_count está nulo
+  - name: payment_amount_month
+    description: Valor total dos pagamentos do SSI no mês de dezembro, em dólares
+  - name: payment_amount_month_note
+    description: Motivo pelo qual payment_amount_month está nulo
+- name: us_ssa_beneficiaries__ssi_state
+  description: Número de recebedores do SSI e valor total dos pagamentos, por estado ou área,
+    ano, categoria de elegibilidade, faixa etária e recebimento simultâneo de OASDI. Inclui
+    territórios e o total nacional ('All areas').
+  tests:
+  - dbt_utils.unique_combination_of_columns:
+      combination_of_columns:
+      - year
+      - state_or_area
+      - eligibility_category
+      - age_group
+      - oasdi_concurrent
+  - not_null_proportion_multiple_columns:
+      at_least: 0.05
+      ignore_values:
+      - recipient_count_note
+      - payment_amount_month_note
+  - custom_dictionary_coverage:
+      dictionary_model: ref('us_ssa_beneficiaries__dicionario')
+      columns_covered_by_dictionary:
+      - eligibility_category
+      - age_group
+      - oasdi_concurrent
+      - recipient_count_note
+      - payment_amount_month_note
+  columns:
+  - name: year
+    description: Ano de referência, correspondente à edição anual de dezembro
+    tests:
+    - not_null
+  - name: state_id
+    description: Código ANSI (FIPS) de dois dígitos do estado
+    tests:
+    - relationships:
+        to: ref('br_bd_diretorios_us__state')
+        field: id_state
+  - name: state_or_area
+    description: Estado, território ou categoria agregada
+    tests:
+    - not_null
+  - name: eligibility_category
+    description: Categoria de elegibilidade ao SSI
+    tests:
+    - not_null
+  - name: age_group
+    description: Faixa etária do beneficiário
+    tests:
+    - not_null
+  - name: oasdi_concurrent
+    description: Indica se o recorte é o dos recebedores de SSI que também recebem OASDI
+    tests:
+    - not_null
+  - name: recipient_count
+    description: Número de recebedores do SSI
+  - name: recipient_count_note
+    description: Motivo pelo qual recipient_count está nulo
+  - name: payment_amount_month
+    description: Valor total dos pagamentos do SSI no mês de dezembro, em dólares
+  - name: payment_amount_month_note
+    description: Motivo pelo qual payment_amount_month está nulo
