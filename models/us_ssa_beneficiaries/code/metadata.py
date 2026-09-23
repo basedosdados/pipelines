@@ -347,6 +347,11 @@ def main() -> int:
         action="store_true",
         help="only flip the dataset status to published",
     )
+    parser.add_argument(
+        "--dataset-only",
+        action="store_true",
+        help="update the dataset record alone, leaving the tables untouched",
+    )
     args = parser.parse_args()
     env = args.env
     gcp_project = "basedosdados" if env == "prod" else "basedosdados-dev"
@@ -358,7 +363,7 @@ def main() -> int:
     status_published = uid("status", "published")
     existing = get_ds(slug=DATASET_SLUG, env=env)
 
-    if args.publish:
+    if args.publish or args.dataset_only:
         if not existing.get("found"):
             print(f"dataset {DATASET_SLUG!r} not found on {env}")
             return 1
@@ -385,11 +390,22 @@ def main() -> int:
                 bare(e["node"]["id"]) for e in node["organizations"]["edges"]
             ],
             theme_ids=[bare(e["node"]["id"]) for e in node["themes"]["edges"]],
-            tag_ids=[bare(e["node"]["id"]) for e in node["tags"]["edges"]],
-            status_id=status_published,
+            tag_ids=(
+                TAG_IDS
+                if args.dataset_only
+                else [bare(e["node"]["id"]) for e in node["tags"]["edges"]]
+            ),
+            status_id=(
+                status_published
+                if args.publish
+                else uid("status", "under_review")
+            ),
             env=env,
         )
-        print(f"{DATASET_SLUG} published on {env}")
+        print(
+            f"{DATASET_SLUG} "
+            f"{'published' if args.publish else 'dataset record updated'} on {env}"
+        )
         return 0
 
     print(f"=== {env} (cloud tables -> {gcp_project}) ===")
