@@ -1,0 +1,99 @@
+{
+  "_comment": "Hand-written entries for what the two INE codebook PDFs would not yield. 257 of the 271 columns parse cleanly (see code/parse_codebook.py); the rest are transcribed here from the same PDFs, preserving the source wording. `descriptions` also corrects parsed entries that picked up prose from the surrounding methodology sections. `categories` supplies value labels for columns the parser missed; columns resolved through a directory carry only their sentinel codes, because the real labels live in the directory.",
+  "renames": {
+    "ano_trimestre": "ano",
+    "mes_central": "mes",
+    "region": "id_region",
+    "provincia": "id_provincia",
+    "r_p_c": "id_comuna"
+  },
+  "descriptions": {
+    "ano": "Año del trimestre móvil al que corresponde el registro",
+    "mes": "Mes central del trimestre móvil al que corresponde el registro, de 1 a 12",
+    "id_region": "Código CUT de la región de residencia de la persona encuestada",
+    "id_provincia": "Código CUT de la provincia de residencia de la persona encuestada",
+    "id_comuna": "Código CUT de la comuna de residencia de la persona encuestada",
+    "estrato": "Estrato muestral",
+    "estrato_15": "Estrato muestral bajo la división de 15 regiones",
+    "region_15": "Código de la región bajo la división de 15 regiones",
+    "r_p_c_15": "Código de la comuna bajo la división de 15 regiones",
+    "id_identificacion": "Identificador único del hogar",
+    "id": "Identificador interno de registro de la base de datos",
+    "mig2_cod": "Comuna en que vivía hace cinco años",
+    "mig3_cod": "País en que vivía hace cinco años",
+    "mig5_cod": "Comuna en que vivía su madre cuando la persona nació",
+    "mig6_cod": "País en que vivía su madre cuando la persona nació",
+    "categoria_ocupacion": "Categoría en la ocupación, según la adaptación chilena de la Clasificación Internacional de la Situación en el Empleo (CISE-93)",
+    "ftp": "Fuerza de trabajo potencial",
+    "inhab": "Inactivos habituales",
+    "fta": "Fuerza de trabajo ampliada",
+    "idisp": "Iniciador/a disponible",
+    "cd": "Contratista dependiente",
+    "habituales": "Horas habituales de trabajo en la semana de referencia",
+    "efectivas": "Horas efectivas trabajadas en la semana de referencia",
+    "edad": "Edad de la persona durante la semana de referencia de la encuesta, de 0 a 120 años",
+    "nivel": "Nivel educacional más alto aprobado",
+    "fact": "Factor de expansión trimestral construido sobre las proyecciones de población del Censo 2002",
+    "fact_cal": "Factor de expansión trimestral calibrado",
+    "e18_ciiu_rev3": "Rama de actividad económica del empleo anterior, según CIIU Rev. 3"
+  },
+  "observations": {
+    "ano": "Columna de partición. Es el año del mes CENTRAL del trimestre móvil, no el año de la entrevista: el trimestre centrado en enero abarca diciembre del año anterior. Nombre en la fuente: ano_trimestre",
+    "mes": "Columna de partición. Mes central del trimestre móvil; el trimestre abarca el mes anterior, el mes central y el siguiente. Nombre en la fuente: mes_central",
+    "id_region": "La fuente publica el código sin ceros a la izquierda (1 a 16); aquí se rellena a 2 dígitos para que empalme con el directorio. El INE recodificó toda la serie desde 2010 a la división vigente de 16 regiones, de modo que los archivos antiguos ya incluyen Ñuble (16)",
+    "id_provincia": "La fuente publica el código sin ceros a la izquierda; aquí se rellena a 3 dígitos",
+    "id_comuna": "La fuente publica el código sin ceros a la izquierda; aquí se rellena a 5 dígitos. Empalma con br_bd_diretorios_cl.comuna sin excepciones. La comuna identifica la vivienda seleccionada: el diseño muestral de la ENE NO contempla estimaciones comunales",
+    "fact_cal": "Factor de expansión calibrado, disponible para la totalidad de la serie desde el trimestre EFM 2010. La fuente lo publica con coma decimal; aquí se convierte a punto. Es la única ponderación válida para expandir la muestra",
+    "fact": "Descontinuado: vigente sólo hasta el trimestre OND 2019. Para toda la serie use fact_cal",
+    "id_identificacion": "Identifica el hogar dentro del trimestre móvil. No es un identificador de panel entre trimestres",
+    "idrph": "Identificador de persona dentro del trimestre móvil. Su formato cambia a lo largo de la serie y no permite seguir a la misma persona entre trimestres"
+  },
+  "categories": {
+    "categoria_ocupacion": [
+      "0: No corresponde",
+      "1: Empleador/a",
+      "2: Cuenta propia",
+      "3: Asalariado/a del sector privado",
+      "4: Asalariado/a del sector público",
+      "5: Personal de servicio doméstico puertas afuera",
+      "6: Personal de servicio doméstico puertas adentro",
+      "7: Familiar o personal no remunerado"
+    ],
+    "ftp": [
+      "0: No corresponde",
+      "1: Fuerza de trabajo potencial"
+    ],
+    "inhab": [
+      "0: No corresponde",
+      "1: Persona inactiva habitual"
+    ],
+    "fta": [
+      "0: No corresponde",
+      "1: Fuerza de trabajo ampliada"
+    ],
+    "idisp": [
+      "0: No corresponde",
+      "1: Iniciador/a disponible"
+    ],
+    "cd": [
+      "0: No corresponde",
+      "1: Contratista dependiente"
+    ],
+    "mig2_cod": [
+      "88888: No sabe",
+      "99999: No responde"
+    ],
+    "mig5_cod": [
+      "88888: No sabe",
+      "99999: No responde"
+    ],
+    "mig3_cod": [
+      "898: Zona no especificada",
+      "999: Sin información"
+    ],
+    "mig6_cod": [
+      "898: Zona no especificada",
+      "999: Sin información"
+    ]
+  }
+}
