@@ -179,10 +179,12 @@ def cl_ine_ene_flow(
             f"ingesting {result['periods']} period(s) from {first} to {source_max}"
         )
 
-        # A full refresh rewrites every partition, so the staging table is
-        # recreated; an incremental run adds one ano=/mes= directory and must not
-        # drop the 196 already there.
-        dump_mode = "overwrite" if full_refresh else "append"
+        # Keyed on what is actually being ingested, not on how the run was asked
+        # for: any run starting at the series start rewrites every partition and
+        # must replace the staging table. Keying it on `full_refresh` alone would
+        # append all 197 periods on top of a populated table — duplicating it —
+        # whenever the resume point could not be determined.
+        dump_mode = "overwrite" if first == series_start else "append"
 
         commit_source_update_task(
             dataset_id=DATASET_ID,
