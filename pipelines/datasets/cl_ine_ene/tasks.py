@@ -63,10 +63,15 @@ def last_ingested_period(bq_project: str) -> str | None:
             query=query, billing_project_id=bq_project, from_file=True
         )
     except Exception as exc:
-        print(
-            f"could not read {table} ({exc}); ingesting the full back-series"
-        )
-        return None
+        # Only a genuinely absent table means "no periods yet". Swallowing any
+        # other failure would report an empty table on a transient error, and the
+        # caller would then re-ingest the whole back-series.
+        if "not found" in str(exc).lower() or "404" in str(exc):
+            print(
+                f"{table} does not exist yet; ingesting the full back-series"
+            )
+            return None
+        raise
 
     period = frame["period"][0] if len(frame) else None
     if period is None or (isinstance(period, float) and period != period):
