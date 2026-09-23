@@ -25,6 +25,4 @@ select
     safe_cast(recipient_count_note as string) recipient_count_note,
     safe_cast(payment_amount_month as int64) payment_amount_month,
     safe_cast(payment_amount_month_note as string) payment_amount_month_note
-from
-    {{ set_datalake_project("us_ssa_beneficiaries_staging.ssi_county") }}
-    as t
+from {{ set_datalake_project("us_ssa_beneficiaries_staging.ssi_county") }} as t
