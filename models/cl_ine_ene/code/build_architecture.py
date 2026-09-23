@@ -28,6 +28,15 @@ import re
 
 HERE = pathlib.Path(__file__).resolve().parent
 OVERRIDES = json.loads((HERE / "overrides.json").read_text())
+ANNEXES = json.loads((HERE / "codebook_annexes.json").read_text())
+
+#: {column: {code}} for the columns whose labels live in a codebook annex rather
+#: than in its section-5 variable table — occupation, industry and nationality.
+ANNEX_CODES = {
+    column: set(ANNEXES["tables"][table])
+    for table, columns in ANNEXES["applies_to"].items()
+    for column in columns
+}
 RENAMES = OVERRIDES["renames"]
 
 #: The only columns where arithmetic across rows is meaningful. Everything else --
@@ -43,10 +52,92 @@ NUMERIC = {
     "fact_anual": ("FLOAT64", ""),
 }
 
-#: Values the codebook uses for "does not know" / "does not answer" / "no
-#: information". Any of these inside a NUMERIC column means the column is really
-#: categorical and the type is wrong.
+#: Codes the codebook uses for "does not know" / "does not answer" / "does not
+#: apply" / "no information", recognised by their LABEL rather than their value.
+#: The value alone cannot decide it: 77, 88 and 99 are non-response codes in
+#: `habituales` and ordinary ages in `edad`, and the codebook says which is which.
+NON_RESPONSE = re.compile(
+    r"no\s+(sabe|responde|aplica|corresponde|informa)|sin\s+(informaci[oó]n|clasificaci[oó]n)"
+    r"|zona no especificada",
+    re.IGNORECASE,
+)
+
+
+def declared_sentinels(categories: list[str]) -> set[str]:
+    """The codes this column's own codebook entry marks as non-response."""
+    out = set()
+    for entry in categories:
+        code, _, label = entry.partition(":")
+        if NON_RESPONSE.search(label):
+            out.add(code.strip())
+    return out
+
+
+#: Values that are a non-response code in SOME column. Used only to decide
+#: dictionary coverage, never to decide a type.
 SENTINELS = {"77", "88", "99", "888", "999", "8888", "9999", "88888", "99999"}
+
+#: Columns whose codes are resolved by a directory rather than by this dataset's
+#: dicionario. The comuna and region annexes of the codebook restate
+#: br_bd_diretorios_cl, which is their source of truth.
+DIRECTORY_CODED = {
+    "id_region",
+    "id_provincia",
+    "id_comuna",
+    "mig2_cod",
+    "mig5_cod",
+    "b18_codigo",
+    "b18_region",
+}
+
+
+#: A dicionario must explain most of what the column actually holds. Below this
+#: share the "categories" are an artefact: a line number whose 1 and 2 happen to
+#: be documented, or a free-text field with a couple of coded answers among
+#: thousands of written ones.
+COVERAGE_FLOOR = 0.5
+
+
+def is_dictionary_covered(
+    name: str,
+    bq_type: str,
+    categories: list[str],
+    observed: set[str],
+    over_cap: bool,
+) -> bool:
+    """True only when the dicionario interprets the column's stored VALUES.
+
+    Three ways a column fails, all of them seen in this dataset:
+
+    * documented solely by its non-response codes — `turno_h` holds hours, and
+      888/999 are sentinels sitting beside them, not a vocabulary;
+    * resolved by a directory instead — `id_comuna`, `mig2_cod` and the rest use
+      the DPA, whose source of truth is br_bd_diretorios_cl;
+    * free text or an identifier that happens to carry a couple of coded answers
+      — `e19_otro` has 20,196 distinct written reasons.
+
+    Marking any of these `yes` asserts a value->label map that can never be
+    complete, and custom_dictionary_coverage then fails on every real value.
+    """
+    annex = ANNEX_CODES.get(name, set())
+    if (
+        bq_type != "STRING"
+        or name in DIRECTORY_CODED
+        or not (categories or annex)
+    ):
+        return False
+    # A section-5 entry listing only non-response codes is not a vocabulary — but
+    # it is for the classification columns, whose real labels sit in an annex.
+    substantive = {
+        code.split(":", 1)[0].strip() for code in categories
+    } - SENTINELS
+    if not substantive and not annex:
+        return False
+    if over_cap or not observed:
+        return False
+    labelled = {code.split(":", 1)[0].strip() for code in categories} | annex
+    return len(observed & labelled) / len(observed) >= COVERAGE_FLOOR
+
 
 DIRECTORY = {
     "ano": "br_bd_diretorios_data_tempo.ano:ano",
@@ -92,8 +183,23 @@ def temporal_coverage(first: str, last: str) -> str:
     return f"{start}(1){end}"
 
 
+def undocumented(
+    categories: list[str], name: str, observed: set[str]
+) -> list[str]:
+    """Values present in the data that the codebook does not label.
+
+    INE's codebook does not document every value its own microdata contains —
+    `ocup_form` carries a 0 it never defines, `b17_mes` a stray 1997. Nothing is
+    invented for these: they are listed in the column's observations so a reader
+    meets them knowingly, and they keep the column out of the completeness test.
+    """
+    labelled = {code.split(":", 1)[0].strip() for code in categories}
+    labelled |= ANNEX_CODES.get(name, set())
+    return sorted(observed - labelled, key=lambda v: (len(v), v))
+
+
 def build(universe, codebook, profile):
-    rows, problems = [], []
+    rows, problems, complete = [], [], []
     for entry in universe:
         source_name = entry["name"]
         name = RENAMES.get(source_name, source_name)
@@ -110,7 +216,7 @@ def build(universe, codebook, profile):
             description = description[0].upper() + description[1:]
 
         stats = profile.get(source_name, {})
-        observed = {str(value) for value, _ in stats.get("top", [])}
+        observed = set(stats.get("values", []))
 
         if name in NUMERIC:
             bq_type, unit = NUMERIC[name]
@@ -119,24 +225,51 @@ def build(universe, codebook, profile):
                     problems.append(
                         f"{name}: {stats['other']} non-numeric values but typed {bq_type}"
                     )
-                hit = sorted(observed & SENTINELS)
+                hit = sorted(observed & declared_sentinels(categories))
                 if hit:
                     problems.append(
-                        f"{name}: typed {bq_type} but carries sentinel codes {hit}"
+                        f"{name}: typed {bq_type} but carries the non-response "
+                        f"codes {hit} its codebook entry declares"
                     )
         else:
             bq_type, unit = "STRING", ""
 
         covered = (
             "yes"
-            if (bq_type == "STRING" and categories and name not in DIRECTORY)
+            if is_dictionary_covered(
+                name,
+                bq_type,
+                categories,
+                observed,
+                stats.get("over_cap", False),
+            )
             else "no"
         )
+
+        missing = (
+            undocumented(categories, name, observed)
+            if covered == "yes"
+            else []
+        )
+        if covered == "yes" and not missing:
+            complete.append(name)
 
         observation = OVERRIDES["observations"].get(name, "")
         book_obs = clean_observation(book.get("obs", ""))
         if book_obs and not observation:
             observation = book_obs
+        if missing:
+            shown = ", ".join(missing[:12]) + (
+                " ..." if len(missing) > 12 else ""
+            )
+            note = (
+                f"Los valores {shown} aparecen en los datos pero el libro de códigos "
+                "del INE no los define; se publican tal cual, sin etiqueta"
+            )
+            observation = (
+                f"{observation}. {note}".strip(". ") if observation else note
+            )
+
         if entry["last_period"] != SERIES_LAST:
             retired = f"Descontinuada: publicada entre {entry['first_period']} y {entry['last_period']}"
             observation = (
@@ -159,7 +292,7 @@ def build(universe, codebook, profile):
                 "original_name": source_name if source_name != name else "",
             }
         )
-    return rows, problems
+    return rows, problems, complete
 
 
 FIELDS = [
@@ -188,7 +321,7 @@ def main():
     codebook = json.loads((HERE / "codebook_parsed.json").read_text())
     profile = json.loads(pathlib.Path(args.profile).read_text())
 
-    rows, problems = build(universe, codebook, profile)
+    rows, problems, complete = build(universe, codebook, profile)
 
     missing = [r["name"] for r in rows if not r["description"]]
     print(f"{len(rows)} columns; {len(missing)} without a description")
@@ -214,6 +347,15 @@ def main():
         writer.writeheader()
         writer.writerows(rows)
     print(f"\nwrote {out}")
+
+    # Columns whose dicionario is demonstrably complete against every value in
+    # the data. schema.yml scopes custom_dictionary_coverage to exactly these, so
+    # the test asserts something true instead of failing on the source's own gaps.
+    listing = HERE / "dictionary_complete.json"
+    listing.write_text(json.dumps(complete, indent=1) + "\n")
+    print(
+        f"wrote {listing} ({len(complete)} columns with a complete dicionario)"
+    )
 
 
 if __name__ == "__main__":

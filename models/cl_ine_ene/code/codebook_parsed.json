@@ -19,9 +19,10 @@
    "9: Septiembre",
    "10: Octubre",
    "11: Noviembre",
-   "12: Diciembre"
+   "12: Diciembre",
+   "5: 1.2 Información muestral y de identificación"
   ],
-  "obs": "Señala el mes del periodo de recolección de datos. 5.1.2 Información muestral y de identificación Variable Etiqueta Valores Observaciones",
+  "obs": "Señala el mes del periodo de recolección de datos. Variable Etiqueta Valores Observaciones",
   "src": 2020
  },
  "region": {
@@ -71,8 +72,11 @@
   "src": 2020
  },
  "nro_linea": {
-  "desc": "identificada en el cuestionario. 6  Disponible en https://www.bcn.cl/leychile/navegar?idNorma=1115064 5.2 Cuestionario sociodemográfico 5.2.1 Características básicas",
-  "cats": [],
+  "desc": "identificada en el cuestionario. 6  Disponible en https://www.bcn.cl/leychile/navegar?idNorma=1115064",
+  "cats": [
+   "5: 2 Cuestionario sociodemográfico",
+   "5: 2.1 Características básicas"
+  ],
   "obs": "Número de línea de persona  Corresponde al orden con el cual la persona fue",
   "src": 2020
  },
@@ -122,9 +126,10 @@
    "5: Separado/a de hecho o anulado/a",
    "6: Divorciado/a",
    "88: No sabe",
-   "99: No responde"
+   "99: No responde",
+   "5: 2.2 Migración y nacionalidad"
   ],
-  "obs": "5.2.2 Migración y nacionalidad",
+  "obs": "",
   "src": 2020
  },
  "mig1": {
@@ -185,8 +190,10 @@
   "src": 2020
  },
  "orig3": {
-  "desc": "nueva dimensión de análisis (INE, 2021c). 5.2.4 Educación",
-  "cats": [],
+  "desc": "nueva dimensión de análisis (INE, 2021c).",
+  "cats": [
+   "5: 2.4 Educación"
+  ],
   "obs": "Especifica orig2=20 (Otro). Pregunta abierta. Vigente desde EFM 2020 a la fecha como",
   "src": 2020
  },
@@ -305,9 +312,11 @@
    "1: Sí",
    "2: No",
    "88: No sabe",
-   "99: No responde"
+   "99: No responde",
+   "5: 3 Cuestionario central de empleo",
+   "5: 3.1 Sección A: Situación laboral en la semana de referencia"
   ],
-  "obs": "Vigente desde EFM 2020 a la fecha. Réplica de variable estudia_actual creada con fines analíticos. Corresponde a cuestionario vigente. 5.3 Cuestionario central de empleo 5.3.1 Sección A: Situación laboral en la semana de referencia",
+  "obs": "Vigente desde EFM 2020 a la fecha. Réplica de variable estudia_actual creada con fines analíticos. Corresponde a cuestionario vigente.",
   "src": 2020
  },
  "a1": {
@@ -726,9 +735,10 @@
    "1: Sí",
    "2: No",
    "88: No sabe",
-   "99: No responde"
+   "99: No responde",
+   "5: 3.3 Informalidad laboral"
   ],
-  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2021d). 5.3.3 Informalidad laboral Las preguntas sobre informalidad laboral son parte de la sección B “ Caracterización de la actividad principal ”. Se presentan separadas de ésta sólo con fines expositivos. 7",
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2021d). Las preguntas sobre informalidad laboral son parte de la sección B “ Caracterización de la actividad principal ”. Se presentan separadas de ésta sólo con fines expositivos. 7",
   "src": 2020
  },
  "i1": {
@@ -817,9 +827,10 @@
    "1: Sí",
    "2: No",
    "88: No sabe",
-   "99: No responde"
+   "99: No responde",
+   "5: 3.4 Asociatividad laboral en la ocupación principal"
   ],
-  "obs": "Vigente desde JAS 2017 a la fecha (INE, 2017). 5.3.4 Asociatividad laboral en la ocupación principal",
+  "obs": "Vigente desde JAS 2017 a la fecha (INE, 2017).",
   "src": 2020
  },
  "f7a": {
@@ -872,9 +883,10 @@
    "1: Sí",
    "2: No",
    "88: No sabe",
-   "99: No responde"
+   "99: No responde",
+   "5: 3.5 Situación en la ocupación"
   ],
-  "obs": "Vigente desde JAS 2017 a la fecha como nueva dimensión de análisis (INE, 2024b). 5.3.5 Situación en la ocupación",
+  "obs": "Vigente desde JAS 2017 a la fecha como nueva dimensión de análisis (INE, 2024b).",
   "src": 2020
  },
  "de_1a": {
@@ -1070,9 +1082,10 @@
    "1: Sí",
    "2: No",
    "88: No sabe",
-   "99: No responde"
+   "99: No responde",
+   "5: 3.6 Impacto de pandemia COVID-19 en personas ocupadas"
   ],
-  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026) 5.3.6 Impacto de pandemia COVID-19 en personas ocupadas Las siguientes preguntas se incorporaron en el cuestionario de la ENE a partir del trimestre MAM 2020, permaneciendo vigentes hasta OND 2021. Fueron recomendadas por OIT en el contexto del impacto de la pandemia de COVID-19 en la población ocupada.",
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026) Las siguientes preguntas se incorporaron en el cuestionario de la ENE a partir del trimestre MAM 2020, permaneciendo vigentes hasta OND 2021. Fueron recomendadas por OIT en el contexto del impacto de la pandemia de COVID-19 en la población ocupada.",
   "src": 2020
  },
  "turno": {
@@ -1712,9 +1725,10 @@
    "1: Sí",
    "2: No",
    "88: No sabe",
-   "99: No responde"
+   "99: No responde",
+   "5: 3.9 Empleo anterior"
   ],
-  "obs": "Solo responden no ocupados/as. 5.3.9 Empleo anterior",
+  "obs": "Solo responden no ocupados/as.",
   "src": 2020
  },
  "e21_mes": {
@@ -1823,8 +1837,11 @@
   "src": 2020
  },
  "e24_otro": {
-  "desc": "e24_otro. Especifica e24 = Otra razón de renuncia recomendadas por OIT en el contexto del impacto de la pandemia de COVID -19 en la población no ocupada (INE, 2020c). 5.4 Variables analíticas y factores de expansión 5.4.1 Variables analíticas",
-  "cats": [],
+  "desc": "e24_otro. Especifica e24 = Otra razón de renuncia recomendadas por OIT en el contexto del impacto de la pandemia de COVID -19 en la población no ocupada (INE, 2020c).",
+  "cats": [
+   "5: 4 Variables analíticas y factores de expansión",
+   "5: 4.1 Variables analíticas"
+  ],
   "obs": "Incorporada a partir de JJA 2020,",
   "src": 2020
  },
@@ -2141,9 +2158,10 @@
  "pet": {
   "desc": "Población en edad de trabajar",
   "cats": [
-   "0: No corresponde"
+   "0: No corresponde",
+   "1: Población en edad de trabajar"
   ],
-  "obs": "1. Población en edad de trabajar",
+  "obs": "",
   "src": 2020
  },
  "ft": {
@@ -2289,15 +2307,19 @@
   "cats": [
    "1: Ocupado/a",
    "2: Desocupado/a",
-   "3: Fuera de la fuerza de trabajo"
+   "3: Fuera de la fuerza de trabajo",
+   "5: 4.2 Factores de expansión"
   ],
-  "obs": "5.4.2 Factores de expansión",
+  "obs": "",
   "src": 2020
  },
  "fact_cal": {
-  "desc": "la serie, desde EFM 2010. fact_anual Factor de expansión anual  Sólo disponible en bases anuales, de acuerdo con metodología desarrollada por el INE (2022c). 6 DESCRIPCIÓN DE INDICADORES PRINCIPALES 6.1 Indicadores sobre la fuerza de trabajo (variable cae_especifico), se construyen los principales indicadores de empleo de la ENE.8 6.1.1 Tasa de desocupación (TD)",
-  "cats": [],
-  "obs": "Factor de expansión trimestral calibrado.  Vigente para la totalidad de A partir de la identificación de categorías según el código sumario empleo específico",
+  "desc": "la serie, desde EFM 2010. fact_anual Factor de expansión anual  Sólo disponible en bases anuales, de acuerdo con metodología desarrollada por el INE (2022c). 6 DESCRIPCIÓN DE INDICADORES PRINCIPALES",
+  "cats": [
+   "6: 1 Indicadores sobre la fuerza de trabajo",
+   "6: 1.1 Tasa de desocupación (TD)"
+  ],
+  "obs": "Factor de expansión trimestral calibrado.  Vigente para la totalidad de A partir de la identificación de categorías según el código sumario empleo específico (variable cae_especifico), se construyen los principales indicadores de empleo de la ENE.8",
   "src": 2020
  },
  "a9": {
@@ -2306,9 +2328,10 @@
    "1: Sí",
    "2: No",
    "88: No sabe",
-   "99: No responde"
+   "99: No responde",
+   "5: 3.2 Sección B: Caracterización de la actividad principal"
   ],
-  "obs": "Descontinuada. Producida entre MAM 2020 y NDE 2022. Su inclusión fue recomendada por OIT en el contexto del impacto de la pandemia de COVID-19 en la población ocupada (INE, 2020b). 5.3.2 Sección B: Caracterización de la actividad principal",
+  "obs": "Descontinuada. Producida entre MAM 2020 y NDE 2022. Su inclusión fue recomendada por OIT en el contexto del impacto de la pandemia de COVID-19 en la población ocupada (INE, 2020b).",
   "src": 2020
  },
  "i11": {
@@ -2474,9 +2497,10 @@
   "desc": "Entonces, ¿trabajaría menos horas, aunque esto suponga una reducción proporcional de su sueldo?",
   "cats": [
    "1: Sí",
-   "2: No"
+   "2: No",
+   "5: 3.8 Sección E: Búsqueda de empleo"
   ],
-  "obs": "Descontinuada. Producida entre EFM 2010 y OND 2019. 5.3.8 Sección E: Búsqueda de empleo En esta sección se caracteriza la búsqueda de empleo, tanto en personas ocupadas como en no ocupadas, así como también la disponibilidad para comenzar a trabajar.",
+  "obs": "Descontinuada. Producida entre EFM 2010 y OND 2019. En esta sección se caracteriza la búsqueda de empleo, tanto en personas ocupadas como en no ocupadas, así como también la disponibilidad para comenzar a trabajar.",
   "src": 2020
  },
  "e1": {
@@ -2588,9 +2612,11 @@
   "src": 2020
  },
  "e19_otro": {
-  "desc": "Especifica e19 = Otras razones de despido o de renuncia EFM 2010 y OND 2019. 5.3.10 Impacto de pandemia COVID-19 en personas no ocupadas Inicialmente estas preguntas se incorporaron para caracterizar impacto de pandemia de COVID-19 en la pérdida de ocupaciones. Se mantuvieron en el tiempo dada la utilidad analítica respecto al análisis de la anterior ocupación.",
-  "cats": [],
-  "obs": "Descontinuada. Producida entre",
+  "desc": "Especifica e19 = Otras razones de despido o de renuncia EFM 2010 y OND 2019.",
+  "cats": [
+   "5: 3.10 Impacto de pandemia COVID-19 en personas no ocupadas"
+  ],
+  "obs": "Descontinuada. Producida entre Inicialmente estas preguntas se incorporaron para caracterizar impacto de pandemia de COVID-19 en la pérdida de ocupaciones. Se mantuvieron en el tiempo dada la utilidad analítica respecto al análisis de la anterior ocupación.",
   "src": 2020
  },
  "fact": {

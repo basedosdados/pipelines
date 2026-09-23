@@ -1,11 +1,35 @@
-"""Codebook parser bounded to the variable-table sections, first occurrence wins."""
+"""Extract the variable tables of the two INE ENE codebooks.
+
+Anchors on the known column names inside the bounded section-5 line ranges, so
+prose from the surrounding methodology cannot be mistaken for a variable entry,
+and the first occurrence of each name wins. The classification annexes at the
+back of the PDFs are handled separately by parse_annexes.py.
+
+    python models/cl_ine_ene/code/parse_codebook.py
+"""
+
+from __future__ import annotations
 
 import json
+import os
 import pathlib
 import re
 
+import pypdf
+
+HERE = pathlib.Path(__file__).resolve().parent
+DOCS = (
+    pathlib.Path(
+        os.environ.get(
+            "CL_INE_ENE_DATA",
+            pathlib.Path.home() / "Downloads/cl_ine_ene_data",
+        )
+    )
+    / "docs"
+)
+
 universe = [
-    r["name"] for r in json.loads(pathlib.Path("universe.json").read_text())
+    r["name"] for r in json.loads((HERE / "column_universe.json").read_text())
 ]
 # the PDF wraps long names at underscores
 spellings = {c: c for c in universe}
@@ -23,8 +47,8 @@ PATTERN = re.compile(
     re.M,
 )
 CODE = re.compile(
-    r"^\s*(\d{1,5})\s*[:\-\u2013]\s*(.+?)\s*$"
-)  # the PDF uses ":" or an en dash
+    r"^\s*(\d{1,5})\s*[:.\-\u2013]\s*(.+?)\s*$"
+)  # ":" mostly, but the PDF also has "1." and an en dash
 INLINE_FIRST_CODE = re.compile(r"^(.*?\S)\s+(\d{1,5}):\s*(\S.*)$")
 # A value RANGE ("1 - 168", "2010 - 2026") flattens to look exactly like a
 # code/label pair once the en dash is lost. Checked AFTER the Observaciones tail
@@ -48,13 +72,24 @@ NOISE = re.compile(
 )
 
 # line ranges holding the variable tables (1-indexed, inclusive)
-BOUNDS = {"cod2020.txt": [(560, 3300)], "cod2019.txt": [(120, 1610)]}
+#: Line ranges holding the variable tables, 1-indexed and inclusive. Outside them
+#: the documents are prose, and a bare word like "nivel" or "edad" is an ordinary
+#: noun rather than a variable name.
+BOUNDS = {2020: (560, 3300), 2019: (120, 1610)}
 
 
-def parse(path):
-    lines = pathlib.Path(path).read_text().splitlines()
+def text_lines(year: int) -> list[str]:
+    """The codebook's flattened text, extracted the same way every run."""
+    reader = pypdf.PdfReader(str(DOCS / f"codigos-ene-{year}.pdf"))
+    return "\n".join(
+        page.extract_text() or "" for page in reader.pages
+    ).splitlines()
+
+
+def parse(year: int):
+    lines = text_lines(year)
     out = {}
-    for lo, hi in BOUNDS[path]:
+    for lo, hi in [BOUNDS[year]]:
         text = "\n".join(lines[lo - 1 : hi])
         hits = [
             (m.start(), m.end(), spellings[m.group(1)])
@@ -100,13 +135,13 @@ def parse(path):
 
 merged = {}
 for year in (2020, 2019):
-    p = parse(f"cod{year}.txt")
+    p = parse(year)
     n = sum(1 for c in universe if p.get(c, {}).get("desc"))
     print(f"{year}: {n}/{len(universe)} with a description")
     for c in universe:
         if p.get(c, {}).get("desc") and c not in merged:
             merged[c] = dict(p[c], src=year)
-pathlib.Path("cb_final.json").write_text(
+(HERE / "codebook_parsed.json").write_text(
     json.dumps(merged, ensure_ascii=False, indent=1)
 )
 miss = [c for c in universe if c not in merged]
