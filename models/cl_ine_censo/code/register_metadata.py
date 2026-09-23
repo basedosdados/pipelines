@@ -31,25 +31,55 @@ from constants import CENSUS_YEAR, DATA_ROOT, DATASET_ID
 PAYLOAD_DIR = DATA_ROOT / "metadata_payloads"
 AUX_URLS = DATA_ROOT / "aux" / "urls.json"
 
-# --- staging reference ids (re-resolve for prod; they differ per environment) --
-IDS = {
-    "dataset": "3e9628c5-4d5e-490c-b5f1-3c2bf6ab58ce",
-    "raw_data_source": "ad2364b8-ec36-4c5d-b6b5-5b1869ec8e79",
-    "organization": "c19aaea7-e3c2-412d-a40d-404f91ce7081",
-    "status_published": "e16221de-ac30-4926-83d3-de219998dab3",
-    "account": "57",
-    "area_cl": "b08e39e7-966c-4d33-ae58-b513c47291d2",
+# --- reference ids, resolved per environment --------------------------------
+# These are NOT interchangeable. Verified 2026-09-23: the cc_by_sa licence, the
+# census_block entity, the organization and the account all differ between
+# staging and prod, and prod renders tag slugs in English while staging renders
+# them in Portuguese (same uuids). Always re-resolve; never copy across.
+IDS_BY_ENV = {
+    "staging": {
+        "dataset": "3e9628c5-4d5e-490c-b5f1-3c2bf6ab58ce",
+        "raw_data_source": "ad2364b8-ec36-4c5d-b6b5-5b1869ec8e79",
+        "organization": "c19aaea7-e3c2-412d-a40d-404f91ce7081",
+        # staging is already published; prod stays under_review until the PR is
+        # merged, table-approve has materialised the tables, and they verify.
+        "status_table": "e16221de-ac30-4926-83d3-de219998dab3",
+        "account": "57",
+        "area_cl": "b08e39e7-966c-4d33-ae58-b513c47291d2",
+    },
+    "prod": {
+        "dataset": "47d27153-ac97-4d5f-a168-ec27cb1d968f",
+        "raw_data_source": "0f49c50e-02f7-4808-b080-87c3d8c7ec08",
+        "organization": "494b2488-49b5-4316-9323-a9a3c6f23922",
+        "status_table": "e16221de-ac30-4926-83d3-de219998dab3",
+        "account": "4",
+        "area_cl": "b08e39e7-966c-4d33-ae58-b513c47291d2",
+    },
 }
 
-ENTITIES = {
-    "year": "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
-    "municipality": "460cf58b-63a7-4fb7-910f-4ca8ea58c25e",
-    "household": "d109791b-0e3c-402d-bcd5-8fec218ce95d",
-    "household_group": "4fd592a0-1498-420b-851c-146333783944",
-    "person": "b4e76213-888b-40ea-b877-d82ce76d71a2",
-    "census_block": "790ac8a5-4456-4133-a069-ff7a40c79d42",
-    "census_tract": "a60054ba-3f9a-4772-818a-e11894404e9c",
-    "village": "a8537c04-7fdf-4f7d-82a8-6160c8879578",
+ENTITIES_BY_ENV = {
+    "staging": {
+        "year": "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+        "municipality": "460cf58b-63a7-4fb7-910f-4ca8ea58c25e",
+        "household": "d109791b-0e3c-402d-bcd5-8fec218ce95d",
+        "household_group": "4fd592a0-1498-420b-851c-146333783944",
+        "person": "b4e76213-888b-40ea-b877-d82ce76d71a2",
+        "census_block": "790ac8a5-4456-4133-a069-ff7a40c79d42",
+        "census_tract": "a60054ba-3f9a-4772-818a-e11894404e9c",
+        "village": "a8537c04-7fdf-4f7d-82a8-6160c8879578",
+    },
+    "prod": {
+        "year": "e1bf146e-b6bb-4b65-bee7-c800876e80a5",
+        "municipality": "460cf58b-63a7-4fb7-910f-4ca8ea58c25e",
+        "household": "d109791b-0e3c-402d-bcd5-8fec218ce95d",
+        # created on prod separately; staging's id is 4fd592a0 and does NOT work here
+        "household_group": "f001f60f-4c1f-4686-8de0-f983affb565c",
+        "person": "b4e76213-888b-40ea-b877-d82ce76d71a2",
+        # differs from staging (790ac8a5)
+        "census_block": "747e33d7-fef0-4bd4-8835-10a8895bec18",
+        "census_tract": "a60054ba-3f9a-4772-818a-e11894404e9c",
+        "village": "a8537c04-7fdf-4f7d-82a8-6160c8879578",
+    },
 }
 
 # Per table: display names, descriptions, and the observation levels with the
@@ -164,6 +194,8 @@ def existing_state(env: str) -> dict:
 
 
 def register(env: str, gcp_project: str) -> None:
+    IDS = IDS_BY_ENV[env]
+    ENTITIES = ENTITIES_BY_ENV[env]
     state = existing_state(env)
     tables_state = state.get("tables", {})
     aux = auxiliary_urls()
@@ -186,7 +218,7 @@ def register(env: str, gcp_project: str) -> None:
             description_pt=desc_pt,
             description_en=desc_en,
             description_es=desc_es,
-            status_id=IDS["status_published"],
+            status_id=IDS["status_table"],
             published_by_ids=[IDS["account"]],
             data_cleaned_by_ids=[IDS["account"]],
             raw_data_source_ids=[IDS["raw_data_source"]],
@@ -305,11 +337,6 @@ def main() -> None:
     )
     args = parser.parse_args()
     gcp_project = "basedosdados" if args.env == "prod" else "basedosdados-dev"
-    if args.env == "prod":
-        raise SystemExit(
-            "prod ids differ per environment and must be re-resolved first; "
-            "update IDS/ENTITIES before running against prod"
-        )
     register(args.env, gcp_project)
     print("\ndone")
 
