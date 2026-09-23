@@ -24,6 +24,7 @@ import re
 
 HERE = pathlib.Path(__file__).resolve().parent
 OVERRIDES = json.loads((HERE / "overrides.json").read_text())
+ANNEXES = json.loads((HERE / "codebook_annexes.json").read_text())
 
 DATASET = "cl_ine_ene"
 TABLE = "microdato"
@@ -71,8 +72,23 @@ def write_microdato(rows, out_dir):
 CODE_SPLIT = re.compile(r"^(\d{1,5}):\s*(.+)$")
 
 
+def annex_labels() -> dict[str, dict[str, str]]:
+    """{column: {code: label}} for the columns documented in the codebook annexes.
+
+    Occupation (CIUO), industry (CAENES) and nationality (UN M49) are the columns
+    an economist reads, and section 5 of the codebook gives only their sentinel
+    codes — the real labels sit in annexes 2, 3 and 5.
+    """
+    out: dict[str, dict[str, str]] = {}
+    for table, columns in ANNEXES["applies_to"].items():
+        for column in columns:
+            out[column] = ANNEXES["tables"][table]
+    return out
+
+
 def dicionario_rows(arch_rows, codebook):
     """(id_tabela, nome_coluna, chave, cobertura_temporal, valor), deduplicated."""
+    annexes = annex_labels()
     out, seen = [], set()
     for row in arch_rows:
         if row["covered_by_dictionary"] != "yes":
@@ -84,6 +100,10 @@ def dicionario_rows(arch_rows, codebook):
             or codebook.get(source, {}).get("cats")
             or []
         )
+        for code, label in annexes.get(name, {}).items():
+            if (name, code) not in seen:
+                seen.add((name, code))
+                out.append((TABLE, name, code, "", label))
         for raw in cats:
             match = CODE_SPLIT.match(raw.strip())
             if not match:

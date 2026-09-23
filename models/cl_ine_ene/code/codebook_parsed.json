@@ -1,10 +1,8 @@
 {
  "ano_encuesta": {
   "desc": "Año de recolección de datos",
-  "cats": [
-   "2010: 2026 Señala el año del periodo de recolección de datos."
-  ],
-  "obs": "",
+  "cats": [],
+  "obs": "2010 - 2026 Señala el año del periodo de recolección de datos.",
   "src": 2020
  },
  "mes_encuesta": {
@@ -1508,11 +1506,9 @@
   "src": 2020
  },
  "e3_total": {
-  "desc": "Número de gestiones realizadas para buscar empleo",
-  "cats": [
-   "1: 11  Variable construida a partir de sumatoria"
-  ],
-  "obs": "de valores afirmativos entre e3_1 y",
+  "desc": "Número de gestiones realizadas para buscar empleo de valores afirmativos entre e3_1 y",
+  "cats": [],
+  "obs": "1 – 11  Variable construida a partir de sumatoria",
   "src": 2020
  },
  "e4": {
@@ -1977,11 +1973,9 @@
   "src": 2020
  },
  "n_dependencias": {
-  "desc": "Ámbitos totales de dependencia económica y/u organizativas observadas en la",
-  "cats": [
-   "0: 7  Incorporada como nueva"
-  ],
-  "obs": "dimensión de análisis, véase INE (2026). ocupación principal de persona ocupada independiente",
+  "desc": "Ámbitos totales de dependencia económica y/u organizativas observadas en la INE (2026). ocupación principal de persona ocupada independiente",
+  "cats": [],
+  "obs": "0 – 7  Incorporada como nueva dimensión de análisis, véase",
   "src": 2020
  },
  "cdi": {
@@ -2138,11 +2132,10 @@
  "efectivas": {
   "desc": "Horas efectivas trabajadas en la semana de referencia",
   "cats": [
-   "0: 168",
    "888: No sabe",
    "999: No responde"
   ],
-  "obs": "Variable construida a partir de procesamiento de variables c2_1_1, c2_1_2, c2_1_3, c6 y c8. Para el cálculo de horas",
+  "obs": "0 – 168 Variable construida a partir de procesamiento de variables c2_1_1, c2_1_2, c2_1_3, c6 y c8. Para el cálculo de horas",
   "src": 2020
  },
  "pet": {
@@ -2343,7 +2336,7 @@
  "i13_1": {
   "desc": "Medidas de financiamiento de gastos del hogar: Reducir gastos del hogar",
   "cats": [
-   "1: Sí Descontinuada. Vigente entre MAM 2020"
+   "1: Sí"
   ],
   "obs": "y OND2021.",
   "src": 2020
@@ -2351,7 +2344,7 @@
  "i13_2": {
   "desc": "Medidas de financiamiento de gastos del hogar: Trabajar más horas en actividad principal",
   "cats": [
-   "1: Sí Descontinuada. Vigente entre MAM 2020"
+   "1: Sí"
   ],
   "obs": "y OND2021.",
   "src": 2020
@@ -2359,7 +2352,7 @@
  "i13_3": {
   "desc": "Medidas de financiamiento de gastos del hogar: Búsqueda de otro trabajo",
   "cats": [
-   "1: Sí Descontinuada. Vigente entre MAM 2020"
+   "1: Sí"
   ],
   "obs": "y OND2021.",
   "src": 2020
@@ -2367,7 +2360,7 @@
  "i13_4": {
   "desc": "Medidas de financiamiento de gastos del hogar: Usar ahorros",
   "cats": [
-   "1: Sí Descontinuada. Vigente entre MAM 2020"
+   "1: Sí"
   ],
   "obs": "y OND2021.",
   "src": 2020
@@ -2375,7 +2368,7 @@
  "i13_5": {
   "desc": "Medidas de financiamiento de gastos del hogar: Esperar ayuda de un familiar, vecinos o amigos",
   "cats": [
-   "1: Sí Descontinuada. Vigente entre MAM 2020"
+   "1: Sí"
   ],
   "obs": "y OND2021.",
   "src": 2020
@@ -2383,7 +2376,7 @@
  "i13_6": {
   "desc": "Medidas de financiamiento de gastos del hogar: Esperar ayuda del Estado",
   "cats": [
-   "1: Sí Descontinuada. Vigente entre MAM 2020"
+   "1: Sí"
   ],
   "obs": "y OND2021.",
   "src": 2020
@@ -2391,7 +2384,7 @@
  "i13_7": {
   "desc": "Medidas de financiamiento de gastos del hogar: Esperar ayuda de instituciones sin fines de lucro (ONG's, Iglesia, etc.)",
   "cats": [
-   "1: Sí Descontinuada. Vigente entre MAM 2020"
+   "1: Sí"
   ],
   "obs": "y OND2021.",
   "src": 2020
@@ -2399,7 +2392,7 @@
  "i13_8": {
   "desc": "Medidas de financiamiento de gastos del hogar: Utilizar tarjeta o línea de crédito",
   "cats": [
-   "1: Sí Descontinuada. Vigente entre MAM 2020"
+   "1: Sí"
   ],
   "obs": "y OND2021.",
   "src": 2020
@@ -2407,7 +2400,7 @@
  "i13_9": {
   "desc": "Medidas de financiamiento de gastos del hogar: Solicitar un préstamo bancario",
   "cats": [
-   "1: Sí Descontinuada. Vigente entre MAM 2020"
+   "1: Sí"
   ],
   "obs": "y OND2021.",
   "src": 2020
@@ -2415,7 +2408,7 @@
  "i13_10": {
   "desc": "Medidas de financiamiento de gastos del hogar: Solicitar un préstamo a un familiar",
   "cats": [
-   "1: Sí Descontinuada. Vigente entre MAM 2020"
+   "1: Sí"
   ],
   "obs": "y OND2021.",
   "src": 2020
@@ -2423,7 +2416,7 @@
  "i13_11": {
   "desc": "Medidas de financiamiento de gastos del hogar: No hará nada",
   "cats": [
-   "1: Sí Descontinuada. Vigente entre MAM 2020"
+   "1: Sí"
   ],
   "obs": "y OND2021.",
   "src": 2020
@@ -2431,7 +2424,7 @@
  "i13_88": {
   "desc": "Medidas de financiamiento de gastos del hogar: No sabe",
   "cats": [
-   "1: Sí Descontinuada. Vigente entre MAM 2020"
+   "1: Sí"
   ],
   "obs": "y OND2021.",
   "src": 2020
@@ -2439,17 +2432,15 @@
  "i13_99": {
   "desc": "Medidas de financiamiento de gastos del hogar: No responde",
   "cats": [
-   "1: Sí Descontinuada. Vigente entre MAM 2020"
+   "1: Sí"
   ],
   "obs": "y OND2021.",
   "src": 2020
  },
  "i13_total": {
-  "desc": "Número de medidas de financiamiento de gastos del hogar",
-  "cats": [
-   "1: 10 Descontinuada. Vigente entre MAM 2020"
-  ],
-  "obs": "y OND2021. Variable construida a partir de sumatoria de valores afirmativos entre i13_1 y",
+  "desc": "Número de medidas de financiamiento de gastos del hogar y OND2021. de valores afirmativos entre i13_1 y",
+  "cats": [],
+  "obs": "1 – 10 Descontinuada. Vigente entre MAM 2020 Variable construida a partir de sumatoria",
   "src": 2020
  },
  "b11": {

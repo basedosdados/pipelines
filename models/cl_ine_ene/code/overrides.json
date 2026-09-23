@@ -1,5 +1,5 @@
 {
-  "_comment": "Hand-written entries for what the two INE codebook PDFs would not yield. 257 of the 271 columns parse cleanly (see code/parse_codebook.py); the rest are transcribed here from the same PDFs, preserving the source wording. `descriptions` also corrects parsed entries that picked up prose from the surrounding methodology sections. `categories` supplies value labels for columns the parser missed; columns resolved through a directory carry only their sentinel codes, because the real labels live in the directory.",
+  "_comment": "Hand-written entries for what the two INE codebook PDFs would not yield. 257 of the 271 columns parse cleanly (see code/parse_codebook.py); the rest are transcribed here from the same PDFs, preserving the source wording. `descriptions` also corrects parsed entries that picked up prose from the surrounding methodology sections. `categories` supplies value labels for columns the parser missed; columns resolved through a directory carry only their sentinel codes, because the real labels live in the directory. Columns carrying a standard classification (CIUO, CAENES, UN M49) take only their sentinel codes here — the classification labels come from codebook_annexes.json, built by code/parse_annexes.py.",
   "renames": {
     "ano_trimestre": "ano",
     "mes_central": "mes",
@@ -29,13 +29,18 @@
     "fta": "Fuerza de trabajo ampliada",
     "idisp": "Iniciador/a disponible",
     "cd": "Contratista dependiente",
-    "habituales": "Horas habituales de trabajo en la semana de referencia",
-    "efectivas": "Horas efectivas trabajadas en la semana de referencia",
+    "habituales": "Horas habituales de trabajo en la semana de referencia, de 1 a 168",
+    "efectivas": "Horas efectivas trabajadas en la semana de referencia, de 0 a 168",
     "edad": "Edad de la persona durante la semana de referencia de la encuesta, de 0 a 120 años",
     "nivel": "Nivel educacional más alto aprobado",
     "fact": "Factor de expansión trimestral construido sobre las proyecciones de población del Censo 2002",
     "fact_cal": "Factor de expansión trimestral calibrado",
-    "e18_ciiu_rev3": "Rama de actividad económica del empleo anterior, según CIIU Rev. 3"
+    "e18_ciiu_rev3": "Rama de actividad económica del empleo anterior, según CIIU Rev. 3",
+    "id_directorio": "Manzana o sección: identifica el conglomerado correspondiente a la unidad primaria de muestreo, denominado manzana en estrato urbano y sección en RAU y rural",
+    "ano_encuesta": "Año del período de recolección de datos",
+    "mes_encuesta": "Mes del período de recolección de datos, de 1 a 12",
+    "orig2": "Pueblo indígena u originario al que la persona declara pertenecer",
+    "orig3": "Pueblo indígena u originario declarado, cuando orig2 es «Otro»"
   },
   "observations": {
     "ano": "Columna de partición. Es el año del mes CENTRAL del trimestre móvil, no el año de la entrevista: el trimestre centrado en enero abarca diciembre del año anterior. Nombre en la fuente: ano_trimestre",
@@ -46,7 +51,12 @@
     "fact_cal": "Factor de expansión calibrado, disponible para la totalidad de la serie desde el trimestre EFM 2010. La fuente lo publica con coma decimal; aquí se convierte a punto. Es la única ponderación válida para expandir la muestra",
     "fact": "Descontinuado: vigente sólo hasta el trimestre OND 2019. Para toda la serie use fact_cal",
     "id_identificacion": "Identifica el hogar dentro del trimestre móvil. No es un identificador de panel entre trimestres",
-    "idrph": "Identificador de persona dentro del trimestre móvil. Su formato cambia a lo largo de la serie y no permite seguir a la misma persona entre trimestres"
+    "idrph": "Identificador de persona dentro del trimestre móvil. Su formato cambia a lo largo de la serie y no permite seguir a la misma persona entre trimestres",
+    "habituales": "STRING y no INT64 porque la columna mezcla horas con los códigos de no respuesta 888 (No sabe) y 999 (No responde): convertirla a entero los dejaría como jornadas de 888 y 999 horas. Filtre esos dos valores antes de hacer aritmética. Variable construida a partir de c2_1_1, c2_1_2 y c2_1_3",
+    "efectivas": "STRING y no INT64 por la misma razón que habituales: contiene los códigos 888 (No sabe) y 999 (No responde) junto con las horas. Variable construida a partir de c2_1_1, c2_1_2, c2_1_3, c6 y c8",
+    "ano_encuesta": "No coincide necesariamente con ano: en el trimestre móvil centrado en enero la recolección abarca diciembre del año anterior",
+    "mes_encuesta": "Mes en que se entrevistó a la persona, dentro de los tres meses del trimestre móvil",
+    "id_directorio": "Reemplazada por conglomerado a partir del trimestre NDE 2019. En el esquema antiguo el conglomerado se denominaba manzana en estrato urbano y sección en RAU y rural"
   },
   "categories": {
     "categoria_ocupacion": [
@@ -93,6 +103,24 @@
     ],
     "mig6_cod": [
       "898: Zona no especificada",
+      "999: Sin información"
+    ],
+    "habituales": [
+      "888: No sabe",
+      "999: No responde"
+    ],
+    "efectivas": [
+      "888: No sabe",
+      "999: No responde"
+    ],
+    "nacionalidad": [
+      "898: Zona no especificada",
+      "999: Sin información"
+    ],
+    "b1": [
+      "999: Sin información"
+    ],
+    "e16_ciuo08": [
       "999: Sin información"
     ]
   }

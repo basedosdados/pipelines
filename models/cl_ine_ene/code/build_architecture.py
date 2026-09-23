@@ -24,6 +24,7 @@ import argparse
 import csv
 import json
 import pathlib
+import re
 
 HERE = pathlib.Path(__file__).resolve().parent
 OVERRIDES = json.loads((HERE / "overrides.json").read_text())
@@ -36,8 +37,6 @@ NUMERIC = {
     "ano": ("INT64", "year"),
     "mes": ("INT64", "month"),
     "edad": ("INT64", "year"),
-    "habituales": ("INT64", "hour"),
-    "efectivas": ("INT64", "hour"),
     # A survey weight is dimensionless -- the one case that takes no unit.
     "fact": ("FLOAT64", ""),
     "fact_cal": ("FLOAT64", ""),
@@ -53,10 +52,35 @@ DIRECTORY = {
     "ano": "br_bd_diretorios_data_tempo.ano:ano",
     "mes": "br_bd_diretorios_data_tempo.mes:mes",
     "id_region": "br_bd_diretorios_cl.region:id_region",
+    "id_provincia": "br_bd_diretorios_cl.provincia:id_provincia",
     "id_comuna": "br_bd_diretorios_cl.comuna:id_comuna",
 }
 
 SERIES_FIRST, SERIES_LAST = "2010-02", "2026-06"
+
+#: Fragments the flattened PDF drags into the Observaciones column: numbered
+#: section headings, the table header repeated on each page, and pointers to
+#: annexes that are not part of this table's documentation.
+OBS_NOISE = re.compile(
+    r"\s*\d+(\.\d+)+\s+[A-ZÁÉÍÓÚÑ][^.]*"  # "5.1.2 Información muestral ..."
+    r"|\s*Variable Etiqueta Valores Observaciones"
+    r"|\s*Variable Descripción Categorías observadas Observaciones"
+    r"|\s*Ver detalle[^.]*",
+)
+
+
+def clean_observation(text: str) -> str:
+    text = OBS_NOISE.sub(" ", text)
+    text = " ".join(text.split()).strip(" .;")
+    # The flattened table often repeats a sentence across the Descripción and
+    # Observaciones cells; keep the first occurrence of each.
+    seen, kept = set(), []
+    for sentence in re.split(r"(?<=\.)\s+", text):
+        key = sentence.strip().lower()
+        if key and key not in seen:
+            seen.add(key)
+            kept.append(sentence.strip())
+    return " ".join(kept).strip(" .;")
 
 
 def temporal_coverage(first: str, last: str) -> str:
@@ -110,7 +134,7 @@ def build(universe, codebook, profile):
         )
 
         observation = OVERRIDES["observations"].get(name, "")
-        book_obs = book.get("obs", "").strip()
+        book_obs = clean_observation(book.get("obs", ""))
         if book_obs and not observation:
             observation = book_obs
         if entry["last_period"] != SERIES_LAST:

@@ -26,6 +26,17 @@ CODE = re.compile(
     r"^\s*(\d{1,5})\s*[:\-\u2013]\s*(.+?)\s*$"
 )  # the PDF uses ":" or an en dash
 INLINE_FIRST_CODE = re.compile(r"^(.*?\S)\s+(\d{1,5}):\s*(\S.*)$")
+# A value RANGE ("1 - 168", "2010 - 2026") flattens to look exactly like a
+# code/label pair once the en dash is lost. Checked AFTER the Observaciones tail
+# is trimmed, so "11 Variable construida..." reduces to a bare "11" and is
+# rejected, while a genuine label that happens to start with a digit
+# ("15 a 19 años", "10 Chango") is kept.
+RANGE_NOT_LABEL = re.compile(r"^\d+$")
+# Where the Observaciones column bleeds into the label text.
+LABEL_TAIL = re.compile(
+    r"\s+(?=Descontinuad|Vigente|Variable |Incorporad|V[eé]ase|Se[nñ]ala|Corresponde|"
+    r"Equivale|Ver detalle|Seg[uú]n |Pregunta abierta)"
+)
 OBS = re.compile(
     r"vigente|descontinuad|dej[oó] de|se mantiene|reemplaz|a partir de|"
     r"producida entre|equivale a|ver detalle|anexo|corresponde|seg[uú]n |"
@@ -60,7 +71,11 @@ def parse(path):
                     continue
                 m = CODE.match(line)
                 if m:
-                    cats.append(f"{m.group(1)}: {m.group(2)}")
+                    label = LABEL_TAIL.split(m.group(2), maxsplit=1)[0].strip()
+                    if label and not RANGE_NOT_LABEL.match(label):
+                        cats.append(f"{m.group(1)}: {label}")
+                    else:
+                        obs.append(line)
                 elif OBS.search(line) or cats:
                     obs.append(line)
                 else:
@@ -71,8 +86,10 @@ def parse(path):
             if desc:
                 m = INLINE_FIRST_CODE.match(desc[0])
                 if m:
-                    desc[0] = m.group(1).strip()
-                    cats.insert(0, f"{m.group(2)}: {m.group(3).strip()}")
+                    label = LABEL_TAIL.split(m.group(3), maxsplit=1)[0].strip()
+                    if label and not RANGE_NOT_LABEL.match(label):
+                        desc[0] = m.group(1).strip()
+                        cats.insert(0, f"{m.group(2)}: {label}")
             out[name] = {
                 "desc": " ".join(d for d in desc if d).strip(),
                 "cats": cats,
