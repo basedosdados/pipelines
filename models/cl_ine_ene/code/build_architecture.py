@@ -409,7 +409,9 @@ def main():
     out = pathlib.Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     with open(out, "w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=FIELDS)
+        # csv.writer defaults to CRLF, which the repo's mixed-line-ending hook
+        # then rewrites on every commit.
+        writer = csv.DictWriter(handle, fieldnames=FIELDS, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
     print(f"\nwrote {out}")

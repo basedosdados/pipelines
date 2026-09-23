@@ -14,7 +14,7 @@ models:
       como factor de expansión.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: ['ano', 'mes', 'idrph']
+          combination_of_columns: [ano, mes, idrph]
       # Scoped to one moving quarter: the macro reads every column of the model and
       # runs at compile, so an unscoped pass over 271 columns and 20M rows is
       # expensive enough to matter. ignore_values is the measured union over the
@@ -319,20 +319,19 @@ models:
           Estrato muestral
       - name: conglomerado
         description: >
-          Permite identificar el conglomerado correspondiente a la unidad primaria de muestreo
+          Permite identificar el conglomerado correspondiente a la unidad primaria
+          de muestreo
       - name: id_identificacion
         description: >
           Identificador único del hogar
-        tests:
-          - not_null
+        tests: [not_null]
       - name: hogar
         description: >
           Número del hogar dentro de la vivienda
       - name: idrph
         description: >
           Identificador único de personas
-        tests:
-          - not_null
+        tests: [not_null]
       - name: nro_linea
         description: >
           Número de línea de la persona dentro del cuestionario
@@ -345,13 +344,12 @@ models:
       - name: sexo
         description: >
           Sexo
-        tests:
-          - not_null
+        tests: [not_null]
       - name: edad
         description: >
-          Edad de la persona durante la semana de referencia de la encuesta, de 0 a 120 años
-        tests:
-          - not_null
+          Edad de la persona durante la semana de referencia de la encuesta, de 0
+          a 120 años
+        tests: [not_null]
       - name: est_conyugal
         description: >
           Estado civil  o conyugal
@@ -411,19 +409,24 @@ models:
           ¿Se encuentra estudiando actualmente?
       - name: a1
         description: >
-          La semana pasada, es decir, entre lunes y domingo, ¿trabajó por lo menos una hora?
+          La semana pasada, es decir, entre lunes y domingo, ¿trabajó por lo menos
+          una hora?
       - name: a2
         description: >
-          Independientemente de lo que acaba de decir, ¿hizo algún negocio, 'pololo' u otra actividad por cuenta propia por lo menos durante una hora?
+          Independientemente de lo que acaba de decir, ¿hizo algún negocio, 'pololo'
+          u otra actividad por cuenta propia por lo menos durante una hora?
       - name: a3
         description: >
           Por ese trabajo, ¿recibió o recibirá un pago en dinero o en especie?
       - name: a4
         description: >
-          Ese trabajo, ¿fue realizado para la empresa o negocio perteneciente a un miembro de su hogar?
+          Ese trabajo, ¿fue realizado para la empresa o negocio perteneciente a un
+          miembro de su hogar?
       - name: a5
         description: >
-          Aunque no trabajó la semana pasada, ¿tenía durante dicho periodo un empleo, negocio u otra actividad por la que recibe o recibirá un pago en dinero o en especie?
+          Aunque no trabajó la semana pasada, ¿tenía durante dicho periodo un empleo,
+          negocio u otra actividad por la que recibe o recibirá un pago en dinero
+          o en especie?
       - name: a6
         description: >
           ¿Por qué razón no trabajó la semana pasada?
@@ -447,7 +450,8 @@ models:
           Por ese trabajo…
       - name: b4
         description: >
-          En ese trabajo ¿emplea personas para su negocio o actividad? No incluya a miembros de su familia no remunerados
+          En ese trabajo ¿emplea personas para su negocio o actividad? No incluya
+          a miembros de su familia no remunerados
       - name: b5
         description: >
           El negocio, empresa o institución donde trabajó la semana pasada era
@@ -471,10 +475,12 @@ models:
           En este trabajo, ¿tiene derecho, aunque no utilice, a días pagados por enfermedad?
       - name: b7b_3
         description: >
-          En este trabajo, ¿tiene derecho, aunque no utilice, a permiso por maternidad o paternidad?
+          En este trabajo, ¿tiene derecho, aunque no utilice, a permiso por maternidad
+          o paternidad?
       - name: b7b_4
         description: >
-          En este trabajo, ¿tiene derecho, aunque no utilice, a servicio de guardería infantil?
+          En este trabajo, ¿tiene derecho, aunque no utilice, a servicio de guardería
+          infantil?
       - name: b8
         description: >
           En ese empleo, ¿tiene contrato escrito?
@@ -495,43 +501,54 @@ models:
           Rama de actividad económica de empresa (adaptación de CIIU Rev. 4.cl)
       - name: b15_1
         description: >
-          En todo el país, ¿cuántas personas trabajan en esa empresa, negocio, institución que le paga o actividad por cuenta propia? 1 Menos de 5 2 De 5 a 10 personas 3 Entre 11 y 49 4 Entre 50 y 199 5 200 y más personas
+          En todo el país, ¿cuántas personas trabajan en esa empresa, negocio, institución
+          que le paga o actividad por cuenta propia? 1 Menos de 5 2 De 5 a 10 personas
+          3 Entre 11 y 49 4 Entre 50 y 199 5 200 y más personas
       - name: b15_2
         description: >
           Número exacto, hasta 10 personas Valores de 1 a 10
       - name: b16
         description: >
-          En la semana que terminó el domingo pasado, ¿dónde realizó principalmente sus tareas?
+          En la semana que terminó el domingo pasado, ¿dónde realizó principalmente
+          sus tareas?
       - name: b16_otro
         description: >
           Especifica b16 = En otros lugares Pregunta abierta
       - name: b17_mes
         description: >
-          Y, ¿desde cuándo trabaja para ese empleador, en ese negocio o actividad por cuenta propia? Mes
+          Y, ¿desde cuándo trabaja para ese empleador, en ese negocio o actividad
+          por cuenta propia? Mes
       - name: b17_ano
         description: >
-          Y, ¿desde cuándo trabaja para ese empleador, en ese negocio o actividad por cuenta propia? Año
+          Y, ¿desde cuándo trabaja para ese empleador, en ese negocio o actividad
+          por cuenta propia? Año
       - name: b18_region
         description: >
-          ¿En qué región se ubica la empresa, negocio, institución o actividad por cuenta propia donde realizó su trabajo?
+          ¿En qué región se ubica la empresa, negocio, institución o actividad por
+          cuenta propia donde realizó su trabajo?
       - name: b18_codigo
         description: >
-          ¿En qué comuna se ubica la empresa, negocio, institución o actividad por cuenta propia donde realizó su trabajo?
+          ¿En qué comuna se ubica la empresa, negocio, institución o actividad por
+          cuenta propia donde realizó su trabajo?
       - name: b18_varias
         description: >
           ¿Realizó su trabajo en solamente una comuna?
       - name: b19
         description: >
-          Durante la semana de referencia, además del trabajo descrito, ¿tuvo algún otro empleo o hizo algún negocio, 'pololo' u actividad remunerada por cuenta
+          Durante la semana de referencia, además del trabajo descrito, ¿tuvo algún
+          otro empleo o hizo algún negocio, 'pololo' u actividad remunerada por cuenta
       - name: dependencia_segunda
         description: >
-          Ese otro trabajo, ¿lo hacía para su propia empresa, negocio o actividad por cuenta propia?
+          Ese otro trabajo, ¿lo hacía para su propia empresa, negocio o actividad
+          por cuenta propia?
       - name: i1
         description: >
-          La empresa, negocio o institución que le paga su sueldo, ¿está registrada en el Servicio de Impuestos Internos (SII) o tiene iniciación de actividades?
+          La empresa, negocio o institución que le paga su sueldo, ¿está registrada
+          en el Servicio de Impuestos Internos (SII) o tiene iniciación de actividades?
       - name: i2
         description: >
-          La empresa, negocio o institución que le paga su sueldo, ¿cuenta con los servicios de un contador o tiene oficina de contabilidad?
+          La empresa, negocio o institución que le paga su sueldo, ¿cuenta con los
+          servicios de un contador o tiene oficina de contabilidad?
       - name: i3
         description: >
           ¿Cuál es el nombre de la empresa, negocio o institución que le paga su sueldo?
@@ -540,16 +557,19 @@ models:
           Verificación de respuesta entregada con Directorio de Empresas del INE
       - name: i4
         description: >
-          La empresa, negocio o actividad en la que trabaja, ¿está registrada en el Servicio de Impuestos Internos (SII) o tiene iniciación de actividades?
+          La empresa, negocio o actividad en la que trabaja, ¿está registrada en el
+          Servicio de Impuestos Internos (SII) o tiene iniciación de actividades?
       - name: i5
         description: >
-          La empresa, negocio o actividad en la que trabaja, ¿se encuentra registrada como…
+          La empresa, negocio o actividad en la que trabaja, ¿se encuentra registrada
+          como…
       - name: i6
         description: >
           La empresa, negocio o actividad por cuenta propia…
       - name: i7
         description: >
-          A través de la contabilidad, ¿se pueden separar los gastos del negocio con los del hogar?
+          A través de la contabilidad, ¿se pueden separar los gastos del negocio con
+          los del hogar?
       - name: f7a
         description: >
           Participación en sindicato
@@ -567,10 +587,12 @@ models:
           Participación en otro tipo de organizaciones
       - name: de_1a
         description: >
-          Para la realización del trabajo, ¿requiere de un local, establecimiento o predio?
+          Para la realización del trabajo, ¿requiere de un local, establecimiento
+          o predio?
       - name: de_1b
         description: >
-          ¿Quién es el propietario o arrendatario del local, instalación o predio donde trabaja?
+          ¿Quién es el propietario o arrendatario del local, instalación o predio
+          donde trabaja?
       - name: de_2a
         description: >
           En el trabajo, ¿utiliza algún tipo de maquinaria?
@@ -582,16 +604,19 @@ models:
           En el trabajo, ¿utiliza algún vehículo de transporte?
       - name: de_3b
         description: >
-          ¿Quién es el propietario o arrendatario del vehículo de transporte que utiliza en su trabajo?
+          ¿Quién es el propietario o arrendatario del vehículo de transporte que utiliza
+          en su trabajo?
       - name: do_1
         description: >
           En su trabajo, ¿quién decide sobre el horario de trabajo?
       - name: do_2
         description: >
-          En su trabajo, ¿quién decide sobre el lugar, rutas o zonas donde realiza su actividad?
+          En su trabajo, ¿quién decide sobre el lugar, rutas o zonas donde realiza
+          su actividad?
       - name: do_3
         description: >
-          En su trabajo, ¿quién decide el tipo de producto o servicio que destina a la venta?
+          En su trabajo, ¿quién decide el tipo de producto o servicio que destina
+          a la venta?
       - name: do_4
         description: >
           En su trabajo, ¿quién decide sobre el precio de productos o servicios ofrecidos?
@@ -606,13 +631,15 @@ models:
           Por su actividad principal, ¿su pago fue por comisión?
       - name: re4
         description: >
-          Por su actividad principal, ¿su pago fue mediante un cobro por servicio prestado?
+          Por su actividad principal, ¿su pago fue mediante un cobro por servicio
+          prestado?
       - name: re5
         description: >
           Por su actividad principal, ¿su pago fue mediante propina?
       - name: re6
         description: >
-          Por su actividad principal, ¿su pago fue obtenido mediante ganancias o utilidades de una actividad?
+          Por su actividad principal, ¿su pago fue obtenido mediante ganancias o utilidades
+          de una actividad?
       - name: turno
         description: >
           ¿Trabaja por sistema de turno?
@@ -672,43 +699,54 @@ models:
           ¿Le pagan habitualmente las horas extras en su actividad principal?
       - name: c5
         description: >
-          La semana pasada, ¿trabajó más horas que las habituales en su actividad principal? (sobre tiempo u horas extras, pagadas o no)
+          La semana pasada, ¿trabajó más horas que las habituales en su actividad
+          principal? (sobre tiempo u horas extras, pagadas o no)
       - name: c6
         description: >
           ¿Cuántas horas más de las habituales trabajó la semana pasada?
       - name: c7
         description: >
-          La semana pasada, ¿trabajó menos horas que las habituales en su actividad principal?
+          La semana pasada, ¿trabajó menos horas que las habituales en su actividad
+          principal?
       - name: c8
         description: >
           Cuántas horas menos de las habituales trabajó la semana pasada
       - name: c9
         description: >
-          ¿Cuál fue la principal razón por la cual trabajó un número de horas diferente a lo habitual durante la semana pasada en su actividad principal?
+          ¿Cuál fue la principal razón por la cual trabajó un número de horas diferente
+          a lo habitual durante la semana pasada en su actividad principal?
       - name: c9_otro
         description: >
-          Especifica c9 = Otras razones de un número de horas diferente a lo habitual abierta
+          Especifica c9 = Otras razones de un número de horas diferente a lo habitual
+          abierta
       - name: adicionales_h
         description: >
-          Horas diarias adicionales a la semana que podría trabajar habitualmente en su actividad principal u otro trabajo
+          Horas diarias adicionales a la semana que podría trabajar habitualmente
+          en su actividad principal u otro trabajo
       - name: adicionales_d
         description: >
-          Días adicionales a la semana que podría trabajar habitualmente en su actividad principal u otro trabajo
+          Días adicionales a la semana que podría trabajar habitualmente en su actividad
+          principal u otro trabajo
       - name: adicionales_t
         description: >
-          Total horas adicionales a la semana que podría trabajar habitualmente en su actividad principal u otro trabajo
+          Total horas adicionales a la semana que podría trabajar habitualmente en
+          su actividad principal u otro trabajo
       - name: c10
         description: >
-          Si de usted dependiera, ¿trabajaría habitualmente más horas de las que trabaja en la actualidad?
+          Si de usted dependiera, ¿trabajaría habitualmente más horas de las que trabaja
+          en la actualidad?
       - name: c11
         description: >
-          Pero, si se diera la posibilidad, ¿estaría disponible para trabajar más horas a la semana?
+          Pero, si se diera la posibilidad, ¿estaría disponible para trabajar más
+          horas a la semana?
       - name: c12
         description: >
           ¿Cuál es la razón por la cual no trabaja más horas?
       - name: e2
         description: >
-          En las cuatro últimas semanas, hasta el domingo de la semana de referencia, ¿ha tratado de encontrar algún empleo o ha hecho alguna gestión para crear su propia empresa o negocio?
+          En las cuatro últimas semanas, hasta el domingo de la semana de referencia,
+          ¿ha tratado de encontrar algún empleo o ha hecho alguna gestión para crear
+          su propia empresa o negocio?
       - name: e3_1
         description: >
           Gestión de búsqueda de empleo: Envió currículum a empresas/instituciones
@@ -717,43 +755,52 @@ models:
           Gestión de búsqueda de empleo: Consultó directamente con empleadores
       - name: e3_3
         description: >
-          Gestión de búsqueda de empleo: Pidió a conocidos o familiares que le recomendaran o le avisaran algún trabajo
+          Gestión de búsqueda de empleo: Pidió a conocidos o familiares que le recomendaran
+          o le avisaran algún trabajo
       - name: e3_4
         description: >
-          Gestión de búsqueda de empleo: Revisó y contestó anuncios (diarios, internet, etc.)
+          Gestión de búsqueda de empleo: Revisó y contestó anuncios (diarios, internet,
+          etc.)
       - name: e3_5
         description: >
-          Gestión de búsqueda de empleo:  Se inscribió o revisó los anuncios en la Oficina Municipal de Empleo (OMIL)
+          Gestión de búsqueda de empleo:  Se inscribió o revisó los anuncios en la
+          Oficina Municipal de Empleo (OMIL)
       - name: e3_6
         description: >
-          Gestión de búsqueda de empleo: Realizó gestiones para establecerse por su cuenta
+          Gestión de búsqueda de empleo: Realizó gestiones para establecerse por su
+          cuenta
       - name: e3_7
         description: >
           Gestión de búsqueda de empleo: Estuvo buscando clientes o pedidos
       - name: e3_8
         description: >
-          Gestión de búsqueda de empleo: Puso anuncios (diarios, internet, radios, revistas, etc.)
+          Gestión de búsqueda de empleo: Puso anuncios (diarios, internet, radios,
+          revistas, etc.)
       - name: e3_9
         description: >
-          Gestión de búsqueda de empleo: Participó en una prueba o entrevista para la contratación
+          Gestión de búsqueda de empleo: Participó en una prueba o entrevista para
+          la contratación
       - name: e3_10
         description: >
           Gestión de búsqueda de empleo: Consultó con agencias de empleo
       - name: e3_11
         description: >
-          Gestión de búsqueda de empleo: Actualizó su currículum publicado en internet enviado anteriormente
+          Gestión de búsqueda de empleo: Actualizó su currículum publicado en internet
+          enviado anteriormente
       - name: e3_12
         description: >
           Gestión de búsqueda de empleo: Nada
       - name: e3_total
         description: >
-          Número de gestiones de búsqueda de empleo realizadas, suma de las respuestas afirmativas entre e3_1 y e3_12
+          Número de gestiones de búsqueda de empleo realizadas, suma de las respuestas
+          afirmativas entre e3_1 y e3_12
       - name: e4
         description: >
           ¿Cuál es el motivo principal por el cual está buscando otro trabajo?
       - name: e5
         description: >
-          Hasta el domingo de la semana pasada, ¿cuándo fue la última vez que buscó trabajo?
+          Hasta el domingo de la semana pasada, ¿cuándo fue la última vez que buscó
+          trabajo?
       - name: e5_dia
         description: >
           Día de última búsqueda de empleo Valor entre 1 y 31, dependiendo del mes
@@ -768,7 +815,9 @@ models:
           Año de última búsqueda de empleo
       - name: e6_mes
         description: >
-          ¿Desde cuándo ha estado buscando trabajo? 1 Enero 2 Febrero 3 Marzo 4 Abril 5 Mayo 6 Junio 7 Julio 8 Agosto 9 Septiembre 10 Octubre 11 Noviembre 12 Diciembre 999 Mes desconocido
+          ¿Desde cuándo ha estado buscando trabajo? 1 Enero 2 Febrero 3 Marzo 4 Abril
+          5 Mayo 6 Junio 7 Julio 8 Agosto 9 Septiembre 10 Octubre 11 Noviembre 12
+          Diciembre 999 Mes desconocido
       - name: e6_ano
         description: >
           ¿Desde cuándo ha estado buscando trabajo?
@@ -777,19 +826,23 @@ models:
           ¿Qué tipo de jornada de trabajo está buscando?
       - name: e9
         description: >
-          ¿Por qué razón no buscó un empleo o no ha hecho preparativos para iniciar o reanudar una actividad por cuenta propia durante las últimas cuatro semanas?
+          ¿Por qué razón no buscó un empleo o no ha hecho preparativos para iniciar
+          o reanudar una actividad por cuenta propia durante las últimas cuatro semanas?
       - name: e9_otro
         description: >
           Especifica e9 = Otras razones de no búsqueda Solo responden no ocupados/as
       - name: e10
         description: >
-          Durante las últimas cuatro semanas: a) ¿Hizo gestiones para iniciar un negocio o actividad por cuenta propia?, b) ¿Logró un acuerdo o contrato de trabajo para iniciar un empleo?
+          Durante las últimas cuatro semanas: a) ¿Hizo gestiones para iniciar un negocio
+          o actividad por cuenta propia?, b) ¿Logró un acuerdo o contrato de trabajo
+          para iniciar un empleo?
       - name: deseo_trabajar
         description: >
           A pesar de que no buscó trabajo, ¿desea trabajar para generar un ingreso?
       - name: e11
         description: >
-          Si durante la semana pasada, hubiera encontrado un trabajo, ¿estaría disponible para comenzar a trabajar de este lunes que viene al otro?
+          Si durante la semana pasada, hubiera encontrado un trabajo, ¿estaría disponible
+          para comenzar a trabajar de este lunes que viene al otro?
       - name: e12
         description: >
           ¿Por qué motivo no estaría disponible para trabajar?
@@ -798,7 +851,8 @@ models:
           Especifica e12 = Otras razones de no disponibilidad Solo responden no ocupados/as
       - name: e13
         description: >
-          ¿Ha tenido anteriormente algún empleo o alguna actividad por cuenta propia que durara por lo menos durante un mes?
+          ¿Ha tenido anteriormente algún empleo o alguna actividad por cuenta propia
+          que durara por lo menos durante un mes?
       - name: e21_mes
         description: >
           Mes hasta cuando trabajó en esa ocupació n o actividad
@@ -816,13 +870,17 @@ models:
           ¿Cuál fue el motivo de su despido?
       - name: e23_otro
         description: >
-          E23_otro. Especifica e23 = Otra razón de renuncia recomendadas por OIT en el contexto del impacto de la pandemia de COVID -19 en la población no ocupada (INE, 2020c)
+          E23_otro. Especifica e23 = Otra razón de renuncia recomendadas por OIT en
+          el contexto del impacto de la pandemia de COVID -19 en la población no ocupada
+          (INE, 2020c)
       - name: e24
         description: >
           ¿Cuál fue el motivo de su renuncia?
       - name: e24_otro
         description: >
-          E24_otro. Especifica e24 = Otra razón de renuncia recomendadas por OIT en el contexto del impacto de la pandemia de COVID -19 en la población no ocupada (INE, 2020c)
+          E24_otro. Especifica e24 = Otra razón de renuncia recomendadas por OIT en
+          el contexto del impacto de la pandemia de COVID -19 en la población no ocupada
+          (INE, 2020c)
       - name: b11_proxy
         description: >
           ¿El pago por su actividad principal fue a través de sueldo, salario o jornal?
@@ -837,16 +895,19 @@ models:
           ¿Su trabajo lo realiza a través de una aplicación móvil o plataforma Web?
       - name: pd_especifique
         description: >
-          ¿A través de cuál aplicación móvil o plataforma web realiza su trabajo? de trimestre EFM 2020
+          ¿A través de cuál aplicación móvil o plataforma web realiza su trabajo?
+          de trimestre EFM 2020
       - name: pd_ley
         description: >
           Plataforma digital sujeta a Ley 21.431 (ocupación principal)
       - name: sda_pd
         description: >
-          ¿Este segundo trabajo lo realizó a través de una aplicación móvil o plataforma Web?
+          ¿Este segundo trabajo lo realizó a través de una aplicación móvil o plataforma
+          Web?
       - name: sda_pd_especifique
         description: >
-          ¿A través de cuál aplicación móvil o plataforma web realiza su segundo trabajo? de trimestre EFM 2020
+          ¿A través de cuál aplicación móvil o plataforma web realiza su segundo trabajo?
+          de trimestre EFM 2020
       - name: sda_pd_ley
         description: >
           Plataforma digital sujeta a Ley 21.431 (ocupación secundaria)
@@ -864,7 +925,8 @@ models:
           Persona ocupada independiente con dependencia tanto económica como organizativa
       - name: no_salario
         description: >
-          Persona ocupada dependiente que recibe forma de pago diferente a sueldo, salario o jornal
+          Persona ocupada dependiente que recibe forma de pago diferente a sueldo,
+          salario o jornal
       - name: no_prevision
         description: >
           Persona ocupada dependiente cuyo empleador no le paga cotizaciones
@@ -873,7 +935,8 @@ models:
           Persona ocupada dependiente con riesgo económico
       - name: n_dependencias
         description: >
-          Número total de ámbitos de dependencia económica u organizativa observados en la ocupación principal de una persona ocupada independiente
+          Número total de ámbitos de dependencia económica u organizativa observados
+          en la ocupación principal de una persona ocupada independiente
       - name: cdi
         description: >
           Contratista dependiente clasificado/a como cuenta propia
@@ -885,10 +948,12 @@ models:
           Contratista dependiente
       - name: ciso1
         description: >
-          Clasificación Internacional de la Situación en la Ocupación (CISO-18) - Primer nivel jerárquico
+          Clasificación Internacional de la Situación en la Ocupación (CISO-18) -
+          Primer nivel jerárquico
       - name: ciso2
         description: >
-          Clasificación Internacional de la Situación en la Ocupación (CISO-18) - Segundo nivel jerárquico
+          Clasificación Internacional de la Situación en la Ocupación (CISO-18) -
+          Segundo nivel jerárquico
       - name: ciso3_a
         description: >
           Situación en la ocupación (CISO-18) - Tercer nivel jerárquico (forma A)
@@ -945,18 +1010,19 @@ models:
           Sector institucional de la ocupación
       - name: r_p_rev4cl_caenes
         description: >
-          Rama de actividad económica de la empresa o institución que le paga el sueldo o de la que es dueña la persona ocupada (ajustada)
+          Rama de actividad económica de la empresa o institución que le paga el sueldo
+          o de la que es dueña la persona ocupada (ajustada)
       - name: tramo_edad
         description: >
           Tramo de edad
       - name: categoria_ocupacion
         description: >
-          Categoría en la ocupación, según la adaptación chilena de la Clasificación Internacional de la Situación en el Empleo (CISE-93)
+          Categoría en la ocupación, según la adaptación chilena de la Clasificación
+          Internacional de la Situación en el Empleo (CISE-93)
       - name: cae_general
         description: >
           Código sumario de empleo general
-        tests:
-          - not_null
+        tests: [not_null]
       - name: cae_especifico
         description: >
           Código sumario de empleo específico
@@ -966,23 +1032,27 @@ models:
       - name: fact_cal
         description: >
           Factor de expansión trimestral calibrado
-        tests:
-          - not_null
+        tests: [not_null]
       - name: a9
         description: >
-          Si las restricciones por la pandemia del COVID- 19 se terminaran en las próximas cuatro semanas, ¿cree que podrá volver a su trabajo?
+          Si las restricciones por la pandemia del COVID- 19 se terminaran en las
+          próximas cuatro semanas, ¿cree que podrá volver a su trabajo?
       - name: i11
         description: >
-          Comparando los ingresos recibidos por su actividad principal en mes anterior, respecto a sus ingresos habituales, ¿disminuyeron, se mantuvieron o aumentaron?
+          Comparando los ingresos recibidos por su actividad principal en mes anterior,
+          respecto a sus ingresos habituales, ¿disminuyeron, se mantuvieron o aumentaron?
       - name: i12
         description: >
-          Comparando con sus ingresos habituales, ¿cuánto de los ingresos de su actividad principal recibió en el mes anterior? 1 Más de la mitad 2 La mitad 3 Menos de la mitad 4 No recibió ingresos
+          Comparando con sus ingresos habituales, ¿cuánto de los ingresos de su actividad
+          principal recibió en el mes anterior? 1 Más de la mitad 2 La mitad 3 Menos
+          de la mitad 4 No recibió ingresos
       - name: i13_1
         description: >
           Medidas de financiamiento de gastos del hogar: Reducir gastos del hogar
       - name: i13_2
         description: >
-          Medidas de financiamiento de gastos del hogar: Trabajar más horas en actividad principal
+          Medidas de financiamiento de gastos del hogar: Trabajar más horas en actividad
+          principal
       - name: i13_3
         description: >
           Medidas de financiamiento de gastos del hogar: Búsqueda de otro trabajo
@@ -991,22 +1061,26 @@ models:
           Medidas de financiamiento de gastos del hogar: Usar ahorros
       - name: i13_5
         description: >
-          Medidas de financiamiento de gastos del hogar: Esperar ayuda de un familiar, vecinos o amigos
+          Medidas de financiamiento de gastos del hogar: Esperar ayuda de un familiar,
+          vecinos o amigos
       - name: i13_6
         description: >
           Medidas de financiamiento de gastos del hogar: Esperar ayuda del Estado
       - name: i13_7
         description: >
-          Medidas de financiamiento de gastos del hogar: Esperar ayuda de instituciones sin fines de lucro (ONG's, Iglesia, etc.)
+          Medidas de financiamiento de gastos del hogar: Esperar ayuda de instituciones
+          sin fines de lucro (ONG's, Iglesia, etc.)
       - name: i13_8
         description: >
-          Medidas de financiamiento de gastos del hogar: Utilizar tarjeta o línea de crédito
+          Medidas de financiamiento de gastos del hogar: Utilizar tarjeta o línea
+          de crédito
       - name: i13_9
         description: >
           Medidas de financiamiento de gastos del hogar: Solicitar un préstamo bancario
       - name: i13_10
         description: >
-          Medidas de financiamiento de gastos del hogar: Solicitar un préstamo a un familiar
+          Medidas de financiamiento de gastos del hogar: Solicitar un préstamo a un
+          familiar
       - name: i13_11
         description: >
           Medidas de financiamiento de gastos del hogar: No hará nada
@@ -1018,19 +1092,23 @@ models:
           Medidas de financiamiento de gastos del hogar: No responde
       - name: i13_total
         description: >
-          Número de medidas de financiamiento de gastos del hogar, suma de las respuestas afirmativas entre i13_1 e i13_11
+          Número de medidas de financiamiento de gastos del hogar, suma de las respuestas
+          afirmativas entre i13_1 e i13_11
       - name: b11
         description: >
           Al momento de recibir sus ingresos
       - name: id_directorio
         description: >
-          Manzana o sección: identifica el conglomerado correspondiente a la unidad primaria de muestreo, denominado manzana en estrato urbano y sección en RAU y rural
+          Manzana o sección: identifica el conglomerado correspondiente a la unidad
+          primaria de muestreo, denominado manzana en estrato urbano y sección en
+          RAU y rural
       - name: c1
         description: >
           ¿Qué tipo de jornada tiene en su trabajo?
       - name: c13
         description: >
-          Entonces, ¿trabajaría menos horas, aunque esto suponga una reducción proporcional de su sueldo?
+          Entonces, ¿trabajaría menos horas, aunque esto suponga una reducción proporcional
+          de su sueldo?
       - name: e1
         description: >
           ¿Ha hecho algo para conseguir trabajo dentro de los últimos doce meses?
@@ -1045,10 +1123,12 @@ models:
           Y, ¿hasta cuándo trabajó en esa ocupación o actividad? Año
       - name: e15_meses
         description: >
-          ¿Durante cuánto tiempo trabajó en ese empleo o actividad por cuenta propia? En meses
+          ¿Durante cuánto tiempo trabajó en ese empleo o actividad por cuenta propia?
+          En meses
       - name: e15_anos
         description: >
-          ¿Durante cuánto tiempo trabajó en ese empleo o actividad por cuenta propia? En años
+          ¿Durante cuánto tiempo trabajó en ese empleo o actividad por cuenta propia?
+          En años
       - name: e16_ciuo08
         description: >
           Grupo ocupacional del empleo anterior según CIUO-08
@@ -1057,7 +1137,8 @@ models:
           ¿En cuál de las siguientes categorías se encontraba en ese trabajo?
       - name: e18_rev4cl_caenes
         description: >
-          Rama de actividad económica del empleo anterior según CAENES (adaptación d e CIIU Rev. 4.cl)
+          Rama de actividad económica del empleo anterior según CAENES (adaptación
+          d e CIIU Rev. 4.cl)
       - name: e19
         description: >
           ¿Por qué dejó ese empleo, negocio o actividad por cuenta propia?
@@ -1069,7 +1150,8 @@ models:
           Identificador interno de registro de la base de datos
       - name: fact
         description: >
-          Factor de expansión trimestral construido sobre las proyecciones de población del Censo 2002
+          Factor de expansión trimestral construido sobre las proyecciones de población
+          del Censo 2002
       - name: b1_ciuo88
         description: >
           Grupo de ocupación según CIUO-88 entre EFM 2010 y EFM 2019
@@ -1111,15 +1193,16 @@ models:
           Rama de actividad económica de la empresa según CIIU Rev. 3
       - name: b14_ciiu_rev3
         description: >
-          Rama de actividad económica de la empresa que paga el sueldo, según CIIU Rev. 3
+          Rama de actividad económica de la empresa que paga el sueldo, según CIIU
+          Rev. 3
       - name: e18_ciiu_rev3
         description: >
           Rama de actividad económica del empleo anterior, según CIIU Rev. 3
-
   - name: cl_ine_ene__dicionario
     description: >
       Etiquetas de los valores codificados de cl_ine_ene.microdato, transcritas de
-      los dos libros de códigos del INE y de sus anexos de clasificación (CIUO-08 y
+      los dos libros de códigos del INE y de sus anexos de clasificación (CIUO-08
+      y
       CIUO-88 para ocupación, CAENES para rama de actividad, M49 para países). Los
       microdatos publican códigos y no etiquetas, de modo que esta tabla no se
       deriva de ellos: es una transcripción de la documentación. No cubre las
@@ -1128,28 +1211,24 @@ models:
       br_bd_diretorios_cl.
     tests:
       - dbt_utils.unique_combination_of_columns:
-          combination_of_columns: ['id_tabela', 'nome_coluna', 'chave']
+          combination_of_columns: [id_tabela, nome_coluna, chave]
     columns:
       - name: id_tabela
         description: >
           Nombre de la tabla del conjunto a la que corresponde la clave
-        tests:
-          - not_null
+        tests: [not_null]
       - name: nome_coluna
         description: >
           Nombre de la columna a la que corresponde la clave
-        tests:
-          - not_null
+        tests: [not_null]
       - name: chave
         description: >
           Valor de la clave tal como aparece almacenado en la columna
-        tests:
-          - not_null
+        tests: [not_null]
       - name: cobertura_temporal
         description: >
           Cobertura temporal de la clave; vacía cuando coincide con la de la tabla
       - name: valor
         description: >
           Etiqueta de la clave según el libro de códigos del INE
-        tests:
-          - not_null
+        tests: [not_null]
