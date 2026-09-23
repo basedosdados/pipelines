@@ -34,6 +34,7 @@ import os
 import sys
 import threading
 import time
+from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -52,8 +53,8 @@ from pipelines.datasets.br_mgi_compras_publicas.comprasnet import (  # noqa: E40
 )
 from pipelines.datasets.br_mgi_compras_publicas.utils import (  # noqa: E402
     COERCERS,
+    PartitionedStringWriter,
     load_architecture,
-    write_chunk,
 )
 
 logger = logging.getLogger("comprasnet")
@@ -183,6 +184,21 @@ def _read_chunk(phase: str, month: str) -> list[dict]:
         return []
     with path.open(encoding="utf-8") as handle:
         return [json.loads(line) for line in handle if line.strip()]
+
+
+def _iter_chunk(phase: str, month: str) -> Iterator[dict]:
+    """``_read_chunk`` without holding the month in memory.
+
+    The resume path wants a list to count; a full-table pass wants neither the
+    month nor the table resident, so it takes rows one at a time.
+    """
+    path = _phase_dir(phase) / f"{month}.jsonl"
+    if not path.exists():
+        return
+    with path.open(encoding="utf-8") as handle:
+        for line in handle:
+            if line.strip():
+                yield json.loads(line)
 
 
 def run_list(month: str, force: bool = False) -> int:
@@ -336,33 +352,35 @@ def to_parquet(table: str) -> int:
     # int32 it infers from the hive key, and upload.py's header helper makes the
     # same assumption when it seeds the 0-row schema blob.
     columns = [c for c in load_architecture(table) if c.name != "ano"]
-    by_year: dict[str, list[dict]] = {}
-    for month in months(FIRST_MONTH, LAST_MONTH):
-        if not _chunk_done(table, month):
-            continue
-        for row in _read_chunk(table, month):
-            # The scraper emits every field as text; write_chunk casts through
-            # each column's real type before stringifying, so coerce first with
-            # the dataset's own rules rather than a parallel implementation.
-            typed = {
-                column.name: COERCERS[column.bigquery_type](
-                    row.get(column.name) or None
-                )
-                for column in columns
-            }
-            by_year.setdefault(row["ano"], []).append(typed)
     root = data_dir().parent / "output" / table
-    total = 0
-    for ano, rows in sorted(by_year.items()):
-        total += write_chunk(
-            rows, columns, root / f"ano={ano}" / "data.parquet"
-        )
+    # Rows are streamed into one open writer per year rather than grouped in a
+    # dict first. Buffering the table cost ~19M dicts, which does not fit in
+    # 16 GB, and the process took the machine down instead of raising.
+    #
+    # The years cannot be closed as the months advance: `ano` is the pregao's
+    # process year, taken from id_compra, not the month the ata was published,
+    # so the 2013-11 chunk carries 2011 and 2012 rows. Every year stays open
+    # until the pass ends.
+    with PartitionedStringWriter(root, columns, "ano") as writer:
+        for month in months(FIRST_MONTH, LAST_MONTH):
+            if not _chunk_done(table, month):
+                continue
+            for row in _iter_chunk(table, month):
+                # The scraper emits every field as text; the writer casts
+                # through each column's real type before stringifying, so
+                # coerce first with the dataset's own rules rather than a
+                # parallel implementation.
+                typed = {
+                    column.name: COERCERS[column.bigquery_type](
+                        row.get(column.name) or None
+                    )
+                    for column in columns
+                }
+                writer.append(row["ano"], typed)
+        total = sum(writer.counts.values())
+        years = len(writer.counts)
     logger.info(
-        "parquet %s: %d rows across %d years -> %s",
-        table,
-        total,
-        len(by_year),
-        root,
+        "parquet %s: %d rows across %d years -> %s", table, total, years, root
     )
     return total
 
