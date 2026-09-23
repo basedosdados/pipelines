@@ -50,6 +50,11 @@ def main():
         help="last moving quarter, YYYY-MM (default: probe the source)",
     )
     parser.add_argument("--first", default="2010-02")
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="skip periods whose parquet already exists",
+    )
     args = parser.parse_args()
 
     first = tuple(int(p) for p in args.first.split("-"))
@@ -67,7 +72,9 @@ def main():
                 print(f"  downloaded {index}/{len(wanted)}", flush=True)
 
     if args.clean:
-        counts = utils.clean_all(INPUT, OUTPUT / TABLE, wanted)
+        counts = utils.clean_all(
+            INPUT, OUTPUT / TABLE, wanted, skip_existing=args.resume
+        )
         total = sum(counts.values())
         print(f"\ncleaned {len(counts)} periods, {total:,} rows")
         (DATA / "row_counts.json").write_text(json.dumps(counts, indent=1))
