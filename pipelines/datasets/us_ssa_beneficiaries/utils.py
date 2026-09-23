@@ -322,18 +322,37 @@ def resolve_county_ids(
 
 # SSA encodes non-numeric cells in-band.  Never coerce any of these to zero:
 # a suppressed county is not a county with no beneficiaries.
-VALUE_NOTES = {
+# SSA encodes non-numeric cells in-band. Never coerce any of these to zero:
+# a suppressed county is not a county with no beneficiaries.
+#
+# The `a` marker means different things on the two kinds of measure. On an
+# amount it is SSA's "Less than $500" footnote. On a *count* it is an orphan
+# marker with no footnote behind it -- it appears in exactly one row, Bedford
+# city, Virginia in 2014, the year after the city was abolished and merged back
+# into Bedford County -- so reading it as "less than $500 beneficiaries" would
+# be nonsense. Hence a note map per measure kind.
+AMOUNT_NOTES = {
     "(x)": "suppressed_disclosure",
     "a": "less_than_500_dollars",
 }
+COUNT_NOTES = {
+    "(x)": "suppressed_disclosure",
+    "a": "not_available",
+}
 
 
-def parse_value(raw: Any) -> tuple[float | None, str | None]:
+def parse_value(
+    raw: Any, notes: dict[str, str] = AMOUNT_NOTES
+) -> tuple[float | None, str | None]:
     """Split a published cell into (numeric value, note code).
 
-    ``(X)`` marks disclosure suppression and ``a`` marks "less than $500".
-    Both carry real information and both are returned as a ``None`` value with
-    the reason preserved, never as ``0``.
+    ``(X)`` marks disclosure suppression and ``a`` marks a footnote whose
+    meaning depends on the measure. Both carry real information and both are
+    returned as a ``None`` value with the reason preserved, never as ``0``.
+
+    Args:
+        raw: The cell as published.
+        notes: Marker-to-note-code map; pass :data:`COUNT_NOTES` for a count.
     """
     if raw is None:
         return None, "not_available"
@@ -342,7 +361,7 @@ def parse_value(raw: Any) -> tuple[float | None, str | None]:
     text = str(raw).strip()
     if not text:
         return None, "not_available"
-    note = VALUE_NOTES.get(text.lower())
+    note = notes.get(text.lower())
     if note:
         return None, note
     cleaned = text.replace(",", "").replace("$", "")
@@ -416,6 +435,7 @@ def _melt(
     dims: tuple[str, str, str],
     value_col: str,
     county_ids: list[str | None] | None = None,
+    notes: dict[str, str] = AMOUNT_NOTES,
 ) -> pd.DataFrame:
     """Melt wide measures into one row per (key, category) with a note column."""
     out = []
@@ -441,7 +461,7 @@ def _melt(
                 raise KeyError(
                     f"measure {m!r} (suffix {suffix!r}) has no category mapping"
                 )
-            value, note = parse_value(r.get(m))
+            value, note = parse_value(r.get(m), notes)
             rec = dict(base)
             rec[dims[0]], rec[dims[1]], rec[dims[2]] = cat
             rec[value_col] = value
@@ -531,6 +551,7 @@ def build_oasdi_county(input_dir: Path) -> pd.DataFrame:
         OASDI_DIMS,
         "beneficiary_count",
         resolve_county_ids(rows4, county_xw, city_xw),
+        COUNT_NOTES,
     )
     amounts = _melt(
         rows5,
@@ -596,6 +617,7 @@ def build_oasdi_state(input_dir: Path) -> pd.DataFrame:
         OASDI_CATEGORIES,
         OASDI_DIMS,
         "beneficiary_count",
+        notes=COUNT_NOTES,
     )
 
     # SSA's flat file omits the whole 2010 edition of Table 2 (state counts),
@@ -616,6 +638,7 @@ def build_oasdi_state(input_dir: Path) -> pd.DataFrame:
         OASDI_CATEGORIES,
         OASDI_DIMS,
         "beneficiary_count",
+        notes=COUNT_NOTES,
     )
     if not recovered.empty:
         log.info(
@@ -665,7 +688,7 @@ def build_oasdi_population_share(input_dir: Path) -> pd.DataFrame:
     out = []
     for r in rows:
         for group, (pop_col, pct_col) in groups.items():
-            pop, pop_note = parse_value(r.get(pop_col))
+            pop, pop_note = parse_value(r.get(pop_col), COUNT_NOTES)
             pct, pct_note = parse_value(r.get(pct_col))
             area = normalise_area(str(r["state_or_area"]))
             out.append(
@@ -702,6 +725,7 @@ def build_ssi_county(input_dir: Path) -> pd.DataFrame:
         SSI_DIMS,
         "recipient_count",
         ids,
+        COUNT_NOTES,
     )
     amounts = _melt(
         rows,
@@ -759,6 +783,7 @@ def build_ssi_state(input_dir: Path) -> pd.DataFrame:
         SSI_CATEGORIES,
         SSI_DIMS,
         "recipient_count",
+        notes=COUNT_NOTES,
     )
     amounts = _melt(
         rows2,
