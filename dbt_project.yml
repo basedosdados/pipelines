@@ -160,6 +160,9 @@ models:
     br_bd_diretorios_cl:
       +materialized: table
       +schema: br_bd_diretorios_cl
+    cl_ine_censo:
+      +materialized: table
+      +schema: cl_ine_censo
     cl_res_empresas:
       +materialized: table
       +schema: cl_res_empresas
