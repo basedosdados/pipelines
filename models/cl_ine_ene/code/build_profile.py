@@ -59,9 +59,10 @@ def main():
             entry["rows"] += len(column)
             entry["nonnull"] += len(column) - column.null_count
             if not entry["over_cap"]:
-                entry["values"].update(
-                    v for v in pc.unique(column).to_pylist() if v is not None
-                )
+                # pyarrow ships no type stub for its compute module.
+                # pyrefly: ignore [missing-attribute]
+                distinct = pc.unique(column).to_pylist()
+                entry["values"].update(v for v in distinct if v is not None)
                 if len(entry["values"]) > CAP:
                     entry["over_cap"] = True
                     entry["values"] = set()
