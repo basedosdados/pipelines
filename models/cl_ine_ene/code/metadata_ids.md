@@ -110,3 +110,42 @@ Free ends inclusive at `source_end - 6 months`; pro starts the next month.
 
 The `Poll` is written by the flow's first run. `latest` needs a full datetime:
 a bare `2026-09-23` is rejected with "DateTime cannot represent value".
+
+---
+
+## Registered on PROD, 2026-09-23 (`status = under_review`)
+
+| Record | ID |
+|---|---|
+| Organization `cl_ine` (CREATED on prod too) | `494b2488-49b5-4316-9323-a9a3c6f23922` |
+| Dataset `cl_ine_ene` | `c3ac21a0-34af-44e1-85c4-821aa2615895` |
+| Raw data source | `a56e9525-8fed-4fe1-aff6-b5454bbcab48` |
+| Table `microdato` | `49dc4ab2-c47d-4dc8-8b4e-99665a72cf9a` |
+| Table `dicionario` | `45145d87-287e-4eba-a3dd-eacc4faf2511` |
+| OL year / month / person | `a2197ebc…` / `37011490…` / `239dbfd0…` |
+| Coverage free / pro | `b569a59e…` / `fbd51bbe…` |
+
+Prod cloud tables point at `basedosdados.cl_ine_ene.{microdato,dicionario}`, which do
+not exist yet: the GitHub table-approve action materialises them when the PR merges.
+
+### IDs that genuinely differ between environments
+
+Most reference UUIDs happen to match, which makes the ones that do not easy to miss.
+Verified different:
+
+| What | staging | prod |
+|---|---|---|
+| `cc_by_sa` license | `f8c67681-…` | `f8d910f1-…` |
+| `unemployment` tag | `236cd853-…` | `8dcb97c1-…` |
+| authenticated account | `57` | `4` |
+
+**Tag SLUGS are Portuguese on staging and English on prod, while the UUIDs match** —
+`emprego`→`employment`, `trabalho`→`labor`, `ocupacao`→`occupation`,
+`informalidade`→`informality`, `carga_horaria`→`workload`,
+`escolaridade`→`schooling`, `pesquisa`→`research`. Looking a staging slug up on prod
+returns "tag not found", so resolve tags by UUID across environments, not by slug.
+`unemployment` is the exception that has to be looked up by slug on each side.
+
+`allTag` caps `first` at 1500 on prod, and a truncated page would silently report a
+tag as missing, so the mapping script paginates with a cursor and asserts it reached
+the end.
