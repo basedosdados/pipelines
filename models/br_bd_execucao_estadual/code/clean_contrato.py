@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import csv
 import io
+import json
 import os
 import zipfile
 from datetime import date, datetime
@@ -164,7 +165,50 @@ def clean_rs() -> int:
     return total
 
 
+# The CGE-RO API fields, kept verbatim as the ro_contrato mirror; the parsing (dates,
+# the "R$ x" money format, id construction) happens in the contrato_ro dbt model, the
+# same division of labour as sc_contrato/rs_contrato.
+RO_COLUMNS = [
+    "origem",
+    "numeroDocumento",
+    "numeroProcesso",
+    "dataElaboracao",
+    "dataVigencia",
+    "dataRetorno",
+    "empresa",
+    "cnpj_Cpf",
+    "objeto",
+    "valorInicial",
+    "valorContrapartida",
+    "siglaUg",
+    "nomeUg",
+    "codigoUg",
+    "dataAssinatura",
+]
+
+
+def clean_ro() -> int:
+    src = IN / "ro_contrato" / "contratos.json"
+    with open(src, encoding="utf-8") as fh:
+        rows = json.load(fh)
+    data: dict[str, list] = {c: [] for c in RO_COLUMNS}
+    for r in rows:
+        for c in RO_COLUMNS:
+            v = r.get(c)
+            s = None if v is None else str(v).strip()
+            data[c].append(s or None)
+    table = pa.table(
+        {c: pa.array(data[c], type=pa.string()) for c in RO_COLUMNS}
+    )
+    dest = OUT / "ro_contrato"
+    dest.mkdir(parents=True, exist_ok=True)
+    pq.write_table(table, dest / "data.parquet", compression="snappy")
+    print(f"  ro_contrato: {len(rows):,} rows, {len(RO_COLUMNS)} cols")
+    return len(rows)
+
+
 if __name__ == "__main__":
-    print("cleaning SC + RS contracts")
+    print("cleaning SC + RS + RO contracts")
     clean_sc()
     clean_rs()
+    clean_ro()
