@@ -1405,6 +1405,10 @@ def _build_receitas_2018_plus(ano: int) -> pd.DataFrame:
         "numero_documento_doacao",
         "cnae_2_doador",
         "descricao_cnae_2_doador",
+        # placeholder rows (candidate with no revenue) carry #NULO / -1 here
+        "fonte_receita",
+        "especie_receita",
+        "sequencial_receita",
     ]
     result = _clean_nulo_cols(result, nulo_cols)
 
@@ -2416,6 +2420,9 @@ def _build_despesas_2018_plus(ano: int) -> pd.DataFrame:
         "tipo_documento",
         "numero_documento",
         "descricao_despesa",
+        # placeholder rows (candidate with no expense) carry #NULO / -1 here
+        "origem_despesa",
+        "sequencial_despesa",
     ]
     result = _clean_nulo_cols(result, nulo_cols)
 
