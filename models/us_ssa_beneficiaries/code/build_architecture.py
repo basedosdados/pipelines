@@ -465,8 +465,6 @@ def main() -> None:
         rows = []
         for name in columns:
             row = dict(C[name])
-            # The county tables carry no directory link on state_id: county_id
-            # already resolves the state, and the FK would be redundant.
             rows.append(row)
         pd.DataFrame(rows)[HEADER].to_csv(OUT / f"{table}.csv", index=False)
         print(f"  {table:26s} {len(rows):2d} columns")

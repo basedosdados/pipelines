@@ -27,10 +27,16 @@ from google.cloud import bigquery  # noqa: E402
 _argv = sys.argv[1:]
 if "--env" in _argv:
     _i = _argv.index("--env")
+    if _i + 1 >= len(_argv):
+        raise SystemExit("--env requires a value: dev or prod")
     ENV = _argv[_i + 1]
     _argv = _argv[:_i] + _argv[_i + 2 :]
 else:
     ENV = "dev"
+if ENV not in ("dev", "prod"):
+    # Falling through to dev on a typo would silently upload to the wrong
+    # project, and `--env prod` is the one flag worth being strict about.
+    raise SystemExit(f"--env must be dev or prod, got {ENV!r}")
 BILLING_PROJECT = "basedosdados" if ENV == "prod" else "basedosdados-dev"
 # The upload itself is billed to the data project, but a local ADC user has no
 # bigquery.jobs.create there, so the read-back verification is billed

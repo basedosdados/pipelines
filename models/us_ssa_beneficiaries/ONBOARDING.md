@@ -28,12 +28,12 @@ Licence: work of the US federal government, public domain (registered as `cc0`).
 
 ## Tables
 
-Five long fact tables plus a dictionary, 1,605,533 rows.
+Five long fact tables plus a dictionary, 1,605,591 rows.
 
 | Table | Rows | Years | Grain |
 |---|---|---|---|
 | `oasdi_county` | 956,912 | 1999–2025 | county × year × benefit type × age group × sex |
-| `ssi_county` | 617,951 | 1998–2025 | county × year × eligibility category × age group × concurrent OASDI |
+| `ssi_county` | 618,009 | 1998–2025 | county × year × eligibility category × age group × concurrent OASDI |
 | `oasdi_state` | 17,358 | 1999–2025 | state or area × year × same three dimensions |
 | `ssi_state` | 10,450 | 1998–2025 | state or area × year × same three dimensions |
 | `oasdi_population_share` | 2,808 | 1999–2025 | state or area × year × population group |
@@ -63,7 +63,7 @@ in three zeros**: the conversion changes the unit, not the precision. That
 caveat is on the column in all three languages.
 
 **Suppression is carried, never zeroed.** SSA marks disclosure suppression with
-`(X)` (39,773 cells in `ssi_county`) and "less than $500" with `a`. Both become
+`(X)` (39,815 cells in `ssi_county`) and "less than $500" with `a`. Both become
 NULL with the reason preserved in a per-measure `*_note` column.
 
 **County codes before 2008 are reconstructed.** SSA introduced ANSI codes in the

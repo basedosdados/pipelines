@@ -521,10 +521,17 @@ def _drop_empty_duplicates(
 
     A few editions carry a misspelled county alongside the correctly spelled
     one -- "San Jaun" beside "San Juan" in New Mexico 2001-2002, "Schnectady"
-    beside "Schenectady" in New York 2001-2002 -- where the misspelled row has
-    no values at all.  Once the misspelling is aliased onto the real county the
-    two collide, so the empty one is dropped.  A duplicate that carries data is
-    left in place, to surface rather than hide.
+    beside "Schenectady" in New York -- where the misspelled row has no values
+    at all. Merging the count and amount tables on ``join_key`` already unifies
+    those, so this is now a guard rather than the main defence; it is kept in
+    case the merge key ever changes back to the printed name.
+
+    Key on ``join_key``, never on ``county_id``. The code is None for every row
+    SSA publishes with no resolvable ANSI value, so they all collapse into one
+    group and any all-null member is deleted as a "duplicate" of a populated
+    one. That silently removed 58 legitimate rows -- suppressed Alaska census
+    areas and the "Unknown" county rows, each carrying a real
+    ``suppressed_disclosure`` note.
     """
     present = df[value_cols].notna().any(axis=1)
     dup = df.duplicated(keys, keep=False)
@@ -586,7 +593,7 @@ def build_oasdi_county(input_dir: Path) -> pd.DataFrame:
     df = df[df["county_or_city"] != STATE_TOTAL_LABEL]
     df = _drop_empty_duplicates(
         df,
-        ["year", "state_or_area", "county_id", *OASDI_DIMS],
+        ["year", "state_or_area", "join_key", *OASDI_DIMS],
         ["beneficiary_count", "benefit_amount_month"],
     )
     df = _attach_state_id(df)
@@ -759,7 +766,7 @@ def build_ssi_county(input_dir: Path) -> pd.DataFrame:
     df = df[df["county_or_city"] != STATE_TOTAL_LABEL]
     df = _drop_empty_duplicates(
         df,
-        ["year", "state_or_area", "county_id", *SSI_DIMS],
+        ["year", "state_or_area", "join_key", *SSI_DIMS],
         ["recipient_count", "payment_amount_month"],
     )
     df = _attach_state_id(df)

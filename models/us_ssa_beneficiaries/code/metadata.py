@@ -614,12 +614,26 @@ def main() -> int:
 
     # The SOURCE Update's `latest` is what SSA published -- the max coverage date
     # of the newest edition -- not today. Today would claim SSA released data today.
+    #
+    # Reuse the existing record: create_update_update without an id creates a
+    # second Update rather than replacing the first, so a re-run accumulates
+    # duplicates on the raw source.
     for sid in src_ids.values():
+        existing_update = server._gql(
+            """query($id: ID!) { allRawdatasource(id: $id) { edges { node {
+                 updates { edges { node { id } } } } } } }""",
+            {"id": sid},
+            env=env,
+            auth=False,
+        )["allRawdatasource"]["edges"][0]["node"]["updates"]["edges"]
         tool("create_update_update")(
             entity_id=entity["year"],
             frequency=1,
             latest=f"{LAST_YEAR}-12-01T00:00:00",
             raw_data_source_id=sid,
+            id=bare(existing_update[0]["node"]["id"])
+            if existing_update
+            else None,
             env=env,
         )
     print("  source updates recorded")
