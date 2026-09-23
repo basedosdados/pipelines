@@ -47,6 +47,14 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [beneficiary_count_note, benefit_amount_month_note]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_ssa_beneficiaries__dicionario')
+          columns_covered_by_dictionary:
+            - benefit_type
+            - age_group
+            - sex
+            - beneficiary_count_note
+            - benefit_amount_month_note
     columns:
       - name: year
         description: Ano de referência, correspondente à edição anual de dezembro
@@ -96,6 +104,12 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [population_note, percentage_receiving_oasdi_note]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_ssa_beneficiaries__dicionario')
+          columns_covered_by_dictionary:
+            - population_group
+            - population_note
+            - percentage_receiving_oasdi_note
     columns:
       - name: year
         description: Ano de referência, correspondente à edição anual de dezembro
@@ -136,6 +150,14 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [beneficiary_count_note, benefit_amount_month_note]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_ssa_beneficiaries__dicionario')
+          columns_covered_by_dictionary:
+            - benefit_type
+            - age_group
+            - sex
+            - beneficiary_count_note
+            - benefit_amount_month_note
     columns:
       - name: year
         description: Ano de referência, correspondente à edição anual de dezembro
@@ -188,6 +210,14 @@ models:
           ignore_values:
             - recipient_count_note
             - payment_amount_month
+            - payment_amount_month_note
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_ssa_beneficiaries__dicionario')
+          columns_covered_by_dictionary:
+            - eligibility_category
+            - age_group
+            - oasdi_concurrent
+            - recipient_count_note
             - payment_amount_month_note
     columns:
       - name: year
@@ -243,6 +273,14 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [recipient_count_note, payment_amount_month_note]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_ssa_beneficiaries__dicionario')
+          columns_covered_by_dictionary:
+            - eligibility_category
+            - age_group
+            - oasdi_concurrent
+            - recipient_count_note
+            - payment_amount_month_note
     columns:
       - name: year
         description: Ano de referência, correspondente à edição anual de dezembro

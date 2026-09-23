@@ -246,6 +246,18 @@ def main() -> None:
             {"not_null_proportion_multiple_columns": proportion}
         )
 
+        # Assert every dictionary-covered value in the built table has a row in
+        # the dicionario. The dictionary is derived from the data, so it cannot
+        # drift in Python -- this checks the same thing in BigQuery, where a
+        # stale dicionario upload would show up.
+        covered = [r["name"] for _, r in arch.iterrows()
+                   if r["covered_by_dictionary"] == "yes"]
+        if covered:
+            model_tests.append({"custom_dictionary_coverage": {
+                "dictionary_model": f"ref('{DATASET}__dicionario')",
+                "columns_covered_by_dictionary": covered,
+            }})
+
         models.append(
             {
                 "name": f"{DATASET}__{table}",
