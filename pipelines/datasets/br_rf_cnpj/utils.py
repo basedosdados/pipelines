@@ -17,21 +17,10 @@ from httpx import AsyncClient, HTTPError
 from tqdm import tqdm
 
 from pipelines.datasets.br_rf_cnpj.constants import constants as constants_cnpj
-from pipelines.utils.utils import log
+from pipelines.utils.utils import brasil_proxy_url, log
 
 ufs = constants_cnpj.UFS.value
 timeout = constants_cnpj.TIMEOUT.value
-
-
-def _brasil_proxy_url() -> str | None:
-    """URL do proxy com IP brasileiro (iac#155), só setada nos flows que precisam.
-
-    A fonte da Receita Federal bloqueia IPs fora do Brasil; o cluster GKE roda
-    em `us-central1`. Lida via `BRASIL_PROXY_URL` (injetada por `job_variables`
-    só nas sub-flows afetadas, nunca globalmente no pod) para não desviar
-    tráfego não relacionado (Vault, BigQuery, API do Prefect) por esse proxy.
-    """
-    return os.environ.get("BRASIL_PROXY_URL") or None
 
 
 def data_url(
@@ -48,14 +37,15 @@ def data_url(
 
         tuple[datetime, datetime]: The maximum date found in the folders (folder_date) and max last modified date (max_last_modified_date).
     """
-    proxy_url = _brasil_proxy_url()
+    proxy_url = brasil_proxy_url()
+    proxies = {"http": proxy_url, "https": proxy_url} if proxy_url else None
     link_data = requests.request(
         method="PROPFIND",
         url=url,
         headers=constants_cnpj.HEADERS.value,
         data=constants_cnpj.XML_BODY.value,
         timeout=30,
-        proxies={"http": proxy_url, "https": proxy_url} if proxy_url else None,
+        proxies=proxies,
     )
     link_data.raise_for_status()
     soup = BeautifulSoup(link_data.text, "html.parser")
@@ -109,14 +99,15 @@ def get_table_files(table_name: str, url_base: str):
     """
     Get the files and its links of the specified table from the given BeautifulSoup object.
     """
-    proxy_url = _brasil_proxy_url()
+    proxy_url = brasil_proxy_url()
+    proxies = {"http": proxy_url, "https": proxy_url} if proxy_url else None
     link_data = requests.request(
         method="PROPFIND",
         url=url_base,
         headers=constants_cnpj.HEADERS.value,
         data=constants_cnpj.XML_BODY.value,
         timeout=30,
-        proxies={"http": proxy_url, "https": proxy_url} if proxy_url else None,
+        proxies=proxies,
     )
     link_data.raise_for_status()
     soup = BeautifulSoup(link_data.text, "html.parser")
@@ -235,7 +226,7 @@ async def download(
     Raises:
         HTTPError: If the server responds with an error or the download fails.
     """
-    async with AsyncClient(proxy=_brasil_proxy_url()) as client:
+    async with AsyncClient(proxy=brasil_proxy_url()) as client:
         try:
             request_head = await client.head(url, timeout=timeout)
             request_head.raise_for_status()

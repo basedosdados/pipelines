@@ -3,6 +3,7 @@ Utilitários gerais — logging, detecção de ambiente, helpers de string.
 """
 
 import logging
+import os
 import zipfile
 from io import BytesIO
 from pathlib import Path
@@ -40,6 +41,25 @@ def is_running_in_prod() -> bool:
         return flow_run.work_pool_name == "basedosdados"
     except Exception:
         return False
+
+
+def brasil_proxy_url() -> str | None:
+    """URL do proxy com IP brasileiro (iac#155), pra fontes que bloqueiam IP estrangeiro.
+
+    Lida de `BRASIL_PROXY_URL`, disponível em todo pod via o secret
+    `gcp-credentials` (injetado por `envFrom` no work pool). Passar o
+    resultado como `proxies={"http": url, "https": url}` (requests) ou
+    `proxy=url` (httpx) só nas chamadas de rede que precisam de IP
+    brasileiro — nunca setar `HTTP_PROXY`/`HTTPS_PROXY` global no
+    processo, isso desviaria tráfego não relacionado (Vault, BigQuery,
+    API do Prefect) por um proxy pensado só pra uma fonte específica.
+
+    Returns:
+        A URL do proxy (com usuário/senha embutidos), ou `None` quando
+        `BRASIL_PROXY_URL` não está definida (dev local, ou fonte que
+        não precisa de proxy).
+    """
+    return os.environ.get("BRASIL_PROXY_URL") or None
 
 
 def query_to_line(query: str) -> str:
