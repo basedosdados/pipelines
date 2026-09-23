@@ -50,3 +50,63 @@ near-duplicate.
 ## Themes
 
 There is no labour theme in the vocabulary (23 total), so `economics` + `population`.
+
+---
+
+## Registered on STAGING, 2026-09-23
+
+These are staging IDs. Prod IDs differ — re-resolve everything before promoting,
+and re-create the organization there too.
+
+| Record | ID |
+|---|---|
+| Organization `cl_ine` (CREATED) | `feffd51b-40a5-4710-a48f-e10e77af4a0e` |
+| Dataset `cl_ine_ene` | `2e85e10c-9504-4d05-9598-f027c6a2e97d` |
+| Raw data source | `6b0c1b7c-addb-446a-8fb7-78477428ee5a` |
+| Table `microdato` | `2d98657d-47eb-4348-a1d3-a4a811b49408` |
+| Table `dicionario` | `b1ac45a4-7ffd-4f98-9657-0453ffadfa82` |
+| OL year / month / person | `e8318279…` / `b1b423fb…` / `eddd3503…` |
+| Coverage free / pro | `952dd73b…` / `bbf68928…` |
+
+## Order of operations that worked
+
+1. Organization, then dataset (`status = under_review`), then raw data source.
+2. Both tables, then the three observation levels.
+3. Columns via `bulk_upsert_columns` reading `columns_microdato.json` from disk
+   through a direct `server.py` import — 198 KB is far too large to paste through
+   a tool argument.
+4. `update_column` for the three grain columns, **re-passing `is_partition`** in
+   the same call: its boolean arguments default to False, so linking an
+   observation level on `ano` would otherwise silently clear its partition flag.
+5. Cloud tables, coverages, datetime ranges, updates.
+6. The deferred `raw_data_source_ids` link as a second `create_update_table`,
+   re-passing every field — the API does no partial updates and omitted names
+   would be blanked.
+7. `reorder_tables`, then dataset `status = published` on staging only.
+
+The historical bug where `create_update_table` failed on a table that already had
+a Coverage is **fixed on staging** as of this date; step 6 succeeded with two
+coverages already in place.
+
+## BD Pro topology
+
+`microdato` is `PartBdpro(free_lag=6 months)`, so it needs both coverages before
+the pipeline's first armed run or `assert_coverage_topology` hard-fails. Verified
+in place and non-overlapping, at month granularity:
+
+```
+FREE 2010-02 .. 2025-12   coverage.is_closed=False  range.is_closed=False
+PRO  2026-01 .. 2026-06   coverage.is_closed=True   range.is_closed=True
+```
+
+Free ends inclusive at `source_end - 6 months`; pro starts the next month.
+
+## Update records
+
+| Record | entity | frequency | lag | latest |
+|---|---|---|---|---|
+| Table update (wall clock) | month | 1 | 2 | 2026-09-23 |
+| Raw source update (source max coverage date) | month | 1 | — | 2026-06-01 |
+
+The `Poll` is written by the flow's first run. `latest` needs a full datetime:
+a bare `2026-09-23` is rejected with "DateTime cannot represent value".
