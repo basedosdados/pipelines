@@ -1220,9 +1220,11 @@ def to_string_table(df: pd.DataFrame, spec: list[tuple[str, str]]) -> pa.Table:
         )
         target = arrow_types.get(bq_type, pa.string())
         if target is pa.string():
+            # from_pandas=True makes pyarrow read NaN/NaT as null. Without it
+            # a missing value becomes the literal "nan", which safe_cast will
+            # not turn back into NULL.
             arr = pa.array(
-                series.astype(object).where(pd.notna(series), None),
-                type=pa.string(),
+                series.astype(object), type=pa.string(), from_pandas=True
             )
         else:
             arr = pa.array(pd.to_numeric(series, errors="coerce"), type=target)
