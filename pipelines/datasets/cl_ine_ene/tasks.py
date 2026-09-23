@@ -41,33 +41,37 @@ def anchor_fingerprint(work_dir: str) -> dict:
 def last_ingested_period(bq_project: str) -> str | None:
     """Newest moving quarter already in the destination table, as ``YYYY-MM``.
 
-    Returns None when the table does not exist yet, which means the first run and
+    Returns None when the table is absent or empty, which means the first run and
     therefore the whole back-series. Without this the flow would start each
     incremental run at the source's newest quarter, and any period that appeared
     while the flow was paused or failing would be skipped permanently — the poll
-    only reports THAT the source is newer, not how much was missed.
-    """
-    from google.cloud import bigquery
+    only reports THAT the source is newer, never how much was missed.
 
-    client = bigquery.Client(project=bq_project)
+    Queries through ``bd.read_sql(from_file=True)`` rather than a bare
+    ``bigquery.Client``: the worker pod's application-default credentials are not
+    the service account the project is configured with, so a raw client fails with
+    ``bigquery.jobs.create`` denied.
+    """
+    import basedosdados as bd
+
     table = (
         f"{bq_project}.{constants.DATASET_ID.value}.{constants.TABLE_ID.value}"
     )
+    query = f"select max(ano * 100 + mes) as period from `{table}`"
     try:
-        client.get_table(table)
-    except Exception:
-        print(f"{table} does not exist yet; ingesting the full back-series")
-        return None
-    row = next(
-        iter(
-            client.query(
-                f"select max(ano * 100 + mes) as period from `{table}`"
-            ).result()
+        frame = bd.read_sql(
+            query=query, billing_project_id=bq_project, from_file=True
         )
-    )
-    if row["period"] is None:
+    except Exception as exc:
+        print(
+            f"could not read {table} ({exc}); ingesting the full back-series"
+        )
         return None
-    year, month = divmod(int(row["period"]), 100)
+
+    period = frame["period"][0] if len(frame) else None
+    if period is None or (isinstance(period, float) and period != period):
+        return None
+    year, month = divmod(int(period), 100)
     print(f"{table} already holds up to {year}-{month:02d}")
     return f"{year}-{month:02d}"
 
