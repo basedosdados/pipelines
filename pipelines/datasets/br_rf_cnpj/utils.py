@@ -17,7 +17,7 @@ from httpx import AsyncClient, HTTPError
 from tqdm import tqdm
 
 from pipelines.datasets.br_rf_cnpj.constants import constants as constants_cnpj
-from pipelines.utils.utils import log
+from pipelines.utils.utils import brasil_proxy_dict, brasil_proxy_url, log
 
 ufs = constants_cnpj.UFS.value
 timeout = constants_cnpj.TIMEOUT.value
@@ -37,13 +37,13 @@ def data_url(
 
         tuple[datetime, datetime]: The maximum date found in the folders (folder_date) and max last modified date (max_last_modified_date).
     """
-
     link_data = requests.request(
         method="PROPFIND",
         url=url,
         headers=constants_cnpj.HEADERS.value,
         data=constants_cnpj.XML_BODY.value,
         timeout=30,
+        proxies=brasil_proxy_dict(),
     )
     link_data.raise_for_status()
     soup = BeautifulSoup(link_data.text, "html.parser")
@@ -103,6 +103,7 @@ def get_table_files(table_name: str, url_base: str):
         headers=constants_cnpj.HEADERS.value,
         data=constants_cnpj.XML_BODY.value,
         timeout=30,
+        proxies=brasil_proxy_dict(),
     )
     link_data.raise_for_status()
     soup = BeautifulSoup(link_data.text, "html.parser")
@@ -221,7 +222,7 @@ async def download(
     Raises:
         HTTPError: If the server responds with an error or the download fails.
     """
-    async with AsyncClient() as client:
+    async with AsyncClient(proxy=brasil_proxy_url()) as client:
         try:
             request_head = await client.head(url, timeout=timeout)
             request_head.raise_for_status()
