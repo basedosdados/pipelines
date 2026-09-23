@@ -2,6 +2,8 @@
 Shared run logic for br_anatel_telefonia_movel — Prefect 3.
 """
 
+from prefect.utilities.asyncutils import run_coro_as_sync
+
 from pipelines.crawler.anatel.telefonia_movel.tasks import (
     get_max_date_in_table_microdados,
     get_semester,
@@ -36,9 +38,10 @@ def _run_anatel_telefonia_movel(
     target: str,
     force_run: bool,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     unzip()

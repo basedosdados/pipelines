@@ -20,6 +20,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.br_cgu_orcamento_publico.constants import constants
 from pipelines.datasets.br_cgu_orcamento_publico.tasks import (
@@ -69,9 +70,10 @@ def br_cgu_orcamento_publico_flow(
             files since the last refresh. Needed for the first run, whose
             ``Table.Update.latest`` is newer than the source's ``Last-Modified``.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id=TABLE_ID
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id=TABLE_ID
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="br_cgu_orcamento_publico_")

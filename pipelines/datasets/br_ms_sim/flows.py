@@ -3,6 +3,7 @@ Flows de br_ms_sim — Prefect 3.
 """
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.br_ms_sim.tasks import (
     clean_table,
@@ -41,9 +42,10 @@ def br_ms_sim__microdados(
     force_run: bool = False,
 ) -> None:
     """Carrega um ano do SIM, do FTP do DATASUS até a materialização."""
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     backfill = ano is not None

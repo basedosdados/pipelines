@@ -21,6 +21,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.us_fed_fred.constants import constants
 from pipelines.datasets.us_fed_fred.tasks import clean_fred, download_fred
@@ -90,9 +91,10 @@ def us_fed_fred_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new data.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="observation"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="observation"
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="us_fed_fred_")

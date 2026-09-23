@@ -6,6 +6,7 @@ divisão entre carga histórica e atualização estão no README do conjunto.
 """
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.br_fnde_fundeb.constants import constants
 from pipelines.datasets.br_fnde_fundeb.tasks import (
@@ -58,9 +59,10 @@ def br_fnde_fundeb(
     Encerra sem baixar nada quando a plataforma não regravou o arquivo desde a
     última materialização.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=POLL_TABLE
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=POLL_TABLE
+        )
     )
 
     source_date = check_source_siope(

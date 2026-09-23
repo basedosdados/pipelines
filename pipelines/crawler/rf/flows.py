@@ -3,6 +3,8 @@ Flow compartilhado para datasets da Receita Federal (br_rf_cno, ...).
 Prefect 3 — use os flows dos datasets para deploy.
 """
 
+from prefect.utilities.asyncutils import run_coro_as_sync
+
 from pipelines.crawler.rf.tasks import (
     check_need_for_update,
     crawl,
@@ -35,9 +37,10 @@ def _run_rf(
     force_run: bool = False,
 ) -> None:
     """Lógica completa do flow Receita Federal. Chamada pelos flows de cada dataset."""
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     last_update_original_source = check_need_for_update(dataset_id=dataset_id)

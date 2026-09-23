@@ -19,6 +19,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.br_mgi_pncp.constants import constants
 from pipelines.datasets.br_mgi_pncp.tasks import (
@@ -130,9 +131,10 @@ def br_mgi_pncp_flow(
         lookback_days: How far back to re-harvest. Wider than the schedule
             interval on purpose, because PNCP backdates amendments.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="contratacao"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="contratacao"
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="br_mgi_pncp_")

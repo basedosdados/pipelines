@@ -3,6 +3,7 @@ Flows for br_bd_indicadores — Prefect 3.
 """
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.crawler.bd_indicadores.tasks import (
     crawler_metricas,
@@ -68,9 +69,10 @@ def br_bd_indicadores__twitter_metrics(
     materialize_after_dump: bool = True,
     target: str = "prod",
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
     creds = get_twitter_credentials(secret_path="twitter_credentials")
     (
@@ -119,9 +121,10 @@ def br_bd_indicadores__page_views(
     dataset_id: str = _DATASET,
     table_id: str = "page_views",
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
     property_id = get_ga_credentials(
         secret_path="ga_credentials", key="property_id"
@@ -152,9 +155,10 @@ def br_bd_indicadores__website_user(
     materialize_after_dump: bool = True,
     target: str = "prod",
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
     view_id = get_ga_credentials(secret_path="ga_credentials", key="view_id")
     filepath = crawler_report_ga(
@@ -187,9 +191,10 @@ def _sheet_flow_body(
     filename: str,
     usecols: int | None = None,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
     if usecols is None:
         df = get_data_from_sheet(sheet_id=sheet_id, sheet_name=sheet_name)

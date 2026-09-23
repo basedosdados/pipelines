@@ -2,6 +2,8 @@
 Lógica compartilhada para os datasets br_cgu_* — Prefect 3.
 """
 
+from prefect.utilities.asyncutils import run_coro_as_sync
+
 from pipelines.crawler.cgu.tasks import (
     dict_for_table,
     get_current_date_and_download_file,
@@ -160,9 +162,10 @@ def _run_cgu_cartao_pagamento(
         target: target do dbt na etapa de prod.
         force_run: ignora o poll e roda mesmo sem dado novo na fonte.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     data_source_max_date = get_current_date_and_download_file(
@@ -233,9 +236,10 @@ def _run_cgu_servidores_publicos(
         force_run: ignora a checagem de URLs e o poll, rodando mesmo sem
             dado novo na fonte.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     url_ok = verify_all_url_exists_to_download(
@@ -308,9 +312,10 @@ def _run_cgu_licitacao_contrato(
         target: target do dbt na etapa de prod.
         force_run: ignora o poll e roda mesmo sem dado novo na fonte.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     data_source_max_date = get_current_date_and_download_file(
@@ -381,9 +386,10 @@ def _run_cgu_beneficios_cidadao(
         target: target do dbt na etapa de prod.
         force_run: ignora o poll e roda mesmo sem dado novo na fonte.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     data_source_max_date = get_current_date_and_download_file(

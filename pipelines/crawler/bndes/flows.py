@@ -15,6 +15,8 @@ Dois conceitos de data (nao confundir):
   AllFree + YearOnly + DateFormat.YEAR.
 """
 
+from prefect.utilities.asyncutils import run_coro_as_sync
+
 from pipelines.crawler.bndes.tasks import (
     clean_and_partition,
     clean_and_partition_administracao_publica,
@@ -66,9 +68,10 @@ def _run_operacoes(
         force_run (bool): ignora o early-return quando nao ha novidade.
     """
 
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     source_max_date = get_source_max_date(table_id=table_id)
@@ -168,9 +171,10 @@ def _run_operacoes_exportacao_bens(
         update_metadata (bool): se True, registra materializacao e commita o Update da fonte.
         force_run (bool): ignora o early-return quando nao ha novidade.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     source_max_date = get_source_max_date_exportacao_bens()
@@ -271,9 +275,10 @@ def _run_operacoes_exportacao_servicos(
         target (str): target do dbt na etapa de prod.
         force_run (bool): ignora o early-return quando nao ha novidade.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     source_max_date = get_source_max_date_exportacao_servicos()
@@ -375,9 +380,10 @@ def _run_operacoes_administracao_publica(
         target (str): target do dbt na etapa de prod.
         force_run (bool): ignora o early-return quando nao ha novidade.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     source_max_date = get_source_max_date_administracao_publica()

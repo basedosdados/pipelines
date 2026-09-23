@@ -2,6 +2,8 @@
 Flow compartilhado para br_me_rais — Prefect 3.
 """
 
+from prefect.utilities.asyncutils import run_coro_as_sync
+
 from pipelines.crawler.me_rais.tasks import (
     build_partitions,
     build_table_paths,
@@ -33,9 +35,10 @@ def _run_rais(
     force_run: bool = False,
     resolve_vinculos: bool = False,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     effective_table_id = (

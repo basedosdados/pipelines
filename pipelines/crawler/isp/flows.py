@@ -2,6 +2,8 @@
 Shared run logic for br_rj_isp_estatisticas_seguranca — Prefect 3.
 """
 
+from prefect.utilities.asyncutils import run_coro_as_sync
+
 from pipelines.crawler.isp.tasks import clean_data, get_count_lines
 from pipelines.utils.metadata.domain import (
     AllFree,
@@ -26,9 +28,10 @@ def _run_isp(
     target: str,
     force_run: bool,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     if not force_run:

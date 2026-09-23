@@ -3,6 +3,7 @@ Flows para br_bcb_sicor — Prefect 3.
 """
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.crawler.bcb.flows import _run_bcb_sicor
 from pipelines.crawler.bcb.tasks import create_load_dictionary
@@ -135,9 +136,10 @@ def br_bcb_sicor__dicionario(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     dicionario_filepath = create_load_dictionary()

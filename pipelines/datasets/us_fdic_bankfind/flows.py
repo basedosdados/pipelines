@@ -27,6 +27,7 @@ import tempfile
 
 import pandas as pd
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.us_fdic_bankfind.constants import constants
 from pipelines.datasets.us_fdic_bankfind.tasks import (
@@ -91,9 +92,10 @@ def us_fdic_bankfind_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new quarter.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="financials"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="financials"
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="us_fdic_bankfind_")

@@ -22,6 +22,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.fr_meteofrance.constants import constants
 from pipelines.datasets.fr_meteofrance.tasks import (
@@ -162,9 +163,10 @@ def fr_meteofrance_synop_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new day.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="synop"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="synop"
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="fr_meteofrance_synop_")
@@ -237,11 +239,12 @@ def fr_meteofrance_climatologie_flow(
             coverage and commit the source update.
         force_run: Materialize even when the source poll reports no new edition.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=DATASET_ID,
-        table_id="normale_climatologique",
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ",
+            dataset_id=DATASET_ID,
+            table_id="normale_climatologique",
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="fr_meteofrance_clim_")
@@ -333,9 +336,10 @@ def fr_meteofrance_climatologie_base_flow(
             coverage and commit the source update.
         force_run: Materialize even when the source poll reports no new edition.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="quotidienne"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="quotidienne"
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="fr_meteofrance_clim_base_")

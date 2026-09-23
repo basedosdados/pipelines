@@ -2,6 +2,8 @@
 Lógica compartilhada de execução para br_bcb_sicor — Prefect 3.
 """
 
+from prefect.utilities.asyncutils import run_coro_as_sync
+
 from pipelines.crawler.bcb.tasks import (
     download_table,
     get_sicor_table_size,
@@ -68,9 +70,10 @@ def _run_bcb_sicor(
     download_all_files: bool = False,
     local_redis_execution: bool = False,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     download_links = search_sicor_links()

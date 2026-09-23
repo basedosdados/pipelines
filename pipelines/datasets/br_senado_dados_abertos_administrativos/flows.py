@@ -27,6 +27,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.br_senado_dados_abertos_administrativos import utils
 from pipelines.datasets.br_senado_dados_abertos_administrativos.constants import (
@@ -131,9 +132,10 @@ def _run(
     A prod run goes straight to prod (no redundant dev materialization, whose
     bytes buy no signal — prod runs the same models and tests seconds later).
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id=_ANCHOR_TABLE
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id=_ANCHOR_TABLE
+        )
     )
 
     bucket = "basedosdados" if materialize_to_prod else "basedosdados-dev"

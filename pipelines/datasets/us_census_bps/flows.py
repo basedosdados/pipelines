@@ -19,6 +19,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.us_census_bps.constants import constants
 from pipelines.datasets.us_census_bps.tasks import (
@@ -175,9 +176,10 @@ def us_census_bps_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the poll reports no new month.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="bps"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="bps"
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="us_census_bps_")

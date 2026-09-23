@@ -19,6 +19,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.world_oecd_revenue_statistics.constants import (
     constants,
@@ -67,9 +68,10 @@ def world_oecd_revenue_statistics_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new year.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="revenue"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="revenue"
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="world_oecd_revenue_statistics_")

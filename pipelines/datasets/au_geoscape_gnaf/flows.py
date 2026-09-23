@@ -23,6 +23,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.au_geoscape_gnaf.constants import constants
 from pipelines.datasets.au_geoscape_gnaf.tasks import (
@@ -89,9 +90,10 @@ def au_geoscape_gnaf_flow(
         force_run: Download and materialize even when the source poll reports no
             new snapshot.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id=CORE_TABLE
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id=CORE_TABLE
+        )
     )
 
     # Cheap poll first: resolve the current release and ask whether its snapshot

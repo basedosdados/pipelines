@@ -5,6 +5,7 @@ Flow br_mp_pep — Prefect 3.
 import datetime
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.crawler.mp_pep.tasks import (
     clean_data,
@@ -41,9 +42,10 @@ def br_mp_pep__cargos_funcoes(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     setup_web_driver()

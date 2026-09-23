@@ -26,6 +26,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.us_osha_enforcement.constants import constants
 from pipelines.datasets.us_osha_enforcement.tasks import (
@@ -156,9 +157,10 @@ def us_osha_enforcement_flow(
         modified_days: Also rebuild any older year holding an inspection whose
             ``case_mod_date`` falls within this many days.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="inspection"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="inspection"
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="us_osha_enforcement_")

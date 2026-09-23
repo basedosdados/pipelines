@@ -21,6 +21,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.us_eia_consumption.constants import constants
 from pipelines.datasets.us_eia_consumption.tasks import (
@@ -98,11 +99,12 @@ def us_eia_consumption_flow(
         force_run: Materialize even when both polls report nothing new — needed
             for a revision that restates without adding a period.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ",
-        dataset_id=DATASET_ID,
-        table_id=constants.RETAIL_SALES.value,
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ",
+            dataset_id=DATASET_ID,
+            table_id=constants.RETAIL_SALES.value,
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="us_eia_consumption_")

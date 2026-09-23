@@ -12,6 +12,7 @@ import os
 from typing import Any
 
 from prefect import flow, get_run_logger
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.us_nchs_vital_statistics.constants import constants
 from pipelines.datasets.us_nchs_vital_statistics.tasks import (
@@ -54,9 +55,10 @@ def us_nchs_vital_statistics_flow(
     year: int | None = None,
 ):
     logger = get_run_logger()
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="birth"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="birth"
+        )
     )
 
     products = ["birth", "death"]

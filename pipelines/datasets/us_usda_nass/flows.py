@@ -21,6 +21,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.us_usda_nass.constants import constants
 from pipelines.datasets.us_usda_nass.tasks import clean_nass, download_nass
@@ -75,9 +76,10 @@ def us_usda_nass_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new year.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id=_POLL_TABLE
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id=_POLL_TABLE
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="us_usda_nass_")

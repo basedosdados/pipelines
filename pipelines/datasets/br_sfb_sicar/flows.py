@@ -21,6 +21,7 @@ from datetime import date
 
 from dateutil.relativedelta import relativedelta
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.crawler.sfb_sicar.constants import Constants
 from pipelines.crawler.sfb_sicar.tasks import (
@@ -263,9 +264,10 @@ def br_sfb_sicar_flow(
     ]
     ufs = [u for u in UF_SIGLAS if not only_ufs or u in only_ufs.split(",")]
 
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id=ANCHOR_TABLE
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id=ANCHOR_TABLE
+        )
     )
 
     # Cheap: one page fetch. Do the poll BEFORE downloading gigabytes of zips.

@@ -3,6 +3,7 @@ Flows for br_rf_cnpj — Prefect 3.
 """
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.br_rf_cnpj.constants import constants as constants_cnpj
 from pipelines.datasets.br_rf_cnpj.tasks import get_data_source_max_date, main
@@ -86,9 +87,10 @@ def _rf_cnpj_flow(table_id: str, cron: str):
             None. Returns early (without uploading/running dbt) if `force_run` is
             False and the source has no new data since the last committed update.
         """
-        # pyrefly: ignore [unused-coroutine]
-        rename_flow_run_dataset_table(
-            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        run_coro_as_sync(
+            rename_flow_run_dataset_table(
+                prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+            )
         )
 
         # Cada table_id, tem uma lista de tabelas, que são os arquivos necessários ao flow (como 'sub-tabelas' que compõe aquela identificada por table_id)
