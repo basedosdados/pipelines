@@ -136,9 +136,38 @@ uv run python models/us_ssa_beneficiaries/code/build_architecture.py
 uv run python models/us_ssa_beneficiaries/code/build_dbt_models.py
 uv run python models/us_ssa_beneficiaries/code/clean.py --download
 uv run python models/us_ssa_beneficiaries/code/upload.py
+uv run python models/us_ssa_beneficiaries/code/test_reconciliation.py
 ```
 
 Scratch data goes to `~/Downloads/us_ssa_beneficiaries_data` (override with
 `SSA_DATA_DIR`), never inside the repo or Dropbox. The cleaning transform lives
 in `pipelines/datasets/us_ssa_beneficiaries/utils.py` and is shared with the
 recurring Prefect flow, so the two cannot diverge.
+
+## Metadata
+
+One script registers everything, and is safe to re-run because every record is
+looked up before it is written:
+
+```bash
+uv run python models/us_ssa_beneficiaries/code/metadata.py --env staging
+uv run python models/us_ssa_beneficiaries/code/metadata.py --env prod
+uv run python models/us_ssa_beneficiaries/code/metadata.py --env prod --publish
+```
+
+`--dataset-only` updates the dataset record alone, which is what a tag or
+description change needs; walking all six tables takes about ten minutes.
+
+Datasets are created `under_review`. Staging is published before the PR so a
+reviewer sees the dataset as it will appear; prod is published only after the
+PR merges, table-approve materialises the tables and they are verified.
+
+Two things the script encodes that are easy to get wrong:
+
+- **Tags are resolved by uuid, not slug.** The same tag record is
+  `previdencia_social` on staging and `social_security` on prod. A slug list
+  resolves to a different set per environment, or to nothing.
+- **`get_dataset` costs about 25 seconds**, so it must not sit inside a loop.
+
+Run exactly one instance at a time. Concurrent runs race on the
+lookup-then-create step and can duplicate observation levels and coverages.
