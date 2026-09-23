@@ -47,12 +47,12 @@ def brasil_proxy_url() -> str | None:
     """URL do proxy com IP brasileiro (iac#155), pra fontes que bloqueiam IP estrangeiro.
 
     Lida de `BRASIL_PROXY_URL`, disponível em todo pod via o secret
-    `gcp-credentials` (injetado por `envFrom` no work pool). Passar o
-    resultado como `proxies={"http": url, "https": url}` (requests) ou
-    `proxy=url` (httpx) só nas chamadas de rede que precisam de IP
-    brasileiro — nunca setar `HTTP_PROXY`/`HTTPS_PROXY` global no
-    processo, isso desviaria tráfego não relacionado (Vault, BigQuery,
-    API do Prefect) por um proxy pensado só pra uma fonte específica.
+    `gcp-credentials` (injetado por `envFrom` no work pool). Usar direto
+    como `proxy=url` (httpx) — pra `requests`, ver `brasil_proxy_dict()`.
+    Passar só nas chamadas de rede que precisam de IP brasileiro — nunca
+    setar `HTTP_PROXY`/`HTTPS_PROXY` global no processo, isso desviaria
+    tráfego não relacionado (Vault, BigQuery, API do Prefect) por um
+    proxy pensado só pra uma fonte específica.
 
     Returns:
         A URL do proxy (com usuário/senha embutidos), ou `None` quando
@@ -60,6 +60,17 @@ def brasil_proxy_url() -> str | None:
         não precisa de proxy).
     """
     return os.environ.get("BRASIL_PROXY_URL") or None
+
+
+def brasil_proxy_dict() -> dict[str, str] | None:
+    """`brasil_proxy_url()` pronto pro parâmetro `proxies=` do `requests`.
+
+    Returns:
+        `{"http": url, "https": url}`, ou `None` quando `BRASIL_PROXY_URL`
+        não está definida (mesma condição de `brasil_proxy_url()`).
+    """
+    url = brasil_proxy_url()
+    return {"http": url, "https": url} if url else None
 
 
 def query_to_line(query: str) -> str:

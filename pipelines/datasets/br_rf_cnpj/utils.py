@@ -17,7 +17,7 @@ from httpx import AsyncClient, HTTPError
 from tqdm import tqdm
 
 from pipelines.datasets.br_rf_cnpj.constants import constants as constants_cnpj
-from pipelines.utils.utils import brasil_proxy_url, log
+from pipelines.utils.utils import brasil_proxy_dict, brasil_proxy_url, log
 
 ufs = constants_cnpj.UFS.value
 timeout = constants_cnpj.TIMEOUT.value
@@ -37,15 +37,13 @@ def data_url(
 
         tuple[datetime, datetime]: The maximum date found in the folders (folder_date) and max last modified date (max_last_modified_date).
     """
-    proxy_url = brasil_proxy_url()
-    proxies = {"http": proxy_url, "https": proxy_url} if proxy_url else None
     link_data = requests.request(
         method="PROPFIND",
         url=url,
         headers=constants_cnpj.HEADERS.value,
         data=constants_cnpj.XML_BODY.value,
         timeout=30,
-        proxies=proxies,
+        proxies=brasil_proxy_dict(),
     )
     link_data.raise_for_status()
     soup = BeautifulSoup(link_data.text, "html.parser")
@@ -99,15 +97,13 @@ def get_table_files(table_name: str, url_base: str):
     """
     Get the files and its links of the specified table from the given BeautifulSoup object.
     """
-    proxy_url = brasil_proxy_url()
-    proxies = {"http": proxy_url, "https": proxy_url} if proxy_url else None
     link_data = requests.request(
         method="PROPFIND",
         url=url_base,
         headers=constants_cnpj.HEADERS.value,
         data=constants_cnpj.XML_BODY.value,
         timeout=30,
-        proxies=proxies,
+        proxies=brasil_proxy_dict(),
     )
     link_data.raise_for_status()
     soup = BeautifulSoup(link_data.text, "html.parser")
