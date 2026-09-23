@@ -696,6 +696,9 @@ models:
     us_usda_nass:
       +materialized: table
       +schema: us_usda_nass
+    us_ssa_beneficiaries:
+      +materialized: table
+      +schema: us_ssa_beneficiaries
     us_state_foreign_assistance:
       +materialized: table
       +schema: us_state_foreign_assistance
