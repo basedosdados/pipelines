@@ -1,0 +1,2745 @@
+{
+ "ano_encuesta": {
+  "desc": "Año de recolección de datos",
+  "cats": [],
+  "obs": "2010 - 2026 Señala el año del periodo de recolección de datos.",
+  "src": 2020
+ },
+ "mes_encuesta": {
+  "desc": "Mes de recolección de datos",
+  "cats": [
+   "1: Enero",
+   "2: Febrero",
+   "3: Marzo",
+   "4: Abril",
+   "5: Mayo",
+   "6: Junio",
+   "7: Julio",
+   "8: Agosto",
+   "9: Septiembre",
+   "10: Octubre",
+   "11: Noviembre",
+   "12: Diciembre"
+  ],
+  "obs": "Señala el mes del periodo de recolección de datos. Variable Etiqueta Valores Observaciones",
+  "src": 2020
+ },
+ "region": {
+  "desc": "Los nombres oficiales de las regiones han sido simplificados con el fin de facilitar la visualización Fortalecimiento de la Regionalización del País, artículo 9, promulgada en 2018.6",
+  "cats": [],
+  "obs": "Región Ver detalle de regiones en Anexo 1 de datos. Para mayor detalle, véase Ley 21.074 de",
+  "src": 2020
+ },
+ "tipo": {
+  "desc": "Tipo de estrato",
+  "cats": [
+   "1: Ciudad (CD)",
+   "2: Resto de Área Urbana (RAU)",
+   "3: Rural"
+  ],
+  "obs": "Categoría 2 Resto de Área Urbana (RAU) dejó de utilizarse a partir de EFM 2022.",
+  "src": 2020
+ },
+ "estrato": {
+  "desc": "Estrato muestral",
+  "cats": [],
+  "obs": "",
+  "src": 2020
+ },
+ "conglomerado": {
+  "desc": "Permite identificar el conglomerado correspondiente a la unidad primaria de muestreo.",
+  "cats": [],
+  "obs": "Conglomerado  Vigente desde NDE 2019 a la fecha.",
+  "src": 2020
+ },
+ "id_identificacion": {
+  "desc": "Identificador único del hogar",
+  "cats": [],
+  "obs": "",
+  "src": 2020
+ },
+ "hogar": {
+  "desc": "Número del hogar dentro de la vivienda",
+  "cats": [],
+  "obs": "",
+  "src": 2020
+ },
+ "idrph": {
+  "desc": "Identificador único de personas",
+  "cats": [],
+  "obs": "",
+  "src": 2020
+ },
+ "nro_linea": {
+  "desc": "identificada en el cuestionario. 6  Disponible en https://www.bcn.cl/leychile/navegar?idNorma=1115064",
+  "cats": [],
+  "obs": "Número de línea de persona  Corresponde al orden con el cual la persona fue",
+  "src": 2020
+ },
+ "parentesco": {
+  "desc": "Parentesco con proveedor/a principal del hogar",
+  "cats": [
+   "1: Persona proveedora principal",
+   "2: Cónyuge",
+   "3: Conviviente",
+   "4: Hijo/a o hijastro/a",
+   "5: Yerno o nuera",
+   "6: Nieto/a",
+   "7: Hermano/a) o cuñado/a",
+   "8: Padres o suegros",
+   "9: Otro pariente",
+   "10: No pariente",
+   "11: Servicio doméstico",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Entre EFM 2020 y NDE 2019, el código 1 identificaba al jefe o jefa de hogar, concepto que fue reemplazado por proveedor/a principal a partir de DEF 2020.",
+  "src": 2020
+ },
+ "sexo": {
+  "desc": "Sexo",
+  "cats": [
+   "1: Hombre",
+   "2: Mujer"
+  ],
+  "obs": "Corresponde al sexo declarado respecto a la persona entrevistada (INE, 2022b).",
+  "src": 2020
+ },
+ "edad": {
+  "desc": "Edad 0 – 120  Señala la edad de la persona durante la semana de referencia de la encuesta.",
+  "cats": [],
+  "obs": "",
+  "src": 2020
+ },
+ "est_conyugal": {
+  "desc": "Estado civil  o conyugal",
+  "cats": [
+   "0: No aplica",
+   "1: Casado/a",
+   "2: Conviviente",
+   "3: Soltero/a",
+   "4: Viudo/a",
+   "5: Separado/a de hecho o anulado/a",
+   "6: Divorciado/a",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "mig1": {
+  "desc": "¿En qué país vivía hace cinco años?",
+  "cats": [
+   "1: En esta comuna",
+   "2: En otra comuna",
+   "3: En otro país",
+   "4: No había nacido",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2021c).",
+  "src": 2020
+ },
+ "mig4": {
+  "desc": "Cuando nació, ¿en qué comuna o país vivía su madre?",
+  "cats": [
+   "1: En esta comuna",
+   "2: En otra comuna",
+   "3: En otro país",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2021c).",
+  "src": 2020
+ },
+ "orig1": {
+  "desc": "¿Se considera perteneciente a algún pueblo indígena u originario?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2021c).",
+  "src": 2020
+ },
+ "orig2": {
+  "desc": "¿A cuál?",
+  "cats": [
+   "1: Mapuche",
+   "2: Aymara",
+   "3: Rapa Nui",
+   "4: Lican Antai o Atacameños",
+   "5: Quechua",
+   "6: Colla",
+   "7: Diaguita",
+   "8: Kawésqar",
+   "9: Yagán o Yámana",
+   "10: Chango",
+   "11: Selk’nam",
+   "20: Otro",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2021c).",
+  "src": 2020
+ },
+ "orig3": {
+  "desc": "nueva dimensión de análisis (INE, 2021c).",
+  "cats": [],
+  "obs": "Especifica orig2=20 (Otro). Pregunta abierta. Vigente desde EFM 2020 a la fecha como",
+  "src": 2020
+ },
+ "curso": {
+  "desc": "Curso más alto aprobado 1 – 8",
+  "cats": [
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2010 a la fecha. Equivale a edu1 y se mantiene solo con fines de comparabilidad.",
+  "src": 2020
+ },
+ "nivel": {
+  "desc": "Nivel educacional más alto aprobado",
+  "cats": [
+   "0: Nunca estudió",
+   "1: Sala cuna",
+   "2: Kínder",
+   "3: Básica o primaria",
+   "4: Media común",
+   "5: Media técnico profesional",
+   "6: Humanidades",
+   "7: Centro formación técnica",
+   "8: Instituto profesional",
+   "9: Universitario",
+   "10: Post títulos",
+   "11: Magíster",
+   "12: Doctorado",
+   "13: Educación diferencial",
+   "14: Normalista",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2010 a la fecha.",
+  "src": 2020
+ },
+ "termino_nivel": {
+  "desc": "Término de nivel educacional",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2010 a la fecha. Equivale a edu3 y se mantiene solo con fines de comparabilidad.",
+  "src": 2020
+ },
+ "estudia_actual": {
+  "desc": "¿Se encuentra estudiando actualmente en un establecimiento educacional?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha. Réplica de variable edu4 creada con fines analíticos. Corresponde a cuestionario vigente.",
+  "src": 2020
+ },
+ "edu1": {
+  "desc": "¿Cuál es el curso o año más alto aprobado?",
+  "cats": [
+   "0: Sin curso",
+   "1: Primer año",
+   "2: Segundo año",
+   "3: Tercer año",
+   "4: Cuarto año",
+   "5: Quinto año",
+   "6: Sexto año",
+   "7: Séptimo año",
+   "8: Octavo año",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha.",
+  "src": 2020
+ },
+ "edu2": {
+  "desc": "¿A cuál de los siguientes niveles",
+  "cats": [
+   "1: Nunca asistió",
+   "2: Educación especial",
+   "3: Sala cuna o nivel medio de",
+   "4: Pre kínder",
+   "5: Kínder",
+   "6: Educación básica",
+   "7: Educación primaria (sistema",
+   "8: Educación media científico-",
+   "9: Educación media técnica-",
+   "10: Educación humanidades",
+   "11: Educación técnica comercial,",
+   "12: Técnico nivel superior (incluye",
+   "13: Profesional (incluye oficial",
+   "14: Diplomados o postítulos (de",
+   "15: Magíster",
+   "16: Doctorado",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "corresponde el curso declarado? (diferencial) jardín infantil antiguo) humanista o artística profesional (sistema antiguo) industrial o normalista (sistema antiguo) suboficial FFAA) FFAA) un semestre o más) Vigente desde EFM 2020 a la fecha. No comparable con variable nivel. Son otras categorías, correspondientes a cuestionario vigente.",
+  "src": 2020
+ },
+ "edu3": {
+  "desc": "¿Terminó el nivel antes declarado?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha.",
+  "src": 2020
+ },
+ "edu4": {
+  "desc": "¿Se encuentra estudiando actualmente?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha. Réplica de variable estudia_actual creada con fines analíticos. Corresponde a cuestionario vigente.",
+  "src": 2020
+ },
+ "a1": {
+  "desc": "La semana pasada, es decir, entre lunes y domingo, ¿trabajó por lo menos una hora?",
+  "cats": [
+   "1: Sí",
+   "2: No"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "a2": {
+  "desc": "Independientemente de lo que acaba de decir, ¿hizo algún negocio, \"pololo\" u otra actividad por cuenta propia por lo menos durante una hora?",
+  "cats": [
+   "1: Sí",
+   "2: No"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "a3": {
+  "desc": "Por ese trabajo, ¿recibió o recibirá un pago en dinero o en especie?",
+  "cats": [
+   "1: Sí",
+   "2: No"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "a4": {
+  "desc": "Ese trabajo, ¿fue realizado para la empresa o negocio perteneciente a un miembro de su hogar?",
+  "cats": [
+   "1: Sí",
+   "2: No"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "a5": {
+  "desc": "Aunque no trabajó la semana pasada, ¿tenía durante dicho periodo un empleo, negocio u otra actividad por la que recibe o recibirá un pago en dinero o en especie?",
+  "cats": [
+   "1: Sí",
+   "2: No"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "a6": {
+  "desc": "¿Por qué razón no trabajó la semana pasada?",
+  "cats": [
+   "1: Vacaciones o permisos",
+   "2: Licencia médica",
+   "3: Por horario o jornada variable o",
+   "4: Huelga o conflicto laboral",
+   "5: Asistencia a cursos de capacitación",
+   "6: Problemas de salud",
+   "7: Suspensión temporal del trabajo",
+   "8: No tuvo pedidos o clientes",
+   "9: Razones climáticas o catástrofes",
+   "10: Su trabajo es ocasional",
+   "11: Razones económicas o técnicas de",
+   "12: Su trabajo es estacional",
+   "13: Clausura de negocio o de empresa",
+   "14: Otras razones (especificar)"
+  ],
+  "obs": "flexible naturales la empresa o negocio",
+  "src": 2020
+ },
+ "a6_otro": {
+  "desc": "Especifica a6 = Otras razones de ausencia del trabajo Pregunta abierta.",
+  "cats": [],
+  "obs": "",
+  "src": 2020
+ },
+ "a7": {
+  "desc": "Durante este período en que no trabajó, ¿siguió recibiendo sueldo o ganancias?",
+  "cats": [
+   "1: Sí",
+   "2: No"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "a8": {
+  "desc": "¿En cuánto tiempo más volverá a trabajar?",
+  "cats": [
+   "1: En cuatro semanas o menos",
+   "2: En más de cuatro semanas",
+   "3: No sabe cuándo volverá a trabajar"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "b1": {
+  "desc": "Grupo de ocupación según CIUO-08",
+  "cats": [
+   "999: Sin información"
+  ],
+  "obs": "Ver detalle de grupos de ocupación en Anexo Vigente desde EFM 2017 a la fecha.",
+  "src": 2020
+ },
+ "b2": {
+  "desc": "Realizó ese trabajo… actividad por cuenta propia?",
+  "cats": [
+   "1: …¿para su propio negocio, empresa o",
+   "2: …¿como empleado u obrero para un",
+   "3: …¿para el negocio, empresa o actividad por"
+  ],
+  "obs": "patrón, empresa, negocio o institución, o empleado(a) de casa particular? cuenta propia de un miembro de esta familia?",
+  "src": 2020
+ },
+ "b3": {
+  "desc": "Por ese trabajo…",
+  "cats": [
+   "1: …¿recibe sueldo o salario?",
+   "2: …¿retira dinero?",
+   "3: …¿retira sólo mercadería?",
+   "4: …¿no retira dinero ni mercadería?"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "b4": {
+  "desc": "En ese trabajo ¿emplea personas para su negocio o actividad? No incluya a miembros de su familia no remunerados.",
+  "cats": [
+   "1: Sí",
+   "2: No"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "b5": {
+  "desc": "El negocio, empresa o institución donde trabajó la semana pasada era...",
+  "cats": [
+   "1: …¿estatal?",
+   "2: …¿privado?",
+   "3: …¿hogar particular?"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "b6": {
+  "desc": "Su trabajo en ese hogar es…",
+  "cats": [
+   "1: …¿servicio doméstico puertas afuera?",
+   "2: …¿servicio doméstico puertas adentro?",
+   "3: …¿otros servicios?"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "b7a_1": {
+  "desc": "Su empleador, ¿cotiza por usted en el sistema previsional o de pensión?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "77: No aplica",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde JAS 2017 a la fecha (véase Anexo 4).",
+  "src": 2020
+ },
+ "b7a_2": {
+  "desc": "Su empleador, ¿cotiza por usted en el sistema de salud (público o privado)?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "77: No aplica",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde JAS 2017 a la fecha (véase Anexo 4).",
+  "src": 2020
+ },
+ "b7a_3": {
+  "desc": "Su empleador, ¿cotiza por usted en el sistema de seguro de desempleo?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "77: No aplica",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde JAS 2017 a la fecha (véase Anexo 4).",
+  "src": 2020
+ },
+ "b7b_1": {
+  "desc": "En este trabajo, ¿tiene derecho, aunque no utilice, a vacaciones anuales?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "77: No aplica",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde JAS 2017 a la fecha (véase Anexo 4).",
+  "src": 2020
+ },
+ "b7b_2": {
+  "desc": "En este trabajo, ¿tiene derecho, aunque no utilice, a días pagados por enfermedad?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "77: No aplica",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde JAS 2017 a la fecha (véase Anexo 4).",
+  "src": 2020
+ },
+ "b7b_3": {
+  "desc": "En este trabajo, ¿tiene derecho, aunque no utilice, a permiso por maternidad o paternidad?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "77: No aplica",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde JAS 2017 a la fecha (véase Anexo 4).",
+  "src": 2020
+ },
+ "b7b_4": {
+  "desc": "En este trabajo, ¿tiene derecho, aunque no utilice, a servicio de guardería infantil?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "77: No aplica",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde JAS 2017 a la fecha (véase Anexo 4).",
+  "src": 2020
+ },
+ "b8": {
+  "desc": "En ese empleo, ¿tiene contrato escrito?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "b9": {
+  "desc": "La duración de ese contrato o acuerdo de trabajo es...",
+  "cats": [
+   "1: …¿definido, es decir, con plazo de término",
+   "2: …¿indefinido, es decir, sin plazo de",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "o a plazo fijo? término?",
+  "src": 2020
+ },
+ "b10": {
+  "desc": "Su contrato o acuerdo definido es…",
+  "cats": [
+   "1: …¿limitado a la temporada?",
+   "2: …¿limitado al término de la obra, proyecto",
+   "3: …¿limitado a menos de tres meses por",
+   "4: …¿renovable una vez al año?",
+   "5: …¿por reemplazo?",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "o actividad? contrato o acuerdo (a prueba, práctica)?",
+  "src": 2020
+ },
+ "b12": {
+  "desc": "Está contratado o tiene un acuerdo de trabajo…",
+  "cats": [
+   "1: …¿directamente con la empresa en donde",
+   "2: …¿con un contratista o subcontratista de",
+   "3: …¿con una empresa de servicios",
+   "4: …¿con un enganchador (contratista",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "trabaja? bienes o servicios? temporales o suministradora de trabajadores? agrícola)?",
+  "src": 2020
+ },
+ "b13_rev4cl_caenes": {
+  "desc": "Rama de actividad económica de empresa que (adaptación de CIIU Rev. 4.cl)",
+  "cats": [
+   "999: Sin información"
+  ],
+  "obs": "le paga según CAENES Ver detalle de rama de actividad en Anexo 5 Variable incorporada a partir de trimestre EFM 2016.",
+  "src": 2020
+ },
+ "b14_rev4cl_caenes": {
+  "desc": "Rama de actividad económica de empresa (adaptación de CIIU Rev. 4.cl)",
+  "cats": [
+   "999: Sin información"
+  ],
+  "obs": "donde trabaja según CAENES Ver detalle de rama de actividad en Anexo 5 Variable incorporada a partir de trimestre EFM 2013.",
+  "src": 2020
+ },
+ "b15_1": {
+  "desc": "En todo el país, ¿cuántas personas trabajan en esa empresa, negocio, institución que le paga o actividad por cuenta propia? 1 Menos de 5 2 De 5 a 10 personas 3 Entre 11 y 49 4 Entre 50 y 199 5 200 y más personas",
+  "cats": [
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "b15_2": {
+  "desc": "Número exacto, hasta 10 personas Valores de 1 a 10.",
+  "cats": [
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "b16": {
+  "desc": "En la semana que terminó el domingo pasado, ¿dónde realizó principalmente sus tareas?",
+  "cats": [
+   "1: En instalaciones u oficina del cliente o",
+   "2: En la casa del empleador o cliente",
+   "3: En instalaciones u oficinas propias o",
+   "4: En la oficina, local, taller o fábrica, anexo a",
+   "5: En su propio hogar",
+   "6: En la calle o vía pública",
+   "7: En obras de construcción, mineras o",
+   "8: En un predio agrícola o espacio marítimo o",
+   "9: En otros lugares (especifique)",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "empleador arrendadas su hogar (en el mismo predio) similares aéreo",
+  "src": 2020
+ },
+ "b16_otro": {
+  "desc": "Especifica b16 = En otros lugares Pregunta abierta.",
+  "cats": [],
+  "obs": "",
+  "src": 2020
+ },
+ "b17_mes": {
+  "desc": "Y, ¿desde cuándo trabaja para ese empleador, en ese negocio o actividad por cuenta propia? Mes",
+  "cats": [
+   "1: Enero",
+   "2: Febrero",
+   "3: Marzo",
+   "4: Abril",
+   "5: Mayo",
+   "6: Junio",
+   "7: Julio",
+   "8: Agosto",
+   "9: Septiembre",
+   "10: Octubre",
+   "11: Noviembre",
+   "12: Diciembre",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "b17_ano": {
+  "desc": "Y, ¿desde cuándo trabaja para ese empleador, en ese negocio o actividad por cuenta propia? Año",
+  "cats": [
+   "8888: No sabe",
+   "9999: No responde"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "b18_region": {
+  "desc": "¿En qué región se ubica la empresa, negocio, institución o actividad por cuenta propia donde realizó su trabajo?",
+  "cats": [
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Ver detalle de regiones en Anexo 1",
+  "src": 2020
+ },
+ "b18_codigo": {
+  "desc": "¿En qué comuna se ubica la empresa, negocio, institución o actividad por cuenta propia donde realizó su trabajo?",
+  "cats": [
+   "88888: No sabe",
+   "99999: No responde"
+  ],
+  "obs": "Ver detalle de comunas en Anexo 1 Ver detalle de países en Anexo 2 A contar de trimestre DEF 2020, se permite indicar el nombre de otro país en la especificación del lugar donde se ubica la empresa, negocio, institución o actividad por cuenta propia donde la persona ocupada realizó su trabajo.",
+  "src": 2020
+ },
+ "b18_varias": {
+  "desc": "¿Realizó su trabajo en solamente una comuna?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "b19": {
+  "desc": "Durante la semana de referencia, además del trabajo descrito, ¿tuvo algún otro empleo o hizo algún negocio, \"pololo\" u actividad remunerada por cuenta",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "propia por lo menos durante una hora?",
+  "src": 2020
+ },
+ "dependencia_segunda": {
+  "desc": "Ese otro trabajo, ¿lo hacía para su propia empresa, negocio o actividad por cuenta propia?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2021d). Las preguntas sobre informalidad laboral son parte de la sección B “ Caracterización de la actividad principal ”. Se presentan separadas de ésta sólo con fines expositivos. 7",
+  "src": 2020
+ },
+ "i1": {
+  "desc": "La empresa, negocio o institución que le paga su sueldo, ¿está registrada en el Servicio de Impuestos Internos (SII) o tiene iniciación de actividades?",
+  "cats": [
+   "1: Sí",
+   "2: No sabe, pero la empresa entrega boleta o",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "factura por las ventas o prestación de servicios 3 No, ningún tipo de registro Vigente desde JAS 2017 a la fecha (INE, 2017).",
+  "src": 2020
+ },
+ "i2": {
+  "desc": "La empresa, negocio o institución que le paga su sueldo, ¿cuenta con los servicios de un contador o tiene oficina de contabilidad?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde JAS 2017 a la fecha (INE, 2017).",
+  "src": 2020
+ },
+ "i3": {
+  "desc": "¿Cuál es el nombre de la empresa, negocio o institución que le paga su sueldo?",
+  "cats": [
+   "1: (Informante identifica nombre)",
+   "2: El negocio no tiene nombre",
+   "3: Trabaja para un hogar particular",
+   "4: Trabaja para otro asalariado",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde JAS 2017 a la fecha (INE, 2017). El nombre no se publica por estar regido por secreto estadístico.",
+  "src": 2020
+ },
+ "i3_v": {
+  "desc": "Verificación de respuesta entregada con Directorio de Empresas del INE",
+  "cats": [
+   "0: Nombre no verificado",
+   "1: Nombre verificado"
+  ],
+  "obs": "Vigente desde JAS 2017 a la fecha (INE, 2017). Variable creada tras la identificación de la empresa en registros administrativos. La información es utilizada para definir formalidad del sector económico al cual pertenece la empresa. 7  Las preguntas sobre informalidad laboral fueron incorporadas a la ENE en el mes de julio de 2017, siendo el primer trimestre móvil con información para la totalidad de la muestra el correspondiente a julio-septiembre de ese mismo año. Para mayores antecedentes metodológicos información, véase INE, 2020b.",
+  "src": 2020
+ },
+ "i4": {
+  "desc": "La empresa, negocio o actividad en la que trabaja, ¿está registrada en el Servicio de Impuestos Internos (SII) o tiene iniciación de actividades?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde JAS 2017 a la fecha (INE, 2017).",
+  "src": 2020
+ },
+ "i5": {
+  "desc": "La empresa, negocio o actividad en la que trabaja, ¿se encuentra registrada como…",
+  "cats": [
+   "1: …trabajador independiente (con boleta de",
+   "2: …persona natural (el RUT de la empresa es",
+   "3: …¿otro tipo de registro",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "honorarios) igual al RUT del dueño) Vigente desde JAS 2017 a la fecha (INE, 2017).",
+  "src": 2020
+ },
+ "i6": {
+  "desc": "La empresa, negocio o actividad por cuenta propia…",
+  "cats": [
+   "1: …¿acude a los servicios de un contador",
+   "2: …¿se encuentra acogido al régimen de",
+   "3: …¿sólo cuenta con registros personales de",
+   "4: No cuenta con ningún tipo de contabilidad",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "para llevar la contabilidad completa contabilidad simplificada gastos e ingresos Vigente desde JAS 2017 a la fecha (INE, 2017).",
+  "src": 2020
+ },
+ "i7": {
+  "desc": "A través de la contabilidad, ¿se pueden separar los gastos del negocio con los del hogar?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde JAS 2017 a la fecha (INE, 2017).",
+  "src": 2020
+ },
+ "f7a": {
+  "desc": "Participación en sindicato",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde JAS 2017 a la fecha como nueva dimensión de análisis (INE, 2024b).",
+  "src": 2020
+ },
+ "f7b": {
+  "desc": "Participación en asociación de funcionarios",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde JAS 2017 a la fecha como nueva dimensión de análisis (INE, 2024b).",
+  "src": 2020
+ },
+ "f7c": {
+  "desc": "Participación en asociación gremial",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde JAS 2017 a la fecha como nueva dimensión de análisis (INE, 2024b).",
+  "src": 2020
+ },
+ "f7d": {
+  "desc": "Participación en colegio profesional",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde JAS 2017 a la fecha como nueva dimensión de análisis (INE, 2024b).",
+  "src": 2020
+ },
+ "f7e": {
+  "desc": "Participación en otro tipo de organizaciones",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde JAS 2017 a la fecha como nueva dimensión de análisis (INE, 2024b).",
+  "src": 2020
+ },
+ "de_1a": {
+  "desc": "Para la realización del trabajo, ¿requiere de un local, establecimiento o predio?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026).",
+  "src": 2020
+ },
+ "de_1b": {
+  "desc": "¿Quién es el propietario o arrendatario del local, instalación o predio donde trabaja?",
+  "cats": [
+   "1: [nombre de la persona]",
+   "2: Un socio de [nombre de persona]",
+   "3: Otra persona que no es socia",
+   "4: Otra empresa",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "src": 2020
+ },
+ "de_2a": {
+  "desc": "En el trabajo, ¿utiliza algún tipo de maquinaria?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "src": 2020
+ },
+ "de_2b": {
+  "desc": "¿Quién es propietario o arrendatario de las máquinas con las que trabaja?",
+  "cats": [
+   "1: [nombre de la persona]",
+   "2: Un socio de [nombre de persona]",
+   "3: Otra persona que no es socia",
+   "4: Otra empresa",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "src": 2020
+ },
+ "de_3a": {
+  "desc": "En el trabajo, ¿utiliza algún vehículo de transporte?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "src": 2020
+ },
+ "de_3b": {
+  "desc": "¿Quién es el propietario o arrendatario del vehículo de transporte que utiliza en su trabajo?",
+  "cats": [
+   "1: [nombre de la persona]",
+   "2: Un socio de [nombre de persona]",
+   "3: Otra persona que no es socia",
+   "4: Otra empresa",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "src": 2020
+ },
+ "do_1": {
+  "desc": "En su trabajo, ¿quién decide sobre el horario de trabajo?",
+  "cats": [
+   "1: [nombre de la persona]",
+   "2: Un socio de [nombre de persona]",
+   "3: Un cliente",
+   "4: Un proveedor",
+   "5: Otro",
+   "6: Institución pública",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "src": 2020
+ },
+ "do_2": {
+  "desc": "En su trabajo, ¿quién decide sobre el lugar, rutas o zonas donde realiza su actividad?",
+  "cats": [
+   "1: [nombre de la persona]",
+   "2: Un socio de [nombre de persona]",
+   "3: Un cliente",
+   "4: Un proveedor",
+   "5: Otro",
+   "6: Institución pública",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "src": 2020
+ },
+ "do_3": {
+  "desc": "En su trabajo, ¿quién decide el tipo de producto o servicio que destina a la venta?",
+  "cats": [
+   "1: [nombre de la persona]",
+   "2: Un socio de [nombre de persona]",
+   "3: Un cliente",
+   "4: Un proveedor",
+   "5: Otro",
+   "6: Institución pública",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "src": 2020
+ },
+ "do_4": {
+  "desc": "En su trabajo, ¿quién decide sobre el precio de productos o servicios ofrecidos?",
+  "cats": [
+   "1: [nombre de la persona]",
+   "2: Un socio de [nombre de persona]",
+   "3: Un cliente",
+   "4: Un proveedor",
+   "5: Otro",
+   "6: Institución pública",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "src": 2020
+ },
+ "re1": {
+  "desc": "Por su actividad principal, ¿su pago fue a través de sueldo, salario o jornal?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "src": 2020
+ },
+ "re2": {
+  "desc": "Por su actividad principal, ¿su pago fue por pieza o unidad vendida?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "src": 2020
+ },
+ "re3": {
+  "desc": "Por su actividad principal, ¿su pago fue por comisión?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "src": 2020
+ },
+ "re4": {
+  "desc": "Por su actividad principal, ¿su pago fue mediante un cobro por servicio prestado?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "src": 2020
+ },
+ "re5": {
+  "desc": "Por su actividad principal, ¿su pago fue mediante propina?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "src": 2020
+ },
+ "re6": {
+  "desc": "Por su actividad principal, ¿su pago fue obtenido mediante ganancias o utilidades de una actividad?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026) Las siguientes preguntas se incorporaron en el cuestionario de la ENE a partir del trimestre MAM 2020, permaneciendo vigentes hasta OND 2021. Fueron recomendadas por OIT en el contexto del impacto de la pandemia de COVID-19 en la población ocupada.",
+  "src": 2020
+ },
+ "turno": {
+  "desc": "¿Trabaja por sistema de turno?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022.",
+  "src": 2020
+ },
+ "turno_d": {
+  "desc": "Actividad principal: Días trabajados habitualmente en el turno",
+  "cats": [
+   "888: No sabe",
+   "999: No responde"
+  ],
+  "obs": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022.",
+  "src": 2020
+ },
+ "turno_de": {
+  "desc": "Actividad principal: Días de descanso",
+  "cats": [],
+  "obs": "",
+  "src": 2020
+ },
+ "turno_h": {
+  "desc": "Actividad principal: Horas diarias trabajadas habitualmente en el turno",
+  "cats": [
+   "888: No sabe",
+   "999: No responde"
+  ],
+  "obs": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022.",
+  "src": 2020
+ },
+ "turno_t": {
+  "desc": "Actividad principal: Total horas trabajadas habitualmente en el turno",
+  "cats": [
+   "8888: No sabe",
+   "9999: No responde"
+  ],
+  "obs": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022.",
+  "src": 2020
+ },
+ "c2_1_1": {
+  "desc": "Actividad principal: Horas diarias trabajadas habitualmente",
+  "cats": [
+   "888: No sabe",
+   "999: No responde"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "c2_1_2": {
+  "desc": "Actividad principal: Días a la semana trabajados habitualmente",
+  "cats": [
+   "888: No sabe",
+   "999: No responde"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "c2_1_3": {
+  "desc": "Actividad principal: Total horas semanales trabajadas habitualmente",
+  "cats": [
+   "888: No sabe",
+   "999: No responde"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "c2_2_1": {
+  "desc": "Actividad secundaria: Horas diarias trabajadas habitualmente",
+  "cats": [
+   "888: No sabe",
+   "999: No responde"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "c2_2_2": {
+  "desc": "Actividad secundaria: Días a la semana trabajados habitualmente",
+  "cats": [
+   "888: No sabe",
+   "999: No responde"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "c2_2_3": {
+  "desc": "Actividad secundaria: Total horas semanales trabajadas habitualmente",
+  "cats": [
+   "888: No sabe",
+   "999: No responde"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "c3_1": {
+  "desc": "Actividad principal: Horas diarias contratadas o acordadas",
+  "cats": [
+   "888: No sabe",
+   "999: No responde"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "c3_2": {
+  "desc": "Actividad principal: Días a la semana contratados o acordados",
+  "cats": [
+   "888: No sabe",
+   "999: No responde"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "c3_3": {
+  "desc": "Actividad principal: Total horas semanales contratadas o acordadas",
+  "cats": [
+   "888: No sabe",
+   "999: No responde"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "turno_cont_d": {
+  "desc": "Actividad principal: Días contratados o acordados en el turno",
+  "cats": [
+   "888: No sabe",
+   "999: No responde"
+  ],
+  "obs": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022.",
+  "src": 2020
+ },
+ "turno_cont_de": {
+  "desc": "Actividad principal: Días de descanso contratados o acordados en el turno",
+  "cats": [
+   "888: No sabe",
+   "999: No responde"
+  ],
+  "obs": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022.",
+  "src": 2020
+ },
+ "turno_cont_h": {
+  "desc": "Actividad principal: Horas diarias contratadas o acordadas en el turno",
+  "cats": [
+   "888: No sabe",
+   "999: No responde"
+  ],
+  "obs": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022.",
+  "src": 2020
+ },
+ "turno_cont_t": {
+  "desc": "Actividad principal: Total horas contratadas o acordadas en el turno",
+  "cats": [
+   "8888: No sabe",
+   "9999: No responde"
+  ],
+  "obs": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022.",
+  "src": 2020
+ },
+ "c4": {
+  "desc": "¿Le pagan habitualmente las horas extras en su actividad principal?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "c5": {
+  "desc": "La semana pasada, ¿trabajó más horas que las habituales en su actividad principal? (sobre tiempo u horas extras, pagadas o no)",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "c6": {
+  "desc": "¿Cuántas horas más de las habituales trabajó la semana pasada?",
+  "cats": [
+   "888: No sabe",
+   "999: No responde"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "c7": {
+  "desc": "La semana pasada, ¿trabajó menos horas que las habituales en su actividad principal?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "c8": {
+  "desc": "¿Cuántas horas menos de las",
+  "cats": [],
+  "obs": "",
+  "src": 2020
+ },
+ "c9": {
+  "desc": "¿Cuál fue la principal razón por la cual trabajó un número de horas diferente a lo habitual durante la semana pasada en su actividad principal?",
+  "cats": [
+   "1: Por vacaciones, permiso o días festivos",
+   "2: Por razones climáticas o catástrofes",
+   "3: Por enfermedad, incapacidad temporal o",
+   "4: Porque es temporada baja (menos clientes,",
+   "5: Hubo menos horas de trabajo por razones",
+   "6: Por razones personales o responsabilidades",
+   "7: Porque tiene horario variable, flexible o",
+   "8: Porque comenzó o cambió de empleo o",
+   "9: Por conflicto laboral",
+   "10: Porque participó en cursos o seminarios",
+   "11: Porque tuvo actividades de representación",
+   "12: Por término de empleo o actividad sin",
+   "13: Porque había que terminar un proyecto,",
+   "14: Porque tiene horario variable, flexible o",
+   "15: Porque es temporada alta (clientes, ventas,",
+   "16: Para aprovechar una oportunidad o los",
+   "17: Porque tenía trabajo acumulado",
+   "18: Porque tuvo que recuperar horas no",
+   "19: Porque si no lo hace podría perder el",
+   "20: Otra razón",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "naturales accidente ventas, producción) técnicas o económicas familiares similar actividad durante la semana pasada propios del trabajo sindical haber comenzado otro tarea, obra o faena similar siembra o cosecha) recursos disponibles trabajadas anteriormente trabajo",
+  "src": 2020
+ },
+ "c9_otro": {
+  "desc": "Especifica c9 = Otras razones de un número de horas diferente a lo habitual abierta.",
+  "cats": [],
+  "obs": "Corresponde a una pregunta",
+  "src": 2020
+ },
+ "adicionales_h": {
+  "desc": "Horas diarias adicionales a la semana que podría trabajar habitualmente en su actividad principal u otro trabajo",
+  "cats": [
+   "888: No sabe",
+   "999: No responde"
+  ],
+  "obs": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022.",
+  "src": 2020
+ },
+ "adicionales_d": {
+  "desc": "Días adicionales a la semana que podría trabajar habitualmente en su actividad principal u otro trabajo",
+  "cats": [
+   "888: No sabe",
+   "999: No responde"
+  ],
+  "obs": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022.",
+  "src": 2020
+ },
+ "adicionales_t": {
+  "desc": "Total horas adicionales a la semana que podría trabajar habitualmente en su actividad principal u otro trabajo",
+  "cats": [
+   "888: No sabe",
+   "999: No responde"
+  ],
+  "obs": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022.",
+  "src": 2020
+ },
+ "c10": {
+  "desc": "Si de usted dependiera, ¿trabajaría habitualmente más horas de las que trabaja en la actualidad?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "c11": {
+  "desc": "Pero, si se diera la posibilidad, ¿estaría disponible para trabajar más horas a la semana?",
+  "cats": [
+   "1: Sí, de inmediato",
+   "2: En los próximos 15 días",
+   "3: En un mes más",
+   "4: No tiene disponibilidad",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "c12": {
+  "desc": "¿Cuál es la razón por la cual no trabaja más horas?",
+  "cats": [
+   "1: La empresa no dispone de más horas de",
+   "2: No hay más clientes, temporada baja",
+   "3: No cancelan las horas extras",
+   "4: Razones personales",
+   "5: Cuidado de personas dependientes",
+   "6: No hay capital, falta local, no hay mercadería",
+   "7: Por estudios",
+   "8: Por factores climáticos",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "trabajo/ No hay más trabajo",
+  "src": 2020
+ },
+ "e2": {
+  "desc": "En las cuatro últimas semanas, hasta el domingo de la semana de referencia, ¿ha tratado de encontrar algún empleo o ha hecho alguna gestión para crear su propia empresa o negocio?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Responden ocupados/as y no ocupados/as.",
+  "src": 2020
+ },
+ "e3_1": {
+  "desc": "Gestión de búsqueda de empleo: Envió currículum a empresas/instituciones",
+  "cats": [
+   "0: No",
+   "1: Sí"
+  ],
+  "obs": "Responden ocupados/as y no ocupados/as.",
+  "src": 2020
+ },
+ "e3_2": {
+  "desc": "Gestión de búsqueda de empleo: Consultó directamente con empleadores",
+  "cats": [
+   "0: No",
+   "1: Sí"
+  ],
+  "obs": "Responden ocupados/as y no ocupados/as.",
+  "src": 2020
+ },
+ "e3_3": {
+  "desc": "Gestión de búsqueda de empleo: Pidió a conocidos o familiares que le recomendaran o le avisaran algún trabajo",
+  "cats": [
+   "0: No",
+   "1: Sí"
+  ],
+  "obs": "Responden ocupados/as y no ocupados/as.",
+  "src": 2020
+ },
+ "e3_4": {
+  "desc": "Gestión de búsqueda de empleo: Revisó y contestó anuncios (diarios, internet, etc.)",
+  "cats": [
+   "0: No",
+   "1: Sí"
+  ],
+  "obs": "Responden ocupados/as y no ocupados/as.",
+  "src": 2020
+ },
+ "e3_5": {
+  "desc": "Gestión de búsqueda de empleo:  Se inscribió o revisó los anuncios en la Oficina Municipal de Empleo (OMIL)",
+  "cats": [
+   "0: No",
+   "1: Sí"
+  ],
+  "obs": "Responden ocupados/as y no ocupados/as.",
+  "src": 2020
+ },
+ "e3_6": {
+  "desc": "Gestión de búsqueda de empleo: Realizó gestiones para establecerse por su cuenta",
+  "cats": [
+   "0: No"
+  ],
+  "obs": "Responden ocupados/as y no ocupados/as.",
+  "src": 2020
+ },
+ "e3_7": {
+  "desc": "Gestión de búsqueda de empleo: Estuvo buscando clientes o pedidos",
+  "cats": [
+   "0: No",
+   "1: Sí"
+  ],
+  "obs": "Responden ocupados/as y no ocupados/as.",
+  "src": 2020
+ },
+ "e3_8": {
+  "desc": "Gestión de búsqueda de empleo: Puso anuncios (diarios, internet, radios, revistas, etc.)",
+  "cats": [
+   "0: No",
+   "1: Sí"
+  ],
+  "obs": "Responden ocupados/as y no ocupados/as.",
+  "src": 2020
+ },
+ "e3_9": {
+  "desc": "Gestión de búsqueda de empleo: Participó en una prueba o entrevista para la contratación",
+  "cats": [
+   "0: No",
+   "1: Sí"
+  ],
+  "obs": "Responden ocupados/as y no ocupados/as.",
+  "src": 2020
+ },
+ "e3_10": {
+  "desc": "Gestión de búsqueda de empleo: Consultó con agencias de empleo",
+  "cats": [
+   "0: No",
+   "1: Sí"
+  ],
+  "obs": "Responden ocupados/as y no ocupados/as.",
+  "src": 2020
+ },
+ "e3_11": {
+  "desc": "Gestión de búsqueda de empleo: Actualizó su currículum publicado en internet enviado anteriormente",
+  "cats": [
+   "0: No",
+   "1: Sí"
+  ],
+  "obs": "Responden ocupados/as y no ocupados/as.",
+  "src": 2020
+ },
+ "e3_12": {
+  "desc": "Gestión de búsqueda de empleo: Nada",
+  "cats": [
+   "0: No",
+   "1: Sí"
+  ],
+  "obs": "Responden ocupados/as y no ocupados/as. Sólo identifica realización de gestión. En caso contrario, no existe valor.",
+  "src": 2020
+ },
+ "e3_total": {
+  "desc": "Número de gestiones realizadas para buscar empleo de valores afirmativos entre e3_1 y",
+  "cats": [],
+  "obs": "1 – 11  Variable construida a partir de sumatoria",
+  "src": 2020
+ },
+ "e4": {
+  "desc": "¿Cuál es el motivo principal por el cual está buscando otro trabajo?",
+  "cats": [
+   "1: Porque desea un trabajo con",
+   "2: Para mejorar su calidad de vida",
+   "3: Para mejorar sus condiciones de",
+   "4: Porque desea un empleo más",
+   "5: Porque siente inseguridad en su",
+   "6: Porque considera su actividad",
+   "7: Dejé de buscar",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "mayores ingresos (cercanía de su hogar, mejor barrio en el que trabajar, etc.) trabajo (horario, ambiente de trabajo, beneficios sociales) acorde a su formación empleo actual actual como provisional Solo responden ocupados/as.",
+  "src": 2020
+ },
+ "e5": {
+  "desc": "Hasta el domingo de la semana pasada, ¿cuándo fue la última vez que buscó trabajo?",
+  "cats": [
+   "1: Cuatro semanas o menos",
+   "2: Sólo la semana de entrevista",
+   "3: Más de cuatro semanas y menos de",
+   "4: Más de dos meses"
+  ],
+  "obs": "dos meses Solo responden no ocupados/as.",
+  "src": 2020
+ },
+ "e5_dia": {
+  "desc": "Día de última búsqueda de empleo Valor entre 1 y 31, dependiendo del mes",
+  "cats": [
+   "888: No responde",
+   "999: No sabe"
+  ],
+  "obs": "Solo responden no ocupados/as.",
+  "src": 2020
+ },
+ "e5_sem": {
+  "desc": "Semana de última búsqueda de empleo",
+  "cats": [
+   "1: Primera semana de recolección",
+   "2: Segunda semana de recolección",
+   "3: Tercera semana de recolección",
+   "4: Cuarta semana de recolección",
+   "5: Quinta semana de recolección",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Solo responden no ocupados/as.",
+  "src": 2020
+ },
+ "e5_mes": {
+  "desc": "Mes de última búsqueda de empleo",
+  "cats": [
+   "1: Enero",
+   "2: Febrero",
+   "3: Marzo",
+   "4: Abril",
+   "5: Mayo",
+   "6: Junio",
+   "7: Julio",
+   "8: Agosto",
+   "9: Septiembre",
+   "10: Octubre",
+   "11: Noviembre",
+   "12: Diciembre",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Solo responden no ocupados/as.",
+  "src": 2020
+ },
+ "e5_ano": {
+  "desc": "Año de última búsqueda de empleo",
+  "cats": [
+   "8888: No sabe",
+   "9999: No responde"
+  ],
+  "obs": "Solo responden no ocupados/as.",
+  "src": 2020
+ },
+ "e6_ano": {
+  "desc": "¿Desde cuándo ha estado buscando trabajo?",
+  "cats": [
+   "8888: No sabe",
+   "9999: No responde"
+  ],
+  "obs": "Solo responden no ocupados/as.",
+  "src": 2020
+ },
+ "e7": {
+  "desc": "¿Qué tipo de jornada de trabajo está buscando?",
+  "cats": [
+   "1: Jornada completa",
+   "2: Jornada parcial",
+   "3: Cualquiera",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Responden ocupados/as y no ocupados/as.",
+  "src": 2020
+ },
+ "e9": {
+  "desc": "¿Por qué razón no buscó un empleo o no ha hecho preparativos para iniciar o reanudar una actividad por cuenta propia durante las últimas cuatro semanas?",
+  "cats": [
+   "1: Iniciará pronto una actividad por",
+   "2: Encontró un empleo que empezará",
+   "3: Por responsabilidades familiares",
+   "4: Está estudiando o preparando",
+   "5: Es jubilado(a)",
+   "6: Es rentista",
+   "7: Es pensionado/a o montepiado/a",
+   "8: Por motivos de salud permanentes",
+   "9: Espera la estación de mayor",
+   "10: Por motivos de salud temporales",
+   "11: Por responsabilidades familiares",
+   "12: Está embarazada",
+   "13: Espera los resultados de un",
+   "14: Algún miembro del hogar no se lo",
+   "15: Cree que por su edad no le darán",
+   "16: Cree que no lo encontrará",
+   "17: Se cansó de buscar",
+   "18: Cree que ningún empleo o",
+   "19: Le piden demasiados trámites para",
+   "20: No sabe dónde dirigirse ni a quién",
+   "21: No quiere, no necesita trabajar",
+   "22: Otra razón"
+  ],
+  "obs": "cuenta propia pronto permanentes estudios actividad de carácter temporal proceso de selección o que lo llamen permite empleo actividad se adapte a su calificación iniciar una actividad por cuenta propia Solo responden no ocupados/as. acudir",
+  "src": 2020
+ },
+ "e9_otro": {
+  "desc": "Especifica e9 = Otras razones de no búsqueda Solo responden no ocupados/as.",
+  "cats": [],
+  "obs": "Corresponde a una pregunta abierta.",
+  "src": 2020
+ },
+ "e10": {
+  "desc": "Durante las últimas cuatro semanas: a) ¿Hizo gestiones para iniciar un negocio o actividad por cuenta propia?, b) ¿Logró un acuerdo o contrato de trabajo para iniciar un empleo?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Solo responden no ocupados/as.",
+  "src": 2020
+ },
+ "deseo_trabajar": {
+  "desc": "A pesar de que no buscó trabajo, ¿desea trabajar para generar un ingreso?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Solo responden no ocupados/as. Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022.",
+  "src": 2020
+ },
+ "e11": {
+  "desc": "Si durante la semana pasada, hubiera encontrado un trabajo, ¿estaría disponible para comenzar a trabajar de este lunes que viene al otro?",
+  "cats": [
+   "1: Sí",
+   "2: No"
+  ],
+  "obs": "Solo responden no ocupados/as.",
+  "src": 2020
+ },
+ "e12": {
+  "desc": "¿Por qué motivo no estaría disponible para trabajar?",
+  "cats": [
+   "1: Porque iniciará pronto una actividad",
+   "2: Porque encontró un empleo que",
+   "3: Porque está estudiando o empezará",
+   "4: Por responsabilidades familiares",
+   "5: Es pensionado(a) o montepiado(a)",
+   "6: Es jubilado",
+   "7: Es rentista",
+   "8: Por motivos de salud permanentes",
+   "9: Por motivos de salud temporales",
+   "10: Por embarazo",
+   "11: Por responsabilidades familiares",
+   "12: Porque no quiere, o no necesita",
+   "13: Otra razón",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "por cuenta propia empezará pronto a estudiar pronto permanentes Solo responden no ocupados/as. de carácter temporal trabajar",
+  "src": 2020
+ },
+ "e12_otro": {
+  "desc": "Especifica e12 = Otras razones de no disponibilidad Solo responden no ocupados/as.",
+  "cats": [],
+  "obs": "Corresponde a una pregunta abierta.",
+  "src": 2020
+ },
+ "e13": {
+  "desc": "¿Ha tenido anteriormente algún empleo o alguna actividad por cuenta propia que durara por lo menos durante un mes?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Solo responden no ocupados/as.",
+  "src": 2020
+ },
+ "e21_mes": {
+  "desc": "Mes hasta cuando trabajó en esa ocupació n o actividad.",
+  "cats": [
+   "1: Enero",
+   "2: Febrero",
+   "3: Marzo",
+   "4: Abril",
+   "5: Mayo",
+   "6: Junio",
+   "7: Julio",
+   "8: Agosto",
+   "9: Septiembre",
+   "10: Octubre",
+   "11: Noviembre",
+   "12: Diciembre",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Incorporada a partir de JJA 2020, recomendadas por OIT en el contexto del impacto de la pandemia de COVID -19 en la población no ocupada (INE, 2020c).",
+  "src": 2020
+ },
+ "e21_ano": {
+  "desc": "Año hasta cuando trabajó en esa ocupación o actividad.",
+  "cats": [
+   "8888: No sabe",
+   "9999: No responde"
+  ],
+  "obs": "Incorporada a partir de JJA 2020, recomendadas por OIT en el contexto del impacto de la pandemia de COVID -19 en la población no ocupada (INE, 2020c).",
+  "src": 2020
+ },
+ "e21_tramo": {
+  "desc": "Tramos desde hasta cuando trabajó en esa ocupación o actividad.",
+  "cats": [
+   "1: Entre marzo 2020 a la fecha",
+   "2: Entre octubre 2019 a febrero 2020",
+   "3: Entre 2017 a septiembre 2019",
+   "4: Antes de 2017",
+   "5: NS/NR"
+  ],
+  "obs": "Incorporada a partir de JJA 2020, recomendadas por OIT en el contexto del impacto de la pandemia de COVID -19 en la población no ocupada (INE, 2020c). Variable construida a partir de respuestas a e21_mes y e21_ano.",
+  "src": 2020
+ },
+ "e22": {
+  "desc": "¿Por qué razón ya no tiene ese empleo, negocio o actividad por cuenta propia?",
+  "cats": [
+   "1: Despido",
+   "2: Renuncia",
+   "3: Fin del contrato, proyecto, faena, temporada",
+   "4: Jubilación",
+   "5: Término del ejercicio de la actividad por",
+   "6: Quiebra o cierre de nego cio por razones",
+   "7: Quiebra o cierre de negocio por un",
+   "8: Quiebra o cierre de negocio por la pandemia",
+   "9: Imposibilidad de realizar actividad por",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Incorporada a partir de JJA 2020, recomendadas por OIT en el contexto del impacto de la pandemia o reemplazo cuenta propia económicas fenómeno natural o siniestro del COVID-19 cuenta propia por la pandemia del COVID-19 de COVID -19 en la población no ocupada (INE, 2020c).",
+  "src": 2020
+ },
+ "e23": {
+  "desc": "¿Cuál fue el motivo de su despido?",
+  "cats": [
+   "1: Por razones de edad (muy joven o edad",
+   "2: Conflicto con su jefe o superior",
+   "3: Falta de calificación o capacitación",
+   "4: Ya no hubo más trabajo",
+   "5: Discriminación por su aspecto físico",
+   "6: Incumplimiento de funciones",
+   "7: Enfermedad o incapacidad propia",
+   "8: Embarazo y/o incompatibilidad con",
+   "9: Reducción de personal",
+   "10: Pandemia del COVID-19",
+   "11: Otra razón",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "avanzada) cuidado de personas en el hogar Incorporada a partir de JJA 2020, recomendadas por OIT en el contexto del impacto de la pandemia de COVID -19 en la población no ocupada (INE, 2020c).",
+  "src": 2020
+ },
+ "e23_otro": {
+  "desc": "e23_otro. Especifica e23 = Otra razón de renuncia recomendadas por OIT en el contexto del impacto de la pandemia de COVID -19 en la población no ocupada (INE, 2020c).",
+  "cats": [],
+  "obs": "Incorporada a partir de JJA 2020,",
+  "src": 2020
+ },
+ "e24": {
+  "desc": "¿Cuál fue el motivo de su renuncia?",
+  "cats": [
+   "1: Realizar estudios o recibir formación",
+   "2: Cuidado de niños o de adultos enfermos o",
+   "3: Motivos de salud",
+   "4: Deseaba un trabajo con mayores ingresos",
+   "5: Para mejorar su calidad de vida",
+   "6: Acoso o falta de respeto a su persona",
+   "7: Embarazo",
+   "8: Se cansó de ese trabajo",
+   "9: Pandemia del COVID-19",
+   "10: Otra razón",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "incapacitados Incorporada a partir de JJA 2020, recomendadas por OIT en el contexto del impacto de la pandemia de COVID -19 en la población no ocupada (INE, 2020c).",
+  "src": 2020
+ },
+ "e24_otro": {
+  "desc": "e24_otro. Especifica e24 = Otra razón de renuncia recomendadas por OIT en el contexto del impacto de la pandemia de COVID -19 en la población no ocupada (INE, 2020c).",
+  "cats": [],
+  "obs": "Incorporada a partir de JJA 2020,",
+  "src": 2020
+ },
+ "b11_proxy": {
+  "desc": "¿El pago por su actividad principal fue a través de sueldo, salario o jornal?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Variable incorporada a partir de trimestre NDE 2019 en reemplazo de la variable b11 descontinuada (ver Anexo 6). Su uso permite determinar la clasificación de informalidad laboral.",
+  "src": 2020
+ },
+ "ocup_honorarios": {
+  "desc": "Por el trabajo realizado, ¿entregó una boleta de honorarios?\"",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "3: No sabe / No responde",
+   "77: No aplica"
+  ],
+  "obs": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2021c.",
+  "src": 2020
+ },
+ "asocia": {
+  "desc": "Participante en organizaciones de trabajadores",
+  "cats": [
+   "0: No corresponde",
+   "1: Persona ocupada participante en"
+  ],
+  "obs": "organizaciones de trabajadores/as Incorporada como nueva dimensión de análisis, véase INE, 2024c.",
+  "src": 2020
+ },
+ "plataformas_digitales": {
+  "desc": "¿Su trabajo lo realiza a través de una aplicación móvil o plataforma Web?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "77: No aplica",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022b.",
+  "src": 2020
+ },
+ "pd_especifique": {
+  "desc": "¿A través de cuál aplicación móvil o plataforma web realiza su trabajo? de trimestre EFM 2020.",
+  "cats": [],
+  "obs": "Pregunta abierta Variable incorporada a partir Véase INE, 2022b.",
+  "src": 2020
+ },
+ "pd_ley": {
+  "desc": "Plataforma digital sujeta a Ley 21.431 (ocupación principal)",
+  "cats": [
+   "1: Sí",
+   "2: No"
+  ],
+  "obs": "Variable incorporada a partir de trimestre EFM 2020.",
+  "src": 2020
+ },
+ "sda_pd": {
+  "desc": "¿Este segundo trabajo lo realizó a través de una aplicación móvil o plataforma Web?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022b.",
+  "src": 2020
+ },
+ "sda_pd_especifique": {
+  "desc": "¿A través de cuál aplicación móvil o plataforma web realiza su segundo trabajo? de trimestre EFM 2020.",
+  "cats": [],
+  "obs": "Pregunta abierta Variable incorporada a partir Véase INE, 2022b.",
+  "src": 2020
+ },
+ "sda_pd_ley": {
+  "desc": "Plataforma digital sujeta a Ley 21.431 (ocupación secundaria)",
+  "cats": [
+   "1: Sí",
+   "2: No"
+  ],
+  "obs": "Variable incorporada a partir de trimestre EFM 2020.",
+  "src": 2020
+ },
+ "meses_ocup_actual": {
+  "desc": "Duración de la ocupación declarada (en meses) INE (2026).",
+  "cats": [],
+  "obs": "Incorporada como nueva dimensión de análisis, véase",
+  "src": 2020
+ },
+ "dep_economica": {
+  "desc": "Persona ocupada independiente con dependencia económica",
+  "cats": [
+   "0: No corresponde",
+   "1: Ocupado/a con dependencia económica"
+  ],
+  "obs": "Incorporada como nueva dimensión de análisis, véase INE (2026).",
+  "src": 2020
+ },
+ "dep_organizativa": {
+  "desc": "Persona ocupada independiente con dependencia organizativa",
+  "cats": [
+   "0: No corresponde",
+   "1: Ocupado/a con dependencia organizativa"
+  ],
+  "obs": "Incorporada como nueva dimensión de análisis, véase INE (2026).",
+  "src": 2020
+ },
+ "dep_ambas": {
+  "desc": "Persona ocupada independiente con dependencia tanto económica como organizativa",
+  "cats": [
+   "0: No corresponde",
+   "1: Ocupado/a con dependencia tanto"
+  ],
+  "obs": "económica como organizativa Incorporada como nueva dimensión de análisis, véase INE (2026).",
+  "src": 2020
+ },
+ "no_salario": {
+  "desc": "Persona ocupada dependiente que recibe forma de pago diferente a sueldo, salario o jornal",
+  "cats": [
+   "0: No corresponde",
+   "1: Ocupado/a dependiente que recibe forma de"
+  ],
+  "obs": "pago diferente a sueldo, salario o jornal Incorporada como nueva dimensión de análisis, véase INE (2026).",
+  "src": 2020
+ },
+ "no_prevision": {
+  "desc": "Persona ocupada dependiente cuyo empleador no le paga cotizaciones",
+  "cats": [
+   "0: No corresponde",
+   "1: Ocupado/a dependiente cuyo empleador no"
+  ],
+  "obs": "le paga cotizaciones Incorporada como nueva dimensión de análisis, véase INE (2026).",
+  "src": 2020
+ },
+ "riesgo_economico": {
+  "desc": "Persona ocupada dependiente con riesgo económico",
+  "cats": [
+   "0: No corresponde",
+   "1: Ocupado/a dependiente con riesgo"
+  ],
+  "obs": "económico Incorporada como nueva dimensión de análisis, véase INE (2026).",
+  "src": 2020
+ },
+ "n_dependencias": {
+  "desc": "Ámbitos totales de dependencia económica y/u organizativas observadas en la INE (2026). ocupación principal de persona ocupada independiente",
+  "cats": [],
+  "obs": "0 – 7  Incorporada como nueva dimensión de análisis, véase",
+  "src": 2020
+ },
+ "cdi": {
+  "desc": "Contratista dependiente clasificado/a como cuenta propia",
+  "cats": [
+   "0: No corresponde",
+   "1: Contratista dependiente clasificado/a como"
+  ],
+  "obs": "cuenta propia Incorporada como nueva dimensión de análisis, véase INE (2026).",
+  "src": 2020
+ },
+ "cdd": {
+  "desc": "Contratista dependiente clasificado/a como asalariado/a",
+  "cats": [
+   "0: No corresponde",
+   "1: Contratista dependiente clasificado/a como"
+  ],
+  "obs": "asalariado/a Incorporada como nueva dimensión de análisis, véase INE (2026).",
+  "src": 2020
+ },
+ "ciso1": {
+  "desc": "Clasificación Internacional de la Situación en la Ocupación (CISO-18) - Primer nivel jerárquico",
+  "cats": [
+   "1: Independiente",
+   "2: Dependiente"
+  ],
+  "obs": "Incorporada como nueva dimensión de análisis, véase INE (2026).",
+  "src": 2020
+ },
+ "ciso2": {
+  "desc": "Clasificación Internacional de la Situación en la Ocupación (CISO-18) - Segundo nivel jerárquico",
+  "cats": [
+   "1: Empleador/a",
+   "2: Trabajador/a por cuenta propia",
+   "3: Contratista dependiente",
+   "4: Asalariado/a del sector privado",
+   "5: Asalariado/a del sector público",
+   "6: Personal de servicio doméstico",
+   "7: Familiar no remunerado"
+  ],
+  "obs": "Incorporada como nueva dimensión de análisis, véase INE (2026).",
+  "src": 2020
+ },
+ "ciso3_a": {
+  "desc": "Situación en la ocupación (CISO-18) - Tercer nivel jerárquico (forma A)",
+  "cats": [
+   "1: Empleador/a con empresa registrada como",
+   "2: Empleador/a con empresa no registrada o",
+   "3: Trabajador/a por cuenta propia con empresa",
+   "4: Trabajador/a por cuenta propia con empresa",
+   "5: Contratista dependiente (trabajador/a por",
+   "6: Contratista dependiente (asalariado/a",
+   "7: Contratista dependiente (asalariado/a",
+   "8: Contratista dependiente (servicio doméstico)",
+   "9: Asalariado/a privado/a con contrato",
+   "10: Asalariado/a privado/a por tiempo",
+   "11: Asalariado/a privado/a con contrato de",
+   "12: Asalariado/a público/a con contrato",
+   "13: Asalariados/as públicos por tiempo",
+   "14: Asalariado/a público/a con contrato de baja",
+   "15: Servicio doméstico con contrato indefinido",
+   "16: Servicio doméstico por tiempo determinado",
+   "17: Servicio doméstico con contrato de baja",
+   "18: Familiar o personal no remunerado"
+  ],
+  "obs": "sociedad persona natural registrada como sociedad no registrada o persona natural cuenta propia) privado/a) Incorporada como nueva dimensión de análisis, véase INE (2026). público/a) indefinido determinado corta duración indefinido determinado duración duración",
+  "src": 2020
+ },
+ "ciso3_b": {
+  "desc": "Situación en la ocupación (CISO-18) - Tercer nivel jerárquico (forma B)",
+  "cats": [
+   "1: Empleador/a con empresa registrada como",
+   "2: Empleador/a con empresa no registrada o",
+   "3: Trabajador/a por cuenta propia con empresa",
+   "4: Trabajador/a por cuenta propia con empresa",
+   "5: Trabajador/a por cuenta propia con",
+   "6: Trabajador/a por cuenta propia con",
+   "7: Trabajador/a por cuenta propia con",
+   "8: Asalariado/a con contrato comercial",
+   "9: Asalariado/a con riesgo económico",
+   "10: Asalariado/a privado/a con contrato",
+   "11: Asalariado/a privado/a por tiempo",
+   "12: Asalariado/a privado/a con contrato de",
+   "13: Asalariado/a público/a con contrato",
+   "14: Asalariado/a público/a por tiempo",
+   "15: Asalariado/a público/a con contrato de baja",
+   "16: Servicio doméstico con contrato indefinido",
+   "17: Servicio doméstico por tiempo determinado",
+   "18: Servicio doméstico con contrato de baja",
+   "19: Familiar o personal no remunerado"
+  ],
+  "obs": "sociedad persona natural registrada como sociedad no registrada o persona natural dependencia organizativa dependencia económica dependencia económica y organizativa Incorporada como nueva dimensión de análisis, véase (INE, 2026). indefinido determinado corta duración indefinido determinado duración duración",
+  "src": 2020
+ },
+ "cine97": {
+  "desc": "CINE 1997 (nivel)",
+  "cats": [
+   "0: Menos que educación primaria",
+   "1: Primer ciclo de educación básica",
+   "2: Segundo ciclo de educación básica",
+   "3: Educación secundaria",
+   "4: Primer ciclo de educación terciaria",
+   "5: Segundo ciclo de educación terciaria",
+   "9: Sin clasificación"
+  ],
+  "obs": "Desagregación a un dígito de Clasificación Internacional Normalizada de la Educación (CINE) 1997 (UNESCO, 2006). Véase INE (2025).",
+  "src": 2020
+ },
+ "cine11_1d": {
+  "desc": "CINE 2011 (nivel)",
+  "cats": [
+   "0: Menos que educación primaria",
+   "1: Educación primaria",
+   "2: Educación secundaria",
+   "3: Educación terciaria de ciclo corto",
+   "4: Grado de educación terciaria o equivalente",
+   "5: Nivel de maestría, especialización o",
+   "6: Nivel de doctorado o equivalente",
+   "9: Sin clasificación"
+  ],
+  "obs": "equivalente Desagregación a un dígito de Clasificación Internacional Normalizada de la Educación 2011 (UNESCO, 2013). Véase INE (2025).",
+  "src": 2020
+ },
+ "cine11_2d": {
+  "desc": "CINE 2011 (categoría)",
+  "cats": [
+   "01: Nunca cursó un programa educativo",
+   "02: Educación de la primera infancia (incluye la",
+   "03: Primaria en forma parcial (sin conclusión",
+   "10: Educación primaria (nivel 1)",
+   "14: Educación primaria (nivel 2), con",
+   "24: Educación secundaria, con orientación",
+   "25: Educación secundaria, con orientación",
+   "34: Educación terciaria de ciclo corto, con",
+   "35: Educación terciaria de ciclo corto, con",
+   "46: Grado de educación terciaria o nivel",
+   "56: Nivel de maestría, especialización o",
+   "64: Nivel de doctorado o equivalente, con",
+   "96: Educación diferencial",
+   "99: No sabe o no responde variables relevantes"
+  ],
+  "obs": "forma parcial) del nivel) orientación general general vocacional orientación general orientación vocacional equivalente, con orientación no especificada equivalente, con orientación no especificada orientación académica para la clasificación Desagregación a dos dígitos de Clasificación Internacional Normalizada de la Educación 2011 (UNESCO, 2013). Véase INE (2025).",
+  "src": 2020
+ },
+ "habituales": {
+  "desc": "en el turno",
+  "cats": [
+   "888: No sabe",
+   "999: No responde"
+  ],
+  "obs": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022.",
+  "src": 2020
+ },
+ "efectivas": {
+  "desc": "Horas efectivas trabajadas en la semana de referencia",
+  "cats": [
+   "888: No sabe",
+   "999: No responde"
+  ],
+  "obs": "0 – 168 Variable construida a partir de procesamiento de variables c2_1_1, c2_1_2, c2_1_3, c6 y c8. Para el cálculo de horas",
+  "src": 2020
+ },
+ "pet": {
+  "desc": "Población en edad de trabajar",
+  "cats": [
+   "0: No corresponde",
+   "1: Población en edad de trabajar"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "ft": {
+  "desc": "Fuerza de trabajo",
+  "cats": [
+   "0: No corresponde",
+   "1: Fuerza de trabajo"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "obe": {
+  "desc": "Ocupado/a que buscó un empleo",
+  "cats": [
+   "0: No corresponde",
+   "1: Ocupado/a que buscó un empleo"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "tpi": {
+  "desc": "Ocupado/a que trabajó de manera involuntaria a tiempo parcial",
+  "cats": [
+   "0: No corresponde",
+   "1: Ocupado/a que trabajó de manera"
+  ],
+  "obs": "involuntaria a tiempo parcial",
+  "src": 2020
+ },
+ "ina_cal_edu": {
+  "desc": "Inadecuación por educativo",
+  "cats": [
+   "1: Subeducación",
+   "2: Sin inadecuación",
+   "3: Sobreeducación",
+   "999: Sin información"
+  ],
+  "obs": "calificación según nivel Incorporada a partir del trimestre EFM 2017 y publicada como una de las nuevas dimensiones de análisis de la encuesta. Para mayores antecedentes, véase INE (2025).",
+  "src": 2020
+ },
+ "ocup_form": {
+  "desc": "Ocupado/a según formalidad de su ocupación",
+  "cats": [
+   "1: Ocupado formal",
+   "2: Ocupado Informal"
+  ],
+  "obs": "Variable incorporada a partir de trimestre JAS 2017.",
+  "src": 2020
+ },
+ "sector": {
+  "desc": "institucional",
+  "cats": [
+   "1: Sector formal",
+   "2: Sector informal",
+   "3: Sector hogares como empleadores",
+   "999: Sin clasificación"
+  ],
+  "obs": "Ocupado/a según sector Variable incorporada a partir de trimestre JAS 2017.",
+  "src": 2020
+ },
+ "r_p_rev4cl_caenes": {
+  "desc": "Rama de actividad económica de la empresa o institución que le paga el sueldo o de la que es dueña la persona ocupada (ajustada)",
+  "cats": [
+   "999: Sin clasificación"
+  ],
+  "obs": "Ver detalle de rama de actividad en Anexo 5 Variable incorporada a partir de trimestre JAS 2017. Corresponde a ajuste realizado a variable",
+  "src": 2020
+ },
+ "tramo_edad": {
+  "desc": "Tramo de edad",
+  "cats": [
+   "1: 15 a 19 años",
+   "2: 20 a 24 años",
+   "3: 25 a 29 años",
+   "4: 30 a 34 años",
+   "5: 35 a 39 años",
+   "6: 40 a 44 años",
+   "7: 45 a 49 años",
+   "8: 50 a 54 años",
+   "9: 55 a 59 años",
+   "10: 60 a 64 años",
+   "11: 65 a 69 años",
+   "12: 70 años o más"
+  ],
+  "obs": "Variable construida a partir de respuesta en variable edad.",
+  "src": 2020
+ },
+ "cae_general": {
+  "desc": "Código sumario de empleo general",
+  "cats": [
+   "0: Menor de 15 años",
+   "1: Ocupado/a tradicional",
+   "2: Ocupado/a no tradicional",
+   "3: Ocupado/a ausente",
+   "4: Cesante",
+   "5: Buscó trabajo por primera vez",
+   "6: Iniciador/a",
+   "7: Inactivo/a que buscó",
+   "8: Inactivo/a que estuvo disponible",
+   "9: Inactivo/a que no buscó ni estuvo disponible"
+  ],
+  "obs": "Corresponde a la condición de actividad económica general. Corresponde a la clasificación de todas las personas de 15 años y más, según su situación laboral, basado en un esquema denominado código sumario.",
+  "src": 2020
+ },
+ "cae_especifico": {
+  "desc": "Código sumario de empleo específico",
+  "cats": [
+   "0: Menor de 15 años",
+   "1: Ocupado/a tradicional",
+   "2: Ocupado/a sin remuneración tradicional",
+   "3: Ocupado/a no tradicional",
+   "4: Ocupado/a sin remuneración no tradicional",
+   "5: Ocupado/a ausente con vínculo efectivo",
+   "6: Ocupado/a ausente con pronto retorno",
+   "7: Ocupado/a ausente con sueldo o ganancia",
+   "8: Cesante",
+   "9: Buscó trabajo por primera vez",
+   "10: Iniciador/a (Disponible)",
+   "11: Iniciador/a (No disponible)",
+   "12: Razones familiares permanentes",
+   "13: Razones familiares permanentes (Habitual)",
+   "14: Razones de estudio (Potencial)",
+   "15: Razones de estudio (Habitual)",
+   "16: Razones de jubilación (Potencial)",
+   "17: Razones de jubilación (Habitual)",
+   "18: Razones de pensión o montepiado",
+   "19: Razones de pensión o montepiado",
+   "20: Razones de salud permanentes (Potencial)",
+   "21: Razones de salud permanentes (Habitual)",
+   "22: Razones personales temporales (Potencial)",
+   "23: Razones personales temporales (Habitual)",
+   "24: Sin deseo de trabajar",
+   "25: Razones estacionales",
+   "26: Razones de desaliento",
+   "27: Otras razones (Potencial)",
+   "28: Otras razones (Habitual)"
+  ],
+  "obs": "(Potencial) (Potencial) (Habitual) Corresponde a la condición de actividad económica específica. Corresponde a la clasificación de todas las personas de 15 años y más, según su situación laboral, basado en un esquema denominado código sumario.",
+  "src": 2020
+ },
+ "activ": {
+  "desc": "Condición de actividad",
+  "cats": [
+   "1: Ocupado/a",
+   "2: Desocupado/a",
+   "3: Fuera de la fuerza de trabajo"
+  ],
+  "obs": "",
+  "src": 2020
+ },
+ "fact_cal": {
+  "desc": "la serie, desde EFM 2010. fact_anual Factor de expansión anual  Sólo disponible en bases anuales, de acuerdo con metodología desarrollada por el INE (2022c). 6 DESCRIPCIÓN DE INDICADORES PRINCIPALES (variable cae_especifico), se construyen los principales indicadores de empleo de la ENE.8",
+  "cats": [],
+  "obs": "Factor de expansión trimestral calibrado.  Vigente para la totalidad de A partir de la identificación de categorías según el código sumario empleo específico",
+  "src": 2020
+ },
+ "a9": {
+  "desc": "Si las restricciones por la pandemia del COVID- 19 se terminaran en las próximas cuatro semanas, ¿cree que podrá volver a su trabajo?",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Descontinuada. Producida entre MAM 2020 y NDE 2022. Su inclusión fue recomendada por OIT en el contexto del impacto de la pandemia de COVID-19 en la población ocupada (INE, 2020b).",
+  "src": 2020
+ },
+ "i11": {
+  "desc": "Comparando los ingresos recibidos por su actividad principal en mes anterior, respecto a sus ingresos habituales, ¿disminuyeron, se mantuvieron o aumentaron?",
+  "cats": [
+   "1: Disminuyeron",
+   "2: Se mantuvieron",
+   "3: Aumentaron",
+   "77: No tenía ese empleo",
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Descontinuada. Vigente entre MAM 2020 y OND2021.",
+  "src": 2020
+ },
+ "i12": {
+  "desc": "Comparando con sus ingresos habituales, ¿cuánto de los ingresos de su actividad principal recibió en el mes anterior? 1 Más de la mitad 2 La mitad 3 Menos de la mitad 4 No recibió ingresos",
+  "cats": [
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Descontinuada. Vigente entre MAM 2020 y OND2021.",
+  "src": 2020
+ },
+ "i13_1": {
+  "desc": "Medidas de financiamiento de gastos del hogar: Reducir gastos del hogar",
+  "cats": [
+   "1: Sí"
+  ],
+  "obs": "y OND2021.",
+  "src": 2020
+ },
+ "i13_2": {
+  "desc": "Medidas de financiamiento de gastos del hogar: Trabajar más horas en actividad principal",
+  "cats": [
+   "1: Sí"
+  ],
+  "obs": "y OND2021.",
+  "src": 2020
+ },
+ "i13_3": {
+  "desc": "Medidas de financiamiento de gastos del hogar: Búsqueda de otro trabajo",
+  "cats": [
+   "1: Sí"
+  ],
+  "obs": "y OND2021.",
+  "src": 2020
+ },
+ "i13_4": {
+  "desc": "Medidas de financiamiento de gastos del hogar: Usar ahorros",
+  "cats": [
+   "1: Sí"
+  ],
+  "obs": "y OND2021.",
+  "src": 2020
+ },
+ "i13_5": {
+  "desc": "Medidas de financiamiento de gastos del hogar: Esperar ayuda de un familiar, vecinos o amigos",
+  "cats": [
+   "1: Sí"
+  ],
+  "obs": "y OND2021.",
+  "src": 2020
+ },
+ "i13_6": {
+  "desc": "Medidas de financiamiento de gastos del hogar: Esperar ayuda del Estado",
+  "cats": [
+   "1: Sí"
+  ],
+  "obs": "y OND2021.",
+  "src": 2020
+ },
+ "i13_7": {
+  "desc": "Medidas de financiamiento de gastos del hogar: Esperar ayuda de instituciones sin fines de lucro (ONG's, Iglesia, etc.)",
+  "cats": [
+   "1: Sí"
+  ],
+  "obs": "y OND2021.",
+  "src": 2020
+ },
+ "i13_8": {
+  "desc": "Medidas de financiamiento de gastos del hogar: Utilizar tarjeta o línea de crédito",
+  "cats": [
+   "1: Sí"
+  ],
+  "obs": "y OND2021.",
+  "src": 2020
+ },
+ "i13_9": {
+  "desc": "Medidas de financiamiento de gastos del hogar: Solicitar un préstamo bancario",
+  "cats": [
+   "1: Sí"
+  ],
+  "obs": "y OND2021.",
+  "src": 2020
+ },
+ "i13_10": {
+  "desc": "Medidas de financiamiento de gastos del hogar: Solicitar un préstamo a un familiar",
+  "cats": [
+   "1: Sí"
+  ],
+  "obs": "y OND2021.",
+  "src": 2020
+ },
+ "i13_11": {
+  "desc": "Medidas de financiamiento de gastos del hogar: No hará nada",
+  "cats": [
+   "1: Sí"
+  ],
+  "obs": "y OND2021.",
+  "src": 2020
+ },
+ "i13_88": {
+  "desc": "Medidas de financiamiento de gastos del hogar: No sabe",
+  "cats": [
+   "1: Sí"
+  ],
+  "obs": "y OND2021.",
+  "src": 2020
+ },
+ "i13_99": {
+  "desc": "Medidas de financiamiento de gastos del hogar: No responde",
+  "cats": [
+   "1: Sí"
+  ],
+  "obs": "y OND2021.",
+  "src": 2020
+ },
+ "i13_total": {
+  "desc": "Número de medidas de financiamiento de gastos del hogar y OND2021. de valores afirmativos entre i13_1 y",
+  "cats": [],
+  "obs": "1 – 10 Descontinuada. Vigente entre MAM 2020 Variable construida a partir de sumatoria",
+  "src": 2020
+ },
+ "b11": {
+  "desc": "Al momento de recibir sus ingresos...",
+  "cats": [
+   "1: …¿entrega una boleta de honorarios?",
+   "2: …¿recibe una liquidación de sueldo?",
+   "3: …¿entrega un comprobante o recibo?",
+   "4: …¿no recibe ni entrega comprobante?",
+   "5: …¿entrega boleta o factura?"
+  ],
+  "obs": "Descontinuada. Producida entre EFM 2010 y DEF 2020.",
+  "src": 2020
+ },
+ "id_directorio": {
+  "desc": "2019. Permite identificar el conglomerado correspondiente a la unidad primaria de muestro, los cuales se denominaban manzanas en estrato urbano y secciones en RAU y rurales.",
+  "cats": [],
+  "obs": "Manzana / sección  Descontinuada. Producida entre EFM 2010 y OND",
+  "src": 2020
+ },
+ "c1": {
+  "desc": "¿Qué tipo de jornada tiene en su trabajo?",
+  "cats": [
+   "1: Completa",
+   "2: Parcial"
+  ],
+  "obs": "Descontinuada. Producida entre EFM 2010 y OND 2019.",
+  "src": 2020
+ },
+ "c13": {
+  "desc": "Entonces, ¿trabajaría menos horas, aunque esto suponga una reducción proporcional de su sueldo?",
+  "cats": [
+   "1: Sí",
+   "2: No"
+  ],
+  "obs": "Descontinuada. Producida entre EFM 2010 y OND 2019. En esta sección se caracteriza la búsqueda de empleo, tanto en personas ocupadas como en no ocupadas, así como también la disponibilidad para comenzar a trabajar.",
+  "src": 2020
+ },
+ "e1": {
+  "desc": "¿Ha hecho algo para conseguir trabajo dentro de los últimos doce meses?",
+  "cats": [
+   "1: Sí",
+   "2: No"
+  ],
+  "obs": "Responden ocupados/as y no ocupados/as. Descontinuada. Producida entre EFM 2010 y OND 2019.",
+  "src": 2020
+ },
+ "e8": {
+  "desc": "¿Cuál es el carácter temporal del trabajo que busca?",
+  "cats": [
+   "1: Permanente",
+   "2: De temporada o estacional",
+   "3: Ocasional o eventual",
+   "4: Cualquiera"
+  ],
+  "obs": "Descontinuada. Producida entre EFM 2010 y OND 2019. Responden ocupados/as y no ocupados/as.",
+  "src": 2020
+ },
+ "e14_mes": {
+  "desc": "Y, ¿hasta cuándo trabajó en esa ocupación o actividad? Mes",
+  "cats": [
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Descontinuada. Producida entre EFM 2010 y OND 2019.",
+  "src": 2020
+ },
+ "e14_ano": {
+  "desc": "Y, ¿hasta cuándo trabajó en esa ocupación o actividad? Año",
+  "cats": [
+   "8888: No sabe",
+   "9999: No responde"
+  ],
+  "obs": "Descontinuada. Producida entre EFM 2010 y OND 2019.",
+  "src": 2020
+ },
+ "e15_meses": {
+  "desc": "¿Durante cuánto tiempo trabajó en ese empleo o actividad por cuenta propia? En meses",
+  "cats": [
+   "88: No sabe",
+   "99: No responde"
+  ],
+  "obs": "Descontinuada. Producida entre EFM 2010 y OND 2019.",
+  "src": 2020
+ },
+ "e15_anos": {
+  "desc": "¿Durante cuánto tiempo trabajó en ese empleo o actividad por cuenta propia? En años",
+  "cats": [
+   "888: No sabe",
+   "999: No responde"
+  ],
+  "obs": "Descontinuada. Producida entre EFM 2010 y OND 2019.",
+  "src": 2020
+ },
+ "e16_ciuo08": {
+  "desc": "Grupo ocupacional del empleo EFM 2010 y OND 2019.",
+  "cats": [],
+  "obs": "anterior según CIUO 08 Ver detalle de grupos de ocupación en Anexo Descontinuada. Producida entre",
+  "src": 2020
+ },
+ "e17": {
+  "desc": "¿En cuál de las siguientes categorías se encontraba en ese trabajo?",
+  "cats": [
+   "1: Empleador o patrón",
+   "2: Trabajador por cuenta propia",
+   "3: Asalariado sector privado",
+   "4: Asalariado del sector público",
+   "5: Personal de servicio doméstico puertas",
+   "6: Personal de servicio doméstico puertas",
+   "7: Familiar o personal no remunerado"
+  ],
+  "obs": "adentro afuera Descontinuada. Producida entre EFM 2010 y OND 2019.",
+  "src": 2020
+ },
+ "e18_rev4cl_caenes": {
+  "desc": "Rama de actividad económica del empleo anterior según CAENES (adaptación d e CIIU Rev. 4.cl)",
+  "cats": [
+   "999: Sin información"
+  ],
+  "obs": "Ver detalle de ramas de actividad en Anexo 5 Descontinuada. Producida entre EFM 2010 y OND 2019.",
+  "src": 2020
+ },
+ "e19": {
+  "desc": "¿Por qué dejó ese empleo, negocio o actividad por cuenta propia?",
+  "cats": [
+   "1: Término del contrato, proyecto, faena,",
+   "2: Término en el ejercicio de la actividad por",
+   "3: Quiebra o cierre de la empresa",
+   "4: Se jubiló",
+   "5: Fue despedido por lo avanzado de su edad",
+   "6: Fue despedido por incumplimiento de",
+   "7: Fue despedido por reducción de personal",
+   "8: Fue despedida por embarazo",
+   "9: Fue despedido por otra razón (¿cuál?)",
+   "10: Renunció por razones de estudio",
+   "11: Renunció por responsabilidades familiares",
+   "12: Renunció por motivos de salud",
+   "13: Renunció porque des ea un trabajo con",
+   "14: Renunció para mejorar su calidad de vida",
+   "15: Renunció porque sintió inseguridad en su",
+   "16: Renunció por embarazo",
+   "17: Renunció por otra razón (¿cuál?)"
+  ],
+  "obs": "temporada o reemplazo cuenta propia funciones mayores ingresos empleo anterior Descontinuada. Producida entre EFM 2010 y OND 2019.",
+  "src": 2020
+ },
+ "e19_otro": {
+  "desc": "Especifica e19 = Otras razones de despido o de renuncia EFM 2010 y OND 2019. Inicialmente estas preguntas se incorporaron para caracterizar impacto de pandemia de COVID-19 en la pérdida de ocupaciones. Se mantuvieron en el tiempo dada la utilidad analítica respecto al análisis de la anterior ocupación.",
+  "cats": [],
+  "obs": "Descontinuada. Producida entre",
+  "src": 2020
+ },
+ "fact": {
+  "desc": "Factor de expansión trimestral, proyecciones de población Censo 2002 hasta trimestre OND 2019.",
+  "cats": [],
+  "obs": "Descontinuado. Vigente sólo",
+  "src": 2020
+ },
+ "b1_ciuo88": {
+  "desc": "Grupo de ocupación según CIUO-88 entre EFM 2010 y EFM 2019.",
+  "cats": [],
+  "obs": "Ver detalle de grupos de ocupación en Anexo Descontinuada. Producida",
+  "src": 2020
+ },
+ "e16_ciuo88": {
+  "desc": "Grupo ocupacional del empleo EFM 2010 y EFM 2019.",
+  "cats": [],
+  "obs": "anterior según CIUO 88 Ver detalle de grupos de ocupación en Anexo Descontinuada. Producida entre",
+  "src": 2020
+ },
+ "b7_1": {
+  "desc": "En ese empleo, le otorgan vacaciones anuales",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "3: No sabe / No responde"
+  ],
+  "obs": "Descontinuada. Producida entre EFM 2010 y JJA 2017 (véase Anexo 4).",
+  "src": 2020
+ },
+ "b7_2": {
+  "desc": "En ese empleo, le otorgan días pagados por enfermedad",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "3: No sabe / No responde"
+  ],
+  "obs": "Descontinuada. Producida entre EFM 2010 y JJA 2017 (véase Anexo 4).",
+  "src": 2020
+ },
+ "b7_3": {
+  "desc": "En ese empleo, le otorgan cotización en sistema previsional o de pensión",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "3: No sabe / No responde"
+  ],
+  "obs": "Descontinuada. Producida entre EFM 2010 y JJA 2017 (véase Anexo 4).",
+  "src": 2020
+ },
+ "b7_4": {
+  "desc": "En ese empleo, le otorgan cotización en sistema de salud",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "3: No sabe / No responde"
+  ],
+  "obs": "Descontinuada. Producida entre EFM 2010 y JJA 2017 (véase Anexo 4).",
+  "src": 2020
+ },
+ "b7_5": {
+  "desc": "En ese empleo, le otorgan cotización por seguro de desempleo",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "3: No sabe / No responde"
+  ],
+  "obs": "Descontinuada. Producida entre EFM 2010 y JJA 2017 (véase Anexo 4).",
+  "src": 2020
+ },
+ "b7_6": {
+  "desc": "En ese empleo, le otorgan permiso por maternidad o paternidad",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "3: No sabe / No responde"
+  ],
+  "obs": "Descontinuada. Producida entre EFM 2010 y JJA 2017 (véase Anexo 4).",
+  "src": 2020
+ },
+ "b7_7": {
+  "desc": "En ese empleo, le otorgan servicio de guarderías infantiles",
+  "cats": [
+   "1: Sí",
+   "2: No",
+   "3: No sabe / No responde"
+  ],
+  "obs": "Descontinuada. Producida entre EFM 2010 y JJA 2017 (véase Anexo 4).",
+  "src": 2020
+ },
+ "b13_ciiu_rev3": {
+  "desc": "Rama de actividad económica de empresa que entre EFM 2010 y OND 2016.",
+  "cats": [],
+  "obs": "le paga según CIIU Rev. 3 Ver detalle de rama de actividad en Anexo 5 Descontinuada. Producida",
+  "src": 2020
+ },
+ "b14_ciiu_rev3": {
+  "desc": "Rama de actividad económica de empresa Rev. 3 entre EFM 2010 y OND 2016.",
+  "cats": [],
+  "obs": "donde trabaja según CIIU Ver detalle de rama de actividad en Anexo 5 Descontinuada. Producida",
+  "src": 2020
+ },
+ "ano_trimestre": {
+  "desc": "Año y trimestre a la que pertenece la base de datos - Desde 2010  en adelante",
+  "cats": [],
+  "obs": "",
+  "src": 2019
+ },
+ "mes_central": {
+  "desc": "Número que identifica el 1 Diciembre – Febrero Interior. Fuente: http://www.subdere.cl/sites/default/files/documentos/articles-73111_recurso_2.pdf mes central del trimestre 2 Enero – Marzo 3 Febrero – Abril 4 Marzo – Mayo 5 Abril – Junio 6 Mayo – Julio 7 Junio – Agosto 8 Julio – Septiembre 9 Agosto – Octubre 10 Septiembre – Noviembre 11 Octubre – Diciembre 12 Noviembre – Enero",
+  "cats": [],
+  "obs": "2  Corresponde al código único territorial de las  comunas del país, creado por Decreto Supremo  por el Ministerio del",
+  "src": 2019
+ },
+ "r_p_c": {
+  "desc": "Código Región – Provincia –",
+  "cats": [],
+  "obs": "comuna2  - Anexo 2",
+  "src": 2019
+ },
+ "proveedor": {
+  "desc": "Señala al proveedor económico principal del",
+  "cats": [],
+  "obs": "",
+  "src": 2019
+ },
+ "nacionalidad": {
+  "desc": "Nacionalidad del Módulo A: Situación laboral en la semana de referencia Variable Nombre variable Cód. Nombre del código",
+  "cats": [],
+  "obs": "encuestado(a) - Anexo 3",
+  "src": 2019
+ },
+ "e6_mes": {
+  "desc": "¿Desde cuándo ha estado buscando trabajo? 1 Enero 2 Febrero 3 Marzo 4 Abril 5 Mayo 6 Junio 7 Julio 8 Agosto 9 Septiembre 10 Octubre 11 Noviembre 12 Diciembre 999 Mes desconocido",
+  "cats": [],
+  "obs": "",
+  "src": 2019
+ },
+ "region_15": {
+  "desc": "Variable de identificación de región a 15 regiones. -",
+  "cats": [],
+  "obs": "",
+  "src": 2019
+ },
+ "r_p_c_15": {
+  "desc": "Código Región – Provincia –",
+  "cats": [],
+  "obs": "comuna a 15 regiones  Anexo 2",
+  "src": 2019
+ }
+}
