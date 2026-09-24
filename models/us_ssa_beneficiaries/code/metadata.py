@@ -19,13 +19,28 @@ from __future__ import annotations
 # ruff: noqa: E402  (the MCP server lives outside the repo, so sys.path comes first)
 import argparse
 import datetime
+import os
 import sys
 from pathlib import Path
 from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-MCP_ROOT = Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
 HERE = Path(__file__).resolve().parent
+
+# The databasis MCP server lives outside this repo. Point BD_MCP_ROOT at it;
+# the default is the usual Dropbox checkout. Fail loudly rather than dying on
+# an opaque ImportError three lines later.
+MCP_ROOT = Path(
+    os.environ.get(
+        "BD_MCP_ROOT",
+        Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp",
+    )
+)
+if not (MCP_ROOT / "server.py").is_file():
+    raise SystemExit(
+        f"databasis MCP server not found at {MCP_ROOT}/server.py — "
+        f"set BD_MCP_ROOT to the directory containing it"
+    )
 for path in (str(REPO_ROOT), str(MCP_ROOT), str(HERE)):
     sys.path.insert(0, path)
 
@@ -371,7 +386,7 @@ def main() -> int:
             """query($id: ID!) { allDataset(id: $id) { edges { node { slug namePt
                nameEn nameEs descriptionPt descriptionEn descriptionEs
                organizations { edges { node { id } } } themes { edges { node { id } } }
-               tags { edges { node { id } } } } } } }""",
+               tags { edges { node { id } } } status { id } } } } }""",
             {"id": existing["id"]},
             env=env,
             auth=False,
@@ -395,10 +410,13 @@ def main() -> int:
                 if args.dataset_only
                 else [bare(e["node"]["id"]) for e in node["tags"]["edges"]]
             ),
+            # Preserve whatever status the dataset already has: --dataset-only
+            # is for a tag or description change and must not silently
+            # unpublish. (It did, on staging, before this guard.)
             status_id=(
                 status_published
                 if args.publish
-                else uid("status", "under_review")
+                else bare(node["status"]["id"])
             ),
             env=env,
         )

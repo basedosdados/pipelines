@@ -132,12 +132,19 @@ col(
     "Nome do condado ou cidade independente, conforme publicado pela SSA",
     "Name of the county or independent city, as published by SSA",
     "Nombre del condado o ciudad independiente, según lo publicado por la SSA",
-    obs="Até a edição de 2007 as cidades independentes recebiam o sufixo ' City' e eram "
-    "listadas em ordem alfabética junto aos condados; a partir de 2008 o sufixo é "
-    "omitido e elas aparecem em bloco separado.",
+    obs="Até a edição de 2004 as cidades independentes recebiam o sufixo ' City' e "
+    "eram listadas em ordem alfabética junto aos condados; a partir de 2005 o sufixo "
+    "é omitido e elas aparecem em bloco separado, depois dos condados. O código ANSI "
+    "só passa a acompanhá-las na edição de 2008.",
+    obs_en="Up to the 2004 edition independent cities carried the ' City' suffix and "
+    "were listed alphabetically among the counties; from 2005 the suffix is dropped "
+    "and they appear in a separate block after the counties. The ANSI code only "
+    "accompanies them from the 2008 edition.",
+    obs_es="Hasta la edición de 2004 las ciudades independientes llevaban el sufijo "
+    "' City' y se listaban alfabéticamente junto a los condados; a partir de 2005 el "
+    "sufijo se omite y aparecen en un bloque separado, después de los condados. El "
+    "código ANSI solo las acompaña desde la edición de 2008.",
     original="county_or_city",
-    obs_en="Up to the 2007 edition independent cities carried the ' City' suffix and were listed alphabetically among the counties; from 2008 the suffix is dropped and they appear in a separate block.",
-    obs_es="Hasta la edición de 2007 las ciudades independientes llevaban el sufijo ' City' y se listaban alfabéticamente junto a los condados; a partir de 2008 el sufijo se omite y aparecen en un bloque separado.",
 )
 
 col(

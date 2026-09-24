@@ -3,8 +3,8 @@
 Usage:
     uv run python models/us_ssa_beneficiaries/code/upload.py [--env dev|prod] [table ...]
 
---env dev (default) -> basedosdados-dev; --env prod -> basedosdados. Point
-GOOGLE_APPLICATION_CREDENTIALS at the matching service account. Staging is
+Dev only: prod tables are materialised by the table-approve action when the
+onboarding PR merges, never uploaded from here. Staging is
 ALL-STRING (the parquet is all-STRING; the dbt model safe_casts). Uploads
 smallest first and stops on the first failure.
 
@@ -33,11 +33,20 @@ if "--env" in _argv:
     _argv = _argv[:_i] + _argv[_i + 2 :]
 else:
     ENV = "dev"
-if ENV not in ("dev", "prod"):
-    # Falling through to dev on a typo would silently upload to the wrong
-    # project, and `--env prod` is the one flag worth being strict about.
-    raise SystemExit(f"--env must be dev or prod, got {ENV!r}")
-BILLING_PROJECT = "basedosdados" if ENV == "prod" else "basedosdados-dev"
+if ENV != "dev":
+    # Only dev. bd.Table and bd.Storage take no project argument -- they read
+    # ~/.basedosdados/config.toml, which is provisioned for basedosdados-dev --
+    # so `--env prod` would bill prod for the GCS write while the BigQuery
+    # table still landed in dev. That mismatch is silent.
+    #
+    # Prod data is not uploaded from a laptop at all. It is materialised by the
+    # table-approve action when the onboarding PR merges, which runs
+    # `dbt --target prod`. See .claude/rules/onboarding-workflow.md.
+    raise SystemExit(
+        f"--env must be dev, got {ENV!r}. Prod tables are materialised by "
+        f"table-approve on merge, never uploaded locally."
+    )
+BILLING_PROJECT = "basedosdados-dev"
 # The upload itself is billed to the data project, but a local ADC user has no
 # bigquery.jobs.create there, so the read-back verification is billed
 # separately.  Override with BD_QUERY_BILLING_PROJECT.

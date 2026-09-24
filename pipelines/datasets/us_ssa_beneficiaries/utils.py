@@ -489,6 +489,19 @@ def _melt(
 def _merge_count_and_amount(
     counts: pd.DataFrame, amounts: pd.DataFrame, keys: list[str]
 ) -> pd.DataFrame:
+    """Join the count and amount frames, keeping every null's reason intact.
+
+    The join is an outer merge, so a row present on only one side comes back
+    with the other side's value *and* its note both null. That silently breaks
+    the invariant the columns advertise -- a null always says why -- so those
+    are labelled here.
+
+    It happens for real reasons, not only edge cases: SSA publishes the SSI
+    county payment total for one of seven categories, and the 2010 edition
+    carries state amounts for areas whose counts it omits. Either way the
+    source does not publish the value for that row, which is what the note
+    says.
+    """
     carried = [
         c
         for c in ("county_or_city", "county_id")
@@ -500,6 +513,13 @@ def _merge_count_and_amount(
         how="outer",
         validate="one_to_one",
     )
+    for note_col in [c for c in merged.columns if c.endswith("_note")]:
+        value_col = note_col[: -len("_note")]
+        if value_col not in merged.columns:
+            continue
+        unexplained = merged[value_col].isna() & merged[note_col].isna()
+        if unexplained.any():
+            merged.loc[unexplained, note_col] = "not_available"
     return merged
 
 
