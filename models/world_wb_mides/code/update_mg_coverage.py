@@ -36,6 +36,82 @@ import server
 ENV = "staging"
 AREA = "br_mg"
 END_YEAR = 2026
+DATASET_ID = "d3874769-bcbd-4ece-a38a-157ba1021514"  # slug `mides`
+
+# NOT `get_dataset`: it returns every column of every table, which on this
+# dataset takes 80+ seconds -- past the 60s read timeout inside the client
+# itself. Ask for exactly the coverage ids, and the dataset's own fields.
+COVERAGE_QUERY = """query($ds: ID!, $slug: String!) {
+  allTable(dataset_Id: $ds, slug: $slug, first: 1) {
+    edges { node { coverages { edges { node { id area { slug }
+      datetimeRanges { edges { node { id startYear endYear interval } } } } } } } }
+  }
+}"""
+
+DATASET_QUERY = """query($id: ID!) {
+  allDataset(id: $id, first: 1) {
+    edges { node { id namePt nameEn nameEs
+      descriptionPt descriptionEn descriptionEs
+      organizations { edges { node { id } } }
+      themes { edges { node { id } } }
+      tags { edges { node { id slug } } } } }
+  }
+}"""
+
+
+def coverages_of(slug: str) -> list[dict] | None:
+    edges = server._gql(
+        COVERAGE_QUERY, {"ds": DATASET_ID, "slug": slug}, env=ENV
+    )["allTable"]["edges"]
+    if not edges:
+        return None
+    return [
+        {
+            "id": server._strip_id(e["node"]["id"]),
+            "area_slug": e["node"]["area"]["slug"],
+            "datetime_ranges": [
+                {
+                    "id": server._strip_id(r["node"]["id"]),
+                    "start_year": r["node"]["startYear"],
+                    "end_year": r["node"]["endYear"],
+                    "interval": r["node"]["interval"],
+                }
+                for r in e["node"]["datetimeRanges"]["edges"]
+            ],
+        }
+        for e in edges[0]["node"]["coverages"]["edges"]
+    ]
+
+
+def dataset_fields() -> dict:
+    node = server._gql(DATASET_QUERY, {"id": DATASET_ID}, env=ENV)[
+        "allDataset"
+    ]["edges"][0]["node"]
+    return {
+        "id": server._strip_id(node["id"]),
+        "name_pt": node["namePt"],
+        "name_en": node["nameEn"],
+        "name_es": node["nameEs"],
+        "description_pt": node["descriptionPt"],
+        "description_en": node["descriptionEn"],
+        "description_es": node["descriptionEs"],
+        "organizations": [
+            {"id": server._strip_id(e["node"]["id"])}
+            for e in node["organizations"]["edges"]
+        ],
+        "themes": [
+            {"id": server._strip_id(e["node"]["id"])}
+            for e in node["themes"]["edges"]
+        ],
+        "tags": [
+            {
+                "id": server._strip_id(e["node"]["id"]),
+                "slug": e["node"]["slug"],
+            }
+            for e in node["tags"]["edges"]
+        ],
+    }
+
 
 # The six tables that carried MG before this work. The 43 new ones are
 # registered with 2014-2026 from the start.
@@ -65,18 +141,13 @@ def main() -> None:
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
-    dataset = server.get_dataset(slug="mides", env=ENV)
-    tables = dataset["tables"]
-
     print("MG coverage:")
     for slug in EXISTING:
-        table = tables.get(slug)
-        if not table:
+        covs = coverages_of(slug)
+        if covs is None:
             print(f"  {slug:<26} not registered, skipped")
             continue
-        mg = next(
-            (c for c in table["coverages"] if c.get("area_slug") == AREA), None
-        )
+        mg = next((c for c in covs if c.get("area_slug") == AREA), None)
         if not mg:
             print(f"  {slug:<26} has no {AREA} coverage, skipped")
             continue
@@ -106,6 +177,7 @@ def main() -> None:
             f"  {slug:<26} {start}-{current.get('end_year')} -> {start}-{END_YEAR}  updated"
         )
 
+    dataset = dataset_fields()
     have = {t["slug"] for t in dataset.get("tags", [])}
     missing = {k: v for k, v in ADD_TAGS.items() if k not in have}
     print(f"\ntags: dataset has {sorted(have)}")
@@ -132,8 +204,8 @@ def main() -> None:
         status_id="e16221de-ac30-4926-83d3-de219998dab3",
         env=ENV,
     )
-    after = server.get_dataset(slug="mides", env=ENV)
-    print(f"  now: {sorted(t['slug'] for t in after.get('tags', []))}")
+    after = dataset_fields()
+    print(f"  now: {sorted(t['slug'] for t in after['tags'])}")
 
 
 if __name__ == "__main__":

@@ -59,6 +59,7 @@ import mg_table_glossary as tables
 import server
 
 ENV = "staging"
+DATASET_ID = "d3874769-bcbd-4ece-a38a-157ba1021514"  # slug `mides`
 BUCKET = "basedosdados-dev"
 PREFIX = "auxiliary_files/world_wb_mides"
 CREDENTIALS = Path.home() / ".basedosdados/credentials/staging.json"
@@ -191,8 +192,17 @@ def main() -> None:
     client = storage.Client(credentials=creds, project=info["project_id"])
     bucket = client.bucket(BUCKET, user_project=info["project_id"])
 
-    dataset = server.get_dataset(slug="mides", env=ENV)
-    known = dataset["tables"]
+    # NOT `get_dataset`: it returns every column of every table and takes 83s on
+    # this dataset, past the client's own 60s read timeout. Ask for just the ids.
+    edges = server._gql(
+        "query($ds: ID!){ allTable(dataset_Id: $ds, first: 100)"
+        "{ edges { node { id slug } } } }",
+        {"ds": DATASET_ID},
+        env=ENV,
+    )["allTable"]["edges"]
+    table_id = {
+        e["node"]["slug"]: server._strip_id(e["node"]["id"]) for e in edges
+    }
 
     built = 0
     for slug in slugs:
@@ -211,7 +221,6 @@ def main() -> None:
         bucket.blob(key).upload_from_string(
             payload, content_type="application/zip"
         )
-        prior = known.get(slug, {})
         server.create_update_table(
             slug=slug,
             name_pt=tables.name(slug, "pt"),
@@ -220,12 +229,12 @@ def main() -> None:
             description_pt=tables.description(slug, "pt"),
             description_en=tables.description(slug, "en"),
             description_es=tables.description(slug, "es"),
-            dataset_id=dataset["id"],
+            dataset_id=DATASET_ID,
             status_id="e16221de-ac30-4926-83d3-de219998dab3",
             published_by_ids=["57"],
             data_cleaned_by_ids=["57"],
             auxiliary_files_url=url,
-            id=prior.get("id"),
+            id=table_id.get(slug),
             env=ENV,
         )
         built += 1
