@@ -49,8 +49,13 @@ from constants import (
     OUTPUT_DIR,
 )
 
+# `[a-z_]+?` rather than `[a-z]+`: `MIRROR` covers every phase `clean_mg.py`
+# registers, and most of the 45 wholesale ones have an underscore in the name
+# (`dispensa_cotacao_2021_3100104.parquet`). The lazy quantifier still stops at
+# the last underscore before the four-digit exercise, because the rest of the
+# pattern is anchored.
 NAME_RE = re.compile(
-    r"^(?P<phase>[a-z]+)_(?P<year>\d{4})_(?P<ibge>\d{7})\.parquet$"
+    r"^(?P<phase>[a-z_]+?)_(?P<year>\d{4})_(?P<ibge>\d{7})\.parquet$"
 )
 ISO_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
@@ -325,17 +330,26 @@ def main(
             else usable[:: max(1, len(usable) // sample or 1)][:sample]
         )
         checked = 0
-        null_rate: dict[str, tuple[int, int]] = {
-            c: (0, 0) for c in MODEL_COLUMNS[phase]
-        }
+        # The four spend phases carry hand-written expectations. The 45
+        # wholesale mirrors do not -- they are generated, and the generator
+        # reads their columns from the header contract -- so fall back to what
+        # `SPECS` already states rather than raising KeyError on them.
+        model_cols = MODEL_COLUMNS.get(phase, [])
+        value_cols = VALUE_COLUMNS.get(
+            phase, [n for n, k, _ in SPECS[phase] if k == "floatstr"]
+        )
+        # `_WHOLESALE_RENAME` maps every wholesale mirror's reference year to
+        # `ano`; only restos a pagar keeps the source name.
+        year_col = YEAR_COLUMN.get(phase, "ano")
+        null_rate: dict[str, tuple[int, int]] = {c: (0, 0) for c in model_cols}
         rsp_hits = rsp_misses = 0
         for path in chosen:
             year_in_name, ibge = parsed(path)
             need = sorted(
-                set(MODEL_COLUMNS[phase])
+                set(model_cols)
                 | set(DATE_COLUMNS[phase])
-                | set(VALUE_COLUMNS[phase])
-                | {"id_municipio", YEAR_COLUMN[phase]}
+                | set(value_cols)
+                | {"id_municipio", year_col}
             )
             table = pq.read_table(path, columns=need)
             checked += 1
@@ -346,12 +360,10 @@ def main(
                     f"{path.name}: id_municipio holds {sorted(municipios)[:3]} but the "
                     f"file name says {ibge}. This is the pipeline's join key."
                 )
-            exercises = set(table.column(YEAR_COLUMN[phase]).to_pylist()) - {
-                None
-            }
+            exercises = set(table.column(year_col).to_pylist()) - {None}
             if exercises - {str(year_in_name)}:
                 failures.append(
-                    f"{path.name}: {YEAR_COLUMN[phase]} holds {sorted(exercises)[:3]}, "
+                    f"{path.name}: {year_col} holds {sorted(exercises)[:3]}, "
                     f"file name says {year_in_name}"
                 )
             for column in DATE_COLUMNS[phase]:
@@ -364,7 +376,7 @@ def main(
                         f"{path.name}: {column} has {len(bad)} non-ISO values, e.g. "
                         f"{bad[:3]}. safe_cast(... as date) returns NULL for those."
                     )
-            for column in VALUE_COLUMNS[phase]:
+            for column in value_cols:
                 values = table.column(column).to_pylist()
                 bad = [v for v in values if not _floatable(v)]
                 if bad:
@@ -372,7 +384,7 @@ def main(
                         f"{path.name}: {column} has {len(bad)} non-numeric values, "
                         f"e.g. {bad[:3]}"
                     )
-            for column in MODEL_COLUMNS[phase]:
+            for column in model_cols:
                 values = table.column(column).to_pylist()
                 nulls, total = null_rate[column]
                 null_rate[column] = (

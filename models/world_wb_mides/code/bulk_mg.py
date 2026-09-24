@@ -91,6 +91,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from constants import BROWSER_UA, MG_API, MG_STATIC_BEARER
 
 # pyrefly: ignore [missing-import]  # sibling module via sys.path
+from download_mg import _fold
+
+# pyrefly: ignore [missing-import]  # sibling module via sys.path
 from harvest_mg import (
     CATEGORIES,
     FIRST_YEAR,
@@ -104,13 +107,20 @@ from harvest_mg import (
 
 # The bulk listing spells categories as display labels; every other endpoint uses
 # the unaccented singular slug. Neither spelling works in the other's place.
+# Keyed on the folded label so a change of accent or case does not lose a
+# category; `SLUG_TO_LABEL` keeps the display spelling for messages.
 LABEL_TO_SLUG = {
-    "Despesas": "despesa",
-    "Empenhos": "empenho",
-    "Contratos": "contrato",
-    "Licitações": "licitacao",
+    _fold("Despesas"): "despesa",
+    _fold("Empenhos"): "empenho",
+    _fold("Contratos"): "contrato",
+    _fold("Licitações"): "licitacao",
 }
-SLUG_TO_LABEL = {v: k for k, v in LABEL_TO_SLUG.items()}
+SLUG_TO_LABEL = {
+    "despesa": "Despesas",
+    "empenho": "Empenhos",
+    "contrato": "Contratos",
+    "licitacao": "Licitações",
+}
 
 BULK_LEDGER = MG_INPUT / "_bulk_ledger.jsonl"
 CHUNK = 1 << 20
@@ -160,10 +170,24 @@ def categories_for(session, token_file, year: int) -> dict[str, dict]:
         raise TokenExpiredError("401 from buscarCategoriaDownload")
     response.raise_for_status()
     found = {}
+    offered = []
     for entry in response.json():
-        slug = LABEL_TO_SLUG.get(str(entry.get("categoria")))
+        label = str(entry.get("categoria", ""))
+        offered.append(label)
+        # Folded, not exact: `download_mg.py` already records that these display
+        # labels are not stable, and an exact lookup that misses is not a
+        # harmless miss here -- `main()` would record the pair as "absent", and
+        # `harvest_mg.py` treats "absent" as done, so the fallback would never
+        # enumerate it. One accent or one capital would silently remove a whole
+        # exercise-category from both phases.
+        slug = LABEL_TO_SLUG.get(_fold(label))
         if slug:
             found[slug] = entry
+    if offered and not found:
+        print(
+            f"  {year}: none of the offered categories matched -- {offered}",
+            flush=True,
+        )
     return found
 
 
