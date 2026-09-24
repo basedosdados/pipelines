@@ -1,0 +1,86 @@
+{
+  "ano": {
+    "en": "Reference year of the occurrence",
+    "es": "Año de referencia de la ocurrencia"
+  },
+  "mes": {
+    "en": "Reference month of the occurrence, 1 to 12",
+    "es": "Mes de referencia de la ocurrencia, de 1 a 12"
+  },
+  "sigla_uf": {
+    "en": "Abbreviation of the federative unit",
+    "es": "Sigla de la unidad federativa"
+  },
+  "id_municipio": {
+    "en": "IBGE 7-digit municipality identifier. The source publishes the municipality name, not the code. The Federal District (5300108) is the sum of its 33 administrative regions, which the source reports separately but labels all as BRASÍLIA",
+    "es": "Identificador IBGE de 7 dígitos del municipio. La fuente publica el nombre del municipio, no el código. El Distrito Federal (5300108) es la suma de sus 33 regiones administrativas, que la fuente informa por separado pero rotula todas como BRASÍLIA"
+  },
+  "tipo_ocorrencia": {
+    "en": "Type of recorded occurrence, as a stable key. The dicionario table maps each key to the original label published by the source, per year",
+    "es": "Tipo de ocurrencia registrada, como clave estable. La tabla dicionario mapea cada clave al rótulo original publicado por la fuente, por año"
+  },
+  "abrangencia": {
+    "en": "Institution that reported the record — Estadual, Polícia Federal or Polícia Rodoviária Federal. The same occurrence type is reported independently by more than one institution for the same cell, so summing across abrangencia double-counts",
+    "es": "Institución que informó el registro — Estadual, Polícia Federal o Polícia Rodoviária Federal. El mismo tipo de ocurrencia es informado de forma independiente por más de una institución para la misma celda, por lo que sumar sin separar duplica registros"
+  },
+  "situacao_registro": {
+    "en": "Whether the source published a record for this municipality-month. reportado: the source published a row. nao_reportado: the source omitted the municipality-month from a series it reported that year, and every quantity is null. Nothing is imputed",
+    "es": "Indica si la fuente publicó un registro para este municipio-mes. reportado: la fuente publicó una fila. nao_reportado: la fuente omitió el municipio-mes de una serie que informó ese año, y todas las cantidades son nulas. No se imputa ningún valor"
+  },
+  "quantidade_ocorrencias": {
+    "en": "Number of recorded occurrences. Filled only for types counted by occurrence; null for types counted by victim, which use quantidade_vitimas. No occurrence type fills both",
+    "es": "Número de ocurrencias registradas. Se completa solo para tipos contados por ocurrencia; nulo para tipos contados por víctima, que usan quantidade_vitimas. Ningún tipo de ocurrencia completa ambos"
+  },
+  "quantidade_vitimas": {
+    "en": "Number of recorded victims. Filled only for types counted by victim",
+    "es": "Número de víctimas registradas. Se completa solo para tipos contados por víctima"
+  },
+  "quantidade_vitimas_feminino": {
+    "en": "Number of female victims. Subset of quantidade_vitimas",
+    "es": "Número de víctimas de sexo femenino. Subconjunto de quantidade_vitimas"
+  },
+  "quantidade_vitimas_masculino": {
+    "en": "Number of male victims. Subset of quantidade_vitimas",
+    "es": "Número de víctimas de sexo masculino. Subconjunto de quantidade_vitimas"
+  },
+  "quantidade_vitimas_sexo_nao_informado": {
+    "en": "Number of victims whose sex was not reported. Subset of quantidade_vitimas",
+    "es": "Número de víctimas cuyo sexo no fue informado. Subconjunto de quantidade_vitimas"
+  },
+  "arma": {
+    "en": "Type of firearm seized. Filled only for apreensao_de_arma_de_fogo; null for other types",
+    "es": "Tipo de arma de fuego incautada. Se completa solo para apreensao_de_arma_de_fogo; nulo para los demás tipos"
+  },
+  "agente": {
+    "en": "Corporation of the state agent. Filled only for morte_de_agente_do_estado and suicidio_de_agente_do_estado; null for other types",
+    "es": "Corporación del agente del Estado. Se completa solo para morte_de_agente_do_estado y suicidio_de_agente_do_estado; nulo para los demás tipos"
+  },
+  "faixa_etaria": {
+    "en": "Age band of the person. Filled only for pessoa_desaparecida and pessoa_localizada; null for other types",
+    "es": "Franja etaria de la persona. Se completa solo para pessoa_desaparecida y pessoa_localizada; nulo para los demás tipos"
+  },
+  "peso_apreendido": {
+    "en": "Weight in kilograms of the seized narcotic. Filled only for apreensao_de_cocaina and apreensao_de_maconha",
+    "es": "Peso en kilogramos del estupefaciente incautado. Se completa solo para apreensao_de_cocaina y apreensao_de_maconha"
+  },
+  "id_tabela": {
+    "en": "Name of the table the key applies to",
+    "es": "Nombre de la tabla a la que se aplica la clave"
+  },
+  "nome_coluna": {
+    "en": "Name of the column the key applies to",
+    "es": "Nombre de la columna a la que se aplica la clave"
+  },
+  "chave": {
+    "en": "Value stored in the column",
+    "es": "Valor almacenado en la columna"
+  },
+  "cobertura_temporal": {
+    "en": "Years in which the source published this label for this key",
+    "es": "Años en que la fuente publicó este rótulo para esta clave"
+  },
+  "valor": {
+    "en": "Original label published by the source",
+    "es": "Rótulo original publicado por la fuente"
+  }
+}
