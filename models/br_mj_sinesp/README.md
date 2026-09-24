@@ -103,6 +103,20 @@ explicit map in `code/utils.py` (`NAME_OVERRIDES`) — for example *Itapajé* fo
 Cicco* for the renamed *Boa Saúde*. With those, **match rate is 100% in every
 year**; the cleaner raises rather than dropping an unmatched name.
 
+## Test scoping
+
+`municipio_mes` is 8.8M rows, so its model-level and `relationships` tests are
+scoped with `config: where: __most_recent_year__` per the repo's convention for
+large tables. Unfiltered, each test is a full scan, and the set of them is
+enough on its own to trip the project's **daily BigQuery byte quota** — which is
+shared across every pipeline, so the cost lands on other people's runs too.
+
+Key uniqueness across **all** years is checked before upload instead, by
+`code/validate.py`, which reads the parquet directly and costs nothing. That is
+the check that caught the Distrito Federal aggregation bug above.
+
+`uf_mes` (292k rows) and `dicionario` (89) are cheap and stay unscoped.
+
 ## Running it
 
 ```bash

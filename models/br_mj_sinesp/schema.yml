@@ -11,6 +11,10 @@ models:
       igual a nao_reportado marcam município-mês ausentes da fonte e têm todas
       as quantidades nulas — nenhum valor é imputado.
     tests:
+      # Scoped to the most recent year: this table is 8.8M rows, and an
+      # unfiltered scan per test is enough on its own to trip the project's
+      # daily BigQuery byte quota. Key uniqueness across ALL years is checked
+      # before upload by models/br_mj_sinesp/code/validate.py.
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - ano
@@ -18,6 +22,8 @@ models:
             - id_municipio
             - tipo_ocorrencia
             - abrangencia
+          config:
+            where: __most_recent_year__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -25,6 +31,8 @@ models:
             - quantidade_vitimas_feminino
             - quantidade_vitimas_masculino
             - quantidade_vitimas_sexo_nao_informado
+          config:
+            where: __most_recent_year__
     columns:
       - name: ano
         description: Ano de referência da ocorrência
@@ -33,6 +41,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year__
       - name: mes
         description: Mês de referência da ocorrência, de 1 a 12
         tests: [not_null]
@@ -43,6 +53,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year__
       - name: id_municipio
         description: >
           Identificador IBGE de 7 dígitos do município. A fonte publica o nome
@@ -54,6 +66,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+              config:
+                where: __most_recent_year__
       - name: tipo_ocorrencia
         description: >
           Tipo de ocorrência registrada em chave estável. A tabela dicionario
