@@ -17,32 +17,25 @@
     )
 }}
 with
-    -- The parent's key is built by `restos_pagar`; reading it from `ref()` rather
-    -- than re-deriving the concat here means the two can never drift. (The raw
-    -- mirror could not be used anyway: it carries no `ano`.)
-    p_restos_pagar as (
-        select distinct id_rsp, id_restos_pagar_bd
-        from {{ ref("world_wb_mides__restos_pagar") }}
-    ),
+    -- The parent's `_bd` key is NOT in the staging mirror -- it is built by
+    -- `world_wb_mides__restos_pagar_movimentacao`. Reading it from `ref()` rather than
+    -- re-deriving the concat here means the two can never drift: one
+    -- definition, one place. The inline copy this replaces had already drifted
+    -- from the parent's key, so the foreign key it published matched no parent
+    -- row.
+    --
+    -- The join is scoped by municipality and exercise because `seq_mov_rsp`
+    -- recurs across them; within a scope it determines the parent key
+    -- (2,624,515 groups, 0 ambiguous, measured on the parquet 2026-09-24),
+    -- so the join cannot fan out.
     p_restos_pagar_movimentacao as (
-        select distinct
-            t.seq_mov_rsp,
-            concat(
-                p_restos_pagar.id_restos_pagar_bd,
-                ' ',
-                ifnull(t.data_movimentacao, ''),
-                ' ',
-                ifnull(t.dsc_tipo_movimentacao, ''),
-                ' ',
-                ifnull(t.valor_movimentacao, '')
-            ) as id_restos_pagar_movimentacao_bd
-        from
-            {{
-                set_datalake_project(
-                    "world_wb_mides_staging.raw_restos_pagar_movimentacao_mg"
-                )
-            }} as t
-        left join p_restos_pagar on t.seq_rsp = p_restos_pagar.id_rsp
+        select
+            id_municipio,
+            ano,
+            id_mov_rsp,
+            min(id_restos_pagar_movimentacao_bd) as id_restos_pagar_movimentacao_bd
+        from {{ ref("world_wb_mides__restos_pagar_movimentacao") }}
+        group by 1, 2, 3
     )
 select
     safe_cast(t.ano as int64) as ano,
@@ -72,4 +65,6 @@ from
     }} as t
 left join
     p_restos_pagar_movimentacao
-    on t.seq_mov_rsp = p_restos_pagar_movimentacao.seq_mov_rsp
+    on t.id_municipio = p_restos_pagar_movimentacao.id_municipio
+    and safe_cast(t.ano as int64) = p_restos_pagar_movimentacao.ano
+    and t.seq_mov_rsp = p_restos_pagar_movimentacao.id_mov_rsp

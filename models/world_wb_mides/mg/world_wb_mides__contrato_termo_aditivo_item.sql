@@ -17,39 +17,25 @@
     )
 }}
 with
-    p_contrato as (
-        select distinct
-            t.seq_contrato,
-            concat(
-                t.orgao,
-                ' ',
-                ifnull(t.cod_unidade, ''),
-                ' ',
-                ifnull(t.cod_subunidade, ''),
-                ' ',
-                ifnull(t.num_contrato, ''),
-                ' ',
-                ifnull(t.num_ano_contrato, ''),
-                ' ',
-                t.id_municipio,
-                ' ',
-                t.ano
-            ) as id_contrato_bd
-        from {{ set_datalake_project("world_wb_mides_staging.raw_contrato_mg") }} as t
-    ),
+    -- The parent's `_bd` key is NOT in the staging mirror -- it is built by
+    -- `world_wb_mides__contrato_termo_aditivo`. Reading it from `ref()` rather than
+    -- re-deriving the concat here means the two can never drift: one
+    -- definition, one place. The inline copy this replaces had already drifted
+    -- from the parent's key, so the foreign key it published matched no parent
+    -- row.
+    --
+    -- The join is scoped by municipality and exercise because `seq_termo_aditivo`
+    -- recurs across them; within a scope it determines the parent key
+    -- (966,014 groups, 0 ambiguous, measured on the parquet 2026-09-24),
+    -- so the join cannot fan out.
     p_contrato_termo_aditivo as (
-        select distinct
-            t.seq_termo_aditivo,
-            concat(
-                p_contrato.id_contrato_bd, ' ', ifnull(t.num_termo_aditivo, '')
-            ) as id_contrato_termo_aditivo_bd
-        from
-            {{
-                set_datalake_project(
-                    "world_wb_mides_staging.raw_contrato_termo_aditivo_mg"
-                )
-            }} as t
-        left join p_contrato on t.seq_contrato = p_contrato.seq_contrato
+        select
+            id_municipio,
+            ano,
+            id_termo_aditivo,
+            min(id_contrato_termo_aditivo_bd) as id_contrato_termo_aditivo_bd
+        from {{ ref("world_wb_mides__contrato_termo_aditivo") }}
+        group by 1, 2, 3
     )
 select
     safe_cast(t.ano as int64) as ano,
@@ -98,4 +84,6 @@ from
     }} as t
 left join
     p_contrato_termo_aditivo
-    on t.seq_termo_aditivo = p_contrato_termo_aditivo.seq_termo_aditivo
+    on t.id_municipio = p_contrato_termo_aditivo.id_municipio
+    and safe_cast(t.ano as int64) = p_contrato_termo_aditivo.ano
+    and t.seq_termo_aditivo = p_contrato_termo_aditivo.id_termo_aditivo
