@@ -17,25 +17,23 @@
     )
 }}
 with
+    -- The parent's `_bd` key is NOT in the staging mirror -- it is built by
+    -- `world_wb_mides__contrato`. Reading it from `ref()` rather than
+    -- re-deriving the concat here means the two can never drift: one
+    -- definition, one place. The inline copies this replaces had already
+    -- drifted -- they predated the `seq_contrato`/`seq_dispensa` tie-breakers,
+    -- so the `id_contrato_bd` they published matched no row of the parent.
+    --
+    -- The join is scoped by municipality and exercise because `seq_contrato`
+    -- recurs across them. Within a scope, 1,983 of 1,274,719 groups (0.16%)
+    -- carry two contracts differing only in `seq_dispensa`: the parent key
+    -- separates them, a child row cannot, so `min` attaches the child to one
+    -- of them deterministically rather than fanning it out. Measured on the
+    -- parquet, 2026-09-24.
     p_contrato as (
-        select distinct
-            t.seq_contrato,
-            concat(
-                t.orgao,
-                ' ',
-                ifnull(t.cod_unidade, ''),
-                ' ',
-                ifnull(t.cod_subunidade, ''),
-                ' ',
-                ifnull(t.num_contrato, ''),
-                ' ',
-                ifnull(t.num_ano_contrato, ''),
-                ' ',
-                t.id_municipio,
-                ' ',
-                t.ano
-            ) as id_contrato_bd
-        from {{ set_datalake_project("world_wb_mides_staging.raw_contrato_mg") }} as t
+        select id_municipio, ano, id_contrato, min(id_contrato_bd) as id_contrato_bd
+        from {{ ref("world_wb_mides__contrato") }}
+        group by 1, 2, 3
     )
 select
     safe_cast(t.ano as int64) as ano,
@@ -62,4 +60,8 @@ select
 from
     {{ set_datalake_project("world_wb_mides_staging.raw_contrato_contabilizacao_mg") }}
     as t
-left join p_contrato on t.seq_contrato = p_contrato.seq_contrato
+left join
+    p_contrato
+    on t.id_municipio = p_contrato.id_municipio
+    and safe_cast(t.ano as int64) = p_contrato.ano
+    and t.seq_contrato = p_contrato.id_contrato

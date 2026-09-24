@@ -17,78 +17,25 @@
     )
 }}
 with
-    -- seq_unidade -> cod_unidade. The procurement streams publish only the
-    -- sequence form of the managing unit, and that is exactly what distinguishes
-    -- rows sharing a process number. The spend streams publish both, so the code
-    -- is recoverable. Measured: 9,319 pairs, 0 conflicts, 98.3% coverage.
-    unidade_xwalk as (
-        select distinct id_municipio, id_unidade_gestora, cod_unidade
-        from
-            (
-                select id_municipio, id_unidade_gestora, cod_unidade
-                from {{ set_datalake_project("world_wb_mides_staging.raw_empenho_mg") }}
-                union distinct
-                select id_municipio, id_unidade_gestora, cod_unidade
-                from
-                    {{ set_datalake_project("world_wb_mides_staging.raw_contrato_mg") }}
-                union distinct
-                select id_municipio, id_unidade_gestora, cod_unidade
-                from
-                    {{
-                        set_datalake_project(
-                            "world_wb_mides_staging.raw_despesa_dotacao_mg"
-                        )
-                    }}
-            )
-    ),
-    p_registro_preco_adesao as (
-        select distinct
-            t.seq_reg_adesao,
-            concat(
-                t.orgao,
-                ' ',
-                ifnull(x.cod_unidade, concat('u:', t.id_unidade_gestora)),
-                ' ',
-                ifnull(t.num_processo, ''),
-                ' ',
-                ifnull(t.num_ano_processo, ''),
-                ' ',
-                ifnull(t.data_abertura, ''),
-                ' ',
-                t.id_municipio,
-                ' ',
-                t.ano
-            ) as id_registro_preco_adesao_bd
-        from
-            {{
-                set_datalake_project(
-                    "world_wb_mides_staging.raw_registro_preco_adesao_mg"
-                )
-            }} as t
-        left join
-            unidade_xwalk as x
-            on t.id_municipio = x.id_municipio
-            and t.id_unidade_gestora = x.id_unidade_gestora
-    ),
+    -- The parent's `_bd` key is NOT in the staging mirror -- it is built by
+    -- `world_wb_mides__registro_preco_adesao_item`. Reading it from `ref()` rather than
+    -- re-deriving the concat here means the two can never drift: one
+    -- definition, one place. The inline copy this replaces had already drifted
+    -- from the parent's key, so the foreign key it published matched no parent
+    -- row.
+    --
+    -- The join is scoped by municipality and exercise because `seq_item_reg_adesao`
+    -- recurs across them; within a scope it determines the parent key
+    -- (3,547,497 groups, 0 ambiguous, measured on the parquet 2026-09-24),
+    -- so the join cannot fan out.
     p_registro_preco_adesao_item as (
-        select distinct
-            t.seq_item_reg_adesao,
-            concat(
-                p_registro_preco_adesao.id_registro_preco_adesao_bd,
-                ' ',
-                ifnull(t.num_lote, ''),
-                ' ',
-                ifnull(t.num_item, '')
-            ) as id_registro_preco_adesao_item_bd
-        from
-            {{
-                set_datalake_project(
-                    "world_wb_mides_staging.raw_registro_preco_adesao_item_mg"
-                )
-            }} as t
-        left join
-            p_registro_preco_adesao
-            on t.seq_reg_adesao = p_registro_preco_adesao.seq_reg_adesao
+        select
+            id_municipio,
+            ano,
+            id_item_reg_adesao,
+            min(id_registro_preco_adesao_item_bd) as id_registro_preco_adesao_item_bd
+        from {{ ref("world_wb_mides__registro_preco_adesao_item") }}
+        group by 1, 2, 3
     )
 select
     safe_cast(t.ano as int64) as ano,
@@ -131,4 +78,6 @@ from
     }} as t
 left join
     p_registro_preco_adesao_item
-    on t.seq_item_reg_adesao = p_registro_preco_adesao_item.seq_item_reg_adesao
+    on t.id_municipio = p_registro_preco_adesao_item.id_municipio
+    and safe_cast(t.ano as int64) = p_registro_preco_adesao_item.ano
+    and t.seq_item_reg_adesao = p_registro_preco_adesao_item.id_item_reg_adesao

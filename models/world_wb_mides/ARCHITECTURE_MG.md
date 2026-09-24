@@ -32,8 +32,15 @@ union logic from every one of the 46 tables.
 
 ## Table map
 
-46 tables: 43 new, 3 extended, 2 dropped. `empenho`, `liquidacao` and `pagamento`
-are untouched.
+46 tables: 43 new, 3 extended, 2 dropped.
+
+`empenho`, `liquidacao` and `pagamento` keep their table definitions, but their MG
+arms are NOT untouched: this work rebuilds them from the current extraction, which
+extends MG coverage from 2021 to 2026 and rewrites `id_empenho_bd`,
+`id_liquidacao_bd` and `id_pagamento_bd` for every MG row. `orgao` is now
+`cod_orgao` rather than the notebook's `seq_orgao`, so those keys do not match the
+values published for MG 2014-2021. Downstream joins against the old MG keys must be
+rebuilt. Rows for the other states are untouched.
 
 ### Procurement — `licitacao` category
 
@@ -107,24 +114,43 @@ enrich liquidacao/pagamento — its own rows were never published.
 ## Keys
 
 Every stream is keyed on `seq_*` sequence ids, which TCE-MG **reassigns between
-extractions**. All keys below are therefore built from stable source fields. Spine
-keys were validated to equal grain against the incumbent seq id over 150
+extractions**. The spine keys below are therefore built from stable source fields,
+and were validated to equal grain against the incumbent seq id over 150
 municipalities x 2016/2021/2024.
+
+That is not true of every table. **18 of the 43 new tables carry a `seq_*` in their
+own key** because no combination of stable columns identifies their rows: the
+colliding rows differ only in a measure, or are identical apart from the portal's
+sequence. Those 18 keys churn between extractions by construction -- a deliberate
+choice of "identifies a row" over "survives a re-extraction", recorded in each
+model at the key. They are `alteracao_orcamentaria`, `contrato`,
+`contrato_credito`, `contrato_item`, `contrato_termo_aditivo_item`,
+`dispensa_credenciado`, `dispensa_fornecedor`, `dispensa_item`, `empenho_credor`,
+`licitacao_comissao`, `licitacao_homologacao`, `licitacao_julgamento`,
+`licitacao_parecer`, `licitacao_quadro_societario`, `liquidacao_nota_fiscal`,
+`pagamento_movimento`, `registro_preco_adesao_cotacao` and
+`registro_preco_adesao_vencedor`.
 
 | spine table | stable key | result |
 |---|---|---|
 | `licitacao` | orgao + numero_processo + ano_processo + data_abertura + **unidade\*** | PARITY 28,578/28,578 |
 | `dispensa` | + tipo_processo | PARITY 16,776/16,776 |
 | `registro_preco_adesao` | same shape as licitacao | PARITY 3,931/3,931 |
-| `contrato` | orgao + unidade + **subunidade** + numero_contrato + ano_contrato | PARITY 60,488/60,488 |
+| `contrato` | orgao + unidade + **subunidade** + numero_contrato + ano_contrato + `seq_contrato` + `seq_dispensa` | PARITY 60,488/60,488 on the stable part; the two seq columns are the tie-breakers described above |
 | `decreto` | orgao + numero_decreto + data_assinatura + **tipo_decreto** | PARITY 38,828/38,828 |
 | `restos_pagar` | orgao + numero_empenho_origem + ano + data + dotacao | PARITY 403,907/403,907 |
 | `nota_fiscal` | orgao + doc_emitente + numero_nf + serie + data_emissao + **chave_nfe** | 1 collision in 2,048,306 |
 | `despesa_dotacao` | orgao + unidade + subunidade + mes + cod_orcamentario + funcao + subfuncao + programa + acao + subacao + natureza + fonte | **no seq id exists**; 0 of 3,269,165 rows collapsed |
 
 Child tables inherit the parent's key and append their own natural number
-(`numero_item`, `numero_termo_aditivo`, `numero_documento`). They are stable
-exactly when the parent is.
+(`numero_item`, `numero_termo_aditivo`, `numero_documento`) -- and, in the tables
+listed above, a `seq_*` as well. They are stable exactly when the parent is AND
+they add no sequence of their own.
+
+A child does not re-derive the parent's key: it reads `id_<parent>_bd` from the
+parent model through `ref()`, scoped by municipality and exercise. Re-deriving it
+inline is what let the two drift apart once already, and a drifted foreign key
+matches no parent row at all, which no test on either table alone can see.
 
 ### \* The unidade crosswalk
 
