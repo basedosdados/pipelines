@@ -1,0 +1,269 @@
+---
+version: 2
+models:
+  - name: br_ibama_fiscalizacao__auto_infracao
+    description: >
+      Autos de infração ambiental lavrados pelo Ibama, com o enquadramento, o valor
+      da multa, a situação do débito e a localização declarada. Uma linha por auto
+      de infração.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_auto]
+          config:
+            where: id_auto is not null
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - gravidade
+            - moeda
+            - situacao_debito
+            - latitude
+            - longitude
+            - indicador_coordenada_valida
+      - custom_dictionary_coverage:
+          dictionary_model: ref('br_ibama_fiscalizacao__dicionario')
+          columns_covered_by_dictionary:
+            - indicador_cancelado
+            - tipo_pessoa_infrator
+    columns:
+      - name: ano
+        description: >
+          Ano da lavratura do auto de infração
+        tests: [not_null]
+      - name: sigla_uf
+        description: >
+          Sigla da unidade da federação onde a infração foi registrada
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              config:
+                where: sigla_uf is not null
+      - name: id_municipio
+        description: >
+          Identificador IBGE de 7 dígitos do município onde a infração foi registrada
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+              ignore_values:
+                - '1400505'
+                - '2614887'
+                - '2401450'
+                - '2104551'
+                - '4311753'
+                - '3172203'
+                - '4219854'
+                - '2503055'
+                - '5205505'
+                - '4314530'
+                - '5217906'
+              proportion_allowed_failures: 0
+      - name: id_auto
+        description: >
+          Identificador único do auto de infração no sistema do Ibama
+      - name: numero_auto_infracao
+        description: >
+          Número impresso do auto de infração
+      - name: serie_auto_infracao
+        description: >
+          Série do formulário do auto de infração
+      - name: data_auto
+        description: >
+          Data da lavratura do auto de infração
+      - name: tipo_auto
+        description: >
+          Tipo de auto lavrado
+      - name: tipo_infracao
+        description: >
+          Bem tutelado atingido pela infração
+      - name: gravidade
+        description: >
+          Gravidade atribuída à infração
+      - name: valor_multa
+        description: >
+          Valor da multa aplicada no auto de infração
+      - name: moeda
+        description: >
+          Moeda em que o valor da multa foi fixado
+      - name: situacao_debito
+        description: >
+          Situação do débito da multa na cobrança administrativa e judicial
+      - name: situacao_auto
+        description: >
+          Situação do formulário do auto de infração
+      - name: indicador_cancelado
+        description: >
+          Indica se o auto de infração foi cancelado
+      - name: tipo_pessoa_infrator
+        description: >
+          Natureza jurídica do autuado
+      - name: cpf_cnpj_infrator
+        description: >
+          CPF ou CNPJ do autuado somente dígitos
+      - name: nome_infrator
+        description: >
+          Nome ou razão social do autuado
+      - name: latitude
+        description: >
+          Latitude do local da infração em graus decimais
+      - name: longitude
+        description: >
+          Longitude do local da infração em graus decimais
+      - name: indicador_coordenada_valida
+        description: >
+          Indica se o ponto publicado cai dentro do polígono do município declarado
+      - name: data_ultima_alteracao
+        description: >
+          Data da última alteração do registro no sistema do Ibama
+      - name: data_extracao
+        description: >
+          Data da extração do arquivo publicado pelo Ibama
+  - name: br_ibama_fiscalizacao__area_embargada
+    description: >
+      Termos de embargo lavrados pelo Ibama, com a área embargada, o tipo de área,
+      a situação de desembargo e a ligação com o auto de infração que os originou.
+      Uma linha por termo de embargo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_embargo]
+          config:
+            where: id_embargo is not null
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - tipo_area
+            - area_ha
+            - nome_imovel
+            - latitude
+            - longitude
+            - indicador_coordenada_valida
+            - indicador_desembargado
+            - data_desembargo
+      - custom_dictionary_coverage:
+          dictionary_model: ref('br_ibama_fiscalizacao__dicionario')
+          columns_covered_by_dictionary:
+            - tipo_pessoa_embargado
+            - indicador_desembargado
+    columns:
+      - name: ano
+        description: >
+          Ano do termo de embargo
+        tests: [not_null]
+      - name: sigla_uf
+        description: >
+          Sigla da unidade da federação onde a área embargada se localiza
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+              config:
+                where: sigla_uf is not null
+      - name: id_municipio
+        description: >
+          Identificador IBGE de 7 dígitos do município onde a área embargada se localiza
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+              ignore_values:
+                - '1400505'
+                - '2614887'
+                - '2401450'
+                - '2104551'
+                - '4311753'
+                - '3172203'
+                - '4219854'
+                - '2503055'
+                - '5205505'
+                - '4314530'
+                - '5217906'
+              proportion_allowed_failures: 0
+      - name: id_embargo
+        description: >
+          Identificador único do termo de embargo no sistema do Ibama
+      - name: numero_tad
+        description: >
+          Número impresso do termo de embargo
+      - name: serie_tad
+        description: >
+          Série do formulário do termo de embargo
+      - name: data_embargo
+        description: >
+          Data do embargo
+      - name: id_auto
+        description: >
+          Identificador do auto de infração que originou o embargo
+        tests:
+          - custom_relationships:
+              to: ref('br_ibama_fiscalizacao__auto_infracao')
+              field: id_auto
+              proportion_allowed_failures: 0.005
+              config:
+                where: id_auto is not null
+      - name: numero_auto_infracao
+        description: >
+          Número impresso do auto de infração que originou o embargo
+      - name: area_ha
+        description: >
+          Área embargada
+      - name: tipo_area
+        description: >
+          Tipo de área embargada
+      - name: nome_imovel
+        description: >
+          Nome do imóvel onde se localiza a área embargada
+      - name: tipo_pessoa_embargado
+        description: >
+          Natureza jurídica do embargado
+      - name: cpf_cnpj_embargado
+        description: >
+          CPF ou CNPJ do embargado somente dígitos
+      - name: nome_embargado
+        description: >
+          Nome ou razão social do embargado
+      - name: latitude
+        description: >
+          Latitude do local embargado em graus decimais
+      - name: longitude
+        description: >
+          Longitude do local embargado em graus decimais
+      - name: indicador_coordenada_valida
+        description: >
+          Indica se o ponto publicado cai dentro do polígono do município declarado
+      - name: indicador_desembargado
+        description: >
+          Indica se a área foi desembargada
+      - name: data_desembargo
+        description: >
+          Data do desembargo da área
+      - name: data_ultima_alteracao
+        description: >
+          Data da última alteração do registro no sistema do Ibama
+      - name: data_extracao
+        description: >
+          Data da extração do arquivo publicado pelo Ibama
+  - name: br_ibama_fiscalizacao__dicionario
+    description: >
+      Dicionário dos códigos usados nas colunas categóricas de br_ibama_fiscalizacao.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+    columns:
+      - name: id_tabela
+        description: >
+          Nome da tabela que contém a coluna descrita pela entrada do dicionário
+      - name: nome_coluna
+        description: >
+          Nome da coluna descrita pela entrada do dicionário
+      - name: chave
+        description: >
+          Código armazenado na coluna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >
+          Cobertura temporal da entrada do dicionário
+      - name: valor
+        description: >
+          Significado do código armazenado na coluna
+        tests: [not_null]
