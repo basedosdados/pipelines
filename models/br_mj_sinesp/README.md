@@ -41,6 +41,30 @@ are distinguishable:
 Nothing is imputed. A `nao_reportado` row is emitted for every municipality-month
 the source omits from a series it otherwise reported that year.
 
+## The source emits several rows per cell, and they must be summed
+
+The workbooks are not unique on their own key. Three situations produce repeats,
+and in every one the repeated rows are **components, not copies**:
+
+- **The Distrito Federal is reported once per administrative region** — 33 of
+  them — with the region name replaced by `BRASÍLIA`. Their values differ: in
+  January 2023 the 33 DF `feminicidio` rows read `0,0,0,0,0,3,…,1,…,1,…` and sum
+  to 5. Taking the first row would report zero.
+- Some state-level cells appear twice in one file (2,426 groups across the series).
+- July 2016 `mandado_de_prisao_cumprido`/Polícia Federal is republished for every
+  municipality (26,615 groups), with no values in either copy.
+
+Classifying every repeated group across all twelve years gives 1,229 with
+differing non-zero values, 2,754 all-zero, 26,639 all-null, and **none** that are
+identical copies carrying a non-zero value. Summing is therefore safe: no case
+exists in which it could double a real number. The cleaner aggregates on the
+output key, with NULL preserved as distinct from zero — a sum of blanks stays
+blank rather than becoming a reported zero.
+
+Consequence for users: **a Distrito Federal row is the sum of its 33
+administrative regions.** The regions themselves are not recoverable, because the
+source discards their names.
+
 ## Coverage gaps
 
 Measured against (operating municipalities per the BD directory) × (months in

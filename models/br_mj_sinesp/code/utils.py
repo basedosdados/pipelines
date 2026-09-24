@@ -13,7 +13,7 @@ import csv
 import datetime as dt
 import os
 import zipfile
-from collections import defaultdict
+from collections import Counter, defaultdict
 
 import openpyxl
 import pyarrow as pa
@@ -168,6 +168,20 @@ def _as_float(v):
         return None
 
 
+def _add(a, b):
+    """Sum two measures, keeping NULL distinct from zero.
+
+    None means the source left the cell blank; 0 means it reported a zero.
+    Summing must not turn a pair of blanks into a zero, nor let a blank erase a
+    reported number.
+    """
+    if a is None:
+        return b
+    if b is None:
+        return a
+    return a + b
+
+
 def iter_source_rows(path: str):
     """Yield the workbook's rows as dicts, streaming."""
     wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
@@ -283,15 +297,28 @@ def clean_year(
 
     year = int(os.path.basename(path).split("-")[1].split(".")[0])
 
-    # municipal rows, keyed so absent cells can be detected afterwards
-    mun_rows: dict[str, list[tuple]] = defaultdict(list)  # sigla_uf -> rows
+    # Rows are ACCUMULATED on the output key, not appended. The source emits
+    # several rows per cell in three situations, and all three must be summed:
+    #
+    #  - the Distrito Federal is reported once per administrative region (33 of
+    #    them) with the region name replaced by "BRASÍLIA", so its 33 rows are
+    #    components of the DF total, carrying different values;
+    #  - some state-level cells appear twice in a single file;
+    #  - July 2016 "Mandado de prisão cumprido"/Polícia Federal is republished
+    #    for every municipality.
+    #
+    # Taking the first row instead of summing would, for example, report zero
+    # feminicides in the DF in January 2023 where the source reports five.
+    mun_acc: dict[tuple, list] = {}  # output key -> measures
+    mun_src: Counter = Counter()  # output key -> source rows collapsed
     mun_seen: dict[tuple, set] = defaultdict(
         set
     )  # (tipo, abrang) -> {(id_mun, mes)}
     series_months: dict[tuple, set] = defaultdict(
         set
     )  # (tipo, abrang) -> {mes}
-    uf_rows: dict[str, list[tuple]] = defaultdict(list)
+    uf_acc: dict[tuple, list] = {}
+    uf_src: Counter = Counter()
     labels: dict[str, set] = defaultdict(set)  # column -> raw labels seen
     tipo_labels: set[tuple[str, str]] = set()
     unmatched: dict[tuple, int] = defaultdict(int)
@@ -337,22 +364,14 @@ def clean_year(
         if kind == "municipal":
             series_months[(tipo, abrang)].add(mes)
             mun_seen[(tipo, abrang)].add((mid, mes))
-            mun_rows[uf].append(
-                (
-                    year,
-                    mes,
-                    uf,
-                    mid,
-                    tipo,
-                    abrang,
-                    SITUACAO_REPORTADO,
-                    occ,
-                    vit,
-                    fem,
-                    mas,
-                    nin,
-                )
-            )
+            key = (year, mes, uf, mid, tipo, abrang)
+            mun_src[key] += 1
+            prev = mun_acc.get(key)
+            if prev is None:
+                mun_acc[key] = [occ, vit, fem, mas, nin]
+            else:
+                for i, v in enumerate((occ, vit, fem, mas, nin)):
+                    prev[i] = _add(prev[i], v)
         else:
             arma, agente, faixa = (
                 r.get("arma"),
@@ -366,29 +385,40 @@ def clean_year(
             ):
                 if val is not None:
                     labels[col].add(val)
-            uf_rows[uf].append(
-                (
-                    year,
-                    mes,
-                    uf,
-                    tipo,
-                    abrang,
-                    arma,
-                    agente,
-                    faixa,
-                    occ,
-                    vit,
-                    fem,
-                    mas,
-                    nin,
-                    peso,
-                )
-            )
+            key = (year, mes, uf, tipo, abrang, arma, agente, faixa)
+            uf_src[key] += 1
+            prev = uf_acc.get(key)
+            if prev is None:
+                uf_acc[key] = [occ, vit, fem, mas, nin, peso]
+            else:
+                for i, v in enumerate((occ, vit, fem, mas, nin, peso)):
+                    prev[i] = _add(prev[i], v)
 
     if unmatched:
         raise ValueError(
             f"{year}: {len(unmatched)} municipality names did not resolve: "
             f"{sorted(unmatched)[:10]}"
+        )
+
+    # ---- materialise the accumulated rows ---------------------------------
+    mun_rows: dict[str, list[tuple]] = defaultdict(list)
+    for (yr, mes, uf, mid, tipo, abrang), meas in mun_acc.items():
+        mun_rows[uf].append(
+            (yr, mes, uf, mid, tipo, abrang, SITUACAO_REPORTADO, *meas)
+        )
+    uf_rows: dict[str, list[tuple]] = defaultdict(list)
+    for (
+        yr,
+        mes,
+        uf,
+        tipo,
+        abrang,
+        arma,
+        agente,
+        faixa,
+    ), meas in uf_acc.items():
+        uf_rows[uf].append(
+            (yr, mes, uf, tipo, abrang, arma, agente, faixa, *meas)
         )
 
     # ---- flag, do not fill ------------------------------------------------
@@ -456,12 +486,20 @@ def clean_year(
         )
         n_uf += len(rows)
 
+    collapsed = sum(v - 1 for v in mun_src.values() if v > 1) + sum(
+        v - 1 for v in uf_src.values() if v > 1
+    )
+
     return {
         "year": year,
         "source_rows": n_src,
         "municipio_rows": n_mun,
         "uf_rows": n_uf,
         "flagged_rows": n_flagged,
+        "collapsed_source_rows": collapsed,
+        "max_source_rows_per_cell": max(
+            [*mun_src.values(), *uf_src.values(), 0]
+        ),
         "tipo_labels": sorted(tipo_labels),
         "labels": {k: sorted(v) for k, v in labels.items()},
     }
