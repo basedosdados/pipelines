@@ -83,7 +83,7 @@ select
     safe_cast(t.seq_resp_licitacao as string) as id_resp_licitacao,
     safe_cast(t.seq_licitacao as string) as id_licitacao,
     safe_cast(t.orgao as string) as orgao,
-    safe_cast(t.dsc_tipo_resp as string) as tipo_resp,
+    safe_cast(t.dsc_tipo_resp as string) as tipo_responsavel,
     safe_cast(t.num_documento as string) as numero_documento,
     safe_cast(t.nom_responsavel as string) as nome_responsavel
 from

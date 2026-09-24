@@ -117,7 +117,7 @@ models:
         description: Indica se o contrato decorre de licitação
       - name: tipo_processo
         description: Descrição do tipo de processo
-      - name: naturezaobjeto
+      - name: natureza_objeto
         description: Descrição da natureza do objeto
       - name: tipo_cadastro
         description: Descrição do tipo de cadastro
@@ -135,9 +135,9 @@ models:
         description: Nome do signatário
       - name: tipo_instrumento
         description: Descrição do tipo de instrumento contratual
-      - name: data_iniciovigencia
+      - name: data_ini_vigencia
         description: Data de início da vigência
-      - name: data_fimvigencia
+      - name: data_fim_vigencia
         description: Data de fim da vigência
       - name: fornecimento
         description: Descrição da forma de fornecimento
@@ -155,7 +155,7 @@ models:
         description: Descrição da garantia contratual
       - name: data_publicacao
         description: Data de publicação
-      - name: veiculopublicacao
+      - name: veiculo_publicacao
         description: Descrição do veículo de publicação
       - name: valor_contrato
         description: Valor do contrato
@@ -165,9 +165,9 @@ models:
         description: Valor liquidado
       - name: valor_pago
         description: Valor pago
-      - name: valor_rspprocessado
+      - name: valor_restos_pagar_processado
         description: Valor de restos a pagar processados
-      - name: valor_rspnprocessado
+      - name: valor_restos_pagar_nao_processado
         description: Valor de restos a pagar não processados
   - name: world_wb_mides__contrato_apostilamento
     description: >
@@ -348,7 +348,7 @@ models:
         description: Descrição da ação orçamentária
       - name: subacao
         description: Descrição da subação orçamentária
-      - name: nat_despesa
+      - name: natureza_despesa
         description: Descrição da natureza da despesa
       - name: fonte_recurso
         description: Descrição da fonte de recursos
@@ -409,7 +409,7 @@ models:
         description: Descrição do item
       - name: unid_medida
         description: Descrição da unidade de medida do item
-      - name: tipo_material_serv
+      - name: tipo_material_servico
         description: Descrição do tipo de material ou serviço
       - name: codigo_item_sinapi
         description: Código do item na tabela SINAPI
@@ -549,7 +549,7 @@ models:
         description: Data do novo término
       - name: data_publicacao
         description: Data de publicação
-      - name: veiculo_pub
+      - name: veiculo_publicacao
         description: Descrição do veículo de publicação
       - name: valor_termo_aditivo
         description: Valor do termo aditivo
@@ -610,7 +610,7 @@ models:
         description: Descrição do item
       - name: unid_medida
         description: Descrição da unidade de medida do item
-      - name: tipo_mat_serv
+      - name: tipo_material_servico
         description: Descrição do tipo de material ou serviço
       - name: codigo_item_sinapi
         description: Código do item na tabela SINAPI
@@ -736,9 +736,9 @@ models:
         description: Descrição da ação orçamentária
       - name: subacao
         description: Descrição da subação orçamentária
-      - name: naturezadespesa
+      - name: natureza_despesa
         description: Descrição da natureza da despesa
-      - name: fonterecurso
+      - name: fonte_recurso
         description: Descrição da fonte de recursos
       - name: cod_orcamentario
         description: Código orçamentário da despesa
@@ -754,9 +754,9 @@ models:
         description: Valor liquidado
       - name: valor_pago
         description: Valor pago
-      - name: valor_rspprocessado
+      - name: valor_restos_pagar_processado
         description: Valor de restos a pagar processados
-      - name: valor_rspnprocessado
+      - name: valor_restos_pagar_nao_processado
         description: Valor de restos a pagar não processados
   - name: world_wb_mides__dispensa
     description: >
@@ -814,17 +814,17 @@ models:
         description: Descrição do tipo de processo
       - name: data_abertura
         description: Data de abertura
-      - name: nat_objeto
+      - name: natureza_objeto
         description: Descrição da natureza do objeto
       - name: objeto
         description: Descrição do objeto
       - name: justificativa
-        description: Justificativa registrada pelo órgão
+        description: Justificativa da movimentação de restos a pagar
       - name: razao
         description: Razão registrada pelo órgão
       - name: data_pub_termo
         description: Data de publicação do termo
-      - name: veiculo_pub
+      - name: veiculo_publicacao
         description: Descrição do veículo de publicação
       - name: ind_processo_lote
         description: Indica se o processo é julgado por lote
@@ -834,9 +834,9 @@ models:
         description: Valor liquidado
       - name: valor_pago
         description: Valor pago
-      - name: valor_rsp_proc
+      - name: valor_restos_pagar_processado
         description: Valor de restos a pagar processados
-      - name: valor_rsp_nao_proc
+      - name: valor_restos_pagar_nao_processado
         description: Valor de restos a pagar não processados
   - name: world_wb_mides__dispensa_cotacao
     description: >
@@ -889,7 +889,7 @@ models:
         description: Sequencial identificador da dispensa
       - name: orgao
         description: Código do órgão atribuído pelo município (cod_orgao na fonte)
-      - name: valor_preco_unit
+      - name: valor_unitario
         description: Valor unitário
       - name: numero_quant_item
         description: Número da quantidade do item
@@ -1035,7 +1035,7 @@ models:
         description: Descrição da ação orçamentária
       - name: subacao
         description: Descrição da subação orçamentária
-      - name: nat_despesa
+      - name: natureza_despesa
         description: Descrição da natureza da despesa
       - name: fonte_recurso
         description: Descrição da fonte de recursos
@@ -1618,7 +1618,7 @@ models:
         description: Descrição da ação orçamentária
       - name: subacao
         description: Descrição da subação orçamentária
-      - name: nat_despesa
+      - name: natureza_despesa
         description: Descrição da natureza da despesa
       - name: fonte_recurso
         description: Descrição da fonte de recursos
@@ -1679,9 +1679,9 @@ models:
         description: Número da quantidade do item
       - name: valor_unitario
         description: Valor unitário
-      - name: valor_pct_desconto
+      - name: valor_percentual_desconto
         description: Valor percentual de desconto
-      - name: valor_pct_tax_adm
+      - name: valor_percentual_taxa_administracao
         description: Valor percentual da taxa de administração
       - name: valor_global
         description: Valor global
@@ -1752,9 +1752,9 @@ models:
         description: Valor unitário
       - name: numero_quant_item
         description: Número da quantidade do item
-      - name: valor_perc_desconto
+      - name: valor_percentual_desconto
         description: Valor percentual de desconto
-      - name: valor_perc_taxa_adm
+      - name: valor_percentual_taxa_administracao
         description: Valor percentual da taxa de administração
       - name: valor_global
         description: Valor global
@@ -1929,7 +1929,7 @@ models:
         description: Sequencial identificador da licitação
       - name: orgao
         description: Código do órgão atribuído pelo município (cod_orgao na fonte)
-      - name: tipo_resp
+      - name: tipo_responsavel
         description: Descrição do tipo do responsável
       - name: numero_documento
         description: Número do documento
@@ -2333,7 +2333,7 @@ models:
         description: Data de publicação do aviso do instrumento
       - name: objeto_adesao
         description: Descrição do objeto da adesão à ata de registro de preços
-      - name: numero_doc_resp
+      - name: numero_doc_responsavel
         description: Número do documento do responsável
       - name: nome_pessoa_resp
         description: Nome da pessoa responsável
@@ -2347,9 +2347,9 @@ models:
         description: Valor liquidado
       - name: valor_pago
         description: Valor pago
-      - name: valor_rsp_processado
+      - name: valor_restos_pagar_processado
         description: Valor de restos a pagar processados
-      - name: valor_rsp_nao_processado
+      - name: valor_restos_pagar_nao_processado
         description: Valor de restos a pagar não processados
   - name: world_wb_mides__registro_preco_adesao_cotacao
     description: >
@@ -2525,13 +2525,13 @@ models:
         description: Número do documento do vencedor
       - name: nome_vencedor
         description: Nome do vencedor
-      - name: valor_preco_unitario
+      - name: valor_unitario
         description: Valor unitário
       - name: numero_quant_licitado
         description: Número da quantidade licitada
       - name: numero_quant_aderido
         description: Número da quantidade aderida
-      - name: valor_pct_desconto
+      - name: valor_percentual_desconto
         description: Valor percentual de desconto
   - name: world_wb_mides__restos_pagar
     description: >
@@ -2725,8 +2725,8 @@ models:
         description: Descrição do documento
       - name: data_documento
         description: Data do documento
-      - name: motivo
-        description: Descrição do motivo
+      - name: justificativa
+        description: Justificativa da movimentação de restos a pagar
   - name: world_wb_mides__restos_pagar_movimentacao_credor
     description: >
       Credores vinculados a cada movimentação de restos a pagar. Publicado apenas

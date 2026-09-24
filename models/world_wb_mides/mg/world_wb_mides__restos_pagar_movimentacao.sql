@@ -58,7 +58,7 @@ select
     safe_cast(t.valor_movimentacao as float64) as valor_movimentacao,
     safe_cast(t.dsc_documento as string) as documento,
     safe_cast(t.data_documento as date) as data_documento,
-    safe_cast(t.dsc_motivo as string) as motivo
+    safe_cast(t.dsc_motivo as string) as justificativa
 from
     {{
         set_datalake_project(

@@ -106,8 +106,8 @@ select
     safe_cast(t.orgao as string) as orgao,
     safe_cast(t.num_quant_item as string) as numero_quant_item,
     safe_cast(t.valor_unitario as float64) as valor_unitario,
-    safe_cast(t.valor_pct_desconto as float64) as valor_pct_desconto,
-    safe_cast(t.valor_pct_tax_adm as float64) as valor_pct_tax_adm,
+    safe_cast(t.valor_pct_desconto as float64) as valor_percentual_desconto,
+    safe_cast(t.valor_pct_tax_adm as float64) as valor_percentual_taxa_administracao,
     safe_cast(t.valor_global as float64) as valor_global,
     safe_cast(t.num_doc_vencedor as string) as numero_doc_vencedor,
     safe_cast(t.nom_vencedor as string) as nome_vencedor

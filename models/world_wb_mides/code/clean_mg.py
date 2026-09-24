@@ -484,6 +484,35 @@ def _floatstr(value: str | None, bad: Counter) -> str | None:
 # of `dsc_dotacao_ori` on the same row (orgao.unidade.funcao...). Positions 13-19
 # are read from their content: type, date, value, document, reason. Treat them as
 # provisional until checked against the SICOM layout specification.
+# `empenho/movimentacaoRsp` ships a 9-column header copied from `movFonteRsp`
+# while its data has 19 columns, so the table landed EMPTY (0 rows, 87,576 ragged)
+# until this override. The names below were inferred from the data; checked
+# 2026-09-24 against TCE-MG's own "Manual SICOM 2026 - AM v15.1" (record type 20,
+# "Detalhamento da Movimentação dos Restos a Pagar") and against the data itself:
+#
+#   VERIFIED
+#     seq_mov_rsp, seq_rsp, seq_orgao, cod_orgao, num_ano_referencia,
+#     num_mes_referencia -- this is exactly the published header convention of the
+#     sibling `movFonteRsp`, whose header IS correct.
+#     seq_rsp -- every value resolves in the `rsp` member and none in `credorRsp`.
+#     cod_unidade + cod_subunidade -- they compose into the dotacao's 8-digit unit
+#     (2008 + 10 -> "02008010") on 4,231 rows with ZERO counterexamples.
+#     num_empenho_origem, dat_empenho_origem, num_ano_emp_origem, dsc_dotacao_ori
+#     -- the same names the `rsp` member's published header uses for these facts.
+#     dsc_tipo_rsp, dsc_tipo_movimentacao, dat_movimentacao, vlr_movimentacao --
+#     the manual's tipoRestosPagar / tipoMovimento / dtMovimentacao / vlMovimentacao,
+#     matching the observed decoded values ("2 - RESTOS A PAGAR NAO PROCESSADOS").
+#
+#   STILL INFERRED
+#     dsc_documento, dat_documento, dsc_motivo. The manual's record 20 has only 16
+#     fields and its last three are codOrgaoEncampAtribuic /
+#     codUnidadeSubEncampAtribuic / justificativa -- which these are NOT: field 17
+#     holds values like "Cancelamento", not a 2-digit org code. The dados-abertos
+#     export evidently derives from a richer internal model than the current
+#     remessa layout. Their content is consistent with the names: field 17 is a
+#     short document reference (empty in 7,336 of 11,164 rows), field 18 an 8-digit
+#     date, field 19 free text up to 327 chars. The last is published as
+#     `justificativa`, following the manual.
 _HEADER_OVERRIDE: dict[str, list[str]] = {
     "empenho/movimentacaoRsp": [
         "seq_mov_rsp",

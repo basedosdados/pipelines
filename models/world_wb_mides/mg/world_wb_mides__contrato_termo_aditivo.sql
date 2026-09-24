@@ -61,7 +61,7 @@ select
     safe_cast(t.dsc_alteracao as string) as alteracao,
     safe_cast(t.data_novo_termino as date) as data_novo_termino,
     safe_cast(t.data_publicacao as date) as data_publicacao,
-    safe_cast(t.dsc_veiculo_pub as string) as veiculo_pub,
+    safe_cast(t.dsc_veiculo_pub as string) as veiculo_publicacao,
     safe_cast(t.valor_termo_aditivo as float64) as valor_termo_aditivo
 from
     {{ set_datalake_project("world_wb_mides_staging.raw_contrato_termo_aditivo_mg") }}

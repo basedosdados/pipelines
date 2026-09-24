@@ -73,18 +73,18 @@ select
     safe_cast(t.num_ano_processo as string) as numero_ano_processo,
     safe_cast(t.dsc_tipo_processo as string) as tipo_processo,
     safe_cast(t.data_abertura as date) as data_abertura,
-    safe_cast(t.dsc_nat_objeto as string) as nat_objeto,
+    safe_cast(t.dsc_nat_objeto as string) as natureza_objeto,
     safe_cast(t.dsc_objeto as string) as objeto,
     safe_cast(t.dsc_justificativa as string) as justificativa,
     safe_cast(t.dsc_razao as string) as razao,
     safe_cast(t.data_pub_termo as date) as data_pub_termo,
-    safe_cast(t.dsc_veiculo_pub as string) as veiculo_pub,
+    safe_cast(t.dsc_veiculo_pub as string) as veiculo_publicacao,
     safe_cast(t.dsc_ind_processo_lote as string) as ind_processo_lote,
     safe_cast(t.valor_empenhado as float64) as valor_empenhado,
     safe_cast(t.valor_liquidado as float64) as valor_liquidado,
     safe_cast(t.valor_pago as float64) as valor_pago,
-    safe_cast(t.valor_rsp_proc as float64) as valor_rsp_proc,
-    safe_cast(t.valor_rsp_nao_proc as float64) as valor_rsp_nao_proc
+    safe_cast(t.valor_rsp_proc as float64) as valor_restos_pagar_processado,
+    safe_cast(t.valor_rsp_nao_proc as float64) as valor_restos_pagar_nao_processado
 from {{ set_datalake_project("world_wb_mides_staging.raw_dispensa_mg") }} as t
 left join
     unidade_xwalk as x

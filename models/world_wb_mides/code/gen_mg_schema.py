@@ -22,60 +22,12 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # pyrefly: ignore [missing-import]  # sibling module via sys.path
 import mg_column_glossary as glossary
 
+# pyrefly: ignore [missing-import]  # sibling module via sys.path
+import mg_table_glossary as tables
+
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 MG = os.path.join(ROOT, "mg")
 OUT = os.path.join(MG, "schema.yml")
-
-SUFFIX = (
-    "Publicado apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; "
-    "a Coverage da tabela registra sigla_uf = MG."
-)
-
-TABLES: dict[str, str] = {
-    "alteracao_orcamentaria": "Alterações orçamentárias (créditos adicionais, suplementações, anulações e transposições) autorizadas por decreto municipal.",
-    "contrato": "Contratos administrativos firmados pelos municípios, com objeto, vigência, signatário e valores empenhados, liquidados e pagos.",
-    "contrato_apostilamento": "Apostilamentos registrados sobre contratos administrativos, com o respectivo valor e data.",
-    "contrato_contabilizacao": "Vínculo entre cada contrato e os empenhos que o executam orçamentariamente.",
-    "contrato_credito": "Créditos orçamentários (dotações) vinculados a cada contrato administrativo.",
-    "contrato_item": "Itens contratados em cada contrato administrativo, com quantidade, unidade de medida e preço unitário.",
-    "contrato_rescisao": "Rescisões de contratos administrativos, com motivo, data e valor rescindido.",
-    "contrato_termo_aditivo": "Termos aditivos de contratos administrativos, com tipo, vigência e valor acrescido ou reduzido.",
-    "contrato_termo_aditivo_item": "Itens alterados por termo aditivo, com quantidade e valor acrescidos ou reduzidos.",
-    "decreto": "Decretos municipais que autorizam alterações orçamentárias.",
-    "despesa_dotacao": "Dotações orçamentárias da despesa, com classificação funcional-programática e fonte de recursos.",
-    "dispensa": "Processos de dispensa e inexigibilidade de licitação, com objeto, natureza e fundamentação.",
-    "dispensa_cotacao": "Cotações de preço coletadas em cada processo de dispensa de licitação.",
-    "dispensa_credenciado": "Fornecedores credenciados em processos de credenciamento.",
-    "dispensa_dotacao": "Dotações orçamentárias vinculadas a cada processo de dispensa de licitação.",
-    "dispensa_fornecedor": "Fornecedores contratados em cada processo de dispensa de licitação.",
-    "dispensa_item": "Itens objeto de cada processo de dispensa de licitação.",
-    "dispensa_responsavel": "Responsáveis designados para cada processo de dispensa de licitação.",
-    "empenho_credor": "Credores vinculados a cada empenho, identificados por CPF ou CNPJ.",
-    "empenho_fonte": "Decomposição de cada empenho por fonte de recursos e dotação orçamentária.",
-    "lei_decreto": "Leis municipais que autorizam os decretos de alteração orçamentária.",
-    "licitacao_comissao": "Membros da comissão de licitação designados em cada processo licitatório.",
-    "licitacao_cotacao": "Cotações de preço apresentadas para cada item licitado.",
-    "licitacao_dotacao": "Dotações orçamentárias vinculadas a cada processo licitatório.",
-    "licitacao_homologacao": "Homologação e adjudicação de cada item licitado, com o vencedor e o valor homologado.",
-    "licitacao_julgamento": "Propostas julgadas para cada item licitado, com licitante, valor e classificação.",
-    "licitacao_parecer": "Pareceres técnicos e jurídicos emitidos em cada processo licitatório.",
-    "licitacao_quadro_societario": "Quadro societário dos participantes de processos licitatórios.",
-    "licitacao_responsavel": "Responsáveis designados para cada processo licitatório.",
-    "liquidacao_fonte": "Decomposição de cada liquidação por fonte de recursos.",
-    "liquidacao_nota_fiscal": "Notas fiscais vinculadas a cada liquidação de despesa.",
-    "nota_fiscal": "Notas fiscais recebidas pelos municípios, com emitente, série, chave e valores.",
-    "nota_fiscal_item": "Itens discriminados em cada nota fiscal, com quantidade e valor unitário.",
-    "pagamento_movimento": "Movimentações bancárias associadas a cada pagamento, com instituição financeira, agência e conta.",
-    "registro_preco_adesao": "Adesões a atas de registro de preços gerenciadas por outro órgão.",
-    "registro_preco_adesao_cotacao": "Cotações de preço coletadas para cada adesão a ata de registro de preços.",
-    "registro_preco_adesao_item": "Itens objeto de cada adesão a ata de registro de preços.",
-    "registro_preco_adesao_vencedor": "Fornecedores vencedores em cada adesão a ata de registro de preços.",
-    "restos_pagar": "Saldos de restos a pagar processados e não processados inscritos por exercício de origem.",
-    "restos_pagar_credor": "Credores vinculados a cada inscrição de restos a pagar.",
-    "restos_pagar_movimentacao": "Movimentações de restos a pagar: pagamentos, anulações, cancelamentos e outras baixas.",
-    "restos_pagar_movimentacao_credor": "Credores vinculados a cada movimentação de restos a pagar.",
-    "restos_pagar_movimentacao_fonte": "Decomposição de cada movimentação de restos a pagar por fonte de recursos.",
-}
 
 DIRECTORY_TESTS: dict[str, tuple[str, str]] = {
     "ano": ("br_bd_diretorios_data_tempo__ano", "ano.ano"),
@@ -148,7 +100,7 @@ def block(table: str, columns: list[str]) -> list[str]:
     out = [
         f"  - name: world_wb_mides__{table}",
         "    description: >",
-        f"      {TABLES[table]} {SUFFIX}",
+        f"      {tables.description(table)}",
         "    tests:",
         "      - dbt_utils.unique_combination_of_columns:",
         f"          combination_of_columns: [ano, {key}]",
@@ -161,7 +113,7 @@ def block(table: str, columns: list[str]) -> list[str]:
     for column in columns:
         out.append(f"      - name: {column}")
         out.append(
-            f"        description: {glossary.build_description(column, table)}"
+            f"        description: {glossary.build_description(column)}"
         )
         tests: list[str] = []
         if column in ("ano", "sigla_uf", "id_municipio", key):
@@ -190,7 +142,7 @@ def main() -> None:
     ]
     for fn in files:
         table = fn[len("world_wb_mides__") : -len(".sql")]
-        if table not in TABLES:
+        if table not in tables.TABLES:
             raise AssertionError(f"no description for table {table}")
         lines += block(table, columns_of(os.path.join(MG, fn)))
     with open(OUT, "w", encoding="utf-8") as handle:
