@@ -79,15 +79,17 @@ select
     safe_cast(t.dsc_nat_processo as string) as nat_processo,
     safe_cast(t.data_pub_aviso_inst as date) as data_pub_aviso_inst,
     safe_cast(t.dsc_objeto_adesao as string) as objeto_adesao,
-    safe_cast(t.num_doc_resp as string) as numero_doc_resp,
+    safe_cast(t.num_doc_resp as string) as numero_doc_responsavel,
     safe_cast(t.nom_pessoa_resp as string) as nome_pessoa_resp,
     safe_cast(t.dsc_ind_desc_tab_preco as string) as ind_desc_tab_preco,
     safe_cast(t.dsc_ind_processo_lote as string) as ind_processo_lote,
     safe_cast(t.valor_empenhado as float64) as valor_empenhado,
     safe_cast(t.valor_liquidado as float64) as valor_liquidado,
     safe_cast(t.valor_pago as float64) as valor_pago,
-    safe_cast(t.valor_rsp_processado as float64) as valor_rsp_processado,
-    safe_cast(t.valor_rsp_nao_processado as float64) as valor_rsp_nao_processado
+    safe_cast(t.valor_rsp_processado as float64) as valor_restos_pagar_processado,
+    safe_cast(
+        t.valor_rsp_nao_processado as float64
+    ) as valor_restos_pagar_nao_processado
 from
     {{ set_datalake_project("world_wb_mides_staging.raw_registro_preco_adesao_mg") }}
     as t

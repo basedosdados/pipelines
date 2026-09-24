@@ -68,7 +68,7 @@ select
     safe_cast(t.dsc_programa as string) as programa,
     safe_cast(t.dsc_acao as string) as acao,
     safe_cast(t.dsc_subacao as string) as subacao,
-    safe_cast(t.dsc_nat_despesa as string) as nat_despesa,
+    safe_cast(t.dsc_nat_despesa as string) as natureza_despesa,
     safe_cast(t.dsc_fonte_recurso as string) as fonte_recurso,
     safe_cast(t.valor_recurso as float64) as valor_recurso
 from {{ set_datalake_project("world_wb_mides_staging.raw_contrato_credito_mg") }} as t

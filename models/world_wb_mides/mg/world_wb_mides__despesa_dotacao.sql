@@ -61,8 +61,8 @@ select
     safe_cast(t.dsc_programa as string) as programa,
     safe_cast(t.dsc_acao as string) as acao,
     safe_cast(t.dsc_subacao as string) as subacao,
-    safe_cast(t.dsc_naturezadespesa as string) as naturezadespesa,
-    safe_cast(t.dsc_fonterecurso as string) as fonterecurso,
+    safe_cast(t.dsc_naturezadespesa as string) as natureza_despesa,
+    safe_cast(t.dsc_fonterecurso as string) as fonte_recurso,
     safe_cast(t.dsc_cod_orcamentario as string) as cod_orcamentario,
     safe_cast(t.valor_previsto as float64) as valor_previsto,
     safe_cast(t.valor_acrescimo as float64) as valor_acrescimo,
@@ -70,6 +70,6 @@ select
     safe_cast(t.valor_empenhado as float64) as valor_empenhado,
     safe_cast(t.valor_liquidado as float64) as valor_liquidado,
     safe_cast(t.valor_pago as float64) as valor_pago,
-    safe_cast(t.valor_rspprocessado as float64) as valor_rspprocessado,
-    safe_cast(t.valor_rspnprocessado as float64) as valor_rspnprocessado
+    safe_cast(t.valor_rspprocessado as float64) as valor_restos_pagar_processado,
+    safe_cast(t.valor_rspnprocessado as float64) as valor_restos_pagar_nao_processado
 from {{ set_datalake_project("world_wb_mides_staging.raw_despesa_dotacao_mg") }} as t

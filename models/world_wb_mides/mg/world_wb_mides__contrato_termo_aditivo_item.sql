@@ -82,7 +82,7 @@ select
     safe_cast(t.cod_item as string) as codigo_item,
     safe_cast(t.dsc_item as string) as item,
     safe_cast(t.dsc_unid_medida as string) as unid_medida,
-    safe_cast(t.dsc_tipo_mat_serv as string) as tipo_mat_serv,
+    safe_cast(t.dsc_tipo_mat_serv as string) as tipo_material_servico,
     safe_cast(t.cod_item_sinapi as string) as codigo_item_sinapi,
     safe_cast(t.cod_item_sicro as string) as codigo_item_sicro,
     safe_cast(t.dsc_tabela as string) as tabela,

@@ -118,10 +118,10 @@ select
     safe_cast(t.orgao as string) as orgao,
     safe_cast(t.num_doc_vencedor as string) as numero_doc_vencedor,
     safe_cast(t.nom_vencedor as string) as nome_vencedor,
-    safe_cast(t.valor_preco_unitario as float64) as valor_preco_unitario,
+    safe_cast(t.valor_preco_unitario as float64) as valor_unitario,
     safe_cast(t.num_quant_licitado as string) as numero_quant_licitado,
     safe_cast(t.num_quant_aderido as string) as numero_quant_aderido,
-    safe_cast(t.valor_pct_desconto as float64) as valor_pct_desconto
+    safe_cast(t.valor_pct_desconto as float64) as valor_percentual_desconto
 from
     {{
         set_datalake_project(

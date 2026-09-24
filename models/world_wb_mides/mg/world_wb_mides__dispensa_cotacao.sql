@@ -101,7 +101,7 @@ select
     safe_cast(t.seq_item_dispensa as string) as id_item_dispensa,
     safe_cast(t.seq_dispensa as string) as id_dispensa,
     safe_cast(t.orgao as string) as orgao,
-    safe_cast(t.valor_preco_unit as float64) as valor_preco_unit,
+    safe_cast(t.valor_preco_unit as float64) as valor_unitario,
     safe_cast(t.num_quant_item as string) as numero_quant_item
 from {{ set_datalake_project("world_wb_mides_staging.raw_dispensa_cotacao_mg") }} as t
 left join p_dispensa_item on t.seq_item_dispensa = p_dispensa_item.seq_item_dispensa
