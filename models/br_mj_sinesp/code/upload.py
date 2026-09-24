@@ -2,6 +2,14 @@
 
 Local credentials are dev-only. Production table data is materialised by the
 table-approve action when the onboarding PR merges, never uploaded from here.
+
+Run with the Data Basis service account, not personal ADC::
+
+    GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials.json \
+        python upload.py
+
+Without it the storage client falls back to application-default credentials and
+the staging listing fails with "does not have serviceusage.services.use access".
 """
 
 from __future__ import annotations
@@ -15,6 +23,11 @@ from google.cloud import storage
 
 BILLING_PROJECT = "basedosdados-dev"
 BUCKET = "basedosdados-dev"
+
+os.environ.setdefault(
+    "GOOGLE_APPLICATION_CREDENTIALS",
+    os.path.expanduser("~/.basedosdados/credentials/staging.json"),
+)
 
 # The bucket is requester-pays; without a user_project every call 400s.
 _orig_bucket = storage.Client.bucket
