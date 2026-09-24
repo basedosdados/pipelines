@@ -332,6 +332,19 @@ def download_package(
             f"{year} {label}: TRUNCATED. {size:,} bytes arrived but the zip has no "
             f"readable central directory ({exc}). The transfer was cut short; retry."
         ) from exc
+    # The central directory proves the zip ENDS where a zip should end; it does
+    # not prove nothing was dropped, because a transfer cut at a member boundary
+    # can still leave a readable one. `qtdArquivos` is the only independent
+    # statement of how many members there should be, so compare against it --
+    # otherwise a short package is accepted, renamed to its final name, and
+    # looks complete to everything downstream.
+    if advertised is not None and members != int(advertised):
+        size = tmp.stat().st_size
+        tmp.unlink(missing_ok=True)
+        raise OSError(
+            f"{year} {label}: SHORT. {members} members in {size:,} bytes, but the "
+            f"portal advertises {advertised}. The transfer was cut short; retry."
+        )
     if members < MG_MUNICIPALITIES:
         print(
             f"  NOTE {year} {label}: {members} members for {MG_MUNICIPALITIES} "

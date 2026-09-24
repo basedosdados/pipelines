@@ -101,10 +101,18 @@ def main() -> None:
     manifest = json.loads(MANIFEST.read_text())
     entries = manifest.get("entries", {})
 
+    # `found` maps municipality -> list of files, and a municipality can publish
+    # more than one. Counting municipalities and comparing that with files on
+    # disk lets a surplus in one municipality hide a gap in another, so keep
+    # both counts.
     planned: dict[tuple[int, str], set[str]] = {}
+    planned_files: dict[tuple[int, str], int] = {}
     for key, found in entries.items():
         year, categoria = key.split("|")
         planned[(int(year), categoria)] = set(found)
+        planned_files[(int(year), categoria)] = sum(
+            len(files) for files in (found or {}).values()
+        )
 
     ledger_ok: dict[tuple[int, str], set[str]] = defaultdict(set)
     if LEDGER.exists():
@@ -120,7 +128,18 @@ def main() -> None:
                     record["municipio"]
                 )
 
-    years = sorted({y for y, _ in planned})
+    # Pairs `bulk_mg.py` fetched whole never reach the manifest -- `harvest_mg.py`
+    # skips enumerating them by design. Iterating over `planned` alone therefore
+    # audited nothing for those pairs while still printing the final
+    # "harvest complete and verified". Take the union of every view instead:
+    # the manifest, the portal, and the directories that exist on disk.
+    on_disk_keys: set[tuple[int, str]] = set()
+    for directory in MG_INPUT.glob("*/*"):
+        if not directory.is_dir() or not directory.parent.name.isdigit():
+            continue
+        if directory.name in CATEGORIES:
+            on_disk_keys.add((int(directory.parent.name), directory.name))
+    years = sorted({y for y, _ in set(planned) | on_disk_keys})
     advertised: dict[tuple[int, str], int] = {}
     if args.portal:
         if not args.token_file:
@@ -132,13 +151,18 @@ def main() -> None:
         f"{'ondisk':>8}{'bad':>5}{'GB':>7}  status"
     )
     total_bad: list[str] = []
+    unverified: list[str] = []
     total_missing = 0
     total_bytes = 0
     total_files = 0
     for year in years:
         for categoria in CATEGORIES:
             key = (year, categoria)
-            if key not in planned:
+            if (
+                key not in planned
+                and key not in advertised
+                and key not in on_disk_keys
+            ):
                 continue
             directory = MG_INPUT / str(year) / categoria
             on_disk = (
@@ -156,19 +180,39 @@ def main() -> None:
                 except Exception as exc:
                     bad += 1
                     total_bad.append(f"{path.relative_to(MG_INPUT)}: {exc}")
-            enumerated = len(planned[key])
+            enumerated = len(planned.get(key, ()))
+            # Compare FILES with FILES. Where the pair was never enumerated --
+            # `bulk_mg.py` took it whole -- fall back to the portal's own count,
+            # and say so when there is nothing to compare against rather than
+            # reporting OK.
+            expected_files = planned_files.get(key)
+            source = "manifest"
+            if expected_files is None:
+                expected_files = advertised.get(key)
+                source = "portal"
             confirmed = len(ledger_ok.get(key, ()))
-            missing = enumerated - len(on_disk)
+            missing = (
+                expected_files - len(on_disk)
+                if expected_files is not None
+                else 0
+            )
             total_missing += max(missing, 0)
             total_bytes += size
             total_files += len(on_disk)
             flag = "OK"
             if bad:
                 flag = f"{bad} CORRUPT"
+            elif expected_files is None:
+                flag = "UNVERIFIED (not enumerated; re-run with --portal)"
+                unverified.append(f"{year} {categoria}")
             elif missing > 0:
-                flag = f"{missing} MISSING"
-            elif advertised and advertised.get(key, enumerated) != enumerated:
-                flag = f"enum {enumerated} vs portal {advertised[key]}"
+                flag = f"{missing} MISSING vs {source}"
+            elif (
+                key in advertised
+                and key in planned_files
+                and advertised[key] != expected_files
+            ):
+                flag = f"enum {expected_files} vs portal {advertised[key]}"
             print(
                 f"{year:<6}{categoria:<11}{advertised.get(key, '-'):>7}"
                 f"{enumerated:>7}{confirmed:>7}{len(on_disk):>8}{bad:>5}"
@@ -181,8 +225,18 @@ def main() -> None:
     )
     for line in total_bad[:20]:
         print(f"  CORRUPT {line}")
+    if unverified:
+        print(
+            f"  {len(unverified)} pair(s) had no count to check against: "
+            f"{', '.join(unverified[:8])}"
+        )
     if total_bad or total_missing:
         raise SystemExit(1)
+    if unverified:
+        raise SystemExit(
+            "harvest looks intact, but the pairs above were not verified "
+            "against any count -- re-run with --portal"
+        )
     print("harvest complete and verified")
 
 

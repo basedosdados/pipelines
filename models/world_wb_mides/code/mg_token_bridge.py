@@ -64,15 +64,27 @@ def minutes_left(token: str) -> float | None:
     return (exp - datetime.now(tz=UTC).timestamp()) / 60
 
 
+# The only page that has any business posting here. Binding to loopback is NOT
+# a second lock: any page open in any browser on this machine can POST to
+# 127.0.0.1, and a `text/plain` body makes it a CORS "simple request" that is
+# sent without a preflight at all. `*` would therefore let a hostile tab
+# overwrite the token file with a JWT it minted itself -- the shape and `exp`
+# checks below both pass on a self-signed one -- after which the harvester gets
+# 401 from the portal and parks until a human looks at it.
+ALLOWED_ORIGIN = "https://dadosabertos.tce.mg.gov.br"
+
+
 class Handler(BaseHTTPRequestHandler):
     token_path: Path = Path("mg_token.txt")
 
+    def _origin_ok(self) -> bool:
+        return self.headers.get("Origin") == ALLOWED_ORIGIN
+
     def _cors(self):
         # The portal page is a different origin, so the POST is cross-origin and
-        # needs these. The server is loopback-only, so `*` grants nothing to the
-        # network -- only to code already running on this machine.
-        self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Headers", "*")
+        # needs these.
+        self.send_header("Access-Control-Allow-Origin", ALLOWED_ORIGIN)
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
         # Chrome's Private Network Access: a public https origin reaching a
         # loopback address is blocked outright unless the preflight is answered
@@ -90,11 +102,17 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(payload)
 
     def do_OPTIONS(self):
+        if not self._origin_ok():
+            self._reply(403, "forbidden origin")
+            return
         self.send_response(204)
         self._cors()
         self.end_headers()
 
     def do_POST(self):
+        if not self._origin_ok():
+            self._reply(403, "forbidden origin")
+            return
         if self.path.rstrip("/") not in ("/token", ""):
             self._reply(404, "not found")
             return

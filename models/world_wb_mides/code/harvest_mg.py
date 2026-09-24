@@ -288,10 +288,23 @@ class Item:
     municipio: str
     seq: int
     advertised: int
+    # True when this municipality-exercise-category publishes MORE THAN ONE
+    # package. Both the ledger key and the destination name are derived from
+    # (year, categoria, municipio) and from the portal's `nomeArquivo`, and the
+    # portal gives both packages the SAME `nomeArquivo` -- so without this the
+    # second package overwrites the first on disk and collapses onto the same
+    # ledger key, and the loss is invisible: the ledger shows two `ok` lines
+    # pointing at one path. It happened once in this harvest (Miraí, 2019
+    # contrato, seqs 220404 and 220407) out of 43,319 units.
+    #
+    # Only multi-package units are disambiguated, so the 43,319 single-package
+    # units keep the keys and names already in the ledger and are not re-fetched.
+    disambiguate: bool = False
 
     @property
     def key(self) -> str:
-        return f"{self.year}|{self.categoria}|{self.municipio}"
+        base = f"{self.year}|{self.categoria}|{self.municipio}"
+        return f"{base}|{self.seq}" if self.disambiguate else base
 
 
 def municipalities(session, token_file) -> list[str]:
@@ -454,7 +467,7 @@ def enumerate_pair(
         )
 
     return [
-        Item(year, categoria, name, seq, size)
+        Item(year, categoria, name, seq, size, disambiguate=len(files) > 1)
         for name, files in (entries.get(key) or {}).items()
         for seq, size in files
     ]
@@ -545,6 +558,9 @@ def verify_zip(path: Path) -> int:
 
 def destination_for(item: Item, name: str) -> Path:
     stem = name or f"SICOM.{item.year}.{item.municipio}.{item.categoria}.zip"
+    if item.disambiguate:
+        # Two packages, one `nomeArquivo`. See Item.disambiguate.
+        stem = f"{stem[: -len('.zip')]}.{item.seq}.zip"
     return MG_INPUT / str(item.year) / item.categoria / stem
 
 
@@ -620,10 +636,20 @@ def load_ledger() -> dict[str, dict]:
             record = json.loads(line)
         except ValueError:
             continue
-        if record.get("status") == "ok":
+        status = record.get("status")
+        if status == "ok":
             path = MG_INPUT / record["path"]
             if not path.exists() or path.stat().st_size != record["bytes"]:
                 continue
+        elif status != "empty":
+            # `failed` is transient -- a dropped transfer, an expired token --
+            # and a later `ok` line for the same key supersedes it. Treating it
+            # as done would make one bad minute a permanent hole that only
+            # `verify_mg_harvest.py` could find, because `harvest()` builds its
+            # todo list from the keys NOT in this map. `empty` is different: the
+            # portal answered, and the answer was that the unit has no file.
+            done.pop(record["key"], None)
+            continue
         done[record["key"]] = record
     return done
 
@@ -684,7 +710,10 @@ def harvest(
                 + "\n"
             )
             handle.flush()
-            done[item.key] = {"status": status, **payload}
+            if status in ("ok", "empty"):
+                done[item.key] = {"status": status, **payload}
+            else:  # see load_ledger: a failure stays eligible for a retry
+                done.pop(item.key, None)
             counters[status] = counters.get(status, 0) + 1
             counters["bytes"] += payload.get("bytes", 0)
             finished = counters["ok"] + counters["failed"]

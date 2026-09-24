@@ -394,9 +394,15 @@ for _phase, (_category, _member) in WHOLESALE.items():
 # and computing it earlier silently left the new mirrors out.
 MIRROR = {phase: f"raw_{phase}_mg" for phase in SPECS}
 
-# `SICOM.<exercicio>.<ibge7>.<categoria>.zip`
+# `SICOM.<exercicio>.<ibge7>.<categoria>.zip`, optionally with the portal's
+# package sequence appended. A municipality-exercise-category almost always has
+# one package, and then the portal's own name is used unchanged; when it has
+# two, `harvest_mg.py` appends `.<seq>` because the portal gives both the SAME
+# name (see `Item.disambiguate` there). Without the optional group here those
+# files would land in `unparsed_nested` and be skipped in silence.
 NESTED_RE = re.compile(
-    r"^SICOM\.(?P<year>\d{4})\.(?P<ibge>\d{7})\.(?P<cat>[^.]+)\.zip$"
+    r"^SICOM\.(?P<year>\d{4})\.(?P<ibge>\d{7})\.(?P<cat>[^.]+?)"
+    r"(?:\.(?P<seq>\d+))?\.zip$"
 )
 # `<categoria>_<exercicio>.zip`, as download_mg.py writes it.
 PACKAGE_RE = re.compile(r"^(?P<label>[a-z]+)_(?P<year>\d{4})\.zip$")
@@ -715,14 +721,26 @@ def build(phase: str, table: pa.Table, ibge: str, counters: dict) -> pa.Table:
     return pa.Table.from_arrays(columns, schema=schema_for(phase))
 
 
+# Destinations already written by THIS process. The mirror is named for the
+# municipality-exercise, not for the package, so the rare unit that publishes two
+# packages resolves to one parquet and the second write would otherwise replace
+# the first's rows. Membership of this set -- not the file existing on disk --
+# is what distinguishes "second package in this run" from "output left by an
+# earlier run", so a re-run rebuilds rather than doubling.
+_WRITTEN: set[Path] = set()
+
+
 def write(phase: str, table: pa.Table, year: int, ibge: str) -> None:
     """One parquet, named exactly as the existing staging objects are named."""
     directory = OUTPUT_DIR / MIRROR[phase]
     directory.mkdir(parents=True, exist_ok=True)
     dest = directory / f"{phase}_{year}_{ibge}.parquet"
+    if dest in _WRITTEN:
+        table = pa.concat_tables([pq.read_table(dest), table])
     tmp = dest.with_suffix(".part")
     pq.write_table(table, tmp, compression="snappy")
     tmp.replace(dest)
+    _WRITTEN.add(dest)
 
 
 def clean_municipality(

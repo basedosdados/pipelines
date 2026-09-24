@@ -269,24 +269,39 @@ def main() -> None:
         return
 
     # 2. Back up before touching anything -- the dev bucket has no versioning.
+    #    The backup is not only insurance: step 3 READS from it, which is what
+    #    makes a re-run idempotent.
+    backup_key = {k: f"{BACKUP}/{k.split(PREFIX + '/', 1)[1]}" for k in keys}
     if not args.skip_backup:
-        existing = sum(
-            1 for _ in client.list_blobs(bucket, prefix=BACKUP + "/")
-        )
-        if existing >= len(keys):
-            print(f"backup already present ({existing} objects), leaving it")
+        existing = {
+            b.name for b in client.list_blobs(bucket, prefix=BACKUP + "/")
+        }
+        missing = [k for k in keys if backup_key[k] not in existing]
+        if not missing:
+            print(
+                f"backup already present ({len(existing)} objects), leaving it"
+            )
         else:
 
             def copy(key):
-                bucket.copy_blob(
-                    bucket.blob(key),
-                    bucket,
-                    f"{BACKUP}/{key.split(PREFIX + '/', 1)[1]}",
-                )
+                bucket.copy_blob(bucket.blob(key), bucket, backup_key[key])
 
             with ThreadPoolExecutor(args.workers) as pool:
-                list(pool.map(copy, keys))
-            print(f"backed up {len(keys)} objects -> gs://{BUCKET}/{BACKUP}/")
+                list(pool.map(copy, missing))
+            print(
+                f"backed up {len(missing)} objects -> gs://{BUCKET}/{BACKUP}/"
+            )
+    else:
+        existing = {
+            b.name for b in client.list_blobs(bucket, prefix=BACKUP + "/")
+        }
+        missing = [k for k in keys if backup_key[k] not in existing]
+        if missing:
+            raise SystemExit(
+                f"refusing to run with --skip-backup: {len(missing)} of {len(keys)} "
+                f"objects have no copy under gs://{BUCKET}/{BACKUP}/, and step 3 "
+                f"reads the source from there. e.g. {missing[:3]}"
+            )
 
     # 3. Remap and upload in place.
     WORK.mkdir(parents=True, exist_ok=True)
@@ -305,7 +320,16 @@ def main() -> None:
             return
         local = WORK / mirror / key.rsplit("/", 1)[-1]
         local.parent.mkdir(parents=True, exist_ok=True)
-        bucket.blob(key).download_to_filename(str(local))
+        # Read the PUBLISHED VINTAGE from the backup, not the live object. The
+        # live object is what this script overwrites, so a second run would map
+        # already-mapped values a second time. For most files that only looks
+        # like a failure -- the cod values are not keys of a seq-keyed map, so
+        # they come back as "orgao value absent from donor map" and the run
+        # reports files that are in fact already correct as "still carry
+        # seq_orgao". For the one file whose values sit in BOTH spaces it is
+        # worse: those values would be remapped, and `orgao` corrupted. Reading
+        # the backup makes the run idempotent in both cases.
+        bucket.blob(backup_key[key]).download_to_filename(str(local))
         table = pq.read_table(local)
         index = table.column_names.index("orgao")
         field = table.schema.field(index)
