@@ -344,6 +344,23 @@ def bare(identifier: str | None) -> str | None:
     return identifier.split(":", 1)[1] if ":" in identifier else identifier
 
 
+def current_status_id(dataset_id: str | None, env: str) -> str | None:
+    """Return the dataset's current status id.
+
+    ``get_dataset`` does not expose ``status``, so it is read directly. Without
+    this a re-run re-passes ``under_review`` and unpublishes a live dataset.
+    """
+    if not dataset_id:
+        return None
+    edges = server._gql(
+        "query($id: ID!) { allDataset(id: $id) { edges { node { status { id } } } } }",
+        {"id": dataset_id},
+        env=env,
+        auth=False,
+    )["allDataset"]["edges"]
+    return bare(edges[0]["node"]["status"]["id"]) if edges else None
+
+
 TABLE_STATE_Q = """query($id: ID!) { allTable(id: $id) { edges { node {
   observationLevels { edges { node { id entity { id } } } }
   coverages { edges { node { id datetimeRanges { edges { node { id } } } } } }
@@ -449,7 +466,14 @@ def main() -> int:
         organization_ids=[bare(org["id"])],
         theme_ids=themes,
         tag_ids=tags,
-        status_id=status_review,
+        # under_review only for a dataset that does not exist yet. Re-running
+        # against a published dataset must not unpublish it, which is what a
+        # hardcoded status_review did to staging earlier in this branch.
+        status_id=(
+            current_status_id(bare(existing["id"]), env) or status_review
+            if existing.get("found")
+            else status_review
+        ),
         env=env,
         id=existing.get("id") if existing.get("found") else None,
     )
