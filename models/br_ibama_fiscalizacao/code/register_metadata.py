@@ -60,6 +60,8 @@ COVERAGE = {
     "dicionario": (1977, 2026),
 }
 
+# Same UUIDs on staging and prod; only the slug differs (PT on staging,
+# EN on prod). Verified by id against the prod backend, not assumed.
 TAGS = [
     "3ee4d3c4-0ee2-436b-bd7f-76293cbc0bf2",  # fiscalizacao
     "146a0144-71ef-4361-ab2a-8067000e22b6",  # infracao
@@ -124,8 +126,31 @@ def log(msg: str) -> None:
     print(msg, flush=True)
 
 
-def ids(*keys):
-    return server.discover_ids(env=ENV, keys=list(keys))
+# Reference ids, resolved one slug at a time. discover_ids is broken against the
+# prod backend (`Cannot query field 'allEntityCategory'` - prod runs an older
+# Graphene schema than staging), and lookup_id works on both. Never carry an id
+# across environments: re-resolve per backend.
+REFERENCES = {
+    "status": ["under_review", "published"],
+    "organization": ["ibama"],
+    "theme": ["environment"],
+    "entity": ["year", "municipality", "act", "day"],
+    "license": ["unknown"],
+    "availability": ["online"],
+}
+
+
+def ids(*_keys):
+    out = {}
+    for category, slugs in REFERENCES.items():
+        out[category] = {}
+        for slug in slugs:
+            r = server.lookup_id(slug=slug, category=category, env=ENV)
+            r = json.loads(r) if isinstance(r, str) else r
+            if not r.get("id"):
+                sys.exit(f"cannot resolve {category}.{slug} on {ENV}")
+            out[category][slug] = r["id"]
+    return out
 
 
 def arch_rows(table: str):
