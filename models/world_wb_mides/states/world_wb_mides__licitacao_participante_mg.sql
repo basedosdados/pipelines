@@ -4,10 +4,22 @@
 -- union of two populations, exactly as the notebook builds it:
 -- * QUALIFIED bidders  -- habLicitacao, `habilitado` = 1
 -- * WINNERS            -- the distinct winner of each homologated item
--- (homologLicitacao for licitacoes, fornDispensa for
--- dispensas), `vencedor` = 1
+-- (homologLicitacao), `vencedor` = 1
 -- joined FULL OUTER on the participant's document, so someone who won without
 -- appearing in habLicitacao is still present, and vice versa.
+--
+-- NO DISPENSA ARM, DELIBERATELY. `id_dispensa` is NULL on every row here, while
+-- `mg_cobertura` in the published model spans the municipality-exercises of BOTH
+-- `raw_licitacao_mg` and `raw_dispensa_mg` -- so this model is the only MG source
+-- for all of them. That looks like it drops MG dispensa participants; it does not,
+-- because there were never any. The notebook's MG section (cells 7-8) builds
+-- participants from habLicitacao and homologLicitacao only and never reads
+-- fornDispensa, so the published MG 2014-2021 rows are licitacao-only too, and
+-- this reproduces them. MG dispensa suppliers ARE published, in the MG-only table
+-- `world_wb_mides.dispensa_fornecedor` (grain: procurement x company), which is
+-- new in this work. Folding them into the national participante table would give
+-- MG a population no other state has; keeping `licitacao*` comparable across
+-- states is the standing constraint here.
 --
 -- `classificado`, `endereco`, `cep` and `municipio_participante` are not in the
 -- MG source and stay NULL, as they already are for MG in the published table.
