@@ -44,7 +44,11 @@ models:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
       - name: id_municipio
-        description: Identificador IBGE de 7 dígitos do município
+        description: >
+          Identificador IBGE de 7 dígitos do município. A fonte publica o nome
+          do município, não o código. O Distrito Federal (5300108) é a soma de
+          suas 33 regiões administrativas, que a fonte reporta separadamente
+          mas rotula todas como BRASÍLIA
         tests:
           - not_null
           - relationships:
