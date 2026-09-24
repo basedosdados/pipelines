@@ -1,0 +1,54 @@
+{
+  "dataset": {
+    "slug": "sinesp",
+    "gcp_dataset_id": "br_mj_sinesp",
+    "organization_slug": "mj",
+    "theme_slugs": ["safety", "justice"],
+    "tag_slugs": ["crime", "seguranca_publica", "homicidio", "feminicidio",
+                  "estupro", "roubo", "policia", "vitimas", "arma", "droga"],
+    "name_pt": "Sistema Nacional de Estatísticas de Segurança Pública (SINESP VDE)",
+    "name_en": "National System of Public Security Statistics (SINESP VDE)",
+    "name_es": "Sistema Nacional de Estadísticas de Seguridad Pública (SINESP VDE)",
+    "description_pt": "Dados Nacionais de Segurança Pública coletados pelo SINESP VDE (Validador de Dados Estatísticos), sistema em que os Gestores Estaduais de Estatística dos 26 estados e do Distrito Federal informam mensalmente os indicadores definidos pela Resolução nº 6 do ConSinesp e pela Portaria nº 229, de 10 de dezembro de 2018. Cobre 31 tipos de ocorrência desde 2015, dos quais 11 são divulgados por município e os demais apenas por unidade da federação. Os dados refletem o nível de alimentação e consolidação de cada UF na data da extração e podem ser revistos após a publicação.",
+    "description_en": "National public security statistics collected through SINESP VDE (Statistical Data Validator), the system through which the State Statistics Managers of Brazil's 26 states and the Federal District report monthly the indicators set by ConSinesp Resolution 6 and Ordinance 229 of 10 December 2018. It covers 31 occurrence types since 2015, of which 11 are published by municipality and the rest only by state. Figures reflect each state's level of data entry and consolidation at the extraction date and may be revised after publication.",
+    "description_es": "Datos Nacionales de Seguridad Pública recopilados por el SINESP VDE (Validador de Datos Estadísticos), sistema mediante el cual los Gestores Estatales de Estadística de los 26 estados y del Distrito Federal informan mensualmente los indicadores definidos por la Resolución nº 6 del ConSinesp y por la Ordenanza nº 229 del 10 de diciembre de 2018. Abarca 31 tipos de ocurrencia desde 2015, de los cuales 11 se divulgan por municipio y el resto solo por unidad federativa. Los datos reflejan el nivel de carga y consolidación de cada estado en la fecha de extracción y pueden revisarse tras la publicación."
+  },
+  "raw_data_source": {
+    "name_pt": "Dados Nacionais de Segurança Pública — SINESP VDE",
+    "name_en": "National Public Security Data — SINESP VDE",
+    "name_es": "Datos Nacionales de Seguridad Pública — SINESP VDE",
+    "url": "https://www.gov.br/mj/pt-br/assuntos/sua-seguranca/seguranca-publica/estatistica/dados_nacionais_de_seguranca_publica",
+    "description_pt": "Página do Ministério da Justiça e Segurança Pública que publica uma planilha por ano (bancovde-AAAA.xlsx) com os Dados Nacionais de Segurança Pública extraídos do SINESP VDE.",
+    "description_en": "Ministry of Justice and Public Security page publishing one workbook per year (bancovde-YYYY.xlsx) with the National Public Security Data extracted from SINESP VDE.",
+    "description_es": "Página del Ministerio de Justicia y Seguridad Pública que publica una planilla por año (bancovde-AAAA.xlsx) con los Datos Nacionales de Seguridad Pública extraídos del SINESP VDE."
+  },
+  "tables": {
+    "municipio_mes": {
+      "name_pt": "Ocorrências por Município e Mês",
+      "name_en": "Occurrences by Municipality and Month",
+      "name_es": "Ocurrencias por Municipio y Mes",
+      "description_pt": "Ocorrências de segurança pública por município e mês, em formato longo sobre o tipo de ocorrência. Cada linha é um município, mês, tipo de ocorrência e instituição reportante. Apenas 11 dos 31 tipos publicados pela fonte são divulgados neste nível; os demais estão em uf_mes. Linhas com situacao_registro igual a nao_reportado marcam município-mês ausentes da fonte e têm todas as quantidades nulas — nenhum valor é imputado.",
+      "description_en": "Public security occurrences by municipality and month, long on occurrence type. Each row is a municipality, month, occurrence type and reporting institution. Only 11 of the 31 types the source publishes are released at this level; the rest are in uf_mes. Rows with situacao_registro equal to nao_reportado mark municipality-months absent from the source and carry null quantities throughout — nothing is imputed.",
+      "description_es": "Ocurrencias de seguridad pública por municipio y mes, en formato largo sobre el tipo de ocurrencia. Cada fila es un municipio, mes, tipo de ocurrencia e institución informante. Solo 11 de los 31 tipos publicados por la fuente se divulgan en este nivel; el resto está en uf_mes. Las filas con situacao_registro igual a nao_reportado marcan municipio-meses ausentes de la fuente y tienen todas las cantidades nulas — no se imputa ningún valor.",
+      "observation_levels": ["year", "month", "municipality"]
+    },
+    "uf_mes": {
+      "name_pt": "Ocorrências por Unidade da Federação e Mês",
+      "name_en": "Occurrences by State and Month",
+      "name_es": "Ocurrencias por Unidad Federativa y Mes",
+      "description_pt": "Ocorrências de segurança pública por unidade da federação e mês, em formato longo sobre o tipo de ocorrência. Reúne os 20 tipos que a fonte divulga apenas de forma agregada — entre eles estupro, roubo e furto de veículo, roubo a instituição financeira e roubo de carga — além dos desagregados por tipo de arma, corporação do agente e faixa etária, que existem somente neste nível.",
+      "description_en": "Public security occurrences by state and month, long on occurrence type. It gathers the 20 types the source releases only in aggregate — among them rape, vehicle robbery and theft, robbery of financial institutions and cargo robbery — plus the breakdowns by weapon type, agent corporation and age band, which exist only at this level.",
+      "description_es": "Ocurrencias de seguridad pública por unidad federativa y mes, en formato largo sobre el tipo de ocurrencia. Reúne los 20 tipos que la fuente divulga solo de forma agregada — entre ellos violación, robo y hurto de vehículo, robo a institución financiera y robo de carga — además de los desagregados por tipo de arma, corporación del agente y franja etaria, que existen solo en este nivel.",
+      "observation_levels": ["year", "month", "state"]
+    },
+    "dicionario": {
+      "name_pt": "Dicionário",
+      "name_en": "Dictionary",
+      "name_es": "Diccionario",
+      "description_pt": "Mapeia cada chave estável usada nas colunas codificadas de municipio_mes e uf_mes ao rótulo original publicado pela fonte, com a cobertura temporal em que aquele rótulo vigorou.",
+      "description_en": "Maps every stable key used in the coded columns of municipio_mes and uf_mes to the original label published by the source, with the temporal coverage over which that label applied.",
+      "description_es": "Mapea cada clave estable usada en las columnas codificadas de municipio_mes y uf_mes al rótulo original publicado por la fuente, con la cobertura temporal en que ese rótulo estuvo vigente.",
+      "observation_levels": []
+    }
+  }
+}

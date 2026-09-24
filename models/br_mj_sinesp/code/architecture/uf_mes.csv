@@ -1,0 +1,15 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano de referência da ocorrência,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de partição. Extraído de data_referencia,data_referencia
+mes,INT64,"Mês de referência da ocorrência, de 1 a 12",,no,br_bd_diretorios_data_tempo.mes:mes,month,no,Coluna de partição. Extraído de data_referencia,data_referencia
+sigla_uf,STRING,Sigla da unidade da federação,,no,br_bd_diretorios_brasil.uf:sigla,,no,Coluna de partição,uf
+tipo_ocorrencia,STRING,Tipo de ocorrência registrada em chave estável,,yes,,,no,"Chave snake_case derivada do rótulo publicado pela fonte. A tabela dicionario mapeia cada chave ao rótulo original por ano. Reúne os 20 tipos divulgados apenas de forma agregada e os tipos municipais cuja série estadual também é publicada",evento
+abrangencia,STRING,Instituição que reportou o registro,,yes,,,no,"Estadual, Polícia Federal ou Polícia Rodoviária Federal. Somar sem separar por abrangência duplica registros",abrangencia
+arma,STRING,Tipo de arma de fogo apreendida,,yes,,,no,"Preenchida apenas para apreensao_de_arma_de_fogo; nula nos demais tipos. Nove categorias",arma
+agente,STRING,Corporação do agente do Estado,,yes,,,no,"Preenchida apenas para morte_de_agente_do_estado e suicidio_de_agente_do_estado; nula nos demais tipos. Nove corporações",agente
+faixa_etaria,STRING,Faixa etária da pessoa,,yes,,,no,"Preenchida apenas para pessoa_desaparecida e pessoa_localizada; nula nos demais tipos",faixa_etaria
+quantidade_ocorrencias,INT64,Número de ocorrências registradas,,no,,,no,"Contagem de eventos, sem unidade de medida aplicável. Preenchida apenas para tipos contados por ocorrência",total
+quantidade_vitimas,INT64,Número de vítimas registradas,,no,,person,no,Preenchida apenas para tipos contados por vítima,total_vitima
+quantidade_vitimas_feminino,INT64,Número de vítimas do sexo feminino,,no,,person,no,Subconjunto de quantidade_vitimas,feminino
+quantidade_vitimas_masculino,INT64,Número de vítimas do sexo masculino,,no,,person,no,Subconjunto de quantidade_vitimas,masculino
+quantidade_vitimas_sexo_nao_informado,INT64,Número de vítimas cujo sexo não foi informado,,no,,person,no,Subconjunto de quantidade_vitimas,nao_informado
+peso_apreendido,FLOAT64,Peso do entorpecente apreendido,,no,,kilogram,no,"Preenchida apenas para apreensao_de_cocaina e apreensao_de_maconha; nula nos demais tipos",total_peso

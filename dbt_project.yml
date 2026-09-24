@@ -561,6 +561,9 @@ models:
     br_mgi_compras_publicas:
       +materialized: table
       +schema: br_mgi_compras_publicas
+    br_mj_sinesp:
+      +materialized: table
+      +schema: br_mj_sinesp
     br_mma_sinpatinhas:
       +materialized: table
       +schema: br_mma_sinpatinhas

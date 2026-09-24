@@ -1,0 +1,198 @@
+---
+version: 2
+models:
+  - name: br_mj_sinesp__municipio_mes
+    description: >
+      Ocorrências de segurança pública por município e mês, reportadas pelos
+      Gestores Estaduais de Estatística ao SINESP VDE. Formato longo em
+      tipo_ocorrencia: cada linha é um município, mês, tipo de ocorrência e
+      instituição reportante. Apenas 11 dos 31 tipos publicados são divulgados
+      neste nível; os demais estão em uf_mes. Linhas com situacao_registro
+      igual a nao_reportado marcam município-mês ausentes da fonte e têm todas
+      as quantidades nulas — nenhum valor é imputado.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - id_municipio
+            - tipo_ocorrencia
+            - abrangencia
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - quantidade_ocorrencias
+            - quantidade_vitimas_feminino
+            - quantidade_vitimas_masculino
+            - quantidade_vitimas_sexo_nao_informado
+    columns:
+      - name: ano
+        description: Ano de referência da ocorrência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês de referência da ocorrência, de 1 a 12
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: Identificador IBGE de 7 dígitos do município
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: tipo_ocorrencia
+        description: >
+          Tipo de ocorrência registrada em chave estável. A tabela dicionario
+          mapeia cada chave ao rótulo original publicado pela fonte, por ano
+        tests: [not_null]
+      - name: abrangencia
+        description: >
+          Instituição que reportou o registro — Estadual, Polícia Federal ou
+          Polícia Rodoviária Federal. Somar sem separar por abrangência
+          duplica registros
+        tests: [not_null]
+      - name: situacao_registro
+        description: >
+          reportado quando a fonte publicou uma linha para este município-mês;
+          nao_reportado quando a omitiu de uma série que reportou naquele ano
+        tests:
+          - not_null
+          - accepted_values:
+              values: [reportado, nao_reportado]
+      - name: quantidade_ocorrencias
+        description: >
+          Número de ocorrências registradas. Preenchida apenas para tipos
+          contados por ocorrência
+      - name: quantidade_vitimas
+        description: >
+          Número de vítimas registradas. Preenchida apenas para tipos contados
+          por vítima
+      - name: quantidade_vitimas_feminino
+        description: Número de vítimas do sexo feminino
+      - name: quantidade_vitimas_masculino
+        description: Número de vítimas do sexo masculino
+      - name: quantidade_vitimas_sexo_nao_informado
+        description: Número de vítimas cujo sexo não foi informado
+  - name: br_mj_sinesp__uf_mes
+    description: >
+      Ocorrências de segurança pública por unidade da federação e mês,
+      reportadas ao SINESP VDE. Formato longo em tipo_ocorrencia. Reúne os 20
+      tipos que a fonte divulga apenas de forma agregada — entre eles estupro,
+      roubo e furto de veículo, roubo a instituição financeira e roubo de carga
+      — além dos desagregados por arma, corporação do agente e faixa etária,
+      que existem somente neste nível.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - mes
+            - sigla_uf
+            - tipo_ocorrencia
+            - abrangencia
+            - arma
+            - agente
+            - faixa_etaria
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - arma
+            - agente
+            - faixa_etaria
+            - quantidade_ocorrencias
+            - quantidade_vitimas
+            - quantidade_vitimas_feminino
+            - quantidade_vitimas_masculino
+            - quantidade_vitimas_sexo_nao_informado
+            - peso_apreendido
+    columns:
+      - name: ano
+        description: Ano de referência da ocorrência
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes
+        description: Mês de referência da ocorrência, de 1 a 12
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: tipo_ocorrencia
+        description: Tipo de ocorrência registrada em chave estável
+        tests: [not_null]
+      - name: abrangencia
+        description: Instituição que reportou o registro
+        tests: [not_null]
+      - name: arma
+        description: >
+          Tipo de arma de fogo apreendida. Preenchida apenas para
+          apreensao_de_arma_de_fogo
+      - name: agente
+        description: >
+          Corporação do agente do Estado. Preenchida apenas para
+          morte_de_agente_do_estado e suicidio_de_agente_do_estado
+      - name: faixa_etaria
+        description: >
+          Faixa etária da pessoa. Preenchida apenas para pessoa_desaparecida e
+          pessoa_localizada
+      - name: quantidade_ocorrencias
+        description: Número de ocorrências registradas
+      - name: quantidade_vitimas
+        description: Número de vítimas registradas
+      - name: quantidade_vitimas_feminino
+        description: Número de vítimas do sexo feminino
+      - name: quantidade_vitimas_masculino
+        description: Número de vítimas do sexo masculino
+      - name: quantidade_vitimas_sexo_nao_informado
+        description: Número de vítimas cujo sexo não foi informado
+      - name: peso_apreendido
+        description: >
+          Peso em quilogramas do entorpecente apreendido. Preenchida apenas
+          para apreensao_de_cocaina e apreensao_de_maconha
+  - name: br_mj_sinesp__dicionario
+    description: >
+      Mapeia cada chave estável usada nas colunas codificadas de municipio_mes
+      e uf_mes ao rótulo original publicado pela fonte, com a cobertura
+      temporal em que aquele rótulo vigorou. Construído a partir dos rótulos
+      efetivamente observados na limpeza, não de uma lista mantida à mão, de
+      modo que uma mudança de rótulo na fonte aparece aqui.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_tabela
+            - nome_coluna
+            - chave
+            - cobertura_temporal
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: Nome da tabela a que a chave se aplica
+        tests: [not_null]
+      - name: nome_coluna
+        description: Nome da coluna a que a chave se aplica
+        tests: [not_null]
+      - name: chave
+        description: Valor armazenado na coluna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: Anos em que a fonte publicou este rótulo para esta chave
+        tests: [not_null]
+      - name: valor
+        description: Rótulo original publicado pela fonte
+        tests: [not_null]
