@@ -20,7 +20,7 @@ import time
 from collections.abc import Callable
 from datetime import date
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 import pandas as pd
 import polars as pl
@@ -174,7 +174,7 @@ def _proxy_local(url_proxy: str) -> tuple[str, Callable[[], None]]:
     credencial = (
         "Basic "
         + base64.b64encode(
-            f"{partes.username}:{partes.password}".encode()
+            f"{unquote(partes.username or '')}:{unquote(partes.password or '')}".encode()
         ).decode()
     )
     upstream = (partes.hostname, partes.port or 3128)
@@ -196,6 +196,7 @@ def _proxy_local(url_proxy: str) -> tuple[str, Callable[[], None]]:
 
             cabecalho, resto = cabecalho.split(b"\r\n\r\n", 1)
             saida = socket.create_connection(upstream, timeout=60)
+            saida.settimeout(None)
             saida.sendall(
                 _injeta_credencial(cabecalho, credencial) + b"\r\n\r\n" + resto
             )
@@ -481,15 +482,16 @@ def download_reconhecimentos_vigentes(input_dir: Path) -> Path:
         _proxy_local(url_proxy) if url_proxy else (None, lambda: None)
     )
 
-    log("resolvendo o chromedriver")
-    service = ChromeService(ChromeDriverManager().install())
-    log(f"chromedriver em {service.path}; abrindo o Chrome")
-
-    driver = webdriver.Chrome(
-        service=service,
-        options=_chrome_options(input_dir, endereco_proxy),
-    )
+    driver = None
     try:
+        log("resolvendo o chromedriver")
+        service = ChromeService(ChromeDriverManager().install())
+        log(f"chromedriver em {service.path}; abrindo o Chrome")
+
+        driver = webdriver.Chrome(
+            service=service,
+            options=_chrome_options(input_dir, endereco_proxy),
+        )
         log(f"carregando {constants.BASE_URL.value}")
         inicio = time.monotonic()
         driver.get(constants.BASE_URL.value)
@@ -555,7 +557,8 @@ def download_reconhecimentos_vigentes(input_dir: Path) -> Path:
         log(f"{len(seen)} arquivos em {input_dir}")
         return input_dir
     finally:
-        driver.quit()
+        if driver is not None:
+            driver.quit()
         encerra_proxy()
 
 
