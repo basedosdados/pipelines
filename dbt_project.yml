@@ -519,6 +519,9 @@ models:
     br_mdr_snis:
       +materialized: table
       +schema: br_mdr_snis
+    br_mapbiomas_estatisticas:
+      +materialized: table
+      +schema: br_mapbiomas_estatisticas
     br_me_caged:
       +materialized: table
       +schema: br_me_caged
