@@ -225,6 +225,7 @@ project-excludes = [
   # call pyarrow.compute kernels (utf8_trim_whitespace, unique) that pyrefly
   # cannot see because pyarrow generates them at import time.
   "models/cl_ine_censo/code",
+  "models/br_mj_sinesp/code",
   "models/us_ffiec_bank_reporting/code",
   "models/world_oecd_education/code",
   "models/world_oecd_revenue_statistics/code",
