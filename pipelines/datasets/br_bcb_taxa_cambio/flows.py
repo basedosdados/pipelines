@@ -46,6 +46,20 @@ def br_bcb_taxa_cambio__taxa_cambio(
     mais nova que a cobertura da tabela — é o que a execução agendada faz.
     Passar uma lista recarrega esses anos sem consultar a fonte, para consertar
     partição incompleta ou duplicada.
+
+    Args:
+        dataset_id (str): Dataset no BigQuery.
+        table_id (str): Tabela no BigQuery.
+        anos (list[int] | None): Anos a recarregar. None ou lista vazia baixa
+            o ano corrente.
+        materialize_after_dump (bool): Se False, o flow para depois do dbt em
+            dev e não toca em prod.
+        update_metadata (bool): Se True, grava a data mais recente da fonte,
+            atualiza o período da tabela no backend e aplica as Row Access
+            Policies.
+        target (str): Target do dbt na etapa de prod.
+        force_run (bool): Se True, carrega o ano corrente mesmo que a fonte
+            não tenha data nova. Não tem efeito quando `anos` é passado.
     """
     # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(

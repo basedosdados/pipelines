@@ -288,16 +288,28 @@ def download_and_unzip(url, path):
 
 
 def connect_to_endpoint_json(url: str, max_attempts: int = 3) -> dict:
-    """
-    Connect to endpoint
-    """
-    attempts = 0
+    """Faz GET em `url` e devolve o JSON da primeira resposta 200.
 
-    while attempts < max_attempts:
-        attempts += 1
+    Só repete a requisição quando a resposta não é 200.
+
+    Args:
+        url (str): Endereço consultado.
+        max_attempts (int): Número máximo de requisições.
+
+    Returns:
+        dict: Corpo da resposta convertido de JSON.
+
+    Raises:
+        requests.HTTPError: Se nenhuma das tentativas devolver 200.
+    """
+    for _ in range(max_attempts):
         response = requests.request("GET", url, timeout=30)
         log("Endpoint Response Code: " + str(response.status_code))
-        if response.status_code != 200:
-            log(Exception(response.status_code, response.text))
-            break
-    return response.json()
+        if response.status_code == 200:
+            return response.json()
+        log(Exception(response.status_code, response.text))
+
+    raise requests.HTTPError(
+        f"{url} não devolveu 200 em {max_attempts} tentativas",
+        response=response,
+    )
