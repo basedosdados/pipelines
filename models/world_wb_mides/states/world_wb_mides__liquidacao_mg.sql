@@ -34,11 +34,25 @@ with
     -- separates them and restores exact parity. It does not over-split the
     -- fan-out above, whose rows share a date.
     --
-    -- `seq_empenho` remains the join handle WITHIN one extraction: it is
-    -- globally unique across MG municipalities (0 clashes in 2021), which is
-    -- why this model resolves through it instead of rebuilding the key locally.
-    -- It could not rebuild it -- liquidacao does not carry the empenho's number
-    -- or unit codes at all.
+    -- `seq_empenho` is the join handle, and this CTE is NOT scoped by
+    -- municipality. That deserves an explicit measurement rather than an
+    -- appeal to "unique within one extraction", because the mirror is NOT one
+    -- extraction: the municipalities TCE-MG withdrew from 2017/2018 are carried
+    -- over from the published vintage (see `remap_mg_2017_2018_orgao.py`), and
+    -- TCE-MG reassigns `seq_empenho` between extractions. So the question is
+    -- whether a sequence can resolve to an empenho of a DIFFERENT municipality
+    -- across the mixed vintages.
+    --
+    -- Measured on the whole mirror, every row, 2026-09-24: of 68,314,208
+    -- distinct `seq_empenho` values, ZERO map to more than one `id_empenho_bd`
+    -- and ZERO appear under more than one municipality. The join therefore
+    -- neither fans out nor crosses municipalities on this data. (Re-measure
+    -- with the query in `validate_mg.py`'s companion checks if a future harvest
+    -- mixes vintages again.)
+    --
+    -- This model resolves through the sequence instead of rebuilding the key
+    -- locally because it could not rebuild it: liquidacao does not carry the
+    -- empenho's number or unit codes at all.
     emp_key_mg as (
         select distinct
             -- Deliberately NOT called `id_empenho`: this CTE is joined alongside
