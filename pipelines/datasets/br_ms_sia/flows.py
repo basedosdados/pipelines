@@ -7,6 +7,7 @@ from prefect import flow
 from pipelines.crawler.datasus.flows import _run_siasus
 
 
+# Atualizado em 2026-09-24
 def _sia_flow(table_id: str, cron: str):
     @flow(
         name=f"br_ms_sia__{table_id}",
