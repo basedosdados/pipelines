@@ -27,11 +27,13 @@ select
     safe_cast(numero_partido as string) numero_partido,
     safe_cast(sigla_partido as string) sigla_partido,
     safe_cast(cargo as string) cargo,
-    safe_cast(sequencial_despesa as string) sequencial_despesa,
+    nullif(
+        nullif(safe_cast(sequencial_despesa as string), '#nulo'), '-1'
+    ) sequencial_despesa,
     safe_cast(data_despesa as date) data_despesa,
     safe_cast(tipo_despesa as string) tipo_despesa,
     safe_cast(descricao_despesa as string) descricao_despesa,
-    safe_cast(origem_despesa as string) origem_despesa,
+    nullif(nullif(safe_cast(origem_despesa as string), '#nulo'), '-1') origem_despesa,
     safe_cast(valor_despesa as float64) valor_despesa,
     safe_cast(tipo_prestacao_contas as string) tipo_prestacao_contas,
     safe_cast(data_prestacao_contas as date) data_prestacao_contas,
