@@ -66,35 +66,11 @@ def _checar_fonte() -> None:
     - **regra por caminho**: se a raiz passar e só o relatório cair, a política
       é do path, e vale investigar sessão, ``Referer`` e ordem de navegação.
 
-    O IP de saída vai junto no log para permitir comparar com uma origem que
-    funciona — o mesmo pedido, do mesmo jeito, passa de outras redes.
-
     Nunca levanta: é diagnóstico, e falhar aqui não deve impedir a tentativa com
     o browser.
     """
     proxies = brasil_proxy_dict()
     log(f"proxy brasileiro {'em uso' if proxies else 'não configurado'}")
-
-    try:
-        eco = requests.get("https://api.ipify.org", timeout=15)
-        log(f"IP de saída do worker: {eco.text.strip()}")
-    except Exception as erro:
-        log(
-            f"não consegui ler o IP de saída: {type(erro).__name__}: {erro}",
-            "warning",
-        )
-
-    if proxies:
-        try:
-            eco = requests.get(
-                "https://api.ipify.org", timeout=15, proxies=proxies
-            )
-            log(f"IP de saída pelo proxy: {eco.text.strip()}")
-        except Exception as erro:
-            log(
-                f"não consegui ler o IP pelo proxy: {type(erro).__name__}: {erro}",
-                "warning",
-            )
 
     raiz = f"{urlparse(constants.BASE_URL.value).scheme}://{urlparse(constants.BASE_URL.value).netloc}/"
     for url in (raiz, constants.BASE_URL.value):
@@ -224,9 +200,7 @@ def _proxy_local(url_proxy: str) -> tuple[str, Callable[[], None]]:
             ).start()
 
     threading.Thread(target=aceita, daemon=True).start()
-    log(
-        f"repasse do proxy ouvindo em 127.0.0.1:{porta} → {upstream[0]}:{upstream[1]}"
-    )
+    log(f"repasse do proxy ouvindo em 127.0.0.1:{porta}")
     return f"127.0.0.1:{porta}", servidor.close
 
 
