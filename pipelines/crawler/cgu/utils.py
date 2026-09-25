@@ -8,6 +8,7 @@ import os
 import shutil
 import time
 from functools import lru_cache
+from pathlib import Path
 
 import basedosdados as bd
 import pandas as pd
@@ -32,7 +33,7 @@ def build_urls(
     month: int,
     table_id: str,
     # pyrefly: ignore [bad-return]
-) -> str:
+) -> str | list:
     """
     Constructs URLs based on the provided parameters.
 
@@ -59,7 +60,9 @@ def build_urls(
 
     elif dataset_id == "br_cgu_servidores_executivo_federal":
         list_url = []
-        for table_name in constants.TABELA_SERVIDORES.value[table_id]["READ"]:
+        for table_name in constants.TABELAS.value[dataset_id][table_id][
+            "READ"
+        ]:
             url_completa = f"{url}{year}{str(month).zfill(2)}_{table_name}/"
             log(f"URL -> {url_completa}")
             list_url.append(url_completa)
@@ -71,7 +74,7 @@ def build_input(table_id):
     """
     Builds a list of input directories based on the given table ID.
 
-    This function retrieves the input keys from the constants.TABELA_SERVIDORES
+    This function retrieves the input keys from the constants.TABELAS.value['br_cgu_servidores_executivo_federal']
     dictionary for the specified table_id. It then checks if each input directory
     exists, creates it if it does not, and appends the directory path to a list.
     Finally, it logs the list of input directories and returns it.
@@ -83,14 +86,16 @@ def build_input(table_id):
         list: A list of input directory paths.
 
     Raises:
-        KeyError: If the table_id is not found in constants.TABELA_SERVIDORES.
+        KeyError: If the table_id is not found.
     """
     list_input = []
-    for input in constants.TABELA_SERVIDORES.value[table_id]["READ"]:
+    for input in constants.TABELAS.value[
+        "br_cgu_servidores_executivo_federal"
+    ][table_id]["READ"]:
         value_input = f"{input}"
         if not os.path.exists(value_input):
             os.makedirs(value_input)
-            print(value_input)
+            log(value_input)
         list_input.append(value_input)
     return list_input
 
@@ -122,34 +127,18 @@ def download_file(
         # pyrefly: ignore [bad-argument-type]
         relative_month=relative_month,
     )
-
+    value_constants = constants.TABELAS.value[dataset_id][table_id]
     if dataset_id in [
         "br_cgu_cartao_pagamento",
         "br_cgu_licitacao_contrato",
         "br_cgu_beneficios_cidadao",
     ]:
-        if dataset_id == "br_cgu_cartao_pagamento":
-            value_constants = constants.TABELA.value[
-                table_id
-            ]  # ! CGU - Cartão de Pagamento
-
-        elif dataset_id == "br_cgu_licitacao_contrato":
-            value_constants = constants.TABELA_LICITACAO_CONTRATO.value[
-                table_id
-            ]
-
-        elif dataset_id == "br_cgu_beneficios_cidadao":
-            value_constants = constants.TABELA_BENEFICIOS_CIDADAO.value[
-                table_id
-            ]
-
-        input = value_constants["INPUT"]
-
+        # pyrefly: ignore [bad-argument-type]
+        input = Path(value_constants["INPUT"])
         if not os.path.exists(input):
             # pyrefly: ignore [bad-argument-type]
             os.makedirs(input)
-
-        url: str = build_urls(
+        url = build_urls(
             # pyrefly: ignore [bad-argument-type]
             url=value_constants["URL"],
             year=next_date_in_api.year,
@@ -158,9 +147,8 @@ def download_file(
             dataset_id=dataset_id,
         )
 
-        if dataset_id == "br_cgu_beneficios_cidadao":
+        if dataset_id == "br_cgu_beneficios_cidadao" and isinstance(url, str):
             url = url.rstrip("/")
-
             headers = {
                 "User-Agent": constants.BROWSERS_USER_AGENT.value["chrome"]
             }
@@ -168,8 +156,22 @@ def download_file(
         else:
             headers = None
             status = (
-                requests.get(url=url, headers=headers, timeout=30).status_code
-                == 200
+                (
+                    requests.get(
+                        url=url, headers=headers, timeout=30
+                    ).status_code
+                    == 200
+                )
+                if isinstance(url, str)
+                else all(
+                    [
+                        requests.get(
+                            url=_url, headers=headers, timeout=30
+                        ).status_code
+                        == 200
+                        for _url in url
+                    ]
+                )
             )
 
         if status:
@@ -188,37 +190,28 @@ def download_file(
             return last_date_in_api
 
     elif dataset_id == "br_cgu_servidores_executivo_federal":
-        constants_cgu = constants.TABELA_SERVIDORES.value[
-            table_id
-        ]  # ! CGU - Servidores Públicos do Executivo Federal
-
-        url = build_urls(
+        urls = build_urls(
             dataset_id=dataset_id,
             table_id=table_id,
-            url=constants.URL_SERVIDORES.value,
+            # pyrefly: ignore [bad-argument-type]
+            url=value_constants["URL"],
             year=next_date_in_api.year,
             month=next_date_in_api.month,
         )
         input_dirs = build_input(table_id)
-        log(f"------------------ URL = {url} ------------------")
+        log(f"------------------ URL = {urls} ------------------")
 
         headers = {"User-Agent": constants.BROWSERS_USER_AGENT.value["chrome"]}
 
-        for urls, input_dir in zip(url, input_dirs, strict=False):
-            status = source_url_is_available(url=urls)
+        for url, input_dir in zip(urls, input_dirs, strict=False):
+            log(f"Validating: {url}")
+            status = source_url_is_available(url=url)
             if status:
-                destino = f"{constants_cgu['INPUT']}/{input_dir}"
-                download_and_unzip_file(urls, destino, headers=headers)
-
-                last_date_in_api, next_date_in_api = last_date_in_metadata(
-                    dataset_id=dataset_id,
-                    table_id=table_id,
-                    # pyrefly: ignore [bad-argument-type]
-                    relative_month=relative_month,
-                )
+                destino = f"{value_constants['INPUT']}/{input_dir}"
+                download_and_unzip_file(url, destino, headers=headers)
             else:
                 log(
-                    f"URL indisponível (não publicada ou bloqueada), pulando: {urls}",
+                    f"URL indisponível (não publicada ou bloqueada), pulando: {url}",
                     level="warning",
                 )
 
@@ -278,13 +271,13 @@ def read_csv(
         ["VALOR_TRANSACAO"] if column_replace is None else column_replace
     )
 
+    value_constants = constants.TABELAS.value[dataset_id][table_id]
+    # pyrefly: ignore [no-matching-overload]
+    log(os.listdir(value_constants["INPUT"]))
     if dataset_id == "br_cgu_cartao_pagamento":
-        value_constants = constants.TABELA.value[table_id]
-
-        log(os.listdir(value_constants["INPUT"]))
-
         csv_file = next(
             f
+            # pyrefly: ignore [no-matching-overload]
             for f in os.listdir(value_constants["INPUT"])
             if f.endswith(".csv")
         )
@@ -295,7 +288,6 @@ def read_csv(
             sep=";",
             encoding="latin1",
         )
-
         df.columns = [
             unidecode.unidecode(x).upper().replace(" ", "_")
             for x in df.columns
@@ -309,19 +301,16 @@ def read_csv(
         return df
 
     if dataset_id == "br_cgu_licitacao_contrato":
-        constants_cgu_licitacao_contrato = (
-            constants.TABELA_LICITACAO_CONTRATO.value[table_id]
-        )
-        print(os.listdir(constants_cgu_licitacao_contrato["INPUT"]))
         csv_file = [  # noqa: RUF015
             f
-            for f in os.listdir(constants_cgu_licitacao_contrato["INPUT"])
-            if f.endswith(constants_cgu_licitacao_contrato["READ"])
+            # pyrefly: ignore [no-matching-overload]
+            for f in os.listdir(value_constants["INPUT"])
+            if f.endswith(value_constants["READ"])
         ][0]
         log(f"CSV files: {csv_file}")
-        log(f"{constants_cgu_licitacao_contrato['INPUT']}/{csv_file}")
+        log(f"{value_constants['INPUT']}/{csv_file}")
         df = pd.read_csv(
-            f"{constants_cgu_licitacao_contrato['INPUT']}/{csv_file}",
+            f"{value_constants['INPUT']}/{csv_file}",
             sep=";",
             encoding="latin1",
         )
@@ -373,36 +362,35 @@ def last_date_in_metadata(
         date_format="%Y-%m",
         backend=backend,
     )
-
-    if table_id == "microdados_compras_centralizadas":
-        for month in range(14, 20):
-            next_date_in_api = last_date_in_api + relativedelta(months=month)
-
-            value_constants = constants.TABELA.value[table_id]
-
-            url: str = build_urls(
-                url=value_constants["URL"],
-                year=next_date_in_api.year,
-                month=next_date_in_api.month,
-                table_id=table_id,
-                dataset_id=dataset_id,
-            )
-            if requests.get(url).status_code == 200:
-                log(f"Last date in API: {last_date_in_api}")
-                log(f"Next date in API: {next_date_in_api}")
-
-                return last_date_in_api, next_date_in_api
-
-            else:
-                log(f"URL não encontrada: {url}")
-        # pyrefly: ignore [unbound-name]
-        return last_date_in_api, next_date_in_api
-    else:
-        next_date_in_api = last_date_in_api + relativedelta(
-            months=relative_month
+    status = False
+    next_date_in_api = last_date_in_api + relativedelta(months=relative_month)
+    value_constants = constants.TABELAS.value[dataset_id][table_id]
+    _range_counter = 0
+    while (
+        next_date_in_api <= datetime.datetime.now().date()
+        and not status
+        and constants.MAX_MONTH_RANGE.value > _range_counter
+    ):
+        urls = build_urls(
+            # pyrefly: ignore [bad-argument-type]
+            url=value_constants["URL"],
+            year=next_date_in_api.year,
+            month=next_date_in_api.month,
+            table_id=table_id,
+            dataset_id=dataset_id,
         )
+        log("Check dates")
         log(f"Last date in API: {last_date_in_api}")
         log(f"Next date in API: {next_date_in_api}")
+        if isinstance(urls, list):
+            status = all([source_url_is_available(url) for url in urls])
+        else:
+            status = source_url_is_available(urls)
+        next_date_in_api = next_date_in_api + relativedelta(
+            months=relative_month
+        )
+        _range_counter += 1
+    next_date_in_api = next_date_in_api - relativedelta(months=relative_month)
     return last_date_in_api, next_date_in_api
 
 
@@ -478,7 +466,9 @@ def read_and_clean_csv(table_id: str) -> pd.DataFrame:
         pd.DataFrame: The concatenated and cleaned DataFrame.
     """
     append_dataframe = []
-    constants_cgu_servidores = constants.TABELA_SERVIDORES.value[table_id]
+    constants_cgu_servidores = constants.TABELAS.value[
+        "br_cgu_servidores_executivo_federal"
+    ][table_id]
     for csv_path in build_input(table_id):
         path = f"{constants_cgu_servidores['INPUT']}/{csv_path}"
         for get_csv in os.listdir(path):
@@ -563,13 +553,16 @@ def partition_data_beneficios_cidadao(
     counter,
     # pyrefly: ignore [bad-return]
 ) -> str:
+    value_constants = constants.TABELAS.value["br_cgu_beneficios_cidadao"][
+        table_id
+    ]
     if table_id == "novo_bolsa_familia":
         unique_anos = df[coluna1].unique().tolist()
         unique_meses = df[coluna2].unique().tolist()
 
         for ano_completencia in unique_anos:
             for mes_completencia in unique_meses:
-                path_partition = f"{constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT']}/{coluna1}={ano_completencia}/{coluna2}={mes_completencia}"
+                path_partition = f"{value_constants['OUTPUT']}/{coluna1}={ano_completencia}/{coluna2}={mes_completencia}"
 
                 if not os.path.exists(path_partition):
                     os.makedirs(path_partition)
@@ -591,7 +584,7 @@ def partition_data_beneficios_cidadao(
         unique_meses = df[coluna1].unique().tolist()
 
         for mes in unique_meses:
-            path_partition = f"{constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]['OUTPUT']}/{coluna1}={mes}/"
+            path_partition = f"{value_constants['OUTPUT']}/{coluna1}={mes}/"
 
             if not os.path.exists(path_partition):
                 os.makedirs(path_partition)
@@ -637,10 +630,16 @@ def source_url_is_available(
             url=url, headers=headers, stream=True, timeout=30
         ) as response:
             if response.status_code == 200:
+                time.sleep(5)
                 return True
             elif response.status_code == 202:
                 log(f"preparando ZIP, tentativa {t}")
                 time.sleep(wait_seconds)
+            elif response.status_code == 405:
+                log(
+                    f"Requisição com status code: {response.status_code}. Retry {t}"
+                )
+                time.sleep(15)
             else:
                 log(
                     f"Comportamento inesperado, requisição com status code: {response.status_code}"
