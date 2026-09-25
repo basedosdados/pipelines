@@ -74,7 +74,8 @@ select
     safe_cast(permanen as string) permanencia_atendimento,
     safe_cast(mot_cob as string) motivo_saida_permanencia,
     safe_cast(
-        format_date('%Y-%m-%d', safe.parse_date('%Y%m%d', dt_motcob)) as date
+        {{ validate_date_range("safe.parse_date('%Y%m%d', dt_motcob)", "2008-01-01") }}
+        as date
     ) as data_motivo_saida_permanencia,
     safe_cast(substr(dt_process, 1, 4) as int64) as ano_processamento,
     safe_cast(substr(dt_process, 5, 2) as int64) as mes_processamento,
@@ -100,14 +101,12 @@ select
     safe_cast(
         trim(
             case
-                when length(trim(cidpri)) = 4 and cidpri != '0000'
-                then cidpri
                 when
-                    length(trim(cidpri)) = 3
+                    length(trim(cidpri)) between 3 and 4
                     and cidpri in (
                         select subcategoria
                         from `basedosdados.br_bd_diretorios_brasil.cid_10`
-                        where length(subcategoria) = 3
+                        where length(subcategoria) between 3 and 4
                     )
                 then cidpri
                 else null
