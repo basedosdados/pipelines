@@ -13,20 +13,26 @@ from unidecode import unidecode
 
 
 def download_file(real_file_id: str, sheet_name: str) -> pd.DataFrame:
-    """Downloads a file
-    Args:
-        real_file_id: ID of the file to download
-    Returns : IO object with location.
+    """Baixa uma planilha do Google Drive e lê uma aba como DataFrame.
 
-    Load pre-authorized user credentials from the environment.
-    TODO(developer) - See https://developers.google.com/identity
-    for guides on implementing OAuth2 for the application.
+    A service account é lida do caminho em `SOU_DA_PAZ_SERVICE_ACCOUNT`.
+
+    Args:
+        real_file_id: ID do arquivo no Google Drive.
+        sheet_name: Nome da aba a ser lida.
+
+    Returns:
+        pd.DataFrame: A aba, com todas as colunas como texto.
+
+    Raises:
+        KeyError: Se `SOU_DA_PAZ_SERVICE_ACCOUNT` não estiver definida.
+        HttpError: Se o download falhar.
     """
     scopes = [
         "https://spreadsheets.google.com/feeds",
         "https://www.googleapis.com/auth/drive",
     ]
-    filename = "/home/tricktx/.service-account/service-account-sou-da-paz.json"  # ! Path para o Json da service account
+    filename = os.environ["SOU_DA_PAZ_SERVICE_ACCOUNT"]
     creds = ServiceAccountCredentials.from_json_keyfile_name(
         filename=filename, scopes=scopes
     )
@@ -35,34 +41,36 @@ def download_file(real_file_id: str, sheet_name: str) -> pd.DataFrame:
         # create drive api client
         service = build("drive", "v3", credentials=creds)
 
-        file_id = real_file_id
-
-        # pylint: disable=maybe-no-member
-        request = service.files().get_media(fileId=file_id)
+        # O `Resource` do googleapiclient monta `files()` em runtime.
+        # pyrefly: ignore [missing-attribute]
+        request = service.files().get_media(fileId=real_file_id)
         file = io.BytesIO()
         downloader = MediaIoBaseDownload(file, request)
         done = False
         while done is False:
             status, done = downloader.next_chunk()
             print(f"Download {int(status.progress() * 100)}.")
-
-            df = pd.read_excel(file, sheet_name, dtype=str)
-            df.columns = df.columns.str.strip()
-
     except HttpError as error:
         print(f"An error occurred: {error}")
-        file = None
+        raise
+
+    file.seek(0)
+    df = pd.read_excel(file, sheet_name, dtype=str)
+    df.columns = df.columns.str.strip()
 
     return df
 
 
-def change_columns_name(url_architecture: str) -> dict[str, str]:
+def change_columns_name(
+    url_architecture: str,
+) -> tuple[dict[str, str], list[str]]:
     """Essa função recebe como input uma string com link para uma tabela de arquitetura
     e retorna um dicionário com os nomes das colunas originais e os nomes das colunas
-    padronizados
+    padronizados, junto com a ordem das colunas padronizadas
 
     Returns:
-        dict: com chaves sendo os nomes originais e valores sendo os nomes padronizados
+        tuple: dicionário com chaves sendo os nomes originais e valores sendo os
+            nomes padronizados, e a lista dos nomes padronizados na ordem da arquitetura
     """
 
     rename_columns = []

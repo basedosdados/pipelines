@@ -35,6 +35,14 @@ Com as credenciais e o repositório devidamente configurados, siga o fluxo abaix
 
 Na versão `2.1.0b1` do pacote `basedosdados` têm dois parametros que permiter alterar o nome do bucket e a pasta dentro do bucket que representa o nome da organização.
 
+Essa versão ainda é beta, então o `uv.lock` do repositório continua na versão estável e os scripts de ingestão precisam rodar com a `2.1.0b1` por cima, via `--with` (ver o passo 2). Com a versão estável, o `Table(..., mode="sou_da_paz")` falha, porque o parâmetro `mode` não existe.
+
+Os scripts baixam as planilhas do Google Drive com a service account do projeto. Aponte a variável `SOU_DA_PAZ_SERVICE_ACCOUNT` para o JSON dela antes de rodar:
+
+```bash
+export SOU_DA_PAZ_SERVICE_ACCOUNT=/caminho/para/service-account-sou-da-paz.json
+```
+
 Exemplo de uso:
 ```python
 import pandas as pd
@@ -44,7 +52,7 @@ from basedosdados import Table
 tb = Table(
     dataset_id="br_sou_da_paz_dataset-name",
     table_id="table-name",
-    bucket_name="basedosdados-consultoria", # Nome do bucket
+    bucket_name="basedosdados-consultoria",  # Nome do bucket
     mode="sou_da_paz",  # Nome da pasta no bucket, deve ser o nome da organização
 )
 
@@ -62,7 +70,7 @@ tb.create("/tmp/data.csv")
 No repositório de pipelines da Base dos Dados, execute:
 
 ```bash
-uv run models/br_sou_da_paz_armas_municoes/code/tabelas.py
+uv run --with basedosdados==2.1.0b1 models/br_sou_da_paz_armas_municoes/code/tabelas.py
 ```
 Esse comando processa todas as tabelas do projeto, realiza o upload dos dados para o Cloud Storage e, na sequência, os disponibiliza no BigQuery em ambiente de staging.
 
