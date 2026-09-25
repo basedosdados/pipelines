@@ -149,4 +149,7 @@ def br_sedec_desastres__reconhecimentos_vigentes(
 
 
 # pyrefly: ignore [missing-attribute]
-br_sedec_desastres__reconhecimentos_vigentes.job_variables = {"memory": "4Gi"}
+br_sedec_desastres__reconhecimentos_vigentes.job_variables = {
+    "memory_limit": "4Gi",
+    "memory_request": "1Gi",
+}
