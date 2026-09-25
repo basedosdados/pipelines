@@ -2,7 +2,7 @@
 version: 2
 models:
   - name: br_jota__eleicao_perfil_candidato
-    description: Descreve o perfil dos candidatos da eleição de 2022
+    description: Descreve o perfil dos candidatos das eleições de 2022 e 2026
     columns:
       - name: ano
       - name: sequencial
