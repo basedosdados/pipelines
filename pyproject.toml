@@ -220,6 +220,10 @@ build-backend = "hatchling.build"
 [tool.pyrefly]
 project-excludes = [
   "pipelines/{{cookiecutter.pipeline_name}}",
+  # The br_cnj_datajud onboarding scripts run from their own directory,
+  # so verify.py imports clean.py as a bare sibling (`from clean import`)
+  # which pyrefly cannot resolve against the project import root.
+  "models/br_cnj_datajud/code",
   # Same policy: the cl_ine_censo onboarding scripts run from their own
   # directory with bare sibling imports (`constants`, `dictionary`), and they
   # call pyarrow.compute kernels (utf8_trim_whitespace, unique) that pyrefly
