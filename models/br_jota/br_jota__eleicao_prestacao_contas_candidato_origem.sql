@@ -1,7 +1,7 @@
 {{
     config(
         schema="br_jota",
-        alias="eleicao_prestacao_contas_candidato_origem_2022",
+        alias="eleicao_prestacao_contas_candidato_origem",
         materialized="table",
     )
 }}

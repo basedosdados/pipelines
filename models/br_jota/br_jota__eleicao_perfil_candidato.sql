@@ -1,8 +1,4 @@
-{{
-    config(
-        schema="br_jota", alias="eleicao_perfil_candidato_2022", materialized="table"
-    )
-}}
+{{ config(schema="br_jota", alias="eleicao_perfil_candidato", materialized="table") }}
 
 select
     ano,

@@ -1,7 +1,7 @@
 ---
 version: 2
 models:
-  - name: br_jota__eleicao_perfil_candidato_2022
+  - name: br_jota__eleicao_perfil_candidato
     description: Descreve o perfil dos candidatos da eleição de 2022
     columns:
       - name: ano
@@ -15,7 +15,7 @@ models:
       - name: raca
       - name: idade
       - name: faixa_etaria
-  - name: br_jota__eleicao_prestacao_contas_candidato_2022
+  - name: br_jota__eleicao_prestacao_contas_candidato
     description: Informações de prestação de contas no nível de candidato
     columns:
       - name: ano

@@ -1,7 +1,7 @@
 {{
     config(
         schema="br_jota",
-        alias="eleicao_prestacao_contas_candidato_2022",
+        alias="eleicao_prestacao_contas_candidato",
         materialized="table",
     )
 }}
@@ -14,7 +14,7 @@ with
                 case when origem = 'Recursos De Partido Politico' then valor end
             ) as receita_partido,
             sum(valor) as valor_total
-        from {{ ref("br_jota__eleicao_prestacao_contas_candidato_origem_2022") }}
+        from {{ ref("br_jota__eleicao_prestacao_contas_candidato_origem") }}
         where sequencial_candidato is not null and receita_despesa = 'Receita'
         group by 1
     )
@@ -31,7 +31,7 @@ select
         partition by candidato_info.ano, sigla_partido, cargo order by valor_total desc
     ) as rank_cargo_partido,
     valores.* except (ano_sequencial_candidato)
-from {{ ref("br_jota__eleicao_perfil_candidato_2022") }} as candidato_info
+from {{ ref("br_jota__eleicao_perfil_candidato") }} as candidato_info
 left join
     soma_receitas_candidato as valores
     on candidato_info.ano_sequencial_candidato = valores.ano_sequencial_candidato
