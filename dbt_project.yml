@@ -160,9 +160,15 @@ models:
     br_bd_diretorios_cl:
       +materialized: table
       +schema: br_bd_diretorios_cl
+    cl_ine_censo:
+      +materialized: table
+      +schema: cl_ine_censo
     cl_res_empresas:
       +materialized: table
       +schema: cl_res_empresas
+    cl_ine_ene:
+      +materialized: table
+      +schema: cl_ine_ene
     br_bd_diretorios_de:
       +materialized: table
       +schema: br_bd_diretorios_de
@@ -513,6 +519,9 @@ models:
     br_mdr_snis:
       +materialized: table
       +schema: br_mdr_snis
+    br_mapbiomas_estatisticas:
+      +materialized: table
+      +schema: br_mapbiomas_estatisticas
     br_me_caged:
       +materialized: table
       +schema: br_me_caged
@@ -690,6 +699,9 @@ models:
     us_usda_nass:
       +materialized: table
       +schema: us_usda_nass
+    us_ssa_beneficiaries:
+      +materialized: table
+      +schema: us_ssa_beneficiaries
     us_state_foreign_assistance:
       +materialized: table
       +schema: us_state_foreign_assistance
