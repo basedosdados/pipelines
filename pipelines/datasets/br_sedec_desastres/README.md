@@ -226,6 +226,39 @@ Restrições que vêm com a escolha:
 - a página tem **vários** botões "Exportar CSV", um por relatório. O seletor precisa
   ser relativo ao painel certo, senão baixa o relatório errado, sem erro.
 
+### O proxy brasileiro, e por que há um repasse local
+
+O S2ID recusa IP estrangeiro: responde `403` com `Acesso bloqueado por localizacao
+geografica`, e o cluster roda em `us-central1`. A saída é o Squid em
+`southamerica-east1` (`iac#156`), lido de `BRASIL_PROXY_URL` pelos helpers
+`brasil_proxy_url()`/`brasil_proxy_dict()`.
+
+Nas chamadas de `requests` isso é um argumento e acabou. Com o Chrome não: ele só
+aceita proxy pelo `--proxy-server`, essa flag não tem campo para credencial, e o
+Squid exige Basic Auth — é o único controle de acesso dele, sem allowlist de IP.
+
+As quatro formas de dar a credencial ao Chrome, todas medidas contra um Squid de
+mentira que exige Basic Auth:
+
+| tentativa | resultado |
+|---|---|
+| credencial na flag (`http://user:senha@host:porta`) | `net::ERR_NO_SUPPORTED_PROXIES`; a flag é rejeitada inteira e não sai pedido |
+| flag sem credencial, com túnel TCP no meio (`socat`, `ssh -L`) | 12 × 407: cano cego não insere cabeçalho |
+| extensão tratando `onAuthRequired` | 12 × 407: `--load-extension` está desativado desde o Chrome 137, e o pod roda 153 |
+| `selenium-wire` | ignora o proxy e vai direto; além disso só importa com `setuptools<81`, `blinker==1.7` e `pyopenssl<23.3` |
+| repasse local (`_proxy_local`) | 0 × 407, 23 pedidos autenticados, página carregada |
+
+Daí o repasse: o Chrome aponta para `127.0.0.1`, que não pede autenticação; ele abre
+a conexão com o Squid acrescentando o `Proxy-Authorization` e, a partir da primeira
+linha, só copia bytes. O `CONNECT` do HTTPS atravessa inteiro, então o TLS segue
+ponta a ponta entre o Chrome e a fonte — nem o repasse nem o Squid veem o conteúdo.
+
+Custo medido: **0,5 MB** de RSS a mais, duas threads por conexão viva, e **0,02 s** de
+CPU a cada 64 MB. O Chrome sozinho passa de 300 MB.
+
+Ele desaparece no dia em que o Squid liberar a origem do cluster por IP, e aí basta
+`--proxy-server=http://host:3128`.
+
 ## Estrutura
 
 ```text
