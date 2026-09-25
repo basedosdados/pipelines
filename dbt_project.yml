@@ -420,6 +420,9 @@ models:
     br_geobr_mapas:
       +materialized: table
       +schema: br_geobr_mapas
+    br_ibama_fiscalizacao:
+      +materialized: table
+      +schema: br_ibama_fiscalizacao
     br_ibge_censo_2022:
       +materialized: table
       +schema: br_ibge_censo_2022

@@ -224,6 +224,7 @@ project-excludes = [
   # directory with bare sibling imports (`constants`, `dictionary`), and they
   # call pyarrow.compute kernels (utf8_trim_whitespace, unique) that pyrefly
   # cannot see because pyarrow generates them at import time.
+  "models/br_ibama_fiscalizacao/code",
   "models/cl_ine_censo/code",
   "models/us_ffiec_bank_reporting/code",
   "models/world_oecd_education/code",

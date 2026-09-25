@@ -1,0 +1,24 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano da lavratura do auto de infração,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de partição. Derivada de DAT_HORA_AUTO_INFRACAO; quando a data é ausente ou implausível usa-se o ano do arquivo publicado pelo Ibama,DAT_HORA_AUTO_INFRACAO
+sigla_uf,STRING,Sigla da unidade da federação onde a infração foi registrada,,no,br_bd_diretorios_brasil.uf:sigla,,no,,UF
+id_municipio,STRING,Identificador IBGE de 7 dígitos do município onde a infração foi registrada,,no,br_bd_diretorios_brasil.municipio:id_municipio,,no,Nulo em 303 registros cujo código publicado não tem 7 dígitos,COD_MUNICIPIO
+id_auto,STRING,Identificador único do auto de infração no sistema do Ibama,,no,,,no,Chave primária lógica e chave estrangeira usada por area_embargada. Ausente em 6.651 autos originados no aplicativo AI-e Mob,SEQ_AUTO_INFRACAO
+numero_auto_infracao,STRING,Número impresso do auto de infração,,no,,,no,Não é único: números curtos legados foram reutilizados entre unidades e anos,NUM_AUTO_INFRACAO
+serie_auto_infracao,STRING,Série do formulário do auto de infração,,no,,,no,,SER_AUTO_INFRACAO
+data_auto,DATE,Data da lavratura do auto de infração,,no,,,no,,DAT_HORA_AUTO_INFRACAO
+tipo_auto,STRING,Tipo de auto lavrado,,no,,,no,,TIPO_AUTO
+tipo_infracao,STRING,Bem tutelado atingido pela infração,,no,,,no,Vazio em 283.036 registros anteriores à classificação por bem tutelado,TIPO_INFRACAO
+gravidade,STRING,Gravidade atribuída à infração,,no,,,no,Preenchido apenas para autos do sistema AI-e; vazio em 94% dos registros,GRAVIDADE_INFRACAO
+valor_multa,FLOAT64,Valor da multa aplicada no auto de infração,,no,,BRL,no,A moeda do valor está na coluna moeda. Apenas registros com moeda igual a Real estão em BRL; valores anteriores a 1994 estão em Cruzeiro Cruzado Cruzeiro Real ou BTN e não são comparáveis sem conversão,VAL_AUTO_INFRACAO
+moeda,STRING,Moeda em que o valor da multa foi fixado,,no,,,no,Obtida da série de multas distribuídas por bens tutelados (Sicafi),Moeda
+situacao_debito,STRING,Situação do débito da multa na cobrança administrativa e judicial,,no,,,no,Obtida da série de multas distribuídas por bens tutelados (Sicafi) pela chave numero_auto_infracao mais serie_auto_infracao; preenchida em 97% dos autos,Situação Débito
+situacao_auto,STRING,Situação do formulário do auto de infração,,no,,,no,,DES_STATUS_FORMULARIO
+indicador_cancelado,STRING,Indica se o auto de infração foi cancelado,,yes,,,no,S para cancelado e N para não cancelado,SIT_CANCELADO
+tipo_pessoa_infrator,STRING,Natureza jurídica do autuado,,yes,,,no,PF para pessoa física e PJ para pessoa jurídica,TP_PESSOA_INFRATOR
+cpf_cnpj_infrator,STRING,CPF ou CNPJ do autuado somente dígitos,,no,,,yes,Publicado sem máscara pelo Ibama e reproduzido como divulgado. Contém 457.765 CPFs completos de pessoas físicas,CPF_CNPJ_INFRATOR
+nome_infrator,STRING,Nome ou razão social do autuado,,no,,,yes,Publicado pelo Ibama e reproduzido como divulgado,NOME_INFRATOR
+latitude,FLOAT64,Latitude do local da infração em graus decimais,,no,,degree,no,Preenchida em 41% dos autos. Ver indicador_coordenada_valida antes de usar,NUM_LATITUDE_AUTO
+longitude,FLOAT64,Longitude do local da infração em graus decimais,,no,,degree,no,Preenchida em 41% dos autos. Ver indicador_coordenada_valida antes de usar,NUM_LONGITUDE_AUTO
+indicador_coordenada_valida,STRING,Indica se o ponto publicado cai dentro do polígono do município declarado,,no,,,no,Calculado contra br_geobr_mapas.municipio. sim para dentro nao para fora e nulo quando não há coordenada. 27% dos pontos testáveis caem fora com distância mediana de 4.288 km,
+data_ultima_alteracao,DATE,Data da última alteração do registro no sistema do Ibama,,no,,,no,Usada para manter a versão mais recente quando o Ibama republica um auto emendado,DT_ULT_ALTERACAO
+data_extracao,DATE,Data da extração do arquivo publicado pelo Ibama,,no,,,no,Permite distinguir safras do mesmo auto entre atualizações diárias da fonte,ULTIMA_ATUALIZACAO_RELATORIO
