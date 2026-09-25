@@ -1,10 +1,7 @@
-{{
-    config(
-        schema="br_jota", alias="eleicao_perfil_candidato_2022", materialized="table"
-    )
-}}
+{{ config(schema="br_jota", alias="eleicao_perfil_candidato", materialized="table") }}
 
 select
+    ano,
     sequencial,
     concat(ano, sequencial) as ano_sequencial_candidato,
     nome_urna,
@@ -25,4 +22,4 @@ select
         then "70-100"
     end as faixa_etaria
 from `basedosdados.br_tse_eleicoes.candidatos`
-where ano = 2022
+where ano in (2022, 2026)
