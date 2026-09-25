@@ -2,20 +2,24 @@
 Flows for br_bd_execucao_estadual — Prefect 3.
 
 State-government budget execution and procurement: Minas Gerais, Bahia, Pernambuco,
-São Paulo, Espírito Santo and Rio Grande do Sul -- ten published tables, and `despesa`
-alone carries 115.6M rows.
+São Paulo, Espírito Santo, Rio Grande do Sul, Santa Catarina, Paraíba and (frozen)
+Ceará -- twelve published tables, and `despesa` alone carries 115.6M rows.
 
-THREE FLOWS, because the six sources refresh at very different speeds:
+FOUR FLOWS -- three refreshers on different cadences, plus one manual seed:
 
-* `br_bd_execucao_estadual_flow` — daily. MG, BA, PE, ES and RS are bulk file
-  downloads, and only the open exercises move, so a daily pass re-fetches those and
-  rebuilds.
+* `br_bd_execucao_estadual_flow` — daily. MG, BA, PE, ES, RS, SC and PB are bulk file
+  or API downloads, and only the open exercises move, so a daily pass re-fetches those
+  and rebuilds every table they feed (now including `liquidacao` and `contrato`).
 * `br_bd_execucao_estadual_sp_flow` — weekly. São Paulo has no bulk download at all;
   SIGEO is a WebForms consultation queried once per (exercise, órgão) at roughly 36 s
   each. One exercise is about twenty minutes and the full history took five hours, so
   SP must not gate the daily run.
 * `br_bd_execucao_estadual_rs_flow` — no schedule. A manual backfill route for RS
   alone; see its docstring for when it earns its keep.
+* `br_bd_execucao_estadual_seed_frozen_prod_flow` — no schedule. A ONE-TIME seed that
+  copies the frozen mirrors (Ceará, and the SC/RS contract registries) forward from the
+  dev staging bucket to prod, because they are produced by no refresher. Run it once,
+  before the first daily prod run that carries CE / liquidacao / contrato.
 
 ORDERING TRAP, if this dataset is ever bootstrapped into a fresh environment.
 
@@ -47,7 +51,7 @@ prod, by uploading them to the prod bucket itself. The first prod run therefore 
 be `full_refresh=True`, which downloads every exercise and uploads all 49; after that
 the daily incremental keeps them current.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers all three flows; the dev pool
+Deploy: `.github/scripts/deploy_flows.py` auto-discovers all four flows; the dev pool
 ignores the schedule, the prod pool activates it (paused). The dev pool is only written
 by a PR carrying the `deploy-flow` label -- without it the deploy job skips and the
 staging deployments silently keep whatever they had.
@@ -64,6 +68,7 @@ from pipelines.datasets.br_bd_execucao_estadual.coverage import (
     refresh_state_coverage,
 )
 from pipelines.datasets.br_bd_execucao_estadual.tasks import (
+    download_frozen_mirror,
     parquet_row_count,
     refresh_state,
 )
@@ -89,7 +94,7 @@ DATASET_ID = constants.DATASET_ID.value
 # the cluster's path works.
 #
 # A scoped RS pass is two exercises, about 8 minutes, which the daily run absorbs.
-DAILY_STATES = ["MG", "BA", "PE", "ES", "RS"]
+DAILY_STATES = ["MG", "BA", "PE", "ES", "RS", "SC", "PB"]
 WEEKLY_STATES = ["SP"]
 
 
@@ -284,6 +289,110 @@ def br_bd_execucao_estadual_rs_flow(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="despesa"
     )
     _run(["RS"], materialize_to_prod, update_metadata, full_refresh)
+
+
+@flow(name="br_bd_execucao_estadual_seed_frozen_prod", log_prints=True)
+def br_bd_execucao_estadual_seed_frozen_prod_flow(
+    materialize_to_prod: bool = True,
+    download_billing_project: str = "basedosdados",
+    mirrors: list[str] | None = None,
+    rebuild_tables: list[str] | None = None,
+) -> None:
+    """Copy already-built staging mirrors from the dev bucket into prod. MANUAL.
+
+    Two bootstrap jobs share this one mechanism -- copy a mirror's cleaned parquet from
+    `basedosdados-dev` to `basedosdados` and create the `basedosdados-staging` external
+    table through `upload_to_gcs`, exactly as a refresh upload would (table-approve
+    cannot: it looks for per-published-table prefixes this dataset does not have):
+
+    * The FROZEN mirrors (`mirrors=None`, the default -> constants.FROZEN_PROD_MIRRORS):
+      `ce_*`, `sc_contrato`, `rs_contrato`. No refresher produces these -- Ceará's portal
+      is WAF + geo-blocked, the SC/RS contract registries are one-shot -- so they live in
+      prod only by being copied here, and stay frozen.
+    * A re-scrapable state's mirrors already built in dev, when re-running the whole
+      daily flow to reach one late state would cost hours. SC/PB's first prod load used
+      `mirrors=[sc_empenho, sc_liquidacao, sc_pagamento, pb_empenho, pb_liquidacao,
+      pb_pagamento]` because those mirrors already existed in dev; a fresh clean was not
+      worth another ~20 GB download of the five states ahead of them. Going forward the
+      daily flow keeps SC/PB current from source -- this is a bootstrap, not their
+      refresh path.
+
+    Pass `rebuild_tables` to run those published models against `target="prod"` after the
+    upload, materialising them in one shot -- their other union mirrors must already be in
+    prod staging. Omit it to upload mirrors only and let the daily flow rebuild.
+
+    Re-running is safe (idempotent overwrite).
+
+    PROD POOL ONLY. Like `transfer_files_to_prod_flow`, this reads the requester-pays
+    `basedosdados-dev` bucket billed to `download_billing_project`, which must be a
+    project where the worker's SA holds `serviceusage.services.use`. That is
+    `basedosdados` on the prod pool. The dev pool's SA lacks it, so a dev dry run 403s
+    on the very first read -- there is no dev exercise of this flow, and the read half
+    is instead proven by the repo's `download_files_from_bucket_folders` utility, which
+    reads the same bucket the same way.
+
+    Args:
+        materialize_to_prod: Write the prod bucket (`basedosdados`). False writes the
+            dev bucket instead -- only meaningful from the prod pool, where the SA can
+            still bill the requester-pays read.
+        download_billing_project: Project billed for the requester-pays read of the dev
+            staging bucket. Must grant the worker SA `serviceusage.services.use`;
+            `basedosdados` on the prod pool.
+        mirrors: Staging mirrors to copy. None means constants.FROZEN_PROD_MIRRORS.
+        rebuild_tables: Published models to `dbt run` against prod after the copy. None
+            means copy only.
+    """
+    mirrors = (
+        mirrors if mirrors is not None else constants.FROZEN_PROD_MIRRORS.value
+    )
+    # pyrefly: ignore [unused-coroutine]
+    rename_flow_run_dataset_table(
+        prefix="Seed prod staging: ",
+        dataset_id=DATASET_ID,
+        table_id="contrato",
+    )
+    bucket = "basedosdados" if materialize_to_prod else "basedosdados-dev"
+    target = "prod" if materialize_to_prod else "dev"
+    billing = download_billing_project
+    work_dir = tempfile.mkdtemp(prefix="br_bd_execucao_estadual_seed_")
+    try:
+        for mirror in mirrors:
+            path = download_frozen_mirror(
+                mirror=mirror, work_dir=work_dir, billing_project=billing
+            )
+            # overwrite, not append: this is a one-time full replacement of the prefix,
+            # and bucket and billing are the same environment, so the dev-run hazard the
+            # daily flow guards against (overwrite deleting the prod table) cannot arise.
+            upload_to_gcs(
+                data_path=path,
+                dataset_id=DATASET_ID,
+                table_id=mirror,
+                bucket_name=bucket,
+                dump_mode="overwrite",
+                source_format="parquet",
+            )
+        # Run every model before testing any: relationships tests read sibling models.
+        for table_id in rebuild_tables or []:
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table_id,
+                dbt_command="run",
+                target=target,
+            )
+        for table_id in rebuild_tables or []:
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table_id,
+                dbt_command="test",
+                target=target,
+            )
+    finally:
+        shutil.rmtree(work_dir, ignore_errors=True)
+
+
+# Manual utility, disparo manual -- never scheduled.
+# pyrefly: ignore [missing-attribute]
+br_bd_execucao_estadual_seed_frozen_prod_flow.deploy_schedules = []
 
 
 # MG publishes D+1 and BA D-1, so the data is a day old by 06:00 either way. 04:40 is

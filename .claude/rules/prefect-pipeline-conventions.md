@@ -305,7 +305,7 @@ my_flow.deploy_schedules = [
 ]
 my_flow.job_variables = {
     "memory": "8Gi",
-    "memory_limit": "8Gi",     # <- the one the pod actually gets
+    "memory_limit": "8Gi",  # <- the one the pod actually gets
     "memory_request": "2Gi",
 }  # optional; size to the clean step's peak RAM
 ```

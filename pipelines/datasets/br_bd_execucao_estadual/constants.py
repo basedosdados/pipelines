@@ -7,16 +7,23 @@ from pathlib import Path
 class constants(Enum):
     DATASET_ID = "br_bd_execucao_estadual"
 
-    # The ten published tables, in the order the dataset presents them.
+    # The published tables, in the order the dataset presents them. `liquidacao` and
+    # `contrato` were added after the initial ten: `liquidacao` is the empenho ->
+    # liquidação -> pagamento chain's middle phase (SC, PB, CE); `contrato` is the
+    # state contract registry (ES, SC, RS).
     PUBLISHED_TABLES = [
         "despesa",
         "pagamento",
+        "liquidacao",
         "despesa_mensal",
         "despesa_anual",
+        # RJ-only: the annual execution position by budget appropriation line.
+        "despesa_dotacao",
         "empenho_credor",
         "licitacao",
         "licitacao_item",
         "licitacao_participante",
+        "contrato",
         "relacionamentos",
         "dicionario",
     ]
@@ -50,12 +57,26 @@ class constants(Enum):
             "licitacao",
             "licitacao_item",
             "licitacao_participante",
+            "contrato",
             "relacionamentos",
             "dicionario",
         ],
-        # RS publishes no tenders at all, and `dicionario` does not read `rs_despesa`,
-        # so RS feeds exactly one table.
-        "RS": ["despesa"],
+        # RS publishes no tenders at all, and `dicionario` does not read `rs_despesa`.
+        # It feeds `despesa`, and its contract registry feeds `contrato`.
+        "RS": ["despesa", "contrato"],
+        # SC publishes no tenders either, but it does publish a payment document (second
+        # state in `pagamento` after PE), a native liquidação phase, and a contract
+        # registry -- so it feeds despesa, pagamento, liquidacao and contrato.
+        "SC": ["despesa", "pagamento", "liquidacao", "contrato"],
+        # PB has no tender table of its own in this dataset: `codigoLicitacao` is a
+        # modality code, and `numeroProcessoCompras` reaches a compras process on only
+        # 0.14% of empenho rows. It does publish a native liquidação phase.
+        "PB": ["despesa", "pagamento", "liquidacao"],
+        # CE is not listed here: its source portal is WAF + geo-blocked and cannot be
+        # re-scraped from the worker, so it is FROZEN -- seeded once into prod staging
+        # (see FROZEN_PROD_MIRRORS) and never refreshed. Its rows ride into despesa,
+        # pagamento and liquidacao through those models' unions, which read the frozen
+        # `ce_*` mirrors whenever a daily state rebuilds them.
         "SP": ["despesa_anual"],
     }
 
@@ -75,6 +96,10 @@ class constants(Enum):
     # mirror below to the prod bucket itself.
     STAGING_BY_STATE = {
         "RS": ["rs_despesa"],
+        # One mirror per phase. SC publishes a document per movement, and the pivot onto
+        # the canonical `despesa` row happens in dbt, not here.
+        "SC": ["sc_empenho", "sc_liquidacao", "sc_pagamento"],
+        "PB": ["pb_empenho", "pb_liquidacao", "pb_pagamento"],
         "ES": [
             "es_despesa",
             "es_licitacao",
@@ -138,6 +163,32 @@ class constants(Enum):
         "PE": ["pe_despesa", "pe_despesa_legado", "pe_pagamento"],
         "SP": ["sp_despesa"],
     }
+
+    # Staging mirrors that are NOT produced by any refresher and are therefore FROZEN:
+    # seeded once from the dev bucket into prod staging by
+    # `br_bd_execucao_estadual_seed_frozen_prod_flow`, then never touched again.
+    #
+    #   * ce_* -- Ceará's transparency portal is WAF + geo-blocked and cannot be
+    #     re-scraped from the worker, so CE is a one-time load. Its rows reach despesa,
+    #     pagamento and liquidacao through those models' unions.
+    #   * sc_contrato, rs_contrato, ro_contrato -- the SC/RS/RO contract registries are
+    #     handled by download_contrato.py / clean_contrato.py, one-shot bootstrap scripts,
+    #     not part of refresh_sc / refresh_rs. RO additionally needs a Brazilian IP (its
+    #     API geo-fences non-BR), which the worker may not have, so freezing it is doubly
+    #     safe. `contrato` is a low-churn registry, so freezing it is intentional rather
+    #     than a limitation. (es_contrato is NOT frozen -- refresh_es produces it.)
+    #   * rj_despesa -- Rio de Janeiro's annual execution position, feeding despesa_dotacao
+    #     (a RJ-only table). dadosabertos.rj.gov.br geo-fences non-BR, and RJ publishes one
+    #     year-end snapshot per exercise, so a daily refresh buys nothing; seeded once.
+    FROZEN_PROD_MIRRORS = [
+        "ce_empenho",
+        "ce_pagamento",
+        "ce_liquidacao",
+        "sc_contrato",
+        "rs_contrato",
+        "ro_contrato",
+        "rj_despesa",
+    ]
 
     # São Paulo's SIGEO is a WebForms scrape at roughly 36 s per (exercise, órgão).
     # One exercise is ~32 queries, about twenty minutes; all seventeen took five
