@@ -198,6 +198,15 @@ us_dol_oflc_flow.deploy_schedules = [
     {"cron": "23 14 5,12,19,26 2,5,8,11 *", "timezone": "America/Sao_Paulo"}
 ]
 # The clean step holds one fiscal year of LCA (~700k rows x 57 columns) in
-# pandas while it is written.
+# pandas while it is written, and calamine builds a Python object per cell of
+# the workbook it is reading.
+#
+# The keys are memory_limit / memory_request: this work pool's job template
+# defines no "memory" variable, so the {"memory": "8Gi"} spelling used by most
+# datasets in this repo is silently discarded and the pod runs at the pool
+# default of 4Gi. That is what OOM-killed the first full run here.
 # pyrefly: ignore [missing-attribute]
-us_dol_oflc_flow.job_variables = {"memory": "8Gi"}
+us_dol_oflc_flow.job_variables = {
+    "memory_limit": "12Gi",
+    "memory_request": "4Gi",
+}
