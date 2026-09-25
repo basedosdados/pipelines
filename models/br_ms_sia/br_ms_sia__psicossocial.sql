@@ -75,6 +75,7 @@ select
     safe_cast(mot_cob as string) motivo_saida_permanencia,
     safe_cast(
         {{ validate_date_range("safe.parse_date('%Y%m%d', dt_motcob)", "2008-01-01") }}
+        as date
     ) as data_motivo_saida_permanencia,
     safe_cast(substr(dt_process, 1, 4) as int64) as ano_processamento,
     safe_cast(substr(dt_process, 5, 2) as int64) as mes_processamento,
