@@ -71,13 +71,23 @@ class constants(Enum):
         # selenium levanta ElementNotInteractableException nele. A interação é:
         # clicar no widget para abrir o painel, depois clicar no <li> do estado.
         # Ler o select oculto ainda serve para pegar o par (sigla, nome).
-        "estado_widget": "//*[@id='abas:sanfonas:j_idt142']",
-        "estado_select_oculto": "//select[@id='abas:sanfonas:j_idt142_input']",
-        "estado_item": (
-            "//div[@id='abas:sanfonas:j_idt142_panel']"
-            "//li[@data-label='{uf_nome}']"
+        #
+        # Achado pelas opções que ele contém, e não pelo id: o id do JSF muda
+        # quando a página muda, e já mudou — em 08/2026 o select era
+        # `j_idt142` e `j_idt146` era o botão XLS; hoje `j_idt146` é o select.
+        "estado_select_oculto": (
+            f"{_CONTENT}//select[option[@value='AC'] and option[@value='SP']]"
         ),
-        "exportar_csv": "//*[@id='abas:sanfonas:j_idt147']",
+        # Os dois abaixo levam o id do widget, derivado do select em tempo de
+        # execução por `_base_do_estado`.
+        "estado_widget": "//*[@id='{base}']",
+        "estado_item": "//div[@id='{base}_panel']//li[@data-label='{uf_nome}']",
+        # Pelo rótulo, escopado ao painel: `btnExportarCsv` é o CSV de OUTRO
+        # relatório da mesma página, e ancorar nele baixa o arquivo errado sem
+        # erro nenhum.
+        "exportar_csv": (
+            f"{_CONTENT}//button[span[normalize-space(.)='Exportar CSV']]"
+        ),
     }
 
     USER_AGENT = (
