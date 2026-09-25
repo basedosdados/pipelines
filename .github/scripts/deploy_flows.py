@@ -193,6 +193,9 @@ def deploy_flow(
 
     job_variables = getattr(flow, "job_variables", None)
 
+    extra_tags = getattr(flow, "deploy_tags", None) or []
+    tags = ["automated-deploy", *extra_tags]
+
     try:
         flow.from_source(
             source=GitRepository(
@@ -203,7 +206,7 @@ def deploy_flow(
         ).deploy(
             name=deployment_name,
             work_pool_name=pool_name,
-            tags=["automated-deploy"],
+            tags=tags,
             schedules=schedules,
             job_variables=job_variables,
             build=False,
@@ -214,7 +217,7 @@ def deploy_flow(
             if not schedules
             else f"com schedules: {schedules}"
         )
-        return True, f"  ✓ {deployment_name} registrado {status}"
+        return True, f"  ✓ {deployment_name} registrado {status}, tags={tags}"
     except Exception as e:
         return False, f"  ✗ Falha ao registrar {deployment_name}: {e}"
 
