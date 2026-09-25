@@ -39,40 +39,40 @@ def partition_data(table_id: str, dataset_id: str) -> str:
             to_partitions(
                 data=df,
                 partition_columns=["ANO_EXTRATO", "MES_EXTRATO"],
-                savepath=constants.TABELA.value[table_id]["OUTPUT"],
+                savepath=constants.TABELAS.value[dataset_id][table_id][
+                    "OUTPUT"
+                ],
                 file_type="csv",
             )
-            return constants.TABELA.value[table_id]["OUTPUT"]
+            return constants.TABELAS.value[dataset_id][table_id]["OUTPUT"]
 
         if dataset_id == "br_cgu_licitacao_contrato":
             to_partitions(
                 data=df,
                 partition_columns=["ano", "mes"],
-                savepath=constants.TABELA_LICITACAO_CONTRATO.value[table_id][
+                savepath=constants.TABELAS.value[dataset_id][table_id][
                     "OUTPUT"
                 ],
                 file_type="csv",
             )
-            return constants.TABELA_LICITACAO_CONTRATO.value[table_id][
-                "OUTPUT"
-            ]
+            return constants.TABELAS.value[dataset_id][table_id]["OUTPUT"]
 
     elif dataset_id == "br_cgu_servidores_executivo_federal":
         df = read_and_clean_csv(table_id=table_id)
         to_partitions(
             data=df,
             partition_columns=["ano", "mes"],
-            savepath=constants.TABELA_SERVIDORES.value[table_id]["OUTPUT"],
+            savepath=constants.TABELAS.value[dataset_id][table_id]["OUTPUT"],
         )
-        return constants.TABELA_SERVIDORES.value[table_id]["OUTPUT"]
+        return constants.TABELAS.value[dataset_id][table_id]["OUTPUT"]
 
 
 @task(retries=TASK_RETRIES, retry_delay_seconds=TASK_RETRY_DELAY_SECONDS)
 # pyrefly: ignore [bad-return]
 def read_and_partition_beneficios_cidadao(table_id: str) -> str:
-    constants_cgu_beneficios_cidadao = (
-        constants.TABELA_BENEFICIOS_CIDADAO.value[table_id]
-    )
+    constants_cgu_beneficios_cidadao = constants.TABELAS.value[
+        "br_cgu_beneficios_cidadao"
+    ][table_id]
     for nome_arquivo in os.listdir(constants_cgu_beneficios_cidadao["INPUT"]):
         for nome_arquivo in os.listdir(
             constants_cgu_beneficios_cidadao["INPUT"]
@@ -174,7 +174,8 @@ def verify_all_url_exists_to_download(
 
     urls = build_urls(
         dataset_id,
-        constants.URL_SERVIDORES.value,
+        # pyrefly: ignore [bad-argument-type]
+        constants.TABELAS.value[dataset_id][table_id]["URL"],
         next_date_in_api.year,
         next_date_in_api.month,
         table_id,
