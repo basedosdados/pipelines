@@ -4,14 +4,13 @@ Relatório "Reconhecimentos vigentes" do S2ID (SEDEC/MIDR): os reconhecimentos
 federais de situação de emergência e estado de calamidade pública em vigor. A
 tabela é uma série de retratos, um por execução.
 
-**Este flow não roda hoje.** O S2ID barra o IP de saída do cluster por
-geolocalização e a raspagem morre no download, então o retrato é gerado pelo
-`run_local.py` deste diretório e promovido por PR com a label `table-approve`. O
-flow fica aqui porque o código é o mesmo — se o IP for liberado, basta devolver o
-`deploy_schedules`.
+Roda todo dia e grava o retrato do dia direto em prod. O S2ID barra IP
+estrangeiro, então o download sai pelo proxy brasileiro (`BRASIL_PROXY_URL`).
 
-As decisões de desenho, a receita mensal e o que ainda está aberto estão no
-README do diretório.
+Esta tabela não passa pelo `table-approve`: a action copia o staging de dev por
+cima do de prod e apagaria os retratos que só existem em prod.
+
+As decisões de desenho e o que ainda está aberto estão no README do diretório.
 """
 
 import shutil
@@ -140,13 +139,14 @@ def br_sedec_desastres__reconhecimentos_vigentes(
         shutil.rmtree(work_dir, ignore_errors=True)
 
 
-# Sem schedule de propósito: o pod não alcança a fonte. A cadência mensal é
-# executada à mão pelo run_local.py. Se o IP for liberado, descomentar:
-#
-# br_sedec_desastres__reconhecimentos_vigentes.deploy_schedules = [
-#     {"cron": "10 9 1 * *", "timezone": "America/Sao_Paulo"}
-# ]
+# pyrefly: ignore [missing-attribute]
+br_sedec_desastres__reconhecimentos_vigentes.deploy_schedules = [
+    {"cron": "10 2 * * *", "timezone": "America/Sao_Paulo"}
+]
 
 
 # pyrefly: ignore [missing-attribute]
-br_sedec_desastres__reconhecimentos_vigentes.job_variables = {"memory": "4Gi"}
+br_sedec_desastres__reconhecimentos_vigentes.job_variables = {
+    "memory_limit": "4Gi",
+    "memory_request": "1Gi",
+}
