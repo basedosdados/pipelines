@@ -10,12 +10,17 @@ O schema (ordem das colunas, tipos, nome de origem) vem de `constants.COLUNAS`,
 não de arquivo — a planilha de arquitetura não é versionada.
 """
 
+import base64
+import contextlib
 import io
 import shutil
+import socket
+import threading
 import time
+from collections.abc import Callable
 from datetime import date
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 import pandas as pd
 import polars as pl
@@ -31,7 +36,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 
 from pipelines.datasets.br_sedec_desastres.constants import constants
-from pipelines.utils.utils import log
+from pipelines.utils.utils import brasil_proxy_dict, brasil_proxy_url, log
 
 PA = {
     "INT64": pa.int64(),
@@ -61,20 +66,11 @@ def _checar_fonte() -> None:
     - **regra por caminho**: se a raiz passar e só o relatório cair, a política
       é do path, e vale investigar sessão, ``Referer`` e ordem de navegação.
 
-    O IP de saída vai junto no log para permitir comparar com uma origem que
-    funciona — o mesmo pedido, do mesmo jeito, passa de outras redes.
-
     Nunca levanta: é diagnóstico, e falhar aqui não deve impedir a tentativa com
     o browser.
     """
-    try:
-        eco = requests.get("https://api.ipify.org", timeout=15)
-        log(f"IP de saída do worker: {eco.text.strip()}")
-    except Exception as erro:
-        log(
-            f"não consegui ler o IP de saída: {type(erro).__name__}: {erro}",
-            "warning",
-        )
+    proxies = brasil_proxy_dict()
+    log(f"proxy brasileiro {'em uso' if proxies else 'não configurado'}")
 
     raiz = f"{urlparse(constants.BASE_URL.value).scheme}://{urlparse(constants.BASE_URL.value).netloc}/"
     for url in (raiz, constants.BASE_URL.value):
@@ -83,6 +79,7 @@ def _checar_fonte() -> None:
                 url,
                 headers={"User-Agent": constants.USER_AGENT.value},
                 timeout=30,
+                proxies=proxies,
             )
             log(
                 f"pré-checagem {url} → status={resposta.status_code} | "
@@ -99,11 +96,124 @@ def _checar_fonte() -> None:
             )
 
 
-def _chrome_options(download_dir: Path) -> webdriver.ChromeOptions:
+def _repassa(origem: socket.socket, destino: socket.socket) -> None:
+    """Copia bytes de um socket para o outro até a origem fechar.
+
+    Args:
+        origem: Socket de onde ler.
+        destino: Socket para onde escrever.
+    """
+    try:
+        while True:
+            dados = origem.recv(65536)
+            if not dados:
+                break
+            destino.sendall(dados)
+    except OSError:
+        pass
+    finally:
+        for lado in (origem, destino):
+            with contextlib.suppress(OSError):
+                lado.shutdown(socket.SHUT_RDWR)
+
+
+def _injeta_credencial(cabecalho: bytes, credencial: str) -> bytes:
+    """Acrescenta o ``Proxy-Authorization`` ao cabeçalho do pedido.
+
+    Args:
+        cabecalho: Cabeçalho do pedido, da linha de requisição até a linha em
+            branco.
+        credencial: Valor pronto do ``Proxy-Authorization``.
+
+    Returns:
+        O mesmo cabeçalho com a credencial, e sem uma anterior que houvesse.
+    """
+    linhas = [
+        linha
+        for linha in cabecalho.split(b"\r\n")
+        if not linha.lower().startswith(b"proxy-authorization:")
+    ]
+    linhas.insert(1, f"Proxy-Authorization: {credencial}".encode())
+    return b"\r\n".join(linhas)
+
+
+def _proxy_local(url_proxy: str) -> tuple[str, Callable[[], None]]:
+    """Sobe em ``127.0.0.1`` um proxy que repassa ao Squid com a credencial.
+
+    Args:
+        url_proxy: URL do proxy, com usuário e senha.
+
+    Returns:
+        O endereço ``host:porta`` do repasse e a função que o encerra.
+    """
+    partes = urlparse(url_proxy)
+    credencial = (
+        "Basic "
+        + base64.b64encode(
+            f"{unquote(partes.username or '')}:{unquote(partes.password or '')}".encode()
+        ).decode()
+    )
+    upstream = (partes.hostname, partes.port or 3128)
+
+    servidor = socket.socket()
+    servidor.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    servidor.bind(("127.0.0.1", 0))
+    servidor.listen(32)
+    porta = servidor.getsockname()[1]
+
+    def atende(cliente: socket.socket) -> None:
+        try:
+            cabecalho = b""
+            while b"\r\n\r\n" not in cabecalho:
+                pedaco = cliente.recv(65536)
+                if not pedaco:
+                    return
+                cabecalho += pedaco
+
+            cabecalho, resto = cabecalho.split(b"\r\n\r\n", 1)
+            saida = socket.create_connection(upstream, timeout=60)
+            saida.settimeout(None)
+            saida.sendall(
+                _injeta_credencial(cabecalho, credencial) + b"\r\n\r\n" + resto
+            )
+
+            threading.Thread(
+                target=_repassa, args=(saida, cliente), daemon=True
+            ).start()
+            _repassa(cliente, saida)
+        except OSError as erro:
+            log(
+                f"repasse do proxy falhou: {type(erro).__name__}: {erro}",
+                "warning",
+            )
+        finally:
+            cliente.close()
+
+    def aceita() -> None:
+        while True:
+            try:
+                cliente, _ = servidor.accept()
+            except OSError:
+                return
+            threading.Thread(
+                target=atende, args=(cliente,), daemon=True
+            ).start()
+
+    threading.Thread(target=aceita, daemon=True).start()
+    log(f"repasse do proxy ouvindo em 127.0.0.1:{porta}")
+    return f"127.0.0.1:{porta}", servidor.close
+
+
+def _chrome_options(
+    download_dir: Path, endereco_proxy: str | None = None
+) -> webdriver.ChromeOptions:
     """Monta as opções do Chrome headless, baixando direto em ``download_dir``.
 
     Args:
         download_dir: Diretório onde o Chrome grava o export.
+        endereco_proxy: ``host:porta`` do repasse local, quando há proxy. O
+            S2ID recusa IP estrangeiro com 403 e uma página de bloqueio, que é
+            o que o cluster, em ``us-central1``, recebe hoje.
 
     Returns:
         Opções prontas para passar ao ``webdriver.Chrome``.
@@ -128,6 +238,10 @@ def _chrome_options(download_dir: Path) -> webdriver.ChromeOptions:
     options.add_argument("--no-default-browser-check")
     options.add_argument("--window-size=1920,1080")
     options.add_argument(f"user-agent={constants.USER_AGENT.value}")
+
+    if endereco_proxy:
+        options.add_argument(f"--proxy-server=http://{endereco_proxy}")
+
     return options
 
 
@@ -187,6 +301,33 @@ def _is_in_flight(path: Path) -> bool:
     )
 
 
+def _base_do_estado(driver) -> str:
+    """Lê na página o id do widget de estado, que o JSF gera e troca sozinho.
+
+    O widget e o painel de opções do PrimeFaces se chamam ``<base>`` e
+    ``<base>_panel``, onde ``<base>`` é o id do ``<select>`` sem o ``_input``.
+    O select é achado pelas UFs que ele contém, não pelo id.
+
+    Args:
+        driver: WebDriver ativo, já na página do relatório.
+
+    Returns:
+        O id do widget, sem o sufixo ``_input``.
+
+    Raises:
+        ValueError: Se o select do estado não estiver na página.
+    """
+    achados = driver.find_elements(
+        By.XPATH, constants.XPATHS.value["estado_select_oculto"]
+    )
+    if not achados:
+        raise ValueError(
+            "não achei o select de estado no painel de vigentes; a página mudou"
+        )
+    identificador = achados[0].get_attribute("id") or ""
+    return identificador.removesuffix("_input")
+
+
 def _read_ufs(driver) -> list[tuple[str, str]]:
     """Lê as opções do dropdown de estado como pares ``(sigla, nome)``.
 
@@ -208,7 +349,7 @@ def _read_ufs(driver) -> list[tuple[str, str]]:
         ValueError: Se o dropdown não tiver os 27 estados esperados.
     """
     xpath = constants.XPATHS.value["estado_select_oculto"]
-    options = driver.find_elements(By.XPATH, f"{xpath}//option")
+    options = driver.find_elements(By.XPATH, f"{xpath}/option")
     ufs = [
         (
             option.get_attribute("value").strip(),
@@ -310,15 +451,21 @@ def download_reconhecimentos_vigentes(input_dir: Path) -> Path:
 
     _checar_fonte()
 
-    log("resolvendo o chromedriver")
-    service = ChromeService(ChromeDriverManager().install())
-    log(f"chromedriver em {service.path}; abrindo o Chrome")
-
-    driver = webdriver.Chrome(
-        service=service,
-        options=_chrome_options(input_dir),
+    url_proxy = brasil_proxy_url()
+    endereco_proxy, encerra_proxy = (
+        _proxy_local(url_proxy) if url_proxy else (None, lambda: None)
     )
+
+    driver = None
     try:
+        log("resolvendo o chromedriver")
+        service = ChromeService(ChromeDriverManager().install())
+        log(f"chromedriver em {service.path}; abrindo o Chrome")
+
+        driver = webdriver.Chrome(
+            service=service,
+            options=_chrome_options(input_dir, endereco_proxy),
+        )
         log(f"carregando {constants.BASE_URL.value}")
         inicio = time.monotonic()
         driver.get(constants.BASE_URL.value)
@@ -338,7 +485,8 @@ def download_reconhecimentos_vigentes(input_dir: Path) -> Path:
         _click(driver, xpaths["painel"], element_timeout, "painel de vigentes")
 
         ufs = _read_ufs(driver)
-        log(f"{len(ufs)} estados a exportar")
+        base_estado = _base_do_estado(driver)
+        log(f"{len(ufs)} estados a exportar | widget de estado: {base_estado}")
 
         _click(
             driver,
@@ -354,13 +502,13 @@ def download_reconhecimentos_vigentes(input_dir: Path) -> Path:
 
             _click(
                 driver,
-                xpaths["estado_widget"],
+                xpaths["estado_widget"].format(base=base_estado),
                 element_timeout,
                 f"widget de estado ({sigla})",
             )
             _click(
                 driver,
-                xpaths["estado_item"].format(uf_nome=nome),
+                xpaths["estado_item"].format(base=base_estado, uf_nome=nome),
                 element_timeout,
                 f"item {nome} do dropdown",
             )
@@ -383,7 +531,9 @@ def download_reconhecimentos_vigentes(input_dir: Path) -> Path:
         log(f"{len(seen)} arquivos em {input_dir}")
         return input_dir
     finally:
-        driver.quit()
+        if driver is not None:
+            driver.quit()
+        encerra_proxy()
 
 
 # ── transform ───────────────────────────────────────────────────────────────
