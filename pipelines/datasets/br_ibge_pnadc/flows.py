@@ -3,6 +3,7 @@ Flow br_ibge_pnadc — Prefect 3.
 """
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.crawler.ibge_pnadc.tasks import (
     build_partitions,
@@ -42,9 +43,10 @@ def br_ibge_pnadc__microdados(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     backfill = year is not None or quarter is not None
@@ -154,9 +156,10 @@ def br_ibge_pnadc__dicionario(
         materialize_after_dump: Se True, sobe também para prod e materializa lá.
         target: Target dbt para a materialização em prod.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     input_dir, output_dir = build_table_paths(table_id=table_id)

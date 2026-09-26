@@ -32,6 +32,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.us_dot_fars.constants import constants
 from pipelines.datasets.us_dot_fars.tasks import clean_corpus, probe_source
@@ -88,9 +89,10 @@ def us_dot_fars_flow(
             year without adding a new one, which leaves the max coverage date
             unmoved and so does not trip the poll.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id=PRIMARY_TABLE
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id=PRIMARY_TABLE
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="us_dot_fars_")

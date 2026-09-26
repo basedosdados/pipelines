@@ -50,6 +50,7 @@ the dev pool ignores the schedule, the prod pool activates it.
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.au_aph_hansard.constants import constants
 from pipelines.datasets.au_aph_hansard.tasks import (
@@ -103,9 +104,10 @@ def au_aph_hansard_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the poll reports no new sitting day.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="speech"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="speech"
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="au_aph_hansard_")

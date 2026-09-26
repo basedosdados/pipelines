@@ -18,6 +18,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.mx_sesnsp_incidencia_delictiva.constants import (
     constants,
@@ -90,9 +91,12 @@ def mx_sesnsp_incidencia_delictiva_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new month.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="incidencia_delictiva"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ",
+            dataset_id=DATASET_ID,
+            table_id="incidencia_delictiva",
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="mx_sesnsp_")

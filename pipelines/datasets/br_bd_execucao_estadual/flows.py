@@ -62,6 +62,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.br_bd_execucao_estadual.constants import constants
 from pipelines.datasets.br_bd_execucao_estadual.coverage import (
@@ -220,9 +221,10 @@ def br_bd_execucao_estadual_flow(
             which is what populates `basedosdados-staging` — table-approve cannot do it
             for this dataset. Roughly 20 GB of input and several hours.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="despesa"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="despesa"
+        )
     )
     _run(DAILY_STATES, materialize_to_prod, update_metadata, full_refresh)
 
@@ -244,9 +246,10 @@ def br_bd_execucao_estadual_sp_flow(
         full_refresh: Re-scrape every exercise from 2010. Five hours; needed once, for
             the first prod run.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="despesa_anual"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="despesa_anual"
+        )
     )
     _run(WEEKLY_STATES, materialize_to_prod, update_metadata, full_refresh)
 
@@ -284,9 +287,10 @@ def br_bd_execucao_estadual_rs_flow(
         full_refresh: Re-download all 175 monthly archives instead of the open years.
             This is the reason the flow still exists.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="despesa"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="despesa"
+        )
     )
     _run(["RS"], materialize_to_prod, update_metadata, full_refresh)
 
@@ -345,11 +349,12 @@ def br_bd_execucao_estadual_seed_frozen_prod_flow(
     mirrors = (
         mirrors if mirrors is not None else constants.FROZEN_PROD_MIRRORS.value
     )
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Seed prod staging: ",
-        dataset_id=DATASET_ID,
-        table_id="contrato",
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Seed prod staging: ",
+            dataset_id=DATASET_ID,
+            table_id="contrato",
+        )
     )
     bucket = "basedosdados" if materialize_to_prod else "basedosdados-dev"
     target = "prod" if materialize_to_prod else "dev"

@@ -20,6 +20,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.us_hhs_nppes.constants import constants
 from pipelines.datasets.us_hhs_nppes.tasks import (
@@ -91,9 +92,10 @@ def us_hhs_nppes_flow(
         force_run: Download and materialize even when the source poll reports no
             new snapshot.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="provider"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="provider"
+        )
     )
 
     # Cheap poll first: has CMS published a bundle newer than our last refresh?

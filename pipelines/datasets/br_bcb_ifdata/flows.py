@@ -6,6 +6,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.br_bcb_ifdata.constants import constants
 from pipelines.datasets.br_bcb_ifdata.tasks import (
@@ -120,9 +121,10 @@ def br_bcb_ifdata_flow(
             em prod. Sem efeito quando `materialize_to_prod` é False.
         force_run: materializa mesmo quando o poll não vê competência nova.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="br_bcb_ifdata"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="br_bcb_ifdata"
+        )
     )
 
     max_ym = get_source_max_period()

@@ -5,6 +5,7 @@ Flows para br_senatran_estatisticas — Prefect 3.
 from pathlib import Path
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.br_senatran_estatisticas.constants import (
     constants as senatran_constants,
@@ -48,9 +49,10 @@ def _run_senatran(
     force_run: bool,
     backfill_start: str | None = None,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     input_dir, output_dir = build_paths()
@@ -244,9 +246,10 @@ def _run_breakdown(
     único XLSX por mês, já em formato longo, então não passam pelo
     ``crawl_task``/``get_desired_file_task`` do par município/UF x tipo.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     input_dir, output_dir = build_paths()

@@ -37,6 +37,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.au_doe_higher_education.constants import constants
 from pipelines.datasets.au_doe_higher_education.tasks import (
@@ -87,9 +88,10 @@ def au_doe_higher_education_flow(
     update_metadata: bool = True,
     force_run: bool = False,
 ):
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
+        )
     )
 
     sources = discover_sources_task()

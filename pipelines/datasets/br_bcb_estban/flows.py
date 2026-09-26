@@ -3,6 +3,7 @@ Flows para br_bcb_estban — Prefect 3.
 """
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.crawler.bcb_estban.tasks import (
     cleaning_data,
@@ -38,9 +39,10 @@ def _run_bcb_estban(
     target: str,
     force_run: bool,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     documents_metadata = get_documents_metadata(table_id)

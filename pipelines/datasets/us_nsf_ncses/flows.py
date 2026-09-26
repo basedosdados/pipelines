@@ -28,6 +28,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.us_nsf_ncses.constants import constants
 from pipelines.datasets.us_nsf_ncses.tasks import (
@@ -102,9 +103,10 @@ def us_nsf_ncses_flow(
             ``env="prod"`` regardless of which pool the run is on.
         force_run: Materialize even when neither source poll reports a new year.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="ncses"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="ncses"
+        )
     )
 
     source = check_source()

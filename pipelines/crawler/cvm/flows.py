@@ -2,6 +2,8 @@
 Shared run logic for br_cvm_fi — Prefect 3.
 """
 
+from prefect.utilities.asyncutils import run_coro_as_sync
+
 from pipelines.crawler.cvm.tasks import (
     clean_cvm_data,
     download_unzip,
@@ -35,9 +37,10 @@ def _run_cvm_fi(
     force_run: bool,
     url: str | None = None,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     df, max_date = extract_links_and_dates(table_id=table_id, url=url)

@@ -15,6 +15,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.au_ato_taxation_statistics.constants import constants
 from pipelines.datasets.au_ato_taxation_statistics.tasks import (
@@ -69,9 +70,10 @@ def au_ato_taxation_statistics_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new release.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="au_ato_taxation_statistics_")

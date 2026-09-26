@@ -3,6 +3,7 @@ Flow br_cnj_improbidade_administrativa — Prefect 3.
 """
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.crawler.cnj_improbidade_administrativa.tasks import (
     get_max_date,
@@ -37,9 +38,10 @@ def br_cnj_improbidade_administrativa__condenacao(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     if not force_run and is_up_to_date():

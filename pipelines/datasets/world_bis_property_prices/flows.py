@@ -15,6 +15,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.world_bis_property_prices.constants import constants
 from pipelines.datasets.world_bis_property_prices.tasks import (
@@ -89,9 +90,10 @@ def world_bis_property_prices_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new quarter.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id=TABLE_ID
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id=TABLE_ID
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="world_bis_property_prices_")

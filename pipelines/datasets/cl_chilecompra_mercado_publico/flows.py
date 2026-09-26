@@ -18,6 +18,7 @@ import tempfile
 from pathlib import Path
 
 from prefect import flow, get_run_logger
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.cl_chilecompra_mercado_publico.constants import (
     constants,
@@ -140,9 +141,10 @@ def cl_chilecompra_mercado_publico_flow(
         update_metadata: write coverage, table Update and raw-source Update records.
     """
     logger = get_run_logger()
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="mercado_publico"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="mercado_publico"
+        )
     )
 
     scratch_root = tempfile.mkdtemp(prefix="cl_chilecompra_")

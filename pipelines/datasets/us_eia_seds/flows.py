@@ -18,6 +18,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.us_eia_seds.constants import constants
 from pipelines.datasets.us_eia_seds.tasks import clean_corpus, probe_source
@@ -63,9 +64,10 @@ def us_eia_seds_flow(
         force_run: Materialize even when the source poll reports nothing new —
             needed for a release that restates history without adding a year.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="us_eia_seds_")

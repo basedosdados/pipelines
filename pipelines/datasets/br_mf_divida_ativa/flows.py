@@ -19,6 +19,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.br_mf_divida_ativa.constants import constants
 from pipelines.datasets.br_mf_divida_ativa.tasks import (
@@ -90,9 +91,10 @@ def br_mf_divida_ativa_flow(
             prod. Use for a safe dev smoke test:
             ``{materialize_to_prod: False, update_metadata: False, force_run: True}``.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id=ANCHOR_TABLE
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id=ANCHOR_TABLE
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="br_mf_divida_ativa_")

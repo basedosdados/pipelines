@@ -26,6 +26,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.us_ed_nces_ccd.constants import constants
 from pipelines.datasets.us_ed_nces_ccd.tasks import (
@@ -75,9 +76,10 @@ def us_ed_nces_ccd_flow(
             coverage. Has no effect when ``materialize_to_prod`` is False.
         force_run: Materialize even when the poll reports no new school year.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="school"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="school"
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="us_ed_nces_ccd_")

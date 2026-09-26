@@ -24,6 +24,7 @@ from __future__ import annotations
 import datetime as dt
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.br_mgi_compras_publicas.constants import constants
 from pipelines.datasets.br_mgi_compras_publicas.tasks import (
@@ -200,9 +201,10 @@ def br_mgi_compras_publicas_diario_flow(
     revision_window_days: int = REVISION_WINDOW_DAYS,
 ) -> None:
     """Refresh the Lei 14.133 modules and the contract registry."""
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="diario"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="diario"
+        )
     )
     # Align to 1 January: the harvest writes whole `ano=` partitions, and the
     # upload replaces a partition wholesale. A window starting mid-year would
@@ -220,9 +222,10 @@ def br_mgi_compras_publicas_semanal_flow(
     output_dir: str = "/tmp/br_mgi_compras_publicas",
 ) -> None:
     """Re-snapshot the registries, catalogues and dicionario."""
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="semanal"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="semanal"
+        )
     )
     # Snapshots carry no date filter -- the whole register is re-read and
     # stamped with today's extraction date.

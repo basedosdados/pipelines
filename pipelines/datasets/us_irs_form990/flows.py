@@ -28,6 +28,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.us_irs_form990.constants import constants
 from pipelines.datasets.us_irs_form990.tasks import (
@@ -146,9 +147,10 @@ def us_irs_form990_flow(
         max_batches: Upper bound on e-file ZIPs processed per run (each is
             0.1 to 1.2 GB); the rest are picked up by the next run.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="return_financial"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="return_financial"
+        )
     )
 
     urls = list_efile_batches()

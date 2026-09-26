@@ -2,6 +2,8 @@
 Shared run logic for br_cvm_administradores_carteira — Prefect 3.
 """
 
+from prefect.utilities.asyncutils import run_coro_as_sync
+
 from pipelines.crawler.cvm_administradores_carteira.tasks import (
     clean_table_pessoa_fisica,
     clean_table_pessoa_juridica,
@@ -37,9 +39,10 @@ def _run_cvm_administradores_carteira(
     target: str,
     force_run: bool,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     # source has no exposed max date — always run; force_run is a no-op here.

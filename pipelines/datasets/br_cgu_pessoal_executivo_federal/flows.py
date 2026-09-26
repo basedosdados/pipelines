@@ -1,6 +1,7 @@
 """Flows para br_cgu_pessoal_executivo_federal — Prefect 3."""
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.crawler.cgu_pessoal_executivo_federal.tasks import (
     clean_save_table,
@@ -28,9 +29,10 @@ def br_cgu_pessoal_executivo_federal__terceirizados(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     crawl_urls, _ = crawl(URL)

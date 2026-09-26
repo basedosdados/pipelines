@@ -2,6 +2,8 @@
 Shared run logic for br_me_cnpj — Prefect 3.
 """
 
+from prefect.utilities.asyncutils import run_coro_as_sync
+
 from pipelines.crawler.me_cnpj.constants import constants as constants_cnpj
 from pipelines.crawler.me_cnpj.tasks import get_data_source_max_date, main
 from pipelines.utils.metadata.domain import (
@@ -40,9 +42,10 @@ def _run_me_cnpj(
     target: str,
     force_run: bool,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     idx = _TABELAS_IDX[table_id]

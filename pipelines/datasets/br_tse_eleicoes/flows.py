@@ -3,6 +3,7 @@ Flow compartilhado para br_tse_eleicoes — Prefect 3.
 """
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.br_tse_eleicoes.tasks import (
     flows_control,
@@ -41,9 +42,10 @@ def _tse_flow(table_id: str, cron: str | None):
         update_metadata: bool = True,
         force_run: bool = False,
     ) -> None:
-        # pyrefly: ignore [unused-coroutine]
-        rename_flow_run_dataset_table(
-            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        run_coro_as_sync(
+            rename_flow_run_dataset_table(
+                prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+            )
         )
 
         flow = flows_control(table_id=table_id, mode="prod", year=year)

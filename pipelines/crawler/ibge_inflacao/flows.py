@@ -4,6 +4,7 @@ Prefect 3 — use os flows dos datasets (br_ibge_ipca, br_ibge_inpc) para deploy
 """
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.crawler.ibge_inflacao.tasks import (
     check_for_updates,
@@ -33,9 +34,10 @@ def _run_ibge_inflacao(
     force_run: bool = False,
 ) -> None:
     """Lógica completa do flow de inflação IBGE. Chamada pelos flows de cada dataset."""
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     collect_data_utils(

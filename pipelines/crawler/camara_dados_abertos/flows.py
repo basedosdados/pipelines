@@ -2,6 +2,8 @@
 Lógica compartilhada de execução para br_camara_dados_abertos — Prefect 3.
 """
 
+from prefect.utilities.asyncutils import run_coro_as_sync
+
 from pipelines.crawler.camara_dados_abertos.constants import (
     update_metadata_variable_dictionary,
 )
@@ -27,9 +29,10 @@ def _run_camara_dados_abertos(
     target: str,
     force_run: bool,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     url_ok = check_if_url_is_valid(table_id)

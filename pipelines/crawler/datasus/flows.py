@@ -4,6 +4,8 @@ Shared run logic for DATASUS pipelines (CNES, SIA, SIH, SINAN) — Prefect 3.
 
 from typing import Literal
 
+from prefect.utilities.asyncutils import run_coro_as_sync
+
 from pipelines.crawler.datasus.tasks import (
     access_ftp_download_files_async,
     check_files_to_parse,
@@ -43,9 +45,10 @@ def _run_cnes(
     force_run: bool,
     year_month_to_extract: str = "",
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     ftp_files = check_files_to_parse(
@@ -153,9 +156,10 @@ def _run_dbf_to_parquet(
     year_month_to_extract: str = "",
 ) -> None:
     """Shared logic for SIA/SIH (DBF→Parquet pipeline)."""
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     ftp_files = check_files_to_parse(
@@ -265,9 +269,10 @@ def _run_sinan(
     target: str,
     force_run: bool,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     data_source_max_date = get_last_modified_date_in_sinan_tablen(

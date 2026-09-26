@@ -18,6 +18,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.br_senado_dados_abertos.constants import constants
 from pipelines.datasets.br_senado_dados_abertos.tasks import extract_clean
@@ -116,9 +117,10 @@ def br_senado_dados_abertos_flow(
             no source-poll gate, so it does not change behavior.
     """
     _ = force_run
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="votacao"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="votacao"
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="br_senado_dados_abertos_")

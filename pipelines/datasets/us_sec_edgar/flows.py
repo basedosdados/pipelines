@@ -14,6 +14,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.us_sec_edgar.constants import constants
 from pipelines.datasets.us_sec_edgar.tasks import (
@@ -104,9 +105,10 @@ def us_sec_edgar_flow(
             specific quarter; ``force_run`` is then usually wanted too, since the
             poll only looks at the newest.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="numeric_fact"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="numeric_fact"
+        )
     )
 
     # Both or neither: `year=2020, quarter=None` silently ingesting the latest

@@ -20,6 +20,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.world_wb_wdi.constants import constants
 from pipelines.datasets.world_wb_wdi.tasks import clean_wdi, download_wdi
@@ -79,9 +80,10 @@ def world_wb_wdi_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new year.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="data"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="data"
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="world_wb_wdi_")

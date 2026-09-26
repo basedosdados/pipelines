@@ -32,6 +32,7 @@ import shutil
 import tempfile
 
 from prefect import flow  # pyrefly: ignore [missing-attribute]
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.us_fema_openfema.constants import constants
 from pipelines.datasets.us_fema_openfema.tasks import (
@@ -79,9 +80,10 @@ def us_fema_openfema_flow(
         force_run: Download and materialize every set even when the poll
             reports nothing new.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="nfip_claim"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="nfip_claim"
+        )
     )
 
     refreshed_at = check_source_openfema()

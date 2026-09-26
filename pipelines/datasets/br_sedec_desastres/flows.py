@@ -17,6 +17,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.br_sedec_desastres.constants import constants
 from pipelines.datasets.br_sedec_desastres.tasks import (
@@ -53,9 +54,10 @@ def br_sedec_desastres__reconhecimentos_vigentes(
     force_run: bool = False,
 ) -> None:
     """Baixa o relatório do S2ID, remonta a tabela e materializa."""
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="br_sedec_desastres_")

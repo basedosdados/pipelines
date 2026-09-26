@@ -15,6 +15,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.cl_res_empresas.constants import constants
 from pipelines.datasets.cl_res_empresas.tasks import clean_res, download_res
@@ -86,9 +87,10 @@ def cl_res_empresas_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new period.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="sociedad"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="sociedad"
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="cl_res_empresas_")

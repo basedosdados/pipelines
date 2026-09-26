@@ -34,6 +34,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.us_noaa_storm_events.constants import constants
 from pipelines.datasets.us_noaa_storm_events.tasks import (
@@ -131,9 +132,10 @@ def us_noaa_storm_events_flow(
             Needed for a release that only restates earlier years without adding
             a month, which leaves the max coverage date unmoved.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id=EVENT
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id=EVENT
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="us_noaa_storm_events_")

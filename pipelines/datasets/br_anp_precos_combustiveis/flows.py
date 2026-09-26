@@ -3,6 +3,7 @@ Flow br_anp_precos_combustiveis__microdados — Prefect 3.
 """
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.crawler.anp_precos_combustiveis.tasks import (
     download_and_transform,
@@ -39,9 +40,10 @@ def br_anp_precos_combustiveis__microdados(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+        )
     )
 
     data_source_max_date = get_data_source_anp_max_date()

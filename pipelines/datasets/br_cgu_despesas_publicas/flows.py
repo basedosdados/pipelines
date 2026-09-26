@@ -24,6 +24,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.br_cgu_despesas_publicas.constants import constants
 from pipelines.datasets.br_cgu_despesas_publicas.tasks import (
@@ -91,9 +92,10 @@ def br_cgu_despesas_publicas_flow(
         full_refresh: Re-pull every month from 2014-01. Slow (~25 min of paced
             downloading) — use when the source has restated older months.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id=TABLE_ID
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id=TABLE_ID
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="br_cgu_despesas_publicas_")
@@ -256,9 +258,12 @@ def br_cgu_despesas_publicas_favorecido_flow(
         full_refresh: Re-pull every month from 2014-01. Slow — the full history
             is ~26 GB of CSV and about an hour of paced downloading.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id=FAVORECIDO_TABLE_ID
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ",
+            dataset_id=DATASET_ID,
+            table_id=FAVORECIDO_TABLE_ID,
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="br_cgu_favorecido_")

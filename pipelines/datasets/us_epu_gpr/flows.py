@@ -22,6 +22,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.us_epu_gpr.constants import constants
 from pipelines.datasets.us_epu_gpr.tasks import clean_epu_gpr, download_epu_gpr
@@ -80,9 +81,10 @@ def us_epu_gpr_flow(
             coverage. Has no effect when ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new month.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="index_monthly"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="index_monthly"
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="us_epu_gpr_")

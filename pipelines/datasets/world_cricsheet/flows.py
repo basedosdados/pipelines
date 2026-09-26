@@ -17,6 +17,7 @@ import shutil
 import tempfile
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.world_cricsheet.constants import constants
 from pipelines.datasets.world_cricsheet.tasks import (
@@ -100,9 +101,10 @@ def world_cricsheet_flow(
             source update. Has no effect when ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new match date.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="cricsheet"
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id="cricsheet"
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix="world_cricsheet_")

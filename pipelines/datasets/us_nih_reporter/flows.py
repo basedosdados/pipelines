@@ -58,6 +58,7 @@ import tempfile
 from collections.abc import Mapping
 
 from prefect import flow
+from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.datasets.us_nih_reporter.constants import constants
 from pipelines.datasets.us_nih_reporter.tasks import (
@@ -144,9 +145,10 @@ def _materialize(
     Returns:
         None.
     """
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id=anchor_table
+    run_coro_as_sync(
+        rename_flow_run_dataset_table(
+            prefix="Dump: ", dataset_id=DATASET_ID, table_id=anchor_table
+        )
     )
 
     work_dir = tempfile.mkdtemp(prefix=f"{DATASET_ID}_")
