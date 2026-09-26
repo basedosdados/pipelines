@@ -1,10 +1,9 @@
 # Documentação do Conjunto de Dados: br_sedec_desastres
 
 Conjunto criado a partir da issue
-[#1747](https://github.com/basedosdados/pipelines/issues/1747). O pipeline está
-validado de ponta a ponta em dev: 27 downloads, limpeza, upload para
-`basedosdados-dev`, `dbt run` e `dbt test`. Os metadados estão registrados em prod
-com `status = under_review`.
+[#1747](https://github.com/basedosdados/pipelines/issues/1747). O flow roda todo dia
+em prod e acrescenta o retrato do dia a
+`basedosdados.br_sedec_desastres.reconhecimentos_vigentes`. O dataset está publicado.
 
 ## Sobre o Sistema
 
@@ -70,21 +69,25 @@ referência, então o que alimenta a comparação é a `data_extracao` estampada
 `clean_all` — a mesma coluna declarada no `_COVERAGE`, o que deixa os dois lados
 sendo data de retrato: um retrato novo passa, um segundo run no mesmo dia não.
 
-### 3. Frequência: mensal
+### 3. Frequência: diária
 
 **A fonte não tem frequência de publicação.** Ela é contínua: o reconhecimento
 federal sai por portaria publicada no DOU em dia útil qualquer, depois de o
 município decretar, registrar no S2ID e a SEDEC analisar. Em 2026-08-05, Minas
 Gerais passou de 136 para 147 linhas em duas horas.
 
-A frequência não é da fonte, e sim a cadência de retrato adotada aqui: **mensal**.
+A frequência não é da fonte, e sim a cadência de retrato do flow: **diária**, às
+02:10 (`10 2 * * *`, `America/Sao_Paulo`).
 
 A vigência legal do reconhecimento é de **180 dias** a contar da publicação do
 decreto, prorrogável — nas linhas medidas, o intervalo entre ocorrência e vigência
-tem mínimo de 180 e máximo de 326 dias. Como nenhum reconhecimento vive menos de 180
-dias, **um retrato por mês captura todos**, e cada um aparece em cerca de seis
-retratos consecutivos. Cadência diária acrescentaria apenas precisão sobre o dia de
-entrada e saída, a 30 vezes o volume: ~450 mil linhas por ano contra ~15 mil.
+tem mínimo de 180 e máximo de 326 dias. Com um retrato por dia, cada reconhecimento
+aparece em pelo menos 180 retratos consecutivos, e a entrada e a saída de cada um
+ficam registradas com precisão de um dia.
+
+O volume é de cerca de 1.200 linhas por retrato, uns 440 mil por ano. Os três
+primeiros retratos da série, de 2026-08-06, 2026-09-02 e 2026-09-25, têm intervalos
+irregulares.
 
 Duas observações sobre a periodicidade que a fonte declara:
 
@@ -95,7 +98,7 @@ Duas observações sobre a periodicidade que a fonte declara:
 - é essa a raw data source registrada no backend para o dataset `s2id`, e ela não
   aponta para a fonte desta tabela.
 
-Cadência mensal aciona a regra da janela BD Pro, que vale para tabela atualizada
+A cadência diária aciona a regra da janela BD Pro, que vale para tabela atualizada
 mensalmente ou com mais frequência. O tier adotado no `_COVERAGE` de `flows.py` é
 `AllFree`, uma exceção a essa regra: numa série de retratos, o paywall da janela
 recente restringiria ao BD Pro o **estado atual** dos reconhecimentos e liberaria
@@ -226,6 +229,39 @@ Restrições que vêm com a escolha:
 - a página tem **vários** botões "Exportar CSV", um por relatório. O seletor precisa
   ser relativo ao painel certo, senão baixa o relatório errado, sem erro.
 
+### O proxy brasileiro, e por que há um repasse local
+
+O S2ID recusa IP estrangeiro: responde `403` com `Acesso bloqueado por localizacao
+geografica`, e o cluster roda em `us-central1`. A saída é o Squid em
+`southamerica-east1` (`iac#156`), lido de `BRASIL_PROXY_URL` pelos helpers
+`brasil_proxy_url()`/`brasil_proxy_dict()`.
+
+Nas chamadas de `requests` isso é um argumento e acabou. Com o Chrome não: ele só
+aceita proxy pelo `--proxy-server`, essa flag não tem campo para credencial, e o
+Squid exige Basic Auth — é o único controle de acesso dele, sem allowlist de IP.
+
+As quatro formas de dar a credencial ao Chrome, todas medidas contra um Squid de
+mentira que exige Basic Auth:
+
+| tentativa | resultado |
+|---|---|
+| credencial na flag (`http://user:senha@host:porta`) | `net::ERR_NO_SUPPORTED_PROXIES`; a flag é rejeitada inteira e não sai pedido |
+| flag sem credencial, com túnel TCP no meio (`socat`, `ssh -L`) | 12 × 407: cano cego não insere cabeçalho |
+| extensão tratando `onAuthRequired` | 12 × 407: `--load-extension` está desativado desde o Chrome 137, e o pod roda 153 |
+| `selenium-wire` | ignora o proxy e vai direto; além disso só importa com `setuptools<81`, `blinker==1.7` e `pyopenssl<23.3` |
+| repasse local (`_proxy_local`) | 0 × 407, 23 pedidos autenticados, página carregada |
+
+Daí o repasse: o Chrome aponta para `127.0.0.1`, que não pede autenticação; ele abre
+a conexão com o Squid acrescentando o `Proxy-Authorization` e, a partir da primeira
+linha, só copia bytes. O `CONNECT` do HTTPS atravessa inteiro, então o TLS segue
+ponta a ponta entre o Chrome e a fonte — nem o repasse nem o Squid veem o conteúdo.
+
+Custo medido: **0,5 MB** de RSS a mais, duas threads por conexão viva, e **0,02 s** de
+CPU a cada 64 MB. O Chrome sozinho passa de 300 MB.
+
+Ele desaparece no dia em que o Squid liberar a origem do cluster por IP, e aí basta
+`--proxy-server=http://host:3128`.
+
 ## Estrutura
 
 ```text
@@ -253,18 +289,16 @@ Em consequência:
   `upload_columns_from_sheet` (ver Metadados). Como o código não pode lê-la, o schema
   (ordem, tipos, `original_name`) vive em `constants.COLUNAS`, e toda alteração na
   planilha precisa ser refletida lá;
-- **não há carga inicial separada.** A primeira carga é o `run_local.py` deste
-  diretório rodando `download,clean,upload`, promovida por PR;
+- **não há carga inicial separada.** Todo retrato sai das mesmas tasks de download
+  e limpeza, e a série começa no primeiro retrato (decisão 2);
 - as etapas são executáveis localmente pelo `run_local.py`: ele chama as mesmas
-  `@task` do flow via `.fn()` e escreve em `tmp/br_sedec_desastres/`. Ele é
-  versionado porque **é** o mecanismo de atualização da base (ver "Atualização
-  mensal" abaixo), não um rascunho. O que ele não cobre é a fiação do `flows.py`
-  — que hoje não roda em lugar nenhum.
+  `@task` do flow via `.fn()` e escreve em `tmp/br_sedec_desastres/` (ver
+  "Atualização diária" abaixo). O que ele não cobre é a fiação do `flows.py`: a
+  ordem das etapas, o guarda do poll e os retornos antecipados.
 
 ## Metadados
 
-Registrados em prod, com o dataset em `status = under_review`, o que o mantém
-invisível no site até a publicação — passo pós-merge.
+Registrados em prod, com o dataset em `status = published`.
 
 Registros criados: a organização `sedec`, o dataset de slug `desastres` sob ela, uma
 raw data source apontando para `https://s2id.mi.gov.br/paginas/relatorios/`, a tabela
@@ -275,8 +309,8 @@ raw data source apontando para `https://s2id.mi.gov.br/paginas/relatorios/`, a t
 Os três observation levels estão ligados às colunas do grão: `data_extracao`,
 `id_municipio` e `id_cobrade`. Sem esse vínculo o site exibe "Não informado".
 
-Cobertura: área `br`, uma Coverage com `is_closed=False` e DateTimeRange
-`2026-08-06 → 2026-08-06`. O fim não fica aberto porque `end_year` é obrigatório na
+Cobertura: área `br`, uma Coverage com `is_closed=False` e um DateTimeRange que
+começa em 2026-08-06, o primeiro retrato. O fim não fica aberto porque `end_year` é obrigatório na
 API; o `register_table_materialization_task` reescreve a faixa a cada run.
 
 A tabela tem uma única raw source. Tabela com duas fontes ligadas quebra o poll,
@@ -299,40 +333,107 @@ planilha sobrescreve o PT e mantém EN e ES no valor anterior.
 Nenhuma ferramenta de leitura devolve a descrição de uma coluna: o `get_dataset` traz
 apenas id e nome. Conferir descrição de coluna exige o Django admin.
 
-## Atualização mensal — manual, promovida por PR
+## Atualização diária
 
-Decidido em 2026-08-10, com a supervisão. O S2ID barra o IP de saída do cluster
-por geolocalização: a raspagem não roda no pod, e não há correção possível no
-código do pipeline. O `flows.py` continua no repo, sem schedule, para o caso de a
-rede ser liberada; quem atualiza a base é o `run_local.py`, e a promoção para prod
-é a action `table-approve`.
+O flow `br_sedec_desastres__reconhecimentos_vigentes` roda no pool de prod todo dia
+às 02:10 (`10 2 * * *`, `America/Sao_Paulo`), com o download saindo pelo proxy
+brasileiro. Cada run:
 
-**O prefixo `staging/br_sedec_desastres/reconhecimentos_vigentes/` no bucket
-`basedosdados-dev` é o histórico da série.** No merge, o `push_table_to_bq` do
-`prefect_run_dbt.py` espelha esse prefixo para o bucket `basedosdados` — apaga o
-que havia lá (com backup em `basedosdados-backup`) e copia o que está em dev. Ou
-seja: apagar do prefixo de dev apaga o dado de prod no merge seguinte, e o que
-estiver nele na hora do merge é exatamente o que vai ao ar. O `tmp/` local, esse
-pode limpar à vontade.
+1. baixa os 27 exports e monta o retrato, com `data_extracao` igual à data da
+   execução;
+2. grava o Poll da fonte e compara a data do retrato com o fim da cobertura; se o
+   dia já tem retrato, o run termina aqui (decisão 2);
+3. grava o Update da fonte com a data do retrato;
+4. acrescenta o retrato ao prefixo `staging/br_sedec_desastres/reconhecimentos_vigentes/`
+   do bucket `basedosdados` (`dump_mode="append"`);
+5. roda `dbt run` e `dbt test` em prod;
+6. reescreve a cobertura e o Update da tabela.
 
-1. `uv run python pipelines/datasets/br_sedec_desastres/run_local.py --stages download,clean,upload`
-2. Bumpar o `-- Último retrato promovido:` no topo do `.sql`. Sem `.sql` alterado
-   a action não age: o `prefect_run_dbt.py` monta a lista de tabelas a partir dos
-   arquivos `.sql` modificados na PR.
-3. Abrir a PR com a label `table-approve` e mergear.
-4. Conferir a materialização em `basedosdados.br_sedec_desastres.reconhecimentos_vigentes`.
-5. `uv run python pipelines/datasets/br_sedec_desastres/run_local.py --stages metadata`
-   — depois do merge, porque essa etapa lê a data máxima da tabela de prod.
+Um run que termina no passo 2 também fica `COMPLETED`, então o estado do run não
+prova ingestão. A ingestão se confere no log, onde
+`Não há novas atualizações na fonte original` marca o run que não ingeriu, ou na
+data máxima da tabela.
 
-A etapa `metadata` precisa de Python 3.11: `pipelines/utils/metadata/domain.py`
-usa `enum.StrEnum`. Em venv 3.10 o import falha (`uv venv --python 3.11`).
+**O prefixo de staging no bucket `basedosdados` é o histórico da série.** Os retratos
+diários existem só ali. O prefixo de mesmo nome em `basedosdados-dev` não acompanha
+o de prod e tem retratos de teste, gravados pelas validações em dev.
 
-**Retrato não gerado é retrato perdido.** A fonte publica apenas o estado atual,
-e a vigência é de 180 dias: um mês sem rodar abre um buraco irrecuperável na
-série.
+**Retrato não gerado é retrato perdido.** A fonte publica apenas o estado atual. Um
+dia em que o flow não roda, ou falha antes do upload, fica sem retrato, e esse
+retrato não se recupera depois: a série fica com um buraco de um dia.
+
+### Esta tabela não usa o `table-approve`
+
+No merge de uma PR com o rótulo `table-approve`, a action age sobre toda tabela cujo
+`.sql` mudou na PR. Para cada uma, o `push_table_to_bq` de
+`.github/workflows/scripts/prefect_run_dbt.py` espelha o prefixo de staging do bucket
+`basedosdados-dev` no `basedosdados`: apaga o que havia em prod, com backup em
+`basedosdados-backup`, e copia o que está em dev.
+
+Nesta tabela, o espelhamento deixa prod igual a dev: some todo retrato que só existe
+em prod, e os retratos de teste de dev vão ao ar. O backup guarda uma versão só,
+porque cada espelhamento apaga o backup anterior antes de gravar o novo.
+
+Antes de qualquer PR com o rótulo `table-approve` que altere
+`models/br_sedec_desastres/br_sedec_desastres__reconhecimentos_vigentes.sql`, o
+prefixo de dev precisa ter exatamente os mesmos arquivos que o de prod.
+
+### Armar, rodar à mão e validar em dev
+
+**Armar.** O merge implanta o deployment de prod pausado. O schedule só vale depois
+de marcar `is_schedule_active` na linha do `flow_name`
+`br_sedec_desastres__reconhecimentos_vigentes` em
+`https://backend.basedosdados.org/admin/admin_data_tools/disabledflowschedule/`;
+desmarcar pausa o deployment de novo. Um deployment pausado continua exibindo o
+schedule como ativo; o estado real está no campo `paused` do deployment.
+
+**Rodar à mão.** Disparar o deployment
+`br_sedec_desastres__reconhecimentos_vigentes/br_sedec_desastres__reconhecimentos_vigentes`
+com os parâmetros padrão, `{}`, que equivalem a `materialize_after_dump=True`,
+`update_metadata=True` e `target="prod"`. Se o dia já tem retrato, o poll encerra o
+run no passo 2.
+
+**Validar em dev.** A PR com o rótulo `deploy-flow` implanta o deployment
+`dev-br_sedec_desastres__reconhecimentos_vigentes`, disparado com:
+
+```json
+{"materialize_after_dump": false, "update_metadata": false, "force_run": true}
+```
+
+`force_run` pula o poll, e `materialize_after_dump=false` desvia o run para dev: o
+retrato vai para o prefixo de staging de `basedosdados-dev`, o `dbt run` e o
+`dbt test` rodam em dev, e o Update da fonte não é gravado. Nenhum metadado de prod
+muda. O rótulo só implanta o código de uma PR que altera o `flows.py`; nas outras, o
+deployment roda a branch que já tinha, e o caminho do clone no log
+(`/app/pipelines-<branch>/`) mostra qual foi.
+
+### `run_local.py`
+
+Roda as etapas do flow na máquina local, chamando as mesmas `@task` via `.fn()`, sem
+o runtime do Prefect, e grava em `tmp/br_sedec_desastres/`. Serve para depurar. Sem
+`BRASIL_PROXY_URL` definida, o download sai direto, o que exige IP brasileiro.
+
+| etapa | onde escreve |
+| --- | --- |
+| `download`, `clean` (padrão) | só em `tmp/br_sedec_desastres/` |
+| `upload` | prefixo de staging em `basedosdados-dev` |
+| `dbt` | `dbt run` e `dbt test` em dev |
+| `metadata` | backend de **prod**: Poll, Update da fonte, cobertura e Update da tabela |
+
+Nenhuma etapa grava dado em prod. A etapa `metadata` só escreve se a data máxima da
+tabela de prod for igual à do retrato local, e repete o que o run diário já grava.
+Ela precisa de Python 3.11: importa o `_COVERAGE` do `flows.py`, que depende de
+`pipelines/utils/metadata/domain.py`, e esse módulo usa `enum.StrEnum`. Em venv 3.10
+o import falha (`uv venv --python 3.11`).
 
 ## O que falta
 
-- [ ] Primeira promoção: PR com a label `table-approve`, merge, e a materialização
-      conferida em prod.
-- [ ] Pós-merge: rodar a etapa `metadata` e mudar o dataset para `published`.
+- [ ] Tirar do topo do `.sql` o bloco de comentário que começa em
+      `-- Último retrato promovido: 2026-09-02` e o descreve como gatilho da
+      promoção. A remoção altera o `.sql`, então a PR não pode levar o rótulo
+      `table-approve` enquanto o prefixo de dev não estiver alinhado ao de prod
+      (ver "Esta tabela não usa o `table-approve`").
+- [ ] Trocar o `entity` do Update da tabela e do Update da fonte, registrados em prod
+      como `month`, para `day`, com `frequency=1`. Num Update que já existe, o flow
+      reescreve só o `latest`, então a troca feita à mão se mantém.
+- [ ] Arquivar o dataset `s2id` de prod, que não tem tabelas (decisão 1).
