@@ -148,7 +148,6 @@ def us_fec_campaign_finance_flow(
         cycle: Refresh this cycle instead of the current one. For backfilling a
             single past cycle by hand; leave unset on scheduled runs.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )

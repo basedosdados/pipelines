@@ -119,7 +119,6 @@ def world_noaa_ghcn_flow(
         full_refresh: Rebuild all 264 year-partitions instead of the trailing
             window. Several hours; use when NCEI reprocesses historical data.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="observation"
     )

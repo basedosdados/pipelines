@@ -105,7 +105,6 @@ def us_sec_edgar_flow(
             specific quarter; ``force_run`` is then usually wanted too, since the
             poll only looks at the newest.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="numeric_fact"
     )

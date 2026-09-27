@@ -91,7 +91,6 @@ def br_mf_divida_ativa_flow(
             prod. Use for a safe dev smoke test:
             ``{materialize_to_prod: False, update_metadata: False, force_run: True}``.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=ANCHOR_TABLE
     )

@@ -86,7 +86,6 @@ def us_census_lodes_flow(
             LODES re-releases individual files when they change, and the poll
             only notices a new *year*. Empty means "whatever is new".
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )

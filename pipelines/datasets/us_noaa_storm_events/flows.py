@@ -132,7 +132,6 @@ def us_noaa_storm_events_flow(
             Needed for a release that only restates earlier years without adding
             a month, which leaves the max coverage date unmoved.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=EVENT
     )

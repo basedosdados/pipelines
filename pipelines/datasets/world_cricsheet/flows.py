@@ -101,7 +101,6 @@ def world_cricsheet_flow(
             source update. Has no effect when ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new match date.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="cricsheet"
     )
