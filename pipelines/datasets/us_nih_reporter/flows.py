@@ -57,7 +57,7 @@ import shutil
 import tempfile
 from collections.abc import Mapping
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_nih_reporter.constants import constants
 from pipelines.datasets.us_nih_reporter.tasks import (
@@ -65,6 +65,7 @@ from pipelines.datasets.us_nih_reporter.tasks import (
     download_corpus,
     probe_source,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     CoverageSpec,
@@ -303,9 +304,8 @@ def us_nih_reporter_links_flow(
 # 51, so 12 keeps clear of all of them. Defaulting to :00 piles every pipeline
 # onto the same instant, where they compete for BigQuery slots and trip the daily
 # quota together.
-# pyrefly: ignore [missing-attribute]
 us_nih_reporter_flow.deploy_schedules = [
-    {"cron": "12 7 6,16,26 * *", "timezone": "America/Sao_Paulo"}
+    Cron("12 7 6,16,26 * *", timezone="America/Sao_Paulo")
 ]
 # The clean step holds one file's rows in memory at a time, plus the FY1985-FY1999
 # funding supplement (840,226 rows) for the whole project pass; a full local
@@ -313,7 +313,6 @@ us_nih_reporter_flow.deploy_schedules = [
 # what the pod actually gets — a bare `memory` key is not in the work pool's job
 # template and is dropped silently, leaving the default 4Gi however large a number
 # it names.
-# pyrefly: ignore [missing-attribute]
 us_nih_reporter_flow.job_variables = {
     "memory_limit": "8Gi",
     "memory_request": "3Gi",
@@ -322,12 +321,10 @@ us_nih_reporter_flow.job_variables = {
 # Patents and clinical studies are rewritten roughly weekly. Poll every Tuesday;
 # hour 7 minute 12 is already this dataset's slot on the monthly flow, and the
 # two only collide three times a year.
-# pyrefly: ignore [missing-attribute]
 us_nih_reporter_links_flow.deploy_schedules = [
-    {"cron": "17 7 * * 2", "timezone": "America/Sao_Paulo"}
+    Cron("17 7 * * 2", timezone="America/Sao_Paulo")
 ]
 # 16 MB of CSV, 132k rows across the two tables.
-# pyrefly: ignore [missing-attribute]
 us_nih_reporter_links_flow.job_variables = {
     "memory_limit": "2Gi",
     "memory_request": "1Gi",

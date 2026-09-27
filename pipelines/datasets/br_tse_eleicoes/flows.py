@@ -2,13 +2,14 @@
 Flow compartilhado para br_tse_eleicoes — Prefect 3.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_tse_eleicoes.tasks import (
     flows_control,
     get_data_source_max_date,
     preparing_data,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -127,9 +128,8 @@ def _tse_flow(table_id: str, cron: str | None):
                 bq_project="basedosdados",
             )
 
-    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = (
-        [{"cron": cron, "timezone": "America/Sao_Paulo"}] if cron else []
+        [Cron(cron, timezone="America/Sao_Paulo")] if cron else []
     )
     return _flow
 

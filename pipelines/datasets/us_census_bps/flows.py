@@ -18,7 +18,7 @@ the dev pool strips the schedule, the prod pool activates it.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_census_bps.constants import constants
 from pipelines.datasets.us_census_bps.tasks import (
@@ -26,6 +26,7 @@ from pipelines.datasets.us_census_bps.tasks import (
     clear_staging_prefix,
     download_bps,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -237,15 +238,13 @@ def us_census_bps_flow(
 # of that window; the source-poll guard no-ops until a new period lands.
 # 15:25 BRT is an unused slot — piling flows onto the same instant makes them
 # compete for BigQuery slots and fail together.
-# pyrefly: ignore [missing-attribute]
 us_census_bps_flow.deploy_schedules = [
-    {"cron": "25 15 17,18,19,20,21,22 * *", "timezone": "America/Sao_Paulo"}
+    Cron("25 15 17,18,19,20,21,22 * *", timezone="America/Sao_Paulo")
 ]
 # `memory` alone is silently dropped by the work pool's job template, which
 # defaults to 4Gi; `memory_limit` is the key the pod actually gets. The clean
 # step holds one 400k-row buffer at a time, but the downloaded files are about
 # 700 MB on disk.
-# pyrefly: ignore [missing-attribute]
 us_census_bps_flow.job_variables = {
     "memory": "8Gi",
     "memory_limit": "8Gi",

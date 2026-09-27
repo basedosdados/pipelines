@@ -19,7 +19,7 @@ pool activates it.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_cgu_orcamento_publico.constants import constants
 from pipelines.datasets.br_cgu_orcamento_publico.tasks import (
@@ -27,6 +27,7 @@ from pipelines.datasets.br_cgu_orcamento_publico.tasks import (
     download_orcamento,
     probe_source,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -178,14 +179,12 @@ def br_cgu_orcamento_publico_flow(
 # The portal regenerates every exercise file together, currently around 05:00
 # BRT. Weekly is enough for an annual table whose closed years are restated
 # now and then; the poll guard no-ops a run that finds nothing new.
-# pyrefly: ignore [missing-attribute]
 br_cgu_orcamento_publico_flow.deploy_schedules = [
-    {"cron": "23 6 * * 4", "timezone": "America/Sao_Paulo"}
+    Cron("23 6 * * 4", timezone="America/Sao_Paulo")
 ]
 # ~290k CSV rows streamed a few thousand at a time; the 4Gi default is ample.
 # `memory` alone is silently dropped by the work pool template — the effective
 # key is `memory_limit`.
-# pyrefly: ignore [missing-attribute]
 br_cgu_orcamento_publico_flow.job_variables = {
     "memory_limit": "2Gi",
     "memory_request": "1Gi",
