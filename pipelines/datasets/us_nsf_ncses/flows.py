@@ -27,7 +27,7 @@ the dev pool ignores the schedule, the prod pool activates it.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_nsf_ncses.constants import constants
 from pipelines.datasets.us_nsf_ncses.tasks import (
@@ -35,6 +35,7 @@ from pipelines.datasets.us_nsf_ncses.tasks import (
     clean_all,
     download_all,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -220,15 +221,13 @@ def us_nsf_ncses_flow(
 # polls no-op until a new year actually appears. The minute is deliberately not
 # :00 — a dozen pipelines firing on the same instant compete for BigQuery slots
 # and fail together when the daily quota trips.
-# pyrefly: ignore [missing-attribute]
 us_nsf_ncses_flow.deploy_schedules = [
-    {"cron": "34 7 5,12,19,26 8,9,10,11,12 *", "timezone": "America/Sao_Paulo"}
+    Cron("34 7 5,12,19,26 8,9,10,11,12 *", timezone="America/Sao_Paulo")
 ]
 # The HERD clean holds one fiscal year of rows at a time, peaking well under a
 # gigabyte, but the downloaded ZIPs and the parquet share the pod's disk.
 # `memory` alone is silently dropped: the work pool's job template only knows
 # `memory_limit` and `memory_request`, and defaults to 4Gi for anything else.
-# pyrefly: ignore [missing-attribute]
 us_nsf_ncses_flow.job_variables = {
     "memory_limit": "8Gi",
     "memory_request": "2Gi",

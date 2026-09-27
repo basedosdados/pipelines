@@ -21,13 +21,14 @@ the dev pool ignores the schedule, the prod pool activates it.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.au_apra_superannuation.constants import constants
 from pipelines.datasets.au_apra_superannuation.tasks import (
     clean_superannuation,
     download_superannuation,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -195,16 +196,14 @@ def au_apra_superannuation_flow(
 # weeks after quarter end -- late February, May, August and November. Poll
 # across the back half of those months at 15:00 BRT; the source-poll guard
 # no-ops until a new quarter lands.
-# pyrefly: ignore [missing-attribute]
 au_apra_superannuation_flow.deploy_schedules = [
-    {
-        "cron": "8 15 20,21,22,23,24,25,26,27,28 2,5,8,11 *",
-        "timezone": "America/Sao_Paulo",
-    }
+    Cron(
+        "8 15 20,21,22,23,24,25,26,27,28 2,5,8,11 *",
+        timezone="America/Sao_Paulo",
+    )
 ]
 # The clean step holds the full history (~1,300 rows) in pandas; 4Gi is ample,
 # but be explicit so the pod is not silently capped by the pool default.
-# pyrefly: ignore [missing-attribute]
 au_apra_superannuation_flow.job_variables = {
     "memory_limit": "4Gi",
     "memory_request": "2Gi",

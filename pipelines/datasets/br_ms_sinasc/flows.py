@@ -2,14 +2,13 @@
 Flows de br_ms_sinasc — Prefect 3.
 """
 
-from prefect import flow
-
 from pipelines.datasets.br_ms_sinasc.tasks import (
     clean_table,
     download_table,
     get_source_max_year,
     resolve_year_source,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -138,7 +137,6 @@ def br_ms_sinasc__microdados(
 
 # `memory` não existe no template do work pool, que só conhece o par abaixo, e
 # chave fora do template é descartada em silêncio — o pod ficaria no padrão.
-# pyrefly: ignore [missing-attribute]
 br_ms_sinasc__microdados.job_variables = {
     "memory_limit": "8Gi",
     "memory_request": "2Gi",

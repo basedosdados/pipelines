@@ -14,13 +14,14 @@ pool activates it.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.au_ato_taxation_statistics.constants import constants
 from pipelines.datasets.au_ato_taxation_statistics.tasks import (
     clean_taxstats,
     download_taxstats,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -182,10 +183,8 @@ def au_ato_taxation_statistics_flow(
 # The ATO publishes Taxation Statistics once a year, historically around
 # April-June. Poll monthly at 16:00 BRT on the 20th; the source-poll guard
 # no-ops until a new financial year actually appears.
-# pyrefly: ignore [missing-attribute]
 au_ato_taxation_statistics_flow.deploy_schedules = [
-    {"cron": "45 16 20 * *", "timezone": "America/Sao_Paulo"}
+    Cron("45 16 20 * *", timezone="America/Sao_Paulo")
 ]
 # The clean step holds ~4.5M rows in pandas before writing partitions.
-# pyrefly: ignore [missing-attribute]
 au_ato_taxation_statistics_flow.job_variables = {"memory": "8Gi"}
