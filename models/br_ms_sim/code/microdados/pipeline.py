@@ -2,8 +2,9 @@ import shutil
 from pathlib import Path
 
 import basedosdados as bd
-from cleaning import MUNICIPIOS_PATH, process
-from extraction import download
+
+from models.br_ms_sim.code.microdados.cleaning import MUNICIPIOS_PATH, process
+from models.br_ms_sim.code.microdados.extraction import download
 
 DATASET_ID = "br_ms_sim"
 TABLE_ID = "microdados"

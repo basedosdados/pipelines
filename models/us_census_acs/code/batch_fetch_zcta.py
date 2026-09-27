@@ -76,6 +76,7 @@ def backfill(year, profile):
             flush=True,
         )
     # reconstruct group-format JSON: header = NAME + all codes + geo cols
+    assert geo_names is not None, "nenhum chunk foi baixado"
     out_header = ["NAME", *full, *geo_names]
     out = [out_header]
     for gk in geo_order:

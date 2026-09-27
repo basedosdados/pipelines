@@ -14,6 +14,7 @@ ZIP_URL = "https://download.inep.gov.br/microdados/microdados_saeb_2021_ensino_f
 
 ZIP_FILE = os.path.join(INPUT, os.path.basename(ZIP_URL))
 
+# pyrefly: ignore [deprecated]
 os.system(
     f"wget {ZIP_URL} --no-check-certificate -o {INPUT}/{os.path.basename(ZIP_URL)}"
 )
@@ -142,6 +143,8 @@ def wide_to_long(df: pl.DataFrame) -> pl.DataFrame:
     Convert a DataFrame from wide to long format
     """
     return (
+        # `unpivot` exige polars>=1.0; o ambiente do projeto tem a 0.20.
+        # pyrefly: ignore [missing-attribute]
         df.unpivot(on=on, index=[*index_cols, *other_index_cols])
         .with_columns(
             pl.col("variable")

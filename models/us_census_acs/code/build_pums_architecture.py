@@ -26,7 +26,9 @@ with open(f"{WORK}/pums_person_cols.txt") as f:
 with open(f"{WORK}/pums_housing_cols.txt") as f:
     housing_cols = f.read().split("\n")
 
-from _pums_schema import RENAME  # noqa: E402  (shared identity-rename map)
+from models.us_census_acs.code._pums_schema import (  # noqa: E402  (shared identity-rename map)
+    RENAME,
+)
 
 # --- N-vars that are really identifiers/sequences -> STRING (no arithmetic meaning) ---
 FORCE_STRING = {"SPORDER"}

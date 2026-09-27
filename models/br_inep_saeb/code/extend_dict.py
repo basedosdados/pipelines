@@ -18,7 +18,7 @@ df = pd.read_csv(
 )
 
 df = df.loc[
-    (df["cobertura_temporal"] != "1") & (df["cobertura_temporal"] != "D"),
+    (df["cobertura_temporal"] != "1") & (df["cobertura_temporal"] != "D")
 ]
 
 
@@ -107,7 +107,7 @@ def build_date_range(
 dfs = dict(
     [
         # Table id is wrong
-        (table_id.replace("aluno_ef_2_ano", "aluno_ef_2ano"), df_by_table)
+        (str(table_id).replace("aluno_ef_2_ano", "aluno_ef_2ano"), df_by_table)
         for (table_id, df_by_table) in df.groupby("id_tabela")
     ]
 )
@@ -156,6 +156,7 @@ def transform_df(table_id: str, df: pd.DataFrame) -> pd.DataFrame:
         variables={"table_id": table_slug},
     )
 
+    # pyrefly: ignore [missing-attribute]
     payload = backend._simplify_graphql_response(response)["allTable"][0][
         "coverages"
     ][0]["datetimeRanges"][0]

@@ -21,7 +21,9 @@ PUMS = "/Users/rdahis/acs_data/pums"
 ARCH = os.path.join(os.path.dirname(__file__), "architecture")
 OUT = "/Users/rdahis/acs_data/output/dicionario"
 
-from _pums_schema import RENAME  # noqa: E402  (shared identity-rename map)
+from models.us_census_acs.code._pums_schema import (  # noqa: E402  (shared identity-rename map)
+    RENAME,
+)
 
 # covered columns: original_name(upper) -> (id_tabela, name)
 covered = {}

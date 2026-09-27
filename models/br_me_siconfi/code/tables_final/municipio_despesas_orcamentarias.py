@@ -103,7 +103,7 @@ def _build_legacy(path_dados, comp, ano):
         value_vars = df_dados.drop(
             id_vars + (["estagio"] if "estagio" in df_dados.columns else []),
             axis=1,
-        ).columns
+        ).columns.tolist()
         df_dados = pd.melt(
             df_dados,
             id_vars=id_vars

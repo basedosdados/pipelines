@@ -4,8 +4,9 @@ from io import BytesIO
 
 import pandas as pd
 import requests
-from constants import constants
 from tqdm import tqdm
+
+from models.br_ibge_censo_2022.code.constants import constants
 
 CNEFE_FILE_NAMES = constants.CNEFE_FILE_NAMES.value
 URL = constants.CNEFE_FTP_URL.value

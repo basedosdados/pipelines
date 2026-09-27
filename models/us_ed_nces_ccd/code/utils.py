@@ -28,7 +28,8 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import duckdb
-import schema
+
+from models.us_ed_nces_ccd.code import schema
 
 BASE_URL = "https://educationdata.urban.org/csv/ccd"
 

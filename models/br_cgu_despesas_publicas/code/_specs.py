@@ -6,13 +6,10 @@ rewrite the older spec — and risk perturbing a table already published on prod
 both are normalised here into dicts, and the builders consume only these.
 """
 
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-from _spec import SPEC as _EXECUCAO
-from _spec_favorecido import SPEC as _FAVORECIDO
+from models.br_cgu_despesas_publicas.code._spec import SPEC as _EXECUCAO
+from models.br_cgu_despesas_publicas.code._spec_favorecido import (
+    SPEC as _FAVORECIDO,
+)
 
 _KEYS = (
     "name",

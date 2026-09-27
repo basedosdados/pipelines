@@ -2,8 +2,9 @@ import shutil
 from pathlib import Path
 
 import basedosdados as bd
-from extraction import download
-from processing import run_processing
+
+from models.br_inpe_queimadas.code.microdados.extraction import download
+from models.br_inpe_queimadas.code.microdados.processing import run_processing
 
 # Identificadores da tabela no BigQuery
 DATASET_ID = "br_inpe_queimadas"

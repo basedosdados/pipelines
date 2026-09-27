@@ -28,8 +28,7 @@ import sys
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-import spec
+from models.us_ed_college_scorecard.code import spec
 
 CODE_DIR = pathlib.Path(__file__).resolve().parent
 ARCH_DIR = CODE_DIR / "architecture"
@@ -77,7 +76,9 @@ def duplicate_keys(table, key):
             pc.fill_null(pc.cast(keyed.column(c), "string"), "\x00")
             for c in key
         ]
+        # pyrefly: ignore [missing-attribute]
         joined = pc.binary_join_element_wise(*parts, "|")
+        # pyrefly: ignore [missing-attribute]
         total += keyed.num_rows - pc.count_distinct(joined).as_py()
     return total
 

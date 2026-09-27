@@ -15,12 +15,12 @@ import collections
 import csv
 import os
 import pathlib
-import sys
 
 import pyarrow.parquet as pq
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from providers import ProviderIndex
+from models.au_doe_higher_education_finances.code.providers import (
+    ProviderIndex,
+)
 
 DATA_DIR = pathlib.Path(
     os.environ.get(
@@ -55,6 +55,7 @@ def read_table(name: str) -> list[dict]:
 
 
 def load_providers() -> ProviderIndex:
+    # pyrefly: ignore [untyped-import]
     import openpyxl
 
     book = openpyxl.load_workbook(

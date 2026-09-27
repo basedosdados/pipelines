@@ -5,7 +5,8 @@ from pathlib import Path
 import basedosdados as bd
 import pandas as pd
 import requests
-from utils import (
+
+from models.br_inep_saeb.code.utils import (
     convert_to_pd_dtype,
     get_disciplina_serie,
     get_nivel_serie_disciplina,

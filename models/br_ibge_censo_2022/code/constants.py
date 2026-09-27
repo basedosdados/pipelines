@@ -1,9 +1,8 @@
 from enum import Enum
-from typing import ClassVar
 
 
 class constants(Enum):
-    URLS: ClassVar[dict[str, str]] = {
+    URLS = {
         "populacao_grupos_idade": "https://apisidra.ibge.gov.br/values/t/1209/n3/all/v/allxp/p/all/c58/all",
         "populacao_residente": "https://apisidra.ibge.gov.br/values/t/9514/n6/all/v/allxp/p/all/c2/all/c287/allxt/c286/allxt",
         "indice_envelhecimento": "https://apisidra.ibge.gov.br/values/t/9515/n3/all/n6/all/v/all/p/all/d/v8845%202,v10612%202",
@@ -35,7 +34,7 @@ class constants(Enum):
     # NOTE: CNEFE não será baixado do SIDRA
     CNEFE_FTP_URL = "http://ftp.ibge.gov.br/Cadastro_Nacional_de_Enderecos_para_Fins_Estatisticos/Censo_Demografico_2022/Arquivos_CNEFE/UF"
 
-    CNEFE_FILE_NAMES: ClassVar[dict[str, str]] = {
+    CNEFE_FILE_NAMES = {
         "RO": "11_RO.zip",
         "AC": "12_AC.zip",
         "AM": "13_AM.zip",

@@ -3,7 +3,8 @@ from pathlib import Path
 
 import basedosdados as bd
 import pandas as pd
-from utils import (
+
+from models.br_inep_saeb.code.utils import (
     convert_to_pd_dtype,
     drop_empty_lines,
     get_disciplina_serie,

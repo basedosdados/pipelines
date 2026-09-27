@@ -450,30 +450,6 @@ project-excludes = [
   "models/br_inep_educacao_especial/code/educacao_especial_matricula_aee.ipynb",
   "models/br_inep_educacao_especial/code/educacao_especial_uf_distorcao_idade_serie.ipynb",
   "models/br_inep_educacao_especial/code/educacao_especial_uf_taxa_rendimento.ipynb",
-  "models/br_mme_consumo_energia_eletrica/code/energia_eletrica.ipynb",
-  # Same policy: onboarding scripts that run from their own directory with bare
-  # sibling imports (`import schema`, `from common import ...`), which pyrefly
-  # cannot resolve from the repo root. Each carried `# pyrefly: ignore
-  # [missing-import]` on those imports instead.
-  "models/af_afrobarometer_survey/code",
-  "models/au_doe_higher_education_finances/code",
-  "models/br_cgu_despesas_publicas/code",
-  "models/br_fbsp_absp/code/uf",
-  "models/br_fbsp_absp/code/violencia_escola",
-  "models/br_ibge_censo_2022/code",
-  "models/br_inep_saeb/code",
-  "models/br_inpe_queimadas/code/microdados",
-  "models/br_me_siconfi/code",
-  "models/br_ms_sim/code/microdados",
-  "models/br_rf_arrecadacao/code",
-  "models/br_senado_dados_abertos/code",
-  "models/fr_insee_sirene/code",
-  "models/in_tcpd_elections/code",
-  "models/us_census_acs/code",
-  "models/us_ed_college_scorecard/code",
-  "models/us_ed_ipeds/code",
-  "models/us_ed_nces_ccd/code",
-  "models/us_nature_gerda/code",
-  "models/world_iea_pirls/code"
+  "models/br_mme_consumo_energia_eletrica/code/energia_eletrica.ipynb"
 ]
 min-severity = "warn"

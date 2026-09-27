@@ -17,9 +17,12 @@ import argparse
 import csv
 import json
 from pathlib import Path
+from typing import Any
 
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
+
+# pyrefly: ignore [untyped-import]
 import yaml
 
 CODE_DIR = Path(__file__).resolve().parent
@@ -169,7 +172,7 @@ def check_pk(table):
     """Return (chosen_key, evidence) — evidence maps candidate -> dup rows."""
     files = year_files(table)
     schema_names = set(pq.read_schema(files[0]).names)
-    evidence = {}
+    evidence: dict[str, Any] = {}
     chosen = None
     for cand in PK_CANDIDATES[table]:
         if not set(cand) <= schema_names:
@@ -216,6 +219,7 @@ def null_rates(table):
         if missing_stats:  # fallback: read those columns
             t = pq.read_table(f, columns=sorted(missing_stats))
             for name in missing_stats:
+                # pyrefly: ignore [missing-attribute]
                 file_nulls[name] = pc.sum(pc.is_null(t[name])).as_py() or 0
         for n, v in file_nulls.items():
             null_counts[n] = null_counts.get(n, 0) + v

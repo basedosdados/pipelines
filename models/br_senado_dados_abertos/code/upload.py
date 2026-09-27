@@ -102,6 +102,7 @@ def upload_table(slug: str) -> int:
     q = f"select count(*) as n from `{BILLING_PROJECT}.{DATASET_ID}_staging.{slug}`"
     try:
         n = int(
+            # pyrefly: ignore [bad-argument-type]
             bd.read_sql(
                 q, billing_project_id=BILLING_PROJECT, from_file=True
             ).iloc[0, 0]

@@ -25,7 +25,9 @@ OUTROOT = "/Users/rdahis/acs_data/output"
 ARCH = os.path.join(os.path.dirname(__file__), "architecture")
 CHUNK = 200_000
 
-from _pums_schema import RENAME  # noqa: E402  (shared identity-rename map)
+from models.us_census_acs.code._pums_schema import (  # noqa: E402  (shared identity-rename map)
+    RENAME,
+)
 
 
 def load_arch(kind):  # kind: microdata_person / microdata_household

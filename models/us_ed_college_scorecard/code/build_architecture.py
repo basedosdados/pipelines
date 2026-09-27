@@ -25,13 +25,11 @@ import logging
 import os
 import pathlib
 import re
-import sys
 
+# pyrefly: ignore [untyped-import]
 import yaml
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-import i18n
-import spec
+from models.us_ed_college_scorecard.code import i18n, spec
 
 DATA_DIR = pathlib.Path(
     os.environ.get(

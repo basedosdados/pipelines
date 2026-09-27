@@ -12,8 +12,9 @@ Run: cd models/us_nature_gerda/code && python3 clean_municipal.py
 
 import os
 
-import gerda_common as gc
 import pandas as pd
+
+from models.us_nature_gerda.code import gerda_common as gc
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 IN = os.path.join(HERE, "..", "input")

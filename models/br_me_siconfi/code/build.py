@@ -30,7 +30,10 @@ import pandas as pd
 _here = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, _here)
 
-from tables_final.shared import _init_worker, process_year_task  # noqa: E402
+from models.br_me_siconfi.code.tables_final.shared import (  # noqa: E402
+    _init_worker,
+    process_year_task,
+)
 
 # ---------------------------------------------------------------------------
 # Table registry

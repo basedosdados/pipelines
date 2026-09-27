@@ -193,7 +193,7 @@ def build_manifest():
 # ---------------------------------------------------------------------------
 
 
-def download_file(filename: str, retries: int = 3) -> Path:
+def download_file(filename: str, retries: int = 3) -> Path | None:
     """Download a zip file if not already cached."""
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     local_path = DATA_DIR / f"{filename}.zip"
@@ -235,7 +235,7 @@ def download_file(filename: str, retries: int = 3) -> Path:
 # ---------------------------------------------------------------------------
 
 
-def read_csv_from_zip(zip_path: Path) -> pd.DataFrame:
+def read_csv_from_zip(zip_path: Path) -> pd.DataFrame | None:
     """Extract and read the CSV data file from a zip archive."""
     with zipfile.ZipFile(zip_path) as zf:
         # Find the main CSV file (not the dictionary/frequencies file)
@@ -294,8 +294,9 @@ def read_csv_from_zip(zip_path: Path) -> pd.DataFrame:
         junk = [
             c
             for c in df.columns
+            # pyrefly: ignore [unnecessary-type-conversion]
             if re.match(r".+\.\d+$", str(c))
-            or (str(c).strip().lower() == "i" and df[c].isna().all())
+            or (str(c).strip().lower() == "i" and df[c].isna().all())  # pyrefly: ignore [unnecessary-type-conversion]
         ]
         if junk:
             df = df.drop(columns=junk)
@@ -371,6 +372,7 @@ def clean_numeric_columns(df: pd.DataFrame, exclude_cols=None) -> pd.DataFrame:
                 continue
             # Try converting - IPEDS uses '.' for missing
             converted = pd.to_numeric(
+                # pyrefly: ignore [bad-argument-type]
                 df[col].replace({".": None, "": None}),
                 errors="coerce",
             )
@@ -858,6 +860,7 @@ def write_survey_parquet(survey: str, combined: pd.DataFrame) -> int:
     table_dir = OUTPUT_DIR / survey
     total = 0
     for year, group in combined.groupby("year", sort=True):
+        # pyrefly: ignore [bad-argument-type]
         part_dir = table_dir / f"year={int(year)}"
         part_dir.mkdir(parents=True, exist_ok=True)
         data = group.drop(columns=["year"])

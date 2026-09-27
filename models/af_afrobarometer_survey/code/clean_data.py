@@ -29,20 +29,23 @@ import math
 import sys
 import urllib.request
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+# pyrefly: ignore [missing-import]
 import pyreadstat
-from common import (
+
+from models.af_afrobarometer_survey.code.common import (
     ARCH_DIR,
     INPUT_DIR,
     META_CACHE,
     OUTPUT_DIR,
     ROUNDS,
+    Round,
     clean_name,
     country_to_iso3,
     infer_bq_type,
@@ -88,7 +91,7 @@ def read_sav_robust(path: str):
     last = None
     for enc in (None, "latin1"):
         try:
-            kw = {"user_missing": True}
+            kw: dict[str, Any] = {"user_missing": True}
             if enc:
                 kw["encoding"] = enc
             df, meta = pyreadstat.read_sav(path, **kw)
@@ -108,6 +111,7 @@ def read_sav_robust(path: str):
             return df, meta
         except pyreadstat.ReadstatError as e:
             last = e
+    assert last is not None
     raise last
 
 
@@ -190,7 +194,7 @@ def coverage_from_dates(df: pd.Series | None, num: int) -> tuple[int, int]:
     return FALLBACK_YEARS[num]
 
 
-def process_round(rnd: dict) -> dict:
+def process_round(rnd: Round) -> dict:
     num, slug = rnd["num"], rnd["slug"]
     log.info(f"=== {slug} (round {num}) ===")
     path = INPUT_DIR / rnd["filename"]
@@ -321,7 +325,7 @@ def build_dicionario(rounds_meta: list[dict]) -> None:
             for code, label in mapping.items():
                 key = (
                     str(int(code))
-                    if isinstance(code, float) and float(code).is_integer()
+                    if isinstance(code, float) and float(code).is_integer()  # pyrefly: ignore [unnecessary-type-conversion]
                     else str(code)
                 )
                 rows.append(

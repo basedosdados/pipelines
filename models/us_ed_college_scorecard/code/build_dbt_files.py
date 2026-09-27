@@ -15,10 +15,8 @@ import csv
 import json
 import logging
 import pathlib
-import sys
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-import spec
+from models.us_ed_college_scorecard.code import spec
 
 DATASET = "us_ed_college_scorecard"
 CODE_DIR = pathlib.Path(__file__).resolve().parent
