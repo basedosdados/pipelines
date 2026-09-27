@@ -12,7 +12,7 @@ Every table refreshes monthly, so each carries the BD Pro rolling window
 (``PartBdpro``): the most recent six months are pro-only, older data is free, and
 the window rolls forward on its own each run.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``au_abs_labour_force_flow``;
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``au_abs_labour_force_flow``;
 the dev pool ignores the schedule, the prod pool activates it (paused until armed).
 """
 
