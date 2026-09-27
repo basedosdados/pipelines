@@ -13,8 +13,6 @@ import os
 
 import pandas as pd
 import pyarrow.parquet as pq
-
-# pyrefly: ignore [missing-import]
 from architecture_spec import DIR_ANO, DIR_UF, TABLES
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -135,12 +133,10 @@ def gen_schema_entry(slug: str, spec: dict) -> str:
         exc = opts.get("dir_except")
         if d == DIR_ANO:
             tests.append(
-                # pyrefly: ignore [bad-argument-type]
                 ("rel", ("br_bd_diretorios_data_tempo__ano", "ano.ano"), exc)
             )
         elif d == DIR_UF:
             tests.append(
-                # pyrefly: ignore [bad-argument-type]
                 ("rel", ("br_bd_diretorios_brasil__uf", "sigla"), exc)
             )
         if tests:
@@ -149,7 +145,6 @@ def gen_schema_entry(slug: str, spec: dict) -> str:
                 if kind == "not_null":
                     out.append("          - not_null")
                 else:
-                    # pyrefly: ignore [not-iterable]
                     model, field = arg
                     out.append("          - relationships:")
                     out.append(f"              to: ref('{model}')")

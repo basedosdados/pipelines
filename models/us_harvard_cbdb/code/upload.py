@@ -14,8 +14,6 @@ os.environ.setdefault(
 
 import basedosdados as bd
 from google.cloud import storage as _gcs
-
-# pyrefly: ignore [missing-import]
 from schema_spec import TABLE_ORDER
 
 BILLING = "basedosdados-dev"
@@ -30,7 +28,6 @@ def _bucket(self, name, user_project=BILLING):
     return _orig_bucket(self, name, user_project=user_project)
 
 
-# pyrefly: ignore [bad-assignment]
 _gcs.Client.bucket = _bucket
 
 

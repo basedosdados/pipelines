@@ -14,7 +14,7 @@ import sys
 import time
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-import download as dl  # pyrefly: ignore [missing-import]
+import download as dl
 
 PAUSE_BETWEEN_YEARS = 20
 

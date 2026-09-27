@@ -20,7 +20,7 @@ import sys
 import pyarrow.parquet as pq
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from providers import ProviderIndex  # pyrefly: ignore [missing-import]
+from providers import ProviderIndex
 
 DATA_DIR = pathlib.Path(
     os.environ.get(
@@ -55,7 +55,7 @@ def read_table(name: str) -> list[dict]:
 
 
 def load_providers() -> ProviderIndex:
-    import openpyxl  # pyrefly: ignore [untyped-import]
+    import openpyxl
 
     book = openpyxl.load_workbook(
         INPUT_DIR / "research_income_time_series.xlsx",

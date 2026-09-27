@@ -21,7 +21,6 @@ PUMS = "/Users/rdahis/acs_data/pums"
 ARCH = os.path.join(os.path.dirname(__file__), "architecture")
 OUT = "/Users/rdahis/acs_data/output/dicionario"
 
-# pyrefly: ignore [missing-import]
 from _pums_schema import RENAME  # noqa: E402  (shared identity-rename map)
 
 # covered columns: original_name(upper) -> (id_tabela, name)

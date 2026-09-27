@@ -27,14 +27,10 @@ import pathlib
 import re
 import sys
 
-# pyrefly: ignore [untyped-import]
 import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]
 import i18n
-
-# pyrefly: ignore [missing-import]
 import spec
 
 DATA_DIR = pathlib.Path(

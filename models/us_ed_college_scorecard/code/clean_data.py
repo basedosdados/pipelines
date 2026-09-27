@@ -32,12 +32,9 @@ import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.csv as pacsv
 import pyarrow.parquet as pq
-
-# pyrefly: ignore [untyped-import]
 import yaml
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]
 import spec
 
 DATA_DIR = pathlib.Path(
@@ -166,9 +163,7 @@ def melt_arrow(tbl, cols, unitid, year):
     units, names, raws = [], [], []
     for col in cols:
         arr = tbl.column(col).combine_chunks()
-        # pyrefly: ignore [missing-attribute]
         keep = pc.invert(pc.is_in(arr, value_set=pa.array(spec.NULL_TOKENS)))
-        # pyrefly: ignore [missing-attribute]
         idx = pc.indices_nonzero(keep)
         if len(idx) == 0:
             continue
@@ -182,20 +177,16 @@ def melt_arrow(tbl, cols, unitid, year):
     raw_all = pa.concat_arrays([a.cast(pa.string()) for a in raws])
     # The source uses 'PS' and 'PrivacySuppressed' interchangeably across
     # vintages for the same thing; normalise so a consumer needs one test.
-    # pyrefly: ignore [missing-attribute]
     raw_all = pc.if_else(pc.equal(raw_all, "PS"), "PrivacySuppressed", raw_all)
-    # pyrefly: ignore [missing-attribute]
     is_number = pc.match_substring_regex(raw_all, NUMERIC.pattern)
     return pa.table(
         {
             "year": pa.array([str(year)] * len(raw_all), type=pa.string()),
             "unitid": unit_all,
             "variable_name": name_all,
-            # pyrefly: ignore [missing-attribute]
             "value": pc.if_else(
                 is_number, raw_all, pa.nulls(len(raw_all), pa.string())
             ),
-            # pyrefly: ignore [missing-attribute]
             "value_raw": pc.if_else(
                 is_number, pa.nulls(len(raw_all), pa.string()), raw_all
             ),
@@ -243,16 +234,12 @@ def clean_institution(path, year, by_source, stats):
             continue
         arr = tbl.column(raw).combine_chunks().cast(pa.string())
         stats["suppressed_wide"] += (
-            # pyrefly: ignore [missing-attribute]
             pc.sum(
-                # pyrefly: ignore [missing-attribute]
                 pc.is_in(arr, value_set=pa.array(spec.SUPPRESSED_TOKENS))
             ).as_py()
             or 0
         )
-        # pyrefly: ignore [missing-attribute]
         blank = pc.is_in(arr, value_set=sentinels)
-        # pyrefly: ignore [missing-attribute]
         arr = pc.if_else(blank, pa.nulls(len(arr), pa.string()), arr)
         if bd_col == "title_iv_approval_date":
             arr = pa.array(
@@ -276,15 +263,12 @@ def clean_institution(path, year, by_source, stats):
         stats["rows"][table] += write_parquet(out, table, year)
         raw_all = out.column("value_raw").combine_chunks()
         stats["suppressed_long"] += (
-            # pyrefly: ignore [missing-attribute]
             pc.sum(
-                # pyrefly: ignore [missing-attribute]
                 pc.is_in(raw_all, value_set=pa.array(spec.SUPPRESSED_TOKENS))
             ).as_py()
             or 0
         )
         stats["banded"] += (
-            # pyrefly: ignore [missing-attribute]
             pc.sum(pc.match_substring_regex(raw_all, BANDED.pattern)).as_py()
             or 0
         )
@@ -304,16 +288,12 @@ def clean_field_of_study(path, year, stats):
     for name in tbl.column_names:
         arr = tbl.column(name).combine_chunks().cast(pa.string())
         stats["suppressed_fos"] += (
-            # pyrefly: ignore [missing-attribute]
             pc.sum(
-                # pyrefly: ignore [missing-attribute]
                 pc.is_in(arr, value_set=pa.array(spec.SUPPRESSED_TOKENS))
             ).as_py()
             or 0
         )
-        # pyrefly: ignore [missing-attribute]
         cols[name] = pc.if_else(
-            # pyrefly: ignore [missing-attribute]
             pc.is_in(arr, value_set=sentinels),
             pa.nulls(len(arr), pa.string()),
             arr,
@@ -406,7 +386,6 @@ def dicionario_from_data(table, code_column, label_column):
 
 def build_dicionario():
     """Value -> label pairs, from the published data dictionary workbook."""
-    # pyrefly: ignore [untyped-import]
     import openpyxl
 
     wb = openpyxl.load_workbook(DICT_XLSX, read_only=True)

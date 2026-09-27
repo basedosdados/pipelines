@@ -4,8 +4,6 @@ import re
 import basedosdados as bd
 import pandas as pd
 import requests
-
-# pyrefly: ignore [missing-import]
 from constants import constants
 from tqdm import tqdm
 from unidecode import unidecode
@@ -93,7 +91,6 @@ if __name__ == "__main__":
                 df = prepare_columns_for_bigquery(df)
                 df_final = pd.concat([df_final, df])
                 break
-            # pyrefly: ignore [unbound-name]
             df.to_parquet(path=f"{table_id}.parquet", compression="gzip")
             print(df.columns)
 

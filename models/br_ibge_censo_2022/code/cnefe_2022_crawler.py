@@ -4,8 +4,6 @@ from io import BytesIO
 
 import pandas as pd
 import requests
-
-# pyrefly: ignore [missing-import]
 from constants import constants
 from tqdm import tqdm
 

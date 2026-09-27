@@ -2,11 +2,7 @@ import shutil
 from pathlib import Path
 
 import basedosdados as bd
-
-# pyrefly: ignore [missing-import]
 from extraction import download
-
-# pyrefly: ignore [missing-import]
 from processing import run_processing
 
 # Identificadores da tabela no BigQuery

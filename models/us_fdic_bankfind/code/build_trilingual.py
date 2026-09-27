@@ -19,10 +19,10 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
-from translations_financials import (  # noqa: E402  # pyrefly: ignore [missing-import]
+from translations_financials import (  # noqa: E402
     FINANCIALS,
 )
-from translations_structural import (  # noqa: E402  # pyrefly: ignore [missing-import]
+from translations_structural import (  # noqa: E402
     STRUCTURAL,
 )
 

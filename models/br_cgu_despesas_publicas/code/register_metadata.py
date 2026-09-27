@@ -36,7 +36,6 @@ sys.path.insert(
     ),
 )
 
-# pyrefly: ignore [missing-import]
 import server
 
 CODE = Path(__file__).resolve().parent

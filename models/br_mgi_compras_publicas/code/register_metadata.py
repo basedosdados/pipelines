@@ -39,7 +39,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(Path.home() / "Dropbox/BD/mcp"))
 
-import server  # noqa: E402  # pyrefly: ignore [missing-import]  (resolved above)
+import server  # noqa: E402
 from dbt_spec import TABLES as DBT  # noqa: E402
 from observation_translations import (  # noqa: E402
     OBSERVATIONS,

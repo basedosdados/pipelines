@@ -28,8 +28,6 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import duckdb
-
-# pyrefly: ignore [missing-import]
 import schema
 
 BASE_URL = "https://educationdata.urban.org/csv/ccd"

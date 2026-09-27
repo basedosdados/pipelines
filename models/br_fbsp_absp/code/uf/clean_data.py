@@ -1,8 +1,6 @@
 import os
 
 import pandas as pd
-
-# pyrefly: ignore [missing-import]
 from columns import columns_order, real_columns
 
 

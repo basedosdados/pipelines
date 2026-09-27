@@ -21,7 +21,6 @@ import sys
 import zipfile
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]
 import spec
 
 DATA_DIR = pathlib.Path(

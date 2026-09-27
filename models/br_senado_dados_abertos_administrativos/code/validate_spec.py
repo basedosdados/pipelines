@@ -9,7 +9,6 @@ from __future__ import annotations
 import re
 import sys
 
-# pyrefly: ignore [missing-import]
 from architecture_spec import TABLES
 
 NUMERIC = {"int", "float"}

@@ -5,8 +5,6 @@ from pathlib import Path
 import basedosdados as bd
 import pandas as pd
 import requests
-
-# pyrefly: ignore [missing-import]
 from utils import (
     convert_to_pd_dtype,
     get_disciplina_serie,
