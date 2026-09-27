@@ -462,7 +462,6 @@ def build_table(wb, table: str) -> pd.DataFrame:
         index=["year", "quarter", "fund_type"],
         columns="measure",
         values="value",
-        # pyrefly: ignore [bad-argument-type]
         aggfunc="first",
     ).reset_index()
     order = [a["name"] for a in read_arch(table)]

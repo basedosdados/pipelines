@@ -75,7 +75,6 @@ def duplicate_keys(table, key):
     for path in partition_files(table):
         keyed = pq.read_table(path, columns=key)
         parts = [
-            # pyrefly: ignore [missing-attribute]
             pc.fill_null(pc.cast(keyed.column(c), "string"), "\x00")
             for c in key
         ]

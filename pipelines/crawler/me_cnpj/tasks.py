@@ -84,7 +84,6 @@ def main(
                     asyncio.run(download_unzip_csv(url_download, input_path))
                     if tabela == "Estabelecimentos":
                         process_csv_estabelecimentos(
-                            # pyrefly: ignore [bad-argument-type]
                             input_path,
                             output_path,
                             # pyrefly: ignore [bad-argument-type]
@@ -93,7 +92,6 @@ def main(
                         )
                     elif tabela == "Socios":
                         process_csv_socios(
-                            # pyrefly: ignore [bad-argument-type]
                             input_path,
                             output_path,
                             # pyrefly: ignore [bad-argument-type]
@@ -102,7 +100,6 @@ def main(
                         )
                     elif tabela == "Empresas":
                         process_csv_empresas(
-                            # pyrefly: ignore [bad-argument-type]
                             input_path,
                             output_path,
                             # pyrefly: ignore [bad-argument-type]
@@ -119,7 +116,6 @@ def main(
                     arquivos_baixados.append(nome_arquivo)
                     asyncio.run(download_unzip_csv(url_download, input_path))
                     process_csv_simples(
-                        # pyrefly: ignore [bad-argument-type]
                         input_path,
                         output_path,
                         # pyrefly: ignore [bad-argument-type]

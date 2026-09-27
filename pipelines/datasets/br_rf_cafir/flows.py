@@ -100,7 +100,6 @@ def br_rf_cafir__imoveis_rurais(
         df_metadata=df_metadata, reference_date=reference_date
     )
 
-    # pyrefly: ignore [no-matching-overload]
     file_records = extract_file_records(df_metadata=filtered_df)
     file_names = [record["nome_arquivo"] for record in file_records]
     reference_dates = [record["data_referencia"] for record in file_records]

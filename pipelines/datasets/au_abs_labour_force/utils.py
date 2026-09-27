@@ -539,11 +539,11 @@ def _read_sem1(path: Path) -> pd.DataFrame:
         nn = [c for c in r if c is not None]
         if len(nn) >= 5 and any(
             isinstance(c, str) and str(c).strip() == "Month"  # pyrefly: ignore [unnecessary-type-conversion]
-            for c in r  # pyrefly: ignore [unnecessary-type-conversion]
+            for c in r
         ):
             header = [str(c).strip() if c is not None else "" for c in r]
             break
-    # pyrefly: ignore [bad-argument-type, not-iterable]
+    # pyrefly: ignore [not-iterable]
     idx = {h: i for i, h in enumerate(header)}
     ci_month = idx["Month"]
     ci_sex = idx["Sex"]

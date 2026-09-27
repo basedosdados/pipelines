@@ -66,7 +66,6 @@ if __name__ == "__main__":
     for _, table in selected_tables.iterrows():
         print(table)
         table_id = table["novo_nome"]
-        # pyrefly: ignore [missing-attribute]
         table_url = constants.URLS.value[table_id]
         logging.info(f"Baixando dados da tabela: {table_id}")
         df_final = pd.DataFrame()

@@ -136,7 +136,6 @@ def _run_senatran(
     if not materialize_after_dump:
         return
 
-    # pyrefly: ignore [no-matching-overload]
     upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
@@ -300,7 +299,6 @@ def _run_breakdown(
     if filepath is None:
         raise RuntimeError("Nenhum mês foi processado — nada a subir")
 
-    # pyrefly: ignore [no-matching-overload]
     upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
@@ -319,7 +317,6 @@ def _run_breakdown(
     if not materialize_after_dump:
         return
 
-    # pyrefly: ignore [no-matching-overload]
     upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,

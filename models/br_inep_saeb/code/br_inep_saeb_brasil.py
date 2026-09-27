@@ -8,11 +8,8 @@ import requests
 
 # pyrefly: ignore [missing-import]
 from utils import (
-    # pyrefly: ignore [missing-module-attribute]
     convert_to_pd_dtype,
-    # pyrefly: ignore [missing-module-attribute]
     get_disciplina_serie,
-    # pyrefly: ignore [missing-module-attribute]
     get_nivel_serie_disciplina,
 )
 

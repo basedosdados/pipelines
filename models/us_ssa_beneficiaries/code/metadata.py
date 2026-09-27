@@ -44,7 +44,7 @@ if not (MCP_ROOT / "server.py").is_file():
 for path in (str(REPO_ROOT), str(MCP_ROOT), str(HERE)):
     sys.path.insert(0, path)
 
-import server  # type: ignore[import-not-found]  # pyrefly: ignore[import-error]
+import server  # type: ignore[import-not-found]
 from build_columns_json import columns_json  # type: ignore[import-not-found]
 
 DATASET_SLUG = "beneficiaries"
