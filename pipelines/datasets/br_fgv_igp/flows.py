@@ -2,9 +2,10 @@
 Flows for br_fgv_igp — Prefect 3.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.crawler.fgv_igp.flows import _run_fgv_igp
+from pipelines.utils.flow import flow
 
 
 def _igp_flow(table_id: str, indice: str, periodo: str, cron: str | None):
@@ -33,9 +34,8 @@ def _igp_flow(table_id: str, indice: str, periodo: str, cron: str | None):
             force_run=force_run,
         )
 
-    # pyrefly: ignore [missing-attribute]
     _flow.deploy_schedules = (
-        [{"cron": cron, "timezone": "America/Sao_Paulo"}] if cron else []
+        [Cron(cron, timezone="America/Sao_Paulo")] if cron else []
     )
     return _flow
 

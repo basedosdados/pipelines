@@ -20,7 +20,7 @@ the dev pool strips the schedule, the prod pool activates it.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_bls_employment.constants import constants
 from pipelines.datasets.us_bls_employment.tasks import (
@@ -28,6 +28,7 @@ from pipelines.datasets.us_bls_employment.tasks import (
     download_employment,
     peek_employment,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     FreeLag,
@@ -200,16 +201,14 @@ def us_bls_employment_flow(
 # across the second half of the month at 16:17 BRT; the source-poll guard
 # no-ops until a new reference month actually appears. The minute is chosen to
 # avoid the crowded :00 and :05 slots.
-# pyrefly: ignore [missing-attribute]
 us_bls_employment_flow.deploy_schedules = [
-    {"cron": "17 16 16,17,18,19,20,21 * *", "timezone": "America/Sao_Paulo"}
+    Cron("17 16 16,17,18,19,20,21 * *", timezone="America/Sao_Paulo")
 ]
 # The clean step shards 2.6 GB of flat files through pandas one file at a time
 # and holds at most one year of LAUS (~500k rows) in memory at once.
 # `memory` alone is NOT a variable of the work pool's job template and is
 # dropped silently, leaving the pod on the 4Gi default — `memory_limit` is the
 # one that is actually applied.
-# pyrefly: ignore [missing-attribute]
 us_bls_employment_flow.job_variables = {
     "memory": "12Gi",
     "memory_limit": "12Gi",

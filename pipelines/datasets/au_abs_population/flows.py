@@ -20,13 +20,14 @@ activates it.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.au_abs_population.constants import constants
 from pipelines.datasets.au_abs_population.tasks import (
     clean_population,
     download_population,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -229,11 +230,9 @@ def au_abs_population_flow(
 # release lands once a year in March. Poll on a few days around the middle of
 # each month at 16:48 BRT (a minute no other flow uses) — the two source-poll
 # guards no-op the run until one of them actually has new data.
-# pyrefly: ignore [missing-attribute]
 au_abs_population_flow.deploy_schedules = [
-    {"cron": "48 16 14,17,20,23,26 * *", "timezone": "America/Sao_Paulo"}
+    Cron("48 16 14,17,20,23,26 * *", timezone="America/Sao_Paulo")
 ]
-# pyrefly: ignore [missing-attribute]
 au_abs_population_flow.job_variables = {
     "memory": "8Gi",
     # `memory` alone is not in the work pool's job template and is silently
