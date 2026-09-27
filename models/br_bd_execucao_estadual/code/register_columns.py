@@ -20,19 +20,20 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 import warnings
 from pathlib import Path
 
 warnings.filterwarnings("ignore")
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+# pyrefly: ignore [untyped-import]
 import yaml  # noqa: E402
 from google.cloud import bigquery  # noqa: E402
 
-# FIX THIS IMPORT
-from translations import DESCRIPTIONS, OBSERVATIONS  # noqa: E402
+from models.br_bd_execucao_estadual.code.translations import (  # noqa: E402
+    DESCRIPTIONS,
+    OBSERVATIONS,
+)
 
 DATASET = "br_bd_execucao_estadual"
 PROJECT = "basedosdados-dev"

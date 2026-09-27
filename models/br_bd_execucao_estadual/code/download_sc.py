@@ -23,16 +23,12 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 import time
-from pathlib import Path
 
 import requests
 
-# FIX THIS IMPORT
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import clean_sc
-from constants import (
+from models.br_bd_execucao_estadual.code import clean_sc
+from models.br_bd_execucao_estadual.code.constants import (
     BROWSER_UA,
     INPUT_DIR,
     SC_API,

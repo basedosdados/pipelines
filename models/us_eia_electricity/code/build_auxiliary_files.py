@@ -34,7 +34,14 @@ from datetime import date
 from pathlib import Path
 
 import requests
-from common import DATA_DIR, DATASET_ID, INPUT, codes, constants
+
+from models.us_eia_electricity.code.common import (
+    DATA_DIR,
+    DATASET_ID,
+    INPUT,
+    codes,
+    constants,
+)
 
 OUT = DATA_DIR / "auxiliary_files"
 DOWNLOADED = date(2026, 9, 8)

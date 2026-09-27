@@ -19,6 +19,7 @@ Usage:
 import csv
 import os
 
+# pyrefly: ignore [untyped-import]
 import yaml
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -203,8 +204,11 @@ def schema_for(table, cols):
     ]
     proportion = {"at_least": 0.05}
     if table in SPARSE:
+        # pyrefly: ignore [bad-assignment]
         proportion["ignore_values"] = SPARSE[table]
+    # pyrefly: ignore [bad-assignment]
     tests.append({"not_null_proportion_multiple_columns": proportion})
+    # pyrefly: ignore [bad-assignment]
     model["tests"] = tests
 
     out_cols = []
@@ -223,6 +227,7 @@ def schema_for(table, cols):
             rel = {"to": f"ref('{ds}__{tbl}')", "field": fld}
             if table == "regional_lga" and c["name"] == "lga_id":
                 ctests.append(
+                    # pyrefly: ignore [bad-argument-type]
                     {
                         "custom_relationships": {
                             **rel,
@@ -232,9 +237,11 @@ def schema_for(table, cols):
                     }
                 )
             else:
+                # pyrefly: ignore [bad-argument-type]
                 ctests.append({"relationships": rel})
         if c["name"] == "series_id" and table != "series":
             ctests.append(
+                # pyrefly: ignore [bad-argument-type]
                 {
                     "relationships": {
                         "to": f"ref('{DATASET}__series')",
@@ -245,6 +252,7 @@ def schema_for(table, cols):
         if ctests:
             col["tests"] = ctests
         out_cols.append(col)
+    # pyrefly: ignore [bad-assignment]
     model["columns"] = out_cols
     return model
 

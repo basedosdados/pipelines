@@ -24,14 +24,11 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 import duckdb
 
-# FIX THIS IMPORT
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from constants import (
+from models.br_bd_execucao_estadual.code.constants import (
     INPUT_DIR,
     OUTPUT_DIR,
     PB_COMPRAS_ENDPOINTS,
@@ -123,6 +120,7 @@ def clean_table(
             f"COPY (SELECT {projection} FROM {rel}) TO '{out_path}' "
             f"(FORMAT PARQUET, COMPRESSION SNAPPY)"
         )
+        # pyrefly: ignore [unsupported-operation]
         n = con.execute(
             f"SELECT count(*) FROM read_parquet('{out_path}')"
         ).fetchone()[0]
@@ -187,6 +185,7 @@ def explode_participantes(
                 for p in parts or []:
                     rows.append(
                         {
+                            # pyrefly: ignore [unnecessary-type-conversion]
                             "ano": str(year),
                             "numero_processo": str(
                                 rec.get("numeroProcesso") or ""

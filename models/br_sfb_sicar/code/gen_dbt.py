@@ -6,8 +6,10 @@ cluster sigla_uf) + the dictionary (table).
 
 import os
 
-import architecture as A  # noqa: N812
+# pyrefly: ignore [untyped-import]
 import yaml
+
+from models.br_sfb_sicar.code import architecture as A  # noqa: N812
 
 MODELS_DIR = os.path.join(os.path.dirname(__file__), "..")
 DS = "br_sfb_sicar"
@@ -100,6 +102,7 @@ def schema_model(table):
         {
             "custom_dictionary_coverage": {
                 "columns_covered_by_dictionary": ["status", "tipo"],
+                # pyrefly: ignore [bad-assignment]
                 "dictionary_model": f"ref('{DS}__dicionario')",
             }
         }

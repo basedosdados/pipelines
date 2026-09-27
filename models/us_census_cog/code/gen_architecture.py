@@ -1257,9 +1257,10 @@ def main() -> None:
         path = ARCH / f"sheet_{table}.csv"
         spelled = [
             [
+                # pyrefly: ignore [unnecessary-type-conversion]
                 spell(str(value), "pt")
                 if index in PT_COLUMNS
-                else spell(str(value), "es")
+                else spell(str(value), "es")  # pyrefly: ignore [unnecessary-type-conversion]
                 if index in ES_COLUMNS
                 else value
                 for index, value in enumerate(row)

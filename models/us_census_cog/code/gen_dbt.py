@@ -8,9 +8,10 @@ there propagates to the models rather than being restated by hand.
 
 from pathlib import Path
 
+# pyrefly: ignore [untyped-import]
 import yaml
-from common import DATASET_ID
 
+from models.us_census_cog.code.common import DATASET_ID
 from pipelines.datasets.us_census_cog.utils import load_cols
 
 MODELS = Path(__file__).resolve().parents[1]
@@ -340,6 +341,7 @@ def _str_presenter(dumper: yaml.Dumper, data: str) -> yaml.nodes.ScalarNode:
     return dumper.represent_scalar("tag:yaml.org,2002:str", data)
 
 
+# pyrefly: ignore [bad-argument-type]
 _Dumper.add_representer(str, _str_presenter)
 
 

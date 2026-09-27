@@ -31,9 +31,9 @@ import basedosdados as bd  # noqa: E402
 import google.cloud.storage as gcs  # noqa: E402
 from google.cloud import bigquery  # noqa: E402
 
-# FIX THIS IMPORT
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from clean_detailed import EXPECTED_TABLE_ROWS  # noqa: E402
+from models.au_abs_labour_force.code.clean_detailed import (  # noqa: E402
+    EXPECTED_TABLE_ROWS,
+)
 
 _parser = argparse.ArgumentParser(
     description="Upload the Detailed-release tables to basedosdados-dev."

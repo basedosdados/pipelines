@@ -29,14 +29,17 @@ import shutil
 import sys
 from pathlib import Path
 
+# pyrefly: ignore [untyped-import]
 import openpyxl
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-# FIX THIS IMPORT
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from architecture_detailed import GRAIN, SOURCE_CUBES, TABLES
+from models.au_abs_labour_force.code.architecture_detailed import (
+    GRAIN,
+    SOURCE_CUBES,
+    TABLES,
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -575,12 +578,14 @@ def validate(table: str, df: pd.DataFrame) -> dict[str, float]:
         )
 
     for col in GRAIN[table]:
+        # pyrefly: ignore [unnecessary-type-conversion]
         n_null = int(df[col].isna().sum())
         if n_null:
             raise ValueError(
                 f"{table}.{col}: {n_null:,} NULLs in a grain column"
             )
 
+    # pyrefly: ignore [unnecessary-type-conversion]
     frac = {c: round(float(df[c].notna().mean()), 4) for c in order}
     sparse = {c: v for c, v in frac.items() if v < 0.10}
     log.info(
@@ -615,6 +620,7 @@ def write_partitioned(df: pd.DataFrame, table: str, output_dir: Path) -> Path:
         shutil.rmtree(tdir)
     total = 0
     for year, g in out.groupby("year", sort=True):
+        # pyrefly: ignore [bad-argument-type]
         pdir = tdir / f"year={int(year)}"
         pdir.mkdir(parents=True, exist_ok=True)
         at = pa.Table.from_pandas(g, schema=typed, preserve_index=False)

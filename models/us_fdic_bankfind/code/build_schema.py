@@ -15,6 +15,7 @@ from __future__ import annotations
 import csv
 from pathlib import Path
 
+# pyrefly: ignore [untyped-import]
 import yaml
 
 HERE = Path(__file__).resolve().parent

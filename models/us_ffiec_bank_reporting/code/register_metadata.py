@@ -35,10 +35,11 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any, cast
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path.home() / "Dropbox/BD/mcp"))
+# pyrefly: ignore [missing-import]
 import server
-from meta_config import (
+
+from models.us_ffiec_bank_reporting.code.meta_config import (
     COVERAGE,
     DATASET_DESCRIPTION,
     DATASET_NAME,

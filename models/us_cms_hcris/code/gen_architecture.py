@@ -18,8 +18,8 @@ import csv
 import json
 from pathlib import Path
 
-from codes import CODES, COVERED
-from schema import TABLES, Col
+from models.us_cms_hcris.code.codes import CODES, COVERED
+from models.us_cms_hcris.code.schema import TABLES, Col
 
 CODE_DIR = Path(__file__).resolve().parent
 OUT = CODE_DIR / "architecture"

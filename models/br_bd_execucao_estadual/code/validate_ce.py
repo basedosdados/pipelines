@@ -24,17 +24,14 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
-# FIX THIS IMPORT
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import clean_ce
-from constants import (
+from models.br_bd_execucao_estadual.code import clean_ce
+from models.br_bd_execucao_estadual.code.constants import (
     CE_EMPENHO_DUPLICATE_SLOT,
     CE_NULL_SENTINEL,
     CE_TABLES,
@@ -105,6 +102,7 @@ def check_no_sentinels(checks: list) -> None:
                 # pyarrow compute, not a Python loop: these tables run to millions of
                 # rows across ~80 columns, and `to_pylist()` on all of it is minutes.
                 found += (
+                    # pyrefly: ignore [missing-attribute]
                     pc.sum(pc.equal(column, CE_NULL_SENTINEL)).as_py() or 0
                 )
         _fail(

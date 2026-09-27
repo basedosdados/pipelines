@@ -65,6 +65,7 @@ def _credentials_path() -> str:
     drift onto different identities. The file itself is never opened here — only
     its path is passed to gcloud.
     """
+    # pyrefly: ignore [missing-import]
     import tomli
 
     cfg = tomli.loads(

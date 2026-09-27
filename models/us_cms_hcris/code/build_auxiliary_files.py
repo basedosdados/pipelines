@@ -31,7 +31,7 @@ import zipfile
 from datetime import date
 from pathlib import Path
 
-from common import DATA_DIR, DATASET_ID
+from models.us_cms_hcris.code.common import DATA_DIR, DATASET_ID
 
 DOCS = DATA_DIR / "docs"
 BUNDLES = DATA_DIR / "auxiliary_files"

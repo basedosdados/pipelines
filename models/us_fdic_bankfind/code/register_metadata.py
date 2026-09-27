@@ -37,6 +37,7 @@ from pathlib import Path
 from typing import Any, cast
 
 sys.path.insert(0, str(Path.home() / "Dropbox/BD/mcp"))
+# pyrefly: ignore [missing-import]
 import server
 
 DATASET_SLUG = "bankfind"

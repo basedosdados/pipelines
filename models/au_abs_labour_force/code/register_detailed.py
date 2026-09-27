@@ -64,12 +64,11 @@ if not (_MCP_PATH / "server.py").is_file():
         f"DATABASIS_MCP_PATH to the directory containing server.py."
     )
 sys.path.insert(0, str(_MCP_PATH))
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+# pyrefly: ignore [missing-import]
 import server  # noqa: E402  (import follows the sys.path bootstrap above)
 
-# FIX THIS IMPORT
-from metadata_detailed import (  # noqa: E402
+from models.au_abs_labour_force.code.metadata_detailed import (  # noqa: E402
     DATASET_DESCRIPTION,
     DATASET_SLUG,
     DATASET_TAGS,

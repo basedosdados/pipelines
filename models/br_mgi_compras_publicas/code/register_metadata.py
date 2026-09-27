@@ -39,14 +39,23 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(Path.home() / "Dropbox/BD/mcp"))
 
+# pyrefly: ignore [missing-import]
 import server  # noqa: E402
-from dbt_spec import TABLES as DBT  # noqa: E402
-from observation_translations import (  # noqa: E402
+
+from models.br_mgi_compras_publicas.code.dbt_spec import (  # noqa: E402
+    TABLES as DBT,
+)
+from models.br_mgi_compras_publicas.code.observation_translations import (  # noqa: E402
     OBSERVATIONS,
     check_translations,
 )
-from table_metadata import DATASET, TABLE_ORDER  # noqa: E402
-from table_metadata import TABLES as META  # noqa: E402
+from models.br_mgi_compras_publicas.code.table_metadata import (  # noqa: E402
+    DATASET,
+    TABLE_ORDER,
+)
+from models.br_mgi_compras_publicas.code.table_metadata import (  # noqa: E402
+    TABLES as META,
+)
 
 ARCH = HERE / "architecture"
 DATASET_ID = "br_mgi_compras_publicas"

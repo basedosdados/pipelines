@@ -9,7 +9,7 @@ models and the backend column payloads are both generated from.
 
 import csv
 
-from common import ARCHITECTURE_DIR
+from models.us_eia_consumption.code.common import ARCHITECTURE_DIR
 
 FIELDS = [
     "name",

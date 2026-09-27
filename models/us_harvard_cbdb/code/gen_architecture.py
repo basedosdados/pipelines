@@ -11,7 +11,7 @@ directory_column stays blank and the sibling ref is recorded in observations.
 import csv
 import os
 
-from schema_spec import TABLE_ORDER, TABLES
+from models.us_harvard_cbdb.code.schema_spec import TABLE_ORDER, TABLES
 
 OUT = os.path.join(os.path.dirname(__file__), "architecture")
 HEADER = [
@@ -37,6 +37,7 @@ def main():
             w = csv.writer(f)
             w.writerow(HEADER)
             for c in spec["columns"]:
+                # pyrefly: ignore [missing-attribute]
                 ref = c.get("ref", "")
                 obs = ""
                 if ref == "__person":
@@ -45,15 +46,21 @@ def main():
                     obs = f"References sibling table us_harvard_cbdb.{ref}"
                 w.writerow(
                     [
+                        # pyrefly: ignore [bad-index]
                         c["name"],
+                        # pyrefly: ignore [bad-index]
                         c["type"],
+                        # pyrefly: ignore [bad-index]
                         c["pt"],
                         "",
+                        # pyrefly: ignore [missing-attribute]
                         c.get("dict", "no"),
                         "",
+                        # pyrefly: ignore [missing-attribute]
                         c.get("unit", ""),
                         "no",
                         obs,
+                        # pyrefly: ignore [missing-attribute]
                         c.get("src") or "",
                     ]
                 )

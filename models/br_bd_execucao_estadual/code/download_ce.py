@@ -34,16 +34,13 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import sys
 import time
 from pathlib import Path
 from urllib.parse import unquote
 
 import requests
 
-# FIX THIS IMPORT
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from constants import (
+from models.br_bd_execucao_estadual.code.constants import (
     BROWSER_UA,
     CE_ATTACHMENTS,
     CE_BASE,

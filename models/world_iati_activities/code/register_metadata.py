@@ -26,8 +26,8 @@ import sys
 from datetime import UTC
 from pathlib import Path
 
-from common import ARCH_DIR
-from tables import OL_COLUMN, TABLES
+from models.world_iati_activities.code.common import ARCH_DIR
+from models.world_iati_activities.code.tables import OL_COLUMN, TABLES
 
 DATASET_SLUG = "iati_activities"
 GCP_DATASET_ID = "world_iati_activities"
@@ -180,6 +180,7 @@ def load_server():
             f"databasis MCP server not found at {mcp_dir}; set DATABASIS_MCP_DIR"
         )
     sys.path.insert(0, str(mcp_dir))
+    # pyrefly: ignore [missing-import]
     import server
 
     return server

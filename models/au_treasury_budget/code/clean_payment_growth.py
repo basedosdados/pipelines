@@ -30,8 +30,10 @@ import pathlib
 import sys
 import zipfile
 
+# pyrefly: ignore [untyped-import]
 import openpyxl
-import releases
+
+from models.au_treasury_budget.code import releases
 
 DATA_ROOT = pathlib.Path(
     os.environ.get(

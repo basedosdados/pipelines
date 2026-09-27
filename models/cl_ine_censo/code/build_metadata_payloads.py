@@ -18,8 +18,12 @@ import re
 import sys
 import unicodedata
 
-from constants import ARCHITECTURE_DIR, DATA_ROOT, TABLES
-from translations import TRANSLATIONS
+from models.cl_ine_censo.code.constants import (
+    ARCHITECTURE_DIR,
+    DATA_ROOT,
+    TABLES,
+)
+from models.cl_ine_censo.code.translations import TRANSLATIONS
 
 PAYLOAD_DIR = DATA_ROOT / "metadata_payloads"
 

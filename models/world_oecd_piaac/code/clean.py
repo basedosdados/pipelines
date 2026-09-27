@@ -30,17 +30,14 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import sys
 from pathlib import Path
 
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-sys.path.insert(0, str(Path(__file__).parent))
-
-import codebook as cb
-import constants as piaac
+from models.world_oecd_piaac.code import codebook as cb
+from models.world_oecd_piaac.code import constants as piaac
 
 ARCHITECTURE_DIR = Path(__file__).parent / "architecture"
 GRAIN = [
@@ -67,7 +64,7 @@ def item_metadata(
     PIAAC scoring codes are item-specific, so the decoded label has to be looked
     up with the item's own scheme rather than a shared dictionary.
     """
-    from build_architecture import split_packed
+    from models.world_oecd_piaac.code.build_architecture import split_packed
 
     variables = cb.load_codebook(
         piaac.DOCS_ROOT / f"cycle_{cycle}" / "international_codebook.xlsx",
@@ -108,6 +105,7 @@ def item_metadata(
 
 def cycle_1_item_schemes() -> dict[str, dict[str, str]]:
     """Scored-response labels for Cycle 1 items, read from the Values sheet."""
+    # pyrefly: ignore [untyped-import]
     import openpyxl
 
     workbook = openpyxl.load_workbook(

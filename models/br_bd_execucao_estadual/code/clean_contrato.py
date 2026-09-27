@@ -28,6 +28,7 @@ import zipfile
 from datetime import date, datetime
 from pathlib import Path
 
+# pyrefly: ignore [untyped-import]
 import openpyxl
 import pyarrow as pa
 import pyarrow.parquet as pq

@@ -3,7 +3,7 @@
 import concurrent.futures as cf
 import subprocess
 
-import constants as c
+from models.us_cms_open_payments.code import constants as c
 
 
 def status(url: str) -> str:

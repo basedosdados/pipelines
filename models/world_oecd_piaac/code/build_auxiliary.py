@@ -16,9 +16,7 @@ import sys
 import zipfile
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
-
-import constants as piaac
+from models.world_oecd_piaac.code import constants as piaac
 
 BUNDLE_ROOT = piaac.OUTPUT_ROOT / "auxiliary_files"
 DOWNLOADED_ON = dt.date(2026, 8, 21).isoformat()

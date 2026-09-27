@@ -19,6 +19,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+# pyrefly: ignore [untyped-import]
 import openpyxl
 
 # Domains whose variables are per-item measures rather than per-respondent facts.
@@ -221,11 +222,13 @@ def load_codebook(path: Path, cycle: str) -> list[Variable]:
                     _text(row[1]),
                     _text(row[2]),
                     _text(row[4]),
+                    # pyrefly: ignore [bad-argument-type]
                     int(row[6] or 0),
                     _text(row[7]),
                     _text(row[8]),
                     "",
                     "",
+                    # pyrefly: ignore [bad-argument-type]
                     int(row[5] or 0),
                 )
             )
@@ -241,11 +244,13 @@ def load_codebook(path: Path, cycle: str) -> list[Variable]:
                     _text(row[1]),
                     _text(row[2]),
                     _text(row[3]),
+                    # pyrefly: ignore [bad-argument-type]
                     int(row[5] or 0),
                     _text(row[11]),
                     _text(row[8]),
                     _text(row[9]),
                     _text(row[10]),
+                    # pyrefly: ignore [bad-argument-type]
                     int(row[4] or 0),
                 )
             )

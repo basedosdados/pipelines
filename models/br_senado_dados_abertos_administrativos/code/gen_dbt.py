@@ -15,7 +15,13 @@ import os
 
 import pandas as pd
 import pyarrow.parquet as pq
-from architecture_spec import DIR_ANO, DIR_MES, DIR_UF, TABLES
+
+from models.br_senado_dados_abertos_administrativos.code.architecture_spec import (
+    DIR_ANO,
+    DIR_MES,
+    DIR_UF,
+    TABLES,
+)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MODELS_DIR = os.path.dirname(HERE)

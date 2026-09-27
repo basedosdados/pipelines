@@ -28,10 +28,8 @@ import pyarrow.parquet as pq
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO_ROOT))
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from dbt_spec import TABLES  # noqa: E402
-
+from models.br_mgi_compras_publicas.code.dbt_spec import TABLES  # noqa: E402
 from pipelines.datasets.br_mgi_compras_publicas.utils import (  # noqa: E402
     load_architecture,
     string_schema,
@@ -75,6 +73,7 @@ def _credentials_path() -> str:
     try:  # stdlib since 3.11; tomli is the backport and is not a hard dep
         import tomllib as toml_reader
     except ModuleNotFoundError:  # pragma: no cover
+        # pyrefly: ignore [missing-import]
         import tomli as toml_reader
 
     cfg = toml_reader.loads(

@@ -22,14 +22,10 @@ from __future__ import annotations
 
 import argparse
 import re
-import sys
-from pathlib import Path
 
 import duckdb
 
-# FIX THIS IMPORT
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from constants import INPUT_DIR, OUTPUT_DIR
+from models.br_bd_execucao_estadual.code.constants import INPUT_DIR, OUTPUT_DIR
 
 SP_INPUT = INPUT_DIR / "sp"
 TABLE = "sp_despesa"
@@ -75,6 +71,7 @@ def clean(con: duckdb.DuckDBPyConnection) -> int:
         return 0
     years = sorted(
         {
+            # pyrefly: ignore [missing-attribute]
             NAME_RE.match(p.name).group("year")
             for p in files
             if NAME_RE.match(p.name)
@@ -103,6 +100,7 @@ def clean(con: duckdb.DuckDBPyConnection) -> int:
             f"      FROM {rel}) "
             f"TO '{out}' (FORMAT PARQUET, COMPRESSION SNAPPY)"
         )
+        # pyrefly: ignore [unsupported-operation]
         n = con.execute(
             f"SELECT count(*) FROM read_parquet('{out}')"
         ).fetchone()[0]

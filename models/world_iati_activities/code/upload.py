@@ -34,9 +34,9 @@ sys.path.insert(0, str(REPO_ROOT))
 
 import google.cloud.storage as gcs  # noqa: E402
 import pyarrow.parquet as pq  # noqa: E402
-from common import OUTPUT  # noqa: E402
 from google.cloud import bigquery  # noqa: E402
 
+from models.world_iati_activities.code.common import OUTPUT  # noqa: E402
 from pipelines.datasets.world_iati_activities.constants import (  # noqa: E402
     constants,
 )

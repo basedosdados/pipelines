@@ -22,7 +22,9 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
-from gen_columns_json import payload  # noqa: E402
+from models.us_dot_bts_ontime.code.gen_columns_json import (  # noqa: E402
+    payload,
+)
 
 MCP_SERVER = Path.home() / "Dropbox" / "BD" / "mcp" / "server.py"
 
@@ -137,7 +139,9 @@ def column_ids(mcp, table_id: str) -> dict[str, str]:
 
 def main() -> None:
     mcp = load_mcp()
+    # pyrefly: ignore [not-callable]
     call(mcp.auth)(env="prod")
+    # pyrefly: ignore [not-callable]
     call(mcp.auth)(env="staging")
 
     existing = prod_tables(mcp)
@@ -147,6 +151,7 @@ def main() -> None:
         prior = existing.get(slug)
         tid = bare(prior["id"]) if prior else None
 
+        # pyrefly: ignore [not-callable]
         res = call(mcp.create_update_table)(
             id=tid,
             slug=slug,
@@ -167,6 +172,7 @@ def main() -> None:
         tid = res["id"]
         print(f"\n=== {slug}: table {tid}")
 
+        # pyrefly: ignore [not-callable]
         r = call(mcp.bulk_upsert_columns)(
             table_id=tid, columns_json=payload(slug), env="prod"
         )
@@ -183,6 +189,7 @@ def main() -> None:
         }
         for entity_key in OL_COLUMNS.get(slug, {}):
             eid = PROD[entity_key]
+            # pyrefly: ignore [not-callable]
             ol = call(mcp.create_update_observation_level)(
                 id=prior_ols.get(eid), table_id=tid, entity_id=eid, env="prod"
             )
@@ -193,6 +200,7 @@ def main() -> None:
             cids = column_ids(mcp, tid)
             for entity_key, cols in OL_COLUMNS[slug].items():
                 for name in cols:
+                    # pyrefly: ignore [not-callable]
                     call(mcp.update_column)(
                         column_id=cids[name],
                         column_name=name,
@@ -209,6 +217,7 @@ def main() -> None:
             bare(e["node"]["id"])
             for e in (prior["cloudTables"]["edges"] if prior else [])
         ]
+        # pyrefly: ignore [not-callable]
         ct = call(mcp.create_update_cloud_table)(
             id=ct_prior[0] if ct_prior else None,
             table_id=tid,

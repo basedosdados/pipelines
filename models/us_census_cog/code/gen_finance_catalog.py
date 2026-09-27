@@ -18,7 +18,7 @@ import subprocess
 import zipfile
 from pathlib import Path
 
-from common import INPUT
+from models.us_census_cog.code.common import INPUT
 
 ARCH = Path(__file__).resolve().parent / "architecture"
 # The wide file's first 24 columns are reference fields, not finance items; the
@@ -28,18 +28,21 @@ FIRST_FINANCE_VARIABLE = 25
 
 def read_user_guide() -> list[dict]:
     """Return one row per numbered variable in the User Guide."""
+    # pyrefly: ignore [untyped-import]
     import xlrd
 
     archive = INPUT / "fin" / "IndFin_1967_2012.zip"
     guide = Path("/tmp/cog_user_guide.xls")
     with zipfile.ZipFile(archive) as zf:
         guide.write_bytes(zf.read("UserGuide.xls"))
+    # pyrefly: ignore [bad-argument-type]
     sheet = xlrd.open_workbook(guide).sheet_by_name("2. Variables")
 
     def cell(row: int, column: int) -> str:
         value = sheet.cell_value(row, column)
         if isinstance(value, float):
             return str(int(value)) if value == int(value) else str(value)
+        # pyrefly: ignore [unnecessary-type-conversion]
         return str(value).strip()
 
     rows = []

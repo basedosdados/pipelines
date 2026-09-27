@@ -23,8 +23,7 @@ from pathlib import Path
 from google.cloud import bigquery
 from google.oauth2 import service_account
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from dbt_spec import TABLES
+from models.br_mgi_compras_publicas.code.dbt_spec import TABLES
 
 DATASET = "basedosdados-dev.br_mgi_compras_publicas"
 
@@ -33,6 +32,7 @@ def _client() -> bigquery.Client:
     try:
         import tomllib as toml_reader
     except ModuleNotFoundError:  # pragma: no cover
+        # pyrefly: ignore [missing-import]
         import tomli as toml_reader
 
     cfg = toml_reader.loads(

@@ -25,13 +25,16 @@ import pathlib
 import shutil
 import sys
 
-import clean_aggregate
-import clean_igr_projection
-import clean_payment_growth
-import dictionary
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+
+from models.au_treasury_budget.code import (
+    clean_aggregate,
+    clean_igr_projection,
+    clean_payment_growth,
+    dictionary,
+)
 
 CODE = pathlib.Path(__file__).resolve().parent
 ARCHITECTURE = CODE / "architecture"
@@ -100,6 +103,7 @@ def write_table(rows: list[dict], table: str, output_dir: pathlib.Path) -> int:
 
     if table in PARTITIONED:
         for year, group in frame.groupby("year", sort=True):
+            # pyrefly: ignore [bad-argument-type]
             write_group(group, table_dir / f"year={int(year)}")
     else:
         write_group(frame, table_dir)

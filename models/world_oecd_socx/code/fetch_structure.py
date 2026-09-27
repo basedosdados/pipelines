@@ -23,7 +23,7 @@ Run: ``python fetch_structure.py``  (add ``--refresh`` to re-download)
 import argparse
 import xml.etree.ElementTree as ET
 
-from common import SDMX, STRUCTURE, get
+from models.world_oecd_socx.code.common import SDMX, STRUCTURE, get
 
 AGENCIES = ("OECD.ELS.SPD",)
 S = "{http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure}"
@@ -38,6 +38,7 @@ def cached(name, url, *, refresh=False):
         return path
     path.parent.mkdir(parents=True, exist_ok=True)
     print(f"  fetching {name}", flush=True)
+    # pyrefly: ignore [missing-attribute]
     path.write_bytes(get(url).content)
     return path
 

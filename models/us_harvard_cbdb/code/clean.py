@@ -14,7 +14,12 @@ import sqlite3
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
-from schema_spec import DICT_SOURCES, TABLE_ORDER, TABLES
+
+from models.us_harvard_cbdb.code.schema_spec import (
+    DICT_SOURCES,
+    TABLE_ORDER,
+    TABLES,
+)
 
 HOME = os.path.expanduser("~")
 DB = os.environ.get(
