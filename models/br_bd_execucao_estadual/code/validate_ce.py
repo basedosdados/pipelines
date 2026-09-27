@@ -31,6 +31,7 @@ from pathlib import Path
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
 
+# FIX THIS IMPORT
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import clean_ce
 from constants import (

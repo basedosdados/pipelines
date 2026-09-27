@@ -29,6 +29,7 @@ from pathlib import Path
 
 import requests
 
+# FIX THIS IMPORT
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import clean_sc
 from constants import (

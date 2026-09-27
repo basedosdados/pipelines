@@ -19,6 +19,7 @@ import json
 import sys
 from pathlib import Path
 
+# FIX THIS IMPORT
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from architecture_detailed import TABLES, field
 

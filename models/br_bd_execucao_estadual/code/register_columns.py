@@ -30,6 +30,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import yaml  # noqa: E402
 from google.cloud import bigquery  # noqa: E402
+
+# FIX THIS IMPORT
 from translations import DESCRIPTIONS, OBSERVATIONS  # noqa: E402
 
 DATASET = "br_bd_execucao_estadual"

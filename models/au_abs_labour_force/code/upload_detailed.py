@@ -31,6 +31,7 @@ import basedosdados as bd  # noqa: E402
 import google.cloud.storage as gcs  # noqa: E402
 from google.cloud import bigquery  # noqa: E402
 
+# FIX THIS IMPORT
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from clean_detailed import EXPECTED_TABLE_ROWS  # noqa: E402
 

@@ -32,6 +32,7 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+# FIX THIS IMPORT
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from constants import (
     BROWSER_UA,

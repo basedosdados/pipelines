@@ -19,10 +19,12 @@ import argparse
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
-
-from constants import DATASET_ID, OUTPUT, TABLE_ID  # type: ignore
-from utils import upload_table  # type: ignore
+from models.br_inep_censo_escolar.code.constants import (
+    DATASET_ID,
+    OUTPUT,
+    TABLE_ID,
+)
+from models.br_inep_censo_escolar.code.utils import upload_table
 
 
 def parse_args() -> argparse.Namespace:

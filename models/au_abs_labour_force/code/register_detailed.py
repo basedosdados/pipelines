@@ -67,6 +67,8 @@ sys.path.insert(0, str(_MCP_PATH))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import server  # noqa: E402  (import follows the sys.path bootstrap above)
+
+# FIX THIS IMPORT
 from metadata_detailed import (  # noqa: E402
     DATASET_DESCRIPTION,
     DATASET_SLUG,

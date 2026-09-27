@@ -17,6 +17,7 @@ from pathlib import Path
 
 import duckdb
 
+# FIX THIS IMPORT
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from constants import INPUT_DIR, OUTPUT_DIR, normalise_column
 

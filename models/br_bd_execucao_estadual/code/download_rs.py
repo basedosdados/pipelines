@@ -29,6 +29,7 @@ from pathlib import Path
 
 import requests
 
+# FIX THIS IMPORT
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from constants import BROWSER_UA, INPUT_DIR, RS_CKAN, RS_PACKAGE_LIST
 

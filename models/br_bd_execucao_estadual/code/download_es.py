@@ -27,7 +27,7 @@ from pathlib import Path
 
 import requests
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+# FIX THIS IMPORT
 from constants import (
     BROWSER_UA,
     ES_ALWAYS_FETCH_STEMS,

@@ -4,7 +4,8 @@ from functools import reduce
 
 import pandas as pd
 import requests
-from constants import (  # type: ignore
+
+from models.br_inep_indicadores_educacionais.code.constants import (
     rename_afd,
     rename_atu,
     rename_dsu,

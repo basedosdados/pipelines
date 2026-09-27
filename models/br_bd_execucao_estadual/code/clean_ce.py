@@ -68,6 +68,7 @@ from pathlib import Path
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+# FIX THIS IMPORT
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from constants import (
     CE_EMPENHO_DUPLICATE_SLOT,
