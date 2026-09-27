@@ -31,10 +31,11 @@ dev pool ignores the schedule, the prod pool activates it.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_dot_fars.constants import constants
 from pipelines.datasets.us_dot_fars.tasks import clean_corpus, probe_source
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -206,9 +207,8 @@ def us_dot_fars_flow(
 # The minute and hour are chosen, not defaulted: 38 11 is unused across the repo.
 # Defaulting to :00 piles every pipeline onto the same instant, where they compete
 # for BigQuery slots and trip the daily byte quota together.
-# pyrefly: ignore [missing-attribute]
 us_dot_fars_flow.deploy_schedules = [
-    {"cron": "38 11 6,21 * *", "timezone": "America/Sao_Paulo"}
+    Cron("38 11 6,21 * *", timezone="America/Sao_Paulo")
 ]
 # The clean step holds one year of rows in memory at a time (2015's person file
 # is the largest at ~82k rows), but the dicionario build reads each pre-2015
@@ -218,7 +218,6 @@ us_dot_fars_flow.deploy_schedules = [
 # memory_limit is the key the work pool's job template actually exposes; a flow
 # that sets only `memory` is silently capped at the 4Gi default no matter what
 # value it names.
-# pyrefly: ignore [missing-attribute]
 us_dot_fars_flow.job_variables = {
     "memory": "8Gi",
     "memory_limit": "8Gi",

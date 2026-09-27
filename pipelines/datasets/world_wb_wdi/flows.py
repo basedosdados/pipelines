@@ -19,10 +19,11 @@ dev pool ignores the schedule, the prod pool activates it.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.world_wb_wdi.constants import constants
 from pipelines.datasets.world_wb_wdi.tasks import clean_wdi, download_wdi
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -200,11 +201,9 @@ def world_wb_wdi_flow(
 # quarterly. Poll on the 15th of March, June, September and December at 16:00 BRT
 # — the source-poll guard no-ops until a new year of data actually appears, so
 # this ingests the annual update whenever the World Bank publishes it.
-# pyrefly: ignore [missing-attribute]
 world_wb_wdi_flow.deploy_schedules = [
-    {"cron": "20 16 15 3,6,9,12 *", "timezone": "America/Sao_Paulo"}
+    Cron("20 16 15 3,6,9,12 *", timezone="America/Sao_Paulo")
 ]
 # The clean step melts the wide file into ~26M rows in pandas; give the worker
 # headroom.
-# pyrefly: ignore [missing-attribute]
 world_wb_wdi_flow.job_variables = {"memory": "16Gi"}

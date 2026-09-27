@@ -18,7 +18,7 @@ activates it (paused until armed).
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_mf_divida_ativa.constants import constants
 from pipelines.datasets.br_mf_divida_ativa.tasks import (
@@ -26,6 +26,7 @@ from pipelines.datasets.br_mf_divida_ativa.tasks import (
     discover_new_quarters,
 )
 from pipelines.datasets.br_mf_divida_ativa.utils import TABLES
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     FreeLag,
@@ -214,11 +215,9 @@ def br_mf_divida_ativa_flow(
 
 # PGFN republishes quarterly on no fixed day; poll a few days each month at 15:00
 # BRT. The source-boundary check no-ops until a genuinely new quarter appears.
-# pyrefly: ignore [missing-attribute]
 br_mf_divida_ativa_flow.deploy_schedules = [
-    {"cron": constants.SCHEDULE_CRON.value, "timezone": "America/Sao_Paulo"}
+    Cron(constants.SCHEDULE_CRON.value, timezone="America/Sao_Paulo")
 ]
 # The clean step streams the SIDA quarter in 400k-row chunks, so peak RAM is
 # modest; give headroom for the pandas->arrow buffers and the GCS upload.
-# pyrefly: ignore [missing-attribute]
 br_mf_divida_ativa_flow.job_variables = {"memory": "8Gi"}

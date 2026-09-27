@@ -22,7 +22,7 @@ the dev pool ignores the schedule, the prod pool activates it (deployed paused).
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.au_geoscape_gnaf.constants import constants
 from pipelines.datasets.au_geoscape_gnaf.tasks import (
@@ -30,6 +30,7 @@ from pipelines.datasets.au_geoscape_gnaf.tasks import (
     clean_gnaf,
     download_gnaf,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -209,14 +210,9 @@ def au_geoscape_gnaf_flow(
 # exact day drifts (the Aug 2026 release landed on the 17th). Poll on several
 # days across the second half of each release month at 16:00 BRT. The
 # coverage-based source poll no-ops (no download) until a new snapshot appears.
-# pyrefly: ignore [missing-attribute]
 au_geoscape_gnaf_flow.deploy_schedules = [
-    {
-        "cron": "35 16 14,17,20,23,26 2,5,8,11 *",
-        "timezone": "America/Sao_Paulo",
-    }
+    Cron("35 16 14,17,20,23,26 2,5,8,11 *", timezone="America/Sao_Paulo")
 ]
 # The clean step builds one state's frames at a time (NSW is the largest) and the
 # download is ~1.6 GB; give the worker headroom.
-# pyrefly: ignore [missing-attribute]
 au_geoscape_gnaf_flow.job_variables = {"memory": "16Gi"}

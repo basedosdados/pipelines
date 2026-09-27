@@ -1,11 +1,12 @@
 """Flows para br_cgu_pessoal_executivo_federal — Prefect 3."""
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.crawler.cgu_pessoal_executivo_federal.tasks import (
     clean_save_table,
     crawl,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.tasks import (
     rename_flow_run_dataset_table,
     run_dbt,
@@ -72,7 +73,6 @@ def br_cgu_pessoal_executivo_federal__terceirizados(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_cgu_pessoal_executivo_federal__terceirizados.deploy_schedules = [
-    {"cron": "0 0 28 2/4 *", "timezone": "America/Sao_Paulo"}
+    Cron("0 0 28 2/4 *", timezone="America/Sao_Paulo")
 ]
