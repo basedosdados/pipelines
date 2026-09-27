@@ -62,6 +62,16 @@ class Flow(PrefectFlow[P, R]):
     job_variables: dict[str, Any] | None
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
+        """Constrói o flow e inicializa os atributos de deploy como `None`.
+
+        Os atributos são de instância, e não de classe, para que cada flow
+        tenha os seus — atribuir `deploy_schedules` a um flow não afeta outro.
+
+        Args:
+            *args: Argumentos posicionais do construtor do `prefect.Flow`.
+            **kwargs: Argumentos nomeados do construtor do `prefect.Flow`
+                (`fn`, `name`, `log_prints`, ...).
+        """
         super().__init__(*args, **kwargs)
         self.deploy_schedules = None
         self.job_variables = None
@@ -115,6 +125,14 @@ def flow(
         return Flow(fn=fn, **kwargs)
 
     def decorator(fn: Callable[..., Any]) -> Flow[..., Any]:
+        """Constrói o `Flow` da BD a partir da função decorada.
+
+        Args:
+            fn: A função decorada.
+
+        Returns:
+            O `Flow` construído com os `kwargs` passados a `flow(...)`.
+        """
         return Flow(fn=fn, **kwargs)
 
     return decorator

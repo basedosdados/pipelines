@@ -64,7 +64,7 @@ uv run manage.py add-pipeline <dataset_id>
 
 ### File conventions
 
-- `flows.py`: Define flows with `@flow` from **`pipelines.utils.flow`**, never `prefect.flow` — the repo's decorator returns a `prefect.Flow` subclass that declares the deploy attributes (`deploy_schedules`, `job_variables`), which the Prefect class does not, so setting them on a plain `prefect.Flow` is a Pyrefly `missing-attribute` error. Flows **must be defined at module level in this file** — `deploy_flows.py` only collects `Flow` objects whose function is defined there (an `obj.fn.__code__.co_filename` check).
+- `flows.py`: Define flows with `@flow` from **`pipelines.utils.flow`**, never `prefect.flow` — the repo's decorator returns a `prefect.Flow` subclass that declares the deploy attributes (`deploy_schedules`, `job_variables`), which the Prefect class does not, so setting them on a plain `prefect.Flow` is a Pyrefly `missing-attribute` error. Each deployable flow **must be bound to a module-level name in this file, and its function must be defined in this file** — `deploy_flows.py` scans the module's top-level names and keeps only `Flow` objects whose function comes from `flows.py` (an `obj.fn.__code__.co_filename` check). A factory that returns an inner `@flow` (see `br_ibge_ipca`) is fine, since the inner function is still defined in `flows.py`; a flow imported from another module is not picked up.
 - `tasks.py`: Define tasks with `@task`.
 - `constants.py`: Use a `constants` enum or plain constants — no hardcoded values elsewhere.
 - `utils.py`: Pure helper functions with no Prefect decorators.
