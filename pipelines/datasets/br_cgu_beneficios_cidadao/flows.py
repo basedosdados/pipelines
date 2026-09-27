@@ -7,9 +7,10 @@ gravados em parquet, mas o upload declarava csv para as três tabelas. Desde a
 #1677 isso derruba a run em dump_header, antes de qualquer escrita.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.crawler.cgu.flows import _run_cgu_beneficios_cidadao
+from pipelines.utils.flow import flow
 
 
 def _flow_factory(table_id: str, cron: str):
@@ -36,8 +37,7 @@ def _flow_factory(table_id: str, cron: str):
             force_run=force_run,
         )
 
-    # pyrefly: ignore [missing-attribute]
-    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
     return _flow
 
 

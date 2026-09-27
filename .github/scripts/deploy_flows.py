@@ -28,9 +28,9 @@ import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-from prefect import Flow
 from prefect.runner.storage import GitRepository
-from prefect.schedules import Cron
+
+from pipelines.utils.flow import Flow
 
 REPO_URL = "https://github.com/basedosdados/pipelines.git"
 
@@ -179,21 +179,13 @@ def deploy_flow(
     # tenha seu próprio registro, sem nunca competir pelo mesmo pool.
     deployment_name = f"dev-{flow_name}" if is_dev else flow_name
 
-    schedules = getattr(flow, "deploy_schedules", None)
-    if is_dev:
-        schedules = None  # flows em dev não têm schedule
-    elif schedules:
-        # Convert dict {"cron": "...", "timezone": "..."} to Cron schedule objects
-        schedules = [
-            Cron(s["cron"], timezone=s.get("timezone", "UTC"))
-            if isinstance(s, dict)
-            else s
-            for s in schedules
-        ]
+    # flows em dev não têm schedule
+    schedules = None if is_dev else flow.deploy_schedules
 
-    job_variables = getattr(flow, "job_variables", None)
+    job_variables = flow.job_variables
 
     try:
+        # pyrefly: ignore [missing-attribute]
         flow.from_source(
             source=GitRepository(
                 url=REPO_URL,

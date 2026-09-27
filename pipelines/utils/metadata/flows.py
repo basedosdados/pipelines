@@ -9,8 +9,7 @@ do domínio: `PartBdpro`/`AllBdpro`/`AllFree`/`NonHistorical`), validada pelo
 Pydantic no parsing do parâmetro do flow.
 """
 
-from prefect import flow
-
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import CoverageSpec
 from pipelines.utils.metadata.tasks import (
     register_table_materialization_task,
@@ -37,5 +36,4 @@ def update_temporal_coverage(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 update_temporal_coverage.deploy_schedules = []

@@ -20,7 +20,7 @@ Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_eia_consumption_flo
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_eia_consumption.constants import constants
 from pipelines.datasets.us_eia_consumption.tasks import (
@@ -28,6 +28,7 @@ from pipelines.datasets.us_eia_consumption.tasks import (
     download_corpus,
     probe_source,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -212,13 +213,11 @@ def us_eia_consumption_flow(
 # autumn. Poll daily and let the source-poll guard no-op. :31 keeps clear of
 # other crons in this repo (and of us_eia_electricity at :17 and us_eia_seds at
 # :23).
-# pyrefly: ignore [missing-attribute]
 us_eia_consumption_flow.deploy_schedules = [
-    {"cron": "31 9 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("31 9 * * *", timezone="America/Sao_Paulo")
 ]
 # The clean step parses one EIA-861 workbook at a time; 8Gi is comfortable.
 # `memory` alone is dropped by the work pool — the pod honours `memory_limit`.
-# pyrefly: ignore [missing-attribute]
 us_eia_consumption_flow.job_variables = {
     "memory_limit": "8Gi",
     "memory_request": "2Gi",
