@@ -33,3 +33,6 @@ select
 from
     {{ set_datalake_project("br_tse_eleicoes_staging.resultados_candidato_secao") }}
     as t
+
+    -- Rematerialized from the refactored pipeline (PR #1476).
+    

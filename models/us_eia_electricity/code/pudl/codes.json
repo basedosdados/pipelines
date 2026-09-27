@@ -1,0 +1,2367 @@
+{
+ "core_eia__codes_balancing_authorities": {
+  "code_fixes": {
+   "CA": "CISO",
+   "CI": "CISO",
+   "CP": "CPLE",
+   "DU": "DUK",
+   "EP": "EPE",
+   "ER": "ERCO",
+   "IP": "IPCO",
+   "IS": "ISNE",
+   "MI": "MISO",
+   "NE": "NEVP",
+   "NVE": "NEVP",
+   "NY": "NYIS",
+   "PJ": "PJM",
+   "PS": "PSCO",
+   "SE": "SEC",
+   "SR": "SRP",
+   "SW": "SWPP",
+   "TEN": "TVA",
+   "TEX": "ERCO",
+   "TIC": "TIDC",
+   "TID": "TIDC"
+  },
+  "ignored_codes": [],
+  "rows": [
+   {
+    "balancing_authority_region_code_eia": "SE",
+    "balancing_authority_region_name_eia": "Southeast",
+    "balancing_authority_retirement_date": 1630454400000,
+    "code": "AEC",
+    "description": "PowerSouth Energy Cooperative",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "power_south_coop",
+    "report_timezone": "America/Chicago"
+   },
+   {
+    "balancing_authority_region_code_eia": "CAN",
+    "balancing_authority_region_name_eia": "Canada",
+    "balancing_authority_retirement_date": null,
+    "code": "AESO",
+    "description": "Alberta Electric System Operator",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "alberta_electric_system_operator",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": "MIDW",
+    "balancing_authority_region_name_eia": "Midwest",
+    "balancing_authority_retirement_date": null,
+    "code": "AECI",
+    "description": "Associated Electric Cooperative, Inc.",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "associated_electric_coop",
+    "report_timezone": "America/Chicago"
+   },
+   {
+    "balancing_authority_region_code_eia": "NW",
+    "balancing_authority_region_name_eia": "Northwest",
+    "balancing_authority_retirement_date": null,
+    "code": "AVA",
+    "description": "Avista Corporation",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "avista",
+    "report_timezone": "America/Los_Angeles"
+   },
+   {
+    "balancing_authority_region_code_eia": "NW",
+    "balancing_authority_region_name_eia": "Northwest",
+    "balancing_authority_retirement_date": null,
+    "code": "AVRN",
+    "description": "Avangrid Renewables LLC",
+    "interconnect_code_eia": null,
+    "is_generation_only": true,
+    "label": "avangrid",
+    "report_timezone": "America/Los_Angeles"
+   },
+   {
+    "balancing_authority_region_code_eia": "SW",
+    "balancing_authority_region_name_eia": "Southwest",
+    "balancing_authority_retirement_date": null,
+    "code": "AZPS",
+    "description": "Arizona Public Service Company",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "arizona_public_service",
+    "report_timezone": "America/Phoenix"
+   },
+   {
+    "balancing_authority_region_code_eia": "CAL",
+    "balancing_authority_region_name_eia": "California",
+    "balancing_authority_retirement_date": null,
+    "code": "BANC",
+    "description": "Balancing Authority of Northern California",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "northern_california",
+    "report_timezone": "America/Los_Angeles"
+   },
+   {
+    "balancing_authority_region_code_eia": "CAN",
+    "balancing_authority_region_name_eia": "Canada",
+    "balancing_authority_retirement_date": null,
+    "code": "BCHA",
+    "description": "British Columbia Hydro and Power Authority",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "bc_hydro",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": "NW",
+    "balancing_authority_region_name_eia": "Northwest",
+    "balancing_authority_retirement_date": null,
+    "code": "BHBA",
+    "description": "Black Hills Energy",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "black_hills_energy",
+    "report_timezone": "America/Denver"
+   },
+   {
+    "balancing_authority_region_code_eia": "NW",
+    "balancing_authority_region_name_eia": "Northwest",
+    "balancing_authority_retirement_date": null,
+    "code": "BPAT",
+    "description": "Bonneville Power Administration",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "bonneville_power",
+    "report_timezone": "America/Los_Angeles"
+   },
+   {
+    "balancing_authority_region_code_eia": "NW",
+    "balancing_authority_region_name_eia": "Northwest",
+    "balancing_authority_retirement_date": null,
+    "code": "CHPD",
+    "description": "Public Utility District No. 1 of Chelan County",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "public_utility_district_of_chelan_county",
+    "report_timezone": "America/Los_Angeles"
+   },
+   {
+    "balancing_authority_region_code_eia": "CAL",
+    "balancing_authority_region_name_eia": "California",
+    "balancing_authority_retirement_date": null,
+    "code": "CISO",
+    "description": "California Independent System Operator",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "california_iso",
+    "report_timezone": "America/Los_Angeles"
+   },
+   {
+    "balancing_authority_region_code_eia": null,
+    "balancing_authority_region_name_eia": null,
+    "balancing_authority_retirement_date": null,
+    "code": "CEA",
+    "description": "Chugach Electric Assn Inc",
+    "interconnect_code_eia": null,
+    "is_generation_only": null,
+    "label": "chugach_electric",
+    "report_timezone": "America/Anchorage"
+   },
+   {
+    "balancing_authority_region_code_eia": "MEX",
+    "balancing_authority_region_name_eia": "Mexico",
+    "balancing_authority_retirement_date": null,
+    "code": "CEN",
+    "description": "Centro Nacional de Control de Energia",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "centro_nacional_de_control_de_energia",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": "MEX",
+    "balancing_authority_region_name_eia": "Mexico",
+    "balancing_authority_retirement_date": 1530403200000,
+    "code": "CFE",
+    "description": "Comisi\u00f3n Federal de Electricidad",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "comision_federal_de_electricidad",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": "CAR",
+    "balancing_authority_region_name_eia": "Carolinas",
+    "balancing_authority_retirement_date": null,
+    "code": "CPLE",
+    "description": "Duke Energy Progress East",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "duke_energy_progress_east",
+    "report_timezone": "America/New_York"
+   },
+   {
+    "balancing_authority_region_code_eia": "CAR",
+    "balancing_authority_region_name_eia": "Carolinas",
+    "balancing_authority_retirement_date": null,
+    "code": "CPLW",
+    "description": "Duke Energy Progress West",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "duke_energy_progress_west",
+    "report_timezone": "America/New_York"
+   },
+   {
+    "balancing_authority_region_code_eia": null,
+    "balancing_authority_region_name_eia": null,
+    "balancing_authority_retirement_date": null,
+    "code": "CSTO",
+    "description": "Constellation Energy Control and Dispatch, LLC",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "constellation",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": null,
+    "balancing_authority_region_name_eia": null,
+    "balancing_authority_retirement_date": null,
+    "code": "CSWS",
+    "description": "American Electric Power Service Corp. As Agent For Public Svc. Co. Of Oklahoma & SW Ele Pwr Co.",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "public_service_company_of_oklahoma_and_southwestern_electric",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": "SW",
+    "balancing_authority_region_name_eia": "Southwest",
+    "balancing_authority_retirement_date": null,
+    "code": "DEAA",
+    "description": "Arlington Valley, LLC - AVBA",
+    "interconnect_code_eia": "western",
+    "is_generation_only": true,
+    "label": "arlington_valley",
+    "report_timezone": "America/Phoenix"
+   },
+   {
+    "balancing_authority_region_code_eia": "NW",
+    "balancing_authority_region_name_eia": "Northwest",
+    "balancing_authority_retirement_date": null,
+    "code": "DOPD",
+    "description": "PUD No. 1 of Douglas County",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "public_utility_of_douglas_county",
+    "report_timezone": "America/Los_Angeles"
+   },
+   {
+    "balancing_authority_region_code_eia": "CAR",
+    "balancing_authority_region_name_eia": "Carolinas",
+    "balancing_authority_retirement_date": null,
+    "code": "DUK",
+    "description": "Duke Energy Carolinas",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "duke_energy_carolinas",
+    "report_timezone": "America/New_York"
+   },
+   {
+    "balancing_authority_region_code_eia": null,
+    "balancing_authority_region_name_eia": null,
+    "balancing_authority_retirement_date": null,
+    "code": "EDE",
+    "description": "The Empire District Electric Company",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "empire_district",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": "MIDW",
+    "balancing_authority_region_name_eia": "Midwest",
+    "balancing_authority_retirement_date": 1582934400000,
+    "code": "EEI",
+    "description": "Electric Energy, Inc.",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "electric_energy",
+    "report_timezone": "America/Chicago"
+   },
+   {
+    "balancing_authority_region_code_eia": "SW",
+    "balancing_authority_region_name_eia": "Southwest",
+    "balancing_authority_retirement_date": null,
+    "code": "EPE",
+    "description": "El Paso Electric Company",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "el_paso_electric",
+    "report_timezone": "America/Phoenix"
+   },
+   {
+    "balancing_authority_region_code_eia": "TEX",
+    "balancing_authority_region_name_eia": "Texas",
+    "balancing_authority_retirement_date": null,
+    "code": "ERCO",
+    "description": "Electric Reliability Council of Texas, Inc.",
+    "interconnect_code_eia": "ercot",
+    "is_generation_only": false,
+    "label": "electric_reliability_council_of_texas",
+    "report_timezone": "America/Chicago"
+   },
+   {
+    "balancing_authority_region_code_eia": "FLA",
+    "balancing_authority_region_name_eia": "Florida",
+    "balancing_authority_retirement_date": null,
+    "code": "FMPP",
+    "description": "Florida Municipal Power Pool",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "florida_municipal_power_pool",
+    "report_timezone": "America/New_York"
+   },
+   {
+    "balancing_authority_region_code_eia": "FLA",
+    "balancing_authority_region_name_eia": "Florida",
+    "balancing_authority_retirement_date": null,
+    "code": "FPC",
+    "description": "Progress Energy Florida",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "progress_energy_florida",
+    "report_timezone": "America/New_York"
+   },
+   {
+    "balancing_authority_region_code_eia": "FLA",
+    "balancing_authority_region_name_eia": "Florida",
+    "balancing_authority_retirement_date": null,
+    "code": "FPL",
+    "description": "Florida Power & Light Company",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "florida_power_and_light",
+    "report_timezone": "America/New_York"
+   },
+   {
+    "balancing_authority_region_code_eia": "NW",
+    "balancing_authority_region_name_eia": "Northwest",
+    "balancing_authority_retirement_date": null,
+    "code": "GCPD",
+    "description": "Public Utility District No. 2 of Grant County, Washington",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "public_utility_grant_county",
+    "report_timezone": "America/Los_Angeles"
+   },
+   {
+    "balancing_authority_region_code_eia": "MIDW",
+    "balancing_authority_region_name_eia": "Midwest",
+    "balancing_authority_retirement_date": 1661990400000,
+    "code": "GLHB",
+    "description": "GridLiance (GLHB)",
+    "interconnect_code_eia": null,
+    "is_generation_only": true,
+    "label": "gridliance",
+    "report_timezone": "America/Chicago"
+   },
+   {
+    "balancing_authority_region_code_eia": null,
+    "balancing_authority_region_name_eia": null,
+    "balancing_authority_retirement_date": null,
+    "code": "GRDA",
+    "description": "Grand River Dam Authority",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "grand_river_dam",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": null,
+    "balancing_authority_region_name_eia": "Pacific Northwest",
+    "balancing_authority_retirement_date": null,
+    "code": "GRID",
+    "description": "Gridforce Energy Management, LLC",
+    "interconnect_code_eia": "western",
+    "is_generation_only": true,
+    "label": "gridforce_energy_management",
+    "report_timezone": "America/Los_Angeles"
+   },
+   {
+    "balancing_authority_region_code_eia": "SW",
+    "balancing_authority_region_name_eia": "Southwest",
+    "balancing_authority_retirement_date": 1698796800000,
+    "code": "GRIF",
+    "description": "Griffith Energy, LLC",
+    "interconnect_code_eia": "western",
+    "is_generation_only": true,
+    "label": "griffith_energy",
+    "report_timezone": "America/Phoenix"
+   },
+   {
+    "balancing_authority_region_code_eia": null,
+    "balancing_authority_region_name_eia": null,
+    "balancing_authority_retirement_date": null,
+    "code": "GRIS",
+    "description": "Gridforce South",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "gridforce_south",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": "SW",
+    "balancing_authority_region_name_eia": "Southwest",
+    "balancing_authority_retirement_date": 1525305600000,
+    "code": "GRMA",
+    "description": "Gila River Power, LLC",
+    "interconnect_code_eia": "western",
+    "is_generation_only": true,
+    "label": "gila_river_power",
+    "report_timezone": "America/Phoenix"
+   },
+   {
+    "balancing_authority_region_code_eia": "FLA",
+    "balancing_authority_region_name_eia": "Florida",
+    "balancing_authority_retirement_date": null,
+    "code": "GVL",
+    "description": "Gainesville Regional Utilities",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "gainesville_regional",
+    "report_timezone": "America/New_York"
+   },
+   {
+    "balancing_authority_region_code_eia": "NW",
+    "balancing_authority_region_name_eia": "Northwest",
+    "balancing_authority_retirement_date": null,
+    "code": "GWA",
+    "description": "NaturEner Power Watch, LLC (GWA)",
+    "interconnect_code_eia": "western",
+    "is_generation_only": true,
+    "label": "naturener_power_watch",
+    "report_timezone": "America/Denver"
+   },
+   {
+    "balancing_authority_region_code_eia": null,
+    "balancing_authority_region_name_eia": null,
+    "balancing_authority_retirement_date": null,
+    "code": "HECO",
+    "description": "Hawaiian Electric Co Inc",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "hawaiian_electric",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": "SW",
+    "balancing_authority_region_name_eia": "Southwest",
+    "balancing_authority_retirement_date": null,
+    "code": "HGMA",
+    "description": "New Harquahala Generating Company, LLC - HGBA",
+    "interconnect_code_eia": "western",
+    "is_generation_only": true,
+    "label": "new_harquahala",
+    "report_timezone": "America/Phoenix"
+   },
+   {
+    "balancing_authority_region_code_eia": "CAN",
+    "balancing_authority_region_name_eia": "Canada",
+    "balancing_authority_retirement_date": null,
+    "code": "HQT",
+    "description": "Hydro-Qu\u00e9bec TransEnergie",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "hydro_quebec",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": "FLA",
+    "balancing_authority_region_name_eia": "Florida",
+    "balancing_authority_retirement_date": null,
+    "code": "HST",
+    "description": "City of Homestead",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "city_of_homestead",
+    "report_timezone": "America/New_York"
+   },
+   {
+    "balancing_authority_region_code_eia": "CAN",
+    "balancing_authority_region_name_eia": "Canada",
+    "balancing_authority_retirement_date": null,
+    "code": "IESO",
+    "description": "Ontario Independent Electric System Operator",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "ontario_ieso",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": "CAL",
+    "balancing_authority_region_name_eia": "California",
+    "balancing_authority_retirement_date": null,
+    "code": "IID",
+    "description": "Imperial Irrigation District",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "imperial_irrigation",
+    "report_timezone": "America/Los_Angeles"
+   },
+   {
+    "balancing_authority_region_code_eia": null,
+    "balancing_authority_region_name_eia": null,
+    "balancing_authority_retirement_date": null,
+    "code": "INDN",
+    "description": "Independence Power & Light (Independence,Missouri)",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "independence_power_and_light",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": "NW",
+    "balancing_authority_region_name_eia": "Northwest",
+    "balancing_authority_retirement_date": null,
+    "code": "IPCO",
+    "description": "Idaho Power Company",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "idaho_power",
+    "report_timezone": "America/Los_Angeles"
+   },
+   {
+    "balancing_authority_region_code_eia": "NE",
+    "balancing_authority_region_name_eia": "New England",
+    "balancing_authority_retirement_date": null,
+    "code": "ISNE",
+    "description": "ISO New England Inc.",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "iso_new_england",
+    "report_timezone": "America/New_York"
+   },
+   {
+    "balancing_authority_region_code_eia": "FLA",
+    "balancing_authority_region_name_eia": "Florida",
+    "balancing_authority_retirement_date": null,
+    "code": "JEA",
+    "description": "Jacksonville Energy",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "jacksonville_energy",
+    "report_timezone": "America/New_York"
+   },
+   {
+    "balancing_authority_region_code_eia": null,
+    "balancing_authority_region_name_eia": null,
+    "balancing_authority_retirement_date": null,
+    "code": "KACY",
+    "description": "Board Of Public Utilities (Kansas City KS)",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "kansas_city",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": null,
+    "balancing_authority_region_name_eia": null,
+    "balancing_authority_retirement_date": null,
+    "code": "KCPL",
+    "description": "Kansas City Power & Light Company",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "kansas_city_power_and_light",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": "CAL",
+    "balancing_authority_region_name_eia": "California",
+    "balancing_authority_retirement_date": null,
+    "code": "LDWP",
+    "description": "Los Angeles Department of Water and Power",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "los_angeles_dept_of_water_and_power",
+    "report_timezone": "America/Los_Angeles"
+   },
+   {
+    "balancing_authority_region_code_eia": null,
+    "balancing_authority_region_name_eia": null,
+    "balancing_authority_retirement_date": null,
+    "code": "LES",
+    "description": "Lincoln Electric System",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "lincoln_electric",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": "MIDW",
+    "balancing_authority_region_name_eia": "Midwest",
+    "balancing_authority_retirement_date": null,
+    "code": "LGEE",
+    "description": "LG&E and KU Services Company as agent for Louisville Gas and Electric Company and Kentucky Utilities",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "louisville_gas_and_electric_and_kentucky",
+    "report_timezone": "America/New_York"
+   },
+   {
+    "balancing_authority_region_code_eia": "CAN",
+    "balancing_authority_region_name_eia": "Canada",
+    "balancing_authority_retirement_date": null,
+    "code": "MHEB",
+    "description": "Manitoba Hydro",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "manitoba_hydro",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": "MIDW",
+    "balancing_authority_region_name_eia": "Midwest",
+    "balancing_authority_retirement_date": null,
+    "code": "MISO",
+    "description": "Midcontinent Independent Transmission System Operator, Inc..",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "midcontinent_iso",
+    "report_timezone": "America/New_York"
+   },
+   {
+    "balancing_authority_region_code_eia": null,
+    "balancing_authority_region_name_eia": null,
+    "balancing_authority_retirement_date": null,
+    "code": "MPS",
+    "description": "KCPL - Greater Missouri Operations",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "kansas_city_power_and_light_missouri",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": "CAN",
+    "balancing_authority_region_name_eia": "Canada",
+    "balancing_authority_retirement_date": null,
+    "code": "NBSO",
+    "description": "New Brunswick System Operator",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "new_brunswick_system_operator",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": "NW",
+    "balancing_authority_region_name_eia": "Northwest",
+    "balancing_authority_retirement_date": null,
+    "code": "NEVP",
+    "description": "Nevada Power Company",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "nevada_power",
+    "report_timezone": "America/Los_Angeles"
+   },
+   {
+    "balancing_authority_region_code_eia": null,
+    "balancing_authority_region_name_eia": null,
+    "balancing_authority_retirement_date": null,
+    "code": "NPPD",
+    "description": "Nebraska Public Power District",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "nebraska_public_power",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": "FLA",
+    "balancing_authority_region_name_eia": "Florida",
+    "balancing_authority_retirement_date": 1578441600000,
+    "code": "NSB",
+    "description": "New Smyrna Beach, Utilities Commission of",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "new_smyrna_beach",
+    "report_timezone": "America/New_York"
+   },
+   {
+    "balancing_authority_region_code_eia": "NW",
+    "balancing_authority_region_name_eia": "Northwest",
+    "balancing_authority_retirement_date": null,
+    "code": "NWMT",
+    "description": "NorthWestern Energy (NWMT)",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "northwestern_energy",
+    "report_timezone": "America/Denver"
+   },
+   {
+    "balancing_authority_region_code_eia": "NY",
+    "balancing_authority_region_name_eia": "New York",
+    "balancing_authority_retirement_date": null,
+    "code": "NYIS",
+    "description": "New York Independent System Operator",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "new_york_iso",
+    "report_timezone": "America/New_York"
+   },
+   {
+    "balancing_authority_region_code_eia": null,
+    "balancing_authority_region_name_eia": null,
+    "balancing_authority_retirement_date": null,
+    "code": "OKGE",
+    "description": "Oklahoma Gas And Electric Co.",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "oklahoma_gas_and_electric",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": null,
+    "balancing_authority_region_name_eia": null,
+    "balancing_authority_retirement_date": null,
+    "code": "OPPD",
+    "description": "Omaha Public Power District",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "omaha_public_power",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": "MIDA",
+    "balancing_authority_region_name_eia": "Mid-Atlantic",
+    "balancing_authority_retirement_date": 1543622400000,
+    "code": "OVEC",
+    "description": "Ohio Valley Electric Corporation",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "ohio_valley",
+    "report_timezone": "America/New_York"
+   },
+   {
+    "balancing_authority_region_code_eia": "NW",
+    "balancing_authority_region_name_eia": "Northwest",
+    "balancing_authority_retirement_date": null,
+    "code": "PACE",
+    "description": "PacifiCorp - East",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "pacificorp_east",
+    "report_timezone": "America/Denver"
+   },
+   {
+    "balancing_authority_region_code_eia": "NW",
+    "balancing_authority_region_name_eia": "Northwest",
+    "balancing_authority_retirement_date": null,
+    "code": "PACW",
+    "description": "PacifiCorp - West",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "pacificorp_west",
+    "report_timezone": "America/Los_Angeles"
+   },
+   {
+    "balancing_authority_region_code_eia": "NW",
+    "balancing_authority_region_name_eia": "Northwest",
+    "balancing_authority_retirement_date": null,
+    "code": "PGE",
+    "description": "Portland General Electric Company",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "portland_general_electric",
+    "report_timezone": "America/Los_Angeles"
+   },
+   {
+    "balancing_authority_region_code_eia": "MIDA",
+    "balancing_authority_region_name_eia": "Mid-Atlantic",
+    "balancing_authority_retirement_date": null,
+    "code": "PJM",
+    "description": "PJM Interconnection, LLC",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "pjm_interconnection",
+    "report_timezone": "America/New_York"
+   },
+   {
+    "balancing_authority_region_code_eia": "SW",
+    "balancing_authority_region_name_eia": "Southwest",
+    "balancing_authority_retirement_date": null,
+    "code": "PNM",
+    "description": "Public Service Company of New Mexico",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "public_service_company_of_new_mexico",
+    "report_timezone": "America/Phoenix"
+   },
+   {
+    "balancing_authority_region_code_eia": "NW",
+    "balancing_authority_region_name_eia": "Northwest",
+    "balancing_authority_retirement_date": null,
+    "code": "PSCO",
+    "description": "Public Service Company of Colorado",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "public_service_company_of_colorado",
+    "report_timezone": "America/Denver"
+   },
+   {
+    "balancing_authority_region_code_eia": "NW",
+    "balancing_authority_region_name_eia": "Northwest",
+    "balancing_authority_retirement_date": null,
+    "code": "PSEI",
+    "description": "Puget Sound Energy",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "pugent_sound_energy",
+    "report_timezone": "America/Los_Angeles"
+   },
+   {
+    "balancing_authority_region_code_eia": "CAR",
+    "balancing_authority_region_name_eia": "Carolinas",
+    "balancing_authority_retirement_date": null,
+    "code": "SC",
+    "description": "South Carolina Public Service Authority",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "south_carolina_public_service",
+    "report_timezone": "America/New_York"
+   },
+   {
+    "balancing_authority_region_code_eia": "CAR",
+    "balancing_authority_region_name_eia": "Carolinas",
+    "balancing_authority_retirement_date": null,
+    "code": "SCEG",
+    "description": "South Carolina Electric & Gas Company",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "south_carolina_electric_and_gas",
+    "report_timezone": "America/New_York"
+   },
+   {
+    "balancing_authority_region_code_eia": "NW",
+    "balancing_authority_region_name_eia": "Northwest",
+    "balancing_authority_retirement_date": null,
+    "code": "SCL",
+    "description": "Seattle City Light",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "seattle_city_light",
+    "report_timezone": "America/Los_Angeles"
+   },
+   {
+    "balancing_authority_region_code_eia": "FLA",
+    "balancing_authority_region_name_eia": "Florida",
+    "balancing_authority_retirement_date": null,
+    "code": "SEC",
+    "description": "Seminole Electric Cooperative",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "seminole_electric_coop",
+    "report_timezone": "America/New_York"
+   },
+   {
+    "balancing_authority_region_code_eia": null,
+    "balancing_authority_region_name_eia": null,
+    "balancing_authority_retirement_date": null,
+    "code": "SECI",
+    "description": "Sunflower Electric Power Corporation",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "sunflower_electric_power",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": "SE",
+    "balancing_authority_region_name_eia": "Southeast",
+    "balancing_authority_retirement_date": null,
+    "code": "SEPA",
+    "description": "Southeastern Power Administration",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": true,
+    "label": "southeastern_power",
+    "report_timezone": "America/Chicago"
+   },
+   {
+    "balancing_authority_region_code_eia": "SE",
+    "balancing_authority_region_name_eia": "Southeast",
+    "balancing_authority_retirement_date": null,
+    "code": "SOCO",
+    "description": "Southern Company Services, Inc. - Trans",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "southern_company_services",
+    "report_timezone": "America/Chicago"
+   },
+   {
+    "balancing_authority_region_code_eia": "CENT",
+    "balancing_authority_region_name_eia": "Central",
+    "balancing_authority_retirement_date": null,
+    "code": "SPA",
+    "description": "Southwestern Power Administration",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "southwestern_power",
+    "report_timezone": "America/Chicago"
+   },
+   {
+    "balancing_authority_region_code_eia": "CAN",
+    "balancing_authority_region_name_eia": "Canada",
+    "balancing_authority_retirement_date": null,
+    "code": "SPC",
+    "description": "Saskatchewan Power Corporation",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "saskatchewan_power_corporation",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": null,
+    "balancing_authority_region_name_eia": null,
+    "balancing_authority_retirement_date": null,
+    "code": "SPRM",
+    "description": "City Utilities Of Springfield, MO",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "city_utilities_of_springfield",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": null,
+    "balancing_authority_region_name_eia": null,
+    "balancing_authority_retirement_date": null,
+    "code": "SPS",
+    "description": "Southwestern Public Service Co. (Xcel Energy)",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "southwestern_public_service",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": "SW",
+    "balancing_authority_region_name_eia": "Southwest",
+    "balancing_authority_retirement_date": null,
+    "code": "SRP",
+    "description": "Salt River Project",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "salt_river_project",
+    "report_timezone": "America/Phoenix"
+   },
+   {
+    "balancing_authority_region_code_eia": "CENT",
+    "balancing_authority_region_name_eia": "Central",
+    "balancing_authority_retirement_date": null,
+    "code": "SWPP",
+    "description": "Southwest Power Pool",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "southwest_power_pool",
+    "report_timezone": "America/Chicago"
+   },
+   {
+    "balancing_authority_region_code_eia": "NW",
+    "balancing_authority_region_name_eia": "Northwest",
+    "balancing_authority_retirement_date": null,
+    "code": "SWPW",
+    "description": "Southwest Power Pool West",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "southwest_power_pool_west",
+    "report_timezone": "America/Denver"
+   },
+   {
+    "balancing_authority_region_code_eia": "FLA",
+    "balancing_authority_region_name_eia": "Florida",
+    "balancing_authority_retirement_date": null,
+    "code": "TAL",
+    "description": "City of Tallahassee",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "city_of_tallahassee",
+    "report_timezone": "America/New_York"
+   },
+   {
+    "balancing_authority_region_code_eia": "FLA",
+    "balancing_authority_region_name_eia": "Florida",
+    "balancing_authority_retirement_date": null,
+    "code": "TEC",
+    "description": "Tampa Electric Company",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "tampa_electric",
+    "report_timezone": "America/New_York"
+   },
+   {
+    "balancing_authority_region_code_eia": "SW",
+    "balancing_authority_region_name_eia": "Southwest",
+    "balancing_authority_retirement_date": null,
+    "code": "TEPC",
+    "description": "Tucson Electric Power Company",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "tuscon_electric_power",
+    "report_timezone": "America/Phoenix"
+   },
+   {
+    "balancing_authority_region_code_eia": "CAL",
+    "balancing_authority_region_name_eia": "California",
+    "balancing_authority_retirement_date": null,
+    "code": "TIDC",
+    "description": "Turlock Irrigation District",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "turlock_irrigation_district",
+    "report_timezone": "America/Los_Angeles"
+   },
+   {
+    "balancing_authority_region_code_eia": "NW",
+    "balancing_authority_region_name_eia": "Northwest",
+    "balancing_authority_retirement_date": null,
+    "code": "TPWR",
+    "description": "City of Tacoma, Department of Public Utilities, Light Division",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "city_of_tacoma",
+    "report_timezone": "America/Los_Angeles"
+   },
+   {
+    "balancing_authority_region_code_eia": "TEN",
+    "balancing_authority_region_name_eia": "Tennessee",
+    "balancing_authority_retirement_date": null,
+    "code": "TVA",
+    "description": "Tennessee Valley Authority",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": false,
+    "label": "tennessee_valley_authority",
+    "report_timezone": "America/Chicago"
+   },
+   {
+    "balancing_authority_region_code_eia": "NW",
+    "balancing_authority_region_name_eia": "Northwest",
+    "balancing_authority_retirement_date": 1775001600000,
+    "code": "WACM",
+    "description": "Western Area Power Administration - Rocky Mountain Region",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "western_area_power_mountain",
+    "report_timezone": "America/Phoenix"
+   },
+   {
+    "balancing_authority_region_code_eia": "SW",
+    "balancing_authority_region_name_eia": "Southwest",
+    "balancing_authority_retirement_date": null,
+    "code": "WALC",
+    "description": "Western Area Power Administration - Desert Southwest Region",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "western_area_power_southwest",
+    "report_timezone": "America/Phoenix"
+   },
+   {
+    "balancing_authority_region_code_eia": null,
+    "balancing_authority_region_name_eia": null,
+    "balancing_authority_retirement_date": null,
+    "code": "WAUE",
+    "description": "Western Area Power Administration - Upper Great Plains East",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "western_area_power_east",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": "NW",
+    "balancing_authority_region_name_eia": "Northwest",
+    "balancing_authority_retirement_date": 1775001600000,
+    "code": "WAUW",
+    "description": "Western Area Power Administration UGP West",
+    "interconnect_code_eia": "western",
+    "is_generation_only": false,
+    "label": "western_area_power_west",
+    "report_timezone": "America/Denver"
+   },
+   {
+    "balancing_authority_region_code_eia": null,
+    "balancing_authority_region_name_eia": null,
+    "balancing_authority_retirement_date": null,
+    "code": "WFEC",
+    "description": "Western Farmers Electric Cooperative",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "western_farmers_electric_coop",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": null,
+    "balancing_authority_region_name_eia": null,
+    "balancing_authority_retirement_date": null,
+    "code": "WR",
+    "description": "Westar Energy",
+    "interconnect_code_eia": null,
+    "is_generation_only": false,
+    "label": "westar_energy",
+    "report_timezone": null
+   },
+   {
+    "balancing_authority_region_code_eia": "NW",
+    "balancing_authority_region_name_eia": "Northwest",
+    "balancing_authority_retirement_date": null,
+    "code": "WWA",
+    "description": "NaturEner Wind Watch, LLC",
+    "interconnect_code_eia": "western",
+    "is_generation_only": true,
+    "label": "naturener_wind",
+    "report_timezone": "America/Denver"
+   },
+   {
+    "balancing_authority_region_code_eia": "CAR",
+    "balancing_authority_region_name_eia": "Carolinas",
+    "balancing_authority_retirement_date": null,
+    "code": "YAD",
+    "description": "Alcoa Power Generating, Inc. - Yadkin Division",
+    "interconnect_code_eia": "eastern",
+    "is_generation_only": true,
+    "label": "alcoa_power_yadkin",
+    "report_timezone": "America/New_York"
+   }
+  ]
+ },
+ "core_eia__codes_coalmine_types": {
+  "code_fixes": {
+   "S/U": "SU",
+   "Su": "S",
+   "U/S": "US",
+   "p": "P"
+  },
+  "ignored_codes": [],
+  "rows": [
+   {
+    "code": "P",
+    "description": "A coal preparation plant.",
+    "label": "preparation_plant"
+   },
+   {
+    "code": "S",
+    "description": "A surface mine.",
+    "label": "surface"
+   },
+   {
+    "code": "U",
+    "description": "An underground mine.",
+    "label": "underground"
+   },
+   {
+    "code": "US",
+    "description": "Both an underground and surface mine with most coal extracted from underground",
+    "label": "underground_and_surface"
+   },
+   {
+    "code": "SU",
+    "description": "Both an underground and surface mine with most coal extracted from surface",
+    "label": "surface_and_underground"
+   }
+  ]
+ },
+ "core_eia__codes_contract_types": {
+  "code_fixes": {
+   "N": "NC"
+  },
+  "ignored_codes": [],
+  "rows": [
+   {
+    "code": "C",
+    "description": "Fuel received under a purchase order or contract with a term of one year or longer.  Contracts with a shorter term are considered spot purchases ",
+    "label": "contract"
+   },
+   {
+    "code": "NC",
+    "description": "Fuel received under a purchase order or contract with duration of one year or longer, under which deliveries were first made during the reporting month",
+    "label": "new_contract"
+   },
+   {
+    "code": "S",
+    "description": "Fuel obtained through a spot market purchase",
+    "label": "spot_purchase"
+   },
+   {
+    "code": "T",
+    "description": "Fuel received under a tolling agreement (bartering arrangement of fuel for generation)",
+    "label": "tolling_agreement"
+   }
+  ]
+ },
+ "core_eia__codes_energy_sources": {
+  "code_fixes": {
+   "BL": "BLQ",
+   "H2": "OG",
+   "HPS": "WAT",
+   "OOG": "OG",
+   "OW": "WO",
+   "PV": "SUN",
+   "Sun": "SUN",
+   "WOC": "WC",
+   "WT": "WND",
+   "ng": "NG",
+   "sub": "SUB"
+  },
+  "ignored_codes": [
+   "0",
+   "0",
+   "OO",
+   "BM",
+   "CBL",
+   "COL",
+   "N",
+   "no",
+   "PL",
+   "ST"
+  ],
+  "rows": [
+   {
+    "code": "AB",
+    "description": "Agricultural by-products",
+    "fuel_derived_from": "biomass",
+    "fuel_group_eia": "renewable",
+    "fuel_phase": "solid",
+    "fuel_type_code_pudl": "waste",
+    "fuel_units": "short_tons",
+    "label": "agricultural_byproducts",
+    "max_fuel_mmbtu_per_unit": 18.0,
+    "min_fuel_mmbtu_per_unit": 7.0
+   },
+   {
+    "code": "ANT",
+    "description": "Anthracite coal",
+    "fuel_derived_from": "coal",
+    "fuel_group_eia": "fossil",
+    "fuel_phase": "solid",
+    "fuel_type_code_pudl": "coal",
+    "fuel_units": "short_tons",
+    "label": "anthracite",
+    "max_fuel_mmbtu_per_unit": 28.0,
+    "min_fuel_mmbtu_per_unit": 22.0
+   },
+   {
+    "code": "BFG",
+    "description": "Blast furnace gas",
+    "fuel_derived_from": "gas",
+    "fuel_group_eia": "fossil",
+    "fuel_phase": "gas",
+    "fuel_type_code_pudl": "gas",
+    "fuel_units": "mcf",
+    "label": "blast_furnace_gas",
+    "max_fuel_mmbtu_per_unit": 0.12,
+    "min_fuel_mmbtu_per_unit": 0.07
+   },
+   {
+    "code": "BIT",
+    "description": "Bituminous coal",
+    "fuel_derived_from": "coal",
+    "fuel_group_eia": "fossil",
+    "fuel_phase": "solid",
+    "fuel_type_code_pudl": "coal",
+    "fuel_units": "short_tons",
+    "label": "bituminous_coal",
+    "max_fuel_mmbtu_per_unit": 29.0,
+    "min_fuel_mmbtu_per_unit": 20.0
+   },
+   {
+    "code": "BLQ",
+    "description": "Black liquor",
+    "fuel_derived_from": "biomass",
+    "fuel_group_eia": "renewable",
+    "fuel_phase": "liquid",
+    "fuel_type_code_pudl": "waste",
+    "fuel_units": "short_tons",
+    "label": "black_liquor",
+    "max_fuel_mmbtu_per_unit": 14.0,
+    "min_fuel_mmbtu_per_unit": 10.0
+   },
+   {
+    "code": "DFO",
+    "description": "Distillate fuel oil, including diesel, No. 1, No. 2, and No. 4 fuel oils",
+    "fuel_derived_from": "petroleum",
+    "fuel_group_eia": "fossil",
+    "fuel_phase": "liquid",
+    "fuel_type_code_pudl": "oil",
+    "fuel_units": "barrels",
+    "label": "distillate_fuel_oil",
+    "max_fuel_mmbtu_per_unit": 6.2,
+    "min_fuel_mmbtu_per_unit": 5.5
+   },
+   {
+    "code": "GEO",
+    "description": "Geothermal",
+    "fuel_derived_from": "other",
+    "fuel_group_eia": "renewable",
+    "fuel_phase": null,
+    "fuel_type_code_pudl": "other",
+    "fuel_units": null,
+    "label": "geothermal",
+    "max_fuel_mmbtu_per_unit": null,
+    "min_fuel_mmbtu_per_unit": null
+   },
+   {
+    "code": "JF",
+    "description": "Jet fuel",
+    "fuel_derived_from": "petroleum",
+    "fuel_group_eia": "fossil",
+    "fuel_phase": "liquid",
+    "fuel_type_code_pudl": "oil",
+    "fuel_units": "barrels",
+    "label": "jet_fuel",
+    "max_fuel_mmbtu_per_unit": 6.0,
+    "min_fuel_mmbtu_per_unit": 5.0
+   },
+   {
+    "code": "KER",
+    "description": "Kerosene",
+    "fuel_derived_from": "petroleum",
+    "fuel_group_eia": "fossil",
+    "fuel_phase": "liquid",
+    "fuel_type_code_pudl": "oil",
+    "fuel_units": "barrels",
+    "label": "kerosene",
+    "max_fuel_mmbtu_per_unit": 6.1,
+    "min_fuel_mmbtu_per_unit": 5.6
+   },
+   {
+    "code": "LFG",
+    "description": "Landfill gas",
+    "fuel_derived_from": "biomass",
+    "fuel_group_eia": "renewable",
+    "fuel_phase": "gas",
+    "fuel_type_code_pudl": "waste",
+    "fuel_units": "mcf",
+    "label": "landfill_gas",
+    "max_fuel_mmbtu_per_unit": 0.6,
+    "min_fuel_mmbtu_per_unit": 0.3
+   },
+   {
+    "code": "LIG",
+    "description": "Lignite coal",
+    "fuel_derived_from": "coal",
+    "fuel_group_eia": "fossil",
+    "fuel_phase": "solid",
+    "fuel_type_code_pudl": "coal",
+    "fuel_units": "short_tons",
+    "label": "lignite",
+    "max_fuel_mmbtu_per_unit": 14.5,
+    "min_fuel_mmbtu_per_unit": 10.0
+   },
+   {
+    "code": "MSB",
+    "description": "Municipal solid waste (biogenic)",
+    "fuel_derived_from": "biomass",
+    "fuel_group_eia": "renewable",
+    "fuel_phase": "solid",
+    "fuel_type_code_pudl": "waste",
+    "fuel_units": "short_tons",
+    "label": "municipal_solid_waste_biogenic",
+    "max_fuel_mmbtu_per_unit": 12.0,
+    "min_fuel_mmbtu_per_unit": 9.0
+   },
+   {
+    "code": "MSN",
+    "description": "Municipal solid waste (non-biogenic)",
+    "fuel_derived_from": "petroleum",
+    "fuel_group_eia": "fossil",
+    "fuel_phase": "solid",
+    "fuel_type_code_pudl": "waste",
+    "fuel_units": "short_tons",
+    "label": "municipal_solid_nonbiogenic",
+    "max_fuel_mmbtu_per_unit": 12.0,
+    "min_fuel_mmbtu_per_unit": 9.0
+   },
+   {
+    "code": "MSW",
+    "description": "Municipal solid waste (all types)",
+    "fuel_derived_from": "biomass",
+    "fuel_group_eia": "renewable",
+    "fuel_phase": "solid",
+    "fuel_type_code_pudl": "waste",
+    "fuel_units": "short_tons",
+    "label": "municipal_solid_waste",
+    "max_fuel_mmbtu_per_unit": 12.0,
+    "min_fuel_mmbtu_per_unit": 9.0
+   },
+   {
+    "code": "MWH",
+    "description": "Electricity used for electricity storage",
+    "fuel_derived_from": "other",
+    "fuel_group_eia": "other",
+    "fuel_phase": null,
+    "fuel_type_code_pudl": "other",
+    "fuel_units": "mwh",
+    "label": "electricity_storage",
+    "max_fuel_mmbtu_per_unit": null,
+    "min_fuel_mmbtu_per_unit": null
+   },
+   {
+    "code": "NG",
+    "description": "Natural gas",
+    "fuel_derived_from": "gas",
+    "fuel_group_eia": "fossil",
+    "fuel_phase": "gas",
+    "fuel_type_code_pudl": "gas",
+    "fuel_units": "mcf",
+    "label": "natural_gas",
+    "max_fuel_mmbtu_per_unit": 1.1,
+    "min_fuel_mmbtu_per_unit": 0.8
+   },
+   {
+    "code": "NUC",
+    "description": "Nuclear, including uranium, plutonium, and thorium",
+    "fuel_derived_from": "other",
+    "fuel_group_eia": "other",
+    "fuel_phase": null,
+    "fuel_type_code_pudl": "nuclear",
+    "fuel_units": null,
+    "label": "nuclear",
+    "max_fuel_mmbtu_per_unit": null,
+    "min_fuel_mmbtu_per_unit": null
+   },
+   {
+    "code": "OBG",
+    "description": "Other biomass gas, including digester gas, methane, and other biomass gasses",
+    "fuel_derived_from": "biomass",
+    "fuel_group_eia": "renewable",
+    "fuel_phase": "gas",
+    "fuel_type_code_pudl": "waste",
+    "fuel_units": "mcf",
+    "label": "other_biomass_gas",
+    "max_fuel_mmbtu_per_unit": 1.6,
+    "min_fuel_mmbtu_per_unit": 0.36
+   },
+   {
+    "code": "OBL",
+    "description": "Other biomass liquids",
+    "fuel_derived_from": "biomass",
+    "fuel_group_eia": "renewable",
+    "fuel_phase": "liquid",
+    "fuel_type_code_pudl": "waste",
+    "fuel_units": "barrels",
+    "label": "other_biomass_liquid",
+    "max_fuel_mmbtu_per_unit": 4.0,
+    "min_fuel_mmbtu_per_unit": 3.5
+   },
+   {
+    "code": "OBS",
+    "description": "Other biomass solids",
+    "fuel_derived_from": "biomass",
+    "fuel_group_eia": "renewable",
+    "fuel_phase": "solid",
+    "fuel_type_code_pudl": "waste",
+    "fuel_units": "short_tons",
+    "label": "other_biomass_solid",
+    "max_fuel_mmbtu_per_unit": 25.0,
+    "min_fuel_mmbtu_per_unit": 8.0
+   },
+   {
+    "code": "OG",
+    "description": "Other gas",
+    "fuel_derived_from": "other",
+    "fuel_group_eia": "fossil",
+    "fuel_phase": "gas",
+    "fuel_type_code_pudl": "gas",
+    "fuel_units": "mcf",
+    "label": "other_gas",
+    "max_fuel_mmbtu_per_unit": 3.3,
+    "min_fuel_mmbtu_per_unit": 0.32
+   },
+   {
+    "code": "OTH",
+    "description": "Other",
+    "fuel_derived_from": "other",
+    "fuel_group_eia": "other",
+    "fuel_phase": null,
+    "fuel_type_code_pudl": "other",
+    "fuel_units": null,
+    "label": "other",
+    "max_fuel_mmbtu_per_unit": null,
+    "min_fuel_mmbtu_per_unit": null
+   },
+   {
+    "code": "PC",
+    "description": "Petroleum coke",
+    "fuel_derived_from": "petroleum",
+    "fuel_group_eia": "fossil",
+    "fuel_phase": "solid",
+    "fuel_type_code_pudl": "coal",
+    "fuel_units": "short_tons",
+    "label": "petroleum_coke",
+    "max_fuel_mmbtu_per_unit": 30.0,
+    "min_fuel_mmbtu_per_unit": 24.0
+   },
+   {
+    "code": "PG",
+    "description": "Gaseous propane",
+    "fuel_derived_from": "petroleum",
+    "fuel_group_eia": "fossil",
+    "fuel_phase": "gas",
+    "fuel_type_code_pudl": "gas",
+    "fuel_units": "mcf",
+    "label": "propane_gas",
+    "max_fuel_mmbtu_per_unit": 2.75,
+    "min_fuel_mmbtu_per_unit": 2.5
+   },
+   {
+    "code": "PUR",
+    "description": "Purchased steam",
+    "fuel_derived_from": "other",
+    "fuel_group_eia": "other",
+    "fuel_phase": null,
+    "fuel_type_code_pudl": "other",
+    "fuel_units": null,
+    "label": "purchased_steam",
+    "max_fuel_mmbtu_per_unit": null,
+    "min_fuel_mmbtu_per_unit": null
+   },
+   {
+    "code": "RC",
+    "description": "Refined coal",
+    "fuel_derived_from": "coal",
+    "fuel_group_eia": "fossil",
+    "fuel_phase": "solid",
+    "fuel_type_code_pudl": "coal",
+    "fuel_units": "short_tons",
+    "label": "refined_coal",
+    "max_fuel_mmbtu_per_unit": 29.0,
+    "min_fuel_mmbtu_per_unit": 20.0
+   },
+   {
+    "code": "RFO",
+    "description": "Residual fuel oil, including Nos. 5 & 6 fuel oils and bunker C fuel oil",
+    "fuel_derived_from": "petroleum",
+    "fuel_group_eia": "fossil",
+    "fuel_phase": "liquid",
+    "fuel_type_code_pudl": "oil",
+    "fuel_units": "barrels",
+    "label": "residual_fuel_oil",
+    "max_fuel_mmbtu_per_unit": 6.9,
+    "min_fuel_mmbtu_per_unit": 5.7
+   },
+   {
+    "code": "SC",
+    "description": "Coal synfuel. Coal-based solid fuel that has been processed by a coal synfuel plant, and coal-based fuels such as briquettes, pellets, or extrusions, which are formed from fresh or recycled coal and binding materials.",
+    "fuel_derived_from": "coal",
+    "fuel_group_eia": "fossil",
+    "fuel_phase": "solid",
+    "fuel_type_code_pudl": "coal",
+    "fuel_units": "short_tons",
+    "label": "coal_synfuel",
+    "max_fuel_mmbtu_per_unit": null,
+    "min_fuel_mmbtu_per_unit": null
+   },
+   {
+    "code": "SG",
+    "description": "Synthetic gas, other than coal-derived",
+    "fuel_derived_from": "other",
+    "fuel_group_eia": "fossil",
+    "fuel_phase": "gas",
+    "fuel_type_code_pudl": "gas",
+    "fuel_units": "mcf",
+    "label": "syngas_other",
+    "max_fuel_mmbtu_per_unit": null,
+    "min_fuel_mmbtu_per_unit": null
+   },
+   {
+    "code": "SGC",
+    "description": "Coal-derived synthesis gas",
+    "fuel_derived_from": "coal",
+    "fuel_group_eia": "fossil",
+    "fuel_phase": "gas",
+    "fuel_type_code_pudl": "gas",
+    "fuel_units": "mcf",
+    "label": "syngas_coal",
+    "max_fuel_mmbtu_per_unit": 0.3,
+    "min_fuel_mmbtu_per_unit": 0.2
+   },
+   {
+    "code": "SGP",
+    "description": "Synthesis gas from petroleum coke",
+    "fuel_derived_from": "petroleum",
+    "fuel_group_eia": "fossil",
+    "fuel_phase": "gas",
+    "fuel_type_code_pudl": "gas",
+    "fuel_units": "mcf",
+    "label": "syngas_petroleum_coke",
+    "max_fuel_mmbtu_per_unit": 1.1,
+    "min_fuel_mmbtu_per_unit": 0.2
+   },
+   {
+    "code": "SLW",
+    "description": "Sludge waste",
+    "fuel_derived_from": "biomass",
+    "fuel_group_eia": "renewable",
+    "fuel_phase": "liquid",
+    "fuel_type_code_pudl": "waste",
+    "fuel_units": "short_tons",
+    "label": "sludge_waste",
+    "max_fuel_mmbtu_per_unit": 16.0,
+    "min_fuel_mmbtu_per_unit": 10.0
+   },
+   {
+    "code": "SUB",
+    "description": "Sub-bituminous coal",
+    "fuel_derived_from": "coal",
+    "fuel_group_eia": "fossil",
+    "fuel_phase": "solid",
+    "fuel_type_code_pudl": "coal",
+    "fuel_units": "short_tons",
+    "label": "subbituminous_coal",
+    "max_fuel_mmbtu_per_unit": 20.0,
+    "min_fuel_mmbtu_per_unit": 15.0
+   },
+   {
+    "code": "SUN",
+    "description": "Solar",
+    "fuel_derived_from": "other",
+    "fuel_group_eia": "renewable",
+    "fuel_phase": null,
+    "fuel_type_code_pudl": "solar",
+    "fuel_units": null,
+    "label": "solar",
+    "max_fuel_mmbtu_per_unit": null,
+    "min_fuel_mmbtu_per_unit": null
+   },
+   {
+    "code": "TDF",
+    "description": "Tire-derived fuels",
+    "fuel_derived_from": "other",
+    "fuel_group_eia": "other",
+    "fuel_phase": "solid",
+    "fuel_type_code_pudl": "waste",
+    "fuel_units": "short_tons",
+    "label": "tire_derived_fuels",
+    "max_fuel_mmbtu_per_unit": 32.0,
+    "min_fuel_mmbtu_per_unit": 16.0
+   },
+   {
+    "code": "WAT",
+    "description": "Water at a conventional hydroelectric turbine, and water used in wave buoy hydrokinetic technology, current hydrokinetic technology, and tidal hydrokinetic technology, or pumping energy for reversible (pumped storage) hydroelectric turbine",
+    "fuel_derived_from": "other",
+    "fuel_group_eia": "renewable",
+    "fuel_phase": null,
+    "fuel_type_code_pudl": "hydro",
+    "fuel_units": null,
+    "label": "water",
+    "max_fuel_mmbtu_per_unit": null,
+    "min_fuel_mmbtu_per_unit": null
+   },
+   {
+    "code": "WC",
+    "description": "Waste/Other coal, including anthracite culm, bituminous gob, fine coal, lignite waste, waste coal.",
+    "fuel_derived_from": "coal",
+    "fuel_group_eia": "fossil",
+    "fuel_phase": "solid",
+    "fuel_type_code_pudl": "coal",
+    "fuel_units": "short_tons",
+    "label": "waste_coal",
+    "max_fuel_mmbtu_per_unit": 16.0,
+    "min_fuel_mmbtu_per_unit": 6.5
+   },
+   {
+    "code": "WDL",
+    "description": "Wood waste liquids excluding black liquor, including red liquor, sludge wood, spent sulfite liquor, and other wood-based liquids",
+    "fuel_derived_from": "biomass",
+    "fuel_group_eia": "renewable",
+    "fuel_phase": "liquid",
+    "fuel_type_code_pudl": "waste",
+    "fuel_units": "barrels",
+    "label": "wood_liquids",
+    "max_fuel_mmbtu_per_unit": 14.0,
+    "min_fuel_mmbtu_per_unit": 8.0
+   },
+   {
+    "code": "WDS",
+    "description": "Wood/Wood waste solids, including paper pellets, railroad ties, utility poles, wood chips, park, and wood waste solids",
+    "fuel_derived_from": "biomass",
+    "fuel_group_eia": "renewable",
+    "fuel_phase": "solid",
+    "fuel_type_code_pudl": "waste",
+    "fuel_units": "short_tons",
+    "label": "wood_solids",
+    "max_fuel_mmbtu_per_unit": 18.0,
+    "min_fuel_mmbtu_per_unit": 7.0
+   },
+   {
+    "code": "WH",
+    "description": "Waste heat not directly attributed to a fuel source. WH should only be reported when the fuel source is undetermined, and for combined cycle steam turbines that do not have supplemental firing.",
+    "fuel_derived_from": "other",
+    "fuel_group_eia": "other",
+    "fuel_phase": null,
+    "fuel_type_code_pudl": "other",
+    "fuel_units": null,
+    "label": "waste_heat",
+    "max_fuel_mmbtu_per_unit": null,
+    "min_fuel_mmbtu_per_unit": null
+   },
+   {
+    "code": "WND",
+    "description": "Wind",
+    "fuel_derived_from": "other",
+    "fuel_group_eia": "renewable",
+    "fuel_phase": null,
+    "fuel_type_code_pudl": "wind",
+    "fuel_units": null,
+    "label": "wind",
+    "max_fuel_mmbtu_per_unit": null,
+    "min_fuel_mmbtu_per_unit": null
+   },
+   {
+    "code": "WO",
+    "description": "Waste/Other oil, including crude oil, liquid butane, liquid propane, naptha, oil waste, re-refined motor oil, sludge oil, tar oil, or other petroleum-based liquid wastes",
+    "fuel_derived_from": "petroleum",
+    "fuel_group_eia": "fossil",
+    "fuel_phase": "liquid",
+    "fuel_type_code_pudl": "oil",
+    "fuel_units": "barrels",
+    "label": "waste_oil",
+    "max_fuel_mmbtu_per_unit": 5.8,
+    "min_fuel_mmbtu_per_unit": 3.0
+   }
+  ]
+ },
+ "core_eia__codes_entity_types": {
+  "code_fixes": {
+   "Behind the Meter": "B",
+   "Community Choice Aggregator": "G",
+   "Cooperative": "C",
+   "Facility": "Q",
+   "Federal": "F",
+   "Investor Owned": "I",
+   "Municipal": "M",
+   "Political Subdivision": "P",
+   "Power Marketer": "PO",
+   "Retail Power Marketer": "R",
+   "State": "S",
+   "Unregulated": "Q",
+   "Wholesale Power Marketer": "W"
+  },
+  "ignored_codes": [],
+  "rows": [
+   {
+    "code": "A",
+    "description": "Municipal Marketing Authority. Voted into existence by the residents of a municipality and given authority for creation by the state government. They are nonprofit organizations",
+    "label": "municipal_marketing_authority"
+   },
+   {
+    "code": "B",
+    "description": "Behind the Meter. Entities that install, own, and/or operate a system (usually photovoltaic), and sell, under a long term power purchase agreement (PPA) or lease, all the production from the system to the homeowner or business with which there is a net metering agreement. Third Party Owners (TPOs) of PV solar installations use this ownership code.",
+    "label": "behind_the_meter"
+   },
+   {
+    "code": "C",
+    "description": "Cooperative. Member-owned organizations.",
+    "label": "cooperative"
+   },
+   {
+    "code": "COM",
+    "description": "Commercial facility.",
+    "label": "commercial"
+   },
+   {
+    "code": "D",
+    "description": "Non-utility DSM Administrator. Only involved with Demand-Side Management activities.",
+    "label": "nonutility_dsm_administrator"
+   },
+   {
+    "code": "F",
+    "description": "Federal. Government agencies with the authority to deliver energy to end-use customers.",
+    "label": "federal"
+   },
+   {
+    "code": "G",
+    "description": "Community Choice Aggregator.",
+    "label": "community_choice_aggregator"
+   },
+   {
+    "code": "I",
+    "description": "Investor-owned Utilities. Entities that are privately owned and provide a public service.",
+    "label": "investor_owned"
+   },
+   {
+    "code": "IND",
+    "description": "Industrial facility.",
+    "label": "industrial"
+   },
+   {
+    "code": "M",
+    "description": "Municipal: Entities that are organized under authority of state statute to provide a public service to residents of that area.",
+    "label": "municipal"
+   },
+   {
+    "code": "O",
+    "description": "Other entity type.",
+    "label": "other"
+   },
+   {
+    "code": "P",
+    "description": "Political Subdivision. (also called \"public utility district\"): Independent of city or county government and voted into existence by a majority of the residents of any given area for the specific purpose of providing utility service to the voters. State laws provide for the formation of such districts.",
+    "label": "political_subdivision"
+   },
+   {
+    "code": "PO",
+    "description": "Power marketer.",
+    "label": "power_marketer"
+   },
+   {
+    "code": "PR",
+    "description": "Private entity.",
+    "label": "private"
+   },
+   {
+    "code": "Q",
+    "description": "Independent Power Producer or Qualifying Facility. Entities that own power plants and sell their power into the wholesale market.",
+    "label": "independent_power_producer"
+   },
+   {
+    "code": "R",
+    "description": "Retail Power Marketer or Energy Service Provider: Entities that market power to customers in restructured markets.",
+    "label": "retail_power_marketer"
+   },
+   {
+    "code": "S",
+    "description": "State entities that own or operate facilities or provide a public service.",
+    "label": "state"
+   },
+   {
+    "code": "T",
+    "description": "Transmission: Entities that operate or own high voltage transmission wires that provide bulk power services.",
+    "label": "transmission"
+   },
+   {
+    "code": "U",
+    "description": "Unknown entity type.",
+    "label": "unknown"
+   },
+   {
+    "code": "W",
+    "description": "Wholesale Power Marketer: Entities that buy and sell power in the wholesale market.",
+    "label": "wholesale_power_marketer"
+   }
+  ]
+ },
+ "core_eia__codes_fuel_transportation_modes": {
+  "code_fixes": {
+   "CV": "TC",
+   "RT": "TR",
+   "TK": "TR",
+   "WA": "WT",
+   "cv": "TC",
+   "pl": "PL",
+   "rr": "RR",
+   "rv": "RV",
+   "tk": "TR",
+   "tr": "TR",
+   "wa": "WT"
+  },
+  "ignored_codes": [
+   "UN"
+  ],
+  "rows": [
+   {
+    "code": "GL",
+    "description": "Shipments of coal moved to consumers via the Great Lakes. These shipments are moved via the Great Lakes coal loading docks.",
+    "label": "great_lakes"
+   },
+   {
+    "code": "OP",
+    "description": "Fuel is produced on-site, making fuel shipment unnecessary.",
+    "label": "onsite_production"
+   },
+   {
+    "code": "RR",
+    "description": "Shipments of fuel moved to consumers by rail (private or public/commercial). Included is coal hauled to or away from a railroad siding by truck if the truck did not use public roads.",
+    "label": "rail"
+   },
+   {
+    "code": "RV",
+    "description": "Shipments of fuel moved to consumers via river by barge.  Not included are shipments to Great Lakes coal loading docks, tidewater piers, or coastal ports.",
+    "label": "river"
+   },
+   {
+    "code": "PL",
+    "description": "Shipments of fuel moved to consumers by pipeline",
+    "label": "pipeline"
+   },
+   {
+    "code": "SP",
+    "description": "Shipments of coal moved to consumers by slurry pipeline.",
+    "label": "slurry_pipeline"
+   },
+   {
+    "code": "TC",
+    "description": "Shipments of fuel moved to consumers by tramway or conveyor.",
+    "label": "tramway_conveyor"
+   },
+   {
+    "code": "TP",
+    "description": "Shipments of coal moved to Tidewater Piers and Coastal Ports for further shipments to consumers via coastal water or ocean.",
+    "label": "tidewater_port"
+   },
+   {
+    "code": "TR",
+    "description": "Shipments of fuel moved to consumers by truck.  Not included is fuel hauled to or away from a railroad siding by truck on non-public roads.",
+    "label": "truck"
+   },
+   {
+    "code": "WT",
+    "description": "Shipments of fuel moved to consumers by other waterways.",
+    "label": "other_waterway"
+   }
+  ]
+ },
+ "core_eia__codes_fuel_types_agg": {
+  "code_fixes": {},
+  "ignored_codes": [],
+  "rows": [
+   {
+    "code": "SUN",
+    "description": "Solar PV and thermal"
+   },
+   {
+    "code": "COL",
+    "description": "Coal"
+   },
+   {
+    "code": "DFO",
+    "description": "Distillate Petroleum"
+   },
+   {
+    "code": "GEO",
+    "description": "Geothermal"
+   },
+   {
+    "code": "HPS",
+    "description": "Hydroelectric Pumped Storage"
+   },
+   {
+    "code": "HYC",
+    "description": "Hydroelectric Conventional"
+   },
+   {
+    "code": "MLG",
+    "description": "Biogenic Municipal Solid Waste and Landfill Gas"
+   },
+   {
+    "code": "NG",
+    "description": "Natural Gas"
+   },
+   {
+    "code": "NUC",
+    "description": "Nuclear"
+   },
+   {
+    "code": "OOG",
+    "description": "Other Gases"
+   },
+   {
+    "code": "ORW",
+    "description": "Other Renewables"
+   },
+   {
+    "code": "OTH",
+    "description": "Other (including Nonbiogenic Municipal Solid Waste)"
+   },
+   {
+    "code": "PC",
+    "description": "Petroleum Coke"
+   },
+   {
+    "code": "RFO",
+    "description": "Residual Petroleum"
+   },
+   {
+    "code": "WND",
+    "description": "Wind"
+   },
+   {
+    "code": "WOC",
+    "description": "Waste Coal"
+   },
+   {
+    "code": "WOO",
+    "description": "Waste Oil"
+   },
+   {
+    "code": "WWW",
+    "description": "Wood and Wood Waste"
+   }
+  ]
+ },
+ "core_eia__codes_operational_status": {
+  "code_fixes": {
+   "(L) Regulatory approvals pending. Not under construction": "L",
+   "(OA) Out of service but expected to return to service in next calendar year": "OA",
+   "(OP) Operating": "OP",
+   "(OS) Out of service and NOT expected to return to service in next calendar year": "OS",
+   "(OT) Other": "OT",
+   "(P) Planned for installation, but regulatory approvals not initiated": "P",
+   "(SB) Standby/Backup: available for service but not normally used": "SB",
+   "(T) Regulatory approvals received. Not under construction": "T",
+   "(TS) Construction complete, but not yet in commercial operation": "TS",
+   "(U) Under construction, less than or equal to 50 percent complete": "U",
+   "(V) Under construction, more than 50 percent complete": "V",
+   "BU": "SB"
+  },
+  "ignored_codes": [
+   "CS"
+  ],
+  "rows": [
+   {
+    "code": "CN",
+    "description": "Cancelled, but previously reported as 'planned'",
+    "label": "cancelled",
+    "operational_status": "proposed"
+   },
+   {
+    "code": "CO",
+    "description": "New unit under construction.",
+    "label": "under_construction",
+    "operational_status": "proposed"
+   },
+   {
+    "code": "IP",
+    "description": "Planned new indefinitely postponed, or no longer in resource plan",
+    "label": "indefinitely_postponed",
+    "operational_status": "proposed"
+   },
+   {
+    "code": "L",
+    "description": "Not under construction but site preparation could be underway",
+    "label": "planned_approvals_pending",
+    "operational_status": "proposed"
+   },
+   {
+    "code": "OA",
+    "description": "Was not used for some or all of the reporting period but is expected to be returned to service in the next calendar year.",
+    "label": "out_of_service_short_term",
+    "operational_status": "existing"
+   },
+   {
+    "code": "OP",
+    "description": "Operating (in commercial service or out of service within 365 days). For generators, this means in service (commercial operation) and producing some electricity. Includes peaking units that are run on an as needed (intermittent or seasonal) basis.",
+    "label": "operating",
+    "operational_status": "existing"
+   },
+   {
+    "code": "OS",
+    "description": "Was not used for some or all of the reporting period and is NOT expected to be returned to service in the next calendar year.",
+    "label": "out_of_service_long_term",
+    "operational_status": "existing"
+   },
+   {
+    "code": "OT",
+    "description": "proposed",
+    "label": "other",
+    "operational_status": "proposed"
+   },
+   {
+    "code": "OZ",
+    "description": "Operated only during the ozone season (May through September). Only used for emissions equipment.",
+    "label": "operate_during_ozone_season",
+    "operational_status": "existing"
+   },
+   {
+    "code": "P",
+    "description": "Planned for installation but regulatory approvals not initiated; Not under construction",
+    "label": "planned_approvals_not_initiated",
+    "operational_status": "proposed"
+   },
+   {
+    "code": "PL",
+    "description": "Planned (expected to go into commercial service within 10 years)",
+    "label": "planned",
+    "operational_status": "proposed"
+   },
+   {
+    "code": "RE",
+    "description": "No longer in service and not expected to be returned to service.",
+    "label": "retired",
+    "operational_status": "retired"
+   },
+   {
+    "code": "SB",
+    "description": "Standby/Backup. Available for service but not normally used (has little or no generation during the year) for this reporting period. Includes old code BU from 2004-2006.",
+    "label": "standby",
+    "operational_status": "existing"
+   },
+   {
+    "code": "SC",
+    "description": "Cold Standby (Reserve); deactivated. Usually requires 3 to 6 months to reactivate",
+    "label": "standby_col",
+    "operational_status": "existing"
+   },
+   {
+    "code": "T",
+    "description": "Regulatory approvals received. Not under construction but site preparation could be underway",
+    "label": "planned_approvals_received",
+    "operational_status": "proposed"
+   },
+   {
+    "code": "TS",
+    "description": "Construction complete, but not yet in commercial operation (including low power testing of nuclear units). Operating under test conditions.",
+    "label": "construction_complete",
+    "operational_status": "proposed"
+   },
+   {
+    "code": "U",
+    "description": "Under construction, less than or equal to 50 percent complete (based on construction time to date of operation)",
+    "label": "under_construction_less_than_half_complete",
+    "operational_status": "proposed"
+   },
+   {
+    "code": "V",
+    "description": "Under construction, more than 50 percent complete (based on construction time to date of operation)",
+    "label": "under_construction_more_than_half_complete",
+    "operational_status": "proposed"
+   }
+  ]
+ },
+ "core_eia__codes_prime_movers": {
+  "code_fixes": {
+   "WY": "WT",
+   "ic": "IC"
+  },
+  "ignored_codes": [],
+  "rows": [
+   {
+    "code": "BA",
+    "description": "Energy Storage, Battery",
+    "label": "battery_storage"
+   },
+   {
+    "code": "BT",
+    "description": "Turbines Used in a Binary Cycle. Including those used for geothermal applications",
+    "label": "binary_cycle_turbine"
+   },
+   {
+    "code": "CA",
+    "description": "Combined-Cycle, Steam Turbine Part",
+    "label": "combined_cycle_steam_turbine"
+   },
+   {
+    "code": "CC",
+    "description": "Combined-Cycle, Total Unit",
+    "label": "combined_cycle_total"
+   },
+   {
+    "code": "CE",
+    "description": "Energy Storage, Compressed Air",
+    "label": "compressed_air_storage"
+   },
+   {
+    "code": "CP",
+    "description": "Energy Storage, Concentrated Solar Power",
+    "label": "concentrated_solar_storage"
+   },
+   {
+    "code": "CS",
+    "description": "Combined-Cycle Single-Shaft Combustion Turbine and Steam Turbine share of single",
+    "label": "combined_cycle_single_shaft"
+   },
+   {
+    "code": "CT",
+    "description": "Combined-Cycle Combustion Turbine Part",
+    "label": "combined_cycle_combustion_turbine"
+   },
+   {
+    "code": "ES",
+    "description": "Energy Storage, Other (Specify on Schedule 9, Comments)",
+    "label": "other_storage"
+   },
+   {
+    "code": "FC",
+    "description": "Fuel Cell",
+    "label": "fuel_cell"
+   },
+   {
+    "code": "FW",
+    "description": "Energy Storage, Flywheel",
+    "label": "flywheel_storage"
+   },
+   {
+    "code": "GT",
+    "description": "Combustion (Gas) Turbine. Including Jet Engine design",
+    "label": "gas_combustion_turbine"
+   },
+   {
+    "code": "HA",
+    "description": "Hydrokinetic, Axial Flow Turbine",
+    "label": "hydrokinetic_axial_flow"
+   },
+   {
+    "code": "HB",
+    "description": "Hydrokinetic, Wave Buoy",
+    "label": "hydrokinetic_wave_buoy"
+   },
+   {
+    "code": "HK",
+    "description": "Hydrokinetic, Other",
+    "label": "hydrokinetic_other"
+   },
+   {
+    "code": "HY",
+    "description": "Hydraulic Turbine. Including turbines associated with delivery of water by pipeline.",
+    "label": "hydraulic_turbine"
+   },
+   {
+    "code": "IC",
+    "description": "Internal Combustion (diesel, piston, reciprocating) Engine",
+    "label": "internal_combustion"
+   },
+   {
+    "code": "OT",
+    "description": "Other",
+    "label": "other"
+   },
+   {
+    "code": "PS",
+    "description": "Energy Storage, Reversible Hydraulic Turbine (Pumped Storage)",
+    "label": "pumped_storage"
+   },
+   {
+    "code": "PV",
+    "description": "Solar Photovoltaic",
+    "label": "solar_pv"
+   },
+   {
+    "code": "ST",
+    "description": "Steam Turbine. Including Nuclear, Geothermal, and Solar Steam (does not include Combined Cycle).",
+    "label": "steam_turbine"
+   },
+   {
+    "code": "UNK",
+    "description": "Unknown prime mover.",
+    "label": "unknown"
+   },
+   {
+    "code": "WS",
+    "description": "Wind Turbine, Offshore",
+    "label": "wind_offshore"
+   },
+   {
+    "code": "WT",
+    "description": "Wind Turbine, Onshore",
+    "label": "wind_onshore"
+   }
+  ]
+ },
+ "core_eia__codes_regulations": {
+  "code_fixes": {
+   "St": "ST"
+  },
+  "ignored_codes": [
+   "NA",
+   "XX"
+  ],
+  "rows": [
+   {
+    "code": "FD",
+    "description": "The most stringent applicable statute or regulation determining the pollutant's control standards for this boiler is federal.",
+    "label": "federal"
+   },
+   {
+    "code": "ST",
+    "description": "The most stringent applicable statute or regulation determining the pollutant's control standards for this boiler is state-level.",
+    "label": "state"
+   },
+   {
+    "code": "LO",
+    "description": "The most stringent applicable statute or regulation determining the pollutant's control standards for this boiler is local.",
+    "label": "local"
+   }
+  ]
+ },
+ "core_eia__codes_reporting_frequencies": {
+  "code_fixes": {},
+  "ignored_codes": [],
+  "rows": [
+   {
+    "code": "A",
+    "description": "The respondent only provides an annual total(s) for this record via the EIA-923 annual survey form.  Any monthly data in this record is estimated based on the respondent's reported annual total(s) and power plants with similar characteristics to this plant.",
+    "label": "annual"
+   },
+   {
+    "code": "M",
+    "description": "The respondent provides monthly values for this record and does so via the EIA-923 monthly survey form.",
+    "label": "monthly"
+   },
+   {
+    "code": "AM",
+    "description": "The respondent provides monthly values for this record, but does so once per year via the EIA-923 annual survey form.",
+    "label": "monthly_annual"
+   }
+  ]
+ },
+ "core_eia__codes_sector_consolidated": {
+  "code_fixes": {},
+  "ignored_codes": [],
+  "rows": [
+   {
+    "code": 1,
+    "description": "Traditional regulated electric utilities.",
+    "label": "electric_utility"
+   },
+   {
+    "code": 2,
+    "description": "Independent power producers which are not cogenerators.",
+    "label": "ipp_non_cogen"
+   },
+   {
+    "code": 3,
+    "description": "Independent power producers which are cogenerators, but whose primary business purpose is the same of electricity to the public.",
+    "label": "ipp_cogen"
+   },
+   {
+    "code": 4,
+    "description": "Commercial non-cogeneration facilities that produce electric power, are connected to the grid, and can sell power to the public.",
+    "label": "commercial_non_cogen"
+   },
+   {
+    "code": 5,
+    "description": "Commercial cogeneration facilities that produce electric power, are connected to the grid, and can sell power to the public.",
+    "label": "commercial_cogen"
+   },
+   {
+    "code": 6,
+    "description": "Industrial non-cogeneration facilities that produce electric power, are connected to the grid, and can sell power to the public.",
+    "label": "industrial_non_cogen"
+   },
+   {
+    "code": 7,
+    "description": "Industrial cogeneration facilities that produce electric power, are connected to the grid, and can sell power to the public",
+    "label": "industrial_cogen"
+   }
+  ]
+ },
+ "core_eia__codes_steam_plant_types": {
+  "code_fixes": {},
+  "ignored_codes": [],
+  "rows": [
+   {
+    "code": 1,
+    "description": "Plants with combustible-fueled steam-electric generators with a sum of 100 MW or more steam-electric nameplate capacity (including combined cycle steam-electric generators with duct firing).",
+    "label": "steam_over_100mw"
+   },
+   {
+    "code": 2,
+    "description": "Plants with combustible-fueled steam-electric generators with a sum of 10 MW or more but less than 100 MW steam-electric nameplate capacity (including combined cycle steam-electric generators with duct firing).",
+    "label": "steam_between_10mw_and_100mw"
+   },
+   {
+    "code": 3,
+    "description": "Plants with nuclear fueled generators, combined cycle steam-electric generators without duct firing and solar thermal electric generators using a steam cycle with a sum of 100 MW or more steam-electric nameplate capacity.",
+    "label": "nuclear_over_100mw"
+   },
+   {
+    "code": 4,
+    "description": "Plants with non-steam fueled electric generators (wind, PV, geothermal, fuel cell, combustion turbines, IC engines, etc.) and electric generators not meeting conditions of categories above.",
+    "label": "non_steam"
+   }
+  ]
+ }
+}

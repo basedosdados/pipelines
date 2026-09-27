@@ -1,0 +1,4 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_municipio,STRING,"Clave geoestadística del municipio según INEGI, de cinco dígitos",,no,,,no,"Llave primaria. Concatena la clave de entidad (2) y la clave de municipio (3). Catálogo íntegro del INEGI; los códigos agregados no georreferenciados del SESNSP (municipio 998/999) se excluyen de las pruebas de integridad referencial, no se agregan aquí",cvegeo
+id_estado,STRING,Clave de la entidad federativa a la que pertenece el municipio,,no,br_bd_diretorios_mx.estado:id_estado,,no,,cve_ent
+nombre,STRING,Nombre del municipio,,no,,,no,,nomgeo

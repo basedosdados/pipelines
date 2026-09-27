@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano de referência da observação,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de particionamento; derivada de date,
+date,DATE,Data da observação,,no,,,no,"Convenção de datação do próprio RBA: fim do período para séries mensais, trimestrais e semestrais; data exata para séries diárias",Data
+table_id,STRING,"Código da tabela estatística do RBA à qual a série pertence (ex.: F1, D3, B13.1)",,no,,,no,Parte da chave: o mnemônico series_id não é único entre tabelas — 228 mnemônicos aparecem em B13.1.2 e B13.2.1 com valores distintos,Derivada do cabeçalho do arquivo CSV
+series_id,STRING,Mnemônico da série atribuído pelo RBA,,no,,,no,Referencia a tabela series (catálogo de metadados) via teste de relacionamento no dbt; único apenas em conjunto com table_id,Series ID
+value,FLOAT64,Valor observado da série,,no,,,no,A unidade depende da série; ver a coluna units na tabela series,

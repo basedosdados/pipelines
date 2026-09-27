@@ -1,5 +1,12 @@
 """
 Flows for br_me_rais — Prefect 3.
+
+Each run processes a single year, passed in `year`. These flows have no source
+poll guard, so `force_run` is accepted for signature compatibility and never
+read — nothing gates the download.
+
+RAIS is fully open data: both tables register an `AllFree` coverage, with no BD
+Pro window and no row access policies.
 """
 
 from pipelines.crawler.me_rais.flows import _run_rais
@@ -15,7 +22,6 @@ def br_me_rais__microdados_estabelecimentos(
     table_id: str = "microdados_estabelecimentos",
     year: int = 2023,
     materialize_after_dump: bool = False,
-    dbt_alias: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
@@ -25,7 +31,6 @@ def br_me_rais__microdados_estabelecimentos(
         table_id=table_id,
         year=year,
         materialize_after_dump=materialize_after_dump,
-        dbt_alias=dbt_alias,
         update_metadata=update_metadata,
         target=target,
         force_run=force_run,
@@ -42,7 +47,6 @@ def br_me_rais__microdados_vinculos(
     table_id: str = "microdados_vinculos",
     year: int = 2023,
     materialize_after_dump: bool = False,
-    dbt_alias: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
@@ -52,7 +56,6 @@ def br_me_rais__microdados_vinculos(
         table_id=table_id,
         year=year,
         materialize_after_dump=materialize_after_dump,
-        dbt_alias=dbt_alias,
         update_metadata=update_metadata,
         target=target,
         force_run=force_run,

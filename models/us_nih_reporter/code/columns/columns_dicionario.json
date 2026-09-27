@@ -1,0 +1,50 @@
+[
+ {
+  "name": "id_tabela",
+  "bigquery_type": "STRING",
+  "description_pt": "Nome da tabela a que a coluna codificada pertence",
+  "description_en": "Name of the table the coded column belongs to",
+  "description_es": "Nombre de la tabla a la que pertenece la columna codificada",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false
+ },
+ {
+  "name": "nome_coluna",
+  "bigquery_type": "STRING",
+  "description_pt": "Nome da coluna codificada",
+  "description_en": "Name of the coded column",
+  "description_es": "Nombre de la columna codificada",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false
+ },
+ {
+  "name": "chave",
+  "bigquery_type": "STRING",
+  "description_pt": "Valor armazenado na coluna",
+  "description_en": "Value stored in the column",
+  "description_es": "Valor almacenado en la columna",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false
+ },
+ {
+  "name": "cobertura_temporal",
+  "bigquery_type": "STRING",
+  "description_pt": "Anos fiscais em que o valor aparece, na notação início(intervalo)fim",
+  "description_en": "Fiscal years in which the value appears, in start(interval)end notation",
+  "description_es": "Años fiscales en que aparece el valor, en la notación inicio(intervalo)fin",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false
+ },
+ {
+  "name": "valor",
+  "bigquery_type": "STRING",
+  "description_pt": "Significado do valor armazenado",
+  "description_en": "Meaning of the stored value",
+  "description_es": "Significado del valor almacenado",
+  "covered_by_dictionary": false,
+  "has_sensitive_data": false,
+  "observations_pt": "Vazio quando a fonte não publica rótulo para o código, o que ocorre nos códigos de atividade de contratos, de projetos intramuros e de agências que não o NIH.",
+  "observations_en": "Blank when the source publishes no label for the code, which happens for the activity codes of contracts, intramural projects and agencies other than NIH.",
+  "observations_es": "Vacío cuando la fuente no publica etiqueta para el código, lo que ocurre en los códigos de actividad de contratos, de proyectos intramuros y de agencias distintas del NIH."
+ }
+]

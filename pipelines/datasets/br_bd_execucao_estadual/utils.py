@@ -1,0 +1,249 @@
+"""Download and clean helpers for br_bd_execucao_estadual.
+
+The download and clean logic is NOT reimplemented here. It lives in
+``models/br_bd_execucao_estadual/code`` and is imported from there, the same way
+``br_me_siconfi`` reuses its bootstrap. That code carries a lot of hard-won detail --
+Bahia's malformed-CSV repair, Pernambuco's three schema eras and two number formats,
+São Paulo's cp1252 and its per-file TOTALS row, Minas Gerais' glob collision -- and a
+second copy would drift from it silently. This module only decides WHAT to refresh and
+where to put it.
+
+The scratch directory is handed in per run through ``EXEC_ESTADUAL_DATA_DIR``, so a
+worker never writes to ``~/Downloads`` and a retry cannot inherit a half-written file.
+It is also empty at the start of every run, which is why "refresh only the open
+exercise" is expressed as an argument to the downloader and never as disk state.
+"""
+
+from __future__ import annotations
+
+import os
+import shutil
+import sys
+from pathlib import Path
+
+from pipelines.datasets.br_bd_execucao_estadual.constants import constants
+
+CODE_DIR = constants.CODE_DIR.value
+
+
+def _ensure_code_on_path(work_dir: str) -> None:
+    """Point the reused code at this run's scratch dir and put it on sys.path.
+
+    The env var has to be set BEFORE ``constants`` is first imported, because
+    ``DATA_DIR`` is read at import time. Later imports get the cached module, which is
+    fine: every flow run is a fresh process.
+    """
+    os.environ["EXEC_ESTADUAL_DATA_DIR"] = work_dir
+    if CODE_DIR not in sys.path:
+        sys.path.insert(0, CODE_DIR)
+
+
+def input_dir(work_dir: str, state: str) -> Path:
+    return Path(work_dir) / "input" / state.lower()
+
+
+def output_dir(work_dir: str, table: str) -> Path:
+    return Path(work_dir) / "output" / table
+
+
+def _years(year: int, full: bool) -> set[int] | None:
+    """Which exercises to fetch: the open ones, or all of them.
+
+    None means "every year", which is what a full refresh wants.
+
+    TWO years, not one. A Brazilian exercise stays open well into the following
+    calendar year -- restos a pagar are settled, empenhos are adjusted, and the state
+    reissues the whole file. Pernambuco demonstrated this while the pipeline was being
+    tested: on 2026-08-31 it withdrew its 2026 despesas resource entirely and
+    re-uploaded `despesas_detalhadas_2025_20251231.csv` the same afternoon. A refresh
+    scoped to the calendar year alone would have looked for 2026, found nothing, and
+    never picked up the 2025 revision -- correct-looking, quiet, and wrong.
+
+    This is passed DOWN to the downloader rather than implemented by deleting files
+    here, and the distinction is the whole point. Every flow run gets a fresh
+    ``mkdtemp``, so there is never anything on disk to delete and never anything for
+    the downloaders' skip-if-present check to skip: an "incremental" run that relied on
+    disk state would quietly re-fetch all 9.2 GB of Minas Gerais and Pernambuco every
+    single day, succeed, and report perfectly plausible row counts.
+    """
+    return None if full else {year, year - 1}
+
+
+def refresh_mg(work_dir: str, year: int, full: bool) -> None:
+    _ensure_code_on_path(work_dir)
+    # pyrefly: ignore [missing-import]
+    import clean_mg
+
+    # pyrefly: ignore [missing-import]
+    import download_mg
+
+    download_mg.main(years=_years(year, full))
+    # The cleaners convert whatever is on disk, one output parquet per source file
+    # under a deterministic name, so a year-scoped run rewrites `data_<year>.parquet`
+    # and leaves every earlier exercise in the bucket untouched.
+    clean_mg.main()
+
+
+def refresh_ba(work_dir: str, year: int, full: bool) -> None:
+    """Bahia always refreshes whole.
+
+    The state publishes one ZIP per view covering every exercise, so there is no
+    per-year file to invalidate: a refresh is a re-download of all six views. They are
+    the smallest of the four states, so this is cheap enough to run daily.
+    """
+    _ensure_code_on_path(work_dir)
+    # pyrefly: ignore [missing-import]
+    import clean_ba
+
+    # pyrefly: ignore [missing-import]
+    import download_ba
+
+    directory = input_dir(work_dir, "ba")
+    if directory.exists():
+        shutil.rmtree(directory)
+    download_ba.main()
+    clean_ba.main()
+
+
+def refresh_pe(work_dir: str, year: int, full: bool) -> None:
+    _ensure_code_on_path(work_dir)
+    # pyrefly: ignore [missing-import]
+    import clean_pe
+
+    # pyrefly: ignore [missing-import]
+    import download_pe
+
+    download_pe.main(years=_years(year, full))
+    # Both kinds, because `despesa` and `pagamento` are separate CKAN packages that
+    # both republish the open exercise.
+    clean_pe.main()
+
+
+def refresh_es(work_dir: str, year: int, full: bool) -> None:
+    """Espírito Santo, year-scoped like MG.
+
+    Every ES file is per-exercise, so a scoped run rewrites only the open years --
+    except the contratos family, which download_es always fetches whole because its
+    file-name year is the year of a date that may be missing (`Contratos-1753.csv` is
+    SQL Server's datetime floor and holds real rows). That family totals ~45 MB, so
+    taking it whole daily is cheaper than reasoning about which bucket changed.
+    """
+    _ensure_code_on_path(work_dir)
+    # pyrefly: ignore [missing-import]
+    import clean_es
+
+    # pyrefly: ignore [missing-import]
+    import download_es
+
+    download_es.main(years=_years(year, full))
+    clean_es.main()
+
+
+def refresh_rs(work_dir: str, year: int, full: bool) -> None:
+    """Rio Grande do Sul, year-scoped like MG and ES.
+
+    RS publishes one ZIP per month per exercise, so a scoped run re-fetches only the
+    open years' twelve archives. The conversion is the expensive half: ~36 GB expanded
+    across the full series, one archive at a time.
+    """
+    _ensure_code_on_path(work_dir)
+    # pyrefly: ignore [missing-import]
+    import clean_rs
+
+    # pyrefly: ignore [missing-import]
+    import download_rs
+
+    download_rs.main(years=_years(year, full))
+    clean_rs.main()
+
+
+def refresh_sp(work_dir: str, year: int, full: bool) -> None:
+    """São Paulo, scraped one (exercise, órgão) at a time.
+
+    A full pass is about 540 queries at ~36 s each -- five hours -- so a refresh scrapes
+    only the open exercise, roughly 32 queries and twenty minutes. `clean_sp` then
+    rebuilds every year's parquet from whatever is on disk, which is why the incremental
+    path still needs the earlier exercises present.
+    """
+    _ensure_code_on_path(work_dir)
+    # pyrefly: ignore [missing-import]
+    import clean_sp
+
+    # pyrefly: ignore [missing-import]
+    import download_sp
+
+    if full:
+        download_sp.main()
+    else:
+        download_sp.main(first_year=year, last_year=year)
+    clean_sp.main()
+
+
+def refresh_sc(work_dir: str, year: int, full: bool) -> None:
+    """Santa Catarina, year-scoped, one API request per (visão, month).
+
+    SC comes from the transparency portal's export endpoint rather than its CKAN bulk
+    files -- see `models/br_bd_execucao_estadual/code/download_sc.py` for why the bulk
+    files cannot be parsed at all.
+
+    A scoped run re-fetches the open exercises' months for all three visões, which is
+    roughly 72 requests. The full series is 2011-2026, about 576 requests and ~26M rows.
+    Each month is checked against the row count the portal publishes for the same
+    filters, so a truncated export fails the run instead of being stored short.
+    """
+    _ensure_code_on_path(work_dir)
+    # pyrefly: ignore [missing-import]
+    import clean_sc
+
+    # pyrefly: ignore [missing-import]
+    import download_sc
+
+    download_sc.main(years=_years(year, full))
+    clean_sc.main()
+
+
+def refresh_pb(work_dir: str, year: int, full: bool) -> None:
+    """Paraíba, year-scoped, one paginated API sweep per (endpoint, month).
+
+    `ano` and `mes` are required on every despesas endpoint, so a scoped run re-fetches
+    only the open exercises' months. Each period is checked against the API's own
+    `paginacao.total` before it is kept, so a harvest that drops a page fails rather
+    than writing a file a resume would treat as complete.
+    """
+    _ensure_code_on_path(work_dir)
+    # pyrefly: ignore [missing-import]
+    import clean_pb
+
+    # pyrefly: ignore [missing-import]
+    import download_pb
+
+    download_pb.main(years=_years(year, full))
+    clean_pb.main()
+
+
+REFRESHERS = {
+    "MG": refresh_mg,
+    "BA": refresh_ba,
+    "PE": refresh_pe,
+    "ES": refresh_es,
+    "RS": refresh_rs,
+    "SC": refresh_sc,
+    "PB": refresh_pb,
+    "SP": refresh_sp,
+}
+
+
+def built_tables(work_dir: str, state: str) -> dict[str, Path]:
+    """The staging mirrors this state produced, mapped to their parquet directory.
+
+    Only directories that actually contain parquet are returned: a source that
+    published nothing new leaves an empty directory, and uploading that would replace a
+    populated prefix in the bucket with nothing.
+    """
+    wanted = constants.STAGING_BY_STATE.value[state]
+    out: dict[str, Path] = {}
+    for table in wanted:
+        directory = output_dir(work_dir, table)
+        if directory.is_dir() and any(directory.glob("*.parquet")):
+            out[table] = directory
+    return out

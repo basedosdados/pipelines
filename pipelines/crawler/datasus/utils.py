@@ -76,6 +76,15 @@ def dbf_to_parquet(
         ):
             chunk_df = pd.DataFrame(chunk)
 
+            if table_id == "aihs_reduzidas":
+                chunk_df = chunk_df[
+                    datasus_constants.COLUMNS_TO_KEEP.value["RD"]
+                ]
+            if table_id == "servicos_profissionais":
+                chunk_df = chunk_df[
+                    datasus_constants.COLUMNS_TO_KEEP.value["SP"]
+                ]
+
             # pyrefly: ignore [not-callable]
             table = pa.Table.from_pandas(chunk_df.applymap(decode_column))
             log("---- decoding")
@@ -85,6 +94,7 @@ def dbf_to_parquet(
             log(f"---- {counter}")
             parquet_filename = f"{table_id}_{counter}_{counter_chunk}.parquet"
             parquet_filepath = os.path.join(output_path, parquet_filename)
+
             # pyrefly: ignore [unnecessary-type-conversion]
             pq.write_table(table, where=str(parquet_filepath))
             counter_chunk += 1

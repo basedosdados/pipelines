@@ -1,0 +1,37 @@
+{
+  "dataset": {
+    "slug": "college_scorecard",
+    "gcp_dataset_id": "us_ed_college_scorecard",
+    "name_pt": "College Scorecard",
+    "name_en": "College Scorecard",
+    "name_es": "College Scorecard",
+    "description_pt": "Resultados por instituição e por área de formação de todas as instituições de ensino superior dos Estados Unidos elegíveis ao auxílio estudantil federal do Título IV, publicados pelo Departamento de Educação. Cobre as coortes de 1996-97 a 2025-26 e inclui rendimento após a saída da instituição, dívida estudantil acumulada e sua amortização, taxas de conclusão, custo e preço líquido, admissão e perfil demográfico do corpo discente; as tabelas por área de formação cruzam rendimento e dívida com o código CIP de 4 dígitos e o nível da credencial. As instituições são identificadas pelo UNITID do IPEDS, de modo que os dados cruzam com o conjunto us_ed_ipeds. As cerca de 3.300 colunas do arquivo institucional foram normalizadas em uma tabela larga e sete tabelas longas por domínio de medida; nenhuma variável publicada foi descartada e a tabela variable documenta todas elas.",
+    "description_en": "Institution-level and field-of-study outcomes for every U.S. postsecondary institution eligible for Title IV federal student aid, published by the Department of Education. Covers cohort years 1996-97 through 2025-26 and includes post-enrollment earnings, cumulative student debt and its repayment, completion rates, cost and net price, admissions, and student demographics; the field-of-study tables pair earnings and debt with the 4-digit CIP code and credential level. Institutions are keyed by IPEDS UNITID, so the data joins to the us_ed_ipeds dataset. The institution file's ~3,300 columns are normalised into one wide table and seven long tables by measurement domain; no published variable was dropped, and the variable table documents every one of them.",
+    "description_es": "Resultados por institución y por campo de estudio de todas las instituciones de educación superior de los Estados Unidos elegibles para la ayuda estudiantil federal del Título IV, publicados por el Departamento de Educación. Cubre las cohortes de 1996-97 a 2025-26 e incluye ingresos tras la salida de la institución, deuda estudiantil acumulada y su amortización, tasas de finalización, costo y precio neto, admisión y perfil demográfico del estudiantado; las tablas por campo de estudio cruzan ingresos y deuda con el código CIP de 4 dígitos y el nivel de la credencial. Las instituciones se identifican por el UNITID del IPEDS, de modo que los datos se cruzan con el conjunto us_ed_ipeds. Las cerca de 3.300 columnas del archivo institucional fueron normalizadas en una tabla ancha y siete tablas largas por dominio de medida; ninguna variable publicada fue descartada y la tabla variable las documenta todas."
+  },
+  "raw_data_source": {
+    "name_pt": "College Scorecard — arquivos de dados completos",
+    "name_en": "College Scorecard — All Data Files",
+    "name_es": "College Scorecard — archivos de datos completos",
+    "url": "https://collegescorecard.ed.gov/data/",
+    "description_pt": "Página oficial de dados do College Scorecard, de onde é distribuído o arquivo com todas as coortes desde 1996-97, os arquivos por área de formação, o dicionário de dados e a documentação técnica.",
+    "description_en": "Official College Scorecard data page, from which the full archive of every cohort since 1996-97, the field-of-study files, the data dictionary and the technical documentation are distributed.",
+    "description_es": "Página oficial de datos del College Scorecard, desde donde se distribuye el archivo con todas las cohortes desde 1996-97, los archivos por campo de estudio, el diccionario de datos y la documentación técnica."
+  },
+  "tables": {
+    "institution": {
+      "name_pt": "Instituição", "name_en": "Institution", "name_es": "Institución",
+      "name_note": "wide"
+    },
+    "academics": {"name_pt": "Oferta acadêmica", "name_en": "Academics", "name_es": "Oferta académica"},
+    "student_body": {"name_pt": "Corpo discente", "name_en": "Student body", "name_es": "Estudiantado"},
+    "cost": {"name_pt": "Custo", "name_en": "Cost", "name_es": "Costo"},
+    "aid_debt": {"name_pt": "Auxílio e dívida", "name_en": "Aid and debt", "name_es": "Ayuda y deuda"},
+    "completion": {"name_pt": "Conclusão", "name_en": "Completion", "name_es": "Finalización"},
+    "repayment": {"name_pt": "Amortização", "name_en": "Repayment", "name_es": "Amortización"},
+    "earnings": {"name_pt": "Rendimento", "name_en": "Earnings", "name_es": "Ingresos"},
+    "field_of_study": {"name_pt": "Área de formação", "name_en": "Field of study", "name_es": "Campo de estudio"},
+    "variable": {"name_pt": "Variáveis", "name_en": "Variables", "name_es": "Variables"},
+    "dicionario": {"name_pt": "Dicionário", "name_en": "Dictionary", "name_es": "Diccionario"}
+  }
+}

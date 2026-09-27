@@ -1,0 +1,4 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+id_provincia,STRING,"Código único territorial (CUT) de la provincia, de tres dígitos",,no,,,no,"Llave primaria. Los dos primeros dígitos corresponden al código de la región",COD_PROVINCIA
+id_region,STRING,Código de la región a la que pertenece la provincia,,no,br_bd_diretorios_cl.region:id_region,,no,,COD_REGION
+nombre,STRING,Nombre de la provincia,,no,,,no,"Derivado del nombre en mayúsculas publicado por el INE mediante capitalización castellana",PROVINCIA

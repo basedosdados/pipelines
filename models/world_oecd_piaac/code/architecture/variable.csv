@@ -1,0 +1,12 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+cycle,STRING,Survey cycle the variable belongs to (1 or 2),,no,,,no,,
+variable_name,STRING,"PIAAC variable name, lowercased",,no,,,no,,
+table_id,STRING,Data Basis table the variable was loaded into,,no,,,no,,
+column_name,STRING,Column name the variable maps to in that table,,no,,,no,,
+label,STRING,Variable label as published in the international codebook,,no,,,no,,
+domain,STRING,Thematic domain assigned by the codebook,,no,,,no,,
+level,STRING,Measurement level assigned by the codebook,,no,,,no,,
+bigquery_type,STRING,BigQuery type the variable was loaded as,,no,,,no,"Assigned from an explicit unit rule, not from the codebook's level field, which disagrees across cycles",
+measurement_unit,STRING,"Measurement unit, empty where the variable is not a quantity",,no,,,no,,
+item_code,STRING,"Item the variable measures, for item-level variables only",,no,,,no,,
+measure,STRING,"Which per-item measure it records, for item-level variables only",,no,,,no,,

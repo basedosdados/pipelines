@@ -1,0 +1,207 @@
+"""Vendor the PUDL extraction maps and code vocabularies into this repo.
+
+    python vendor_pudl.py --pudl-src ~/Downloads/us_eia_electricity_data/ref/pudl
+
+The Public Utility Data Liberation project (Catalyst Cooperative, MIT licence)
+has already solved the two hard parts of reading the EIA-860 and EIA-923 form
+files:
+
+* **which file, which sheet, how many header rows, and what every raw column was
+  called** in each of the 25 annual releases — the layouts change constantly, and
+  PUDL maintains one CSV per page recording the mapping year by year;
+* **the code vocabularies** — energy source, prime mover, sector, operational
+  status and the rest — together with ``code_fixes`` (dirty code -> canonical
+  code) and ``ignored_codes`` (codes that mean nothing and become NULL).
+
+Re-deriving either by hand would be a large and error-prone job, so this script
+copies them in verbatim rather than paraphrasing them. Everything under
+``code/pudl/`` is generated; edit nothing there by hand, re-run this instead.
+
+Only the pages this dataset actually ships are copied, so the vendored tree stays
+reviewable.
+"""
+
+import argparse
+import importlib.util
+import json
+import shutil
+from pathlib import Path
+
+CODE_DIR = Path(__file__).resolve().parent
+DEST = CODE_DIR / "pudl"
+
+# Pages this onboarding reads. Everything else PUDL maps (boilers, cooling,
+# emissions control, stocks, ...) is deliberately left out — see
+# models/us_eia_electricity/CLAUDE.md, "What is deferred".
+PAGES = {
+    "eia860": [
+        "utility",
+        "plant",
+        "generator",
+        "generator_existing",
+        "generator_proposed",
+        "generator_retired",
+    ],
+    "eia923": ["generation_fuel", "fuel_receipts_costs"],
+}
+
+# Code vocabularies referenced by the columns this dataset ships. Names are
+# PUDL's table keys in pudl.metadata.codes.CODE_METADATA (plus its
+# DISABLED_CODE_METADATA, which is where entity_types lives).
+CODE_TABLES = [
+    "core_eia__codes_energy_sources",
+    "core_eia__codes_prime_movers",
+    "core_eia__codes_sector_consolidated",
+    "core_eia__codes_operational_status",
+    "core_eia__codes_fuel_types_agg",
+    "core_eia__codes_balancing_authorities",
+    "core_eia__codes_reporting_frequencies",
+    "core_eia__codes_contract_types",
+    "core_eia__codes_coalmine_types",
+    "core_eia__codes_fuel_transportation_modes",
+    "core_eia__codes_regulations",
+    "core_eia__codes_steam_plant_types",
+    "core_eia__codes_entity_types",
+]
+
+META_FILES = ["file_map.csv", "page_map.csv", "skiprows.csv", "skipfooter.csv"]
+
+
+def vendor_maps(pudl_src: Path) -> None:
+    """Copy the extraction maps for the pages this dataset reads.
+
+    Args:
+        pudl_src: A checkout of catalyst-cooperative/pudl.
+
+    Writes ``file_map.csv``, ``page_map.csv``, ``skiprows.csv``,
+    ``skipfooter.csv`` and one ``column_maps/<page>.csv`` per page in
+    :data:`PAGES`, under ``code/pudl/<form>/``.
+    """
+    for dataset, pages in PAGES.items():
+        src = pudl_src / "src/pudl/package_data" / dataset
+        out = DEST / dataset
+        (out / "column_maps").mkdir(parents=True, exist_ok=True)
+        for name in META_FILES:
+            shutil.copyfile(src / name, out / name)
+        for page in pages:
+            shutil.copyfile(
+                src / "column_maps" / f"{page}.csv",
+                out / "column_maps" / f"{page}.csv",
+            )
+        print(
+            f"{dataset}: {len(META_FILES)} metadata + {len(pages)} column maps"
+        )
+
+
+def vendor_codes(pudl_src: Path) -> None:
+    """Copy the code vocabularies this dataset's columns reference.
+
+    Executes PUDL's ``codes.py`` (pure literal data plus pandas) and writes the
+    tables named in :data:`CODE_TABLES` to ``code/pudl/codes.json``, each with
+    its ``code_fixes`` and ``ignored_codes``.
+
+    Args:
+        pudl_src: A checkout of catalyst-cooperative/pudl.
+    """
+    path = pudl_src / "src/pudl/metadata/codes.py"
+    spec = importlib.util.spec_from_file_location("_pudl_codes", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    everything = {**module.CODE_METADATA, **module.DISABLED_CODE_METADATA}
+
+    out = {}
+    for name in CODE_TABLES:
+        entry = everything[name]
+        frame = entry["df"]
+        out[name] = {
+            # "code" and "description" are the two columns every vocabulary has;
+            # the rest (fuel_units, fuel_group_eia, ...) are kept because the
+            # energy_sources vocabulary carries genuinely useful attributes.
+            "rows": json.loads(frame.to_json(orient="records")),
+            "code_fixes": {
+                str(k): str(v) for k, v in entry.get("code_fixes", {}).items()
+            },
+            "ignored_codes": [str(c) for c in entry.get("ignored_codes", [])],
+        }
+        print(
+            f"{name}: {len(out[name]['rows'])} codes, "
+            f"{len(out[name]['code_fixes'])} fixes, "
+            f"{len(out[name]['ignored_codes'])} ignored"
+        )
+    (DEST / "codes.json").write_text(
+        json.dumps(out, indent=1, sort_keys=True) + "\n"
+    )
+
+
+def write_readme(pudl_src: Path) -> None:
+    """Write ``code/pudl/README.md``, pinning the source commit.
+
+    Args:
+        pudl_src: A checkout of catalyst-cooperative/pudl, read for its HEAD SHA
+            so the vendored files are traceable to an exact upstream revision.
+    """
+    import subprocess
+
+    sha = subprocess.run(
+        ["git", "-C", str(pudl_src), "rev-parse", "HEAD"],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+    (DEST / "README.md").write_text(
+        f"""# Vendored from PUDL
+
+Generated by `../vendor_pudl.py`. **Do not edit by hand.**
+
+Source: <https://github.com/catalyst-cooperative/pudl> at commit `{sha}`,
+Catalyst Cooperative, MIT licence.
+
+| file | what it is |
+|---|---|
+| `eia86*/file_map.csv` | (year, page) -> file name inside that year's ZIP |
+| `eia86*/page_map.csv` | (year, page) -> sheet index within that file |
+| `eia86*/skiprows.csv` | (year, page) -> header rows to skip |
+| `eia86*/skipfooter.csv` | (year, page) -> footer rows to drop |
+| `eia86*/column_maps/<page>.csv` | (year, canonical name) -> raw column name |
+| `codes.json` | code vocabularies, plus `code_fixes` and `ignored_codes` |
+
+The raw column names in `column_maps` are the published headers **after**
+PUDL's `simplify_columns`: non-alphanumeric characters become spaces, letters
+are lowercased, internal whitespace is compacted, and the remaining spaces
+become underscores. `simplify` in
+`pipelines/datasets/us_eia_electricity/utils.py` applies the same normalisation
+before looking a column up.
+
+`codes.json` keeps PUDL's short codes as published (`BIT`, `ST`, `OP`) rather
+than PUDL's snake_case relabelling, because Data Basis records the code in the
+column and the label in the `dicionario` table. The `code_fixes` and
+`ignored_codes` decisions **are** applied — those are data repairs, not naming.
+"""
+    )
+
+
+def main() -> None:
+    """Refresh everything under ``code/pudl/`` from a PUDL checkout.
+
+    Raises:
+        SystemExit: If ``--pudl-src`` is not a PUDL checkout.
+    """
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--pudl-src",
+        type=Path,
+        default=Path.home() / "Downloads/us_eia_electricity_data/ref/pudl",
+        help="checkout of catalyst-cooperative/pudl",
+    )
+    args = parser.parse_args()
+    if not (args.pudl_src / "src/pudl/metadata/codes.py").exists():
+        raise SystemExit(f"not a PUDL checkout: {args.pudl_src}")
+    DEST.mkdir(parents=True, exist_ok=True)
+    vendor_maps(args.pudl_src)
+    vendor_codes(args.pudl_src)
+    write_readme(args.pudl_src)
+    print(f"\nvendored into {DEST}")
+
+
+if __name__ == "__main__":
+    main()

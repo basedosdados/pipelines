@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the inventory (Australian financial year ending; 1990 = 1989-90),,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column. OData InventoryYear_ID.,InventoryYear_ID
+geography,STRING,"Geographic area: 'australia' (national) or one of the eight states/territories, plus 'et' (external territories)",,no,,,no,Australia is the national aggregate; states/territories follow the ASGS. Not directory-linked because the national aggregate has no id_state. 'et' = external/other territories.,
+scopetwo_level_1,STRING,Economic sector (ANZSIC division) of Scope 2 (indirect electricity) emissions,,no,,,no,OData ScopeTwo_Level_1,ScopeTwo_Level_1
+scopetwo_level_2,STRING,"Scope 2 economic sector (ANZSIC), level 2 (sub-category; NULL where the branch is shallower)",,no,,,no,OData ScopeTwo_Level_2,ScopeTwo_Level_2
+emissions_gg,FLOAT64,Emissions in gigagrams (Gg). For gas 'CO2-e - AR5' the unit is Gg CO2-equivalent (Mt CO2-e = value/1000); for a physical gas it is Gg of that gas,,no,,gigagram,no,"Source measure, not converted. LULUCF (a UNFCCC category) can be negative (net sink).",Gg

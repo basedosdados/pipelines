@@ -1,0 +1,4 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano de referência da nota temporal,,no,,,no,,Year
+indicator_id,STRING,Código do indicador WDI,,no,,,no,,SeriesCode
+description,STRING,Nota temporal associada ao indicador,,no,,,no,,DESCRIPTION

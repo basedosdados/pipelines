@@ -1,0 +1,78 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+extraction_date,DATE,Date the institution directory was extracted from the FDIC API,,no,,,no,"The directory is a current-state snapshot: one row per institution, carrying its latest known attributes rather than a history of them",(derived)
+cert,STRING,FDIC certificate number identifying the institution,,no,,,no,Primary key. Stable across name changes and the key used by financials,CERT
+name,STRING,Legal name of the institution,,no,,,no,,NAME
+rssd_id,STRING,Federal Reserve RSSD identifier,,no,,,no,Used to join to Federal Reserve and FFIEC sources,FED_RSSD
+uninum,STRING,FDIC unique number for the institution,,no,,,no,,UNINUM
+lei,STRING,Legal Entity Identifier,,no,,,no,,LEI
+occ_charter_number,STRING,Charter number assigned by the OCC,,no,,,no,,CHARTER
+ots_docket_number,STRING,Docket number assigned by the former OTS,,no,,,no,,DOCKET
+previous_name,STRING,Most recent previous name of the institution,,no,,,no,The FDIC publishes up to ten previous names; only the most recent is kept,PRIORNAME1
+holding_company_rssd_id,STRING,RSSD identifier of the regulatory top holding company,,no,,,no,,RSSDHCR
+holding_company_name,STRING,Name of the regulatory top holding company,,no,,,no,,NAMEHCR
+holding_company_city,STRING,City of the regulatory top holding company,,no,,,no,,CITYHCR
+holding_company_state,STRING,State abbreviation of the regulatory top holding company,,no,,,no,,STALPHCR
+holding_company_type,STRING,Type of bank holding company,,yes,,,no,,HCTMULT
+parent_cert,STRING,FDIC certificate number of the bank that directly owns this one,,no,,,no,,PARCERT
+ultimate_cert,STRING,FDIC certificate number the institution ultimately maps to,,no,,,no,,ULTCERT
+successor_cert,STRING,FDIC certificate number the institution became after a merger or conversion,,no,,,no,,NEWCERT
+institution_class,STRING,Charter and supervisory class of the institution,,yes,,,no,,BKCLASS
+class_code,STRING,Numeric subcategory of the institution class,,yes,,,no,,CLCODE
+chartering_agency,STRING,Agency that granted the institution's charter,,yes,,,no,,CHRTAGNT
+primary_regulator,STRING,Primary federal regulator,,yes,,,no,,REGAGNT
+secondary_regulator,STRING,Secondary regulator,,yes,,,no,,REGAGENT2
+is_state_chartered,STRING,Whether the institution holds a state charter,,yes,,,no,,STCHRTR
+is_federally_chartered,STRING,Whether the institution holds a federal charter,,yes,,,no,,FEDCHRTR
+specialization_group,STRING,Asset concentration group the institution falls into,,yes,,,no,,SPECGRPN
+ownership_type,STRING,Whether the institution is stock-owned or mutually owned,,yes,,,no,,MUTUAL
+is_subchapter_s,STRING,Whether the institution is a Subchapter S corporation,,yes,,,no,,SUBCHAPS
+is_community_bank,STRING,Whether the institution meets the FDIC community bank definition,,yes,,,no,,CB
+minority_status,STRING,Minority depository institution status,,yes,,,no,,MDI_STATUS_DESC
+trust_powers,STRING,Trust powers granted to the institution,,yes,,,no,,TRUST
+is_agricultural_lender,STRING,Whether the institution is classified as an agricultural lender,,yes,,,no,,INSTAG
+is_credit_card_institution,STRING,Whether the institution is classified as a credit card institution,,yes,,,no,,INSTCRCD
+is_insured_foreign_branch,STRING,Whether the institution is an insured office of a foreign bank,,yes,,,no,,IBA
+files_call_report_31,STRING,Whether the institution files the FFIEC 031 Call Report,,yes,,,no,,FORM31
+is_fdic_insured,STRING,Whether the institution is insured by the FDIC,,yes,,,no,,INSFDIC
+primary_insurance_fund,STRING,Deposit insurance fund the institution belongs to,,yes,,,no,,INSAGNT1
+insurance_date,DATE,Date deposit insurance took effect,,no,,,no,,INSDATE
+insurance_end_date,DATE,Date deposit insurance ended,,no,,,no,,INSDROPDATE
+is_insured_commercial_bank,STRING,Whether the institution is an insured commercial bank,,yes,,,no,,INSCOML
+is_insured_savings_institution,STRING,Whether the institution is an insured savings institution,,yes,,,no,,INSSAVE
+is_active,STRING,Whether the institution was operating at the extraction date,,yes,,,no,,ACTIVE
+established_date,DATE,Date the institution began operating,,no,,,no,,ESTYMD
+end_date,DATE,Date the institution ceased to exist as a separate entity,,no,,,no,Empty for institutions still operating,ENDEFYMD
+last_structure_change_date,DATE,Effective date of the most recent structure change,,no,,,no,,EFFDATE
+last_structure_change_process_date,DATE,Date the most recent structure change was processed,,no,,,no,,PROCDATE
+structure_change_code,STRING,Code of the most recent structure change,,yes,,,no,The FDIC records up to fifteen change codes; the first is kept,CHANGEC1
+is_in_conservatorship,STRING,Whether the institution is in conservatorship,,yes,,,no,,CONSERVE
+is_de_novo,STRING,Whether the institution is newly chartered,,yes,,,no,,DENOVO
+last_update_date,DATE,Date the FDIC last updated the record,,no,,,no,,DATEUPDT
+address,STRING,Street address of the main office,,no,,,no,,ADDRESS
+city,STRING,City of the main office,,no,,,no,,CITY
+county,STRING,County of the main office,,no,,,no,,COUNTY
+state_abbreviation,STRING,Two-letter state abbreviation of the main office,,no,br_bd_diretorios_us.state:abbreviation,,no,,STALP
+state_name,STRING,State name of the main office,,no,,,no,,STNAME
+county_id,STRING,FIPS state and county code of the main office,,no,br_bd_diretorios_us.county:id_county,,no,,STCNTY
+zip_code,STRING,ZIP code of the main office,,no,,,no,,ZIP
+latitude,FLOAT64,Latitude of the main office,,no,,degrees,no,,LATITUDE
+longitude,FLOAT64,Longitude of the main office,,no,,degrees,no,,LONGITUDE
+cbsa_id,STRING,Core Based Statistical Area code of the main office,,no,br_bd_diretorios_us.cbsa_2023:id_cbsa,,no,"Delineation vintage follows the FDIC extract, not the reference year",CBSA_NO
+cbsa_name,STRING,Core Based Statistical Area name of the main office,,no,,,no,,CBSA
+csa_id,STRING,Combined Statistical Area code of the main office,,no,,,no,,CSA_NO
+csa_name,STRING,Combined Statistical Area name of the main office,,no,,,no,,CSA
+fdic_region,STRING,FDIC geographic region,,yes,,,no,,FDICDBS
+fdic_supervisory_region,STRING,FDIC supervisory region,,yes,,,no,,FDICSUPV
+federal_reserve_district,STRING,Federal Reserve district the institution belongs to,,yes,,,no,,FED
+occ_district,STRING,OCC district the institution belongs to,,yes,,,no,,OCCDIST
+website,STRING,Primary internet address of the institution,,no,,,no,,WEBADDR
+financial_report_date,DATE,Quarter end the financial snapshot columns refer to,,no,,,no,,RISDATE
+total_assets,FLOAT64,Total assets,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",ASSET
+total_deposits,FLOAT64,Total deposits,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DEP
+domestic_deposits,FLOAT64,Deposits held in domestic offices,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",DEPDOM
+equity_capital,FLOAT64,Total equity capital,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",EQ
+net_income,FLOAT64,Net income for the year to date,,no,,USD,no,"Reported by the FDIC in thousands of dollars and multiplied by 1,000 here, so the value is in whole dollars",NETINC
+return_on_assets,FLOAT64,Net income as a percent of average total assets,,no,,percent,no,,ROA
+return_on_equity,FLOAT64,Net income as a percent of average equity,,no,,percent,no,,ROE
+domestic_offices,FLOAT64,Number of domestic offices,,no,,unit,no,,OFFDOM
+foreign_offices,FLOAT64,Number of foreign offices,,no,,unit,no,,OFFFOR

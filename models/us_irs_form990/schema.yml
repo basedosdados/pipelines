@@ -1,0 +1,577 @@
+---
+version: 2
+models:
+  - name: us_irs_form990__organization
+    description: >
+      Cadastro de todas as organizações isentas de imposto de renda nos Estados
+      Unidos, extraído mensalmente do Business Master File (BMF) do IRS, com uma
+      linha por EIN em cada extração mensal. Traz nome, endereço, subseção do
+      Internal Revenue Code, código NTEE, data da carta de determinação, código de
+      fundação, obrigatoriedade de declaração e os totais de ativo, renda e
+      receita da última declaração apresentada. Cada extração é uma fotografia
+      completa do cadastro e as extrações são empilhadas, formando um painel. Não
+      inclui igrejas e outras organizações que não precisam solicitar
+      reconhecimento de isenção nem organizações com isenção revogada. Exceção: false
+      teste de relacionamento com o diretório de estados dos EUA, até 0.5% das
+      linhas podem ter estado fora do diretório (endereços no exterior e códigos
+      digitados incorretamente).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [extraction_date, ein]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - subsection_code
+            - affiliation_code
+            - deductibility_code
+            - foundation_code
+            - organization_code
+            - status_code
+            - filing_requirement_code
+            - pf_filing_requirement_code
+            - asset_code
+            - income_code
+          dictionary_model: ref('us_irs_form990__dicionario')
+    columns:
+      - name: extraction_date
+        description: >
+          Data de publicação do extrato mensal do Business Master File
+        tests: [not_null]
+      - name: ein
+        description: >
+          Número de Identificação de Empregador (EIN, nove dígitos)
+        tests: [not_null]
+      - name: name
+        description: >
+          Nome principal da organização
+      - name: sort_name
+        description: >
+          Linha de nome secundária
+      - name: in_care_of_name
+        description: >
+          Nome aos cuidados de quem a correspondência é dirigida
+      - name: street
+        description: >
+          Logradouro
+      - name: city
+        description: >
+          Cidade
+      - name: state
+        description: >
+          Estado do endereço (sigla USPS)
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: abbreviation
+              ignore_values: [XX]
+              proportion_allowed_failures: 0.005
+      - name: zip_code
+        description: >
+          CEP (ZIP)
+      - name: group_exemption_number
+        description: >
+          Número de isenção de grupo
+      - name: subsection_code
+        description: >
+          Subseção do Internal Revenue Code sob a qual a organização é isenta
+      - name: classification_code
+        description: >
+          Código(s) de classificação dentro da subseção
+      - name: affiliation_code
+        description: >
+          Código de afiliação (central, intermediária, independente, subordinada)
+      - name: ruling_date
+        description: >
+          Mês da carta de decisão ou determinação que reconhece a isenção
+      - name: deductibility_code
+        description: >
+          Se as contribuições são dedutíveis
+      - name: foundation_code
+        description: >
+          Código de fundação (tipo de instituição de caridade pública ou fundação
+          privada)
+      - name: activity_code
+        description: >
+          Códigos de atividade (obsoletos desde 1995)
+      - name: organization_code
+        description: >
+          Tipo de organização (sociedade, trust, cooperativa, parceria, associação)
+      - name: status_code
+        description: >
+          Código de status da organização isenta
+      - name: ntee_code
+        description: >
+          Código NTEE (National Taxonomy of Exempt Entities)
+      - name: tax_period
+        description: >
+          Período fiscal da última declaração apresentada (YYYYMM)
+      - name: accounting_period_month
+        description: >
+          Mês de encerramento do exercício
+      - name: filing_requirement_code
+        description: >
+          Código de obrigatoriedade de apresentação do Form 990
+      - name: pf_filing_requirement_code
+        description: >
+          Código de obrigatoriedade de apresentação do Form 990-PF
+      - name: asset_code
+        description: >
+          Faixa de ativos da última declaração
+      - name: income_code
+        description: >
+          Faixa de renda da última declaração
+      - name: asset_amount
+        description: >
+          Valor contábil do ativo total no fim do ano na última declaração
+      - name: income_amount
+        description: >
+          Valor de renda calculado pelo IRS a partir da última declaração
+      - name: revenue_amount
+        description: >
+          Receita total na última declaração Form 990 ou 990-EZ
+  - name: us_irs_form990__return_financial
+    description: >
+      Uma linha por declaração anual eletrônica Form 990 ou 990-EZ, identificada
+      por EIN, ano fiscal e tipo de formulário, com o cabeçalho da declaração
+      (período fiscal, endereço, status de isenção, forma jurídica, missão) e os
+      totais financeiros da Parte I: receitas por fonte, despesas por categoria,
+      ativo, passivo e patrimônio líquido no início e no fim do ano, número de
+      empregados, voluntários e membros do conselho. Os valores são extraídos do
+      XML do IRS por meio da concordância do Nonprofit Open Data Collective, que
+      unifica os caminhos das várias versões do esquema. Cobre apenas declarações
+      eletrônicas: declarações em papel não constam dos dados do IRS, e a
+      apresentação eletrônica só se tornou obrigatória para todos os declarantes a
+      partir dos anos fiscais iniciados após 1 de julho de 2019; declarações
+      990-PF e 990-T não estão incluídas nesta fase. Quando há mais de uma
+      declaração para o mesmo EIN, ano fiscal e formulário (retificações), apenas
+      a mais recente é mantida. Cerca de 176 mil declarações indexadas pelo IRS no
+      ano de divulgação de 2022 (34% dos Form 990 e 990-EZ daquele ano) não
+      constam dos arquivos ZIP do IRS e, portanto, também não constam desta
+      tabela. Exceção: no teste de relacionamento com o diretório de estados dos
+      EUA, até 0.1% das linhas podem ter estado fora do diretório (endereços no
+      exterior e códigos digitados incorretamente).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, ein, form_type]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          # Measured from the cleaned data: legitimately sparse.
+          ignore_values:
+            - country
+            - doing_business_as_name
+            - group_exemption_number
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [form_type]
+          dictionary_model: ref('us_irs_form990__dicionario')
+    columns:
+      - name: year
+        description: >
+          Ano fiscal da declaração
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: ein
+        description: >
+          Número de Identificação de Empregador (EIN) da organização declarante (nove
+          dígitos)
+        tests: [not_null]
+      - name: form_type
+        description: >
+          Formulário apresentado: 990 ou 990EZ
+        tests: [not_null]
+      - name: object_id
+        description: >
+          Identificador de objeto da declaração no IRS
+        tests: [not_null]
+      - name: return_version
+        description: >
+          Versão do esquema XML e-file do IRS da declaração
+      - name: xml_batch_id
+        description: >
+          Lote de divulgação do IRS (arquivo ZIP) em que a declaração foi publicada
+      - name: return_timestamp
+        description: >
+          Data e hora do envio eletrônico da declaração
+      - name: tax_period_begin
+        description: >
+          Primeiro dia do período fiscal coberto
+      - name: tax_period_end
+        description: >
+          Último dia do período fiscal coberto
+      - name: is_amended
+        description: >
+          Se a declaração é retificadora
+      - name: is_initial
+        description: >
+          Se é a primeira declaração da organização
+      - name: is_final
+        description: >
+          Se é a declaração final (organização encerrada)
+      - name: is_group_return
+        description: >
+          Se a declaração é um retorno de grupo para afiliadas
+      - name: organization_name
+        description: >
+          Nome da organização declarante
+      - name: doing_business_as_name
+        description: >
+          Nome fantasia da organização
+      - name: principal_officer_name
+        description: >
+          Nome do dirigente principal
+      - name: address_line_1
+        description: >
+          Logradouro do endereço da organização
+      - name: city
+        description: >
+          Cidade do endereço da organização
+      - name: state
+        description: >
+          Estado do endereço da organização (sigla USPS)
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: abbreviation
+              ignore_values: [XX]
+              proportion_allowed_failures: 0.001
+      - name: zip_code
+        description: >
+          CEP (ZIP) ou código postal estrangeiro
+      - name: country
+        description: >
+          Código do país de um endereço no exterior
+      - name: website
+        description: >
+          Site da organização
+      - name: formation_year
+        description: >
+          Ano de constituição da organização
+      - name: legal_domicile_state
+        description: >
+          Estado de domicílio legal
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: abbreviation
+              ignore_values: [XX]
+              proportion_allowed_failures: 0.001
+      - name: organization_type
+        description: >
+          Forma jurídica: corporation, trust, association ou other
+      - name: exempt_status
+        description: >
+          Status de isenção declarado: 501(c)(3), 501(c), 4947(a)(1) ou 527
+      - name: group_exemption_number
+        description: >
+          Número de isenção de grupo
+      - name: mission_description
+        description: >
+          Missão ou atividades mais significativas
+      - name: gross_receipts
+        description: >
+          Receitas brutas
+      - name: voting_members_count
+        description: >
+          Número de membros votantes do órgão de governança
+      - name: independent_voting_members_count
+        description: >
+          Número de membros votantes independentes do órgão de governança
+      - name: employees_count
+        description: >
+          Número total de empregados
+      - name: volunteers_count
+        description: >
+          Número total de voluntários (estimativa)
+      - name: unrelated_business_revenue
+        description: >
+          Receita total de negócios não relacionados
+      - name: unrelated_business_taxable_income
+        description: >
+          Renda tributável líquida de negócios não relacionados
+      - name: contributions_grants
+        description: >
+          Contribuições, doações e subvenções recebidas
+      - name: contributions_grants_prior_year
+        description: >
+          Contribuições, doações e subvenções recebidas, ano anterior
+      - name: program_service_revenue
+        description: >
+          Receita de serviços de programa
+      - name: program_service_revenue_prior_year
+        description: >
+          Receita de serviços de programa, ano anterior
+      - name: investment_income
+        description: >
+          Receita de investimentos
+      - name: investment_income_prior_year
+        description: >
+          Receita de investimentos, ano anterior
+      - name: other_revenue
+        description: >
+          Outras receitas
+      - name: other_revenue_prior_year
+        description: >
+          Outras receitas, ano anterior
+      - name: total_revenue
+        description: >
+          Receita total
+      - name: total_revenue_prior_year
+        description: >
+          Receita total, ano anterior
+      - name: grants_paid
+        description: >
+          Subvenções e valores similares pagos
+      - name: grants_paid_prior_year
+        description: >
+          Subvenções e valores similares pagos, ano anterior
+      - name: benefits_paid_to_members
+        description: >
+          Benefícios pagos a membros ou em seu favor
+      - name: benefits_paid_to_members_prior_year
+        description: >
+          Benefícios pagos a membros ou em seu favor, ano anterior
+      - name: salaries_compensation
+        description: >
+          Salários, outras remunerações e benefícios a empregados
+      - name: salaries_compensation_prior_year
+        description: >
+          Salários, outras remunerações e benefícios a empregados, ano anterior
+      - name: professional_fundraising_fees
+        description: >
+          Honorários de captação de recursos profissional
+      - name: professional_fundraising_fees_prior_year
+        description: >
+          Honorários de captação de recursos profissional, ano anterior
+      - name: total_fundraising_expenses
+        description: >
+          Despesas totais de captação de recursos
+      - name: other_expenses
+        description: >
+          Outras despesas
+      - name: other_expenses_prior_year
+        description: >
+          Outras despesas, ano anterior
+      - name: total_expenses
+        description: >
+          Despesas totais
+      - name: total_expenses_prior_year
+        description: >
+          Despesas totais, ano anterior
+      - name: revenue_less_expenses
+        description: >
+          Receita menos despesas (superávit ou déficit)
+      - name: revenue_less_expenses_prior_year
+        description: >
+          Receita menos despesas, ano anterior
+      - name: total_assets_boy
+        description: >
+          Ativo total no início do ano
+      - name: total_assets_eoy
+        description: >
+          Ativo total no fim do ano
+      - name: total_liabilities_boy
+        description: >
+          Passivo total no início do ano
+      - name: total_liabilities_eoy
+        description: >
+          Passivo total no fim do ano
+      - name: net_assets_boy
+        description: >
+          Patrimônio líquido ou saldo de fundos no início do ano
+      - name: net_assets_eoy
+        description: >
+          Patrimônio líquido ou saldo de fundos no fim do ano
+  - name: us_irs_form990__compensation
+    description: >
+      Uma linha por pessoa listada na Parte VII, Seção A, do Form 990 (dirigentes,
+      diretores, curadores, empregados-chave e empregados mais bem remunerados) ou
+      na Parte IV do Form 990-EZ, por declaração: nome, cargo, horas semanais,
+      tipo de cargo e remuneração declarável paga pela organização, por
+      organizações relacionadas e outras remunerações estimadas. Cobre apenas
+      declarações eletrônicas Form 990 e 990-EZ; declarações em papel e Form
+      990-PF não constam. Restrita às declarações mantidas na tabela de
+      declarações (a mais recente por EIN, ano fiscal e formulário). Cerca de 176
+      mil declarações indexadas pelo IRS no ano de divulgação de 2022 (34% dos
+      Form 990 e 990-EZ daquele ano) não constam dos arquivos ZIP do IRS e,
+      portanto, também não constam desta tabela.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, ein, form_type, line_number]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          # Measured from the cleaned data: legitimately sparse.
+          ignore_values: [business_name]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [form_type]
+          dictionary_model: ref('us_irs_form990__dicionario')
+    columns:
+      - name: year
+        description: >
+          Ano fiscal da declaração
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: ein
+        description: >
+          Número de Identificação de Empregador (EIN) da organização declarante (nove
+          dígitos)
+        tests: [not_null]
+      - name: form_type
+        description: >
+          Formulário apresentado: 990 ou 990EZ
+        tests: [not_null]
+      - name: object_id
+        description: >
+          Identificador de objeto da declaração no IRS
+        tests: [not_null]
+      - name: line_number
+        description: >
+          Posição da pessoa na listagem da declaração
+        tests: [not_null]
+      - name: person_name
+        description: >
+          Nome do dirigente, diretor, curador, empregado-chave ou empregado mais bem
+          remunerado
+      - name: business_name
+        description: >
+          Nome da entidade, quando o cargo é ocupado por uma organização
+      - name: title
+        description: >
+          Cargo ou título
+      - name: average_hours_per_week
+        description: >
+          Média de horas semanais dedicadas ao cargo
+      - name: average_hours_per_week_related
+        description: >
+          Média de horas semanais em organizações relacionadas
+      - name: is_individual_trustee_or_director
+        description: >
+          Cargo: curador individual ou diretor
+      - name: is_institutional_trustee
+        description: >
+          Cargo: curador institucional
+      - name: is_officer
+        description: >
+          Cargo: dirigente
+      - name: is_key_employee
+        description: >
+          Cargo: empregado-chave
+      - name: is_highest_compensated_employee
+        description: >
+          Cargo: empregado mais bem remunerado
+      - name: is_former
+        description: >
+          Cargo: ex-dirigente, ex-diretor, ex-curador ou ex-empregado
+      - name: reportable_compensation_from_organization
+        description: >
+          Remuneração declarável paga pela organização (W-2/1099)
+      - name: reportable_compensation_from_related
+        description: >
+          Remuneração declarável paga por organizações relacionadas
+      - name: other_compensation
+        description: >
+          Outra remuneração estimada da organização e de organizações relacionadas
+      - name: employee_benefit_contributions
+        description: >
+          Contribuições a planos de benefícios e remuneração diferida
+  - name: us_irs_form990__revocation
+    description: >
+      Lista cumulativa de organizações cuja isenção foi revogada automaticamente
+      por não apresentarem a declaração anual exigida por três anos consecutivos,
+      publicada mensalmente pelo IRS, com uma linha por EIN e data de revogação:
+      nome, endereço, subseção de isenção, data de vigência, data de publicação e
+      data de restabelecimento da isenção, quando houve. Substituída integralmente
+      a cada atualização. Exceção: no teste de relacionamento com o diretório de
+      estados dos EUA, até 0.5% das linhas podem ter estado fora do diretório
+      (endereços no exterior e códigos digitados incorretamente).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ein, revocation_date]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [exemption_type]
+          dictionary_model: ref('us_irs_form990__dicionario')
+    columns:
+      - name: ein
+        description: >
+          Número de Identificação de Empregador (EIN, nove dígitos)
+        tests: [not_null]
+      - name: legal_name
+        description: >
+          Nome legal da organização
+      - name: doing_business_as_name
+        description: >
+          Nome fantasia da organização
+      - name: address
+        description: >
+          Logradouro
+      - name: city
+        description: >
+          Cidade
+      - name: state
+        description: >
+          Estado (sigla USPS)
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__state')
+              field: abbreviation
+              ignore_values: [XX]
+              proportion_allowed_failures: 0.005
+      - name: zip_code
+        description: >
+          CEP (ZIP)
+      - name: country
+        description: >
+          Código do país
+      - name: exemption_type
+        description: >
+          Subseção do Internal Revenue Code sob a qual a organização era isenta
+      - name: revocation_date
+        description: >
+          Data de vigência da revogação automática
+        tests: [not_null]
+      - name: revocation_posting_date
+        description: >
+          Data de publicação da revogação
+      - name: exemption_reinstatement_date
+        description: >
+          Data de restabelecimento da isenção, se houver
+  - name: us_irs_form990__dicionario
+    description: >
+      Dicionário de códigos das colunas categóricas: tipo de formulário, subseção
+      e classificação do Internal Revenue Code, códigos de afiliação,
+      dedutibilidade, fundação, tipo de organização, status, faixas de ativo e
+      renda, obrigatoriedade de declaração e códigos NTEE, conforme a folha de
+      informações do EO BMF do IRS e a taxonomia NTEE do NCCS.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          # Measured from the cleaned data: legitimately sparse.
+          ignore_values: [cobertura_temporal]
+    columns:
+      - name: id_tabela
+        description: >
+          Identificador da tabela
+        tests: [not_null]
+      - name: nome_coluna
+        description: >
+          Nome da coluna
+        tests: [not_null]
+      - name: chave
+        description: >
+          Chave (código)
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >
+          Cobertura temporal do código
+      - name: valor
+        description: >-
+          Valor (rótulo) do código

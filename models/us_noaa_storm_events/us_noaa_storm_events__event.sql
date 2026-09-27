@@ -1,0 +1,67 @@
+{{
+    config(
+        schema="us_noaa_storm_events",
+        alias="event",
+        materialized="table",
+        partition_by={
+            "field": "year",
+            "data_type": "int64",
+            "range": {"start": 1950, "end": 2031, "interval": 1},
+        },
+    )
+}}
+
+
+select
+    safe_cast(year as int64) year,
+    safe_cast(month as int64) month,
+    safe_cast(event_id as string) event_id,
+    safe_cast(episode_id as string) episode_id,
+    safe_cast(state_id as string) state_id,
+    safe_cast(county_id as string) county_id,
+    safe_cast(state_name as string) state_name,
+    safe_cast(state_fips_nws as string) state_fips_nws,
+    safe_cast(cz_type as string) cz_type,
+    safe_cast(cz_fips as string) cz_fips,
+    safe_cast(cz_name as string) cz_name,
+    safe_cast(wfo as string) wfo,
+    safe_cast(event_type as string) event_type,
+    safe_cast(begin_datetime as datetime) begin_datetime,
+    safe_cast(end_datetime as datetime) end_datetime,
+    safe_cast(timezone as string) timezone,
+    safe_cast(injuries_direct as int64) injuries_direct,
+    safe_cast(injuries_indirect as int64) injuries_indirect,
+    safe_cast(deaths_direct as int64) deaths_direct,
+    safe_cast(deaths_indirect as int64) deaths_indirect,
+    safe_cast(damage_property as float64) damage_property,
+    safe_cast(damage_property_source as string) damage_property_source,
+    safe_cast(damage_crops as float64) damage_crops,
+    safe_cast(damage_crops_source as string) damage_crops_source,
+    safe_cast(source as string) source,
+    safe_cast(magnitude as float64) magnitude,
+    safe_cast(magnitude_type as string) magnitude_type,
+    safe_cast(flood_cause as string) flood_cause,
+    safe_cast(hurricane_category as string) hurricane_category,
+    safe_cast(tornado_scale as string) tornado_scale,
+    safe_cast(tornado_length as float64) tornado_length,
+    safe_cast(tornado_width as float64) tornado_width,
+    safe_cast(tornado_other_wfo as string) tornado_other_wfo,
+    safe_cast(
+        tornado_other_state_abbreviation as string
+    ) tornado_other_state_abbreviation,
+    safe_cast(tornado_other_cz_fips as string) tornado_other_cz_fips,
+    safe_cast(tornado_other_cz_name as string) tornado_other_cz_name,
+    safe_cast(begin_range as float64) begin_range,
+    safe_cast(begin_azimuth as string) begin_azimuth,
+    safe_cast(begin_location as string) begin_location,
+    safe_cast(end_range as float64) end_range,
+    safe_cast(end_azimuth as string) end_azimuth,
+    safe_cast(end_location as string) end_location,
+    safe_cast(begin_latitude as float64) begin_latitude,
+    safe_cast(begin_longitude as float64) begin_longitude,
+    safe_cast(end_latitude as float64) end_latitude,
+    safe_cast(end_longitude as float64) end_longitude,
+    safe_cast(episode_narrative as string) episode_narrative,
+    safe_cast(event_narrative as string) event_narrative,
+    safe_cast(data_source as string) data_source
+from {{ set_datalake_project("us_noaa_storm_events_staging.event") }} as t

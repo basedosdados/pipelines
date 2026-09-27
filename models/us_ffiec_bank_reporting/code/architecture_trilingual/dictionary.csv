@@ -1,0 +1,6 @@
+name,bigquery_type,description_pt,description_en,description_es,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+table_id,STRING,Nome da tabela a que pertence a coluna codificada,Name of the table the coded column belongs to,Nombre de la tabla a la que pertenece la columna codificada,,no,,,no,,
+column_name,STRING,Nome da coluna codificada,Name of the coded column,Nombre de la columna codificada,,no,,,no,,
+key,STRING,Valor tal como armazenado na coluna,Value as stored in the column,Valor tal como está almacenado en la columna,,no,,,no,,
+temporal_coverage,STRING,"Anos a que a chave se aplica, em branco quando se aplica a todo o período da tabela","Years the key applies to, blank when it applies to the table's whole span","Años a los que se aplica la clave, en blanco cuando se aplica a todo el período de la tabla",,no,,,no,,
+value,STRING,Significado da chave,Meaning of the key,Significado de la clave,,no,,,no,,

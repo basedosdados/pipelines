@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2007, "end": 2024, "interval": 1},
+            "range": {"start": 2007, "end": 2031, "interval": 1},
         },
         pre_hook="DROP ALL ROW ACCESS POLICIES ON {{ this }}",
     )

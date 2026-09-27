@@ -1,0 +1,9 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name,description_en,description_es
+year,INT64,Ano do evento eleitoral,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna de particionamento. Vários eventos eleitorais podem compartilhar o mesmo ano.,,Year of the electoral event,Año del evento electoral
+election_id,STRING,Identificador do evento eleitoral atribuído pela ECQ,,no,,,no,Chave da tabela. A eleição suplementar de conselheiro do Mapoon Aboriginal Shire Council de 2023 (stub MASC23) está excluída do conjunto porque a ECQ não publica arquivo de resultados para ela.,electionId,ECQ identifier of the electoral event,Identificador del evento electoral asignado por la ECQ
+election_stub,STRING,Sigla curta do evento eleitoral usada nas URLs da ECQ,,no,,,no,,stub,Short stub of the electoral event used in the ECQ URLs,Sigla corta del evento electoral usada en las URL de la ECQ
+election_name,STRING,Nome do evento eleitoral,,no,,,no,,,Name of the electoral event,Nombre del evento electoral
+election_type,STRING,Tipo do evento eleitoral,,yes,,,no,"Assume os valores Local Quadrennial, State General, State By-election, Local Councillor By-election e Local Mayoral By-election.",,Type of the electoral event,Tipo del evento electoral
+government_level,STRING,Esfera de governo do evento eleitoral: estadual ou local,,yes,,,no,Assume os valores state e local.,,Level of government of the electoral event: state or local,Nivel de gobierno del evento electoral: estatal o local
+election_date,DATE,Data da votação,,no,,,no,,,Date of the poll,Fecha de la votación
+results_archive_url,STRING,Endereço do arquivo de resultados publicado pela ECQ para o evento,,no,,,no,,archiveXML,URL of the results archive published by the ECQ for the event,Dirección del archivo de resultados publicado por la ECQ para el evento

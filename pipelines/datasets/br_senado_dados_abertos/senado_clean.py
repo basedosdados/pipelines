@@ -23,6 +23,7 @@ from pipelines.datasets.br_senado_dados_abertos.senado_api import (
     dig,
     get_json,
     get_json_safe,
+    get_xml_records,
 )
 
 
@@ -296,18 +297,62 @@ SENADOR_COLS = [
 ]
 
 
+def _legislatura_parlamentares(leg: int) -> list[dict]:
+    """Return every parlamentar of one legislature.
+
+    Read as XML rather than JSON: `senador/lista/legislatura/{leg}` lost its
+    `ListaParlamentarLegislatura` envelope some time between 2026-08-13 and
+    2026-08-20, and its JSON form now collapses the whole roster into a single
+    `Parlamentar` object. See `get_xml_records`.
+
+    `get_xml_records` parses the enveloped form too, so a restored endpoint needs
+    no change here. The JSON call is not attempted first: it cannot distinguish a
+    lost envelope from an empty roster, and every legislature that is legitimately
+    empty would pay a second full retry-and-backoff cycle (~30s) for nothing.
+
+    Args:
+        leg: Legislature number.
+
+    Returns:
+        One dict per parlamentar; empty when the legislature has no roster.
+    """
+    return get_xml_records(
+        f"/senador/lista/legislatura/{leg}", record_tag="Parlamentar"
+    )
+
+
+def _parlamentar_uf(p: dict) -> str | None:
+    """UF of a parlamentar, preferring the mandate over the identification block.
+
+    `IdentificacaoParlamentar/UfParlamentar` is only populated for a minority of
+    records — 97 of 1,567 across the full roster — while
+    `Mandatos/Mandato/UfParlamentar` is populated for every one. Reading only the
+    identification field left `sigla_uf` 6% filled, just above the 5% floor the
+    dbt `not_null_proportion_multiple_columns` test enforces, so the gap never
+    surfaced as a failure.
+
+    The two never disagree: across legislatures 30, 40, 50, 56 and 57 (904
+    records) every record carried a mandate UF, 151 also carried an
+    identification UF, and all 151 matched. No record listed two distinct UFs
+    across its mandates within one legislature.
+
+    Args:
+        p: One `Parlamentar` record from the roster endpoint.
+
+    Returns:
+        The two-letter UF, or None when neither source carries one.
+    """
+    for m in _as_list(dig(p, "Mandatos", "Mandato")):
+        if isinstance(m, dict) and (uf := s(m.get("UfParlamentar"))):
+            return uf
+    ip = p.get("IdentificacaoParlamentar", {}) or {}
+    return s(ip.get("UfParlamentar"))
+
+
 def clean_senador() -> pd.DataFrame:
     rows: list[dict] = []
     for leg in range(LEG_START, CURRENT_LEG + 1):
-        d = get_json(f"/senador/lista/legislatura/{leg}")
-        for p in _as_list(
-            dig(
-                d,
-                "ListaParlamentarLegislatura",
-                "Parlamentares",
-                "Parlamentar",
-            )
-        ):
+        for p in _legislatura_parlamentares(leg):
             ip = p.get("IdentificacaoParlamentar", {}) or {}
             ft = s(ip.get("FormaTratamento"))
             rows.append(
@@ -318,7 +363,7 @@ def clean_senador() -> pd.DataFrame:
                     "sexo": s(ip.get("SexoParlamentar")),
                     "forma_tratamento": ft.strip() if ft else None,
                     "sigla_partido": s(ip.get("SiglaPartidoParlamentar")),
-                    "sigla_uf": s(ip.get("UfParlamentar")),
+                    "sigla_uf": _parlamentar_uf(p),
                     "email": s(ip.get("EmailParlamentar")),
                     "url_foto": s(ip.get("UrlFotoParlamentar")),
                     "url_pagina": s(ip.get("UrlPaginaParlamentar")),
@@ -329,11 +374,29 @@ def clean_senador() -> pd.DataFrame:
                     "_leg": leg,
                 }
             )
+    if not rows:
+        # Fail loudly. The 2026-08 upstream regression made the JSON form of this
+        # endpoint return 1 of 245 senators, so an empty or thin roster must never
+        # be written as if it were the real one.
+        raise RuntimeError(
+            "senador: no parlamentares returned for legislaturas "
+            f"{LEG_START}..{CURRENT_LEG} — the dados-abertos roster endpoint "
+            "changed shape again; inspect /senador/lista/legislatura/{leg}"
+        )
     df = pd.DataFrame(rows)
     df = df[df["id_senador"].notna()].copy()
     # A senator recurs across legislatures; keep one row deterministically:
     # most complete (non-null count), tie-broken by the most recent
     # legislature, then id — reproducible regardless of API row order.
+    # The row is kept whole: every column comes from one legislature, rather
+    # than each column being sourced independently. So for a senator who
+    # represented two UFs, `sigla_uf` follows the most complete row, and `_leg`
+    # only decides ties — an older row with more fields populated wins, and
+    # keeps its (older) UF. Measured against the live API: 9 of 1,567 senators
+    # have more than one UF, and for all 9 the row chosen here already carries
+    # the most recent one, so the two rules do not disagree today. Sourcing
+    # `sigla_uf` separately would buy nothing and would produce a row matching
+    # no single legislature. `senador_mandato` carries the per-mandate history.
     df["_score"] = df[SENADOR_COLS].notna().sum(axis=1)
     df = (
         df.sort_values(

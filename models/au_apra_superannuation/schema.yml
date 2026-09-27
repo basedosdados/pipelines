@@ -1,0 +1,339 @@
+---
+version: 2
+models:
+  - name: au_apra_superannuation__financial_performance
+    description: >-
+      Quarterly financial performance of APRA-regulated superannuation funds by fund
+      type, from the December 2004 quarter. One row per quarter and fund type, reporting
+      contribution, benefit, investment and earnings flows in millions of Australian
+      dollars, including the employer contribution split (defined benefit, Superannuation
+      Guarantee and salary sacrifice). Source: APRA Quarterly Superannuation Performance.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, quarter, fund_type]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the quarter-end observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: fund_type
+        description: >-
+          Superannuation fund type: all (whole industry), corporate, industry, public
+          sector or retail funds
+        tests: [not_null]
+      - name: net_assets_beginning
+        description: >-
+          Net assets available to pay benefits at the beginning of the quarter
+      - name: total_contributions
+        description: >-
+          Total contributions received during the quarter
+      - name: employer_contributions
+        description: >-
+          Employer contributions received during the quarter
+      - name: employer_defined_benefit_contributions
+        description: >-
+          Employer contributions to defined benefit interests during the quarter
+      - name: employer_super_guarantee_contributions
+        description: >-
+          Employer contributions made under the compulsory Superannuation Guarantee
+          during the quarter
+      - name: employer_salary_sacrifice_contributions
+        description: >-
+          Employer contributions made through salary sacrifice arrangements during
+          the quarter
+      - name: member_contributions
+        description: >-
+          Member contributions received during the quarter
+      - name: member_personal_contributions
+        description: >-
+          Personal contributions made by members during the quarter
+      - name: government_co_contributions
+        description: >-
+          Government co-contributions received during the quarter
+      - name: low_income_super_contributions
+        description: >-
+          Low income superannuation contributions received during the quarter
+      - name: other_member_contributions
+        description: >-
+          Other member contributions received during the quarter
+      - name: contribution_tax_and_surcharge
+        description: >-
+          Contributions tax and surcharge for the quarter
+      - name: net_benefit_transfers
+        description: >-
+          Net benefit transfers into or out of the fund type during the quarter
+      - name: net_rollovers_to_from_smsf
+        description: >-
+          Net rollovers to or from self-managed superannuation funds during the quarter
+      - name: benefit_transfers_inward
+        description: >-
+          Benefit transfers received (inward) during the quarter
+      - name: benefit_transfers_outward
+        description: >-
+          Benefit transfers paid out (outward) during the quarter
+      - name: benefit_payments
+        description: >-
+          Total benefit payments made during the quarter
+      - name: lump_sum_benefits
+        description: >-
+          Lump sum benefit payments made during the quarter
+      - name: pension_benefits
+        description: >-
+          Pension benefit payments made during the quarter
+      - name: other_members_benefit_flows
+        description: >-
+          Other members' benefit flows during the quarter
+      - name: net_contribution_flows
+        description: >-
+          Net contribution flows during the quarter (contributions and transfers net
+          of benefit payments)
+      - name: net_insurance_flows
+        description: >-
+          Net insurance flows during the quarter
+      - name: insurance_flows_inward
+        description: >-
+          Insurance flows received (inward) during the quarter
+      - name: insurance_flows_outward
+        description: >-
+          Insurance flows paid out (outward) during the quarter
+      - name: investment_income
+        description: >-
+          Investment income earned during the quarter
+      - name: investment_income_after_impairment
+        description: >-
+          Investment income after impairment expense during the quarter
+      - name: total_gains_losses_on_investments
+        description: >-
+          Total realised and unrealised gains or losses on investments during the
+          quarter
+      - name: foreign_exchange_gains_losses
+        description: >-
+          Foreign exchange gains or losses during the quarter
+      - name: investment_expenses
+        description: >-
+          Investment expenses incurred during the quarter
+      - name: operating_income
+        description: >-
+          Operating income during the quarter
+      - name: administration_and_operating_expenses
+        description: >-
+          Administration and operating expenses during the quarter
+      - name: net_earnings
+        description: >-
+          Net earnings during the quarter
+      - name: income_tax_expense_benefit
+        description: >-
+          Income tax expense or benefit for the quarter
+      - name: net_earnings_after_tax
+        description: >-
+          Net earnings after tax during the quarter
+      - name: net_operating_performance_after_tax
+        description: >-
+          Net operating performance after tax during the quarter
+      - name: other_changes
+        description: >-
+          Other changes in net assets during the quarter
+      - name: net_assets_end
+        description: >-
+          Net assets available to pay benefits at the end of the quarter
+      - name: number_of_entities
+        description: >-
+          Number of superannuation entities in the fund type
+  - name: au_apra_superannuation__financial_position
+    description: >-
+      Quarterly financial position (balance sheet) of APRA-regulated superannuation
+      funds by fund type, from the September 2004 quarter. One row per quarter and
+      fund type, reporting assets, liabilities, member benefits and reserves in millions
+      of Australian dollars. Source: APRA Quarterly Superannuation Performance.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, quarter, fund_type]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the quarter-end observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: fund_type
+        description: >-
+          Superannuation fund type: all (whole industry), corporate, industry, public
+          sector or retail funds
+        tests: [not_null]
+      - name: receivables
+        description: >-
+          Receivables held at the end of the quarter
+      - name: investments
+        description: >-
+          Total investments held at the end of the quarter
+      - name: securities_purchased_under_resale_agreements
+        description: >-
+          Securities purchased under agreements to resell and securities borrowed,
+          at the end of the quarter
+      - name: tax_assets
+        description: >-
+          Tax assets held at the end of the quarter
+      - name: other_assets
+        description: >-
+          Other assets held at the end of the quarter
+      - name: total_assets
+        description: >-
+          Total assets held at the end of the quarter
+      - name: securities_sold_under_repurchase_agreements
+        description: >-
+          Securities sold under agreements to repurchase and securities loaned, at
+          the end of the quarter
+      - name: tax_liabilities
+        description: >-
+          Tax liabilities at the end of the quarter
+      - name: other_liabilities
+        description: >-
+          Other liabilities at the end of the quarter
+      - name: total_liabilities
+        description: >-
+          Total liabilities at the end of the quarter
+      - name: liability_for_allocated_accrued_benefits
+        description: >-
+          Liability for allocated accrued benefits at the end of the quarter
+      - name: liability_for_members_benefits
+        description: >-
+          Liability for members' benefits at the end of the quarter
+      - name: defined_contribution_members_benefits
+        description: >-
+          Defined contribution members' benefits at the end of the quarter
+      - name: defined_benefit_members_benefits
+        description: >-
+          Defined benefit members' benefits at the end of the quarter
+      - name: unallocated_benefits
+        description: >-
+          Unallocated benefits at the end of the quarter
+      - name: reserves_including_unallocated_benefits
+        description: >-
+          Reserves including unallocated benefits at the end of the quarter
+      - name: reserves
+        description: >-
+          Reserves at the end of the quarter
+      - name: excess_deficiency_of_assets
+        description: >-
+          Excess or deficiency of assets at the end of the quarter
+      - name: surplus_deficit_in_net_assets
+        description: >-
+          Surplus or deficit in net assets at the end of the quarter
+      - name: net_assets_available_to_pay_benefits
+        description: >-
+          Net assets available to pay members' benefits at the end of the quarter
+      - name: defined_benefit_interests
+        description: >-
+          Net assets attributable to defined benefit interests at the end of the quarter
+      - name: number_of_entities
+        description: >-
+          Number of superannuation entities in the fund type
+  - name: au_apra_superannuation__performance_ratios
+    description: >-
+      Quarterly performance ratios of APRA-regulated superannuation funds by fund
+      type, from the December 2004 quarter. One row per quarter and fund type, reporting
+      the quarterly and five-year annualised rate of return (as proportions) and their
+      dollar inputs. Source: APRA Quarterly Superannuation Performance.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, quarter, fund_type]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: >-
+          Reference year of the quarter-end observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: fund_type
+        description: >-
+          Superannuation fund type: all (whole industry), corporate, industry, public
+          sector or retail funds
+        tests: [not_null]
+      - name: net_assets_beginning
+        description: >-
+          Net assets available to pay benefits at the beginning of the quarter
+      - name: net_cash_flows
+        description: >-
+          Net cash flows during the quarter, an input to the rate-of-return calculation
+      - name: cash_flow_adjusted_net_assets
+        description: >-
+          Cash-flow adjusted net assets, an input to the rate-of-return calculation
+      - name: investment_income
+        description: >-
+          Investment income earned during the quarter
+      - name: investment_expense
+        description: >-
+          Investment expense used in the rate-of-return calculation
+      - name: operating_income
+        description: >-
+          Operating income during the quarter
+      - name: administration_and_operating_expense
+        description: >-
+          Administration and operating expense used in the rate-of-return calculation
+      - name: income_tax_expense_benefit
+        description: >-
+          Income tax expense or benefit for the quarter
+      - name: net_earnings_after_tax
+        description: >-
+          Net earnings after tax during the quarter
+      - name: rate_of_return
+        description: >-
+          Quarterly rate of return, expressed as a proportion (e.g. 0.056 = 5.6%)
+      - name: five_year_annualised_rate_of_return
+        description: >-
+          Five-year annualised rate of return, expressed as a proportion
+      - name: number_of_entities
+        description: >-
+          Number of superannuation entities in the fund type
+  - name: au_apra_superannuation__dicionario
+    description: >-
+      Dictionary mapping the coded columns of au_apra_superannuation tables to their
+      human-readable labels.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+    columns:
+      - name: id_tabela
+        description: >-
+          Slug of the au_apra_superannuation table the dictionary entry describes
+        tests: [not_null]
+      - name: nome_coluna
+        description: >-
+          Name of the column the dictionary entry describes
+        tests: [not_null]
+      - name: chave
+        description: >-
+          Coded value (key) exactly as stored in the data
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >-
+          Temporal coverage of the key
+      - name: valor
+        description: >-
+          Human-readable label corresponding to the coded value

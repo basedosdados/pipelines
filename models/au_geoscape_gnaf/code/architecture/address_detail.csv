@@ -1,0 +1,44 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+snapshot_date,DATE,"Data do snapshot (release) trimestral do G-NAF, correspondente ao primeiro dia do mês de publicação",,no,br_bd_diretorios_data_tempo.data:data,,no,Coluna sintetizada: data de referência do release usada para empilhar o histórico e particionar a tabela,
+year,INT64,Ano do snapshot do G-NAF,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Coluna sintetizada: ano derivado de snapshot_date,
+id_state,STRING,Código do estado ou território australiano,,no,br_bd_diretorios_au.state:id_state,,no,"Derivado do arquivo por estado/território (ACT, NSW, NT, OT, QLD, SA, TAS, VIC, WA)",
+address_detail_pid,STRING,Identificador persistente único do endereço no mundo real representado por este registro,,no,,,no,,ADDRESS_DETAIL_PID
+date_created,DATE,Data de criação deste registro,,no,br_bd_diretorios_data_tempo.data:data,,no,,DATE_CREATED
+date_last_modified,DATE,"Data da última modificação deste registro, conforme o padrão ICSM",,no,br_bd_diretorios_data_tempo.data:data,,no,,DATE_LAST_MODIFIED
+date_retired,DATE,Data de aposentadoria (retirada) deste registro,,no,br_bd_diretorios_data_tempo.data:data,,no,,DATE_RETIRED
+building_name,STRING,Nome do edifício ou da propriedade,,no,,,no,,BUILDING_NAME
+lot_number_prefix,STRING,Prefixo do número do lote,,no,,,no,,LOT_NUMBER_PREFIX
+lot_number,STRING,Número do lote,,no,,,no,,LOT_NUMBER
+lot_number_suffix,STRING,Sufixo do número do lote,,no,,,no,,LOT_NUMBER_SUFFIX
+flat_type,STRING,Código do tipo de unidade (porção identificável dentro de um edifício ou complexo),,yes,,,no,,FLAT_TYPE_CODE
+flat_number_prefix,STRING,Prefixo do número da unidade ou apartamento,,no,,,no,,FLAT_NUMBER_PREFIX
+flat_number,STRING,Número da unidade ou apartamento,,no,,,no,,FLAT_NUMBER
+flat_number_suffix,STRING,Sufixo do número da unidade ou apartamento,,no,,,no,,FLAT_NUMBER_SUFFIX
+level_type,STRING,Código do tipo de andar ou pavimento,,yes,,,no,,LEVEL_TYPE_CODE
+level_number_prefix,STRING,Prefixo do número do andar,,no,,,no,,LEVEL_NUMBER_PREFIX
+level_number,STRING,Número do andar ou pavimento,,no,,,no,,LEVEL_NUMBER
+level_number_suffix,STRING,Sufixo do número do andar,,no,,,no,,LEVEL_NUMBER_SUFFIX
+number_first_prefix,STRING,Prefixo do primeiro (ou único) número na faixa de numeração,,no,,,no,,NUMBER_FIRST_PREFIX
+number_first,STRING,Primeiro (ou único) número predial na faixa de numeração,,no,,,no,,NUMBER_FIRST
+number_first_suffix,STRING,Sufixo do primeiro (ou único) número na faixa de numeração,,no,,,no,,NUMBER_FIRST_SUFFIX
+number_last_prefix,STRING,Prefixo do último número na faixa de numeração,,no,,,no,,NUMBER_LAST_PREFIX
+number_last,STRING,Último número predial na faixa de numeração,,no,,,no,,NUMBER_LAST
+number_last_suffix,STRING,Sufixo do último número na faixa de numeração,,no,,,no,,NUMBER_LAST_SUFFIX
+street_locality_pid,STRING,Identificador persistente da rua ou localidade associada a este endereço,,no,,,no,Chave estrangeira para a tabela street_locality,STREET_LOCALITY_PID
+location_description,STRING,Campo geral que captura referências à localização do endereço em relação a outra localização física,,no,,,no,,LOCATION_DESCRIPTION
+locality_pid,STRING,Identificador persistente único da localidade (suburb),,no,,,no,Chave estrangeira para a tabela locality,LOCALITY_PID
+alias_principal,STRING,Indicador de registro alias ou principal,,yes,,,no,,ALIAS_PRINCIPAL
+postcode,STRING,Código postal do endereço,,no,,,no,,POSTCODE
+private_street,STRING,"Informação de rua privada, sem separação em nome, tipo e sufixo",,no,,,no,,PRIVATE_STREET
+legal_parcel_id,STRING,"Identificador da parcela cadastral (Cadastre) da Geoscape associada ao endereço, quando disponível",,no,,,no,,LEGAL_PARCEL_ID
+confidence,STRING,Nível de confiança que reflete em quantas bases de dados contribuidoras o endereço aparece,,yes,,,no,,CONFIDENCE
+address_site_pid,STRING,Identificador persistente do sítio (address site) do endereço,,no,,,no,,ADDRESS_SITE_PID
+level_geocoded,STRING,Código indicador do nível de geocodificação do endereço,,yes,,,no,,LEVEL_GEOCODED_CODE
+property_pid,STRING,Identificador persistente da propriedade referenciada ao modelo cadastral,,no,,,no,,PROPERTY_PID
+gnaf_property_pid,STRING,"Identificador da propriedade fornecido pela jurisdição, associado ao endereço",,no,,,no,,GNAF_PROPERTY_PID
+primary_secondary,STRING,Indicador de endereço primário (P) ou secundário (S),,yes,,,no,,PRIMARY_SECONDARY
+geocode_type,STRING,Código do tipo de geocódigo do geocódigo padrão (default) do endereço,,yes,,,no,Extraído de ADDRESS_DEFAULT_GEOCODE,GEOCODE_TYPE_CODE
+longitude,FLOAT64,Longitude do geocódigo padrão do endereço (datum GDA94 ou GDA2020),,no,,degree,no,Extraído de ADDRESS_DEFAULT_GEOCODE,LONGITUDE
+latitude,FLOAT64,Latitude do geocódigo padrão do endereço (datum GDA94 ou GDA2020),,no,,degree,no,Extraído de ADDRESS_DEFAULT_GEOCODE,LATITUDE
+id_mb_2016,STRING,Código do mesh block do Censo 2016 do ABS associado ao endereço,,no,,,no,"FK pretendida para diretório de mesh blocks do ABS (2016), a ser criado. Extraído de ADDRESS_MESH_BLOCK_2016 para MB_2016.MB_2016_CODE",MB_2016_CODE
+id_mb_2021,STRING,Código do mesh block do Censo 2021 do ABS associado ao endereço,,no,,,no,"FK pretendida para diretório de mesh blocks do ABS (2021), a ser criado. Extraído de ADDRESS_MESH_BLOCK_2021 para MB_2021.MB_2021_CODE",MB_2021_CODE

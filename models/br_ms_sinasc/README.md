@@ -146,6 +146,47 @@ Além da anomalia de município descrita acima, alguns campos naturalmente apres
 
 ---
 
+## Linhas sem município de residência
+
+As partições carregadas antes de 2024 não incluem as linhas com `id_municipio_residencia` nulo. A limpeza atual (`pipelines/datasets/br_ms_sinasc/utils.py`) as inclui, com o campo nulo.
+
+Contagens de 2018/RJ:
+
+```sql
+select
+  count(*) total,
+  countif(id_municipio_residencia is null) res_nulo,
+  countif(id_municipio_nascimento is null) nasc_nulo,
+  countif(id_municipio_mae is null) mae_nulo
+from basedosdados.br_ms_sinasc.microdados
+where ano = 2018 and sigla_uf = 'RJ'
+```
+
+| origem | total | res_nulo | nasc_nulo | mae_nulo |
+|---|---|---|---|---|
+| produção | 220.481 | 0 | 3 | 41.542 |
+| limpeza atual sobre o `.dbc` da fonte | 220.499 | 18 | 3 | 41.554 |
+
+As 18 linhas de diferença são as de `id_municipio_residencia` nulo; 12 delas também têm `id_municipio_mae` nulo.
+
+Contagens de 2024, partição carregada pelo ETL local, que inclui essas linhas:
+
+```sql
+select ano, sigla_uf, count(*)
+from basedosdados.br_ms_sinasc.microdados
+where ano = 2024 and sigla_uf in ('AC', 'RJ')
+group by 1, 2
+```
+
+| sigla_uf | produção | limpeza atual |
+|---|---|---|
+| AC | 13.101 | 13.101 |
+| RJ | 163.722 | 163.722 |
+
+Cada ano reprocessado pelo flow passa a incluir as linhas ausentes daquele ano; os demais seguem sem elas.
+
+---
+
 ## Política geral de qualidade
 
 - **Sem imputação sintética**: nenhum valor é gerado ou estimado para substituir ausências. Dados faltantes são representados como `null`.

@@ -23,7 +23,7 @@
             select
                 duplicates_count,
                 total_rows,
-                round(duplicates_count / total_rows, 2) as failure_rate
+                safe_divide(duplicates_count, total_rows) as failure_rate
             from summary
         )
 

@@ -1132,12 +1132,13 @@ _t(
             {"notnull": True},
         ),
         (
+            # Not every mandate carries a CodigoMandato — older ones (historical
+            # senators) legitimately lack it, so no not_null here.
             "id_mandato",
             "str",
             "Código identificador do mandato",
             "Mandate identifier code",
             "Código identificador del mandato",
-            {"notnull": True},
         ),
         (
             "sigla_uf",
@@ -1145,7 +1146,9 @@ _t(
             "Sigla da unidade da federação de mandato",
             "Federative unit abbreviation of the mandate",
             "Sigla de la unidad federativa del mandato",
-            {"dir": DIR_UF},
+            # Keep the uf directory FK, but exempt extinct units the current
+            # directory omits (GB = Guanabara, dissolved into RJ in 1975).
+            {"dir": DIR_UF, "dir_except": ["GB"]},
         ),
         (
             "participacao",

@@ -30,7 +30,6 @@ def _run_rf(
     table_id: str,
     chunksize: int,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool = False,
@@ -50,10 +49,24 @@ def _run_rf(
             source_max_date=last_update_original_source,
             env="prod",
             date_format="%Y-%m-%d",
+            compare_against="coverage",
         )
 
         if not has_new_data:
             return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=last_update_original_source,
+        env="prod",
+        date_format="%Y-%m-%d",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
 
     crawl(dataset_id=dataset_id, input_dir="input")
 
@@ -73,13 +86,13 @@ def _run_rf(
         table_id=table_id,
         bucket_name="basedosdados-dev",
         dump_mode="append",
+        source_format="parquet",
     )
 
     run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -92,13 +105,13 @@ def _run_rf(
         table_id=table_id,
         bucket_name="basedosdados",
         dump_mode="append",
+        source_format="parquet",
     )
 
     run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -113,12 +126,3 @@ def _run_rf(
             env="prod",
             bq_project="basedosdados",
         )
-
-        if last_update_original_source is not None:
-            commit_source_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=last_update_original_source,
-                env="prod",
-                date_format="%Y-%m-%d",
-            )

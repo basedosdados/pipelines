@@ -1,0 +1,27 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano del levantamiento censal,,no,,year,no,"Columna de particion. El Censo de Poblacion y Vivienda es decenal, por lo que la tabla contiene un unico ano",
+id_region,STRING,"Codigo unico territorial (CUT) de la region, de dos digitos",,no,br_bd_diretorios_cl.region:id_region,,no,Columna de particion. Derivable de los dos primeros digitos de id_comuna,region
+id_provincia,STRING,"Codigo unico territorial (CUT) de la provincia, de tres digitos",,no,br_bd_diretorios_cl.provincia:id_provincia,,no,Derivable de los tres primeros digitos de id_comuna,provincia
+id_comuna,STRING,"Codigo unico territorial (CUT) de la comuna, de cinco digitos",,no,br_bd_diretorios_cl.comuna:id_comuna,,no,,comuna
+id_vivienda,STRING,"Identificador de la vivienda, unico en todo el pais",,no,,,no,Llave primaria de la tabla vivienda. Verificado unico en todo el pais: no requiere id_comuna para desambiguar,id_vivienda
+comuna_bajo_umbral,STRING,Comuna con menos de 6.000 personas censadas,,yes,,,no,,comuna_bajo_umbral
+area,STRING,Estrato censal urbano o rural en que se ubica el registro,,yes,,,no,,area
+tipo_operativo,STRING,Tipo de operativo,,yes,,,no,,tipo_operativo
+cant_hog,INT64,Número de hogares censados en la vivienda particular,,no,,household,no,"Los codigos centinela -99 (no respuesta) y -66 (valor suprimido por anonimizacion) fueron convertidos a NULL, porque en una columna numerica contaminarian cualquier promedio o suma",cant_hog
+cant_per,INT64,Número de personas censadas en la vivienda,,no,,person,no,"Los codigos centinela -99 (no respuesta) y -66 (valor suprimido por anonimizacion) fueron convertidos a NULL, porque en una columna numerica contaminarian cualquier promedio o suma",cant_per
+p2_tipo_vivienda,STRING,Tipo de vivienda particular,,yes,,,no,,p2_tipo_vivienda
+p3a_estado_ocupacion,STRING,Estado de ocupación de la vivienda,,yes,,,no,,p3a_estado_ocupacion
+p3b_estado_ocupacion,STRING,Estado de ocupación de la vivienda (detalle),,yes,,,no,,p3b_estado_ocupacion
+p4a_mat_paredes,STRING,¿Cuál es el material de construcción en las paredes exteriores?,,yes,,,no,,p4a_mat_paredes
+p4b_mat_techo,STRING,¿Cuál es el material de construcción en la cubierta del techo?,,yes,,,no,,p4b_mat_techo
+p4c_mat_piso,STRING,¿Cuál es el material de construcción en el piso?,,yes,,,no,,p4c_mat_piso
+p5_num_dormitorios,INT64,¿Cuántas piezas de esta vivienda se usan exclusivamente como dormitorio?,,no,,room,no,"Topecodificada: el valor 6 significa '6 o mas'. Los codigos centinela -99 (no respuesta) y -66 (valor suprimido por anonimizacion) fueron convertidos a NULL, porque en una columna numerica contaminarian cualquier promedio o suma",p5_num_dormitorios
+p6_fuente_agua,STRING,El agua que usa esta vivienda proviene principalmente de:,,yes,,,no,,p6_fuente_agua
+p7_distrib_agua,STRING,¿Cuál es el sistema de distribución del agua en esta vivienda?,,yes,,,no,,p7_distrib_agua
+p8_serv_hig,STRING,El servicio higiénico (WC) principal de esta vivienda es o está:,,yes,,,no,,p8_serv_hig
+p9_fuente_elect,STRING,La electricidad de esta vivienda proviene principalmente de:,,yes,,,no,,p9_fuente_elect
+p10_basura,STRING,¿Cuál es el principal medio de eliminación de basura de esta vivienda?,,yes,,,no,,p10_basura
+p11a_num_personas,INT64,¿Cuántas personas residen habitualmente en esta vivienda?,,no,,person,no,"Los codigos centinela -99 (no respuesta) y -66 (valor suprimido por anonimizacion) fueron convertidos a NULL, porque en una columna numerica contaminarian cualquier promedio o suma",p11a_num_personas
+p11b_comparte_gasto,STRING,"1. De las personas que residen habitualmente en esta vivienda, ¿todas comparten los gastos para alimentación?",,yes,,,no,,p11b_comparte_gasto
+p11c_num_hogar,INT64,2. ¿Cuántos grupos tienen gastos separados de alimentación?,,no,,household,no,"Los codigos centinela -99 (no respuesta) y -66 (valor suprimido por anonimizacion) fueron convertidos a NULL, porque en una columna numerica contaminarian cualquier promedio o suma",p11c_num_hogar
+indice_hacinamiento,STRING,Índice de hacinamiento,,yes,,,no,,indice_hacinamiento

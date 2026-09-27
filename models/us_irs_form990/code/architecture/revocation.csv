@@ -1,0 +1,13 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ein,STRING,"Número de Identificação de Empregador (EIN, nove dígitos)",,no,,,no,,EIN
+legal_name,STRING,Nome legal da organização,,no,,,no,,Legal Name
+doing_business_as_name,STRING,Nome fantasia da organização,,no,,,no,,Doing Business As Name
+address,STRING,Logradouro,,no,,,no,,Organization Address
+city,STRING,Cidade,,no,,,no,,City
+state,STRING,Estado (sigla USPS),,no,,,no,,State
+zip_code,STRING,CEP (ZIP),,no,,,no,,ZIP Code
+country,STRING,Código do país,,no,,,no,,Country
+exemption_type,STRING,Subseção do Internal Revenue Code sob a qual a organização era isenta,,yes,,,no,Subseção do IRC sob a qual a organização era isenta (mesma lista de códigos de subsection_code do BMF),Exemption Type
+revocation_date,DATE,Data de vigência da revogação automática,,no,,,no,Data de vigência da revogação automática,Revocation Date
+revocation_posting_date,DATE,Data de publicação da revogação,,no,,,no,Data em que a revogação foi publicada em irs.gov,Revocation Posting Date
+exemption_reinstatement_date,DATE,"Data de restabelecimento da isenção, se houver",,no,,,no,Nulo a menos que a isenção tenha sido restabelecida posteriormente,Exemption Reinstatement Date

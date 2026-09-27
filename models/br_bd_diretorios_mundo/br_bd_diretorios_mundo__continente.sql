@@ -1,5 +1,5 @@
 {{ config(alias="continente", schema="br_bd_diretorios_mundo") }}
-
+-- Atualizado em: 2024-06-19
 select
     safe_cast(sigla as string) sigla,
     safe_cast(nome_pt as string) nome_pt,

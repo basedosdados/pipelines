@@ -12,6 +12,7 @@ GOOGLE_APPLICATION_CREDENTIALS at the matching service account. Smallest table
 first; stops on first failure.
 """
 
+import argparse
 import os
 import sys
 import warnings
@@ -24,39 +25,47 @@ import google.cloud.storage as gcs  # noqa: E402
 import pyarrow.dataset as pads  # noqa: E402
 from google.cloud import bigquery  # noqa: E402
 
-_argv = sys.argv[1:]
-if "--env" in _argv:
-    _i = _argv.index("--env")
-    ENV = _argv[_i + 1]
-    _argv = _argv[:_i] + _argv[_i + 2 :]
-else:
-    ENV = "dev"
-BILLING_PROJECT = "basedosdados" if ENV == "prod" else "basedosdados-dev"
 DATASET_ID = "br_mf_divida_ativa"
-DATA_ROOT = Path(
-    os.environ.get(
-        "PGFN_DATA_ROOT",
-        str(Path.home() / "Downloads" / "pgfn_divida_ativa_data"),
-    )
-)
-OUTPUT_ROOT = DATA_ROOT / "output"
-
-# Monkey-patch for requester-pays bucket
-_orig_bucket = gcs.Client.bucket
-
-
-def _patched_bucket(self, bucket_name, user_project=None):
-    return _orig_bucket(self, bucket_name, user_project=BILLING_PROJECT)
-
-
-gcs.Client.bucket = _patched_bucket
-
-# smallest first
+# smallest first, so a bad run fails fast on a cheap table
 TABLES = ["fgts", "previdenciario", "nao_previdenciario"]
 
 
-def upload_table(slug: str) -> int:
-    path = OUTPUT_ROOT / slug
+def data_root() -> Path:
+    """Root holding cleaned parquet under ``output/`` (override PGFN_DATA_ROOT)."""
+    return Path(
+        os.environ.get(
+            "PGFN_DATA_ROOT",
+            str(Path.home() / "Downloads" / "br_mf_divida_ativa_data"),
+        )
+    )
+
+
+def install_requester_pays_patch(billing_project: str) -> None:
+    """Route every GCS bucket call through ``billing_project`` (requester-pays)."""
+    orig_bucket = gcs.Client.bucket
+
+    def patched(self, bucket_name, user_project=None):
+        return orig_bucket(self, bucket_name, user_project=billing_project)
+
+    gcs.Client.bucket = patched
+
+
+def upload_table(slug: str, billing_project: str, output_root: Path) -> int:
+    """Create the staging table for one table slug and verify its row count.
+
+    Args:
+        slug: Table slug (also the output subdirectory name).
+        billing_project: GCP project billed for the load and verify query.
+        output_root: Root directory holding ``<slug>/`` partitioned parquet.
+
+    Returns:
+        The local parquet row count (authoritative).
+
+    Raises:
+        FileNotFoundError: If the table's output directory is missing.
+        ValueError: If the BigQuery row count disagrees with the local parquet.
+    """
+    path = output_root / slug
     if not path.exists():
         raise FileNotFoundError(f"Missing output path: {path}")
 
@@ -82,8 +91,11 @@ def upload_table(slug: str) -> int:
     # authoritative. On dev the QueryUsagePerDay quota can block this query -
     # warn and continue rather than fail the whole upload.
     try:
-        client = bigquery.Client(project=BILLING_PROJECT)
-        q = f"select count(*) as n from `{BILLING_PROJECT}.{DATASET_ID}_staging.{slug}`"
+        client = bigquery.Client(project=billing_project)
+        q = (
+            f"select count(*) as n from "
+            f"`{billing_project}.{DATASET_ID}_staging.{slug}`"
+        )
         n = next(iter(client.query(q).result())).n
         status = "OK" if n == expected else "ROW MISMATCH"
         print(
@@ -101,14 +113,34 @@ def upload_table(slug: str) -> int:
     return expected
 
 
-def main():
-    only = set(_argv)
-    tables = [s for s in TABLES if not only or s in only]
-    print(f"=== uploading to {BILLING_PROJECT} (env={ENV}) ===", flush=True)
+def main() -> None:
+    """Parse args and upload the selected tables (smallest first) to staging."""
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--env", choices=["dev", "prod"], default="dev")
+    ap.add_argument(
+        "tables",
+        nargs="*",
+        choices=TABLES,
+        help="tables to upload (default: all, smallest first)",
+    )
+    args = ap.parse_args()
+
+    billing_project = (
+        "basedosdados" if args.env == "prod" else "basedosdados-dev"
+    )
+    install_requester_pays_patch(billing_project)
+    output_root = data_root() / "output"
+
+    selected = set(args.tables)
+    tables = [t for t in TABLES if not selected or t in selected]
+
+    print(
+        f"=== uploading to {billing_project} (env={args.env}) ===", flush=True
+    )
     for slug in tables:
         print(f"=== {slug} ===", flush=True)
         try:
-            upload_table(slug)
+            upload_table(slug, billing_project, output_root)
         except Exception as e:
             print(f"  FAILED: {type(e).__name__}: {e}")
             sys.exit(1)

@@ -1,0 +1,278 @@
+{
+  "saved_at": "2026-09-10T15:24:24",
+  "dataset_slug": "tas_elections",
+  "gcp_dataset_id": "au_tas_tec_elections",
+  "current_step": 10,
+  "completed_steps": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "env": "staging",
+  "notes": [
+    "venv: ~/.venvs/bd-pipelines-tas; MCP calls use ~/.venvs/bd-pipelines/bin/python (has fastmcp)",
+    "BD_SERVICE_ACCOUNT_DEV=~/.basedosdados/credentials/staging.json -> basedosdados-dev; dbt debug OK",
+    "scratch: ~/Downloads/au_tas_tec_elections_data"
+  ],
+  "resolved_ids": {
+    "area_au_tas": "e5145b53-65bf-4838-a62a-5bf4e2eaa58b",
+    "status_under_review": "47208305-325a-4da9-9222-ac6849405b78",
+    "status_published": "e16221de-ac30-4926-83d3-de219998dab3",
+    "license_cc_40": "a8f7a0a7-411b-4d06-916e-6debeddac49b",
+    "license_unknown": "77dfe32b-6a14-4490-806f-22af1f26c425",
+    "availability_online": "dd396d7d-0264-4c1f-bf0d-6efe2dc89cbe",
+    "theme_government": "6dd730bb-89ab-4dba-a1bf-a25ca1c35003",
+    "theme_politics": "c4e75f8c-29de-4b76-9607-657d4ac7f490",
+    "tags": {
+      "eleicao": "327ca750-b120-4d60-90ee-750a0f1fa79c",
+      "voto": "0f9f27ec-d0cf-4c73-8f19-6a7af438d120",
+      "partido": "a4dcbfbb-cf4e-4b92-adfe-9b16ab2c5a15",
+      "candidatura": "039717e7-b20d-4fcb-8792-9d6cb8ec9484",
+      "sistema_eleitoral": "689c119a-8b6c-4ea7-9960-95b3e8ee9ccd",
+      "preferencias": "df03ec27-975e-4f28-b3d7-66ad641fae0b",
+      "parlamento": "b361d298-b933-4fac-85e4-e65e778e9c97",
+      "legislativo": "08844878-ac8d-430a-88a2-17eda89f8e4a"
+    },
+    "organization_au_tec": "TO BE CREATED"
+  },
+  "geography_finding": {
+    "conclusion": "ABS state_electoral_division for TAS is an INTERSECTION of the two chambers (e.g. 'Bass (Launceston)') and matches NEITHER chamber 1:1. TAS House of Assembly divisions ARE coterminous with the Commonwealth electoral divisions, so the correct directory is commonwealth_electoral_division_2021 (ids 601-605).",
+    "sed_2011_vs_2016": "byte-identical for TAS (25 rows, same ids and names)",
+    "sed_2021": "differs: Denison->Clark, Apsley removed, Prosser added, ids shifted",
+    "ced_tas": {
+      "601": "Bass",
+      "602": "Braddon",
+      "603": "Denison(2011,2016) / Clark(2021)",
+      "604": "Franklin",
+      "605": "Lyons"
+    },
+    "legislative_council": "15 single-member divisions; NO directory exists that matches them 1:1 -> no FK, district_name only"
+  },
+  "licence": {
+    "verdict": "CC BY 4.0 — confirmed, covers the results files",
+    "url": "https://www.tec.tas.gov.au/info/Copyright.html",
+    "quote": "Unless otherwise noted, the TEC has applied the Creative Commons Attribution 4.0 International Licence to all material on this website with the exception of: TEC logos, and content supplied by a third party.",
+    "attribution_required": "© Tasmanian Electoral Commission",
+    "how_found": "tec.tas.gov.au/copyright 404s. The link lives in /navigation/footer.html, a w3-include-html client-side include present on every page including the results pages, so it is invisible to a plain crawl of the rendered HTML.",
+    "not_covered": "disclosures.tec.tas.gov.au is a separate host whose only legal page is a privacy statement with no licence grant. Static register mirrors under www.tec.tas.gov.au/disclosure-and-funding/ ARE on the covered host.",
+    "ckan": "No CKAN record anywhere points at tec.tas.gov.au (data.gov.au count 0).",
+    "license_id_to_use": "cc_40"
+  },
+  "source_shape": {
+    "w3_include_trap": "Result tables are injected client-side via w3-include-html; the payloads are sibling fragments fp-<div>-m.html and dist-<div>-m.html. A scrape of the rendered division page sees an empty shell and wrongly concludes the archived results were deleted.",
+    "path_moved": {
+      "2021": "StateElection2021/results/assets/",
+      "2024": "elections-2024/results/pdf/",
+      "2025": "elections-2025/results/downloads/"
+    },
+    "hoa_count_export_xlsx": "2024 and 2025 only; 2021/2018/2014 are PDF",
+    "hoa_inline_era": "2018 and earlier carry result tables inline, not in fragments",
+    "hoa_2014": "PDF only (scrutiny event sheet + first prefs by polling place)",
+    "denison_clark": "TEC Divisions.html: 'Following amendments to the Constitution Act, which gained Royal Assent on 28 September 2018, House of Assembly electoral names and boundaries were updated to match changes to Federal divisions' and 'Prior to 2018, the Division of Clark was known as the Division of Denison'. Same page: 'These divisions have the same boundaries as the five Commonwealth House of Representatives divisions for Tasmania.'",
+    "disclosure_register": "Populated from 1 Jul 2025: static HTML fragments under disclosure-and-funding/registers-and-reports/ on the CC-BY host. The Power Apps portal renders 'There are no records to display' as a template placeholder — not evidence of emptiness."
+  },
+  "row_counts": {
+    "election": 14,
+    "candidate": 666,
+    "enrolment_turnout": 45,
+    "result_district": 1202,
+    "result_voting_centre": 35811,
+    "distribution_of_preferences": 12036,
+    "voting_centre": 853,
+    "dicionario": 50,
+    "_total": 50677
+  },
+  "validation": {
+    "dbt": "40/40 tests pass (dbt run 8/8, then dbt test)",
+    "seat_allocation": "House of Assembly 25/25/35/35 seats for 2018/2021/2024/2025 — matches the TEC's documented 25 to 35 expansion at 2024",
+    "lc_winners": "25 of 25 Legislative Council contests reproduce the elected member named on the TEC's own LCHistory summary pages",
+    "polling_place_crossfoot": "552 candidate polling-place sums equal the division first-preference total, 0 disagree",
+    "formal_votes": "32 contests where formal votes equal the sum of first preferences, 0 disagree",
+    "provisional_count_check": "All 27 distribution fragments carry the TEC's FINAL marker. Five do not: the 2025 House of Assembly first-preference fragments. Rather than assume, each was cross-checked against that division's final count export — formal votes match to the vote in all five (Bass 67,450; Braddon 70,686; Clark 64,042; Franklin 73,007; Lyons 74,936). They are final; only the marker is missing."
+  },
+  "known_gaps": {
+    "hoa_2014": "excluded — scrutiny sheets and polling-place first preferences are PDF only",
+    "hoa_dop_pre_2024": "no distribution_of_preferences for 2018 or 2021; the count export is PDF until 2024",
+    "lc2021_polling_places": "Derwent, Mersey and Windermere 2021 publish a distribution but no first-preference-by-polling-place table",
+    "lc2017pembroke": "excluded — the page publishes only two provisional exclusion scenarios with 394 postal votes outstanding; no final count was ever posted",
+    "by_elections_in_periodic_events": "Huon 2022 and Elwick 2024 were by-elections held with the periodic elections; election_type records the parent event as state_periodic",
+    "sitting_member_flag": "the source marks sitting members with a bullet (class 'sitting' in the 2018 markup); parsed but not published as a column",
+    "prod": "Nothing registered on prod. Step 10 awaits human approval at the checkpoint."
+  },
+  "source_traps": {
+    "w3_include": "result tables are injected client-side; the payloads are sibling fragments fp-<div>-m.html and dist-<div>-m.html",
+    "subtotal_columns": "both the XLSX and the HTML interleave 'Total Ordinary' and 'Total' roll-ups among the venues; summing them roughly doubles every candidate's vote",
+    "missing_dist_is_data": "a 404 on dist-<div>-m.html means the winner took an absolute majority on first preferences, not a scrape failure",
+    "dead_links": "3 stale document links live on the 2018 results pages (PPs/Braddon.xlsx, Denison.xlsx, Lyons.xlsx) — recorded, not silently skipped",
+    "url_spaces": "count export filenames contain spaces and a per-division count number; they must be percent-encoded and never constructed"
+  },
+  "auxiliary_files": {
+    "decision": "No per-table bundle. Step 6b deliberately skipped.",
+    "reasoning": "A bundle exists to make a table usable. Every column here is named and described in three languages, and every coded value is in the dicionario table, so nothing external is needed to read the data. The TEC's own documentation is reference material read once: the statutory Report on Parliamentary Elections runs to 7.7 MB (2024-2025) and 11.4 MB (2022-2024), both over the link-only threshold, and the per-election snapshots are 76 KB summaries. Per auxiliary-files, these are link-only.",
+    "link_only": [
+      "https://www.tec.tas.gov.au/info/Publications/ElectionReports/ (statutory reports, 1909 to 2025)",
+      "https://www.tec.tas.gov.au/info/Publications/ElectionSnapshots/ (per-election snapshots, 2020 to 2025)"
+    ]
+  },
+  "pipeline_assessment": {
+    "warranted": true,
+    "cadence": "The Legislative Council elects 2-3 of its 15 divisions every year, polling on a Saturday in May; by-elections fall in between; the House of Assembly is irregular (2018, 2021, 2024, 2025).",
+    "shape": "Annual, polling a few days across late May to July. The hard part, discovering each election's URLs, is already solved by discovery.py, which scrapes rather than constructs.",
+    "limitation": "ELECTION_META hardcodes each event's polling day, seat count and path prefix, so a new election needs a small constants edit once a year. The path prefix has changed shape four times since 2018, so deriving it automatically would be guesswork.",
+    "poll_granularity": "The source's max coverage date is a year and the coverage is YEAR granularity, so the poll comparison is well matched."
+  },
+  "staging_registration": {
+    "dataset_id": "e03e6134-e83b-4d93-9bd2-72aaf165b378",
+    "status": "published (staging only — prod has no tas_elections record)",
+    "columns_registered": {
+      "election": 8,
+      "candidate": 17,
+      "enrolment_turnout": 19,
+      "result_district": 17,
+      "result_voting_centre": 17,
+      "distribution_of_preferences": 17,
+      "voting_centre": 11,
+      "dicionario": 5,
+      "_total": 111
+    },
+    "all_columns_trilingual": true,
+    "directory_fks_stored": "20/20 — year->diretorios_data_tempo.ano:ano on 7 tables, commonwealth_electoral_division_id and state_electoral_division_id on the 6 contest tables; each read back from the backend, none silently dropped",
+    "observation_levels": "18 links: year->year, district->district_name, person->ballot_name, electoral_booth->voting_centre_name; is_partition=True re-passed on every year in the same call",
+    "cloud_tables": "8, basedosdados-dev.au_tas_tec_elections.<table>",
+    "coverage": "8 x area au_tas, DateTimeRange 2018-2026 interval 1, is_closed False",
+    "updates": "8 table-anchored, entity year, frequency 1, latest 2026-09-10",
+    "raw_data_source": "7df20146-c103-4dc1-8062-c683b5219fbf (licence cc_40), linked to all 8 tables",
+    "duplicate_columns_removed": "enrolment_turnout had been registered twice (38 columns for 19 names); the 19 with order >= 19 were deleted, leaving the original architecture-ordered set"
+  },
+  "staging": {
+    "dataset_id": "e03e6134-e83b-4d93-9bd2-72aaf165b378",
+    "organization_id": "798cbb58-2026-4fd1-bb37-9a6cbc6802eb",
+    "raw_data_source_id": "7df20146-c103-4dc1-8062-c683b5219fbf",
+    "url": "https://staging.basedosdados.org/dataset/e03e6134-e83b-4d93-9bd2-72aaf165b378",
+    "status": "published (staging only — prod untouched)",
+    "verified": "8 tables, 111 columns, 18 observation levels, 8 cloud tables, 8 coverages 2018-2026, 8 table updates, 1 raw source linked per table; 1 org / 2 themes / 8 tags all non-empty"
+  },
+  "known_backend_gap": "create_update_dataset in this MCP build exposes no usage_guide argument, so the CC BY 4.0 attribution requirement (© Tasmanian Electoral Commission) could not be recorded on the dataset. Needs a Django admin edit or an MCP tool that exposes the field. Confirmed again on prod: create_update_dataset exposes no usage_guide argument and the backend GraphQL schema carries no attribution field, so '© Tasmanian Electoral Commission' has nowhere to live.",
+  "near_duplicate_rule": "Victoria's rule — latest print timestamp wins within (election, contest, report kind) — did not apply. TEC workbooks carry no readable print timestamp, and the only near-duplicates are the 2018 results pages' stale links to PPs/Braddon.xlsx, Denison.xlsx and Lyons.xlsx, which sit beside the live 2018-<Div>-first-prefs-by-polling-places.xlsx. All three return 404, so raise-on-non-2xx settled it with no arbitration needed. They are recorded in manifest.json under dead_urls rather than silently skipped.",
+  "prod_registration": {
+    "registered_at": "2026-09-10",
+    "dataset_id": "8192b6a5-863b-4603-a3bd-d10d82958e5d",
+    "status": "under_review — NOT published; prod publish waits for PR merge + table-approve + prod row-count verification",
+    "organization_id": "1da945c8-5be2-4e09-920c-e2c88fee99d8",
+    "organization_note": "created fresh on prod as slug `tec` (prod drops the `au_` prefix); staging is `au_tec` with a different UUID",
+    "area_au_tas": "cc7f12b2-4a3d-4454-a553-a08a41effba8 (prod) — differs from staging e5145b53-65bf-4838-a62a-5bf4e2eaa58b",
+    "account": "4",
+    "raw_data_source_id": "77cdf501-625c-4a78-bda6-c9cac145b6b7",
+    "license": "cc_40 (a8f7a0a7-411b-4d06-916e-6debeddac49b)",
+    "tags": "8, all resolved by English slug on prod (candidacy, elections, electoral-system, legislative, parliament, political_party, preferences, vote); no tag created, no place tag",
+    "themes": "government, politics",
+    "tables": {
+      "election": "eb0e3d14-f8d1-467e-b274-34d1ffd72d31",
+      "candidate": "b57fe356-67e3-4496-a2bd-e8ca455d7b5d",
+      "enrolment_turnout": "3b4004fa-a4a3-4650-a811-c1a00146ef37",
+      "result_district": "a55fb648-3a31-47ae-85b5-9823ec938a5c",
+      "result_voting_centre": "4d39a371-494b-4b05-9f9b-103dd440c401",
+      "distribution_of_preferences": "c07142c0-f7b0-450d-9da3-a12506301dde",
+      "voting_centre": "352e9335-9f68-43ed-8f51-32404f51bc9a",
+      "dicionario": "07542e20-9b23-4481-b201-241b7c461a02"
+    },
+    "cloud_tables": {
+      "election": "653c127f-1f0f-4ad4-b57a-f84a94ba5799",
+      "candidate": "be304f00-5c9f-41cd-90a4-2bdb881bfe6f",
+      "enrolment_turnout": "2fa59e35-a78d-44bd-9ad6-5757cae5d974",
+      "result_district": "01f78313-5048-4d64-8fde-4d444b68028e",
+      "result_voting_centre": "23cc7a73-82f6-4621-a4d0-4ac270425ac7",
+      "distribution_of_preferences": "9ff19d09-a135-44f9-969b-43cbc8bc1ad8",
+      "voting_centre": "7db93662-2ad2-4e02-b6c0-e8e52a299e4e",
+      "dicionario": "3e16114c-663b-41f6-8917-b8579bca9076"
+    },
+    "coverages": {
+      "election": {
+        "coverage": "c2ae738d-a83c-455d-a068-53cb4347f3db",
+        "datetime_range": "360bb7a7-a10c-4b37-b395-ec18a79e5880"
+      },
+      "candidate": {
+        "coverage": "9a92e480-4f31-4f1f-a00c-417b9c4b9def",
+        "datetime_range": "9aa25b41-0966-4e1c-9bef-1c885fe04062"
+      },
+      "enrolment_turnout": {
+        "coverage": "d345abca-4019-488d-afa5-f2f440c04c7a",
+        "datetime_range": "8e0a4710-d5f2-4d22-99cd-a9899125de43"
+      },
+      "result_district": {
+        "coverage": "ef1e765d-9064-4da2-9dff-23593df97b44",
+        "datetime_range": "af31464f-f266-4191-a57e-83141478b733"
+      },
+      "result_voting_centre": {
+        "coverage": "3967c664-d32f-4f7e-8945-8b2cdd0b0c28",
+        "datetime_range": "a9506e26-0de4-4519-b9c8-b7e7f9169985"
+      },
+      "distribution_of_preferences": {
+        "coverage": "53769fd3-1abc-49f3-9095-16b9986e1a21",
+        "datetime_range": "b502a487-4732-4bc2-939e-82da4e754ee3"
+      },
+      "voting_centre": {
+        "coverage": "40f16e36-42fe-4ebd-963f-7f34bb12c457",
+        "datetime_range": "4b2352f1-b8d0-41a2-98a6-40c3408a222b"
+      },
+      "dicionario": {
+        "coverage": "fbe17dcb-67f0-4f30-a64d-4970e340d811",
+        "datetime_range": "dccdae7c-e35b-41b2-a2e6-3f2c0a9d96af"
+      }
+    },
+    "updates": {
+      "election": "d2c4c8a8-d321-4380-a42c-5fc03e747fd9",
+      "candidate": "c6d84869-2be0-4fe8-acfc-51e346c9b2c2",
+      "enrolment_turnout": "57d9260b-3ef4-4521-a487-4f6df10bf3ff",
+      "result_district": "f20cca53-fc22-4b37-b7ce-e63e4479aca8",
+      "result_voting_centre": "d6607990-c891-4311-8b95-81291eb64bdc",
+      "distribution_of_preferences": "94fe4836-5c4a-4300-acd6-d992c5e5efe5",
+      "voting_centre": "1c2292dd-3102-4855-a940-d6408f8ef25b",
+      "dicionario": "d2ac8c13-6334-4d22-82d4-0c66452b5c0e"
+    },
+    "observation_levels": {
+      "election": {
+        "year": "6e25820a-b3d2-46e7-ab74-3fe80f4a3b13"
+      },
+      "candidate": {
+        "year": "62c6c1a1-8a82-4afb-8425-f5724045f9b3",
+        "district": "fbd4112a-b069-4054-91ab-6fab25c5ec11",
+        "person": "fddf0f3e-277e-4e4f-9a29-3d092da85c3e"
+      },
+      "enrolment_turnout": {
+        "year": "79e2951e-a4ba-4a63-883a-5c941af2c6a6",
+        "district": "09cb8925-db38-46b2-aca2-8313a7049f9e"
+      },
+      "result_district": {
+        "year": "82208367-d4bf-4c4f-9ba4-ac477025c539",
+        "district": "c45d70ab-8684-479b-be5c-01908ab5746c",
+        "person": "896a1cb5-ae1a-4e56-a40d-11fe640bcbae"
+      },
+      "result_voting_centre": {
+        "year": "3236441b-a6ce-4af7-97fd-ce40d90a8c09",
+        "district": "5dab5236-790a-417a-9e10-952cb004b27c",
+        "electoral_booth": "384cdea2-337b-4740-b4b7-31fbffd9f019",
+        "person": "0cdee8c3-504c-49af-af48-ad0d64fb3772"
+      },
+      "distribution_of_preferences": {
+        "year": "c1f1bd12-2734-4700-a92d-ab0afbb48be8",
+        "district": "6744cedb-5f75-4c94-bc06-b8d9058a6253",
+        "person": "936297c4-63bc-4355-878d-467acbe452c3"
+      },
+      "voting_centre": {
+        "year": "f627e53f-3185-4dd0-9908-35620e6e1ebe",
+        "electoral_booth": "c14ece6b-67de-41e0-8ceb-896b54ef4a1c"
+      },
+      "dicionario": {}
+    },
+    "verified": "111 columns (111/111 trilingual descriptions, 85 with observations all trilingual), 18 OL links, 17 directory FKs, 7 partition flags, 0 primary keys, 8 cloud tables -> basedosdados.au_tas_tec_elections, 1 coverage + 1 datetime range (2018-2026) + 1 table update per table, 1 raw source per table; every field diffed against the repo payload and against staging, 0 mismatches",
+    "cloud_tables_note": "point at basedosdados.au_tas_tec_elections.*, which does not exist yet — table-approve materialises it on merge"
+  }
+}

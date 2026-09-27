@@ -1,0 +1,6 @@
+name	bigquery_type	description	temporal_coverage	covered_by_dictionary	directory_column	measurement_unit	has_sensitive_data	observations	original_name
+id_tabela	STRING	Nome da tabela à qual a chave e o valor se referem		no			no		
+nome_coluna	STRING	Nome da coluna à qual a chave e o valor se referem		no			no		
+chave	STRING	Valor da categoria conforme armazenado na coluna		no			no		
+cobertura_temporal	STRING	Intervalo de anos em que o valor foi observado na base		no			no	Registra a vigência observada de cada valor da taxonomia, revisada em 2017 e em 2023	
+valor	STRING	Rótulo da categoria conforme publicado pelo CFPB		no			no	As categorias do CFPB já são publicadas como rótulos legíveis, de modo que valor reproduz chave; a informação adicional está em cobertura_temporal	

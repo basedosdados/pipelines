@@ -28,7 +28,6 @@ def _upload_and_dbt(
     dataset_id: str,
     table_id: str,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     target: str,
 ) -> None:
     upload_to_gcs(
@@ -42,7 +41,6 @@ def _upload_and_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
     if not materialize_after_dump:
@@ -58,7 +56,6 @@ def _upload_and_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -68,7 +65,6 @@ def br_bd_indicadores__twitter_metrics(
     dataset_id: str = _DATASET,
     table_id: str = "twitter_metrics",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     target: str = "prod",
 ) -> None:
     # pyrefly: ignore [unused-coroutine]
@@ -98,7 +94,6 @@ def br_bd_indicadores__twitter_metrics(
         dataset_id,
         table_id,
         materialize_after_dump,
-        dbt_alias,
         target,
     )
 
@@ -107,14 +102,12 @@ def br_bd_indicadores__twitter_metrics(
 def br_bd_indicadores__twitter_metrics_agg(
     dataset_id: str = _DATASET,
     table_id: str = "twitter_metrics_agg",
-    dbt_alias: bool = True,
     target: str = "prod",
 ) -> None:
     run_dbt(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
     download_data_to_gcs(dataset_id=dataset_id, table_id=table_id)
@@ -156,7 +149,6 @@ def br_bd_indicadores__website_user(
     dataset_id: str = _DATASET,
     table_id: str = "website_user",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     target: str = "prod",
 ) -> None:
     # pyrefly: ignore [unused-coroutine]
@@ -180,7 +172,6 @@ def br_bd_indicadores__website_user(
         dataset_id,
         table_id,
         materialize_after_dump,
-        dbt_alias,
         target,
     )
 
@@ -191,7 +182,6 @@ def _sheet_flow_body(
     sheet_id: str,
     sheet_name: str,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     target: str,
     filename: str,
     usecols: int | None = None,
@@ -212,7 +202,6 @@ def _sheet_flow_body(
         dataset_id,
         table_id,
         materialize_after_dump,
-        dbt_alias,
         target,
     )
 
@@ -224,7 +213,6 @@ def br_bd_indicadores__contabilidade(
     sheet_id: str = "1jtZAV2SFEdEX99DumpUQ1LjZE2vcSgvL4DNo4n6HIec",
     sheet_name: str = "transacoes_anonimizado",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     target: str = "prod",
 ) -> None:
     _sheet_flow_body(
@@ -233,7 +221,6 @@ def br_bd_indicadores__contabilidade(
         sheet_id,
         sheet_name,
         materialize_after_dump,
-        dbt_alias,
         target,
         "contabilidade",
     )
@@ -246,7 +233,6 @@ def br_bd_indicadores__receitas_planejadas(
     sheet_id: str = "1fHp1NNUyhFIAAJ9bZOdZ2i9PSLIbkjSjMcGAlaxur90",
     sheet_name: str = "receitas_planejadas_anonimizado",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     target: str = "prod",
 ) -> None:
     _sheet_flow_body(
@@ -255,7 +241,6 @@ def br_bd_indicadores__receitas_planejadas(
         sheet_id,
         sheet_name,
         materialize_after_dump,
-        dbt_alias,
         target,
         "receitas_planejadas",
     )
@@ -268,7 +253,6 @@ def br_bd_indicadores__equipes(
     sheet_id: str = "1gLJyoxiFeIRn7FKiP3Fpbr04bScVuhmF",
     sheet_name: str = "equipes",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     target: str = "prod",
 ) -> None:
     _sheet_flow_body(
@@ -277,7 +261,6 @@ def br_bd_indicadores__equipes(
         sheet_id,
         sheet_name,
         materialize_after_dump,
-        dbt_alias,
         target,
         "equipes",
         usecols=6,
@@ -291,7 +274,6 @@ def br_bd_indicadores__pessoas(
     sheet_id: str = "1cQj9ItJoO_AQElRT2ngpHZXhFCSpQCrV",
     sheet_name: str = "pessoas",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     target: str = "prod",
 ) -> None:
     _sheet_flow_body(
@@ -300,7 +282,6 @@ def br_bd_indicadores__pessoas(
         sheet_id,
         sheet_name,
         materialize_after_dump,
-        dbt_alias,
         target,
         "pessoas",
         usecols=9,
