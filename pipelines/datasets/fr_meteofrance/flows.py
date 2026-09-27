@@ -21,7 +21,7 @@ ignores the schedules, the prod pool activates them.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.fr_meteofrance.constants import constants
 from pipelines.datasets.fr_meteofrance.tasks import (
@@ -33,6 +33,7 @@ from pipelines.datasets.fr_meteofrance.tasks import (
     download_synop,
     max_climatologie_date,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -396,32 +397,26 @@ def fr_meteofrance_climatologie_base_flow(
 
 # Météo-France refreshes the current year's SYNOP file through the day; 07:23 BRT
 # is after the overnight sync and on a minute nothing else in the repo uses.
-# pyrefly: ignore [missing-attribute]
 fr_meteofrance_synop_flow.deploy_schedules = [
-    {"cron": "23 7 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("23 7 * * *", timezone="America/Sao_Paulo")
 ]
 # One year of SYNOP is ~350k rows in pandas; modest.
-# pyrefly: ignore [missing-attribute]
 fr_meteofrance_synop_flow.job_variables = {"memory": "4Gi"}
 
 # The sheets are reissued monthly, early in the month. Poll across a few days at
 # 07:37 BRT; the source-poll guard no-ops until a new edition actually appears.
-# pyrefly: ignore [missing-attribute]
 fr_meteofrance_climatologie_flow.deploy_schedules = [
-    {"cron": "37 7 6,7,8,9 * *", "timezone": "America/Sao_Paulo"}
+    Cron("37 7 6,7,8,9 * *", timezone="America/Sao_Paulo")
 ]
 # Cleans 31 years of SYNOP plus 1,576 sheets; give the worker headroom.
-# pyrefly: ignore [missing-attribute]
 fr_meteofrance_climatologie_flow.job_variables = {"memory": "8Gi"}
 
 # The archive is reissued monthly, a few days into the month. 07:51 BRT is a
 # minute nothing else in the repo uses; the source-poll guard no-ops until a new
 # edition appears.
-# pyrefly: ignore [missing-attribute]
 fr_meteofrance_climatologie_base_flow.deploy_schedules = [
-    {"cron": "51 7 8,9,10,11 * *", "timezone": "America/Sao_Paulo"}
+    Cron("51 7 8,9,10,11 * *", timezone="America/Sao_Paulo")
 ]
 # Downloads ~940 archives and rebuilds the station register from all of them,
 # but only re-cleans the latest slice (~4M daily rows, not 137M).
-# pyrefly: ignore [missing-attribute]
 fr_meteofrance_climatologie_base_flow.job_variables = {"memory": "12Gi"}

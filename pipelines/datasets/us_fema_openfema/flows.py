@@ -31,7 +31,7 @@ the dev pool ignores the schedule, the prod pool activates it (deployed paused).
 import shutil
 import tempfile
 
-from prefect import flow  # pyrefly: ignore [missing-attribute]
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_fema_openfema.constants import constants
 from pipelines.datasets.us_fema_openfema.tasks import (
@@ -40,6 +40,7 @@ from pipelines.datasets.us_fema_openfema.tasks import (
     download_openfema,
     write_dicionario_task,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -173,12 +174,10 @@ def us_fema_openfema_flow(
 # Daily at 05:13 BRT — a free minute. The declarations and Public Assistance
 # sets move most days; the two NFIP files are monthly, so their poll no-ops
 # until FEMA cuts a new extract.
-# pyrefly: ignore [missing-attribute]
 us_fema_openfema_flow.deploy_schedules = [
-    {"cron": "13 5 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("13 5 * * *", timezone="America/Sao_Paulo")
 ]
 # The NFIP policy file is a 3.7 GB parquet re-partitioned into 19 year files.
 # The clean streams by record batch, so peak memory is a batch rather than the
 # file, but the download and the dbt rebuild want headroom.
-# pyrefly: ignore [missing-attribute]
 us_fema_openfema_flow.job_variables = {"memory": "8Gi"}

@@ -16,13 +16,14 @@ the dev pool ignores the schedule, the prod pool activates it (paused until arme
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.world_cricsheet.constants import constants
 from pipelines.datasets.world_cricsheet.tasks import (
     clean_cricsheet,
     download_cricsheet,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -223,11 +224,9 @@ def world_cricsheet_flow(
 # WEEKLY instead — Monday 06:00 BRT — which cuts the cost ~4x while keeping
 # freshness fine. The source-poll guard still no-ops between real releases, and
 # the full-replace dump means overlapping windows never duplicate.
-# pyrefly: ignore [missing-attribute]
 world_cricsheet_flow.deploy_schedules = [
-    {"cron": "15 6 * * 1", "timezone": "America/Sao_Paulo"}
+    Cron("15 6 * * 1", timezone="America/Sao_Paulo")
 ]
 # The deliveries build streams 11.4M rows and the bundle extracts to several GB;
 # give the worker headroom.
-# pyrefly: ignore [missing-attribute]
 world_cricsheet_flow.job_variables = {"memory": "12Gi"}

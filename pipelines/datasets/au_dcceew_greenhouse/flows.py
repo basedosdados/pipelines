@@ -18,13 +18,14 @@ the dev pool ignores the schedule, the prod pool activates it.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.au_dcceew_greenhouse.constants import constants
 from pipelines.datasets.au_dcceew_greenhouse.tasks import (
     clean_inventory,
     download_inventory,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -155,7 +156,6 @@ def au_dcceew_greenhouse_flow(
 # DCCEEW publishes the annual National Inventory Report ~April-May; the ANGA
 # OData reflects it some weeks later. Check quarterly (Feb/May/Aug/Nov) across a
 # few days; the source-poll guard no-ops until a new annual year lands.
-# pyrefly: ignore [missing-attribute]
 au_dcceew_greenhouse_flow.deploy_schedules = [
-    {"cron": "23 15 18,19,20 2,5,8,11 *", "timezone": "America/Sao_Paulo"}
+    Cron("23 15 18,19,20 2,5,8,11 *", timezone="America/Sao_Paulo")
 ]
