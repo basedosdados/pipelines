@@ -9,7 +9,6 @@ Run: uv run python models/us_bls_oes/code/build_dbt.py
 
 from pathlib import Path
 
-# pyrefly: ignore [untyped-import]
 import yaml
 
 from pipelines.datasets.us_bls_oes.constants import constants

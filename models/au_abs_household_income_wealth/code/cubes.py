@@ -38,7 +38,6 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-# pyrefly: ignore [untyped-import]
 import openpyxl
 
 ABS_BOILERPLATE = "australian bureau of statistics"

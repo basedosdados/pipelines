@@ -31,7 +31,6 @@ import pathlib
 import re
 import shutil
 
-# pyrefly: ignore [untyped-import]
 import openpyxl
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -138,7 +137,6 @@ def workbook_sheets(path: pathlib.Path) -> dict[str, list[list[str]]]:
     filenames that claim otherwise.
     """
     if not path.read_bytes()[:2].startswith(b"PK"):
-        # pyrefly: ignore [untyped-import]
         import xlrd
 
         book = xlrd.open_workbook(str(path))

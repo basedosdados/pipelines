@@ -23,8 +23,6 @@ from pathlib import Path
 
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
-
-# pyrefly: ignore [untyped-import]
 import yaml
 
 from models.af_afrobarometer_survey.code.common import (

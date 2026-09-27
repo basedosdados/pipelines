@@ -55,7 +55,7 @@ def read_table(name: str) -> list[dict]:
 
 
 def load_providers() -> ProviderIndex:
-    # pyrefly: ignore [untyped-import]
+
     import openpyxl
 
     book = openpyxl.load_workbook(

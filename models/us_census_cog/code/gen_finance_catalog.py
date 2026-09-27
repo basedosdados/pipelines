@@ -28,7 +28,7 @@ FIRST_FINANCE_VARIABLE = 25
 
 def read_user_guide() -> list[dict]:
     """Return one row per numbered variable in the User Guide."""
-    # pyrefly: ignore [untyped-import]
+
     import xlrd
 
     archive = INPUT / "fin" / "IndFin_1967_2012.zip"

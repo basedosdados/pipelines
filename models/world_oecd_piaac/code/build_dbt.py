@@ -14,7 +14,6 @@ import csv
 import json
 from pathlib import Path
 
-# pyrefly: ignore [untyped-import]
 import yaml
 
 from models.world_oecd_piaac.code import architecture as arch

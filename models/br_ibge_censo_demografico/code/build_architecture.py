@@ -10,7 +10,6 @@ import csv
 import re
 from pathlib import Path
 
-# pyrefly: ignore [untyped-import]
 import openpyxl
 
 from models.br_ibge_censo_demografico.code import constants

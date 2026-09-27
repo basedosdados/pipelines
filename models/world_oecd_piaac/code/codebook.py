@@ -19,7 +19,6 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-# pyrefly: ignore [untyped-import]
 import openpyxl
 
 # Domains whose variables are per-item measures rather than per-respondent facts.

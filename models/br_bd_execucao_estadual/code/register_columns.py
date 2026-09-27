@@ -26,7 +26,6 @@ from pathlib import Path
 warnings.filterwarnings("ignore")
 
 
-# pyrefly: ignore [untyped-import]
 import yaml  # noqa: E402
 from google.cloud import bigquery  # noqa: E402
 

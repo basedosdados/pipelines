@@ -7,7 +7,6 @@ Keeps the ~85-column wide models consistent with the Drive sheets and the cleane
 import csv
 from pathlib import Path
 
-# pyrefly: ignore [untyped-import]
 import yaml
 
 HERE = Path(__file__).resolve().parent

@@ -20,7 +20,6 @@ import re
 from dataclasses import asdict
 from pathlib import Path
 
-# pyrefly: ignore [untyped-import]
 import openpyxl
 import pyarrow as pa
 import pyarrow.parquet as pq

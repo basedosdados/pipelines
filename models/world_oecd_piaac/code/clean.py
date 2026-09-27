@@ -105,7 +105,7 @@ def item_metadata(
 
 def cycle_1_item_schemes() -> dict[str, dict[str, str]]:
     """Scored-response labels for Cycle 1 items, read from the Values sheet."""
-    # pyrefly: ignore [untyped-import]
+
     import openpyxl
 
     workbook = openpyxl.load_workbook(

@@ -208,7 +208,7 @@ def _cell(value) -> str:
 
 
 def _xlsx_rows(path: Path) -> list[list[str]]:
-    # pyrefly: ignore [untyped-import]
+
     import openpyxl
 
     wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
@@ -224,7 +224,7 @@ def _xlsx_rows(path: Path) -> list[list[str]]:
 
 
 def _xls_rows(path: Path) -> list[list[str]]:
-    # pyrefly: ignore [untyped-import]
+
     import xlrd
 
     wb = xlrd.open_workbook(str(path))

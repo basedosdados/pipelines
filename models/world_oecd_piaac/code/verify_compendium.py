@@ -19,7 +19,6 @@ from __future__ import annotations
 import collections
 import sys
 
-# pyrefly: ignore [untyped-import]
 import openpyxl
 from google.cloud import bigquery
 

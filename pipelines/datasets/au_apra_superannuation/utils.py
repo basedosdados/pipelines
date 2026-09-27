@@ -19,7 +19,7 @@ import logging
 import re
 from pathlib import Path
 
-import openpyxl  # pyrefly: ignore [untyped-import]
+import openpyxl
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq

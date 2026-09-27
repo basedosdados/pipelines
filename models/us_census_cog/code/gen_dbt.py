@@ -8,7 +8,6 @@ there propagates to the models rather than being restated by hand.
 
 from pathlib import Path
 
-# pyrefly: ignore [untyped-import]
 import yaml
 
 from models.us_census_cog.code.common import DATASET_ID

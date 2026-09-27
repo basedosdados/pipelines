@@ -31,8 +31,6 @@ import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.csv as pacsv
 import pyarrow.parquet as pq
-
-# pyrefly: ignore [untyped-import]
 import yaml
 
 from models.us_ed_college_scorecard.code import spec
@@ -400,7 +398,7 @@ def dicionario_from_data(table, code_column, label_column):
 
 def build_dicionario():
     """Value -> label pairs, from the published data dictionary workbook."""
-    # pyrefly: ignore [untyped-import]
+
     import openpyxl
 
     wb = openpyxl.load_workbook(DICT_XLSX, read_only=True)

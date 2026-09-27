@@ -26,7 +26,6 @@ import os
 import pathlib
 import re
 
-# pyrefly: ignore [untyped-import]
 import yaml
 
 from models.us_ed_college_scorecard.code import i18n, spec

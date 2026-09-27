@@ -30,7 +30,6 @@ import pathlib
 import sys
 import zipfile
 
-# pyrefly: ignore [untyped-import]
 import openpyxl
 
 from models.au_treasury_budget.code import releases

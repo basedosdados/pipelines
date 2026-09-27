@@ -144,6 +144,9 @@ dependencies = [
   "types-python-dateutil>=2.9.0.20260518",
   "types-geopandas>=1.1.4.20260628",
   "types-hvac>=2.4.0.20260518",
+  "types-openpyxl>=3.1.5.20260827",
+  "types-pyyaml>=6.0.12.20260906",
+  "types-xlrd>=2.0.0.20260518",
 ]
 
 [dependency-groups]

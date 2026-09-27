@@ -19,7 +19,6 @@ Usage:
 import csv
 import os
 
-# pyrefly: ignore [untyped-import]
 import yaml
 
 HERE = os.path.dirname(os.path.abspath(__file__))

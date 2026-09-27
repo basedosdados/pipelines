@@ -6,7 +6,6 @@ cluster sigla_uf) + the dictionary (table).
 
 import os
 
-# pyrefly: ignore [untyped-import]
 import yaml
 
 from models.br_sfb_sicar.code import architecture as A  # noqa: N812

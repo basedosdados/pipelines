@@ -20,7 +20,6 @@ import json
 import re
 from pathlib import Path
 
-# pyrefly: ignore [untyped-import]
 import yaml
 
 DOCS_URL = "https://api.fdic.gov/banks/docs"
