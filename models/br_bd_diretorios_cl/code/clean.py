@@ -276,7 +276,6 @@ def validate_names(comuna):
     reported rather than treated as errors.
     """
     try:
-        # pyrefly: ignore [missing-import]
         import pdfplumber
     except ImportError:
         log.warning("--validate needs pdfplumber; skipping")

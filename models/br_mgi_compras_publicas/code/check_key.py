@@ -32,7 +32,6 @@ def _client() -> bigquery.Client:
     try:
         import tomllib as toml_reader
     except ModuleNotFoundError:  # pragma: no cover
-        # pyrefly: ignore [missing-import]
         import tomli as toml_reader
 
     cfg = toml_reader.loads(

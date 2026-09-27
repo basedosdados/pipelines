@@ -35,8 +35,6 @@ import numpy as np
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
-
-# pyrefly: ignore [missing-import]
 import pyreadstat
 
 from models.af_afrobarometer_survey.code.common import (

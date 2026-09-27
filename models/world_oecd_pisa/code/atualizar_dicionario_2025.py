@@ -82,7 +82,6 @@ def carregar_dicionario_antigo(path: Path) -> pd.DataFrame:
 def carregar_rotulos_sav(sav_path: Path) -> dict:
     """Lê só os metadados do .sav — rápido mesmo em arquivos grandes, não
     carrega as linhas de dado. Devolve {nome_original: {chave: rotulo}}."""
-    # pyrefly: ignore [missing-import]
     import pyreadstat
 
     _, meta = pyreadstat.read_sav(str(sav_path), metadataonly=True)

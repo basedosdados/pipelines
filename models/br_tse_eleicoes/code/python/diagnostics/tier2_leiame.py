@@ -265,7 +265,6 @@ def _vars_from_lines(lines: list[str], section_hint: str) -> list[str]:
 
 def parse_leiame_pdf(data: bytes, section_hint: str = "") -> list[str]:
     """Ordered variable list from a leiame PDF (text lines, table fallback)."""
-    # pyrefly: ignore [missing-import]
     import pdfplumber  # deferred: run harness with `uv run --with pdfplumber`
 
     with pdfplumber.open(io.BytesIO(data)) as pdf:
