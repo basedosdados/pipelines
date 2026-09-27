@@ -49,7 +49,7 @@ the dev pool ignores the schedule, the prod pool activates it.
 
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.au_aph_hansard.constants import constants
 from pipelines.datasets.au_aph_hansard.tasks import (
@@ -57,6 +57,7 @@ from pipelines.datasets.au_aph_hansard.tasks import (
     cleanup,
     download_hansard,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -216,10 +217,8 @@ def au_aph_hansard_flow(
 # is 09:26 the next morning in Canberra (AEST), so a daily run picks up the
 # previous sitting day once the official transcript has landed. The poll guard
 # makes the ~30 weeks a year Parliament does not sit a cheap no-op.
-# pyrefly: ignore [missing-attribute]
 au_aph_hansard_flow.deploy_schedules = [
-    {"cron": "26 20 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("26 20 * * *", timezone="America/Sao_Paulo")
 ]
 # A full year of both chambers is a few hundred MB of XML plus the parsed rows.
-# pyrefly: ignore [missing-attribute]
 au_aph_hansard_flow.job_variables = {"memory": "8Gi"}
