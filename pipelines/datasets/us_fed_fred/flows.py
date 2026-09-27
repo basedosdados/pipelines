@@ -20,10 +20,11 @@ the dev pool ignores the schedule, the prod pool activates it.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_fed_fred.constants import constants
 from pipelines.datasets.us_fed_fred.tasks import clean_fred, download_fred
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     DateOnly,
@@ -204,7 +205,6 @@ def us_fed_fred_flow(
 # FRED updates on US business days through the afternoon (ET). Poll once daily at
 # 21:00 BRT (~19:00-20:00 ET); the source-poll guard no-ops on days with no new
 # observation, so a plain daily cron is cheap.
-# pyrefly: ignore [missing-attribute]
 us_fed_fred_flow.deploy_schedules = [
-    {"cron": "25 21 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("25 21 * * *", timezone="America/Sao_Paulo")
 ]

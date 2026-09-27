@@ -4,7 +4,7 @@ Flow br_mp_pep — Prefect 3.
 
 import datetime
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.crawler.mp_pep.tasks import (
     clean_data,
@@ -14,6 +14,7 @@ from pipelines.crawler.mp_pep.tasks import (
     scraper,
     setup_web_driver,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     PartBdpro,
@@ -109,7 +110,6 @@ def br_mp_pep__cargos_funcoes(
         )
 
 
-# pyrefly: ignore [missing-attribute]
 br_mp_pep__cargos_funcoes.deploy_schedules = [
-    {"cron": "0 14 * * 3", "timezone": "America/Sao_Paulo"}
+    Cron("0 14 * * 3", timezone="America/Sao_Paulo")
 ]

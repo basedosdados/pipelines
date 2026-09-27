@@ -4,7 +4,7 @@ Flows para br_senatran_estatisticas — Prefect 3.
 
 from pathlib import Path
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_senatran_estatisticas.constants import (
     constants as senatran_constants,
@@ -19,6 +19,7 @@ from pipelines.datasets.br_senatran_estatisticas.tasks import (
     treat_municipio_tipo_task,
     treat_uf_tipo_task,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     PartBdpro,
@@ -217,13 +218,11 @@ def br_senatran_estatisticas__municipio_tipo(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_senatran_estatisticas__uf_tipo.deploy_schedules = [
-    {"cron": "0 21 10-30 * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 21 10-30 * *", timezone="America/Sao_Paulo")
 ]
-# pyrefly: ignore [missing-attribute]
 br_senatran_estatisticas__municipio_tipo.deploy_schedules = [
-    {"cron": "20 21 10-30 * *", "timezone": "America/Sao_Paulo"}
+    Cron("20 21 10-30 * *", timezone="America/Sao_Paulo")
 ]
 
 
@@ -374,7 +373,6 @@ def br_senatran_estatisticas__municipio_combustivel(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_senatran_estatisticas__municipio_combustivel.deploy_schedules = [
-    {"cron": "40 21 10-30 * *", "timezone": "America/Sao_Paulo"}
+    Cron("40 21 10-30 * *", timezone="America/Sao_Paulo")
 ]

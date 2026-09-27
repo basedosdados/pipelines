@@ -2,7 +2,7 @@
 Flow br_cnj_improbidade_administrativa — Prefect 3.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.crawler.cnj_improbidade_administrativa.tasks import (
     get_max_date,
@@ -10,6 +10,7 @@ from pipelines.crawler.cnj_improbidade_administrativa.tasks import (
     main_task,
     write_csv_file,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     DateOnly,
@@ -96,7 +97,6 @@ def br_cnj_improbidade_administrativa__condenacao(
         )
 
 
-# pyrefly: ignore [missing-attribute]
 br_cnj_improbidade_administrativa__condenacao.deploy_schedules = [
-    {"cron": "0 7 * * 1", "timezone": "America/Sao_Paulo"}
+    Cron("0 7 * * 1", timezone="America/Sao_Paulo")
 ]

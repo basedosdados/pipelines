@@ -9,9 +9,8 @@ RAIS is fully open data: both tables register an `AllFree` coverage, with no BD
 Pro window and no row access policies.
 """
 
-from prefect import flow
-
 from pipelines.crawler.me_rais.flows import _run_rais
+from pipelines.utils.flow import flow
 
 
 @flow(
@@ -64,7 +63,5 @@ def br_me_rais__microdados_vinculos(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_me_rais__microdados_estabelecimentos.deploy_schedules = []
-# pyrefly: ignore [missing-attribute]
 br_me_rais__microdados_vinculos.deploy_schedules = []
