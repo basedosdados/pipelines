@@ -21,10 +21,11 @@ dev pool ignores the schedule, the prod pool activates it.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_epu_gpr.constants import constants
 from pipelines.datasets.us_epu_gpr.tasks import clean_epu_gpr, download_epu_gpr
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -168,7 +169,6 @@ def us_epu_gpr_flow(
 # EPU and GPR both publish monthly at the start of the month (GPR ~1st, EPU by
 # ~8th). Poll across early-month days at 16:33 BRT; the source-poll guard no-ops
 # until a new month appears.
-# pyrefly: ignore [missing-attribute]
 us_epu_gpr_flow.deploy_schedules = [
-    {"cron": "33 16 4,5,6,7,8,9,10 * *", "timezone": "America/Sao_Paulo"}
+    Cron("33 16 4,5,6,7,8,9,10 * *", timezone="America/Sao_Paulo")
 ]

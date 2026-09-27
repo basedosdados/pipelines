@@ -15,13 +15,14 @@ the dev pool ignores the schedule, the prod pool activates it.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_treasury_fiscaldata.constants import constants
 from pipelines.datasets.us_treasury_fiscaldata.tasks import (
     clean_fiscaldata,
     download_fiscaldata,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -182,14 +183,12 @@ def us_treasury_fiscaldata_flow(
 # quarterly. Poll daily in the evening BRT (after the US release window) on a
 # unique minute; each table's source-poll guard no-ops until its own new period
 # lands, so the one daily schedule serves all four cadences.
-# pyrefly: ignore [missing-attribute]
 us_treasury_fiscaldata_flow.deploy_schedules = [
-    {"cron": "50 18 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("50 18 * * *", timezone="America/Sao_Paulo")
 ]
 # The MTS clean holds ~0.9M melted rows plus the 139MB raw JSON in memory; give
 # the worker headroom. `memory` alone is silently ignored (capped at 4Gi) —
 # memory_limit is the one the pod actually gets.
-# pyrefly: ignore [missing-attribute]
 us_treasury_fiscaldata_flow.job_variables = {
     "memory_limit": "6Gi",
     "memory_request": "2Gi",
