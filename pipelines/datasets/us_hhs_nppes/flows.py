@@ -19,7 +19,7 @@ the dev pool ignores the schedule, the prod pool activates it (deployed paused).
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_hhs_nppes.constants import constants
 from pipelines.datasets.us_hhs_nppes.tasks import (
@@ -27,6 +27,7 @@ from pipelines.datasets.us_hhs_nppes.tasks import (
     clean_nppes,
     download_nppes,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -203,12 +204,10 @@ def us_hhs_nppes_flow(
 # drifts (August 2026 landed on the 10th). Poll on several days at 15:23 BRT —
 # a minute nobody else uses. The HEAD-based source poll no-ops (no download)
 # until a new bundle actually appears.
-# pyrefly: ignore [missing-attribute]
 us_hhs_nppes_flow.deploy_schedules = [
-    {"cron": "23 15 8,10,12,14,16 * *", "timezone": "America/Sao_Paulo"}
+    Cron("23 15 8,10,12,14,16 * *", timezone="America/Sao_Paulo")
 ]
 # The clean step streams the 11.6 GB main file in record batches and flushes in
 # 500k-row chunks, but the bundle unzips to ~12 GB on disk and the download is
 # ~1.1 GB; give the worker headroom.
-# pyrefly: ignore [missing-attribute]
 us_hhs_nppes_flow.job_variables = {"memory": "8Gi"}

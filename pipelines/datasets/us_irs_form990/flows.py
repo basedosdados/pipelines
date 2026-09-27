@@ -27,7 +27,7 @@ the dev pool ignores the schedule, the prod pool activates it (deployed paused).
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_irs_form990.constants import constants
 from pipelines.datasets.us_irs_form990.tasks import (
@@ -40,6 +40,7 @@ from pipelines.datasets.us_irs_form990.tasks import (
     write_dicionario,
 )
 from pipelines.datasets.us_irs_form990.utils import batch_id
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -248,11 +249,9 @@ def us_irs_form990_flow(
 # The IRS posts e-file batches in irregular bursts and the BMF around the
 # 10th of each month. Poll twice a month at 16:38 BRT (a minute nobody else
 # uses); the HEAD-based source poll no-ops until something new appears.
-# pyrefly: ignore [missing-attribute]
 us_irs_form990_flow.deploy_schedules = [
-    {"cron": "38 16 12,26 * *", "timezone": "America/Sao_Paulo"}
+    Cron("38 16 12,26 * *", timezone="America/Sao_Paulo")
 ]
 # One ZIP is parsed at a time (≤ 3.7 GB, streamed member by member) and the
 # BMF stack is ~2M rows in memory; 8Gi leaves headroom.
-# pyrefly: ignore [missing-attribute]
 us_irs_form990_flow.job_variables = {"memory": "8Gi"}

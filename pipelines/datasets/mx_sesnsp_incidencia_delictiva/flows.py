@@ -17,7 +17,7 @@ prod pool activates it.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.mx_sesnsp_incidencia_delictiva.constants import (
     constants,
@@ -26,6 +26,7 @@ from pipelines.datasets.mx_sesnsp_incidencia_delictiva.tasks import (
     clean_sesnsp,
     download_sesnsp,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     FreeLag,
@@ -183,10 +184,8 @@ def mx_sesnsp_incidencia_delictiva_flow(
 
 # SESNSP releases monthly, ~20th of the month, Mexico City time. Poll across a
 # few days; the source-poll guard no-ops until a new month actually appears.
-# pyrefly: ignore [missing-attribute]
 mx_sesnsp_incidencia_delictiva_flow.deploy_schedules = [
-    {"cron": "20 9 20,21,22,23,24 * *", "timezone": "America/Mexico_City"}
+    Cron("20 9 20,21,22,23,24 * *", timezone="America/Mexico_City")
 ]
 # The municipal melt holds ~1.7M rows in pandas; give the worker headroom.
-# pyrefly: ignore [missing-attribute]
 mx_sesnsp_incidencia_delictiva_flow.job_variables = {"memory": "8Gi"}

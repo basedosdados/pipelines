@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_fbi_cde.constants import constants
 from pipelines.datasets.us_fbi_cde.tasks import (
@@ -28,6 +28,7 @@ from pipelines.datasets.us_fbi_cde.tasks import (
     discover_latest_year,
     download_window,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -207,14 +208,9 @@ def us_fbi_cde_flow(
 # September and early October, and occasionally later. Poll every few days
 # across September to November; the source-poll guard makes every run before the
 # release a cheap no-op.
-# pyrefly: ignore [missing-attribute]
 us_fbi_cde_flow.deploy_schedules = [
-    {
-        "cron": "23 15 2,6,10,14,18,22,26,30 9,10,11 *",
-        "timezone": "America/Sao_Paulo",
-    }
+    Cron("23 15 2,6,10,14,18,22,26,30 9,10,11 *", timezone="America/Sao_Paulo")
 ]
 # The clean step holds one state-year bundle in pandas at a time; Texas is the
 # largest at roughly 130 MB compressed.
-# pyrefly: ignore [missing-attribute]
 us_fbi_cde_flow.job_variables = {"memory": "16Gi"}
