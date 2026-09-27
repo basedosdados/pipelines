@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import datetime as dt
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_mgi_compras_publicas.constants import constants
 from pipelines.datasets.br_mgi_compras_publicas.tasks import (
@@ -31,6 +31,7 @@ from pipelines.datasets.br_mgi_compras_publicas.tasks import (
     rebuild_dicionario,
     refresh_table,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -239,15 +240,11 @@ def br_mgi_compras_publicas_semanal_flow(
 # Minute chosen off the hour and away from the slots already in use: piling
 # every pipeline onto :00 makes them compete for BigQuery slots and fail
 # together if the daily quota trips.
-# pyrefly: ignore [missing-attribute]
 br_mgi_compras_publicas_diario_flow.deploy_schedules = [
-    {"cron": "37 5 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("37 5 * * *", timezone="America/Sao_Paulo")
 ]
-# pyrefly: ignore [missing-attribute]
 br_mgi_compras_publicas_semanal_flow.deploy_schedules = [
-    {"cron": "12 4 * * 0", "timezone": "America/Sao_Paulo"}
+    Cron("12 4 * * 0", timezone="America/Sao_Paulo")
 ]
-# pyrefly: ignore [missing-attribute]
 br_mgi_compras_publicas_diario_flow.job_variables = {"memory": "8Gi"}
-# pyrefly: ignore [missing-attribute]
 br_mgi_compras_publicas_semanal_flow.job_variables = {"memory": "8Gi"}

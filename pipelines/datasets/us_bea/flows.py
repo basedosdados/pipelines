@@ -20,10 +20,11 @@ dev pool ignores the schedule, the prod pool activates it (paused).
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_bea.constants import constants
 from pipelines.datasets.us_bea.tasks import clean_bea
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -196,11 +197,9 @@ def us_bea_flow(
 # BEA refreshes NIPA monthly (personal income near month-end; benchmark and GDP
 # revisions land irregularly). Poll across a few late-month days at 16:00 BRT;
 # the source-poll guard no-ops until a new month actually appears.
-# pyrefly: ignore [missing-attribute]
 us_bea_flow.deploy_schedules = [
-    {"cron": "40 16 25,26,27,28 * *", "timezone": "America/Sao_Paulo"}
+    Cron("40 16 25,26,27,28 * *", timezone="America/Sao_Paulo")
 ]
 # The clean step streams the ~50M-row county family through pandas/arrow in
 # 500k-row flushes; give the worker headroom.
-# pyrefly: ignore [missing-attribute]
 us_bea_flow.job_variables = {"memory": "8Gi"}

@@ -22,13 +22,14 @@ activates it.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_ssa_beneficiaries.constants import constants
 from pipelines.datasets.us_ssa_beneficiaries.tasks import (
     clean_ssa,
     download_ssa,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -159,14 +160,12 @@ def us_ssa_beneficiaries_flow(
 # last updated 2026-08-02). Poll four days a month across August to October; the
 # source-poll guard no-ops until the new year actually lands. Minute 41 chosen
 # to avoid the crowded top-of-hour slots.
-# pyrefly: ignore [missing-attribute]
 us_ssa_beneficiaries_flow.deploy_schedules = [
-    {"cron": "41 13 5,12,19,26 8,9,10 *", "timezone": "America/Sao_Paulo"}
+    Cron("41 13 5,12,19,26 8,9,10 *", timezone="America/Sao_Paulo")
 ]
 # The eight source files total ~145 MB of JSON and the melt holds ~1.6M rows in
 # memory. memory_limit is the key the pool honors — bare `memory` is silently
 # ignored and capped at 4Gi.
-# pyrefly: ignore [missing-attribute]
 us_ssa_beneficiaries_flow.job_variables = {
     "memory_limit": "8Gi",
     "memory_request": "2Gi",

@@ -14,10 +14,11 @@ the dev pool ignores the schedule, the prod pool activates it (paused).
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.cl_res_empresas.constants import constants
 from pipelines.datasets.cl_res_empresas.tasks import clean_res, download_res
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     FreeLag,
@@ -197,10 +198,8 @@ def cl_res_empresas_flow(
 # on 21 Aug 2026) and the previous year is closed off each January. Poll a few
 # days a month at 17:17 BRT — a free slot; hour 16 is crowded. The source-poll
 # guard no-ops until a newer period actually appears.
-# pyrefly: ignore [missing-attribute]
 cl_res_empresas_flow.deploy_schedules = [
-    {"cron": "17 17 8,15,22 * *", "timezone": "America/Sao_Paulo"}
+    Cron("17 17 8,15,22 * *", timezone="America/Sao_Paulo")
 ]
 # The clean step holds ~1.6M rows in pandas one year at a time; 4Gi is ample.
-# pyrefly: ignore [missing-attribute]
 cl_res_empresas_flow.job_variables = {"memory": "4Gi"}
