@@ -112,6 +112,16 @@ def load_flows_from_file(file_path: str) -> dict[str, Flow]:
     Arquivos que ainda usam Prefect 0.15.9 vão falhar na importação e serão pulados.
     """
     path = Path(file_path)
+
+    # `__main__.py` é o ponto de entrada de `python -m <pacote>`, nunca um
+    # arquivo de flows. Como o módulo é importado com o nome do arquivo, ele
+    # seria carregado como `__main__`: o guard `if __name__ == "__main__"`
+    # dispararia, rodando a CLI do pacote com o argv deste script (foi o que
+    # derrubou o deploy de prod com `pipelines/diagnostics/__main__.py`), e
+    # ainda sobrescreveria `sys.modules["__main__"]`.
+    if path.name == "__main__.py":
+        return {}
+
     module_name = path.stem
 
     spec = importlib.util.spec_from_file_location(module_name, file_path)
@@ -131,6 +141,11 @@ def load_flows_from_file(file_path: str) -> dict[str, Flow]:
         return {}
     except Exception as e:
         print(f"  Pulando {file_path}: erro ao carregar — {e}")
+        return {}
+    except SystemExit as e:
+        # `SystemExit` não herda de `Exception`: sem isto, um único arquivo
+        # que chame `sys.exit()` na importação encerra o deploy inteiro.
+        print(f"  Pulando {file_path}: chamou sys.exit({e.code}) ao carregar")
         return {}
 
     flows = {}
