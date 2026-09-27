@@ -2,11 +2,12 @@
 Flows para br_camara_dados_abertos — Prefect 3.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.crawler.camara_dados_abertos.flows import (
     _run_camara_dados_abertos,
 )
+from pipelines.utils.flow import flow
 
 
 def _camara_flow(table_id: str, cron: str):
@@ -31,8 +32,7 @@ def _camara_flow(table_id: str, cron: str):
             force_run=force_run,
         )
 
-    # pyrefly: ignore [missing-attribute]
-    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
     return _flow
 
 

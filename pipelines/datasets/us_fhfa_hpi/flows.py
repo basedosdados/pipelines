@@ -18,7 +18,7 @@ ignores the schedules, the prod pool activates them.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_fhfa_hpi.constants import constants
 from pipelines.datasets.us_fhfa_hpi.tasks import (
@@ -27,6 +27,7 @@ from pipelines.datasets.us_fhfa_hpi.tasks import (
     download_annual_task,
     download_master_task,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -277,19 +278,15 @@ def us_fhfa_hpi_annual_flow(
 # week of February, May, August and November — the master file carries both. Poll
 # across the release window at 16:23 BRT; the source-poll guard no-ops until a new
 # month actually appears.
-# pyrefly: ignore [missing-attribute]
 us_fhfa_hpi_master_flow.deploy_schedules = [
-    {"cron": "23 16 25,26,27,28 * *", "timezone": "America/Sao_Paulo"}
+    Cron("23 16 25,26,27,28 * *", timezone="America/Sao_Paulo")
 ]
 # The clean step holds the whole master file in pandas.
-# pyrefly: ignore [missing-attribute]
 us_fhfa_hpi_master_flow.job_variables = {"memory": "4Gi"}
 
 # The annual indexes land in late March (2026 vintage: 31 March).
-# pyrefly: ignore [missing-attribute]
 us_fhfa_hpi_annual_flow.deploy_schedules = [
-    {"cron": "43 16 26,27,28,29,30,31 3,4 *", "timezone": "America/Sao_Paulo"}
+    Cron("43 16 26,27,28,29,30,31 3,4 *", timezone="America/Sao_Paulo")
 ]
 # The census tract file alone is 2.2M rows.
-# pyrefly: ignore [missing-attribute]
 us_fhfa_hpi_annual_flow.job_variables = {"memory": "8Gi"}

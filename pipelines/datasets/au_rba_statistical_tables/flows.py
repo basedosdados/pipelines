@@ -14,13 +14,14 @@ pool activates it.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.au_rba_statistical_tables.constants import constants
 from pipelines.datasets.au_rba_statistical_tables.tasks import (
     clean_rba,
     download_rba,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -210,10 +211,8 @@ def au_rba_statistical_tables_flow(
 # The RBA publishes on Sydney business days, typically late morning AEST — which
 # is the small hours in São Paulo. Run daily at 09:00 BRT, comfortably after;
 # the source-poll guard makes weekends and quiet days a no-op.
-# pyrefly: ignore [missing-attribute]
 au_rba_statistical_tables_flow.deploy_schedules = [
-    {"cron": "40 9 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("40 9 * * *", timezone="America/Sao_Paulo")
 ]
 # The clean step holds ~1.5M parsed observations in memory before writing.
-# pyrefly: ignore [missing-attribute]
 au_rba_statistical_tables_flow.job_variables = {"memory": "4Gi"}
