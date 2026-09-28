@@ -167,8 +167,14 @@ col(
     "Latitud del lugar del accidente, en grados decimales",
     coverage=COV_2017,
     obs="Publicada apenas de 2017 em diante; nula nos anos anteriores. Valores brutos "
-    "preservados. Em 2017, 53 linhas de ocorrencia caem fora do território brasileiro "
-    "(incluindo 7 pares 0,0); nos demais anos não há coordenada implausível.",
+    "preservados, exceto os que não podem ser uma coordenada: a fonte de 2017 traz "
+    "latitudes como -1033382874, que é -10,33382874 sem o separador decimal, e esses "
+    "valores foram convertidos em nulo (5 latitudes e 33 longitudes em ocorrencia, todas "
+    "em 2017). Validação contra br_geobr_mapas: de 681.393 pontos em ocorrencia, 1.188 "
+    "(0,17%) caem fora de todos os polígonos de unidade da federação, dos quais 7 são "
+    "pares 0,0, e 47.573 (6,98%) caem fora do município ao qual o registro é atribuído, "
+    "o que é esperado porque id_municipio vem do campo administrativo da PRF e não da "
+    "coordenada.",
 )
 col(
     "longitude",
@@ -178,7 +184,8 @@ col(
     "Longitud del lugar del accidente, en grados decimales",
     coverage=COV_2017,
     obs="Publicada apenas de 2017 em diante; nula nos anos anteriores. Valores brutos "
-    "preservados, sem correção.",
+    "preservados, exceto os que não podem ser uma coordenada (fora do intervalo de -180 a "
+    "180 graus), convertidos em nulo. Ver as observações de latitude.",
 )
 col(
     "causa_acidente",
@@ -582,7 +589,7 @@ def build() -> None:
             )
         csv_path = ARCHITECTURE_DIR / f"{table}.csv"
         with open(csv_path, "w", newline="", encoding="utf-8") as fh:
-            writer = csv.DictWriter(fh, fieldnames=FIELDS)
+            writer = csv.DictWriter(fh, fieldnames=FIELDS, lineterminator="\n")
             writer.writeheader()
             writer.writerows(rows)
         json_path = ARCHITECTURE_DIR / f"{table}_columns.json"

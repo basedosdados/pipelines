@@ -145,7 +145,7 @@
   "directory_column": "",
   "measurement_unit": "",
   "has_sensitive_data": false,
-  "observations": "Publicada apenas de 2017 em diante; nula nos anos anteriores. Valores brutos preservados. Em 2017, 53 linhas de ocorrencia caem fora do território brasileiro (incluindo 7 pares 0,0); nos demais anos não há coordenada implausível.",
+  "observations": "Publicada apenas de 2017 em diante; nula nos anos anteriores. Valores brutos preservados, exceto os que não podem ser uma coordenada: a fonte de 2017 traz latitudes como -1033382874, que é -10,33382874 sem o separador decimal, e esses valores foram convertidos em nulo (5 latitudes e 33 longitudes em ocorrencia, todas em 2017). Validação contra br_geobr_mapas: de 681.393 pontos em ocorrencia, 1.188 (0,17%) caem fora de todos os polígonos de unidade da federação, dos quais 7 são pares 0,0, e 47.573 (6,98%) caem fora do município ao qual o registro é atribuído, o que é esperado porque id_municipio vem do campo administrativo da PRF e não da coordenada.",
   "is_partition": false,
   "is_primary_key": false
  },
@@ -160,7 +160,7 @@
   "directory_column": "",
   "measurement_unit": "",
   "has_sensitive_data": false,
-  "observations": "Publicada apenas de 2017 em diante; nula nos anos anteriores. Valores brutos preservados, sem correção.",
+  "observations": "Publicada apenas de 2017 em diante; nula nos anos anteriores. Valores brutos preservados, exceto os que não podem ser uma coordenada (fora do intervalo de -180 a 180 graus), convertidos em nulo. Ver as observações de latitude.",
   "is_partition": false,
   "is_primary_key": false
  },
