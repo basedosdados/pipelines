@@ -200,6 +200,14 @@ def fetch_prgcod(
             time.sleep(2 * (attempt + 1))
             continue
         if response.status_code != 200:
+            # Was silent, which made a bad response indistinguishable from a
+            # pregao that genuinely resolves to nothing.
+            logger.warning(
+                "crosswalk %s/%s: HTTP %s",
+                uasg,
+                numprp,
+                response.status_code,
+            )
             return None
         response.encoding = "latin-1"
         match = PRGCOD_RE.search(response.text)

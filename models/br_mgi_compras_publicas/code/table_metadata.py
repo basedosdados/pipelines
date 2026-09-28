@@ -190,9 +190,9 @@ TABLES: dict[str, TableMeta] = {
         "Contratação direta",
         "Direct contracting",
         "Contratación directa",
-        "Waivers and non-enforceability of tender under Law 8,666/1993, from 1997 to 2024. One "
+        "Waivers and non-enforceability of tender under Law 8,666/1993, from 1997 to 2025. One "
         "row per direct contracting, with its legal basis and justification",
-        "Dispensas e inexigibilidades de licitación bajo la Ley 8.666/1993, de 1997 a 2024. Una "
+        "Dispensas e inexigibilidades de licitación bajo la Ley 8.666/1993, de 1997 a 2025. Una "
         "fila por contratación directa, con su fundamento legal y justificación",
         {"procurement": "id_compra", "year": "ano"},
         # Year grain: the only trustworthy temporal field is `ano`

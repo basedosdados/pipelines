@@ -116,6 +116,45 @@ def lookup(category: str, slug: str, env: str) -> str | None:
 REFRESHED_AT = dt.datetime.now(dt.UTC).replace(microsecond=0).isoformat()
 
 
+#: The table-anchored Update's `latest` says when *we* last refreshed the table.
+#: This script registers metadata; it materializes nothing. So a rerun that only
+#: fixes a description must not move `latest`, or it reports a refresh that never
+#: happened -- and `poll_source_for_update` compares the source's max coverage
+#: date against this field, so an inflated value can leave a pipeline running
+#: green while it ingests nothing.
+#:
+#: get_dataset does not return `latest`, so read it directly. On first creation
+#: there is nothing to preserve and REFRESHED_AT stands; from then on the stored
+#: value is carried forward and only a real materialization moves it, via the
+#: pipeline's register_table_materialization_task.
+_STORED_LATEST_QUERY = """
+query($slug: String!) {
+  allDataset(slug: $slug) {
+    edges { node { tables { edges { node {
+      slug updates { edges { node { latest } } }
+    } } } } }
+  }
+}
+"""
+
+
+def stored_update_latest(slug: str, env: str) -> dict[str, str]:
+    """Each table's current Update.latest, keyed by table slug."""
+    try:
+        data = server._gql(_STORED_LATEST_QUERY, {"slug": slug}, env=env)
+    except Exception as exc:
+        print(f"  warning: could not read stored Update.latest ({exc})")
+        return {}
+    out: dict[str, str] = {}
+    for edge in data.get("allDataset", {}).get("edges", []):
+        for entry in edge["node"]["tables"]["edges"]:
+            table = entry["node"]
+            latest = [u["node"]["latest"] for u in table["updates"]["edges"]]
+            if latest and latest[0]:
+                out[table["slug"]] = latest[0]
+    return out
+
+
 def read_architecture(table: str) -> list[dict[str, str]]:
     import csv
 
@@ -304,6 +343,7 @@ def main(env: str, status: str) -> int:
 
     published_status = lookup("status", "published", env)
     node = fn("get_dataset")(slug=DATASET["slug"], env=env)
+    kept_latest = stored_update_latest(DATASET["slug"], env)
     table_ids: dict[str, str] = {}
 
     for table in TABLE_ORDER:
@@ -421,7 +461,7 @@ def main(env: str, status: str) -> int:
             table_id=table_id,
             entity_id=cadence_entity,
             frequency=frequency,
-            latest=REFRESHED_AT,
+            latest=kept_latest.get(table, REFRESHED_AT),
             env=env,
         )
 

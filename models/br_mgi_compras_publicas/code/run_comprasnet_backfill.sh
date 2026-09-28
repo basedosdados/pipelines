@@ -45,7 +45,18 @@ if ! mkdir "$LOCK" 2>/dev/null; then
     echo "$(date '+%Y-%m-%d %H:%M:%S') SUPERVISOR clearing stale lock from pid $holder" >> "$LOG"
 fi
 echo $$ > "$LOCK/pid"
-trap release_lock EXIT INT TERM
+# INT and TERM must exit, not just release the lock. A trap handler that
+# returns lets the retry loop carry on with the lock already gone, and a second
+# supervisor can then acquire it and interleave its writes with this one's.
+# `trap - EXIT` first so the exit does not run release_lock a second time.
+on_signal() {
+    trap - EXIT
+    release_lock
+    exit "$1"
+}
+trap release_lock EXIT
+trap 'on_signal 130' INT
+trap 'on_signal 143' TERM
 
 fast_failures=0
 for attempt in $(seq 1 "$MAX_ATTEMPTS"); do

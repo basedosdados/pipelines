@@ -273,6 +273,11 @@ def run_crosswalk(month: str, workers: int, force: bool = False) -> int:
         return 0
 
     progress = Progress(f"crosswalk {month}", len(listed))
+    # A worker that swallows an exception must not let the month pass for
+    # complete: `prgcod = None` is also what a genuinely unresolvable pregao
+    # returns, so without this the two are indistinguishable and resume skips a
+    # short month forever. list.append is atomic under the GIL.
+    failures: list[str] = []
 
     def resolve(row: dict) -> dict | None:
         # Nothing raised from inside a worker may escape: pool.map re-raises on
@@ -289,6 +294,7 @@ def run_crosswalk(month: str, workers: int, force: bool = False) -> int:
                 row["numprp"],
                 exc_info=False,
             )
+            failures.append(f"{row['uasg']}/{row['numprp']}")
             prgcod = None
         progress.tick()
         if not prgcod:
@@ -297,6 +303,16 @@ def run_crosswalk(month: str, workers: int, force: bool = False) -> int:
 
     with ThreadPoolExecutor(workers) as pool:
         resolved = [row for row in pool.map(resolve, listed) if row]
+    if failures:
+        logger.error(
+            "crosswalk %s: %d of %d fetches failed, so the month is left "
+            "unwritten for the next run to retry (e.g. %s)",
+            month,
+            len(failures),
+            len(listed),
+            ", ".join(failures[:3]),
+        )
+        return len(resolved)
     _write_chunk("crosswalk", month, resolved, expected=len(listed))
     logger.info(
         "crosswalk %s: %d/%d resolved", month, len(resolved), len(listed)
@@ -322,6 +338,8 @@ def run_detail(
         return 0, 0
 
     progress = Progress(f"detail {month}", len(crosswalk))
+    # As above: an empty result from a failed fetch is not an empty pregao.
+    failures: list[str] = []
 
     def detail(row: dict) -> tuple[list[dict], list[dict]]:
         # Same contract as the crosswalk worker: nothing may escape. fetch_page
@@ -342,6 +360,7 @@ def run_detail(
                 events = parse_termo_homologacao(page, id_compra)
         except Exception:
             logger.warning("detail prgcod=%s failed", prgcod, exc_info=False)
+            failures.append(str(prgcod))
             offers, events = [], []
         progress.tick()
         return offers, events
@@ -350,6 +369,16 @@ def run_detail(
         results = list(pool.map(detail, crosswalk))
     offers = [row for pair in results for row in pair[0]]
     events = [row for pair in results for row in pair[1]]
+    if failures:
+        logger.error(
+            "detail %s: %d of %d pregoes failed, so neither chunk is written "
+            "and the next run retries the month (e.g. prgcod=%s)",
+            month,
+            len(failures),
+            len(crosswalk),
+            ", ".join(failures[:3]),
+        )
+        return len(offers), len(events)
     _write_chunk(TABLE_OFERTA, month, offers, expected=len(crosswalk))
     _write_chunk(TABLE_EVENTO, month, events, expected=len(crosswalk))
     logger.info(

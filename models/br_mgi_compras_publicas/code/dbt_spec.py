@@ -370,7 +370,7 @@ TABLES: dict[str, DbtTable] = {
         year_range=R_LEGADO,
         description=(
             "Dispensas e inexigibilidades de licitação sob a Lei 8.666/1993, de 1997 a "
-            "2024. Uma linha por contratação direta, com fundamento legal e justificativa"
+            "2025. Uma linha por contratação direta, com fundamento legal e justificativa"
         ),
     ),
     "compra_sem_licitacao_item": DbtTable(
