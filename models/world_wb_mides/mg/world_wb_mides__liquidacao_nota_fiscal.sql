@@ -16,29 +16,40 @@
         labels={"tema": "economia"},
     )
 }}
-with
-    -- The parent's `_bd` key is NOT in the staging mirror -- it is built by the
-    -- state model. Reading it from `ref()` rather than re-deriving the concat
-    -- here means the two can never drift: one definition, one place.
-    -- `seq_empenho`/`seq_liquidacao`/`seq_pagamento` are unambiguous across
-    -- municipalities within one extraction (0 shared values over 120
-    -- municipalities x 2016/2020/2024, measured 2026-09-24), so the join needs
-    -- no further scoping.
-    p_liquidacao as (
-        select distinct id_liquidacao_bd, id_liquidacao
-        from {{ ref("world_wb_mides__liquidacao_mg") }}
-    )
+-- THIS TABLE PUBLISHES NO LINK TO ITS LIQUIDACAO, DELIBERATELY.
+--
+-- It used to join `t.seq_liquidacao` to the state model's `id_liquidacao` with no
+-- municipality scoping, on the stated ground that the sequence is unambiguous
+-- across municipalities. Measured against the full mirror on 2026-09-28, that is
+-- false for this pairing: of 43,353,181 rows, 15,674,114 (36.2%) matched a parent
+-- somewhere, but only 43,854 (0.1%) matched one in the SAME municipality. So
+-- 99.7% of the foreign keys the table published pointed at another
+-- municipality's liquidacao -- populated, plausible and wrong, which no not-null
+-- or uniqueness test detects.
+--
+-- `id_liquidacao` is the right counterpart column (its 36.2% global hit rate
+-- equals the built table's non-NULL rate), so this is not a column mix-up: the
+-- invoice stream's `seq_liquidacao` and the liquidacao stream's `id_liquidacao`
+-- are not the same identifier space within a municipality. Resolving that needs
+-- an answer from TCE-MG about the source semantics.
+--
+-- Until then the column is NULL for every row. A user can see there is no link;
+-- they cannot see that a link is wrong. `id_liquidacao` below still carries the
+-- raw value, so nothing is lost and the join can be restored once the semantics
+-- are known.
 select
     safe_cast(t.ano as int64) as ano,
     safe_cast(t.mes as int64) as mes,
     'MG' as sigla_uf,
     safe_cast(t.id_municipio as string) as id_municipio,
+    -- Self-sufficient: it no longer depends on the parent key. Verified UNIQUE
+    -- over all 43,353,181 rows, with no NULL in any component (DuckDB on the
+    -- mirror, 2026-09-28). Like the other 18 keys carrying a `seq_*`, it
+    -- identifies a row rather than surviving a re-extraction.
     safe_cast(
-        concat(
-            p_liquidacao.id_liquidacao_bd, ' ', ifnull(t.seq_nota_fiscal, '')
-        ) as string
+        concat(t.id_municipio, ' ', t.ano, ' ', t.seq_liq_nota_fiscal) as string
     ) as id_liquidacao_nota_fiscal_bd,
-    safe_cast(p_liquidacao.id_liquidacao_bd as string) as id_liquidacao_bd,
+    cast(null as string) as id_liquidacao_bd,
     safe_cast(t.seq_liq_nota_fiscal as string) as id_liq_nota_fiscal,
     safe_cast(t.seq_nota_fiscal as string) as id_nota_fiscal,
     safe_cast(t.orgao as string) as orgao,
@@ -50,4 +61,3 @@ select
 from
     {{ set_datalake_project("world_wb_mides_staging.raw_liquidacao_nota_fiscal_mg") }}
     as t
-left join p_liquidacao on t.seq_liquidacao = p_liquidacao.id_liquidacao

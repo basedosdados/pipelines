@@ -68,6 +68,7 @@ IGNORE_NULL_COLUMNS: dict[str, list[str]] = {
     "contrato_termo_aditivo_item": ["codigo_item_sicro"],
     "despesa_dotacao": ["subacao"],
     "dispensa_dotacao": ["subacao"],
+    "liquidacao_nota_fiscal": ["id_liquidacao_bd"],
     "lei_decreto": ["data_lei_alt", "data_pub_lei_alt", "numero_lei_alt"],
     "licitacao_dotacao": ["subacao"],
     "licitacao_julgamento": ["ind_desonera_folha"],

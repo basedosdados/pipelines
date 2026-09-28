@@ -2044,15 +2044,15 @@ models:
     description: >
       Notas fiscais vinculadas a cada liquidação de despesa. Publicado apenas para
       Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a Coverage da tabela registra
-      sigla_uf = MG. Em até 4% das linhas a fonte cita um registro-pai que não publica;
-      nessas linhas a chave estrangeira e a chave primária construída por Data Basis
-      são nulas.
+      sigla_uf = MG. A coluna id_liquidacao_bd está nula em todas as linhas: a correspondência
+      entre a nota fiscal e a liquidação não pôde ser estabelecida na fonte. A coluna
+      id_liquidacao preserva o identificador original.
     tests:
-      - custom_unique_combinations_of_columns:
+      - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [ano, id_liquidacao_nota_fiscal_bd]
-          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [id_liquidacao_bd]
           config:
             where: __most_recent_year__
     columns:
@@ -2082,6 +2082,7 @@ models:
       - name: id_liquidacao_nota_fiscal_bd
         description: Código único de identificação da nota fiscal da liquidação, construído
           por Data Basis
+        tests: [not_null]
       - name: id_liquidacao_bd
         description: Código único de identificação da liquidação, construído por Data
           Basis

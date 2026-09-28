@@ -53,7 +53,6 @@ ORPHAN_PARENT_KEY: frozenset[str] = frozenset(
         "licitacao_parecer",
         "licitacao_quadro_societario",
         "licitacao_responsavel",
-        "liquidacao_nota_fiscal",
         "pagamento_movimento",
         "registro_preco_adesao_cotacao",
         "registro_preco_adesao_item",
@@ -73,6 +72,25 @@ ORPHAN_KEY_SUFFIX: tuple[str, str, str] = (
     "En hasta 4% de las filas la fuente cita un registro padre que no publica; "
     "en esas filas la clave foránea y la clave primaria construida por Data "
     "Basis son nulas.",
+)
+
+# `liquidacao_nota_fiscal` publishes no link to its liquidacao: the join it used
+# was measured wrong for 99.7% of the rows it resolved (see the model's header),
+# so `id_liquidacao_bd` is NULL for every row until TCE-MG clarifies the
+# identifier semantics. Its own key is self-sufficient and never NULL, which is
+# why the table is NOT in ORPHAN_PARENT_KEY.
+UNRESOLVED_PARENT: frozenset[str] = frozenset({"liquidacao_nota_fiscal"})
+
+UNRESOLVED_PARENT_SUFFIX: tuple[str, str, str] = (
+    "A coluna id_liquidacao_bd está nula em todas as linhas: a correspondência "
+    "entre a nota fiscal e a liquidação não pôde ser estabelecida na fonte. A "
+    "coluna id_liquidacao preserva o identificador original.",
+    "The id_liquidacao_bd column is null on every row: the link between the "
+    "invoice and the liquidation could not be established in the source. The "
+    "id_liquidacao column preserves the original identifier.",
+    "La columna id_liquidacao_bd está nula en todas las filas: la "
+    "correspondencia entre la factura y la liquidación no pudo establecerse en "
+    "la fuente. La columna id_liquidacao preserva el identificador original.",
 )
 
 # table slug -> (name_pt, name_en, name_es, description_pt, description_en, description_es)
@@ -436,4 +454,6 @@ def description(table: str, lang: str = "pt", with_suffix: bool = True) -> str:
     out = f"{text} {SUFFIX[idx]}"
     if table in ORPHAN_PARENT_KEY:
         out = f"{out} {ORPHAN_KEY_SUFFIX[idx]}"
+    if table in UNRESOLVED_PARENT:
+        out = f"{out} {UNRESOLVED_PARENT_SUFFIX[idx]}"
     return out
