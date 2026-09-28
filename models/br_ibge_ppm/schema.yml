@@ -95,7 +95,10 @@ models:
       - name: quantidade
         description: Quantidade da produção
       - name: valor
-        description: Valor da produção
+        description: >
+          Valor da produção. Nulo quando a fonte não publica o valor, o que inclui
+          o 0
+          que ela registra em 1974, 1975 e 1992–1994 para linhas com produção
   - name: br_ibge_ppm__producao_aquicultura
     description: Produção da aquicultura, de acordo com a quantidade produzida em
       quilogramas e valor da produção em mil reais.

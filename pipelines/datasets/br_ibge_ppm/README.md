@@ -46,17 +46,59 @@ modelos aceitam.
 **A sigla da UF sai do nome da localidade por expressão regular**, que aceita os dois formatos
 que a API usa: `São Paulo (SP)` e `São Paulo - SP`.
 
-**`-`, `..`, `...` e `X` viram nulo.** São os símbolos da API para dado inexistente, valor
-arredondado a zero e dado omitido. A troca usa dicionário, e não lista: `replace(lista, None)`
-faz o pandas preencher para baixo em vez de anular.
+**`-`, `..`, `...` e `X` viram nulo.** Na convenção de sinais do IBGE, `-` é zero absoluto,
+`..` é dado que não se aplica, `...` é dado não disponível e `X` é dado omitido para não
+identificar o informante. O `0` fica como número: ele marca um valor positivo que o
+arredondamento levou a zero. A troca usa dicionário, e não lista: `replace(lista, None)` faz o
+pandas preencher para baixo em vez de anular.
 
 **A `unidade` de `producao_origem_animal` sai da variável 106.** Ela descreve o produto
 (`Mil litros` para leite, `Mil dúzias` para ovos), enquanto a variável 215 traz a moeda do ano
 — `Mil Cruzeiros` até 1985, `Mil Reais` de 1994 em diante.
 
 **Os modelos descartam a linha vazia.** A fonte devolve uma linha para cada par município ×
-produto e cerca de 90% vem sem produção. O filtro está no `.sql`
-(`where quantidade is not null`); a staging guarda o que a fonte mandou.
+produto e cerca de 90% vem sem produção. O filtro está no `.sql`; a staging guarda o que a
+fonte mandou. Nas tabelas com quantidade e valor (`producao_origem_animal` e
+`producao_aquicultura`), sai a linha sem os dois
+(`where quantidade is not null or valor is not null`): um município pode ter só o valor
+preenchido, e são de 19 a 28 por ano na aquicultura.
+
+**Em cinco anos da `producao_origem_animal`, o `0` quer dizer "sem produção".** Em 1974, 1975,
+1992, 1993 e 1994, a fonte escreve `0` onde os outros anos trazem `-`. Na API, São Paulo
+(`3550308`) aparece assim:
+
+| Produto | 1991 | 1992 | 1995 |
+|---|---|---|---|
+| Lã | `-` | `0` | `-` |
+| Mel de abelha | `-` | `0` | `-` |
+| Casulos do bicho-da-seda | `-` | `0` | `-` |
+
+São 47.188 linhas com `quantidade = 0` nesses cinco anos, nenhuma com valor positivo, e elas
+dobrariam a tabela em 1992–1994. Nos demais anos, o `0` é o arredondamento da convenção: dos
+7.107 zeros, 1.187 têm valor positivo, ou seja, houve produção. Por isso a regra vale só para os
+cinco anos.
+
+No valor, o `0` desses anos aparece também em linhas com produção: 11.002 em 1974, 11.026 em
+1975, 10.842 em 1992, 5.712 em 1993 e 824 em 1994. Quase toda a produção de 1974 e 1975 vem com
+valor 0.
+
+Nos cinco anos, o modelo troca o `0` por nulo em quantidade e em valor, com um `case` em cada
+coluna, e a linha sem os dois sai no filtro da linha vazia.
+
+Para conferir se a fonte ainda publica assim:
+
+```sql
+select
+    safe_cast(ano as int64) ano,
+    countif(safe_cast(quantidade as int64) = 0) quantidade_zero,
+    countif(safe_cast(quantidade as int64) = 0 and safe_cast(valor as int64) > 0)
+        quantidade_zero_com_valor,
+    countif(safe_cast(quantidade as int64) > 0 and safe_cast(valor as int64) = 0)
+        valor_zero_com_producao
+from `basedosdados-dev.br_ibge_ppm_staging.producao_origem_animal`
+group by ano
+order by ano
+```
 
 ## Staging
 
