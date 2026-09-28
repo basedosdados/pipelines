@@ -30,14 +30,18 @@ models:
           - not_null
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
+              config:
+                where: __most_recent_year_month__
       - name: mes
         description: Mês da competência da concessão
         tests:
           - not_null
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__mes')
-              field: mes
+              field: mes.mes
+              config:
+                where: __most_recent_year_month__
       - name: sigla_uf
         description: >
           Sigla da Unidade da Federação de residência do titular. Extraída do
@@ -47,6 +51,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year_month__
       - name: id_municipio
         description: >
           ID Município IBGE 7 dígitos de residência do titular. Nulo quando a
@@ -56,6 +62,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+              config:
+                where: __most_recent_year_month__
       - name: especie_beneficio
         description: Código da espécie do benefício, conforme publicado pelo INSS
         tests:
@@ -63,6 +71,8 @@ models:
           - relationships:
               to: ref('br_mps_beneficios__dicionario_especie')
               field: especie_beneficio
+              config:
+                where: __most_recent_year_month__
       - name: categoria_beneficio
         description: >
           Agrupamento funcional das espécies, construído sobre o código e
@@ -117,20 +127,26 @@ models:
           - not_null
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
-              field: ano
+              field: ano.ano
+              config:
+                where: __most_recent_year_month__
       - name: mes
         description: Mês da competência da folha
         tests:
           - not_null
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__mes')
-              field: mes
+              field: mes.mes
+              config:
+                where: __most_recent_year_month__
       - name: sigla_uf
         description: Sigla da Unidade da Federação de residência do titular
         tests:
           - relationships:
               to: ref('br_bd_diretorios_brasil__uf')
               field: sigla
+              config:
+                where: __most_recent_year_month__
       - name: id_municipio
         description: >
           ID Município IBGE 7 dígitos de residência do titular. A fonte trunca
@@ -140,6 +156,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
+              config:
+                where: __most_recent_year_month__
       - name: especie_beneficio
         description: >
           Código da espécie do benefício, preenchido apenas quando o rótulo
@@ -150,6 +168,8 @@ models:
           - relationships:
               to: ref('br_mps_beneficios__dicionario_especie')
               field: especie_beneficio
+              config:
+                where: __most_recent_year_month__
       - name: especie_beneficio_rotulo
         description: >
           Rótulo da espécie exatamente como publicado, truncado em 20
