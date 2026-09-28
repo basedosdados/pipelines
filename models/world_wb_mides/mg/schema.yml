@@ -173,10 +173,13 @@ models:
     description: >
       Apostilamentos registrados sobre contratos administrativos, com o respectivo
       valor e data. Publicado apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG;
-      a Coverage da tabela registra sigla_uf = MG.
+      a Coverage da tabela registra sigla_uf = MG. Em até 4% das linhas a fonte cita
+      um registro-pai que não publica; nessas linhas a chave estrangeira e a chave
+      primária construída por Data Basis são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_contrato_apostilamento_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -208,7 +211,6 @@ models:
       - name: id_contrato_apostilamento_bd
         description: Código único de identificação do apostilamento do contrato, construído
           por Data Basis
-        tests: [not_null]
       - name: id_contrato_bd
         description: Código único de identificação do contrato, construído por Data
           Basis
@@ -236,8 +238,9 @@ models:
       Publicado apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a
       Coverage da tabela registra sigla_uf = MG.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_contrato_contabilizacao_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -291,12 +294,16 @@ models:
     description: >
       Créditos orçamentários (dotações) vinculados a cada contrato administrativo.
       Publicado apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a
-      Coverage da tabela registra sigla_uf = MG.
+      Coverage da tabela registra sigla_uf = MG. Em até 4% das linhas a fonte cita
+      um registro-pai que não publica; nessas linhas a chave estrangeira e a chave
+      primária construída por Data Basis são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_contrato_credito_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [subacao]
           config:
             where: __most_recent_year__
     columns:
@@ -326,7 +333,6 @@ models:
       - name: id_contrato_credito_bd
         description: Código único de identificação do crédito orçamentário do contrato,
           construído por Data Basis
-        tests: [not_null]
       - name: id_contrato_bd
         description: Código único de identificação do contrato, construído por Data
           Basis
@@ -358,12 +364,16 @@ models:
     description: >
       Itens contratados em cada contrato administrativo, com quantidade, unidade de
       medida e preço unitário. Publicado apenas para Minas Gerais, a partir dos arquivos
-      do SICOM/TCE-MG; a Coverage da tabela registra sigla_uf = MG.
+      do SICOM/TCE-MG; a Coverage da tabela registra sigla_uf = MG. Em até 4% das
+      linhas a fonte cita um registro-pai que não publica; nessas linhas a chave estrangeira
+      e a chave primária construída por Data Basis são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_contrato_item_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [codigo_item_sicro]
           config:
             where: __most_recent_year__
     columns:
@@ -393,7 +403,6 @@ models:
       - name: id_contrato_item_bd
         description: Código único de identificação do item do contrato, construído
           por Data Basis
-        tests: [not_null]
       - name: id_contrato_bd
         description: Código único de identificação do contrato, construído por Data
           Basis
@@ -427,10 +436,13 @@ models:
     description: >
       Rescisões de contratos administrativos, com motivo, data e valor rescindido.
       Publicado apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a
-      Coverage da tabela registra sigla_uf = MG.
+      Coverage da tabela registra sigla_uf = MG. Em até 4% das linhas a fonte cita
+      um registro-pai que não publica; nessas linhas a chave estrangeira e a chave
+      primária construída por Data Basis são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_contrato_rescisao_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -462,7 +474,6 @@ models:
       - name: id_contrato_rescisao_bd
         description: Código único de identificação da rescisão do contrato, construído
           por Data Basis
-        tests: [not_null]
       - name: id_contrato_bd
         description: Código único de identificação do contrato, construído por Data
           Basis
@@ -484,10 +495,13 @@ models:
     description: >
       Termos aditivos de contratos administrativos, com tipo, vigência e valor acrescido
       ou reduzido. Publicado apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG;
-      a Coverage da tabela registra sigla_uf = MG.
+      a Coverage da tabela registra sigla_uf = MG. Em até 4% das linhas a fonte cita
+      um registro-pai que não publica; nessas linhas a chave estrangeira e a chave
+      primária construída por Data Basis são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_contrato_termo_aditivo_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -519,7 +533,6 @@ models:
       - name: id_contrato_termo_aditivo_bd
         description: Código único de identificação do termo aditivo do contrato, construído
           por Data Basis
-        tests: [not_null]
       - name: id_contrato_bd
         description: Código único de identificação do contrato, construído por Data
           Basis
@@ -557,12 +570,16 @@ models:
     description: >
       Itens alterados por termo aditivo, com quantidade e valor acrescidos ou reduzidos.
       Publicado apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a
-      Coverage da tabela registra sigla_uf = MG.
+      Coverage da tabela registra sigla_uf = MG. Em até 4% das linhas a fonte cita
+      um registro-pai que não publica; nessas linhas a chave estrangeira e a chave
+      primária construída por Data Basis são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_contrato_termo_aditivo_item_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [codigo_item_sicro]
           config:
             where: __most_recent_year__
     columns:
@@ -592,7 +609,6 @@ models:
       - name: id_contrato_termo_aditivo_item_bd
         description: Código único de identificação do item do termo aditivo do contrato,
           construído por Data Basis
-        tests: [not_null]
       - name: id_contrato_termo_aditivo_bd
         description: Código único de identificação do termo aditivo do contrato, construído
           por Data Basis
@@ -684,10 +700,12 @@ models:
       e fonte de recursos. Publicado apenas para Minas Gerais, a partir dos arquivos
       do SICOM/TCE-MG; a Coverage da tabela registra sigla_uf = MG.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_despesa_dotacao_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [subacao]
           config:
             where: __most_recent_year__
     columns:
@@ -764,8 +782,9 @@ models:
       fundamentação. Publicado apenas para Minas Gerais, a partir dos arquivos do
       SICOM/TCE-MG; a Coverage da tabela registra sigla_uf = MG.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_dispensa_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -842,10 +861,13 @@ models:
     description: >
       Cotações de preço coletadas em cada processo de dispensa de licitação. Publicado
       apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a Coverage
-      da tabela registra sigla_uf = MG.
+      da tabela registra sigla_uf = MG. Em até 4% das linhas a fonte cita um registro-pai
+      que não publica; nessas linhas a chave estrangeira e a chave primária construída
+      por Data Basis são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_dispensa_cotacao_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -877,7 +899,6 @@ models:
       - name: id_dispensa_cotacao_bd
         description: Código único de identificação da cotação da dispensa, construído
           por Data Basis
-        tests: [not_null]
       - name: id_dispensa_item_bd
         description: Código único de identificação do item da dispensa, construído
           por Data Basis
@@ -897,10 +918,13 @@ models:
     description: >
       Fornecedores credenciados em processos de credenciamento. Publicado apenas para
       Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a Coverage da tabela registra
-      sigla_uf = MG.
+      sigla_uf = MG. Em até 4% das linhas a fonte cita um registro-pai que não publica;
+      nessas linhas a chave estrangeira e a chave primária construída por Data Basis
+      são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_dispensa_credenciado_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -932,7 +956,6 @@ models:
       - name: id_dispensa_credenciado_bd
         description: Código único de identificação do credenciado da dispensa, construído
           por Data Basis
-        tests: [not_null]
       - name: id_dispensa_bd
         description: Código único de identificação da dispensa, construído por Data
           Basis
@@ -978,10 +1001,12 @@ models:
       Publicado apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a
       Coverage da tabela registra sigla_uf = MG.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_dispensa_dotacao_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [subacao]
           config:
             where: __most_recent_year__
     columns:
@@ -1185,8 +1210,9 @@ models:
       apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a Coverage
       da tabela registra sigla_uf = MG.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_dispensa_responsavel_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -1293,10 +1319,13 @@ models:
     description: >
       Decomposição de cada empenho por fonte de recursos e dotação orçamentária. Publicado
       apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a Coverage
-      da tabela registra sigla_uf = MG.
+      da tabela registra sigla_uf = MG. Em até 4% das linhas a fonte cita um registro-pai
+      que não publica; nessas linhas a chave estrangeira e a chave primária construída
+      por Data Basis são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_empenho_fonte_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -1328,7 +1357,6 @@ models:
       - name: id_empenho_fonte_bd
         description: Código único de identificação da fonte do empenho, construído
           por Data Basis
-        tests: [not_null]
       - name: id_empenho_bd
         description: Código único de identificação do empenho, construído por Data
           Basis
@@ -1372,6 +1400,7 @@ models:
           combination_of_columns: [ano, id_lei_decreto_bd]
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [data_lei_alt, data_pub_lei_alt, numero_lei_alt]
           config:
             where: __most_recent_year__
     columns:
@@ -1429,10 +1458,13 @@ models:
     description: >
       Membros da comissão de licitação designados em cada processo licitatório. Publicado
       apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a Coverage
-      da tabela registra sigla_uf = MG.
+      da tabela registra sigla_uf = MG. Em até 4% das linhas a fonte cita um registro-pai
+      que não publica; nessas linhas a chave estrangeira e a chave primária construída
+      por Data Basis são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_licitacao_comissao_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -1464,7 +1496,6 @@ models:
       - name: id_licitacao_comissao_bd
         description: Código único de identificação do membro da comissão de licitação,
           construído por Data Basis
-        tests: [not_null]
       - name: id_licitacao_bd
         description: Código único de identificação da licitação, construído por Data
           Basis
@@ -1500,10 +1531,13 @@ models:
     description: >
       Cotações de preço apresentadas para cada item licitado. Publicado apenas para
       Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a Coverage da tabela registra
-      sigla_uf = MG.
+      sigla_uf = MG. Em até 4% das linhas a fonte cita um registro-pai que não publica;
+      nessas linhas a chave estrangeira e a chave primária construída por Data Basis
+      são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_licitacao_cotacao_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -1535,7 +1569,6 @@ models:
       - name: id_licitacao_cotacao_bd
         description: Código único de identificação da cotação do item da licitação,
           construído por Data Basis
-        tests: [not_null]
       - name: id_licitacao_item_bd
         description: Código único de identificação do item da licitação, construído
           por Data Basis
@@ -1561,12 +1594,16 @@ models:
     description: >
       Dotações orçamentárias vinculadas a cada processo licitatório. Publicado apenas
       para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a Coverage da tabela
-      registra sigla_uf = MG.
+      registra sigla_uf = MG. Em até 4% das linhas a fonte cita um registro-pai que
+      não publica; nessas linhas a chave estrangeira e a chave primária construída
+      por Data Basis são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_licitacao_dotacao_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [subacao]
           config:
             where: __most_recent_year__
     columns:
@@ -1596,7 +1633,6 @@ models:
       - name: id_licitacao_dotacao_bd
         description: Código único de identificação da dotação orçamentária da licitação,
           construído por Data Basis
-        tests: [not_null]
       - name: id_licitacao_bd
         description: Código único de identificação da licitação, construído por Data
           Basis
@@ -1628,10 +1664,13 @@ models:
     description: >
       Homologação e adjudicação de cada item licitado, com o vencedor e o valor homologado.
       Publicado apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a
-      Coverage da tabela registra sigla_uf = MG.
+      Coverage da tabela registra sigla_uf = MG. Em até 4% das linhas a fonte cita
+      um registro-pai que não publica; nessas linhas a chave estrangeira e a chave
+      primária construída por Data Basis são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_licitacao_homologacao_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -1663,7 +1702,6 @@ models:
       - name: id_licitacao_homologacao_bd
         description: Código único de identificação da homologação do item da licitação,
           construído por Data Basis
-        tests: [not_null]
       - name: id_licitacao_item_bd
         description: Código único de identificação do item da licitação, construído
           por Data Basis
@@ -1693,12 +1731,16 @@ models:
     description: >
       Propostas julgadas para cada item licitado, com licitante, valor e classificação.
       Publicado apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a
-      Coverage da tabela registra sigla_uf = MG.
+      Coverage da tabela registra sigla_uf = MG. Em até 4% das linhas a fonte cita
+      um registro-pai que não publica; nessas linhas a chave estrangeira e a chave
+      primária construída por Data Basis são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_licitacao_julgamento_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [ind_desonera_folha]
           config:
             where: __most_recent_year__
     columns:
@@ -1728,7 +1770,6 @@ models:
       - name: id_licitacao_julgamento_bd
         description: Código único de identificação do julgamento do item da licitação,
           construído por Data Basis
-        tests: [not_null]
       - name: id_licitacao_item_bd
         description: Código único de identificação do item da licitação, construído
           por Data Basis
@@ -1768,10 +1809,13 @@ models:
     description: >
       Pareceres técnicos e jurídicos emitidos em cada processo licitatório. Publicado
       apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a Coverage
-      da tabela registra sigla_uf = MG.
+      da tabela registra sigla_uf = MG. Em até 4% das linhas a fonte cita um registro-pai
+      que não publica; nessas linhas a chave estrangeira e a chave primária construída
+      por Data Basis são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_licitacao_parecer_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -1803,7 +1847,6 @@ models:
       - name: id_licitacao_parecer_bd
         description: Código único de identificação do parecer da licitação, construído
           por Data Basis
-        tests: [not_null]
       - name: id_licitacao_bd
         description: Código único de identificação da licitação, construído por Data
           Basis
@@ -1825,10 +1868,13 @@ models:
     description: >
       Quadro societário dos participantes de processos licitatórios. Publicado apenas
       para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a Coverage da tabela
-      registra sigla_uf = MG.
+      registra sigla_uf = MG. Em até 4% das linhas a fonte cita um registro-pai que
+      não publica; nessas linhas a chave estrangeira e a chave primária construída
+      por Data Basis são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_licitacao_quadro_societario_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -1860,7 +1906,6 @@ models:
       - name: id_licitacao_quadro_societario_bd
         description: Código único de identificação do sócio do participante da licitação,
           construído por Data Basis
-        tests: [not_null]
       - name: id_licitacao_participante_bd
         description: Código único de identificação do participante da licitação, construído
           por Data Basis
@@ -1884,10 +1929,13 @@ models:
     description: >
       Responsáveis designados para cada processo licitatório. Publicado apenas para
       Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a Coverage da tabela registra
-      sigla_uf = MG.
+      sigla_uf = MG. Em até 4% das linhas a fonte cita um registro-pai que não publica;
+      nessas linhas a chave estrangeira e a chave primária construída por Data Basis
+      são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_licitacao_responsavel_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -1919,7 +1967,6 @@ models:
       - name: id_licitacao_responsavel_bd
         description: Código único de identificação do responsável pela licitação,
           construído por Data Basis
-        tests: [not_null]
       - name: id_licitacao_bd
         description: Código único de identificação da licitação, construído por Data
           Basis
@@ -1941,8 +1988,9 @@ models:
       Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a Coverage da tabela registra
       sigla_uf = MG.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_liquidacao_fonte_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -1996,10 +2044,13 @@ models:
     description: >
       Notas fiscais vinculadas a cada liquidação de despesa. Publicado apenas para
       Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a Coverage da tabela registra
-      sigla_uf = MG.
+      sigla_uf = MG. Em até 4% das linhas a fonte cita um registro-pai que não publica;
+      nessas linhas a chave estrangeira e a chave primária construída por Data Basis
+      são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_liquidacao_nota_fiscal_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -2031,7 +2082,6 @@ models:
       - name: id_liquidacao_nota_fiscal_bd
         description: Código único de identificação da nota fiscal da liquidação, construído
           por Data Basis
-        tests: [not_null]
       - name: id_liquidacao_bd
         description: Código único de identificação da liquidação, construído por Data
           Basis
@@ -2057,8 +2107,9 @@ models:
       Publicado apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a
       Coverage da tabela registra sigla_uf = MG.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_nota_fiscal_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -2137,8 +2188,9 @@ models:
       apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a Coverage
       da tabela registra sigla_uf = MG.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_nota_fiscal_item_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -2194,12 +2246,16 @@ models:
     description: >
       Movimentações bancárias associadas a cada pagamento, com instituição financeira,
       agência e conta. Publicado apenas para Minas Gerais, a partir dos arquivos do
-      SICOM/TCE-MG; a Coverage da tabela registra sigla_uf = MG.
+      SICOM/TCE-MG; a Coverage da tabela registra sigla_uf = MG. Em até 4% das linhas
+      a fonte cita um registro-pai que não publica; nessas linhas a chave estrangeira
+      e a chave primária construída por Data Basis são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_pagamento_movimento_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [numero_aplicacao]
           config:
             where: __most_recent_year__
     columns:
@@ -2229,7 +2285,6 @@ models:
       - name: id_pagamento_movimento_bd
         description: Código único de identificação da movimentação do pagamento, construído
           por Data Basis
-        tests: [not_null]
       - name: id_pagamento_bd
         description: Código único de identificação do pagamento, construído por Data
           Basis
@@ -2267,10 +2322,12 @@ models:
       apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a Coverage
       da tabela registra sigla_uf = MG.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_registro_preco_adesao_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          ignore_values: [numero_modalidade]
           config:
             where: __most_recent_year__
     columns:
@@ -2355,10 +2412,13 @@ models:
     description: >
       Cotações de preço coletadas para cada adesão a ata de registro de preços. Publicado
       apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a Coverage
-      da tabela registra sigla_uf = MG.
+      da tabela registra sigla_uf = MG. Em até 4% das linhas a fonte cita um registro-pai
+      que não publica; nessas linhas a chave estrangeira e a chave primária construída
+      por Data Basis são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_registro_preco_adesao_cotacao_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -2390,7 +2450,6 @@ models:
       - name: id_registro_preco_adesao_cotacao_bd
         description: Código único de identificação da cotação da adesão a registro
           de preços, construído por Data Basis
-        tests: [not_null]
       - name: id_registro_preco_adesao_item_bd
         description: Código único de identificação do item da adesão a registro de
           preços, construído por Data Basis
@@ -2412,10 +2471,13 @@ models:
     description: >
       Itens objeto de cada adesão a ata de registro de preços. Publicado apenas para
       Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a Coverage da tabela registra
-      sigla_uf = MG.
+      sigla_uf = MG. Em até 4% das linhas a fonte cita um registro-pai que não publica;
+      nessas linhas a chave estrangeira e a chave primária construída por Data Basis
+      são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_registro_preco_adesao_item_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -2447,7 +2509,6 @@ models:
       - name: id_registro_preco_adesao_item_bd
         description: Código único de identificação do item da adesão a registro de
           preços, construído por Data Basis
-        tests: [not_null]
       - name: id_registro_preco_adesao_bd
         description: Código único de identificação da adesão a registro de preços,
           construído por Data Basis
@@ -2473,10 +2534,13 @@ models:
     description: >
       Fornecedores vencedores em cada adesão a ata de registro de preços. Publicado
       apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a Coverage
-      da tabela registra sigla_uf = MG.
+      da tabela registra sigla_uf = MG. Em até 4% das linhas a fonte cita um registro-pai
+      que não publica; nessas linhas a chave estrangeira e a chave primária construída
+      por Data Basis são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_registro_preco_adesao_vencedor_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -2508,7 +2572,6 @@ models:
       - name: id_registro_preco_adesao_vencedor_bd
         description: Código único de identificação do vencedor da adesão a registro
           de preços, construído por Data Basis
-        tests: [not_null]
       - name: id_registro_preco_adesao_item_bd
         description: Código único de identificação do item da adesão a registro de
           preços, construído por Data Basis
@@ -2539,8 +2602,9 @@ models:
       de origem. Publicado apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG;
       a Coverage da tabela registra sigla_uf = MG.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_restos_pagar_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -2605,8 +2669,9 @@ models:
       Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a Coverage da tabela registra
       sigla_uf = MG.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_restos_pagar_credor_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -2656,10 +2721,13 @@ models:
     description: >
       Movimentações de restos a pagar: pagamentos, anulações, cancelamentos e outras
       baixas. Publicado apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG;
-      a Coverage da tabela registra sigla_uf = MG.
+      a Coverage da tabela registra sigla_uf = MG. Em até 4% das linhas a fonte cita
+      um registro-pai que não publica; nessas linhas a chave estrangeira e a chave
+      primária construída por Data Basis são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_restos_pagar_movimentacao_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -2691,7 +2759,6 @@ models:
       - name: id_restos_pagar_movimentacao_bd
         description: Código único de identificação da movimentação de restos a pagar,
           construído por Data Basis
-        tests: [not_null]
       - name: id_restos_pagar_bd
         description: Código único de identificação de restos a pagar, construído por
           Data Basis
@@ -2731,10 +2798,13 @@ models:
     description: >
       Credores vinculados a cada movimentação de restos a pagar. Publicado apenas
       para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a Coverage da tabela
-      registra sigla_uf = MG.
+      registra sigla_uf = MG. Em até 4% das linhas a fonte cita um registro-pai que
+      não publica; nessas linhas a chave estrangeira e a chave primária construída
+      por Data Basis são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_restos_pagar_movimentacao_credor_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -2766,7 +2836,6 @@ models:
       - name: id_restos_pagar_movimentacao_credor_bd
         description: Código único de identificação do credor da movimentação de restos
           a pagar, construído por Data Basis
-        tests: [not_null]
       - name: id_restos_pagar_movimentacao_bd
         description: Código único de identificação da movimentação de restos a pagar,
           construído por Data Basis
@@ -2785,10 +2854,13 @@ models:
     description: >
       Decomposição de cada movimentação de restos a pagar por fonte de recursos. Publicado
       apenas para Minas Gerais, a partir dos arquivos do SICOM/TCE-MG; a Coverage
-      da tabela registra sigla_uf = MG.
+      da tabela registra sigla_uf = MG. Em até 4% das linhas a fonte cita um registro-pai
+      que não publica; nessas linhas a chave estrangeira e a chave primária construída
+      por Data Basis são nulas.
     tests:
-      - dbt_utils.unique_combination_of_columns:
+      - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_restos_pagar_movimentacao_fonte_bd]
+          proportion_allowed_failures: 0.05
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           config:
@@ -2820,7 +2892,6 @@ models:
       - name: id_restos_pagar_movimentacao_fonte_bd
         description: Código único de identificação da fonte da movimentação de restos
           a pagar, construído por Data Basis
-        tests: [not_null]
       - name: id_restos_pagar_movimentacao_bd
         description: Código único de identificação da movimentação de restos a pagar,
           construído por Data Basis

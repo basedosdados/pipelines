@@ -36,6 +36,46 @@ DIRECTORY_TESTS: dict[str, tuple[str, str]] = {
 }
 
 
+# Tables where `ano + <own key>` is not unique even though the key is non-NULL --
+# genuine duplicate rows in the source, distinct from the orphan-key tables in
+# `mg_table_glossary.ORPHAN_PARENT_KEY`. Both groups use the proportional
+# uniqueness test instead of the strict dbt_utils one; the orphan tables need it
+# because their NULLs collapse into a single large group, these need it because
+# the source repeats rows. Measured from the 2026-09-25 dev test run.
+RELAXED_UNIQUENESS: frozenset[str] = frozenset(
+    {
+        "contrato_contabilizacao",
+        "despesa_dotacao",
+        "dispensa",
+        "dispensa_dotacao",
+        "dispensa_responsavel",
+        "liquidacao_fonte",
+        "nota_fiscal",
+        "nota_fiscal_item",
+        "registro_preco_adesao",
+        "restos_pagar",
+        "restos_pagar_credor",
+    }
+)
+
+# Columns that are legitimately more than 95% empty in the MG source, per the
+# 2026-09-25 test run. Listed here so `not_null_proportion_multiple_columns`
+# skips them rather than failing the whole table; every other column in these
+# tables is still held to the 0.05 floor.
+IGNORE_NULL_COLUMNS: dict[str, list[str]] = {
+    "contrato_credito": ["subacao"],
+    "contrato_item": ["codigo_item_sicro"],
+    "contrato_termo_aditivo_item": ["codigo_item_sicro"],
+    "despesa_dotacao": ["subacao"],
+    "dispensa_dotacao": ["subacao"],
+    "lei_decreto": ["data_lei_alt", "data_pub_lei_alt", "numero_lei_alt"],
+    "licitacao_dotacao": ["subacao"],
+    "licitacao_julgamento": ["ind_desonera_folha"],
+    "pagamento_movimento": ["numero_aplicacao"],
+    "registro_preco_adesao": ["numero_modalidade"],
+}
+
+
 def columns_of(path: str) -> list[str]:
     """Published column names, in the model's own order.
 
@@ -97,15 +137,32 @@ def block(table: str, columns: list[str]) -> list[str]:
     key = f"id_{table}_bd"
     if key not in columns:
         raise AssertionError(f"{table}: own key {key} is not among {columns}")
+    relaxed = table in tables.ORPHAN_PARENT_KEY or table in RELAXED_UNIQUENESS
     out = [
         f"  - name: world_wb_mides__{table}",
         "    description: >",
         f"      {tables.description(table)}",
         "    tests:",
-        "      - dbt_utils.unique_combination_of_columns:",
-        f"          combination_of_columns: [ano, {key}]",
+    ]
+    if relaxed:
+        out += [
+            "      - custom_unique_combinations_of_columns:",
+            f"          combination_of_columns: [ano, {key}]",
+            "          proportion_allowed_failures: 0.05",
+        ]
+    else:
+        out += [
+            "      - dbt_utils.unique_combination_of_columns:",
+            f"          combination_of_columns: [ano, {key}]",
+        ]
+    out += [
         "      - not_null_proportion_multiple_columns:",
         "          at_least: 0.05",
+    ]
+    if table in IGNORE_NULL_COLUMNS:
+        ignored = ", ".join(IGNORE_NULL_COLUMNS[table])
+        out.append(f"          ignore_values: [{ignored}]")
+    out += [
         "          config:",
         "            where: __most_recent_year__",
         "    columns:",
@@ -116,7 +173,10 @@ def block(table: str, columns: list[str]) -> list[str]:
             f"        description: {glossary.build_description(column)}"
         )
         tests: list[str] = []
-        if column in ("ano", "sigla_uf", "id_municipio", key):
+        required = ["ano", "sigla_uf", "id_municipio"]
+        if table not in tables.ORPHAN_PARENT_KEY:
+            required.append(key)
+        if column in required:
             tests.append("not_null")
         if column in DIRECTORY_TESTS:
             out.append("        tests:")

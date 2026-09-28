@@ -22,6 +22,59 @@ SUFFIX: tuple[str, str, str] = (
     "la Coverage de la tabla registra sigla_uf = MG.",
 )
 
+# Tables whose own `_bd` key is NULL for some rows, because the TCE-MG source
+# publishes child records citing a parent record it never publishes. Measured
+# 2026-09-28 against the dev build: for every table checked, the orphan key
+# appears in the parent under no municipality and no exercise, so this is a
+# referential gap in the source, not a join defect. Rates run from 0.00%
+# (restos_pagar_movimentacao, 73 of 2,624,515) to 4.06% (contrato_rescisao, 748
+# of 18,430); contrato_apostilamento 3.27%, licitacao_parecer 3.25%.
+#
+# Accepted deliberately on 2026-09-28: the rows are kept and published rather
+# than dropped, so these tables carry a primary key that is NULL for 3-4% of
+# rows. A user joining on that key silently loses those rows, which is why the
+# caveat below is part of every affected table's published description.
+ORPHAN_PARENT_KEY: frozenset[str] = frozenset(
+    {
+        "contrato_apostilamento",
+        "contrato_credito",
+        "contrato_item",
+        "contrato_rescisao",
+        "contrato_termo_aditivo",
+        "contrato_termo_aditivo_item",
+        "dispensa_cotacao",
+        "dispensa_credenciado",
+        "empenho_fonte",
+        "licitacao_comissao",
+        "licitacao_cotacao",
+        "licitacao_dotacao",
+        "licitacao_homologacao",
+        "licitacao_julgamento",
+        "licitacao_parecer",
+        "licitacao_quadro_societario",
+        "licitacao_responsavel",
+        "liquidacao_nota_fiscal",
+        "pagamento_movimento",
+        "registro_preco_adesao_cotacao",
+        "registro_preco_adesao_item",
+        "registro_preco_adesao_vencedor",
+        "restos_pagar_movimentacao",
+        "restos_pagar_movimentacao_credor",
+        "restos_pagar_movimentacao_fonte",
+    }
+)
+
+ORPHAN_KEY_SUFFIX: tuple[str, str, str] = (
+    "Em até 4% das linhas a fonte cita um registro-pai que não publica; "
+    "nessas linhas a chave estrangeira e a chave primária construída por "
+    "Data Basis são nulas.",
+    "In up to 4% of rows the source cites a parent record it does not publish; "
+    "in those rows the foreign key and the Data Basis primary key are null.",
+    "En hasta 4% de las filas la fuente cita un registro padre que no publica; "
+    "en esas filas la clave foránea y la clave primaria construida por Data "
+    "Basis son nulas.",
+)
+
 # table slug -> (name_pt, name_en, name_es, description_pt, description_en, description_es)
 TABLES: dict[str, tuple[str, str, str, str, str, str]] = {
     "alteracao_orcamentaria": (
@@ -378,4 +431,9 @@ def name(table: str, lang: str = "pt") -> str:
 def description(table: str, lang: str = "pt", with_suffix: bool = True) -> str:
     idx = LANGS.index(lang)
     text = TABLES[table][3 + idx]
-    return f"{text} {SUFFIX[idx]}" if with_suffix else text
+    if not with_suffix:
+        return text
+    out = f"{text} {SUFFIX[idx]}"
+    if table in ORPHAN_PARENT_KEY:
+        out = f"{out} {ORPHAN_KEY_SUFFIX[idx]}"
+    return out
