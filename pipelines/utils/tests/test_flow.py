@@ -1,7 +1,7 @@
 """Testes do decorator `flow` da BD (`pipelines.utils.flow`).
 
 Os flows são criados dentro de fixtures, e não no nível do módulo: o
-`.github/scripts/deploy_flows.py` registra todo objeto `Flow` de nível de
+`.github/workflows/scripts/deploy_flows.py` registra todo objeto `Flow` de nível de
 módulo que encontra em `pipelines/`, então um flow de teste declarado aqui
 seria deployado em produção junto com os demais.
 """

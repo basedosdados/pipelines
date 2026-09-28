@@ -6,7 +6,7 @@ history every month, so each run is a **full replace** (dump_mode="overwrite"),
 not an incremental append. A single flow downloads once and rebuilds all four
 tables. Schedule targets the BLS monthly release window (~2nd week).
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_bls_cpi_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_bls_cpi_flow`; the
 dev pool ignores the schedule, the prod pool activates it.
 """
 

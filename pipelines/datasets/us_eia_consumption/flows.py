@@ -14,7 +14,7 @@ The annual form and the monthly form are polled separately because they move on
 different clocks. The three annual tables are fully free; eia861m refreshes
 monthly and carries the BD Pro rolling window.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_eia_consumption_flow`.
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_eia_consumption_flow`.
 """
 
 import shutil
