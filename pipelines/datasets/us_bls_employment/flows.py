@@ -13,7 +13,7 @@ back. The flat files carry the full history on every release, so rebuilding from
 them (``dump_mode="overwrite"``) absorbs the trailing revisions and the annual
 benchmark alike, with no separate benchmark branch to maintain.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_bls_employment_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_bls_employment_flow`;
 the dev pool strips the schedule, the prod pool activates it.
 """
 

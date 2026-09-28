@@ -12,7 +12,7 @@ Flows for {{cookiecutter.pipeline_name}} — Prefect 3.
 # chamadas de tasks (funções decoradas com `@task`, definidas em `tasks.py`)
 # executadas na ordem do corpo da função.
 #
-# O deploy é feito por `.github/scripts/deploy_flows.py`, que descobre os
+# O deploy é feito por `.github/workflows/scripts/deploy_flows.py`, que descobre os
 # objetos `Flow` deste arquivo automaticamente — não é preciso registrar
 # storage nem run_config manualmente.
 #
