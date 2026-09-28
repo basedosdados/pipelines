@@ -11,7 +11,7 @@ each state-year lands at `year=<YYYY>/<st>.parquet`, so re-processing a year
 overwrites its own blobs rather than duplicating rows. `overwrite` is not used —
 it drops the prod table even from a dev run.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_census_lodes_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_census_lodes_flow`;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 

@@ -18,7 +18,7 @@ the whole 20 GB panel.
 year on the portal and is republished on its own, slower cadence; it is
 refreshed by hand when a new year appears.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_ed_nces_ccd_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_ed_nces_ccd_flow`;
 the dev pool strips the schedule, the prod pool activates it (paused).
 """
 

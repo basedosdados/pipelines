@@ -43,7 +43,7 @@ If you change the filename here, change it there in the same commit.
 rules out putting any of this behind BD Pro, so there is no rolling paywall
 window here and no Row Access Policy is ever issued.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `au_aph_hansard_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `au_aph_hansard_flow`;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
