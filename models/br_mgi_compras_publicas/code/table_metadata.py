@@ -389,9 +389,14 @@ TABLE_ORDER = [
     "contrato",
     "contrato_item",
     "licitacao",
-    "licitacao_pregao",
     "licitacao_item",
+    "licitacao_pregao",
     "licitacao_item_pregao",
+    # The two ComprasNet legado tables sit with the pregao they describe, not at
+    # the end where they were first appended: they join licitacao_pregao and
+    # licitacao_item_pregao on id_compra and are read alongside them.
+    "pregao_item_oferta",
+    "pregao_item_evento",
     "compra_sem_licitacao",
     "compra_sem_licitacao_item",
     "orgao",
@@ -400,8 +405,6 @@ TABLE_ORDER = [
     "catalogo_material",
     "catalogo_servico",
     "dicionario",
-    "pregao_item_oferta",
-    "pregao_item_evento",
 ]
 
 #: table -> (entity slug, frequency) for the table-anchored Update record, i.e.
