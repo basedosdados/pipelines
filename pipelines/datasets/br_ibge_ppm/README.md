@@ -76,8 +76,10 @@ admite ausente, porque `astype(int)` não aceita nulo.
 
 ## Atualização
 
-Um flow por tabela, todos chamando `run_ibge_ppm`, agendados nos dias 15 a 20 de setembro e de
-outubro, que é a janela de divulgação.
+Um flow por tabela, todos chamando `run_ibge_ppm`, agendados todo dia às 14h de 15 de setembro a
+31 de outubro. A PPM sai às 13h, numa data que muda a cada ano dentro dessa janela; o calendário
+oficial está em `servicodados.ibge.gov.br/api/v3/calendario/9107`. Fora da divulgação, o poll
+só consulta os metadados do SIDRA e encerra.
 
 - `backfill_years` carrega anos específicos (`["2023", "2024"]`), pula o poll e não olha o
   intervalo de datas registrado.

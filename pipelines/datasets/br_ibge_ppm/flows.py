@@ -5,8 +5,9 @@ Um `@flow` por tabela, declarado no nível do módulo com o horário logo abaixo
 compartilhando a espinha `run_ibge_ppm`.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
+from pipelines.datasets.br_ibge_ppm.constants import constants
 from pipelines.datasets.br_ibge_ppm.tasks import (
     clean_table,
     download_table,
@@ -14,12 +15,8 @@ from pipelines.datasets.br_ibge_ppm.tasks import (
     get_source_max_date,
     resolve_years,
 )
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    CoverageSpec,
-    DateFormat,
-    YearOnly,
-)
+from pipelines.utils.flow import flow
+from pipelines.utils.metadata.domain import DateFormat
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -30,21 +27,6 @@ from pipelines.utils.tasks import (
     run_dbt,
     upload_to_gcs,
 )
-
-COVERAGE: dict[str, CoverageSpec] = {
-    "efetivo_rebanhos": AllFree(
-        date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
-    ),
-    "producao_origem_animal": AllFree(
-        date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
-    ),
-    "producao_aquicultura": AllFree(
-        date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
-    ),
-    "producao_pecuaria": AllFree(
-        date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
-    ),
-}
 
 
 def run_ibge_ppm(
@@ -148,7 +130,7 @@ def run_ibge_ppm(
         register_table_materialization_task(
             dataset_id=dataset_id,
             table_id=table_id,
-            coverage=COVERAGE[table_id],
+            coverage=constants.COVERAGE.value[table_id],
             env="prod",
             bq_project="basedosdados",
         )
@@ -181,9 +163,9 @@ def br_ibge_ppm__efetivo_rebanhos(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_ibge_ppm__efetivo_rebanhos.deploy_schedules = [
-    {"cron": "4 10 15-20 9,10 *", "timezone": "America/Sao_Paulo"}
+    Cron("4 14 15-30 9 *", timezone="America/Sao_Paulo"),
+    Cron("4 14 * 10 *", timezone="America/Sao_Paulo"),
 ]
 
 
@@ -214,9 +196,9 @@ def br_ibge_ppm__producao_origem_animal(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_ibge_ppm__producao_origem_animal.deploy_schedules = [
-    {"cron": "9 10 15-20 9,10 *", "timezone": "America/Sao_Paulo"}
+    Cron("9 14 15-30 9 *", timezone="America/Sao_Paulo"),
+    Cron("9 14 * 10 *", timezone="America/Sao_Paulo"),
 ]
 
 
@@ -247,9 +229,9 @@ def br_ibge_ppm__producao_aquicultura(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_ibge_ppm__producao_aquicultura.deploy_schedules = [
-    {"cron": "14 10 15-20 9,10 *", "timezone": "America/Sao_Paulo"}
+    Cron("14 14 15-30 9 *", timezone="America/Sao_Paulo"),
+    Cron("14 14 * 10 *", timezone="America/Sao_Paulo"),
 ]
 
 
@@ -280,7 +262,7 @@ def br_ibge_ppm__producao_pecuaria(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_ibge_ppm__producao_pecuaria.deploy_schedules = [
-    {"cron": "19 10 15-20 9,10 *", "timezone": "America/Sao_Paulo"}
+    Cron("19 14 15-30 9 *", timezone="America/Sao_Paulo"),
+    Cron("19 14 * 10 *", timezone="America/Sao_Paulo"),
 ]

@@ -5,6 +5,8 @@ Constantes de br_ibge_ppm.
 import re
 from enum import Enum
 
+from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
+
 
 class constants(Enum):
     """Constantes de br_ibge_ppm."""
@@ -218,4 +220,19 @@ class constants(Enum):
                 },
             ],
         },
+    }
+
+    COVERAGE = {
+        "efetivo_rebanhos": AllFree(
+            date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
+        ),
+        "producao_origem_animal": AllFree(
+            date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
+        ),
+        "producao_aquicultura": AllFree(
+            date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
+        ),
+        "producao_pecuaria": AllFree(
+            date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
+        ),
     }
