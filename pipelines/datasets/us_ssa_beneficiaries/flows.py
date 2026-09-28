@@ -14,7 +14,7 @@ Accepting a year is gated inside ``clean_ssa``: county sums are reconciled
 against SSA's published state totals and state sums against its national total,
 and a year that fails raises rather than uploading.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers
 ``us_ssa_beneficiaries_flow``; the dev pool ignores the schedule, the prod pool
 activates it.
 """

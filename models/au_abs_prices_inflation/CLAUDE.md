@@ -81,7 +81,7 @@ the cleaning transform lives in exactly one place.
   without them `All groups` collides 21 and 6 ways respectively.
 - The Monthly CPI Indicator (cat 6484.0) **ceased** at September 2025 and is
   already folded into `cpi_monthly`; there is nothing separate to onboard.
-- Deploy: `.github/scripts/deploy_flows.py` auto-discovers every flow defined in
+- Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers every flow defined in
   `flows.py`; the dev pool ignores the schedules, the prod pool activates them.
 
 ## Operating reminders
