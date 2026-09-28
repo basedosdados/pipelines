@@ -79,7 +79,8 @@ admite ausente, porque `astype(int)` não aceita nulo.
 Um flow por tabela, todos chamando `run_ibge_ppm`, agendados nos dias 15 a 20 de setembro e de
 outubro, que é a janela de divulgação.
 
-- `backfill_years` carrega anos específicos (`["2023", "2024"]`) e pula o poll.
+- `backfill_years` carrega anos específicos (`["2023", "2024"]`), pula o poll e não olha o
+  intervalo de datas registrado.
 - `materialize_after_dump=False` e `update_metadata=False` prendem a execução em dev. Os
   padrões dos dois são `True` e escrevem em produção, mesmo saindo do pool de teste.
 - `force_run=True` ignora o poll.
@@ -87,3 +88,9 @@ outubro, que é a janela de divulgação.
 O poll compara o ano publicado pela fonte com o intervalo de datas registrado na tabela em
 produção. Quando o registro está à frente do que a tabela de fato tem, ele não vê novidade e o
 flow encerra — em verde, sem carregar nada; carregar nesse caso pede `backfill_years`.
+
+Sem `backfill_years`, o flow carrega todos os anos que faltam entre esse intervalo e a fonte, do
+ano seguinte ao último registrado até o último publicado. Se uma divulgação passa sem carga, o
+ano dela entra na execução seguinte, junto com o novo. Sem intervalo registrado, a carga começa
+no primeiro ano da tabela; com o intervalo em dia, o que só passa do poll com `force_run`, ela
+traz o último ano publicado. O intervalo é lido em produção, também nas execuções presas em dev.

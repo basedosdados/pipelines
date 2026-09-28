@@ -10,6 +10,7 @@ from prefect import flow
 from pipelines.datasets.br_ibge_ppm.tasks import (
     clean_table,
     download_table,
+    get_coverage_max_year,
     get_source_max_date,
     resolve_years,
 )
@@ -90,10 +91,15 @@ def run_ibge_ppm(
             materialize_after_dump=materialize_after_dump,
         )
 
+    coverage_max_year = get_coverage_max_year(
+        dataset_id=dataset_id, table_id=table_id, env="prod"
+    )
+
     anos = resolve_years(
         table_id=table_id,
         backfill_years=backfill_years,
         source_max_date=source_max_date,
+        coverage_max_year=coverage_max_year,
     )
 
     filepaths = []

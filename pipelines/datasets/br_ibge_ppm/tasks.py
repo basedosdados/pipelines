@@ -5,6 +5,7 @@ Cada task embrulha uma função de `utils.py`, onde fica a lógica.
 """
 
 from pathlib import Path
+from typing import Literal
 
 from prefect import task
 
@@ -24,9 +25,34 @@ def get_source_max_date(table_id: str) -> str:
     return utils.get_source_max_date(table_id=table_id)
 
 
+@task(retries=3, retry_delay_seconds=30)
+def get_coverage_max_year(
+    dataset_id: str,
+    table_id: str,
+    env: Literal["dev", "prod", "staging"],
+) -> str | None:
+    """Lê no backend até que ano a tabela está coberta.
+
+    Args:
+        dataset_id: ID do conjunto no BigQuery.
+        table_id: Slug da tabela.
+        env: Backend a consultar.
+
+    Returns:
+        O último ano coberto, no formato `%Y`, ou None se a tabela não tiver
+        intervalo de datas registrado.
+    """
+    return utils.get_coverage_max_year(
+        dataset_id=dataset_id, table_id=table_id, env=env
+    )
+
+
 @task
 def resolve_years(
-    table_id: str, backfill_years: list[str] | None, source_max_date: str
+    table_id: str,
+    backfill_years: list[str] | None,
+    source_max_date: str,
+    coverage_max_year: str | None,
 ) -> list[str]:
     """Decide quais anos a execução vai carregar.
 
@@ -34,6 +60,8 @@ def resolve_years(
         table_id: Slug da tabela.
         backfill_years: Anos a recarregar, no formato `%Y`, ou None.
         source_max_date: Ano mais recente publicado, no formato `%Y`.
+        coverage_max_year: Último ano coberto em produção, no formato `%Y`, ou
+            None se a tabela não tiver cobertura registrada.
 
     Returns:
         Os anos a carregar, em ordem crescente.
@@ -42,6 +70,7 @@ def resolve_years(
         table_id=table_id,
         backfill_years=backfill_years,
         source_max_date=source_max_date,
+        coverage_max_year=coverage_max_year,
     )
 
 

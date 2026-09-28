@@ -6,11 +6,12 @@ e também podem ser executadas diretamente, o que permite conferir a contagem de
 linhas antes do upload.
 """
 
+import datetime
 import json
 import shutil
 from functools import reduce
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import pandas as pd
 import pyarrow as pa
@@ -20,6 +21,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 from pipelines.datasets.br_ibge_ppm.constants import constants
+from pipelines.utils.metadata.client import MetadataClient
 
 
 def build_session() -> requests.Session:
@@ -116,18 +118,62 @@ def get_source_max_date(table_id: str) -> str:
     return date_str
 
 
+def get_coverage_max_year(
+    dataset_id: str,
+    table_id: str,
+    env: Literal["dev", "prod", "staging"],
+) -> str | None:
+    """Lê no backend até que ano a tabela está coberta.
+
+    É o mesmo registro que o poll compara com a fonte, o fim do intervalo de
+    datas da cobertura. Precisa ser lido de novo porque o poll só devolve se há
+    novidade.
+
+    Args:
+        dataset_id: ID do conjunto no BigQuery.
+        table_id: Slug da tabela.
+        env: Backend a consultar.
+
+    Returns:
+        O último ano coberto, no formato `%Y`, ou None se a tabela não tiver
+        intervalo de datas registrado.
+    """
+    metadata_client = MetadataClient(env=env)
+    date: datetime.date | None = metadata_client.get_coverage_max_date(
+        dataset_id=dataset_id, table_id=table_id
+    )
+
+    if date is None:
+        return None
+
+    year_from_date = date.strftime("%Y")
+
+    return year_from_date
+
+
 def resolve_years(
-    table_id: str, backfill_years: list[str] | None, source_max_date: str
+    table_id: str,
+    backfill_years: list[str] | None,
+    source_max_date: str,
+    coverage_max_year: str | None,
 ) -> list[str]:
     """Decide quais anos a execução vai carregar.
 
-    Sem backfill é só o ano mais recente da fonte. Com backfill, são os anos
-    pedidos, em ordem.
+    Com backfill, são os anos pedidos, em ordem, e a cobertura não entra na
+    conta. Sem backfill, são os anos que faltam entre a cobertura e a fonte:
+
+    - sem cobertura registrada, do primeiro ano da tabela até o último
+      publicado;
+    - com cobertura, do ano seguinte ao último coberto até o último publicado;
+    - se a cobertura já alcançou a fonte, o que só chega aqui com `force_run`,
+      o último ano publicado.
 
     Args:
         table_id: Slug da tabela.
         backfill_years: Anos a recarregar, no formato `%Y`, ou None.
         source_max_date: Ano mais recente publicado, no formato `%Y`.
+        coverage_max_year: Último ano coberto em produção, no formato `%Y`, ou
+            None se a tabela não tiver cobertura registrada.
 
     Returns:
         Os anos a carregar, em ordem crescente.
@@ -136,10 +182,21 @@ def resolve_years(
         ValueError: Se algum ano pedido estiver fora do que a fonte publica para
             a tabela.
     """
-    if not backfill_years:
-        return [source_max_date]
-
     first_year = constants.TABLES.value[table_id]["first_year"]
+    if not backfill_years:
+        if coverage_max_year is None:
+            anos_int = list(range(first_year, int(source_max_date) + 1))
+            anos_str = [str(ano) for ano in anos_int]
+            return anos_str
+        elif int(coverage_max_year) < int(source_max_date):
+            anos_int = list(
+                range(int(coverage_max_year) + 1, int(source_max_date) + 1)
+            )
+            anos_str = [str(ano) for ano in anos_int]
+            return anos_str
+        else:
+            return [source_max_date]
+
     anos = sorted(set(backfill_years))
     fora = [
         ano
