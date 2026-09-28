@@ -7,9 +7,11 @@ models:
       Gestores Estaduais de Estatística ao SINESP VDE. Formato longo em
       tipo_ocorrencia: cada linha é um município, mês, tipo de ocorrência e
       instituição reportante. Apenas 11 dos 31 tipos publicados são divulgados
-      neste nível; os demais estão em uf_mes. Linhas com situacao_registro
-      igual a nao_reportado marcam município-mês ausentes da fonte e têm todas
-      as quantidades nulas — nenhum valor é imputado.
+      neste nível; os demais estão em uf_mes. situacao_registro separa três
+      estados: valor publicado, valor zero cujo total anual da série na UF é
+      zero (a fonte grava 0 no lugar de omitir um estado que não preencheu), e
+      município-mês ausente da fonte, com quantidades nulas. Nenhum valor é
+      imputado e nenhum valor publicado é alterado.
     tests:
       # Scoped to the most recent year: this table is 8.8M rows, and an
       # unfiltered scan per test is enough on its own to trip the project's
@@ -81,12 +83,14 @@ models:
         tests: [not_null]
       - name: situacao_registro
         description: >
-          reportado quando a fonte publicou uma linha para este município-mês;
-          nao_reportado quando a omitiu de uma série que reportou naquele ano
+          reportado quando a fonte publicou o valor; zero_estrutural quando
+          publicou zero mas o total anual da série nesta UF é zero, indício de
+          não preenchimento e não de ausência de ocorrências; nao_reportado
+          quando omitiu o município-mês de uma série que reportou naquele ano
         tests:
           - not_null
           - accepted_values:
-              values: [reportado, nao_reportado]
+              values: [reportado, zero_estrutural, nao_reportado]
       - name: quantidade_ocorrencias
         description: >
           Número de ocorrências registradas. Preenchida apenas para tipos

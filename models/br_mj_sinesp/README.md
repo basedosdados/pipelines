@@ -29,17 +29,43 @@ is reported independently by `Estadual`, `Polícia Federal` and `Polícia
 Rodoviária Federal` for the same municipality and month. Summing across
 `abrangencia` without meaning to double-counts.
 
-**3. Missing and zero are different, and both are represented.** Three states
-are distinguishable:
+**3. Missing and zero are different — and so are two kinds of zero.** A state
+that files nothing is not omitted from the workbook: the source writes `0` into
+every one of its municipality-months. Row presence is therefore not evidence of
+reporting, and a plain `reportado`/`nao_reportado` split would hand the reader
+hundreds of thousands of zeros that are really silence. Four states are
+distinguishable:
 
 | `situacao_registro` | measures | meaning |
 |---|---|---|
 | `reportado` | `0` | the source reported a zero |
 | `reportado` | `NULL` | the source published a row and left the value blank |
+| `zero_estrutural` | `0` | zero published, but the state's whole annual total for that series is zero |
 | `nao_reportado` | `NULL` | the source published no row for this municipality-month |
 
-Nothing is imputed. A `nao_reportado` row is emitted for every municipality-month
-the source omits from a series it otherwise reported that year.
+Nothing is imputed and no published value is altered — `zero_estrutural` rows
+still carry the `0` the source printed. A `nao_reportado` row is emitted for
+every municipality-month the source omits from a series it otherwise reported
+that year.
+
+`zero_estrutural` is **descriptive, not a claim about cause**. For a common
+series it means the state did not fill the form; for a rare series in a small
+state it may be a true zero. A series whose cells are all blank is silence, not
+a zero, and is left as `reportado` with NULL.
+
+Where it bites, in the victim-measured series:
+
+| UF | years | |
+|---|---|---|
+| ES | 2015 | 8 of 10 series absent from the file (`nao_reportado`) |
+| GO | 2015 | 9 of 10 series all-zero |
+| PR | 2015, 2016 | 9 of 10 series all-zero |
+| RR | 2015–2018 | 8–9 of 10 series all-zero |
+
+From 2019 every state reports the headline lethal-violence series. Separately,
+**RR carries 27.5% of its victims with no municipality** across all years
+(against under 0.5% nationally), so municipal analysis of RR is biased no matter
+which flag a row has.
 
 ## The source emits several rows per cell, and they must be summed
 

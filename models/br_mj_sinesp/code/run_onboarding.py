@@ -36,7 +36,11 @@ def main(years: list[int] | None = None) -> None:
     tot_m = sum(s["municipio_rows"] for s in stats)
     tot_u = sum(s["uf_rows"] for s in stats)
     tot_f = sum(s["flagged_rows"] for s in stats)
-    print(f"\nmunicipio_mes {tot_m:,} rows ({tot_f:,} flagged nao_reportado)")
+    tot_z = sum(s["zero_estrutural_rows"] for s in stats)
+    print(
+        f"\nmunicipio_mes {tot_m:,} rows "
+        f"({tot_f:,} nao_reportado, {tot_z:,} zero_estrutural)"
+    )
     print(f"uf_mes        {tot_u:,} rows")
 
 

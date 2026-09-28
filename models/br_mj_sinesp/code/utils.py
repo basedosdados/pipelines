@@ -265,6 +265,7 @@ _TYPES = {
 
 SITUACAO_REPORTADO = "reportado"
 SITUACAO_NAO_REPORTADO = "nao_reportado"
+SITUACAO_ZERO_ESTRUTURAL = "zero_estrutural"
 
 
 def _to_string_table(columns: list[str], cols: dict[str, list]) -> pa.Table:
@@ -452,6 +453,40 @@ def clean_year(
                         )
                         n_flagged += 1
 
+    # ---- separate a reported zero from a state that filed nothing ---------
+    # The source does not omit a non-reporting state: it writes 0 into every
+    # municipality-month. Row presence is therefore not evidence of reporting.
+    # Where a state's whole annual total for a series is zero, the reported
+    # rows are relabelled `zero_estrutural`. This is descriptive, not a claim
+    # about cause: for a common series it means the state did not fill the
+    # form, but for a rare series in a small state it may be a true zero.
+    # The values themselves are left exactly as published.
+    # (uf, tipo_ocorrencia, abrangencia) -> [annual total, count of filled cells]
+    annual: dict[tuple[str, str, str], list[int]] = {}
+    for uf, rows in mun_rows.items():
+        for row in rows:
+            if row[6] != SITUACAO_REPORTADO:
+                continue
+            acc = annual.setdefault((uf, row[4], row[5]), [0, 0])
+            for idx in (7, 8):  # quantidade_ocorrencias, quantidade_vitimas
+                if row[idx] is not None:
+                    acc[0] += row[idx]
+                    acc[1] += 1
+    # A series whose cells are all blank is silence, not a zero, so it needs at
+    # least one filled cell to qualify.
+    zero_keys = {
+        k for k, (total, filled) in annual.items() if total == 0 and filled
+    }
+    n_zero = 0
+    if zero_keys:
+        for uf, rows in mun_rows.items():
+            for i, row in enumerate(rows):
+                if row[6] != SITUACAO_REPORTADO:
+                    continue
+                if (uf, row[4], row[5]) in zero_keys:
+                    rows[i] = (*row[:6], SITUACAO_ZERO_ESTRUTURAL, *row[7:])
+                    n_zero += 1
+
     n_mun = n_uf = 0
     for uf, rows in mun_rows.items():
         cols = {c: [] for c in MUNICIPIO_COLUMNS}
@@ -496,6 +531,7 @@ def clean_year(
         "municipio_rows": n_mun,
         "uf_rows": n_uf,
         "flagged_rows": n_flagged,
+        "zero_estrutural_rows": n_zero,
         "collapsed_source_rows": collapsed,
         "max_source_rows_per_cell": max(
             [*mun_src.values(), *uf_src.values(), 0]
@@ -535,6 +571,23 @@ def build_dicionario(stats: list[dict], out_dir: str = OUTPUT_DIR) -> int:
         return ", ".join(f"{a}(1){b}" for a, b in spans)
 
     rows = []
+    # situacao_registro is set by the cleaning code, not read off the source, so
+    # its vocabulary is declared here rather than observed.
+    span = f"{min(s['year'] for s in stats)}(1){max(s['year'] for s in stats)}"
+    for chave, valor in (
+        (SITUACAO_REPORTADO, "A fonte publicou a linha e o valor"),
+        (
+            SITUACAO_ZERO_ESTRUTURAL,
+            "Valor zero publicado, mas o total anual da série nesta UF é zero — "
+            "indício de não preenchimento, não de ausência de ocorrências",
+        ),
+        (
+            SITUACAO_NAO_REPORTADO,
+            "A fonte omitiu este município-mês de uma série que reportou no ano; "
+            "quantidades nulas, nada imputado",
+        ),
+    ):
+        rows.append((TABLE_MUNICIPIO, "situacao_registro", chave, span, valor))
     for (col, chave, valor), years in sorted(seen.items()):
         cov = coverage(years)
         for tabela in (TABLE_MUNICIPIO, TABLE_UF):
