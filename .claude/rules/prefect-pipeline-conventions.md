@@ -382,7 +382,7 @@ Spacing of 5 minutes is plenty. Note this reduces contention, **not** bytes bill
 per day — the daily quota is a byte ceiling, and only doing less work (scoped tests,
 incremental models, no redundant dev materialization) moves that.
 
-Deploy is CI, via `.github/scripts/deploy_flows.py`:
+Deploy is CI, via `.github/workflows/scripts/deploy_flows.py`:
 - **Dev pool** (`cd-prefect3-staging.yaml`, `--pool basedosdados-dev`, on PR):
   runs **only if the PR carries the `deploy-flow` label** — no label, no deploy, and
   the job reports `skipped`, not failed. A PR without it deploys **nothing** and

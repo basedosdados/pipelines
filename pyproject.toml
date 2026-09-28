@@ -153,7 +153,6 @@ dev = [
   "yamlfix<2.0.0,>=1.16.0",
   "shandy-sqlfmt[jinjafmt]<1.0.0,>=0.20.0",
   "cookiecutter<2.0.0,>=1.7.3",
-  "networkx==2.6.3",
   "databasers-utils @ git+https://github.com/basedosdados/databasers-utils.git@monorepo-migration",
   "ipykernel>=6.29.5",
   "basedosdados[all]>=2.0.2",

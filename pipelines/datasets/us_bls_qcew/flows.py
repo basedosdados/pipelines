@@ -12,7 +12,7 @@ and does a **full replace** (dump_mode="overwrite"), not an incremental append.
 The source poll (on the newest quarter) short-circuits a scheduled run until BLS
 actually publishes a newer period, making the between-release runs cheap no-ops.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_bls_qcew_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_bls_qcew_flow`; the
 dev pool ignores the schedule, the prod pool activates it (paused until armed).
 """
 

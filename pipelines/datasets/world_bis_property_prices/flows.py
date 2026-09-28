@@ -7,7 +7,7 @@ BIS republishes the full history each quarter, so each run is a full replace;
 the source poll short-circuits a run until the BIS publishes a newer quarter,
 making a scheduled run a cheap no-op between releases.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``world_bis_property_prices_flow``;
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``world_bis_property_prices_flow``;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
