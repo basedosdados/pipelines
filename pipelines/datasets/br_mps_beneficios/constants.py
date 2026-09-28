@@ -48,6 +48,7 @@ class constants(Enum):
         "amp": "amparo",
         "esp": "especial",
         "sind": "sindrome",
+        "extranum": "extranumerario",
     }
 
     # Labels that abbreviation expansion still does not resolve against
@@ -171,6 +172,7 @@ class constants(Enum):
         58: "Aposentadoria de Anistiados",
         59: "Pensão por Morte de Anistiados",
         60: "Benefício Indenizatório a Cargo da União",
+        67: "Pecúlio Obrigatório Ex-Ipase",
         72: "Aposentadoria Tempo Serviço - Lei de Guerra",
         79: "Vantagens de Servidor Aposentado",
         80: "Auxílio Salário Maternidade",
@@ -238,6 +240,7 @@ class constants(Enum):
             89,
             96,
         ],
+        "peculio": [67],
         "abono_vantagem": [47, 48, 79],
     }
 
@@ -259,6 +262,7 @@ class constants(Enum):
     }
 
     OBSERVACAO = {
+        67: "Pecúlio obrigatório do extinto IPASE, sucedido pelo INSS. Extinto para novas concessões e mantido apenas para o estoque residual. Ausente do Dicionário de Dados - Espécies de Benefício publicado em 2025, embora presente nos extratos de 2026",
         59: "Pensão por morte concedida sob a legislação de anistia. Agrupada em pensao_morte, com a natureza indenizatória registrada em natureza_beneficio",
         54: "Pensão especial vitalícia da Lei 9.793/1999, paga pela União. O dicionário oficial do MPS a registra sob o rótulo genérico Pensão Indenizatória a Cargo da União; os extratos mensais imprimem o nome da lei",
         60: "Pensão especial mensal vitalícia da Lei 10.923/2004, paga pela União",
@@ -272,6 +276,13 @@ class constants(Enum):
         87: "Benefício de Prestação Continuada (BPC/LOAS) à pessoa com deficiência, assistencial e não contributivo. Também presente, em nível de pessoa, no conjunto br_cgu_beneficios_cidadao",
         88: "Benefício de Prestação Continuada (BPC/LOAS) ao idoso, assistencial e não contributivo. Também presente, em nível de pessoa, no conjunto br_cgu_beneficios_cidadao",
     }
+
+    # Values that appear in the espécie column but are not espécies. "Pa" is a
+    # fragment of the neighbouring "Classificador PA" field bleeding into the
+    # column in the 2026 extracts. Listing them explicitly keeps the reader
+    # fail-loud for genuinely new labels while not rejecting a whole month over
+    # a handful of corrupt rows; they are counted in the diagnostics.
+    ESPECIE_LABEL_IGNORAR = ("pa", "zerados", "n class", "0")
 
     # Age bands follow the AEPS "faixas de idade" presentation so the table can
     # be compared against the published yearbook without rebanding.

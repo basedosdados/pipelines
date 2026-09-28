@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import csv
 import io
+import itertools
 import json
 import re
 import unicodedata
@@ -107,6 +108,47 @@ def especie_label_index() -> dict[str, int]:
     for key, code in list(constants.ESPECIE_LABEL_ALIAS.value.items()):
         idx.setdefault(expand_abbrev(key), code)
     return idx
+
+
+def resolve_especie_code(
+    label: str, index: dict[str, int] | None = None
+) -> int | None:
+    """Resolve an espécie label to its code, or None if it stays ambiguous.
+
+    Three passes, in order of decreasing certainty:
+
+    1. exact match after normalisation, and after expanding the known
+       abbreviations in ``ABREV_EXPANSION``;
+    2. abbreviation-prefix match — SUIBE truncates individual words with a
+       full stop ("Aposent. Extranum. Funcionário Público"), so a label matches
+       a dictionary entry when it has the same number of words and every word is
+       a prefix of the corresponding dictionary word. Only a *unique* match is
+       accepted, which is what keeps this from guessing;
+    3. otherwise None, and the caller raises rather than writing a null code.
+
+    Pass 2 exists so that a newly abbreviated label does not require a new alias
+    entry for every spelling the source invents.
+    """
+    index = index if index is not None else especie_label_index()
+    text = str(label).strip()
+    # Some rows carry the code in the label column instead of the label.
+    if text.isdigit() and int(text) in constants.ESPECIE.value:
+        return int(text)
+    for key in (expand_abbrev(label), norm_token(label)):
+        if key in index:
+            return index[key]
+
+    words = expand_abbrev(label).split()
+    if not words:
+        return None
+    hits = set()
+    for code, full in constants.ESPECIE.value.items():
+        target = expand_abbrev(full).split()
+        if len(target) != len(words):
+            continue
+        if all(t.startswith(w) for w, t in zip(words, target, strict=True)):
+            hits.add(code)
+    return next(iter(hits)) if len(hits) == 1 else None
 
 
 def categoria_index() -> dict[int, str]:
@@ -348,9 +390,34 @@ def _col(header: list[str], *wanted: str) -> int | None:
     return None
 
 
+def sniff_encoding(sample: bytes) -> str:
+    """Pick the text encoding for a source file from its first bytes.
+
+    The monthly CSVs are not consistently encoded: most are latin-1, but the
+    files from roughly May/2020 onwards are UTF-8 with a byte-order mark. Read
+    the wrong way round, a UTF-8 header decodes as latin-1 mojibake
+    ("CompetÃªncia concessÃ£o") and no column is found at all.
+    """
+    if sample.startswith(b"\xef\xbb\xbf"):
+        return "utf-8-sig"
+    try:
+        sample.decode("utf-8")
+    except UnicodeDecodeError:
+        return "latin-1"
+    # Pure ASCII decodes as either; latin-1 is the safe default for this source.
+    return "utf-8" if any(b > 0x7F for b in sample) else "latin-1"
+
+
+def open_source_text(path: Path):
+    """Open a source CSV with its encoding sniffed from the first block."""
+    with open(path, "rb") as probe:
+        enc = sniff_encoding(probe.read(1 << 16))
+    return open(path, encoding=enc, errors="replace", newline="")
+
+
 def iter_concedido_csv(path: Path, chunk: int = 500_000):
     """Stream a V1/V2 semicolon CSV (latin-1) as normalised record dicts."""
-    with open(path, encoding="latin-1", errors="replace", newline="") as f:
+    with open_source_text(path) as f:
         header = next(csv.reader(f, delimiter=";"))
         i_comp = _col(header, "Competência concessão")
         i_esp = _col(header, "Espécie")
@@ -359,39 +426,43 @@ def iter_concedido_csv(path: Path, chunk: int = 500_000):
         i_cli = _col(header, "Clientela")
         i_mun = _col(header, "Mun Resid", "Município")
         i_rmi = _col(header, "Qt SM RMI")
+        # Only espécie and município are required. The source drops columns
+        # without warning: Clientela is absent from May-Dec/2019, and the
+        # Feb/2020 file carries the note "mandar continuar, obrigado." in the
+        # cell where the competência header belongs. A missing competência
+        # falls back to the one in the resource name; anything else is null.
         missing = [
             n
-            for n, i in [
-                ("competência", i_comp),
-                ("espécie", i_esp),
-                ("nascimento", i_nasc),
-                ("sexo", i_sexo),
-                ("clientela", i_cli),
-                ("município", i_mun),
-                ("Qt SM RMI", i_rmi),
-            ]
+            for n, i in [("espécie", i_esp), ("município", i_mun)]
             if i is None
         ]
         if missing:
             raise ValueError(
                 f"{path.name}: columns not found: {missing} in {header}"
             )
+        widest = max(
+            i
+            for i in (i_comp, i_esp, i_nasc, i_sexo, i_cli, i_mun, i_rmi)
+            if i is not None
+        )
+
+        def cell(row: list[str], i: int | None) -> str | None:
+            return row[i] if i is not None and i < len(row) else None
+
         buf = []
         for row in csv.reader(f, delimiter=";"):
-            if len(row) <= max(
-                i_comp, i_esp, i_nasc, i_sexo, i_cli, i_mun, i_rmi
-            ):
+            if len(row) <= widest:
                 continue
             buf.append(
                 {
-                    "competencia": row[i_comp],
+                    "competencia": cell(row, i_comp),
                     "especie_codigo": None,
-                    "especie_label": row[i_esp],
-                    "dt_nascimento": row[i_nasc],
-                    "sexo": row[i_sexo],
-                    "clientela": row[i_cli],
-                    "mun_resid": row[i_mun],
-                    "qt_sm_rmi": row[i_rmi],
+                    "especie_label": cell(row, i_esp),
+                    "dt_nascimento": cell(row, i_nasc),
+                    "sexo": cell(row, i_sexo),
+                    "clientela": cell(row, i_cli),
+                    "mun_resid": cell(row, i_mun),
+                    "qt_sm_rmi": cell(row, i_rmi),
                 }
             )
             if len(buf) >= chunk:
@@ -410,10 +481,15 @@ def iter_concedido_xlsx(path: Path, chunk: int = 500_000):
     ws = wb[wb.sheetnames[0]]
     rows = ws.iter_rows(values_only=True)
     first = next(rows)
-    header = list(next(rows))
-    # the banner row is absent in a handful of months
+    # Most months open with a one-cell title banner and put the real header on
+    # row 2, but some (Jun/2024, which also orders its columns alphabetically)
+    # start with the header. When there is no banner, the row already consumed
+    # as a candidate header has to be replayed as data, or it is silently lost.
+    pending: list[tuple] = []
     if sum(1 for c in first if c) > 3:
-        header, first = list(first), None
+        header = list(first)
+    else:
+        header = list(next(rows))
     i_comp = _col(header, "Competência concessão")
     i_esp = _col(header, "Espécie")
     i_nasc = _col(header, "Dt Nascimento", "Data Nascimento")
@@ -431,7 +507,7 @@ def iter_concedido_xlsx(path: Path, chunk: int = 500_000):
         else i_esp
     )
     buf = []
-    for row in rows:
+    for row in itertools.chain(pending, rows):
         if row is None or all(c is None for c in row):
             continue
         buf.append(
@@ -474,6 +550,11 @@ def iter_concedido(path: Path, chunk: int = 500_000):
 # --------------------------------------------------------------------------
 # aggregation
 # --------------------------------------------------------------------------
+# Plausible range for Qt SM RMI, the renda mensal inicial expressed in minimum
+# wages. The RGPS ceiling is roughly 10; the bound is deliberately loose so that
+# only clearly corrupt values are removed.
+RMI_SM_MAX = 200.0
+
 GRAIN = [
     "ano",
     "mes",
@@ -516,6 +597,9 @@ def aggregate_concedido(
         "municipio_nao_encontrado": 0,
         "sem_idade": 0,
         "sem_competencia": 0,
+        "especie_codigo_desconhecido": 0,
+        "especie_descartada": 0,
+        "rmi_fora_de_faixa": 0,
         "nomes_nao_encontrados": {},
     }
     unmapped: set[str] = set()
@@ -528,12 +612,29 @@ def aggregate_concedido(
                 diag["sem_competencia"] += 1
                 continue
             code = rec["especie_codigo"]
+            if code is not None:
+                # The code cell is not trustworthy on its own: one Jun/2024 row
+                # carries a CNPJ, and others carry codes (0, 67) that are not
+                # espécies at all. Anything unrecognised falls through to the
+                # label, and if that fails too the file is rejected rather than
+                # written with an espécie no dictionary can explain.
+                try:
+                    code = int(str(code).strip())
+                except (TypeError, ValueError):
+                    code = None
+                if code is not None and code not in constants.ESPECIE.value:
+                    diag["especie_codigo_desconhecido"] += 1
+                    code = None
             if code is None or (isinstance(code, str) and not code.strip()):
                 lab = rec["especie_label"]
-                code = esp_idx.get(expand_abbrev(lab)) or esp_idx.get(
-                    norm_token(lab)
-                )
+                code = resolve_especie_code(lab, esp_idx)
                 if code is None:
+                    if (
+                        norm_token(lab)
+                        in constants.ESPECIE_LABEL_IGNORAR.value
+                    ):
+                        diag["especie_descartada"] += 1
+                        continue
                     unmapped.add(str(lab))
                     continue
             code = int(code)
@@ -568,6 +669,14 @@ def aggregate_concedido(
                 faixa_etaria(idade),
             )
             rmi = parse_decimal(rec["qt_sm_rmi"])
+            # One Jun/2024 row reports a renda mensal inicial of about -2e9
+            # minimum wages, which is enough on its own to flip the sign of the
+            # whole series total. The INSS ceiling is around 10 minimum wages,
+            # and the largest legitimate value observed is 29.7, so anything
+            # outside this range is dropped and counted.
+            if rmi is not None and not (0.0 <= rmi <= RMI_SM_MAX):
+                diag["rmi_fora_de_faixa"] += 1
+                rmi = None
             acc = cells.setdefault(key, [0, 0.0])
             acc[0] += 1
             if rmi is not None:
@@ -893,11 +1002,21 @@ def resolve_mantido_resources(situacao: str = "ativos") -> list[dict]:
     return sorted(out.values(), key=lambda d: d["competencia"])
 
 
-def download(url: str, dest: Path, retries: int = 3) -> Path:
-    """Fetch a resource, skipping the download when the file is already there."""
+def download(
+    url: str, dest: Path, retries: int = 3, min_bytes: int = 1 << 16
+) -> Path:
+    """Fetch a resource, reusing a cached copy when one is already present.
+
+    A cached file below ``min_bytes`` is treated as absent and refetched: an S3
+    403 or an expired link returns a few hundred bytes of XML that would
+    otherwise be cached forever and then fail later as a corrupt archive, far
+    from its cause. Every real monthly extract is tens of megabytes.
+    """
     dest.parent.mkdir(parents=True, exist_ok=True)
-    if dest.exists() and dest.stat().st_size > 0:
+    if dest.exists() and dest.stat().st_size >= min_bytes:
         return dest
+    if dest.exists():
+        dest.unlink()
     safe = urllib.parse.quote(url, safe=":/?&=%+")
     last: Exception | None = None
     for _attempt in range(retries):
@@ -912,6 +1031,10 @@ def download(url: str, dest: Path, retries: int = 3) -> Path:
             ):
                 while chunk := fh.read(1 << 22):
                     out.write(chunk)
+            if tmp.stat().st_size < min_bytes:
+                body = tmp.read_bytes()[:200].decode("utf-8", "replace")
+                tmp.unlink(missing_ok=True)
+                raise RuntimeError(f"response too small for {url}: {body!r}")
             tmp.rename(dest)
             return dest
         except Exception as exc:  # retried, then re-raised as RuntimeError
@@ -1019,16 +1142,16 @@ def iter_mantido(path: Path, chunk: int = 1_000_000):
     if path.suffix.lower() == ".zip":
         with zipfile.ZipFile(path) as z:
             inner = next(n for n in z.namelist() if n.lower().endswith(".csv"))
+            with z.open(inner) as probe:
+                enc = sniff_encoding(probe.read(1 << 16))
             with z.open(inner) as raw:
                 yield from emit(
                     io.TextIOWrapper(
-                        raw, encoding="latin-1", errors="replace", newline=""
+                        raw, encoding=enc, errors="replace", newline=""
                     )
                 )
     else:
-        with open(
-            path, encoding="latin-1", errors="replace", newline=""
-        ) as fh:
+        with open_source_text(path) as fh:
             yield from emit(fh)
 
 

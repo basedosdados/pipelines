@@ -76,9 +76,17 @@ def run(
 
     for i, res in enumerate(resources, 1):
         label = res["competencia"] or f"ano {res['ano']}"
-        # An annual archive holds 12 competências, so it cannot be skipped by
-        # checking a single staged file; monthly ones can.
-        if res["competencia"] and stage_path(res["competencia"]).exists():
+        # A monthly file maps to one staged competência; an annual archive maps
+        # to up to twelve, so it is only skippable once the whole year is there.
+        if res["competencia"]:
+            already = stage_path(res["competencia"]).exists()
+        else:
+            staged = {
+                int(f.stem.split("=")[1])
+                for f in STAGING.glob("comp=*.parquet")
+            }
+            already = sum(1 for c in staged if c // 100 == res["ano"]) >= 12
+        if already:
             print(
                 f"[{i}/{len(resources)}] {label}: already staged, skipping",
                 flush=True,
