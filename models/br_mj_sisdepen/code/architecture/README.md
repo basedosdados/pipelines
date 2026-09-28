@@ -114,8 +114,37 @@ dataset later, a directory should be created first.
   2016–2025 SISDEPEN series; the organization is unchanged.
 - Measurement unit `semester` is not yet used anywhere in this repo; confirm it
   resolves in the backend before column upload, or fall back to leaving it blank.
-- The dev backend returned HTTP 503 during this session, so metadata registration
-  targets the **staging** backend instead (`env="staging"`).
+- The dev backend returned HTTP 503 throughout, so metadata was registered on
+  **staging** and then promoted to **prod**. Dev was never populated.
+
+## Metadata registration
+
+Registered on staging and prod: 7 tables, 95 columns, 13 observation levels,
+7 cloud tables, 7 coverages, 6 datetime ranges, 8 Update records. Prod carries
+`status = under_review` until the PR merges and table-approve materialises
+`basedosdados.br_mj_sisdepen.*`; staging is published for review.
+
+Audited against these CSVs on both backends: 95/95 columns match on
+`bigqueryType`, `measurementUnit` and `isPartition`, with 20 columns linked to an
+observation level and 16 to a directory. No duplicated child records.
+
+Two things worth knowing for the next dataset:
+
+- **`bulk_upsert_columns` does write `bigqueryType`, despite omitting it from the
+  dry-run `sets` list.** The dry run under-reports what the real call writes; do
+  not conclude a field is unwritten from it. `isPartition` genuinely is not
+  written by that call and needs `update_column(is_partition=True)`.
+- **Tag ids and slugs differ between staging and prod.** `seguranca_publica` has
+  a different id on each, and `prisao`/`encarceramento`/`direitos_humanos` exist
+  only on staging — prod spells the first two `imprisonment`/`incarceration` and
+  has no human-rights tag. Re-resolve every tag per backend. Prod carries four
+  tags; staging five.
+
+The auxiliary-file bundles sit in the **dev** bucket because the prod bucket
+denies `storage.objects.create` to these credentials, and both buckets are
+requester-pays, so the published URLs return HTTP 400 `UserProjectMissing` to
+anonymous callers — the same defect affecting all 84 production tables that use
+the field. They need re-hosting by someone with prod bucket rights.
 
 ## Cleaning output
 
