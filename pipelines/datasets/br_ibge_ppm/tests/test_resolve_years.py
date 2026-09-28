@@ -22,20 +22,39 @@ def test_no_coverage_starts_at_first_year() -> None:
     assert len(anos) == 12
 
 
-def test_lagging_coverage_loads_missing_years() -> None:
-    """Com a cobertura em 2022 e a fonte em 2024, carrega 2023 e 2024."""
+def test_new_release_reloads_revised_year() -> None:
+    """Na divulgação de 2024, com a cobertura em 2023, recarrega 2023.
+
+    É o caso de todo ano: o IBGE revisa o ano anterior ao divulgar o novo.
+    """
     anos = resolve_years(
         table_id="efetivo_rebanhos",
         backfill_years=None,
         source_max_date="2024",
-        coverage_max_year="2022",
+        coverage_max_year="2023",
     )
 
     assert anos == ["2023", "2024"]
 
 
-def test_current_coverage_loads_last_year() -> None:
-    """Com a cobertura igual à fonte, carrega o último ano.
+def test_lagging_coverage_reloads_last_covered_year() -> None:
+    """Com a cobertura em 2021 e a fonte em 2024, carrega de 2021 a 2024.
+
+    2021 foi carregado na primeira versão, e a divulgação de 2022, que passou
+    sem carga, o revisou.
+    """
+    anos = resolve_years(
+        table_id="efetivo_rebanhos",
+        backfill_years=None,
+        source_max_date="2024",
+        coverage_max_year="2021",
+    )
+
+    assert anos == ["2021", "2022", "2023", "2024"]
+
+
+def test_current_coverage_loads_last_two_years() -> None:
+    """Com a cobertura igual à fonte, carrega os dois últimos anos.
 
     Só chega aqui com `force_run`, porque o poll barraria antes.
     """
@@ -46,11 +65,11 @@ def test_current_coverage_loads_last_year() -> None:
         coverage_max_year="2024",
     )
 
-    assert anos == ["2024"]
+    assert anos == ["2023", "2024"]
 
 
-def test_coverage_ahead_of_source_loads_last_year() -> None:
-    """Com o registro à frente da fonte, carrega o último ano publicado."""
+def test_coverage_ahead_of_source_loads_last_two_years() -> None:
+    """Com o registro à frente da fonte, carrega os dois últimos anos."""
     anos = resolve_years(
         table_id="efetivo_rebanhos",
         backfill_years=None,
@@ -58,7 +77,7 @@ def test_coverage_ahead_of_source_loads_last_year() -> None:
         coverage_max_year="2025",
     )
 
-    assert anos == ["2024"]
+    assert anos == ["2023", "2024"]
 
 
 def test_backfill_ignores_coverage() -> None:

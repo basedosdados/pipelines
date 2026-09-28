@@ -59,7 +59,13 @@ models:
               to: ref('br_bd_diretorios_brasil__municipio')
               field: id_municipio
       - name: tipo_rebanho
-        description: Tipo de rebanho
+        description: >
+          Tipo de rebanho. Galináceos - galinhas está contida em Galináceos - total,
+          e
+          Suíno - matrizes de suínos, publicada desde 2013, está contida em Suíno
+          -
+          total; somar a quantidade sem filtrar a categoria conta esses animais duas
+          vezes
       - name: quantidade
         description: Quantidade de animais
   - name: br_ibge_ppm__producao_origem_animal

@@ -33,11 +33,34 @@ ordem publicada, a coluna de partição, a de rótulo da categoria e o primeiro 
 `unit_column` marca a série de onde sai a `unidade`; `integer_columns`, as colunas que a
 staging declara `INT64`.
 
+**Onde conferir na fonte.** O significado de `-`, `0`, `..`, `...` e `X` está em dois lugares:
+
+- nas Notas técnicas da PPM, seção "Convenções". O IBGE as publica a cada ano desde 2017, em
+  `https://biblioteca.ibge.gov.br/visualizacao/periodicos/84/ppm_<ano>_v<volume>_br_notas_tecnicas.pdf`;
+  a de 2024 é a
+  [ppm_2024_v52_br_notas_tecnicas.pdf](https://biblioteca.ibge.gov.br/visualizacao/periodicos/84/ppm_2024_v52_br_notas_tecnicas.pdf).
+  O mesmo documento traz a definição de cada variável pesquisada e o questionário;
+- no SIDRA, na página do agregado (`https://sidra.ibge.gov.br/tabela/<agregado>`, por exemplo
+  [74](https://sidra.ibge.gov.br/tabela/74)): depois de gerar a tabela, no menu **Funções**, item
+  **Símbolos especiais**. A redação é um pouco diferente da das Notas técnicas.
+
+A unidade de uma variável num ano, como a moeda do valor da produção, que muda ao longo da
+série, sai de duas APIs:
+
+- a de agregados, que o flow usa, no campo `unidade`:
+  `https://servicodados.ibge.gov.br/api/v3/agregados/74/periodos/1992/variaveis/215?localidades=N1[all]`;
+- a do SIDRA, na coluna "Unidade de Medida", com vários anos de uma vez:
+  `https://apisidra.ibge.gov.br/values/t/74/n1/all/v/215/p/1985,1986/c80/0`.
+
 ## Tratamento
 
-**Subtotais ficam de fora.** As três classificações publicam a categoria `0` (Total), e a da
-aquicultura publica também `79366` (Peixes), que soma as categorias de peixe seguintes. Somam
-linhas já presentes, então a lista em `constants.TABLES` é a da classificação menos esses dois.
+**O total geral fica de fora, mas o `efetivo_rebanhos` tem categorias contidas em outras.** A
+categoria `0` (Total), onde a classificação a publica, e a `79366` (Peixes) da aquicultura, que
+soma as categorias de peixe seguintes, somam linhas já presentes e não entram na lista de
+`constants.TABLES`. O `efetivo_rebanhos` traz as dez categorias da
+classificação 79, e duas delas estão contidas em outras: `Galináceos - galinhas` em
+`Galináceos - total`, e `Suíno - matrizes de suínos`, publicada desde 2013, em `Suíno - total`.
+Somar a `quantidade` sem filtrar o `tipo_rebanho` conta esses animais duas vezes.
 
 **A junção entre variáveis é externa.** Quantidade e valor vêm de variáveis diferentes, e um
 município pode aparecer numa e faltar na outra; junção interna descartaria essas linhas, que os
@@ -46,10 +69,11 @@ modelos aceitam.
 **A sigla da UF sai do nome da localidade por expressão regular**, que aceita os dois formatos
 que a API usa: `São Paulo (SP)` e `São Paulo - SP`.
 
-**`-`, `..`, `...` e `X` viram nulo.** Na convenção de sinais do IBGE, `-` é zero absoluto,
-`..` é dado que não se aplica, `...` é dado não disponível e `X` é dado omitido para não
-identificar o informante. O `0` fica como número: ele marca um valor positivo que o
-arredondamento levou a zero. A troca usa dicionário, e não lista: `replace(lista, None)` faz o
+**`-`, `..`, `...` e `X` viram nulo.** Nas convenções das Notas técnicas, `-` é dado numérico
+igual a zero não resultante de arredondamento, `..` é dado que não se aplica, `...` é dado não
+disponível e `X` é dado omitido para não individualizar a informação. O `0` fica como número: é
+zero resultante do arredondamento de um dado originalmente positivo. As fontes estão em "Onde
+conferir na fonte". A troca usa dicionário, e não lista: `replace(lista, None)` faz o
 pandas preencher para baixo em vez de anular.
 
 **A `unidade` de `producao_origem_animal` sai da variável 106.** Ela descreve o produto
@@ -133,8 +157,19 @@ O poll compara o ano publicado pela fonte com o intervalo de datas registrado na
 produção. Quando o registro está à frente do que a tabela de fato tem, ele não vê novidade e o
 flow encerra — em verde, sem carregar nada; carregar nesse caso pede `backfill_years`.
 
-Sem `backfill_years`, o flow carrega todos os anos que faltam entre esse intervalo e a fonte, do
-ano seguinte ao último registrado até o último publicado. Se uma divulgação passa sem carga, o
-ano dela entra na execução seguinte, junto com o novo. Sem intervalo registrado, a carga começa
-no primeiro ano da tabela; com o intervalo em dia, o que só passa do poll com `force_run`, ela
-traz o último ano publicado. O intervalo é lido em produção, também nas execuções presas em dev.
+Sem `backfill_years`, a carga termina no último ano publicado e começa no último ano registrado
+ou no penúltimo publicado, o que vier antes. Sem intervalo registrado, começa no primeiro ano da
+tabela. O intervalo é lido em produção, também nas execuções presas em dev.
+
+**Por que um ano já carregado volta.** A PPM revisa o ano anterior a cada divulgação. Nas
+[Notas técnicas de 2024](https://biblioteca.ibge.gov.br/visualizacao/periodicos/84/ppm_2024_v52_br_notas_tecnicas.pdf),
+seção "Disseminação dos resultados", p. 7:
+
+> Cabe ressaltar que, de acordo com a política de revisão de dados utilizada na pesquisa, ao
+> divulgar os resultados de um ano, são revistos os do ano anterior.
+
+O último ano registrado foi carregado na primeira versão, e a revisão dele só sai na divulgação
+seguinte. Na divulgação de 2024, o flow recarrega 2023 junto. Se uma divulgação passa sem carga,
+com a tabela registrada até 2021 e a fonte já em 2024, o flow carrega de 2021 a 2024: 2021 foi
+revisado na divulgação de 2022, que ficou sem carga, e a cópia da tabela ainda é a primeira
+versão.

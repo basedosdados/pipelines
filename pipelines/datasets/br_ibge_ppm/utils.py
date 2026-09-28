@@ -160,13 +160,15 @@ def resolve_years(
     """Decide quais anos a execução vai carregar.
 
     Com backfill, são os anos pedidos, em ordem, e a cobertura não entra na
-    conta. Sem backfill, são os anos que faltam entre a cobertura e a fonte:
+    conta. Sem backfill, a carga termina no último ano publicado e começa:
 
-    - sem cobertura registrada, do primeiro ano da tabela até o último
-      publicado;
-    - com cobertura, do ano seguinte ao último coberto até o último publicado;
-    - se a cobertura já alcançou a fonte, o que só chega aqui com `force_run`,
-      o último ano publicado.
+    - sem cobertura registrada, no primeiro ano da tabela;
+    - com cobertura, no último ano coberto ou no penúltimo publicado, o que
+      vier antes.
+
+    A cada divulgação, o IBGE revisa os resultados do ano anterior. O último ano
+    coberto foi carregado na primeira versão, e o penúltimo publicado já saiu
+    revisado.
 
     Args:
         table_id: Slug da tabela.
@@ -190,12 +192,12 @@ def resolve_years(
             return anos_str
         elif int(coverage_max_year) < int(source_max_date):
             anos_int = list(
-                range(int(coverage_max_year) + 1, int(source_max_date) + 1)
+                range(int(coverage_max_year), int(source_max_date) + 1)
             )
             anos_str = [str(ano) for ano in anos_int]
             return anos_str
         else:
-            return [source_max_date]
+            return [str(int(source_max_date) - 1), source_max_date]
 
     anos = sorted(set(backfill_years))
     fora = [
