@@ -1,7 +1,7 @@
 """
 `Flow` da Base dos Dados — o `Flow` do Prefect 3 mais os atributos de deploy.
 
-`.github/scripts/deploy_flows.py` lê dois atributos do objeto flow que o
+`.github/workflows/scripts/deploy_flows.py` lê dois atributos do objeto flow que o
 `prefect.Flow` não declara:
 
 - `deploy_schedules`: lista de agendamentos (`prefect.schedules.Cron`), usada no
