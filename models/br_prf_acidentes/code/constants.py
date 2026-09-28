@@ -170,6 +170,13 @@ BRAZIL_BBOX = {
     "lon_max": -28.8,
 }
 
+# A value outside these ranges is not a coordinate at all and becomes NULL. The
+# 2017 files contain latitudes such as -1033382874, which is -10.33382874 with
+# the decimal separator dropped; the point is not repaired by guessing where the
+# separator belonged. Affects 2017 only: 5 latitudes and 33 longitudes in
+# ocorrencia. In-range points are kept raw even when they fall outside Brazil.
+COORDINATE_VALID_RANGE = {"lat": (-90.0, 90.0), "lon": (-180.0, 180.0)}
+
 # ---------------------------------------------------------------- harmonization
 
 # Categorical vocabularies changed when PRF replaced the BR-Brasil system with

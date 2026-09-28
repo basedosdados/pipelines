@@ -24,6 +24,7 @@ from constants import (
     AGE_ZERO_IS_MISSING,
     BRAZIL_BBOX,
     CASE_VARIANT_COLUMNS,
+    COORDINATE_VALID_RANGE,
     DATE_FORMAT,
     DECIMAL_COMMA_FROM,
     DRIVE_IDS,
@@ -139,6 +140,19 @@ def parse_float(value: str | None, year: int) -> float | None:
         return float(v)
     except ValueError:
         return None
+
+
+def parse_coordinate(value: str | None, year: int, axis: str) -> float | None:
+    """Parse a latitude or longitude, discarding values that cannot be one.
+
+    `axis` is "lat" or "lon". In-range values are returned unchanged, including
+    points that fall outside Brazil; only impossible values become NULL.
+    """
+    v = parse_float(value, year)
+    if v is None:
+        return None
+    lo, hi = COORDINATE_VALID_RANGE[axis]
+    return v if lo <= v <= hi else None
 
 
 def parse_int(value: str | None) -> int | None:

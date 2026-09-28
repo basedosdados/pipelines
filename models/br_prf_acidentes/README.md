@@ -162,9 +162,25 @@ Present only 2017–2026, comma decimal separator, never empty. Quality is high:
 (-3.84, -32.41) is Fernando de Noronha, inside Brazil — a bounding box that excludes it
 is too tight.
 
-`br_geobr_mapas` has `municipio` (5,570) and `uf` (27), so point-in-polygon validation
-against the resolved municipality is available. Raw values are kept regardless, per the
-brief; validation produces a flag, not a correction.
+### Validated against `br_geobr_mapas` after loading
+
+Run on the materialized `ocorrencia` table, 681,393 points:
+
+| Check | Result |
+|---|---|
+| Outside every Brazilian UF polygon | 1,188 (0.174%), of which 7 are exact `0,0` |
+| Outside the municipality they are attributed to | 47,573 of 681,385 (6.98%) |
+
+The 7% figure is not a defect in the municipality resolution. `id_municipio` comes from
+PRF's administrative municipality field, not from the coordinate, and the two disagree
+for highway crashes near a municipal boundary. Use the coordinate for spatial work and
+`id_municipio` for administrative aggregation; they answer different questions.
+
+A value that cannot be a coordinate is set to NULL: 2017 contains latitudes such as
+`-1033382874`, which is `-10.33382874` with the decimal separator dropped. Five latitudes
+and 33 longitudes in `ocorrencia` are affected, all in 2017. The point is not repaired by
+guessing where the separator belonged. In-range values are kept raw, including the 1,188
+that fall outside Brazil.
 
 ## 7. Other value-level facts that affect typing
 

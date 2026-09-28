@@ -173,8 +173,8 @@ def _shared(row, shape, year, mun_index, case_maps, stats):
         row.get("uf"), row.get("municipio"), mun_index
     )
     stats["municipality"][status] += 1
-    lat = utils.parse_float(row.get("latitude"), year)
-    lon = utils.parse_float(row.get("longitude"), year)
+    lat = utils.parse_coordinate(row.get("latitude"), year, "lat")
+    lon = utils.parse_coordinate(row.get("longitude"), year, "lon")
     verdict = utils.coordinate_in_brazil(lat, lon)
     if verdict is False:
         stats["coordinate_outside_brazil"] += 1
