@@ -1,0 +1,189 @@
+"""Dataset and table metadata for br_mps_beneficios, in PT/EN/ES.
+
+Kept as code so the descriptions are reviewable in the PR and so the
+registration step reads exactly what was approved, rather than being retyped
+into API calls.
+
+The dataset description carries an explicit warning about BPC. Espécies 87 and
+88 are the Benefício de Prestação Continuada, and the dataset
+``br_cgu_beneficios_cidadao`` publishes the same population at person level in
+its ``bpc`` table. Measured against each other: 5,375,298 BPC benefits in this
+dataset's stock for Jun/2023, against 5,832,383 distinct benefits in CGU for
+2023. Adding the two together counts the same benefits twice.
+"""
+
+DATASET_SLUG = "beneficios_do_instituto_nacional_de_seguro_social_inss"
+
+# The shell's organization is `me`; the publisher today is the recreated
+# Ministério da Previdência Social, which exists as the `mps` organization.
+ORGANIZATION_SLUG = "mps"
+THEME_SLUGS = ("government", "economics")
+# All verified against a prod tag listing, so nothing new has to be created.
+# Note the vocabulary mixes separators -- "social_security" is underscored while
+# "social-assistance" is hyphenated -- so the slugs are used exactly as they
+# exist rather than normalised. No area, theme or organization is tagged here:
+# those are separate metadata fields.
+TAG_SLUGS = (
+    "benefit",
+    "social_security",
+    "retirement",
+    "pension",
+    "social-assistance",
+    "income",
+    "elderly",
+    "transfer",
+)
+
+DATASET = {
+    "description_pt": (
+        "Benefícios concedidos e mantidos pelo Instituto Nacional do Seguro "
+        "Social (INSS), agregados por município de residência do titular, mês, "
+        "espécie do benefício, clientela, sexo e faixa etária, a partir dos "
+        "microdados do Sistema Único de Informações de Benefícios (SUIBE) "
+        "publicados em dados abertos. Os valores são nominais, sem "
+        "deflacionamento. Os benefícios assistenciais de prestação continuada "
+        "(BPC/LOAS, espécies 87 e 88) também constam, em nível de pessoa, no "
+        "conjunto br_cgu_beneficios_cidadao: somar os dois conjuntos conta os "
+        "mesmos benefícios duas vezes."
+    ),
+    "description_en": (
+        "Benefits granted and maintained by the National Social Security "
+        "Institute (INSS), aggregated by the beneficiary's municipality of "
+        "residence, month, benefit type, clientele, sex and age band, built "
+        "from the SUIBE microdata published as open data. Values are nominal, "
+        "with no deflation applied. The continuous-payment social assistance "
+        "benefits (BPC/LOAS, benefit types 87 and 88) also appear at person "
+        "level in the br_cgu_beneficios_cidadao dataset: adding the two "
+        "datasets together counts the same benefits twice."
+    ),
+    "description_es": (
+        "Beneficios concedidos y mantenidos por el Instituto Nacional del "
+        "Seguro Social (INSS), agregados por municipio de residencia del "
+        "titular, mes, especie del beneficio, clientela, sexo y grupo de edad, "
+        "a partir de los microdatos del SUIBE publicados en datos abiertos. "
+        "Los valores son nominales, sin deflactar. Los beneficios "
+        "asistenciales de prestación continuada (BPC/LOAS, especies 87 y 88) "
+        "también figuran, a nivel de persona, en el conjunto "
+        "br_cgu_beneficios_cidadao: sumar ambos conjuntos cuenta los mismos "
+        "beneficios dos veces."
+    ),
+}
+
+TABLES = {
+    "beneficio_concedido_municipio_mes": {
+        "name_pt": "Benefícios concedidos por município e mês",
+        "name_en": "Benefits granted by municipality and month",
+        "name_es": "Beneficios concedidos por municipio y mes",
+        "description_pt": (
+            "Quantidade e valor dos benefícios concedidos pelo INSS a cada mês, "
+            "por município de residência do titular, espécie, clientela, sexo e "
+            "faixa etária. Mede o fluxo de novas concessões, e não o estoque. A "
+            "fonte informa a renda mensal inicial apenas como múltiplo do "
+            "salário mínimo, de modo que valor_total é a conversão para reais "
+            "nominais pelo salário mínimo vigente na competência."
+        ),
+        "description_en": (
+            "Count and value of benefits granted by INSS each month, by the "
+            "beneficiary's municipality of residence, benefit type, clientele, "
+            "sex and age band. It measures the flow of new grants, not the "
+            "stock. The source reports the initial monthly income only as a "
+            "multiple of the minimum wage, so valor_total is the conversion to "
+            "nominal BRL at the minimum wage in force in that month."
+        ),
+        "description_es": (
+            "Cantidad y valor de los beneficios concedidos por el INSS cada "
+            "mes, por municipio de residencia del titular, especie, clientela, "
+            "sexo y grupo de edad. Mide el flujo de nuevas concesiones, no el "
+            "stock. La fuente informa la renta mensual inicial solo como "
+            "múltiplo del salario mínimo, por lo que valor_total es la "
+            "conversión a reales nominales según el salario mínimo vigente."
+        ),
+    },
+    "beneficio_mantido_municipio_mes": {
+        "name_pt": "Benefícios mantidos por município e mês",
+        "name_en": "Benefits maintained by municipality and month",
+        "name_es": "Beneficios mantenidos por municipio y mes",
+        "description_pt": (
+            "Quantidade e valor dos benefícios ativos mantidos pelo INSS a cada "
+            "mês, por município de residência do titular, espécie, clientela, "
+            "sexo e faixa etária. Mede o estoque de benefícios em manutenção, e "
+            "não o fluxo de concessões. A fonte não publica o código da espécie "
+            "e trunca o rótulo em 20 caracteres, de modo que especie_beneficio "
+            "fica nulo quando o rótulo truncado é ambíguo entre espécies; "
+            "categoria_beneficio está sempre preenchida e "
+            "especie_beneficio_rotulo traz o rótulo como publicado."
+        ),
+        "description_en": (
+            "Count and value of active benefits maintained by INSS each month, "
+            "by the beneficiary's municipality of residence, benefit type, "
+            "clientele, sex and age band. It measures the stock of benefits in "
+            "payment, not the flow of new grants. The source publishes no "
+            "benefit-type code and truncates the label to 20 characters, so "
+            "especie_beneficio is null wherever the truncated label is "
+            "ambiguous between benefit types; categoria_beneficio is always "
+            "populated and especie_beneficio_rotulo carries the label as "
+            "published."
+        ),
+        "description_es": (
+            "Cantidad y valor de los beneficios activos mantenidos por el INSS "
+            "cada mes, por municipio de residencia del titular, especie, "
+            "clientela, sexo y grupo de edad. Mide el stock de beneficios en "
+            "pago, no el flujo de concesiones. La fuente no publica el código "
+            "de la especie y trunca la etiqueta en 20 caracteres, por lo que "
+            "especie_beneficio queda nulo cuando la etiqueta truncada es "
+            "ambigua; categoria_beneficio siempre está completa y "
+            "especie_beneficio_rotulo trae la etiqueta tal como se publica."
+        ),
+    },
+    "dicionario_especie": {
+        "name_pt": "Dicionário de espécies de benefício",
+        "name_en": "Benefit type dictionary",
+        "name_es": "Diccionario de especies de beneficio",
+        "description_pt": (
+            "Tabela de códigos das espécies de benefício do INSS, com o nome "
+            "oficial, a natureza do benefício e um agrupamento funcional "
+            "construído sobre o código. A Emenda Constitucional 103/2019 "
+            "renomeou as espécies 31 e 32 sem alterar seus códigos, e os "
+            "extratos mensais seguem imprimindo os nomes anteriores, "
+            "registrados em nome_especie_anterior."
+        ),
+        "description_en": (
+            "Code table for INSS benefit types, with the official name, the "
+            "nature of the benefit and a functional grouping built on the code. "
+            "Constitutional Amendment 103/2019 renamed benefit types 31 and 32 "
+            "without changing their codes, and the monthly extracts still print "
+            "the former names, recorded in nome_especie_anterior."
+        ),
+        "description_es": (
+            "Tabla de códigos de las especies de beneficio del INSS, con el "
+            "nombre oficial, la naturaleza del beneficio y una agrupación "
+            "funcional construida sobre el código. La Enmienda Constitucional "
+            "103/2019 renombró las especies 31 y 32 sin cambiar sus códigos, y "
+            "los extractos mensuales siguen imprimiendo los nombres anteriores, "
+            "registrados en nome_especie_anterior."
+        ),
+    },
+}
+
+# One raw data source per table: client._raw_source_id raises when a table has
+# two or more, which breaks any future recurring pipeline at its first poll.
+RAW_SOURCES = {
+    "beneficio_concedido_municipio_mes": {
+        "name": "Benefícios concedidos - INSS dados abertos",
+        "url": "https://dadosabertos.inss.gov.br/dataset/beneficios-concedidos-plano-de-dados-abertos-jun-2023-a-jun-2025",
+    },
+    "beneficio_mantido_municipio_mes": {
+        "name": "Benefícios mantidos - INSS dados abertos",
+        "url": "https://dadosabertos.inss.gov.br/dataset/beneficios-mantidos-plano-de-dados-abertos-jun-2023-a-jun-2025",
+    },
+    "dicionario_especie": {
+        "name": "Dicionário de Dados - Espécies de Benefício",
+        "url": "https://dadosabertos.inss.gov.br/dataset/glossarios-dos-arquivos-de-beneficios-plano-de-dados-abertos-jun-2023-a-jun-2025",
+    },
+}
+
+COVERAGE = {
+    "beneficio_concedido_municipio_mes": (2012, 1, 2026, 8),
+    "beneficio_mantido_municipio_mes": (2021, 7, 2026, 3),
+    "dicionario_especie": None,
+}
