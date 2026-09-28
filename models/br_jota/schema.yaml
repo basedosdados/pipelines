@@ -1,6 +1,37 @@
 ---
 version: 2
 models:
+  - name: br_jota__eleicao_perfil_candidato_2022
+    description: Descreve o perfil dos candidatos da eleição de 2022
+    columns:
+      - name: sequencial
+      - name: ano_sequencial_candidato
+      - name: nome_urna
+      - name: sigla_partido
+      - name: cargo
+      - name: sigla_uf
+      - name: genero
+      - name: raca
+      - name: idade
+      - name: faixa_etaria
+  - name: br_jota__eleicao_prestacao_contas_candidato_2022
+    description: Informações de prestação de contas no nível de candidato
+    columns:
+      - name: sequencial
+      - name: ano_sequencial_candidato
+      - name: nome_urna
+      - name: sigla_partido
+      - name: cargo
+      - name: sigla_uf
+      - name: genero
+      - name: raca
+      - name: idade
+      - name: faixa_etaria
+      - name: rank_cargo
+      - name: rank_partido
+      - name: rank_cargo_partido
+      - name: receita_partido
+      - name: valor_total
   - name: br_jota__eleicao_perfil_candidato
     description: Descreve o perfil dos candidatos das eleições de 2022 e 2026
     columns:
