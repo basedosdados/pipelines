@@ -44,9 +44,23 @@ HERE = Path(__file__).resolve().parent
 # or modifies either.
 DATASET_UUID = "1eeb071e-cfe0-4a32-a664-8e86fcb49971"
 RAW_DATA_SOURCE_UUID = "bdbb608d-b5e5-4da7-b48a-fd9a5913a204"
-ACCOUNT_ID = "57"
 AREA_BR = "5503dd29-4d9b-483b-ae09-63dc8ed28875"
-GCP_PROJECT = "basedosdados-dev"
+
+# Per-environment. The dataset, raw source and area happen to share ids across
+# backends; the account does not, and the GCP project must not. Entity ids are
+# resolved by slug at runtime, which matters because `province` differs between
+# staging and prod.
+ENVS = {
+    "staging": {"account": "57", "gcp_project": "basedosdados-dev"},
+    "prod": {"account": "4", "gcp_project": "basedosdados"},
+    "dev": {"account": "57", "gcp_project": "basedosdados-dev"},
+}
+
+# The bundle lives in the dev bucket: the data-uploader service account is 403
+# on gs://basedosdados, so prod points at the same object rather than at a
+# prod-bucket URL with nothing behind it. Both buckets are requester-pays, so
+# this URL is HTTP 400 for anonymous readers either way -- a known bug that
+# already affects every production table using this field.
 AUX_URL = (
     "https://storage.googleapis.com/basedosdados-dev/auxiliary_files/"
     f"{DATASET_ID}/auxiliary_files.zip"
@@ -100,6 +114,12 @@ class Backend:
         self.env = env
         self.dry_run = dry_run
         self._fk_cache: dict[str, str | None] = {}
+        if env not in ENVS:
+            raise SystemExit(
+                f"unknown env {env!r}; expected one of {sorted(ENVS)}"
+            )
+        self.account = ENVS[env]["account"]
+        self.gcp_project = ENVS[env]["gcp_project"]
         self.entities = self._map("allEntity", "slug")
         # BigQueryType keys on `name` ("INT64"), not `slug` -- it has none.
         self.bq_types = self._map("allBigquerytype", "name")
@@ -191,8 +211,8 @@ def register_table(
         "descriptionEn": meta["description_en"],
         "descriptionEs": meta["description_es"],
         "status": be.published,
-        "publishedBy": [ACCOUNT_ID],
-        "dataCleanedBy": [ACCOUNT_ID],
+        "publishedBy": [be.account],
+        "dataCleanedBy": [be.account],
         "rawDataSource": [RAW_DATA_SOURCE_UUID],
         "auxiliaryFilesUrl": AUX_URL,
         "numberRows": meta.get("number_rows"),
@@ -255,7 +275,7 @@ def register_table(
     ct = be.one("allCloudtable", table)
     f = {
         "table": table,
-        "gcpProjectId": GCP_PROJECT,
+        "gcpProjectId": be.gcp_project,
         "gcpDatasetId": DATASET_ID,
         "gcpTableId": slug,
     }
