@@ -24,18 +24,24 @@ with
     -- from the parent's key, so the foreign key it published matched no parent
     -- row.
     --
-    -- The join is scoped by municipality and exercise because `seq_termo_aditivo`
-    -- recurs across them; within a scope it determines the parent key
-    -- (966,014 groups, 0 ambiguous, measured on the parquet 2026-09-24),
-    -- so the join cannot fan out.
+    -- The join is scoped by municipality and sequence, NOT by exercise. A
+    -- child routinely cites a parent recorded in an earlier exercise, so
+    -- matching on the child's own `ano` discards those references.
+    -- Here it changes nothing measurable (105 of 657,700 rows,
+    -- 0.02%, unresolved either way), but the join is wrong in the same
+    -- way and is corrected for consistency with its siblings.
+    --
+    -- Dropping it cannot fan out: `(id_municipio, seq_termo_aditivo)` spans more than
+    -- one exercise in 0 of the parent's groups, and the `min` below would
+    -- collapse any future ambiguity to one key deterministically.
+    -- Measured on the staging parquet with DuckDB, 2026-09-28.
     p_contrato_termo_aditivo as (
         select
             id_municipio,
-            ano,
             id_termo_aditivo,
             min(id_contrato_termo_aditivo_bd) as id_contrato_termo_aditivo_bd
         from {{ ref("world_wb_mides__contrato_termo_aditivo") }}
-        group by 1, 2, 3
+        group by 1, 2
     )
 select
     safe_cast(t.ano as int64) as ano,
@@ -85,5 +91,4 @@ from
 left join
     p_contrato_termo_aditivo
     on t.id_municipio = p_contrato_termo_aditivo.id_municipio
-    and safe_cast(t.ano as int64) = p_contrato_termo_aditivo.ano
     and t.seq_termo_aditivo = p_contrato_termo_aditivo.id_termo_aditivo

@@ -24,16 +24,20 @@ with
     -- drifted -- they predated the `seq_contrato`/`seq_dispensa` tie-breakers,
     -- so the `id_contrato_bd` they published matched no row of the parent.
     --
-    -- The join is scoped by municipality and exercise because `seq_contrato`
-    -- recurs across them. Within a scope, 1,983 of 1,274,719 groups (0.16%)
-    -- carry two contracts differing only in `seq_dispensa`: the parent key
-    -- separates them, a child row cannot, so `min` attaches the child to one
-    -- of them deterministically rather than fanning it out. Measured on the
-    -- parquet, 2026-09-24.
+    -- The join is scoped by municipality and sequence, NOT by exercise. A
+    -- child routinely cites a parent recorded in an earlier exercise, so
+    -- matching on the child's own `ano` discards those references.
+    -- Here it left `_bd` NULL for 2,611 of 11,137,054 rows (0.02%),
+    -- against 1,466 (0.01%) once the exercise is out of the join.
+    --
+    -- Dropping it cannot fan out: `(id_municipio, seq_contrato)` spans more than
+    -- one exercise in 0 of the parent's groups, and the `min` below would
+    -- collapse any future ambiguity to one key deterministically.
+    -- Measured on the staging parquet with DuckDB, 2026-09-28.
     p_contrato as (
-        select id_municipio, ano, id_contrato, min(id_contrato_bd) as id_contrato_bd
+        select id_municipio, id_contrato, min(id_contrato_bd) as id_contrato_bd
         from {{ ref("world_wb_mides__contrato") }}
-        group by 1, 2, 3
+        group by 1, 2
     )
 select
     safe_cast(t.ano as int64) as ano,
@@ -74,5 +78,4 @@ from {{ set_datalake_project("world_wb_mides_staging.raw_contrato_item_mg") }} a
 left join
     p_contrato
     on t.id_municipio = p_contrato.id_municipio
-    and safe_cast(t.ano as int64) = p_contrato.ano
     and t.seq_contrato = p_contrato.id_contrato

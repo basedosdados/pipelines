@@ -24,18 +24,23 @@ with
     -- from the parent's key, so the foreign key it published matched no parent
     -- row.
     --
-    -- The join is scoped by municipality and exercise because `seq_item_dispensa`
-    -- recurs across them; within a scope it determines the parent key
-    -- (2,155,777 groups, 0 ambiguous, measured on the parquet 2026-09-24),
-    -- so the join cannot fan out.
+    -- The join is scoped by municipality and sequence, NOT by exercise. A
+    -- child routinely cites a parent recorded in an earlier exercise, so
+    -- matching on the child's own `ano` discards those references.
+    -- Here it left `_bd` NULL for 4 of 1,867,194 rows (0.00%),
+    -- against 0 (0.00%) once the exercise is out of the join.
+    --
+    -- Dropping it cannot fan out: `(id_municipio, seq_item_dispensa)` spans more than
+    -- one exercise in 801 of the parent's groups, and the `min` below
+    -- collapses each such group to one key deterministically.
+    -- Measured on the staging parquet with DuckDB, 2026-09-28.
     p_dispensa_item as (
         select
             id_municipio,
-            ano,
             id_item_dispensa,
             min(id_dispensa_item_bd) as id_dispensa_item_bd
         from {{ ref("world_wb_mides__dispensa_item") }}
-        group by 1, 2, 3
+        group by 1, 2
     )
 select
     safe_cast(t.ano as int64) as ano,
@@ -62,5 +67,4 @@ from {{ set_datalake_project("world_wb_mides_staging.raw_dispensa_cotacao_mg") }
 left join
     p_dispensa_item
     on t.id_municipio = p_dispensa_item.id_municipio
-    and safe_cast(t.ano as int64) = p_dispensa_item.ano
     and t.seq_item_dispensa = p_dispensa_item.id_item_dispensa
