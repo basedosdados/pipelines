@@ -99,6 +99,7 @@ class Backend:
     def __init__(self, env: str, dry_run: bool) -> None:
         self.env = env
         self.dry_run = dry_run
+        self._fk_cache: dict[str, str | None] = {}
         self.entities = self._map("allEntity", "slug")
         # BigQueryType keys on `name` ("INT64"), not `slug` -- it has none.
         self.bq_types = self._map("allBigquerytype", "name")
@@ -148,6 +149,23 @@ class Backend:
         d = self.query(Q_BY_TABLE, root=root, table=table)
         edges = d[root]["edges"]
         return bd_mcp._strip_id(edges[0]["node"]["id"]) if edges else None
+
+    def directory_fk(self, spec: str) -> str | None:
+        """Resolve "<dataset>.<table>:<column>" to that column's backend id.
+
+        Cached, and tolerant of a miss: if the directory is absent from this
+        backend the column simply carries no FK rather than failing the run.
+        """
+        if not spec:
+            return None
+        if spec not in self._fk_cache:
+            try:
+                self._fk_cache[spec] = bd_mcp._lookup_directory_column(
+                    spec, self.env
+                )
+            except Exception:
+                self._fk_cache[spec] = None
+        return self._fk_cache[spec]
 
     def datetime_range(self, coverage: str) -> str | None:
         d = self.query(Q_DATETIME, coverage=coverage)
@@ -219,11 +237,16 @@ def register_table(
             "isPartition": col["is_partition"],
             "isPrimaryKey": False,
         }
-        if col.get("observations"):
-            f["observationsPt"] = col["observations"]
+        for lang in ("pt", "en", "es"):
+            note = col.get(f"observations_{lang}")
+            if note:
+                f[f"observations{lang.capitalize()}"] = note
         ent = COLUMN_ENTITY.get(col["name"])
         if ent and ent in ol_ids:
             f["observationLevel"] = ol_ids[ent]
+        fk = be.directory_fk(col.get("directory_column", ""))
+        if fk:
+            f["directoryPrimaryKey"] = fk
         if col["name"] in have_cols:
             f["id"] = have_cols[col["name"]]
         be.mut("CreateUpdateColumn", f, "column { id }")

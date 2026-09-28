@@ -56,10 +56,27 @@ ARCH_HEADER = [
 # geography, so linking them would point at codes that do not exist there.
 DIRECTORY = {"ano": "br_bd_diretorios_data_tempo.ano:ano"}
 
+# Notes are trilingual: a Portuguese-only note is blank for most of the site's
+# readers.
 GEO_NOTE = (
-    "Código do banco Pop-72, não do IBGE. A fonte não publica tradutor para a malha "
-    "municipal atual."
+    "Código do banco Pop-72, não do IBGE. A fonte não publica tradutor para a "
+    "malha municipal atual.",
+    "Pop-72 database code, not an IBGE code. The source publishes no crosswalk "
+    "to the present-day municipal grid.",
+    "Código de la base Pop-72, no del IBGE. La fuente no publica una tabla de "
+    "equivalencias con la malla municipal actual.",
 )
+
+AGG_NOTE = (
+    "Soma dos valores das paróquias que compõem a unidade.",
+    "Sum over the parishes that make up the unit.",
+    "Suma de los valores de las parroquias que componen la unidad.",
+)
+
+
+def _obs(col: dict, i: int) -> str:
+    """One language of a column's trilingual observation note."""
+    return (col.get("observations") or ("", "", ""))[i]
 
 
 def _arch_row(
@@ -129,9 +146,9 @@ def _columns_for(
             continue
         seen.add(name)
         pt, en, es = measure_description(name, implied)
-        note = ""
+        note = ("", "", "")
         if level != "paroquia":
-            note = "Soma dos valores das paróquias que compõem a unidade."
+            note = AGG_NOTE
         add(
             name,
             "INT64",
@@ -158,7 +175,7 @@ def write_architecture(slug: str, cols: list[dict]) -> None:
                     c["pt"],
                     dictionary=c.get("dictionary", False),
                     unit=c.get("unit", ""),
-                    observations=c.get("observations", ""),
+                    observations=_obs(c, 0),
                     original=c.get("original", ""),
                 )
             )
@@ -316,6 +333,9 @@ def main() -> None:
                             measurement_unit=c.get("unit", ""),
                             is_partition=c["name"] == "ano",
                             directory_column=DIRECTORY.get(c["name"], ""),
+                            observations_pt=_obs(c, 0),
+                            observations_en=_obs(c, 1),
+                            observations_es=_obs(c, 2),
                         )
                         for c in e["cols"]
                     ],
