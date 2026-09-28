@@ -11,7 +11,7 @@ source poll no-ops until a new annual year appears, so most scheduled runs do
 nothing — cheap. All three tables are fully free (annual data, no BD Pro
 rolling window).
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``au_dcceew_greenhouse_flow``;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``au_dcceew_greenhouse_flow``;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
