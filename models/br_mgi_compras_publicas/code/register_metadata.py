@@ -29,6 +29,7 @@ previous onboardings:
 
 from __future__ import annotations
 
+import datetime as dt
 import json
 import sys
 from collections.abc import Callable
@@ -45,7 +46,7 @@ from observation_translations import (  # noqa: E402
     OBSERVATIONS,
     check_translations,
 )
-from table_metadata import DATASET, TABLE_ORDER  # noqa: E402
+from table_metadata import DATASET, TABLE_ORDER, UPDATE_CADENCE  # noqa: E402
 from table_metadata import TABLES as META  # noqa: E402
 
 ARCH = HERE / "architecture"
@@ -110,6 +111,11 @@ def lookup(category: str, slug: str, env: str) -> str | None:
         return None
 
 
+#: One timestamp for the whole run, so every table's Update reports the same
+#: refresh rather than drifting by the seconds the run takes.
+REFRESHED_AT = dt.datetime.now(dt.UTC).replace(microsecond=0).isoformat()
+
+
 def read_architecture(table: str) -> list[dict[str, str]]:
     import csv
 
@@ -166,6 +172,14 @@ def existing(node: dict[str, Any]) -> dict[str, Any]:
         "observation_levels": levels,
         "cloud_tables": [c["id"] for c in node.get("cloud_tables", [])],
         "coverages": [c["id"] for c in node.get("coverages", [])],
+        # Every range under every coverage, flattened. create_update_datetime_range
+        # called without an id creates a NEW range each run, which is why the 19
+        # tables registered before this fix carry three identical ranges apiece.
+        "datetime_ranges": [
+            r["id"]
+            for c in node.get("coverages", [])
+            for r in c.get("datetime_ranges", [])
+        ],
         "updates": [u["id"] for u in node.get("updates", [])],
     }
 
@@ -195,6 +209,15 @@ def prune(node: dict[str, Any], env: str) -> None:
     ):
         for extra in records[1:]:
             delete(kind=kind, record_id=extra["id"], env=env)
+    # Ranges duplicate independently of their coverage: one coverage reused
+    # across runs still accumulated a range per run before the id was passed.
+    ranges = [
+        r
+        for c in node.get("coverages", [])
+        for r in c.get("datetime_ranges", [])
+    ]
+    for extra in ranges[1:]:
+        delete(kind="datetimerange", record_id=extra["id"], env=env)
 
 
 def main(env: str, status: str) -> int:
@@ -374,6 +397,9 @@ def main(env: str, status: str) -> int:
             )["id"]
             start_year, start_month, end_year, end_month = meta.coverage
             fn("create_update_datetime_range")(
+                id=prior["datetime_ranges"][0]
+                if prior["datetime_ranges"]
+                else None,
                 coverage_id=coverage_id,
                 start_year=start_year,
                 start_month=start_month,
@@ -382,6 +408,22 @@ def main(env: str, status: str) -> int:
                 interval=1,
                 env=env,
             )
+
+        # The table-anchored Update: when WE last refreshed the table, and how
+        # often we do. `latest` is a wall clock, per the convention -- the
+        # source's own publication date belongs on a source-anchored Update.
+        entity_slug, frequency = UPDATE_CADENCE[table]
+        cadence_entity = lookup("entity", entity_slug, env)
+        if cadence_entity is None:
+            sys.exit(f"{table}: entity {entity_slug!r} not found in {env}")
+        fn("create_update_update")(
+            id=prior["updates"][0] if prior["updates"] else None,
+            table_id=table_id,
+            entity_id=cadence_entity,
+            frequency=frequency,
+            latest=REFRESHED_AT,
+            env=env,
+        )
 
         counts = result if isinstance(result, dict) else {}
         print(
