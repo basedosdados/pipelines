@@ -22,6 +22,7 @@ column (it comes from the filename), no espécie code, and labels truncated to
 from __future__ import annotations
 
 import csv
+import functools
 import io
 import itertools
 import json
@@ -1050,40 +1051,81 @@ def download(
 MANTIDO_TRUNC = 20
 
 
-def truncated_especie_index() -> dict[str, tuple[int | None, str]]:
-    """Map a 20-character truncated espécie label to (code or None, categoria).
+def _especie_key_index() -> dict[str, set[int]]:
+    """Every known normalised spelling of an espécie label -> the codes it can mean."""
+    keys: dict[str, set[int]] = {}
+    for code, label in constants.ESPECIE.value.items():
+        for k in (norm_token(label), expand_abbrev(label)):
+            keys.setdefault(k, set()).add(code)
+    for key, code in constants.ESPECIE_LABEL_ALIAS.value.items():
+        for k in (key, expand_abbrev(key)):
+            keys.setdefault(k, set()).add(code)
+    return keys
 
-    Benefícios mantidos publishes neither the espécie code nor the full label —
-    the field is fixed-width at 20 characters. Thirteen prefixes are shared by
-    more than one espécie ("Aposentadoria por Id" covers 8, 41 and 81), so the
-    code is only returned when the prefix identifies a single espécie. The
-    categoria is always returned: no published prefix is ambiguous with respect
-    to it, which is asserted here rather than assumed.
+
+@functools.lru_cache(maxsize=4096)
+def resolve_truncated_especie(rotulo: str) -> tuple[int | None, str | None]:
+    """Resolve a 20-character truncated espécie label.
+
+    Benefícios mantidos publishes neither the código nor the full label: the
+    field is fixed-width at 20 characters, and the spellings it truncates are
+    SUIBE's own abbreviations rather than the dictionary's ("Amp. Social Pessoa
+    P" for espécie 87). Matching is therefore by prefix: after abbreviation
+    expansion, a truncated label is a prefix of the full expanded label, so
+    ``expand_abbrev("Amp. Social Pessoa P")`` gives "amparo social pessoa p",
+    which prefixes "amparo social pessoa portadora deficiencia".
+
+    Returns ``(code, categoria)``. The code is returned only when the prefix
+    identifies a single espécie — thirteen prefixes do not, and those describe
+    just over half the rows in the stock. The categoria is returned whenever the
+    prefix matches at all, because no published prefix spans two categorias;
+    that property is asserted by :func:`assert_truncation_is_categoria_stable`.
     """
     cat = categoria_index()
-    codes: dict[str, set[int]] = {}
-    for code, label in constants.ESPECIE.value.items():
-        codes.setdefault(norm_token(label[:MANTIDO_TRUNC]), set()).add(code)
-    for label, code in constants.ESPECIE_LABEL_ALIAS.value.items():
-        codes.setdefault(norm_token(label[:MANTIDO_TRUNC]), set()).add(code)
+    key = expand_abbrev(rotulo)
+    if not key:
+        return None, None
+    codes: set[int] = set()
+    for known, found in _especie_key_index().items():
+        if known.startswith(key):
+            codes |= found
+    if not codes:
+        return None, None
+    cats = {cat[c] for c in codes if c in cat}
+    if len(cats) != 1:
+        return None, None
+    return (next(iter(codes)) if len(codes) == 1 else None), next(iter(cats))
 
-    index: dict[str, tuple[int | None, str]] = {}
-    conflicts: dict[str, set[str]] = {}
-    for key, found in codes.items():
-        cats = {cat[c] for c in found}
-        if len(cats) > 1:
-            conflicts[key] = cats
-            continue
-        index[key] = (
-            (next(iter(found)) if len(found) == 1 else None),
-            next(iter(cats)),
-        )
-    if conflicts:
+
+def assert_truncation_is_categoria_stable() -> None:
+    """Fail fast if any espécie label's 20-char prefix spans two categorias.
+
+    The mantido table leans on categoria_beneficio precisely because the code is
+    unrecoverable for most rows, so this invariant is load-bearing and is
+    checked before a run rather than trusted.
+    """
+    cat = categoria_index()
+    offenders: dict[str, set[str]] = {}
+    labels = list(constants.ESPECIE.value.values()) + [
+        k for k in constants.ESPECIE_LABEL_ALIAS.value
+    ]
+    for label in labels:
+        rotulo = label[:MANTIDO_TRUNC]
+        _code, categoria = resolve_truncated_especie(rotulo)
+        if categoria is None:
+            key = expand_abbrev(rotulo)
+            codes = {
+                c
+                for known, found in _especie_key_index().items()
+                if known.startswith(key)
+                for c in found
+            }
+            if codes:
+                offenders[rotulo] = {cat[c] for c in codes if c in cat}
+    if offenders:
         raise ValueError(
-            "truncated espécie prefixes span more than one categoria, so "
-            f"categoria_beneficio would not be recoverable: {conflicts}"
+            f"truncated espécie prefixes spanning more than one categoria: {offenders}"
         )
-    return index
 
 
 def gex_lookup_index(path: Path | None = None) -> dict[str, str]:
@@ -1096,11 +1138,13 @@ def gex_lookup_index(path: Path | None = None) -> dict[str, str]:
         }
 
 
-def iter_mantido(path: Path, chunk: int = 1_000_000):
+def iter_mantido(path: Path, chunk: int = 250_000):
     """Stream a benefícios mantidos CSV, unzipping on the fly.
 
     The archive holds a single ~12 GB member, so it is decompressed as a stream
-    and never written to disk.
+    and never written to disk. The chunk is deliberately small: buffering a
+    million records as dicts costs well over a gigabyte before any aggregation
+    runs, which is enough to have the process killed on a 40M-row month.
     """
     fields = (
         "Espécie",
@@ -1178,8 +1222,9 @@ def aggregate_mantido(
     only in the resource name. Chunks are folded into a running frame rather
     than a Python dict so that peak memory stays bounded on a 12 GB input.
     """
-    esp_idx = truncated_especie_index()
+    assert_truncation_is_categoria_stable()
     mun_idx = gex_lookup_index()
+    mun_fallback = municipio_index()
     ano, mes = divmod(competencia, 100)
     diag = {
         "linhas": 0,
@@ -1197,8 +1242,8 @@ def aggregate_mantido(
         for rec in batch:
             diag["linhas"] += 1
             rotulo = (rec["especie_label"] or "").strip()
-            hit = esp_idx.get(norm_token(rotulo))
-            if hit is None:
+            hit = resolve_truncated_especie(rotulo)
+            if hit[1] is None:
                 diag["rotulos_nao_mapeados"][rotulo] = (
                     diag["rotulos_nao_mapeados"].get(rotulo, 0) + 1
                 )
@@ -1213,7 +1258,12 @@ def aggregate_mantido(
                 diag["sem_municipio"] += 1
                 id_mun = None
             else:
+                # The GEX lookup comes from concedido, which does not publish
+                # every (GEX, município) pair that mantido uses, so fall back to
+                # the município name carried inside the truncated key.
                 id_mun = mun_idx.get(norm_token(raw_mun))
+                if id_mun is None and _nome:
+                    id_mun = lookup_municipio(mun_fallback, uf, _nome)
                 if id_mun is None:
                     diag["municipio_nao_encontrado"] += 1
                     diag["chaves_municipio_nao_encontradas"][raw_mun] = (
