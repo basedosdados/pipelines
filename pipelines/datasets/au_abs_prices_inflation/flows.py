@@ -12,7 +12,7 @@ each run is a **full replace** (``dump_mode="overwrite"``), not an incremental
 append. The source poll short-circuits a run until ABS publishes a newer
 period, which makes a scheduled run a cheap no-op between releases.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers every flow defined
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers every flow defined
 here; the dev pool ignores the schedules, the prod pool activates them.
 """
 

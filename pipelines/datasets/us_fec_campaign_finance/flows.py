@@ -33,7 +33,7 @@ window: the most recent 6 months are pro-only, everything older is free. The
 registration tables (candidate, committee, candidate_committee_link) have no date
 column and stay fully free.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``us_fec_campaign_finance_flow``.
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``us_fec_campaign_finance_flow``.
 The dev pool strips the schedule entirely. The prod pool keeps it but deploys
 ``paused=True``, and the backend sync leaves an unknown deployment paused — arming is a
 manual step in Django admin (``/admin/admin_data_tools/disabledflowschedule/``), not a

@@ -10,7 +10,7 @@ just those ``ano=`` partitions and leaves history in place. Like
 the Câmara pipeline, there is no source-poll gate: legislative activity changes
 continuously, so a daily run is always meaningful.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `br_senado_dados_abertos_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `br_senado_dados_abertos_flow`;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
