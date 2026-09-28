@@ -1,4 +1,4 @@
-# br_senappen_sisdepen — architecture notes
+# br_mj_sisdepen — architecture notes
 
 Source inspection: 2026-09-28. Coverage report: see the onboarding session output.
 
@@ -105,14 +105,47 @@ dataset later, a directory should be created first.
 
 ## Open items for the metadata step
 
-- Organization `senappen` (and `depen`) **do not exist** in the backend; only `mj`.
-  The GCP dataset id `br_senappen_sisdepen` requires creating org `senappen`
-  (Secretaria Nacional de Políticas Penais, DEPEN's successor).
+- GCP dataset id is **`br_mj_sisdepen`**: organization stays `mj` (Ministério da
+  Justiça), dataset slug becomes `sisdepen`. Organizations `senappen` and `depen` do
+  not exist in the backend and are not created.
 - The shell to reuse is `levantamento_nacional_de_informacoes_penitenciarias_infopen`
   (prod id `5ee80380-83fd-4e13-b145-437cb227a087`, org `mj`, `tables: {}`). Reusing it
-  under the requested GCP id means renaming its slug to `sisdepen` and repointing
-  its organization.
+  means renaming its slug to `sisdepen` and widening its description to the
+  2016–2025 SISDEPEN series; the organization is unchanged.
 - Measurement unit `semester` is not yet used anywhere in this repo; confirm it
   resolves in the backend before column upload, or fall back to leaving it blank.
-- The dev backend returned HTTP 503 during this session; `discover_ids` and column
-  upload need it back up.
+- The dev backend returned HTTP 503 during this session, so metadata registration
+  targets the **staging** backend instead (`env="staging"`).
+
+## Cleaning output
+
+`code/clean.py` builds all seven tables in about 15 seconds from the 19 cycle
+files. It asserts, and fails rather than writing, on:
+
+- **capacity reconciliation** — block 1.3's seven regime totals against its two
+  sex margins, per cycle. Holds at 100% in all 19 cycles; a mismatch means the
+  numeric parse is wrong (see source quirk 1).
+- **no same-cycle collisions** in the crosswalk, which the one-to-one assignment
+  makes structurally impossible.
+- **population components reconcile** with the establishment totals (15,274,185
+  person-records) and **capacity by regime** with the panel (10,434,069).
+- **grain uniqueness** on every table's declared key.
+
+| Table | Rows | Partitions |
+|---|---|---|
+| `unidade_prisional` | 201,775 | ano=2016..2025 |
+| `populacao_prisional` | 1,037,700 | ano=2016..2025 |
+| `populacao_caracteristica` | 1,790,112 | ano=2016..2025 |
+| `uf_semestre` | 513 | ano=2016..2025 |
+| `unidade_crosswalk` | 28,825 | ano=2016..2025 |
+| `cobertura` | 513 | ano=2016..2025 |
+| `dicionario` | 20 | unpartitioned |
+
+Output is Snappy parquet with **every column STRING**, per the staging
+convention, cast through arrow rather than `astype(str)` so that NULL stays NULL
+instead of becoming the literal `"nan"`. Verified: 0 such literals across all
+3.06M rows.
+
+`data_inauguracao` is preserved as reported. Three establishments declare
+implausible dates (1201, 1500) and ten predate 1900; these are source data-entry
+errors, not parse failures, and are not silently corrected.
