@@ -175,7 +175,50 @@ def _write_chunk(
 
 
 def _chunk_done(phase: str, month: str) -> bool:
-    return (_phase_dir(phase) / f"{month}.manifest.json").exists()
+    """Whether a month's chunk is complete *and* still on disk.
+
+    The manifest alone is not enough. The 2001-2024 harvest finished on
+    2026-09-27 reporting every month written, but the twenty chunks from
+    2022-06 on were gone, while their manifests — four orders of magnitude
+    smaller — survived. Resume then counted those months as done, and the
+    parquet pass read zero rows from each: 1.9M of 18.7M offers, 12% of the
+    events, absent with no error anywhere. A month counts as done only if the
+    rows it claims are still readable.
+    """
+    manifest = _phase_dir(phase) / f"{month}.manifest.json"
+    chunk = _phase_dir(phase) / f"{month}.jsonl"
+    if not manifest.exists() or not chunk.exists():
+        return False
+    try:
+        rows = (
+            json.loads(manifest.read_text(encoding="utf-8")).get("rows") or 0
+        )
+    except (OSError, ValueError):
+        # An unreadable manifest is not evidence of a complete month.
+        return False
+    # A month with genuinely no rows writes a 0-byte chunk, so an empty file is
+    # only evidence of loss when the manifest claims rows.
+    return rows == 0 or chunk.stat().st_size > 0
+
+
+def _require_complete(table: str) -> None:
+    """Refuse a full-table pass that would quietly write short output.
+
+    ``consolidate`` and ``to_parquet`` skip months that are not done, which is
+    right while the harvest is still filling them in and wrong once it claims
+    to be finished: a missing month then produces a table that is short by
+    however much it held, with nothing in the logs to say so. Fail here instead,
+    naming the months, so the harvest can be re-run to refill them.
+    """
+    planned = months(FIRST_MONTH, LAST_MONTH)
+    missing = [month for month in planned if not _chunk_done(table, month)]
+    if missing:
+        raise SystemExit(
+            f"{table}: {len(missing)} of {len(planned)} months are missing or "
+            "incomplete, so this pass would write short output. Re-run the "
+            "harvest to refill them, then repeat this pass. Missing: "
+            + ", ".join(missing)
+        )
 
 
 def _read_chunk(phase: str, month: str) -> list[dict]:
@@ -326,6 +369,7 @@ def consolidate(table: str) -> Path:
     pick up chunks an earlier run wrote under different bounds and double every
     row.
     """
+    _require_complete(table)
     target = data_dir() / f"{table}.jsonl"
     total = 0
     with target.open("w", encoding="utf-8") as out:
@@ -347,6 +391,7 @@ def to_parquet(table: str) -> int:
     all-STRING by house convention, the dbt model safe_casts each column back,
     and a typed staging table would collide with any later overwrite.
     """
+    _require_complete(table)
     # `ano` is encoded in the directory name, so it must not also be a column
     # inside the file: pyarrow refuses to merge a string column against the
     # int32 it infers from the hive key, and upload.py's header helper makes the
