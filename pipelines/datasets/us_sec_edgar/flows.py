@@ -6,7 +6,7 @@ quarter, roughly five weeks after quarter end, and never rewrites an earlier
 one — so each run **appends one partition** (``dump_mode="append"``) rather than
 replacing the history the way us_bls_cpi does.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_sec_edgar_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_sec_edgar_flow`;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 

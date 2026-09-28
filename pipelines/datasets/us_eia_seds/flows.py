@@ -10,7 +10,7 @@ Rebuilding everything makes a double-count structurally impossible and keeps the
 dicionario computed over the whole record. The dataset is annual, so every table
 is fully free — no BD Pro window.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_eia_seds_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_eia_seds_flow`; the
 dev pool ignores the schedule, the prod pool activates it.
 """
 

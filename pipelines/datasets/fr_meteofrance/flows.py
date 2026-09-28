@@ -14,7 +14,7 @@ Météo-France publishes on two different cadences, so this dataset has two flow
   station's first and last observation year, which one year cannot give — that
   doubles as a monthly full rebuild of ``synop``.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers both flows; the dev pool
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers both flows; the dev pool
 ignores the schedules, the prod pool activates them.
 """
 

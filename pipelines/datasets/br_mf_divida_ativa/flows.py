@@ -10,7 +10,7 @@ their most recent two quarters (``PartBdpro``, free_lag 6 months = 2 quarters);
 the rolling window and its BigQuery Row Access Policies are re-applied on every
 prod run by ``register_table_materialization_task``.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``br_mf_divida_ativa_flow``
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``br_mf_divida_ativa_flow``
 (defined at module level here); the dev pool ignores the schedule, the prod pool
 activates it (paused until armed).
 """

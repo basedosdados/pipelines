@@ -15,7 +15,7 @@ combined with a trailing window it would rebuild the table from the window alone
 and destroy the history. Restatements older than the window are picked up by a
 ``full_refresh=True`` run.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers
 ``br_cgu_despesas_publicas_flow``; the dev pool ignores the schedule, the prod
 pool activates it.
 """

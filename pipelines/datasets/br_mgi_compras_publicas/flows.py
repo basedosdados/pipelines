@@ -16,7 +16,7 @@ The Lei 8.666 legado tables are **not** refreshed: that procurement regime has
 ended and its 2025 tail is 7,562 rows. They are a closed archive, backfilled
 once. Adding them to a schedule would spend hours re-reading a frozen dataset.
 
-Deploy: `.github/scripts/deploy_flows.py` discovers the flow objects below.
+Deploy: `.github/workflows/scripts/deploy_flows.py` discovers the flow objects below.
 """
 
 from __future__ import annotations

@@ -6,7 +6,7 @@ restatement of the history, so a run appends one partition rather than rebuildin
 the table: ``dump_mode="append"`` against ``flight/year=YYYY/``. The reference
 tables are small and are rebuilt each run.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_dot_bts_ontime_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_dot_bts_ontime_flow`;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 

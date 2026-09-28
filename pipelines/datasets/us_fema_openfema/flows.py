@@ -24,7 +24,7 @@ record" and forbid using the data to make determinations affecting an
 individual's rights or eligibility, so paywalling it is a commercial decision
 to be taken deliberately rather than a default. See the dataset's memory note.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``us_fema_openfema_flow``;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``us_fema_openfema_flow``;
 the dev pool ignores the schedule, the prod pool activates it (deployed paused).
 """
 

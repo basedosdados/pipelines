@@ -11,7 +11,7 @@ cadences and the products are disjoint:
   indexes down to census tract are released once a year, and rebuilding 3M rows
   every month would be pure waste.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers both flows; the dev pool
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers both flows; the dev pool
 ignores the schedules, the prod pool activates them.
 """
 

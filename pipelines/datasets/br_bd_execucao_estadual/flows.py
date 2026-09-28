@@ -51,7 +51,7 @@ prod, by uploading them to the prod bucket itself. The first prod run therefore 
 be `full_refresh=True`, which downloads every exercise and uploads all 49; after that
 the daily incremental keeps them current.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers all four flows; the dev pool
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers all four flows; the dev pool
 ignores the schedule, the prod pool activates it (paused). The dev pool is only written
 by a PR carrying the `deploy-flow` label -- without it the deploy job skips and the
 staging deployments silently keep whatever they had.

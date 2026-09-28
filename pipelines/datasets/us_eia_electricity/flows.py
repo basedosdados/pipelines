@@ -25,7 +25,7 @@ the dev half of the flow too. With ``"append"`` the upload ends in
 ``Storage.upload(if_exists="replace")``, which replaces each partition blob at
 its own path — the same end state, without the delete.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_eia_electricity_flow`; the dev
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_eia_electricity_flow`; the dev
 pool ignores the schedule, the prod pool activates it.
 """
 

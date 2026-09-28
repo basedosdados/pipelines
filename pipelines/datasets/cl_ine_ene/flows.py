@@ -14,7 +14,7 @@ and weight total against what is already published; a mismatch stops the run and
 asks for a deliberate ``full_refresh``, rather than quietly leaving 16 years of
 superseded weights in the table.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `cl_ine_ene_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `cl_ine_ene_flow`; the
 dev pool ignores the schedule, the prod pool activates it.
 """
 

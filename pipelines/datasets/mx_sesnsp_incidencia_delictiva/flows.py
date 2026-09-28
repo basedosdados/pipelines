@@ -9,7 +9,7 @@ not an incremental append. A single flow scrapes the rotating SharePoint tokens,
 downloads and cleans the four tables, and materializes them. Schedule targets the
 monthly SESNSP release window (~20th).
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers
 `mx_sesnsp_incidencia_delictiva_flow`; the dev pool ignores the schedule, the
 prod pool activates it.
 """

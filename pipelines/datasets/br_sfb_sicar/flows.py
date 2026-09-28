@@ -10,7 +10,7 @@ source-update poll on the anchor table (``area_imovel``): the flow short-circuit
 until a UF publishes a newer snapshot. The schedule polls across a few mid-month
 days; the guard makes each scheduled run a cheap no-op between releases.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``br_sfb_sicar_flow``
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``br_sfb_sicar_flow``
 (the flow fn is defined in this file); the dev pool ignores the schedule, the
 prod pool activates it.
 """

@@ -9,7 +9,7 @@ A single flow downloads once, rebuilds all four tables, and materializes them.
 Because each run re-ingests the whole 11.4M-row history, it is scheduled
 **weekly** (not daily).
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``world_cricsheet_flow``;
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``world_cricsheet_flow``;
 the dev pool ignores the schedule, the prod pool activates it (paused until armed).
 """
 

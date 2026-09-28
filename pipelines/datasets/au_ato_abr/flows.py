@@ -10,7 +10,7 @@ The run polls cheaply first (an HTTP HEAD on the ZIPs, compared against
 ``Table.Update.latest``) and only downloads the ~1 GB payload when the source has
 actually republished — so a scheduled run is a cheap no-op between weekly releases.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``au_ato_abr_flow``; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``au_ato_abr_flow``; the
 dev pool ignores the schedule, the prod pool activates it (deployed paused).
 """
 

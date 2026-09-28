@@ -6,7 +6,7 @@ every run rebuilds the whole history from the Envirofacts API and replaces the
 tables (``dump_mode="overwrite"``) — a revised year is re-materialized rather
 than appended twice.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers the flow; the dev pool
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers the flow; the dev pool
 ignores the schedule, the prod pool activates it.
 """
 

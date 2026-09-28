@@ -6,7 +6,7 @@ of its series, so each run is a **full replace** (``dump_mode="overwrite"``),
 not an incremental append. A single flow downloads all ~220 CSVs once and
 rebuilds all four tables.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers
 `au_rba_statistical_tables_flow`; the dev pool ignores the schedule, the prod
 pool activates it.
 """

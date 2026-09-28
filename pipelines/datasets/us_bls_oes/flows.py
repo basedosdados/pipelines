@@ -13,7 +13,7 @@ column is computed over the whole panel, which a single-year run does not hold.
 The clean task instead asserts that the new year introduces no unlabelled code,
 and fails the run if it does (see `utils.assert_dictionary_labels`).
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_bls_oes_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_bls_oes_flow`; the
 dev pool ignores the schedule, the prod pool activates it.
 """
 
