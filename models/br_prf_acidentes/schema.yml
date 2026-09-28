@@ -1,0 +1,407 @@
+---
+version: 2
+models:
+  - name: br_prf_acidentes__ocorrencia
+    description: >
+      Acidentes em rodovias federais registrados pela Policia Rodoviaria Federal,
+      uma linha por acidente, de 2007 a 2026. Latitude, longitude e as unidades administrativas
+      da PRF sao publicadas apenas a partir de 2017.
+    tests:
+      # A fonte traz de 1 a 7 linhas integralmente duplicadas por ano entre 2007 e 2016, 35 no total (0,0016%). De 2017 em diante id_ocorrencia e unico.
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [ano, id_ocorrencia]
+          proportion_allowed_failures: 0.0001
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano de referência do acidente
+        tests: [not_null]
+      - name: data
+        description: >
+          Data em que o acidente ocorreu
+      - name: horario
+        description: >
+          Hora em que o acidente ocorreu
+      - name: dia_semana
+        description: >
+          Dia da semana em que o acidente ocorreu
+      - name: sigla_uf
+        description: >
+          Sigla da unidade da federação onde o acidente ocorreu
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: >
+          Identificador IBGE de 7 dígitos do município onde o acidente ocorreu
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_ocorrencia
+        description: >
+          Identificador do acidente atribuído pela PRF
+        tests: [not_null]
+      - name: br
+        description: >
+          Número da rodovia federal onde o acidente ocorreu
+      - name: km
+        description: >
+          Marco quilométrico da rodovia onde o acidente ocorreu
+      - name: latitude
+        description: >
+          Latitude do local do acidente, em graus decimais
+      - name: longitude
+        description: >
+          Longitude do local do acidente, em graus decimais
+      - name: causa_acidente
+        description: >
+          Causa presumida do acidente registrada pelo policial
+      - name: tipo_acidente
+        description: >
+          Tipo de acidente
+      - name: classificacao_acidente
+        description: >
+          Classificação do acidente quanto à gravidade
+      - name: fase_dia
+        description: >
+          Fase do dia no momento do acidente
+      - name: sentido_via
+        description: >
+          Sentido da via considerando o ponto de colisão
+      - name: condicao_metereologica
+        description: >
+          Condição meteorológica no momento do acidente
+      - name: tipo_pista
+        description: >
+          Tipo da pista quanto ao número de faixas
+      - name: tracado_via
+        description: >
+          Traçado da via no local do acidente
+      - name: uso_solo
+        description: >
+          Característica do local do acidente quanto à ocupação do solo
+      - name: quantidade_pessoas
+        description: >
+          Número de pessoas envolvidas no acidente
+      - name: quantidade_mortos
+        description: >
+          Número de pessoas mortas no acidente
+      - name: quantidade_feridos_leves
+        description: >
+          Número de pessoas com lesões leves no acidente
+      - name: quantidade_feridos_graves
+        description: >
+          Número de pessoas com lesões graves no acidente
+      - name: quantidade_ilesos
+        description: >
+          Número de pessoas ilesas no acidente
+      - name: quantidade_ignorados
+        description: >
+          Número de pessoas cujo estado físico não foi informado no acidente
+      - name: quantidade_feridos
+        description: >
+          Número total de pessoas feridas no acidente, somando lesões leves e graves
+      - name: quantidade_veiculos
+        description: >
+          Número de veículos envolvidos no acidente
+      - name: regional
+        description: >
+          Superintendência regional da PRF responsável pelo trecho
+      - name: delegacia
+        description: >
+          Delegacia da PRF responsável pelo trecho
+      - name: uop
+        description: >
+          Unidade operacional da PRF em cuja circunscrição o acidente ocorreu
+  - name: br_prf_acidentes__pessoa
+    description: >
+      Pessoas envolvidas em acidentes em rodovias federais registrados pela Policia
+      Rodoviaria Federal, uma linha por pessoa e veiculo, de 2007 a 2026. Nacionalidade
+      e naturalidade sao publicadas apenas ate 2016.
+    tests:
+      # id_veiculo faz parte da chave: a partir de 2017 a mesma pessoa aparece associada a mais de um veiculo. Restam cerca de 91 linhas duplicadas na fonte entre 2007 e 2016 (0,0018%).
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [ano, id_ocorrencia, id_pessoa, id_veiculo]
+          proportion_allowed_failures: 0.0001
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano de referência do acidente
+        tests: [not_null]
+      - name: data
+        description: >
+          Data em que o acidente ocorreu
+      - name: horario
+        description: >
+          Hora em que o acidente ocorreu
+      - name: dia_semana
+        description: >
+          Dia da semana em que o acidente ocorreu
+      - name: sigla_uf
+        description: >
+          Sigla da unidade da federação onde o acidente ocorreu
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: >
+          Identificador IBGE de 7 dígitos do município onde o acidente ocorreu
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_ocorrencia
+        description: >
+          Identificador do acidente atribuído pela PRF
+        tests: [not_null]
+      - name: id_veiculo
+        description: >
+          Identificador do veículo envolvido, atribuído pela PRF
+      - name: id_pessoa
+        description: >
+          Identificador da pessoa envolvida, atribuído pela PRF
+      - name: br
+        description: >
+          Número da rodovia federal onde o acidente ocorreu
+      - name: km
+        description: >
+          Marco quilométrico da rodovia onde o acidente ocorreu
+      - name: latitude
+        description: >
+          Latitude do local do acidente, em graus decimais
+      - name: longitude
+        description: >
+          Longitude do local do acidente, em graus decimais
+      - name: causa_acidente
+        description: >
+          Causa presumida do acidente registrada pelo policial
+      - name: tipo_acidente
+        description: >
+          Tipo de acidente
+      - name: classificacao_acidente
+        description: >
+          Classificação do acidente quanto à gravidade
+      - name: fase_dia
+        description: >
+          Fase do dia no momento do acidente
+      - name: sentido_via
+        description: >
+          Sentido da via considerando o ponto de colisão
+      - name: condicao_metereologica
+        description: >
+          Condição meteorológica no momento do acidente
+      - name: tipo_pista
+        description: >
+          Tipo da pista quanto ao número de faixas
+      - name: tracado_via
+        description: >
+          Traçado da via no local do acidente
+      - name: uso_solo
+        description: >
+          Característica do local do acidente quanto à ocupação do solo
+      - name: tipo_veiculo
+        description: >
+          Tipo do veículo envolvido
+      - name: marca
+        description: >
+          Marca e modelo do veículo, como registrados pela PRF
+      - name: ano_fabricacao_veiculo
+        description: >
+          Ano de fabricação do veículo envolvido
+      - name: tipo_envolvido
+        description: >
+          Tipo de envolvimento da pessoa no acidente
+      - name: estado_fisico
+        description: >
+          Estado físico da pessoa envolvida, conforme a gravidade das lesões
+      - name: idade
+        description: >
+          Idade da pessoa envolvida, em anos completos
+      - name: sexo
+        description: >
+          Sexo da pessoa envolvida
+      - name: indicador_ileso
+        description: >
+          Indicador de que a pessoa envolvida foi classificada como ileso
+      - name: indicador_ferido_leve
+        description: >
+          Indicador de que a pessoa envolvida foi classificada como com lesões leves
+      - name: indicador_ferido_grave
+        description: >
+          Indicador de que a pessoa envolvida foi classificada como com lesões graves
+      - name: indicador_morto
+        description: >
+          Indicador de que a pessoa envolvida foi classificada como morta
+      - name: nacionalidade
+        description: >
+          Nacionalidade da pessoa envolvida
+      - name: naturalidade
+        description: >
+          Município de naturalidade da pessoa envolvida
+      - name: regional
+        description: >
+          Superintendência regional da PRF responsável pelo trecho
+      - name: delegacia
+        description: >
+          Delegacia da PRF responsável pelo trecho
+      - name: uop
+        description: >
+          Unidade operacional da PRF em cuja circunscrição o acidente ocorreu
+      # id_ocorrencia -> ocorrencia carries a tolerance: the source has
+      # crash ids present in the person files and absent from the crash
+      # file, 876 ids in total, all between 2007 and 2012 and none after.
+  - name: br_prf_acidentes__pessoa_causa_tipo
+    description: >
+      Pessoas envolvidas em acidentes em rodovias federais registrados pela Policia
+      Rodoviaria Federal, uma linha por pessoa, veiculo, causa e tipo de acidente,
+      de 2017 a 2026. Existe porque, a partir de 2017, um acidente pode ter mais de
+      uma causa e mais de um tipo registrados.
+    tests:
+      # Chave integralmente unica: nenhuma duplicata em 4.479.488 linhas.
+      - custom_unique_combinations_of_columns:
+          combination_of_columns:
+            - ano
+            - id_ocorrencia
+            - id_pessoa
+            - id_veiculo
+            - causa_acidente
+            - tipo_acidente
+            - ordem_tipo_acidente
+          proportion_allowed_failures: 0.0
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: >
+          Ano de referência do acidente
+        tests: [not_null]
+      - name: data
+        description: >
+          Data em que o acidente ocorreu
+      - name: horario
+        description: >
+          Hora em que o acidente ocorreu
+      - name: dia_semana
+        description: >
+          Dia da semana em que o acidente ocorreu
+      - name: sigla_uf
+        description: >
+          Sigla da unidade da federação onde o acidente ocorreu
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: >
+          Identificador IBGE de 7 dígitos do município onde o acidente ocorreu
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_ocorrencia
+        description: >
+          Identificador do acidente atribuído pela PRF
+        tests: [not_null]
+      - name: id_veiculo
+        description: >
+          Identificador do veículo envolvido, atribuído pela PRF
+      - name: id_pessoa
+        description: >
+          Identificador da pessoa envolvida, atribuído pela PRF
+      - name: br
+        description: >
+          Número da rodovia federal onde o acidente ocorreu
+      - name: km
+        description: >
+          Marco quilométrico da rodovia onde o acidente ocorreu
+      - name: latitude
+        description: >
+          Latitude do local do acidente, em graus decimais
+      - name: longitude
+        description: >
+          Longitude do local do acidente, em graus decimais
+      - name: causa_principal
+        description: >
+          Indicador de que a causa registrada na linha é a causa principal do acidente
+      - name: causa_acidente
+        description: >
+          Causa presumida do acidente registrada pelo policial
+      - name: ordem_tipo_acidente
+        description: >
+          Ordem do tipo de acidente dentro da ocorrência
+      - name: tipo_acidente
+        description: >
+          Tipo de acidente
+      - name: classificacao_acidente
+        description: >
+          Classificação do acidente quanto à gravidade
+      - name: fase_dia
+        description: >
+          Fase do dia no momento do acidente
+      - name: sentido_via
+        description: >
+          Sentido da via considerando o ponto de colisão
+      - name: condicao_metereologica
+        description: >
+          Condição meteorológica no momento do acidente
+      - name: tipo_pista
+        description: >
+          Tipo da pista quanto ao número de faixas
+      - name: tracado_via
+        description: >
+          Traçado da via no local do acidente
+      - name: uso_solo
+        description: >
+          Característica do local do acidente quanto à ocupação do solo
+      - name: tipo_veiculo
+        description: >
+          Tipo do veículo envolvido
+      - name: marca
+        description: >
+          Marca e modelo do veículo, como registrados pela PRF
+      - name: ano_fabricacao_veiculo
+        description: >
+          Ano de fabricação do veículo envolvido
+      - name: tipo_envolvido
+        description: >
+          Tipo de envolvimento da pessoa no acidente
+      - name: estado_fisico
+        description: >
+          Estado físico da pessoa envolvida, conforme a gravidade das lesões
+      - name: idade
+        description: >
+          Idade da pessoa envolvida, em anos completos
+      - name: sexo
+        description: >
+          Sexo da pessoa envolvida
+      - name: indicador_ileso
+        description: >
+          Indicador de que a pessoa envolvida foi classificada como ileso
+      - name: indicador_ferido_leve
+        description: >
+          Indicador de que a pessoa envolvida foi classificada como com lesões leves
+      - name: indicador_ferido_grave
+        description: >
+          Indicador de que a pessoa envolvida foi classificada como com lesões graves
+      - name: indicador_morto
+        description: >
+          Indicador de que a pessoa envolvida foi classificada como morta
+      - name: regional
+        description: >
+          Superintendência regional da PRF responsável pelo trecho
+      - name: delegacia
+        description: >
+          Delegacia da PRF responsável pelo trecho
+      - name: uop
+        description: >
+          Unidade operacional da PRF em cuja circunscrição o acidente ocorreu
+      # id_ocorrencia -> ocorrencia carries a tolerance: the source has
+      # crash ids present in the person files and absent from the crash
+      # file, 876 ids in total, all between 2007 and 2012 and none after.
