@@ -103,7 +103,12 @@ TABLES: dict[str, TableMeta] = {
         "con su vigencia, proveedor y valores. Una unidad gestora reutiliza el número del "
         "contrato entre contrataciones, por lo que la clave incluye la compra de origen",
         {"contract": "numero_contrato", "year": "ano"},
-        (2010, 1, 2026, 7),
+        # data_vigencia_inicial, non-null on every row: 2010-01-01 to 2027-01-01.
+        # The end is genuinely in the future -- contracts are registered with a
+        # start date ahead of today, tapering from 15,629 rows in 2026-08 to a
+        # single one in 2027-01. The previous 2026-07 was the refresh date, not
+        # the data.
+        (2010, 1, 2027, 1),
     ),
     "contrato_item": TableMeta(
         "Contrato - Item",
@@ -116,7 +121,9 @@ TABLES: dict[str, TableMeta] = {
         "contratado, con cantidad y valores unitario y total, en el estado más reciente "
         "informado por la fuente",
         {"contract": "numero_contrato", "item": "numero_item", "year": "ano"},
-        (2010, 1, 2026, 7),
+        # Same basis and the same single forward-dated row as contrato:
+        # data_vigencia_inicial, non-null throughout, 2010-01-01 to 2027-01-01.
+        (2010, 1, 2027, 1),
     ),
     "licitacao": TableMeta(
         "Licitação",
@@ -138,7 +145,8 @@ TABLES: dict[str, TableMeta] = {
         "Detalle procesal de los pregones realizados bajo la Ley 8.666/1993, incluyendo "
         "resolución, situación y fechas de cierre y resultado. Una fila por pregón",
         {"procurement": "id_compra", "year": "ano"},
-        (2000, 1, 2023, 12),
+        # data_edital, which is non-null on every row: 2000-12-29 to 2024-07-12.
+        (2000, 12, 2024, 7),
     ),
     "licitacao_item": TableMeta(
         "Licitação - Item",
@@ -159,7 +167,13 @@ TABLES: dict[str, TableMeta] = {
         "ítems de las modalidades Pregón, Dispensa e Inexigibilidad están en las tablas "
         "licitacao_item_pregao y compra_sem_licitacao_item",
         {"procurement": "id_compra", "item": "id_compra_item", "year": "ano"},
-        (1997, 1, 2025, 12),
+        # Year grain: the source publishes no date for the item, so `ano` is
+        # derived from the last four digits of id_compra and is all we know.
+        # 1997 and 2023 are the verifiable bounds, not the raw min and max of
+        # `ano` (1990-2024). All 3,275 rows below 1997 are orphans with no
+        # parent licitacao, and the single 2024 row's own parent says 2023 --
+        # both tails are artefacts of the id derivation, not coverage.
+        (1997, None, 2023, None),
     ),
     "licitacao_item_pregao": TableMeta(
         "Licitação - Pregão - Item",
@@ -181,7 +195,11 @@ TABLES: dict[str, TableMeta] = {
         "Dispensas e inexigibilidades de licitación bajo la Ley 8.666/1993, de 1997 a 2024. Una "
         "fila por contratación directa, con su fundamento legal y justificación",
         {"procurement": "id_compra", "year": "ano"},
-        (1997, 1, 2024, 12),
+        # Year grain: the only trustworthy temporal field is `ano`
+        # (dt_ano_aviso, given by the source), 1997-2025. The date columns are
+        # not usable as a basis -- data_publicacao is null on 99.5% of rows and
+        # data_declaracao_dispensa reaches back to 1979 on 24 of them.
+        (1997, None, 2025, None),
     ),
     "compra_sem_licitacao_item": TableMeta(
         "Contratação direta - Item",
