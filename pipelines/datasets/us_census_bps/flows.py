@@ -11,7 +11,7 @@ disagree and history is quietly erased.
 The cost is bounded: about 700 MB of downloads and 25.7 million rows once a
 month.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_census_bps_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_census_bps_flow`;
 the dev pool strips the schedule, the prod pool activates it.
 """
 

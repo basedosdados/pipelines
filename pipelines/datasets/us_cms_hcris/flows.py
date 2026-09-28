@@ -19,7 +19,7 @@ That shapes three decisions:
   dictionary coverage tests read ``dicionario``, so a per-table interleave
   would test a model before its sibling exists.
 
-Deploy: ``.github/scripts/deploy_flows.py`` discovers ``us_cms_hcris_flow``; the
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` discovers ``us_cms_hcris_flow``; the
 dev pool strips the schedule, the prod pool activates it (paused until armed).
 """
 

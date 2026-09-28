@@ -12,7 +12,7 @@ The run polls cheaply first (an HTTP HEAD on the monthly ZIP, compared against
 ``Table.Update.latest``) and only downloads the ~1.1 GB payload once CMS has
 actually republished, so a scheduled run between releases is a cheap no-op.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``us_hhs_nppes_flow``;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``us_hhs_nppes_flow``;
 the dev pool ignores the schedule, the prod pool activates it (deployed paused).
 """
 

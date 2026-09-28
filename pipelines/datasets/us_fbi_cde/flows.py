@@ -11,7 +11,7 @@ the years it touches.
 from a dev-only run. With append, each partition blob is replaced wholesale,
 which is the semantics wanted here and touches nothing outside the window.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``us_fbi_cde_flow``;
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``us_fbi_cde_flow``;
 the dev pool strips the schedule, the prod pool activates it paused.
 """
 
