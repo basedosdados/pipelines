@@ -35,6 +35,7 @@ class constants(Enum):
     MUNICIPIO_CROSSWALK = _CODE_DIR / "municipio_crosswalk.csv"
 
     MUNICIPIO_DIRECTORY = _CODE_DIR / "municipio_directory.csv"
+    MUNICIPIO_GEX_LOOKUP = _CODE_DIR / "municipio_gex_lookup.csv"
 
     # SUIBE abbreviates espécie labels inconsistently across eras. Expanding
     # these before matching against ESPECIE resolves 34 of the 39 labels
@@ -68,6 +69,8 @@ class constants(Enum):
         "aposent invalidez empregador rural": 6,
         "aposent por tempo servico ex combatente": 43,
         "aposentadoria por invalidez trab rural": 4,
+        "aposentadoria compulsoria ex sasse": 81,
+        "pensao especial vitalicia lei 9793 99": 54,
     }
 
     # CKAN instance that indexes every monthly extract. Resources themselves are
@@ -171,6 +174,7 @@ class constants(Enum):
         72: "Aposentadoria Tempo Serviço - Lei de Guerra",
         79: "Vantagens de Servidor Aposentado",
         80: "Auxílio Salário Maternidade",
+        81: "Aposentadoria por Idade Compulsória Ex-Sasse",
         82: "Aposentadoria Tempo de Serviço Ex-Sasse",
         83: "Aposentadoria por Invalidez Ex-Sasse",
         84: "Pensão por Morte Ex-Sasse",
@@ -187,13 +191,21 @@ class constants(Enum):
         96: "Pensão Especial Hanseníase Lei 11520/07",
     }
 
-    # Reform-stable functional grouping, keyed on the espécie CODE. EC 103/2019
+    # Reform-stable functional grouping, keyed on the espécie CODE. It is also
+    # truncation-stable: benefícios mantidos publishes only the first 20
+    # characters of the label, which is ambiguous between espécies for 14 keys,
+    # but every one of those keys resolves to a single categoria. Espécie 59
+    # (Pensão por Morte de Anistiados) sits in pensao_morte for exactly that
+    # reason — it shares the prefix "Pensão por Morte de " with 1, 3 and 23, and
+    # its special-statute character is carried by natureza_beneficio instead.
+    # Espécies 23 and 29 are grouped the same way for the same reason.
+    # EC 103/2019
     # renamed espécies 31 and 32 without changing their codes and closed 42 to
     # new entrants, so a grouping built on labels would break at Nov/2019 while
     # this one does not. Every code in ESPECIE appears in exactly one group
     # (asserted by utils.validate_reference_tables).
     CATEGORIA = {
-        "aposentadoria_idade": [7, 8, 41],
+        "aposentadoria_idade": [7, 8, 41, 81],
         "aposentadoria_tempo_contribuicao": [
             37,
             38,
@@ -207,7 +219,7 @@ class constants(Enum):
         ],
         "aposentadoria_invalidez": [4, 5, 6, 32, 33, 34, 51, 83, 92],
         "aposentadoria_especial": [44, 46],
-        "pensao_morte": [1, 2, 3, 21, 22, 23, 26, 27, 28, 29, 55, 84, 93],
+        "pensao_morte": [1, 2, 3, 21, 22, 23, 26, 27, 28, 29, 55, 59, 84, 93],
         "auxilio_incapacidade_temporaria": [10, 13, 31, 91],
         "auxilio_acidente": [36, 94, 95],
         "salario_maternidade": [80],
@@ -220,7 +232,6 @@ class constants(Enum):
             54,
             56,
             58,
-            59,
             60,
             85,
             86,
@@ -248,6 +259,10 @@ class constants(Enum):
     }
 
     OBSERVACAO = {
+        59: "Pensão por morte concedida sob a legislação de anistia. Agrupada em pensao_morte, com a natureza indenizatória registrada em natureza_beneficio",
+        54: "Pensão especial vitalícia da Lei 9.793/1999, paga pela União. O dicionário oficial do MPS a registra sob o rótulo genérico Pensão Indenizatória a Cargo da União; os extratos mensais imprimem o nome da lei",
+        60: "Pensão especial mensal vitalícia da Lei 10.923/2004, paga pela União",
+        81: "Aposentadoria por idade compulsória do extinto SASSE, extinta pela Lei 6.430/1977 e mantida apenas para o estoque. Ausente do Dicionário de Dados - Espécies de Benefício publicado em 2025, embora presente nos extratos de concessões até 2012",
         18: "Criado pela Lei 14.176/2021 para beneficiários do BPC que exercem atividade remunerada",
         30: "Renda mensal vitalícia, extinta pela Lei 8.213/1991 e substituída pelo BPC; estoque residual",
         40: "Renda mensal vitalícia, extinta pela Lei 8.213/1991 e substituída pelo BPC; estoque residual",

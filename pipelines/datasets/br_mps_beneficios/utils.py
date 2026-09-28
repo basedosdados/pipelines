@@ -22,8 +22,12 @@ column (it comes from the filename), no espécie code, and labels truncated to
 from __future__ import annotations
 
 import csv
+import io
+import json
 import re
 import unicodedata
+import urllib.parse
+import urllib.request
 import zipfile
 from datetime import date
 from pathlib import Path
@@ -258,6 +262,24 @@ def parse_mun_resid(raw) -> tuple[str | None, str | None]:
     return m.group(1).upper(), (nome or None)
 
 
+def parse_mun_resid_gex(raw) -> tuple[str | None, str | None, str | None]:
+    """Like :func:`parse_mun_resid`, but also returns the GEX prefix.
+
+    The GEX is what makes the truncated município field in benefícios mantidos
+    unambiguous, so it is captured here to build that lookup.
+    """
+    if raw is None:
+        return None, None, None
+    s = str(raw).strip()
+    if s in constants.MUN_SENTINELS.value or "Zerada" in s:
+        return None, None, None
+    m = re.match(r"^(\d+)\s*-\s*([A-Za-z]{2})\s*-\s*(.+)$", s)
+    if not m:
+        return None, None, None
+    nome = m.group(3).strip()
+    return m.group(2).upper(), (nome or None), m.group(1)
+
+
 def idade_em(nascimento: date | None, competencia: int) -> int | None:
     if nascimento is None:
         return None
@@ -453,9 +475,10 @@ def iter_concedido(path: Path, chunk: int = 500_000):
 # aggregation
 # --------------------------------------------------------------------------
 GRAIN = [
-    "id_municipio",
     "ano",
     "mes",
+    "sigla_uf",
+    "id_municipio",
     "especie_beneficio",
     "categoria_beneficio",
     "clientela",
@@ -469,13 +492,19 @@ class UnmappedLabelError(ValueError):
 
 
 def aggregate_concedido(
-    path: Path, competencia_hint: int | None = None
+    path: Path,
+    competencia_hint: int | None = None,
+    gex_sink: dict[tuple[str, str, str], str] | None = None,
 ) -> tuple[pd.DataFrame, dict]:
     """Aggregate one concedido file to the published grain.
 
     Returns the aggregated frame and a diagnostics dict recording how many
     rows lost their municipality or their age, which feeds the per-year
     coverage report.
+
+    When ``gex_sink`` is supplied, every resolved (GEX, UF, name) triple is
+    recorded into it. That mapping is what later makes the truncated município
+    field in benefícios mantidos resolvable.
     """
     esp_idx = especie_label_index()
     cat_idx = categoria_index()
@@ -509,7 +538,7 @@ def aggregate_concedido(
                     continue
             code = int(code)
 
-            uf, nome = parse_mun_resid(rec["mun_resid"])
+            uf, nome, gex = parse_mun_resid_gex(rec["mun_resid"])
             if uf is None:
                 diag["sem_municipio"] += 1
                 id_mun = None
@@ -521,14 +550,17 @@ def aggregate_concedido(
                         diag["nomes_nao_encontrados"].get(f"{uf}|{nome}", 0)
                         + 1
                     )
+                elif gex_sink is not None and gex:
+                    gex_sink[(gex, uf, nome)] = id_mun
 
             idade = idade_em(parse_data(rec["dt_nascimento"]), comp)
             if idade is None:
                 diag["sem_idade"] += 1
             key = (
-                id_mun,
                 comp // 100,
                 comp % 100,
+                uf,
+                id_mun,
                 code,
                 cat_idx.get(code),
                 clean_clientela(rec["clientela"]),
@@ -647,49 +679,477 @@ def build_gex_lookup(
 # --------------------------------------------------------------------------
 # parquet output
 # --------------------------------------------------------------------------
+PA_TYPES = {
+    "INT64": pa.int64(),
+    "FLOAT64": pa.float64(),
+    "STRING": pa.string(),
+}
+
+
 def write_partitioned(
     df: pd.DataFrame,
     outdir: Path,
     table: str,
     partition_cols: list[str] | None = None,
-) -> None:
+) -> Path:
     """Write hive-partitioned, all-STRING Snappy parquet.
 
     Every column is cast to string on purpose: staging is all-STRING by house
-    convention and the dbt model safe_casts each column back, so the parquet
-    schema carries column order, not types. The cast goes through arrow rather
-    than ``astype(str)`` because the latter renders NULL as the literal "nan",
-    which safe_cast will not turn back into NULL, and it runs after the real
-    dtypes are set so that an integer year serialises as "2017", not "2017.0".
+    convention and the dbt model ``safe_cast``s each column back, so the parquet
+    schema carries column order, not types. Emitting typed parquet makes
+    BigQuery reject the files against the STRING staging schema that
+    ``gcs.dump_header`` infers.
+
+    Two details are load-bearing. Values pass through the architecture's real
+    types *first*, so ``ano`` serialises as ``"2018"`` and not ``"2018.0"``, and
+    the cast to string goes through arrow rather than ``astype(str)``, which
+    would render a NULL as the literal ``"nan"`` and defeat the ``safe_cast``.
+    ``id_municipio`` is genuinely NULL wherever the source wrote
+    ``00000-Zerada``.
+
+    The partition columns go into the hive path only and NOT into the file
+    body. ``basedosdados.Table`` builds the staging schema as
+    ``partition_columns + columns``, taking the former from the directory names
+    and the latter from the file header, so a partition column present in both
+    lands in the external table twice and BigQuery rejects the duplicate. The
+    architecture still lists the column, because the materialised table does
+    have it — sourced from the path.
     """
     partition_cols = partition_cols or ["ano"]
+    tdir = outdir / table
     if df.empty:
-        return
+        return tdir
     arch = pd.read_csv(constants.ARCHITECTURE_DIR.value / f"{table}.csv")
-    order = [c for c in arch["name"].tolist()]
+    order = arch["name"].tolist()
     missing = set(order) - set(df.columns)
     if missing:
         raise ValueError(
             f"{table}: frame is missing architecture columns {sorted(missing)}"
         )
-    df = df[order]
-
-    types = dict(zip(arch["name"], arch["bigquery_type"], strict=True))
-    out = pd.DataFrame(index=df.index)
-    for c in order:
-        s = df[c]
-        bq = types[c]
-        if bq == "INT64":
-            s = pd.to_numeric(s, errors="coerce").astype("Int64")
-        elif bq == "FLOAT64":
-            s = pd.to_numeric(s, errors="coerce").astype("Float64")
-        out[c] = s
-    tbl = pa.Table.from_pandas(out, preserve_index=False)
-    tbl = tbl.cast(pa.schema([pa.field(c, pa.string()) for c in order]))
-    pq.write_to_dataset(
-        tbl,
-        root_path=str(outdir / table),
-        partition_cols=partition_cols,
-        compression="snappy",
-        existing_data_behavior="overwrite_or_ignore",
+    body = [c for c in order if c not in partition_cols]
+    typed = pa.schema(
+        [
+            pa.field(r["name"], PA_TYPES[r["bigquery_type"]])
+            for _, r in arch.iterrows()
+            if r["name"] in body
+        ]
     )
+    as_string = pa.schema([pa.field(c, pa.string()) for c in body])
+
+    out = pd.DataFrame(index=df.index)
+    for _, r in arch.iterrows():
+        col, bq = r["name"], r["bigquery_type"]
+        series = df[col]
+        if bq == "INT64":
+            series = pd.to_numeric(series, errors="coerce").astype("Int64")
+        elif bq == "FLOAT64":
+            series = pd.to_numeric(series, errors="coerce").astype("Float64")
+        else:
+            # Stringify value-by-value so that an integer espécie code becomes
+            # "31" while a genuine NULL stays None rather than the string "nan".
+            series = series.map(lambda v: None if pd.isna(v) else str(v))
+        out[col] = series
+
+    for key, group in out.groupby(partition_cols, sort=True, dropna=False):
+        parts = key if isinstance(key, tuple) else (key,)
+        pdir = tdir
+        for name, value in zip(partition_cols, parts, strict=True):
+            pdir = pdir / f"{name}={int(value)}"
+        pdir.mkdir(parents=True, exist_ok=True)
+        at = pa.Table.from_pandas(
+            group[body], schema=typed, preserve_index=False
+        )
+        pq.write_table(
+            at.cast(as_string), pdir / "data.parquet", compression="snappy"
+        )
+    return tdir
+
+
+# --------------------------------------------------------------------------
+# resource discovery
+# --------------------------------------------------------------------------
+def _ckan(package: str) -> dict:
+    url = constants.CKAN_BASE.value + package
+    req = urllib.request.Request(
+        url, headers={"User-Agent": "basedosdados/br_mps_beneficios"}
+    )
+    with urllib.request.urlopen(req, timeout=120) as fh:
+        return json.load(fh)["result"]
+
+
+def _six_digit_competencia(token: str) -> int | None:
+    """Read a 6-digit period, which the source writes both ways round.
+
+    ``BEN_CONCEDIDOS_122025.xlsx`` is MMYYYY while
+    ``D.SDA.PDA.004.MANATIVOS.202306`` is YYYYMM, so the year has to be
+    identified by value rather than by position.
+    """
+    for m in re.finditer(r"(?<!\d)(\d{6})(?!\d)", token):
+        block = m.group(1)
+        head, tail = int(block[:4]), int(block[4:])
+        if 2000 <= head <= 2099 and 1 <= tail <= 12:
+            return head * 100 + tail
+        head2, tail2 = int(block[:2]), int(block[2:])
+        if 2000 <= tail2 <= 2099 and 1 <= head2 <= 12:
+            return tail2 * 100 + head2
+    return None
+
+
+def parse_resource_period(
+    name: str, url: str = ""
+) -> tuple[int | None, int | None]:
+    """Read a competência, or a bare year, from a CKAN resource.
+
+    Returns ``(competencia, ano)`` with exactly one set: the monthly packages
+    name a month, the 2012-2018 package names only a year.
+
+    Only the resource name and the URL *basename* are inspected. The annual
+    archives live in a directory called "Beneficios concedidos entre dezembro
+    de 2012 a novembro de 2018", so searching the whole URL for a month name
+    assigns every one of them a spurious November or December competência.
+    """
+    base = url.rsplit("/", 1)[-1] if url else ""
+    for token in (name, base):
+        low = strip_accents(token).lower()
+        ano_m = re.search(r"\b(20\d{2})\b", low)
+        for mes_nome, mes in MESES_PT.items():
+            if strip_accents(mes_nome) in low and ano_m:
+                return int(ano_m.group(1)) * 100 + mes, None
+        m = re.search(r"(?<!\d)(0[1-9]|1[0-2])[-_.](20\d{2})(?!\d)", low)
+        if m:
+            return int(m.group(2)) * 100 + int(m.group(1)), None
+        m = re.search(r"(?<!\d)(20\d{2})[-_.](0[1-9]|1[0-2])(?!\d)", low)
+        if m:
+            return int(m.group(1)) * 100 + int(m.group(2)), None
+        comp = _six_digit_competencia(low)
+        if comp:
+            return comp, None
+    for token in (name, base):
+        ano_m = re.search(r"\b(20\d{2})\b", strip_accents(token).lower())
+        if ano_m:
+            return None, int(ano_m.group(1))
+    return None, None
+
+
+def resolve_concedido_resources() -> list[dict]:
+    """Every benefícios concedidos file the portal offers, oldest first.
+
+    Three packages have to be merged because the portal split the series:
+    annual archives for 2012-2018, then two monthly packages. Where the same
+    competência appears twice the later package wins, though in practice the
+    overlap (Dec/2018) is byte-identical in aggregate between the two.
+    """
+    out: dict[str | int, dict] = {}
+    for pkg, era in (
+        (constants.PKG_CONCEDIDO_HIST.value, "anual_2012_2018"),
+        (constants.PKG_CONCEDIDO_MID.value, "mensal_csv"),
+        (constants.PKG_CONCEDIDO_CUR.value, "mensal_xlsx"),
+    ):
+        for r in _ckan(pkg)["resources"]:
+            url = r.get("url") or ""
+            if not url:
+                continue
+            comp, ano = parse_resource_period(r.get("name", ""), url)
+            if comp is None and ano is None:
+                continue
+            key = comp if comp is not None else f"ano-{ano}"
+            out[key] = {
+                "competencia": comp,
+                "ano": ano,
+                "url": url,
+                "name": r.get("name"),
+                "era": era,
+                "format": (r.get("format") or "").lower(),
+            }
+    return sorted(
+        out.values(), key=lambda d: d["competencia"] or (d["ano"] or 0) * 100
+    )
+
+
+def resolve_mantido_resources(situacao: str = "ativos") -> list[dict]:
+    """Benefícios mantidos files for one situação, one per competência.
+
+    The older package publishes csv/json/xml triplets for the same month, so
+    non-CSV renditions are filtered out (note the source misspells the
+    extension as ``CVS`` in some object keys).
+    """
+    want = norm_compact(situacao)
+    out: dict[int, dict] = {}
+    for pkg in (
+        constants.PKG_MANTIDO_MID.value,
+        constants.PKG_MANTIDO_CUR.value,
+    ):
+        for r in _ckan(pkg)["resources"]:
+            url = r.get("url") or ""
+            name = r.get("name") or ""
+            if not url or want not in norm_compact(name + url):
+                continue
+            if not re.search(r"(csv|cvs)", url, re.I):
+                continue
+            comp, _ = parse_resource_period(name, url)
+            if comp is None:
+                continue
+            out[comp] = {"competencia": comp, "url": url, "name": name}
+    return sorted(out.values(), key=lambda d: d["competencia"])
+
+
+def download(url: str, dest: Path, retries: int = 3) -> Path:
+    """Fetch a resource, skipping the download when the file is already there."""
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    if dest.exists() and dest.stat().st_size > 0:
+        return dest
+    safe = urllib.parse.quote(url, safe=":/?&=%+")
+    last: Exception | None = None
+    for _attempt in range(retries):
+        try:
+            req = urllib.request.Request(
+                safe, headers={"User-Agent": "basedosdados/br_mps_beneficios"}
+            )
+            tmp = dest.with_suffix(dest.suffix + ".part")
+            with (
+                urllib.request.urlopen(req, timeout=1800) as fh,
+                open(tmp, "wb") as out,
+            ):
+                while chunk := fh.read(1 << 22):
+                    out.write(chunk)
+            tmp.rename(dest)
+            return dest
+        except Exception as exc:  # retried, then re-raised as RuntimeError
+            last = exc
+    raise RuntimeError(
+        f"download failed after {retries} attempts: {url}"
+    ) from last
+
+
+# --------------------------------------------------------------------------
+# benefícios mantidos
+# --------------------------------------------------------------------------
+MANTIDO_TRUNC = 20
+
+
+def truncated_especie_index() -> dict[str, tuple[int | None, str]]:
+    """Map a 20-character truncated espécie label to (code or None, categoria).
+
+    Benefícios mantidos publishes neither the espécie code nor the full label —
+    the field is fixed-width at 20 characters. Thirteen prefixes are shared by
+    more than one espécie ("Aposentadoria por Id" covers 8, 41 and 81), so the
+    code is only returned when the prefix identifies a single espécie. The
+    categoria is always returned: no published prefix is ambiguous with respect
+    to it, which is asserted here rather than assumed.
+    """
+    cat = categoria_index()
+    codes: dict[str, set[int]] = {}
+    for code, label in constants.ESPECIE.value.items():
+        codes.setdefault(norm_token(label[:MANTIDO_TRUNC]), set()).add(code)
+    for label, code in constants.ESPECIE_LABEL_ALIAS.value.items():
+        codes.setdefault(norm_token(label[:MANTIDO_TRUNC]), set()).add(code)
+
+    index: dict[str, tuple[int | None, str]] = {}
+    conflicts: dict[str, set[str]] = {}
+    for key, found in codes.items():
+        cats = {cat[c] for c in found}
+        if len(cats) > 1:
+            conflicts[key] = cats
+            continue
+        index[key] = (
+            (next(iter(found)) if len(found) == 1 else None),
+            next(iter(cats)),
+        )
+    if conflicts:
+        raise ValueError(
+            "truncated espécie prefixes span more than one categoria, so "
+            f"categoria_beneficio would not be recoverable: {conflicts}"
+        )
+    return index
+
+
+def gex_lookup_index(path: Path | None = None) -> dict[str, str]:
+    """Truncated município key -> id_municipio, from the committed lookup."""
+    path = path or constants.MUNICIPIO_GEX_LOOKUP.value
+    with open(path, encoding="utf-8") as fh:
+        return {
+            norm_token(r["chave_truncada"]): r["id_municipio"]
+            for r in csv.DictReader(fh)
+        }
+
+
+def iter_mantido(path: Path, chunk: int = 1_000_000):
+    """Stream a benefícios mantidos CSV, unzipping on the fly.
+
+    The archive holds a single ~12 GB member, so it is decompressed as a stream
+    and never written to disk.
+    """
+    fields = (
+        "Espécie",
+        "Clientela",
+        "Sexo.",
+        "Município",
+        "Data Nascimento",
+        "Vl MR",
+    )
+
+    def emit(handle):
+        header = next(csv.reader(handle, delimiter=";"))
+        idx = {f: _col(header, f) for f in fields}
+        missing = [f for f, i in idx.items() if i is None]
+        if missing:
+            raise ValueError(
+                f"{path.name}: columns not found: {missing} in {header}"
+            )
+        buf = []
+        for row in csv.reader(handle, delimiter=";"):
+            if len(row) <= max(i for i in idx.values() if i is not None):
+                continue
+            buf.append(
+                {
+                    "especie_label": row[idx["Espécie"]],
+                    "clientela": row[idx["Clientela"]],
+                    "sexo": row[idx["Sexo."]],
+                    "mun_resid": row[idx["Município"]],
+                    "dt_nascimento": row[idx["Data Nascimento"]],
+                    "vl_mr": row[idx["Vl MR"]],
+                }
+            )
+            if len(buf) >= chunk:
+                yield buf
+                buf = []
+        if buf:
+            yield buf
+
+    if path.suffix.lower() == ".zip":
+        with zipfile.ZipFile(path) as z:
+            inner = next(n for n in z.namelist() if n.lower().endswith(".csv"))
+            with z.open(inner) as raw:
+                yield from emit(
+                    io.TextIOWrapper(
+                        raw, encoding="latin-1", errors="replace", newline=""
+                    )
+                )
+    else:
+        with open(
+            path, encoding="latin-1", errors="replace", newline=""
+        ) as fh:
+            yield from emit(fh)
+
+
+MANTIDO_GRAIN = [
+    "ano",
+    "mes",
+    "sigla_uf",
+    "id_municipio",
+    "especie_beneficio",
+    "especie_beneficio_rotulo",
+    "categoria_beneficio",
+    "clientela",
+    "sexo",
+    "faixa_etaria",
+]
+
+
+def aggregate_mantido(
+    path: Path, competencia: int
+) -> tuple[pd.DataFrame, dict]:
+    """Aggregate one benefícios mantidos file to the published grain.
+
+    The competência is passed in because the file does not contain it — it is
+    only in the resource name. Chunks are folded into a running frame rather
+    than a Python dict so that peak memory stays bounded on a 12 GB input.
+    """
+    esp_idx = truncated_especie_index()
+    mun_idx = gex_lookup_index()
+    ano, mes = divmod(competencia, 100)
+    diag = {
+        "linhas": 0,
+        "sem_municipio": 0,
+        "municipio_nao_encontrado": 0,
+        "sem_idade": 0,
+        "especie_ambigua": 0,
+        "rotulos_nao_mapeados": {},
+        "chaves_municipio_nao_encontradas": {},
+    }
+    parts: list[pd.DataFrame] = []
+
+    for batch in iter_mantido(path):
+        rows = []
+        for rec in batch:
+            diag["linhas"] += 1
+            rotulo = (rec["especie_label"] or "").strip()
+            hit = esp_idx.get(norm_token(rotulo))
+            if hit is None:
+                diag["rotulos_nao_mapeados"][rotulo] = (
+                    diag["rotulos_nao_mapeados"].get(rotulo, 0) + 1
+                )
+                continue
+            code, categoria = hit
+            if code is None:
+                diag["especie_ambigua"] += 1
+
+            raw_mun = (rec["mun_resid"] or "").strip()
+            uf, _nome, _gex = parse_mun_resid_gex(raw_mun)
+            if uf is None:
+                diag["sem_municipio"] += 1
+                id_mun = None
+            else:
+                id_mun = mun_idx.get(norm_token(raw_mun))
+                if id_mun is None:
+                    diag["municipio_nao_encontrado"] += 1
+                    diag["chaves_municipio_nao_encontradas"][raw_mun] = (
+                        diag["chaves_municipio_nao_encontradas"].get(
+                            raw_mun, 0
+                        )
+                        + 1
+                    )
+
+            idade = idade_em(parse_data(rec["dt_nascimento"]), competencia)
+            if idade is None:
+                diag["sem_idade"] += 1
+            rows.append(
+                (
+                    ano,
+                    mes,
+                    uf,
+                    id_mun,
+                    str(code) if code is not None else None,
+                    rotulo,
+                    categoria,
+                    clean_clientela(rec["clientela"]),
+                    clean_sexo(rec["sexo"]),
+                    faixa_etaria(idade),
+                    parse_decimal(rec["vl_mr"]) or 0.0,
+                )
+            )
+        if rows:
+            frame = pd.DataFrame(rows, columns=[*MANTIDO_GRAIN, "valor_total"])
+            frame["quantidade"] = 1
+            parts.append(
+                frame.groupby(MANTIDO_GRAIN, dropna=False, as_index=False).agg(
+                    quantidade=("quantidade", "sum"),
+                    valor_total=("valor_total", "sum"),
+                )
+            )
+            if len(parts) >= 8:
+                parts = [
+                    pd.concat(parts, ignore_index=True)
+                    .groupby(MANTIDO_GRAIN, dropna=False, as_index=False)
+                    .agg(
+                        quantidade=("quantidade", "sum"),
+                        valor_total=("valor_total", "sum"),
+                    )
+                ]
+
+    if not parts:
+        return pd.DataFrame(
+            columns=[*MANTIDO_GRAIN, "quantidade", "valor_total"]
+        ), diag
+    out = (
+        pd.concat(parts, ignore_index=True)
+        .groupby(MANTIDO_GRAIN, dropna=False, as_index=False)
+        .agg(
+            quantidade=("quantidade", "sum"),
+            valor_total=("valor_total", "sum"),
+        )
+    )
+    out["valor_total"] = out["valor_total"].round(2)
+    return out.sort_values(MANTIDO_GRAIN, na_position="last").reset_index(
+        drop=True
+    ), diag
