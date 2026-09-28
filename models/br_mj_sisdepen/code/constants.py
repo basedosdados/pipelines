@@ -90,7 +90,7 @@ CAPACITY_REGIMES: dict[str, str] = {
 
 # Block 4.1 -> (situacao_processual, regime)
 POPULATION_STATUS: dict[str, tuple[str, str]] = {
-    "Presos provisórios (sem condenação)": ("provisorio", ""),
+    "Presos provisórios (sem condenação)": ("provisorio", None),
     "Presos sentenciados - regime fechado": ("sentenciado", "fechado"),
     "Presos sentenciados - regime semiaberto": ("sentenciado", "semiaberto"),
     "Presos sentenciados - regime aberto": ("sentenciado", "aberto"),
