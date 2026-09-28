@@ -147,6 +147,80 @@ VERSOES = {
 }
 
 
+# Short display titles, for each table's name_pt / name_en / name_es.
+TITLES: dict[str, tuple[str, str, str]] = {
+    "domicilio": ("Domicílios e fogos", "Houses and fogos", "Casas y fogos"),
+    "populacao_geral": (
+        "População geral",
+        "General population",
+        "Población general",
+    ),
+    "populacao_presente_idade": (
+        "População presente por idade",
+        "Population present by age",
+        "Población presente por edad",
+    ),
+    "populacao_ausente_idade": (
+        "População ausente por idade",
+        "Population absent by age",
+        "Población ausente por edad",
+    ),
+    "populacao_total_idade": (
+        "População total por idade",
+        "Total population by age",
+        "Población total por edad",
+    ),
+    "homem_origem_brasileira": (
+        "Homens por origem brasileira",
+        "Men by Brazilian origin",
+        "Hombres por origen brasileño",
+    ),
+    "mulher_origem_brasileira": (
+        "Mulheres por origem brasileira",
+        "Women by Brazilian origin",
+        "Mujeres por origen brasileño",
+    ),
+    "estrangeiro_nacionalidade": (
+        "Estrangeiros por nacionalidade",
+        "Foreigners by nationality",
+        "Extranjeros por nacionalidad",
+    ),
+    "profissao": ("Profissões", "Occupations", "Profesiones"),
+    "resumo_geral": ("Quadro resumo", "Summary table", "Cuadro resumen"),
+}
+
+_NIVEL_TITULO = {
+    "paroquia": ("por paróquia", "by parish", "por parroquia"),
+    "municipio": ("por município", "by municipality", "por municipio"),
+    "provincia": ("por província", "by province", "por provincia"),
+}
+
+_VERSAO_TITULO = {
+    "original": ("original", "original", "original"),
+    "corrigido": ("corrigido", "corrected", "corregido"),
+}
+
+# Display titles for the geography lookups and the dictionary.
+AUX_TITLES: dict[str, tuple[str, str, str]] = {
+    "provincia": ("Províncias", "Provinces", "Provincias"),
+    "municipio": ("Municípios", "Municipalities", "Municipios"),
+    "paroquia": ("Paróquias", "Parishes", "Parroquias"),
+    "dicionario": ("Dicionário", "Dictionary", "Diccionario"),
+}
+
+
+def table_title(stem: str, versao: str, level: str) -> tuple[str, str, str]:
+    """Short display title, e.g. "População geral por paróquia (corrigido)"."""
+    t = TITLES[stem]
+    n = _NIVEL_TITULO[level]
+    v = _VERSAO_TITULO[versao]
+    return (
+        f"{t[0]} {n[0]} ({v[0]})",
+        f"{t[1]} {n[1]} ({v[1]})",
+        f"{t[2]} {n[2]} ({v[2]})",
+    )
+
+
 def table_description(
     stem: str, versao: str, level: str
 ) -> tuple[str, str, str]:

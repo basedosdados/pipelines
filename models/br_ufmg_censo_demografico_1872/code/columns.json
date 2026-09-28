@@ -1,5 +1,8 @@
 {
   "provincia": {
+    "name_pt": "Províncias",
+    "name_en": "Provinces",
+    "name_es": "Provincias",
     "description_pt": "Províncias do Império do Brasil recenseadas em 1872, com os códigos usados no banco Pop-72 e os nomes na grafia da época.",
     "description_en": "Provinces of the Empire of Brazil enumerated in 1872, with the codes used in the Pop-72 database and names in their period spelling.",
     "description_es": "Provincias del Imperio del Brasil censadas en 1872, con los códigos usados en la base Pop-72 y los nombres en la grafía de la época.",
@@ -40,6 +43,9 @@
     ]
   },
   "municipio": {
+    "name_pt": "Municípios",
+    "name_en": "Municipalities",
+    "name_es": "Municipios",
     "description_pt": "Municípios do Império do Brasil recenseados em 1872, com os códigos usados no banco Pop-72. Os códigos não correspondem aos do IBGE e não há tradutor oficial para os municípios atuais.",
     "description_en": "Municipalities of the Empire of Brazil enumerated in 1872, with the codes used in the Pop-72 database. The codes are not IBGE codes and no official crosswalk to present-day municipalities is published with the source.",
     "description_es": "Municipios del Imperio del Brasil censados en 1872, con los códigos usados en la base Pop-72. Los códigos no corresponden a los del IBGE y la fuente no publica una tabla de equivalencias con los municipios actuales.",
@@ -91,6 +97,9 @@
     ]
   },
   "paroquia": {
+    "name_pt": "Paróquias",
+    "name_en": "Parishes",
+    "name_es": "Parroquias",
     "description_pt": "Paróquias do Império do Brasil recenseadas em 1872, a unidade territorial mais fina do recenseamento. Das 1.473 paróquias listadas, 1.440 têm dados nas tabelas.",
     "description_en": "Parishes of the Empire of Brazil enumerated in 1872, the finest territorial unit of the census. Of the 1,473 parishes listed, 1,440 carry data in the tables.",
     "description_es": "Parroquias del Imperio del Brasil censadas en 1872, la unidad territorial más fina del censo. De las 1.473 parroquias listadas, 1.440 tienen datos en las tablas.",
@@ -153,6 +162,9 @@
     ]
   },
   "dicionario": {
+    "name_pt": "Dicionário",
+    "name_en": "Dictionary",
+    "name_es": "Diccionario",
     "description_pt": "Dicionário das colunas codificadas do conjunto, traduzindo cada valor de id_categoria no rótulo da categoria correspondente em cada tabela.",
     "description_en": "Dictionary of the coded columns in this dataset, translating each id_categoria value into the corresponding category label for each table.",
     "description_es": "Diccionario de las columnas codificadas del conjunto, que traduce cada valor de id_categoria en la etiqueta de la categoría correspondiente en cada tabla.",
@@ -215,6 +227,9 @@
     ]
   },
   "domicilio_original_paroquia": {
+    "name_pt": "Domicílios e fogos por paróquia (original)",
+    "name_en": "Houses and fogos by parish (original)",
+    "name_es": "Casas y fogos por parroquia (original)",
     "description_pt": "Casas habitadas, casas desabitadas e fogos, por paróquia. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Inhabited houses, uninhabited houses and fogos, by parish. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Casas habitadas, casas deshabitadas y fogos, por parroquia. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -299,6 +314,9 @@
     ]
   },
   "domicilio_original_municipio": {
+    "name_pt": "Domicílios e fogos por município (original)",
+    "name_en": "Houses and fogos by municipality (original)",
+    "name_es": "Casas y fogos por municipio (original)",
     "description_pt": "Casas habitadas, casas desabitadas e fogos, por município de 1872. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Inhabited houses, uninhabited houses and fogos, by 1872 municipality. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Casas habitadas, casas deshabitadas y fogos, por municipio de 1872. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -372,6 +390,9 @@
     ]
   },
   "domicilio_original_provincia": {
+    "name_pt": "Domicílios e fogos por província (original)",
+    "name_en": "Houses and fogos by province (original)",
+    "name_es": "Casas y fogos por provincia (original)",
     "description_pt": "Casas habitadas, casas desabitadas e fogos, por província. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Inhabited houses, uninhabited houses and fogos, by province. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Casas habitadas, casas deshabitadas y fogos, por provincia. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -434,6 +455,9 @@
     ]
   },
   "domicilio_corrigido_paroquia": {
+    "name_pt": "Domicílios e fogos por paróquia (corrigido)",
+    "name_en": "Houses and fogos by parish (corrected)",
+    "name_es": "Casas y fogos por parroquia (corregido)",
     "description_pt": "Casas habitadas, casas desabitadas e fogos, por paróquia. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Inhabited houses, uninhabited houses and fogos, by parish. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Casas habitadas, casas deshabitadas y fogos, por parroquia. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -518,6 +542,9 @@
     ]
   },
   "domicilio_corrigido_municipio": {
+    "name_pt": "Domicílios e fogos por município (corrigido)",
+    "name_en": "Houses and fogos by municipality (corrected)",
+    "name_es": "Casas y fogos por municipio (corregido)",
     "description_pt": "Casas habitadas, casas desabitadas e fogos, por município de 1872. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Inhabited houses, uninhabited houses and fogos, by 1872 municipality. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Casas habitadas, casas deshabitadas y fogos, por municipio de 1872. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -591,6 +618,9 @@
     ]
   },
   "domicilio_corrigido_provincia": {
+    "name_pt": "Domicílios e fogos por província (corrigido)",
+    "name_en": "Houses and fogos by province (corrected)",
+    "name_es": "Casas y fogos por provincia (corregido)",
     "description_pt": "Casas habitadas, casas desabitadas e fogos, por província. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Inhabited houses, uninhabited houses and fogos, by province. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Casas habitadas, casas deshabitadas y fogos, por provincia. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -653,6 +683,9 @@
     ]
   },
   "populacao_geral_original_paroquia": {
+    "name_pt": "População geral por paróquia (original)",
+    "name_en": "General population by parish (original)",
+    "name_es": "Población general por parroquia (original)",
     "description_pt": "População por sexo e condição, livre ou escravizada, por paróquia e por cor, estado civil, religião, nacionalidade, instrução, defeitos físicos, ausentes e transeuntes. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Population by sex and condition, free or enslaved, by parish and by colour, marital status, religion, nationality, literacy and schooling, physical disabilities, absent and transient population. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Población por sexo y condición, libre o esclavizada, por parroquia y por color, estado civil, religión, nacionalidad, instrucción, discapacidades físicas, ausentes y transeúntes. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -792,6 +825,9 @@
     ]
   },
   "populacao_geral_original_municipio": {
+    "name_pt": "População geral por município (original)",
+    "name_en": "General population by municipality (original)",
+    "name_es": "Población general por municipio (original)",
     "description_pt": "População por sexo e condição, livre ou escravizada, por município de 1872 e por cor, estado civil, religião, nacionalidade, instrução, defeitos físicos, ausentes e transeuntes. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Population by sex and condition, free or enslaved, by 1872 municipality and by colour, marital status, religion, nationality, literacy and schooling, physical disabilities, absent and transient population. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Población por sexo y condición, libre o esclavizada, por municipio de 1872 y por color, estado civil, religión, nacionalidad, instrucción, discapacidades físicas, ausentes y transeúntes. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -920,6 +956,9 @@
     ]
   },
   "populacao_geral_original_provincia": {
+    "name_pt": "População geral por província (original)",
+    "name_en": "General population by province (original)",
+    "name_es": "Población general por provincia (original)",
     "description_pt": "População por sexo e condição, livre ou escravizada, por província e por cor, estado civil, religião, nacionalidade, instrução, defeitos físicos, ausentes e transeuntes. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Population by sex and condition, free or enslaved, by province and by colour, marital status, religion, nationality, literacy and schooling, physical disabilities, absent and transient population. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Población por sexo y condición, libre o esclavizada, por provincia y por color, estado civil, religión, nacionalidad, instrucción, discapacidades físicas, ausentes y transeúntes. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -1037,6 +1076,9 @@
     ]
   },
   "populacao_geral_corrigido_paroquia": {
+    "name_pt": "População geral por paróquia (corrigido)",
+    "name_en": "General population by parish (corrected)",
+    "name_es": "Población general por parroquia (corregido)",
     "description_pt": "População por sexo e condição, livre ou escravizada, por paróquia e por cor, estado civil, religião, nacionalidade, instrução, defeitos físicos, ausentes e transeuntes. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Population by sex and condition, free or enslaved, by parish and by colour, marital status, religion, nationality, literacy and schooling, physical disabilities, absent and transient population. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Población por sexo y condición, libre o esclavizada, por parroquia y por color, estado civil, religión, nacionalidad, instrucción, discapacidades físicas, ausentes y transeúntes. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -1176,6 +1218,9 @@
     ]
   },
   "populacao_geral_corrigido_municipio": {
+    "name_pt": "População geral por município (corrigido)",
+    "name_en": "General population by municipality (corrected)",
+    "name_es": "Población general por municipio (corregido)",
     "description_pt": "População por sexo e condição, livre ou escravizada, por município de 1872 e por cor, estado civil, religião, nacionalidade, instrução, defeitos físicos, ausentes e transeuntes. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Population by sex and condition, free or enslaved, by 1872 municipality and by colour, marital status, religion, nationality, literacy and schooling, physical disabilities, absent and transient population. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Población por sexo y condición, libre o esclavizada, por municipio de 1872 y por color, estado civil, religión, nacionalidad, instrucción, discapacidades físicas, ausentes y transeúntes. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -1304,6 +1349,9 @@
     ]
   },
   "populacao_geral_corrigido_provincia": {
+    "name_pt": "População geral por província (corrigido)",
+    "name_en": "General population by province (corrected)",
+    "name_es": "Población general por provincia (corregido)",
     "description_pt": "População por sexo e condição, livre ou escravizada, por província e por cor, estado civil, religião, nacionalidade, instrução, defeitos físicos, ausentes e transeuntes. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Population by sex and condition, free or enslaved, by province and by colour, marital status, religion, nationality, literacy and schooling, physical disabilities, absent and transient population. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Población por sexo y condición, libre o esclavizada, por provincia y por color, estado civil, religión, nacionalidad, instrucción, discapacidades físicas, ausentes y transeúntes. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -1421,6 +1469,9 @@
     ]
   },
   "populacao_presente_idade_original_paroquia": {
+    "name_pt": "População presente por idade por paróquia (original)",
+    "name_en": "Population present by age by parish (original)",
+    "name_es": "Población presente por edad por parroquia (original)",
     "description_pt": "População presente por sexo, cor e condição, livre ou escravizada, por paróquia e por faixa de idade, do primeiro mês de vida a mais de 100 anos. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Population present by sex, colour and condition, free or enslaved, by parish and by age band, from the first month of life to over 100 years. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Población presente por sexo, color y condición, libre o esclavizada, por parroquia y por grupo de edad, desde el primer mes de vida hasta más de 100 años. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -1626,6 +1677,9 @@
     ]
   },
   "populacao_presente_idade_original_municipio": {
+    "name_pt": "População presente por idade por município (original)",
+    "name_en": "Population present by age by municipality (original)",
+    "name_es": "Población presente por edad por municipio (original)",
     "description_pt": "População presente por sexo, cor e condição, livre ou escravizada, por município de 1872 e por faixa de idade, do primeiro mês de vida a mais de 100 anos. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Population present by sex, colour and condition, free or enslaved, by 1872 municipality and by age band, from the first month of life to over 100 years. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Población presente por sexo, color y condición, libre o esclavizada, por municipio de 1872 y por grupo de edad, desde el primer mes de vida hasta más de 100 años. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -1820,6 +1874,9 @@
     ]
   },
   "populacao_presente_idade_original_provincia": {
+    "name_pt": "População presente por idade por província (original)",
+    "name_en": "Population present by age by province (original)",
+    "name_es": "Población presente por edad por provincia (original)",
     "description_pt": "População presente por sexo, cor e condição, livre ou escravizada, por província e por faixa de idade, do primeiro mês de vida a mais de 100 anos. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Population present by sex, colour and condition, free or enslaved, by province and by age band, from the first month of life to over 100 years. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Población presente por sexo, color y condición, libre o esclavizada, por provincia y por grupo de edad, desde el primer mes de vida hasta más de 100 años. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -2003,6 +2060,9 @@
     ]
   },
   "populacao_presente_idade_corrigido_paroquia": {
+    "name_pt": "População presente por idade por paróquia (corrigido)",
+    "name_en": "Population present by age by parish (corrected)",
+    "name_es": "Población presente por edad por parroquia (corregido)",
     "description_pt": "População presente por sexo, cor e condição, livre ou escravizada, por paróquia e por faixa de idade, do primeiro mês de vida a mais de 100 anos. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Population present by sex, colour and condition, free or enslaved, by parish and by age band, from the first month of life to over 100 years. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Población presente por sexo, color y condición, libre o esclavizada, por parroquia y por grupo de edad, desde el primer mes de vida hasta más de 100 años. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -2208,6 +2268,9 @@
     ]
   },
   "populacao_presente_idade_corrigido_municipio": {
+    "name_pt": "População presente por idade por município (corrigido)",
+    "name_en": "Population present by age by municipality (corrected)",
+    "name_es": "Población presente por edad por municipio (corregido)",
     "description_pt": "População presente por sexo, cor e condição, livre ou escravizada, por município de 1872 e por faixa de idade, do primeiro mês de vida a mais de 100 anos. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Population present by sex, colour and condition, free or enslaved, by 1872 municipality and by age band, from the first month of life to over 100 years. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Población presente por sexo, color y condición, libre o esclavizada, por municipio de 1872 y por grupo de edad, desde el primer mes de vida hasta más de 100 años. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -2402,6 +2465,9 @@
     ]
   },
   "populacao_presente_idade_corrigido_provincia": {
+    "name_pt": "População presente por idade por província (corrigido)",
+    "name_en": "Population present by age by province (corrected)",
+    "name_es": "Población presente por edad por provincia (corregido)",
     "description_pt": "População presente por sexo, cor e condição, livre ou escravizada, por província e por faixa de idade, do primeiro mês de vida a mais de 100 anos. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Population present by sex, colour and condition, free or enslaved, by province and by age band, from the first month of life to over 100 years. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Población presente por sexo, color y condición, libre o esclavizada, por provincia y por grupo de edad, desde el primer mes de vida hasta más de 100 años. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -2585,6 +2651,9 @@
     ]
   },
   "populacao_ausente_idade_original_paroquia": {
+    "name_pt": "População ausente por idade por paróquia (original)",
+    "name_en": "Population absent by age by parish (original)",
+    "name_es": "Población ausente por edad por parroquia (original)",
     "description_pt": "População ausente da paróquia por sexo, cor e condição, livre ou escravizada, por paróquia e por faixa de idade, do primeiro mês de vida a mais de 100 anos. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Population absent from the parish by sex, colour and condition, free or enslaved, by parish and by age band, from the first month of life to over 100 years. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Población ausente de la parroquia por sexo, color y condición, libre o esclavizada, por parroquia y por grupo de edad, desde el primer mes de vida hasta más de 100 años. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -2790,6 +2859,9 @@
     ]
   },
   "populacao_ausente_idade_original_municipio": {
+    "name_pt": "População ausente por idade por município (original)",
+    "name_en": "Population absent by age by municipality (original)",
+    "name_es": "Población ausente por edad por municipio (original)",
     "description_pt": "População ausente da paróquia por sexo, cor e condição, livre ou escravizada, por município de 1872 e por faixa de idade, do primeiro mês de vida a mais de 100 anos. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Population absent from the parish by sex, colour and condition, free or enslaved, by 1872 municipality and by age band, from the first month of life to over 100 years. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Población ausente de la parroquia por sexo, color y condición, libre o esclavizada, por municipio de 1872 y por grupo de edad, desde el primer mes de vida hasta más de 100 años. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -2984,6 +3056,9 @@
     ]
   },
   "populacao_ausente_idade_original_provincia": {
+    "name_pt": "População ausente por idade por província (original)",
+    "name_en": "Population absent by age by province (original)",
+    "name_es": "Población ausente por edad por provincia (original)",
     "description_pt": "População ausente da paróquia por sexo, cor e condição, livre ou escravizada, por província e por faixa de idade, do primeiro mês de vida a mais de 100 anos. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Population absent from the parish by sex, colour and condition, free or enslaved, by province and by age band, from the first month of life to over 100 years. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Población ausente de la parroquia por sexo, color y condición, libre o esclavizada, por provincia y por grupo de edad, desde el primer mes de vida hasta más de 100 años. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -3167,6 +3242,9 @@
     ]
   },
   "populacao_ausente_idade_corrigido_paroquia": {
+    "name_pt": "População ausente por idade por paróquia (corrigido)",
+    "name_en": "Population absent by age by parish (corrected)",
+    "name_es": "Población ausente por edad por parroquia (corregido)",
     "description_pt": "População ausente da paróquia por sexo, cor e condição, livre ou escravizada, por paróquia e por faixa de idade, do primeiro mês de vida a mais de 100 anos. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Population absent from the parish by sex, colour and condition, free or enslaved, by parish and by age band, from the first month of life to over 100 years. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Población ausente de la parroquia por sexo, color y condición, libre o esclavizada, por parroquia y por grupo de edad, desde el primer mes de vida hasta más de 100 años. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -3372,6 +3450,9 @@
     ]
   },
   "populacao_ausente_idade_corrigido_municipio": {
+    "name_pt": "População ausente por idade por município (corrigido)",
+    "name_en": "Population absent by age by municipality (corrected)",
+    "name_es": "Población ausente por edad por municipio (corregido)",
     "description_pt": "População ausente da paróquia por sexo, cor e condição, livre ou escravizada, por município de 1872 e por faixa de idade, do primeiro mês de vida a mais de 100 anos. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Population absent from the parish by sex, colour and condition, free or enslaved, by 1872 municipality and by age band, from the first month of life to over 100 years. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Población ausente de la parroquia por sexo, color y condición, libre o esclavizada, por municipio de 1872 y por grupo de edad, desde el primer mes de vida hasta más de 100 años. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -3566,6 +3647,9 @@
     ]
   },
   "populacao_ausente_idade_corrigido_provincia": {
+    "name_pt": "População ausente por idade por província (corrigido)",
+    "name_en": "Population absent by age by province (corrected)",
+    "name_es": "Población ausente por edad por provincia (corregido)",
     "description_pt": "População ausente da paróquia por sexo, cor e condição, livre ou escravizada, por província e por faixa de idade, do primeiro mês de vida a mais de 100 anos. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Population absent from the parish by sex, colour and condition, free or enslaved, by province and by age band, from the first month of life to over 100 years. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Población ausente de la parroquia por sexo, color y condición, libre o esclavizada, por provincia y por grupo de edad, desde el primer mes de vida hasta más de 100 años. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -3749,6 +3833,9 @@
     ]
   },
   "populacao_total_idade_corrigido_paroquia": {
+    "name_pt": "População total por idade por paróquia (corrigido)",
+    "name_en": "Total population by age by parish (corrected)",
+    "name_es": "Población total por edad por parroquia (corregido)",
     "description_pt": "População presente e ausente somadas, por sexo, cor e condição, por paróquia e por faixa de idade, do primeiro mês de vida a mais de 100 anos. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Population present and absent combined, by sex, colour and condition, by parish and by age band, from the first month of life to over 100 years. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Población presente y ausente sumadas, por sexo, color y condición, por parroquia y por grupo de edad, desde el primer mes de vida hasta más de 100 años. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -3954,6 +4041,9 @@
     ]
   },
   "populacao_total_idade_corrigido_municipio": {
+    "name_pt": "População total por idade por município (corrigido)",
+    "name_en": "Total population by age by municipality (corrected)",
+    "name_es": "Población total por edad por municipio (corregido)",
     "description_pt": "População presente e ausente somadas, por sexo, cor e condição, por município de 1872 e por faixa de idade, do primeiro mês de vida a mais de 100 anos. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Population present and absent combined, by sex, colour and condition, by 1872 municipality and by age band, from the first month of life to over 100 years. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Población presente y ausente sumadas, por sexo, color y condición, por municipio de 1872 y por grupo de edad, desde el primer mes de vida hasta más de 100 años. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -4148,6 +4238,9 @@
     ]
   },
   "populacao_total_idade_corrigido_provincia": {
+    "name_pt": "População total por idade por província (corrigido)",
+    "name_en": "Total population by age by province (corrected)",
+    "name_es": "Población total por edad por provincia (corregido)",
     "description_pt": "População presente e ausente somadas, por sexo, cor e condição, por província e por faixa de idade, do primeiro mês de vida a mais de 100 anos. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Population present and absent combined, by sex, colour and condition, by province and by age band, from the first month of life to over 100 years. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Población presente y ausente sumadas, por sexo, color y condición, por provincia y por grupo de edad, desde el primer mes de vida hasta más de 100 años. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -4331,6 +4424,9 @@
     ]
   },
   "homem_origem_brasileira_original_paroquia": {
+    "name_pt": "Homens por origem brasileira por paróquia (original)",
+    "name_en": "Men by Brazilian origin by parish (original)",
+    "name_es": "Hombres por origen brasileño por parroquia (original)",
     "description_pt": "Homens de nacionalidade brasileira por estado civil, cor e condição, por paróquia e por província de nascimento, mais brasileiros adotivos e estrangeiros naturalizados. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Men of Brazilian nationality by marital status, colour and condition, by parish and by province of birth, plus adoptive Brazilians and naturalised foreigners. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Hombres de nacionalidad brasileña por estado civil, color y condición, por parroquia y por provincia de nacimiento, más brasileños adoptivos y extranjeros naturalizados. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -4591,6 +4687,9 @@
     ]
   },
   "homem_origem_brasileira_original_municipio": {
+    "name_pt": "Homens por origem brasileira por município (original)",
+    "name_en": "Men by Brazilian origin by municipality (original)",
+    "name_es": "Hombres por origen brasileño por municipio (original)",
     "description_pt": "Homens de nacionalidade brasileira por estado civil, cor e condição, por município de 1872 e por província de nascimento, mais brasileiros adotivos e estrangeiros naturalizados. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Men of Brazilian nationality by marital status, colour and condition, by 1872 municipality and by province of birth, plus adoptive Brazilians and naturalised foreigners. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Hombres de nacionalidad brasileña por estado civil, color y condición, por municipio de 1872 y por provincia de nacimiento, más brasileños adoptivos y extranjeros naturalizados. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -4840,6 +4939,9 @@
     ]
   },
   "homem_origem_brasileira_original_provincia": {
+    "name_pt": "Homens por origem brasileira por província (original)",
+    "name_en": "Men by Brazilian origin by province (original)",
+    "name_es": "Hombres por origen brasileño por provincia (original)",
     "description_pt": "Homens de nacionalidade brasileira por estado civil, cor e condição, por província e por província de nascimento, mais brasileiros adotivos e estrangeiros naturalizados. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Men of Brazilian nationality by marital status, colour and condition, by province and by province of birth, plus adoptive Brazilians and naturalised foreigners. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Hombres de nacionalidad brasileña por estado civil, color y condición, por provincia y por provincia de nacimiento, más brasileños adoptivos y extranjeros naturalizados. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -5078,6 +5180,9 @@
     ]
   },
   "homem_origem_brasileira_corrigido_paroquia": {
+    "name_pt": "Homens por origem brasileira por paróquia (corrigido)",
+    "name_en": "Men by Brazilian origin by parish (corrected)",
+    "name_es": "Hombres por origen brasileño por parroquia (corregido)",
     "description_pt": "Homens de nacionalidade brasileira por estado civil, cor e condição, por paróquia e por província de nascimento, mais brasileiros adotivos e estrangeiros naturalizados. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Men of Brazilian nationality by marital status, colour and condition, by parish and by province of birth, plus adoptive Brazilians and naturalised foreigners. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Hombres de nacionalidad brasileña por estado civil, color y condición, por parroquia y por provincia de nacimiento, más brasileños adoptivos y extranjeros naturalizados. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -5360,6 +5465,9 @@
     ]
   },
   "homem_origem_brasileira_corrigido_municipio": {
+    "name_pt": "Homens por origem brasileira por município (corrigido)",
+    "name_en": "Men by Brazilian origin by municipality (corrected)",
+    "name_es": "Hombres por origen brasileño por municipio (corregido)",
     "description_pt": "Homens de nacionalidade brasileira por estado civil, cor e condição, por município de 1872 e por província de nascimento, mais brasileiros adotivos e estrangeiros naturalizados. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Men of Brazilian nationality by marital status, colour and condition, by 1872 municipality and by province of birth, plus adoptive Brazilians and naturalised foreigners. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Hombres de nacionalidad brasileña por estado civil, color y condición, por municipio de 1872 y por provincia de nacimiento, más brasileños adoptivos y extranjeros naturalizados. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -5631,6 +5739,9 @@
     ]
   },
   "homem_origem_brasileira_corrigido_provincia": {
+    "name_pt": "Homens por origem brasileira por província (corrigido)",
+    "name_en": "Men by Brazilian origin by province (corrected)",
+    "name_es": "Hombres por origen brasileño por provincia (corregido)",
     "description_pt": "Homens de nacionalidade brasileira por estado civil, cor e condição, por província e por província de nascimento, mais brasileiros adotivos e estrangeiros naturalizados. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Men of Brazilian nationality by marital status, colour and condition, by province and by province of birth, plus adoptive Brazilians and naturalised foreigners. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Hombres de nacionalidad brasileña por estado civil, color y condición, por provincia y por provincia de nacimiento, más brasileños adoptivos y extranjeros naturalizados. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -5891,6 +6002,9 @@
     ]
   },
   "mulher_origem_brasileira_original_paroquia": {
+    "name_pt": "Mulheres por origem brasileira por paróquia (original)",
+    "name_en": "Women by Brazilian origin by parish (original)",
+    "name_es": "Mujeres por origen brasileño por parroquia (original)",
     "description_pt": "Mulheres de nacionalidade brasileira por estado civil, cor e condição, por paróquia e por província de nascimento, mais brasileiras adotivas e estrangeiras naturalizadas. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Women of Brazilian nationality by marital status, colour and condition, by parish and by province of birth, plus adoptive Brazilians and naturalised foreigners. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Mujeres de nacionalidad brasileña por estado civil, color y condición, por parroquia y por provincia de nacimiento, más brasileñas adoptivas y extranjeras naturalizadas. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -6151,6 +6265,9 @@
     ]
   },
   "mulher_origem_brasileira_original_municipio": {
+    "name_pt": "Mulheres por origem brasileira por município (original)",
+    "name_en": "Women by Brazilian origin by municipality (original)",
+    "name_es": "Mujeres por origen brasileño por municipio (original)",
     "description_pt": "Mulheres de nacionalidade brasileira por estado civil, cor e condição, por município de 1872 e por província de nascimento, mais brasileiras adotivas e estrangeiras naturalizadas. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Women of Brazilian nationality by marital status, colour and condition, by 1872 municipality and by province of birth, plus adoptive Brazilians and naturalised foreigners. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Mujeres de nacionalidad brasileña por estado civil, color y condición, por municipio de 1872 y por provincia de nacimiento, más brasileñas adoptivas y extranjeras naturalizadas. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -6400,6 +6517,9 @@
     ]
   },
   "mulher_origem_brasileira_original_provincia": {
+    "name_pt": "Mulheres por origem brasileira por província (original)",
+    "name_en": "Women by Brazilian origin by province (original)",
+    "name_es": "Mujeres por origen brasileño por provincia (original)",
     "description_pt": "Mulheres de nacionalidade brasileira por estado civil, cor e condição, por província e por província de nascimento, mais brasileiras adotivas e estrangeiras naturalizadas. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Women of Brazilian nationality by marital status, colour and condition, by province and by province of birth, plus adoptive Brazilians and naturalised foreigners. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Mujeres de nacionalidad brasileña por estado civil, color y condición, por provincia y por provincia de nacimiento, más brasileñas adoptivas y extranjeras naturalizadas. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -6638,6 +6758,9 @@
     ]
   },
   "mulher_origem_brasileira_corrigido_paroquia": {
+    "name_pt": "Mulheres por origem brasileira por paróquia (corrigido)",
+    "name_en": "Women by Brazilian origin by parish (corrected)",
+    "name_es": "Mujeres por origen brasileño por parroquia (corregido)",
     "description_pt": "Mulheres de nacionalidade brasileira por estado civil, cor e condição, por paróquia e por província de nascimento, mais brasileiras adotivas e estrangeiras naturalizadas. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Women of Brazilian nationality by marital status, colour and condition, by parish and by province of birth, plus adoptive Brazilians and naturalised foreigners. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Mujeres de nacionalidad brasileña por estado civil, color y condición, por parroquia y por provincia de nacimiento, más brasileñas adoptivas y extranjeras naturalizadas. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -6920,6 +7043,9 @@
     ]
   },
   "mulher_origem_brasileira_corrigido_municipio": {
+    "name_pt": "Mulheres por origem brasileira por município (corrigido)",
+    "name_en": "Women by Brazilian origin by municipality (corrected)",
+    "name_es": "Mujeres por origen brasileño por municipio (corregido)",
     "description_pt": "Mulheres de nacionalidade brasileira por estado civil, cor e condição, por município de 1872 e por província de nascimento, mais brasileiras adotivas e estrangeiras naturalizadas. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Women of Brazilian nationality by marital status, colour and condition, by 1872 municipality and by province of birth, plus adoptive Brazilians and naturalised foreigners. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Mujeres de nacionalidad brasileña por estado civil, color y condición, por municipio de 1872 y por provincia de nacimiento, más brasileñas adoptivas y extranjeras naturalizadas. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -7191,6 +7317,9 @@
     ]
   },
   "mulher_origem_brasileira_corrigido_provincia": {
+    "name_pt": "Mulheres por origem brasileira por província (corrigido)",
+    "name_en": "Women by Brazilian origin by province (corrected)",
+    "name_es": "Mujeres por origen brasileño por provincia (corregido)",
     "description_pt": "Mulheres de nacionalidade brasileira por estado civil, cor e condição, por província e por província de nascimento, mais brasileiras adotivas e estrangeiras naturalizadas. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Women of Brazilian nationality by marital status, colour and condition, by province and by province of birth, plus adoptive Brazilians and naturalised foreigners. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Mujeres de nacionalidad brasileña por estado civil, color y condición, por provincia y por provincia de nacimiento, más brasileñas adoptivas y extranjeras naturalizadas. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -7451,6 +7580,9 @@
     ]
   },
   "estrangeiro_nacionalidade_original_paroquia": {
+    "name_pt": "Estrangeiros por nacionalidade por paróquia (original)",
+    "name_en": "Foreigners by nationality by parish (original)",
+    "name_es": "Extranjeros por nacionalidad por parroquia (original)",
     "description_pt": "Estrangeiros residentes por religião, estado civil e sexo, por paróquia e por nacionalidade de origem, incluindo africanos escravos e africanos livres. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Resident foreigners by religion, marital status and sex, by parish and by nationality of origin, including enslaved and free Africans. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Extranjeros residentes por religión, estado civil y sexo, por parroquia y por nacionalidad de origen, incluyendo africanos esclavos y africanos libres. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -7656,6 +7788,9 @@
     ]
   },
   "estrangeiro_nacionalidade_original_municipio": {
+    "name_pt": "Estrangeiros por nacionalidade por município (original)",
+    "name_en": "Foreigners by nationality by municipality (original)",
+    "name_es": "Extranjeros por nacionalidad por municipio (original)",
     "description_pt": "Estrangeiros residentes por religião, estado civil e sexo, por município de 1872 e por nacionalidade de origem, incluindo africanos escravos e africanos livres. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Resident foreigners by religion, marital status and sex, by 1872 municipality and by nationality of origin, including enslaved and free Africans. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Extranjeros residentes por religión, estado civil y sexo, por municipio de 1872 y por nacionalidad de origen, incluyendo africanos esclavos y africanos libres. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -7850,6 +7985,9 @@
     ]
   },
   "estrangeiro_nacionalidade_original_provincia": {
+    "name_pt": "Estrangeiros por nacionalidade por província (original)",
+    "name_en": "Foreigners by nationality by province (original)",
+    "name_es": "Extranjeros por nacionalidad por provincia (original)",
     "description_pt": "Estrangeiros residentes por religião, estado civil e sexo, por província e por nacionalidade de origem, incluindo africanos escravos e africanos livres. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Resident foreigners by religion, marital status and sex, by province and by nationality of origin, including enslaved and free Africans. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Extranjeros residentes por religión, estado civil y sexo, por provincia y por nacionalidad de origen, incluyendo africanos esclavos y africanos libres. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -8033,6 +8171,9 @@
     ]
   },
   "estrangeiro_nacionalidade_corrigido_paroquia": {
+    "name_pt": "Estrangeiros por nacionalidade por paróquia (corrigido)",
+    "name_en": "Foreigners by nationality by parish (corrected)",
+    "name_es": "Extranjeros por nacionalidad por parroquia (corregido)",
     "description_pt": "Estrangeiros residentes por religião, estado civil e sexo, por paróquia e por nacionalidade de origem, incluindo africanos escravos e africanos livres. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Resident foreigners by religion, marital status and sex, by parish and by nationality of origin, including enslaved and free Africans. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Extranjeros residentes por religión, estado civil y sexo, por parroquia y por nacionalidad de origen, incluyendo africanos esclavos y africanos libres. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -8260,6 +8401,9 @@
     ]
   },
   "estrangeiro_nacionalidade_corrigido_municipio": {
+    "name_pt": "Estrangeiros por nacionalidade por município (corrigido)",
+    "name_en": "Foreigners by nationality by municipality (corrected)",
+    "name_es": "Extranjeros por nacionalidad por municipio (corregido)",
     "description_pt": "Estrangeiros residentes por religião, estado civil e sexo, por município de 1872 e por nacionalidade de origem, incluindo africanos escravos e africanos livres. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Resident foreigners by religion, marital status and sex, by 1872 municipality and by nationality of origin, including enslaved and free Africans. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Extranjeros residentes por religión, estado civil y sexo, por municipio de 1872 y por nacionalidad de origen, incluyendo africanos esclavos y africanos libres. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -8476,6 +8620,9 @@
     ]
   },
   "estrangeiro_nacionalidade_corrigido_provincia": {
+    "name_pt": "Estrangeiros por nacionalidade por província (corrigido)",
+    "name_en": "Foreigners by nationality by province (corrected)",
+    "name_es": "Extranjeros por nacionalidad por provincia (corregido)",
     "description_pt": "Estrangeiros residentes por religião, estado civil e sexo, por província e por nacionalidade de origem, incluindo africanos escravos e africanos livres. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Resident foreigners by religion, marital status and sex, by province and by nationality of origin, including enslaved and free Africans. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Extranjeros residentes por religión, estado civil y sexo, por provincia y por nacionalidad de origen, incluyendo africanos esclavos y africanos libres. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -8681,6 +8828,9 @@
     ]
   },
   "profissao_original_paroquia": {
+    "name_pt": "Profissões por paróquia (original)",
+    "name_en": "Occupations by parish (original)",
+    "name_es": "Profesiones por parroquia (original)",
     "description_pt": "População por nacionalidade, estado civil e sexo, por paróquia e por profissão, agrupada em profissões liberais, industriais e comerciais, manuais e mecânicas, agrícolas, e sem profissão. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Population by nationality, marital status and sex, by parish and by occupation, grouped into liberal, industrial and commercial, manual and mechanical, and agricultural professions, plus those without an occupation. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Población por nacionalidad, estado civil y sexo, por parroquia y por profesión, agrupada en profesiones liberales, industriales y comerciales, manuales y mecánicas, agrícolas, y sin profesión. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -8908,6 +9058,9 @@
     ]
   },
   "profissao_original_municipio": {
+    "name_pt": "Profissões por município (original)",
+    "name_en": "Occupations by municipality (original)",
+    "name_es": "Profesiones por municipio (original)",
     "description_pt": "População por nacionalidade, estado civil e sexo, por município de 1872 e por profissão, agrupada em profissões liberais, industriais e comerciais, manuais e mecânicas, agrícolas, e sem profissão. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Population by nationality, marital status and sex, by 1872 municipality and by occupation, grouped into liberal, industrial and commercial, manual and mechanical, and agricultural professions, plus those without an occupation. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Población por nacionalidad, estado civil y sexo, por municipio de 1872 y por profesión, agrupada en profesiones liberales, industriales y comerciales, manuales y mecánicas, agrícolas, y sin profesión. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -9124,6 +9277,9 @@
     ]
   },
   "profissao_original_provincia": {
+    "name_pt": "Profissões por província (original)",
+    "name_en": "Occupations by province (original)",
+    "name_es": "Profesiones por provincia (original)",
     "description_pt": "População por nacionalidade, estado civil e sexo, por província e por profissão, agrupada em profissões liberais, industriais e comerciais, manuais e mecânicas, agrícolas, e sem profissão. Reproduz os quadros como publicados pela Diretoria Geral de Estatística em 1872.",
     "description_en": "Population by nationality, marital status and sex, by province and by occupation, grouped into liberal, industrial and commercial, manual and mechanical, and agricultural professions, plus those without an occupation. Reproduces the tables as published by the Diretoria Geral de Estatistica in 1872.",
     "description_es": "Población por nacionalidad, estado civil y sexo, por provincia y por profesión, agrupada en profesiones liberales, industriales y comerciales, manuales y mecánicas, agrícolas, y sin profesión. Reproduce los cuadros tal como los publicó la Diretoria Geral de Estatística en 1872.",
@@ -9329,6 +9485,9 @@
     ]
   },
   "profissao_corrigido_paroquia": {
+    "name_pt": "Profissões por paróquia (corrigido)",
+    "name_en": "Occupations by parish (corrected)",
+    "name_es": "Profesiones por parroquia (corregido)",
     "description_pt": "População por nacionalidade, estado civil e sexo, por paróquia e por profissão, agrupada em profissões liberais, industriais e comerciais, manuais e mecânicas, agrícolas, e sem profissão. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Population by nationality, marital status and sex, by parish and by occupation, grouped into liberal, industrial and commercial, manual and mechanical, and agricultural professions, plus those without an occupation. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Población por nacionalidad, estado civil y sexo, por parroquia y por profesión, agrupada en profesiones liberales, industriales y comerciales, manuales y mecánicas, agrícolas, y sin profesión. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -9600,6 +9759,9 @@
     ]
   },
   "profissao_corrigido_municipio": {
+    "name_pt": "Profissões por município (corrigido)",
+    "name_en": "Occupations by municipality (corrected)",
+    "name_es": "Profesiones por municipio (corregido)",
     "description_pt": "População por nacionalidade, estado civil e sexo, por município de 1872 e por profissão, agrupada em profissões liberais, industriais e comerciais, manuais e mecânicas, agrícolas, e sem profissão. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Population by nationality, marital status and sex, by 1872 municipality and by occupation, grouped into liberal, industrial and commercial, manual and mechanical, and agricultural professions, plus those without an occupation. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Población por nacionalidad, estado civil y sexo, por municipio de 1872 y por profesión, agrupada en profesiones liberales, industriales y comerciales, manuales y mecánicas, agrícolas, y sin profesión. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -9860,6 +10022,9 @@
     ]
   },
   "profissao_corrigido_provincia": {
+    "name_pt": "Profissões por província (corrigido)",
+    "name_en": "Occupations by province (corrected)",
+    "name_es": "Profesiones por provincia (corregido)",
     "description_pt": "População por nacionalidade, estado civil e sexo, por província e por profissão, agrupada em profissões liberais, industriais e comerciais, manuais e mecânicas, agrícolas, e sem profissão. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Population by nationality, marital status and sex, by province and by occupation, grouped into liberal, industrial and commercial, manual and mechanical, and agricultural professions, plus those without an occupation. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Población por nacionalidad, estado civil y sexo, por provincia y por profesión, agrupada en profesiones liberales, industriales y comerciales, manuales y mecánicas, agrícolas, y sin profesión. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -10109,6 +10274,9 @@
     ]
   },
   "resumo_geral_corrigido_paroquia": {
+    "name_pt": "Quadro resumo por paróquia (corrigido)",
+    "name_en": "Summary table by parish (corrected)",
+    "name_es": "Cuadro resumen por parroquia (corregido)",
     "description_pt": "Quadro resumo da população por sexo e condição, livre ou escravizada, por paróquia e por todos os eixos do recenseamento reunidos: categorias gerais, faixas de idade, origem brasileira, nacionalidade estrangeira e profissão. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Summary table of the population by sex and condition, free or enslaved, by parish and by every axis of the census combined: general categories, age bands, Brazilian origin, foreign nationality and occupation. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Cuadro resumen de la población por sexo y condición, libre o esclavizada, por parroquia y por todos los ejes del censo reunidos: categorías generales, grupos de edad, origen brasileño, nacionalidad extranjera y profesión. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -10248,6 +10416,9 @@
     ]
   },
   "resumo_geral_corrigido_municipio": {
+    "name_pt": "Quadro resumo por município (corrigido)",
+    "name_en": "Summary table by municipality (corrected)",
+    "name_es": "Cuadro resumen por municipio (corregido)",
     "description_pt": "Quadro resumo da população por sexo e condição, livre ou escravizada, por município de 1872 e por todos os eixos do recenseamento reunidos: categorias gerais, faixas de idade, origem brasileira, nacionalidade estrangeira e profissão. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Summary table of the population by sex and condition, free or enslaved, by 1872 municipality and by every axis of the census combined: general categories, age bands, Brazilian origin, foreign nationality and occupation. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Cuadro resumen de la población por sexo y condición, libre o esclavizada, por municipio de 1872 y por todos los ejes del censo reunidos: categorías generales, grupos de edad, origen brasileño, nacionalidad extranjera y profesión. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",
@@ -10376,6 +10547,9 @@
     ]
   },
   "resumo_geral_corrigido_provincia": {
+    "name_pt": "Quadro resumo por província (corrigido)",
+    "name_en": "Summary table by province (corrected)",
+    "name_es": "Cuadro resumen por provincia (corregido)",
     "description_pt": "Quadro resumo da população por sexo e condição, livre ou escravizada, por província e por todos os eixos do recenseamento reunidos: categorias gerais, faixas de idade, origem brasileira, nacionalidade estrangeira e profissão. Incorpora as correções aritméticas do NPHED/Cedeplar documentadas no Relatório crítico do censo de 1872.",
     "description_en": "Summary table of the population by sex and condition, free or enslaved, by province and by every axis of the census combined: general categories, age bands, Brazilian origin, foreign nationality and occupation. Incorporates the arithmetic corrections by NPHED/Cedeplar documented in their critical report on the 1872 census.",
     "description_es": "Cuadro resumen de la población por sexo y condición, libre o esclavizada, por provincia y por todos los ejes del censo reunidos: categorías generales, grupos de edad, origen brasileño, nacionalidad extranjera y profesión. Incorpora las correcciones aritméticas del NPHED/Cedeplar documentadas en el informe crítico del censo de 1872.",

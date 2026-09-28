@@ -26,10 +26,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from descriptions import KEY_COLUMNS, measure_description
 from spec import ANO, LEVELS, TABLES, table_slug
 from tables import (
+    AUX_TITLES,
     AUXILIARES,
     DATASET_ID,
     STEMS,
     table_description,
+    table_title,
 )
 
 HERE = Path(__file__).resolve().parent
@@ -167,16 +169,22 @@ def write_model(slug: str, cols: list[dict]) -> None:
         f"    safe_cast({c['name']} as {c['bq'].lower()}) {c['name']}"
         for c in cols
     )
-    sql = f'''{{{{
-    config(
-        schema="{DATASET_ID}",
-        alias="{slug}",
-        materialized="table",
+    # `dicionario` carries no `ano`, so it takes no partition: partitioning on a
+    # column the table does not have fails with "Unrecognized name: ano".
+    partition = ""
+    if any(c["name"] == "ano" for c in cols):
+        partition = f"""
         partition_by={{
             "field": "ano",
             "data_type": "int64",
             "range": {{"start": {ANO}, "end": {ANO + 5}, "interval": 1}},
-        }},
+        }},"""
+
+    sql = f'''{{{{
+    config(
+        schema="{DATASET_ID}",
+        alias="{slug}",
+        materialized="table",{partition}
     )
 }}}}
 
@@ -242,6 +250,7 @@ def main() -> None:
     for aux in AUXILIARES:
         cols = _columns_for(None, None, aux)
         spec = AUXILIARES[aux]
+        n_pt, n_en, n_es = AUX_TITLES[aux]
         entries.append(
             dict(
                 slug=aux,
@@ -250,6 +259,9 @@ def main() -> None:
                 en=spec["en"],
                 es=spec["es"],
                 key=spec["key"],
+                name_pt=n_pt,
+                name_en=n_en,
+                name_es=n_es,
             )
         )
 
@@ -263,8 +275,19 @@ def main() -> None:
                 + LEVELS[level]
                 + (["id_categoria"] if t["categoria_col"] else [])
             )
+            n_pt, n_en, n_es = table_title(t["stem"], t["versao"], level)
             entries.append(
-                dict(slug=slug, cols=cols, pt=pt, en=en, es=es, key=key)
+                dict(
+                    slug=slug,
+                    cols=cols,
+                    pt=pt,
+                    en=en,
+                    es=es,
+                    key=key,
+                    name_pt=n_pt,
+                    name_en=n_en,
+                    name_es=n_es,
+                )
             )
 
     for e in entries:
@@ -276,6 +299,9 @@ def main() -> None:
         json.dumps(
             {
                 e["slug"]: dict(
+                    name_pt=e["name_pt"],
+                    name_en=e["name_en"],
+                    name_es=e["name_es"],
                     description_pt=e["pt"],
                     description_en=e["en"],
                     description_es=e["es"],

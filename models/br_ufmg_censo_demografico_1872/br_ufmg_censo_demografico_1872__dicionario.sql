@@ -3,11 +3,6 @@
         schema="br_ufmg_censo_demografico_1872",
         alias="dicionario",
         materialized="table",
-        partition_by={
-            "field": "ano",
-            "data_type": "int64",
-            "range": {"start": 1872, "end": 1877, "interval": 1},
-        },
     )
 }}
 
