@@ -497,12 +497,8 @@ def clean_table(table_id: str, ano: str) -> Path:
 def build_schema(table_id: str) -> pa.Schema:
     """Monta o schema do parquet da tabela, sem as colunas de partição.
 
-    Texto em tudo, menos as colunas que a staging já declara como `INT64`. A
-    tabela externa da staging foi criada pela carga manual, que gravava parquet
-    tipado, e o seu schema fica congelado: em `dump_mode="append"` o
-    `upload_to_gcs` só recria a tabela quando ela não existe, e o
-    `_sync_staging_schema` é aditivo — acrescenta coluna, nunca troca tipo.
-    Gravar texto numa coluna declarada `INT64` faz o BigQuery recusar o arquivo.
+    Todas as colunas são texto, como na convenção da staging. O `.sql` faz o
+    `safe_cast` de cada uma para o tipo da arquitetura.
 
     Args:
         table_id: Slug da tabela.
@@ -511,13 +507,9 @@ def build_schema(table_id: str) -> pa.Schema:
         O schema, na ordem em que as colunas são gravadas.
     """
     table = constants.TABLES.value[table_id]
-    integers = table["integer_columns"]
     return pa.schema(
         [
-            (
-                column,
-                pa.int64() if column in integers else pa.string(),
-            )
+            (column, pa.string())
             for column in table["columns"]
             if column not in table["partition_columns"]
         ]
@@ -530,7 +522,10 @@ def write_partitions(
     schema: pa.Schema,
     output_dir: Path,
 ) -> None:
-    """Grava em partições Hive, uma coluna por campo do schema.
+    """Grava em partições Hive, com todas as colunas como texto.
+
+    O nulo é gravado como `None`: `astype(str)` escreveria a string `"nan"`,
+    que o `safe_cast` do `.sql` não desfaz.
 
     Args:
         dataframe: Dados a gravar, todos como texto.
@@ -538,8 +533,6 @@ def write_partitions(
         schema: Schema do parquet, vindo de `build_schema`.
         output_dir: Raiz do particionado.
     """
-    integers = [field.name for field in schema if field.type == pa.int64()]
-
     for keys, group in dataframe.groupby(partition_columns, dropna=False):
         keys = keys if isinstance(keys, tuple) else (keys,)
         partition = output_dir.joinpath(
@@ -552,12 +545,8 @@ def write_partitions(
 
         group = group.drop(columns=partition_columns)
         for column in group.columns:
-            group[column] = (
-                pd.to_numeric(group[column]).astype("Int64")
-                if column in integers
-                else group[column].map(
-                    lambda value: None if pd.isna(value) else str(value)
-                )
+            group[column] = group[column].map(
+                lambda value: None if pd.isna(value) else str(value)
             )
 
         pq.write_table(

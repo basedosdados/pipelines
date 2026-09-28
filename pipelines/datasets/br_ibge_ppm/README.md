@@ -30,8 +30,7 @@ dois lados existem.
 `constants.TABLES` guarda esse mapa. Cada tabela lista as suas `series` — um par
 agregado/variável, a coluna que a série alimenta e as categorias a pedir —, as colunas na
 ordem publicada, a coluna de partição, a de rótulo da categoria e o primeiro ano da série.
-`unit_column` marca a série de onde sai a `unidade`; `integer_columns`, as colunas que a
-staging declara `INT64`.
+`unit_column` marca a série de onde sai a `unidade`.
 
 **Onde conferir na fonte.** O significado de `-`, `0`, `..`, `...` e `X` está em dois lugares:
 
@@ -126,19 +125,16 @@ order by ano
 
 ## Staging
 
-O parquet sai **tipado**, e não todo como texto: `constants.integer_columns` lista as colunas
-que a tabela externa declara `INT64` e o `build_schema` monta o resto como texto. Os dois lados
-têm que continuar batendo — o schema da externa fica congelado, porque em `dump_mode="append"`
-o `upload_to_gcs` só cria a tabela quando ela não existe e o `_sync_staging_schema` acrescenta
-coluna, nunca troca tipo. Texto numa coluna `INT64` faz o BigQuery recusar o arquivo.
+O parquet sai **todo como texto**, como manda a convenção da casa, e o `.sql` faz o `safe_cast`
+de cada coluna para o tipo da arquitetura. A API já entrega os números como texto (`"150"`), e o
+`write_partitions` os grava como vieram. O nulo é gravado como `None`: `astype(str)` escreveria
+a string `"nan"`, que o `safe_cast` não desfaz.
 
-Passar a staging para texto, como manda a convenção da casa, exige apagar as tabelas externas
-**e** os prefixos no GCS e recarregar 1974–2024 de uma vez: os arquivos já gravados são todos
-tipados.
-
-Nas colunas de texto o nulo é gravado como `None` — `astype(str)` escreveria a string `"nan"`,
-que o `safe_cast` do `.sql` não desfaz. Nas numéricas o tipo é o `Int64` do pandas, inteiro que
-admite ausente, porque `astype(int)` não aceita nulo.
+**A tabela externa guarda o schema de quando foi criada.** Em `dump_mode="append"`, o
+`upload_to_gcs` só cria a tabela quando ela não existe, e o `_sync_staging_schema` acrescenta
+coluna, mas nunca troca tipo. Uma tabela externa que declara `INT64` recusa o parquet de texto.
+Para trocar o tipo, apague a tabela externa e os arquivos do prefixo no GCS e recarregue a série
+inteira de uma vez.
 
 ## Atualização
 

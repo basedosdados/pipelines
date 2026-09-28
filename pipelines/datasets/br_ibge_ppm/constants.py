@@ -37,7 +37,6 @@ class constants(Enum):
 
     TABLES = {
         "efetivo_rebanhos": {
-            "integer_columns": ["quantidade"],
             "first_year": 1974,
             "label_column": "tipo_rebanho",
             "partition_columns": ["ano"],
@@ -70,7 +69,6 @@ class constants(Enum):
             ],
         },
         "producao_origem_animal": {
-            "integer_columns": ["quantidade", "valor"],
             "first_year": 1974,
             "label_column": "produto",
             "partition_columns": ["ano"],
@@ -116,7 +114,6 @@ class constants(Enum):
             ],
         },
         "producao_aquicultura": {
-            "integer_columns": ["quantidade", "valor"],
             "first_year": 2013,
             "label_column": "produto",
             "partition_columns": ["ano"],
@@ -196,7 +193,6 @@ class constants(Enum):
             ],
         },
         "producao_pecuaria": {
-            "integer_columns": ["ovinos_tosquiados", "vacas_ordenhadas"],
             "first_year": 1974,
             "label_column": None,
             "partition_columns": ["ano"],
