@@ -1146,35 +1146,38 @@ def iter_mantido(path: Path, chunk: int = 250_000):
     million records as dicts costs well over a gigabyte before any aggregation
     runs, which is enough to have the process killed on a 40M-row month.
     """
-    fields = (
-        "Espécie",
-        "Clientela",
-        "Sexo.",
-        "Município",
-        "Data Nascimento",
-        "Vl MR",
-    )
+    # Only espécie and município are required. The layout is not stable: the
+    # Jul/2021 file spells the birth date "Dt Nascimento" rather than "Data
+    # Nascimento" and carries no "Vl MR" column at all, so that month has no
+    # value and its valor_total stays null rather than a fabricated zero.
+    fields = {
+        "especie_label": ("Espécie",),
+        "clientela": ("Clientela",),
+        "sexo": ("Sexo.", "Sexo"),
+        "mun_resid": ("Município", "Mun Resid"),
+        "dt_nascimento": ("Data Nascimento", "Dt Nascimento"),
+        "vl_mr": ("Vl MR", "Valor MR"),
+    }
 
     def emit(handle):
         header = next(csv.reader(handle, delimiter=";"))
-        idx = {f: _col(header, f) for f in fields}
-        missing = [f for f, i in idx.items() if i is None]
+        idx = {k: _col(header, *names) for k, names in fields.items()}
+        missing = [
+            k for k in ("especie_label", "mun_resid") if idx.get(k) is None
+        ]
         if missing:
             raise ValueError(
                 f"{path.name}: columns not found: {missing} in {header}"
             )
+        widest = max(i for i in idx.values() if i is not None)
         buf = []
         for row in csv.reader(handle, delimiter=";"):
-            if len(row) <= max(i for i in idx.values() if i is not None):
+            if len(row) <= widest:
                 continue
             buf.append(
                 {
-                    "especie_label": row[idx["Espécie"]],
-                    "clientela": row[idx["Clientela"]],
-                    "sexo": row[idx["Sexo."]],
-                    "mun_resid": row[idx["Município"]],
-                    "dt_nascimento": row[idx["Data Nascimento"]],
-                    "vl_mr": row[idx["Vl MR"]],
+                    k: (row[i] if i is not None and i < len(row) else None)
+                    for k, i in idx.items()
                 }
             )
             if len(buf) >= chunk:
@@ -1232,6 +1235,7 @@ def aggregate_mantido(
         "municipio_nao_encontrado": 0,
         "sem_idade": 0,
         "especie_ambigua": 0,
+        "valores_presentes": 0,
         "rotulos_nao_mapeados": {},
         "chaves_municipio_nao_encontradas": {},
     }
@@ -1276,6 +1280,9 @@ def aggregate_mantido(
             idade = idade_em(parse_data(rec["dt_nascimento"]), competencia)
             if idade is None:
                 diag["sem_idade"] += 1
+            valor = parse_decimal(rec["vl_mr"])
+            if valor is not None:
+                diag["valores_presentes"] += 1
             rows.append(
                 (
                     ano,
@@ -1288,7 +1295,7 @@ def aggregate_mantido(
                     clean_clientela(rec["clientela"]),
                     clean_sexo(rec["sexo"]),
                     faixa_etaria(idade),
-                    parse_decimal(rec["vl_mr"]) or 0.0,
+                    valor,
                 )
             )
         if rows:
@@ -1322,7 +1329,13 @@ def aggregate_mantido(
             valor_total=("valor_total", "sum"),
         )
     )
-    out["valor_total"] = out["valor_total"].round(2)
+    if diag["valores_presentes"] == 0:
+        # The Jul/2021 file publishes no Vl MR column at all. pandas sums an
+        # all-missing group to 0.0, so the column is nulled explicitly rather
+        # than reporting a stock worth nothing.
+        out["valor_total"] = pd.NA
+    else:
+        out["valor_total"] = out["valor_total"].round(2)
     return out.sort_values(MANTIDO_GRAIN, na_position="last").reset_index(
         drop=True
     ), diag

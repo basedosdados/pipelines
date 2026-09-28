@@ -65,7 +65,8 @@ def run(
             "it derives the lookup from the GEX prefixes that only benefícios "
             "concedidos publishes."
         )
-    u.truncated_especie_index()  # fails fast if categoria stops being recoverable
+    # fails fast if a truncated espécie prefix ever spans two categorias
+    u.assert_truncation_is_categoria_stable()
     for d in (INPUT, STAGING, OUTPUT, REPORT):
         d.mkdir(parents=True, exist_ok=True)
 
