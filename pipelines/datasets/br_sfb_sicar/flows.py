@@ -264,7 +264,6 @@ def br_sfb_sicar_flow(
     ]
     ufs = [u for u in UF_SIGLAS if not only_ufs or u in only_ufs.split(",")]
 
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=ANCHOR_TABLE
     )

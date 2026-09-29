@@ -18,8 +18,9 @@ import os
 import sys
 
 import basedosdados as bd
-from constants import DATASET_ID, OUTPUT_DIR, TABLES
 from google.cloud import storage
+
+from models.br_mj_sinesp.code.constants import DATASET_ID, OUTPUT_DIR, TABLES
 
 BILLING_PROJECT = "basedosdados-dev"
 BUCKET = "basedosdados-dev"

@@ -22,7 +22,6 @@ from __future__ import annotations
 import argparse
 import csv
 import os
-import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -30,10 +29,8 @@ from pathlib import Path
 import pyarrow.parquet as pq
 import requests
 
-sys.path.insert(0, str(Path(__file__).parent))
-
-import clean
-import constants as c
+from models.world_noaa_ghcn.code import clean
+from models.world_noaa_ghcn.code import constants as c
 
 DATA = Path(
     os.environ.get(

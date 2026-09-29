@@ -28,7 +28,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from schema_def import TABLES
+from models.us_ffiec_bank_reporting.code.schema_def import TABLES
 
 DATASET = "us_ffiec_bank_reporting"
 MODEL_DIR = Path(__file__).resolve().parents[1]

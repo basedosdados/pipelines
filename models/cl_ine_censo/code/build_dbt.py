@@ -14,7 +14,11 @@ import subprocess
 import sys
 from pathlib import Path
 
-from constants import ARCHITECTURE_DIR, CENSUS_YEAR, DATASET_ID
+from models.cl_ine_censo.code.constants import (
+    ARCHITECTURE_DIR,
+    CENSUS_YEAR,
+    DATASET_ID,
+)
 
 MODEL_DIR = ARCHITECTURE_DIR.parent.parent
 

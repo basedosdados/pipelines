@@ -178,6 +178,7 @@ def check(env: str) -> int:
 
 def apply(env: str) -> None:
     sys.path.insert(0, MCP)
+    # pyrefly: ignore [missing-import]
     import server
 
     server.auth(env=env)

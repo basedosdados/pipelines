@@ -110,7 +110,6 @@ def transfer_files_to_prod_flow(
     if folders is None:
         folders = ["mes_competencia=202306", "mes_competencia=202305"]
 
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Materialização Prod: ",
         dataset_id=dataset_id,

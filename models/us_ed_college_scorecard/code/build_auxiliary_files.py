@@ -17,12 +17,9 @@ Usage:
 
 import os
 import pathlib
-import sys
 import zipfile
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]
-import spec
+from models.us_ed_college_scorecard.code import spec
 
 DATA_DIR = pathlib.Path(
     os.environ.get(

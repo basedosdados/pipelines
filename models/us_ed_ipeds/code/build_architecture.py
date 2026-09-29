@@ -26,14 +26,13 @@ import re
 import sys
 import zipfile
 from pathlib import Path
+from typing import Literal
 
 import pandas as pd
 import pyarrow.parquet as pq
 import requests
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]
-from clean_data import build_manifest
+from models.us_ed_ipeds.code.clean_data import build_manifest
 
 BASE_URL = "https://nces.ed.gov/ipeds/datacenter/data/"
 ROOT = Path(__file__).resolve().parents[1]
@@ -177,14 +176,14 @@ def download_dict(filename: str) -> Path | None:
     return local
 
 
-def _parse_excel_varlist(raw: bytes, engine: str) -> dict[str, str]:
+def _parse_excel_varlist(
+    raw: bytes, engine: Literal["openpyxl", "xlrd"]
+) -> dict[str, str]:
     """Parse a varlist sheet from xlsx/xls bytes. Returns varname->title."""
     entries: dict[str, str] = {}
-    # pyrefly: ignore [bad-argument-type]
     xl = pd.ExcelFile(io.BytesIO(raw), engine=engine)
     sheet = next(
-        # pyrefly: ignore [missing-attribute]
-        (s for s in xl.sheet_names if s.strip().lower() == "varlist"),
+        (s for s in xl.sheet_names if str(s).strip().lower() == "varlist"),
         None,
     )
     if sheet is None:

@@ -56,7 +56,6 @@ def us_nchs_vital_statistics_flow(
     year: int | None = None,
 ):
     logger = get_run_logger()
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="birth"
     )

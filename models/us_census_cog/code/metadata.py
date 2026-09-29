@@ -23,8 +23,10 @@ CODE_DIR = Path(__file__).resolve().parent
 REPO_ROOT = CODE_DIR.parents[2]
 sys.path.insert(0, str(REPO_ROOT))
 
-from common import ARCHITECTURE, DATASET_ID  # noqa: E402
-
+from models.us_census_cog.code.common import (  # noqa: E402
+    ARCHITECTURE,
+    DATASET_ID,
+)
 from pipelines.datasets.us_census_cog.utils import load_cols  # noqa: E402
 
 
@@ -58,6 +60,7 @@ def import_databasis_server():
             "no mcp/server.py beside this repository. Point DATABASIS_MCP_DIR "
             "at the Data Basis MCP checkout."
         )
+    # pyrefly: ignore [missing-import]
     import server
 
     return server

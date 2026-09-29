@@ -24,14 +24,10 @@ import argparse
 import json
 import os
 import subprocess
-import sys
 import time
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import clean
-import constants
-import upload
+from models.us_stanford_dime.code import clean, constants, upload
 
 STATE_FILE = Path(__file__).resolve().parent / "backfill_state.json"
 USER_AGENT = (

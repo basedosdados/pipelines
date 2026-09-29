@@ -10,7 +10,7 @@ import json
 import sys
 from pathlib import Path
 
-from common import DATA_TABLES, load_cols
+from models.us_noaa_storm_events.code.common import DATA_TABLES, load_cols
 
 DICIONARIO_COLUMNS = [
     {

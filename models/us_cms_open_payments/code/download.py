@@ -15,7 +15,7 @@ import subprocess
 import sys
 import zipfile
 
-import constants as c
+from models.us_cms_open_payments.code import constants as c
 
 # A single stream from download.cms.gov runs at about 2 MB/s; eight parallel
 # byte ranges reach about 15 MB/s, which is the difference between seven hours

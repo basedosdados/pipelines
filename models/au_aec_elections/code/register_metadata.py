@@ -27,6 +27,7 @@ from pathlib import Path
 MCP_DIR = Path.home() / "Dropbox" / "BD" / "mcp"
 sys.path.insert(0, str(MCP_DIR))
 
+# pyrefly: ignore [missing-import]
 import server  # noqa: E402  — the databasis MCP module
 
 from pipelines.datasets.au_aec_elections import schema  # noqa: E402

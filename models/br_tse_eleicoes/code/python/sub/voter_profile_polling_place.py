@@ -5,8 +5,13 @@ Single national file per year, 2010-2024.
 """
 
 import pandas as pd
-from config import INPUT_DIR, OUTPUT_PYTHON
-from utils.helpers import merge_municipio, read_raw_csv, select_named
+
+from models.br_tse_eleicoes.code.python.config import INPUT_DIR, OUTPUT_PYTHON
+from models.br_tse_eleicoes.code.python.utils.helpers import (
+    merge_municipio,
+    read_raw_csv,
+    select_named,
+)
 
 YEARS = list(range(2010, 2025, 2))
 

@@ -9,8 +9,9 @@ from __future__ import annotations
 import re
 import sys
 
-# pyrefly: ignore [missing-import]
-from architecture_spec import TABLES
+from models.br_senado_dados_abertos_administrativos.code.architecture_spec import (
+    TABLES,
+)
 
 NUMERIC = {"int", "float"}
 # Temporal columns that legitimately lead a table, ahead of its key columns.

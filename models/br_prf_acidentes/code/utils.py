@@ -18,7 +18,8 @@ from pathlib import Path
 
 import pandas as pd
 import requests
-from constants import (
+
+from models.br_prf_acidentes.code.constants import (
     AGE_MISSING_TOKENS,
     AGE_VALID_RANGE,
     AGE_ZERO_IS_MISSING,

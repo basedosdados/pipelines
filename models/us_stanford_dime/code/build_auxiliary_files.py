@@ -27,13 +27,10 @@ from __future__ import annotations
 
 import argparse
 import subprocess
-import sys
 import zipfile
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import clean
-import upload
+from models.us_stanford_dime.code import clean, upload
 
 BUCKET = "basedosdados-dev"
 DATASET = "us_stanford_dime"

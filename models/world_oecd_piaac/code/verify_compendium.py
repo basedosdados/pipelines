@@ -18,14 +18,11 @@ from __future__ import annotations
 
 import collections
 import sys
-from pathlib import Path
 
 import openpyxl
 from google.cloud import bigquery
 
-sys.path.insert(0, str(Path(__file__).parent))
-
-import constants as piaac
+from models.world_oecd_piaac.code import constants as piaac
 
 COUNTRIES = {
     "Austria": "AUT",
@@ -52,9 +49,13 @@ def published() -> dict[str, dict]:
         name = str(row[0]).strip() if row[0] else ""
         if name in COUNTRIES:
             out[COUNTRIES[name]] = {
+                # pyrefly: ignore [bad-argument-type]
                 "weighted_n_all": float(row[1]),
+                # pyrefly: ignore [bad-argument-type]
                 "missing_pct": float(row[2]),
+                # pyrefly: ignore [bad-argument-type]
                 "weighted_n_valid": float(row[3]),
+                # pyrefly: ignore [bad-argument-type]
                 "first_category_pct": float(row[first_category]),
             }
     return out

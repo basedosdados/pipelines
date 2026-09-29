@@ -81,7 +81,6 @@ async def collect_data(
                 for variable in variables:
                     log(
                         build_url(
-                            # pyrefly: ignore [bad-argument-type]
                             aggregate,
                             # pyrefly: ignore [bad-argument-type]
                             period,
@@ -95,7 +94,6 @@ async def collect_data(
                 fetch(
                     session,
                     build_url(
-                        # pyrefly: ignore [bad-argument-type]
                         aggregate,
                         # pyrefly: ignore [bad-argument-type]
                         period,

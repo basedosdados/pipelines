@@ -9,14 +9,18 @@ Equivalent of sub/normalizacao_particao.do.
 """
 
 import pandas as pd
-from config import (
+
+from models.br_tse_eleicoes.code.python.config import (
     OUTPUT_PYTHON,
     STREAM_SECAO_ROOT,
     UFS_CANDIDATOS,
     UFS_PARTIDOS,
     YEARS_EVEN,
 )
-from utils.helpers import coerce_numeric_for_write, save_partitioned
+from models.br_tse_eleicoes.code.python.utils.helpers import (
+    coerce_numeric_for_write,
+    save_partitioned,
+)
 
 # ---------------------------------------------------------------------------
 # Helpers
