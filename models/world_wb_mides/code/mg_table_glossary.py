@@ -93,6 +93,33 @@ UNRESOLVED_PARENT_SUFFIX: tuple[str, str, str] = (
     "la fuente. La columna id_liquidacao preserva el identificador original.",
 )
 
+# Rows the current vintage OMITS because the source record carries an unescaped
+# `;` inside a free-text field, so its delimiter count does not match the header.
+# `clean_mg.py` drops such rows and counts them; `repair_mg.py` now reconstructs
+# those whose reading is uniquely determined, so these counts fall at the next
+# refresh. Measured 2026-09-28 against the archives on disk; the figure is the
+# omission in the data as published today, which is what a user needs to know.
+RAGGED_OMITTED: dict[str, int] = {
+    "empenho_fonte": 122952,
+    "liquidacao_fonte": 109851,
+    "despesa_dotacao": 58253,
+    "licitacao_responsavel": 24991,
+    "restos_pagar_movimentacao_fonte": 3696,
+    "dispensa_dotacao": 608,
+}
+
+RAGGED_SUFFIX: tuple[str, str, str] = (
+    "Esta tabela omite {n} linhas cujo registro na fonte contém um ponto e vírgula "
+    "não escapado em campo de texto livre, o que impede a leitura da linha; a "
+    "contagem cai a cada nova extração.",
+    "This table omits {n} rows whose source record contains an unescaped semicolon "
+    "in a free-text field, which prevents the row from being parsed; the count "
+    "falls with each new extraction.",
+    "Esta tabla omite {n} filas cuyo registro en la fuente contiene un punto y "
+    "coma no escapado en un campo de texto libre, lo que impide leer la fila; el "
+    "recuento disminuye con cada nueva extracción.",
+)
+
 # table slug -> (name_pt, name_en, name_es, description_pt, description_en, description_es)
 TABLES: dict[str, tuple[str, str, str, str, str, str]] = {
     "alteracao_orcamentaria": (
@@ -456,4 +483,10 @@ def description(table: str, lang: str = "pt", with_suffix: bool = True) -> str:
         out = f"{out} {ORPHAN_KEY_SUFFIX[idx]}"
     if table in UNRESOLVED_PARENT:
         out = f"{out} {UNRESOLVED_PARENT_SUFFIX[idx]}"
+    if table in RAGGED_OMITTED:
+        # pt and es group thousands with '.', en with ','.
+        grouped = f"{RAGGED_OMITTED[table]:,}"
+        if lang != "en":
+            grouped = grouped.replace(",", ".")
+        out = f"{out} {RAGGED_SUFFIX[idx].format(n=grouped)}"
     return out

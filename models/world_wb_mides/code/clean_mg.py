@@ -74,8 +74,11 @@ import pyarrow.csv as pacsv
 import pyarrow.parquet as pq
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-from constants import INPUT_DIR, OUTPUT_DIR
+import repair_mg  # pyrefly: ignore [missing-import]  # sibling, via sys.path
+from constants import (  # pyrefly: ignore [missing-import]  # sibling, via sys.path
+    INPUT_DIR,
+    OUTPUT_DIR,
+)
 
 MG_INPUT = INPUT_DIR / "mg"
 
@@ -546,7 +549,7 @@ _HEADER_OVERRIDE: dict[str, list[str]] = {
 
 def read_source_csv(
     raw: bytes, path_for_errors: str, header_override: list[str] | None = None
-) -> pa.Table:
+) -> tuple[pa.Table, int, int]:
     """One source CSV as an all-STRING arrow table.
 
     **UTF-8 at source, not latin-1.** An earlier version of this file decoded as
@@ -632,16 +635,36 @@ def read_source_csv(
     lines = text.split("\n")
     if header_override is not None:
         lines[0] = ";".join(header)
+    # Two passes. The first keeps the well-formed rows and lets `repair_mg` learn
+    # each free-text column's shape from them; the second rebuilds the ragged rows
+    # whose reading that shape makes unique. A repaired row CANNOT go back into
+    # `text` -- the delimiter it recovered is still inside the field, so arrow
+    # would reject it again under QUOTE_NONE -- so it is carried as parsed values
+    # and appended to the table below.
+    layout = repair_mg.Layout(header)
     kept = [lines[0]]
-    ragged = 0
+    ragged_parts: list[list[str]] = []
     for line in lines[1:]:
         if not line or line == "\r":
             continue
-        if line.rstrip("\r").count(";") != expected:
-            ragged += 1
+        stripped = line.rstrip("\r")
+        if stripped.count(";") != expected:
+            ragged_parts.append(stripped.split(";"))
             continue
         kept.append(line)
+        layout.observe(stripped.split(";"))
     text = "\n".join(kept) + "\n"
+
+    repaired_rows: list[list[str]] = []
+    ragged = 0
+    if ragged_parts:
+        layout.calibrate()
+        for parts in ragged_parts:
+            fixed = layout.repair(parts)
+            if fixed is None:
+                ragged += 1
+            else:
+                repaired_rows.append(fixed)
 
     table = pacsv.read_csv(
         io.BytesIO(text.encode("utf-8")),
@@ -660,7 +683,18 @@ def read_source_csv(
             strings_can_be_null=True,
         ),
     )
-    return table, ragged
+    if repaired_rows:
+        columns = [
+            pa.array(
+                [row[i] if row[i] != "" else None for row in repaired_rows],
+                type=pa.string(),
+            )
+            for i in range(len(header))
+        ]
+        table = pa.concat_tables(
+            [table, pa.Table.from_arrays(columns, names=list(header))]
+        )
+    return table, ragged, len(repaired_rows)
 
 
 def build(phase: str, table: pa.Table, ibge: str, counters: dict) -> pa.Table:
@@ -769,13 +803,15 @@ def clean_municipality(
         if len(hit) > 1:
             raise ValueError(f"{label}: {len(hit)} members match {suffix}")
         try:
-            source, ragged = read_source_csv(
+            source, ragged, repaired = read_source_csv(
                 archive.read(hit[0]),
                 hit[0],
                 _HEADER_OVERRIDE.get(f"{category}/{member}"),
             )
             if ragged:
                 counters["ragged_rows"][f"{phase}:{year}"] += ragged
+            if repaired:
+                counters["repaired_rows"][f"{phase}:{year}"] += repaired
         except (pa.ArrowInvalid, ValueError) as exc:
             # A malformed row aborts the whole file in arrow. Record which
             # municipality and keep going; the run still exits non-zero.
@@ -914,6 +950,7 @@ def main(years: set[int] | None = None) -> None:
             "unreadable",
             "unused_columns",
             "ragged_rows",
+            "repaired_rows",
         )
     }
     for package in packages:
@@ -952,6 +989,7 @@ def main(years: set[int] | None = None) -> None:
         "unused_columns",
         "wrong_category",
         "ragged_rows",
+        "repaired_rows",
     ):
         if counters[key]:
             print(
