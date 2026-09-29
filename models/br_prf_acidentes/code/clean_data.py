@@ -354,7 +354,11 @@ def clean_all(tables=None, years=None, do_download=False) -> dict:
             y for y in range(first, last + 1) if years is None or y in years
         ]
         if do_download:
-            for year in shape_years:
+            # The full range, not just shape_years: collect_vocabularies below
+            # reads every year of the shape to pick each category's canonical
+            # spelling, so `--download --years 2017` would otherwise leave
+            # read_source raising FileNotFoundError on a fresh PRF_DATA_ROOT.
+            for year in range(first, last + 1):
                 utils.download(shape, year, INPUT_DIR)
         # Vocabularies must be collected across ALL of a shape's years before any
         # year is written, or the canonical spelling would differ per file.

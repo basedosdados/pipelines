@@ -21,7 +21,7 @@ Three shapes, not two:
 
 The third shape is a 2017-onward addition. It exists because from 2017 a crash carries
 multiple causes and multiple types; it adds `causa_principal` and `ordem_tipo_acidente`
-and repeats each person once per (cause, type) pair. It is not in the build scope below.
+and repeats each person once per (cause, type) pair. It is built as `pessoa_causa_tipo`.
 
 ## 2. Per-year column inventory
 

@@ -5,9 +5,10 @@ models:
     description: >
       Acidentes em rodovias federais registrados pela Policia Rodoviaria Federal,
       uma linha por acidente, de 2007 a 2026. Latitude, longitude e as unidades administrativas
-      da PRF sao publicadas apenas a partir de 2017.
+      da PRF sao publicadas apenas a partir de 2017. A fonte traz de 1 a 7 linhas
+      integralmente duplicadas por ano entre 2007 e 2016, 35 no total (0,0016%). De
+      2017 em diante id_ocorrencia e unico.
     tests:
-      # A fonte traz de 1 a 7 linhas integralmente duplicadas por ano entre 2007 e 2016, 35 no total (0,0016%). De 2017 em diante id_ocorrencia e unico.
       - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_ocorrencia]
           proportion_allowed_failures: 0.0001
@@ -121,9 +122,13 @@ models:
     description: >
       Pessoas envolvidas em acidentes em rodovias federais registrados pela Policia
       Rodoviaria Federal, uma linha por pessoa e veiculo, de 2007 a 2026. Nacionalidade
-      e naturalidade sao publicadas apenas ate 2016.
+      e naturalidade sao publicadas apenas ate 2016. id_veiculo faz parte da chave:
+      a partir de 2017 a mesma pessoa aparece associada a mais de um veiculo. Restam
+      cerca de 91 linhas duplicadas na fonte entre 2007 e 2016 (0,0018%). O teste
+      de integridade referencial de id_ocorrencia contra a tabela ocorrencia admite
+      uma tolerancia porque a propria fonte traz 116 linhas (0,0000225) cujo acidente
+      aparece no arquivo de pessoas e nao no de ocorrencias, todas entre 2007 e 2012.
     tests:
-      # id_veiculo faz parte da chave: a partir de 2017 a mesma pessoa aparece associada a mais de um veiculo. Restam cerca de 91 linhas duplicadas na fonte entre 2007 e 2016 (0,0018%).
       - custom_unique_combinations_of_columns:
           combination_of_columns: [ano, id_ocorrencia, id_pessoa, id_veiculo]
           proportion_allowed_failures: 0.0001
@@ -160,7 +165,12 @@ models:
       - name: id_ocorrencia
         description: >
           Identificador do acidente atribuído pela PRF
-        tests: [not_null]
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_prf_acidentes__ocorrencia')
+              field: id_ocorrencia
+              proportion_allowed_failures: 0.0001
       - name: id_veiculo
         description: >
           Identificador do veículo envolvido, atribuído pela PRF
@@ -254,9 +264,6 @@ models:
       - name: uop
         description: >
           Unidade operacional da PRF em cuja circunscrição o acidente ocorreu
-      # id_ocorrencia -> ocorrencia carries a tolerance: the source has
-      # crash ids present in the person files and absent from the crash
-      # file, 876 ids in total, all between 2007 and 2012 and none after.
   - name: br_prf_acidentes__pessoa_causa_tipo
     description: >
       Pessoas envolvidas em acidentes em rodovias federais registrados pela Policia
@@ -264,7 +271,6 @@ models:
       de 2017 a 2026. Existe porque, a partir de 2017, um acidente pode ter mais de
       uma causa e mais de um tipo registrados.
     tests:
-      # Chave integralmente unica: nenhuma duplicata em 4.479.488 linhas.
       - custom_unique_combinations_of_columns:
           combination_of_columns:
             - ano
@@ -308,7 +314,12 @@ models:
       - name: id_ocorrencia
         description: >
           Identificador do acidente atribuído pela PRF
-        tests: [not_null]
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_prf_acidentes__ocorrencia')
+              field: id_ocorrencia
+              proportion_allowed_failures: 0.0
       - name: id_veiculo
         description: >
           Identificador do veículo envolvido, atribuído pela PRF
@@ -400,8 +411,5 @@ models:
         description: >
           Delegacia da PRF responsável pelo trecho
       - name: uop
-        description: >
+        description: >-
           Unidade operacional da PRF em cuja circunscrição o acidente ocorreu
-      # id_ocorrencia -> ocorrencia carries a tolerance: the source has
-      # crash ids present in the person files and absent from the crash
-      # file, 876 ids in total, all between 2007 and 2012 and none after.

@@ -61,6 +61,24 @@ UNIQUE_KEY = {
     ),
 }
 
+# id_ocorrencia -> ocorrencia, per table: the tolerance the source's own orphans
+# require, and the note that explains it in the model description.
+#
+# Measured on the dev tables: `pessoa` has 116 orphan rows in 5,156,169
+# (0.0000225), all from crashes recorded in the person file and missing from the
+# crash file between 2007 and 2012. `pessoa_causa_tipo` starts in 2017, after
+# those years, and has exactly zero — so it takes a strict test, not a tolerance.
+FOREIGN_KEY = {
+    "pessoa": (
+        0.0001,
+        "O teste de integridade referencial de id_ocorrencia contra a tabela ocorrencia "
+        "admite uma tolerancia porque a propria fonte traz 116 linhas (0,0000225) cujo "
+        "acidente aparece no arquivo de pessoas e nao no de ocorrencias, todas entre "
+        "2007 e 2012.",
+    ),
+    "pessoa_causa_tipo": (0.0, ""),
+}
+
 DIRECTORY_TEST = {
     "sigla_uf": ("br_bd_diretorios_brasil__uf", "sigla"),
     "id_municipio": ("br_bd_diretorios_brasil__municipio", "id_municipio"),
@@ -82,12 +100,19 @@ def build() -> None:
         with open(ARCHITECTURE_DIR / f"{table}.csv", encoding="utf-8") as fh:
             rows = list(csv.DictReader(fh))
         key, tolerance, key_note = UNIQUE_KEY[table]
+        # The repo's guideline is to document a non-zero proportion_allowed_failures
+        # in the model description, not in a YAML comment a reader may never see.
+        description = MODEL_DESCRIPTION[table]
+        if tolerance > 0:
+            description = f"{description} {key_note}"
+        fk_tolerance, fk_note = FOREIGN_KEY.get(table, (None, ""))
+        if fk_tolerance is not None and fk_note:
+            description = f"{description} {fk_note}"
         out += [
             f"  - name: {DATASET_ID}__{table}",
             "    description: >",
-            wrap(MODEL_DESCRIPTION[table], "      "),
+            wrap(description, "      "),
             "    tests:",
-            f"      # {key_note}",
             "      - custom_unique_combinations_of_columns:",
             f"          combination_of_columns: [{', '.join(key)}]",
             f"          proportion_allowed_failures: {tolerance}",
@@ -112,17 +137,19 @@ def build() -> None:
                     f"              to: ref('{ref}')",
                     f"              field: {field}",
                 ]
+            # The person tables' id_ocorrencia is a foreign key into `ocorrencia`.
+            # custom_relationships (not the dbt-utils one) is used because only it
+            # takes proportion_allowed_failures, which `pessoa` needs.
+            if name == "id_ocorrencia" and fk_tolerance is not None:
+                tests += [
+                    "          - custom_relationships:",
+                    f"              to: ref('{DATASET_ID}__ocorrencia')",
+                    "              field: id_ocorrencia",
+                    f"              proportion_allowed_failures: {fk_tolerance}",
+                ]
             if tests:
                 out.append("        tests:")
                 out += tests
-        # pessoa tables point back at the crash table; the source itself has orphans
-        # before 2013, so the test carries a tolerance rather than being omitted.
-        if table != "ocorrencia":
-            out += [
-                "      # id_ocorrencia -> ocorrencia carries a tolerance: the source has",
-                "      # crash ids present in the person files and absent from the crash",
-                "      # file, 876 ids in total, all between 2007 and 2012 and none after.",
-            ]
     path = MODEL_DIR / "schema.yml"
     path.write_text("\n".join(out) + "\n", encoding="utf-8")
     print(f"wrote {path} ({len(out)} lines)")
