@@ -121,7 +121,17 @@ internal `indicator_id` FKs.
 ## Status
 
 - [x] 1. Context — org, licence, themes, tags, coverage
-- [x] 2. Architecture — local CSVs under `code/architecture/` (EN descriptions)
+- [x] 2. Architecture — local CSVs under `code/architecture/`, and Google Sheets in
+      `Base dos Dados - Geral/Dados/Conjuntos/au_abs_productivity/`
+      ([folder](https://drive.google.com/drive/folders/1wRinCdxdwUlmG44NE5SOML7ZE9AnccH1)):
+      [indicator](https://docs.google.com/spreadsheets/d/1vYT8fH0U6w1d9srBtDzSTTGbFtUbgxoIg_cYQn-FaE8/edit) ·
+      [observations](https://docs.google.com/spreadsheets/d/1mA489L1KUz8GLeAN_meD0MW3KgZ5YnW9oUgF4Wjddzo/edit) ·
+      [growth_cycles](https://docs.google.com/spreadsheets/d/1ubT4t2CBGYEL0ZjJ8CpKH7nUqrmbBz2XewCFBsDanxE/edit).
+      One spreadsheet per table named by table slug, following `au_geoscape_gnaf`;
+      `au_ato_abr` uses the other convention (one spreadsheet, a tab per table),
+      which does not work with `architecture_url` without a gid. The sheets carry
+      `description_pt/en/es` and `observations_pt/en/es`, which the local CSVs do
+      not — the CSVs hold EN only.
 - [x] 3. Download — 3 workbooks, 766 KB
 - [x] 4. Clean — 1,808 / 56,849 / 632, validated against published figures
 - [x] 5. Upload — `basedosdados-dev` staging, all 3 tables
@@ -131,17 +141,18 @@ internal `indicator_id` FKs.
 - [x] 9. Metadata — dataset (`under_review`), 1 raw data source, 3 tables,
       observation levels, cloud tables, coverage, datetime ranges, table and
       source Updates. Verified with `get_dataset`.
-- [ ] 9a. **BLOCKED — columns.** `bulk_upsert_columns` with `columns_json` cannot
-      set `bigquery_type`, `is_partition` or `directory_column` (confirmed by
-      dry run: only descriptions, observations, `measurement_unit`,
-      `covered_by_dictionary` and `has_sensitive_data` are written). Column types
-      can only come from an architecture **Google Sheet**, and the
-      `databasis-workspace` Drive connection needs re-authorization. Once it is
-      back: create one Sheet per table from `code/architecture/*.csv`, call
-      `bulk_upsert_columns(architecture_url=…)` per table, then `update_column`
-      for `description_en` / `description_es`, `is_partition` on
-      `observations.year`, and the observation-level links.
-- [ ] 9b. Publish on dev/staging (`under_review` → `published`)
+- [x] 9a. Columns — 24 across the three tables, with types, all three languages,
+      `directory_column` on `state_id` and `year`, `measurement_unit` on `year`,
+      `is_partition` on `observations.year`, and observation levels linked.
+      **Two tools are needed, and neither is sufficient alone:**
+      `upload_columns_from_sheet` is the only one that writes `bigquery_type`
+      (and it takes the `observation_levels` map), but it writes the sheet's bare
+      `description` to `descriptionPt` only; `bulk_upsert_columns(architecture_url=…)`
+      then fills `description_en/es` and `observations_pt/en/es` but never writes a
+      type. So: `upload_columns_from_sheet` first, then `bulk_upsert_columns` with
+      `update_only=true`. `bulk_upsert_columns` with `columns_json` writes neither
+      types nor `is_partition` nor `directory_column` — verified by dry run.
+- [x] 9b. Published on staging (`under_review` → `published`)
 - [ ] 10–13. Prod metadata → PR → merge → table-approve → verify → publish
 - [ ] 14. Delete `~/Library/Caches/au_abs_productivity_data/`
 
