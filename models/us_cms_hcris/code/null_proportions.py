@@ -21,8 +21,9 @@ import json
 from pathlib import Path
 
 import pyarrow.parquet as pq
-from common import OUTPUT
-from measures import MEASURES
+
+from models.us_cms_hcris.code.common import OUTPUT
+from models.us_cms_hcris.code.measures import MEASURES
 
 CODE_DIR = Path(__file__).resolve().parent
 THRESHOLD = 0.05

@@ -37,13 +37,11 @@ import argparse
 import csv
 import io
 import json
-import sys
 from pathlib import Path
 
 import duckdb
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from constants import (
+from models.br_bd_execucao_estadual.code.constants import (
     INPUT_DIR,
     OUTPUT_DIR,
     SC_ENCODING,
@@ -309,6 +307,7 @@ def clean_month(
             f"COPY (SELECT * FROM {rel}) TO '{out_path}' "
             f"(FORMAT PARQUET, COMPRESSION SNAPPY)"
         )
+        # pyrefly: ignore [unsupported-operation]
         n = con.execute(
             f"SELECT count(*) FROM read_parquet('{out_path}')"
         ).fetchone()[0]

@@ -17,7 +17,6 @@ from pathlib import Path
 # repo. Other datasets avoid the diagnostic by having their whole code/
 # directory in pyrefly's project-excludes; suppressing the one import keeps
 # the rest of this file type-checked.
-# pyrefly: ignore [untyped-import]
 import yaml
 
 from pipelines.datasets.us_bls_employment.constants import constants

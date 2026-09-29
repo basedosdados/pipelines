@@ -112,6 +112,7 @@ def resolve_orgaos(output_dir: Path, *, probe: bool) -> list[str]:
         logger.info("orgao list: %d from cache", len(codes))
         return codes
 
+    # pyrefly: ignore [unnecessary-type-conversion]
     from_data = {str(code) for code in orgaos_from_chunks(output_dir)}
     session = build_session()
     registered = set(list_registered_orgaos(session))

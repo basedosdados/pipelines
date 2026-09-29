@@ -24,7 +24,7 @@ import unicodedata
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 
-from constants import REDATAM_DIR, SENTINEL_LABELS
+from models.cl_ine_censo.code.constants import REDATAM_DIR, SENTINEL_LABELS
 
 REDATAM_DICTIONARY = REDATAM_DIR / "CPV2024.dicX"
 

@@ -31,8 +31,14 @@ sys.path.insert(0, str(REPO_ROOT))
 
 import google.cloud.storage as gcs  # noqa: E402
 import pyarrow.parquet as pq  # noqa: E402
-from common import COMPLAINT, DATASET_ID, DICIONARIO, OUTPUT  # noqa: E402
 from google.cloud import bigquery  # noqa: E402
+
+from models.us_cfpb_complaints.code.common import (  # noqa: E402
+    COMPLAINT,
+    DATASET_ID,
+    DICIONARIO,
+    OUTPUT,
+)
 
 BILLING_PROJECT = "basedosdados-dev"
 BUCKET = "basedosdados-dev"

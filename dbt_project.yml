@@ -52,6 +52,9 @@ models:
     au_abs_prices_inflation:
       +materialized: table
       +schema: au_abs_prices_inflation
+    au_abs_productivity:
+      +materialized: table
+      +schema: au_abs_productivity
     au_alexander_politicians:
       +materialized: table
       +schema: au_alexander_politicians
@@ -564,6 +567,12 @@ models:
     br_mgi_compras_publicas:
       +materialized: table
       +schema: br_mgi_compras_publicas
+    br_mj_sinesp:
+      +materialized: table
+      +schema: br_mj_sinesp
+    br_mj_sisdepen:
+      +materialized: table
+      +schema: br_mj_sisdepen
     br_mma_sinpatinhas:
       +materialized: table
       +schema: br_mma_sinpatinhas
@@ -573,6 +582,9 @@ models:
     br_mp_pep:
       +materialized: table
       +schema: br_mp_pep
+    br_mps_beneficios:
+      +materialized: table
+      +schema: br_mps_beneficios
     br_ms_cnes:
       +materialized: table
       +schema: br_ms_cnes
@@ -615,6 +627,9 @@ models:
     br_poder360_pesquisas:
       +materialized: table
       +schema: br_poder360_pesquisas
+    br_prf_acidentes:
+      +materialized: table
+      +schema: br_prf_acidentes
     br_rf_arrecadacao:
       +materialized: table
       +schema: br_rf_arrecadacao
@@ -675,6 +690,9 @@ models:
     br_tse_filiacao_partidaria:
       +materialized: table
       +schema: br_tse_filiacao_partidaria
+    br_ufmg_censo_demografico_1872:
+      +materialized: table
+      +schema: br_ufmg_censo_demografico_1872
     cl_chilecompra_mercado_publico:
       +materialized: table
       +schema: cl_chilecompra_mercado_publico

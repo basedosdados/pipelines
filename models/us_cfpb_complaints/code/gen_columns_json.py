@@ -13,7 +13,11 @@ import argparse
 import json
 import sys
 
-from common import COMPLAINT, DICIONARIO, load_cols
+from models.us_cfpb_complaints.code.common import (
+    COMPLAINT,
+    DICIONARIO,
+    load_cols,
+)
 
 # name -> (description_pt, description_en, description_es)
 DESC = {

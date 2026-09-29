@@ -1,0 +1,439 @@
+---
+version: 2
+models:
+  - name: br_mj_sisdepen__cobertura
+    description: >-
+      Cobertura da coleta por estado e semestre: estabelecimentos esperados,
+      reportando e ausentes, e as taxas de não resposta de item para faixa
+      etária, raça ou cor e escolaridade. A fonte publica apenas respostas
+      validadas, de modo que unidades_esperadas é reconstruído pelo pareamento
+      e unidades_ausentes é um limite inferior da não resposta de unidade.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, semestre, sigla_uf]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano de referência do ciclo de coleta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: semestre
+        description: Semestre de referência do ciclo de coleta (1 ou 2)
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade federativa da administração prisional responsável
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: ciclo
+        description: Número do ciclo de coleta do SISDEPEN, de 1 (2016/2) a 19 (2025/2)
+      - name: geracao_esquema
+        description: Geração do questionário à qual o ciclo pertence (A a D)
+      - name: unidades_esperadas
+        description: >-
+          Estabelecimentos que comprovadamente existiam no semestre,
+          observados antes e depois dele
+      - name: unidades_reportando
+        description: Estabelecimentos com resposta validada publicada no semestre
+      - name: unidades_ausentes
+        description: Estabelecimentos existentes ausentes da base do semestre
+      - name: taxa_presenca
+        description: Razão entre unidades reportando e unidades esperadas
+      - name: taxa_faixa_etaria_completa
+        description: >-
+          Proporção de estabelecimentos que informam a característica para
+          todas as pessoas privadas de liberdade (faixa etária)
+      - name: taxa_faixa_etaria_parcial
+        description: >-
+          Proporção de estabelecimentos que informam a característica para
+          parte das pessoas privadas de liberdade (faixa etária)
+      - name: taxa_faixa_etaria_ausente
+        description: >-
+          Proporção de estabelecimentos que declaram não conseguir obter a
+          característica em seus registros (faixa etária)
+      - name: taxa_raca_cor_completa
+        description: >-
+          Proporção de estabelecimentos que informam a característica para
+          todas as pessoas privadas de liberdade (raça ou cor)
+      - name: taxa_raca_cor_parcial
+        description: >-
+          Proporção de estabelecimentos que informam a característica para
+          parte das pessoas privadas de liberdade (raça ou cor)
+      - name: taxa_raca_cor_ausente
+        description: >-
+          Proporção de estabelecimentos que declaram não conseguir obter a
+          característica em seus registros (raça ou cor)
+      - name: taxa_escolaridade_completa
+        description: >-
+          Proporção de estabelecimentos que informam a característica para
+          todas as pessoas privadas de liberdade (escolaridade)
+      - name: taxa_escolaridade_parcial
+        description: >-
+          Proporção de estabelecimentos que informam a característica para
+          parte das pessoas privadas de liberdade (escolaridade)
+      - name: taxa_escolaridade_ausente
+        description: >-
+          Proporção de estabelecimentos que declaram não conseguir obter a
+          característica em seus registros (escolaridade)
+      - name: taxa_capacidade_informada
+        description: >-
+          Proporção de estabelecimentos com capacidade declarada em pelo menos
+          um regime
+      - name: populacao_total
+        description: População prisional total do estado no semestre
+      - name: capacidade_total
+        description: Total de vagas declaradas no estado no semestre
+  - name: br_mj_sisdepen__dicionario
+    description: >-
+      Dicionário das colunas codificadas do conjunto de dados.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [cobertura_temporal]
+    columns:
+      - name: id_tabela
+        description: Nome da tabela que contém a coluna codificada
+        tests: [not_null]
+      - name: nome_coluna
+        description: Nome da coluna codificada
+        tests: [not_null]
+      - name: chave
+        description: Valor da chave presente na coluna
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: Cobertura temporal do par chave e valor
+      - name: valor
+        description: Significado da chave
+  - name: br_mj_sisdepen__populacao_caracteristica
+    description: >-
+      População prisional por característica sociodemográfica, a partir dos
+      blocos 5.1, 5.2, 5.4 e 5.6 do formulário do SISDEPEN. As quatro
+      características são marginais independentes, cruzadas apenas com sexo: a
+      fonte não publica tabulação cruzada entre elas. A coluna
+      condicao_registro registra se o estabelecimento declara conseguir obter
+      a característica em seus registros e é indispensável para interpretar
+      quantidade.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - semestre
+            - id_unidade
+            - caracteristica
+            - categoria
+            - sexo
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano de referência do ciclo de coleta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: semestre
+        description: Semestre de referência do ciclo de coleta (1 ou 2)
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade federativa da administração prisional responsável
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: Identificador IBGE de 7 dígitos do município do estabelecimento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_unidade
+        description: >-
+          Identificador estável do estabelecimento prisional, construído pelo
+          pareamento entre ciclos
+        tests: [not_null]
+      - name: ciclo
+        description: Número do ciclo de coleta do SISDEPEN, de 1 (2016/2) a 19 (2025/2)
+      - name: geracao_esquema
+        description: Geração do questionário à qual o ciclo pertence (A a D)
+      - name: caracteristica
+        description: Característica sociodemográfica tabulada
+        tests: [not_null]
+      - name: categoria
+        description: Categoria da característica à qual a contagem se refere
+        tests: [not_null]
+      - name: sexo
+        description: Sexo das pessoas privadas de liberdade contabilizadas
+        tests: [not_null]
+      - name: quantidade
+        description: Número de pessoas privadas de liberdade na categoria
+      - name: condicao_registro
+        description: >-
+          Declaração do estabelecimento sobre sua capacidade de obter esta
+          característica em seus registros
+  - name: br_mj_sisdepen__populacao_prisional
+    description: >-
+      População prisional por estabelecimento, semestre, situação processual,
+      regime, esfera da justiça e sexo, a partir do bloco 4.1 do formulário do
+      SISDEPEN. Contém apenas as células componentes; os totais publicados
+      pela fonte foram descartados para evitar dupla contagem.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - semestre
+            - id_unidade
+            - situacao_processual
+            - regime
+            - esfera_justica
+            - sexo
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano de referência do ciclo de coleta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: semestre
+        description: Semestre de referência do ciclo de coleta (1 ou 2)
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade federativa da administração prisional responsável
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: Identificador IBGE de 7 dígitos do município do estabelecimento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_unidade
+        description: >-
+          Identificador estável do estabelecimento prisional, construído pelo
+          pareamento entre ciclos
+        tests: [not_null]
+      - name: ciclo
+        description: Número do ciclo de coleta do SISDEPEN, de 1 (2016/2) a 19 (2025/2)
+      - name: geracao_esquema
+        description: Geração do questionário à qual o ciclo pertence (A a D)
+      - name: situacao_processual
+        description: Situação processual da pessoa privada de liberdade
+        tests: [not_null]
+      - name: regime
+        description: Regime de cumprimento de pena, quando aplicável
+      - name: esfera_justica
+        description: Esfera da justiça responsável pela custódia
+        tests: [not_null]
+      - name: sexo
+        description: Sexo das pessoas privadas de liberdade contabilizadas
+        tests: [not_null]
+      - name: quantidade
+        description: Número de pessoas privadas de liberdade na célula
+      - name: quantidade_rdd
+        description: >-
+          Número de pessoas em Regime Disciplinar Diferenciado no
+          estabelecimento
+  - name: br_mj_sisdepen__uf_semestre
+    description: >-
+      Agregado estadual por semestre da população prisional e da capacidade
+      declarada, com a taxa de ocupação. Tabela de conveniência derivada das
+      tabelas por estabelecimento.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, semestre, sigla_uf]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano de referência do ciclo de coleta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: semestre
+        description: Semestre de referência do ciclo de coleta (1 ou 2)
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade federativa da administração prisional responsável
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: ciclo
+        description: Número do ciclo de coleta do SISDEPEN, de 1 (2016/2) a 19 (2025/2)
+      - name: geracao_esquema
+        description: Geração do questionário à qual o ciclo pertence (A a D)
+      - name: unidades
+        description: Número de estabelecimentos com resposta validada no semestre
+      - name: populacao_total
+        description: População prisional total do estado no semestre
+      - name: populacao_masculina
+        description: População prisional masculina do estado no semestre
+      - name: populacao_feminina
+        description: População prisional feminina do estado no semestre
+      - name: populacao_provisoria
+        description: População prisional sem condenação do estado no semestre
+      - name: capacidade_total
+        description: Total de vagas declaradas no estado no semestre
+      - name: vagas_desativadas
+        description: Vagas desativadas ou interditadas declaradas no estado
+      - name: taxa_ocupacao
+        description: Razão entre população prisional total e capacidade total declarada
+  - name: br_mj_sisdepen__unidade_crosswalk
+    description: >-
+      Correspondência entre os nomes de estabelecimento reportados em cada
+      ciclo e o identificador estável id_unidade. A fonte não publica
+      identificador de estabelecimento e os nomes mudam entre ciclos, de modo
+      que a identidade é reconstruída por pareamento um-para-um entre ciclos
+      consecutivos. Registra o escore do pareamento, o escore do segundo
+      melhor candidato e se o vínculo é ambíguo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, semestre, id_unidade]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano de referência do ciclo de coleta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: semestre
+        description: Semestre de referência do ciclo de coleta (1 ou 2)
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade federativa da administração prisional responsável
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: Identificador IBGE de 7 dígitos do município do estabelecimento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_unidade
+        description: >-
+          Identificador estável do estabelecimento prisional, construído pelo
+          pareamento entre ciclos
+        tests: [not_null]
+      - name: ciclo
+        description: Número do ciclo de coleta do SISDEPEN, de 1 (2016/2) a 19 (2025/2)
+      - name: nome_unidade_original
+        description: Nome do estabelecimento exatamente como reportado neste ciclo
+      - name: score_pareamento
+        description: >-
+          Escore de similaridade do pareamento que ligou este registro ao
+          ciclo anterior
+      - name: score_rival
+        description: Escore do segundo melhor candidato no mesmo município
+      - name: pareamento_ambiguo
+        description: >-
+          Indica se o segundo melhor candidato ficou a menos de 0,05 do
+          escolhido
+      - name: metodo_pareamento
+        description: Método que produziu o vínculo
+  - name: br_mj_sisdepen__unidade_prisional
+    description: >-
+      Estabelecimentos prisionais brasileiros por semestre e regime, com a
+      capacidade declarada. Uma linha por estabelecimento, semestre e regime.
+      Cobre os 19 ciclos semestrais do SISDEPEN, de 2016/2 a 2025/2.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, semestre, id_unidade, tipo_regime]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [descricao_outro_regime]
+    columns:
+      - name: ano
+        description: Ano de referência do ciclo de coleta
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: semestre
+        description: Semestre de referência do ciclo de coleta (1 ou 2)
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade federativa da administração prisional responsável
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__uf')
+              field: sigla
+      - name: id_municipio
+        description: Identificador IBGE de 7 dígitos do município do estabelecimento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+      - name: id_unidade
+        description: >-
+          Identificador estável do estabelecimento prisional, construído pelo
+          pareamento entre ciclos
+        tests: [not_null]
+      - name: ciclo
+        description: Número do ciclo de coleta do SISDEPEN, de 1 (2016/2) a 19 (2025/2)
+      - name: geracao_esquema
+        description: Geração do questionário à qual o ciclo pertence (A a D)
+      - name: nome_unidade
+        description: >-
+          Nome do estabelecimento prisional padronizado para o identificador
+          estável
+      - name: nome_unidade_original
+        description: Nome do estabelecimento exatamente como reportado neste ciclo
+      - name: ambito
+        description: Âmbito administrativo do estabelecimento, estadual ou federal
+      - name: tipo_recolhimento
+        description: >-
+          Forma de recolhimento, como cela física ou prisão domiciliar com
+          monitoramento eletrônico
+      - name: sexo_destinacao_original
+        description: >-
+          Sexo das pessoas privadas de liberdade ao qual o estabelecimento foi
+          originalmente destinado
+      - name: tipo_estabelecimento_original
+        description: >-
+          Tipo de estabelecimento ao qual a unidade foi originalmente
+          destinada
+      - name: gestao
+        description: >-
+          Natureza da gestão do estabelecimento, pública ou com participação
+          privada
+      - name: data_inauguracao
+        description: Data de inauguração do estabelecimento
+      - name: tipo_regime
+        description: >-
+          Regime ou situação prisional ao qual a capacidade declarada se
+          refere
+        tests: [not_null]
+      - name: capacidade_masculina
+        description: Vagas declaradas para pessoas do sexo masculino neste regime
+      - name: capacidade_feminina
+        description: Vagas declaradas para pessoas do sexo feminino neste regime
+      - name: capacidade_total
+        description: Total de vagas declaradas neste regime
+      - name: descricao_outro_regime
+        description: Descrição livre do regime quando tipo_regime é outro

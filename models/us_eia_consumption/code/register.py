@@ -21,9 +21,13 @@ import os
 import sys
 from pathlib import Path
 
-import gen_columns_json
-import metadata_spec as spec
-from common import DATA_TABLES, OUTPUT, load_cols
+from models.us_eia_consumption.code import gen_columns_json
+from models.us_eia_consumption.code import metadata_spec as spec
+from models.us_eia_consumption.code.common import (
+    DATA_TABLES,
+    OUTPUT,
+    load_cols,
+)
 
 _MCP_PATH = os.environ.get(
     "BD_MCP_PATH",
@@ -32,6 +36,7 @@ _MCP_PATH = os.environ.get(
 if Path(_MCP_PATH).is_dir():
     sys.path.insert(0, _MCP_PATH)
 try:
+    # pyrefly: ignore [missing-import]
     import server
 except ModuleNotFoundError as error:  # pragma: no cover
     raise SystemExit(
@@ -305,7 +310,11 @@ def main() -> None:
             continue
 
         free_end_year, free_end_month = shift_months(
-            end_year, end_month, -FREE_LAG_MONTHS
+            # pyrefly: ignore [bad-argument-type]
+            end_year,
+            # pyrefly: ignore [bad-argument-type]
+            end_month,
+            -FREE_LAG_MONTHS,
         )
         pro_start_year, pro_start_month = shift_months(
             free_end_year, free_end_month, 1

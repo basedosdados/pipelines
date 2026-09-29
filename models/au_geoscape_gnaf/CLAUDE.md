@@ -41,7 +41,7 @@ resolved ``snapshot_date`` vs the free ``Coverage``), only downloading the ~1.6 
 payload when a newer quarterly snapshot has actually been published — so a scheduled run
 is a cheap no-op between quarterly releases.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``au_geoscape_gnaf_flow``; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``au_geoscape_gnaf_flow``; the
 dev pool ignores the schedule, the prod pool activates it (deployed paused).
 
 Shared by the recurring pipeline (wrapped in ``@task`` in ``tasks.py``) and the one-shot

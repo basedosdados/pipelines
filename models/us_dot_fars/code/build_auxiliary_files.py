@@ -26,7 +26,13 @@ from datetime import date
 from pathlib import Path
 
 import requests
-from common import DATA_TABLES, DATASET_ID, INPUT, OUTPUT
+
+from models.us_dot_fars.code.common import (
+    DATA_TABLES,
+    DATASET_ID,
+    INPUT,
+    OUTPUT,
+)
 
 BUNDLE_DIR = OUTPUT.parent / "auxiliary_files"
 TODAY = date.today().isoformat()

@@ -18,14 +18,14 @@ the whole 20 GB panel.
 year on the portal and is republished on its own, slower cadence; it is
 refreshed by hand when a new year appears.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_ed_nces_ccd_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_ed_nces_ccd_flow`;
 the dev pool strips the schedule, the prod pool activates it (paused).
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_ed_nces_ccd.constants import constants
 from pipelines.datasets.us_ed_nces_ccd.tasks import (
@@ -33,6 +33,7 @@ from pipelines.datasets.us_ed_nces_ccd.tasks import (
     download_ccd,
     latest_source_year,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -75,7 +76,6 @@ def us_ed_nces_ccd_flow(
             coverage. Has no effect when ``materialize_to_prod`` is False.
         force_run: Materialize even when the poll reports no new school year.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="school"
     )
@@ -173,11 +173,9 @@ def us_ed_nces_ccd_flow(
 # run before the release a cheap no-op. Minute 23 is not used by any other
 # deployment in this repo — see the cron inventory in
 # `.claude/rules/prefect-pipeline-conventions.md`.
-# pyrefly: ignore [missing-attribute]
 us_ed_nces_ccd_flow.deploy_schedules = [
-    {"cron": "23 5 8,15,22 9,10,11,12 *", "timezone": "America/Sao_Paulo"}
+    Cron("23 5 8,15,22 9,10,11,12 *", timezone="America/Sao_Paulo")
 ]
 # The enrollment extract for a single year is ~900 MB of CSV streamed through
 # DuckDB into Parquet; give the worker headroom for the download plus the sort.
-# pyrefly: ignore [missing-attribute]
 us_ed_nces_ccd_flow.job_variables = {"memory": "8Gi"}

@@ -20,7 +20,14 @@ import sys
 import basedosdados as bd
 import google.cloud.storage as gcs
 import pyarrow.parquet as pq
-from common import LEGACY, LEGACY_YEARS, MODERN, MODERN_YEARS, OUTPUT
+
+from models.us_cfpb_hmda.code.common import (
+    LEGACY,
+    LEGACY_YEARS,
+    MODERN,
+    MODERN_YEARS,
+    OUTPUT,
+)
 
 BILLING_PROJECT = "basedosdados-dev"
 DATASET_ID = "us_cfpb_hmda"

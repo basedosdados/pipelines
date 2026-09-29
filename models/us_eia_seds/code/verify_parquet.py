@@ -18,7 +18,8 @@ import sys
 
 import pandas as pd
 import pyarrow.dataset as pads
-from common import OUTPUT
+
+from models.us_eia_seds.code.common import OUTPUT
 
 # Known SEDS national totals (StateCode US), for a magnitude check. Values are
 # read straight from the published Complete_SEDS.csv, so this guards the decode

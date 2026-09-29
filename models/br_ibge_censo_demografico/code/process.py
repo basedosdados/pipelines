@@ -8,10 +8,7 @@ from __future__ import annotations
 
 import argparse
 
-import clean
-import download
-
-from models.br_ibge_censo_demografico.code import constants
+from models.br_ibge_censo_demografico.code import clean, constants, download
 
 
 def main() -> None:

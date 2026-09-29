@@ -105,7 +105,9 @@ def vendor_codes(pudl_src: Path) -> None:
     """
     path = pudl_src / "src/pudl/metadata/codes.py"
     spec = importlib.util.spec_from_file_location("_pudl_codes", path)
+    # pyrefly: ignore [bad-argument-type]
     module = importlib.util.module_from_spec(spec)
+    # pyrefly: ignore [missing-attribute]
     spec.loader.exec_module(module)
     everything = {**module.CODE_METADATA, **module.DISABLED_CODE_METADATA}
 

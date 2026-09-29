@@ -26,7 +26,10 @@ from pathlib import Path
 
 warnings.filterwarnings("ignore")
 
-from constants import DATA_ROOT, DATASET_ID  # noqa: E402
+from models.cl_ine_censo.code.constants import (  # noqa: E402
+    DATA_ROOT,
+    DATASET_ID,
+)
 
 AUX_DIR = DATA_ROOT / "aux"
 DOCS_DIR = AUX_DIR / "docs"

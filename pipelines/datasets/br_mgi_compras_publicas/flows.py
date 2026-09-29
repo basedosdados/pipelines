@@ -16,14 +16,14 @@ The Lei 8.666 legado tables are **not** refreshed: that procurement regime has
 ended and its 2025 tail is 7,562 rows. They are a closed archive, backfilled
 once. Adding them to a schedule would spend hours re-reading a frozen dataset.
 
-Deploy: `.github/scripts/deploy_flows.py` discovers the flow objects below.
+Deploy: `.github/workflows/scripts/deploy_flows.py` discovers the flow objects below.
 """
 
 from __future__ import annotations
 
 import datetime as dt
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_mgi_compras_publicas.constants import constants
 from pipelines.datasets.br_mgi_compras_publicas.tasks import (
@@ -31,6 +31,7 @@ from pipelines.datasets.br_mgi_compras_publicas.tasks import (
     rebuild_dicionario,
     refresh_table,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -200,7 +201,6 @@ def br_mgi_compras_publicas_diario_flow(
     revision_window_days: int = REVISION_WINDOW_DAYS,
 ) -> None:
     """Refresh the Lei 14.133 modules and the contract registry."""
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="diario"
     )
@@ -220,7 +220,6 @@ def br_mgi_compras_publicas_semanal_flow(
     output_dir: str = "/tmp/br_mgi_compras_publicas",
 ) -> None:
     """Re-snapshot the registries, catalogues and dicionario."""
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="semanal"
     )
@@ -239,15 +238,11 @@ def br_mgi_compras_publicas_semanal_flow(
 # Minute chosen off the hour and away from the slots already in use: piling
 # every pipeline onto :00 makes them compete for BigQuery slots and fail
 # together if the daily quota trips.
-# pyrefly: ignore [missing-attribute]
 br_mgi_compras_publicas_diario_flow.deploy_schedules = [
-    {"cron": "37 5 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("37 5 * * *", timezone="America/Sao_Paulo")
 ]
-# pyrefly: ignore [missing-attribute]
 br_mgi_compras_publicas_semanal_flow.deploy_schedules = [
-    {"cron": "12 4 * * 0", "timezone": "America/Sao_Paulo"}
+    Cron("12 4 * * 0", timezone="America/Sao_Paulo")
 ]
-# pyrefly: ignore [missing-attribute]
 br_mgi_compras_publicas_diario_flow.job_variables = {"memory": "8Gi"}
-# pyrefly: ignore [missing-attribute]
 br_mgi_compras_publicas_semanal_flow.job_variables = {"memory": "8Gi"}
