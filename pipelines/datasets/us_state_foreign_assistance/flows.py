@@ -8,7 +8,7 @@ replace of all three tables, guarded by a cheap poll: a HEAD request on the
 complete CSV's S3 ``Last-Modified`` header, compared against the table's last
 materialization. Nothing is downloaded until the source is newer.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers
 `us_state_foreign_assistance_flow`; the dev pool ignores the schedule, the prod
 pool activates it (paused until armed in Django admin).
 """
