@@ -29,6 +29,7 @@ previous onboardings:
 
 from __future__ import annotations
 
+import datetime as dt
 import json
 import sys
 from collections.abc import Callable
@@ -45,7 +46,7 @@ from observation_translations import (  # noqa: E402
     OBSERVATIONS,
     check_translations,
 )
-from table_metadata import DATASET, TABLE_ORDER  # noqa: E402
+from table_metadata import DATASET, TABLE_ORDER, UPDATE_CADENCE  # noqa: E402
 from table_metadata import TABLES as META  # noqa: E402
 
 ARCH = HERE / "architecture"
@@ -110,6 +111,50 @@ def lookup(category: str, slug: str, env: str) -> str | None:
         return None
 
 
+#: One timestamp for the whole run, so every table's Update reports the same
+#: refresh rather than drifting by the seconds the run takes.
+REFRESHED_AT = dt.datetime.now(dt.UTC).replace(microsecond=0).isoformat()
+
+
+#: The table-anchored Update's `latest` says when *we* last refreshed the table.
+#: This script registers metadata; it materializes nothing. So a rerun that only
+#: fixes a description must not move `latest`, or it reports a refresh that never
+#: happened -- and `poll_source_for_update` compares the source's max coverage
+#: date against this field, so an inflated value can leave a pipeline running
+#: green while it ingests nothing.
+#:
+#: get_dataset does not return `latest`, so read it directly. On first creation
+#: there is nothing to preserve and REFRESHED_AT stands; from then on the stored
+#: value is carried forward and only a real materialization moves it, via the
+#: pipeline's register_table_materialization_task.
+_STORED_LATEST_QUERY = """
+query($slug: String!) {
+  allDataset(slug: $slug) {
+    edges { node { tables { edges { node {
+      slug updates { edges { node { latest } } }
+    } } } } }
+  }
+}
+"""
+
+
+def stored_update_latest(slug: str, env: str) -> dict[str, str]:
+    """Each table's current Update.latest, keyed by table slug."""
+    try:
+        data = server._gql(_STORED_LATEST_QUERY, {"slug": slug}, env=env)
+    except Exception as exc:
+        print(f"  warning: could not read stored Update.latest ({exc})")
+        return {}
+    out: dict[str, str] = {}
+    for edge in data.get("allDataset", {}).get("edges", []):
+        for entry in edge["node"]["tables"]["edges"]:
+            table = entry["node"]
+            latest = [u["node"]["latest"] for u in table["updates"]["edges"]]
+            if latest and latest[0]:
+                out[table["slug"]] = latest[0]
+    return out
+
+
 def read_architecture(table: str) -> list[dict[str, str]]:
     import csv
 
@@ -166,6 +211,14 @@ def existing(node: dict[str, Any]) -> dict[str, Any]:
         "observation_levels": levels,
         "cloud_tables": [c["id"] for c in node.get("cloud_tables", [])],
         "coverages": [c["id"] for c in node.get("coverages", [])],
+        # Every range under every coverage, flattened. create_update_datetime_range
+        # called without an id creates a NEW range each run, which is why the 19
+        # tables registered before this fix carry three identical ranges apiece.
+        "datetime_ranges": [
+            r["id"]
+            for c in node.get("coverages", [])
+            for r in c.get("datetime_ranges", [])
+        ],
         "updates": [u["id"] for u in node.get("updates", [])],
     }
 
@@ -195,6 +248,15 @@ def prune(node: dict[str, Any], env: str) -> None:
     ):
         for extra in records[1:]:
             delete(kind=kind, record_id=extra["id"], env=env)
+    # Ranges duplicate independently of their coverage: one coverage reused
+    # across runs still accumulated a range per run before the id was passed.
+    ranges = [
+        r
+        for c in node.get("coverages", [])
+        for r in c.get("datetime_ranges", [])
+    ]
+    for extra in ranges[1:]:
+        delete(kind="datetimerange", record_id=extra["id"], env=env)
 
 
 def main(env: str, status: str) -> int:
@@ -281,6 +343,7 @@ def main(env: str, status: str) -> int:
 
     published_status = lookup("status", "published", env)
     node = fn("get_dataset")(slug=DATASET["slug"], env=env)
+    kept_latest = stored_update_latest(DATASET["slug"], env)
     table_ids: dict[str, str] = {}
 
     for table in TABLE_ORDER:
@@ -374,6 +437,9 @@ def main(env: str, status: str) -> int:
             )["id"]
             start_year, start_month, end_year, end_month = meta.coverage
             fn("create_update_datetime_range")(
+                id=prior["datetime_ranges"][0]
+                if prior["datetime_ranges"]
+                else None,
                 coverage_id=coverage_id,
                 start_year=start_year,
                 start_month=start_month,
@@ -382,6 +448,22 @@ def main(env: str, status: str) -> int:
                 interval=1,
                 env=env,
             )
+
+        # The table-anchored Update: when WE last refreshed the table, and how
+        # often we do. `latest` is a wall clock, per the convention -- the
+        # source's own publication date belongs on a source-anchored Update.
+        entity_slug, frequency = UPDATE_CADENCE[table]
+        cadence_entity = lookup("entity", entity_slug, env)
+        if cadence_entity is None:
+            sys.exit(f"{table}: entity {entity_slug!r} not found in {env}")
+        fn("create_update_update")(
+            id=prior["updates"][0] if prior["updates"] else None,
+            table_id=table_id,
+            entity_id=cadence_entity,
+            frequency=frequency,
+            latest=kept_latest.get(table, REFRESHED_AT),
+            env=env,
+        )
 
         counts = result if isinstance(result, dict) else {}
         print(
