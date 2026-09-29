@@ -233,6 +233,11 @@ project-excludes = [
   # generator's heterogeneous record dicts, where `e["slug"]` is always a str
   # at runtime but widens to a union statically.
   "models/br_ufmg_censo_demografico_1872/code",
+  # Same policy: the br_prf_acidentes onboarding scripts run from their own
+  # directory with bare sibling imports (`constants`, `utils`, `clean_data`).
+  # Checked with `pyrefly check --search-path .` from that directory, which
+  # resolves them: 0 diagnostics.
+  "models/br_prf_acidentes/code",
   "models/us_ffiec_bank_reporting/code",
   "models/world_oecd_education/code",
   "models/world_oecd_revenue_statistics/code",
