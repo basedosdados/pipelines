@@ -1,4 +1,8 @@
-"""Trilingual names and descriptions for the 43 MG-only tables.
+"""Trilingual names and descriptions for every table in the `mides` dataset.
+
+`TABLES` holds all 52: the 43 MG-only tables this directory's scripts build,
+and the 9 older multi-state ones listed in `ORIGINAL_TABLES`. `MG_TABLES` is
+the 43, and it -- not `TABLES` -- is what those scripts iterate.
 
 Shared by `gen_mg_schema.py` (which emits Portuguese into `schema.yml`, per the
 house dbt convention) and by metadata registration (which needs all three
@@ -120,6 +124,26 @@ RAGGED_SUFFIX: tuple[str, str, str] = (
     "recuento disminuye con cada nueva extracción.",
 )
 
+#: The 9 tables that predate the MG harvest: multi-state, built from several
+#: Tribunais de Contas, and registered before the scripts in this directory
+#: existed. Their names and descriptions are recorded in TABLES below so the
+#: dataset has one glossary, but they are NOT in MG_TABLES and nothing here
+#: writes them -- their area, coverage and observation levels are not MG's, and
+#: `register_mg_metadata` would stamp them with br_mg and 2014-2026.
+ORIGINAL_TABLES: frozenset[str] = frozenset(
+    {
+        "empenho",
+        "liquidacao",
+        "pagamento",
+        "licitacao",
+        "licitacao_item",
+        "licitacao_participante",
+        "orgao_unidade_gestora",
+        "relacionamentos",
+        "dicionario",
+    }
+)
+
 # table slug -> (name_pt, name_en, name_es, description_pt, description_en, description_es)
 TABLES: dict[str, tuple[str, str, str, str, str, str]] = {
     "alteracao_orcamentaria": (
@@ -210,6 +234,14 @@ TABLES: dict[str, tuple[str, str, str, str, str, str]] = {
         "Budget appropriations for expenditure, with functional-programmatic classification and funding source.",
         "Partidas presupuestarias del gasto, con clasificación funcional-programática y fuente de recursos.",
     ),
+    "dicionario": (
+        "Dicionário",
+        "Dictionary",
+        "Diccionario",
+        "Dicionário para tradução dos códigos das tabelas do do conjunto Microdados de Despesas de Entes Subnacionais (MiDES). Para códigos definidos por outras instituições, como id_municipio ou cnaes, buscar por diretórios",
+        "Dictionary for translating the codes of the tables in the Subnational Entities Expenditure Microdata Set (MiDES). For codes defined by other institutions, such as id_municipio or cnaes, search for directories",
+        "Diccionario para la traducción de los códigos de las tablas del conjunto de Microdatos de Gastos de Entidades Subnacionales (MiDES). Para códigos definidos por otras instituciones, como id_municipio o cnaes, buscar en directorios",
+    ),
     "dispensa": (
         "Dispensa e inexigibilidade",
         "Procurement waiver",
@@ -266,6 +298,14 @@ TABLES: dict[str, tuple[str, str, str, str, str, str]] = {
         "Officers designated as responsible for each procurement waiver process.",
         "Responsables designados para cada proceso de dispensa de licitación.",
     ),
+    "empenho": (
+        "Empenho",
+        "Commitment",
+        "Compromiso",
+        "Dados a nível de empenho.",
+        "Data at the commitment level.",
+        "Datos a nivel de compromiso.",
+    ),
     "empenho_credor": (
         "Empenho - Credor",
         "Commitment - Creditor",
@@ -289,6 +329,14 @@ TABLES: dict[str, tuple[str, str, str, str, str, str]] = {
         "Leis municipais que autorizam os decretos de alteração orçamentária.",
         "Municipal laws authorising the budget amendment decrees.",
         "Leyes municipales que autorizan los decretos de modificación presupuestaria.",
+    ),
+    "licitacao": (
+        "Licitação",
+        "Tender",
+        "Licitación",
+        "Dados a nível de licitação.",
+        "Data at the tender level.",
+        "Datos a nivel de licitación.",
     ),
     "licitacao_comissao": (
         "Licitação - Comissão",
@@ -322,6 +370,14 @@ TABLES: dict[str, tuple[str, str, str, str, str, str]] = {
         "Award and adjudication of each tendered item, with the winner and the awarded amount.",
         "Homologación y adjudicación de cada ítem licitado, con el ganador y el monto homologado.",
     ),
+    "licitacao_item": (
+        "Licitação - Item",
+        "Tender - Item",
+        "Licitación - Ítem",
+        "Dados a nível de licitação-item.",
+        "Data at the bid-item level.",
+        "Datos a nivel de licitación-item.",
+    ),
     "licitacao_julgamento": (
         "Licitação - Julgamento",
         "Tender - Adjudication",
@@ -338,6 +394,14 @@ TABLES: dict[str, tuple[str, str, str, str, str, str]] = {
         "Technical and legal opinions issued in each procurement process.",
         "Dictámenes técnicos y jurídicos emitidos en cada proceso licitatorio.",
     ),
+    "licitacao_participante": (
+        "Licitação - Participante",
+        "Tender - Participant",
+        "Licitación - Participante",
+        "Dados a nível de licitação-participante.",
+        "Data at the tender-participant level.",
+        "Datos a nivel de licitación-participante.",
+    ),
     "licitacao_quadro_societario": (
         "Licitação - Participante - Quadro societário",
         "Tender - Participant - Shareholding",
@@ -353,6 +417,14 @@ TABLES: dict[str, tuple[str, str, str, str, str, str]] = {
         "Responsáveis designados para cada processo licitatório.",
         "Officers designated as responsible for each procurement process.",
         "Responsables designados para cada proceso licitatorio.",
+    ),
+    "liquidacao": (
+        "Liquidação",
+        "Settlement",
+        "Liquidación",
+        "Dados a nível de liquidação.",
+        "Data at settlement level.",
+        "Datos a nivel de liquidación.",
     ),
     "liquidacao_fonte": (
         "Liquidação - Fonte de recurso",
@@ -385,6 +457,22 @@ TABLES: dict[str, tuple[str, str, str, str, str, str]] = {
         "Itens discriminados em cada nota fiscal, com quantidade e valor unitário.",
         "Items itemised on each invoice, with quantity and unit value.",
         "Ítems discriminados en cada factura, con cantidad y valor unitario.",
+    ),
+    "orgao_unidade_gestora": (
+        "Órgão e unidade gestora",
+        "Government body and managing unit",
+        "Órgano y unidad gestora",
+        "Dados auxiliares a nível de órgão e unidade gestora.",
+        "Auxiliary data at the level of organ and managing unit.",
+        "Datos auxiliares a nivel de órgano y unidad gestora.",
+    ),
+    "pagamento": (
+        "Pagamento",
+        "Payment",
+        "Pago",
+        "Dados a nível de pagamento.",
+        "Data at the payment level.",
+        "Datos a nivel de pago.",
     ),
     "pagamento_movimento": (
         "Pagamento - Movimentação",
@@ -425,6 +513,14 @@ TABLES: dict[str, tuple[str, str, str, str, str, str]] = {
         "Fornecedores vencedores em cada adesão a ata de registro de preços.",
         "Winning suppliers in each price-registry adhesion.",
         "Proveedores ganadores en cada adhesión al acta de registro de precios.",
+    ),
+    "relacionamentos": (
+        "Relacionamentos",
+        "Relationships",
+        "Relaciones",
+        "Dados a nível de relacionamento.",
+        "Relationship-level data.",
+        "Datos a nivel de relación.",
     ),
     "restos_pagar": (
         "Restos a pagar",
@@ -495,9 +591,16 @@ def description(table: str, lang: str = "pt", with_suffix: bool = True) -> str:
 #: Display order of the dataset's tables on the site, depth-first: each child
 #: sits directly under its parent, matching the hierarchical names above
 #: ("Contrato", then "Contrato - Item", then "Contrato - Termo aditivo - Item").
-#: Covers all 52 tables, not only the 43 MG ones this module names, because
+#: Covers all 52 tables, not only the 43 in `MG_TABLES`, because
 #: `reorder_tables` restates the whole dataset -- the 9 original multi-state
 #: tables lead, since the expenditure chain is what the dataset is about.
+
+#: The 43 MG-only tables: everything in TABLES that is not one of the 9 above.
+#: This -- not TABLES -- is the scope of `register_mg_metadata`,
+#: `gen_mg_schema`, `verify_mg_metadata`, `verify_mg_bigquery` and
+#: `build_mg_auxiliary_files`.
+MG_TABLES: frozenset[str] = frozenset(TABLES) - ORIGINAL_TABLES
+
 TABLE_ORDER = [
     "empenho",
     "empenho_credor",
