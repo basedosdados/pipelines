@@ -528,6 +528,15 @@ def main() -> None:
             f"  {slug:<34} {len(cols):>3} cols  OL={','.join(levels):<28} registered"
         )
 
+    # reorder_tables keys on the dataset SLUG and restates the order of every
+    # table in it, so it is skipped on a scoped run: it would reorder the 9
+    # original multi-state tables this run was told not to touch.
+    if not args.dry_run and not args.table:
+        server.reorder_tables(
+            dataset_slug="mides", table_slugs=tables.TABLE_ORDER, env=ENV
+        )
+        print(f"  reordered {len(tables.TABLE_ORDER)} tables")
+
     print(
         f"\n{len(slugs)} tables processed "
         f"({'dry run' if args.dry_run else ENV}, status={args.status}"
