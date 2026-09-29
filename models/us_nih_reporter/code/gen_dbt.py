@@ -7,7 +7,7 @@ implement.
 Run: uv run python models/us_nih_reporter/code/gen_dbt.py
 """
 
-from common import (
+from models.us_nih_reporter.code.common import (
     ALL_TABLES,
     PARTITIONED_TABLES,
     REPO_ROOT,

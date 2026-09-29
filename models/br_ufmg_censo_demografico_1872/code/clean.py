@@ -18,15 +18,19 @@ from __future__ import annotations
 
 import os
 import shutil
-import sys
 from pathlib import Path
 
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from spec import ANO, DICIONARIOS, LEVELS, TABLES, table_slug
+from models.br_ufmg_censo_demografico_1872.code.spec import (
+    ANO,
+    DICIONARIOS,
+    LEVELS,
+    TABLES,
+    table_slug,
+)
 
 DATA_DIR = Path(
     os.environ.get(
@@ -127,12 +131,14 @@ def build_dicionario() -> int:
         cfg = DICIONARIOS[t["dicionario"]]
         d = _read(t["dicionario"])
         for _, r in d.iterrows():
+            # pyrefly: ignore [bad-index]
             desc = str(r[cfg["desc"]]).strip()
             grupo = str(r[cfg["grupo"]]).strip() if cfg["grupo"] else ""
             if grupo and grupo.lower() not in ("nan", "", desc.lower()):
                 valor = f"{grupo}: {desc}"
             else:
                 valor = desc
+            # pyrefly: ignore [bad-index]
             key = r[cfg["key"]]
             if pd.isna(key):
                 continue

@@ -87,7 +87,6 @@ def _rf_cnpj_flow(table_id: str, cron: str):
             None. Returns early (without uploading/running dbt) if `force_run` is
             False and the source has no new data since the last committed update.
         """
-        # pyrefly: ignore [unused-coroutine]
         rename_flow_run_dataset_table(
             prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
         )

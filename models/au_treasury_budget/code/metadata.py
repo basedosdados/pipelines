@@ -22,8 +22,10 @@ import sys
 sys.path.insert(
     0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
 )
-import columns as column_defs
+# pyrefly: ignore [missing-import]
 import server
+
+from models.au_treasury_budget.code import columns as column_defs
 
 DATASET_SLUG = "budget"
 GCP_DATASET_ID = "au_treasury_budget"

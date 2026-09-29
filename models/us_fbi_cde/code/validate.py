@@ -158,12 +158,14 @@ def main():
             print(f"{table:32s} {'(absent)':>15s}")
             continue
         if table == "dicionario":
+            # pyrefly: ignore [unsupported-operation]
             rows = con.execute(
                 f"select count(*) from {source(table)}"
             ).fetchone()[0]
             counts[table] = rows
             print(f"{table:32s} {rows:>15,}")
             continue
+        # pyrefly: ignore [not-iterable]
         rows, first, last = con.execute(
             f"select count(*), min(year), max(year) from {source(table)}"
         ).fetchone()
@@ -181,6 +183,7 @@ def main():
         if table not in counts:
             continue
         key = ", ".join(spec["unique_key"])
+        # pyrefly: ignore [unsupported-operation]
         duplicates = con.execute(
             f"select count(*) from (select {key} from {source(table)} "
             f"group by {key} having count(*) > 1)"
@@ -197,6 +200,7 @@ def main():
         for child, child_col, parent, parent_col in REFERENCES:
             if child not in counts or parent not in counts:
                 continue
+            # pyrefly: ignore [unsupported-operation]
             orphans = con.execute(
                 f"select count(*) from {source(child)} c "
                 f"anti join {source(parent)} p "
@@ -227,6 +231,7 @@ def main():
             if c["covered_by_dictionary"] == "yes"
         ]
         for column in coded:
+            # pyrefly: ignore [unsupported-operation]
             uncovered = con.execute(
                 f"select count(distinct t.{column}) from {source(table)} t "
                 f"left join dic d on d.id_tabela = '{table}' "
@@ -254,6 +259,7 @@ def main():
 
     if "ucr_summary" in counts and "agency" in counts:
         print("\nthe one derived join: ucr_summary.ori -> agency.ori")
+        # pyrefly: ignore [not-iterable]
         matched, total = con.execute(
             "select count(*) filter (where p.ori is not null), count(*) from "
             f"(select distinct year, ori from {source('ucr_summary')}) s "

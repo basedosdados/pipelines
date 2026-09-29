@@ -11,8 +11,12 @@ committing without that first produces the hook re-write loop.
 import csv
 import json
 
-from common import ARCH_DIR, OUTPUT, REPO_ROOT
-from tables import TABLES
+from models.world_iati_activities.code.common import (
+    ARCH_DIR,
+    OUTPUT,
+    REPO_ROOT,
+)
+from models.world_iati_activities.code.tables import TABLES
 
 DATASET = "world_iati_activities"
 MODEL_DIR = REPO_ROOT / "models" / DATASET
@@ -183,6 +187,7 @@ def write_schema(tables):
         if UNIQUE_KEY[table] is not None:
             out.append("      - dbt_utils.unique_combination_of_columns:\n")
             out.append(
+                # pyrefly: ignore [no-matching-overload]
                 "          combination_of_columns: "
                 f"[{', '.join(UNIQUE_KEY[table])}]\n"
             )

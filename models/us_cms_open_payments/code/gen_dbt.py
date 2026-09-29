@@ -9,13 +9,17 @@ sparse by design rather than being weakened across the board.
 import json
 from pathlib import Path
 
-import constants as c
-import descriptions
-import grains
-import layout
-import profile_data
-import schema
-from table_descriptions import TABLE_DESCRIPTIONS
+from models.us_cms_open_payments.code import constants as c
+from models.us_cms_open_payments.code import (
+    descriptions,
+    grains,
+    layout,
+    profile_data,
+    schema,
+)
+from models.us_cms_open_payments.code.table_descriptions import (
+    TABLE_DESCRIPTIONS,
+)
 
 MODELS_DIR = Path(__file__).resolve().parents[1]
 DATASET = c.GCP_DATASET_ID

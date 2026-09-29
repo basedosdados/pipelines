@@ -99,7 +99,6 @@ def us_eia_consumption_flow(
         force_run: Materialize even when both polls report nothing new — needed
             for a revision that restates without adding a period.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ",
         dataset_id=DATASET_ID,

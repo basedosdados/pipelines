@@ -33,8 +33,10 @@ from pathlib import Path
 MCP_DIR = Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
 sys.path.insert(0, str(MCP_DIR))
 
+# pyrefly: ignore [missing-import]
 import server  # noqa: E402
-from dataset_meta import (  # noqa: E402
+
+from models.us_cms_hcris.code.dataset_meta import (  # noqa: E402
     AUXILIARY_FILES,
     COVERAGE,
     DATASET_DESCRIPTION,
@@ -50,7 +52,7 @@ from dataset_meta import (  # noqa: E402
     TAGS,
     THEMES,
 )
-from schema import TABLES  # noqa: E402
+from models.us_cms_hcris.code.schema import TABLES  # noqa: E402
 
 CODE_DIR = Path(__file__).resolve().parent
 ARCH = CODE_DIR / "architecture"
@@ -251,6 +253,7 @@ def with_tail(table: str) -> tuple[str, str, str]:
     base = TABLE_DESCRIPTIONS[table]
     if table not in DATA_TABLES:
         return base
+    # pyrefly: ignore [bad-return]
     return tuple(b + t for b, t in zip(base, INCOMPLETE_TAIL, strict=True))
 
 

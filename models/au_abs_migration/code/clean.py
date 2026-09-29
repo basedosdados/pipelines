@@ -23,7 +23,6 @@ import re
 import shutil
 from pathlib import Path
 
-# pyrefly: ignore [untyped-import]
 import openpyxl
 import pandas as pd
 import pyarrow as pa

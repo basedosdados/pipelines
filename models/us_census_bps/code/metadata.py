@@ -21,6 +21,7 @@ sys.path.insert(
 )
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
+# pyrefly: ignore [missing-import]
 import server
 
 from pipelines.datasets.us_census_bps.constants import constants
@@ -300,7 +301,7 @@ DICIONARIO_DESC = (
 
 def table_description(table: str) -> str:
     """Return the table description used in both the dbt schema and here."""
-    from build_dbt import DESCRIPTIONS
+    from models.us_census_bps.code.build_dbt import DESCRIPTIONS
 
     return DESCRIPTIONS[table]
 

@@ -19,9 +19,10 @@ import sys
 from pathlib import Path
 
 import pyarrow.parquet as pq
-from common import DATASET_ID, OUTPUT, STAGED_TABLES
 from google.cloud import bigquery
-from measures import MEASURES
+
+from models.us_cms_hcris.code.common import DATASET_ID, OUTPUT, STAGED_TABLES
+from models.us_cms_hcris.code.measures import MEASURES
 
 CODE_DIR = Path(__file__).resolve().parent
 TOLERANCE = 0.001

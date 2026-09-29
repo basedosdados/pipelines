@@ -24,6 +24,7 @@ sys.path.insert(
     ),
 )
 
+# pyrefly: ignore [missing-import]
 import server
 
 ENV = "prod"

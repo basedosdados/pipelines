@@ -16,7 +16,7 @@ import csv
 import os
 from pathlib import Path
 
-import openpyxl  # pyrefly: ignore [untyped-import]
+import openpyxl
 
 from pipelines.datasets.au_apra_adi.constants import constants
 from pipelines.datasets.au_apra_adi.utils import _iter_tabs, _unit_for

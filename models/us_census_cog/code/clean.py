@@ -12,8 +12,7 @@ reads back the special-district function names from the cleaned output.
 import sys
 import time
 
-from common import DATA_TABLES, INPUT, OUTPUT
-
+from models.us_census_cog.code.common import DATA_TABLES, INPUT, OUTPUT
 from pipelines.datasets.us_census_cog.utils import (
     build_dicionario,
     clean_table_year,

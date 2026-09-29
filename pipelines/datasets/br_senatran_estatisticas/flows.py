@@ -49,7 +49,6 @@ def _run_senatran(
     force_run: bool,
     backfill_start: str | None = None,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -136,7 +135,6 @@ def _run_senatran(
     if not materialize_after_dump:
         return
 
-    # pyrefly: ignore [no-matching-overload]
     upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
@@ -243,7 +241,6 @@ def _run_breakdown(
     único XLSX por mês, já em formato longo, então não passam pelo
     ``crawl_task``/``get_desired_file_task`` do par município/UF x tipo.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -300,7 +297,6 @@ def _run_breakdown(
     if filepath is None:
         raise RuntimeError("Nenhum mês foi processado — nada a subir")
 
-    # pyrefly: ignore [no-matching-overload]
     upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,
@@ -319,7 +315,6 @@ def _run_breakdown(
     if not materialize_after_dump:
         return
 
-    # pyrefly: ignore [no-matching-overload]
     upload_to_gcs(
         data_path=filepath,
         dataset_id=dataset_id,

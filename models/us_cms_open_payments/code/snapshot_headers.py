@@ -11,8 +11,8 @@ import json
 import subprocess
 from pathlib import Path
 
-import constants as c
-import remote_zip
+from models.us_cms_open_payments.code import constants as c
+from models.us_cms_open_payments.code import remote_zip
 
 
 def current_header(url: str) -> list[str]:

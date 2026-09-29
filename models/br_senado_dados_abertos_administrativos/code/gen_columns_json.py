@@ -6,8 +6,9 @@ uv run python gen_columns_json.py     # writes code/columns_json/<slug>.json
 import json
 import os
 
-# pyrefly: ignore [missing-import]
-from architecture_spec import TABLES
+from models.br_senado_dados_abertos_administrativos.code.architecture_spec import (
+    TABLES,
+)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "columns_json")

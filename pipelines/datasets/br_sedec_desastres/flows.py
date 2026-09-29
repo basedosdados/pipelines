@@ -54,7 +54,6 @@ def br_sedec_desastres__reconhecimentos_vigentes(
     force_run: bool = False,
 ) -> None:
     """Baixa o relatório do S2ID, remonta a tabela e materializa."""
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )

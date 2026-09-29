@@ -33,10 +33,22 @@ from string import Template
 sys.path.insert(0, "/Users/rdah0003/Dropbox/BD/mcp")
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+# pyrefly: ignore [missing-import]
 import server as bd_mcp
-from spec import ANO, LEVELS, table_slug
-from spec import TABLES as SOURCE_TABLES
-from tables import AUXILIARES, DATASET_ID, DATASET_SLUG
+
+from models.br_ufmg_censo_demografico_1872.code.spec import (
+    ANO,
+    LEVELS,
+    table_slug,
+)
+from models.br_ufmg_censo_demografico_1872.code.spec import (
+    TABLES as SOURCE_TABLES,
+)
+from models.br_ufmg_censo_demografico_1872.code.tables import (
+    AUXILIARES,
+    DATASET_ID,
+    DATASET_SLUG,
+)
 
 HERE = Path(__file__).resolve().parent
 

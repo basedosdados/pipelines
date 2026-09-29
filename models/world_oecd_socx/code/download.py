@@ -21,8 +21,8 @@ import json
 import sys
 import xml.etree.ElementTree as ET
 
-from common import INPUT, SDMX, STRUCTURE, get
-from tables import TABLES
+from models.world_oecd_socx.code.common import INPUT, SDMX, STRUCTURE, get
+from models.world_oecd_socx.code.tables import TABLES
 
 S = "{http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure}"
 C = "{http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common}"

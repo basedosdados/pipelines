@@ -13,8 +13,12 @@ import json
 import os
 import sys
 
-from constants import DATA_DIR, INPUT_DIR, OUTPUT_DIR
-from utils import available_years, clean_all, download_year
+from models.br_mj_sinesp.code.constants import DATA_DIR, INPUT_DIR, OUTPUT_DIR
+from models.br_mj_sinesp.code.utils import (
+    available_years,
+    clean_all,
+    download_year,
+)
 
 
 def main(years: list[int] | None = None) -> None:
