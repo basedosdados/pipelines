@@ -18,6 +18,12 @@ e é atualizada com frequência **diária**.
   `pipelines/crawler/rf_cafir/` foi removido; todo o código foi migrado.
 - **Flow:** `pipelines/datasets/br_rf_cafir/flows.py` — cron diário (`0 0 * * *`)
 - **Permissionamento:** `PartBdpro` sobre `data_referencia` (janela recente paga)
+- **Proxy:** a Receita bloqueia IPs de fora do Brasil, e o cluster roda em
+  `us-central1`. Sem proxy, a conexão cai com `RemoteDisconnected` já no
+  PROPFIND. Por isso as duas chamadas à fonte (`requests_url` e
+  `download_csv_files`) passam `proxies=brasil_proxy_dict()`. A variável
+  `BRASIL_PROXY_URL` chega sozinha em todo pod do work pool. Quando ela não
+  existe, como na máquina local, a chamada vai direto.
 
 ---
 

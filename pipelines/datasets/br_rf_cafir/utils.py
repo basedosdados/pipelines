@@ -14,7 +14,7 @@ from requests.adapters import HTTPAdapter
 from pipelines.datasets.br_rf_cafir.constants import (
     constants as br_rf_cafir_constants,
 )
-from pipelines.utils.utils import log
+from pipelines.utils.utils import brasil_proxy_dict, log
 
 # Sessão compartilhada entre downloads paralelos: pool por host, em vez de abrir uma conexão nova a cada arquivo.
 _session = requests.Session()
@@ -70,6 +70,7 @@ def requests_url(url: str) -> requests.Response:
             headers=headers,
             data=xml_body,
             timeout=30,
+            proxies=brasil_proxy_dict(),
         )
 
         response.raise_for_status()
@@ -151,6 +152,7 @@ def download_csv_files(url: str, file_name: str, input_folder: Path) -> None:
         headers=br_rf_cafir_constants.HEADERS.value,
         stream=True,
         timeout=60,
+        proxies=brasil_proxy_dict(),
     ) as response:
         response.raise_for_status()
         with open(file_path, "wb") as f:
