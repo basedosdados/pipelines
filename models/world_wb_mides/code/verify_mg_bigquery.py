@@ -36,6 +36,9 @@ from google.oauth2 import service_account
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # pyrefly: ignore [missing-import]  # sibling module via sys.path
+import mg_table_glossary as tables
+
+# pyrefly: ignore [missing-import]  # sibling module via sys.path
 import register_mg_metadata as reg
 
 CREDENTIALS = Path.home() / ".basedosdados/credentials/staging.json"
@@ -80,10 +83,10 @@ def main() -> None:
     info = json.loads(CREDENTIALS.read_text())
     client = bigquery.Client(credentials=creds, project=info["project_id"])
 
-    mg_dir = Path(__file__).resolve().parent.parent / "mg"
-    new_tables = sorted(
-        p.stem[len("world_wb_mides__") :] for p in mg_dir.glob("*.sql")
-    )
+    # The MG models share `models/world_wb_mides/` with the 9 original
+    # multi-state ones, so the glossary -- not a directory listing -- is
+    # what names this set of 43.
+    new_tables = sorted(tables.TABLES)
 
     rows = catalog_query(
         client,
@@ -117,9 +120,7 @@ def main() -> None:
             continue
         total_rows += table.row_count
 
-        want = dict(
-            reg.typed_columns(str(mg_dir / f"world_wb_mides__{slug}.sql"))
-        )
+        want = dict(reg.typed_columns(reg.model_path(slug)))
         got = by_table.get(slug, {})
         missing = sorted(set(want) - set(got))
         extra = sorted(set(got) - set(want))
