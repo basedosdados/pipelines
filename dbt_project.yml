@@ -582,6 +582,9 @@ models:
     br_mp_pep:
       +materialized: table
       +schema: br_mp_pep
+    br_mps_beneficios:
+      +materialized: table
+      +schema: br_mps_beneficios
     br_ms_cnes:
       +materialized: table
       +schema: br_ms_cnes

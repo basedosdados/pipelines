@@ -86,7 +86,7 @@ def main() -> None:
     # The MG models share `models/world_wb_mides/` with the 9 original
     # multi-state ones, so the glossary -- not a directory listing -- is
     # what names this set of 43.
-    new_tables = sorted(tables.TABLES)
+    new_tables = sorted(tables.MG_TABLES)
 
     rows = catalog_query(
         client,
