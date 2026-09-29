@@ -9,6 +9,14 @@ out of the zip without ever being written to disk uncompressed, aggregated,
 staged, and the archive deleted before the next month starts. Peak disk stays
 near one compressed archive.
 
+Resumability has a sharp edge: a month already staged is skipped, so a change
+to the transform does NOT reach months staged before it. The RMI sanity bound
+was added mid-run and seven competências kept values it would have rejected --
+one of them 985.9 minimum wages for a single benefit -- which then reached
+BigQuery. After changing anything in the transform, delete the staged parquet
+for every month it affects (or the whole staging directory) rather than
+trusting a re-run to pick the change up.
+
 Requires ``models/br_mps_beneficios/code/municipio_gex_lookup.csv``, which
 concedido_clean.py produces. Benefícios mantidos truncates the município field
 to 20 characters, and only the GEX prefix that concedido publishes makes that

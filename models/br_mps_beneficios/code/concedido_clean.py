@@ -15,6 +15,14 @@ per competência also makes the run resumable and idempotent: the annual archive
 and the monthly packages could in principle both cover a month, and staging by
 competência means the later era overwrites rather than double-counts.
 
+Resumability has a sharp edge: a month already staged is skipped, so a change
+to the transform does NOT reach months staged before it. The RMI sanity bound
+was added mid-run and seven competências kept values it would have rejected --
+one of them 985.9 minimum wages for a single benefit -- which then reached
+BigQuery. After changing anything in the transform, delete the staged parquet
+for every month it affects (or the whole staging directory) rather than
+trusting a re-run to pick the change up.
+
 Usage:
     python models/br_mps_beneficios/code/concedido_clean.py [--limit N] [--from YYYYMM]
 """
