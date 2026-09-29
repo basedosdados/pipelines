@@ -1138,6 +1138,38 @@ def gex_lookup_index(path: Path | None = None) -> dict[str, str]:
         }
 
 
+_PROBE_ROWS = 500
+_PROBE_MIN_RESOLVED = 0.5
+
+
+def assert_especie_column(path: Path, header: list[str], sample: list[dict]):
+    """Refuse a file whose Espécie column does not hold espécie labels.
+
+    The Sep/2023 ATIVOS extract ships the standard 17-field header over a
+    different 17-field column set: position 0 carries a faixa de valor
+    ("= 1 SM"), position 2 the competência and position 3 the value, so
+    espécie, clientela and sexo are absent from the data altogether. Município,
+    data de nascimento and Vl MR happen to sit at their usual indices, so
+    nothing raises: every row is dropped as an unmapped label and the month
+    lands as an empty success. Probe the leading rows and fail loudly instead.
+    """
+    resolved = sum(
+        1
+        for rec in sample
+        if resolve_truncated_especie((rec["especie_label"] or "").strip())[1]
+        is not None
+    )
+    share = resolved / len(sample)
+    if share < _PROBE_MIN_RESOLVED:
+        seen = sorted({(r["especie_label"] or "").strip() for r in sample})[:5]
+        raise ValueError(
+            f"{path.name}: the column matched as 'Espécie' does not hold "
+            f"espécie labels ({resolved}/{len(sample)} = {share:.0%} resolved; "
+            f"e.g. {seen}). This file's columns do not match its header, so "
+            "its espécie/clientela/sexo grain is unrecoverable."
+        )
+
+
 def iter_mantido(path: Path, chunk: int = 250_000):
     """Stream a benefícios mantidos CSV, unzipping on the fly.
 
@@ -1171,6 +1203,7 @@ def iter_mantido(path: Path, chunk: int = 250_000):
             )
         widest = max(i for i in idx.values() if i is not None)
         buf = []
+        probed = False
         for row in csv.reader(handle, delimiter=";"):
             if len(row) <= widest:
                 continue
@@ -1180,10 +1213,15 @@ def iter_mantido(path: Path, chunk: int = 250_000):
                     for k, i in idx.items()
                 }
             )
+            if not probed and len(buf) >= _PROBE_ROWS:
+                assert_especie_column(path, header, buf)
+                probed = True
             if len(buf) >= chunk:
                 yield buf
                 buf = []
         if buf:
+            if not probed:
+                assert_especie_column(path, header, buf)
             yield buf
 
     if path.suffix.lower() == ".zip":

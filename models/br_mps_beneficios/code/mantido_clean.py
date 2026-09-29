@@ -26,6 +26,7 @@ import os
 import shutil
 import sys
 import time
+import zipfile
 from collections import defaultdict
 from pathlib import Path
 
@@ -50,6 +51,26 @@ REPORT = BASE / "reports"
 
 def stage_path(competencia: int) -> Path:
     return STAGING / f"comp={competencia}.parquet"
+
+
+FINGERPRINTS = REPORT / "mantido_fingerprints.json"
+
+
+def archive_fingerprint(path: Path) -> str:
+    """Identify an archive by its inner member's size and CRC.
+
+    Both come from the zip directory, so this costs no decompression. The
+    publisher republishes a snapshot under later month labels rather than
+    leaving the month unpublished: Jun-Aug/2024 are byte-identical to May/2024,
+    Feb/2025 to Jan/2025, and Sep/2025 to Aug/2025. Staging those as distinct
+    competências would assert that the national stock did not move for four
+    months. Comparing fingerprints catches it before any of that is written.
+    """
+    with zipfile.ZipFile(path) as z:
+        info = next(
+            i for i in z.infolist() if i.filename.lower().endswith(".csv")
+        )
+    return f"{info.file_size}:{info.CRC:08x}"
 
 
 def run(
@@ -77,6 +98,12 @@ def run(
         resources = resources[:limit]
 
     diagnostics: list[dict] = []
+    seen: dict[str, int] = {}
+    if FINGERPRINTS.exists():
+        seen = {
+            fp: int(comp)
+            for fp, comp in json.loads(FINGERPRINTS.read_text()).items()
+        }
     print(f"{len(resources)} monthly files to process\n", flush=True)
 
     for i, res in enumerate(resources, 1):
@@ -92,6 +119,26 @@ def run(
         try:
             u.download(res["url"], dest)
             size_mb = dest.stat().st_size / 1e6
+            fp = archive_fingerprint(dest)
+            if seen.get(fp, comp) != comp:
+                print(
+                    f"[{i}/{len(resources)}] {comp}: REPUBLICATION of "
+                    f"{seen[fp]} (identical archive {fp}) — not staged",
+                    flush=True,
+                )
+                diagnostics.append(
+                    {
+                        "competencia": comp,
+                        "republicacao_de": seen[fp],
+                        "fingerprint": fp,
+                        "arquivo_mb": round(size_mb, 1),
+                    }
+                )
+                if not keep_raw:
+                    dest.unlink(missing_ok=True)
+                continue
+            seen[fp] = comp
+            FINGERPRINTS.write_text(json.dumps(seen, indent=2, sort_keys=True))
             df, diag = u.aggregate_mantido(dest, comp)
         except Exception as exc:
             print(
