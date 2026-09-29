@@ -16,7 +16,7 @@ window plus any older year OSHA has actually touched, read from
 Weekly, not daily: the files total 6 GB and the data does not move fast enough
 to justify seven downloads a week.
 
-Deploy: ``.github/scripts/deploy_flows.py`` discovers ``us_osha_enforcement_flow``.
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` discovers ``us_osha_enforcement_flow``.
 The dev pool strips the schedule; the prod pool activates it, paused.
 """
 
@@ -25,7 +25,7 @@ from __future__ import annotations
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_osha_enforcement.constants import constants
 from pipelines.datasets.us_osha_enforcement.tasks import (
@@ -33,6 +33,7 @@ from pipelines.datasets.us_osha_enforcement.tasks import (
     download_osha,
     plan_osha_refresh,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     DateOnly,
@@ -156,7 +157,6 @@ def us_osha_enforcement_flow(
         modified_days: Also rebuild any older year holding an inspection whose
             ``case_mod_date`` falls within this many days.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="inspection"
     )
@@ -248,16 +248,14 @@ def us_osha_enforcement_flow(
 # ample for the way this data is used, and 6 GB of downloads a day is not.
 # The minute is deliberately not 0 — a dozen pipelines already fire at :00 and
 # compete for BigQuery slots.
-# pyrefly: ignore [missing-attribute]
 us_osha_enforcement_flow.deploy_schedules = [
-    {"cron": "47 4 * * 0", "timezone": "America/Sao_Paulo"}
+    Cron("47 4 * * 0", timezone="America/Sao_Paulo")
 ]
 
 # `memory` alone is silently dropped: it is not a key of the work pool's job
 # template, so a flow that sets only it runs on the pool default of 4Gi
 # whatever number it names. The clean step holds the citation-text and
 # narrative reassembly maps in memory.
-# pyrefly: ignore [missing-attribute]
 us_osha_enforcement_flow.job_variables = {
     "memory_limit": "12Gi",
     "memory_request": "4Gi",

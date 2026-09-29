@@ -11,8 +11,6 @@ O antigo `_ipca_flow`/`_run_ibge_inflacao` monolítico segue existindo em
 `br_ibge_ipca15`/`br_ibge_inpc` (não migrados ainda) — não removido daqui.
 """
 
-from prefect import flow
-
 from pipelines.datasets.br_ibge_ipca.constants import (
     DATASET_ID,
     MES_BRASIL_TABLE_ID,
@@ -21,6 +19,7 @@ from pipelines.datasets.br_ibge_ipca.constants import (
     MES_CATEGORIA_RM_TABLE_ID,
 )
 from pipelines.datasets.br_ibge_ipca.tasks import make_pipeline
+from pipelines.utils.flow import flow
 from pipelines.utils.stage_dispatch import Etapa, deploy_tags
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -37,7 +36,6 @@ def br_ibge_ipca_mes_brasil_check_update() -> None:
     _mes_brasil_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_ibge_ipca_mes_brasil_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -48,7 +46,6 @@ def br_ibge_ipca_mes_brasil_download(download_params: dict) -> None:
     _mes_brasil_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_ibge_ipca_mes_brasil_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
@@ -74,7 +71,6 @@ def br_ibge_ipca_mes_categoria_brasil_check_update() -> None:
     _mes_categoria_brasil_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_ibge_ipca_mes_categoria_brasil_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -90,7 +86,6 @@ def br_ibge_ipca_mes_categoria_brasil_download(
     _mes_categoria_brasil_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_ibge_ipca_mes_categoria_brasil_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
@@ -116,7 +111,6 @@ def br_ibge_ipca_mes_categoria_rm_check_update() -> None:
     _mes_categoria_rm_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_ibge_ipca_mes_categoria_rm_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -132,7 +126,6 @@ def br_ibge_ipca_mes_categoria_rm_download(
     _mes_categoria_rm_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_ibge_ipca_mes_categoria_rm_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
@@ -160,7 +153,6 @@ def br_ibge_ipca_mes_categoria_municipio_check_update() -> None:
     _mes_categoria_municipio_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_ibge_ipca_mes_categoria_municipio_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -176,7 +168,6 @@ def br_ibge_ipca_mes_categoria_municipio_download(
     _mes_categoria_municipio_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_ibge_ipca_mes_categoria_municipio_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )

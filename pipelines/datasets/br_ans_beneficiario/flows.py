@@ -7,8 +7,6 @@ check_update -> extract_and_load -> build_and_promote. Lógica específica do da
 (`CheckThenExtractLoadPipeline` + `@flow`).
 """
 
-from prefect import flow
-
 from pipelines.datasets.br_ans_beneficiario.constants import (
     DATASET_ID,
     INFORMACAO_CONSOLIDADA_TABLE_ID,
@@ -17,6 +15,7 @@ from pipelines.datasets.br_ans_beneficiario.tasks import (
     br_ans_beneficiario_download,
     br_ans_beneficiario_get_latest_update,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.stage_dispatch import (
     CheckThenExtractLoadPipeline,
     Etapa,
@@ -41,7 +40,6 @@ def br_ans_beneficiario_informacao_consolidada_check_update() -> None:
     _informacao_consolidada_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_ans_beneficiario_informacao_consolidada_check_update.deploy_tags = (
     deploy_tags(DATASET_ID, Etapa.CHECK_UPDATE)
 )
@@ -57,7 +55,6 @@ def br_ans_beneficiario_informacao_consolidada_download(
     _informacao_consolidada_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_ans_beneficiario_informacao_consolidada_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
@@ -65,7 +62,6 @@ br_ans_beneficiario_informacao_consolidada_download.deploy_tags = deploy_tags(
 # del/gc.collect() por estado): ~1.78Gi. ~1.7x de margem sobre esse valor —
 # mesmo tier do flow antigo, já que o download pesado (crawler_ans) continua
 # acontecendo aqui.
-# pyrefly: ignore [missing-attribute]
 br_ans_beneficiario_informacao_consolidada_download.job_variables = {
     "memory": "3Gi"
 }

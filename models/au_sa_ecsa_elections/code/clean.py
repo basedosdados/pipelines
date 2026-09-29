@@ -84,6 +84,7 @@ def write(frame: pd.DataFrame, table: str) -> int:
     for value, group in frame.groupby(partitions[0], dropna=False):
         if pd.isna(value):
             raise ValueError(f"{table}: rows with a null partition key")
+        # pyrefly: ignore [bad-argument-type]
         target = OUTPUT / table / f"{partitions[0]}={int(value)}"
         target.mkdir(parents=True, exist_ok=True)
         pq.write_table(

@@ -15,7 +15,8 @@ import sys
 import time
 
 import requests
-from common import HEADERS, INPUT, SDMX
+
+from models.world_oecd_socx.code.common import HEADERS, INPUT, SDMX
 
 FLOW = "DSD_SOCX_AGG@DF_SOCX_AGG"
 VERSION = "1.0"

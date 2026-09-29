@@ -22,7 +22,9 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
-from gen_columns_json import payload  # noqa: E402
+from models.us_dot_bts_ontime.code.gen_columns_json import (  # noqa: E402
+    payload,
+)
 
 MCP_SERVER = Path.home() / "Dropbox" / "BD" / "mcp" / "server.py"
 
@@ -51,9 +53,11 @@ def call(tool):
 
 def main(env: str, tables: list[str]) -> None:
     mcp = load_mcp()
+    # pyrefly: ignore [not-callable]
     call(mcp.auth)(env=env)
     for table in tables:
         js = payload(table)
+        # pyrefly: ignore [not-callable]
         result = call(mcp.bulk_upsert_columns)(
             table_id=TABLE_IDS[table], columns_json=js, env=env
         )

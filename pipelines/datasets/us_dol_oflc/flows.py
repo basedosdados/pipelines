@@ -10,14 +10,14 @@ annual file supersedes what came before it. So a run does not append — it
 re-materialises the open fiscal year and the one before it from scratch, and
 leaves every closed year alone.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_dol_oflc_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_dol_oflc_flow`; the
 dev pool ignores the schedule, the prod pool activates it (paused).
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_dol_oflc.constants import constants
 from pipelines.datasets.us_dol_oflc.tasks import (
@@ -26,6 +26,7 @@ from pipelines.datasets.us_dol_oflc.tasks import (
     fiscal_years_to_refresh,
     partition_paths,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -75,7 +76,6 @@ def us_dol_oflc_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports nothing new.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )
@@ -193,11 +193,9 @@ def us_dol_oflc_flow(
 # OFLC publishes each fiscal quarter roughly a month after it ends, so the files
 # appear in February, May, August and November. Poll across a few days in those
 # months; the source-poll guard no-ops until a newer decision date appears.
-# pyrefly: ignore [missing-attribute]
 us_dol_oflc_flow.deploy_schedules = [
-    {"cron": "23 14 5,12,19,26 2,5,8,11 *", "timezone": "America/Sao_Paulo"}
+    Cron("23 14 5,12,19,26 2,5,8,11 *", timezone="America/Sao_Paulo")
 ]
 # The clean step holds one fiscal year of LCA (~700k rows x 57 columns) in
 # pandas while it is written.
-# pyrefly: ignore [missing-attribute]
 us_dol_oflc_flow.job_variables = {"memory": "8Gi"}

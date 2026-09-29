@@ -11,8 +11,6 @@ arquivo — a lógica de baixo nível que ele usava continua em
 `pipelines/crawler/me_caged/` (reaproveitada por `tasks.py`).
 """
 
-from prefect import flow
-
 from pipelines.datasets.br_me_caged.constants import (
     DATASET_ID,
     MICRODADOS_MOVIMENTACAO_EXCLUIDA_TABLE_ID,
@@ -20,6 +18,7 @@ from pipelines.datasets.br_me_caged.constants import (
     MICRODADOS_MOVIMENTACAO_TABLE_ID,
 )
 from pipelines.datasets.br_me_caged.tasks import make_pipeline
+from pipelines.utils.flow import flow
 from pipelines.utils.stage_dispatch import Etapa, deploy_tags
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -41,7 +40,6 @@ def br_me_caged_microdados_movimentacao_check_update() -> None:
     _microdados_movimentacao_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_me_caged_microdados_movimentacao_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -57,7 +55,6 @@ def br_me_caged_microdados_movimentacao_download(
     _microdados_movimentacao_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_me_caged_microdados_movimentacao_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
@@ -85,7 +82,6 @@ def br_me_caged_microdados_movimentacao_fora_prazo_check_update() -> None:
     _microdados_movimentacao_fora_prazo_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_me_caged_microdados_movimentacao_fora_prazo_check_update.deploy_tags = (
     deploy_tags(DATASET_ID, Etapa.CHECK_UPDATE)
 )
@@ -103,7 +99,6 @@ def br_me_caged_microdados_movimentacao_fora_prazo_download(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_me_caged_microdados_movimentacao_fora_prazo_download.deploy_tags = (
     deploy_tags(DATASET_ID, Etapa.EXTRACT_AND_LOAD)
 )
@@ -131,7 +126,6 @@ def br_me_caged_microdados_movimentacao_excluida_check_update() -> None:
     _microdados_movimentacao_excluida_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_me_caged_microdados_movimentacao_excluida_check_update.deploy_tags = (
     deploy_tags(DATASET_ID, Etapa.CHECK_UPDATE)
 )
@@ -149,7 +143,6 @@ def br_me_caged_microdados_movimentacao_excluida_download(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_me_caged_microdados_movimentacao_excluida_download.deploy_tags = (
     deploy_tags(DATASET_ID, Etapa.EXTRACT_AND_LOAD)
 )

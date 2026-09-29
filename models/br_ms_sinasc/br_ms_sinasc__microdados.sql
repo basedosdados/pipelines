@@ -173,5 +173,6 @@ select
     ) formacao_profissional_responsavel,
     safe_cast(status_dn as string) status_dn,
     safe_cast(status_dn_nova as string) status_dn_nova,
-    safe_cast(paridade as string) paridade
+    safe_cast(paridade as string) paridade,
+    safe_cast(coalesce(dado_preliminar, '0') as string) dado_preliminar
 from {{ set_datalake_project("br_ms_sinasc_staging.microdados") }} as t

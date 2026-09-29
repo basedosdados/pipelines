@@ -2,12 +2,13 @@
 Flows para br_cgu_emendas_parlamentares — Prefect 3.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
-from pipelines.crawler.cgu_emendas_parlamentares.tasks import (
+from pipelines.datasets.br_cgu_emendas_parlamentares.tasks import (
     convert_str_to_float,
     get_last_modified_time,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     FreeLag,
@@ -38,7 +39,21 @@ def br_cgu_emendas_parlamentares__microdados(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
+    """Atualiza a tabela `microdados` de Emendas Parlamentares (CGU).
+
+    Baixa a base do Portal da Transparência e compara seu número de linhas com
+    o da tabela em prod para decidir se há dado novo.
+
+    Args:
+        dataset_id: ID do dataset no BigQuery.
+        table_id: ID da tabela no BigQuery.
+        materialize_after_dump: Se `True`, sobe os dados e roda o dbt em prod
+            após a etapa em dev. Se `False`, para depois de dev.
+        update_metadata: Se `True`, grava o Update da fonte e atualiza a
+            cobertura da tabela no backend de prod.
+        target: Target do dbt na materialização em prod.
+        force_run: Se `True`, pula a checagem de novidade na fonte.
+    """
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -121,7 +136,6 @@ def br_cgu_emendas_parlamentares__microdados(
         )
 
 
-# pyrefly: ignore [missing-attribute]
 br_cgu_emendas_parlamentares__microdados.deploy_schedules = [
-    {"cron": "30 19 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("30 19 * * *", timezone="America/Sao_Paulo")
 ]

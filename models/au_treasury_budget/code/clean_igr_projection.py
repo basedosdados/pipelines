@@ -27,8 +27,7 @@ import pathlib
 import re
 import sys
 
-import docx_tables
-import releases
+from models.au_treasury_budget.code import docx_tables, releases
 
 DATA_ROOT = pathlib.Path(
     os.environ.get(

@@ -3,8 +3,6 @@ Flows for test_dataset. Vários pilotos/testes convivem aqui — ver
 comentário no topo de `constants.py`.
 """
 
-from prefect import flow
-
 from pipelines.datasets.test_dataset.constants import (
     BACKEND_ENV,
     DATASET_ID,
@@ -19,6 +17,7 @@ from pipelines.datasets.test_dataset.tasks import (
     event_pipeline_partitioned_check_update,
     event_pipeline_partitioned_download,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.stage_dispatch import (
     CheckThenExtractLoadPipeline,
     Etapa,
@@ -146,11 +145,9 @@ def event_pipeline_check_update_flow() -> None:
     _event_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 event_pipeline_check_update_flow.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
-# pyrefly: ignore [missing-attribute]
 event_pipeline_check_update_flow.job_variables = EVENT_PIPELINE_JOB_VARIABLES[
     Etapa.CHECK_UPDATE
 ]
@@ -165,11 +162,9 @@ def event_pipeline_download_flow(download_params: dict) -> None:
     _event_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 event_pipeline_download_flow.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
-# pyrefly: ignore [missing-attribute]
 event_pipeline_download_flow.job_variables = EVENT_PIPELINE_JOB_VARIABLES[
     Etapa.EXTRACT_AND_LOAD
 ]
@@ -203,11 +198,9 @@ def event_pipeline_partitioned_check_update_flow() -> None:
     _event_pipeline_partitioned.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 event_pipeline_partitioned_check_update_flow.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
-# pyrefly: ignore [missing-attribute]
 event_pipeline_partitioned_check_update_flow.job_variables = (
     EVENT_PIPELINE_PARTITIONED_JOB_VARIABLES[Etapa.CHECK_UPDATE]
 )
@@ -228,11 +221,9 @@ def event_pipeline_partitioned_download_flow(
     _event_pipeline_partitioned.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 event_pipeline_partitioned_download_flow.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
-# pyrefly: ignore [missing-attribute]
 event_pipeline_partitioned_download_flow.job_variables = (
     EVENT_PIPELINE_PARTITIONED_JOB_VARIABLES[Etapa.EXTRACT_AND_LOAD]
 )

@@ -10,6 +10,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [data_extracao, codigo_sancao]
+          config:
+            where: __most_recent__(data_extracao)
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -23,6 +25,8 @@ models:
             - data_transito_julgado
             - data_origem_informacao
             - observacoes
+          config:
+            where: __most_recent__(data_extracao)
     columns:
       - name: data_extracao
         description: Data de extração do arquivo de dados, correspondente ao snapshot
@@ -86,6 +90,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [data_extracao, codigo_sancao]
+          config:
+            where: __most_recent__(data_extracao)
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -100,6 +106,8 @@ models:
             - data_transito_julgado
             - data_origem_informacao
             - observacoes
+          config:
+            where: __most_recent__(data_extracao)
     columns:
       - name: data_extracao
         description: Data de extração do arquivo de dados, correspondente ao snapshot
@@ -169,8 +177,12 @@ models:
             - data_extracao
             - cnpj_entidade
             - numero_convenio
+          config:
+            where: __most_recent__(data_extracao)
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent__(data_extracao)
     columns:
       - name: data_extracao
         description: Data de extração do arquivo de dados, correspondente ao snapshot
@@ -197,6 +209,8 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [data_extracao, id_acordo, cnpj_sancionado]
+          config:
+            where: __most_recent__(data_extracao)
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values:
@@ -205,6 +219,8 @@ models:
             - data_fim_acordo
             - data_informacao
             - termos_acordo
+          config:
+            where: __most_recent__(data_extracao)
     columns:
       - name: data_extracao
         description: Data de extração do arquivo de dados, correspondente ao snapshot
@@ -243,6 +259,8 @@ models:
       - not_null_proportion_multiple_columns:
           at_least: 0.05
           ignore_values: [complemento]
+          config:
+            where: __most_recent__(data_extracao)
     columns:
       - name: data_extracao
         description: Data de extração do arquivo de dados, correspondente ao snapshot

@@ -25,6 +25,20 @@
 -- Ligue a `despesa` por `id_empenho_bd`. Note que a soma de `valor_pago` aqui NÃO tem
 -- de bater com `despesa.valor_pago`: aquela coluna é o total pago do empenho no
 -- exercício, esta tabela traz cada ordem bancária individualmente, e inclui
--- lançamentos devolvidos e cancelados. Filtre por `situacao = 'PAGA'` antes de somar.
+-- lançamentos devolvidos e cancelados.
+--
+-- **`situacao` não tem o mesmo domínio nos dois estados.** Em PE é o status do
+-- pagamento (`PAGA` e outros); em SC é o tipo de movimento (`Líquido`, `Retenção`,
+-- `Estorno`), porque a fonte catarinense não publica status algum. Um filtro
+-- `situacao = 'PAGA'` portanto elimina SC inteiro -- filtre por estado antes.
 select *
 from {{ ref("br_bd_execucao_estadual__pagamento_pe") }}
+union all
+select *
+from {{ ref("br_bd_execucao_estadual__pagamento_sc") }}
+union all
+select *
+from {{ ref("br_bd_execucao_estadual__pagamento_pb") }}
+union all
+select *
+from {{ ref("br_bd_execucao_estadual__pagamento_ce") }}

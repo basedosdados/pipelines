@@ -6,8 +6,20 @@ state Courts of Accounts. This dataset covers the **state executives' own spendi
 from each state's own transparency portal over its financial system (SIAFI-MG, FIPLAN-BA,
 e-Fisco-PE, SIAFEM-SP).
 
-**Status:** complete. MG, BA, PE and SP built, validated and registered on staging
-(10 tables, 110.8M rows, dbt 38/38).
+**Status:** MG, BA, PE, SP, ES and RS live in production (10 tables, ~125.7M rows).
+
+Three states are in progress on `data/br_bd_execucao_estadual_states`, none of them yet
+in BigQuery:
+
+| UF | State of play |
+|---|---|
+| **SC** | code, models and pipeline wiring complete; empenho (2.95M) and liquidação (10.30M) cleaned and reconciled exactly against the portal's published totals |
+| **PB** | code and models complete; empenho harvested, remaining endpoints in progress |
+| **RJ** | downloaded and staged (176,525 rows); **no model wired** — it is a cumulative year-end snapshot and fits none of the existing tables, which is a schema decision left open |
+
+**Source defects and access constraints are recorded in
+[`SOURCE_LESSONS.md`](SOURCE_LESSONS.md).** Read it before touching `code/download_*.py`
+or `code/clean_*.py`; it exists so a re-run does not rediscover the same traps.
 
 ---
 
@@ -26,6 +38,11 @@ harmonization problem is the same; the inputs are not.
 | BA | `dados.ba.gov.br` CKAN (`despesas`, `licitacoes`, `contratos`, `notas-fiscais`) | FIPLAN, SIMPAS/SAEB | despesa **2013+**, licitação **2004+** | daily D-1 | bulk ZIP |
 | PE | `dados.pe.gov.br` CKAN (`todas-despesas-detalhadas`, `all-pagamentos`) | e-Fisco | **2008–2026** | annual snapshots + current year | bulk CSV, cc-by |
 | SP | SIGEO Lei 131 (`fazenda.sp.gov.br/SigeoLei131`) | SIAFEM/SP | **2010–2026** | daily | WebForms scrape → CSV export |
+| ES | `dados.es.gov.br` CKAN (`portal-da-transparencia-*`) | SIGEFES, SIGA | **2009–2026** | daily | bulk CSV, cc-by |
+| RS | `dados.rs.gov.br` CKAN (CAGE `Gasto-RS`) | FPE/CAGE | **2012–2026** | monthly ZIPs | bulk ZIP, CC0 |
+| SC | `transparencia.sc.gov.br` export endpoint (`documentos/exportcsv`) | SIGEF | **2011–2026** | daily | JSON/CSV API — **not** the CKAN bulk files, which are unparseable |
+| PB | `api.dados.pb.gov.br/api/v1` (CGE-PB REST, 39 endpoints) | SIAF-PB | **2015–2026** | daily | JSON API, `ano`+`mes` required, `per_page` max 1000 |
+| RJ | `dadosabertos.rj.gov.br` CKAN (`tfe-despesa`) | SIAFE-Rio | **2016–2025** | D+1 | bulk CSV — **needs a Brazilian IP**; staged only, see below |
 
 A browser User-Agent is required on `dados.mg.gov.br` (bare curl gets 403).
 

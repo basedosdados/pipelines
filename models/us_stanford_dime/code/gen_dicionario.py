@@ -20,12 +20,9 @@ column's ``observations``:
 from __future__ import annotations
 
 import csv
-import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import architecture as arch
-import clean
+from models.us_stanford_dime.code import architecture as arch
+from models.us_stanford_dime.code import clean
 
 OUT = clean.OUTPUT / "dicionario"
 

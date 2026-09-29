@@ -16,11 +16,9 @@ Usage:
 """
 
 import json
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from architecture_detailed import TABLES, field
+from models.au_abs_labour_force.code.architecture_detailed import TABLES, field
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "code" / "columns_json_detailed"

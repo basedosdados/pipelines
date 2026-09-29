@@ -52,6 +52,9 @@ models:
     au_abs_prices_inflation:
       +materialized: table
       +schema: au_abs_prices_inflation
+    au_abs_productivity:
+      +materialized: table
+      +schema: au_abs_productivity
     au_alexander_politicians:
       +materialized: table
       +schema: au_alexander_politicians
@@ -160,9 +163,15 @@ models:
     br_bd_diretorios_cl:
       +materialized: table
       +schema: br_bd_diretorios_cl
+    cl_ine_censo:
+      +materialized: table
+      +schema: cl_ine_censo
     cl_res_empresas:
       +materialized: table
       +schema: cl_res_empresas
+    cl_ine_ene:
+      +materialized: table
+      +schema: cl_ine_ene
     br_bd_diretorios_de:
       +materialized: table
       +schema: br_bd_diretorios_de
@@ -312,6 +321,9 @@ models:
     world_aiddata_gcdf:
       +materialized: table
       +schema: world_aiddata_gcdf
+    world_cepii_baci:
+      +materialized: table
+      +schema: world_cepii_baci
     world_cricsheet:
       +materialized: table
       +schema: world_cricsheet
@@ -510,6 +522,9 @@ models:
     br_mdr_snis:
       +materialized: table
       +schema: br_mdr_snis
+    br_mapbiomas_estatisticas:
+      +materialized: table
+      +schema: br_mapbiomas_estatisticas
     br_me_caged:
       +materialized: table
       +schema: br_me_caged
@@ -552,6 +567,12 @@ models:
     br_mgi_compras_publicas:
       +materialized: table
       +schema: br_mgi_compras_publicas
+    br_mj_sinesp:
+      +materialized: table
+      +schema: br_mj_sinesp
+    br_mj_sisdepen:
+      +materialized: table
+      +schema: br_mj_sisdepen
     br_mma_sinpatinhas:
       +materialized: table
       +schema: br_mma_sinpatinhas
@@ -561,6 +582,9 @@ models:
     br_mp_pep:
       +materialized: table
       +schema: br_mp_pep
+    br_mps_beneficios:
+      +materialized: table
+      +schema: br_mps_beneficios
     br_ms_cnes:
       +materialized: table
       +schema: br_ms_cnes
@@ -603,6 +627,9 @@ models:
     br_poder360_pesquisas:
       +materialized: table
       +schema: br_poder360_pesquisas
+    br_prf_acidentes:
+      +materialized: table
+      +schema: br_prf_acidentes
     br_rf_arrecadacao:
       +materialized: table
       +schema: br_rf_arrecadacao
@@ -633,6 +660,12 @@ models:
     br_simet_educacao_conectada:
       +materialized: table
       +schema: br_simet_educacao_conectada
+    br_sou_da_paz_armas_municoes:
+      +materialized: table
+      +schema: br_sou_da_paz_armas_municoes
+      +post-hook:
+        - REVOKE `roles/bigquery.dataViewer` ON TABLE {{ this }} FROM "specialGroup:allUsers"
+        - GRANT `roles/bigquery.dataViewer` ON TABLE {{ this }} TO "serviceAccount:metabase@repositorio-de-dados.iam.gserviceaccount.com"
     br_sp_saopaulo_dieese_icv:
       +materialized: table
       +schema: br_sp_saopaulo_dieese_icv
@@ -657,6 +690,9 @@ models:
     br_tse_filiacao_partidaria:
       +materialized: table
       +schema: br_tse_filiacao_partidaria
+    br_ufmg_censo_demografico_1872:
+      +materialized: table
+      +schema: br_ufmg_censo_demografico_1872
     cl_chilecompra_mercado_publico:
       +materialized: table
       +schema: cl_chilecompra_mercado_publico
@@ -687,6 +723,9 @@ models:
     us_usda_nass:
       +materialized: table
       +schema: us_usda_nass
+    us_ssa_beneficiaries:
+      +materialized: table
+      +schema: us_ssa_beneficiaries
     us_state_foreign_assistance:
       +materialized: table
       +schema: us_state_foreign_assistance
@@ -789,6 +828,12 @@ models:
     world_wb_mides:
       +materialized: table
       +schema: world_wb_mides
+      # One model per state feeds each published table. Ephemeral keeps them as
+      # inlined CTEs, so the compiled SQL and the published tables are unchanged
+      # by the split. Switch to `table` (plus a non-published +schema) when the
+      # per-state pipelines need to rebuild one state without touching the rest.
+      states:
+        +materialized: ephemeral
     world_wil_wid:
       +materialized: table
       +schema: world_wil_wid

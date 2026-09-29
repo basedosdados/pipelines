@@ -22,12 +22,12 @@ from functools import cache
 from pathlib import Path
 from typing import Any
 
-import openpyxl  # pyrefly: ignore [untyped-import]
+import openpyxl
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 import requests
-import xlrd  # pyrefly: ignore [untyped-import]
+import xlrd
 
 from pipelines.datasets.us_eia_consumption.constants import constants
 

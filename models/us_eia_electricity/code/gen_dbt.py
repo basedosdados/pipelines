@@ -14,7 +14,11 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from common import DATA_TABLES, REPO_ROOT, load_cols
+from models.us_eia_electricity.code.common import (
+    DATA_TABLES,
+    REPO_ROOT,
+    load_cols,
+)
 
 MODELS = REPO_ROOT / "models" / "us_eia_electricity"
 CODE_DIR = Path(__file__).resolve().parent

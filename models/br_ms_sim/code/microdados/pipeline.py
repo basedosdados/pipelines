@@ -3,11 +3,8 @@ from pathlib import Path
 
 import basedosdados as bd
 
-# pyrefly: ignore [missing-import]
-from cleaning import MUNICIPIOS_PATH, process
-
-# pyrefly: ignore [missing-import]
-from extraction import download
+from models.br_ms_sim.code.microdados.cleaning import MUNICIPIOS_PATH, process
+from models.br_ms_sim.code.microdados.extraction import download
 
 DATASET_ID = "br_ms_sim"
 TABLE_ID = "microdados"

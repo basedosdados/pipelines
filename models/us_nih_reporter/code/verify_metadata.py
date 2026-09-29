@@ -9,7 +9,7 @@ for the duplicate records create_update_* produces when called without an id.
 import sys
 from collections import Counter
 
-from common import import_mcp_server
+from models.us_nih_reporter.code.common import import_mcp_server
 
 server = import_mcp_server()
 

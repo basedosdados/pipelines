@@ -10,8 +10,12 @@ models:
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [series_id, date]
+          config:
+            where: __most_recent_year_en__
       - not_null_proportion_multiple_columns:
           at_least: 0.05
+          config:
+            where: __most_recent_year_en__
     columns:
       - name: year
         description: Reference year of the observation
@@ -20,6 +24,8 @@ models:
           - relationships:
               to: ref('br_bd_diretorios_data_tempo__ano')
               field: ano.ano
+              config:
+                where: __most_recent_year_en__
       - name: date
         description: >-
           Observation date (exact date for daily series; first day of the period
@@ -32,6 +38,8 @@ models:
           - relationships:
               to: ref('us_fed_fred__series')
               field: series_id
+              config:
+                where: __most_recent_year_en__
       - name: value
         description: >-
           Observed value of the series; the unit depends on the series and is

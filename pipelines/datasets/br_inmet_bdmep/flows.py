@@ -10,8 +10,6 @@ O antigo flow monolítico (`br_inmet_bdmep__microdados`, cron às 22h de
 seg-sex) foi removido deste arquivo.
 """
 
-from prefect import flow
-
 from pipelines.datasets.br_inmet_bdmep.constants import (
     DATASET_ID,
     MICRODADOS_TABLE_ID,
@@ -20,6 +18,7 @@ from pipelines.datasets.br_inmet_bdmep.tasks import (
     microdados_download,
     microdados_get_latest_update,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.stage_dispatch import (
     CheckThenExtractLoadPipeline,
     Etapa,
@@ -42,7 +41,6 @@ def br_inmet_bdmep_microdados_check_update() -> None:
     _microdados_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_inmet_bdmep_microdados_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -53,7 +51,6 @@ def br_inmet_bdmep_microdados_download(download_params: dict) -> None:
     _microdados_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_inmet_bdmep_microdados_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )

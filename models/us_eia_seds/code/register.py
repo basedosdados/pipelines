@@ -22,9 +22,9 @@ import os
 import sys
 from pathlib import Path
 
-import gen_columns_json
-import metadata_spec as spec
-from common import DATA_TABLES, OUTPUT
+from models.us_eia_seds.code import gen_columns_json
+from models.us_eia_seds.code import metadata_spec as spec
+from models.us_eia_seds.code.common import DATA_TABLES, OUTPUT
 
 _MCP_PATH = os.environ.get(
     "BD_MCP_PATH",
@@ -33,6 +33,7 @@ _MCP_PATH = os.environ.get(
 if Path(_MCP_PATH).is_dir():
     sys.path.insert(0, _MCP_PATH)
 try:
+    # pyrefly: ignore [missing-import]
     import server
 except (
     ModuleNotFoundError

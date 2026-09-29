@@ -13,14 +13,17 @@ from __future__ import annotations
 import argparse
 import csv
 import shutil
-import sys
 import zipfile
 from pathlib import Path
 
 import duckdb
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from constants import BA_TABLES, INPUT_DIR, OUTPUT_DIR, normalise_column
+from models.br_bd_execucao_estadual.code.constants import (
+    BA_TABLES,
+    INPUT_DIR,
+    OUTPUT_DIR,
+    normalise_column,
+)
 
 BA_INPUT = INPUT_DIR / "ba"
 EXTRACT_DIR = BA_INPUT / "extracted"
@@ -178,6 +181,7 @@ def clean(con: duckdb.DuckDBPyConnection, view: str, table: str) -> int:
             f"COPY (SELECT * FROM {rel}) TO '{dest / 'data.parquet'}' "
             "(FORMAT PARQUET, COMPRESSION SNAPPY)"
         )
+        # pyrefly: ignore [unsupported-operation]
         total = con.execute(f"SELECT count(*) FROM {rel}").fetchone()[0]
         print(f"  {table}: {total:,} rows")
         return total
@@ -202,6 +206,7 @@ def clean(con: duckdb.DuckDBPyConnection, view: str, table: str) -> int:
             f"      FROM {rel} WHERE CAST({year_col} AS INTEGER) = {year}) "
             f"TO '{out}' (FORMAT PARQUET, COMPRESSION SNAPPY)"
         )
+        # pyrefly: ignore [unsupported-operation]
         total += con.execute(
             f"SELECT count(*) FROM read_parquet('{out}')"
         ).fetchone()[0]
@@ -228,6 +233,7 @@ def verify_item_parse(con: duckdb.DuckDBPyConnection, table: str) -> None:
     row = con.execute(
         f"SELECT {checks} FROM read_parquet('{path}')"
     ).fetchone()
+    # pyrefly: ignore [bad-argument-type]
     for name, rate in zip(numeric, row, strict=True):
         status = (
             "OK" if rate is None or rate > 0.999 else "SUSPECT FIELD SHIFT"

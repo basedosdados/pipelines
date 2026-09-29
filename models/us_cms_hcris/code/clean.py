@@ -16,7 +16,7 @@ unpacked at once.
 import sys
 import time
 
-from common import (
+from models.us_cms_hcris.code.common import (
     EXTRACTS,
     INPUT,
     OUTPUT,

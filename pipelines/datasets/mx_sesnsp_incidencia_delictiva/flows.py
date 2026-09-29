@@ -9,7 +9,7 @@ not an incremental append. A single flow scrapes the rotating SharePoint tokens,
 downloads and cleans the four tables, and materializes them. Schedule targets the
 monthly SESNSP release window (~20th).
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers
 `mx_sesnsp_incidencia_delictiva_flow`; the dev pool ignores the schedule, the
 prod pool activates it.
 """
@@ -17,7 +17,7 @@ prod pool activates it.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.mx_sesnsp_incidencia_delictiva.constants import (
     constants,
@@ -26,6 +26,7 @@ from pipelines.datasets.mx_sesnsp_incidencia_delictiva.tasks import (
     clean_sesnsp,
     download_sesnsp,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     FreeLag,
@@ -90,7 +91,6 @@ def mx_sesnsp_incidencia_delictiva_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new month.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="incidencia_delictiva"
     )
@@ -183,10 +183,8 @@ def mx_sesnsp_incidencia_delictiva_flow(
 
 # SESNSP releases monthly, ~20th of the month, Mexico City time. Poll across a
 # few days; the source-poll guard no-ops until a new month actually appears.
-# pyrefly: ignore [missing-attribute]
 mx_sesnsp_incidencia_delictiva_flow.deploy_schedules = [
-    {"cron": "20 9 20,21,22,23,24 * *", "timezone": "America/Mexico_City"}
+    Cron("20 9 20,21,22,23,24 * *", timezone="America/Mexico_City")
 ]
 # The municipal melt holds ~1.7M rows in pandas; give the worker headroom.
-# pyrefly: ignore [missing-attribute]
 mx_sesnsp_incidencia_delictiva_flow.job_variables = {"memory": "8Gi"}

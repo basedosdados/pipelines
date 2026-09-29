@@ -14,13 +14,10 @@ from __future__ import annotations
 
 import argparse
 import re
-import sys
-from pathlib import Path
 
 import requests
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from constants import (
+from models.br_bd_execucao_estadual.code.constants import (
     BROWSER_UA,
     INPUT_DIR,
     PE_CKAN,

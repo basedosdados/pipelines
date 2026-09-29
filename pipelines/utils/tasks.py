@@ -37,15 +37,25 @@ def get_credentials(secret_path: str) -> dict:
 
 
 @task
-async def rename_flow_run_dataset_table(
+def rename_flow_run_dataset_table(
     prefix: str, dataset_id: str, table_id: str
 ) -> None:
-    """Renomeia o flow run na UI do Prefect com o padrão '<prefix><dataset_id>.<table_id>'."""
+    """Renomeia o flow run na UI do Prefect com o padrão '<prefix><dataset_id>.<table_id>'.
+
+    É síncrona de propósito: todos os flows que a chamam são síncronos, e uma
+    task `async` chamada de um flow síncrono só devolve uma coroutine que
+    ninguém aguarda — a task nunca executa.
+
+    Args:
+        prefix: Prefixo do nome, por exemplo `"Dump: "`.
+        dataset_id: ID do dataset.
+        table_id: ID da tabela.
+    """
     from prefect.client.orchestration import get_client
     from prefect.runtime import flow_run as flow_run_ctx
 
-    async with get_client() as client:
-        await client.update_flow_run(
+    with get_client(sync_client=True) as client:
+        client.update_flow_run(
             flow_run_id=flow_run_ctx.id,
             name=f"{prefix}{dataset_id}.{table_id}",
         )

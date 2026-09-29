@@ -6,14 +6,14 @@ every run rebuilds the whole history from the Envirofacts API and replaces the
 tables (``dump_mode="overwrite"``) — a revised year is re-materialized rather
 than appended twice.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers the flow; the dev pool
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers the flow; the dev pool
 ignores the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_epa_ghgrp.constants import constants
 from pipelines.datasets.us_epa_ghgrp.tasks import (
@@ -21,6 +21,7 @@ from pipelines.datasets.us_epa_ghgrp.tasks import (
     download_task,
     source_max_year_task,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -104,7 +105,6 @@ def us_epa_ghgrp_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new year.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )
@@ -159,13 +159,8 @@ def us_epa_ghgrp_flow(
 # EPA releases a reporting year in early-to-mid October of the following year
 # (2023 data: October 2024) and sometimes later. Poll weekly from October to
 # January at 15:33 BRT; the source-poll guard no-ops until the new year lands.
-# pyrefly: ignore [missing-attribute]
 us_epa_ghgrp_flow.deploy_schedules = [
-    {
-        "cron": "33 15 3,10,17,24,31 10,11,12,1 *",
-        "timezone": "America/Sao_Paulo",
-    }
+    Cron("33 15 3,10,17,24,31 10,11,12,1 *", timezone="America/Sao_Paulo")
 ]
 # ~900k rows across the three fact tables, held in pandas at once.
-# pyrefly: ignore [missing-attribute]
 us_epa_ghgrp_flow.job_variables = {"memory": "2Gi"}

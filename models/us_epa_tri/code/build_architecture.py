@@ -1192,6 +1192,7 @@ def main():
         )
         for x in cols:
             for k in ("description_pt", "description_en", "description_es"):
+                # pyrefly: ignore [missing-attribute]
                 assert not x[k].endswith("."), (
                     f"{table}.{x['name']}: {k} ends with a period"
                 )

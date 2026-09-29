@@ -14,7 +14,6 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 
 from prefect.deployments import run_deployment
-from prefect.utilities.asyncutils import run_coro_as_sync
 
 from pipelines.utils.metadata.constants import constants as metadata_constants
 from pipelines.utils.metadata.tasks import (
@@ -396,12 +395,10 @@ class CheckThenExtractLoadPipeline:
             `True` se havia dado novo e o extract_and_load foi disparado;
             `False` caso contrário.
         """
-        run_coro_as_sync(
-            rename_flow_run_dataset_table(
-                prefix="Check Update: ",
-                dataset_id=self.dataset_id,
-                table_id=self.table_id,
-            )
+        rename_flow_run_dataset_table(
+            prefix="Check Update: ",
+            dataset_id=self.dataset_id,
+            table_id=self.table_id,
         )
 
         result = self.get_latest_update()
@@ -425,12 +422,10 @@ class CheckThenExtractLoadPipeline:
             download_params: dict recebido do estágio anterior via
                 `run_deployment()` — sempre tem `reference_date`.
         """
-        run_coro_as_sync(
-            rename_flow_run_dataset_table(
-                prefix="Extract and Load: ",
-                dataset_id=self.dataset_id,
-                table_id=self.table_id,
-            )
+        rename_flow_run_dataset_table(
+            prefix="Extract and Load: ",
+            dataset_id=self.dataset_id,
+            table_id=self.table_id,
         )
 
         download_result = self.extract_load_data(download_params)

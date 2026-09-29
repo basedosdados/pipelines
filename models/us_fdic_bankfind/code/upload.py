@@ -102,7 +102,7 @@ def credentials_path() -> str:
     try:
         import tomllib  # stdlib from python 3.11
     except ModuleNotFoundError:  # pragma: no cover
-        import tomli as tomllib  # pyrefly: ignore [missing-import]
+        import tomli as tomllib
 
     config = tomllib.loads(
         (Path.home() / ".basedosdados/config.toml").read_text()

@@ -17,7 +17,8 @@ import sys
 import tempfile
 from pathlib import Path
 
-from prefect import flow, get_run_logger
+from prefect import get_run_logger
+from prefect.schedules import Cron
 
 from pipelines.datasets.cl_chilecompra_mercado_publico.constants import (
     constants,
@@ -28,6 +29,7 @@ from pipelines.datasets.cl_chilecompra_mercado_publico.tasks import (
     source_max_date_task,
     survey_source_task,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     FreeLag,
@@ -140,7 +142,6 @@ def cl_chilecompra_mercado_publico_flow(
         update_metadata: write coverage, table Update and raw-source Update records.
     """
     logger = get_run_logger()
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="mercado_publico"
     )
@@ -312,9 +313,8 @@ def cl_chilecompra_mercado_publico_flow(
 # orders every day, so a daily run would re-ingest ~19 month-files and fully rebuild an
 # 80M-row table each time. Monday 18:23 São Paulo is comfortably after the publisher's
 # 12:00-14:00 Chile rebuild window, and the minute is one no other flow uses.
-# pyrefly: ignore [missing-attribute]
 cl_chilecompra_mercado_publico_flow.deploy_schedules = [
-    {"cron": "23 18 * * 1", "timezone": "America/Sao_Paulo"}
+    Cron("23 18 * * 1", timezone="America/Sao_Paulo")
 ]
 
 # `memory` alone is NOT the container limit. The work pool's job template exposes
@@ -327,7 +327,6 @@ cl_chilecompra_mercado_publico_flow.deploy_schedules = [
 # then added its ~2 GB transient peak on top and crossed 4Gi. So the workload needs
 # roughly 5 GB; 12Gi leaves headroom for the licitacion months, which build two tables at
 # once.
-# pyrefly: ignore [missing-attribute]
 cl_chilecompra_mercado_publico_flow.job_variables = {
     "memory": "12Gi",
     "memory_limit": "12Gi",

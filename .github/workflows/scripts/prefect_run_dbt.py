@@ -85,10 +85,21 @@ def get_datasets_tables_from_modified_files(
     # generic test or macro, not a table. Treating it as a phantom model would
     # abort prod materialization before any real table builds, so restrict to
     # models.
+    #
+    # A published table is exactly `models/<dataset_id>/<model>.sql`. Anything
+    # deeper is not one: `dataset_id` is read off the parent directory, so
+    # `models/<dataset_id>/<subdir>/<model>.sql` would yield `<subdir>` as the
+    # dataset and launch a materialization flow for a dataset that does not
+    # exist. Subdirectories hold intermediate models (e.g. the ephemeral
+    # per-state models under world_wb_mides/states/, which compile into their
+    # parent and have no table of their own) and archived SQL kept for
+    # reference (br_inpe_queimadas/code/). Skip both.
     sql_files: list[Path] = [
         file
         for file in modified_files
-        if file.suffix == ".sql" and file.parts and file.parts[0] == "models"
+        if file.suffix == ".sql"
+        and len(file.parts) == 3
+        and file.parts[0] == "models"
     ]
 
     datasets_tables: list[tuple[str, str, bool, bool]] = [

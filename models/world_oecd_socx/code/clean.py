@@ -34,8 +34,14 @@ import sys
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
-from common import ARCH_DIR, CODE_DIR, INPUT, OUTPUT
-from tables import TABLES
+
+from models.world_oecd_socx.code.common import (
+    ARCH_DIR,
+    CODE_DIR,
+    INPUT,
+    OUTPUT,
+)
+from models.world_oecd_socx.code.tables import TABLES
 
 
 def architecture(slug):

@@ -5,9 +5,7 @@
 datasets/tabelas que o disparam.
 """
 
-from prefect import flow
-from prefect.utilities.asyncutils import run_coro_as_sync
-
+from pipelines.utils.flow import flow
 from pipelines.utils.materialize_prod.flows import transfer_files_to_prod_flow
 from pipelines.utils.metadata.constants import BUILD_AND_PROMOTE_JOB_VARIABLES
 from pipelines.utils.metadata.domain import CoverageSpec
@@ -53,7 +51,6 @@ def update_temporal_coverage(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 update_temporal_coverage.deploy_schedules = []
 
 
@@ -92,18 +89,10 @@ def build_and_promote(
             requester-pays do staging de dev, dentro de
             `transfer_files_to_prod_flow`.
     """
-    # `rename_flow_run_dataset_table` é uma `@task` async — chamada sem
-    # `await` de um flow síncrono ela só cria uma coroutine e descarta (o
-    # rename nunca acontece, sem erro nem log — mesmo bug presente em
-    # vários outros flows do repositório, issue #1940); daí o
-    # `run_coro_as_sync(...)`, que efetivamente roda a coroutine e espera
-    # o resultado.
-    run_coro_as_sync(
-        rename_flow_run_dataset_table(
-            prefix="Build and Promote: ",
-            dataset_id=dataset_id,
-            table_id=table_id,
-        )
+    rename_flow_run_dataset_table(
+        prefix="Build and Promote: ",
+        dataset_id=dataset_id,
+        table_id=table_id,
     )
 
     targets = targets or ["dev", "prod"]
@@ -135,5 +124,4 @@ def build_and_promote(
         )
 
 
-# pyrefly: ignore [missing-attribute]
 build_and_promote.job_variables = BUILD_AND_PROMOTE_JOB_VARIABLES

@@ -12,8 +12,6 @@ O antigo `_cnes_flow`/`_run_cnes` monolítico segue existindo em
 daqui.
 """
 
-from prefect import flow
-
 from pipelines.datasets.br_ms_cnes.constants import (
     DADOS_COMPLEMENTARES_TABLE_ID,
     DATASET_ID,
@@ -31,6 +29,7 @@ from pipelines.datasets.br_ms_cnes.constants import (
     SERVICO_ESPECIALIZADO_TABLE_ID,
 )
 from pipelines.datasets.br_ms_cnes.tasks import make_pipeline
+from pipelines.utils.flow import flow
 from pipelines.utils.stage_dispatch import Etapa, deploy_tags
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -47,7 +46,6 @@ def br_ms_cnes_profissional_check_update() -> None:
     _profissional_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_profissional_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -58,7 +56,6 @@ def br_ms_cnes_profissional_download(download_params: dict) -> None:
     _profissional_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_profissional_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
@@ -81,7 +78,6 @@ def br_ms_cnes_estabelecimento_check_update() -> None:
     _estabelecimento_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_estabelecimento_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -94,7 +90,6 @@ def br_ms_cnes_estabelecimento_download(download_params: dict) -> None:
     _estabelecimento_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_estabelecimento_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
@@ -117,7 +112,6 @@ def br_ms_cnes_equipe_check_update() -> None:
     _equipe_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_equipe_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -128,7 +122,6 @@ def br_ms_cnes_equipe_download(download_params: dict) -> None:
     _equipe_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_equipe_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
@@ -151,7 +144,6 @@ def br_ms_cnes_leito_check_update() -> None:
     _leito_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_leito_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -162,7 +154,6 @@ def br_ms_cnes_leito_download(download_params: dict) -> None:
     _leito_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_leito_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
@@ -183,7 +174,6 @@ def br_ms_cnes_equipamento_check_update() -> None:
     _equipamento_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_equipamento_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -194,7 +184,6 @@ def br_ms_cnes_equipamento_download(download_params: dict) -> None:
     _equipamento_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_equipamento_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
@@ -222,7 +211,6 @@ def br_ms_cnes_estabelecimento_ensino_check_update() -> None:
     _estabelecimento_ensino_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_estabelecimento_ensino_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -238,7 +226,6 @@ def br_ms_cnes_estabelecimento_ensino_download(
     _estabelecimento_ensino_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_estabelecimento_ensino_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
@@ -263,7 +250,6 @@ def br_ms_cnes_dados_complementares_check_update() -> None:
     _dados_complementares_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_dados_complementares_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -279,7 +265,6 @@ def br_ms_cnes_dados_complementares_download(
     _dados_complementares_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_dados_complementares_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
@@ -307,7 +292,6 @@ def br_ms_cnes_estabelecimento_filantropico_check_update() -> None:
     _estabelecimento_filantropico_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_estabelecimento_filantropico_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -325,7 +309,6 @@ def br_ms_cnes_estabelecimento_filantropico_download(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_estabelecimento_filantropico_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
@@ -348,7 +331,6 @@ def br_ms_cnes_gestao_metas_check_update() -> None:
     _gestao_metas_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_gestao_metas_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -359,7 +341,6 @@ def br_ms_cnes_gestao_metas_download(download_params: dict) -> None:
     _gestao_metas_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_gestao_metas_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
@@ -382,7 +363,6 @@ def br_ms_cnes_habilitacao_check_update() -> None:
     _habilitacao_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_habilitacao_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -393,7 +373,6 @@ def br_ms_cnes_habilitacao_download(download_params: dict) -> None:
     _habilitacao_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_habilitacao_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
@@ -416,7 +395,6 @@ def br_ms_cnes_incentivos_check_update() -> None:
     _incentivos_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_incentivos_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -427,7 +405,6 @@ def br_ms_cnes_incentivos_download(download_params: dict) -> None:
     _incentivos_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_incentivos_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
@@ -450,7 +427,6 @@ def br_ms_cnes_regra_contratual_check_update() -> None:
     _regra_contratual_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_regra_contratual_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -463,7 +439,6 @@ def br_ms_cnes_regra_contratual_download(download_params: dict) -> None:
     _regra_contratual_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_regra_contratual_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
@@ -489,7 +464,6 @@ def br_ms_cnes_servico_especializado_check_update() -> None:
     _servico_especializado_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_servico_especializado_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -505,7 +479,6 @@ def br_ms_cnes_servico_especializado_download(
     _servico_especializado_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_ms_cnes_servico_especializado_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )

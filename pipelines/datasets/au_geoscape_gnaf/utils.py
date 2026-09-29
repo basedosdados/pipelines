@@ -368,7 +368,6 @@ def write_partition(
                 sl = df.iloc[start : start + _WRITE_CHUNK]
                 arrays = []
                 for c in cols:
-                    # pyrefly: ignore [bad-argument-type]  # pandas-stubs rejects None; valid at runtime
                     a = pa.array(sl[c].replace("", None))
                     if not pa.types.is_string(a.type):
                         a = a.cast(pa.string())

@@ -10,14 +10,14 @@ The run polls cheaply first (an HTTP HEAD on the ZIPs, compared against
 ``Table.Update.latest``) and only downloads the ~1 GB payload when the source has
 actually republished — so a scheduled run is a cheap no-op between weekly releases.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``au_ato_abr_flow``; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``au_ato_abr_flow``; the
 dev pool ignores the schedule, the prod pool activates it (deployed paused).
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.au_ato_abr.constants import constants
 from pipelines.datasets.au_ato_abr.tasks import (
@@ -25,6 +25,7 @@ from pipelines.datasets.au_ato_abr.tasks import (
     clean_abr,
     download_abr,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     DateOnly,
@@ -100,7 +101,6 @@ def au_ato_abr_flow(
         force_run: Download and materialize even when the source poll reports no
             new snapshot.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="entity"
     )
@@ -208,11 +208,9 @@ def au_ato_abr_flow(
 # The source republishes weekly; the exact weekday drifts, so poll on several
 # days at 16:00 BRT. The HEAD-based source poll no-ops (no download) until a new
 # snapshot actually appears.
-# pyrefly: ignore [missing-attribute]
 au_ato_abr_flow.deploy_schedules = [
-    {"cron": "30 16 * * 1,2,3,4", "timezone": "America/Sao_Paulo"}
+    Cron("30 16 * * 1,2,3,4", timezone="America/Sao_Paulo")
 ]
 # The clean step streams from the ZIPs and flushes in 400k-row chunks, but the
 # download is ~1 GB; give the worker headroom.
-# pyrefly: ignore [missing-attribute]
 au_ato_abr_flow.job_variables = {"memory": "8Gi"}

@@ -7,8 +7,6 @@ Lógica específica do dataset mora em `tasks.py`, constantes em
 `constants.py` — aqui só a fiação (`CheckThenExtractLoadPipeline` + `@flow`).
 """
 
-from prefect import flow
-
 from pipelines.datasets.br_me_comex_stat.constants import (
     DATASET_ID,
     MUNICIPIO_EXPORTACAO_TABLE_ID,
@@ -17,6 +15,7 @@ from pipelines.datasets.br_me_comex_stat.constants import (
     NCM_IMPORTACAO_TABLE_ID,
 )
 from pipelines.datasets.br_me_comex_stat.tasks import make_pipeline
+from pipelines.utils.flow import flow
 from pipelines.utils.stage_dispatch import Etapa, deploy_tags
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -36,7 +35,6 @@ def br_me_comex_stat_municipio_exportacao_check_update() -> None:
     _municipio_exportacao_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_me_comex_stat_municipio_exportacao_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -52,7 +50,6 @@ def br_me_comex_stat_municipio_exportacao_download(
     _municipio_exportacao_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_me_comex_stat_municipio_exportacao_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
@@ -78,7 +75,6 @@ def br_me_comex_stat_municipio_importacao_check_update() -> None:
     _municipio_importacao_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_me_comex_stat_municipio_importacao_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -94,7 +90,6 @@ def br_me_comex_stat_municipio_importacao_download(
     _municipio_importacao_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_me_comex_stat_municipio_importacao_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
@@ -120,7 +115,6 @@ def br_me_comex_stat_ncm_exportacao_check_update() -> None:
     _ncm_exportacao_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_me_comex_stat_ncm_exportacao_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -136,7 +130,6 @@ def br_me_comex_stat_ncm_exportacao_download(
     _ncm_exportacao_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_me_comex_stat_ncm_exportacao_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
@@ -162,7 +155,6 @@ def br_me_comex_stat_ncm_importacao_check_update() -> None:
     _ncm_importacao_pipeline.run_check_update()
 
 
-# pyrefly: ignore [missing-attribute]
 br_me_comex_stat_ncm_importacao_check_update.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.CHECK_UPDATE
 )
@@ -178,7 +170,6 @@ def br_me_comex_stat_ncm_importacao_download(
     _ncm_importacao_pipeline.run_extract_and_load(download_params)
 
 
-# pyrefly: ignore [missing-attribute]
 br_me_comex_stat_ncm_importacao_download.deploy_tags = deploy_tags(
     DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )

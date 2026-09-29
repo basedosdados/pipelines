@@ -9,8 +9,7 @@ writes to the repo.
 
 import sys
 
-from common import INPUT, K
-
+from models.us_census_cog.code.common import INPUT, K
 from pipelines.datasets.us_census_cog.utils import (
     download_employment,
     download_finance,

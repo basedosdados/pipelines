@@ -1,0 +1,20 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano del levantamiento censal,,no,,year,no,"Columna de particion. El Censo de Poblacion y Vivienda es decenal, por lo que la tabla contiene un unico ano",
+id_region,STRING,"Codigo unico territorial (CUT) de la region, de dos digitos",,no,br_bd_diretorios_cl.region:id_region,,no,Columna de particion. Derivable de los dos primeros digitos de id_comuna,region
+id_provincia,STRING,"Codigo unico territorial (CUT) de la provincia, de tres digitos",,no,br_bd_diretorios_cl.provincia:id_provincia,,no,Derivable de los tres primeros digitos de id_comuna,provincia
+id_comuna,STRING,"Codigo unico territorial (CUT) de la comuna, de cinco digitos",,no,br_bd_diretorios_cl.comuna:id_comuna,,no,,comuna
+id_vivienda,STRING,"Identificador de la vivienda, unico en todo el pais",,no,,,no,Llave primaria de la tabla vivienda. Verificado unico en todo el pais: no requiere id_comuna para desambiguar,id_vivienda
+id_hogar,STRING,Identificador del hogar dentro de la vivienda,,no,,,no,,id_hogar
+comuna_bajo_umbral,STRING,Comuna con menos de 6.000 personas censadas,,yes,,,no,,comuna_bajo_umbral
+area,STRING,Estrato censal urbano o rural en que se ubica el registro,,yes,,,no,,area
+tipo_operativo,STRING,Tipo de operativo,,yes,,,no,,tipo_operativo
+p12_tenencia_viv,STRING,Tenencia de la vivienda,,yes,,,no,,p12_tenencia_viv
+p13_comb_cocina,STRING,Fuente de energía o combustible para cocinar,,yes,,,no,,p13_comb_cocina
+p14_comb_calefaccion,STRING,Fuente de energía o combustible para calefaccionar,,yes,,,no,,p14_comb_calefaccion
+p15a_serv_tel_movil,STRING,Dispone de telefono movil en el hogar,,yes,,,no,,p15a_serv_tel_movil
+p15b_serv_compu,STRING,Dispone de computador en el hogar,,yes,,,no,,p15b_serv_compu
+p15c_serv_tablet,STRING,Dispone de tablet en el hogar,,yes,,,no,,p15c_serv_tablet
+p15d_serv_internet_fija,STRING,Dispone de conexion a internet fija en el hogar,,yes,,,no,,p15d_serv_internet_fija
+p15e_serv_internet_movil,STRING,Dispone de conexion a internet movil en el hogar,,yes,,,no,,p15e_serv_internet_movil
+p15f_serv_internet_satelital,STRING,Dispone de conexion a internet satelital en el hogar,,yes,,,no,,p15f_serv_internet_satelital
+tipologia_hogar,STRING,"Tipologia del hogar segun su composicion: unipersonal, nuclear, extenso, compuesto o sin nucleo",,yes,,,no,,tipologia_hogar
