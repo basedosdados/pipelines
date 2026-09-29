@@ -167,18 +167,34 @@ TABLES = {
 
 # One raw data source per table: client._raw_source_id raises when a table has
 # two or more, which breaks any future recurring pipeline at its first poll.
+#
+# Link the raw sources the dados.gov.br harvest already created on this dataset
+# rather than creating new ones — run get_raw_data_sources first. Three
+# duplicates were created here before that check was run, and the MCP has no
+# delete for a RawDataSource, so they can only be cleaned up in Django admin.
+# The IDs below are the harvested stubs; re-resolve them per environment by URL
+# rather than trusting the ID to carry over.
+#
+# No stub covers the glossary, so dicionario_especie keeps its own raw source.
+# The five harvested stubs also include "Benefícios Emitidos" and "Benefícios
+# Indeferidos", which no table here uses, and a second concedido package
+# covering Dec/2018-May/2023; only one may be linked, so the ongoing package is
+# the one linked.
 RAW_SOURCES = {
     "beneficio_concedido_municipio_mes": {
-        "name": "Benefícios concedidos - INSS dados abertos",
-        "url": "https://dadosabertos.inss.gov.br/dataset/beneficios-concedidos-plano-de-dados-abertos-jun-2023-a-jun-2025",
+        "name": "Benefícios Concedidos (A partir de junho de 2023)",
+        "url": "https://dados.gov.br/dados/conjuntos-dados/beneficios-concedidos-plano-de-dados-abertos-jun-2023-a-jun-2025",
+        "id_staging": "64954003-2f8f-4bde-89df-48142dee74bf",
     },
     "beneficio_mantido_municipio_mes": {
-        "name": "Benefícios mantidos - INSS dados abertos",
-        "url": "https://dadosabertos.inss.gov.br/dataset/beneficios-mantidos-plano-de-dados-abertos-jun-2023-a-jun-2025",
+        "name": "Benefícios Mantidos",
+        "url": "https://dados.gov.br/dados/conjuntos-dados/beneficios-mantidos-plano-de-dados-abertos-jun-2023-a-jun-2025",
+        "id_staging": "46e32460-cbac-47f3-a1b8-f49205833c27",
     },
     "dicionario_especie": {
         "name": "Dicionário de Dados - Espécies de Benefício",
         "url": "https://dadosabertos.inss.gov.br/dataset/glossarios-dos-arquivos-de-beneficios-plano-de-dados-abertos-jun-2023-a-jun-2025",
+        "id_staging": "7f6741c9-ac9d-4407-9bc9-402d48493c83",
     },
 }
 
