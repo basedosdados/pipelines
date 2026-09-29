@@ -22,7 +22,12 @@ import google.cloud.storage as gcs  # noqa: E402
 import pyarrow.dataset as pads  # noqa: E402
 import pyarrow.parquet as pq  # noqa: E402
 from basedosdados.upload.datatypes import Datatype  # noqa: E402
-from constants import DATASET_ID, OUTPUT_DIR, TABLES  # noqa: E402
+
+from models.cl_ine_censo.code.constants import (  # noqa: E402
+    DATASET_ID,
+    OUTPUT_DIR,
+    TABLES,
+)
 
 _argv = sys.argv[1:]
 ENV = "dev"

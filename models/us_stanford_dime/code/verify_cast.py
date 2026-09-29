@@ -23,14 +23,12 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from pathlib import Path
 
 from google.cloud import bigquery
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import architecture as arch
-import gen_dbt
+from models.us_stanford_dime.code import architecture as arch
+from models.us_stanford_dime.code import gen_dbt
 
 PROJECT = "basedosdados-dev"
 DATASET = "us_stanford_dime"

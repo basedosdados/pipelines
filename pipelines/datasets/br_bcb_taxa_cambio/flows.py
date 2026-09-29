@@ -48,7 +48,6 @@ def br_bcb_taxa_cambio__taxa_cambio(
     Passar uma lista recarrega esses anos sem consultar a fonte, para consertar
     partição incompleta ou duplicada.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )

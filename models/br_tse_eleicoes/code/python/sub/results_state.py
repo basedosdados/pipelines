@@ -6,12 +6,23 @@ Produces TWO output tables per year (plus no partido for 1989).
 """
 
 import pandas as pd
-from config import INPUT_DIR, OUTPUT_PYTHON
-from utils.clean_election_type import clean_election_type_series
-from utils.clean_party import clean_party_series
-from utils.clean_result import clean_result_series
-from utils.clean_string import clean_string_series
-from utils.fix_candidate import fix_candidate
+
+from models.br_tse_eleicoes.code.python.config import INPUT_DIR, OUTPUT_PYTHON
+from models.br_tse_eleicoes.code.python.utils.clean_election_type import (
+    clean_election_type_series,
+)
+from models.br_tse_eleicoes.code.python.utils.clean_party import (
+    clean_party_series,
+)
+from models.br_tse_eleicoes.code.python.utils.clean_result import (
+    clean_result_series,
+)
+from models.br_tse_eleicoes.code.python.utils.clean_string import (
+    clean_string_series,
+)
+from models.br_tse_eleicoes.code.python.utils.fix_candidate import (
+    fix_candidate,
+)
 
 # fmt: off
 UFS_CAND = {

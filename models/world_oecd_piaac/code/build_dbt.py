@@ -12,14 +12,11 @@ from __future__ import annotations
 
 import csv
 import json
-import sys
 from pathlib import Path
 
 import yaml
 
-sys.path.insert(0, str(Path(__file__).parent))
-
-import architecture as arch
+from models.world_oecd_piaac.code import architecture as arch
 
 CODE_DIR = Path(__file__).parent
 MODEL_DIR = CODE_DIR.parent

@@ -19,8 +19,14 @@ import json
 import time
 import zipfile
 
-from common import CSV_DIR, CSV_ZIP, DATASETS_MINIMAL, INPUT, OUTPUT, STATS
-
+from models.world_iati_activities.code.common import (
+    CSV_DIR,
+    CSV_ZIP,
+    DATASETS_MINIMAL,
+    INPUT,
+    OUTPUT,
+    STATS,
+)
 from pipelines.datasets.world_iati_activities.constants import constants
 from pipelines.datasets.world_iati_activities.utils import (
     build_registry_dataset,

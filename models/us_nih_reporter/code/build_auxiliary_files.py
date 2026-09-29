@@ -28,7 +28,13 @@ from datetime import date
 from pathlib import Path
 
 import requests
-from common import ALL_TABLES, DATA_DIR, DATASET_ID, constants
+
+from models.us_nih_reporter.code.common import (
+    ALL_TABLES,
+    DATA_DIR,
+    DATASET_ID,
+    constants,
+)
 
 OUT = DATA_DIR / "auxiliary_files"
 DOWNLOADED = date(2026, 9, 8)

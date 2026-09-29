@@ -39,13 +39,11 @@ Two parsing notes, both measured:
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
 import duckdb
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from constants import (
+from models.br_bd_execucao_estadual.code.constants import (
     INPUT_DIR,
     OUTPUT_DIR,
     RJ_PREAMBLE_LINES,
@@ -101,6 +99,7 @@ def clean_year(
         f"COPY (SELECT {projection} FROM {rel}) TO '{out_path}' "
         f"(FORMAT PARQUET, COMPRESSION SNAPPY)"
     )
+    # pyrefly: ignore [unsupported-operation]
     n = con.execute(
         f"SELECT count(*) FROM read_parquet('{out_path}')"
     ).fetchone()[0]

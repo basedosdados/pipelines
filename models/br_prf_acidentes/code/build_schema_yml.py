@@ -3,12 +3,9 @@
 from __future__ import annotations
 
 import csv
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
-
-from constants import ARCHITECTURE_DIR, DATASET_ID
+from models.br_prf_acidentes.code.constants import ARCHITECTURE_DIR, DATASET_ID
 
 MODEL_DIR = Path(__file__).resolve().parents[1]
 

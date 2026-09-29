@@ -22,6 +22,7 @@ sys.path.insert(
     0,
     os.path.expanduser("~/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"),
 )
+# pyrefly: ignore [missing-import]
 import server
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -348,6 +349,7 @@ def main(env: str) -> None:
                 id=cov_id,
                 env=env,
             )
+            # pyrefly: ignore [not-iterable]
             y0, m0, y1, m1 = COVERAGE[slug]
             server.create_update_datetime_range(
                 coverage_id=cov["id"],

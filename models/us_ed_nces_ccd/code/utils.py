@@ -29,8 +29,7 @@ from pathlib import Path
 
 import duckdb
 
-# pyrefly: ignore [missing-import]
-import schema
+from models.us_ed_nces_ccd.code import schema
 
 BASE_URL = "https://educationdata.urban.org/csv/ccd"
 

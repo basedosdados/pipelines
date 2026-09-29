@@ -149,7 +149,6 @@ def br_mgi_compras_publicas_diario_flow(
     revision_window_days: int = REVISION_WINDOW_DAYS,
 ) -> None:
     """Refresh the Lei 14.133 modules and the contract registry."""
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="diario"
     )
@@ -169,7 +168,6 @@ def br_mgi_compras_publicas_semanal_flow(
     output_dir: str = "/tmp/br_mgi_compras_publicas",
 ) -> None:
     """Re-snapshot the registries, catalogues and dicionario."""
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="semanal"
     )

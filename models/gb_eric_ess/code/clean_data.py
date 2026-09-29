@@ -30,8 +30,6 @@ from pathlib import Path
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
-
-# pyrefly: ignore [missing-import]
 import pyreadstat
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -122,6 +120,7 @@ def clean_round(round_n):
     )
 
     raw, _ = pyreadstat.read_dta(dta, apply_value_formats=False)
+    # pyrefly: ignore [missing-attribute]
     raw.columns = [c.lower() for c in raw.columns]
 
     data = {}
@@ -134,14 +133,20 @@ def clean_round(round_n):
         if name == "year":
             continue  # hive partition key, not stored
         if name == "round":
+            # pyrefly: ignore [bad-argument-type]
             col = pd.Series([round_n] * len(raw))
         elif name == "country_id":
+            # pyrefly: ignore [bad-index]
             col = raw["cntry"]
         elif name == "respondent_id":
+            # pyrefly: ignore [bad-index]
             col = raw["idno"]
+        # pyrefly: ignore [missing-attribute]
         elif orig in raw.columns:
+            # pyrefly: ignore [bad-index]
             col = raw[orig]
         else:
+            # pyrefly: ignore [bad-argument-type]
             col = pd.Series([None] * len(raw))
             missing_src.append(orig)
         data[name] = cast_column(col, btype)

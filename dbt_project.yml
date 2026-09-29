@@ -52,6 +52,9 @@ models:
     au_abs_prices_inflation:
       +materialized: table
       +schema: au_abs_prices_inflation
+    au_abs_productivity:
+      +materialized: table
+      +schema: au_abs_productivity
     au_alexander_politicians:
       +materialized: table
       +schema: au_alexander_politicians
@@ -579,6 +582,9 @@ models:
     br_mp_pep:
       +materialized: table
       +schema: br_mp_pep
+    br_mps_beneficios:
+      +materialized: table
+      +schema: br_mps_beneficios
     br_ms_cnes:
       +materialized: table
       +schema: br_ms_cnes

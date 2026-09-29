@@ -25,6 +25,7 @@ from pathlib import Path
 sys.path.insert(
     0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
 )
+# pyrefly: ignore [missing-import]
 import server
 
 SLUG = "world_oecd_revenue_statistics"

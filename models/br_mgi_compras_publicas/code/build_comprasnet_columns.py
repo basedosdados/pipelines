@@ -22,7 +22,9 @@ ARCH = Path(__file__).resolve().parent / "architecture"
 # also reads, so one map now covers every table in the dataset and
 # check_translations() polices all of them. Keeping a second copy here is how
 # the two drift apart.
-from observation_translations import OBSERVATIONS  # noqa: E402
+from models.br_mgi_compras_publicas.code.observation_translations import (  # noqa: E402
+    OBSERVATIONS,
+)
 
 
 def build(table: str) -> list[dict]:

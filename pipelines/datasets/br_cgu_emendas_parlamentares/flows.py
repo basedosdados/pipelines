@@ -54,7 +54,6 @@ def br_cgu_emendas_parlamentares__microdados(
         target: Target do dbt na materialização em prod.
         force_run: Se `True`, pula a checagem de novidade na fonte.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )

@@ -40,7 +40,6 @@ def br_ms_sim__microdados(
     force_run: bool = False,
 ) -> None:
     """Carrega um ano do SIM, do FTP do DATASUS até a materialização."""
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )

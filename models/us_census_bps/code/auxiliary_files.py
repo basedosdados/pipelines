@@ -200,6 +200,7 @@ def main() -> int:
         try:
             with urllib.request.urlopen(request, timeout=60) as response:
                 status = str(response.status)
+        # pyrefly: ignore [implicit-import]
         except urllib.error.HTTPError as exc:
             status = f"{exc.code} {exc.reason}"
         except Exception as exc:

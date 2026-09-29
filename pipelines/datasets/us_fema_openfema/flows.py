@@ -80,7 +80,6 @@ def us_fema_openfema_flow(
         force_run: Download and materialize every set even when the poll
             reports nothing new.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="nfip_claim"
     )

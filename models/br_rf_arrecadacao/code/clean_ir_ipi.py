@@ -1,5 +1,11 @@
-# pyrefly: ignore [missing-import]
-from clean_functions import *  # noqa: F403
+from models.br_rf_arrecadacao.code.clean_functions import (
+    get_month_number,
+    read_data,
+    remove_dots,
+    remove_empty_rows,
+    replace_commas,
+    save_data,
+)
 
 
 def rename_columns(df):
@@ -21,27 +27,23 @@ def rename_columns(df):
 
 def change_types(df):
     df["ano"] = df["ano"].astype("int")
-    # pyrefly: ignore [unknown-name]
-    df["mes"] = get_month_number(df["mes"])  # noqa: F405
+    df["mes"] = get_month_number(df["mes"])
 
     # All remaining columns are monetary values
     for col in df.columns[4:]:
         df[col] = (
-            # pyrefly: ignore [unknown-name]
-            df[col].apply(replace_commas).apply(remove_dots).astype("float")  # noqa: F405
+            df[col].apply(replace_commas).apply(remove_dots).astype("float")
         )
 
     return df
 
 
 if __name__ == "__main__":
-    # pyrefly: ignore [unknown-name]
-    df = read_data(file_dir="../input/arrecadacao-ir-ipi.csv")  # noqa: F405
-    df = remove_empty_rows(df)  # noqa: F405  # pyrefly: ignore [unknown-name]
+    df = read_data(file_dir="../input/arrecadacao-ir-ipi.csv")
+    df = remove_empty_rows(df)
     df = rename_columns(df)
     df = change_types(df)
-    # pyrefly: ignore [unknown-name]
-    save_data(  # noqa: F405
+    save_data(
         df=df,
         file_dir="../output/br_rf_arrecadacao_ir_ipi",
         partition_cols=["ano", "mes"],

@@ -24,8 +24,8 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parents[2]))
 
-import glossary  # noqa: E402
-import tables as spec  # noqa: E402
+from models.us_fema_openfema.code import glossary  # noqa: E402
+from models.us_fema_openfema.code import tables as spec  # noqa: E402
 
 ARROW_TO_BQ = {
     "bool": "BOOLEAN",

@@ -20,15 +20,15 @@ from __future__ import annotations
 
 import argparse
 import sys
-from pathlib import Path
 
 sys.path.insert(
     0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
 )
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+# pyrefly: ignore [missing-import]
 import server
-from metadata import (
+
+from models.us_census_bps.code.metadata import (
     AUX_URL,
     BASE,
     COVERAGE,

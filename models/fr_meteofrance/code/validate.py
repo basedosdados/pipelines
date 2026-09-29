@@ -10,15 +10,13 @@ here and are declared in `schema.yml`'s `ignore_values`.
 """
 
 import os
-import sys
 from collections import Counter
 from pathlib import Path
 
 import pandas as pd
 import pyarrow.parquet as pq
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from schema_map import SYNOP_COLUMNS
+from models.fr_meteofrance.code.schema_map import SYNOP_COLUMNS
 
 OUTPUT = Path(
     os.path.expanduser(
@@ -96,6 +94,7 @@ def others() -> int:
     """Report the register and normals tables; return the failure count."""
     failures = 0
     st = pd.read_parquet(OUTPUT / "station_synop" / "data.parquet")
+    # pyrefly: ignore [unnecessary-type-conversion]
     failures += int(st["indicatif_omm"].duplicated().sum())
     print(
         f"\nstation_synop: {len(st)} rows, "
@@ -104,6 +103,7 @@ def others() -> int:
     )
 
     sc = pd.read_parquet(OUTPUT / "station_climatologique" / "data.parquet")
+    # pyrefly: ignore [unnecessary-type-conversion]
     failures += int(sc["numero_poste"].duplicated().sum())
     print(
         f"station_climatologique: {len(sc)} rows, "

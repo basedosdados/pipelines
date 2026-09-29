@@ -43,6 +43,7 @@ if not Path(_MCP_PATH).is_dir():
     )
 sys.path.insert(0, _MCP_PATH)
 
+# pyrefly: ignore [missing-import]
 import server  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
@@ -118,8 +119,11 @@ def main() -> None:
     assert_coverage_topology(spec, ids)
     ranges = compute_coverage_ranges(spec, source_end, ids)
 
+    # pyrefly: ignore [missing-attribute]
     free_end = _range_fields(ranges.free.model_dump(), "end")
+    # pyrefly: ignore [missing-attribute]
     pro_start = _range_fields(ranges.pro.model_dump(), "start")
+    # pyrefly: ignore [missing-attribute]
     pro_end = _range_fields(ranges.pro.model_dump(), "end")
 
     existing = {

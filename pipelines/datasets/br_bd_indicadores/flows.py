@@ -67,7 +67,6 @@ def br_bd_indicadores__twitter_metrics(
     materialize_after_dump: bool = True,
     target: str = "prod",
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -118,7 +117,6 @@ def br_bd_indicadores__page_views(
     dataset_id: str = _DATASET,
     table_id: str = "page_views",
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -151,7 +149,6 @@ def br_bd_indicadores__website_user(
     materialize_after_dump: bool = True,
     target: str = "prod",
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -186,7 +183,6 @@ def _sheet_flow_body(
     filename: str,
     usecols: int | None = None,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )

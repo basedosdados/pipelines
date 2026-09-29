@@ -84,6 +84,7 @@ def main(out_dir: str, dir_ids: str = "/tmp") -> int:
         df = read_table(out_dir, table)
         # Staging parquet is all-STRING; NULL must survive as NULL, never "nan".
         for col in df.columns:
+            # pyrefly: ignore [unnecessary-type-conversion]
             bad = int((df[col].astype("string") == "nan").sum())
             if bad:
                 failures.append(f"{table}.{col}: {bad} literal 'nan' strings")

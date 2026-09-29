@@ -13,7 +13,13 @@ import os
 import sys
 
 import pyarrow.parquet as pq
-from constants import OUTPUT_DIR, TABLE_DICIONARIO, TABLE_MUNICIPIO, TABLE_UF
+
+from models.br_mj_sinesp.code.constants import (
+    OUTPUT_DIR,
+    TABLE_DICIONARIO,
+    TABLE_MUNICIPIO,
+    TABLE_UF,
+)
 
 KEYS = {
     TABLE_MUNICIPIO: [

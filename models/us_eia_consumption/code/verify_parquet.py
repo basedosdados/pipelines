@@ -12,7 +12,8 @@ import sys
 
 import pandas as pd
 import pyarrow.dataset as pads
-from common import OUTPUT
+
+from models.us_eia_consumption.code.common import OUTPUT
 
 
 def load(table: str) -> pd.DataFrame:

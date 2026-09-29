@@ -43,14 +43,24 @@ sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(Path.home() / "Dropbox/BD/mcp"))
 
-import server  # noqa: E402  # pyrefly: ignore [missing-import]  (resolved above)
-from dbt_spec import TABLES as DBT  # noqa: E402
-from observation_translations import (  # noqa: E402
+# pyrefly: ignore [missing-import]
+import server  # noqa: E402
+
+from models.br_mgi_compras_publicas.code.dbt_spec import (  # noqa: E402
+    TABLES as DBT,
+)
+from models.br_mgi_compras_publicas.code.observation_translations import (  # noqa: E402
     OBSERVATIONS,
     check_translations,
 )
-from table_metadata import DATASET, TABLE_ORDER, UPDATE_CADENCE  # noqa: E402
-from table_metadata import TABLES as META  # noqa: E402
+from models.br_mgi_compras_publicas.code.table_metadata import (  # noqa: E402
+    DATASET,
+    TABLE_ORDER,
+    UPDATE_CADENCE,
+)
+from models.br_mgi_compras_publicas.code.table_metadata import (  # noqa: E402
+    TABLES as META,
+)
 
 # The paywall tier per table, read from the pipeline's own declaration rather
 # than restated here: `COVERAGE` is what the flow passes to
@@ -520,6 +530,7 @@ def main(env: str, status: str, only: list[str] | None = None) -> int:
     }
     source_ids: dict[str, str] = {}
     for spec_source in (RAW_SOURCE, COMPRASNET_SOURCE):
+        # pyrefly: ignore [unsupported-operation]
         source_ids[spec_source["url"]] = fn("create_update_raw_data_source")(
             id=existing_sources.get(spec_source["url"]),
             dataset_id=dataset_id,
@@ -542,6 +553,7 @@ def main(env: str, status: str, only: list[str] | None = None) -> int:
             env=env,
         )["id"]
         print(
+            # pyrefly: ignore [bad-index]
             f"raw data source {spec_source['url']} -> {source_ids[spec_source['url']]}"
         )
 

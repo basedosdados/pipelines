@@ -9,15 +9,17 @@ Raw downloads and cleaned parquet go under SISDEPEN_DATA_ROOT (default
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-import utils
-from constants import CYCLE_FILES, INPUT_DIR, OUTPUT_DIR, TABLES
+import models.br_mj_sisdepen.code.utils as utils
+from models.br_mj_sisdepen.code.constants import (
+    CYCLE_FILES,
+    INPUT_DIR,
+    OUTPUT_DIR,
+    TABLES,
+)
 
 
 def main() -> int:

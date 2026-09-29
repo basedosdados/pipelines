@@ -89,7 +89,6 @@ def us_dot_fars_flow(
             year without adding a new one, which leaves the max coverage date
             unmoved and so does not trip the poll.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=PRIMARY_TABLE
     )

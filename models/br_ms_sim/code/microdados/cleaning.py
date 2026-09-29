@@ -214,15 +214,15 @@ COLUMN_ORDER = [
 ]
 
 
-def read_dbc(filepath: str, encoding: str = "iso-8859-1") -> pd.DataFrame:
-    # pyrefly: ignore [bad-assignment]
+def read_dbc(
+    filepath: str | Path, encoding: str = "iso-8859-1"
+) -> pd.DataFrame:
     filepath = Path(filepath)
     tmp_fd, tmp_path = tempfile.mkstemp(
         suffix=".dbf", dir=tempfile.gettempdir()
     )
     os.close(tmp_fd)
     try:
-        # pyrefly: ignore [unnecessary-type-conversion]
         dbc2dbf(str(filepath), tmp_path)
         table = DBF(tmp_path, encoding=encoding, load=True)
         return pd.DataFrame(iter(table))
