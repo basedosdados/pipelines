@@ -12,15 +12,9 @@ which the repo's mixed-line-ending pre-commit hook rewrites on every commit.
 """
 
 import csv
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-# _specs.py is a sibling module reached through the sys.path insert above,
-# which pyrefly cannot follow when it checks the project as a whole.
-# pyrefly: ignore [missing-import]
-from _specs import TABLES
+from models.br_cgu_despesas_publicas.code._specs import TABLES
 
 OUT_DIR = Path(__file__).resolve().parent / "architecture"
 HEADER = [

@@ -48,6 +48,7 @@ def classify(
 ) -> tuple[str, str, str, str]:
     """Return (bq_type, covered_by_dictionary, unit, observations)."""
     tipo = (tipo or "").strip().upper()[:1]
+    # pyrefly: ignore [bad-argument-type]
     dec_n = int(dec or 0)
     desc_l = desc.lower()
     is_imputation = original.startswith(("MD", "MP", "MF", "MM"))

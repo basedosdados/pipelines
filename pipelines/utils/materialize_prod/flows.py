@@ -5,8 +5,7 @@ Flow de transferência de arquivos do bucket basedosdados-dev para basedosdados
 
 from __future__ import annotations
 
-from prefect import flow
-
+from pipelines.utils.flow import flow
 from pipelines.utils.materialize_prod.tasks import (
     download_files_from_bucket_folders,
 )
@@ -111,7 +110,6 @@ def transfer_files_to_prod_flow(
     if folders is None:
         folders = ["mes_competencia=202306", "mes_competencia=202305"]
 
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Materialização Prod: ",
         dataset_id=dataset_id,
@@ -168,5 +166,4 @@ def transfer_files_to_prod_flow(
         )
 
 
-# pyrefly: ignore [missing-attribute]
 transfer_files_to_prod_flow.deploy_schedules = []  # utilitário, disparo manual

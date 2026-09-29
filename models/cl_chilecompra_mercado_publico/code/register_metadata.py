@@ -30,8 +30,12 @@ sys.path.insert(
     0, str(Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp")
 )
 
-import metadata_spec as spec  # noqa: E402
+# pyrefly: ignore [missing-import]
 import server  # noqa: E402
+
+from models.cl_chilecompra_mercado_publico.code import (  # noqa: E402
+    metadata_spec as spec,
+)
 
 GCP_PROJECT = {
     "staging": "basedosdados-dev",
@@ -140,6 +144,7 @@ class Registrar:
         ):
             if slug not in self.ids[key]:
                 missing.append(f"{key}:{slug}")
+        # pyrefly: ignore [not-iterable]
         entities = {e for t in spec.TABLES for e in t["observation_levels"]}
         missing += [
             f"entity:{e}" for e in entities if e not in self.ids["entity"]
@@ -280,8 +285,10 @@ class Registrar:
             # table with more than one, which would make the recurring pipeline's poll
             # fail before it did anything.
             if table["raw_source"]:
+                # pyrefly: ignore [bad-index]
                 args["raw_data_source_ids"] = [raw_ids[table["raw_source"]]]
             if table["auxiliary_files"]:
+                # pyrefly: ignore [bad-argument-type]
                 args["auxiliary_files_url"] = spec.auxiliary_files_url(slug)
             existing_id = current[slug]["id"] if slug in current else ""
             if existing_id:
@@ -292,6 +299,7 @@ class Registrar:
                 else server.create_update_table(**args)["id"]
             )
             self.log(f"  table {slug}: {out[slug]}")
+        # pyrefly: ignore [bad-return]
         return out
 
     # ------------------------------------------------------------- 4. columns
@@ -308,6 +316,7 @@ class Registrar:
                 self.log(f"  {slug}: {len(payload)} columns (dry run)")
                 continue
             result = server.bulk_upsert_columns(
+                # pyrefly: ignore [bad-index]
                 table_id=table_ids[slug],
                 columns_json=json.dumps(payload, ensure_ascii=False),
                 env=self.env,
@@ -332,6 +341,7 @@ class Registrar:
                 for ol in current.get(slug, {}).get("observation_levels", [])
             }
             ol_ids = {}
+            # pyrefly: ignore [not-iterable]
             for entity in table["observation_levels"]:
                 if entity in have:
                     ol_ids[entity] = have[entity]
@@ -339,6 +349,7 @@ class Registrar:
                     ol_ids[entity] = ""
                 else:
                     ol_ids[entity] = server.create_update_observation_level(
+                        # pyrefly: ignore [bad-index]
                         table_id=table_ids[slug],
                         entity_id=self.ids["entity"][entity],
                         env=self.env,
@@ -346,7 +357,9 @@ class Registrar:
             self.log(f"  {slug}: {len(ol_ids)} observation levels")
             if not self.dry_run:
                 server.reorder_observation_levels(
+                    # pyrefly: ignore [bad-index]
                     table_id=table_ids[slug],
+                    # pyrefly: ignore [not-iterable]
                     ol_ids=[ol_ids[e] for e in table["observation_levels"]],
                     env=self.env,
                 )
@@ -359,6 +372,7 @@ class Registrar:
                 for c in current.get(slug, {}).get("columns", [])
             }
             linked = 0
+            # pyrefly: ignore [missing-attribute]
             for column, entity in table["observation_level_columns"].items():
                 if column not in by_name:
                     raise SystemExit(f"{slug}: column {column} not registered")
@@ -368,6 +382,7 @@ class Registrar:
                 server.update_column(
                     column_id=by_name[column],
                     column_name=column,
+                    # pyrefly: ignore [bad-index]
                     table_id=table_ids[slug],
                     observation_level_id=ol_ids[entity],
                     is_partition=column in spec.PARTITION_COLUMNS,
@@ -384,6 +399,7 @@ class Registrar:
             slug = table["slug"]
             have = current.get(slug, {}).get("cloud_tables", [])
             args = dict(
+                # pyrefly: ignore [bad-index]
                 table_id=table_ids[slug],
                 gcp_project_id=project,
                 gcp_dataset_id=spec.GCP_DATASET_ID,
@@ -408,6 +424,7 @@ class Registrar:
         for table in spec.TABLES:
             slug = table["slug"]
             monthly = slug != "dicionario"
+            # pyrefly: ignore [bad-index]
             have = self.coverage_state(table_ids[slug])
             by_closed = {c["is_closed"]: c for c in have}
 
@@ -420,6 +437,7 @@ class Registrar:
             for is_closed, start, end in wanted:
                 cov = by_closed.get(is_closed)
                 cov_args = dict(
+                    # pyrefly: ignore [bad-index]
                     table_id=table_ids[slug],
                     area_id=area_id,
                     is_closed=is_closed,
@@ -472,6 +490,7 @@ class Registrar:
                 frequency=1,
                 lag=1,
                 latest=today,
+                # pyrefly: ignore [bad-index]
                 table_id=table_ids[slug],
                 env=self.env,
             )

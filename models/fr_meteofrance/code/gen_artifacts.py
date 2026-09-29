@@ -8,13 +8,10 @@ drift apart:
 
 import csv
 import os
-import sys
 from pathlib import Path
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-from descriptions_i18n import EN_ES
-from schema_map import (
+from models.fr_meteofrance.code.descriptions_i18n import EN_ES
+from models.fr_meteofrance.code.schema_map import (
     DICIONARIO_COLUMNS,
     NORMALE_COLUMNS,
     OBSERVATIONS,

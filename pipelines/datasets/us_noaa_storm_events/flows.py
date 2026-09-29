@@ -26,14 +26,14 @@ the dev half of the flow too. With ``"append"`` the upload ends in
 ``Storage.upload(if_exists="replace")``, which replaces each partition blob at its
 own path — the same end state, without the delete.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_noaa_storm_events_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_noaa_storm_events_flow`;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_noaa_storm_events.constants import constants
 from pipelines.datasets.us_noaa_storm_events.tasks import (
@@ -41,6 +41,7 @@ from pipelines.datasets.us_noaa_storm_events.tasks import (
     download_corpus,
     probe_source,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     DateOnly,
@@ -131,7 +132,6 @@ def us_noaa_storm_events_flow(
             Needed for a release that only restates earlier years without adding
             a month, which leaves the max coverage date unmoved.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=EVENT
     )
@@ -259,12 +259,10 @@ def us_noaa_storm_events_flow(
 # The minute is chosen, not defaulted: hour 8 already holds 0 (twice), 15 and 30,
 # so 52 keeps well clear. Defaulting to :00 piles every pipeline onto the same
 # instant, where they compete for BigQuery slots and trip the daily quota together.
-# pyrefly: ignore [missing-attribute]
 us_noaa_storm_events_flow.deploy_schedules = [
-    {"cron": "52 8 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("52 8 * * *", timezone="America/Sao_Paulo")
 ]
 # The clean step holds one year of rows in memory at a time — 2011 is the largest
 # at ~76k events with their narratives — but the 363 MB of gzipped CSV and ~390 MB
 # of parquet share the pod's disk.
-# pyrefly: ignore [missing-attribute]
 us_noaa_storm_events_flow.job_variables = {"memory": "4Gi"}

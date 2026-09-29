@@ -2,7 +2,7 @@
 Flows para br_me_caged — Prefect 3.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.crawler.me_caged.tasks import (
     build_partitions,
@@ -12,6 +12,7 @@ from pipelines.crawler.me_caged.tasks import (
     get_source_last_date,
     get_table_last_date,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     PartBdpro,
@@ -38,7 +39,6 @@ def _run_me_caged(
     target: str,
     force_run: bool,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -149,8 +149,7 @@ def _caged_flow(table_id: str, cron: str):
             force_run=force_run,
         )
 
-    # pyrefly: ignore [missing-attribute]
-    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
     return _flow
 
 

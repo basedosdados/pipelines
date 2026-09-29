@@ -46,7 +46,9 @@ _HERE = Path(__file__).resolve().parent
 _spec = importlib.util.spec_from_file_location(
     "gcdf_arch", _HERE / "architecture" / "gen_architecture.py"
 )
+# pyrefly: ignore [bad-argument-type]
 arch = importlib.util.module_from_spec(_spec)
+# pyrefly: ignore [missing-attribute]
 _spec.loader.exec_module(arch)
 
 COLS = arch.COLS  # source order (workbook col i <-> COLS[i])
@@ -114,11 +116,14 @@ def build_table() -> pa.Table:
             arrays[name] = [_to_string(v) for v in s]
         elif ty == "INT64":
             num = pd.to_numeric(s, errors="coerce").round()
+            # pyrefly: ignore [unsupported-operation]
             arrays[name] = [None if pd.isna(v) else int(v) for v in num]
         elif ty == "FLOAT64":
             num = pd.to_numeric(s, errors="coerce")
+            # pyrefly: ignore [unsupported-operation]
             arrays[name] = [None if pd.isna(v) else float(v) for v in num]
         elif ty == "DATE":
+            # pyrefly: ignore [unsupported-operation]
             arrays[name] = [_to_date(v) for v in s]
         else:
             raise ValueError(f"unknown type {ty} for {name}")
@@ -142,10 +147,12 @@ def write_partitions(table: pa.Table) -> None:
     target = OUTPUT / TABLE_SLUG
     if target.exists():
         shutil.rmtree(target)
+    # pyrefly: ignore [missing-attribute]
     years = pc.unique(table.column("year")).to_pylist()
     years = sorted(y for y in years if y is not None)
     total = 0
     for y in years:
+        # pyrefly: ignore [missing-attribute]
         mask = pc.equal(table.column("year"), y)
         part = table.filter(mask).select(file_cols)
         part_dir = OUTPUT / TABLE_SLUG / f"year={int(y)}"
@@ -163,6 +170,7 @@ def write_partitions(table: pa.Table) -> None:
 def main() -> None:
     table = build_table()
     # quick sanity report
+    # pyrefly: ignore [missing-attribute]
     n_iso = pc.count(table.column("country_iso3_code")).as_py()
     print(
         f"rows: {table.num_rows:,} | cols: {table.num_columns} | "

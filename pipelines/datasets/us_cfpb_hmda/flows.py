@@ -12,7 +12,7 @@ mirrors us_bls_cpi. The source poll makes a scheduled run a no-op until CFPB
 publishes a newer year. (Future optimization: append only the new year, which
 would first require migrating the existing typed staging to all-STRING.)
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_cfpb_hmda_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_cfpb_hmda_flow`; the
 dev pool ignores the schedule, the prod pool activates it (deployed paused).
 """
 
@@ -20,10 +20,11 @@ import shutil
 import tempfile
 from datetime import UTC, datetime
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_cfpb_hmda.constants import constants
 from pipelines.datasets.us_cfpb_hmda.tasks import build_tables, resolve_years
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -62,7 +63,6 @@ def us_cfpb_hmda_flow(
             materialize_to_prod is False.
         force_run: Materialize even when the source poll reports no new year.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=TABLE_ID
     )
@@ -154,11 +154,9 @@ def us_cfpb_hmda_flow(
 # CFPB releases the Snapshot National Loan-Level Dataset annually, ~mid-year
 # (spring-summer). Poll a few days per month across Mar-Aug at 16:00 BRT; the
 # source-poll guard no-ops until a new year actually appears.
-# pyrefly: ignore [missing-attribute]
 us_cfpb_hmda_flow.deploy_schedules = [
-    {"cron": "25 16 8,9,10 3,4,5,6,7,8 *", "timezone": "America/Sao_Paulo"}
+    Cron("25 16 8,9,10 3,4,5,6,7,8 *", timezone="America/Sao_Paulo")
 ]
 # Clean is out-of-core (~0.8 GB), but the download is several GB per year; give
 # the worker headroom. Peak disk ~ one raw CSV (~5 GB) + all-year parquet (~6 GB).
-# pyrefly: ignore [missing-attribute]
 us_cfpb_hmda_flow.job_variables = {"memory": "8Gi"}

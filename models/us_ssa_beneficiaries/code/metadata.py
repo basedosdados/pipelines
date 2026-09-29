@@ -44,8 +44,11 @@ if not (MCP_ROOT / "server.py").is_file():
 for path in (str(REPO_ROOT), str(MCP_ROOT), str(HERE)):
     sys.path.insert(0, path)
 
-import server  # type: ignore[import-not-found]  # pyrefly: ignore[import-error]
-from build_columns_json import columns_json  # type: ignore[import-not-found]
+# O servidor MCP da databasis é importado pelo caminho em MCP_ROOT, acima.
+# pyrefly: ignore [missing-import]
+import server
+
+from models.us_ssa_beneficiaries.code.build_columns_json import columns_json
 
 DATASET_SLUG = "beneficiaries"
 GCP_DATASET = "us_ssa_beneficiaries"

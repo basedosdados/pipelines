@@ -28,8 +28,8 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
-import glossary  # noqa: E402
-import tables as spec  # noqa: E402
+from models.us_fema_openfema.code import glossary  # noqa: E402
+from models.us_fema_openfema.code import tables as spec  # noqa: E402
 
 ARCH_DIR = HERE / "architecture"
 JSON_DIR = HERE / "columns_json"

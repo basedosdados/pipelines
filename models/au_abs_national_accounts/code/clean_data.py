@@ -21,7 +21,6 @@ import glob
 import os
 import sys
 
-# pyrefly: ignore [untyped-import]
 import openpyxl
 import pandas as pd
 import pyarrow as pa

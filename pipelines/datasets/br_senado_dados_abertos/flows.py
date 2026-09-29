@@ -10,17 +10,18 @@ just those ``ano=`` partitions and leaves history in place. Like
 the Câmara pipeline, there is no source-poll gate: legislative activity changes
 continuously, so a daily run is always meaningful.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `br_senado_dados_abertos_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `br_senado_dados_abertos_flow`;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_senado_dados_abertos.constants import constants
 from pipelines.datasets.br_senado_dados_abertos.tasks import extract_clean
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     DateOnly,
@@ -116,7 +117,6 @@ def br_senado_dados_abertos_flow(
             no source-poll gate, so it does not change behavior.
     """
     _ = force_run
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="votacao"
     )
@@ -209,9 +209,7 @@ def br_senado_dados_abertos_flow(
 
 
 # Legislative activity updates on business days; refresh every morning (BRT).
-# pyrefly: ignore [missing-attribute]
 br_senado_dados_abertos_flow.deploy_schedules = [
-    {"cron": "15 8 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("15 8 * * *", timezone="America/Sao_Paulo")
 ]
-# pyrefly: ignore [missing-attribute]
 br_senado_dados_abertos_flow.job_variables = {"memory": "4Gi"}

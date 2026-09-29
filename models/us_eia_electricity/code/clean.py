@@ -15,7 +15,7 @@ implementation.
 import argparse
 import time
 
-from common import (
+from models.us_eia_electricity.code.common import (
     DATA_TABLES,
     INPUT,
     OUTPUT,

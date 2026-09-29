@@ -15,7 +15,7 @@ function the recurring flow calls — so this is a thin driver.
 import argparse
 import time
 
-from common import (
+from models.us_eia_seds.code.common import (
     INPUT,
     OUTPUT,
     assert_all_string,

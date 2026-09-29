@@ -11,20 +11,21 @@ each state-year lands at `year=<YYYY>/<st>.parquet`, so re-processing a year
 overwrites its own blobs rather than duplicating rows. `overwrite` is not used —
 it drops the prod table even from a dev run.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_census_lodes_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_census_lodes_flow`;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_census_lodes.constants import DATASET_ID, YEARS
 from pipelines.datasets.us_census_lodes.tasks import (
     build_years,
     get_latest_year,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -85,7 +86,6 @@ def us_census_lodes_flow(
             LODES re-releases individual files when they change, and the poll
             only notices a new *year*. Empty means "whatever is new".
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )
@@ -204,11 +204,9 @@ def us_census_lodes_flow(
 # LODES releases annually in the last quarter (8.4 in Dec 2025, 8.3 in Nov 2024,
 # 8.1 in Nov 2023). Poll weekly across October-January at 16:26 BRT; the source
 # poll no-ops until a new data year actually appears.
-# pyrefly: ignore [missing-attribute]
 us_census_lodes_flow.deploy_schedules = [
-    {"cron": "26 16 1,8,15,22 1,10,11,12 *", "timezone": "America/Sao_Paulo"}
+    Cron("26 16 1,8,15,22 1,10,11,12 *", timezone="America/Sao_Paulo")
 ]
 # One data year across 51 states is ~600MB of gzipped CSV, cleaned a state at a
 # time; the crosswalk rebuild holds ~8M rows in pandas across the run.
-# pyrefly: ignore [missing-attribute]
 us_census_lodes_flow.job_variables = {"memory": "8Gi"}

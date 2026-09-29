@@ -3,11 +3,8 @@ from pathlib import Path
 
 import basedosdados as bd
 
-# pyrefly: ignore [missing-import]
-from extraction import download
-
-# pyrefly: ignore [missing-import]
-from processing import run_processing
+from models.br_inpe_queimadas.code.microdados.extraction import download
+from models.br_inpe_queimadas.code.microdados.processing import run_processing
 
 # Identificadores da tabela no BigQuery
 DATASET_ID = "br_inpe_queimadas"

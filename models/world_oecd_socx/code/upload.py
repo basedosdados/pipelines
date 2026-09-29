@@ -29,9 +29,10 @@ sys.path.insert(0, str(REPO_ROOT))
 
 import google.cloud.storage as gcs  # noqa: E402
 import pyarrow.parquet as pq  # noqa: E402
-from common import DATASET_ID, OUTPUT  # noqa: E402
 from google.cloud import bigquery  # noqa: E402
-from tables import TABLES  # noqa: E402
+
+from models.world_oecd_socx.code.common import DATASET_ID, OUTPUT  # noqa: E402
+from models.world_oecd_socx.code.tables import TABLES  # noqa: E402
 
 BILLING_PROJECT = "basedosdados-dev"
 BUCKET = "basedosdados-dev"

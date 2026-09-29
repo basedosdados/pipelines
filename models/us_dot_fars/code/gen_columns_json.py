@@ -10,7 +10,7 @@ import json
 import sys
 from pathlib import Path
 
-from common import ALL_TABLES, load_cols
+from models.us_dot_fars.code.common import ALL_TABLES, load_cols
 
 
 def payload(table: str) -> list[dict]:

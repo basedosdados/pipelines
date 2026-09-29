@@ -15,7 +15,7 @@ combined with a trailing window it would rebuild the table from the window alone
 and destroy the history. Restatements older than the window are picked up by a
 ``full_refresh=True`` run.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers
 ``br_cgu_despesas_publicas_flow``; the dev pool ignores the schedule, the prod
 pool activates it.
 """
@@ -23,7 +23,7 @@ pool activates it.
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_cgu_despesas_publicas.constants import constants
 from pipelines.datasets.br_cgu_despesas_publicas.tasks import (
@@ -31,6 +31,7 @@ from pipelines.datasets.br_cgu_despesas_publicas.tasks import (
     download_despesas,
     probe_source,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     FreeLag,
@@ -91,7 +92,6 @@ def br_cgu_despesas_publicas_flow(
         full_refresh: Re-pull every month from 2014-01. Slow (~25 min of paced
             downloading) — use when the source has restated older months.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=TABLE_ID
     )
@@ -199,14 +199,12 @@ def br_cgu_despesas_publicas_flow(
 # CGU refreshes the monthly execution files a few days into each month. Poll
 # across a few early-month days at 06:47 BRT; the source-poll guard no-ops a run
 # that finds nothing new.
-# pyrefly: ignore [missing-attribute]
 br_cgu_despesas_publicas_flow.deploy_schedules = [
-    {"cron": "47 6 4,6,8,10 * *", "timezone": "America/Sao_Paulo"}
+    Cron("47 6 4,6,8,10 * *", timezone="America/Sao_Paulo")
 ]
 # The clean step holds one month (~60k rows x 46 string columns) at a time, but
 # the raw CSVs for a six-month window are ~400 MB on disk. `memory` alone is
 # silently dropped by the work pool template — the effective key is `memory_limit`.
-# pyrefly: ignore [missing-attribute]
 br_cgu_despesas_publicas_flow.job_variables = {
     "memory_limit": "6Gi",
     "memory_request": "2Gi",
@@ -256,7 +254,6 @@ def br_cgu_despesas_publicas_favorecido_flow(
         full_refresh: Re-pull every month from 2014-01. Slow — the full history
             is ~26 GB of CSV and about an hour of paced downloading.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=FAVORECIDO_TABLE_ID
     )
@@ -341,13 +338,11 @@ def br_cgu_despesas_publicas_favorecido_flow(
 # CGU regenerates the favorecidos files a few days into each month, alongside
 # the execucao ones. Offset from the execucao flow so the two do not compete for
 # the same WAF budget or BigQuery slots.
-# pyrefly: ignore [missing-attribute]
 br_cgu_despesas_publicas_favorecido_flow.deploy_schedules = [
-    {"cron": "58 7 4,6,8,10 * *", "timezone": "America/Sao_Paulo"}
+    Cron("58 7 4,6,8,10 * *", timezone="America/Sao_Paulo")
 ]
 # A six-month window is ~900 MB of raw CSV and ~4.5M rows held one month at a
 # time. `memory` alone is silently dropped by the work pool template.
-# pyrefly: ignore [missing-attribute]
 br_cgu_despesas_publicas_favorecido_flow.job_variables = {
     "memory_limit": "8Gi",
     "memory_request": "2Gi",

@@ -211,6 +211,7 @@ def fetch_sources():
             archive = INPUT / "hate_crime.zip"
             if not archive.exists():
                 url = signed_url(constants.HATE_CRIME_KEY.value)
+                # pyrefly: ignore [bad-argument-type]
                 urllib.request.urlretrieve(url, archive)
             with zipfile.ZipFile(archive) as zf:
                 zf.extractall(INPUT / "extracted_hate_crime")

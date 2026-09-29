@@ -31,7 +31,7 @@ Worker sizing: `"memory": "8Gi"`
 - https://download.bls.gov/pub/time.series
 
 ## Design notes
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_bls_cpi_flow`; the dev pool
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_bls_cpi_flow`; the dev pool
 ignores the schedule, the prod pool activates it.
 
 Pure functions (no Prefect) so they are importable and unit-testable. The recurring

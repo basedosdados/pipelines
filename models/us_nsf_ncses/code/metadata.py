@@ -44,6 +44,7 @@ MCP_DIR = Path(
 sys.path.insert(0, str(MCP_DIR))
 
 try:
+    # pyrefly: ignore [missing-import]
     import server
 except ModuleNotFoundError as exc:  # pragma: no cover - operator feedback only
     raise SystemExit(
@@ -592,6 +593,7 @@ def register(env: str) -> dict:
             status_id=refs["status_published"],
             published_by_ids=[account_id],
             data_cleaned_by_ids=[account_id],
+            # pyrefly: ignore [no-matching-overload]
             raw_data_source_ids=source_ids.get(slug, []),
             auxiliary_files_url=(
                 ""
@@ -610,6 +612,7 @@ def register(env: str) -> dict:
             for level in prior.get("observation_levels", [])
         }
         levels = {}
+        # pyrefly: ignore [not-iterable]
         for level in spec["levels"]:
             entity_id = refs[f"entity_{level}"]
             created = server.create_update_observation_level(
@@ -661,6 +664,7 @@ def register(env: str) -> dict:
 
         written = server.bulk_upsert_columns(
             table_id=table_id,
+            # pyrefly: ignore [bad-argument-type]
             columns_json=columns_payload(slug),
             env=env,
         )
@@ -674,7 +678,9 @@ def register(env: str) -> dict:
                 slug
             ]["columns"]
         }
+        # pyrefly: ignore [no-matching-overload]
         partition = PARTITIONS.get(slug, "")
+        # pyrefly: ignore [no-matching-overload]
         wanted = dict(spec["level_columns"])
         if partition and partition not in wanted.values():
             wanted["__partition__"] = partition

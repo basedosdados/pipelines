@@ -15,11 +15,12 @@ gcs.Client.bucket is pinned to the billing project.
 import sys
 
 import basedosdados as bd
-import constants as c
 import google.cloud.storage as gcs
-import layout
 import pyarrow as pa
 import pyarrow.parquet as pq
+
+from models.us_cms_open_payments.code import constants as c
+from models.us_cms_open_payments.code import layout
 
 BILLING_PROJECT = "basedosdados-dev"
 

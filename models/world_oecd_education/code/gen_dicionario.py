@@ -27,8 +27,15 @@ import csv
 import xml.etree.ElementTree as ET
 
 import pyarrow.parquet as pq
-from common import ARCH_DIR, DATASET_ID, OUTPUT, REPO_ROOT, STRUCTURE
-from tables import TABLES
+
+from models.world_oecd_education.code.common import (
+    ARCH_DIR,
+    DATASET_ID,
+    OUTPUT,
+    REPO_ROOT,
+    STRUCTURE,
+)
+from models.world_oecd_education.code.tables import TABLES
 
 S = "{http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure}"
 C = "{http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common}"

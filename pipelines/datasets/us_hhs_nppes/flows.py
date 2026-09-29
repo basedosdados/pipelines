@@ -12,14 +12,14 @@ The run polls cheaply first (an HTTP HEAD on the monthly ZIP, compared against
 ``Table.Update.latest``) and only downloads the ~1.1 GB payload once CMS has
 actually republished, so a scheduled run between releases is a cheap no-op.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``us_hhs_nppes_flow``;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``us_hhs_nppes_flow``;
 the dev pool ignores the schedule, the prod pool activates it (deployed paused).
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_hhs_nppes.constants import constants
 from pipelines.datasets.us_hhs_nppes.tasks import (
@@ -27,6 +27,7 @@ from pipelines.datasets.us_hhs_nppes.tasks import (
     clean_nppes,
     download_nppes,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -91,7 +92,6 @@ def us_hhs_nppes_flow(
         force_run: Download and materialize even when the source poll reports no
             new snapshot.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="provider"
     )
@@ -203,12 +203,10 @@ def us_hhs_nppes_flow(
 # drifts (August 2026 landed on the 10th). Poll on several days at 15:23 BRT —
 # a minute nobody else uses. The HEAD-based source poll no-ops (no download)
 # until a new bundle actually appears.
-# pyrefly: ignore [missing-attribute]
 us_hhs_nppes_flow.deploy_schedules = [
-    {"cron": "23 15 8,10,12,14,16 * *", "timezone": "America/Sao_Paulo"}
+    Cron("23 15 8,10,12,14,16 * *", timezone="America/Sao_Paulo")
 ]
 # The clean step streams the 11.6 GB main file in record batches and flushes in
 # 500k-row chunks, but the bundle unzips to ~12 GB on disk and the download is
 # ~1.1 GB; give the worker headroom.
-# pyrefly: ignore [missing-attribute]
 us_hhs_nppes_flow.job_variables = {"memory": "8Gi"}

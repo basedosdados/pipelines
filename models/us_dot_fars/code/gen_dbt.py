@@ -11,7 +11,12 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from common import ALL_TABLES, DATA_TABLES, REPO_ROOT, load_cols
+from models.us_dot_fars.code.common import (
+    ALL_TABLES,
+    DATA_TABLES,
+    REPO_ROOT,
+    load_cols,
+)
 
 MODELS = REPO_ROOT / "models" / "us_dot_fars"
 DATASET = "us_dot_fars"

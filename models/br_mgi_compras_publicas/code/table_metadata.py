@@ -43,9 +43,9 @@ TABLES: dict[str, TableMeta] = {
         (2021, 1, 2026, 7),
     ),
     "contratacao_item": TableMeta(
-        "Item da contratação",
-        "Procurement item",
-        "Ítem de la contratación",
+        "Contratação - Item",
+        "Procurement - Item",
+        "Contratación - Ítem",
         "Items of the procurements run under Law 14,133/2021. One row per item, with quantity, "
         "estimated value and, once determined, the result",
         "Ítems de las contrataciones realizadas bajo la Ley 14.133/2021. Una fila por ítem, con "
@@ -54,9 +54,9 @@ TABLES: dict[str, TableMeta] = {
         (2021, 1, 2026, 7),
     ),
     "contratacao_item_resultado": TableMeta(
-        "Resultado do item da contratação",
-        "Procurement item result",
-        "Resultado del ítem de la contratación",
+        "Contratação - Item - Resultado",
+        "Procurement - Item - Result",
+        "Contratación - Ítem - Resultado",
         "Results of the items of Law 14,133/2021 procurements. One row per supplier ranked on "
         "each item, with the quantity and value awarded",
         "Resultados de los ítems de las contrataciones de la Ley 14.133/2021. Una fila por "
@@ -76,9 +76,9 @@ TABLES: dict[str, TableMeta] = {
         (2023, 1, 2027, 12),
     ),
     "ata_registro_preco_item": TableMeta(
-        "Item da ata de registro de preços",
-        "Price record item",
-        "Ítem del acta de registro de precios",
+        "Ata de registro de preços - Item",
+        "Price record - Item",
+        "Acta de registro de precios - Ítem",
         "Items of the price records, with the registered supplier, the unit price and the "
         "piggyback limit. One row per supplier ranked on each item, in the most recent state "
         "reported by the source",
@@ -103,12 +103,17 @@ TABLES: dict[str, TableMeta] = {
         "con su vigencia, proveedor y valores. Una unidad gestora reutiliza el número del "
         "contrato entre contrataciones, por lo que la clave incluye la compra de origen",
         {"contract": "numero_contrato", "year": "ano"},
-        (2010, 1, 2026, 7),
+        # data_vigencia_inicial, non-null on every row: 2010-01-01 to 2027-01-01.
+        # The end is genuinely in the future -- contracts are registered with a
+        # start date ahead of today, tapering from 15,629 rows in 2026-08 to a
+        # single one in 2027-01. The previous 2026-07 was the refresh date, not
+        # the data.
+        (2010, 1, 2027, 1),
     ),
     "contrato_item": TableMeta(
-        "Item do contrato",
-        "Contract item",
-        "Ítem del contrato",
+        "Contrato - Item",
+        "Contract - Item",
+        "Contrato - Ítem",
         "Items of the administrative contracts recorded in SIASG. One row per contracted item, "
         "with quantity and unit and total values, in the most recent state reported by the "
         "source",
@@ -116,7 +121,9 @@ TABLES: dict[str, TableMeta] = {
         "contratado, con cantidad y valores unitario y total, en el estado más reciente "
         "informado por la fuente",
         {"contract": "numero_contrato", "item": "numero_item", "year": "ano"},
-        (2010, 1, 2026, 7),
+        # Same basis and the same single forward-dated row as contrato:
+        # data_vigencia_inicial, non-null throughout, 2010-01-01 to 2027-01-01.
+        (2010, 1, 2027, 1),
     ),
     "licitacao": TableMeta(
         "Licitação",
@@ -130,20 +137,21 @@ TABLES: dict[str, TableMeta] = {
         (1997, 1, 2025, 12),
     ),
     "licitacao_pregao": TableMeta(
-        "Pregão",
-        "Reverse auction",
-        "Pregón",
+        "Licitação - Pregão",
+        "Tender - Reverse auction",
+        "Licitación - Pregón",
         "Procedural detail of the reverse auctions run under Law 8,666/1993, including the "
         "appointing order, status and the closing and result dates. One row per reverse auction",
         "Detalle procesal de los pregones realizados bajo la Ley 8.666/1993, incluyendo "
         "resolución, situación y fechas de cierre y resultado. Una fila por pregón",
         {"procurement": "id_compra", "year": "ano"},
-        (2000, 1, 2023, 12),
+        # data_edital, which is non-null on every row: 2000-12-29 to 2024-07-12.
+        (2000, 12, 2024, 7),
     ),
     "licitacao_item": TableMeta(
-        "Item da licitação",
-        "Tender item",
-        "Ítem de la licitación",
+        "Licitação - Item",
+        "Tender - Item",
+        "Licitación - Ítem",
         "Items of the tenders run under Law 8,666/1993. One row per tendered item, with "
         "quantity, estimated value and the winning supplier. 58,890 items (1.23%) are "
         "missing because the source does not serve them: 23,690 from Convite (0.7% of the "
@@ -159,12 +167,18 @@ TABLES: dict[str, TableMeta] = {
         "ítems de las modalidades Pregón, Dispensa e Inexigibilidad están en las tablas "
         "licitacao_item_pregao y compra_sem_licitacao_item",
         {"procurement": "id_compra", "item": "id_compra_item", "year": "ano"},
-        (1997, 1, 2025, 12),
+        # Year grain: the source publishes no date for the item, so `ano` is
+        # derived from the last four digits of id_compra and is all we know.
+        # 1997 and 2023 are the verifiable bounds, not the raw min and max of
+        # `ano` (1990-2024). All 3,275 rows below 1997 are orphans with no
+        # parent licitacao, and the single 2024 row's own parent says 2023 --
+        # both tails are artefacts of the id derivation, not coverage.
+        (1997, None, 2023, None),
     ),
     "licitacao_item_pregao": TableMeta(
-        "Item do pregão",
-        "Reverse auction item",
-        "Ítem del pregón",
+        "Licitação - Pregão - Item",
+        "Tender - Reverse auction - Item",
+        "Licitación - Pregón - Ítem",
         "Result of the items of Law 8,666/1993 reverse auctions, with the lowest bid, the "
         "negotiated value and the awarded value. One row per awarded item",
         "Resultado de los ítems de los pregones de la Ley 8.666/1993, con la menor oferta, el "
@@ -176,17 +190,21 @@ TABLES: dict[str, TableMeta] = {
         "Contratação direta",
         "Direct contracting",
         "Contratación directa",
-        "Waivers and non-enforceability of tender under Law 8,666/1993, from 1997 to 2024. One "
+        "Waivers and non-enforceability of tender under Law 8,666/1993, from 1997 to 2025. One "
         "row per direct contracting, with its legal basis and justification",
-        "Dispensas e inexigibilidades de licitación bajo la Ley 8.666/1993, de 1997 a 2024. Una "
+        "Dispensas e inexigibilidades de licitación bajo la Ley 8.666/1993, de 1997 a 2025. Una "
         "fila por contratación directa, con su fundamento legal y justificación",
         {"procurement": "id_compra", "year": "ano"},
-        (1997, 1, 2024, 12),
+        # Year grain: the only trustworthy temporal field is `ano`
+        # (dt_ano_aviso, given by the source), 1997-2025. The date columns are
+        # not usable as a basis -- data_publicacao is null on 99.5% of rows and
+        # data_declaracao_dispensa reaches back to 1979 on 24 of them.
+        (1997, None, 2025, None),
     ),
     "compra_sem_licitacao_item": TableMeta(
-        "Item da contratação direta",
-        "Direct contracting item",
-        "Ítem de la contratación directa",
+        "Contratação direta - Item",
+        "Direct contracting - Item",
+        "Contratación directa - Ítem",
         "Items of the waivers and non-enforceability of tender under Law 8,666/1993. One row "
         "per item, with the winning supplier and the estimated value",
         "Ítems de las dispensas e inexigibilidades de licitación bajo la Ley 8.666/1993. Una "
@@ -228,9 +246,9 @@ TABLES: dict[str, TableMeta] = {
         SNAPSHOT_COVERAGE,
     ),
     "catalogo_material": TableMeta(
-        "Catálogo de materiais",
-        "Material catalogue",
-        "Catálogo de materiales",
+        "Catálogo - Materiais",
+        "Catalogue - Materials",
+        "Catálogo - Materiales",
         "Material catalogue (CATMAT), with the hierarchy of group, class and descriptive "
         "standard. One row per material item",
         "Catálogo de Materiales (CATMAT), con la jerarquía de grupo, clase y patrón "
@@ -239,9 +257,9 @@ TABLES: dict[str, TableMeta] = {
         SNAPSHOT_COVERAGE,
     ),
     "catalogo_servico": TableMeta(
-        "Catálogo de serviços",
-        "Service catalogue",
-        "Catálogo de servicios",
+        "Catálogo - Serviços",
+        "Catalogue - Services",
+        "Catálogo - Servicios",
         "Service catalogue (CATSER), with the hierarchy of section, division, group and class. "
         "One row per service item",
         "Catálogo de Servicios (CATSER), con la jerarquía de sección, división, grupo y clase. "
@@ -258,6 +276,64 @@ TABLES: dict[str, TableMeta] = {
         "significado",
         {},
         None,
+    ),
+    # The two ComprasNet legado tables. Scraped from the award decisions and the
+    # result-by-supplier pages, which no Compras.gov.br API exposes, so their
+    # coverage ends with the legado system rather than with the Lei 8.666 series.
+    "pregao_item_oferta": TableMeta(
+        "Licitação - Pregão - Item - Proposta vencedora",
+        "Tender - Reverse auction - Item - Winning offer",
+        "Licitación - Pregón - Ítem - Propuesta ganadora",
+        "Winning offers by item for the electronic reverse auctions run under Law 8.666, with "
+        "the brand, manufacturer, model and detailed description of the object actually offered "
+        "by the supplier, plus the unit and total price. One row per item and winning supplier. "
+        "The data come from ComprasNet's result-by-supplier pages and exist in no "
+        "Compras.gov.br API. Joins to licitacao_pregao and licitacao_item_pregao on id_compra. "
+        "Coverage runs from 2004 to 2024: for earlier reverse auctions the source answers that "
+        "no result is published, and from 2005 the page is filled in for most of them.",
+        "Propuestas ganadoras por ítem de los pregones electrónicos realizados bajo la Ley "
+        "8.666, con marca, fabricante, modelo y la descripción detallada del objeto "
+        "efectivamente ofrecido por el proveedor, además del valor unitario y del valor global. "
+        "Una fila por ítem y proveedor ganador. Los datos provienen de las páginas de resultado "
+        "por proveedor de ComprasNet y no existen en ninguna API de Compras.gov.br. Se une a "
+        "licitacao_pregao y licitacao_item_pregao por la columna id_compra. Cobertura de 2004 a "
+        "2024: para pregones anteriores la fuente responde que no existe resultado publicado, y "
+        "a partir de 2005 la página está completa en la mayoría de ellos.",
+        {
+            "procurement": "id_compra",
+            "item": "numero_item",
+            "company": "cnpj_cpf_fornecedor",
+            "year": "ano",
+        },
+        (2004, None, 2024, None),
+    ),
+    "pregao_item_evento": TableMeta(
+        "Licitação - Pregão - Item - Evento",
+        "Tender - Reverse auction - Item - Event",
+        "Licitación - Pregón - Ítem - Evento",
+        "Event timeline by item for the electronic reverse auctions run under Law 8.666, with "
+        "the date, time and responsible public official for each award, homologation, "
+        "cancellation and return to a previous phase. One row per item event. It includes items "
+        "that were cancelled, deserted or declared unsuccessful, which licitacao_item_pregao "
+        "does not cover because its source keys on the homologation date. The data come from "
+        "ComprasNet's award decisions and exist in no Compras.gov.br API. Joins to "
+        "licitacao_pregao and licitacao_item_pregao on id_compra. Coverage runs from 2002 to "
+        "2024: the 2001 reverse auctions have no published award decision.",
+        "Línea de tiempo de eventos por ítem de los pregones electrónicos realizados bajo la "
+        "Ley 8.666, con fecha, hora y agente público responsable de cada adjudicación, "
+        "homologación, cancelación y vuelta de fase. Una fila por evento de ítem. Incluye ítems "
+        "cancelados, desiertos y fracasados, que la tabla licitacao_item_pregao no cubre porque "
+        "su fuente depende de la fecha de homologación. Los datos provienen de las actas de "
+        "homologación de ComprasNet y no existen en ninguna API de Compras.gov.br. Se une a "
+        "licitacao_pregao y licitacao_item_pregao por la columna id_compra. Cobertura de 2002 a "
+        "2024: los pregones de 2001 no tienen acta de homologación publicada.",
+        {
+            "procurement": "id_compra",
+            "item": "numero_item",
+            "act": "ordem_evento",
+            "year": "ano",
+        },
+        (2002, None, 2024, None),
     ),
 }
 
@@ -331,9 +407,14 @@ TABLE_ORDER = [
     "contrato",
     "contrato_item",
     "licitacao",
-    "licitacao_pregao",
     "licitacao_item",
+    "licitacao_pregao",
     "licitacao_item_pregao",
+    # The two ComprasNet legado tables sit with the pregao they describe, not at
+    # the end where they were first appended: they join licitacao_pregao and
+    # licitacao_item_pregao on id_compra and are read alongside them.
+    "pregao_item_oferta",
+    "pregao_item_evento",
     "compra_sem_licitacao",
     "compra_sem_licitacao_item",
     "orgao",
@@ -343,3 +424,38 @@ TABLE_ORDER = [
     "catalogo_servico",
     "dicionario",
 ]
+
+#: table -> (entity slug, frequency) for the table-anchored Update record, i.e.
+#: how often *we* refresh the table, not how often the source publishes.
+#:
+#: Daily for the Lei 14.133 modules and the contract register, which the
+#: `br_mgi_compras_publicas.diario` flow refreshes (cron 37 5 * * *). Weekly for
+#: the registries and the dicionario, which `…semanal` re-snapshots
+#: (cron 12 4 * * 0).
+#:
+#: The Lei 8.666 tables and the two ComprasNet legado tables have no flow yet.
+#: They are recorded as weekly because that is the cadence planned for them; the
+#: regime is closed, so a refresh only ever picks up late corrections.
+UPDATE_CADENCE: dict[str, tuple[str, int]] = {
+    "contratacao": ("day", 1),
+    "contratacao_item": ("day", 1),
+    "contratacao_item_resultado": ("day", 1),
+    "ata_registro_preco": ("day", 1),
+    "ata_registro_preco_item": ("day", 1),
+    "contrato": ("day", 1),
+    "contrato_item": ("day", 1),
+    "orgao": ("week", 1),
+    "unidade_administrativa": ("week", 1),
+    "fornecedor": ("week", 1),
+    "catalogo_material": ("week", 1),
+    "catalogo_servico": ("week", 1),
+    "dicionario": ("week", 1),
+    "licitacao": ("week", 1),
+    "licitacao_item": ("week", 1),
+    "licitacao_pregao": ("week", 1),
+    "licitacao_item_pregao": ("week", 1),
+    "compra_sem_licitacao": ("week", 1),
+    "compra_sem_licitacao_item": ("week", 1),
+    "pregao_item_oferta": ("week", 1),
+    "pregao_item_evento": ("week", 1),
+}

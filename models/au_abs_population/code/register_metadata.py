@@ -23,10 +23,11 @@ MCP = os.path.expanduser(
     "~/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
 )
 sys.path.insert(0, MCP)
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+# pyrefly: ignore [missing-import]
 import server  # noqa: E402
-import translations as tr  # noqa: E402
+
+from models.au_abs_population.code import translations as tr  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ARCH = os.path.join(HERE, "architecture")

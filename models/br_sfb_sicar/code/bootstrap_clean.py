@@ -11,9 +11,10 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-import architecture as A  # noqa: N812
-import clean as C  # noqa: N812
 import pandas as pd
+
+from models.br_sfb_sicar.code import architecture as A  # noqa: N812
+from models.br_sfb_sicar.code import clean as C  # noqa: N812
 
 SCRATCH = Path(
     os.environ.get(

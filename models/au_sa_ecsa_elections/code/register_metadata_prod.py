@@ -50,6 +50,7 @@ MCP = (
 )
 sys.path.insert(0, str(MCP))
 
+# pyrefly: ignore [missing-import]
 import server  # noqa: E402
 
 ENV = "prod"
