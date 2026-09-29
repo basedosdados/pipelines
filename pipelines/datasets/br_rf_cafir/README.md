@@ -24,6 +24,15 @@ e é atualizada com frequência **diária**.
   `download_csv_files`) passam `proxies=brasil_proxy_dict()`. A variável
   `BRASIL_PROXY_URL` chega sozinha em todo pod do work pool. Quando ela não
   existe, como na máquina local, a chamada vai direto.
+- **Bloqueios em ondas pelo proxy:** com os downloads grandes em paralelo, a
+  Receita para de responder ao IP do proxy por uns 5 minutos de cada vez. As
+  transferências em andamento param (`ReadTimeout`) e o Squid não consegue
+  abrir conexões novas (`ProxyError: Cannot connect to proxy`). Da máquina
+  local, sem proxy, isso não acontece: cada conexão fica em ~1 MB/s, sem
+  paradas. Por isso o download é retomável. Cada tentativa continua do
+  byte em que a anterior parou (header `Range`), e a task espera 5 minutos
+  entre tentativas, até 6 vezes. O servidor aceita `Range` em `GET` (responde
+  206), mas devolve 500 para `HEAD` com `Range`.
 
 ---
 

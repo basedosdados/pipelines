@@ -18,7 +18,7 @@ from pipelines.utils.utils import brasil_proxy_dict, log
 
 # Sessão compartilhada entre downloads paralelos: pool por host, em vez de abrir uma conexão nova a cada arquivo.
 _session = requests.Session()
-_adapter = HTTPAdapter(pool_connections=10, pool_maxsize=10, max_retries=3)
+_adapter = HTTPAdapter(pool_connections=10, pool_maxsize=10)
 _session.mount("https://", _adapter)
 _session.mount("http://", _adapter)
 
@@ -131,7 +131,9 @@ def download_csv_files(url: str, file_name: str, input_folder: Path) -> None:
     Faz o download de um arquivo CSV a partir de uma URL e salva em um diretório especificado.
 
     Usa uma sessão HTTP compartilhada (pool de conexões) e streaming para não
-    carregar o arquivo inteiro na memória antes de gravar em disco.
+    carregar o arquivo inteiro na memória antes de gravar em disco. Se já
+    existe um pedaço do arquivo em disco, de uma tentativa anterior, retoma
+    o download a partir dele com o header `Range`.
 
     Args:
         url (str): A URL do arquivo CSV a ser baixado.
@@ -142,22 +144,49 @@ def download_csv_files(url: str, file_name: str, input_folder: Path) -> None:
         None
 
     Raises:
-        requests.exceptions.RequestException: Se o download falhar.
+        requests.exceptions.RequestException: Se o download falhar ou o
+            arquivo em disco terminar menor que o tamanho informado pelo
+            servidor.
     """
     log(f"Downloading--------- {url}")
     file_path = input_folder / file_name
+    downloaded = file_path.stat().st_size if file_path.exists() else 0
+
+    headers = dict(br_rf_cafir_constants.HEADERS.value)
+    if downloaded:
+        headers["Range"] = f"bytes={downloaded}-"
+        log(f"Retomando {file_name} a partir de {downloaded / 1e6:.0f} MB")
 
     with _session.get(
         url,
-        headers=br_rf_cafir_constants.HEADERS.value,
+        headers=headers,
         stream=True,
         timeout=60,
         proxies=brasil_proxy_dict(),
     ) as response:
+        # O arquivo em disco já estava completo.
+        if response.status_code == 416:
+            log(f"Downloaded {file_name}")
+            return
         response.raise_for_status()
-        with open(file_path, "wb") as f:
+
+        if response.status_code == 206:
+            mode = "ab"
+            total_size = int(response.headers["Content-Range"].split("/")[-1])
+        else:
+            # O servidor ignorou o Range e mandou o arquivo inteiro.
+            mode = "wb"
+            total_size = int(response.headers["Content-Length"])
+
+        with open(file_path, mode) as f:
             for chunk in response.iter_content(chunk_size=1024 * 1024):
                 f.write(chunk)
+
+    if file_path.stat().st_size < total_size:
+        raise requests.exceptions.ConnectionError(
+            f"{file_name} veio incompleto: {file_path.stat().st_size} de "
+            f"{total_size} bytes"
+        )
 
     log(f"Downloaded {file_name}")
 
