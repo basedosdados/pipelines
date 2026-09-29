@@ -17,9 +17,28 @@ with
             safe_cast(null as string) as id_licitacao_bd,
             safe_cast(id_licitacao as string) as id_licitacao,
             safe_cast(null as string) as modalidade_licitacao,
+            -- STABLE key -- see the note in the liquidacao/pagamento models.
+            -- Built from the municipality's own empenho number and the
+            -- administrative organ/unit codes, never from `seq_empenho`, which
+            -- TCE-MG reassigns between extractions. `data` is part of the key
+            -- -- see the note in the liquidacao model for the 4 rows across
+            -- 68M that need it. Must stay byte-identical to the `emp_key_mg`
+            -- CTE there, or liquidacao and pagamento stop joining.
             safe_cast(
                 concat(
-                    id_empenho, ' ', orgao, ' ', id_municipio, ' ', (right(ano, 2))
+                    numero_empenho,
+                    ' ',
+                    trim(orgao),
+                    ' ',
+                    cod_unidade,
+                    ' ',
+                    cod_subunidade,
+                    ' ',
+                    data,
+                    ' ',
+                    id_municipio,
+                    ' ',
+                    (right(ano, 2))
                 ) as string
             ) as id_empenho_bd,
             safe_cast(id_empenho as string) as id_empenho,
