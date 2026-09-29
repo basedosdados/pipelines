@@ -7,7 +7,7 @@ later cut-off date, so every run is a **full rebuild** of all years, not an
 incremental append. The whole source is ~243 MB, which makes a full re-fetch both
 simplest and most robust.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `cl_res_empresas_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `cl_res_empresas_flow`;
 the dev pool ignores the schedule, the prod pool activates it (paused).
 """
 

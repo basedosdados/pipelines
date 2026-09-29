@@ -29,6 +29,7 @@ previous onboardings:
 
 from __future__ import annotations
 
+import datetime as dt
 import json
 import sys
 from collections.abc import Callable
@@ -45,7 +46,7 @@ from observation_translations import (  # noqa: E402
     OBSERVATIONS,
     check_translations,
 )
-from table_metadata import DATASET, TABLE_ORDER  # noqa: E402
+from table_metadata import DATASET, TABLE_ORDER, UPDATE_CADENCE  # noqa: E402
 from table_metadata import TABLES as META  # noqa: E402
 
 ARCH = HERE / "architecture"
@@ -58,6 +59,48 @@ GCP_PROJECTS = {
 LICENSE_SLUG = "cc_40"  # CC BY 4.0, declared by the API itself
 AVAILABILITY_SLUG = "online"
 AREA_SLUG = "br"
+
+#: The dataset has two sources, and they are not interchangeable: the two
+#: ComprasNet tables are scraped from HTML pages whose data, as their own
+#: descriptions say, exists in no Compras.gov.br API. Linking the API source to
+#: them states something false on the site.
+COMPRASNET_SOURCE = {
+    "name_pt": "ComprasNet — Consulta de Atas de Pregão (legado)",
+    "name_en": "ComprasNet — Legacy reverse auction minutes search",
+    "name_es": "ComprasNet — Consulta de actas de pregón (legado)",
+    "description_pt": (
+        "Páginas HTML do ComprasNet que detalham cada pregão eletrônico realizado sob a Lei "
+        "8.666, consultáveis por janela de data da sessão. Fornecem o resultado por fornecedor, "
+        "com marca, fabricante, modelo e a descrição do objeto ofertado, e o termo de "
+        "homologação, com a linha do tempo de eventos de cada item. A ata da sessão lance a "
+        "lance não é coletada: está protegida por CAPTCHA cujo texto declara que existe para "
+        "impedir consulta automatizada. A fonte deixou de receber pregões na transição para a "
+        "Lei 14.133, em janeiro de 2024."
+    ),
+    "description_en": (
+        "ComprasNet HTML pages detailing each electronic reverse auction run under Law 8.666, "
+        "searchable by session date window. They provide the result by supplier, with brand, "
+        "manufacturer, model and the description of the object offered, and the award decision, "
+        "with each item's event timeline. The bid-by-bid session record is not collected: it "
+        "sits behind a CAPTCHA whose own text states it exists to prevent automated "
+        "consultation. The source stopped receiving reverse auctions at the Law 14.133 "
+        "transition, in January 2024."
+    ),
+    "description_es": (
+        "Páginas HTML de ComprasNet que detallan cada pregón electrónico realizado bajo la Ley "
+        "8.666, consultables por ventana de fecha de la sesión. Aportan el resultado por "
+        "proveedor, con marca, fabricante, modelo y la descripción del objeto ofrecido, y el "
+        "acta de homologación, con la línea de tiempo de eventos de cada ítem. El acta de la "
+        "sesión puja por puja no se recolecta: está protegida por un CAPTCHA cuyo texto declara "
+        "que existe para impedir la consulta automatizada. La fuente dejó de recibir pregones "
+        "en la transición a la Ley 14.133, en enero de 2024."
+    ),
+    "url": "https://comprasnet.gov.br/livre/Pregao/ata0.asp",
+    "contains_api": False,
+}
+
+#: Tables fed by COMPRASNET_SOURCE. Everything else comes from the API.
+COMPRASNET_TABLES = frozenset({"pregao_item_oferta", "pregao_item_evento"})
 
 RAW_SOURCE = {
     "name_pt": "API Compras.gov.br",
@@ -108,6 +151,50 @@ def lookup(category: str, slug: str, env: str) -> str | None:
         return fn("lookup_id")(category=category, slug=slug, env=env)["id"]
     except Exception:
         return None
+
+
+#: One timestamp for the whole run, so every table's Update reports the same
+#: refresh rather than drifting by the seconds the run takes.
+REFRESHED_AT = dt.datetime.now(dt.UTC).replace(microsecond=0).isoformat()
+
+
+#: The table-anchored Update's `latest` says when *we* last refreshed the table.
+#: This script registers metadata; it materializes nothing. So a rerun that only
+#: fixes a description must not move `latest`, or it reports a refresh that never
+#: happened -- and `poll_source_for_update` compares the source's max coverage
+#: date against this field, so an inflated value can leave a pipeline running
+#: green while it ingests nothing.
+#:
+#: get_dataset does not return `latest`, so read it directly. On first creation
+#: there is nothing to preserve and REFRESHED_AT stands; from then on the stored
+#: value is carried forward and only a real materialization moves it, via the
+#: pipeline's register_table_materialization_task.
+_STORED_LATEST_QUERY = """
+query($slug: String!) {
+  allDataset(slug: $slug) {
+    edges { node { tables { edges { node {
+      slug updates { edges { node { latest } } }
+    } } } } }
+  }
+}
+"""
+
+
+def stored_update_latest(slug: str, env: str) -> dict[str, str]:
+    """Each table's current Update.latest, keyed by table slug."""
+    try:
+        data = server._gql(_STORED_LATEST_QUERY, {"slug": slug}, env=env)
+    except Exception as exc:
+        print(f"  warning: could not read stored Update.latest ({exc})")
+        return {}
+    out: dict[str, str] = {}
+    for edge in data.get("allDataset", {}).get("edges", []):
+        for entry in edge["node"]["tables"]["edges"]:
+            table = entry["node"]
+            latest = [u["node"]["latest"] for u in table["updates"]["edges"]]
+            if latest and latest[0]:
+                out[table["slug"]] = latest[0]
+    return out
 
 
 def read_architecture(table: str) -> list[dict[str, str]]:
@@ -166,6 +253,14 @@ def existing(node: dict[str, Any]) -> dict[str, Any]:
         "observation_levels": levels,
         "cloud_tables": [c["id"] for c in node.get("cloud_tables", [])],
         "coverages": [c["id"] for c in node.get("coverages", [])],
+        # Every range under every coverage, flattened. create_update_datetime_range
+        # called without an id creates a NEW range each run, which is why the 19
+        # tables registered before this fix carry three identical ranges apiece.
+        "datetime_ranges": [
+            r["id"]
+            for c in node.get("coverages", [])
+            for r in c.get("datetime_ranges", [])
+        ],
         "updates": [u["id"] for u in node.get("updates", [])],
     }
 
@@ -195,9 +290,37 @@ def prune(node: dict[str, Any], env: str) -> None:
     ):
         for extra in records[1:]:
             delete(kind=kind, record_id=extra["id"], env=env)
+    # Ranges duplicate independently of their coverage: one coverage reused
+    # across runs still accumulated a range per run before the id was passed.
+    ranges = [
+        r
+        for c in node.get("coverages", [])
+        for r in c.get("datetime_ranges", [])
+    ]
+    for extra in ranges[1:]:
+        delete(kind="datetimerange", record_id=extra["id"], env=env)
 
 
-def main(env: str, status: str) -> int:
+def main(env: str, status: str, only: list[str] | None = None) -> int:
+    """Register the dataset's metadata.
+
+    `only` restricts the run to the named tables. That is not a convenience:
+    prod carries a second, `is_closed=True` Coverage on every part_bdpro table
+    (the BD Pro window), which this script knows nothing about -- it declares one
+    range per table, reuses `coverages[0]`, and prune() deletes `coverages[1:]`.
+    Running unscoped against prod would therefore flatten the free/pro pair and
+    leave assert_coverage_topology failing. Until the free/pro tiers are modelled
+    here, scope prod runs to tables that carry a single coverage.
+    """
+    targets = [t for t in TABLE_ORDER if not only or t in only]
+    if only:
+        unknown = sorted(set(only) - set(TABLE_ORDER))
+        if unknown:
+            print(f"unknown tables: {unknown}")
+            return 1
+        print(
+            f"scoped to {len(targets)} of {len(TABLE_ORDER)} tables: {targets}"
+        )
     used = {
         c["observations"].strip()
         for t in TABLE_ORDER
@@ -249,41 +372,47 @@ def main(env: str, status: str) -> int:
     print(f"dataset {DATASET['slug']} -> {dataset_id} ({status})")
 
     sources = fn("get_raw_data_sources")(dataset_slug=DATASET["slug"], env=env)
-    source_id = None
-    for candidate in (
-        sources
-        if isinstance(sources, list)
-        else sources.get("raw_data_sources", [])
-    ):
-        if candidate.get("url") == RAW_SOURCE["url"]:
-            source_id = candidate["id"]
-    source_id = fn("create_update_raw_data_source")(
-        id=source_id,
-        dataset_id=dataset_id,
-        name_pt=RAW_SOURCE["name_pt"],
-        name_en=RAW_SOURCE["name_en"],
-        name_es=RAW_SOURCE["name_es"],
-        description_pt=RAW_SOURCE["description_pt"],
-        description_en=RAW_SOURCE["description_en"],
-        description_es=RAW_SOURCE["description_es"],
-        url=RAW_SOURCE["url"],
-        availability_id=availability_id,
-        license_id=license_id,
-        # No area_ids: a raw data source carries no geographic coverage in this
-        # backend, unlike a table. Passing it is a TypeError, not a no-op.
-        contains_api=True,
-        is_free=True,
-        requires_registration=False,
-        status_id=status_id,
-        env=env,
-    )["id"]
-    print(f"raw data source -> {source_id}")
+    existing_sources = {
+        candidate.get("url"): candidate["id"]
+        for candidate in (
+            sources
+            if isinstance(sources, list)
+            else sources.get("raw_data_sources", [])
+        )
+    }
+    source_ids: dict[str, str] = {}
+    for spec_source in (RAW_SOURCE, COMPRASNET_SOURCE):
+        source_ids[spec_source["url"]] = fn("create_update_raw_data_source")(
+            id=existing_sources.get(spec_source["url"]),
+            dataset_id=dataset_id,
+            name_pt=spec_source["name_pt"],
+            name_en=spec_source["name_en"],
+            name_es=spec_source["name_es"],
+            description_pt=spec_source["description_pt"],
+            description_en=spec_source["description_en"],
+            description_es=spec_source["description_es"],
+            url=spec_source["url"],
+            availability_id=availability_id,
+            license_id=license_id,
+            # No area_ids: a raw data source carries no geographic coverage in
+            # this backend, unlike a table. Passing it is a TypeError, not a
+            # no-op.
+            contains_api=spec_source.get("contains_api", True),
+            is_free=True,
+            requires_registration=False,
+            status_id=status_id,
+            env=env,
+        )["id"]
+        print(
+            f"raw data source {spec_source['url']} -> {source_ids[spec_source['url']]}"
+        )
 
     published_status = lookup("status", "published", env)
     node = fn("get_dataset")(slug=DATASET["slug"], env=env)
+    kept_latest = stored_update_latest(DATASET["slug"], env)
     table_ids: dict[str, str] = {}
 
-    for table in TABLE_ORDER:
+    for table in targets:
         meta = META[table]
         spec = DBT[table]
         current = node.get("tables", {}).get(table, {})
@@ -303,6 +432,18 @@ def main(env: str, status: str) -> int:
             status_id=published_status,
             published_by_ids=[account_id],
             data_cleaned_by_ids=[account_id],
+            # The source is created above, before this loop, so it can be linked
+            # here rather than in a deferred second pass. Without it the tables
+            # ship with no raw data source at all -- which is how the first prod
+            # registration of the two ComprasNet tables ended up with an empty
+            # rawDataSource while staging had it, set by hand months earlier.
+            raw_data_source_ids=[
+                source_ids[
+                    COMPRASNET_SOURCE["url"]
+                    if table in COMPRASNET_TABLES
+                    else RAW_SOURCE["url"]
+                ]
+            ],
             env=env,
         )["id"]
         table_ids[table] = table_id
@@ -374,6 +515,9 @@ def main(env: str, status: str) -> int:
             )["id"]
             start_year, start_month, end_year, end_month = meta.coverage
             fn("create_update_datetime_range")(
+                id=prior["datetime_ranges"][0]
+                if prior["datetime_ranges"]
+                else None,
                 coverage_id=coverage_id,
                 start_year=start_year,
                 start_month=start_month,
@@ -383,6 +527,22 @@ def main(env: str, status: str) -> int:
                 env=env,
             )
 
+        # The table-anchored Update: when WE last refreshed the table, and how
+        # often we do. `latest` is a wall clock, per the convention -- the
+        # source's own publication date belongs on a source-anchored Update.
+        entity_slug, frequency = UPDATE_CADENCE[table]
+        cadence_entity = lookup("entity", entity_slug, env)
+        if cadence_entity is None:
+            sys.exit(f"{table}: entity {entity_slug!r} not found in {env}")
+        fn("create_update_update")(
+            id=prior["updates"][0] if prior["updates"] else None,
+            table_id=table_id,
+            entity_id=cadence_entity,
+            frequency=frequency,
+            latest=kept_latest.get(table, REFRESHED_AT),
+            env=env,
+        )
+
         counts = result if isinstance(result, dict) else {}
         print(
             f"  {table:<28} id={table_id[:8]}… columns="
@@ -390,10 +550,12 @@ def main(env: str, status: str) -> int:
             f"levels={len(level_ids)}"
         )
 
-    # reorder_tables keys on the dataset SLUG, not its id.
-    fn("reorder_tables")(
-        dataset_slug=DATASET["slug"], table_slugs=TABLE_ORDER, env=env
-    )
+    # reorder_tables keys on the dataset SLUG, not its id. Skipped on a scoped
+    # run: it would restate the order of tables this run was told not to touch.
+    if not only:
+        fn("reorder_tables")(
+            dataset_slug=DATASET["slug"], table_slugs=TABLE_ORDER, env=env
+        )
     print(f"\nregistered {len(table_ids)} tables in {env}")
     return 0
 
@@ -401,4 +563,5 @@ def main(env: str, status: str) -> int:
 if __name__ == "__main__":
     environment = sys.argv[1] if len(sys.argv) > 1 else "staging"
     dataset_status = sys.argv[2] if len(sys.argv) > 2 else "under_review"
-    raise SystemExit(main(environment, dataset_status))
+    # Any further arguments name the only tables to register.
+    raise SystemExit(main(environment, dataset_status, sys.argv[3:] or None))
