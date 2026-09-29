@@ -31,6 +31,11 @@ run() {
 }
 
 run spend       world_wb_mides__empenho world_wb_mides__liquidacao world_wb_mides__pagamento
-run mg          "path:models/world_wb_mides/mg"
+# The 43 MG models sit beside the 9 multi-state ones, so there is no directory
+# to select; `mg_table_glossary.TABLES` is what names the set.
+MG_MODELS=$(cd "$(dirname "$0")" && uv run python -c \
+  'import mg_table_glossary as g; print(" ".join(f"world_wb_mides__{t}" for t in sorted(g.TABLES)))')
+# shellcheck disable=SC2086  # deliberate word splitting: one --select arg per model
+run mg          ${=MG_MODELS}
 run procurement world_wb_mides__licitacao world_wb_mides__licitacao_item world_wb_mides__licitacao_participante
 echo "=== rebuild finished $(date '+%H:%M:%S') ==="

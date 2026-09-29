@@ -180,10 +180,10 @@ def main() -> None:
         for cat, member, phase in members:
             origin.setdefault(phase, (cat, member))
 
-    mg_dir = Path(__file__).resolve().parent.parent / "mg"
-    slugs = sorted(
-        p.stem[len("world_wb_mides__") :] for p in mg_dir.glob("*.sql")
-    )
+    # The MG models share `models/world_wb_mides/` with the 9 original
+    # multi-state ones, so the glossary -- not a directory listing -- is
+    # what names this set of 43.
+    slugs = sorted(tables.TABLES)
 
     info = json.loads(CREDENTIALS.read_text())
     creds = service_account.Credentials.from_service_account_file(

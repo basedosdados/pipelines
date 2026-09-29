@@ -31,6 +31,9 @@ sys.path.insert(
 )
 
 # pyrefly: ignore [missing-import]  # sibling module via sys.path
+import mg_table_glossary as tables
+
+# pyrefly: ignore [missing-import]  # sibling module via sys.path
 import register_mg_metadata as reg
 
 # pyrefly: ignore [missing-import]  # the databasis MCP server, via sys.path
@@ -64,20 +67,15 @@ COLUMN_QUERY = """query($id: ID!) {
 
 
 def main() -> None:
-    mg_dir = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "..", "mg"
-    )
-    slugs = sorted(
-        fn[len("world_wb_mides__") : -len(".sql")]
-        for fn in os.listdir(mg_dir)
-        if fn.endswith(".sql")
-    )
+    # The MG models now sit beside the 9 original multi-state ones in
+    # `models/world_wb_mides/`, so the glossary -- not a directory listing --
+    # is what names this set of 43.
+    slugs = sorted(tables.TABLES)
     problems: list[str] = []
     ok = 0
 
     for slug in slugs:
-        path = os.path.join(mg_dir, f"world_wb_mides__{slug}.sql")
-        want = dict(reg.typed_columns(path))
+        want = dict(reg.typed_columns(reg.model_path(slug)))
 
         edges = server._gql(
             TABLE_QUERY, {"ds": DATASET_ID, "slug": slug}, env=ENV
