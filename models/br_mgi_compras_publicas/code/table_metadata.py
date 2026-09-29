@@ -54,9 +54,9 @@ TABLES: dict[str, TableMeta] = {
         (2021, 1, 2026, 7),
     ),
     "contratacao_item_resultado": TableMeta(
-        "Contratação - Resultado do item",
-        "Procurement - Item result",
-        "Contratación - Resultado del ítem",
+        "Contratação - Item - Resultado",
+        "Procurement - Item - Result",
+        "Contratación - Ítem - Resultado",
         "Results of the items of Law 14,133/2021 procurements. One row per supplier ranked on "
         "each item, with the quantity and value awarded",
         "Resultados de los ítems de las contrataciones de la Ley 14.133/2021. Una fila por "
@@ -281,9 +281,9 @@ TABLES: dict[str, TableMeta] = {
     # result-by-supplier pages, which no Compras.gov.br API exposes, so their
     # coverage ends with the legado system rather than with the Lei 8.666 series.
     "pregao_item_oferta": TableMeta(
-        "Licitação - Pregão - Proposta vencedora do item",
-        "Tender - Reverse auction - Winning item offer",
-        "Licitación - Pregón - Propuesta ganadora del ítem",
+        "Licitação - Pregão - Item - Proposta vencedora",
+        "Tender - Reverse auction - Item - Winning offer",
+        "Licitación - Pregón - Ítem - Propuesta ganadora",
         "Winning offers by item for the electronic reverse auctions run under Law 8.666, with "
         "the brand, manufacturer, model and detailed description of the object actually offered "
         "by the supplier, plus the unit and total price. One row per item and winning supplier. "
@@ -308,9 +308,9 @@ TABLES: dict[str, TableMeta] = {
         (2004, None, 2024, None),
     ),
     "pregao_item_evento": TableMeta(
-        "Licitação - Pregão - Evento do item",
-        "Tender - Reverse auction - Item event",
-        "Licitación - Pregón - Evento del ítem",
+        "Licitação - Pregão - Item - Evento",
+        "Tender - Reverse auction - Item - Event",
+        "Licitación - Pregón - Ítem - Evento",
         "Event timeline by item for the electronic reverse auctions run under Law 8.666, with "
         "the date, time and responsible public official for each award, homologation, "
         "cancellation and return to a previous phase. One row per item event. It includes items "
