@@ -144,14 +144,33 @@ internal `indicator_id` FKs.
 - [x] 9a. Columns — 24 across the three tables, with types, all three languages,
       `directory_column` on `state_id` and `year`, `measurement_unit` on `year`,
       `is_partition` on `observations.year`, and observation levels linked.
-      **Two tools are needed, and neither is sufficient alone:**
-      `upload_columns_from_sheet` is the only one that writes `bigquery_type`
-      (and it takes the `observation_levels` map), but it writes the sheet's bare
-      `description` to `descriptionPt` only; `bulk_upsert_columns(architecture_url=…)`
-      then fills `description_en/es` and `observations_pt/en/es` but never writes a
-      type. So: `upload_columns_from_sheet` first, then `bulk_upsert_columns` with
-      `update_only=true`. `bulk_upsert_columns` with `columns_json` writes neither
-      types nor `is_partition` nor `directory_column` — verified by dry run.
+      Registered with `upload_columns_from_sheet` (which also takes the
+      `observation_levels` map) followed by
+      `bulk_upsert_columns(architecture_url=…, update_only=true)` to add
+      `description_en/es` and `observations_pt/en/es`, then one `update_column` for
+      `is_partition` on `observations.year`, which no sheet schema carries.
+
+      **The Google Sheet was probably not necessary.** A measured audit on
+      `br_mj_sisdepen` (95 columns, both backends) found that
+      `bulk_upsert_columns` with **`columns_json`** does write `bigquery_type` and
+      `directory_column`, leaving only `is_partition` for `update_column` — so the
+      JSON path alone would likely have done this. `dry_run`'s `plan[].sets`
+      omits `bigqueryType` even though the real call writes it, which is what
+      misled the earlier attempt here into treating Drive as a hard blocker. Do
+      not read `sets` as authoritative.
+
+      Verify against the backend rather than `get_dataset`, which returns only
+      `id`/`name`/`is_partition` per column and cannot confirm a type:
+
+      ```graphql
+      { allColumn(first: 100, table_Id: "<id>") { edges { node {
+          name isPartition bigqueryType { name } measurementUnit
+          observationLevel { id } directoryPrimaryKey { id } } } } }
+      ```
+
+      Audited 2026-09-29 on staging: 24/24 columns correct — types, all three
+      description languages, `state_id` and `year` directory links, `year`
+      partition and unit, and observation levels on all four identifying columns.
 - [x] 9b. Published on staging (`under_review` → `published`)
 - [ ] 10–13. Prod metadata → PR → merge → table-approve → verify → publish
 - [ ] 14. Delete `~/Library/Caches/au_abs_productivity_data/`
