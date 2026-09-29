@@ -624,6 +624,9 @@ models:
     br_poder360_pesquisas:
       +materialized: table
       +schema: br_poder360_pesquisas
+    br_prf_acidentes:
+      +materialized: table
+      +schema: br_prf_acidentes
     br_rf_arrecadacao:
       +materialized: table
       +schema: br_rf_arrecadacao
