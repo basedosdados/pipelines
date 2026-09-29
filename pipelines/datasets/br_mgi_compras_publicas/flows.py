@@ -12,9 +12,23 @@ split by how the underlying law behaves rather than by convenience:
   dicionario. These are snapshots stamped with an extraction date, and they move
   slowly enough that a daily rebuild would be waste.
 
-The Lei 8.666 legado tables are **not** refreshed: that procurement regime has
-ended and its 2025 tail is 7,562 rows. They are a closed archive, backfilled
-once. Adding them to a schedule would spend hours re-reading a frozen dataset.
+The eight archive tables are **not** refreshed, and no flow below covers them:
+the six Lei 8.666 legado tables, plus `pregao_item_oferta` and
+`pregao_item_evento`, scraped from the legacy ComprasNet web UI. That regime has
+ended. Measured against the live source on 2026-09-29:
+
+    /modulo-legado/1_consultarLicitacao, by publication month
+      2025-01: 1,631   2025-03: 1,566   2025-05: 951
+      2025-07: 0       2025-09: 0       every month of 2026: 0
+    /modulo-legado/5_consultarComprasSemLicitacao, whole year
+      2025: 24,382     2026: 0
+
+So the legado published nothing after roughly June 2025. Scheduling it would
+also be costly rather than merely pointless: `2_consultarItemLicitacao`, which
+feeds `licitacao_item`, takes no date filter at all -- `modalidade=5` alone
+returns 32,397,345 records -- so each run would re-read tens of millions of rows
+to find nothing new. Their Update records therefore declare no frequency; see
+`UPDATE_CADENCE` in `models/br_mgi_compras_publicas/code/table_metadata.py`.
 
 Deploy: `.github/workflows/scripts/deploy_flows.py` discovers the flow objects below.
 """
