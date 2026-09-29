@@ -33,7 +33,7 @@ sys.path.insert(
 # pyrefly: ignore [missing-import]  # the databasis MCP server, via sys.path
 import server
 
-ENV = "staging"
+ENV = "staging"  # set from `--env` in main()
 AREA = "br_mg"
 END_YEAR = 2026
 DATASET_ID = "d3874769-bcbd-4ece-a38a-157ba1021514"  # slug `mides`
@@ -125,23 +125,37 @@ EXISTING = [
 ]
 
 # Content tags the new tables make relevant. The dataset already carries
-# compra / despesa / gasto / orcamento, which say nothing about contracts or
-# procurement detail. Geography, theme and organization are deliberately NOT
+# budget / expenditure / purchase / spending, which say nothing about contracts
+# or procurement detail. Geography, theme and organization are deliberately NOT
 # tagged -- they are separate metadata fields.
-ADD_TAGS = {
-    "contrato": "0831b835-2079-44f3-b5e8-3f598435bbe0",
-    "licitacao": "4b76d0d7-7a4b-4a73-a2c5-33a08853dc77",
-    "financas_publicas": "5dce4b1d-131b-452a-a419-bdd587a8c272",
-    "transparencia": "8b187427-519e-48cb-b0a6-5380086edf3b",
-}
+#
+# All four already exist in the vocabulary; nothing here creates a tag. Slugs,
+# not ids: ids differ per backend, and the earlier Portuguese labels never
+# matched the real English slugs, so the "already attached?" test below could
+# never be true and every run reported these as new.
+ADD_TAG_SLUGS = (
+    "contract",
+    "public-finance",
+    "public_procurement",
+    "transparency",
+)
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument(
+        "--env",
+        default="staging",
+        choices=["dev", "staging", "prod"],
+        help="backend to write to (default: staging)",
+    )
     args = parser.parse_args()
 
-    print("MG coverage:")
+    global ENV
+    ENV = args.env
+
+    print(f"MG coverage on {ENV}:")
     for slug in EXISTING:
         covs = coverages_of(slug)
         if covs is None:
@@ -179,14 +193,22 @@ def main() -> None:
 
     dataset = dataset_fields()
     have = {t["slug"] for t in dataset.get("tags", [])}
-    missing = {k: v for k, v in ADD_TAGS.items() if k not in have}
+    wanted = sorted(set(ADD_TAG_SLUGS) - have)
     print(f"\ntags: dataset has {sorted(have)}")
-    if not missing:
+    if not wanted:
         print("  nothing to add")
         return
-    print(f"  adding {sorted(missing)}")
+    print(f"  adding {wanted}")
     if args.dry_run:
         return
+    # Resolved per backend rather than hardcoded, and asserted: a slug that does
+    # not resolve would otherwise drop out silently.
+    missing = {}
+    for slug in wanted:
+        found = server.lookup_id(category="tag", slug=slug, env=ENV)
+        if not found.get("id"):
+            raise SystemExit(f"tag {slug!r} does not exist on {ENV}")
+        missing[slug] = found["id"]
     server.create_update_dataset(
         id=dataset["id"],
         slug="mides",
