@@ -111,7 +111,7 @@ TABLES = {
             "e trunca o rótulo em 20 caracteres, de modo que especie_beneficio "
             "fica nulo quando o rótulo truncado é ambíguo entre espécies; "
             "categoria_beneficio está sempre preenchida e "
-            "especie_beneficio_rotulo traz o rótulo como publicado."
+            "especie_beneficio_rotulo traz o rótulo como publicado. A série cobre 48 meses entre julho de 2021 e janeiro de 2026: a fonte não publicou abril de 2024, publicou setembro de 2023 com o cabeçalho trocado em relação às colunas (sem espécie, clientela e sexo), e reeditou o arquivo do mês anterior, byte a byte, sob os rótulos de junho a agosto de 2024, fevereiro de 2025, setembro de 2025 e fevereiro e março de 2026, que por isso não constam."
         ),
         "description_en": (
             "Count and value of active benefits maintained by INSS each month, "
@@ -122,7 +122,7 @@ TABLES = {
             "especie_beneficio is null wherever the truncated label is "
             "ambiguous between benefit types; categoria_beneficio is always "
             "populated and especie_beneficio_rotulo carries the label as "
-            "published."
+            "published. The series covers 48 months between July 2021 and January 2026: the source did not publish April 2024, published September 2023 with a header that does not match its columns (benefit type, clientele and sex absent), and reissued the previous month's file byte for byte under the June-August 2024, February 2025, September 2025, and February and March 2026 labels, which are therefore absent."
         ),
         "description_es": (
             "Cantidad y valor de los beneficios activos mantenidos por el INSS "
@@ -132,7 +132,7 @@ TABLES = {
             "de la especie y trunca la etiqueta en 20 caracteres, por lo que "
             "especie_beneficio queda nulo cuando la etiqueta truncada es "
             "ambigua; categoria_beneficio siempre está completa y "
-            "especie_beneficio_rotulo trae la etiqueta tal como se publica."
+            "especie_beneficio_rotulo trae la etiqueta tal como se publica. La serie cubre 48 meses entre julio de 2021 y enero de 2026: la fuente no publicó abril de 2024, publicó septiembre de 2023 con el encabezado desalineado respecto a las columnas (sin especie, clientela ni sexo), y reeditó el archivo del mes anterior, byte a byte, bajo las etiquetas de junio a agosto de 2024, febrero de 2025, septiembre de 2025, y febrero y marzo de 2026, que por ello no constan."
         ),
     },
     "dicionario_especie": {
@@ -200,6 +200,6 @@ RAW_SOURCES = {
 
 COVERAGE = {
     "beneficio_concedido_municipio_mes": (2012, 1, 2026, 8),
-    "beneficio_mantido_municipio_mes": (2021, 7, 2026, 3),
+    "beneficio_mantido_municipio_mes": (2021, 7, 2026, 1),
     "dicionario_especie": None,
 }
