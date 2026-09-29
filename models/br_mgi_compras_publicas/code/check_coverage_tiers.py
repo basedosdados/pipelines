@@ -93,7 +93,7 @@ def main() -> int:
     print("2. pipeline-owned ranges are not restated")
     for table in ("contratacao", "orgao"):
         tiers = {False: tier("cov-free", ["rng-free"])}
-        if table in rm.PRO_TIER_TABLES:
+        if isinstance(rm.COVERAGE.get(table), rm.PartBdpro):
             tiers[True] = tier("cov-pro", ["rng-pro"])
         check(
             f"{table}: range not written", not plan(table, tiers).write_range
@@ -175,26 +175,6 @@ def main() -> int:
     check("kept free range NOT deleted", "rng-free" not in deleted)
     check("duplicate free range deleted", "rng-free-dup" in deleted)
     check("orphan range deleted", "rng-orphan" in deleted)
-
-    # 7. the declared tiers agree with the flow's own coverage specs.
-    print("7. tier declaration agrees with the flow")
-    from pipelines.datasets.br_mgi_compras_publicas import flows
-    from pipelines.utils.metadata.domain import AllFree, PartBdpro
-
-    pro_in_flow = {
-        t for t, s in flows.COVERAGE.items() if isinstance(s, PartBdpro)
-    }
-    free_in_flow = {
-        t for t, s in flows.COVERAGE.items() if isinstance(s, AllFree)
-    }
-    check(
-        "PRO_TIER_TABLES == the flow's PartBdpro tables",
-        pro_in_flow == set(rm.PRO_TIER_TABLES),
-    )
-    check(
-        "PIPELINE_OWNED_COVERAGE == every table the flow covers",
-        pro_in_flow | free_in_flow == set(rm.PIPELINE_OWNED_COVERAGE),
-    )
 
     print()
     if failures:

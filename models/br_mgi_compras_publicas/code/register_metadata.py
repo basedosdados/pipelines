@@ -52,14 +52,14 @@ from observation_translations import (  # noqa: E402
 from table_metadata import DATASET, TABLE_ORDER, UPDATE_CADENCE  # noqa: E402
 from table_metadata import TABLES as META  # noqa: E402
 
-# The cadence split that decides each table's paywall tier and who owns its
-# coverage ranges. Imported from the pipeline's own constants -- a pure,
-# stdlib-only module -- rather than restated here, because a second copy that
-# drifted would mis-register the paywall. See PIPELINE_OWNED_COVERAGE below.
+# The paywall tier per table, read from the pipeline's own declaration rather
+# than restated here: `COVERAGE` is what the flow passes to
+# `register_table_materialization_task`, so deriving the tier from it means the
+# static registration and the flow cannot disagree about which tables are paid.
 from pipelines.datasets.br_mgi_compras_publicas.constants import (  # noqa: E402
-    PIPELINE_OWNED_COVERAGE,
-    PRO_TIER_TABLES,
+    COVERAGE,
 )
+from pipelines.utils.metadata.domain import PartBdpro  # noqa: E402
 
 ARCH = HERE / "architecture"
 DATASET_ID = "br_mgi_compras_publicas"
@@ -310,8 +310,9 @@ def coverage_plan(
     * The free Coverage is found by `is_closed`, never by position. On prod
       `ata_registro_preco_item` lists the PRO coverage first, so `coverages[0]`
       overwrote the BD Pro window with the free range.
-    * A range the flow owns is seeded once and never restated. The flow
-      recomputes it on every run, day-granular and rolling (free ends
+    * A range the flow owns -- any table in `COVERAGE` -- is seeded once and
+      never restated. The flow recomputes it on every run, day-granular and
+      rolling (free ends
       2026-03-24, pro starts 2026-03-25); restating the month-granular literal
       from table_metadata.py would coarsen that boundary and move it forward,
       releasing the paywalled window for free.
@@ -320,9 +321,11 @@ def coverage_plan(
     free_range_id = (
         free["range_ids"][0] if free and free["range_ids"] else None
     )
-    pipeline_owned = table in PIPELINE_OWNED_COVERAGE
-    keep = free_range_id is not None and pipeline_owned
-    create_pro = table in PRO_TIER_TABLES and tiers.get(True) is None
+    # A table the flow covers has a spec; `PartBdpro` is the paid tier, the
+    # same predicate `policy.needs_row_access_policy` uses.
+    spec = COVERAGE.get(table)
+    keep = free_range_id is not None and spec is not None
+    create_pro = isinstance(spec, PartBdpro) and tiers.get(True) is None
     notes = []
     if keep:
         notes.append("range kept (pipeline-owned)")
@@ -676,7 +679,7 @@ def main(env: str, status: str, only: list[str] | None = None) -> int:
             # pipeline run dies at assert_coverage_topology. It needs no range
             # here: the flow writes both from the real max date on every run.
             # An AllFree table must have NO pro coverage, so this never fires
-            # outside PRO_TIER_TABLES.
+            # outside the PartBdpro specs.
             if plan.create_pro_coverage:
                 fn("create_update_coverage")(
                     id=None,

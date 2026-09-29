@@ -20,6 +20,14 @@ from __future__ import annotations
 from enum import Enum, StrEnum
 from pathlib import Path
 
+from pipelines.utils.metadata.domain import (
+    AllFree,
+    DateFormat,
+    DateOnly,
+    FreeLag,
+    PartBdpro,
+)
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 ARCHITECTURE_DIR = (
     REPO_ROOT / "models" / "br_mgi_compras_publicas" / "code" / "architecture"
@@ -565,12 +573,8 @@ class constants(Enum):
 
 
 # --------------------------------------------------------------- refresh tiers
-#: Tables the Prefect flows refresh, by cadence. Declared here rather than in
-#: `flows.py` because two very different consumers need them and must not
-#: disagree: the flows themselves, and the one-shot metadata registration under
-#: `models/br_mgi_compras_publicas/code/`. A table moved between these tuples
-#: changes its paywall tier and who owns its coverage, so a second copy that
-#: drifted would silently mis-register the paywall.
+#: Tables the Prefect flows refresh, by cadence. The cadence decides the paywall
+#: tier, so these tuples feed `COVERAGE` below rather than being restated there.
 DAILY_TABLES = (
     "contratacao",
     "contratacao_item",
@@ -593,19 +597,59 @@ WEEKLY_TABLES = (
 DERIVED_TABLES = ("dicionario",)
 
 #: Business rule: a table refreshed daily or more often paywalls its most recent
-#: window to BD Pro; slower-moving tables stay fully open. Derived from the
-#: cadence rather than listed again, so the two cannot disagree.
+#: window to BD Pro; slower-moving tables stay fully open. `COVERAGE` below is
+#: the single declaration of that tier, and both consumers read it from here --
+#: the flows, which pass the spec to `register_table_materialization_task` on
+#: every run, and the one-shot metadata registration under
+#: `models/br_mgi_compras_publicas/code/`, which derives the tier from the spec
+#: class rather than keeping its own list. So the paywall cannot drift between
+#: them, and moving a table between tiers is a one-line change here.
 #:
-#: These tables carry TWO Coverages -- free (`is_closed=False`) and pro
+#: A `PartBdpro` table carries TWO Coverages -- free (`is_closed=False`) and pro
 #: (`is_closed=True`). `assert_coverage_topology` hard-fails if either is
 #: missing, and conversely fails an `AllFree` table that has a pro Coverage.
-PRO_TIER_TABLES = frozenset(DAILY_TABLES)
+#:
+#: Every table named here also has its coverage `DateTimeRange`s recomputed by
+#: the flow on each run. Those ranges are day-granular and roll forward, and for
+#: the pro tier the free/pro boundary sits between two adjacent days (free ends
+#: 2026-03-24, pro starts 2026-03-25). A static registration must therefore seed
+#: such a range only when it is absent and never restate it: a month-granular
+#: literal would both coarsen the boundary and move it forward, releasing the
+#: paywalled window for free.
+#:
+#: The window is measured on a real date column, never on `ano`. A year column
+#: cannot express a six-month boundary: every row of 2026 reads as 2026-01-01,
+#: so `DATE(ano,1,1) <= today - 6 months` releases the whole current year.
+#:
+#: For the contratacao tables that column is forced -- each has one publication
+#: date. For atas and contratos it is not: `data_vigencia_inicial` looks
+#: forward, so a contract recorded today to start in 2028 would sit behind the
+#: paywall for two years while a contract signed in 2023 starting next month
+#: would be paid. Keying on when the row was *recorded* paywalls what is
+#: actually new and cannot be sidestepped by future-dating.
+BDPRO_DATE_COLUMN = {
+    "contratacao": "data_publicacao_pncp",
+    "contratacao_item": "data_inclusao_pncp",
+    "contratacao_item_resultado": "data_resultado_pncp",
+    "ata_registro_preco": "data_hora_inclusao",
+    "ata_registro_preco_item": "data_hora_inclusao",
+    "contrato": "data_hora_inclusao",
+    "contrato_item": "data_hora_inclusao",
+}
 
-#: Tables whose coverage DateTimeRanges the flow recomputes on every run, via
-#: `register_table_materialization_task`. Those ranges are day-granular and roll
-#: forward, and for the pro tier the free/pro boundary sits between two adjacent
-#: days (free ends 2026-03-24, pro starts 2026-03-25). The static registration
-#: must therefore seed such a range only when it is absent and never restate it:
-#: a month-granular literal from `table_metadata.py` would both coarsen the
-#: boundary and move it, releasing the paywalled window.
-PIPELINE_OWNED_COVERAGE = frozenset(DAILY_TABLES + WEEKLY_TABLES)
+COVERAGE: dict[str, PartBdpro | AllFree] = {
+    t: PartBdpro(
+        date_column=DateOnly(col=BDPRO_DATE_COLUMN[t]),
+        date_format=DateFormat.YEAR_MD,
+        free_lag=FreeLag(unit="months", value=6),
+    )
+    for t in DAILY_TABLES
+} | {
+    # The registries are keyed on a full extraction date, not a year, and the
+    # dicionario has no date column at all so it takes no coverage spec.
+    t: AllFree(
+        date_column=DateOnly(col="data_extracao"),
+        date_format=DateFormat.YEAR_MD,
+    )
+    for t in WEEKLY_TABLES
+}
