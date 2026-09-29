@@ -22,6 +22,7 @@ from pipelines.utils.metadata.domain import (
 )
 from pipelines.utils.metadata.utils import (
     able_to_query_bigquery_metadata,
+    extract_first_date_from_bq,
     extract_last_date_from_bq,
     update_date_from_bq_metadata,
     update_row_access_policy,
@@ -67,6 +68,29 @@ class BigQueryReader:
         return datetime.datetime.strptime(
             # pyrefly: ignore [missing-attribute]
             last_date,
+            # pyrefly: ignore [missing-attribute]
+            coverage.date_format.value,
+        ).date()
+
+    def read_min_date(
+        self, dataset_id: str, table_id: str, coverage: CoverageSpec
+    ) -> datetime.date:
+        """Início real da série — MIN da coluna de cobertura. Simétrica a
+        `read_max_date`; usada só para `part_bdpro`, para emitir o range free
+        completo e impedir que ele inverta (ver `compute_coverage_ranges`)."""
+        first_date = extract_first_date_from_bq(
+            dataset_id,
+            table_id,
+            # pyrefly: ignore [missing-attribute]
+            coverage.date_format.value,
+            # pyrefly: ignore [missing-attribute]
+            date_column_to_legacy_dict(coverage.date_column),
+            self.billing_project_id,
+            self.bq_project,
+        )
+        return datetime.datetime.strptime(
+            # pyrefly: ignore [missing-attribute]
+            first_date,
             # pyrefly: ignore [missing-attribute]
             coverage.date_format.value,
         ).date()

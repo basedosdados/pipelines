@@ -20,7 +20,11 @@ import datetime
 
 from pipelines.utils.metadata import policy
 from pipelines.utils.metadata.client import MetadataClient
-from pipelines.utils.metadata.domain import CoverageSpec, NonHistorical
+from pipelines.utils.metadata.domain import (
+    CoverageSpec,
+    NonHistorical,
+    PartBdpro,
+)
 from pipelines.utils.metadata.register import BQReader
 from pipelines.utils.utils import log
 
@@ -170,8 +174,18 @@ def sync_table_coverage(
 
     policy.assert_coverage_topology(coverage, coverage_ids)
 
+    # Só part_bdpro lê o início da série (para o range free sair completo e não
+    # inverter — ver compute_coverage_ranges); os demais tiers evitam o scan.
+    source_start = (
+        bq.read_min_date(
+            dataset_id=dataset_id, table_id=table_id, coverage=coverage
+        )
+        if isinstance(coverage, PartBdpro)
+        else None
+    )
+
     ranges = policy.compute_coverage_ranges(
-        coverage, source_coverage, coverage_ids
+        coverage, source_coverage, coverage_ids, source_start=source_start
     )
 
     for coverage_range in ranges.to_list():

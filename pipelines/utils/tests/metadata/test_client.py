@@ -128,6 +128,11 @@ def test_upsert_coverage_datetime_range_passes_dto_fields(client, backend):
     v = _input(backend.mutation_for("CreateUpdateDateTimeRange"))
     assert v["coverage"] == UUID
     assert v["endYear"] == 2026 and v["endMonth"] == 6 and v["endDay"] == 1
+    # allDatetimerange devolveu None (range inexistente) → é um CREATE, e o
+    # backend exige `interval` para criar. Antes ele não saía no payload e o
+    # CREATE era impossível; agora sai sempre (default 1).
+    assert v["interval"] == 1
+    assert "id" not in v  # sem id ⇒ create, não update
 
 
 def test_write_carries_auth_header(client, backend):

@@ -125,7 +125,10 @@ def _next_period(d: date, fmt: DateFormat) -> date:
 
 
 def compute_coverage_ranges(
-    spec: CoverageSpec, source_end: date, coverage_ids: CoverageIds
+    spec: CoverageSpec,
+    source_end: date,
+    coverage_ids: CoverageIds,
+    source_start: date | None = None,
 ) -> CoverageRanges:
     """Calcula os DateTimeRange free e/ou pro.
 
@@ -133,17 +136,28 @@ def compute_coverage_ranges(
     - all_bdpro → range pro terminando em `source_end`.
     - part_bdpro→ pro termina em `source_end`; free termina em
       `source_end - free_lag`; pro começa onde a free termina.
+
+    `source_start` (o início real da série, lido do BigQuery) é usado só no ramo
+    part_bdpro: quando informado, o range free sai **completo** (início e fim),
+    de modo que a escrita seja auto-consistente e não dependa do início já
+    gravado. Isso corrige a inversão do range free numa tabela cujo histórico
+    inteiro cabe dentro da janela do paywall (`source_start > free_end` — um
+    snapshot sem história), em que o update só-do-fim deixava início > fim e o
+    backend recusava. Quando `source_start` é `None` (chamadas legadas/testes),
+    o free sai só-com-fim, exatamente como antes.
     """
     if isinstance(spec, NonHistorical):
         raise ValueError("NonHistorical não usa compute_coverage_ranges")
 
     fmt = spec.date_format
+    interval = spec.interval  # passo da série (o "(N)" da notação); ver domain
 
     if isinstance(spec, AllFree):
         return CoverageRanges(
             free=DateTimeRangeInput(
                 # pyrefly: ignore [bad-argument-type]
                 coverage=coverage_ids.free,
+                interval=interval,
                 **_components(source_end, fmt, "end"),
             ),
             free_end=source_end,
@@ -154,20 +168,33 @@ def compute_coverage_ranges(
             pro=DateTimeRangeInput(
                 # pyrefly: ignore [bad-argument-type]
                 coverage=coverage_ids.pro,
+                interval=interval,
                 **_components(source_end, fmt, "end"),
             )
         )
 
     # part_bdpro
     free_end = source_end - spec.free_lag.as_relativedelta()
+    free_fields = _components(free_end, fmt, "end")
+    if source_start is not None:
+        # Emite o range free completo (início + fim) e trava o início em
+        # `free_end`: numa tabela cujo histórico inteiro está dentro da janela
+        # paga (`source_start > free_end`), `min` colapsa o range para
+        # `[free_end, free_end]` — válido e não-invertido — em vez de início >
+        # fim. Assim que a história ultrapassa `free_end`, `min` escolhe
+        # `source_start` e o free passa a cobrir a série toda normalmente.
+        free_start = min(source_start, free_end)
+        free_fields = {**_components(free_start, fmt, "start"), **free_fields}
     free = DateTimeRangeInput(
         # pyrefly: ignore [bad-argument-type]
         coverage=coverage_ids.free,
-        **_components(free_end, fmt, "end"),
+        interval=interval,
+        **free_fields,
     )
     pro = DateTimeRangeInput(
         # pyrefly: ignore [bad-argument-type]
         coverage=coverage_ids.pro,
+        interval=interval,
         **_components(source_end, fmt, "end"),
         # free termina em free_end inclusive, então pro começa no período
         # seguinte: as coberturas são mutuamente exclusivas.
