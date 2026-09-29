@@ -14,7 +14,7 @@ the source, so no BD Pro rolling window is applied. To switch the monthly table
 to a rolling paywall later, create a pro Coverage (is_closed=True) on it and
 change its spec to PartBdpro(free_lag=...).
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_epu_gpr_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_epu_gpr_flow`; the
 dev pool ignores the schedule, the prod pool activates it.
 """
 
