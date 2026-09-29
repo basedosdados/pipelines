@@ -375,7 +375,7 @@ def main() -> None:
     # The MG models now sit beside the 9 original multi-state ones in
     # `models/world_wb_mides/`, so the glossary -- not a directory listing --
     # is what names this set of 43.
-    slugs = sorted(tables.TABLES)
+    slugs = sorted(tables.MG_TABLES)
     if args.table:
         slugs = [s for s in slugs if s in args.table]
 
@@ -527,6 +527,15 @@ def main() -> None:
         print(
             f"  {slug:<34} {len(cols):>3} cols  OL={','.join(levels):<28} registered"
         )
+
+    # reorder_tables keys on the dataset SLUG and restates the order of every
+    # table in it, so it is skipped on a scoped run: it would reorder the 9
+    # original multi-state tables this run was told not to touch.
+    if not args.dry_run and not args.table:
+        server.reorder_tables(
+            dataset_slug="mides", table_slugs=tables.TABLE_ORDER, env=ENV
+        )
+        print(f"  reordered {len(tables.TABLE_ORDER)} tables")
 
     print(
         f"\n{len(slugs)} tables processed "
