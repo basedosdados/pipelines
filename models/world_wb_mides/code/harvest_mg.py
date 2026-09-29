@@ -88,15 +88,20 @@ import requests
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 # pyrefly: ignore [missing-import]  # sibling module via sys.path
-from constants import BROWSER_UA, MG_API, MG_CA_BUNDLE, MG_STATIC_BEARER
+from constants import (
+    BROWSER_UA,
+    DATA_DIR,
+    MG_API,
+    MG_CA_BUNDLE,
+    MG_STATIC_BEARER,
+)
 
 # Raw data never lands in the repo or in Dropbox: 26 GB would trigger a sync and
-# risk a commit. Overridable, but the default is the documented scratch location.
-DATA_ROOT = Path(
-    os.environ.get(
-        "MG_DATA_DIR", Path.home() / "Downloads" / "world_wb_mides_data"
-    )
-)
+# risk a commit. `constants.DATA_DIR` is the single definition of where it does go --
+# this module used to resolve its own, reading `MG_DATA_DIR` while `constants` read
+# `MIDES_DATA_DIR` with a different default, so the harvester and the cleaner could
+# point at different trees without saying so.
+DATA_ROOT = DATA_DIR
 MG_INPUT = DATA_ROOT / "input" / "mg"
 MANIFEST = MG_INPUT / "_manifest.json"
 LEDGER = MG_INPUT / "_ledger.jsonl"

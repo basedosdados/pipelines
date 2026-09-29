@@ -6,8 +6,17 @@ and `validate_<uf>.py` checks the result before anyone uploads it. The Prefect f
 imports them through `pipelines/datasets/world_wb_mides/utils.py`; nothing here imports
 Prefect, so every module runs standalone from a laptop.
 
-DATA_DIR is read from the environment AT IMPORT TIME, which is why the flow sets
-`MIDES_DATA_DIR` before importing anything from this package.
+DATA_DIR is read from the environment AT IMPORT TIME, so anything that overrides it
+must do so before importing from this package.
+
+It is THE definition of the scratch root for this dataset -- `harvest_mg.py` imports
+it rather than resolving its own, because for a while the two disagreed and the
+disagreement was silent. `constants.py` looked under `<code dir>/data` while the
+harvester wrote to `~/Downloads/world_wb_mides_data`, so `clean_mg.py` found nothing
+to clean and said so, while `upload_mg.py` and `remap_mg_2017_2018_orgao.py` used the
+harvester's location. Both `MIDES_DATA_DIR` and `MG_DATA_DIR` are honoured so neither
+existing caller breaks, and the default is the location the onboarding convention
+documents -- never the repo, which would sync to Dropbox and risk a commit.
 """
 
 from __future__ import annotations
@@ -16,7 +25,12 @@ import os
 from pathlib import Path
 
 DATA_DIR = Path(
-    os.environ.get("MIDES_DATA_DIR", Path(__file__).resolve().parent / "data")
+    os.environ.get(
+        "MIDES_DATA_DIR",
+        os.environ.get(
+            "MG_DATA_DIR", Path.home() / "Downloads" / "world_wb_mides_data"
+        ),
+    )
 )
 INPUT_DIR = DATA_DIR / "input"
 OUTPUT_DIR = DATA_DIR / "output"

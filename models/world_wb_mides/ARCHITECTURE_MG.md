@@ -24,11 +24,42 @@ never been onboarded at all.
 | Streams in the source | 51 (contrato 8, despesa 11, empenho 8, licitacao 24) |
 | Already consumed | 4 — `empenho`, `rsp`, `liquidacao`, `pagamento` |
 | Always empty | 2 — `credLicitacao`, `refLicitacao`: 0 rows in 2014/2017/2021/2024/2026 |
-| **Schema drift across 2014-2026** | **none** — all 51 headers byte-identical in 2014/16/18/20/22/24/26 |
+| **Schema drift across 2014-2026** | **present** — headers byte-identical in 2014/16/18/20/22/24/26, but `licitacao` 2025 also ships a second 23-field layout; see below |
 | New volume | ~51M rows/year, ~664M rows over 13 exercises |
 
-Zero schema drift is the single most load-bearing fact here: it removes per-table
-union logic from every one of the 46 tables.
+### Correction, 2026-09-28: the drift claim was wrong
+
+This section previously read "zero schema drift" and called it "the single most
+load-bearing fact here", on the strength of the 51 headers being byte-identical
+across **2014/16/18/20/22/24/26**. Those are the even exercises. **No odd year was
+sampled**, and the drift is in one of them.
+
+Measured against the archives on disk: `licitacao` 2025 ships **two layouts** — the
+usual 42-field rows and a **23-field** variant — across **496 of 850**
+municipalities, many of them entirely one form. 25,688 of 43,846 rows (59%) are in
+the 23-field form. It is not a truncation of the 42-field layout: field 7 of a
+23-field row holds `1 - CADASTRO INICIAL`, which is `dsc_tipo_cadastro` at position
+9 in the 42-field header, so the column order differs too.
+
+What this does and does not change:
+
+* The **no-union-logic** conclusion still holds for the 42-field arm, which is what
+  every model reads. No model was rewritten for this.
+* The 23-field rows are currently **dropped**, not unioned: `clean_mg.py` refuses
+  any row whose field count does not match the pinned header, so that 59% of
+  `licitacao` 2025 is absent from the mirror and from BigQuery. This is the largest
+  single gap in the dataset that is ours rather than the source's.
+* Recovering them needs the 23-field layout, from TCE-MG or inferred by aligning
+  values. `repair_mg.py` deliberately does **not** attempt it — it only rebuilds rows
+  with MORE fields than the header, where the excess is a stray delimiter inside a
+  known column.
+
+**The standing detector is the `ragged_rows` counter in `clean_mg.py`.** A layout
+variant shows up there, because a row in a different layout cannot match the pinned
+header. Read a non-trivial count for a `stream:exercise` as possible drift rather
+than as stray punctuation, and check the field-count distribution before assuming
+the latter. The remaining odd exercises have not been swept stream by stream, so
+treat "no drift" as unverified for them rather than established.
 
 ## Table map
 
