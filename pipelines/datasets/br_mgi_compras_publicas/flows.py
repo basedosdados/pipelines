@@ -25,7 +25,12 @@ import datetime as dt
 
 from prefect.schedules import Cron
 
-from pipelines.datasets.br_mgi_compras_publicas.constants import constants
+from pipelines.datasets.br_mgi_compras_publicas.constants import (
+    DAILY_TABLES,
+    DERIVED_TABLES,
+    WEEKLY_TABLES,
+    constants,
+)
 from pipelines.datasets.br_mgi_compras_publicas.tasks import (
     clear_staging_partitions,
     rebuild_dicionario,
@@ -54,27 +59,6 @@ DATASET_ID = constants.DATASET_ID.value
 #: land within 180 days of inclusion and the median is 78 days, so a shorter
 #: window would leave stale rows behind that no later run would ever revisit.
 REVISION_WINDOW_DAYS = 180
-
-DAILY_TABLES = (
-    "contratacao",
-    "contratacao_item",
-    "contratacao_item_resultado",
-    "ata_registro_preco",
-    "ata_registro_preco_item",
-    "contrato",
-    "contrato_item",
-)
-WEEKLY_TABLES = (
-    "orgao",
-    "unidade_administrativa",
-    "fornecedor",
-    "catalogo_material",
-    "catalogo_servico",
-)
-#: Not harvested -- derived from the other tables' chunks, so it is rebuilt
-#: after them rather than fetched. It has no TableSpec, and asking
-#: refresh_table for it raises.
-DERIVED_TABLES = ("dicionario",)
 
 #: Tables refreshed daily paywall their most recent window to BD Pro; the
 #: slow-moving registries stay fully open. `register_table_materialization_task`

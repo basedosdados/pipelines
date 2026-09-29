@@ -33,11 +33,14 @@ import datetime as dt
 import json
 import sys
 from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
 
 HERE = Path(__file__).resolve().parent
+REPO_ROOT = HERE.parents[2]
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(Path.home() / "Dropbox/BD/mcp"))
 
 import server  # noqa: E402  # pyrefly: ignore [missing-import]  (resolved above)
@@ -48,6 +51,15 @@ from observation_translations import (  # noqa: E402
 )
 from table_metadata import DATASET, TABLE_ORDER, UPDATE_CADENCE  # noqa: E402
 from table_metadata import TABLES as META  # noqa: E402
+
+# The cadence split that decides each table's paywall tier and who owns its
+# coverage ranges. Imported from the pipeline's own constants -- a pure,
+# stdlib-only module -- rather than restated here, because a second copy that
+# drifted would mis-register the paywall. See PIPELINE_OWNED_COVERAGE below.
+from pipelines.datasets.br_mgi_compras_publicas.constants import (  # noqa: E402
+    PIPELINE_OWNED_COVERAGE,
+    PRO_TIER_TABLES,
+)
 
 ARCH = HERE / "architecture"
 DATASET_ID = "br_mgi_compras_publicas"
@@ -197,6 +209,134 @@ def stored_update_latest(slug: str, env: str) -> dict[str, str]:
     return out
 
 
+#: Coverages and their ranges, with the free/pro discriminator.
+#:
+#: `get_dataset` returns a table's coverages as a bare list carrying no
+#: `is_closed`, so the free and pro tiers are indistinguishable there -- and the
+#: order is not stable: on prod `ata_registro_preco_item` lists the PRO coverage
+#: first. Anything that reuses `coverages[0]` therefore overwrites the BD Pro
+#: window on that table and the free window on the other six. Read the tier.
+_COVERAGE_TIERS_QUERY = """
+query($slug: String!) {
+  allDataset(slug: $slug) {
+    edges { node { tables { edges { node {
+      slug
+      coverages { edges { node {
+        id isClosed
+        datetimeRanges { edges { node { id } } }
+      } } }
+    } } } } }
+  }
+}
+"""
+
+
+def stored_coverages(
+    slug: str, env: str
+) -> dict[str, dict[bool, dict[str, Any]]]:
+    """Each table's Coverages indexed by tier, as {table: {is_closed: {...}}}.
+
+    Each entry carries the coverage `id` and its `range_ids`. A tier with more
+    than one Coverage keeps the first and reports the rest, which is what
+    `prune` deletes -- within the tier, never across it.
+    """
+    try:
+        data = server._gql(_COVERAGE_TIERS_QUERY, {"slug": slug}, env=env)
+    except Exception as exc:
+        # Fail loudly rather than falling back to positional reuse: guessing
+        # here is what flattens the free/pro pair.
+        sys.exit(f"could not read coverage tiers from {env}: {exc}")
+    out: dict[str, dict[bool, dict[str, Any]]] = {}
+    for edge in data.get("allDataset", {}).get("edges", []):
+        for entry in edge["node"]["tables"]["edges"]:
+            table = entry["node"]
+            tiers: dict[bool, dict[str, Any]] = {}
+            for wrapper in table["coverages"]["edges"]:
+                coverage = wrapper["node"]
+                tier = bool(coverage["isClosed"])
+                # GraphQL hands back relay ids (`CoverageNode:<uuid>`);
+                # every mutation wants the bare UUID, and the prefixed form
+                # fails with `nao e um UUID valido`. `_strip_id` is the same
+                # helper the MCP's own read tools use, so there is one
+                # normalisation here, not a second implementation of it.
+                ranges = [
+                    server._strip_id(r["node"]["id"])
+                    for r in coverage["datetimeRanges"]["edges"]
+                ]
+                if tier in tiers:
+                    tiers[tier]["extra_coverage_ids"].append(
+                        server._strip_id(coverage["id"])
+                    )
+                    tiers[tier]["extra_range_ids"].extend(ranges)
+                    continue
+                tiers[tier] = {
+                    "id": server._strip_id(coverage["id"]),
+                    "range_ids": ranges,
+                    "extra_coverage_ids": [],
+                    "extra_range_ids": [],
+                }
+            out[table["slug"]] = tiers
+    return out
+
+
+@dataclass(frozen=True)
+class CoveragePlan:
+    """What to write for one table's coverage. Pure: decided, not issued.
+
+    Kept separate from the writing so it can be checked without a backend --
+    see check_coverage_tiers.py. Every field answers one of the ways the earlier
+    position-based code damaged production.
+    """
+
+    #: id of the free Coverage to update, or None to create it.
+    free_coverage_id: str | None
+    #: id of the free DateTimeRange to update, or None to create it.
+    free_range_id: str | None
+    #: whether to write the declared range at all. False for a table whose
+    #: range the flow recomputes every run and already has one.
+    write_range: bool
+    #: whether to create the pro Coverage (part_bdpro table that lacks one).
+    create_pro_coverage: bool
+    note: str = ""
+
+
+def coverage_plan(
+    table: str, tiers: dict[bool, dict[str, Any]]
+) -> CoveragePlan:
+    """Decide the coverage writes for `table` given what the backend holds.
+
+    Two rules, each protecting a paywall the old code broke:
+
+    * The free Coverage is found by `is_closed`, never by position. On prod
+      `ata_registro_preco_item` lists the PRO coverage first, so `coverages[0]`
+      overwrote the BD Pro window with the free range.
+    * A range the flow owns is seeded once and never restated. The flow
+      recomputes it on every run, day-granular and rolling (free ends
+      2026-03-24, pro starts 2026-03-25); restating the month-granular literal
+      from table_metadata.py would coarsen that boundary and move it forward,
+      releasing the paywalled window for free.
+    """
+    free = tiers.get(False)
+    free_range_id = (
+        free["range_ids"][0] if free and free["range_ids"] else None
+    )
+    pipeline_owned = table in PIPELINE_OWNED_COVERAGE
+    keep = free_range_id is not None and pipeline_owned
+    create_pro = table in PRO_TIER_TABLES and tiers.get(True) is None
+    notes = []
+    if keep:
+        notes.append("range kept (pipeline-owned)")
+    if create_pro:
+        notes.append("pro coverage created")
+    return CoveragePlan(
+        free_coverage_id=free["id"] if free else None,
+        free_range_id=free_range_id,
+        write_range=not keep,
+        create_pro_coverage=create_pro,
+        note=", ".join(notes),
+    )
+
+
 def read_architecture(table: str) -> list[dict[str, str]]:
     import csv
 
@@ -249,32 +389,35 @@ def existing(node: dict[str, Any]) -> dict[str, Any]:
     levels: dict[Any, Any] = {}
     for level in node.get("observation_levels", []):
         levels.setdefault(level.get("entity_id"), level["id"])
+    # Coverages and datetime ranges are deliberately absent: they are read by
+    # tier through `stored_coverages`, because `get_dataset` exposes neither
+    # `is_closed` nor a stable coverage order, and a positional id there is what
+    # flattened the free/pro pair.
     return {
         "observation_levels": levels,
         "cloud_tables": [c["id"] for c in node.get("cloud_tables", [])],
-        "coverages": [c["id"] for c in node.get("coverages", [])],
-        # Every range under every coverage, flattened. create_update_datetime_range
-        # called without an id creates a NEW range each run, which is why the 19
-        # tables registered before this fix carry three identical ranges apiece.
-        "datetime_ranges": [
-            r["id"]
-            for c in node.get("coverages", [])
-            for r in c.get("datetime_ranges", [])
-        ],
         "updates": [u["id"] for u in node.get("updates", [])],
     }
 
 
-def prune(node: dict[str, Any], env: str) -> None:
+def prune(
+    node: dict[str, Any],
+    tiers: dict[bool, dict[str, Any]],
+    env: str,
+) -> None:
     """Delete duplicate child records left by earlier non-idempotent runs.
 
     Duplicate coverages are not merely untidy: they make a later
     create_update_table fail with an error that names `coverages_areas`, a field
     that appears nowhere in the request.
+
+    Coverages and their ranges are deduplicated **within a tier**. Deleting
+    `coverages[1:]` outright, as this did, removes the BD Pro coverage from every
+    part_bdpro table -- it is a legitimate second coverage, not a duplicate --
+    and `assert_coverage_topology` then hard-fails the next pipeline run with
+    `part_bdpro exige Coverage free + pro`. Ranges are likewise per coverage: a
+    flat `ranges[1:]` across both tiers deletes the pro window's only range.
     """
-    # Inert unless the backend grows a delete tool. Kept because duplicate
-    # child records are a real failure mode of a re-run, and this is where the
-    # cleanup belongs when it becomes possible.
     delete = fn("delete_record") if hasattr(server, "delete_record") else None
     if delete is None:
         return
@@ -284,33 +427,25 @@ def prune(node: dict[str, Any], env: str) -> None:
         if key in seen:
             delete(kind="observationlevel", record_id=level["id"], env=env)
         seen.add(key)
-    for kind, records in (
-        ("coverage", node.get("coverages", [])),
-        ("update", node.get("updates", [])),
-    ):
-        for extra in records[1:]:
-            delete(kind=kind, record_id=extra["id"], env=env)
-    # Ranges duplicate independently of their coverage: one coverage reused
-    # across runs still accumulated a range per run before the id was passed.
-    ranges = [
-        r
-        for c in node.get("coverages", [])
-        for r in c.get("datetime_ranges", [])
-    ]
-    for extra in ranges[1:]:
-        delete(kind="datetimerange", record_id=extra["id"], env=env)
+    for extra in node.get("updates", [])[1:]:
+        delete(kind="update", record_id=extra["id"], env=env)
+    for tier in tiers.values():
+        for record_id in tier["extra_coverage_ids"]:
+            delete(kind="coverage", record_id=record_id, env=env)
+        for record_id in tier["extra_range_ids"] + tier["range_ids"][1:]:
+            delete(kind="datetimerange", record_id=record_id, env=env)
 
 
 def main(env: str, status: str, only: list[str] | None = None) -> int:
     """Register the dataset's metadata.
 
-    `only` restricts the run to the named tables. That is not a convenience:
-    prod carries a second, `is_closed=True` Coverage on every part_bdpro table
-    (the BD Pro window), which this script knows nothing about -- it declares one
-    range per table, reuses `coverages[0]`, and prune() deletes `coverages[1:]`.
-    Running unscoped against prod would therefore flatten the free/pro pair and
-    leave assert_coverage_topology failing. Until the free/pro tiers are modelled
-    here, scope prod runs to tables that carry a single coverage.
+    `only` restricts the run to the named tables -- a convenience for re-running
+    one table, not a safety measure. It used to be the latter: prod carries a
+    second, `is_closed=True` Coverage on every part_bdpro table (the BD Pro
+    window) that this script knew nothing about, so an unscoped prod run
+    flattened the free/pro pair and left `assert_coverage_topology` failing. The
+    tiers are now read by `is_closed` and the pipeline-owned ranges left alone,
+    so an unscoped run is safe; `only` no longer carries that weight.
     """
     targets = [t for t in TABLE_ORDER if not only or t in only]
     if only:
@@ -410,14 +545,22 @@ def main(env: str, status: str, only: list[str] | None = None) -> int:
     published_status = lookup("status", "published", env)
     node = fn("get_dataset")(slug=DATASET["slug"], env=env)
     kept_latest = stored_update_latest(DATASET["slug"], env)
+    coverage_tiers = stored_coverages(DATASET["slug"], env)
     table_ids: dict[str, str] = {}
 
     for table in targets:
         meta = META[table]
         spec = DBT[table]
         current = node.get("tables", {}).get(table, {})
-        prune(current, env)
+        tiers = coverage_tiers.get(table, {})
+        prune(current, tiers, env)
         prior = existing(current)
+        coverage_note = ""
+        # prune deleted the extras; what it kept is what the ids below reuse.
+        for tier in tiers.values():
+            tier["extra_coverage_ids"] = []
+            tier["extra_range_ids"] = []
+            tier["range_ids"] = tier["range_ids"][:1]
 
         table_id = fn("create_update_table")(
             id=current.get("id"),
@@ -507,25 +650,41 @@ def main(env: str, status: str, only: list[str] | None = None) -> int:
         )
 
         if meta.coverage:
+            plan = coverage_plan(table, tiers)
+            coverage_note = plan.note
             coverage_id = fn("create_update_coverage")(
-                id=prior["coverages"][0] if prior["coverages"] else None,
+                id=plan.free_coverage_id,
                 table_id=table_id,
                 area_id=area_id,
+                is_closed=False,
                 env=env,
             )["id"]
-            start_year, start_month, end_year, end_month = meta.coverage
-            fn("create_update_datetime_range")(
-                id=prior["datetime_ranges"][0]
-                if prior["datetime_ranges"]
-                else None,
-                coverage_id=coverage_id,
-                start_year=start_year,
-                start_month=start_month,
-                end_year=end_year,
-                end_month=end_month,
-                interval=1,
-                env=env,
-            )
+            if plan.write_range:
+                start_year, start_month, end_year, end_month = meta.coverage
+                fn("create_update_datetime_range")(
+                    id=plan.free_range_id,
+                    coverage_id=coverage_id,
+                    start_year=start_year,
+                    start_month=start_month,
+                    end_year=end_year,
+                    end_month=end_month,
+                    interval=1,
+                    is_closed=False,
+                    env=env,
+                )
+            # A part_bdpro table needs its pro Coverage to EXIST, or the next
+            # pipeline run dies at assert_coverage_topology. It needs no range
+            # here: the flow writes both from the real max date on every run.
+            # An AllFree table must have NO pro coverage, so this never fires
+            # outside PRO_TIER_TABLES.
+            if plan.create_pro_coverage:
+                fn("create_update_coverage")(
+                    id=None,
+                    table_id=table_id,
+                    area_id=area_id,
+                    is_closed=True,
+                    env=env,
+                )
 
         # The table-anchored Update: when WE last refreshed the table, and how
         # often we do. `latest` is a wall clock, per the convention -- the
@@ -548,6 +707,7 @@ def main(env: str, status: str, only: list[str] | None = None) -> int:
             f"  {table:<28} id={table_id[:8]}… columns="
             f"{counts.get('created', '?')}+{counts.get('updated', '?')} "
             f"levels={len(level_ids)}"
+            + (f" coverage={coverage_note}" if coverage_note else "")
         )
 
     # reorder_tables keys on the dataset SLUG, not its id. Skipped on a scoped

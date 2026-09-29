@@ -562,3 +562,50 @@ class constants(Enum):
     ULTIMA_DATA_OBSERVADA = "2026-07-23"
 
     DATASET_ID = "br_mgi_compras_publicas"
+
+
+# --------------------------------------------------------------- refresh tiers
+#: Tables the Prefect flows refresh, by cadence. Declared here rather than in
+#: `flows.py` because two very different consumers need them and must not
+#: disagree: the flows themselves, and the one-shot metadata registration under
+#: `models/br_mgi_compras_publicas/code/`. A table moved between these tuples
+#: changes its paywall tier and who owns its coverage, so a second copy that
+#: drifted would silently mis-register the paywall.
+DAILY_TABLES = (
+    "contratacao",
+    "contratacao_item",
+    "contratacao_item_resultado",
+    "ata_registro_preco",
+    "ata_registro_preco_item",
+    "contrato",
+    "contrato_item",
+)
+WEEKLY_TABLES = (
+    "orgao",
+    "unidade_administrativa",
+    "fornecedor",
+    "catalogo_material",
+    "catalogo_servico",
+)
+#: Not harvested -- derived from the other tables' chunks, so it is rebuilt
+#: after them rather than fetched. It has no TableSpec, and asking
+#: refresh_table for it raises.
+DERIVED_TABLES = ("dicionario",)
+
+#: Business rule: a table refreshed daily or more often paywalls its most recent
+#: window to BD Pro; slower-moving tables stay fully open. Derived from the
+#: cadence rather than listed again, so the two cannot disagree.
+#:
+#: These tables carry TWO Coverages -- free (`is_closed=False`) and pro
+#: (`is_closed=True`). `assert_coverage_topology` hard-fails if either is
+#: missing, and conversely fails an `AllFree` table that has a pro Coverage.
+PRO_TIER_TABLES = frozenset(DAILY_TABLES)
+
+#: Tables whose coverage DateTimeRanges the flow recomputes on every run, via
+#: `register_table_materialization_task`. Those ranges are day-granular and roll
+#: forward, and for the pro tier the free/pro boundary sits between two adjacent
+#: days (free ends 2026-03-24, pro starts 2026-03-25). The static registration
+#: must therefore seed such a range only when it is absent and never restate it:
+#: a month-granular literal from `table_metadata.py` would both coarsen the
+#: boundary and move it, releasing the paywalled window.
+PIPELINE_OWNED_COVERAGE = frozenset(DAILY_TABLES + WEEKLY_TABLES)
