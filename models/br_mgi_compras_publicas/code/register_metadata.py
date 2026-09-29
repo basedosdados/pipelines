@@ -392,6 +392,7 @@ def main(env: str, status: str, only: list[str] | None = None) -> int:
     }
     source_ids: dict[str, str] = {}
     for spec_source in (RAW_SOURCE, COMPRASNET_SOURCE):
+        # pyrefly: ignore [unsupported-operation]
         source_ids[spec_source["url"]] = fn("create_update_raw_data_source")(
             id=existing_sources.get(spec_source["url"]),
             dataset_id=dataset_id,
@@ -414,6 +415,7 @@ def main(env: str, status: str, only: list[str] | None = None) -> int:
             env=env,
         )["id"]
         print(
+            # pyrefly: ignore [bad-index]
             f"raw data source {spec_source['url']} -> {source_ids[spec_source['url']]}"
         )
 
