@@ -13,11 +13,11 @@ Three phases, each separately runnable and each idempotent. Run them in order:
 
 `copy` and `rewrite` default to a dry run; pass --apply to make changes.
 
-    python .github/scripts/migrate_auxiliary_files.py copy   --env prod
-    python .github/scripts/migrate_auxiliary_files.py copy   --env prod --apply
-    python .github/scripts/migrate_auxiliary_files.py rewrite --env prod --token "$TOKEN"
-    python .github/scripts/migrate_auxiliary_files.py rewrite --env prod --token "$TOKEN" --apply
-    python .github/scripts/migrate_auxiliary_files.py verify  --env prod
+    python .github/workflows/scripts/migrate_auxiliary_files.py copy   --env prod
+    python .github/workflows/scripts/migrate_auxiliary_files.py copy   --env prod --apply
+    python .github/workflows/scripts/migrate_auxiliary_files.py rewrite --env prod --token "$TOKEN"
+    python .github/workflows/scripts/migrate_auxiliary_files.py rewrite --env prod --token "$TOKEN" --apply
+    python .github/workflows/scripts/migrate_auxiliary_files.py verify  --env prod
 
 Credentials:
 
@@ -76,6 +76,17 @@ def list_source_objects(client) -> dict[str, list]:
     return found
 
 
+def checksum(blob) -> str | None:
+    """`crc32c` if the object carries one, else `md5_hash`, else None.
+
+    Objects uploaded as composites carry no md5, so comparing md5 alone makes two
+    such objects compare equal whatever their contents. A None here means "cannot
+    be compared" and is never treated as a match: the copy aborts on an
+    ambiguous source and re-copies rather than skipping an unverifiable target.
+    """
+    return blob.crc32c or blob.md5_hash
+
+
 def referenced_paths(backend: str) -> set[str]:
     """Object paths that some table's auxiliaryFilesUrl actually points at.
 
@@ -116,9 +127,26 @@ def copy_objects(backend: str, apply: bool, everything: bool) -> int:
                 print(f"  {path}")
             print("Those links are already broken; copying cannot fix them.")
 
-    conflicts = {
-        p: bs for p, bs in sources.items() if len({b.md5_hash for b in bs}) > 1
+    duplicated = {p: bs for p, bs in sources.items() if len(bs) > 1}
+    unverifiable = {
+        p: bs
+        for p, bs in duplicated.items()
+        if any(checksum(b) is None for b in bs)
     }
+    conflicts = {
+        p: bs
+        for p, bs in duplicated.items()
+        if p not in unverifiable and len({checksum(b) for b in bs}) > 1
+    }
+    if unverifiable:
+        print(
+            f"\nABORT: {len(unverifiable)} path(s) exist in both source buckets "
+            "with no comparable checksum:"
+        )
+        for path, blobs in unverifiable.items():
+            detail = ", ".join(f"{b.bucket.name}={b.size}B" for b in blobs)
+            print(f"  {path}  ({detail})")
+        print("Cannot prove these are the same object — resolve by hand.")
     if conflicts:
         print(
             f"\nABORT: {len(conflicts)} path(s) differ between source buckets:"
@@ -127,13 +155,19 @@ def copy_objects(backend: str, apply: bool, everything: bool) -> int:
             detail = ", ".join(f"{b.bucket.name}={b.size}B" for b in blobs)
             print(f"  {path}  ({detail})")
         print("Resolve by hand before copying — this script will not guess.")
+    if unverifiable or conflicts:
         return 1
 
     copied = skipped = 0
     for path, blobs in sorted(sources.items()):
         source = blobs[-1]
         existing = target.get_blob(path)
-        if existing is not None and existing.md5_hash == source.md5_hash:
+        source_sum = checksum(source)
+        if (
+            existing is not None
+            and source_sum is not None
+            and checksum(existing) == source_sum
+        ):
             skipped += 1
             continue
         verb = "copy" if apply else "would copy"
@@ -362,15 +396,22 @@ def verify(backend: str) -> int:
 
     This is the check the rule asks for: no credentials, no billing project —
     exactly what a site visitor gets.
+
+    The request is a GET, not a HEAD: a 200 on HEAD does not prove the object is
+    anonymously downloadable, and some publisher endpoints refuse HEAD while
+    serving GET. The response is closed without reading the body, so none of the
+    bundles are actually transferred.
     """
     urls = sorted(registered_urls(backend))
     bad = 0
     for url in urls:
-        request = urllib.request.Request(url, method="HEAD")
+        request = urllib.request.Request(url, method="GET")
         try:
-            code = urllib.request.urlopen(request, timeout=60).status
+            with urllib.request.urlopen(request, timeout=60) as response:
+                code = response.status
         except urllib.error.HTTPError as exc:
             code = exc.code
+            exc.close()
         except Exception as exc:
             code = repr(exc)
         ok = code == 200

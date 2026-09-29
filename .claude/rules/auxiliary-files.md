@@ -94,7 +94,7 @@ curl -sI "<auxiliaryFilesUrl>" | head -1
 Never state that auxiliary files are "available at" a URL you have not fetched
 without credentials. A 400 means you used a requester-pays bucket.
 
-`.github/scripts/migrate_auxiliary_files.py verify --env prod` runs this check
+`.github/workflows/scripts/migrate_auxiliary_files.py verify --env prod` runs this check
 across every registered `auxiliaryFilesUrl` at once.
 
 ## Every bundle carries a README
