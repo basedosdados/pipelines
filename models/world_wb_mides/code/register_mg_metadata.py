@@ -56,12 +56,33 @@ import mg_table_glossary as tables
 # pyrefly: ignore [missing-import]  # the databasis MCP server, via sys.path
 import server
 
+# The 43 MG models sit in `models/world_wb_mides/` beside the 9 original
+# multi-state ones. `model_path` is the single definition of that location;
+# `verify_mg_metadata` and `verify_mg_bigquery` import it from here.
+MODELS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
+
+
+def model_path(slug: str) -> str:
+    """Path to a MG model's `.sql`, for reading its `safe_cast` column types."""
+    return os.path.join(MODELS_DIR, f"world_wb_mides__{slug}.sql")
+
+
+# Both set from `--env` in main(). The account id differs per backend (4 on
+# prod, 57 on staging), so it is resolved rather than hardcoded.
 ENV = "staging"
+ACCOUNT = ""
 DATASET_ID = "d3874769-bcbd-4ece-a38a-157ba1021514"  # slug `mides`
 AREA_BR_MG = "6edeb8be-bf72-42c9-bdd7-5810808d2585"
-STATUS_PUBLISHED = "e16221de-ac30-4926-83d3-de219998dab3"
+STATUS = {
+    "published": "e16221de-ac30-4926-83d3-de219998dab3",
+    "under_review": "47208305-325a-4da9-9222-ac6849405b78",
+}
+# Set from `--status` in main(). `mides` is already published on prod, so a new
+# table's own status is what decides whether the site shows it; register
+# `under_review` while the prod BigQuery tables are still materialising, then
+# flip with `--status published --status-only`.
+STATUS_ID = STATUS["published"]
 ENTITY_DAY = "81f0c890-65a6-48a1-9523-af38d3f4af63"
-ACCOUNT = "57"
 GCP_PROJECT = "basedosdados"  # cloud tables name the PROD location, as the
 GCP_DATASET = "world_wb_mides"  # existing MiDES tables already do
 START_YEAR, END_YEAR = 2014, 2026
@@ -314,22 +335,52 @@ def main() -> None:
     parser.add_argument(
         "--table", action="append", help="restrict to this table slug"
     )
+    parser.add_argument(
+        "--env",
+        default="staging",
+        choices=["dev", "staging", "prod"],
+        help="backend to write to (default: staging)",
+    )
+    parser.add_argument(
+        "--status",
+        default="published",
+        choices=sorted(STATUS),
+        help="status to register each table with (default: published)",
+    )
+    parser.add_argument(
+        "--status-only",
+        action="store_true",
+        help="update only the table record (status, names, descriptions); "
+        "skip columns, observation levels, cloud table, coverage and update",
+    )
     args = parser.parse_args()
 
-    mg_dir = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "..", "mg"
-    )
-    slugs = sorted(
-        fn[len("world_wb_mides__") : -len(".sql")]
-        for fn in os.listdir(mg_dir)
-        if fn.endswith(".sql")
-    )
+    global ENV, ACCOUNT, STATUS_ID
+    ENV = args.env
+    STATUS_ID = STATUS[args.status]
+    ACCOUNT = str(server.get_authenticated_account(env=ENV)["id"])
+
+    # The dataset, area, status and entity ids above happen to be identical on
+    # staging and prod, because staging is a clone. Assert the one that anchors
+    # every write rather than trusting that to stay true: writing 43 tables
+    # under another dataset's id would be tedious to undo.
+    live = server.get_dataset("mides", env=ENV)
+    if live.get("id") != DATASET_ID:
+        raise SystemExit(
+            f"`mides` is {live.get('id')} on {ENV}, not {DATASET_ID}. "
+            "Re-resolve the id constants before writing."
+        )
+    print(f"backend={ENV} account={ACCOUNT} dataset={DATASET_ID}")
+
+    # The MG models now sit beside the 9 original multi-state ones in
+    # `models/world_wb_mides/`, so the glossary -- not a directory listing --
+    # is what names this set of 43.
+    slugs = sorted(tables.TABLES)
     if args.table:
         slugs = [s for s in slugs if s in args.table]
 
     for slug in slugs:
-        path = os.path.join(mg_dir, f"world_wb_mides__{slug}.sql")
-        cols = columns_payload(path)
+        cols = columns_payload(model_path(slug))
         levels = OBSERVATION_LEVELS[slug]
         prior = prior_state(slug)
         if args.dry_run:
@@ -348,7 +399,7 @@ def main() -> None:
             description_en=tables.description(slug, "en"),
             description_es=tables.description(slug, "es"),
             dataset_id=DATASET_ID,
-            status_id=STATUS_PUBLISHED,
+            status_id=STATUS_ID,
             published_by_ids=[ACCOUNT],
             data_cleaned_by_ids=[ACCOUNT],
             # NOT slug-idempotent: without the id a second run fails outright
@@ -359,6 +410,10 @@ def main() -> None:
         table_id = (
             table["id"] if isinstance(table, dict) else json.loads(table)["id"]
         )
+
+        if args.status_only:
+            print(f"  {slug:<34} status={args.status}")
+            continue
 
         server.bulk_upsert_columns(
             table_id=table_id,
@@ -474,7 +529,9 @@ def main() -> None:
         )
 
     print(
-        f"\n{len(slugs)} tables processed ({'dry run' if args.dry_run else ENV})"
+        f"\n{len(slugs)} tables processed "
+        f"({'dry run' if args.dry_run else ENV}, status={args.status}"
+        f"{', status only' if args.status_only else ''})"
     )
 
 
