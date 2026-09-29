@@ -12,7 +12,7 @@ mirrors us_bls_cpi. The source poll makes a scheduled run a no-op until CFPB
 publishes a newer year. (Future optimization: append only the new year, which
 would first require migrating the existing typed staging to all-STRING.)
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_cfpb_hmda_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_cfpb_hmda_flow`; the
 dev pool ignores the schedule, the prod pool activates it (deployed paused).
 """
 
