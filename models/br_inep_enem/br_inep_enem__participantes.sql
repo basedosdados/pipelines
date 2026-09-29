@@ -20,7 +20,13 @@ select
     safe_cast(cor_raca as string) cor_raca,
     safe_cast(nacionalidade as string) nacionalidade,
     safe_cast(situacao_conclusao as string) situacao_conclusao,
-    safe_cast(ano_conclusao as string) ano_conclusao,
+    case
+        when safe_cast(ano_conclusao as int64) = 0
+        then null
+        when safe_cast(ano as int64) - safe_cast(ano_conclusao as int64) < 2007
+        then null
+        else safe_cast(ano as int64) - safe_cast(ano_conclusao as int64)
+    end ano_conclusao,
     safe_cast(ensino as string) ensino,
     safe_cast(indicador_treineiro as boolean) indicador_treineiro,
     safe_cast(id_municipio_prova as string) id_municipio_prova,

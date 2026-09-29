@@ -249,7 +249,6 @@ models:
             - cor_raca
             - nacionalidade
             - situacao_conclusao
-            - ano_conclusao
             - ensino
           dictionary_model: ref('br_inep_enem__dicionario')
     columns:
@@ -274,7 +273,10 @@ models:
       - name: situacao_conclusao
         description: Situação em relação ao ensino médio
       - name: ano_conclusao
-        description: Ano de conclusão do ensino médio
+        description: >-
+          Ano em que o participante concluiu o Ensino Médio. Nulo quando ainda não
+          concluiu (ver situacao_conclusao), quando concluiu sem informar o ano ou
+          quando concluiu antes de 2007
       - name: ensino
         description: Tipo de instituição onde o estudante concluiu ou concluirá o
           ensino médio
