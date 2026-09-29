@@ -140,11 +140,18 @@ Two things worth knowing for the next dataset:
   has no human-rights tag. Re-resolve every tag per backend. Prod carries four
   tags; staging five.
 
-The auxiliary-file bundles sit in the **dev** bucket because the prod bucket
-denies `storage.objects.create` to these credentials, and both buckets are
-requester-pays, so the published URLs return HTTP 400 `UserProjectMissing` to
-anonymous callers — the same defect affecting all 84 production tables that use
-the field. They need re-hosting by someone with prod bucket rights.
+The auxiliary-file bundles sit in the **dev** bucket, and their registered URLs
+return HTTP 400 `UserProjectMissing` to anonymous callers because the data-lake
+buckets are requester-pays. #1928 fixed the convention: bundles now belong in
+`gs://basedosdados-public`, which is not requester-pays. These credentials have
+no write access there, so the objects have not moved.
+
+**Leave the registered URLs pointing at `basedosdados-dev`.** The migration in
+`.github/workflows/scripts/migrate_auxiliary_files.py` discovers bundles *from*
+the registered URLs and copies out of `basedosdados-dev`, so repointing them at
+the public bucket before the copy runs would leave `copy` with no source and
+turn a 400 into a permanent 404. Running `copy` then `rewrite` with prod
+credentials moves these three bundles and repoints them.
 
 ## Cleaning output
 

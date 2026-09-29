@@ -24,6 +24,9 @@ from google.cloud import storage  # noqa: E402
 
 GCP_DATASET_ID = "br_mj_sisdepen"
 BILLING_PROJECT = "basedosdados-dev"
+# Bundles are served from basedosdados-public: the data-lake buckets are
+# requester-pays, so anonymous fetches of anything in them return HTTP 400
+# UserProjectMissing. Writing to the public bucket needs prod credentials.
 AUX_DIR = Path.home() / "Downloads" / "br_mj_sisdepen_data" / "aux"
 FORM = "formulario_informacoes_prisionais.pdf"
 FORM_URL = (
@@ -102,7 +105,7 @@ def build(table: str, out_dir: Path) -> Path:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--bucket", default="basedosdados-dev")
+    ap.add_argument("--bucket", default="basedosdados-public")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
     client = storage.Client(project=BILLING_PROJECT)
