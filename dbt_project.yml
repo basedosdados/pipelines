@@ -384,6 +384,9 @@ models:
     br_cgu_servidores_executivo_federal:
       +materialized: table
       +schema: br_cgu_servidores_executivo_federal
+    br_cnj_datajud:
+      +materialized: table
+      +schema: br_cnj_datajud
     br_cnj_improbidade_administrativa:
       +materialized: table
       +schema: br_cnj_improbidade_administrativa
