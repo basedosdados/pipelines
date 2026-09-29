@@ -164,6 +164,7 @@ def main() -> int:
     ]
     for (year, _), group in lc_first.groupby(["year", "election_id"]):
         total = group["votes"].astype(int).sum()
+        # pyrefly: ignore [bad-argument-type]
         residual = EXPECTED_LC_FORMAL[int(year)] - total
         # The group breakdown need not exhaust the formal total: votes cast for
         # ungrouped candidates belong to no ballot group and the source publishes
@@ -171,7 +172,9 @@ def main() -> int:
         # than forced to zero.
         ok &= check(
             f"{year}: group votes leave the measured ungrouped residual",
+            # pyrefly: ignore [bad-argument-type]
             residual == EXPECTED_LC_UNGROUPED[int(year)],
+            # pyrefly: ignore [bad-argument-type]
             f"residual {residual:,} vs expected {EXPECTED_LC_UNGROUPED[int(year)]:,}",
         )
 

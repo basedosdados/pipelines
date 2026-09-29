@@ -17,7 +17,7 @@ zipped and 9.3 GB as a single CSV.
 import argparse
 from pathlib import Path
 
-from common import INPUT, download_snapshot
+from models.us_cfpb_complaints.code.common import INPUT, download_snapshot
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__)

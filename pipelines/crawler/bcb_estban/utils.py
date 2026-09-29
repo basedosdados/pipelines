@@ -202,7 +202,6 @@ def wide_to_long(dataframe: pd.DataFrame) -> pd.DataFrame:
         pd.DataFrame: Long-format dataframe.
     """
     id_vars = [
-        # pyrefly: ignore [unnecessary-type-conversion]
         col
         for col in dataframe.columns
         # pyrefly: ignore [unnecessary-type-conversion]

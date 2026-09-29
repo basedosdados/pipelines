@@ -10,12 +10,16 @@ from __future__ import annotations
 
 import glob
 import os
+from typing import Any
 
 import pandas as pd
 import pyarrow.parquet as pq
 
-# pyrefly: ignore [missing-import]
-from architecture_spec import DIR_ANO, DIR_UF, TABLES
+from models.br_senado_dados_abertos.code.architecture_spec import (
+    DIR_ANO,
+    DIR_UF,
+    TABLES,
+)
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MODELS_DIR = os.path.dirname(HERE)  # models/br_senado_dados_abertos
@@ -126,7 +130,7 @@ def gen_schema_entry(slug: str, spec: dict) -> str:
         opts = col[-1] if isinstance(col[-1], dict) else {}
         out.append(f"      - name: {name}")
         out.append(f"        description: {pt}")
-        tests = []
+        tests: list[tuple[str, tuple[str, str] | None, Any]] = []
         if opts.get("notnull"):
             tests.append(("not_null", None, None))
         d = opts.get("dir")
@@ -135,12 +139,10 @@ def gen_schema_entry(slug: str, spec: dict) -> str:
         exc = opts.get("dir_except")
         if d == DIR_ANO:
             tests.append(
-                # pyrefly: ignore [bad-argument-type]
                 ("rel", ("br_bd_diretorios_data_tempo__ano", "ano.ano"), exc)
             )
         elif d == DIR_UF:
             tests.append(
-                # pyrefly: ignore [bad-argument-type]
                 ("rel", ("br_bd_diretorios_brasil__uf", "sigla"), exc)
             )
         if tests:
@@ -149,7 +151,7 @@ def gen_schema_entry(slug: str, spec: dict) -> str:
                 if kind == "not_null":
                     out.append("          - not_null")
                 else:
-                    # pyrefly: ignore [not-iterable]
+                    assert arg is not None
                     model, field = arg
                     out.append("          - relationships:")
                     out.append(f"              to: ref('{model}')")

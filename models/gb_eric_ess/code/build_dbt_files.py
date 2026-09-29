@@ -21,8 +21,6 @@ from pathlib import Path
 
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
-
-# pyrefly: ignore [untyped-import]
 import yaml
 
 CODE_DIR = Path(__file__).resolve().parent

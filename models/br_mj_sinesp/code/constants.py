@@ -90,6 +90,7 @@ def normalise_name(s) -> str | None:
 
 
 def slugify(s: str) -> str:
+    # pyrefly: ignore [unnecessary-type-conversion]
     s = strip_accents(str(s).strip()).lower()
     s = re.sub(r"[^a-z0-9]+", "_", s)
     return re.sub(r"_+", "_", s).strip("_")

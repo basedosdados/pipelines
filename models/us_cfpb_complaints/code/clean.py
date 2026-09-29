@@ -10,7 +10,13 @@ with the recurring pipeline; this is only the CLI around it.
 import argparse
 from pathlib import Path
 
-from common import COMPLAINT, CSV_NAME, INPUT, OUTPUT, clean_complaint
+from models.us_cfpb_complaints.code.common import (
+    COMPLAINT,
+    CSV_NAME,
+    INPUT,
+    OUTPUT,
+    clean_complaint,
+)
 
 
 def main() -> None:

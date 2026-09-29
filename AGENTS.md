@@ -270,10 +270,10 @@ dbt test --select models/<dataset_id>
 
 [Pyrefly](https://pyrefly.org) is Meta's fast static type checker. The CI `type-check` job (`.github/workflows/ci.yaml`) runs `uv run pyrefly check` over the whole repo on every PR to `main` and **fails the check on any type error** — this is the single most common reason a PR goes red. A local `pyrefly-check` pre-commit hook exists but fires only when `.py` files change and is skipped on the hosted pre-commit.ci runner (its isolated venv can't resolve project deps), so a commit that edited only `pyproject.toml` excludes, or a PR that passed pre-commit.ci, can still fail this job. The CI job is the source of truth. Prevent surprises:
 
-- **Run `uv run pyrefly check` locally before opening a PR (and after any Python change).** Fix everything it reports, or apply one of the two sanctioned patterns below. Do not open the PR red and wait for CI to tell you what you could have seen locally.
+- **Run `uv run pyrefly check` locally before opening a PR (and after any Python change).** Fix everything it reports; suppress only as described below. Do not open the PR red and wait for CI to tell you what you could have seen locally.
 - **Framework code under `pipelines/`** (flows, tasks, utils) is fully type-checked and must pass cleanly — add the missing type hints or `assert`s rather than suppressing.
-- **Standalone one-shot onboarding ETL** (`models/<gcp_dataset_id>/code/*.py` — `clean.py`, `upload.py`, `architecture.py`, etc.) uses bare `sys.path`-relative imports (`import architecture`, `import clean`) that pyrefly cannot resolve from the repo root. By established policy this code is **not** type-checked: add its directory to `project-excludes` under `[tool.pyrefly]` in `pyproject.toml`, next to the existing entries, with a one-line comment noting the reason. The pure, reusable transform belongs in `pipelines/datasets/<ds>/utils.py` (which *is* checked), not in the excluded onboarding script.
-- Reach for inline suppressions (`# pyrefly: ignore`) only for a genuine false positive on a single line, and comment why. Prefer fixing or excluding over scattering suppressions.
+- **One-shot onboarding scripts** (`models/<gcp_dataset_id>/code/*.py`) are type-checked too. Import sibling modules by absolute path (`from models.<ds>.code.schema import ...`, see "Onboarding scripts" under Dataset Onboarding) so pyrefly can resolve them — a bare `sys.path`-relative import (`import schema`) is a `missing-import` error. **Do not add directories to `project-excludes`**: an excluded path also loses its diagnostics in the editor (pyrefly LSP). The reusable transform still belongs in `pipelines/datasets/<ds>/utils.py`, not in the onboarding script.
+- Reach for inline suppressions (`# pyrefly: ignore [<code>]`) only when the error cannot be fixed in the code — a gap in a third-party stub (`pyarrow.compute`, pandas-stubs), an intentional monkeypatch, a package that is not installed — scoped to one line and one error code. Prefer fixing over suppressing.
 
 ## Dataset Onboarding
 
@@ -289,6 +289,28 @@ Notes: <anything unusual>
 ```
 
 The agent runs an 11-step sequence: context → architecture → download → clean → upload → dbt → validate → discover → metadata (dev) → [human approval] → metadata (prod) → PR.
+
+### Onboarding scripts (`models/<gcp_dataset_id>/code/`)
+
+The one-shot scripts that download, clean and upload a dataset are Python modules like any other, and one script often imports another (`clean.py` importing `schema.py`). Two rules keep that safe:
+
+- **Importing a script must never run it.** Python executes a module's top level on every import, so a script whose body sits at module level runs again — download, `bd.read_sql`, `tb.create(..., if_table_exists="replace")` — the moment another file imports it to reuse a function. Keep only imports, constants, functions and classes at the top level, put the work in a `main()` function, and call it from the guard:
+
+  ```python
+  def main() -> None:
+      """Baixa, limpa e sobe a tabela <table_slug>."""
+      df = download()
+      ...
+
+
+  if __name__ == "__main__":
+      main()
+  ```
+
+  Parse CLI arguments inside `main()`, not at import time. Do not leave notebook leftovers (`df.head()`, `df.info()`, bare `.unique()`) at module level — they compute and print nothing outside a notebook.
+- **Import sibling modules by absolute path**, not through `sys.path.insert(0, <script dir>)`: `from models.<gcp_dataset_id>.code.schema import COLUMNS`. Add an empty `__init__.py` to `code/` (and to any subdirectory holding imported modules). The project is installed in editable mode, so `models` is importable under `uv run` from any directory; `.dbtignore` already excludes `**.py`, so the `__init__.py` files do not reach dbt.
+
+Many existing scripts predate these rules (module-level bodies, `sys.path` imports). Nothing imports them today; convert one to `main()` when you touch it or before anything imports it.
 
 ### Multi-agent architecture
 

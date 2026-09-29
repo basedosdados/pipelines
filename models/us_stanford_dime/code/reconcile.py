@@ -22,14 +22,11 @@ Costs one scan of a single column.
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
 from google.cloud import bigquery
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import clean
-import constants
+from models.us_stanford_dime.code import clean, constants
 
 PROJECT = "basedosdados-dev"
 STATE = Path(__file__).resolve().parent / "backfill_state.json"

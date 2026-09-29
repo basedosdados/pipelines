@@ -5,10 +5,15 @@ Produces TWO output tables per year.
 """
 
 import pandas as pd
-from config import INPUT_DIR, OUTPUT_PYTHON
-from utils.clean_election_type import clean_election_type_series
-from utils.clean_string import clean_string_series
-from utils.helpers import (
+
+from models.br_tse_eleicoes.code.python.config import INPUT_DIR, OUTPUT_PYTHON
+from models.br_tse_eleicoes.code.python.utils.clean_election_type import (
+    clean_election_type_series,
+)
+from models.br_tse_eleicoes.code.python.utils.clean_string import (
+    clean_string_series,
+)
+from models.br_tse_eleicoes.code.python.utils.helpers import (
     merge_municipio,
     parse_date_br,
     read_raw_csv,
@@ -69,7 +74,7 @@ PART_COLS = [
 
 
 def _load_mun_uf() -> pd.DataFrame:
-    from config import MUNICIPIO_DIR_CSV
+    from models.br_tse_eleicoes.code.python.config import MUNICIPIO_DIR_CSV
 
     return pd.read_csv(MUNICIPIO_DIR_CSV, encoding="utf-8", dtype=str)[
         ["id_municipio_tse", "sigla_uf"]
@@ -203,6 +208,7 @@ def finalize_partido(
             "votos"
         ]
         .sum()
+        # pyrefly: ignore [no-matching-overload]
         .rename(columns={"votos": "votos_nominais"})
     )
     leg_cols = [c for c in _GROUP_COLS if c in legenda.columns] + [

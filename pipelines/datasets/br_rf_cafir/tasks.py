@@ -100,7 +100,6 @@ def decide_files_to_download(
             raise ValueError(
                 f"Não há arquivos disponíveis para a data {reference_date}. Verifique o FTP da Receita Federal."
             )
-        # pyrefly: ignore [bad-return]
         return filtered_df
 
 

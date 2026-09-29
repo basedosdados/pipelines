@@ -19,7 +19,8 @@ import openpyxl
 import pyarrow as pa
 import pyarrow.parquet as pq
 import requests
-from constants import (
+
+from models.br_mj_sinesp.code.constants import (
     ARCH_DIR,
     BASE_URL,
     FIRST_YEAR,
@@ -130,6 +131,7 @@ def load_municipio_directory(path: str | None = None) -> tuple[dict, dict]:
             uf, mid = row["sigla_uf"], row["id_municipio"]
             if mid in NON_OPERATING_MUNICIPIOS:
                 continue
+            # pyrefly: ignore [unsupported-operation]
             by_name[(uf, normalise_name(row["nome"]))] = mid
             per_uf[uf].add(mid)
     return by_name, dict(per_uf)

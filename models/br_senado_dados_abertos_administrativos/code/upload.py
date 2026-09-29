@@ -140,6 +140,7 @@ def upload_table(slug: str) -> int:
     )
     try:
         got = int(
+            # pyrefly: ignore [bad-argument-type]
             bd.read_sql(
                 query, billing_project_id=BILLING_PROJECT, from_file=True
             ).iloc[0, 0]

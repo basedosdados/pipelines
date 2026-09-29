@@ -17,8 +17,14 @@ rewrites it.
 import csv
 import json
 
-from common import ARCH_DIR, CODE_DIR, DATASET_ID, OUTPUT, REPO_ROOT
-from tables import TABLES
+from models.world_oecd_education.code.common import (
+    ARCH_DIR,
+    CODE_DIR,
+    DATASET_ID,
+    OUTPUT,
+    REPO_ROOT,
+)
+from models.world_oecd_education.code.tables import TABLES
 
 MODELS = REPO_ROOT / "models" / DATASET_ID
 
@@ -60,7 +66,7 @@ def dimensions(slug, spec):
     """The cube's dimension columns -- the part of the key that is not the year."""
     import xml.etree.ElementTree as ET
 
-    from common import STRUCTURE
+    from models.world_oecd_education.code.common import STRUCTURE
 
     s = "{http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure}"
     root = ET.parse(
@@ -69,7 +75,11 @@ def dimensions(slug, spec):
     dsd = next(root.iter(f"{s}DataStructure"))
     dim_list = dsd.find(f"{s}DataStructureComponents/{s}DimensionList")
     sdmx_dims = {
-        d.get("id") for d in dim_list.iter(f"{s}Dimension") if d.get("id")
+        # pyrefly: ignore [missing-attribute]
+        d.get("id")
+        # pyrefly: ignore [missing-attribute]
+        for d in dim_list.iter(f"{s}Dimension")
+        if d.get("id")
     }
     return [r["name"] for r in arch(slug) if r["original_name"] in sdmx_dims]
 

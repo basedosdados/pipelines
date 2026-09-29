@@ -331,6 +331,7 @@ elections = tables["election"]
 check("events catalogued", len(elections), 34)
 check(
     "federal elections catalogued",
+    # pyrefly: ignore [unnecessary-type-conversion]
     int((elections["election_type"] == "federal_election").sum()),
     8,
 )

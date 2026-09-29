@@ -30,9 +30,11 @@ import sys
 sys.path.insert(
     0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
 )
+# pyrefly: ignore [missing-import]
 import server
-from common import ARCH_DIR, CODE_DIR, DATASET_ID
-from tables import TABLES
+
+from models.world_oecd_socx.code.common import ARCH_DIR, CODE_DIR, DATASET_ID
+from models.world_oecd_socx.code.tables import TABLES
 
 SLUG = "socx"
 GCP_PROJECT = {
@@ -368,10 +370,14 @@ def main():
             )
             payload = dicionario_columns()
         else:
+            # pyrefly: ignore [unsupported-operation]
             names = (spec["name_pt"], spec["name_en"], spec["name_es"])
             descs = (
+                # pyrefly: ignore [unsupported-operation]
                 spec["description_pt"],
+                # pyrefly: ignore [unsupported-operation]
                 spec["description_en"],
+                # pyrefly: ignore [unsupported-operation]
                 spec["description_es"],
             )
             payload = columns_payload(slug)

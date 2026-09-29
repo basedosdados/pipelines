@@ -10,15 +10,9 @@ registration time. Both artifacts come from the same source and cannot drift.
 """
 
 import json
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-# _specs.py is a sibling module reached through the sys.path insert above,
-# which pyrefly cannot follow when it checks the project as a whole.
-# pyrefly: ignore [missing-import]
-from _specs import TABLES
+from models.br_cgu_despesas_publicas.code._specs import TABLES
 
 OUT_DIR = Path(__file__).resolve().parent / "columns_json"
 

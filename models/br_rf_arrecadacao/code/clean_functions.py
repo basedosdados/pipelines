@@ -111,7 +111,7 @@ def get_region_letters(region_names):
 def to_partitions(
     data: pd.DataFrame,
     partition_columns: list[str],
-    savepath: str,
+    savepath: str | Path,
     file_type: str = "csv",
 ):
     """Save data in to hive patitions schema, given a dataframe and a list of partition columns.
@@ -136,7 +136,6 @@ def to_partitions(
 
     # pyrefly: ignore [implicit-import]
     if isinstance(data, (pd.core.frame.DataFrame)):
-        # pyrefly: ignore [bad-assignment]
         savepath = Path(savepath)
         # create unique combinations between partition columns
         unique_combinations = (
@@ -162,7 +161,6 @@ def to_partitions(
             df_filter = df_filter.drop(columns=partition_columns)
 
             # create folder tree
-            # pyrefly: ignore [unsupported-operation]
             filter_save_path = Path(savepath / "/".join(patitions_values))
             filter_save_path.mkdir(parents=True, exist_ok=True)
 

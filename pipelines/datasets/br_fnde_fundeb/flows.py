@@ -59,7 +59,6 @@ def br_fnde_fundeb(
     Encerra sem baixar nada quando a plataforma não regravou o arquivo desde a
     última materialização.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=POLL_TABLE
     )

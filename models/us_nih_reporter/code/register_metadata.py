@@ -15,7 +15,7 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from common import import_mcp_server
+from models.us_nih_reporter.code.common import import_mcp_server
 
 server = import_mcp_server()
 
@@ -775,6 +775,7 @@ def main() -> int:
 
     # deferred raw source links --------------------------------------------
     for spec in RAW_SOURCES:
+        # pyrefly: ignore [not-iterable]
         for table in spec["tables"]:
             server.create_update_table(
                 id=table_ids[table],

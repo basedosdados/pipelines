@@ -81,7 +81,6 @@ def us_epu_gpr_flow(
             coverage. Has no effect when ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new month.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="index_monthly"
     )

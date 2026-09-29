@@ -26,7 +26,8 @@ import numpy as np
 import pandas as pd
 import requests
 import urllib3.exceptions
-from constants import (  # type: ignore
+
+from models.br_inep_censo_escolar.code.constants import (  # type: ignore
     ANO,
     CHAVE,
     DELIMITER,

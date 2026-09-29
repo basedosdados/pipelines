@@ -26,8 +26,8 @@ import pyarrow.parquet as pq
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-import utils
-from constants import (
+import models.br_prf_acidentes.code.utils as utils
+from models.br_prf_acidentes.code.constants import (
     INPUT_DIR,
     OUTPUT_DIR,
     SHAPES,

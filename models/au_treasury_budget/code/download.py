@@ -29,7 +29,7 @@ import urllib.error
 import urllib.request
 import zipfile
 
-import releases
+from models.au_treasury_budget.code import releases
 
 DATA_ROOT = pathlib.Path(
     os.environ.get(

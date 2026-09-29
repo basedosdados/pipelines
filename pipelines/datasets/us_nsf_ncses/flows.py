@@ -103,7 +103,6 @@ def us_nsf_ncses_flow(
             ``env="prod"`` regardless of which pool the run is on.
         force_run: Materialize even when neither source poll reports a new year.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="ncses"
     )
