@@ -60,7 +60,14 @@ MESES_PT = {
 # --------------------------------------------------------------------------
 # normalisation helpers
 # --------------------------------------------------------------------------
-def strip_accents(s: str) -> str:
+def strip_accents(s: object) -> str:
+    """Unaccent a value, stringifying it first.
+
+    The parameter is deliberately ``object``: the espécie label reaching
+    :func:`norm_token` comes straight out of a spreadsheet row dict and is None
+    whenever the cell was empty, so the ``str()`` is a runtime guard rather
+    than a redundant conversion.
+    """
     return (
         unicodedata.normalize("NFKD", str(s))
         .encode("ascii", "ignore")
@@ -112,7 +119,7 @@ def especie_label_index() -> dict[str, int]:
 
 
 def resolve_especie_code(
-    label: str, index: dict[str, int] | None = None
+    label: object, index: dict[str, int] | None = None
 ) -> int | None:
     """Resolve an espécie label to its code, or None if it stays ambiguous.
 
@@ -127,6 +134,10 @@ def resolve_especie_code(
        accepted, which is what keeps this from guessing;
     3. otherwise None, and the caller raises rather than writing a null code.
 
+    ``label`` is typed ``object`` because it arrives from a spreadsheet row and
+    is an int whenever the cell held a bare number, so it is stringified before
+    anything else touches it.
+
     Pass 2 exists so that a newly abbreviated label does not require a new alias
     entry for every spelling the source invents.
     """
@@ -135,11 +146,11 @@ def resolve_especie_code(
     # Some rows carry the code in the label column instead of the label.
     if text.isdigit() and int(text) in constants.ESPECIE.value:
         return int(text)
-    for key in (expand_abbrev(label), norm_token(label)):
+    for key in (expand_abbrev(text), norm_token(text)):
         if key in index:
             return index[key]
 
-    words = expand_abbrev(label).split()
+    words = expand_abbrev(text).split()
     if not words:
         return None
     hits = set()
@@ -375,6 +386,17 @@ CONCEDIDO_FIELDS = [
 ]
 
 
+def _cell_text(value: object) -> str:
+    """Render one spreadsheet cell as text.
+
+    openpyxl types a cell as the union of every literal it can hold, so a
+    header row read with ``values_only=True`` is not a ``list[str]`` until it
+    is made one. An empty cell becomes "", which is what every caller already
+    coerced it to inline.
+    """
+    return "" if value is None else str(value)
+
+
 def _col(header: list[str], *wanted: str) -> int | None:
     """Locate a column by normalised name, tolerating the source's drift."""
     norm = [norm_token(h or "") for h in header]
@@ -476,6 +498,7 @@ def iter_concedido_csv(path: Path, chunk: int = 500_000):
 def iter_concedido_xlsx(path: Path, chunk: int = 500_000):
     """Stream a V3 workbook. Row 0 is a title banner, row 1 the real header,
     and ``Espécie``/``CID``/``Despacho`` each occupy a code+label column pair."""
+    # pyrefly: ignore [untyped-import]
     import openpyxl
 
     wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
@@ -488,9 +511,9 @@ def iter_concedido_xlsx(path: Path, chunk: int = 500_000):
     # as a candidate header has to be replayed as data, or it is silently lost.
     pending: list[tuple] = []
     if sum(1 for c in first if c) > 3:
-        header = list(first)
+        header = [_cell_text(c) for c in first]
     else:
-        header = list(next(rows))
+        header = [_cell_text(c) for c in next(rows)]
     i_comp = _col(header, "Competência concessão")
     i_esp = _col(header, "Espécie")
     i_nasc = _col(header, "Dt Nascimento", "Data Nascimento")
@@ -504,7 +527,7 @@ def iter_concedido_xlsx(path: Path, chunk: int = 500_000):
     i_esp_lab = (
         i_esp + 1
         if i_esp + 1 < len(header)
-        and norm_token(header[i_esp + 1] or "") == norm_token("Espécie")
+        and norm_token(header[i_esp + 1]) == norm_token("Espécie")
         else i_esp
     )
     buf = []
@@ -638,10 +661,11 @@ def aggregate_concedido(
                         continue
                     unmapped.add(str(lab))
                     continue
-            code = int(code)
 
             uf, nome, gex = parse_mun_resid_gex(rec["mun_resid"])
-            if uf is None:
+            # A blank name yields (uf, None, gex), and looking that up would
+            # hand norm_token a None. Treat it as no município, as with no UF.
+            if uf is None or nome is None:
                 diag["sem_municipio"] += 1
                 id_mun = None
             else:
@@ -861,7 +885,7 @@ def write_partitioned(
         out[col] = series
 
     for key, group in out.groupby(partition_cols, sort=True, dropna=False):
-        parts = key if isinstance(key, tuple) else (key,)
+        parts: tuple = key if isinstance(key, tuple) else (key,)
         pdir = tdir
         for name, value in zip(partition_cols, parts, strict=True):
             pdir = pdir / f"{name}={int(value)}"
