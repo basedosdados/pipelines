@@ -570,6 +570,9 @@ models:
     br_mj_sinesp:
       +materialized: table
       +schema: br_mj_sinesp
+    br_mj_sisdepen:
+      +materialized: table
+      +schema: br_mj_sisdepen
     br_mma_sinpatinhas:
       +materialized: table
       +schema: br_mma_sinpatinhas
