@@ -26,7 +26,9 @@ DEFAULT_WORKERS = 6
 _spec = importlib.util.spec_from_file_location(
     "piaac_constants", Path(__file__).with_name("constants.py")
 )
+# pyrefly: ignore [bad-argument-type]
 C = importlib.util.module_from_spec(_spec)
+# pyrefly: ignore [missing-attribute]
 _spec.loader.exec_module(C)
 
 

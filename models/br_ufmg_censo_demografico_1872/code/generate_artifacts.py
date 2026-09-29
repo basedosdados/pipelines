@@ -18,14 +18,19 @@ from __future__ import annotations
 
 import csv
 import json
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-from descriptions import KEY_COLUMNS, measure_description
-from spec import ANO, LEVELS, TABLES, table_slug
-from tables import (
+from models.br_ufmg_censo_demografico_1872.code.descriptions import (
+    KEY_COLUMNS,
+    measure_description,
+)
+from models.br_ufmg_censo_demografico_1872.code.spec import (
+    ANO,
+    LEVELS,
+    TABLES,
+    table_slug,
+)
+from models.br_ufmg_censo_demografico_1872.code.tables import (
     AUX_TITLES,
     AUXILIARES,
     DATASET_ID,
@@ -308,7 +313,9 @@ def main() -> None:
             )
 
     for e in entries:
+        # pyrefly: ignore [bad-argument-type]
         write_architecture(e["slug"], e["cols"])
+        # pyrefly: ignore [bad-argument-type]
         write_model(e["slug"], e["cols"])
     write_schema(entries)
 
@@ -324,18 +331,18 @@ def main() -> None:
                     description_es=e["es"],
                     columns=[
                         dict(
-                            name=c["name"],
-                            bigquery_type=c["bq"],
-                            description_pt=c["pt"],
-                            description_en=c["en"],
-                            description_es=c["es"],
-                            covered_by_dictionary=bool(c.get("dictionary")),
-                            measurement_unit=c.get("unit", ""),
-                            is_partition=c["name"] == "ano",
-                            directory_column=DIRECTORY.get(c["name"], ""),
-                            observations_pt=_obs(c, 0),
-                            observations_en=_obs(c, 1),
-                            observations_es=_obs(c, 2),
+                            name=c["name"],  # pyrefly: ignore [bad-index]
+                            bigquery_type=c["bq"],  # pyrefly: ignore [bad-index]
+                            description_pt=c["pt"],  # pyrefly: ignore [bad-index]
+                            description_en=c["en"],  # pyrefly: ignore [bad-index]
+                            description_es=c["es"],  # pyrefly: ignore [bad-index]
+                            covered_by_dictionary=bool(c.get("dictionary")),  # pyrefly: ignore [missing-attribute]
+                            measurement_unit=c.get("unit", ""),  # pyrefly: ignore [missing-attribute]
+                            is_partition=c["name"] == "ano",  # pyrefly: ignore [bad-index]
+                            directory_column=DIRECTORY.get(c["name"], ""),  # pyrefly: ignore [bad-index]
+                            observations_pt=_obs(c, 0),  # pyrefly: ignore [bad-argument-type]
+                            observations_en=_obs(c, 1),  # pyrefly: ignore [bad-argument-type]
+                            observations_es=_obs(c, 2),  # pyrefly: ignore [bad-argument-type]
                         )
                         for c in e["cols"]
                     ],

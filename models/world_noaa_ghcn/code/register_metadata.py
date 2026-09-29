@@ -37,6 +37,7 @@ if not Path(_MCP_PATH).is_dir():
     )
 sys.path.insert(0, _MCP_PATH)
 
+# pyrefly: ignore [missing-import]
 import server  # noqa: E402
 
 ARCH = Path(__file__).parent / "architecture"

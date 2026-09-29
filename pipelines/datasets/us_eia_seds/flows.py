@@ -64,7 +64,6 @@ def us_eia_seds_flow(
         force_run: Materialize even when the source poll reports nothing new —
             needed for a release that restates history without adding a year.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )

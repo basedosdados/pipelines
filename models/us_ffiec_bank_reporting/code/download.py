@@ -29,7 +29,9 @@ import zipfile
 from pathlib import Path
 
 import requests
-from common import (
+from curl_cffi import requests as cffi_requests
+
+from models.us_ffiec_bank_reporting.code.common import (
     BHC_CHICAGOFED_LAST_YEAR,
     BHC_FIRST,
     BHC_LAST,
@@ -52,7 +54,6 @@ from common import (
     quarters,
     yyyymmdd,
 )
-from curl_cffi import requests as cffi_requests
 
 HIDDEN_RE = re.compile(
     r'<input type="hidden" name="([^"]+)"[^>]*value="([^"]*)"'

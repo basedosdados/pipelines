@@ -33,14 +33,18 @@ if not (_MCP_PATH / "server.py").exists():
         "Set BD_MCP_PATH to the directory containing server.py."
     )
 sys.path.insert(0, str(_MCP_PATH))
+# pyrefly: ignore [missing-import]
 import server  # noqa: E402
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import constants as c  # noqa: E402
-import dataset_meta as meta  # noqa: E402
-import gen_metadata_payloads  # noqa: E402
-import layout  # noqa: E402
-from table_descriptions import TABLE_DESCRIPTIONS  # noqa: E402
+from models.us_cms_open_payments.code import constants as c  # noqa: E402
+from models.us_cms_open_payments.code import dataset_meta as meta  # noqa: E402
+from models.us_cms_open_payments.code import (  # noqa: E402
+    gen_metadata_payloads,
+    layout,
+)
+from models.us_cms_open_payments.code.table_descriptions import (  # noqa: E402
+    TABLE_DESCRIPTIONS,
+)
 
 GCP_PROJECT = {
     "staging": "basedosdados-dev",
@@ -87,6 +91,7 @@ def _with_retries(call, attempts: int = 5, delay: float = 5.0):
                     f"    transient failure ({type(error).__name__}), retry {attempt + 1}/{attempts}"
                 )
                 time.sleep(delay * (attempt + 1))
+        # pyrefly: ignore [bad-raise]
         raise last
 
     return wrapped

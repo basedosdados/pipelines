@@ -10,12 +10,9 @@ Usage: .venv/bin/python models/af_afrobarometer_survey/code/make_metadata_spec.p
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]
-from common import ROUNDS
+from models.af_afrobarometer_survey.code.common import ROUNDS
 
 CODE = Path(__file__).resolve().parent
 prof = json.loads((CODE / "profile_cache.json").read_text())

@@ -145,7 +145,6 @@ def _materialize(
     Returns:
         None.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=anchor_table
     )

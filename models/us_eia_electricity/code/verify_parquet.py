@@ -40,7 +40,13 @@ from pathlib import Path
 
 import pyarrow.dataset as ds
 import pyarrow.parquet as pq
-from common import DATA_TABLES, OUTPUT, assert_all_string, load_cols
+
+from models.us_eia_electricity.code.common import (
+    DATA_TABLES,
+    OUTPUT,
+    assert_all_string,
+    load_cols,
+)
 
 CODE_DIR = Path(__file__).resolve().parent
 

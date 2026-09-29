@@ -20,14 +20,15 @@ O porquê das decisões está no README do conjunto.
 from __future__ import annotations
 
 import math
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Mapping
 from pathlib import Path
 
 import basedosdados as bd
 import pandas as pd
 import requests
 import urllib3.exceptions
-from constants import (  # type: ignore
+
+from models.br_inep_sinopse_estatistica_educacao_basica.code.constants import (
     BLOCOS_DOCENTE_LOCALIZACAO,
     BLOCOS_ETAPA_ENSINO_SERIE,
     BLOCOS_LOCALIZACAO,
@@ -425,7 +426,7 @@ def rename_by_sheet(
 
 def read_and_rename(
     workbook: Path,
-    sheets: dict[str, str | tuple[str, int]],
+    sheets: Mapping[str, str | tuple[str, int]],
     renames: dict[str, str] | dict[str, dict[str, str]],
     *,
     skiprows: int = 8,

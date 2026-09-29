@@ -79,7 +79,6 @@ def us_ssa_beneficiaries_flow(
     # repo calls without awaiting, so it silently does nothing. That is tracked
     # repo-wide in #2097 (issue #1940); fixing it here alone would duplicate
     # that PR and leave this flow inconsistent with the other 99.
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=_POLL_TABLE
     )

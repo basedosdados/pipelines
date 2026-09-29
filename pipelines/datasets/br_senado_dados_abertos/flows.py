@@ -117,7 +117,6 @@ def br_senado_dados_abertos_flow(
             no source-poll gate, so it does not change behavior.
     """
     _ = force_run
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="votacao"
     )

@@ -65,6 +65,7 @@ def _patched_bucket(
         self,
         bucket_name,
         user_project=BILLING_PROJECT,
+        # pyrefly: ignore [unexpected-keyword]
         generation=generation,
     )
 

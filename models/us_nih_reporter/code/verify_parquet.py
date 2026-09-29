@@ -34,7 +34,13 @@ from pathlib import Path
 
 import numpy as np
 import pyarrow.parquet as pq
-from common import ALL_TABLES, OUTPUT, assert_all_string, load_cols
+
+from models.us_nih_reporter.code.common import (
+    ALL_TABLES,
+    OUTPUT,
+    assert_all_string,
+    load_cols,
+)
 
 KEYS = {
     "project": ["year", "application_id"],

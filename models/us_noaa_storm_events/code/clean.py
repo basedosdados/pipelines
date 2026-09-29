@@ -10,7 +10,7 @@ Run: uv run python models/us_noaa_storm_events/code/clean.py
 
 import json
 
-from common import (
+from models.us_noaa_storm_events.code.common import (
     INPUT,
     OUTPUT,
     assert_all_string,

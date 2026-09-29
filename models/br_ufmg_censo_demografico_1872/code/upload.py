@@ -24,11 +24,17 @@ import google.cloud.storage as gcs  # noqa: E402
 import pyarrow.parquet as pq  # noqa: E402
 from google.cloud import bigquery  # noqa: E402
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-from spec import LEVELS, table_slug  # noqa: E402
-from spec import TABLES as SOURCE_TABLES  # noqa: E402
-from tables import AUXILIARES, DATASET_ID  # noqa: E402
+from models.br_ufmg_censo_demografico_1872.code.spec import (  # noqa: E402
+    LEVELS,
+    table_slug,
+)
+from models.br_ufmg_censo_demografico_1872.code.spec import (  # noqa: E402
+    TABLES as SOURCE_TABLES,
+)
+from models.br_ufmg_censo_demografico_1872.code.tables import (  # noqa: E402
+    AUXILIARES,
+    DATASET_ID,
+)
 
 _argv = sys.argv[1:]
 if "--env" in _argv:

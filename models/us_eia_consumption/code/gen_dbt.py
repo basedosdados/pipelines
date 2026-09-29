@@ -14,7 +14,13 @@ import subprocess
 from pathlib import Path
 
 import pyarrow.dataset as pads
-from common import DATA_TABLES, OUTPUT, REPO_ROOT, load_cols
+
+from models.us_eia_consumption.code.common import (
+    DATA_TABLES,
+    OUTPUT,
+    REPO_ROOT,
+    load_cols,
+)
 
 MODELS = REPO_ROOT / "models" / "us_eia_consumption"
 DATASET = "us_eia_consumption"

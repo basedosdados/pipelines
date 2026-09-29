@@ -15,7 +15,7 @@ import sys
 import zipfile
 from pathlib import Path
 
-from common import INPUT, LEGACY_YEARS, MODERN_YEARS
+from models.us_cfpb_hmda.code.common import INPUT, LEGACY_YEARS, MODERN_YEARS
 
 MODERN_URL = "https://ffiec.cfpb.gov/v2/data-browser-api/view/nationwide/csv?years={year}"
 LEGACY_URL = (

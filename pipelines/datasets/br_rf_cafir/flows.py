@@ -55,7 +55,6 @@ def br_rf_cafir__imoveis_rurais(
     force_run: bool = False,
     data_referencia: str | None = None,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -100,7 +99,6 @@ def br_rf_cafir__imoveis_rurais(
         df_metadata=df_metadata, reference_date=reference_date
     )
 
-    # pyrefly: ignore [no-matching-overload]
     file_records = extract_file_records(df_metadata=filtered_df)
     file_names = [record["nome_arquivo"] for record in file_records]
     reference_dates = [record["data_referencia"] for record in file_records]

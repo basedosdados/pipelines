@@ -11,8 +11,6 @@ import sys
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
-
-# pyrefly: ignore [untyped-import]
 import yaml
 
 HERE = pathlib.Path(__file__).resolve().parent

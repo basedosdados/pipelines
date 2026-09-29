@@ -132,7 +132,6 @@ def _run(
     A prod run goes straight to prod (no redundant dev materialization, whose
     bytes buy no signal — prod runs the same models and tests seconds later).
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=_ANCHOR_TABLE
     )
