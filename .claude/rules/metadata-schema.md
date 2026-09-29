@@ -113,7 +113,7 @@ Resolve tags **per backend**: ids differ across dev/staging/prod, so re-scan (an
 | `status_id` | string | `status.published` — tables are gated by the dataset's `under_review` status, so they may stay published (see "Dataset status lifecycle") |
 | `published_by_ids` | list | Authenticated account ID |
 | `data_cleaned_by_ids` | list | Authenticated account ID |
-| `auxiliary_files_url` | string | Public URL of the table's auxiliary-file bundle. See `auxiliary-files` for what belongs in one, the GCS path convention, and the requester-pays caveat that makes these links resolve to HTTP 400 for anonymous users today |
+| `auxiliary_files_url` | string | Public URL of the table's auxiliary-file bundle. See `auxiliary-files` for what belongs in one and the GCS path convention. Must be served from `gs://basedosdados-public`; the data-lake buckets are requester-pays and return HTTP 400 to anonymous visitors |
 | `id` | string | Pass when updating |
 
 Do **not** pass `raw_data_source_ids` in the initial creation — link them in the deferred update (step 15).
