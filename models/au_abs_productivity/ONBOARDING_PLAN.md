@@ -172,8 +172,32 @@ internal `indicator_id` FKs.
       description languages, `state_id` and `year` directory links, `year`
       partition and unit, and observation levels on all four identifying columns.
 - [x] 9b. Published on staging (`under_review` → `published`)
-- [ ] 10–13. Prod metadata → PR → merge → table-approve → verify → publish
+- [x] 10. Prod metadata — dataset `productivity`
+      (`07e001fa-4964-4d29-891f-0156e9b4a657`, `under_review`), 1 raw data source,
+      3 tables, 24 columns, observation levels, cloud tables pointing at
+      **`basedosdados`**, coverage, datetime ranges, 3 table Updates + 1 source
+      Update, table and column order set. Audited via GraphQL: 0 mismatches.
+      **Prod tag slugs are English** and are not always the same record as the
+      Portuguese variant — `investment` is `4b85b1aa…` on prod while staging's
+      `investimento` is `43c55d08…`. `entity.series` also differs between the two
+      backends (`e099d98e…` prod, `3bfd7b42…` staging), so every reference ID was
+      re-resolved rather than copied.
+- [x] 11. PR [#2137](https://github.com/basedosdados/pipelines/pull/2137)
+- [ ] 12. Optional — recurring Prefect pipeline (annual, February release window)
+- [ ] 13. After merge → table-approve materialises `basedosdados.au_abs_productivity.*`
+      → verify prod tables and row counts → flip the prod dataset to `published`
 - [ ] 14. Delete `~/Library/Caches/au_abs_productivity_data/`
+
+## Tags
+
+Twelve, chosen for discoverability and all content-descriptive — none duplicating
+the area, theme or organization, per `metadata-schema`:
+
+`productivity` · `economic-activity` · `production` · `labor` · `workload` ·
+`investment` · `growth` · `gdp` · `innovation` · `competitiveness` ·
+`employment` · `income`
+
+All already existed in both backends; none were created.
 
 ## Open notes
 
