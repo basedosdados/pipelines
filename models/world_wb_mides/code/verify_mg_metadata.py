@@ -70,7 +70,7 @@ def main() -> None:
     # The MG models now sit beside the 9 original multi-state ones in
     # `models/world_wb_mides/`, so the glossary -- not a directory listing --
     # is what names this set of 43.
-    slugs = sorted(tables.TABLES)
+    slugs = sorted(tables.MG_TABLES)
     problems: list[str] = []
     ok = 0
 
