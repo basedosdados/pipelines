@@ -242,6 +242,10 @@ project-excludes = [
   "models/world_oecd_revenue_statistics/code",
   "models/world_oecd_socx/code",
   "models/br_tse_eleicoes/code",
+  # Same policy: the br_mj_sisdepen onboarding scripts run from their own
+  # directory with bare sibling imports (`constants`, `utils`), which pyrefly
+  # cannot resolve from the repo root.
+  "models/br_mj_sisdepen/code",
   "models/us_nih_reporter/code",
   # Same policy: the us_cms_hcris onboarding scripts run from their own
   # directory with bare sibling imports (`common`, `measures`, `schema`),
