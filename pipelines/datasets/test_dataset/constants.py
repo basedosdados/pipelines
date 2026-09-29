@@ -7,8 +7,16 @@ pilotos convivem aqui — cada um numa seção comentada abaixo, junto do
 `tasks.py`/`flows.py` equivalentes (mesma convenção).
 """
 
+from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
+
 DATASET_ID = "test_dataset"
 BACKEND_ENV = "prod"
+
+# Mesma coverage pros dois pilotos (event_pipeline/event_pipeline_partitioned).
+EVENT_PIPELINE_COVERAGE = AllFree(
+    date_column=DateOnly(col="reference_date"),
+    date_format=DateFormat.YEAR_MD,
+)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -39,7 +47,7 @@ EVENT_PIPELINE_JOB_VARIABLES = {
         "memory_limit": "512Mi",
         "memory_request": "256Mi",
     },
-    "download": {
+    "extract_and_load": {
         "cpu_limit": "1",
         "memory_limit": "2Gi",
     },
@@ -48,7 +56,7 @@ EVENT_PIPELINE_JOB_VARIABLES = {
 
 # ──────────────────────────────────────────────────────────────────────────────
 # event_pipeline_partitioned — variante do piloto acima testando dados
-# particionados (ano=/mes=), pra exercitar DownloadResult.partition_folders
+# particionados (ano=/mes=), pra exercitar ExtractAndLoad.partition_folders
 # e transfer_files_to_prod_flow(folders=...) de ponta a ponta — o piloto
 # acima usa um único arquivo, nunca exercitou esse caminho. Mesmo
 # dataset_id (test_dataset), tabela própria.

@@ -35,11 +35,20 @@ from prefect.schedules import Cron
 REPO_URL = "https://github.com/basedosdados/pipelines.git"
 
 # Pastas cuja mudança pode afetar deploy de flows em mais de um dataset
-# (lógica compartilhada, ex. CheckThenDownloadPipeline em stage_dispatch.py,
+# (lógica compartilhada, ex. CheckThenExtractLoadPipeline em stage_dispatch.py,
 # ou um crawler usado por vários datasets como pipelines/crawler/datasus) —
 # não dá pra saber quais datasets são afetados sem reprocessar tudo, então
 # escala pra --all nesse caso, em vez de arriscar deixar algo desatualizado.
 SHARED_PREFIXES = ("pipelines/utils/", "pipelines/crawler/")
+
+# Perfil de recursos padrão pra qualquer flow com a tag "check_update"
+# (issue #1867, pendência da revisão #1932) que não sobrescreva
+# `job_variables` no próprio flow — ver `deploy_flow()`. Datasets cujo
+# check_update foge do padrão leve (ex. `br_ibge_ipca`, que baixa dado real
+# da API pra descobrir a data mais recente) devem setar
+# `<flow>.job_variables = {...}` explicitamente, o que sempre tem
+# prioridade sobre este default.
+CHECK_UPDATE_JOB_VARIABLES = {"memory_limit": "1Gi", "memory_request": "1Gi"}
 
 
 def all_python_files() -> list[str]:
@@ -191,10 +200,18 @@ def deploy_flow(
             for s in schedules
         ]
 
-    job_variables = getattr(flow, "job_variables", None)
-
     extra_tags = getattr(flow, "deploy_tags", None) or []
     tags = ["automated-deploy", *extra_tags]
+
+    job_variables = getattr(flow, "job_variables", None)
+    if job_variables is None and "check_update" in extra_tags:
+        # check_update (issue #1867/#1932) é propositalmente leve — só um
+        # poll de metadado, sem baixar dado real (exceto casos que fujam
+        # dessa regra, ver comentário em CHECK_UPDATE_JOB_VARIABLES). Herdar
+        # o default do work pool, dimensionado pro flow monolítico antigo,
+        # desperdiça recurso. Só se aplica quando o dataset não seta
+        # `job_variables` no flow — setar explicitamente sempre sobrescreve.
+        job_variables = CHECK_UPDATE_JOB_VARIABLES
 
     try:
         flow.from_source(

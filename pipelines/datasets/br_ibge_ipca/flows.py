@@ -2,9 +2,9 @@
 Flows para br_ibge_ipca — Prefect 3.
 
 Migrado por completo pro pipeline orientado a eventos (issue #1867):
-check_update -> download -> mat_test, uma dupla de flows por tabela.
+check_update -> extract_and_load -> build_and_promote, uma dupla de flows por tabela.
 Lógica específica do dataset mora em `tasks.py`, constantes em
-`constants.py` — aqui só a fiação (`CheckThenDownloadPipeline` + `@flow`).
+`constants.py` — aqui só a fiação (`CheckThenExtractLoadPipeline` + `@flow`).
 
 O antigo `_ipca_flow`/`_run_ibge_inflacao` monolítico segue existindo em
 `pipelines/crawler/ibge_inflacao/flows.py`, ainda usado por
@@ -26,7 +26,7 @@ from pipelines.utils.stage_dispatch import Etapa, deploy_tags
 # ──────────────────────────────────────────────────────────────────────────────
 # mes_brasil
 # check_update: br_ibge_ipca__mes_brasil
-# download: br_ibge_ipca__mes_brasil
+# extract_and_load: br_ibge_ipca__mes_brasil
 # ──────────────────────────────────────────────────────────────────────────────
 
 _mes_brasil_pipeline = make_pipeline(MES_BRASIL_TABLE_ID)
@@ -43,16 +43,16 @@ br_ibge_ipca_mes_brasil_check_update.deploy_tags = deploy_tags(
 )
 
 
-@flow(name=_mes_brasil_pipeline.download_flow_name, log_prints=True)
+@flow(name=_mes_brasil_pipeline.extract_and_load_flow_name, log_prints=True)
 def br_ibge_ipca_mes_brasil_download(download_params: dict) -> None:
-    _mes_brasil_pipeline.run_download(download_params)
+    _mes_brasil_pipeline.run_extract_and_load(download_params)
 
 
 # pyrefly: ignore [missing-attribute]
 br_ibge_ipca_mes_brasil_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.DOWNLOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
-_mes_brasil_pipeline.download_deployment = (
+_mes_brasil_pipeline.extract_load_deployment = (
     br_ibge_ipca_mes_brasil_download.fn.__name__
 )
 
@@ -60,7 +60,7 @@ _mes_brasil_pipeline.download_deployment = (
 # ──────────────────────────────────────────────────────────────────────────────
 # mes_categoria_brasil
 # check_update: br_ibge_ipca__mes_categoria_brasil
-# download: br_ibge_ipca__mes_categoria_brasil
+# extract_and_load: br_ibge_ipca__mes_categoria_brasil
 # ──────────────────────────────────────────────────────────────────────────────
 
 _mes_categoria_brasil_pipeline = make_pipeline(MES_CATEGORIA_BRASIL_TABLE_ID)
@@ -81,20 +81,20 @@ br_ibge_ipca_mes_categoria_brasil_check_update.deploy_tags = deploy_tags(
 
 
 @flow(
-    name=_mes_categoria_brasil_pipeline.download_flow_name,
+    name=_mes_categoria_brasil_pipeline.extract_and_load_flow_name,
     log_prints=True,
 )
 def br_ibge_ipca_mes_categoria_brasil_download(
     download_params: dict,
 ) -> None:
-    _mes_categoria_brasil_pipeline.run_download(download_params)
+    _mes_categoria_brasil_pipeline.run_extract_and_load(download_params)
 
 
 # pyrefly: ignore [missing-attribute]
 br_ibge_ipca_mes_categoria_brasil_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.DOWNLOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
-_mes_categoria_brasil_pipeline.download_deployment = (
+_mes_categoria_brasil_pipeline.extract_load_deployment = (
     br_ibge_ipca_mes_categoria_brasil_download.fn.__name__
 )
 
@@ -102,7 +102,7 @@ _mes_categoria_brasil_pipeline.download_deployment = (
 # ──────────────────────────────────────────────────────────────────────────────
 # mes_categoria_rm
 # check_update: br_ibge_ipca__mes_categoria_rm
-# download: br_ibge_ipca__mes_categoria_rm
+# extract_and_load: br_ibge_ipca__mes_categoria_rm
 # ──────────────────────────────────────────────────────────────────────────────
 
 _mes_categoria_rm_pipeline = make_pipeline(MES_CATEGORIA_RM_TABLE_ID)
@@ -123,20 +123,20 @@ br_ibge_ipca_mes_categoria_rm_check_update.deploy_tags = deploy_tags(
 
 
 @flow(
-    name=_mes_categoria_rm_pipeline.download_flow_name,
+    name=_mes_categoria_rm_pipeline.extract_and_load_flow_name,
     log_prints=True,
 )
 def br_ibge_ipca_mes_categoria_rm_download(
     download_params: dict,
 ) -> None:
-    _mes_categoria_rm_pipeline.run_download(download_params)
+    _mes_categoria_rm_pipeline.run_extract_and_load(download_params)
 
 
 # pyrefly: ignore [missing-attribute]
 br_ibge_ipca_mes_categoria_rm_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.DOWNLOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
-_mes_categoria_rm_pipeline.download_deployment = (
+_mes_categoria_rm_pipeline.extract_load_deployment = (
     br_ibge_ipca_mes_categoria_rm_download.fn.__name__
 )
 
@@ -144,7 +144,7 @@ _mes_categoria_rm_pipeline.download_deployment = (
 # ──────────────────────────────────────────────────────────────────────────────
 # mes_categoria_municipio
 # check_update: br_ibge_ipca__mes_categoria_municipio
-# download: br_ibge_ipca__mes_categoria_municipio
+# extract_and_load: br_ibge_ipca__mes_categoria_municipio
 # ──────────────────────────────────────────────────────────────────────────────
 
 _mes_categoria_municipio_pipeline = make_pipeline(
@@ -167,19 +167,19 @@ br_ibge_ipca_mes_categoria_municipio_check_update.deploy_tags = deploy_tags(
 
 
 @flow(
-    name=_mes_categoria_municipio_pipeline.download_flow_name,
+    name=_mes_categoria_municipio_pipeline.extract_and_load_flow_name,
     log_prints=True,
 )
 def br_ibge_ipca_mes_categoria_municipio_download(
     download_params: dict,
 ) -> None:
-    _mes_categoria_municipio_pipeline.run_download(download_params)
+    _mes_categoria_municipio_pipeline.run_extract_and_load(download_params)
 
 
 # pyrefly: ignore [missing-attribute]
 br_ibge_ipca_mes_categoria_municipio_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.DOWNLOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
-_mes_categoria_municipio_pipeline.download_deployment = (
+_mes_categoria_municipio_pipeline.extract_load_deployment = (
     br_ibge_ipca_mes_categoria_municipio_download.fn.__name__
 )

@@ -15,20 +15,20 @@ from pipelines.crawler.me_comex_stat.tasks import (
     parse_last_date,
 )
 from pipelines.datasets.br_me_comex_stat.constants import (
+    COVERAGE,
     DATASET_ID,
     TABLE_SPECS,
 )
-from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
 from pipelines.utils.stage_dispatch import (
-    CheckResult,
-    DownloadResult,
+    ExtractAndLoad,
+    SourceInspection,
     pipeline_factory,
 )
 
 # ──────────────────────────────────────────────────────────────────────────────
 # As 4 tabelas (município/NCM x exportação/importação) — ver constants.py
 #
-# `check_for_update` é a MESMA função pras 4 tabelas — a fonte de check é
+# `get_latest_update` é a MESMA função pras 4 tabelas — a fonte de check é
 # uma página de metadados única (`DOWNLOAD_LINK`), compartilhada, não por
 # tabela (o flow antigo já comentava isso: "A fonte é uma só para as
 # quatro tabelas"). Diferente de `br_ibge_ipca`, aqui o check é leve de
@@ -36,7 +36,7 @@ from pipelines.utils.stage_dispatch import (
 # metadados, não baixa o dado bruto (~poucos KB de HTML) — não precisa da
 # lógica de "baixar duas vezes" usada lá.
 #
-# `download_data` precisa de fábrica por tabela (`table_name`/`table_type`
+# `extract_load_data` precisa de fábrica por tabela (`table_name`/`table_type`
 # variam). `clean_br_me_comex_stat` particiona por `ano/mes` (tabelas NCM)
 # ou `ano/mes/sigla_uf` (tabelas de município, várias UFs por arquivo
 # baixado) — `_discover_partition_folders` descobre as pastas-folha
@@ -44,11 +44,11 @@ from pipelines.utils.stage_dispatch import (
 # ──────────────────────────────────────────────────────────────────────────────
 
 
-def br_me_comex_stat_check_for_update() -> CheckResult:
+def br_me_comex_stat_get_latest_update() -> SourceInspection:
     last_date = parse_last_date(link=comex_constants.DOWNLOAD_LINK.value)
     # pyrefly: ignore [missing-attribute]
     year, month = last_date.split("-")
-    return CheckResult(reference_date=date(int(year), int(month), 1))
+    return SourceInspection(reference_date=date(int(year), int(month), 1))
 
 
 def _discover_partition_folders(base_path: str) -> list[str] | None:
@@ -67,12 +67,12 @@ def _discover_partition_folders(base_path: str) -> list[str] | None:
     return sorted(leaves) or None
 
 
-def make_download_data(table_id: str) -> Callable[[dict], DownloadResult]:
+def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
     spec = TABLE_SPECS[table_id]
     table_name = spec["table_name"]
     table_type = spec["table_type"]
 
-    def download_data(download_params: dict) -> DownloadResult:
+    def extract_load_data(download_params: dict) -> ExtractAndLoad:
         ref = date.fromisoformat(download_params["reference_date"])
         year_download = f"{ref.year}-{ref.month:02d}"
 
@@ -88,26 +88,22 @@ def make_download_data(table_id: str) -> Callable[[dict], DownloadResult]:
         # `clean_br_me_comex_stat` está tipado (errado) como -> pd.DataFrame,
         # mas devolve `str` de verdade (mesma pendência do código original,
         # já marcada lá com `# pyrefly: ignore [bad-return]`).
-        return DownloadResult(
-            coverage=PartBdpro(
-                date_column=YearMonth(year="ano", month="mes"),
-                date_format=DateFormat.YEAR_MONTH,
-            ).model_dump(),
+        return ExtractAndLoad(
+            coverage=COVERAGE.model_dump(),
             # pyrefly: ignore [bad-argument-type]
             data_path=filepath,
-            bq_project="basedosdados",
             # pyrefly: ignore [bad-argument-type]
             partition_folders=_discover_partition_folders(filepath),
         )
 
-    return download_data
+    return extract_load_data
 
 
 make_pipeline = pipeline_factory(
     DATASET_ID,
     # Mesma função pras 4 tabelas -- a fonte de check é única,
     # compartilhada (ver banner acima).
-    lambda _table_id: br_me_comex_stat_check_for_update,
-    make_download_data,
+    lambda _table_id: br_me_comex_stat_get_latest_update,
+    make_extract_load_data,
     date_format="%Y-%m",
 )

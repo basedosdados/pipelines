@@ -6,10 +6,9 @@ from pathlib import Path
 
 from prefect import task
 
-from pipelines.datasets.us_cfpb_hmda.constants import constants
+from pipelines.datasets.us_cfpb_hmda.constants import COVERAGE, constants
 from pipelines.datasets.us_cfpb_hmda.utils import clean_all, latest_source_year
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
-from pipelines.utils.stage_dispatch import CheckResult, DownloadResult
+from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
 
 
 @task
@@ -48,12 +47,12 @@ def build_tables(work_dir: str, years: list[int]) -> dict:
 # ──────────────────────────────────────────────────────────────────────────────
 # loan_application_register (issue #1867)
 #
-# `check_for_update` (`latest_source_year`) é uma checagem de verdade leve:
+# `get_latest_update` (`latest_source_year`) é uma checagem de verdade leve:
 # GET com stream=True, lê só os primeiros 2048 bytes do CSV por ano sondado
 # (não baixa o arquivo inteiro) — diferente de br_ibge_ipca, aqui o check é
 # genuinamente independente do download.
 #
-# `download_data` continua reconstruindo o histórico inteiro
+# `extract_load_data` continua reconstruindo o histórico inteiro
 # (FIRST_YEAR..max_year, dump_mode="overwrite") a cada run — decisão de
 # design já existente (schema all-STRING consistente), não alterada aqui.
 # Vários GB por ano; fica isolado no próprio pod (`job_variables` no
@@ -61,28 +60,25 @@ def build_tables(work_dir: str, years: list[int]) -> dict:
 # ──────────────────────────────────────────────────────────────────────────────
 
 
-def check_for_update() -> CheckResult:
+def get_latest_update() -> SourceInspection:
     this_year = datetime.now(UTC).year
     resolved = resolve_years(this_year)
     max_year = resolved["max_year"]
-    return CheckResult(
+    return SourceInspection(
         reference_date=date(max_year, 1, 1),
         extra_download_params={"years": resolved["years"]},
     )
 
 
-def download_data(download_params: dict) -> DownloadResult:
+def extract_load_data(download_params: dict) -> ExtractAndLoad:
     years = download_params["years"]
     work_dir = tempfile.mkdtemp(prefix="us_cfpb_hmda_")
     result = build_tables(work_dir=work_dir, years=years)
     data_path = result[constants.TABLE_ID.value]
 
-    return DownloadResult(
-        coverage=AllFree(
-            date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-        ).model_dump(),
+    return ExtractAndLoad(
+        coverage=COVERAGE.model_dump(),
         data_path=data_path,
-        bq_project="basedosdados",
         dump_mode="overwrite",
         source_format="parquet",
     )

@@ -9,8 +9,8 @@ from pathlib import Path
 
 from prefect import task
 
-from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
-from pipelines.utils.stage_dispatch import CheckResult, DownloadResult
+from pipelines.datasets.test_dataset.constants import EVENT_PIPELINE_COVERAGE
+from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
 
 # ──────────────────────────────────────────────────────────────────────────────
 # event_pipeline (issue #1867) — ver constants.py
@@ -33,32 +33,28 @@ def event_pipeline_write_reference_date_csv(reference_date: str) -> str:
     return str(path)
 
 
-def event_pipeline_check_update() -> CheckResult:
+def event_pipeline_check_update() -> SourceInspection:
     """Checagem real: usa a data de hoje como referência (sem lógica de
     fonte externa, já que este dataset é sintético — um dataset real
     faria aqui um HEAD request, listagem FTP, scraping leve, etc.)."""
-    return CheckResult(reference_date=datetime.now(UTC).date())
+    return SourceInspection(reference_date=datetime.now(UTC).date())
 
 
-def event_pipeline_download(download_params: dict) -> DownloadResult:
+def event_pipeline_download(download_params: dict) -> ExtractAndLoad:
     """Download simulado (CSV pequeno com a data de referência). O upload
-    pro staging é feito pela cápsula (`CheckThenDownloadPipeline.run_download`)
-    a partir de `data_path` — não é responsabilidade deste `download_data`."""
+    pro staging é feito pela cápsula (`CheckThenExtractLoadPipeline.run_extract_and_load`)
+    a partir de `data_path` — não é responsabilidade deste `extract_load_data`."""
     reference_date = download_params["reference_date"]
 
     csv_path = event_pipeline_write_reference_date_csv(
         reference_date=reference_date
     )
 
-    return DownloadResult(
-        coverage=AllFree(
-            date_column=DateOnly(col="reference_date"),
-            date_format=DateFormat.YEAR_MD,
-        ).model_dump(),
+    return ExtractAndLoad(
+        coverage=EVENT_PIPELINE_COVERAGE.model_dump(),
         data_path=csv_path,
-        bq_project="basedosdados-dev",
         prefect_mode="dev",
-        # Teste real do caminho dev->prod (issue #1867): mat_test_flow
+        # Teste real do caminho dev->prod (issue #1867): build_and_promote
         # roda no pool basedosdados (prod), então "prod" aqui exercita
         # transfer_files_to_prod_flow de verdade.
         targets=["dev", "prod"],
@@ -109,20 +105,20 @@ def event_pipeline_partitioned_write_partitioned_csv(
     return str(base)
 
 
-def event_pipeline_partitioned_check_update() -> CheckResult:
+def event_pipeline_partitioned_check_update() -> SourceInspection:
     """Mesma checagem sintética do `event_pipeline`: usa a data de hoje
     como referência."""
-    return CheckResult(reference_date=datetime.now(UTC).date())
+    return SourceInspection(reference_date=datetime.now(UTC).date())
 
 
 def event_pipeline_partitioned_download(
     download_params: dict,
-) -> DownloadResult:
+) -> ExtractAndLoad:
     """
     Download simulado, mas particionado por `ano=/mes=` — o upload pro
     staging (feito pela cápsula, ver `event_pipeline_download` acima)
     preserva essa estrutura a partir de `data_path`. `partition_folders`
-    no `DownloadResult` é o que faz o `mat_test` promover só essa fatia
+    no `ExtractAndLoad` é o que faz o `build_and_promote` promover só essa fatia
     pra prod (`transfer_files_to_prod_flow`), não o staging inteiro.
     """
     reference_date = download_params["reference_date"]
@@ -133,13 +129,9 @@ def event_pipeline_partitioned_download(
         reference_date=reference_date
     )
 
-    return DownloadResult(
-        coverage=AllFree(
-            date_column=DateOnly(col="reference_date"),
-            date_format=DateFormat.YEAR_MD,
-        ).model_dump(),
+    return ExtractAndLoad(
+        coverage=EVENT_PIPELINE_COVERAGE.model_dump(),
         data_path=base_dir,
-        bq_project="basedosdados-dev",
         prefect_mode="dev",
         # Mesmo teste real do caminho dev->prod do event_pipeline.
         targets=["dev", "prod"],

@@ -14,11 +14,10 @@ from pipelines.crawler.me_caged.tasks import (
     get_source_last_date,
     get_table_last_date,
 )
-from pipelines.datasets.br_me_caged.constants import DATASET_ID
-from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
+from pipelines.datasets.br_me_caged.constants import COVERAGE, DATASET_ID
 from pipelines.utils.stage_dispatch import (
-    CheckResult,
-    DownloadResult,
+    ExtractAndLoad,
+    SourceInspection,
     pipeline_factory,
 )
 
@@ -29,10 +28,10 @@ from pipelines.utils.stage_dispatch import (
 # `get_source_last_date` só faz uma listagem de diretório FTP (`ftp.nlst()`),
 # sem baixar nenhum arquivo — e é a mesma checagem pras 3 tabelas (a fonte
 # publica um release mensal só, com os 3 tipos de arquivo juntos no mesmo
-# diretório ano/mês). Por isso `check_for_update` não precisa de fábrica
+# diretório ano/mês). Por isso `get_latest_update` não precisa de fábrica
 # por `table_id` — é uma função só, compartilhada pelas 3 pipelines.
 #
-# `download_data` (fábrica por `table_id`, já que cada tabela filtra um
+# `extract_load_data` (fábrica por `table_id`, já que cada tabela filtra um
 # tipo de arquivo diferente — CAGEDMOV/CAGEDFOR/CAGEDEXC, ver
 # `crawl_novo_caged_ftp`) reproduz a lógica original de catch-up: busca de
 # novo a coverage atual da tabela (`get_table_last_date`) e baixa **todos**
@@ -47,14 +46,14 @@ from pipelines.utils.stage_dispatch import (
 # ──────────────────────────────────────────────────────────────────────────────
 
 
-def br_me_caged_check_for_update() -> CheckResult:
+def br_me_caged_get_latest_update() -> SourceInspection:
     reference_date = get_source_last_date()
     # pyrefly: ignore [bad-argument-type]
-    return CheckResult(reference_date=reference_date)
+    return SourceInspection(reference_date=reference_date)
 
 
-def make_download_data(table_id: str) -> Callable[[dict], DownloadResult]:
-    def download_data(download_params: dict) -> DownloadResult:
+def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
+    def extract_load_data(download_params: dict) -> ExtractAndLoad:
         source_last_date = date.fromisoformat(
             download_params["reference_date"]
         )
@@ -77,26 +76,22 @@ def make_download_data(table_id: str) -> Callable[[dict], DownloadResult]:
             for uf in caged_constants.UF_DICT.value.values()
         ]
 
-        return DownloadResult(
-            coverage=PartBdpro(
-                date_column=YearMonth(year="ano", month="mes"),
-                date_format=DateFormat.YEAR_MONTH,
-            ).model_dump(),
+        return ExtractAndLoad(
+            coverage=COVERAGE.model_dump(),
             data_path=filepath,
-            bq_project="basedosdados",
             partition_folders=partition_folders,
         )
 
-    return download_data
+    return extract_load_data
 
 
 make_pipeline = pipeline_factory(
     DATASET_ID,
     # Mesma checagem (leve, via FTP) pras 3 tabelas — ver banner acima.
-    # `check_for_update_factory` recebe `table_id`, mas aqui ignoramos: a
+    # `get_latest_update_factory` recebe `table_id`, mas aqui ignoramos: a
     # fonte é única, compartilhada.
-    lambda _table_id: br_me_caged_check_for_update,
-    make_download_data,
+    lambda _table_id: br_me_caged_get_latest_update,
+    make_extract_load_data,
     # Mesma granularidade do flow antigo (`_run_me_caged`, que já
     # compara coverage com date_format="%Y-%m" — o dado é mensal, sem dia).
     date_format="%Y-%m",

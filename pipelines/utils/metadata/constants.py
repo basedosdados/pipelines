@@ -18,7 +18,7 @@ class constants(Enum):
     }
 
 
-# Recursos de pod pro mat_test_flow (issue #1867) — único deployment
+# Recursos de pod pro build_and_promote (issue #1867) — único deployment
 # compartilhado por todos os datasets, então o tier dele mora aqui, não no
 # constants.py de um dataset específico. 2Gi é provisório — o piloto
 # sintético (CSV, tabela pequena, pipelines/datasets/test_dataset/ (event_pipeline_*))
@@ -31,4 +31,4 @@ class constants(Enum):
 # reavaliar quando um dataset real com `source_format="parquet"` passar
 # por aqui. Ver tutoriais/iac/prefect3-override-de-recursos-por-flow.md no
 # ftwca pra mais contexto sobre o mecanismo de override.
-MAT_TEST_JOB_VARIABLES = {"memory_limit": "2Gi"}
+BUILD_AND_PROMOTE_JOB_VARIABLES = {"memory_limit": "2Gi"}

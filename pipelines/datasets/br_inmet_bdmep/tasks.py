@@ -6,17 +6,17 @@ from pipelines.crawler.inmet_bdmep.tasks import (
     extract_last_date_from_source,
     get_base_inmet,
 )
-from pipelines.utils.metadata.domain import DateFormat, DateOnly, PartBdpro
-from pipelines.utils.stage_dispatch import CheckResult, DownloadResult
+from pipelines.datasets.br_inmet_bdmep.constants import COVERAGE
+from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
 
 # ──────────────────────────────────────────────────────────────────────────────
 # microdados (issue #1867) — ver constants.py
 #
-# Particularidade deste dataset: `check_for_update` não é uma checagem
+# Particularidade deste dataset: `get_latest_update` não é uma checagem
 # leve independente — `extract_last_date_from_source` já baixa o ZIP do
 # ano corrente (todas as estações do INMET) como efeito colateral, só pra
 # inspecionar os nomes dos arquivos e achar a data mais recente. Como
-# `check_update` e `download` rodam em pods separados, `download_data`
+# `check_update` e `extract_and_load` rodam em pods separados, `extract_load_data`
 # baixa o mesmo ZIP de novo (`extract_last_date_from_source`, de novo,
 # antes de `get_base_inmet`, que espera os arquivos já no disco local) em
 # vez de repassar dado entre pods — mesmo padrão aplicado em br_ibge_ipca
@@ -31,16 +31,16 @@ from pipelines.utils.stage_dispatch import CheckResult, DownloadResult
 # ──────────────────────────────────────────────────────────────────────────────
 
 
-def microdados_check_for_update() -> CheckResult:
+def microdados_get_latest_update() -> SourceInspection:
     """Baixa o ZIP do ano corrente (efeito colateral de
     `extract_last_date_from_source`) e devolve a data mais recente entre
     os arquivos baixados."""
     reference_date = extract_last_date_from_source()
     # pyrefly: ignore [bad-argument-type]
-    return CheckResult(reference_date=reference_date)
+    return SourceInspection(reference_date=reference_date)
 
 
-def microdados_download(download_params: dict) -> DownloadResult:
+def microdados_download(download_params: dict) -> ExtractAndLoad:
     """Baixa de novo o ZIP do ano corrente (barato o bastante pra repetir,
     ver banner acima) e consolida os CSVs num único arquivo particionado
     por `ano=` (`get_base_inmet`)."""
@@ -50,12 +50,8 @@ def microdados_download(download_params: dict) -> DownloadResult:
     extract_last_date_from_source()
     filepath = get_base_inmet()
 
-    return DownloadResult(
-        coverage=PartBdpro(
-            date_column=DateOnly(col="data"),
-            date_format=DateFormat.YEAR_MD,
-        ).model_dump(),
+    return ExtractAndLoad(
+        coverage=COVERAGE.model_dump(),
         data_path=filepath,
-        bq_project="basedosdados",
         partition_folders=[f"ano={year}"],
     )

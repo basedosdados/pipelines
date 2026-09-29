@@ -2,6 +2,8 @@
 Constant values for br_ms_cnes.
 """
 
+from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
+
 DATASET_ID = "br_ms_cnes"
 
 # As 13 tabelas do dataset — migradas pro pipeline orientado a eventos
@@ -21,3 +23,9 @@ HABILITACAO_TABLE_ID = "habilitacao"
 INCENTIVOS_TABLE_ID = "incentivos"
 REGRA_CONTRATUAL_TABLE_ID = "regra_contratual"
 SERVICO_ESPECIALIZADO_TABLE_ID = "servico_especializado"
+
+# Mesma coverage pras 13 tabelas.
+COVERAGE = PartBdpro(
+    date_column=YearMonth(year="ano", month="mes"),
+    date_format=DateFormat.YEAR_MONTH,
+)

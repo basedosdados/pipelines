@@ -2,9 +2,9 @@
 Flows para br_me_comex_stat — Prefect 3.
 
 Migrado por completo pro pipeline orientado a eventos (issue #1867):
-check_update -> download -> mat_test, uma dupla de flows por tabela.
+check_update -> extract_and_load -> build_and_promote, uma dupla de flows por tabela.
 Lógica específica do dataset mora em `tasks.py`, constantes em
-`constants.py` — aqui só a fiação (`CheckThenDownloadPipeline` + `@flow`).
+`constants.py` — aqui só a fiação (`CheckThenExtractLoadPipeline` + `@flow`).
 """
 
 from prefect import flow
@@ -43,20 +43,20 @@ br_me_comex_stat_municipio_exportacao_check_update.deploy_tags = deploy_tags(
 
 
 @flow(
-    name=_municipio_exportacao_pipeline.download_flow_name,
+    name=_municipio_exportacao_pipeline.extract_and_load_flow_name,
     log_prints=True,
 )
 def br_me_comex_stat_municipio_exportacao_download(
     download_params: dict,
 ) -> None:
-    _municipio_exportacao_pipeline.run_download(download_params)
+    _municipio_exportacao_pipeline.run_extract_and_load(download_params)
 
 
 # pyrefly: ignore [missing-attribute]
 br_me_comex_stat_municipio_exportacao_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.DOWNLOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
-_municipio_exportacao_pipeline.download_deployment = (
+_municipio_exportacao_pipeline.extract_load_deployment = (
     br_me_comex_stat_municipio_exportacao_download.fn.__name__
 )
 
@@ -85,20 +85,20 @@ br_me_comex_stat_municipio_importacao_check_update.deploy_tags = deploy_tags(
 
 
 @flow(
-    name=_municipio_importacao_pipeline.download_flow_name,
+    name=_municipio_importacao_pipeline.extract_and_load_flow_name,
     log_prints=True,
 )
 def br_me_comex_stat_municipio_importacao_download(
     download_params: dict,
 ) -> None:
-    _municipio_importacao_pipeline.run_download(download_params)
+    _municipio_importacao_pipeline.run_extract_and_load(download_params)
 
 
 # pyrefly: ignore [missing-attribute]
 br_me_comex_stat_municipio_importacao_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.DOWNLOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
-_municipio_importacao_pipeline.download_deployment = (
+_municipio_importacao_pipeline.extract_load_deployment = (
     br_me_comex_stat_municipio_importacao_download.fn.__name__
 )
 
@@ -127,20 +127,20 @@ br_me_comex_stat_ncm_exportacao_check_update.deploy_tags = deploy_tags(
 
 
 @flow(
-    name=_ncm_exportacao_pipeline.download_flow_name,
+    name=_ncm_exportacao_pipeline.extract_and_load_flow_name,
     log_prints=True,
 )
 def br_me_comex_stat_ncm_exportacao_download(
     download_params: dict,
 ) -> None:
-    _ncm_exportacao_pipeline.run_download(download_params)
+    _ncm_exportacao_pipeline.run_extract_and_load(download_params)
 
 
 # pyrefly: ignore [missing-attribute]
 br_me_comex_stat_ncm_exportacao_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.DOWNLOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
-_ncm_exportacao_pipeline.download_deployment = (
+_ncm_exportacao_pipeline.extract_load_deployment = (
     br_me_comex_stat_ncm_exportacao_download.fn.__name__
 )
 
@@ -169,19 +169,19 @@ br_me_comex_stat_ncm_importacao_check_update.deploy_tags = deploy_tags(
 
 
 @flow(
-    name=_ncm_importacao_pipeline.download_flow_name,
+    name=_ncm_importacao_pipeline.extract_and_load_flow_name,
     log_prints=True,
 )
 def br_me_comex_stat_ncm_importacao_download(
     download_params: dict,
 ) -> None:
-    _ncm_importacao_pipeline.run_download(download_params)
+    _ncm_importacao_pipeline.run_extract_and_load(download_params)
 
 
 # pyrefly: ignore [missing-attribute]
 br_me_comex_stat_ncm_importacao_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.DOWNLOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
-_ncm_importacao_pipeline.download_deployment = (
+_ncm_importacao_pipeline.extract_load_deployment = (
     br_me_comex_stat_ncm_importacao_download.fn.__name__
 )

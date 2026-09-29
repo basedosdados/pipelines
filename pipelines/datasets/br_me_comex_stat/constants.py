@@ -2,6 +2,8 @@
 Constant values for br_me_comex_stat.
 """
 
+from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
+
 DATASET_ID = "br_me_comex_stat"
 
 MUNICIPIO_EXPORTACAO_TABLE_ID = "municipio_exportacao"
@@ -31,3 +33,9 @@ TABLE_SPECS = {
         "table_type": "ncm",
     },
 }
+
+# Mesma coverage pras 4 tabelas.
+COVERAGE = PartBdpro(
+    date_column=YearMonth(year="ano", month="mes"),
+    date_format=DateFormat.YEAR_MONTH,
+)

@@ -12,23 +12,22 @@ from pipelines.crawler.datasus.tasks import (
     get_datasus_source_max_date,
     pre_process_files,
 )
-from pipelines.datasets.br_ms_cnes.constants import DATASET_ID
-from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
+from pipelines.datasets.br_ms_cnes.constants import COVERAGE, DATASET_ID
 from pipelines.utils.metadata.tasks import task_get_api_most_recent_date
 from pipelines.utils.stage_dispatch import (
-    CheckResult,
-    DownloadResult,
+    ExtractAndLoad,
+    SourceInspection,
     pipeline_factory,
 )
 
 # ──────────────────────────────────────────────────────────────────────────────
 # As 13 tabelas (issue #1867) — ver constants.py
 #
-# Check_for_update é uma listagem FTP leve de verdade (`check_files_to_parse`
+# get_latest_update é uma listagem FTP leve de verdade (`check_files_to_parse`
 # -> `list_datasus_dbc_files` -> `ftp.nlst(...)`, sem baixar nenhum arquivo —
 # diferente de br_ibge_ipca, aqui o check é genuinamente independente do
 # download). A lista de arquivos FTP descobertos (`ftp_files`) é repassada
-# pra `download_data` via `CheckResult.extra_download_params` — exatamente o
+# pra `extract_load_data` via `SourceInspection.extra_download_params` — exatamente o
 # caso de uso que esse campo foi desenhado pra cobrir (informação descoberta
 # no check que o download precisa, não previsível de antemão).
 #
@@ -37,13 +36,13 @@ from pipelines.utils.stage_dispatch import (
 # `task_get_api_most_recent_date` (a própria coverage atual) como
 # `reference_date`, garantindo que `poll_source_for_update_task` compare data
 # igual a data e conclua corretamente "sem dado novo" (mesmo efeito do
-# `if not ftp_files` do flow antigo, mas sem violar o tipo de `CheckResult.
+# `if not ftp_files` do flow antigo, mas sem violar o tipo de `SourceInspection.
 # reference_date`, que não aceita `None`).
 # ──────────────────────────────────────────────────────────────────────────────
 
 
-def make_check_for_update(table_id: str) -> Callable[[], CheckResult]:
-    def check_for_update() -> CheckResult:
+def make_get_latest_update(table_id: str) -> Callable[[], SourceInspection]:
+    def get_latest_update() -> SourceInspection:
         ftp_files = check_files_to_parse(
             dataset_id=DATASET_ID,
             table_id=table_id,
@@ -57,16 +56,16 @@ def make_check_for_update(table_id: str) -> Callable[[], CheckResult]:
                 date_format="%Y-%m",
             )
 
-        return CheckResult(
+        return SourceInspection(
             reference_date=source_max_date,
             extra_download_params={"ftp_files": ftp_files},
         )
 
-    return check_for_update
+    return get_latest_update
 
 
-def make_download_data(table_id: str) -> Callable[[dict], DownloadResult]:
-    def download_data(download_params: dict) -> DownloadResult:
+def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
+    def extract_load_data(download_params: dict) -> ExtractAndLoad:
         ftp_files = download_params["ftp_files"]
 
         dbc_files = access_ftp_download_files_async(
@@ -81,26 +80,22 @@ def make_download_data(table_id: str) -> Callable[[dict], DownloadResult]:
             file_list=csv_files, dataset_id=DATASET_ID, table_id=table_id
         )
 
-        return DownloadResult(
-            coverage=PartBdpro(
-                date_column=YearMonth(year="ano", month="mes"),
-                date_format=DateFormat.YEAR_MONTH,
-            ).model_dump(),
+        return ExtractAndLoad(
+            coverage=COVERAGE.model_dump(),
             data_path=files_path,
-            bq_project="basedosdados",
             # `pre_process_files` grava parquet — sem declarar o formato, o
             # `dump_header` chamado por `_sync_staging_schema` procura .csv e
             # não encontra nada (mesmo aviso já existente no flow antigo).
             source_format="parquet",
         )
 
-    return download_data
+    return extract_load_data
 
 
 make_pipeline = pipeline_factory(
     DATASET_ID,
-    make_check_for_update,
-    make_download_data,
+    make_get_latest_update,
+    make_extract_load_data,
     # Mesma granularidade do flow antigo (`_run_cnes`, que já compara
     # coverage com date_format="%Y-%m" — arquivos DATASUS são mensais).
     date_format="%Y-%m",

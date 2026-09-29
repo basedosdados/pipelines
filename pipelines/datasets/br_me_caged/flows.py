@@ -2,9 +2,9 @@
 Flows para br_me_caged — Prefect 3.
 
 Migrado por completo pro pipeline orientado a eventos (issue #1867):
-check_update -> download -> mat_test, uma dupla de flows por tabela.
+check_update -> extract_and_load -> build_and_promote, uma dupla de flows por tabela.
 Lógica específica do dataset mora em `tasks.py`, constantes em
-`constants.py` — aqui só a fiação (`CheckThenDownloadPipeline` + `@flow`).
+`constants.py` — aqui só a fiação (`CheckThenExtractLoadPipeline` + `@flow`).
 
 O antigo `_caged_flow`/`_run_me_caged` monolítico foi removido deste
 arquivo — a lógica de baixo nível que ele usava continua em
@@ -48,20 +48,20 @@ br_me_caged_microdados_movimentacao_check_update.deploy_tags = deploy_tags(
 
 
 @flow(
-    name=_microdados_movimentacao_pipeline.download_flow_name,
+    name=_microdados_movimentacao_pipeline.extract_and_load_flow_name,
     log_prints=True,
 )
 def br_me_caged_microdados_movimentacao_download(
     download_params: dict,
 ) -> None:
-    _microdados_movimentacao_pipeline.run_download(download_params)
+    _microdados_movimentacao_pipeline.run_extract_and_load(download_params)
 
 
 # pyrefly: ignore [missing-attribute]
 br_me_caged_microdados_movimentacao_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.DOWNLOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD
 )
-_microdados_movimentacao_pipeline.download_deployment = (
+_microdados_movimentacao_pipeline.extract_load_deployment = (
     br_me_caged_microdados_movimentacao_download.fn.__name__
 )
 
@@ -92,20 +92,22 @@ br_me_caged_microdados_movimentacao_fora_prazo_check_update.deploy_tags = (
 
 
 @flow(
-    name=_microdados_movimentacao_fora_prazo_pipeline.download_flow_name,
+    name=_microdados_movimentacao_fora_prazo_pipeline.extract_and_load_flow_name,
     log_prints=True,
 )
 def br_me_caged_microdados_movimentacao_fora_prazo_download(
     download_params: dict,
 ) -> None:
-    _microdados_movimentacao_fora_prazo_pipeline.run_download(download_params)
+    _microdados_movimentacao_fora_prazo_pipeline.run_extract_and_load(
+        download_params
+    )
 
 
 # pyrefly: ignore [missing-attribute]
 br_me_caged_microdados_movimentacao_fora_prazo_download.deploy_tags = (
-    deploy_tags(DATASET_ID, Etapa.DOWNLOAD)
+    deploy_tags(DATASET_ID, Etapa.EXTRACT_AND_LOAD)
 )
-_microdados_movimentacao_fora_prazo_pipeline.download_deployment = (
+_microdados_movimentacao_fora_prazo_pipeline.extract_load_deployment = (
     br_me_caged_microdados_movimentacao_fora_prazo_download.fn.__name__
 )
 
@@ -136,19 +138,21 @@ br_me_caged_microdados_movimentacao_excluida_check_update.deploy_tags = (
 
 
 @flow(
-    name=_microdados_movimentacao_excluida_pipeline.download_flow_name,
+    name=_microdados_movimentacao_excluida_pipeline.extract_and_load_flow_name,
     log_prints=True,
 )
 def br_me_caged_microdados_movimentacao_excluida_download(
     download_params: dict,
 ) -> None:
-    _microdados_movimentacao_excluida_pipeline.run_download(download_params)
+    _microdados_movimentacao_excluida_pipeline.run_extract_and_load(
+        download_params
+    )
 
 
 # pyrefly: ignore [missing-attribute]
 br_me_caged_microdados_movimentacao_excluida_download.deploy_tags = (
-    deploy_tags(DATASET_ID, Etapa.DOWNLOAD)
+    deploy_tags(DATASET_ID, Etapa.EXTRACT_AND_LOAD)
 )
-_microdados_movimentacao_excluida_pipeline.download_deployment = (
+_microdados_movimentacao_excluida_pipeline.extract_load_deployment = (
     br_me_caged_microdados_movimentacao_excluida_download.fn.__name__
 )
