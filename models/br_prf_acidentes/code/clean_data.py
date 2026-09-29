@@ -343,7 +343,10 @@ def load_municipality_directory() -> pd.DataFrame:
 def clean_all(tables=None, years=None, do_download=False) -> dict:
     directory = load_municipality_directory()
     mun_index = utils.build_municipality_index(directory)
-    report = {}
+    # Two sections rather than one mixed mapping: the per-partition stats and the
+    # harmonization maps have different shapes and different readers.
+    partitions: dict[str, dict] = {}
+    harmonization: dict[str, dict[str, dict[str, str]]] = {}
     for shape, (table, first, last) in SHAPES.items():
         if tables and table not in tables:
             continue
@@ -369,7 +372,7 @@ def clean_all(tables=None, years=None, do_download=False) -> dict:
             }
             rows = build_rows(shape, year, mun_index, case_maps, stats)
             path = write_partition(rows, table, year)
-            report[f"{table}|{year}"] = {
+            partitions[f"{table}|{year}"] = {
                 "rows": len(rows),
                 "path": str(path),
                 "municipality": dict(stats["municipality"]),
@@ -385,10 +388,8 @@ def clean_all(tables=None, years=None, do_download=False) -> dict:
                 f"date_year_mismatch={stats['date_year_mismatch']:>4}",
                 flush=True,
             )
-        report[f"{table}|case_maps"] = {
-            c: m for c, m in case_maps.items() if m
-        }
-    return report
+        harmonization[table] = {c: m for c, m in case_maps.items() if m}
+    return {"partitions": partitions, "harmonization": harmonization}
 
 
 def main() -> None:

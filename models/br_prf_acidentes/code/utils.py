@@ -262,10 +262,14 @@ def build_municipality_index(directory: pd.DataFrame) -> dict:
         {},
         collections.defaultdict(list),
     )
+    # itertuples attributes are typed as a wide union, so the three fields are
+    # coerced to str before use rather than relying on the frame's dtypes.
     for row in directory.itertuples(index=False):
-        by_uf_loose[(row.sigla_uf, norm_loose(row.nome))] = row.id_municipio
-        by_uf_tight[(row.sigla_uf, norm_tight(row.nome))] = row.id_municipio
-        by_name_tight[norm_tight(row.nome)].append(row.id_municipio)
+        nome, uf = str(row.nome), str(row.sigla_uf)
+        code = str(row.id_municipio)
+        by_uf_loose[(uf, norm_loose(nome))] = code
+        by_uf_tight[(uf, norm_tight(nome))] = code
+        by_name_tight[norm_tight(nome)].append(code)
     return {
         "by_uf_loose": by_uf_loose,
         "by_uf_tight": by_uf_tight,
