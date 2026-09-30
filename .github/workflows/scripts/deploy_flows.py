@@ -207,7 +207,17 @@ def deploy_flow(
     schedules = None if is_dev else flow.deploy_schedules
 
     extra_tags = flow.deploy_tags or []
-    tags = ["automated-deploy", *extra_tags]
+    # `env:dev`/`env:prod` — não é só descoberta no Prefect UI: é o sinal
+    # que `deployment_name()` (`stage_dispatch.py`) lê em runtime
+    # (`prefect.runtime.flow_run.tags`) pra saber se precisa repetir o
+    # prefixo `dev-` na hora de despachar o próximo estágio da cadeia
+    # (issue #1867/#1932) — sem isso, o dispatch check_update→extract_and_load
+    # e extract_and_load→build_and_promote só acha o nome certo em prod.
+    tags = [
+        "automated-deploy",
+        f"env:{'dev' if is_dev else 'prod'}",
+        *extra_tags,
+    ]
 
     job_variables = flow.job_variables
     if job_variables is None and "check_update" in extra_tags:

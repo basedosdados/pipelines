@@ -62,7 +62,7 @@ def build_and_promote(
     env: str = "prod",
     bq_project: str = "basedosdados",
     prefect_mode: str = "prod",
-    targets: list[str] | None = None,
+    promote_to_prod: bool = True,
     partition_folders: list[str] | None = None,
     download_billing_project: str = "basedosdados",
     update_metadata: bool = False,
@@ -79,8 +79,11 @@ def build_and_promote(
         bq_project: projeto BigQuery onde a tabela vive.
         prefect_mode: resolve o projeto de billing (`MODE_PROJECT`),
             repassado até `register_table_materialization_task`.
-        targets: ambientes a promover. `None` (default) vira
-            `["dev", "prod"]`.
+        promote_to_prod: se `True`, roda `transfer_files_to_prod_flow`
+            (promoção real pra prod). Quem despacha este flow
+            (`dispatch_build_and_promote`) já decide esse valor sozinho, a
+            partir de onde ele mesmo está rodando — não é algo que o
+            dataset configura.
         partition_folders: pastas de partição estilo Hive (ex.
             `ano=2026/mes=08`) atualizadas nesta execução — repassadas pra
             `transfer_files_to_prod_flow`, pra promover só a fatia nova,
@@ -89,11 +92,11 @@ def build_and_promote(
         download_billing_project: projeto cobrado pelo download
             requester-pays do staging de dev, dentro de
             `transfer_files_to_prod_flow`.
-        update_metadata: só tem efeito quando `"prod"` **não** está em
-            `targets` — nesse caso, `transfer_files_to_prod_flow` nunca
+        update_metadata: só tem efeito quando `promote_to_prod` é
+            `False` — nesse caso, `transfer_files_to_prod_flow` nunca
             roda, e é ele quem normalmente atualiza o metadado. `True`
             registra a materialização mesmo assim, direto a partir do que
-            foi materializado em dev. Quando `"prod"` está em `targets`, o
+            foi materializado em dev. Quando `promote_to_prod` é `True`, o
             metadado sempre atualiza (via `transfer_files_to_prod_flow`)
             e este parâmetro é ignorado.
     """
@@ -103,10 +106,9 @@ def build_and_promote(
         table_id=table_id,
     )
 
-    targets = targets or ["dev", "prod"]
-
     log(
-        f"[build_and_promote] materializando {dataset_id}.{table_id} (targets={targets})"
+        f"[build_and_promote] materializando {dataset_id}.{table_id} "
+        f"(promote_to_prod={promote_to_prod})"
     )
 
     run_dbt(
@@ -116,7 +118,7 @@ def build_and_promote(
         target="dev",
     )
 
-    if "prod" in targets:
+    if promote_to_prod:
         transfer_files_to_prod_flow(
             dataset_id=dataset_id,
             table_id=table_id,

@@ -13,6 +13,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import StrEnum
 
+from prefect import runtime
 from prefect.deployments import run_deployment
 
 from pipelines.utils.metadata.constants import constants as metadata_constants
@@ -70,7 +71,6 @@ class ExtractAndLoad:
             o prefixo de partição no GCS a partir dessa estrutura em
             disco. Se não bater com `partition_folders`, o arquivo sobe
             pro lugar errado e a promoção pra prod não encontra nada.
-        targets: ambientes a promover.
         prefect_mode: modo do staging (`"dev"`/`"prod"`) — também resolve
             o projeto BigQuery de destino automaticamente (`MODE_PROJECT`).
         partition_folders: pastas Hive (`chave=valor`, ex.
@@ -83,7 +83,6 @@ class ExtractAndLoad:
 
     coverage: dict
     data_path: str
-    targets: list[str] = field(default_factory=lambda: ["dev", "prod"])
     prefect_mode: str = "prod"
     partition_folders: list[str] | None = None
     dump_mode: str = "append"
@@ -119,19 +118,40 @@ def _flow_name(dataset_id: str, etapa: Etapa) -> str:
     return f"{etapa}: {dataset_id}"
 
 
+def _dev_prefix() -> str:
+    """Prefixo `"dev-"` do deployment atual, ou `""` fora do pool de dev.
+
+    Lê `prefect.runtime.flow_run.tags` (já disponível no contexto do flow
+    run, sem chamada de API) procurando a tag `env:dev`, que `deploy_flow()`
+    (`.github/workflows/scripts/deploy_flows.py`) adiciona só quando o
+    deploy é pro pool `basedosdados-dev`. Fora de um flow run real (ex.
+    chamada local em teste), `runtime.flow_run.tags` vem vazio — resolve
+    pra `""`, mesmo comportamento de hoje (assume prod).
+
+    Returns:
+        `"dev-"` quando a tag `env:dev` está presente; `""` caso contrário.
+    """
+    return "dev-" if "env:dev" in runtime.flow_run.tags else ""
+
+
 def deployment_name(
     dataset_id: str, etapa: Etapa, deployment: str | None = None
 ) -> str:
     """Resolve o identificador de um deployment por convenção.
 
     Mesmo formato `"<flow name>/<deployment name>"` aceito por
-    `run_deployment(name=...)`.
+    `run_deployment(name=...)`. Repete o prefixo `dev-` (ver `_dev_prefix`)
+    quando o flow que está chamando também foi deployado em dev — sem
+    isso, o dispatch dev sempre tentaria achar o nome de prod.
 
     Args:
         dataset_id: ID do dataset (ou `prefect_dataset_id`).
         etapa: etapa do deployment. `build_and_promote` é genérico — um
-            deployment só, nome fixo, compartilhado por todos os
-            datasets.
+            deployment só, nome fixo, **sempre no pool de prod**, mesmo
+            quando quem despacha rodou em dev (só a service account do
+            pool prod tem permissão de escrita real pra promover dado) —
+            por isso não leva o prefixo `dev-`, ao contrário das outras
+            etapas.
         deployment: sobrescreve a segunda metade (depois da barra), quando
             a variável do flow não se chama literalmente `<etapa>`.
 
@@ -140,7 +160,10 @@ def deployment_name(
     """
     if etapa == Etapa.BUILD_AND_PROMOTE:
         return "build_and_promote/build_and_promote"
-    return f"{_flow_name(dataset_id, etapa)}/{deployment or str(etapa)}"
+    prefix = _dev_prefix()
+    return (
+        f"{_flow_name(dataset_id, etapa)}/{prefix}{deployment or str(etapa)}"
+    )
 
 
 def check_update_and_dispatch(
@@ -226,6 +249,13 @@ def dispatch_build_and_promote(
 ) -> None:
     """Dispara o `build_and_promote` genérico via `run_deployment()`.
 
+    `promote_to_prod` não vem de `result`: é derivado de `_dev_prefix()` —
+    quem despachou (o `extract_and_load` chamando esta função) só promove
+    pra prod se ele mesmo estiver rodando num deployment de prod. Um
+    dataset real testado num deployment de dev nunca promove pra prod de
+    verdade, não importa o que o dataset diga — é uma garantia estrutural,
+    não uma configuração que o dataset possa contornar.
+
     Args:
         dataset_id: ID do dataset no backend/BigQuery.
         table_id: ID da tabela no backend/BigQuery.
@@ -243,7 +273,7 @@ def dispatch_build_and_promote(
                 result.prefect_mode
             ],
             "prefect_mode": result.prefect_mode,
-            "targets": result.targets,
+            "promote_to_prod": not _dev_prefix(),
             "partition_folders": result.partition_folders,
         },
         timeout=0,

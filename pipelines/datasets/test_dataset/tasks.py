@@ -54,10 +54,6 @@ def event_pipeline_download(download_params: dict) -> ExtractAndLoad:
         coverage=EVENT_PIPELINE_COVERAGE.model_dump(),
         data_path=csv_path,
         prefect_mode="dev",
-        # Teste real do caminho dev->prod (issue #1867): build_and_promote
-        # roda no pool basedosdados (prod), então "prod" aqui exercita
-        # transfer_files_to_prod_flow de verdade.
-        targets=["dev", "prod"],
     )
 
 
@@ -133,7 +129,5 @@ def event_pipeline_partitioned_download(
         coverage=EVENT_PIPELINE_COVERAGE.model_dump(),
         data_path=base_dir,
         prefect_mode="dev",
-        # Mesmo teste real do caminho dev->prod do event_pipeline.
-        targets=["dev", "prod"],
         partition_folders=[partition_folder],
     )
