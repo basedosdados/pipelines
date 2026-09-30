@@ -65,6 +65,7 @@ def build_and_promote(
     targets: list[str] | None = None,
     partition_folders: list[str] | None = None,
     download_billing_project: str = "basedosdados",
+    update_metadata: bool = False,
 ) -> None:
     """Materializa, testa e promove uma tabela pra prod, registrando a
     materialização ao final.
@@ -88,6 +89,13 @@ def build_and_promote(
         download_billing_project: projeto cobrado pelo download
             requester-pays do staging de dev, dentro de
             `transfer_files_to_prod_flow`.
+        update_metadata: só tem efeito quando `"prod"` **não** está em
+            `targets` — nesse caso, `transfer_files_to_prod_flow` nunca
+            roda, e é ele quem normalmente atualiza o metadado. `True`
+            registra a materialização mesmo assim, direto a partir do que
+            foi materializado em dev. Quando `"prod"` está em `targets`, o
+            metadado sempre atualiza (via `transfer_files_to_prod_flow`)
+            e este parâmetro é ignorado.
     """
     rename_flow_run_dataset_table(
         prefix="Build and Promote: ",
@@ -118,6 +126,15 @@ def build_and_promote(
             materialize_after_dump=True,
             coverage=coverage,
             dbt_command="run/test",
+            env=env,
+            bq_project=bq_project,
+            prefect_mode=prefect_mode,
+        )
+    elif update_metadata:
+        register_table_materialization_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            coverage=coverage,
             env=env,
             bq_project=bq_project,
             prefect_mode=prefect_mode,
