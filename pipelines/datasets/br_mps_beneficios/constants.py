@@ -322,3 +322,17 @@ class constants(Enum):
     # 7.3% of the rows in the Dec/2025 extract carry it; those rows are kept
     # with a null id_municipio rather than dropped.
     MUN_SENTINELS = ("00000-Zerada", "Zerada", "{ñ class}", "")
+
+    # ── recurring pipeline ────────────────────────────────────────────────
+    # dicionario_especie is rebuilt on every run even though it is static:
+    # both data tables carry a `relationships` test against
+    # ref('br_mps_beneficios__dicionario_especie'), so in a clean environment
+    # the sibling has to exist before either table is tested. It is 67 rows.
+    TABLE_CONCEDIDO = "beneficio_concedido_municipio_mes"
+    TABLE_MANTIDO = "beneficio_mantido_municipio_mes"
+    TABLE_DICIONARIO = "dicionario_especie"
+    ALL_TABLES = (
+        "dicionario_especie",
+        "beneficio_concedido_municipio_mes",
+        "beneficio_mantido_municipio_mes",
+    )
