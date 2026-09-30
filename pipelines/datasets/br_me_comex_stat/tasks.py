@@ -4,7 +4,6 @@ Tasks for br_me_comex_stat.
 
 from collections.abc import Callable
 from datetime import date
-from pathlib import Path
 
 from pipelines.crawler.me_comex_stat.constants import (
     constants as comex_constants,
@@ -39,8 +38,9 @@ from pipelines.utils.stage_dispatch import (
 # `extract_load_data` precisa de fábrica por tabela (`table_name`/`table_type`
 # variam). `clean_br_me_comex_stat` particiona por `ano/mes` (tabelas NCM)
 # ou `ano/mes/sigla_uf` (tabelas de município, várias UFs por arquivo
-# baixado) — `_discover_partition_folders` descobre as pastas-folha
-# realmente escritas em disco, sem hardcoded as UFs presentes no arquivo.
+# baixado) — `discover_partition_folders` (stage_dispatch.py) descobre as
+# pastas-folha realmente escritas em disco, sem hardcoded as UFs
+# presentes no arquivo.
 # ──────────────────────────────────────────────────────────────────────────────
 
 
@@ -49,22 +49,6 @@ def br_me_comex_stat_get_latest_update() -> SourceInspection:
     # pyrefly: ignore [missing-attribute]
     year, month = last_date.split("-")
     return SourceInspection(reference_date=date(int(year), int(month), 1))
-
-
-def _discover_partition_folders(base_path: str) -> list[str] | None:
-    """Encontra as pastas-folha (`ano=.../mes=...[/sigla_uf=...]`) escritas
-    por `to_partitions` dentro de `base_path`, relativas a ele — genérico
-    pros dois esquemas de partição deste dataset (2 ou 3 níveis), sem
-    precisar saber de antemão quais UFs vieram no arquivo baixado."""
-    base = Path(base_path)
-    if not base.exists():
-        return None
-    leaves = [
-        str(p.relative_to(base))
-        for p in base.rglob("*")
-        if p.is_dir() and not any(c.is_dir() for c in p.iterdir())
-    ]
-    return sorted(leaves) or None
 
 
 def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
@@ -92,8 +76,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
             coverage=COVERAGE.model_dump(),
             # pyrefly: ignore [bad-argument-type]
             data_path=filepath,
-            # pyrefly: ignore [bad-argument-type]
-            partition_folders=_discover_partition_folders(filepath),
         )
 
     return extract_load_data

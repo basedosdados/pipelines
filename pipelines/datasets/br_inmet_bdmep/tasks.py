@@ -44,14 +44,10 @@ def microdados_download(download_params: dict) -> ExtractAndLoad:
     """Baixa de novo o ZIP do ano corrente (barato o bastante pra repetir,
     ver banner acima) e consolida os CSVs num único arquivo particionado
     por `ano=` (`get_base_inmet`)."""
-    reference_date = download_params["reference_date"]
-    year = reference_date[:4]
-
     extract_last_date_from_source()
     filepath = get_base_inmet()
 
     return ExtractAndLoad(
         coverage=COVERAGE.model_dump(),
         data_path=filepath,
-        partition_folders=[f"ano={year}"],
     )

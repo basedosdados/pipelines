@@ -67,7 +67,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         return ExtractAndLoad(
             coverage=COVERAGE.model_dump(),
             data_path=filepath,
-            partition_folders=[f"ano={ref.year}/mes={ref.month:02d}"],
         )
 
     return extract_load_data

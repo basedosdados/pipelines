@@ -67,8 +67,6 @@ def make_get_latest_update(table_id: str) -> Callable[[], SourceInspection]:
 def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
     def extract_load_data(download_params: dict) -> ExtractAndLoad:
         ftp_files = download_params["ftp_files"]
-        source_max_date = get_datasus_source_max_date(ftp_files)
-        assert source_max_date is not None
 
         dbc_files = access_ftp_download_files_async(
             file_list=ftp_files, dataset_id=DATASET_ID, table_id=table_id
@@ -85,9 +83,6 @@ def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
         return ExtractAndLoad(
             coverage=COVERAGE.model_dump(),
             data_path=files_path,
-            partition_folders=[
-                f"ano={source_max_date.year}/mes={source_max_date.month}"
-            ],
             # `pre_process_files` grava parquet — sem declarar o formato, o
             # `dump_header` chamado por `_sync_staging_schema` procura .csv e
             # não encontra nada (mesmo aviso já existente no flow antigo).

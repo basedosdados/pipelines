@@ -113,13 +113,12 @@ def event_pipeline_partitioned_download(
     """
     Download simulado, mas particionado por `ano=/mes=` — o upload pro
     staging (feito pela cápsula, ver `event_pipeline_download` acima)
-    preserva essa estrutura a partir de `data_path`. `partition_folders`
-    no `ExtractAndLoad` é o que faz o `build_and_promote` promover só essa fatia
-    pra prod (`transfer_files_to_prod_flow`), não o staging inteiro.
+    preserva essa estrutura a partir de `data_path`. `ExtractAndLoad.partition_folders`
+    (descoberto automaticamente a partir de `data_path`) é o que faz o
+    `build_and_promote` promover só essa fatia pra prod
+    (`transfer_files_to_prod_flow`), não o staging inteiro.
     """
     reference_date = download_params["reference_date"]
-    ref = date.fromisoformat(reference_date)
-    partition_folder = f"ano={ref.year}/mes={ref.month}"
 
     base_dir = event_pipeline_partitioned_write_partitioned_csv(
         reference_date=reference_date
@@ -129,5 +128,4 @@ def event_pipeline_partitioned_download(
         coverage=EVENT_PIPELINE_COVERAGE.model_dump(),
         data_path=base_dir,
         prefect_mode="dev",
-        partition_folders=[partition_folder],
     )

@@ -12,6 +12,7 @@ import datetime
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import StrEnum
+from pathlib import Path
 
 from prefect import runtime
 from prefect.deployments import run_deployment
@@ -66,17 +67,18 @@ class ExtractAndLoad:
             `pipelines.utils.metadata.domain`).
         data_path: caminho local que `extract_load_data` escreveu. Numa
             tabela particionada, precisa ser um diretório organizado
-            exatamente na estrutura Hive que `partition_folders` nomeia
-            (ex. `data_path/ano=2026/mes=09/dados.csv`) — o upload deriva
-            o prefixo de partição no GCS a partir dessa estrutura em
-            disco. Se não bater com `partition_folders`, o arquivo sobe
-            pro lugar errado e a promoção pra prod não encontra nada.
+            exatamente na estrutura Hive que será promovida (ex.
+            `data_path/ano=2026/mes=09/dados.csv`) — o upload deriva o
+            prefixo de partição no GCS a partir dessa estrutura em disco.
         prefect_mode: modo do staging (`"dev"`/`"prod"`) — também resolve
             o projeto BigQuery de destino automaticamente (`MODE_PROJECT`).
         partition_folders: pastas Hive (`chave=valor`, ex.
             `ano=2026/mes=09`) atualizadas nesta execução — só elas são
-            promovidas pra prod, não a tabela inteira. `None` (default)
-            pra tabela sem partição.
+            promovidas pra prod, não a tabela inteira. Preenchido
+            automaticamente por `CheckThenExtractLoadPipeline.run_extract_and_load()`
+            (`discover_partition_folders(data_path)`), nunca pelo
+            dataset — não é parâmetro do construtor. `None` pra tabela
+            sem partição (nenhuma pasta Hive achada em `data_path`).
         dump_mode: modo de escrita no BigQuery.
         source_format: formato do arquivo em `data_path`.
     """
@@ -84,9 +86,36 @@ class ExtractAndLoad:
     coverage: dict
     data_path: str
     prefect_mode: str = "prod"
-    partition_folders: list[str] | None = None
     dump_mode: str = "append"
     source_format: str = "csv"
+    partition_folders: list[str] | None = field(default=None, init=False)
+
+
+def discover_partition_folders(data_path: str) -> list[str] | None:
+    """Acha as pastas-folha Hive (`chave=valor`) escritas em `data_path`.
+
+    Genérico pra qualquer profundidade de partição (`ano=/mes=`,
+    `ano=/mes=/sigla_uf=`, etc.) — não precisa saber de antemão quais
+    partições existem, só que `data_path` segue a convenção Hive (nenhuma
+    subpasta que não seja partição).
+
+    Args:
+        data_path: caminho local que `extract_load_data` escreveu.
+
+    Returns:
+        Caminhos relativos a `data_path` das pastas-folha, ordenados;
+        `None` se `data_path` não existe ou não tem nenhuma subpasta
+        (tabela sem partição).
+    """
+    base = Path(data_path)
+    if not base.exists():
+        return None
+    leaves = [
+        str(p.relative_to(base))
+        for p in base.rglob("*")
+        if p.is_dir() and not any(c.is_dir() for c in p.iterdir())
+    ]
+    return sorted(leaves) or None
 
 
 def deploy_tags(dataset_id: str, etapa: Etapa) -> list[str]:
@@ -459,6 +488,9 @@ class CheckThenExtractLoadPipeline:
         )
 
         download_result = self.extract_load_data(download_params)
+        download_result.partition_folders = discover_partition_folders(
+            download_result.data_path
+        )
 
         upload_to_gcs(
             data_path=download_result.data_path,
