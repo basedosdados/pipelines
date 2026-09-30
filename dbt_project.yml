@@ -37,6 +37,9 @@ models:
     columns: true
   basedosdados:
     # Config indicated by + and applies to all files under models/example/
+    ar_indec_eph:
+      +materialized: table
+      +schema: ar_indec_eph
     af_afrobarometer_survey:
       +materialized: table
       +schema: af_afrobarometer_survey

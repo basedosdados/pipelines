@@ -50,6 +50,20 @@ FOOTER = re.compile(
 # PP03K is laid out as "PP03K  <desc>" with "N (1)" on the following line.
 LONE_TYPE = re.compile(r"^\s*(?:([NC])\s*\(\s*(\d+)\s*\)|(date))\s*$")
 TRAILING_TYPE = re.compile(r"\s*(?:[NC]\s*\(\s*\d+\s*\)|date)\s*$")
+# A description stops at a section heading. Without this the last column of a
+# section absorbs the prose that follows it: p_adeccf, last in the Personas
+# section, swallowed the whole of "Anexo I. Recomendaciones tecnicas para el uso
+# de la informacion de ingresos" and reached 2115 characters, over BigQuery's
+# 1024-character limit for a column description.
+SECTION_STOP = re.compile(
+    r"^\s*(Anexo\b|Recomendaciones\s+t.cnicas|Montos\s+de\s+ingresos\b"
+    r"|Dise.o\s+de\s+registros\b|Informaci.n\s+para\s+las\s+personas\s+usuarias)",
+    re.I,
+)
+# A single column description never legitimately runs this long in this document;
+# anything beyond it means continuation lines are being mis-attributed.
+MAX_DESCRIPTION = 400
+
 HOGAR_HEAD = re.compile(r"Dise.o de registros de la base Hogar", re.I)
 PERSON_HEAD = re.compile(r"Dise.o de registros de la base Personas", re.I)
 
@@ -94,6 +108,10 @@ def parse_section(body: list[str]) -> dict[str, dict]:
             last_value = str(int(code))
             continue
         # A type declaration alone on its own line belongs to the column above.
+        if SECTION_STOP.match(line):
+            current = None
+            last_value = None
+            continue
         lt = LONE_TYPE.match(line)
         if lt and current:
             kind, width, is_date = lt.groups()
@@ -144,7 +162,7 @@ def parse_section(body: list[str]) -> dict[str, dict]:
                     cols[current]["values"][last_value] = clean(
                         cols[current]["values"][last_value] + " " + extra
                     )
-            else:
+            elif len(cols[current]["description"]) < MAX_DESCRIPTION:
                 cols[current]["description"] = clean(
                     (cols[current]["description"] + " " + extra).strip()
                 )

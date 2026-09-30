@@ -29,6 +29,8 @@ from constants import ARCH_DIR, CODE_DIR, TABLES
 from parse_registro import lookup
 
 N_WAVES = 87
+# BigQuery's hard limit on a column description.
+MAX_BQ_DESCRIPTION = 1024
 
 # --- naming -----------------------------------------------------------------
 STRUCTURAL_RENAME = {
@@ -155,6 +157,20 @@ DECILE_NOTE = (
     "del diseno de registros de INDEC"
 )
 
+# CH15_COD and CH16_COD do not merely change padding across eras: the three 2016
+# waves encode them as three-letter abbreviations ("tuc", "bol", "par", in
+# inconsistent case) while every other wave uses INDEC's numeric province and
+# country codes. The two encodings are not comparable without a crosswalk, so the
+# raw values are preserved and the break is documented. See analyse_geo_codes.py.
+GEO_CODE_NOTE = (
+    "Atencion: la codificacion cambia entre ondas. Las tres ondas de 2016 "
+    "(2016 Q2 a 2016 Q4) usan abreviaturas de tres letras, con mayusculas y "
+    "minusculas mezcladas, mientras que el resto de la serie usa los codigos "
+    "numericos de provincia y pais de INDEC. Se preservan los valores originales, "
+    "por lo que comparar esas tres ondas con el resto exige una tabla de "
+    "equivalencias"
+)
+
 SENTINEL_MINUS_NINE = (
     "El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de "
     "cualquier calculo."
@@ -209,6 +225,16 @@ def build(
             )
         description = description[0].upper() + description[1:]
         description = description.rstrip(".")
+        # BigQuery rejects a column description over 1024 characters, and dbt
+        # persists these, so the whole model fails on one long description.
+        # Enforce the limit here rather than discovering it during a dbt run.
+        if len(description) > MAX_BQ_DESCRIPTION:
+            raise RuntimeError(
+                f"{table}.{col}: description is {len(description)} characters, "
+                f"over BigQuery's {MAX_BQ_DESCRIPTION}-character limit. Fix the "
+                f"source of the description rather than truncating it here: "
+                f"{description[:120]}..."
+            )
 
         has_values = bool(reg.get("values"))
         btype = bq_type(col, prof, has_values)
@@ -269,6 +295,8 @@ def build(
             and col.endswith(("IFR", "CFR", "CUR", "NDR", "CCF"))
         ):
             obs.append(DECILE_NOTE)
+        if col in ("CH15_COD", "CH16_COD"):
+            obs.append(GEO_CODE_NOTE)
         if prof.get("min") is not None and prof["min"] == -9:
             obs.append(SENTINEL_MINUS_NINE)
         if col == "CH06":

@@ -1,0 +1,1327 @@
+---
+version: 2
+models:
+  - name: ar_indec_eph__microdatos_individuo
+    description: >
+      Microdatos de personas de la Encuesta Permanente de Hogares (EPH continua) del
+      INDEC,
+      con una fila por persona, hogar y trimestre. Cubre las 87 ondas trimestrales
+      publicadas entre 2003 Q3 y 2026 Q1 para los 31 aglomerados urbanos relevados,
+      aproximadamente el 70% de la poblacion urbana argentina. El cuestionario cambio
+      a lo
+      largo de la serie, por lo que la tabla es la union de todos los esquemas: una
+      columna
+      que una onda no pregunto aparece nula en esa onda, y la columna temporal_coverage
+      de
+      la arquitectura indica el periodo de vigencia de cada una. INDEC no relevo 2007
+      Q3 y
+      no publico 2015 Q3, 2015 Q4 ni 2016 Q1; las series entre 2007 y 2015 estan sujetas
+      a
+      la advertencia oficial de INDEC sobre el periodo de intervencion. Use siempre
+      pondera
+      como factor de expansion. El identificador de vivienda id_vivienda cambia de
+      formato
+      en 2016, por lo que no permite seguir una vivienda a traves de ese corte.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - trimestre
+            - id_vivienda
+            - nro_hogar
+            - componente
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - ch16_cod
+            - empleo
+            - idimpp
+            - imputa
+            - p_gdeccf
+            - p_pdeccf
+            - pj1_1
+            - pj2_1
+            - pj3_1
+            - pp03k
+            - pp04a1
+            - pp04b_caes
+            - pp05b3
+            - pp05i
+            - pp05j
+            - pp05k
+            - pp06e1
+            - pp06k
+            - pp06k_mes
+            - pp06k_sem
+            - pp06l
+            - pp07b1_01
+            - pp07f1_1
+            - pp07f1_2
+            - pp07f1_3
+            - pp07i2
+            - pp07i3
+            - pp07i4
+            - pp07l
+            - pp07m
+            - pp08g
+            - pp08g_dmes
+            - pp08g_dsem
+            - pp08h
+            - pp09a_esp
+            - pp09c_esp
+            - pp10a
+            - pp10b1
+            - pp10b10
+            - pp10b2
+            - pp10b3
+            - pp10b4
+            - pp10b5
+            - pp10b6
+            - pp10b7
+            - pp10b8
+            - pp10b9
+            - pp10c
+            - pp10d
+            - pp10e
+            - pp11a
+            - pp11b1
+            - pp11b2_ano
+            - pp11b2_dia
+            - pp11b2_mes
+            - pp11b_caes
+            - pp11b_cod
+            - pp11c
+            - pp11c99
+            - pp11d_cod
+            - pp11g_ano
+            - pp11g_dia
+            - pp11g_mes
+            - pp11l
+            - pp11l1
+            - pp11l2
+            - pp11m
+            - pp11n
+            - pp11o
+            - pp11p
+            - pp11q
+            - pp11r
+            - pp11s
+            - pp11t
+            - sector
+    columns:
+      - name: ano
+        description: >
+          Año de relevamiento
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano
+      - name: trimestre
+        description: >
+          Número de trimestre
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__trimestre')
+              field: trimestre
+      - name: id_vivienda
+        description: >
+          Código para distinguir viviendas
+        tests: [not_null]
+      - name: nro_hogar
+        description: >
+          Código para distinguir hogares
+        tests: [not_null]
+      - name: componente
+        description: >
+          Número de componente
+        tests: [not_null]
+      - name: id_region
+        description: >
+          Código de Región
+      - name: id_aglomerado
+        description: >
+          Aglomerado
+      - name: mas_500
+        description: >
+          Aglomerados según tamaño
+      - name: pondera
+        description: >
+          Ponderación
+      - name: pondiio
+        description: >
+          Ponderador del ingreso de la ocupación principal (ver Anexo I) Ingreso de
+          otras
+          ocupaciones
+      - name: pondii
+        description: >
+          Ponderador para ingreso total individual (ver Anexo I) Ingresos no laborales
+      - name: pondih
+        description: >
+          Ponderador del ingreso total familiar y del ingreso per cápita familiar,
+          para hogares
+          (ver Anexo I) Ingreso per cápita familiar de las personas
+      - name: h15
+        description: >
+          Entrevista individual realizada
+      - name: ch03
+        description: >
+          Relación de parentesco
+      - name: ch04
+        description: >
+          Sexo
+      - name: ch06
+        description: >
+          Edad en años cumplidos
+      - name: ch07
+        description: >
+          Situación conyugal
+      - name: ch08
+        description: >
+          Tipo de cobertura médica
+      - name: ch09
+        description: >
+          ¿Sabe leer y escribir?
+      - name: ch10
+        description: >
+          ¿Asiste o asistió a algún establecimiento educativo?
+      - name: ch11
+        description: >
+          Ese establecimiento es
+      - name: ch12
+        description: >
+          ¿Cuál es el nivel más alto que cursa o cursó?
+      - name: ch13
+        description: >
+          ¿Finalizó ese nivel?
+      - name: ch14
+        description: >
+          ¿Cuál fue el último año que aprobó?
+      - name: ch15
+        description: >
+          ¿Dónde nació?
+      - name: ch15_cod
+        description: >
+          Lugar de nacimiento. Código
+      - name: ch16
+        description: >
+          ¿Dónde vivía hace 5 años?
+      - name: ch16_cod
+        description: >
+          Residencia anterior. Código
+      - name: nivel_ed
+        description: >
+          Nivel educativo
+      - name: estado
+        description: >
+          Condición de actividad
+      - name: cat_ocup
+        description: >
+          Categoría ocupacional (para ocupados y desocupados con ocupación anterior)
+      - name: cat_inac
+        description: >
+          Categoría de inactividad
+      - name: pp02c1
+        description: >
+          ¿De qué manera estuvo buscando trabajo? Hizo contactos, entrevistas
+      - name: pp02c2
+        description: >
+          Mandó currículum, puso o contestó avisos (diarios, internet)
+      - name: pp02c3
+        description: >
+          Se presentó en establecimientos
+      - name: pp02c4
+        description: >
+          Hizo algo para ponerse por su cuenta
+      - name: pp02c5
+        description: >
+          Puso carteles en negocios, preguntó en el barrio
+      - name: pp02c6
+        description: >
+          Consultó a parientes, amigos
+      - name: pp02c7
+        description: >
+          Se anotó en bolsas, listas, planes de empleo, agencias, contratistas, o
+          alguien
+      - name: pp02c8
+        description: >
+          Buscó trabajo de otra forma forma activa
+      - name: pp02e
+        description: >
+          Durante esos 30 días, no buscó trabajo porque
+      - name: pp02h
+        description: >
+          En los últimos 12 meses ¿buscó trabajo en algún momento?
+      - name: pp02i
+        description: >
+          En los últimos 12 meses ¿trabajó en algún momento?
+      - name: pp03c
+        description: >
+          La semana pasada, ¿tenía
+      - name: pp03d
+        description: >
+          Cantidad de ocupaciones
+      - name: pp3e_tot
+        description: >
+          Total de horas que trabajó en la semana en la ocupación principal
+      - name: pp3f_tot
+        description: >
+          Total de horas que trabajó en la semana en otras ocupaciones
+      - name: pp03g
+        description: >
+          La semana pasada, ¿quería trabajar más horas?
+      - name: pp03h
+        description: >
+          Si hubiera conseguido más horas
+      - name: pp03i
+        description: >
+          En los últimos 30 días, ¿buscó trabajar más horas?
+      - name: pp03j
+        description: >
+          Aparte de este/os trabajo/s, ¿estuvo buscando algún empleo/ocupación/actividad?
+      - name: intensi
+        description: >
+          Intensidad de la ocupación: clasifica a los ocupados en subocupados, ocupados
+          plenos y
+          sobreocupados según las horas trabajadas y su disposición a trabajar más
+      - name: pp04a
+        description: >
+          El negocio/empresa/institución/actividad en la que trabaja es (se refiere
+          al que
+      - name: pp04b_cod
+        description: >
+          Código de Actividad para ocupados
+      - name: pp04b1
+        description: >
+          Si presta servicio doméstico en hogares particulares
+      - name: pp04b2
+        description: >
+          ¿En cuántas casas trabaja? (cantidad)
+      - name: pp04b3_mes
+        description: >
+          Antigüedad en meses
+      - name: pp04b3_ano
+        description: >
+          Antigüedad en años
+      - name: pp04b3_dia
+        description: >
+          Antigüedad en días
+      - name: pp04c
+        description: >
+          ¿Cuántas personas, incluido...trabajan allí en total?
+      - name: pp04c99
+        description: >
+          Tamaño del establecimiento
+      - name: pp04d_cod
+        description: >
+          Código de Ocupación para ocupados
+      - name: pp04g
+        description: >
+          ¿Dónde realiza principalmente sus tareas?
+      - name: pp05b2_mes
+        description: >
+          Antigüedad en meses
+      - name: pp05b2_ano
+        description: >
+          Antigüedad en años
+      - name: pp05b2_dia
+        description: >
+          Antigüedad en días
+      - name: pp05c_1
+        description: >
+          ¿En ese negocio/empresa/actividad, tiene maquinarias/equipos?
+      - name: pp05c_2
+        description: >
+          ¿En ese negocio/empresa/actividad, tiene local (incluye kiosco/puesto fijo)?
+      - name: pp05c_3
+        description: >
+          ¿En ese negocio/empresa/actividad, tiene vehículo?
+      - name: pp05e
+        description: >
+          ¿Para la actividad del negocio, en los últimos 3 meses, tuvo que gastar
+          en la co
+      - name: pp05f
+        description: >
+          Ese negocio/empresas/actividad, trabaja habitualmente para
+      - name: pp05h
+        description: >
+          ¿Durante cuánto tiempo ha estado trabajando en ese empleo de forma continua?
+      - name: pp06a
+        description: >
+          ¿En ese negocio/empresa/actividad ¿tiene socios o familiares asociados?
+      - name: pp06c
+        description: >
+          Monto de patrones y cuenta propia sin socios percibido en ese mes
+      - name: pp06d
+        description: >
+          Monto de patrones y cuenta propia con socios percibido en ese mes
+      - name: pp06e
+        description: >
+          ¿Ese negocio/empresa/actividad
+      - name: pp06h
+        description: >
+          ¿Es una actividad familiar? (solo códigos 2 y 3 de pp06e)
+      - name: pp07a
+        description: >
+          ¿Cuánto tiempo hace que está trabajando en ese empleo en forma continua?
+      - name: pp07c
+        description: >
+          ¿Ese empleo tiene tiempo de finalización?
+      - name: pp07d
+        description: >
+          ¿Por cuánto tiempo es ese trabajo? (para los que tienen en pp07c=1)
+      - name: pp07e
+        description: >
+          ¿Ese trabajo es
+      - name: pp07f1
+        description: >
+          ¿En este trabajo le dan de comer gratis en el lugar de trabajo?
+      - name: pp07f2
+        description: >
+          ¿En este trabajo le dan vivienda?
+      - name: pp07f3
+        description: >
+          ¿En este trabajo le dan algún producto o mercadería?
+      - name: pp07f4
+        description: >
+          ¿En este trabajo le dan algún otro beneficio? (automóvil, teléfono celular,
+          pasa
+      - name: pp07f5
+        description: >
+          No recibe ninguno
+      - name: pp07g1
+        description: >
+          ¿En este trabajo tiene vacaciones pagas?
+      - name: pp07g2
+        description: >
+          ¿En este trabajo tiene aguinaldo?
+      - name: pp07g3
+        description: >
+          ¿En este trabajo tiene días pagos por enfermedad?
+      - name: pp07g4
+        description: >
+          ¿En este trabajo tiene obra social?
+      - name: pp07g_59
+        description: >
+          No tiene ninguno
+      - name: pp07h
+        description: >
+          ¿Por ese trabajo tiene descuento jubilatorio?
+      - name: pp07i
+        description: >
+          ¿Aporta por sí mismo a algún sistema jubilatorio?
+      - name: pp07j
+        description: >
+          ¿El turno habitual de trabajo es
+      - name: pp07k
+        description: >
+          ¿Cuando cobra
+      - name: pp08d1
+        description: >
+          Monto por sueldos/jornales, salario familiar, horas extras, otras bonificaciones
+      - name: pp08d4
+        description: >
+          Monto en tickets percibido en ese mes
+      - name: pp08f1
+        description: >
+          Monto en pesos por comisión por venta/producción percibido en ese mes
+      - name: pp08f2
+        description: >
+          Monto en pesos por propinas percibido en ese mes
+      - name: pp08j1
+        description: >
+          Monto por aguinaldo percibido en ese mes
+      - name: pp08j2
+        description: >
+          Monto por otras bonificaciones no habituales percibido en ese mes
+      - name: pp08j3
+        description: >
+          Monto por retroactivos percibido en ese mes
+      - name: pp09a
+        description: >
+          Sólo ocupados de: Ciudad de Buenos Aires - Partidos del GBA, en su ocupación
+          (o
+      - name: pp09a_esp
+        description: >
+          Especificar: contiene la descripción de otro lugar
+      - name: pp09b
+        description: >
+          ¿Trabaja en esta ciudad?-Sólo ocupados de: Posadas, Formosa, Corrientes,
+          Resiste
+      - name: pp09c
+        description: >
+          ¿Dónde trabaja?
+      - name: pp09c_esp
+        description: >
+          Descripción de otro lugar (según pregunta pp09c)
+      - name: pp10a
+        description: >
+          ¿Cuánto hace que está buscando trabajo
+      - name: pp10c
+        description: >
+          ¿Durante ese tiempo hizo algún trabajo/changa?
+      - name: pp10d
+        description: >
+          ¿Ha trabajado alguna vez?
+      - name: pp10e
+        description: >
+          ¿Cuánto tiempo hace que terminó su último trabajo/changa
+      - name: pp11a
+        description: >
+          ¿El negocio/empresa/institucion/actividad en la que trabajaba era
+      - name: pp11b_cod
+        description: >
+          Código de Actividad para desocupados con ocupación anterior
+      - name: pp11b1
+        description: >
+          Si prestaba servicios doméstico en hogares particulares
+      - name: pp11b2_mes
+        description: >
+          Antigüedad en meses
+      - name: pp11b2_ano
+        description: >
+          Antigüedad en años
+      - name: pp11b2_dia
+        description: >
+          Antigüedad en días
+      - name: pp11c
+        description: >
+          ¿Cuántas personas, incluido... trabajaban allí en total?
+      - name: pp11c99
+        description: >
+          Tamaño del establecimiento
+      - name: pp11d_cod
+        description: >
+          Código de la Ocupación anterior de los desocupados
+      - name: pp11g_ano
+        description: >
+          Antigüedad en años
+      - name: pp11g_mes
+        description: >
+          Antigüedad en meses
+      - name: pp11g_dia
+        description: >
+          Antigüedad en días
+      - name: pp11l
+        description: >
+          ¿Cuál fue la razón principal por la que dejó esa actividad?
+      - name: pp11l1
+        description: >
+          ¿Ese trabajo era
+      - name: pp11m
+        description: >
+          ¿Ese trabajo era
+      - name: pp11n
+        description: >
+          ¿En ese trabajo le hacían descuento jubilatorio?
+      - name: pp11o
+        description: >
+          ¿Cuál fue la razón principal por la que dejó ese trabajo?
+      - name: pp11p
+        description: >
+          ¿Cerró la empresa?(para quienes responden en pp11o=1)
+      - name: pp11q
+        description: >
+          ¿Fue la única persona que quedó sin trabajo?
+      - name: pp11r
+        description: >
+          ¿Le enviaron telegrama?
+      - name: pp11s
+        description: >
+          ¿Le pagaron indemnización?
+      - name: pp11t
+        description: >
+          ¿Está cobrando seguro de desempleo?
+      - name: p21
+        description: >
+          Monto de ingreso de la ocupación principal percibido en ese mes
+      - name: decocur
+        description: >
+          Grupo decílico de P21 del TOTAL EPH
+      - name: idecocur
+        description: >
+          Grupo decílico de P21 del INTERIOR EPH
+      - name: rdecocur
+        description: >
+          Grupo decílico de P21 de la REGION
+      - name: gdecocur
+        description: >
+          Grupo decílico de P21 del CONJUNTO DE AGLOMERADOS DE 500 MIL Y MAS HABITANTES
+      - name: pdecocur
+        description: >
+          Grupo decílico de P21 del CONJUNTO DE AGLOMERADOS DE MENOS DE 500 MIL HABITANTES
+      - name: adecocur
+        description: >
+          Grupo decílico de P21 del AGLOMERADO
+      - name: tot_p12
+        description: >
+          Monto total de ingreso por otras ocupaciones percibido en ese mes
+      - name: p47t
+        description: >
+          Monto total de ingreso individual percibido en ese mes (sumatoria ingresos
+          labor
+      - name: decindr
+        description: >
+          Grupo decílico de P47T del TOTAL EPH
+      - name: idecindr
+        description: >
+          Grupo decílico de P47T del INTERIOR EPH
+      - name: rdecindr
+        description: >
+          Grupo decílico de P47T de la REGION
+      - name: gdecindr
+        description: >
+          Grupo decílico de P47T del CONJUNTO DE AGLOMERADOS DE 500 MIL Y MAS HABITANTES
+      - name: pdecindr
+        description: >
+          Grupo decílico de P47T del CONJUNTO DE AGLOMERADOS DE MENOS DE 500 MIL HABITANTE
+      - name: adecindr
+        description: >
+          Grupo decílico de P47T del AGLOMERADO
+      - name: v2_m
+        description: >
+          Monto por jubilación o pensión percibido en ese mes
+      - name: v3_m
+        description: >
+          Monto por indemnización o despido percibido en ese mes
+      - name: v4_m
+        description: >
+          Monto por seguro de desempleo percibido en ese mes
+      - name: v5_m
+        description: >
+          Monto por subsidio o ayuda social (en dinero) percibido en ese mes
+      - name: v8_m
+        description: >
+          Monto por alquiler de su propiedad percibido en ese mes
+      - name: v9_m
+        description: >
+          Monto por ganancias de algún negocio en el que no trabajó percibido en ese
+          mes
+      - name: v10_m
+        description: >
+          Monto por intereses o rentas por plazos fijos/inversiones percibido en ese
+          mes
+      - name: v11_m
+        description: >
+          Monto por beca de estudio percibido en ese mes
+      - name: v12_m
+        description: >
+          Monto por cuota de alimentos/ayuda (en dinero) de personas que no viven
+          en el ho
+      - name: v18_m
+        description: >
+          Monto por otros ingresos en efectivo percibido en ese mes
+      - name: v19_am
+        description: >
+          Monto por trabajo de menores de 10 años percibido en ese mes
+      - name: v21_m
+        description: >
+          Monto por aguinaldo de la jubilación percibido en ese mes
+      - name: t_vi
+        description: >
+          Monto total de ingreso no laboral percibido en ese mes
+      - name: itf
+        description: >
+          Monto total de ingreso familiar percibido en ese mes
+      - name: decifr
+        description: >
+          Grupo decílico de ITF del TOTAL EPH
+      - name: idecifr
+        description: >
+          Grupo decílico de ITF del INTERIOR EPH
+      - name: rdecifr
+        description: >
+          Grupo decílico de ITF de la REGION
+      - name: gdecifr
+        description: >
+          Grupo decílico de ITF del CONJUNTO DE AGLOMERADOS DE 500 MIL Y MAS HABITANTES
+      - name: pdecifr
+        description: >
+          Grupo decílico de ITF del CONJUNTO DE AGLOMERADOS DE MENOS DE 500 MIL HABITANTES
+      - name: adecifr
+        description: >
+          Grupo decílico de ITF del AGLOMERADO
+      - name: ipcf
+        description: >
+          Monto de ingreso per cápita familiar percibido en ese mes
+      - name: deccfr
+        description: >
+          Grupo decílico de IPCF del TOTAL EPH
+      - name: ideccfr
+        description: >
+          Grupo decílico de IPCF del INTERIOR EPH
+      - name: rdeccfr
+        description: >
+          Grupo decílico de IPCF de la REGION
+      - name: gdeccfr
+        description: >
+          Grupo decílico de IPCF del CONJUNTO DE AGLOMERADOS DE 500 MIL Y MAS HABITANTES
+      - name: pdeccfr
+        description: >
+          Grupo decílico de IPCF del CONJUNTO DE AGLOMERADOS DE MENOS DE 500 MIL HABITANTE
+      - name: adeccfr
+        description: >
+          Grupo decílico de IPCF del AGLOMERADO
+      - name: pj1_1
+        description: >
+          Ocupados con plan jefas jefes de hogar en su ocupación principal
+      - name: pj2_1
+        description: >
+          Resto de ocupados con plan jefas jefes de hogar
+      - name: pj3_1
+        description: >
+          Desocupados e inactivos con plan jefas jefes de hogar
+      - name: idimpp
+        description: >
+          Identificador de casos imputados en monto de ingreso
+      - name: pp04b_caes
+        description: >
+          Código de Actividad para ocupados (CAES-1.0)
+      - name: pp11b_caes
+        description: >
+          Código de Actividad para desocupados con ocupación anterior (CAES-1.0)
+      - name: ch05
+        description: >
+          Fecha de nacimiento (día, mes y año)
+      - name: imputa
+        description: >
+          Indica los casos que han sido imputados
+      - name: v2_02_m
+        description: >
+          Monto del ingreso por jubilación o pensión de "ama de casa" o por moratoria
+          previsional
+      - name: v2_03_m
+        description: >
+          Monto del ingreso por otras pensiones, como por ejemplo discapacidad, Madre
+          de 7
+          hijos, PUAM, vejez, etc
+      - name: v5_03_m
+        description: >
+          Monto del ingreso por ayuda en dinero a través de iglesias, parroquias,
+          organizaciones
+          no gubernamentales
+      - name: v11_02_m
+        description: >
+          Monto del ingreso por otra beca de estudio (en dinero) de instituciones
+          no
+          gubernamentales
+      - name: pp07b1_01
+        description: >
+          Por este trabajo, ¿cobra algún plan? (como el Potenciar u otro similar)
+      - name: empleo
+        description: >
+          Condición de formalidad del empleo en la ocupación principal
+      - name: sector
+        description: >
+          Sector de la ocupación principal según formalidad
+      - name: pp02a
+        description: >
+          Si la semana pasada conseguía un trabajo, ¿podía empezar a trabajar ya?
+          (o a más
+          tardar en dos semanas)
+      - name: pp02b
+        description: >
+          ¿Durante los últimos 30 días, estuvo buscando trabajo de alguna manera?
+      - name: pp02d
+        description: >
+          ¿Durante esos 30 días, consultó amigos/parientes, puso carteles, hizo algo
+          para
+          ponerse por su cuenta?
+      - name: pp02f
+        description: >
+          ¿Durante los últimos 30 días, estuvo buscando trabajo de alguna manera?
+      - name: pp02g
+        description: >
+          ¿Puede ................... empezar a trabajar ya? (o a más tardar en dos
+          semanas)
+      - name: pp03k
+        description: >
+          ¿Estuvo buscando porque
+      - name: pp04a1
+        description: >
+          ¿Es de nivel…
+      - name: pp05b3
+        description: >
+          ¿El negocio/empresa/actividad donde trabaja o ayuda, puede emitir facturas?
+      - name: pp05i
+        description: >
+          En los últimos 3 meses, por este trabajo, ¿realizó aportes como…
+      - name: pp05j
+        description: >
+          ¿No los realizó porque…
+      - name: pp05k
+        description: >
+          Este negocio/empresa/actividad, ¿puede emitir facturas?
+      - name: pp06e1
+        description: >
+          Este negocio/empresa/actividad, ¿recurre a los servicios de un contador/tiene
+          oficina
+          contable?
+      - name: pp06k
+        description: >
+          Lo ganado corresponde a su trabajo de…
+      - name: pp06k_sem
+        description: >
+          ¿Cuántos días por semana?
+      - name: pp06k_mes
+        description: >
+          ¿Cuántos días en el mes?
+      - name: pp06l
+        description: >
+          ¿A cuántas horas por día corresponde? (en un día promedio) Ocupación principal
+          de los
+          trabajadores asalariados Campo Tipo (longitud) Descripción Ocupación principal
+          de los
+          trabajadores asalariados (excepto servicio doméstico)
+      - name: pp07f1_1
+        description: >
+          ¿Para realizar su trabajo tiene que utilizar… …sus propias maquinarias/equipos?
+      - name: pp07f1_2
+        description: >
+          …local propio?
+      - name: pp07f1_3
+        description: >
+          …vehículo propio?
+      - name: pp07i2
+        description: >
+          El negocio/empresa/institución que le paga, ¿le hace el descuento jubilatorio
+          a alguno
+          de sus empleados?
+      - name: pp07i3
+        description: >
+          El negocio/empresa/institución que le paga, ¿emite facturas?
+      - name: pp07i4
+        description: >
+          El negocio/empresa/institución que le paga, ¿cuenta con los servicios de
+          un
+          contador/oficina contable?
+      - name: pp07l
+        description: >
+          El recibo abarca…
+      - name: pp07m
+        description: >
+          Aproximadamente, ¿qué parte de su sueldo no está en el recibo?
+      - name: pp08g
+        description: >
+          Ese cobro (o arreglo) corresponde a su trabajo de…
+      - name: pp08g_dsem
+        description: >
+          ¿Cuántos días por semana?
+      - name: pp08g_dmes
+        description: >
+          ¿Cuántos días en el mes?
+      - name: pp08h
+        description: >
+          ¿A cuántas horas por día corresponde? (en un día promedio)
+      - name: pp10b1
+        description: >
+          ¿Por qué razones no encuentra? Recién empezó a buscar
+      - name: pp10b2
+        description: >
+          Por la edad
+      - name: pp10b3
+        description: >
+          Falta de trabajo en su especialidad
+      - name: pp10b4
+        description: >
+          No tiene experiencia/capacitación
+      - name: pp10b5
+        description: >
+          Le faltan vinculaciones para conseguir trabajo
+      - name: pp10b6
+        description: >
+          No hay trabajo
+      - name: pp10b7
+        description: >
+          No le alcanza la plata para salir a buscar
+      - name: pp10b8
+        description: >
+          Suspendido
+      - name: pp10b9
+        description: >
+          Otras razones
+      - name: pp10b10
+        description: >
+          Desconoce por qué no encuentra trabajo (solo autoinformante)
+      - name: pp11l2
+        description: >
+          ¿Ese trabajo era
+      - name: v2_01_m
+        description: >
+          Monto del ingreso por jubilación o pensión obtenida por los aportes del
+          trabajo
+      - name: v5_01_m
+        description: >
+          Monto del ingreso por la Asignación Universal por Hijo (AUH) y/o Asignación
+          por
+          Embarazo (incluye Tarjeta Alimentar)
+      - name: v5_02_m
+        description: >
+          Monto del ingreso por otro plan social/subsidio en dinero otorgado por el
+          gobierno
+      - name: v11_01_m
+        description: >
+          Monto del ingreso por una beca de estudio (en dinero) del gobierno para
+          continuar
+          estudios o finalizarlos (Ej.: Beca Progresar u otras)
+      - name: v21_01_m
+        description: >
+          Monto del ingreso por aguinaldo de jubilación o pensión obtenida por los
+          aportes del
+          trabajo
+      - name: v21_02_m
+        description: >
+          Monto del ingreso por aguinaldo de jubilación o pensión de "ama de casa"
+          o por
+          moratoria previsional
+      - name: v21_03_m
+        description: >
+          Monto del ingreso por aguinaldo de otras pensiones, como por ejemplo por
+          discapacidad,
+          Madre de 7 hijos, PUAM, vejez, etc.?
+      - name: v22_01_m
+        description: >
+          Monto del ingreso por retroactivo de jubilación o pensión obtenida por los
+          aportes del
+          trabajo
+      - name: v22_02_m
+        description: >
+          Monto del ingreso por retroactivo de jubilación o pensión de "ama de casa"
+          o por
+          moratoria previsional
+      - name: v22_03_m
+        description: >
+          Monto del ingreso por retroactivo de otras pensiones, como por ejemplo por
+          discapacidad, Madre de 7 hijos, PUAM, vejez, etc.? Ingreso total familiar
+      - name: p_deccf
+        description: >
+          N° de decil de ingreso per cápita familiar de las personas del Total EPH
+          (ver Anexo I)
+      - name: p_rdeccf
+        description: >
+          N° de decil de ingreso per cápita familiar de las personas de la región
+          (ver Anexo I)
+      - name: p_gdeccf
+        description: >
+          N° de decil de ingreso per cápita familiar de las personas del conjunto
+          de aglomerados
+          de 500.000 y más habitantes (ver Anexo I)
+      - name: p_pdeccf
+        description: >
+          N° de decil de ingreso per cápita familiar de las personas del conjunto
+          de aglomerados
+          de menos de 500.000 habitantes (ver Anexo I)
+      - name: p_ideccf
+        description: >
+          N° de decil de ingreso per cápita familiar de las personas del interior
+          EPH (ver Anexo
+          I)
+      - name: p_adeccf
+        description: >
+          N° de decil de ingreso per cápita familiar de las personas del aglomerado
+          (ver Anexo
+          I)
+  - name: ar_indec_eph__microdatos_hogar
+    description: >
+      Microdatos de hogares de la Encuesta Permanente de Hogares (EPH continua) del
+      INDEC,
+      con una fila por hogar y trimestre. Cubre las 87 ondas trimestrales publicadas
+      entre
+      2003 Q3 y 2026 Q1 para los 31 aglomerados urbanos relevados. Incluye caracteristicas
+      habitacionales de la vivienda, estrategias de ingreso del hogar, ingreso total
+      familiar y per capita, y la organizacion de las tareas domesticas. Se vincula
+      con
+      microdatos_individuo por id_vivienda y nro_hogar. La tabla es la union de todos
+      los
+      esquemas de cuestionario de la serie, por lo que una columna que una onda no
+      pregunto
+      aparece nula en esa onda. INDEC no relevo 2007 Q3 y no publico 2015 Q3, 2015
+      Q4 ni
+      2016 Q1. Use siempre pondera como factor de expansion.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, trimestre, id_vivienda, nro_hogar]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - idimph
+            - ii7_esp
+            - ii8_esp
+            - iv1_esp
+            - iv3_esp
+            - iv7_esp
+    columns:
+      - name: ano
+        description: >
+          Año de relevamiento
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano
+      - name: trimestre
+        description: >
+          Número de trimestre
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__trimestre')
+              field: trimestre
+      - name: id_vivienda
+        description: >
+          Código para distinguir viviendas
+        tests: [not_null]
+      - name: nro_hogar
+        description: >
+          Código para distinguir hogares
+        tests: [not_null]
+      - name: id_region
+        description: >
+          Código de Región
+      - name: id_aglomerado
+        description: >
+          Aglomerado
+      - name: mas_500
+        description: >
+          Aglomerados según tamaño
+      - name: pondera
+        description: >
+          Ponderación
+      - name: pondih
+        description: >
+          Ponderador del ingreso total familiar y del ingreso per cápita familiar
+          (ver Anexo I)
+          Organización del hogar 96: Servicio doméstico 97: Otra persona que no vive
+          en el hogar
+          96: Servicio doméstico 97: Otra persona que no vive en el hogar Número de
+          componente
+          del hogar
+      - name: realizada
+        description: >
+          Entrevista realizada
+      - name: iv1
+        description: >
+          Tipo de vivienda
+      - name: iv1_esp
+        description: >
+          Otro tipo de vivienda. Especificar
+      - name: iv2
+        description: >
+          ¿Cuántos ambientes/habitaciones tiene la vivienda en total?
+      - name: iv3
+        description: >
+          Los pisos interiores son principalmente de
+      - name: iv3_esp
+        description: >
+          Otro material de pisos interiores. Especificar
+      - name: iv4
+        description: >
+          La cubierta exterior del techo es de
+      - name: iv5
+        description: >
+          ¿El techo tiene cielorraso/revestimiento interior?
+      - name: iv6
+        description: >
+          Tiene agua
+      - name: iv7
+        description: >
+          El agua es de
+      - name: iv7_esp
+        description: >
+          Otra fuente especificar
+      - name: iv8
+        description: >
+          ¿Tiene baño/letrina?
+      - name: iv9
+        description: >
+          El baño o letrina está
+      - name: iv10
+        description: >
+          El baño tiene
+      - name: iv11
+        description: >
+          El desagüe del baño es
+      - name: iv12_1
+        description: >
+          ¿La vivienda está ubicada cerca de basural/es (3 cuadras o menos)?
+      - name: iv12_2
+        description: >
+          ¿La vivienda está ubicada en zona inundable (en los últimos 12 meses)?
+      - name: iv12_3
+        description: >
+          ¿La vivienda está ubicada en villa de emergencia?
+      - name: ii1
+        description: >
+          ¿Cuántos ambientes/habitaciones tiene este hogar para su uso exclusivo?
+      - name: ii2
+        description: >
+          De esos, ¿cuántos usan habitualmente para dormir?
+      - name: ii3
+        description: >
+          ¿Utiliza alguno exclusivamente como lugar de trabajo?
+      - name: ii3_1
+        description: >
+          Si utiliza alguno exclusivamente como lugar de trabajo, ¿cuántos?
+      - name: ii4_1
+        description: >
+          ¿Tiene cuarto de cocina?
+      - name: ii4_2
+        description: >
+          ¿Tiene lavadero?
+      - name: ii4_3
+        description: >
+          ¿Tiene garage?
+      - name: ii5
+        description: >
+          De esos (los sí de preg. 4), ¿usan alguno para dormir?
+      - name: ii5_1
+        description: >
+          Si utiliza alguno para dormir, ¿cuántos?
+      - name: ii6
+        description: >
+          De esos (los si de preg. 4), ¿utiliza alguno de éstos exclusivamente como
+          lugar
+      - name: ii6_1
+        description: >
+          Si utiliza alguno exclusivamente como lugar de trabajo, ¿cuántos?
+      - name: ii7
+        description: >
+          Régimen de tenencia
+      - name: ii7_esp
+        description: >
+          Otra situación de régimen de tenencia. Especificar
+      - name: ii8
+        description: >
+          Combustible utilizado para cocinar
+      - name: ii8_esp
+        description: >
+          Otro combustible utilizado para cocinar. Especificar
+      - name: ii9
+        description: >
+          Baño (tenencia y uso)
+      - name: v1
+        description: >
+          ...de lo que ganan en el trabajo?
+      - name: v2
+        description: >
+          ...de alguna jubilación o pensión?
+      - name: v21
+        description: >
+          ...de aguinaldo de alguna jubilación o pensión cobrada el mes anterior?
+      - name: v22
+        description: >
+          ...de retroactivo de alguna jubilación o pensión que cobró el mes anterior?
+      - name: v3
+        description: >
+          ...de indemnización por despido?
+      - name: v4
+        description: >
+          ...de seguro de desempleo?
+      - name: v5
+        description: >
+          ...de subsidio o ayuda social (en dinero) del gobierno, iglesias, etc.?
+      - name: v6
+        description: >
+          ...con mercaderías, ropa, alimentos del gobierno, iglesias, escuelas, etc.?
+      - name: v7
+        description: >
+          ...con mercaderías, ropa, alimentos de familiares, vecinos u otras personas
+          que
+      - name: v8
+        description: >
+          ...de algún alquiler (por una vivienda, terreno, oficina, etc.) de su propiedad?
+      - name: v9
+        description: >
+          ...de ganancias de algún negocio en el que no trabajan?
+      - name: v10
+        description: >
+          ...de intereses o rentas por plazos fijos/inversiones?
+      - name: v11
+        description: >
+          ...de una beca de estudio?
+      - name: v12
+        description: >
+          ...de cuotas de alimentos o ayuda (en dinero) de personas que no viven en
+          el hog
+      - name: v13
+        description: >
+          ...de gastar lo que tenían ahorrado?
+      - name: v14
+        description: >
+          ...de pedir préstamos a familiares/amigos?
+      - name: v15
+        description: >
+          ...de pedir préstamos a bancos, financieras, etc.?
+      - name: v16
+        description: >
+          ¿Compran en cuotas o al fiado con tarjeta de crédito o libreta?
+      - name: v17
+        description: >
+          ¿Han tenido que vender alguna de sus pertenencias?
+      - name: v18
+        description: >
+          ¿Tuvieron otros ingresos en efectivo (limosnas, juegos de azar, etc.)?
+      - name: v19_a
+        description: >
+          ¿Menores de 10 años ayudan con algún dinero trabajando?
+      - name: v19_b
+        description: >
+          ¿Menores de 10 años ayudan con algún dinero pidiendo?
+      - name: ix_tot
+        description: >
+          Cantidad de miembros del Hogar
+      - name: ix_men10
+        description: >
+          Cantidad de miembros del Hogar menores de 10 años
+      - name: ix_mayeq10
+        description: >
+          Cantidad de miembros del Hogar de 10 y más años
+      - name: itf
+        description: >
+          Monto total de ingreso familiar percibido en ese mes
+      - name: decifr
+        description: >
+          Grupo decílico de ITF del TOTAL EPH
+      - name: idecifr
+        description: >
+          Grupo decílico de ITF del INTERIOR EPH
+      - name: rdecifr
+        description: >
+          Grupo decílico de ITF de la REGION
+      - name: gdecifr
+        description: >
+          Grupo decílico de ITF del CONJUNTO DE AGLOMERADOS DE 500 MIL Y MAS HABITANTES
+      - name: pdecifr
+        description: >
+          Grupo decílico de ITF del CONJUNTO DE AGLOMERADOS DE MENOS DE 500 MIL HABITANTES
+      - name: adecifr
+        description: >
+          Grupo decílico de ITF del AGLOMERADO
+      - name: ipcf
+        description: >
+          Monto de ingreso per cápita familiar percibido en ese mes
+      - name: deccfr
+        description: >
+          Grupo decílico de IPCF del TOTAL EPH
+      - name: ideccfr
+        description: >
+          Grupo decílico de IPCF del INTERIOR EPH
+      - name: rdeccfr
+        description: >
+          Grupo decílico de IPCF de la REGION
+      - name: gdeccfr
+        description: >
+          Grupo decílico de IPCF del CONJUNTO DE AGLOMERADOS DE 500 MIL Y MAS HABITANTES
+      - name: pdeccfr
+        description: >
+          Grupo decílico de IPCF del CONJUNTO DE AGLOMERADOS DE MENOS DE 500 MIL HABITANTE
+      - name: adeccfr
+        description: >
+          Grupo decílico de IPCF del AGLOMERADO
+      - name: vii1_1
+        description: >
+          Realización de las tareas de la casa. Número de componente del hogar
+      - name: vii1_2
+        description: >
+          Realización de las tareas de la casa. Número de componente del hogar
+      - name: vii2_1
+        description: >
+          Otras personas que ayudan en las tareas de la casa. Número de componente
+          del hog
+      - name: vii2_2
+        description: >
+          Otras personas que ayudan en las tareas de la casa. Número de componente
+          del hog
+      - name: vii2_3
+        description: >
+          Otras personas que ayudan en las tareas de la casa. Número de componente
+          del hog
+      - name: vii2_4
+        description: >
+          Otras personas que ayudan en las tareas de la casa. Número de componente
+          del hog
+      - name: idimph
+        description: >
+          Identificador de casos imputados en monto de ingreso
+      - name: v2_02
+        description: >
+          ¿Jubilación o pensión de "ama de casa" o por moratoria previsional?
+      - name: v2_03
+        description: >
+          ¿Otras pensiones, como por ejemplo por discapacidad, Madre de 7 hijos, PUAM,
+          vejez,
+          etc.?
+      - name: v21_01
+        description: >
+          ...aguinaldo de alguna jubilación o pensión obtenida por los aportes del
+          trabajo?
+      - name: v22_01
+        description: >
+          ...retroactivo de alguna jubilación o pensión obtenida por los aportes del
+          trabajo?
+      - name: v5_02
+        description: >
+          …de otro plan social/subsidio en dinero otorgado por el gobierno?
+      - name: v5_03
+        description: >
+          …de ayuda en dinero a través de iglesias, parroquias, organizaciones no
+          gubernamentales?
+      - name: v11_01
+        description: >
+          …de una beca (en dinero) del gobierno para continuar estudios o finalizarlos?
+          (Ej.:
+          Beca Progresar u otras)
+      - name: v11_02
+        description: >
+          ...de otra beca (en dinero) de instituciones no gubernamentales?
+      - name: v5_01
+        description: >
+          …de la Asignación Universal por Hijo (AUH) y/o Asignación por Embarazo?
+          (incluye
+          Tarjeta Alimentar)
+      - name: v21_02
+        description: >
+          ...aguinaldo de alguna jubilación o pensión de "ama de casa" o por moratoria
+          previsional?
+      - name: v21_03
+        description: >
+          ...aguinaldo de otras pensiones, como por ejemplo por discapacidad, Madre
+          de 7 hijos,
+          PUAM, vejez, etc.?
+      - name: v22_02
+        description: >
+          ...retroactivo de alguna jubilación o pensión de "ama de casa" o por moratoria
+          previsional?
+      - name: v22_03
+        description: >
+          ...retroactivo de otras pensiones, como por ejemplo por discapacidad, Madre
+          de 7
+          hijos, PUAM, vejez, etc.?
+      - name: v2_01
+        description: >
+          ¿Jubilación o pensión obtenida por los aportes del trabajo?
+  - name: ar_indec_eph__dicionario
+    description: >
+      Cobertura de diccionario para as colunas categoricas de ar_indec_eph. Traduz
+      cada
+      codigo armazenado nas tabelas de microdados para seu rotulo em espanhol, tal
+      como
+      publicado pelo INDEC. Os rotulos das ondas de 2003 a 2015 vem das etiquetas
+      de valor
+      dos arquivos Stata; os das ondas de 2016 em diante vem do desenho de registros
+      publicado pelo INDEC, ja que as bases TXT nao trazem etiquetas.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+    columns:
+      - name: id_tabela
+        description: Nome da tabela de microdados a que se refere a linha
+      - name: nome_coluna
+        description: Nome da coluna codificada
+      - name: chave
+        description: Codigo armazenado na coluna
+      - name: cobertura_temporal
+        description: Periodo de vigencia do codigo
+      - name: valor
+        description: Rotulo do codigo, em espanhol, tal como publicado pelo INDEC
