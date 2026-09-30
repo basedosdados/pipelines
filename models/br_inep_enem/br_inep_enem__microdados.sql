@@ -11,6 +11,22 @@
     )
 }}
 
+with
+    staging as (
+        select
+            *,
+            case
+                when safe_cast(ano as int64) between 2012 and 2014
+                then safe_cast(ano_conclusao as int64)
+                when safe_cast(ano_conclusao as int64) = 0
+                then null
+                when safe_cast(ano as int64) = 2015
+                then 2016 - safe_cast(ano_conclusao as int64)
+                else safe_cast(ano as int64) - safe_cast(ano_conclusao as int64)
+            end as ano_conclusao_convertido
+        from {{ set_datalake_project("br_inep_enem_staging.microdados") }}
+    )
+
 select
     safe_cast(ano as int64) ano,
     safe_cast(id_inscricao as string) id_inscricao,
@@ -22,7 +38,17 @@ select
     safe_cast(cor_raca as string) cor_raca,
     safe_cast(nacionalidade as string) nacionalidade,
     safe_cast(situacao_conclusao as string) situacao_conclusao,
-    safe_cast(ano_conclusao as int64) ano_conclusao,
+    case
+        when
+            safe_cast(ano as int64) in (2011, 2012) and ano_conclusao_convertido <= 2003
+        then null
+        when
+            safe_cast(ano as int64) in (2013, 2014) and ano_conclusao_convertido <= 2004
+        then null
+        when safe_cast(ano as int64) >= 2015 and ano_conclusao_convertido < 2007
+        then null
+        else ano_conclusao_convertido
+    end ano_conclusao,
     safe_cast(tipo_escola as string) tipo_escola,
     safe_cast(ensino as string) ensino,
     safe_cast(indicador_treineiro as boolean) indicador_treineiro,
@@ -79,4 +105,4 @@ select
     safe_cast(
         indicador_questionario_socioeconomico as boolean
     ) indicador_questionario_socioeconomico
-from {{ set_datalake_project("br_inep_enem_staging.microdados") }} as t
+from staging as t
