@@ -152,8 +152,11 @@ def transform(dataframe: pd.DataFrame) -> pd.DataFrame:
     dataframe = dataframe.rename(columns=constants.RENAME.value)
     dataframe = dataframe.apply(lambda column: column.str.strip())
     dataframe = dataframe.replace("", pd.NA)
+    dataframe["sigla_uf"] = dataframe["sigla_uf"].replace("IE", pd.NA)
 
-    is_municipio = dataframe["id_municipio"].str.fullmatch(r"\d{7}", na=False)
+    is_municipio = dataframe["id_municipio"].str.fullmatch(
+        r"\d{7}", na=False
+    ) & (dataframe["id_municipio"] != "9999999")
     dataframe["id_municipio"] = dataframe["id_municipio"].where(is_municipio)
 
     date = pd.to_datetime(
