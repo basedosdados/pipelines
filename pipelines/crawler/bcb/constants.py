@@ -7,6 +7,19 @@ class Constants(Enum):
     INPUT_FOLDER = f"input/{DATASET_ID}"
     OUTPUT_FOLDER = f"output/{DATASET_ID}"
 
+    # Tabelas de domínio publicadas na seção 1, fora de /DadosBrutos/, e que
+    # portanto não aparecem no scraping de `get_sicor_download_links`. Cada
+    # tabela lista as URLs que a compõem, na ordem em que são lidas.
+    tabelas_dominio_urls = {
+        "empreendimento": [
+            "https://www.bcb.gov.br/htms/sicor/Empreendimento.csv"
+        ],
+        "fonte_recurso": [
+            "https://www.bcb.gov.br/htms/sicor/FonteRecursos.csv",
+            "https://www.bcb.gov.br/htms/sicor/FonteRecursosPublicos.csv",
+        ],
+    }
+
     sicor_to_bd_table_names = {
         "operacao": {
             "table_raw_name": "OPERACAO_BASICA_ESTADO",
@@ -151,6 +164,37 @@ class Constants(Enum):
                 "TIPO_DESC": "tipo_desclassificacao",
             },
         },
+        # Diretório das instituições financeiras do Sicor. É tabela de domínio
+        # (`IFsSicor` no manual), mas o BCB a publica dentro de /DadosBrutos/,
+        # então o scraping normal a encontra. CNPJ_IF é o CNPJ básico de 8
+        # dígitos e casa com `operacao.cnpj_basico_instituicao_financeira` em
+        # 100% das linhas — ver README.
+        "instituicao_financeira": {
+            "table_raw_name": "SICOR_LISTA_IFS",
+            "table_schema": {
+                "#CNPJ_IF": "cnpj_basico",
+                "NOME_IF": "nome",
+                "SEGMENTO_IF": "segmento",
+            },
+        },
+        # Fontes de recurso do crédito rural. Combina duas tabelas de domínio:
+        # FonteRecursos.csv traz código, descrição e vigência; e
+        # FonteRecursosPublicos.csv traz apenas o subconjunto de códigos
+        # considerados recursos públicos/controlados, virando o indicador
+        # `indicador_recurso_publico`. Ver `create_fonte_recurso`.
+        "fonte_recurso": {
+            "table_raw_name": "FonteRecursos",
+            "table_schema": {
+                "#CODIGO": "id_fonte_recurso",
+                "DESCRICAO": "descricao",
+                "DATA_INICIO": "data_inicio",
+                "DATA_FIM": "data_fim",
+            },
+            "table_schema_recurso_publico": {
+                "#CODIGO": "id_fonte_recurso",
+                "DESCRICAO": "descricao",
+            },
+        },
         "empreendimento": {
             "table_raw_name": "Empreendimento",
             "table_schema": {
@@ -276,6 +320,89 @@ class Constants(Enum):
             "id_tabela": "operacao",
             "nome_coluna": "id_tipo_irrigacao",
             "url": "https://www.bcb.gov.br/htms/sicor/TipoIrrigacao.csv",
+            "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
+            "sep": ";",
+        },
+        {
+            "id_tabela": "operacao",
+            "nome_coluna": "id_tipo_seguro",
+            "url": "https://www.bcb.gov.br/htms/sicor/TipoGarantiaEmpreendimento.csv",
+            "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
+            "sep": ",",
+        },
+        {
+            "id_tabela": "proagro_cop",
+            "nome_coluna": "id_status",
+            "url": "https://www.bcb.gov.br/htms/sicor/StatusCOPProagro.csv",
+            "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
+            "sep": ";",
+        },
+        {
+            "id_tabela": "proagro_cop",
+            "nome_coluna": "id_tipo_ciclo_cultivar",
+            "url": "https://www.bcb.gov.br/htms/sicor/CicloCultivarProagro.csv",
+            "colunas": {"#CODIGO_CICLO": "chave", "DESCRICAO_CICLO": "valor"},
+            "sep": ";",
+        },
+        {
+            "id_tabela": "proagro_cop",
+            "nome_coluna": "id_tipo_solo",
+            "url": "https://www.bcb.gov.br/htms/sicor/TipoSoloProagro.csv",
+            "colunas": {
+                "#CODIGO_TIPO_SOLO": "chave",
+                "DESCRICAO_TIPO_SOLO": "valor",
+            },
+            "sep": ";",
+        },
+        {
+            "id_tabela": "proagro_cop",
+            "nome_coluna": "id_evento",
+            "url": "https://www.bcb.gov.br/htms/sicor/EventoProagro.csv",
+            "colunas": {"#CODIGO_EVENTO": "chave", "NOME_EVENTO": "valor"},
+            "sep": ";",
+        },
+        {
+            "id_tabela": "proagro_complemento_cop",
+            "nome_coluna": "id_evento",
+            "url": "https://www.bcb.gov.br/htms/sicor/EventoProagro.csv",
+            "colunas": {"#CODIGO_EVENTO": "chave", "NOME_EVENTO": "valor"},
+            "sep": ";",
+        },
+        {
+            "id_tabela": "proagro_rcp",
+            "nome_coluna": "id_evento",
+            "url": "https://www.bcb.gov.br/htms/sicor/EventoProagro.csv",
+            "colunas": {"#CODIGO_EVENTO": "chave", "NOME_EVENTO": "valor"},
+            "sep": ";",
+        },
+        {
+            "id_tabela": "proagro_parcela",
+            "nome_coluna": "id_instancia",
+            "url": "https://www.bcb.gov.br/htms/sicor/InstanciaProagro.csv",
+            "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
+            "sep": ";",
+        },
+        {
+            "id_tabela": "proagro_parcela",
+            "nome_coluna": "id_status",
+            "url": "https://www.bcb.gov.br/htms/sicor/StatusParcelaProagro.csv",
+            "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
+            "sep": ";",
+        },
+        {
+            "id_tabela": "proagro_parcela",
+            "nome_coluna": "id_natureza_parcela",
+            "url": "https://www.bcb.gov.br/htms/sicor/NaturezaProagro.csv",
+            "colunas": {
+                "#CODIGO_NATUREZA": "chave",
+                "DESCRICAO_NATUREZA": "valor",
+            },
+            "sep": ";",
+        },
+        {
+            "id_tabela": "proagro_sumula_julgamento",
+            "nome_coluna": "id_instancia",
+            "url": "https://www.bcb.gov.br/htms/sicor/InstanciaProagro.csv",
             "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
             "sep": ";",
         },

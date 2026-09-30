@@ -121,7 +121,27 @@ br_bcb_sicor__empreendimento = _sicor_flow(
     historical_database=False,
 )
 
+# Tabelas de domínio: não têm `ano_emissao`/`mes_emissao`, então a cobertura é
+# única (`NonHistorical`) e os dados são integralmente livres.
+br_bcb_sicor__instituicao_financeira = _sicor_flow(
+    table_id="instituicao_financeira",
+    cron="45 5 * * 1-5",
+    coverage_type="all_free",
+    historical_database=False,
+)
 
+br_bcb_sicor__fonte_recurso = _sicor_flow(
+    table_id="fonte_recurso",
+    cron="55 5 * * 1-5",
+    source_format="csv",
+    coverage_type="all_free",
+    historical_database=False,
+)
+
+
+# O dicionário é materializado antes das demais tabelas porque o teste
+# `custom_dictionary_coverage` de cada uma delas lê este modelo: se ele estiver
+# desatualizado, códigos novos da fonte derrubam o teste da tabela que os usa.
 @flow(
     name="br_bcb_sicor__dicionario",
     log_prints=True,
@@ -130,7 +150,7 @@ def br_bcb_sicor__dicionario(
     dataset_id: str = "br_bcb_sicor",
     table_id: str = "dicionario",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = False,
+    dbt_alias: bool = True,
     update_metadata: bool = False,
     target: str = "prod",
     force_run: bool = False,
@@ -177,3 +197,14 @@ def br_bcb_sicor__dicionario(
         dbt_alias=dbt_alias,
         target=target,
     )
+
+
+# Sem `deploy_schedules` o flow nunca executava por agendamento, e o
+# `dbt_alias=False` acima fazia o seletor virar `models/br_bcb_sicor/
+# dicionario.sql`, arquivo que não existe — `run_dbt` levantava
+# FileNotFoundError depois de já ter subido o staging. Os dois defeitos juntos
+# deixavam a tabela `dicionario` congelada. Roda às 01:45, antes de `operacao`
+# (02:05) e das demais.
+br_bcb_sicor__dicionario.deploy_schedules = [
+    Cron("45 1 * * 1-5", timezone="America/Sao_Paulo")
+]

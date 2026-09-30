@@ -2,14 +2,22 @@
 version: 2
 models:
   - name: br_bcb_sicor__operacao
-    description: A tabela de Operações contém os microdados das contratações de crédito
-      de cada estado brasileiro. Nela, estão presentes principais informações (categoria
-      de produtor; fonte de recursos; instituição credora; produto financiado e etc)
-      das mais de 23 milhôes de operações de crédito rural registradas no SICOR no
-      período. É importante salientar que cada linha não necessariamente representa
-      uma operação completa. É possível que uma unica operação (identificada pelo
-      id_referencia_bacen) contenha diversos itens e, portanto, seja subdividida em
-      ordens.
+    description: >-
+      A tabela de Operações contém os microdados das contratações de crédito de
+      cada estado brasileiro. Nela, estão presentes principais informações
+      (categoria de produtor; fonte de recursos; instituição credora; produto
+      financiado e etc) das mais de 23 milhôes de operações de crédito rural
+      registradas no SICOR no período. É importante salientar que cada linha
+      não necessariamente representa uma operação completa. É possível que uma
+      unica operação (identificada pelo id_referencia_bacen) contenha diversos
+      itens e, portanto, seja subdividida em ordens. Exceção no teste
+      `custom_dictionary_coverage` — `id_tipo_agricultura` está fora da lista de
+      colunas cobertas porque é a única das quinze colunas de código deste
+      modelo cujo SELECT não aplica `ltrim(..., '0')`. Ela publica o código "0"
+      ("Não se aplica") em 21.978.645 das 29.675.448 linhas, enquanto o modelo
+      `dicionario` reduz esse mesmo código a string vazia, e os dois lados do
+      join divergem. Ver a seção "O código zero" no README do pipeline; o
+      conserto exige `--full-refresh` de `operacao` em dev e prod
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_referencia_bacen, numero_ordem]
@@ -23,7 +31,6 @@ models:
             - id_instrumento_credito
             - id_programa
             - id_subprograma
-            - id_tipo_agricultura
             - id_tipo_cultivo
             - id_tipo_solo
             - id_tipo_encargo_financeiro
@@ -32,7 +39,7 @@ models:
             - id_tipo_ciclo_cultivar
             - id_tipo_irrigacao
             - id_tipo_seguro
-          dictionary_model: ref('br_bcb_sicar__dicionario')
+          dictionary_model: ref('br_bcb_sicor__dicionario')
     columns:
       - name: ano_emissao
         description: Ano da emissão da operação
@@ -213,11 +220,11 @@ models:
         description: Taxa de juros do encargo financeiro
       - name: percentual_bonus_car
         description: Percentual de bônus do CAR
-      - name: percentual_custo_efetivo_total
+      - name: valor_percentual_custo_efetivo_total
         description: Valor percentual do custo efetivo total
-      - name: percentual_risco_fundo_constitucional
+      - name: valor_percentual_risco_fundo_constitucional
         description: Valor percentual do risco do fundo constitucional
-      - name: percentual_risco_stn
+      - name: valor_percentual_risco_stn
         description: Valor percentual risco da Secretaria do Tesouro Nacional (STN)
   - name: br_bcb_sicor__saldo
     description: Esta tabela contém microdados sobre a evolução contábil mensal das
@@ -348,7 +355,7 @@ models:
           combination_of_columns: [id_empreendimento]
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [id_tipo_cultura]
-          dictionary_model: ref('br_bcb_sicor_dicionario')
+          dictionary_model: ref('br_bcb_sicor__dicionario')
     columns:
       - name: id_empreendimento
         description: Código do empreendimento
@@ -525,7 +532,7 @@ models:
     tests:
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [tipo_beneficiario]
-          dictionary_model: ref('br_bcb_sicor_dicionario')
+          dictionary_model: ref('br_bcb_sicor__dicionario')
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
             - id_referencia_bacen
@@ -637,7 +644,7 @@ models:
             - cnpj_basico
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [id_programa]
-          dictionary_model: ref('br_bcb_sicor_dicionario')
+          dictionary_model: ref('br_bcb_sicor__dicionario')
     columns:
       - name: ano_emissao
         description: Ano da emissão da operação
@@ -694,3 +701,68 @@ models:
         description: Cobertura Temporal
       - name: valor
         description: Valor
+  - name: br_bcb_sicor__instituicao_financeira
+    description: >-
+      Diretório das instituições financeiras que operam no Sicor, com CNPJ
+      básico, nome e segmento. É a tabela que permite separar o crédito rural
+      por credor — banco público, banco privado, cooperativa de crédito, banco
+      de desenvolvimento e demais segmentos —, cruzando `cnpj_basico` com
+      `operacao.cnpj_basico_instituicao_financeira`, que está preenchido em
+      100% das linhas de `operacao` desde 2013. Não confundir com
+      `recurso_publico_complemento_operacao.cnpj_agencia`, que identifica a
+      agência e só existe para operações com fonte pública
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [cnpj_basico]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.97
+    columns:
+      - name: cnpj_basico
+        description: CNPJ básico (8 dígitos) da instituição financeira
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__empresa')
+              field: cnpj_basico
+      - name: nome
+        description: >-
+          Nome da instituição financeira, mantido em caixa alta como publicado
+          pela fonte
+        tests: [not_null]
+      - name: segmento
+        description: >-
+          Segmento da instituição financeira atribuído pelo Banco Central
+          (banco público, banco privado, banco cooperativo, cooperativa de
+          crédito, banco de desenvolvimento e agência de fomento, sociedade de
+          crédito, financiamento e investimento)
+  - name: br_bcb_sicor__fonte_recurso
+    description: >-
+      Catálogo das fontes de recurso do crédito rural, com descrição, vigência
+      e o indicador de fonte pública. Combina duas tabelas de domínio da fonte
+      original: `FonteRecursos`, com os 37 códigos, e `FonteRecursosPublicos`,
+      com o subconjunto de 16 códigos considerados recursos
+      públicos/controlados. O segundo arquivo repete as descrições do primeiro,
+      então seu único conteúdo é a própria participação na lista, publicada
+      aqui como `indicador_recurso_publico`
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_fonte_recurso]
+      - not_null_proportion_multiple_columns:
+          at_least: 1
+    columns:
+      - name: id_fonte_recurso
+        description: >-
+          Identificador da fonte de recursos, sem zeros à esquerda, no mesmo
+          formato de `operacao.id_fonte_recurso`
+        tests: [not_null]
+      - name: descricao
+        description: Descrição da fonte de recursos
+      - name: indicador_recurso_publico
+        description: >-
+          Indica se a fonte é classificada como pública/controlada pelo Banco
+          Central (1 = pública, 0 = demais). É a definição que delimita quais
+          operações aparecem nas tabelas `recurso_publico_*`
+      - name: data_inicio
+        description: Data de início de vigência da fonte de recursos
+      - name: data_fim
+        description: Data de fim de vigência da fonte de recursos
