@@ -1066,3 +1066,149 @@ models:
         description: Valor total de referência do item em reais correntes
       - name: valor_total_homologado
         description: Valor total homologado do item em reais correntes
+  - name: br_bd_execucao_estadual__nota_fiscal
+    description: >
+      Notas fiscais recebidas pelos governos estaduais: o documento que o fornecedor
+      emitiu, com emissor, natureza, datas de emissão, recebimento e registro, e valor
+      total. Uma linha por nota. É a fase de entrega, que as outras tabelas não cobrem:
+      licitacao é o que se licitou, contrato o que se comprometeu, despesa, liquidacao
+      e
+      pagamento o que se gastou, e esta é o que o fornecedor de fato faturou. Limitação
+      da
+      fonte, importante: a nota não traz número de processo, de contrato nem de empenho
+      em
+      nenhum dos 114 arquivos do repositório de origem, então não há ligação por chave
+      com
+      contrato ou licitacao; a única ligação possível é probabilística, por unidade
+      gestora,
+      documento do emissor e período, e nos itens pelo código de catálogo. Os campos
+      ano e
+      mes são o mês de referência do arquivo de origem, não a data de emissão, porque
+      a
+      data de emissão vai de 1969 a 2026 e 4,3% das linhas têm ano de emissão anterior
+      ao
+      do arquivo; confere com o mês de registro em 100% das linhas. 1.736 notas (0,13%)
+      republicadas em mês posterior com status ou valor corrigido foram consolidadas
+      na
+      versão mais recente. Existe só para Minas Gerais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sigla_uf, id_nota_fiscal_bd]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano de referência do arquivo de origem, igual ao ano de registro
+        tests: [not_null]
+      - name: mes
+        description: Mês de referência do arquivo de origem, igual ao mês de registro
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests: [not_null]
+      - name: id_nota_fiscal_bd
+        description: >
+          Identificador da nota construído pela Data Basis a partir das oito colunas
+          que a
+          identificam na fonte; junta-se a nota_fiscal_item pelo mesmo campo
+        tests: [not_null]
+      - name: id_unidade_gestora
+        description: Código do órgão emissor da nota
+      - name: tipo_documento
+        description: Tipo do documento fiscal
+      - name: numero
+        description: Número da nota fiscal
+      - name: serie
+        description: Série da nota fiscal
+      - name: sequencial
+        description: Sequencial da nota fiscal no sistema de origem
+      - name: documento_emissor
+        description: CNPJ ou CPF do fornecedor emissor, sem máscara
+      - name: nome_emissor
+        description: Nome empresarial do fornecedor emissor
+      - name: situacao
+        description: Situação da nota fiscal
+      - name: natureza
+        description: Natureza da nota fiscal
+      - name: indicador_orcamento
+        description: Indicador de orçamento da nota fiscal
+      - name: data_emissao
+        description: >
+          Data de emissão da nota; a fonte traz valores de 1969 em diante, alguns
+          claramente sentinelas, então filtre antes de agregar por esta data
+      - name: data_recebimento
+        description: Data de recebimento da nota pelo órgão
+      - name: data_registro
+        description: Data de registro da nota no sistema
+      - name: valor_total
+        description: Valor total da nota com impostos, em reais correntes
+  - name: br_bd_execucao_estadual__nota_fiscal_item
+    description: >
+      Itens das notas fiscais recebidas pelos governos estaduais: cada produto catalogado
+      entregue, com quantidade e preço unitário efetivamente cobrado. Uma linha por
+      nota,
+      produto e ocorrência. É o grão mais fino do conjunto e o único lugar em que
+      aparece
+      um preço unitário efetivamente cobrado, e não de referência ou homologado. Ligue
+      a
+      nota_fiscal por id_nota_fiscal_bd e a licitacao_item ou contrato_item por
+      codigo_catalogo. Atenção: 0,11% das chaves de nota presentes aqui não têm linha
+      correspondente em nota_fiscal, então a ligação não é garantida e não há teste
+      de
+      integridade referencial; filtre pelo join quando precisar de pai garantido.
+      Os campos
+      ano e mes vêm do arquivo de origem porque estas linhas não trazem data alguma.
+      Existe
+      só para Minas Gerais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sigla_uf, id_item_bd]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano de referência do arquivo de origem
+        tests: [not_null]
+      - name: mes
+        description: Mês de referência do arquivo de origem
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests: [not_null]
+      - name: id_nota_fiscal_bd
+        description: >
+          Identificador da nota a que o item pertence; junta-se a nota_fiscal pelo
+          mesmo
+          campo, sem garantia de correspondência em 0,11% dos casos
+        tests: [not_null]
+      - name: id_item_bd
+        description: >
+          Identificador do item construído pela Data Basis, único por nota, produto
+          e
+          ocorrência
+        tests: [not_null]
+      - name: numero_item
+        description: Número do item na nota fiscal
+      - name: codigo_catalogo
+        description: >
+          Código do item de material no catálogo da fonte; liga-se a licitacao_item
+          e
+          contrato_item pelo mesmo campo
+      - name: descricao
+        description: Descrição do item de material
+      - name: unidade_medida
+        description: Descrição da unidade de fornecimento do item
+      - name: unidade_orcamentaria
+        description: Unidade orçamentária a que o item foi lançado
+      - name: item_despesa
+        description: Elemento item de despesa do item
+      - name: documento_emissor
+        description: CNPJ ou CPF do fornecedor emissor, sem máscara
+      - name: nome_emissor
+        description: Nome empresarial do fornecedor emissor
+      - name: quantidade
+        description: Quantidade do item na nota fiscal
+      - name: valor_unitario
+        description: Preço unitário efetivamente cobrado, em reais correntes
+      - name: valor_total
+        description: Valor total do item na nota, em reais correntes

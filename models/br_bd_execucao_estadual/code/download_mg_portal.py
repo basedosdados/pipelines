@@ -36,6 +36,11 @@ from models.br_bd_execucao_estadual.code.constants import (
     INPUT_DIR,
     MG_PORTAL_FIRST_YEAR,
     MG_PORTAL_IN_USE,
+    MG_PORTAL_MES,
+    MG_PORTAL_MONTHLY_FIRST,
+    MG_PORTAL_MONTHLY_IN_USE,
+    MG_PORTAL_MONTHLY_REPO,
+    MG_PORTAL_MONTHLY_TABLES,
     MG_PORTAL_RAW,
     MG_PORTAL_REFS,
     MG_PORTAL_REPOS,
@@ -84,12 +89,11 @@ def main(
     last_year: int | None = None,
 ) -> None:
     MG_INPUT.mkdir(parents=True, exist_ok=True)
-    stems = [only] if only else list(MG_PORTAL_IN_USE)
-    unknown = [s for s in stems if s not in MG_PORTAL_TABLES]
+    known = {**MG_PORTAL_TABLES, **MG_PORTAL_MONTHLY_TABLES}
+    stems = [only] if only else [*MG_PORTAL_IN_USE, *MG_PORTAL_MONTHLY_IN_USE]
+    unknown = [s for s in stems if s not in known]
     if unknown:
-        raise SystemExit(
-            f"unknown stem(s) {unknown}; known: {sorted(MG_PORTAL_TABLES)}"
-        )
+        raise SystemExit(f"unknown stem(s) {unknown}; known: {sorted(known)}")
 
     # The current year is always attempted: the repos are refreshed in-year, so the
     # latest file is partial by nature rather than missing.
@@ -97,7 +101,39 @@ def main(
     session = requests.Session()
     session.headers["User-Agent"] = BROWSER_UA
 
-    for stem in stems:
+    for stem in (s for s in stems if s in MG_PORTAL_MONTHLY_TABLES):
+        use_ref = ref or MG_PORTAL_REFS[MG_PORTAL_MONTHLY_REPO]
+        got = skipped = absent = 0
+        y0, m0 = MG_PORTAL_MONTHLY_FIRST
+        today = dt.date.today()
+        for year in range(y0, end + 1):
+            for month in range(1, 13):
+                if (year, month) < (y0, m0) or (year, month) > (
+                    today.year,
+                    today.month,
+                ):
+                    continue
+                token = f"{MG_PORTAL_MES[month - 1]}{year % 100:02d}"
+                dest = MG_INPUT / f"{stem}{token}.csv"
+                if is_intact(dest):
+                    skipped += 1
+                    continue
+                url = MG_PORTAL_RAW.format(
+                    repo=MG_PORTAL_MONTHLY_REPO,
+                    ref=use_ref,
+                    stem=stem,
+                    year=token,
+                )
+                if fetch(session, url, dest):
+                    got += 1
+                else:
+                    absent += 1
+        print(
+            f"  {stem} ({MG_PORTAL_MONTHLY_REPO} @ {use_ref[:8]}): "
+            f"{got} downloaded, {skipped} already present, {absent} not published"
+        )
+
+    for stem in (s for s in stems if s in MG_PORTAL_TABLES):
         repo = MG_PORTAL_REPOS[stem]
         use_ref = ref or MG_PORTAL_REFS[repo]
         got = skipped = absent = 0
@@ -123,7 +159,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument(
         "--only",
-        help=f"one stem of {sorted(MG_PORTAL_TABLES)} (default: those in use)",
+        help="one stem of the annual or monthly maps (default: those in use)",
     )
     ap.add_argument(
         "--ref",

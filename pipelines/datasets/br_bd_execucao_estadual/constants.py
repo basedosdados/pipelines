@@ -27,6 +27,9 @@ class constants(Enum):
         # MG-only: the contract-item grain. The dimensional model publishes items per
         # process (`licitacao_item`), never per contract.
         "contrato_item",
+        # MG-only: the delivery phase. No other state publishes invoices.
+        "nota_fiscal",
+        "nota_fiscal_item",
         "relacionamentos",
         "dicionario",
     ]
@@ -45,6 +48,8 @@ class constants(Enum):
             # date and the unmasked counterparty.
             "contrato",
             "contrato_item",
+            "nota_fiscal",
+            "nota_fiscal_item",
             "relacionamentos",
             "dicionario",
         ],
@@ -163,6 +168,10 @@ class constants(Enum):
             # github.com/transparencia-mg, 2022+. Supplies `data_assinatura` and the
             # real CNPJ/name, which the anonymised `mg_dm_contratado` cannot.
             "mg_contrato",
+            "mg_contrato_item",
+            "mg_contrato_fiscal",
+            "mg_nota_fiscal",
+            "mg_nota_fiscal_item",
         ],
         "BA": [
             "ba_despesa",

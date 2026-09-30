@@ -33,6 +33,8 @@ import duckdb
 from models.br_bd_execucao_estadual.code.constants import (
     INPUT_DIR,
     MG_PORTAL_IN_USE,
+    MG_PORTAL_MONTHLY_IN_USE,
+    MG_PORTAL_MONTHLY_TABLES,
     MG_PORTAL_TABLES,
     MG_SEP,
     OUTPUT_DIR,
@@ -41,7 +43,7 @@ from models.br_bd_execucao_estadual.code.constants import (
 MG_INPUT = INPUT_DIR / "mg"
 
 
-def _read_all_varchar(paths: list[Path]) -> str:
+def _read_all_varchar(paths: list[Path], with_filename: bool = False) -> str:
     """A duckdb relation over the annual CSVs, every column forced to VARCHAR.
 
     `quote` and `escape` are pinned for the same reason as in `clean_mg.py`: most rows
@@ -50,14 +52,22 @@ def _read_all_varchar(paths: list[Path]) -> str:
     mode stays on so any other malformed row fails loudly instead of vanishing.
     """
     files = ", ".join(f"'{p}'" for p in paths)
+    extra = ", filename=true" if with_filename else ""
     return (
         f"read_csv([{files}], delim='{MG_SEP}', header=true, all_varchar=true, "
-        "quote='\"', escape='\"', ignore_errors=false, union_by_name=true)"
+        f"quote='\"', escape='\"', ignore_errors=false, union_by_name=true{extra})"
     )
 
 
 def clean(con: duckdb.DuckDBPyConnection, stem: str, table: str) -> int:
-    srcs = sorted(MG_INPUT.glob(f"{stem}[0-9][0-9][0-9][0-9].csv"))
+    monthly = stem in MG_PORTAL_MONTHLY_TABLES
+    # Monthly files are `notas_jan22.csv`; annual ones `contratos2022.csv`.
+    pattern = (
+        f"{stem}[a-z][a-z][a-z][0-9][0-9].csv"
+        if monthly
+        else f"{stem}[0-9][0-9][0-9][0-9].csv"
+    )
+    srcs = sorted(MG_INPUT.glob(pattern))
     if not srcs:
         print(f"  SKIP {stem}: not downloaded")
         return 0
@@ -72,7 +82,7 @@ def clean(con: duckdb.DuckDBPyConnection, stem: str, table: str) -> int:
         if sub.is_dir():
             sub.rmdir()
 
-    rel = _read_all_varchar(srcs)
+    rel = _read_all_varchar(srcs, with_filename=monthly)
     # Spreadsheet artefact columns, identified from the real header rather than from the
     # stale datapackage. An explicit column list is used instead of `* EXCLUDE (...)`
     # because EXCLUDE errors when the named column is absent, and only some year files
@@ -80,10 +90,19 @@ def clean(con: duckdb.DuckDBPyConnection, stem: str, table: str) -> int:
     cols = [
         r[0] for r in con.execute(f"describe select * from {rel}").fetchall()
     ]
-    keep = [c for c in cols if not re.fullmatch(r"unnamed_\d+|", c.strip())]
-    if dropped := [c for c in cols if c not in keep]:
+    keep = [
+        c
+        for c in cols
+        if not re.fullmatch(r"unnamed_\d+|", c.strip()) and c != "filename"
+    ]
+    if dropped := [c for c in cols if c not in keep and c != "filename"]:
         print(f"    dropping artefact column(s): {', '.join(dropped)}")
     projection = ", ".join(f'"{c}"' for c in keep)
+    # The item file carries no date column at all, so its period exists only in the
+    # filename. Kept as provenance on both monthly tables rather than parsed here:
+    # staging mirrors the source, and the dbt model derives ano/mes from it.
+    if monthly:
+        projection += ", parse_filename(filename) as arquivo_origem"
     con.execute(
         f"COPY (SELECT {projection} FROM {rel}) TO '{dest / 'data.parquet'}' "
         "(FORMAT PARQUET, COMPRESSION SNAPPY)"
@@ -96,16 +115,15 @@ def clean(con: duckdb.DuckDBPyConnection, stem: str, table: str) -> int:
 
 def main(only: str | None = None) -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    stems = [only] if only else list(MG_PORTAL_IN_USE)
-    unknown = [s for s in stems if s not in MG_PORTAL_TABLES]
+    known = {**MG_PORTAL_TABLES, **MG_PORTAL_MONTHLY_TABLES}
+    stems = [only] if only else [*MG_PORTAL_IN_USE, *MG_PORTAL_MONTHLY_IN_USE]
+    unknown = [s for s in stems if s not in known]
     if unknown:
-        raise SystemExit(
-            f"unknown stem(s) {unknown}; known: {sorted(MG_PORTAL_TABLES)}"
-        )
+        raise SystemExit(f"unknown stem(s) {unknown}; known: {sorted(known)}")
     con = duckdb.connect()
     total = 0
     for stem in stems:
-        total += clean(con, stem, MG_PORTAL_TABLES[stem])
+        total += clean(con, stem, known[stem])
     print(f"  total: {total:,} rows")
 
 

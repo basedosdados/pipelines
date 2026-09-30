@@ -152,7 +152,36 @@ MG_PORTAL_REFS = {
     "portal_contratos": "3998d827e15b4448a1ebf281a4650e11a529bc1c",  # 2026-09-23
     "portal_licitacoes_mg": "6e654482fe4d32d881ac9f8f2ee41fdc1e739729",  # 2026-09-23
     "portal_fiscais_contratos": "02290ebe5d74cf828c04567c9a9128084566b00a",  # 2026-09-15
+    "portal_notas_fiscais": "7e616c7e4d0370da53fe968b557f4353f9424522",  # 2026-09-23
 }
+
+# The invoice repo is published MONTHLY, not annually: `notas_jan22.csv`,
+# `itensnota_set26.csv`. 57 months per stem, 2022-01 to 2026-09, 889 MB in all. Kept in a
+# separate map because the filename shape differs, and because the item file carries NO
+# date column of its own -- its period comes from the filename, which the clean step
+# preserves as `arquivo_origem`.
+MG_PORTAL_MONTHLY_TABLES = {
+    "notas_": "mg_nota_fiscal",
+    "itensnota_": "mg_nota_fiscal_item",
+}
+MG_PORTAL_MONTHLY_REPO = "portal_notas_fiscais"
+MG_PORTAL_MONTHLY_FIRST = (2022, 1)
+
+# Portuguese three-letter abbreviations, in calendar order: index + 1 is the month.
+MG_PORTAL_MES = (
+    "jan",
+    "fev",
+    "mar",
+    "abr",
+    "mai",
+    "jun",
+    "jul",
+    "ago",
+    "set",
+    "out",
+    "nov",
+    "dez",
+)
 
 MG_PORTAL_RAW = (
     "https://raw.githubusercontent.com/transparencia-mg/{repo}/{ref}"
@@ -163,6 +192,7 @@ MG_PORTAL_RAW = (
 # restate what the CKAN model already covers from 2009, so unioning them would only
 # duplicate 2022+ (see MG_PORTAIS_PLAN.md section 3).
 MG_PORTAL_IN_USE = ("contratos", "itens", "fiscais_contratos_")
+MG_PORTAL_MONTHLY_IN_USE = ("notas_", "itensnota_")
 
 MG_SEP = ";"
 MG_ENCODING = "utf-8-sig"  # the files carry a BOM
