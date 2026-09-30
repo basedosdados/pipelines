@@ -766,3 +766,575 @@ models:
         description: Data de início de vigência da fonte de recursos
       - name: data_fim
         description: Data de fim de vigência da fonte de recursos
+  - name: br_bcb_sicor__proagro_cop
+    description: >-
+      Comunicados de Ocorrência de Perdas (COP) do Proagro — o registro em que o
+      produtor avisa a instituição financeira de que houve perda na lavoura
+      amparada. É o primeiro passo do fluxo do Proagro, seguido do requerimento
+      de cobertura (`proagro_rcp`), do julgamento (`proagro_sumula_julgamento`)
+      e do pagamento (`proagro_parcela`). Liga-se a `operacao` por
+      `id_referencia_bacen` e `numero_ordem`; 61 das 1.004.175 linhas não
+      encontram par em `operacao` e ficam sem `ano_emissao`, o mesmo defeito de
+      "IDs fantasmas" já documentado para `saldo`. Exceção no teste de
+      unicidade — a chave (`id_referencia_bacen`, `numero_ordem`, `id_evento`)
+      que o manual do BCB declara como primária não é única: 4.225 linhas
+      (0,42%) repetem a chave, e 4.120 delas trazem valores diferentes de data
+      de comunicação, status ou ciclo do cultivar, ou seja, são comunicados
+      distintos para o mesmo evento. Nenhuma combinação de colunas publicadas
+      torna a tabela única (105 linhas são idênticas em todas as 11 colunas),
+      por isso não se aplica deduplicação
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [id_referencia_bacen, numero_ordem, id_evento]
+          proportion_allowed_failures: 0.01
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - id_evento
+            - id_status
+            - id_tipo_ciclo_cultivar
+            - id_tipo_solo
+          dictionary_model: ref('br_bcb_sicor__dicionario')
+    columns:
+      - name: ano_emissao
+        description: Ano da emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes_emissao
+        description: Mês de emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_referencia_bacen
+        description: Identificador único de cada operação de crédito
+        tests: [not_null]
+      - name: numero_ordem
+        description: Identificador da quantidade de ordens que compõem uma operação
+          de crédito
+        tests: [not_null]
+      - name: id_evento
+        description: >-
+          Identificador do evento climático que causou a perda (chuva
+          excessiva, geada, granizo, seca e demais eventos do Proagro)
+        tests: [not_null]
+      - name: id_status
+        description: Identificador da situação do comunicado de perdas
+      - name: id_tipo_ciclo_cultivar
+        description: Identificador do ciclo do cultivar
+      - name: id_tipo_solo
+        description: >-
+          Identificador do tipo de solo. O código 0 ("Não se aplica") é
+          publicado como string vazia em 19 linhas, pelo mesmo tratamento de
+          zeros à esquerda aplicado em `operacao`
+      - name: data_comunicacao
+        description: Data em que a ocorrência de perdas foi comunicada
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_inicio_plantio
+        description: >-
+          Data de início do plantio. Valores com ano fora da janela 2000–2100
+          são anulados por serem erros de digitação da fonte
+      - name: data_fim_plantio
+        description: >-
+          Data de fim do plantio. Valores com ano fora da janela 2000–2100 são
+          anulados por serem erros de digitação da fonte
+      - name: data_inicio_colheita
+        description: >-
+          Data de início da colheita. Valores com ano fora da janela 2000–2100
+          são anulados por serem erros de digitação da fonte
+      - name: data_fim_colheita
+        description: >-
+          Data de fim da colheita. Valores com ano fora da janela 2000–2100 são
+          anulados por serem erros de digitação da fonte
+  - name: br_bcb_sicor__proagro_complemento_cop
+    description: >-
+      Complemento de `proagro_cop`, com a identificação da empresa periciadora
+      e do perito responsável pela vistoria da perda. A fonte publica os dois
+      arquivos com o mesmo número de linhas (1.004.175) e o manual do BCB marca
+      a relação como 1..1. Exceções nos testes — a chave declarada
+      (`id_referencia_bacen`, `numero_ordem`, `id_evento`) repete-se em 4.225
+      linhas (0,42%), das quais 2.806 são idênticas em todas as colunas e não
+      podem ser separadas por chave alguma, então não se aplica deduplicação; e
+      `cpf_periciadora`, `cnpj_periciadora`, `cnpj_basico_periciadora` e
+      `cpf_perito` ficam fora do teste de proporção de nulos porque são
+      mutuamente exclusivas por construção
+    tests:
+      - custom_unique_combinations_of_columns:
+          combination_of_columns: [id_referencia_bacen, numero_ordem, id_evento]
+          proportion_allowed_failures: 0.01
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+          ignore_values:
+            - cpf_periciadora
+            - cnpj_periciadora
+            - cnpj_basico_periciadora
+            - cpf_perito
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [id_evento]
+          dictionary_model: ref('br_bcb_sicor__dicionario')
+    columns:
+      - name: ano_emissao
+        description: Ano da emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes_emissao
+        description: Mês de emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_referencia_bacen
+        description: Identificador único de cada operação de crédito
+        tests: [not_null]
+      - name: numero_ordem
+        description: Identificador da quantidade de ordens que compõem uma operação
+          de crédito
+        tests: [not_null]
+      - name: id_evento
+        description: >-
+          Identificador do evento climático que causou a perda, igual ao de
+          `proagro_cop`
+        tests: [not_null]
+      - name: cpf_periciadora
+        description: >-
+          CPF da empresa periciadora, quando o identificador publicado tem 11
+          dígitos
+      - name: cnpj_periciadora
+        description: >-
+          CNPJ da empresa periciadora, quando o identificador publicado tem 14
+          dígitos
+      - name: cnpj_basico_periciadora
+        description: >-
+          CNPJ básico da empresa periciadora, quando o identificador publicado
+          tem 8 dígitos. A fonte entrega o campo sem os zeros à esquerda em
+          parte das linhas, então 34.498 linhas (3,44%) têm comprimento
+          inválido e ficam nulas nas três colunas de identificação
+      - name: cpf_perito
+        description: >-
+          CPF do perito da empresa periciadora. Preenchido em 25,6% das linhas
+  - name: br_bcb_sicor__proagro_rcp
+    description: >-
+      Requerimentos de Cobertura do Proagro (RCP) — o pedido formal de
+      cobertura da perda, com o resultado da vistoria feita pelo perito. Vem
+      depois do comunicado de perdas (`proagro_cop`) e antes do julgamento
+      (`proagro_sumula_julgamento`). Liga-se a `operacao` por
+      `id_referencia_bacen` e `numero_ordem`; 62 das 846.510 linhas não
+      encontram par em `operacao`. A chave (`id_referencia_bacen`,
+      `numero_ordem`) é única, ao contrário da de `proagro_cop`
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_referencia_bacen, numero_ordem]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+          ignore_values: [quantidade_dias_ciclo_cultivar]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [id_evento]
+          dictionary_model: ref('br_bcb_sicor__dicionario')
+    columns:
+      - name: ano_emissao
+        description: Ano da emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes_emissao
+        description: Mês de emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_referencia_bacen
+        description: Identificador único de cada operação de crédito
+        tests: [not_null]
+      - name: numero_ordem
+        description: Identificador da quantidade de ordens que compõem uma operação
+          de crédito
+        tests: [not_null]
+      - name: id_evento
+        description: >-
+          Identificador do evento climático que causou a perda
+      - name: id_status
+        description: >-
+          Identificador da situação do requerimento. A fonte publica um único
+          valor (1) em todas as linhas e não oferece dicionário para esta coluna
+      - name: id_tipo
+        description: >-
+          Identificador do tipo do requerimento (1 ou 2). A fonte não oferece
+          dicionário para esta coluna
+      - name: data_entrega
+        description: Data de entrega do requerimento de cobertura
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_visita
+        description: Data da visita do perito ao imóvel
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_inicio_evento
+        description: >-
+          Data de início do evento climático. Valores com ano fora da janela
+          2000–2100 são anulados por serem erros de digitação da fonte
+      - name: data_fim_evento
+        description: >-
+          Data de fim do evento climático. Valores com ano fora da janela
+          2000–2100 são anulados por serem erros de digitação da fonte
+      - name: data_inicio_plantio
+        description: >-
+          Data de início do plantio. Valores com ano fora da janela 2000–2100
+          são anulados por serem erros de digitação da fonte
+      - name: data_fim_plantio
+        description: >-
+          Data de fim do plantio. Valores com ano fora da janela 2000–2100 são
+          anulados por serem erros de digitação da fonte
+      - name: data_inicio_colheita
+        description: >-
+          Data de início da colheita. Valores com ano fora da janela 2000–2100
+          são anulados por serem erros de digitação da fonte
+      - name: data_fim_colheita
+        description: >-
+          Data de fim da colheita. Valores com ano fora da janela 2000–2100 são
+          anulados por serem erros de digitação da fonte
+      - name: area
+        description: Área da lavoura objeto do requerimento, em hectares
+      - name: valor_previsao_producao
+        description: >-
+          Previsão de produção. A unidade varia conforme o empreendimento
+          financiado — ver `unidade_medida_previsao_producao` em
+          `empreendimento`
+      - name: valor_receita_prevista
+        description: Valor da receita prevista correspondente, em reais
+      - name: quantidade_dias_ciclo_cultivar
+        description: >-
+          Número de dias do ciclo do cultivar. Preenchido em 34,8% das linhas
+  - name: br_bcb_sicor__proagro_complemento_rcp
+    description: >-
+      Complemento de `proagro_rcp`, com a identificação da empresa periciadora
+      e do perito. Tem o mesmo número de linhas do arquivo básico (846.510) e o
+      manual do BCB marca a relação como 1..1. Ao contrário de
+      `proagro_complemento_cop`, aqui o identificador da periciadora só aparece
+      com comprimentos válidos (11 ou 14 dígitos), então a separação entre CPF e
+      CNPJ é completa. Exceção no teste de proporção de nulos —
+      `cpf_periciadora`, `cnpj_periciadora` e `cpf_perito` ficam fora porque são
+      mutuamente exclusivas por construção. O diagrama do manual desenha nesta
+      tabela as colunas `sic_REF_BACEN` e `CD_EVENTO`, que o arquivo publicado
+      não contém
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_referencia_bacen, numero_ordem]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+          ignore_values: [cpf_periciadora, cnpj_periciadora, cpf_perito]
+    columns:
+      - name: ano_emissao
+        description: Ano da emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes_emissao
+        description: Mês de emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_referencia_bacen
+        description: Identificador único de cada operação de crédito
+        tests: [not_null]
+      - name: numero_ordem
+        description: Identificador da quantidade de ordens que compõem uma operação
+          de crédito
+        tests: [not_null]
+      - name: cpf_periciadora
+        description: CPF da empresa periciadora, em 56,8% das linhas
+      - name: cnpj_periciadora
+        description: CNPJ da empresa periciadora, em 43,2% das linhas
+      - name: cpf_perito
+        description: >-
+          CPF do perito da empresa periciadora. Preenchido em 30,7% das linhas
+  - name: br_bcb_sicor__proagro_rcp_gleba
+    description: >-
+      Delimitação geográfica das glebas vistoriadas nos requerimentos de
+      cobertura do Proagro (`proagro_rcp`). É a contrapartida, do lado do
+      Proagro, do que `recurso_publico_gleba` é para as operações de crédito. A
+      fonte divulga dois arquivos plurianuais, `SICOR_RCP_GLEBAS_2015_2020` e
+      `SICOR_RCP_GLEBAS_2021`, cujas chaves são disjuntas (nenhuma das 1.760.631
+      linhas se repete entre eles), então a união é direta. A cobertura começa
+      em 2015, e não em 2013 como nas demais tabelas do conjunto
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_referencia_bacen
+            - numero_ordem
+            - indice_gleba
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+    columns:
+      - name: ano_emissao
+        description: Ano da emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes_emissao
+        description: Mês de emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_referencia_bacen
+        description: Identificador único de cada operação de crédito
+        tests: [not_null]
+      - name: numero_ordem
+        description: Identificador da quantidade de ordens que compõem uma operação
+          de crédito
+        tests: [not_null]
+      - name: indice_gleba
+        description: Índice da gleba dentro do requerimento
+        tests: [not_null]
+      - name: geometria_original
+        description: Geometria da gleba extraída da fonte original sem tratamento
+      - name: geometria
+        description: >-
+          Geometria da gleba padronizada pela Base dos Dados. O tratamento é o
+          mesmo de `recurso_publico_gleba` — remove a dimensão Z (altitude), não
+          suportada pelo BigQuery, corrige coordenadas para o hemisfério
+          Sul/Oeste, aplica 'make_valid' para reparar topologias inválidas e
+          anula registros cujos centroides caem fora do Bounding Box do
+          território brasileiro (longitude entre -74 e -34, latitude entre -34 e
+          +6). Apenas 4 das 1.760.631 glebas não sobrevivem ao tratamento
+  - name: br_bcb_sicor__proagro_parcela
+    description: >-
+      Parcelas do Proagro — os lançamentos financeiros de cobertura, desde a
+      apuração até o pagamento ao produtor. É a última etapa do fluxo do
+      Proagro. Liga-se a `operacao` por `id_referencia_bacen` e `numero_ordem`;
+      983 das 13.381.107 linhas não encontram par em `operacao`. Exceção no
+      teste de proporção de nulos — `valor_imposto` fica fora porque é
+      preenchido em apenas 7,3% das linhas
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - id_referencia_bacen
+            - numero_ordem
+            - id_natureza_parcela
+            - valor_base
+            - data_remessa
+          config:
+            where: __most_recent_year_month_sicor__
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+          ignore_values: [valor_imposto]
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary:
+            - id_instancia
+            - id_natureza_parcela
+            - id_status
+          dictionary_model: ref('br_bcb_sicor__dicionario')
+    columns:
+      - name: ano_emissao
+        description: Ano da emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes_emissao
+        description: Mês de emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_referencia_bacen
+        description: Identificador único de cada operação de crédito
+        tests: [not_null]
+      - name: numero_ordem
+        description: Identificador da quantidade de ordens que compõem uma operação
+          de crédito
+        tests: [not_null]
+      - name: id_natureza_parcela
+        description: >-
+          Identificador da natureza da parcela — o que o lançamento representa
+          (cobertura de crédito de custeio, de recursos próprios, remuneração do
+          encarregado, restituição e demais naturezas)
+        tests: [not_null]
+      - name: id_instancia
+        description: >-
+          Identificador da instância que processou a parcela (agente Proagro,
+          agente em revisão, CER e demais instâncias)
+      - name: id_status
+        description: Identificador da situação da parcela
+      - name: data_base
+        description: Data base da parcela
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_remessa
+        description: Data de remessa da parcela
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_pagamento
+        description: Data de pagamento da parcela
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_atualizacao
+        description: Data de atualização da parcela
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: valor_base
+        description: Valor base da parcela, em reais
+      - name: valor_atual
+        description: Valor atualizado da parcela, em reais
+      - name: valor_pago
+        description: Valor efetivamente pago da parcela, em reais
+      - name: valor_imposto
+        description: >-
+          Valor do imposto incidente sobre a parcela, em reais. Preenchido em
+          7,3% das linhas
+  - name: br_bcb_sicor__proagro_sumula_julgamento
+    description: >-
+      Súmulas de julgamento do Proagro — a decisão sobre o requerimento de
+      cobertura, com a memória de cálculo que leva ao valor coberto (crédito de
+      custeio utilizado, recursos próprios, receitas consideradas, encargos,
+      deduções e coberturas anteriores). Vem depois de `proagro_rcp` e antes de
+      `proagro_parcela`. Liga-se a `operacao` por `id_referencia_bacen` e
+      `numero_ordem`; 59 das 837.433 linhas não encontram par em `operacao`.
+      Exceções no teste de proporção de nulos — `percentual_redutor_cobertura`,
+      `quantidade_dias_uteis_atraso_perito` e `indicador_segunda_vistoria`
+      ficam fora porque a fonte só as preenche em parte das linhas
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_referencia_bacen, numero_ordem]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.99
+          ignore_values:
+            - percentual_redutor_cobertura
+            - quantidade_dias_uteis_atraso_perito
+            - indicador_segunda_vistoria
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [id_instancia]
+          dictionary_model: ref('br_bcb_sicor__dicionario')
+    columns:
+      - name: ano_emissao
+        description: Ano da emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: mes_emissao
+        description: Mês de emissão da operação
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: id_referencia_bacen
+        description: Identificador único de cada operação de crédito
+        tests: [not_null]
+      - name: numero_ordem
+        description: Identificador da quantidade de ordens que compõem uma operação
+          de crédito
+        tests: [not_null]
+      - name: id_decisao
+        description: >-
+          Identificador da decisão do julgamento. A fonte não publica dicionário
+          para esta coluna, e o manual do BCB descreve o campo erradamente como
+          "Data da decisão na súmula de julgamento". Assume 5 valores distintos
+          (2 a 6)
+      - name: id_instancia
+        description: >-
+          Identificador da instância que julgou o requerimento (agente Proagro,
+          agente em revisão, CER e demais instâncias)
+      - name: id_status
+        description: >-
+          Identificador da situação da súmula. A fonte publica um único valor
+          (1) em todas as linhas e não oferece dicionário para esta coluna
+      - name: indicador_segunda_vistoria
+        description: >-
+          Indica se houve segunda vistoria (1 = houve, 0 = não houve).
+          Preenchido em 40,4% das linhas, nas mesmas em que
+          `quantidade_dias_uteis_atraso_perito` está preenchido
+      - name: data_base
+        description: Data base da súmula de julgamento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_inclusao
+        description: Data de inclusão da súmula de julgamento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: data_decisao
+        description: Data da decisão registrada na súmula de julgamento
+        tests:
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__data')
+              field: data.data
+      - name: valor_orcamento_enquadrado
+        description: Valor do orçamento enquadrado no Proagro, em reais
+      - name: valor_credito_custeio_utilizado
+        description: Valor do crédito de custeio utilizado, em reais
+      - name: valor_recurso_proprio_utilizado
+        description: Valor dos recursos próprios utilizados, em reais
+      - name: valor_receitas_consideradas
+        description: Valor das receitas consideradas na apuração da perda, em reais
+      - name: valor_encargos_credito_utilizado
+        description: >-
+          Valor dos encargos financeiros sobre o crédito utilizado, em reais
+      - name: valor_cobertura_anterior_credito_custeio
+        description: Valor da cobertura anterior do crédito de custeio, em reais
+      - name: valor_cobertura_anterior_recurso_proprio
+        description: Valor da cobertura anterior dos recursos próprios, em reais
+      - name: valor_cobertura_anterior_garantia_renda_minima
+        description: >-
+          Valor da cobertura anterior da Garantia de Renda Mínima do Proagro
+          Mais, em reais
+      - name: valor_cobertura_anterior_parcela_investimento_proagro_mais
+        description: >-
+          Valor da cobertura anterior da parcela de investimento do Proagro
+          Mais, em reais
+      - name: valor_remuneracao_encarregado_comprovacao_perdas
+        description: >-
+          Valor da remuneração do encarregado da comprovação de perdas, em reais
+      - name: valor_remuneracao_anterior_encarregado_comprovacao_perdas
+        description: >-
+          Valor da remuneração anterior do encarregado da comprovação de
+          perdas, em reais
+      - name: valor_demais_despesas_comprovacao_perdas
+        description: Valor das demais despesas da comprovação de perdas, em reais
+      - name: valor_demais_despesas_anteriores_comprovacao_perdas
+        description: >-
+          Valor das demais despesas anteriores da comprovação de perdas, em
+          reais
+      - name: valor_perdas_nao_amparadas
+        description: Valor das perdas não amparadas pelo Proagro, em reais
+      - name: valor_bonus_pgpaf
+        description: >-
+          Valor do bônus do Programa de Garantia de Preços para a Agricultura
+          Familiar (PGPAF), em reais
+      - name: valor_deducoes_legais
+        description: Valor das deduções legais, em reais
+      - name: percentual_redutor_cobertura
+        description: >-
+          Percentual do redutor aplicado à cobertura. Preenchido em 83,3% das
+          linhas
+      - name: quantidade_dias_uteis_atraso_perito
+        description: >-
+          Número de dias úteis de atraso na entrega do laudo pelo perito.
+          Preenchido em 40,4% das linhas

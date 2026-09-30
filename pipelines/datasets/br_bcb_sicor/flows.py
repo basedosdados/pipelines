@@ -138,6 +138,47 @@ br_bcb_sicor__fonte_recurso = _sicor_flow(
     historical_database=False,
 )
 
+# ── Proagro ──────────────────────────────────────────────────────────────────
+# Todas em `overwrite`: a fonte publica um arquivo único por tabela, sem quebra
+# anual, então cada run rebaixa e substitui a tabela inteira. Herdam o
+# permissionamento padrão (`part_bdpro` sobre `ano_emissao`/`mes_emissao`), que
+# vem do join com `operacao` — verificado: as chaves do Proagro casam com
+# `operacao` em toda a amostra testada.
+br_bcb_sicor__proagro_cop = _sicor_flow(
+    table_id="proagro_cop",
+    cron="5 6 * * 1-5",
+)
+
+br_bcb_sicor__proagro_complemento_cop = _sicor_flow(
+    table_id="proagro_complemento_cop",
+    cron="15 6 * * 1-5",
+)
+
+br_bcb_sicor__proagro_rcp = _sicor_flow(
+    table_id="proagro_rcp",
+    cron="25 6 * * 1-5",
+)
+
+br_bcb_sicor__proagro_complemento_rcp = _sicor_flow(
+    table_id="proagro_complemento_rcp",
+    cron="35 6 * * 1-5",
+)
+
+br_bcb_sicor__proagro_rcp_gleba = _sicor_flow(
+    table_id="proagro_rcp_gleba",
+    cron="45 6 * * 1-5",
+)
+
+br_bcb_sicor__proagro_parcela = _sicor_flow(
+    table_id="proagro_parcela",
+    cron="55 6 * * 1-5",
+)
+
+br_bcb_sicor__proagro_sumula_julgamento = _sicor_flow(
+    table_id="proagro_sumula_julgamento",
+    cron="5 7 * * 1-5",
+)
+
 
 # O dicionário é materializado antes das demais tabelas porque o teste
 # `custom_dictionary_coverage` de cada uma delas lê este modelo: se ele estiver
