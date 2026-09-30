@@ -118,6 +118,13 @@ MG_STATIC_TABLES = {
 }
 
 # The portal_* flat files are annual CSVs (not gz) covering 2022+.
+#
+# These are a DIFFERENT export of SIAD from the `compras_contratos` dimensional model
+# above: the flat "NOVA CONSULTA" spreadsheets, published to GitHub by CGE/DCTA and
+# committed to the repo, so a refresh is a fetch of a raw file rather than a scrape.
+# They matter for one reason above all: `mg_dm_contratado` and `mg_dm_favorecido`
+# anonymise the counterparty (`nr_documento_anonimizado`, `nome_anonimizado`), and these
+# files do not.
 MG_PORTAL_TABLES = {
     "licitacoes": "mg_licitacao",
     "item": "mg_licitacao_item",
@@ -125,6 +132,32 @@ MG_PORTAL_TABLES = {
     "itens": "mg_contrato_item",
 }
 MG_PORTAL_FIRST_YEAR = 2022
+
+# Which repository publishes each flat file.
+MG_PORTAL_REPOS = {
+    "licitacoes": "portal_licitacoes_mg",
+    "item": "portal_licitacoes_mg",
+    "contratos": "portal_contratos",
+    "itens": "portal_contratos",
+}
+
+# Pinned so a rebuild is reproducible. The repos are refreshed by CGE's own automation,
+# so bump these deliberately rather than tracking a branch; `download_mg_portal.py
+# --ref main` overrides for a coverage refresh.
+MG_PORTAL_REFS = {
+    "portal_contratos": "3998d827e15b4448a1ebf281a4650e11a529bc1c",  # 2026-09-23
+    "portal_licitacoes_mg": "6e654482fe4d32d881ac9f8f2ee41fdc1e739729",  # 2026-09-23
+}
+
+MG_PORTAL_RAW = (
+    "https://raw.githubusercontent.com/transparencia-mg/{repo}/{ref}"
+    "/dataset/data/{stem}{year}.csv"
+)
+
+# Only `contratos` is consumed by a model today (`contrato_mg`). The other three are
+# declared because the download and clean code is generic over this map; wiring them
+# means adding the matching state models, not changing this module.
+MG_PORTAL_IN_USE = ("contratos",)
 
 MG_SEP = ";"
 MG_ENCODING = "utf-8-sig"  # the files carry a BOM

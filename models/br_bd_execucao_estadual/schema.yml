@@ -899,8 +899,9 @@ models:
   - name: br_bd_execucao_estadual__contrato
     description: >
       Contratos dos governos estaduais: os instrumentos contratuais celebrados, com
-      objeto, contratado, vigência e valor. Uma linha por contrato. Existe para Espírito
-      Santo, Santa Catarina, Rio Grande do Sul e Rondônia, os quatro estados que publicam
+      objeto, contratado, vigência e valor. Uma linha por contrato. Existe para Minas
+      Gerais, Espírito
+      Santo, Santa Catarina, Rio Grande do Sul e Rondônia, os cinco estados que publicam
       um cadastro de contratos. Complementa as tabelas de execução: o contrato é o
       compromisso,
       a
@@ -911,7 +912,15 @@ models:
       Rondônia não publica tipo de contrato, situação nem data de início de vigência,
       e
       traz um único valor, então nesses contratos tipo_contrato, situacao e
-      data_inicio_vigencia são nulos e valor_atual repete valor_inicial.
+      data_inicio_vigencia são nulos e valor_atual repete valor_inicial. Em Minas
+      Gerais
+      o modelo dimensional aberto anonimiza o contratado, então documento_contratado
+      e
+      nome_contratado vêm do Portal de Contratos (github.com/transparencia-mg), que
+      cobre
+      2022+ e apenas contratos com termo de contrato; nos contratos mineiros fora
+      dessa
+      cobertura os dois campos permanecem anonimizados e data_assinatura é nula.
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [sigla_uf, id_contrato_bd]

@@ -37,6 +37,10 @@ class constants(Enum):
             "despesa",
             "licitacao",
             "licitacao_item",
+            # MG's contract registry comes from the `compras_contratos` dimensional
+            # model, joined to the `portal_contratos` flat export for the signature
+            # date and the unmasked counterparty.
+            "contrato",
             "relacionamentos",
             "dicionario",
         ],
@@ -151,6 +155,10 @@ class constants(Enum):
             "mg_dm_tempo",
             "mg_fl_compras_empenho",
             "mg_dm_empenho_compras",
+            # Not from CKAN: the `portal_contratos` flat export on
+            # github.com/transparencia-mg, 2022+. Supplies `data_assinatura` and the
+            # real CNPJ/name, which the anonymised `mg_dm_contratado` cannot.
+            "mg_contrato",
         ],
         "BA": [
             "ba_despesa",
