@@ -30,6 +30,10 @@ class constants(Enum):
         # MG-only: the delivery phase. No other state publishes invoices.
         "nota_fiscal",
         "nota_fiscal_item",
+        # MG-only, and the only table whose grain is a person.
+        "contrato_fiscal",
+        # MG-only: the enforcement margin.
+        "fornecedor_sancionado",
         "relacionamentos",
         "dicionario",
     ]
@@ -50,6 +54,8 @@ class constants(Enum):
             "contrato_item",
             "nota_fiscal",
             "nota_fiscal_item",
+            "contrato_fiscal",
+            "fornecedor_sancionado",
             "relacionamentos",
             "dicionario",
         ],
@@ -172,6 +178,8 @@ class constants(Enum):
             "mg_contrato_fiscal",
             "mg_nota_fiscal",
             "mg_nota_fiscal_item",
+            "mg_fornecedor_impedido",
+            "mg_empresa_sancionada",
         ],
         "BA": [
             "ba_despesa",

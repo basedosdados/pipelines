@@ -35,6 +35,8 @@ from models.br_bd_execucao_estadual.code.constants import (
     MG_PORTAL_IN_USE,
     MG_PORTAL_MONTHLY_IN_USE,
     MG_PORTAL_MONTHLY_TABLES,
+    MG_PORTAL_STATIC_IN_USE,
+    MG_PORTAL_STATIC_TABLES,
     MG_PORTAL_TABLES,
     MG_SEP,
     OUTPUT_DIR,
@@ -61,12 +63,14 @@ def _read_all_varchar(paths: list[Path], with_filename: bool = False) -> str:
 
 def clean(con: duckdb.DuckDBPyConnection, stem: str, table: str) -> int:
     monthly = stem in MG_PORTAL_MONTHLY_TABLES
+    static = stem in MG_PORTAL_STATIC_TABLES
     # Monthly files are `notas_jan22.csv`; annual ones `contratos2022.csv`.
-    pattern = (
-        f"{stem}[a-z][a-z][a-z][0-9][0-9].csv"
-        if monthly
-        else f"{stem}[0-9][0-9][0-9][0-9].csv"
-    )
+    if static:
+        pattern = f"{stem}.csv"
+    elif monthly:
+        pattern = f"{stem}[a-z][a-z][a-z][0-9][0-9].csv"
+    else:
+        pattern = f"{stem}[0-9][0-9][0-9][0-9].csv"
     srcs = sorted(MG_INPUT.glob(pattern))
     if not srcs:
         print(f"  SKIP {stem}: not downloaded")
@@ -115,8 +119,20 @@ def clean(con: duckdb.DuckDBPyConnection, stem: str, table: str) -> int:
 
 def main(only: str | None = None) -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    known = {**MG_PORTAL_TABLES, **MG_PORTAL_MONTHLY_TABLES}
-    stems = [only] if only else [*MG_PORTAL_IN_USE, *MG_PORTAL_MONTHLY_IN_USE]
+    known = {
+        **MG_PORTAL_TABLES,
+        **MG_PORTAL_MONTHLY_TABLES,
+        **MG_PORTAL_STATIC_TABLES,
+    }
+    stems = (
+        [only]
+        if only
+        else [
+            *MG_PORTAL_IN_USE,
+            *MG_PORTAL_MONTHLY_IN_USE,
+            *MG_PORTAL_STATIC_IN_USE,
+        ]
+    )
     unknown = [s for s in stems if s not in known]
     if unknown:
         raise SystemExit(f"unknown stem(s) {unknown}; known: {sorted(known)}")

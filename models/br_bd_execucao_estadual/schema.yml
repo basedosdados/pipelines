@@ -1212,3 +1212,171 @@ models:
         description: Preço unitário efetivamente cobrado, em reais correntes
       - name: valor_total
         description: Valor total do item na nota, em reais correntes
+  - name: br_bd_execucao_estadual__contrato_fiscal
+    description: >
+      Gestores e fiscais de contrato dos governos estaduais: os servidores nomeados
+      para
+      gerir e fiscalizar cada contrato. Uma linha por contrato, papel e pessoa. É
+      a única
+      tabela do conjunto cujo grão é uma pessoa, e não um órgão ou um documento, e
+      permite
+      perguntar sobre carga de fiscalização, rotatividade e relação entre quem fiscaliza
+      e
+      o desempenho do contrato. A fonte publica listas separadas por vírgula numa
+      só
+      célula e este modelo as desmembra; a separação por vírgula é uma suposição,
+      e um nome
+      de uma só palavra é o indício de uma separação equivocada, o que ocorre em 0,16%
+      das
+      linhas. O campo masp é a matrícula do servidor, presente em 19% dos contratos
+      porque
+      só aí a fonte a informa. Ligue a contrato por id_contrato_bd; 13 linhas, de
+      2
+      contratos que não existem em contrato, ficam com id_contrato_bd nulo, então
+      não há
+      teste de integridade referencial. A lista de órgãos participantes do contrato,
+      também separada por vírgula na fonte, não é reproduzida aqui porque pertence
+      ao
+      contrato e não ao fiscal. Existe só para Minas Gerais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sigla_uf, id_fiscal_bd]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [masp]
+    columns:
+      - name: ano
+        description: Ano de publicação do contrato
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests: [not_null]
+      - name: id_contrato_bd
+        description: >
+          Identificador do contrato construído pela Data Basis; junta-se a contrato
+          pelo
+          mesmo campo, nulo nos 2 contratos ausentes de contrato
+      - name: id_fiscal_bd
+        description: >
+          Identificador construído pela Data Basis, único por contrato, papel e ocorrência
+        tests: [not_null]
+      - name: numero_contrato
+        description: Número do contrato no sistema de origem
+      - name: numero_processo
+        description: Número do processo de compra que originou o contrato
+      - name: id_unidade_gestora
+        description: Unidade gestora do contrato
+      - name: papel
+        description: >
+          Papel do servidor no contrato, gestor ou fiscal, conforme a coluna da fonte
+          de
+          que o nome foi extraído
+        tests: [not_null]
+      - name: nome
+        description: Nome do servidor, sem a matrícula quando a fonte a anexava ao
+          nome
+        tests: [not_null]
+      - name: masp
+        description: >
+          Matrícula do servidor (MASP), quando a fonte a informa junto ao nome; nula
+          na
+          maioria das linhas e nunca informada para gestores
+  - name: br_bd_execucao_estadual__fornecedor_sancionado
+    description: >
+      Fornecedores sancionados pelos governos estaduais: quem foi impedido de contratar
+      ou
+      penalizado, por quê, por qual órgão e em que período. Uma linha por sanção.
+      É a
+      margem de fiscalização, que nenhuma outra tabela do conjunto observa, e permite
+      a
+      pergunta direta de se ser sancionado afasta a empresa de contratos posteriores;
+      ligue documento_fornecedor a contrato.documento_contratado,
+      licitacao_participante.documento ou nota_fiscal.documento_emissor. Reúne dois
+      registros distintos marcados por origem: o CAFIMP, cadastro de fornecedores
+      impedidos, com 2.087 registros desde 2003, e os processos administrativos
+      sancionadores, com 54 e R$ 101 milhões em multas. A diferença de tamanho é da
+      fonte;
+      não leia os 54 como o total de sanções do estado e não some os dois cadastros,
+      porque
+      uma empresa pode aparecer nos dois pelo mesmo episódio. Campos que só um registro
+      possui são nulos no outro: o CAFIMP não traz conduta, multa nem fase processual,
+      e os
+      processos não trazem janela de penalidade nem código de órgão. Existe só para
+      Minas
+      Gerais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sigla_uf, id_sancao_bd]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.02
+          ignore_values:
+            - tipo_societario
+            - tipo_penalidade
+            - conduta
+            - fase
+            - data_inicio
+            - data_fim
+            - id_unidade_gestora
+            - nome_orgao_lesado
+            - valor_multa
+            - processo
+    columns:
+      - name: ano
+        description: >
+          Ano de publicação da sanção; numa linha do CAFIMP cuja data de publicação
+          é um
+          erro de digitação, o ano vem da data de início da penalidade
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests: [not_null]
+      - name: id_sancao_bd
+        description: Identificador da sanção construído pela Data Basis
+        tests: [not_null]
+      - name: origem
+        description: >
+          Registro de origem da linha, cafimp para o cadastro de impedidos e
+          processo_administrativo para os processos sancionadores
+        tests: [not_null]
+      - name: documento_fornecedor
+        description: >
+          CNPJ ou CPF do fornecedor, somente dígitos; normalizado porque os dois registros
+          o publicam em formatos diferentes
+      - name: nome_fornecedor
+        description: Nome ou razão social do fornecedor sancionado
+      - name: tipo_societario
+        description: Tipo societário da empresa; só nos processos administrativos
+      - name: tipo_penalidade
+        description: Tipo da penalidade aplicada; só no CAFIMP
+      - name: sancao
+        description: >
+          Descrição da sanção no CAFIMP, ou a decisão do processo nos processos
+          administrativos
+      - name: conduta
+        description: Conduta imputada à empresa; só nos processos administrativos
+      - name: fase
+        description: Fase processual; só nos processos administrativos
+      - name: data_publicacao
+        description: >
+          Data de publicação da sanção, como está na fonte, inclusive numa linha em
+          que é
+          um erro de digitação
+      - name: data_inicio
+        description: Data de início da penalidade; só no CAFIMP
+      - name: data_fim
+        description: Data de fim da penalidade; só no CAFIMP
+      - name: id_unidade_gestora
+        description: >
+          Código do órgão que registrou a sanção; só no CAFIMP, e com o sufixo decimal
+          da
+          planilha de origem removido
+      - name: nome_unidade_gestora
+        description: >
+          Nome do órgão que registrou a sanção, ou o órgão instaurador do processo
+      - name: nome_orgao_lesado
+        description: Órgão lesado pela conduta; só nos processos administrativos
+      - name: valor_multa
+        description: Valor da multa aplicada em reais correntes; só nos processos
+          administrativos
+      - name: processo
+        description: Número do processo administrativo ou do processo SEI

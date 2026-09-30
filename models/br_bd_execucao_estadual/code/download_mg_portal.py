@@ -44,6 +44,9 @@ from models.br_bd_execucao_estadual.code.constants import (
     MG_PORTAL_RAW,
     MG_PORTAL_REFS,
     MG_PORTAL_REPOS,
+    MG_PORTAL_STATIC_IN_USE,
+    MG_PORTAL_STATIC_REPOS,
+    MG_PORTAL_STATIC_TABLES,
     MG_PORTAL_TABLES,
     MG_SEP,
 )
@@ -89,8 +92,20 @@ def main(
     last_year: int | None = None,
 ) -> None:
     MG_INPUT.mkdir(parents=True, exist_ok=True)
-    known = {**MG_PORTAL_TABLES, **MG_PORTAL_MONTHLY_TABLES}
-    stems = [only] if only else [*MG_PORTAL_IN_USE, *MG_PORTAL_MONTHLY_IN_USE]
+    known = {
+        **MG_PORTAL_TABLES,
+        **MG_PORTAL_MONTHLY_TABLES,
+        **MG_PORTAL_STATIC_TABLES,
+    }
+    stems = (
+        [only]
+        if only
+        else [
+            *MG_PORTAL_IN_USE,
+            *MG_PORTAL_MONTHLY_IN_USE,
+            *MG_PORTAL_STATIC_IN_USE,
+        ]
+    )
     unknown = [s for s in stems if s not in known]
     if unknown:
         raise SystemExit(f"unknown stem(s) {unknown}; known: {sorted(known)}")
@@ -100,6 +115,20 @@ def main(
     end = last_year or dt.date.today().year
     session = requests.Session()
     session.headers["User-Agent"] = BROWSER_UA
+
+    # Whole-table files: one fetch each, no period in the name.
+    for stem in (s for s in stems if s in MG_PORTAL_STATIC_TABLES):
+        repo = MG_PORTAL_STATIC_REPOS[stem]
+        use_ref = ref or MG_PORTAL_REFS[repo]
+        dest = MG_INPUT / f"{stem}.csv"
+        if is_intact(dest):
+            print(f"  {stem} ({repo} @ {use_ref[:8]}): already present")
+            continue
+        url = MG_PORTAL_RAW.format(repo=repo, ref=use_ref, stem=stem, year="")
+        ok = fetch(session, url, dest)
+        print(
+            f"  {stem} ({repo} @ {use_ref[:8]}): {'downloaded' if ok else 'NOT FOUND'}"
+        )
 
     for stem in (s for s in stems if s in MG_PORTAL_MONTHLY_TABLES):
         use_ref = ref or MG_PORTAL_REFS[MG_PORTAL_MONTHLY_REPO]

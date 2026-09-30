@@ -153,6 +153,8 @@ MG_PORTAL_REFS = {
     "portal_licitacoes_mg": "6e654482fe4d32d881ac9f8f2ee41fdc1e739729",  # 2026-09-23
     "portal_fiscais_contratos": "02290ebe5d74cf828c04567c9a9128084566b00a",  # 2026-09-15
     "portal_notas_fiscais": "7e616c7e4d0370da53fe968b557f4353f9424522",  # 2026-09-23
+    "portal_cafimp": "e07569122e4a1c9dacec4666de2d9866c2957b8b",
+    "portal_empresas_sancionadas": "43b9fa3f14d52c135f8f04cd2287001668b5ca7c",
 }
 
 # The invoice repo is published MONTHLY, not annually: `notas_jan22.csv`,
@@ -183,6 +185,17 @@ MG_PORTAL_MES = (
     "dez",
 )
 
+# Two registries published as a single whole-table file, with no year or month in the
+# name. The sanction side of procurement: who was barred, and who was penalised.
+MG_PORTAL_STATIC_TABLES = {
+    "cafimp": "mg_fornecedor_impedido",
+    "empresas_sancionadas": "mg_empresa_sancionada",
+}
+MG_PORTAL_STATIC_REPOS = {
+    "cafimp": "portal_cafimp",
+    "empresas_sancionadas": "portal_empresas_sancionadas",
+}
+
 MG_PORTAL_RAW = (
     "https://raw.githubusercontent.com/transparencia-mg/{repo}/{ref}"
     "/dataset/data/{stem}{year}.csv"
@@ -193,6 +206,7 @@ MG_PORTAL_RAW = (
 # duplicate 2022+ (see MG_PORTAIS_PLAN.md section 3).
 MG_PORTAL_IN_USE = ("contratos", "itens", "fiscais_contratos_")
 MG_PORTAL_MONTHLY_IN_USE = ("notas_", "itensnota_")
+MG_PORTAL_STATIC_IN_USE = ("cafimp", "empresas_sancionadas")
 
 MG_SEP = ";"
 MG_ENCODING = "utf-8-sig"  # the files carry a BOM
