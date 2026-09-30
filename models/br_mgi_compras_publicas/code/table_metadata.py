@@ -439,9 +439,9 @@ TABLE_ORDER = [
 #:
 #:   /modulo-legado/1_consultarLicitacao, by publication month
 #:     2025-01: 1,631   2025-03: 1,566   2025-05: 951
-#:     2025-07: 0       2025-09: 0       every month of 2026: 0
+#:     2025-07: 0       2025-09: 0       2026-01 … 2026-09: 0
 #:   /modulo-legado/5_consultarComprasSemLicitacao, whole year
-#:     2025: 24,382     2026: 0
+#:     2025: 24,382     2026 to date: 0
 #:
 #: A weekly claim on the site would also be expensive to honour rather than
 #: merely wrong: /modulo-legado/2_consultarItemLicitacao, which feeds

@@ -1,7 +1,10 @@
 """Verify that the metadata registration cannot break the BD Pro paywall.
 
-    ~/.pyenv/versions/3.11.6/bin/python \
-        models/br_mgi_compras_publicas/code/check_coverage_tiers.py
+    uv run python -m models.br_mgi_compras_publicas.code.check_coverage_tiers
+
+Run it as a module, not as a path: the sibling import is absolute, per
+AGENTS.md, so `models` has to resolve through the editable install rather than
+through the script's own directory.
 
 No backend is touched: `register_metadata`'s MCP calls are stubbed and the
 recorded calls are asserted against. The four properties checked are the four
@@ -10,7 +13,8 @@ ways the previous, position-based code damaged production:
 1. The free Coverage is resolved by `is_closed`, not by list position. On prod
    `ata_registro_preco_item` lists the PRO coverage first, so position-based
    reuse overwrote the BD Pro window with the free range.
-2. A pipeline-owned range is never restated. The flow recomputes it every run,
+2. A pipeline-owned range is never restated, and for the paid tier is never
+   written at all -- not even when absent. The flow recomputes it every run,
    day-granular and rolling; a month-granular literal would coarsen the
    free/pro boundary and move it forward, releasing paywalled data.
 3. `prune` never deletes a pro Coverage. It is a legitimate second coverage,
@@ -22,14 +26,9 @@ ways the previous, position-based code damaged production:
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
 from typing import Any
 
-HERE = Path(__file__).resolve().parent
-sys.path.insert(0, str(HERE))
-
-import register_metadata as rm  # noqa: E402
+from models.br_mgi_compras_publicas.code import register_metadata as rm
 
 
 def tier(coverage_id: str, range_ids: list[str]) -> dict[str, Any]:
@@ -98,11 +97,18 @@ def main() -> int:
         check(
             f"{table}: range not written", not plan(table, tiers).write_range
         )
-    print("   ... but a missing one is still seeded")
-    seeded = plan(
+    print("   ... and the PAID tier is not seeded even when absent")
+    # Seeding contratacao from the month literal would declare the paid window
+    # free until the first materialisation; the flow creates both ranges.
+    absent_paid = plan(
         "contratacao", {False: tier("cov-free", []), True: tier("cov-pro", [])}
     )
-    check("contratacao with no range: seeded", seeded.write_range)
+    check(
+        "contratacao with no range: not written", not absent_paid.write_range
+    )
+    print("   ... while a missing all-free range still is")
+    seeded = plan("orgao", {False: tier("cov-free", [])})
+    check("orgao with no range: seeded", seeded.write_range)
     check("seeded as a create, not an update", seeded.free_range_id is None)
 
     # 3. a static (legado) table's range IS written, so corrections land.
@@ -137,8 +143,11 @@ def main() -> int:
     print("5. an unregistered table creates its coverage")
     got = plan("contratacao", {})
     check("free coverage created", got.free_coverage_id is None)
-    check("free range created", got.free_range_id is None and got.write_range)
+    check("no range written for the paid tier", not got.write_range)
     check("pro coverage created", got.create_pro_coverage)
+    free_new = plan("orgao", {})
+    check("all-free: free coverage created", free_new.free_coverage_id is None)
+    check("all-free: range created too", free_new.write_range)
 
     # 6. prune keeps one coverage PER TIER and one range per coverage.
     print("6. prune deduplicates within a tier, never across")

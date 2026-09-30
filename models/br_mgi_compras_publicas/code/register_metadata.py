@@ -39,7 +39,10 @@ from typing import Any, cast
 
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[2]
-sys.path.insert(0, str(HERE))
+# The sibling modules are imported by absolute path (`models.<ds>.code.<mod>`),
+# per AGENTS.md, so pyrefly can resolve them; the repo root has to be on the
+# path for that to work when this file is run as a script rather than under
+# `uv run`. `server` comes from the MCP checkout, which is not a package here.
 sys.path.insert(0, str(REPO_ROOT))
 sys.path.insert(0, str(Path.home() / "Dropbox/BD/mcp"))
 
@@ -320,12 +323,19 @@ def coverage_plan(
     * The free Coverage is found by `is_closed`, never by position. On prod
       `ata_registro_preco_item` lists the PRO coverage first, so `coverages[0]`
       overwrote the BD Pro window with the free range.
-    * A range the flow owns -- any table in `COVERAGE` -- is seeded once and
-      never restated. The flow recomputes it on every run, day-granular and
-      rolling (free ends
-      2026-03-24, pro starts 2026-03-25); restating the month-granular literal
-      from table_metadata.py would coarsen that boundary and move it forward,
+    * A range the flow owns is never restated from the static literal. The flow
+      recomputes it on every run, day-granular and rolling (free ends
+      2026-03-24, pro starts 2026-03-25); the month-granular literal from
+      table_metadata.py would coarsen that boundary and move it forward,
       releasing the paywalled window for free.
+
+      For the paid tier that holds even when the range is **absent**, so a new
+      part_bdpro table gets its two Coverages and no range at all. Seeding
+      `contratacao` as free through 2026-07 would declare the whole paid window
+      open until the first materialisation corrected it. A fully free table can
+      be seeded safely -- the flow owns that range too, but a coarser literal
+      over all-free data misclassifies nothing -- and is, so a correction to
+      `table_metadata.py` still lands on the tables no flow covers.
     """
     free = tiers.get(False)
     free_range_id = (
@@ -334,10 +344,13 @@ def coverage_plan(
     # A table the flow covers has a spec; `PartBdpro` is the paid tier, the
     # same predicate `policy.needs_row_access_policy` uses.
     spec = COVERAGE.get(table)
-    keep = free_range_id is not None and spec is not None
-    create_pro = isinstance(spec, PartBdpro) and tiers.get(True) is None
+    paid = isinstance(spec, PartBdpro)
+    keep = paid or (spec is not None and free_range_id is not None)
+    create_pro = paid and tiers.get(True) is None
     notes = []
-    if keep:
+    if paid:
+        notes.append("range left to the flow (paid tier)")
+    elif keep:
         notes.append("range kept (pipeline-owned)")
     if create_pro:
         notes.append("pro coverage created")
@@ -431,22 +444,40 @@ def prune(
     `part_bdpro exige Coverage free + pro`. Ranges are likewise per coverage: a
     flat `ranges[1:]` across both tiers deletes the pro window's only range.
     """
-    delete = fn("delete_record") if hasattr(server, "delete_record") else None
-    if delete is None:
-        return
+    doomed: list[tuple[str, str]] = []
     seen: set[Any] = set()
     for level in node.get("observation_levels", []):
         key = level.get("entity_id")
         if key in seen:
-            delete(kind="observationlevel", record_id=level["id"], env=env)
+            doomed.append(("observationlevel", level["id"]))
         seen.add(key)
     for extra in node.get("updates", [])[1:]:
-        delete(kind="update", record_id=extra["id"], env=env)
+        doomed.append(("update", extra["id"]))
     for tier in tiers.values():
         for record_id in tier["extra_coverage_ids"]:
-            delete(kind="coverage", record_id=record_id, env=env)
+            doomed.append(("coverage", record_id))
         for record_id in tier["extra_range_ids"] + tier["range_ids"][1:]:
-            delete(kind="datetimerange", record_id=record_id, env=env)
+            doomed.append(("datetimerange", record_id))
+    if not doomed:
+        return
+    # The caller clears the extra ids straight after this returns, on the
+    # premise that they are gone. Without a delete tool they would not be, and
+    # the run would carry on to fail at create_update_table with an error that
+    # names `coverages_areas` -- a field the request does not contain. Stop
+    # here instead, naming what has to go.
+    if not hasattr(server, "delete_record"):
+        print(
+            f"{len(doomed)} duplicate child record(s) on this table and the "
+            f"MCP server has no delete_record: {doomed}"
+        )
+        print(
+            "Merge basedosdados/mcp#13 (or delete them in Django admin) and "
+            "re-run; proceeding would fail at create_update_table."
+        )
+        sys.exit(1)
+    delete = fn("delete_record")
+    for kind, record_id in doomed:
+        delete(kind=kind, record_id=record_id, env=env)
 
 
 def main(env: str, status: str, only: list[str] | None = None) -> int:
