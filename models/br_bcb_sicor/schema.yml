@@ -390,8 +390,15 @@ models:
       - name: id_tipo_cultura
         description: Código do tipo de cultura do empreendimento
   - name: br_bcb_sicor__recurso_publico_complemento_operacao
-    description: Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
+    description: >-
+      Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
       das operações de crédito que foram financiadas com recursos públicos.
+      Atenção à cobertura: esta tabela cobre apenas operações financiadas com
+      fontes públicas/controladas — as 16 fontes listadas em `fonte_recurso`
+      com `indicador_recurso_publico = 1`. Operações com fonte livre (recursos
+      livres, LCA a taxa livre, poupança rural não controlada, obrigatórios
+      MCR 6.2) têm cobertura abaixo de 2% aqui. Não é dado faltante, é o
+      desenho da fonte
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns: [id_referencia_bacen, numero_ordem]
@@ -475,9 +482,16 @@ models:
       - name: tipo_desclassificacao
         description: Tipo da desclassificação
   - name: br_bcb_sicor__recurso_publico_propriedade
-    description: Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
-      das operações de crédito que foram financiadas com recursos públicos. Esta tabela
-      contém dados adicionais do imóvel rural de aplicação do crédito.
+    description: >-
+      Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
+      das operações de crédito que foram financiadas com recursos públicos.
+      Esta tabela contém dados adicionais do imóvel rural de aplicação do
+      crédito. Atenção à cobertura: esta tabela cobre apenas operações
+      financiadas com fontes públicas/controladas — as 16 fontes listadas em
+      `fonte_recurso` com `indicador_recurso_publico = 1`. Operações com fonte
+      livre (recursos livres, LCA a taxa livre, poupança rural não controlada,
+      obrigatórios MCR 6.2) têm cobertura abaixo de 2% aqui. Não é dado
+      faltante, é o desenho da fonte
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -524,11 +538,29 @@ models:
         description: Identificador do Imóvel no Cadastro Imobiliário Brasileiro (CIB),
           que sucede o NIRF a partir de julho de 2026
       - name: id_car
-        description: Identificador do Cadastro da Área Rural (CAR)
+        description: >-
+          Identificador do Cadastro Ambiental Rural (CAR). O Sicor publica o
+          código na forma não hifenizada de 41 caracteres (UF + 7 dígitos do
+          município IBGE + 32 hexadecimais), enquanto o registro do SFB em
+          `basedosdados.br_sfb_sicar.area_imovel` usa a forma hifenizada de 43
+          caracteres — normalize antes de cruzar as duas. Verificado: todos os
+          15.463.388 valores preenchidos têm exatamente 41 caracteres e nenhum
+          hífen. O preenchimento é de 55,6% das 27.796.342 linhas e começa em
+          2018, quando o Banco Central passou a exigir o CAR para a concessão do
+          crédito: é 0% de 2013 a 2016 e cerca de 12% em 2018. Em 266 linhas os
+          dois primeiros caracteres não são uma UF válida (`AA`, `AB`, `MH`,
+          `UF`) — são defeitos da fonte, mantidos como publicados
   - name: br_bcb_sicor__recurso_publico_mutuario
-    description: Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
-      das operações de crédito que foram financiadas com recursos públicos. Esta tabela
-      contém dados adicionais sobre o mutuário (tomador do empréstimo).
+    description: >-
+      Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
+      das operações de crédito que foram financiadas com recursos públicos.
+      Esta tabela contém dados adicionais sobre o mutuário (tomador do
+      empréstimo). Atenção à cobertura: esta tabela cobre apenas operações
+      financiadas com fontes públicas/controladas — as 16 fontes listadas em
+      `fonte_recurso` com `indicador_recurso_publico = 1`. Operações com fonte
+      livre (recursos livres, LCA a taxa livre, poupança rural não controlada,
+      obrigatórios MCR 6.2) têm cobertura abaixo de 2% aqui. Não é dado
+      faltante, é o desenho da fonte
     tests:
       - custom_dictionary_coverage:
           columns_covered_by_dictionary: [tipo_beneficiario]
@@ -583,10 +615,16 @@ models:
         description: Esta coluna não possui um dicionário na fonte original que explica
           o significado dos valores. Ela esta descrita somente como "Sexo do mutuário"
   - name: br_bcb_sicor__recurso_publico_gleba
-    description: Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
-      das operações de crédito que foram financiadas com recursos públicos. Esta tabela
-      contém dados adicionais sobre as coordenadas geográficas das glebas do imóvel
-      do mutuário.
+    description: >-
+      Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
+      das operações de crédito que foram financiadas com recursos públicos.
+      Esta tabela contém dados adicionais sobre as coordenadas geográficas das
+      glebas do imóvel do mutuário. Atenção à cobertura: esta tabela cobre
+      apenas operações financiadas com fontes públicas/controladas — as 16
+      fontes listadas em `fonte_recurso` com `indicador_recurso_publico = 1`.
+      Operações com fonte livre (recursos livres, LCA a taxa livre, poupança
+      rural não controlada, obrigatórios MCR 6.2) têm cobertura abaixo de 2%
+      aqui. Não é dado faltante, é o desenho da fonte
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -632,9 +670,16 @@ models:
           território brasileiro (Longitude (ST_X) Deve estar entre -74 e -34. Latitude
           (ST_Y) Deve estar entre -34 e +6.)
   - name: br_bcb_sicor__recurso_publico_cooperado
-    description: Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
-      das operações de crédito que foram financiadas com recursos públicos. Esta tabela
-      identifica o repasse do crédito a cada menbro de uma cooperativa, caso exista.
+    description: >-
+      Em 2023 o Banco Central do Brasil (BCB) liberou informações adicionais
+      das operações de crédito que foram financiadas com recursos públicos.
+      Esta tabela identifica o repasse do crédito a cada menbro de uma
+      cooperativa, caso exista. Atenção à cobertura: esta tabela cobre apenas
+      operações financiadas com fontes públicas/controladas — as 16 fontes
+      listadas em `fonte_recurso` com `indicador_recurso_publico = 1`.
+      Operações com fonte livre (recursos livres, LCA a taxa livre, poupança
+      rural não controlada, obrigatórios MCR 6.2) têm cobertura abaixo de 2%
+      aqui. Não é dado faltante, é o desenho da fonte
     tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:

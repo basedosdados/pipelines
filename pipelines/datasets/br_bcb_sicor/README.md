@@ -817,3 +817,95 @@ restantes descrevem colunas que o conjunto não publica (prazos por programa, po
 fonte e por UF, tipos de clima, manejo, conformidade, bônus, motivos de exclusão
 e de rejeição de saldo, municípios do Sicor) ou duplicam diretórios da Base dos
 Dados.
+
+---
+
+## Cobertura das tabelas `recurso_publico_*`: não é dado faltante
+
+O ponto que os usuários mais erram neste conjunto. As cinco tabelas
+`recurso_publico_*` cobrem **apenas operações financiadas com fontes
+públicas/controladas** — exatamente as 16 fontes que `fonte_recurso` marca com
+`indicador_recurso_publico = 1`. Uma operação com fonte livre simplesmente não
+aparece nelas.
+
+Cobertura em `recurso_publico_propriedade` por classe de fonte: ~99% para FNO,
+FCO, poupança rural controlada, BNDES/Finame e demais subsidiadas; **abaixo de
+2%** para recursos livres, LCA a taxa livre, poupança rural livre e obrigatórios
+MCR 6.2. É o desenho da fonte, não defeito. A ressalva foi adicionada às
+descrições das cinco tabelas.
+
+### `id_car`: formato, cobertura e defeitos
+
+Medido sobre as 27.796.342 linhas de `recurso_publico_propriedade` em dev:
+
+| | |
+|---|---|
+| linhas com CAR | 15.463.388 (**55,6%**) |
+| comprimento | **41 caracteres em 100% dos casos**, nenhum hífen |
+| UF inválida nos 2 primeiros caracteres | 266 linhas (`AA`, `AB`, `MH`, `UF`) |
+
+O Sicor publica o CAR **não hifenizado, 41 caracteres** (UF + 7 dígitos do
+município IBGE + 32 hexadecimais), enquanto o registro do SFB em
+`basedosdados.br_sfb_sicar.area_imovel` usa a forma **hifenizada de 43
+caracteres**. Quem cruzar as duas bases tem de normalizar antes — não há join
+direto. As 266 linhas com UF inválida são defeitos da fonte e ficam como
+publicadas, sem descarte.
+
+O preenchimento começa em 2018, quando o Banco Central passou a exigir o CAR
+para a concessão do crédito: 0% de 2013 a 2016, cerca de 12% em 2018 e 55–59% de
+2019 em diante. Registrado na descrição da coluna.
+
+---
+
+## Registro de metadados: staging, e o que falta em prod
+
+Os metadados das nove tabelas novas foram registrados no backend de **staging**,
+não no de dev — o de dev (`development.backend.basedosdados.org`) esteve
+retornando **503** de forma persistente em 30/09/2026, enquanto staging e prod
+respondiam normalmente.
+
+**Saiba que o registro de `sicor` em staging é um retrato antigo e divergente de
+prod.** O que está lá e não deveria:
+
+| | staging | prod |
+|---|---|---|
+| nomes de tabela | `microdados_operacao`, `microdados_saldo`, `microdados_liberacao` | `operacao`, `saldo`, `liberacao` |
+| `operacoes_desclassificadas` | ausente | presente |
+| colunas de `operacao` | `plano_safra_emissao`, sem `ano_emissao`/`mes_emissao` | `ano_safra_emissao`, com as duas |
+| `recurso_publico_propriedade` | `id_nirf` | `id_cib` |
+| `recurso_publico_gleba` | `altitude`, `ponto`, `indice_ponto` | `geometria`, `geometria_original` |
+| slugs de tag | em português (`agropecuaria`, `credito`) | em inglês (`agriculture`, `credit`) |
+
+Nada disso foi tocado — só as nove tabelas novas foram criadas. **Cuidado ao
+promover staging → prod**: isso reverteria os nomes das três tabelas acima para a
+forma `microdados_*`, que já foi renomeada em prod.
+
+### Detalhes do registro em staging
+
+- `gcp_project_id = basedosdados-dev` nas cloud tables, porque é onde os dados
+  estão hoje. **Na promoção para prod, tem de ser `basedosdados`.**
+- As sete tabelas do Proagro têm as duas Coverages que um pipeline `part_bdpro`
+  exige, com faixas não sobrepostas e `is_closed` na Coverage **e** no
+  DateTimeRange: livre até 2026-02, BD Pro de 2026-03 a 2026-08 (`free_lag` de 6
+  meses sobre o máximo de 2026-08). Sem as duas, `assert_coverage_topology`
+  derruba o primeiro run.
+- `instituicao_financeira` e `fonte_recurso` são `all_free` e têm uma Coverage só.
+- Cada tabela tem exatamente uma cloud table, um observation level, um Update e
+  **uma** raw data source — o limite de uma por tabela é necessário, porque
+  `client._raw_source_id` levanta erro com duas ou mais e o poll do pipeline
+  passa por ele.
+
+### Duas armadilhas encontradas na API de colunas
+
+- **`bulk_upsert_columns` com `columns_json` não grava o vínculo de diretório.**
+  Nem como `directory_column` nem como `directory_column_name`: os tipos,
+  descrições, unidades e flags entram, o `directoryPrimaryKey` não. Também não
+  grava `isPartition`. Os dois precisam de um `update_column` por coluna, onde o
+  parâmetro se chama `directory_column_name` e aceita a forma com prefixo
+  (`br_bd_diretorios_data_tempo.ano:ano`).
+- **`directoryPrimaryKey` só aceita coluna marcada como chave primária no
+  diretório.** Em `br_bd_diretorios_brasil.empresa` apenas `cnpj` está marcada,
+  não `cnpj_basico` — então `instituicao_financeira.cnpj_basico` **não pode** ser
+  vinculada, e a tentativa devolve `Faça uma escolha válida`. A integridade fica
+  garantida pelo teste dbt `relationships`, que passa. É o mesmo motivo pelo qual
+  nenhuma das colunas de CNPJ de `operacao` tem vínculo de diretório em prod.
