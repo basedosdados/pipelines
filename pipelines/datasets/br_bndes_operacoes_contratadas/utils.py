@@ -167,7 +167,7 @@ def transform(dataframe: pd.DataFrame) -> pd.DataFrame:
             f"{len(invalid_dates)} linha(s) com data de contratação fora de "
             f"dd/mm/aaaa: {invalid_dates.unique()[:5].tolist()}"
         )
-    dataframe["data_contratacao"] = date.dt.strftime(DateFormat.YEAR_MD)
+    dataframe["data_contratacao"] = date.dt.strftime(DateFormat.YEAR_MD.value)
     dataframe["ano"] = date.dt.year.astype(str)
 
     dataframe["valor_operacao"] = parse_valor(dataframe["valor_operacao"])
