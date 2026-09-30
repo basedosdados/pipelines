@@ -319,6 +319,10 @@ def build(
             and col.endswith(("IFR", "CFR", "CUR", "NDR", "CCF"))
         ):
             add("decile")
+        if col == "AGLOMERADO":
+            add("eph_geography_not_directory")
+        if col == "REGION":
+            add("eph_region_not_directory")
         if col in ("CH15_COD", "CH16_COD"):
             add("geo_code_encoding")
         if prof.get("min") is not None and prof["min"] == -9:

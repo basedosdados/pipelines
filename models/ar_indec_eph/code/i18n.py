@@ -208,6 +208,49 @@ FRAGMENTS: dict[str, dict[str, str]] = {
             "no traen etiquetas de variable"
         ),
     },
+    "eph_geography_not_directory": {
+        "pt": (
+            "Codigo proprio da EPH, nao o codigo geografico do INDEC: nao se "
+            "liga a br_bd_diretorios_ar. O diretorio identifica os aglomerados "
+            "por um codigo de quatro digitos e cobre 3.706 deles, enquanto a EPH "
+            "numera de 2 a 93 os cerca de 32 aglomerados que releva. Os rotulos "
+            "estao na tabela dicionario"
+        ),
+        "en": (
+            "An EPH-specific code, not INDEC's geographic code: it does not link "
+            "to br_bd_diretorios_ar. The directory identifies agglomerates by a "
+            "four-digit code and covers 3,706 of them, while the EPH numbers the "
+            "roughly 32 it surveys from 2 to 93. The labels are in the dicionario "
+            "table"
+        ),
+        "es": (
+            "Codigo propio de la EPH, no el codigo geografico del INDEC: no se "
+            "vincula con br_bd_diretorios_ar. El directorio identifica los "
+            "aglomerados con un codigo de cuatro digitos y cubre 3.706 de ellos, "
+            "mientras que la EPH numera del 2 al 93 los alrededor de 32 que "
+            "releva. Las etiquetas estan en la tabla dicionario"
+        ),
+    },
+    "eph_region_not_directory": {
+        "pt": (
+            "Codigo de regiao estatistica da EPH (seis regioes), nao uma divisao "
+            "administrativa: br_bd_diretorios_ar nao tem uma tabela de regioes, "
+            "por isso a coluna nao leva vinculo de diretorio. Os rotulos estao na "
+            "tabela dicionario"
+        ),
+        "en": (
+            "The EPH's statistical region code (six regions), not an "
+            "administrative division: br_bd_diretorios_ar has no region table, so "
+            "the column carries no directory link. The labels are in the "
+            "dicionario table"
+        ),
+        "es": (
+            "Codigo de region estadistica de la EPH (seis regiones), no una "
+            "division administrativa: br_bd_diretorios_ar no tiene una tabla de "
+            "regiones, por lo que la columna no lleva vinculo de directorio. Las "
+            "etiquetas estan en la tabla dicionario"
+        ),
+    },
     "source_name": {
         "pt": "Nome na fonte: {name}",
         "en": "Name in the source: {name}",
