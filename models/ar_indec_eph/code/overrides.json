@@ -1,0 +1,39 @@
+{
+  "_comment": [
+    "Descriptions for columns that neither the Stata variable labels nor the",
+    "INDEC record-layout PDF supply. Each entry records why the override is",
+    "needed, so it can be removed if INDEC documents the column later.",
+    "Columns listed in _drop carry no information and are excluded from the",
+    "architecture entirely."
+  ],
+  "_drop": {
+    "microdatos_individuo": {
+      "CH142": "Present only in 2009 Q4. 59.829 rows, all of them the empty string -- a stray column in that one INDEC file, carrying no information. Not to be confused with CH14, which is present in every wave."
+    }
+  },
+  "description": {
+    "microdatos_individuo": {
+      "EMPLEO": {
+        "description": "Condición de formalidad del empleo en la ocupación principal",
+        "reason": "El diseño de registros de INDEC lista solamente los códigos (1 = Formal, 2 = Informal, 9 = Ns/Nr) sin un rótulo para la variable."
+      },
+      "SECTOR": {
+        "description": "Sector de la ocupación principal según formalidad",
+        "reason": "El diseño de registros de INDEC lista solamente los códigos (1 = Formal, 2 = Informal, 3 = Hogares, 9 = Ns/Nr) sin un rótulo para la variable."
+      },
+      "INTENSI": {
+        "description": "Intensidad de la ocupación: clasifica a los ocupados en subocupados, ocupados plenos y sobreocupados según las horas trabajadas y su disposición a trabajar más",
+        "reason": "La etiqueta de variable de Stata es literalmente \"Intensi\", una repetición del nombre de la columna sin contenido, y el diseño de registros no describe la variable."
+      }
+    },
+    "microdatos_hogar": {}
+  },
+  "value_labels": {
+    "MAS_500": {
+      "_reason": "Columna codificada sin etiquetas de valor ni en los archivos Stata ni en el diseno de registros. Los codigos estan documentados en la metodologia de la EPH: identifica si el aglomerado tiene 500.000 habitantes o mas. La fuente alterna 'N' y 'NO' para el mismo valor negativo segun la onda.",
+      "S": "Aglomerado de 500.000 habitantes o mas",
+      "N": "Aglomerado de menos de 500.000 habitantes",
+      "NO": "Aglomerado de menos de 500.000 habitantes"
+    }
+  }
+}

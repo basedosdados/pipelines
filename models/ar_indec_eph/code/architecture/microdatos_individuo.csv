@@ -1,0 +1,246 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Año de relevamiento,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Columna de particion. Nombre en la fuente: ANO4,ANO4
+trimestre,INT64,Número de trimestre,,no,br_bd_diretorios_data_tempo.trimestre:trimestre,quarter,no,Columna de particion,TRIMESTRE
+id_vivienda,STRING,Código para distinguir viviendas,,no,,,no,"Identificador de vivienda. Cambia de formato en 2016: hasta 2015 Q2 es un numero de 6 digitos y desde 2016 Q2 una cadena alfanumerica de 29 caracteres, por lo que no permite seguir una vivienda a traves de ese corte. Nombre en la fuente: CODUSU",CODUSU
+nro_hogar,STRING,Código para distinguir hogares,,no,,,no,,NRO_HOGAR
+componente,STRING,Número de componente,,yes,,,no,,COMPONENTE
+id_region,STRING,Código de Región,,yes,,,no,Nombre en la fuente: REGION,REGION
+id_aglomerado,STRING,Aglomerado,,yes,,,no,Nombre en la fuente: AGLOMERADO,AGLOMERADO
+mas_500,STRING,Aglomerados según tamaño,,yes,,,no,"La fuente usa 'S' y, segun la onda, 'N' o 'NO' para el mismo valor negativo; se preservan los codigos originales",MAS_500
+pondera,INT64,Ponderación,,no,,,no,"Ponderador muestral adimensional, por lo que no lleva unidad de medida. Debe usarse en todo calculo de agregados poblacionales",PONDERA
+pondiio,INT64,Ponderador del ingreso de la ocupación principal (ver Anexo I) Ingreso de otras ocupaciones,2016-02(3)2026-01,no,,,no,"Ponderador muestral adimensional, por lo que no lleva unidad de medida. Debe usarse en todo calculo de agregados poblacionales. Presente en 40 de 87 ondas (2016Q2 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable",PONDIIO
+pondii,INT64,Ponderador para ingreso total individual (ver Anexo I) Ingresos no laborales,2016-02(3)2026-01,no,,,no,"Ponderador muestral adimensional, por lo que no lleva unidad de medida. Debe usarse en todo calculo de agregados poblacionales. Presente en 40 de 87 ondas (2016Q2 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable",PONDII
+pondih,INT64,"Ponderador del ingreso total familiar y del ingreso per cápita familiar, para hogares (ver Anexo I) Ingreso per cápita familiar de las personas",2016-02(3)2026-01,no,,,no,"Ponderador muestral adimensional, por lo que no lleva unidad de medida. Debe usarse en todo calculo de agregados poblacionales. Presente en 40 de 87 ondas (2016Q2 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable",PONDIH
+h15,STRING,Entrevista individual realizada,,yes,,,no,,H15
+ch03,STRING,Relación de parentesco,,yes,,,no,,CH03
+ch04,STRING,Sexo,,yes,,,no,,CH04
+ch06,INT64,Edad en años cumplidos,,no,,year,no,El valor -1 identifica a las personas menores de un anio; el 99 corresponde a Ns./Nr.,CH06
+ch07,STRING,Situación conyugal,,yes,,,no,,CH07
+ch08,STRING,Tipo de cobertura médica,,yes,,,no,,CH08
+ch09,STRING,¿Sabe leer y escribir?,,yes,,,no,,CH09
+ch10,STRING,¿Asiste o asistió a algún establecimiento educativo?,,yes,,,no,,CH10
+ch11,STRING,Ese establecimiento es,,yes,,,no,,CH11
+ch12,STRING,¿Cuál es el nivel más alto que cursa o cursó?,,yes,,,no,,CH12
+ch13,STRING,¿Finalizó ese nivel?,,yes,,,no,,CH13
+ch14,STRING,¿Cuál fue el último año que aprobó?,,yes,,,no,,CH14
+ch15,STRING,¿Dónde nació?,,yes,,,no,,CH15
+ch15_cod,STRING,Lugar de nacimiento. Código,,no,,,no,"Codigo que se resuelve contra el Codigo de lugar de nacimiento (provincia o pais) de INDEC, no contra la tabla dicionario de este conjunto",CH15_COD
+ch16,STRING,¿Dónde vivía hace 5 años?,,yes,,,no,,CH16
+ch16_cod,STRING,Residencia anterior. Código,,no,,,no,"Codigo que se resuelve contra el Codigo de lugar de residencia anterior (provincia o pais) de INDEC, no contra la tabla dicionario de este conjunto",CH16_COD
+nivel_ed,STRING,Nivel educativo,,yes,,,no,,NIVEL_ED
+estado,STRING,Condición de actividad,,yes,,,no,,ESTADO
+cat_ocup,STRING,Categoría ocupacional (para ocupados y desocupados con ocupación anterior),,yes,,,no,,CAT_OCUP
+cat_inac,STRING,Categoría de inactividad,2003-03(3)2025-04,yes,,,no,Presente en 86 de 87 ondas (2003Q3 a 2025Q4),CAT_INAC
+pp02c1,STRING,"¿De qué manera estuvo buscando trabajo? Hizo contactos, entrevistas",,yes,,,no,,PP02C1
+pp02c2,STRING,"Mandó currículum, puso o contestó avisos (diarios, internet)",,yes,,,no,,PP02C2
+pp02c3,STRING,Se presentó en establecimientos,,yes,,,no,,PP02C3
+pp02c4,STRING,Hizo algo para ponerse por su cuenta,,yes,,,no,,PP02C4
+pp02c5,STRING,"Puso carteles en negocios, preguntó en el barrio",,yes,,,no,,PP02C5
+pp02c6,STRING,"Consultó a parientes, amigos",,yes,,,no,,PP02C6
+pp02c7,STRING,"Se anotó en bolsas, listas, planes de empleo, agencias, contratistas, o alguien",,yes,,,no,,PP02C7
+pp02c8,STRING,Buscó trabajo de otra forma forma activa,,yes,,,no,,PP02C8
+pp02e,STRING,"Durante esos 30 días, no buscó trabajo porque",,yes,,,no,,PP02E
+pp02h,STRING,En los últimos 12 meses ¿buscó trabajo en algún momento?,,yes,,,no,,PP02H
+pp02i,STRING,En los últimos 12 meses ¿trabajó en algún momento?,,yes,,,no,,PP02I
+pp03c,STRING,"La semana pasada, ¿tenía",,yes,,,no,,PP03C
+pp03d,INT64,Cantidad de ocupaciones,,no,,,no,"Cantidad de ocupaciones. El vocabulario de unidades de medida del backend no tiene un slug equivalente, por lo que la columna queda sin unidad",PP03D
+pp3e_tot,INT64,Total de horas que trabajó en la semana en la ocupación principal,,no,,hour,no,,PP3E_TOT
+pp3f_tot,INT64,Total de horas que trabajó en la semana en otras ocupaciones,,no,,hour,no,,PP3F_TOT
+pp03g,STRING,"La semana pasada, ¿quería trabajar más horas?",,yes,,,no,,PP03G
+pp03h,STRING,Si hubiera conseguido más horas,,yes,,,no,,PP03H
+pp03i,STRING,"En los últimos 30 días, ¿buscó trabajar más horas?",,yes,,,no,,PP03I
+pp03j,STRING,"Aparte de este/os trabajo/s, ¿estuvo buscando algún empleo/ocupación/actividad?",,yes,,,no,,PP03J
+intensi,STRING,"Intensidad de la ocupación: clasifica a los ocupados en subocupados, ocupados plenos y sobreocupados según las horas trabajadas y su disposición a trabajar más",,yes,,,no,"La etiqueta de variable de Stata es literalmente ""Intensi"", una repetición del nombre de la columna sin contenido, y el diseño de registros no describe la variable.",INTENSI
+pp04a,STRING,El negocio/empresa/institución/actividad en la que trabaja es (se refiere al que,,yes,,,no,,PP04A
+pp04b_cod,STRING,Código de Actividad para ocupados,2003-03(3)2026-01,no,,,no,"Codigo que se resuelve contra el Clasificador de actividad (CAES/CLANAE) de INDEC, no contra la tabla dicionario de este conjunto. Presente en 73 de 87 ondas (2003Q3 a 2026Q1)",PP04B_COD
+pp04b1,STRING,Si presta servicio doméstico en hogares particulares,,yes,,,no,,PP04B1
+pp04b2,INT64,¿En cuántas casas trabaja? (cantidad),,no,,household,no,,PP04B2
+pp04b3_mes,INT64,Antigüedad en meses,,no,,month,no,,PP04B3_MES
+pp04b3_ano,INT64,Antigüedad en años,,no,,year,no,,PP04B3_ANO
+pp04b3_dia,INT64,Antigüedad en días,,no,,day,no,,PP04B3_DIA
+pp04c,STRING,"¿Cuántas personas, incluido...trabajan allí en total?",,yes,,,no,,PP04C
+pp04c99,STRING,Tamaño del establecimiento,,yes,,,no,,PP04C99
+pp04d_cod,STRING,Código de Ocupación para ocupados,,no,,,no,"Codigo que se resuelve contra el Clasificador Nacional de Ocupaciones (CNO) de INDEC, no contra la tabla dicionario de este conjunto",PP04D_COD
+pp04g,STRING,¿Dónde realiza principalmente sus tareas?,,yes,,,no,,PP04G
+pp05b2_mes,INT64,Antigüedad en meses,,no,,month,no,,PP05B2_MES
+pp05b2_ano,INT64,Antigüedad en años,,no,,year,no,,PP05B2_ANO
+pp05b2_dia,INT64,Antigüedad en días,,no,,day,no,,PP05B2_DIA
+pp05c_1,STRING,"¿En ese negocio/empresa/actividad, tiene maquinarias/equipos?",,yes,,,no,,PP05C_1
+pp05c_2,STRING,"¿En ese negocio/empresa/actividad, tiene local (incluye kiosco/puesto fijo)?",,yes,,,no,,PP05C_2
+pp05c_3,STRING,"¿En ese negocio/empresa/actividad, tiene vehículo?",,yes,,,no,,PP05C_3
+pp05e,STRING,"¿Para la actividad del negocio, en los últimos 3 meses, tuvo que gastar en la co",,yes,,,no,,PP05E
+pp05f,STRING,"Ese negocio/empresas/actividad, trabaja habitualmente para",,yes,,,no,,PP05F
+pp05h,STRING,¿Durante cuánto tiempo ha estado trabajando en ese empleo de forma continua?,,yes,,,no,,PP05H
+pp06a,STRING,¿En ese negocio/empresa/actividad ¿tiene socios o familiares asociados?,,yes,,,no,,PP06A
+pp06c,FLOAT64,Monto de patrones y cuenta propia sin socios percibido en ese mes,,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.,PP06C
+pp06d,FLOAT64,Monto de patrones y cuenta propia con socios percibido en ese mes,,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.,PP06D
+pp06e,STRING,¿Ese negocio/empresa/actividad,,yes,,,no,,PP06E
+pp06h,STRING,¿Es una actividad familiar? (solo códigos 2 y 3 de pp06e),,yes,,,no,,PP06H
+pp07a,STRING,¿Cuánto tiempo hace que está trabajando en ese empleo en forma continua?,,yes,,,no,,PP07A
+pp07c,STRING,¿Ese empleo tiene tiempo de finalización?,,yes,,,no,,PP07C
+pp07d,STRING,¿Por cuánto tiempo es ese trabajo? (para los que tienen en pp07c=1),,yes,,,no,,PP07D
+pp07e,STRING,¿Ese trabajo es,,yes,,,no,,PP07E
+pp07f1,STRING,¿En este trabajo le dan de comer gratis en el lugar de trabajo?,,yes,,,no,,PP07F1
+pp07f2,STRING,¿En este trabajo le dan vivienda?,,yes,,,no,,PP07F2
+pp07f3,STRING,¿En este trabajo le dan algún producto o mercadería?,,yes,,,no,,PP07F3
+pp07f4,STRING,"¿En este trabajo le dan algún otro beneficio? (automóvil, teléfono celular, pasa",,yes,,,no,,PP07F4
+pp07f5,STRING,No recibe ninguno,,yes,,,no,,PP07F5
+pp07g1,STRING,¿En este trabajo tiene vacaciones pagas?,,yes,,,no,,PP07G1
+pp07g2,STRING,¿En este trabajo tiene aguinaldo?,,yes,,,no,,PP07G2
+pp07g3,STRING,¿En este trabajo tiene días pagos por enfermedad?,,yes,,,no,,PP07G3
+pp07g4,STRING,¿En este trabajo tiene obra social?,,yes,,,no,,PP07G4
+pp07g_59,STRING,No tiene ninguno,,yes,,,no,,PP07G_59
+pp07h,STRING,¿Por ese trabajo tiene descuento jubilatorio?,,yes,,,no,,PP07H
+pp07i,STRING,¿Aporta por sí mismo a algún sistema jubilatorio?,,yes,,,no,,PP07I
+pp07j,STRING,¿El turno habitual de trabajo es,,yes,,,no,,PP07J
+pp07k,STRING,¿Cuando cobra,,yes,,,no,,PP07K
+pp08d1,FLOAT64,"Monto por sueldos/jornales, salario familiar, horas extras, otras bonificaciones",,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.,PP08D1
+pp08d4,FLOAT64,Monto en tickets percibido en ese mes,,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.,PP08D4
+pp08f1,FLOAT64,Monto en pesos por comisión por venta/producción percibido en ese mes,,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.,PP08F1
+pp08f2,FLOAT64,Monto en pesos por propinas percibido en ese mes,,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.,PP08F2
+pp08j1,FLOAT64,Monto por aguinaldo percibido en ese mes,,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.,PP08J1
+pp08j2,FLOAT64,Monto por otras bonificaciones no habituales percibido en ese mes,,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.,PP08J2
+pp08j3,FLOAT64,Monto por retroactivos percibido en ese mes,,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.,PP08J3
+pp09a,STRING,"Sólo ocupados de: Ciudad de Buenos Aires - Partidos del GBA, en su ocupación (o",,yes,,,no,,PP09A
+pp09a_esp,STRING,Especificar: contiene la descripción de otro lugar,,no,,,no,,PP09A_ESP
+pp09b,STRING,"¿Trabaja en esta ciudad?-Sólo ocupados de: Posadas, Formosa, Corrientes, Resiste",,yes,,,no,,PP09B
+pp09c,STRING,¿Dónde trabaja?,,yes,,,no,,PP09C
+pp09c_esp,STRING,Descripción de otro lugar (según pregunta pp09c),,no,,,no,,PP09C_ESP
+pp10a,STRING,¿Cuánto hace que está buscando trabajo,,yes,,,no,,PP10A
+pp10c,STRING,¿Durante ese tiempo hizo algún trabajo/changa?,,yes,,,no,,PP10C
+pp10d,STRING,¿Ha trabajado alguna vez?,,yes,,,no,,PP10D
+pp10e,STRING,¿Cuánto tiempo hace que terminó su último trabajo/changa,,yes,,,no,,PP10E
+pp11a,STRING,¿El negocio/empresa/institucion/actividad en la que trabajaba era,,yes,,,no,,PP11A
+pp11b_cod,STRING,Código de Actividad para desocupados con ocupación anterior,2003-03(3)2026-01,no,,,no,"Codigo que se resuelve contra el Clasificador de actividad (CAES/CLANAE) de INDEC, no contra la tabla dicionario de este conjunto. Presente en 73 de 87 ondas (2003Q3 a 2026Q1)",PP11B_COD
+pp11b1,STRING,Si prestaba servicios doméstico en hogares particulares,,yes,,,no,,PP11B1
+pp11b2_mes,INT64,Antigüedad en meses,,no,,month,no,,PP11B2_MES
+pp11b2_ano,INT64,Antigüedad en  años,,no,,year,no,,PP11B2_ANO
+pp11b2_dia,INT64,Antigüedad en días,,no,,day,no,,PP11B2_DIA
+pp11c,STRING,"¿Cuántas personas, incluido... trabajaban allí en total?",,yes,,,no,,PP11C
+pp11c99,STRING,Tamaño del establecimiento,,yes,,,no,,PP11C99
+pp11d_cod,STRING,Código de la Ocupación anterior de los desocupados,,no,,,no,"Codigo que se resuelve contra el Clasificador Nacional de Ocupaciones (CNO) de INDEC, no contra la tabla dicionario de este conjunto",PP11D_COD
+pp11g_ano,INT64,Antigüedad en años,,no,,year,no,,PP11G_ANO
+pp11g_mes,INT64,Antigüedad en meses,,no,,month,no,,PP11G_MES
+pp11g_dia,INT64,Antigüedad en días,,no,,day,no,,PP11G_DIA
+pp11l,STRING,¿Cuál fue la razón principal por la que dejó esa actividad?,,yes,,,no,,PP11L
+pp11l1,STRING,¿Ese trabajo era,,yes,,,no,,PP11L1
+pp11m,STRING,¿Ese trabajo era,,yes,,,no,,PP11M
+pp11n,STRING,¿En ese trabajo le hacían descuento jubilatorio?,,yes,,,no,,PP11N
+pp11o,STRING,¿Cuál fue la razón principal por la que dejó ese trabajo?,,yes,,,no,,PP11O
+pp11p,STRING,¿Cerró la empresa?(para quienes responden en pp11o=1),,yes,,,no,,PP11P
+pp11q,STRING,¿Fue la única persona que quedó sin trabajo?,,yes,,,no,,PP11Q
+pp11r,STRING,¿Le enviaron telegrama?,,yes,,,no,,PP11R
+pp11s,STRING,¿Le pagaron indemnización?,,yes,,,no,,PP11S
+pp11t,STRING,¿Está cobrando seguro de desempleo?,,yes,,,no,,PP11T
+p21,FLOAT64,Monto de ingreso de la ocupación principal percibido en ese mes,,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.,P21
+decocur,STRING,Grupo decílico de P21 del TOTAL EPH,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",DECOCUR
+idecocur,STRING,Grupo decílico de P21 del INTERIOR EPH,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",IDECOCUR
+rdecocur,STRING,Grupo decílico de P21 de la REGION,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",RDECOCUR
+gdecocur,STRING,Grupo decílico de P21 del CONJUNTO DE AGLOMERADOS DE 500 MIL Y MAS HABITANTES,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",GDECOCUR
+pdecocur,STRING,Grupo decílico de P21 del CONJUNTO DE AGLOMERADOS DE MENOS DE 500 MIL HABITANTES,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",PDECOCUR
+adecocur,STRING,Grupo decílico de P21 del AGLOMERADO,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",ADECOCUR
+tot_p12,FLOAT64,Monto total de ingreso por otras ocupaciones percibido en ese mes,,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.,TOT_P12
+p47t,FLOAT64,Monto total de ingreso individual percibido en ese mes (sumatoria ingresos labor,,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.,P47T
+decindr,STRING,Grupo decílico de P47T del TOTAL EPH,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",DECINDR
+idecindr,STRING,Grupo decílico de P47T del INTERIOR EPH,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",IDECINDR
+rdecindr,STRING,Grupo decílico de P47T de la REGION,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",RDECINDR
+gdecindr,STRING,Grupo decílico de P47T del CONJUNTO DE AGLOMERADOS DE 500 MIL Y MAS HABITANTES,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",GDECINDR
+pdecindr,STRING,Grupo decílico de P47T del CONJUNTO DE AGLOMERADOS DE MENOS DE 500 MIL HABITANTE,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",PDECINDR
+adecindr,STRING,Grupo decílico de P47T del AGLOMERADO,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",ADECINDR
+v2_m,FLOAT64,Monto por jubilación o pensión percibido en ese mes,2003-03(3)2023-03,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.. Presente en 77 de 87 ondas (2003Q3 a 2023Q3),V2_M
+v3_m,FLOAT64,Monto por indemnización o despido percibido en ese mes,,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.,V3_M
+v4_m,FLOAT64,Monto por seguro de desempleo percibido en ese mes,,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.,V4_M
+v5_m,FLOAT64,Monto por subsidio o ayuda social (en dinero) percibido en ese mes,2003-03(3)2023-03,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.. Presente en 77 de 87 ondas (2003Q3 a 2023Q3),V5_M
+v8_m,FLOAT64,Monto por alquiler de su propiedad percibido en ese mes,,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.,V8_M
+v9_m,FLOAT64,Monto por ganancias de algún negocio en el que no trabajó percibido en ese mes,,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.,V9_M
+v10_m,FLOAT64,Monto por intereses o rentas por plazos fijos/inversiones percibido en ese mes,,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.,V10_M
+v11_m,FLOAT64,Monto por beca de estudio percibido en ese mes,2003-03(3)2023-03,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.. Presente en 77 de 87 ondas (2003Q3 a 2023Q3),V11_M
+v12_m,FLOAT64,Monto por cuota de alimentos/ayuda (en dinero) de personas que no viven en el ho,,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.,V12_M
+v18_m,FLOAT64,Monto por otros ingresos en efectivo percibido en ese mes,,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.,V18_M
+v19_am,FLOAT64,Monto por trabajo de menores de 10 años percibido en ese mes,,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.,V19_AM
+v21_m,FLOAT64,Monto por aguinaldo de la jubilación percibido en ese mes,2003-03(3)2023-03,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.. Presente en 77 de 87 ondas (2003Q3 a 2023Q3),V21_M
+t_vi,FLOAT64,Monto total de ingreso no laboral percibido en ese mes,,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.,T_VI
+itf,FLOAT64,Monto total de ingreso familiar percibido en ese mes,,no,,ars,no,,ITF
+decifr,STRING,Grupo decílico de ITF del TOTAL EPH,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",DECIFR
+idecifr,STRING,Grupo decílico de ITF del INTERIOR EPH,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",IDECIFR
+rdecifr,STRING,Grupo decílico de ITF de la REGION,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",RDECIFR
+gdecifr,STRING,Grupo decílico de ITF del CONJUNTO DE AGLOMERADOS DE 500 MIL Y MAS HABITANTES,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",GDECIFR
+pdecifr,STRING,Grupo decílico de ITF del CONJUNTO DE AGLOMERADOS DE MENOS DE 500 MIL HABITANTES,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",PDECIFR
+adecifr,STRING,Grupo decílico de ITF del AGLOMERADO,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",ADECIFR
+ipcf,FLOAT64,Monto de ingreso per cápita familiar percibido en ese mes,,no,,ars,no,,IPCF
+deccfr,STRING,Grupo decílico de IPCF del TOTAL EPH,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",DECCFR
+ideccfr,STRING,Grupo decílico de IPCF del INTERIOR EPH,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",IDECCFR
+rdeccfr,STRING,Grupo decílico de IPCF de la REGION,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",RDECCFR
+gdeccfr,STRING,Grupo decílico de IPCF del CONJUNTO DE AGLOMERADOS DE 500 MIL Y MAS HABITANTES,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",GDECCFR
+pdeccfr,STRING,Grupo decílico de IPCF del CONJUNTO DE AGLOMERADOS DE MENOS DE 500 MIL HABITANTE,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",PDECCFR
+adeccfr,STRING,Grupo decílico de IPCF del AGLOMERADO,,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC",ADECCFR
+pj1_1,STRING,Ocupados con plan jefas jefes de hogar en su ocupación principal,2003-03(3)2010-04,yes,,,no,Presente en 29 de 87 ondas (2003Q3 a 2010Q4),PJ1_1
+pj2_1,STRING,Resto de ocupados con plan jefas jefes de hogar,2003-03(3)2010-04,yes,,,no,Presente en 29 de 87 ondas (2003Q3 a 2010Q4),PJ2_1
+pj3_1,STRING,Desocupados e inactivos con plan jefas jefes de hogar,2003-03(3)2010-04,yes,,,no,Presente en 29 de 87 ondas (2003Q3 a 2010Q4),PJ3_1
+idimpp,STRING,Identificador de casos imputados en monto de ingreso,2003-03(3)2015-02,no,,,no,Presente en 47 de 87 ondas (2003Q3 a 2015Q2),IDIMPP
+pp04b_caes,STRING,Código de Actividad para ocupados (CAES-1.0),2011-01(3)2015-02,no,,,no,"Codigo que se resuelve contra el Clasificador de actividad CAES-1.0 de INDEC, no contra la tabla dicionario de este conjunto. Presente en 18 de 87 ondas (2011Q1 a 2015Q2)",PP04B_CAES
+pp11b_caes,STRING,Código de Actividad para desocupados con ocupación anterior (CAES-1.0),2011-01(3)2015-02,no,,,no,"Codigo que se resuelve contra el Clasificador de actividad CAES-1.0 de INDEC, no contra la tabla dicionario de este conjunto. Presente en 18 de 87 ondas (2011Q1 a 2015Q2)",PP11B_CAES
+ch05,STRING,"Fecha de nacimiento (día, mes y año)",2016-02(3)2026-01,no,,,no,Fecha de nacimiento en formato DD/MM/AAAA tal como la publica la fuente; se preserva como cadena para no perder los valores que no son fechas validas. Presente en 40 de 87 ondas (2016Q2 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,CH05
+imputa,STRING,Indica los casos que han sido imputados,2016-02(3)2026-01,no,,,no,Presente en 40 de 87 ondas (2016Q2 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,IMPUTA
+v2_02_m,FLOAT64,"Monto del ingreso por jubilación o pensión de ""ama de casa"" o por moratoria previsional",2023-04(3)2026-01,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.. Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,V2_02_M
+v2_03_m,FLOAT64,"Monto del ingreso por otras pensiones, como por ejemplo discapacidad, Madre de 7 hijos, PUAM, vejez, etc",2023-04(3)2026-01,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.. Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,V2_03_M
+v5_03_m,FLOAT64,"Monto del ingreso por ayuda en dinero a través de iglesias, parroquias, organizaciones no gubernamentales",2023-04(3)2026-01,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.. Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,V5_03_M
+v11_02_m,FLOAT64,Monto del ingreso por otra beca de estudio (en dinero) de instituciones no gubernamentales,2023-04(3)2026-01,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.. Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,V11_02_M
+pp07b1_01,STRING,"Por este trabajo, ¿cobra algún plan? (como el Potenciar u otro similar)",2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP07B1_01
+empleo,STRING,Condición de formalidad del empleo en la ocupación principal,2023-04(3)2026-01,yes,,,no,"Presente en 10 de 87 ondas (2023Q4 a 2026Q1). El diseño de registros de INDEC lista solamente los códigos (1 = Formal, 2 = Informal, 9 = Ns/Nr) sin un rótulo para la variable.",EMPLEO
+sector,STRING,Sector de la ocupación principal según formalidad,2023-04(3)2026-01,yes,,,no,"Presente en 10 de 87 ondas (2023Q4 a 2026Q1). El diseño de registros de INDEC lista solamente los códigos (1 = Formal, 2 = Informal, 3 = Hogares, 9 = Ns/Nr) sin un rótulo para la variable.",SECTOR
+pp02a,STRING,"Si la semana pasada conseguía un trabajo, ¿podía empezar a trabajar ya? (o a más tardar en dos semanas)",2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP02A
+pp02b,STRING,"¿Durante los últimos 30 días, estuvo buscando trabajo de alguna manera?",2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP02B
+pp02d,STRING,"¿Durante esos 30 días, consultó amigos/parientes, puso carteles, hizo algo para ponerse por su cuenta?",2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP02D
+pp02f,STRING,"¿Durante los últimos 30 días, estuvo buscando trabajo de alguna manera?",2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP02F
+pp02g,STRING,¿Puede ................... empezar a trabajar ya? (o a más tardar en dos semanas),2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP02G
+pp03k,STRING,¿Estuvo buscando porque,2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP03K
+pp04a1,STRING,¿Es de nivel…,2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP04A1
+pp05b3,STRING,"¿El negocio/empresa/actividad donde trabaja o ayuda, puede emitir facturas?",2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP05B3
+pp05i,STRING,"En los últimos 3 meses, por este trabajo, ¿realizó aportes como…",2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP05I
+pp05j,STRING,¿No los realizó porque…,2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP05J
+pp05k,STRING,"Este negocio/empresa/actividad, ¿puede emitir facturas?",2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP05K
+pp06e1,STRING,"Este negocio/empresa/actividad, ¿recurre a los servicios de un contador/tiene oficina contable?",2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP06E1
+pp06k,STRING,Lo ganado corresponde a su trabajo de…,2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP06K
+pp06k_sem,INT64,¿Cuántos días por semana?,2023-04(3)2026-01,no,,day,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP06K_SEM
+pp06k_mes,INT64,¿Cuántos días en el mes?,2023-04(3)2026-01,no,,day,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP06K_MES
+pp06l,INT64,¿A cuántas horas por día corresponde? (en un día promedio) Ocupación principal de los trabajadores asalariados Campo Tipo (longitud) Descripción Ocupación principal de los trabajadores asalariados (excepto servicio doméstico),2023-04(3)2026-01,no,,hour,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP06L
+pp07f1_1,STRING,¿Para realizar su trabajo tiene que utilizar… …sus propias maquinarias/equipos?,2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP07F1_1
+pp07f1_2,STRING,…local propio?,2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP07F1_2
+pp07f1_3,STRING,…vehículo propio?,2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP07F1_3
+pp07i2,STRING,"El negocio/empresa/institución que le paga, ¿le hace el descuento jubilatorio a alguno de sus empleados?",2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP07I2
+pp07i3,STRING,"El negocio/empresa/institución que le paga, ¿emite facturas?",2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP07I3
+pp07i4,STRING,"El negocio/empresa/institución que le paga, ¿cuenta con los servicios de un contador/oficina contable?",2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP07I4
+pp07l,STRING,El recibo abarca…,2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP07L
+pp07m,STRING,"Aproximadamente, ¿qué parte de su sueldo no está en el recibo?",2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP07M
+pp08g,STRING,Ese cobro (o arreglo) corresponde a su trabajo de…,2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP08G
+pp08g_dsem,INT64,¿Cuántos días por semana?,2023-04(3)2026-01,no,,day,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP08G_DSEM
+pp08g_dmes,INT64,¿Cuántos días en el mes?,2023-04(3)2026-01,no,,day,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP08G_DMES
+pp08h,INT64,¿A cuántas horas por día corresponde? (en un día promedio),2023-04(3)2026-01,no,,hour,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP08H
+pp10b1,STRING,¿Por qué razones no encuentra? Recién empezó a buscar,2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP10B1
+pp10b2,STRING,Por la edad,2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP10B2
+pp10b3,STRING,Falta de trabajo en su especialidad,2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP10B3
+pp10b4,STRING,No tiene experiencia/capacitación,2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP10B4
+pp10b5,STRING,Le faltan vinculaciones para conseguir trabajo,2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP10B5
+pp10b6,STRING,No hay trabajo,2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP10B6
+pp10b7,STRING,No le alcanza la plata para salir a buscar,2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP10B7
+pp10b8,STRING,Suspendido,2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP10B8
+pp10b9,STRING,Otras razones,2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP10B9
+pp10b10,STRING,Desconoce por qué no encuentra trabajo (solo autoinformante),2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP10B10
+pp11l2,STRING,¿Ese trabajo era,2023-04(3)2026-01,yes,,,no,Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,PP11L2
+v2_01_m,FLOAT64,Monto del ingreso por jubilación o pensión obtenida por los aportes del trabajo,2023-04(3)2026-01,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.. Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,V2_01_M
+v5_01_m,FLOAT64,Monto del ingreso por la Asignación Universal por Hijo (AUH) y/o Asignación por Embarazo (incluye Tarjeta Alimentar),2023-04(3)2026-01,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.. Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,V5_01_M
+v5_02_m,FLOAT64,Monto del ingreso por otro plan social/subsidio en dinero otorgado por el gobierno,2023-04(3)2026-01,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.. Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,V5_02_M
+v11_01_m,FLOAT64,Monto del ingreso por una beca de estudio (en dinero) del gobierno para continuar estudios o finalizarlos (Ej.: Beca Progresar u otras),2023-04(3)2026-01,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.. Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,V11_01_M
+v21_01_m,FLOAT64,Monto del ingreso por aguinaldo de jubilación o pensión obtenida por los aportes del trabajo,2023-04(3)2026-01,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.. Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,V21_01_M
+v21_02_m,FLOAT64,"Monto del ingreso por aguinaldo de jubilación o pensión de ""ama de casa"" o por moratoria previsional",2023-04(3)2026-01,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.. Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,V21_02_M
+v21_03_m,FLOAT64,"Monto del ingreso por aguinaldo de otras pensiones, como por ejemplo por discapacidad, Madre de 7 hijos, PUAM, vejez, etc.?",2023-04(3)2026-01,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.. Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,V21_03_M
+v22_01_m,FLOAT64,Monto del ingreso por retroactivo de jubilación o pensión obtenida por los aportes del trabajo,2023-04(3)2026-01,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.. Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,V22_01_M
+v22_02_m,FLOAT64,"Monto del ingreso por retroactivo de jubilación o pensión de ""ama de casa"" o por moratoria previsional",2023-04(3)2026-01,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.. Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,V22_02_M
+v22_03_m,FLOAT64,"Monto del ingreso por retroactivo de otras pensiones, como por ejemplo por discapacidad, Madre de 7 hijos, PUAM, vejez, etc.? Ingreso total familiar",2023-04(3)2026-01,no,,ars,no,El valor -9 indica Ns./Nr. y no un monto negativo; debe excluirse antes de cualquier calculo.. Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable,V22_03_M
+p_deccf,STRING,N° de decil de ingreso per cápita familiar de las personas del Total EPH (ver Anexo I),2023-04(3)2026-01,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC. Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable",P_DECCF
+p_rdeccf,STRING,N° de decil de ingreso per cápita familiar de las personas de la región (ver Anexo I),2023-04(3)2026-01,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC. Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable",P_RDECCF
+p_gdeccf,STRING,N° de decil de ingreso per cápita familiar de las personas del conjunto de aglomerados de 500.000 y más habitantes (ver Anexo I),2023-04(3)2026-01,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC. Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable",P_GDECCF
+p_pdeccf,STRING,N° de decil de ingreso per cápita familiar de las personas del conjunto de aglomerados de menos de 500.000 habitantes (ver Anexo I),2023-04(3)2026-01,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC. Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable",P_PDECCF
+p_ideccf,STRING,N° de decil de ingreso per cápita familiar de las personas del interior EPH (ver Anexo I),2023-04(3)2026-01,no,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC. Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable",P_IDECCF
+p_adeccf,STRING,"N° de decil de ingreso per cápita familiar de las personas del aglomerado (ver Anexo I) Recomendaciones técnicas para el uso de la información de ingresos Montos de ingreso Se incluyen montos de ingreso captados en los cuestionarios y variables construidas por sumatoria de distintas fuentes (campos P21, P47T, ITF e IPCF) • El campo P21 agrega el total de ingresos habituales de la ocupación principal del individuo • El campo P47T es la sumatoria de los ingresos laborales y los no laboraes del individuo • El campo ITF es la sumatoria de los ingresos individuales totales de todos los componentes del hogar • El campo IPCF es el ingreso per cápita del hogar, es decir, el ITF dividido la cantidad de miembros del hogar Escalas decílicas Se incluyen las siguientes escalas decílicas: • para el Ingreso total individual: DECINDR (total aglomerados), ADECINDR (aglomerado), RDECINDR (región), PDECINDR (aglomerados de menos de 500.000 habitantes), GDECINDR (aglomerados de 500.000 habitantes y más), IDECINDR (aglomerados del interior) • para el Ingreso de la ocupación principal: DECOCUR (total aglomerados), ADECOCUR (aglomerado), RDECOCUR (región), PDECOCUR (aglomerados de menos de 500.000 habitantes), GDECOCUR (aglomerados de 500.000 habitantes y más), IDECOCUR (aglomerados del interior) • para el Ingreso per cápita familiar: DECCFR (total aglomerados), ADECCFR (aglomerado), RDECCFR (región), PDECCFR (aglomerados de menos de 500.000 habitantes), GDECCFR (aglomerados de 500.000 habitantes y más), IDECCFR (aglomerados del interior) • para el Ingreso total familiar: DECIFR (total aglomerados), ADECIFR (aglomerado), RDECIFR (región), PDECIFR (aglomerados de menos de 500.000 habitantes), GDECIFR (aglomerados de 500.000 habitantes y más), IDECIFR (aglomerados del interior) • para el Ingreso per cápita familiar de las personas: P_DECCF (total aglomerados), P_ADECCF (aglomerado), P_RDECCF (región), P_PDECCF (aglomerados de menos de 500.000 habitantes), P_GDECCF (aglomerados de 500.000 habitantes y más), P_ IDECCF (aglomerados del interior) Las categorías que presenta cada variable son las siguientes:",2023-04(3)2026-01,yes,,,no,"Numero de grupo decilico, no una cantidad: se preserva como cadena con el cero a la izquierda tal como lo publica la fuente. Se observan valores fuera del rango 1 a 10 (0 y 12); su tratamiento se describe en el Anexo I del diseno de registros de INDEC. Presente en 10 de 87 ondas (2023Q4 a 2026Q1). Descripcion tomada del diseno de registros de INDEC; las bases TXT no traen etiquetas de variable",P_ADECCF
