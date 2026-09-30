@@ -69,6 +69,14 @@
 -- aggregating `valor_total_previsto` or `valor_unitario_previsto` must apply an upper
 -- bound; R$1bn removes all 42.
 --
+-- `item_despesa` IS NOT THE SAME CODE SPACE AS `dicionario`. The flat export's
+-- `codigo_elemento_item_despesa` (168-181 four-digit codes such as 3010 = MATERIAL
+-- MEDICO E HOSPITALAR) does not overlap the MG `item_despesa` keys the dicionario
+-- carries from `mg_dm_item` -- 0 of 181 match. Do not join them. The label travels with
+-- the row in `nome_item_despesa`, so these tables are self-describing and need no
+-- dictionary entry for it. `fonte_recurso`, by contrast, IS the dicionario's code space
+-- (56 of 57 codes match), which is why it carries the canonical name.
+--
 -- Values are comma-decimal with no thousands separator. Empty dates are published as
 -- ' - ', which `safe.parse_date` nulls.
 --
@@ -125,7 +133,7 @@ with
             nullif(trim(nome_do_municipio), '') as nome_municipio,
             nullif(trim(unidade_orcamentaria), '') as unidade_orcamentaria,
             nullif(trim(projeto_atividade), '') as projeto_atividade,
-            nullif(trim(fonte), '') as fonte,
+            nullif(trim(fonte), '') as fonte_recurso,
             nullif(trim(procedencia), '') as procedencia,
             nullif(
                 trim(numero_formatado_do_planejamento_de_processo), ''
@@ -208,7 +216,7 @@ select
     b.nome_municipio,
     b.unidade_orcamentaria,
     b.projeto_atividade,
-    b.fonte,
+    b.fonte_recurso,
     b.procedencia,
     b.numero_processo,
     b.procedimento_contratacao,

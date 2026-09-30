@@ -1484,7 +1484,12 @@ models:
       - name: nome_classe
         description: Nome da classe de material ou serviço
       - name: item_despesa
-        description: Elemento item de despesa previsto
+        description: >
+          Código do item de despesa previsto, no espaço de códigos do export da fonte;
+          NÃO
+          coincide com item_despesa do dicionario e não deve ser juntado a ele. O
+          rótulo
+          acompanha a linha em nome_item_despesa
       - name: unidade_aquisicao
         description: Unidade de aquisição do item
       - name: descricao_unidade_aquisicao
@@ -1514,8 +1519,10 @@ models:
         description: Unidade orçamentária prevista
       - name: projeto_atividade
         description: Projeto ou atividade orçamentária prevista
-      - name: fonte
-        description: Fonte de recurso prevista
+      - name: fonte_recurso
+        description: >
+          Código da fonte de recurso prevista; mesmo espaço de códigos de
+          despesa.fonte_recurso e coberto pelo dicionario
       - name: procedencia
         description: Procedência prevista do material ou serviço
       - name: numero_processo
