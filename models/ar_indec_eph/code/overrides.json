@@ -4,7 +4,8 @@
     "INDEC record-layout PDF supply. Each entry records why the override is",
     "needed, so it can be removed if INDEC documents the column later.",
     "Columns listed in _drop carry no information and are excluded from the",
-    "architecture entirely."
+    "architecture entirely.",
+    "The Spanish description here is the source; its pt/en come from translations.json, keyed by the Spanish, so there is one source of truth per language."
   ],
   "_drop": {
     "microdatos_individuo": {
@@ -15,15 +16,24 @@
     "microdatos_individuo": {
       "EMPLEO": {
         "description": "Condición de formalidad del empleo en la ocupación principal",
-        "reason": "El diseño de registros de INDEC lista solamente los códigos (1 = Formal, 2 = Informal, 9 = Ns/Nr) sin un rótulo para la variable."
+        "reason": "El diseño de registros de INDEC lista solamente los códigos (1 = Formal, 2 = Informal, 9 = Ns/Nr) sin un rótulo para la variable.",
+        "reason_pt": "O desenho de registros do INDEC lista apenas os codigos (1 = Formal, 2 = Informal, 9 = Ns/Nr) sem um rotulo para a variavel.",
+        "reason_en": "INDEC's record layout lists only the codes (1 = Formal, 2 = Informal, 9 = no answer) with no label for the variable.",
+        "reason_es": "El diseño de registros de INDEC lista solamente los códigos (1 = Formal, 2 = Informal, 9 = Ns/Nr) sin un rótulo para la variable."
       },
       "SECTOR": {
         "description": "Sector de la ocupación principal según formalidad",
-        "reason": "El diseño de registros de INDEC lista solamente los códigos (1 = Formal, 2 = Informal, 3 = Hogares, 9 = Ns/Nr) sin un rótulo para la variable."
+        "reason": "El diseño de registros de INDEC lista solamente los códigos (1 = Formal, 2 = Informal, 3 = Hogares, 9 = Ns/Nr) sin un rótulo para la variable.",
+        "reason_pt": "O desenho de registros do INDEC lista apenas os codigos (1 = Formal, 2 = Informal, 3 = Domicilios, 9 = Ns/Nr) sem um rotulo para a variavel.",
+        "reason_en": "INDEC's record layout lists only the codes (1 = Formal, 2 = Informal, 3 = Households, 9 = no answer) with no label for the variable.",
+        "reason_es": "El diseño de registros de INDEC lista solamente los códigos (1 = Formal, 2 = Informal, 3 = Hogares, 9 = Ns/Nr) sin un rótulo para la variable."
       },
       "INTENSI": {
         "description": "Intensidad de la ocupación: clasifica a los ocupados en subocupados, ocupados plenos y sobreocupados según las horas trabajadas y su disposición a trabajar más",
-        "reason": "La etiqueta de variable de Stata es literalmente \"Intensi\", una repetición del nombre de la columna sin contenido, y el diseño de registros no describe la variable."
+        "reason": "La etiqueta de variable de Stata es literalmente \"Intensi\", una repetición del nombre de la columna sin contenido, y el diseño de registros no describe la variable.",
+        "reason_pt": "A etiqueta de variavel do Stata e literalmente \"Intensi\", uma repeticao do nome da coluna sem conteudo, e o desenho de registros nao descreve a variavel.",
+        "reason_en": "The Stata variable label is literally \"Intensi\", a content-free repetition of the column name, and the record layout does not describe the variable.",
+        "reason_es": "La etiqueta de variable de Stata es literalmente \"Intensi\", una repetición del nombre de la columna sin contenido, y el diseño de registros no describe la variable."
       }
     },
     "microdatos_hogar": {}

@@ -93,10 +93,18 @@ def parse_section(body: list[str]) -> dict[str, dict]:
     cols: dict[str, dict] = {}
     current: str | None = None
     last_value: str | None = None
+    # A blank line separates entries in this PDF, so it closes the current
+    # column's description. Codes may still follow it -- several columns print
+    # their description, then a blank, then "1 = Si / 2 = No" -- but any later
+    # prose belongs to a new entry or a section heading, not to this description.
+    # Without this, the last column before a sub-heading absorbs it: PONDIH took
+    # in "Organizacion del hogar" and the two codes printed under it.
+    description_closed = False
     indent = 0
     for raw in body:
         line = raw.rstrip()
         if not line.strip():
+            description_closed = True
             continue
         m = ROW.match(line)
         vm = VALUE.match(line)
@@ -125,6 +133,7 @@ def parse_section(body: list[str]) -> dict[str, dict]:
             desc = clean(desc)
             current = name.upper()
             last_value = None
+            description_closed = False
             # Some columns (EMPLEO, SECTOR) carry no description at all: their
             # first code sits where the description would be. Record it as a
             # value and leave the description empty for overrides.py to supply.
@@ -162,6 +171,13 @@ def parse_section(body: list[str]) -> dict[str, dict]:
                     cols[current]["values"][last_value] = clean(
                         cols[current]["values"][last_value] + " " + extra
                     )
+            elif description_closed:
+                # Prose after the blank that closed this entry is a sub-heading
+                # ("Organizacion del hogar", "Ingreso per capita familiar"), not
+                # part of this column. End the entry so the codes printed under
+                # the heading are not attributed to the column above it.
+                current = None
+                last_value = None
             elif len(cols[current]["description"]) < MAX_DESCRIPTION:
                 cols[current]["description"] = clean(
                     (cols[current]["description"] + " " + extra).strip()

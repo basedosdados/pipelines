@@ -96,7 +96,7 @@
   "PONDERA": {
    "declared_type": "N",
    "width": 6,
-   "description": "Ponderación Características de la vivienda Campo Tipo (longitud) Descripción",
+   "description": "Ponderación",
    "values": {}
   },
   "IV1": {
@@ -691,7 +691,7 @@
   "ADECIFR": {
    "declared_type": "C",
    "width": 2,
-   "description": "N° de decil de ingreso total del hogar del aglomerado (ver Anexo I) Ingreso per cápita familiar",
+   "description": "N° de decil de ingreso total del hogar del aglomerado (ver Anexo I)",
    "values": {}
   },
   "IPCF": {
@@ -739,12 +739,8 @@
   "PONDIH": {
    "declared_type": "C",
    "width": 6,
-   "description": "Ponderador del ingreso total familiar y del ingreso per cápita familiar (ver Anexo I) Organización del hogar 96: Servicio doméstico 97: Otra persona que no vive en el hogar 96: Servicio doméstico 97: Otra persona que no vive en el hogar Número de componente del hogar",
-   "values": {
-    "96": "Servicio doméstico",
-    "97": "Otra persona que no vive en el hogar",
-    "98": "Ninguna Número de componente del hogar Número de componente del hogar Número de componente del hogar"
-   }
+   "description": "Ponderador del ingreso total familiar y del ingreso per cápita familiar (ver Anexo I)",
+   "values": {}
   },
   "CAMPO": {
    "declared_type": null,
@@ -865,7 +861,7 @@
   "PONDERA": {
    "declared_type": "N",
    "width": 6,
-   "description": "Ponderación Características de los miembros del hogar Cuestionario Hogar Campo Tipo (longitud) Descripción",
+   "description": "Ponderación",
    "values": {}
   },
   "CH03": {
@@ -1628,7 +1624,7 @@
   "PP06L": {
    "declared_type": "N",
    "width": 2,
-   "description": "¿A cuántas horas por día corresponde? (en un día promedio) Ocupación principal de los trabajadores asalariados Campo Tipo (longitud) Descripción Ocupación principal de los trabajadores asalariados (excepto servicio doméstico)",
+   "description": "¿A cuántas horas por día corresponde? (en un día promedio)",
    "values": {}
   },
   "PP07A": {
@@ -1960,7 +1956,7 @@
   "PP08J3": {
    "declared_type": "N",
    "width": 6,
-   "description": "¿Cuánto cobró por ese mes de ... (mes) ... monto retroactivo? Movimientos interurbanos (solo para ocupados)",
+   "description": "¿Cuánto cobró por ese mes de ... (mes) ... monto retroactivo?",
    "values": {}
   },
   "PP09A": {
@@ -2002,7 +1998,7 @@
   "PP09C_ESP": {
    "declared_type": "C",
    "width": 90,
-   "description": "Descripción de otro lugar (según pregunta PP09C) Desocupados",
+   "description": "Descripción de otro lugar (según pregunta PP09C)",
    "values": {}
   },
   "PP10A": {
@@ -2208,7 +2204,7 @@
   "PP11D_COD": {
    "declared_type": "N",
    "width": 5,
-   "description": "¿Cómo se llamaba la ocupación que tenía? (Ver Clasificador Nacional de Ocupaciones, CNO, versión 2001) años",
+   "description": "¿Cómo se llamaba la ocupación que tenía? (Ver Clasificador Nacional de Ocupaciones, CNO, versión 2001)",
    "values": {}
   },
   "PP11G_MES": {
@@ -2384,13 +2380,13 @@
   "PONDIIO": {
    "declared_type": "C",
    "width": 2,
-   "description": "Ponderador del ingreso de la ocupación principal (ver Anexo I) Ingreso de otras ocupaciones",
+   "description": "Ponderador del ingreso de la ocupación principal (ver Anexo I)",
    "values": {}
   },
   "TOT_P12": {
    "declared_type": "N",
    "width": 12,
-   "description": "Monto de ingreso de otras ocupaciones (incluye ocupación secundaria, ocupación previa a la semana de referencia, deudas/retroactivos por ocupaciones anteriores al mes de referencia, etc.) Ingreso total individual",
+   "description": "Monto de ingreso de otras ocupaciones (incluye ocupación secundaria, ocupación previa a la semana de referencia, deudas/retroactivos por ocupaciones anteriores al mes de referencia, etc.)",
    "values": {}
   },
   "P47T": {
@@ -2438,7 +2434,7 @@
   "PONDII": {
    "declared_type": "N",
    "width": 6,
-   "description": "Ponderador para ingreso total individual (ver Anexo I) Ingresos no laborales",
+   "description": "Ponderador para ingreso total individual (ver Anexo I)",
    "values": {}
   },
   "V2_01_M": {
@@ -2570,13 +2566,13 @@
   "V22_03_M": {
    "declared_type": "N",
    "width": 8,
-   "description": "Monto del ingreso por retroactivo de otras pensiones, como por ejemplo por discapacidad, Madre de 7 hijos, PUAM, vejez, etc.? Ingreso total familiar",
+   "description": "Monto del ingreso por retroactivo de otras pensiones, como por ejemplo por discapacidad, Madre de 7 hijos, PUAM, vejez, etc.?",
    "values": {}
   },
   "T_VI": {
    "declared_type": "N",
    "width": 12,
-   "description": "Monto total de ingresos no laborales Ingreso total familiar",
+   "description": "Monto total de ingresos no laborales",
    "values": {}
   },
   "ITF": {
@@ -2618,7 +2614,7 @@
   "ADECIFR": {
    "declared_type": "C",
    "width": 2,
-   "description": "Nº de decil de ingreso total familiar del aglomerado (ver Anexo I) Ingreso per cápita familiar",
+   "description": "Nº de decil de ingreso total familiar del aglomerado (ver Anexo I)",
    "values": {}
   },
   "IPCF": {
@@ -2666,7 +2662,7 @@
   "PONDIH": {
    "declared_type": "N",
    "width": 6,
-   "description": "Ponderador del ingreso total familiar y del ingreso per cápita familiar, para hogares (ver Anexo I) Ingreso per cápita familiar de las personas",
+   "description": "Ponderador del ingreso total familiar y del ingreso per cápita familiar, para hogares (ver Anexo I)",
    "values": {}
   },
   "P_DECCF": {

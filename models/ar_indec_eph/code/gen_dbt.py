@@ -202,7 +202,14 @@ def schema_yml(
                 tests.append(
                     f"              to: ref('{dataset_table.replace('.', '__')}')"
                 )
-                tests.append(f"              field: {field}")
+                # The field must be qualified as <table>.<column>. In these
+                # directories the table is named after its key column, so a bare
+                # "ano" makes BigQuery resolve the table itself as a STRUCT:
+                #   No matching signature for operator = for argument types:
+                #   INT64, STRUCT<ano INT64, bissexto INT64>
+                # "ano.ano" is the form every other dataset in the repo uses.
+                directory_table = dataset_table.split(".")[-1]
+                tests.append(f"              field: {directory_table}.{field}")
             if tests:
                 out.append("        tests:")
                 out.extend(tests)

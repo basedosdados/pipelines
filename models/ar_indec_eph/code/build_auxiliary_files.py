@@ -10,6 +10,7 @@ requester-pays bucket, or every link returns HTTP 400 to an anonymous visitor:
     gs://basedosdados-public/auxiliary_files/ar_indec_eph/<table>/auxiliary_files.zip
 """
 
+import argparse
 import json
 import re
 import sys
@@ -36,6 +37,9 @@ from constants import (
 DOCS = DATA_DIR / "docs"
 BUNDLES = DATA_DIR / "auxiliary_files"
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; basedosdados/1.0)"}
+PUBLIC_BUCKET = "basedosdados-public"
+GCS_PREFIX = "auxiliary_files/ar_indec_eph"
+PUBLIC_URL = f"https://storage.googleapis.com/{PUBLIC_BUCKET}/{GCS_PREFIX}"
 CITATION = (
     "Instituto Nacional de Estadistica y Censos (INDEC), Encuesta Permanente de "
     "Hogares (EPH continua). Bases de microdatos y documentacion, "
@@ -113,7 +117,44 @@ def wave_label(basename: str) -> str:
     return "sin onda identificada"
 
 
+def upload(table: str, zip_path: Path) -> str:
+    """Upload one bundle to the public, non requester-pays bucket.
+
+    The two data-lake buckets (basedosdados, basedosdados-dev) are
+    requester-pays, so anything served from them returns UserProjectMissing to an
+    anonymous visitor. basedosdados-public is how the public already reaches Data
+    Basis data. See .claude/rules/auxiliary-files.md.
+    """
+    from google.cloud import storage
+
+    client = storage.Client(project="basedosdados-dev")
+    bucket = client.bucket(PUBLIC_BUCKET)
+    blob = bucket.blob(f"{GCS_PREFIX}/{table}/auxiliary_files.zip")
+    blob.upload_from_filename(str(zip_path), content_type="application/zip")
+    return f"{PUBLIC_URL}/{table}/auxiliary_files.zip"
+
+
+def verify_anonymous(url: str) -> str:
+    """Fetch the published URL with no credentials and report what it returns."""
+    import urllib.request
+
+    request = urllib.request.Request(url, method="HEAD")
+    try:
+        with urllib.request.urlopen(request, timeout=90) as response:
+            return f"HTTP {response.status} {response.headers.get('Content-Length')} bytes"
+    except Exception as exc:
+        return f"FAILED {exc}"
+
+
 def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--upload",
+        action="store_true",
+        help=f"upload each bundle to gs://{PUBLIC_BUCKET}/{GCS_PREFIX}/ and verify "
+        "the published URL anonymously",
+    )
+    args = parser.parse_args()
     urls = url_map()
     layouts = [b for b in urls if is_record_layout(b)]
     today = date.today().isoformat()
@@ -221,6 +262,10 @@ def main() -> int:
         )
         if missing:
             print(f"   missing: {missing}")
+        if args.upload:
+            published = upload(table, zip_path)
+            print(f"   uploaded -> {published}")
+            print(f"   anonymous fetch: {verify_anonymous(published)}")
     return 0
 
 

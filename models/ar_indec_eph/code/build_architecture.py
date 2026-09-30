@@ -26,6 +26,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from constants import ARCH_DIR, CODE_DIR, TABLES
+from i18n import LANGS, fragment
 from parse_registro import lookup
 
 N_WAVES = 87
@@ -116,26 +117,27 @@ INT_UNITS = {
     "II6_1": "",
     "PP03D": "",
 }
+# The quantity each unitless count measures, as an i18n.VALUES key.
 UNITLESS_NOTE = {
-    "IV2": "Cantidad de ambientes/habitaciones",
-    "II1": "Cantidad de ambientes/habitaciones",
-    "II2": "Cantidad de ambientes/habitaciones",
-    "II3_1": "Cantidad de ambientes/habitaciones",
-    "II5_1": "Cantidad de ambientes/habitaciones",
-    "II6_1": "Cantidad de ambientes/habitaciones",
-    "PP03D": "Cantidad de ocupaciones",
+    "IV2": "rooms",
+    "II1": "rooms",
+    "II2": "rooms",
+    "II3_1": "rooms",
+    "II5_1": "rooms",
+    "II6_1": "rooms",
+    "PP03D": "occupations",
 }
 # Classifier codes resolved against external INDEC classifiers (CNO for
 # occupation, CAES/CLANAE for activity), not against this dataset's dicionario.
 CLASSIFIER_CODES = {
-    "PP04B_COD": "Clasificador de actividad (CAES/CLANAE) de INDEC",
-    "PP04D_COD": "Clasificador Nacional de Ocupaciones (CNO) de INDEC",
-    "PP11B_COD": "Clasificador de actividad (CAES/CLANAE) de INDEC",
-    "PP11D_COD": "Clasificador Nacional de Ocupaciones (CNO) de INDEC",
-    "PP04B_CAES": "Clasificador de actividad CAES-1.0 de INDEC",
-    "PP11B_CAES": "Clasificador de actividad CAES-1.0 de INDEC",
-    "CH15_COD": "Codigo de lugar de nacimiento (provincia o pais) de INDEC",
-    "CH16_COD": "Codigo de lugar de residencia anterior (provincia o pais) de INDEC",
+    "PP04B_COD": "caes",
+    "PP04D_COD": "cno",
+    "PP11B_COD": "caes",
+    "PP11D_COD": "cno",
+    "PP04B_CAES": "caes10",
+    "PP11B_CAES": "caes10",
+    "CH15_COD": "birthplace",
+    "CH16_COD": "prior_residence",
 }
 # Pure identifiers are never dictionary-covered, whatever the sources suggest.
 # NRO_HOGAR is listed here deliberately: the record-layout PDF prints the codes
@@ -193,6 +195,16 @@ def bq_type(col: str, prof: dict, has_values: bool) -> str:
     return "STRING"
 
 
+def _appender(obs: dict[str, list[str]]):
+    """Return an add(key, **kwargs) that appends one fragment in every language."""
+
+    def add(key: str, **kwargs) -> None:
+        for lang in LANGS:
+            obs[lang].append(fragment(key, lang, **kwargs))
+
+    return add
+
+
 def temporal_coverage(entry: dict) -> str:
     """Empty when the column is in every wave; otherwise its own span."""
     if entry["n_waves"] == N_WAVES:
@@ -228,6 +240,23 @@ def build(
         # BigQuery rejects a column description over 1024 characters, and dbt
         # persists these, so the whole model fails on one long description.
         # Enforce the limit here rather than discovering it during a dbt run.
+        # Translations are keyed by the Spanish, which is the source language:
+        # every description comes from a Stata variable label or INDEC's record
+        # layout. A missing translation raises rather than writing the Spanish
+        # into the English field, which is how a column set ends up looking
+        # trilingual while being anything but.
+        translation = TRANSLATIONS.get(description)
+        if translation is None:
+            raise RuntimeError(
+                f"{table}.{col}: no translation for {description!r}. Add it to "
+                f"translations.json under 'descriptions'."
+            )
+        for lang in ("pt", "en"):
+            if not translation.get(lang):
+                raise RuntimeError(
+                    f"{table}.{col}: translations.json has no {lang} for "
+                    f"{description!r}"
+                )
         if len(description) > MAX_BQ_DESCRIPTION:
             raise RuntimeError(
                 f"{table}.{col}: description is {len(description)} characters, "
@@ -270,84 +299,72 @@ def build(
         elif name == "trimestre":
             directory = "br_bd_diretorios_data_tempo.trimestre:trimestre"
 
-        obs = []
+        # Observations are assembled per language from i18n.FRAGMENTS, not
+        # written once in Spanish and translated: every sentence here is one this
+        # repo authors, so generating it per language is lossless.
+        obs: dict[str, list[str]] = {lang: [] for lang in LANGS}
+        add = _appender(obs)
+
         if name in PARTITION:
-            obs.append("Columna de particion")
+            add("partition")
         if col in WEIGHTS:
-            obs.append(
-                "Ponderador muestral adimensional, por lo que no lleva unidad de "
-                "medida. Debe usarse en todo calculo de agregados poblacionales"
-            )
+            add("weight")
         if col in UNITLESS_NOTE:
-            obs.append(
-                f"{UNITLESS_NOTE[col]}. El vocabulario de unidades de medida del "
-                "backend no tiene un slug equivalente, por lo que la columna queda "
-                "sin unidad"
-            )
+            add("no_unit_slug", what=UNITLESS_NOTE[col])
         if col in CLASSIFIER_CODES:
-            obs.append(
-                f"Codigo que se resuelve contra el {CLASSIFIER_CODES[col]}, "
-                "no contra la tabla dicionario de este conjunto"
-            )
+            add("classifier", classifier=CLASSIFIER_CODES[col])
         if (
             "DEC" in col
             and btype == "STRING"
             and col.endswith(("IFR", "CFR", "CUR", "NDR", "CCF"))
         ):
-            obs.append(DECILE_NOTE)
+            add("decile")
         if col in ("CH15_COD", "CH16_COD"):
-            obs.append(GEO_CODE_NOTE)
+            add("geo_code_encoding")
         if prof.get("min") is not None and prof["min"] == -9:
-            obs.append(SENTINEL_MINUS_NINE)
+            add("sentinel_minus_nine")
         if col == "CH06":
-            obs.append(
-                "El valor -1 identifica a las personas menores de un anio; "
-                "el 99 corresponde a Ns./Nr."
-            )
+            add("age_sentinels")
         if col == "CODUSU":
-            obs.append(
-                "Identificador de vivienda. Cambia de formato en 2016: hasta "
-                "2015 Q2 es un numero de 6 digitos y desde 2016 Q2 una cadena "
-                "alfanumerica de 29 caracteres, por lo que no permite seguir una "
-                "vivienda a traves de ese corte"
-            )
+            add("codusu")
         if col == "MAS_500":
-            obs.append(
-                "La fuente usa 'S' y, segun la onda, 'N' o 'NO' para el mismo "
-                "valor negativo; se preservan los codigos originales"
-            )
+            add("mas_500")
         if col == "CH05":
-            obs.append(
-                "Fecha de nacimiento en formato DD/MM/AAAA tal como la publica "
-                "la fuente; se preserva como cadena para no perder los valores "
-                "que no son fechas validas"
-            )
+            add("ch05_date")
         if entry["n_waves"] != N_WAVES:
-            obs.append(
-                f"Presente en {entry['n_waves']} de {N_WAVES} ondas "
-                f"({entry['first']} a {entry['last']})"
+            add(
+                "partial_waves",
+                n=entry["n_waves"],
+                total=N_WAVES,
+                first=entry["first"],
+                last=entry["last"],
             )
         if not stata_label and pdf_desc and not over:
-            obs.append(
-                "Descripcion tomada del diseno de registros de INDEC; las bases "
-                "TXT no traen etiquetas de variable"
-            )
+            add("from_pdf")
         if over.get("reason"):
-            obs.append(over["reason"])
+            for lang in LANGS:
+                reason = over.get(f"reason_{lang}") or over["reason"]
+                obs[lang].append(reason)
         if name != col.lower():
-            obs.append(f"Nombre en la fuente: {col}")
+            add("source_name", name=col)
 
         rows.append(
             {
                 "name": name,
                 "bigquery_type": btype,
                 "description": description,
+                "description_pt": translation["pt"],
+                "description_en": translation["en"],
+                "description_es": description,
                 "temporal_coverage": temporal_coverage(entry),
                 "covered_by_dictionary": covered,
                 "directory_column": directory,
                 "measurement_unit": unit,
                 "has_sensitive_data": "no",
-                "observations": ". ".join(obs),
+                "observations": ". ".join(obs["es"]),
+                "observations_pt": ". ".join(obs["pt"]),
+                "observations_en": ". ".join(obs["en"]),
+                "observations_es": ". ".join(obs["es"]),
                 "original_name": col,
             }
         )
@@ -367,16 +384,27 @@ def build(
     return rows
 
 
+# description/observations repeat the Spanish so the CSV stays readable as the
+# source-language artefact, while the _pt/_en/_es columns are what the backend
+# registration reads. upload_columns_from_sheet writes a bare `description` to
+# descriptionPt, which would be wrong here; bulk_upsert_columns understands the
+# per-language keys and is what code/columns_json.py targets.
 FIELDS = [
     "name",
     "bigquery_type",
     "description",
+    "description_pt",
+    "description_en",
+    "description_es",
     "temporal_coverage",
     "covered_by_dictionary",
     "directory_column",
     "measurement_unit",
     "has_sensitive_data",
     "observations",
+    "observations_pt",
+    "observations_en",
+    "observations_es",
     "original_name",
 ]
 
@@ -389,6 +417,8 @@ def main() -> int:
     profile = load("column_profile.json")
     overrides = load("overrides.json")
     value_labels = load("value_labels.json")
+    global TRANSLATIONS
+    TRANSLATIONS = load("translations.json")["descriptions"]
     global VALUE_LABEL_COLS, DICT_OVERRIDE
     VALUE_LABEL_COLS = {t: set(value_labels[t]) for t in TABLES}
     DICT_OVERRIDE = set(overrides.get("value_labels") or {})
