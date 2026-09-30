@@ -18,9 +18,15 @@ em arquivos separados dentro do mesmo zip:
 | `DADOS/ITENS_PROVA_<ano>.csv` | 0,3 MB | não ingerido |
 
 O corte separa quem prestou o exame de como se saiu nele, reduzindo o
-cruzamento identificável. Uma consequência prática: **`id_escola` vem mascarado**
-quando a escola teve menos de dez participantes na edição, então a coluna não
-fecha com o diretório de escolas e está fora dos testes de relacionamento.
+cruzamento identificável. **`id_escola` vem mascarado** quando a escola teve menos
+de dez participantes na edição.
+
+O `id_escola` vem nulo da fonte em 64% das linhas. Dos preenchidos, 1,4% (2024) e
+1,6% (2025) não estão em `br_bd_diretorios_brasil.escola`: são 7.830 códigos
+distintos nas duas edições, dos quais cerca de 7.550 são os mascarados e 279 são
+escolas que existem no Censo Escolar 2025 e ainda faltam no diretório (issue #2117).
+O teste de relacionamento do `id_escola` desconsidera os nulos e aceita até 2% de
+códigos fora do diretório.
 
 `participantes` e `resultados` só existem de 2024 em diante. Pedir edição
 anterior ao pipeline levanta erro em `resolve_years`, porque antes disso a fonte
@@ -33,17 +39,10 @@ não publica esses arquivos.
 Uma linha por inscrito, particionada por `ano`. Sai de `PARTICIPANTES_<ano>.csv`,
 descartando as colunas do questionário socioeconômico.
 
-`indicador_treineiro` é `0`/`1` na fonte e `BOOLEAN` na tabela publicada, como em
-`microdados`. **A gravação converte os códigos para `'true'`/`'false'`**, em
-`constants.BOOLEAN_COLUMNS`: a staging é toda texto e o BigQuery só aceita essas
-duas palavras, então `safe_cast('1' as boolean)` devolve nulo. Foi o que
-aconteceu com a carga de 2024 que está em dev, onde a coluna está inteiramente
-nula — ela precisa ser refeita.
-
-O manual de estilo pede `int64` para variável booleana preenchida com 0 ou 1, e
-não lista `boolean` entre os tipos da BD. O conjunto segue `boolean` por
-consistência com `microdados`, que é a mesma coluna e está em produção desde
-2015.
+`indicador_treineiro` é `boolean` (verdadeiro/falso), igual à mesma coluna em
+`microdados`. Na fonte ela vem como `0`/`1`, e a gravação converte para
+`true`/`false` antes de subir para a staging (`constants.BOOLEAN_COLUMNS`). Sem a
+conversão a coluna sairia nula, porque `safe_cast('1' as boolean)` devolve nulo.
 
 ### `resultados`
 
@@ -52,14 +51,14 @@ Uma linha por inscrito, particionada por `ano`. Sai de `RESULTADOS_<ano>.csv`.
 **A edição de 2025 abriu a correção da redação por avaliador**, acrescentando 28
 colunas: `nota_redacao_avaliador_1..4`, as vinte
 `nota_redacao_competencia_<1..5>_avaliador_<1..4>` e
-`presenca_redacao_avaliador_1..4`. Elas são nulas em 2024, que publicava só a
-nota consolidada — é o que faz o arquivo da fonte crescer de 1,68 GB para
-2,1 GB. As quatro `presenca_redacao_avaliador_*` são codificadas como a
-`presenca_redacao`, mas **ainda não estão no `dicionario`**, e por isso ficaram
-fora do `custom_dictionary_coverage`.
+`presenca_redacao_avaliador_1..4`. É o que faz o arquivo da fonte crescer de
+1,68 GB para 2,1 GB. As quatro `presenca_redacao_avaliador_*` são codificadas
+como a `presenca_redacao` e estão no `dicionario`.
 
-Coluna que uma edição não traz sai nula, e o log lista quais foram — a tabela
-cobre de 2024 em diante e o INEP mexe no conjunto de colunas entre edições.
+Quando uma edição não traz uma coluna que existe na tabela, essa coluna fica
+**nula naquela edição**. Por exemplo, as 28 colunas de correção por avaliador são
+nulas em 2024, porque só passaram a ser publicadas em 2025. O log do flow lista
+quais colunas foram preenchidas com nulo em cada carga.
 
 É o arquivo grande do conjunto. A limpeza lê em blocos e grava em fluxo, com um
 `ParquetWriter` aberto por partição, de modo que a memória do pod não acompanha o
@@ -77,6 +76,49 @@ de existir. Um flow agendado falharia no poll de uma tabela que ainda não foi
 criada. A transformação está em `utils.py` como as outras, e a carga de uma
 edição nova é feita à mão depois que a tabela existe.
 
+## `ano_conclusao`
+
+`ano_conclusao` é o ano em que o participante concluiu o Ensino Médio, em `INT64`,
+em `microdados` e em `participantes`. O INEP não publica esse ano do mesmo jeito em
+todas as edições, e o `.sql` converte cada formato:
+
+| edições | o que vem da fonte | conversão |
+|---|---|---|
+| 1998–2010 | a variável não existe; o ano de conclusão só aparece no questionário socioeconômico | nulo |
+| 2011 | código de 1 a 8: `1` é 2010, `8` é 2003 | `ano - código` |
+| 2012–2014 | o próprio ano | nenhuma |
+| 2015 | código de 1 a 10: `1` é 2015, o ano do exame | `2016 - código` |
+| 2016 em diante | código em que `1` é o ano anterior ao exame | `ano - código` |
+
+O código `0` ("Não informado") e o valor vazio ficam nulos em todas as edições. Em
+2013 a variável da fonte se chama `ANO_CONCLUIU`, sem o `TP_` das outras edições.
+
+2015 é a única edição em que o código `1` é o próprio ano do exame. O dicionário
+dela tem a mesma lista do de 2016, e a distribuição por idade mostra que a lista
+está certa nas duas: entre os participantes de 18 anos que já concluíram, o código
+mais frequente é o `2` em 2015 e o `1` em 2016, ambos o ano anterior ao exame.
+
+### O menor ano acumula os anos anteriores
+
+De 2015 em diante, o último código é "Antes de 2007" ("Anterior a 2007" em 2015 e
+2016). Ele fica nulo, porque não corresponde a um ano.
+
+De 2011 a 2014 o menor ano faz o mesmo papel, sem que o dicionário ou o Leia-me
+digam isso: ele concentra quem concluiu naquele ano ou antes.
+
+| edição | menor ano | participantes | ano seguinte | participantes |
+|---|---|---|---|---|
+| 2011 | 2003 (código 8) | 846.971 | 2004 | 156.172 |
+| 2012 | 2003 | 766.447 | 2004 | 134.635 |
+| 2013 | 2004 | 1.012.318 | 2005 | 178.720 |
+| 2014 | 2004 | 1.152.253 | 2005 | 186.112 |
+
+A idade mostra o acúmulo: em 2013, 65,3% dos participantes com 2004 têm 31 anos ou
+mais, contra 15,3% dos que têm 2005.
+
+Por isso o menor ano de 2011 a 2014 também fica nulo, pela mesma regra do "Antes
+de 2007": 2003 em 2011 e 2012, 2004 em 2013 e 2014.
+
 ## O dicionário muda a cada edição
 
 O `dicionario` é a parte do conjunto que uma edição nova mais costuma quebrar, e
@@ -84,35 +126,16 @@ não por descuido: há códigos do ENEM cujo significado depende do ano. Enquant
 faltarem, o `custom_dictionary_coverage` de `participantes` ou de `resultados`
 falha, sempre com a mesma cara — `Got N results, configured to fail if != 0`.
 
-Três casos, em ordem de quanto enganam:
-
 **Os códigos de prova são renumerados todo ano.** `tipo_prova_ciencias_natureza`,
 `_ciencias_humanas`, `_linguagens_codigos` e `_matematica` (os `CO_PROVA_*` da
 fonte) recebem uma faixa nova a cada edição — 2025 trouxe 74 códigos inéditos.
-Esse caso falha alto e é o menos perigoso.
 
-**`ano_conclusao` é uma escala relativa à edição.** `1` é sempre o ano anterior ao
-exame, e o último código é "Antes de <ano>". Entre 2024 e 2025 **todas** as chaves
-mudam de significado:
-
-| chave | em 2024 | em 2025 |
-|---|---|---|
-| 1 | 2023 | 2024 |
-| 2 | 2022 | 2023 |
-| 17 | 2007 | 2008 |
-| 18 | Antes de 2007 | 2007 |
-| 19 | — | Antes de 2007 |
-
-Só a chave nova faz o teste falhar; as outras dezoito existem e passam, lendo
-errado por um ano. **Uma edição nova exige o conjunto completo de
-`ano_conclusao` com a cobertura temporal daquela edição**, não só o código novo.
-
-**`situacao_conclusao` cita o ano no próprio rótulo** — "concluirei o Ensino
-Médio em 2025", "após 2025" (chaves 2 e 3). As chaves não mudam, então o teste
-nunca acusa; o texto é que fica defasado. As chaves 1 e 4 são estáveis.
-
-O `microdados` já resolve `situacao_conclusao` assim: uma linha por edição para
-as chaves 2 e 3, e cobertura composta (`1999(1)2001,2003(1)2010`) nas estáveis.
+**`situacao_conclusao` cita o ano no rótulo da fonte** — "concluirei o Ensino
+Médio em 2025", "após 2025" (chaves 2 e 3). No `dicionario`, esses rótulos dizem
+"no ano da edição do exame" e "após o ano da edição do exame", com uma linha por
+chave, e uma edição nova só estende a cobertura. No `microdados` são duas linhas
+por chave, uma para o texto de 1999–2010 ("Concluirá…") e outra para o de
+2011–2023 ("Estou cursando e concluirei…").
 
 ### De onde saem os rótulos
 
@@ -244,8 +267,10 @@ desde 2023, com wheels até cp310, e a imagem roda Python 3.12.
 3. Criar `.sql`, entrada no `schema.yml` e tabela no backend para o
    `questionario_socioeconomico_<ano>`.
 4. Atualizar o `dicionario` com os códigos da edição, a partir do xlsx do zip:
-   os `CO_PROVA_*` inteiros, o conjunto completo de `ano_conclusao`, as chaves 2
-   e 3 de `situacao_conclusao`, e a cobertura das chaves que seguem valendo. Ver
-   "O dicionário muda a cada edição".
-5. Estender o `range` do `partition_by` nos `.sql` de `participantes` e
+   os `CO_PROVA_*` inteiros e a cobertura das chaves que seguem valendo, inclusive
+   as de `situacao_conclusao`. Ver "O dicionário muda a cada edição".
+5. Conferir no dicionário da edição que o último código de `TP_ANO_CONCLUIU`
+   continua "Antes de 2007". Se o corte mudar, o `2007` do `.sql` de
+   `participantes` e a descrição da coluna mudam junto. Ver "`ano_conclusao`".
+6. Estender o `range` do `partition_by` nos `.sql` de `participantes` e
    `resultados` se a edição passar do `end` declarado. O `end` é exclusivo.

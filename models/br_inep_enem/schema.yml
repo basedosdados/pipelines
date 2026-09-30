@@ -98,7 +98,12 @@ models:
       - name: situacao_conclusao
         description: Situação em relação ao ensino médio
       - name: ano_conclusao
-        description: Ano de conclusão do ensino médio
+        description: >-
+          Ano em que o participante concluiu o Ensino Médio. Nulo antes de 2011,
+          quando o participante ainda não concluiu ou não informou o ano, e quando
+          o
+          valor da fonte agrupa anos anteriores: 2003 ou antes em 2011 e 2012, 2004
+          ou antes em 2013 e 2014, e antes de 2007 a partir de 2015
       - name: tipo_escola
         description: Tipo de escola do ensino médio
       - name: ensino
@@ -326,6 +331,13 @@ models:
         description: Número sequencial da linha de resultados
       - name: id_escola
         description: ID Escola - Inep
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_brasil__escola')
+              field: id_escola
+              proportion_allowed_failures: 0.02
+              config:
+                where: id_escola is not null
       - name: ano
         description: Ano
         tests:
