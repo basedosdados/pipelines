@@ -43,14 +43,20 @@ def br_ans_beneficiario_download(download_params: dict) -> ExtractAndLoad:
 
     output_filepath = crawler_ans(files=files)
 
-    ref = date.fromisoformat(download_params["reference_date"])
+    # `files` (formato "YYYYMM") pode ter mais de 1 mês quando a ANS
+    # atualiza 2 meses no mesmo dia — partition_folders precisa cobrir
+    # todos, não só o `reference_date` do check, senão um mês baixado não
+    # chega a ser promovido pra prod.
+    partition_folders = sorted({f"ano={f[:4]}/mes={f[4:6]}" for f in files})
+
     return ExtractAndLoad(
         coverage=COVERAGE.model_dump(),
         data_path=output_filepath,
         # crawler_ans -> parquet_partition grava .parquet, não .csv (default).
         source_format="parquet",
         # to_partitions particiona por ano/mes/sigla_uf/modalidade_operadora,
-        # mas só um ano/mes muda por execução — promover o nível ano/mes já
-        # carrega todas as sub-partições de uf/modalidade daquele mês.
-        partition_folders=[f"ano={ref.year}/mes={ref.month:02d}"],
+        # mas só o(s) ano/mes que mudou(aram) por execução — promover o
+        # nível ano/mes já carrega todas as sub-partições de uf/modalidade
+        # daquele(s) mês(es).
+        partition_folders=partition_folders,
     )

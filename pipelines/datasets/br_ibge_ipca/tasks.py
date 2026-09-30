@@ -49,7 +49,6 @@ def make_get_latest_update(table_id: str) -> Callable[[], SourceInspection]:
         reference_date = check_for_updates(
             dataset_id=DATASET_ID, table_id=table_id
         )
-        # pyrefly: ignore [bad-argument-type]
         return SourceInspection(reference_date=reference_date)
 
     return get_latest_update

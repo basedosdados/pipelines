@@ -98,7 +98,13 @@ def build_and_promote(
             registra a materialização mesmo assim, direto a partir do que
             foi materializado em dev. Quando `promote_to_prod` é `True`, o
             metadado sempre atualiza (via `transfer_files_to_prod_flow`)
-            e este parâmetro é ignorado.
+            e este parâmetro é ignorado. **Cuidado em invocação manual**:
+            `register_table_materialization_task` lê a tabela em
+            `bq_project` — se `bq_project`/`prefect_mode` não forem
+            também passados como `"basedosdados-dev"`/`"dev"` (o dispatch
+            automático nunca passa `update_metadata=True`, só invocação
+            manual chega nessa combinação), o registro tenta ler de prod,
+            onde a materialização em dev não existe.
     """
     rename_flow_run_dataset_table(
         prefix="Build and Promote: ",
