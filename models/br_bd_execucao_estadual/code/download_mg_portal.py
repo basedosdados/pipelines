@@ -36,6 +36,10 @@ from models.br_bd_execucao_estadual.code.constants import (
     INPUT_DIR,
     MG_PORTAL_FIRST_YEAR,
     MG_PORTAL_IN_USE,
+    MG_PORTAL_LISTED_IN_USE,
+    MG_PORTAL_LISTED_REPOS,
+    MG_PORTAL_LISTED_TABLES,
+    MG_PORTAL_LISTING,
     MG_PORTAL_MES,
     MG_PORTAL_MONTHLY_FIRST,
     MG_PORTAL_MONTHLY_IN_USE,
@@ -96,6 +100,7 @@ def main(
         **MG_PORTAL_TABLES,
         **MG_PORTAL_MONTHLY_TABLES,
         **MG_PORTAL_STATIC_TABLES,
+        **MG_PORTAL_LISTED_TABLES,
     }
     stems = (
         [only]
@@ -104,6 +109,7 @@ def main(
             *MG_PORTAL_IN_USE,
             *MG_PORTAL_MONTHLY_IN_USE,
             *MG_PORTAL_STATIC_IN_USE,
+            *MG_PORTAL_LISTED_IN_USE,
         ]
     )
     unknown = [s for s in stems if s not in known]
@@ -115,6 +121,35 @@ def main(
     end = last_year or dt.date.today().year
     session = requests.Session()
     session.headers["User-Agent"] = BROWSER_UA
+
+    # Discovered from the repository listing: the part count is not predictable.
+    for stem in (s for s in stems if s in MG_PORTAL_LISTED_TABLES):
+        repo = MG_PORTAL_LISTED_REPOS[stem]
+        use_ref = ref or MG_PORTAL_REFS[repo]
+        listing = session.get(
+            MG_PORTAL_LISTING.format(repo=repo, ref=use_ref), timeout=120
+        )
+        listing.raise_for_status()
+        names = sorted(
+            e["name"]
+            for e in listing.json()
+            if e["name"].startswith(stem) and e["name"].endswith(".csv")
+        )
+        got = skipped = 0
+        for name in names:
+            dest = MG_INPUT / name
+            if is_intact(dest):
+                skipped += 1
+                continue
+            url = MG_PORTAL_RAW.format(
+                repo=repo, ref=use_ref, stem=name[: -len(".csv")], year=""
+            )
+            if fetch(session, url, dest):
+                got += 1
+        print(
+            f"  {stem} ({repo} @ {use_ref[:8]}): {len(names)} file(s) listed, "
+            f"{got} downloaded, {skipped} already present"
+        )
 
     # Whole-table files: one fetch each, no period in the name.
     for stem in (s for s in stems if s in MG_PORTAL_STATIC_TABLES):

@@ -1380,3 +1380,159 @@ models:
           administrativos
       - name: processo
         description: Número do processo administrativo ou do processo SEI
+  - name: br_bd_execucao_estadual__plano_contratacao_item
+    description: >
+      Plano anual de contratações dos governos estaduais, item a item: o que o estado
+      declarou que pretendia comprar, com quantidade, preço unitário previsto, ano
+      de
+      entrega e município, antes de comprar. Uma linha por ano-base, plano, item e
+      versão.
+      É a única tabela ex-ante do conjunto, o que torna mensurável a distância entre
+      o
+      planejado e o executado e permite usar o plano inicial como linha de base contra
+      a
+      qual medir discricionariedade posterior; ligue a contrato_item, licitacao_item
+      e
+      nota_fiscal_item por codigo_catalogo, e ao processo que o item virou por
+      numero_processo. Atenção às versões: a fonte as publica em duas colunas, versao
+      e
+      versao_detalhe, reproduzidas exatamente como vêm. Em 2023, 2024 e 2025 as duas
+      concordam e há duas versões limpas por ano; em 2026 elas se contradizem, com
+      98.544
+      linhas trazendo versao igual a revisão e versao_detalhe igual a INICIAL ao mesmo
+      tempo, e outras 109.511 sem versao alguma. Por isso não se publica um número
+      de
+      revisão normalizado, que exigiria escolher em silêncio entre dois rótulos
+      contraditórios. Atenção também aos valores: valor_total_previsto soma R$ 90,4
+      trilhões por causa de 42 linhas acima de R$ 1 bilhão, a maior de R$ 31,98 trilhões;
+      sem elas o total é R$ 169,1 bilhões, a mediana R$ 552,50 e o percentil 99 R$
+      915.308,16. As linhas não são corrigidas, seguindo a mesma decisão tomada para
+      a
+      linha de R$ 81,76 trilhões de licitacao; aplique um limite superior antes de
+      agregar.
+      O campo id_municipio é derivado do código de seis dígitos da fonte pelo diretório
+      de
+      municípios e é nulo nas linhas em que a fonte usa o sentinela estadual. Existe
+      só
+      para Minas Gerais.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sigla_uf, id_plano_item_bd]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - versao
+            - versao_detalhe
+            - justificativa_desativacao
+            - data_conclusao_processo
+            - numero_processo
+    columns:
+      - name: ano
+        description: Ano-base do plano de contratações
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests: [not_null]
+      - name: id_plano_item_bd
+        description: >
+          Identificador construído pela Data Basis a partir de ano-base, plano, item
+          e as
+          duas colunas de versão da fonte
+        tests: [not_null]
+      - name: versao
+        description: >
+          Versão do plano como publicada na coluna base da fonte; contraditória com
+          versao_detalhe em 2026
+      - name: versao_detalhe
+        description: >
+          Versão do plano como publicada na coluna dado da fonte, presente só em quatro
+          arquivos de 2026
+      - name: numero_plano
+        description: Número formatado do planejamento de solicitações
+      - name: numero_item
+        description: Número do item dentro do planejamento
+      - name: situacao
+        description: Situação do planejamento
+      - name: item_ativo
+        description: Indicador de item de planejamento ativo
+      - name: centralizado
+        description: Indicador de compra centralizada
+      - name: id_orgao
+        description: Código do órgão que planejou a solicitação
+      - name: nome_orgao
+        description: Nome do órgão que planejou a solicitação
+      - name: id_unidade
+        description: Código da unidade que planejou a solicitação
+      - name: nome_unidade
+        description: Nome da unidade que planejou a solicitação
+      - name: codigo_catalogo
+        description: >
+          Código do item de material ou serviço no catálogo; liga-se a licitacao_item,
+          contrato_item e nota_fiscal_item pelo mesmo campo
+      - name: descricao
+        description: Descrição do item de material ou serviço
+      - name: codigo_material_servico
+        description: Código do material ou serviço
+      - name: nome_material_servico
+        description: Nome do material ou serviço
+      - name: codigo_grupo
+        description: Código do grupo de material ou serviço
+      - name: nome_grupo
+        description: Nome do grupo de material ou serviço
+      - name: codigo_classe
+        description: Código da classe de material ou serviço
+      - name: nome_classe
+        description: Nome da classe de material ou serviço
+      - name: item_despesa
+        description: Elemento item de despesa previsto
+      - name: unidade_aquisicao
+        description: Unidade de aquisição do item
+      - name: descricao_unidade_aquisicao
+        description: Descrição da unidade de aquisição
+      - name: quantidade
+        description: Quantidade prevista do item
+      - name: valor_unitario_previsto
+        description: >
+          Preço unitário previsto em reais correntes; contém valores implausíveis,
+          ver a
+          descrição da tabela
+      - name: valor_total_previsto
+        description: >
+          Valor total previsto em reais correntes; contém 42 valores implausíveis,
+          ver a
+          descrição da tabela
+      - name: ano_inicio_execucao
+        description: Ano previsto de início da execução ou entrega
+      - name: id_municipio
+        description: >
+          Código IBGE de sete dígitos do município previsto, derivado do código de
+          seis
+          dígitos da fonte; nulo quando a fonte usa o sentinela estadual
+      - name: nome_municipio
+        description: Nome do município previsto, como publicado
+      - name: unidade_orcamentaria
+        description: Unidade orçamentária prevista
+      - name: projeto_atividade
+        description: Projeto ou atividade orçamentária prevista
+      - name: fonte
+        description: Fonte de recurso prevista
+      - name: procedencia
+        description: Procedência prevista do material ou serviço
+      - name: numero_processo
+        description: >
+          Número do planejamento de processo de compra em que o item se transformou,
+          quando já houve
+      - name: procedimento_contratacao
+        description: Procedimento de contratação previsto
+      - name: objeto
+        description: Objeto do processo de compra
+      - name: data_criacao_plano
+        description: Data de criação do planejamento de solicitações
+      - name: data_aprovacao_plano
+        description: Data de aprovação ou reprovação do planejamento
+      - name: data_criacao_processo
+        description: Data de criação do planejamento de processo de compra
+      - name: data_conclusao_processo
+        description: Data de conclusão do processo de compra
+      - name: justificativa_desativacao
+        description: Justificativa de desativação do item de planejamento

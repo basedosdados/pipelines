@@ -33,6 +33,8 @@ import duckdb
 from models.br_bd_execucao_estadual.code.constants import (
     INPUT_DIR,
     MG_PORTAL_IN_USE,
+    MG_PORTAL_LISTED_IN_USE,
+    MG_PORTAL_LISTED_TABLES,
     MG_PORTAL_MONTHLY_IN_USE,
     MG_PORTAL_MONTHLY_TABLES,
     MG_PORTAL_STATIC_IN_USE,
@@ -64,8 +66,11 @@ def _read_all_varchar(paths: list[Path], with_filename: bool = False) -> str:
 def clean(con: duckdb.DuckDBPyConnection, stem: str, table: str) -> int:
     monthly = stem in MG_PORTAL_MONTHLY_TABLES
     static = stem in MG_PORTAL_STATIC_TABLES
+    listed = stem in MG_PORTAL_LISTED_TABLES
     # Monthly files are `notas_jan22.csv`; annual ones `contratos2022.csv`.
-    if static:
+    if listed:
+        pattern = f"{stem}*.csv"
+    elif static:
         pattern = f"{stem}.csv"
     elif monthly:
         pattern = f"{stem}[a-z][a-z][a-z][0-9][0-9].csv"
@@ -86,7 +91,7 @@ def clean(con: duckdb.DuckDBPyConnection, stem: str, table: str) -> int:
         if sub.is_dir():
             sub.rmdir()
 
-    rel = _read_all_varchar(srcs, with_filename=monthly)
+    rel = _read_all_varchar(srcs, with_filename=monthly or listed)
     # Spreadsheet artefact columns, identified from the real header rather than from the
     # stale datapackage. An explicit column list is used instead of `* EXCLUDE (...)`
     # because EXCLUDE errors when the named column is absent, and only some year files
@@ -105,7 +110,7 @@ def clean(con: duckdb.DuckDBPyConnection, stem: str, table: str) -> int:
     # The item file carries no date column at all, so its period exists only in the
     # filename. Kept as provenance on both monthly tables rather than parsed here:
     # staging mirrors the source, and the dbt model derives ano/mes from it.
-    if monthly:
+    if monthly or listed:
         projection += ", parse_filename(filename) as arquivo_origem"
     con.execute(
         f"COPY (SELECT {projection} FROM {rel}) TO '{dest / 'data.parquet'}' "
@@ -123,6 +128,7 @@ def main(only: str | None = None) -> None:
         **MG_PORTAL_TABLES,
         **MG_PORTAL_MONTHLY_TABLES,
         **MG_PORTAL_STATIC_TABLES,
+        **MG_PORTAL_LISTED_TABLES,
     }
     stems = (
         [only]
@@ -131,6 +137,7 @@ def main(only: str | None = None) -> None:
             *MG_PORTAL_IN_USE,
             *MG_PORTAL_MONTHLY_IN_USE,
             *MG_PORTAL_STATIC_IN_USE,
+            *MG_PORTAL_LISTED_IN_USE,
         ]
     )
     unknown = [s for s in stems if s not in known]

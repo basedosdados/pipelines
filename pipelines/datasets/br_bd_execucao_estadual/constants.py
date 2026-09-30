@@ -34,6 +34,8 @@ class constants(Enum):
         "contrato_fiscal",
         # MG-only: the enforcement margin.
         "fornecedor_sancionado",
+        # MG-only, and the only ex-ante table: the annual procurement plan.
+        "plano_contratacao_item",
         "relacionamentos",
         "dicionario",
     ]
@@ -56,6 +58,7 @@ class constants(Enum):
             "nota_fiscal_item",
             "contrato_fiscal",
             "fornecedor_sancionado",
+            "plano_contratacao_item",
             "relacionamentos",
             "dicionario",
         ],
@@ -180,6 +183,7 @@ class constants(Enum):
             "mg_nota_fiscal_item",
             "mg_fornecedor_impedido",
             "mg_empresa_sancionada",
+            "mg_plano_contratacao_item",
         ],
         "BA": [
             "ba_despesa",

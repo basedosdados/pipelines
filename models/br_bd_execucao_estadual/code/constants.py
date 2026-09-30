@@ -155,6 +155,7 @@ MG_PORTAL_REFS = {
     "portal_notas_fiscais": "7e616c7e4d0370da53fe968b557f4353f9424522",  # 2026-09-23
     "portal_cafimp": "e07569122e4a1c9dacec4666de2d9866c2957b8b",
     "portal_empresas_sancionadas": "43b9fa3f14d52c135f8f04cd2287001668b5ca7c",
+    "portal_plano_anual_contratacao": "052d15bdd985b68801b25ff8af99e122ede4dfb1",
 }
 
 # The invoice repo is published MONTHLY, not annually: `notas_jan22.csv`,
@@ -196,6 +197,17 @@ MG_PORTAL_STATIC_REPOS = {
     "empresas_sancionadas": "portal_empresas_sancionadas",
 }
 
+# The annual procurement plan. Its filenames are irregular -- `pac_2024_inicial3.csv`,
+# `pac_2026_revisao7.csv` -- and the trailing number is a FILE PART, not a revision
+# number: each year has one `inicial` and one `revisao` vintage, split across however many
+# parts the export needed. Because the part count is not predictable, these files are
+# discovered from the repository listing rather than constructed from a pattern.
+MG_PORTAL_LISTED_TABLES = {"pac_": "mg_plano_contratacao_item"}
+MG_PORTAL_LISTED_REPOS = {"pac_": "portal_plano_anual_contratacao"}
+
+# GitHub contents API for a repo's data directory, at a pinned ref.
+MG_PORTAL_LISTING = "https://api.github.com/repos/transparencia-mg/{repo}/contents/dataset/data?ref={ref}"
+
 MG_PORTAL_RAW = (
     "https://raw.githubusercontent.com/transparencia-mg/{repo}/{ref}"
     "/dataset/data/{stem}{year}.csv"
@@ -207,6 +219,7 @@ MG_PORTAL_RAW = (
 MG_PORTAL_IN_USE = ("contratos", "itens", "fiscais_contratos_")
 MG_PORTAL_MONTHLY_IN_USE = ("notas_", "itensnota_")
 MG_PORTAL_STATIC_IN_USE = ("cafimp", "empresas_sancionadas")
+MG_PORTAL_LISTED_IN_USE = ("pac_",)
 
 MG_SEP = ";"
 MG_ENCODING = "utf-8-sig"  # the files carry a BOM
