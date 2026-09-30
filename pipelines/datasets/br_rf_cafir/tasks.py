@@ -125,8 +125,8 @@ def extract_file_records(
 
 
 @task(
-    retries=3,
-    retry_delay_seconds=constants.TASK_RETRY_DELAY.value,
+    retries=6,
+    retry_delay_seconds=300,
 )
 def download_file(file_name: str, url: str, input_folder: Path) -> str:
     log(f"Baixando arquivo: {file_name} de {url}")
