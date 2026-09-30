@@ -897,15 +897,22 @@ forma `microdados_*`, que já foi renomeada em prod.
 
 ### Duas armadilhas encontradas na API de colunas
 
-- **`bulk_upsert_columns` com `columns_json` não grava o vínculo de diretório.**
-  Nem como `directory_column` nem como `directory_column_name`: os tipos,
-  descrições, unidades e flags entram, o `directoryPrimaryKey` não. Também não
-  grava `isPartition`. Os dois precisam de um `update_column` por coluna, onde o
-  parâmetro se chama `directory_column_name` e aceita a forma com prefixo
-  (`br_bd_diretorios_data_tempo.ano:ano`).
-- **`directoryPrimaryKey` só aceita coluna marcada como chave primária no
-  diretório.** Em `br_bd_diretorios_brasil.empresa` apenas `cnpj` está marcada,
-  não `cnpj_basico` — então `instituicao_financeira.cnpj_basico` **não pode** ser
-  vinculada, e a tentativa devolve `Faça uma escolha válida`. A integridade fica
-  garantida pelo teste dbt `relationships`, que passa. É o mesmo motivo pelo qual
-  nenhuma das colunas de CNPJ de `operacao` tem vínculo de diretório em prod.
+- **A chave do `columns_json` é `directory_column`, não `directory_column_name`.**
+  A segunda é o *parâmetro* do `update_column` e não vale aqui: passá-la é um
+  no-op silencioso, e foi o que deixou as nove tabelas sem um único vínculo de
+  diretório enquanto a chamada reportava sucesso. `is_partition` realmente não
+  existia no caminho em lote e exigia um `update_column` por coluna.
+  **Os dois foram corrigidos** no repo `mcp`, branch
+  `fix/directory-column-silent-failures`: chave desconhecida e falha de lookup
+  agora aparecem em `errors`, e `is_partition`/`is_primary_key` passaram a ser
+  aceitos como chaves opt-in.
+- **`directoryPrimaryKey` só aceita coluna marcada como chave primária de uma
+  tabela de diretório** (`limit_choices_to` no modelo). Em
+  `br_bd_diretorios_brasil.empresa` apenas `cnpj` está marcada, não
+  `cnpj_basico` — então `instituicao_financeira.cnpj_basico` **não pode** ser
+  vinculada. **Isso está correto, não é defeito**: a tabela tem 72.789.638 linhas
+  com `cnpj` único e só 69.523.303 `cnpj_basico` distintos, então a FK seria
+  ambígua. A integridade fica garantida pelo teste dbt `relationships`, que
+  passa — é o mesmo motivo pelo qual nenhuma coluna de CNPJ de `operacao` tem
+  vínculo de diretório em prod. O `mcp` agora devolve essa explicação em vez de
+  deixar passar o `Faça uma escolha válida` do Django.
