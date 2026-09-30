@@ -24,6 +24,9 @@ class constants(Enum):
         "licitacao_item",
         "licitacao_participante",
         "contrato",
+        # MG-only: the contract-item grain. The dimensional model publishes items per
+        # process (`licitacao_item`), never per contract.
+        "contrato_item",
         "relacionamentos",
         "dicionario",
     ]
@@ -41,6 +44,7 @@ class constants(Enum):
             # model, joined to the `portal_contratos` flat export for the signature
             # date and the unmasked counterparty.
             "contrato",
+            "contrato_item",
             "relacionamentos",
             "dicionario",
         ],

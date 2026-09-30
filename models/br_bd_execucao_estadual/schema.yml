@@ -980,3 +980,89 @@ models:
       - name: valor_atual
         description: Valor atual do contrato em reais correntes, após aditivos quando
           informado
+  - name: br_bd_execucao_estadual__contrato_item
+    description: >
+      Itens contratados pelos governos estaduais: o que cada contrato comprou, linha
+      a
+      linha, com produto catalogado, quantidade e preço de referência. Uma linha por
+      (contrato, produto, ocorrência) -- o mesmo produto pode aparecer mais de uma
+      vez no
+      mesmo contrato com quantidade ou preço diferentes, e são linhas legítimas, não
+      duplicatas. Complementa contrato (o instrumento) e licitacao_item (o que foi
+      licitado): ligue a contrato por id_contrato_bd e a licitacao_item por
+      codigo_catalogo, o mesmo catálogo de material e serviço nas duas pontas. Existe
+      só
+      para Minas Gerais; os outros estados publicam itens no processo licitatório,
+      não no
+      contrato. Atenção: valor_total_referencia e valor_total_homologado não são
+      quantidade vezes preço unitário na fonte, e a MG não documenta o multiplicador,
+      então
+      os três campos são publicados como vêm, sem recálculo. A fonte não publica preço
+      unitário homologado no contrato, então valor_unitario é sempre nulo.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [sigla_uf, id_item_bd]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [valor_unitario]
+    columns:
+      - name: ano
+        description: Ano de assinatura do contrato
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da unidade da federação
+        tests: [not_null]
+      - name: id_contrato_bd
+        description: >
+          Identificador do contrato construído pela Data Basis; junta-se a contrato
+          pelo
+          mesmo campo
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_execucao_estadual__contrato')
+              field: id_contrato_bd
+      - name: id_item_bd
+        description: >
+          Identificador do item construído pela Data Basis, único por (contrato, produto,
+          ocorrência)
+        tests: [not_null]
+      - name: numero_contrato
+        description: Número do contrato no sistema de origem
+      - name: numero_processo
+        description: Número do processo de compra que originou o contrato
+      - name: numero_item
+        description: >
+          Número do item no pedido, como publicado pela fonte; é uma linha de lote
+          e não
+          identifica o produto, podendo repetir-se dentro do contrato
+      - name: codigo_catalogo
+        description: >
+          Código do item de material ou serviço no catálogo da fonte; liga-se a
+          licitacao_item pelo mesmo campo
+      - name: descricao
+        description: Descrição do item de material ou serviço
+      - name: item_despesa
+        description: Código do item de despesa
+      - name: nome_item_despesa
+        description: Nome do item de despesa
+      - name: documento_contratado
+        description: CPF ou CNPJ do contratado, sem máscara
+      - name: nome_contratado
+        description: Nome ou razão social do contratado
+      - name: quantidade
+        description: >
+          Quantidade contratada do item, como publicada; não é o multiplicador que
+          produz
+          os valores totais
+      - name: valor_unitario
+        description: >
+          Preço unitário homologado, em reais correntes; sempre nulo em Minas Gerais,
+          que
+          não o publica no contrato
+      - name: valor_unitario_referencia
+        description: Preço unitário de referência do item em reais correntes
+      - name: valor_total_referencia
+        description: Valor total de referência do item em reais correntes
+      - name: valor_total_homologado
+        description: Valor total homologado do item em reais correntes

@@ -130,6 +130,9 @@ MG_PORTAL_TABLES = {
     "item": "mg_licitacao_item",
     "contratos": "mg_contrato",
     "itens": "mg_contrato_item",
+    # Trailing underscore is part of the stem: the files are
+    # `fiscais_contratos_2022.csv`, not `fiscais_contratos2022.csv`.
+    "fiscais_contratos_": "mg_contrato_fiscal",
 }
 MG_PORTAL_FIRST_YEAR = 2022
 
@@ -139,6 +142,7 @@ MG_PORTAL_REPOS = {
     "item": "portal_licitacoes_mg",
     "contratos": "portal_contratos",
     "itens": "portal_contratos",
+    "fiscais_contratos_": "portal_fiscais_contratos",
 }
 
 # Pinned so a rebuild is reproducible. The repos are refreshed by CGE's own automation,
@@ -147,6 +151,7 @@ MG_PORTAL_REPOS = {
 MG_PORTAL_REFS = {
     "portal_contratos": "3998d827e15b4448a1ebf281a4650e11a529bc1c",  # 2026-09-23
     "portal_licitacoes_mg": "6e654482fe4d32d881ac9f8f2ee41fdc1e739729",  # 2026-09-23
+    "portal_fiscais_contratos": "02290ebe5d74cf828c04567c9a9128084566b00a",  # 2026-09-15
 }
 
 MG_PORTAL_RAW = (
@@ -154,10 +159,10 @@ MG_PORTAL_RAW = (
     "/dataset/data/{stem}{year}.csv"
 )
 
-# Only `contratos` is consumed by a model today (`contrato_mg`). The other three are
-# declared because the download and clean code is generic over this map; wiring them
-# means adding the matching state models, not changing this module.
-MG_PORTAL_IN_USE = ("contratos",)
+# Consumed by a model today. `licitacoes` / `item` are declared but not wired: they
+# restate what the CKAN model already covers from 2009, so unioning them would only
+# duplicate 2022+ (see MG_PORTAIS_PLAN.md section 3).
+MG_PORTAL_IN_USE = ("contratos", "itens", "fiscais_contratos_")
 
 MG_SEP = ";"
 MG_ENCODING = "utf-8-sig"  # the files carry a BOM

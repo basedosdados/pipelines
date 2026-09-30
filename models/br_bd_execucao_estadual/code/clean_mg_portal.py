@@ -9,21 +9,23 @@ The year files are uniform. Verified on `portal_contratos` at
 order. `union_by_name` is still used -- it costs nothing and makes a future upstream
 column addition a widened table rather than a silently shifted one.
 
-Two things NOT to do here, both learned from the source rather than assumed:
+`unnamed_*` columns are dropped, but do NOT use the repos' `dataset/datapackage.json` to
+decide which exist. Those schemas are generated from the upstream Excel and disagree with
+the published CSVs in both directions: they declare `unnamed_*` columns that are absent
+(`contratos2024.csv` has 24 real columns against 28 in its schema, `itens` 13 against 16)
+and they omit a column that is present (`indicador_fornecedor_estrangeiro`). The dropping
+below is driven by the actual CSV header. As of the pinned refs only
+`fiscais_contratos_2022.csv` carries one, `unnamed_17`.
 
-  * Do not drop `unnamed_*` columns. They exist only in the repos'
-    `dataset/datapackage.json`, which is generated from the upstream Excel and is stale.
-    The published CSVs have none. (The same schemas also omit a real column,
-    `indicador_fornecedor_estrangeiro`, so they are not a reliable column list either
-    way.)
-  * Do not slice columns positionally. The repos' own `processar.py` does
-    `df.iloc[:, 1:]` against the Excel; applied to these CSVs it would silently discard
-    `ano_assinatura_contrato`.
+Do not slice columns positionally. The repos' own `processar.py` does `df.iloc[:, 1:]`
+against the Excel; applied to these CSVs it would silently discard the first real column
+(`ano_assinatura_contrato`).
 """
 
 from __future__ import annotations
 
 import argparse
+import re
 from pathlib import Path
 
 import duckdb
@@ -71,8 +73,19 @@ def clean(con: duckdb.DuckDBPyConnection, stem: str, table: str) -> int:
             sub.rmdir()
 
     rel = _read_all_varchar(srcs)
+    # Spreadsheet artefact columns, identified from the real header rather than from the
+    # stale datapackage. An explicit column list is used instead of `* EXCLUDE (...)`
+    # because EXCLUDE errors when the named column is absent, and only some year files
+    # carry one.
+    cols = [
+        r[0] for r in con.execute(f"describe select * from {rel}").fetchall()
+    ]
+    keep = [c for c in cols if not re.fullmatch(r"unnamed_\d+|", c.strip())]
+    if dropped := [c for c in cols if c not in keep]:
+        print(f"    dropping artefact column(s): {', '.join(dropped)}")
+    projection = ", ".join(f'"{c}"' for c in keep)
     con.execute(
-        f"COPY (SELECT * FROM {rel}) TO '{dest / 'data.parquet'}' "
+        f"COPY (SELECT {projection} FROM {rel}) TO '{dest / 'data.parquet'}' "
         "(FORMAT PARQUET, COMPRESSION SNAPPY)"
     )
     # pyrefly: ignore [unsupported-operation]
