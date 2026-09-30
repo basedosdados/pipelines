@@ -272,9 +272,10 @@ def build_jurisdiccion():
         f"Provincia {v['articulo']} {n}" if v["articulo"] else n
         for v, n in zip(variants, df["nombre"], strict=True)
     ]
-    df["sigla"] = [v["sigla"] for v in variants]
-    if df["sigla"].duplicated().any():
+    siglas = [v["sigla"] for v in variants]
+    if len(set(siglas)) != len(siglas):
         raise ValueError("jurisdiccion: duplicate ISO 3166-2 sigla")
+    df["sigla"] = siglas
     write_parquet(df, "jurisdiccion")
     return df
 

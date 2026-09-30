@@ -29,17 +29,22 @@ import json
 import os
 import sys
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+ARCH = os.path.join(HERE, "architecture")
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
 MCP = os.path.expanduser(
     "~/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
 )
-sys.path.insert(0, MCP)
+# REPO so the absolute `from models...` import below resolves when this runs as
+# a plain script. That absolute form is the house pattern and the one Pyrefly
+# checks against from the repo root; a bare `import translations` type-checks
+# locally and fails CI.
+sys.path[:0] = [MCP, REPO]
 
 # pyrefly: ignore [missing-import]
 import server  # noqa: E402
-import translations as tr  # noqa: E402
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-ARCH = os.path.join(HERE, "architecture")
+from models.br_bd_diretorios_ar.code import translations as tr  # noqa: E402
 
 DATASET_SLUG = "br_bd_diretorios_ar"
 GCP_DATASET_ID = "br_bd_diretorios_ar"
