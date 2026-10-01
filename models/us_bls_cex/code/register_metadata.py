@@ -771,7 +771,7 @@ def main() -> None:
 
     if args.tables == TABLE_ORDER:
         server.reorder_tables(
-            dataset_id=dataset_id, table_slugs=TABLE_ORDER, env=env
+            dataset_slug=SLUG, table_slugs=TABLE_ORDER, env=env
         )
     print("\ndone. Verify with get_dataset / GraphQL before promoting.")
 
