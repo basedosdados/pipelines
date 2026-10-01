@@ -95,22 +95,30 @@ Vínculos (responsáveis) da obra. `data_fim` usa a sentinela `9999-*` para "sem
 (vínculo em aberto), e há registros com data digitada errada — valores fora do range do
 diretório de datas são nulados (ver *Histórico de Correções* #2).
 
-**Duplicatas (PENDENTE — requer aprovação de superior):** ao contrário de `areas`/`microdados`,
-`vinculos` **não tem** teste `unique_combination_of_columns`, então duplicatas passam batido —
-há **~10.656 linhas 100% duplicadas** na partição mais recente (~2,5%; a própria fonte traz
-linhas idênticas). Verificar com `COUNT(*) - COUNT(DISTINCT TO_JSON_STRING(t))`. Resolução
-**não executada** (mexe em dado público de prod → depende de OK de um superior):
+**Linhas repetidas são vínculos de pessoas físicas.** Na partição de 2026-09-12, 10.873 das
+431.211 linhas (2,5%) repetem outra linha em todas as colunas. O
+dicionário oficial diz que o `NI do responsável` "virá em branco" quando for CPF. Sem o CPF,
+duas pessoas responsáveis pela mesma obra, com a mesma qualificação e as mesmas datas, viram
+linhas idênticas.
 
-- **Forward:** `select distinct` no modelo (espelha a `areas`) + teste
-  `unique_combination_of_columns` em `[id_cno, id_responsavel, data_inicio, data_fim,
-  qualificacao_contribuinte]` (chave verificada: **0 colisões** após o distinct), escopado em
-  `__most_recent_date_cno__`. Obs.: o teste só fica verde quando o partition máximo estiver
-  limpo (partição nova pós-fix, ou a limpeza de histórico abaixo).
-- **Histórico:** **NÃO usar `--full-refresh`** — o staging tem só **126 das 292 partições**, então
-  full-refresh reconstruiria do staging e **perderia ~166 partições**. Limpar in-place com
-  `CREATE OR REPLACE TABLE \`basedosdados.br_rf_cno.vinculos\` PARTITION BY data_extracao AS
-  SELECT DISTINCT * FROM \`basedosdados.br_rf_cno.vinculos\`` (dropa as Row Access Policies →
-  reaplicar). Sem isso, só o distinct no modelo limpa os partitions novos; o histórico mantém os dupes.
+Das 10.873 linhas a mais, 10.859 têm o NI em branco, e 8.104 são da qualificação `110`
+(Construção em nome coletivo), em que vários participantes respondem pela mesma obra — há obras
+com 61 vínculos idênticos. Toda linha tem obra correspondente na `microdados`, e as repetidas
+não se concentram em obras com `id_cno_vinculado`, de registro antigo ou com data de fim. Sem o
+CPF, não dá para conferir registro a registro: a explicação se apoia no dicionário e na
+concentração das repetidas nas linhas com NI em branco.
+
+Para quem usa a tabela:
+
+- A tabela mantém as linhas repetidas e não tem teste `unique_combination_of_columns`: nenhuma
+  combinação de colunas identifica o vínculo de uma pessoa física.
+- `count(*)` conta cada vínculo. Um `count(distinct ...)` sobre as colunas conta pessoas
+  diferentes como um vínculo só.
+- O NI em branco está gravado como o texto `'nan'` em `id_responsavel`, não como nulo, porque o
+  `process_chunk` (`crawler/rf/utils.py`) converte todas as colunas com `applymap(str)`.
+- Duas exceções que a explicação não cobre: 14 linhas a mais com o mesmo CNPJ na qualificação
+  `111` (Sociedade Líder de Consórcio), sem coluna que as distinga; e 50.337 vínculos da
+  qualificação `53` (Pessoa Jurídica Construtora) com o NI em branco.
 
 ### `br_rf_cno__areas`
 Áreas da obra. **Uma obra (`id_cno`) tem VÁRIAS áreas** (grão = uma área de uma obra, não
@@ -133,6 +141,9 @@ teste de qualidade que reprovasse).
   costuma estar parado no mesmo `data_extracao` máximo da tabela; sem `--full-refresh`, o
   filtro `where data > max(...)` não reprocessa nada e o teste roda sobre dado antigo
   (falso negativo). Ex.: `uv run dbt build --select br_rf_cno__areas --full-refresh`.
+- **Em prod, nunca `--full-refresh`.** O staging não guarda as partições mais antigas: o da
+  `vinculos` tem menos da metade das partições da tabela. O `--full-refresh` reconstrói a
+  tabela a partir do staging e apaga as partições que não estão nele.
 
 ## Causa raiz do congelamento (jan–jul/2026)
 
