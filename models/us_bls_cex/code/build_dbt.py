@@ -252,10 +252,9 @@ def schema_yml():
                     "              config:\n"
                     f"                where: {RECENT}"
                 )
-            elif a["name"] in (key or []) or a["name"] in (
-                "newid",
-                "series_id",
-            ):
+            elif (
+                a["name"] in (key or []) or a["name"] in ("newid", "series_id")
+            ) and a["name"] != "cobertura_temporal":  # empty = table coverage
                 tests.append("          - not_null")
             if table == "annual" and a["name"] == "series_id":
                 tests.append(

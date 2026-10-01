@@ -224,7 +224,6 @@ models:
       - name: cobertura_temporal
         description: >-
           Temporal coverage of the key
-        tests: [not_null]
       - name: valor
         description: >-
           Human-readable label corresponding to the coded value
