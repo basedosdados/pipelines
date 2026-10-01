@@ -41,8 +41,11 @@ import pyarrow as pa
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from pumd_files import DATA_DIR, DOCS_DIR, OUTPUT_DIR
-
+from pipelines.datasets.us_bls_cex.pumd_files import (
+    DATA_DIR,
+    DOCS_DIR,
+    OUTPUT_DIR,
+)
 from pipelines.datasets.us_bls_cex.utils import write_table
 
 STUBS_ZIP = DOCS_DIR / "stubs.zip"
@@ -199,7 +202,9 @@ def main():
     with zipfile.ZipFile(STUBS_ZIP) as zf:
         members = sorted(n for n in zf.namelist() if _NAME.search(n))
         for name in members:
-            g, y = _NAME.search(name).groups()
+            m = _NAME.search(name)
+            assert m is not None
+            g, y = m.groups()
             if args.years and int(y) not in args.years:
                 continue
             text = zf.read(name).decode("latin-1")

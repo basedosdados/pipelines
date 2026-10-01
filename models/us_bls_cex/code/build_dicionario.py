@@ -32,14 +32,13 @@ import pyarrow.dataset as pads
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from pumd_files import (
+from pipelines.datasets.us_bls_cex.pumd_files import (
     DICTIONARY_XLSX,
     FAMILIES,
     FIRST_RELEASE,
     LABSTAT_DIR,
     OUTPUT_DIR,
 )
-
 from pipelines.datasets.us_bls_cex.utils import (
     UNPADDED_EXCEPTIONS,
     labstat_dictionary_rows,
@@ -116,7 +115,7 @@ def observed(table: str, col: str) -> pd.DataFrame:
         t = ds.to_table(columns=[col]).to_pandas().dropna()
         return pd.DataFrame({"v": t[col].unique(), "lo": pd.NA, "hi": pd.NA})
     t = ds.to_table(columns=[col, "year"])
-    t = t.filter(pc.is_valid(t.column(col)))
+    t = t.filter(pc.is_valid(t.column(col)))  # pyrefly: ignore
     g = (
         t.group_by(col)
         .aggregate([("year", "min"), ("year", "max")])
@@ -213,10 +212,8 @@ def pumd_rows(stats: dict) -> list[dict]:
             if a["covered_by_dictionary"] != "yes":
                 continue
             col = a["name"]
+            labels = FLAGS_INTERVIEW if survey == "interview" else FLAGS_DIARY
             if "Flag codes" in a["observations"]:
-                labels = (
-                    FLAGS_INTERVIEW if survey == "interview" else FLAGS_DIARY
-                )
                 rows += [
                     row(table, col, k, None, v, "flag")
                     for k, v in labels.items()

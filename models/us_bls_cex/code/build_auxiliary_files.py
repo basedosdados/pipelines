@@ -7,9 +7,13 @@ README.md, for upload to
 only documentation is an HTML guide, linked from the dataset instead.
 """
 
+import sys
 import zipfile
+from pathlib import Path
 
-from pumd_files import DATA_DIR, DOCS_DIR
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+from pipelines.datasets.us_bls_cex.pumd_files import DATA_DIR, DOCS_DIR
 
 OUT = DATA_DIR / "auxiliary_files"
 DOWNLOADED = "2026-10-01"

@@ -23,8 +23,7 @@ import pyarrow.parquet as pq
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from pumd_files import OUTPUT_DIR
-
+from pipelines.datasets.us_bls_cex.pumd_files import OUTPUT_DIR
 from pipelines.datasets.us_bls_cex.utils import read_arch
 
 TABLES = [
@@ -66,12 +65,12 @@ def check_schema(table):
         )
 
 
-def rows_per_year(table):
+def rows_per_year(table) -> dict:
     ds = dataset(table)
     if "year" not in ds.schema.names:
         return {"all": ds.count_rows()}
     t = ds.to_table(columns=["year"])
-    vc = pc.value_counts(t.column("year")).to_pylist()
+    vc = pc.value_counts(t.column("year")).to_pylist()  # pyrefly: ignore
     return {
         int(d["values"]): d["counts"]
         for d in sorted(vc, key=lambda d: d["values"])
@@ -119,7 +118,7 @@ def coverage(tables, dic):
             if not has_year:
                 t = t.append_column("year", pa.array(["all"] * t.num_rows))
             g = (
-                t.filter(pc.is_valid(t.column(c)))
+                t.filter(pc.is_valid(t.column(c)))  # pyrefly: ignore
                 .group_by(["year", c])
                 .aggregate([([], "count_all")])
                 .to_pandas()
@@ -160,7 +159,7 @@ def newid_checks():
     print("\n## NEWID after unpadding")
     for t in ("interview_household", "diary_household"):
         ids = dataset(t).to_table(columns=["newid"]).column("newid")
-        n, d = len(ids), len(pc.unique(ids))
+        n, d = len(ids), len(pc.unique(ids))  # pyrefly: ignore
         print(f"  {t}: rows={n:,} distinct newid={d:,} duplicates={n - d}")
 
 

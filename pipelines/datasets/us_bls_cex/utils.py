@@ -113,9 +113,9 @@ def normalize_code(value: str | None) -> str | None:
 
 def normalize_code_array(arr):
     """Vectorised :func:`normalize_code` for an arrow string array."""
-    digits = pc.match_substring_regex(arr, _DIGITS)
-    stripped = pc.replace_substring_regex(arr, "^0+([0-9])", "\\1")
-    return pc.if_else(digits, stripped, arr)
+    digits = pc.match_substring_regex(arr, _DIGITS)  # pyrefly: ignore
+    stripped = pc.replace_substring_regex(arr, "^0+([0-9])", "\\1")  # pyrefly: ignore
+    return pc.if_else(digits, stripped, arr)  # pyrefly: ignore
 
 
 def normalized_columns(table: str) -> list[str]:
@@ -165,9 +165,9 @@ def write_table(
     if partition is None:
         pq.write_table(at, tdir / "data.parquet", compression="snappy")
     else:
-        keys = pc.unique(at.column(partition)).to_pylist()
+        keys = pc.unique(at.column(partition)).to_pylist()  # pyrefly: ignore
         for k in sorted(keys):
-            sub = at.filter(pc.equal(at.column(partition), k))
+            sub = at.filter(pc.equal(at.column(partition), k))  # pyrefly: ignore
             pdir = tdir / f"{partition}={k}"
             pdir.mkdir()
             pq.write_table(sub, pdir / "data.parquet", compression="snappy")
@@ -198,9 +198,9 @@ def read_labstat(path: Path) -> pa.Table:
     )
     cols = []
     for n in names:
-        c = pc.utf8_trim_whitespace(at.column(n))
-        empty = pc.or_(pc.equal(c, ""), pc.equal(c, "-"))
-        cols.append(pc.if_else(empty, pa.scalar(None, pa.string()), c))
+        c = pc.utf8_trim_whitespace(at.column(n))  # pyrefly: ignore
+        empty = pc.or_(pc.equal(c, ""), pc.equal(c, "-"))  # pyrefly: ignore
+        cols.append(pc.if_else(empty, pa.scalar(None, pa.string()), c))  # pyrefly: ignore
     return pa.Table.from_arrays(cols, names=names)
 
 
@@ -288,7 +288,7 @@ def build_annual(input_dir: Path) -> pa.Table:
             is duplicated, or if the join changes the row count.
     """
     data = read_labstat(input_dir / "cx.data.1.AllData")
-    periods = set(pc.unique(data.column("period")).to_pylist())
+    periods = set(pc.unique(data.column("period")).to_pylist())  # pyrefly: ignore
     if periods != {"A01"}:
         raise ValueError(f"annual: unexpected periods {periods}")
     data = data.rename_columns(
@@ -302,7 +302,7 @@ def build_annual(input_dir: Path) -> pa.Table:
     asp = read_labstat(input_dir / "cx.aspect").select(
         ["series_id", "year", "period", "aspect_type", "value"]
     )
-    types = pc.value_counts(asp.column("aspect_type")).to_pylist()
+    types = pc.value_counts(asp.column("aspect_type")).to_pylist()  # pyrefly: ignore
     log.info(f"aspect types: {types}")
     unknown = {t["values"] for t in types} - set(
         constants.ASPECT_COLUMNS.value
@@ -311,7 +311,7 @@ def build_annual(input_dir: Path) -> pa.Table:
         raise ValueError(f"annual: unmapped aspect types {unknown}")
     out = data
     for code, name in constants.ASPECT_COLUMNS.value.items():
-        a = asp.filter(pc.equal(asp.column("aspect_type"), code)).select(
+        a = asp.filter(pc.equal(asp.column("aspect_type"), code)).select(  # pyrefly: ignore
             [*keys, "value"]
         )
         if a.group_by(keys).aggregate([]).num_rows != a.num_rows:
@@ -374,5 +374,5 @@ def clean_labstat(input_dir: Path, output_dir: Path, tables=None) -> dict:
         result["annual"] = write_table(
             at, "annual", output_dir, partition="year"
         )
-        result["max_year"] = pc.max(at.column("year")).as_py()
+        result["max_year"] = pc.max(at.column("year")).as_py()  # pyrefly: ignore
     return result

@@ -19,7 +19,10 @@ import basedosdados as bd  # noqa: E402
 import google.cloud.storage as gcs  # noqa: E402
 import pyarrow.parquet as pq  # noqa: E402
 from google.cloud import bigquery  # noqa: E402
-from pumd_files import OUTPUT_DIR  # noqa: E402
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+from pipelines.datasets.us_bls_cex.pumd_files import OUTPUT_DIR  # noqa: E402
 
 BILLING_PROJECT = "basedosdados-dev"
 # the dev service account; user ADC lacks bigquery.jobs.create on dev

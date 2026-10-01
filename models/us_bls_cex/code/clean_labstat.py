@@ -17,8 +17,7 @@ from pathlib import Path
 # pipelines package from this repo.
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from pumd_files import LABSTAT_DIR, OUTPUT_DIR
-
+from pipelines.datasets.us_bls_cex.pumd_files import LABSTAT_DIR, OUTPUT_DIR
 from pipelines.datasets.us_bls_cex.utils import clean_labstat
 
 logging.basicConfig(

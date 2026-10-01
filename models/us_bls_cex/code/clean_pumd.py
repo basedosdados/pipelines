@@ -29,6 +29,7 @@ import zipfile
 from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 import pyarrow as pa
@@ -38,14 +39,13 @@ import pyarrow.parquet as pq
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from pumd_files import (
+from pipelines.datasets.us_bls_cex.pumd_files import (
     DATA_DIR,
     FAMILIES,
     OUTPUT_DIR,
     QuarterFile,
     selected_quarter_files,
 )
-
 from pipelines.datasets.us_bls_cex.utils import (
     normalize_code_array,
     normalized_columns,
@@ -129,15 +129,15 @@ def clean_quarter(
     for c in raw.column_names:
         if c not in smap:
             continue
-        col = pc.utf8_trim_whitespace(raw.column(c))
-        is_empty = pc.equal(col, "")
-        is_dot = pc.equal(col, ".")
-        stats["empty_cells"] += pc.sum(is_empty).as_py() or 0
-        n_dot = pc.sum(is_dot).as_py() or 0
+        col = pc.utf8_trim_whitespace(raw.column(c))  # pyrefly: ignore
+        is_empty = pc.equal(col, "")  # pyrefly: ignore
+        is_dot = pc.equal(col, ".")  # pyrefly: ignore
+        stats["empty_cells"] += pc.sum(is_empty).as_py() or 0  # pyrefly: ignore
+        n_dot = pc.sum(is_dot).as_py() or 0  # pyrefly: ignore
         if n_dot:
             stats["dot_cells"][smap[c]] += n_dot
             stats["dot_cells_by_year"][str(qf.year)] += n_dot
-        cleaned[smap[c]] = pc.if_else(pc.or_(is_empty, is_dot), NULL, col)
+        cleaned[smap[c]] = pc.if_else(pc.or_(is_empty, is_dot), NULL, col)  # pyrefly: ignore
 
     # Unpad all-digit codes so "01" and "1" are one code across years. NEWID
     # gets the same treatment so a consumer unit keeps one id across the
@@ -148,12 +148,12 @@ def clean_quarter(
     raw_newid = cleaned["newid"]
     if raw_newid.null_count:
         raise ValueError(f"{qf.member}: {raw_newid.null_count} NULL NEWID")
-    lengths = pc.utf8_length(raw_newid)
-    for k in pc.unique(lengths).to_pylist():
+    lengths = pc.utf8_length(raw_newid)  # pyrefly: ignore
+    for k in pc.unique(lengths).to_pylist():  # pyrefly: ignore
         stats["newid_lengths"][str(k)] += 1
     newid = normalize_code_array(raw_newid)
     cleaned["newid"] = newid
-    if pc.min(pc.utf8_length(newid)).as_py() < 2:
+    if pc.min(pc.utf8_length(newid)).as_py() < 2:  # pyrefly: ignore
         raise ValueError(f"{qf.member}: NEWID shorter than 2 after unpadding")
     pairs = (
         pa.table({"raw": raw_newid, "norm": newid})
@@ -166,8 +166,8 @@ def clean_quarter(
         strict=True,
     ):
         newid_map.setdefault(norm, set()).add(raw)
-    cleaned["consumer_unit_id"] = pc.utf8_slice_codeunits(newid, 0, -1)
-    last = pc.utf8_slice_codeunits(newid, -1)
+    cleaned["consumer_unit_id"] = pc.utf8_slice_codeunits(newid, 0, -1)  # pyrefly: ignore
+    last = pc.utf8_slice_codeunits(newid, -1)  # pyrefly: ignore
     seq = "interview_number" if table.startswith("interview") else "diary_week"
     cleaned[seq] = last
     cleaned["year"] = pa.array([str(qf.year)] * n, pa.string())
@@ -218,7 +218,7 @@ def clean_family(family: str, years: list[int] | None) -> dict:
     for q in files:
         by_year[q.year].append(q)
 
-    stats = {
+    stats: dict[str, Any] = {
         "table": table,
         "empty_cells": 0,
         "dot_cells": defaultdict(int),

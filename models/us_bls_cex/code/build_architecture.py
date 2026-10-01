@@ -20,11 +20,15 @@ below cannot classify falls back to STRING and is listed by ``--report``.
 import argparse
 import csv
 import re
+import sys
 from collections import defaultdict
 from pathlib import Path
 
 import pandas as pd
-from pumd_files import (
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
+
+from pipelines.datasets.us_bls_cex.pumd_files import (
     DICTIONARY_XLSX,
     FAMILIES,
     read_header,
@@ -527,7 +531,9 @@ def build_pumd(report: bool):
                 row = col(
                     en, typ, desc, unit=unit, obs=obs, original=h, coverage=cov
                 )
-                row["_rank"] = 0 if h == "newid" else 1 if h == "membno" else 2
+                row["_rank"] = (
+                    "0" if h == "newid" else "1" if h == "membno" else "2"
+                )
                 body.append(row)
                 continue
             if (
@@ -547,7 +553,7 @@ def build_pumd(report: bool):
                     obs="Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide",
                     coverage=cov,
                 )
-                row["_rank"] = 4
+                row["_rank"] = "4"
                 body.append(row)
                 continue
             r = variables.get((file, h))
@@ -578,17 +584,18 @@ def build_pumd(report: bool):
                 obs=obs,
                 coverage=cov,
             )
-            row["_rank"] = 3
+            row["_rank"] = "3"
             body.append(row)
 
         # keys, weights, then variables each followed by its flag
         keys = sorted(
-            [b for b in body if b["_rank"] <= 2], key=lambda b: b["_rank"]
+            [b for b in body if int(b["_rank"]) <= 2],
+            key=lambda b: int(b["_rank"]),
         )
-        flag_rows = {b["name"]: b for b in body if b["_rank"] == 4}
+        flag_rows = {b["name"]: b for b in body if b["_rank"] == "4"}
         ordered = list(keys)
         for b in body:
-            if b["_rank"] != 3:
+            if b["_rank"] != "3":
                 continue
             ordered.append(b)
             f = flag_rows.pop(b["name"] + "_", None)
