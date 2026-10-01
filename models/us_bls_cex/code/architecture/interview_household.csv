@@ -1,0 +1,1270 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year the interview was collected,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Partition column. Collection year of the quarter file, not the BLS release year",file name (YYQ)
+quarter,INT64,"Quarter the data was collected, from 1 to 4",,no,,quarter,no,,file name (YYQ)
+consumer_unit_id,STRING,"Identifier of the consumer unit (household), stable across its interviews or diary weeks",,no,,,no,NEWID without its last digit,newid
+interview_number,STRING,"Interview number of the consumer unit, from 1 to 4",,no,,,no,Last digit of NEWID,newid
+newid,STRING,BLS public-use identifier of the consumer unit and interview or diary week; the last digit is the interview number (1-4) or diary week (1-2),,no,,,no,Unique per interview or diary week,newid
+final_weight,FLOAT64,Final calibrated weight of the consumer unit for the full sample,,no,,,no,Dimensionless sampling weight,finlwt21
+replicate_weight_01,FLOAT64,"Balanced half-sample replicate weight 1 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep01
+replicate_weight_02,FLOAT64,"Balanced half-sample replicate weight 2 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep02
+replicate_weight_03,FLOAT64,"Balanced half-sample replicate weight 3 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep03
+replicate_weight_04,FLOAT64,"Balanced half-sample replicate weight 4 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep04
+replicate_weight_05,FLOAT64,"Balanced half-sample replicate weight 5 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep05
+replicate_weight_06,FLOAT64,"Balanced half-sample replicate weight 6 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep06
+replicate_weight_07,FLOAT64,"Balanced half-sample replicate weight 7 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep07
+replicate_weight_08,FLOAT64,"Balanced half-sample replicate weight 8 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep08
+replicate_weight_09,FLOAT64,"Balanced half-sample replicate weight 9 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep09
+replicate_weight_10,FLOAT64,"Balanced half-sample replicate weight 10 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep10
+replicate_weight_11,FLOAT64,"Balanced half-sample replicate weight 11 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep11
+replicate_weight_12,FLOAT64,"Balanced half-sample replicate weight 12 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep12
+replicate_weight_13,FLOAT64,"Balanced half-sample replicate weight 13 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep13
+replicate_weight_14,FLOAT64,"Balanced half-sample replicate weight 14 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep14
+replicate_weight_15,FLOAT64,"Balanced half-sample replicate weight 15 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep15
+replicate_weight_16,FLOAT64,"Balanced half-sample replicate weight 16 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep16
+replicate_weight_17,FLOAT64,"Balanced half-sample replicate weight 17 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep17
+replicate_weight_18,FLOAT64,"Balanced half-sample replicate weight 18 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep18
+replicate_weight_19,FLOAT64,"Balanced half-sample replicate weight 19 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep19
+replicate_weight_20,FLOAT64,"Balanced half-sample replicate weight 20 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep20
+replicate_weight_21,FLOAT64,"Balanced half-sample replicate weight 21 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep21
+replicate_weight_22,FLOAT64,"Balanced half-sample replicate weight 22 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep22
+replicate_weight_23,FLOAT64,"Balanced half-sample replicate weight 23 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep23
+replicate_weight_24,FLOAT64,"Balanced half-sample replicate weight 24 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep24
+replicate_weight_25,FLOAT64,"Balanced half-sample replicate weight 25 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep25
+replicate_weight_26,FLOAT64,"Balanced half-sample replicate weight 26 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep26
+replicate_weight_27,FLOAT64,"Balanced half-sample replicate weight 27 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep27
+replicate_weight_28,FLOAT64,"Balanced half-sample replicate weight 28 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep28
+replicate_weight_29,FLOAT64,"Balanced half-sample replicate weight 29 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep29
+replicate_weight_30,FLOAT64,"Balanced half-sample replicate weight 30 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep30
+replicate_weight_31,FLOAT64,"Balanced half-sample replicate weight 31 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep31
+replicate_weight_32,FLOAT64,"Balanced half-sample replicate weight 32 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep32
+replicate_weight_33,FLOAT64,"Balanced half-sample replicate weight 33 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep33
+replicate_weight_34,FLOAT64,"Balanced half-sample replicate weight 34 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep34
+replicate_weight_35,FLOAT64,"Balanced half-sample replicate weight 35 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep35
+replicate_weight_36,FLOAT64,"Balanced half-sample replicate weight 36 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep36
+replicate_weight_37,FLOAT64,"Balanced half-sample replicate weight 37 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep37
+replicate_weight_38,FLOAT64,"Balanced half-sample replicate weight 38 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep38
+replicate_weight_39,FLOAT64,"Balanced half-sample replicate weight 39 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep39
+replicate_weight_40,FLOAT64,"Balanced half-sample replicate weight 40 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep40
+replicate_weight_41,FLOAT64,"Balanced half-sample replicate weight 41 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep41
+replicate_weight_42,FLOAT64,"Balanced half-sample replicate weight 42 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep42
+replicate_weight_43,FLOAT64,"Balanced half-sample replicate weight 43 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep43
+replicate_weight_44,FLOAT64,"Balanced half-sample replicate weight 44 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep44
+diracc,STRING,Is access to the quarters direct or through another unit?,1998(1)2025,yes,,,no,,diracc
+diracc_,STRING,"Data-quality flag for DIRACC: valid, blank, allocated, imputed or topcoded",1998(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,diracc_
+age_ref,INT64,Age of reference person,,no,,year,no,,age_ref
+age_ref_,STRING,"Data-quality flag for AGE_REF: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,age_ref_
+age2,INT64,Age of spouse,,no,,year,no,,age2
+age2_,STRING,"Data-quality flag for AGE2: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,age2_
+as_comp1,FLOAT64,Number of males age 16 and over in CU,,no,,unit,no,,as_comp1
+as_comp2,FLOAT64,Number of females age 16 and over in CU,,no,,unit,no,,as_comp2
+as_comp3,FLOAT64,Number of males age 2 through 15 in CU,,no,,unit,no,,as_comp3
+as_comp4,FLOAT64,Number of females age 2 through 15 in CU,,no,,unit,no,,as_comp4
+as_comp5,FLOAT64,Number of members under age 2 in CU,,no,,unit,no,,as_comp5
+bathrmq,FLOAT64,Number of complete baths in this unit,,no,,unit,no,,bathrmq
+bathrmq_,STRING,"Data-quality flag for BATHRMQ: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,bathrmq_
+bedroomq,FLOAT64,Number of bedrooms in CU,,no,,unit,no,,bedroomq
+bls_urbn,STRING,Is this CU located in an urban or rural area,,yes,,,no,,bls_urbn
+building,STRING,Which of these descriptions from the list best describes this building?,,yes,,,no,,building
+cutenure,STRING,Housing tenure,,yes,,,no,,cutenure
+earncomp,STRING,Composition of earners,,yes,,,no,,earncomp
+educ_ref,STRING,Education of reference person,,yes,,,no,,educ_ref
+educa2,STRING,What is the highest level of school the spouse has completed or the highest degree the member has received?,,yes,,,no,,educa2
+educa2_,STRING,"Data-quality flag for EDUCA2: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,educa2_
+fam_size,FLOAT64,Number of Members in CU,,no,,unit,no,,fam_size
+fam_type,STRING,"Family Type is based on the relationship of members to reference person, whom physically occupy the address selected for the survey. ""Own"" children are sons and daughters children including step children and adopted",,yes,,,no,,fam_type
+fgovretx,FLOAT64,Total amount of government retirement deducted from last pay annualized,,no,,usd,no,,fgovretx
+fincbtax,FLOAT64,Total amount of family income before taxes in the last 12 months (Collected data),,no,,usd,no,,fincbtax
+findretx,FLOAT64,Amount of money placed in a retirement plan in past year for all CU members,,no,,usd,no,,findretx
+fjssdedx,FLOAT64,Portion of family income paid to Social Security during the past 12 months,,no,,usd,no,,fjssdedx
+fpripenx,FLOAT64,Total amount of private pensions,,no,,usd,no,,fpripenx
+frrdedx,FLOAT64,Total amount of Railroad Retirement deducted from last pay annualized,,no,,usd,no,,frrdedx
+frrdedx_,STRING,"Data-quality flag for FRRDEDX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,frrdedx_
+frretirx,FLOAT64,Total amount received from Social Security benefits and Railroad Benefit checks prior to deductions for medical insurance and Medicare,,no,,usd,no,,frretirx
+fsalaryx,FLOAT64,Total amount of income received from salary or wages before deduction by family grouping,,no,,usd,no,,fsalaryx
+fssix,FLOAT64,Amount of Supplemental Security Income from all sources received by all CU members in past 12 months (sum SSIX + SSIBX from MEMB file for all CU members),,no,,usd,no,,fssix
+fssix_,STRING,"Data-quality flag for FSSIX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fssix_
+inc_hrs1,FLOAT64,Number of hours usually worked per week by reference person,,no,,hour,no,,inc_hrs1
+inc_hrs2,FLOAT64,Number of hours usually worked per week by spouse,,no,,hour,no,,inc_hrs2
+inc_rank,FLOAT64,Weighted cumulative percent ranking based on total current income before taxes,,no,,ratio,no,,inc_rank
+incnonw1,STRING,Reason reference person did not work during the past 12 months,,yes,,,no,,incnonw1
+incnonw2,STRING,Reason spouse did not work during the past 12 months,,yes,,,no,,incnonw2
+incomey1,STRING,Employer from which reference person received the most earnings in past 12 months,,yes,,,no,,incomey1
+incomey2,STRING,Employer from which spouse received most earnings during the past 12 months,,yes,,,no,,incomey2
+incweek1,FLOAT64,"Number of weeks worked by reference person full or part time in last 12 months, including paid vacation and paid sick leave",,no,,week,no,,incweek1
+incweek2,FLOAT64,"Number of weeks worked by spouse full or part time in last 12 months, including paid vacation and paid sick leave",,no,,week,no,,incweek2
+misctaxx,FLOAT64,Amount of other taxes paid which were not reported elsewhere during past 12 months,,no,,usd,no,,misctaxx
+lumpsumx,FLOAT64,"Amount of lump sum payments from estates, trusts, royalties, alimony, prizes, or games of chance or from persons outside CU",,no,,usd,no,,lumpsumx
+marital1,STRING,Marital status of reference person,,yes,,,no,,marital1
+no_earnr,FLOAT64,Number of CU members reported as income earners,,no,,unit,no,,no_earnr
+nonincmx,FLOAT64,Total amount of family income other than money receipts before taxes,,no,,usd,no,,nonincmx
+num_auto,FLOAT64,Total number of owned cars,,no,,unit,no,,num_auto
+occucod1,STRING,The job in which reference person received the most earnings during the past 12 months,,yes,,,no,,occucod1
+occucod2,STRING,The job in which reference person received the most earnings during the past 12 months,,yes,,,no,,occucod2
+othrincx,FLOAT64,"Amount received in other money income including money received from care of foster children, cash scholarships and fellowships, or stipends not based on working",,no,,usd,no,,othrincx
+perslt18,FLOAT64,# of CU Members less than 18 AGE < 18,,no,,unit,no,,perslt18
+persot64,FLOAT64,Number of persons over 64 SUM OF MEMBERS WHERE AGE > 64 BY CU,,no,,unit,no,,persot64
+popsize,STRING,Population size of the PSU,,yes,,,no,,popsize
+prinearn,FLOAT64,Principal Earner,,no,,usd,no,,prinearn
+qintrvmo,STRING,Interview month,,yes,,,no,,qintrvmo
+qintrvyr,STRING,Interview year,,no,,,no,,qintrvyr
+race2,STRING,Race of spouse,,yes,,,no,,race2
+race2_,STRING,"Data-quality flag for RACE2: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,race2_
+ref_race,STRING,Race of reference person,,yes,,,no,,ref_race
+region,STRING,Region,,yes,,,no,,region
+renteqvx,FLOAT64,"If someone were to rent your home today, how much do you think it would rent for monthly, unfurnished and without utilities?",,no,,usd,no,,renteqvx
+sex_ref,STRING,Sex of reference person,,yes,,,no,,sex_ref
+sex_ref_,STRING,"Data-quality flag for SEX_REF: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,sex_ref_
+sex2,STRING,Sex of spouse person,,yes,,,no,,sex2
+sex2_,STRING,"Data-quality flag for SEX2: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,sex2_
+smsastat,STRING,Does CU reside inside a Metropolitan Statistical Area (MSA)?,,yes,,,no,,smsastat
+st_hous,STRING,Are these living quarters presently used as student housing by a college or university?,,yes,,,no,,st_hous
+st_hous_,STRING,"Data-quality flag for ST_HOUS: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,st_hous_
+vehq,FLOAT64,Total number of owned vehicles,,no,,unit,no,,vehq
+vehq_,STRING,"Data-quality flag for VEHQ: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,vehq_
+welfarex,FLOAT64,Amount received from public assistance or welfare including money received from job training grants such as Job Corps,,no,,usd,no,,welfarex
+totexppq,FLOAT64,Total expenditures last quarter,,no,,usd,no,,totexppq
+totexpcq,FLOAT64,Total expenditures this quarter,,no,,usd,no,,totexpcq
+fdhomepq,FLOAT64,Food at home this quarter,,no,,usd,no,,fdhomepq
+fdhomecq,FLOAT64,Food at home this quarter,,no,,usd,no,,fdhomecq
+fdawaypq,FLOAT64,Food away from home last quarter,,no,,usd,no,,fdawaypq
+fdawaycq,FLOAT64,Food away from home this quarter,,no,,usd,no,,fdawaycq
+fdxmappq,FLOAT64,Food away excluding meals as pay last quarter,,no,,usd,no,,fdxmappq
+fdxmapcq,FLOAT64,Food away excluding meals as pay this quarter,,no,,usd,no,,fdxmapcq
+fdmappq,FLOAT64,Meals as pay last quarter,,no,,usd,no,,fdmappq
+fdmapcq,FLOAT64,Meals as pay this quarter,,no,,usd,no,,fdmapcq
+alcbevpq,FLOAT64,Alcoholic beverages last quarter,,no,,usd,no,,alcbevpq
+alcbevcq,FLOAT64,Alcoholic beverages this quarter,,no,,usd,no,,alcbevcq
+houspq,FLOAT64,Housing last quarter,,no,,usd,no,,houspq
+houscq,FLOAT64,Housing this quarter,,no,,usd,no,,houscq
+sheltpq,FLOAT64,Shelter last quarter,,no,,usd,no,,sheltpq
+sheltcq,FLOAT64,Shelter this quarter,,no,,usd,no,,sheltcq
+owndwepq,FLOAT64,Owned dwellings last quarter,,no,,usd,no,,owndwepq
+owndwecq,FLOAT64,Owned dwellings this quarter,,no,,usd,no,,owndwecq
+mrtintpq,FLOAT64,Mortgage interest last quarter,,no,,usd,no,,mrtintpq
+mrtintcq,FLOAT64,Mortgage interest this quarter,,no,,usd,no,,mrtintcq
+proptxpq,FLOAT64,Property taxes last quarter,,no,,usd,no,,proptxpq
+proptxcq,FLOAT64,Property taxes this quarter,,no,,usd,no,,proptxcq
+mrpinspq,FLOAT64,"Maintenance, repairs, insurance, and other expenses last quarter",,no,,usd,no,,mrpinspq
+mrpinscq,FLOAT64,"Maintenance, repairs, insurance, and other expenses this quarter",,no,,usd,no,,mrpinscq
+rendwepq,FLOAT64,Rented dwelling last quarter,,no,,usd,no,,rendwepq
+rendwecq,FLOAT64,Rented dwelling this quarter,,no,,usd,no,,rendwecq
+rntxrppq,FLOAT64,Rent excluding rent as pay last quarter,,no,,usd,no,,rntxrppq
+rntxrpcq,FLOAT64,Rent excluding rent as pay this quarter,,no,,usd,no,,rntxrpcq
+rntapypq,FLOAT64,Rent as pay last quarter,,no,,usd,no,,rntapypq
+rntapycq,FLOAT64,Rent as pay this quarter,,no,,usd,no,,rntapycq
+othlodpq,FLOAT64,Other lodging last quarter,,no,,usd,no,,othlodpq
+othlodcq,FLOAT64,Other lodging this quarter,,no,,usd,no,,othlodcq
+utilpq,FLOAT64,"Utilities, fuels and public services last quarter NTLGASPQ + ELCTRCPQ + ALLFULPQ + TELEPHPQ + WATRPSPQ",,no,,usd,no,,utilpq
+utilcq,FLOAT64,"Utilities, fuels and public services this quarter NTLGASCQ + ELCTRCCQ + ALLFULCQ + TELEPHCQ + WATRPSCQ",,no,,usd,no,,utilcq
+ntlgaspq,FLOAT64,Natural gas last quarter,,no,,usd,no,,ntlgaspq
+ntlgascq,FLOAT64,Natural gas this quarter,,no,,usd,no,,ntlgascq
+elctrcpq,FLOAT64,Electricity last quarter,,no,,usd,no,,elctrcpq
+elctrccq,FLOAT64,Electricity this quarter,,no,,usd,no,,elctrccq
+allfulpq,FLOAT64,Fuel oil and other fuels last quarter,,no,,usd,no,,allfulpq
+allfulcq,FLOAT64,Fuel oil and other fuels this quarter,,no,,usd,no,,allfulcq
+fuloilpq,FLOAT64,Fuel oil last quarter,,no,,usd,no,,fuloilpq
+fuloilcq,FLOAT64,Fuel oil this quarter,,no,,usd,no,,fuloilcq
+othflspq,FLOAT64,Other fuels last quarter,,no,,usd,no,,othflspq
+othflscq,FLOAT64,Other fuels this quarter,,no,,usd,no,,othflscq
+telephpq,FLOAT64,Telephone services last quarter,,no,,usd,no,,telephpq
+telephcq,FLOAT64,Telephone services this quarter,,no,,usd,no,,telephcq
+watrpspq,FLOAT64,Water and other public services last quarter,,no,,usd,no,,watrpspq
+watrpscq,FLOAT64,Water and other public services this quarter,,no,,usd,no,,watrpscq
+housoppq,FLOAT64,Household operations last quarter,,no,,usd,no,,housoppq
+housopcq,FLOAT64,Household operations this quarter,,no,,usd,no,,housopcq
+domsrvpq,FLOAT64,Domestic services last quarter,,no,,usd,no,,domsrvpq
+domsrvcq,FLOAT64,Domestic services this quarter,,no,,usd,no,,domsrvcq
+dmsxccpq,FLOAT64,Domestic services excluding child care last quarter,,no,,usd,no,,dmsxccpq
+dmsxcccq,FLOAT64,Domestic services excluding child care this quarter,,no,,usd,no,,dmsxcccq
+bbydaypq,FLOAT64,Babysitting and child day care last quarter,,no,,usd,no,,bbydaypq
+bbydaycq,FLOAT64,Babysitting and child day care this quarter,,no,,usd,no,,bbydaycq
+othhexpq,FLOAT64,Other household expenses last quarter,,no,,usd,no,,othhexpq
+othhexcq,FLOAT64,Other household expenses this quarter,,no,,usd,no,,othhexcq
+houseqpq,FLOAT64,House furnishings and equipment last quarter,,no,,usd,no,,houseqpq
+houseqcq,FLOAT64,House furnishings and equipment this quarter,,no,,usd,no,,houseqcq
+textilpq,FLOAT64,Household textiles last quarter,,no,,usd,no,,textilpq
+textilcq,FLOAT64,Household textiles this quarter,,no,,usd,no,,textilcq
+furntrpq,FLOAT64,Furniture last quarter,,no,,usd,no,,furntrpq
+furntrcq,FLOAT64,Furniture this quarter,,no,,usd,no,,furntrcq
+flrcvrpq,FLOAT64,Floor coverings last quarter,,no,,usd,no,,flrcvrpq
+flrcvrcq,FLOAT64,Floor coverings this quarter,,no,,usd,no,,flrcvrcq
+majapppq,FLOAT64,Major appliances last quarter,,no,,usd,no,,majapppq
+majappcq,FLOAT64,Major appliances this quarter,,no,,usd,no,,majappcq
+smlapppq,FLOAT64,"Small appliances, miscellaneous housewares last quarter",,no,,usd,no,,smlapppq
+smlappcq,FLOAT64,"Small appliances, miscellaneous housewares this quarter",,no,,usd,no,,smlappcq
+misceqpq,FLOAT64,Miscellaneous household equipment last quarter,,no,,usd,no,,misceqpq
+misceqcq,FLOAT64,Miscellaneous household equipment this quarter,,no,,usd,no,,misceqcq
+giftappq,FLOAT64,Gift clothing expense previous quarter,2021(1)2025,no,,usd,no,,giftappq
+chldappq,FLOAT64,Child clothing expense previous quarter,2021(1)2025,no,,usd,no,,chldappq
+adltappq,FLOAT64,Adult clothing expense previous quarter,2021(1)2025,no,,usd,no,,adltappq
+apparpq,FLOAT64,Apparel and services last quarter,,no,,usd,no,,apparpq
+giftapcq,FLOAT64,Gift clothing expense current quarter,2021(1)2025,no,,usd,no,,giftapcq
+chldapcq,FLOAT64,Child clothing expense current quarter,2021(1)2025,no,,usd,no,,chldapcq
+adltapcq,FLOAT64,Adult clothing expense current quarter,2021(1)2025,no,,usd,no,,adltapcq
+apparcq,FLOAT64,Apparel and services this quarter,,no,,usd,no,,apparcq
+transpq,FLOAT64,Transportation last quarter,,no,,usd,no,,transpq
+transcq,FLOAT64,Transportation this quarter,,no,,usd,no,,transcq
+cartknpq,FLOAT64,"Cars and trucks, new (net outlay) last quarter",,no,,usd,no,,cartknpq
+cartkncq,FLOAT64,"Cars and trucks, new (net outlay) this quarter",,no,,usd,no,,cartkncq
+cartkupq,FLOAT64,"Cars and trucks, used (net outlay) last quarter",,no,,usd,no,,cartkupq
+cartkucq,FLOAT64,"Cars and trucks, used (net outlay) this quarter",,no,,usd,no,,cartkucq
+othvehpq,FLOAT64,Other vehicles last quarter,,no,,usd,no,,othvehpq
+othvehcq,FLOAT64,Other vehicles this quarter,,no,,usd,no,,othvehcq
+gasmopq,FLOAT64,Gasoline and motor oil last quarter,,no,,usd,no,,gasmopq
+gasmocq,FLOAT64,Gasoline and motor oil this quarter,,no,,usd,no,,gasmocq
+vehfinpq,FLOAT64,Vehicle finance charges last quarter,,no,,usd,no,,vehfinpq
+vehfincq,FLOAT64,Vehicle finance charges this quarter,,no,,usd,no,,vehfincq
+mainrppq,FLOAT64,Maintenance and repairs last quarter,,no,,usd,no,,mainrppq
+mainrpcq,FLOAT64,Maintenance and repairs this quarter,,no,,usd,no,,mainrpcq
+vehinspq,FLOAT64,Vehicle insurance last quarter,,no,,usd,no,,vehinspq
+vehinscq,FLOAT64,Vehicle insurance this quarter,,no,,usd,no,,vehinscq
+vrntlopq,FLOAT64,"Vehicle rental, leases, licenses, and other charges last quarter",,no,,usd,no,,vrntlopq
+vrntlocq,FLOAT64,"Vehicle rental, leases, licenses, and other charges this quarter",,no,,usd,no,,vrntlocq
+pubtrapq,FLOAT64,Public and other transportation last quarter,,no,,usd,no,,pubtrapq
+pubtracq,FLOAT64,Public and other transportation this quarter,,no,,usd,no,,pubtracq
+trntrppq,FLOAT64,Public and other transportation on trips last quarter,,no,,usd,no,,trntrppq
+trntrpcq,FLOAT64,Public and other transportation on trips this quarter,,no,,usd,no,,trntrpcq
+trnothpq,FLOAT64,"Local public transportation, excluding on trips last quarter",,no,,usd,no,,trnothpq
+trnothcq,FLOAT64,"Local public transportation, excluding on trips this quarter",,no,,usd,no,,trnothcq
+healthpq,FLOAT64,Health care last quarter,,no,,usd,no,,healthpq
+healthcq,FLOAT64,Health care this quarter,,no,,usd,no,,healthcq
+hlthinpq,FLOAT64,Health insurance last quarter,,no,,usd,no,,hlthinpq
+hlthincq,FLOAT64,Health insurance this quarter,,no,,usd,no,,hlthincq
+medsrvpq,FLOAT64,Medical services last quarter,,no,,usd,no,,medsrvpq
+medsrvcq,FLOAT64,Medical services this quarter,,no,,usd,no,,medsrvcq
+predrgpq,FLOAT64,Prescription drugs last quarter,,no,,usd,no,,predrgpq
+predrgcq,FLOAT64,Prescription drugs this quarter,,no,,usd,no,,predrgcq
+medsuppq,FLOAT64,Medical supplies last quarter,,no,,usd,no,,medsuppq
+medsupcq,FLOAT64,Medical supplies this quarter,,no,,usd,no,,medsupcq
+entertpq,FLOAT64,Entertainment last quarter,,no,,usd,no,,entertpq
+entertcq,FLOAT64,Entertainment this quarter,,no,,usd,no,,entertcq
+feeadmpq,FLOAT64,Fees and admissions last quarter,,no,,usd,no,,feeadmpq
+feeadmcq,FLOAT64,Fees and admissions this quarter,,no,,usd,no,,feeadmcq
+tvrdiopq,FLOAT64,"Televisions, radios, and sound equipment last quarter",,no,,usd,no,,tvrdiopq
+tvrdiocq,FLOAT64,"Televisions, radios, and sound equipment this quarter",,no,,usd,no,,tvrdiocq
+otheqppq,FLOAT64,Other equipment and services last quarter,,no,,usd,no,,otheqppq
+otheqpcq,FLOAT64,Other equipment and services this quarter,,no,,usd,no,,otheqpcq
+pettoypq,FLOAT64,"Pets, toys, and playground equipment last quarter",,no,,usd,no,,pettoypq
+pettoycq,FLOAT64,"Pets, toys, and playground equipment this quarter",,no,,usd,no,,pettoycq
+othentpq,FLOAT64,Other entertainment last quarter,,no,,usd,no,,othentpq
+othentcq,FLOAT64,Other entertainment this quarter,,no,,usd,no,,othentcq
+perscapq,FLOAT64,Personal care last quarter,,no,,usd,no,,perscapq
+perscacq,FLOAT64,Personal care this quarter,,no,,usd,no,,perscacq
+readpq,FLOAT64,Reading last quarter,,no,,usd,no,,readpq
+readcq,FLOAT64,Reading this quarter,,no,,usd,no,,readcq
+educapq,FLOAT64,Education last quarter,,no,,usd,no,,educapq
+educacq,FLOAT64,Education current quarter,,no,,usd,no,,educacq
+tobaccpq,FLOAT64,Tobacco and smoking supplies last quarter,,no,,usd,no,,tobaccpq
+tobacccq,FLOAT64,Tobacco and smoking supplies this quarter,,no,,usd,no,,tobacccq
+miscpq,FLOAT64,Miscellaneous expenditures last quarter,,no,,usd,no,,miscpq
+misccq,FLOAT64,Miscellaneous expenditures this quarter,,no,,usd,no,,misccq
+misc1pq,FLOAT64,Miscellaneous expenditures last quarter,,no,,usd,no,,misc1pq
+misc1cq,FLOAT64,Miscellaneous expenditures this quarter,,no,,usd,no,,misc1cq
+misc2pq,FLOAT64,Miscellaneous expenditures last quarter,,no,,usd,no,,misc2pq
+misc2cq,FLOAT64,Miscellaneous expenditures this quarter,,no,,usd,no,,misc2cq
+cashcopq,FLOAT64,Cash contributions last quarter,,no,,usd,no,,cashcopq
+cashcocq,FLOAT64,Cash contributions this quarter,,no,,usd,no,,cashcocq
+perinspq,FLOAT64,Heading prior to this list of variables. Personal insurance and pensions last quarter,,no,,usd,no,,perinspq
+perinscq,FLOAT64,Heading prior to this list of variables. Personal insurance and pensions this quarter,,no,,usd,no,,perinscq
+lifinspq,FLOAT64,Life and other personal insurance last quarter,,no,,usd,no,,lifinspq
+lifinscq,FLOAT64,Life and other personal insurance this quarter,,no,,usd,no,,lifinscq
+retpenpq,FLOAT64,"Retirement, pensions, Social Security last quarter",,no,,usd,no,,retpenpq
+retpencq,FLOAT64,"Retirement, pensions, Social Security this quarter",,no,,usd,no,,retpencq
+hh_cu_q,STRING,Count of Consumer Units in this household,,no,,,no,,hh_cu_q
+hh_cu_q_,STRING,"Data-quality flag for HH_CU_Q: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,hh_cu_q_
+hhid,STRING,Identifier for household with more than one CU. Household with only one CU will be set to missing,,no,,,no,,hhid
+hhid_,STRING,"Data-quality flag for HHID: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,hhid_
+childage,STRING,Age of children of reference person,,yes,,,no,,childage
+state,STRING,The 2010 Federal information processing standard state code,,yes,,,no,,state
+state_,STRING,"Data-quality flag for STATE: valid, blank, allocated, imputed or topcoded",1996(1)2004,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,state_
+erankh,FLOAT64,Complete income reporters of the total population are ranked in ascending order according to the level of total expenditures. Total expenditures is based on ERANKMTH. The value is a number between 0 and 1,,no,,usd,no,,erankh
+erankh_,STRING,"Data-quality flag for ERANKH: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,erankh_
+totex4pq,FLOAT64,Adjusted total expenditures last quarter,,no,,usd,no,,totex4pq
+totex4cq,FLOAT64,Adjusted total expenditures this quarter collected in Interview Survey,,no,,usd,no,,totex4cq
+miscx4pq,FLOAT64,Adjusted miscellaneous expenditures last quarter (To be used for population estimates,,no,,usd,no,,miscx4pq
+miscx4cq,FLOAT64,Adjusted miscellaneous expenditures this quarter (To be used for population estimates - see information under Summary Expenditure Data heading.) MISC1CQ + (4*MISC2CQ),,no,,usd,no,,miscx4cq
+vehql,FLOAT64,"Total number of leased autos, trucks, and vans",1997(1)2025,no,,unit,no,,vehql
+vehql_,STRING,"Data-quality flag for VEHQL: valid, blank, allocated, imputed or topcoded",1997(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,vehql_
+num_tvan,FLOAT64,Total number of owned trucks and vans,1997(1)2025,no,,unit,no,,num_tvan
+ttotalp,FLOAT64,Total of all trip expenditures last quarter,1999(1)2025,no,,usd,no,,ttotalp
+ttotalc,FLOAT64,Total of all trip expenditures last quarter,1999(1)2025,no,,usd,no,,ttotalc
+tfoodtop,FLOAT64,Total trip expenditures on food last quarter including both restaurant food and food prepared by CU,1999(1)2025,no,,usd,no,,tfoodtop
+tfoodtoc,FLOAT64,Total trip expenditures on food this quarter including both restaurant food and food prepared by CU,1999(1)2025,no,,usd,no,,tfoodtoc
+tfoodawp,FLOAT64,"Food and non-alcoholic beverages last quarter at restaurants, cafes, and fast food places during out-of-town trips",1999(1)2025,no,,usd,no,,tfoodawp
+tfoodawc,FLOAT64,"Food and non-alcoholic beverages this quarter at restaurants, cafes, and fast food places during out-of-town trips",1999(1)2025,no,,usd,no,,tfoodawc
+tfoodhop,FLOAT64,Food and beverages purchased and prepared by CU last quarter during out-of-town trips,1999(1)2025,no,,usd,no,,tfoodhop
+tfoodhoc,FLOAT64,Food and beverages purchased and prepared by CU this quarter during out-of-town trips,1999(1)2025,no,,usd,no,,tfoodhoc
+talcbevp,FLOAT64,"Total trip expenditures last quarter on alcoholic beverages at restaurants, cafes, and bars 200900",1999(1)2025,no,,usd,no,,talcbevp
+talcbevc,FLOAT64,"Total trip expenditures this quarter on alcoholic beverages at restaurants, cafes, and bars",1999(1)2025,no,,usd,no,,talcbevc
+tothrlop,FLOAT64,"Total trip expenditures on lodging last quarter including rent for vacation home, and motels",1999(1)2025,no,,usd,no,,tothrlop
+tothrloc,FLOAT64,"Total trip expenditures on lodging this quarter including rent for vacation home, and motels",1999(1)2025,no,,usd,no,,tothrloc
+ttranprp,FLOAT64,"Total trip expenditures on transportation last quarter including airfare, local transportation, tolls and parking fees, and car rentals TGASMOTP+TVRENTLP+TTRNTRIP",1999(1)2025,no,,usd,no,,ttranprp
+ttranprc,FLOAT64,"Total trip expenditures on transportation this quarter including airfare, local transportation, tolls and parking fees, and car rentals TGASMOTP+TVRENTLP+TTRNTRIP",1999(1)2025,no,,usd,no,,ttranprc
+tgasmotp,FLOAT64,Trip expenditures on gas and oil last quarter,1999(1)2025,no,,usd,no,,tgasmotp
+tgasmotc,FLOAT64,Trip expenditures on gas and oil this quarter,1999(1)2025,no,,usd,no,,tgasmotc
+tvrentlp,FLOAT64,Trip expenditures on vehicle rentals and other fees last quarter TCARTRKP+TOTHVHRP+TOTHTREP,1999(1)2025,no,,usd,no,,tvrentlp
+tvrentlc,FLOAT64,Trip expenditures on vehicle rentals and other fees this quarter TCARTRKC+TOTHVHRC+TOTHTREC,1999(1)2025,no,,usd,no,,tvrentlc
+tcartrkp,FLOAT64,Trip expenditures on car or truck rental last quarter,1999(1)2025,no,,usd,no,,tcartrkp
+tcartrkc,FLOAT64,Trip expenditures on car or truck rental this quarter,1999(1)2025,no,,usd,no,,tcartrkc
+tothvhrp,FLOAT64,Trip expenditures on other vehicle rentals last quarter 520905 520906,1999(1)2025,no,,usd,no,,tothvhrp
+tothvhrc,FLOAT64,Trip expenditures on other vehicle rentals this quarter,1999(1)2025,no,,usd,no,,tothvhrc
+tothtrep,FLOAT64,"Trip expenditures last quarter for other transportation expenses including parking fees, and tolls",1999(1)2025,no,,usd,no,,tothtrep
+tothtrec,FLOAT64,"Trip expenditures this quarter for other transportation expenses including parking fees, and tolls",1999(1)2025,no,,usd,no,,tothtrec
+ttrntrip,FLOAT64,"Trip expenditures last quarter for public transportation, including airfares TFAREP+TLOCALTP",1999(1)2025,no,,usd,no,,ttrntrip
+ttrntric,FLOAT64,"Trip expenditures this quarter for public transportation, including airfares TFAREC+TLOCALTC",1999(1)2025,no,,usd,no,,ttrntric
+tfarep,FLOAT64,"Trip expenditures last quarter on transportation fares including airfare, intercity bus, train, and ship fare (TAIRFARP+TOTHFARP)",1999(1)2025,no,,usd,no,,tfarep
+tfarec,FLOAT64,"Trip expenditures this quarter on transportation fares including airfare, intercity bus, train, and ship fare TAIRFARC+TOTHFARC",1999(1)2025,no,,usd,no,,tfarec
+tairfarp,FLOAT64,Trip expenditures on airfare last quarter,1999(1)2025,no,,usd,no,,tairfarp
+tairfarc,FLOAT64,Trip expenditures on airfare this quarter,1999(1)2025,no,,usd,no,,tairfarc
+tothfarp,FLOAT64,"Trip expenditures last quarter on other transportation fares including intercity bus and train fare, and ship fare",1999(1)2025,no,,usd,no,,tothfarp
+tothfarc,FLOAT64,"Trip expenditures this quarter on other transportation fares including intercity bus and train fare, and ship fare",1999(1)2025,no,,usd,no,,tothfarc
+tlocaltp,FLOAT64,"Trip expenditures last quarter on local transportation including taxis, buses etc",1999(1)2025,no,,usd,no,,tlocaltp
+tlocaltc,FLOAT64,"Trip expenditures this quarter on local transportation including taxis, buses etc",1999(1)2025,no,,usd,no,,tlocaltc
+tentrmnp,FLOAT64,"Total trip expenditures on entertainment last quarter including sporting events, movies, and recreational vehicle rentals TFEESADP+TOTHENTP",1999(1)2025,no,,usd,no,,tentrmnp
+tentrmnc,FLOAT64,"Total trip expenditures on entertainment this quarter including sporting events, movies, and recreational vehicle rentals TFEESADC+TOTHENTC",1999(1)2025,no,,usd,no,,tentrmnc
+tfeesadp,FLOAT64,"Trip expenditures on miscellaneous entertainment last quarter including recreation expenses, participation sport fees, and admission fees to sporting events and movies",1999(1)2025,no,,usd,no,,tfeesadp
+tfeesadc,FLOAT64,"Trip expenditures on miscellaneous entertainment this quarter including recreation expenses, participation sport fees, and admission fees to sporting events and movies",1999(1)2025,no,,usd,no,,tfeesadc
+tothentp,FLOAT64,"Trip expenditures on recreational vehicle rentals last quarter including campers, boats, and other vehicles",1999(1)2025,no,,usd,no,,tothentp
+tothentc,FLOAT64,"Trip expenditures on recreational vehicle rentals this quarter including campers, boats, and other vehicles",1999(1)2025,no,,usd,no,,tothentc
+ownvacp,FLOAT64,"Expenditures on owned vacation homes last quarter including mortgage interest, insurance, taxes, maintenance, and miscellaneous household equipment VOTHRLOP+VMISCHEP This variable includes expenditures related to vacation homes. Because these types of e",1999(1)2025,no,,usd,no,,ownvacp
+ownvacc,FLOAT64,"Expenditures on owned vacation homes this quarter including mortgage interest, insurance, taxes, maintenance, and miscellaneous household equipment VOTHRLOP+VMISCHEP This variable includes expenditures related to vacation homes. Because these types of e",1999(1)2025,no,,usd,no,,ownvacc
+vothrlop,FLOAT64,"Expenditures on owned vacation homes last quarter including mortgage interest, insurance, taxes, and maintenance",1999(1)2025,no,,usd,no,,vothrlop
+vothrloc,FLOAT64,"Expenditures on owned vacation homes this quarter including mortgage interest, insurance, taxes, and maintenance",1999(1)2025,no,,usd,no,,vothrloc
+vmischep,FLOAT64,Expenditures on miscellaneous household equipment for owned vacation homes last quarter,1999(1)2025,no,,usd,no,,vmischep
+vmischec,FLOAT64,Expenditures on miscellaneous household equipment for owned vacation homes this quarter,1999(1)2025,no,,usd,no,,vmischec
+utilownp,FLOAT64,"Expenditures on owned vacation home utilities last quarter including water, trash, electricity, and fuels VFUELOIP+VOTHRFLP+VELECTRP+VNATLGAP +VWATERPP",1999(1)2025,no,,usd,no,,utilownp
+utilownc,FLOAT64,"Expenditures on owned vacation home utilities this quarter including water, trash, electricity, and fuels VFUELOIC+VOTHRFLC+VELECTRC+VNATLGAC +VWATERPC",1999(1)2025,no,,usd,no,,utilownc
+vfueloip,FLOAT64,Expenditures on fuel oil for owned vacation homes last quarter,1999(1)2025,no,,usd,no,,vfueloip
+vfueloic,FLOAT64,Expenditures on fuel oil for owned vacation homes this quarter,1999(1)2025,no,,usd,no,,vfueloic
+vothrflp,FLOAT64,Expenditures on other fuels for owned vacation homes last quarter,1999(1)2025,no,,usd,no,,vothrflp
+vothrflc,FLOAT64,Expenditures on other fuels for owned vacation homes this quarter,1999(1)2025,no,,usd,no,,vothrflc
+velectrp,FLOAT64,Expenditures on electricity for owned vacation homes last quarter,1999(1)2025,no,,usd,no,,velectrp
+velectrc,FLOAT64,Expenditures on electricity for owned vacation homes this quarter,1999(1)2025,no,,usd,no,,velectrc
+vnatlgap,FLOAT64,Expenditures on natural gas for owned vacation homes last quarter,1999(1)2025,no,,usd,no,,vnatlgap
+vnatlgac,FLOAT64,Expenditures on natural gas for owned vacation homes this quarter,1999(1)2025,no,,usd,no,,vnatlgac
+vwaterpp,FLOAT64,Expenditures on water and public services for owned vacation homes last quarter,1999(1)2025,no,,usd,no,,vwaterpp
+vwaterpc,FLOAT64,Expenditures on water and public services for owned vacation homes this quarter,1999(1)2025,no,,usd,no,,vwaterpc
+mrtprnop,FLOAT64,Outlays on owned vacation home mortgage principle last quarter,1999(1)2025,no,,usd,no,,mrtprnop
+mrtprnoc,FLOAT64,Outlays on owned vacation home mortgage principle this quarter,1999(1)2025,no,,usd,no,,mrtprnoc
+utilrntp,FLOAT64,"Expenditures on rented vacation home utilities last quarter including water, trash, electricity, and fuels RFUELOIP+ROTHRFLP+RELECTRP+RNATLGAP+RWATERPP",1999(1)2025,no,,usd,no,,utilrntp
+utilrntc,FLOAT64,"Expenditures on rented vacation home utilities this quarter including water, trash, electricity, and fuels RFUELOIC+ROTHRFLC+RELECTRC+RNATLGAC+RWATERPC",1999(1)2025,no,,usd,no,,utilrntc
+rfueloip,FLOAT64,Expenditures on fuel oil for rented vacation homes last quarter,1999(1)2025,no,,usd,no,,rfueloip
+rfueloic,FLOAT64,Expenditures on fuel oil for rented vacation homes this quarter,1999(1)2025,no,,usd,no,,rfueloic
+rothrflp,FLOAT64,Expenditures on other fuels for rented vacation homes last quarter,1999(1)2025,no,,usd,no,,rothrflp
+rothrflc,FLOAT64,Expenditures on other fuels for rented vacation homes this quarter,1999(1)2025,no,,usd,no,,rothrflc
+relectrp,FLOAT64,Expenditures on electricity for rented vacation homes last quarter 260114,1999(1)2025,no,,usd,no,,relectrp
+relectrc,FLOAT64,Expenditures on electricity for rented vacation homes this quarter,1999(1)2025,no,,usd,no,,relectrc
+rnatlgap,FLOAT64,Expenditures on natural gas for rented vacation homes last quarter,1999(1)2025,no,,usd,no,,rnatlgap
+rnatlgac,FLOAT64,Expenditures on natural gas for rented vacation homes this quarter,1999(1)2025,no,,usd,no,,rnatlgac
+rwaterpp,FLOAT64,Expenditures on water and public services for rented vacation homes,1999(1)2025,no,,usd,no,,rwaterpp
+rwaterpc,FLOAT64,Expenditures on water and public services for rented vacation homes this quarter,1999(1)2025,no,,usd,no,,rwaterpc
+etotalp,FLOAT64,"Total outlays last quarter, sum of outlays from all major expenditure categories",2000(1)2025,no,,usd,no,,etotalp
+etotalc,FLOAT64,"Total outlays this quarter, sum of outlays from all major expenditure categories",2000(1)2025,no,,usd,no,,etotalc
+etotapx4,FLOAT64,"Adjusted total outlays last quarter, sum of outlays from all major expenditure categories",2000(1)2025,no,,usd,no,,etotapx4
+etotacx4,FLOAT64,"Adjusted total outlays last quarter, sum of outlays from all major expenditure categories",2000(1)2025,no,,usd,no,,etotacx4
+ehousngp,FLOAT64,"Total housing outlays last quarter including maintenance, fuels, public services, household operations, house furnishings, and mortgage (lump sum home equity loan or line of credit home equity loan) principle and interest",2000(1)2025,no,,usd,no,,ehousngp
+ehousngc,FLOAT64,"Total housing outlays this quarter including maintenance, fuels, public services, household operations, house furnishings, and mortgage (lump sum home equity loan or line of credit home equity loan) principle and interest",2000(1)2025,no,,usd,no,,ehousngc
+esheltrp,FLOAT64,"Shelter outlays last quarter including mortgage principle and interest for owned home and/or vacation home, rents, insurance, taxes, and maintenance",2000(1)2025,no,,usd,no,,esheltrp
+esheltrc,FLOAT64,"Shelter outlays this quarter including mortgage principle and interest for owned home and/or vacation home, rents, insurance, taxes, and maintenance",2000(1)2025,no,,usd,no,,esheltrc
+eowndwlp,FLOAT64,"Owned home outlays last quarter including mortgage principal and interest, property taxes, maintenance, insurance, and other expenses",2000(1)2025,no,,usd,no,,eowndwlp
+eowndwlc,FLOAT64,"Owned home outlays this quarter including mortgage principal and interest, property taxes, maintenance, insurance, and other expenses",2000(1)2025,no,,usd,no,,eowndwlc
+eothlodp,FLOAT64,"Outlays for other lodging last quarter such as owned vacation home, including mortgage principal and interest, property taxes, maintenance, insurance, and other expenses",2000(1)2025,no,,usd,no,,eothlodp
+eothlodc,FLOAT64,"Outlays for other lodging this quarter such as owned vacation home, including mortgage principal and interest, property taxes, maintenance, insurance, and other expenses",2000(1)2025,no,,usd,no,,eothlodc
+emrtpnop,FLOAT64,Mortgage principal outlays last quarter for owned home,2000(1)2025,no,,usd,no,,emrtpnop
+emrtpnoc,FLOAT64,Mortgage principal outlays this quarter for owned home,2000(1)2025,no,,usd,no,,emrtpnoc
+emrtpnvp,FLOAT64,Mortgage principal outlays last quarter for owned vacation home,2000(1)2025,no,,usd,no,,emrtpnvp
+emrtpnvc,FLOAT64,Mortgage principal outlays this quarter for owned vacation home,2000(1)2025,no,,usd,no,,emrtpnvc
+etranptp,FLOAT64,"Total outlays for transportation last quarter including down payment, principal and finance charges paid on loans, gasoline and motor oil, maintenance and repairs, insurance, public and other transportation, and vehicle rental licenses and other charges",2000(1)2025,no,,usd,no,,etranptp
+etranptc,FLOAT64,"Total outlays for transportation this quarter including down payment, principal and finance charges paid on loans, gasoline and motor oil, maintenance and repairs, insurance, public and other transportation, and vehicle rental licenses and other charges",2000(1)2025,no,,usd,no,,etranptc
+evehpurp,FLOAT64,"Outlays for vehicle purchases last quarter including down payment, principal and interest paid on loans, or if not financed, purchase amount",2000(1)2025,no,,usd,no,,evehpurp
+evehpurc,FLOAT64,"Outlays for vehicle purchases this quarter including down payment, principal and interest paid on loans, or if not financed, purchase amount",2000(1)2025,no,,usd,no,,evehpurc
+ecartknp,FLOAT64,"Outlays for new vehicle purchases last quarter including down payment, principal and interest paid on loans, or if not financed, purchase amount. 870101 870102 870103 870104",2000(1)2025,no,,usd,no,,ecartknp
+ecartknc,FLOAT64,"Outlays for new vehicle purchases this quarter including down payment, principal and interest paid on loans, or if not financed, purchase amount. 870101 870102 870103 870104",2000(1)2025,no,,usd,no,,ecartknc
+ecartkup,FLOAT64,"Outlays for used vehicle purchases last quarter including down payment, principal and interest paid on loans, or if not financed, purchase amount. 870201 870202 870203 870204",2000(1)2025,no,,usd,no,,ecartkup
+ecartkuc,FLOAT64,"Outlays for used vehicle purchases this quarter including down payment, principal and interest paid on loans, or if not financed, purchase amount. 870201 870202 870203 870204",2000(1)2025,no,,usd,no,,ecartkuc
+eothvehp,FLOAT64,"Outlays for other vehicle purchases last quarter including down payment, principal and interest paid on loans, or if not financed, purchase amount",2000(1)2025,no,,usd,no,,eothvehp
+eothvehc,FLOAT64,"Outlays for other vehicle purchases this quarter including down payment, principal and interest paid on loans, or if not financed, purchase amount",2000(1)2025,no,,usd,no,,eothvehc
+eentrmtp,FLOAT64,"Total entertainment outlays last quarter including sound systems, sports equipment, toys, cameras, and down payments on boats and campers",2000(1)2025,no,,usd,no,,eentrmtp
+eentrmtc,FLOAT64,"Total entertainment outlays this quarter including sound systems, sports equipment, toys, cameras, and down payments on boats and campers",2000(1)2025,no,,usd,no,,eentrmtc
+eothentp,FLOAT64,"Outlays for other entertainment supplies last quarter, equipment, and services including down payments on boats and campers",2000(1)2025,no,,usd,no,,eothentp
+eothentc,FLOAT64,"Outlays for other entertainment supplies this quarter, equipment, and services including down payments on boats and campers",2000(1)2025,no,,usd,no,,eothentc
+eentmscp,FLOAT64,Miscellaneous entertainment outlays last quarter including photographic and sports equipment and boat and RV rentals,2000(1)2025,no,,usd,no,,eentmscp
+eentmscc,FLOAT64,Miscellaneous entertainment outlays this quarter including photographic and sports equipment and boat and RV rentals,2000(1)2025,no,,usd,no,,eentmscc
+emiscelp,FLOAT64,Miscellaneous outlays last quarter including reduction of mortgage principal (lump sum home equity loan) on other property,2000(1)2025,no,,usd,no,,emiscelp
+emiscelc,FLOAT64,Miscellaneous outlays this quarter including reduction of mortgage principal (lump sum home equity loan) on other property,2000(1)2025,no,,usd,no,,emiscelc
+emiscmtp,FLOAT64,Mortgage principal outlays last quarter for other property,2000(1)2025,no,,usd,no,,emiscmtp
+emiscmtc,FLOAT64,Mortgage principal outlays this quarter for other property,2000(1)2025,no,,usd,no,,emiscmtc
+unistrq,STRING,"How many housing units, both occupied and vacant, are there in this structure?",2000(1)2025,yes,,,no,,unistrq
+unistrq_,STRING,"Data-quality flag for UNISTRQ: valid, blank, allocated, imputed or topcoded",2000(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,unistrq_
+erecvehc,FLOAT64,"BLS variable ERECVEHC, not documented in the BLS dictionary",2024(1)2025,no,,usd,no,Absent from the BLS PUMD dictionary,erecvehc
+erecvehp,FLOAT64,"BLS variable ERECVEHP, not documented in the BLS dictionary",2024(1)2025,no,,usd,no,Absent from the BLS PUMD dictionary,erecvehp
+welfrebx,FLOAT64,Median of bracket range,2001(1)2025,no,,usd,no,,welfrebx
+lumpsumb,STRING,"Range that best reflects the total lump sum payments from insurance, estates, trusts, royalties, alimony, prizes or games of chance, or from persons outside your CU received during the last twelve months",2001(1)2025,yes,,,no,,lumpsumb
+lmpsumbx,FLOAT64,Median of bracket range,2001(1)2025,no,,usd,no,,lmpsumbx
+othrincb,STRING,Range that best reflects the total amount of other money income received during the last twelve months,2001(1)2025,yes,,,no,,othrincb
+otrincbx,FLOAT64,Median of bracket range,2001(1)2025,no,,usd,no,,otrincbx
+inclass2,STRING,Income classification based on INC_RANK,2001(1)2025,yes,,,no,,inclass2
+cuid,STRING,CU sequence number which uniquely identifies CUs (Digits 1-7 of NEWID),2002(1)2025,no,,,no,,cuid
+interi,STRING,Interview number,2002(1)2025,no,,,no,,interi
+horref1,STRING,Hispanic Origin of the Reference Person,2003(1)2025,yes,,,no,,horref1
+horref1_,STRING,"Data-quality flag for HORREF1: valid, blank, allocated, imputed or topcoded",2003(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,horref1_
+horref2,STRING,Hispanic Origin of the spouse,2003(1)2025,yes,,,no,,horref2
+horref2_,STRING,"Data-quality flag for HORREF2: valid, blank, allocated, imputed or topcoded",2003(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,horref2_
+erankhm,FLOAT64,Weighted cumulative percent expenditure outlay ranking of CU to total population. Expenditure outlay is based on ERNKMTHM. The value is a number between 0 and 1,2004(1)2025,no,,usd,no,,erankhm
+erankhm_,STRING,"Data-quality flag for ERANKHM: valid, blank, allocated, imputed or topcoded",2004(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,erankhm_
+fgovretm,FLOAT64,Total amount of government retirement deducted from last pay annualized,2004(1)2025,no,,usd,no,,fgovretm
+fincbtxm,FLOAT64,Total amount of family income before taxes (Imputed or collected data),2004(1)2025,no,,usd,no,,fincbtxm
+fincbtx1,FLOAT64,Imputation Iteration #1 - FINCBTAX,2004(1)2025,no,,usd,no,,fincbtx1
+fincbtx2,FLOAT64,Imputation Iteration #2 - FINCBTAX,2004(1)2025,no,,usd,no,,fincbtx2
+fincbtx3,FLOAT64,Imputation Iteration #3 - FINCBTAX,2004(1)2025,no,,usd,no,,fincbtx3
+fincbtx4,FLOAT64,Imputation Iteration #4 - FINCBTAX,2004(1)2025,no,,usd,no,,fincbtx4
+fincbtx5,FLOAT64,Imputation Iteration #5 - FINCBTAX,2004(1)2025,no,,usd,no,,fincbtx5
+fincbtxi,STRING,Indicator/descriptor variable for income imputation,2004(1)2025,yes,,,no,,fincbtxi
+fjssdedm,FLOAT64,"Portion of family income paid to Social Security during the past 12 months, mean of imputation iterations",2004(1)2025,no,,usd,no,,fjssdedm
+fjssded1,FLOAT64,Imputation Iteration #1 - FJSSDEDX,2004(1)2025,no,,usd,no,,fjssded1
+fjssded2,FLOAT64,Imputation Iteration #2 - FJSSDEDX,2004(1)2025,no,,usd,no,,fjssded2
+fjssded3,FLOAT64,Imputation Iteration #3 - FJSSDEDX,2004(1)2025,no,,usd,no,,fjssded3
+fjssded4,FLOAT64,Imputation Iteration #4 - FJSSDEDX,2004(1)2025,no,,usd,no,,fjssded4
+fjssded5,FLOAT64,Imputation Iteration #5 - FJSSDEDX,2004(1)2025,no,,usd,no,,fjssded5
+fpripenm,FLOAT64,Total amount of private pensions,2004(1)2025,no,,usd,no,,fpripenm
+frrdedm,FLOAT64,Total amount of Railroad Retirement deducted from last pay annualized,2004(1)2025,no,,usd,no,,frrdedm
+frrdedm_,STRING,"Data-quality flag for FRRDEDM: valid, blank, allocated, imputed or topcoded",2004(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,frrdedm_
+frretirm,FLOAT64,"Total amount of received from Social Security benefits and Railroad benefit checks prior to deductions for medical insurance and Medicare, mean of imputation iterations",2004(1)2025,no,,usd,no,,frretirm
+frretir1,FLOAT64,Imputation Iteration #1 - FRRETIRX,2004(1)2025,no,,usd,no,,frretir1
+frretir2,FLOAT64,Imputation Iteration #2 - FRRETIRX,2004(1)2025,no,,usd,no,,frretir2
+frretir3,FLOAT64,Imputation Iteration #3 - FRRETIRX,2004(1)2025,no,,usd,no,,frretir3
+frretir4,FLOAT64,Imputation Iteration #4 - FRRETIRX,2004(1)2025,no,,usd,no,,frretir4
+frretir5,FLOAT64,Imputation Iteration #5 - FRRETIRX,2004(1)2025,no,,usd,no,,frretir5
+frretiri,STRING,Indicator/descriptor variable for income imputation,2004(1)2025,no,,,no,,frretiri
+fsalarym,FLOAT64,"Total amount of income received from salary or wages before deduction by family grouping, mean of imputation iterations",2004(1)2025,no,,usd,no,,fsalarym
+fsalary1,FLOAT64,Imputation Iteration #1 - FSALARYX,2004(1)2025,no,,usd,no,,fsalary1
+fsalary2,FLOAT64,Imputation Iteration #2 - FSALARYX,2004(1)2025,no,,usd,no,,fsalary2
+fsalary3,FLOAT64,Imputation Iteration #3 - FSALARYX,2004(1)2025,no,,usd,no,,fsalary3
+fsalary4,FLOAT64,Imputation Iteration #4 - FSALARYX,2004(1)2025,no,,usd,no,,fsalary4
+fsalary5,FLOAT64,Imputation Iteration #5 - FSALARYX,2004(1)2025,no,,usd,no,,fsalary5
+fsalaryi,STRING,Indicator/descriptor variable for income imputation,2004(1)2025,no,,,no,,fsalaryi
+fssixm,FLOAT64,"Total amount received in supplemental security income checks combined, mean of imputation iterations",2004(1)2025,no,,usd,no,,fssixm
+fssixm_,STRING,"Data-quality flag for FSSIXM: valid, blank, allocated, imputed or topcoded",2004(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fssixm_
+fssix1,FLOAT64,Imputation Iteration #1 - FSSIX,2004(1)2025,no,,usd,no,,fssix1
+fssix2,FLOAT64,Imputation Iteration #2 - FSSIX,2004(1)2025,no,,usd,no,,fssix2
+fssix3,FLOAT64,Imputation Iteration #3 - FSSIX,2004(1)2025,no,,usd,no,,fssix3
+fssix4,FLOAT64,Imputation Iteration #4 - FSSIX,2004(1)2025,no,,usd,no,,fssix4
+fssix5,FLOAT64,Imputation Iteration #5 - FSSIX,2004(1)2025,no,,usd,no,,fssix5
+fssixi,STRING,Indicator/descriptor variable for income imputation,2004(1)2025,no,,,no,,fssixi
+inc_rnkm,FLOAT64,"Weighted cumulative percent ranking based on total current income, based on mean of imputation iterations",2004(1)2025,no,,ratio,no,,inc_rnkm
+inc_rnk1,FLOAT64,Imputation Iteration #1 - INC_RANK,2004(1)2025,no,,ratio,no,,inc_rnk1
+inc_rnk2,FLOAT64,Imputation Iteration #2 - INC_RANK,2004(1)2025,no,,ratio,no,,inc_rnk2
+inc_rnk3,FLOAT64,Imputation Iteration #3 - INC_RANK,2004(1)2025,no,,ratio,no,,inc_rnk3
+inc_rnk4,FLOAT64,Imputation Iteration #4 - INC_RANK,2004(1)2025,no,,ratio,no,,inc_rnk4
+inc_rnk5,FLOAT64,Imputation Iteration #5 - INC_RANK,2004(1)2025,no,,ratio,no,,inc_rnk5
+othrincm,FLOAT64,"Amount received in other money income including money received from care of foster children, mean of imputation iterations",2004(1)2025,no,,usd,no,,othrincm
+othrinc1,FLOAT64,Imputation Iteration #1 - OTHRINCX,2004(1)2025,no,,usd,no,,othrinc1
+othrinc2,FLOAT64,Imputation Iteration #2 - OTHRINCX,2004(1)2025,no,,usd,no,,othrinc2
+othrinc3,FLOAT64,Imputation Iteration #3 - OTHRINCX,2004(1)2025,no,,usd,no,,othrinc3
+othrinc4,FLOAT64,Imputation Iteration #4 - OTHRINCX,2004(1)2025,no,,usd,no,,othrinc4
+othrinc5,FLOAT64,Imputation Iteration #5 - OTHRINCX,2004(1)2025,no,,usd,no,,othrinc5
+othrinci,STRING,Indicator/descriptor variable for income imputation,2004(1)2025,no,,,no,,othrinci
+prinernm,FLOAT64,Principal Earner based on mean imputed income,2004(1)2025,no,,usd,no,,prinernm
+prinern1,FLOAT64,Imputation Iteration #1 - PRINEARN,2004(1)2025,no,,usd,no,,prinern1
+prinern2,FLOAT64,Imputation Iteration #2 - PRINEARN,2004(1)2025,no,,usd,no,,prinern2
+prinern3,FLOAT64,Imputation Iteration #3 - PRINEARN,2004(1)2025,no,,usd,no,,prinern3
+prinern4,FLOAT64,Imputation Iteration #4 - PRINEARN,2004(1)2025,no,,usd,no,,prinern4
+prinern5,FLOAT64,Imputation Iteration #5 - PRINEARN,2004(1)2025,no,,usd,no,,prinern5
+welfarem,FLOAT64,"Amount received from public assistance or welfare including money received from job training grants such as Job Corps, mean of imputation iterations",2004(1)2025,no,,usd,no,,welfarem
+welfare1,FLOAT64,Imputation Iteration #1 - WELFAREX,2004(1)2025,no,,usd,no,,welfare1
+welfare2,FLOAT64,Imputation Iteration #2 - WELFAREX,2004(1)2025,no,,usd,no,,welfare2
+welfare3,FLOAT64,Imputation Iteration #3 - WELFAREX,2004(1)2025,no,,usd,no,,welfare3
+welfare4,FLOAT64,Imputation Iteration #4 - WELFAREX,2004(1)2025,no,,usd,no,,welfare4
+welfare5,FLOAT64,Imputation Iteration #5 - WELFAREX,2004(1)2025,no,,usd,no,,welfare5
+welfarei,STRING,Indicator/descriptor variable for income imputation,2004(1)2025,no,,,no,,welfarei
+psu,STRING,Primary Sampling Unit,2006(1)2025,yes,,,no,,psu
+hisp_ref,STRING,Hispanic origin of reference person,2009(1)2025,yes,,,no,,hisp_ref
+hisp2,STRING,Hispanic origin of spouse,2009(1)2025,yes,,,no,,hisp2
+high_edu,STRING,Highest level of education within the CU,2011(1)2025,yes,,,no,,high_edu
+credfinx,FLOAT64,"What was the total amount paid in finance, late charges, and interest for all cards in the last month?",2013(1)2025,no,,usd,no,,credfinx
+creditb,STRING,Could you tell me which range that best reflects the total amount owed on all major credit cards including store cards and gas cards?,2013(1)2025,yes,,,no,,creditb
+creditb_,STRING,"Data-quality flag for CREDITB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,creditb_
+creditbx,FLOAT64,Median of Bracket Range,2013(1)2025,no,,usd,no,,creditbx
+creditx,FLOAT64,What is the total amount owed on all cards?,2013(1)2025,no,,usd,no,,creditx
+creditx_,STRING,"Data-quality flag for CREDITX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,creditx_
+credtyrx,FLOAT64,What was the total amount owed on all cards one year ago today?,2013(1)2025,no,,usd,no,,credtyrx
+credyrb,STRING,Could you tell me which range that best reflects the total amount owed on all major credit cards including store cards and gas cards ONE YEAR AGO TODAY?,2013(1)2025,yes,,,no,,credyrb
+credyrb_,STRING,"Data-quality flag for CREDYRB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,credyrb_
+credyrbx,FLOAT64,Median of Bracket Range,2013(1)2025,no,,usd,no,,credyrbx
+defbenrp,STRING,"Do you have a defined retirement plan, such as a pension, from an employer?",2013(1)2025,yes,,,no,,defbenrp
+fmlpyyrx,FLOAT64,Annual value of free meals received as part of pay,2013(1)2025,no,,usd,no,,fmlpyyrx
+fs_amtx1,FLOAT64,Imputation Iteration #1 - FS_AMTX,2013(1)2025,no,,usd,no,,fs_amtx1
+fs_amtx2,FLOAT64,Imputation Iteration #2 - FS_AMTX,2013(1)2025,no,,usd,no,,fs_amtx2
+fs_amtx3,FLOAT64,Imputation Iteration #3 - FS_AMTX,2013(1)2025,no,,usd,no,,fs_amtx3
+fs_amtx4,FLOAT64,Imputation Iteration #4 - FS_AMTX,2013(1)2025,no,,usd,no,,fs_amtx4
+fs_amtx5,FLOAT64,Imputation Iteration #5 - FS_AMTX,2013(1)2025,no,,usd,no,,fs_amtx5
+fs_amtxi,STRING,Indicator/descriptor variable for income imputation,2013(1)2025,no,,,no,,fs_amtxi
+fs_amtxm,FLOAT64,What was the dollar value of the last food stamps or EBT received (based on mean of imputation iterations)?,2013(1)2025,no,,usd,no,,fs_amtxm
+fs_mthi,FLOAT64,In how many of the past 12 months were food stamps or EBTs received?,2013(1)2025,no,,usd,no,,fs_mthi
+fs_mthi_,STRING,"Data-quality flag for FS_MTHI: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fs_mthi_
+fsmpfrmx,FLOAT64,Total income received from self-employment income before deduction by family grouping,2013(1)2025,no,,usd,no,,fsmpfrmx
+fsmpfrx1,FLOAT64,Imputation Iteration #1 - FSMPFRMX,2013(1)2025,no,,usd,no,,fsmpfrx1
+fsmpfrx2,FLOAT64,Imputation Iteration #2 - FSMPFRMX,2013(1)2025,no,,usd,no,,fsmpfrx2
+fsmpfrx3,FLOAT64,Imputation Iteration #3 - FSMPFRMX,2013(1)2025,no,,usd,no,,fsmpfrx3
+fsmpfrx4,FLOAT64,Imputation Iteration #4 - FSMPFRMX,2013(1)2025,no,,usd,no,,fsmpfrx4
+fsmpfrx5,FLOAT64,Imputation Iteration #5 - FSMPFRMX,2013(1)2025,no,,usd,no,,fsmpfrx5
+fsmpfrxi,STRING,Indicator/descriptor variable for income imputation,2013(1)2025,no,,,no,,fsmpfrxi
+fsmpfrxm,FLOAT64,"Total amount of income received from self-employment income by family grouping, mean of imputation iterations",2013(1)2025,no,,usd,no,,fsmpfrxm
+intrdvbx,FLOAT64,Median of Bracket Range,2013(1)2025,no,,usd,no,,intrdvbx
+intrdvb,STRING,Range that best reflects the amount you received in interest or dividends during the past 12 months,2013(1)2025,yes,,,no,,intrdvb
+intrdvb_,STRING,"Data-quality flag for INTRDVB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,intrdvb_
+intrdvx,FLOAT64,Amount of income received from interest and dividends,2013(1)2025,no,,usd,no,,intrdvx
+intrdvx_,STRING,"Data-quality flag for INTRDVX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,intrdvx_
+intrdvx1,FLOAT64,Imputation Iteration #1 - INTRDIVX,2013(1)2025,no,,usd,no,,intrdvx1
+intrdvx2,FLOAT64,Imputation Iteration #2 - INTRDIVX,2013(1)2025,no,,usd,no,,intrdvx2
+intrdvx3,FLOAT64,Imputation Iteration #3 - INTRDIVX,2013(1)2025,no,,usd,no,,intrdvx3
+intrdvx4,FLOAT64,Imputation Iteration #4 - INTRDIVX,2013(1)2025,no,,usd,no,,intrdvx4
+intrdvx5,FLOAT64,Imputation Iteration #5 - INTRDIVX,2013(1)2025,no,,usd,no,,intrdvx5
+intrdvxi,STRING,Indicator/descriptor variable for income imputation,2013(1)2025,no,,,no,,intrdvxi
+intrdvxm,FLOAT64,"Amount of income received from interest and dividends, mean of the iterations",2013(1)2025,no,,usd,no,,intrdvxm
+irab,STRING,"Could you tell me which range that best reflects the total value of all retirement accounts such as 401(k)s, IRAs, and Thrift Savings Plans?",2013(1)2025,yes,,,no,,irab
+irab_,STRING,"Data-quality flag for IRAB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,irab_
+irabx,FLOAT64,Median of Bracket Range,2013(1)2025,no,,usd,no,,irabx
+irabx_,STRING,"Data-quality flag for IRABX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,irabx_
+irax,FLOAT64,"As of today, what is the total value of all retirement accounts, such as 401(k)s, IRAs, and Thrift Savings Plans that you own?",2013(1)2025,no,,usd,no,,irax
+irax_,STRING,"Data-quality flag for IRAX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,irax_
+irayrb,STRING,Range which best reflects the total value of all retirement accounts one year ago today,2013(1)2025,yes,,,no,,irayrb
+irayrb_,STRING,"Data-quality flag for IRAYRB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,irayrb_
+irayrbx,FLOAT64,Median of Bracket Range,2013(1)2025,no,,usd,no,,irayrbx
+irayrbx_,STRING,"Data-quality flag for IRAYRBX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,irayrbx_
+irayrx,FLOAT64,What was the total value of all retirement accounts one year ago today?,2013(1)2025,no,,usd,no,,irayrx
+irayrx_,STRING,"Data-quality flag for IRAYRX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,irayrx_
+jfs_amt,FLOAT64,Annual value of food stamps,2013(1)2025,no,,usd,no,,jfs_amt
+jfs_amt_,STRING,"Data-quality flag for JFS_AMT: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,jfs_amt_
+jfs_amt1,FLOAT64,Imputation Iteration #1 - JFS_AMT,2013(1)2025,no,,usd,no,,jfs_amt1
+jfs_amt2,FLOAT64,Imputation Iteration #2 - JFS_AMT,2013(1)2025,no,,usd,no,,jfs_amt2
+jfs_amt3,FLOAT64,Imputation Iteration #3 - JFS_AMT,2013(1)2025,no,,usd,no,,jfs_amt3
+jfs_amt4,FLOAT64,Imputation Iteration #4 - JFS_AMT,2013(1)2025,no,,usd,no,,jfs_amt4
+jfs_amt5,FLOAT64,Imputation Iteration #5 - JFS_AMT,2013(1)2025,no,,usd,no,,jfs_amt5
+jfs_amtm,FLOAT64,"Annual value of food stamps, mean of imputation iterations",2013(1)2025,no,,usd,no,,jfs_amtm
+liqdyrbx,FLOAT64,Median of Bracket Range,2013(1)2025,no,,usd,no,,liqdyrbx
+liquidbx,FLOAT64,Median of Bracket Range,2013(1)2025,no,,usd,no,,liquidbx
+liqudyrb,STRING,"Could you tell me which range that best reflects the total value of all checking, savings, money market accounts, and certificates of deposit or CDs ONE YEAR AGO TODAY?",2013(1)2025,yes,,,no,,liqudyrb
+liqudyrx,FLOAT64,"What was the total value of all checking, savings, money market accounts, and certificated of deposit or CDs one year ago today?",2013(1)2025,no,,usd,no,,liqudyrx
+liquidb,STRING,"Could you tell me which range best reflects the total value of checking, savings, money market accounts, certificates of deposit or cds?",2013(1)2025,yes,,,no,,liquidb
+liquidb_,STRING,"Data-quality flag for LIQUIDB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,liquidb_
+liquidx,FLOAT64,"As of today, what is the total value of all checking, savings, money market accounts, and certificated of deposit or CDs you have?",2013(1)2025,no,,usd,no,,liquidx
+liquidx_,STRING,"Data-quality flag for LIQUIDX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,liquidx_
+mealspay,STRING,Have you received any free meals at work as part of your pay?,2013(1)2025,yes,,,no,,mealspay
+mlpaywkx,FLOAT64,About what was the weekly dollar value of these meals?,2013(1)2025,no,,usd,no,,mlpaywkx
+mlpyqwks,FLOAT64,For how many weeks did members of your household receive these meals during the past 12 months?,2013(1)2025,no,,usd,no,,mlpyqwks
+netrentb,STRING,Range that best reflects the total net rental income or loss during the past 12 months,2013(1)2025,yes,,,no,,netrentb
+netrentx,FLOAT64,What was the amount of net rental income or loss?,2013(1)2025,no,,usd,no,,netrentx
+netrntbx,FLOAT64,Median of Bracket Range,2013(1)2025,no,,usd,no,,netrntbx
+netrent1,FLOAT64,Imputation Iteration #1 - NETRENTX,2013(1)2025,no,,usd,no,,netrent1
+netrent2,FLOAT64,Imputation Iteration #2 - NETRENTX,2013(1)2025,no,,usd,no,,netrent2
+netrent3,FLOAT64,Imputation Iteration #3 - NETRENTX,2013(1)2025,no,,usd,no,,netrent3
+netrent4,FLOAT64,Imputation Iteration #4 - NETRENTX,2013(1)2025,no,,usd,no,,netrent4
+netrent5,FLOAT64,Imputation Iteration #5 - NETRENTX,2013(1)2025,no,,usd,no,,netrent5
+netrenti,STRING,Indicator/descriptor variable for income imputation,2013(1)2025,no,,,no,,netrenti
+netrentm,FLOAT64,"Amount of income received from net rental income or loss, mean of the iterations",2013(1)2025,no,,usd,no,,netrentm
+othastbx,FLOAT64,Median of Bracket Edit,2013(1)2025,no,,usd,no,,othastbx
+othastb,STRING,Range which best reflects the total value of these other financial assets,2013(1)2025,yes,,,no,,othastb
+othastb_,STRING,"Data-quality flag for OTHASTB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,othastb_
+othastx,FLOAT64,"As of today, what is the total value of these other financial assets?",2013(1)2025,no,,usd,no,,othastx
+othastx_,STRING,"Data-quality flag for OTHASTX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,othastx_
+othfinx,FLOAT64,"What was the total amount paid in finance, late charges, and interest for all other loans in the last month?",2013(1)2025,no,,usd,no,,othfinx
+othfinx_,STRING,"Data-quality flag for OTHFINX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,othfinx_
+othlonbx,FLOAT64,Median of Bracket Range,2013(1)2025,no,,usd,no,,othlonbx
+othlyrbx,FLOAT64,Median of Bracket Range,2013(1)2025,no,,usd,no,,othlyrbx
+othlnyrb,STRING,Range which best reflects the total amount owed on all other loans one year ago today,2013(1)2025,yes,,,no,,othlnyrb
+othlnyrx,FLOAT64,What was the total amount owed on all other loans one year ago today?,2013(1)2025,no,,usd,no,,othlnyrx
+othloan,STRING,"As of today, do you have any other debt such as medical loans or personal loans?",2013(1)2025,yes,,,no,,othloan
+othloan_,STRING,"Data-quality flag for OTHLOAN: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,othloan_
+othlonb,STRING,Range which best reflects the total amount owed on all other loans,2013(1)2025,yes,,,no,,othlonb
+othlonb_,STRING,"Data-quality flag for OTHLONB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,othlonb_
+othlonx,FLOAT64,What is the total amount owed on all other loans?,2013(1)2025,no,,usd,no,,othlonx
+othlonx_,STRING,"Data-quality flag for OTHLONX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,othlonx_
+othregbx,FLOAT64,Median of Bracket Range,2013(1)2025,no,,usd,no,,othregbx
+othregb,STRING,"Range which best reflects the total amount received in Veteran's Administration (VA) payments, unemployment compensation, child support, or alimony during the past 12 months",2013(1)2025,yes,,,no,,othregb
+othregb_,STRING,"Data-quality flag for OTHREGB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,othregb_
+othregx,FLOAT64,"Amount of income received from any other source such as Veteran’s Administration (VA) payments, unemployment compensation, child support, or alimony",2013(1)2025,no,,usd,no,,othregx
+othregx_,STRING,"Data-quality flag for OTHREGX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,othregx_
+othregx1,FLOAT64,Imputation Iteration #1 - OTHREGX,2013(1)2025,no,,usd,no,,othregx1
+othregx2,FLOAT64,Imputation Iteration #2 - OTHREGX,2013(1)2025,no,,usd,no,,othregx2
+othregx3,FLOAT64,Imputation Iteration #3 - OTHREGX,2013(1)2025,no,,usd,no,,othregx3
+othregx4,FLOAT64,Imputation Iteration #4 - OTHREGX,2013(1)2025,no,,usd,no,,othregx4
+othregx5,FLOAT64,Imputation Iteration #5 - OTHREGX,2013(1)2025,no,,usd,no,,othregx5
+othregxi,STRING,Indicator/descriptor variable for income imputation,2013(1)2025,no,,,no,,othregxi
+othregxm,FLOAT64,"Amount of income received from any other source such as Veteran’s Administration (VA) payments, unemployment compensation, child support, or alimony, mean of the iterations",2013(1)2025,no,,usd,no,,othregxm
+othsyrbx,FLOAT64,Median of Bracket Range,2013(1)2025,no,,usd,no,,othsyrbx
+othstyrb,STRING,Range which best reflects the total value of these other financial assets one year ago today,2013(1)2025,yes,,,no,,othstyrb
+othstyrx,FLOAT64,What was the value of these other financial assets one year ago today?,2013(1)2025,no,,usd,no,,othstyrx
+retsurvx,FLOAT64,"What was the amount received in retirement, survivor, or disability pensions during the past 12 months. NOTE: Because this information is only collected from respondents in the 5th interview, the reported values have been multiplied by four to produce s",2013(1)2025,no,,usd,no,,retsurvx
+retsrvbx,FLOAT64,Median of Bracket Range,2013(1)2025,no,,usd,no,,retsrvbx
+retsurv,STRING,"Amount of income received from retirement, survivor, or disability pensions",2013(1)2025,yes,,,no,,retsurv
+retsurv_,STRING,"Data-quality flag for RETSURV: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,retsurv_
+retsurv1,FLOAT64,Imputation Iteration #1 - RETSURVX,2013(1)2025,no,,usd,no,,retsurv1
+retsurv2,FLOAT64,Imputation Iteration #2 - RETSURVX,2013(1)2025,no,,usd,no,,retsurv2
+retsurv3,FLOAT64,Imputation Iteration #3 - RETSURVX,2013(1)2025,no,,usd,no,,retsurv3
+retsurv4,FLOAT64,Imputation Iteration #4 - RETSURVX,2013(1)2025,no,,usd,no,,retsurv4
+retsurv5,FLOAT64,Imputation Iteration #5 - RETSURVX,2013(1)2025,no,,usd,no,,retsurv5
+retsurvb,STRING,"Range that best reflects the total amount received in retirement, survivor, or disability pensions during the past 12 months",2013(1)2025,yes,,,no,,retsurvb
+retsurvi,STRING,Indicator/descriptor variable for income imputation,2013(1)2025,no,,,no,,retsurvi
+retsurvm,FLOAT64,"Amount of income received from retirement, survivor, or disability pensions, mean of the iterations",2013(1)2025,no,,usd,no,,retsurvm
+royestbx,FLOAT64,Median of Bracket Range,2013(1)2025,no,,usd,no,,royestbx
+royestb,STRING,Range that best reflects the total amount received in royalty income or income from estates and trusts during the past 12 months,2013(1)2025,yes,,,no,,royestb
+royestb_,STRING,"Data-quality flag for ROYESTB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,royestb_
+royestx,FLOAT64,Amount of income received from royalty income or income from estates and trusts,2013(1)2025,no,,usd,no,,royestx
+royestx_,STRING,"Data-quality flag for ROYESTX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,royestx_
+royestx1,FLOAT64,Imputation Iteration #1 - ROYESTX,2013(1)2025,no,,usd,no,,royestx1
+royestx2,FLOAT64,Imputation Iteration #2 - ROYESTX,2013(1)2025,no,,usd,no,,royestx2
+royestx3,FLOAT64,Imputation Iteration #3 - ROYESTX,2013(1)2025,no,,usd,no,,royestx3
+royestx4,FLOAT64,Imputation Iteration #4 - ROYESTX,2013(1)2025,no,,usd,no,,royestx4
+royestx5,FLOAT64,Imputation Iteration #5 - ROYESTX,2013(1)2025,no,,usd,no,,royestx5
+royestxi,STRING,Indicator/descriptor variable for income imputation,2013(1)2025,no,,,no,,royestxi
+royestxm,FLOAT64,"Amount of income received from royalty income or income from estates and trusts, mean of the iterations",2013(1)2025,no,,usd,no,,royestxm
+stckyrbx,FLOAT64,Median of Bracket Range,2013(1)2025,no,,usd,no,,stckyrbx
+stdntyrb,STRING,Range which best reflects the total amount owed on all student loans one year ago today,2013(1)2025,yes,,,no,,stdntyrb
+stdntyrx,FLOAT64,What was the total amount owed on all student loans one year ago today?,2013(1)2025,no,,usd,no,,stdntyrx
+stdtyrbx,FLOAT64,Median of Bracket Range,2013(1)2025,no,,usd,no,,stdtyrbx
+stockyrb,STRING,"Range which best reflects the total value of all directly-held stocks, bonds, and mutual funds one year ago today",2013(1)2025,yes,,,no,,stockyrb
+stockyrx,FLOAT64,"What was the total value of all directly-held stocks, bonds, and mutual funds one year ago today?",2013(1)2025,no,,usd,no,,stockyrx
+stockb,STRING,"Range which best reflects the total value of all directly-held stocks, bonds, and mutual funds",2013(1)2025,yes,,,no,,stockb
+stockb_,STRING,"Data-quality flag for STOCKB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,stockb_
+stockbx,FLOAT64,Median of Bracket Range,2013(1)2025,no,,usd,no,,stockbx
+stockbx_,STRING,"Data-quality flag for STOCKBX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,stockbx_
+stockx,FLOAT64,"As of today, what is the total value of all directly-held stocks, bonds, and mutual funds?",2013(1)2025,no,,usd,no,,stockx
+stockx_,STRING,"Data-quality flag for STOCKX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,stockx_
+studfinx,FLOAT64,"What was the total amount paid in finance, late charges, and interest for all student loans in the last month?",2013(1)2025,no,,usd,no,,studfinx
+studntbx,FLOAT64,Median of Bracket Range,2013(1)2025,no,,usd,no,,studntbx
+studntb,STRING,Range which best reflects the total amount owed on all student loans,2013(1)2025,yes,,,no,,studntb
+studntb_,STRING,"Data-quality flag for STUDNTB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,studntb_
+studntx,FLOAT64,What is the total amount owed on all student loans?,2013(1)2025,no,,usd,no,,studntx
+studntx_,STRING,"Data-quality flag for STUDNTX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,studntx_
+whlfyrbx,FLOAT64,Median of Bracket Range,2013(1)2025,no,,usd,no,,whlfyrbx
+whlfyrb,STRING,Range which best reflects the total surrender value of these policies one year ago today,2013(1)2025,yes,,,no,,whlfyrb
+whlfyrb_,STRING,"Data-quality flag for WHLFYRB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,whlfyrb_
+whlfyrx,FLOAT64,What was the total surrender value of these policies one year ago today?,2013(1)2025,no,,usd,no,,whlfyrx
+whlfyrx_,STRING,"Data-quality flag for WHLFYRX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,whlfyrx_
+wholifbx,FLOAT64,Median of Bracket Range,2013(1)2025,no,,usd,no,,wholifbx
+wholifb,STRING,Range which best reflects the total surrender value of these policies,2013(1)2025,yes,,,no,,wholifb
+wholifb_,STRING,"Data-quality flag for WHOLIFB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,wholifb_
+wholifx,FLOAT64,"As of today, what is the total surrender value of these policies?",2013(1)2025,no,,usd,no,,wholifx
+wholifx_,STRING,"Data-quality flag for WHOLIFX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,wholifx_
+buscreen,STRING,Has household had business expenses that could be reimbursed?,2015(1)2025,yes,,,no,,buscreen
+division,STRING,Division,2015(1)2025,yes,,,no,,division
+refgen,STRING,Generation of the reference person: Create five values for generation based on the birth year of the reference person,2016(1)2025,yes,,,no,,refgen
+vehictax,FLOAT64,Personal property taxes for vehicles,2016(1)2025,no,,usd,no,,vehictax
+credyr,STRING,Did you have any credit cards including store cards and gas cards one year ago today?,2017(1)2025,yes,,,no,,credyr
+credyr_,STRING,"Data-quality flag for CREDYR: valid, blank, allocated, imputed or topcoded",2017(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,credyr_
+ira,STRING,"Do you have any retirement accounts such as 401(k0s, IRAS, Thrift Saving Plans?",2017(1)2025,yes,,,no,,ira
+ira_,STRING,"Data-quality flag for IRA: valid, blank, allocated, imputed or topcoded",2017(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,ira_
+irayr,STRING,"Did you have any retirement accounts such as 401(k)s, IRAs, Thrift Savings Plans ONE YEAR AGO TODAY?",2017(1)2025,yes,,,no,,irayr
+irayr_,STRING,"Data-quality flag for IRAYR: valid, blank, allocated, imputed or topcoded",2017(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,irayr_
+liqudyr,STRING,"Did you have any checking savings money market accounts, or certificates of deposit or CDs one year ago?",2017(1)2025,yes,,,no,,liqudyr
+liqudyr_,STRING,"Data-quality flag for LIQUDYR: valid, blank, allocated, imputed or topcoded",2017(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,liqudyr_
+liquid,STRING,"Do you have any checking, saving, money market accounts, or certificates of deposit or CDs?",2017(1)2025,yes,,,no,,liquid
+liquid_,STRING,"Data-quality flag for LIQUID: valid, blank, allocated, imputed or topcoded",2017(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,liquid_
+othlnyr,STRING,Did you have any other debt such as medical loans or personal loans one year ago today?,2017(1)2025,yes,,,no,,othlnyr
+othlnyr_,STRING,"Data-quality flag for OTHLNYR: valid, blank, allocated, imputed or topcoded",2017(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,othlnyr_
+othstyr,STRING,"Did you have any other financial assets, such as annuities, trusts, and royalties on year ago today?",2017(1)2025,yes,,,no,,othstyr
+othstyr_,STRING,"Data-quality flag for OTHSTYR: valid, blank, allocated, imputed or topcoded",2017(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,othstyr_
+stdntyr,STRING,Did you have student loans one years ago today?,2017(1)2025,yes,,,no,,stdntyr
+stdntyr_,STRING,"Data-quality flag for STDNTYR: valid, blank, allocated, imputed or topcoded",2017(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,stdntyr_
+stockyr,STRING,"Did you have any directly-held stocks, bonds, or mutual funds one year ago?",2017(1)2025,yes,,,no,,stockyr
+stockyr_,STRING,"Data-quality flag for STOCKYR: valid, blank, allocated, imputed or topcoded",2017(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,stockyr_
+whlfyr,STRING,Did you own any whole life insurance or other life insurance policies that can be surrendered for cash or borrowed against prior to the death of the person insured one year ago today?,2017(1)2025,yes,,,no,,whlfyr
+whlfyr_,STRING,"Data-quality flag for WHLFYR: valid, blank, allocated, imputed or topcoded",2017(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,whlfyr_
+cbsaprin,STRING,"BLS variable CBSAPRIN, not documented in the BLS dictionary",2021(1)2025,no,,,no,Absent from the BLS PUMD dictionary Stored as text: type not determinable from the BLS documentation,cbsaprin
+urban,STRING,URBAN/RURAL Census Sample Design,2021(1)2025,yes,,,no,,urban
+num_vet,FLOAT64,Number of CU members reported as veterans,2023(1)2025,no,,person,no,,num_vet
+grocerpq,FLOAT64,Grocery expenditure last quarter,2024(1)2025,no,,usd,no,,grocerpq
+grocercq,FLOAT64,Grocery expenditure this quarter,2024(1)2025,no,,usd,no,,grocercq
+hlfbathq,FLOAT64,Number of half baths in this unit,1996(1)2024,no,,unit,no,,hlfbathq
+roomsq,FLOAT64,"Number of rooms in CU living quarters, including finished living areas, excluding all baths",1996(1)2024,no,,unit,no,,roomsq
+roomsq_,STRING,"Data-quality flag for ROOMSQ: valid, blank, allocated, imputed or topcoded",1996(1)2024,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,roomsq_
+foodpq,FLOAT64,Total food last quarter,1996(1)2024,no,,usd,no,,foodpq
+foodcq,FLOAT64,Total food this quarter,1996(1)2024,no,,usd,no,,foodcq
+swimpool,STRING,Does this unit have a swimming pool,1996(1)2024,yes,,,no,,swimpool
+aptment,STRING,Does this unit have an apartment or guest house?,1996(1)2024,yes,,,no,,aptment
+aptment_,STRING,"Data-quality flag for APTMENT: valid, blank, allocated, imputed or topcoded",1996(1)2024,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,aptment_
+ofstpark,STRING,See SWIMPOOL for question and source,1996(1)2024,yes,,,no,,ofstpark
+windowac,STRING,Does this unit have a window AC unit?,1996(1)2024,yes,,,no,,windowac
+cntralac,STRING,Does this unit have a --,1996(1)2024,yes,,,no,,cntralac
+porch,STRING,Does this unit have a porch,1999(1)2024,yes,,,no,,porch
+porch_,STRING,"Data-quality flag for PORCH: valid, blank, allocated, imputed or topcoded",1999(1)2024,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,porch_
+enomotrp,FLOAT64,Outlays for non-motored recreational vehicles last quarter,2000(1)2024,no,,usd,no,,enomotrp
+enomotrc,FLOAT64,Outlays for non-motored recreational vehicles this quarter,2000(1)2024,no,,usd,no,,enomotrc
+emotrvhp,FLOAT64,Outlays for motored recreational vehicles last quarter,2000(1)2024,no,,usd,no,,emotrvhp
+emotrvhc,FLOAT64,Outlays for motored recreational vehicles this quarter,2000(1)2024,no,,usd,no,,emotrvhc
+solarpnl,STRING,Solar panels,2017(1)2024,yes,,,no,,solarpnl
+chdtxp,FLOAT64,"BLS variable CHDTXP, not documented in the BLS dictionary",2021(1)2024,no,,usd,no,Absent from the BLS PUMD dictionary,chdtxp
+chdtxp_,STRING,"Data-quality flag for CHDTXP: valid, blank, allocated, imputed or topcoded",2021(1)2024,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,chdtxp_
+chdtxph,FLOAT64,"BLS variable CHDTXPH, not documented in the BLS dictionary",2021(1)2024,no,,usd,no,Absent from the BLS PUMD dictionary,chdtxph
+chdtxph_,STRING,"Data-quality flag for CHDTXPH: valid, blank, allocated, imputed or topcoded",2021(1)2024,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,chdtxph_
+built,STRING,The year range that the property was built,1996(1)2023,yes,,,no,,built
+built_,STRING,"Data-quality flag for BUILT: valid, blank, allocated, imputed or topcoded",1996(1)2023,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,built_
+finatxe1,FLOAT64,Imputed Income After Tax #1,2013(1)2023,no,,usd,no,,finatxe1
+finatxe2,FLOAT64,Imputed Income After Tax #2,2013(1)2023,no,,usd,no,,finatxe2
+finatxe3,FLOAT64,Imputed Income After Tax #3,2013(1)2023,no,,usd,no,,finatxe3
+finatxe4,FLOAT64,Imputed Income After Tax #4,2013(1)2023,no,,usd,no,,finatxe4
+finatxe5,FLOAT64,Imputed Income After Tax #5,2013(1)2023,no,,usd,no,,finatxe5
+totxest,FLOAT64,Estimated total taxes paid,2013(1)2023,no,,usd,no,,totxest
+fftaxowe,FLOAT64,Weighted estimate for Federal tax liabilities for entire CU,2013(1)2023,no,,usd,no,,fftaxowe
+fstaxowe,FLOAT64,Weighted estimate for State tax liabilities for entire CU,2013(1)2023,no,,usd,no,,fstaxowe
+finatxem,FLOAT64,Total amount of family income after estimated taxes in the last 12 months (Imputed or collected data),2013(1)2023,no,,usd,no,,finatxem
+menboypq,FLOAT64,Clothing for men and boys last quarter,1996(1)2021,no,,usd,no,,menboypq
+menboycq,FLOAT64,Clothing for men and boys this quarter,1996(1)2021,no,,usd,no,,menboycq
+mensixpq,FLOAT64,"Clothing for men, 16 and over last quarter",1996(1)2021,no,,usd,no,,mensixpq
+mensixcq,FLOAT64,"Clothing for men, 16 and over this quarter",1996(1)2021,no,,usd,no,,mensixcq
+boyfifpq,FLOAT64,"Clothing for boys, 2 to 15 last quarter",1996(1)2021,no,,usd,no,,boyfifpq
+boyfifcq,FLOAT64,"Clothing for boys, 2 to 15 this quarter",1996(1)2021,no,,usd,no,,boyfifcq
+womgrlpq,FLOAT64,Clothing for women and girls last quarter WOMSIXPQ + GRLFIFPQ,1996(1)2021,no,,usd,no,,womgrlpq
+womgrlcq,FLOAT64,Clothing for women and girls this quarter WOMSIXCQ + GRLFIFCQ,1996(1)2021,no,,usd,no,,womgrlcq
+womsixpq,FLOAT64,"Clothing for women, 16 and over last quarter",1996(1)2021,no,,usd,no,,womsixpq
+womsixcq,FLOAT64,"Clothing for women, 16 and over this quarter",1996(1)2021,no,,usd,no,,womsixcq
+grlfifpq,FLOAT64,"Clothing for girls, 2 to 15 this quarter",1996(1)2021,no,,usd,no,,grlfifpq
+grlfifcq,FLOAT64,"Clothing for girls, 2 to 15 this quarter",1996(1)2021,no,,usd,no,,grlfifcq
+chldrnpq,FLOAT64,Clothing for children under 2 last quarter,1996(1)2021,no,,usd,no,,chldrnpq
+chldrncq,FLOAT64,Clothing for children under 2 this quarter,1996(1)2021,no,,usd,no,,chldrncq
+footwrpq,FLOAT64,Footwear last quarter,1996(1)2021,no,,usd,no,,footwrpq
+footwrcq,FLOAT64,Footwear this quarter,1996(1)2021,no,,usd,no,,footwrcq
+othaplpq,FLOAT64,OTHAPLPQ Other apparel products and services last quarter,1996(1)2021,no,,usd,no,,othaplpq
+othaplcq,FLOAT64,OTHAPLCQ Other apparel products and services this quarter,1996(1)2021,no,,usd,no,,othaplcq
+int_home,STRING,"Does this home have high-speed internet access such as DSL, cable broadband, or FIOS?",2015(1)2018,yes,,,no,,int_home
+int_phon,STRING,Do you or anyone in this household have high speed internet access through a smartphone and a data plan?,2015(1)2018,yes,,,no,,int_phon
+desflg,STRING,Flag to identify which sample design a CU was collected in,2015(1)2018,yes,,,no,,desflg
+inclass,STRING,Income class of CU based on income before taxes,1996(1)2017,yes,,,no,,inclass
+eitc,STRING,"During the past 12 months, did you claim an Earned Income Tax Credit on your federal income tax return?",2013(1)2017,yes,,,no,,eitc
+eitc_,STRING,"Data-quality flag for EITC: valid, blank, allocated, imputed or topcoded",2013(1)2017,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,eitc_
+birthyr,INT64,"BLS variable BIRTHYR, not documented in the BLS dictionary",2016(1)2016,no,,year,no,Absent from the BLS PUMD dictionary,birthyr
+famtfedx,FLOAT64,Total amount of Federal tax deducted from last pay annualized,1996(1)2014,no,,usd,no,,famtfedx
+fedrfndx,FLOAT64,Amount of refund received from federal income tax,1996(1)2014,no,,usd,no,,fedrfndx
+fedtaxx,FLOAT64,Amount of federal tax paid by any CU member in addition to that withheld from earnings in past 12 months,1996(1)2014,no,,usd,no,,fedtaxx
+fedtaxx_,STRING,"Data-quality flag for FEDTAXX: valid, blank, allocated, imputed or topcoded",1996(1)2014,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fedtaxx_
+fincatax,FLOAT64,Total amount of family income after taxes in the last 12 months (Collected data),1996(1)2014,no,,usd,no,,fincatax
+fsltaxx,FLOAT64,Amount of state and local income taxes deducted from last pay annualized for all CU members (sum ANSLTX from MEMB file for all CU members),1996(1)2014,no,,usd,no,,fsltaxx
+fsltaxx_,STRING,"Data-quality flag for FSLTAXX: valid, blank, allocated, imputed or topcoded",1996(1)2014,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fsltaxx_
+sloctaxx,FLOAT64,Amount of state and local tax paid in addition to that withheld from earnings during past 12 months,1996(1)2014,no,,usd,no,,sloctaxx
+slrfundx,FLOAT64,Amount of refund received from state and local income tax,1996(1)2014,no,,usd,no,,slrfundx
+tottxpdx,FLOAT64,Total amount personal taxes,1996(1)2014,no,,usd,no,,tottxpdx
+famtfedm,FLOAT64,"Total amount of Federal tax deducted from last pay annualized, mean of imputation iteration",2004(1)2014,no,,usd,no,,famtfedm
+famtfed1,FLOAT64,Imputation Iteration #1 - FAMTFEDX,2004(1)2014,no,,usd,no,,famtfed1
+famtfed2,FLOAT64,Imputation Iteration #2 - FAMTFEDX,2004(1)2014,no,,usd,no,,famtfed2
+famtfed3,FLOAT64,Imputation Iteration #3 - FAMTFEDX,2004(1)2014,no,,usd,no,,famtfed3
+famtfed4,FLOAT64,Imputation Iteration #4 - FAMTFEDX,2004(1)2014,no,,usd,no,,famtfed4
+famtfed5,FLOAT64,Imputation Iteration #5 - FAMTFEDX,2004(1)2014,no,,usd,no,,famtfed5
+fincatxm,FLOAT64,Total amount of family income after taxes in the last 12 months (Imputed or collected data),2004(1)2014,no,,usd,no,,fincatxm
+fincatx1,FLOAT64,Imputation Iteration #1 - FINCATAX,2004(1)2014,no,,usd,no,,fincatx1
+fincatx2,FLOAT64,Imputation Iteration #2 - FINCATAX,2004(1)2014,no,,usd,no,,fincatx2
+fincatx3,FLOAT64,Imputation Iteration #3 - FINCATAX,2004(1)2014,no,,usd,no,,fincatx3
+fincatx4,FLOAT64,Imputation Iteration #4 - FINCATAX,2004(1)2014,no,,usd,no,,fincatx4
+fincatx5,FLOAT64,Imputation Iteration #5 - FINCATAX,2004(1)2014,no,,usd,no,,fincatx5
+fsltaxxm,FLOAT64,"Total amount of state and local income taxes deducted from last pay annualized, mean of imputation iterations",2004(1)2014,no,,usd,no,,fsltaxxm
+fsltaxx1,FLOAT64,Imputation Iteration #1 - FSLTAXX,2004(1)2014,no,,usd,no,,fsltaxx1
+fsltaxx2,FLOAT64,Imputation Iteration #2 - FSLTAXX,2004(1)2014,no,,usd,no,,fsltaxx2
+fsltaxx3,FLOAT64,Imputation Iteration #3 - FSLTAXX,2004(1)2014,no,,usd,no,,fsltaxx3
+fsltaxx4,FLOAT64,Imputation Iteration #4 - FSLTAXX,2004(1)2014,no,,usd,no,,fsltaxx4
+fsltaxx5,FLOAT64,Imputation Iteration #5 - FSLTAXX,2004(1)2014,no,,usd,no,,fsltaxx5
+tottxpdm,FLOAT64,Total amount personal taxes,2004(1)2014,no,,usd,no,,tottxpdm
+tottxpd1,FLOAT64,Imputation Iteration #1 - TOTTXPDX,2004(1)2014,no,,usd,no,,tottxpd1
+tottxpd2,FLOAT64,Imputation Iteration #2 - TOTTXPDX,2004(1)2014,no,,usd,no,,tottxpd2
+tottxpd3,FLOAT64,Imputation Iteration #3 - TOTTXPDX,2004(1)2014,no,,usd,no,,tottxpd3
+tottxpd4,FLOAT64,Imputation Iteration #4 - TOTTXPDX,2004(1)2014,no,,usd,no,,tottxpd4
+tottxpd5,FLOAT64,Imputation Iteration #5 - TOTTXPDX,2004(1)2014,no,,usd,no,,tottxpd5
+respstat,STRING,Completeness of income response status by code,1996(1)2013,yes,,,no,,respstat
+pov_cy,STRING,CU below/not below the current year's poverty threshold?,1996(1)2013,yes,,,no,,pov_cy
+pov_cy_,STRING,"Data-quality flag for POV_CY: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,pov_cy_
+pov_py,STRING,Is your CU below the prior year's poverty threshold?,1996(1)2013,yes,,,no,,pov_py
+pov_py_,STRING,"Data-quality flag for POV_PY: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,pov_py_
+povlevcy,FLOAT64,Poverty threshold for this CU in the current year,1999(1)2013,no,,usd,no,,povlevcy
+povlevpy,FLOAT64,Poverty threshold for this CU in the previous year,1999(1)2013,no,,usd,no,,povlevpy
+pov_cym,STRING,Is CU income below current year’s poverty threshold? (Income is defined as FINCBTXM-FOODSMPM.),2004(1)2013,yes,,,no,,pov_cym
+pov_cym_,STRING,"Data-quality flag for POV_CYM: valid, blank, allocated, imputed or topcoded",2004(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,pov_cym_
+pov_cy1,STRING,Imputation Iteration #1 - POV_CY,2004(1)2013,yes,,,no,,pov_cy1
+pov_cy2,STRING,Imputation Iteration #2 - POV_CY,2004(1)2013,yes,,,no,,pov_cy2
+pov_cy3,STRING,Imputation Iteration #3 - POV_CY,2004(1)2013,yes,,,no,,pov_cy3
+pov_cy4,STRING,Imputation Iteration #4 - POV_CY,2004(1)2013,yes,,,no,,pov_cy4
+pov_cy5,STRING,Imputation Iteration #5 - POV_CY,2004(1)2013,yes,,,no,,pov_cy5
+pov_pym,STRING,Is CU income below previous year’s poverty threshold? (Income is defined as FINCBTXM-FOODSMPM.),2004(1)2013,yes,,,no,,pov_pym
+pov_pym_,STRING,"Data-quality flag for POV_PYM: valid, blank, allocated, imputed or topcoded",2004(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,pov_pym_
+pov_py1,STRING,Imputation Iteration #1 - POV_PY,2004(1)2013,yes,,,no,,pov_py1
+pov_py2,STRING,Imputation Iteration #2 - POV_PY,2004(1)2013,yes,,,no,,pov_py2
+pov_py3,STRING,Imputation Iteration #3 - POV_PY,2004(1)2013,yes,,,no,,pov_py3
+pov_py4,STRING,Imputation Iteration #4 - POV_PY,2004(1)2013,yes,,,no,,pov_py4
+pov_py5,STRING,Imputation Iteration #5 - POV_PY,2004(1)2013,yes,,,no,,pov_py5
+bsinvstx,FLOAT64,Amount CU invested in own farm or business in past 12 months,1996(1)2013,no,,usd,no,,bsinvstx
+ckbkactx,FLOAT64,"Total balance or market value (including interest earned) CU had in checking accounts, brokerage accounts, and other similar accounts as of the last day of the previous month",1996(1)2013,no,,usd,no,,ckbkactx
+compbnd,STRING,How does the amount your CU had on the last day of the last month compare with the amount your CU had on the last day of the last month one year ago in U.S. Savings bonds?,1996(1)2013,yes,,,no,,compbnd
+compbnd_,STRING,"Data-quality flag for COMPBND: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,compbnd_
+compbndx,FLOAT64,The difference in the amount held in U.S. Savings Bonds as of the last day of last month compared with the amount held a year ago last month,1996(1)2013,no,,usd,no,,compbndx
+compckg,STRING,How does the amount your CU had on the last day of the last month compare with the amount your CU had on the last day of the last month one year ago in checking accounts?,1996(1)2013,yes,,,no,,compckg
+compckg_,STRING,"Data-quality flag for COMPCKG: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,compckg_
+compckgx,FLOAT64,The difference in the amount held in checking accounts as of the last day of last month as compared with a year ago last month,1996(1)2013,no,,usd,no,,compckgx
+compensx,FLOAT64,Amount received from workmen's compensation and veteran's payments including education,1996(1)2013,no,,usd,no,,compensx
+compowd,STRING,How does the amount owed to your CU on the last day of the last month compare with the amount owed to your CU by persons outside your CU on the last day of the last month one year ago?,1996(1)2013,yes,,,no,,compowd
+compowd_,STRING,"Data-quality flag for COMPOWD: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,compowd_
+compowdx,FLOAT64,The difference in the amount owed to CU by persons outside CU last month compared with the amount owed a year ago last month,1996(1)2013,no,,usd,no,,compowdx
+compsav,STRING,How does the amount your CU had on the last day of the last month compare with the amount your CU had on the last day of the last month one year ago in savings accounts?,1996(1)2013,yes,,,no,,compsav
+compsav_,STRING,"Data-quality flag for COMPSAV: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,compsav_
+compsavx,FLOAT64,The difference in the amount held in savings accounts on the last day of last month compared with a year ago last month,1996(1)2013,no,,usd,no,,compsavx
+compsec,STRING,How does this compare with the value of such securities your CU held on the last day of the last month one year ago?,1996(1)2013,yes,,,no,,compsec
+compsec_,STRING,"Data-quality flag for COMPSEC: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,compsec_
+compsecx,FLOAT64,"The difference in the estimated market value of all stocks, bonds, mutual funds, and other such securities held by CU last month compared with the value of all securities held a year ago last month",1996(1)2013,no,,usd,no,,compsecx
+ffrmincx,FLOAT64,Total amount of income or loss received from own farm,1996(1)2013,no,,usd,no,,ffrmincx
+finincx,FLOAT64,"Amount of regular income earned from dividends, royalties, estates, or trusts",1996(1)2013,no,,usd,no,,finincx
+finincx_,STRING,"Data-quality flag for FININCX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,finincx_
+fnonfrmx,FLOAT64,"Total amount of income received from non-farm business, partnership or professional practice by family grouping",1996(1)2013,no,,usd,no,,fnonfrmx
+govtcost,STRING,"Are your housing costs lower because the Federal, State, or local government is paying part of the costs?",1996(1)2013,yes,,,no,,govtcost
+inclossa,FLOAT64,Amount of net income or loss received from roomers or boarders,1996(1)2013,no,,usd,no,,inclossa
+inclossb,FLOAT64,Amount of net income or loss received from payments from other rental properties,1996(1)2013,no,,usd,no,,inclossb
+insrfndx,FLOAT64,Amount received in refund from insurance policies,1996(1)2013,no,,usd,no,,insrfndx
+intearnx,FLOAT64,Amount earned as interest on savings accounts or bonds,1996(1)2013,no,,usd,no,,intearnx
+monyowdx,FLOAT64,Amount of money owed to CU by persons outside CU a year ago,1996(1)2013,no,,usd,no,,monyowdx
+othrfndx,FLOAT64,"Amount of refund received from other sources, including any other taxes during past 12 months",1996(1)2013,no,,usd,no,,othrfndx
+pensionx,FLOAT64,"Amount received from pensions or annuities from private companies, military, or government",1996(1)2013,no,,usd,no,,pensionx
+ptaxrfdx,FLOAT64,Amount received in refund from property taxes,1996(1)2013,no,,usd,no,,ptaxrfdx
+publhous,STRING,"Is this house in a public housing project, that is, is it owned by a local housing authority or other local public agency?",1996(1)2013,yes,,,no,,publhous
+purssecx,FLOAT64,"Purchase price of stocks, bonds, or mutual funds including broker fees bought by CU in past 12 months",1996(1)2013,no,,usd,no,,purssecx
+saleincx,FLOAT64,"Amount received from sale of household furnishings, equipment, clothing, jewelry, pets, or other belongings, excluding the sale of vehicles or property",1996(1)2013,no,,usd,no,,saleincx
+savacctx,FLOAT64,"Total balance or market value (including interest earned) CU had in savings accounts in banks, savings and loans, credit unions, etc., as of the last day of previous month",1996(1)2013,no,,usd,no,,savacctx
+secestx,FLOAT64,"Estimated market value of all stocks, bonds, mutual funds, and other such securities held by CU on the last day of the previous month",1996(1)2013,no,,usd,no,,secestx
+secestx_,STRING,"Data-quality flag for SECESTX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,secestx_
+sellsecx,FLOAT64,"Net amount CU received from sales of stocks, bonds, or mutual funds after subtracting broker fees",1996(1)2013,no,,usd,no,,sellsecx
+setlinsx,FLOAT64,Amount CU received as settlement on surrender of any insurance policies,1996(1)2013,no,,usd,no,,setlinsx
+ssoverpx,FLOAT64,Amount received from refund of overpayment on Social Security,1996(1)2013,no,,usd,no,,ssoverpx
+taxpropx,FLOAT64,Amount of personal property taxes paid not reported elsewhere during past 12 months,1996(1)2013,no,,usd,no,,taxpropx
+unemplx,FLOAT64,Amount received from unemployment compensation,1996(1)2013,no,,usd,no,,unemplx
+unemplx_,STRING,"Data-quality flag for UNEMPLX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,unemplx_
+usbndx,FLOAT64,Total balance or market value (including interest earned) CU had in U.S. Savings Bonds as of the last day of the previous month,1996(1)2013,no,,usd,no,,usbndx
+usbndx_,STRING,"Data-quality flag for USBNDX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,usbndx_
+wdbsastx,FLOAT64,Amount of assets from business or farm that CU withdrew in past 12 months,1996(1)2013,no,,usd,no,,wdbsastx
+wdbsgdsx,FLOAT64,Value of goods or services withdrawn by CU from own farm or business for personal use in past 12 months,1996(1)2013,no,,usd,no,,wdbsgdsx
+heatfuel,STRING,What fuel is used most for heating this unit?,1996(1)2013,yes,,,no,,heatfuel
+waterht,STRING,What fuel is used for heating water?,1996(1)2013,yes,,,no,,waterht
+waterht_,STRING,"Data-quality flag for WATERHT: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,waterht_
+chdothx,FLOAT64,Total amount received by all CU members in last 12 months for other child support,1996(1)2013,no,,usd,no,,chdothx
+chdothx_,STRING,"Data-quality flag for CHDOTHX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,chdothx_
+aliothx,FLOAT64,"During the past 12 months, what was the total amount of income from regular contributions from alimony and other sources, such as from persons outside the CU received by ALL CU members?",1996(1)2013,no,,usd,no,,aliothx
+aliothx_,STRING,"Data-quality flag for ALIOTHX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,aliothx_
+chdlmpx,FLOAT64,Total amount received by all CU members for a lump sum child support payment in last 12 months,1996(1)2013,no,,usd,no,,chdlmpx
+chdlmpx_,STRING,"Data-quality flag for CHDLMPX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,chdlmpx_
+cooking,STRING,What fuel is used most for cooking?,1999(1)2013,yes,,,no,,cooking
+cooking_,STRING,"Data-quality flag for COOKING: valid, blank, allocated, imputed or topcoded",1999(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,cooking_
+intearnb,STRING,Bracketed variable for INTEARNM,2001(1)2013,yes,,,no,,intearnb
+internbx,FLOAT64,Median of bracket range,2001(1)2013,no,,usd,no,,internbx
+finincb,STRING,Bracketed variable for FININCXM,2001(1)2013,yes,,,no,,finincb
+finincb_,STRING,"Data-quality flag for FININCB: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,finincb_
+finincbx,FLOAT64,Median of bracket range,2001(1)2013,no,,usd,no,,finincbx
+pensionb,STRING,Range that best reflects the total amount of retirement pensions and annuities received during the last twelve months,2001(1)2013,yes,,,no,,pensionb
+pnsionbx,FLOAT64,Median of bracket range,2001(1)2013,no,,usd,no,,pnsionbx
+unemplb,STRING,Range that best reflects the total amount received in unemployment compensation during the last 12 months,2001(1)2013,yes,,,no,,unemplb
+unemplb_,STRING,"Data-quality flag for UNEMPLB: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,unemplb_
+unemplbx,FLOAT64,Median of bracket range,2001(1)2013,no,,usd,no,,unemplbx
+compensb,STRING,Bracketed variable for COMPENSM,2001(1)2013,yes,,,no,,compensb
+compnsbx,FLOAT64,Median of bracket range,2001(1)2013,no,,usd,no,,compnsbx
+welfareb,STRING,Range that best reflects the total amount of income from cash assistance from state or local government welfare programs during the last 12 months,2001(1)2013,yes,,,no,,welfareb
+foodsmpx,FLOAT64,Value of all food stamps and electronic benefits received,2001(1)2013,no,,usd,no,,foodsmpx
+foodsmpb,STRING,Range that best reflects the total value of all food stamps or food stamp money received on an EBT card in the past twelve months,2001(1)2013,yes,,,no,,foodsmpb
+foodspbx,FLOAT64,Median of bracket range,2001(1)2013,no,,usd,no,,foodspbx
+inclosab,STRING,Range that best reflects the total net income or loss from roomers or boarders,2001(1)2013,yes,,,no,,inclosab
+inclsabx,FLOAT64,Median of bracket range,2001(1)2013,no,,usd,no,,inclsabx
+inclosbb,STRING,Bracketed variable for INCLOSBM,2001(1)2013,yes,,,no,,inclosbb
+inclsbbx,FLOAT64,Median of bracket range,2001(1)2013,no,,usd,no,,inclsbbx
+chdlmpb,STRING,Bracketed variable for CHDLMPX,2001(1)2013,yes,,,no,,chdlmpb
+chdlmpb_,STRING,"Data-quality flag for CHDLMPB: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,chdlmpb_
+chdlmpbx,FLOAT64,Median of bracket range,2001(1)2013,no,,usd,no,,chdlmpbx
+chdothb,STRING,Bracketed variable for CHDOTHXM,2001(1)2013,yes,,,no,,chdothb
+chdothb_,STRING,"Data-quality flag for CHDOTHB: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,chdothb_
+chdothbx,FLOAT64,Median of bracket range,2001(1)2013,no,,usd,no,,chdothbx
+aliothb,STRING,Bracketed variable for ALIOTHXM,2001(1)2013,yes,,,no,,aliothb
+aliothb_,STRING,"Data-quality flag for ALIOTHB: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,aliothb_
+aliothbx,FLOAT64,Median of bracket range,2001(1)2013,no,,usd,no,,aliothbx
+saleincb,STRING,"Range that best reflects the total amount received from the sale of household furnishings, equipment, clothing, jewelry, pets, or other belongings, not including the sale of vehicles or real estate",2001(1)2013,yes,,,no,,saleincb
+salincbx,FLOAT64,Median of bracket range,2001(1)2013,no,,usd,no,,salincbx
+aliothxm,FLOAT64,"During the past 12 months, what was the total amount of income from regular contributions from alimony and other sources such as from persons outside the CU received by ALL CU members?",2004(1)2013,no,,usd,no,,aliothxm
+aliothx1,FLOAT64,Imputation Iteration #1 - ALIOTHX,2004(1)2013,no,,usd,no,,aliothx1
+aliothx2,FLOAT64,Imputation Iteration #2 - ALIOTHX,2004(1)2013,no,,usd,no,,aliothx2
+aliothx3,FLOAT64,Imputation Iteration #3 - ALIOTHX,2004(1)2013,no,,usd,no,,aliothx3
+aliothx4,FLOAT64,Imputation Iteration #4 - ALIOTHX,2004(1)2013,no,,usd,no,,aliothx4
+aliothx5,FLOAT64,Imputation Iteration #5 - ALIOTHX,2004(1)2013,no,,usd,no,,aliothx5
+aliothxi,STRING,Indicator/descriptor variable for income imputation,2004(1)2013,no,,,no,,aliothxi
+chdothxm,FLOAT64,"Total amount received by all CU members in last 12 months for other child support, mean of imputation iterations",2004(1)2013,no,,usd,no,,chdothxm
+chdothx1,FLOAT64,Imputation Iteration #1 - CHDOTHX,2004(1)2013,no,,usd,no,,chdothx1
+chdothx2,FLOAT64,Imputation Iteration #2 - CHDOTHX,2004(1)2013,no,,usd,no,,chdothx2
+chdothx3,FLOAT64,Imputation Iteration #3 - CHDOTHX,2004(1)2013,no,,usd,no,,chdothx3
+chdothx4,FLOAT64,Imputation Iteration #4 - CHDOTHX,2004(1)2013,no,,usd,no,,chdothx4
+chdothx5,FLOAT64,Imputation Iteration #5 - CHDOTHX,2004(1)2013,no,,usd,no,,chdothx5
+chdothxi,STRING,Indicator/descriptor variable for income imputation,2004(1)2013,no,,,no,,chdothxi
+compensm,FLOAT64,"Amount received from workmen's compensation and veteran's payments including education, mean of imputation iterations",2004(1)2013,no,,usd,no,,compensm
+compens1,FLOAT64,Imputation Iteration #1 - COMPENSX,2004(1)2013,no,,usd,no,,compens1
+compens2,FLOAT64,Imputation Iteration #2 - COMPENSX,2004(1)2013,no,,usd,no,,compens2
+compens3,FLOAT64,Imputation Iteration #3 - COMPENSX,2004(1)2013,no,,usd,no,,compens3
+compens4,FLOAT64,Imputation Iteration #4 - COMPENSX,2004(1)2013,no,,usd,no,,compens4
+compens5,FLOAT64,Imputation Iteration #5 - COMPENSX,2004(1)2013,no,,usd,no,,compens5
+compensi,STRING,Indicator/descriptor variable for income imputation,2004(1)2013,no,,,no,,compensi
+ffrmincm,FLOAT64,"Total amount of income or loss received from own farm, mean of imputation iterations",2004(1)2013,no,,usd,no,,ffrmincm
+ffrminc1,FLOAT64,Imputation Iteration #1 - FFRMINCX,2004(1)2013,no,,usd,no,,ffrminc1
+ffrminc2,FLOAT64,Imputation Iteration #2 - FFRMINCX,2004(1)2013,no,,usd,no,,ffrminc2
+ffrminc3,FLOAT64,Imputation Iteration #3 - FFRMINCX,2004(1)2013,no,,usd,no,,ffrminc3
+ffrminc4,FLOAT64,Imputation Iteration #4 - FFRMINCX,2004(1)2013,no,,usd,no,,ffrminc4
+ffrminc5,FLOAT64,Imputation Iteration #5 - FFRMINCX,2004(1)2013,no,,usd,no,,ffrminc5
+ffrminci,STRING,Indicator/descriptor variable for income imputation,2004(1)2013,no,,,no,,ffrminci
+finincxm,FLOAT64,"Amount of regular income received from dividends, mean of imputation iterations",2004(1)2013,no,,usd,no,,finincxm
+finincx1,FLOAT64,Imputation Iteration #1 - FININCX,2004(1)2013,no,,usd,no,,finincx1
+finincx2,FLOAT64,Imputation Iteration #2 - FININCX,2004(1)2013,no,,usd,no,,finincx2
+finincx3,FLOAT64,Imputation Iteration #3 - FININCX,2004(1)2013,no,,usd,no,,finincx3
+finincx4,FLOAT64,Imputation Iteration #4 - FININCX,2004(1)2013,no,,usd,no,,finincx4
+finincx5,FLOAT64,Imputation Iteration #5 - FININCX,2004(1)2013,no,,usd,no,,finincx5
+finincxi,STRING,Indicator/descriptor variable for income imputation,2004(1)2013,no,,,no,,finincxi
+fnonfrmm,FLOAT64,"Total amount of income received from non-farm business, partnership or professional practice by family grouping, mean of imputation iterations",2004(1)2013,no,,usd,no,,fnonfrmm
+fnonfrm1,FLOAT64,Imputation Iteration #1 - FNONFRMX,2004(1)2013,no,,usd,no,,fnonfrm1
+fnonfrm2,FLOAT64,Imputation Iteration #2 - FNONFRMX,2004(1)2013,no,,usd,no,,fnonfrm2
+fnonfrm3,FLOAT64,Imputation Iteration #3 - FNONFRMX,2004(1)2013,no,,usd,no,,fnonfrm3
+fnonfrm4,FLOAT64,Imputation Iteration #4 - FNONFRMX,2004(1)2013,no,,usd,no,,fnonfrm4
+fnonfrm5,FLOAT64,Imputation Iteration #5 - FNONFRMX,2004(1)2013,no,,usd,no,,fnonfrm5
+fnonfrmi,STRING,Indicator/descriptor variable for income imputation,2004(1)2013,no,,,no,,fnonfrmi
+foodsmpm,FLOAT64,"Total amount of income received from food stamps and electronic benefits, mean of imputation iterations",2004(1)2013,no,,usd,no,,foodsmpm
+foodsmp1,FLOAT64,Imputation Iteration #1 - FOODSMPX,2004(1)2013,no,,usd,no,,foodsmp1
+foodsmp2,FLOAT64,Imputation Iteration #2 - FOODSMPX,2004(1)2013,no,,usd,no,,foodsmp2
+foodsmp3,FLOAT64,Imputation Iteration #3 - FOODSMPX,2004(1)2013,no,,usd,no,,foodsmp3
+foodsmp4,FLOAT64,Imputation Iteration #4 - FOODSMPX,2004(1)2013,no,,usd,no,,foodsmp4
+foodsmp5,FLOAT64,Imputation Iteration #5 - FOODSMPX,2004(1)2013,no,,usd,no,,foodsmp5
+foodsmpi,STRING,Indicator/descriptor variable for income imputation,2004(1)2013,no,,,no,,foodsmpi
+inclosam,FLOAT64,"Amount of net income or loss received from roomers or boarders, mean of imputation iterations",2004(1)2013,no,,usd,no,,inclosam
+inclosa1,FLOAT64,Imputation Iteration #1 - INCLOSSA,2004(1)2013,no,,usd,no,,inclosa1
+inclosa2,FLOAT64,Imputation Iteration #2 - INCLOSSA,2004(1)2013,no,,usd,no,,inclosa2
+inclosa3,FLOAT64,Imputation Iteration #3 - INCLOSSA,2004(1)2013,no,,usd,no,,inclosa3
+inclosa4,FLOAT64,Imputation Iteration #4 - INCLOSSA,2004(1)2013,no,,usd,no,,inclosa4
+inclosa5,FLOAT64,Imputation Iteration #5 - INCLOSSA,2004(1)2013,no,,usd,no,,inclosa5
+inclosai,STRING,Indicator/descriptor variable for income imputation,2004(1)2013,no,,,no,,inclosai
+inclosbm,FLOAT64,"Amount of net income or loss received from payments from other rental units, mean of imputation iterations",2004(1)2013,no,,usd,no,,inclosbm
+inclosb1,FLOAT64,Imputation Iteration #1 - INCLOSSB,2004(1)2013,no,,usd,no,,inclosb1
+inclosb2,FLOAT64,Imputation Iteration #2 - INCLOSSB,2004(1)2013,no,,usd,no,,inclosb2
+inclosb3,FLOAT64,Imputation Iteration #3 - INCLOSSB,2004(1)2013,no,,usd,no,,inclosb3
+inclosb4,FLOAT64,Imputation Iteration #4 - INCLOSSB,2004(1)2013,no,,usd,no,,inclosb4
+inclosb5,FLOAT64,Imputation Iteration #5 - INCLOSSB,2004(1)2013,no,,usd,no,,inclosb5
+inclosbi,STRING,Indicator/descriptor variable for income imputation,2004(1)2013,no,,,no,,inclosbi
+intearnm,FLOAT64,"Amount received as interest on savings accounts or bonds, mean of imputation iterations",2004(1)2013,no,,usd,no,,intearnm
+intearn1,FLOAT64,Imputation Iteration #1 - INTEARNX,2004(1)2013,no,,usd,no,,intearn1
+intearn2,FLOAT64,Imputation Iteration #2 - INTEARNX,2004(1)2013,no,,usd,no,,intearn2
+intearn3,FLOAT64,Imputation Iteration #3 - INTEARNX,2004(1)2013,no,,usd,no,,intearn3
+intearn4,FLOAT64,Imputation Iteration #4 - INTEARNX,2004(1)2013,no,,usd,no,,intearn4
+intearn5,FLOAT64,Imputation Iteration #5 - INTEARNX,2004(1)2013,no,,usd,no,,intearn5
+intearni,STRING,Indicator/descriptor variable for income imputation,2004(1)2013,no,,,no,,intearni
+pensionm,FLOAT64,"Amount received from pensions or annuities from private companies, mean of imputation iterations",2004(1)2013,no,,usd,no,,pensionm
+pension1,FLOAT64,Imputation Iteration #1 - PENSIONX,2004(1)2013,no,,usd,no,,pension1
+pension2,FLOAT64,Imputation Iteration #2 - PENSIONX,2004(1)2013,no,,usd,no,,pension2
+pension3,FLOAT64,Imputation Iteration #3 - PENSIONX,2004(1)2013,no,,usd,no,,pension3
+pension4,FLOAT64,Imputation Iteration #4 - PENSIONX,2004(1)2013,no,,usd,no,,pension4
+pension5,FLOAT64,Imputation Iteration #5 - PENSIONX,2004(1)2013,no,,usd,no,,pension5
+pensioni,STRING,Indicator/descriptor variable for income imputation,2004(1)2013,no,,,no,,pensioni
+unemplxm,FLOAT64,"Amount received from unemployment compensation, mean of imputation iterations",2004(1)2013,no,,usd,no,,unemplxm
+unemplx1,FLOAT64,Imputation Iteration #1 - UNEMPLX,2004(1)2013,no,,usd,no,,unemplx1
+unemplx2,FLOAT64,Imputation Iteration #2 - UNEMPLX,2004(1)2013,no,,usd,no,,unemplx2
+unemplx3,FLOAT64,Imputation Iteration #3 - UNEMPLX,2004(1)2013,no,,usd,no,,unemplx3
+unemplx4,FLOAT64,Imputation Iteration #4 - UNEMPLX,2004(1)2013,no,,usd,no,,unemplx4
+unemplx5,FLOAT64,Imputation Iteration #5 - UNEMPLX,2004(1)2013,no,,usd,no,,unemplx5
+unemplxi,STRING,Indicator/descriptor variable for income imputation,2004(1)2013,no,,,no,,unemplxi
+colplan,STRING,Have you or any member of your CU put money into a tax-deferred or tax-free educational savings plan?,2004(1)2013,yes,,,no,,colplan
+colplan_,STRING,"Data-quality flag for COLPLAN: valid, blank, allocated, imputed or topcoded",2004(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,colplan_
+colplanx,FLOAT64,Amount CU put into a tax-deferred or tax-free educational savings plan,2004(1)2013,no,,usd,no,,colplanx
+revsmort,STRING,Do you have reverse mortgage on this home?,2007(1)2013,yes,,,no,,revsmort
+rvslump,STRING,Reverse Mortgage paid as a lump sum,2007(1)2013,yes,,,no,,rvslump
+rvslump_,STRING,"Data-quality flag for RVSLUMP: valid, blank, allocated, imputed or topcoded",2007(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,rvslump_
+rvsregmo,STRING,Reverse Mortgage paid in regular monthly payments,2007(1)2013,yes,,,no,,rvsregmo
+rvsloc,STRING,Reverse Mortgage available as a line of credit,2007(1)2013,yes,,,no,,rvsloc
+rvsloc_,STRING,"Data-quality flag for RVSLOC: valid, blank, allocated, imputed or topcoded",2007(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,rvsloc_
+rvsothpy,STRING,"Reverse Mortgage paid in another method, specify",2007(1)2013,yes,,,no,,rvsothpy
+typepyx,FLOAT64,"Amount received from reverse mortgage since the first of the month, three months ago",2007(1)2013,no,,usd,no,,typepyx
+typepyx_,STRING,"Data-quality flag for TYPEPYX: valid, blank, allocated, imputed or topcoded",2007(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,typepyx_
+erankmth,FLOAT64,Dollar amount used for expenditure ranking (ERANKH and ERANKUH) based on expenditure outlays made during the reference (interview) period. Includes all mortgage and vehicle principal payments; excludes outlays for items collected only in the fifth interview,1996(1)2010,no,,usd,no,,erankmth
+yrbuilt,INT64,About when was this building originally built?,2001(1)2010,no,,year,no,,yrbuilt
+yrbuilt_,STRING,"Data-quality flag for YRBUILT: valid, blank, allocated, imputed or topcoded",2001(1)2010,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,yrbuilt_
+ernkmthm,FLOAT64,Dollar amount used for expenditure ranking (ERANKHM) based on expenditure outlays made during the reference (interview) period. Includes all mortgage and vehicle principal payments; excludes outlays for items collected only in the fifth interview,2004(1)2010,no,,usd,no,,ernkmthm
+records,STRING,Did respondent use records for questions,1996(1)2008,yes,,,no,,records
+records_,STRING,"Data-quality flag for RECORDS: valid, blank, allocated, imputed or topcoded",1996(1)2008,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,records_
+typerec1,STRING,Type of records used,1996(1)2008,no,,,no,Stored as text: type not determinable from the BLS documentation,typerec1
+typerec2,STRING,Type of records used,1996(1)2008,no,,,no,Stored as text: type not determinable from the BLS documentation,typerec2
+typerec3,STRING,Type of records used,1996(1)2008,no,,,no,Stored as text: type not determinable from the BLS documentation,typerec3
+typerec4,STRING,Type of records used,1996(1)2008,no,,,no,Stored as text: type not determinable from the BLS documentation,typerec4
+typerec5,STRING,Type of records used,1996(1)2008,no,,,no,Stored as text: type not determinable from the BLS documentation,typerec5
+typerec6,STRING,Type of records used,1996(1)2008,no,,,no,Stored as text: type not determinable from the BLS documentation,typerec6
+typerec7,STRING,Type of records used,1996(1)2008,no,,,no,Stored as text: type not determinable from the BLS documentation,typerec7
+typerec8,STRING,Type of records used,1996(1)2008,no,,,no,Stored as text: type not determinable from the BLS documentation,typerec8
+cuincome,STRING,Total CU income,1996(1)2007,yes,,,no,,cuincome
+lot_size,STRING,What is the approximate size of the lot on which this unit is located?,1996(1)2006,yes,,,no,,lot_size
+earnincx,FLOAT64,Total amount of family earnings income before taxes,1996(1)2003,no,,usd,no,,earnincx
+inc_rnku,FLOAT64,Weighted cumulative percent ranking based on total current income before taxes (urban only) (for complete income reporters),1996(1)2003,no,,ratio,no,,inc_rnku
+no_earnx,FLOAT64,Total amount of family income other than earnings before taxes,1996(1)2003,no,,usd,no,,no_earnx
+erankuh,FLOAT64,Weighted cumulative percent expenditure outlay ranking of CU to urban population. Expenditure outlay is based on ERANKMTH. The value is a number between 0 and 1. Rank of incomplete income reporters is blank,1996(1)2003,no,,usd,no,,erankuh
+erankuh_,STRING,"Data-quality flag for ERANKUH: valid, blank, allocated, imputed or topcoded",1996(1)2003,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,erankuh_
+origin1,STRING,Origin or ancestry of reference person,1996(1)2003,yes,,,no,,origin1
+origin1_,STRING,"Data-quality flag for ORIGIN1: valid, blank, allocated, imputed or topcoded",1996(1)2003,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,origin1_
+origin2,STRING,Origin or ancestry of reference person,1996(1)2003,yes,,,no,,origin2
+origin2_,STRING,"Data-quality flag for ORIGIN2: valid, blank, allocated, imputed or topcoded",1996(1)2003,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,origin2_
+foodsmpq,FLOAT64,"Number of months, during last 12 months, food stamps received",2001(1)2003,no,,unit,no,,foodsmpq
+occexpnx,FLOAT64,"Amount of payment by CU for occupational expenses such as union dues, tools, uniforms, business or professional association dues, licenses or permits in past 12 months",1996(1)2001,no,,usd,no,,occexpnx
+cshcntbx,FLOAT64,"Amount of cash contributions for support of persons not in the CU, including alimony, child support and students living away at college, made by CU in past 12 months",1996(1)2001,no,,usd,no,,cshcntbx
+alimox,FLOAT64,Amount of cash contributions made during past 12 months for alimony,1996(1)2001,no,,usd,no,,alimox
+alimox_,STRING,"Data-quality flag for ALIMOX: valid, blank, allocated, imputed or topcoded",1996(1)2001,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,alimox_
+chldsupx,FLOAT64,Amount of cash contributions made during past 12 months for child support,1996(1)2001,no,,usd,no,,chldsupx
+collexpx,FLOAT64,Amount of contribution made to college student(s) while attending school away from home,1996(1)2001,no,,usd,no,,collexpx
+cbsgftx,FLOAT64,"Amount of gifts in the form of cash, bonds or stocks, given to persons not in CU in past 12 months",1996(1)2001,no,,usd,no,,cbsgftx
+cbsgftx_,STRING,"Data-quality flag for CBSGFTX: valid, blank, allocated, imputed or topcoded",1996(1)2001,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,cbsgftx_
+cntrchrx,FLOAT64,"Amount of contribution made by CU to charities such as United Givers Fund, Red Cross, etc., in past 12 months",1996(1)2001,no,,usd,no,,cntrchrx
+cntrelgx,FLOAT64,"Amount of contributions to church or other religious organizations, excluding parochial school expenses in past 12 months",1996(1)2001,no,,usd,no,,cntrelgx
+cntedorx,FLOAT64,Amount of contributions CU made to educational organizations in past 12 months,1996(1)2001,no,,usd,no,,cntedorx
+cntrpolx,FLOAT64,Amount of political contributions made by CU in past 12 months,1996(1)2001,no,,usd,no,,cntrpolx
+miscntrx,FLOAT64,Amount of contributions to other organizations made by CU in past 12 months,1996(1)2001,no,,usd,no,,miscntrx
+jfdstmpa,FLOAT64,Annual value of food stamps,1996(1)2001,no,,usd,no,,jfdstmpa
+cllgeqtr,STRING,Which best describes these college or university regulated living quarters?,1996(1)1999,yes,,,no,,cllgeqtr
+dontknow,STRING,Respondent unable to identify features,1996(1)1999,yes,,,no,,dontknow
+eleccook,STRING,Enter value of '3' if electricity is used for cooking,1996(1)1999,yes,,,no,,eleccook
+fuel_oil,STRING,Does this unit use oil for cooking?,1996(1)1999,yes,,,no,,fuel_oil
+gas,STRING,Does this unit use gas for cooking?,1996(1)1999,yes,,,no,,gas
+gas_,STRING,"Data-quality flag for GAS: valid, blank, allocated, imputed or topcoded",1996(1)1999,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,gas_
+no_fuel,STRING,See GAS for question and source,1996(1)1999,yes,,,no,,no_fuel
+no_fuel_,STRING,"Data-quality flag for NO_FUEL: valid, blank, allocated, imputed or topcoded",1996(1)1999,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,no_fuel_
+oth_cook,STRING,Does this unit use some other source for cooking?,1996(1)1999,yes,,,no,,oth_cook
+barn,STRING,Does the residence include a barn?,1996(1)1999,yes,,,no,,barn
+barn_,STRING,"Data-quality flag for BARN: valid, blank, allocated, imputed or topcoded",1996(1)1999,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,barn_
+encporch,STRING,Does this unit have an enclosed porch,1996(1)1999,yes,,,no,,encporch
+greenhse,STRING,Does this unit have a greenhouse?,1996(1)1999,yes,,,no,,greenhse
+guesthse,STRING,Does this unit have a guest house,1996(1)1999,yes,,,no,,guesthse
+patio,STRING,Does this unit have a patio,1996(1)1999,yes,,,no,,patio
+patio_,STRING,"Data-quality flag for PATIO: valid, blank, allocated, imputed or topcoded",1996(1)1999,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,patio_
+tennisct,STRING,Does this unit have a tennis court,1996(1)1999,yes,,,no,,tennisct
+terrace,STRING,Does this unit have a terrace,1996(1)1999,yes,,,no,,terrace
+terrace_,STRING,"Data-quality flag for TERRACE: valid, blank, allocated, imputed or topcoded",1996(1)1999,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,terrace_
+access,STRING,Access to living quarters,1996(1)1997,yes,,,no,,access
+access_,STRING,"Data-quality flag for ACCESS: valid, blank, allocated, imputed or topcoded",1996(1)1997,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,access_
+as_c_mp1,STRING,"Data-quality flag for AS_COMP1: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,as_c_mp1
+as_c_mp2,STRING,"Data-quality flag for AS_COMP2: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,as_c_mp2
+as_c_mp3,STRING,"Data-quality flag for AS_COMP3: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,as_c_mp3
+as_c_mp4,STRING,"Data-quality flag for AS_COMP4: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,as_c_mp4
+as_c_mp5,STRING,"Data-quality flag for AS_COMP5: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,as_c_mp5
+bedr_omq,STRING,"Data-quality flag for BEDROOMQ: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,bedr_omq
+buil_ing,STRING,"Data-quality flag for BUILDING: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,buil_ing
+cute_ure,STRING,"Data-quality flag for CUTENURE: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,cute_ure
+earn_omp,STRING,"Data-quality flag for EARNCOMP: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,earn_omp
+educ0ref,STRING,"Data-quality flag for EDUC_REF: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,educ0ref
+fam__ize,STRING,"Data-quality flag for FAM_SIZE: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fam__ize
+fam__ype,STRING,"Data-quality flag for FAM_TYPE: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fam__ype
+fgov_etx,STRING,"Data-quality flag for FGOVRETX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fgov_etx
+fincbt_x,STRING,"Data-quality flag for FINCBTAX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fincbt_x
+find_etx,STRING,"Data-quality flag for FINDRETX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,find_etx
+fjss_edx,STRING,"Data-quality flag for FJSSDEDX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fjss_edx
+fpri_enx,STRING,"Data-quality flag for FPRIPENX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fpri_enx
+frre_irx,STRING,"Data-quality flag for FRRETIRX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,frre_irx
+fsal_ryx,STRING,"Data-quality flag for FSALARYX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fsal_ryx
+inc__rs1,STRING,"Data-quality flag for INC_HRS1: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,inc__rs1
+inc__rs2,STRING,"Data-quality flag for INC_HRS2: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,inc__rs2
+inc__ank,STRING,"Data-quality flag for INC_RANK: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,inc__ank
+incn_nw1,STRING,"Data-quality flag for INCNONW1: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,incn_nw1
+incn_nw2,STRING,"Data-quality flag for INCNONW2: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,incn_nw2
+inco_ey1,STRING,"Data-quality flag for INCOMEY1: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,inco_ey1
+inco_ey2,STRING,"Data-quality flag for INCOMEY2: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,inco_ey2
+incw_ek1,STRING,"Data-quality flag for INCWEEK1: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,incw_ek1
+incw_ek2,STRING,"Data-quality flag for INCWEEK2: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,incw_ek2
+misc_axx,STRING,"Data-quality flag for MISCTAXX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,misc_axx
+lump_umx,STRING,"Data-quality flag for LUMPSUMX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,lump_umx
+mari_al1,STRING,"Data-quality flag for MARITAL1: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,mari_al1
+no_e_rnr,STRING,"Data-quality flag for NO_EARNR: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,no_e_rnr
+noni_cmx,STRING,"Data-quality flag for NONINCMX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,noni_cmx
+num__uto,STRING,"Data-quality flag for NUM_AUTO: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,num__uto
+occu_od1,STRING,"Data-quality flag for OCCUCOD1: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,occu_od1
+occu_od2,STRING,"Data-quality flag for OCCUCOD2: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,occu_od2
+othr_ncx,STRING,"Data-quality flag for OTHRINCX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,othr_ncx
+pers_t18,STRING,"Data-quality flag for PERSLT18: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,pers_t18
+pers_t64,STRING,"Data-quality flag for PERSOT64: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,pers_t64
+prin_arn,STRING,"Data-quality flag for PRINEARN: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,prin_arn
+ref__ace,STRING,"Data-quality flag for REF_RACE: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,ref__ace
+rent_qvx,STRING,"Data-quality flag for RENTEQVX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,rent_qvx
+welf_rex,STRING,"Data-quality flag for WELFAREX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,welf_rex
+chil_age,STRING,"Data-quality flag for CHILDAGE: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,chil_age
+num__van,STRING,"Data-quality flag for NUM_TVAN: valid, blank, allocated, imputed or topcoded",1997(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,num__van
+welf_ebx,STRING,"Data-quality flag for WELFREBX: valid, blank, allocated, imputed or topcoded",2001(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,welf_ebx
+lump_umb,STRING,"Data-quality flag for LUMPSUMB: valid, blank, allocated, imputed or topcoded",2001(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,lump_umb
+lmps_mbx,STRING,"Data-quality flag for LMPSUMBX: valid, blank, allocated, imputed or topcoded",2001(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,lmps_mbx
+othr_ncb,STRING,"Data-quality flag for OTHRINCB: valid, blank, allocated, imputed or topcoded",2001(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,othr_ncb
+otri_cbx,STRING,"Data-quality flag for OTRINCBX: valid, blank, allocated, imputed or topcoded",2001(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,otri_cbx
+incl_ss2,STRING,"Data-quality flag for INCLASS2: valid, blank, allocated, imputed or topcoded",2001(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,incl_ss2
+fgov_etm,STRING,"Data-quality flag for FGOVRETM: valid, blank, allocated, imputed or topcoded",2004(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fgov_etm
+fincb_xm,STRING,"Data-quality flag for FINCBTXM: valid, blank, allocated, imputed or topcoded",2004(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fincb_xm
+fjss_edm,STRING,"Data-quality flag for FJSSDEDM: valid, blank, allocated, imputed or topcoded",2004(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fjss_edm
+fpri_enm,STRING,"Data-quality flag for FPRIPENM: valid, blank, allocated, imputed or topcoded",2004(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fpri_enm
+frre_irm,STRING,"Data-quality flag for FRRETIRM: valid, blank, allocated, imputed or topcoded",2004(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,frre_irm
+fsal_rym,STRING,"Data-quality flag for FSALARYM: valid, blank, allocated, imputed or topcoded",2004(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fsal_rym
+inc__nkm,STRING,"Data-quality flag for INC_RNKM: valid, blank, allocated, imputed or topcoded",2004(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,inc__nkm
+othr_ncm,STRING,"Data-quality flag for OTHRINCM: valid, blank, allocated, imputed or topcoded",2004(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,othr_ncm
+prin_rnm,STRING,"Data-quality flag for PRINERNM: valid, blank, allocated, imputed or topcoded",2004(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,prin_rnm
+welf_rem,STRING,"Data-quality flag for WELFAREM: valid, blank, allocated, imputed or topcoded",2004(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,welf_rem
+cred_inx,STRING,"Data-quality flag for CREDFINX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,cred_inx
+cred_tbx,STRING,"Data-quality flag for CREDITBX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,cred_tbx
+cred_yrx,STRING,"Data-quality flag for CREDTYRX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,cred_yrx
+cred_rbx,STRING,"Data-quality flag for CREDYRBX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,cred_rbx
+defb_nrp,STRING,"Data-quality flag for DEFBENRP: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,defb_nrp
+fmlp_yrx,STRING,"Data-quality flag for FMLPYYRX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fmlp_yrx
+fsmp_rmx,STRING,"Data-quality flag for FSMPFRMX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fsmp_rmx
+intr_vbx,STRING,"Data-quality flag for INTRDVBX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,intr_vbx
+liqd_rbx,STRING,"Data-quality flag for LIQDYRBX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,liqd_rbx
+liqu_dbx,STRING,"Data-quality flag for LIQUIDBX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,liqu_dbx
+liqu_yrb,STRING,"Data-quality flag for LIQUDYRB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,liqu_yrb
+liqu_yrx,STRING,"Data-quality flag for LIQUDYRX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,liqu_yrx
+meal_pay,STRING,"Data-quality flag for MEALSPAY: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,meal_pay
+mlpa_wkx,STRING,"Data-quality flag for MLPAYWKX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,mlpa_wkx
+mlpy_wks,STRING,"Data-quality flag for MLPYQWKS: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,mlpy_wks
+netr_ntb,STRING,"Data-quality flag for NETRENTB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,netr_ntb
+netr_ntx,STRING,"Data-quality flag for NETRENTX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,netr_ntx
+netr_tbx,STRING,"Data-quality flag for NETRNTBX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,netr_tbx
+otha_tbx,STRING,"Data-quality flag for OTHASTBX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,otha_tbx
+othl_nbx,STRING,"Data-quality flag for OTHLONBX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,othl_nbx
+othl_rbx,STRING,"Data-quality flag for OTHLYRBX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,othl_rbx
+othl_yrb,STRING,"Data-quality flag for OTHLNYRB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,othl_yrb
+othl_yrx,STRING,"Data-quality flag for OTHLNYRX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,othl_yrx
+othr_gbx,STRING,"Data-quality flag for OTHREGBX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,othr_gbx
+oths_rbx,STRING,"Data-quality flag for OTHSYRBX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,oths_rbx
+oths_yrb,STRING,"Data-quality flag for OTHSTYRB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,oths_yrb
+oths_yrx,STRING,"Data-quality flag for OTHSTYRX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,oths_yrx
+rets_rvb,STRING,"Data-quality flag for RETSURVB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,rets_rvb
+rets_rvx,STRING,"Data-quality flag for RETSURVX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,rets_rvx
+rets_vbx,STRING,"Data-quality flag for RETSRVBX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,rets_vbx
+roye_tbx,STRING,"Data-quality flag for ROYESTBX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,roye_tbx
+stck_rbx,STRING,"Data-quality flag for STCKYRBX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,stck_rbx
+stdn_yrb,STRING,"Data-quality flag for STDNTYRB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,stdn_yrb
+stdn_yrx,STRING,"Data-quality flag for STDNTYRX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,stdn_yrx
+stdt_rbx,STRING,"Data-quality flag for STDTYRBX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,stdt_rbx
+stoc_yrb,STRING,"Data-quality flag for STOCKYRB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,stoc_yrb
+stoc_yrx,STRING,"Data-quality flag for STOCKYRX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,stoc_yrx
+stud_inx,STRING,"Data-quality flag for STUDFINX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,stud_inx
+stud_tbx,STRING,"Data-quality flag for STUDNTBX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,stud_tbx
+whlf_rbx,STRING,"Data-quality flag for WHLFYRBX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,whlf_rbx
+whol_fbx,STRING,"Data-quality flag for WHOLIFBX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,whol_fbx
+fsmp_rxm,STRING,"Data-quality flag for FSMPFRXM: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fsmp_rxm
+intr_vxm,STRING,"Data-quality flag for INTRDVXM: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,intr_vxm
+netr_ntm,STRING,"Data-quality flag for NETRENTM: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,netr_ntm
+othr_gxm,STRING,"Data-quality flag for OTHREGXM: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,othr_gxm
+rets_rvm,STRING,"Data-quality flag for RETSURVM: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,rets_rvm
+roye_txm,STRING,"Data-quality flag for ROYESTXM: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,roye_txm
+busc_een,STRING,"Data-quality flag for BUSCREEN: valid, blank, allocated, imputed or topcoded",2015(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,busc_een
+hlfb_thq,STRING,"Data-quality flag for HLFBATHQ: valid, blank, allocated, imputed or topcoded",1996(1)2024,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,hlfb_thq
+swim_ool,STRING,"Data-quality flag for SWIMPOOL: valid, blank, allocated, imputed or topcoded",1996(1)2024,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,swim_ool
+ofst_ark,STRING,"Data-quality flag for OFSTPARK: valid, blank, allocated, imputed or topcoded",1996(1)2024,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,ofst_ark
+wind_wac,STRING,"Data-quality flag for WINDOWAC: valid, blank, allocated, imputed or topcoded",1996(1)2024,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,wind_wac
+cntr_lac,STRING,"Data-quality flag for CNTRALAC: valid, blank, allocated, imputed or topcoded",1996(1)2024,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,cntr_lac
+sola_pnl,STRING,"Data-quality flag for SOLARPNL: valid, blank, allocated, imputed or topcoded",2017(1)2024,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,sola_pnl
+ffta_owe,STRING,"Data-quality flag for FFTAXOWE: valid, blank, allocated, imputed or topcoded",2013(1)2023,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,ffta_owe
+fsta_owe,STRING,"Data-quality flag for FSTAXOWE: valid, blank, allocated, imputed or topcoded",2013(1)2023,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fsta_owe
+finat_em,STRING,"Data-quality flag for FINATXEM: valid, blank, allocated, imputed or topcoded",2013(1)2023,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,finat_em
+famt_edx,STRING,"Data-quality flag for FAMTFEDX: valid, blank, allocated, imputed or topcoded",1996(1)2014,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,famt_edx
+fedr_ndx,STRING,"Data-quality flag for FEDRFNDX: valid, blank, allocated, imputed or topcoded",1996(1)2014,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fedr_ndx
+fincat_x,STRING,"Data-quality flag for FINCATAX: valid, blank, allocated, imputed or topcoded",1996(1)2014,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fincat_x
+sloc_axx,STRING,"Data-quality flag for SLOCTAXX: valid, blank, allocated, imputed or topcoded",1996(1)2014,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,sloc_axx
+slrf_ndx,STRING,"Data-quality flag for SLRFUNDX: valid, blank, allocated, imputed or topcoded",1996(1)2014,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,slrf_ndx
+tott_pdx,STRING,"Data-quality flag for TOTTXPDX: valid, blank, allocated, imputed or topcoded",1996(1)2014,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,tott_pdx
+famt_edm,STRING,"Data-quality flag for FAMTFEDM: valid, blank, allocated, imputed or topcoded",2004(1)2014,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,famt_edm
+finca_xm,STRING,"Data-quality flag for FINCATXM: valid, blank, allocated, imputed or topcoded",2004(1)2014,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,finca_xm
+fslt_xxm,STRING,"Data-quality flag for FSLTAXXM: valid, blank, allocated, imputed or topcoded",2004(1)2014,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fslt_xxm
+tott_pdm,STRING,"Data-quality flag for TOTTXPDM: valid, blank, allocated, imputed or topcoded",2004(1)2014,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,tott_pdm
+resp_tat,STRING,"Data-quality flag for RESPSTAT: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,resp_tat
+povl_vcy,STRING,"Data-quality flag for POVLEVCY: valid, blank, allocated, imputed or topcoded",1999(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,povl_vcy
+povl_vpy,STRING,"Data-quality flag for POVLEVPY: valid, blank, allocated, imputed or topcoded",1999(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,povl_vpy
+bsin_stx,STRING,"Data-quality flag for BSINVSTX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,bsin_stx
+ckbk_ctx,STRING,"Data-quality flag for CKBKACTX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,ckbk_ctx
+comp_ndx,STRING,"Data-quality flag for COMPBNDX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,comp_ndx
+comp_kgx,STRING,"Data-quality flag for COMPCKGX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,comp_kgx
+comp_nsx,STRING,"Data-quality flag for COMPENSX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,comp_nsx
+comp_wdx,STRING,"Data-quality flag for COMPOWDX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,comp_wdx
+comp_avx,STRING,"Data-quality flag for COMPSAVX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,comp_avx
+comp_ecx,STRING,"Data-quality flag for COMPSECX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,comp_ecx
+ffrm_ncx,STRING,"Data-quality flag for FFRMINCX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,ffrm_ncx
+fnon_rmx,STRING,"Data-quality flag for FNONFRMX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fnon_rmx
+govt_ost,STRING,"Data-quality flag for GOVTCOST: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,govt_ost
+incl_ssa,STRING,"Data-quality flag for INCLOSSA: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,incl_ssa
+incl_ssb,STRING,"Data-quality flag for INCLOSSB: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,incl_ssb
+insr_ndx,STRING,"Data-quality flag for INSRFNDX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,insr_ndx
+inte_rnx,STRING,"Data-quality flag for INTEARNX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,inte_rnx
+mony_wdx,STRING,"Data-quality flag for MONYOWDX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,mony_wdx
+othr_ndx,STRING,"Data-quality flag for OTHRFNDX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,othr_ndx
+pens_onx,STRING,"Data-quality flag for PENSIONX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,pens_onx
+ptax_fdx,STRING,"Data-quality flag for PTAXRFDX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,ptax_fdx
+publ_ous,STRING,"Data-quality flag for PUBLHOUS: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,publ_ous
+purs_ecx,STRING,"Data-quality flag for PURSSECX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,purs_ecx
+sale_ncx,STRING,"Data-quality flag for SALEINCX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,sale_ncx
+sava_ctx,STRING,"Data-quality flag for SAVACCTX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,sava_ctx
+sell_ecx,STRING,"Data-quality flag for SELLSECX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,sell_ecx
+setl_nsx,STRING,"Data-quality flag for SETLINSX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,setl_nsx
+ssov_rpx,STRING,"Data-quality flag for SSOVERPX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,ssov_rpx
+taxp_opx,STRING,"Data-quality flag for TAXPROPX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,taxp_opx
+wdbs_stx,STRING,"Data-quality flag for WDBSASTX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,wdbs_stx
+wdbs_dsx,STRING,"Data-quality flag for WDBSGDSX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,wdbs_dsx
+heat_uel,STRING,"Data-quality flag for HEATFUEL: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,heat_uel
+inte_rnb,STRING,"Data-quality flag for INTEARNB: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,inte_rnb
+inte_nbx,STRING,"Data-quality flag for INTERNBX: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,inte_nbx
+fini_cbx,STRING,"Data-quality flag for FININCBX: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fini_cbx
+pens_onb,STRING,"Data-quality flag for PENSIONB: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,pens_onb
+pnsi_nbx,STRING,"Data-quality flag for PNSIONBX: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,pnsi_nbx
+unem_lbx,STRING,"Data-quality flag for UNEMPLBX: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,unem_lbx
+comp_nsb,STRING,"Data-quality flag for COMPENSB: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,comp_nsb
+comp_sbx,STRING,"Data-quality flag for COMPNSBX: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,comp_sbx
+welf_reb,STRING,"Data-quality flag for WELFAREB: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,welf_reb
+food_mpx,STRING,"Data-quality flag for FOODSMPX: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,food_mpx
+food_mpb,STRING,"Data-quality flag for FOODSMPB: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,food_mpb
+food_pbx,STRING,"Data-quality flag for FOODSPBX: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,food_pbx
+incl_sab,STRING,"Data-quality flag for INCLOSAB: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,incl_sab
+incl_abx,STRING,"Data-quality flag for INCLSABX: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,incl_abx
+incl_sbb,STRING,"Data-quality flag for INCLOSBB: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,incl_sbb
+incl_bbx,STRING,"Data-quality flag for INCLSBBX: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,incl_bbx
+chdl_pbx,STRING,"Data-quality flag for CHDLMPBX: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,chdl_pbx
+chdo_hbx,STRING,"Data-quality flag for CHDOTHBX: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,chdo_hbx
+alio_hbx,STRING,"Data-quality flag for ALIOTHBX: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,alio_hbx
+sale_ncb,STRING,"Data-quality flag for SALEINCB: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,sale_ncb
+sali_cbx,STRING,"Data-quality flag for SALINCBX: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,sali_cbx
+alio_hxm,STRING,"Data-quality flag for ALIOTHXM: valid, blank, allocated, imputed or topcoded",2004(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,alio_hxm
+chdo_hxm,STRING,"Data-quality flag for CHDOTHXM: valid, blank, allocated, imputed or topcoded",2004(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,chdo_hxm
+comp_nsm,STRING,"Data-quality flag for COMPENSM: valid, blank, allocated, imputed or topcoded",2004(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,comp_nsm
+ffrm_ncm,STRING,"Data-quality flag for FFRMINCM: valid, blank, allocated, imputed or topcoded",2004(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,ffrm_ncm
+fini_cxm,STRING,"Data-quality flag for FININCXM: valid, blank, allocated, imputed or topcoded",2004(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fini_cxm
+fnon_rmm,STRING,"Data-quality flag for FNONFRMM: valid, blank, allocated, imputed or topcoded",2004(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fnon_rmm
+food_mpm,STRING,"Data-quality flag for FOODSMPM: valid, blank, allocated, imputed or topcoded",2004(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,food_mpm
+incl_sam,STRING,"Data-quality flag for INCLOSAM: valid, blank, allocated, imputed or topcoded",2004(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,incl_sam
+incl_sbm,STRING,"Data-quality flag for INCLOSBM: valid, blank, allocated, imputed or topcoded",2004(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,incl_sbm
+inte_rnm,STRING,"Data-quality flag for INTEARNM: valid, blank, allocated, imputed or topcoded",2004(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,inte_rnm
+pens_onm,STRING,"Data-quality flag for PENSIONM: valid, blank, allocated, imputed or topcoded",2004(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,pens_onm
+unem_lxm,STRING,"Data-quality flag for UNEMPLXM: valid, blank, allocated, imputed or topcoded",2004(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,unem_lxm
+colp_anx,STRING,"Data-quality flag for COLPLANX: valid, blank, allocated, imputed or topcoded",2004(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,colp_anx
+revs_ort,STRING,"Data-quality flag for REVSMORT: valid, blank, allocated, imputed or topcoded",2007(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,revs_ort
+rvsr_gmo,STRING,"Data-quality flag for RVSREGMO: valid, blank, allocated, imputed or topcoded",2007(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,rvsr_gmo
+rvso_hpy,STRING,"Data-quality flag for RVSOTHPY: valid, blank, allocated, imputed or topcoded",2007(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,rvso_hpy
+eran_mth,STRING,"Data-quality flag for ERANKMTH: valid, blank, allocated, imputed or topcoded",1996(1)2010,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,eran_mth
+ernk_thm,STRING,"Data-quality flag for ERNKMTHM: valid, blank, allocated, imputed or topcoded",2004(1)2010,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,ernk_thm
+type_ec1,STRING,"Data-quality flag for TYPEREC1: valid, blank, allocated, imputed or topcoded",1996(1)2008,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,type_ec1
+type_ec2,STRING,"Data-quality flag for TYPEREC2: valid, blank, allocated, imputed or topcoded",1996(1)2008,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,type_ec2
+type_ec3,STRING,"Data-quality flag for TYPEREC3: valid, blank, allocated, imputed or topcoded",1996(1)2008,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,type_ec3
+type_ec4,STRING,"Data-quality flag for TYPEREC4: valid, blank, allocated, imputed or topcoded",1996(1)2008,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,type_ec4
+type_ec5,STRING,"Data-quality flag for TYPEREC5: valid, blank, allocated, imputed or topcoded",1996(1)2008,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,type_ec5
+type_ec6,STRING,"Data-quality flag for TYPEREC6: valid, blank, allocated, imputed or topcoded",1996(1)2008,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,type_ec6
+type_ec7,STRING,"Data-quality flag for TYPEREC7: valid, blank, allocated, imputed or topcoded",1996(1)2008,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,type_ec7
+type_ec8,STRING,"Data-quality flag for TYPEREC8: valid, blank, allocated, imputed or topcoded",1996(1)2008,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,type_ec8
+cuin_ome,STRING,"Data-quality flag for CUINCOME: valid, blank, allocated, imputed or topcoded",1996(1)2007,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,cuin_ome
+lot__ize,STRING,"Data-quality flag for LOT_SIZE: valid, blank, allocated, imputed or topcoded",1996(1)2006,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,lot__ize
+earn_ncx,STRING,"Data-quality flag for EARNINCX: valid, blank, allocated, imputed or topcoded",1996(1)2003,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,earn_ncx
+inc__nku,STRING,"Data-quality flag for INC_RNKU: valid, blank, allocated, imputed or topcoded",1996(1)2003,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,inc__nku
+no_e_rnx,STRING,"Data-quality flag for NO_EARNX: valid, blank, allocated, imputed or topcoded",1996(1)2003,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,no_e_rnx
+food_mpq,STRING,"Data-quality flag for FOODSMPQ: valid, blank, allocated, imputed or topcoded",2001(1)2003,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,food_mpq
+chld_upx,STRING,"Data-quality flag for CHLDSUPX: valid, blank, allocated, imputed or topcoded",1996(1)2001,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,chld_upx
+cnte_orx,STRING,"Data-quality flag for CNTEDORX: valid, blank, allocated, imputed or topcoded",1996(1)2001,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,cnte_orx
+cntr_hrx,STRING,"Data-quality flag for CNTRCHRX: valid, blank, allocated, imputed or topcoded",1996(1)2001,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,cntr_hrx
+cntr_lgx,STRING,"Data-quality flag for CNTRELGX: valid, blank, allocated, imputed or topcoded",1996(1)2001,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,cntr_lgx
+cntr_olx,STRING,"Data-quality flag for CNTRPOLX: valid, blank, allocated, imputed or topcoded",1996(1)2001,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,cntr_olx
+coll_xpx,STRING,"Data-quality flag for COLLEXPX: valid, blank, allocated, imputed or topcoded",1996(1)2001,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,coll_xpx
+cshc_tbx,STRING,"Data-quality flag for CSHCNTBX: valid, blank, allocated, imputed or topcoded",1996(1)2001,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,cshc_tbx
+jfds_mpa,STRING,"Data-quality flag for JFDSTMPA: valid, blank, allocated, imputed or topcoded",1996(1)2001,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,jfds_mpa
+misc_trx,STRING,"Data-quality flag for MISCNTRX: valid, blank, allocated, imputed or topcoded",1996(1)2001,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,misc_trx
+occe_pnx,STRING,"Data-quality flag for OCCEXPNX: valid, blank, allocated, imputed or topcoded",1996(1)2001,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,occe_pnx
+cllg_qtr,STRING,"Data-quality flag for CLLGEQTR: valid, blank, allocated, imputed or topcoded",1996(1)1999,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,cllg_qtr
+dont_now,STRING,"Data-quality flag for DONTKNOW: valid, blank, allocated, imputed or topcoded",1996(1)1999,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,dont_now
+elec_ook,STRING,"Data-quality flag for ELECCOOK: valid, blank, allocated, imputed or topcoded",1996(1)1999,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,elec_ook
+fuel0oil,STRING,"Data-quality flag for FUEL_OIL: valid, blank, allocated, imputed or topcoded",1996(1)1999,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fuel0oil
+oth__ook,STRING,"Data-quality flag for OTH_COOK: valid, blank, allocated, imputed or topcoded",1996(1)1999,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,oth__ook
+encp_rch,STRING,"Data-quality flag for ENCPORCH: valid, blank, allocated, imputed or topcoded",1996(1)1999,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,encp_rch
+gree_hse,STRING,"Data-quality flag for GREENHSE: valid, blank, allocated, imputed or topcoded",1996(1)1999,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,gree_hse
+gues_hse,STRING,"Data-quality flag for GUESTHSE: valid, blank, allocated, imputed or topcoded",1996(1)1999,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,gues_hse
+tenn_sct,STRING,"Data-quality flag for TENNISCT: valid, blank, allocated, imputed or topcoded",1996(1)1999,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,tenn_sct

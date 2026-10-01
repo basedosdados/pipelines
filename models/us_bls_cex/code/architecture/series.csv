@@ -1,0 +1,18 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+series_id,STRING,BLS LABSTAT series identifier,,no,,,no,,series_id
+category_id,STRING,"Top-level category of the series: expenditures, income, consumer unit characteristics or addenda",,no,,,no,,category_code
+category_name,STRING,Name of the category,,no,,,no,,category_text
+subcategory_id,STRING,"Subcategory code, e.g. food, housing or income before taxes",,no,,,no,,subcategory_code
+subcategory_name,STRING,Name of the subcategory,,no,,,no,,subcategory_text
+item_id,STRING,"Item code, either a 6-digit numeric code or a mnemonic such as TOTALEXP",,no,,,no,,item_code
+item_name,STRING,Name of the item,,no,,,no,,item_text
+item_display_level,INT64,"Indentation level of the item in the BLS table hierarchy, from 0 (top) to 3",,no,,level,no,Ordinal position in the published table tree,display_level
+demographics_id,STRING,"Demographic classification the series is cut by, e.g. LB01 all consumer units or LB02 income quintiles",,no,,,no,,demographics_code
+demographics_name,STRING,Name of the demographic classification,,no,,,no,,demographics_text
+characteristics_id,STRING,"Group within the demographic classification, e.g. a specific income quintile",,no,,,no,,characteristics_code
+characteristics_name,STRING,Name of the group within the demographic classification,,no,,,no,,characteristics_text
+statistic,STRING,Statistic published in the series; M is the mean,,yes,,,no,,process_code
+series_title,STRING,Full title of the series as published by BLS,,no,,,no,,series_title
+footnote_codes,STRING,Footnote codes attached to the series,,yes,,,no,,footnote_codes
+begin_year,INT64,First year with data in the series,,no,,year,no,,begin_year
+end_year,INT64,Last year with data in the series,,no,,year,no,,end_year

@@ -1,0 +1,11 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the BLS hierarchical grouping file the row belongs to,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,year
+grouping,STRING,"Hierarchical grouping the row belongs to: integrated, interview or diary",,yes,,,no,"From the file name CE-HG-{Integ,Inter,Diary}-YYYY.txt",grouping
+line_number,INT64,"Position of the row in the BLS grouping file, preserving the published order",,no,,unit,no,Ordinal; continuation lines are merged into the row they continue,line_number
+level,INT64,"Depth of the row in the category tree, 1 being the top",,no,,level,no,,level
+title,STRING,"Name of the category, statistic or UCC",,no,,,no,,title
+ucc,STRING,"Universal Classification Code, or the BLS mnemonic for title, group and statistic rows",,no,,,no,,ucc
+row_type,STRING,"Row type: H header, T title, G group (sum of its children), S statistic, I interview UCC, D diary UCC",,yes,,,no,,type
+factor,STRING,Aggregation factor BLS applies when summing the row into its group,,yes,,,no,,factor
+section,STRING,"Section of the grouping: CUCHARS, EXPEND, INCOME, ASSETS or ADDENDA",,yes,,,no,,section
+parent_ucc,STRING,UCC or mnemonic of the nearest group or title row one level up,,no,,,no,Derived from the level column,parent_ucc
