@@ -1,7 +1,7 @@
 """Download + cleaning transform for br_bd_diretorios_brasil.escola.
 
-Pure functions (no Prefect) shared by the one-shot bootstrap
-(models/br_bd_diretorios_brasil/code/update_escola.py).
+Pure functions (no Prefect) shared by the flow (``flows.py``) and the one-shot
+bootstrap (models/br_bd_diretorios_brasil/code/update_escola.py).
 
 Download strategy
 -----------------
@@ -29,6 +29,7 @@ the published directory and records the outcome per school in
 
 from __future__ import annotations
 
+import datetime
 import logging
 import subprocess
 import tempfile
@@ -154,6 +155,21 @@ _MUNICIPIO_NAME_FIXES: dict[tuple[str, str], str] = {
     ("São Luiz do Paraitinga", "SP"): "3550001",  # z → s (São Luís)
     ("Tabocão", "TO"): "1708254",  # renamed to Fortaleza do Tabocão
 }
+
+
+# ── source date ──────────────────────────────────────────────────────────────
+
+
+def get_source_max_date() -> str:
+    """Return the date the catalog snapshot stands for.
+
+    The catalog is the INEP register as of the moment it is extracted and
+    publishes no update date, so the extraction date stands in for it.
+
+    Returns:
+        Today's date, formatted ``%Y-%m-%d``.
+    """
+    return datetime.date.today().strftime("%Y-%m-%d")
 
 
 # ── download ─────────────────────────────────────────────────────────────────

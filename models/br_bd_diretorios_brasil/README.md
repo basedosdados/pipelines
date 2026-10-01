@@ -9,13 +9,13 @@ que qualquer ano dos dados usa para resolver um `id_`.
 
 - `gcp_dataset_id`: `br_bd_diretorios_brasil`
 - slug no backend: `diretorios_brasil` (sem o prefixo `br_bd_`)
-- 24 tabelas, nenhuma com flow Prefect
+- 24 tabelas; só a `escola` tem flow Prefect
 
 ## 2. Como cada tabela é atualizada
 
 | Tabela | Código no repo |
 |---|---|
-| `escola` | `code/update_escola.py` + `pipelines/datasets/br_bd_diretorios_brasil/utils.py` |
+| `escola` | flow `br_bd_diretorios_brasil__escola` em `pipelines/datasets/br_bd_diretorios_brasil/` |
 | `cid_10` | `code/cid_10.py` |
 | `cnae_2` | `code/cnae_2.py` |
 | `instituicao_ensino_superior` | `code/[update]instituicao_ensino_superior.ipynb` |
@@ -31,8 +31,8 @@ os cookies anônimos que o portal entrega no primeiro GET, sem login. O download
 é feito por `curl` em subprocesso porque o servidor derruba a conexão TLS
 aberta pelo `ssl` do Python.
 
-A tabela não tem fonte original registrada no backend — as duas fontes do
-conjunto são do IBGE e atendem `municipio`, `cep` e `setor_censitario`.
+No backend, a fonte original da tabela é "Catálogo de Escolas do Inep", e é a
+única ligada a ela.
 
 ### O catálogo é o registro corrente, não o histórico
 
@@ -67,15 +67,35 @@ resolve fica nulo, e a carga registra a lista no log.
 
 ### Atualização
 
+O flow `br_bd_diretorios_brasil__escola` roda uma vez por mês, no dia 5. Ele
+baixa o catálogo (~85 MB), lê o diretório publicado e o diretório `municipio` do
+BigQuery, grava o parquet e materializa em dev e depois em prod.
+
+O catálogo não publica data de atualização: é o registro do Inep no momento da
+extração. Por isso a data da fonte é a data do download, a tabela é
+`NonHistorical` e o poll compara essa data com o `Table.Update` da tabela. Na
+prática o poll sempre encontra novidade, e quem define a frequência é o
+agendamento. Também por isso o flow roda num dia só: se rodasse em vários dias
+seguidos, cada um teria data mais nova que o anterior e baixaria de novo.
+
+O poll por tamanho de arquivo, a outra opção para fonte sem data, não serve
+aqui: ele levanta erro quando o arquivo diminui, e o catálogo diminui sempre que
+o Inep remove escolas extintas.
+
+O upload usa `dump_mode="append"`, não `"overwrite"`. O `overwrite` apaga a
+tabela final antes de subir o arquivo, e em prod isso deixaria o diretório fora
+do ar até o `dbt run` terminar. Como o parquet tem sempre o mesmo nome
+(`escola/data.parquet`), o `append` substitui o arquivo da staging e a tabela
+publicada continua de pé até o dbt trocá-la.
+
+Para rodar fora do Prefect, `code/update_escola.py` faz o mesmo caminho e sobe
+para a staging de `basedosdados-dev`:
+
 ```bash
 uv run python models/br_bd_diretorios_brasil/code/update_escola.py --upload
 uv run dbt run --select br_bd_diretorios_brasil__escola
 uv run dbt test --select br_bd_diretorios_brasil__escola
 ```
-
-O script baixa o catálogo (~85 MB), lê o diretório publicado e o diretório
-`municipio` do BigQuery, grava o parquet e substitui a staging de
-`basedosdados-dev`. `input/` e `output/` são gitignored.
 
 Depois da carga, confira na tabela em dev:
 
