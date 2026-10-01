@@ -27,7 +27,7 @@ select
     safe_cast(ltrim(id_status, '0') as string) id_status,
     safe_cast(ltrim(id_tipo_ciclo_cultivar, '0') as string) id_tipo_ciclo_cultivar,
     safe_cast(ltrim(id_tipo_solo, '0') as string) id_tipo_solo,
-    safe_cast(parse_date("%d/%m/%Y", data_comunicacao) as date) data_comunicacao,
+    safe.parse_date("%d/%m/%Y", data_comunicacao) data_comunicacao,
     {{ parse_data_agronomica_sicor("data_inicio_plantio") }} data_inicio_plantio,
     {{ parse_data_agronomica_sicor("data_fim_plantio") }} data_fim_plantio,
     {{ parse_data_agronomica_sicor("data_inicio_colheita") }} data_inicio_colheita,

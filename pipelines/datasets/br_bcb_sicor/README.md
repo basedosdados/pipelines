@@ -658,6 +658,18 @@ aqui a janela é bilateral porque os erros aparecem nas duas pontas. Os testes d
 `relationships` contra o diretório de datas ficam só nas colunas
 administrativas.
 
+**Todo o parsing de data das tabelas do Proagro usa `safe.parse_date`**, tanto
+no macro quanto nas três colunas administrativas que não passam por ele
+(`data_comunicacao`, `data_entrega`, `data_visita`). O `parse_date` cru levanta
+erro e aborta o modelo inteiro por uma única célula ilegível — o que numa fonte
+republicada mensalmente é pior que anular o valor. Hoje a troca não muda
+nenhuma linha: medido sobre os arquivos completos, as nove colunas de data
+dessas duas tabelas têm **zero** valores que o BigQuery não consegue ler como
+`%d/%m/%Y` (1.004.175 linhas em `proagro_cop`, 846.510 em `proagro_rcp`), e as
+três administrativas também têm zero fora de 2000–2100 — os anos vão de 2013 a
+2026. O filtro de janela continua sendo necessário só nas agronômicas, porque
+lá o defeito produz datas *válidas* e absurdas, que nenhum `safe.` pega.
+
 ### `proagro_cop`: a chave primária do manual não é única
 
 O manual declara (REF_BACEN, NU_ORDEM, CD_EVENTO) como chave primária do
