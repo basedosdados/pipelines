@@ -2,7 +2,7 @@ name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory
 year,INT64,Year the interview was collected,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Partition column. Collection year of the quarter file, not the BLS release year",file name (YYQ)
 quarter,INT64,"Quarter the data was collected, from 1 to 4",,no,,quarter,no,,file name (YYQ)
 consumer_unit_id,STRING,"Identifier of the consumer unit (household), stable across its interviews or diary weeks",,no,,,no,NEWID without its last digit,newid
-interview_number,STRING,"Interview number of the consumer unit, from 1 to 4",,no,,,no,Last digit of NEWID,newid
+interview_number,STRING,"Interview number of the consumer unit: 2 to 5 through 2015 (interview 1 was an unreleased bounding interview), 1 to 4 after BLS dropped the bounding interview in 2015",,no,,,no,Last digit of NEWID,newid
 newid,STRING,BLS public-use identifier of the consumer unit and interview or diary week; the last digit is the interview number (1-4) or diary week (1-2),,no,,,no,Unique per interview or diary week,newid
 reference_month,INT64,"Calendar month the expenditure refers to, from 1 to 12",,no,,month,no,,ref_mo
 reference_year,INT64,Calendar year the expenditure refers to,,no,,year,no,,ref_yr

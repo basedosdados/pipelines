@@ -2,7 +2,7 @@ name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory
 year,INT64,Year the interview was collected,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Partition column. Collection year of the quarter file, not the BLS release year",file name (YYQ)
 quarter,INT64,"Quarter the data was collected, from 1 to 4",,no,,quarter,no,,file name (YYQ)
 consumer_unit_id,STRING,"Identifier of the consumer unit (household), stable across its interviews or diary weeks",,no,,,no,NEWID without its last digit,newid
-interview_number,STRING,"Interview number of the consumer unit, from 1 to 4",,no,,,no,Last digit of NEWID,newid
+interview_number,STRING,"Interview number of the consumer unit: 2 to 5 through 2015 (interview 1 was an unreleased bounding interview), 1 to 4 after BLS dropped the bounding interview in 2015",,no,,,no,Last digit of NEWID,newid
 newid,STRING,BLS public-use identifier of the consumer unit and interview or diary week; the last digit is the interview number (1-4) or diary week (1-2),,no,,,no,Unique per interview or diary week,newid
 member_number,STRING,Sequence number of the member within the consumer unit,,no,,,no,,membno
 age,INT64,What is the member's age?,,no,,year,no,,age
@@ -144,7 +144,7 @@ veteran_,STRING,"Data-quality flag for VETERAN: valid, blank, allocated, imputed
 tax_unit,FLOAT64,Identifies which tax unit the member was placed in,2013(1)2025,no,,usd,no,,tax_unit
 tu_code,STRING,"Identifies the code of the taxpayer (Taxpayer, Spouse, dependent)",2013(1)2025,yes,,,no,,tu_code
 tu_code_,STRING,"Data-quality flag for TU_CODE: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,tu_code_
-tu_dpndt,FLOAT64,"For dependent tax payers, this identifies the TAX_UNIT that the member is a dependent of",2013(1)2025,no,,usd,no,,tu_dpndt
+tu_dpndt,STRING,"For dependent tax payers, this identifies the TAX_UNIT that the member is a dependent of",2013(1)2025,no,,,no,,tu_dpndt
 schmlwkq,FLOAT64,Number of weeks,1996(1)2023,no,,week,no,,schmlwkq
 schlmlpd,STRING,Time period of expense,2013(1)2023,yes,,,no,,schlmlpd
 schlmlx,FLOAT64,"Since the beginning of the reference period, not including the current month, what has been the usual expense for the meals purchased at school?",2013(1)2023,no,,usd,no,,schlmlx
@@ -192,7 +192,6 @@ nonfarm4,FLOAT64,Imputation Iteration #4 - NONFARMX,2004(1)2013,no,,usd,no,,nonf
 nonfarm5,FLOAT64,Imputation Iteration #5 - NONFARMX,2004(1)2013,no,,usd,no,,nonfarm5
 nonfarmi,STRING,Indicator/descriptor variable for income imputation,2004(1)2013,no,,,no,,nonfarmi
 pymt2009,STRING,"BLS variable PYMT2009, not documented in the BLS dictionary",2009(1)2009,yes,,,no,Absent from the BLS PUMD dictionary,pymt2009
-pymt_009,FLOAT64,"BLS variable PYMT_009, not documented in the BLS dictionary",2009(1)2009,no,,usd,no,Absent from the BLS PUMD dictionary,pymt_009
 hwused09,STRING,"BLS variable HWUSED09, not documented in the BLS dictionary",2009(1)2009,yes,,,no,Absent from the BLS PUMD dictionary,hwused09
 hwus_d09,STRING,"BLS variable HWUS_D09, not documented in the BLS dictionary",2009(1)2009,no,,,no,Absent from the BLS PUMD dictionary Stored as text: type not determinable from the BLS documentation,hwus_d09
 qstimpyx,STRING,"BLS variable QSTIMPYX, not documented in the BLS dictionary",2009(1)2009,no,,,no,Absent from the BLS PUMD dictionary Stored as text: type not determinable from the BLS documentation,qstimpyx
@@ -256,3 +255,4 @@ farm_ncb,STRING,"Data-quality flag for FARMINCB: valid, blank, allocated, impute
 frmi_cbx,STRING,"Data-quality flag for FRMINCBX: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,frmi_cbx
 farm_ncm,STRING,"Data-quality flag for FARMINCM: valid, blank, allocated, imputed or topcoded",2004(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,farm_ncm
 nonf_rmm,STRING,"Data-quality flag for NONFARMM: valid, blank, allocated, imputed or topcoded",2004(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,nonf_rmm
+pymt_009,STRING,"Data-quality flag for PYMT2009: valid, blank, allocated, imputed or topcoded",2009(1)2009,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,pymt_009

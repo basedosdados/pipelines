@@ -2,7 +2,7 @@ name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory
 year,INT64,Year the interview was collected,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Partition column. Collection year of the quarter file, not the BLS release year",file name (YYQ)
 quarter,INT64,"Quarter the data was collected, from 1 to 4",,no,,quarter,no,,file name (YYQ)
 consumer_unit_id,STRING,"Identifier of the consumer unit (household), stable across its interviews or diary weeks",,no,,,no,NEWID without its last digit,newid
-interview_number,STRING,"Interview number of the consumer unit, from 1 to 4",,no,,,no,Last digit of NEWID,newid
+interview_number,STRING,"Interview number of the consumer unit: 2 to 5 through 2015 (interview 1 was an unreleased bounding interview), 1 to 4 after BLS dropped the bounding interview in 2015",,no,,,no,Last digit of NEWID,newid
 newid,STRING,BLS public-use identifier of the consumer unit and interview or diary week; the last digit is the interview number (1-4) or diary week (1-2),,no,,,no,Unique per interview or diary week,newid
 final_weight,FLOAT64,Final calibrated weight of the consumer unit for the full sample,,no,,,no,Dimensionless sampling weight,finlwt21
 replicate_weight_01,FLOAT64,"Balanced half-sample replicate weight 1 of 44, used to estimate sampling variance",,no,,,no,Dimensionless sampling weight,wtrep01
@@ -500,7 +500,7 @@ fs_amtx4,FLOAT64,Imputation Iteration #4 - FS_AMTX,2013(1)2025,no,,usd,no,,fs_am
 fs_amtx5,FLOAT64,Imputation Iteration #5 - FS_AMTX,2013(1)2025,no,,usd,no,,fs_amtx5
 fs_amtxi,STRING,Indicator/descriptor variable for income imputation,2013(1)2025,no,,,no,,fs_amtxi
 fs_amtxm,FLOAT64,What was the dollar value of the last food stamps or EBT received (based on mean of imputation iterations)?,2013(1)2025,no,,usd,no,,fs_amtxm
-fs_mthi,FLOAT64,In how many of the past 12 months were food stamps or EBTs received?,2013(1)2025,no,,usd,no,,fs_mthi
+fs_mthi,FLOAT64,In how many of the past 12 months were food stamps or EBTs received?,2013(1)2025,no,,month,no,,fs_mthi
 fs_mthi_,STRING,"Data-quality flag for FS_MTHI: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fs_mthi_
 fsmpfrmx,FLOAT64,Total income received from self-employment income before deduction by family grouping,2013(1)2025,no,,usd,no,,fsmpfrmx
 fsmpfrx1,FLOAT64,Imputation Iteration #1 - FSMPFRMX,2013(1)2025,no,,usd,no,,fsmpfrx1
@@ -698,7 +698,7 @@ chdtxp,FLOAT64,"BLS variable CHDTXP, not documented in the BLS dictionary",2021(
 chdtxp_,STRING,"Data-quality flag for CHDTXP: valid, blank, allocated, imputed or topcoded",2021(1)2024,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,chdtxp_
 chdtxph,FLOAT64,"BLS variable CHDTXPH, not documented in the BLS dictionary",2021(1)2024,no,,usd,no,Absent from the BLS PUMD dictionary,chdtxph
 chdtxph_,STRING,"Data-quality flag for CHDTXPH: valid, blank, allocated, imputed or topcoded",2021(1)2024,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,chdtxph_
-built,STRING,The year range that the property was built,1996(1)2023,yes,,,no,,built
+built,STRING,The year range that the property was built,1996(1)2023,no,,,no,,built
 built_,STRING,"Data-quality flag for BUILT: valid, blank, allocated, imputed or topcoded",1996(1)2023,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,built_
 finatxe1,FLOAT64,Imputed Income After Tax #1,2013(1)2023,no,,usd,no,,finatxe1
 finatxe2,FLOAT64,Imputed Income After Tax #2,2013(1)2023,no,,usd,no,,finatxe2

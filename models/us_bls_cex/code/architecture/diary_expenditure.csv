@@ -12,7 +12,7 @@ expnsqdy,STRING,Sequential day of the diary week (1-7),2012(1)2024,yes,,,no,,exp
 expnwkdy,STRING,"Day of the week, Sunday through Saturday (1-7)",2012(1)2024,yes,,,no,,expnwkdy
 expnmo,STRING,Reference Month of this expenditure (01-12),2012(1)2024,yes,,,no,,expnmo
 expnmo_,STRING,"Data-quality flag for EXPNMO: valid, blank, allocated, imputed or topcoded",2012(1)2024,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,expnmo_
-expnyr,FLOAT64,Reference Year of this expenditure (0000-9999),2012(1)2024,no,,usd,no,,expnyr
+expnyr,INT64,Reference Year of this expenditure (0000-9999),2012(1)2024,no,,year,no,,expnyr
 expnyr_,STRING,"Data-quality flag for EXPNYR: valid, blank, allocated, imputed or topcoded",2012(1)2024,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,expnyr_
 gift,STRING,Was this item bought for someone outside the CU?,1996(1)2022,yes,,,no,,gift
 qredate,STRING,"Purchase date recode field Consists of: Sequential day of the Diary week (1-7) Day of the week, Sunday through Saturday (1-7) Reference month of this expenditure, (01-12) Reference day of this expenditure, (01-31) Reference year of this expenditure, (0000-9999)",1996(1)2011,no,,,no,,qredate

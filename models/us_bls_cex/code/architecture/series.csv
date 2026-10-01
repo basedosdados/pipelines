@@ -13,6 +13,5 @@ characteristics_id,STRING,"Group within the demographic classification, e.g. a s
 characteristics_name,STRING,Name of the group within the demographic classification,,no,,,no,,characteristics_text
 statistic,STRING,Statistic published in the series; M is the mean,,yes,,,no,,process_code
 series_title,STRING,Full title of the series as published by BLS,,no,,,no,,series_title
-footnote_codes,STRING,Footnote codes attached to the series,,yes,,,no,,footnote_codes
 begin_year,INT64,First year with data in the series,,no,,year,no,,begin_year
 end_year,INT64,Last year with data in the series,,no,,year,no,,end_year

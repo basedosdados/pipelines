@@ -158,12 +158,6 @@ SERIES = [
         "Full title of the series as published by BLS",
     ),
     col(
-        "footnote_codes",
-        "STRING",
-        "Footnote codes attached to the series",
-        dictionary="yes",
-    ),
-    col(
         "begin_year",
         "INT64",
         "First year with data in the series",
@@ -351,6 +345,9 @@ COUNT = re.compile(
     r"earners|vehicles|children|rooms|bedrooms|bathrooms|payments|weeks|hours)",
     re.IGNORECASE,
 )
+# flags whose name BLS truncated so they no longer end in "_"
+FLAG_ALIASES = {"pymt_009": "pymt2009"}
+
 ITERATION = re.compile(
     r"^imputation iteration\s*#\s*(\d)\s*-\s*([a-z0-9_]+)", re.IGNORECASE
 )
@@ -417,17 +414,31 @@ OVERRIDES = {
     "inc_rnkm": ("FLOAT64", "ratio", "no"),
     "num_vet": ("FLOAT64", "person", "no"),
     "fsmpfrmx": ("FLOAT64", "usd", "no"),
+    # listed in the BLS Codes sheet, but the data holds amounts, counts or ids
+    "fsuppx": ("FLOAT64", "usd", "no"),
+    "fsuppx1": ("FLOAT64", "usd", "no"),
+    "fsuppx2": ("FLOAT64", "usd", "no"),
+    "fsuppx3": ("FLOAT64", "usd", "no"),
+    "fsuppx4": ("FLOAT64", "usd", "no"),
+    "fsuppx5": ("FLOAT64", "usd", "no"),
+    "rrx": ("FLOAT64", "usd", "no"),
+    "fs_mthi": ("FLOAT64", "month", "no"),
+    "weekn": ("STRING", "", "no"),
+    "expnyr": ("INT64", "year", "no"),
+    "tu_dpndt": ("STRING", "", "no"),
+    # coded (1996-2001) then a four-digit year (2011+); kept as text
+    "built": ("STRING", "", "no"),
 }
 
 
 def classify(name, desc, file, variables, coded, depth=0, formula=""):
     """Return (type, unit, dictionary) for a non-flag survey variable."""
+    if name in OVERRIDES:
+        return OVERRIDES[name]
     if (file, name) in coded:
         return "STRING", "", "yes"
     if name in ID_LIKE:
         return "STRING", "", "no"
-    if name in OVERRIDES:
-        return OVERRIDES[name]
     m = ITERATION.match(desc)
     if m and depth < 2:
         parent = m.group(2).lower()
@@ -500,7 +511,7 @@ def build_pumd(report: bool):
             col(
                 "interview_number" if survey == "interview" else "diary_week",
                 "STRING",
-                "Interview number of the consumer unit, from 1 to 4"
+                "Interview number of the consumer unit: 2 to 5 through 2015 (interview 1 was an unreleased bounding interview), 1 to 4 after BLS dropped the bounding interview in 2015"
                 if survey == "interview"
                 else "Diary week of the consumer unit, 1 or 2",
                 obs="Last digit of NEWID",
@@ -519,11 +530,15 @@ def build_pumd(report: bool):
                 row["_rank"] = 0 if h == "newid" else 1 if h == "membno" else 2
                 body.append(row)
                 continue
-            if (file, h) in flags or (
-                h.endswith("_")
-                and ((file, h[:-1]) in variables or h[:-1] in cols[family])
+            if (
+                h in FLAG_ALIASES
+                or (file, h) in flags
+                or (
+                    h.endswith("_")
+                    and ((file, h[:-1]) in variables or h[:-1] in cols[family])
+                )
             ):
-                parent = flags.get((file, h), h[:-1])
+                parent = FLAG_ALIASES.get(h) or flags.get((file, h), h[:-1])
                 row = col(
                     h,
                     "STRING",
@@ -621,7 +636,7 @@ UCC = [
         obs="Partition column",
     ),
     col(
-        "grouping",
+        "hierarchy",
         "STRING",
         "Hierarchical grouping the row belongs to: integrated, interview or diary",
         dictionary="yes",
@@ -662,7 +677,7 @@ UCC = [
     col(
         "section",
         "STRING",
-        "Section of the grouping: CUCHARS, EXPEND, INCOME, ASSETS or ADDENDA",
+        "Section of the grouping: CUCHARS, EXPEND, FOOD, INCOME, ASSETS or ADDENDA",
         dictionary="yes",
     ),
     col(
@@ -677,7 +692,7 @@ UCC = [
 def write(slug, rows):
     OUT.mkdir(parents=True, exist_ok=True)
     with open(OUT / f"{slug}.csv", "w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=HEADER)
+        w = csv.DictWriter(f, fieldnames=HEADER, lineterminator="\n")
         w.writeheader()
         w.writerows(rows)
     print(f"{slug}: {len(rows)} columns")

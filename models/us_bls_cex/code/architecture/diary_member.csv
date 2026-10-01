@@ -36,7 +36,7 @@ jssdedx,FLOAT64,Social Security payment during the past 12 months,,no,,usd,no,,j
 jssdedx_,STRING,"Data-quality flag for JSSDEDX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,jssdedx_
 pvtx,FLOAT64,Amount of private pension fund deduction,,no,,usd,no,,pvtx
 pvtx_,STRING,"Data-quality flag for PVTX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,pvtx_
-rrx,STRING,Amount of railroad retirement deduction,,yes,,,no,,rrx
+rrx,FLOAT64,Amount of railroad retirement deduction,,no,,usd,no,,rrx
 rrx_,STRING,"Data-quality flag for RRX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,rrx_
 schlnchq,FLOAT64,"During the previous 30 days, how many weeks were school meals received?",,no,,usd,no,,schlnchq
 schlnchx,FLOAT64,What is the usual weekly expense for the meals received at school?,,no,,usd,no,,schlnchx

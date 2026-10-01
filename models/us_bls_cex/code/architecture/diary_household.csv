@@ -84,11 +84,11 @@ freemlx,FLOAT64,Weekly dollar amount of free meals,,no,,usd,no,,freemlx
 freemlx_,STRING,"Data-quality flag for FREEMLX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,freemlx_
 frrx,FLOAT64,The sum of the railroad retirement deduction for all the household members,,no,,usd,no,,frrx
 frrx_,STRING,"Data-quality flag for FRRX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,frrx_
-fs_mthi,STRING,Year on which stamps were received during the month) - first,,yes,,,no,,fs_mthi
+fs_mthi,FLOAT64,Year on which stamps were received during the month) - first,,no,,month,no,,fs_mthi
 fs_mthi_,STRING,"Data-quality flag for FS_MTHI: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fs_mthi_
 fss_rrx,FLOAT64,Amount of Social Security and Railroad Retirement income prior to deductions for medical insurance and Medicare received by all CU members in past 12 months (Sum SOCRRX from MEMB file for all CU members),,no,,usd,no,,fss_rrx
 fss_rrx_,STRING,"Data-quality flag for FSS_RRX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fss_rrx_
-fsuppx,STRING,Sum of the amount from supplemental security income checks for all household members,,yes,,,no,,fsuppx
+fsuppx,FLOAT64,Sum of the amount from supplemental security income checks for all household members,,no,,usd,no,,fsuppx
 fsuppx_,STRING,"Data-quality flag for FSUPPX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fsuppx_
 fwagex,FLOAT64,The sum of the amount of wage/salary income before deductions for all household members,,no,,usd,no,,fwagex
 fwagex_,STRING,"Data-quality flag for FWAGEX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fwagex_
@@ -134,7 +134,7 @@ vehq,FLOAT64,Total number of owned vehicles,,no,,unit,no,,vehq
 vehq_,STRING,"Data-quality flag for VEHQ: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,vehq_
 weeki,STRING,Week of the Diary,,yes,,,no,,weeki
 weeki_,STRING,"Data-quality flag for WEEKI: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,weeki_
-weekn,STRING,Number of Diary weeks surveyed,,yes,,,no,,weekn
+weekn,STRING,Number of Diary weeks surveyed,,no,,,no,,weekn
 welfrx,FLOAT64,Amount received from public assistance or welfare including money received from job training grants such as Job Corps,,no,,usd,no,,welfrx
 welfrx_,STRING,"Data-quality flag for WELFRX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,welfrx_
 whynwrk1,STRING,Reason reference person did not work during the past 12 months,,yes,,,no,,whynwrk1
@@ -216,11 +216,11 @@ fss_rrx5,FLOAT64,Imputation Iteration #5 - FSS_RRX,2004(1)2024,no,,usd,no,,fss_r
 fss_rrxi,STRING,Indicator/descriptor variable for income imputation,2004(1)2024,no,,,no,,fss_rrxi
 fsuppxm,FLOAT64,"The sum of the amount from supplemental security income checks for all household members, mean of imputation iterations",2004(1)2024,no,,usd,no,,fsuppxm
 fsuppxm_,STRING,"Data-quality flag for FSUPPXM: valid, blank, allocated, imputed or topcoded",2004(1)2024,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fsuppxm_
-fsuppx1,STRING,Imputation Iteration #1 - FSUPPX,2004(1)2024,yes,,,no,,fsuppx1
-fsuppx2,STRING,Imputation Iteration #2 - FSUPPX,2004(1)2024,yes,,,no,,fsuppx2
-fsuppx3,STRING,Imputation Iteration #3 - FSUPPX,2004(1)2024,yes,,,no,,fsuppx3
-fsuppx4,STRING,Imputation Iteration #4 - FSUPPX,2004(1)2024,yes,,,no,,fsuppx4
-fsuppx5,STRING,Imputation Iteration #5 - FSUPPX,2004(1)2024,yes,,,no,,fsuppx5
+fsuppx1,FLOAT64,Imputation Iteration #1 - FSUPPX,2004(1)2024,no,,usd,no,,fsuppx1
+fsuppx2,FLOAT64,Imputation Iteration #2 - FSUPPX,2004(1)2024,no,,usd,no,,fsuppx2
+fsuppx3,FLOAT64,Imputation Iteration #3 - FSUPPX,2004(1)2024,no,,usd,no,,fsuppx3
+fsuppx4,FLOAT64,Imputation Iteration #4 - FSUPPX,2004(1)2024,no,,usd,no,,fsuppx4
+fsuppx5,FLOAT64,Imputation Iteration #5 - FSUPPX,2004(1)2024,no,,usd,no,,fsuppx5
 fsuppxi,STRING,Indicator/descriptor variable for income imputation,2004(1)2024,no,,,no,,fsuppxi
 fwagexm,FLOAT64,"The sum of the amount of wage/salary income before deductions for all household members, mean of imputation iterations",2004(1)2024,no,,usd,no,,fwagexm
 fwagexm_,STRING,"Data-quality flag for FWAGEXM: valid, blank, allocated, imputed or topcoded",2004(1)2024,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,fwagexm_
