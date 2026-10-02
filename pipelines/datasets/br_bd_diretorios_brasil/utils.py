@@ -36,6 +36,7 @@ import time
 import unicodedata
 from pathlib import Path
 
+import basedosdados as bd
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -275,56 +276,18 @@ def build_municipio_lookup(municipio_csv: Path) -> dict[tuple[str, str], str]:
     return build_municipio_lookup_from_df(mun)
 
 
-def _bq_client(billing_project_id: str, credentials_path: str | None):
-    """Build a BigQuery client from a service account key or from ADC.
-
-    Uses google-cloud-bigquery directly (not basedosdados.read_table) to avoid
-    the browser-based OAuth flow that blocks headless environments.
-
-    Args:
-        billing_project_id: GCP project to bill the query to.
-        credentials_path: Path to a service account JSON key. If None, falls
-            back to ``~/.basedosdados/credentials/staging.json`` then ADC.
-
-    Returns:
-        An authenticated ``google.cloud.bigquery.Client``.
-    """
-    from google.cloud import bigquery
-    from google.oauth2 import service_account
-
-    if credentials_path is None:
-        default = (
-            Path.home() / ".basedosdados" / "credentials" / "staging.json"
-        )
-        credentials_path = str(default) if default.exists() else None
-
-    credentials = None
-    if credentials_path:
-        credentials = service_account.Credentials.from_service_account_file(
-            credentials_path,
-            scopes=["https://www.googleapis.com/auth/bigquery"],
-        )
-        log.info("Using credentials from %s", credentials_path)
-
-    return bigquery.Client(project=billing_project_id, credentials=credentials)
-
-
 def build_municipio_lookup_from_bq(
     billing_project_id: str = "basedosdados-dev",
-    credentials_path: str | None = None,
 ) -> dict[tuple[str, str], str]:
     """Build lookup reading the municipio directory from BigQuery.
 
     Args:
         billing_project_id: GCP project to bill the query to (default:
             basedosdados-dev).
-        credentials_path: Path to a service account JSON key; see
-            ``_bq_client``.
 
     Returns:
         Dict mapping (nome_upper, sigla_uf) to the 7-digit IBGE code string.
     """
-    client = _bq_client(billing_project_id, credentials_path)
     log.info(
         "Reading municipio from BigQuery (billing=%s)...", billing_project_id
     )
@@ -332,13 +295,14 @@ def build_municipio_lookup_from_bq(
         SELECT id_municipio, nome, sigla_uf
         FROM `basedosdados.br_bd_diretorios_brasil.municipio`
     """
-    mun = client.query(query).to_dataframe().astype(str)
+    mun = bd.read_sql(
+        query, billing_project_id=billing_project_id, from_file=True
+    ).astype(str)
     return build_municipio_lookup_from_df(mun)
 
 
 def fetch_diretorio_publicado(
     billing_project_id: str = "basedosdados-dev",
-    credentials_path: str | None = None,
 ) -> pd.DataFrame:
     """Read the published escola directory from BigQuery.
 
@@ -348,15 +312,12 @@ def fetch_diretorio_publicado(
     Args:
         billing_project_id: GCP project to bill the query to (default:
             basedosdados-dev).
-        credentials_path: Path to a service account JSON key; see
-            ``_bq_client``.
 
     Returns:
         One row per ``id_escola`` in
         ``basedosdados.br_bd_diretorios_brasil.escola``, holding the staging
         columns that predate ``situacao_catalogo``.
     """
-    client = _bq_client(billing_project_id, credentials_path)
     cols = [
         col
         for col in constants.COLUMNS.value
@@ -370,14 +331,15 @@ def fetch_diretorio_publicado(
         "Reading published escola directory (billing=%s)...",
         billing_project_id,
     )
-    diretorio = client.query(query).to_dataframe()
+    diretorio = bd.read_sql(
+        query, billing_project_id=billing_project_id, from_file=True
+    )
     log.info("published directory: %d rows", len(diretorio))
     return diretorio
 
 
 def fetch_censo_escolar(
     billing_project_id: str = "basedosdados-dev",
-    credentials_path: str | None = None,
 ) -> pd.DataFrame:
     """Lê do Censo Escolar uma linha por escola, com município e UF.
 
@@ -388,15 +350,12 @@ def fetch_censo_escolar(
     Args:
         billing_project_id: Projeto do GCP que paga a consulta (padrão:
             basedosdados-dev).
-        credentials_path: Caminho da chave de uma service account; ver
-            ``_bq_client``.
 
     Returns:
         Uma linha por ``id_escola`` de
         ``basedosdados.br_inep_censo_escolar.escola``, com ``id_escola``,
         ``id_municipio`` e ``sigla_uf``.
     """
-    client = _bq_client(billing_project_id, credentials_path)
     query = """
         SELECT
             CAST(id_escola AS STRING) AS id_escola,
@@ -409,7 +368,9 @@ def fetch_censo_escolar(
     log.info(
         "Reading censo escolar schools (billing=%s)...", billing_project_id
     )
-    censo = client.query(query).to_dataframe()
+    censo = bd.read_sql(
+        query, billing_project_id=billing_project_id, from_file=True
+    )
     log.info("censo escolar: %d schools", len(censo))
     return censo
 
