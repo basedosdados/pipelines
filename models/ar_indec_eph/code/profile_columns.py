@@ -9,17 +9,18 @@ build_architecture.py to choose INT64 / FLOAT64 / STRING.
 import json
 import re
 import shutil
-import sys
 import tempfile
 from collections import defaultdict
 from pathlib import Path
 
 import pandas as pd
-import pyreadstat
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from archives import data_members, extract
-from constants import CODE_DIR, TABLES, waves
+from models.ar_indec_eph.code.archives import (
+    data_members,
+    extract,
+    read_dta,
+)
+from models.ar_indec_eph.code.constants import CODE_DIR, TABLES, waves
 
 # A spread across the eras: early Stata, late Stata, RAR, 2016 transition,
 # post-2016 TXT, the 2023 Q4 redesign, and the latest wave.
@@ -44,6 +45,8 @@ DEC_RE = re.compile(r"^-?\d+[.,]\d+$")
 def norm(series: pd.Series) -> pd.Series:
     s = series.astype("string")
     s = s.str.strip()
+    # pyrefly: ignore [bad-argument-type]  pandas-stubs omits pd.NA from the
+    # Scalar union accepted by to_replace, though replace() takes it.
     return s.replace({"": pd.NA, "nan": pd.NA, "None": pd.NA})
 
 
@@ -73,8 +76,7 @@ def main() -> int:
             for table, member in data_members(wave).items():
                 path = extract(wave, member, tmp)
                 if wave["fmt"] == "dta":
-                    df, meta = pyreadstat.read_dta(str(path))
-                    df.columns = [c.upper() for c in meta.column_names]
+                    df, _meta = read_dta(path)
                 else:
                     df = pd.read_csv(
                         path,

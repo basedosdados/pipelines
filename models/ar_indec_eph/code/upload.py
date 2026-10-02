@@ -19,20 +19,18 @@ reasons cl_ine_ene's uploader documents:
 Needs GOOGLE_APPLICATION_CREDENTIALS pointing at the dev service-account key:
 
     GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials/staging.json \
-        uv run python models/ar_indec_eph/code/upload.py
+        uv run python -m models.ar_indec_eph.code.upload
+
+Run it from the repository root: the imports are absolute, and both `models` and
+`pipelines` resolve because the repo is installed into the project environment.
 """
 
 from __future__ import annotations
 
 import argparse
 import pathlib
-import sys
 
-REPO = pathlib.Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO))
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-
-from constants import OUTPUT_DIR, TABLES  # noqa: E402
+from models.ar_indec_eph.code.constants import OUTPUT_DIR, TABLES
 
 DATASET_ID = "ar_indec_eph"
 BUCKET = "basedosdados-dev"

@@ -12,11 +12,8 @@ the original and the Portuguese and English are translations.
 
 import csv
 import json
-import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from constants import ARCH_DIR, CODE_DIR, TABLES
+from models.ar_indec_eph.code.constants import ARCH_DIR, CODE_DIR, TABLES
 
 
 def payload(table: str) -> list[dict]:

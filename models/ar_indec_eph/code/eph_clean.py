@@ -28,18 +28,19 @@ float serialises as "2003" rather than "2003.0".
 import csv
 import json
 import shutil
-import sys
 import tempfile
 from pathlib import Path
 
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
-import pyreadstat
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from archives import data_members, extract
-from constants import (
+from models.ar_indec_eph.code.archives import (
+    data_members,
+    extract,
+    read_dta,
+)
+from models.ar_indec_eph.code.constants import (
     ARCH_DIR,
     CODE_DIR,
     OUTPUT_DIR,
@@ -86,8 +87,7 @@ def read_raw(wave: dict, member: str) -> pd.DataFrame:
     try:
         path = extract(wave, member, tmp)
         if wave["fmt"] == "dta":
-            frame, meta = pyreadstat.read_dta(str(path))
-            frame.columns = [c.upper() for c in meta.column_names]
+            frame, _meta = read_dta(path)
             # Stata stores codes as floats; render integral floats without the
             # trailing ".0" before everything becomes a string.
             for col in frame.columns:
@@ -109,6 +109,8 @@ def read_raw(wave: dict, member: str) -> pd.DataFrame:
 
 def normalise(series: pd.Series) -> pd.Series:
     s = series.str.strip().str.strip('"').str.strip()
+    # pyrefly: ignore [bad-argument-type]  pandas-stubs omits pd.NA from the
+    # Scalar union accepted by to_replace, though replace() takes it.
     return s.replace({t: pd.NA for t in NULL_TOKENS})
 
 

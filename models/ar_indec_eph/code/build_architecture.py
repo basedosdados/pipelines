@@ -21,17 +21,20 @@ point -- CH04, P21, ITF and PONDERA are the shared vocabulary of every EPH user.
 
 import csv
 import json
-import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from constants import ARCH_DIR, CODE_DIR, TABLES
-from i18n import LANGS, fragment
-from parse_registro import lookup
+from models.ar_indec_eph.code.constants import ARCH_DIR, CODE_DIR, TABLES
+from models.ar_indec_eph.code.i18n import LANGS, fragment
+from models.ar_indec_eph.code.parse_registro import lookup
 
 N_WAVES = 87
 # BigQuery's hard limit on a column description.
 MAX_BQ_DESCRIPTION = 1024
+
+# Populated by main() from the JSON artefacts, and read by build(). Declared here
+# so they are module-level names rather than bare `global` assignments.
+TRANSLATIONS: dict[str, dict[str, str]] = {}
+VALUE_LABEL_COLS: dict[str, set[str]] = {}
+DICT_OVERRIDE: set[str] = set()
 
 # --- naming -----------------------------------------------------------------
 STRUCTURAL_RENAME = {
@@ -431,8 +434,13 @@ def main() -> int:
     for table in TABLES:
         rows = build(table, universe, labels, registro, profile, overrides)
         path = ARCH_DIR / f"{table}.csv"
+        # lineterminator is explicit: csv defaults to CRLF, which the
+        # mixed-line-ending hook then rewrites, so every regeneration would
+        # otherwise show the whole file as changed.
         with open(path, "w", newline="", encoding="utf-8") as handle:
-            writer = csv.DictWriter(handle, fieldnames=FIELDS)
+            writer = csv.DictWriter(
+                handle, fieldnames=FIELDS, lineterminator="\n"
+            )
             writer.writeheader()
             writer.writerows(rows)
         from collections import Counter

@@ -19,17 +19,19 @@ applies to the column, so a dicionario key actually joins to the stored value.
 
 import csv
 import json
-import sys
-from pathlib import Path
 
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from build_architecture import NEVER_DICTIONARY
-from constants import ARCH_DIR, CODE_DIR, OUTPUT_DIR, TABLES
-from parse_registro import lookup
+from models.ar_indec_eph.code.build_architecture import NEVER_DICTIONARY
+from models.ar_indec_eph.code.constants import (
+    ARCH_DIR,
+    CODE_DIR,
+    OUTPUT_DIR,
+    TABLES,
+)
+from models.ar_indec_eph.code.parse_registro import lookup
 
 COLUMNS = ["id_tabela", "nome_coluna", "chave", "cobertura_temporal", "valor"]
 

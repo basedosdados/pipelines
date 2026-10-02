@@ -26,11 +26,9 @@ unpadded spellings of a trailing numeric suffix.
 import json
 import re
 import subprocess
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from constants import CODE_DIR, DATA_DIR
+from models.ar_indec_eph.code.constants import CODE_DIR, DATA_DIR
 
 PDF = DATA_DIR / "docs" / "EPH_registro_1T2026.pdf"
 PDF_FALLBACK = DATA_DIR / "docs" / "EPH_registro_4T2024.pdf"

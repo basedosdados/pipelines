@@ -4,14 +4,16 @@ INDEC answers a missing file with HTTP 200 and a ~37 KB HTML page, so each
 download is validated on size and magic bytes rather than on the status code.
 """
 
-import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
 
 import requests
 
-sys.path.insert(0, str(__import__("pathlib").Path(__file__).resolve().parent))
-from constants import HTML_ERROR_SIZE, INPUT_DIR, waves
+from models.ar_indec_eph.code.constants import (
+    HTML_ERROR_SIZE,
+    INPUT_DIR,
+    waves,
+)
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; basedosdados/1.0)"}
 MAGIC = {b"PK\x03\x04": "zip", b"Rar!": "rar"}

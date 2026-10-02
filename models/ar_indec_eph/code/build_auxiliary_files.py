@@ -13,21 +13,19 @@ requester-pays bucket, or every link returns HTTP 400 to an anonymous visitor:
 import argparse
 import json
 import re
-import sys
 import zipfile
 from datetime import date
 from pathlib import Path
 
 import requests
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from aux_manifest import (
+from models.ar_indec_eph.code.aux_manifest import (
     BROKEN_URL_FIX,
     INDIVIDUO_ONLY,
     SHARED_METHODOLOGY,
     is_record_layout,
 )
-from constants import (
+from models.ar_indec_eph.code.constants import (
     BASE_URL,
     CODE_DIR,
     DATA_DIR,

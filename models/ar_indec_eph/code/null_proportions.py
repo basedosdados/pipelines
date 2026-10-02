@@ -13,14 +13,16 @@ than guessing keeps the test meaningful for the columns that remain in it.
 """
 
 import json
-import sys
 from collections import defaultdict
-from pathlib import Path
 
 import pyarrow.parquet as pq
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from constants import CODE_DIR, OUTPUT_DIR, TABLES, waves
+from models.ar_indec_eph.code.constants import (
+    CODE_DIR,
+    OUTPUT_DIR,
+    TABLES,
+    waves,
+)
 
 THRESHOLD = 0.05
 RECENT_WAVES = 12
@@ -54,7 +56,7 @@ def main() -> int:
                 if is_recent:
                     nonnull_recent[name] += filled
 
-        rows = []
+        rows: list[dict[str, str | float]] = []
         for name in nonnull_all:
             share_all = nonnull_all[name] / total_all if total_all else 0.0
             share_recent = (
@@ -77,18 +79,19 @@ def main() -> int:
         # window: sparse only in the recent window means it was retired, which
         # the overall share still covers.
         sparse[table] = sorted(
-            r["column"]
+            str(r["column"])
             for r in rows
-            if r["share_all"] < THRESHOLD or r["share_recent"] < THRESHOLD
+            if float(r["share_all"]) < THRESHOLD
+            or float(r["share_recent"]) < THRESHOLD
         )
         print(f"{table}: {total_all:,} rows, {len(rows)} columns")
         print(
             f"   below {THRESHOLD:.0%} overall: "
-            f"{sum(1 for r in rows if r['share_all'] < THRESHOLD)}"
+            f"{sum(1 for r in rows if float(r['share_all']) < THRESHOLD)}"
         )
         print(
             f"   below {THRESHOLD:.0%} in the last {RECENT_WAVES} waves: "
-            f"{sum(1 for r in rows if r['share_recent'] < THRESHOLD)}"
+            f"{sum(1 for r in rows if float(r['share_recent']) < THRESHOLD)}"
         )
         print(f"   ignore list: {len(sparse[table])} columns")
         print(

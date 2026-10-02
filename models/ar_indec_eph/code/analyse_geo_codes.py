@@ -10,16 +10,17 @@ recorded in the column's observations rather than silently merged.
 
 import json
 import shutil
-import sys
 import tempfile
 from pathlib import Path
 
 import pandas as pd
-import pyreadstat
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from archives import data_members, extract
-from constants import CODE_DIR, waves
+from models.ar_indec_eph.code.archives import (
+    data_members,
+    extract,
+    read_dta,
+)
+from models.ar_indec_eph.code.constants import CODE_DIR, waves
 
 COLUMNS = ["CH15_COD", "CH16_COD"]
 
@@ -33,8 +34,7 @@ def main() -> int:
         try:
             path = extract(wave, member, tmp)
             if wave["fmt"] == "dta":
-                frame, meta = pyreadstat.read_dta(str(path))
-                frame.columns = [c.upper() for c in meta.column_names]
+                frame, _meta = read_dta(path)
                 frame = frame.astype("string")
             else:
                 frame = pd.read_csv(

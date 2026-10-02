@@ -14,16 +14,14 @@ per-wave EPH_registro PDFs instead.
 
 import json
 import shutil
-import sys
 import tempfile
 from collections import defaultdict
 from pathlib import Path
 
 import pyreadstat
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from archives import data_members, extract
-from constants import CODE_DIR, TABLES, waves
+from models.ar_indec_eph.code.archives import data_members, extract
+from models.ar_indec_eph.code.constants import CODE_DIR, TABLES, waves
 
 
 def read_txt_header(path: Path) -> list[str]:
@@ -53,7 +51,7 @@ def main() -> int:
                 if wave["fmt"] == "dta":
                     _, meta = pyreadstat.read_dta(str(path), metadataonly=True)
                     cols = [c.upper() for c in meta.column_names]
-                    rows = meta.number_rows
+                    rows = int(meta.number_rows or 0)
                     for col, lab in zip(
                         cols, meta.column_labels or [], strict=False
                     ):
@@ -65,16 +63,19 @@ def main() -> int:
                         key = var.upper()
                         store = value_labels[table].setdefault(key, {})
                         for code, lab in mapping.items():
+                            # Stata stores codes as floats, so 51.0 must key as
+                            # "51" to match the cleaned data. float() first keeps
+                            # the check well-typed for ints and floats alike.
+                            code_f = float(code)
                             code_s = (
-                                str(int(code))
-                                if isinstance(code, float)
-                                and code.is_integer()
+                                str(int(code_f))
+                                if code_f.is_integer()
                                 else str(code)
                             )
                             store.setdefault(code_s, str(lab).strip())
                 else:
                     cols = read_txt_header(path)
-                    rows = count_txt_rows(path)
+                    rows = int(count_txt_rows(path))
                 wave_rows[tag][table] = rows
                 for col in cols:
                     entry = universe[table].setdefault(

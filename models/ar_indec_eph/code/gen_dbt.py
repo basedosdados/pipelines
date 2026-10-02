@@ -11,11 +11,8 @@ column list needs refreshing.
 
 import csv
 import json
-import sys
-from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from constants import ARCH_DIR, CODE_DIR, TABLES
+from models.ar_indec_eph.code.constants import ARCH_DIR, CODE_DIR, TABLES
 
 DATASET = "ar_indec_eph"
 MODEL_DIR = CODE_DIR.parent
@@ -151,18 +148,18 @@ from {{{{ set_datalake_project("{DATASET}_staging.dicionario") }}}} as t
 """
 
 
+# yamlfix is the formatter of record for YAML in this repo, and it REFLOWS whole
+# paragraphs inside a block scalar rather than wrapping line by line. Trying to
+# match its output here is fragile, so this emits each description as a single
+# unwrapped line and lets yamlfix do the wrapping. Run the hook after generating:
+#
+#     uv run python models/ar_indec_eph/code/gen_dbt.py
+#     uv run pre-commit run --files models/ar_indec_eph/schema.yml
+#
+# The committed file is therefore yamlfix's output, not this script's, and
+# regenerating dirties the wrapping until the hook runs again.
 def yaml_block(text: str, indent: int) -> str:
-    pad = " " * indent
-    words, lines, cur = text.split(), [], ""
-    for w in words:
-        if len(cur) + len(w) + 1 > 86:
-            lines.append(cur)
-            cur = w
-        else:
-            cur = f"{cur} {w}".strip()
-    if cur:
-        lines.append(cur)
-    return "\n".join(pad + line for line in lines)
+    return " " * indent + " ".join(text.split())
 
 
 def schema_yml(

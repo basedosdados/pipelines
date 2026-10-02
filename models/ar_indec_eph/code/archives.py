@@ -12,12 +12,14 @@ unrar needed.
 """
 
 import subprocess
-import sys
 import zipfile
 from pathlib import Path
+from typing import Any
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from constants import INPUT_DIR
+import pandas as pd
+import pyreadstat
+
+from models.ar_indec_eph.code.constants import INPUT_DIR
 
 # Which member of the archive is which table. INDEC's member names are not
 # consistent across the 87 waves, in four separate ways:
@@ -103,3 +105,20 @@ def extract(wave: dict, member: str, dest_dir: Path) -> Path:
             while chunk := src.read(1 << 20):
                 dst.write(chunk)
     return out
+
+
+def read_dta(path: Path) -> tuple[pd.DataFrame, Any]:
+    """Read a Stata file, with the source's column names uppercased.
+
+    Wrapped here for one reason beyond DRY: pyreadstat is annotated as returning
+    its own `PandasDataFrame`, which the type checker does not treat as a real
+    DataFrame, so every `.columns` and `.astype` on the result is flagged. The
+    object genuinely is a DataFrame at runtime, so the conversion is declared
+    once here instead of suppressed at each of the four call sites.
+    """
+    frame, meta = pyreadstat.read_dta(str(path))
+    # pyrefly: ignore [bad-argument-type]  pyreadstat's PandasDataFrame is a
+    # DataFrame at runtime; its stub is not declared as one.
+    frame = pd.DataFrame(frame)
+    frame.columns = [str(c).upper() for c in meta.column_names]
+    return frame, meta

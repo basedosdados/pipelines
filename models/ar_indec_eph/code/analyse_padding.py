@@ -19,17 +19,23 @@ would be wrong rather than merely cosmetic.
 import csv
 import json
 import shutil
-import sys
 import tempfile
 from collections import defaultdict
 from pathlib import Path
 
 import pandas as pd
-import pyreadstat
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from archives import data_members, extract
-from constants import ARCH_DIR, CODE_DIR, TABLES, waves
+from models.ar_indec_eph.code.archives import (
+    data_members,
+    extract,
+    read_dta,
+)
+from models.ar_indec_eph.code.constants import (
+    ARCH_DIR,
+    CODE_DIR,
+    TABLES,
+    waves,
+)
 
 # Never padded, whatever the measurements say.
 PAD_EXCLUDE = {"CODUSU"}
@@ -40,8 +46,7 @@ def read_wave(wave: dict, member: str) -> pd.DataFrame:
     try:
         path = extract(wave, member, tmp)
         if wave["fmt"] == "dta":
-            df, meta = pyreadstat.read_dta(str(path))
-            df.columns = [c.upper() for c in meta.column_names]
+            df, _meta = read_dta(path)
             return df.astype("string")
         df = pd.read_csv(
             path, sep=";", encoding="latin-1", dtype=str, low_memory=False
