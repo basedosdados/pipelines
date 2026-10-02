@@ -13,8 +13,8 @@ from __future__ import annotations
 
 import argparse
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 from models.us_census_bps.code.metadata import (
     DATASET_SLUG,
@@ -39,17 +39,19 @@ def main() -> int:
     args = parser.parse_args()
     env = args.env
 
-    ids = server.discover_ids(env=env, keys=["status", "theme"])
-    org = server.lookup_id("organization", "census_bureau", env=env)["id"]
+    ids = bd_mcp_metadata.discover_ids(env=env, keys=["status", "theme"])
+    org = bd_mcp_metadata.lookup_id("organization", "census_bureau", env=env)[
+        "id"
+    ]
     tag_ids = [
-        server.lookup_id("tag", slug, env=env)["id"]
+        bd_mcp_metadata.lookup_id("tag", slug, env=env)["id"]
         for slug in TAG_SLUGS[env] + [t["slug"] for t in NEW_TAGS]
     ]
-    dataset = server.get_dataset(DATASET_SLUG, env=env)
+    dataset = bd_mcp_metadata.get_dataset(DATASET_SLUG, env=env)
     if not dataset.get("found"):
         raise SystemExit(f"dataset {DATASET_SLUG} not found in {env}")
 
-    write.create_update_dataset(
+    bd_mcp_write.create_update_dataset(
         slug=DATASET_SLUG,
         name_pt=NAME_PT,
         name_en=NAME_EN,
@@ -64,7 +66,7 @@ def main() -> int:
         id=dataset["id"],
         env=env,
     )
-    after = server.get_dataset(DATASET_SLUG, env=env)
+    after = bd_mcp_metadata.get_dataset(DATASET_SLUG, env=env)
     print(f"{DATASET_SLUG} in {env}: status now {after.get('status')}")
     return 0
 

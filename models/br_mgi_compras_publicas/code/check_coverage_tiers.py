@@ -152,13 +152,13 @@ def main() -> int:
     # 6. prune keeps one coverage PER TIER and one range per coverage.
     print("6. prune deduplicates within a tier, never across")
     recorder = Recorder()
-    original_fn, original_server = rm.fn, rm.server
+    original_fn, original_server = rm.fn, rm.bd_mcp_metadata
     rm.fn = recorder  # pyrefly: ignore [bad-assignment]
 
     class Stub:
         delete_record = staticmethod(lambda **_: None)
 
-    rm.server = Stub()  # pyrefly: ignore [bad-assignment]
+    rm.bd_mcp_write = Stub()  # pyrefly: ignore [bad-assignment]
     try:
         rm.prune(
             {"observation_levels": [], "updates": []},
@@ -175,7 +175,7 @@ def main() -> int:
         )
     finally:
         rm.fn = original_fn  # pyrefly: ignore [bad-assignment]
-        rm.server = original_server  # pyrefly: ignore [bad-assignment]
+        rm.bd_mcp_write = original_server  # pyrefly: ignore [bad-assignment]
     deleted = {c["record_id"] for c in recorder.of("delete_record")}
     check("duplicate free coverage deleted", "cov-free-dup" in deleted)
     check("pro coverage NOT deleted", "cov-pro" not in deleted)

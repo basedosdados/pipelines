@@ -21,7 +21,7 @@ table and takes 80+ seconds on this dataset -- past the client's own timeout.
 
 from __future__ import annotations
 
-import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.metadata as bd_mcp_metadata
 
 import models.world_wb_mides.code.mg_table_glossary as tables
 import models.world_wb_mides.code.register_mg_metadata as reg
@@ -64,14 +64,14 @@ def main() -> None:
     for slug in slugs:
         want = dict(reg.typed_columns(reg.model_path(slug)))
 
-        edges = server._gql(
+        edges = bd_mcp_metadata._gql(
             TABLE_QUERY, {"ds": DATASET_ID, "slug": slug}, env=ENV
         )["allTable"]["edges"]
         if not edges:
             problems.append(f"{slug}: NOT REGISTERED")
             continue
         node = edges[0]["node"]
-        table_id = server._strip_id(node["id"])
+        table_id = bd_mcp_metadata._strip_id(node["id"])
 
         for field in (
             "namePt",
@@ -86,9 +86,9 @@ def main() -> None:
 
         cols = {
             e["node"]["name"]: e["node"]
-            for e in server._gql(COLUMN_QUERY, {"id": table_id}, env=ENV)[
-                "allColumn"
-            ]["edges"]
+            for e in bd_mcp_metadata._gql(
+                COLUMN_QUERY, {"id": table_id}, env=ENV
+            )["allColumn"]["edges"]
         }
         missing = sorted(set(want) - set(cols))
         extra = sorted(set(cols) - set(want))

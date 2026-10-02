@@ -20,8 +20,8 @@ from __future__ import annotations
 import argparse
 import json
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 from models.cl_ine_censo.code.constants import (
     CENSUS_YEAR,
@@ -188,7 +188,7 @@ def auxiliary_urls() -> dict[str, str]:
 
 def existing_state(env: str) -> dict:
     """Read back what already exists, so a re-run updates instead of duplicating."""
-    dataset = server.get_dataset(slug=DATASET_ID, env=env)
+    dataset = bd_mcp_metadata.get_dataset(slug=DATASET_ID, env=env)
     if isinstance(dataset, str):
         dataset = json.loads(dataset)
     return dataset if dataset.get("found") else {"tables": {}}
@@ -209,7 +209,7 @@ def register(env: str, gcp_project: str) -> None:
         name_pt, name_en, name_es = spec["names"]
         desc_pt, desc_en, desc_es = spec["descriptions"]
 
-        result = write.create_update_table(
+        result = bd_mcp_write.create_update_table(
             id=table_id,
             slug=slug,
             dataset_id=ids["dataset"],
@@ -239,7 +239,7 @@ def register(env: str, gcp_project: str) -> None:
         }
         level_ids: dict[str, str] = {}
         for entity_slug, column_name in spec["levels"]:
-            level = write.create_update_observation_level(
+            level = bd_mcp_write.create_update_observation_level(
                 id=existing_levels.get(entity_slug),
                 # pyrefly: ignore [bad-argument-type]
                 table_id=table_id,
@@ -255,7 +255,7 @@ def register(env: str, gcp_project: str) -> None:
 
         # --- columns -------------------------------------------------------
         payload = json.loads((PAYLOAD_DIR / f"{slug}.json").read_text("utf-8"))
-        write.bulk_upsert_columns(
+        bd_mcp_write.bulk_upsert_columns(
             # pyrefly: ignore [bad-argument-type]
             table_id=table_id,
             columns_json=json.dumps(payload, ensure_ascii=False),
@@ -282,7 +282,7 @@ def register(env: str, gcp_project: str) -> None:
             if not level_id or not column_id:
                 print(f"  ! no column id for {column_name}; level not linked")
                 continue
-            write.update_column(
+            bd_mcp_write.update_column(
                 column_id=column_id,
                 column_name=column_name,
                 # pyrefly: ignore [bad-argument-type]
@@ -299,7 +299,7 @@ def register(env: str, gcp_project: str) -> None:
 
         # --- cloud table ----------------------------------------------------
         cloud = (current.get("cloud_tables") or [{}])[0]
-        write.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             id=cloud.get("id"),
             # pyrefly: ignore [bad-argument-type]
             table_id=table_id,
@@ -316,7 +316,7 @@ def register(env: str, gcp_project: str) -> None:
         if slug == "dicionario":
             continue
         coverage = (current.get("coverages") or [{}])[0]
-        cov = write.create_update_coverage(
+        cov = bd_mcp_write.create_update_coverage(
             id=coverage.get("id"),
             # pyrefly: ignore [bad-argument-type]
             table_id=table_id,
@@ -327,7 +327,7 @@ def register(env: str, gcp_project: str) -> None:
             cov = json.loads(cov)
         coverage_id = cov.get("id")
         ranges = coverage.get("datetime_ranges") or [{}]
-        write.create_update_datetime_range(
+        bd_mcp_write.create_update_datetime_range(
             id=ranges[0].get("id"),
             # pyrefly: ignore [bad-argument-type]
             coverage_id=coverage_id,

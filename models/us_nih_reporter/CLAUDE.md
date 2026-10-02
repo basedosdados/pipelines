@@ -364,7 +364,8 @@ environment has, rather than resolving one slug and failing on the other.
 
 Both metadata scripts call the Data Basis MCP tools as plain functions from the
 `databasis-mcp` dependency: read tools from `databasis_mcp.tools.metadata`
-(imported as `server`), write tools from `databasis_mcp.tools.write` (as `write`).
+(imported as `bd_mcp_metadata`), write tools from `databasis_mcp.tools.write`
+(as `bd_mcp_write`).
 
 ## The `clinical_study` entity
 

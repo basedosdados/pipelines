@@ -15,8 +15,8 @@ from __future__ import annotations
 
 import sys
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 FLIGHT = "245b6498-5295-44df-8f4d-62496f2ba898"
 AIRPORT = "2a0d9769-c080-4a84-a77e-016996a3fae8"
@@ -50,7 +50,7 @@ def column_ids(env: str, table_id: str) -> dict[str, str]:
       }
     }
     """
-    data = server._gql(query, {"id": table_id}, env=env)
+    data = bd_mcp_metadata._gql(query, {"id": table_id}, env=env)
     out = {}
     for e in data["allColumn"]["edges"]:
         n = e["node"]
@@ -60,7 +60,7 @@ def column_ids(env: str, table_id: str) -> dict[str, str]:
 
 def main(env: str) -> None:
     # pyrefly: ignore [not-callable]
-    call(server.auth)(env=env)
+    call(bd_mcp_metadata.auth)(env=env)
     cache: dict[str, dict[str, str]] = {}
     for table_id, name, ol_id, is_partition in LINKS:
         if table_id not in cache:
@@ -69,7 +69,7 @@ def main(env: str) -> None:
         if cid is None:
             raise SystemExit(f"column {name} not found on table {table_id}")
         # pyrefly: ignore [not-callable]
-        call(write.update_column)(
+        call(bd_mcp_write.update_column)(
             column_id=cid,
             column_name=name,
             table_id=table_id,

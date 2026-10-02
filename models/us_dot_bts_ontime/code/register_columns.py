@@ -16,8 +16,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
@@ -40,11 +40,11 @@ def call(tool):
 
 def main(env: str, tables: list[str]) -> None:
     # pyrefly: ignore [not-callable]
-    call(server.auth)(env=env)
+    call(bd_mcp_metadata.auth)(env=env)
     for table in tables:
         js = payload(table)
         # pyrefly: ignore [not-callable]
-        result = call(write.bulk_upsert_columns)(
+        result = call(bd_mcp_write.bulk_upsert_columns)(
             table_id=TABLE_IDS[table], columns_json=js, env=env
         )
         created = result.get("created", result.get("n_created"))

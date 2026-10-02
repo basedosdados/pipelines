@@ -23,8 +23,8 @@ import json
 import sys
 from pathlib import Path
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 CODE_DIR = Path(__file__).resolve().parent
 ARCH_DIR = CODE_DIR / "architecture"
@@ -126,9 +126,9 @@ def resolve_refs(env: str) -> dict[str, str]:
     """Look every reference id up in the target backend."""
     refs = {}
     for key, (category, slug) in REF_SLUGS.items():
-        refs[key] = server.lookup_id(category=category, slug=slug, env=env)[
-            "id"
-        ]
+        refs[key] = bd_mcp_metadata.lookup_id(
+            category=category, slug=slug, env=env
+        )["id"]
     return refs
 
 
@@ -480,7 +480,9 @@ def resolve_tags(env: str) -> list[str]:
     )
     ids, missing = [], []
     for tag_id, label in TAG_IDS.items():
-        edges = server._gql(query, {"id": tag_id}, env=env)["allTag"]["edges"]
+        edges = bd_mcp_metadata._gql(query, {"id": tag_id}, env=env)["allTag"][
+            "edges"
+        ]
         if edges:
             ids.append(tag_id)
         else:
@@ -493,11 +495,11 @@ def resolve_tags(env: str) -> list[str]:
 def register(env: str) -> dict:
     """Register the dataset, its raw sources and its seven tables."""
     refs = resolve_refs(env)
-    account = server.get_authenticated_account(env=env)
+    account = bd_mcp_metadata.get_authenticated_account(env=env)
     account_id = account["id"]
     area_us = refs["area_us"]
 
-    dataset = write.create_update_dataset(
+    dataset = bd_mcp_write.create_update_dataset(
         id=DATASET_ID,
         slug=DATASET_SLUG,
         name_pt=NAME_PT,
@@ -521,13 +523,13 @@ def register(env: str) -> dict:
     # Raw sources are matched on URL so a re-run updates rather than appends.
     by_url = {
         existing_source["url"]: existing_source["id"]
-        for existing_source in write.get_raw_data_sources(
+        for existing_source in bd_mcp_write.get_raw_data_sources(
             dataset_slug=DATASET_SLUG, env=env
         )
     }
     source_ids: dict[str, list[str]] = {}
     for source in RAW_SOURCES:
-        created = write.create_update_raw_data_source(
+        created = bd_mcp_write.create_update_raw_data_source(
             dataset_id=DATASET_ID,
             # pyrefly: ignore [bad-argument-type]
             name_pt=source["name_pt"],
@@ -549,12 +551,14 @@ def register(env: str) -> dict:
         for table in source["tables"]:
             source_ids.setdefault(table, []).append(created["id"])
 
-    existing = server.get_dataset(slug=DATASET_SLUG, env=env).get("tables", {})
+    existing = bd_mcp_metadata.get_dataset(slug=DATASET_SLUG, env=env).get(
+        "tables", {}
+    )
     report = {}
     for spec in TABLES:
         slug = spec["slug"]
         prior = existing.get(slug, {})
-        table = write.create_update_table(
+        table = bd_mcp_write.create_update_table(
             id=prior.get("id"),
             # pyrefly: ignore [bad-argument-type]
             slug=slug,
@@ -596,7 +600,7 @@ def register(env: str) -> dict:
         # pyrefly: ignore [not-iterable]
         for level in spec["levels"]:
             entity_id = refs[f"entity_{level}"]
-            created = write.create_update_observation_level(
+            created = bd_mcp_write.create_update_observation_level(
                 id=prior_levels.get(entity_id),
                 table_id=table_id,
                 entity_id=entity_id,
@@ -605,7 +609,7 @@ def register(env: str) -> dict:
             levels[level] = created["id"]
 
         cloud_tables = prior.get("cloud_tables", [])
-        write.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             id=cloud_tables[0]["id"] if cloud_tables else None,
             table_id=table_id,
             gcp_project_id=(
@@ -618,14 +622,14 @@ def register(env: str) -> dict:
         )
 
         coverages = prior.get("coverages", [])
-        coverage = write.create_update_coverage(
+        coverage = bd_mcp_write.create_update_coverage(
             id=coverages[0]["id"] if coverages else None,
             table_id=table_id,
             area_id=area_us,
             env=env,
         )
         ranges = coverages[0].get("datetime_ranges", []) if coverages else []
-        write.create_update_datetime_range(
+        bd_mcp_write.create_update_datetime_range(
             id=ranges[0]["id"] if ranges else None,
             coverage_id=coverage["id"],
             # pyrefly: ignore [bad-argument-type]
@@ -636,7 +640,7 @@ def register(env: str) -> dict:
             env=env,
         )
         updates = prior.get("updates", [])
-        write.create_update_update(
+        bd_mcp_write.create_update_update(
             id=updates[0]["id"] if updates else None,
             table_id=table_id,
             entity_id=refs["entity_year"],
@@ -646,7 +650,7 @@ def register(env: str) -> dict:
             env=env,
         )
 
-        written = write.bulk_upsert_columns(
+        written = bd_mcp_write.bulk_upsert_columns(
             table_id=table_id,
             # pyrefly: ignore [bad-argument-type]
             columns_json=columns_payload(slug),
@@ -658,9 +662,9 @@ def register(env: str) -> dict:
         # so both are written together, per column, here.
         by_name = {
             c["name"]: c["id"]
-            for c in server.get_dataset(slug=DATASET_SLUG, env=env)["tables"][
-                slug
-            ]["columns"]
+            for c in bd_mcp_metadata.get_dataset(slug=DATASET_SLUG, env=env)[
+                "tables"
+            ][slug]["columns"]
         }
         # pyrefly: ignore [no-matching-overload]
         partition = PARTITIONS.get(slug, "")
@@ -671,7 +675,7 @@ def register(env: str) -> dict:
         for level, column in wanted.items():
             if column not in by_name:
                 raise RuntimeError(f"{slug}: no column {column} to link")
-            write.update_column(
+            bd_mcp_write.update_column(
                 column_id=by_name[column],
                 column_name=column,
                 table_id=table_id,
@@ -682,7 +686,7 @@ def register(env: str) -> dict:
         report[slug] = {"id": table_id, "columns": written}
         print(f"table {slug}: {written}")
 
-    write.reorder_tables(
+    bd_mcp_write.reorder_tables(
         dataset_slug=DATASET_SLUG,
         # pyrefly: ignore [bad-argument-type]
         table_slugs=[t["slug"] for t in TABLES],
@@ -698,7 +702,7 @@ def set_dataset_status(env: str, status: str) -> dict:
     """
     status_id = resolve_refs(env)[f"status_{status}"]
     refs = resolve_refs(env)
-    return write.create_update_dataset(
+    return bd_mcp_write.create_update_dataset(
         id=DATASET_ID,
         slug=DATASET_SLUG,
         name_pt=NAME_PT,
@@ -725,7 +729,7 @@ def rename_organization(env: str) -> dict:
     The organization also carries an unfilled Survey of Doctorate Recipients
     shell, whose public URL changes with this rename.
     """
-    return write.create_update_organization(
+    return bd_mcp_write.create_update_organization(
         id=ORGANIZATION_ID,
         slug="nsf",
         name_pt="National Science Foundation (NSF)",

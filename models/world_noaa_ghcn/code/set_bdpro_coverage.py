@@ -32,8 +32,8 @@ import sys
 from datetime import date
 from pathlib import Path
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
@@ -72,8 +72,10 @@ def main() -> None:
     env = args.env
     source_end = date.fromisoformat(args.source_end)
 
-    area_id = server.lookup_id(category="area", slug=AREA_SLUG, env=env)["id"]
-    dataset = server.get_dataset(DATASET_SLUG, env=env)
+    area_id = bd_mcp_metadata.lookup_id(
+        category="area", slug=AREA_SLUG, env=env
+    )["id"]
+    dataset = bd_mcp_metadata.get_dataset(DATASET_SLUG, env=env)
     table = dataset["tables"][TABLE]
     table_id = table["id"]
 
@@ -82,9 +84,9 @@ def main() -> None:
     free_id = pro_id = None
     for cov in table.get("coverages") or []:
         q = "query($id: ID!) { allCoverage(id: $id) { edges { node { isClosed } } } }"
-        edges = server._gql(q, {"id": cov["id"]}, env=env)["allCoverage"][
-            "edges"
-        ]
+        edges = bd_mcp_metadata._gql(q, {"id": cov["id"]}, env=env)[
+            "allCoverage"
+        ]["edges"]
         closed = bool(edges and edges[0]["node"]["isClosed"])
         if closed:
             pro_id = cov["id"]
@@ -97,7 +99,7 @@ def main() -> None:
             "no free Coverage found; run register_metadata.py first"
         )
     if pro_id is None:
-        pro = write.create_update_coverage(
+        pro = bd_mcp_write.create_update_coverage(
             table_id=table_id, area_id=area_id, is_closed=True, env=env
         )
         pro_id = pro["id"] if isinstance(pro, dict) else pro
@@ -121,7 +123,7 @@ def main() -> None:
     }
     free_range_id = (existing.get(free_id) or [{}])[0].get("id")
 
-    write.create_update_datetime_range(
+    bd_mcp_write.create_update_datetime_range(
         id=free_range_id,
         coverage_id=free_id,
         start_year=FIRST_YEAR,
@@ -134,7 +136,7 @@ def main() -> None:
         is_closed=False,
         env=env,
     )
-    write.create_update_datetime_range(
+    bd_mcp_write.create_update_datetime_range(
         id=(existing.get(pro_id) or [{}])[0].get("id"),
         coverage_id=pro_id,
         start_year=pro_start["year"],

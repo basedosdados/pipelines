@@ -29,8 +29,8 @@ HERE = Path(__file__).resolve().parent
 for path in (str(REPO_ROOT), str(HERE)):
     sys.path.insert(0, path)
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 from models.us_ssa_beneficiaries.code.build_columns_json import columns_json
 
@@ -320,7 +320,7 @@ def tool(name: str) -> Any:
     Returns ``Any``: the MCP module is untyped and the tools are resolved by
     name, so a precise signature is not recoverable here.
     """
-    fn = getattr(server, name, None) or getattr(write, name)
+    fn = getattr(bd_mcp_metadata, name, None) or getattr(bd_mcp_write, name)
     return getattr(fn, "fn", fn)
 
 
@@ -339,7 +339,7 @@ def current_status_id(dataset_id: str | None, env: str) -> str | None:
     """
     if not dataset_id:
         return None
-    edges = server._gql(
+    edges = bd_mcp_metadata._gql(
         "query($id: ID!) { allDataset(id: $id) { edges { node { status { id } } } } }",
         {"id": dataset_id},
         env=env,
@@ -386,7 +386,7 @@ def main() -> int:
         if not existing.get("found"):
             print(f"dataset {DATASET_SLUG!r} not found on {env}")
             return 1
-        node = server._gql(
+        node = bd_mcp_metadata._gql(
             """query($id: ID!) { allDataset(id: $id) { edges { node { slug namePt
                nameEn nameEs descriptionPt descriptionEn descriptionEs
                organizations { edges { node { id } } } themes { edges { node { id } } }
@@ -523,9 +523,9 @@ def main() -> int:
             table_id=tid, columns_json=columns_json(slug), env=env
         )
 
-        node = server._gql(TABLE_STATE_Q, {"id": tid}, env=env, auth=False)[
-            "allTable"
-        ]["edges"][0]["node"]
+        node = bd_mcp_metadata._gql(
+            TABLE_STATE_Q, {"id": tid}, env=env, auth=False
+        )["allTable"]["edges"][0]["node"]
         ols = {
             bare(e["node"]["entity"]["id"]): bare(e["node"]["id"])
             for e in node["observationLevels"]["edges"]
@@ -558,7 +558,7 @@ def main() -> int:
 
         cols = {
             e["node"]["name"]: bare(e["node"]["id"])
-            for e in server._gql(
+            for e in bd_mcp_metadata._gql(
                 "query($id: ID!) { allColumn(table_Id: $id) { edges { node { id name } } } }",
                 {"id": tid},
                 env=env,
@@ -648,7 +648,7 @@ def main() -> int:
     # second Update rather than replacing the first, so a re-run accumulates
     # duplicates on the raw source.
     for sid in src_ids.values():
-        existing_update = server._gql(
+        existing_update = bd_mcp_metadata._gql(
             """query($id: ID!) { allRawdatasource(id: $id) { edges { node {
                  updates { edges { node { id } } } } } } }""",
             {"id": sid},

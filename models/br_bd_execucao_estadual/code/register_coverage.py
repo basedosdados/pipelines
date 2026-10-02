@@ -175,15 +175,15 @@ def check(env: str) -> int:
 
 
 def apply(env: str) -> None:
-    import databasis_mcp.tools.metadata as server
-    import databasis_mcp.tools.write as write
+    import databasis_mcp.tools.metadata as bd_mcp_metadata
+    import databasis_mcp.tools.write as bd_mcp_write
 
-    server.auth(env=env)
+    bd_mcp_metadata.auth(env=env)
     areas = {
-        a: server.lookup_id(category="area", slug=a, env=env)["id"]
+        a: bd_mcp_metadata.lookup_id(category="area", slug=a, env=env)["id"]
         for a in {e[0] for v in PLAN.values() for e in v}
     }
-    dataset = server.get_dataset(slug="execucao_estadual", env=env)
+    dataset = bd_mcp_metadata.get_dataset(slug="execucao_estadual", env=env)
     for slug, entries in PLAN.items():
         table = dataset["tables"][slug]
         # Matched BY AREA, never by position. The backend does not return coverages in
@@ -204,7 +204,7 @@ def apply(env: str) -> None:
             prior_cov = existing.get(area)
             if prior_cov:
                 kwargs["id"] = prior_cov["id"]
-            coverage = write.create_update_coverage(**kwargs)
+            coverage = bd_mcp_write.create_update_coverage(**kwargs)
             if ranges is None:
                 print(f"  {slug:24} {area}  no range")
                 continue
@@ -230,7 +230,7 @@ def apply(env: str) -> None:
                     rng.update(start_month=m0, end_month=m1)
                 if i < len(prior):
                     rng["id"] = prior[i]["id"]
-                write.create_update_datetime_range(**rng)
+                bd_mcp_write.create_update_datetime_range(**rng)
             label = ", ".join(
                 f"{y0}-{m0:02d}..{y1}-{m1:02d}" if m0 else f"{y0}..{y1}"
                 for y0, m0, y1, m1 in ranges

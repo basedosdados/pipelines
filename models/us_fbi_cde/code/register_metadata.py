@@ -22,8 +22,8 @@ import sys
 from datetime import date
 from pathlib import Path
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 REPO = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO))
@@ -373,9 +373,11 @@ def existing_state(env):
     create_update_coverage and create_update_update all create a second record
     when called without an id, so every one of them is passed the id found here.
     """
-    dataset = server.get_dataset(slug=DATASET_SLUG, env=env)
+    dataset = bd_mcp_metadata.get_dataset(slug=DATASET_SLUG, env=env)
     if not dataset.get("found"):
-        dataset = server.get_dataset(slug=LEGACY_DATASET_SLUG, env=env)
+        dataset = bd_mcp_metadata.get_dataset(
+            slug=LEGACY_DATASET_SLUG, env=env
+        )
         if dataset.get("found"):
             print(
                 f"found the shell under its legacy slug "
@@ -425,11 +427,11 @@ def main():
     # The backend types Update.latest as DateTime, so a bare date is rejected.
     today = (args.today or date.today().isoformat()) + "T00:00:00"
 
-    ids = server.discover_ids(
+    ids = bd_mcp_metadata.discover_ids(
         env=env,
         keys=["status", "theme", "tag", "entity", "license", "availability"],
     )
-    area_us = server.lookup_id(category="area", slug="us", env=env)
+    area_us = bd_mcp_metadata.lookup_id(category="area", slug="us", env=env)
     area_id = area_us.get("id") if isinstance(area_us, dict) else area_us
     print(f"area us = {area_id}")
 
@@ -442,7 +444,7 @@ def main():
         + ", ".join(CONSOLIDATION_CANDIDATES)
     )
 
-    account_id = server.get_authenticated_account(env=env)["id"]
+    account_id = bd_mcp_metadata.get_authenticated_account(env=env)["id"]
 
     tag_ids = list({t["id"] for t in dataset.get("tags", [])})
     missing = []
@@ -457,7 +459,7 @@ def main():
     if missing:
         print(f"tags absent from this backend, not created: {missing}")
 
-    write.create_update_dataset(
+    bd_mcp_write.create_update_dataset(
         id=dataset_id,
         slug=DATASET_SLUG,
         name_pt=dataset["name_pt"],
@@ -480,7 +482,9 @@ def main():
     # record is refreshed rather than left beside a working duplicate.
     # Called directly the tool returns a bare list; through the MCP layer it is
     # wrapped in {"result": [...]}. Accept either.
-    existing = write.get_raw_data_sources(dataset_slug=DATASET_SLUG, env=env)
+    existing = bd_mcp_write.get_raw_data_sources(
+        dataset_slug=DATASET_SLUG, env=env
+    )
     if isinstance(existing, dict):
         existing = existing.get("result", [])
     # get_raw_data_sources returns a single `name`, and it is the Portuguese one.
@@ -502,7 +506,7 @@ def main():
         known_sources.setdefault(RAW_SOURCES[0]["name_pt"], legacy["id"])
     raw_ids = {}
     for source in RAW_SOURCES:
-        result = write.create_update_raw_data_source(
+        result = bd_mcp_write.create_update_raw_data_source(
             id=known_sources.get(source["name_pt"]),
             dataset_id=dataset_id,
             # pyrefly: ignore [bad-argument-type]
@@ -548,7 +552,7 @@ def main():
             else f"https://storage.googleapis.com/{AUXILIARY_BUCKET}/auxiliary_files/"
             f"{GCP_DATASET_ID}/{table}/auxiliary_files.zip"
         )
-        table_id = write.create_update_table(
+        table_id = bd_mcp_write.create_update_table(
             # pyrefly: ignore [bad-argument-type]
             id=prior.get("id"),
             dataset_id=dataset_id,
@@ -573,7 +577,7 @@ def main():
             if not entity_id:
                 print(f"  [warn] entity {entity_slug} absent on {env}")
                 continue
-            ol_ids[entity_slug] = write.create_update_observation_level(
+            ol_ids[entity_slug] = bd_mcp_write.create_update_observation_level(
                 id=prior.get("observation_levels", {}).get(entity_slug),
                 table_id=table_id,
                 entity_id=entity_id,
@@ -582,7 +586,7 @@ def main():
         if ol_ids:
             print(f"  observation levels: {', '.join(ol_ids)}")
 
-        result = write.bulk_upsert_columns(
+        result = bd_mcp_write.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(
                 columns_payload(table), ensure_ascii=False
@@ -591,7 +595,7 @@ def main():
         )
         if result.get("errors"):
             raise SystemExit(f"{table}: column errors {result['errors']}")
-        registered = server.get_dataset(slug=DATASET_SLUG, env=env)
+        registered = bd_mcp_metadata.get_dataset(slug=DATASET_SLUG, env=env)
         by_name = {
             c["name"]: c["id"]
             for c in registered["tables"][table].get("columns", [])
@@ -614,7 +618,7 @@ def main():
             if name not in by_name:
                 print(f"  [warn] column {name} missing, cannot flag")
                 continue
-            write.update_column(
+            bd_mcp_write.update_column(
                 column_id=by_name[name],
                 column_name=name,
                 table_id=table_id,
@@ -627,7 +631,7 @@ def main():
             f"  partitions {spec['partitions']}, OL links {sorted(ol_for_column)}"
         )
 
-        write.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             # pyrefly: ignore [bad-argument-type]
             id=prior.get("cloud_table"),
             table_id=table_id,
@@ -638,7 +642,7 @@ def main():
         )
 
         if spec["first_year"]:
-            coverage_id = write.create_update_coverage(
+            coverage_id = bd_mcp_write.create_update_coverage(
                 # pyrefly: ignore [bad-argument-type]
                 id=prior.get("coverage"),
                 table_id=table_id,
@@ -646,7 +650,7 @@ def main():
                 area_id=area_id,
                 env=env,
             )["id"]
-            write.create_update_datetime_range(
+            bd_mcp_write.create_update_datetime_range(
                 # pyrefly: ignore [bad-argument-type]
                 id=prior.get("datetime_range"),
                 coverage_id=coverage_id,
@@ -661,7 +665,7 @@ def main():
 
         # The table Update is a wall clock: when Data Basis last refreshed the
         # table, not the source's coverage date.
-        write.create_update_update(
+        bd_mcp_write.create_update_update(
             # pyrefly: ignore [bad-argument-type]
             id=prior.get("update"),
             table_id=table_id,
@@ -674,7 +678,7 @@ def main():
 
         # Deferred: the raw source link is a second write, once every source exists.
         if table in raw_for_table:
-            write.create_update_table(
+            bd_mcp_write.create_update_table(
                 id=table_id,
                 dataset_id=dataset_id,
                 slug=table,
@@ -693,13 +697,13 @@ def main():
             )
             print(f"  raw source linked: {raw_for_table[table]}")
 
-    write.reorder_tables(
+    bd_mcp_write.reorder_tables(
         dataset_slug=DATASET_SLUG, table_slugs=list(TABLES), env=env
     )
     print("\ntable order set")
 
     # The raw data source Update is a coverage date: what the source published.
-    write.create_update_update(
+    bd_mcp_write.create_update_update(
         raw_data_source_id=raw_ids["nibrs"],
         entity_id=ids["entity"]["year"],
         frequency=1,

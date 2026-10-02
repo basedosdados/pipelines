@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import sys
 
-import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.metadata as bd_mcp_metadata
 
 ENV = "staging"
 DATASET_ID = "b2e707f6-b081-4cf8-a9d6-0435f13591f2"
@@ -46,7 +46,7 @@ def delete(kind: str, record_id: str, apply: bool) -> None:
         return
     name = DELETE[kind]
     mutation = f"mutation($id: UUID!) {{ {name}(id: $id) {{ ok errors }} }}"
-    server._gql(mutation, {"id": record_id}, env=ENV, auth=True)
+    bd_mcp_metadata._gql(mutation, {"id": record_id}, env=ENV, auth=True)
 
 
 def surplus(nodes: list[dict], key) -> list[dict]:
@@ -64,7 +64,9 @@ def surplus(nodes: list[dict], key) -> list[dict]:
 
 def main(argv: list[str]) -> int:
     apply = "--apply" in argv
-    node = server._gql(QUERY, {}, env=ENV)["allDataset"]["edges"][0]["node"]
+    node = bd_mcp_metadata._gql(QUERY, {}, env=ENV)["allDataset"]["edges"][0][
+        "node"
+    ]
     removed = 0
     for edge in node["tables"]["edges"]:
         table = edge["node"]
@@ -102,7 +104,7 @@ def main(argv: list[str]) -> int:
             )
         for kind, nodes, key in groups:
             for extra in surplus(nodes, key):
-                record_id = server._strip_id(extra["id"])
+                record_id = bd_mcp_metadata._strip_id(extra["id"])
                 print(
                     f"  {'deleting' if apply else 'would delete'} {kind} {record_id} on {table['slug']}"
                 )

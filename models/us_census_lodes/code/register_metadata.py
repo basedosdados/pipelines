@@ -24,8 +24,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 from pipelines.datasets.us_census_lodes.constants import YEARS
 from pipelines.datasets.us_census_lodes.utils import read_arch
@@ -287,22 +287,22 @@ def ensure_census_block(env: str) -> str:
     that path is a hard 400.
     """
     try:
-        return server.lookup_id(
+        return bd_mcp_metadata.lookup_id(
             category="entity", slug="census_block", env=env
         )["id"]
     except Exception:
         pass
-    cat = server._gql(
+    cat = bd_mcp_metadata._gql(
         '{allEntitycategory(slug: "spatial"){edges{node{id}}}}',
         env=env,
         auth=False,
     )["allEntitycategory"]["edges"][0]["node"]["id"]
-    r = write.create_update_entity(
+    r = bd_mcp_write.create_update_entity(
         slug="census_block",
         name_pt="Bloco censitário",
         name_en="Census block",
         name_es="Bloque censal",
-        category_id=server._strip_id(cat),
+        category_id=bd_mcp_metadata._strip_id(cat),
         env=env,
     )
     print(f"  created entity census_block -> {r['id']}")
@@ -311,38 +311,38 @@ def ensure_census_block(env: str) -> str:
 
 def resolve(env: str) -> dict:
     ids = {
-        "organization": server.lookup_id(
+        "organization": bd_mcp_metadata.lookup_id(
             category="organization", slug=REF["organization"], env=env
         )["id"],
-        "license": server.lookup_id(
+        "license": bd_mcp_metadata.lookup_id(
             category="license", slug=REF["license"], env=env
         )["id"],
-        "availability": server.lookup_id(
+        "availability": bd_mcp_metadata.lookup_id(
             category="availability", slug=REF["availability"], env=env
         )["id"],
-        "area": server.lookup_id(category="area", slug=REF["area"], env=env)[
-            "id"
-        ],
-        "published": server.lookup_id(
+        "area": bd_mcp_metadata.lookup_id(
+            category="area", slug=REF["area"], env=env
+        )["id"],
+        "published": bd_mcp_metadata.lookup_id(
             category="status", slug="published", env=env
         )["id"],
-        "under_review": server.lookup_id(
+        "under_review": bd_mcp_metadata.lookup_id(
             category="status", slug="under_review", env=env
         )["id"],
-        "year_entity": server.lookup_id(
+        "year_entity": bd_mcp_metadata.lookup_id(
             category="entity", slug="year", env=env
         )["id"],
         "census_block": ensure_census_block(env),
     }
     ids["themes"] = [
-        server.lookup_id(category="theme", slug=s, env=env)["id"]
+        bd_mcp_metadata.lookup_id(category="theme", slug=s, env=env)["id"]
         for s in REF["themes"]
     ]
     ids["tags"] = [
-        server.lookup_id(category="tag", slug=s, env=env)["id"]
+        bd_mcp_metadata.lookup_id(category="tag", slug=s, env=env)["id"]
         for s in REF["tags"]
     ]
-    ids["account"] = server.get_authenticated_account(env=env)["id"]
+    ids["account"] = bd_mcp_metadata.get_authenticated_account(env=env)["id"]
     return ids
 
 
@@ -387,12 +387,12 @@ def main() -> None:
     env = args.env
     gcp_project = "basedosdados" if env == "prod" else "basedosdados-dev"
 
-    server.auth(env=env)
+    bd_mcp_metadata.auth(env=env)
     ids = resolve(env)
-    existing = server.get_dataset(slug=SLUG, env=env)
+    existing = bd_mcp_metadata.get_dataset(slug=SLUG, env=env)
 
     status = ids["published"] if args.publish else ids["under_review"]
-    ds = write.create_update_dataset(
+    ds = bd_mcp_write.create_update_dataset(
         id=existing.get("id") if existing.get("found") else None,
         slug=SLUG,
         organization_ids=[ids["organization"]],
@@ -412,11 +412,11 @@ def main() -> None:
     # second one (create_update_* is not idempotent without an id).
     prior_sources = {
         s["name"]: s["id"]
-        for s in write.get_raw_data_sources(dataset_slug=SLUG, env=env)
+        for s in bd_mcp_write.get_raw_data_sources(dataset_slug=SLUG, env=env)
     }
     source_ids = {}
     for table, (name, url) in RAW_SOURCES.items():
-        r = write.create_update_raw_data_source(
+        r = bd_mcp_write.create_update_raw_data_source(
             id=prior_sources.get(name),
             dataset_id=dataset_id,
             name_pt=name,
@@ -440,7 +440,7 @@ def main() -> None:
             if existing.get("found")
             else {}
         )
-        t = write.create_update_table(
+        t = bd_mcp_write.create_update_table(
             id=prior.get("id"),
             slug=table,
             dataset_id=dataset_id,
@@ -466,7 +466,7 @@ def main() -> None:
         ol_ids = {}
         entity = TABLE_TEXT[table]["entity"]
         if entity:
-            r = write.create_update_observation_level(
+            r = bd_mcp_write.create_update_observation_level(
                 id=prior_ols.get(entity),
                 table_id=table_id,
                 entity_id=ids[entity],
@@ -474,7 +474,7 @@ def main() -> None:
             )
             ol_ids[entity] = r["id"]
         if table in ("residence_jobs", "workplace_jobs"):
-            r = write.create_update_observation_level(
+            r = bd_mcp_write.create_update_observation_level(
                 id=prior_ols.get("year"),
                 table_id=table_id,
                 entity_id=ids["year_entity"],
@@ -483,7 +483,7 @@ def main() -> None:
             ol_ids["year"] = r["id"]
 
         cols = columns_payload(table)
-        res = write.bulk_upsert_columns(
+        res = bd_mcp_write.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(cols, ensure_ascii=False),
             env=env,
@@ -495,12 +495,12 @@ def main() -> None:
         # partition flag must be passed together or one clobbers the other.
         by_name = {
             c["name"]: c["id"]
-            for c in server.get_dataset(slug=SLUG, env=env)["tables"][table][
-                "columns"
-            ]
+            for c in bd_mcp_metadata.get_dataset(slug=SLUG, env=env)["tables"][
+                table
+            ]["columns"]
         }
         if table in ("residence_jobs", "workplace_jobs"):
-            write.update_column(
+            bd_mcp_write.update_column(
                 column_id=by_name["year"],
                 column_name="year",
                 table_id=table_id,
@@ -510,7 +510,7 @@ def main() -> None:
             )
         if table in OL_COLUMN and entity:
             name = OL_COLUMN[table]
-            write.update_column(
+            bd_mcp_write.update_column(
                 column_id=by_name[name],
                 column_name=name,
                 table_id=table_id,
@@ -519,7 +519,7 @@ def main() -> None:
             )
 
         prior_cloud = (prior.get("cloud_tables") or [{}])[0].get("id")
-        write.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             id=prior_cloud,
             table_id=table_id,
             gcp_project_id=gcp_project,
@@ -529,14 +529,14 @@ def main() -> None:
         )
 
         prior_cov = (prior.get("coverages") or [{}])[0]
-        cov = write.create_update_coverage(
+        cov = bd_mcp_write.create_update_coverage(
             id=prior_cov.get("id"),
             table_id=table_id,
             area_id=ids["area"],
             env=env,
         )
         prior_range = (prior_cov.get("datetime_ranges") or [{}])[0].get("id")
-        write.create_update_datetime_range(
+        bd_mcp_write.create_update_datetime_range(
             id=prior_range,
             coverage_id=cov["id"],
             start_year=YEARS[0],
@@ -554,7 +554,7 @@ def main() -> None:
         prior_updates = {
             u["entity_slug"]: u["id"] for u in prior.get("updates", [])
         }
-        write.create_update_update(
+        bd_mcp_write.create_update_update(
             id=prior_updates.get("year"),
             table_id=table_id,
             entity_id=ids["year_entity"],
@@ -571,13 +571,13 @@ def main() -> None:
             # Bureau released data today. upsert_raw_source_update only creates
             # a (hardcoded month-entity) record when none exists, so seeding it
             # here with the year entity is what the pipeline then keeps current.
-            src_updates = server._gql(
+            src_updates = bd_mcp_metadata._gql(
                 "query($s:ID!){allUpdate(rawDataSource_Id:$s){edges{node{id}}}}",
                 {"s": source_ids[table]},
                 env=env,
             )["allUpdate"]["edges"]
-            write.create_update_update(
-                id=server._strip_id(src_updates[0]["node"]["id"])
+            bd_mcp_write.create_update_update(
+                id=bd_mcp_metadata._strip_id(src_updates[0]["node"]["id"])
                 if src_updates
                 else None,
                 raw_data_source_id=source_ids[table],
@@ -587,7 +587,7 @@ def main() -> None:
                 env=env,
             )
 
-            write.create_update_table(
+            bd_mcp_write.create_update_table(
                 id=table_id,
                 slug=table,
                 dataset_id=dataset_id,

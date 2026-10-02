@@ -24,8 +24,8 @@ import argparse
 import json
 from pathlib import Path
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 CODE = Path(__file__).resolve().parent
 DATASET_SLUG = "despesas_publicas"
@@ -222,11 +222,11 @@ def read_state(env: str, table_slug: str) -> dict:
         observationLevels{ edges{ node{ id entity{ slug } } } }
         updates{ edges{ node{ id entity{ slug } } } }
         columns{ edges{ node{ id name } } } } } } } } } }"""
-    r = server._gql(q, {"slug": DATASET_SLUG}, env=env)
+    r = bd_mcp_metadata._gql(q, {"slug": DATASET_SLUG}, env=env)
     ds = r["allDataset"]["edges"][0]["node"]
     tables = {e["node"]["slug"]: e["node"] for e in ds["tables"]["edges"]}
     t = tables.get(table_slug)
-    strip = server._strip_id
+    strip = bd_mcp_metadata._strip_id
     if t is None:
         return {
             "table_id": None,
@@ -279,10 +279,10 @@ def read_state(env: str, table_slug: str) -> dict:
 def _id(result) -> str:
     for key in ("id",):
         if isinstance(result, dict) and key in result:
-            return server._strip_id(result[key])
+            return bd_mcp_metadata._strip_id(result[key])
     for v in (result or {}).values():
         if isinstance(v, dict) and "id" in v:
-            return server._strip_id(v["id"])
+            return bd_mcp_metadata._strip_id(v["id"])
     raise RuntimeError(f"no id in {result!r}")
 
 
@@ -352,7 +352,7 @@ def main() -> None:
 
     account = ACCOUNT[env]
 
-    raw = write.create_update_raw_data_source(
+    raw = bd_mcp_write.create_update_raw_data_source(
         dataset_id=DATASET_ID,
         name_pt=cfg["raw_name"],
         name_en=cfg["raw_names_en_es"][0],
@@ -373,7 +373,7 @@ def main() -> None:
     raw_id = _id(raw)
     print("raw source:", raw_id)
 
-    table = write.create_update_table(
+    table = bd_mcp_write.create_update_table(
         slug=table_slug,
         dataset_id=DATASET_ID,
         status_id=(
@@ -399,7 +399,7 @@ def main() -> None:
     )
     print(
         "columns:",
-        write.bulk_upsert_columns(
+        bd_mcp_write.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(payload, ensure_ascii=False),
             env=env,
@@ -410,7 +410,7 @@ def main() -> None:
     ol_ids = {}
     for slug in dict.fromkeys(cfg["ols"].values()):
         ol_ids[slug] = _id(
-            write.create_update_observation_level(
+            bd_mcp_write.create_update_observation_level(
                 table_id=table_id,
                 entity_id=ENT[slug],
                 id=st["levels"].get(slug),
@@ -427,7 +427,7 @@ def main() -> None:
             continue
         # update_column's booleans default to False, so is_partition has to be
         # re-passed here or the flag set earlier is silently cleared.
-        write.update_column(
+        bd_mcp_write.update_column(
             column_id=cid,
             column_name=col,
             table_id=table_id,
@@ -440,7 +440,7 @@ def main() -> None:
     gcp_project = "basedosdados-dev" if env == "staging" else "basedosdados"
     print(
         "cloud:",
-        write.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             table_id=table_id,
             gcp_project_id=gcp_project,
             gcp_dataset_id=GCP_DATASET_ID,
@@ -469,7 +469,7 @@ def main() -> None:
     }.items():
         prev = existing.get(is_closed)
         cov_id = _id(
-            write.create_update_coverage(
+            bd_mcp_write.create_update_coverage(
                 table_id=table_id,
                 area_id=AREA_BR,
                 is_closed=is_closed,
@@ -477,7 +477,7 @@ def main() -> None:
                 env=env,
             )
         )
-        rng = write.create_update_datetime_range(
+        rng = bd_mcp_write.create_update_datetime_range(
             coverage_id=cov_id,
             start_year=sy,
             start_month=sm,
@@ -494,7 +494,7 @@ def main() -> None:
 
     print(
         "update:",
-        write.create_update_update(
+        bd_mcp_write.create_update_update(
             entity_id=ENT["month"],
             frequency=1,
             lag=1,
@@ -511,7 +511,7 @@ def main() -> None:
         status = ST_PUBLISHED if args.publish else ST_UNDER_REVIEW
         print(
             "dataset:",
-            write.create_update_dataset(
+            bd_mcp_write.create_update_dataset(
                 **DATASET_DESC,
                 slug=DATASET_SLUG,
                 name_pt="Despesas Públicas",

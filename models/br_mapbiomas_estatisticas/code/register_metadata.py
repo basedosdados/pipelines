@@ -23,8 +23,8 @@ import argparse
 import json
 from pathlib import Path
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 
 def _columns(table_id: str, env: str) -> list[dict]:
@@ -34,12 +34,15 @@ def _columns(table_id: str, env: str) -> list[dict]:
       allTable(id: $id) { edges { node { columns { edges { node { id name } } } } } }
     }
     """
-    data = server._gql(query, {"id": table_id}, env=env, auth=True)
+    data = bd_mcp_metadata._gql(query, {"id": table_id}, env=env, auth=True)
     edges = data["allTable"]["edges"]
     if not edges:
         raise SystemExit(f"table {table_id} not found when reading columns")
     return [
-        {"id": server._strip_id(e["node"]["id"]), "name": e["node"]["name"]}
+        {
+            "id": bd_mcp_metadata._strip_id(e["node"]["id"]),
+            "name": e["node"]["name"],
+        }
         for e in edges[0]["node"]["columns"]["edges"]
     ]
 
@@ -255,16 +258,16 @@ def main() -> None:
 
     gcp_project = "basedosdados" if env == "prod" else "basedosdados-dev"
 
-    dataset = server.get_dataset(slug=DATASET_SLUG, env=env)
+    dataset = bd_mcp_metadata.get_dataset(slug=DATASET_SLUG, env=env)
     if not dataset["found"]:
         raise SystemExit(f"dataset {DATASET_SLUG} not found in {env}")
     dataset_id = dataset["id"]
     print(f"dataset {DATASET_SLUG} = {dataset_id} ({env})")
 
-    ids = server.discover_ids(
+    ids = bd_mcp_metadata.discover_ids(
         env=env, keys=["status", "entity", "license", "availability"]
     )
-    account = server.get_authenticated_account(env=env)
+    account = bd_mcp_metadata.get_authenticated_account(env=env)
     account_id = account["id"]
 
     if args.dry_run:
@@ -282,7 +285,7 @@ def main() -> None:
     # 11 and keep every other field as it is. create_update_dataset does no
     # partial updates, so every required field is re-passed explicitly.
     desc_pt, desc_en, desc_es = DATASET_DESCRIPTION
-    write.create_update_dataset(
+    bd_mcp_write.create_update_dataset(
         id=dataset_id,
         slug=DATASET_SLUG,
         name_pt=dataset["name_pt"],
@@ -309,7 +312,7 @@ def main() -> None:
         desc_pt, desc_en, desc_es = TABLE_DESCRIPTIONS[table]
         print(f"\n== {table} ({table_id})")
 
-        write.create_update_table(
+        bd_mcp_write.create_update_table(
             id=table_id,
             slug=table,
             dataset_id=dataset_id,
@@ -329,14 +332,14 @@ def main() -> None:
         columns = json.loads(
             (JSON_DIR / f"{table}.json").read_text(encoding="utf-8")
         )
-        write.bulk_upsert_columns(
+        bd_mcp_write.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(columns, ensure_ascii=False),
             env=env,
         )
         print(f"  {len(columns)} columns upserted")
 
-        write.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             table_id=table_id,
             gcp_project_id=gcp_project,
             gcp_dataset_id=GCP_DATASET_ID,
@@ -354,7 +357,7 @@ def main() -> None:
         }
         for entity_slug, column_name in OBSERVATION_LEVELS[table].items():
             level_id = by_entity.get(entity_slug)
-            result = write.create_update_observation_level(
+            result = bd_mcp_write.create_update_observation_level(
                 table_id=table_id,
                 entity_id=ids["entity"][entity_slug],
                 id=level_id,
@@ -371,7 +374,7 @@ def main() -> None:
             )
             if column_id is None:
                 raise SystemExit(f"{table}: column {column_name} not found")
-            write.update_column(
+            bd_mcp_write.update_column(
                 column_id=column_id,
                 column_name=column_name,
                 table_id=table_id,
@@ -390,7 +393,7 @@ def main() -> None:
         for entity_slug, level_id in by_entity.items():
             if entity_slug in OBSERVATION_LEVELS[table]:
                 continue
-            server._gql(
+            bd_mcp_metadata._gql(
                 "mutation($id: UUID!) "
                 "{ DeleteObservationLevel(id: $id) { ok errors } }",
                 {"id": level_id},
@@ -404,15 +407,15 @@ def main() -> None:
             coverage = (existing["coverages"] or [{}])[0]
             coverage_id = coverage.get("id")
             if coverage_id is None:
-                coverage_id = write.create_update_coverage(
+                coverage_id = bd_mcp_write.create_update_coverage(
                     table_id=table_id,
-                    area_id=server.lookup_id(
+                    area_id=bd_mcp_metadata.lookup_id(
                         category="area", slug="br", env=env
                     )["id"],
                     env=env,
                 )["id"]
             ranges = coverage.get("datetime_ranges") or [{}]
-            write.create_update_datetime_range(
+            bd_mcp_write.create_update_datetime_range(
                 coverage_id=coverage_id,
                 id=ranges[0].get("id"),
                 start_year=start,
@@ -423,7 +426,7 @@ def main() -> None:
             print(f"  coverage {start}-{end} (interval {interval})")
 
     # Filled tables first; the three that have no source sink to the bottom.
-    write.reorder_tables(
+    bd_mcp_write.reorder_tables(
         dataset_slug=DATASET_SLUG,
         table_slugs=[*TABLE_NAMES, *UNBUILDABLE],
         env=env,

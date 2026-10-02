@@ -47,8 +47,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # pyrefly: ignore [missing-import]  # sibling module via sys.path
 import clean_mg
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 # pyrefly: ignore [missing-import]  # sibling module via sys.path
 import mg_table_glossary as tables
@@ -189,14 +189,15 @@ def main() -> None:
 
     # NOT `get_dataset`: it returns every column of every table and takes 83s on
     # this dataset, past the client's own 60s read timeout. Ask for just the ids.
-    edges = server._gql(
+    edges = bd_mcp_metadata._gql(
         "query($ds: ID!){ allTable(dataset_Id: $ds, first: 100)"
         "{ edges { node { id slug } } } }",
         {"ds": DATASET_ID},
         env=ENV,
     )["allTable"]["edges"]
     table_id = {
-        e["node"]["slug"]: server._strip_id(e["node"]["id"]) for e in edges
+        e["node"]["slug"]: bd_mcp_metadata._strip_id(e["node"]["id"])
+        for e in edges
     }
 
     built = 0
@@ -216,7 +217,7 @@ def main() -> None:
         bucket.blob(key).upload_from_string(
             payload, content_type="application/zip"
         )
-        write.create_update_table(
+        bd_mcp_write.create_update_table(
             slug=slug,
             name_pt=tables.name(slug, "pt"),
             name_en=tables.name(slug, "en"),

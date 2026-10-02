@@ -18,8 +18,8 @@ import json
 import os
 import sys
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ARCH = os.path.join(HERE, "architecture")
@@ -89,9 +89,9 @@ def columns_payload(table: str) -> list[dict]:
 def column_ids(table_id: str, env: str) -> dict[str, str]:
     q = """query($t: ID){ allColumn(table_Id: $t, first: 200){
       edges{ node{ id name } } } }"""
-    r = server._gql(q, {"t": table_id}, env=env)
+    r = bd_mcp_metadata._gql(q, {"t": table_id}, env=env)
     return {
-        e["node"]["name"]: server._strip_id(e["node"]["id"])
+        e["node"]["name"]: bd_mcp_metadata._strip_id(e["node"]["id"])
         for e in r["allColumn"]["edges"]
     }
 
@@ -100,17 +100,17 @@ def table_ids(dataset_id: str, env: str) -> dict[str, str]:
     """Existing tables by slug, so a re-run updates instead of colliding."""
     q = """query($d: ID){ allTable(dataset_Id: $d, first: 100){
       edges{ node{ id slug } } } }"""
-    r = server._gql(q, {"d": dataset_id}, env=env)
+    r = bd_mcp_metadata._gql(q, {"d": dataset_id}, env=env)
     return {
-        e["node"]["slug"]: server._strip_id(e["node"]["id"])
+        e["node"]["slug"]: bd_mcp_metadata._strip_id(e["node"]["id"])
         for e in r["allTable"]["edges"]
     }
 
 
 def existing_by_slug(parent_id: str, env: str, query: str, key: str) -> dict:
-    r = server._gql(query, {"p": parent_id}, env=env)
+    r = bd_mcp_metadata._gql(query, {"p": parent_id}, env=env)
     return {
-        e["node"]["slug"]: server._strip_id(e["node"]["id"])
+        e["node"]["slug"]: bd_mcp_metadata._strip_id(e["node"]["id"])
         for e in r[key]["edges"]
     }
 
@@ -122,15 +122,17 @@ def existing_coverage(
     q = """query($t: ID){ allTable(id: $t, first: 1){ edges{ node{
       coverages{ edges{ node{ id isClosed
         datetimeRanges{ edges{ node{ id } } } } } } } } } }"""
-    r = server._gql(q, {"t": table_id}, env=env)
+    r = bd_mcp_metadata._gql(q, {"t": table_id}, env=env)
     for e in r["allTable"]["edges"]:
         for c in e["node"]["coverages"]["edges"]:
             if c["node"]["isClosed"]:
                 continue
             drs = c["node"]["datetimeRanges"]["edges"]
             return (
-                server._strip_id(c["node"]["id"]),
-                server._strip_id(drs[0]["node"]["id"]) if drs else None,
+                bd_mcp_metadata._strip_id(c["node"]["id"]),
+                bd_mcp_metadata._strip_id(drs[0]["node"]["id"])
+                if drs
+                else None,
             )
     return None, None
 
@@ -139,10 +141,14 @@ def existing_cloud_table(table_id: str, env: str) -> str | None:
     q = """query($t: ID){ allCloudtable(table_Id: $t, first: 5){
       edges{ node{ id } } } }"""
     try:
-        edges = server._gql(q, {"t": table_id}, env=env)["allCloudtable"][
-            "edges"
-        ]
-        return server._strip_id(edges[0]["node"]["id"]) if edges else None
+        edges = bd_mcp_metadata._gql(q, {"t": table_id}, env=env)[
+            "allCloudtable"
+        ]["edges"]
+        return (
+            bd_mcp_metadata._strip_id(edges[0]["node"]["id"])
+            if edges
+            else None
+        )
     except Exception:
         return None
 
@@ -151,9 +157,13 @@ def existing_update(table_id: str, env: str) -> str | None:
     q = """query($t: ID){ allUpdate(table_Id: $t, first: 5){
       edges{ node{ id } } } }"""
     try:
-        r = server._gql(q, {"t": table_id}, env=env)
+        r = bd_mcp_metadata._gql(q, {"t": table_id}, env=env)
         edges = r["allUpdate"]["edges"]
-        return server._strip_id(edges[0]["node"]["id"]) if edges else None
+        return (
+            bd_mcp_metadata._strip_id(edges[0]["node"]["id"])
+            if edges
+            else None
+        )
     except Exception:
         return None
 
@@ -162,7 +172,9 @@ def main(env: str) -> None:
     d = META["dataset"]
 
     def lk(cat: str, slug: str) -> str:
-        return server.lookup_id(category=cat, slug=slug, env=env)["id"]
+        return bd_mcp_metadata.lookup_id(category=cat, slug=slug, env=env)[
+            "id"
+        ]
 
     org = lk("organization", d["organization_slug"])
     themes = [lk("theme", s) for s in d["theme_slugs"]]
@@ -175,7 +187,7 @@ def main(env: str) -> None:
     under_review = lk("status", "under_review")
     published = lk("status", "published")
     area_br = lk("area", "br")
-    account = server.get_authenticated_account(env=env)
+    account = bd_mcp_metadata.get_authenticated_account(env=env)
     acc_id = account["id"] if isinstance(account, dict) else account
     print(
         f"org={org}  themes={len(themes)}  tags={len(tags)}  account={acc_id}"
@@ -183,10 +195,10 @@ def main(env: str) -> None:
 
     existing = None
     with contextlib.suppress(Exception):
-        existing = server.get_dataset(slug=d["slug"], env=env)
+        existing = bd_mcp_metadata.get_dataset(slug=d["slug"], env=env)
     ds_id = (existing or {}).get("id")
 
-    ds = write.create_update_dataset(
+    ds = bd_mcp_write.create_update_dataset(
         slug=d["slug"],
         name_pt=d["name_pt"],
         name_en=d["name_en"],
@@ -205,14 +217,16 @@ def main(env: str) -> None:
     print(f"dataset {d['slug']} -> {ds_id}")
 
     r = META["raw_data_source"]
-    rds_existing = write.get_raw_data_sources(dataset_slug=d["slug"], env=env)
+    rds_existing = bd_mcp_write.get_raw_data_sources(
+        dataset_slug=d["slug"], env=env
+    )
     if isinstance(rds_existing, dict):
         rds_existing = rds_existing.get("raw_data_sources", [])
     rds_id = None
     for node in rds_existing or []:
         if isinstance(node, dict) and node.get("url") == r["url"]:
             rds_id = node.get("id")
-    rds = write.create_update_raw_data_source(
+    rds = bd_mcp_write.create_update_raw_data_source(
         dataset_id=ds_id,
         name_pt=r["name_pt"],
         name_en=r["name_en"],
@@ -241,7 +255,7 @@ def main(env: str) -> None:
     # still broken on staging 2026-09-24; reported fixed on prod 2026-09-11.
     tids: dict[str, str] = {}
     for slug, t in META["tables"].items():
-        tbl = write.create_update_table(
+        tbl = bd_mcp_write.create_update_table(
             id=known_tables.get(slug),
             slug=slug,
             name_pt=t["name_pt"],
@@ -267,14 +281,14 @@ def main(env: str) -> None:
 
         ols = {}
         for ent in t["observation_levels"]:
-            ol = write.create_update_observation_level(
+            ol = bd_mcp_write.create_update_observation_level(
                 table_id=tid, entity_id=lk("entity", ent), env=env
             )
             ols[ent] = ol["id"]
         print(f"  observation levels: {list(ols)}")
 
         cols = columns_payload(slug)
-        res = write.bulk_upsert_columns(
+        res = bd_mcp_write.bulk_upsert_columns(
             table_id=tid,
             columns_json=json.dumps(cols, ensure_ascii=False),
             env=env,
@@ -294,7 +308,7 @@ def main(env: str) -> None:
             if not cid or ent not in ols:
                 print(f"  ! cannot link {col} -> {ent}")
                 continue
-            write.update_column(
+            bd_mcp_write.update_column(
                 column_id=cid,
                 column_name=col,
                 table_id=tid,
@@ -312,7 +326,7 @@ def main(env: str) -> None:
         for col in PARTITIONS[slug] - set(OL_COLUMNS[slug]):
             cid = by_name.get(col)
             if cid:
-                write.update_column(
+                bd_mcp_write.update_column(
                     column_id=cid,
                     column_name=col,
                     table_id=tid,
@@ -323,7 +337,7 @@ def main(env: str) -> None:
 
         # create_update_cloud_table duplicates without an id, so a re-run
         # otherwise leaves several cloud tables on the same BigQuery table.
-        write.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             table_id=tid,
             gcp_project_id=GCP_PROJECT[env],
             gcp_dataset_id="br_mj_sinesp",
@@ -338,7 +352,7 @@ def main(env: str) -> None:
         # is not idempotent without an id either.
         if COVERAGE[slug]:
             cov_id, range_id = existing_coverage(tid, env)
-            cov = write.create_update_coverage(
+            cov = bd_mcp_write.create_update_coverage(
                 table_id=tid,
                 area_id=area_br,
                 is_closed=False,
@@ -347,7 +361,7 @@ def main(env: str) -> None:
             )
             # pyrefly: ignore [not-iterable]
             y0, m0, y1, m1 = COVERAGE[slug]
-            write.create_update_datetime_range(
+            bd_mcp_write.create_update_datetime_range(
                 coverage_id=cov["id"],
                 start_year=y0,
                 start_month=m0,
@@ -361,7 +375,7 @@ def main(env: str) -> None:
 
         # Table-anchored Update.latest is when WE last refreshed: a wall clock,
         # not a coverage date.
-        write.create_update_update(
+        bd_mcp_write.create_update_update(
             table_id=tid,
             entity_id=lk("entity", "month"),
             frequency=1,
@@ -371,7 +385,7 @@ def main(env: str) -> None:
             env=env,
         )
 
-    write.reorder_tables(
+    bd_mcp_write.reorder_tables(
         dataset_slug=d["slug"], table_slugs=list(META["tables"]), env=env
     )
 
@@ -380,7 +394,7 @@ def main(env: str) -> None:
     # merged, table-approve has materialised the prod tables, and both are
     # verified -- that flip is a separate, deliberate post-merge action.
     if env in ("dev", "staging"):
-        write.create_update_dataset(
+        bd_mcp_write.create_update_dataset(
             slug=d["slug"],
             name_pt=d["name_pt"],
             name_en=d["name_en"],

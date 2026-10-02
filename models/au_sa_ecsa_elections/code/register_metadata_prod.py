@@ -44,8 +44,8 @@ import time
 from collections.abc import Callable
 from typing import Any
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 ENV = "prod"
 DATASET_SLUG = "sa_elections"
@@ -159,7 +159,7 @@ def retry(
 
 
 def resolve() -> dict[str, Any]:
-    ids = server.discover_ids(
+    ids = bd_mcp_metadata.discover_ids(
         env=ENV,
         keys=[
             "status",
@@ -188,10 +188,10 @@ def resolve() -> dict[str, Any]:
         "themes": [ids["theme"].get(s) for s in THEME_SLUGS],
         "tags": [ids["tag"].get(s) for s in TAG_SLUGS],
         "entity": {slug: ids["entity"].get(slug) for slug in entity_slugs},
-        "area_au_sa": server.lookup_id(category="area", slug="au_sa", env=ENV)[
-            "id"
-        ],
-        "account": server.get_authenticated_account(env=ENV)["id"],
+        "area_au_sa": bd_mcp_metadata.lookup_id(
+            category="area", slug="au_sa", env=ENV
+        )["id"],
+        "account": bd_mcp_metadata.get_authenticated_account(env=ENV)["id"],
     }
     # Every id is resolved by slug against prod, never copied from staging. A
     # slug spelled differently here resolves to None rather than to the wrong
@@ -220,8 +220,10 @@ def find_org() -> str | None:
         f'{{ allOrganization(slug: "{ORG_SLUG}") '
         "{ edges { node { id } } } }"
     )
-    edges = server._gql(query, {}, env=ENV)["allOrganization"]["edges"]
-    return server._strip_id(edges[0]["node"]["id"]) if edges else None
+    edges = bd_mcp_metadata._gql(query, {}, env=ENV)["allOrganization"][
+        "edges"
+    ]
+    return bd_mcp_metadata._strip_id(edges[0]["node"]["id"]) if edges else None
 
 
 def find_raw_sources() -> dict[str, str]:
@@ -230,11 +232,11 @@ def find_raw_sources() -> dict[str, str]:
         "{ edges { node { rawDataSources { edges { node "
         "{ id url } } } } } } }"
     )
-    edges = server._gql(query, {}, env=ENV)["allDataset"]["edges"]
+    edges = bd_mcp_metadata._gql(query, {}, env=ENV)["allDataset"]["edges"]
     if not edges:
         return {}
     return {
-        e["node"]["url"]: server._strip_id(e["node"]["id"])
+        e["node"]["url"]: bd_mcp_metadata._strip_id(e["node"]["id"])
         for e in edges[0]["node"]["rawDataSources"]["edges"]
     }
 
@@ -249,7 +251,7 @@ def existing_children(table_id: str) -> dict:
         "datetimeRanges { edges { node { id } } } } } } "
         "} } } }"
     )
-    edges = server._gql(query, {}, env=ENV)["allTable"]["edges"]
+    edges = bd_mcp_metadata._gql(query, {}, env=ENV)["allTable"]["edges"]
     out: dict[str, Any] = {
         "cloud": {},
         "levels": {},
@@ -261,24 +263,26 @@ def existing_children(table_id: str) -> dict:
         return out
     node = edges[0]["node"]
     for e in node["cloudTables"]["edges"]:
-        out["cloud"][e["node"]["gcpTableId"]] = server._strip_id(
+        out["cloud"][e["node"]["gcpTableId"]] = bd_mcp_metadata._strip_id(
             e["node"]["id"]
         )
     for e in node["observationLevels"]["edges"]:
         out["levels"].setdefault(
-            e["node"]["entity"]["slug"], server._strip_id(e["node"]["id"])
+            e["node"]["entity"]["slug"],
+            bd_mcp_metadata._strip_id(e["node"]["id"]),
         )
     for e in node["updates"]["edges"]:
         out["updates"].setdefault(
-            e["node"]["entity"]["slug"], server._strip_id(e["node"]["id"])
+            e["node"]["entity"]["slug"],
+            bd_mcp_metadata._strip_id(e["node"]["id"]),
         )
     for e in node["coverages"]["edges"]:
         if e["node"]["isClosed"]:
             continue
-        out["coverage"] = server._strip_id(e["node"]["id"])
+        out["coverage"] = bd_mcp_metadata._strip_id(e["node"]["id"])
         ranges = e["node"]["datetimeRanges"]["edges"]
         if ranges:
-            out["range"] = server._strip_id(ranges[0]["node"]["id"])
+            out["range"] = bd_mcp_metadata._strip_id(ranges[0]["node"]["id"])
         break
     return out
 
@@ -294,7 +298,7 @@ def main() -> int:
     tables_meta = json.loads((META / "tables.json").read_text())
 
     org_id = retry(
-        lambda: write.create_update_organization(
+        lambda: bd_mcp_write.create_update_organization(
             slug=ORG_SLUG,
             id=find_org(),
             area_id=ref["area_au_sa"],
@@ -307,20 +311,20 @@ def main() -> int:
     log(f"organization {ORG_SLUG} {org_id}")
 
     dataset_id = retry(
-        lambda: write.create_update_dataset(
+        lambda: bd_mcp_write.create_update_dataset(
             slug=DATASET_SLUG,
             organization_ids=[org_id],
             theme_ids=ref["themes"],
             tag_ids=ref["tags"],
             status_id=ref["status_under_review"],
-            id=(server.get_dataset(slug=DATASET_SLUG, env=ENV) or {}).get(
-                "id"
-            ),
+            id=(
+                bd_mcp_metadata.get_dataset(slug=DATASET_SLUG, env=ENV) or {}
+            ).get("id"),
             env=ENV,
             **dataset_meta,
         )["id"],
         probe=lambda: (
-            server.get_dataset(slug=DATASET_SLUG, env=ENV) or {}
+            bd_mcp_metadata.get_dataset(slug=DATASET_SLUG, env=ENV) or {}
         ).get("id"),
     )
     log(f"dataset {DATASET_SLUG} {dataset_id} (status under_review)")
@@ -329,15 +333,17 @@ def main() -> int:
     for key, meta in sources_meta.items():
         prior = find_raw_sources().get(meta["url"])
         source_ids[key] = retry(
-            lambda meta=meta, prior=prior: write.create_update_raw_data_source(
-                dataset_id=dataset_id,
-                license_id=ref["license_unknown"],
-                availability_id=ref["availability_online"],
-                language_ids=[ref["language_en"]],
-                id=prior,
-                env=ENV,
-                **{k: v for k, v in meta.items() if k != "tables"},
-            )["id"],
+            lambda meta=meta, prior=prior: (
+                bd_mcp_write.create_update_raw_data_source(
+                    dataset_id=dataset_id,
+                    license_id=ref["license_unknown"],
+                    availability_id=ref["availability_online"],
+                    language_ids=[ref["language_en"]],
+                    id=prior,
+                    env=ENV,
+                    **{k: v for k, v in meta.items() if k != "tables"},
+                )["id"]
+            ),
             probe=lambda meta=meta: find_raw_sources().get(meta["url"]),
         )
         log(f"raw data source {key} {source_ids[key]} licence=unknown")
@@ -345,9 +351,9 @@ def main() -> int:
     table_source = {t: source_ids["results_api"] for t in TABLE_ORDER}
     table_source["disclosure_return"] = source_ids["funding_portals"]
 
-    known = (server.get_dataset(slug=DATASET_SLUG, env=ENV) or {}).get(
-        "tables", {}
-    ) or {}
+    known = (
+        bd_mcp_metadata.get_dataset(slug=DATASET_SLUG, env=ENV) or {}
+    ).get("tables", {}) or {}
     table_ids: dict[str, str] = {}
 
     # Phase 1 — every table write, the raw source link included. Nothing here may
@@ -357,7 +363,7 @@ def main() -> int:
         prior = (known.get(table) or {}).get("id")
         table_ids[table] = retry(
             lambda table=table, meta=meta, prior=prior: (
-                write.create_update_table(
+                bd_mcp_write.create_update_table(
                     slug=table,
                     name_pt=meta["name_pt"],
                     name_en=meta["name_en"],
@@ -376,9 +382,9 @@ def main() -> int:
             ),
             probe=lambda table=table: (
                 (
-                    server.get_dataset(slug=DATASET_SLUG, env=ENV).get(
-                        "tables"
-                    )
+                    bd_mcp_metadata.get_dataset(
+                        slug=DATASET_SLUG, env=ENV
+                    ).get("tables")
                     or {}
                 ).get(table)
                 or {}
@@ -402,19 +408,21 @@ def main() -> int:
         ol_ids: dict[str, str] = {}
         for entity_slug, _column in levels:
             ol_ids[entity_slug] = retry(
-                lambda e=entity_slug: write.create_update_observation_level(
-                    table_id=table_id,
-                    entity_id=ref["entity"][e],
-                    id=prior_children["levels"].get(e),
-                    env=ENV,
-                )["id"],
+                lambda e=entity_slug: (
+                    bd_mcp_write.create_update_observation_level(
+                        table_id=table_id,
+                        entity_id=ref["entity"][e],
+                        id=prior_children["levels"].get(e),
+                        env=ENV,
+                    )["id"]
+                ),
                 probe=lambda e=entity_slug: existing_children(table_id)[
                     "levels"
                 ].get(e),
             )
         if ol_ids:
             retry(
-                lambda: write.reorder_observation_levels(
+                lambda: bd_mcp_write.reorder_observation_levels(
                     table_id=table_id,
                     ol_ids=[ol_ids[e] for e, _ in levels],
                     env=ENV,
@@ -423,7 +431,7 @@ def main() -> int:
 
         payload = (META / f"{table}.json").read_text()
         result = retry(
-            lambda: write.bulk_upsert_columns(
+            lambda: bd_mcp_write.bulk_upsert_columns(
                 table_id=table_id, columns_json=payload, env=ENV
             )
         )
@@ -433,20 +441,22 @@ def main() -> int:
         # column is linked in its own call. update_column's booleans default to
         # False, so is_partition has to be re-passed or the flag is clobbered.
         column_ids = {
-            c["name"]: server._strip_id(c["id"])
-            for c in write._fetch_table_columns(table_id, ENV)
+            c["name"]: bd_mcp_metadata._strip_id(c["id"])
+            for c in bd_mcp_write._fetch_table_columns(table_id, ENV)
         }
         for entity_slug, column_name in levels:
             if column_name is None or column_name not in column_ids:
                 continue
             retry(
-                lambda c=column_name, e=entity_slug: write.update_column(
-                    column_id=column_ids[c],
-                    column_name=c,
-                    table_id=table_id,
-                    observation_level_id=ol_ids[e],
-                    is_partition=(c == "year" and table != "dicionario"),
-                    env=ENV,
+                lambda c=column_name, e=entity_slug: (
+                    bd_mcp_write.update_column(
+                        column_id=column_ids[c],
+                        column_name=c,
+                        table_id=table_id,
+                        observation_level_id=ol_ids[e],
+                        is_partition=(c == "year" and table != "dicionario"),
+                        env=ENV,
+                    )
                 )
             )
         if (
@@ -455,7 +465,7 @@ def main() -> int:
             and "year" not in {c for _, c in levels}
         ):
             retry(
-                lambda: write.update_column(
+                lambda: bd_mcp_write.update_column(
                     column_id=column_ids["year"],
                     column_name="year",
                     table_id=table_id,
@@ -465,7 +475,7 @@ def main() -> int:
             )
 
         retry(
-            lambda: write.create_update_cloud_table(
+            lambda: bd_mcp_write.create_update_cloud_table(
                 table_id=table_id,
                 gcp_project_id=GCP_PROJECT,
                 gcp_dataset_id=GCP_DATASET,
@@ -476,7 +486,7 @@ def main() -> int:
             probe=lambda: existing_children(table_id)["cloud"].get(table),
         )
         coverage_id = retry(
-            lambda: write.create_update_coverage(
+            lambda: bd_mcp_write.create_update_coverage(
                 table_id=table_id,
                 area_id=ref["area_au_sa"],
                 id=prior_children["coverage"],
@@ -486,7 +496,7 @@ def main() -> int:
         )
         start, end = COVERAGE[table]
         retry(
-            lambda: write.create_update_datetime_range(
+            lambda: bd_mcp_write.create_update_datetime_range(
                 coverage_id=coverage_id,
                 start_year=start,
                 end_year=end,
@@ -497,7 +507,7 @@ def main() -> int:
             probe=lambda: existing_children(table_id)["range"],
         )
         retry(
-            lambda: write.create_update_update(
+            lambda: bd_mcp_write.create_update_update(
                 entity_id=ref["entity"]["year"],
                 frequency=FREQUENCY[table],
                 latest=LAST_REFRESHED,
@@ -513,7 +523,7 @@ def main() -> int:
         register_children(table, table_ids[table])
 
     retry(
-        lambda: write.reorder_tables(
+        lambda: bd_mcp_write.reorder_tables(
             dataset_slug=DATASET_SLUG, table_slugs=TABLE_ORDER, env=ENV
         )
     )

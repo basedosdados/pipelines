@@ -15,7 +15,7 @@ from __future__ import annotations
 import json
 import pathlib
 
-import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.metadata as bd_mcp_metadata
 
 ENV = "prod"
 SLUG = "sa_elections"
@@ -71,10 +71,10 @@ query($id: ID!) { allColumn(table_Id: $id) { edges { node {
 
 def main() -> int:
     problems: list[str] = []
-    node = server._gql(DATASET_Q % SLUG, {}, env=ENV)["allDataset"]["edges"][
-        0
-    ]["node"]
-    dataset_id = server._strip_id(node["id"])
+    node = bd_mcp_metadata._gql(DATASET_Q % SLUG, {}, env=ENV)["allDataset"][
+        "edges"
+    ][0]["node"]
+    dataset_id = bd_mcp_metadata._strip_id(node["id"])
     print(f"dataset {SLUG} {dataset_id}  status={node['status']['slug']}")
     if node["status"]["slug"] != "under_review":
         problems.append(
@@ -83,7 +83,7 @@ def main() -> int:
 
     orgs = [
         (
-            server._strip_id(o["node"]["id"]),
+            bd_mcp_metadata._strip_id(o["node"]["id"]),
             o["node"]["slug"],
             o["node"]["website"],
         )
@@ -124,7 +124,7 @@ def main() -> int:
     source_url = {}
     for e in node["rawDataSources"]["edges"]:
         s = e["node"]
-        sid = server._strip_id(s["id"])
+        sid = bd_mcp_metadata._strip_id(s["id"])
         source_url[sid] = s["url"]
         lic = s["license"]["slug"] if s["license"] else None
         print(f"    {sid}  licence={lic}  {s['url']}")
@@ -138,7 +138,7 @@ def main() -> int:
         )
 
     table_ids = {
-        t["node"]["slug"]: server._strip_id(t["node"]["id"])
+        t["node"]["slug"]: bd_mcp_metadata._strip_id(t["node"]["id"])
         for t in node["tables"]["edges"]
     }
     if sorted(table_ids) != sorted(TABLE_ORDER):
@@ -154,23 +154,25 @@ def main() -> int:
         if tid is None:
             problems.append(f"table {slug} missing")
             continue
-        t = server._gql(TABLE_Q % tid, {}, env=ENV)["allTable"]["edges"][0][
-            "node"
-        ]
+        t = bd_mcp_metadata._gql(TABLE_Q % tid, {}, env=ENV)["allTable"][
+            "edges"
+        ][0]["node"]
 
         srcs = [
-            server._strip_id(e["node"]["id"])
+            bd_mcp_metadata._strip_id(e["node"]["id"])
             for e in t["rawDataSource"]["edges"]
         ]
         clouds = [
             (
-                server._strip_id(c["node"]["id"]),
+                bd_mcp_metadata._strip_id(c["node"]["id"]),
                 f"{c['node']['gcpProjectId']}.{c['node']['gcpDatasetId']}.{c['node']['gcpTableId']}",
             )
             for c in t["cloudTables"]["edges"]
         ]
         ols = {
-            server._strip_id(o["node"]["id"]): o["node"]["entity"]["slug"]
+            bd_mcp_metadata._strip_id(o["node"]["id"]): o["node"]["entity"][
+                "slug"
+            ]
             for o in t["observationLevels"]["edges"]
         }
         ups = [
@@ -183,7 +185,7 @@ def main() -> int:
         ]
         covs = [
             (
-                server._strip_id(c["node"]["id"]),
+                bd_mcp_metadata._strip_id(c["node"]["id"]),
                 c["node"]["isClosed"],
                 c["node"]["area"]["slug"] if c["node"]["area"] else None,
                 [
@@ -196,9 +198,9 @@ def main() -> int:
 
         cols = [
             e["node"]
-            for e in server._gql(COLUMN_Q, {"id": tid}, env=ENV)["allColumn"][
-                "edges"
-            ]
+            for e in bd_mcp_metadata._gql(COLUMN_Q, {"id": tid}, env=ENV)[
+                "allColumn"
+            ]["edges"]
         ]
         expect = {
             c["name"]: c

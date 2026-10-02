@@ -21,8 +21,8 @@ import csv
 import json
 from pathlib import Path
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 SLUG = "world_oecd_revenue_statistics"
 DATASET_ID = "world_oecd_revenue_statistics"  # gcp_dataset_id
@@ -176,7 +176,9 @@ def columns_payload(slug):
 
 def world_area(env):
     q = 'query { allArea(slug: "world") { edges { node { id } } } }'
-    node = server._gql(q, {}, env=env)["allArea"]["edges"][0]["node"]["id"]
+    node = bd_mcp_metadata._gql(q, {}, env=env)["allArea"]["edges"][0]["node"][
+        "id"
+    ]
     return node.split(":", 1)[1] if ":" in node else node
 
 
@@ -194,7 +196,7 @@ def main():
     env = args.env
 
     ids = _j(
-        server.discover_ids(
+        bd_mcp_metadata.discover_ids(
             env=env,
             keys=[
                 "status",
@@ -207,14 +209,14 @@ def main():
             ],
         )
     )
-    account = _j(server.get_authenticated_account(env=env))
+    account = _j(bd_mcp_metadata.get_authenticated_account(env=env))
     account_id = account.get("id") or account["account"]["id"]
 
-    existing = _j(server.get_dataset(SLUG, env=env)) or {}
+    existing = _j(bd_mcp_metadata.get_dataset(SLUG, env=env)) or {}
     dataset_id = existing.get("id") or REPURPOSE_ID  # repurpose the LAC shell
 
     dataset = _j(
-        write.create_update_dataset(
+        bd_mcp_write.create_update_dataset(
             slug=SLUG,
             name_pt=NAME_PT,
             name_en=NAME_EN,
@@ -237,7 +239,7 @@ def main():
         f"dataset {SLUG} -> {dataset_id} ({'published' if args.publish else 'under_review'})"
     )
 
-    existing_raw = _j(write.get_raw_data_sources(SLUG, env=env)) or []
+    existing_raw = _j(bd_mcp_write.get_raw_data_sources(SLUG, env=env)) or []
     raw_id_prev = next(
         (
             r["id"]
@@ -247,7 +249,7 @@ def main():
         None,
     )
     raw = _j(
-        write.create_update_raw_data_source(
+        bd_mcp_write.create_update_raw_data_source(
             id=raw_id_prev,
             dataset_id=dataset_id,
             license_id=ids["license"]["cc_by_igo"],
@@ -263,7 +265,7 @@ def main():
     raw_id = raw.get("id")
     print(f"raw data source -> {raw_id}")
 
-    state = _j(server.get_dataset(SLUG, env=env)) or {}
+    state = _j(bd_mcp_metadata.get_dataset(SLUG, env=env)) or {}
     by_slug = state.get("tables") or {}
     order = [*TABLES, "dicionario"]
     table_ols = {}
@@ -272,7 +274,7 @@ def main():
         names, descs = TABLE_META[slug]
         payload = columns_payload(slug)
         table = _j(
-            write.create_update_table(
+            bd_mcp_write.create_update_table(
                 slug=slug,
                 name_pt=names[0],
                 name_en=names[1],
@@ -291,7 +293,7 @@ def main():
         )
         table_id = table.get("id", prev.get("id"))
 
-        write.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             table_id=table_id,
             gcp_project_id=GCP_PROJECT[env],
             gcp_dataset_id=DATASET_ID,
@@ -307,7 +309,7 @@ def main():
         }
         for entity in OBSERVATION_LEVELS.get(slug, []):
             ol = _j(
-                write.create_update_observation_level(
+                bd_mcp_write.create_update_observation_level(
                     table_id=table_id,
                     entity_id=ids["entity"][entity],
                     id=prev_ols.get(entity, {}).get("id"),
@@ -316,7 +318,7 @@ def main():
             )
             ol_ids[entity] = ol.get("id")
 
-        write.bulk_upsert_columns(
+        bd_mcp_write.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(payload, ensure_ascii=False),
             env=env,
@@ -325,7 +327,7 @@ def main():
 
         if slug != "dicionario":
             cov = _j(
-                write.create_update_coverage(
+                bd_mcp_write.create_update_coverage(
                     table_id=table_id,
                     area_id=world_area(env),
                     id=(prev.get("coverages") or [{}])[0].get("id"),
@@ -338,7 +340,7 @@ def main():
                     or [{}]
                 )[0]
             ).get("id")
-            write.create_update_datetime_range(
+            bd_mcp_write.create_update_datetime_range(
                 coverage_id=cov["id"],
                 start_year=START_YEAR,
                 end_year=END_YEAR,
@@ -352,7 +354,7 @@ def main():
 
     # bulk_upsert_columns does not link OLs; that is a separate per-column update, or
     # the site renders the level's columns as "Não informado".
-    fresh = _j(server.get_dataset(SLUG, env=env)) or {}
+    fresh = _j(bd_mcp_metadata.get_dataset(SLUG, env=env)) or {}
     linked = 0
     for slug, (table_id, ol_ids) in table_ols.items():
         if slug == "dicionario" or not ol_ids:
@@ -368,7 +370,7 @@ def main():
             "country_iso3_code": "country",
         }.items():
             if column in cols and ol_ids.get(entity):
-                write.update_column(
+                bd_mcp_write.update_column(
                     column_id=cols[column],
                     column_name=column,
                     table_id=table_id,
@@ -379,7 +381,7 @@ def main():
                 linked += 1
     print(f"linked {linked} columns to observation levels")
 
-    write.reorder_tables(dataset_slug=SLUG, table_slugs=order, env=env)
+    bd_mcp_write.reorder_tables(dataset_slug=SLUG, table_slugs=order, env=env)
     print(f"\nregistered {len(order)} tables in {env}")
 
 

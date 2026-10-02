@@ -35,8 +35,8 @@ def main(argv: list[str] | None = None) -> int:
     args = p.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
-    import databasis_mcp.tools.metadata as server
-    import databasis_mcp.tools.write as write
+    import databasis_mcp.tools.metadata as bd_mcp_metadata
+    import databasis_mcp.tools.write as bd_mcp_write
 
     spec = importlib.util.spec_from_file_location(
         "rm", HERE / "register_metadata.py"
@@ -48,8 +48,10 @@ def main(argv: list[str] | None = None) -> int:
     spec.loader.exec_module(rm)
 
     env = args.env
-    ids = server.discover_ids(env=env, keys=["status", "theme", "tag"])
-    existing = server.get_dataset(slug=SLUG, env=env)
+    ids = bd_mcp_metadata.discover_ids(
+        env=env, keys=["status", "theme", "tag"]
+    )
+    existing = bd_mcp_metadata.get_dataset(slug=SLUG, env=env)
     if not existing.get("found"):
         log.error(f"dataset {SLUG} not found on {env}")
         return 1
@@ -57,7 +59,7 @@ def main(argv: list[str] | None = None) -> int:
     known = set(ids["tag"].values())
     tag_ids = [t for t in rm.TAGS if t in known]
     theme_ids = [ids["theme"][t] for t in ("safety", "economics", "justice")]
-    write.create_update_dataset(
+    bd_mcp_write.create_update_dataset(
         id=existing["id"],
         slug=SLUG,
         organization_ids=[org_id],

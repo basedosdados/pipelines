@@ -21,8 +21,8 @@ import csv
 import json
 from datetime import UTC
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 from models.world_iati_activities.code.common import ARCH_DIR
 from models.world_iati_activities.code.tables import OL_COLUMN, TABLES
@@ -207,23 +207,27 @@ def main() -> None:
     args = ap.parse_args()
     env = args.env
 
-    ids = server.discover_ids(
+    ids = bd_mcp_metadata.discover_ids(
         env=env, keys=["status", "availability", "license"]
     )
     status = ids["status"]
-    org = server.lookup_id("organization", ORG_SLUG, env=env)["id"]
-    area = server.lookup_id("area", "world", env=env)["id"]
-    english = server.lookup_id("language", "en", env=env)["id"]
-    account = server.get_authenticated_account(env=env)["id"]
-    themes = [server.lookup_id("theme", t, env=env)["id"] for t in THEMES]
-    tags = [server.lookup_id("tag", t, env=env)["id"] for t in TAGS[env]]
+    org = bd_mcp_metadata.lookup_id("organization", ORG_SLUG, env=env)["id"]
+    area = bd_mcp_metadata.lookup_id("area", "world", env=env)["id"]
+    english = bd_mcp_metadata.lookup_id("language", "en", env=env)["id"]
+    account = bd_mcp_metadata.get_authenticated_account(env=env)["id"]
+    themes = [
+        bd_mcp_metadata.lookup_id("theme", t, env=env)["id"] for t in THEMES
+    ]
+    tags = [
+        bd_mcp_metadata.lookup_id("tag", t, env=env)["id"] for t in TAGS[env]
+    ]
     entities = {
-        slug: server.lookup_id("entity", slug, env=env)["id"]
+        slug: bd_mcp_metadata.lookup_id("entity", slug, env=env)["id"]
         for slug in sorted({e for t in TABLES.values() for e in t["entities"]})
     }
 
-    existing = server.get_dataset(DATASET_SLUG, env=env)
-    dataset_id = write.create_update_dataset(
+    existing = bd_mcp_metadata.get_dataset(DATASET_SLUG, env=env)
+    dataset_id = bd_mcp_write.create_update_dataset(
         slug=DATASET_SLUG,
         name_pt=DATASET_NAME["pt"],
         name_en=DATASET_NAME["en"],
@@ -244,11 +248,11 @@ def main() -> None:
 
     known_sources = {
         s["url"]: s["id"]
-        for s in write.get_raw_data_sources(DATASET_SLUG, env=env)
+        for s in bd_mcp_write.get_raw_data_sources(DATASET_SLUG, env=env)
     }
     sources = {}
     for key, spec in RAW_SOURCES.items():
-        sources[key] = write.create_update_raw_data_source(
+        sources[key] = bd_mcp_write.create_update_raw_data_source(
             dataset_id=dataset_id,
             name_pt=spec["name_pt"],
             name_en=spec["name_en"],
@@ -272,14 +276,14 @@ def main() -> None:
         )["id"]
         print(f"raw source {key} -> {sources[key]}")
 
-    week = server.lookup_id("entity", "week", env=env)["id"]
+    week = bd_mcp_metadata.lookup_id("entity", "week", env=env)["id"]
     prior = existing.get("tables", {}) if existing.get("found") else {}
     table_ids: dict[str, str] = {}
     ol_ids: dict[str, dict[str, str]] = {}
     for slug in args.tables:
         spec = TABLES[slug]
         was = prior.get(slug, {})
-        table_id = write.create_update_table(
+        table_id = bd_mcp_write.create_update_table(
             slug=slug,
             name_pt=spec["name_pt"],
             name_en=spec["name_en"],
@@ -296,7 +300,7 @@ def main() -> None:
             env=env,
         )["id"]
 
-        result = write.bulk_upsert_columns(
+        result = bd_mcp_write.bulk_upsert_columns(
             table_id=table_id, columns_json=columns_json(slug), env=env
         )
 
@@ -307,15 +311,17 @@ def main() -> None:
         ol_ids[slug] = {}
         for entity_slug in spec["entities"]:
             entity_id = entities[entity_slug]
-            ol_ids[slug][entity_slug] = write.create_update_observation_level(
-                table_id=table_id,
-                entity_id=entity_id,
-                id=by_entity.get(entity_id),
-                env=env,
-            )["id"]
+            ol_ids[slug][entity_slug] = (
+                bd_mcp_write.create_update_observation_level(
+                    table_id=table_id,
+                    entity_id=entity_id,
+                    id=by_entity.get(entity_id),
+                    env=env,
+                )["id"]
+            )
 
         cloud = was.get("cloud_tables") or [{}]
-        write.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             table_id=table_id,
             gcp_project_id=GCP_PROJECT[env],
             gcp_dataset_id=GCP_DATASET_ID,
@@ -325,12 +331,12 @@ def main() -> None:
         )
 
         cov = was.get("coverages") or [{}]
-        coverage_id = write.create_update_coverage(
+        coverage_id = bd_mcp_write.create_update_coverage(
             table_id=table_id, area_id=area, id=cov[0].get("id"), env=env
         )["id"]
         ranges = cov[0].get("datetime_ranges") or [{}]
         start, end = spec["years"]
-        write.create_update_datetime_range(
+        bd_mcp_write.create_update_datetime_range(
             coverage_id=coverage_id,
             start_year=start,
             end_year=end,
@@ -343,7 +349,7 @@ def main() -> None:
         # source-anchored Update (what IATI Tables last published) is written by
         # the recurring pipeline's commit_source_update_task.
         updates = was.get("updates") or [{}]
-        write.create_update_update(
+        bd_mcp_write.create_update_update(
             entity_id=week,
             frequency=1,
             latest=_today(),
@@ -361,7 +367,7 @@ def main() -> None:
     # it. bulk_upsert_columns cannot do this, and update_column needs the real
     # column id — which only exists once the columns have been created, hence
     # the re-read.
-    fresh = server.get_dataset(DATASET_SLUG, env=env)
+    fresh = bd_mcp_metadata.get_dataset(DATASET_SLUG, env=env)
     for slug in args.tables:
         cols = {
             c["name"]: c["id"]
@@ -374,7 +380,7 @@ def main() -> None:
                     f"{slug}: observation level {entity_slug} names column "
                     f"{column!r}, which the table does not have"
                 )
-            write.update_column(
+            bd_mcp_write.update_column(
                 column_id=cols[column],
                 column_name=column,
                 table_id=table_ids[slug],
@@ -386,7 +392,7 @@ def main() -> None:
             )
         print(f"  linked {len(ol_ids[slug])} observation level(s) on {slug}")
 
-    write.reorder_tables(
+    bd_mcp_write.reorder_tables(
         dataset_slug=DATASET_SLUG, table_slugs=list(TABLES), env=env
     )
     print(

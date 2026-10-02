@@ -23,8 +23,8 @@ from __future__ import annotations
 
 import argparse
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 ENV = "staging"
 AREA = "br_mg"
@@ -53,18 +53,18 @@ DATASET_QUERY = """query($id: ID!) {
 
 
 def coverages_of(slug: str) -> list[dict] | None:
-    edges = server._gql(
+    edges = bd_mcp_metadata._gql(
         COVERAGE_QUERY, {"ds": DATASET_ID, "slug": slug}, env=ENV
     )["allTable"]["edges"]
     if not edges:
         return None
     return [
         {
-            "id": server._strip_id(e["node"]["id"]),
+            "id": bd_mcp_metadata._strip_id(e["node"]["id"]),
             "area_slug": e["node"]["area"]["slug"],
             "datetime_ranges": [
                 {
-                    "id": server._strip_id(r["node"]["id"]),
+                    "id": bd_mcp_metadata._strip_id(r["node"]["id"]),
                     "start_year": r["node"]["startYear"],
                     "end_year": r["node"]["endYear"],
                     "interval": r["node"]["interval"],
@@ -77,11 +77,11 @@ def coverages_of(slug: str) -> list[dict] | None:
 
 
 def dataset_fields() -> dict:
-    node = server._gql(DATASET_QUERY, {"id": DATASET_ID}, env=ENV)[
+    node = bd_mcp_metadata._gql(DATASET_QUERY, {"id": DATASET_ID}, env=ENV)[
         "allDataset"
     ]["edges"][0]["node"]
     return {
-        "id": server._strip_id(node["id"]),
+        "id": bd_mcp_metadata._strip_id(node["id"]),
         "name_pt": node["namePt"],
         "name_en": node["nameEn"],
         "name_es": node["nameEs"],
@@ -89,16 +89,16 @@ def dataset_fields() -> dict:
         "description_en": node["descriptionEn"],
         "description_es": node["descriptionEs"],
         "organizations": [
-            {"id": server._strip_id(e["node"]["id"])}
+            {"id": bd_mcp_metadata._strip_id(e["node"]["id"])}
             for e in node["organizations"]["edges"]
         ],
         "themes": [
-            {"id": server._strip_id(e["node"]["id"])}
+            {"id": bd_mcp_metadata._strip_id(e["node"]["id"])}
             for e in node["themes"]["edges"]
         ],
         "tags": [
             {
-                "id": server._strip_id(e["node"]["id"]),
+                "id": bd_mcp_metadata._strip_id(e["node"]["id"]),
                 "slug": e["node"]["slug"],
             }
             for e in node["tags"]["edges"]
@@ -158,7 +158,7 @@ def main() -> None:
                 f"  {slug:<26} {start}-{current.get('end_year')} -> {start}-{END_YEAR}"
             )
             continue
-        write.create_update_datetime_range(
+        bd_mcp_write.create_update_datetime_range(
             coverage_id=mg["id"],
             start_year=start,
             end_year=END_YEAR,
@@ -180,7 +180,7 @@ def main() -> None:
     print(f"  adding {sorted(missing)}")
     if args.dry_run:
         return
-    write.create_update_dataset(
+    bd_mcp_write.create_update_dataset(
         id=dataset["id"],
         slug="mides",
         name_pt=dataset["name_pt"],

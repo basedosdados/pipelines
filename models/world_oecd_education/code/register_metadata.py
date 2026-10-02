@@ -19,8 +19,8 @@ import argparse
 import csv
 import json
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 from models.world_oecd_education.code.common import (
     ARCH_DIR,
@@ -225,7 +225,9 @@ def dicionario_columns():
 def world_area(env):
     """The id of the "world" area -- every cube here is cross-country."""
     q = 'query { allArea(slug: "world") { edges { node { id } } } }'
-    node = server._gql(q, {}, env=env)["allArea"]["edges"][0]["node"]["id"]
+    node = bd_mcp_metadata._gql(q, {}, env=env)["allArea"]["edges"][0]["node"][
+        "id"
+    ]
     # The GraphQL layer returns a prefixed global id ("AreaNode:<uuid>"); the
     # REST-shaped create_update_* helpers want the bare uuid.
     return node.split(":", 1)[1] if ":" in node else node
@@ -250,7 +252,7 @@ def main():
 
     # Explicit keys: a bare discover_ids() also fetches allEntityCategory, which
     # this backend spells allEntitycategory, and the whole call 400s.
-    ids = server.discover_ids(
+    ids = bd_mcp_metadata.discover_ids(
         env=env,
         keys=[
             "status",
@@ -264,19 +266,19 @@ def main():
     )
     if isinstance(ids, str):
         ids = json.loads(ids)
-    account = server.get_authenticated_account(env=env)
+    account = bd_mcp_metadata.get_authenticated_account(env=env)
     if isinstance(account, str):
         account = json.loads(account)
     account_id = account.get("id") or account["account"]["id"]
 
     measured = json.loads((CODE_DIR / "measured.json").read_text())
 
-    existing = server.get_dataset(SLUG, env=env)
+    existing = bd_mcp_metadata.get_dataset(SLUG, env=env)
     if isinstance(existing, str):
         existing = json.loads(existing)
     dataset_id = (existing or {}).get("id")
 
-    dataset = write.create_update_dataset(
+    dataset = bd_mcp_write.create_update_dataset(
         slug=SLUG,
         name_pt=NAME_PT,
         name_en=NAME_EN,
@@ -304,7 +306,7 @@ def main():
     # create_update_raw_data_source matches on id, so without this lookup every
     # re-run adds another copy. A table linked to two raw sources also cannot run
     # a recurring pipeline at all -- client._raw_source_id raises on 2+.
-    existing_raw = write.get_raw_data_sources(SLUG, env=env)
+    existing_raw = bd_mcp_write.get_raw_data_sources(SLUG, env=env)
     if isinstance(existing_raw, str):
         existing_raw = json.loads(existing_raw)
     raw_id_prev = next(
@@ -316,7 +318,7 @@ def main():
         None,
     )
 
-    raw = write.create_update_raw_data_source(
+    raw = bd_mcp_write.create_update_raw_data_source(
         id=raw_id_prev,
         # pyrefly: ignore [bad-argument-type]
         dataset_id=dataset_id,
@@ -334,7 +336,7 @@ def main():
     raw_id = raw.get("id")
     print(f"raw data source -> {raw_id}")
 
-    state = server.get_dataset(SLUG, env=env)
+    state = bd_mcp_metadata.get_dataset(SLUG, env=env)
     if isinstance(state, str):
         state = json.loads(state)
     # get_dataset returns tables as a dict keyed by slug, not a list.
@@ -369,7 +371,7 @@ def main():
             )
             payload = columns_payload(slug)
 
-        table = write.create_update_table(
+        table = bd_mcp_write.create_update_table(
             slug=slug,
             name_pt=names[0],
             name_en=names[1],
@@ -390,7 +392,7 @@ def main():
             table = json.loads(table)
         table_id = table.get("id", prev.get("id"))
 
-        write.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             # pyrefly: ignore [bad-argument-type]
             table_id=table_id,
             gcp_project_id=GCP_PROJECT[env],
@@ -406,7 +408,7 @@ def main():
             for o in (prev.get("observation_levels") or [])
         }
         for entity in OBSERVATION_LEVELS.get(slug, []):
-            ol = write.create_update_observation_level(
+            ol = bd_mcp_write.create_update_observation_level(
                 # pyrefly: ignore [bad-argument-type]
                 table_id=table_id,
                 entity_id=ids["entity"][entity],
@@ -417,7 +419,7 @@ def main():
                 ol = json.loads(ol)
             ol_ids[entity] = ol.get("id")
 
-        write.bulk_upsert_columns(
+        bd_mcp_write.bulk_upsert_columns(
             # pyrefly: ignore [bad-argument-type]
             table_id=table_id,
             columns_json=json.dumps(payload, ensure_ascii=False),
@@ -430,7 +432,7 @@ def main():
             years = sorted(
                 int(y) for y in measured[slug].get("years", []) or []
             )
-            cov = write.create_update_coverage(
+            cov = bd_mcp_write.create_update_coverage(
                 # pyrefly: ignore [bad-argument-type]
                 table_id=table_id,
                 area_id=world_area(env),
@@ -451,7 +453,7 @@ def main():
                         or [{}]
                     )[0]
                 ).get("id")
-                write.create_update_datetime_range(
+                bd_mcp_write.create_update_datetime_range(
                     coverage_id=cov["id"],
                     start_year=years[0],
                     end_year=years[-1],
@@ -465,7 +467,7 @@ def main():
     # per-column update, and without it the site renders the level's columns as
     # "Não informado". Done in one pass over a single fetch rather than
     # re-reading the dataset per table.
-    fresh = server.get_dataset(SLUG, env=env)
+    fresh = bd_mcp_metadata.get_dataset(SLUG, env=env)
     if isinstance(fresh, str):
         fresh = json.loads(fresh)
     linked = 0
@@ -485,7 +487,7 @@ def main():
         )
         for column, entity in link.items():
             if column in cols and ol_ids.get(entity):
-                write.update_column(
+                bd_mcp_write.update_column(
                     column_id=cols[column],
                     column_name=column,
                     # pyrefly: ignore [bad-argument-type]
@@ -497,7 +499,7 @@ def main():
                 linked += 1
     print(f"linked {linked} columns to observation levels")
 
-    write.reorder_tables(dataset_slug=SLUG, table_slugs=order, env=env)
+    bd_mcp_write.reorder_tables(dataset_slug=SLUG, table_slugs=order, env=env)
     print(f"\nregistered {len(order)} tables in {env}")
 
 

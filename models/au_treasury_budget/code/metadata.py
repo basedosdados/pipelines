@@ -18,8 +18,8 @@ import contextlib
 import json
 import pathlib
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 from models.au_treasury_budget.code import columns as column_defs
 
@@ -255,7 +255,7 @@ DATA_ROOT = pathlib.Path.home() / "Downloads" / "au_treasury_budget_data"
 
 
 def strip(node_id: str | None) -> str | None:
-    return server._strip_id(node_id) if node_id else None
+    return bd_mcp_metadata._strip_id(node_id) if node_id else None
 
 
 def main() -> int:
@@ -270,14 +270,14 @@ def main() -> int:
     env = args.env
 
     organization_slug = ORGANIZATION_SLUGS[env]
-    ids = server.discover_ids(
+    ids = bd_mcp_metadata.discover_ids(
         env=env,
         keys=["status", "entity", "license", "availability", "theme", "tag"],
     )
     area_au = strip(
-        server.lookup_id(category="area", slug="au", env=env)["id"]
+        bd_mcp_metadata.lookup_id(category="area", slug="au", env=env)["id"]
     )
-    account = server.get_authenticated_account(env=env)
+    account = bd_mcp_metadata.get_authenticated_account(env=env)
     account_id = strip(account["id"])
     print(f"account: {account.get('email')}")
 
@@ -299,10 +299,10 @@ def main() -> int:
     existing_org = None
     # lookup_id raises when the slug is absent, which is the normal first run.
     with contextlib.suppress(Exception):
-        existing_org = server.lookup_id(
+        existing_org = bd_mcp_metadata.lookup_id(
             category="organization", slug=organization_slug, env=env
         )
-    org = write.create_update_organization(
+    org = bd_mcp_write.create_update_organization(
         slug=organization_slug,
         name_pt="Tesouro da Austrália",
         name_en="Australian Treasury",
@@ -329,8 +329,8 @@ def main() -> int:
     print(f"organization {organization_slug}: {organization_id}")
 
     # --- dataset ---------------------------------------------------------
-    existing = server.get_dataset(slug=DATASET_SLUG, env=env)
-    dataset = write.create_update_dataset(
+    existing = bd_mcp_metadata.get_dataset(slug=DATASET_SLUG, env=env)
+    dataset = bd_mcp_write.create_update_dataset(
         slug=DATASET_SLUG,
         name_pt=DATASET_NAME[0],
         name_en=DATASET_NAME[1],
@@ -356,13 +356,13 @@ def main() -> int:
         return 0
 
     # --- raw data sources -------------------------------------------------
-    raw = write.get_raw_data_sources(dataset_slug=DATASET_SLUG, env=env)
+    raw = bd_mcp_write.get_raw_data_sources(dataset_slug=DATASET_SLUG, env=env)
     if isinstance(raw, dict):
         raw = raw.get("raw_data_sources", [])
     existing_sources = {s.get("name"): strip(s.get("id")) for s in raw}
     source_ids: dict[str, str] = {}
     for table, (names, url) in RAW_SOURCES.items():
-        record = write.create_update_raw_data_source(
+        record = bd_mcp_write.create_update_raw_data_source(
             # pyrefly: ignore [bad-argument-type]
             dataset_id=dataset_id,
             name_pt=names[0],
@@ -384,10 +384,10 @@ def main() -> int:
         print(f"raw source {table}: {source_ids[table]}")
 
     # --- tables -----------------------------------------------------------
-    current = server.get_dataset(slug=DATASET_SLUG, env=env)
+    current = bd_mcp_metadata.get_dataset(slug=DATASET_SLUG, env=env)
     for table in column_defs.TABLES:
         known = current.get("tables", {}).get(table, {})
-        record = write.create_update_table(
+        record = bd_mcp_write.create_update_table(
             slug=table,
             name_pt=TABLE_NAMES[table][0],
             name_en=TABLE_NAMES[table][1],
@@ -412,7 +412,7 @@ def main() -> int:
         print(f"\ntable {table}: {table_id}")
 
         payload = column_defs.columns_json(table)
-        result = write.bulk_upsert_columns(
+        result = bd_mcp_write.bulk_upsert_columns(
             # pyrefly: ignore [bad-argument-type]
             table_id=table_id,
             columns_json=json.dumps(payload, ensure_ascii=False),
@@ -425,7 +425,7 @@ def main() -> int:
 
         # Observation levels, and the column that identifies each one. Without
         # the per-column link the site renders the level as "Nao informado".
-        after = server.get_dataset(slug=DATASET_SLUG, env=env)
+        after = bd_mcp_metadata.get_dataset(slug=DATASET_SLUG, env=env)
         table_record = after["tables"][table]
         column_ids = {
             c["name"]: strip(c["id"]) for c in table_record["columns"]
@@ -436,7 +436,7 @@ def main() -> int:
         }
         for entity_slug, column_name in OBSERVATION_LEVELS[table]:
             entity_id = ids["entity"][entity_slug]
-            level = write.create_update_observation_level(
+            level = bd_mcp_write.create_update_observation_level(
                 # pyrefly: ignore [bad-argument-type]
                 table_id=table_id,
                 entity_id=entity_id,
@@ -446,7 +446,7 @@ def main() -> int:
             level_id = strip(level["id"])
             # update_column's booleans default to False, so the partition flag
             # has to be re-passed in the same call that sets the level.
-            write.update_column(
+            bd_mcp_write.update_column(
                 # pyrefly: ignore [bad-argument-type]
                 column_id=column_ids[column_name],
                 column_name=column_name,
@@ -459,7 +459,7 @@ def main() -> int:
             print(f"  observation level {entity_slug} -> {column_name}")
 
         if not OBSERVATION_LEVELS[table] and "year" in column_ids:
-            write.update_column(
+            bd_mcp_write.update_column(
                 # pyrefly: ignore [bad-argument-type]
                 column_id=column_ids["year"],
                 column_name="year",
@@ -470,7 +470,7 @@ def main() -> int:
             )
 
         existing_cloud = table_record.get("cloud_tables", [])
-        write.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             # pyrefly: ignore [bad-argument-type]
             table_id=table_id,
             gcp_project_id="basedosdados",
@@ -482,7 +482,7 @@ def main() -> int:
         print(f"  cloud table -> basedosdados.{GCP_DATASET_ID}.{table}")
 
         existing_coverages = table_record.get("coverages", [])
-        coverage = write.create_update_coverage(
+        coverage = bd_mcp_write.create_update_coverage(
             # pyrefly: ignore [bad-argument-type]
             table_id=table_id,
             # pyrefly: ignore [bad-argument-type]
@@ -500,7 +500,7 @@ def main() -> int:
                 if existing_coverages
                 else []
             )
-            write.create_update_datetime_range(
+            bd_mcp_write.create_update_datetime_range(
                 # pyrefly: ignore [bad-argument-type]
                 coverage_id=coverage_id,
                 start_year=start_year,
@@ -514,7 +514,7 @@ def main() -> int:
             print("  coverage (no temporal range: the dictionary has no year)")
 
         existing_updates = table_record.get("updates", [])
-        write.create_update_update(
+        bd_mcp_write.create_update_update(
             table_id=table_id,
             entity_id=ids["entity"]["month"],
             frequency=UPDATE_FREQUENCY_MONTHS,
@@ -524,7 +524,7 @@ def main() -> int:
         )
         print("  update record")
 
-    write.reorder_tables(
+    bd_mcp_write.reorder_tables(
         dataset_slug=DATASET_SLUG,
         table_slugs=list(column_defs.TABLES),
         env=env,

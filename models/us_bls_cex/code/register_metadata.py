@@ -22,8 +22,8 @@ import json
 import re
 from pathlib import Path
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 CODE = Path(__file__).resolve().parent
 ARCH = CODE / "architecture"
@@ -513,7 +513,7 @@ def columns_payload(table: str) -> list[dict]:
 
 def resolve(env: str) -> dict:
     def look(cat, slug, e=env):
-        return server.lookup_id(category=cat, slug=slug, env=e)["id"]
+        return bd_mcp_metadata.lookup_id(category=cat, slug=slug, env=e)["id"]
 
     ids = {
         "organization": look("organization", ORGANIZATION[env]),
@@ -523,12 +523,14 @@ def resolve(env: str) -> dict:
         "published": look("status", "published"),
         "under_review": look("status", "under_review"),
         "themes": [look("theme", s) for s in THEMES],
-        "account": server.get_authenticated_account(env=env)["id"],
+        "account": bd_mcp_metadata.get_authenticated_account(env=env)["id"],
     }
     for e in ("year", "quarter", "household", "person", "item", "series"):
         ids[e] = look("entity", e)
     prod_tags = [look("tag", s, "prod") for s in TAGS]
-    known = set(server.discover_ids(env=env, keys=["tag"])["tag"].values())
+    known = set(
+        bd_mcp_metadata.discover_ids(env=env, keys=["tag"])["tag"].values()
+    )
     missing = [
         s for s, i in zip(TAGS, prod_tags, strict=True) if i not in known
     ]
@@ -579,13 +581,13 @@ def main() -> None:
     env = args.env
     gcp_project = "basedosdados" if env == "prod" else "basedosdados-dev"
 
-    server.auth(env=env)
+    bd_mcp_metadata.auth(env=env)
     ids = resolve(env)
-    existing = server.get_dataset(slug=SLUG, env=env)
+    existing = bd_mcp_metadata.get_dataset(slug=SLUG, env=env)
     prior_tables = existing.get("tables", {}) if existing.get("found") else {}
 
     status = "published" if args.publish else "under_review"
-    ds = write.create_update_dataset(
+    ds = bd_mcp_write.create_update_dataset(
         id=existing.get("id") if existing.get("found") else None,
         env=env,
         **dataset_fields(ids, status),
@@ -595,11 +597,11 @@ def main() -> None:
 
     prior_sources = {
         s["name"]: s["id"]
-        for s in write.get_raw_data_sources(dataset_slug=SLUG, env=env)
+        for s in bd_mcp_write.get_raw_data_sources(dataset_slug=SLUG, env=env)
     }
     source_ids = {}
     for key, (en, pt, es, url) in RAW_SOURCES.items():
-        r = write.create_update_raw_data_source(
+        r = bd_mcp_write.create_update_raw_data_source(
             id=prior_sources.get(en) or prior_sources.get(pt),
             dataset_id=dataset_id,
             name_en=en,
@@ -617,13 +619,13 @@ def main() -> None:
         source_ids[key] = r["id"]
         print(f"  raw source {key} -> {r['id']}")
         # source Update: the source's max COVERAGE date, never today
-        src_updates = server._gql(
+        src_updates = bd_mcp_metadata._gql(
             "query($s:ID!){allUpdate(rawDataSource_Id:$s){edges{node{id}}}}",
             {"s": r["id"]},
             env=env,
         )["allUpdate"]["edges"]
-        write.create_update_update(
-            id=server._strip_id(src_updates[0]["node"]["id"])
+        bd_mcp_write.create_update_update(
+            id=bd_mcp_metadata._strip_id(src_updates[0]["node"]["id"])
             if src_updates
             else None,
             raw_data_source_id=r["id"],
@@ -636,7 +638,7 @@ def main() -> None:
     for table in args.tables:
         spec = TABLE_TEXT[table]
         prior = prior_tables.get(table, {})
-        tb = write.create_update_table(
+        tb = bd_mcp_write.create_update_table(
             # pyrefly: ignore [bad-argument-type]
             id=prior.get("id"),
             env=env,
@@ -652,7 +654,7 @@ def main() -> None:
         }
         ol_ids = {}
         for entity in spec["entities"]:
-            r = write.create_update_observation_level(
+            r = bd_mcp_write.create_update_observation_level(
                 id=prior_ols.get(entity),
                 table_id=table_id,
                 entity_id=ids[entity],
@@ -661,7 +663,7 @@ def main() -> None:
             ol_ids[entity] = r["id"]
 
         cols = columns_payload(table)
-        res = write.bulk_upsert_columns(
+        res = bd_mcp_write.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(cols, ensure_ascii=False),
             batch_size=100,
@@ -674,17 +676,17 @@ def main() -> None:
         if res.get("errors"):
             raise SystemExit(f"{table}: column errors {res['errors'][:5]}")
 
-        cols_now = server._gql(
+        cols_now = bd_mcp_metadata._gql(
             "query($t:ID!){allColumn(table_Id:$t){edges{node{id name}}}}",
             {"t": table_id},
             env=env,
         )["allColumn"]["edges"]
         by_name = {
-            c["node"]["name"]: server._strip_id(c["node"]["id"])
+            c["node"]["name"]: bd_mcp_metadata._strip_id(c["node"]["id"])
             for c in cols_now
         }
         # bulk_upsert can append retried columns; restore the architecture order
-        write.reorder_columns(
+        bd_mcp_write.reorder_columns(
             table_id=table_id,
             column_names=[a["name"] for a in read_arch(table)],
             env=env,
@@ -692,7 +694,7 @@ def main() -> None:
         # link each grain column to its observation level; re-pass is_partition
         # because update_column's booleans default to False
         for entity, colname in spec["entities"].items():
-            write.update_column(
+            bd_mcp_write.update_column(
                 column_id=by_name[colname],
                 column_name=colname,
                 table_id=table_id,
@@ -701,7 +703,7 @@ def main() -> None:
                 env=env,
             )
         if "year" in by_name and "year" not in spec["entities"].values():
-            write.update_column(
+            bd_mcp_write.update_column(
                 column_id=by_name["year"],
                 column_name="year",
                 table_id=table_id,
@@ -710,7 +712,7 @@ def main() -> None:
             )
 
         prior_cloud = (prior.get("cloud_tables") or [{}])[0].get("id")
-        write.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             id=prior_cloud,
             table_id=table_id,
             gcp_project_id=gcp_project,
@@ -720,7 +722,7 @@ def main() -> None:
         )
 
         prior_cov = (prior.get("coverages") or [{}])[0]
-        cov = write.create_update_coverage(
+        cov = bd_mcp_write.create_update_coverage(
             id=prior_cov.get("id"),
             table_id=table_id,
             area_id=ids["area"],
@@ -734,7 +736,7 @@ def main() -> None:
             prior_range = (prior_cov.get("datetime_ranges") or [{}])[0].get(
                 "id"
             )
-            write.create_update_datetime_range(
+            bd_mcp_write.create_update_datetime_range(
                 # pyrefly: ignore [bad-argument-type]
                 id=prior_range,
                 coverage_id=cov["id"],
@@ -746,7 +748,7 @@ def main() -> None:
         prior_updates = {
             u["entity_slug"]: u["id"] for u in prior.get("updates", [])
         }
-        write.create_update_update(
+        bd_mcp_write.create_update_update(
             id=prior_updates.get("year"),
             table_id=table_id,
             entity_id=ids["year"],
@@ -757,7 +759,7 @@ def main() -> None:
         )
 
         if spec["source"]:
-            write.create_update_table(
+            bd_mcp_write.create_update_table(
                 id=table_id,
                 env=env,
                 # pyrefly: ignore [bad-argument-type]
@@ -770,7 +772,7 @@ def main() -> None:
             )
 
     if args.tables == TABLE_ORDER:
-        write.reorder_tables(
+        bd_mcp_write.reorder_tables(
             dataset_slug=SLUG, table_slugs=TABLE_ORDER, env=env
         )
     print("\ndone. Verify with get_dataset / GraphQL before promoting.")

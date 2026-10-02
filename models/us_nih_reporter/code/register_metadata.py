@@ -13,8 +13,8 @@ import sys
 from datetime import date
 from pathlib import Path
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 ARGS = sys.argv[1:]
 ENV = next((a for a in ARGS if not a.startswith("-")), "staging")
@@ -531,13 +531,15 @@ THEMES = ["health", "science-technology"]
 
 def main() -> int:
     print(f"env={ENV}")
-    ids = server.discover_ids(
+    ids = bd_mcp_metadata.discover_ids(
         env=ENV,
         keys=["status", "license", "availability", "entity", "theme", "tag"],
     )
-    account = server.get_authenticated_account(env=ENV)["id"]
-    area_us = server.lookup_id(category="area", slug="us", env=ENV)["id"]
-    org = server.lookup_id(
+    account = bd_mcp_metadata.get_authenticated_account(env=ENV)["id"]
+    area_us = bd_mcp_metadata.lookup_id(category="area", slug="us", env=ENV)[
+        "id"
+    ]
+    org = bd_mcp_metadata.lookup_id(
         category="organization",
         slug="national_institutes_of_health_nih",
         env=ENV,
@@ -555,8 +557,8 @@ def main() -> int:
     # `allEntityCategory` and the schema calls the field `allEntitycategory` —
     # so the category is resolved through _gql instead.
     cats = {
-        e["node"]["slug"]: server._strip_id(e["node"]["id"])
-        for e in server._gql(
+        e["node"]["slug"]: bd_mcp_metadata._strip_id(e["node"]["id"])
+        for e in bd_mcp_metadata._gql(
             "query { allEntitycategory { edges { node { id slug } } } }",
             {},
             env=ENV,
@@ -566,7 +568,7 @@ def main() -> int:
         if slug in entity:
             print(f"entity {slug} -> {entity[slug]} (existing)")
             continue
-        eid = write.create_update_entity(
+        eid = bd_mcp_write.create_update_entity(
             slug=slug,
             name_pt=name_pt,
             name_en=name_en,
@@ -577,9 +579,9 @@ def main() -> int:
         entity[slug] = eid
         print(f"entity {slug} -> {eid} (created under {category})")
 
-    existing = server.get_dataset(slug=DATASET_SLUG, env=ENV)
+    existing = bd_mcp_metadata.get_dataset(slug=DATASET_SLUG, env=ENV)
 
-    ds = write.create_update_dataset(
+    ds = bd_mcp_write.create_update_dataset(
         id=existing.get("id"),
         **DATASET,
         organization_ids=[org],
@@ -592,13 +594,15 @@ def main() -> int:
     print(f"dataset {DATASET_SLUG} -> {dataset_id}")
 
     # raw data sources ------------------------------------------------------
-    listed = write.get_raw_data_sources(dataset_slug=DATASET_SLUG, env=ENV)
+    listed = bd_mcp_write.get_raw_data_sources(
+        dataset_slug=DATASET_SLUG, env=ENV
+    )
     if isinstance(listed, dict):
         listed = listed.get("result", [])
     have = {s["url"]: s["id"] for s in listed}
     raw_ids = {}
     for spec in RAW_SOURCES:
-        rid = write.create_update_raw_data_source(
+        rid = bd_mcp_write.create_update_raw_data_source(
             id=have.get(spec["url"]),
             dataset_id=dataset_id,
             # pyrefly: ignore [bad-argument-type]
@@ -627,12 +631,12 @@ def main() -> int:
         print(f"raw source {spec['key']} -> {rid}")
 
     # tables ----------------------------------------------------------------
-    existing = server.get_dataset(slug=DATASET_SLUG, env=ENV)
+    existing = bd_mcp_metadata.get_dataset(slug=DATASET_SLUG, env=ENV)
     prior = existing.get("tables", {})
     table_ids = {}
     for table in TABLE_ORDER:
         p = prior.get(table, {})
-        tid = write.create_update_table(
+        tid = bd_mcp_write.create_update_table(
             id=p.get("id"),
             slug=table,
             dataset_id=dataset_id,
@@ -668,7 +672,7 @@ def main() -> int:
             eid = entity[slug]
             oid = have_ol.get(eid) or (spare.pop(0) if spare else None)
             reused = " (rewritten)" if oid and eid not in have_ol else ""
-            ol_ids[slug] = write.create_update_observation_level(
+            ol_ids[slug] = bd_mcp_write.create_update_observation_level(
                 id=oid, table_id=tid, entity_id=eid, env=ENV
             )["id"]
             if reused:
@@ -685,7 +689,7 @@ def main() -> int:
             COLUMNS_DIR / f"columns_{table}.json", encoding="utf-8"
         ) as fh:
             payload = json.load(fh)
-        res = write.bulk_upsert_columns(
+        res = bd_mcp_write.bulk_upsert_columns(
             table_id=tid,
             columns_json=json.dumps(payload, ensure_ascii=False),
             env=ENV,
@@ -697,13 +701,13 @@ def main() -> int:
         # dataset is re-read here rather than guessed.
         col_ids = {
             c["name"]: c["id"]
-            for c in server.get_dataset(slug=DATASET_SLUG, env=ENV)["tables"][
-                table
-            ]["columns"]
+            for c in bd_mcp_metadata.get_dataset(slug=DATASET_SLUG, env=ENV)[
+                "tables"
+            ][table]["columns"]
         }
         linked = {col for _s, col in OBSERVATION_LEVELS[table]}
         for slug, col in OBSERVATION_LEVELS[table]:
-            write.update_column(
+            bd_mcp_write.update_column(
                 column_id=col_ids[col],
                 column_name=col,
                 table_id=tid,
@@ -712,7 +716,7 @@ def main() -> int:
                 env=ENV,
             )
         if table in DATETIME_RANGES and "year" not in linked:
-            write.update_column(
+            bd_mcp_write.update_column(
                 column_id=col_ids["year"],
                 column_name="year",
                 table_id=tid,
@@ -722,7 +726,7 @@ def main() -> int:
 
         # cloud table
         have_ct = [c["id"] for c in p.get("cloud_tables", [])]
-        write.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             id=have_ct[0] if have_ct else None,
             table_id=tid,
             gcp_project_id=GCP_PROJECT,
@@ -735,7 +739,7 @@ def main() -> int:
         have_cov = [
             c for c in p.get("coverages", []) if c.get("area_slug") == "us"
         ]
-        cov = write.create_update_coverage(
+        cov = bd_mcp_write.create_update_coverage(
             id=have_cov[0]["id"] if have_cov else None,
             table_id=tid,
             area_id=area_us,
@@ -746,7 +750,7 @@ def main() -> int:
             have_dt = (
                 have_cov[0].get("datetime_ranges", []) if have_cov else []
             )
-            write.create_update_datetime_range(
+            bd_mcp_write.create_update_datetime_range(
                 id=have_dt[0]["id"] if have_dt else None,
                 coverage_id=cov,
                 start_year=start,
@@ -764,7 +768,7 @@ def main() -> int:
         # (or `register_table_materialization_task`) sets it.
         if MATERIALIZED:
             have_up = [u["id"] for u in p.get("updates", [])]
-            write.create_update_update(
+            bd_mcp_write.create_update_update(
                 id=have_up[0] if have_up else None,
                 table_id=tid,
                 entity_id=entity["year"],
@@ -781,7 +785,7 @@ def main() -> int:
     for spec in RAW_SOURCES:
         # pyrefly: ignore [not-iterable]
         for table in spec["tables"]:
-            write.create_update_table(
+            bd_mcp_write.create_update_table(
                 id=table_ids[table],
                 slug=table,
                 dataset_id=dataset_id,
@@ -798,7 +802,7 @@ def main() -> int:
         # publication timestamp the pipeline's commit_source_update_task writes,
         # because the poll compares Last-Modified against Table.Update.latest.
         if spec["latest"]:
-            write.create_update_update(
+            bd_mcp_write.create_update_update(
                 raw_data_source_id=raw_ids[spec["key"]],
                 entity_id=entity["year"]
                 if spec["key"] == "annual"
@@ -809,14 +813,14 @@ def main() -> int:
             )
     print("\nraw source links and source updates: ok")
 
-    write.reorder_tables(
+    bd_mcp_write.reorder_tables(
         dataset_slug=DATASET_SLUG, table_slugs=TABLE_ORDER, env=ENV
     )
     print(f"table order set: {TABLE_ORDER}")
 
     # publish on staging only — prod stays under_review until the PR merges
     if ENV in ("staging", "dev"):
-        write.create_update_dataset(
+        bd_mcp_write.create_update_dataset(
             id=dataset_id,
             **DATASET,
             organization_ids=[org],

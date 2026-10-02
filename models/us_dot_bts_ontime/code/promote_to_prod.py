@@ -17,8 +17,8 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
@@ -94,9 +94,9 @@ def staging_table(table_id: str) -> dict:
     q = """query($id: ID!) { allTable(id: $id) { edges { node {
       slug namePt nameEn nameEs descriptionPt descriptionEn descriptionEs
     } } } }"""
-    return server._gql(q, {"id": table_id}, env="staging")["allTable"][
-        "edges"
-    ][0]["node"]
+    return bd_mcp_metadata._gql(q, {"id": table_id}, env="staging")[
+        "allTable"
+    ]["edges"][0]["node"]
 
 
 def prod_tables() -> dict[str, dict]:
@@ -108,7 +108,7 @@ def prod_tables() -> dict[str, dict]:
       updates { edges { node { id } } }
     } } } }"""
     out = {}
-    data = server._gql(q, {"id": PROD["dataset"]}, env="prod")
+    data = bd_mcp_metadata._gql(q, {"id": PROD["dataset"]}, env="prod")
     for e in data["allTable"]["edges"]:
         n = e["node"]
         out[n["slug"]] = n
@@ -118,7 +118,7 @@ def prod_tables() -> dict[str, dict]:
 def column_ids(table_id: str) -> dict[str, str]:
     q = """query($id: ID!) { allColumn(table_Id: $id, first: 1000) {
       edges { node { id name } } } }"""
-    data = server._gql(q, {"id": table_id}, env="prod")
+    data = bd_mcp_metadata._gql(q, {"id": table_id}, env="prod")
     return {
         e["node"]["name"]: bare(e["node"]["id"])
         for e in data["allColumn"]["edges"]
@@ -127,9 +127,9 @@ def column_ids(table_id: str) -> dict[str, str]:
 
 def main() -> None:
     # pyrefly: ignore [not-callable]
-    call(server.auth)(env="prod")
+    call(bd_mcp_metadata.auth)(env="prod")
     # pyrefly: ignore [not-callable]
-    call(server.auth)(env="staging")
+    call(bd_mcp_metadata.auth)(env="staging")
 
     existing = prod_tables()
 
@@ -139,7 +139,7 @@ def main() -> None:
         tid = bare(prior["id"]) if prior else None
 
         # pyrefly: ignore [not-callable]
-        res = call(write.create_update_table)(
+        res = call(bd_mcp_write.create_update_table)(
             id=tid,
             slug=slug,
             name_pt=src["namePt"],
@@ -160,7 +160,7 @@ def main() -> None:
         print(f"\n=== {slug}: table {tid}")
 
         # pyrefly: ignore [not-callable]
-        r = call(write.bulk_upsert_columns)(
+        r = call(bd_mcp_write.bulk_upsert_columns)(
             table_id=tid, columns_json=payload(slug), env="prod"
         )
         print(
@@ -177,7 +177,7 @@ def main() -> None:
         for entity_key in OL_COLUMNS.get(slug, {}):
             eid = PROD[entity_key]
             # pyrefly: ignore [not-callable]
-            ol = call(write.create_update_observation_level)(
+            ol = call(bd_mcp_write.create_update_observation_level)(
                 id=prior_ols.get(eid), table_id=tid, entity_id=eid, env="prod"
             )
             ol_ids[entity_key] = ol["id"]
@@ -188,7 +188,7 @@ def main() -> None:
             for entity_key, cols in OL_COLUMNS[slug].items():
                 for name in cols:
                     # pyrefly: ignore [not-callable]
-                    call(write.update_column)(
+                    call(bd_mcp_write.update_column)(
                         column_id=cids[name],
                         column_name=name,
                         table_id=tid,
@@ -205,7 +205,7 @@ def main() -> None:
             for e in (prior["cloudTables"]["edges"] if prior else [])
         ]
         # pyrefly: ignore [not-callable]
-        ct = call(write.create_update_cloud_table)(
+        ct = call(bd_mcp_write.create_update_cloud_table)(
             id=ct_prior[0] if ct_prior else None,
             table_id=tid,
             gcp_project_id=GCP_PROJECT,

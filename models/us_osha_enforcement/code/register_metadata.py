@@ -205,7 +205,9 @@ TAGS: list[str] = [
 PLACEHOLDER_UUID = "00000000-0000-0000-0000-000000000000"
 
 
-def read_coverages(server, table_id: str, env: str) -> dict[bool, dict]:
+def read_coverages(
+    bd_mcp_metadata, table_id: str, env: str
+) -> dict[bool, dict]:
     """Coverages on a table, keyed by ``is_closed``.
 
     ``get_dataset`` does not return ``isClosed``, and it is the whole free/pro
@@ -215,16 +217,18 @@ def read_coverages(server, table_id: str, env: str) -> dict[bool, dict]:
     q = """query($id: ID!) { allTable(id: $id) { edges { node { coverages {
         edges { node { id isClosed datetimeRanges { edges { node { id } } } } }
     } } } } }"""
-    edges = server._gql(q, {"id": table_id}, env=env)["allTable"]["edges"]
+    edges = bd_mcp_metadata._gql(q, {"id": table_id}, env=env)["allTable"][
+        "edges"
+    ]
     if not edges:
         return {}
     out: dict[bool, dict] = {}
     for e in edges[0]["node"]["coverages"]["edges"]:
         node = e["node"]
         out[bool(node["isClosed"])] = {
-            "id": server._strip_id(node["id"]),
+            "id": bd_mcp_metadata._strip_id(node["id"]),
             "datetime_ranges": [
-                {"id": server._strip_id(r["node"]["id"])}
+                {"id": bd_mcp_metadata._strip_id(r["node"]["id"])}
                 for r in node["datetimeRanges"]["edges"]
             ],
         }
@@ -256,8 +260,8 @@ def main(argv: list[str] | None = None) -> int:
     args = p.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
-    import databasis_mcp.tools.metadata as server
-    import databasis_mcp.tools.write as write
+    import databasis_mcp.tools.metadata as bd_mcp_metadata
+    import databasis_mcp.tools.write as bd_mcp_write
 
     sys.path.insert(0, str(HERE.parents[2]))
     from pipelines.datasets.us_osha_enforcement.flows import (
@@ -270,13 +274,17 @@ def main(argv: list[str] | None = None) -> int:
 
     env = args.env
     arch = _load("architecture_def", HERE / "architecture_def.py")
-    ids = server.discover_ids(env=env, keys=["status", "theme", "tag"])
+    ids = bd_mcp_metadata.discover_ids(
+        env=env, keys=["status", "theme", "tag"]
+    )
     status_published = ids["status"]["published"]
     status_under_review = ids["status"]["under_review"]
 
     # --- organization -------------------------------------------------------
     try:
-        org = server.lookup_id(category="organization", slug=ORG_SLUG, env=env)
+        org = bd_mcp_metadata.lookup_id(
+            category="organization", slug=ORG_SLUG, env=env
+        )
         org_id = org["id"]
         log.info(f"organization {ORG_SLUG} exists: {org_id}")
     except Exception:
@@ -284,8 +292,10 @@ def main(argv: list[str] | None = None) -> int:
             log.info(f"[dry-run] would create organization {ORG_SLUG}")
             org_id = "<new>"
         else:
-            area_us = server.lookup_id(category="area", slug="us", env=env)
-            org = write.create_update_organization(
+            area_us = bd_mcp_metadata.lookup_id(
+                category="area", slug="us", env=env
+            )
+            org = bd_mcp_write.create_update_organization(
                 slug=ORG_SLUG,
                 name_pt="Administração de Segurança e Saúde Ocupacional (OSHA)",
                 name_en="Occupational Safety and Health Administration (OSHA)",
@@ -323,7 +333,7 @@ def main(argv: list[str] | None = None) -> int:
     log.info(f"{len(tag_ids)} tags resolved")
 
     # --- dataset ------------------------------------------------------------
-    existing = server.get_dataset(slug=SLUG, env=env)
+    existing = bd_mcp_metadata.get_dataset(slug=SLUG, env=env)
     dataset_id = existing["id"] if existing.get("found") else None
     theme_ids = [
         ids["theme"]["safety"],
@@ -338,7 +348,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 0
 
-    ds = write.create_update_dataset(
+    ds = bd_mcp_write.create_update_dataset(
         id=dataset_id,
         slug=SLUG,
         organization_ids=[org_id],
@@ -359,24 +369,30 @@ def main(argv: list[str] | None = None) -> int:
     # with two sources cannot run a recurring pipeline at all.
     existing_sources = {
         s["name"]: s["id"]
-        for s in (write.get_raw_data_sources(dataset_slug=SLUG, env=env) or [])
+        for s in (
+            bd_mcp_write.get_raw_data_sources(dataset_slug=SLUG, env=env) or []
+        )
     }
-    license_id = server.lookup_id(category="license", slug="cc0", env=env)[
-        "id"
-    ]
-    availability_id = server.lookup_id(
+    license_id = bd_mcp_metadata.lookup_id(
+        category="license", slug="cc0", env=env
+    )["id"]
+    availability_id = bd_mcp_metadata.lookup_id(
         category="availability", slug="online", env=env
     )["id"]
-    area_us = server.lookup_id(category="area", slug="us", env=env)["id"]
+    area_us = bd_mcp_metadata.lookup_id(category="area", slug="us", env=env)[
+        "id"
+    ]
     source_ids = []
     for src in RAW_SOURCES:
-        got = write.create_update_raw_data_source(
+        got = bd_mcp_write.create_update_raw_data_source(
             id=existing_sources.get(src["name_pt"]),
             dataset_id=dataset_id,
             license_id=license_id,
             availability_id=availability_id,
             language_ids=[
-                server.lookup_id(category="language", slug="en", env=env)["id"]
+                bd_mcp_metadata.lookup_id(
+                    category="language", slug="en", env=env
+                )["id"]
             ],
             has_structured_data=True,
             contains_api=False,
@@ -389,8 +405,8 @@ def main(argv: list[str] | None = None) -> int:
         log.info(f"raw data source {src['name_en']}: {got['id']}")
 
     # --- tables -------------------------------------------------------------
-    account = server.get_authenticated_account(env=env)
-    existing = server.get_dataset(slug=SLUG, env=env)
+    account = bd_mcp_metadata.get_authenticated_account(env=env)
+    existing = bd_mcp_metadata.get_dataset(slug=SLUG, env=env)
     have = existing.get("tables", {}) or {}
     state = {
         "env": env,
@@ -401,13 +417,15 @@ def main(argv: list[str] | None = None) -> int:
         "tables": {},
     }
 
-    entity_ids = server.discover_ids(env=env, keys=["entity"])["entity"]
+    entity_ids = bd_mcp_metadata.discover_ids(env=env, keys=["entity"])[
+        "entity"
+    ]
 
     for table in arch.TABLES:
         prev = have.get(table.slug, {})
         # create_update_table fails once a table has a Coverage, so the table
         # record is written before any coverage is attached to it.
-        tbl = write.create_update_table(
+        tbl = bd_mcp_write.create_update_table(
             id=prev.get("id"),
             slug=table.slug,
             dataset_id=dataset_id,
@@ -434,7 +452,7 @@ def main(argv: list[str] | None = None) -> int:
         for entity_slug, _cols in OBSERVATION_LEVELS[table.slug]:
             if entity_slug in ol_ids:
                 continue
-            ol = write.create_update_observation_level(
+            ol = bd_mcp_write.create_update_observation_level(
                 table_id=table_id,
                 entity_id=entity_ids[entity_slug],
                 env=env,
@@ -445,7 +463,7 @@ def main(argv: list[str] | None = None) -> int:
         payload = json.loads(
             (HERE / "columns_json" / f"{table.slug}.json").read_text()
         )
-        write.bulk_upsert_columns(
+        bd_mcp_write.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(payload, ensure_ascii=False),
             env=env,
@@ -457,7 +475,7 @@ def main(argv: list[str] | None = None) -> int:
         # any column that is both a partition and a level's identifier.
         by_name = {
             c["name"]: c["id"]
-            for c in server.get_dataset(slug=SLUG, env=env)["tables"][
+            for c in bd_mcp_metadata.get_dataset(slug=SLUG, env=env)["tables"][
                 table.slug
             ]["columns"]
         }
@@ -473,7 +491,7 @@ def main(argv: list[str] | None = None) -> int:
                     f"{table.slug}.{col_name} not registered — skipped"
                 )
                 continue
-            write.update_column(
+            bd_mcp_write.update_column(
                 column_id=by_name[col_name],
                 column_name=col_name,
                 table_id=table_id,
@@ -484,7 +502,7 @@ def main(argv: list[str] | None = None) -> int:
 
         # cloud table
         cloud_id = (prev.get("cloud_tables") or [{}])[0].get("id")
-        write.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             id=cloud_id,
             table_id=table_id,
             gcp_project_id="basedosdados-dev"
@@ -503,8 +521,8 @@ def main(argv: list[str] | None = None) -> int:
         # the following period.
         spec = FLOW_COVERAGE.get(table.slug)
         start = COVERAGE_START.get(table.slug) or ()
-        existing_cov = read_coverages(server, table_id, env)
-        free_cov = write.create_update_coverage(
+        existing_cov = read_coverages(bd_mcp_metadata, table_id, env)
+        free_cov = bd_mcp_write.create_update_coverage(
             id=(existing_cov.get(False) or {}).get("id"),
             table_id=table_id,
             area_id=area_us,
@@ -524,7 +542,7 @@ def main(argv: list[str] | None = None) -> int:
                 )
             free_range = ranges.free
             sy, sm, sd = [*list(start), None, None][:3]
-            write.create_update_datetime_range(
+            bd_mcp_write.create_update_datetime_range(
                 id=_range_id(existing_cov.get(False)),
                 coverage_id=free_cov["id"],
                 # pyrefly: ignore [bad-argument-type]
@@ -539,7 +557,7 @@ def main(argv: list[str] | None = None) -> int:
                 is_closed=False,
                 env=env,
             )
-            pro_cov = write.create_update_coverage(
+            pro_cov = bd_mcp_write.create_update_coverage(
                 id=(existing_cov.get(True) or {}).get("id"),
                 table_id=table_id,
                 area_id=area_us,
@@ -547,7 +565,7 @@ def main(argv: list[str] | None = None) -> int:
                 env=env,
             )
             pro_range = ranges.pro
-            write.create_update_datetime_range(
+            bd_mcp_write.create_update_datetime_range(
                 id=_range_id(existing_cov.get(True)),
                 coverage_id=pro_cov["id"],
                 # pyrefly: ignore [bad-argument-type]
@@ -587,7 +605,7 @@ def main(argv: list[str] | None = None) -> int:
 
         # table Update — when WE last refreshed, a wall clock
         upd_id = (prev.get("updates") or [{}])[0].get("id")
-        write.create_update_update(
+        bd_mcp_write.create_update_update(
             id=upd_id,
             table_id=table_id,
             entity_id=entity_ids["week"],
@@ -606,7 +624,7 @@ def main(argv: list[str] | None = None) -> int:
     # clock. Created here rather than waiting for the first pipeline run: a run
     # with update_metadata off leaves a Poll and no source Update.
     for source_id in source_ids:
-        write.create_update_update(
+        bd_mcp_write.create_update_update(
             raw_data_source_id=source_id,
             entity_id=entity_ids["week"],
             frequency=1,
@@ -614,7 +632,7 @@ def main(argv: list[str] | None = None) -> int:
             env=env,
         )
 
-    write.reorder_tables(
+    bd_mcp_write.reorder_tables(
         dataset_slug=SLUG,
         table_slugs=[t.slug for t in arch.TABLES],
         env=env,

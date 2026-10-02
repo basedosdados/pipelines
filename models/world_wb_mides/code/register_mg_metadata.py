@@ -10,7 +10,7 @@ WHY A SCRIPT AND NOT 250 TOOL CALLS
 43 tables x (table + columns + observation levels + cloud table + coverage +
 datetime range + update) is ~250 backend writes, and the column payloads are
 tens of kilobytes each. The MCP tools are plain Python functions, so importing
-`server` does the same work with the same credentials without pasting every
+`databasis_mcp` does the same work with the same credentials without pasting every
 argument through a conversation.
 
 IDEMPOTENCY IS NOT FREE HERE
@@ -37,8 +37,8 @@ import os
 import pathlib
 import re
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 import models.world_wb_mides.code.gen_mg_schema as gen
 import models.world_wb_mides.code.mg_column_glossary as glossary
@@ -235,32 +235,32 @@ def prior_state(slug: str) -> dict:
     which on `mides` takes 80+ seconds and exceeds the client's own 60s read
     timeout once the 43 new tables are in. A per-table query is milliseconds.
     """
-    edges = server._gql(
+    edges = bd_mcp_metadata._gql(
         PRIOR_QUERY, {"ds": DATASET_ID, "slug": slug}, env=ENV
     )["allTable"]["edges"]
     if not edges:
         return {}
     node = edges[0]["node"]
     return {
-        "id": server._strip_id(node["id"]),
+        "id": bd_mcp_metadata._strip_id(node["id"]),
         "observation_levels": [
             {
-                "id": server._strip_id(e["node"]["id"]),
+                "id": bd_mcp_metadata._strip_id(e["node"]["id"]),
                 "entity_slug": e["node"]["entity"]["slug"],
             }
             for e in node["observationLevels"]["edges"]
         ],
         "cloud_tables": [
-            {"id": server._strip_id(e["node"]["id"])}
+            {"id": bd_mcp_metadata._strip_id(e["node"]["id"])}
             for e in node["cloudTables"]["edges"]
         ],
         "coverages": [
             {
-                "id": server._strip_id(e["node"]["id"]),
+                "id": bd_mcp_metadata._strip_id(e["node"]["id"]),
                 "area_slug": e["node"]["area"]["slug"],
                 "datetime_ranges": [
                     {
-                        "id": server._strip_id(r["node"]["id"]),
+                        "id": bd_mcp_metadata._strip_id(r["node"]["id"]),
                         "start_year": r["node"]["startYear"],
                         "end_year": r["node"]["endYear"],
                         "interval": r["node"]["interval"],
@@ -271,7 +271,7 @@ def prior_state(slug: str) -> dict:
             for e in node["coverages"]["edges"]
         ],
         "updates": [
-            {"id": server._strip_id(e["node"]["id"])}
+            {"id": bd_mcp_metadata._strip_id(e["node"]["id"])}
             for e in node["updates"]["edges"]
         ],
     }
@@ -346,13 +346,13 @@ def main() -> None:
     global ENV, ACCOUNT, STATUS_ID
     ENV = args.env
     STATUS_ID = STATUS[args.status]
-    ACCOUNT = str(server.get_authenticated_account(env=ENV)["id"])
+    ACCOUNT = str(bd_mcp_metadata.get_authenticated_account(env=ENV)["id"])
 
     # The dataset, area, status and entity ids above happen to be identical on
     # staging and prod, because staging is a clone. Assert the one that anchors
     # every write rather than trusting that to stay true: writing 43 tables
     # under another dataset's id would be tedious to undo.
-    live = server.get_dataset("mides", env=ENV)
+    live = bd_mcp_metadata.get_dataset("mides", env=ENV)
     if live.get("id") != DATASET_ID:
         raise SystemExit(
             f"`mides` is {live.get('id')} on {ENV}, not {DATASET_ID}. "
@@ -378,7 +378,7 @@ def main() -> None:
             )
             continue
 
-        table = write.create_update_table(
+        table = bd_mcp_write.create_update_table(
             slug=slug,
             name_pt=tables.name(slug, "pt"),
             name_en=tables.name(slug, "en"),
@@ -403,7 +403,7 @@ def main() -> None:
             print(f"  {slug:<34} status={args.status}")
             continue
 
-        write.bulk_upsert_columns(
+        bd_mcp_write.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(cols, ensure_ascii=False),
             env=ENV,
@@ -415,7 +415,7 @@ def main() -> None:
             for o in prior.get("observation_levels", [])
         }
         for level in levels:
-            write.create_update_observation_level(
+            bd_mcp_write.create_update_observation_level(
                 table_id=table_id,
                 entity_id=ENTITY[level],
                 id=have_ol.get(level),
@@ -429,7 +429,7 @@ def main() -> None:
         # Only THIS table's ids are needed. `get_dataset` returns the whole
         # dataset -- every column of every table -- so calling it once per table
         # makes the run quadratic. Ask for just this table instead.
-        fresh = server._gql(
+        fresh = bd_mcp_metadata._gql(
             """query($id: ID!) {
                  allColumn(table_Id: $id, first: 500) {
                    edges { node { id name } } }
@@ -440,13 +440,15 @@ def main() -> None:
             env=ENV,
         )
         ol_by_entity = {
-            e["node"]["entity"]["slug"]: server._strip_id(e["node"]["id"])
+            e["node"]["entity"]["slug"]: bd_mcp_metadata._strip_id(
+                e["node"]["id"]
+            )
             for e in fresh["allObservationlevel"]["edges"]
         }
         # the real column ids -- `update_column` with an empty column_id tries to
         # CREATE, and then fails on the required bigqueryType
         col_id = {
-            e["node"]["name"]: server._strip_id(e["node"]["id"])
+            e["node"]["name"]: bd_mcp_metadata._strip_id(e["node"]["id"])
             for e in fresh["allColumn"]["edges"]
         }
         linked: dict[str, str] = {}
@@ -459,7 +461,7 @@ def main() -> None:
                 continue
             if column not in col_id:
                 continue
-            write.update_column(
+            bd_mcp_write.update_column(
                 column_id=col_id[column],
                 column_name=column,
                 table_id=table_id,
@@ -469,7 +471,7 @@ def main() -> None:
             )
 
         cloud = prior.get("cloud_tables") or [{}]
-        write.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             table_id=table_id,
             gcp_project_id=GCP_PROJECT,
             gcp_dataset_id=GCP_DATASET,
@@ -480,7 +482,7 @@ def main() -> None:
 
         covs = {c.get("area_slug"): c for c in prior.get("coverages", [])}
         mg_cov = covs.get("br_mg", {})
-        coverage = write.create_update_coverage(
+        coverage = bd_mcp_write.create_update_coverage(
             table_id=table_id,
             area_id=AREA_BR_MG,
             id=mg_cov.get("id") or None,
@@ -492,7 +494,7 @@ def main() -> None:
             else json.loads(coverage)["id"]
         )
         ranges = mg_cov.get("datetime_ranges") or [{}]
-        write.create_update_datetime_range(
+        bd_mcp_write.create_update_datetime_range(
             coverage_id=coverage_id,
             start_year=START_YEAR,
             end_year=END_YEAR,
@@ -502,7 +504,7 @@ def main() -> None:
         )
 
         updates = prior.get("updates") or [{}]
-        write.create_update_update(
+        bd_mcp_write.create_update_update(
             entity_id=ENTITY_DAY,
             frequency=1,
             # the backend's `latest` is a DateTime, not a Date -- a bare
@@ -520,7 +522,7 @@ def main() -> None:
     # table in it, so it is skipped on a scoped run: it would reorder the 9
     # original multi-state tables this run was told not to touch.
     if not args.dry_run and not args.table:
-        write.reorder_tables(
+        bd_mcp_write.reorder_tables(
             dataset_slug="mides", table_slugs=tables.TABLE_ORDER, env=ENV
         )
         print(f"  reordered {len(tables.TABLE_ORDER)} tables")

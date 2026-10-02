@@ -36,8 +36,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any, cast
 
-import databasis_mcp.tools.metadata as server
-import databasis_mcp.tools.write as write
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 DATASET_SLUG = "bankfind"
 GCP_DATASET = "us_fdic_bankfind"
@@ -292,7 +292,7 @@ def fn(name: str) -> Callable[..., Any]:
     return type keeps every call site type-checkable, since `getattr` alone is
     `Any | None` to the checker.
     """
-    f = getattr(server, name, None) or getattr(write, name)
+    f = getattr(bd_mcp_metadata, name, None) or getattr(bd_mcp_write, name)
     return cast("Callable[..., Any]", getattr(f, "fn", f))
 
 
@@ -331,13 +331,15 @@ def table_columns(table_id: str, env: str) -> dict[str, str]:
     """Column name -> bare uuid, from the uncapped query."""
     return {
         c["name"]: c["id"].split(":")[-1]
-        for c in write._fetch_table_columns(table_id, env)
+        for c in bd_mcp_write._fetch_table_columns(table_id, env)
     }
 
 
 def delete(kind: str, record_id: str, env: str) -> None:
     query = f"mutation($id: UUID!) {{ Delete{kind}(id: $id) {{ errors }} }}"
-    payload = server._gql(query, {"id": record_id}, env=env)[f"Delete{kind}"]
+    payload = bd_mcp_metadata._gql(query, {"id": record_id}, env=env)[
+        f"Delete{kind}"
+    ]
     if payload and payload.get("errors"):
         raise RuntimeError(f"Delete{kind} {record_id}: {payload['errors']}")
 
@@ -621,7 +623,7 @@ def main(env: str, status: str) -> None:
             sorted(o["entity_slug"] for o in node["observation_levels"])
         )
         print(
-            f"{table:<22} cols={len(write._fetch_table_columns(node['id'], env)):<4} "
+            f"{table:<22} cols={len(bd_mcp_write._fetch_table_columns(node['id'], env)):<4} "
             f"OLs=[{levels}] cloud={len(node['cloud_tables'])} "
             f"coverage={len(node['coverages'])} ranges={ranges} "
             f"updates={len(node['updates'])}"
