@@ -17,7 +17,7 @@ from pipelines.datasets.br_ans_beneficiario.constants import (
 from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
 
 # ──────────────────────────────────────────────────────────────────────────────
-# informacao_consolidada (issue #1867) — ver constants.py
+# informacao_consolidada — ver constants.py
 #
 # Diferente de br_ibge_ipca: aqui o check É leve de verdade e independente —
 # `extract_links_and_dates` só faz um GET na página de listagem (HTML da

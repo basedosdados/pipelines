@@ -6,9 +6,9 @@ from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
 
 DATASET_ID = "br_ms_cnes"
 
-# As 13 tabelas do dataset — migradas pro pipeline orientado a eventos
-# (issue #1867), substituindo o antigo `_cnes_flow`/`_run_cnes` monolítico
-# (que segue existindo em `crawler/datasus/flows.py`, ainda usado por
+# As 13 tabelas do dataset — migradas pro pipeline orientado a eventos,
+# substituindo o antigo `_cnes_flow`/`_run_cnes` monolítico (que segue
+# existindo em `crawler/datasus/flows.py`, ainda usado por
 # br_ms_sia/br_ms_sih/br_ms_sinan).
 PROFISSIONAL_TABLE_ID = "profissional"
 ESTABELECIMENTO_TABLE_ID = "estabelecimento"

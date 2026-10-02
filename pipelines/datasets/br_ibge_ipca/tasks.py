@@ -18,26 +18,13 @@ from pipelines.utils.stage_dispatch import (
 )
 
 # ──────────────────────────────────────────────────────────────────────────────
-# As 4 tabelas (issue #1867) — ver constants.py
-#
-# Particularidade deste dataset: `get_latest_update` não é uma checagem
-# leve independente — a única forma de descobrir a data mais recente é
-# baixar o período mais novo da API do IBGE e inspecionar o JSON
-# (`check_for_updates`/`get_date_api`, que lê o arquivo que
-# `collect_data_utils` acabou de escrever). Como `check_update` e
-# `extract_and_load` rodam em pods separados, `extract_load_data` busca o mesmo
-# período de novo (`collect_data_utils` com o período já resolvido) em vez
-# de tentar repassar o JSON entre pods — o download é pequeno o bastante
-# (1 período, poucas variáveis) pra baixar duas vezes sem problema (ver
-# critério do limiar de 5 GB, `levantamento-datasets-por-categoria-de-check.md`
-# no ftwca).
+# As 4 tabelas — ver constants.py
 #
 # `make_get_latest_update`/`make_extract_load_data` são fábricas parametrizadas
 # por `table_id` — a lógica é idêntica pras 4 tabelas (só `geo_level`/
-# `classificacao` mudam dentro de `collect_data_utils`/`json_to_csv`, já
-# tratado lá). Diferente dos `@flow` em `flows.py`, não tem restrição de
-# nome aqui — os callables viram atributos de instância de
-# `CheckThenExtractLoadPipeline`, nunca são introspectados por `__name__`.
+# `classificacao` mudam dentro de `collect_data_utils`/`json_to_csv`). Os
+# callables viram atributos de instância de `CheckThenExtractLoadPipeline`,
+# nunca são introspectados por `__name__` (diferente dos `@flow` em `flows.py`).
 # ──────────────────────────────────────────────────────────────────────────────
 
 

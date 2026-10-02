@@ -1,11 +1,13 @@
 """
 Flows para br_me_comex_stat — Prefect 3.
 
-Migrado por completo pro pipeline orientado a eventos (issue #1867):
+Migrado por completo pro pipeline orientado a eventos:
 check_update -> extract_and_load -> build_and_promote, uma dupla de flows por tabela.
 Lógica específica do dataset mora em `tasks.py`, constantes em
 `constants.py` — aqui só a fiação (`CheckThenExtractLoadPipeline` + `@flow`).
 """
+
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_me_comex_stat.constants import (
     DATASET_ID,
@@ -36,8 +38,12 @@ def br_me_comex_stat_municipio_exportacao_check_update() -> None:
 
 
 br_me_comex_stat_municipio_exportacao_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, MUNICIPIO_EXPORTACAO_TABLE_ID
 )
+# Mesmo cron do flow monolítico antigo (main).
+br_me_comex_stat_municipio_exportacao_check_update.deploy_schedules = [
+    Cron("0 21 * * 1-5", timezone="America/Sao_Paulo")
+]
 
 
 @flow(
@@ -51,7 +57,7 @@ def br_me_comex_stat_municipio_exportacao_download(
 
 
 br_me_comex_stat_municipio_exportacao_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, MUNICIPIO_EXPORTACAO_TABLE_ID
 )
 _municipio_exportacao_pipeline.extract_load_deployment = (
     br_me_comex_stat_municipio_exportacao_download.fn.__name__
@@ -76,8 +82,12 @@ def br_me_comex_stat_municipio_importacao_check_update() -> None:
 
 
 br_me_comex_stat_municipio_importacao_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, MUNICIPIO_IMPORTACAO_TABLE_ID
 )
+# Mesmo cron do flow monolítico antigo (main).
+br_me_comex_stat_municipio_importacao_check_update.deploy_schedules = [
+    Cron("0 20 * * 1-5", timezone="America/Sao_Paulo")
+]
 
 
 @flow(
@@ -91,7 +101,7 @@ def br_me_comex_stat_municipio_importacao_download(
 
 
 br_me_comex_stat_municipio_importacao_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, MUNICIPIO_IMPORTACAO_TABLE_ID
 )
 _municipio_importacao_pipeline.extract_load_deployment = (
     br_me_comex_stat_municipio_importacao_download.fn.__name__
@@ -116,8 +126,12 @@ def br_me_comex_stat_ncm_exportacao_check_update() -> None:
 
 
 br_me_comex_stat_ncm_exportacao_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, NCM_EXPORTACAO_TABLE_ID
 )
+# Mesmo cron do flow monolítico antigo (main).
+br_me_comex_stat_ncm_exportacao_check_update.deploy_schedules = [
+    Cron("0 8,17 * * 1-5", timezone="America/Sao_Paulo")
+]
 
 
 @flow(
@@ -131,7 +145,7 @@ def br_me_comex_stat_ncm_exportacao_download(
 
 
 br_me_comex_stat_ncm_exportacao_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, NCM_EXPORTACAO_TABLE_ID
 )
 _ncm_exportacao_pipeline.extract_load_deployment = (
     br_me_comex_stat_ncm_exportacao_download.fn.__name__
@@ -156,8 +170,12 @@ def br_me_comex_stat_ncm_importacao_check_update() -> None:
 
 
 br_me_comex_stat_ncm_importacao_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, NCM_IMPORTACAO_TABLE_ID
 )
+# Mesmo cron do flow monolítico antigo (main).
+br_me_comex_stat_ncm_importacao_check_update.deploy_schedules = [
+    Cron("0 8,17 * * 1-5", timezone="America/Sao_Paulo")
+]
 
 
 @flow(
@@ -171,7 +189,7 @@ def br_me_comex_stat_ncm_importacao_download(
 
 
 br_me_comex_stat_ncm_importacao_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, NCM_IMPORTACAO_TABLE_ID
 )
 _ncm_importacao_pipeline.extract_load_deployment = (
     br_me_comex_stat_ncm_importacao_download.fn.__name__

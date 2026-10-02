@@ -1,7 +1,7 @@
 """
 Flows para br_ms_cnes — Prefect 3.
 
-Migrado por completo pro pipeline orientado a eventos (issue #1867):
+Migrado por completo pro pipeline orientado a eventos:
 check_update -> extract_and_load -> build_and_promote, uma dupla de flows por tabela.
 Lógica específica do dataset mora em `tasks.py`, constantes em
 `constants.py` — aqui só a fiação (`CheckThenExtractLoadPipeline` + `@flow`).
@@ -11,6 +11,8 @@ O antigo `_cnes_flow`/`_run_cnes` monolítico segue existindo em
 `br_ms_sia`/`br_ms_sih`/`br_ms_sinan` (não migrados ainda) — não removido
 daqui.
 """
+
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_ms_cnes.constants import (
     DADOS_COMPLEMENTARES_TABLE_ID,
@@ -47,8 +49,12 @@ def br_ms_cnes_profissional_check_update() -> None:
 
 
 br_ms_cnes_profissional_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, PROFISSIONAL_TABLE_ID
 )
+# Mesmo cron do flow monolítico antigo (main).
+br_ms_cnes_profissional_check_update.deploy_schedules = [
+    Cron("30 6 * * *", timezone="America/Sao_Paulo")
+]
 
 
 @flow(name=_profissional_pipeline.extract_and_load_flow_name, log_prints=True)
@@ -57,7 +63,7 @@ def br_ms_cnes_profissional_download(download_params: dict) -> None:
 
 
 br_ms_cnes_profissional_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, PROFISSIONAL_TABLE_ID
 )
 _profissional_pipeline.extract_load_deployment = (
     br_ms_cnes_profissional_download.fn.__name__
@@ -79,8 +85,12 @@ def br_ms_cnes_estabelecimento_check_update() -> None:
 
 
 br_ms_cnes_estabelecimento_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, ESTABELECIMENTO_TABLE_ID
 )
+# Mesmo cron do flow monolítico antigo (main).
+br_ms_cnes_estabelecimento_check_update.deploy_schedules = [
+    Cron("0 9 * * *", timezone="America/Sao_Paulo")
+]
 
 
 @flow(
@@ -91,7 +101,7 @@ def br_ms_cnes_estabelecimento_download(download_params: dict) -> None:
 
 
 br_ms_cnes_estabelecimento_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, ESTABELECIMENTO_TABLE_ID
 )
 _estabelecimento_pipeline.extract_load_deployment = (
     br_ms_cnes_estabelecimento_download.fn.__name__
@@ -113,8 +123,12 @@ def br_ms_cnes_equipe_check_update() -> None:
 
 
 br_ms_cnes_equipe_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, EQUIPE_TABLE_ID
 )
+# Mesmo cron do flow monolítico antigo (main).
+br_ms_cnes_equipe_check_update.deploy_schedules = [
+    Cron("30 9 * * *", timezone="America/Sao_Paulo")
+]
 
 
 @flow(name=_equipe_pipeline.extract_and_load_flow_name, log_prints=True)
@@ -123,7 +137,7 @@ def br_ms_cnes_equipe_download(download_params: dict) -> None:
 
 
 br_ms_cnes_equipe_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, EQUIPE_TABLE_ID
 )
 _equipe_pipeline.extract_load_deployment = (
     br_ms_cnes_equipe_download.fn.__name__
@@ -145,8 +159,12 @@ def br_ms_cnes_leito_check_update() -> None:
 
 
 br_ms_cnes_leito_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, LEITO_TABLE_ID
 )
+# Mesmo cron do flow monolítico antigo (main).
+br_ms_cnes_leito_check_update.deploy_schedules = [
+    Cron("0 10 * * *", timezone="America/Sao_Paulo")
+]
 
 
 @flow(name=_leito_pipeline.extract_and_load_flow_name, log_prints=True)
@@ -155,7 +173,7 @@ def br_ms_cnes_leito_download(download_params: dict) -> None:
 
 
 br_ms_cnes_leito_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, LEITO_TABLE_ID
 )
 _leito_pipeline.extract_load_deployment = br_ms_cnes_leito_download.fn.__name__
 
@@ -175,8 +193,12 @@ def br_ms_cnes_equipamento_check_update() -> None:
 
 
 br_ms_cnes_equipamento_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, EQUIPAMENTO_TABLE_ID
 )
+# Mesmo cron do flow monolítico antigo (main).
+br_ms_cnes_equipamento_check_update.deploy_schedules = [
+    Cron("30 10 * * *", timezone="America/Sao_Paulo")
+]
 
 
 @flow(name=_equipamento_pipeline.extract_and_load_flow_name, log_prints=True)
@@ -185,7 +207,7 @@ def br_ms_cnes_equipamento_download(download_params: dict) -> None:
 
 
 br_ms_cnes_equipamento_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, EQUIPAMENTO_TABLE_ID
 )
 _equipamento_pipeline.extract_load_deployment = (
     br_ms_cnes_equipamento_download.fn.__name__
@@ -212,7 +234,7 @@ def br_ms_cnes_estabelecimento_ensino_check_update() -> None:
 
 
 br_ms_cnes_estabelecimento_ensino_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, ESTABELECIMENTO_ENSINO_TABLE_ID
 )
 
 
@@ -227,7 +249,7 @@ def br_ms_cnes_estabelecimento_ensino_download(
 
 
 br_ms_cnes_estabelecimento_ensino_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, ESTABELECIMENTO_ENSINO_TABLE_ID
 )
 _estabelecimento_ensino_pipeline.extract_load_deployment = (
     br_ms_cnes_estabelecimento_ensino_download.fn.__name__
@@ -251,8 +273,12 @@ def br_ms_cnes_dados_complementares_check_update() -> None:
 
 
 br_ms_cnes_dados_complementares_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, DADOS_COMPLEMENTARES_TABLE_ID
 )
+# Mesmo cron do flow monolítico antigo (main).
+br_ms_cnes_dados_complementares_check_update.deploy_schedules = [
+    Cron("0 11 * * *", timezone="America/Sao_Paulo")
+]
 
 
 @flow(
@@ -266,7 +292,7 @@ def br_ms_cnes_dados_complementares_download(
 
 
 br_ms_cnes_dados_complementares_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, DADOS_COMPLEMENTARES_TABLE_ID
 )
 _dados_complementares_pipeline.extract_load_deployment = (
     br_ms_cnes_dados_complementares_download.fn.__name__
@@ -293,8 +319,12 @@ def br_ms_cnes_estabelecimento_filantropico_check_update() -> None:
 
 
 br_ms_cnes_estabelecimento_filantropico_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, ESTABELECIMENTO_FILANTROPICO_TABLE_ID
 )
+# Mesmo cron do flow monolítico antigo (main).
+br_ms_cnes_estabelecimento_filantropico_check_update.deploy_schedules = [
+    Cron("15 11 * * *", timezone="America/Sao_Paulo")
+]
 
 
 @flow(
@@ -310,7 +340,7 @@ def br_ms_cnes_estabelecimento_filantropico_download(
 
 
 br_ms_cnes_estabelecimento_filantropico_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, ESTABELECIMENTO_FILANTROPICO_TABLE_ID
 )
 _estabelecimento_filantropico_pipeline.extract_load_deployment = (
     br_ms_cnes_estabelecimento_filantropico_download.fn.__name__
@@ -332,8 +362,12 @@ def br_ms_cnes_gestao_metas_check_update() -> None:
 
 
 br_ms_cnes_gestao_metas_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, GESTAO_METAS_TABLE_ID
 )
+# Mesmo cron do flow monolítico antigo (main).
+br_ms_cnes_gestao_metas_check_update.deploy_schedules = [
+    Cron("30 11 * * *", timezone="America/Sao_Paulo")
+]
 
 
 @flow(name=_gestao_metas_pipeline.extract_and_load_flow_name, log_prints=True)
@@ -342,7 +376,7 @@ def br_ms_cnes_gestao_metas_download(download_params: dict) -> None:
 
 
 br_ms_cnes_gestao_metas_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, GESTAO_METAS_TABLE_ID
 )
 _gestao_metas_pipeline.extract_load_deployment = (
     br_ms_cnes_gestao_metas_download.fn.__name__
@@ -364,8 +398,12 @@ def br_ms_cnes_habilitacao_check_update() -> None:
 
 
 br_ms_cnes_habilitacao_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, HABILITACAO_TABLE_ID
 )
+# Mesmo cron do flow monolítico antigo (main).
+br_ms_cnes_habilitacao_check_update.deploy_schedules = [
+    Cron("45 11 * * *", timezone="America/Sao_Paulo")
+]
 
 
 @flow(name=_habilitacao_pipeline.extract_and_load_flow_name, log_prints=True)
@@ -374,7 +412,7 @@ def br_ms_cnes_habilitacao_download(download_params: dict) -> None:
 
 
 br_ms_cnes_habilitacao_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, HABILITACAO_TABLE_ID
 )
 _habilitacao_pipeline.extract_load_deployment = (
     br_ms_cnes_habilitacao_download.fn.__name__
@@ -396,8 +434,12 @@ def br_ms_cnes_incentivos_check_update() -> None:
 
 
 br_ms_cnes_incentivos_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, INCENTIVOS_TABLE_ID
 )
+# Mesmo cron do flow monolítico antigo (main).
+br_ms_cnes_incentivos_check_update.deploy_schedules = [
+    Cron("50 11 * * *", timezone="America/Sao_Paulo")
+]
 
 
 @flow(name=_incentivos_pipeline.extract_and_load_flow_name, log_prints=True)
@@ -406,7 +448,7 @@ def br_ms_cnes_incentivos_download(download_params: dict) -> None:
 
 
 br_ms_cnes_incentivos_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, INCENTIVOS_TABLE_ID
 )
 _incentivos_pipeline.extract_load_deployment = (
     br_ms_cnes_incentivos_download.fn.__name__
@@ -428,7 +470,7 @@ def br_ms_cnes_regra_contratual_check_update() -> None:
 
 
 br_ms_cnes_regra_contratual_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, REGRA_CONTRATUAL_TABLE_ID
 )
 
 
@@ -440,7 +482,7 @@ def br_ms_cnes_regra_contratual_download(download_params: dict) -> None:
 
 
 br_ms_cnes_regra_contratual_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, REGRA_CONTRATUAL_TABLE_ID
 )
 _regra_contratual_pipeline.extract_load_deployment = (
     br_ms_cnes_regra_contratual_download.fn.__name__
@@ -465,8 +507,12 @@ def br_ms_cnes_servico_especializado_check_update() -> None:
 
 
 br_ms_cnes_servico_especializado_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, SERVICO_ESPECIALIZADO_TABLE_ID
 )
+# Mesmo cron do flow monolítico antigo (main).
+br_ms_cnes_servico_especializado_check_update.deploy_schedules = [
+    Cron("30 12 * * *", timezone="America/Sao_Paulo")
+]
 
 
 @flow(
@@ -480,7 +526,7 @@ def br_ms_cnes_servico_especializado_download(
 
 
 br_ms_cnes_servico_especializado_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, SERVICO_ESPECIALIZADO_TABLE_ID
 )
 _servico_especializado_pipeline.extract_load_deployment = (
     br_ms_cnes_servico_especializado_download.fn.__name__

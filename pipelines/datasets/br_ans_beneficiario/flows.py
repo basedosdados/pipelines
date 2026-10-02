@@ -1,11 +1,13 @@
 """
 Flows para br_ans_beneficiario — Prefect 3.
 
-Migrado por completo pro pipeline orientado a eventos (issue #1867):
+Migrado por completo pro pipeline orientado a eventos:
 check_update -> extract_and_load -> build_and_promote. Lógica específica do dataset mora em
 `tasks.py`, constantes em `constants.py` — aqui só a fiação
 (`CheckThenExtractLoadPipeline` + `@flow`).
 """
+
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_ans_beneficiario.constants import (
     DATASET_ID,
@@ -41,8 +43,14 @@ def br_ans_beneficiario_informacao_consolidada_check_update() -> None:
 
 
 br_ans_beneficiario_informacao_consolidada_check_update.deploy_tags = (
-    deploy_tags(DATASET_ID, Etapa.CHECK_UPDATE)
+    deploy_tags(
+        DATASET_ID, Etapa.CHECK_UPDATE, INFORMACAO_CONSOLIDADA_TABLE_ID
+    )
 )
+# Mesmo cron do flow monolítico antigo (main).
+br_ans_beneficiario_informacao_consolidada_check_update.deploy_schedules = [
+    Cron("0 21 * * *", timezone="America/Sao_Paulo")
+]
 
 
 @flow(
@@ -56,7 +64,7 @@ def br_ans_beneficiario_informacao_consolidada_download(
 
 
 br_ans_beneficiario_informacao_consolidada_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, INFORMACAO_CONSOLIDADA_TABLE_ID
 )
 # Pico medido em produção após otimizar parquet_partition (category dtype +
 # del/gc.collect() por estado): ~1.78Gi. ~1.7x de margem sobre esse valor —

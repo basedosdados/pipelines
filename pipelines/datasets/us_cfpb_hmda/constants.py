@@ -48,7 +48,7 @@ class constants(Enum):
     MULTIPLY_1000 = ("income",)
 
 
-# Coverage do event pipeline (issue #1867) — constante de módulo solta, não
+# Coverage do event pipeline — constante de módulo solta, não
 # membro do Enum acima: mesmo padrão de acesso (`COVERAGE.model_dump()`,
 # sem `.value`) usado nos outros datasets já migrados.
 COVERAGE = AllFree(

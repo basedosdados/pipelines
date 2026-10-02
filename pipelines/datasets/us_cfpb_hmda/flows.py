@@ -1,6 +1,6 @@
 """Flows for us_cfpb_hmda - Prefect 3.
 
-Migrado pro pipeline orientado a eventos (issue #1867): check_update ->
+Migrado pro pipeline orientado a eventos: check_update ->
 extract_and_load -> build_and_promote. Lógica específica do dataset mora em `tasks.py`
 (`get_latest_update`/`extract_load_data`) — aqui só a fiação
 (`CheckThenExtractLoadPipeline` + `@flow`).
@@ -39,7 +39,7 @@ def us_cfpb_hmda_check_update() -> None:
 
 
 us_cfpb_hmda_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, TABLE_ID
 )
 # CFPB publica o Snapshot anual ~meados de ano; sonda alguns dias por mês
 # entre mar-ago (mesmo cron do flow antigo) — o get_latest_update é barato
@@ -55,7 +55,7 @@ def us_cfpb_hmda_download(download_params: dict) -> None:
 
 
 us_cfpb_hmda_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, TABLE_ID
 )
 # Reconstrói todo o histórico (FIRST_YEAR..max_year) a cada run — vários GB
 # por ano; mesmo `job_variables` do flow monolítico antigo, agora isolado

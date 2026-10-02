@@ -21,7 +21,7 @@ from pipelines.utils.stage_dispatch import (
 )
 
 # ──────────────────────────────────────────────────────────────────────────────
-# As 13 tabelas (issue #1867) — ver constants.py
+# As 13 tabelas — ver constants.py
 #
 # get_latest_update é uma listagem FTP leve de verdade (`check_files_to_parse`
 # -> `list_datasus_dbc_files` -> `ftp.nlst(...)`, sem baixar nenhum arquivo —

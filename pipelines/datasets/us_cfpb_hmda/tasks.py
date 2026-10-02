@@ -45,7 +45,7 @@ def build_tables(work_dir: str, years: list[int]) -> dict:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# loan_application_register (issue #1867)
+# loan_application_register
 #
 # `get_latest_update` (`latest_source_year`) é uma checagem de verdade leve:
 # GET com stream=True, lê só os primeiros 2048 bytes do CSV por ano sondado

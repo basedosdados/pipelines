@@ -20,7 +20,7 @@ EVENT_PIPELINE_COVERAGE = AllFree(
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# event_pipeline — piloto da arquitetura orientada a eventos (issue #1867)
+# event_pipeline — piloto da arquitetura orientada a eventos
 #
 # Variante padrão (check_update/download separados), sem partição —
 # um único CSV. Tabela: test_dataset.test_event_pipeline.
@@ -29,13 +29,7 @@ EVENT_PIPELINE_COVERAGE = AllFree(
 EVENT_PIPELINE_TABLE_ID = "test_event_pipeline"
 
 # Recursos de pod pras etapas deste piloto — sobrescrevem o default do
-# work pool (2 CPU / 4Gi de limite; 500m CPU / 1Gi de request). Cada
-# dataset declara os seus, já que o tamanho real do download varia muito
-# entre datasets reais (mesma convenção já usada hoje pra flows pesados
-# como br_anatel_telefonia_movel — ver
-# tutoriais/iac/prefect3-override-de-recursos-por-flow.md no ftwca). Este
-# piloto é sintético e leve, então os tiers abaixo são conservadores de
-# propósito.
+# work pool (2 CPU / 4Gi de limite; 500m CPU / 1Gi de request).
 #
 # `memory_request` do check_update precisa ser explicitamente menor que o
 # default do pool (1Gi) porque o Kubernetes rejeita um pod cujo request >

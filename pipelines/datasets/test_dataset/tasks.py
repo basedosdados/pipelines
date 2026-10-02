@@ -13,7 +13,7 @@ from pipelines.datasets.test_dataset.constants import EVENT_PIPELINE_COVERAGE
 from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
 
 # ──────────────────────────────────────────────────────────────────────────────
-# event_pipeline (issue #1867) — ver constants.py
+# event_pipeline — ver constants.py
 # ──────────────────────────────────────────────────────────────────────────────
 
 
@@ -58,7 +58,7 @@ def event_pipeline_download(download_params: dict) -> ExtractAndLoad:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# event_pipeline_partitioned (issue #1867) — ver constants.py
+# event_pipeline_partitioned — ver constants.py
 # ──────────────────────────────────────────────────────────────────────────────
 
 

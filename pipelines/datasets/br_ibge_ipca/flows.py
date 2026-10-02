@@ -1,7 +1,7 @@
 """
 Flows para br_ibge_ipca — Prefect 3.
 
-Migrado por completo pro pipeline orientado a eventos (issue #1867):
+Migrado por completo pro pipeline orientado a eventos:
 check_update -> extract_and_load -> build_and_promote, uma dupla de flows por tabela.
 Lógica específica do dataset mora em `tasks.py`, constantes em
 `constants.py` — aqui só a fiação (`CheckThenExtractLoadPipeline` + `@flow`).
@@ -10,6 +10,8 @@ O antigo `_ipca_flow`/`_run_ibge_inflacao` monolítico segue existindo em
 `pipelines/crawler/ibge_inflacao/flows.py`, ainda usado por
 `br_ibge_ipca15`/`br_ibge_inpc` (não migrados ainda) — não removido daqui.
 """
+
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_ibge_ipca.constants import (
     DATASET_ID,
@@ -37,8 +39,12 @@ def br_ibge_ipca_mes_brasil_check_update() -> None:
 
 
 br_ibge_ipca_mes_brasil_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, MES_BRASIL_TABLE_ID
 )
+# Mesmo cron do flow monolítico antigo (main).
+br_ibge_ipca_mes_brasil_check_update.deploy_schedules = [
+    Cron("40 14 8,9,10,11,12,13 * *", timezone="America/Sao_Paulo")
+]
 
 
 @flow(name=_mes_brasil_pipeline.extract_and_load_flow_name, log_prints=True)
@@ -47,7 +53,7 @@ def br_ibge_ipca_mes_brasil_download(download_params: dict) -> None:
 
 
 br_ibge_ipca_mes_brasil_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, MES_BRASIL_TABLE_ID
 )
 _mes_brasil_pipeline.extract_load_deployment = (
     br_ibge_ipca_mes_brasil_download.fn.__name__
@@ -72,8 +78,12 @@ def br_ibge_ipca_mes_categoria_brasil_check_update() -> None:
 
 
 br_ibge_ipca_mes_categoria_brasil_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, MES_CATEGORIA_BRASIL_TABLE_ID
 )
+# Mesmo cron do flow monolítico antigo (main).
+br_ibge_ipca_mes_categoria_brasil_check_update.deploy_schedules = [
+    Cron("30 14 8,9,10,11,12,13 * *", timezone="America/Sao_Paulo")
+]
 
 
 @flow(
@@ -87,7 +97,7 @@ def br_ibge_ipca_mes_categoria_brasil_download(
 
 
 br_ibge_ipca_mes_categoria_brasil_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, MES_CATEGORIA_BRASIL_TABLE_ID
 )
 _mes_categoria_brasil_pipeline.extract_load_deployment = (
     br_ibge_ipca_mes_categoria_brasil_download.fn.__name__
@@ -112,8 +122,12 @@ def br_ibge_ipca_mes_categoria_rm_check_update() -> None:
 
 
 br_ibge_ipca_mes_categoria_rm_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, MES_CATEGORIA_RM_TABLE_ID
 )
+# Mesmo cron do flow monolítico antigo (main).
+br_ibge_ipca_mes_categoria_rm_check_update.deploy_schedules = [
+    Cron("20 14 8,9,10,11,12,13 * *", timezone="America/Sao_Paulo")
+]
 
 
 @flow(
@@ -127,7 +141,7 @@ def br_ibge_ipca_mes_categoria_rm_download(
 
 
 br_ibge_ipca_mes_categoria_rm_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, MES_CATEGORIA_RM_TABLE_ID
 )
 _mes_categoria_rm_pipeline.extract_load_deployment = (
     br_ibge_ipca_mes_categoria_rm_download.fn.__name__
@@ -154,8 +168,12 @@ def br_ibge_ipca_mes_categoria_municipio_check_update() -> None:
 
 
 br_ibge_ipca_mes_categoria_municipio_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, MES_CATEGORIA_MUNICIPIO_TABLE_ID
 )
+# Mesmo cron do flow monolítico antigo (main).
+br_ibge_ipca_mes_categoria_municipio_check_update.deploy_schedules = [
+    Cron("50 14 8,9,10,11,12,13 * *", timezone="America/Sao_Paulo")
+]
 
 
 @flow(
@@ -169,7 +187,7 @@ def br_ibge_ipca_mes_categoria_municipio_download(
 
 
 br_ibge_ipca_mes_categoria_municipio_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, MES_CATEGORIA_MUNICIPIO_TABLE_ID
 )
 _mes_categoria_municipio_pipeline.extract_load_deployment = (
     br_ibge_ipca_mes_categoria_municipio_download.fn.__name__

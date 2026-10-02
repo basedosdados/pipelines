@@ -108,7 +108,7 @@ def test_download_data_to_gcs_all_cases_flow() -> None:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# event_pipeline — piloto da arquitetura orientada a eventos (issue #1867)
+# event_pipeline — piloto da arquitetura orientada a eventos
 #
 # check_update_flow compara a data de hoje contra a coverage registrada no
 # backend pra test_dataset.test_event_pipeline. download_flow simula
@@ -146,7 +146,7 @@ def event_pipeline_check_update_flow() -> None:
 
 
 event_pipeline_check_update_flow.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, EVENT_PIPELINE_TABLE_ID
 )
 event_pipeline_check_update_flow.job_variables = EVENT_PIPELINE_JOB_VARIABLES[
     Etapa.CHECK_UPDATE
@@ -163,7 +163,7 @@ def event_pipeline_download_flow(download_params: dict) -> None:
 
 
 event_pipeline_download_flow.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, EVENT_PIPELINE_TABLE_ID
 )
 event_pipeline_download_flow.job_variables = EVENT_PIPELINE_JOB_VARIABLES[
     Etapa.EXTRACT_AND_LOAD
@@ -199,7 +199,7 @@ def event_pipeline_partitioned_check_update_flow() -> None:
 
 
 event_pipeline_partitioned_check_update_flow.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE
+    DATASET_ID, Etapa.CHECK_UPDATE, EVENT_PIPELINE_PARTITIONED_TABLE_ID
 )
 event_pipeline_partitioned_check_update_flow.job_variables = (
     EVENT_PIPELINE_PARTITIONED_JOB_VARIABLES[Etapa.CHECK_UPDATE]
@@ -222,7 +222,7 @@ def event_pipeline_partitioned_download_flow(
 
 
 event_pipeline_partitioned_download_flow.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, EVENT_PIPELINE_PARTITIONED_TABLE_ID
 )
 event_pipeline_partitioned_download_flow.job_variables = (
     EVENT_PIPELINE_PARTITIONED_JOB_VARIABLES[Etapa.EXTRACT_AND_LOAD]
