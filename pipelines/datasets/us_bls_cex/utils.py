@@ -48,6 +48,30 @@ def download_labstat(input_dir: Path) -> Path:
     return input_dir
 
 
+def latest_published_year() -> int:
+    """Latest year BLS has published in the cx database, via the public API.
+
+    Raises:
+        requests.HTTPError: On an HTTP failure.
+        ValueError: If the API does not report success or returns no data.
+    """
+    r = requests.get(
+        constants.API_LATEST_URL.value,
+        headers={"User-Agent": constants.USER_AGENT.value},
+        timeout=60,
+    )
+    r.raise_for_status()
+    body = r.json()
+    if body.get("status") != "REQUEST_SUCCEEDED":
+        raise ValueError(
+            f"BLS API: {body.get('status')} {body.get('message')}"
+        )
+    data = body["Results"]["series"][0]["data"]
+    if not data:
+        raise ValueError("BLS API returned no data for the headline series")
+    return int(data[0]["year"])
+
+
 # ── schema + writing (shared with the PUMD bootstrap) ───────────────────────
 def read_arch(table: str) -> list[dict]:
     """Read a table's architecture CSV, one dict per column in order."""
