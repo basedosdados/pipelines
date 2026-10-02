@@ -9,13 +9,13 @@ que qualquer ano dos dados usa para resolver um `id_`.
 
 - `gcp_dataset_id`: `br_bd_diretorios_brasil`
 - slug no backend: `diretorios_brasil` (sem o prefixo `br_bd_`)
-- 24 tabelas, nenhuma com flow Prefect
+- 24 tabelas; só a `escola` tem flow Prefect
 
 ## 2. Como cada tabela é atualizada
 
 | Tabela | Código no repo |
 |---|---|
-| `escola` | `code/update_escola.py` + `pipelines/datasets/br_bd_diretorios_brasil/utils.py` |
+| `escola` | flow `br_bd_diretorios_brasil__escola` em `pipelines/datasets/br_bd_diretorios_brasil/` |
 | `cid_10` | `code/cid_10.py` |
 | `cnae_2` | `code/cnae_2.py` |
 | `instituicao_ensino_superior` | `code/[update]instituicao_ensino_superior.ipynb` |
@@ -31,8 +31,21 @@ os cookies anônimos que o portal entrega no primeiro GET, sem login. O download
 é feito por `curl` em subprocesso porque o servidor derruba a conexão TLS
 aberta pelo `ssl` do Python.
 
-A tabela não tem fonte original registrada no backend — as duas fontes do
-conjunto são do IBGE e atendem `municipio`, `cep` e `setor_censitario`.
+O `Extract` devolve no máximo 100.000 linhas e corta o resto sem avisar, na
+ordem do código da UF. O Catálogo tem mais de 200 mil escolas, então o download
+é feito uma UF por vez, com o filtro `P0=1`, `P1=eq`,
+`P2="D - Localidade Escola"."Sigla Uf"`, `P3=<UF>`, e as partes são juntadas
+num CSV só. A maior UF, SP, tem cerca de 33 mil escolas. Duas coisas a saber:
+
+- o filtro precisa do nome interno da coluna, `Sigla Uf`. "UF" é só o rótulo
+  exibido, e com ele o portal ignora o filtro e devolve o arquivo inteiro. Os
+  nomes internos aparecem no cabeçalho da exportação com `Format=xml`, no
+  atributo `saw-sql:displayFormula`;
+- o download para com erro se alguma UF vier vazia ou com 100.000 linhas, que é
+  o sinal de filtro ignorado ou de UF cortada.
+
+No backend, a fonte original da tabela é "Catálogo de Escolas do Inep", e é a
+única ligada a ela.
 
 ### O catálogo é o registro corrente, não o histórico
 
@@ -41,46 +54,74 @@ Inep que remove do registro as extintas em anos anteriores. Carregar o catálogo
 puro, substituindo a tabela, apagaria do diretório as escolas removidas — cujo
 `id_escola` continua aparecendo no censo escolar de anos anteriores.
 
-Por isso a carga **une** o catálogo ao diretório já publicado
-(`fetch_diretorio_publicado`) e registra o resultado por escola na coluna
-`situacao_catalogo`:
+Por isso a carga **une** três fontes e registra o resultado por escola na
+coluna `situacao_catalogo`. Quando um `id_escola` aparece em mais de uma, vale
+a primeira da lista:
+
+1. o catálogo do dia, com todos os atributos;
+2. o diretório já publicado (`fetch_diretorio_publicado`), para as escolas que
+   saíram do catálogo, com os atributos da última vez em que apareceram;
+3. o Censo Escolar (`fetch_censo_escolar`), para as escolas que nunca entraram
+   no diretório, só com `id_escola` e com o `id_municipio` e a `sigla_uf` do
+   último ano em que aparecem. O Censo não traz nome, endereço nem coordenadas.
 
 | Valor | Significado |
 |---|---|
 | `Presente` | consta no catálogo mais recente |
-| `Ausente` | saiu do registro do Inep; a linha é mantida com os atributos da última vez em que apareceu |
+| `Ausente` | não consta no catálogo; veio do diretório publicado (com atributos) ou só do Censo Escolar (nome, endereço e coordenadas vazios) |
 
-Consequência a conhecer: a memória do que já existiu vive na tabela publicada.
-Rodar `clean_catalogo` sem passar `diretorio_publicado` reduz a tabela ao
-catálogo do dia — o aviso no log é a única proteção. A alternativa seria montar
-o universo a partir de `br_inep_censo_escolar.escola` (2007–2024, 295.916
-`id_escola` distintos), que sobrevive a qualquer recarga, mas não traz nome,
-endereço nem coordenadas.
+O Censo Escolar é o que liga o diretório às tabelas históricas: sem ele, os
+`id_escola` que aparecem no Censo e nunca entraram no catálogo ficariam sem
+correspondência no diretório, no próprio Censo Escolar, no ENEM e no SAEB.
+
+Consequência a conhecer: os atributos das escolas que saíram do catálogo vivem
+só na tabela publicada. Rodar `clean_catalogo` sem passar `diretorio_publicado`
+perde nome, endereço e coordenadas dessas escolas, porque o Censo devolve só os
+ids. O aviso no log é a única proteção.
 
 ### id_municipio
 
 O catálogo traz o nome do município, não o código do IBGE, então `id_municipio`
 é derivado de (nome, UF) contra o diretório `municipio`, em duas passagens:
-`_MUNICIPIO_NAME_FIXES` para as divergências de grafia conhecidas (renomeações,
+`constants.MUNICIPIO_NAME_FIXES` para as divergências de grafia conhecidas (renomeações,
 hífen, `z`/`s`), depois busca com o nome normalizado sem acento. Nome que não
 resolve fica nulo, e a carga registra a lista no log.
 
 ### Atualização
 
-```bash
-uv run python models/br_bd_diretorios_brasil/code/update_escola.py --upload
-uv run dbt run --select br_bd_diretorios_brasil__escola
-uv run dbt test --select br_bd_diretorios_brasil__escola
-```
+O flow `br_bd_diretorios_brasil__escola` roda uma vez por mês, no dia 5. Ele
+baixa o catálogo (~85 MB), lê do BigQuery o diretório publicado, o diretório
+`municipio` e o Censo Escolar, grava o parquet e materializa em dev e depois em
+prod.
 
-O script baixa o catálogo (~85 MB), lê o diretório publicado e o diretório
-`municipio` do BigQuery, grava o parquet e substitui a staging de
-`basedosdados-dev`. `input/` e `output/` são gitignored.
+O catálogo não publica data de atualização: é o registro do Inep no momento da
+extração. Por isso a data da fonte é a data do download, a tabela é
+`NonHistorical` e o poll compara essa data com o `Table.Update` da tabela. Na
+prática o poll sempre encontra novidade, e quem define a frequência é o
+agendamento. Também por isso o flow roda num dia só: se rodasse em vários dias
+seguidos, cada um teria data mais nova que o anterior e baixaria de novo.
 
-Depois da carga, confira na tabela em dev:
+O poll por tamanho de arquivo, a outra opção para fonte sem data, não serve
+aqui: ele levanta erro quando o arquivo diminui, e o catálogo diminui sempre que
+o Inep remove escolas extintas.
+
+A limpeza falha se o catálogo vier com menos de 95% das escolas `Presente` do
+diretório publicado (`constants.MIN_CATALOG_SHARE`). Um download incompleto não
+apaga escola nenhuma, porque a união segura o diretório publicado, mas marcaria
+como `Ausente` todas as escolas que faltaram, e o run terminaria verde.
+
+O upload usa `dump_mode="append"`, não `"overwrite"`. O `overwrite` apaga a
+tabela final antes de subir o arquivo, e em prod isso deixaria o diretório fora
+do ar até o `dbt run` terminar. Como o parquet tem sempre o mesmo nome
+(`escola/data.parquet`), o `append` substitui o arquivo da staging e a tabela
+publicada continua de pé até o dbt trocá-la.
+
+Depois de um run em dev, confira na tabela:
 
 | Conferência | Valor |
 |---|---|
-| total | soma das linhas já publicadas com as escolas novas do catálogo |
-| `situacao_catalogo = 'Ausente'` | escolas que saíram do registro; deve bater com o anti-join contra a tabela publicada |
+| total | linhas já publicadas + escolas novas do catálogo + escolas que só aparecem no Censo Escolar |
+| `id_escola` da tabela publicada fora da nova | 0 |
+| `id_escola` de `br_inep_censo_escolar.escola` fora da nova | 0 |
+| `id_escola` repetido | 0 |
 | `id_municipio` nulo | 0 |
