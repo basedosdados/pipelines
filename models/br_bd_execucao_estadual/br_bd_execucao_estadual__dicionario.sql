@@ -55,6 +55,15 @@ with
         select 'fonte_recurso', cd_fonte, nome, cast(null as string)
         from {{ set_datalake_project("br_bd_execucao_estadual_staging.mg_dm_fonte") }}
         union all
+        -- Procedência do recurso, usada por `plano_contratacao_item.procedencia`.
+        select 'procedencia', cd_procedencia, nome, cast(null as string)
+        from
+            {{
+                set_datalake_project(
+                    "br_bd_execucao_estadual_staging.mg_dm_procedencia"
+                )
+            }}
+        union all
         select 'categoria_economica', cd_categ_econ, nome, cast(null as string)
         from
             {{
