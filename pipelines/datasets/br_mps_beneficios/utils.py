@@ -1243,10 +1243,19 @@ def remote_size(url: str) -> int | None:
 
 
 def latest_competencia(resources: list[dict]) -> int:
-    """Highest competência the source lists, as YYYYMM."""
-    if not resources:
-        raise ValueError("no resources resolved from the source")
-    return max(r["competencia"] for r in resources)
+    """Highest monthly competência the source lists, as YYYYMM.
+
+    The concedido list is deliberately mixed: the 2012-2018 annual archives
+    carry ``competencia: None`` and an ``ano`` instead, because one file holds
+    twelve months. Maxing over the raw field therefore compares None against
+    None and raises, which is how the first dev run of the pipeline failed.
+    """
+    months = [r["competencia"] for r in resources if r.get("competencia")]
+    if not months:
+        raise ValueError(
+            f"no monthly competência among {len(resources)} resources"
+        )
+    return max(months)
 
 
 def iter_mantido(path: Path, chunk: int = 250_000):

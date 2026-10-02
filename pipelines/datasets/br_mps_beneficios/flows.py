@@ -29,8 +29,8 @@ from pipelines.datasets.br_mps_beneficios.constants import constants
 from pipelines.datasets.br_mps_beneficios.tasks import (
     build_dicionario,
     latest_source_competencia,
-    previous_competencia_shape,
     refresh_month,
+    table_state,
 )
 from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
@@ -140,14 +140,30 @@ def br_mps_beneficios_flow(
                 )
                 continue
 
-            previous = previous_competencia_shape(
-                table_id=table_id, bq_project=bq_project
+            state = table_state(
+                table_id=table_id,
+                bq_project=bq_project,
+                competencia=competencia,
             )
+            # Unconditional, including under force_run: the refresh appends a
+            # file to the year partition, so re-staging a month already in the
+            # table double-counts it. force_run is for bypassing the poll, not
+            # for duplicating data. This also covers the publisher pruning old
+            # labels — the mantido list went from 56 resources to 51 between
+            # 2026-09-29 and 2026-10-02, so the newest label on offer can be
+            # older than what the table already holds.
+            if state and state.get("target_present"):
+                print(
+                    f"{table_id}: {competencia} is already in the table — "
+                    "skipping, appending it again would double-count"
+                )
+                continue
+
             result = refresh_month(
                 table_id=table_id,
                 competencia=competencia,
                 work_dir=work_dir,
-                previous=previous,
+                previous=state,
             )
             if result["status"] != "ok":
                 # A reissued or empty month must not advance the source Update:

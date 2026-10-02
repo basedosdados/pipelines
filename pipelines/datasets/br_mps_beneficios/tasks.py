@@ -158,11 +158,25 @@ def refresh_month(
 
 
 @task(retries=1, retry_delay_seconds=30)
-def previous_competencia_shape(table_id: str, bq_project: str) -> dict | None:
-    """Shape of the newest competência already in the table, for the reissue guard.
+def table_state(
+    table_id: str, bq_project: str, competencia: int
+) -> dict | None:
+    """What the table already holds, for the idempotency and reissue guards.
 
-    Returns None when the table does not exist yet or is empty, which makes the
-    guard a no-op on a first run rather than an error.
+    Returns the newest competência's shape plus whether ``competencia`` is
+    already present. Both matter, and for different reasons:
+
+    * **already present** — the refresh *appends* a file to the year partition,
+      so re-staging a month that is already there double-counts it. This check
+      is unconditional, including under ``force_run``: forcing a run is meant to
+      bypass the source poll, never to duplicate data. It also matters because
+      the publisher prunes old labels — the mantido list dropped from 56
+      resources to 51 between 2026-09-29 and 2026-10-02, so the newest label the
+      source offers can be *older* than what the table already holds.
+    * **newest competência's shape** — drives the reissue guard.
+
+    Returns None when the table does not exist yet or is empty, which makes both
+    guards a no-op on a first run rather than an error.
     """
     import basedosdados as bd
 
@@ -175,11 +189,13 @@ def previous_competencia_shape(table_id: str, bq_project: str) -> dict | None:
         select
           u.competencia,
           count(*) as cells,
-          sum(t.quantidade) as benefits
+          sum(t.quantidade) as benefits,
+          (select count(*) from `{bq_project}.{dataset_id}.{table_id}` p
+             where p.ano * 100 + p.mes = {competencia}) as target_rows
         from `{bq_project}.{dataset_id}.{table_id}` t
         cross join ultimo u
         where t.ano * 100 + t.mes = u.competencia
-        group by u.competencia
+        group by u.competencia, target_rows
     """
     try:
         frame = bd.read_sql(query, billing_project_id=bq_project)
@@ -189,18 +205,17 @@ def previous_competencia_shape(table_id: str, bq_project: str) -> dict | None:
     if frame is None or frame.empty:
         return None
     row = frame.iloc[0]
-    competencia = int(row["competencia"])
+    newest = int(row["competencia"])
     resources = (
         u.resolve_concedido_resources()
         if table_id == constants.TABLE_CONCEDIDO.value
         else u.resolve_mantido_resources()
     )
-    match = next(
-        (r for r in resources if r["competencia"] == competencia), None
-    )
+    match = next((r for r in resources if r["competencia"] == newest), None)
     return {
-        "competencia": competencia,
+        "competencia": newest,
         "cells": int(row["cells"]),
         "benefits": int(row["benefits"]),
         "url": match["url"] if match else None,
+        "target_present": int(row["target_rows"]) > 0,
     }
