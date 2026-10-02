@@ -53,6 +53,15 @@ class constants(Enum):
 
     LABSTAT_TABLES = ["series", "annual"]
 
+    # Cheap release check: the BLS public API returns the latest published year
+    # of one headline series (average annual expenditures, all consumer units)
+    # in a few hundred bytes, so a run with nothing new skips the ~860 MB
+    # flat-file download. No API key is needed at this volume.
+    API_LATEST_URL = (
+        "https://api.bls.gov/publicAPI/v2/timeseries/data/"
+        "CXUTOTALEXPLB0101M?latest=true"
+    )
+
     ARCHITECTURE_DIR = (
         _REPO_ROOT / "models" / "us_bls_cex" / "code" / "architecture"
     )
