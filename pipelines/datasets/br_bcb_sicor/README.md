@@ -397,3 +397,534 @@ order by ano_liberacao;
 **Problemas Identificados:**
 - O único problema é a existência de valor da coluna id_motivo_desclassificacao que não existem no dicionário oficial do sicor
 São eles: ["0", "201", "14"]
+
+---
+
+## O código zero, `ltrim` e a cobertura do dicionário
+
+Esta é a armadilha mais fácil de disparar sem perceber neste conjunto, e ela
+atravessa quase todas as tabelas.
+
+A fonte publica os códigos com zeros à esquerda: `TipoCultivo` traz `"00"`,
+`FonteRecursos` traz `"0100"`. Os modelos aplicam `ltrim(coluna, '0')` para
+normalizar, e o modelo `dicionario` aplica `ltrim(chave, '0')` pela mesma razão.
+Nos dois lados, portanto, um código composto **só de zeros** — `"0"`, `"00"` —
+vira **string vazia**. E é exatamente assim que o código "Não se aplica" casa
+hoje: `''` de um lado, `''` do outro.
+
+Oito das tabelas de domínio definem esse código zero (`TipoCultivo`,
+`GraoSemente`, `FaseCicloProducao`, `TipoIrrigacao`, `TipoIntegracao`,
+`EncargosFinanceirosComplementares`, `TipoSoloProagro`,
+`TipoGarantiaEmpreendimento`), e em `operacao` ele não é raro: `id_tipo_cultivo`
+tem 24.936.161 linhas com string vazia em 29.675.448 — o valor bruto é `"00"`.
+
+**Consertar um lado só quebra o outro.** Trocar o `ltrim` do `dicionario` por
+algo que preserve o zero (`coalesce(nullif(ltrim(chave, '0'), ''), '0')`) faz o
+dicionário passar a dizer `'0'` enquanto `operacao` continua dizendo `''`, e a
+cobertura de oito colunas cai de uma vez. O conserto correto é bilateral, nos
+dois modelos ao mesmo tempo, e em `operacao` ele custa um `--full-refresh` em dev
+**e** em prod (29,7 milhões de linhas), porque o modelo é incremental com
+`on_schema_change` no default. Não foi feito aqui; fica registrado como decisão
+pendente.
+
+Nas tabelas novas do Proagro o `ltrim` foi mantido, por consistência: a única
+coluna afetada é `proagro_cop.id_tipo_solo`, e o código 0 aparece em **19**
+linhas de 1.004.175.
+
+### `id_tipo_agricultura` é a exceção
+
+`id_tipo_agricultura` é a única das quinze colunas de código de `operacao` cujo
+SELECT **não** aplica `ltrim`. Ela publica `'0'` em 21.978.645 linhas, enquanto o
+dicionário reduz o mesmo código a `''`. Por isso ela está fora da lista
+`columns_covered_by_dictionary` de `operacao`, com a exceção registrada na
+descrição do modelo. Incluí-la exige o mesmo `--full-refresh` citado acima.
+
+---
+
+## Quatro testes de dicionário que nunca rodaram
+
+Até este PR, quatro testes `custom_dictionary_coverage` de `br_bcb_sicor`
+apontavam para modelos inexistentes:
+
+| modelo | ref errado | erro |
+|---|---|---|
+| `operacao` | `br_bcb_sicar__dicionario` | "sicar" no lugar de "sicor" |
+| `empreendimento` | `br_bcb_sicor_dicionario` | um underscore no lugar de dois |
+| `recurso_publico_mutuario` | `br_bcb_sicor_dicionario` | idem |
+| `recurso_publico_cooperado` | `br_bcb_sicor_dicionario` | idem |
+
+**O dbt não falha nesse caso — ele emite `WARNING` e descarta o teste.** O
+resultado é um teste que aparece no `schema.yml`, não roda nunca e nada acusa:
+
+```text
+[WARNING]: Test 'custom_dictionary_coverage_br_bcb_sicor__operacao_...' 
+depends on a node named 'br_bcb_sicar__dicionario' in package '' which was not found
+```
+
+Eram 18 colunas sem cobertura nenhuma. Os quatro agora apontam para
+`br_bcb_sicor__dicionario` e passam.
+
+Vale como lição geral: um `ref()` dentro de argumento de teste é silencioso
+quando quebra. Ao renomear um modelo, conferir os `ref()` dos testes, não só os
+dos modelos.
+
+---
+
+## O flow do `dicionario` (corrigido)
+
+A seção "4. O flow do `dicionario` não roda", acima, descrevia dois defeitos.
+Ambos foram corrigidos neste PR, porque eles bloqueavam a cobertura de
+dicionário das tabelas novas:
+
+- `dbt_alias=False` fazia o seletor virar `models/br_bcb_sicor/dicionario.sql`,
+  arquivo que não existe — `run_dbt` levantava `FileNotFoundError` **depois** de
+  já ter subido o staging. Agora usa o default `dbt_alias=True`.
+- Faltava `deploy_schedules`, então o flow nunca rodava por agendamento. Agora
+  roda às 01:45 nos dias úteis, **antes** de `operacao` (02:05) e das demais, já
+  que o teste de cada tabela lê este modelo.
+
+Consequência prática de a tabela estar congelada: o código `0911` (FNDCT, MP
+1374) já existia em `FonteRecursos.csv` e não no `dicionario` materializado, o
+que derrubaria a cobertura de `operacao.id_fonte_recurso` no instante em que o
+teste voltasse a rodar.
+
+No mesmo movimento, `operacao.id_tipo_seguro` era declarado como coberto por
+dicionário sem que a fonte (`TipoGarantiaEmpreendimento.csv`) estivesse
+registrada em `Constants.dicionario`. Registrada.
+
+---
+
+## `valor_percentual_*`: nome divergente em `operacao`
+
+Três colunas de `operacao` existem no BigQuery como
+`valor_percentual_{custo_efetivo_total,risco_fundo_constitucional,risco_stn}`,
+mas o `schema.yml` e o backend as chamavam `percentual_*`. O `schema.yml` foi
+alinhado ao que está materializado, senão o `persist_docs` do dbt não escreve
+descrição em coluna nenhuma e o check `Metadata validation (BigQuery vs API)`
+acusa divergência.
+
+O nome correto pelo manual de estilo é `percentual_*` — `valor_` e `percentual_`
+são prefixos alternativos, não acumuláveis, e a coluna irmã
+`percentual_bonus_car` está na forma certa. Renomear de verdade exige mexer no
+`.sql` e um `--full-refresh` em dev e prod. Fica registrado como pendência de
+estilo, não corrigido aqui.
+
+Aproveitando: as três colunas de CNPJ de `operacao`
+(`cnpj_basico_instituicao_financeira`, `cnpj_basico_agente_investimento`,
+`cnpj_basico_cadastrante`) existem no BigQuery e **não** existiam nos metadados
+de prod. Como o check de metadados só roda sobre arquivos `.sql` modificados, e
+`operacao.sql` não era tocado havia tempo, a divergência nunca apareceu.
+
+---
+
+## Tabelas de domínio: `instituicao_financeira` e `fonte_recurso`
+
+### `br_bcb_sicor__instituicao_financeira`
+
+Diretório das 650 instituições financeiras do Sicor (`IFsSicor` no manual,
+publicado como `DadosBrutos/SICOR_LISTA_IFS.csv`). É a tabela que faltava para
+separar crédito rural por credor.
+
+**`operacao` sempre teve a coluna do credor** —
+`cnpj_basico_instituicao_financeira`, de `CNPJ_IF`. O que faltava era o nome e o
+segmento. Medido em dev:
+
+| verificação | resultado |
+|---|---|
+| linhas de `operacao` | 29.675.448 |
+| linhas cujo CNPJ casa com `LISTA_IFS` | **29.675.448 (100%)** |
+| CNPJs distintos em `operacao` / em `LISTA_IFS` | 628 / 650 |
+| linhas com CNPJ nulo ou vazio | 0 |
+
+Ou seja, dá para quebrar o crédito rural por credor desde 2013 sem nenhuma
+perda, e sem depender de `recurso_publico_complemento_operacao.cnpj_agencia`,
+que identifica a agência e só existe para operações de fonte pública.
+
+Segmentos: 566 cooperativas de crédito, 45 bancos privados, 10 bancos de
+desenvolvimento e agências de fomento, 8 bancos públicos, 4 sociedades de
+crédito, 2 bancos cooperativos e **15 linhas com segmento em branco na fonte**.
+Nome e segmento ficam em caixa alta como publicados; `initcap` estragaria siglas
+("BCO DO BRASIL S.A.", "CC ARACREDI LTDA.").
+
+### `br_bcb_sicor__fonte_recurso`
+
+Junta duas tabelas de domínio. `FonteRecursos.csv` tem os 37 códigos com
+descrição e vigência; `FonteRecursosPublicos.csv` tem 16 deles, **com descrições
+idênticas**. Verificado: os 16 são subconjunto estrito dos 37, e a única
+diferença de texto é um `\x96` perdido no código 0911 do arquivo latin-1.
+
+Como o segundo arquivo não traz descrição nova, seu conteúdo é apenas a
+participação na lista — publicada como `indicador_recurso_publico`. Virar linhas
+de `dicionario` não funcionaria: colidiria com as chaves de `id_fonte_recurso`
+que já vêm do primeiro arquivo.
+
+**E é essa lista que define o universo das tabelas `recurso_publico_*`.** As 16
+fontes públicas incluem 0100 Tesouro Nacional, 0300 poupança rural controlada,
+0501 FNO, 0502 FNE, 0503 FCO, 0505 BNDES/Finame, 0650 FAT, 0800 Funcafé. Ficam
+de fora, entre outras, 0201 obrigatórios MCR 6.2, 0402 recursos livres,
+0430/0440 LCA a taxa livre e favorecida, e 0303 poupança rural não controlada —
+exatamente as fontes com cobertura abaixo de 2% em `recurso_publico_propriedade`.
+
+Dois detalhes de formato, porque os dois arquivos divergem: o de todas as fontes
+é **latin-1 com `;`**, o de fontes públicas é **UTF-8 com `,`**.
+
+---
+
+## O Proagro
+
+O Proagro (Programa de Garantia da Atividade Agropecuária) cobre perdas do
+produtor em lavoura amparada. O conjunto se chama "Crédito Rural **e do
+Proagro**" e não tinha nenhuma tabela do Proagro até este PR.
+
+O fluxo tem quatro etapas, e cada uma é uma tabela:
+
+```
+COP          o produtor comunica a perda            proagro_cop
+ │                                                  + proagro_complemento_cop (periciadora/perito)
+ ▼
+RCP          requerimento de cobertura, com         proagro_rcp
+ │           o laudo da vistoria                    + proagro_complemento_rcp (periciadora/perito)
+ │                                                  + proagro_rcp_gleba (geometria vistoriada)
+ ▼
+Julgamento   decisão e memória de cálculo           proagro_sumula_julgamento
+ │
+ ▼
+Pagamento    lançamentos financeiros                proagro_parcela
+```
+
+Todas se ligam a `operacao` por `id_referencia_bacen` + `numero_ordem`, e
+herdam daí `ano_emissao`/`mes_emissao`, o particionamento e o permissionamento
+BD PRO.
+
+| tabela | linhas | cobertura | sem par em `operacao` |
+|---|---|---|---|
+| `proagro_cop` | 1.004.175 | 2013–2026 | 61 (0,006%) |
+| `proagro_complemento_cop` | 1.004.175 | 2013–2026 | 61 (0,006%) |
+| `proagro_rcp` | 846.510 | 2014–2026 | 62 (0,007%) |
+| `proagro_complemento_rcp` | 846.510 | 2014–2026 | 62 (0,007%) |
+| `proagro_rcp_gleba` | 1.760.631 | 2015–2026 | 130 (0,007%) |
+| `proagro_parcela` | 13.381.107 | 2013–2026 | 983 (0,007%) |
+| `proagro_sumula_julgamento` | 837.433 | 2016–2026 | 59 (0,007%) |
+
+As linhas sem par são os mesmos "IDs fantasmas" já descritos na seção de
+`saldo`. Note que **cada tabela tem sua própria cobertura inicial** — 2013,
+2014, 2015 e 2016 —, o que importa ao registrar o `DateTimeRange` de cada uma.
+
+Os arquivos `COMPLEMENTO_*` e `RCP_GLEBAS` estão na seção 3 do site, a das
+tabelas complementares dos recursos públicos, mas **não** têm a restrição de
+universo que as tabelas `recurso_publico_*` têm: cada um tem exatamente o mesmo
+número de linhas do seu par da seção 2, e o manual marca a relação como 1..1.
+Foram mantidos como tabelas separadas, uma por arquivo da fonte, seguindo o
+padrão de `recurso_publico_complemento_operacao`.
+
+### Datas: dd/mm/yyyy, e anos transpostos
+
+**As 20 colunas de data das tabelas do Proagro são dd/mm/yyyy**, verificado
+valor por valor nos arquivos completos: 630.453 valores de `data_comunicacao`
+têm primeiro componente > 12 e **nenhum** tem segundo componente > 12. Não é o
+formato de `operacoes_desclassificadas`, que usa `%m/%d/%Y %H:%M:%S`.
+
+As colunas **administrativas** (`data_comunicacao`, `data_entrega`,
+`data_visita`, e todas as de `proagro_parcela` e da súmula) estão limpas: zero
+valores fora de 2013–2027.
+
+As colunas **agronômicas** não. Elas trazem erros de digitação com o ano
+transposto, que o BigQuery aceita como datas perfeitamente válidas:
+
+| valor publicado | ano provável |
+|---|---|
+| `02/10/3202` | 2023 |
+| `06/11/1202` | 2021 |
+| `20/08/0217` | 2017 |
+| `25/01/5202` | 2025 |
+
+Os extremos: `data_fim_colheita` chega a **2224-01-18** em `proagro_cop` e
+**2241-05-01** em `proagro_rcp`; `data_inicio_plantio` desce a **1914-07-02**.
+
+O macro `parse_data_agronomica_sicor` anula o que cai fora de **2000–2100**. A
+janela foi escolhida medindo: ela atinge no máximo 0,072% de qualquer coluna
+afetada, enquanto 2010–2030 atingiria 0,57% e passaria a anular valores
+possivelmente legítimos.
+
+| coluna | fora de 2000–2100 | fora de 2010–2030 |
+|---|---|---|
+| `proagro_cop.data_inicio_plantio` | 720 (0,0717%) | 5.744 (0,5720%) |
+| `proagro_cop.data_fim_plantio` | 619 (0,0616%) | 5.206 (0,5184%) |
+| `proagro_rcp.data_inicio_plantio` | 281 (0,0332%) | 2.606 (0,3079%) |
+| `proagro_rcp.data_fim_plantio` | 241 (0,0285%) | 2.355 (0,2782%) |
+
+É a mesma ideia do tratamento em `operacao`, que ali é unilateral (`> 2100`);
+aqui a janela é bilateral porque os erros aparecem nas duas pontas. Os testes de
+`relationships` contra o diretório de datas ficam só nas colunas
+administrativas.
+
+**Todo o parsing de data das tabelas do Proagro usa `safe.parse_date`**, tanto
+no macro quanto nas três colunas administrativas que não passam por ele
+(`data_comunicacao`, `data_entrega`, `data_visita`). O `parse_date` cru levanta
+erro e aborta o modelo inteiro por uma única célula ilegível — o que numa fonte
+republicada mensalmente é pior que anular o valor. Hoje a troca não muda
+nenhuma linha: medido sobre os arquivos completos, as nove colunas de data
+dessas duas tabelas têm **zero** valores que o BigQuery não consegue ler como
+`%d/%m/%Y` (1.004.175 linhas em `proagro_cop`, 846.510 em `proagro_rcp`), e as
+três administrativas também têm zero fora de 2000–2100 — os anos vão de 2013 a
+2026. O filtro de janela continua sendo necessário só nas agronômicas, porque
+lá o defeito produz datas *válidas* e absurdas, que nenhum `safe.` pega.
+
+### `proagro_cop`: a chave primária do manual não é única
+
+O manual declara (REF_BACEN, NU_ORDEM, CD_EVENTO) como chave primária do
+`sicor_cop_basico`. Ela não é:
+
+- 4.225 linhas (0,42%) repetem a chave;
+- **4.120 delas trazem valores diferentes** de `data_comunicacao`, `id_status` ou
+  `id_tipo_ciclo_cultivar` — são comunicados distintos para o mesmo evento na
+  mesma operação;
+- 105 são idênticas em todas as 11 colunas.
+
+Exemplo real (ref_bacen 10002320, ordem 2, evento 17):
+
+```text
+data_comunicacao  id_status  id_tipo_ciclo_cultivar
+22/10/2017        2          99
+23/10/2017        5           1
+```
+
+Nenhuma combinação de colunas publicadas torna a tabela única: acrescentando
+`data_comunicacao` sobram 1.762 duplicatas; com `id_status` também, 143; com o
+ciclo, 141. **Não se aplica deduplicação** — um `select distinct` destruiria
+registros reais. O teste usa `custom_unique_combinations_of_columns` e a exceção
+está na descrição do modelo.
+
+O mesmo vale para `proagro_complemento_cop`, onde 2.806 linhas são idênticas em
+todas as colunas e não podem ser separadas por chave alguma.
+
+As outras cinco tabelas têm chave única, verificado na tabela inteira e depois
+dos casts (`proagro_parcela` e `proagro_rcp_gleba`: 0 chaves duplicadas em
+13.381.107 e 1.760.631 linhas).
+
+### `proagro_complemento_cop`: CPF/CNPJ sem os zeros à esquerda
+
+`CD_CPF_CNPJ_PERICIADORA` deveria ter 8, 11 ou 14 dígitos. No arquivo do COP tem
+de 5 a 14:
+
+| comprimento | linhas | leitura |
+|---|---|---|
+| 14 | 658.082 | CNPJ completo |
+| 11 | 202.260 | CPF |
+| 8 | 109.335 | CNPJ básico |
+| 5, 6, 7, 9, 10, 12 | 34.498 | zeros à esquerda perdidos |
+
+A separação por comprimento — a mesma de `recurso_publico_mutuario` — resolve
+969.677 linhas (96,6%) e deixa **34.498 (3,44%)** nulas nas três colunas de
+identificação. Não é possível recuperá-las: um valor de 10 dígitos pode ser um
+CPF ou um CNPJ básico truncado, sem como decidir.
+
+**O arquivo irmão do RCP não tem o problema**: só comprimentos 11 (481.124) e 14
+(365.386), separação completa. Por isso `proagro_complemento_rcp` não tem coluna
+de CNPJ básico — ela seria inteiramente nula.
+
+`CD_CPF_PERITO` tem sempre 11 dígitos quando preenchido, em 25,6% das linhas do
+COP e 30,7% das do RCP.
+
+### `proagro_rcp_gleba`: dois arquivos disjuntos
+
+A fonte divulga as glebas do RCP em dois arquivos plurianuais em vez de um por
+ano: `SICOR_RCP_GLEBAS_2015_2020` (420.949 linhas) e `SICOR_RCP_GLEBAS_2021`
+(1.339.682). **A interseção das chaves entre eles é zero**, então a união é
+direta e não duplica nada. Por não haver quebra anual, o modelo é
+`materialized="table"` e não incremental, ao contrário de
+`recurso_publico_gleba`.
+
+A limpeza de WKT é a mesma de `recurso_publico_gleba` (remove a dimensão Z,
+corrige sinais para o hemisfério Sul/Oeste, aplica `make_valid`, anula centroides
+fora do bounding box do Brasil). Aqui a fonte é muito melhor: **4** das 1.760.631
+glebas não sobrevivem ao tratamento, contra 22,6% em 2013 na tabela de operações.
+
+### Códigos sem dicionário
+
+Três colunas das tabelas novas não têm tradução em nenhuma das 57 tabelas de
+domínio da seção 1:
+
+| coluna | valores observados | observação |
+|---|---|---|
+| `proagro_sumula_julgamento.id_decisao` | 2, 3, 4, 5, 6 | o manual descreve `CD_DECISAO` erradamente como "Data da decisão na súmula de julgamento" |
+| `proagro_sumula_julgamento.id_status` | 1 | valor único em todas as linhas |
+| `proagro_rcp.id_status` | 1 | valor único em todas as linhas |
+| `proagro_rcp.id_tipo` | 1, 2 | — |
+
+Todas as demais colunas de código estão cobertas, e **nenhum valor ficou órfão** —
+não foi preciso recorrer ao macro `dicionario_not_found`.
+
+### Divergências entre o manual e os arquivos
+
+- O diagrama do manual desenha `sic_REF_BACEN` e `CD_EVENTO` em
+  `sicor_complemento_rcp`; o arquivo publicado tem só quatro colunas
+  (`REF_BACEN`, `NU_ORDEM`, `CD_CPF_CNPJ_PERICIADORA`, `CD_CPF_PERITO`).
+- O manual marca `REF_BACEN` como "mascarado" em algumas tabelas e não em outras
+  (`sicor_cop_basico`, `sicor_liberacao_recursos` e `sicor_desclassificacao` sem
+  a palavra; `sicor_operacao_basica_estado`, `sicor_saldos` e o resto com). A
+  distinção não existe na prática — todas casam entre si.
+- A chave primária do `sicor_cop_basico`, como descrito acima.
+- A descrição de `CD_DECISAO`.
+
+### Os arquivos `.hash` não cobrem estas tabelas
+
+O site publica 45 arquivos `.hash`, e eles cobrem **apenas**
+`SICOR_OPERACAO_BASICA_ESTADO_*`, `SICOR_SALDOS_*`, `sicor_glebas_wkt_*` e
+`SICOR_GLEBAS_CONTRAT`. Nenhum dos arquivos do Proagro, nem
+`SICOR_LISTA_IFS.csv`, tem um irmão `.hash` — todos retornam 404. A verificação
+de download destas tabelas foi feita comparando o `Content-Length` publicado com
+o tamanho baixado, e depois a contagem de linhas do arquivo com a contagem de
+linhas do parquet gerado.
+
+---
+
+## O que ainda não está na Base dos Dados
+
+Depois deste PR, o `br_bcb_sicor` tem 20 tabelas. Segue o que resta dos cinco
+blocos do site do BCB, e por quê.
+
+### Seção 2 — Sicor, crédito rural e Proagro
+
+| arquivo | situação |
+|---|---|
+| `SICOR_PARCELAS_DESEMBOLSO.gz` | **não onboardado.** 1,06 GB comprimido, o maior arquivo do conjunto. Cronograma de desembolso; interessa a quem mede o intervalo entre contratação e liberação efetiva |
+| `SICOR_LISTA_RENEGOCIACAO.gz` | **não onboardado** |
+| `SICOR_OPERACAO_BASICA_RENEGOCIACAO.gz` | **não onboardado.** Mesma estrutura de `sicor_operacao_basica_estado`, segundo o manual |
+| `SICOR_LISTA_ALTERACAO_FONTE.gz` | **não onboardado** |
+
+### Seção 3 — complementares dos recursos públicos
+
+| arquivo | situação |
+|---|---|
+| `SICOR_COMPLEMENTO_OPERACAO_BASICA_RENEGOCIACAO.gz` | **não onboardado.** Par do de renegociação acima |
+
+### Seção 4 — Recor/PGRO, 1983 a 2012
+
+Nada onboardado: 30 arquivos anuais de operações, mais mutuários, municípios,
+COP, parcelas, renegociações e 15 tabelas de domínio próprias. **Decisão ainda
+não tomada** sobre conjunto separado (`br_bcb_recor`) ou extensão deste.
+
+Um ponto a registrar desde já, porque os usuários vão supor o contrário: o Recor
+é inteiramente **pré-CAR**. Ele tem mutuário e município, mas nenhuma chave de
+registro de imóvel, então serve para estender uma série municipal de crédito
+rural até 1983 e **não** serve para estender uma série no nível do imóvel.
+
+### Seção 5 — Sicor contratado
+
+Nada onboardado (6 arquivos). **Antes de modelar, é preciso estabelecer o que
+"Contratado" significa em relação às tabelas principais** — universo disjunto,
+superconjunto, ou a mesma coisa em outro momento. O manual do Sicor **não
+menciona nenhuma das tabelas `*_CONTRAT`** na sua lista de tabelas, então a
+resposta terá de vir da comparação empírica de `id_referencia_bacen` contra
+`br_bcb_sicor__operacao`.
+
+### Seção 1 — tabelas de domínio
+
+Das 57 tabelas de domínio, o `dicionario` agora cobre as colunas de código
+efetivamente usadas nas 20 tabelas do conjunto, e três viraram tabelas próprias:
+`empreendimento`, já existente, e `instituicao_financeira` e `fonte_recurso`,
+adicionadas neste PR. As
+restantes descrevem colunas que o conjunto não publica (prazos por programa, por
+fonte e por UF, tipos de clima, manejo, conformidade, bônus, motivos de exclusão
+e de rejeição de saldo, municípios do Sicor) ou duplicam diretórios da Base dos
+Dados.
+
+---
+
+## Cobertura das tabelas `recurso_publico_*`: não é dado faltante
+
+O ponto que os usuários mais erram neste conjunto. As cinco tabelas
+`recurso_publico_*` cobrem **apenas operações financiadas com fontes
+públicas/controladas** — exatamente as 16 fontes que `fonte_recurso` marca com
+`indicador_recurso_publico = 1`. Uma operação com fonte livre simplesmente não
+aparece nelas.
+
+Cobertura em `recurso_publico_propriedade` por classe de fonte: ~99% para FNO,
+FCO, poupança rural controlada, BNDES/Finame e demais subsidiadas; **abaixo de
+2%** para recursos livres, LCA a taxa livre, poupança rural livre e obrigatórios
+MCR 6.2. É o desenho da fonte, não defeito. A ressalva foi adicionada às
+descrições das cinco tabelas.
+
+### `id_car`: formato, cobertura e defeitos
+
+Medido sobre as 27.796.342 linhas de `recurso_publico_propriedade` em dev:
+
+| | |
+|---|---|
+| linhas com CAR | 15.463.388 (**55,6%**) |
+| comprimento | **41 caracteres em 100% dos casos**, nenhum hífen |
+| UF inválida nos 2 primeiros caracteres | 266 linhas (`AA`, `AB`, `MH`, `UF`) |
+
+O Sicor publica o CAR **não hifenizado, 41 caracteres** (UF + 7 dígitos do
+município IBGE + 32 hexadecimais), enquanto o registro do SFB em
+`basedosdados.br_sfb_sicar.area_imovel` usa a forma **hifenizada de 43
+caracteres**. Quem cruzar as duas bases tem de normalizar antes — não há join
+direto. As 266 linhas com UF inválida são defeitos da fonte e ficam como
+publicadas, sem descarte.
+
+O preenchimento começa em 2018, quando o Banco Central passou a exigir o CAR
+para a concessão do crédito: 0% de 2013 a 2016, cerca de 12% em 2018 e 55–59% de
+2019 em diante. Registrado na descrição da coluna.
+
+---
+
+## Registro de metadados: staging, e o que falta em prod
+
+Os metadados das nove tabelas novas foram registrados no backend de **staging**,
+não no de dev — o de dev (`development.backend.basedosdados.org`) esteve
+retornando **503** de forma persistente em 30/09/2026, enquanto staging e prod
+respondiam normalmente.
+
+**Saiba que o registro de `sicor` em staging é um retrato antigo e divergente de
+prod.** O que está lá e não deveria:
+
+| | staging | prod |
+|---|---|---|
+| nomes de tabela | `microdados_operacao`, `microdados_saldo`, `microdados_liberacao` | `operacao`, `saldo`, `liberacao` |
+| `operacoes_desclassificadas` | ausente | presente |
+| colunas de `operacao` | `plano_safra_emissao`, sem `ano_emissao`/`mes_emissao` | `ano_safra_emissao`, com as duas |
+| `recurso_publico_propriedade` | `id_nirf` | `id_cib` |
+| `recurso_publico_gleba` | `altitude`, `ponto`, `indice_ponto` | `geometria`, `geometria_original` |
+| slugs de tag | em português (`agropecuaria`, `credito`) | em inglês (`agriculture`, `credit`) |
+
+Nada disso foi tocado — só as nove tabelas novas foram criadas. **Cuidado ao
+promover staging → prod**: isso reverteria os nomes das três tabelas acima para a
+forma `microdados_*`, que já foi renomeada em prod.
+
+### Detalhes do registro em staging
+
+- `gcp_project_id = basedosdados-dev` nas cloud tables, porque é onde os dados
+  estão hoje. **Na promoção para prod, tem de ser `basedosdados`.**
+- As sete tabelas do Proagro têm as duas Coverages que um pipeline `part_bdpro`
+  exige, com faixas não sobrepostas e `is_closed` na Coverage **e** no
+  DateTimeRange: livre até 2026-02, BD Pro de 2026-03 a 2026-08 (`free_lag` de 6
+  meses sobre o máximo de 2026-08). Sem as duas, `assert_coverage_topology`
+  derruba o primeiro run.
+- `instituicao_financeira` e `fonte_recurso` são `all_free` e têm uma Coverage só.
+- Cada tabela tem exatamente uma cloud table, um observation level, um Update e
+  **uma** raw data source — o limite de uma por tabela é necessário, porque
+  `client._raw_source_id` levanta erro com duas ou mais e o poll do pipeline
+  passa por ele.
+
+### Duas armadilhas encontradas na API de colunas
+
+- **A chave do `columns_json` é `directory_column`, não `directory_column_name`.**
+  A segunda é o *parâmetro* do `update_column` e não vale aqui: passá-la é um
+  no-op silencioso, e foi o que deixou as nove tabelas sem um único vínculo de
+  diretório enquanto a chamada reportava sucesso. `is_partition` realmente não
+  existia no caminho em lote e exigia um `update_column` por coluna.
+  **Os dois foram corrigidos** no repo `mcp`, branch
+  `fix/directory-column-silent-failures`: chave desconhecida e falha de lookup
+  agora aparecem em `errors`, e `is_partition`/`is_primary_key` passaram a ser
+  aceitos como chaves opt-in.
+- **`directoryPrimaryKey` só aceita coluna marcada como chave primária de uma
+  tabela de diretório** (`limit_choices_to` no modelo). Em
+  `br_bd_diretorios_brasil.empresa` apenas `cnpj` está marcada, não
+  `cnpj_basico` — então `instituicao_financeira.cnpj_basico` **não pode** ser
+  vinculada. **Isso está correto, não é defeito**: a tabela tem 72.789.638 linhas
+  com `cnpj` único e só 69.523.303 `cnpj_basico` distintos, então a FK seria
+  ambígua. A integridade fica garantida pelo teste dbt `relationships`, que
+  passa — é o mesmo motivo pelo qual nenhuma coluna de CNPJ de `operacao` tem
+  vínculo de diretório em prod. O `mcp` agora devolve essa explicação em vez de
+  deixar passar o `Faça uma escolha válida` do Django.
