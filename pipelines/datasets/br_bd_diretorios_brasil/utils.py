@@ -1,7 +1,6 @@
 """Download + cleaning transform for br_bd_diretorios_brasil.escola.
 
-Pure functions (no Prefect) shared by the flow (``flows.py``) and the one-shot
-bootstrap (models/br_bd_diretorios_brasil/code/update_escola.py).
+Pure functions (no Prefect), wrapped by the tasks in ``tasks.py``.
 
 Download strategy
 -----------------
@@ -23,8 +22,8 @@ The catalog carries only the schools currently in the INEP register — the
 source prunes schools extinct in earlier years. Loading it as-is would drop
 those schools from the directory, breaking joins from datasets that still
 reference their ``id_escola``. So ``clean_catalogo`` unions the catalog with
-the published directory and records the outcome per school in
-``situacao_catalogo``.
+the published directory and with the schools that only appear in the censo
+escolar, and records the outcome per school in ``situacao_catalogo``.
 """
 
 from __future__ import annotations
@@ -41,133 +40,22 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
+from pipelines.datasets.br_bd_diretorios_brasil.constants import constants
+
 log = logging.getLogger("br_bd_diretorios_brasil")
-
-# ── OBIEE constants ──────────────────────────────────────────────────────────
-
-_BASE_URL = "https://anonymousdata.inep.gov.br/analytics/saw.dll"
-_DASHBOARD_URL = f"{_BASE_URL}?dashboard"
-_GO_URL = f"{_BASE_URL}?Go"
-_CATALOG_PATH = (
-    "/shared/Censo da Educação Básica/Catálogo das Escolas/Análises"
-    "/Lista das Escolas/Análise - Tabela da lista das escolas - Detalhado"
-)
-_USER_AGENT = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-    "AppleWebKit/537.36 (KHTML, like Gecko) "
-    "Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0"
-)
-
-# The portal is flaky: a reset connection (curl exit 35) and an HTTP 502 from
-# Extract were both seen minutes apart from a request that returned the full
-# CSV. Both clear on a retry, so every attempt is repeated before giving up.
-_DOWNLOAD_ATTEMPTS = 3
-_RETRY_WAIT_SECONDS = 15
-_CURL_TIMEOUT_SECONDS = 600
-
-# CSV source column → staging column name
-_COL_RENAME = {
-    "Restrição de Atendimento": "restricao_atendimento",
-    "Escola": "nome",
-    "Código INEP": "id_escola",
-    "UF": "sigla_uf",
-    "Município": "nome_municipio",  # kept for the id_municipio join below
-    "Localização": "localizacao",
-    "Localidade Diferenciada": "localidade_diferenciada",
-    "Categoria Administrativa": "categoria_administrativa",
-    "Endereço": "endereco",
-    "Telefone": "telefone",
-    "Dependência Administrativa": "dependencia_administrativa",
-    "Categoria Escola Privada": "categoria_privada",
-    "Conveniada Poder Público": "conveniada_poder_publico",
-    "Regulamentação pelo Conselho de Educação": "regulacao_conselho_educacao",
-    "Porte da Escola": "porte",
-    "Etapas e Modalidade de Ensino Oferecidas": "etapas_modalidades_oferecidas",
-    "Outras Ofertas Educacionais": "outras_ofertas_educacionais",
-    "Latitude": "latitude",
-    "Longitude": "longitude",
-}
-
-# Final column order matching the dbt model (staging must preserve this order)
-_STAGING_COLS = [
-    "id_escola",
-    "nome",
-    "id_municipio",
-    "sigla_uf",
-    "restricao_atendimento",
-    "localizacao",
-    "localidade_diferenciada",
-    "categoria_administrativa",
-    "endereco",
-    "telefone",
-    "dependencia_administrativa",
-    "categoria_privada",
-    "conveniada_poder_publico",
-    "regulacao_conselho_educacao",
-    "porte",
-    "etapas_modalidades_oferecidas",
-    "outras_ofertas_educacionais",
-    "latitude",
-    "longitude",
-    "situacao_catalogo",
-]
-
-# Whether the school is still in the INEP catalog. Readable labels, not codes,
-# so the column needs no dicionario table (this dataset has none).
-_SITUACAO_CATALOGO = "situacao_catalogo"
-_PRESENTE = "Presente"
-_AUSENTE = "Ausente"
-
-# PyArrow schema — all STRING (staging convention; dbt safe_casts to final types)
-_PA_SCHEMA = pa.schema([(col, pa.string()) for col in _STAGING_COLS])
-
-# Municipalities whose name in OBIEE differs from the BD+ directory even after
-# accent normalization (historical renames, spelling reforms, hyphen variants).
-# Maps (OBIEE_nome_exact, sigla_uf) → id_municipio (IBGE 7-digit string).
-_MUNICIPIO_NAME_FIXES: dict[tuple[str, str], str] = {
-    ("Muquém do São Francisco", "BA"): "2922250",  # "do" → "de"
-    ("Santa Terezinha", "BA"): "2928505",  # z → s (Terezinha → Teresinha)
-    ("Itapajé", "CE"): "2306306",  # j → g (Itapajé → Itapagé)
-    (
-        "Barão do Monte Alto",
-        "MG",
-    ): "3105509",  # "do" → "de" (Barão de Monte Alto)
-    ("Dona Euzébia", "MG"): "3122900",  # z → s (Eusébia)
-    ("Passa Vinte", "MG"): "3147808",  # space → hyphen (Passa-Vinte)
-    ("São Tomé das Letras", "MG"): "3165206",  # Tomé → Thomé
-    ("Poxoréu", "MT"): "5107008",  # u → o (Poxoréo)
-    ("Santo Antônio de Leverger", "MT"): "5107800",  # "de" → "do"
-    ("Santa Izabel do Pará", "PA"): "1506500",  # z → s (Isabel)
-    ("Iguaracy", "PE"): "2606903",  # y → i (Iguaraci)
-    ("Arez", "RN"): "2401206",  # z → s (Arês — accent only handled by norm)
-    ("Assú", "RN"): "2400208",  # Assú → Açu (different word)
-    ("Januário Cicco", "RN"): "2410306",  # renamed to Serra Caiada
-    ("Olho d'Água do Borges", "RN"): "2408409",  # space → hyphen before d'Água
-    (
-        "São Luiz do Anauá",
-        "RR",
-    ): "1400605",  # BQ stores as "São Luiz" (without "do Anauá")
-    ("Grão-Pará", "SC"): "4206108",  # hyphen → space (Grão Pará)
-    ("Amparo do São Francisco", "SE"): "2800100",  # "do" → "de"
-    ("Graccho Cardoso", "SE"): "2802601",  # cc → c (Gracho Cardoso)
-    ("Biritiba Mirim", "SP"): "3506607",  # space → hyphen (Biritiba-Mirim)
-    ("Florínea", "SP"): "3516101",  # nea → nia (Florínia)
-    ("São Luiz do Paraitinga", "SP"): "3550001",  # z → s (São Luís)
-    ("Tabocão", "TO"): "1708254",  # renamed to Fortaleza do Tabocão
-}
 
 
 # ── source date ──────────────────────────────────────────────────────────────
 
 
 def get_source_max_date() -> str:
-    """Return the date the catalog snapshot stands for.
+    """Devolve a data que o Catálogo extraído representa.
 
-    The catalog is the INEP register as of the moment it is extracted and
-    publishes no update date, so the extraction date stands in for it.
+    O Catálogo é o registro do Inep no momento da extração e não publica data
+    de atualização, então a data do download faz esse papel.
 
     Returns:
-        Today's date, formatted ``%Y-%m-%d``.
+        A data de hoje, no formato ``%Y-%m-%d``.
     """
     return datetime.date.today().strftime("%Y-%m-%d")
 
@@ -195,22 +83,22 @@ def download_catalogo(input_dir: Path) -> Path:
     input_dir.mkdir(parents=True, exist_ok=True)
     csv_path = input_dir / "catalogo_escolas.csv"
 
-    for attempt in range(1, _DOWNLOAD_ATTEMPTS + 1):
+    for attempt in range(1, constants.DOWNLOAD_ATTEMPTS.value + 1):
         try:
             return _download_catalogo_once(csv_path)
         except RuntimeError as error:
             # Drop the partial body so --skip-download cannot reuse it.
             csv_path.unlink(missing_ok=True)
-            if attempt == _DOWNLOAD_ATTEMPTS:
+            if attempt == constants.DOWNLOAD_ATTEMPTS.value:
                 raise
             log.warning(
                 "Attempt %d/%d failed (%s). Retrying in %ds...",
                 attempt,
-                _DOWNLOAD_ATTEMPTS,
+                constants.DOWNLOAD_ATTEMPTS.value,
                 error,
-                _RETRY_WAIT_SECONDS,
+                constants.RETRY_WAIT_SECONDS.value,
             )
-            time.sleep(_RETRY_WAIT_SECONDS)
+            time.sleep(constants.RETRY_WAIT_SECONDS.value)
 
     raise RuntimeError("download_catalogo exhausted its attempts")
 
@@ -251,12 +139,12 @@ def _download_catalogo_once(csv_path: Path) -> Path:
                 "-b",
                 str(cookie_path),
                 "-H",
-                f"User-Agent: {_USER_AGENT}",
+                f"User-Agent: {constants.USER_AGENT.value}",
                 "-H",
                 "Accept: text/html,*/*",
                 "-o",
                 "/dev/null",
-                _DASHBOARD_URL,
+                constants.DASHBOARD_URL.value,
             ],
             label="GET dashboard (cookie acquisition)",
         )
@@ -273,14 +161,14 @@ def _download_catalogo_once(csv_path: Path) -> Path:
                 "-w",
                 "\n%{http_code} %{content_type}",
                 "-H",
-                f"User-Agent: {_USER_AGENT}",
+                f"User-Agent: {constants.USER_AGENT.value}",
                 "-H",
                 "Content-Type: application/x-www-form-urlencoded",
                 "-H",
-                f"Referer: {_DASHBOARD_URL}",
+                f"Referer: {constants.DASHBOARD_URL.value}",
                 "-X",
                 "POST",
-                _GO_URL,
+                constants.GO_URL.value,
                 "--data-urlencode",
                 "Go=",
                 "--data-urlencode",
@@ -288,7 +176,7 @@ def _download_catalogo_once(csv_path: Path) -> Path:
                 "--data-urlencode",
                 "Format=csv",
                 "--data-urlencode",
-                f"path={_CATALOG_PATH}",
+                f"path={constants.CATALOG_PATH.value}",
                 "-o",
                 str(csv_path),
             ],
@@ -336,11 +224,11 @@ def run_curl(
             capture_output=capture_stdout,
             text=capture_stdout,
             check=False,
-            timeout=_CURL_TIMEOUT_SECONDS,
+            timeout=constants.CURL_TIMEOUT_SECONDS.value,
         )
     except subprocess.TimeoutExpired as error:
         raise RuntimeError(
-            f"curl timed out ({label}) after {_CURL_TIMEOUT_SECONDS}s"
+            f"curl timed out ({label}) after {constants.CURL_TIMEOUT_SECONDS.value}s"
         ) from error
     if result.returncode != 0:
         raise RuntimeError(f"curl failed ({label}): exit {result.returncode}")
@@ -469,7 +357,11 @@ def fetch_diretorio_publicado(
         columns that predate ``situacao_catalogo``.
     """
     client = _bq_client(billing_project_id, credentials_path)
-    cols = [col for col in _STAGING_COLS if col != _SITUACAO_CATALOGO]
+    cols = [
+        col
+        for col in constants.COLUMNS.value
+        if col != constants.SITUACAO_CATALOGO.value
+    ]
     query = f"""
         SELECT {", ".join(cols)}
         FROM `basedosdados.br_bd_diretorios_brasil.escola`
@@ -483,56 +375,104 @@ def fetch_diretorio_publicado(
     return diretorio
 
 
+def fetch_censo_escolar(
+    billing_project_id: str = "basedosdados-dev",
+    credentials_path: str | None = None,
+) -> pd.DataFrame:
+    """Lê do Censo Escolar uma linha por escola, com município e UF.
+
+    Alimenta a terceira camada da união em ``clean_catalogo``: as escolas que
+    aparecem no Censo Escolar e não estão nem no Catálogo nem no diretório
+    publicado. O município e a UF são os do último ano em que a escola aparece.
+
+    Args:
+        billing_project_id: Projeto do GCP que paga a consulta (padrão:
+            basedosdados-dev).
+        credentials_path: Caminho da chave de uma service account; ver
+            ``_bq_client``.
+
+    Returns:
+        Uma linha por ``id_escola`` de
+        ``basedosdados.br_inep_censo_escolar.escola``, com ``id_escola``,
+        ``id_municipio`` e ``sigla_uf``.
+    """
+    client = _bq_client(billing_project_id, credentials_path)
+    query = """
+        SELECT
+            CAST(id_escola AS STRING) AS id_escola,
+            CAST(id_municipio AS STRING) AS id_municipio,
+            CAST(sigla_uf AS STRING) AS sigla_uf
+        FROM `basedosdados.br_inep_censo_escolar.escola`
+        WHERE id_escola IS NOT NULL
+        QUALIFY ROW_NUMBER() OVER (PARTITION BY id_escola ORDER BY ano DESC) = 1
+    """
+    log.info(
+        "Reading censo escolar schools (billing=%s)...", billing_project_id
+    )
+    censo = client.query(query).to_dataframe()
+    log.info("censo escolar: %d schools", len(censo))
+    return censo
+
+
 def clean_catalogo(
     csv_path: Path,
     output_dir: Path,
     municipio_lookup: dict[tuple[str, str], str] | None = None,
     diretorio_publicado: pd.DataFrame | None = None,
+    censo_escolar: pd.DataFrame | None = None,
 ) -> Path:
-    """Clean the raw INEP catalog CSV and write a Parquet file for staging.
+    """Limpa o CSV do Catálogo e grava o parquet da staging.
 
-    Column mapping:
-        CSV columns → _COL_RENAME → staging columns (see _STAGING_COLS).
+    Colunas:
+        As do CSV passam por ``constants.RENAME`` e saem na ordem de
+        ``constants.COLUMNS``.
 
-    id_municipio resolution:
-        Derived from (nome_municipio, sigla_uf) via ``municipio_lookup``.
-        If the lookup is None or a name is not found, the column is left null.
-        The dbt model accepts nulls here; add a ``relationships`` test once the
-        lookup covers >95% of rows.
+    id_municipio:
+        Derivado de (nome_municipio, sigla_uf) pelo ``municipio_lookup``.
+        Sem o mapa, ou quando o nome não é encontrado, a coluna fica nula. O
+        modelo dbt aceita nulo aqui; acrescentar um teste ``relationships``
+        quando o mapa cobrir mais de 95% das linhas.
 
     situacao_catalogo:
-        ``Presente`` for every school in the catalog. Schools that are in
-        ``diretorio_publicado`` but no longer in the catalog are appended as
-        ``Ausente``, keeping their last known attributes.
+        ``Presente`` para toda escola do Catálogo. As escolas do
+        ``diretorio_publicado`` que saíram do Catálogo entram como
+        ``Ausente``, com os atributos da última vez em que apareceram. As do
+        ``censo_escolar`` que não estão em nenhum dos dois também entram como
+        ``Ausente``, só com ``id_escola``, ``id_municipio`` e ``sigla_uf``.
+        Quando um id aparece em mais de uma fonte, vale o Catálogo, depois o
+        diretório publicado, depois o Censo Escolar.
 
-    Blank values:
-        Every text column is stripped and blank-only values become null —
-        OBIEE writes missing coordinates as a run of spaces, which
-        ``na_values`` does not treat as missing.
+    Valores em branco:
+        Toda coluna de texto passa por strip, e o que fica vazio vira nulo: o
+        OBIEE grava coordenada ausente como uma sequência de espaços, que o
+        ``na_values`` não trata como ausente.
 
-    Output:
-        ``output_dir/escola/data.parquet``  (no partition; escola is a static
-        directory table, not partitioned by year).
+    Saída:
+        ``output_dir/escola/data.parquet``, sem partição: a ``escola`` é um
+        diretório, não é particionada por ano.
 
     Args:
-        csv_path: Path to the raw CSV from ``download_catalogo``.
-        output_dir: Root output directory.
-        municipio_lookup: Optional mapping from ``build_municipio_lookup``.
-        diretorio_publicado: Optional DataFrame from
-            ``fetch_diretorio_publicado``. When omitted, schools dropped by
-            the source are dropped from the directory too.
+        csv_path: CSV baixado por ``download_catalogo``.
+        output_dir: Diretório raiz da saída.
+        municipio_lookup: Mapa devolvido por ``build_municipio_lookup``.
+        diretorio_publicado: Tabela devolvida por
+            ``fetch_diretorio_publicado``. Sem ela, as escolas que saíram do
+            Catálogo saem também do diretório.
+        censo_escolar: Tabela devolvida por ``fetch_censo_escolar``. Sem ela,
+            o diretório fica sem as escolas que só aparecem no Censo Escolar.
 
     Returns:
-        Path to the written Parquet file.
+        O caminho do parquet gravado.
     """
     log.info("Reading %s...", csv_path)
     df = pd.read_csv(csv_path, dtype=str, encoding="utf-8-sig", na_values=[""])
 
     # Rename columns
-    df = df.rename(columns=_COL_RENAME)
+    df = df.rename(columns=constants.RENAME.value)
 
     # id_municipio — three-pass resolution:
-    #   1. Manual corrections for known name divergences (_MUNICIPIO_NAME_FIXES)
+    #   1. Manual corrections for known name divergences
+    #      (constants.MUNICIPIO_NAME_FIXES)
     #   2. Accent-normalized lookup against BD+ municipio directory
     #   3. NULL for the few municipalities not found in the directory
     if municipio_lookup:
@@ -548,7 +488,7 @@ def clean_catalogo(
                 The 7-digit IBGE code, or None when the name is unknown.
             """
             # pass 1: manual fix
-            fix = _MUNICIPIO_NAME_FIXES.get((nome, uf))
+            fix = constants.MUNICIPIO_NAME_FIXES.value.get((nome, uf))
             if fix:
                 return fix
             # pass 2: normalized lookup
@@ -587,13 +527,15 @@ def clean_catalogo(
     df = df.drop(columns=["nome_municipio"], errors="ignore")
 
     # Keep the schools the source no longer carries, flagged as absent
-    df[_SITUACAO_CATALOGO] = _PRESENTE
+    df[constants.SITUACAO_CATALOGO.value] = constants.PRESENTE.value
     if diretorio_publicado is not None:
         no_catalogo = df["id_escola"].astype(str).str.strip()
         publicado = diretorio_publicado.copy()
         publicado["id_escola"] = publicado["id_escola"].astype(str).str.strip()
         ausentes = publicado[~publicado["id_escola"].isin(no_catalogo)]
-        ausentes = ausentes.assign(**{_SITUACAO_CATALOGO: _AUSENTE})
+        ausentes = ausentes.assign(
+            **{constants.SITUACAO_CATALOGO.value: constants.AUSENTE.value}
+        )
         log.info(
             "situacao_catalogo: %d Presente, %d Ausente",
             len(df),
@@ -607,23 +549,42 @@ def clean_catalogo(
             "from fetch_diretorio_publicado to keep them."
         )
 
+    if censo_escolar is not None:
+        in_directory = df["id_escola"].astype(str).str.strip()
+        censo = censo_escolar.copy()
+        censo["id_escola"] = censo["id_escola"].astype(str).str.strip()
+        censo_only = censo[~censo["id_escola"].isin(in_directory)].copy()
+        censo_only[constants.SITUACAO_CATALOGO.value] = constants.AUSENTE.value
+        log.info(
+            "situacao_catalogo: %d Ausente from censo escolar only",
+            len(censo_only),
+        )
+        df = pd.concat([df, censo_only], ignore_index=True)
+    else:
+        log.warning(
+            "censo_escolar not provided — schools that appear only in the "
+            "censo escolar will be missing from the directory. Pass the "
+            "DataFrame from fetch_censo_escolar to add them."
+        )
+
     # Ensure all staging columns exist (fill missing with None)
-    for col in _STAGING_COLS:
+    for col in constants.COLUMNS.value:
         if col not in df.columns:
             df[col] = None
 
-    df = df[_STAGING_COLS]
+    df = df[constants.COLUMNS.value]
 
     # OBIEE pads missing latitude/longitude with spaces instead of leaving the
     # field empty, so na_values=[""] does not catch them and the column ends
     # up claiming a coordinate that is only whitespace.
-    for col in _STAGING_COLS:
+    for col in constants.COLUMNS.value:
         if df[col].dtype == object:
             stripped = df[col].str.strip()
             df[col] = stripped.mask(stripped == "", None)
 
     # Cast to all-STRING PyArrow table (staging convention — dbt safe_casts later)
-    table = pa.Table.from_pandas(df, schema=_PA_SCHEMA, preserve_index=False)
+    schema = pa.schema([(col, pa.string()) for col in constants.COLUMNS.value])
+    table = pa.Table.from_pandas(df, schema=schema, preserve_index=False)
 
     out_path = output_dir / "escola" / "data.parquet"
     out_path.parent.mkdir(parents=True, exist_ok=True)

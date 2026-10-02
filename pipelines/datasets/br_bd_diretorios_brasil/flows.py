@@ -8,6 +8,7 @@ from pipelines.datasets.br_bd_diretorios_brasil.tasks import (
     build_municipio_lookup,
     clean_catalogo,
     download_catalogo,
+    fetch_censo_escolar,
     fetch_diretorio_publicado,
     get_source_max_date,
 )
@@ -72,6 +73,7 @@ def br_bd_diretorios_brasil__escola(
         csv_path=csv_path,
         municipio_lookup=build_municipio_lookup(),
         diretorio_publicado=fetch_diretorio_publicado(),
+        censo_escolar=fetch_censo_escolar(),
     )
 
     upload_to_gcs(
