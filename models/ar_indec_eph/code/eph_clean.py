@@ -36,6 +36,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from models.ar_indec_eph.code.archives import (
+    blank_to_na,
     data_members,
     extract,
     read_dta,
@@ -49,7 +50,6 @@ from models.ar_indec_eph.code.constants import (
 )
 
 PARTITION_COLS = ["ano", "trimestre"]
-NULL_TOKENS = {"", "nan", "NaN", "None", "NA", "."}
 
 # The architecture's BigQuery types, as arrow types. Values are built with these
 # and only then cast to string, which is what keeps an integral amount as
@@ -108,10 +108,8 @@ def read_raw(wave: dict, member: str) -> pd.DataFrame:
 
 
 def normalise(series: pd.Series) -> pd.Series:
-    s = series.str.strip().str.strip('"').str.strip()
-    # pyrefly: ignore [bad-argument-type]  pandas-stubs omits pd.NA from the
-    # Scalar union accepted by to_replace, though replace() takes it.
-    return s.replace({t: pd.NA for t in NULL_TOKENS})
+    # The TXT era quotes some fields, so strip quotes between the two strips.
+    return blank_to_na(series.str.strip().str.strip('"'))
 
 
 def to_number(series: pd.Series) -> pd.Series:

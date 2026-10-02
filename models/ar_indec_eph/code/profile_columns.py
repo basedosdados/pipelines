@@ -16,6 +16,7 @@ from pathlib import Path
 import pandas as pd
 
 from models.ar_indec_eph.code.archives import (
+    blank_to_na,
     data_members,
     extract,
     read_dta,
@@ -43,11 +44,7 @@ DEC_RE = re.compile(r"^-?\d+[.,]\d+$")
 
 
 def norm(series: pd.Series) -> pd.Series:
-    s = series.astype("string")
-    s = s.str.strip()
-    # pyrefly: ignore [bad-argument-type]  pandas-stubs omits pd.NA from the
-    # Scalar union accepted by to_replace, though replace() takes it.
-    return s.replace({"": pd.NA, "nan": pd.NA, "None": pd.NA})
+    return blank_to_na(series.astype("string"))
 
 
 def main() -> int:

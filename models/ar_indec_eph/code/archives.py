@@ -122,3 +122,21 @@ def read_dta(path: Path) -> tuple[pd.DataFrame, Any]:
     frame = pd.DataFrame(frame)
     frame.columns = [str(c).upper() for c in meta.column_names]
     return frame, meta
+
+
+#: Strings the EPH sources use for a missing value. The Stata era writes the
+#: empty string where the TXT era writes nothing at all, and pandas turns an
+#: unquoted empty field into the literal "nan" on read.
+BLANK_TOKENS = ("", "nan", "NaN", "None", "NA", ".")
+
+
+def blank_to_na(series: pd.Series, tokens: tuple[str, ...] = BLANK_TOKENS):
+    """Strip whitespace and map the sources' blank spellings to NA.
+
+    The suppression below is the only one needed for this pattern, which is why
+    all four passes share this helper: pandas-stubs omits pd.NA from the Scalar
+    union it declares for `to_replace`, although `Series.replace` accepts it.
+    """
+    stripped = series.str.strip()
+    # pyrefly: ignore [bad-argument-type]
+    return stripped.replace({t: pd.NA for t in tokens})

@@ -26,6 +26,7 @@ from pathlib import Path
 import pandas as pd
 
 from models.ar_indec_eph.code.archives import (
+    blank_to_na,
     data_members,
     extract,
     read_dta,
@@ -80,7 +81,7 @@ def main() -> int:
             for col in arch[table]:
                 if col not in df.columns:
                     continue
-                s = df[col].str.strip().replace({"": pd.NA, "nan": pd.NA})
+                s = blank_to_na(df[col])
                 nn = s.dropna()
                 if nn.empty:
                     continue

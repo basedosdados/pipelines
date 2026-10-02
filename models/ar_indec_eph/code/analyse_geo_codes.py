@@ -16,6 +16,7 @@ from pathlib import Path
 import pandas as pd
 
 from models.ar_indec_eph.code.archives import (
+    blank_to_na,
     data_members,
     extract,
     read_dta,
@@ -51,12 +52,7 @@ def main() -> int:
             for col in COLUMNS:
                 if col not in frame.columns:
                     continue
-                s = (
-                    frame[col]
-                    .str.strip()
-                    .replace({"": pd.NA, "nan": pd.NA})
-                    .dropna()
-                )
+                s = blank_to_na(frame[col]).dropna()
                 if s.empty:
                     continue
                 alpha = int(s.str.contains(r"[A-Za-z]").sum())
