@@ -31,6 +31,19 @@ os cookies anônimos que o portal entrega no primeiro GET, sem login. O download
 é feito por `curl` em subprocesso porque o servidor derruba a conexão TLS
 aberta pelo `ssl` do Python.
 
+O `Extract` devolve no máximo 100.000 linhas e corta o resto sem avisar, na
+ordem do código da UF. O Catálogo tem mais de 200 mil escolas, então o download
+é feito uma UF por vez, com o filtro `P0=1`, `P1=eq`,
+`P2="D - Localidade Escola"."Sigla Uf"`, `P3=<UF>`, e as partes são juntadas
+num CSV só. A maior UF, SP, tem cerca de 33 mil escolas. Duas coisas a saber:
+
+- o filtro precisa do nome interno da coluna, `Sigla Uf`. "UF" é só o rótulo
+  exibido, e com ele o portal ignora o filtro e devolve o arquivo inteiro. Os
+  nomes internos aparecem no cabeçalho da exportação com `Format=xml`, no
+  atributo `saw-sql:displayFormula`;
+- o download para com erro se alguma UF vier vazia ou com 100.000 linhas, que é
+  o sinal de filtro ignorado ou de UF cortada.
+
 No backend, a fonte original da tabela é "Catálogo de Escolas do Inep", e é a
 única ligada a ela.
 
@@ -91,6 +104,11 @@ seguidos, cada um teria data mais nova que o anterior e baixaria de novo.
 O poll por tamanho de arquivo, a outra opção para fonte sem data, não serve
 aqui: ele levanta erro quando o arquivo diminui, e o catálogo diminui sempre que
 o Inep remove escolas extintas.
+
+A limpeza falha se o catálogo vier com menos de 95% das escolas `Presente` do
+diretório publicado (`constants.MIN_CATALOG_SHARE`). Um download incompleto não
+apaga escola nenhuma, porque a união segura o diretório publicado, mas marcaria
+como `Ausente` todas as escolas que faltaram, e o run terminaria verde.
 
 O upload usa `dump_mode="append"`, não `"overwrite"`. O `overwrite` apaga a
 tabela final antes de subir o arquivo, e em prod isso deixaria o diretório fora

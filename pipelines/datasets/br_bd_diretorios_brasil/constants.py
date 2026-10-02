@@ -32,6 +32,45 @@ class constants(Enum):
     # O portal oscila: já devolveu conexão encerrada (curl com saída 35) e
     # HTTP 502 minutos antes de entregar o CSV inteiro. As duas falhas passam
     # numa nova tentativa, então cada download é repetido antes de desistir.
+    # O `Extract` devolve no máximo 100.000 linhas, então o Catálogo é baixado
+    # uma UF por vez. O filtro usa o nome interno da coluna: "UF" é só o rótulo
+    # exibido, e filtrar por ele faz o portal ignorar o filtro sem avisar.
+    EXTRACT_ROW_LIMIT = 100_000
+    UF_FILTER_COLUMN = '"D - Localidade Escola"."Sigla Uf"'
+    UFS = [
+        "RO",
+        "AC",
+        "AM",
+        "RR",
+        "PA",
+        "AP",
+        "TO",
+        "MA",
+        "PI",
+        "CE",
+        "RN",
+        "PB",
+        "PE",
+        "AL",
+        "SE",
+        "BA",
+        "MG",
+        "ES",
+        "RJ",
+        "SP",
+        "PR",
+        "SC",
+        "RS",
+        "MS",
+        "MT",
+        "GO",
+        "DF",
+    ]
+
+    # Menor fração das escolas `Presente` do diretório publicado que o
+    # Catálogo baixado precisa trazer para a carga seguir.
+    MIN_CATALOG_SHARE = 0.95
+
     DOWNLOAD_ATTEMPTS = 3
     RETRY_WAIT_SECONDS = 15
     CURL_TIMEOUT_SECONDS = 600

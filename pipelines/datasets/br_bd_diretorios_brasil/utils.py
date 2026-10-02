@@ -11,7 +11,11 @@ the first GET — no login needed.
 
 Flow:
   1. GET  saw.dll?dashboard  →  server sets JSESSIONID + ORA_BIPS_NQID cookies
-  2. POST saw.dll?Go  with Action=Extract&Format=csv  →  returns ~85 MB CSV
+  2. POST saw.dll?Go  with Action=Extract&Format=csv and a P0 to P3 filter on one
+     UF  →  returns that UF's CSV
+
+Extract returns at most 100,000 rows, fewer than half the catalog, so the
+download runs once per UF and the parts are merged.
 
 This is implemented via subprocess curl (not requests) because the server
 resets TLS connections from Python's ssl library but accepts curl's fingerprint.
@@ -65,35 +69,65 @@ def get_source_max_date() -> str:
 
 
 def download_catalogo(input_dir: Path) -> Path:
-    """Download the INEP school catalog CSV from OBIEE.
+    """Baixa o Catálogo de Escolas UF por UF e junta as partes num CSV só.
 
-    Retries the whole cookie + Extract round, because the portal's two failure
-    modes surface in different places: a reset connection makes curl exit
-    non-zero, while a 502 comes back as a successful curl carrying an HTML
-    body.
+    O ``Extract`` do portal devolve no máximo
+    ``constants.EXTRACT_ROW_LIMIT`` linhas, menos da metade do Catálogo, então
+    cada UF é baixada separadamente.
 
     Args:
-        input_dir: Directory where the raw CSV will be saved.
+        input_dir: Diretório onde ficam as partes e o CSV final.
 
     Returns:
-        Path to the downloaded CSV file.
+        O caminho do CSV com o Catálogo inteiro.
 
     Raises:
-        RuntimeError: If every attempt fails.
+        RuntimeError: Se alguma UF esgotar as tentativas.
+        ValueError: Se alguma UF vier vazia ou bater no limite de linhas.
     """
     input_dir.mkdir(parents=True, exist_ok=True)
+    part_paths = [
+        download_catalogo_uf(input_dir, uf) for uf in constants.UFS.value
+    ]
     csv_path = input_dir / "catalogo_escolas.csv"
+    merge_csv_parts(part_paths, csv_path)
+    return csv_path
+
+
+def download_catalogo_uf(input_dir: Path, uf: str) -> Path:
+    """Baixa as escolas de uma UF, repetindo a rodada inteira quando falha.
+
+    A rodada de cookie e ``Extract`` é repetida inteira porque o portal falha
+    de dois jeitos: uma conexão derrubada faz o curl sair com erro, enquanto
+    um 502 chega como curl bem-sucedido trazendo HTML.
+
+    Args:
+        input_dir: Diretório onde a parte é gravada.
+        uf: Sigla da UF.
+
+    Returns:
+        O caminho do CSV da UF.
+
+    Raises:
+        RuntimeError: Se todas as tentativas falharem.
+        ValueError: Se a UF vier vazia ou com ``constants.EXTRACT_ROW_LIMIT``
+            linhas, sinal de que o filtro não foi aplicado ou de que o limite
+            cortou a UF.
+    """
+    part_path = input_dir / f"catalogo_escolas_{uf}.csv"
 
     for attempt in range(1, constants.DOWNLOAD_ATTEMPTS.value + 1):
         try:
-            return _download_catalogo_once(csv_path)
+            _download_catalogo_once(part_path, uf)
+            break
         except RuntimeError as error:
-            # Drop the partial body so --skip-download cannot reuse it.
-            csv_path.unlink(missing_ok=True)
+            # Apaga o corpo parcial antes de tentar de novo.
+            part_path.unlink(missing_ok=True)
             if attempt == constants.DOWNLOAD_ATTEMPTS.value:
                 raise
             log.warning(
-                "Attempt %d/%d failed (%s). Retrying in %ds...",
+                "%s: attempt %d/%d failed (%s). Retrying in %ds...",
+                uf,
                 attempt,
                 constants.DOWNLOAD_ATTEMPTS.value,
                 error,
@@ -101,25 +135,64 @@ def download_catalogo(input_dir: Path) -> Path:
             )
             time.sleep(constants.RETRY_WAIT_SECONDS.value)
 
-    raise RuntimeError("download_catalogo exhausted its attempts")
+    rows = len(pd.read_csv(part_path, dtype=str, encoding="utf-8-sig"))
+    if rows == 0 or rows >= constants.EXTRACT_ROW_LIMIT.value:
+        raise ValueError(
+            f"O Catálogo de {uf} veio com {rows} escolas. Zero indica UF "
+            f"faltando; {constants.EXTRACT_ROW_LIMIT.value} indica que o "
+            "filtro não foi aplicado ou que o limite do portal cortou a UF."
+        )
+    log.info("%s: %d schools", uf, rows)
+    return part_path
 
 
-def _download_catalogo_once(csv_path: Path) -> Path:
-    """Run one cookie + Extract round against the OBIEE portal.
-
-    Uses curl via subprocess to work around the server's TLS fingerprint check.
-    Two requests are issued:
-      1. GET dashboard page to obtain an anonymous session cookie.
-      2. POST with Action=Extract to receive the full CSV (~85 MB, ~212k rows).
+def merge_csv_parts(part_paths: list[Path], csv_path: Path) -> None:
+    """Junta os CSVs das UFs num só, mantendo o cabeçalho uma vez.
 
     Args:
-        csv_path: Destination of the downloaded CSV.
+        part_paths: CSVs baixados por ``download_catalogo_uf``.
+        csv_path: Destino do CSV juntado.
+
+    Raises:
+        ValueError: Se alguma parte tiver cabeçalho diferente da primeira.
+    """
+    first_header = None
+    with open(csv_path, "wb") as merged:
+        for part_path in part_paths:
+            with open(part_path, "rb") as part:
+                header = part.readline()
+                body = part.read()
+            if first_header is None:
+                first_header = header
+                merged.write(header)
+            elif header != first_header:
+                raise ValueError(
+                    f"Cabeçalho de {part_path.name} difere do da primeira UF."
+                )
+            merged.write(body)
+            if body and not body.endswith(b"\n"):
+                merged.write(b"\n")
+
+
+def _download_catalogo_once(csv_path: Path, uf: str) -> Path:
+    """Faz uma rodada de cookie e ``Extract`` no portal, filtrando uma UF.
+
+    Usa curl em subprocesso porque o servidor recusa a impressão digital TLS
+    do ``ssl`` do Python. São duas requisições:
+      1. GET no painel, para obter o cookie de sessão anônima.
+      2. POST com ``Action=Extract`` e o filtro ``P0`` a ``P3`` na coluna
+         ``constants.UF_FILTER_COLUMN``, que devolve o CSV da UF.
+
+    Args:
+        csv_path: Destino do CSV baixado.
+        uf: Sigla da UF usada no filtro.
 
     Returns:
         ``csv_path``.
 
     Raises:
-        RuntimeError: If either curl call fails or the response is not CSV.
+        RuntimeError: Se alguma chamada do curl falhar ou a resposta não for
+            CSV.
     """
     with tempfile.NamedTemporaryFile(
         suffix=".txt", delete=False
@@ -127,9 +200,7 @@ def _download_catalogo_once(csv_path: Path) -> Path:
         cookie_path = Path(cookie_file.name)
 
     try:
-        log.info(
-            "Step 1/2: obtaining anonymous session cookies from INEP OBIEE..."
-        )
+        log.info("%s: obtaining anonymous session cookies...", uf)
         run_curl(
             [
                 "curl",
@@ -150,9 +221,7 @@ def _download_catalogo_once(csv_path: Path) -> Path:
             label="GET dashboard (cookie acquisition)",
         )
 
-        log.info(
-            "Step 2/2: downloading school catalog via OBIEE Extract (~85 MB)..."
-        )
+        log.info("%s: downloading the school catalog via Extract...", uf)
         result = run_curl(
             [
                 "curl",
@@ -178,10 +247,18 @@ def _download_catalogo_once(csv_path: Path) -> Path:
                 "Format=csv",
                 "--data-urlencode",
                 f"path={constants.CATALOG_PATH.value}",
+                "--data-urlencode",
+                "P0=1",
+                "--data-urlencode",
+                "P1=eq",
+                "--data-urlencode",
+                f"P2={constants.UF_FILTER_COLUMN.value}",
+                "--data-urlencode",
+                f"P3={uf}",
                 "-o",
                 str(csv_path),
             ],
-            label="POST Extract",
+            label=f"POST Extract {uf}",
             capture_stdout=True,
         )
     finally:
@@ -315,16 +392,12 @@ def fetch_diretorio_publicado(
 
     Returns:
         One row per ``id_escola`` in
-        ``basedosdados.br_bd_diretorios_brasil.escola``, holding the staging
-        columns that predate ``situacao_catalogo``.
+        ``basedosdados.br_bd_diretorios_brasil.escola``, holding every staging
+        column. ``situacao_catalogo`` feeds the size check in
+        ``clean_catalogo``.
     """
-    cols = [
-        col
-        for col in constants.COLUMNS.value
-        if col != constants.SITUACAO_CATALOGO.value
-    ]
     query = f"""
-        SELECT {", ".join(cols)}
+        SELECT {", ".join(constants.COLUMNS.value)}
         FROM `basedosdados.br_bd_diretorios_brasil.escola`
     """
     log.info(
@@ -403,6 +476,11 @@ def clean_catalogo(
         Quando um id aparece em mais de uma fonte, vale o Catálogo, depois o
         diretório publicado, depois o Censo Escolar.
 
+    Trava de tamanho:
+        Com ``diretorio_publicado``, a limpeza falha se o Catálogo trouxer
+        menos de ``constants.MIN_CATALOG_SHARE`` das escolas ``Presente`` do
+        diretório publicado.
+
     Valores em branco:
         Toda coluna de texto passa por strip, e o que fica vazio vira nulo: o
         OBIEE grava coordenada ausente como uma sequência de espaços, que o
@@ -424,9 +502,26 @@ def clean_catalogo(
 
     Returns:
         O caminho do parquet gravado.
+
+    Raises:
+        ValueError: Se o Catálogo vier menor que a trava de tamanho.
     """
     log.info("Reading %s...", csv_path)
     df = pd.read_csv(csv_path, dtype=str, encoding="utf-8-sig", na_values=[""])
+
+    if diretorio_publicado is not None:
+        published_presente = (
+            diretorio_publicado[constants.SITUACAO_CATALOGO.value]
+            == constants.PRESENTE.value
+        ).sum()
+        minimum = constants.MIN_CATALOG_SHARE.value * published_presente
+        if len(df) < minimum:
+            raise ValueError(
+                f"O Catálogo veio com {len(df)} escolas, menos de "
+                f"{constants.MIN_CATALOG_SHARE.value:.0%} das "
+                f"{published_presente} escolas Presente no diretório "
+                "publicado. O download provavelmente veio incompleto."
+            )
 
     # Rename columns
     df = df.rename(columns=constants.RENAME.value)
