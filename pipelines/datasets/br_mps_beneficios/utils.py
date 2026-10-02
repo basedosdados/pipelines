@@ -825,6 +825,7 @@ def write_partitioned(
     outdir: Path,
     table: str,
     partition_cols: list[str] | None = None,
+    filename: str = "data.parquet",
 ) -> Path:
     """Write hive-partitioned, all-STRING Snappy parquet.
 
@@ -840,6 +841,15 @@ def write_partitioned(
     would render a NULL as the literal ``"nan"`` and defeat the ``safe_cast``.
     ``id_municipio`` is genuinely NULL wherever the source wrote
     ``00000-Zerada``.
+
+    ``filename`` names the parquet inside each partition directory. The monthly
+    refresh passes ``data_<competencia>.parquet`` so a new month lands beside the
+    year's existing file rather than replacing it: the table is partitioned by
+    ``ano`` alone, so rewriting ``data.parquet`` for a new month would mean
+    rebuilding every month of that year — 12 GB per month for mantidos. A
+    BigQuery external table globs the partition directory, so several files in
+    one partition read as one partition, and naming the file after the
+    competência keeps a re-run idempotent instead of double-counting.
 
     The partition columns go into the hive path only and NOT into the file
     body. ``basedosdados.Table`` builds the staging schema as
@@ -894,7 +904,7 @@ def write_partitioned(
             group[body], schema=typed, preserve_index=False
         )
         pq.write_table(
-            at.cast(as_string), pdir / "data.parquet", compression="snappy"
+            at.cast(as_string), pdir / filename, compression="snappy"
         )
     return tdir
 
@@ -1192,6 +1202,60 @@ def assert_especie_column(path: Path, header: list[str], sample: list[dict]):
             f"e.g. {seen}). This file's columns do not match its header, so "
             "its espécie/clientela/sexo grain is unrecoverable."
         )
+
+
+def archive_fingerprint(path: Path) -> str:
+    """Identify an archive by its inner member's size and CRC.
+
+    Both come from the zip directory, so this costs no decompression. The
+    publisher reissues a snapshot under later month labels rather than leaving a
+    month unpublished — Jun-Aug/2024 are byte-identical to May/2024, Feb/2025 to
+    Jan/2025, Sep/2025 to Aug/2025, Feb-Mar/2026 to Jan/2026 — and staging those
+    as distinct competências asserts that the national stock did not move.
+    """
+    with zipfile.ZipFile(path) as z:
+        info = next(
+            i for i in z.infolist() if i.filename.lower().endswith(".csv")
+        )
+    return f"{info.file_size}:{info.CRC:08x}"
+
+
+def remote_size(url: str) -> int | None:
+    """Content-Length of a resource, or None when the server will not say.
+
+    Used as a cheap pre-check for a reissued month: every reissue observed so
+    far is byte-identical to its source month, so an identical Content-Length is
+    strong enough evidence to skip a 950 MB download. It is a filter, not proof
+    — :func:`archive_fingerprint` and the aggregate comparison decide.
+    """
+    safe = urllib.parse.quote(url, safe=":/?&=%+")
+    req = urllib.request.Request(
+        safe,
+        method="HEAD",
+        headers={"User-Agent": "basedosdados/br_mps_beneficios"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=120) as fh:
+            raw = fh.headers.get("Content-Length")
+            return int(raw) if raw else None
+    except Exception:
+        return None
+
+
+def latest_competencia(resources: list[dict]) -> int:
+    """Highest monthly competência the source lists, as YYYYMM.
+
+    The concedido list is deliberately mixed: the 2012-2018 annual archives
+    carry ``competencia: None`` and an ``ano`` instead, because one file holds
+    twelve months. Maxing over the raw field therefore compares None against
+    None and raises, which is how the first dev run of the pipeline failed.
+    """
+    months = [r["competencia"] for r in resources if r.get("competencia")]
+    if not months:
+        raise ValueError(
+            f"no monthly competência among {len(resources)} resources"
+        )
+    return max(months)
 
 
 def iter_mantido(path: Path, chunk: int = 250_000):
