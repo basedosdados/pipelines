@@ -546,35 +546,86 @@ caminho volta vermelho.
 
 ---
 
-## Particionamento (achado de 2026-07-29)
+## Particionamento
 
-**Os modelos do conjunto estão com o fim do range de partição curto demais.** A maioria
-declara `"end": 2024` e o `profissional` declara `"end": 2026`, com dados indo até 2026.
+Linhas com `ano` fora do range de partição caem em `__UNPARTITIONED__`, e filtrar por `ano`
+não poda nada nessa partição. No particionamento por inteiro do BigQuery o range é
+`[start, end)` — o fim é **exclusivo**, e `"end": 2024` já deixa 2024 de fora. A convenção
+da BD é `end = último ano + 5`, o que dá 2031 para dados até 2026.
 
-O fim do range é **exclusivo** no particionamento por inteiro do BigQuery: linhas com
-valor fora de `[start, end)` vão para a partição `__UNPARTITIONED__`. Com `end: 2024`,
-tudo de 2024 em diante — três anos de dados — está num único bucket, e filtrar por `ano`
-não poda nada nesse intervalo. A convenção da BD é `end = último ano + 5`, então o valor
-certo hoje é **2031**.
+Range declarado nos modelos:
 
-**Alterar o config não reparticiona.** O particionamento é definido na criação da tabela,
-então a correção só vale depois de `--full-refresh`. O `dbt` não acusa a divergência entre
-o config novo e o particionamento antigo enquanto isso não acontece —
-`dbt run --select br_ms_cnes__incentivos` passou normalmente (`MERGE`) nessa situação.
+| Modelo | `start` | `end` |
+|---|---|---|
+| `dados_complementares`, `equipamento`, `equipe`, `estabelecimento`, `estabelecimento_filantropico`, `gestao_metas`, `habilitacao`, `incentivos`, `leito`, `profissional`, `servico_especializado` | 2005 | 2031 |
+| `estabelecimento_ensino`, `regra_contratual` | 2005 | 2024 |
 
-**Só o `equipamento` foi corrigido aqui** (`end: 2031`). O rebuild serviu a três coisas de
-uma vez: reparticionar a tabela, preencher `codigo_equipamento` em toda a série e aplicar os
-tipos novos da #1722. Em dev está feito (zero linhas em `__UNPARTITIONED__`); em prod chega
-com o `--full-refresh` manual descrito em "Tipos das colunas do equipamento", que desde a
-transferência de 2026-07-30 não perde mais histórico.
+`estabelecimento_ensino` e `regra_contratual` ficam em 2024. Nas duas:
 
-As outras 11 tabelas, e a reconstrução de todas, ficaram em issue própria: são 248 GB e
-1,17 bilhão de linhas, com `estabelecimento` e `profissional` somando 222 GB, o que não
-cabia numa PR sobre o dicionário.
+- nenhuma linha está em `__UNPARTITIONED__`;
+- não entra dado novo: o DATASUS descontinuou o grupo EE em 2019-12, e a `regra_contratual`
+  está desativada, com o crawler quebrado (#1703, fechada como `NOT_PLANNED`);
+- um full-refresh derruba as row access policies, e o flow não chega a reaplicá-las: ele
+  encerra antes do `register_table_materialization_task`, no EE porque o FTP não devolve
+  arquivos, na `regra_contratual` porque o crawler falha.
 
-`regra_contratual` está fora de qualquer reprocessamento: a tabela está desativada, o
-crawler falha na leitura do CSV desde pelo menos 2026-05 e a #1703 foi fechada como
-`NOT_PLANNED`.
+**Alterar o config não reparticiona.** O particionamento é fixado quando a tabela é criada,
+e só um `--full-refresh` aplica o range novo. O dbt não acusa a divergência: um `dbt run`
+incremental com config novo sobre tabela velha passa normalmente. Tabela de prod que não
+passou por full-refresh depois da troca do config segue com o range antigo — a consulta de
+conferência abaixo mostra o range de cada uma.
+
+### Reconstrução de uma tabela em prod
+
+Todas as tabelas do conjunto são `PartBdpro` (fixo no `_run_cnes`), e o `pre_hook` de todo
+modelo faz `DROP ALL ROW ACCESS POLICIES`. O `run_dbt_model_flow`, que aceita
+`--full-refresh`, não recria as políticas; quem recria é o
+`register_table_materialization_task`, dentro de um run do flow da tabela. Por isso a
+reconstrução usa dois runs seguidos, e entre eles a janela BD Pro fica aberta ao público.
+
+Rode fora da janela dos crons (6h30–12h30, ver "Agendamento") e reconstrua `estabelecimento`
+antes de `leito` e `profissional` — os dois modelos fazem join com
+`basedosdados.br_ms_cnes.estabelecimento`. Antes do passo 1, rode a consulta de conferência
+e anote as `linhas` da tabela.
+
+1. Dispare o deployment `run_dbt_model_flow` ("BD template: Executa DBT model") com os
+   parâmetros abaixo. Ele clona a `main`, então o config novo precisa estar mergeado.
+
+   ```text
+   dataset_id="br_ms_cnes"
+   table_id="<tabela>"
+   dbt_command="run"
+   flags="--full-refresh"
+   target="prod"
+   dbt_alias=true
+   download_csv_file=false
+   ```
+
+2. Logo em seguida, rode o flow `br_ms_cnes__<tabela>` com `force_run=true` e
+   `year_month_to_extract="<AAMM da última competência da tabela>"` (`"2606"` para
+   2026-06). É esse run que reaplica as row access policies. O incremental não insere nada,
+   porque o filtro do modelo só pega competência maior que a máxima da tabela. No log,
+   confira `BDpro filter was included` e `All users filter was included`.
+
+3. Confira o resultado pela consulta abaixo, não pelo estado dos runs: `Completed` não mostra
+   se a tabela foi reparticionada. A tabela reconstruída tem `range_atual` com fim 2031, zero
+   em `fora_do_range` e `linhas` igual ao valor anotado antes do passo 1. O total pode cair
+   um pouco, porque o modelo faz `select distinct *` sobre o staging e remove duplicatas
+   exatas.
+
+```sql
+select t.table_name,
+       regexp_extract(t.ddl, r'GENERATE_ARRAY\([^)]*\)') as range_atual,
+       sum(p.total_rows) as linhas,
+       sum(if(p.partition_id = '__UNPARTITIONED__', p.total_rows, 0)) as fora_do_range
+from `basedosdados.br_ms_cnes.INFORMATION_SCHEMA.TABLES` t
+join `basedosdados.br_ms_cnes.INFORMATION_SCHEMA.PARTITIONS` p using (table_name)
+group by 1, 2 order by 1
+```
+
+**Não use o rótulo `table-approve`** numa PR que só muda o config desses modelos. Ele roda
+`dbt run` incremental em prod nos modelos alterados: o particionamento fica como está, o
+`pre_hook` derruba as políticas e nada as reaplica.
 
 ---
 
