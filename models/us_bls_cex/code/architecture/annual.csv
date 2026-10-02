@@ -1,0 +1,11 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the estimate,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,year
+series_id,STRING,BLS LABSTAT series identifier; see the series table,,no,,,no,,series_id
+mean,FLOAT64,"Published estimate: mean annual expenditure or income per consumer unit, or the mean characteristic",,no,,usd,no,"Unit is US dollars for expenditure and income items; consumer-unit characteristics (e.g. persons, age, percent) carry the unit named in the item",value
+standard_error,FLOAT64,Standard error of the mean,2010(1)2024,no,,usd,no,,value (aspect_type E)
+relative_standard_error,FLOAT64,Relative standard error of the mean,2010(1)2024,no,,percent,no,,value (aspect_type R0)
+expenditure_share,FLOAT64,Share of the item in average annual expenditures of the group,2010(1)2024,no,,percent,no,,value (aspect_type ES)
+aggregate_expenditure,FLOAT64,Aggregate expenditure on the item for the group,2011(1)2024,no,,usd_million,no,"For characteristics other than all consumer units, BLS reports the share of the aggregate instead",value (aspect_type AG)
+aggregate_share,FLOAT64,Share of the aggregate expenditure on the item accounted for by the group,2011(1)2024,no,,percent,no,,value (aspect_type AS)
+percent_reporting,FLOAT64,Percentage of consumer units in the group reporting an expenditure on the item,2010(1)2024,no,,percent,no,,value (aspect_type RP)
+footnote_codes,STRING,Footnote codes attached to the mean estimate,,yes,,,no,,footnote_codes
