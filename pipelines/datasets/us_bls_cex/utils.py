@@ -257,7 +257,7 @@ def build_series(input_dir: Path) -> pa.Table:
         "demographics_text",
         "characteristics_text",
     ]:
-        miss = int(df[c].isna().sum())
+        miss = df[c].isna().sum()
         if miss:
             raise ValueError(f"series: {miss} rows without {c}")
     df = df.rename(
