@@ -118,7 +118,9 @@ def discover_partition_folders(data_path: str) -> list[str] | None:
     return sorted(leaves) or None
 
 
-def deploy_tags(dataset_id: str, etapa: Etapa) -> list[str]:
+def deploy_tags(
+    dataset_id: str, etapa: Etapa, table_id: str | None = None
+) -> list[str]:
     """Tags de deploy pra achar deployments relacionados no Prefect UI/CI.
 
     Usar em `<flow>.deploy_tags = deploy_tags(...)`.
@@ -126,11 +128,20 @@ def deploy_tags(dataset_id: str, etapa: Etapa) -> list[str]:
     Args:
         dataset_id: ID do dataset.
         etapa: etapa do flow.
+        table_id: ID da tabela, quando o dataset tem mais de uma — adiciona
+            a tag `<dataset_id>__<table_id>`, pra filtrar uma tabela
+            específica sem misturar com as outras do mesmo dataset (a tag
+            `<dataset_id>` sozinha não distingue).
 
     Returns:
-        Lista com a tag da etapa (sem prefixo) e a tag `dataset:<dataset_id>`.
+        Lista com a tag da etapa, `<dataset_id>`, e `<dataset_id>__<table_id>`
+        quando `table_id` é passado — todas sem prefixo, mesmo padrão da
+        tag de etapa.
     """
-    return [str(etapa), f"dataset:{dataset_id}"]
+    tags = [str(etapa), dataset_id]
+    if table_id is not None:
+        tags.append(f"{dataset_id}__{table_id}")
+    return tags
 
 
 def _flow_name(dataset_id: str, etapa: Etapa) -> str:
