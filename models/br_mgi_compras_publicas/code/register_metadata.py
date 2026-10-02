@@ -37,17 +37,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
 
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
+
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[2]
-# The sibling modules are imported by absolute path (`models.<ds>.code.<mod>`),
-# per AGENTS.md, so pyrefly can resolve them; the repo root has to be on the
-# path for that to work when this file is run as a script rather than under
-# `uv run`. `server` comes from the MCP checkout, which is not a package here.
-sys.path.insert(0, str(REPO_ROOT))
-sys.path.insert(0, str(Path.home() / "Dropbox/BD/mcp"))
-
-# pyrefly: ignore [missing-import]
-import server  # noqa: E402
 
 from models.br_mgi_compras_publicas.code.dbt_spec import (  # noqa: E402
     TABLES as DBT,
@@ -157,7 +151,7 @@ def fn(name: str) -> Callable[..., Any]:
     return type keeps call sites type-checkable, since `getattr` alone reads as
     `Any | None` to the checker.
     """
-    f = getattr(server, name)
+    f = getattr(server, name, None) or getattr(write, name)
     return cast("Callable[..., Any]", getattr(f, "fn", f))
 
 

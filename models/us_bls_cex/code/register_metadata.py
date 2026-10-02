@@ -3,7 +3,7 @@
     ~/.pyenv/versions/3.11.6/bin/python models/us_bls_cex/code/register_metadata.py --env dev
     ~/.pyenv/versions/3.11.6/bin/python models/us_bls_cex/code/register_metadata.py --env prod
 
-Needs an interpreter that imports the databasis MCP ``server.py`` (fastmcp).
+Needs the ``databasis-mcp`` dependency (``uv sync``).
 Columns come from ``code/architecture/*.csv`` (English) plus
 ``code/translations.json`` (Portuguese, Spanish), so the backend, dbt models and
 parquet schema derive from one source. The MCP tool functions are called
@@ -19,21 +19,11 @@ import argparse
 import csv
 import datetime
 import json
-import os
 import re
-import sys
 from pathlib import Path
 
-MCP_REPO = os.environ.get(
-    "DATABASIS_MCP_REPO",
-    str(Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"),
-)
-if not (Path(MCP_REPO) / "server.py").exists():
-    raise SystemExit(f"databasis MCP server not found at {MCP_REPO}")
-sys.path.insert(0, MCP_REPO)
-
-# pyrefly: ignore [missing-import]
-import server  # noqa: E402
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
 CODE = Path(__file__).resolve().parent
 ARCH = CODE / "architecture"
@@ -595,7 +585,7 @@ def main() -> None:
     prior_tables = existing.get("tables", {}) if existing.get("found") else {}
 
     status = "published" if args.publish else "under_review"
-    ds = server.create_update_dataset(
+    ds = write.create_update_dataset(
         id=existing.get("id") if existing.get("found") else None,
         env=env,
         **dataset_fields(ids, status),
@@ -605,11 +595,11 @@ def main() -> None:
 
     prior_sources = {
         s["name"]: s["id"]
-        for s in server.get_raw_data_sources(dataset_slug=SLUG, env=env)
+        for s in write.get_raw_data_sources(dataset_slug=SLUG, env=env)
     }
     source_ids = {}
     for key, (en, pt, es, url) in RAW_SOURCES.items():
-        r = server.create_update_raw_data_source(
+        r = write.create_update_raw_data_source(
             id=prior_sources.get(en) or prior_sources.get(pt),
             dataset_id=dataset_id,
             name_en=en,
@@ -632,7 +622,7 @@ def main() -> None:
             {"s": r["id"]},
             env=env,
         )["allUpdate"]["edges"]
-        server.create_update_update(
+        write.create_update_update(
             id=server._strip_id(src_updates[0]["node"]["id"])
             if src_updates
             else None,
@@ -646,7 +636,7 @@ def main() -> None:
     for table in args.tables:
         spec = TABLE_TEXT[table]
         prior = prior_tables.get(table, {})
-        tb = server.create_update_table(
+        tb = write.create_update_table(
             id=prior.get("id"), env=env, **table_fields(table, dataset_id, ids)
         )
         table_id = tb["id"]
@@ -658,7 +648,7 @@ def main() -> None:
         }
         ol_ids = {}
         for entity in spec["entities"]:
-            r = server.create_update_observation_level(
+            r = write.create_update_observation_level(
                 id=prior_ols.get(entity),
                 table_id=table_id,
                 entity_id=ids[entity],
@@ -667,7 +657,7 @@ def main() -> None:
             ol_ids[entity] = r["id"]
 
         cols = columns_payload(table)
-        res = server.bulk_upsert_columns(
+        res = write.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(cols, ensure_ascii=False),
             batch_size=100,
@@ -690,7 +680,7 @@ def main() -> None:
             for c in cols_now
         }
         # bulk_upsert can append retried columns; restore the architecture order
-        server.reorder_columns(
+        write.reorder_columns(
             table_id=table_id,
             column_names=[a["name"] for a in read_arch(table)],
             env=env,
@@ -698,7 +688,7 @@ def main() -> None:
         # link each grain column to its observation level; re-pass is_partition
         # because update_column's booleans default to False
         for entity, colname in spec["entities"].items():
-            server.update_column(
+            write.update_column(
                 column_id=by_name[colname],
                 column_name=colname,
                 table_id=table_id,
@@ -707,7 +697,7 @@ def main() -> None:
                 env=env,
             )
         if "year" in by_name and "year" not in spec["entities"].values():
-            server.update_column(
+            write.update_column(
                 column_id=by_name["year"],
                 column_name="year",
                 table_id=table_id,
@@ -716,7 +706,7 @@ def main() -> None:
             )
 
         prior_cloud = (prior.get("cloud_tables") or [{}])[0].get("id")
-        server.create_update_cloud_table(
+        write.create_update_cloud_table(
             id=prior_cloud,
             table_id=table_id,
             gcp_project_id=gcp_project,
@@ -726,7 +716,7 @@ def main() -> None:
         )
 
         prior_cov = (prior.get("coverages") or [{}])[0]
-        cov = server.create_update_coverage(
+        cov = write.create_update_coverage(
             id=prior_cov.get("id"),
             table_id=table_id,
             area_id=ids["area"],
@@ -740,14 +730,14 @@ def main() -> None:
             prior_range = (prior_cov.get("datetime_ranges") or [{}])[0].get(
                 "id"
             )
-            server.create_update_datetime_range(
+            write.create_update_datetime_range(
                 id=prior_range, coverage_id=cov["id"], env=env, **rng
             )
 
         prior_updates = {
             u["entity_slug"]: u["id"] for u in prior.get("updates", [])
         }
-        server.create_update_update(
+        write.create_update_update(
             id=prior_updates.get("year"),
             table_id=table_id,
             entity_id=ids["year"],
@@ -758,7 +748,7 @@ def main() -> None:
         )
 
         if spec["source"]:
-            server.create_update_table(
+            write.create_update_table(
                 id=table_id,
                 env=env,
                 **table_fields(
@@ -770,7 +760,7 @@ def main() -> None:
             )
 
     if args.tables == TABLE_ORDER:
-        server.reorder_tables(
+        write.reorder_tables(
             dataset_slug=SLUG, table_slugs=TABLE_ORDER, env=env
         )
     print("\ndone. Verify with get_dataset / GraphQL before promoting.")

@@ -21,15 +21,9 @@ from __future__ import annotations
 
 import json
 import pathlib
-import sys
 
-MCP = (
-    pathlib.Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-)
-sys.path.insert(0, str(MCP))
-
-# pyrefly: ignore [missing-import]
-import server  # noqa: E402
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
 ENV = "staging"
 DATASET_SLUG = "sa_elections"
@@ -153,9 +147,11 @@ def existing_children(table_id: str) -> dict:
     for e in node["coverages"]["edges"]:
         if e["node"]["isClosed"]:
             continue
+        # pyrefly: ignore [bad-assignment]
         out["coverage"] = server._strip_id(e["node"]["id"])
         ranges = e["node"]["datetimeRanges"]["edges"]
         if ranges:
+            # pyrefly: ignore [bad-assignment]
             out["range"] = server._strip_id(ranges[0]["node"]["id"])
         break
     return out
@@ -172,7 +168,7 @@ def main() -> int:
     for table in TABLE_ORDER:
         meta = tables_meta[table]
         prior = known.get(table) or {}
-        table_id = server.create_update_table(
+        table_id = write.create_update_table(
             slug=table,
             name_pt=meta["name_pt"],
             name_en=meta["name_en"],
@@ -200,21 +196,21 @@ def main() -> int:
 
         ol_ids: dict[str, str] = {}
         for entity_slug, _column in levels:
-            ol_ids[entity_slug] = server.create_update_observation_level(
+            ol_ids[entity_slug] = write.create_update_observation_level(
                 table_id=table_id,
                 entity_id=ENTITY[entity_slug],
                 id=prior_children["levels"].get(entity_slug),
                 env=ENV,
             )["id"]
         if ol_ids:
-            server.reorder_observation_levels(
+            write.reorder_observation_levels(
                 table_id=table_id,
                 ol_ids=[ol_ids[e] for e, _ in levels],
                 env=ENV,
             )
 
         payload = (META / f"{table}.json").read_text()
-        result = server.bulk_upsert_columns(
+        result = write.bulk_upsert_columns(
             table_id=table_id, columns_json=payload, env=ENV
         )
         log(f"    columns: {json.dumps(result)[:160]}")
@@ -225,12 +221,12 @@ def main() -> int:
         # bulk upsert's value is clobbered.
         column_ids = {
             c["name"]: server._strip_id(c["id"])
-            for c in server._fetch_table_columns(table_id, ENV)
+            for c in write._fetch_table_columns(table_id, ENV)
         }
         for entity_slug, column_name in levels:
             if column_name is None or column_name not in column_ids:
                 continue
-            server.update_column(
+            write.update_column(
                 column_id=column_ids[column_name],
                 column_name=column_name,
                 table_id=table_id,
@@ -243,7 +239,7 @@ def main() -> int:
             and "year" in column_ids
             and "year" not in {c for _, c in levels}
         ):
-            server.update_column(
+            write.update_column(
                 column_id=column_ids["year"],
                 column_name="year",
                 table_id=table_id,
@@ -251,7 +247,7 @@ def main() -> int:
                 env=ENV,
             )
 
-        server.create_update_cloud_table(
+        write.create_update_cloud_table(
             table_id=table_id,
             gcp_project_id=GCP_PROJECT,
             gcp_dataset_id=GCP_DATASET,
@@ -259,14 +255,14 @@ def main() -> int:
             id=prior_children["cloud"].get(table),
             env=ENV,
         )
-        coverage_id = server.create_update_coverage(
+        coverage_id = write.create_update_coverage(
             table_id=table_id,
             area_id=AREA_AU_SA,
             id=prior_children["coverage"],
             env=ENV,
         )["id"]
         start, end = COVERAGE[table]
-        server.create_update_datetime_range(
+        write.create_update_datetime_range(
             coverage_id=coverage_id,
             start_year=start,
             end_year=end,
@@ -274,7 +270,7 @@ def main() -> int:
             id=prior_children["range"],
             env=ENV,
         )
-        server.create_update_update(
+        write.create_update_update(
             entity_id=ENTITY["year"],
             frequency=FREQUENCY[table],
             latest=LAST_REFRESHED,
@@ -284,7 +280,7 @@ def main() -> int:
         )
         log(f"    cloud table, coverage {start}-{end}, update: ok")
 
-    server.reorder_tables(
+    write.reorder_tables(
         dataset_slug=DATASET_SLUG, table_slugs=TABLE_ORDER, env=ENV
     )
     log("  table order set")

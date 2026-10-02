@@ -1,6 +1,6 @@
 """Register the us_fbi_cde metadata in the Data Basis backend.
 
-Run with the shared venv's interpreter so the databasis MCP module imports:
+Run with the repo's environment so the databasis-mcp package imports:
 
     ~/.venvs/bd-pipelines/bin/python models/us_fbi_cde/code/register_metadata.py --env staging
 
@@ -22,14 +22,11 @@ import sys
 from datetime import date
 from pathlib import Path
 
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
+
 REPO = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(REPO))
-sys.path.insert(
-    0, str(Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp")
-)
-
-# pyrefly: ignore [missing-import]
-import server  # noqa: E402
 
 from pipelines.datasets.us_fbi_cde.spec import TABLES  # noqa: E402
 
@@ -460,7 +457,7 @@ def main():
     if missing:
         print(f"tags absent from this backend, not created: {missing}")
 
-    server.create_update_dataset(
+    write.create_update_dataset(
         id=dataset_id,
         slug=DATASET_SLUG,
         name_pt=dataset["name_pt"],
@@ -483,7 +480,7 @@ def main():
     # record is refreshed rather than left beside a working duplicate.
     # Called directly the tool returns a bare list; through the MCP layer it is
     # wrapped in {"result": [...]}. Accept either.
-    existing = server.get_raw_data_sources(dataset_slug=DATASET_SLUG, env=env)
+    existing = write.get_raw_data_sources(dataset_slug=DATASET_SLUG, env=env)
     if isinstance(existing, dict):
         existing = existing.get("result", [])
     # get_raw_data_sources returns a single `name`, and it is the Portuguese one.
@@ -505,7 +502,7 @@ def main():
         known_sources.setdefault(RAW_SOURCES[0]["name_pt"], legacy["id"])
     raw_ids = {}
     for source in RAW_SOURCES:
-        result = server.create_update_raw_data_source(
+        result = write.create_update_raw_data_source(
             id=known_sources.get(source["name_pt"]),
             dataset_id=dataset_id,
             name_pt=source["name_pt"],
@@ -544,7 +541,7 @@ def main():
             else f"https://storage.googleapis.com/{AUXILIARY_BUCKET}/auxiliary_files/"
             f"{GCP_DATASET_ID}/{table}/auxiliary_files.zip"
         )
-        table_id = server.create_update_table(
+        table_id = write.create_update_table(
             id=prior.get("id"),
             dataset_id=dataset_id,
             slug=table,
@@ -568,7 +565,7 @@ def main():
             if not entity_id:
                 print(f"  [warn] entity {entity_slug} absent on {env}")
                 continue
-            ol_ids[entity_slug] = server.create_update_observation_level(
+            ol_ids[entity_slug] = write.create_update_observation_level(
                 id=prior.get("observation_levels", {}).get(entity_slug),
                 table_id=table_id,
                 entity_id=entity_id,
@@ -577,7 +574,7 @@ def main():
         if ol_ids:
             print(f"  observation levels: {', '.join(ol_ids)}")
 
-        result = server.bulk_upsert_columns(
+        result = write.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(
                 columns_payload(table), ensure_ascii=False
@@ -609,7 +606,7 @@ def main():
             if name not in by_name:
                 print(f"  [warn] column {name} missing, cannot flag")
                 continue
-            server.update_column(
+            write.update_column(
                 column_id=by_name[name],
                 column_name=name,
                 table_id=table_id,
@@ -622,7 +619,7 @@ def main():
             f"  partitions {spec['partitions']}, OL links {sorted(ol_for_column)}"
         )
 
-        server.create_update_cloud_table(
+        write.create_update_cloud_table(
             id=prior.get("cloud_table"),
             table_id=table_id,
             gcp_project_id=gcp_project,
@@ -632,13 +629,13 @@ def main():
         )
 
         if spec["first_year"]:
-            coverage_id = server.create_update_coverage(
+            coverage_id = write.create_update_coverage(
                 id=prior.get("coverage"),
                 table_id=table_id,
                 area_id=area_id,
                 env=env,
             )["id"]
-            server.create_update_datetime_range(
+            write.create_update_datetime_range(
                 id=prior.get("datetime_range"),
                 coverage_id=coverage_id,
                 start_year=spec["first_year"],
@@ -650,7 +647,7 @@ def main():
 
         # The table Update is a wall clock: when Data Basis last refreshed the
         # table, not the source's coverage date.
-        server.create_update_update(
+        write.create_update_update(
             id=prior.get("update"),
             table_id=table_id,
             entity_id=ids["entity"]["year"],
@@ -662,7 +659,7 @@ def main():
 
         # Deferred: the raw source link is a second write, once every source exists.
         if table in raw_for_table:
-            server.create_update_table(
+            write.create_update_table(
                 id=table_id,
                 dataset_id=dataset_id,
                 slug=table,
@@ -681,13 +678,13 @@ def main():
             )
             print(f"  raw source linked: {raw_for_table[table]}")
 
-    server.reorder_tables(
+    write.reorder_tables(
         dataset_slug=DATASET_SLUG, table_slugs=list(TABLES), env=env
     )
     print("\ntable order set")
 
     # The raw data source Update is a coverage date: what the source published.
-    server.create_update_update(
+    write.create_update_update(
         raw_data_source_id=raw_ids["nibrs"],
         entity_id=ids["entity"]["year"],
         frequency=1,

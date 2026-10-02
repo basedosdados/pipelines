@@ -19,30 +19,16 @@ from __future__ import annotations
 import argparse
 import datetime
 import json
-import os
 import sys
 from pathlib import Path
 
-# The databasis MCP server is a sibling repo, not a package dependency. Its
-# tool functions are plain callables, so importing the module directly avoids
-# pushing ~40 KB of column JSON per table through the MCP interface.
-MCP_REPO = os.environ.get(
-    "DATABASIS_MCP_REPO",
-    str(Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"),
-)
-if not (Path(MCP_REPO) / "server.py").exists():
-    raise SystemExit(
-        f"databasis MCP server not found at {MCP_REPO}. "
-        "Set DATABASIS_MCP_REPO to the checkout of basedosdados/mcp."
-    )
-sys.path.insert(0, MCP_REPO)
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-# pyrefly: ignore [missing-import]
-import server  # noqa: E402
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
-from pipelines.datasets.us_census_lodes.constants import YEARS  # noqa: E402
-from pipelines.datasets.us_census_lodes.utils import read_arch  # noqa: E402
+from pipelines.datasets.us_census_lodes.constants import YEARS
+from pipelines.datasets.us_census_lodes.utils import read_arch
 
 # The backend's Update.latest is a DateTime, not a Date -- a bare
 # "YYYY-MM-DD" is rejected with "DateTime cannot represent value".
@@ -311,7 +297,7 @@ def ensure_census_block(env: str) -> str:
         env=env,
         auth=False,
     )["allEntitycategory"]["edges"][0]["node"]["id"]
-    r = server.create_update_entity(
+    r = write.create_update_entity(
         slug="census_block",
         name_pt="Bloco censitário",
         name_en="Census block",
@@ -406,7 +392,7 @@ def main() -> None:
     existing = server.get_dataset(slug=SLUG, env=env)
 
     status = ids["published"] if args.publish else ids["under_review"]
-    ds = server.create_update_dataset(
+    ds = write.create_update_dataset(
         id=existing.get("id") if existing.get("found") else None,
         slug=SLUG,
         organization_ids=[ids["organization"]],
@@ -426,11 +412,11 @@ def main() -> None:
     # second one (create_update_* is not idempotent without an id).
     prior_sources = {
         s["name"]: s["id"]
-        for s in server.get_raw_data_sources(dataset_slug=SLUG, env=env)
+        for s in write.get_raw_data_sources(dataset_slug=SLUG, env=env)
     }
     source_ids = {}
     for table, (name, url) in RAW_SOURCES.items():
-        r = server.create_update_raw_data_source(
+        r = write.create_update_raw_data_source(
             id=prior_sources.get(name),
             dataset_id=dataset_id,
             name_pt=name,
@@ -454,7 +440,7 @@ def main() -> None:
             if existing.get("found")
             else {}
         )
-        t = server.create_update_table(
+        t = write.create_update_table(
             id=prior.get("id"),
             slug=table,
             dataset_id=dataset_id,
@@ -479,7 +465,7 @@ def main() -> None:
         ol_ids = {}
         entity = TABLE_TEXT[table]["entity"]
         if entity:
-            r = server.create_update_observation_level(
+            r = write.create_update_observation_level(
                 id=prior_ols.get(entity),
                 table_id=table_id,
                 entity_id=ids[entity],
@@ -487,7 +473,7 @@ def main() -> None:
             )
             ol_ids[entity] = r["id"]
         if table in ("residence_jobs", "workplace_jobs"):
-            r = server.create_update_observation_level(
+            r = write.create_update_observation_level(
                 id=prior_ols.get("year"),
                 table_id=table_id,
                 entity_id=ids["year_entity"],
@@ -496,7 +482,7 @@ def main() -> None:
             ol_ids["year"] = r["id"]
 
         cols = columns_payload(table)
-        res = server.bulk_upsert_columns(
+        res = write.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(cols, ensure_ascii=False),
             env=env,
@@ -513,7 +499,7 @@ def main() -> None:
             ]
         }
         if table in ("residence_jobs", "workplace_jobs"):
-            server.update_column(
+            write.update_column(
                 column_id=by_name["year"],
                 column_name="year",
                 table_id=table_id,
@@ -523,7 +509,7 @@ def main() -> None:
             )
         if table in OL_COLUMN and entity:
             name = OL_COLUMN[table]
-            server.update_column(
+            write.update_column(
                 column_id=by_name[name],
                 column_name=name,
                 table_id=table_id,
@@ -532,7 +518,7 @@ def main() -> None:
             )
 
         prior_cloud = (prior.get("cloud_tables") or [{}])[0].get("id")
-        server.create_update_cloud_table(
+        write.create_update_cloud_table(
             id=prior_cloud,
             table_id=table_id,
             gcp_project_id=gcp_project,
@@ -542,14 +528,14 @@ def main() -> None:
         )
 
         prior_cov = (prior.get("coverages") or [{}])[0]
-        cov = server.create_update_coverage(
+        cov = write.create_update_coverage(
             id=prior_cov.get("id"),
             table_id=table_id,
             area_id=ids["area"],
             env=env,
         )
         prior_range = (prior_cov.get("datetime_ranges") or [{}])[0].get("id")
-        server.create_update_datetime_range(
+        write.create_update_datetime_range(
             id=prior_range,
             coverage_id=cov["id"],
             start_year=YEARS[0],
@@ -567,7 +553,7 @@ def main() -> None:
         prior_updates = {
             u["entity_slug"]: u["id"] for u in prior.get("updates", [])
         }
-        server.create_update_update(
+        write.create_update_update(
             id=prior_updates.get("year"),
             table_id=table_id,
             entity_id=ids["year_entity"],
@@ -589,7 +575,7 @@ def main() -> None:
                 {"s": source_ids[table]},
                 env=env,
             )["allUpdate"]["edges"]
-            server.create_update_update(
+            write.create_update_update(
                 id=server._strip_id(src_updates[0]["node"]["id"])
                 if src_updates
                 else None,
@@ -600,7 +586,7 @@ def main() -> None:
                 env=env,
             )
 
-            server.create_update_table(
+            write.create_update_table(
                 id=table_id,
                 slug=table,
                 dataset_id=dataset_id,

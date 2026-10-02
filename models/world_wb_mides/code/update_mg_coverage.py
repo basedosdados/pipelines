@@ -22,16 +22,9 @@ table with two ranges then breaks `create_update_table` outright.
 from __future__ import annotations
 
 import argparse
-import os
-import sys
 
-sys.path.insert(
-    0,
-    os.path.expanduser("~/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"),
-)
-
-# pyrefly: ignore [missing-import]  # the databasis MCP server, via sys.path
-import server
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
 ENV = "staging"
 AREA = "br_mg"
@@ -165,7 +158,7 @@ def main() -> None:
                 f"  {slug:<26} {start}-{current.get('end_year')} -> {start}-{END_YEAR}"
             )
             continue
-        server.create_update_datetime_range(
+        write.create_update_datetime_range(
             coverage_id=mg["id"],
             start_year=start,
             end_year=END_YEAR,
@@ -187,7 +180,7 @@ def main() -> None:
     print(f"  adding {sorted(missing)}")
     if args.dry_run:
         return
-    server.create_update_dataset(
+    write.create_update_dataset(
         id=dataset["id"],
         slug="mides",
         name_pt=dataset["name_pt"],

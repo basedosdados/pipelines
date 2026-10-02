@@ -18,12 +18,8 @@ import json
 import os
 import sys
 
-sys.path.insert(
-    0,
-    os.path.expanduser("~/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"),
-)
-# pyrefly: ignore [missing-import]
-import server
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ARCH = os.path.join(HERE, "architecture")
@@ -190,7 +186,7 @@ def main(env: str) -> None:
         existing = server.get_dataset(slug=d["slug"], env=env)
     ds_id = (existing or {}).get("id")
 
-    ds = server.create_update_dataset(
+    ds = write.create_update_dataset(
         slug=d["slug"],
         name_pt=d["name_pt"],
         name_en=d["name_en"],
@@ -209,14 +205,14 @@ def main(env: str) -> None:
     print(f"dataset {d['slug']} -> {ds_id}")
 
     r = META["raw_data_source"]
-    rds_existing = server.get_raw_data_sources(dataset_slug=d["slug"], env=env)
+    rds_existing = write.get_raw_data_sources(dataset_slug=d["slug"], env=env)
     if isinstance(rds_existing, dict):
         rds_existing = rds_existing.get("raw_data_sources", [])
     rds_id = None
     for node in rds_existing or []:
         if isinstance(node, dict) and node.get("url") == r["url"]:
             rds_id = node.get("id")
-    rds = server.create_update_raw_data_source(
+    rds = write.create_update_raw_data_source(
         dataset_id=ds_id,
         name_pt=r["name_pt"],
         name_en=r["name_en"],
@@ -245,7 +241,7 @@ def main(env: str) -> None:
     # still broken on staging 2026-09-24; reported fixed on prod 2026-09-11.
     tids: dict[str, str] = {}
     for slug, t in META["tables"].items():
-        tbl = server.create_update_table(
+        tbl = write.create_update_table(
             id=known_tables.get(slug),
             slug=slug,
             name_pt=t["name_pt"],
@@ -271,14 +267,14 @@ def main(env: str) -> None:
 
         ols = {}
         for ent in t["observation_levels"]:
-            ol = server.create_update_observation_level(
+            ol = write.create_update_observation_level(
                 table_id=tid, entity_id=lk("entity", ent), env=env
             )
             ols[ent] = ol["id"]
         print(f"  observation levels: {list(ols)}")
 
         cols = columns_payload(slug)
-        res = server.bulk_upsert_columns(
+        res = write.bulk_upsert_columns(
             table_id=tid,
             columns_json=json.dumps(cols, ensure_ascii=False),
             env=env,
@@ -298,7 +294,7 @@ def main(env: str) -> None:
             if not cid or ent not in ols:
                 print(f"  ! cannot link {col} -> {ent}")
                 continue
-            server.update_column(
+            write.update_column(
                 column_id=cid,
                 column_name=col,
                 table_id=tid,
@@ -316,7 +312,7 @@ def main(env: str) -> None:
         for col in PARTITIONS[slug] - set(OL_COLUMNS[slug]):
             cid = by_name.get(col)
             if cid:
-                server.update_column(
+                write.update_column(
                     column_id=cid,
                     column_name=col,
                     table_id=tid,
@@ -327,7 +323,7 @@ def main(env: str) -> None:
 
         # create_update_cloud_table duplicates without an id, so a re-run
         # otherwise leaves several cloud tables on the same BigQuery table.
-        server.create_update_cloud_table(
+        write.create_update_cloud_table(
             table_id=tid,
             gcp_project_id=GCP_PROJECT[env],
             gcp_dataset_id="br_mj_sinesp",
@@ -342,7 +338,7 @@ def main(env: str) -> None:
         # is not idempotent without an id either.
         if COVERAGE[slug]:
             cov_id, range_id = existing_coverage(tid, env)
-            cov = server.create_update_coverage(
+            cov = write.create_update_coverage(
                 table_id=tid,
                 area_id=area_br,
                 is_closed=False,
@@ -351,7 +347,7 @@ def main(env: str) -> None:
             )
             # pyrefly: ignore [not-iterable]
             y0, m0, y1, m1 = COVERAGE[slug]
-            server.create_update_datetime_range(
+            write.create_update_datetime_range(
                 coverage_id=cov["id"],
                 start_year=y0,
                 start_month=m0,
@@ -365,7 +361,7 @@ def main(env: str) -> None:
 
         # Table-anchored Update.latest is when WE last refreshed: a wall clock,
         # not a coverage date.
-        server.create_update_update(
+        write.create_update_update(
             table_id=tid,
             entity_id=lk("entity", "month"),
             frequency=1,
@@ -375,7 +371,7 @@ def main(env: str) -> None:
             env=env,
         )
 
-    server.reorder_tables(
+    write.reorder_tables(
         dataset_slug=d["slug"], table_slugs=list(META["tables"]), env=env
     )
 
@@ -384,7 +380,7 @@ def main(env: str) -> None:
     # merged, table-approve has materialised the prod tables, and both are
     # verified -- that flip is a separate, deliberate post-merge action.
     if env in ("dev", "staging"):
-        server.create_update_dataset(
+        write.create_update_dataset(
             slug=d["slug"],
             name_pt=d["name_pt"],
             name_en=d["name_en"],

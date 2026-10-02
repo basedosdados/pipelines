@@ -21,23 +21,10 @@ table and takes 80+ seconds on this dataset -- past the client's own timeout.
 
 from __future__ import annotations
 
-import os
-import sys
+import databasis_mcp.tools.metadata as server
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(
-    0,
-    os.path.expanduser("~/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"),
-)
-
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-import mg_table_glossary as tables
-
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-import register_mg_metadata as reg
-
-# pyrefly: ignore [missing-import]  # the databasis MCP server, via sys.path
-import server
+import models.world_wb_mides.code.mg_table_glossary as tables
+import models.world_wb_mides.code.register_mg_metadata as reg
 
 ENV = "staging"
 DATASET_ID = reg.DATASET_ID

@@ -9,9 +9,8 @@ for the duplicate records create_update_* produces when called without an id.
 import sys
 from collections import Counter
 
-from models.us_nih_reporter.code.common import import_mcp_server
-
-server = import_mcp_server()
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
 ENV = sys.argv[1] if len(sys.argv) > 1 else "staging"
 SLUG = "nih_reporter"
@@ -171,7 +170,7 @@ query($id: ID!) {
   } } }
 }
 """
-listed = server.get_raw_data_sources(dataset_slug=SLUG, env=ENV)
+listed = write.get_raw_data_sources(dataset_slug=SLUG, env=ENV)
 if isinstance(listed, dict):
     listed = listed.get("result", [])
 for s in listed:

@@ -12,14 +12,9 @@ re-sent from the same definitions the registration used.
 from __future__ import annotations
 
 import argparse
-import sys
 
-sys.path.insert(
-    0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-)
-
-# pyrefly: ignore [missing-import]
-import server
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
 from models.us_census_bps.code.metadata import (
     DATASET_SLUG,
@@ -54,7 +49,7 @@ def main() -> int:
     if not dataset.get("found"):
         raise SystemExit(f"dataset {DATASET_SLUG} not found in {env}")
 
-    server.create_update_dataset(
+    write.create_update_dataset(
         slug=DATASET_SLUG,
         name_pt=NAME_PT,
         name_en=NAME_EN,

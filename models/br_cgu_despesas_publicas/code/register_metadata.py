@@ -22,22 +22,10 @@ any coverage exists, for the same reason.
 
 import argparse
 import json
-import os
-import sys
 from pathlib import Path
 
-# The databasis MCP server module is not a package dependency — it lives in its
-# own repo and is imported by path so this script uses exactly the same tools
-# and credentials the MCP does. Override with DATABASIS_MCP_PATH.
-sys.path.insert(
-    0,
-    os.environ.get(
-        "DATABASIS_MCP_PATH", str(Path.home() / "Dropbox" / "BD" / "mcp")
-    ),
-)
-
-# pyrefly: ignore [missing-import]
-import server
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
 CODE = Path(__file__).resolve().parent
 DATASET_SLUG = "despesas_publicas"
@@ -364,7 +352,7 @@ def main() -> None:
 
     account = ACCOUNT[env]
 
-    raw = server.create_update_raw_data_source(
+    raw = write.create_update_raw_data_source(
         dataset_id=DATASET_ID,
         name_pt=cfg["raw_name"],
         name_en=cfg["raw_names_en_es"][0],
@@ -385,7 +373,7 @@ def main() -> None:
     raw_id = _id(raw)
     print("raw source:", raw_id)
 
-    table = server.create_update_table(
+    table = write.create_update_table(
         slug=table_slug,
         dataset_id=DATASET_ID,
         status_id=(
@@ -409,7 +397,7 @@ def main() -> None:
     )
     print(
         "columns:",
-        server.bulk_upsert_columns(
+        write.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(payload, ensure_ascii=False),
             env=env,
@@ -420,7 +408,7 @@ def main() -> None:
     ol_ids = {}
     for slug in dict.fromkeys(cfg["ols"].values()):
         ol_ids[slug] = _id(
-            server.create_update_observation_level(
+            write.create_update_observation_level(
                 table_id=table_id,
                 entity_id=ENT[slug],
                 id=st["levels"].get(slug),
@@ -437,7 +425,7 @@ def main() -> None:
             continue
         # update_column's booleans default to False, so is_partition has to be
         # re-passed here or the flag set earlier is silently cleared.
-        server.update_column(
+        write.update_column(
             column_id=cid,
             column_name=col,
             table_id=table_id,
@@ -450,7 +438,7 @@ def main() -> None:
     gcp_project = "basedosdados-dev" if env == "staging" else "basedosdados"
     print(
         "cloud:",
-        server.create_update_cloud_table(
+        write.create_update_cloud_table(
             table_id=table_id,
             gcp_project_id=gcp_project,
             gcp_dataset_id=GCP_DATASET_ID,
@@ -479,7 +467,7 @@ def main() -> None:
     }.items():
         prev = existing.get(is_closed)
         cov_id = _id(
-            server.create_update_coverage(
+            write.create_update_coverage(
                 table_id=table_id,
                 area_id=AREA_BR,
                 is_closed=is_closed,
@@ -487,7 +475,7 @@ def main() -> None:
                 env=env,
             )
         )
-        rng = server.create_update_datetime_range(
+        rng = write.create_update_datetime_range(
             coverage_id=cov_id,
             start_year=sy,
             start_month=sm,
@@ -504,7 +492,7 @@ def main() -> None:
 
     print(
         "update:",
-        server.create_update_update(
+        write.create_update_update(
             entity_id=ENT["month"],
             frequency=1,
             lag=1,
@@ -521,7 +509,7 @@ def main() -> None:
         status = ST_PUBLISHED if args.publish else ST_UNDER_REVIEW
         print(
             "dataset:",
-            server.create_update_dataset(
+            write.create_update_dataset(
                 **DATASET_DESC,
                 slug=DATASET_SLUG,
                 name_pt="Despesas Públicas",

@@ -15,16 +15,9 @@ Usage::
 
 from __future__ import annotations
 
-import pathlib
 import sys
 
-MCP = (
-    pathlib.Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-)
-sys.path.insert(0, str(MCP))
-
-# pyrefly: ignore [missing-import]
-import server  # noqa: E402
+import databasis_mcp.tools.metadata as server
 
 ENV = "staging"
 DATASET_ID = "b2e707f6-b081-4cf8-a9d6-0435f13591f2"

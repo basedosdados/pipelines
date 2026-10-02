@@ -28,28 +28,17 @@ real on the next armed pipeline run.
 from __future__ import annotations
 
 import argparse
-import os
 import sys
 from datetime import date
 from pathlib import Path
 
-_MCP_PATH = os.environ.get(
-    "BD_MCP_PATH",
-    str(Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"),
-)
-if not Path(_MCP_PATH).is_dir():
-    raise SystemExit(
-        f"databasis MCP checkout not found at {_MCP_PATH!r}. Set BD_MCP_PATH."
-    )
-sys.path.insert(0, _MCP_PATH)
-
-# pyrefly: ignore [missing-import]
-import server  # noqa: E402
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from pipelines.datasets.world_noaa_ghcn.flows import _COVERAGE  # noqa: E402
-from pipelines.utils.metadata.policy import (  # noqa: E402
+from pipelines.datasets.world_noaa_ghcn.flows import _COVERAGE
+from pipelines.utils.metadata.policy import (
     CoverageIds,
     assert_coverage_topology,
     compute_coverage_ranges,
@@ -108,7 +97,7 @@ def main() -> None:
             "no free Coverage found; run register_metadata.py first"
         )
     if pro_id is None:
-        pro = server.create_update_coverage(
+        pro = write.create_update_coverage(
             table_id=table_id, area_id=area_id, is_closed=True, env=env
         )
         pro_id = pro["id"] if isinstance(pro, dict) else pro
@@ -132,7 +121,7 @@ def main() -> None:
     }
     free_range_id = (existing.get(free_id) or [{}])[0].get("id")
 
-    server.create_update_datetime_range(
+    write.create_update_datetime_range(
         id=free_range_id,
         coverage_id=free_id,
         start_year=FIRST_YEAR,
@@ -145,7 +134,7 @@ def main() -> None:
         is_closed=False,
         env=env,
     )
-    server.create_update_datetime_range(
+    write.create_update_datetime_range(
         id=(existing.get(pro_id) or [{}])[0].get("id"),
         coverage_id=pro_id,
         start_year=pro_start["year"],

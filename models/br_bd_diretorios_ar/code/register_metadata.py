@@ -27,22 +27,14 @@ import argparse
 import csv
 import json
 import os
-import sys
+
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ARCH = os.path.join(HERE, "architecture")
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
-MCP = os.path.expanduser(
-    "~/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-)
-# REPO so the absolute `from models...` import below resolves when this runs as
-# a plain script. That absolute form is the house pattern and the one Pyrefly
-# checks against from the repo root; a bare `import translations` type-checks
-# locally and fails CI.
-sys.path[:0] = [MCP, REPO]
 
-# pyrefly: ignore [missing-import]
-import server  # noqa: E402
 
 from models.br_bd_diretorios_ar.code import translations as tr  # noqa: E402
 
@@ -421,7 +413,7 @@ def resolve_entities(env: str, entity_ids: dict) -> dict:
                 f"the entities this script creates"
             )
         pt, en, es = NEW_ENTITIES[slug]
-        r = server.create_update_entity(
+        r = write.create_update_entity(
             slug=slug,
             name_pt=pt,
             name_en=en,
@@ -487,7 +479,7 @@ def main() -> None:
     entity = resolve_entities(env, ids["entity"])
 
     existing = server.get_dataset(slug=DATASET_SLUG, env=env)
-    ds = server.create_update_dataset(
+    ds = write.create_update_dataset(
         slug=DATASET_SLUG,
         **DATASET,
         organization_ids=[org_id],
@@ -505,12 +497,10 @@ def main() -> None:
     # second copy of the source.
     prior_sources = {
         s["url"]: s["id"]
-        for s in server.get_raw_data_sources(
-            dataset_slug=DATASET_SLUG, env=env
-        )
+        for s in write.get_raw_data_sources(dataset_slug=DATASET_SLUG, env=env)
         if s.get("url")
     }
-    source = server.create_update_raw_data_source(
+    source = write.create_update_raw_data_source(
         dataset_id=dataset_id,
         **RAW_SOURCE,
         license_id=ids["license"]["cc_by"],
@@ -552,8 +542,9 @@ def main() -> None:
         # silently retries the column without one, so every id_* link is lost
         # and no error is reported. dicionario is not a directory table.
         is_directory = spec["primary_key"] is not None
-        t = server.create_update_table(
+        t = write.create_update_table(
             slug=table,
+            # pyrefly: ignore [bad-argument-type]
             **names,
             dataset_id=dataset_id,
             status_id=status_published,
@@ -572,7 +563,7 @@ def main() -> None:
         }
         ol_ids = {}
         for ent_slug in spec["levels"]:
-            o = server.create_update_observation_level(
+            o = write.create_update_observation_level(
                 table_id=table_id,
                 entity_id=entity[ent_slug],
                 id=prior_ols.get(ent_slug),
@@ -580,14 +571,14 @@ def main() -> None:
             )
             ol_ids[ent_slug] = o["id"]
         if ol_ids:
-            server.reorder_observation_levels(
+            write.reorder_observation_levels(
                 table_id=table_id,
                 ol_ids=[ol_ids[e] for e in spec["levels"]],
                 env=env,
             )
         print(f"  observation levels: {list(spec['levels'])}")
 
-        res = server.bulk_upsert_columns(
+        res = write.bulk_upsert_columns(
             table_id=table_id, columns_json=columns_json(table), env=env
         )
         print(
@@ -604,7 +595,7 @@ def main() -> None:
 
         # bulk_upsert appends a column it has to retry, so the stored order can
         # drift from the architecture. Restore it explicitly.
-        server.reorder_columns(
+        write.reorder_columns(
             table_id=table_id, column_names=arch_order(table), env=env
         )
 
@@ -622,7 +613,7 @@ def main() -> None:
                 ][table]["columns"]
             }
             for ent_slug, col_name in spec["levels"].items():
-                server.update_column(
+                write.update_column(
                     column_id=cols[col_name],
                     column_name=col_name,
                     table_id=table_id,
@@ -636,7 +627,7 @@ def main() -> None:
             )
 
         prior_ct = prior.get("cloud_tables", [])
-        server.create_update_cloud_table(
+        write.create_update_cloud_table(
             table_id=table_id,
             gcp_project_id=gcp_project,
             gcp_dataset_id=GCP_DATASET_ID,
@@ -649,14 +640,14 @@ def main() -> None:
         # static catalog of the 2022 census coding, not a temporal series. Same
         # shape as br_bd_diretorios_cl, which carries no Update record either.
         prior_cov = prior.get("coverages", [])
-        server.create_update_coverage(
+        write.create_update_coverage(
             table_id=table_id,
             area_id=area_id,
             id=prior_cov[0]["id"] if prior_cov else None,
             env=env,
         )
 
-        server.create_update_table(
+        write.create_update_table(
             slug=table,
             **names,
             dataset_id=dataset_id,
@@ -669,7 +660,7 @@ def main() -> None:
         )
         print("  cloud table, coverage and raw source linked")
 
-    server.reorder_tables(
+    write.reorder_tables(
         dataset_slug=DATASET_SLUG, table_slugs=TABLE_ORDER, env=env
     )
     print(f"\n=== METADATA REGISTRATION COMPLETE (env={env}) ===")

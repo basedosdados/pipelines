@@ -14,18 +14,8 @@ from __future__ import annotations
 
 import json
 import pathlib
-import sys
 
-sys.path.insert(
-    0,
-    str(
-        pathlib.Path.home()
-        / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-    ),
-)
-
-# pyrefly: ignore [missing-import]
-import server
+import databasis_mcp.tools.metadata as server
 
 ENV = "prod"
 SLUG = "sa_elections"

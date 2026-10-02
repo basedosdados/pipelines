@@ -40,18 +40,12 @@ from __future__ import annotations
 
 import json
 import pathlib
-import sys
 import time
 from collections.abc import Callable
 from typing import Any
 
-MCP = (
-    pathlib.Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-)
-sys.path.insert(0, str(MCP))
-
-# pyrefly: ignore [missing-import]
-import server  # noqa: E402
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
 ENV = "prod"
 DATASET_SLUG = "sa_elections"
@@ -300,7 +294,7 @@ def main() -> int:
     tables_meta = json.loads((META / "tables.json").read_text())
 
     org_id = retry(
-        lambda: server.create_update_organization(
+        lambda: write.create_update_organization(
             slug=ORG_SLUG,
             id=find_org(),
             area_id=ref["area_au_sa"],
@@ -313,7 +307,7 @@ def main() -> int:
     log(f"organization {ORG_SLUG} {org_id}")
 
     dataset_id = retry(
-        lambda: server.create_update_dataset(
+        lambda: write.create_update_dataset(
             slug=DATASET_SLUG,
             organization_ids=[org_id],
             theme_ids=ref["themes"],
@@ -335,17 +329,15 @@ def main() -> int:
     for key, meta in sources_meta.items():
         prior = find_raw_sources().get(meta["url"])
         source_ids[key] = retry(
-            lambda meta=meta, prior=prior: (
-                server.create_update_raw_data_source(
-                    dataset_id=dataset_id,
-                    license_id=ref["license_unknown"],
-                    availability_id=ref["availability_online"],
-                    language_ids=[ref["language_en"]],
-                    id=prior,
-                    env=ENV,
-                    **{k: v for k, v in meta.items() if k != "tables"},
-                )["id"]
-            ),
+            lambda meta=meta, prior=prior: write.create_update_raw_data_source(
+                dataset_id=dataset_id,
+                license_id=ref["license_unknown"],
+                availability_id=ref["availability_online"],
+                language_ids=[ref["language_en"]],
+                id=prior,
+                env=ENV,
+                **{k: v for k, v in meta.items() if k != "tables"},
+            )["id"],
             probe=lambda meta=meta: find_raw_sources().get(meta["url"]),
         )
         log(f"raw data source {key} {source_ids[key]} licence=unknown")
@@ -365,7 +357,7 @@ def main() -> int:
         prior = (known.get(table) or {}).get("id")
         table_ids[table] = retry(
             lambda table=table, meta=meta, prior=prior: (
-                server.create_update_table(
+                write.create_update_table(
                     slug=table,
                     name_pt=meta["name_pt"],
                     name_en=meta["name_en"],
@@ -410,7 +402,7 @@ def main() -> int:
         ol_ids: dict[str, str] = {}
         for entity_slug, _column in levels:
             ol_ids[entity_slug] = retry(
-                lambda e=entity_slug: server.create_update_observation_level(
+                lambda e=entity_slug: write.create_update_observation_level(
                     table_id=table_id,
                     entity_id=ref["entity"][e],
                     id=prior_children["levels"].get(e),
@@ -422,7 +414,7 @@ def main() -> int:
             )
         if ol_ids:
             retry(
-                lambda: server.reorder_observation_levels(
+                lambda: write.reorder_observation_levels(
                     table_id=table_id,
                     ol_ids=[ol_ids[e] for e, _ in levels],
                     env=ENV,
@@ -431,7 +423,7 @@ def main() -> int:
 
         payload = (META / f"{table}.json").read_text()
         result = retry(
-            lambda: server.bulk_upsert_columns(
+            lambda: write.bulk_upsert_columns(
                 table_id=table_id, columns_json=payload, env=ENV
             )
         )
@@ -442,13 +434,13 @@ def main() -> int:
         # False, so is_partition has to be re-passed or the flag is clobbered.
         column_ids = {
             c["name"]: server._strip_id(c["id"])
-            for c in server._fetch_table_columns(table_id, ENV)
+            for c in write._fetch_table_columns(table_id, ENV)
         }
         for entity_slug, column_name in levels:
             if column_name is None or column_name not in column_ids:
                 continue
             retry(
-                lambda c=column_name, e=entity_slug: server.update_column(
+                lambda c=column_name, e=entity_slug: write.update_column(
                     column_id=column_ids[c],
                     column_name=c,
                     table_id=table_id,
@@ -463,7 +455,7 @@ def main() -> int:
             and "year" not in {c for _, c in levels}
         ):
             retry(
-                lambda: server.update_column(
+                lambda: write.update_column(
                     column_id=column_ids["year"],
                     column_name="year",
                     table_id=table_id,
@@ -473,7 +465,7 @@ def main() -> int:
             )
 
         retry(
-            lambda: server.create_update_cloud_table(
+            lambda: write.create_update_cloud_table(
                 table_id=table_id,
                 gcp_project_id=GCP_PROJECT,
                 gcp_dataset_id=GCP_DATASET,
@@ -484,7 +476,7 @@ def main() -> int:
             probe=lambda: existing_children(table_id)["cloud"].get(table),
         )
         coverage_id = retry(
-            lambda: server.create_update_coverage(
+            lambda: write.create_update_coverage(
                 table_id=table_id,
                 area_id=ref["area_au_sa"],
                 id=prior_children["coverage"],
@@ -494,7 +486,7 @@ def main() -> int:
         )
         start, end = COVERAGE[table]
         retry(
-            lambda: server.create_update_datetime_range(
+            lambda: write.create_update_datetime_range(
                 coverage_id=coverage_id,
                 start_year=start,
                 end_year=end,
@@ -505,7 +497,7 @@ def main() -> int:
             probe=lambda: existing_children(table_id)["range"],
         )
         retry(
-            lambda: server.create_update_update(
+            lambda: write.create_update_update(
                 entity_id=ref["entity"]["year"],
                 frequency=FREQUENCY[table],
                 latest=LAST_REFRESHED,
@@ -521,7 +513,7 @@ def main() -> int:
         register_children(table, table_ids[table])
 
     retry(
-        lambda: server.reorder_tables(
+        lambda: write.reorder_tables(
             dataset_slug=DATASET_SLUG, table_slugs=TABLE_ORDER, env=ENV
         )
     )

@@ -44,19 +44,14 @@ from google.cloud import storage
 from google.oauth2 import service_account
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(
-    0,
-    os.path.expanduser("~/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"),
-)
 
 # pyrefly: ignore [missing-import]  # sibling module via sys.path
 import clean_mg
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
 # pyrefly: ignore [missing-import]  # sibling module via sys.path
 import mg_table_glossary as tables
-
-# pyrefly: ignore [missing-import]  # the databasis MCP server, via sys.path
-import server
 
 ENV = "staging"
 DATASET_ID = "d3874769-bcbd-4ece-a38a-157ba1021514"  # slug `mides`
@@ -221,7 +216,7 @@ def main() -> None:
         bucket.blob(key).upload_from_string(
             payload, content_type="application/zip"
         )
-        server.create_update_table(
+        write.create_update_table(
             slug=slug,
             name_pt=tables.name(slug, "pt"),
             name_en=tables.name(slug, "en"),

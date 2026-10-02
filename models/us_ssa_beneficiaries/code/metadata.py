@@ -16,10 +16,9 @@ are verified. ``--publish`` flips the status and does nothing else.
 
 from __future__ import annotations
 
-# ruff: noqa: E402  (the MCP server lives outside the repo, so sys.path comes first)
+# ruff: noqa: E402  (sys.path must include the repo root before local imports)
 import argparse
 import datetime
-import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -27,26 +26,11 @@ from typing import Any
 REPO_ROOT = Path(__file__).resolve().parents[3]
 HERE = Path(__file__).resolve().parent
 
-# The databasis MCP server lives outside this repo. Point BD_MCP_ROOT at it;
-# the default is the usual Dropbox checkout. Fail loudly rather than dying on
-# an opaque ImportError three lines later.
-MCP_ROOT = Path(
-    os.environ.get(
-        "BD_MCP_ROOT",
-        Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp",
-    )
-)
-if not (MCP_ROOT / "server.py").is_file():
-    raise SystemExit(
-        f"databasis MCP server not found at {MCP_ROOT}/server.py — "
-        f"set BD_MCP_ROOT to the directory containing it"
-    )
-for path in (str(REPO_ROOT), str(MCP_ROOT), str(HERE)):
+for path in (str(REPO_ROOT), str(HERE)):
     sys.path.insert(0, path)
 
-# O servidor MCP da databasis é importado pelo caminho em MCP_ROOT, acima.
-# pyrefly: ignore [missing-import]
-import server
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
 from models.us_ssa_beneficiaries.code.build_columns_json import columns_json
 
@@ -336,7 +320,7 @@ def tool(name: str) -> Any:
     Returns ``Any``: the MCP module is untyped and the tools are resolved by
     name, so a precise signature is not recoverable here.
     """
-    fn = getattr(server, name)
+    fn = getattr(server, name, None) or getattr(write, name)
     return getattr(fn, "fn", fn)
 
 

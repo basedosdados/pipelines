@@ -18,13 +18,9 @@ see the dataset as it will appear.
 import argparse
 import csv
 import json
-import sys
 
-sys.path.insert(
-    0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-)
-# pyrefly: ignore [missing-import]
-import server
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
 from models.world_oecd_education.code.common import (
     ARCH_DIR,
@@ -280,7 +276,7 @@ def main():
         existing = json.loads(existing)
     dataset_id = (existing or {}).get("id")
 
-    dataset = server.create_update_dataset(
+    dataset = write.create_update_dataset(
         slug=SLUG,
         name_pt=NAME_PT,
         name_en=NAME_EN,
@@ -308,7 +304,7 @@ def main():
     # create_update_raw_data_source matches on id, so without this lookup every
     # re-run adds another copy. A table linked to two raw sources also cannot run
     # a recurring pipeline at all -- client._raw_source_id raises on 2+.
-    existing_raw = server.get_raw_data_sources(SLUG, env=env)
+    existing_raw = write.get_raw_data_sources(SLUG, env=env)
     if isinstance(existing_raw, str):
         existing_raw = json.loads(existing_raw)
     raw_id_prev = next(
@@ -320,7 +316,7 @@ def main():
         None,
     )
 
-    raw = server.create_update_raw_data_source(
+    raw = write.create_update_raw_data_source(
         id=raw_id_prev,
         dataset_id=dataset_id,
         license_id=ids["license"]["cc_by_igo"],
@@ -372,7 +368,7 @@ def main():
             )
             payload = columns_payload(slug)
 
-        table = server.create_update_table(
+        table = write.create_update_table(
             slug=slug,
             name_pt=names[0],
             name_en=names[1],
@@ -392,7 +388,7 @@ def main():
             table = json.loads(table)
         table_id = table.get("id", prev.get("id"))
 
-        server.create_update_cloud_table(
+        write.create_update_cloud_table(
             table_id=table_id,
             gcp_project_id=GCP_PROJECT[env],
             gcp_dataset_id=DATASET_ID,
@@ -407,7 +403,7 @@ def main():
             for o in (prev.get("observation_levels") or [])
         }
         for entity in OBSERVATION_LEVELS.get(slug, []):
-            ol = server.create_update_observation_level(
+            ol = write.create_update_observation_level(
                 table_id=table_id,
                 entity_id=ids["entity"][entity],
                 id=prev_ols.get(entity, {}).get("id"),
@@ -417,7 +413,7 @@ def main():
                 ol = json.loads(ol)
             ol_ids[entity] = ol.get("id")
 
-        server.bulk_upsert_columns(
+        write.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(payload, ensure_ascii=False),
             env=env,
@@ -429,7 +425,7 @@ def main():
             years = sorted(
                 int(y) for y in measured[slug].get("years", []) or []
             )
-            cov = server.create_update_coverage(
+            cov = write.create_update_coverage(
                 table_id=table_id,
                 area_id=world_area(env),
                 id=(prev.get("coverages") or [{}])[0].get("id"),
@@ -449,7 +445,7 @@ def main():
                         or [{}]
                     )[0]
                 ).get("id")
-                server.create_update_datetime_range(
+                write.create_update_datetime_range(
                     coverage_id=cov["id"],
                     start_year=years[0],
                     end_year=years[-1],
@@ -483,7 +479,7 @@ def main():
         )
         for column, entity in link.items():
             if column in cols and ol_ids.get(entity):
-                server.update_column(
+                write.update_column(
                     column_id=cols[column],
                     column_name=column,
                     table_id=table_id,
@@ -494,7 +490,7 @@ def main():
                 linked += 1
     print(f"linked {linked} columns to observation levels")
 
-    server.reorder_tables(dataset_slug=SLUG, table_slugs=order, env=env)
+    write.reorder_tables(dataset_slug=SLUG, table_slugs=order, env=env)
     print(f"\nregistered {len(order)} tables in {env}")
 
 

@@ -20,7 +20,6 @@ import logging
 import sys
 from pathlib import Path
 
-MCP = "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
 HERE = Path(__file__).resolve().parent
 SLUG = "enforcement"
 
@@ -36,9 +35,8 @@ def main(argv: list[str] | None = None) -> int:
     args = p.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
-    sys.path.insert(0, MCP)
-    # pyrefly: ignore [missing-import]
-    import server
+    import databasis_mcp.tools.metadata as server
+    import databasis_mcp.tools.write as write
 
     spec = importlib.util.spec_from_file_location(
         "rm", HERE / "register_metadata.py"
@@ -59,7 +57,7 @@ def main(argv: list[str] | None = None) -> int:
     known = set(ids["tag"].values())
     tag_ids = [t for t in rm.TAGS if t in known]
     theme_ids = [ids["theme"][t] for t in ("safety", "economics", "justice")]
-    server.create_update_dataset(
+    write.create_update_dataset(
         id=existing["id"],
         slug=SLUG,
         organization_ids=[org_id],

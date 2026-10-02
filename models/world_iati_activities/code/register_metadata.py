@@ -6,25 +6,23 @@
 
 19 tables x (table, columns, observation levels, OL column links, cloud table,
 coverage, datetime range, update) is far too many calls to make by hand, so this
-imports the databasis MCP server module and calls its tool functions directly.
-The server resolves its own backend credentials, exactly as it does when driven
+imports the databasis-mcp package and calls its tool functions directly.
+The package resolves its own backend credentials, exactly as it does when driven
 over MCP; nothing here reads a credential file.
 
 Re-running is safe. `create_update_*` is NOT idempotent on its own — omitting an
 id creates a second observation level, cloud table, coverage or update rather
 than updating the first — so every call here passes back the id it finds in
 `get_dataset`.
-
-Point ``DATABASIS_MCP_DIR`` at the checkout if it is not in the default place.
 """
 
 import argparse
 import csv
 import json
-import os
-import sys
 from datetime import UTC
-from pathlib import Path
+
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
 from models.world_iati_activities.code.common import ARCH_DIR
 from models.world_iati_activities.code.tables import OL_COLUMN, TABLES
@@ -168,24 +166,6 @@ TABLE_SOURCE = {t: "tables" for t in TABLES}
 TABLE_SOURCE["registry_dataset"] = "bulk"
 
 
-def load_server():
-    mcp_dir = Path(
-        os.environ.get(
-            "DATABASIS_MCP_DIR",
-            Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp",
-        )
-    )
-    if not (mcp_dir / "server.py").exists():
-        raise SystemExit(
-            f"databasis MCP server not found at {mcp_dir}; set DATABASIS_MCP_DIR"
-        )
-    sys.path.insert(0, str(mcp_dir))
-    # pyrefly: ignore [missing-import]
-    import server
-
-    return server
-
-
 def columns_json(table: str) -> str:
     """The architecture CSV, in the shape bulk_upsert_columns wants.
 
@@ -226,23 +206,24 @@ def main() -> None:
     ap.add_argument("--tables", nargs="*", default=list(TABLES))
     args = ap.parse_args()
     env = args.env
-    srv = load_server()
 
-    ids = srv.discover_ids(env=env, keys=["status", "availability", "license"])
+    ids = server.discover_ids(
+        env=env, keys=["status", "availability", "license"]
+    )
     status = ids["status"]
-    org = srv.lookup_id("organization", ORG_SLUG, env=env)["id"]
-    area = srv.lookup_id("area", "world", env=env)["id"]
-    english = srv.lookup_id("language", "en", env=env)["id"]
-    account = srv.get_authenticated_account(env=env)["id"]
-    themes = [srv.lookup_id("theme", t, env=env)["id"] for t in THEMES]
-    tags = [srv.lookup_id("tag", t, env=env)["id"] for t in TAGS[env]]
+    org = server.lookup_id("organization", ORG_SLUG, env=env)["id"]
+    area = server.lookup_id("area", "world", env=env)["id"]
+    english = server.lookup_id("language", "en", env=env)["id"]
+    account = server.get_authenticated_account(env=env)["id"]
+    themes = [server.lookup_id("theme", t, env=env)["id"] for t in THEMES]
+    tags = [server.lookup_id("tag", t, env=env)["id"] for t in TAGS[env]]
     entities = {
-        slug: srv.lookup_id("entity", slug, env=env)["id"]
+        slug: server.lookup_id("entity", slug, env=env)["id"]
         for slug in sorted({e for t in TABLES.values() for e in t["entities"]})
     }
 
-    existing = srv.get_dataset(DATASET_SLUG, env=env)
-    dataset_id = srv.create_update_dataset(
+    existing = server.get_dataset(DATASET_SLUG, env=env)
+    dataset_id = write.create_update_dataset(
         slug=DATASET_SLUG,
         name_pt=DATASET_NAME["pt"],
         name_en=DATASET_NAME["en"],
@@ -263,11 +244,11 @@ def main() -> None:
 
     known_sources = {
         s["url"]: s["id"]
-        for s in srv.get_raw_data_sources(DATASET_SLUG, env=env)
+        for s in write.get_raw_data_sources(DATASET_SLUG, env=env)
     }
     sources = {}
     for key, spec in RAW_SOURCES.items():
-        sources[key] = srv.create_update_raw_data_source(
+        sources[key] = write.create_update_raw_data_source(
             dataset_id=dataset_id,
             name_pt=spec["name_pt"],
             name_en=spec["name_en"],
@@ -291,14 +272,14 @@ def main() -> None:
         )["id"]
         print(f"raw source {key} -> {sources[key]}")
 
-    week = srv.lookup_id("entity", "week", env=env)["id"]
+    week = server.lookup_id("entity", "week", env=env)["id"]
     prior = existing.get("tables", {}) if existing.get("found") else {}
     table_ids: dict[str, str] = {}
     ol_ids: dict[str, dict[str, str]] = {}
     for slug in args.tables:
         spec = TABLES[slug]
         was = prior.get(slug, {})
-        table_id = srv.create_update_table(
+        table_id = write.create_update_table(
             slug=slug,
             name_pt=spec["name_pt"],
             name_en=spec["name_en"],
@@ -315,7 +296,7 @@ def main() -> None:
             env=env,
         )["id"]
 
-        result = srv.bulk_upsert_columns(
+        result = write.bulk_upsert_columns(
             table_id=table_id, columns_json=columns_json(slug), env=env
         )
 
@@ -326,7 +307,7 @@ def main() -> None:
         ol_ids[slug] = {}
         for entity_slug in spec["entities"]:
             entity_id = entities[entity_slug]
-            ol_ids[slug][entity_slug] = srv.create_update_observation_level(
+            ol_ids[slug][entity_slug] = write.create_update_observation_level(
                 table_id=table_id,
                 entity_id=entity_id,
                 id=by_entity.get(entity_id),
@@ -334,7 +315,7 @@ def main() -> None:
             )["id"]
 
         cloud = was.get("cloud_tables") or [{}]
-        srv.create_update_cloud_table(
+        write.create_update_cloud_table(
             table_id=table_id,
             gcp_project_id=GCP_PROJECT[env],
             gcp_dataset_id=GCP_DATASET_ID,
@@ -344,12 +325,12 @@ def main() -> None:
         )
 
         cov = was.get("coverages") or [{}]
-        coverage_id = srv.create_update_coverage(
+        coverage_id = write.create_update_coverage(
             table_id=table_id, area_id=area, id=cov[0].get("id"), env=env
         )["id"]
         ranges = cov[0].get("datetime_ranges") or [{}]
         start, end = spec["years"]
-        srv.create_update_datetime_range(
+        write.create_update_datetime_range(
             coverage_id=coverage_id,
             start_year=start,
             end_year=end,
@@ -362,7 +343,7 @@ def main() -> None:
         # source-anchored Update (what IATI Tables last published) is written by
         # the recurring pipeline's commit_source_update_task.
         updates = was.get("updates") or [{}]
-        srv.create_update_update(
+        write.create_update_update(
             entity_id=week,
             frequency=1,
             latest=_today(),
@@ -380,7 +361,7 @@ def main() -> None:
     # it. bulk_upsert_columns cannot do this, and update_column needs the real
     # column id — which only exists once the columns have been created, hence
     # the re-read.
-    fresh = srv.get_dataset(DATASET_SLUG, env=env)
+    fresh = server.get_dataset(DATASET_SLUG, env=env)
     for slug in args.tables:
         cols = {
             c["name"]: c["id"]
@@ -393,7 +374,7 @@ def main() -> None:
                     f"{slug}: observation level {entity_slug} names column "
                     f"{column!r}, which the table does not have"
                 )
-            srv.update_column(
+            write.update_column(
                 column_id=cols[column],
                 column_name=column,
                 table_id=table_ids[slug],
@@ -405,7 +386,7 @@ def main() -> None:
             )
         print(f"  linked {len(ol_ids[slug])} observation level(s) on {slug}")
 
-    srv.reorder_tables(
+    write.reorder_tables(
         dataset_slug=DATASET_SLUG, table_slugs=list(TABLES), env=env
     )
     print(

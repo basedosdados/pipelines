@@ -18,30 +18,13 @@ action. SEDS is annual, so every table is fully free: there is no BD Pro split.
 
 import argparse
 import json
-import os
-import sys
-from pathlib import Path
+
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
 from models.us_eia_seds.code import gen_columns_json
 from models.us_eia_seds.code import metadata_spec as spec
 from models.us_eia_seds.code.common import DATA_TABLES, OUTPUT
-
-_MCP_PATH = os.environ.get(
-    "BD_MCP_PATH",
-    str(Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"),
-)
-if Path(_MCP_PATH).is_dir():
-    sys.path.insert(0, _MCP_PATH)
-try:
-    # pyrefly: ignore [missing-import]
-    import server
-except (
-    ModuleNotFoundError
-) as error:  # pragma: no cover - environment dependent
-    raise SystemExit(
-        "the Data Basis MCP `server` module is not importable. Point BD_MCP_PATH "
-        f"at a checkout of the mcp repository (tried {_MCP_PATH!r})."
-    ) from error
 
 ALL_TABLES = [*DATA_TABLES, "dicionario"]
 
@@ -100,7 +83,7 @@ def main() -> None:
     existing = server.get_dataset(slug=spec.DATASET_SLUG, env=env)
     dataset_id = existing["id"] if existing["found"] else None
 
-    dataset = server.create_update_dataset(
+    dataset = write.create_update_dataset(
         slug=spec.DATASET_SLUG,
         name_pt=spec.DATASET["name_pt"],
         name_en=spec.DATASET["name_en"],
@@ -120,13 +103,13 @@ def main() -> None:
 
     known_sources = {
         s.get("name") or s.get("name_pt"): s["id"]
-        for s in server.get_raw_data_sources(
+        for s in write.get_raw_data_sources(
             dataset_slug=spec.DATASET_SLUG, env=env
         )
     }
     source_ids = {}
     for key, source in spec.RAW_SOURCES.items():
-        result = server.create_update_raw_data_source(
+        result = write.create_update_raw_data_source(
             dataset_id=dataset_id,
             name_pt=source["name_pt"],
             name_en=source["name_en"],
@@ -155,7 +138,7 @@ def main() -> None:
     for table in ALL_TABLES:
         entry = spec.TABLES[table]
         prior = current.get(table, {})
-        result = server.create_update_table(
+        result = write.create_update_table(
             slug=table,
             name_pt=entry["name_pt"],
             name_en=entry["name_en"],
@@ -184,7 +167,7 @@ def main() -> None:
             if table == "dicionario"
             else gen_columns_json.payload(table)
         )
-        server.bulk_upsert_columns(
+        write.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(payload, ensure_ascii=False),
             env=env,
@@ -197,7 +180,7 @@ def main() -> None:
         }
         level_ids = {}
         for entity_slug in entry["observation_levels"]:
-            level = server.create_update_observation_level(
+            level = write.create_update_observation_level(
                 table_id=table_id,
                 entity_id=ids["entity"][entity_slug],
                 id=by_entity.get(entity_slug),
@@ -215,7 +198,7 @@ def main() -> None:
         ][table]
         column_ids = {c["name"]: c["id"] for c in refreshed["columns"]}
         for entity_slug, column_name in entry["level_columns"].items():
-            server.update_column(
+            write.update_column(
                 column_id=column_ids[column_name],
                 column_name=column_name,
                 table_id=table_id,
@@ -225,7 +208,7 @@ def main() -> None:
             )
 
         prior_cloud = prior.get("cloud_tables", [])
-        server.create_update_cloud_table(
+        write.create_update_cloud_table(
             table_id=table_id,
             gcp_project_id=args.gcp_project,
             gcp_dataset_id=spec.GCP_DATASET_ID,
@@ -238,7 +221,7 @@ def main() -> None:
         if table == "dicionario":
             # No date column, so no datetime range — but it still needs a
             # Coverage so the table shows an area on the site.
-            server.create_update_coverage(
+            write.create_update_coverage(
                 table_id=table_id,
                 area_id=area["id"],
                 id=prior_cov[0]["id"] if prior_cov else None,
@@ -248,7 +231,7 @@ def main() -> None:
 
         start_year, end_year = coverage_bounds(table)
         print(f"  coverage {start_year} .. {end_year}")
-        cov = server.create_update_coverage(
+        cov = write.create_update_coverage(
             table_id=table_id,
             area_id=area["id"],
             is_closed=False,
@@ -256,7 +239,7 @@ def main() -> None:
             env=env,
         )
         ranges = prior_cov[0]["datetime_ranges"] if prior_cov else []
-        server.create_update_datetime_range(
+        write.create_update_datetime_range(
             coverage_id=cov["id"],
             start_year=start_year,
             end_year=end_year,
@@ -270,7 +253,7 @@ def main() -> None:
     current = server.get_dataset(slug=spec.DATASET_SLUG, env=env)["tables"]
     for table in ALL_TABLES:
         entry = spec.TABLES[table]
-        server.create_update_table(
+        write.create_update_table(
             slug=table,
             name_pt=entry["name_pt"],
             name_en=entry["name_en"],
@@ -288,7 +271,7 @@ def main() -> None:
         )
     print("\nraw source linked (exactly one per table)")
 
-    server.reorder_tables(
+    write.reorder_tables(
         dataset_slug=spec.DATASET_SLUG, table_slugs=ALL_TABLES, env=env
     )
     print(f"table order: {ALL_TABLES}")

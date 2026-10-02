@@ -20,24 +20,17 @@ from __future__ import annotations
 import argparse
 import csv
 import datetime as dt
-import importlib.util
 import json
 import sys
 from pathlib import Path
+
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
 CODE_DIR = Path(__file__).parent
 sys.path.insert(0, str(CODE_DIR))
 
 from models.world_oecd_piaac.code import architecture as arch  # noqa: E402
-
-_spec = importlib.util.spec_from_file_location(
-    "bdsrv", Path.home() / "Dropbox" / "BD" / "mcp" / "server.py"
-)
-# pyrefly: ignore [bad-argument-type]
-BD = importlib.util.module_from_spec(_spec)
-sys.modules["bdsrv"] = BD
-# pyrefly: ignore [missing-attribute]
-_spec.loader.exec_module(BD)
 
 
 def tool(fn):
@@ -418,25 +411,27 @@ def existing_levels_and_coverage(
       } } }
     }
     """
-    edges = BD._gql(query, {"t": table_id}, env=env)["allTable"]["edges"]
+    edges = server._gql(query, {"t": table_id}, env=env)["allTable"]["edges"]
     if not edges:
         return {}, {}, []
     node = edges[0]["node"]
     levels = {
-        o["node"]["entity"]["slug"]: BD._strip_id(o["node"]["id"])
+        o["node"]["entity"]["slug"]: server._strip_id(o["node"]["id"])
         for o in node["observationLevels"]["edges"]
     }
     coverages = {
         c["node"]["area"]["slug"]: (
-            BD._strip_id(c["node"]["id"]),
+            server._strip_id(c["node"]["id"]),
             [
-                BD._strip_id(r["node"]["id"])
+                server._strip_id(r["node"]["id"])
                 for r in c["node"]["datetimeRanges"]["edges"]
             ],
         )
         for c in node["coverages"]["edges"]
     }
-    updates = [BD._strip_id(u["node"]["id"]) for u in node["updates"]["edges"]]
+    updates = [
+        server._strip_id(u["node"]["id"]) for u in node["updates"]["edges"]
+    ]
     return levels, coverages, updates
 
 
@@ -459,11 +454,11 @@ def column_ids(table_id: str, env: str) -> dict[str, str]:
     out: dict[str, str] = {}
     after = None
     while True:
-        page = BD._gql(query, {"table": table_id, "after": after}, env=env)[
-            "allColumn"
-        ]
+        page = server._gql(
+            query, {"table": table_id, "after": after}, env=env
+        )["allColumn"]
         for edge in page["edges"]:
-            out[edge["node"]["name"]] = BD._strip_id(edge["node"]["id"])
+            out[edge["node"]["name"]] = server._strip_id(edge["node"]["id"])
         if not page["pageInfo"]["hasNextPage"]:
             return out
         after = page["pageInfo"]["endCursor"]
@@ -509,9 +504,9 @@ def main() -> None:
 
     today = dt.datetime.now(dt.UTC).replace(microsecond=0).isoformat()
     # pyrefly: ignore [not-callable]
-    tool(BD.auth)(env=env)
+    tool(server.auth)(env=env)
     # pyrefly: ignore [not-callable]
-    ids = tool(BD.discover_ids)(
+    ids = tool(server.discover_ids)(
         env=env,
         keys=[
             "status",
@@ -524,24 +519,24 @@ def main() -> None:
         ],
     )
     # pyrefly: ignore [not-callable]
-    account = tool(BD.get_authenticated_account)(env=env)
+    account = tool(server.get_authenticated_account)(env=env)
     account_id = account["id"]
     # pyrefly: ignore [not-callable]
-    area_id = tool(BD.lookup_id)(category="area", slug=AREA_WORLD, env=env)[
-        "id"
-    ]
+    area_id = tool(server.lookup_id)(
+        category="area", slug=AREA_WORLD, env=env
+    )["id"]
     print(f"authenticated as {account.get('email', account_id)}")
 
     # create_update_dataset matches on id, not slug: calling it without one
     # creates a second dataset with the same slug rather than updating the first.
     # pyrefly: ignore [not-callable]
-    existing = tool(BD.get_dataset)(slug=DATASET_SLUG, env=env)
+    existing = tool(server.get_dataset)(slug=DATASET_SLUG, env=env)
     existing_id = existing.get("id") if isinstance(existing, dict) else None
     if existing_id:
         print(f"reusing existing dataset {existing_id}")
 
     # pyrefly: ignore [not-callable]
-    dataset = tool(BD.create_update_dataset)(
+    dataset = tool(write.create_update_dataset)(
         id=existing_id,
         slug=DATASET_SLUG,
         name_pt=DATASET_NAME["pt"],
@@ -566,7 +561,9 @@ def main() -> None:
     try:
         for source in (
             # pyrefly: ignore [not-callable]
-            tool(BD.get_raw_data_sources)(dataset_slug=DATASET_SLUG, env=env)
+            tool(write.get_raw_data_sources)(
+                dataset_slug=DATASET_SLUG, env=env
+            )
             or []
         ):
             existing_sources.setdefault(source.get("url"), source.get("id"))
@@ -583,7 +580,7 @@ def main() -> None:
     source_ids = {}
     for slug, names, url, descriptions in RAW_SOURCES:
         # pyrefly: ignore [not-callable]
-        source = tool(BD.create_update_raw_data_source)(
+        source = tool(write.create_update_raw_data_source)(
             id=existing_sources.get(url),
             name_pt=names[0],
             name_en=names[1],
@@ -610,7 +607,8 @@ def main() -> None:
     # "Table com este Dataset e Slug ja existe" on a re-run.
     raw_tables = (
         # pyrefly: ignore [not-callable]
-        tool(BD.get_dataset)(slug=DATASET_SLUG, env=env).get("tables") or {}
+        tool(server.get_dataset)(slug=DATASET_SLUG, env=env).get("tables")
+        or {}
     )
     existing_tables = (
         {slug: entry.get("id") for slug, entry in raw_tables.items()}
@@ -623,7 +621,7 @@ def main() -> None:
     for table_slug in TABLE_NAMES:
         names = TABLE_NAMES[table_slug]
         # pyrefly: ignore [not-callable]
-        table = tool(BD.create_update_table)(
+        table = tool(write.create_update_table)(
             id=existing_tables.get(table_slug),
             slug=table_slug,
             name_pt=names[0],
@@ -646,7 +644,7 @@ def main() -> None:
         print(f"  table {table_slug}: {table_id}")
 
         # pyrefly: ignore [not-callable]
-        result = tool(BD.bulk_upsert_columns)(
+        result = tool(write.bulk_upsert_columns)(
             table_id=table_id,
             columns_json=columns_payload(table_slug),
             env=env,
@@ -665,7 +663,7 @@ def main() -> None:
                 print(f"      ERROR {error}")
 
         # pyrefly: ignore [not-callable]
-        tool(BD.create_update_cloud_table)(
+        tool(write.create_update_cloud_table)(
             table_id=table_id,
             gcp_project_id=gcp_project,
             gcp_dataset_id=GCP_DATASET,
@@ -683,7 +681,7 @@ def main() -> None:
             table_slug, []
         ):
             # pyrefly: ignore [not-callable]
-            level = tool(BD.create_update_observation_level)(
+            level = tool(write.create_update_observation_level)(
                 id=have_levels.get(entity_slug),
                 table_id=table_id,
                 entity_id=ids["entity"][entity_slug],
@@ -694,7 +692,7 @@ def main() -> None:
                 # update_column's booleans default to False, so a bare call would
                 # clear is_partition on the way past.
                 # pyrefly: ignore [not-callable]
-                tool(BD.update_column)(
+                tool(write.update_column)(
                     column_id=column_id,
                     column_name=identifying_column,
                     table_id=table_id,
@@ -707,12 +705,12 @@ def main() -> None:
             AREA_WORLD, (None, [])
         )
         # pyrefly: ignore [not-callable]
-        coverage = tool(BD.create_update_coverage)(
+        coverage = tool(write.create_update_coverage)(
             id=prior_coverage, table_id=table_id, area_id=area_id, env=env
         )
         start_year, end_year = COVERAGE_YEARS[table_slug]
         # pyrefly: ignore [not-callable]
-        tool(BD.create_update_datetime_range)(
+        tool(write.create_update_datetime_range)(
             id=prior_ranges[0] if prior_ranges else None,
             coverage_id=coverage["id"],
             start_year=start_year,
@@ -724,7 +722,7 @@ def main() -> None:
         # Table-anchored: `latest` is when Data Basis last refreshed the table,
         # not the newest date in the data. PIAAC releases roughly once a decade.
         # pyrefly: ignore [not-callable]
-        tool(BD.create_update_update)(
+        tool(write.create_update_update)(
             id=have_updates[0] if have_updates else None,
             table_id=table_id,
             entity_id=ids["entity"]["year"],
@@ -739,7 +737,7 @@ def main() -> None:
     )
     if args.publish:
         # pyrefly: ignore [not-callable]
-        tool(BD.create_update_dataset)(
+        tool(write.create_update_dataset)(
             id=dataset_id,
             slug=DATASET_SLUG,
             name_pt=DATASET_NAME["pt"],

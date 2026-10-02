@@ -19,14 +19,10 @@ not the public site.
 import argparse
 import csv
 import json
-import sys
 from pathlib import Path
 
-sys.path.insert(
-    0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-)
-# pyrefly: ignore [missing-import]
-import server
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
 SLUG = "world_oecd_revenue_statistics"
 DATASET_ID = "world_oecd_revenue_statistics"  # gcp_dataset_id
@@ -218,7 +214,7 @@ def main():
     dataset_id = existing.get("id") or REPURPOSE_ID  # repurpose the LAC shell
 
     dataset = _j(
-        server.create_update_dataset(
+        write.create_update_dataset(
             slug=SLUG,
             name_pt=NAME_PT,
             name_en=NAME_EN,
@@ -241,7 +237,7 @@ def main():
         f"dataset {SLUG} -> {dataset_id} ({'published' if args.publish else 'under_review'})"
     )
 
-    existing_raw = _j(server.get_raw_data_sources(SLUG, env=env)) or []
+    existing_raw = _j(write.get_raw_data_sources(SLUG, env=env)) or []
     raw_id_prev = next(
         (
             r["id"]
@@ -251,7 +247,7 @@ def main():
         None,
     )
     raw = _j(
-        server.create_update_raw_data_source(
+        write.create_update_raw_data_source(
             id=raw_id_prev,
             dataset_id=dataset_id,
             license_id=ids["license"]["cc_by_igo"],
@@ -276,7 +272,7 @@ def main():
         names, descs = TABLE_META[slug]
         payload = columns_payload(slug)
         table = _j(
-            server.create_update_table(
+            write.create_update_table(
                 slug=slug,
                 name_pt=names[0],
                 name_en=names[1],
@@ -295,7 +291,7 @@ def main():
         )
         table_id = table.get("id", prev.get("id"))
 
-        server.create_update_cloud_table(
+        write.create_update_cloud_table(
             table_id=table_id,
             gcp_project_id=GCP_PROJECT[env],
             gcp_dataset_id=DATASET_ID,
@@ -311,7 +307,7 @@ def main():
         }
         for entity in OBSERVATION_LEVELS.get(slug, []):
             ol = _j(
-                server.create_update_observation_level(
+                write.create_update_observation_level(
                     table_id=table_id,
                     entity_id=ids["entity"][entity],
                     id=prev_ols.get(entity, {}).get("id"),
@@ -320,7 +316,7 @@ def main():
             )
             ol_ids[entity] = ol.get("id")
 
-        server.bulk_upsert_columns(
+        write.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(payload, ensure_ascii=False),
             env=env,
@@ -329,7 +325,7 @@ def main():
 
         if slug != "dicionario":
             cov = _j(
-                server.create_update_coverage(
+                write.create_update_coverage(
                     table_id=table_id,
                     area_id=world_area(env),
                     id=(prev.get("coverages") or [{}])[0].get("id"),
@@ -342,7 +338,7 @@ def main():
                     or [{}]
                 )[0]
             ).get("id")
-            server.create_update_datetime_range(
+            write.create_update_datetime_range(
                 coverage_id=cov["id"],
                 start_year=START_YEAR,
                 end_year=END_YEAR,
@@ -372,7 +368,7 @@ def main():
             "country_iso3_code": "country",
         }.items():
             if column in cols and ol_ids.get(entity):
-                server.update_column(
+                write.update_column(
                     column_id=cols[column],
                     column_name=column,
                     table_id=table_id,
@@ -383,7 +379,7 @@ def main():
                 linked += 1
     print(f"linked {linked} columns to observation levels")
 
-    server.reorder_tables(dataset_slug=SLUG, table_slugs=order, env=env)
+    write.reorder_tables(dataset_slug=SLUG, table_slugs=order, env=env)
     print(f"\nregistered {len(order)} tables in {env}")
 
 

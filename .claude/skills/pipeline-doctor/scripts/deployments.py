@@ -11,7 +11,7 @@ This fills that gap and nothing else.
 
 Reads the prefect3 token from ~/.basedosdados/credentials.json and never
 prints it. Same token the MCP server uses; see `_prefect_key` in
-~/Dropbox/BD/mcp/server.py for why it is a backend Token, not a Prefect key.
+`databasis_mcp.tools.prefect` for why it is a backend Token, not a Prefect key.
 
 `paused` is the authoritative arming signal. A paused deployment still
 reports `active=True` on its schedule — deployment-level paused wins — so

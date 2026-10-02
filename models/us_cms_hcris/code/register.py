@@ -26,17 +26,13 @@ partition flag is re-passed on every call that touches ``year``.
 import argparse
 import csv
 import json
-import sys
 from datetime import date
 from pathlib import Path
 
-MCP_DIR = Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-sys.path.insert(0, str(MCP_DIR))
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
-# pyrefly: ignore [missing-import]
-import server  # noqa: E402
-
-from models.us_cms_hcris.code.dataset_meta import (  # noqa: E402
+from models.us_cms_hcris.code.dataset_meta import (
     AUXILIARY_FILES,
     COVERAGE,
     DATASET_DESCRIPTION,
@@ -52,7 +48,7 @@ from models.us_cms_hcris.code.dataset_meta import (  # noqa: E402
     TAGS,
     THEMES,
 )
-from models.us_cms_hcris.code.schema import TABLES  # noqa: E402
+from models.us_cms_hcris.code.schema import TABLES
 
 CODE_DIR = Path(__file__).resolve().parent
 ARCH = CODE_DIR / "architecture"
@@ -86,7 +82,7 @@ class Registrar:
         """Invoke one backend tool, or describe it on a dry run.
 
         Args:
-            fn: Name of the ``server`` function.
+            fn: Name of the ``server`` or ``write`` function.
             **kwargs: Its arguments.
 
         Returns:
@@ -101,7 +97,8 @@ class Registrar:
             print(f"  DRY {fn}({label})")
             return {}
         print(f"  {fn}({label})")
-        return getattr(server, fn)(env=self.env, **kwargs)
+        tool = getattr(server, fn, None) or getattr(write, fn)
+        return tool(env=self.env, **kwargs)
 
     # -- dataset ---------------------------------------------------------
 
@@ -311,7 +308,7 @@ def main() -> None:
         )
         return
 
-    sources = server.get_raw_data_sources(DATASET_SLUG, env=args.env) or []
+    sources = write.get_raw_data_sources(DATASET_SLUG, env=args.env) or []
     match = next(
         (s for s in sources if s.get("url") == RAW_SOURCE["url"]), None
     )

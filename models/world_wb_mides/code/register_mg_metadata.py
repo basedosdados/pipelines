@@ -36,25 +36,13 @@ import json
 import os
 import pathlib
 import re
-import sys
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(
-    0,
-    os.path.expanduser("~/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"),
-)
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-import gen_mg_schema as gen
-
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-import mg_column_glossary as glossary
-
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-import mg_table_glossary as tables
-
-# pyrefly: ignore [missing-import]  # the databasis MCP server, via sys.path
-import server
+import models.world_wb_mides.code.gen_mg_schema as gen
+import models.world_wb_mides.code.mg_column_glossary as glossary
+import models.world_wb_mides.code.mg_table_glossary as tables
 
 # The 43 MG models sit in `models/world_wb_mides/` beside the 9 original
 # multi-state ones. `model_path` is the single definition of that location;
@@ -390,7 +378,7 @@ def main() -> None:
             )
             continue
 
-        table = server.create_update_table(
+        table = write.create_update_table(
             slug=slug,
             name_pt=tables.name(slug, "pt"),
             name_en=tables.name(slug, "en"),
@@ -415,7 +403,7 @@ def main() -> None:
             print(f"  {slug:<34} status={args.status}")
             continue
 
-        server.bulk_upsert_columns(
+        write.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(cols, ensure_ascii=False),
             env=ENV,
@@ -427,7 +415,7 @@ def main() -> None:
             for o in prior.get("observation_levels", [])
         }
         for level in levels:
-            server.create_update_observation_level(
+            write.create_update_observation_level(
                 table_id=table_id,
                 entity_id=ENTITY[level],
                 id=have_ol.get(level),
@@ -471,7 +459,7 @@ def main() -> None:
                 continue
             if column not in col_id:
                 continue
-            server.update_column(
+            write.update_column(
                 column_id=col_id[column],
                 column_name=column,
                 table_id=table_id,
@@ -481,7 +469,7 @@ def main() -> None:
             )
 
         cloud = prior.get("cloud_tables") or [{}]
-        server.create_update_cloud_table(
+        write.create_update_cloud_table(
             table_id=table_id,
             gcp_project_id=GCP_PROJECT,
             gcp_dataset_id=GCP_DATASET,
@@ -492,7 +480,7 @@ def main() -> None:
 
         covs = {c.get("area_slug"): c for c in prior.get("coverages", [])}
         mg_cov = covs.get("br_mg", {})
-        coverage = server.create_update_coverage(
+        coverage = write.create_update_coverage(
             table_id=table_id,
             area_id=AREA_BR_MG,
             id=mg_cov.get("id") or None,
@@ -504,7 +492,7 @@ def main() -> None:
             else json.loads(coverage)["id"]
         )
         ranges = mg_cov.get("datetime_ranges") or [{}]
-        server.create_update_datetime_range(
+        write.create_update_datetime_range(
             coverage_id=coverage_id,
             start_year=START_YEAR,
             end_year=END_YEAR,
@@ -514,7 +502,7 @@ def main() -> None:
         )
 
         updates = prior.get("updates") or [{}]
-        server.create_update_update(
+        write.create_update_update(
             entity_id=ENTITY_DAY,
             frequency=1,
             # the backend's `latest` is a DateTime, not a Date -- a bare
@@ -532,7 +520,7 @@ def main() -> None:
     # table in it, so it is skipped on a scoped run: it would reorder the 9
     # original multi-state tables this run was told not to touch.
     if not args.dry_run and not args.table:
-        server.reorder_tables(
+        write.reorder_tables(
             dataset_slug="mides", table_slugs=tables.TABLE_ORDER, env=ENV
         )
         print(f"  reordered {len(tables.TABLE_ORDER)} tables")

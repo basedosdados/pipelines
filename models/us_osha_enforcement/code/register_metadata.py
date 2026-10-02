@@ -9,7 +9,7 @@ an existing id is passed back on update. ``create_update_*`` is *not*
 idempotent on its own — omitting the id creates a duplicate observation level,
 cloud table, coverage or update on every re-run.
 
-The script talks to the backend through the databasis MCP server module rather
+The script talks to the backend through the databasis-mcp package rather
 than the MCP tool surface, so the 138-column payloads never have to be pasted
 through a conversation.
 """
@@ -24,7 +24,6 @@ import sys
 from datetime import date
 from pathlib import Path
 
-MCP = "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
 HERE = Path(__file__).resolve().parent
 DATASET_ID = "us_osha_enforcement"
 SLUG = "enforcement"
@@ -257,9 +256,8 @@ def main(argv: list[str] | None = None) -> int:
     args = p.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
-    sys.path.insert(0, MCP)
-    # pyrefly: ignore [missing-import]
-    import server
+    import databasis_mcp.tools.metadata as server
+    import databasis_mcp.tools.write as write
 
     sys.path.insert(0, str(HERE.parents[2]))
     from pipelines.datasets.us_osha_enforcement.flows import (
@@ -287,7 +285,7 @@ def main(argv: list[str] | None = None) -> int:
             org_id = "<new>"
         else:
             area_us = server.lookup_id(category="area", slug="us", env=env)
-            org = server.create_update_organization(
+            org = write.create_update_organization(
                 slug=ORG_SLUG,
                 name_pt="Administração de Segurança e Saúde Ocupacional (OSHA)",
                 name_en="Occupational Safety and Health Administration (OSHA)",
@@ -340,7 +338,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 0
 
-    ds = server.create_update_dataset(
+    ds = write.create_update_dataset(
         id=dataset_id,
         slug=SLUG,
         organization_ids=[org_id],
@@ -361,9 +359,7 @@ def main(argv: list[str] | None = None) -> int:
     # with two sources cannot run a recurring pipeline at all.
     existing_sources = {
         s["name"]: s["id"]
-        for s in (
-            server.get_raw_data_sources(dataset_slug=SLUG, env=env) or []
-        )
+        for s in (write.get_raw_data_sources(dataset_slug=SLUG, env=env) or [])
     }
     license_id = server.lookup_id(category="license", slug="cc0", env=env)[
         "id"
@@ -374,7 +370,7 @@ def main(argv: list[str] | None = None) -> int:
     area_us = server.lookup_id(category="area", slug="us", env=env)["id"]
     source_ids = []
     for src in RAW_SOURCES:
-        got = server.create_update_raw_data_source(
+        got = write.create_update_raw_data_source(
             id=existing_sources.get(src["name_pt"]),
             dataset_id=dataset_id,
             license_id=license_id,
@@ -411,7 +407,7 @@ def main(argv: list[str] | None = None) -> int:
         prev = have.get(table.slug, {})
         # create_update_table fails once a table has a Coverage, so the table
         # record is written before any coverage is attached to it.
-        tbl = server.create_update_table(
+        tbl = write.create_update_table(
             id=prev.get("id"),
             slug=table.slug,
             dataset_id=dataset_id,
@@ -438,7 +434,7 @@ def main(argv: list[str] | None = None) -> int:
         for entity_slug, _cols in OBSERVATION_LEVELS[table.slug]:
             if entity_slug in ol_ids:
                 continue
-            ol = server.create_update_observation_level(
+            ol = write.create_update_observation_level(
                 table_id=table_id,
                 entity_id=entity_ids[entity_slug],
                 env=env,
@@ -449,7 +445,7 @@ def main(argv: list[str] | None = None) -> int:
         payload = json.loads(
             (HERE / "columns_json" / f"{table.slug}.json").read_text()
         )
-        server.bulk_upsert_columns(
+        write.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(payload, ensure_ascii=False),
             env=env,
@@ -477,7 +473,7 @@ def main(argv: list[str] | None = None) -> int:
                     f"{table.slug}.{col_name} not registered — skipped"
                 )
                 continue
-            server.update_column(
+            write.update_column(
                 column_id=by_name[col_name],
                 column_name=col_name,
                 table_id=table_id,
@@ -488,7 +484,7 @@ def main(argv: list[str] | None = None) -> int:
 
         # cloud table
         cloud_id = (prev.get("cloud_tables") or [{}])[0].get("id")
-        server.create_update_cloud_table(
+        write.create_update_cloud_table(
             id=cloud_id,
             table_id=table_id,
             gcp_project_id="basedosdados-dev"
@@ -508,7 +504,7 @@ def main(argv: list[str] | None = None) -> int:
         spec = FLOW_COVERAGE.get(table.slug)
         start = COVERAGE_START.get(table.slug) or ()
         existing_cov = read_coverages(server, table_id, env)
-        free_cov = server.create_update_coverage(
+        free_cov = write.create_update_coverage(
             id=(existing_cov.get(False) or {}).get("id"),
             table_id=table_id,
             area_id=area_us,
@@ -528,7 +524,7 @@ def main(argv: list[str] | None = None) -> int:
                 )
             free_range = ranges.free
             sy, sm, sd = [*list(start), None, None][:3]
-            server.create_update_datetime_range(
+            write.create_update_datetime_range(
                 id=_range_id(existing_cov.get(False)),
                 coverage_id=free_cov["id"],
                 start_year=sy,
@@ -541,7 +537,7 @@ def main(argv: list[str] | None = None) -> int:
                 is_closed=False,
                 env=env,
             )
-            pro_cov = server.create_update_coverage(
+            pro_cov = write.create_update_coverage(
                 id=(existing_cov.get(True) or {}).get("id"),
                 table_id=table_id,
                 area_id=area_us,
@@ -549,7 +545,7 @@ def main(argv: list[str] | None = None) -> int:
                 env=env,
             )
             pro_range = ranges.pro
-            server.create_update_datetime_range(
+            write.create_update_datetime_range(
                 id=_range_id(existing_cov.get(True)),
                 coverage_id=pro_cov["id"],
                 start_year=pro_range.startYear,
@@ -587,7 +583,7 @@ def main(argv: list[str] | None = None) -> int:
 
         # table Update — when WE last refreshed, a wall clock
         upd_id = (prev.get("updates") or [{}])[0].get("id")
-        server.create_update_update(
+        write.create_update_update(
             id=upd_id,
             table_id=table_id,
             entity_id=entity_ids["week"],
@@ -606,7 +602,7 @@ def main(argv: list[str] | None = None) -> int:
     # clock. Created here rather than waiting for the first pipeline run: a run
     # with update_metadata off leaves a Poll and no source Update.
     for source_id in source_ids:
-        server.create_update_update(
+        write.create_update_update(
             raw_data_source_id=source_id,
             entity_id=entity_ids["week"],
             frequency=1,
@@ -614,7 +610,7 @@ def main(argv: list[str] | None = None) -> int:
             env=env,
         )
 
-    server.reorder_tables(
+    write.reorder_tables(
         dataset_slug=SLUG,
         table_slugs=[t.slug for t in arch.TABLES],
         env=env,

@@ -8,15 +8,9 @@ from __future__ import annotations
 
 import argparse
 import csv
-import sys
 from pathlib import Path
 
-sys.path.insert(
-    0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-)
-
-# pyrefly: ignore [missing-import]
-import server
+import databasis_mcp.tools.metadata as server
 
 from models.us_census_bps.code.metadata import DATASET_SLUG, TABLE_ORDER
 

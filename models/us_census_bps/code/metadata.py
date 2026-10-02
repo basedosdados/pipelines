@@ -16,13 +16,10 @@ import json
 import sys
 from pathlib import Path
 
-sys.path.insert(
-    0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-)
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-# pyrefly: ignore [missing-import]
-import server
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
 from pipelines.datasets.us_census_bps.constants import constants
 
@@ -331,7 +328,7 @@ def refresh_columns(env: str) -> int:
     tables = server.get_dataset(DATASET_SLUG, env=env)["tables"]
     for table in TABLE_ORDER:
         payload = column_payload(table)
-        server.bulk_upsert_columns(
+        write.bulk_upsert_columns(
             table_id=tables[table]["id"],
             columns_json=json.dumps(payload, ensure_ascii=False),
             env=env,
@@ -373,13 +370,13 @@ def main() -> int:
         try:
             tag_ids.append(server.lookup_id("tag", tag["slug"], env=env)["id"])
         except RuntimeError:
-            created = server.create_update_tag(env=env, **tag)
+            created = write.create_update_tag(env=env, **tag)
             print(f"created tag {tag['slug']}: {created}")
             tag_ids.append(server.lookup_id("tag", tag["slug"], env=env)["id"])
 
     existing = server.get_dataset(DATASET_SLUG, env=env)
     dataset_id = existing.get("id") if existing.get("found") else None
-    result = server.create_update_dataset(
+    result = write.create_update_dataset(
         slug=DATASET_SLUG,
         name_pt=NAME_PT,
         name_en=NAME_EN,
@@ -397,7 +394,7 @@ def main() -> int:
     dataset_id = result.get("id") or dataset_id
     print(f"dataset {DATASET_SLUG}: {dataset_id}")
 
-    prior_sources = server.get_raw_data_sources(DATASET_SLUG, env=env)
+    prior_sources = write.get_raw_data_sources(DATASET_SLUG, env=env)
     if isinstance(prior_sources, dict):
         prior_sources = prior_sources.get("raw_data_sources", [])
     existing_sources = {
@@ -406,7 +403,7 @@ def main() -> int:
     source_ids: dict[str, str | None] = {}
     for level, (path, tables, name_en, name_pt, name_es) in SOURCES.items():
         url = BASE + path
-        res = server.create_update_raw_data_source(
+        res = write.create_update_raw_data_source(
             dataset_id=dataset_id,
             name_pt=name_pt,
             name_en=name_en,
@@ -438,7 +435,7 @@ def main() -> int:
             else table_description(table)
         )
         prior = state.get(table, {})
-        res = server.create_update_table(
+        res = write.create_update_table(
             slug=table,
             name_pt=pt,
             name_en=en,
@@ -459,7 +456,7 @@ def main() -> int:
         table_id = res.get("id") or prior.get("id")
         print(f"table {table}: {table_id}")
 
-        server.create_update_cloud_table(
+        write.create_update_cloud_table(
             table_id=table_id,
             gcp_project_id=args.gcp_project,
             gcp_dataset_id=GCP_DATASET,
@@ -469,7 +466,7 @@ def main() -> int:
         )
 
         payload = column_payload(table)
-        server.bulk_upsert_columns(
+        write.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(payload, ensure_ascii=False),
             env=env,

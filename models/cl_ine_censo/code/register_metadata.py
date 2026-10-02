@@ -19,14 +19,9 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
-from pathlib import Path
 
-sys.path.insert(
-    0, str(Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp")
-)
-# pyrefly: ignore [missing-import]
-import server
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
 from models.cl_ine_censo.code.constants import (
     CENSUS_YEAR,
@@ -214,7 +209,7 @@ def register(env: str, gcp_project: str) -> None:
         name_pt, name_en, name_es = spec["names"]
         desc_pt, desc_en, desc_es = spec["descriptions"]
 
-        result = server.create_update_table(
+        result = write.create_update_table(
             id=table_id,
             slug=slug,
             dataset_id=ids["dataset"],
@@ -243,7 +238,7 @@ def register(env: str, gcp_project: str) -> None:
         }
         level_ids: dict[str, str] = {}
         for entity_slug, column_name in spec["levels"]:
-            level = server.create_update_observation_level(
+            level = write.create_update_observation_level(
                 id=existing_levels.get(entity_slug),
                 table_id=table_id,
                 entity_id=entities[entity_slug],
@@ -257,7 +252,7 @@ def register(env: str, gcp_project: str) -> None:
 
         # --- columns -------------------------------------------------------
         payload = json.loads((PAYLOAD_DIR / f"{slug}.json").read_text("utf-8"))
-        server.bulk_upsert_columns(
+        write.bulk_upsert_columns(
             table_id=table_id,
             columns_json=json.dumps(payload, ensure_ascii=False),
             env=env,
@@ -283,7 +278,7 @@ def register(env: str, gcp_project: str) -> None:
             if not level_id or not column_id:
                 print(f"  ! no column id for {column_name}; level not linked")
                 continue
-            server.update_column(
+            write.update_column(
                 column_id=column_id,
                 column_name=column_name,
                 table_id=table_id,
@@ -299,7 +294,7 @@ def register(env: str, gcp_project: str) -> None:
 
         # --- cloud table ----------------------------------------------------
         cloud = (current.get("cloud_tables") or [{}])[0]
-        server.create_update_cloud_table(
+        write.create_update_cloud_table(
             id=cloud.get("id"),
             table_id=table_id,
             gcp_project_id=gcp_project,
@@ -315,7 +310,7 @@ def register(env: str, gcp_project: str) -> None:
         if slug == "dicionario":
             continue
         coverage = (current.get("coverages") or [{}])[0]
-        cov = server.create_update_coverage(
+        cov = write.create_update_coverage(
             id=coverage.get("id"),
             table_id=table_id,
             area_id=ids["area_cl"],
@@ -325,7 +320,7 @@ def register(env: str, gcp_project: str) -> None:
             cov = json.loads(cov)
         coverage_id = cov.get("id")
         ranges = coverage.get("datetime_ranges") or [{}]
-        server.create_update_datetime_range(
+        write.create_update_datetime_range(
             id=ranges[0].get("id"),
             coverage_id=coverage_id,
             start_year=CENSUS_YEAR,

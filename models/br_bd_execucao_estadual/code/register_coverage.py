@@ -30,8 +30,6 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-MCP = "/Users/rdahis/Dropbox/BD/mcp"
-
 # (area slug, start_year, start_month, end_year, end_month).
 # A None month means the range is year-granular; None years mean no range at all, which is
 # correct for the two tables that carry no date column.
@@ -177,9 +175,8 @@ def check(env: str) -> int:
 
 
 def apply(env: str) -> None:
-    sys.path.insert(0, MCP)
-    # pyrefly: ignore [missing-import]
-    import server
+    import databasis_mcp.tools.metadata as server
+    import databasis_mcp.tools.write as write
 
     server.auth(env=env)
     areas = {
@@ -207,7 +204,7 @@ def apply(env: str) -> None:
             prior_cov = existing.get(area)
             if prior_cov:
                 kwargs["id"] = prior_cov["id"]
-            coverage = server.create_update_coverage(**kwargs)
+            coverage = write.create_update_coverage(**kwargs)
             if ranges is None:
                 print(f"  {slug:24} {area}  no range")
                 continue
@@ -233,7 +230,7 @@ def apply(env: str) -> None:
                     rng.update(start_month=m0, end_month=m1)
                 if i < len(prior):
                     rng["id"] = prior[i]["id"]
-                server.create_update_datetime_range(**rng)
+                write.create_update_datetime_range(**rng)
             label = ", ".join(
                 f"{y0}-{m0:02d}..{y1}-{m1:02d}" if m0 else f"{y0}..{y1}"
                 for y0, m0, y1, m1 in ranges

@@ -19,14 +19,9 @@ through GraphQL rather than ``get_dataset``, which does not return
 from __future__ import annotations
 
 import argparse
-import sys
 
-sys.path.insert(
-    0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-)
-
-# pyrefly: ignore [missing-import]
-import server
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
 from models.us_census_bps.code.metadata import (
     AUX_URL,
@@ -110,7 +105,7 @@ def register_source_update(env: str) -> int:
     from the start.
     """
     entity = server.discover_ids(env=env, keys=["entity"])["entity"]
-    prior = server.get_raw_data_sources(DATASET_SLUG, env=env)
+    prior = write.get_raw_data_sources(DATASET_SLUG, env=env)
     if isinstance(prior, dict):
         prior = prior.get("raw_data_sources", [])
     by_url = {BASE + path: level for level, (path, *_r) in SOURCES.items()}
@@ -135,7 +130,7 @@ def register_source_update(env: str) -> int:
                 f"{level}: raw source has {len(existing)} Update records; "
                 "the pipeline cannot resolve more than one. Delete the extras."
             )
-        server.create_update_update(
+        write.create_update_update(
             entity_id=entity["month"],
             frequency=1,
             latest=latest,
@@ -169,7 +164,7 @@ def main() -> int:
     dataset = server.get_dataset(DATASET_SLUG, env=env)
     tables = dataset["tables"]
 
-    prior_sources = server.get_raw_data_sources(DATASET_SLUG, env=env)
+    prior_sources = write.get_raw_data_sources(DATASET_SLUG, env=env)
     if isinstance(prior_sources, dict):
         prior_sources = prior_sources.get("raw_data_sources", [])
     by_url = {s["url"]: s["id"] for s in prior_sources if s.get("url")}
@@ -187,7 +182,7 @@ def main() -> int:
             if table == "dicionario"
             else table_description(table)
         )
-        server.create_update_table(
+        write.create_update_table(
             slug=table,
             name_pt=pt,
             name_en=en,
@@ -222,7 +217,7 @@ def main() -> int:
 
         ol_ids: list[str] = []
         for entity_slug, column_name in OBSERVATION_LEVELS[table]:
-            res = server.create_update_observation_level(
+            res = write.create_update_observation_level(
                 table_id=table_id,
                 entity_id=entity[entity_slug],
                 id=state["observation_levels"].get(entity_slug),
@@ -230,7 +225,7 @@ def main() -> int:
             )
             ol_id = res.get("id") or state["observation_levels"][entity_slug]
             ol_ids.append(ol_id)
-            server.update_column(
+            write.update_column(
                 column_id=columns[column_name],
                 column_name=column_name,
                 table_id=table_id,
@@ -238,13 +233,13 @@ def main() -> int:
                 env=env,
             )
             print(f"    observation level {entity_slug} -> {column_name}")
-        server.reorder_observation_levels(
+        write.reorder_observation_levels(
             table_id=table_id, ol_ids=ol_ids, env=env
         )
 
         # Set last: update_column's booleans default to False, so the
         # partition flag has to outlive the observation-level writes above.
-        server.update_column(
+        write.update_column(
             column_id=columns["year"],
             column_name="year",
             table_id=table_id,
@@ -256,7 +251,7 @@ def main() -> int:
         free_prior = next(
             (c for c in state["coverages"] if not c["is_closed"]), None
         )
-        free_id = server.create_update_coverage(
+        free_id = write.create_update_coverage(
             table_id=table_id,
             area_id=area,
             is_closed=False,
@@ -264,7 +259,7 @@ def main() -> int:
             env=env,
         ).get("id") or (free_prior or {}).get("id")
         free_last = free_end or end
-        server.create_update_datetime_range(
+        write.create_update_datetime_range(
             coverage_id=free_id,
             start_year=start[0],
             start_month=start[1],
@@ -281,7 +276,7 @@ def main() -> int:
             pro_prior = next(
                 (c for c in state["coverages"] if c["is_closed"]), None
             )
-            pro_id = server.create_update_coverage(
+            pro_id = write.create_update_coverage(
                 table_id=table_id,
                 area_id=area,
                 is_closed=True,
@@ -289,7 +284,7 @@ def main() -> int:
                 env=env,
             ).get("id") or (pro_prior or {}).get("id")
             pro_start = next_period(*free_end)
-            server.create_update_datetime_range(
+            write.create_update_datetime_range(
                 coverage_id=pro_id,
                 start_year=pro_start[0],
                 start_month=pro_start[1],
@@ -304,7 +299,7 @@ def main() -> int:
 
         cadence = "monthly" if table.endswith("_monthly") else "annual"
         entity_slug, frequency, lag = UPDATE[cadence]
-        server.create_update_update(
+        write.create_update_update(
             entity_id=entity[entity_slug],
             frequency=frequency,
             lag=lag,
@@ -315,7 +310,7 @@ def main() -> int:
         )
         print(f"    update: every {frequency} {entity_slug}, lag {lag}")
 
-    server.reorder_tables(
+    write.reorder_tables(
         dataset_slug=DATASET_SLUG, table_slugs=TABLE_ORDER, env=env
     )
     print("\n=== pass 3: table order set ===")

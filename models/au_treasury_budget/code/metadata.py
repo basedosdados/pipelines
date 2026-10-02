@@ -17,13 +17,9 @@ import argparse
 import contextlib
 import json
 import pathlib
-import sys
 
-sys.path.insert(
-    0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-)
-# pyrefly: ignore [missing-import]
-import server
+import databasis_mcp.tools.metadata as server
+import databasis_mcp.tools.write as write
 
 from models.au_treasury_budget.code import columns as column_defs
 
@@ -306,7 +302,7 @@ def main() -> int:
         existing_org = server.lookup_id(
             category="organization", slug=organization_slug, env=env
         )
-    org = server.create_update_organization(
+    org = write.create_update_organization(
         slug=organization_slug,
         name_pt="Tesouro da Austrália",
         name_en="Australian Treasury",
@@ -334,7 +330,7 @@ def main() -> int:
 
     # --- dataset ---------------------------------------------------------
     existing = server.get_dataset(slug=DATASET_SLUG, env=env)
-    dataset = server.create_update_dataset(
+    dataset = write.create_update_dataset(
         slug=DATASET_SLUG,
         name_pt=DATASET_NAME[0],
         name_en=DATASET_NAME[1],
@@ -342,6 +338,7 @@ def main() -> int:
         description_pt=DATASET_DESCRIPTION[0],
         description_en=DATASET_DESCRIPTION[1],
         description_es=DATASET_DESCRIPTION[2],
+        # pyrefly: ignore [bad-argument-type]
         organization_ids=[organization_id],
         theme_ids=theme_ids,
         tag_ids=tag_ids,
@@ -359,13 +356,14 @@ def main() -> int:
         return 0
 
     # --- raw data sources -------------------------------------------------
-    raw = server.get_raw_data_sources(dataset_slug=DATASET_SLUG, env=env)
+    raw = write.get_raw_data_sources(dataset_slug=DATASET_SLUG, env=env)
     if isinstance(raw, dict):
         raw = raw.get("raw_data_sources", [])
     existing_sources = {s.get("name"): strip(s.get("id")) for s in raw}
     source_ids: dict[str, str] = {}
     for table, (names, url) in RAW_SOURCES.items():
-        record = server.create_update_raw_data_source(
+        record = write.create_update_raw_data_source(
+            # pyrefly: ignore [bad-argument-type]
             dataset_id=dataset_id,
             name_pt=names[0],
             name_en=names[1],
@@ -389,7 +387,7 @@ def main() -> int:
     current = server.get_dataset(slug=DATASET_SLUG, env=env)
     for table in column_defs.TABLES:
         known = current.get("tables", {}).get(table, {})
-        record = server.create_update_table(
+        record = write.create_update_table(
             slug=table,
             name_pt=TABLE_NAMES[table][0],
             name_en=TABLE_NAMES[table][1],
@@ -397,9 +395,12 @@ def main() -> int:
             description_pt=TABLE_DESCRIPTIONS[table][0],
             description_en=TABLE_DESCRIPTIONS[table][1],
             description_es=TABLE_DESCRIPTIONS[table][2],
+            # pyrefly: ignore [bad-argument-type]
             dataset_id=dataset_id,
             status_id=ids["status"]["published"],
+            # pyrefly: ignore [bad-argument-type]
             published_by_ids=[account_id],
+            # pyrefly: ignore [bad-argument-type]
             data_cleaned_by_ids=[account_id],
             raw_data_source_ids=(
                 [source_ids[table]] if table in source_ids else None
@@ -411,7 +412,8 @@ def main() -> int:
         print(f"\ntable {table}: {table_id}")
 
         payload = column_defs.columns_json(table)
-        result = server.bulk_upsert_columns(
+        result = write.bulk_upsert_columns(
+            # pyrefly: ignore [bad-argument-type]
             table_id=table_id,
             columns_json=json.dumps(payload, ensure_ascii=False),
             env=env,
@@ -434,7 +436,8 @@ def main() -> int:
         }
         for entity_slug, column_name in OBSERVATION_LEVELS[table]:
             entity_id = ids["entity"][entity_slug]
-            level = server.create_update_observation_level(
+            level = write.create_update_observation_level(
+                # pyrefly: ignore [bad-argument-type]
                 table_id=table_id,
                 entity_id=entity_id,
                 id=existing_levels.get(entity_id),
@@ -443,9 +446,11 @@ def main() -> int:
             level_id = strip(level["id"])
             # update_column's booleans default to False, so the partition flag
             # has to be re-passed in the same call that sets the level.
-            server.update_column(
+            write.update_column(
+                # pyrefly: ignore [bad-argument-type]
                 column_id=column_ids[column_name],
                 column_name=column_name,
+                # pyrefly: ignore [bad-argument-type]
                 table_id=table_id,
                 observation_level_id=level_id,
                 is_partition=(column_name == "year"),
@@ -454,16 +459,19 @@ def main() -> int:
             print(f"  observation level {entity_slug} -> {column_name}")
 
         if not OBSERVATION_LEVELS[table] and "year" in column_ids:
-            server.update_column(
+            write.update_column(
+                # pyrefly: ignore [bad-argument-type]
                 column_id=column_ids["year"],
                 column_name="year",
+                # pyrefly: ignore [bad-argument-type]
                 table_id=table_id,
                 is_partition=True,
                 env=env,
             )
 
         existing_cloud = table_record.get("cloud_tables", [])
-        server.create_update_cloud_table(
+        write.create_update_cloud_table(
+            # pyrefly: ignore [bad-argument-type]
             table_id=table_id,
             gcp_project_id="basedosdados",
             gcp_dataset_id=GCP_DATASET_ID,
@@ -474,8 +482,10 @@ def main() -> int:
         print(f"  cloud table -> basedosdados.{GCP_DATASET_ID}.{table}")
 
         existing_coverages = table_record.get("coverages", [])
-        coverage = server.create_update_coverage(
+        coverage = write.create_update_coverage(
+            # pyrefly: ignore [bad-argument-type]
             table_id=table_id,
+            # pyrefly: ignore [bad-argument-type]
             area_id=area_au,
             id=strip(existing_coverages[0]["id"])
             if existing_coverages
@@ -490,7 +500,8 @@ def main() -> int:
                 if existing_coverages
                 else []
             )
-            server.create_update_datetime_range(
+            write.create_update_datetime_range(
+                # pyrefly: ignore [bad-argument-type]
                 coverage_id=coverage_id,
                 start_year=start_year,
                 end_year=end_year,
@@ -503,7 +514,7 @@ def main() -> int:
             print("  coverage (no temporal range: the dictionary has no year)")
 
         existing_updates = table_record.get("updates", [])
-        server.create_update_update(
+        write.create_update_update(
             table_id=table_id,
             entity_id=ids["entity"]["month"],
             frequency=UPDATE_FREQUENCY_MONTHS,
@@ -513,7 +524,7 @@ def main() -> int:
         )
         print("  update record")
 
-    server.reorder_tables(
+    write.reorder_tables(
         dataset_slug=DATASET_SLUG,
         table_slugs=list(column_defs.TABLES),
         env=env,
