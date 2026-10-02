@@ -95,22 +95,141 @@ Vínculos (responsáveis) da obra. `data_fim` usa a sentinela `9999-*` para "sem
 (vínculo em aberto), e há registros com data digitada errada — valores fora do range do
 diretório de datas são nulados (ver *Histórico de Correções* #2).
 
-**Duplicatas (PENDENTE — requer aprovação de superior):** ao contrário de `areas`/`microdados`,
-`vinculos` **não tem** teste `unique_combination_of_columns`, então duplicatas passam batido —
-há **~10.656 linhas 100% duplicadas** na partição mais recente (~2,5%; a própria fonte traz
-linhas idênticas). Verificar com `COUNT(*) - COUNT(DISTINCT TO_JSON_STRING(t))`. Resolução
-**não executada** (mexe em dado público de prod → depende de OK de um superior):
+**Linhas repetidas são vínculos de pessoas físicas.** Cerca de 2,5% das linhas repetem outra
+linha em todas as colunas. O dicionário oficial diz que o `NI do responsável` "virá em branco"
+quando for CPF, e sem o CPF duas pessoas responsáveis pela mesma obra, com a mesma qualificação
+e as mesmas datas, viram linhas idênticas. Quase todas as repetidas têm o NI em branco, e o
+cruzamento com a `microdados` não mostra outra causa (ver *Evidência* abaixo). Sem o CPF, não dá
+para conferir registro a registro.
 
-- **Forward:** `select distinct` no modelo (espelha a `areas`) + teste
-  `unique_combination_of_columns` em `[id_cno, id_responsavel, data_inicio, data_fim,
-  qualificacao_contribuinte]` (chave verificada: **0 colisões** após o distinct), escopado em
-  `__most_recent_date_cno__`. Obs.: o teste só fica verde quando o partition máximo estiver
-  limpo (partição nova pós-fix, ou a limpeza de histórico abaixo).
-- **Histórico:** **NÃO usar `--full-refresh`** — o staging tem só **126 das 292 partições**, então
-  full-refresh reconstruiria do staging e **perderia ~166 partições**. Limpar in-place com
-  `CREATE OR REPLACE TABLE \`basedosdados.br_rf_cno.vinculos\` PARTITION BY data_extracao AS
-  SELECT DISTINCT * FROM \`basedosdados.br_rf_cno.vinculos\`` (dropa as Row Access Policies →
-  reaplicar). Sem isso, só o distinct no modelo limpa os partitions novos; o histórico mantém os dupes.
+Para quem usa a tabela:
+
+- A tabela mantém as linhas repetidas e não tem teste `unique_combination_of_columns`: nenhuma
+  combinação de colunas identifica o vínculo de uma pessoa física.
+- `count(*)` conta cada vínculo. Um `count(distinct ...)` sobre as colunas conta pessoas
+  diferentes como um vínculo só.
+- O NI em branco está gravado como o texto `'nan'` em `id_responsavel`, não como nulo, porque o
+  `process_chunk` (`crawler/rf/utils.py`) converte todas as colunas com `applymap(str)`.
+- Duas exceções que a explicação não cobre: 14 linhas a mais com o mesmo CNPJ na qualificação
+  `111` (Sociedade Líder de Consórcio), sem coluna que as distinga; e 54.724 vínculos da
+  qualificação `53` (Pessoa Jurídica Construtora) com o NI em branco.
+
+#### Evidência
+
+As consultas abaixo foram rodadas na partição de 2026-09-12.
+
+**1. Dicionário de dados do CNO** ([dados.gov.br](https://dados.gov.br/dados/conjuntos-dados/cadastro-nacional-de-obras-cno)),
+arquivo `CNO_VINCULOS.CSV`:
+
+| Atributo | Formato | Tamanho | Descrição |
+|---|---|---|---|
+| NI do responsável | Número | 14 | NI do responsável pela obra (Se for CPF o campo virá em branco) |
+
+**2. Formato do NI nas linhas repetidas e nas únicas.** Agrupa a partição pelas seis colunas
+(`n` é quantas vezes cada linha aparece) e mede o NI sem expor nenhum valor.
+
+```sql
+with v as (
+  select id_cno, id_responsavel, data_registro, data_inicio, data_fim,
+         qualificacao_contribuinte, count(*) as n
+  from `basedosdados.br_rf_cno.vinculos`
+  where data_extracao = '2026-09-12'
+  group by 1, 2, 3, 4, 5, 6
+)
+select
+  qualificacao_contribuinte,
+  n > 1 as repetido,
+  length(id_responsavel) as tamanho_ni,
+  count(*) as grupos,
+  count(distinct id_cno) as obras,
+  count(distinct id_responsavel) as ni_distintos,
+  countif(regexp_contains(id_responsavel, r'^0+$')) as ni_so_zeros,
+  countif(ltrim(id_responsavel, '0') = ltrim(id_cno, '0')) as ni_igual_cno
+from v
+group by 1, 2, 3
+order by 1, 2, 3
+```
+
+| qualificacao_contribuinte | repetido | tamanho_ni | grupos | obras | ni_distintos | ni_so_zeros | ni_igual_cno |
+|---|---|---|---|---|---|---|---|
+| 109 | false | 3 | 14 | 14 | 1 | 0 | 0 |
+| 109 | false | 14 | 4515 | 4361 | 1089 | 0 | 0 |
+| 109 | true | 3 | 1 | 1 | 1 | 0 | 0 |
+| 110 | false | 3 | 8551 | 8375 | 1 | 0 | 0 |
+| 110 | false | 14 | 4729 | 4128 | 3181 | 0 | 0 |
+| 110 | true | 3 | 2794 | 2748 | 1 | 0 | 0 |
+| 111 | false | 3 | 3 | 3 | 1 | 0 | 0 |
+| 111 | false | 14 | 3627 | 1810 | 1731 | 0 | 0 |
+| 111 | true | 14 | 14 | 14 | 13 | 0 | 0 |
+| 53 | false | 3 | 50337 | 50221 | 1 | 0 | 0 |
+| 53 | false | 14 | 338727 | 336455 | 51747 | 0 | 0 |
+| 53 | true | 3 | 1716 | 1710 | 1 | 0 | 0 |
+| 64 | false | 3 | 1608 | 1599 | 1 | 0 | 0 |
+| 64 | false | 14 | 3664 | 3630 | 2583 | 0 | 0 |
+| 64 | true | 3 | 38 | 38 | 1 | 0 | 0 |
+
+O NI tem 14 caracteres (CNPJ) ou 3. O de 3 caracteres é um valor só em toda a tabela
+(`ni_distintos` = 1): o `'nan'` que o `applymap(str)` grava no lugar do campo vazio. Não é um NI
+de preenchimento com zeros nem o número da própria obra (`ni_so_zeros` e `ni_igual_cno`
+zerados). Nas qualificações 109, 110, 53 e 64, **todas** as linhas repetidas têm o NI vazio. A
+única repetição com CNPJ são os 14 grupos da 111. O NI vazio também aparece em linhas únicas,
+então ele sozinho não repete a linha: é preciso haver mais de uma pessoa física na mesma obra,
+com a mesma qualificação e as mesmas datas.
+
+**3. Cruzamento com a `microdados`.** Liga cada linha distinta da `vinculos` à sua obra e compara
+as repetidas com as únicas em atributos que poderiam explicar a repetição.
+
+```sql
+with v as (
+  select id_cno, id_responsavel, data_registro, data_inicio, data_fim,
+         qualificacao_contribuinte, count(*) as n
+  from `basedosdados.br_rf_cno.vinculos`
+  where data_extracao = '2026-09-12'
+  group by 1, 2, 3, 4, 5, 6
+),
+m as (
+  select id_cno, id_cno_vinculado, situacao
+  from `basedosdados.br_rf_cno.microdados`
+  where data_extracao = '2026-09-12'
+)
+select
+  v.n > 1 as repetido,
+  v.qualificacao_contribuinte,
+  count(*) as vinculos,
+  sum(v.n - 1) as linhas_extras,
+  max(v.n) as max_repeticoes,
+  countif(m.id_cno is null) as sem_obra,
+  countif(nullif(m.id_cno_vinculado, '') is not null) as obra_com_cno_vinculado,
+  countif(m.situacao = '1') as obra_nula,
+  countif(m.situacao = '15') as obra_encerrada,
+  countif(v.data_registro < '2019-06-01') as registro_antes_jun2019,
+  countif(v.data_fim is not null) as com_data_fim
+from v
+left join m on v.id_cno = m.id_cno
+group by 1, 2
+order by 2, 1
+```
+
+| repetido | qualificacao_contribuinte | vinculos | linhas_extras | max_repeticoes | sem_obra | obra_com_cno_vinculado | obra_nula | obra_encerrada | registro_antes_jun2019 | com_data_fim |
+|---|---|---|---|---|---|---|---|---|---|---|
+| false | 109 | 4529 | 0 | 1 | 0 | 0 | 25 | 722 | 205 | 8 |
+| true | 109 | 1 | 7 | 8 | 0 | 0 | 0 | 1 | 0 | 0 |
+| false | 110 | 13280 | 0 | 1 | 0 | 16 | 605 | 4837 | 498 | 109 |
+| true | 110 | 2794 | 8104 | 61 | 0 | 4 | 110 | 1435 | 94 | 18 |
+| false | 111 | 3630 | 0 | 1 | 0 | 0 | 22 | 671 | 225 | 0 |
+| true | 111 | 14 | 14 | 2 | 0 | 0 | 1 | 4 | 2 | 0 |
+| false | 53 | 389064 | 0 | 1 | 0 | 20 | 2981 | 167229 | 19748 | 462 |
+| true | 53 | 1716 | 2671 | 67 | 0 | 0 | 42 | 909 | 122 | 11 |
+| false | 64 | 5272 | 0 | 1 | 0 | 2 | 221 | 709 | 0 | 2726 |
+| true | 64 | 38 | 77 | 22 | 0 | 0 | 2 | 10 | 0 | 19 |
+
+A partição tem 420.338 linhas distintas e 10.873 linhas a mais, 431.211 no total. Somando a
+tabela 2, 10.859 das linhas a mais (todas fora da 111) têm o NI vazio. A repetição se concentra
+na qualificação `110` (Construção em nome coletivo): 8.104 das linhas a mais, com 2.794 dos
+16.074 vínculos da 110 repetidos e obras com até 61 cópias. Toda linha tem obra na `microdados`
+(`sem_obra` zerado). Nenhum dos atributos da obra cobre a maioria das repetidas: `id_cno_vinculado`,
+obra nula, registro antes de jun/2019 e data de fim ficam abaixo de 8% delas. Obra encerrada chega
+a cerca de metade, mas também é comum entre as únicas (36% a 43%).
 
 ### `br_rf_cno__areas`
 Áreas da obra. **Uma obra (`id_cno`) tem VÁRIAS áreas** (grão = uma área de uma obra, não
@@ -133,6 +252,9 @@ teste de qualidade que reprovasse).
   costuma estar parado no mesmo `data_extracao` máximo da tabela; sem `--full-refresh`, o
   filtro `where data > max(...)` não reprocessa nada e o teste roda sobre dado antigo
   (falso negativo). Ex.: `uv run dbt build --select br_rf_cno__areas --full-refresh`.
+- **Em prod, nunca `--full-refresh`.** O staging não guarda as partições mais antigas: o da
+  `vinculos` tem menos da metade das partições da tabela. O `--full-refresh` reconstrói a
+  tabela a partir do staging e apaga as partições que não estão nele.
 
 ## Causa raiz do congelamento (jan–jul/2026)
 
