@@ -16,7 +16,8 @@
 -- Contratos dos governos estaduais: os instrumentos contratuais celebrados, com objeto,
 -- contratado, vigência e valor. Uma linha por contrato.
 --
--- Existe para os quatro estados que publicam um cadastro de contratos: Espírito Santo,
+-- Existe para os cinco estados que publicam um cadastro de contratos: Minas Gerais,
+-- Espírito Santo,
 -- Santa Catarina, Rio Grande do Sul e Rondônia. Complementa as tabelas de execução
 -- (`despesa`,
 -- `liquidacao`, `pagamento`): o contrato é o compromisso, a execução é o gasto contra
@@ -35,6 +36,9 @@
 --
 -- Cada estado é um modelo efêmero em states/; as colunas são resolvidas
 -- posicionalmente a partir do primeiro termo, então todo modelo projeta esta ordem.
+select *
+from {{ ref("br_bd_execucao_estadual__contrato_mg") }}
+union all
 select *
 from {{ ref("br_bd_execucao_estadual__contrato_es") }}
 union all
