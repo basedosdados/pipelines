@@ -2,6 +2,7 @@ import re
 import time
 from io import StringIO
 from pathlib import Path
+from typing import cast
 
 import pandas as pd
 import pyarrow as pa
@@ -19,6 +20,10 @@ from webdriver_manager.chrome import ChromeDriverManager
 from pipelines.crawler.bcb.constants import Constants
 from pipelines.utils.schema_validator import validate_schema
 from pipelines.utils.utils import log
+
+STORAGE_OPTIONS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+}
 
 
 def get_sicor_download_links():
@@ -95,9 +100,7 @@ def build_sicor_download_df(links: list) -> pd.DataFrame:
     data = []
     mapping = Constants.sicor_to_bd_table_names.value
 
-    storage_options = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    }
+    storage_options = STORAGE_OPTIONS
 
     for link in links:
         filename = link.split("/")[-1]
@@ -157,22 +160,20 @@ def filter_sicor_links(
     """
     table_df = links_df[links_df["id_tabela"] == table_id].copy()
 
-    if table_id == "empreendimento":
-        # Empreendimento is special and handled separately, but we ensure its link info is returnable
-        link = "https://www.bcb.gov.br/htms/sicor/Empreendimento.csv"
-        storage_options = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        }
-        response = requests.head(link, headers=storage_options, timeout=10)
-        response.raise_for_status()
-        content_length = int(response.headers["Content-Length"])
+    # Tabelas de domínio publicadas fora de /DadosBrutos/ não aparecem no
+    # scraping, então sua linha é sintetizada aqui a partir das URLs fixas em
+    # `Constants.tabelas_dominio_urls`. Uma tabela pode ter mais de uma URL
+    # (ver `fonte_recurso`); `get_sicor_table_size` soma os `content_length`.
+    dominio_urls = Constants.tabelas_dominio_urls.value.get(table_id)
+    if dominio_urls:
         return pd.DataFrame(
             [
                 {
-                    "id_tabela": "empreendimento",
+                    "id_tabela": table_id,
                     "link": link,
-                    "content_length": content_length,
+                    "content_length": get_content_length(link),
                 }
+                for link in dominio_urls
             ]
         )
 
@@ -188,6 +189,20 @@ def filter_sicor_links(
         table_df = table_df[table_df["ano"].astype(float) == max_year]
 
     return table_df
+
+
+def get_content_length(link: str) -> int:
+    """Devolve o `Content-Length` de `link`, usado pelo guard de atualização.
+
+    Args:
+        link (str): URL do arquivo.
+
+    Returns:
+        int: tamanho do arquivo em bytes.
+    """
+    response = requests.head(link, headers=STORAGE_OPTIONS, timeout=10)
+    response.raise_for_status()
+    return int(response.headers["Content-Length"])
 
 
 def create_folder_structure(id_tabela: str) -> Path:
@@ -241,9 +256,7 @@ def create_tables(
 
     explicit_schema = pa.schema(pyarrow_fields)
 
-    storage_options = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    }
+    storage_options = STORAGE_OPTIONS
 
     partitioned_tables = [
         "operacao",
@@ -254,10 +267,13 @@ def create_tables(
     for _, row in data.iterrows():
         link = row["link"]
         ano = row.get("ano")
-        filename = (
-            link.split("/")[-1]
-            .replace(".csv.gz", ".parquet")
-            .replace(".gz", ".parquet")
+        # A fonte publica tanto `.gz` (microdados) quanto `.csv` puro
+        # (`SICOR_LISTA_IFS.csv`), e ambos viram parquet.
+        filename = re.sub(
+            r"\.(csv\.gz|gz|csv)$",
+            ".parquet",
+            link.split("/")[-1],
+            flags=re.IGNORECASE,
         )
 
         if id_tabela in partitioned_tables and ano:
@@ -275,7 +291,9 @@ def create_tables(
         chunk_iterator = pd.read_csv(
             link,
             storage_options=storage_options,
-            compression="gzip",
+            # `infer` cobre `.gz` e `.csv` puro; para os `.gz` o efeito é
+            # idêntico ao `compression="gzip"` anterior.
+            compression="infer",
             encoding="latin-1",
             sep=";",
             chunksize=100000,
@@ -313,7 +331,7 @@ def create_empreendimento(id_tabela: str, download_dir: Path) -> str:
     Returns:
         str: The download directory path.
     """
-    link = "https://www.bcb.gov.br/htms/sicor/Empreendimento.csv"
+    link = Constants.tabelas_dominio_urls.value["empreendimento"][0]
     config = Constants.sicor_to_bd_table_names.value.get(id_tabela)
 
     # pyrefly: ignore [unsupported-operation]
@@ -321,9 +339,7 @@ def create_empreendimento(id_tabela: str, download_dir: Path) -> str:
 
     colunas_originais = list(renames.keys())
 
-    storage_options = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    }
+    storage_options = STORAGE_OPTIONS
 
     filename = link.split("/")[-1]
 
@@ -346,6 +362,85 @@ def create_empreendimento(id_tabela: str, download_dir: Path) -> str:
     df.to_csv(filepath, index=False, encoding="utf-8", sep=",")
 
     log(f"CSV saved successfully to: {filename}")
+
+
+def create_fonte_recurso(id_tabela: str, download_dir: Path) -> None:
+    """Monta a tabela de fontes de recurso a partir de duas tabelas de domínio.
+
+    `FonteRecursos.csv` traz os 37 códigos com descrição e vigência.
+    `FonteRecursosPublicos.csv` traz um subconjunto estrito de 16 desses
+    códigos, com descrições idênticas — seu único conteúdo novo é a própria
+    participação na lista, que define quais fontes são públicas/controladas e,
+    por consequência, quais operações aparecem nas tabelas `recurso_publico_*`.
+    Por isso o segundo arquivo entra como o indicador
+    `indicador_recurso_publico` em vez de virar linhas do dicionário, onde
+    colidiria com as chaves de `id_fonte_recurso` já vindas do primeiro.
+
+    Os dois arquivos divergem em separador e codificação: o de todas as fontes
+    é latin-1 com `;`, o de fontes públicas é UTF-8 com `,`.
+
+    Args:
+        id_tabela (str): ID da tabela (`fonte_recurso`).
+        download_dir (Path): diretório onde o CSV será salvo.
+    """
+    # O valor do Enum não é tipado, então o cast é o que informa ao verificador
+    # de tipos o que `sicor_to_bd_table_names` realmente guarda.
+    config = cast(
+        dict[str, dict[str, str]],
+        Constants.sicor_to_bd_table_names.value[id_tabela],
+    )
+    renames = config["table_schema"]
+    renames_publicos = config["table_schema_recurso_publico"]
+
+    url_todas, url_publicas = Constants.tabelas_dominio_urls.value[id_tabela]
+
+    log(f"Downloading and merging {url_todas} and {url_publicas}...")
+
+    todas = pd.read_csv(
+        url_todas,
+        storage_options=STORAGE_OPTIONS,
+        encoding="latin-1",
+        sep=";",
+        dtype=str,
+    )
+    validate_schema(todas.columns.tolist(), list(renames.keys()))
+    todas = todas.rename(columns=renames)
+
+    publicas = pd.read_csv(
+        url_publicas,
+        storage_options=STORAGE_OPTIONS,
+        encoding="utf-8",
+        sep=",",
+        dtype=str,
+    )
+    validate_schema(publicas.columns.tolist(), list(renames_publicos.keys()))
+    publicas = publicas.rename(columns=renames_publicos)
+
+    codigos_publicos = set(publicas["id_fonte_recurso"].str.strip())
+    faltantes = codigos_publicos - set(todas["id_fonte_recurso"].str.strip())
+    if faltantes:
+        raise ValueError(
+            "Códigos de FonteRecursosPublicos.csv ausentes de "
+            f"FonteRecursos.csv: {sorted(faltantes)}. O arquivo de fontes "
+            "públicas deveria ser um subconjunto do de todas as fontes."
+        )
+
+    for coluna in renames.values():
+        todas[coluna] = todas[coluna].str.strip()
+
+    todas["indicador_recurso_publico"] = (
+        todas["id_fonte_recurso"]
+        .isin(codigos_publicos)
+        .map({True: "1", False: "0"})
+    )
+
+    filepath = Path(download_dir) / "fonte_recurso.csv"
+    todas.to_csv(filepath, index=False, encoding="utf-8", sep=",")
+
+    log(
+        f"CSV saved successfully to: {filepath.name} "
+        f"({len(todas)} fontes, {len(codigos_publicos)} públicas)"
+    )
 
 
 def parse_cobertura(row):
@@ -395,9 +490,7 @@ def create_dictionary() -> str:
     all_data = []
     dicionario_config = Constants.dicionario.value
 
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    }
+    headers = STORAGE_OPTIONS
 
     for entry in dicionario_config:
         id_tabela = entry["id_tabela"]
