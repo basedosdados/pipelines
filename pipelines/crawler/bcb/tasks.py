@@ -11,6 +11,7 @@ from pipelines.crawler.bcb.utils import (
     create_dictionary,
     create_empreendimento,
     create_folder_structure,
+    create_fonte_recurso,
     create_tables,
     filter_sicor_links,
     get_sicor_download_links,
@@ -61,6 +62,8 @@ def download_table(
 
     if table_id == "empreendimento":
         create_empreendimento(table_id, download_dir)
+    elif table_id == "fonte_recurso":
+        create_fonte_recurso(table_id, download_dir)
     else:
         create_tables(table_df, table_id, download_dir)
 
