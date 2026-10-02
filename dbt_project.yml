@@ -222,6 +222,9 @@ models:
     us_bls_atus:
       +materialized: table
       +schema: us_bls_atus
+    us_bls_cex:
+      +materialized: table
+      +schema: us_bls_cex
     us_bls_cpi:
       +materialized: table
       +schema: us_bls_cpi
