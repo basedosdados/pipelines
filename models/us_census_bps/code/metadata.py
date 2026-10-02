@@ -404,6 +404,7 @@ def main() -> int:
     for level, (path, tables, name_en, name_pt, name_es) in SOURCES.items():
         url = BASE + path
         res = write.create_update_raw_data_source(
+            # pyrefly: ignore [bad-argument-type]
             dataset_id=dataset_id,
             name_pt=name_pt,
             name_en=name_en,
@@ -440,6 +441,7 @@ def main() -> int:
             name_pt=pt,
             name_en=en,
             name_es=es,
+            # pyrefly: ignore [bad-argument-type]
             dataset_id=dataset_id,
             status_id=status["published"],
             published_by_ids=[account],

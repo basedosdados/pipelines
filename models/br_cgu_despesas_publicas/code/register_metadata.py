@@ -386,7 +386,9 @@ def main() -> None:
         raw_data_source_ids=[raw_id],
         id=st["table_id"],
         env=env,
+        # pyrefly: ignore [bad-argument-type]
         **cfg["names"],
+        # pyrefly: ignore [bad-argument-type]
         **cfg["desc"],
     )
     table_id = _id(table)

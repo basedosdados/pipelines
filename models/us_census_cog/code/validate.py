@@ -61,6 +61,7 @@ def directory_values() -> dict[str, list[str]]:
     """Fetch the directory key columns, caching them next to the output."""
     if CACHE.exists():
         return json.loads(CACHE.read_text())
+    # pyrefly: ignore [missing-module-attribute]
     from models.us_census_cog.code.metadata import import_databasis_server
 
     server = import_databasis_server()

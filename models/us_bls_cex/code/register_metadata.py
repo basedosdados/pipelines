@@ -637,7 +637,11 @@ def main() -> None:
         spec = TABLE_TEXT[table]
         prior = prior_tables.get(table, {})
         tb = write.create_update_table(
-            id=prior.get("id"), env=env, **table_fields(table, dataset_id, ids)
+            # pyrefly: ignore [bad-argument-type]
+            id=prior.get("id"),
+            env=env,
+            # pyrefly: ignore [bad-argument-type]
+            **table_fields(table, dataset_id, ids),
         )
         table_id = tb["id"]
         print(f"table {table} -> {table_id}")
@@ -731,7 +735,12 @@ def main() -> None:
                 "id"
             )
             write.create_update_datetime_range(
-                id=prior_range, coverage_id=cov["id"], env=env, **rng
+                # pyrefly: ignore [bad-argument-type]
+                id=prior_range,
+                coverage_id=cov["id"],
+                env=env,
+                # pyrefly: ignore [bad-argument-type]
+                **rng,
             )
 
         prior_updates = {
@@ -751,6 +760,7 @@ def main() -> None:
             write.create_update_table(
                 id=table_id,
                 env=env,
+                # pyrefly: ignore [bad-argument-type]
                 **table_fields(
                     table,
                     dataset_id,

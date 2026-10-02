@@ -300,6 +300,7 @@ def register_table(
     if cov:
         f["id"] = cov
     else:
+        # pyrefly: ignore [bad-assignment]
         f["isClosed"] = False
     o = be.mut("CreateUpdateCoverage", f, "coverage { id }")
     cov = cov or server._strip_id(o["coverage"]["id"])

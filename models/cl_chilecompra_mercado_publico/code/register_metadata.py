@@ -219,6 +219,7 @@ class Registrar:
                 f"({status})",
             )
             return current["id"] or ""
+        # pyrefly: ignore [bad-argument-type]
         result = write.create_update_dataset(**args)
         self.log("dataset:", result["id"], f"({status})")
         return result["id"]
@@ -293,7 +294,7 @@ class Registrar:
             out[slug] = (
                 existing_id
                 if self.dry_run
-                else write.create_update_table(**args)["id"]
+                else write.create_update_table(**args)["id"]  # pyrefly: ignore [bad-argument-type]
             )
             self.log(f"  table {slug}: {out[slug]}")
         # pyrefly: ignore [bad-return]
@@ -410,6 +411,7 @@ class Registrar:
                     f"  {slug}: cloud table -> {project}.{spec.GCP_DATASET_ID}"
                 )
                 continue
+            # pyrefly: ignore [bad-argument-type]
             result = write.create_update_cloud_table(**args)
             self.log(f"  {slug}: cloud table {result['id']}")
 
@@ -546,6 +548,7 @@ class Registrar:
             return
         write.reorder_tables(
             dataset_slug=spec.DATASET_SLUG,
+            # pyrefly: ignore [bad-argument-type]
             table_slugs=[t["slug"] for t in spec.TABLES],
             env=self.env,
         )

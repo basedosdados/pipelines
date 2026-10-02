@@ -260,6 +260,7 @@ def main() -> int:
         ).get("id") or (free_prior or {}).get("id")
         free_last = free_end or end
         write.create_update_datetime_range(
+            # pyrefly: ignore [bad-argument-type]
             coverage_id=free_id,
             start_year=start[0],
             start_month=start[1],
@@ -285,6 +286,7 @@ def main() -> int:
             ).get("id") or (pro_prior or {}).get("id")
             pro_start = next_period(*free_end)
             write.create_update_datetime_range(
+                # pyrefly: ignore [bad-argument-type]
                 coverage_id=pro_id,
                 start_year=pro_start[0],
                 start_month=pro_start[1],

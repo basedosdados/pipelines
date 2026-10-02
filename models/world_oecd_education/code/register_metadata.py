@@ -318,6 +318,7 @@ def main():
 
     raw = write.create_update_raw_data_source(
         id=raw_id_prev,
+        # pyrefly: ignore [bad-argument-type]
         dataset_id=dataset_id,
         license_id=ids["license"]["cc_by_igo"],
         availability_id=ids["availability"]["online"],
@@ -376,6 +377,7 @@ def main():
             description_pt=descs[0],
             description_en=descs[1],
             description_es=descs[2],
+            # pyrefly: ignore [bad-argument-type]
             dataset_id=dataset_id,
             status_id=ids["status"]["published"],
             published_by_ids=[account_id],
@@ -389,6 +391,7 @@ def main():
         table_id = table.get("id", prev.get("id"))
 
         write.create_update_cloud_table(
+            # pyrefly: ignore [bad-argument-type]
             table_id=table_id,
             gcp_project_id=GCP_PROJECT[env],
             gcp_dataset_id=DATASET_ID,
@@ -404,6 +407,7 @@ def main():
         }
         for entity in OBSERVATION_LEVELS.get(slug, []):
             ol = write.create_update_observation_level(
+                # pyrefly: ignore [bad-argument-type]
                 table_id=table_id,
                 entity_id=ids["entity"][entity],
                 id=prev_ols.get(entity, {}).get("id"),
@@ -414,6 +418,7 @@ def main():
             ol_ids[entity] = ol.get("id")
 
         write.bulk_upsert_columns(
+            # pyrefly: ignore [bad-argument-type]
             table_id=table_id,
             columns_json=json.dumps(payload, ensure_ascii=False),
             env=env,
@@ -426,6 +431,7 @@ def main():
                 int(y) for y in measured[slug].get("years", []) or []
             )
             cov = write.create_update_coverage(
+                # pyrefly: ignore [bad-argument-type]
                 table_id=table_id,
                 area_id=world_area(env),
                 id=(prev.get("coverages") or [{}])[0].get("id"),
@@ -482,6 +488,7 @@ def main():
                 write.update_column(
                     column_id=cols[column],
                     column_name=column,
+                    # pyrefly: ignore [bad-argument-type]
                     table_id=table_id,
                     observation_level_id=ol_ids[entity],
                     is_partition=(column == "year"),

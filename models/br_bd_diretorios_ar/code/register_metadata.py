@@ -649,6 +649,7 @@ def main() -> None:
 
         write.create_update_table(
             slug=table,
+            # pyrefly: ignore [bad-argument-type]
             **names,
             dataset_id=dataset_id,
             status_id=status_published,

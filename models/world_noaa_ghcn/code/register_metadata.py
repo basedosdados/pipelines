@@ -423,8 +423,10 @@ def main() -> None:
             status_id=status["published"],
             published_by_ids=[account_id],
             data_cleaned_by_ids=[account_id],
+            # pyrefly: ignore [bad-argument-type]
             auxiliary_files_url=AUXILIARY_FILES_URL.get(table),
             env=env,
+            # pyrefly: ignore [bad-argument-type]
             **{
                 k: v
                 for k, v in spec.items()
@@ -536,9 +538,11 @@ def main() -> None:
             status_id=status["published"],
             published_by_ids=[account_id],
             data_cleaned_by_ids=[account_id],
+            # pyrefly: ignore [bad-argument-type]
             auxiliary_files_url=AUXILIARY_FILES_URL.get(table),
             raw_data_source_ids=raw_ids,
             env=env,
+            # pyrefly: ignore [bad-argument-type]
             **{
                 k: v
                 for k, v in spec.items()

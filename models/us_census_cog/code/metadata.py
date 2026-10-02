@@ -534,6 +534,7 @@ def main(env: str) -> None:
         levels = record.setdefault("levels", {})
         for entity in spec["levels"]:
             result = write.create_update_observation_level(
+                # pyrefly: ignore [bad-argument-type]
                 table_id=table_id,
                 entity_id=refs["entity"][entity],
                 id=levels.get(entity),
@@ -542,6 +543,7 @@ def main(env: str) -> None:
             levels[entity] = result.get("id", levels.get(entity))
         if spec["levels"]:
             write.reorder_observation_levels(
+                # pyrefly: ignore [bad-argument-type]
                 table_id=table_id,
                 ol_ids=[levels[e] for e in spec["levels"]],
                 env=env,
@@ -549,11 +551,15 @@ def main(env: str) -> None:
         save_ids(full)
 
         write.bulk_upsert_columns(
-            table_id=table_id, columns_json=columns_payload(slug), env=env
+            # pyrefly: ignore [bad-argument-type]
+            table_id=table_id,
+            columns_json=columns_payload(slug),
+            env=env,
         )
         print(f"  {len(load_cols(slug))} columns")
 
         cloud = write.create_update_cloud_table(
+            # pyrefly: ignore [bad-argument-type]
             table_id=table_id,
             gcp_project_id=(
                 "basedosdados-dev" if env == "staging" else "basedosdados"
@@ -567,6 +573,7 @@ def main(env: str) -> None:
 
         if spec["years"]:
             coverage = write.create_update_coverage(
+                # pyrefly: ignore [bad-argument-type]
                 table_id=table_id,
                 area_id=area,
                 id=record.get("coverage"),
@@ -575,6 +582,7 @@ def main(env: str) -> None:
             record["coverage"] = coverage.get("id", record.get("coverage"))
             start, end = spec["years"]
             span = write.create_update_datetime_range(
+                # pyrefly: ignore [bad-argument-type]
                 coverage_id=record["coverage"],
                 start_year=start,
                 end_year=end,

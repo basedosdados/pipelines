@@ -601,12 +601,19 @@ def main() -> int:
         rid = write.create_update_raw_data_source(
             id=have.get(spec["url"]),
             dataset_id=dataset_id,
+            # pyrefly: ignore [bad-argument-type]
             name_pt=spec["name_pt"],
+            # pyrefly: ignore [bad-argument-type]
             name_en=spec["name_en"],
+            # pyrefly: ignore [bad-argument-type]
             name_es=spec["name_es"],
+            # pyrefly: ignore [bad-argument-type]
             description_pt=spec["description_pt"],
+            # pyrefly: ignore [bad-argument-type]
             description_en=spec["description_en"],
+            # pyrefly: ignore [bad-argument-type]
             description_es=spec["description_es"],
+            # pyrefly: ignore [bad-argument-type]
             url=spec["url"],
             license_id=license_cc0,
             availability_id=availability_online,
@@ -784,6 +791,7 @@ def main() -> int:
                 auxiliary_files_url=AUX_URL.format(table=table),
                 raw_data_source_ids=[raw_ids[spec["key"]]],
                 env=ENV,
+                # pyrefly: ignore [bad-argument-type]
                 **TABLES[table],
             )
         # raw-source Update: what the source last published. This is the same

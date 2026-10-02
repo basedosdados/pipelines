@@ -527,9 +527,11 @@ def main(argv: list[str] | None = None) -> int:
             write.create_update_datetime_range(
                 id=_range_id(existing_cov.get(False)),
                 coverage_id=free_cov["id"],
+                # pyrefly: ignore [bad-argument-type]
                 start_year=sy,
                 start_month=sm,
                 start_day=sd,
+                # pyrefly: ignore [bad-argument-type]
                 end_year=free_range.endYear,
                 end_month=free_range.endMonth,
                 end_day=free_range.endDay,
@@ -548,9 +550,11 @@ def main(argv: list[str] | None = None) -> int:
             write.create_update_datetime_range(
                 id=_range_id(existing_cov.get(True)),
                 coverage_id=pro_cov["id"],
+                # pyrefly: ignore [bad-argument-type]
                 start_year=pro_range.startYear,
                 start_month=pro_range.startMonth,
                 start_day=pro_range.startDay,
+                # pyrefly: ignore [bad-argument-type]
                 end_year=pro_range.endYear,
                 end_month=pro_range.endMonth,
                 end_day=pro_range.endDay,

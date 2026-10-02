@@ -451,6 +451,7 @@ def main() -> None:
                 auxiliary_files_url(table) if table in AUX_TABLES else ""
             ),
             env=env,
+            # pyrefly: ignore [bad-argument-type]
             **{k: v for k, v in TABLE_TEXT[table].items() if k != "entity"},
         )
         table_id = t["id"]
@@ -598,6 +599,7 @@ def main() -> None:
                 ),
                 raw_data_source_ids=[source_ids[table]],
                 env=env,
+                # pyrefly: ignore [bad-argument-type]
                 **{
                     k: v for k, v in TABLE_TEXT[table].items() if k != "entity"
                 },

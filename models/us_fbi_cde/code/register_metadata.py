@@ -505,14 +505,21 @@ def main():
         result = write.create_update_raw_data_source(
             id=known_sources.get(source["name_pt"]),
             dataset_id=dataset_id,
+            # pyrefly: ignore [bad-argument-type]
             name_pt=source["name_pt"],
+            # pyrefly: ignore [bad-argument-type]
             name_en=source["name_en"],
+            # pyrefly: ignore [bad-argument-type]
             name_es=source["name_es"],
+            # pyrefly: ignore [bad-argument-type]
             url=source["url"],
             license_id=ids["license"]["cc0"],
             availability_id=ids["availability"]["online"],
+            # pyrefly: ignore [bad-argument-type]
             description_pt=source["description_pt"],
+            # pyrefly: ignore [bad-argument-type]
             description_en=source["description_en"],
+            # pyrefly: ignore [bad-argument-type]
             description_es=source["description_es"],
             has_structured_data=True,
             is_free=True,
@@ -542,6 +549,7 @@ def main():
             f"{GCP_DATASET_ID}/{table}/auxiliary_files.zip"
         )
         table_id = write.create_update_table(
+            # pyrefly: ignore [bad-argument-type]
             id=prior.get("id"),
             dataset_id=dataset_id,
             slug=table,
@@ -620,6 +628,7 @@ def main():
         )
 
         write.create_update_cloud_table(
+            # pyrefly: ignore [bad-argument-type]
             id=prior.get("cloud_table"),
             table_id=table_id,
             gcp_project_id=gcp_project,
@@ -630,15 +639,20 @@ def main():
 
         if spec["first_year"]:
             coverage_id = write.create_update_coverage(
+                # pyrefly: ignore [bad-argument-type]
                 id=prior.get("coverage"),
                 table_id=table_id,
+                # pyrefly: ignore [bad-argument-type]
                 area_id=area_id,
                 env=env,
             )["id"]
             write.create_update_datetime_range(
+                # pyrefly: ignore [bad-argument-type]
                 id=prior.get("datetime_range"),
                 coverage_id=coverage_id,
+                # pyrefly: ignore [bad-argument-type]
                 start_year=spec["first_year"],
+                # pyrefly: ignore [bad-argument-type]
                 end_year=spec["last_year"],
                 interval=1,
                 env=env,
@@ -648,6 +662,7 @@ def main():
         # The table Update is a wall clock: when Data Basis last refreshed the
         # table, not the source's coverage date.
         write.create_update_update(
+            # pyrefly: ignore [bad-argument-type]
             id=prior.get("update"),
             table_id=table_id,
             entity_id=ids["entity"]["year"],

@@ -529,9 +529,13 @@ def register(env: str) -> dict:
     for source in RAW_SOURCES:
         created = write.create_update_raw_data_source(
             dataset_id=DATASET_ID,
+            # pyrefly: ignore [bad-argument-type]
             name_pt=source["name_pt"],
+            # pyrefly: ignore [bad-argument-type]
             name_en=source["name_en"],
+            # pyrefly: ignore [bad-argument-type]
             name_es=source["name_es"],
+            # pyrefly: ignore [bad-argument-type]
             url=source["url"],
             license_id=refs["license_ppdl"],
             availability_id=refs["availability_online"],
@@ -552,12 +556,19 @@ def register(env: str) -> dict:
         prior = existing.get(slug, {})
         table = write.create_update_table(
             id=prior.get("id"),
+            # pyrefly: ignore [bad-argument-type]
             slug=slug,
+            # pyrefly: ignore [bad-argument-type]
             name_pt=spec["name_pt"],
+            # pyrefly: ignore [bad-argument-type]
             name_en=spec["name_en"],
+            # pyrefly: ignore [bad-argument-type]
             name_es=spec["name_es"],
+            # pyrefly: ignore [bad-argument-type]
             description_pt=spec["description_pt"],
+            # pyrefly: ignore [bad-argument-type]
             description_en=spec["description_en"],
+            # pyrefly: ignore [bad-argument-type]
             description_es=spec["description_es"],
             dataset_id=DATASET_ID,
             status_id=refs["status_published"],
@@ -601,6 +612,7 @@ def register(env: str) -> dict:
                 "basedosdados" if env == "prod" else "basedosdados-dev"
             ),
             gcp_dataset_id=GCP_DATASET,
+            # pyrefly: ignore [bad-argument-type]
             gcp_table_id=slug,
             env=env,
         )
@@ -616,7 +628,9 @@ def register(env: str) -> dict:
         write.create_update_datetime_range(
             id=ranges[0]["id"] if ranges else None,
             coverage_id=coverage["id"],
+            # pyrefly: ignore [bad-argument-type]
             start_year=spec["start"],
+            # pyrefly: ignore [bad-argument-type]
             end_year=spec["end"],
             interval=1,
             env=env,
@@ -670,6 +684,7 @@ def register(env: str) -> dict:
 
     write.reorder_tables(
         dataset_slug=DATASET_SLUG,
+        # pyrefly: ignore [bad-argument-type]
         table_slugs=[t["slug"] for t in TABLES],
         env=env,
     )
