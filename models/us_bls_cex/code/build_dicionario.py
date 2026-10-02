@@ -165,7 +165,7 @@ def expn_file_labels() -> dict[str, str]:
     v.columns = [c.strip() for c in v.columns]
     v["file"] = v["File"].str.strip().str.upper()
     v["last"] = pd.to_numeric(v["Last year"], errors="coerce").fillna(9999)
-    out = {}
+    out: dict[str, str] = {}
     for f, g in v.dropna(subset=["Section description"]).groupby("file"):
         r = g.sort_values("last").iloc[-1]
         num = str(r["Section number"]).strip()
@@ -174,7 +174,7 @@ def expn_file_labels() -> dict[str, str]:
         if where and part not in ("", "nan"):
             where += f", Part {part}"
         desc = str(r["Section description"]).strip()
-        out[f] = f"{where}: {desc}" if where else desc
+        out[str(f)] = f"{where}: {desc}" if where else desc
     return out
 
 

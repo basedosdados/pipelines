@@ -380,7 +380,7 @@ def load_dictionary():
     return variables, flags, coded
 
 
-def clean_desc(text: str) -> str:
+def clean_desc(text: object) -> str:
     text = re.sub(r"\s+", " ", str(text)).strip()
     if text.lower() in ("nan", ""):
         return ""
