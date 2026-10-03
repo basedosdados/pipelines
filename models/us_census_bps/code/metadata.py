@@ -13,10 +13,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import sys
 from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 import databasis_mcp.tools.metadata as bd_mcp_metadata
 import databasis_mcp.tools.write as bd_mcp_write

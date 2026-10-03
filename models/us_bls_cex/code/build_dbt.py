@@ -12,12 +12,9 @@ most recent year, since that is the year the test is scoped to.
 
 import argparse
 import csv
-import sys
 from pathlib import Path
 
 import pyarrow.dataset as ds
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_bls_cex.pumd_files import OUTPUT_DIR
 

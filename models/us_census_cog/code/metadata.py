@@ -19,8 +19,6 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 CODE_DIR = Path(__file__).resolve().parent
-REPO_ROOT = CODE_DIR.parents[2]
-sys.path.insert(0, str(REPO_ROOT))
 
 import databasis_mcp.tools.metadata as bd_mcp_metadata  # noqa: E402
 import databasis_mcp.tools.write as bd_mcp_write  # noqa: E402

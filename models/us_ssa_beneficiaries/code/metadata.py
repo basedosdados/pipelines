@@ -16,18 +16,9 @@ are verified. ``--publish`` flips the status and does nothing else.
 
 from __future__ import annotations
 
-# ruff: noqa: E402  (sys.path must include the repo root before local imports)
 import argparse
 import datetime
-import sys
-from pathlib import Path
 from typing import Any
-
-REPO_ROOT = Path(__file__).resolve().parents[3]
-HERE = Path(__file__).resolve().parent
-
-for path in (str(REPO_ROOT), str(HERE)):
-    sys.path.insert(0, path)
 
 import databasis_mcp.tools.metadata as bd_mcp_metadata
 import databasis_mcp.tools.write as bd_mcp_write

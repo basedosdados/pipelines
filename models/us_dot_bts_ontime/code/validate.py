@@ -20,8 +20,6 @@ from pathlib import Path
 import basedosdados as bd
 import pyarrow.parquet as pq
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-
 from pipelines.datasets.us_dot_bts_ontime.utils import read_arch
 
 BILLING = "basedosdados-dev"

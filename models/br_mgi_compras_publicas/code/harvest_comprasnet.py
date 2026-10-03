@@ -31,18 +31,13 @@ import datetime as dt
 import json
 import logging
 import os
-import sys
 import threading
 import time
 from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
-
-from pipelines.datasets.br_mgi_compras_publicas.comprasnet import (  # noqa: E402
+from pipelines.datasets.br_mgi_compras_publicas.comprasnet import (
     build_session,
     compose_id_compra,
     fetch_page,
@@ -51,7 +46,7 @@ from pipelines.datasets.br_mgi_compras_publicas.comprasnet import (  # noqa: E40
     parse_fornecedor_resultado,
     parse_termo_homologacao,
 )
-from pipelines.datasets.br_mgi_compras_publicas.utils import (  # noqa: E402
+from pipelines.datasets.br_mgi_compras_publicas.utils import (
     COERCERS,
     PartitionedStringWriter,
     load_architecture,
@@ -59,6 +54,7 @@ from pipelines.datasets.br_mgi_compras_publicas.utils import (  # noqa: E402
 
 logger = logging.getLogger("comprasnet")
 
+REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_DATA_DIR = (
     Path.home() / "Downloads" / "br_mgi_compras_publicas_data" / "comprasnet"
 )

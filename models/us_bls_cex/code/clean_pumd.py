@@ -23,12 +23,10 @@ Usage:
 import argparse
 import json
 import logging
-import sys
 import time
 import zipfile
 from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor
-from pathlib import Path
 from typing import Any
 
 import pandas as pd
@@ -36,8 +34,6 @@ import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.csv as pacsv
 import pyarrow.parquet as pq
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_bls_cex.pumd_files import (
     DATA_DIR,

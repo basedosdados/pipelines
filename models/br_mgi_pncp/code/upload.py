@@ -33,8 +33,6 @@ import basedosdados as bd  # noqa: E402
 import google.cloud.storage as gcs  # noqa: E402
 from google.cloud import bigquery  # noqa: E402
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-
 from pipelines.datasets.br_mgi_pncp.constants import constants  # noqa: E402
 
 BILLING_PROJECT = "basedosdados-dev"  # DEV ONLY — never prod

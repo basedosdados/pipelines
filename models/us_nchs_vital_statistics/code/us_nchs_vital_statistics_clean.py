@@ -10,11 +10,8 @@ so the onboarding load and the recurring pipeline share one implementation.
 import argparse
 import logging
 import os
-import sys
 import time
 from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_nchs_vital_statistics import (
     utils as u,

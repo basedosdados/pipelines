@@ -206,7 +206,6 @@ def value_dictionary(table: str) -> bytes:
 def main(output_dir: Path) -> None:
     meta = json.loads((HERE / "source_metadata.json").read_text())
     catalog = {d["name"]: d for d in meta["datasets"]}
-    sys.path.insert(0, str(HERE.parents[2]))
     from pipelines.datasets.us_fema_openfema.spec import TABLES as SPEC
 
     root = output_dir / "auxiliary_files"

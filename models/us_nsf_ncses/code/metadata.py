@@ -11,8 +11,8 @@ the same files.
 
 Run with an environment that has the ``databasis-mcp`` dependency installed:
 
-    ~/.venvs/bd-pipelines/bin/python models/us_nsf_ncses/code/metadata.py staging
-    ~/.venvs/bd-pipelines/bin/python models/us_nsf_ncses/code/metadata.py prod
+    uv run models/us_nsf_ncses/code/metadata.py staging
+    uv run models/us_nsf_ncses/code/metadata.py prod
 """
 
 from __future__ import annotations

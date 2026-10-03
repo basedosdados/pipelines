@@ -1,7 +1,7 @@
 """Build and upload the per-table auxiliary-file bundles for the MG tables.
 
-    ~/.venvs/bd-pipelines/bin/python models/world_wb_mides/code/build_mg_auxiliary_files.py --dry-run
-    ~/.venvs/bd-pipelines/bin/python models/world_wb_mides/code/build_mg_auxiliary_files.py
+    uv run models/world_wb_mides/code/build_mg_auxiliary_files.py --dry-run
+    uv run models/world_wb_mides/code/build_mg_auxiliary_files.py
 
 WHAT GOES IN, AND WHAT IS ONLY LINKED
 -------------------------------------
@@ -34,24 +34,17 @@ import argparse
 import datetime
 import io
 import json
-import os
-import sys
 import zipfile
 from pathlib import Path
 
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 import requests
 from google.cloud import storage
 from google.oauth2 import service_account
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-import clean_mg
-import databasis_mcp.tools.metadata as bd_mcp_metadata
-import databasis_mcp.tools.write as bd_mcp_write
-
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-import mg_table_glossary as tables
+import models.world_wb_mides.code.clean_mg as clean_mg
+import models.world_wb_mides.code.mg_table_glossary as tables
 
 ENV = "staging"
 DATASET_ID = "d3874769-bcbd-4ece-a38a-157ba1021514"  # slug `mides`

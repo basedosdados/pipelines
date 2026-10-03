@@ -20,7 +20,7 @@ and because a second partial call blanks the table names
 ([[reference_create_update_table_blanks_names]]).
 
 Usage:
-    ~/.venvs/bd-pipelines/bin/python models/au_abs_labour_force/code/register_detailed.py \
+    uv run models/au_abs_labour_force/code/register_detailed.py \
         [--env staging|prod] [--publish] [table ...]
 """
 

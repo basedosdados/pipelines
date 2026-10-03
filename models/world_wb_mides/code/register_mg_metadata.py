@@ -1,9 +1,9 @@
 """Register the 43 MG-only tables in the Data Basis backend.
 
-Run with the shared venv's interpreter, which has `fastmcp` and `requests`:
+Run through uv, so `databasis-mcp` and the editable `models` package resolve:
 
-    ~/.venvs/bd-pipelines/bin/python models/world_wb_mides/code/register_mg_metadata.py --dry-run
-    ~/.venvs/bd-pipelines/bin/python models/world_wb_mides/code/register_mg_metadata.py
+    uv run python models/world_wb_mides/code/register_mg_metadata.py --dry-run
+    uv run python models/world_wb_mides/code/register_mg_metadata.py
 
 WHY A SCRIPT AND NOT 250 TOOL CALLS
 -----------------------------------

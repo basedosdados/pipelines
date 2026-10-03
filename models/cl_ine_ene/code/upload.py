@@ -28,10 +28,6 @@ from __future__ import annotations
 import argparse
 import os
 import pathlib
-import sys
-
-REPO = pathlib.Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO))
 
 DATA = pathlib.Path(
     os.environ.get(

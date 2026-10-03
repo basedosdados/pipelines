@@ -11,7 +11,6 @@ or in Dropbox), overridable via ``OECD_EDU_DATA_DIR``. The architecture CSVs und
 """
 
 import os
-import sys
 import time
 from pathlib import Path
 
@@ -19,10 +18,7 @@ import requests
 
 CODE_DIR = Path(__file__).resolve().parent
 ARCH_DIR = CODE_DIR / "architecture"
-REPO_ROOT = CODE_DIR.parents[2]
-# These scripts run from their own directory with bare sibling imports, so the
-# repo root is not otherwise importable.
-sys.path.insert(0, str(REPO_ROOT))
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 DATA_DIR = Path(
     os.environ.get(

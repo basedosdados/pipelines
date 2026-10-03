@@ -31,15 +31,11 @@ import argparse
 import json
 import logging
 import re
-import sys
 import time
 import zipfile
 from collections import Counter
-from pathlib import Path
 
 import pyarrow as pa
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_bls_cex.pumd_files import (
     DATA_DIR,

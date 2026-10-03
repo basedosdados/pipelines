@@ -24,10 +24,7 @@ import argparse
 import collections
 import os
 import pathlib
-import sys
 import time
-
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.br_bcb_ifdata.utils import (
     build_dicionario,

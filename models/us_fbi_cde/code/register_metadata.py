@@ -2,7 +2,7 @@
 
 Run with the repo's environment so the databasis-mcp package imports:
 
-    ~/.venvs/bd-pipelines/bin/python models/us_fbi_cde/code/register_metadata.py --env staging
+    uv run models/us_fbi_cde/code/register_metadata.py --env staging
 
 The dataset record is an existing, empty shell (``u_s_crime_data_explorer_cde``)
 that already carries the FBI organization and trilingual text, so it is updated
@@ -18,17 +18,13 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 from datetime import date
 from pathlib import Path
 
 import databasis_mcp.tools.metadata as bd_mcp_metadata
 import databasis_mcp.tools.write as bd_mcp_write
 
-REPO = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO))
-
-from pipelines.datasets.us_fbi_cde.spec import TABLES  # noqa: E402
+from pipelines.datasets.us_fbi_cde.spec import TABLES
 
 # Backend slug is the part after <country>_<org>_, so org "fbi" plus "cde" gives
 # the GCP dataset id us_fbi_cde — the same shape as us_bls_cpi -> cpi. The shell

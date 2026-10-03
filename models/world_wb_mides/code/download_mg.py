@@ -55,9 +55,7 @@ from pathlib import Path
 import certifi
 import requests
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-from constants import (
+from models.world_wb_mides.code.constants import (
     BROWSER_UA,
     INPUT_DIR,
     MG_CA_BUNDLE,

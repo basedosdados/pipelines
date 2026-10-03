@@ -4,7 +4,7 @@
 Run with the shared venv interpreter directly (never `uv run`, which re-syncs the
 venv under long jobs)::
 
-    ~/.venvs/bd-pipelines/bin/python register_metadata.py --env staging
+    uv run register_metadata.py --env staging
 
 The databasis MCP tools are plain Python functions, so they are imported and
 called in a loop. That matters here: the column payloads reach 100 KB per table

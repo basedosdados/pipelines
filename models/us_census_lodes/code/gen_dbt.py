@@ -11,13 +11,10 @@ or the architecture instead.
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 # CI's pyrefly environment has no types-PyYAML, unlike the local venv.
 import yaml
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_census_lodes.constants import (
     DATASET_ID,

@@ -16,14 +16,9 @@ from __future__ import annotations
 import os
 import pathlib
 import re
-import sys
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-import mg_column_glossary as glossary
-
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-import mg_table_glossary as tables
+import models.world_wb_mides.code.mg_column_glossary as glossary
+import models.world_wb_mides.code.mg_table_glossary as tables
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 OUT = os.path.join(ROOT, "schema_mg.yml")

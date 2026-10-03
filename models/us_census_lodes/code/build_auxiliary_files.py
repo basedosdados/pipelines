@@ -21,12 +21,8 @@ objects (HTTP 404). That is not specific to this dataset.
 from __future__ import annotations
 
 import shutil
-import sys
 import zipfile
 from datetime import date
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_census_lodes.constants import (
     BASE_URL,

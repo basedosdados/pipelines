@@ -9,13 +9,7 @@ Usage:
 
 import argparse
 import logging
-import sys
 import time
-from pathlib import Path
-
-# The shared venv's editable install may point at another checkout; import the
-# pipelines package from this repo.
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_bls_cex.pumd_files import LABSTAT_DIR, OUTPUT_DIR
 from pipelines.datasets.us_bls_cex.utils import clean_labstat

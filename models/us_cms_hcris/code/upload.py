@@ -40,16 +40,12 @@ requester-pays, so ``gcs.Client.bucket`` is patched to pin the billing project.
 """
 
 import sys
-from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT))
+import google.cloud.storage as gcs
+import pyarrow.parquet as pq
+from google.cloud import bigquery
 
-import google.cloud.storage as gcs  # noqa: E402
-import pyarrow.parquet as pq  # noqa: E402
-from google.cloud import bigquery  # noqa: E402
-
-from models.us_cms_hcris.code.common import (  # noqa: E402
+from models.us_cms_hcris.code.common import (
     DATASET_ID,
     OUTPUT,
     STAGED_TABLES,

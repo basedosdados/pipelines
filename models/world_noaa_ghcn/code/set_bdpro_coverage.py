@@ -28,14 +28,10 @@ real on the next armed pipeline run.
 from __future__ import annotations
 
 import argparse
-import sys
 from datetime import date
-from pathlib import Path
 
 import databasis_mcp.tools.metadata as bd_mcp_metadata
 import databasis_mcp.tools.write as bd_mcp_write
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.world_noaa_ghcn.flows import _COVERAGE
 from pipelines.utils.metadata.policy import (

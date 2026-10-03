@@ -16,11 +16,8 @@ from __future__ import annotations
 import collections
 import concurrent.futures as cf
 import re
-import sys
 import urllib.request
 from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_census_lodes.constants import (
     BASE_URL,

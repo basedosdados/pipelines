@@ -17,14 +17,11 @@ import argparse
 import csv
 import json
 import os
-import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_fdic_bankfind import utils
 from pipelines.datasets.us_fdic_bankfind.institution_spec import (

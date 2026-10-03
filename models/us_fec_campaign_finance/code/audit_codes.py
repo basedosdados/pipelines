@@ -12,15 +12,12 @@ Reads the cleaned parquet directly, so it needs no BigQuery access.
 """
 
 import csv
-import sys
 from collections import defaultdict
 from pathlib import Path
 
 import pyarrow.dataset as ds
 
 from models.us_fec_campaign_finance.code import build_dicionario as bd
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from pipelines.datasets.us_fec_campaign_finance import (
     utils as fec,
 )

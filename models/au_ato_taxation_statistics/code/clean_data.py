@@ -12,13 +12,9 @@ Usage::
 from __future__ import annotations
 
 import os
-import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO))
-
-from pipelines.datasets.au_ato_taxation_statistics import utils  # noqa: E402
+from pipelines.datasets.au_ato_taxation_statistics import utils
 
 DATA_DIR = Path(
     os.environ.get(

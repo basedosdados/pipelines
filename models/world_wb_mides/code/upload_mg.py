@@ -39,7 +39,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import sys
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -48,14 +47,11 @@ from pathlib import Path
 from google.cloud import storage
 from google.oauth2 import service_account
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
 # Derived from the cleaner, never hand-listed: it grew from 4 mirrors to 49 when
 # the full source was onboarded, and a hardcoded tuple would have silently
 # uploaded a stale subset. A directory on disk that is NOT a current mirror (a
 # renamed table, say) is therefore never picked up.
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-import clean_mg as _clean_mg
+import models.world_wb_mides.code.clean_mg as _clean_mg
 
 MIRRORS = tuple(sorted(_clean_mg.MIRROR.values()))
 BUCKET = "basedosdados-dev"

@@ -20,12 +20,7 @@ which must already hold the downloaded archives and sheets.
 
 import argparse
 import os
-import sys
 from pathlib import Path
-
-# The transform lives in the pipelines package; make the repo root importable
-# when this script is run directly rather than as a module.
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.fr_meteofrance.utils import (
     clean_normales,

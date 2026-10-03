@@ -17,8 +17,6 @@ import os
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-
 from pipelines.datasets.br_mgi_pncp.constants import constants
 from pipelines.datasets.br_mgi_pncp.utils import DEDUP_KEYS, clean_table
 

@@ -22,13 +22,10 @@ from __future__ import annotations
 
 import glob
 import sys
-from pathlib import Path
 
 import basedosdados as bd
 import google.cloud.storage as gcs
 import pyarrow.parquet as pq
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_census_lodes.constants import (
     DATASET_ID,

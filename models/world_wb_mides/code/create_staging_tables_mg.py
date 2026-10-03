@@ -32,16 +32,12 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
-import sys
 from pathlib import Path
 
 from google.cloud import bigquery
 from google.oauth2 import service_account
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-import clean_mg
+import models.world_wb_mides.code.clean_mg as clean_mg
 
 CREDENTIALS = Path.home() / ".basedosdados/credentials/staging.json"
 DATASET = "world_wb_mides_staging"

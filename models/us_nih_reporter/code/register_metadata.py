@@ -4,7 +4,7 @@ Idempotent by construction: every create_update_* call is given the id read back
 from get_dataset when the record already exists, because those tools create a
 second record when called without one.
 
-Run: ~/.venvs/bd-pipelines/bin/python register_metadata.py [staging|prod]
+Run: uv run register_metadata.py [staging|prod]
      [--materialized]
 """
 

@@ -15,14 +15,8 @@ Usage:
 
 import argparse
 import os
-import sys
 
-REPO = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "..")
-)
-sys.path.insert(0, REPO)
-
-from pipelines.datasets.au_abs_population.utils import (  # noqa: E402
+from pipelines.datasets.au_abs_population.utils import (
     clean_all,
     download_all,
 )

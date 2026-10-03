@@ -22,13 +22,11 @@ from pathlib import Path
 import pyarrow.parquet as pq
 import requests
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT))
-
-from pipelines.datasets.br_mgi_compras_publicas.constants import (  # noqa: E402
+from pipelines.datasets.br_mgi_compras_publicas.constants import (
     constants,
 )
 
+REPO_ROOT = Path(__file__).resolve().parents[3]
 BASE = constants.BASE_URL.value
 DATA = Path.home() / "Downloads" / "br_mgi_compras_publicas_data"
 

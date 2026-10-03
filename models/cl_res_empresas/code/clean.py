@@ -11,10 +11,7 @@ Prefect pipeline.
 
 import argparse
 import os
-import sys
 from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.cl_res_empresas.utils import (
     clean_all,

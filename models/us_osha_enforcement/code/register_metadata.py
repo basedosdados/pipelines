@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Register ``us_osha_enforcement`` metadata in the Data Basis backend.
 
-    ~/.venvs/bd-pipelines/bin/python \
+    uv run \
         models/us_osha_enforcement/code/register_metadata.py --env staging
 
 Idempotent by construction: every record is looked up before it is written, and
@@ -263,7 +263,6 @@ def main(argv: list[str] | None = None) -> int:
     import databasis_mcp.tools.metadata as bd_mcp_metadata
     import databasis_mcp.tools.write as bd_mcp_write
 
-    sys.path.insert(0, str(HERE.parents[2]))
     from pipelines.datasets.us_osha_enforcement.flows import (
         _COVERAGE as FLOW_COVERAGE,
     )

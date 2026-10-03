@@ -1,6 +1,6 @@
 """Register the us_ffiec_bank_reporting metadata in the Data Basis backend.
 
-    ~/.venvs/bd-pipelines/bin/python models/us_ffiec_bank_reporting/code/register_metadata.py [staging|prod] [under_review|published]
+    uv run models/us_ffiec_bank_reporting/code/register_metadata.py [staging|prod] [under_review|published]
 
 Everything is resolved by slug at runtime, because reference ids differ between
 backends, and the whole script is idempotent: re-running it updates rather than

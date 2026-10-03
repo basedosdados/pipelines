@@ -15,13 +15,11 @@ Delete this script once the rename has propagated everywhere — it exists only 
 re-downloading and re-cleaning 22 GB to change one column name.
 """
 
-import sys
 from pathlib import Path
 
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from pipelines.datasets.us_fec_campaign_finance import (
     utils as fec,
 )

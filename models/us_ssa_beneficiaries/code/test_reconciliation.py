@@ -12,17 +12,12 @@ It rebuilds them from ``~/Downloads/us_ssa_beneficiaries_data/input`` if needed
 (override with ``SSA_DATA_DIR``).
 """
 
-# ruff: noqa: E402  (sys.path must be set before the pipelines import)
 from __future__ import annotations
 
 import os
-import sys
 from pathlib import Path
 
 import pandas as pd
-
-REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT))
 
 from pipelines.datasets.us_ssa_beneficiaries import utils as U  # noqa: N812
 

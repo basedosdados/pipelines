@@ -10,13 +10,10 @@ to omit and neither fails loudly - a missing weight silently understates
 """
 
 import os
-import sys
 from pathlib import Path
 
 import pandas as pd
 import pyarrow.parquet as pq
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 DATA = Path(
     os.environ.get(

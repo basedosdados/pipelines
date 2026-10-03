@@ -32,18 +32,13 @@ from __future__ import annotations
 
 import argparse
 import re
-import sys
 from collections import defaultdict
 from pathlib import Path
 
 import pyarrow.parquet as pq
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-from clean_mg import MIRROR, SPECS, schema_for
-
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-from constants import (
+from models.world_wb_mides.code.clean_mg import MIRROR, SPECS, schema_for
+from models.world_wb_mides.code.constants import (
     MG_FIRST_YEAR,
     MG_MUNICIPALITIES,
     OUTPUT_DIR,

@@ -17,12 +17,8 @@ import argparse
 import json
 import os
 import pathlib
-import sys
 
-REPO = pathlib.Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO))
-
-from pipelines.datasets.cl_ine_ene import utils  # noqa: E402
+from pipelines.datasets.cl_ine_ene import utils
 
 DATA = pathlib.Path(
     os.environ.get(

@@ -37,8 +37,6 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-
 from pipelines.datasets.br_mgi_pncp.constants import constants
 from pipelines.datasets.br_mgi_pncp.utils import windows
 

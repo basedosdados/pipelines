@@ -1,7 +1,7 @@
 """Register us_census_lodes metadata in the Data Basis backend.
 
-    ~/.venvs/bd-pipelines/bin/python models/us_census_lodes/code/register_metadata.py --env staging
-    ~/.venvs/bd-pipelines/bin/python models/us_census_lodes/code/register_metadata.py --env prod
+    uv run models/us_census_lodes/code/register_metadata.py --env staging
+    uv run models/us_census_lodes/code/register_metadata.py --env prod
 
 Columns come from ``code/architecture/*.csv`` so the backend, the dbt models and
 the parquet schema all derive from one source. The script calls the databasis MCP
@@ -19,10 +19,6 @@ from __future__ import annotations
 import argparse
 import datetime
 import json
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 import databasis_mcp.tools.metadata as bd_mcp_metadata
 import databasis_mcp.tools.write as bd_mcp_write

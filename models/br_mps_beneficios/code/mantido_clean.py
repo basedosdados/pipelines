@@ -32,15 +32,12 @@ import argparse
 import json
 import os
 import shutil
-import sys
 import time
 import zipfile
 from collections import defaultdict
 from pathlib import Path
 
 import pandas as pd
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.br_mps_beneficios import utils as u
 

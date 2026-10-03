@@ -57,7 +57,6 @@ import json
 import os
 import random
 import re
-import sys
 import threading
 import zipfile
 from concurrent.futures import ThreadPoolExecutor
@@ -68,9 +67,7 @@ import pyarrow.parquet as pq
 from google.cloud import storage
 from google.oauth2 import service_account
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-import clean_mg
+import models.world_wb_mides.code.clean_mg as clean_mg
 
 BUCKET = "basedosdados-dev"
 PREFIX = "staging/world_wb_mides"
@@ -128,7 +125,9 @@ def source_pairs(
             ]
             if not hit:
                 return None
-            table, _ = clean_mg.read_source_csv(archive.read(hit[0]), hit[0])
+            table, _, _ = clean_mg.read_source_csv(
+                archive.read(hit[0]), hit[0]
+            )
             if (
                 "seq_orgao" not in table.column_names
                 or "cod_orgao" not in table.column_names

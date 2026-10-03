@@ -27,17 +27,13 @@ key and ~/.basedosdados/config.toml. The bucket is requester-pays, so
 
 import os
 import sys
-from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT))
+import google.cloud.storage as gcs
+import pyarrow.parquet as pq
+from google.cloud import bigquery
 
-import google.cloud.storage as gcs  # noqa: E402
-import pyarrow.parquet as pq  # noqa: E402
-from google.cloud import bigquery  # noqa: E402
-
-from models.world_iati_activities.code.common import OUTPUT  # noqa: E402
-from pipelines.datasets.world_iati_activities.constants import (  # noqa: E402
+from models.world_iati_activities.code.common import OUTPUT
+from pipelines.datasets.world_iati_activities.constants import (
     constants,
 )
 

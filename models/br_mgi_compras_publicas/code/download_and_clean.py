@@ -26,19 +26,14 @@ import datetime as dt
 import json
 import logging
 import os
-import sys
 import time
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-if str(REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(REPO_ROOT))
-
-from pipelines.datasets.br_mgi_compras_publicas.api import (  # noqa: E402
+from pipelines.datasets.br_mgi_compras_publicas.api import (
     build_session,
     limiter_rates,
 )
-from pipelines.datasets.br_mgi_compras_publicas.harvest import (  # noqa: E402
+from pipelines.datasets.br_mgi_compras_publicas.harvest import (
     CONTRATO_PROBE_WINDOW,
     harvest_table,
     list_registered_orgaos,
@@ -47,15 +42,16 @@ from pipelines.datasets.br_mgi_compras_publicas.harvest import (  # noqa: E402
     probe_contrato_orgaos,
     year_orgao_pairs,
 )
-from pipelines.datasets.br_mgi_compras_publicas.harvest import (  # noqa: E402
+from pipelines.datasets.br_mgi_compras_publicas.harvest import (
     consolidate_table as consolidate,
 )
-from pipelines.datasets.br_mgi_compras_publicas.utils import (  # noqa: E402
+from pipelines.datasets.br_mgi_compras_publicas.utils import (
     TABLE_SPECS,
 )
 
 logger = logging.getLogger("br_mgi_compras_publicas")
 
+REPO_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_DATA_DIR = Path.home() / "Downloads" / "br_mgi_compras_publicas_data"
 
 # Tables whose module is not savagely rate limited. These are the bulk of the

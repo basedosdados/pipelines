@@ -10,7 +10,7 @@ source. See VALIDATION.md, section 7.
 `build_architecture.py` first on a fresh checkout.
 
     python models/br_mapbiomas_estatisticas/code/build_architecture.py
-    ~/.venvs/bd-pipelines/bin/python \
+    uv run \
         models/br_mapbiomas_estatisticas/code/register_metadata.py --env staging
 
 Run against staging first. Prod runs only after the PR merges and the

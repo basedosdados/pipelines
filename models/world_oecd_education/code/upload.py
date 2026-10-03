@@ -22,20 +22,16 @@ is patched to pin ``user_project``.
 """
 
 import sys
-from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT))
+import google.cloud.storage as gcs
+import pyarrow.parquet as pq
+from google.cloud import bigquery
 
-import google.cloud.storage as gcs  # noqa: E402
-import pyarrow.parquet as pq  # noqa: E402
-from google.cloud import bigquery  # noqa: E402
-
-from models.world_oecd_education.code.common import (  # noqa: E402
+from models.world_oecd_education.code.common import (
     DATASET_ID,
     OUTPUT,
 )
-from models.world_oecd_education.code.tables import TABLES  # noqa: E402
+from models.world_oecd_education.code.tables import TABLES
 
 BILLING_PROJECT = "basedosdados-dev"
 BUCKET = "basedosdados-dev"

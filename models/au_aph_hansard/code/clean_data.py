@@ -14,14 +14,11 @@ from __future__ import annotations
 import argparse
 import csv
 import os
-import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
 import pyarrow as pa
 import pyarrow.parquet as pq
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.au_aph_hansard.constants import constants
 from pipelines.datasets.au_aph_hansard.utils import (

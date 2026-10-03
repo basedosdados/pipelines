@@ -18,12 +18,7 @@ That sequence is idempotent: it reproduces the committed files exactly.
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
-
-# The pure transform lives in the pipeline package, which is the canonical
-# home; this script is the one-shot onboarding front end for it.
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.br_mgi_pncp.utils import (
     DEDUP_KEYS,

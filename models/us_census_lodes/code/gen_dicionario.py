@@ -13,11 +13,6 @@ through a directory, not through this dictionary.
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-
 from pipelines.datasets.us_census_lodes.constants import OUTPUT
 from pipelines.datasets.us_census_lodes.utils import (
     build_dicionario,

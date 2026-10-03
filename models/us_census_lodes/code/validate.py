@@ -19,13 +19,10 @@ Two jobs:
 from __future__ import annotations
 
 import re
-import sys
 from collections import defaultdict
 from pathlib import Path
 
 import pyarrow.parquet as pq
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_census_lodes.constants import (
     OUTPUT,

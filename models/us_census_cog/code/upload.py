@@ -26,15 +26,11 @@ requester-pays, so ``gcs.Client.bucket`` is patched to pin ``user_project``.
 """
 
 import sys
-from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT))
+import google.cloud.storage as gcs
+import pyarrow.parquet as pq
 
-import google.cloud.storage as gcs  # noqa: E402
-import pyarrow.parquet as pq  # noqa: E402
-
-from models.us_census_cog.code.common import (  # noqa: E402
+from models.us_census_cog.code.common import (
     ALL_TABLES,
     DATASET_ID,
     OUTPUT,

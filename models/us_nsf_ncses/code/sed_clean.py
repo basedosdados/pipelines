@@ -35,10 +35,7 @@ import os
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT))
-
-from pipelines.datasets.us_nsf_ncses.utils import clean_sed  # noqa: E402
+from pipelines.datasets.us_nsf_ncses.utils import clean_sed
 
 DATA_DIR = Path(
     os.environ.get(

@@ -1,8 +1,8 @@
 """Move the MG coverage of the six pre-existing MiDES tables to 2014-2026, and
 attach the dataset tags the new tables made relevant.
 
-    ~/.venvs/bd-pipelines/bin/python models/world_wb_mides/code/update_mg_coverage.py --dry-run
-    ~/.venvs/bd-pipelines/bin/python models/world_wb_mides/code/update_mg_coverage.py
+    uv run models/world_wb_mides/code/update_mg_coverage.py --dry-run
+    uv run models/world_wb_mides/code/update_mg_coverage.py
 
 Coverage on MiDES is PER AREA: `empenho` carries one Coverage for `br_mg`,
 another for `br_ce`, and so on, each with its own DateTimeRange. Every MG range
