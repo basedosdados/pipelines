@@ -61,14 +61,11 @@ def directory_values() -> dict[str, list[str]]:
     """Fetch the directory key columns, caching them next to the output."""
     if CACHE.exists():
         return json.loads(CACHE.read_text())
-    # pyrefly: ignore [missing-module-attribute]
-    from models.us_census_cog.code.metadata import import_databasis_server
-
-    server = import_databasis_server()
+    import databasis_mcp.tools.bigquery as bd_mcp_bigquery
 
     out = {}
     for column, (table, field) in DIRECTORIES.items():
-        result = server.query_bigquery(
+        result = bd_mcp_bigquery.query_bigquery(
             sql=f"select {field} from `basedosdados.{table}`",
             billing_project="basedosdados-dev",
         )

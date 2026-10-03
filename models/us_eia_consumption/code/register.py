@@ -135,7 +135,7 @@ def main() -> None:
         slug=spec.DATASET_SLUG, env=env
     )["tables"]
     if "seds_consumption" in current_tables and hasattr(
-        bd_mcp_metadata, "delete_table"
+        bd_mcp_write, "delete_table"
     ):
         try:
             bd_mcp_write.delete_table(
