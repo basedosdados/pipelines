@@ -16,8 +16,8 @@ Output: output/round_<NN>/year=<YYYY>/data.parquet (snappy, explicit schema).
 `year` is the hive partition key and is NOT stored in the parquet payload.
 
 Usage:
-    uv run python models/gb_eric_ess/code/clean_data.py            # all rounds present in input/
-    uv run python models/gb_eric_ess/code/clean_data.py 1 2 7      # subset
+    uv run models/gb_eric_ess/code/clean_data.py            # all rounds present in input/
+    uv run models/gb_eric_ess/code/clean_data.py 1 2 7      # subset
 """
 
 import csv

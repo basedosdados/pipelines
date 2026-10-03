@@ -23,25 +23,21 @@ an external table holds no data -- but it would also silently rewrite the four
 mirrors the published spend tables depend on, so it is opt-in.
 
 Usage:
-    python create_staging_tables_mg.py --dry-run
-    python create_staging_tables_mg.py
-    python create_staging_tables_mg.py --replace --mirror raw_contrato_mg
+    uv run models/world_wb_mides/code/create_staging_tables_mg.py --dry-run
+    uv run models/world_wb_mides/code/create_staging_tables_mg.py
+    uv run models/world_wb_mides/code/create_staging_tables_mg.py --replace --mirror raw_contrato_mg
 """
 
 from __future__ import annotations
 
 import argparse
 import json
-import os
-import sys
 from pathlib import Path
 
 from google.cloud import bigquery
 from google.oauth2 import service_account
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-import clean_mg
+import models.world_wb_mides.code.clean_mg as clean_mg
 
 CREDENTIALS = Path.home() / ".basedosdados/credentials/staging.json"
 DATASET = "world_wb_mides_staging"

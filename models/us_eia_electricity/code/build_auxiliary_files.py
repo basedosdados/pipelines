@@ -1,7 +1,7 @@
 """Build the per-table auxiliary-file bundles for us_eia_electricity.
 
-    python build_auxiliary_files.py            # build only
-    python build_auxiliary_files.py --upload   # build and upload
+    uv run models/us_eia_electricity/code/build_auxiliary_files.py            # build only
+    uv run models/us_eia_electricity/code/build_auxiliary_files.py --upload   # build and upload
 
 The two forms document themselves differently, so the bundles differ:
 

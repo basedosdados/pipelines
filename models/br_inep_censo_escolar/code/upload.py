@@ -11,8 +11,8 @@ Duas coisas para saber antes de rodar:
 - produção não é tocada. Quem materializa `basedosdados.<dataset>.*` é o
   `table-approve` quando o PR é mesclado.
 
-    uv run python upload.py                  # sobe a escola
-    uv run python upload.py --output /tmp/x  # de outro diretório
+    uv run upload.py                  # sobe a escola
+    uv run upload.py --output /tmp/x  # de outro diretório
 """
 
 import argparse

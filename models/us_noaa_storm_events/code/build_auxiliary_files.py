@@ -16,7 +16,7 @@ credential with prod object-write rights. Related: the published
 anonymous readers on every production table that has one, pending the move to
 ``gs://basedosdados-public``.
 
-Run: uv run python models/us_noaa_storm_events/code/build_auxiliary_files.py [--upload]
+Run: uv run models/us_noaa_storm_events/code/build_auxiliary_files.py [--upload]
 """
 
 import shutil

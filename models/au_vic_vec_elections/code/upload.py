@@ -1,7 +1,7 @@
 """Upload cleaned au_vic_vec_elections parquet to BigQuery staging.
 
 Usage:
-    PYTHONPATH=. ~/.venvs/bd-pipelines-vic/bin/python models/au_vic_vec_elections/code/upload.py \
+    PYTHONPATH=. uv run models/au_vic_vec_elections/code/upload.py \
         [--env dev] [table_slug ...]
 
 Reads the cleaned parquet from ``$VEC_DATA_ROOT/output`` (default

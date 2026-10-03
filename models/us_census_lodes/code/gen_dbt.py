@@ -3,7 +3,7 @@
 Both are derived from the architecture CSVs so column order, types and
 descriptions cannot drift from what is registered in the backend.
 
-    uv run python models/us_census_lodes/code/gen_dbt.py
+    uv run models/us_census_lodes/code/gen_dbt.py
 
 Hand edits to the generated .sql / schema.yml are overwritten — edit this script
 or the architecture instead.
@@ -11,13 +11,10 @@ or the architecture instead.
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 # CI's pyrefly environment has no types-PyYAML, unlike the local venv.
 import yaml
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_census_lodes.constants import (
     DATASET_ID,

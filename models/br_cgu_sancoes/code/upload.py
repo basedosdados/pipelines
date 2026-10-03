@@ -1,7 +1,7 @@
 """Upload cleaned typed Parquet for br_cgu_sancoes to BigQuery dev staging.
 
 Usage:
-    uv run python models/br_cgu_sancoes/code/upload.py [--table <slug>]
+    uv run models/br_cgu_sancoes/code/upload.py [--table <slug>]
 
 Dev only: billing/target project is basedosdados-dev. Point
 GOOGLE_APPLICATION_CREDENTIALS at the dev service account. Reads the cleaned
