@@ -8,7 +8,7 @@ are recorded in ``spec.TYPE_OVERRIDE`` rather than silently absorbed by
 
 Run against already-downloaded input files:
 
-    uv run python validate_types.py ~/Downloads/us_fema_openfema_data/input
+    uv run validate_types.py ~/Downloads/us_fema_openfema_data/input
 """
 
 from __future__ import annotations

@@ -54,7 +54,7 @@ stringifies its header, so a typed external table left by onboarding collides wi
 pipeline's later overwrite. See .claude/rules/prefect-pipeline-conventions.md.
 
 Usage:
-    uv run python models/world_wb_mides/code/clean_mg.py [--year 2022]
+    uv run models/world_wb_mides/code/clean_mg.py [--year 2022]
 """
 
 from __future__ import annotations

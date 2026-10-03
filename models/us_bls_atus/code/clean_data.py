@@ -10,7 +10,7 @@ atussum is reshaped wide->long (one row per case x activity code with minutes>0)
 dicionario is built separately (not here).
 
 Usage:
-    uv run python models/us_bls_atus/code/clean_data.py [table ...]
+    uv run models/us_bls_atus/code/clean_data.py [table ...]
 """
 
 import csv

@@ -5,9 +5,9 @@ deployments, so "which pipelines are currently disarmed?" — the question
 behind the team's deactivate-and-move-on workflow — has no MCP answer.
 This fills that gap and nothing else.
 
-    uv run python .claude/skills/pipeline-doctor/scripts/deployments.py
-    uv run python .claude/skills/pipeline-doctor/scripts/deployments.py --paused
-    uv run python .claude/skills/pipeline-doctor/scripts/deployments.py --json
+    uv run .claude/skills/pipeline-doctor/scripts/deployments.py
+    uv run .claude/skills/pipeline-doctor/scripts/deployments.py --paused
+    uv run .claude/skills/pipeline-doctor/scripts/deployments.py --json
 
 Reads the prefect3 token from ~/.basedosdados/credentials.json and never
 prints it. Same token the MCP server uses; see `_prefect_key` in

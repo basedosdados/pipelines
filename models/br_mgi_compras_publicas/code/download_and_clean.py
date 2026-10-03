@@ -9,11 +9,11 @@ published; everything here is reproducible from the API.
 
 Usage
 -----
-    uv run python models/br_mgi_compras_publicas/code/download_and_clean.py \
+    uv run models/br_mgi_compras_publicas/code/download_and_clean.py \
         --tables fast
-    uv run python models/br_mgi_compras_publicas/code/download_and_clean.py \
+    uv run models/br_mgi_compras_publicas/code/download_and_clean.py \
         --tables contrato contrato_item
-    uv run python models/br_mgi_compras_publicas/code/download_and_clean.py \
+    uv run models/br_mgi_compras_publicas/code/download_and_clean.py \
         --consolidate
 
 Every step is resumable: a chunk on disk is never re-fetched.

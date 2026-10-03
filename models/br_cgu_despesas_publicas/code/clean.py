@@ -1,7 +1,7 @@
 """Clean the downloaded br_cgu_despesas_publicas months into partitioned parquet.
 
 Usage:
-    uv run python models/br_cgu_despesas_publicas/code/clean.py
+    uv run models/br_cgu_despesas_publicas/code/clean.py
 
 Reads the raw monthly CSVs from ``$BR_CGU_DESPESAS_DATA/input`` (default
 ``~/Downloads/br_cgu_despesas_publicas_data``) and writes all-STRING Snappy

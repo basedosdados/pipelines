@@ -1,7 +1,7 @@
 """Register world_oecd_piaac metadata in the Data Basis backend.
 
 Usage:
-    uv run python models/world_oecd_piaac/code/metadata.py --env staging [--publish]
+    uv run models/world_oecd_piaac/code/metadata.py --env staging [--publish]
 
 Runs through the databasis MCP module directly rather than the MCP server, because
 the server process caches its code and does not yet expose auxiliary_files_url.

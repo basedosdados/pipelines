@@ -6,7 +6,7 @@ recurring Prefect flow and this bootstrap can never drift apart.
 
 Usage::
 
-    uv run python models/au_ato_taxation_statistics/code/clean_data.py
+    uv run models/au_ato_taxation_statistics/code/clean_data.py
 """
 
 from __future__ import annotations

@@ -4,9 +4,9 @@ The transform itself lives in ``pipelines/datasets/us_census_lodes/utils.py`` an
 is shared with the recurring Prefect pipeline; this script only drives it and
 reports.
 
-    uv run python models/us_census_lodes/code/clean.py                # everything
-    uv run python models/us_census_lodes/code/clean.py --states vt,dc # a subset
-    uv run python models/us_census_lodes/code/clean.py --years 2022,2023
+    uv run models/us_census_lodes/code/clean.py                # everything
+    uv run models/us_census_lodes/code/clean.py --states vt,dc # a subset
+    uv run models/us_census_lodes/code/clean.py --years 2022,2023
 
 Work proceeds one (state, year) at a time and each gzipped CSV is deleted after
 it is read, so peak disk stays near a dozen files. Re-running is safe: an

@@ -21,7 +21,7 @@ half-loaded dataset.
 
 Usage:
     GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials/staging.json \
-        uv run python models/us_ed_college_scorecard/code/upload.py [table ...]
+        uv run models/us_ed_college_scorecard/code/upload.py [table ...]
 """
 
 import json

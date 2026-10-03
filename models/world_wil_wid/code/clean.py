@@ -10,8 +10,8 @@ the repo or anywhere under Dropbox, which would trigger a multi-GB sync. Set
 
 Usage::
 
-    uv run python models/world_wil_wid/code/clean.py            # download + clean
-    uv run python models/world_wil_wid/code/clean.py --no-download   # reuse the zip
+    uv run models/world_wil_wid/code/clean.py            # download + clean
+    uv run models/world_wil_wid/code/clean.py --no-download   # reuse the zip
 """
 
 from __future__ import annotations

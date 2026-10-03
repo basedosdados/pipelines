@@ -8,7 +8,7 @@ Checks, per table with chunks on disk:
 Run before trusting the generated schema.yml, since a key asserted in dbt but
 false in the data fails only after a full upload and materialisation.
 
-Usage:  uv run python models/br_mgi_compras_publicas/code/validate.py
+Usage:  uv run models/br_mgi_compras_publicas/code/validate.py
 """
 
 from __future__ import annotations

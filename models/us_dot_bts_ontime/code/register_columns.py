@@ -1,6 +1,6 @@
 """Register the us_dot_bts_ontime columns from the architecture CSVs.
 
-    uv run python models/us_dot_bts_ontime/code/register_columns.py staging
+    uv run models/us_dot_bts_ontime/code/register_columns.py staging
 
 Drives the databasis MCP's `bulk_upsert_columns` in-process rather than through a
 tool call, because the `flight` payload is 53 kB of JSON and there is no reason to

@@ -6,7 +6,7 @@ the backfill produces the complete table, so the output tree is rebuilt from
 scratch rather than merged into.
 
 Usage:
-    uv run python models/br_mgi_pncp/code/clean.py [--tables ...]
+    uv run models/br_mgi_pncp/code/clean.py [--tables ...]
 """
 
 from __future__ import annotations

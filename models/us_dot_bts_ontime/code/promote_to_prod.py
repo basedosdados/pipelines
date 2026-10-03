@@ -1,6 +1,6 @@
 """Copy the verified staging metadata for us_dot_bts_ontime to the prod backend.
 
-    uv run python models/us_dot_bts_ontime/code/promote_to_prod.py
+    uv run models/us_dot_bts_ontime/code/promote_to_prod.py
 
 Reads each table's descriptions back out of staging and writes them to prod, so
 the two cannot drift through a transcription slip. Only IDs are restated here,

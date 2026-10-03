@@ -6,7 +6,7 @@ tables the way a real parse failure would and checks the gate raises.
 
 Run with the cleaned tables already built:
 
-    uv run python models/us_ssa_beneficiaries/code/test_reconciliation.py
+    uv run models/us_ssa_beneficiaries/code/test_reconciliation.py
 
 It rebuilds them from ``~/Downloads/us_ssa_beneficiaries_data/input`` if needed
 (override with ``SSA_DATA_DIR``).

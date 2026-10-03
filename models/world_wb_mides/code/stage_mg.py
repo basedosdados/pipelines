@@ -40,8 +40,8 @@ Nothing is repacked unless its own checks pass, so a half-finished download dire
 produces a smaller package rather than a corrupt one.
 
 Usage:
-    uv run python models/world_wb_mides/code/stage_mg.py --source ~/Downloads
-    uv run python models/world_wb_mides/code/stage_mg.py --source ~/Downloads --write
+    uv run models/world_wb_mides/code/stage_mg.py --source ~/Downloads
+    uv run models/world_wb_mides/code/stage_mg.py --source ~/Downloads --write
 """
 
 from __future__ import annotations

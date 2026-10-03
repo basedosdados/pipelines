@@ -4,7 +4,7 @@ A thin wrapper. The implementation lives in
 ``pipelines/datasets/br_mgi_compras_publicas/dicionario.py`` because the weekly
 refresh flow rebuilds this table too, and two copies of the code would drift.
 
-    uv run python models/br_mgi_compras_publicas/code/build_dicionario.py
+    uv run models/br_mgi_compras_publicas/code/build_dicionario.py
 """
 
 from __future__ import annotations

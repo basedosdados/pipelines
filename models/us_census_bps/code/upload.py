@@ -12,7 +12,7 @@ writes an all-STRING staging table over the same prefix, so a typed table left
 here would collide with it on the first pipeline run.
 
 Usage:
-    uv run python models/us_census_bps/code/upload.py [table ...]
+    uv run models/us_census_bps/code/upload.py [table ...]
 """
 
 from __future__ import annotations

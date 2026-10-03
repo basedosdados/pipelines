@@ -4,7 +4,7 @@ The build itself lives in ``pipelines/datasets/us_census_lodes/utils.py`` and is
 shared with the recurring flow, which rebuilds it on every run. This script only
 drives it for the one-shot onboarding.
 
-    uv run python models/us_census_lodes/code/gen_dicionario.py
+    uv run models/us_census_lodes/code/gen_dicionario.py
 
 `job_type` is the only codified column in this dataset. Every other
 coded-looking column (block, tract, county and state identifiers) resolves

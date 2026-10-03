@@ -1,6 +1,6 @@
 """Build the per-table auxiliary-file bundles for us_census_lodes.
 
-    uv run python models/us_census_lodes/code/build_auxiliary_files.py
+    uv run models/us_census_lodes/code/build_auxiliary_files.py
 
 Writes one ZIP per table under ``<LODES_DATA_ROOT>/aux/bundles/``, each with a
 README recording the citation, per-file provenance and download date, plus the

@@ -1,6 +1,6 @@
 """Emit per-table columns_json for bulk_upsert_columns, from architecture_spec.
 
-uv run python gen_columns_json.py     # writes code/columns_json/<slug>.json
+uv run gen_columns_json.py     # writes code/columns_json/<slug>.json
 """
 
 import json

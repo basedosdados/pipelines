@@ -18,7 +18,7 @@ It is idempotent: every record is looked up first and updated in place, so a
 re-run after a partial failure does not duplicate anything.
 
 Run:
-    uv run python models/br_ufmg_censo_demografico_1872/code/register_metadata.py \
+    uv run models/br_ufmg_censo_demografico_1872/code/register_metadata.py \
         --env staging [--dry-run] [table_slug ...]
 """
 

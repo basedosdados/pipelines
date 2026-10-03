@@ -3,7 +3,7 @@
 Both are derived from the architecture CSVs so column order, types and
 descriptions cannot drift from what is registered in the backend.
 
-    uv run python models/us_census_lodes/code/gen_dbt.py
+    uv run models/us_census_lodes/code/gen_dbt.py
 
 Hand edits to the generated .sql / schema.yml are overwritten — edit this script
 or the architecture instead.

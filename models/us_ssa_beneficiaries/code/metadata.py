@@ -1,8 +1,8 @@
 """Register us_ssa_beneficiaries metadata in the Data Basis backend.
 
-    uv run python models/us_ssa_beneficiaries/code/metadata.py --env staging
-    uv run python models/us_ssa_beneficiaries/code/metadata.py --env prod
-    uv run python models/us_ssa_beneficiaries/code/metadata.py --env prod --publish
+    uv run models/us_ssa_beneficiaries/code/metadata.py --env staging
+    uv run models/us_ssa_beneficiaries/code/metadata.py --env prod
+    uv run models/us_ssa_beneficiaries/code/metadata.py --env prod --publish
 
 Idempotent: every record is looked up before it is written and existing ids are
 reused. ``create_update_*`` creates a duplicate when called without an id, so a

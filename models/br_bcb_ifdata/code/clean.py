@@ -7,7 +7,7 @@ Cada competência é baixada, decodificada e gravada em parquet uma por vez, e
 o JSON bruto nunca vai para o disco — só o parquet de saída ocupa espaço.
 
 Uso:
-    uv run python models/br_bcb_ifdata/code/clean.py [--desde AAAAMM]
+    uv run models/br_bcb_ifdata/code/clean.py [--desde AAAAMM]
 
 Saída (padrão `~/Downloads/br_bcb_ifdata_data/output`, sobrescrevível pela
 variável de ambiente `IFDATA_OUTPUT`):

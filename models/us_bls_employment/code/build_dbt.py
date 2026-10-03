@@ -4,7 +4,7 @@ The architecture CSVs are the single source of truth for column order, types and
 descriptions (see .claude/rules/onboarding-workflow.md), so the models are
 generated from them rather than hand-maintained alongside them.
 
-Run: uv run python models/us_bls_employment/code/build_dbt.py
+Run: uv run models/us_bls_employment/code/build_dbt.py
 
 The committed models are the pre-commit-formatted versions (sqlfmt
 normalises quoting, yamlfix restyles schema.yml), so a regen shows a

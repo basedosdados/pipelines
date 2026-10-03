@@ -22,7 +22,7 @@ Both are answered from the chunk files and the harvest logs, so this costs
 the API nothing and can be run while a harvest is in flight.
 
 Usage:
-    uv run python models/br_mgi_pncp/code/audit_coverage.py [--table ...]
+    uv run models/br_mgi_pncp/code/audit_coverage.py [--table ...]
 """
 
 from __future__ import annotations

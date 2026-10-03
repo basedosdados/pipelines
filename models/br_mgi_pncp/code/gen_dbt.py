@@ -9,7 +9,7 @@ that looks like a regeneration bug and is not one -- sqlfmt and yamlfix
 reshape this output, and pre-commit.ci will do it for you on the PR if you
 do not do it here:
 
-    uv run python models/br_mgi_pncp/code/gen_dbt.py
+    uv run models/br_mgi_pncp/code/gen_dbt.py
     uv run pre-commit run sqlfmt  --files models/br_mgi_pncp/*.sql
     uv run pre-commit run yamlfix --files models/br_mgi_pncp/schema.yml
 

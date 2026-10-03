@@ -15,11 +15,11 @@ tables are published.
 
 Usage
 -----
-    uv run python models/br_mgi_compras_publicas/code/harvest_comprasnet.py \\
+    uv run models/br_mgi_compras_publicas/code/harvest_comprasnet.py \\
         --start 2019-09 --end 2019-09
-    uv run python models/br_mgi_compras_publicas/code/harvest_comprasnet.py \\
+    uv run models/br_mgi_compras_publicas/code/harvest_comprasnet.py \\
         --start 2001-06 --end 2024-01 --workers 8
-    uv run python models/br_mgi_compras_publicas/code/harvest_comprasnet.py \\
+    uv run models/br_mgi_compras_publicas/code/harvest_comprasnet.py \\
         --consolidate
 """
 

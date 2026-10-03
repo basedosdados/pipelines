@@ -17,7 +17,7 @@ stable across restarts. Anything after the cutoff is picked up by the
 recurring pipeline's lookback, which is what the handover is for.
 
 Usage:
-    uv run python models/br_mgi_pncp/code/download.py --end 2026-08-28 [--tables ...]
+    uv run models/br_mgi_pncp/code/download.py --end 2026-08-28 [--tables ...]
 """
 
 from __future__ import annotations

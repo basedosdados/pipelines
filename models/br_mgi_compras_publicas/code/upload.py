@@ -1,7 +1,7 @@
 """Upload the cleaned parquet of br_mgi_compras_publicas to BigQuery dev staging.
 
-    uv run python models/br_mgi_compras_publicas/code/upload.py            # every table
-    uv run python models/br_mgi_compras_publicas/code/upload.py contratacao
+    uv run models/br_mgi_compras_publicas/code/upload.py            # every table
+    uv run models/br_mgi_compras_publicas/code/upload.py contratacao
 
 Targets basedosdados-dev only. Prod table data is never uploaded from here: it is
 materialised by the GitHub table-approve action when the onboarding PR merges

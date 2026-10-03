@@ -8,7 +8,7 @@ partition.  The run is resumable: a quarter whose parquet already exists is
 skipped, which matters because the full download takes hours and the API returns
 the occasional 5xx.
 
-    uv run python models/us_fdic_bankfind/code/download_and_clean.py --workers 5
+    uv run models/us_fdic_bankfind/code/download_and_clean.py --workers 5
 """
 
 from __future__ import annotations

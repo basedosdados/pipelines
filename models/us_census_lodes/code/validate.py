@@ -1,6 +1,6 @@
 """Validate the cleaned us_census_lodes parquet and write the real coverage report.
 
-    uv run python models/us_census_lodes/code/validate.py
+    uv run models/us_census_lodes/code/validate.py
 
 Two jobs:
 

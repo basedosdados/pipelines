@@ -10,7 +10,7 @@ Compares against the **consolidated parquet**, not the dbt model: several
 endpoints serve the same row many times (endpoint 6 about 3.3x), and the source's
 own totals count those repeats, so the model is legitimately smaller.
 
-    uv run python models/br_mgi_compras_publicas/code/reconcile.py [table ...]
+    uv run models/br_mgi_compras_publicas/code/reconcile.py [table ...]
 """
 
 from __future__ import annotations

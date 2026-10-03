@@ -5,7 +5,7 @@ LED partnership at a different date, and a few withdraw. LODESTechDoc8.4 has a
 coverage table, but this script measures the published directory listings
 instead, so the reported gaps are observed rather than quoted.
 
-    uv run python models/us_census_lodes/code/availability.py
+    uv run models/us_census_lodes/code/availability.py
 
 Writes ``availability.md`` next to this file. That report is the source for the
 "coverage gaps" section of the dataset and table descriptions.

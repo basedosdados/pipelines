@@ -4,7 +4,7 @@ This is the CLI wrapper around the transform. The transform itself lives in
 ``pipelines/datasets/fr_meteofrance/utils.py`` and is shared verbatim with the
 recurring Prefect pipeline — there is deliberately no second copy of it here.
 
-    uv run python models/fr_meteofrance/code/clean.py [--only synop|normales]
+    uv run models/fr_meteofrance/code/clean.py [--only synop|normales]
 
 Tables produced under ``$MF_OUTPUT`` (default ``~/Downloads/fr_meteofrance_data/output``):
 

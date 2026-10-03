@@ -13,7 +13,7 @@ Emits the `columns_json` payload for `bulk_upsert_columns`. It writes nothing it
 run it, read the summary, then feed the JSON to the MCP tool.
 
 Usage:
-    uv run python models/br_bd_execucao_estadual/code/register_columns.py [--table T]
+    uv run models/br_bd_execucao_estadual/code/register_columns.py [--table T]
 """
 
 from __future__ import annotations

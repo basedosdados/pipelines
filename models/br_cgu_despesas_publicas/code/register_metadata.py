@@ -1,7 +1,7 @@
 """Register br_cgu_despesas_publicas metadata in the Data Basis backend.
 
 Usage:
-    uv run python models/br_cgu_despesas_publicas/code/register_metadata.py \
+    uv run models/br_cgu_despesas_publicas/code/register_metadata.py \
         --env staging [--apply]
 
 Without ``--apply`` it prints the current state and exits, so a run can always

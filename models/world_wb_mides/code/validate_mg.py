@@ -25,7 +25,7 @@ checks is something that would otherwise be discovered after 8 GB had been uploa
     and a broken join empties `id_empenho_bd` for every restos-a-pagar row.
 
 Usage:
-    uv run python models/world_wb_mides/code/validate_mg.py [--year 2022] [--full]
+    uv run models/world_wb_mides/code/validate_mg.py [--year 2022] [--full]
 """
 
 from __future__ import annotations

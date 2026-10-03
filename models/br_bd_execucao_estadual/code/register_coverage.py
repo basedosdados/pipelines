@@ -19,7 +19,7 @@ Month granularity is used only where the state actually publishes a usable month
   scheduled ahead of today.
 
 Usage:
-    uv run python models/br_bd_execucao_estadual/code/register_coverage.py [--check]
+    uv run models/br_bd_execucao_estadual/code/register_coverage.py [--check]
 """
 
 from __future__ import annotations

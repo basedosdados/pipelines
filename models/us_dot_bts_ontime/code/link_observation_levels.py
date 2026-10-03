@@ -1,6 +1,6 @@
 """Link each table's identifying columns to its observation level.
 
-    uv run python models/us_dot_bts_ontime/code/link_observation_levels.py staging
+    uv run models/us_dot_bts_ontime/code/link_observation_levels.py staging
 
 Without this the site renders the level's columns as "Não informado".
 `bulk_upsert_columns` does not set the FK, so it has to be a per-column

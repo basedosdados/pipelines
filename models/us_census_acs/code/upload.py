@@ -2,7 +2,7 @@
 
 Usage:
     GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials/<cred>.json \
-      uv run python models/us_census_acs/code/upload.py [table_slug ...]
+      uv run models/us_census_acs/code/upload.py [table_slug ...]
 
 Data lives OUTSIDE the repo (Dropbox) at /Users/rdahis/acs_data/output.
 Uploads sequentially (smallest first). Stops on first failure. Row counts are

@@ -25,17 +25,17 @@ hoje, nada exercita isso.
 
 Uso:
     # só baixa e limpa (padrão; não toca em nuvem nenhuma)
-    uv run python pipelines/datasets/br_sedec_desastres/run_local.py
+    uv run pipelines/datasets/br_sedec_desastres/run_local.py
 
     # etapas específicas
-    uv run python pipelines/datasets/br_sedec_desastres/run_local.py --stages download
+    uv run pipelines/datasets/br_sedec_desastres/run_local.py --stages download
 
     # o retrato do mês: baixa, limpa e sobe para o staging de dev
-    uv run python pipelines/datasets/br_sedec_desastres/run_local.py \\
+    uv run pipelines/datasets/br_sedec_desastres/run_local.py \\
         --stages download,clean,upload
 
     # depois do merge da PR: atualiza cobertura, update e poll em prod
-    uv run python pipelines/datasets/br_sedec_desastres/run_local.py --stages metadata
+    uv run pipelines/datasets/br_sedec_desastres/run_local.py --stages metadata
 """
 
 import argparse
