@@ -1,6 +1,6 @@
 """Write the architecture CSVs for us_eia_consumption.
 
-    uv run python -m models.us_eia_consumption.code.gen_architecture
+    uv run models/us_eia_consumption/code/gen_architecture.py
 
 The architecture CSVs are the schema source of truth: column order,
 bigquery_type, directory links, units and the trilingual descriptions the dbt

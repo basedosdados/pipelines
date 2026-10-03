@@ -3,7 +3,7 @@ br_bd_diretorios_au (staging). Names/descriptions in PT/EN/ES, OL entity id,
 raw-data-source id, is_directory flag, and PK column(s). Consumed by the
 metadata-registration step alongside columns_json/<table>.json.
 
-Run:  uv run python -m models.br_bd_diretorios_au.code.gen_tables_meta
+Run:  uv run models/br_bd_diretorios_au/code/gen_tables_meta.py
 """
 
 import json

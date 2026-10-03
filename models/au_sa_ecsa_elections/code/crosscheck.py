@@ -6,7 +6,7 @@ components add up the way the source says they should.
 
 Usage::
 
-    PYTHONPATH=. uv run python -m models.au_sa_ecsa_elections.code.crosscheck
+    PYTHONPATH=. uv run models/au_sa_ecsa_elections/code/crosscheck.py
 """
 
 from __future__ import annotations

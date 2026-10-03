@@ -9,7 +9,7 @@ ships only the rows for ``variables.ALL_VARIABLES`` so the worker never fetches
 GitHub at run time. Re-run when the upstream concordance gains a schema
 version::
 
-    uv run python -m models.us_irs_form990.code.build_concordance --source /path/to/concordance.csv
+    uv run models/us_irs_form990/code/build_concordance.py --source /path/to/concordance.csv
 """
 
 import argparse

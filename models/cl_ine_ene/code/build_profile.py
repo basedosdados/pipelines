@@ -6,7 +6,7 @@ about thirty seconds instead of forty-five minutes: the parquet holds the same
 values, column-projected and compressed. build_architecture.py consumes the
 result to decide types from evidence.
 
-    uv run python -m models.cl_ine_ene.code.build_profile
+    uv run models/cl_ine_ene/code/build_profile.py
 """
 
 from __future__ import annotations

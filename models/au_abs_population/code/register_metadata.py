@@ -10,7 +10,7 @@ translations.py, so descriptions land in all three languages rather than
 Portuguese-only.
 
 Usage:
-    uv run python -m models.au_abs_population.code.register_metadata [--env staging|prod] [--dry-run]
+    uv run models/au_abs_population/code/register_metadata.py [--env staging|prod] [--dry-run]
 """
 
 import argparse

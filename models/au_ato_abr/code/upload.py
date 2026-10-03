@@ -2,7 +2,7 @@
 
 Usage:
     GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials/staging.json \
-      ~/.local/bin/uv run uv run python -m models.au_ato_abr.code.upload [--env dev|prod] [table ...]
+      uv run models/au_ato_abr/code/upload.py [--env dev|prod] [table ...]
 
 Dev (default) -> basedosdados-dev. Uploads smallest first, stops on first failure,
 prints the staging row count for each table so it can be checked against the

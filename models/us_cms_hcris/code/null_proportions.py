@@ -1,6 +1,6 @@
 """Measure each column's non-null share, to build the dbt test exemption lists.
 
-    uv run python -m models.us_cms_hcris.code.null_proportions
+    uv run models/us_cms_hcris/code/null_proportions.py
 
 ``not_null_proportion_multiple_columns`` asserts every column is at least 5%
 non-null, and a column that is legitimately sparser has to be exempted by name.

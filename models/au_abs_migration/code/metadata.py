@@ -7,7 +7,7 @@ cloud tables, coverages and updates when called without one.
 The dataset is created as ``under_review``; publishing is a separate,
 post-merge action.
 
-Run:  uv run python -m models.au_abs_migration.code.metadata [--env staging]
+Run:  uv run models/au_abs_migration/code/metadata.py [--env staging]
 """
 
 from __future__ import annotations

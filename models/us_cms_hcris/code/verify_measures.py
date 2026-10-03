@@ -1,6 +1,6 @@
 """Check every mapped cell against the cleaned parquet before publishing it.
 
-    uv run python -m models.us_cms_hcris.code.verify_measures
+    uv run models/us_cms_hcris/code/verify_measures.py
 
 For each measure and form version, reports how many reports on that form carry
 a value at the mapped address. A measure the mapping places in the wrong cell

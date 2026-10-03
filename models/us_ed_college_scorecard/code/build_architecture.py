@@ -17,7 +17,7 @@ nameable unit. Identifiers, FIPS/geographic codes, categorical codes and
 0/1 flags are STRING even though they are stored as digits.
 
 Usage:
-    uv run python -m models.us_ed_college_scorecard.code.build_architecture
+    uv run models/us_ed_college_scorecard/code/build_architecture.py
 """
 
 import csv

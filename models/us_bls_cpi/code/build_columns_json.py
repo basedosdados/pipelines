@@ -8,7 +8,7 @@ columns can be registered directly (no Google Sheet). Writes
 code/columns_json/<table>.json.
 
 Usage:
-    uv run python -m models.us_bls_cpi.code.build_columns_json
+    uv run models/us_bls_cpi/code/build_columns_json.py
 """
 
 import csv

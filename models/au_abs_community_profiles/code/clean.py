@@ -14,8 +14,8 @@ Key rules (see ONBOARDING_PLAN.md):
   the token is stripped so cell_code is year-invariant.
 - value: ".." (not-applicable, whole columns) -> dropped; genuine 0 kept; FLOAT64.
 
-Run:  uv run python -m models.au_abs_community_profiles.code.clean <input_root> [<output_dir>]
-      uv run python -m models.au_abs_community_profiles.code.clean input/investigation output/investigation   # validate on STE samples
+Run:  uv run models/au_abs_community_profiles/code/clean.py <input_root> [<output_dir>]
+      uv run models/au_abs_community_profiles/code/clean.py input/investigation output/investigation   # validate on STE samples
 """
 
 import glob

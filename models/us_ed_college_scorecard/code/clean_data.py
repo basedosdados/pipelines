@@ -16,7 +16,7 @@ strings are passed through untouched, so no float round-trip can corrupt them.
 
 Usage:
     uv run --no-project --with pandas --with pyarrow --with pyyaml \
-        --with openpyxl uv run python -m models.us_ed_college_scorecard.code.clean_data
+        --with openpyxl uv run models/us_ed_college_scorecard/code/clean_data.py
 """
 
 import csv

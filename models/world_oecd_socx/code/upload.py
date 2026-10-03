@@ -1,7 +1,7 @@
 """Upload the cleaned world_oecd_education parquet to BigQuery staging (dev).
 
-    uv run python -m models.world_oecd_socx.code.upload                 # every table
-    uv run python -m models.world_oecd_socx.code.upload student finance # selected tables
+    uv run models/world_oecd_socx/code/upload.py                 # every table
+    uv run models/world_oecd_socx/code/upload.py student finance # selected tables
 
 Uses ``pipelines.utils.tasks._upload_to_gcs`` rather than a BigQuery load job or
 ``bd.Table.create(path=<data>)``, for two reasons that have each cost a debugging

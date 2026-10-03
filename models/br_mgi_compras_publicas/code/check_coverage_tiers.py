@@ -1,10 +1,9 @@
 """Verify that the metadata registration cannot break the BD Pro paywall.
 
-    uv run python -m models.br_mgi_compras_publicas.code.check_coverage_tiers
+    uv run models/br_mgi_compras_publicas/code/check_coverage_tiers.py
 
-Run it as a module, not as a path: the sibling import is absolute, per
-AGENTS.md, so `models` has to resolve through the editable install rather than
-through the script's own directory.
+The sibling import is absolute, per AGENTS.md: `models` resolves through the
+project's editable install, not through the script's own directory.
 
 No backend is touched: `register_metadata`'s MCP calls are stubbed and the
 recorded calls are asserted against. The four properties checked are the four

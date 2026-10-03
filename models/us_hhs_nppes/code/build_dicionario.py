@@ -3,7 +3,7 @@
 Run once per NPPES code-values revision:
 
     pdftotext -layout NPPES_Data_Dissemination_CodeValues.pdf codevalues.txt
-    uv run python -m models.us_hhs_nppes.code.build_dicionario --codevalues codevalues.txt
+    uv run models/us_hhs_nppes/code/build_dicionario.py --codevalues codevalues.txt
 
 The country list (236 entries) is parsed out of that text; the small code sets
 are transcribed here because they are stable and short. The resulting CSV is

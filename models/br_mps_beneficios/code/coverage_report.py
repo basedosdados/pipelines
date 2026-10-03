@@ -12,7 +12,7 @@ concedido_clean.py / mantido_clean.py; writes Markdown to
 ``<scratch>/reports/coverage_<table>.md``.
 
 Usage:
-    uv run python -m models.br_mps_beneficios.code.coverage_report [--table TABLE]
+    uv run models/br_mps_beneficios/code/coverage_report.py [--table TABLE]
 """
 
 from __future__ import annotations

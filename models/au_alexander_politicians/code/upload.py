@@ -4,8 +4,8 @@ Uploads each table to gs://basedosdados-dev staging and creates
 basedosdados-dev.au_alexander_politicians_staging.<table_slug>, then verifies
 row counts. One-shot onboarding => typed Parquet. Stops at the first failure.
 
-Run:  uv run python -m models.au_alexander_politicians.code.upload            # all tables
-      uv run python -m models.au_alexander_politicians.code.upload politician  # a subset
+Run:  uv run models/au_alexander_politicians/code/upload.py            # all tables
+      uv run models/au_alexander_politicians/code/upload.py politician  # a subset
 """
 
 import sys

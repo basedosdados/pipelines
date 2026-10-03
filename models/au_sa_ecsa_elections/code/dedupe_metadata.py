@@ -10,7 +10,7 @@ to re-run: with no duplicates left it deletes nothing.
 
 Usage::
 
-    PYTHONPATH=. uv run python -m models.au_sa_ecsa_elections.code.dedupe_metadata [--apply]
+    PYTHONPATH=. uv run models/au_sa_ecsa_elections/code/dedupe_metadata.py [--apply]
 """
 
 from __future__ import annotations

@@ -1,6 +1,6 @@
 """Build and upload the per-table auxiliary-file bundles for br_mj_sisdepen.
 
-    uv run python -m models.br_mj_sisdepen.code.auxiliary [--bucket basedosdados-dev]
+    uv run models/br_mj_sisdepen/code/auxiliary.py [--bucket basedosdados-dev]
 
 The source publishes one document: the collection instrument (the questionnaire
 establishments fill in). Every variable in unidade_prisional,

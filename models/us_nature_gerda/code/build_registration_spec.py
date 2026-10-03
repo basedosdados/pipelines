@@ -4,7 +4,7 @@ metadata step: trilingual name+description, observation-level entity IDs,
 coverage year range (from the parquet), gcp cloud-table ids, and the columns.json
 path. Written to metadata/registration_spec.json.
 
-Run: cd models/us_nature_gerda/code && uv run python -m models.us_nature_gerda.code.build_registration_spec
+Run: cd models/us_nature_gerda/code && uv run build_registration_spec.py
 """
 
 import json

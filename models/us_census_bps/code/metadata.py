@@ -5,7 +5,7 @@ id is passed back, because create_update_* duplicates a record when called
 without one.
 
 Usage:
-    uv run python -m models.us_census_bps.code.metadata --env staging
+    uv run models/us_census_bps/code/metadata.py --env staging
 """
 
 from __future__ import annotations

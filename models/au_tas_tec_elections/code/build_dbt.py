@@ -4,7 +4,7 @@ Both are derived from ``pipelines/datasets/au_tas_tec_elections/schema.py`` so t
 architecture, the cleaning transform, the staging schema and the models cannot drift
 apart. Regenerate rather than hand-editing the SQL.
 
-Run:  PYTHONPATH=. uv run python -m models.au_tas_tec_elections.code.build_dbt
+Run:  PYTHONPATH=. uv run models/au_tas_tec_elections/code/build_dbt.py
 
 The committed files are the post-hook form: ``sqlfmt`` and ``yamlfix`` rewrite this
 script's output on commit (list flow style, line wrapping). Run pre-commit on the

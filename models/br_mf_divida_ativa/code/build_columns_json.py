@@ -5,7 +5,7 @@ Brazilian dataset); English and Spanish come from TRANSLATIONS below, so columns
 register without a Google Sheet. Writes code/columns_json/<table>.json.
 
 Usage:
-    uv run python -m models.br_mf_divida_ativa.code.build_columns_json
+    uv run models/br_mf_divida_ativa/code/build_columns_json.py
 """
 
 import csv

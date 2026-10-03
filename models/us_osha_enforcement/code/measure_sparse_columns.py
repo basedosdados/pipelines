@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Measure per-column non-null share and write ``sparse_columns.json``.
 
-    PYTHONPATH=$PWD uv run python -m models.us_osha_enforcement.code.measure_sparse_columns
+    PYTHONPATH=$PWD uv run models/us_osha_enforcement/code/measure_sparse_columns.py
 
 The generated ``schema.yml`` passes the result to
 ``not_null_proportion_multiple_columns`` as ``ignore_values``, so a column that

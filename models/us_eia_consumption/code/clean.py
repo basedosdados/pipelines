@@ -1,9 +1,9 @@
 """One-shot: clean EIA-861 (annual) and EIA-861M (monthly) to partitioned parquet.
 
-    uv run python -m models.us_eia_consumption.code.clean                       # every year + monthly + dicionario
-    uv run python -m models.us_eia_consumption.code.clean --years 2024 2025     # selected annual years
-    uv run python -m models.us_eia_consumption.code.clean --tables retail_sales # selected tables
-    uv run python -m models.us_eia_consumption.code.clean --download            # fetch missing ZIPs and the 861M file
+    uv run models/us_eia_consumption/code/clean.py                       # every year + monthly + dicionario
+    uv run models/us_eia_consumption/code/clean.py --years 2024 2025     # selected annual years
+    uv run models/us_eia_consumption/code/clean.py --tables retail_sales # selected tables
+    uv run models/us_eia_consumption/code/clean.py --download            # fetch missing ZIPs and the 861M file
 
 Writes ``output/<table>/year=<year>/data.parquet`` and
 ``output/dicionario/data.parquet``. The transform is

@@ -10,10 +10,10 @@ BigQuery differ from the one in the API. yamlfix reflows the file afterwards
 without changing its meaning, so the workflow is regenerate, then run
 pre-commit:
 
-    uv run python -m models.au_abs_population.code.gen_dbt && uv run pre-commit run --files models/au_abs_population/schema.yml
+    uv run models/au_abs_population/code/gen_dbt.py && uv run pre-commit run --files models/au_abs_population/schema.yml
 
 Usage:
-    uv run python -m models.au_abs_population.code.gen_dbt
+    uv run models/au_abs_population/code/gen_dbt.py
 """
 
 import csv

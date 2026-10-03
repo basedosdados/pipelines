@@ -21,7 +21,7 @@ A column flagged for the dictionary that none of the three can label is a hard
 error -- it means the flag is wrong, not that the row should be skipped.
 
 Usage:
-    uv run python -m models.us_census_cps.code.build_dictionary --labels labels_scan.json \
+    uv run models/us_census_cps/code/build_dictionary.py --labels labels_scan.json \
         --nonnull nonnull_years.json --out <parquet_root>/dictionary
 """
 

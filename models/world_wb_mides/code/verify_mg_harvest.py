@@ -17,8 +17,8 @@ municipalities filed despesa. A municipality present in (2) but missing from (3)
 is a real gap; one in (1) but not (2) means enumeration missed it.
 
 Usage:
-    uv run python -m models.world_wb_mides.code.verify_mg_harvest                 # offline: manifest vs disk
-    uv run python -m models.world_wb_mides.code.verify_mg_harvest --portal        # also re-query the portal
+    uv run models/world_wb_mides/code/verify_mg_harvest.py                 # offline: manifest vs disk
+    uv run models/world_wb_mides/code/verify_mg_harvest.py --portal        # also re-query the portal
 """
 
 from __future__ import annotations

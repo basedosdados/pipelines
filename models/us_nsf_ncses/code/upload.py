@@ -6,8 +6,8 @@ each row count in BigQuery against the Parquet actually on disk rather than
 against a number written here, so a re-clean that changes the data cannot pass
 a stale expectation.
 
-Run:  uv run python -m models.us_nsf_ncses.code.upload                    # every table
-      uv run python -m models.us_nsf_ncses.code.upload herd_expenditure   # a subset
+Run:  uv run models/us_nsf_ncses/code/upload.py                    # every table
+      uv run models/us_nsf_ncses/code/upload.py herd_expenditure   # a subset
 """
 
 from __future__ import annotations

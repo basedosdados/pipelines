@@ -1,7 +1,7 @@
 """Upload the cleaned us_bls_cex parquet tables to BigQuery dev staging.
 
 Usage:
-    uv run python -m models.us_bls_cex.code.upload [table_slug ...]
+    uv run models/us_bls_cex/code/upload.py [table_slug ...]
 
 Writes to basedosdados-dev only: prod tables are materialised by the
 table-approve action when the PR merges, never uploaded by hand. Tables go

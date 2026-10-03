@@ -1,7 +1,7 @@
 """Register the us_census_cog metadata in the Data Basis backend.
 
-    uv run python -m models.us_census_cog.code.metadata staging
-    uv run python -m models.us_census_cog.code.metadata prod
+    uv run models/us_census_cog/code/metadata.py staging
+    uv run models/us_census_cog/code/metadata.py prod
 
 Re-runnable: every record it creates is written back to ``metadata_ids.json``
 next to this file and passed as ``id`` on the next run, because the backend's

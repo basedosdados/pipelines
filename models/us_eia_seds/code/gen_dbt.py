@@ -1,6 +1,6 @@
 """Write the dbt model and schema.yml for us_eia_seds.
 
-    uv run python -m models.us_eia_seds.code.gen_dbt
+    uv run models/us_eia_seds/code/gen_dbt.py
 
 Generated from the architecture CSV so the SQL cast list, the column order and
 the documented descriptions cannot drift from the schema they implement.

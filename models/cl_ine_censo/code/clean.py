@@ -26,8 +26,8 @@ machine. Two things fixed it:
 
 Usage::
 
-    uv run python -m models.cl_ine_censo.code.clean                 # all tables
-    uv run python -m models.cl_ine_censo.code.clean persona hogar   # a subset
+    uv run models/cl_ine_censo/code/clean.py                 # all tables
+    uv run models/cl_ine_censo/code/clean.py persona hogar   # a subset
 """
 
 from __future__ import annotations

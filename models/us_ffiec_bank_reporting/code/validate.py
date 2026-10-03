@@ -14,7 +14,7 @@ Six checks, each of which has to pass before the dev/staging checkpoint:
                       ignore_values list is measured, not guessed
 
 Usage:
-    uv run python -m models.us_ffiec_bank_reporting.code.validate [--local-only]
+    uv run models/us_ffiec_bank_reporting/code/validate.py [--local-only]
 """
 
 from __future__ import annotations

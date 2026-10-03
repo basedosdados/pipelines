@@ -26,7 +26,7 @@ summing across cycles.
 
 Run
 ---
-    uv run python -m models.us_nsf_ncses.code.sed_clean
+    uv run models/us_nsf_ncses/code/sed_clean.py
 """
 
 from __future__ import annotations

@@ -1,8 +1,8 @@
 """Register the us_cms_hcris metadata in the Data Basis backend.
 
-    uv run python -m models.us_cms_hcris.code.register --env staging          # dry run is the default
-    uv run python -m models.us_cms_hcris.code.register --env staging --apply
-    uv run python -m models.us_cms_hcris.code.register --env prod --apply     # only after the checkpoint
+    uv run models/us_cms_hcris/code/register.py --env staging          # dry run is the default
+    uv run models/us_cms_hcris/code/register.py --env staging --apply
+    uv run models/us_cms_hcris/code/register.py --env prod --apply     # only after the checkpoint
 
 Drives the databasis MCP tools as ordinary Python functions rather than through
 the tool interface, so the 114 column payloads never have to be pasted through

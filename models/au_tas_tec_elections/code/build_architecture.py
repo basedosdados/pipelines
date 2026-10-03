@@ -3,7 +3,7 @@
 The architecture is derived from ``pipelines/datasets/au_tas_tec_elections/schema.py`` so
 the sheets, the cleaning transform and the dbt models cannot drift apart.
 
-Run:  PYTHONPATH=. uv run python -m models.au_tas_tec_elections.code.build_architecture
+Run:  PYTHONPATH=. uv run models/au_tas_tec_elections/code/build_architecture.py
 """
 
 from __future__ import annotations

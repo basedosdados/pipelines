@@ -10,7 +10,7 @@ never inside the repo or Dropbox -- and is deleted once the onboarding is
 verified. Override with AU_ABS_POPULATION_DATA.
 
 Usage:
-    uv run python -m models.au_abs_population.code.clean_data [--download]
+    uv run models/au_abs_population/code/clean_data.py [--download]
 """
 
 import argparse

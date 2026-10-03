@@ -1,7 +1,7 @@
 """Upload the cleaned us_nih_reporter parquet to BigQuery staging (basedosdados-dev).
 
-    uv run python -m models.us_nih_reporter.code.upload                    # every table
-    uv run python -m models.us_nih_reporter.code.upload project dicionario # selected tables
+    uv run models/us_nih_reporter/code/upload.py                    # every table
+    uv run models/us_nih_reporter/code/upload.py project dicionario # selected tables
 
 Uses ``pipelines.utils.tasks._upload_to_gcs`` — the same helper the recurring flow
 calls — rather than ``bd.Table.create(path=<data>)`` or a BigQuery load job. That

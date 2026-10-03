@@ -7,7 +7,7 @@ is one all-STRING snappy Parquet per table; the dbt models safe_cast to final
 types and partition by year.
 
 Run from the dataset code dir:
-    cd models/us_medsl_elections/code && uv run python -m models.us_medsl_elections.code.clean
+    cd models/us_medsl_elections/code && uv run clean.py
 """
 
 import os

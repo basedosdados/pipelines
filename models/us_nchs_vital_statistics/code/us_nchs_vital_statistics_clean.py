@@ -3,8 +3,8 @@
 Imports the transform from ``pipelines.datasets.us_nchs_vital_statistics.utils``
 so the onboarding load and the recurring pipeline share one implementation.
 
-    uv run python -m models.us_nchs_vital_statistics.code.us_nchs_vital_statistics_clean
-    uv run python -m models.us_nchs_vital_statistics.code.us_nchs_vital_statistics_clean --products birth --years 2023 2024
+    uv run models/us_nchs_vital_statistics/code/us_nchs_vital_statistics_clean.py
+    uv run models/us_nchs_vital_statistics/code/us_nchs_vital_statistics_clean.py --products birth --years 2023 2024
 """
 
 import argparse

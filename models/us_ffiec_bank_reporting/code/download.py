@@ -16,7 +16,7 @@ A download that lands short or malformed is deleted, never left behind to be
 mistaken for a complete one on the next run.
 
 Usage:
-    uv run python -m models.us_ffiec_bank_reporting.code.download [call|mdrm|bhc|cra|all]
+    uv run models/us_ffiec_bank_reporting/code/download.py [call|mdrm|bhc|cra|all]
 """
 
 from __future__ import annotations

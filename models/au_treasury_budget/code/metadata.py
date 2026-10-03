@@ -7,8 +7,8 @@ an existing id is passed back so the call updates rather than duplicates.
 record when called without an id, so re-running without that lookup silently
 doubles them.
 
-Run:  uv run python -m models.au_treasury_budget.code.metadata --env staging
-      uv run python -m models.au_treasury_budget.code.metadata --env staging --publish     # flip to published
+Run:  uv run models/au_treasury_budget/code/metadata.py --env staging
+      uv run models/au_treasury_budget/code/metadata.py --env staging --publish     # flip to published
 """
 
 from __future__ import annotations

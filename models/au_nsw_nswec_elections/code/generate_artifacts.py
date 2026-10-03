@@ -6,7 +6,7 @@ tables, the ``.sql`` model per table, and the one ``schema.yml`` for the dataset
 
 Usage::
 
-    PYTHONPATH=. uv run python -m models.au_nsw_nswec_elections.code.generate_artifacts
+    PYTHONPATH=. uv run models/au_nsw_nswec_elections/code/generate_artifacts.py
 """
 
 from __future__ import annotations

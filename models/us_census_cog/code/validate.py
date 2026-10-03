@@ -1,7 +1,7 @@
 """Measure the cleaned us_census_cog parquet before it goes anywhere.
 
-    uv run python -m models.us_census_cog.code.validate                 # every table
-    uv run python -m models.us_census_cog.code.validate finance
+    uv run models/us_census_cog/code/validate.py                 # every table
+    uv run models/us_census_cog/code/validate.py finance
 
 Reports, per table: row counts by year, the non-null share of every column, the
 uniqueness of each declared key, and the share of geographic identifiers absent

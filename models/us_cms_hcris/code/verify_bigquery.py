@@ -1,7 +1,7 @@
 """Check the built us_cms_hcris models against the local parquet and measured.json.
 
-    uv run python -m models.us_cms_hcris.code.verify_bigquery                # dev (basedosdados-dev)
-    uv run python -m models.us_cms_hcris.code.verify_bigquery --project basedosdados
+    uv run models/us_cms_hcris/code/verify_bigquery.py                # dev (basedosdados-dev)
+    uv run models/us_cms_hcris/code/verify_bigquery.py --project basedosdados
 
 The dbt tests assert structure — keys, nulls, foreign keys, dictionary coverage.
 This asserts that what landed is the data that was cleaned: the row counts match

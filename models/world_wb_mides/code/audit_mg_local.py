@@ -46,8 +46,8 @@ across a newline shows up immediately as a shortfall, and the check rides along
 with the byte scan already being done.
 
 Usage:
-    uv run python -m models.world_wb_mides.code.audit_mg_local --year 2021
-    uv run python -m models.world_wb_mides.code.audit_mg_local                 # every exercise on disk
+    uv run models/world_wb_mides/code/audit_mg_local.py --year 2021
+    uv run models/world_wb_mides/code/audit_mg_local.py                 # every exercise on disk
 """
 
 from __future__ import annotations

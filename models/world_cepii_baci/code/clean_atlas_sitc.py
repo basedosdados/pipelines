@@ -22,7 +22,7 @@ zeros survive and missing values stay null instead of becoming the literal "nan"
 The bilateral source is split into year ranges, so a given year never spans two
 files; per-year writers are therefore opened and closed within one file.
 
-Usage: uv run python -m models.world_cepii_baci.code.clean_atlas_sitc [trade_sitc|complexity_country|complexity_product|all]
+Usage: uv run models/world_cepii_baci/code/clean_atlas_sitc.py [trade_sitc|complexity_country|complexity_product|all]
 """
 
 import sys

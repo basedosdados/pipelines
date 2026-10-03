@@ -1,8 +1,8 @@
 """Register world_oecd_revenue_statistics metadata in the Data Basis backend.
 
-    uv run python -m models.world_oecd_revenue_statistics.code.register_metadata --env staging            # default
-    uv run python -m models.world_oecd_revenue_statistics.code.register_metadata --env staging --publish  # step 9b: publish on staging
-    uv run python -m models.world_oecd_revenue_statistics.code.register_metadata --env prod               # only after the checkpoint + merge
+    uv run models/world_oecd_revenue_statistics/code/register_metadata.py --env staging            # default
+    uv run models/world_oecd_revenue_statistics/code/register_metadata.py --env staging --publish  # step 9b: publish on staging
+    uv run models/world_oecd_revenue_statistics/code/register_metadata.py --env prod               # only after the checkpoint + merge
 
 This dataset REPURPOSES an existing empty shell rather than creating a new one:
 `oecd_revenue_statistics_in_latin_america_and_the_caribbean` (id below) is the LAC

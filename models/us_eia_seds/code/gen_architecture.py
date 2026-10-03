@@ -1,6 +1,6 @@
 """Write the architecture CSV for us_eia_seds.
 
-    uv run python -m models.us_eia_seds.code.gen_architecture
+    uv run models/us_eia_seds/code/gen_architecture.py
 
 The architecture CSV is the schema source of truth: column order, bigquery_type,
 directory links, units and the trilingual descriptions the dbt models and the

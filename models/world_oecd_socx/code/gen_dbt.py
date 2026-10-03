@@ -9,7 +9,7 @@ that is exactly what identifies an observation in a cube. It is a wide key (16
 columns for ``student``), but a narrower one would not be unique: these are long
 fact tables where the same measure recurs across every dimension combination.
 
-Run ``uv run python -m models.world_oecd_socx.code.gen_dbt``, then ``pre-commit run sqlfmt --files models/world_oecd_education/*.sql``
+Run ``uv run models/world_oecd_socx/code/gen_dbt.py``, then ``pre-commit run sqlfmt --files models/world_oecd_education/*.sql``
 -- the generator writes readable SQL but not sqlfmt-canonical SQL, and the hook
 rewrites it.
 """

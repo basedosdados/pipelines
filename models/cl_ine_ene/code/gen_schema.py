@@ -11,7 +11,7 @@ each of them is a judgement no one can make by eye:
   (build_architecture.py writes the list);
 * the relationships tests, which follow the architecture's directory_column.
 
-    uv run python -m models.cl_ine_ene.code.gen_schema
+    uv run models/cl_ine_ene/code/gen_schema.py
 """
 
 from __future__ import annotations

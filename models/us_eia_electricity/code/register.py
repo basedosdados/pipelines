@@ -1,7 +1,7 @@
 """Register the us_eia_electricity metadata in a Data Basis backend.
 
-    uv run python -m models.us_eia_electricity.code.register --env staging
-    uv run python -m models.us_eia_electricity.code.register --env prod --gcp-project basedosdados
+    uv run models/us_eia_electricity/code/register.py --env staging
+    uv run models/us_eia_electricity/code/register.py --env prod --gcp-project basedosdados
 
 Idempotent by construction: every record is looked up through ``get_dataset``
 first and its id passed back on the write, because ``create_update_*`` **creates

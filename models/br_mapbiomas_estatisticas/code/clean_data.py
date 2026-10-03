@@ -5,8 +5,8 @@ writes the cleaned, hive-partitioned parquet. The transform itself lives in
 `pipelines/datasets/br_mapbiomas_estatisticas/utils.py` and is shared with the
 recurring pipeline, so there is exactly one copy of it.
 
-    uv run python -m models.br_mapbiomas_estatisticas.code.clean_data
-    uv run python -m models.br_mapbiomas_estatisticas.code.clean_data --skip-download
+    uv run models/br_mapbiomas_estatisticas/code/clean_data.py
+    uv run models/br_mapbiomas_estatisticas/code/clean_data.py --skip-download
 """
 
 from __future__ import annotations

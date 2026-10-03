@@ -1,7 +1,7 @@
 """Put the BD Pro rolling window on `observation`.
 
-    uv run python -m models.world_noaa_ghcn.code.set_bdpro_coverage --env staging
-    uv run python -m models.world_noaa_ghcn.code.set_bdpro_coverage --env prod
+    uv run models/world_noaa_ghcn/code/set_bdpro_coverage.py --env staging
+    uv run models/world_noaa_ghcn/code/set_bdpro_coverage.py --env prod
 
 Data Basis paywalls the most recent window of any table refreshing monthly or
 more often. `observation` refreshes weekly, so it carries a 6-month pro window;

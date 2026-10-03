@@ -24,7 +24,7 @@ Five tables, hive-partitioned by ``year``, written all-STRING (the dbt models
 
 Run
 ---
-    uv run python -m models.us_nsf_ncses.code.herd_clean
+    uv run models/us_nsf_ncses/code/herd_clean.py
 
 Set ``NCSES_DATA_DIR`` to override the scratch location (default
 ``~/Downloads/us_nsf_ncses_data``); ``input/`` holds the downloaded ZIPs and

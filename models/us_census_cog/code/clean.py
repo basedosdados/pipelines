@@ -1,8 +1,8 @@
 """Clean every us_census_cog source file into partitioned parquet.
 
-    uv run python -m models.us_census_cog.code.clean                          # every table, every year
-    uv run python -m models.us_census_cog.code.clean government_unit          # one table
-    uv run python -m models.us_census_cog.code.clean finance 2017 2018        # one table, selected years
+    uv run models/us_census_cog/code/clean.py                          # every table, every year
+    uv run models/us_census_cog/code/clean.py government_unit          # one table
+    uv run models/us_census_cog/code/clean.py finance 2017 2018        # one table, selected years
 
 Output lands in ``$CENSUS_COG_DATA_DIR/output/<table>/year=<Y>/data.parquet``,
 all-string, one file per partition. The dicionario is written last because it

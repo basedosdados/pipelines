@@ -9,7 +9,7 @@ Scratch data must not live in the repo or under Dropbox. The default directory i
 ``AU_ABS_PRODUCTIVITY_DATA_DIR``.
 
 Usage:
-    uv run python -m models.au_abs_productivity.code.download [input_dir]
+    uv run models/au_abs_productivity/code/download.py [input_dir]
 """
 
 import io

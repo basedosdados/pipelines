@@ -16,7 +16,7 @@ The build gate is the point: a missing translation raises rather than silently
 shipping a Spanish string into the English field, which is how a column set ends
 up looking trilingual while being anything but.
 
-    uv run python -m models.cl_ine_ene.code.build_i18n
+    uv run models/cl_ine_ene/code/build_i18n.py
 """
 
 from __future__ import annotations

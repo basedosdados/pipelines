@@ -1,7 +1,7 @@
 """Upload the cleaned parquet of us_fec_campaign_finance to BigQuery dev staging.
 
-    uv run python -m models.us_fec_campaign_finance.code.upload                 # every table
-    uv run python -m models.us_fec_campaign_finance.code.upload candidate       # one table
+    uv run models/us_fec_campaign_finance/code/upload.py                 # every table
+    uv run models/us_fec_campaign_finance/code/upload.py candidate       # one table
 
 Targets basedosdados-dev only. Prod table data is never uploaded from here: it is
 materialized by the GitHub table-approve action when the onboarding PR merges

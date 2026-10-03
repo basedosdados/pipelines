@@ -3,7 +3,7 @@ architecture CSVs. One model per table; every column safe_cast; parent id_*
 columns get `relationships` tests to their own directory table; the PK gets a
 [diretorio]-tagged uniqueness test.
 
-Run:  uv run python -m models.br_bd_diretorios_au.code.gen_dbt
+Run:  uv run models/br_bd_diretorios_au/code/gen_dbt.py
 """
 
 import csv

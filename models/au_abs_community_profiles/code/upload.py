@@ -5,8 +5,8 @@ basedosdados-dev.au_abs_community_profiles_staging.<slug> and reports row counts
 One-shot onboarding upload -> typed parquet is fine (this is NOT the recurring
 pipeline path; the dbt model safe_casts every column).
 
-Run:  uv run python -m models.au_abs_community_profiles.code.upload            # all present parquet tables
-      uv run python -m models.au_abs_community_profiles.code.upload state sa3  # a subset
+Run:  uv run models/au_abs_community_profiles/code/upload.py            # all present parquet tables
+      uv run models/au_abs_community_profiles/code/upload.py state sa3  # a subset
 """
 
 import glob

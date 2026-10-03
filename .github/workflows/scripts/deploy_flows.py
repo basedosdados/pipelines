@@ -3,15 +3,15 @@ Script de deploy de flows para o Prefect 3.
 
 Uso:
   # Deploy de arquivos específicos, sem expansão (uso manual)
-  uv run python .github/workflows/scripts/deploy_flows.py --pool basedosdados-dev --branch feat/meu-flow --files pipelines/datasets/meu_dataset/flows.py
+  uv run .github/workflows/scripts/deploy_flows.py --pool basedosdados-dev --branch feat/meu-flow --files pipelines/datasets/meu_dataset/flows.py
 
   # Deploy a partir de uma lista de arquivos alterados (CI, dev e prod) —
   # expande pra pasta inteira do dataset e escala pra --all quando a
   # mudança é em infra compartilhada (ver expand_changed_files)
-  uv run python .github/workflows/scripts/deploy_flows.py --pool basedosdados-dev --branch feat/meu-flow --changed pipelines/datasets/meu_dataset/tasks.py
+  uv run .github/workflows/scripts/deploy_flows.py --pool basedosdados-dev --branch feat/meu-flow --changed pipelines/datasets/meu_dataset/tasks.py
 
   # Deploy de todos os flows (recuperação manual, ex. depois de um drift)
-  uv run python .github/workflows/scripts/deploy_flows.py --pool basedosdados --branch main --all
+  uv run .github/workflows/scripts/deploy_flows.py --pool basedosdados --branch main --all
 
 Nome do deployment: em prod, é `<flow_name>` (mesmo nome de sempre — não
 mude, `sync-deployments`/`set_deployment_schedule_active` no backend

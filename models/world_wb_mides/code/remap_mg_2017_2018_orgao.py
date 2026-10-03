@@ -44,9 +44,9 @@ that one vintage, so empenho -> liquidacao -> pagamento linkage stays internally
 consistent. Only `orgao` is rewritten, so the key scheme matches the rest of MG.
 
 Usage:
-    uv run python -m models.world_wb_mides.code.remap_mg_2017_2018_orgao --validate     # ground-truth check only
-    uv run python -m models.world_wb_mides.code.remap_mg_2017_2018_orgao --dry-run
-    uv run python -m models.world_wb_mides.code.remap_mg_2017_2018_orgao                # backup, remap, upload
+    uv run models/world_wb_mides/code/remap_mg_2017_2018_orgao.py --validate     # ground-truth check only
+    uv run models/world_wb_mides/code/remap_mg_2017_2018_orgao.py --dry-run
+    uv run models/world_wb_mides/code/remap_mg_2017_2018_orgao.py                # backup, remap, upload
 """
 
 from __future__ import annotations

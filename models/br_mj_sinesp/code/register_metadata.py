@@ -1,7 +1,7 @@
 """Register br_mj_sinesp metadata in the Data Basis backend.
 
-    uv run python -m models.br_mj_sinesp.code.register_metadata staging
-    uv run python -m models.br_mj_sinesp.code.register_metadata prod     # only after the checkpoint is approved
+    uv run models/br_mj_sinesp/code/register_metadata.py staging
+    uv run models/br_mj_sinesp/code/register_metadata.py prod     # only after the checkpoint is approved
 
 Calls the databasis MCP tool functions directly — they are plain functions — so
 the column payloads are read from the architecture CSVs instead of being pasted

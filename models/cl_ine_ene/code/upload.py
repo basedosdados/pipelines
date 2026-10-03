@@ -15,12 +15,12 @@ twice over:
   no error and no failing test. Going through the same helper as the flow leaves
   an EXTERNAL table over gs://<bucket>/staging/<ds>/<table>/, so both paths agree.
 
-    uv run python -m models.cl_ine_ene.code.upload --check
-    uv run python -m models.cl_ine_ene.code.upload
+    uv run models/cl_ine_ene/code/upload.py --check
+    uv run models/cl_ine_ene/code/upload.py
 
 Run it with GOOGLE_APPLICATION_CREDENTIALS unset so the local ADC is used:
 
-    env -u GOOGLE_APPLICATION_CREDENTIALS uv run --no-sync uv run python -m models.cl_ine_ene.code.upload
+    env -u GOOGLE_APPLICATION_CREDENTIALS uv run --no-sync uv run models/cl_ine_ene/code/upload.py
 """
 
 from __future__ import annotations

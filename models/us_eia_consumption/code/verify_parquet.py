@@ -1,6 +1,6 @@
 """Verify the cleaned us_eia_consumption parquet before upload.
 
-    uv run python -m models.us_eia_consumption.code.verify_parquet
+    uv run models/us_eia_consumption/code/verify_parquet.py
 
 Checks, over the whole cleaned record: row counts and per-year partitions; the
 natural keys; directory resolution; and a magnitude check that reproduces EIA's

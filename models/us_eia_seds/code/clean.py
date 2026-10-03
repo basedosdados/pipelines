@@ -1,8 +1,8 @@
 """One-shot: clean the whole SEDS series to partitioned parquet.
 
-    uv run python -m models.us_eia_seds.code.clean                 # every year + dicionario
-    uv run python -m models.us_eia_seds.code.clean --years 2024    # selected years
-    uv run python -m models.us_eia_seds.code.clean --download      # fetch Complete_SEDS.csv + codes first
+    uv run models/us_eia_seds/code/clean.py                 # every year + dicionario
+    uv run models/us_eia_seds/code/clean.py --years 2024    # selected years
+    uv run models/us_eia_seds/code/clean.py --download      # fetch Complete_SEDS.csv + codes first
 
 Reads ``$US_EIA_SEDS_DATA_DIR/input/Complete_SEDS.csv`` and writes
 ``output/seds_consumption/year=<year>/data.parquet`` plus

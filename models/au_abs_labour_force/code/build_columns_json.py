@@ -12,7 +12,7 @@ Keys in TRANSLATIONS are the column name, or "name:table" when the same column
 name carries a different meaning across tables.
 
 Usage:
-    uv run python -m models.au_abs_labour_force.code.build_columns_json
+    uv run models/au_abs_labour_force/code/build_columns_json.py
 """
 
 import csv

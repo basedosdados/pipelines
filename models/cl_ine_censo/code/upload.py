@@ -3,9 +3,9 @@
 
 Usage::
 
-    uv run python -m models.cl_ine_censo.code.upload                      # all tables, dev
-    uv run python -m models.cl_ine_censo.code.upload persona hogar        # a subset
-    uv run python -m models.cl_ine_censo.code.upload --env prod           # only after explicit approval
+    uv run models/cl_ine_censo/code/upload.py                      # all tables, dev
+    uv run models/cl_ine_censo/code/upload.py persona hogar        # a subset
+    uv run models/cl_ine_censo/code/upload.py --env prod           # only after explicit approval
 
 Run it through ``run_guarded.sh`` for the large tables.
 """

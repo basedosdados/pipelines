@@ -1,7 +1,7 @@
 """Upload the cleaned us_eia_electricity parquet to BigQuery staging (basedosdados-dev).
 
-    uv run python -m models.us_eia_electricity.code.upload                    # every table
-    uv run python -m models.us_eia_electricity.code.upload plant generator    # selected tables
+    uv run models/us_eia_electricity/code/upload.py                    # every table
+    uv run models/us_eia_electricity/code/upload.py plant generator    # selected tables
 
 Uses ``pipelines.utils.tasks._upload_to_gcs`` — the same helper the recurring flow
 calls — rather than ``bd.Table.create(path=<data>)`` or a BigQuery load job. That

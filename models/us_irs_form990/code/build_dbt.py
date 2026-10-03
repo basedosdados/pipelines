@@ -5,7 +5,7 @@ the models cannot drift from it. ``ignore_values`` for the null-proportion test
 is measured from the cleaned parquet (columns whose non-null share falls below
 5%), never guessed — pass ``--output-dir`` after a full clean.
 
-    uv run python -m models.us_irs_form990.code.build_dbt --output-dir ~/Downloads/us_irs_form990_data/output
+    uv run models/us_irs_form990/code/build_dbt.py --output-dir ~/Downloads/us_irs_form990_data/output
 
 Run ``pre-commit run --files models/us_irs_form990/*`` afterwards.
 """

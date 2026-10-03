@@ -14,7 +14,7 @@ column's ``observations``:
 * ``seat``, ``nimsp_office``, ``nimsp_party`` and ``nimsp_candidate_status``
   carry readable labels rather than codes and are not dictionary-covered at all.
 
-    uv run python -m models.us_stanford_dime.code.gen_dicionario
+    uv run models/us_stanford_dime/code/gen_dicionario.py
 """
 
 from __future__ import annotations

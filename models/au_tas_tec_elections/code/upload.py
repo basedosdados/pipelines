@@ -1,7 +1,7 @@
 """Upload cleaned au_tas_tec_elections parquet to BigQuery staging.
 
 Usage:
-    PYTHONPATH=. uv run python -m models.au_tas_tec_elections.code.upload \
+    PYTHONPATH=. uv run models/au_tas_tec_elections/code/upload.py \
         [--env dev] [table_slug ...]
 
 Reads the cleaned parquet from ``$TEC_DATA_ROOT/output`` (default

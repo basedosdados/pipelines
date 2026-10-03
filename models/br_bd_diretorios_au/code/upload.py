@@ -4,8 +4,8 @@ Uploads each table to gs://basedosdados-dev staging and creates
 basedosdados-dev.br_bd_diretorios_au_staging.<table_slug>, then verifies row
 counts against expected values. Stops at the first failure.
 
-Run:  uv run python -m models.br_bd_diretorios_au.code.upload            # all tables
-      uv run python -m models.br_bd_diretorios_au.code.upload sa2_2021   # a subset
+Run:  uv run models/br_bd_diretorios_au/code/upload.py            # all tables
+      uv run models/br_bd_diretorios_au/code/upload.py sa2_2021   # a subset
 """
 
 import sys

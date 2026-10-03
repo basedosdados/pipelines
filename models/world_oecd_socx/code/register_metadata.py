@@ -1,7 +1,7 @@
 """Register world_oecd_socx metadata in the Data Basis backend.
 
-    uv run python -m models.world_oecd_socx.code.register_metadata --env staging     # default
-    uv run python -m models.world_oecd_socx.code.register_metadata --env prod        # only after the checkpoint
+    uv run models/world_oecd_socx/code/register_metadata.py --env staging     # default
+    uv run models/world_oecd_socx/code/register_metadata.py --env prod        # only after the checkpoint
 
 Idempotent by construction. ``create_update_*`` matches on ``id``, not on slug, so
 re-running without first looking up what exists creates duplicate observation

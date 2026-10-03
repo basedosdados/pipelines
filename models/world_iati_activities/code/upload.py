@@ -1,7 +1,7 @@
 """Upload the cleaned world_iati_activities parquet to BigQuery staging (basedosdados-dev).
 
-    uv run python -m models.world_iati_activities.code.upload                     # every table
-    uv run python -m models.world_iati_activities.code.upload activity transaction
+    uv run models/world_iati_activities/code/upload.py                     # every table
+    uv run models/world_iati_activities/code/upload.py activity transaction
 
 Uses ``pipelines.utils.tasks._upload_to_gcs`` — the same helper the recurring flow
 calls — rather than ``bd.Table.create(path=<data>)`` or a BigQuery load job. That

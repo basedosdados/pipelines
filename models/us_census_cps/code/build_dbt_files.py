@@ -9,7 +9,7 @@ Two columns per table are *derived* rather than selected from staging:
 and `id_county` (id_state concatenated with the 3-digit county code). Everything
 else is a plain `safe_cast` off the staging table.
 
-Usage: uv run python -m models.us_census_cps.code.build_dbt_files [--nonnull nonnull_years.json]
+Usage: uv run models/us_census_cps/code/build_dbt_files.py [--nonnull nonnull_years.json]
 """
 
 import argparse

@@ -1,7 +1,7 @@
 """One-shot onboarding: download every year, clean, report coverage.
 
-    uv run python -m models.br_mj_sinesp.code.run_onboarding            # all years
-    uv run python -m models.br_mj_sinesp.code.run_onboarding 2025 2026  # a subset
+    uv run models/br_mj_sinesp/code/run_onboarding.py            # all years
+    uv run models/br_mj_sinesp/code/run_onboarding.py 2025 2026  # a subset
 
 Scratch data lives under $SINESP_DATA_DIR (default ~/Downloads/br_mj_sinesp_data)
 and is deleted at the end of the onboarding run; it is fully reproducible.

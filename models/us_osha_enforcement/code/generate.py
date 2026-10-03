@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Generate every downstream artifact from ``architecture_def.py``.
 
-    uv run python -m models.us_osha_enforcement.code.generate
+    uv run models/us_osha_enforcement/code/generate.py
 
 Writes:
 

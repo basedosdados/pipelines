@@ -1,6 +1,6 @@
 """Write the dbt models and schema.yml for us_eia_electricity.
 
-    uv run python -m models.us_eia_electricity.code.gen_dbt
+    uv run models/us_eia_electricity/code/gen_dbt.py
 
 Generated from the architecture CSVs so the SQL cast list, the column order and
 the documented descriptions cannot drift from the schema they implement. The

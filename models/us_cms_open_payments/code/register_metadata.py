@@ -6,8 +6,8 @@ driven from a script. That matters here: 23 tables and 651 columns is roughly
 transcription errors. Everything is keyed by name or slug and every write is
 an upsert, so the script is safe to re-run.
 
-    uv run python -m models.us_cms_open_payments.code.register_metadata staging
-    uv run python -m models.us_cms_open_payments.code.register_metadata prod --publish
+    uv run models/us_cms_open_payments/code/register_metadata.py staging
+    uv run models/us_cms_open_payments/code/register_metadata.py prod --publish
 
 The dataset is created `under_review` in every environment. `--publish` flips
 it to published, which is only correct on dev/staging before promotion, or on

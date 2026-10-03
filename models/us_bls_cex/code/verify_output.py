@@ -7,7 +7,7 @@ zero-padding changes across years (``1`` vs ``01``); plus three spot checks
 against published BLS numbers.
 
 Usage:
-    uv run python -m models.us_bls_cex.code.verify_output [--tables ...]
+    uv run models/us_bls_cex/code/verify_output.py [--tables ...]
 """
 
 import argparse

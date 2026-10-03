@@ -1,7 +1,7 @@
 """Upload the cleaned us_census_cog parquet to BigQuery staging (basedosdados-dev).
 
-    uv run python -m models.us_census_cog.code.upload                       # every table
-    uv run python -m models.us_census_cog.code.upload finance government_unit
+    uv run models/us_census_cog/code/upload.py                       # every table
+    uv run models/us_census_cog/code/upload.py finance government_unit
 
 Uses ``pipelines.utils.tasks._upload_to_gcs`` -- the same helper the recurring
 flow calls -- rather than ``bd.Table.create(path=<data>)`` or a BigQuery load

@@ -16,7 +16,7 @@ unique if and only if `unitid` is unique within each cohort file, which is
 Writes code/validation_report.json and code/sparse_columns.json.
 
 Usage:
-    uv run python -m models.us_ed_college_scorecard.code.validate_output
+    uv run models/us_ed_college_scorecard/code/validate_output.py
 """
 
 import csv

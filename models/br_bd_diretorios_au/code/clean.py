@@ -10,8 +10,8 @@ br_bd_diretorios_au.
 - Output: typed Parquet (codes/names STRING, area/ratio FLOAT64), one file per
   table at output/<table>.parquet.
 
-Run:  uv run python -m models.br_bd_diretorios_au.code.clean            # all tables whose source files are present
-      uv run python -m models.br_bd_diretorios_au.code.clean sa2_2021   # a subset
+Run:  uv run models/br_bd_diretorios_au/code/clean.py            # all tables whose source files are present
+      uv run models/br_bd_diretorios_au/code/clean.py sa2_2021   # a subset
 """
 
 import glob

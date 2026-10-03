@@ -9,7 +9,7 @@ Checks, per table:
    mis-mapped source name that ``safe_cast`` would later hide;
 5. row counts against the source, and what the licence filter removed.
 
-Run: ``uv run python -m models.world_iati_activities.code.verify_parquet [table ...]``
+Run: ``uv run models/world_iati_activities/code/verify_parquet.py [table ...]``
 """
 
 import sys

@@ -2,7 +2,7 @@
 """Generate dbt SQL models, schema.yml, and architecture CSVs for us_nature_gerda
 from a single column-metadata spec, driven by the actual output/*.parquet columns.
 
-Run: cd models/us_nature_gerda/code && uv run python -m models.us_nature_gerda.code.build_models [table ...]
+Run: cd models/us_nature_gerda/code && uv run build_models.py [table ...]
 (no args = all parquet found in ../output)
 """
 

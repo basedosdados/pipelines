@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Reshape the 5 state (Landtag) GERDA files into long tables.
 
-Run: cd models/us_nature_gerda/code && uv run python -m models.us_nature_gerda.code.clean_state
+Run: cd models/us_nature_gerda/code && uv run clean_state.py
 """
 
 import os

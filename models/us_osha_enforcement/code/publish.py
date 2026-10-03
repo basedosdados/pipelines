@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Flip the dataset's status between ``under_review`` and ``published``.
 
-    uv run python -m models.us_osha_enforcement.code.publish --env staging --status published
+    uv run models/us_osha_enforcement/code/publish.py --env staging --status published
 
 On dev/staging this is safe at any point and is done before the PR, so a
 reviewer sees the dataset as it will appear. On **prod** it is a separate

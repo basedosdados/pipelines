@@ -19,7 +19,7 @@ Each table's columns are, in order:
 6. ``source_flow`` / ``source_flow_version`` — derived provenance, which matter
    because some tables union more than one flow version.
 
-Run: ``uv run python -m models.world_oecd_education.code.gen_architecture``
+Run: ``uv run models/world_oecd_education/code/gen_architecture.py``
 """
 
 import csv

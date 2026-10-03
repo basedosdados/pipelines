@@ -6,7 +6,7 @@ architecture tables, one ``.sql`` model per table, and one ``schema.yml``.
 
 Usage::
 
-    PYTHONPATH=. uv run python -m models.au_sa_ecsa_elections.code.generate_artifacts
+    PYTHONPATH=. uv run models/au_sa_ecsa_elections/code/generate_artifacts.py
 """
 
 from __future__ import annotations

@@ -9,7 +9,7 @@ The catalogue is written to ``architecture/finance_item_catalog.csv`` and
 committed, so neither the cleaning transform nor the recurring pipeline has to
 read an .xls at run time.
 
-    uv run python -m models.us_census_cog.code.gen_finance_catalog
+    uv run models/us_census_cog/code/gen_finance_catalog.py
 """
 
 import csv

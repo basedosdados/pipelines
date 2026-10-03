@@ -6,7 +6,7 @@ elections (``elections-2024/results/<div>/`` vs
 layouts. No URL in this dataset is ever constructed: every one is scraped from a
 rendered page, and this script is what does the scraping.
 
-Run: PYTHONPATH=. uv run python -m models.au_tas_tec_elections.code.discover
+Run: PYTHONPATH=. uv run models/au_tas_tec_elections/code/discover.py
 """
 
 from __future__ import annotations

@@ -10,7 +10,7 @@ Layout follows bigquery-conventions.md:
 Types follow the architecture CSVs (the single source of truth): INT64/FLOAT64/STRING per
 `bigquery_type`, enforced via an explicit pyarrow schema so partitions can't drift.
 
-Usage: uv run python -m models.us_census_cps.code.to_parquet [table ...]      (default: all three)
+Usage: uv run models/us_census_cps/code/to_parquet.py [table ...]      (default: all three)
 """
 
 import csv

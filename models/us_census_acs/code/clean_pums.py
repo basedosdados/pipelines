@@ -6,7 +6,7 @@ vintage to the canonical column set from the architecture CSVs, casts types,
 adds ano/period, writes output/<table>/ano=<y>/<period>.parquet.
 
 Usage:
-  uv run python -m models.us_census_acs.code.clean_pums [VINTAGE ...]   # e.g. 2005_1yr  (default: all vintages)
+  uv run models/us_census_acs/code/clean_pums.py [VINTAGE ...]   # e.g. 2005_1yr  (default: all vintages)
 """
 
 import csv as csvmod

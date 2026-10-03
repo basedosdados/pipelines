@@ -11,7 +11,7 @@ delay cause" rather than "not collected". The measured coverage is written to
 ``coverage.json`` and used to fill ``temporal_coverage`` in the architecture.
 
     uv run --no-project --with pyarrow --with pandas --with requests \
-        uv run python -m models.us_dot_bts_ontime.code.clean
+      models/us_dot_bts_ontime/code/clean.py
 """
 
 from __future__ import annotations

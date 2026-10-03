@@ -1,7 +1,7 @@
 """Upload cleaned world_noaa_ghcn parquet to BigQuery staging (basedosdados-dev).
 
-    uv run python -m models.world_noaa_ghcn.code.upload                 # all tables
-    uv run python -m models.world_noaa_ghcn.code.upload station         # one table
+    uv run models/world_noaa_ghcn/code/upload.py                 # all tables
+    uv run models/world_noaa_ghcn/code/upload.py station         # one table
 
 `observation` is hive-partitioned by year (`year=<YYYY>/data.parquet`); the
 other three are a single file each. Each staging table's BigQuery row count is

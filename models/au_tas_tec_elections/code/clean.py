@@ -3,8 +3,8 @@
 Thin wrapper: every function lives in ``pipelines/datasets/au_tas_tec_elections`` so
 a later recurring pipeline reuses this transform instead of duplicating it.
 
-Run: PYTHONPATH=. uv run python \
-        -m models.au_tas_tec_elections.code.clean
+Run: PYTHONPATH=. uv run \
+        models/au_tas_tec_elections/code/clean.py
 """
 
 from __future__ import annotations

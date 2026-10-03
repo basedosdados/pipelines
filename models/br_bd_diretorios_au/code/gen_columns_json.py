@@ -6,7 +6,7 @@ derived by ordered rule-based transforms (specific strings first, then the
 generic "Código da/do X" / "Nome da/do X" forms). Emits one JSON file per table
 under ./columns_json/.
 
-Run:  uv run python -m models.br_bd_diretorios_au.code.gen_columns_json
+Run:  uv run models/br_bd_diretorios_au/code/gen_columns_json.py
 """
 
 import csv

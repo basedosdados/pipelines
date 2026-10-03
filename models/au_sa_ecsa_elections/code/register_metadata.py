@@ -14,7 +14,7 @@ source link — happens before the first coverage is created, not after.
 
 Usage::
 
-    PYTHONPATH=. uv run python -m models.au_sa_ecsa_elections.code.register_metadata
+    PYTHONPATH=. uv run models/au_sa_ecsa_elections/code/register_metadata.py
 """
 
 from __future__ import annotations
