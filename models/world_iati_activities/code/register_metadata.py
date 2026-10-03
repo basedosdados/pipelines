@@ -1,8 +1,8 @@
 """Register world_iati_activities metadata in the Data Basis backend.
 
-    python register_metadata.py --env staging
-    python register_metadata.py --env staging --publish   # flip to published
-    python register_metadata.py --env prod                # after the PR merges
+    uv run python -m models.world_iati_activities.code.register_metadata --env staging
+    uv run python -m models.world_iati_activities.code.register_metadata --env staging --publish   # flip to published
+    uv run python -m models.world_iati_activities.code.register_metadata --env prod                # after the PR merges
 
 19 tables x (table, columns, observation levels, OL column links, cloud table,
 coverage, datetime range, update) is far too many calls to make by hand, so this

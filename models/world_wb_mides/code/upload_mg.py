@@ -30,8 +30,8 @@ Checked before writing anything: the external tables' schemas match these parque
 files column for column, in order, all STRING on both sides.
 
 Usage:
-    python upload_mg.py --dry-run
-    python upload_mg.py --workers 16
+    uv run python -m models.world_wb_mides.code.upload_mg --dry-run
+    uv run python -m models.world_wb_mides.code.upload_mg --workers 16
 """
 
 from __future__ import annotations

@@ -9,7 +9,7 @@ national files) is remapped to the 2018-2024 harmonized schema. Output is one
 all-STRING snappy Parquet per year under output/precinct/, written incrementally
 (chunked read + ParquetWriter) to bound memory on the large-state files.
 
-Run: cd models/us_medsl_elections/code && python3 clean_precinct.py
+Run: cd models/us_medsl_elections/code && uv run python -m models.us_medsl_elections.code.clean_precinct
 """
 
 import glob

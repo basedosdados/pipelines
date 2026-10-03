@@ -1,7 +1,7 @@
 """Register cl_chilecompra_mercado_publico metadata in the Data Basis backend.
 
-    python models/cl_chilecompra_mercado_publico/code/register_metadata.py --env staging
-    python models/cl_chilecompra_mercado_publico/code/register_metadata.py --env prod
+    uv run python -m models.cl_chilecompra_mercado_publico.code.register_metadata --env staging
+    uv run python -m models.cl_chilecompra_mercado_publico.code.register_metadata --env prod
 
 The whole registration is one idempotent script rather than a hand-driven sequence
 of MCP calls, for two reasons:

@@ -3,8 +3,8 @@
 Thin wrapper: every function lives in ``pipelines/datasets/au_tas_tec_elections`` so
 a later recurring pipeline reuses this transform instead of duplicating it.
 
-Run: PYTHONPATH=. ~/.venvs/bd-pipelines-tas/bin/python \
-        models/au_tas_tec_elections/code/clean.py
+Run: PYTHONPATH=. uv run python \
+        -m models.au_tas_tec_elections.code.clean
 """
 
 from __future__ import annotations

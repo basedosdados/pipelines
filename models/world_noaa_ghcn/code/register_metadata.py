@@ -1,7 +1,7 @@
 """Register world_noaa_ghcn metadata in the Data Basis backend.
 
-    python models/world_noaa_ghcn/code/register_metadata.py --env staging
-    python models/world_noaa_ghcn/code/register_metadata.py --env prod
+    uv run python -m models.world_noaa_ghcn.code.register_metadata --env staging
+    uv run python -m models.world_noaa_ghcn.code.register_metadata --env prod
 
 Idempotent by construction: every create_update_* call is passed the existing
 record's id when one is found, because these endpoints are NOT idempotent

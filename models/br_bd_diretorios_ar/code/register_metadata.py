@@ -19,7 +19,7 @@ static catalogs of the 2022 census coding, not a refreshed series. They do carry
 a Coverage for Argentina with no datetime range.
 
 Usage:
-    ~/.pyenv/versions/3.11.6/bin/python register_metadata.py \
+    uv run python -m models.br_bd_diretorios_ar.code.register_metadata \
         [--env staging|prod|dev] [--dry-run] [--publish]
 """
 

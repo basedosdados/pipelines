@@ -4,7 +4,7 @@
 is the measured set of columns whose non-null share in the cleaned output falls
 below the test's threshold. Run after a full clean, pointing at the output dir.
 
-    python build_schema_yml.py --output-dir ~/Downloads/us_hhs_nppes_data/output
+    uv run python -m models.us_hhs_nppes.code.build_schema_yml --output-dir ~/Downloads/us_hhs_nppes_data/output
 """
 
 import argparse

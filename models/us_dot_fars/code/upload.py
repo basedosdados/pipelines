@@ -1,7 +1,7 @@
 """Upload the cleaned us_dot_fars parquet to BigQuery staging (basedosdados-dev).
 
-    python upload.py                    # every table
-    python upload.py crash person       # selected tables
+    uv run python -m models.us_dot_fars.code.upload                    # every table
+    uv run python -m models.us_dot_fars.code.upload crash person       # selected tables
 
 Uses ``pipelines.utils.tasks._upload_to_gcs`` — the same helper the recurring flow
 calls — rather than ``bd.Table.create(path=<data>)`` or a BigQuery load job. That

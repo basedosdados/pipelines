@@ -4,7 +4,7 @@ The transform lives in ``pipelines.datasets.us_bls_cex.utils`` so this one-shot
 load and the recurring Prefect pipeline share one implementation.
 
 Usage:
-    python models/us_bls_cex/code/clean_labstat.py [--tables series annual]
+    uv run python -m models.us_bls_cex.code.clean_labstat [--tables series annual]
 """
 
 import argparse

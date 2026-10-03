@@ -6,7 +6,7 @@ should reproduce the figures NCHS publishes, exactly. Both adjustments are easy
 to omit and neither fails loudly - a missing weight silently understates
 1972-1984 births by up to 46 percent.
 
-    python models/us_nchs_vital_statistics/code/us_nchs_vital_statistics_validate.py
+    uv run python -m models.us_nchs_vital_statistics.code.us_nchs_vital_statistics_validate
 """
 
 import os

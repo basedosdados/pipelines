@@ -9,7 +9,7 @@ source. See VALIDATION.md, section 7.
 `columns_json/` is gitignored because it is regenerable, so run
 `build_architecture.py` first on a fresh checkout.
 
-    python models/br_mapbiomas_estatisticas/code/build_architecture.py
+    uv run python -m models.br_mapbiomas_estatisticas.code.build_architecture
     uv run \
         models/br_mapbiomas_estatisticas/code/register_metadata.py --env staging
 

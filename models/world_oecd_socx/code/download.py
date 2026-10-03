@@ -12,7 +12,7 @@ and silent. So a chunk file is written only after a 200 response has been parsed
 via a ``.part`` file renamed into place; any non-200 raises. ``manifest.json``
 records each chunk's row count.
 
-Run: ``python download.py``   (only one table, ``expenditure``)
+Run: ``uv run python -m models.world_oecd_socx.code.download``   (only one table, ``expenditure``)
 """
 
 import csv

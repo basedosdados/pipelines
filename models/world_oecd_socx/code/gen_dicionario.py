@@ -20,7 +20,7 @@ occur in the cleaned output. Two things keep that honest:
 Emitting the full codelists instead would be 70,202 rows, 39,907 of them
 CL_REGIONAL codes that never appear in any of these cubes.
 
-Run: ``python gen_dicionario.py``   (after clean.py)
+Run: ``uv run python -m models.world_oecd_socx.code.gen_dicionario``   (after clean.py)
 """
 
 import csv

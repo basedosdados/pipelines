@@ -5,8 +5,8 @@ parquet output. The cleaning transform itself lives in
 ``pipelines/datasets/cl_res_empresas/utils.py`` and is shared with the recurring
 Prefect pipeline.
 
-    python models/cl_res_empresas/code/clean.py --download
-    python models/cl_res_empresas/code/clean.py
+    uv run python -m models.cl_res_empresas.code.clean --download
+    uv run python -m models.cl_res_empresas.code.clean
 """
 
 import argparse

@@ -1,6 +1,6 @@
 """Upload the cleaned br_mj_sisdepen parquet to BigQuery (dev project).
 
-    python models/br_mj_sisdepen/code/upload.py [--tables t1,t2] [--dry-run]
+    uv run python -m models.br_mj_sisdepen.code.upload [--tables t1,t2] [--dry-run]
 
 Targets basedosdados-dev only. Production tables are materialised by the
 table-approve GitHub action when the onboarding PR merges, never from here.

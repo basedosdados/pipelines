@@ -33,7 +33,7 @@ already has a Coverage, so every table write — the raw data source link includ
 
 Usage::
 
-    PYTHONPATH=. python models/au_sa_ecsa_elections/code/register_metadata_prod.py
+    PYTHONPATH=. uv run python -m models.au_sa_ecsa_elections.code.register_metadata_prod
 """
 
 from __future__ import annotations

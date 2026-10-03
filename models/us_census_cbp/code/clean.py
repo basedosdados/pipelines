@@ -13,9 +13,9 @@ Output: data/output/<table>/year=<YYYY>/data.parquet  (year excluded from file; 
 the hive partition). Payroll fields are multiplied by 1000 (source is $1,000s) -> USD.
 
 Usage:
-  python clean.py                      # all tables, all years 1998-2023
-  python clean.py national             # one table, all years
-  python clean.py county 2023          # one table, one year (quick check)
+  uv run python -m models.us_census_cbp.code.clean                      # all tables, all years 1998-2023
+  uv run python -m models.us_census_cbp.code.clean national             # one table, all years
+  uv run python -m models.us_census_cbp.code.clean county 2023          # one table, one year (quick check)
 """
 
 import sys

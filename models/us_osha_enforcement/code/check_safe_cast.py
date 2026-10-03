@@ -2,7 +2,7 @@
 """Check that no ``safe_cast`` in the dbt models silently dropped values.
 
     BD_SERVICE_ACCOUNT_DEV=~/.basedosdados/credentials/staging.json \
-    PYTHONPATH=$PWD python models/us_osha_enforcement/code/check_safe_cast.py
+    PYTHONPATH=$PWD uv run python -m models.us_osha_enforcement.code.check_safe_cast
 
 ``safe_cast`` returns NULL rather than raising, so a column whose values do not
 parse comes out empty and every row count still matches. The only way to see it

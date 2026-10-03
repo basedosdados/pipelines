@@ -1,7 +1,7 @@
 """Upload the cleaned us_noaa_storm_events parquet to BigQuery staging (basedosdados-dev).
 
-    python upload.py                    # every table
-    python upload.py event fatality     # selected tables
+    uv run python -m models.us_noaa_storm_events.code.upload                    # every table
+    uv run python -m models.us_noaa_storm_events.code.upload event fatality     # selected tables
 
 Uses ``pipelines.utils.tasks._upload_to_gcs`` — the same helper the recurring flow
 calls — rather than ``bd.Table.create(path=<data>)`` or a BigQuery load job. That

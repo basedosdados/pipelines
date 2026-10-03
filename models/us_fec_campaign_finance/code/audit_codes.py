@@ -1,6 +1,6 @@
 """Report FEC codes present in the cleaned data but absent from the dicionario.
 
-    python audit_codes.py
+    uv run python -m models.us_fec_campaign_finance.code.audit_codes
 
 custom_dictionary_coverage fails on *any* unmapped value, and 45 years of FEC filings
 contain legacy and undocumented codes that the current code-description pages omit

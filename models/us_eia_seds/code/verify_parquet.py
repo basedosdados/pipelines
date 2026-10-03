@@ -1,6 +1,6 @@
 """Verify the cleaned us_eia_seds parquet before upload.
 
-    python verify_parquet.py
+    uv run python -m models.us_eia_seds.code.verify_parquet
 
 Checks, over the whole cleaned record:
 

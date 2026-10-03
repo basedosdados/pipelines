@@ -12,8 +12,8 @@ Division ids are also re-used across vintages with different meanings — of the
 division names common to the 2011 and 2021 vintages, only 5 keep the same id — so the
 crosswalk is keyed on (vintage, name), never on the id.
 
-Run: PYTHONPATH=. ~/.venvs/bd-pipelines-vic/bin/python \
-         models/au_vic_vec_elections/code/build_sed_crosswalk.py
+Run: PYTHONPATH=. uv run python \
+         -m models.au_vic_vec_elections.code.build_sed_crosswalk
 """
 
 from __future__ import annotations

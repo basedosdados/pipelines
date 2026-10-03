@@ -1,7 +1,7 @@
 """Upload the cleaned us_cfpb_complaints parquet to BigQuery staging (basedosdados-dev).
 
-    python upload.py              # both tables
-    python upload.py complaint    # one table
+    uv run python -m models.us_cfpb_complaints.code.upload              # both tables
+    uv run python -m models.us_cfpb_complaints.code.upload complaint    # one table
 
 Uses ``pipelines.utils.tasks._upload_to_gcs`` — the same helper the recurring flow
 calls — rather than ``bd.Table.create(path=<data>)`` or a BigQuery load job. That

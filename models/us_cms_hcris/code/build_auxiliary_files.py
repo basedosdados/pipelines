@@ -1,7 +1,7 @@
 """Build the per-table auxiliary-file bundles for us_cms_hcris.
 
-    python build_auxiliary_files.py            # build only
-    python build_auxiliary_files.py --upload   # build and upload to GCS
+    uv run python -m models.us_cms_hcris.code.build_auxiliary_files            # build only
+    uv run python -m models.us_cms_hcris.code.build_auxiliary_files --upload   # build and upload to GCS
 
 HCRIS is unusable without its documentation: the data is a long triple of
 (worksheet, line, column, value), and nothing in it says what any cell means.

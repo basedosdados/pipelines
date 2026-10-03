@@ -1,7 +1,7 @@
 """Register the us_eia_consumption metadata in a Data Basis backend.
 
-    python register.py --env staging
-    python register.py --env prod --gcp-project basedosdados --bdpro
+    uv run python -m models.us_eia_consumption.code.register --env staging
+    uv run python -m models.us_eia_consumption.code.register --env prod --gcp-project basedosdados --bdpro
 
 Idempotent: every record is looked up through ``get_dataset`` first and its id
 passed back on the write. The dataset is registered ``under_review``; publishing

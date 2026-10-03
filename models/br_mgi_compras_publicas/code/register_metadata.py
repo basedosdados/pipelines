@@ -1,7 +1,7 @@
 """Register the br_mgi_compras_publicas metadata in the Data Basis backend.
 
-    ~/.pyenv/versions/3.11.6/bin/python \
-        models/br_mgi_compras_publicas/code/register_metadata.py [staging|prod] [under_review|published]
+    uv run python \
+        -m models.br_mgi_compras_publicas.code.register_metadata [staging|prod] [under_review|published]
 
 Everything is resolved by slug at runtime, because reference ids differ between
 backends, and the script is idempotent: a re-run updates rather than duplicating,

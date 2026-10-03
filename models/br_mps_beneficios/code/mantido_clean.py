@@ -23,7 +23,7 @@ to 20 characters, and only the GEX prefix that concedido publishes makes that
 truncated key unambiguous.
 
 Usage:
-    python models/br_mps_beneficios/code/mantido_clean.py [--limit N] [--from YYYYMM]
+    uv run python -m models.br_mps_beneficios.code.mantido_clean [--limit N] [--from YYYYMM]
 """
 
 from __future__ import annotations

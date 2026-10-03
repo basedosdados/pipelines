@@ -4,10 +4,10 @@ Products: GCP 2021, GCP 2016, BCP 2011 (the 2011 GCP-equivalent), TSP 2021.
 Geographies given on the command line (tokens); missing (profile, geo) combos
 404 and are skipped.
 
-Run:  python download.py STE SA4 SA3 GCCSA LGA CED SED AUS   # small subset
-      python download.py SA2 SAL POA                          # medium
-      python download.py SA1                                  # the big one
-      python download.py ALL
+Run:  uv run python -m models.au_abs_community_profiles.code.download STE SA4 SA3 GCCSA LGA CED SED AUS   # small subset
+      uv run python -m models.au_abs_community_profiles.code.download SA2 SAL POA                          # medium
+      uv run python -m models.au_abs_community_profiles.code.download SA1                                  # the big one
+      uv run python -m models.au_abs_community_profiles.code.download ALL
 """
 
 import io

@@ -6,7 +6,7 @@ both generated from it.
 
 Run
 ---
-    python models/us_nsf_ncses/code/build_architecture.py
+    uv run python -m models.us_nsf_ncses.code.build_architecture
 """
 
 from __future__ import annotations

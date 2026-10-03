@@ -15,7 +15,7 @@ Pull strategy (verified against the live API), all in utils:
 Output: <outdir>/<db_table>/year=<YYYY>/<part>.parquet  (typed staging schema).
 Resume: a table is skipped if <outdir>/.done/<db_table> exists.
 
-Run:  python -m models.us_bea.code.clean [table ...]   (default: all)
+Run:  uv run python -m models.us_bea.code.clean [table ...]   (default: all)
 """
 
 from __future__ import annotations

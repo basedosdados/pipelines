@@ -5,7 +5,7 @@ the 72 .xlsx workbooks into an input directory. A browser User-Agent is required
 abs.gov.au returns 403 to the default requests/urllib agent.
 
 Usage:
-    python download.py <output_input_dir>   # default: models/au_abs_national_accounts/input
+    uv run python -m models.au_abs_national_accounts.code.download <output_input_dir>   # default: models/au_abs_national_accounts/input
 """
 
 import io

@@ -67,8 +67,8 @@ surface much later, in the cleaner.
 
 Usage:
     export MG_TOKEN_FILE=~/Downloads/world_wb_mides_data/.mg_token
-    python bulk_mg.py                      # every exercise/category
-    python bulk_mg.py --year 2025          # one exercise
+    uv run python -m models.world_wb_mides.code.bulk_mg                      # every exercise/category
+    uv run python -m models.world_wb_mides.code.bulk_mg --year 2025          # one exercise
 """
 
 from __future__ import annotations

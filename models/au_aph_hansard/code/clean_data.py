@@ -6,7 +6,7 @@ not types. Values reach here as strings already, so no numeric round-trip can
 turn 1959 into "1959.0" or a NULL into "nan".
 
 Usage:
-    python models/au_aph_hansard/code/clean_data.py [--year 1901] [--workers 4]
+    uv run python -m models.au_aph_hansard.code.clean_data [--year 1901] [--workers 4]
 """
 
 from __future__ import annotations

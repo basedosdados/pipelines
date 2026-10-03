@@ -3,7 +3,7 @@
 The architecture is the source of truth for column names, order, types, and the
 raw -> clean name mapping. This script writes it; `common.py` reads it back.
 
-Run: python models/us_cfpb_complaints/code/gen_architecture.py
+Run: uv run python -m models.us_cfpb_complaints.code.gen_architecture
 """
 
 import csv

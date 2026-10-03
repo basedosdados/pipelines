@@ -1,7 +1,7 @@
 """Verify the cleaned us_eia_electricity parquet before it is uploaded anywhere.
 
-    python verify_parquet.py                     # every check
-    python verify_parquet.py --write-measured    # also refresh measured.json
+    uv run python -m models.us_eia_electricity.code.verify_parquet                     # every check
+    uv run python -m models.us_eia_electricity.code.verify_parquet --write-measured    # also refresh measured.json
 
 Six checks, all read from the local parquet:
 

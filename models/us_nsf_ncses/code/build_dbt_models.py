@@ -8,7 +8,7 @@ from the registered metadata.
 
 Run
 ---
-    python models/us_nsf_ncses/code/build_dbt_models.py
+    uv run python -m models.us_nsf_ncses.code.build_dbt_models
     uv run sqlfmt models/us_nsf_ncses   # the repo's SQL formatter owns the layout
 """
 

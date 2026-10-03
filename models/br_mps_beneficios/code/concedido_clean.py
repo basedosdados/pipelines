@@ -24,7 +24,7 @@ for every month it affects (or the whole staging directory) rather than
 trusting a re-run to pick the change up.
 
 Usage:
-    python models/br_mps_beneficios/code/concedido_clean.py [--limit N] [--from YYYYMM]
+    uv run python -m models.br_mps_beneficios.code.concedido_clean [--limit N] [--from YYYYMM]
 """
 
 from __future__ import annotations

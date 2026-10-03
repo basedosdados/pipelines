@@ -1,6 +1,6 @@
 """Write the dbt models and schema.yml for us_eia_consumption.
 
-    python gen_dbt.py
+    uv run python -m models.us_eia_consumption.code.gen_dbt
 
 Generated from the architecture CSVs so the SQL cast list, the column order and
 the documented descriptions cannot drift. The null-proportion exemptions are

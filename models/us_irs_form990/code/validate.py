@@ -9,7 +9,7 @@ the IRS index CSVs and reports:
 * parsed 990/990-EZ counts per release year against the IRS index files;
 * duplicate (ein, year, form_type) groups the dbt model will collapse.
 
-    python models/us_irs_form990/code/validate.py
+    uv run python -m models.us_irs_form990.code.validate
 """
 
 import csv

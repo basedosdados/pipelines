@@ -14,7 +14,7 @@ respectively. Melting keys every value on its MDRM item code instead, so a
 retired item simply stops appearing.
 
 Usage:
-    python clean.py [call|bhc|cra|mdrm|all] [--quarters N]
+    uv run python -m models.us_ffiec_bank_reporting.code.clean [call|bhc|cra|mdrm|all] [--quarters N]
 """
 
 from __future__ import annotations

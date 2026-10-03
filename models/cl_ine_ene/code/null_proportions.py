@@ -12,7 +12,7 @@ exemption set is the UNION across the most recent periods, not one period's
 measurement, because the scope rolls forward and a column sitting near the floor
 crosses it later.
 
-    python models/cl_ine_ene/code/null_proportions.py --periods 12
+    uv run python -m models.cl_ine_ene.code.null_proportions --periods 12
 """
 
 from __future__ import annotations

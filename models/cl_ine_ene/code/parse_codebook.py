@@ -5,7 +5,7 @@ prose from the surrounding methodology cannot be mistaken for a variable entry,
 and the first occurrence of each name wins. The classification annexes at the
 back of the PDFs are handled separately by parse_annexes.py.
 
-    python models/cl_ine_ene/code/parse_codebook.py
+    uv run python -m models.cl_ine_ene.code.parse_codebook
 """
 
 from __future__ import annotations

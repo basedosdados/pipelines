@@ -3,7 +3,7 @@
 Run after `clean_data.py`. Publishing to the production dataset happens through
 dbt and the table-approve action on merge, never from here.
 
-    python models/br_mapbiomas_estatisticas/code/upload.py --workers 2
+    uv run python -m models.br_mapbiomas_estatisticas.code.upload --workers 2
 """
 
 from __future__ import annotations

@@ -3,7 +3,7 @@ architecture CSVs. Long geo tables partition by census_year; the geo id column
 gets year- AND profile-scoped `relationships` tests to the matching-vintage
 br_bd_diretorios_au directory table (GCP -> native vintage; TSP -> 2021 always).
 
-Run:  python gen_dbt.py
+Run:  uv run python -m models.au_abs_community_profiles.code.gen_dbt
 """
 
 import csv

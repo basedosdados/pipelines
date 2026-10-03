@@ -1,6 +1,6 @@
 """Register the us_fdic_bankfind metadata in the Data Basis backend.
 
-    ~/.pyenv/versions/3.11.6/bin/python models/us_fdic_bankfind/code/register_metadata.py [staging|prod] [under_review|published]
+    uv run python -m models.us_fdic_bankfind.code.register_metadata [staging|prod] [under_review|published]
 
 Everything is resolved by slug at runtime, because reference ids differ between
 backends, and the whole script is idempotent: re-running it updates rather than

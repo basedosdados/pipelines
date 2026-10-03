@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Assemble one round's architecture CSV using the global glossary.
-Usage: python assemble_round.py <round_int>
+Usage: uv run python -m models.gb_eric_ess.code.assemble_round <round_int>
 Names come from glossary_names.json; type/dict/directory come from the approved R11
 attributes where the mnemonic exists in R11, else inferred from this round's data
 with the same rules (0-10 scale -> INT64; coded -> STRING+dict; directory entities)."""

@@ -6,8 +6,8 @@ the row count in BigQuery against the parquet actually on disk rather than a
 hardcoded number, so a re-clean that changes the data cannot pass a stale
 expectation.
 
-Run:  python upload.py                                    # every table
-      python upload.py overseas_country_of_birth_state    # a subset
+Run:  uv run python -m models.au_abs_migration.code.upload                                    # every table
+      uv run python -m models.au_abs_migration.code.upload overseas_country_of_birth_state    # a subset
 """
 
 from __future__ import annotations

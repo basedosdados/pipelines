@@ -1,7 +1,7 @@
 """Assemble the per-table auxiliary file bundles and upload them.
 
-    python build_auxiliary_files.py            # build only
-    python build_auxiliary_files.py --upload   # build and upload to GCS
+    uv run python -m models.us_census_cog.code.build_auxiliary_files            # build only
+    uv run python -m models.us_census_cog.code.build_auxiliary_files --upload   # build and upload to GCS
 
 The Census publishes the record layouts, the code lists and the finance variable
 catalogue as documents beside the data, and the tables are hard to use without

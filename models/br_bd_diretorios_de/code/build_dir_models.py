@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate dbt SQL + schema.yml + architecture CSVs for br_bd_diretorios_de.
 
-Run: cd models/br_bd_diretorios_de/code && python3 build_dir_models.py
+Run: cd models/br_bd_diretorios_de/code && uv run python -m models.br_bd_diretorios_de.code.build_dir_models
 """
 
 import csv

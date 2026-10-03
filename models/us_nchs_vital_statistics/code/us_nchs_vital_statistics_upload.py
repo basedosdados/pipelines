@@ -15,8 +15,8 @@ rather than `bd.Table.create` on the data. Two reasons, both load-bearing:
 The script asserts `table_type == "EXTERNAL"` afterwards, because that is the only
 visible tell that the two paths agree.
 
-    python models/us_nchs_vital_statistics/code/us_nchs_vital_statistics_upload.py
-    python .../us_nchs_vital_statistics_upload.py --tables birth
+    uv run python -m models.us_nchs_vital_statistics.code.us_nchs_vital_statistics_upload
+    uv run python -m models.us_nchs_vital_statistics.code.us_nchs_vital_statistics_upload --tables birth
 """
 
 import argparse

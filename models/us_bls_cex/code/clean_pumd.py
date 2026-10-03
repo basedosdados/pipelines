@@ -17,7 +17,7 @@ numeric columns hold unparseable values, and any file column the architecture
 does not know; these land in ``<DATA_DIR>/logs/pumd_<table>.json``.
 
 Usage:
-    python models/us_bls_cex/code/clean_pumd.py [--tables fmli ...] [--years 2024 ...]
+    uv run python -m models.us_bls_cex.code.clean_pumd [--tables fmli ...] [--years 2024 ...]
 """
 
 import argparse

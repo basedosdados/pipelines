@@ -15,7 +15,7 @@ Sparse-column exemptions are read from ``sparsity.json``, which
 the built table instead would let a column destroyed by a bad cast look
 legitimately empty and be excused by the very test meant to catch it.
 
-    python gen_dbt.py
+    uv run python -m models.us_stanford_dime.code.gen_dbt
 """
 
 from __future__ import annotations

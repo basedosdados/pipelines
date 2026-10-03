@@ -14,7 +14,7 @@ Writes one all-STRING snappy Parquet per table under ../output/<table>/data.parq
 the dbt models safe_cast to final types.
 
 Run:
-    cd models/br_bd_diretorios_de/code && python3 clean.py
+    cd models/br_bd_diretorios_de/code && uv run python -m models.br_bd_diretorios_de.code.clean
 """
 
 import os

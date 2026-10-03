@@ -3,7 +3,7 @@
 Column descriptions come from `mg_column_glossary.py`; table descriptions are in
 TABLES below. Re-run after changing either, or after adding/removing a model:
 
-    python models/world_wb_mides/code/gen_mg_schema.py
+    uv run python -m models.world_wb_mides.code.gen_mg_schema
     uv run pre-commit run --files models/world_wb_mides/schema_mg.yml
 
 The second step is not optional bookkeeping: pre-commit reflows the long

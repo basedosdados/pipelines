@@ -5,7 +5,7 @@ table-approve action when the onboarding PR merges, never uploaded from here.
 
 Usage::
 
-    PYTHONPATH=. python models/au_sa_ecsa_elections/code/upload.py [table ...]
+    PYTHONPATH=. uv run python -m models.au_sa_ecsa_elections.code.upload [table ...]
 """
 
 from __future__ import annotations

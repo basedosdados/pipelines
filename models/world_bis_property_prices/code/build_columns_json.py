@@ -7,7 +7,7 @@ columns can be registered directly (no Google Sheet). Writes
 code/columns_json/<table>.json.
 
 Usage:
-    python models/world_bis_property_prices/code/build_columns_json.py
+    uv run python -m models.world_bis_property_prices.code.build_columns_json
 """
 
 import csv

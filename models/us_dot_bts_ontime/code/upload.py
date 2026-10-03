@@ -1,8 +1,8 @@
 """Upload the cleaned parquet of us_dot_bts_ontime to BigQuery dev staging.
 
     uv run --no-project --with basedosdados --with pyarrow --with pandas \
-        python models/us_dot_bts_ontime/code/upload.py            # every table
-    ... python models/us_dot_bts_ontime/code/upload.py airport    # one table
+        uv run python -m models.us_dot_bts_ontime.code.upload            # every table
+    ... uv run python -m models.us_dot_bts_ontime.code.upload airport    # one table
 
 Targets basedosdados-dev only. Prod table data is never uploaded from here: it is
 materialized by the GitHub table-approve action when the onboarding PR merges

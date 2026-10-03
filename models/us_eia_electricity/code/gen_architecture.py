@@ -1,6 +1,6 @@
 """Write the architecture CSVs for us_eia_electricity — the schema source of truth.
 
-    python gen_architecture.py
+    uv run python -m models.us_eia_electricity.code.gen_architecture
 
 One CSV per table under ``architecture/``, in Data Basis architecture-sheet
 column order. Everything downstream reads these files: the cleaning transform

@@ -1,6 +1,6 @@
 """Generate the dbt models and schema.yml for us_fec_campaign_finance.
 
-    python gen_dbt.py
+    uv run python -m models.us_fec_campaign_finance.code.gen_dbt
 
 Both are derived from architecture/*.csv, which is the source of truth for column
 names, order and types (.claude/rules/onboarding-workflow.md). Regenerate after any

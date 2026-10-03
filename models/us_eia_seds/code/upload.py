@@ -1,7 +1,7 @@
 """Upload the cleaned us_eia_seds parquet to BigQuery staging (basedosdados-dev).
 
-    python upload.py                    # every table
-    python upload.py seds_consumption   # selected tables
+    uv run python -m models.us_eia_seds.code.upload                    # every table
+    uv run python -m models.us_eia_seds.code.upload seds_consumption   # selected tables
 
 Uses ``pipelines.utils.tasks._upload_to_gcs`` — the same helper the recurring
 flow calls — so staging is left as an EXTERNAL table over the GCS prefix (a

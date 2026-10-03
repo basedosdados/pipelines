@@ -16,7 +16,7 @@ Covers every architecture column with ``covered_by_dictionary = yes``:
 Written as one unpartitioned, all-STRING parquet file.
 
 Usage:
-    python models/us_bls_cex/code/build_dicionario.py
+    uv run python -m models.us_bls_cex.code.build_dicionario
 """
 
 import logging

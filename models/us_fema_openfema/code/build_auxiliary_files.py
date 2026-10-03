@@ -11,7 +11,7 @@ Bundles are written to ``<output>/auxiliary_files/<table>/auxiliary_files.zip``
 for a separate upload step. Stdlib only, so it can run while another process is
 using the shared virtualenv.
 
-    python3 models/us_fema_openfema/code/build_auxiliary_files.py <output_dir>
+    uv run python -m models.us_fema_openfema.code.build_auxiliary_files <output_dir>
 """
 
 from __future__ import annotations

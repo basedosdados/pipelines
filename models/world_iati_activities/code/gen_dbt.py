@@ -3,7 +3,7 @@
 Everything is derived from the architecture CSVs, so a column added there
 appears in the model, in its cast, and in schema.yml without a second edit.
 
-Run ``python gen_dbt.py``, then ``uv run pre-commit run --files
+Run ``uv run python -m models.world_iati_activities.code.gen_dbt``, then ``uv run pre-commit run --files
 models/world_iati_activities/*`` — sqlfmt and yamlfix rewrite the output, and
 committing without that first produces the hook re-write loop.
 """

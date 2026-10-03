@@ -1,6 +1,6 @@
 """Verify the MG metadata in the backend against the models on disk.
 
-    uv run python models/world_wb_mides/code/verify_mg_metadata.py
+    uv run python -m models.world_wb_mides.code.verify_mg_metadata
 
 Checks what a reviewer would otherwise have to check by hand, and reports what is
 actually true rather than what was intended:

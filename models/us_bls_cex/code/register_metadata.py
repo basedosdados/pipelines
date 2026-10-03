@@ -1,7 +1,7 @@
 """Register us_bls_cex metadata in the Data Basis backend.
 
-    ~/.pyenv/versions/3.11.6/bin/python models/us_bls_cex/code/register_metadata.py --env dev
-    ~/.pyenv/versions/3.11.6/bin/python models/us_bls_cex/code/register_metadata.py --env prod
+    uv run python -m models.us_bls_cex.code.register_metadata --env dev
+    uv run python -m models.us_bls_cex.code.register_metadata --env prod
 
 Needs the ``databasis-mcp`` dependency (``uv sync``).
 Columns come from ``code/architecture/*.csv`` (English) plus

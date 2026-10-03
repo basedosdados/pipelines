@@ -1,6 +1,6 @@
 """Write the architecture CSVs for us_cms_hcris — the schema source of truth on disk.
 
-    python gen_architecture.py
+    uv run python -m models.us_cms_hcris.code.gen_architecture
 
 One CSV per table under ``architecture/``, in Data Basis architecture-sheet
 column order. Everything downstream reads these files: ``gen_dbt.py`` writes the

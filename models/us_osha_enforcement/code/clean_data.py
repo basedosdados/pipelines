@@ -6,8 +6,8 @@ Parquet. The cleaning transform is *not* duplicated here: it is imported from
 ``pipelines/datasets/us_osha_enforcement/utils.py``, which the recurring
 Prefect flow also uses, so the two can never drift.
 
-    PYTHONPATH=$PWD python models/us_osha_enforcement/code/clean_data.py --all
-    PYTHONPATH=$PWD python models/us_osha_enforcement/code/clean_data.py \
+    PYTHONPATH=$PWD uv run python -m models.us_osha_enforcement.code.clean_data --all
+    PYTHONPATH=$PWD uv run python -m models.us_osha_enforcement.code.clean_data \
         --tables dicionario accident accident_narrative
 
 Scratch data lives under ``~/Downloads/us_osha_enforcement_data`` — never in

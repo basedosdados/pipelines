@@ -1,10 +1,10 @@
 """Build the br_prf_acidentes cleaned tables as partitioned Parquet.
 
 Usage:
-    python clean_data.py                     # all three tables, all years
-    python clean_data.py --table ocorrencia  # one table
-    python clean_data.py --years 2016 2017   # one or more years
-    python clean_data.py --download          # fetch archives first
+    uv run python -m models.br_prf_acidentes.code.clean_data                     # all three tables, all years
+    uv run python -m models.br_prf_acidentes.code.clean_data --table ocorrencia  # one table
+    uv run python -m models.br_prf_acidentes.code.clean_data --years 2016 2017   # one or more years
+    uv run python -m models.br_prf_acidentes.code.clean_data --download          # fetch archives first
 
 Output: <PRF_DATA_ROOT>/output/<table_slug>/ano=<year>/data.parquet, every
 column STRING (staging is all-STRING by house convention; the dbt model

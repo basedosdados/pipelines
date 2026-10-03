@@ -2,7 +2,7 @@
 """Upload the cleaned Parquet to the ``basedosdados-dev`` staging dataset.
 
     GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials/staging.json \
-    PYTHONPATH=$PWD python models/us_osha_enforcement/code/upload_data.py --all
+    PYTHONPATH=$PWD uv run python -m models.us_osha_enforcement.code.upload_data --all
 
 Uses ``pipelines.utils.tasks._upload_to_gcs`` — the same helper the recurring
 flow calls — rather than ``bd.Table.create`` on the data. Two reasons:

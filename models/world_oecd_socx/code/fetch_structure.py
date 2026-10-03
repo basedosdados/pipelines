@@ -17,7 +17,7 @@ snapshot cubes those older versions carry *disjoint* reference periods (actual
 salaries v1.1 = 2020-2022, v2.1 = 2023-2025), so taking only the newest silently
 drops years. Second, everything is cached, because the API rate-limits by IP.
 
-Run: ``python fetch_structure.py``  (add ``--refresh`` to re-download)
+Run: ``uv run python -m models.world_oecd_socx.code.fetch_structure``  (add ``--refresh`` to re-download)
 """
 
 import argparse

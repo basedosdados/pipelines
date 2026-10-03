@@ -1,7 +1,7 @@
 """Upload the cleaned us_cms_hcris parquet to BigQuery staging (basedosdados-dev).
 
-    python upload.py                 # every staged table
-    python upload.py report          # one table
+    uv run python -m models.us_cms_hcris.code.upload                 # every staged table
+    uv run python -m models.us_cms_hcris.code.upload report          # one table
 
 Uses ``pipelines.utils.tasks._upload_to_gcs`` — the same helper the recurring
 flow calls — rather than ``bd.Table.create(path=<data>)`` or a BigQuery load

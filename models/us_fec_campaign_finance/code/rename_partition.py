@@ -1,6 +1,6 @@
 """One-off: rename the partition column and directory from `cycle` to `year`.
 
-    python rename_partition.py
+    uv run python -m models.us_fec_campaign_finance.code.rename_partition
 
 The partition was originally called `cycle`, since its value is the FEC's two-year
 election cycle rather than a calendar year. The house convention for English datasets

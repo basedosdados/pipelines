@@ -10,8 +10,8 @@ INE's enumerator manual is 28 MB and is therefore linked, not rehosted.
 
 Usage::
 
-    python build_auxiliary_files.py            # build the zips
-    python build_auxiliary_files.py --upload   # build, then upload to GCS
+    uv run python -m models.cl_ine_censo.code.build_auxiliary_files            # build the zips
+    uv run python -m models.cl_ine_censo.code.build_auxiliary_files --upload   # build, then upload to GCS
 """
 
 from __future__ import annotations

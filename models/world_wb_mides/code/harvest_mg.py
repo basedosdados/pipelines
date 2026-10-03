@@ -59,9 +59,9 @@ file name itself, per municipality, for free.
 
 Usage:
     export MG_TOKEN_FILE=/path/to/token.txt
-    python harvest_mg.py --plan                      # enumerate, no downloads
-    python harvest_mg.py --year 2025                 # harvest one exercise
-    python harvest_mg.py                             # everything, 2014-2026
+    uv run python -m models.world_wb_mides.code.harvest_mg --plan                      # enumerate, no downloads
+    uv run python -m models.world_wb_mides.code.harvest_mg --year 2025                 # harvest one exercise
+    uv run python -m models.world_wb_mides.code.harvest_mg                             # everything, 2014-2026
 """
 
 from __future__ import annotations

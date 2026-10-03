@@ -1,7 +1,7 @@
 """Upload the cleaned us_eia_consumption parquet to BigQuery staging (basedosdados-dev).
 
-    python upload.py                       # every table
-    python upload.py retail_sales eia861m  # selected tables
+    uv run python -m models.us_eia_consumption.code.upload                       # every table
+    uv run python -m models.us_eia_consumption.code.upload retail_sales eia861m  # selected tables
 
 Uses ``pipelines.utils.tasks._upload_to_gcs`` — the same helper the recurring
 flow calls — so staging is left EXTERNAL over the GCS prefix (a native load-job

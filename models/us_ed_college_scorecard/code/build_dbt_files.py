@@ -8,7 +8,7 @@ and a model disagree, the architecture wins and this script regenerates the
 model.
 
 Usage:
-    /tmp/cs_venv/bin/python models/us_ed_college_scorecard/code/build_dbt_files.py
+    uv run python -m models.us_ed_college_scorecard.code.build_dbt_files
 """
 
 import csv

@@ -37,7 +37,7 @@ Output (all-STRING parquet, per the repo's BigQuery staging convention):
   growth_cycles/growth_cycles.parquet long growth-cycle fact
 
 Usage:
-    python clean_data.py <input_dir_with_xlsx> <output_dir>
+    uv run python -m models.au_abs_productivity.code.clean_data <input_dir_with_xlsx> <output_dir>
 """
 
 import collections

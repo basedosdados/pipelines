@@ -1,7 +1,7 @@
 """Download every us_census_cog source archive into the scratch input tree.
 
-    python download.py              # everything
-    python download.py gus          # one family: gus | employment | finance
+    uv run python -m models.us_census_cog.code.download              # everything
+    uv run python -m models.us_census_cog.code.download gus          # one family: gus | employment | finance
 
 Files already present are left alone, so the script is resumable. Nothing here
 writes to the repo.

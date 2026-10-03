@@ -2,8 +2,8 @@
 
 Run through uv, so `databasis-mcp` and the editable `models` package resolve:
 
-    uv run python models/world_wb_mides/code/register_mg_metadata.py --dry-run
-    uv run python models/world_wb_mides/code/register_mg_metadata.py
+    uv run python -m models.world_wb_mides.code.register_mg_metadata --dry-run
+    uv run python -m models.world_wb_mides.code.register_mg_metadata
 
 WHY A SCRIPT AND NOT 250 TOOL CALLS
 -----------------------------------

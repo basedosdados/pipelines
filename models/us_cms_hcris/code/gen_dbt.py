@@ -1,6 +1,6 @@
 """Write the dbt models and schema.yml for us_cms_hcris.
 
-    python gen_dbt.py
+    uv run python -m models.us_cms_hcris.code.gen_dbt
 
 Four models are written to ``models/us_cms_hcris/``:
 

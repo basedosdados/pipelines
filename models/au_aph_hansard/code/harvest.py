@@ -13,7 +13,7 @@ Two sources, because ParlInfo no longer serves its own back catalogue:
 Resumable: existing files are left alone, so the script can be re-run.
 
 Usage:
-    python models/au_aph_hansard/code/harvest.py [--end 2026] [--skip-mirror]
+    uv run python -m models.au_aph_hansard.code.harvest [--end 2026] [--skip-mirror]
 """
 
 from __future__ import annotations

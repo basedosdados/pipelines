@@ -3,8 +3,8 @@
 The transform lives in ``pipelines/datasets/us_cfpb_complaints/utils.py`` and is shared
 with the recurring pipeline; this is only the CLI around it.
 
-    python clean.py                  # full run over <DATA_DIR>/input
-    python clean.py --limit 200000   # smoke test
+    uv run python -m models.us_cfpb_complaints.code.clean                  # full run over <DATA_DIR>/input
+    uv run python -m models.us_cfpb_complaints.code.clean --limit 200000   # smoke test
 """
 
 import argparse

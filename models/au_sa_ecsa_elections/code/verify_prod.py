@@ -7,7 +7,7 @@ table rather than counted in aggregate.
 
 Usage::
 
-    python verify_prod.py
+    uv run python -m models.au_sa_ecsa_elections.code.verify_prod
 """
 
 from __future__ import annotations

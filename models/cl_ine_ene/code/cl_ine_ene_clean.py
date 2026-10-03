@@ -8,7 +8,7 @@ in one place is a fix in both.
 Scratch data goes under ~/Downloads/cl_ine_ene_data (never inside the repo or
 Dropbox), overridable with CL_INE_ENE_DATA.
 
-    python models/cl_ine_ene/code/cl_ine_ene_clean.py --download --clean
+    uv run python -m models.cl_ine_ene.code.cl_ine_ene_clean --download --clean
 """
 
 from __future__ import annotations

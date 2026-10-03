@@ -1,7 +1,7 @@
 """One-shot onboarding clean for us_fec_campaign_finance.
 
-    python clean.py                      # every table, cycles 1980-2026
-    python clean.py candidate committee  # selected tables only
+    uv run python -m models.us_fec_campaign_finance.code.clean                      # every table, cycles 1980-2026
+    uv run python -m models.us_fec_campaign_finance.code.clean candidate committee  # selected tables only
 
 Downloads each cycle's ZIP, parses it, writes all-STRING partitioned parquet under
 $FEC_DATA_DIR/output, and deletes the ZIP immediately — peak disk stays near one

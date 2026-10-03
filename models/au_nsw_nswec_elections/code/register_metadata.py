@@ -10,7 +10,7 @@ create_update_* tools duplicate silently when no id is supplied.
 
 Usage::
 
-    PYTHONPATH=. python models/au_nsw_nswec_elections/code/register_metadata.py
+    PYTHONPATH=. uv run python -m models.au_nsw_nswec_elections.code.register_metadata
 """
 
 from __future__ import annotations

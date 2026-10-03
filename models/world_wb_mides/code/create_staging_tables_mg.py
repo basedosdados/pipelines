@@ -23,9 +23,9 @@ an external table holds no data -- but it would also silently rewrite the four
 mirrors the published spend tables depend on, so it is opt-in.
 
 Usage:
-    python create_staging_tables_mg.py --dry-run
-    python create_staging_tables_mg.py
-    python create_staging_tables_mg.py --replace --mirror raw_contrato_mg
+    uv run python -m models.world_wb_mides.code.create_staging_tables_mg --dry-run
+    uv run python -m models.world_wb_mides.code.create_staging_tables_mg
+    uv run python -m models.world_wb_mides.code.create_staging_tables_mg --replace --mirror raw_contrato_mg
 """
 
 from __future__ import annotations

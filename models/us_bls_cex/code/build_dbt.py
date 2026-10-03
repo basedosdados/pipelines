@@ -3,7 +3,7 @@
 The microdata tables run to 1,269 columns, so the SQL and the schema are
 generated rather than hand-written. Re-run after any architecture change:
 
-    python models/us_bls_cex/code/build_dbt.py
+    uv run python -m models.us_bls_cex.code.build_dbt
 
 Sparse columns are exempted from ``not_null_proportion_multiple_columns`` by
 measuring the cleaned output (``--output``, default from ``pumd_files``) for the
