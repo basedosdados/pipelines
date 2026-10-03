@@ -463,7 +463,7 @@ def prune(
     # the run would carry on to fail at create_update_table with an error that
     # names `coverages_areas` -- a field the request does not contain. Stop
     # here instead, naming what has to go.
-    if not hasattr(bd_mcp_metadata, "delete_record"):
+    if not hasattr(bd_mcp_write, "delete_record"):
         print(
             f"{len(doomed)} duplicate child record(s) on this table and the "
             f"MCP server has no delete_record: {doomed}"
