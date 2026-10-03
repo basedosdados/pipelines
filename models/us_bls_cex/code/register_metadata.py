@@ -3,7 +3,6 @@
     uv run models/us_bls_cex/code/register_metadata.py --env dev
     uv run models/us_bls_cex/code/register_metadata.py --env prod
 
-Needs the ``databasis-mcp`` dependency (``uv sync``).
 Columns come from ``code/architecture/*.csv`` (English) plus
 ``code/translations.json`` (Portuguese, Spanish), so the backend, dbt models and
 parquet schema derive from one source. The MCP tool functions are called

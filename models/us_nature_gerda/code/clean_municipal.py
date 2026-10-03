@@ -7,7 +7,7 @@ onto the party rows. The per-party zero->NA recode flag (replaced_0_with_na_*)
 is NOT carried: by construction it is only set on rows GERDA recoded to NA, which
 have no vote_share and therefore no long row; on surviving rows it is uniformly 0.
 
-Run: cd models/us_nature_gerda/code && uv run clean_municipal.py
+Run: uv run models/us_nature_gerda/code/clean_municipal.py
 """
 
 import os

@@ -4,7 +4,7 @@
 Three are vote-result files (municipality- and county-level); the fourth is a
 county-year council-seat composition panel, reshaped long by party seats.
 
-Run: cd models/us_nature_gerda/code && uv run clean_county.py
+Run: uv run models/us_nature_gerda/code/clean_county.py
 """
 
 import os

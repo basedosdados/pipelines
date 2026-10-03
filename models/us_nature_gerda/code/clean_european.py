@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Reshape the 2 European (Europawahl) GERDA files into long tables.
 
-Run: cd models/us_nature_gerda/code && uv run clean_european.py
+Run: uv run models/us_nature_gerda/code/clean_european.py
 """
 
 import os
