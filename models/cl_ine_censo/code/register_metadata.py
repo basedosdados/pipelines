@@ -25,8 +25,14 @@ from pathlib import Path
 sys.path.insert(
     0, str(Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp")
 )
+# pyrefly: ignore [missing-import]
 import server
-from constants import CENSUS_YEAR, DATA_ROOT, DATASET_ID
+
+from models.cl_ine_censo.code.constants import (
+    CENSUS_YEAR,
+    DATA_ROOT,
+    DATASET_ID,
+)
 
 PAYLOAD_DIR = DATA_ROOT / "metadata_payloads"
 AUX_URLS = DATA_ROOT / "aux" / "urls.json"

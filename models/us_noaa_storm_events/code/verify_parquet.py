@@ -13,7 +13,12 @@ import json
 from collections import Counter, defaultdict
 
 import pyarrow.dataset as ds
-from common import DATA_TABLES, OUTPUT, load_cols
+
+from models.us_noaa_storm_events.code.common import (
+    DATA_TABLES,
+    OUTPUT,
+    load_cols,
+)
 
 EXPECTED = {"event": 2041816, "fatality": 24903, "event_location": 1817621}
 KEYS = {

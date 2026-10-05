@@ -16,7 +16,6 @@ import re
 import sys
 from collections import Counter
 
-# pyrefly: ignore [missing-import]
 import pyreadstat
 
 DTA = sys.argv[1]

@@ -14,10 +14,11 @@ from pathlib import Path
 sys.path.insert(
     0, "/Users/rdahis/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
 )
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+# pyrefly: ignore [missing-import]
 import server
-from metadata import DATASET_SLUG, TABLE_ORDER
+
+from models.us_census_bps.code.metadata import DATASET_SLUG, TABLE_ORDER
 
 ARCH = Path(__file__).resolve().parent / "architecture"
 

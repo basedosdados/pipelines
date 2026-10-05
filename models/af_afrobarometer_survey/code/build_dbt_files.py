@@ -19,18 +19,17 @@ from __future__ import annotations
 import argparse
 import csv
 import json
-import sys
 from pathlib import Path
 
 import pyarrow.compute as pc
 import pyarrow.parquet as pq
-
-# pyrefly: ignore [untyped-import]
 import yaml
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]
-from common import DATASET_ID, META_CACHE, ROUNDS
+from models.af_afrobarometer_survey.code.common import (
+    DATASET_ID,
+    META_CACHE,
+    ROUNDS,
+)
 
 CODE_DIR = Path(__file__).resolve().parent
 DATASET_DIR = CODE_DIR.parent

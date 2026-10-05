@@ -5,8 +5,17 @@ Single national file per year (no per-state loop).
 """
 
 import pandas as pd
-from config import INPUT_DIR, OUTPUT_PYTHON, YEARS_EVEN
-from utils.helpers import merge_municipio, read_raw_csv, select_named
+
+from models.br_tse_eleicoes.code.python.config import (
+    INPUT_DIR,
+    OUTPUT_PYTHON,
+    YEARS_EVEN,
+)
+from models.br_tse_eleicoes.code.python.utils.helpers import (
+    merge_municipio,
+    read_raw_csv,
+    select_named,
+)
 
 
 def build_perfil_mun_zona(ano: int) -> pd.DataFrame:

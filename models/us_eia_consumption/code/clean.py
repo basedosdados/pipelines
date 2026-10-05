@@ -14,7 +14,7 @@ calls — so this is a thin driver.
 import argparse
 import time
 
-from common import (
+from models.us_eia_consumption.code.common import (
     DATA_TABLES,
     INPUT,
     OUTPUT,
@@ -24,7 +24,6 @@ from common import (
     download_eia861m,
     download_year,
 )
-
 from pipelines.datasets.us_eia_consumption.constants import constants
 
 

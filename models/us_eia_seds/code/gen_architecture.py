@@ -11,7 +11,7 @@ to derive them from, unlike us_eia_electricity).
 
 import csv
 
-from common import ARCHITECTURE_DIR
+from models.us_eia_seds.code.common import ARCHITECTURE_DIR
 
 # Architecture CSV columns, in the order the backend and the style manual expect.
 FIELDS = [

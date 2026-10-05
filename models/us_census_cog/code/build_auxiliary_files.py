@@ -20,7 +20,7 @@ import zipfile
 from datetime import date
 from pathlib import Path
 
-from common import INPUT, OUTPUT
+from models.us_census_cog.code.common import INPUT, OUTPUT
 
 # gs://basedosdados-public is where these links would actually resolve for an
 # anonymous visitor, but the data-uploader service account has no

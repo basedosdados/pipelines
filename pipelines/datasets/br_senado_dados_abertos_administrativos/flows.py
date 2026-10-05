@@ -26,7 +26,7 @@ import datetime as dt
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_senado_dados_abertos_administrativos import utils
 from pipelines.datasets.br_senado_dados_abertos_administrativos.constants import (
@@ -35,6 +35,7 @@ from pipelines.datasets.br_senado_dados_abertos_administrativos.constants import
 from pipelines.datasets.br_senado_dados_abertos_administrativos.tasks import (
     extract_and_clean,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -131,7 +132,6 @@ def _run(
     A prod run goes straight to prod (no redundant dev materialization, whose
     bytes buy no signal — prod runs the same models and tests seconds later).
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=_ANCHOR_TABLE
     )
@@ -279,19 +279,15 @@ def br_senado_dados_abertos_administrativos_weekly_flow(
 
 # Mutually-exclusive days: daily every day except Monday, weekly on Monday. The
 # clean step holds the current payroll year in memory (~0.5-1 GB); give headroom.
-# pyrefly: ignore [missing-attribute]
 br_senado_dados_abertos_administrativos_daily_flow.deploy_schedules = [
-    {"cron": constants.DAILY_CRON.value, "timezone": "America/Sao_Paulo"}
+    Cron(constants.DAILY_CRON.value, timezone="America/Sao_Paulo")
 ]
-# pyrefly: ignore [missing-attribute]
 br_senado_dados_abertos_administrativos_daily_flow.job_variables = {
     "memory": "8Gi"
 }
-# pyrefly: ignore [missing-attribute]
 br_senado_dados_abertos_administrativos_weekly_flow.deploy_schedules = [
-    {"cron": constants.WEEKLY_CRON.value, "timezone": "America/Sao_Paulo"}
+    Cron(constants.WEEKLY_CRON.value, timezone="America/Sao_Paulo")
 ]
-# pyrefly: ignore [missing-attribute]
 br_senado_dados_abertos_administrativos_weekly_flow.job_variables = {
     "memory": "8Gi"
 }

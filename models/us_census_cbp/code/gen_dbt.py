@@ -7,7 +7,6 @@ Keeps the ~85-column wide models consistent with the Drive sheets and the cleane
 import csv
 from pathlib import Path
 
-# pyrefly: ignore [untyped-import]
 import yaml
 
 HERE = Path(__file__).resolve().parent
@@ -201,7 +200,7 @@ def col_tests(table, name):
                 if ignore:
                     # pyrefly: ignore [bad-assignment]
                     body["ignore_values"] = ignore
-                # pyrefly: ignore [bad-argument-type, bad-assignment]
+                # pyrefly: ignore [bad-assignment]
                 tests.append({"custom_relationships": body})
     return tests
 

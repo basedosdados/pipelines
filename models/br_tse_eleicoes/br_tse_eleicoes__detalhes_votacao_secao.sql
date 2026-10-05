@@ -41,4 +41,3 @@ from
     {{ set_datalake_project("br_tse_eleicoes_staging.detalhes_votacao_secao") }} as t
 
     -- Rematerialized from the refactored pipeline (PR #1476).
-    

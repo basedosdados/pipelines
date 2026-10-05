@@ -7,8 +7,9 @@ Per-state files, 2008-2024. Uses named columns (has header row).
 from pathlib import Path
 
 import pandas as pd
-from config import INPUT_DIR, OUTPUT_PYTHON
-from utils.helpers import merge_municipio
+
+from models.br_tse_eleicoes.code.python.config import INPUT_DIR, OUTPUT_PYTHON
+from models.br_tse_eleicoes.code.python.utils.helpers import merge_municipio
 
 # fmt: off
 UFS = {

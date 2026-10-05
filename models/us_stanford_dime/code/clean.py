@@ -27,13 +27,11 @@ import gzip
 import os
 import shlex
 import subprocess
-import sys
 from pathlib import Path
 
 import duckdb
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import architecture as arch
+from models.us_stanford_dime.code import architecture as arch
 
 SCRATCH = Path(
     os.environ.get(
@@ -89,6 +87,7 @@ def _select_expr(table: str) -> str:
     tokens = ", ".join(f"'{t}'" for t in NULL_TOKENS)
     parts = []
     for col in arch.TABLES[table]:
+        # pyrefly: ignore [bad-index]
         name, bq_type, original = col[0], col[1], col[9]
         if not original or "<" in original:
             continue
@@ -234,6 +233,7 @@ def clean_contribution(cycle: int) -> tuple[int, list[Path]]:
     con = _connect()
     _prepare(con, "contribution", src)
     files = _copy_split(con, out_dir, f"contribution_{cycle}")
+    # pyrefly: ignore [unsupported-operation]
     total = con.execute(
         f"select count(*) from read_parquet('{out_dir}/*.parquet')"
     ).fetchone()[0]
@@ -256,6 +256,7 @@ def clean_simple(
     con = _connect()
     _prepare(con, table, src, parallel=parallel)
     files = _copy_split(con, out_dir, table)
+    # pyrefly: ignore [unsupported-operation]
     total = con.execute(
         f"select count(*) from read_parquet('{out_dir}/*.parquet')"
     ).fetchone()[0]
@@ -320,6 +321,7 @@ def clean_contributor_cycle() -> tuple[int, list[Path]]:
     """)
 
     files = _copy_split(con, out_dir, "contributor_cycle")
+    # pyrefly: ignore [unsupported-operation]
     total = con.execute(
         f"select count(*) from read_parquet('{out_dir}/*.parquet')"
     ).fetchone()[0]

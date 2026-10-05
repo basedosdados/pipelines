@@ -32,6 +32,21 @@ picks up `Flow` objects whose function is defined in that file
 (`obj.fn.__code__.co_filename` check). A factory that returns an inner `@flow`
 (see `br_ibge_ipca`) is fine because the inner fn is still defined in that file.
 
+### `@flow` comes from `pipelines.utils.flow`, not from `prefect`
+
+```python
+from pipelines.utils.flow import flow  # NOT `from prefect import flow`
+```
+
+The deploy script reads two attributes off the flow object — `deploy_schedules`
+and `job_variables` — that `prefect.Flow` does not declare, so setting them on a
+plain Prefect flow is a Pyrefly `missing-attribute` error. `pipelines/utils/flow.py`
+declares both on a `prefect.Flow` subclass and exports a `flow` decorator that
+builds it; it takes the same arguments as `prefect.flow` and the object stays a
+`prefect.Flow` for every `isinstance` check. Both attributes default to empty
+(no schedule, work-pool default infrastructure). `deploy_schedules` is a list of
+`prefect.schedules.Cron` — `Cron("0 16 10 * *", timezone="America/Sao_Paulo")`.
+
 ## DRY with the onboarding code
 
 The cleaning transform lives in **one place** and is shared:
@@ -300,8 +315,17 @@ on the **deployed Prefect worker** (its pod SA has access) — the local
 Schedule inline on the flow object (do NOT register storage/run-config by hand):
 
 ```python
+from prefect.schedules import Cron
+
+from pipelines.utils.flow import flow
+
+
+@flow(name="my_flow", log_prints=True)
+def my_flow() -> None: ...
+
+
 my_flow.deploy_schedules = [
-    {"cron": "35 16 10,11,12,13 * *", "timezone": "America/Sao_Paulo"}
+    Cron("35 16 10,11,12,13 * *", timezone="America/Sao_Paulo")
 ]
 my_flow.job_variables = {
     "memory": "8Gi",
@@ -351,14 +375,14 @@ together, which also makes it hard to tell which pipeline actually caused the sp
 Before choosing, list what is already taken and pick a free slot:
 
 ```bash
-grep -rho '"cron": "[^"]*"' pipelines/datasets/*/flows.py | sort | uniq -c | sort -rn
+grep -rhoE 'Cron\("[^"]*"' pipelines/datasets/*/flows.py | sort | uniq -c | sort -rn
 ```
 
 Spacing of 5 minutes is plenty. Note this reduces contention, **not** bytes billed
 per day — the daily quota is a byte ceiling, and only doing less work (scoped tests,
 incremental models, no redundant dev materialization) moves that.
 
-Deploy is CI, via `.github/scripts/deploy_flows.py`:
+Deploy is CI, via `.github/workflows/scripts/deploy_flows.py`:
 - **Dev pool** (`cd-prefect3-staging.yaml`, `--pool basedosdados-dev`, on PR):
   runs **only if the PR carries the `deploy-flow` label** — no label, no deploy, and
   the job reports `skipped`, not failed. A PR without it deploys **nothing** and
@@ -366,7 +390,7 @@ Deploy is CI, via `.github/scripts/deploy_flows.py`:
   label is itself enough. Schedules are **stripped** — manual runs only.
   **The label only covers `flows.py`** — see the subsection below.
 - **Prod pool** (`cd-prefect3.yaml`, `--pool basedosdados --all`, on merge to main):
-  schedules become `Cron` objects; deployed **`paused=True`**.
+  `deploy_schedules` is passed straight to the deployment; deployed **`paused=True`**.
 - Cron in `America/Sao_Paulo`; see crontab.guru. For a monthly source, poll across
   a few release-window days — the source-poll guard no-ops until a new period lands.
 

@@ -51,7 +51,7 @@ prod, by uploading them to the prod bucket itself. The first prod run therefore 
 be `full_refresh=True`, which downloads every exercise and uploads all 49; after that
 the daily incremental keeps them current.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers all four flows; the dev pool
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers all four flows; the dev pool
 ignores the schedule, the prod pool activates it (paused). The dev pool is only written
 by a PR carrying the `deploy-flow` label -- without it the deploy job skips and the
 staging deployments silently keep whatever they had.
@@ -61,7 +61,7 @@ import datetime
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_bd_execucao_estadual.constants import constants
 from pipelines.datasets.br_bd_execucao_estadual.coverage import (
@@ -72,6 +72,7 @@ from pipelines.datasets.br_bd_execucao_estadual.tasks import (
     parquet_row_count,
     refresh_state,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.tasks import (
     rename_flow_run_dataset_table,
     run_dbt,
@@ -220,7 +221,6 @@ def br_bd_execucao_estadual_flow(
             which is what populates `basedosdados-staging` — table-approve cannot do it
             for this dataset. Roughly 20 GB of input and several hours.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="despesa"
     )
@@ -244,7 +244,6 @@ def br_bd_execucao_estadual_sp_flow(
         full_refresh: Re-scrape every exercise from 2010. Five hours; needed once, for
             the first prod run.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="despesa_anual"
     )
@@ -284,7 +283,6 @@ def br_bd_execucao_estadual_rs_flow(
         full_refresh: Re-download all 175 monthly archives instead of the open years.
             This is the reason the flow still exists.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="despesa"
     )
@@ -345,7 +343,6 @@ def br_bd_execucao_estadual_seed_frozen_prod_flow(
     mirrors = (
         mirrors if mirrors is not None else constants.FROZEN_PROD_MIRRORS.value
     )
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Seed prod staging: ",
         dataset_id=DATASET_ID,
@@ -391,15 +388,13 @@ def br_bd_execucao_estadual_seed_frozen_prod_flow(
 
 
 # Manual utility, disparo manual -- never scheduled.
-# pyrefly: ignore [missing-attribute]
 br_bd_execucao_estadual_seed_frozen_prod_flow.deploy_schedules = []
 
 
 # MG publishes D+1 and BA D-1, so the data is a day old by 06:00 either way. 04:40 is
 # unused elsewhere in the repo and lands before the working day in São Paulo.
-# pyrefly: ignore [missing-attribute]
 br_bd_execucao_estadual_flow.deploy_schedules = [
-    {"cron": "40 4 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("40 4 * * *", timezone="America/Sao_Paulo")
 ]
 # `despesa` is 85M rows and the MG clean holds a duckdb working set; the raw MG input
 # alone is ~2 GB before it is read.
@@ -407,7 +402,6 @@ br_bd_execucao_estadual_flow.deploy_schedules = [
 # alone silently gets the 4Gi default -- the deploy succeeds, the deployment record shows
 # what was asked for, and the OOM arrives later at an unrelated size. The pool reads
 # `memory_limit` and `memory_request`. Set all three.
-# pyrefly: ignore [missing-attribute]
 br_bd_execucao_estadual_flow.job_variables = {
     "memory": "12Gi",
     "memory_limit": "12Gi",
@@ -416,11 +410,9 @@ br_bd_execucao_estadual_flow.job_variables = {
 
 # Sunday, when the scrape's twenty minutes competes with nothing. SIGEO is annual, so a
 # weekly pass is well inside the useful resolution of the data.
-# pyrefly: ignore [missing-attribute]
 br_bd_execucao_estadual_sp_flow.deploy_schedules = [
-    {"cron": "20 5 * * 0", "timezone": "America/Sao_Paulo"}
+    Cron("20 5 * * 0", timezone="America/Sao_Paulo")
 ]
-# pyrefly: ignore [missing-attribute]
 br_bd_execucao_estadual_sp_flow.job_variables = {
     "memory": "8Gi",
     "memory_limit": "8Gi",
@@ -433,7 +425,6 @@ br_bd_execucao_estadual_sp_flow.job_variables = {
 # RS is the heaviest clean here -- 175 monthly archives expanding to ~36 GB, converted
 # one at a time with duckdb capped at 2GB. 8Gi leaves room for the transient peak that
 # killed a local run.
-# pyrefly: ignore [missing-attribute]
 br_bd_execucao_estadual_rs_flow.job_variables = {
     "memory": "8Gi",
     "memory_limit": "8Gi",

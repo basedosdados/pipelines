@@ -15,14 +15,14 @@ The run resolves the current release from the CKAN API and polls cheaply first
 ~1.6 GB payload when a newer quarterly snapshot has actually been published — so
 a scheduled run is a cheap no-op between quarterly releases.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``au_geoscape_gnaf_flow``;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``au_geoscape_gnaf_flow``;
 the dev pool ignores the schedule, the prod pool activates it (deployed paused).
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.au_geoscape_gnaf.constants import constants
 from pipelines.datasets.au_geoscape_gnaf.tasks import (
@@ -30,6 +30,7 @@ from pipelines.datasets.au_geoscape_gnaf.tasks import (
     clean_gnaf,
     download_gnaf,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -89,7 +90,6 @@ def au_geoscape_gnaf_flow(
         force_run: Download and materialize even when the source poll reports no
             new snapshot.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=CORE_TABLE
     )
@@ -209,14 +209,9 @@ def au_geoscape_gnaf_flow(
 # exact day drifts (the Aug 2026 release landed on the 17th). Poll on several
 # days across the second half of each release month at 16:00 BRT. The
 # coverage-based source poll no-ops (no download) until a new snapshot appears.
-# pyrefly: ignore [missing-attribute]
 au_geoscape_gnaf_flow.deploy_schedules = [
-    {
-        "cron": "35 16 14,17,20,23,26 2,5,8,11 *",
-        "timezone": "America/Sao_Paulo",
-    }
+    Cron("35 16 14,17,20,23,26 2,5,8,11 *", timezone="America/Sao_Paulo")
 ]
 # The clean step builds one state's frames at a time (NSW is the largest) and the
 # download is ~1.6 GB; give the worker headroom.
-# pyrefly: ignore [missing-attribute]
 au_geoscape_gnaf_flow.job_variables = {"memory": "16Gi"}

@@ -5,7 +5,7 @@ Plataforma Antonieta de Barros. Contexto da fonte, decisões de modelagem e a
 divisão entre carga histórica e atualização estão no README do conjunto.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_fnde_fundeb.constants import constants
 from pipelines.datasets.br_fnde_fundeb.tasks import (
@@ -13,6 +13,7 @@ from pipelines.datasets.br_fnde_fundeb.tasks import (
     clean_siope,
     download_siope,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     FreeLag,
@@ -58,7 +59,6 @@ def br_fnde_fundeb(
     Encerra sem baixar nada quando a plataforma não regravou o arquivo desde a
     última materialização.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=POLL_TABLE
     )
@@ -134,10 +134,8 @@ def br_fnde_fundeb(
         )
 
 
-# pyrefly: ignore [missing-attribute]
 br_fnde_fundeb.deploy_schedules = [
-    {"cron": "17 10 5,12,19,26 * *", "timezone": "America/Sao_Paulo"}
+    Cron("17 10 5,12,19,26 * *", timezone="America/Sao_Paulo")
 ]
 
-# pyrefly: ignore [missing-attribute]
 br_fnde_fundeb.job_variables = {"memory": "4Gi"}

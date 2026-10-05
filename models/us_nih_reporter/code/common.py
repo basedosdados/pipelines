@@ -88,6 +88,7 @@ def import_mcp_server():
             fell through a nonexistent path.
     """
     try:
+        # pyrefly: ignore [missing-import]
         import server  # already importable: installed, or on PYTHONPATH
 
         return server
@@ -107,6 +108,7 @@ def import_mcp_server():
             "directory holding the Data Basis MCP server.py."
         )
     sys.path.insert(0, str(path))
+    # pyrefly: ignore [missing-import]
     import server
 
     return server

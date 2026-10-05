@@ -12,8 +12,8 @@ claim.
 
 import json
 
-from common import OUTPUT, connect
-from measures import FORM_1996, FORM_2010, MEASURES
+from models.us_cms_hcris.code.common import OUTPUT, connect
+from models.us_cms_hcris.code.measures import FORM_1996, FORM_2010, MEASURES
 
 FORM_TABLE = {FORM_2010: "2552-10", FORM_1996: "2552-96"}
 

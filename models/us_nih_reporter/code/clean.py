@@ -12,7 +12,8 @@ import sys
 import time
 
 import requests
-from common import (
+
+from models.us_nih_reporter.code.common import (
     CALENDAR_YEARS,
     FISCAL_YEARS,
     INPUT,

@@ -18,7 +18,7 @@ Run: ``python gen_architecture.py``
 
 import csv
 
-from common import ARCH_DIR
+from models.world_iati_activities.code.common import ARCH_DIR
 
 HEADER = [
     "name",

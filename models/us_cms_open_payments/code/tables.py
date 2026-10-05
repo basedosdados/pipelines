@@ -19,8 +19,8 @@ a union loses nothing:
 import json
 from pathlib import Path
 
-import constants as c
-import naming
+from models.us_cms_open_payments.code import constants as c
+from models.us_cms_open_payments.code import naming
 
 with open(Path(__file__).resolve().parent / "headers.json") as _fh:
     HEADERS = json.load(_fh)

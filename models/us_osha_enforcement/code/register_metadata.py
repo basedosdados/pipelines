@@ -258,6 +258,7 @@ def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 
     sys.path.insert(0, MCP)
+    # pyrefly: ignore [missing-import]
     import server
 
     sys.path.insert(0, str(HERE.parents[2]))

@@ -16,9 +16,12 @@ import sys
 
 import duckdb
 import pyarrow.parquet as pq
-from common import OUTPUT, REPO_ROOT  # noqa: F401
-from gen_dbt import UNIQUE_KEY
 
+from models.world_iati_activities.code.common import (  # noqa: F401
+    OUTPUT,
+    REPO_ROOT,
+)
+from models.world_iati_activities.code.gen_dbt import UNIQUE_KEY
 from pipelines.datasets.world_iati_activities.constants import constants
 from pipelines.datasets.world_iati_activities.utils import load_cols
 
@@ -56,6 +59,7 @@ def check(table: str, con: duckdb.DuckDBPyConnection) -> list[str]:
     if typed:
         problems.append(f"{table}: non-STRING columns {typed}")
 
+    # pyrefly: ignore [unsupported-operation]
     rows = con.execute(
         f"select count(*) from read_parquet('{glob(table)}')"
     ).fetchone()[0]
@@ -64,7 +68,7 @@ def check(table: str, con: duckdb.DuckDBPyConnection) -> list[str]:
     dupes = (
         0
         if key is None
-        else con.execute(
+        else con.execute(  # pyrefly: ignore [unsupported-operation]
             f"select count(*) from (select {', '.join(key)} from "
             f"read_parquet('{glob(table)}') group by all having count(*) > 1)"
         ).fetchone()[0]
@@ -83,6 +87,7 @@ def check(table: str, con: duckdb.DuckDBPyConnection) -> list[str]:
         )
         + f" from read_parquet('{glob(table)}')"
     ).fetchone()
+    # pyrefly: ignore [bad-argument-type]
     empty = [n for n, v in zip(expected, nulls, strict=True) if v == rows]
     if empty:
         problems.append(f"{table}: entirely NULL columns {empty}")
@@ -104,6 +109,7 @@ def main() -> None:
     total = 0
     for t in tables:
         problems += check(t, con)
+        # pyrefly: ignore [unsupported-operation]
         total += con.execute(
             f"select count(*) from read_parquet('{glob(t)}')"
         ).fetchone()[0]

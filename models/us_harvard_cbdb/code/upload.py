@@ -15,8 +15,7 @@ os.environ.setdefault(
 import basedosdados as bd
 from google.cloud import storage as _gcs
 
-# pyrefly: ignore [missing-import]
-from schema_spec import TABLE_ORDER
+from models.us_harvard_cbdb.code.schema_spec import TABLE_ORDER
 
 BILLING = "basedosdados-dev"
 DATASET = "us_harvard_cbdb"

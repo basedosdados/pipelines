@@ -41,7 +41,9 @@ import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.dataset as pads
 import pyarrow.parquet as pq
-from constants import (
+from shapely import from_wkb, to_wkt
+
+from models.cl_ine_censo.code.constants import (
     CARTOGRAPHY_DIR,
     CARTOGRAPHY_LEVEL_NAMES,
     CARTOGRAPHY_NAME_RENAMES,
@@ -57,12 +59,11 @@ from constants import (
     SENTINEL_NO_RESPONSE,
     WKT_ROUNDING_PRECISION,
 )
-from dictionary import (
+from models.cl_ine_censo.code.dictionary import (
     dictionary_rows,
     load_redatam_dictionary,
     unlabelled_codes,
 )
-from shapely import from_wkb, to_wkt
 
 MICRODATA_FILES = {
     "persona": "personas_censo2024.parquet",
@@ -125,6 +126,7 @@ def stringify(column: pa.Array | pa.ChunkedArray) -> pa.Array:
 
 def pad_cut(column: pa.Array, width: int) -> pa.Array:
     """Zero-pad a territorial code to its CUT width, as a string."""
+    # pyrefly: ignore [missing-attribute]
     return pc.ascii_lpad(
         pc.cast(column, pa.string()), width=width, padding="0"
     )
@@ -139,9 +141,11 @@ def null_sentinels(column: pa.Array) -> pa.Array:
     In a quantity the same codes would poison every mean and sum, so they become
     NULL and the loss is recorded in the architecture `observations`.
     """
+    # pyrefly: ignore [missing-attribute]
     mask = pc.is_in(
         column, value_set=pa.array([SENTINEL_NO_RESPONSE, SENTINEL_ANONYMISED])
     )
+    # pyrefly: ignore [missing-attribute]
     return pc.if_else(mask, pa.scalar(None, type=column.type), column)
 
 
@@ -227,6 +231,7 @@ def microdata_batches(
 
             column = stringify(column)
             if pa.types.is_string(column.type):
+                # pyrefly: ignore [missing-attribute]
                 column = pc.utf8_trim_whitespace(column)
             columns[renamed] = column
 
@@ -341,6 +346,7 @@ def cartography_batches(
                     continue
                 column = stringify(column)
                 if pa.types.is_string(column.type):
+                    # pyrefly: ignore [missing-attribute]
                     column = pc.utf8_trim_whitespace(column)
                 columns[renamed] = column
 
@@ -393,6 +399,7 @@ def clean_dictionary() -> int:
         # codes needs one batch at a time, not the whole column.
         for batch in source.iter_batches(batch_size=BATCH_ROWS, columns=coded):
             for column in coded:
+                # pyrefly: ignore [missing-attribute]
                 values = pc.unique(batch.column(column)).drop_null()
                 seen[column].update(
                     v if isinstance(v, str) else str(v)

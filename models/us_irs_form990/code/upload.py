@@ -147,6 +147,7 @@ def load_staging_table(table: str) -> int:
         job_config=config,
     )
     job.result()
+    # pyrefly: ignore [bad-return]
     return bq.get_table(target).num_rows
 
 
