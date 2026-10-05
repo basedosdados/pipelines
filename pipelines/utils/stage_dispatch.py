@@ -134,11 +134,13 @@ def deploy_tags(
             `<dataset_id>` sozinha não distingue).
 
     Returns:
-        Lista com a tag da etapa, `<dataset_id>`, e `<dataset_id>__<table_id>`
-        quando `table_id` é passado — todas sem prefixo, mesmo padrão da
-        tag de etapa.
+        Lista com `"event-pipeline"` (todo flow que passa por essa cápsula,
+        pra achar todos os migrados de uma vez — issue #1867), a tag da
+        etapa, `<dataset_id>`, e `<dataset_id>__<table_id>` quando
+        `table_id` é passado — todas sem prefixo, mesmo padrão da tag de
+        etapa.
     """
-    tags = [str(etapa), dataset_id]
+    tags = ["event-pipeline", str(etapa), dataset_id]
     if table_id is not None:
         tags.append(f"{dataset_id}__{table_id}")
     return tags
