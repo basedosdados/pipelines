@@ -17,7 +17,13 @@ with
     sia_add_municipios as (
         -- Adicionar id_municipio de 7 dígitos
         select
-            psicossocial.*,
+            -- Normaliza o formato dos CIDs (ex.: 'f99' -> 'F99'). Códigos fora de
+            -- br_bd_diretorios_brasil.cid_10 NÃO são nulificados: o teste de
+            -- relacionamento no schema.yml deve acusá-los.
+            psicossocial.* replace (
+                upper(trim(psicossocial.cidpri)) as cidpri,
+                upper(trim(psicossocial.cidassoc)) as cidassoc
+            ),
             mun.id_municipio as id_municipio_executante,
             mun_res.id_municipio as id_municipio_residencia
         from
