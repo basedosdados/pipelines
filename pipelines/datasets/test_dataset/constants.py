@@ -20,7 +20,7 @@ EVENT_PIPELINE_COVERAGE = AllFree(
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# event_pipeline — piloto da arquitetura orientada a eventos
+# event_pipeline — piloto da arquitetura em estágios (staged pipeline)
 #
 # Variante padrão (check_update/download separados), sem partição —
 # um único CSV. Tabela: test_dataset.test_event_pipeline.

@@ -26,7 +26,7 @@ from pipelines.utils.tasks import rename_flow_run_dataset_table, upload_to_gcs
 
 
 class Etapa(StrEnum):
-    """As três etapas da arquitetura orientada a eventos.
+    """As três etapas da arquitetura em estágios (staged pipeline).
 
     Attributes:
         CHECK_UPDATE: etapa que verifica se há dado novo na fonte.
@@ -134,13 +134,13 @@ def deploy_tags(
             `<dataset_id>` sozinha não distingue).
 
     Returns:
-        Lista com `"event-pipeline"` (todo flow que passa por essa cápsula,
-        pra achar todos os migrados de uma vez — issue #1867), a tag da
-        etapa, `<dataset_id>`, e `<dataset_id>__<table_id>` quando
+        Lista com `"staged-pipeline"` (todo flow que passa por essa
+        cápsula, pra achar todos os migrados de uma vez — issue #1867), a
+        tag da etapa, `<dataset_id>`, e `<dataset_id>__<table_id>` quando
         `table_id` é passado — todas sem prefixo, mesmo padrão da tag de
         etapa.
     """
-    tags = ["event-pipeline", str(etapa), dataset_id]
+    tags = ["staged-pipeline", str(etapa), dataset_id]
     if table_id is not None:
         tags.append(f"{dataset_id}__{table_id}")
     return tags

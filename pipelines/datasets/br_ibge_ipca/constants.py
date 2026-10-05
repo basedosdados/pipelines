@@ -6,7 +6,7 @@ from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
 
 DATASET_ID = "br_ibge_ipca"
 
-# As 4 tabelas do dataset — migradas pro pipeline orientado a eventos,
+# As 4 tabelas do dataset — migradas pro pipeline em estágios (staged pipeline),
 # substituindo o antigo `_ipca_flow`/`_run_ibge_inflacao` monolítico (que
 # segue existindo em `crawler/ibge_inflacao/flows.py`, ainda usado por
 # br_ibge_ipca15/br_ibge_inpc).

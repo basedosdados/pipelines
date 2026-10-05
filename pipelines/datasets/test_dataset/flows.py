@@ -108,7 +108,7 @@ def test_download_data_to_gcs_all_cases_flow() -> None:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
-# event_pipeline — piloto da arquitetura orientada a eventos
+# event_pipeline — piloto da arquitetura em estágios (staged pipeline)
 #
 # check_update_flow compara a data de hoje contra a coverage registrada no
 # backend pra test_dataset.test_event_pipeline. download_flow simula

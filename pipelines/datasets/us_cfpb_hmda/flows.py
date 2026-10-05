@@ -1,6 +1,6 @@
 """Flows for us_cfpb_hmda - Prefect 3.
 
-Migrado pro pipeline orientado a eventos: check_update ->
+Migrado pro pipeline em estágios (staged pipeline): check_update ->
 extract_and_load -> build_and_promote. Lógica específica do dataset mora em `tasks.py`
 (`get_latest_update`/`extract_load_data`) — aqui só a fiação
 (`CheckThenExtractLoadPipeline` + `@flow`).

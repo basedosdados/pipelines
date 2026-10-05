@@ -1,7 +1,7 @@
 """
 Flows para br_me_comex_stat — Prefect 3.
 
-Migrado por completo pro pipeline orientado a eventos:
+Migrado por completo pro pipeline em estágios (staged pipeline):
 check_update -> extract_and_load -> build_and_promote, uma dupla de flows por tabela.
 Lógica específica do dataset mora em `tasks.py`, constantes em
 `constants.py` — aqui só a fiação (`CheckThenExtractLoadPipeline` + `@flow`).
