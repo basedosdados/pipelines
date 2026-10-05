@@ -8,6 +8,7 @@ the upload refuses any file whose columns are not exactly that schema.
 
 Usage:
     TSE_DATA_DIR=... python -m models.br_tse_eleicoes.code.python.upload_year 2026 table [table ...]
+    TSE_DATA_DIR=... python -m models.br_tse_eleicoes.code.python.upload_year --create new_table [...]
 """
 
 import os
@@ -101,8 +102,36 @@ def upload(ano: int, tables: list[str], dry_run: bool = False) -> None:
         print(f"  replaced {len(stale)} old blobs under {prefix}")
 
 
+def create_staging(tables: list[str]) -> None:
+    """Create a NEW staging table from every year's output (all-STRING CSV).
+
+    For tables that have no staging table yet; existing ones go through
+    ``upload`` so the other years stay untouched.
+    """
+    import basedosdados as bd
+
+    orig = storage.Client.bucket
+
+    def bucket(self, name, user_project=None):  # requester-pays bucket
+        return orig(self, name, user_project=PROJECT)
+
+    storage.Client.bucket = bucket
+    for table in tables:
+        bd.Table(dataset_id=DATASET, table_id=table).create(
+            path=str(OUTPUT_PYTHON / table),
+            source_format="csv",
+            if_table_exists="replace",
+            if_storage_data_exists="replace",
+            if_dataset_exists="pass",
+        )
+        print(f"{table}: staging table created")
+
+
 if __name__ == "__main__":
     args = sys.argv[1:]
-    dry = "--dry-run" in args
-    args = [a for a in args if a != "--dry-run"]
-    upload(int(args[0]), args[1:], dry_run=dry)
+    if args[0] == "--create":
+        create_staging(args[1:])
+    else:
+        dry = "--dry-run" in args
+        args = [a for a in args if a != "--dry-run"]
+        upload(int(args[0]), args[1:], dry_run=dry)
