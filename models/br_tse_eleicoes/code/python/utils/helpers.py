@@ -139,7 +139,20 @@ def read_raw_csv(
     elif csv_path.exists():
         path = csv_path
     else:
-        raise FileNotFoundError(f"Neither {txt_path} nor {csv_path} found.")
+        # From 2026 TSE splits some national files per UF inside the zip
+        # (perfil_eleitorado_2026_AC.csv, ...). Read and stack the parts.
+        parts = sorted(base.parent.glob(f"{base.name}_*.csv"))
+        if not parts:
+            raise FileNotFoundError(
+                f"Neither {txt_path} nor {csv_path} found."
+            )
+        frames = [read_raw_csv(str(p.with_suffix(""))) for p in parts]
+        if len({f.attrs["tse_has_header"] for f in frames}) != 1:
+            msg = f"{base}: per-UF parts disagree on having a header"
+            raise ValueError(msg)
+        df = pd.concat(frames, ignore_index=True)
+        df.attrs = {**frames[0].attrs, "tse_path": f"{base}_*.csv"}
+        return df
 
     if path.stat().st_size == 0:
         msg = (
