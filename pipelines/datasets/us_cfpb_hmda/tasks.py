@@ -1,11 +1,14 @@
 """Prefect 3 tasks for us_cfpb_hmda - thin wrappers over utils.py."""
 
+import tempfile
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 from prefect import task
 
-from pipelines.datasets.us_cfpb_hmda.constants import constants
+from pipelines.datasets.us_cfpb_hmda.constants import COVERAGE, constants
 from pipelines.datasets.us_cfpb_hmda.utils import clean_all, latest_source_year
+from pipelines.utils.stage_dispatch import ExtractAndLoad, SourceInspection
 
 
 @task
@@ -39,3 +42,43 @@ def build_tables(work_dir: str, years: list[int]) -> dict:
     """
     base = Path(work_dir)
     return clean_all(base / "output", years, base / "input")
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# loan_application_register
+#
+# `get_latest_update` (`latest_source_year`) é uma checagem de verdade leve:
+# GET com stream=True, lê só os primeiros 2048 bytes do CSV por ano sondado
+# (não baixa o arquivo inteiro) — diferente de br_ibge_ipca, aqui o check é
+# genuinamente independente do download.
+#
+# `extract_load_data` continua reconstruindo o histórico inteiro
+# (FIRST_YEAR..max_year, dump_mode="overwrite") a cada run — decisão de
+# design já existente (schema all-STRING consistente), não alterada aqui.
+# Vários GB por ano; fica isolado no próprio pod (`job_variables` no
+# `@flow` de download, não no de check_update).
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def get_latest_update() -> SourceInspection:
+    this_year = datetime.now(UTC).year
+    resolved = resolve_years(this_year)
+    max_year = resolved["max_year"]
+    return SourceInspection(
+        reference_date=date(max_year, 1, 1),
+        extra_download_params={"years": resolved["years"]},
+    )
+
+
+def extract_load_data(download_params: dict) -> ExtractAndLoad:
+    years = download_params["years"]
+    work_dir = tempfile.mkdtemp(prefix="us_cfpb_hmda_")
+    result = build_tables(work_dir=work_dir, years=years)
+    data_path = result[constants.TABLE_ID.value]
+
+    return ExtractAndLoad(
+        coverage=COVERAGE.model_dump(),
+        data_path=data_path,
+        dump_mode="overwrite",
+        source_format="parquet",
+    )
