@@ -1,59 +1,143 @@
 """
-Flows para br_bcb_taxa_cambio — Prefect 3.
-
-Migrado por completo pro pipeline orientado a eventos:
-check_update -> extract_and_load -> build_and_promote. Lógica específica do dataset mora em
-`tasks.py`, constantes em `constants.py` — aqui só a fiação
-(`CheckThenExtractLoadPipeline` + `@flow`).
-
-O antigo flow monolítico (`br_bcb_taxa_cambio__taxa_cambio`, cron às 8h40
-todo dia) foi removido deste arquivo.
+Flow br_bcb_taxa_cambio — Prefect 3.
 """
 
-from pipelines.datasets.br_bcb_taxa_cambio.constants import (
-    DATASET_ID,
-    TAXA_CAMBIO_TABLE_ID,
-)
-from pipelines.datasets.br_bcb_taxa_cambio.tasks import (
-    taxa_cambio_download,
-    taxa_cambio_get_latest_update,
+from prefect.schedules import Cron
+
+from pipelines.crawler.bcb_taxa_cambio.tasks import (
+    get_data_taxa_cambio,
+    get_source_max_date,
+    treat_data_taxa_cambio,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.stage_dispatch import (
-    CheckThenExtractLoadPipeline,
-    Etapa,
-    deploy_tags,
+from pipelines.utils.metadata.domain import (
+    DateFormat,
+    DateOnly,
+    FreeLag,
+    PartBdpro,
 )
-
-_taxa_cambio_pipeline = CheckThenExtractLoadPipeline(
-    dataset_id=DATASET_ID,
-    table_id=TAXA_CAMBIO_TABLE_ID,
-    get_latest_update=taxa_cambio_get_latest_update,
-    extract_load_data=taxa_cambio_download,
-    # Mesma granularidade do flow antigo (comparava coverage com
-    # date_format="%Y-%m-%d").
-    date_format="%Y-%m-%d",
+from pipelines.utils.metadata.tasks import (
+    commit_source_update_task,
+    poll_source_for_update_task,
+    register_table_materialization_task,
 )
-
-
-@flow(name=_taxa_cambio_pipeline.check_update_flow_name, log_prints=True)
-def br_bcb_taxa_cambio_taxa_cambio_check_update() -> None:
-    _taxa_cambio_pipeline.run_check_update()
-
-
-br_bcb_taxa_cambio_taxa_cambio_check_update.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.CHECK_UPDATE, TAXA_CAMBIO_TABLE_ID
+from pipelines.utils.tasks import (
+    rename_flow_run_dataset_table,
+    run_dbt,
+    upload_to_gcs,
 )
 
 
-@flow(name=_taxa_cambio_pipeline.extract_and_load_flow_name, log_prints=True)
-def br_bcb_taxa_cambio_taxa_cambio_download(download_params: dict) -> None:
-    _taxa_cambio_pipeline.run_extract_and_load(download_params)
+@flow(
+    name="br_bcb_taxa_cambio__taxa_cambio",
+    log_prints=True,
+)
+def br_bcb_taxa_cambio__taxa_cambio(
+    dataset_id: str = "br_bcb_taxa_cambio",
+    table_id: str = "taxa_cambio",
+    anos: list[int] | None = None,
+    materialize_after_dump: bool = True,
+    update_metadata: bool = True,
+    target: str = "prod",
+    force_run: bool = False,
+) -> None:
+    """Carrega as cotações do PTAX, do Olinda até a materialização.
+
+    `anos` vazio baixa o ano corrente e só age se a fonte tiver publicado data
+    mais nova que a cobertura da tabela — é o que a execução agendada faz.
+    Passar uma lista recarrega esses anos sem consultar a fonte, para consertar
+    partição incompleta ou duplicada.
+    """
+    rename_flow_run_dataset_table(
+        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
+    )
+
+    backfill = bool(anos)
+    anos_alvo: list[int | None] = list(anos) if backfill else [None]
+
+    if not backfill:
+        source_max_date = get_source_max_date()
+
+        if not force_run:
+            has_new_data = poll_source_for_update_task(
+                dataset_id=dataset_id,
+                table_id=table_id,
+                source_max_date=source_max_date,
+                env="prod",
+                date_format=DateFormat.YEAR_MD,
+                compare_against="coverage",
+            )
+            if not has_new_data:
+                print(f"Não há atualizações para a tabela {table_id}!")
+                return
+
+        commit_source_update_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            source_max_date=source_max_date,
+            env="prod",
+            date_format=DateFormat.YEAR_MD,
+            update_metadata=update_metadata,
+            materialize_after_dump=materialize_after_dump,
+        )
+
+    output_paths = []
+    for ano in anos_alvo:
+        print(f"Carregando {ano or 'ano corrente'}")
+        get_data_taxa_cambio(table_id=table_id, ano=ano)
+        file_info = treat_data_taxa_cambio(table_id=table_id)
+        # pyrefly: ignore [bad-index]
+        output_paths.append(file_info["save_output_path"])
+
+    save_output_path = output_paths[-1]
+
+    upload_to_gcs(
+        data_path=save_output_path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados-dev",
+        dump_mode="append",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        target="dev",
+    )
+
+    if not materialize_after_dump:
+        return
+
+    upload_to_gcs(
+        data_path=save_output_path,
+        dataset_id=dataset_id,
+        table_id=table_id,
+        bucket_name="basedosdados",
+        dump_mode="append",
+    )
+
+    run_dbt(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        dbt_command="run/test",
+        target=target,
+    )
+
+    if update_metadata:
+        register_table_materialization_task(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            coverage=PartBdpro(
+                date_column=DateOnly(col="data_cotacao"),
+                date_format=DateFormat.YEAR_MD,
+                free_lag=FreeLag(unit="months", value=6),
+            ),
+            env="prod",
+            bq_project="basedosdados",
+        )
 
 
-br_bcb_taxa_cambio_taxa_cambio_download.deploy_tags = deploy_tags(
-    DATASET_ID, Etapa.EXTRACT_AND_LOAD, TAXA_CAMBIO_TABLE_ID
-)
-_taxa_cambio_pipeline.extract_load_deployment = (
-    br_bcb_taxa_cambio_taxa_cambio_download.fn.__name__
-)
+br_bcb_taxa_cambio__taxa_cambio.deploy_schedules = [
+    Cron("40 8 * * *", timezone="America/Sao_Paulo")
+]
