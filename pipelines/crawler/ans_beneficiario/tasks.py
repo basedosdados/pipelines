@@ -78,7 +78,7 @@ def get_file_max_date(df):
 
 
 @task
-def files_to_download(df, year):
+def files_to_download(df: pd.DataFrame, year: str | None) -> list[str]:
     if year is not None:
         log("Arquivos na fila para o download -->")
         df = df[df["arquivo"].str.contains(year)]

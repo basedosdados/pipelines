@@ -18,6 +18,8 @@ source of truth shared with the one-shot bootstrap under models/us_cfpb_hmda/cod
 from enum import Enum
 from pathlib import Path
 
+from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
+
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
@@ -44,3 +46,11 @@ class constants(Enum):
     )
     # Columns reported in thousands of dollars -> x1000 so measurement_unit=USD holds.
     MULTIPLY_1000 = ("income",)
+
+
+# Coverage do event pipeline — constante de módulo solta, não
+# membro do Enum acima: mesmo padrão de acesso (`COVERAGE.model_dump()`,
+# sem `.value`) usado nos outros datasets já migrados.
+COVERAGE = AllFree(
+    date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
+)
