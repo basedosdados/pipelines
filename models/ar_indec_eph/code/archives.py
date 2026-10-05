@@ -120,7 +120,7 @@ def read_dta(path: Path) -> tuple[pd.DataFrame, Any]:
     # pyrefly: ignore [bad-argument-type]  pyreadstat's PandasDataFrame is a
     # DataFrame at runtime; its stub is not declared as one.
     frame = pd.DataFrame(frame)
-    frame.columns = [str(c).upper() for c in meta.column_names]
+    frame.columns = [c.upper() for c in meta.column_names]
     return frame, meta
 
 

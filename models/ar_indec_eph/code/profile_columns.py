@@ -83,7 +83,7 @@ def main() -> int:
                         low_memory=False,
                     )
                     df.columns = [
-                        str(c).strip().strip('"').upper() for c in df.columns
+                        c.strip().strip('"').upper() for c in df.columns
                     ]
                 for col in df.columns:
                     if not col or col.startswith("UNNAMED"):
@@ -91,14 +91,26 @@ def main() -> int:
                     s = norm(df[col])
                     st = stats[table][col]
                     st["n"] += len(s)
+                    # pyrefly: ignore [unnecessary-type-conversion]  pandas types .sum()
+                    # and .max() as int, but they return numpy scalars, which json.dump
+                    # refuses. The conversion is needed at runtime.
                     st["null"] += int(s.isna().sum())
                     nn = s.dropna()
                     if nn.empty:
                         continue
                     is_int = nn.str.match(INT_RE)
                     is_dec = nn.str.match(DEC_RE)
+                    # pyrefly: ignore [unnecessary-type-conversion]  pandas types .sum()
+                    # and .max() as int, but they return numpy scalars, which json.dump
+                    # refuses. The conversion is needed at runtime.
                     st["int"] += int(is_int.sum())
+                    # pyrefly: ignore [unnecessary-type-conversion]  pandas types .sum()
+                    # and .max() as int, but they return numpy scalars, which json.dump
+                    # refuses. The conversion is needed at runtime.
                     st["dec"] += int(is_dec.sum())
+                    # pyrefly: ignore [unnecessary-type-conversion]  pandas types .sum()
+                    # and .max() as int, but they return numpy scalars, which json.dump
+                    # refuses. The conversion is needed at runtime.
                     st["other"] += int((~is_int & ~is_dec).sum())
                     numeric = pd.to_numeric(
                         nn[is_int | is_dec].str.replace(",", ".", regex=False),

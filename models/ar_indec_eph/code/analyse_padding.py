@@ -52,7 +52,7 @@ def read_wave(wave: dict, member: str) -> pd.DataFrame:
         df = pd.read_csv(
             path, sep=";", encoding="latin-1", dtype=str, low_memory=False
         )
-        df.columns = [str(c).strip().strip('"').upper() for c in df.columns]
+        df.columns = [c.strip().strip('"').upper() for c in df.columns]
         return df.astype("string")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
@@ -86,9 +86,11 @@ def main() -> int:
                 if nn.empty:
                     continue
                 lengths = nn.str.len()
-                max_len[table][col] = max(
-                    max_len[table][col], int(lengths.max())
-                )
+                # .max() is typed int but returns a numpy scalar, which
+                # json.dump refuses, so the conversion is needed at runtime.
+                # pyrefly: ignore [unnecessary-type-conversion]
+                longest = int(lengths.max())
+                max_len[table][col] = max(max_len[table][col], longest)
                 # Anything non-numeric means this is not a zero-padded code.
                 if not bool(nn.str.fullmatch(r"\d+").all()):
                     free_text[table].add(col)

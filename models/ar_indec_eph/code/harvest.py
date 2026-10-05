@@ -51,7 +51,7 @@ def main() -> int:
                 if wave["fmt"] == "dta":
                     _, meta = pyreadstat.read_dta(str(path), metadataonly=True)
                     cols = [c.upper() for c in meta.column_names]
-                    rows = int(meta.number_rows or 0)
+                    rows = meta.number_rows or 0
                     for col, lab in zip(
                         cols, meta.column_labels or [], strict=False
                     ):
@@ -72,10 +72,10 @@ def main() -> int:
                                 if code_f.is_integer()
                                 else str(code)
                             )
-                            store.setdefault(code_s, str(lab).strip())
+                            store.setdefault(code_s, lab.strip())
                 else:
                     cols = read_txt_header(path)
-                    rows = int(count_txt_rows(path))
+                    rows = count_txt_rows(path)
                 wave_rows[tag][table] = rows
                 for col in cols:
                     entry = universe[table].setdefault(

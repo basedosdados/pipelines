@@ -99,9 +99,7 @@ def read_raw(wave: dict, member: str) -> pd.DataFrame:
         frame = pd.read_csv(
             path, sep=";", encoding="latin-1", dtype=str, low_memory=False
         )
-        frame.columns = [
-            str(c).strip().strip('"').upper() for c in frame.columns
-        ]
+        frame.columns = [c.strip().strip('"').upper() for c in frame.columns]
         return frame.astype("string")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)

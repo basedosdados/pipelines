@@ -46,7 +46,7 @@ def main() -> int:
                     low_memory=False,
                 )
                 frame.columns = [
-                    str(c).strip().strip('"').upper() for c in frame.columns
+                    c.strip().strip('"').upper() for c in frame.columns
                 ]
                 frame = frame.astype("string")
             for col in COLUMNS:
@@ -55,6 +55,9 @@ def main() -> int:
                 s = blank_to_na(frame[col]).dropna()
                 if s.empty:
                     continue
+                # pyrefly: ignore [unnecessary-type-conversion]  pandas types .sum()
+                # and .max() as int, but they return numpy scalars, which json.dump
+                # refuses. The conversion is needed at runtime.
                 alpha = int(s.str.contains(r"[A-Za-z]").sum())
                 result[col][tag] = {
                     "n": len(s),
