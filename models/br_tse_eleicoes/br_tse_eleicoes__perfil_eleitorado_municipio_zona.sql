@@ -1,3 +1,5 @@
+-- 2024 e 2026 reprocessados em 2026-10-06: celulas divididas pelo TSE em
+-- dimensoes nao mantidas aqui agora sao somadas, em vez de deduplicadas.
 {{
     config(
         schema="br_tse_eleicoes",
@@ -6,7 +8,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 1998, "end": 2024, "interval": 2},
+            "range": {"start": 1998, "end": 2030, "interval": 2},
         },
         cluster_by=["sigla_uf"],
     )
@@ -36,4 +38,3 @@ from
     }} as t
 
     -- Rematerialized from the refactored pipeline (PR #1476).
-    

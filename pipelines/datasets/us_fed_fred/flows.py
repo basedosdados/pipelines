@@ -13,17 +13,18 @@ rolling window: the most recent 6 months are pro-only, everything older is free.
 ``series`` is a metadata catalog and stays fully free (``NonHistorical`` coverage
 from the table's last-modified time).
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``us_fed_fred_flow``;
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``us_fed_fred_flow``;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_fed_fred.constants import constants
 from pipelines.datasets.us_fed_fred.tasks import clean_fred, download_fred
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     DateOnly,
@@ -90,7 +91,6 @@ def us_fed_fred_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new data.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="observation"
     )
@@ -204,7 +204,6 @@ def us_fed_fred_flow(
 # FRED updates on US business days through the afternoon (ET). Poll once daily at
 # 21:00 BRT (~19:00-20:00 ET); the source-poll guard no-ops on days with no new
 # observation, so a plain daily cron is cheap.
-# pyrefly: ignore [missing-attribute]
 us_fed_fred_flow.deploy_schedules = [
-    {"cron": "25 21 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("25 21 * * *", timezone="America/Sao_Paulo")
 ]

@@ -5,13 +5,14 @@ from __future__ import annotations
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_bcb_ifdata.constants import constants
 from pipelines.datasets.br_bcb_ifdata.tasks import (
     clean_all,
     get_source_max_period,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     FreeLag,
@@ -120,7 +121,6 @@ def br_bcb_ifdata_flow(
             em prod. Sem efeito quando `materialize_to_prod` é False.
         force_run: materializa mesmo quando o poll não vê competência nova.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="br_bcb_ifdata"
     )
@@ -179,11 +179,9 @@ def br_bcb_ifdata_flow(
 # O IF.data publica cerca de 90 dias após o fim do trimestre (a competência
 # 2026-03 saiu em 2026-06-01). Poller nos primeiros dias de cada mês às 16:00
 # BRT; a trava do poll no-opa até uma competência nova aparecer de fato.
-# pyrefly: ignore [missing-attribute]
 br_bcb_ifdata_flow.deploy_schedules = [
-    {"cron": "50 16 1,2,3,4,5 * *", "timezone": "America/Sao_Paulo"}
+    Cron("50 16 1,2,3,4,5 * *", timezone="America/Sao_Paulo")
 ]
 # A limpeza percorre 105 competências, mantendo no máximo uma na memória
 # (~1M células), mas o crosswalk do IBGE e o índice ficam residentes.
-# pyrefly: ignore [missing-attribute]
 br_bcb_ifdata_flow.job_variables = {"memory": "4Gi"}

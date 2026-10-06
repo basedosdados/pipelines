@@ -10,7 +10,7 @@ source-update poll on the anchor table (``area_imovel``): the flow short-circuit
 until a UF publishes a newer snapshot. The schedule polls across a few mid-month
 days; the guard makes each scheduled run a cheap no-op between releases.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``br_sfb_sicar_flow``
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``br_sfb_sicar_flow``
 (the flow fn is defined in this file); the dev pool ignores the schedule, the
 prod pool activates it.
 """
@@ -20,7 +20,7 @@ import tempfile
 from datetime import date
 
 from dateutil.relativedelta import relativedelta
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.crawler.sfb_sicar.constants import Constants
 from pipelines.crawler.sfb_sicar.tasks import (
@@ -32,6 +32,7 @@ from pipelines.crawler.sfb_sicar.utils import (
     container_memory_limit_gb,
     max_release_iso,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     CoverageSpec,
@@ -263,7 +264,6 @@ def br_sfb_sicar_flow(
     ]
     ufs = [u for u in UF_SIGLAS if not only_ufs or u in only_ufs.split(",")]
 
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=ANCHOR_TABLE
     )
@@ -483,9 +483,8 @@ def br_sfb_sicar_flow(
 # SICAR publishes per-UF on no fixed calendar. Poll across a few mid-month days
 # at 16:00 BRT; the source-poll guard no-ops until a UF publishes a newer
 # snapshot.
-# pyrefly: ignore [missing-attribute]
 br_sfb_sicar_flow.deploy_schedules = [
-    {"cron": "0 16 10,11,12,13,14,15 * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 16 10,11,12,13,14,15 * *", timezone="America/Sao_Paulo")
 ]
 # Memory: the clean is bounded to one feature range per subprocess, so it does
 # not need much — but the pod must actually get what we ask for. This work pool's
@@ -497,7 +496,6 @@ br_sfb_sicar_flow.deploy_schedules = [
 # `env` variable is a Kubernetes-style array of {name, value} objects, not a
 # flat dict — a dict here fails server-side schema validation on every
 # full-catalog deploy (basedosdados/pipelines#1893).
-# pyrefly: ignore [missing-attribute]
 br_sfb_sicar_flow.job_variables = {
     "memory": "12Gi",
     "memory_limit": "12Gi",

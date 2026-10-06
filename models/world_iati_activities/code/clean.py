@@ -1,8 +1,8 @@
 """One-shot bootstrap: download IATI Tables, extract, clean to parquet.
 
-    python clean.py                # download if missing, extract, clean everything
-    python clean.py --skip-download
-    python clean.py --tables activity transaction
+    uv run models/world_iati_activities/code/clean.py                # download if missing, extract, clean everything
+    uv run models/world_iati_activities/code/clean.py --skip-download
+    uv run models/world_iati_activities/code/clean.py --tables activity transaction
 
 The transform itself lives in ``pipelines/datasets/world_iati_activities/utils.py``
 and is imported, never copied, so this bootstrap and the recurring Prefect flow
@@ -19,8 +19,14 @@ import json
 import time
 import zipfile
 
-from common import CSV_DIR, CSV_ZIP, DATASETS_MINIMAL, INPUT, OUTPUT, STATS
-
+from models.world_iati_activities.code.common import (
+    CSV_DIR,
+    CSV_ZIP,
+    DATASETS_MINIMAL,
+    INPUT,
+    OUTPUT,
+    STATS,
+)
 from pipelines.datasets.world_iati_activities.constants import constants
 from pipelines.datasets.world_iati_activities.utils import (
     build_registry_dataset,

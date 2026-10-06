@@ -1,5 +1,5 @@
--- Dados de 2026 reprocessados em 2026-08-21 a partir dos arquivos do TSE
--- gerados em 19/08/2026, apos o encerramento do registro de candidaturas.
+-- Dados de 2026 reprocessados em 2026-10-06 a partir dos arquivos do TSE
+-- gerados em 05/10/2026, apos o 1o turno.
 {{
     config(
         schema="br_tse_eleicoes",
@@ -39,4 +39,3 @@ from
     {{ set_datalake_project("br_tse_eleicoes_staging.partidos") }} as t
 
     -- Rematerialized from the refactored pipeline (PR #1476).
-    

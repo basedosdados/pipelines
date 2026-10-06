@@ -2,7 +2,7 @@
 """Emit per-table columns_json for mcp bulk_upsert_columns, from the architecture
 CSVs, with PT/EN/ES descriptions. Writes metadata/<dataset>/<table>.columns.json.
 
-Run: cd models/us_nature_gerda/code && python3 build_columns_json.py
+Run: uv run models/us_nature_gerda/code/build_columns_json.py
 """
 
 import csv

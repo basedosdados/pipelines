@@ -7,7 +7,7 @@ the one-shot bootstrap and the recurring Prefect pipeline share one
 implementation; this CLI is just the initial-load entry point.
 
 Usage:
-    uv run python models/au_abs_prices_inflation/code/clean_data.py [table ...]
+    uv run models/au_abs_prices_inflation/code/clean_data.py [table ...]
 
 With no arguments it builds all seven tables.
 """

@@ -503,19 +503,19 @@ def clean_main(
             grp_code = pc.if_else(  # pyrefly: ignore [missing-attribute]
                 pc.is_valid(grp),  # pyrefly: ignore [missing-attribute]
                 pc.utf8_slice_codeunits(grp, 0, 10),  # pyrefly: ignore [missing-attribute]
-                grp,  # pyrefly: ignore [missing-attribute]
-            )  # pyrefly: ignore [missing-attribute]
+                grp,
+            )
             grp_name = pc.if_else(  # pyrefly: ignore [missing-attribute]
                 pc.is_valid(grp),  # pyrefly: ignore [missing-attribute]
                 pc.utf8_trim_whitespace(  # pyrefly: ignore [missing-attribute]
                     pc.utf8_slice_codeunits(grp, 10, 1 << 20)  # pyrefly: ignore [missing-attribute]
-                ),  # pyrefly: ignore [missing-attribute]
+                ),
                 grp,
             )
             keep = pc.or_(  # pyrefly: ignore [missing-attribute]
                 pc.or_(pc.is_valid(code), pc.is_valid(lic)),  # pyrefly: ignore [missing-attribute]
                 pc.is_valid(grp),  # pyrefly: ignore [missing-attribute]
-            )  # pyrefly: ignore [missing-attribute]
+            )
             if not pc.any(keep).as_py():  # pyrefly: ignore [missing-attribute]
                 continue
             t = pa.table(

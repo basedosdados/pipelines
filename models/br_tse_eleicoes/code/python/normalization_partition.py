@@ -9,14 +9,18 @@ Equivalent of sub/normalizacao_particao.do.
 """
 
 import pandas as pd
-from config import (
+
+from models.br_tse_eleicoes.code.python.config import (
     OUTPUT_PYTHON,
     STREAM_SECAO_ROOT,
     UFS_CANDIDATOS,
     UFS_PARTIDOS,
     YEARS_EVEN,
 )
-from utils.helpers import coerce_numeric_for_write, save_partitioned
+from models.br_tse_eleicoes.code.python.utils.helpers import (
+    coerce_numeric_for_write,
+    save_partitioned,
+)
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -1048,6 +1052,7 @@ _UFS_PERFIL_SECAO = {
     2020: ["AC", "AL", "AM", "AP", "BA", "CE", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"],
     2022: ["AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO", "ZZ"],
     2024: ["AC", "AL", "AM", "AP", "BA", "CE", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"],
+    2026: ["AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO", "ZZ"],
 }
 # fmt: on
 

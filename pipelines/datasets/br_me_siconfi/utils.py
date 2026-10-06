@@ -68,9 +68,7 @@ def _ensure_code_on_path() -> None:
 
 def _download_api():
     """Import the ``download_api`` module from the bootstrap code dir."""
-    _ensure_code_on_path()
-    # pyrefly: ignore [missing-import]
-    import download_api
+    from models.br_me_siconfi.code import download_api
 
     return download_api
 
@@ -94,9 +92,7 @@ def _build_registry() -> dict:
 
 def _shared():
     """Import the builders' shared worker helpers."""
-    _ensure_code_on_path()
-    # pyrefly: ignore [missing-import]
-    from tables_final import shared
+    from models.br_me_siconfi.code.tables_final import shared
 
     return shared
 

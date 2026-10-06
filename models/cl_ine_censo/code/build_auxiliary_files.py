@@ -10,8 +10,8 @@ INE's enumerator manual is 28 MB and is therefore linked, not rehosted.
 
 Usage::
 
-    python build_auxiliary_files.py            # build the zips
-    python build_auxiliary_files.py --upload   # build, then upload to GCS
+    uv run models/cl_ine_censo/code/build_auxiliary_files.py            # build the zips
+    uv run models/cl_ine_censo/code/build_auxiliary_files.py --upload   # build, then upload to GCS
 """
 
 from __future__ import annotations
@@ -26,7 +26,10 @@ from pathlib import Path
 
 warnings.filterwarnings("ignore")
 
-from constants import DATA_ROOT, DATASET_ID  # noqa: E402
+from models.cl_ine_censo.code.constants import (  # noqa: E402
+    DATA_ROOT,
+    DATASET_ID,
+)
 
 AUX_DIR = DATA_ROOT / "aux"
 DOCS_DIR = AUX_DIR / "docs"

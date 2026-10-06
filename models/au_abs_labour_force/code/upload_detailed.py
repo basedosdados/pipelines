@@ -1,7 +1,7 @@
 """Upload the 12 cleaned Detailed-release tables to BigQuery (dev only).
 
 Usage:
-    uv run python models/au_abs_labour_force/code/upload_detailed.py [table ...]
+    uv run models/au_abs_labour_force/code/upload_detailed.py [table ...]
 
 **Uploads to ``basedosdados-dev`` and nowhere else, by design.** Data Basis never
 writes prod from a workstation: the prod tables are materialised by the
@@ -31,8 +31,9 @@ import basedosdados as bd  # noqa: E402
 import google.cloud.storage as gcs  # noqa: E402
 from google.cloud import bigquery  # noqa: E402
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from clean_detailed import EXPECTED_TABLE_ROWS  # noqa: E402
+from models.au_abs_labour_force.code.clean_detailed import (  # noqa: E402
+    EXPECTED_TABLE_ROWS,
+)
 
 _parser = argparse.ArgumentParser(
     description="Upload the Detailed-release tables to basedosdados-dev."

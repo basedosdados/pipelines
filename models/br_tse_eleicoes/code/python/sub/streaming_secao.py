@@ -16,7 +16,7 @@ and perfil aggregations are group-sums, which are associative and so
 chunk-safe. Validated against the in-RAM build (which is byte-identical to
 the March reference) - see `validate_stream_year`.
 
-Run: ``TSE_DATA_DIR=... uv run python -m sub.streaming_secao <ano> [out_root]``
+Run: ``TSE_DATA_DIR=... uv run -m sub.streaming_secao <ano> [out_root]``
 """
 
 from __future__ import annotations
@@ -28,11 +28,17 @@ from pathlib import Path
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
-from config import INPUT_DIR, STREAM_SECAO_ROOT
-from utils.helpers import iter_raw_csv_chunks, read_raw_csv
 
-from sub import results_section as rsec
-from sub import voter_profile_section as vps
+from models.br_tse_eleicoes.code.python.config import (
+    INPUT_DIR,
+    STREAM_SECAO_ROOT,
+)
+from models.br_tse_eleicoes.code.python.sub import results_section as rsec
+from models.br_tse_eleicoes.code.python.sub import voter_profile_section as vps
+from models.br_tse_eleicoes.code.python.utils.helpers import (
+    iter_raw_csv_chunks,
+    read_raw_csv,
+)
 
 CHUNK = 2_000_000
 # CSV larger than this is read in chunks; smaller UFs are read whole.
@@ -89,11 +95,13 @@ class _PartitionRouter:
             if not len(sub):
                 continue
             table = pa.Table.from_pandas(sub, preserve_index=False)
+            # pyrefly: ignore [bad-argument-type]
             w = self.writers.get(uf_val)
             if w is None:
                 d = self.dir / f"ano={self.ano}" / f"sigla_uf={uf_val}"
                 d.mkdir(parents=True, exist_ok=True)
                 w = pq.ParquetWriter(d / "data.parquet", table.schema)
+                # pyrefly: ignore [unsupported-operation]
                 self.writers[uf_val] = w
             w.write_table(table)
 
@@ -138,12 +146,14 @@ def stream_resultados_secao(ano: int, out_root: Path) -> None:
             # partido: reduce each chunk to group-sums so RAM stays bounded
             grp = [c for c in rsec._GROUP_COLS if c in nominais.columns]
             nom_parts.append(
+                # pyrefly: ignore [bad-argument-type]
                 nominais.groupby(grp, as_index=False, dropna=False)[
                     "votos"
                 ].sum()
             )
             lgrp = [c for c in rsec._GROUP_COLS if c in legenda.columns]
             leg_parts.append(
+                # pyrefly: ignore [bad-argument-type]
                 legenda.groupby(lgrp, as_index=False, dropna=False)[
                     "votos_legenda"
                 ].sum()
@@ -180,6 +190,7 @@ def _finalize_partido_from_partials(
     nom_agg = (
         nominais_partial.groupby(grp, as_index=False, dropna=False)["votos"]
         .sum()
+        # pyrefly: ignore [no-matching-overload]
         .rename(columns={"votos": "votos_nominais"})
     )
     lgrp = [c for c in rsec._GROUP_COLS if c in legenda_partial.columns]

@@ -12,11 +12,11 @@ The build runs years in parallel using ProcessPoolExecutor.
 Use --workers to control parallelism (default: 1 = sequential).
 
 Usage:
-    python build.py --path_dados /path/to/dados_SICONFI
-    python build.py --path_dados ... --workers 4
-    python build.py --path_dados ... --download --download-workers 5
-    python build.py --path_dados ... --table municipio_receitas_orcamentarias
-    python build.py --path_dados ... --ano 2022
+    uv run models/br_me_siconfi/code/build.py --path_dados /path/to/dados_SICONFI
+    uv run models/br_me_siconfi/code/build.py --path_dados ... --workers 4
+    uv run models/br_me_siconfi/code/build.py --path_dados ... --download --download-workers 5
+    uv run models/br_me_siconfi/code/build.py --path_dados ... --table municipio_receitas_orcamentarias
+    uv run models/br_me_siconfi/code/build.py --path_dados ... --ano 2022
 """
 
 import argparse
@@ -30,8 +30,10 @@ import pandas as pd
 _here = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, _here)
 
-# pyrefly: ignore [missing-import]
-from tables_final.shared import _init_worker, process_year_task  # noqa: E402
+from models.br_me_siconfi.code.tables_final.shared import (  # noqa: E402
+    _init_worker,
+    process_year_task,
+)
 
 # ---------------------------------------------------------------------------
 # Table registry

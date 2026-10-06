@@ -16,17 +16,18 @@ of these issues Row Access Policies.
 The source poll short-circuits a run until APRA publishes a newer quarter, which
 makes a scheduled run a cheap no-op between releases.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``au_apra_adi_flow``;
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``au_apra_adi_flow``;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.au_apra_adi.constants import constants
 from pipelines.datasets.au_apra_adi.tasks import clean_adi, download_adi
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllFree,
     DateFormat,
@@ -102,7 +103,6 @@ def au_apra_adi_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new quarter.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="adi"
     )
@@ -194,16 +194,14 @@ def au_apra_adi_flow(
 # quarter end -- early-to-mid March, June, September and December. Poll across
 # the first half of those months at 15:00 BRT; the source-poll guard no-ops
 # until a new quarter lands.
-# pyrefly: ignore [missing-attribute]
 au_apra_adi_flow.deploy_schedules = [
-    {
-        "cron": "11 15 4,5,6,7,8,9,10,11,12,13,14 3,6,9,12 *",
-        "timezone": "America/Sao_Paulo",
-    }
+    Cron(
+        "11 15 4,5,6,7,8,9,10,11,12,13,14 3,6,9,12 *",
+        timezone="America/Sao_Paulo",
+    )
 ]
 # The clean step holds the full history (~52k rows) in pandas; 4Gi is ample,
 # but be explicit so the pod is not silently capped by the pool default.
-# pyrefly: ignore [missing-attribute]
 au_apra_adi_flow.job_variables = {
     "memory_limit": "4Gi",
     "memory_request": "2Gi",

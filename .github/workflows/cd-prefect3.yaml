@@ -3,7 +3,10 @@ name: cd-prefect3 (production)
 on:
   push:
     branches: [main]
-    paths: [pipelines/**/*.py, .github/workflows/cd-prefect3.yaml]
+    paths:
+      - pipelines/**/*.py
+      - .github/workflows/cd-prefect3.yaml
+      - .github/workflows/scripts/deploy_flows.py
 jobs:
   deploy-production:
     name: deploy flows (basedosdados)
@@ -56,7 +59,7 @@ jobs:
           PREFECT_API_URL: https://prefect3.basedosdados.org/api
           PREFECT_API_KEY: ${{ secrets.PREFECT3_AUTH_TOKEN }}
         run: |-
-          uv run python .github/scripts/deploy_flows.py \
+          uv run .github/workflows/scripts/deploy_flows.py \
             --pool basedosdados \
             --branch ${{ github.ref_name }} \
             --changed ${{ steps.changed-files.outputs.all_changed_files }}
@@ -67,7 +70,7 @@ jobs:
           PREFECT_API_URL: https://prefect3.basedosdados.org/api
           PREFECT_API_KEY: ${{ secrets.PREFECT3_AUTH_TOKEN }}
         run: |-
-          uv run python .github/scripts/deploy_flows.py \
+          uv run .github/workflows/scripts/deploy_flows.py \
             --pool basedosdados \
             --branch ${{ github.ref_name }} \
             --all

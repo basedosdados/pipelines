@@ -34,7 +34,7 @@ Worker sizing: `"memory": "12Gi"`
 - https://cricsheet.org/register/people.csv
 
 ## Design notes
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``world_cricsheet_flow``; the
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``world_cricsheet_flow``; the
 dev pool ignores the schedule, the prod pool activates it (paused until armed).
 
 Pure functions (no Prefect) so they are importable and unit-testable. The recurring

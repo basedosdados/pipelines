@@ -6,17 +6,14 @@ should reproduce the figures NCHS publishes, exactly. Both adjustments are easy
 to omit and neither fails loudly - a missing weight silently understates
 1972-1984 births by up to 46 percent.
 
-    python models/us_nchs_vital_statistics/code/us_nchs_vital_statistics_validate.py
+    uv run models/us_nchs_vital_statistics/code/us_nchs_vital_statistics_validate.py
 """
 
 import os
-import sys
 from pathlib import Path
 
 import pandas as pd
 import pyarrow.parquet as pq
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 DATA = Path(
     os.environ.get(

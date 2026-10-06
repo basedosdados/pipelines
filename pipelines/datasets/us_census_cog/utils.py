@@ -512,7 +512,7 @@ def _gus_rows(path: Path) -> Iterator[tuple[str, dict]]:
     """Yield ``(sheet_title, row_dict)`` for every data row in a GUS workbook."""
     # openpyxl ships no type stubs and types-openpyxl is not a dependency of
     # this repo; the warning is about the library, not this code.
-    # pyrefly: ignore [untyped-import]
+
     import openpyxl
 
     workbook = openpyxl.load_workbook(path, read_only=True, data_only=True)

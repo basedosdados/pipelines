@@ -25,7 +25,7 @@ acessível (ex.: Google Drive montado, como no Colab onde os anos anteriores
 foram processados).
 
 Uso:
-    python atualizar_dicionario_2025.py
+    uv run models/world_oecd_pisa/code/atualizar_dicionario_2025.py
 
 Gera, em extra/:
     dictionary_2025.csv   — dicionário antigo + linhas novas (task 1 e 2)
@@ -82,7 +82,6 @@ def carregar_dicionario_antigo(path: Path) -> pd.DataFrame:
 def carregar_rotulos_sav(sav_path: Path) -> dict:
     """Lê só os metadados do .sav — rápido mesmo em arquivos grandes, não
     carrega as linhas de dado. Devolve {nome_original: {chave: rotulo}}."""
-    # pyrefly: ignore [missing-import]
     import pyreadstat
 
     _, meta = pyreadstat.read_sav(str(sav_path), metadataonly=True)

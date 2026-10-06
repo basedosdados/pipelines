@@ -11,7 +11,7 @@ the br_bd_diretorios_au build (STAGING values; substitute local_government_area
 raw_data_source_id is left as a placeholder — the ABS DataPacks raw source is
 created at registration time and substituted in.
 
-Run:  python gen_tables_meta.py
+Run:  uv run models/au_abs_community_profiles/code/gen_tables_meta.py
 """
 
 import json

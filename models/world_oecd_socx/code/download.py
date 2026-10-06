@@ -12,7 +12,7 @@ and silent. So a chunk file is written only after a 200 response has been parsed
 via a ``.part`` file renamed into place; any non-200 raises. ``manifest.json``
 records each chunk's row count.
 
-Run: ``python download.py``   (only one table, ``expenditure``)
+Run: ``uv run models/world_oecd_socx/code/download.py``   (only one table, ``expenditure``)
 """
 
 import csv
@@ -21,8 +21,8 @@ import json
 import sys
 import xml.etree.ElementTree as ET
 
-from common import INPUT, SDMX, STRUCTURE, get
-from tables import TABLES
+from models.world_oecd_socx.code.common import INPUT, SDMX, STRUCTURE, get
+from models.world_oecd_socx.code.tables import TABLES
 
 S = "{http://www.sdmx.org/resources/sdmxml/schemas/v2_1/structure}"
 C = "{http://www.sdmx.org/resources/sdmxml/schemas/v2_1/common}"

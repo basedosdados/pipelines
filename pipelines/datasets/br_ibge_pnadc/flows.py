@@ -2,7 +2,7 @@
 Flow br_ibge_pnadc — Prefect 3.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.crawler.ibge_pnadc.tasks import (
     build_partitions,
@@ -10,6 +10,7 @@ from pipelines.crawler.ibge_pnadc.tasks import (
     get_data_source_date_and_url,
 )
 from pipelines.datasets.br_ibge_pnadc.tasks import build_dicionario_task
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     PartBdpro,
@@ -42,7 +43,6 @@ def br_ibge_pnadc__microdados(
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -130,9 +130,8 @@ def br_ibge_pnadc__microdados(
         )
 
 
-# pyrefly: ignore [missing-attribute]
 br_ibge_pnadc__microdados.deploy_schedules = [
-    {"cron": "0 5 15-31 2,5,8,11 *", "timezone": "America/Sao_Paulo"}
+    Cron("0 5 15-31 2,5,8,11 *", timezone="America/Sao_Paulo")
 ]
 
 
@@ -154,7 +153,6 @@ def br_ibge_pnadc__dicionario(
         materialize_after_dump: Se True, sobe também para prod e materializa lá.
         target: Target dbt para a materialização em prod.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -201,7 +199,6 @@ def br_ibge_pnadc__dicionario(
     )
 
 
-# pyrefly: ignore [missing-attribute]
 br_ibge_pnadc__dicionario.deploy_schedules = [
-    {"cron": "0 5 1,15 * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 5 1,15 * *", timezone="America/Sao_Paulo")
 ]

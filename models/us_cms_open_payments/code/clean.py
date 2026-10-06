@@ -17,11 +17,10 @@ investigator blocks to rows of ``research_principal_investigator``.
 
 import sys
 
-import constants as c
 import duckdb
-import layout
-import naming
-import schema
+
+from models.us_cms_open_payments.code import constants as c
+from models.us_cms_open_payments.code import layout, naming, schema
 
 MEMORY_LIMIT = "8GB"
 

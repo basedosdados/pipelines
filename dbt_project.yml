@@ -37,6 +37,9 @@ models:
     columns: true
   basedosdados:
     # Config indicated by + and applies to all files under models/example/
+    ar_indec_eph:
+      +materialized: table
+      +schema: ar_indec_eph
     af_afrobarometer_survey:
       +materialized: table
       +schema: af_afrobarometer_survey
@@ -52,6 +55,9 @@ models:
     au_abs_prices_inflation:
       +materialized: table
       +schema: au_abs_prices_inflation
+    au_abs_productivity:
+      +materialized: table
+      +schema: au_abs_productivity
     au_alexander_politicians:
       +materialized: table
       +schema: au_alexander_politicians
@@ -157,6 +163,9 @@ models:
     br_bd_diretorios_brasil:
       +materialized: table
       +schema: br_bd_diretorios_brasil
+    br_bd_diretorios_ar:
+      +materialized: table
+      +schema: br_bd_diretorios_ar
     br_bd_diretorios_cl:
       +materialized: table
       +schema: br_bd_diretorios_cl
@@ -216,6 +225,9 @@ models:
     us_bls_atus:
       +materialized: table
       +schema: us_bls_atus
+    us_bls_cex:
+      +materialized: table
+      +schema: us_bls_cex
     us_bls_cpi:
       +materialized: table
       +schema: us_bls_cpi
@@ -564,6 +576,12 @@ models:
     br_mgi_compras_publicas:
       +materialized: table
       +schema: br_mgi_compras_publicas
+    br_mj_sinesp:
+      +materialized: table
+      +schema: br_mj_sinesp
+    br_mj_sisdepen:
+      +materialized: table
+      +schema: br_mj_sisdepen
     br_mma_sinpatinhas:
       +materialized: table
       +schema: br_mma_sinpatinhas
@@ -573,6 +591,9 @@ models:
     br_mp_pep:
       +materialized: table
       +schema: br_mp_pep
+    br_mps_beneficios:
+      +materialized: table
+      +schema: br_mps_beneficios
     br_ms_cnes:
       +materialized: table
       +schema: br_ms_cnes
@@ -615,6 +636,9 @@ models:
     br_poder360_pesquisas:
       +materialized: table
       +schema: br_poder360_pesquisas
+    br_prf_acidentes:
+      +materialized: table
+      +schema: br_prf_acidentes
     br_rf_arrecadacao:
       +materialized: table
       +schema: br_rf_arrecadacao
@@ -645,6 +669,12 @@ models:
     br_simet_educacao_conectada:
       +materialized: table
       +schema: br_simet_educacao_conectada
+    br_sou_da_paz_armas_municoes:
+      +materialized: table
+      +schema: br_sou_da_paz_armas_municoes
+      +post-hook:
+        - REVOKE `roles/bigquery.dataViewer` ON TABLE {{ this }} FROM "specialGroup:allUsers"
+        - GRANT `roles/bigquery.dataViewer` ON TABLE {{ this }} TO "serviceAccount:metabase@repositorio-de-dados.iam.gserviceaccount.com"
     br_sp_saopaulo_dieese_icv:
       +materialized: table
       +schema: br_sp_saopaulo_dieese_icv
@@ -669,6 +699,9 @@ models:
     br_tse_filiacao_partidaria:
       +materialized: table
       +schema: br_tse_filiacao_partidaria
+    br_ufmg_censo_demografico_1872:
+      +materialized: table
+      +schema: br_ufmg_censo_demografico_1872
     cl_chilecompra_mercado_publico:
       +materialized: table
       +schema: cl_chilecompra_mercado_publico

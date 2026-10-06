@@ -8,18 +8,15 @@ and a model disagree, the architecture wins and this script regenerates the
 model.
 
 Usage:
-    /tmp/cs_venv/bin/python models/us_ed_college_scorecard/code/build_dbt_files.py
+    uv run models/us_ed_college_scorecard/code/build_dbt_files.py
 """
 
 import csv
 import json
 import logging
 import pathlib
-import sys
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]
-import spec
+from models.us_ed_college_scorecard.code import spec
 
 DATASET = "us_ed_college_scorecard"
 CODE_DIR = pathlib.Path(__file__).resolve().parent
