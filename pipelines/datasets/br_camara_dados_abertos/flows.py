@@ -4,13 +4,20 @@ Flows para br_camara_dados_abertos — Prefect 3.
 
 from prefect.schedules import Cron
 
+from pipelines.datasets.br_camara_dados_abertos.constants import (
+    update_metadata_variable_dictionary,
+)
 from pipelines.datasets.br_camara_dados_abertos.tasks import (
     check_if_url_is_valid,
     save_data,
 )
 from pipelines.utils.flow import flow
+from pipelines.utils.metadata.tasks import (
+    register_table_materialization_task,
+)
 from pipelines.utils.tasks import (
     rename_flow_run_dataset_table,
+    run_dbt,
     upload_to_gcs,
 )
 
@@ -48,6 +55,44 @@ def _camara_flow(table_id: str, cron: str):
             dump_mode="append",
             source_format="csv",
         )
+        run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_command="run/test",
+            target="dev",
+        )
+
+        if not materialize_after_dump:
+            return
+
+        upload_to_gcs(
+            data_path=filepath,
+            dataset_id=dataset_id,
+            table_id=table_id,
+            bucket_name="basedosdados",
+            dump_mode="append",
+            source_format="csv",
+        )
+
+        run_dbt(
+            dataset_id=dataset_id,
+            table_id=table_id,
+            dbt_command="run/test",
+            target=target,
+        )
+
+        if update_metadata:
+            coverage = update_metadata_variable_dictionary(
+                table_id=table_id, dataset_id=dataset_id
+            )
+            if coverage is not None:
+                register_table_materialization_task(
+                    dataset_id=dataset_id,
+                    table_id=table_id,
+                    coverage=coverage,
+                    env="prod",
+                    bq_project="basedosdados",
+                )
 
     _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
     return _flow
