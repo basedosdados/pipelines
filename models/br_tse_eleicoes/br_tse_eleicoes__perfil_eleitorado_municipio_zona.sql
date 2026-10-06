@@ -1,3 +1,5 @@
+-- 2024 e 2026 reprocessados em 2026-10-06: celulas divididas pelo TSE em
+-- dimensoes nao mantidas aqui agora sao somadas, em vez de deduplicadas.
 {{
     config(
         schema="br_tse_eleicoes",
