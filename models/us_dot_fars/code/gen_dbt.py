@@ -3,7 +3,7 @@
 Generated from the architecture CSVs so the SQL cast list, the column order and
 the documented descriptions cannot drift from the schema they implement.
 
-Run: uv run python models/us_dot_fars/code/gen_dbt.py
+Run: uv run models/us_dot_fars/code/gen_dbt.py
 """
 
 import json

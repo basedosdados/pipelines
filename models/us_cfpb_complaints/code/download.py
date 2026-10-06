@@ -11,7 +11,7 @@ export is capped at 100,000 complaints and its JSON export has been discontinued
 The export is a full snapshot of the whole database refreshed daily, roughly 1.4 GB
 zipped and 9.3 GB as a single CSV.
 
-    python download.py
+    uv run models/us_cfpb_complaints/code/download.py
 """
 
 import argparse

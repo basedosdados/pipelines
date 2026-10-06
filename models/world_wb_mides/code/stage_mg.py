@@ -40,8 +40,8 @@ Nothing is repacked unless its own checks pass, so a half-finished download dire
 produces a smaller package rather than a corrupt one.
 
 Usage:
-    uv run python models/world_wb_mides/code/stage_mg.py --source ~/Downloads
-    uv run python models/world_wb_mides/code/stage_mg.py --source ~/Downloads --write
+    uv run models/world_wb_mides/code/stage_mg.py --source ~/Downloads
+    uv run models/world_wb_mides/code/stage_mg.py --source ~/Downloads --write
 """
 
 from __future__ import annotations
@@ -49,13 +49,10 @@ from __future__ import annotations
 import argparse
 import collections
 import re
-import sys
 import zipfile
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-from constants import INPUT_DIR, MG_MUNICIPALITIES
+from models.world_wb_mides.code.constants import INPUT_DIR, MG_MUNICIPALITIES
 
 MG_INPUT = INPUT_DIR / "mg"
 

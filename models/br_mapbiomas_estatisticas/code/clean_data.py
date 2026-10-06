@@ -5,23 +5,19 @@ writes the cleaned, hive-partitioned parquet. The transform itself lives in
 `pipelines/datasets/br_mapbiomas_estatisticas/utils.py` and is shared with the
 recurring pipeline, so there is exactly one copy of it.
 
-    python models/br_mapbiomas_estatisticas/code/clean_data.py
-    python models/br_mapbiomas_estatisticas/code/clean_data.py --skip-download
+    uv run models/br_mapbiomas_estatisticas/code/clean_data.py
+    uv run models/br_mapbiomas_estatisticas/code/clean_data.py --skip-download
 """
 
 from __future__ import annotations
 
 import argparse
-import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT))
-
-from pipelines.datasets.br_mapbiomas_estatisticas.constants import (  # noqa: E402
+from pipelines.datasets.br_mapbiomas_estatisticas.constants import (
     constants,
 )
-from pipelines.datasets.br_mapbiomas_estatisticas.utils import (  # noqa: E402
+from pipelines.datasets.br_mapbiomas_estatisticas.utils import (
     clean_all,
     download_biome_state_workbook,
     download_legend_csv,

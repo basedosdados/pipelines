@@ -1,7 +1,7 @@
 """Upload the cleaned us_census_lodes parquet to BigQuery staging (basedosdados-dev).
 
-    uv run python models/us_census_lodes/code/upload.py                  # all tables
-    uv run python models/us_census_lodes/code/upload.py residence_jobs   # one table
+    uv run models/us_census_lodes/code/upload.py                  # all tables
+    uv run models/us_census_lodes/code/upload.py residence_jobs   # one table
 
 `residence_jobs` and `workplace_jobs` are hive-partitioned by year
 (`year=<YYYY>/<state>.parquet`); `geography_crosswalk` is one file per state and
@@ -22,13 +22,10 @@ from __future__ import annotations
 
 import glob
 import sys
-from pathlib import Path
 
 import basedosdados as bd
 import google.cloud.storage as gcs
 import pyarrow.parquet as pq
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_census_lodes.constants import (
     DATASET_ID,

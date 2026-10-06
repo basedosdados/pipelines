@@ -3,7 +3,7 @@
 architecture CSVs (the schema source of truth).
 
 Usage:
-    uv run python models/au_apra_superannuation/code/gen_dbt.py
+    uv run models/au_apra_superannuation/code/gen_dbt.py
 """
 
 import csv
