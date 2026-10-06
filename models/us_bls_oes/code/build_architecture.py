@@ -8,7 +8,7 @@ English, first letter capitalized, no trailing period. Types follow the
 "arithmetic meaning" rule: only genuine quantities are numeric, and every numeric
 column carries a measurement_unit. Codes and flags are STRING.
 
-Run: uv run python models/us_bls_oes/code/build_architecture.py
+Run: uv run models/us_bls_oes/code/build_architecture.py
 """
 
 import csv

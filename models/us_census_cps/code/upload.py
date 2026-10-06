@@ -5,7 +5,7 @@ fixture), because the raw + intermediate Stata tree is far too large for Dropbox
 
 Usage:
     GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials/staging.json \
-        .venv/bin/python models/us_census_cps/code/upload.py [table_slug ...]
+        uv run models/us_census_cps/code/upload.py [table_slug ...]
 
 Uploads sequentially (smallest first). Stops on first failure.
 """

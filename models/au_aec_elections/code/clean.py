@@ -4,7 +4,7 @@ Thin bootstrap over ``pipelines.datasets.au_aec_elections.utils`` so the one-sho
 onboarding and any future recurring pipeline share one transform.
 
 Usage:
-    uv run python models/au_aec_elections/code/clean.py [--skip-download]
+    uv run models/au_aec_elections/code/clean.py [--skip-download]
 
 Raw downloads and cleaned parquet go to $AEC_DATA (default
 ~/Downloads/au_aec_elections_data), never inside the repo or Dropbox.
