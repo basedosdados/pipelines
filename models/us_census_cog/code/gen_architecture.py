@@ -5,7 +5,7 @@ names, order, BigQuery types, directory foreign keys and the raw -> clean name
 mapping. Every other artefact -- the cleaning transform, the dbt models, the
 ``schema.yml`` and the backend column payloads -- is generated from them.
 
-    python gen_architecture.py
+    uv run models/us_census_cog/code/gen_architecture.py
 """
 
 import csv

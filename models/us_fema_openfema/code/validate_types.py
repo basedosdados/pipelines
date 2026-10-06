@@ -8,7 +8,7 @@ are recorded in ``spec.TYPE_OVERRIDE`` rather than silently absorbed by
 
 Run against already-downloaded input files:
 
-    uv run python validate_types.py ~/Downloads/us_fema_openfema_data/input
+    uv run validate_types.py ~/Downloads/us_fema_openfema_data/input
 """
 
 from __future__ import annotations
@@ -22,7 +22,6 @@ import pyarrow.parquet as pq
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-sys.path.insert(0, str(HERE.parents[2]))
 
 from models.us_fema_openfema.code import glossary  # noqa: E402
 from models.us_fema_openfema.code import tables as spec  # noqa: E402

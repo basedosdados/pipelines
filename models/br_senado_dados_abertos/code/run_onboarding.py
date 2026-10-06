@@ -1,8 +1,8 @@
 """
 Build partitioned parquet for the br_senado_dados_abertos onboarding.
 
-  uv run python models/br_senado_dados_abertos/code/run_onboarding.py --sample
-  uv run python models/br_senado_dados_abertos/code/run_onboarding.py --full
+  uv run models/br_senado_dados_abertos/code/run_onboarding.py --sample
+  uv run models/br_senado_dados_abertos/code/run_onboarding.py --full
 
 All-STRING parquet under code/output/<table>/. Reuses the pipeline's cleaning
 transform (pipelines.datasets.br_senado_dados_abertos) — the single source of

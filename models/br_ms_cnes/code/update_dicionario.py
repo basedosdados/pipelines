@@ -11,10 +11,10 @@ Uso:
     cd models/br_ms_cnes/code
 
     # Conferir o que será acrescentado (não altera nada)
-    uv run python update_dicionario.py --dry-run
+    uv run update_dicionario.py --dry-run
 
     # Aplicar: grava o CSV e sobe para o staging dev
-    uv run python update_dicionario.py --apply
+    uv run update_dicionario.py --apply
 """
 
 from __future__ import annotations
@@ -517,10 +517,7 @@ def main() -> None:
         return
 
     if not args.apply:
-        print(
-            "\nDry-run. Para aplicar: "
-            "uv run python update_dicionario.py --apply"
-        )
+        print("\nDry-run. Para aplicar: uv run update_dicionario.py --apply")
         return
 
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)

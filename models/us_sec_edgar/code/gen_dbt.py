@@ -4,7 +4,7 @@ The architecture is the source of truth for column names, order, types and
 descriptions, so the models and their schema are generated rather than
 hand-kept in sync. Re-run after editing any `code/architecture/*.csv`:
 
-    uv run python models/us_sec_edgar/code/gen_dbt.py
+    uv run models/us_sec_edgar/code/gen_dbt.py
 
 Run pre-commit afterwards: yamlfix normalizes the generated schema.yml (short
 lists collapse to flow style), so the committed file differs cosmetically from

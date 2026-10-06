@@ -19,7 +19,7 @@ static catalogs of the 2022 census coding, not a refreshed series. They do carry
 a Coverage for Argentina with no datetime range.
 
 Usage:
-    ~/.pyenv/versions/3.11.6/bin/python register_metadata.py \
+    uv run models/br_bd_diretorios_ar/code/register_metadata.py \
         [--env staging|prod|dev] [--dry-run] [--publish]
 """
 
@@ -27,22 +27,14 @@ import argparse
 import csv
 import json
 import os
-import sys
+
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ARCH = os.path.join(HERE, "architecture")
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
-MCP = os.path.expanduser(
-    "~/Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-)
-# REPO so the absolute `from models...` import below resolves when this runs as
-# a plain script. That absolute form is the house pattern and the one Pyrefly
-# checks against from the repo root; a bare `import translations` type-checks
-# locally and fails CI.
-sys.path[:0] = [MCP, REPO]
 
-# pyrefly: ignore [missing-import]
-import server  # noqa: E402
 
 from models.br_bd_diretorios_ar.code import translations as tr  # noqa: E402
 
@@ -391,7 +383,7 @@ def columns_json(table: str) -> str:
 def spatial_category_id(env: str) -> str:
     """Id of the `spatial` entity category.
 
-    Goes through server._gql rather than server.lookup_id because the MCP
+    Goes through bd_mcp_metadata._gql rather than bd_mcp_metadata.lookup_id because the MCP
     queries `allEntityCategory` while the backend exposes `allEntitycategory`,
     so lookup_id(category="entity_category", ...) and
     discover_ids(keys=["entity_category"]) both fail with HTTP 400. Remove this
@@ -400,7 +392,9 @@ def spatial_category_id(env: str) -> str:
     q = """
     query { allEntitycategory(slug: "spatial") { edges { node { id slug } } } }
     """
-    edges = server._gql(q, env=env, auth=False)["allEntitycategory"]["edges"]
+    edges = bd_mcp_metadata._gql(q, env=env, auth=False)["allEntitycategory"][
+        "edges"
+    ]
     if not edges:
         raise RuntimeError(f"entity category 'spatial' not found on {env}")
     return edges[0]["node"]["id"].split(":")[-1]
@@ -421,7 +415,7 @@ def resolve_entities(env: str, entity_ids: dict) -> dict:
                 f"the entities this script creates"
             )
         pt, en, es = NEW_ENTITIES[slug]
-        r = server.create_update_entity(
+        r = bd_mcp_write.create_update_entity(
             slug=slug,
             name_pt=pt,
             name_en=en,
@@ -451,21 +445,23 @@ def main() -> None:
     env = args.env
     gcp_project = "basedosdados" if env == "prod" else "basedosdados-dev"
 
-    ids = server.discover_ids(
+    ids = bd_mcp_metadata.discover_ids(
         env=env, keys=["status", "entity", "license", "availability", "theme"]
     )
     status_under_review = ids["status"]["under_review"]
     status_published = ids["status"]["published"]
-    org_id = server.lookup_id(category="organization", slug=ORG_SLUG, env=env)[
-        "id"
-    ]
+    org_id = bd_mcp_metadata.lookup_id(
+        category="organization", slug=ORG_SLUG, env=env
+    )["id"]
     theme_ids = [ids["theme"][t] for t in THEME_SLUGS]
     tag_ids = [
-        server.lookup_id(category="tag", slug=t, env=env)["id"]
+        bd_mcp_metadata.lookup_id(category="tag", slug=t, env=env)["id"]
         for t in TAG_SLUGS[env]
     ]
-    area_id = server.lookup_id(category="area", slug=AREA_SLUG, env=env)["id"]
-    account_id = server.get_authenticated_account(env=env)["id"]
+    area_id = bd_mcp_metadata.lookup_id(
+        category="area", slug=AREA_SLUG, env=env
+    )["id"]
+    account_id = bd_mcp_metadata.get_authenticated_account(env=env)["id"]
 
     print(
         f"env={env} org={org_id} themes={theme_ids} "
@@ -486,8 +482,8 @@ def main() -> None:
 
     entity = resolve_entities(env, ids["entity"])
 
-    existing = server.get_dataset(slug=DATASET_SLUG, env=env)
-    ds = server.create_update_dataset(
+    existing = bd_mcp_metadata.get_dataset(slug=DATASET_SLUG, env=env)
+    ds = bd_mcp_write.create_update_dataset(
         slug=DATASET_SLUG,
         **DATASET,
         organization_ids=[org_id],
@@ -505,12 +501,12 @@ def main() -> None:
     # second copy of the source.
     prior_sources = {
         s["url"]: s["id"]
-        for s in server.get_raw_data_sources(
+        for s in bd_mcp_write.get_raw_data_sources(
             dataset_slug=DATASET_SLUG, env=env
         )
         if s.get("url")
     }
-    source = server.create_update_raw_data_source(
+    source = bd_mcp_write.create_update_raw_data_source(
         dataset_id=dataset_id,
         **RAW_SOURCE,
         license_id=ids["license"]["cc_by"],
@@ -531,7 +527,7 @@ def main() -> None:
         # run leaves records behind, and create_update_* duplicates observation
         # levels, cloud tables and coverages when called without an id.
         prior = (
-            server.get_dataset(slug=DATASET_SLUG, env=env)
+            bd_mcp_metadata.get_dataset(slug=DATASET_SLUG, env=env)
             .get("tables", {})
             .get(table, {})
         )
@@ -552,8 +548,9 @@ def main() -> None:
         # silently retries the column without one, so every id_* link is lost
         # and no error is reported. dicionario is not a directory table.
         is_directory = spec["primary_key"] is not None
-        t = server.create_update_table(
+        t = bd_mcp_write.create_update_table(
             slug=table,
+            # pyrefly: ignore [bad-argument-type]
             **names,
             dataset_id=dataset_id,
             status_id=status_published,
@@ -572,7 +569,7 @@ def main() -> None:
         }
         ol_ids = {}
         for ent_slug in spec["levels"]:
-            o = server.create_update_observation_level(
+            o = bd_mcp_write.create_update_observation_level(
                 table_id=table_id,
                 entity_id=entity[ent_slug],
                 id=prior_ols.get(ent_slug),
@@ -580,14 +577,14 @@ def main() -> None:
             )
             ol_ids[ent_slug] = o["id"]
         if ol_ids:
-            server.reorder_observation_levels(
+            bd_mcp_write.reorder_observation_levels(
                 table_id=table_id,
                 ol_ids=[ol_ids[e] for e in spec["levels"]],
                 env=env,
             )
         print(f"  observation levels: {list(spec['levels'])}")
 
-        res = server.bulk_upsert_columns(
+        res = bd_mcp_write.bulk_upsert_columns(
             table_id=table_id, columns_json=columns_json(table), env=env
         )
         print(
@@ -604,7 +601,7 @@ def main() -> None:
 
         # bulk_upsert appends a column it has to retry, so the stored order can
         # drift from the architecture. Restore it explicitly.
-        server.reorder_columns(
+        bd_mcp_write.reorder_columns(
             table_id=table_id, column_names=arch_order(table), env=env
         )
 
@@ -617,12 +614,12 @@ def main() -> None:
         if spec["levels"]:
             cols = {
                 c["name"]: c["id"]
-                for c in server.get_dataset(slug=DATASET_SLUG, env=env)[
-                    "tables"
-                ][table]["columns"]
+                for c in bd_mcp_metadata.get_dataset(
+                    slug=DATASET_SLUG, env=env
+                )["tables"][table]["columns"]
             }
             for ent_slug, col_name in spec["levels"].items():
-                server.update_column(
+                bd_mcp_write.update_column(
                     column_id=cols[col_name],
                     column_name=col_name,
                     table_id=table_id,
@@ -636,7 +633,7 @@ def main() -> None:
             )
 
         prior_ct = prior.get("cloud_tables", [])
-        server.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             table_id=table_id,
             gcp_project_id=gcp_project,
             gcp_dataset_id=GCP_DATASET_ID,
@@ -649,15 +646,16 @@ def main() -> None:
         # static catalog of the 2022 census coding, not a temporal series. Same
         # shape as br_bd_diretorios_cl, which carries no Update record either.
         prior_cov = prior.get("coverages", [])
-        server.create_update_coverage(
+        bd_mcp_write.create_update_coverage(
             table_id=table_id,
             area_id=area_id,
             id=prior_cov[0]["id"] if prior_cov else None,
             env=env,
         )
 
-        server.create_update_table(
+        bd_mcp_write.create_update_table(
             slug=table,
+            # pyrefly: ignore [bad-argument-type]
             **names,
             dataset_id=dataset_id,
             status_id=status_published,
@@ -669,7 +667,7 @@ def main() -> None:
         )
         print("  cloud table, coverage and raw source linked")
 
-    server.reorder_tables(
+    bd_mcp_write.reorder_tables(
         dataset_slug=DATASET_SLUG, table_slugs=TABLE_ORDER, env=env
     )
     print(f"\n=== METADATA REGISTRATION COMPLETE (env={env}) ===")

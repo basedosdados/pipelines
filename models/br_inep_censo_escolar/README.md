@@ -39,8 +39,8 @@ caminho.
 ```bash
 cd models/br_inep_censo_escolar/code
 
-uv run python run_local.py                  # trata
-uv run python run_local.py --output /tmp/x  # outro destino
+uv run run_local.py                  # trata
+uv run run_local.py --output /tmp/x  # outro destino
 ```
 
 O download e a extração acontecem só se os CSVs não estiverem em disco.

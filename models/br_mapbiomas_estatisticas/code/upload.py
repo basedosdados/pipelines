@@ -3,14 +3,13 @@
 Run after `clean_data.py`. Publishing to the production dataset happens through
 dbt and the table-approve action on merge, never from here.
 
-    python models/br_mapbiomas_estatisticas/code/upload.py --workers 2
+    uv run models/br_mapbiomas_estatisticas/code/upload.py --workers 2
 """
 
 from __future__ import annotations
 
 import argparse
 import os
-import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -18,10 +17,7 @@ from pathlib import Path
 import basedosdados as bd
 from google.cloud import storage as gcs
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT))
-
-from pipelines.datasets.br_mapbiomas_estatisticas.constants import (  # noqa: E402
+from pipelines.datasets.br_mapbiomas_estatisticas.constants import (
     constants,
 )
 

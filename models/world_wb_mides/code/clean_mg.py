@@ -54,7 +54,7 @@ stringifies its header, so a typed external table left by onboarding collides wi
 pipeline's later overwrite. See .claude/rules/prefect-pipeline-conventions.md.
 
 Usage:
-    uv run python models/world_wb_mides/code/clean_mg.py [--year 2022]
+    uv run models/world_wb_mides/code/clean_mg.py [--year 2022]
 """
 
 from __future__ import annotations
@@ -63,7 +63,6 @@ import argparse
 import io
 import json
 import re
-import sys
 import time
 import zipfile
 from collections import Counter
@@ -73,9 +72,8 @@ import pyarrow as pa
 import pyarrow.csv as pacsv
 import pyarrow.parquet as pq
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-import repair_mg  # pyrefly: ignore [missing-import]  # sibling, via sys.path
-from constants import (  # pyrefly: ignore [missing-import]  # sibling, via sys.path
+import models.world_wb_mides.code.repair_mg as repair_mg
+from models.world_wb_mides.code.constants import (
     INPUT_DIR,
     OUTPUT_DIR,
 )
