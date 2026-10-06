@@ -5,7 +5,7 @@ Columns whose non-null share falls below 8% (sparse across institution types) ar
 added to the not_null_proportion ignore list, computed from the cleaned output.
 
 Usage:
-    AU_APRA_ADI_DATA=~/Downloads/au_apra_adi_data uv run python models/au_apra_adi/code/gen_dbt.py
+    AU_APRA_ADI_DATA=~/Downloads/au_apra_adi_data uv run models/au_apra_adi/code/gen_dbt.py
 """
 
 import csv

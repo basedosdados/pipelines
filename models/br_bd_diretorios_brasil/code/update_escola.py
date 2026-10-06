@@ -3,13 +3,13 @@
 Usage
 -----
     # só download + limpeza (padrão)
-    uv run python models/br_bd_diretorios_brasil/code/update_escola.py
+    uv run models/br_bd_diretorios_brasil/code/update_escola.py
 
     # com upload para BigQuery dev
-    uv run python models/br_bd_diretorios_brasil/code/update_escola.py --upload
+    uv run models/br_bd_diretorios_brasil/code/update_escola.py --upload
 
     # especifica diretório de input/output
-    uv run python models/br_bd_diretorios_brasil/code/update_escola.py \
+    uv run models/br_bd_diretorios_brasil/code/update_escola.py \
         --input  /caminho/input \
         --output /caminho/output
 
@@ -110,7 +110,7 @@ def main() -> None:
     else:
         log.info(
             "Skipping upload. Run with --upload to push to BigQuery dev, or:\n"
-            "  uv run python models/br_bd_diretorios_brasil/code/update_escola.py --upload"
+            "  uv run models/br_bd_diretorios_brasil/code/update_escola.py --upload"
         )
 
 

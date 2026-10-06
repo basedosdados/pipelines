@@ -5,7 +5,7 @@ Column NAMES + types + flags come from the architecture CSVs; trilingual
 descriptions are supplied here (the architecture `description` is PT-only).
 Emits one JSON file per table under ./columns_json/.
 
-Run:  python gen_columns_json.py
+Run:  uv run models/au_abs_community_profiles/code/gen_columns_json.py
 """
 
 import csv

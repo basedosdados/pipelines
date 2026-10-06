@@ -16,7 +16,7 @@ Two scopes, because the two are not the same question:
   revision dropped fields that are well populated across the full history.
 
 Usage:
-    uv run python models/us_dol_oflc/code/build_null_report.py
+    uv run models/us_dol_oflc/code/build_null_report.py
 """
 
 from __future__ import annotations

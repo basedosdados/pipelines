@@ -17,8 +17,8 @@ municipalities filed despesa. A municipality present in (2) but missing from (3)
 is a real gap; one in (1) but not (2) means enumeration missed it.
 
 Usage:
-    python verify_mg_harvest.py                 # offline: manifest vs disk
-    python verify_mg_harvest.py --portal        # also re-query the portal
+    uv run models/world_wb_mides/code/verify_mg_harvest.py                 # offline: manifest vs disk
+    uv run models/world_wb_mides/code/verify_mg_harvest.py --portal        # also re-query the portal
 """
 
 from __future__ import annotations
@@ -26,19 +26,18 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import sys
 import zipfile
 from collections import defaultdict
 from pathlib import Path
 
 import requests
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-from constants import BROWSER_UA, MG_API, MG_STATIC_BEARER
-
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-from harvest_mg import (
+from models.world_wb_mides.code.constants import (
+    BROWSER_UA,
+    MG_API,
+    MG_STATIC_BEARER,
+)
+from models.world_wb_mides.code.harvest_mg import (
     CATEGORIES,
     LEDGER,
     MANIFEST,

@@ -1,7 +1,7 @@
 """Reproduce the OECD's own published figures from the loaded tables.
 
 Usage:
-    uv run python models/world_oecd_piaac/code/verify_compendium.py
+    uv run models/world_oecd_piaac/code/verify_compendium.py
 
 The OECD publishes data compendia precisely so that users can confirm they are
 reading the Public Use Files correctly, which makes this the strongest end-to-end

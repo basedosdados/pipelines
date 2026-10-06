@@ -16,7 +16,7 @@ naive one does not:
   arithmetic.
 
 Usage:
-    uv run python models/br_bd_execucao_estadual/code/validate_sp.py [--env dev]
+    uv run models/br_bd_execucao_estadual/code/validate_sp.py [--env dev]
 """
 
 from __future__ import annotations

@@ -4,7 +4,7 @@
 Run with the shared venv interpreter directly (never `uv run`, which re-syncs the
 venv under long jobs)::
 
-    ~/.venvs/bd-pipelines/bin/python register_metadata.py --env staging
+    uv run models/cl_ine_censo/code/register_metadata.py --env staging
 
 The databasis MCP tools are plain Python functions, so they are imported and
 called in a loop. That matters here: the column payloads reach 100 KB per table
@@ -19,14 +19,9 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
-from pathlib import Path
 
-sys.path.insert(
-    0, str(Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp")
-)
-# pyrefly: ignore [missing-import]
-import server
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 from models.cl_ine_censo.code.constants import (
     CENSUS_YEAR,
@@ -193,7 +188,7 @@ def auxiliary_urls() -> dict[str, str]:
 
 def existing_state(env: str) -> dict:
     """Read back what already exists, so a re-run updates instead of duplicating."""
-    dataset = server.get_dataset(slug=DATASET_ID, env=env)
+    dataset = bd_mcp_metadata.get_dataset(slug=DATASET_ID, env=env)
     if isinstance(dataset, str):
         dataset = json.loads(dataset)
     return dataset if dataset.get("found") else {"tables": {}}
@@ -214,7 +209,7 @@ def register(env: str, gcp_project: str) -> None:
         name_pt, name_en, name_es = spec["names"]
         desc_pt, desc_en, desc_es = spec["descriptions"]
 
-        result = server.create_update_table(
+        result = bd_mcp_write.create_update_table(
             id=table_id,
             slug=slug,
             dataset_id=ids["dataset"],
@@ -228,6 +223,7 @@ def register(env: str, gcp_project: str) -> None:
             published_by_ids=[ids["account"]],
             data_cleaned_by_ids=[ids["account"]],
             raw_data_source_ids=[ids["raw_data_source"]],
+            # pyrefly: ignore [bad-argument-type]
             auxiliary_files_url=aux.get(slug),
             env=env,
         )
@@ -243,21 +239,24 @@ def register(env: str, gcp_project: str) -> None:
         }
         level_ids: dict[str, str] = {}
         for entity_slug, column_name in spec["levels"]:
-            level = server.create_update_observation_level(
+            level = bd_mcp_write.create_update_observation_level(
                 id=existing_levels.get(entity_slug),
+                # pyrefly: ignore [bad-argument-type]
                 table_id=table_id,
                 entity_id=entities[entity_slug],
                 env=env,
             )
             if isinstance(level, str):
                 level = json.loads(level)
+            # pyrefly: ignore [unsupported-operation]
             level_ids[column_name] = level.get("id")
         if spec["levels"]:
             print(f"  {len(level_ids)} observation level(s)")
 
         # --- columns -------------------------------------------------------
         payload = json.loads((PAYLOAD_DIR / f"{slug}.json").read_text("utf-8"))
-        server.bulk_upsert_columns(
+        bd_mcp_write.bulk_upsert_columns(
+            # pyrefly: ignore [bad-argument-type]
             table_id=table_id,
             columns_json=json.dumps(payload, ensure_ascii=False),
             env=env,
@@ -283,9 +282,10 @@ def register(env: str, gcp_project: str) -> None:
             if not level_id or not column_id:
                 print(f"  ! no column id for {column_name}; level not linked")
                 continue
-            server.update_column(
+            bd_mcp_write.update_column(
                 column_id=column_id,
                 column_name=column_name,
+                # pyrefly: ignore [bad-argument-type]
                 table_id=table_id,
                 observation_level_id=level_id,
                 is_partition=column_name == "ano",
@@ -299,8 +299,9 @@ def register(env: str, gcp_project: str) -> None:
 
         # --- cloud table ----------------------------------------------------
         cloud = (current.get("cloud_tables") or [{}])[0]
-        server.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             id=cloud.get("id"),
+            # pyrefly: ignore [bad-argument-type]
             table_id=table_id,
             gcp_project_id=gcp_project,
             gcp_dataset_id=DATASET_ID,
@@ -315,8 +316,9 @@ def register(env: str, gcp_project: str) -> None:
         if slug == "dicionario":
             continue
         coverage = (current.get("coverages") or [{}])[0]
-        cov = server.create_update_coverage(
+        cov = bd_mcp_write.create_update_coverage(
             id=coverage.get("id"),
+            # pyrefly: ignore [bad-argument-type]
             table_id=table_id,
             area_id=ids["area_cl"],
             env=env,
@@ -325,8 +327,9 @@ def register(env: str, gcp_project: str) -> None:
             cov = json.loads(cov)
         coverage_id = cov.get("id")
         ranges = coverage.get("datetime_ranges") or [{}]
-        server.create_update_datetime_range(
+        bd_mcp_write.create_update_datetime_range(
             id=ranges[0].get("id"),
+            # pyrefly: ignore [bad-argument-type]
             coverage_id=coverage_id,
             start_year=CENSUS_YEAR,
             end_year=CENSUS_YEAR,

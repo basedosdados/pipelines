@@ -13,7 +13,7 @@ same convention as world_oecd_pisa / world_iea_pirls). Column order matches the
 cleaned Parquet exactly (architecture table is the source of truth downstream).
 
 Usage:
-    .venv/bin/python models/af_afrobarometer_survey/code/build_architecture.py
+    uv run models/af_afrobarometer_survey/code/build_architecture.py
 """
 
 from __future__ import annotations
