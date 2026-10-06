@@ -1,6 +1,6 @@
 """Check every mapped cell against the cleaned parquet before publishing it.
 
-    python verify_measures.py
+    uv run models/us_cms_hcris/code/verify_measures.py
 
 For each measure and form version, reports how many reports on that form carry
 a value at the mapped address. A measure the mapping places in the wrong cell
@@ -11,6 +11,7 @@ claim.
 """
 
 import json
+from pathlib import Path
 
 from models.us_cms_hcris.code.common import OUTPUT, connect
 from models.us_cms_hcris.code.measures import FORM_1996, FORM_2010, MEASURES
@@ -77,7 +78,8 @@ def main() -> None:
     (OUTPUT.parent / "measured.json").write_text(
         json.dumps(measured, indent=1)
     )
-    with open("measured.json", "w") as fh:
+    # Beside this script, where gen_architecture.py reads it, whatever the cwd.
+    with open(Path(__file__).resolve().parent / "measured.json", "w") as fh:
         json.dump(measured, fh, indent=1)
     print(f"\n{len(problems)} measure/form pairs with zero coverage")
     for p in problems:

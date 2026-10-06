@@ -6,7 +6,7 @@ unique, that the damage decoding reproduces known totals, and what share of each
 column is null (which is what sets the ignore_values of the null-proportion
 test).
 
-Run: uv run python models/us_noaa_storm_events/code/verify_parquet.py
+Run: uv run models/us_noaa_storm_events/code/verify_parquet.py
 """
 
 import json

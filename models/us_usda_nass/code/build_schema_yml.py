@@ -6,7 +6,7 @@ One entry per fact table (per-grain) plus the dicionario, with:
 - custom_dictionary_coverage on value_suppression_flag,
 - not_null on year, the grain's key geography column(s), commodity, statistic_category.
 
-Run: ``uv run python models/us_usda_nass/code/build_schema_yml.py``
+Run: ``uv run models/us_usda_nass/code/build_schema_yml.py``
 """
 
 import csv

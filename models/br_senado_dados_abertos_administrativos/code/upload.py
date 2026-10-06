@@ -1,7 +1,7 @@
 """Upload cleaned br_senado_dados_abertos_administrativos parquet to BigQuery.
 
 Usage:
-    uv run python models/br_senado_dados_abertos_administrativos/code/upload.py \
+    uv run models/br_senado_dados_abertos_administrativos/code/upload.py \
         [--env dev|prod] [table ...]
 
 --env dev (default) -> basedosdados-dev; --env prod -> basedosdados. This

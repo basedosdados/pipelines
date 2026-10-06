@@ -5,7 +5,7 @@ Destino: gs://basedosdados-dev/staging/br_inpe_queimadas/microdados/
 
 Uso (apos processing.py):
     bash preparar_upload_append.sh
-    uv run python upload_append.py
+    uv run upload_append.py
 """
 
 from pathlib import Path

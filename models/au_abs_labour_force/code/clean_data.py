@@ -9,7 +9,7 @@ SDMX CSVs (LF.csv, LF_AGES.csv, LF_UNDER.csv) and the Excel spreadsheets
 (62020018.xlsx, 62020019.xlsx, SEM1.xlsx) are already in ../input.
 
 Usage:
-    uv run python models/au_abs_labour_force/code/clean_data.py [table ...]
+    uv run models/au_abs_labour_force/code/clean_data.py [table ...]
 """
 
 import logging

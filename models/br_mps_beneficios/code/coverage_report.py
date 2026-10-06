@@ -12,7 +12,7 @@ concedido_clean.py / mantido_clean.py; writes Markdown to
 ``<scratch>/reports/coverage_<table>.md``.
 
 Usage:
-    python models/br_mps_beneficios/code/coverage_report.py [--table TABLE]
+    uv run models/br_mps_beneficios/code/coverage_report.py [--table TABLE]
 """
 
 from __future__ import annotations
@@ -21,13 +21,10 @@ import argparse
 import csv
 import json
 import os
-import sys
 from collections import defaultdict
 from pathlib import Path
 
 import pandas as pd
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.br_mps_beneficios import utils as u
 

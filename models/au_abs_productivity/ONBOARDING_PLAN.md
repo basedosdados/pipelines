@@ -89,9 +89,9 @@ Override with `AU_ABS_PRODUCTIVITY_DATA_DIR`.
 
 ```bash
 D=~/Library/Caches/au_abs_productivity_data
-uv run python models/au_abs_productivity/code/download.py "$D/input"
-uv run python models/au_abs_productivity/code/clean_data.py "$D/input" "$D/output"
-uv run python models/au_abs_productivity/code/upload.py --env dev
+uv run models/au_abs_productivity/code/download.py "$D/input"
+uv run models/au_abs_productivity/code/clean_data.py "$D/input" "$D/output"
+uv run models/au_abs_productivity/code/upload.py --env dev
 BD_SERVICE_ACCOUNT_DEV=$HOME/.basedosdados/credentials/staging.json \
   uv run dbt run  --select au_abs_productivity --profiles-dir .
 BD_SERVICE_ACCOUNT_DEV=$HOME/.basedosdados/credentials/staging.json \

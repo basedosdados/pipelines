@@ -14,8 +14,8 @@ rather than leaving a short file behind. ``manifest.json`` records the row count
 of every chunk so the totals can be checked against the ``sdmx_metrics``
 observation counts the API advertises.
 
-Run: ``python download.py``            all tables
-     ``python download.py student``    one table
+Run: ``uv run models/world_oecd_education/code/download.py``            all tables
+     ``uv run models/world_oecd_education/code/download.py student``    one table
 """
 
 import csv

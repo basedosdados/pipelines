@@ -4,7 +4,7 @@ Per-table trilingual names + descriptions, observation-level entities, coverage
 years, and the BD-Pro flag — the input for backend metadata registration. Pure
 string assembly; reference-object UUIDs are supplied at registration time.
 
-Run: uv run python models/us_bls_qcew/code/build_registration_spec.py
+Run: uv run models/us_bls_qcew/code/build_registration_spec.py
 """
 
 import json

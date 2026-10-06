@@ -27,7 +27,7 @@ untrusted local code is running. It writes exactly one file, mode 0600, and
 prints nothing sensitive: the log line carries the expiry, never the token.
 
 Usage:
-    python mg_token_bridge.py --token-file ~/mg_token.txt &
+    uv run models/world_wb_mides/code/mg_token_bridge.py --token-file ~/mg_token.txt &
 
 then, in the console of a tab open on https://dadosabertos.tce.mg.gov.br/ :
 

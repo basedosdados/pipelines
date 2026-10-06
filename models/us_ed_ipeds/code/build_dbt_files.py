@@ -1,8 +1,8 @@
 """Generate DBT model files (.sql) and schema.yml for us_ed_ipeds.
 
 Usage:
-    uv run python models/us_ed_ipeds/code/build_dbt_files.py profile [--cache PATH]
-    uv run python models/us_ed_ipeds/code/build_dbt_files.py generate [--cache PATH]
+    uv run models/us_ed_ipeds/code/build_dbt_files.py profile [--cache PATH]
+    uv run models/us_ed_ipeds/code/build_dbt_files.py generate [--cache PATH]
 
 `profile` scans the local partitioned parquet in models/us_ed_ipeds/output/
 one table at a time to (1) verify the primary key empirically and (2) compute

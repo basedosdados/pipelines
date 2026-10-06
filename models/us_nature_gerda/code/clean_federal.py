@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Reshape the 7 federal (Bundestag) GERDA files into long tables.
 
-Run: cd models/us_nature_gerda/code && python3 clean_federal.py
+Run: uv run models/us_nature_gerda/code/clean_federal.py
 """
 
 import os
