@@ -24,22 +24,18 @@ The files are fixed-width, but the layout is not constant across years:
 less; headings are not levelled and take part in neither side of that link.
 
 Usage:
-    python models/us_bls_cex/code/clean_ucc.py [--years 1996 2024]
+    uv run models/us_bls_cex/code/clean_ucc.py [--years 1996 2024]
 """
 
 import argparse
 import json
 import logging
 import re
-import sys
 import time
 import zipfile
 from collections import Counter
-from pathlib import Path
 
 import pyarrow as pa
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_bls_cex.pumd_files import (
     DATA_DIR,

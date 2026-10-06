@@ -1,7 +1,7 @@
 """Generate dbt SQL models and append 2022 entries to schema.yml.
 
 Usage:
-    uv run python models/br_ibge_censo_demografico/code/build_dbt.py
+    uv run models/br_ibge_censo_demografico/code/build_dbt.py
 """
 
 from __future__ import annotations

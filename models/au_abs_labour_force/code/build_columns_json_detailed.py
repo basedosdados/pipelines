@@ -12,7 +12,7 @@ the Portuguese and Spanish alongside the English rather than in a side table.
 Writes `code/columns_json_detailed/<table>.json`.
 
 Usage:
-    uv run python models/au_abs_labour_force/code/build_columns_json_detailed.py
+    uv run models/au_abs_labour_force/code/build_columns_json_detailed.py
 """
 
 import json

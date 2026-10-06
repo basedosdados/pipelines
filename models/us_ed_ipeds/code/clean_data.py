@@ -12,8 +12,8 @@ kept verbatim; the DuckDB loading step is replaced by partitioned Parquet
 output (output/<table>/year=YYYY/data.parquet, snappy compression).
 
 Usage:
-    uv run python models/us_ed_ipeds/code/clean_data.py            # all tables
-    uv run python models/us_ed_ipeds/code/clean_data.py adm ef_d   # subset
+    uv run models/us_ed_ipeds/code/clean_data.py            # all tables
+    uv run models/us_ed_ipeds/code/clean_data.py adm ef_d   # subset
 
 Raw ZIP files are cached in models/us_ed_ipeds/input/ so subsequent runs
 skip downloads.

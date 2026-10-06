@@ -7,7 +7,7 @@ count against the parquet metadata.
 
 Usage (run from repo root, via uv):
     GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials/prod.json \
-      uv run python models/us_nature_gerda/code/upload.py \
+      uv run models/us_nature_gerda/code/upload.py \
       --dataset us_nature_gerda --output models/us_nature_gerda/output [table ...]
 """
 

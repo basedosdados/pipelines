@@ -1,7 +1,7 @@
 """Upload the cleaned us_fbi_cde parquet tables to BigQuery staging (dev).
 
 Usage:
-    uv run python models/us_fbi_cde/code/upload.py [--env dev] [table ...]
+    uv run models/us_fbi_cde/code/upload.py [--env dev] [table ...]
 
 Uploads smallest first so a credential or schema problem surfaces on the
 1,000-row dictionary rather than after the 200-million-row victim-offense
