@@ -3,7 +3,7 @@
 structured JSON of per-variable entries: label, question, Valid/Missing
 value-label blocks, and a proposed BigQuery type.
 
-Run: uv run python models/us_anes_time_series/code/parse_codebook.py
+Run: uv run models/us_anes_time_series/code/parse_codebook.py
 Outputs: code/build/parsed.json  (+ prints a review sample)
 """
 

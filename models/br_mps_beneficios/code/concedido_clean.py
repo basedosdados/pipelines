@@ -24,7 +24,7 @@ for every month it affects (or the whole staging directory) rather than
 trusting a re-run to pick the change up.
 
 Usage:
-    python models/br_mps_beneficios/code/concedido_clean.py [--limit N] [--from YYYYMM]
+    uv run models/br_mps_beneficios/code/concedido_clean.py [--limit N] [--from YYYYMM]
 """
 
 from __future__ import annotations
@@ -33,14 +33,11 @@ import argparse
 import json
 import os
 import shutil
-import sys
 import time
 from collections import defaultdict
 from pathlib import Path
 
 import pandas as pd
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.br_mps_beneficios import utils as u
 

@@ -1,7 +1,7 @@
 """Upload cleaned ATUS parquet tables to BigQuery dev (basedosdados-dev).
 
 Usage:
-    uv run python models/us_bls_atus/code/upload.py [table_slug ...]
+    uv run models/us_bls_atus/code/upload.py [table_slug ...]
 
 Uploads sequentially (smallest first). Stops on first failure.
 """

@@ -8,7 +8,7 @@ kept warm. The result is written as one multi-year chunk that clean.py picks up
 alongside the per-year files (clean partitions by the TIME_PERIOD column, so a
 multi-year chunk is fine).
 
-    python fetch_tail.py 2018 2022
+    uv run models/world_oecd_socx/code/fetch_tail.py 2018 2022
 """
 
 import sys
