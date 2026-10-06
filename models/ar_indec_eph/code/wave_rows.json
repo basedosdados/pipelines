@@ -1,0 +1,350 @@
+{
+ "2003Q3": {
+  "microdatos_hogar": 13180,
+  "microdatos_individuo": 46397
+ },
+ "2003Q4": {
+  "microdatos_hogar": 13325,
+  "microdatos_individuo": 46847
+ },
+ "2004Q1": {
+  "microdatos_hogar": 12816,
+  "microdatos_individuo": 45289
+ },
+ "2004Q2": {
+  "microdatos_hogar": 13809,
+  "microdatos_individuo": 47869
+ },
+ "2004Q3": {
+  "microdatos_hogar": 13806,
+  "microdatos_individuo": 47922
+ },
+ "2004Q4": {
+  "microdatos_hogar": 13497,
+  "microdatos_individuo": 46850
+ },
+ "2005Q1": {
+  "microdatos_hogar": 13597,
+  "microdatos_individuo": 47030
+ },
+ "2005Q2": {
+  "microdatos_hogar": 13511,
+  "microdatos_individuo": 46912
+ },
+ "2005Q3": {
+  "microdatos_hogar": 13807,
+  "microdatos_individuo": 47647
+ },
+ "2005Q4": {
+  "microdatos_hogar": 13704,
+  "microdatos_individuo": 47166
+ },
+ "2006Q1": {
+  "microdatos_hogar": 13315,
+  "microdatos_individuo": 45878
+ },
+ "2006Q2": {
+  "microdatos_hogar": 13962,
+  "microdatos_individuo": 47680
+ },
+ "2006Q3": {
+  "microdatos_hogar": 18866,
+  "microdatos_individuo": 65026
+ },
+ "2006Q4": {
+  "microdatos_hogar": 18655,
+  "microdatos_individuo": 64384
+ },
+ "2007Q1": {
+  "microdatos_hogar": 18360,
+  "microdatos_individuo": 63438
+ },
+ "2007Q2": {
+  "microdatos_hogar": 18526,
+  "microdatos_individuo": 63235
+ },
+ "2007Q4": {
+  "microdatos_hogar": 17891,
+  "microdatos_individuo": 61760
+ },
+ "2008Q1": {
+  "microdatos_hogar": 18123,
+  "microdatos_individuo": 62067
+ },
+ "2008Q2": {
+  "microdatos_hogar": 18224,
+  "microdatos_individuo": 61530
+ },
+ "2008Q3": {
+  "microdatos_hogar": 18326,
+  "microdatos_individuo": 62115
+ },
+ "2008Q4": {
+  "microdatos_hogar": 18217,
+  "microdatos_individuo": 62107
+ },
+ "2009Q1": {
+  "microdatos_hogar": 17820,
+  "microdatos_individuo": 60267
+ },
+ "2009Q2": {
+  "microdatos_hogar": 17904,
+  "microdatos_individuo": 60058
+ },
+ "2009Q3": {
+  "microdatos_hogar": 18149,
+  "microdatos_individuo": 60813
+ },
+ "2009Q4": {
+  "microdatos_hogar": 17807,
+  "microdatos_individuo": 59829
+ },
+ "2010Q1": {
+  "microdatos_hogar": 17478,
+  "microdatos_individuo": 58723
+ },
+ "2010Q2": {
+  "microdatos_hogar": 17813,
+  "microdatos_individuo": 59499
+ },
+ "2010Q3": {
+  "microdatos_hogar": 18045,
+  "microdatos_individuo": 59935
+ },
+ "2010Q4": {
+  "microdatos_hogar": 17812,
+  "microdatos_individuo": 58898
+ },
+ "2011Q1": {
+  "microdatos_hogar": 17607,
+  "microdatos_individuo": 57784
+ },
+ "2011Q2": {
+  "microdatos_hogar": 18001,
+  "microdatos_individuo": 58726
+ },
+ "2011Q3": {
+  "microdatos_hogar": 17761,
+  "microdatos_individuo": 57977
+ },
+ "2011Q4": {
+  "microdatos_hogar": 17686,
+  "microdatos_individuo": 57170
+ },
+ "2012Q1": {
+  "microdatos_hogar": 17302,
+  "microdatos_individuo": 55857
+ },
+ "2012Q2": {
+  "microdatos_hogar": 17636,
+  "microdatos_individuo": 56915
+ },
+ "2012Q3": {
+  "microdatos_hogar": 17403,
+  "microdatos_individuo": 56261
+ },
+ "2012Q4": {
+  "microdatos_hogar": 16953,
+  "microdatos_individuo": 54589
+ },
+ "2013Q1": {
+  "microdatos_hogar": 17013,
+  "microdatos_individuo": 54739
+ },
+ "2013Q2": {
+  "microdatos_hogar": 17379,
+  "microdatos_individuo": 55417
+ },
+ "2013Q3": {
+  "microdatos_hogar": 17378,
+  "microdatos_individuo": 55876
+ },
+ "2013Q4": {
+  "microdatos_hogar": 17486,
+  "microdatos_individuo": 56198
+ },
+ "2014Q1": {
+  "microdatos_hogar": 17797,
+  "microdatos_individuo": 57592
+ },
+ "2014Q2": {
+  "microdatos_hogar": 18780,
+  "microdatos_individuo": 61112
+ },
+ "2014Q3": {
+  "microdatos_hogar": 19041,
+  "microdatos_individuo": 61518
+ },
+ "2014Q4": {
+  "microdatos_hogar": 18909,
+  "microdatos_individuo": 60959
+ },
+ "2015Q1": {
+  "microdatos_hogar": 18743,
+  "microdatos_individuo": 60145
+ },
+ "2015Q2": {
+  "microdatos_hogar": 18875,
+  "microdatos_individuo": 60028
+ },
+ "2016Q2": {
+  "microdatos_hogar": 18796,
+  "microdatos_individuo": 59811
+ },
+ "2016Q3": {
+  "microdatos_hogar": 18800,
+  "microdatos_individuo": 59550
+ },
+ "2016Q4": {
+  "microdatos_hogar": 18372,
+  "microdatos_individuo": 58154
+ },
+ "2017Q1": {
+  "microdatos_hogar": 18477,
+  "microdatos_individuo": 58675
+ },
+ "2017Q2": {
+  "microdatos_hogar": 18871,
+  "microdatos_individuo": 59755
+ },
+ "2017Q3": {
+  "microdatos_hogar": 18806,
+  "microdatos_individuo": 58721
+ },
+ "2017Q4": {
+  "microdatos_hogar": 18793,
+  "microdatos_individuo": 58181
+ },
+ "2018Q1": {
+  "microdatos_hogar": 18624,
+  "microdatos_individuo": 57951
+ },
+ "2018Q2": {
+  "microdatos_hogar": 18586,
+  "microdatos_individuo": 57835
+ },
+ "2018Q3": {
+  "microdatos_hogar": 18364,
+  "microdatos_individuo": 56879
+ },
+ "2018Q4": {
+  "microdatos_hogar": 18616,
+  "microdatos_individuo": 57418
+ },
+ "2019Q1": {
+  "microdatos_hogar": 19338,
+  "microdatos_individuo": 59369
+ },
+ "2019Q2": {
+  "microdatos_hogar": 19251,
+  "microdatos_individuo": 59258
+ },
+ "2019Q3": {
+  "microdatos_hogar": 18610,
+  "microdatos_individuo": 57229
+ },
+ "2019Q4": {
+  "microdatos_hogar": 19035,
+  "microdatos_individuo": 58519
+ },
+ "2020Q1": {
+  "microdatos_hogar": 16845,
+  "microdatos_individuo": 51643
+ },
+ "2020Q2": {
+  "microdatos_hogar": 11976,
+  "microdatos_individuo": 37132
+ },
+ "2020Q3": {
+  "microdatos_hogar": 13503,
+  "microdatos_individuo": 41685
+ },
+ "2020Q4": {
+  "microdatos_hogar": 14442,
+  "microdatos_individuo": 43767
+ },
+ "2021Q1": {
+  "microdatos_hogar": 15423,
+  "microdatos_individuo": 46693
+ },
+ "2021Q2": {
+  "microdatos_hogar": 15620,
+  "microdatos_individuo": 47085
+ },
+ "2021Q3": {
+  "microdatos_hogar": 16285,
+  "microdatos_individuo": 48668
+ },
+ "2021Q4": {
+  "microdatos_hogar": 17037,
+  "microdatos_individuo": 50154
+ },
+ "2022Q1": {
+  "microdatos_hogar": 16898,
+  "microdatos_individuo": 49706
+ },
+ "2022Q2": {
+  "microdatos_hogar": 17367,
+  "microdatos_individuo": 50614
+ },
+ "2022Q3": {
+  "microdatos_hogar": 16886,
+  "microdatos_individuo": 49232
+ },
+ "2022Q4": {
+  "microdatos_hogar": 16740,
+  "microdatos_individuo": 48545
+ },
+ "2023Q1": {
+  "microdatos_hogar": 16815,
+  "microdatos_individuo": 48638
+ },
+ "2023Q2": {
+  "microdatos_hogar": 16990,
+  "microdatos_individuo": 49072
+ },
+ "2023Q3": {
+  "microdatos_hogar": 16656,
+  "microdatos_individuo": 48335
+ },
+ "2023Q4": {
+  "microdatos_hogar": 16462,
+  "microdatos_individuo": 47337
+ },
+ "2024Q1": {
+  "microdatos_hogar": 16104,
+  "microdatos_individuo": 46050
+ },
+ "2024Q2": {
+  "microdatos_hogar": 16453,
+  "microdatos_individuo": 47151
+ },
+ "2024Q3": {
+  "microdatos_hogar": 16650,
+  "microdatos_individuo": 47564
+ },
+ "2024Q4": {
+  "microdatos_hogar": 16511,
+  "microdatos_individuo": 46860
+ },
+ "2025Q1": {
+  "microdatos_hogar": 15984,
+  "microdatos_individuo": 45425
+ },
+ "2025Q2": {
+  "microdatos_hogar": 16169,
+  "microdatos_individuo": 46086
+ },
+ "2025Q3": {
+  "microdatos_hogar": 15860,
+  "microdatos_individuo": 44946
+ },
+ "2025Q4": {
+  "microdatos_hogar": 15534,
+  "microdatos_individuo": 43703
+ },
+ "2026Q1": {
+  "microdatos_hogar": 15447,
+  "microdatos_individuo": 43739
+ }
+}
