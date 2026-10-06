@@ -9,7 +9,7 @@ Scratch data lives under ``~/Downloads/us_usda_nass_data`` (never Dropbox/repo):
 partitioned all-STRING parquet. Override with ``US_USDA_NASS_DATA``.
 
 Usage:
-    uv run python models/us_usda_nass/code/clean.py [--skip-download]
+    uv run models/us_usda_nass/code/clean.py [--skip-download]
 
 ``--skip-download`` reuses the ``.gz`` files already in ``input/`` (the sector
 files are large; do not re-fetch when iterating).

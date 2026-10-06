@@ -11,14 +11,12 @@ OECD publishes a new edition. Two ways to feed it data:
    files already present.
 
 The source ships the full history each edition, so every run is a full replace
-(``dump_mode="overwrite"``). Deploy: ``.github/scripts/deploy_flows.py``
+(``dump_mode="overwrite"``). Deploy: ``.github/workflows/scripts/deploy_flows.py``
 auto-discovers ``world_oecd_revenue_statistics_flow``; no schedule is registered.
 """
 
 import shutil
 import tempfile
-
-from prefect import flow
 
 from pipelines.datasets.world_oecd_revenue_statistics.constants import (
     constants,
@@ -27,6 +25,7 @@ from pipelines.datasets.world_oecd_revenue_statistics.tasks import (
     clean_revenue,
     download_revenue,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -67,7 +66,6 @@ def world_oecd_revenue_statistics_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new year.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="revenue"
     )
@@ -134,7 +132,6 @@ def world_oecd_revenue_statistics_flow(
 # On-demand: no schedule is registered. The clean step holds ~2.8M rows in
 # pandas; `memory` alone is silently ignored by the work pool (defaults 4Gi), so
 # set the limit the pod actually reads.
-# pyrefly: ignore [missing-attribute]
 world_oecd_revenue_statistics_flow.job_variables = {
     "memory_limit": "8Gi",
     "memory_request": "2Gi",

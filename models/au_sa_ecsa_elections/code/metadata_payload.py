@@ -6,7 +6,7 @@ from the architecture CSVs or the dbt models.
 
 Usage::
 
-    PYTHONPATH=. python models/au_sa_ecsa_elections/code/metadata_payload.py
+    PYTHONPATH=. uv run models/au_sa_ecsa_elections/code/metadata_payload.py
 """
 
 from __future__ import annotations

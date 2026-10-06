@@ -9,14 +9,14 @@ build_columns_json.py for the fixed columns (the many wide measure columns keep
 the source label as their description).
 
 Usage:
-    AU_APRA_ADI_DATA=~/Downloads/au_apra_adi_data uv run python models/au_apra_adi/code/build_architecture.py
+    AU_APRA_ADI_DATA=~/Downloads/au_apra_adi_data uv run models/au_apra_adi/code/build_architecture.py
 """
 
 import csv
 import os
 from pathlib import Path
 
-import openpyxl  # pyrefly: ignore [untyped-import]
+import openpyxl
 
 from pipelines.datasets.au_apra_adi.constants import constants
 from pipelines.datasets.au_apra_adi.utils import _iter_tabs, _unit_for

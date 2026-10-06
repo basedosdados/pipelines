@@ -1,6 +1,6 @@
 """Verify the cleaned us_eia_seds parquet before upload.
 
-    python verify_parquet.py
+    uv run models/us_eia_seds/code/verify_parquet.py
 
 Checks, over the whole cleaned record:
 
@@ -18,7 +18,8 @@ import sys
 
 import pandas as pd
 import pyarrow.dataset as pads
-from common import OUTPUT
+
+from models.us_eia_seds.code.common import OUTPUT
 
 # Known SEDS national totals (StateCode US), for a magnitude check. Values are
 # read straight from the published Complete_SEDS.csv, so this guards the decode

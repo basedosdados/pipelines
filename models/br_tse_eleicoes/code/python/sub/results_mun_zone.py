@@ -5,12 +5,21 @@ Produces TWO output tables per year.
 """
 
 import pandas as pd
-from config import INPUT_DIR, OUTPUT_PYTHON
-from utils.clean_election_type import clean_election_type_series
-from utils.clean_party import clean_party_series
-from utils.clean_result import clean_result_series
-from utils.clean_string import clean_string_series
-from utils.helpers import (
+
+from models.br_tse_eleicoes.code.python.config import INPUT_DIR, OUTPUT_PYTHON
+from models.br_tse_eleicoes.code.python.utils.clean_election_type import (
+    clean_election_type_series,
+)
+from models.br_tse_eleicoes.code.python.utils.clean_party import (
+    clean_party_series,
+)
+from models.br_tse_eleicoes.code.python.utils.clean_result import (
+    clean_result_series,
+)
+from models.br_tse_eleicoes.code.python.utils.clean_string import (
+    clean_string_series,
+)
+from models.br_tse_eleicoes.code.python.utils.helpers import (
     clean_nulls,
     merge_municipio,
     parse_date_br,
@@ -40,6 +49,7 @@ UFS_CAND = {
     2020: _MUN,
     2022: ["AC", "AL", "AM", "AP", "BA", "BR", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"],
     2024: _MUN,
+    2026: ["AC", "AL", "AM", "AP", "BA", "BR", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"],
 }
 UFS_PART = dict(UFS_CAND)  # same lists
 # fmt: on
@@ -86,7 +96,9 @@ def _build_candidato(ano: int) -> pd.DataFrame:
                 "nr_partido": "numero_partido",
                 "sg_partido": "sigla_partido",
             }
-            if ano in (1994, 1998, 2000) or (2018 <= ano <= 2022):
+            # 2026 follows the last general election (2022): valid nominal
+            # votes, i.e. excluding votes for candidates under appeal
+            if ano in (1994, 1998, 2000, 2026) or (2018 <= ano <= 2022):
                 keep_cols["qt_votos_nominais_validos"] = "votos"
                 keep_cols["qt_votos_nominais"] = "votos"
             else:
@@ -242,6 +254,7 @@ def _build_candidato(ano: int) -> pd.DataFrame:
         .astype(str)
         .replace("<NA>", "")
     )
+    # pyrefly: ignore [bad-argument-type]
     result = merge_municipio(result)
 
     # For years 1996-2016, the Stata reference .dta files were generated before

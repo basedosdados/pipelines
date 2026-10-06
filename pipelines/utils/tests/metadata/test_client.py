@@ -15,14 +15,16 @@ import datetime
 
 import pytest
 
-# pyrefly: ignore [missing-import]
-from conftest import RecordingBackend, mutation_response, node_response
-
 from pipelines.utils.metadata.client import (
     BackendMutationError,
     MetadataClient,
 )
 from pipelines.utils.metadata.dto import DateTimeRangeInput
+from pipelines.utils.tests.metadata.conftest import (
+    RecordingBackend,
+    mutation_response,
+    node_response,
+)
 
 UUID = "00000000-0000-4000-8000-000000000000"
 DAY_ENTITY = "00000000-0000-4000-8000-0000000000d1"
@@ -353,6 +355,7 @@ def test_token_authenticated_once_per_instance(monkeypatch):
         "CreateUpdateUpdate", mutation_response("CreateUpdateUpdate")
     )
 
+    # pyrefly: ignore [bad-argument-type]
     client = MetadataClient(env="dev", backend=backend)
     client.upsert_raw_source_poll(
         "br_x", "tab", latest=datetime.date(2026, 6, 1)

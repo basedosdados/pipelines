@@ -11,19 +11,23 @@ Duas coisas para saber antes de rodar:
 - produção não é tocada. Quem materializa `basedosdados.<dataset>.*` é o
   `table-approve` quando o PR é mesclado.
 
-    uv run python upload.py                         # as tabelas em output/
-    uv run python upload.py -t localizacao          # uma tabela
-    uv run python upload.py --output /tmp/x         # de outro diretório
+    uv run upload.py                         # as tabelas em output/
+    uv run upload.py -t localizacao          # uma tabela
+    uv run upload.py --output /tmp/x         # de outro diretório
 """
 
 import argparse
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
-
-from constants import DATASET_ID, OUTPUT  # type: ignore
-from utils import CLEANERS, upload_tables  # type: ignore
+from models.br_inep_sinopse_estatistica_educacao_basica.code.constants import (  # type: ignore
+    DATASET_ID,
+    OUTPUT,
+)
+from models.br_inep_sinopse_estatistica_educacao_basica.code.utils import (  # type: ignore
+    CLEANERS,
+    upload_tables,
+)
 
 
 def parse_args() -> argparse.Namespace:

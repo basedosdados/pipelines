@@ -13,7 +13,7 @@ typed Parquet here would leave a typed external table that a later all-string
 overwrite could not be read against.
 
 Usage:
-    python clean.py <input_dir> <output_dir> [--paper <1351.0 text file>]
+    uv run models/au_abs_household_income_wealth/code/clean.py <input_dir> <output_dir> [--paper <1351.0 text file>]
 """
 
 from __future__ import annotations
@@ -23,16 +23,15 @@ import collections
 import glob
 import os
 import re
-import sys
 
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-import paper1351
-import semantics
-from cubes import join_sheet, parse_workbook
+from models.au_abs_household_income_wealth.code import paper1351, semantics
+from models.au_abs_household_income_wealth.code.cubes import (
+    join_sheet,
+    parse_workbook,
+)
 
 FINANCIAL_YEAR = re.compile(r"^(\d{4})\s*[–—-]\s*(\d{2})$")
 # "Table 10.1  INCOME DISTRIBUTION, Age of reference person"

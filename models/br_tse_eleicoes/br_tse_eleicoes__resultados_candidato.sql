@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 1945, "end": 2024, "interval": 1},
+            "range": {"start": 1945, "end": 2030, "interval": 1},
         },
     )
 }}
@@ -32,4 +32,3 @@ from
     {{ set_datalake_project("br_tse_eleicoes_staging.resultados_candidato") }} as t
 
     -- Rematerialized from the refactored pipeline (PR #1476).
-    

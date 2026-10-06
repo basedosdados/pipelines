@@ -33,6 +33,7 @@ Dataset slug, architecture table URLs (from architecture agent), raw data path (
         └── ano=<year>/                  (national tables)
 
 pipelines/models/<gcp_dataset_id>/code/
+├── __init__.py          (empty — makes sibling imports resolvable)
 └── clean.py             (or clean_<table>.py per table)
 ```
 
@@ -54,6 +55,7 @@ Read the first 20 rows of each raw file. Check:
 Use pandas or polars (polars for large files or complex transformations).
 
 Rules:
+- Put the work in `main()` and call it under `if __name__ == "__main__":` — importing the script must never run it. Import sibling modules by absolute path (`from models.<gcp_dataset_id>.code.schema import ...`), never via `sys.path.insert`. See "Onboarding scripts" in `AGENTS.md`
 - Start with a small subset (1 year or smallest partition) before scaling
 - Output column order must match architecture exactly
 - Use `safe_cast` logic: coerce types with error handling

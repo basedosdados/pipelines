@@ -2,8 +2,8 @@
 Build partitioned parquet for the br_senado_dados_abertos_administrativos
 onboarding.
 
-  uv run python models/br_senado_dados_abertos_administrativos/code/run_onboarding.py --sample
-  uv run python models/br_senado_dados_abertos_administrativos/code/run_onboarding.py --full
+  uv run models/br_senado_dados_abertos_administrativos/code/run_onboarding.py --sample
+  uv run models/br_senado_dados_abertos_administrativos/code/run_onboarding.py --full
 
 All-STRING parquet under ``$SENADO_ADM_DATA/output/<table>/``, defaulting to
 ``~/Downloads/br_senado_dados_abertos_administrativos_data`` — never inside the

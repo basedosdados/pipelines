@@ -18,20 +18,21 @@ which drops the **production** table, and fires from the dev half of the flow to
 ``"append"`` the upload ends in ``Storage.upload(if_exists="replace")``, which replaces
 each partition blob wholesale — the same end state, without the delete.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_cfpb_complaints_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_cfpb_complaints_flow`; the
 dev pool ignores the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_cfpb_complaints.constants import constants
 from pipelines.datasets.us_cfpb_complaints.tasks import (
     clean_complaints,
     download_complaints,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     DateOnly,
@@ -92,7 +93,6 @@ def us_cfpb_complaints_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports nothing new.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=COMPLAINT
     )
@@ -207,11 +207,9 @@ def us_cfpb_complaints_flow(
 # least five minutes' spacing from each. Defaulting to :00 piles every pipeline onto
 # the same instant, where they compete for BigQuery slots and trip the daily quota
 # together.
-# pyrefly: ignore [missing-attribute]
 us_cfpb_complaints_flow.deploy_schedules = [
-    {"cron": "45 7 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("45 7 * * *", timezone="America/Sao_Paulo")
 ]
 # The clean step streams the CSV and buffers at most ~800k rows of Python strings,
 # but the 9.3 GB unzipped snapshot and ~1.4 GB of parquet share the pod's disk.
-# pyrefly: ignore [missing-attribute]
 us_cfpb_complaints_flow.job_variables = {"memory": "8Gi"}

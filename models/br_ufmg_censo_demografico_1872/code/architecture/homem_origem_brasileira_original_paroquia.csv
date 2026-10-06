@@ -1,0 +1,24 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+ano,INT64,Ano de referência do recenseamento,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,
+id_provincia,STRING,"Código da província no banco Pop-72, de 1 a 21",1872,no,,,no,"Código do banco Pop-72, não do IBGE. A fonte não publica tradutor para a malha municipal atual.",
+id_municipio_1872,STRING,"Código do município de 1872 no banco Pop-72, com 3 dígitos, cujos dois primeiros são o código da província. Não corresponde ao código do IBGE",1872,no,,,no,"Código do banco Pop-72, não do IBGE. A fonte não publica tradutor para a malha municipal atual.",
+id_paroquia,STRING,"Código da paróquia no banco Pop-72, com 5 dígitos, cujos três primeiros são o código do município de 1872",1872,no,,,no,"Código do banco Pop-72, não do IBGE. A fonte não publica tradutor para a malha municipal atual.",
+id_categoria,STRING,"Código da categoria de desagregação da tabela, decodificado em dicionario",1872,yes,,,no,,categoria
+solteiros_brancos_livres,INT64,Número de homens solteiros brancos livres,1872,no,,person,no,,S Branc L
+solteiros_pardos_livres,INT64,Número de homens solteiros pardos livres,1872,no,,person,no,,S Pard L
+solteiros_pretos_livres,INT64,Número de homens solteiros pretos livres,1872,no,,person,no,,S Pret L
+solteiros_caboclos_livres,INT64,Número de homens solteiros caboclos livres,1872,no,,person,no,,S Cabocl L
+casados_brancos_livres,INT64,Número de homens casados brancos livres,1872,no,,person,no,,Cas Branc L
+casados_pardos_livres,INT64,Número de homens casados pardos livres,1872,no,,person,no,,Cas Pard L
+casados_pretos_livres,INT64,Número de homens casados pretos livres,1872,no,,person,no,,Cas Pret L
+casados_caboclos_livres,INT64,Número de homens casados caboclos livres,1872,no,,person,no,,Cas Cabocl L
+viuvos_brancos_livres,INT64,Número de homens viúvos brancos livres,1872,no,,person,no,,Viu Branc L
+viuvos_pardos_livres,INT64,Número de homens viúvos pardos livres,1872,no,,person,no,,Viu Pard L
+viuvos_pretos_livres,INT64,Número de homens viúvos pretos livres,1872,no,,person,no,,Viu Pret L
+viuvos_caboclos_livres,INT64,Número de homens viúvos caboclos livres,1872,no,,person,no,,Viu Cab L
+solteiros_pardos_escravizados,INT64,Número de homens solteiros pardos escravizados,1872,no,,person,no,,S Pard E
+solteiros_pretos_escravizados,INT64,Número de homens solteiros pretos escravizados,1872,no,,person,no,,S Pret E
+casados_pardos_escravizados,INT64,Número de homens casados pardos escravizados,1872,no,,person,no,,C Pard E
+casados_pretos_escravizados,INT64,Número de homens casados pretos escravizados,1872,no,,person,no,,C Pret E
+viuvos_pardos_escravizados,INT64,Número de homens viúvos pardos escravizados,1872,no,,person,no,,V Pard E
+viuvos_pretos_escravizados,INT64,Número de homens viúvos pretos escravizados,1872,no,,person,no,,V Pret E

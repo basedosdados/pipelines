@@ -6,14 +6,14 @@ quarter, roughly five weeks after quarter end, and never rewrites an earlier
 one — so each run **appends one partition** (``dump_mode="append"``) rather than
 replacing the history the way us_bls_cpi does.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_sec_edgar_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_sec_edgar_flow`;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.us_sec_edgar.constants import constants
 from pipelines.datasets.us_sec_edgar.tasks import (
@@ -21,6 +21,7 @@ from pipelines.datasets.us_sec_edgar.tasks import (
     download_and_clean,
     resolve_latest_quarter,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     FreeLag,
@@ -104,7 +105,6 @@ def us_sec_edgar_flow(
             specific quarter; ``force_run`` is then usually wanted too, since the
             poll only looks at the newest.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="numeric_fact"
     )
@@ -223,13 +223,8 @@ def us_sec_edgar_flow(
 # 2026-04-09 and 2026Q2 on 2026-07-06. Poll across the first half of the month
 # after each quarter's release window; the source-poll guard no-ops until a new
 # quarter actually appears.
-# pyrefly: ignore [missing-attribute]
 us_sec_edgar_flow.deploy_schedules = [
-    {
-        "cron": "55 16 5,8,11,14,17,20 1,4,7,10 *",
-        "timezone": "America/Sao_Paulo",
-    }
+    Cron("55 16 5,8,11,14,17,20 1,4,7,10 *", timezone="America/Sao_Paulo")
 ]
 # num.txt alone is ~600 MB of TSV, held as an arrow table while it is written.
-# pyrefly: ignore [missing-attribute]
 us_sec_edgar_flow.job_variables = {"memory": "8Gi"}

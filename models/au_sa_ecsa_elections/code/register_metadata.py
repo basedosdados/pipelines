@@ -14,21 +14,16 @@ source link — happens before the first coverage is created, not after.
 
 Usage::
 
-    PYTHONPATH=. python models/au_sa_ecsa_elections/code/register_metadata.py
+    PYTHONPATH=. uv run models/au_sa_ecsa_elections/code/register_metadata.py
 """
 
 from __future__ import annotations
 
 import json
 import pathlib
-import sys
 
-MCP = (
-    pathlib.Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-)
-sys.path.insert(0, str(MCP))
-
-import server  # noqa: E402
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 ENV = "staging"
 DATASET_SLUG = "sa_elections"
@@ -98,14 +93,14 @@ def existing_coverage(table_id: str) -> str | None:
         "{ node { id isClosed datetimeRanges { edges { node { id } } } } } "
         "} } } } }"
     )
-    payload = server._gql(query, {}, env=ENV)
+    payload = bd_mcp_metadata._gql(query, {}, env=ENV)
     edges = payload["allTable"]["edges"]
     if not edges:
         return None
     for edge in edges[0]["node"]["coverages"]["edges"]:
         node = edge["node"]
         if not node["isClosed"]:
-            return server._strip_id(node["id"])
+            return bd_mcp_metadata._strip_id(node["id"])
     return None
 
 
@@ -126,7 +121,7 @@ def existing_children(table_id: str) -> dict:
         "datetimeRanges { edges { node { id } } } } } } "
         "} } } }"
     )
-    edges = server._gql(query, {}, env=ENV)["allTable"]["edges"]
+    edges = bd_mcp_metadata._gql(query, {}, env=ENV)["allTable"]["edges"]
     out = {
         "cloud": {},
         "levels": {},
@@ -138,31 +133,35 @@ def existing_children(table_id: str) -> dict:
         return out
     node = edges[0]["node"]
     for e in node["cloudTables"]["edges"]:
-        out["cloud"][e["node"]["gcpTableId"]] = server._strip_id(
+        out["cloud"][e["node"]["gcpTableId"]] = bd_mcp_metadata._strip_id(
             e["node"]["id"]
         )
     for e in node["observationLevels"]["edges"]:
         out["levels"].setdefault(
-            e["node"]["entity"]["slug"], server._strip_id(e["node"]["id"])
+            e["node"]["entity"]["slug"],
+            bd_mcp_metadata._strip_id(e["node"]["id"]),
         )
     for e in node["updates"]["edges"]:
         out["updates"].setdefault(
-            e["node"]["entity"]["slug"], server._strip_id(e["node"]["id"])
+            e["node"]["entity"]["slug"],
+            bd_mcp_metadata._strip_id(e["node"]["id"]),
         )
     for e in node["coverages"]["edges"]:
         if e["node"]["isClosed"]:
             continue
-        out["coverage"] = server._strip_id(e["node"]["id"])
+        # pyrefly: ignore [bad-assignment]
+        out["coverage"] = bd_mcp_metadata._strip_id(e["node"]["id"])
         ranges = e["node"]["datetimeRanges"]["edges"]
         if ranges:
-            out["range"] = server._strip_id(ranges[0]["node"]["id"])
+            # pyrefly: ignore [bad-assignment]
+            out["range"] = bd_mcp_metadata._strip_id(ranges[0]["node"]["id"])
         break
     return out
 
 
 def main() -> int:
     tables_meta = json.loads((META / "tables.json").read_text())
-    existing = server.get_dataset(slug=DATASET_SLUG, env=ENV)
+    existing = bd_mcp_metadata.get_dataset(slug=DATASET_SLUG, env=ENV)
     known = existing.get("tables", {}) or {}
     table_ids: dict[str, str] = {}
 
@@ -171,7 +170,7 @@ def main() -> int:
     for table in TABLE_ORDER:
         meta = tables_meta[table]
         prior = known.get(table) or {}
-        table_id = server.create_update_table(
+        table_id = bd_mcp_write.create_update_table(
             slug=table,
             name_pt=meta["name_pt"],
             name_en=meta["name_en"],
@@ -199,21 +198,21 @@ def main() -> int:
 
         ol_ids: dict[str, str] = {}
         for entity_slug, _column in levels:
-            ol_ids[entity_slug] = server.create_update_observation_level(
+            ol_ids[entity_slug] = bd_mcp_write.create_update_observation_level(
                 table_id=table_id,
                 entity_id=ENTITY[entity_slug],
                 id=prior_children["levels"].get(entity_slug),
                 env=ENV,
             )["id"]
         if ol_ids:
-            server.reorder_observation_levels(
+            bd_mcp_write.reorder_observation_levels(
                 table_id=table_id,
                 ol_ids=[ol_ids[e] for e, _ in levels],
                 env=ENV,
             )
 
         payload = (META / f"{table}.json").read_text()
-        result = server.bulk_upsert_columns(
+        result = bd_mcp_write.bulk_upsert_columns(
             table_id=table_id, columns_json=payload, env=ENV
         )
         log(f"    columns: {json.dumps(result)[:160]}")
@@ -223,13 +222,13 @@ def main() -> int:
         # default to False, so is_partition has to be re-passed for year or the
         # bulk upsert's value is clobbered.
         column_ids = {
-            c["name"]: server._strip_id(c["id"])
-            for c in server._fetch_table_columns(table_id, ENV)
+            c["name"]: bd_mcp_metadata._strip_id(c["id"])
+            for c in bd_mcp_write._fetch_table_columns(table_id, ENV)
         }
         for entity_slug, column_name in levels:
             if column_name is None or column_name not in column_ids:
                 continue
-            server.update_column(
+            bd_mcp_write.update_column(
                 column_id=column_ids[column_name],
                 column_name=column_name,
                 table_id=table_id,
@@ -242,7 +241,7 @@ def main() -> int:
             and "year" in column_ids
             and "year" not in {c for _, c in levels}
         ):
-            server.update_column(
+            bd_mcp_write.update_column(
                 column_id=column_ids["year"],
                 column_name="year",
                 table_id=table_id,
@@ -250,7 +249,7 @@ def main() -> int:
                 env=ENV,
             )
 
-        server.create_update_cloud_table(
+        bd_mcp_write.create_update_cloud_table(
             table_id=table_id,
             gcp_project_id=GCP_PROJECT,
             gcp_dataset_id=GCP_DATASET,
@@ -258,14 +257,14 @@ def main() -> int:
             id=prior_children["cloud"].get(table),
             env=ENV,
         )
-        coverage_id = server.create_update_coverage(
+        coverage_id = bd_mcp_write.create_update_coverage(
             table_id=table_id,
             area_id=AREA_AU_SA,
             id=prior_children["coverage"],
             env=ENV,
         )["id"]
         start, end = COVERAGE[table]
-        server.create_update_datetime_range(
+        bd_mcp_write.create_update_datetime_range(
             coverage_id=coverage_id,
             start_year=start,
             end_year=end,
@@ -273,7 +272,7 @@ def main() -> int:
             id=prior_children["range"],
             env=ENV,
         )
-        server.create_update_update(
+        bd_mcp_write.create_update_update(
             entity_id=ENTITY["year"],
             frequency=FREQUENCY[table],
             latest=LAST_REFRESHED,
@@ -283,7 +282,7 @@ def main() -> int:
         )
         log(f"    cloud table, coverage {start}-{end}, update: ok")
 
-    server.reorder_tables(
+    bd_mcp_write.reorder_tables(
         dataset_slug=DATASET_SLUG, table_slugs=TABLE_ORDER, env=ENV
     )
     log("  table order set")

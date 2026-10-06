@@ -1,0 +1,258 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year the interview was collected,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,"Partition column. Collection year of the quarter file, not the BLS release year",file name (YYQ)
+quarter,INT64,"Quarter the data was collected, from 1 to 4",,no,,quarter,no,,file name (YYQ)
+consumer_unit_id,STRING,"Identifier of the consumer unit (household), stable across its interviews or diary weeks",,no,,,no,NEWID without its last digit,newid
+interview_number,STRING,"Interview number of the consumer unit: 2 to 5 through 2015 (interview 1 was an unreleased bounding interview), 1 to 4 after BLS dropped the bounding interview in 2015",,no,,,no,Last digit of NEWID,newid
+newid,STRING,BLS public-use identifier of the consumer unit and interview or diary week; the last digit is the interview number (1-4) or diary week (1-2),,no,,,no,Unique per interview or diary week,newid
+member_number,STRING,Sequence number of the member within the consumer unit,,no,,,no,,membno
+age,INT64,What is the member's age?,,no,,year,no,,age
+age_,STRING,"Data-quality flag for AGE: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,age_
+angovrtx,FLOAT64,Annual amount of government retirement deducted from pay,,no,,usd,no,,angovrtx
+anprvpnx,FLOAT64,Annual amount of private pensions deducted from pay,,no,,usd,no,,anprvpnx
+anrrdedx,FLOAT64,Annual amount of Railroad retirement deducted from pay,,no,,usd,no,,anrrdedx
+arm_forc,STRING,Is member now in the Armed Forces?,,yes,,,no,,arm_forc
+cu_code,STRING,What is this person's relation to reference person?,,yes,,,no,,cu_code
+cu_code_,STRING,"Data-quality flag for CU_CODE: valid, blank, allocated, imputed or topcoded",1996(1)2003,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,cu_code_
+earner,STRING,Indicates whether the member earned income or not,,yes,,,no,,earner
+earner_,STRING,"Data-quality flag for EARNER: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,earner_
+earntype,STRING,Type of earner,,yes,,,no,,earntype
+educa,STRING,What is the highest level of school the member has completed or the highest degree the member has received?,,yes,,,no,,educa
+educa_,STRING,"Data-quality flag for EDUCA: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,educa_
+emplcont,STRING,"Other than Social Security, did any employer or union that the member worked for during the last 12 months contribute to a pension or retirement plan that the member was enrolled in?",,yes,,,no,,emplcont
+govretx,FLOAT64,Amount of government retirement deducted from last pay,,no,,usd,no,,govretx
+govretx_,STRING,"Data-quality flag for GOVRETX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,govretx_
+grospayx,FLOAT64,Amount of last gross pay,,no,,usd,no,,grospayx
+in_coll,STRING,Is the member currently enrolled in a college or university either . . .?,,yes,,,no,,in_coll
+in_coll_,STRING,"Data-quality flag for IN_COLL: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,in_coll_
+inc_hrsq,FLOAT64,Number of hours worked per week,,no,,hour,no,,inc_hrsq
+incmedcr,STRING,Is the amount of the last Social Security or Railroad Retirement payment received AFTER the deduction for a Medicare premium?,,yes,,,no,,incmedcr
+incnonwk,STRING,What was the main reason the member did not work during the past 12 months? Was the member . . .?,,yes,,,no,,incnonwk
+incomey,STRING,Was the member . . . ? (Type of employee) Refers to job where member received the most earnings in the past 12 months,,yes,,,no,,incomey
+incomey_,STRING,"Data-quality flag for INCOMEY: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,incomey_
+incweekq,FLOAT64,Number of weeks worked full time or part time (last 12 months),,no,,week,no,,incweekq
+indretx,FLOAT64,Amount of money placed in a retirement plan in the past year,,no,,usd,no,,indretx
+indretx_,STRING,"Data-quality flag for INDRETX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,indretx_
+jssdedx,FLOAT64,Estimated amount of income contributed to Social Security by member in past 12 months,,no,,usd,no,,jssdedx
+jssdedx_,STRING,"Data-quality flag for JSSDEDX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,jssdedx_
+marital,STRING,Marital status of member,,yes,,,no,,marital
+marital_,STRING,"Data-quality flag for MARITAL: valid, blank, allocated, imputed or topcoded",1996(1)2003,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,marital_
+medicov,STRING,Does the money deducted for Social Security cover only the Medicare portion of Social Security?,,yes,,,no,,medicov
+medicov_,STRING,"Data-quality flag for MEDICOV: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,medicov_
+occucode,STRING,The job in which the member received the most earnings during the past 12 months fits best in the following category,,yes,,,no,,occucode
+payperd,STRING,What period of time did this last gross pay cover?,,yes,,,no,,payperd
+payperd_,STRING,"Data-quality flag for PAYPERD: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,payperd_
+privpenx,FLOAT64,Amount of private pension deducted from last pay,,no,,usd,no,,privpenx
+rrrdedx,FLOAT64,Amount of Railroad Retirement deducted from last pay,,no,,usd,no,,rrrdedx
+rrrdedx_,STRING,"Data-quality flag for RRRDEDX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,rrrdedx_
+rrretirx,FLOAT64,Amount of last Social Security or Railroad Retirement check,,no,,usd,no,,rrretirx
+salaryx,FLOAT64,"During the past 12 months, what was the amount of wages or salary income received, before any deductions?",,no,,usd,no,,salaryx
+salaryx_,STRING,"Data-quality flag for SALARYX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,salaryx_
+sex,STRING,Sex of Member,,yes,,,no,,sex
+sex_,STRING,"Data-quality flag for SEX: valid, blank, allocated, imputed or topcoded",1996(1)2003,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,sex_
+slfempss,FLOAT64,Self-employment social security contribution,,no,,usd,no,,slfempss
+socrrx,FLOAT64,Amount of Social Security and Railroad Retirement income received by member in past 12 months,,no,,usd,no,,socrrx
+socrrx_,STRING,"Data-quality flag for SOCRRX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,socrrx_
+ss_rrq,FLOAT64,"During the past 12 months, how many Social Security or Railroad Retirement payments did the member receive?",,no,,usd,no,,ss_rrq
+ss_rrq_,STRING,"Data-quality flag for SS_RRQ: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,ss_rrq_
+ssix,FLOAT64,Amount received in supplemental security income checks combined,,no,,usd,no,,ssix
+ssix_,STRING,"Data-quality flag for SSIX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,ssix_
+ssnorm,STRING,Are Social Security payments normally deducted from your paycheck?,,yes,,,no,,ssnorm
+ssnorm_,STRING,"Data-quality flag for SSNORM: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,ssnorm_
+salaryb,STRING,Range that best reflects the total wages and salaries for all jobs during the last 12 months,2001(1)2025,yes,,,no,,salaryb
+salaryb_,STRING,"Data-quality flag for SALARYB: valid, blank, allocated, imputed or topcoded",2001(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,salaryb_
+salarybx,FLOAT64,Median of bracket range,2001(1)2025,no,,usd,no,,salarybx
+rrretirb,STRING,Range that best reflects the amount of your last Social Security or Railroad Retirement payment during the last 12 months,2001(1)2025,yes,,,no,,rrretirb
+rrretrbx,FLOAT64,Median of bracket range,2001(1)2025,no,,usd,no,,rrretrbx
+ssib,STRING,Range that best reflects the amount you received in Supplemental Security income from all government sources during the last 12 months,2001(1)2025,yes,,,no,,ssib
+ssib_,STRING,"Data-quality flag for SSIB: valid, blank, allocated, imputed or topcoded",2001(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,ssib_
+ssibx,FLOAT64,Median of bracket range,2001(1)2025,no,,usd,no,,ssibx
+ssibx_,STRING,"Data-quality flag for SSIBX: valid, blank, allocated, imputed or topcoded",2001(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,ssibx_
+horigin,STRING,"Are you Spanish, Hispanic, or Latino?",2003(1)2025,yes,,,no,,horigin
+hispanic,STRING,Country of Hispanic Origin,2003(1)2025,yes,,,no,,hispanic
+membrace,STRING,Race of member,2003(1)2025,yes,,,no,,membrace
+rc_white,STRING,Race as reported by respondent,2003(1)2025,yes,,,no,,rc_white
+rc_black,STRING,Race as reported by respondent,2003(1)2025,yes,,,no,,rc_black
+rc_natam,STRING,Race as reported by respondent,2003(1)2025,yes,,,no,,rc_natam
+rc_asian,STRING,Race as reported by respondent,2003(1)2025,yes,,,no,,rc_asian
+rc_pacil,STRING,Race as reported by respondent,2003(1)2025,yes,,,no,,rc_pacil
+rc_other,STRING,Race as reported by respondent,2003(1)2025,yes,,,no,,rc_other
+rc_dk,STRING,Race as reported by respondent,2003(1)2025,yes,,,no,,rc_dk
+rc_dk_,STRING,"Data-quality flag for RC_DK: valid, blank, allocated, imputed or topcoded",2003(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,rc_dk_
+asian,STRING,Country of Asian origin,2003(1)2025,yes,,,no,,asian
+asian_,STRING,"Data-quality flag for ASIAN: valid, blank, allocated, imputed or topcoded",2003(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,asian_
+angovrtm,FLOAT64,"Annual amount of government retirement deducted from pay, based on SALARYM",2004(1)2025,no,,usd,no,,angovrtm
+anprvpnm,FLOAT64,"Annual amount of private pensions deducted from pay, based on SALARYM",2004(1)2025,no,,usd,no,,anprvpnm
+anrrdedm,FLOAT64,"Annual amount of railroad retirement deducted from pay, based on SALARYM",2004(1)2025,no,,usd,no,,anrrdedm
+jssdedxm,FLOAT64,"Social Security payment during the past 12 months, mean of imputation iterations",2004(1)2025,no,,usd,no,,jssdedxm
+jssdedx1,FLOAT64,Imputation Iteration #1 - JSSDEDX,2004(1)2025,no,,usd,no,,jssdedx1
+jssdedx2,FLOAT64,Imputation Iteration #2 - JSSDEDX,2004(1)2025,no,,usd,no,,jssdedx2
+jssdedx3,FLOAT64,Imputation Iteration #3 - JSSDEDX,2004(1)2025,no,,usd,no,,jssdedx3
+jssdedx4,FLOAT64,Imputation Iteration #4 - JSSDEDX,2004(1)2025,no,,usd,no,,jssdedx4
+jssdedx5,FLOAT64,Imputation Iteration #5 - JSSDEDX,2004(1)2025,no,,usd,no,,jssdedx5
+rrretirm,FLOAT64,"Amount of last Social Security or Railroad Retirement check, mean of imputation iterations",2004(1)2025,no,,usd,no,,rrretirm
+rrretir1,FLOAT64,Imputation Iteration #1 - RRRETIRX,2004(1)2025,no,,usd,no,,rrretir1
+rrretir2,FLOAT64,Imputation Iteration #2 - RRRETIRX,2004(1)2025,no,,usd,no,,rrretir2
+rrretir3,FLOAT64,Imputation Iteration #3 - RRRETIRX,2004(1)2025,no,,usd,no,,rrretir3
+rrretir4,FLOAT64,Imputation Iteration #4 - RRRETIRX,2004(1)2025,no,,usd,no,,rrretir4
+rrretir5,FLOAT64,Imputation Iteration #5 - RRRETIRX,2004(1)2025,no,,usd,no,,rrretir5
+rrretiri,STRING,Indicator/descriptor variable for income imputation,2004(1)2025,no,,,no,,rrretiri
+salaryxm,FLOAT64,"Amount of income received before from wages or salary deductions, mean of imputation iterations",2004(1)2025,no,,usd,no,,salaryxm
+salaryx1,FLOAT64,Imputation Iteration #1 - SALARYX,2004(1)2025,no,,usd,no,,salaryx1
+salaryx2,FLOAT64,Imputation Iteration #2 - SALARYX,2004(1)2025,no,,usd,no,,salaryx2
+salaryx3,FLOAT64,Imputation Iteration #3 - SALARYX,2004(1)2025,no,,usd,no,,salaryx3
+salaryx4,FLOAT64,Imputation Iteration #4 - SALARYX,2004(1)2025,no,,usd,no,,salaryx4
+salaryx5,FLOAT64,Imputation Iteration #5 - SALARYX,2004(1)2025,no,,usd,no,,salaryx5
+salaryxi,STRING,Indicator/descriptor variable for income imputation,2004(1)2025,no,,,no,,salaryxi
+slfempsm,FLOAT64,"Self-employment social security contribution, mean of imputation iterations",2004(1)2025,no,,usd,no,,slfempsm
+slfemps1,FLOAT64,Imputation Iteration #1 - SLFEMPSS,2004(1)2025,no,,usd,no,,slfemps1
+slfemps2,FLOAT64,Imputation Iteration #2 - SLFEMPSS,2004(1)2025,no,,usd,no,,slfemps2
+slfemps3,FLOAT64,Imputation Iteration #3 - SLFEMPSS,2004(1)2025,no,,usd,no,,slfemps3
+slfemps4,FLOAT64,Imputation Iteration #4 - SLFEMPSS,2004(1)2025,no,,usd,no,,slfemps4
+slfemps5,FLOAT64,Imputation Iteration #5 - SLFEMPSS,2004(1)2025,no,,usd,no,,slfemps5
+socrrxm,FLOAT64,"Annual amount received from Social Security benefits and Railroad payments, mean of imputation iterations",2004(1)2025,no,,usd,no,,socrrxm
+socrrxm_,STRING,"Data-quality flag for SOCRRXM: valid, blank, allocated, imputed or topcoded",2004(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,socrrxm_
+socrrx1,FLOAT64,Imputation Iteration #1 - SOCRRX,2004(1)2025,no,,usd,no,,socrrx1
+socrrx2,FLOAT64,Imputation Iteration #2 - SOCRRX,2004(1)2025,no,,usd,no,,socrrx2
+socrrx3,FLOAT64,Imputation Iteration #3 - SOCRRX,2004(1)2025,no,,usd,no,,socrrx3
+socrrx4,FLOAT64,Imputation Iteration #4 - SOCRRX,2004(1)2025,no,,usd,no,,socrrx4
+socrrx5,FLOAT64,Imputation Iteration #5 - SOCRRX,2004(1)2025,no,,usd,no,,socrrx5
+ssixm,FLOAT64,"Amount received in supplemental security income checks combined, mean of imputation iterations",2004(1)2025,no,,usd,no,,ssixm
+ssixm_,STRING,"Data-quality flag for SSIXM: valid, blank, allocated, imputed or topcoded",2004(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,ssixm_
+ssix1,FLOAT64,Imputation Iteration #1 - SSIX,2004(1)2025,no,,usd,no,,ssix1
+ssix2,FLOAT64,Imputation Iteration #2 - SSIX,2004(1)2025,no,,usd,no,,ssix2
+ssix3,FLOAT64,Imputation Iteration #3 - SSIX,2004(1)2025,no,,usd,no,,ssix3
+ssix4,FLOAT64,Imputation Iteration #4 - SSIX,2004(1)2025,no,,usd,no,,ssix4
+ssix5,FLOAT64,Imputation Iteration #5 - SSIX,2004(1)2025,no,,usd,no,,ssix5
+ssixi,STRING,Indicator/descriptor variable for income imputation,2004(1)2025,no,,,no,,ssixi
+paystub,STRING,Does the respondent have a paper or electronic pay check record for the last paycheck?,2013(1)2025,yes,,,no,,paystub
+paystub_,STRING,"Data-quality flag for PAYSTUB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,paystub_
+sempfrm1,FLOAT64,Imputation Iteration #1 - SEMPFRMX,2013(1)2025,no,,usd,no,,sempfrm1
+sempfrm2,FLOAT64,Imputation Iteration #2 - SEMPFRMX,2013(1)2025,no,,usd,no,,sempfrm2
+sempfrm3,FLOAT64,Imputation Iteration #3 - SEMPFRMX,2013(1)2025,no,,usd,no,,sempfrm3
+sempfrm4,FLOAT64,Imputation Iteration #4 - SEMPFRMX,2013(1)2025,no,,usd,no,,sempfrm4
+sempfrm5,FLOAT64,Imputation Iteration #5 - SEMPFRMX,2013(1)2025,no,,usd,no,,sempfrm5
+sempfrmi,STRING,Indicator/descriptor variable for income imputation,2013(1)2025,no,,,no,,sempfrmi
+sempfrmx,FLOAT64,What was the amount of self-employment income or loss?,2013(1)2025,no,,usd,no,,sempfrmx
+sempfrmm,FLOAT64,"Amount of income received from self-employment, mean of the iterations",2013(1)2025,no,,usd,no,,sempfrmm
+smpfrmb,STRING,Range that best reflects the income or loss from self-employment during the past 12 months,2013(1)2025,yes,,,no,,smpfrmb
+smpfrmb_,STRING,"Data-quality flag for SMPFRMB: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,smpfrmb_
+smpfrmbx,FLOAT64,Median of Bracket Range,2013(1)2025,no,,usd,no,,smpfrmbx
+socsrret,STRING,"During the past 12 months, did you receive any Social Security or Railroad Retirement benefits?",2013(1)2025,yes,,,no,,socsrret
+wkstatus,STRING,Work Status of Member (Past Year),2013(1)2025,yes,,,no,,wkstatus
+veteran,STRING,Did you ever serve on Active Duty in the U.S. Armed Forces?,2018(1)2025,yes,,,no,,veteran
+veteran_,STRING,"Data-quality flag for VETERAN: valid, blank, allocated, imputed or topcoded",2018(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,veteran_
+tax_unit,FLOAT64,Identifies which tax unit the member was placed in,2013(1)2025,no,,usd,no,,tax_unit
+tu_code,STRING,"Identifies the code of the taxpayer (Taxpayer, Spouse, dependent)",2013(1)2025,yes,,,no,,tu_code
+tu_code_,STRING,"Data-quality flag for TU_CODE: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,tu_code_
+tu_dpndt,STRING,"For dependent tax payers, this identifies the TAX_UNIT that the member is a dependent of",2013(1)2025,no,,,no,,tu_dpndt
+schmlwkq,FLOAT64,Number of weeks,1996(1)2023,no,,week,no,,schmlwkq
+schlmlpd,STRING,Time period of expense,2013(1)2023,yes,,,no,,schlmlpd
+schlmlx,FLOAT64,"Since the beginning of the reference period, not including the current month, what has been the usual expense for the meals purchased at school?",2013(1)2023,no,,usd,no,,schlmlx
+schlmlx_,STRING,"Data-quality flag for SCHLMLX: valid, blank, allocated, imputed or topcoded",2013(1)2023,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,schlmlx_
+tranpd,STRING,What is the time period?,2017(1)2023,yes,,,no,,tranpd
+tranpd_,STRING,"Data-quality flag for TRANPD: valid, blank, allocated, imputed or topcoded",2017(1)2023,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,tranpd_
+trandayx,FLOAT64,How many days per week usually?,2017(1)2023,no,,week,no,,trandayx
+tranamtx,FLOAT64,What is the usual out-of-pocket cost?,2017(1)2023,no,,usd,no,,tranamtx
+schlmlrx,FLOAT64,"How much was paid since the first of the reference month, not including this month?",2019(1)2023,no,,usd,no,,schlmlrx
+amtfed,FLOAT64,Amount of federal tax deducted from last pay,1996(1)2014,no,,usd,no,,amtfed
+amtfed_,STRING,"Data-quality flag for AMTFED: valid, blank, allocated, imputed or topcoded",1996(1)2014,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,amtfed_
+anfedtx,FLOAT64,Annual amount of federal tax deducted from pay,1996(1)2014,no,,usd,no,,anfedtx
+anfedtx_,STRING,"Data-quality flag for ANFEDTX: valid, blank, allocated, imputed or topcoded",1996(1)2014,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,anfedtx_
+ansltx,FLOAT64,Annual amount of state and local income tax deducted from pay,1996(1)2014,no,,usd,no,,ansltx
+ansltx_,STRING,"Data-quality flag for ANSLTX: valid, blank, allocated, imputed or topcoded",1996(1)2014,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,ansltx_
+sltaxx,FLOAT64,Amount of state and local income tax deducted from last pay,1996(1)2014,no,,usd,no,,sltaxx
+sltaxx_,STRING,"Data-quality flag for SLTAXX: valid, blank, allocated, imputed or topcoded",1996(1)2014,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,sltaxx_
+anfedtxm,FLOAT64,"Annual amount of federal tax deducted from pay, based on SALARYM",2004(1)2014,no,,usd,no,,anfedtxm
+ansltxm,FLOAT64,"Annual amount of state and local tax deducted from pay, based on SALARYM",2004(1)2014,no,,usd,no,,ansltxm
+ansltxm_,STRING,"Data-quality flag for ANSLTXM: valid, blank, allocated, imputed or topcoded",2004(1)2014,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,ansltxm_
+farmincx,FLOAT64,"Amount of income or loss received from own farm. (Note: if FARMLOSS = 1, then negative values are acceptable.)",1996(1)2013,no,,usd,no,,farmincx
+farmloss,STRING,Was there a loss from the member’s own farm?,1996(1)2013,yes,,,no,,farmloss
+incorp,STRING,Is your business incorporated?,1996(1)2013,yes,,,no,,incorp
+incorp_,STRING,"Data-quality flag for INCORP: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,incorp_
+nfrmloss,STRING,"Was there a loss from the member’s own nonfarm business, partnership, or professional practice?",1996(1)2013,yes,,,no,,nfrmloss
+nonfarmx,FLOAT64,"Amount of income received from nonfarm business, partnership or professional practice. (Note: if NFRMLOSS = 1, then negative values are acceptable)",1996(1)2013,no,,usd,no,,nonfarmx
+pwrkstat,STRING,Work status of member in past 12 months (Refers to job where member received the most earnings in the past 12 months.),1996(1)2013,yes,,,no,,pwrkstat
+schmlwkx,FLOAT64,Weekly school meal expense,1996(1)2013,no,,usd,no,,schmlwkx
+nonfarmb,STRING,"Range that best reflects the income or loss from a nonfarm business, partnership, or professional practice in the last twelve months",2001(1)2013,yes,,,no,,nonfarmb
+nonfrmbx,FLOAT64,Median of bracket range,2001(1)2013,no,,usd,no,,nonfrmbx
+farmincb,STRING,Range that best reflects the total income or loss from your own farm during the last 12 months,2001(1)2013,yes,,,no,,farmincb
+frmincbx,FLOAT64,Median of bracket range,2001(1)2013,no,,usd,no,,frmincbx
+farmincm,FLOAT64,"Amount of income or loss received from own farm, mean of imputation iterations. FARMINCM = mean(FARMINC1-FARMINC5)",2004(1)2013,no,,usd,no,,farmincm
+farminc1,FLOAT64,Imputation Iteration #1 - FARMINCX,2004(1)2013,no,,usd,no,,farminc1
+farminc2,FLOAT64,Imputation Iteration #2 - FARMINCX,2004(1)2013,no,,usd,no,,farminc2
+farminc3,FLOAT64,Imputation Iteration #3 - FARMINCX,2004(1)2013,no,,usd,no,,farminc3
+farminc4,FLOAT64,Imputation Iteration #4 - FARMINCX,2004(1)2013,no,,usd,no,,farminc4
+farminc5,FLOAT64,Imputation Iteration #5 - FARMINCX,2004(1)2013,no,,usd,no,,farminc5
+farminci,STRING,Indicator/descriptor variable for income imputation,2004(1)2013,no,,,no,,farminci
+nonfarmm,FLOAT64,"Amount of income or loss received from nonfarm business partnership or professional practice, mean of imputation iterations",2004(1)2013,no,,usd,no,,nonfarmm
+nonfarm1,FLOAT64,Imputation Iteration #1 - NONFARMX,2004(1)2013,no,,usd,no,,nonfarm1
+nonfarm2,FLOAT64,Imputation Iteration #2 - NONFARMX,2004(1)2013,no,,usd,no,,nonfarm2
+nonfarm3,FLOAT64,Imputation Iteration #3 - NONFARMX,2004(1)2013,no,,usd,no,,nonfarm3
+nonfarm4,FLOAT64,Imputation Iteration #4 - NONFARMX,2004(1)2013,no,,usd,no,,nonfarm4
+nonfarm5,FLOAT64,Imputation Iteration #5 - NONFARMX,2004(1)2013,no,,usd,no,,nonfarm5
+nonfarmi,STRING,Indicator/descriptor variable for income imputation,2004(1)2013,no,,,no,,nonfarmi
+pymt2009,STRING,"BLS variable PYMT2009, not documented in the BLS dictionary",2009(1)2009,yes,,,no,Absent from the BLS PUMD dictionary,pymt2009
+hwused09,STRING,"BLS variable HWUSED09, not documented in the BLS dictionary",2009(1)2009,yes,,,no,Absent from the BLS PUMD dictionary,hwused09
+hwus_d09,STRING,"BLS variable HWUS_D09, not documented in the BLS dictionary",2009(1)2009,no,,,no,Absent from the BLS PUMD dictionary Stored as text: type not determinable from the BLS documentation,hwus_d09
+qstimpyx,STRING,"BLS variable QSTIMPYX, not documented in the BLS dictionary",2009(1)2009,no,,,no,Absent from the BLS PUMD dictionary Stored as text: type not determinable from the BLS documentation,qstimpyx
+qsti_pyx,STRING,"BLS variable QSTI_PYX, not documented in the BLS dictionary",2009(1)2009,no,,,no,Absent from the BLS PUMD dictionary Stored as text: type not determinable from the BLS documentation,qsti_pyx
+originr,STRING,What is the member’s ethnic origin or ancestry?,1996(1)2003,yes,,,no,,originr
+race,STRING,Race of Member,1996(1)2003,yes,,,no,,race
+race_,STRING,"Data-quality flag for RACE: valid, blank, allocated, imputed or topcoded",1996(1)2003,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,race_
+ango_rtx,STRING,"Data-quality flag for ANGOVRTX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,ango_rtx
+anpr_pnx,STRING,"Data-quality flag for ANPRVPNX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,anpr_pnx
+anrr_edx,STRING,"Data-quality flag for ANRRDEDX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,anrr_edx
+arm__orc,STRING,"Data-quality flag for ARM_FORC: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,arm__orc
+earn_ype,STRING,"Data-quality flag for EARNTYPE: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,earn_ype
+empl_ont,STRING,"Data-quality flag for EMPLCONT: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,empl_ont
+gros_ayx,STRING,"Data-quality flag for GROSPAYX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,gros_ayx
+inc__rsq,STRING,"Data-quality flag for INC_HRSQ: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,inc__rsq
+incm_dcr,STRING,"Data-quality flag for INCMEDCR: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,incm_dcr
+incn_nwk,STRING,"Data-quality flag for INCNONWK: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,incn_nwk
+incw_ekq,STRING,"Data-quality flag for INCWEEKQ: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,incw_ekq
+occu_ode,STRING,"Data-quality flag for OCCUCODE: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,occu_ode
+priv_enx,STRING,"Data-quality flag for PRIVPENX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,priv_enx
+rrre_irx,STRING,"Data-quality flag for RRRETIRX: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,rrre_irx
+slfe_pss,STRING,"Data-quality flag for SLFEMPSS: valid, blank, allocated, imputed or topcoded",,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,slfe_pss
+sala_ybx,STRING,"Data-quality flag for SALARYBX: valid, blank, allocated, imputed or topcoded",2001(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,sala_ybx
+rrre_irb,STRING,"Data-quality flag for RRRETIRB: valid, blank, allocated, imputed or topcoded",2001(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,rrre_irb
+rrre_rbx,STRING,"Data-quality flag for RRRETRBX: valid, blank, allocated, imputed or topcoded",2001(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,rrre_rbx
+hisp_nic,STRING,"Data-quality flag for HISPANIC: valid, blank, allocated, imputed or topcoded",2003(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,hisp_nic
+rc_w_ite,STRING,"Data-quality flag for RC_WHITE: valid, blank, allocated, imputed or topcoded",2003(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,rc_w_ite
+rc_b_ack,STRING,"Data-quality flag for RC_BLACK: valid, blank, allocated, imputed or topcoded",2003(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,rc_b_ack
+rc_n_tam,STRING,"Data-quality flag for RC_NATAM: valid, blank, allocated, imputed or topcoded",2003(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,rc_n_tam
+rc_a_ian,STRING,"Data-quality flag for RC_ASIAN: valid, blank, allocated, imputed or topcoded",2003(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,rc_a_ian
+rc_p_cil,STRING,"Data-quality flag for RC_PACIL: valid, blank, allocated, imputed or topcoded",2003(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,rc_p_cil
+rc_o_her,STRING,"Data-quality flag for RC_OTHER: valid, blank, allocated, imputed or topcoded",2003(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,rc_o_her
+ango_rtm,STRING,"Data-quality flag for ANGOVRTM: valid, blank, allocated, imputed or topcoded",2004(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,ango_rtm
+anpr_pnm,STRING,"Data-quality flag for ANPRVPNM: valid, blank, allocated, imputed or topcoded",2004(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,anpr_pnm
+anrr_edm,STRING,"Data-quality flag for ANRRDEDM: valid, blank, allocated, imputed or topcoded",2004(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,anrr_edm
+jssd_dxm,STRING,"Data-quality flag for JSSDEDXM: valid, blank, allocated, imputed or topcoded",2004(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,jssd_dxm
+rrre_irm,STRING,"Data-quality flag for RRRETIRM: valid, blank, allocated, imputed or topcoded",2004(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,rrre_irm
+sala_yxm,STRING,"Data-quality flag for SALARYXM: valid, blank, allocated, imputed or topcoded",2004(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,sala_yxm
+slfe_psm,STRING,"Data-quality flag for SLFEMPSM: valid, blank, allocated, imputed or topcoded",2004(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,slfe_psm
+semp_rmx,STRING,"Data-quality flag for SEMPFRMX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,semp_rmx
+semp_rmm,STRING,"Data-quality flag for SEMPFRMM: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,semp_rmm
+smpf_mbx,STRING,"Data-quality flag for SMPFRMBX: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,smpf_mbx
+socs_ret,STRING,"Data-quality flag for SOCSRRET: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,socs_ret
+tax__nit,STRING,"Data-quality flag for TAX_UNIT: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,tax__nit
+tu_d_ndt,STRING,"Data-quality flag for TU_DPNDT: valid, blank, allocated, imputed or topcoded",2013(1)2025,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,tu_d_ndt
+schm_wkq,STRING,"Data-quality flag for SCHMLWKQ: valid, blank, allocated, imputed or topcoded",1996(1)2023,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,schm_wkq
+schl_lpd,STRING,"Data-quality flag for SCHLMLPD: valid, blank, allocated, imputed or topcoded",2013(1)2023,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,schl_lpd
+tran_mtx,STRING,"Data-quality flag for TRANAMTX: valid, blank, allocated, imputed or topcoded",2017(1)2023,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,tran_mtx
+tran_ayx,STRING,"Data-quality flag for TRANDAYX: valid, blank, allocated, imputed or topcoded",2017(1)2023,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,tran_ayx
+schl_lrx,STRING,"Data-quality flag for SCHLMLRX: valid, blank, allocated, imputed or topcoded",2019(1)2023,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,schl_lrx
+anfe_txm,STRING,"Data-quality flag for ANFEDTXM: valid, blank, allocated, imputed or topcoded",2004(1)2014,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,anfe_txm
+farm_ncx,STRING,"Data-quality flag for FARMINCX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,farm_ncx
+farm_oss,STRING,"Data-quality flag for FARMLOSS: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,farm_oss
+nfrm_oss,STRING,"Data-quality flag for NFRMLOSS: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,nfrm_oss
+nonf_rmx,STRING,"Data-quality flag for NONFARMX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,nonf_rmx
+pwrk_tat,STRING,"Data-quality flag for PWRKSTAT: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,pwrk_tat
+schm_wkx,STRING,"Data-quality flag for SCHMLWKX: valid, blank, allocated, imputed or topcoded",1996(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,schm_wkx
+nonf_rmb,STRING,"Data-quality flag for NONFARMB: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,nonf_rmb
+nonf_mbx,STRING,"Data-quality flag for NONFRMBX: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,nonf_mbx
+farm_ncb,STRING,"Data-quality flag for FARMINCB: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,farm_ncb
+frmi_cbx,STRING,"Data-quality flag for FRMINCBX: valid, blank, allocated, imputed or topcoded",2001(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,frmi_cbx
+farm_ncm,STRING,"Data-quality flag for FARMINCM: valid, blank, allocated, imputed or topcoded",2004(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,farm_ncm
+nonf_rmm,STRING,"Data-quality flag for NONFARMM: valid, blank, allocated, imputed or topcoded",2004(1)2013,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,nonf_rmm
+pymt_009,STRING,"Data-quality flag for PYMT2009: valid, blank, allocated, imputed or topcoded",2009(1)2009,yes,,,no,Flag codes A-W are listed in dicionario and in the BLS Getting Started Guide,pymt_009

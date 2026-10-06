@@ -1,7 +1,7 @@
 """Parse the IBGE public layout into architecture CSVs and a dicionario.
 
 Usage:
-    uv run python models/br_ibge_censo_demografico/code/build_architecture.py
+    uv run models/br_ibge_censo_demografico/code/build_architecture.py
 """
 
 from __future__ import annotations
@@ -48,6 +48,7 @@ def classify(
 ) -> tuple[str, str, str, str]:
     """Return (bq_type, covered_by_dictionary, unit, observations)."""
     tipo = (tipo or "").strip().upper()[:1]
+    # pyrefly: ignore [bad-argument-type]
     dec_n = int(dec or 0)
     desc_l = desc.lower()
     is_imputation = original.startswith(("MD", "MP", "MF", "MM"))
