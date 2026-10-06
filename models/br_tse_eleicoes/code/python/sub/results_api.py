@@ -191,7 +191,13 @@ def _secoes_agregadas(ano: int) -> dict[tuple, int]:
         / "perfil_eleitorado_local_votacao"
         / f"eleitorado_local_votacao_{ano}"
     )
-    files = sorted(base.glob(f"eleitorado_local_votacao_{ano}*.csv"))
+    # From 2026 the zip holds per-UF parts plus a _BRASIL.csv repeating them
+    # all; reading both doubles every count.
+    files = [
+        f
+        for f in sorted(base.glob(f"eleitorado_local_votacao_{ano}*.csv"))
+        if not f.stem.endswith("_BRASIL")
+    ]
     if not files:
         print(f"  WARNING: no eleitorado_local_votacao_{ano}; agregadas = -1")
         return {}
