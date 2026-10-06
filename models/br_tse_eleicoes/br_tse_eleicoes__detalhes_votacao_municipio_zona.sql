@@ -1,3 +1,5 @@
+-- 2026 reprocessado em 2026-10-06: secoes_agregadas contava o arquivo
+-- _BRASIL do eleitorado por local de votacao junto com as UFs.
 {{
     config(
         schema="br_tse_eleicoes",
