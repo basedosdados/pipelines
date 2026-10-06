@@ -6,7 +6,7 @@ below the test's threshold. Every column that lands there is listed in
 SPARSE_EXPECTED with the reason; an unexpected sparse column fails the build,
 because that is how a broken transform hides.
 
-    PYTHONPATH=. uv run python models/us_epa_tri/code/build_schema_yml.py \
+    PYTHONPATH=. uv run models/us_epa_tri/code/build_schema_yml.py \
         --output-dir ~/Downloads/us_epa_tri_data/output
 """
 

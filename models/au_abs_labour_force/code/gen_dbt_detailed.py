@@ -8,7 +8,7 @@ not touched: this appends to `schema.yml` rather than rewriting it, and refuses
 to run if a Detailed entry is already present.
 
 Usage:
-    uv run python models/au_abs_labour_force/code/gen_dbt_detailed.py
+    uv run models/au_abs_labour_force/code/gen_dbt_detailed.py
 """
 
 from pathlib import Path

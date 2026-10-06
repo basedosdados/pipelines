@@ -15,16 +15,13 @@ rather than `bd.Table.create` on the data. Two reasons, both load-bearing:
 The script asserts `table_type == "EXTERNAL"` afterwards, because that is the only
 visible tell that the two paths agree.
 
-    python models/us_nchs_vital_statistics/code/us_nchs_vital_statistics_upload.py
-    python .../us_nchs_vital_statistics_upload.py --tables birth
+    uv run models/us_nchs_vital_statistics/code/us_nchs_vital_statistics_upload.py
+    uv run models/us_nchs_vital_statistics/code/us_nchs_vital_statistics_upload.py --tables birth
 """
 
 import argparse
 import os
-import sys
 from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_nchs_vital_statistics.constants import (
     constants,

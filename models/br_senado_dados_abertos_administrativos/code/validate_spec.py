@@ -1,7 +1,7 @@
 """Check architecture_spec.py against the repo's house rules.
 
 Run before generating dbt or registering metadata:
-  uv run python models/br_senado_dados_abertos_administrativos/code/validate_spec.py
+  uv run models/br_senado_dados_abertos_administrativos/code/validate_spec.py
 """
 
 from __future__ import annotations

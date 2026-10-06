@@ -10,9 +10,9 @@ Três decisões o definem:
 - compara o que produziu com as contagens de referência e sai com código de erro
   se divergir, para servir de verificação e não só de execução.
 
-    uv run python run_local.py                     # todas as tabelas
-    uv run python run_local.py -t faixa_etaria     # uma tabela
-    uv run python run_local.py --output /tmp/x     # outro destino
+    uv run run_local.py                     # todas as tabelas
+    uv run run_local.py -t faixa_etaria     # uma tabela
+    uv run run_local.py --output /tmp/x     # outro destino
 """
 
 import argparse

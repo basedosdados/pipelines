@@ -1,7 +1,7 @@
 """Upload cleaned au_apra_superannuation parquet tables to BigQuery.
 
 Usage:
-    uv run python models/au_apra_superannuation/code/upload.py [--env dev|prod] [table ...]
+    uv run models/au_apra_superannuation/code/upload.py [--env dev|prod] [table ...]
 
 --env dev (default) -> basedosdados-dev; --env prod -> basedosdados. Point
 GOOGLE_APPLICATION_CREDENTIALS at the matching service account. Uploads
