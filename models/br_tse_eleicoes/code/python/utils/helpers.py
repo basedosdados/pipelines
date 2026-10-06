@@ -141,7 +141,9 @@ def read_raw_csv(
     else:
         # From 2026 TSE splits some national files per UF inside the zip
         # (perfil_eleitorado_2026_AC.csv, ...). Read and stack the parts.
-        parts = sorted(base.parent.glob(f"{base.name}_*.csv"))
+        # Two-letter suffixes only: the zip also ships a _BRASIL.csv that
+        # repeats every UF row, and stacking it doubles the counts.
+        parts = sorted(base.parent.glob(f"{base.name}_[A-Z][A-Z].csv"))
         if not parts:
             raise FileNotFoundError(
                 f"Neither {txt_path} nor {csv_path} found."
