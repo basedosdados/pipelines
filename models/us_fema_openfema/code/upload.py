@@ -1,7 +1,7 @@
 """Upload the cleaned us_fema_openfema parquet tables to BigQuery staging (dev).
 
 Usage:
-    uv run python models/us_fema_openfema/code/upload.py [--env dev] [table ...]
+    uv run models/us_fema_openfema/code/upload.py [--env dev] [table ...]
 
 Dev (default) -> basedosdados-dev. Uploads smallest first, stops on the first
 failure, and prints each table's staging row count so it can be checked against

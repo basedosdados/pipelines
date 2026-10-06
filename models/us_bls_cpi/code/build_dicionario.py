@@ -6,7 +6,7 @@ Logic lives in `pipelines.datasets.us_bls_cpi.utils.build_dicionario` (shared
 with the recurring pipeline).
 
 Usage:
-    uv run python models/us_bls_cpi/code/build_dicionario.py
+    uv run models/us_bls_cpi/code/build_dicionario.py
 """
 
 import logging

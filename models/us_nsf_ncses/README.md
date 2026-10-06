@@ -164,7 +164,7 @@ python models/us_nsf_ncses/code/build_dbt_models.py    # dbt SQL from those CSVs
 python models/us_nsf_ncses/code/upload.py              # -> basedosdados-dev staging
 uv run dbt run  --select models/us_nsf_ncses
 uv run dbt test --select models/us_nsf_ncses
-~/.venvs/bd-pipelines/bin/python models/us_nsf_ncses/code/metadata.py staging
+uv run models/us_nsf_ncses/code/metadata.py staging
 ```
 
 Downloads and parquet go to `~/Downloads/us_nsf_ncses_data/`, never into the

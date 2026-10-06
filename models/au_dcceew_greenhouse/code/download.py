@@ -5,7 +5,7 @@ Thin CLI wrapper. The canonical download/clean transform lives once in
 onboarding bootstrap and the recurring pipeline never diverge.
 
 Usage:
-    uv run python models/au_dcceew_greenhouse/code/download.py
+    uv run models/au_dcceew_greenhouse/code/download.py
 """
 
 import os

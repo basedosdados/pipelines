@@ -3,7 +3,7 @@
 Column descriptions come from `mg_column_glossary.py`; table descriptions are in
 TABLES below. Re-run after changing either, or after adding/removing a model:
 
-    python models/world_wb_mides/code/gen_mg_schema.py
+    uv run models/world_wb_mides/code/gen_mg_schema.py
     uv run pre-commit run --files models/world_wb_mides/schema_mg.yml
 
 The second step is not optional bookkeeping: pre-commit reflows the long
@@ -16,14 +16,9 @@ from __future__ import annotations
 import os
 import pathlib
 import re
-import sys
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-import mg_column_glossary as glossary
-
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-import mg_table_glossary as tables
+import models.world_wb_mides.code.mg_column_glossary as glossary
+import models.world_wb_mides.code.mg_table_glossary as tables
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 OUT = os.path.join(ROOT, "schema_mg.yml")

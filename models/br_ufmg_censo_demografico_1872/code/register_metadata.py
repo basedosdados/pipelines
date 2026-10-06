@@ -18,7 +18,7 @@ It is idempotent: every record is looked up first and updated in place, so a
 re-run after a partial failure does not duplicate anything.
 
 Run:
-    uv run python models/br_ufmg_censo_demografico_1872/code/register_metadata.py \
+    uv run models/br_ufmg_censo_demografico_1872/code/register_metadata.py \
         --env staging [--dry-run] [table_slug ...]
 """
 
@@ -30,11 +30,10 @@ import sys
 from pathlib import Path
 from string import Template
 
-sys.path.insert(0, "/Users/rdah0003/Dropbox/BD/mcp")
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-# pyrefly: ignore [missing-import]
-import server as bd_mcp
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 from models.br_ufmg_censo_demografico_1872.code.spec import (
     ANO,
@@ -140,12 +139,14 @@ class Backend:
     def query(self, body: Template, **args: str) -> dict:
         """Run a read query. Templates keep GraphQL's braces readable, which
         neither %-formatting nor f-strings manage here."""
-        return bd_mcp._gql(body.substitute(**args), env=self.env, auth=False)
+        return bd_mcp_metadata._gql(
+            body.substitute(**args), env=self.env, auth=False
+        )
 
     def _map(self, root: str, key: str) -> dict[str, str]:
         d = self.query(Q_ALL, root=root, key=key)
         return {
-            e["node"][key]: bd_mcp._strip_id(e["node"]["id"])
+            e["node"][key]: bd_mcp_metadata._strip_id(e["node"]["id"])
             for e in d[root]["edges"]
         }
 
@@ -155,32 +156,42 @@ class Backend:
                 f"    [dry-run] {name} {json.dumps(fields, ensure_ascii=False)[:150]}"
             )
             return {}
-        return bd_mcp._mut(name, fields, result or "", env=self.env)
+        return bd_mcp_write._mut(name, fields, result or "", env=self.env)
 
     # -- lookups -----------------------------------------------------------
     def table_id(self, slug: str) -> str | None:
         d = self.query(Q_TABLE, ds=DATASET_UUID, slug=slug)
         edges = d["allTable"]["edges"]
-        return bd_mcp._strip_id(edges[0]["node"]["id"]) if edges else None
+        return (
+            bd_mcp_metadata._strip_id(edges[0]["node"]["id"])
+            if edges
+            else None
+        )
 
     def columns(self, table: str) -> dict[str, str]:
         d = self.query(Q_COLUMNS, table=table)
         return {
-            e["node"]["name"]: bd_mcp._strip_id(e["node"]["id"])
+            e["node"]["name"]: bd_mcp_metadata._strip_id(e["node"]["id"])
             for e in d["allColumn"]["edges"]
         }
 
     def observation_levels(self, table: str) -> dict[str, str]:
         d = self.query(Q_OLS, table=table)
         return {
-            e["node"]["entity"]["slug"]: bd_mcp._strip_id(e["node"]["id"])
+            e["node"]["entity"]["slug"]: bd_mcp_metadata._strip_id(
+                e["node"]["id"]
+            )
             for e in d["allObservationlevel"]["edges"]
         }
 
     def one(self, root: str, table: str) -> str | None:
         d = self.query(Q_BY_TABLE, root=root, table=table)
         edges = d[root]["edges"]
-        return bd_mcp._strip_id(edges[0]["node"]["id"]) if edges else None
+        return (
+            bd_mcp_metadata._strip_id(edges[0]["node"]["id"])
+            if edges
+            else None
+        )
 
     def directory_fk(self, spec: str) -> str | None:
         """Resolve "<dataset>.<table>:<column>" to that column's backend id.
@@ -192,7 +203,7 @@ class Backend:
             return None
         if spec not in self._fk_cache:
             try:
-                self._fk_cache[spec] = bd_mcp._lookup_directory_column(
+                self._fk_cache[spec] = bd_mcp_write._lookup_directory_column(
                     spec, self.env
                 )
             except Exception:
@@ -202,7 +213,11 @@ class Backend:
     def datetime_range(self, coverage: str) -> str | None:
         d = self.query(Q_DATETIME, coverage=coverage)
         edges = d["allDatetimerange"]["edges"]
-        return bd_mcp._strip_id(edges[0]["node"]["id"]) if edges else None
+        return (
+            bd_mcp_metadata._strip_id(edges[0]["node"]["id"])
+            if edges
+            else None
+        )
 
 
 def register_table(
@@ -235,7 +250,7 @@ def register_table(
         fields["id"] = existing
     out = be.mut("CreateUpdateTable", fields, "table { id }")
     table = existing or (
-        bd_mcp._strip_id(out["table"]["id"]) if out else "DRY"
+        bd_mcp_metadata._strip_id(out["table"]["id"]) if out else "DRY"
     )
     if be.dry_run:
         return
@@ -251,7 +266,7 @@ def register_table(
         o = be.mut(
             "CreateUpdateObservationLevel", f, "observationlevel { id }"
         )
-        ol_ids[ent] = bd_mcp._strip_id(o["observationlevel"]["id"])
+        ol_ids[ent] = bd_mcp_metadata._strip_id(o["observationlevel"]["id"])
 
     # 3. columns — one mutation each, because bigqueryType, isPartition and
     #    observationLevel are only settable here.
@@ -301,9 +316,10 @@ def register_table(
     if cov:
         f["id"] = cov
     else:
+        # pyrefly: ignore [bad-assignment]
         f["isClosed"] = False
     o = be.mut("CreateUpdateCoverage", f, "coverage { id }")
-    cov = cov or bd_mcp._strip_id(o["coverage"]["id"])
+    cov = cov or bd_mcp_metadata._strip_id(o["coverage"]["id"])
 
     dr = be.datetime_range(cov)
     f = {
