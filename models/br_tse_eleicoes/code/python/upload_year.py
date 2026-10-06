@@ -131,8 +131,8 @@ def create_staging(tables: list[str]) -> None:
 
     orig = storage.Client.bucket
 
-    def bucket(self, name, user_project=None):  # requester-pays bucket
-        return orig(self, name, user_project=PROJECT)
+    def bucket(self, bucket_name, user_project=None):  # requester-pays
+        return orig(self, bucket_name, user_project=PROJECT)
 
     storage.Client.bucket = bucket
     for table in tables:
