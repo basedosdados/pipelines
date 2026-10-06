@@ -52,7 +52,7 @@ def decode_column(value):
 
 
 def dbf_to_parquet(
-    dbf: str, table_id: str, counter: int, chunk_size: int
+    dbf: str, table_id: str, file_id: int | str, chunk_size: int
 ) -> str:
     """
     Parses DBF file into parquet to preserve memory
@@ -91,8 +91,8 @@ def dbf_to_parquet(
 
             # table = pa.Table.from_pandas(chunk_df)
 
-            log(f"---- {counter}")
-            parquet_filename = f"{table_id}_{counter}_{counter_chunk}.parquet"
+            log(f"---- {file_id}")
+            parquet_filename = f"{table_id}_{file_id}_{counter_chunk}.parquet"
             parquet_filepath = os.path.join(output_path, parquet_filename)
 
             # pyrefly: ignore [unnecessary-type-conversion]
