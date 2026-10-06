@@ -12,6 +12,7 @@ Usage:
 """
 
 import os
+import subprocess
 import sys
 from pathlib import Path
 
@@ -54,11 +55,21 @@ def upload(ano: int, tables: list[str], dry_run: bool = False) -> None:
     )
     for table in tables:
         schema = _staging_schema(bq, table)
-        files = sorted((OUTPUT_PYTHON / table / f"ano={ano}").rglob("*.csv"))
-        if not files:
+        root = OUTPUT_PYTHON / table / f"ano={ano}"
+        files = sorted(
+            f
+            for f in root.rglob("*.csv")
+            if not f.name.endswith(".staging.csv")
+        )
+        payloads = []
+        # The seção giants are staged as parquet (columns matched by name,
+        # not position): upload them as written.
+        for f in sorted(root.rglob("data.parquet")):
+            rel = f.relative_to(OUTPUT_PYTHON / table)
+            payloads.append((f"staging/{DATASET}/{table}/{rel.as_posix()}", f))
+        if not files and not payloads:
             print(f"{table}: no files for ano={ano}, skipped")
             continue
-        payloads = []
         for f in files:
             # Hive keys (ano=, sigla_uf=) live in the path, not in the file
             rel = f.relative_to(OUTPUT_PYTHON / table)
@@ -90,9 +101,7 @@ def upload(ano: int, tables: list[str], dry_run: bool = False) -> None:
                 (f"staging/{DATASET}/{table}/{rel.as_posix()}", src)
             )
         size = sum(p.stat().st_size for _, p in payloads) / 1e6
-        print(
-            f"{table}: {len(files)} files, {size:,.0f} MB, reordered={payloads[0][1] != files[0]}"
-        )
+        print(f"{table}: {len(payloads)} files, {size:,.0f} MB")
         if dry_run:
             continue
         prefix = f"staging/{DATASET}/{table}/ano={ano}/"
@@ -100,9 +109,15 @@ def upload(ano: int, tables: list[str], dry_run: bool = False) -> None:
         for blob in stale:
             blob.delete()
         for name, src in payloads:
-            bucket.blob(name).upload_from_filename(
-                str(src), content_type="text/csv", timeout=3600
-            )
+            # gcloud does resumable/parallel uploads; the python client hung
+            # on, or timed out, the 300 MB files
+            subprocess.run(
+                ["gcloud", "storage", "cp", "-q", f"--billing-project={PROJECT}",
+                 str(src), f"gs://{BUCKET}/{name}"],
+                check=True,
+                env={**os.environ, "CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE": str(CRED)},
+            )  # fmt: skip
+            print(f"    {name}", flush=True)
         print(f"  replaced {len(stale)} old blobs under {prefix}")
 
 
