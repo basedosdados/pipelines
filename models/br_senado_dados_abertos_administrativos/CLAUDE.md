@@ -90,10 +90,10 @@ pipeline, so both produce identical output.
 ## Running it
 
 ```bash
-uv run python models/br_senado_dados_abertos_administrativos/code/validate_spec.py
-uv run python models/br_senado_dados_abertos_administrativos/code/run_onboarding.py --sample
-uv run python models/br_senado_dados_abertos_administrativos/code/gen_dbt.py
-uv run python models/br_senado_dados_abertos_administrativos/code/upload.py --env dev
+uv run models/br_senado_dados_abertos_administrativos/code/validate_spec.py
+uv run models/br_senado_dados_abertos_administrativos/code/run_onboarding.py --sample
+uv run models/br_senado_dados_abertos_administrativos/code/gen_dbt.py
+uv run models/br_senado_dados_abertos_administrativos/code/upload.py --env dev
 uv run dbt run --select br_senado_dados_abertos_administrativos
 ```
 

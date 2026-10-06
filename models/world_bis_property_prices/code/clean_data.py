@@ -12,7 +12,7 @@ Scratch data lives under ``~/Downloads/world_bis_property_prices_data/``
 ``WORLD_BIS_PP_DATA`` environment variable.
 
 Usage:
-    uv run python models/world_bis_property_prices/code/clean_data.py [--download]
+    uv run models/world_bis_property_prices/code/clean_data.py [--download]
 """
 
 import logging

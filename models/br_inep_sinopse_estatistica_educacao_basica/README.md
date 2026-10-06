@@ -48,10 +48,10 @@ repositório. A variável de ambiente `SINOPSE_DATA_DIR` altera esse caminho.
 ```bash
 cd models/br_inep_sinopse_estatistica_educacao_basica/code
 
-uv run python run_local.py                     # as 11 tabelas
-uv run python run_local.py -t faixa_etaria     # uma tabela
-uv run python run_local.py --skip-download     # usa a planilha já em disco
-uv run python run_local.py --output /tmp/x     # outro destino
+uv run run_local.py                     # as 11 tabelas
+uv run run_local.py -t faixa_etaria     # uma tabela
+uv run run_local.py --skip-download     # usa a planilha já em disco
+uv run run_local.py --output /tmp/x     # outro destino
 ```
 
 O download é ignorado quando o zip já existe. A saída é um CSV por unidade da
@@ -64,8 +64,8 @@ referência no mesmo commit.
 `run_local.py` não envia dados ao BigQuery. O envio é feito por `upload.py`:
 
 ```bash
-uv run python upload.py                        # as tabelas em output/
-uv run python upload.py -t localizacao         # uma tabela
+uv run upload.py                        # as tabelas em output/
+uv run upload.py -t localizacao         # uma tabela
 ```
 
 ### Execução sem service account

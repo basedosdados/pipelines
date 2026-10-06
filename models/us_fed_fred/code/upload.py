@@ -1,7 +1,7 @@
 """Upload cleaned us_fed_fred parquet tables to BigQuery staging.
 
 Usage:
-    uv run python models/us_fed_fred/code/upload.py [--env dev|prod] [table_slug ...]
+    uv run models/us_fed_fred/code/upload.py [--env dev|prod] [table_slug ...]
 
 --env dev (default) -> basedosdados-dev; --env prod -> basedosdados. Point
 GOOGLE_APPLICATION_CREDENTIALS at the matching service account. Reads the cleaned

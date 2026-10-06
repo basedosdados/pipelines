@@ -1,6 +1,6 @@
 """Build the us_fec_campaign_finance dicionario table.
 
-    uv run python build_dicionario.py
+    uv run build_dicionario.py
 
 Emits output/dicionario/data.parquet: one row per (table, column, code), mapping every
 FEC code stored in the dataset to its published description.

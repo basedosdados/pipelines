@@ -12,7 +12,7 @@ revisions -- set `dedup_by_key` and drop the tolerance. If they differ in what t
 record *is* -- a different object, value, or counterparty -- they are distinct
 records that must not be collapsed.
 
-    uv run python models/br_mgi_compras_publicas/code/check_key.py contrato_item
+    uv run models/br_mgi_compras_publicas/code/check_key.py contrato_item
 """
 
 from __future__ import annotations

@@ -1,7 +1,7 @@
 """Put the BD Pro rolling window on `observation`.
 
-    python models/world_noaa_ghcn/code/set_bdpro_coverage.py --env staging
-    python models/world_noaa_ghcn/code/set_bdpro_coverage.py --env prod
+    uv run models/world_noaa_ghcn/code/set_bdpro_coverage.py --env staging
+    uv run models/world_noaa_ghcn/code/set_bdpro_coverage.py --env prod
 
 Data Basis paywalls the most recent window of any table refreshing monthly or
 more often. `observation` refreshes weekly, so it carries a 6-month pro window;
@@ -28,28 +28,13 @@ real on the next armed pipeline run.
 from __future__ import annotations
 
 import argparse
-import os
-import sys
 from datetime import date
-from pathlib import Path
 
-_MCP_PATH = os.environ.get(
-    "BD_MCP_PATH",
-    str(Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"),
-)
-if not Path(_MCP_PATH).is_dir():
-    raise SystemExit(
-        f"databasis MCP checkout not found at {_MCP_PATH!r}. Set BD_MCP_PATH."
-    )
-sys.path.insert(0, _MCP_PATH)
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
-# pyrefly: ignore [missing-import]
-import server  # noqa: E402
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-
-from pipelines.datasets.world_noaa_ghcn.flows import _COVERAGE  # noqa: E402
-from pipelines.utils.metadata.policy import (  # noqa: E402
+from pipelines.datasets.world_noaa_ghcn.flows import _COVERAGE
+from pipelines.utils.metadata.policy import (
     CoverageIds,
     assert_coverage_topology,
     compute_coverage_ranges,
@@ -83,8 +68,10 @@ def main() -> None:
     env = args.env
     source_end = date.fromisoformat(args.source_end)
 
-    area_id = server.lookup_id(category="area", slug=AREA_SLUG, env=env)["id"]
-    dataset = server.get_dataset(DATASET_SLUG, env=env)
+    area_id = bd_mcp_metadata.lookup_id(
+        category="area", slug=AREA_SLUG, env=env
+    )["id"]
+    dataset = bd_mcp_metadata.get_dataset(DATASET_SLUG, env=env)
     table = dataset["tables"][TABLE]
     table_id = table["id"]
 
@@ -93,9 +80,9 @@ def main() -> None:
     free_id = pro_id = None
     for cov in table.get("coverages") or []:
         q = "query($id: ID!) { allCoverage(id: $id) { edges { node { isClosed } } } }"
-        edges = server._gql(q, {"id": cov["id"]}, env=env)["allCoverage"][
-            "edges"
-        ]
+        edges = bd_mcp_metadata._gql(q, {"id": cov["id"]}, env=env)[
+            "allCoverage"
+        ]["edges"]
         closed = bool(edges and edges[0]["node"]["isClosed"])
         if closed:
             pro_id = cov["id"]
@@ -108,7 +95,7 @@ def main() -> None:
             "no free Coverage found; run register_metadata.py first"
         )
     if pro_id is None:
-        pro = server.create_update_coverage(
+        pro = bd_mcp_write.create_update_coverage(
             table_id=table_id, area_id=area_id, is_closed=True, env=env
         )
         pro_id = pro["id"] if isinstance(pro, dict) else pro
@@ -132,7 +119,7 @@ def main() -> None:
     }
     free_range_id = (existing.get(free_id) or [{}])[0].get("id")
 
-    server.create_update_datetime_range(
+    bd_mcp_write.create_update_datetime_range(
         id=free_range_id,
         coverage_id=free_id,
         start_year=FIRST_YEAR,
@@ -145,7 +132,7 @@ def main() -> None:
         is_closed=False,
         env=env,
     )
-    server.create_update_datetime_range(
+    bd_mcp_write.create_update_datetime_range(
         id=(existing.get(pro_id) or [{}])[0].get("id"),
         coverage_id=pro_id,
         start_year=pro_start["year"],

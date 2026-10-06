@@ -10,7 +10,7 @@ A translation key is either a bare column name or ``name:table`` when one table
 needs wording the others do not.
 
 Usage:
-    uv run python models/us_bls_employment/code/build_columns_json.py
+    uv run models/us_bls_employment/code/build_columns_json.py
 """
 
 import csv
