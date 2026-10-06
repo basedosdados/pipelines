@@ -17,7 +17,7 @@ The `dicionario` table is assembled from every variable's value labels across
 all rounds: (id_tabela, nome_coluna, chave, cobertura_temporal, valor).
 
 Usage:
-    .venv/bin/python models/af_afrobarometer_survey/code/clean_data.py [round1 ...]
+    uv run models/af_afrobarometer_survey/code/clean_data.py [round1 ...]
 """
 
 from __future__ import annotations

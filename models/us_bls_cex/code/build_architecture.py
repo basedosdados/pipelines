@@ -20,13 +20,10 @@ below cannot classify falls back to STRING and is listed by ``--report``.
 import argparse
 import csv
 import re
-import sys
 from collections import defaultdict
 from pathlib import Path
 
 import pandas as pd
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_bls_cex.pumd_files import (
     DICTIONARY_XLSX,

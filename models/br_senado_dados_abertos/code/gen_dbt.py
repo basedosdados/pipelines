@@ -3,7 +3,7 @@ Generate dbt SQL models + schema.yml for br_senado_dados_abertos from
 architecture_spec.py. Partition ranges and the not_null_proportion ignore list
 are derived from the actual parquet (run AFTER the extraction so they are exact).
 
-  uv run python gen_dbt.py
+  uv run gen_dbt.py
 """
 
 from __future__ import annotations

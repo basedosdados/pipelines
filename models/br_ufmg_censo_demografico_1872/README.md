@@ -84,17 +84,17 @@ categories (`branco`, `pardo`, `preto`, `caboclo`). Two conventions worth knowin
 
 ```sh
 # 1. download the .mdb and dump every table to CSV (needs: brew install mdbtools)
-uv run python models/br_ufmg_censo_demografico_1872/code/extract.py
+uv run models/br_ufmg_censo_demografico_1872/code/extract.py
 
 # 2. clean into partitioned, all-STRING parquet (58 tables)
-uv run python models/br_ufmg_censo_demografico_1872/code/clean.py
+uv run models/br_ufmg_censo_demografico_1872/code/clean.py
 
 # 3. regenerate architecture CSVs, dbt models, schema.yml and columns.json
-uv run python models/br_ufmg_censo_demografico_1872/code/generate_artifacts.py
+uv run models/br_ufmg_censo_demografico_1872/code/generate_artifacts.py
 uv run pre-commit run --files models/br_ufmg_censo_demografico_1872/*
 
 # 4. upload to BigQuery
-uv run python models/br_ufmg_censo_demografico_1872/code/upload.py --env dev
+uv run models/br_ufmg_censo_demografico_1872/code/upload.py --env dev
 ```
 
 Intermediate data goes to `~/Downloads/br_ufmg_censo_demografico_1872_data/`

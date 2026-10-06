@@ -77,7 +77,7 @@ Nothing was lost. Chunks are atomic and failures write nothing:
 
 ```bash
 PNCP_DATA_DIR=~/Downloads/br_mgi_pncp_data PNCP_MIN_INTERVAL=1.0 PNCP_WORKERS=2 \
-  PNCP_VERBOSE=1 uv run python models/br_mgi_pncp/code/download.py \
+  PNCP_VERBOSE=1 uv run models/br_mgi_pncp/code/download.py \
   --end 2026-08-28 --tables contratacao ata_registro_preco \
   instrumento_cobranca contrato
 ```
@@ -104,7 +104,7 @@ is extrapolated rather than measured. `contrato` (~5h) and
 
 ```bash
 PNCP_DATA_DIR=~/Downloads/br_mgi_pncp_data PNCP_MIN_INTERVAL=0.05 PNCP_WORKERS=3 \
-  uv run python models/br_mgi_pncp/code/download.py \
+  uv run models/br_mgi_pncp/code/download.py \
   --tables contrato ata_registro_preco contratacao plano_contratacao_anual instrumento_cobranca
 ```
 
@@ -849,7 +849,7 @@ that harvests nothing**:
 
 ```bash
 PNCP_DATA_DIR=~/Downloads/br_mgi_pncp_data PNCP_WORKERS=3 \
-  uv run python models/br_mgi_pncp/code/download.py --end 2026-08-28
+  uv run models/br_mgi_pncp/code/download.py --end 2026-08-28
 ```
 
 Re-run until every table reports `0 new records this run` and no `FAILED`

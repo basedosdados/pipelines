@@ -4,7 +4,7 @@ The source is a single ~75 MB Jet4 ``.mdb`` inside a ZIP published by
 NPHED/Cedeplar. Reading it needs ``mdbtools`` (``brew install mdbtools``);
 there is no pure-Python reader in this repo's dependency set.
 
-Run:  uv run python models/br_ufmg_censo_demografico_1872/code/extract.py
+Run:  uv run models/br_ufmg_censo_demografico_1872/code/extract.py
 """
 
 from __future__ import annotations

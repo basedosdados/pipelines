@@ -13,7 +13,7 @@ typed Parquet here would leave a typed external table that a later all-string
 overwrite could not be read against.
 
 Usage:
-    python clean.py <input_dir> <output_dir> [--paper <1351.0 text file>]
+    uv run models/au_abs_household_income_wealth/code/clean.py <input_dir> <output_dir> [--paper <1351.0 text file>]
 """
 
 from __future__ import annotations

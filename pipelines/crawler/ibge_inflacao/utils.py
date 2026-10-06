@@ -379,7 +379,7 @@ def order_by_columns(table_id: str) -> list:
     return rename
 
 
-def get_date_api(dataset_id: str, table_id: str) -> tuple[date, str]:
+def get_date_api(dataset_id: str, table_id: str) -> date:
     input = os.path.join(
         constants.INPUT.value, dataset_id, table_id, "data.json"
     )
@@ -400,12 +400,10 @@ def get_date_api(dataset_id: str, table_id: str) -> tuple[date, str]:
 
         date_original = f"{ano}-{mes}-01"
 
-        # pyrefly: ignore [bad-return, unnecessary-type-conversion]
-        return dt.strptime(str(date_original), "%Y-%m-%d").date()
+        return dt.strptime(date_original, "%Y-%m-%d").date()
 
     except Exception as e:
         log(f"Não há dados recentes na API: {e}")
-        # pyrefly: ignore [bad-return]
         return task_get_api_most_recent_date.fn(
             dataset_id=dataset_id, table_id=table_id, date_format="%Y-%m"
         )
