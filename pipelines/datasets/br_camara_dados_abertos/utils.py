@@ -6,7 +6,7 @@ from zipfile import ZipFile
 import pandas as pd
 import requests
 
-from pipelines.crawler.camara_dados_abertos.constants import (
+from pipelines.datasets.br_camara_dados_abertos.constants import (
     constants as constants_camara,
 )
 from pipelines.utils.utils import log
