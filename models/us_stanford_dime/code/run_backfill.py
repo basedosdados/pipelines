@@ -12,7 +12,7 @@ the next unfinished cycle instead of re-uploading what already landed.
 
     export GOOGLE_APPLICATION_CREDENTIALS=<dev service account key>
     uv run --with duckdb --with google-cloud-storage --with google-cloud-bigquery \\
-        --with pyarrow python run_backfill.py
+        --with pyarrow uv run models/us_stanford_dime/code/run_backfill.py
 
 Add ``--load`` on the final run to build the BigQuery staging table from the
 uploaded prefix, or run it separately once every cycle is in.

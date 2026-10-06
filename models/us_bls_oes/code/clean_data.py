@@ -9,8 +9,8 @@ default `~/Downloads/us_bls_oes_data/`, overridable with OES_INPUT_DIR and
 OES_OUTPUT_DIR.
 
 Run:
-    uv run python models/us_bls_oes/code/clean_data.py            # 2003-latest
-    uv run python models/us_bls_oes/code/clean_data.py 2010 2025  # a subset
+    uv run models/us_bls_oes/code/clean_data.py            # 2003-latest
+    uv run models/us_bls_oes/code/clean_data.py 2010 2025  # a subset
 """
 
 import logging

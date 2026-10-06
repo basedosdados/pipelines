@@ -1,6 +1,6 @@
 """Register the br_mgi_compras_publicas metadata in the Data Basis backend.
 
-    ~/.pyenv/versions/3.11.6/bin/python \
+    uv run \
         models/br_mgi_compras_publicas/code/register_metadata.py [staging|prod] [under_review|published]
 
 Everything is resolved by slug at runtime, because reference ids differ between
@@ -37,17 +37,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, cast
 
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
+
 HERE = Path(__file__).resolve().parent
 REPO_ROOT = HERE.parents[2]
-# The sibling modules are imported by absolute path (`models.<ds>.code.<mod>`),
-# per AGENTS.md, so pyrefly can resolve them; the repo root has to be on the
-# path for that to work when this file is run as a script rather than under
-# `uv run`. `server` comes from the MCP checkout, which is not a package here.
-sys.path.insert(0, str(REPO_ROOT))
-sys.path.insert(0, str(Path.home() / "Dropbox/BD/mcp"))
-
-# pyrefly: ignore [missing-import]
-import server  # noqa: E402
 
 from models.br_mgi_compras_publicas.code.dbt_spec import (  # noqa: E402
     TABLES as DBT,
@@ -157,7 +151,7 @@ def fn(name: str) -> Callable[..., Any]:
     return type keeps call sites type-checkable, since `getattr` alone reads as
     `Any | None` to the checker.
     """
-    f = getattr(server, name)
+    f = getattr(bd_mcp_metadata, name, None) or getattr(bd_mcp_write, name)
     return cast("Callable[..., Any]", getattr(f, "fn", f))
 
 
@@ -208,7 +202,9 @@ query($slug: String!) {
 def stored_update_latest(slug: str, env: str) -> dict[str, str]:
     """Each table's current Update.latest, keyed by table slug."""
     try:
-        data = server._gql(_STORED_LATEST_QUERY, {"slug": slug}, env=env)
+        data = bd_mcp_metadata._gql(
+            _STORED_LATEST_QUERY, {"slug": slug}, env=env
+        )
     except Exception as exc:
         print(f"  warning: could not read stored Update.latest ({exc})")
         return {}
@@ -254,7 +250,9 @@ def stored_coverages(
     `prune` deletes -- within the tier, never across it.
     """
     try:
-        data = server._gql(_COVERAGE_TIERS_QUERY, {"slug": slug}, env=env)
+        data = bd_mcp_metadata._gql(
+            _COVERAGE_TIERS_QUERY, {"slug": slug}, env=env
+        )
     except Exception as exc:
         # Fail loudly rather than falling back to positional reuse: guessing
         # here is what flattens the free/pro pair.
@@ -273,17 +271,17 @@ def stored_coverages(
                 # helper the MCP's own read tools use, so there is one
                 # normalisation here, not a second implementation of it.
                 ranges = [
-                    server._strip_id(r["node"]["id"])
+                    bd_mcp_metadata._strip_id(r["node"]["id"])
                     for r in coverage["datetimeRanges"]["edges"]
                 ]
                 if tier in tiers:
                     tiers[tier]["extra_coverage_ids"].append(
-                        server._strip_id(coverage["id"])
+                        bd_mcp_metadata._strip_id(coverage["id"])
                     )
                     tiers[tier]["extra_range_ids"].extend(ranges)
                     continue
                 tiers[tier] = {
-                    "id": server._strip_id(coverage["id"]),
+                    "id": bd_mcp_metadata._strip_id(coverage["id"]),
                     "range_ids": ranges,
                     "extra_coverage_ids": [],
                     "extra_range_ids": [],
@@ -465,7 +463,7 @@ def prune(
     # the run would carry on to fail at create_update_table with an error that
     # names `coverages_areas` -- a field the request does not contain. Stop
     # here instead, naming what has to go.
-    if not hasattr(server, "delete_record"):
+    if not hasattr(bd_mcp_write, "delete_record"):
         print(
             f"{len(doomed)} duplicate child record(s) on this table and the "
             f"MCP server has no delete_record: {doomed}"

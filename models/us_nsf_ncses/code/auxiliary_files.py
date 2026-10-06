@@ -20,8 +20,8 @@ Two caveats worth stating rather than discovering:
 
 Run
 ---
-    python models/us_nsf_ncses/code/auxiliary_files.py            # build only
-    python models/us_nsf_ncses/code/auxiliary_files.py --upload   # build + upload
+    uv run models/us_nsf_ncses/code/auxiliary_files.py            # build only
+    uv run models/us_nsf_ncses/code/auxiliary_files.py --upload   # build + upload
 """
 
 from __future__ import annotations

@@ -1,7 +1,7 @@
 """Upload the cleaned us_dol_oflc parquet tables to BigQuery.
 
 Usage:
-    uv run python models/us_dol_oflc/code/upload.py [--env dev|prod] [table ...]
+    uv run models/us_dol_oflc/code/upload.py [--env dev|prod] [table ...]
 
 --env dev (default) writes basedosdados-dev; --env prod writes basedosdados.
 Point GOOGLE_APPLICATION_CREDENTIALS at the matching service account. Tables are

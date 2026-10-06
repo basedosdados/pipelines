@@ -16,21 +16,17 @@ Covers every architecture column with ``covered_by_dictionary = yes``:
 Written as one unpartitioned, all-STRING parquet file.
 
 Usage:
-    python models/us_bls_cex/code/build_dicionario.py
+    uv run models/us_bls_cex/code/build_dicionario.py
 """
 
 import logging
 import re
-import sys
 from collections import defaultdict
-from pathlib import Path
 
 import pandas as pd
 import pyarrow as pa
 import pyarrow.compute as pc
 import pyarrow.dataset as pads
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.us_bls_cex.pumd_files import (
     DICTIONARY_XLSX,

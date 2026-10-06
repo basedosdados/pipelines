@@ -1,6 +1,6 @@
 """Build the per-table auxiliary-file bundles for world_noaa_ghcn.
 
-    python models/world_noaa_ghcn/code/build_auxiliary_files.py
+    uv run models/world_noaa_ghcn/code/build_auxiliary_files.py
 
 GHCN-Daily is unusable without its codebook: the value column is meaningless
 until you know that TMAX is tenths of a degree and SNOW is whole millimetres,

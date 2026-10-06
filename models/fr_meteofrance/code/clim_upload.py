@@ -1,6 +1,6 @@
 """Upload the climatologiques tables to the ``basedosdados-dev`` staging dataset.
 
-    uv run python models/fr_meteofrance/code/clim_upload.py [table_slug ...]
+    uv run models/fr_meteofrance/code/clim_upload.py [table_slug ...]
 
 ``quotidienne`` and ``mensuelle`` are directories of one parquet per
 (département, period); ``poste`` is a single file. ``dicionario`` is re-uploaded

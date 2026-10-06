@@ -7,7 +7,7 @@ column (DPxx_NNNNE and DPxx_NNNNPE) into a row with its MOE partner
 MOE/est sentinels (-555555555 etc.) -> null.
 
 Output: output/data_profile_<level>/ano=<y>/<period>.parquet
-Usage: python3 clean_profiles.py <level> [<level> ...]   (default: all levels)
+Usage: uv run models/us_census_acs/code/clean_profiles.py <level> [<level> ...]   (default: all levels)
 """
 
 import glob

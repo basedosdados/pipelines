@@ -25,7 +25,7 @@ acessível (ex.: Google Drive montado, como no Colab onde os anos anteriores
 foram processados).
 
 Uso:
-    python atualizar_dicionario_2025.py
+    uv run models/world_oecd_pisa/code/atualizar_dicionario_2025.py
 
 Gera, em extra/:
     dictionary_2025.csv   — dicionário antigo + linhas novas (task 1 e 2)

@@ -12,12 +12,9 @@ from __future__ import annotations
 
 import csv
 import json
-import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-REPO_ROOT = HERE.parents[2]
-sys.path.insert(0, str(REPO_ROOT))
 
 from pipelines.datasets.br_mapbiomas_estatisticas.utils import (  # noqa: E402
     CLASSE_COLUMNS,

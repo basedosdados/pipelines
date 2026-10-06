@@ -1,7 +1,7 @@
 """Register the us_census_cog metadata in the Data Basis backend.
 
-    python metadata.py staging
-    python metadata.py prod
+    uv run models/us_census_cog/code/metadata.py staging
+    uv run models/us_census_cog/code/metadata.py prod
 
 Re-runnable: every record it creates is written back to ``metadata_ids.json``
 next to this file and passed as ``id`` on the next run, because the backend's
@@ -14,60 +14,20 @@ create_update_table fails once a table has one.
 """
 
 import json
-import os
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
 CODE_DIR = Path(__file__).resolve().parent
-REPO_ROOT = CODE_DIR.parents[2]
-sys.path.insert(0, str(REPO_ROOT))
+
+import databasis_mcp.tools.metadata as bd_mcp_metadata  # noqa: E402
+import databasis_mcp.tools.write as bd_mcp_write  # noqa: E402
 
 from models.us_census_cog.code.common import (  # noqa: E402
     ARCHITECTURE,
     DATASET_ID,
 )
 from pipelines.datasets.us_census_cog.utils import load_cols  # noqa: E402
-
-
-def import_databasis_server():
-    """Import the Data Basis MCP server module, which holds the backend client.
-
-    The module lives outside this repository. Its location comes from
-    ``DATABASIS_MCP_DIR`` when set, and is otherwise found by looking for an
-    ``mcp`` checkout beside any ancestor of the repository root -- the extra
-    reach matters inside a git worktree, where the root sits several levels
-    deeper than usual. Either way this file carries no absolute path of its own.
-
-    Returns:
-        The imported ``server`` module.
-
-    Raises:
-        SystemExit: The directory holds no ``server.py``.
-    """
-    override = os.environ.get("DATABASIS_MCP_DIR")
-    candidates = (
-        [Path(override)]
-        if override
-        else [parent / "mcp" for parent in REPO_ROOT.parents]
-    )
-    for candidate in candidates:
-        if (candidate / "server.py").exists():
-            sys.path.insert(0, str(candidate))
-            break
-    else:
-        raise SystemExit(
-            "no mcp/server.py beside this repository. Point DATABASIS_MCP_DIR "
-            "at the Data Basis MCP checkout."
-        )
-    # pyrefly: ignore [missing-import]
-    import server
-
-    return server
-
-
-server = import_databasis_server()
-
 
 IDS = CODE_DIR / "metadata_ids.json"
 # The per-table documentation bundles built by build_auxiliary_files.py. They
@@ -461,7 +421,7 @@ def main(env: str) -> None:
     full = load_ids()
     full[env] = store
 
-    refs = server.discover_ids(
+    refs = bd_mcp_metadata.discover_ids(
         env=env,
         keys=[
             "status",
@@ -475,14 +435,14 @@ def main(env: str) -> None:
         ],
     )
     status = refs["status"]
-    account = server.get_authenticated_account(env=env)["id"]
-    area = server.lookup_id(category="area", slug=AREA, env=env)["id"]
+    account = bd_mcp_metadata.get_authenticated_account(env=env)["id"]
+    area = bd_mcp_metadata.lookup_id(category="area", slug=AREA, env=env)["id"]
 
-    existing = server.get_dataset(slug=SLUG, env=env)
+    existing = bd_mcp_metadata.get_dataset(slug=SLUG, env=env)
     dataset_id = existing["id"]
     print(f"dataset {SLUG} -> {dataset_id}")
 
-    server.create_update_dataset(
+    bd_mcp_write.create_update_dataset(
         slug=SLUG,
         name_pt="Censo de Governos (CoG)",
         name_en="Census of Governments (CoG)",
@@ -502,11 +462,11 @@ def main(env: str) -> None:
     sources = store.setdefault("raw_sources", {})
     # The shell carried one generic "Dados originais" source; it becomes the
     # program landing page rather than being left beside the real ones.
-    generic = server.get_raw_data_sources(dataset_slug=SLUG, env=env)
+    generic = bd_mcp_write.get_raw_data_sources(dataset_slug=SLUG, env=env)
     if "landing" not in sources and generic:
         sources["landing"] = generic[0]["id"]
     for key, spec in RAW_SOURCES.items():
-        result = server.create_update_raw_data_source(
+        result = bd_mcp_write.create_update_raw_data_source(
             dataset_id=dataset_id,
             name_pt=spec["name"][0],
             name_en=spec["name"][1],
@@ -542,7 +502,7 @@ def main(env: str) -> None:
             table_id = record["id"]
             table = {"id": table_id}
         else:
-            table = server.create_update_table(
+            table = bd_mcp_write.create_update_table(
                 slug=slug,
                 name_pt=spec["name"][0],
                 name_en=spec["name"][1],
@@ -571,7 +531,8 @@ def main(env: str) -> None:
 
         levels = record.setdefault("levels", {})
         for entity in spec["levels"]:
-            result = server.create_update_observation_level(
+            result = bd_mcp_write.create_update_observation_level(
+                # pyrefly: ignore [bad-argument-type]
                 table_id=table_id,
                 entity_id=refs["entity"][entity],
                 id=levels.get(entity),
@@ -579,19 +540,24 @@ def main(env: str) -> None:
             )
             levels[entity] = result.get("id", levels.get(entity))
         if spec["levels"]:
-            server.reorder_observation_levels(
+            bd_mcp_write.reorder_observation_levels(
+                # pyrefly: ignore [bad-argument-type]
                 table_id=table_id,
                 ol_ids=[levels[e] for e in spec["levels"]],
                 env=env,
             )
         save_ids(full)
 
-        server.bulk_upsert_columns(
-            table_id=table_id, columns_json=columns_payload(slug), env=env
+        bd_mcp_write.bulk_upsert_columns(
+            # pyrefly: ignore [bad-argument-type]
+            table_id=table_id,
+            columns_json=columns_payload(slug),
+            env=env,
         )
         print(f"  {len(load_cols(slug))} columns")
 
-        cloud = server.create_update_cloud_table(
+        cloud = bd_mcp_write.create_update_cloud_table(
+            # pyrefly: ignore [bad-argument-type]
             table_id=table_id,
             gcp_project_id=(
                 "basedosdados-dev" if env == "staging" else "basedosdados"
@@ -604,7 +570,8 @@ def main(env: str) -> None:
         record["cloud_table"] = cloud.get("id", record.get("cloud_table"))
 
         if spec["years"]:
-            coverage = server.create_update_coverage(
+            coverage = bd_mcp_write.create_update_coverage(
+                # pyrefly: ignore [bad-argument-type]
                 table_id=table_id,
                 area_id=area,
                 id=record.get("coverage"),
@@ -612,7 +579,8 @@ def main(env: str) -> None:
             )
             record["coverage"] = coverage.get("id", record.get("coverage"))
             start, end = spec["years"]
-            span = server.create_update_datetime_range(
+            span = bd_mcp_write.create_update_datetime_range(
+                # pyrefly: ignore [bad-argument-type]
                 coverage_id=record["coverage"],
                 start_year=start,
                 end_year=end,
@@ -623,7 +591,7 @@ def main(env: str) -> None:
             record["datetime_range"] = span.get(
                 "id", record.get("datetime_range")
             )
-            update = server.create_update_update(
+            update = bd_mcp_write.create_update_update(
                 entity_id=refs["entity"]["year"],
                 frequency=1,
                 latest=datetime.now(UTC).replace(microsecond=0).isoformat(),
@@ -634,7 +602,9 @@ def main(env: str) -> None:
             record["update"] = update.get("id", record.get("update"))
         save_ids(full)
 
-    server.reorder_tables(dataset_slug=SLUG, table_slugs=TABLE_ORDER, env=env)
+    bd_mcp_write.reorder_tables(
+        dataset_slug=SLUG, table_slugs=TABLE_ORDER, env=env
+    )
     save_ids(full)
     link_columns(env, store, refs)
     print("done")
@@ -682,14 +652,14 @@ def link_columns(env: str, store: dict, refs: dict) -> None:
         levels = store["tables"][slug]["levels"]
         columns = {
             c["name"]: c["id"]
-            for c in server.get_dataset(slug=SLUG, env=env)["tables"][slug][
-                "columns"
-            ]
+            for c in bd_mcp_metadata.get_dataset(slug=SLUG, env=env)["tables"][
+                slug
+            ]["columns"]
         }
         for column, entity in mapping.items():
             if column not in columns:
                 raise SystemExit(f"{slug}: no column {column}")
-            server.update_column(
+            bd_mcp_write.update_column(
                 column_id=columns[column],
                 column_name=column,
                 table_id=table_id,
