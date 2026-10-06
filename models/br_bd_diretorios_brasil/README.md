@@ -94,16 +94,10 @@ baixa o catálogo (~85 MB), lê do BigQuery o diretório publicado, o diretório
 `municipio` e o Censo Escolar, grava o parquet e materializa em dev e depois em
 prod.
 
-O catálogo não publica data de atualização: é o registro do Inep no momento da
-extração. Por isso a data da fonte é a data do download, a tabela é
-`NonHistorical` e o poll compara essa data com o `Table.Update` da tabela. Na
-prática o poll sempre encontra novidade, e quem define a frequência é o
-agendamento. Também por isso o flow roda num dia só: se rodasse em vários dias
-seguidos, cada um teria data mais nova que o anterior e baixaria de novo.
-
-O poll por tamanho de arquivo, a outra opção para fonte sem data, não serve
-aqui: ele levanta erro quando o arquivo diminui, e o catálogo diminui sempre que
-o Inep remove escolas extintas.
+O catálogo não publica data de atualização, e a data do download não diz quando
+o Inep atualizou o registro. Por isso o flow não consulta a fonte antes de
+baixar: todo run baixa o catálogo e recarrega a tabela, e quem define a
+frequência é o agendamento. A tabela é `NonHistorical`.
 
 A limpeza falha se o catálogo vier com menos de 95% das escolas `Presente` do
 diretório publicado (`constants.MIN_CATALOG_SHARE`). Um download incompleto não

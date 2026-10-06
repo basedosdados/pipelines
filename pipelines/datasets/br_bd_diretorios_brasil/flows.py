@@ -10,15 +10,10 @@ from pipelines.datasets.br_bd_diretorios_brasil.tasks import (
     download_catalogo,
     fetch_censo_escolar,
     fetch_diretorio_publicado,
-    get_source_max_date,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import DateFormat, NonHistorical
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
-)
+from pipelines.utils.metadata.domain import NonHistorical
+from pipelines.utils.metadata.tasks import register_table_materialization_task
 from pipelines.utils.tasks import (
     rename_flow_run_dataset_table,
     run_dbt,
@@ -35,37 +30,10 @@ def br_bd_diretorios_brasil__escola(
     table_id: str = "escola",
     materialize_after_dump: bool = True,
     update_metadata: bool = True,
-    target: str = "prod",
-    force_run: bool = False,
 ) -> None:
     """Atualiza o diretório de escolas a partir do Catálogo de Escolas do Inep."""
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
-    )
-
-    source_max_date = get_source_max_date()
-
-    if not force_run:
-        has_new_data = poll_source_for_update_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            source_max_date=source_max_date,
-            env="prod",
-            date_format=DateFormat.YEAR_MD,
-            compare_against="table_update",
-        )
-        if not has_new_data:
-            print(f"Não há atualizações para a tabela {table_id}!")
-            return
-
-    commit_source_update_task(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        source_max_date=source_max_date,
-        env="prod",
-        date_format=DateFormat.YEAR_MD,
-        update_metadata=update_metadata,
-        materialize_after_dump=materialize_after_dump,
     )
 
     csv_path = download_catalogo()
@@ -108,7 +76,7 @@ def br_bd_diretorios_brasil__escola(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        target=target,
+        target="prod",
     )
 
     if update_metadata:

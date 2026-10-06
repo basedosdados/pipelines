@@ -14,16 +14,6 @@ from pipelines.datasets.br_bd_diretorios_brasil.constants import constants
 
 
 @task
-def get_source_max_date() -> str:
-    """Devolve a data que o Catálogo extraído representa.
-
-    Returns:
-        A data de hoje, no formato `%Y-%m-%d`.
-    """
-    return utils.get_source_max_date()
-
-
-@task(retries=3, retry_delay_seconds=300)
 def download_catalogo() -> Path:
     """Baixa o CSV do Catálogo de Escolas do Inep.
 

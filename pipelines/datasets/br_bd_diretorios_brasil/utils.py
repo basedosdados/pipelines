@@ -32,7 +32,6 @@ escolar, and records the outcome per school in ``situacao_catalogo``.
 
 from __future__ import annotations
 
-import datetime
 import logging
 import subprocess
 import tempfile
@@ -48,21 +47,6 @@ import pyarrow.parquet as pq
 from pipelines.datasets.br_bd_diretorios_brasil.constants import constants
 
 log = logging.getLogger("br_bd_diretorios_brasil")
-
-
-# ── source date ──────────────────────────────────────────────────────────────
-
-
-def get_source_max_date() -> str:
-    """Devolve a data que o Catálogo extraído representa.
-
-    O Catálogo é o registro do Inep no momento da extração e não publica data
-    de atualização, então a data do download faz esse papel.
-
-    Returns:
-        A data de hoje, no formato ``%Y-%m-%d``.
-    """
-    return datetime.date.today().strftime("%Y-%m-%d")
 
 
 # ── download ─────────────────────────────────────────────────────────────────
