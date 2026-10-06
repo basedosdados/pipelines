@@ -317,6 +317,8 @@ def dispatch_build_and_promote(
             "prefect_mode": result.prefect_mode,
             "promote_to_prod": not _dev_prefix(),
             "partition_folders": result.partition_folders,
+            "dump_mode": result.dump_mode,
+            "source_format": result.source_format,
         },
         timeout=0,
         as_subflow=True,
