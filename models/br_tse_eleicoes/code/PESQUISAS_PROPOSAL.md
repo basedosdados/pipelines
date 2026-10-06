@@ -1,8 +1,12 @@
 # Pesquisas eleitorais — architecture proposal for `br_tse_eleicoes`
 
-Status: research + proposal only (2026-10-06). Nothing written to BigQuery or the backend.
-Scratch data: `~/Library/Caches/br_tse_eleicoes_data/input/pesquisa_eleitoral/`
-(zips, `ex/` extracted CSVs, `D.pkl` = deduplicated frames used for every number below).
+Status: implemented (2026-10-06) — tables `pesquisa_eleitoral`,
+`pesquisa_eleitoral_contratante` and `pesquisa_eleitoral_pagante`, built by
+`code/python/sub/polls.py`; this document records the design and the source
+survey behind it.
+Data: the source zips live under `$TSE_DATA_DIR/input/pesquisa_eleitoral/`
+(`INPUT_DIR` in `config.py`); `polls.py --download` fetches them. Every count
+below is reproducible by running `polls.py` on those zips.
 
 ## 1. What the TSE publishes
 

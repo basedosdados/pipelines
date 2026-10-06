@@ -196,8 +196,15 @@ def download(years: list[int] = YEARS, force: bool = False) -> None:
                 continue
             url = f"{CDN}/{fam}_{ano}.zip"
             tmp = dest.with_suffix(".zip.part")
-            with urllib.request.urlopen(url) as r, open(tmp, "wb") as f:
-                shutil.copyfileobj(r, f)
+            try:
+                with (
+                    urllib.request.urlopen(url, timeout=300) as r,
+                    open(tmp, "wb") as f,
+                ):
+                    shutil.copyfileobj(r, f)
+            except BaseException:
+                tmp.unlink(missing_ok=True)
+                raise
             tmp.rename(dest)
             print(f"downloaded {dest.name}")
 
@@ -238,39 +245,57 @@ def read_family(fam: str, ano: int) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 
+def _keep(s: pd.Series, cond: pd.Series) -> pd.Series:
+    """``s`` where ``cond`` holds, else None.
+
+    Same as ``s.where(cond, None)``, which the pandas stubs reject; object
+    dtype keeps None (not NaN), as the ``is not None`` checks below expect.
+    """
+    out = s.astype(object)
+    out[~cond.fillna(False).astype(bool)] = None
+    return out
+
+
 def _null_text(s: pd.Series) -> pd.Series:
     s = s.str.strip()
-    return s.where(~s.isin(TEXT_SENTINELS), None)
+    return _keep(s, ~s.isin(TEXT_SENTINELS))
 
 
 def _null_code(s: pd.Series) -> pd.Series:
     s = s.str.strip()
-    return s.where(~s.isin(NUMERIC_SENTINELS), None)
+    return _keep(s, ~s.isin(NUMERIC_SENTINELS))
 
 
 def clean_document(s: pd.Series) -> pd.Series:
     """CPF/CNPJ: digits only; sentinels and underscore masks become NULL."""
     s = _null_code(s)
-    return s.where(s.str.fullmatch(r"\d{11}|\d{14}", na=False), None)
+    return _keep(s, s.str.fullmatch(r"\d{11}|\d{14}", na=False))
 
 
 def clean_flag(s: pd.Series) -> pd.Series:
     """S/N flags; anything else (including #NE) becomes NULL."""
     s = s.str.strip().str.upper()
-    return s.where(s.isin({"S", "N"}), None)
+    return _keep(s, s.isin({"S", "N"}))
 
 
 def clean_money(s: pd.Series) -> pd.Series:
-    """'46204,00' -> '46204.00' by string manipulation (no float rounding)."""
+    """'46204,00' -> '46204.00' by string manipulation (no float rounding).
+
+    A dot is a thousands separator only when a comma is also present;
+    '46204.50' is left as is rather than read as 4620450.
+    """
     s = _null_code(s)
-    s = s.str.replace(".", "", regex=False).str.replace(",", ".", regex=False)
-    return s.where(s.str.fullmatch(r"-?\d+(\.\d+)?", na=False), None)
+    comma = s.str.replace(".", "", regex=False).str.replace(
+        ",", ".", regex=False
+    )
+    s = s.where(~s.str.contains(",", regex=False, na=False), comma)
+    return _keep(s, s.str.fullmatch(r"-?\d+(\.\d+)?", na=False))
 
 
 def clean_count(s: pd.Series) -> pd.Series:
     """Non-negative integer counts; negatives (4 rows) and junk become NULL."""
     s = s.str.strip()
-    return s.where(s.str.fullmatch(r"\d+", na=False), None).map(
+    return _keep(s, s.str.fullmatch(r"\d+", na=False)).map(
         lambda v: str(int(v)) if v is not None else None
     )
 
@@ -307,7 +332,7 @@ def null_implausible_date(s: pd.Series, ref: pd.Series) -> pd.Series:
     """
     y = pd.to_numeric(s.str.slice(0, 4), errors="coerce")
     r = pd.to_numeric(ref.str.slice(0, 4), errors="coerce")
-    return s.where(~((y - r).abs() > 1), None)
+    return _keep(s, ~((y - r).abs() > 1))
 
 
 def clean_time(s: pd.Series) -> pd.Series:
@@ -344,14 +369,14 @@ def clean_cargos(s: pd.Series) -> pd.Series:
 
 def clean_categorical(s: pd.Series) -> pd.Series:
     s = clean_string_series(_null_text(s))
-    return s.where(s.notna() & (s != ""), None)
+    return _keep(s, s.notna() & (s != ""))
 
 
 def clean_municipio_tse(s: pd.Series) -> pd.Series:
     """SG_UE: 5-digit TSE code (municipal polls) without leading zeros, as
     in the directory and the other tables; UF/BR codes become NULL."""
     s = s.str.strip()
-    return s.where(s.str.fullmatch(r"\d{1,5}", na=False), None).map(
+    return _keep(s, s.str.fullmatch(r"\d{1,5}", na=False)).map(
         lambda v: str(int(v)) if v is not None else None
     )
 
@@ -396,7 +421,7 @@ def build_main(raw: pd.DataFrame, ano: int) -> pd.DataFrame:
     # files carry 00:00:00 or no time at all.
     hora = clean_time(df["data_registro"])
     if ano < 2022:
-        hora = hora.where(hora != "00:00:00", None)
+        hora = _keep(hora, hora != "00:00:00")
     out["hora_registro"] = hora
     out["data_inicio"] = null_implausible_date(
         clean_date(df["data_inicio"]), out["data_registro"]
@@ -421,7 +446,7 @@ def build_main(raw: pd.DataFrame, ano: int) -> pd.DataFrame:
     out["id_municipio_tse"] = out["id_municipio_tse"].fillna("")
     out = merge_municipio(out)
     for col in ["id_municipio", "id_municipio_tse"]:
-        out[col] = out[col].where(out[col].notna() & (out[col] != ""), None)
+        out[col] = _keep(out[col], out[col].notna() & (out[col] != ""))
     return out[COLUMNS[TABLE_MAIN]]
 
 

@@ -34,9 +34,9 @@ Usage:
         2026 6257 6259 6261 --candidatos 6257 6261
 """
 
+import argparse
 import gzip
 import json
-import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
@@ -110,7 +110,11 @@ ABRANGENCIA = {"8": "F", "1": "E", "3": "M"}
 
 
 def _get_json(url: str, cache_path: Path | None = None) -> dict | None:
-    """GET a JSON with retries; ``None`` on 404. Cached gzip on disk if asked."""
+    """GET a JSON with retries; ``None`` on 404. Cached gzip on disk if asked.
+
+    403 is raised, not treated as missing: the CDN answers 403 to throttled
+    or blocked clients, and that must not pass for "no such zone".
+    """
     if cache_path is not None and cache_path.exists():
         with gzip.open(cache_path, "rt", encoding="utf-8") as fh:
             return json.load(fh)
@@ -118,7 +122,7 @@ def _get_json(url: str, cache_path: Path | None = None) -> dict | None:
     for attempt in range(5):
         try:
             r = requests.get(url, headers=HEADERS, timeout=60)
-            if r.status_code in (403, 404):
+            if r.status_code == 404:
                 return None
             r.raise_for_status()
             data = r.json()
@@ -137,7 +141,7 @@ def _get_json(url: str, cache_path: Path | None = None) -> dict | None:
 def _require_json(url: str) -> dict:
     data = _get_json(url)
     if data is None:
-        msg = f"{url} returned 403/404"
+        msg = f"{url} returned 404"
         raise FileNotFoundError(msg)
     return data
 
@@ -200,9 +204,17 @@ def _secoes_agregadas(ano: int) -> dict[tuple, int]:
     df = df[
         (df["NR_TURNO"] == "1") & (df["DS_TIPO_SECAO_AGREGADA"] == "Agregada")
     ]
-    counts = df.groupby(["SG_UF", "CD_MUNICIPIO", "NR_ZONA"]).size()
+    counts = (
+        df.groupby(["SG_UF", "CD_MUNICIPIO", "NR_ZONA"])
+        .size()
+        .reset_index(name="n")
+    )
+    cols = [
+        counts[c].tolist() for c in ["SG_UF", "CD_MUNICIPIO", "NR_ZONA", "n"]
+    ]
     return {
-        (uf, int(mun), int(z)): int(n) for (uf, mun, z), n in counts.items()
+        (uf, int(mun), int(zona)): int(n)
+        for uf, mun, zona, n in zip(*cols, strict=True)
     }
 
 
@@ -392,8 +404,17 @@ def _write_candidatos(rows: list[dict], ano: int, part: str, eleicao: int):
 
 
 def build(
-    ano: int, eleicoes: list[int], candidatos_for: frozenset[int] = frozenset()
+    ano: int,
+    eleicoes: list[int],
+    candidatos_for: frozenset[int] = frozenset(),
+    allow_missing: bool = False,
 ) -> None:
+    """Fetch every zone file of ``eleicoes`` and write the CSVs.
+
+    A zone file that 404s aborts the run before anything is written, unless
+    ``allow_missing``: the zone list comes from the election's own municipality
+    config, so a gap means incomplete results, not an uncontested office.
+    """
     ciclo = f"ele{ano}"
     agregadas = _secoes_agregadas(ano)
     by_part: dict[str, dict[str, list]] = {}
@@ -408,7 +429,7 @@ def build(
             "nm_ue": {},
         }
         print(f"  eleição {eleicao} ({ele['nm']}): {len(jobs)} zone files")
-        missing = 0
+        missing: list[tuple] = []
         cand_by_part: dict[str, list] = {}
         t0 = time.time()
         with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
@@ -416,7 +437,7 @@ def build(
                 pool.map(partial(_fetch_zone, ciclo, eleicao), jobs), 1
             ):
                 if data is None:
-                    missing += 1
+                    missing.append(job[:5])
                     continue
                 detalhe, partidos, cands = _rows(job, data, meta, agregadas)
                 # presidente goes to the _BR file, as on the CDN
@@ -428,7 +449,16 @@ def build(
                     cand_by_part.setdefault(part, []).extend(cands)
                 if i % 2000 == 0:
                     print(f"    {i}/{len(jobs)} ({time.time() - t0:.0f}s)")
-        print(f"    done: {len(jobs) - missing} files, {missing} not found")
+        print(
+            f"    done: {len(jobs) - len(missing)} files, {len(missing)} not found"
+        )
+        if missing and not allow_missing:
+            msg = (
+                f"eleição {eleicao}: {len(missing)} zone files not found, e.g. "
+                f"{missing[:5]} (uf, mun, nome, zona, cargo). Nothing written; "
+                "rerun with --allow-missing to accept incomplete results."
+            )
+            raise RuntimeError(msg)
         for part, rows in sorted(cand_by_part.items()):
             print("    " + _write_candidatos(rows, ano, part, eleicao))
 
@@ -480,16 +510,10 @@ def validate_against_official(api_dir: Path, official_dir: Path, family: str):
 
 
 if __name__ == "__main__":
-    # results_api <ano> <eleicao ...> [--candidatos <eleicao ...>]
-    args = sys.argv[2:]
-    cands = (
-        args[args.index("--candidatos") + 1 :]
-        if "--candidatos" in args
-        else []
-    )
-    eles = args[: args.index("--candidatos")] if cands else args
-    build(
-        int(sys.argv[1]),
-        [int(x) for x in eles],
-        frozenset(int(x) for x in cands),
-    )
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    parser.add_argument("ano", type=int)
+    parser.add_argument("eleicoes", type=int, nargs="+")
+    parser.add_argument("--candidatos", type=int, nargs="*", default=[])
+    parser.add_argument("--allow-missing", action="store_true")
+    a = parser.parse_args()
+    build(a.ano, a.eleicoes, frozenset(a.candidatos), a.allow_missing)

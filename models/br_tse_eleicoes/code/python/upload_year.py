@@ -11,9 +11,9 @@ Usage:
     TSE_DATA_DIR=... uv run -m models.br_tse_eleicoes.code.python.upload_year --create new_table [...]
 """
 
+import argparse
 import os
 import subprocess
-import sys
 from pathlib import Path
 
 import pandas as pd
@@ -105,9 +105,8 @@ def upload(ano: int, tables: list[str], dry_run: bool = False) -> None:
         if dry_run:
             continue
         prefix = f"staging/{DATASET}/{table}/ano={ano}/"
-        stale = list(bucket.list_blobs(prefix=prefix))
-        for blob in stale:
-            blob.delete()
+        # Upload first, then drop only blobs the new set does not overwrite:
+        # a failed upload leaves the previous year in place, not a hole.
         for name, src in payloads:
             # gcloud does resumable/parallel uploads; the python client hung
             # on, or timed out, the 300 MB files
@@ -118,7 +117,15 @@ def upload(ano: int, tables: list[str], dry_run: bool = False) -> None:
                 env={**os.environ, "CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE": str(CRED)},
             )  # fmt: skip
             print(f"    {name}", flush=True)
-        print(f"  replaced {len(stale)} old blobs under {prefix}")
+        new = {name for name, _ in payloads}
+        stale = [
+            b for b in bucket.list_blobs(prefix=prefix) if b.name not in new
+        ]
+        for blob in stale:
+            blob.delete()
+        print(
+            f"  uploaded {len(new)}, removed {len(stale)} stale blobs under {prefix}"
+        )
 
 
 def create_staging(tables: list[str]) -> None:
@@ -147,10 +154,15 @@ def create_staging(tables: list[str]) -> None:
 
 
 if __name__ == "__main__":
-    args = sys.argv[1:]
-    if args[0] == "--create":
-        create_staging(args[1:])
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    parser.add_argument("--create", nargs="+", metavar="TABLE")
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("ano", type=int, nargs="?")
+    parser.add_argument("tables", nargs="*")
+    a = parser.parse_args()
+    if a.create:
+        create_staging(a.create)
+    elif a.ano is None or not a.tables:
+        parser.error("ano and at least one table are required")
     else:
-        dry = "--dry-run" in args
-        args = [a for a in args if a != "--dry-run"]
-        upload(int(args[0]), args[1:], dry_run=dry)
+        upload(a.ano, a.tables, dry_run=a.dry_run)

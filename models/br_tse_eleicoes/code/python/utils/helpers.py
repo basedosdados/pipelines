@@ -146,9 +146,12 @@ def read_raw_csv(
             raise FileNotFoundError(
                 f"Neither {txt_path} nor {csv_path} found."
             )
-        frames = [read_raw_csv(str(p.with_suffix(""))) for p in parts]
-        if len({f.attrs["tse_has_header"] for f in frames}) != 1:
-            msg = f"{base}: per-UF parts disagree on having a header"
+        frames = [
+            read_raw_csv(str(p.with_suffix("")), encoding=encoding)
+            for p in parts
+        ]
+        if len({tuple(f.columns) for f in frames}) != 1:
+            msg = f"{base}: per-UF parts disagree on header or columns"
             raise ValueError(msg)
         df = pd.concat(frames, ignore_index=True)
         df.attrs = {**frames[0].attrs, "tse_path": f"{base}_*.csv"}
