@@ -13,11 +13,11 @@ Three phases, each separately runnable and each idempotent. Run them in order:
 
 `copy` and `rewrite` default to a dry run; pass --apply to make changes.
 
-    python .github/workflows/scripts/migrate_auxiliary_files.py copy   --env prod
-    python .github/workflows/scripts/migrate_auxiliary_files.py copy   --env prod --apply
-    python .github/workflows/scripts/migrate_auxiliary_files.py rewrite --env prod --token "$TOKEN"
-    python .github/workflows/scripts/migrate_auxiliary_files.py rewrite --env prod --token "$TOKEN" --apply
-    python .github/workflows/scripts/migrate_auxiliary_files.py verify  --env prod
+    uv run .github/workflows/scripts/migrate_auxiliary_files.py copy   --env prod
+    uv run .github/workflows/scripts/migrate_auxiliary_files.py copy   --env prod --apply
+    uv run .github/workflows/scripts/migrate_auxiliary_files.py rewrite --env prod --token "$TOKEN"
+    uv run .github/workflows/scripts/migrate_auxiliary_files.py rewrite --env prod --token "$TOKEN" --apply
+    uv run .github/workflows/scripts/migrate_auxiliary_files.py verify  --env prod
 
 Credentials:
 

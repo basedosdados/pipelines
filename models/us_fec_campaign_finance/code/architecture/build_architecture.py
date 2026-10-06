@@ -1,6 +1,6 @@
 """Generate the architecture CSVs for us_fec_campaign_finance.
 
-    uv run python build_architecture.py
+    uv run build_architecture.py
 
 Writes one CSV per table into this directory. The CSVs are the source of truth for
 column names, order, and BigQuery types: clean.py, gen_dbt.py and the metadata step

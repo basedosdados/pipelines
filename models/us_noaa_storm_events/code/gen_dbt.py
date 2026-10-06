@@ -4,7 +4,7 @@ Generated from the architecture CSVs so the SQL cast list, the column order and
 the documented descriptions cannot drift from the schema they are supposed to
 implement.
 
-Run: uv run python models/us_noaa_storm_events/code/gen_dbt.py
+Run: uv run models/us_noaa_storm_events/code/gen_dbt.py
 """
 
 from models.us_noaa_storm_events.code.common import (
