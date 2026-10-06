@@ -15,8 +15,8 @@ O CKAN declara atualização a cada 3 meses. O pacote tem três recursos:
 | Recurso | id | Destino |
 |---|---|---|
 | CSV "Desembolsos Mensais": ~754 MB, histórico inteiro desde 1995, republicado inteiro a cada versão | `179950b8-b504-4cc7-b0db-9c9eed99e9ba` | tabela `mensal` |
-| PDF "Dicionário de dados de desembolsos mensais" | `d11d3295-abb5-438d-8a1d-847b0a135eff` | arquivos auxiliares de `mensal` |
-| CSV "Mapeamento de BNDES para CNAE": correspondência entre as classificações do BNDES e a CNAE do IBGE | `94ca01fe-7554-49a2-9200-e9625a304b88` | arquivos auxiliares de `mensal` |
+| PDF "Dicionário de dados de desembolsos mensais" | `d11d3295-abb5-438d-8a1d-847b0a135eff` | fica na fonte, acessível pelo link da fonte original |
+| CSV "Mapeamento de BNDES para CNAE": correspondência entre as classificações do BNDES e a CNAE do IBGE | `94ca01fe-7554-49a2-9200-e9625a304b88` | fica na fonte, acessível pelo link da fonte original |
 
 ## Tabela `mensal`
 
