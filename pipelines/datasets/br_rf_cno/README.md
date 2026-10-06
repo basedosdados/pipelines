@@ -95,7 +95,7 @@ Vínculos (responsáveis) da obra. `data_fim` usa a sentinela `9999-*` para "sem
 (vínculo em aberto), e há registros com data digitada errada — valores fora do range do
 diretório de datas são nulados (ver *Histórico de Correções* #2).
 
-**Linhas repetidas são vínculos de pessoas físicas.** Cerca de 2,5% das linhas repetem outra
+**Linhas repetidas provavelmente são vínculos de pessoas físicas.** Cerca de 2,5% das linhas repetem outra
 linha em todas as colunas. O dicionário oficial diz que o `NI do responsável` "virá em branco"
 quando for CPF, e sem o CPF duas pessoas responsáveis pela mesma obra, com a mesma qualificação
 e as mesmas datas, viram linhas idênticas. Quase todas as repetidas têm o NI em branco, e o
@@ -252,9 +252,10 @@ teste de qualidade que reprovasse).
   costuma estar parado no mesmo `data_extracao` máximo da tabela; sem `--full-refresh`, o
   filtro `where data > max(...)` não reprocessa nada e o teste roda sobre dado antigo
   (falso negativo). Ex.: `uv run dbt build --select br_rf_cno__areas --full-refresh`.
-- **Em prod, nunca `--full-refresh`.** O staging não guarda as partições mais antigas: o da
-  `vinculos` tem menos da metade das partições da tabela. O `--full-refresh` reconstrói a
-  tabela a partir do staging e apaga as partições que não estão nele.
+- **Em prod, o `--full-refresh` deixa a tabela só com as datas do staging.** O staging não
+  guarda todas as extrações, por escolha: o dado muda pouco de um dia para o outro e o
+  armazenamento sairia caro. A tabela tem mais datas porque o modelo incremental guarda cada
+  extração. O staging da `vinculos` tem menos da metade das partições da tabela.
 
 ## Causa raiz do congelamento (jan–jul/2026)
 
