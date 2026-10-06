@@ -5,7 +5,7 @@ br_bd_diretorios_in.state directory) to the basedosdados-dev staging area.
 
 Usage:
     GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials/staging.json \
-        .venv/bin/python models/in_tcpd_elections/code/upload.py [table_slug ...]
+        uv run models/in_tcpd_elections/code/upload.py [table_slug ...]
 
 Uploads one table at a time (smallest first) and stops on the first failure.
 Each table: delete stale staging prefix -> Table.create(replace) -> verify count.

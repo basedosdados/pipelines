@@ -6,7 +6,7 @@ The transform lives in ``pipelines.datasets.world_oecd_revenue_statistics.utils`
 so the bootstrap and the recurring Prefect pipeline share one implementation.
 
 Usage:
-    uv run python models/world_oecd_revenue_statistics/code/clean_data.py
+    uv run models/world_oecd_revenue_statistics/code/clean_data.py
 """
 
 import logging

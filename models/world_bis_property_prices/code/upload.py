@@ -1,7 +1,7 @@
 """Upload the cleaned world_bis_property_prices parquet to BigQuery.
 
 Usage:
-    uv run python models/world_bis_property_prices/code/upload.py [--env dev|prod]
+    uv run models/world_bis_property_prices/code/upload.py [--env dev|prod]
 
 --env dev (default) -> basedosdados-dev; --env prod -> basedosdados. Point
 GOOGLE_APPLICATION_CREDENTIALS at the matching service account. Reads the

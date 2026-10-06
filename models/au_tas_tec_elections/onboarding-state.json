@@ -16,8 +16,7 @@
     10
   ],
   "env": "staging",
-  "notes": [
-    "venv: ~/.venvs/bd-pipelines-tas; MCP calls use ~/.venvs/bd-pipelines/bin/python (has fastmcp)",
+  "notes": ["venv: ~/.venvs/bd-pipelines-tas; MCP calls use uv run (has fastmcp)",
     "BD_SERVICE_ACCOUNT_DEV=~/.basedosdados/credentials/staging.json -> basedosdados-dev; dbt debug OK",
     "scratch: ~/Downloads/au_tas_tec_elections_data"
   ],

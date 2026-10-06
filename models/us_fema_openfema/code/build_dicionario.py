@@ -12,7 +12,7 @@ cleaned output and reports any code that occurs in the data but has no label.
 That gap is reported rather than hidden: an unlabelled code is a defect in the
 dictionary, and silently dropping it would make the table look complete.
 
-    uv run python build_dicionario.py [<output_dir>]
+    uv run build_dicionario.py [<output_dir>]
 """
 
 from __future__ import annotations
