@@ -106,7 +106,7 @@ def clean_perfil_frame(df: pd.DataFrame, ano: int, uf: str) -> pd.DataFrame:
             "qt_eleitores_deficiencia": "eleitores_deficiencia",
             "qt_eleitores_inc_nm_social": "eleitores_inclusao_nome_social",
         }
-    else:  # 2024
+    else:  # 2024+ (no municipal biometric status column)
         keep_cols = {
             "ano_eleicao": "ano",
             "aa_eleicao": "ano",
@@ -119,9 +119,11 @@ def clean_perfil_frame(df: pd.DataFrame, ano: int, uf: str) -> pd.DataFrame:
             "cd_faixa_etaria": "grupo_idade",
             "cd_grau_escolaridade": "instrucao",
             "qt_eleitores_perfil": "eleitores",
+            "qt_eleitores": "eleitores",  # 2026 rename
             "qt_eleitores_biometria": "eleitores_biometria",
             "qt_eleitores_deficiencia": "eleitores_deficiencia",
             "qt_eleitores_inc_nm_social": "eleitores_inclusao_nome_social",
+            "qt_eleitores_nome_social": "eleitores_inclusao_nome_social",  # 2026
         }
 
     # first present key wins per target (matches select_named semantics)
@@ -133,7 +135,7 @@ def clean_perfil_frame(df: pd.DataFrame, ano: int, uf: str) -> pd.DataFrame:
             taken.add(v)
     df = df[list(available.keys())].rename(columns=available)
 
-    if ano == 2024:
+    if ano >= 2024:
         df["situacao_biometria"] = ""
 
     for col in PERFIL_SUM_COLS:

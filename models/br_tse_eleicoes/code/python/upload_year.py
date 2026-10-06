@@ -24,7 +24,6 @@ from models.br_tse_eleicoes.code.python.config import OUTPUT_PYTHON
 PROJECT = "basedosdados-dev"
 BUCKET = "basedosdados-dev"
 DATASET = "br_tse_eleicoes"
-HIVE = {"ano", "sigla_uf"}
 CRED = Path(
     os.environ.get(
         "BD_SERVICE_ACCOUNT_DEV",
@@ -44,7 +43,7 @@ def _staging_schema(bq: bigquery.Client, table: str) -> list[str]:
             ]
         ),
     )
-    return [r.column_name for r in job.result() if r.column_name not in HIVE]
+    return [r.column_name for r in job.result()]
 
 
 def upload(ano: int, tables: list[str], dry_run: bool = False) -> None:
@@ -54,13 +53,17 @@ def upload(ano: int, tables: list[str], dry_run: bool = False) -> None:
         BUCKET, user_project=PROJECT
     )
     for table in tables:
-        cols = _staging_schema(bq, table)
+        schema = _staging_schema(bq, table)
         files = sorted((OUTPUT_PYTHON / table / f"ano={ano}").rglob("*.csv"))
         if not files:
             print(f"{table}: no files for ano={ano}, skipped")
             continue
         payloads = []
         for f in files:
+            # Hive keys (ano=, sigla_uf=) live in the path, not in the file
+            rel = f.relative_to(OUTPUT_PYTHON / table)
+            hive = {part.split("=", 1)[0] for part in rel.parts[:-1]}
+            cols = [c for c in schema if c not in hive]
             header = list(pd.read_csv(f, nrows=0).columns)
             if set(header) != set(cols):
                 msg = (
@@ -83,8 +86,9 @@ def upload(ano: int, tables: list[str], dry_run: bool = False) -> None:
                         mode="w" if first else "a",
                     )
                     first = False
-            rel = f.relative_to(OUTPUT_PYTHON / table).as_posix()
-            payloads.append((f"staging/{DATASET}/{table}/{rel}", src))
+            payloads.append(
+                (f"staging/{DATASET}/{table}/{rel.as_posix()}", src)
+            )
         size = sum(p.stat().st_size for _, p in payloads) / 1e6
         print(
             f"{table}: {len(files)} files, {size:,.0f} MB, reordered={payloads[0][1] != files[0]}"

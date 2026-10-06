@@ -80,6 +80,24 @@ PARTIDO_COLS = [
     "QT_VOTOS_LEGENDA_ANULADOS", "QT_VOTOS_NOMINAIS_ANULADOS",
 ]  # fmt: skip
 
+CANDIDATO_COLS = [
+    "DT_GERACAO", "HH_GERACAO", "ANO_ELEICAO", "CD_TIPO_ELEICAO",
+    "NM_TIPO_ELEICAO", "NR_TURNO", "CD_ELEICAO", "DS_ELEICAO", "DT_ELEICAO",
+    "TP_ABRANGENCIA", "SG_UF", "SG_UE", "NM_UE", "CD_MUNICIPIO",
+    "NM_MUNICIPIO", "NR_ZONA", "CD_CARGO", "DS_CARGO", "SQ_CANDIDATO",
+    "NR_CANDIDATO", "NM_CANDIDATO", "NM_URNA_CANDIDATO", "NM_SOCIAL_CANDIDATO",
+    "CD_SITUACAO_CANDIDATURA", "DS_SITUACAO_CANDIDATURA",
+    "CD_DETALHE_SITUACAO_CAND", "DS_DETALHE_SITUACAO_CAND",
+    "CD_SITUACAO_JULGAMENTO", "DS_SITUACAO_JULGAMENTO",
+    "CD_SITUACAO_CASSACAO", "DS_SITUACAO_CASSACAO",
+    "CD_SITUACAO_DCONST_DIPLOMA", "DS_SITUACAO_DCONST_DIPLOMA",
+    "TP_AGREMIACAO", "NR_PARTIDO", "SG_PARTIDO", "NM_PARTIDO", "NR_FEDERACAO",
+    "NM_FEDERACAO", "SG_FEDERACAO", "DS_COMPOSICAO_FEDERACAO", "SQ_COLIGACAO",
+    "NM_COLIGACAO", "DS_COMPOSICAO_COLIGACAO", "ST_VOTO_EM_TRANSITO",
+    "QT_VOTOS_NOMINAIS", "NM_TIPO_DESTINACAO_VOTOS",
+    "QT_VOTOS_NOMINAIS_VALIDOS", "CD_SIT_TOT_TURNO", "DS_SIT_TOT_TURNO",
+]  # fmt: skip
+
 TP_AGREMIACAO = {"i": "Partido isolado", "f": "Federação", "c": "Coligação"}
 # CD_TIPO_ELEICAO / TP_ABRANGENCIA by API election type (ele-c.json "tp")
 ABRANGENCIA = {"8": "F", "1": "E", "3": "M"}
@@ -257,7 +275,7 @@ def _rows(job: tuple, d: dict, meta: dict, agregadas: dict) -> tuple:
         "DT_ULTIMA_TOTALIZACAO": d["dt"],
     }
 
-    partidos = []
+    partidos, candidatos = [], []
     for carg in d["carg"]:
         feds = {f["n"]: f for f in carg.get("fed", [])}
         for agr in carg["agr"]:
@@ -293,7 +311,35 @@ def _rows(job: tuple, d: dict, meta: dict, agregadas: dict) -> tuple:
                         "QT_VOTOS_NOMINAIS_ANULADOS": -1,
                     }
                 )
-    return detalhe, partidos
+                for cand in par.get("cand", []):
+                    vap = int(cand.get("vap") or 0)
+                    valido = cand.get("dvt", "").startswith("Válido")
+                    candidatos.append(
+                        {
+                            **base,
+                            "SQ_CANDIDATO": cand["sqcand"],
+                            "NR_CANDIDATO": cand["n"],
+                            "NM_CANDIDATO": cand["nm"],
+                            "NM_URNA_CANDIDATO": cand["nmu"],
+                            "TP_AGREMIACAO": TP_AGREMIACAO.get(
+                                agr["tp"], agr["tp"]
+                            ),
+                            "NR_PARTIDO": par["n"],
+                            "SG_PARTIDO": par["sg"],
+                            "NM_PARTIDO": par["nm"],
+                            "NR_FEDERACAO": fed.get("n", -1),
+                            "SQ_COLIGACAO": agr["n"],
+                            "NM_COLIGACAO": "PARTIDO ISOLADO"
+                            if isolado
+                            else agr["nm"],
+                            "ST_VOTO_EM_TRANSITO": "N",
+                            "QT_VOTOS_NOMINAIS": vap,
+                            "NM_TIPO_DESTINACAO_VOTOS": cand.get("dvt", ""),
+                            "QT_VOTOS_NOMINAIS_VALIDOS": vap if valido else 0,
+                            "DS_SIT_TOT_TURNO": cand.get("st", "").upper(),
+                        }
+                    )
+    return detalhe, partidos, candidatos
 
 
 def _write(
@@ -312,7 +358,36 @@ def _write(
     return out
 
 
-def build(ano: int, eleicoes: list[int]) -> None:
+def _write_candidatos(rows: list[dict], ano: int, part: str, eleicao: int):
+    """Write API candidate rows without clobbering CDN data.
+
+    The CDN ``votacao_candidato_munzona`` file exists for 2026 but omits some
+    elections (presidente: ``_BR`` ships header-only; conselheiro distrital
+    absent from ``_PE``). Fill a header-only or missing file; append to a
+    populated one only if it lacks this eleição; otherwise leave it alone.
+    """
+    fam = "votacao_candidato_munzona"
+    out = INPUT_DIR / fam / f"{fam}_{ano}" / f"{fam}_{ano}_{part}.csv"
+    df = pd.DataFrame(rows, columns=CANDIDATO_COLS)
+    if out.exists():
+        have = pd.read_csv(
+            out, sep=";", encoding="latin-1", dtype=str, usecols=["CD_ELEICAO"]
+        )
+        if str(eleicao) in set(have["CD_ELEICAO"]):
+            return f"kept CDN {out.name} (has {eleicao})"
+        if len(have):
+            df.to_csv(out, sep=";", index=False, header=False, mode="a",
+                      encoding="latin-1", quoting=1, errors="replace")  # fmt: skip
+            return f"appended {len(df):,} rows for {eleicao} to {out.name}"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(out, sep=";", index=False, encoding="latin-1", quoting=1,
+              errors="replace")  # fmt: skip
+    return f"wrote {len(df):,} rows for {eleicao} to {out.name}"
+
+
+def build(
+    ano: int, eleicoes: list[int], candidatos_for: frozenset[int] = frozenset()
+) -> None:
     ciclo = f"ele{ano}"
     agregadas = _secoes_agregadas(ano)
     by_part: dict[str, dict[str, list]] = {}
@@ -328,6 +403,7 @@ def build(ano: int, eleicoes: list[int]) -> None:
         }
         print(f"  eleição {eleicao} ({ele['nm']}): {len(jobs)} zone files")
         missing = 0
+        cand_by_part: dict[str, list] = {}
         t0 = time.time()
         with ThreadPoolExecutor(max_workers=MAX_WORKERS) as pool:
             for i, (job, data) in enumerate(
@@ -336,15 +412,19 @@ def build(ano: int, eleicoes: list[int]) -> None:
                 if data is None:
                     missing += 1
                     continue
-                detalhe, partidos = _rows(job, data, meta, agregadas)
+                detalhe, partidos, cands = _rows(job, data, meta, agregadas)
                 # presidente goes to the _BR file, as on the CDN
                 part = "BR" if ele["tp"] == "8" else job[0].upper()
                 bucket = by_part.setdefault(part, {"d": [], "p": []})
                 bucket["d"].append(detalhe)
                 bucket["p"].extend(partidos)
+                if eleicao in candidatos_for:
+                    cand_by_part.setdefault(part, []).extend(cands)
                 if i % 2000 == 0:
                     print(f"    {i}/{len(jobs)} ({time.time() - t0:.0f}s)")
         print(f"    done: {len(jobs) - missing} files, {missing} not found")
+        for part, rows in sorted(cand_by_part.items()):
+            print("    " + _write_candidatos(rows, ano, part, eleicao))
 
     for part, b in sorted(by_part.items()):
         _write(b["d"], DETALHE_COLS, "detalhe_votacao_munzona", ano, part)
@@ -394,4 +474,16 @@ def validate_against_official(api_dir: Path, official_dir: Path, family: str):
 
 
 if __name__ == "__main__":
-    build(int(sys.argv[1]), [int(x) for x in sys.argv[2:]])
+    # results_api <ano> <eleicao ...> [--candidatos <eleicao ...>]
+    args = sys.argv[2:]
+    cands = (
+        args[args.index("--candidatos") + 1 :]
+        if "--candidatos" in args
+        else []
+    )
+    eles = args[: args.index("--candidatos")] if cands else args
+    build(
+        int(sys.argv[1]),
+        [int(x) for x in eles],
+        frozenset(int(x) for x in cands),
+    )

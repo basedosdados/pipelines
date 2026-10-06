@@ -96,7 +96,9 @@ def _build_candidato(ano: int) -> pd.DataFrame:
                 "nr_partido": "numero_partido",
                 "sg_partido": "sigla_partido",
             }
-            if ano in (1994, 1998, 2000) or (2018 <= ano <= 2022):
+            # 2026 follows the last general election (2022): valid nominal
+            # votes, i.e. excluding votes for candidates under appeal
+            if ano in (1994, 1998, 2000, 2026) or (2018 <= ano <= 2022):
                 keep_cols["qt_votos_nominais_validos"] = "votos"
                 keep_cols["qt_votos_nominais"] = "votos"
             else:
