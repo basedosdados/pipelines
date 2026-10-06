@@ -1,3 +1,4 @@
+-- 2026 reprocessado em 2026-10-06 sem o arquivo _BRASIL, que repetia as UFs.
 {{
     config(
         schema="br_tse_eleicoes",
