@@ -7,8 +7,8 @@ reordered to the live staging schema (read from BigQuery) before upload, and
 the upload refuses any file whose columns are not exactly that schema.
 
 Usage:
-    TSE_DATA_DIR=... python -m models.br_tse_eleicoes.code.python.upload_year 2026 table [table ...]
-    TSE_DATA_DIR=... python -m models.br_tse_eleicoes.code.python.upload_year --create new_table [...]
+    TSE_DATA_DIR=... uv run -m models.br_tse_eleicoes.code.python.upload_year 2026 table [table ...]
+    TSE_DATA_DIR=... uv run -m models.br_tse_eleicoes.code.python.upload_year --create new_table [...]
 """
 
 import os

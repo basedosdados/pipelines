@@ -18,7 +18,7 @@ See ``models/br_tse_eleicoes/code/PESQUISAS_PROPOSAL.md`` for the research
 behind every rule below.
 
 Usage:
-    TSE_DATA_DIR=... python -m models.br_tse_eleicoes.code.python.sub.polls [--download] [YEAR ...]
+    TSE_DATA_DIR=... uv run -m models.br_tse_eleicoes.code.python.sub.polls [--download] [YEAR ...]
 """
 
 import re

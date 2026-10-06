@@ -13,7 +13,7 @@ uses only this year's candidates, which is all it needs — results join on
 
 Usage:
     TSE_DATA_DIR=~/Library/Caches/br_tse_eleicoes_data \
-        python -m models.br_tse_eleicoes.code.python.build_year 2026 [step ...]
+        uv run -m models.br_tse_eleicoes.code.python.build_year 2026 [step ...]
 """
 
 import sys

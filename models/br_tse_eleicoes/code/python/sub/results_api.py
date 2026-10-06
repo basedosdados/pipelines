@@ -12,6 +12,11 @@ separator, latin-1), under the same INPUT_DIR paths. The existing builders
 unchanged, and switching back to the official files is just deleting these
 and running ``download.py`` for the two families.
 
+With ``--candidatos`` it also writes ``votacao_candidato_munzona`` rows for
+elections the CDN file omits (2026: presidente and conselheiro distrital),
+filling or appending without overwriting CDN data — see
+``_write_candidatos``.
+
 What the API does not carry:
 
 - ``QT_SECOES_AGREGADAS`` — derived from ``eleitorado_local_votacao_{ano}``
@@ -25,7 +30,8 @@ Validated against the official 2024 files (eleição 619): see
 ``validate_against_official``.
 
 Usage:
-    TSE_DATA_DIR=... python -m models.br_tse_eleicoes.code.python.sub.results_api 2026 6257 6259
+    TSE_DATA_DIR=... uv run -m models.br_tse_eleicoes.code.python.sub.results_api \
+        2026 6257 6259 6261 --candidatos 6257 6261
 """
 
 import gzip

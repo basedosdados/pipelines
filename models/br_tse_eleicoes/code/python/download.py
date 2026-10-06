@@ -4,7 +4,7 @@ builders expect: ``<family>/<zip_stem>.zip`` extracted to ``<family>/<zip_stem>/
 
 Usage:
     TSE_DATA_DIR=~/Library/Caches/br_tse_eleicoes_data \
-        python -m models.br_tse_eleicoes.code.python.download 2026 [family ...]
+        uv run -m models.br_tse_eleicoes.code.python.download 2026 [family ...]
 
 Re-running skips zips whose size matches the server's Content-Length, so an
 interrupted run resumes. A file the CDN does not have yet (404) is reported
