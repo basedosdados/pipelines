@@ -572,7 +572,7 @@ TITULAIRE = [
         "Register the awardee identifier belongs to",
         "Registro al que pertenece el identificador del adjudicatario",
         observations=LABEL_OBS
-        + ". Valores: SIRET, TVA, HORS-UE, UE, IREP, RIDET, TAHITI, FRWF, Autre",
+        + ". Valores: SIRET, TVA, TVA intracommunautaire, HORS-UE, UE, IREP, RIDET, TAHITI, FRW, FRWF, RCI, Autre",
         original_name="titulaire_typeIdentifiant",
     ),
     Col(

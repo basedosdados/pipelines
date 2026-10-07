@@ -4,7 +4,7 @@ mes,INT64,Mês de notificação da versão inicial do contrato,,no,br_bd_diretor
 id_marche,STRING,Identificador único do contrato na DECP,,no,,,no,"Concatenação, feita pela fonte, do SIRET do comprador, do identificador interno do contrato e do código CPV",uid
 id_modification,STRING,Número sequencial da versão do contrato; 0 corresponde à atribuição inicial,,no,,,no,Gerado pela fonte a partir da ordem das datas de notificação. 10.074 contratos não têm versão 0 na fonte,modification_id
 id_titulaire,STRING,"Identificador do contratado, no referencial indicado em type_identifiant_titulaire",,no,,,no,"Para SIRET, vincula-se a fr_insee_sirene.etablissement",titulaire_id
-type_identifiant_titulaire,STRING,Referencial do identificador do contratado,,no,,,no,"Rótulo legível publicado pela fonte. Variantes de grafia e de caixa da mesma categoria foram unificadas na limpeza. Valores: SIRET, TVA, HORS-UE, UE, IREP, RIDET, TAHITI, FRWF, Autre",titulaire_typeIdentifiant
+type_identifiant_titulaire,STRING,Referencial do identificador do contratado,,no,,,no,"Rótulo legível publicado pela fonte. Variantes de grafia e de caixa da mesma categoria foram unificadas na limpeza. Valores: SIRET, TVA, TVA intracommunautaire, HORS-UE, UE, IREP, RIDET, TAHITI, FRW, FRWF, RCI, Autre",titulaire_typeIdentifiant
 siren_titulaire,STRING,SIREN da unidade legal contratada,,no,,,no,"Derivado na limpeza: os 9 primeiros dígitos de id_titulaire, apenas quando é um SIRET de 14 dígitos. Vincula-se a fr_insee_sirene.unite_legale",titulaire_id
 nom_titulaire,STRING,Nome do contratado; segundo o SIRENE quando o identificador é um SIRET,,no,,,no,,titulaire_nom
 categorie_titulaire,STRING,Categoria de empresa do contratado segundo o INSEE,,no,,,no,"Valores: PME, ETI, GE",titulaire_categorie
