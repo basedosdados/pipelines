@@ -155,7 +155,27 @@ têm. Para reprocessar:
    ```
 
    O mês novo substitui o antigo no mesmo caminho e os outros ficam como estão;
-2. reconstrua a tabela com `dbt run --select br_me_caged__<tabela> --full-refresh`,
-   que lê a staging inteira de novo. A `_excluida` não precisa da opção;
-3. em produção, a reconstrução precisa de credenciais de produção, e depois dela o
-   passo 7 tem que rodar de novo para recriar as regras de acesso do BD Pro.
+2. reconstrua a tabela em dev com `dbt run --select br_me_caged__<tabela>
+   --full-refresh`, que lê a staging inteira de novo, e confira o resultado. A
+   `_excluida` não precisa da opção;
+3. em produção, use os flows utilitários do Prefect, que rodam com as credenciais do
+   worker. Rode fora da janela do cron e na ordem abaixo:
+   1. `BD Utils: Transfere arquivos do bucket basedosdados-dev para basedosdados`,
+      com `dataset_id="br_me_caged"`, `table_id="<tabela>"`,
+      `folders=["ano=2025/mes=12"]` e `dbt_command="test"`. Ele copia só as pastas do
+      mês da staging de dev para a de produção; os outros meses ficam como estão. O
+      mês aparece na pasta sem zero à esquerda (`mes=1` a `mes=12`);
+   2. `BD template: Executa DBT model`, com `dataset_id="br_me_caged"`,
+      `table_id="<tabela>"`, `target="prod"`, `dbt_command="run"` e
+      `flags="--full-refresh"`. Ele reconstrói a tabela a partir da staging de
+      produção. A reconstrução remove as regras de acesso do BD Pro;
+   3. logo em seguida, `update_temporal_coverage`, com `dataset_id="br_me_caged"`,
+      `table_id="<tabela>"` e a cobertura abaixo. Ele recalcula a cobertura e recria
+      as regras de acesso. Até este passo terminar, os meses do BD Pro ficam abertos.
+
+      ```json
+      {"tier": "part_bdpro", "date_column": {"kind": "year_month", "year": "ano", "month": "mes"}, "date_format": "%Y-%m", "free_lag": {"unit": "months", "value": 6}}
+      ```
+
+   Não use o `force_run` para recriar as regras de acesso: com a tabela em dia, não
+   há mês a baixar, e o flow para antes do passo 7.
