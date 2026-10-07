@@ -15,6 +15,7 @@ because skipping already-staged files would keep output written by older code.
 
 import hashlib
 import json
+import multiprocessing
 import shutil
 import tempfile
 import time
@@ -285,8 +286,11 @@ def load_snapshot(
     )
 
     started = time.time()
+    # spawn, not fork: the flow runs this inside a threaded Prefect process,
+    # and forking a process that holds threads can deadlock the child.
+    ctx = multiprocessing.get_context("spawn")
     with (
-        ProcessPoolExecutor(max_workers=workers) as ex,
+        ProcessPoolExecutor(max_workers=workers, mp_context=ctx) as ex,
         state_path.open("a") as log,
     ):
         futs = {

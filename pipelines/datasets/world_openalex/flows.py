@@ -84,16 +84,20 @@ def world_openalex_flow(
     )
     release = get_release_date()
 
-    has_new_data = poll_source_for_update_task(
-        dataset_id=DATASET_ID,
-        table_id="work",
-        source_max_date=release,
-        env="prod",
-        date_format="%Y-%m-%d",
-        compare_against="table_update",
-    )
-    if not has_new_data and not force_run:
-        return
+    # A forced run skips the poll: the poll writes a Poll record to the prod
+    # backend, which a dev test run must not touch, and which fails outright
+    # before the dataset exists there.
+    if not force_run:
+        has_new_data = poll_source_for_update_task(
+            dataset_id=DATASET_ID,
+            table_id="work",
+            source_max_date=release,
+            env="prod",
+            date_format="%Y-%m-%d",
+            compare_against="table_update",
+        )
+        if not has_new_data:
+            return
 
     commit_source_update_task(
         dataset_id=DATASET_ID,
