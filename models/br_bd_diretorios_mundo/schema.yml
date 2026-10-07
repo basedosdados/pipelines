@@ -16,9 +16,7 @@ models:
       - name: sigla_iso3
         description: Sigla do País - ISO3
       - name: sigla_iso2
-        description: >
-          Sigla do País - ISO2. Kosovo usa XK, código de uso reservado adotado
-          pela Comissão Europeia e pelo Banco Mundial
+        description: Sigla do País - ISO2
         tests:
           - unique:
               tags: [mundo]
