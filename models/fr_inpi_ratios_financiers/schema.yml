@@ -1,0 +1,127 @@
+---
+version: 2
+models:
+  - name: fr_inpi_ratios_financiers__ratios_financiers
+    description: >
+      Indicadores e índices financeiros por empresa (SIREN) e data de encerramento
+      do exercício, calculados pela DNUM (Ministério do Trabalho) na Base Commune
+      Entreprise a partir das contas anuais depositadas no RNCS do INPI e publicados
+      pela DGE. Uma linha por siren, date_cloture_exercice e type_bilan.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [siren, date_cloture_exercice, type_bilan]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+      - custom_dictionary_coverage:
+          columns_covered_by_dictionary: [type_bilan]
+          dictionary_model: ref('fr_inpi_ratios_financiers__dicionario')
+    columns:
+      - name: ano
+        description: >
+          Ano de encerramento do exercício financeiro
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: siren
+        description: >
+          Número SIREN da empresa (identificador de 9 dígitos da unidade legal)
+        tests: [not_null]
+      - name: date_cloture_exercice
+        description: >
+          Data de encerramento do exercício financeiro da empresa
+        tests: [not_null]
+      - name: type_bilan
+        description: >
+          Tipo de balanço depositado (completo, consolidado ou simplificado)
+        tests: [not_null]
+      - name: chiffre_d_affaires
+        description: >
+          Faturamento (receita líquida de vendas) do exercício
+      - name: marge_brute
+        description: >
+          Margem bruta: faturamento menos compras de mercadorias e matérias-primas
+          e variações de estoque
+      - name: ebe
+        description: >
+          Excedente bruto de exploração (EBE): rentabilidade operacional antes de
+          juros, impostos, depreciação e amortização
+      - name: ebit
+        description: >
+          Resultado de exploração (EBIT): rentabilidade após custos operacionais,
+          antes de juros e impostos
+      - name: resultat_net
+        description: >
+          Resultado líquido (lucro ou prejuízo) do exercício após todas as despesas,
+          incluindo impostos
+      - name: taux_d_endettement
+        description: >
+          Taxa de endividamento: dívidas financeiras em relação ao patrimônio líquido
+      - name: ratio_de_liquidite
+        description: >
+          Índice de liquidez: ativo circulante em relação ao passivo de curto prazo
+      - name: ratio_de_vetuste
+        description: >
+          Índice de vetustez do ativo imobilizado, calculado pela fonte como valor
+          líquido sobre valor bruto
+      - name: autonomie_financiere
+        description: >
+          Autonomia financeira: patrimônio líquido em relação ao total do balanço
+      - name: poids_bfr_exploitation_sur_ca
+        description: >
+          Necessidade de capital de giro operacional em relação ao faturamento
+      - name: couverture_des_interets
+        description: >
+          Cobertura de juros: encargos financeiros em relação ao excedente bruto de
+          exploração (EBE)
+      - name: caf_sur_ca
+        description: >
+          Capacidade de autofinanciamento (CAF) em relação ao faturamento
+      - name: capacite_de_remboursement
+        description: >
+          Capacidade de reembolso: dívidas financeiras em relação à capacidade de
+          autofinanciamento (CAF)
+      - name: marge_ebe
+        description: >
+          Margem de EBE: excedente bruto de exploração em relação ao faturamento acrescido
+          das subvenções de exploração
+      - name: resultat_courant_avant_impots_sur_ca
+        description: >
+          Resultado corrente antes de impostos em relação ao faturamento
+      - name: poids_bfr_exploitation_sur_ca_jours
+        description: >
+          Necessidade de capital de giro operacional expressa em dias de faturamento
+      - name: rotation_des_stocks_jours
+        description: >
+          Prazo médio de rotação de estoques, em dias de faturamento
+      - name: credit_clients_jours
+        description: >
+          Prazo médio de recebimento de clientes
+      - name: credit_fournisseurs_jours
+        description: >
+          Prazo médio de pagamento a fornecedores
+      - name: confidentialite
+        description: >
+          Regime de publicidade das contas anuais depositadas (pública, parcialmente
+          confidencial ou publicação simplificada)
+  - name: fr_inpi_ratios_financiers__dicionario
+    description: >
+      Dicionário das variáveis codificadas do conjunto fr_inpi_ratios_financiers
+      (type_bilan).
+    columns:
+      - name: id_tabela
+        description: >
+          Nome da tabela à qual a coluna pertence
+      - name: nome_coluna
+        description: >
+          Nome da coluna coberta pelo dicionário
+      - name: chave
+        description: >
+          Valor codificado (chave) presente na tabela de dados
+      - name: cobertura_temporal
+        description: >
+          Cobertura temporal da chave
+      - name: valor
+        description: >-
+          Significado (rótulo) correspondente à chave
