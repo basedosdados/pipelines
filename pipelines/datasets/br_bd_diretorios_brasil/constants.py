@@ -157,3 +157,46 @@ class constants(Enum):
         ("São Luiz do Paraitinga", "SP"): "3550001",  # z → s (São Luís)
         ("Tabocão", "TO"): "1708254",  # hoje Fortaleza do Tabocão
     }
+
+    # Atributos que as escolas vindas só do Censo Escolar recebem. Coluna no
+    # Censo -> (coluna no diretório, código -> rótulo do Catálogo). As chaves
+    # são texto porque os códigos chegam do BigQuery como texto.
+    CENSO_TO_DIRECTORY = {
+        "rede": (
+            "dependencia_administrativa",
+            {
+                "1": "Federal",
+                "2": "Estadual",
+                "3": "Municipal",
+                "4": "Privada",
+            },
+        ),
+        "tipo_localizacao": ("localizacao", {"1": "Urbana", "2": "Rural"}),
+        "tipo_localizacao_diferenciada": (
+            "localidade_diferenciada",
+            {
+                "0": "A escola não está em área de localização diferenciada",
+                "1": "Área de assentamento",
+                "2": "Terra indígena",
+                "3": "Área remanescente de quilombos",
+                "8": "Área onde se localizam povos e comunidades tradicionais",
+            },
+        ),
+        "tipo_categoria_escola_privada": (
+            "categoria_privada",
+            {
+                "1": "Particular",
+                "2": "Comunitária",
+                "3": "Confessional",
+                "4": "Filantrópica",
+            },
+        ),
+        "conveniada_poder_publico": (
+            "conveniada_poder_publico",
+            {"0": "Não", "1": "Sim"},
+        ),
+        "tipo_regulamentacao": (
+            "regulacao_conselho_educacao",
+            {"0": "Não", "1": "Sim", "2": "Em Tramitação"},
+        ),
+    }

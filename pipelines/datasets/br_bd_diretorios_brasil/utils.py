@@ -398,11 +398,11 @@ def fetch_diretorio_publicado(
 def fetch_censo_escolar(
     billing_project_id: str = "basedosdados-dev",
 ) -> pd.DataFrame:
-    """Lê do Censo Escolar uma linha por escola, com município e UF.
+    """Lê do Censo Escolar uma linha por escola, com município, UF e atributos.
 
     Alimenta a terceira camada da união em ``clean_catalogo``: as escolas que
     aparecem no Censo Escolar e não estão nem no Catálogo nem no diretório
-    publicado. O município e a UF são os do último ano em que a escola aparece.
+    publicado. Todos os valores são os do último ano em que a escola aparece.
 
     Args:
         billing_project_id: Projeto do GCP que paga a consulta (padrão:
@@ -411,13 +411,21 @@ def fetch_censo_escolar(
     Returns:
         Uma linha por ``id_escola`` de
         ``basedosdados.br_inep_censo_escolar.escola``, com ``id_escola``,
-        ``id_municipio`` e ``sigla_uf``.
+        ``id_municipio``, ``sigla_uf`` e os atributos de
+        ``constants.CENSO_TO_DIRECTORY``, já com o nome da coluna do
+        diretório e o rótulo do Catálogo.
     """
     query = """
         SELECT
             CAST(id_escola AS STRING) AS id_escola,
             CAST(id_municipio AS STRING) AS id_municipio,
-            CAST(sigla_uf AS STRING) AS sigla_uf
+            CAST(sigla_uf AS STRING) AS sigla_uf,
+            CAST(rede AS STRING) AS rede,
+            CAST(tipo_localizacao AS STRING) AS tipo_localizacao,
+            CAST(tipo_localizacao_diferenciada AS STRING) AS tipo_localizacao_diferenciada,
+            CAST(tipo_categoria_escola_privada AS STRING) AS tipo_categoria_escola_privada,
+            CAST(conveniada_poder_publico AS STRING) AS conveniada_poder_publico,
+            CAST(tipo_regulamentacao AS STRING) AS tipo_regulamentacao,
         FROM `basedosdados.br_inep_censo_escolar.escola`
         WHERE id_escola IS NOT NULL
         QUALIFY ROW_NUMBER() OVER (PARTITION BY id_escola ORDER BY ano DESC) = 1
@@ -429,7 +437,32 @@ def fetch_censo_escolar(
         query, billing_project_id=billing_project_id, from_file=True
     )
     log.info("censo escolar: %d schools", len(censo))
-    return censo
+    return translate_censo_to_directory(censo)
+
+
+def translate_censo_to_directory(censo: pd.DataFrame) -> pd.DataFrame:
+    """Troca as colunas de código do Censo pelas colunas do diretório.
+
+    Alguns códigos chegam do BigQuery com ``.0`` no fim (``"0.0"``), e o
+    sufixo sai antes da tradução. Código que não está no mapa vira nulo.
+
+    Args:
+        censo: Escolas do Censo Escolar, com as colunas de
+            ``constants.CENSO_TO_DIRECTORY`` com o nome do Censo.
+
+    Returns:
+        Uma cópia de ``censo`` com cada coluna do Censo substituída pela
+        coluna do diretório correspondente, já com o rótulo do Catálogo.
+    """
+    translated = censo.copy()
+    for censo_column, target in constants.CENSO_TO_DIRECTORY.value.items():
+        directory_column, labels = target
+        codes = translated[censo_column].str.removesuffix(".0")
+        # Apaga antes de gravar: a conveniada_poder_publico tem o mesmo nome
+        # no Censo e no diretório.
+        translated = translated.drop(columns=censo_column)
+        translated[directory_column] = codes.map(labels)
+    return translated
 
 
 def clean_catalogo(
@@ -447,7 +480,8 @@ def clean_catalogo(
 
     id_municipio:
         Derivado de (nome_municipio, sigla_uf) pelo ``municipio_lookup``.
-        Sem o mapa, ou quando o nome não é encontrado, a coluna fica nula. O
+        Quando o nome não é encontrado, vale o município do ``censo_escolar``
+        para a mesma escola. Sem nenhum dos dois, a coluna fica nula. O
         modelo dbt aceita nulo aqui; acrescentar um teste ``relationships``
         quando o mapa cobrir mais de 95% das linhas.
 
@@ -456,9 +490,14 @@ def clean_catalogo(
         ``diretorio_publicado`` que saíram do Catálogo entram como
         ``Ausente``, com os atributos da última vez em que apareceram. As do
         ``censo_escolar`` que não estão em nenhum dos dois também entram como
-        ``Ausente``, só com ``id_escola``, ``id_municipio`` e ``sigla_uf``.
+        ``Ausente``, com o município, a UF e os atributos de
+        ``constants.CENSO_TO_DIRECTORY``; nome, endereço, telefone e
+        coordenadas ficam nulos.
         Quando um id aparece em mais de uma fonte, vale o Catálogo, depois o
-        diretório publicado, depois o Censo Escolar.
+        diretório publicado, depois o Censo Escolar. A exceção são as escolas
+        que entraram pelo Censo (``Ausente`` e sem nome): elas são lidas de
+        novo do Censo a cada carga, e só ficam com a versão do diretório
+        publicado se saírem do Censo.
 
     Trava de tamanho:
         Com ``diretorio_publicado``, a limpeza falha se o Catálogo trouxer
@@ -563,6 +602,24 @@ def clean_catalogo(
             "Pass a lookup built from the municipio directory."
         )
 
+    # Escola do Catálogo cujo município não foi encontrado pelo nome fica com o
+    # município do Censo Escolar, quando a escola aparece nele.
+    if censo_escolar is not None:
+        censo_municipio = censo_escolar.set_index(
+            censo_escolar["id_escola"].astype(str).str.strip()
+        )["id_municipio"]
+        missing = df["id_municipio"].isna()
+        df.loc[missing, "id_municipio"] = (
+            df.loc[missing, "id_escola"]
+            .astype(str)
+            .str.strip()
+            .map(censo_municipio)
+        )
+        log.info(
+            "id_municipio: %d rows filled from censo escolar",
+            missing.sum() - df["id_municipio"].isna().sum(),
+        )
+
     # Drop the raw name column (not in staging schema)
     df = df.drop(columns=["nome_municipio"], errors="ignore")
 
@@ -572,10 +629,26 @@ def clean_catalogo(
         no_catalogo = df["id_escola"].astype(str).str.strip()
         publicado = diretorio_publicado.copy()
         publicado["id_escola"] = publicado["id_escola"].astype(str).str.strip()
-        ausentes = publicado[~publicado["id_escola"].isin(no_catalogo)]
-        ausentes = ausentes.assign(
-            **{constants.SITUACAO_CATALOGO.value: constants.AUSENTE.value}
-        )
+        ausentes = publicado[~publicado["id_escola"].isin(no_catalogo)].copy()
+        if censo_escolar is not None:
+            # Escola que veio do Censo (Ausente e sem nome, que só o Catálogo
+            # traz) é lida de novo do Censo na camada seguinte. Copiada do
+            # diretório publicado, ela ficaria com os dados da primeira carga.
+            no_censo = censo_escolar["id_escola"].astype(str).str.strip()
+            from_censo = (
+                (
+                    ausentes[constants.SITUACAO_CATALOGO.value]
+                    == constants.AUSENTE.value
+                )
+                & ausentes["nome"].isna()
+                & ausentes["id_escola"].isin(no_censo)
+            )
+            ausentes = ausentes[~from_censo].copy()
+            log.info(
+                "situacao_catalogo: %d Ausente reread from censo escolar",
+                from_censo.sum(),
+            )
+        ausentes[constants.SITUACAO_CATALOGO.value] = constants.AUSENTE.value
         log.info(
             "situacao_catalogo: %d Presente, %d Ausente",
             len(df),

@@ -62,13 +62,20 @@ a primeira da lista:
 2. o diretório já publicado (`fetch_diretorio_publicado`), para as escolas que
    saíram do catálogo, com os atributos da última vez em que apareceram;
 3. o Censo Escolar (`fetch_censo_escolar`), para as escolas que nunca entraram
-   no diretório, só com `id_escola` e com o `id_municipio` e a `sigla_uf` do
-   último ano em que aparecem. O Censo não traz nome, endereço nem coordenadas.
+   no catálogo, com `id_municipio`, `sigla_uf` e os atributos que o Censo tem
+   (ver abaixo), todos do último ano em que a escola aparece. O Censo não traz
+   nome, endereço, telefone nem coordenadas.
+
+Há uma exceção à ordem: uma escola que entrou pelo Censo passa a estar no
+diretório publicado, e na carga seguinte seria copiada de lá, ficando para
+sempre com os dados da primeira carga. Por isso as escolas `Ausente` sem nome
+(o nome só vem do catálogo) são lidas de novo do Censo a cada carga. Só ficam
+com a versão do diretório publicado se saírem do Censo.
 
 | Valor | Significado |
 |---|---|
 | `Presente` | consta no catálogo mais recente |
-| `Ausente` | não consta no catálogo; veio do diretório publicado (com atributos) ou só do Censo Escolar (nome, endereço e coordenadas vazios) |
+| `Ausente` | não consta no catálogo; veio do diretório publicado (com atributos) ou só do Censo Escolar (nome, endereço, telefone e coordenadas vazios) |
 
 O Censo Escolar é o que liga o diretório às tabelas históricas: sem ele, os
 `id_escola` que aparecem no Censo e nunca entraram no catálogo ficariam sem
@@ -76,16 +83,45 @@ correspondência no diretório, no próprio Censo Escolar, no ENEM e no SAEB.
 
 Consequência a conhecer: os atributos das escolas que saíram do catálogo vivem
 só na tabela publicada. Rodar `clean_catalogo` sem passar `diretorio_publicado`
-perde nome, endereço e coordenadas dessas escolas, porque o Censo devolve só os
-ids. O aviso no log é a única proteção.
+perde nome, endereço e coordenadas dessas escolas, porque o Censo não tem esses
+campos. O aviso no log é a única proteção.
+
+### Atributos vindos do Censo Escolar
+
+As escolas que só existem no Censo recebem seis colunas, traduzidas de código
+para o rótulo do catálogo por `constants.CENSO_TO_DIRECTORY`:
+
+| Coluna no Censo | Coluna no diretório |
+|---|---|
+| `rede` | `dependencia_administrativa` |
+| `tipo_localizacao` | `localizacao` |
+| `tipo_localizacao_diferenciada` | `localidade_diferenciada` |
+| `tipo_categoria_escola_privada` | `categoria_privada` |
+| `conveniada_poder_publico` | `conveniada_poder_publico` |
+| `tipo_regulamentacao` | `regulacao_conselho_educacao` |
+
+A tradução não usa o dicionário de `br_inep_censo_escolar`. Nele, a localização
+diferenciada tem as chaves 1 a 4, com 1 para "não diferenciada", mas o dado usa
+0 para "não diferenciada", 1 a 3 para assentamento, terra indígena e quilombola,
+e 8 para povos e comunidades tradicionais. A regulamentação nem está no
+dicionário. Os códigos do mapa foram conferidos cruzando, escola por escola, o
+Censo com o rótulo do catálogo. Alguns códigos chegam como `"0.0"`, e o sufixo
+`.0` sai antes da tradução.
+
+Muitas dessas colunas ficam nulas mesmo assim. Localização e dependência
+administrativa vêm em todo ano do Censo, mas localização diferenciada e
+regulamentação faltam na maioria das escolas que deixaram o Censo há anos, e a
+`conveniada_poder_publico` está quase toda nula na tabela da BD.
 
 ### id_municipio
 
 O catálogo traz o nome do município, não o código do IBGE, então `id_municipio`
 é derivado de (nome, UF) contra o diretório `municipio`, em duas passagens:
 `constants.MUNICIPIO_NAME_FIXES` para as divergências de grafia conhecidas (renomeações,
-hífen, `z`/`s`), depois busca com o nome normalizado sem acento. Nome que não
-resolve fica nulo, e a carga registra a lista no log.
+hífen, `z`/`s`), depois busca com o nome normalizado sem acento. Quando o nome
+não resolve, vale o `id_municipio` que o Censo Escolar tem para a mesma escola.
+Só fica nulo se a escola também não estiver no Censo, e a carga registra no log
+os nomes não resolvidos e quantas escolas o Censo completou.
 
 ### Atualização
 
