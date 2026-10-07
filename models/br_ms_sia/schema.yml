@@ -384,17 +384,14 @@ models:
           (BPA-I)
         tests:
           # Exceções conhecidas: C141 e Q350 são usados pelo DataSUS mas não estão
-          # em br_bd_diretorios_brasil.cid_10 (verificado em 2026-09-25). Qualquer
-          # outro código fora do diretório falha o teste. Não usar
-          # custom_relationships aqui: ele arredonda a taxa de falha para 2 casas
-          # e deixa passar poucas linhas órfãs em tabelas grandes.
-          - relationships:
+          # em br_bd_diretorios_brasil.cid_10 (verificado em 2026-09-25). 
+          - custom_relationships:
               to: ref('br_bd_diretorios_brasil__cid_10')
               field: subcategoria
+              ignore_values: [C141, Q350]
+              proportion_allowed_failures: 0
               config:
-                where: >
-                  __most_recent_year_month__
-                  and cid_principal_subcategoria not in ('C141', 'Q350')
+                where: __most_recent_year_month__
       - name: cid_causas_associadas_categoria
         description: Identificador da categoria da Classificação Internacional de
           Doenças (CID10) causas associadas a Autorização de Procedimento Ambulatorial
