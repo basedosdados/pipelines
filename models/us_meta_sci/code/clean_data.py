@@ -241,9 +241,10 @@ def clean(table: str, delete_archive: bool = False) -> dict:
         )
 
     total = sum(p["rows"] for p in parts.values())
-    out_rows = con.execute(
+    row = con.execute(
         f"select count(*) from read_parquet('{outdir}/*.parquet')"
-    ).fetchone()[0]
+    ).fetchone()
+    out_rows = row[0] if row else 0
     if out_rows != total:
         raise ValueError(f"{table}: wrote {out_rows:,} rows, read {total:,}")
     manifest = {"table": table, "source": src, "rows": total, "parts": parts}
