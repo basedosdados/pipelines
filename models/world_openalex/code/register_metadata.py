@@ -90,14 +90,16 @@ ORGANIZATION = dict(
 )
 
 THEMES = ["science-technology", "education"]
+# Each tag as the spellings it carries per backend: prod's vocabulary is
+# English, staging's Portuguese, for the same records.
 TAGS = [
-    "research",
-    "publication",
-    "academia",
-    "citation",
-    "university",
-    "knowledge",
-    "innovation",
+    ("research", "pesquisa"),
+    ("publication", "publicacao"),
+    ("academia",),
+    ("citation", "citacao"),
+    ("university", "universidade"),
+    ("knowledge", "conhecimento"),
+    ("innovation", "inovacao"),
 ]
 # Created when missing, and flagged to the user.
 NEW_TAGS = {"open-access": ("acesso aberto", "open access", "acceso abierto")}
@@ -315,10 +317,12 @@ def entity_ids() -> dict[str, str]:
 
 def tag_ids() -> list[str]:
     tags = md.discover_ids(env=ENV, keys=["tag"])["tag"]
-    missing = [t for t in TAGS if t not in tags]
-    if missing:
-        raise SystemExit(f"tags missing in {ENV}: {missing}")
-    out = [tags[t] for t in TAGS]
+    out = []
+    for alts in TAGS:
+        hit = next((tags[t] for t in alts if t in tags), None)
+        if hit is None:
+            raise SystemExit(f"no tag for any of {alts} in {ENV}")
+        out.append(hit)
     for slug, (pt, en, es) in NEW_TAGS.items():
         if slug not in tags:
             tags[slug] = wr.create_update_tag(
@@ -344,7 +348,10 @@ def organization_id(area_world: str) -> str:
 
 def main() -> int:
     print(f"env={ENV} materialized={MATERIALIZED}")
-    coverage = json.loads((HERE / "coverage.json").read_text())
+    # Absent until verify_bigquery.py has run on the built tables; the date
+    # ranges are then added by a re-run, which reuses every record id.
+    cov_path = HERE / "coverage.json"
+    coverage = json.loads(cov_path.read_text()) if cov_path.exists() else {}
     ids = md.discover_ids(
         env=ENV, keys=["status", "license", "availability", "theme"]
     )
