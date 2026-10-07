@@ -47,9 +47,32 @@ num CSV só. A maior UF, SP, tem cerca de 33 mil escolas. Duas coisas a saber:
 No backend, a fonte original da tabela é "Catálogo de Escolas do Inep", e é a
 única ligada a ela.
 
+### O catálogo fica um ano atrás do Censo Escolar
+
+O Inep não atualiza o catálogo junto com o Censo Escolar. Na extração de
+outubro de 2026, as escolas do catálogo eram exatamente as ativas ou
+paralisadas no Censo 2024, com a mesma situação em todas, embora o Censo 2025
+já estivesse publicado. Comparado ao Censo 2025, faltavam no catálogo 4.790
+escolas ativas ou paralisadas, e sobravam 6.856 que em 2025 já não estavam
+nessa situação.
+
+O diretório herda essa defasagem:
+
+- a situação das escolas `Presente` (paralisada ou em funcionamento, em
+  `restricao_atendimento`) é a do Censo 2024, e os demais atributos vêm do
+  mesmo arquivo;
+- uma escola que aparece pela primeira vez no Censo 2025 entra pelo Censo, como
+  `Ausente`, sem nome, endereço, telefone nem coordenadas.
+
+Até o Inep atualizar o catálogo, cada run do flow baixa o mesmo arquivo. Para
+saber a que ano o catálogo corresponde, compare as escolas `Presente` com as
+ativas ou paralisadas (`tipo_situacao_funcionamento` 1 ou 2) de cada ano de
+`br_inep_censo_escolar.escola`: o ano em que os dois conjuntos são idênticos é
+o do catálogo.
+
 ### O catálogo é o registro corrente, não o histórico
 
-O catálogo traz as escolas que estão no registro do Inep hoje, e é o próprio
+O catálogo traz as escolas que estão no registro do Inep, e é o próprio
 Inep que remove do registro as extintas em anos anteriores. Carregar o catálogo
 puro, substituindo a tabela, apagaria do diretório as escolas removidas — cujo
 `id_escola` continua aparecendo no censo escolar de anos anteriores.
