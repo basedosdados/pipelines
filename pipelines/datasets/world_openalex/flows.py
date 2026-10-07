@@ -67,6 +67,7 @@ def world_openalex_flow(
     materialize_to_prod: bool = True,
     update_metadata: bool = True,
     force_run: bool = False,
+    fresh_load: bool = False,
 ) -> None:
     """Rebuild every world_openalex table from the current OpenAlex snapshot.
 
@@ -78,6 +79,8 @@ def world_openalex_flow(
             commit the source update. No effect when ``materialize_to_prod``
             is False.
         force_run: Rebuild even when the poll finds no new release.
+        fresh_load: Reload every file even when an interrupted load of the same
+            release and code can be resumed.
     """
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="work"
@@ -111,7 +114,7 @@ def world_openalex_flow(
 
     bucket = "basedosdados" if materialize_to_prod else "basedosdados-dev"
     target = "prod" if materialize_to_prod else "dev"
-    load_snapshot_task(bucket_name=bucket)
+    load_snapshot_task(bucket_name=bucket, fresh=fresh_load)
 
     # Run every model, then test every model: the relationship and dictionary
     # tests read sibling models, which must all exist first.
@@ -147,12 +150,15 @@ def world_openalex_flow(
 world_openalex_flow.deploy_schedules = [
     Cron("25 3 8-21 1,4,7,10 *", timezone="America/Sao_Paulo")
 ]
-# Four worker processes flatten one snapshot file each; locally each peaked
-# at 1.5 GB RSS. The request stays at 4Gi so the pod fits the dev pool's
-# nodes (8Gi was unschedulable); the limit is what the pod may grow to.
-# `memory` alone is ignored by the work pool.
+# Six worker processes, each downloading and uploading with parallel
+# connections; the load is network-bound (a single stream ran at ~2 MB/s from
+# the pods), so CPU and memory stay modest. The request stays at 4Gi so the
+# pod fits the dev pool's nodes (8Gi was unschedulable); the limit is what the
+# pod may grow to. `memory` alone is ignored by the work pool.
 world_openalex_flow.job_variables = {
-    "memory": "12Gi",
-    "memory_limit": "12Gi",
+    "memory": "16Gi",
+    "memory_limit": "16Gi",
     "memory_request": "4Gi",
+    "cpu_limit": "4",
+    "cpu_request": "1",
 }

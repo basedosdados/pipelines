@@ -5,8 +5,8 @@
     uv run python -m models.world_openalex.code.load --fresh --entities topics fields --max-files 1
 
 Calls the same ``pipelines.datasets.world_openalex.loader.load_snapshot`` the
-recurring flow uses, against the dev bucket. Scratch (in-flight files and the
-resume state) defaults to ``~/Library/Caches/world_openalex_data`` — local and
+recurring flow uses, against the dev bucket. Resume state lives in GCS as
+per-file markers (see loader.py); scratch for in-flight files defaults to ``~/Library/Caches/world_openalex_data`` — local and
 unsynced — and can be moved with ``WORLD_OPENALEX_SCRATCH``.
 
 Requires GOOGLE_APPLICATION_CREDENTIALS pointing at the basedosdados-dev
@@ -32,7 +32,9 @@ def main() -> None:
     """Parse arguments and run the load."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument(
-        "--fresh", action="store_true", help="discard state, clear staging"
+        "--fresh",
+        action="store_true",
+        help="reload everything even if resumable",
     )
     ap.add_argument(
         "--entities", nargs="+", choices=list(constants.ENTITY_TABLES.value)

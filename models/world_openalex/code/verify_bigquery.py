@@ -18,8 +18,8 @@ from pathlib import Path
 
 from google.cloud import bigquery
 
-from models.world_openalex.code.load import SCRATCH
 from models.world_openalex.code.tables import TABLES
+from pipelines.datasets.world_openalex import loader, utils
 
 PROJECT = "basedosdados-dev"
 DS = "world_openalex"
@@ -27,12 +27,15 @@ HERE = Path(__file__).resolve().parent
 
 
 def staged_rows() -> dict[str, int]:
-    """Rows per table the loader wrote, from its resume state."""
-    lines = (SCRATCH / "state.jsonl").read_text().splitlines()
+    """Rows per table the loader wrote, from its GCS completion markers."""
+    release = utils.release_date(utils.fetch_manifest())
+    prefix = loader.marker_prefix(release, loader.fingerprint())
     rows: dict[str, int] = {}
-    for line in lines[1:]:
-        for t, n in json.loads(line)["rows"].items():
+    for rec in loader.read_markers(PROJECT, prefix):
+        for t, n in rec["rows"].items():
             rows[t] = rows.get(t, 0) + n
+    if not rows:
+        raise SystemExit(f"no load markers under gs://{PROJECT}/{prefix}")
     return rows
 
 
