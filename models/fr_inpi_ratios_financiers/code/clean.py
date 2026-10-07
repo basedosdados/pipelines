@@ -74,13 +74,16 @@ def build_ratios() -> int:
         target = PA_TYPES[a["bigquery_type"]]
         if name == "annee":
             date = src.column("date_cloture_exercice").cast(pa.date32())
+            # pyrefly: ignore [missing-attribute]
             cols[name] = pc.year(date).cast(target)
         else:
             col = src.column(orig)
             if pa.types.is_string(col.type) or pa.types.is_large_string(
                 col.type
             ):
+                # pyrefly: ignore [missing-attribute]
                 col = pc.utf8_trim_whitespace(col.cast(pa.string()))
+                # pyrefly: ignore [missing-attribute]
                 col = pc.if_else(pc.equal(col, ""), None, col)
             cols[name] = col.cast(target)
     typed = pa.table(cols)
@@ -94,6 +97,7 @@ def build_ratios() -> int:
     shutil.rmtree(tdir, ignore_errors=True)
     years = sorted(set(typed.column("annee").to_pylist()))
     for year in years:
+        # pyrefly: ignore [missing-attribute]
         part = typed.filter(pc.equal(typed.column("annee"), year))
         pdir = tdir / f"annee={year}"
         pdir.mkdir(parents=True)
