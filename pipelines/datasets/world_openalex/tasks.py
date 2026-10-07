@@ -16,7 +16,7 @@ def get_release_date() -> str:
 
 @task
 def load_snapshot_task(
-    bucket_name: str, workers: int = 6, fresh: bool = False
+    bucket_name: str, workers: int = 5, fresh: bool = False
 ) -> dict:
     """Stream the whole snapshot into ``gs://<bucket>/staging/world_openalex/``.
 

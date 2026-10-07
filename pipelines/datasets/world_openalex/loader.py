@@ -47,11 +47,17 @@ ENTITY_MAIN_TABLE = {
 
 
 def fingerprint() -> str:
-    """Hash of the transform code and every architecture CSV."""
+    """Hash of everything that shapes the staged output.
+
+    The flatteners, the entity -> table mapping and every architecture CSV.
+    Not the transfer code or tuning knobs (workers, batch size), which change
+    how files are loaded but not what is written, so tuning them never
+    discards a resumable load.
+    """
     h = hashlib.sha256()
-    here = Path(__file__).parent
-    for p in [here / "utils.py", here / "loader.py", here / "constants.py"]:
-        h.update(p.read_bytes())
+    h.update((Path(__file__).parent / "utils.py").read_bytes())
+    h.update(repr(constants.ENTITY_TABLES.value).encode())
+    h.update(repr(constants.DICTIONARY_ENTITIES.value).encode())
     for p in sorted(Path(constants.ARCHITECTURE_DIR.value).glob("*.csv")):
         h.update(p.name.encode())
         h.update(p.read_bytes())

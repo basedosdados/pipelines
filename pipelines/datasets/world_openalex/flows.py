@@ -150,15 +150,15 @@ def world_openalex_flow(
 world_openalex_flow.deploy_schedules = [
     Cron("25 3 8-21 1,4,7,10 *", timezone="America/Sao_Paulo")
 ]
-# Six worker processes, each downloading and uploading with parallel
-# connections; the load is network-bound (a single stream ran at ~2 MB/s from
-# the pods), so CPU and memory stay modest. The request stays at 4Gi so the
-# pod fits the dev pool's nodes (8Gi was unschedulable); the limit is what the
-# pod may grow to. `memory` alone is ignored by the work pool.
+# Five worker processes, each downloading and uploading over parallel
+# connections. Peak RSS is ~1.1 GB per worker at 10k-row batches, so the pod
+# needs ~6 GB: request that, or a memory-tight node evicts the pod first (a
+# 4Gi request using 9 GB was evicted). 8Gi was unschedulable on the dev pool.
+# `memory` alone is ignored by the work pool.
 world_openalex_flow.job_variables = {
-    "memory": "16Gi",
-    "memory_limit": "16Gi",
-    "memory_request": "4Gi",
+    "memory": "10Gi",
+    "memory_limit": "10Gi",
+    "memory_request": "6Gi",
     "cpu_limit": "4",
     "cpu_request": "1",
 }

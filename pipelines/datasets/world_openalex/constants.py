@@ -81,6 +81,7 @@ class constants(Enum):
         "sdgs": [("work_sdg", "sdg_id")],
     }
 
-    # Rows per record batch read from S3. A works batch of 50k rows peaks
-    # around 1 GB of Arrow memory once flattened.
-    BATCH_SIZE = 50_000
+    # Rows per record batch read from a snapshot file. Peak RSS per worker on
+    # an 890 MB works file: 2.4 GB at 50k rows, 1.1 GB at 10k, same speed.
+    # At 50k, six workers got the pod evicted from a memory-tight node.
+    BATCH_SIZE = 10_000
