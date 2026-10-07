@@ -22,6 +22,7 @@ import json
 import sys
 from datetime import date
 from pathlib import Path
+from typing import TypedDict
 
 import databasis_mcp.tools.metadata as md
 import databasis_mcp.tools.write as wr
@@ -115,7 +116,23 @@ NEW_ENTITIES = {
     ),
 }
 
-RAW_SOURCES = [
+
+class RawSource(TypedDict):
+    """One raw data source."""
+
+    key: str
+    url: str
+    name_pt: str
+    name_en: str
+    name_es: str
+    description_pt: str
+    description_en: str
+    description_es: str
+    api: bool
+    linked: bool
+
+
+RAW_SOURCES: list[RawSource] = [
     dict(
         key="snapshot",
         url="https://help.openalex.org/download-all-data/openalex-snapshot",
@@ -241,16 +258,32 @@ def columns_payload(table: str) -> list[dict]:
     return out
 
 
-def table_text(table: str) -> dict:
+def upsert_table(
+    table_id: str | None,
+    table: str,
+    dataset_id: str,
+    status_id: str,
+    account: str,
+    raw_ids: list[str] | None = None,
+) -> str:
+    """Create or update one table record; returns its id."""
     spec = TABLES[table]
-    return dict(
+    return wr.create_update_table(
+        id=table_id,
+        slug=table,
+        dataset_id=dataset_id,
+        status_id=status_id,
+        published_by_ids=[account],
+        data_cleaned_by_ids=[account],
         name_pt=spec["name"][0],
         name_en=spec["name"][1],
         name_es=spec["name"][2],
         description_pt=spec["description"][0],
         description_en=spec["description"][1],
         description_es=spec["description"][2],
-    )
+        raw_data_source_ids=raw_ids,
+        env=ENV,
+    )["id"]
 
 
 def entity_ids() -> dict[str, str]:
@@ -371,16 +404,7 @@ def main() -> int:
     table_ids = {}
     for table, spec in TABLES.items():
         p = prior.get(table, {})
-        common = dict(
-            slug=table,
-            dataset_id=dataset_id,
-            status_id=published,
-            published_by_ids=[account],
-            data_cleaned_by_ids=[account],
-            env=ENV,
-            **table_text(table),
-        )
-        tid = wr.create_update_table(id=p.get("id"), **common)["id"]
+        tid = upsert_table(p.get("id"), table, dataset_id, published, account)
         table_ids[table] = tid
 
         # Observation levels, reusing existing records by entity.
@@ -475,8 +499,8 @@ def main() -> int:
             )
 
         # Deferred raw-source link (one source per table).
-        wr.create_update_table(
-            id=tid, raw_data_source_ids=[raw["snapshot"]], **common
+        upsert_table(
+            tid, table, dataset_id, published, account, [raw["snapshot"]]
         )
         print(
             f"table {table} -> {tid}: {len(ol_ids)} OLs, {len(cols)} columns"
