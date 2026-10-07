@@ -16,11 +16,13 @@ because skipping already-staged files would keep output written by older code.
 import hashlib
 import json
 import multiprocessing
+import os
 import shutil
 import tempfile
 import time
 from collections.abc import Iterable
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from functools import cache
 from pathlib import Path
 
 import google.cloud.storage as gcs
@@ -30,6 +32,7 @@ from pyarrow import fs
 
 from pipelines.datasets.world_openalex import utils
 from pipelines.datasets.world_openalex.constants import constants
+from pipelines.utils.gcs import get_credentials_from_env
 
 DATASET_ID = constants.DATASET_ID.value
 # The table each entity's record count is checked against: one row per record.
@@ -60,12 +63,25 @@ def all_tables(entities: Iterable[str]) -> list[str]:
 # --------------------------------------------------------------------------
 
 
+@cache
 def _bucket(bucket_name: str) -> gcs.Bucket:
-    # Data Basis buckets are requester-pays; bill the bucket's own project, as
-    # pipelines.utils.tasks._upload_to_gcs does.
-    return gcs.Client(project=bucket_name).bucket(
-        bucket_name, user_project=bucket_name
+    """A handle on a Data Basis bucket, with the right credentials.
+
+    On a Prefect pod the service-account keys come from
+    ``BASEDOSDADOS_CREDENTIALS_{STAGING,PROD}``, as in ``pipelines.utils.gcs``:
+    the pod's own identity lacks ``serviceusage.services.use`` on the
+    requester-pays dev bucket. Locally those variables are unset and
+    GOOGLE_APPLICATION_CREDENTIALS is used.
+    """
+    mode = "prod" if bucket_name == "basedosdados" else "staging"
+    credentials = (
+        get_credentials_from_env(mode=mode)
+        if os.environ.get(f"BASEDOSDADOS_CREDENTIALS_{mode.upper()}")
+        else None
     )
+    client = gcs.Client(project=bucket_name, credentials=credentials)
+    # Requester-pays: bill the bucket's own project, as _upload_to_gcs does.
+    return client.bucket(bucket_name, user_project=bucket_name)
 
 
 def staging_prefix(table: str) -> str:
