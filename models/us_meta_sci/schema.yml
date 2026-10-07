@@ -25,7 +25,6 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_iso2
-              ignore_values: [NA, XK]
       - name: friend_country_id
         description: ISO 3166-1 alpha-2 code of the friend's country
         tests:
@@ -33,7 +32,6 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_iso2
-              ignore_values: [NA, XK]
       - name: scaled_sci
         description: >-
           Scaled Social Connectedness Index between the user country and the friend
@@ -64,14 +62,12 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_iso2
-              ignore_values: [NA, XK]
       - name: friend_country_id
         description: ISO 3166-1 alpha-2 code of the friend's country
         tests:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_iso2
-              ignore_values: [NA, XK]
       - name: user_region_id
         description: Identifier of the user's GADM level-1 region
         tests: [not_null]
@@ -113,7 +109,6 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_iso2
-              ignore_values: [NA, XK]
               config:
                 where: user_country_id = 'BR'
       - name: friend_country_id
@@ -122,7 +117,6 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_iso2
-              ignore_values: [NA, XK]
               config:
                 where: user_country_id = 'BR'
       - name: user_region_id
@@ -171,14 +165,12 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_iso2
-              ignore_values: [NA, XK]
       - name: friend_country_id
         description: ISO 3166-1 alpha-2 code of the friend's country
         tests:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_iso2
-              ignore_values: [NA, XK]
       - name: user_region_id
         description: Identifier of the user's geoBoundaries ADM1 region
         tests: [not_null]
@@ -218,7 +210,6 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_iso2
-              ignore_values: [NA, XK]
               config:
                 where: user_country_id = 'BR'
       - name: friend_country_id
@@ -227,7 +218,6 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_iso2
-              ignore_values: [NA, XK]
               config:
                 where: user_country_id = 'BR'
       - name: user_region_id
@@ -396,14 +386,12 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_iso2
-              ignore_values: [NA, XK]
       - name: friend_country_id
         description: ISO 3166-1 alpha-2 code of the friend's country
         tests:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_iso2
-              ignore_values: [NA, XK]
       - name: user_region_id
         description: Identifier of the user's NUTS 2024 region
         tests: [not_null]
@@ -462,7 +450,6 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_iso2
-              ignore_values: [NA, XK]
       - name: user_region_id
         description: >-
           Identifier of the user's region in the classification given by region_level
@@ -474,7 +461,6 @@ models:
           - custom_relationships:
               to: ref('br_bd_diretorios_mundo__pais')
               field: sigla_iso2
-              ignore_values: [NA, XK]
       - name: scaled_sci
         description: >-
           Scaled Social Connectedness Index between the user region and the friend
