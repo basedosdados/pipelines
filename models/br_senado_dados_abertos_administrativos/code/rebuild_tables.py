@@ -1,6 +1,6 @@
 """Re-extract selected tables into the existing output tree.
 
-  uv run python models/br_senado_dados_abertos_administrativos/code/rebuild_tables.py <table> [...]
+  uv run models/br_senado_dados_abertos_administrativos/code/rebuild_tables.py <table> [...]
 
 Used when a transform fix changes only some tables and re-running the whole
 extraction (hours, most of it the contratação fan-out) would be wasteful. Writes

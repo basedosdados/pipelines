@@ -11,7 +11,7 @@ each state-year lands at `year=<YYYY>/<st>.parquet`, so re-processing a year
 overwrites its own blobs rather than duplicating rows. `overwrite` is not used —
 it drops the prod table even from a dev run.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_census_lodes_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_census_lodes_flow`;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
@@ -86,7 +86,6 @@ def us_census_lodes_flow(
             LODES re-releases individual files when they change, and the poll
             only notices a new *year*. Empty means "whatever is new".
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )

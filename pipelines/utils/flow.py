@@ -1,17 +1,21 @@
 """
 `Flow` da Base dos Dados — o `Flow` do Prefect 3 mais os atributos de deploy.
 
-`.github/scripts/deploy_flows.py` lê dois atributos do objeto flow que o
+`.github/workflows/scripts/deploy_flows.py` lê três atributos do objeto flow que o
 `prefect.Flow` não declara:
 
 - `deploy_schedules`: lista de agendamentos (`prefect.schedules.Cron`), usada no
   deploy de produção (no pool de dev os schedules são descartados);
 - `job_variables`: overrides da configuração de infraestrutura do work pool
-  (memória, CPU...).
+  (memória, CPU...);
+- `deploy_tags`: tags extras de deploy (além de `"automated-deploy"`, sempre
+  adicionada), usadas pra achar deployments relacionados no Prefect UI/CI sem
+  abrir cada `flows.py` (ex. `deploy_tags(dataset_id, etapa)` em
+  `pipelines/utils/stage_dispatch.py`).
 
 Atribuí-los a um `prefect.Flow` funciona em runtime, mas o Pyrefly acusa
 `missing-attribute`, já que a classe do Prefect não os declara. Este módulo
-declara os dois numa subclasse de `prefect.Flow` e expõe um decorator `flow`
+declara os três numa subclasse de `prefect.Flow` e expõe um decorator `flow`
 que instancia essa subclasse. Use sempre este `flow` em `flows.py`, nunca o
 `prefect.flow`:
 
@@ -29,6 +33,7 @@ meu_dataset_flow.deploy_schedules = [
     Cron("0 16 10 * *", timezone="America/Sao_Paulo")
 ]
 meu_dataset_flow.job_variables = {"memory": "8Gi"}
+meu_dataset_flow.deploy_tags = ["minha-tag"]
 ```
 
 Como `Flow` herda de `prefect.Flow`, as checagens `isinstance(obj, Flow)` do
@@ -56,10 +61,14 @@ class Flow(PrefectFlow[P, R]):
             padrão) significa deployment sem schedule — execução apenas manual.
         job_variables: Overrides da configuração de infraestrutura do work
             pool, por exemplo `{"memory": "8Gi"}`. Vazio usa o padrão do pool.
+        deploy_tags: Tags extras de deploy, além de `"automated-deploy"`
+            (sempre adicionada por `deploy_flow()`). Vazio não adiciona
+            nenhuma tag extra.
     """
 
     deploy_schedules: list[Schedule] | None
     job_variables: dict[str, Any] | None
+    deploy_tags: list[str] | None
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         """Constrói o flow e inicializa os atributos de deploy como `None`.
@@ -75,6 +84,7 @@ class Flow(PrefectFlow[P, R]):
         super().__init__(*args, **kwargs)
         self.deploy_schedules = None
         self.job_variables = None
+        self.deploy_tags = None
 
 
 # Uso sem parênteses (`@flow`). A assinatura da função decorada não é

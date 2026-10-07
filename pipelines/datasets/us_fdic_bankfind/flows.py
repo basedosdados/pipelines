@@ -18,7 +18,7 @@ leave those revisions behind.
 All four tables are fully free. The BD Pro rolling window applies to tables that
 refresh monthly or more often; this one is quarterly.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_fdic_bankfind_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_fdic_bankfind_flow`;
 the dev pool ignores the schedule, the prod pool activates it (paused).
 """
 
@@ -92,7 +92,6 @@ def us_fdic_bankfind_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new quarter.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="financials"
     )

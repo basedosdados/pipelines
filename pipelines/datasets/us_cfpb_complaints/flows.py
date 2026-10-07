@@ -18,7 +18,7 @@ which drops the **production** table, and fires from the dev half of the flow to
 ``"append"`` the upload ends in ``Storage.upload(if_exists="replace")``, which replaces
 each partition blob wholesale — the same end state, without the delete.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_cfpb_complaints_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_cfpb_complaints_flow`; the
 dev pool ignores the schedule, the prod pool activates it.
 """
 
@@ -93,7 +93,6 @@ def us_cfpb_complaints_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports nothing new.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=COMPLAINT
     )

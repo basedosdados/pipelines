@@ -25,7 +25,7 @@ the dev half of the flow too. With ``"append"`` the upload ends in
 ``Storage.upload(if_exists="replace")``, which replaces each partition blob at
 its own path — the same end state, without the delete.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_eia_electricity_flow`; the dev
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_eia_electricity_flow`; the dev
 pool ignores the schedule, the prod pool activates it.
 """
 
@@ -134,7 +134,6 @@ def us_eia_electricity_flow(
             Needed for a release that only restates earlier years without adding
             a period, which leaves the max coverage date unmoved.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ",
         dataset_id=DATASET_ID,

@@ -11,7 +11,7 @@ OECD publishes a new edition. Two ways to feed it data:
    files already present.
 
 The source ships the full history each edition, so every run is a full replace
-(``dump_mode="overwrite"``). Deploy: ``.github/scripts/deploy_flows.py``
+(``dump_mode="overwrite"``). Deploy: ``.github/workflows/scripts/deploy_flows.py``
 auto-discovers ``world_oecd_revenue_statistics_flow``; no schedule is registered.
 """
 
@@ -66,7 +66,6 @@ def world_oecd_revenue_statistics_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new year.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="revenue"
     )

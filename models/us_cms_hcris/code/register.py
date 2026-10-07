@@ -1,8 +1,8 @@
 """Register the us_cms_hcris metadata in the Data Basis backend.
 
-    python register.py --env staging          # dry run is the default
-    python register.py --env staging --apply
-    python register.py --env prod --apply     # only after the checkpoint
+    uv run models/us_cms_hcris/code/register.py --env staging          # dry run is the default
+    uv run models/us_cms_hcris/code/register.py --env staging --apply
+    uv run models/us_cms_hcris/code/register.py --env prod --apply     # only after the checkpoint
 
 Drives the databasis MCP tools as ordinary Python functions rather than through
 the tool interface, so the 114 column payloads never have to be pasted through
@@ -26,15 +26,13 @@ partition flag is re-passed on every call that touches ``year``.
 import argparse
 import csv
 import json
-import sys
 from datetime import date
 from pathlib import Path
 
-MCP_DIR = Path.home() / "Monash Uni Enterprise Dropbox/Ricardo Dahis/BD/mcp"
-sys.path.insert(0, str(MCP_DIR))
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
-import server  # noqa: E402
-from dataset_meta import (  # noqa: E402
+from models.us_cms_hcris.code.dataset_meta import (
     AUXILIARY_FILES,
     COVERAGE,
     DATASET_DESCRIPTION,
@@ -50,7 +48,7 @@ from dataset_meta import (  # noqa: E402
     TAGS,
     THEMES,
 )
-from schema import TABLES  # noqa: E402
+from models.us_cms_hcris.code.schema import TABLES
 
 CODE_DIR = Path(__file__).resolve().parent
 ARCH = CODE_DIR / "architecture"
@@ -77,14 +75,14 @@ class Registrar:
         self.env = env
         self.apply = apply
         self.account = (
-            server.get_authenticated_account(env=env) if apply else {}
+            bd_mcp_metadata.get_authenticated_account(env=env) if apply else {}
         )
 
     def call(self, fn: str, **kwargs) -> dict:
         """Invoke one backend tool, or describe it on a dry run.
 
         Args:
-            fn: Name of the ``server`` function.
+            fn: Name of the ``bd_mcp_metadata`` or ``bd_mcp_write`` function.
             **kwargs: Its arguments.
 
         Returns:
@@ -99,7 +97,8 @@ class Registrar:
             print(f"  DRY {fn}({label})")
             return {}
         print(f"  {fn}({label})")
-        return getattr(server, fn)(env=self.env, **kwargs)
+        tool = getattr(bd_mcp_metadata, fn, None) or getattr(bd_mcp_write, fn)
+        return tool(env=self.env, **kwargs)
 
     # -- dataset ---------------------------------------------------------
 
@@ -227,14 +226,14 @@ def column_ids(table_id: str, env: str) -> dict[str, str]:
     Returns:
         ``{column name: column id}``.
     """
-    data = server._gql(
+    data = bd_mcp_metadata._gql(
         """query($t: ID!) { allColumn(table_Id: $t, first: 500) {
              edges { node { id name } } } }""",
         {"t": table_id},
         env=env,
     )
     return {
-        e["node"]["name"]: server._strip_id(e["node"]["id"])
+        e["node"]["name"]: bd_mcp_metadata._strip_id(e["node"]["id"])
         for e in data["allColumn"]["edges"]
     }
 
@@ -251,6 +250,7 @@ def with_tail(table: str) -> tuple[str, str, str]:
     base = TABLE_DESCRIPTIONS[table]
     if table not in DATA_TABLES:
         return base
+    # pyrefly: ignore [bad-return]
     return tuple(b + t for b, t in zip(base, INCOMPLETE_TAIL, strict=True))
 
 
@@ -277,7 +277,7 @@ def main() -> None:
     # `allEntityCategory`, which this backend spells `allEntitycategory`, and
     # the whole call fails with HTTP 400. A server-side bug, not one to work
     # around by editing the MCP from a dataset onboarding.
-    ids = server.discover_ids(
+    ids = bd_mcp_metadata.discover_ids(
         env=args.env,
         keys=[
             "status",
@@ -290,12 +290,12 @@ def main() -> None:
             "language",
         ],
     )
-    area_id = server.lookup_id(slug=AREA_SLUG, category="area", env=args.env)[
-        "id"
-    ]
+    area_id = bd_mcp_metadata.lookup_id(
+        slug=AREA_SLUG, category="area", env=args.env
+    )["id"]
     # get_dataset returns a truthy {"found": False, "id": None, ...} stub when
     # the slug is free, so the flag has to be read rather than the dict tested.
-    fetched = server.get_dataset(DATASET_SLUG, env=args.env)
+    fetched = bd_mcp_metadata.get_dataset(DATASET_SLUG, env=args.env)
     existing = fetched if fetched.get("found") else None
     print(
         f"env={args.env} apply={args.apply} dataset={'found' if existing else 'new'}"
@@ -308,7 +308,9 @@ def main() -> None:
         )
         return
 
-    sources = server.get_raw_data_sources(DATASET_SLUG, env=args.env) or []
+    sources = (
+        bd_mcp_write.get_raw_data_sources(DATASET_SLUG, env=args.env) or []
+    )
     match = next(
         (s for s in sources if s.get("url") == RAW_SOURCE["url"]), None
     )

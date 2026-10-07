@@ -14,7 +14,7 @@ Météo-France publishes on two different cadences, so this dataset has two flow
   station's first and last observation year, which one year cannot give — that
   doubles as a monthly full rebuild of ``synop``.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers both flows; the dev pool
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers both flows; the dev pool
 ignores the schedules, the prod pool activates them.
 """
 
@@ -163,7 +163,6 @@ def fr_meteofrance_synop_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new day.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="synop"
     )
@@ -238,7 +237,6 @@ def fr_meteofrance_climatologie_flow(
             coverage and commit the source update.
         force_run: Materialize even when the source poll reports no new edition.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ",
         dataset_id=DATASET_ID,
@@ -334,7 +332,6 @@ def fr_meteofrance_climatologie_base_flow(
             coverage and commit the source update.
         force_run: Materialize even when the source poll reports no new edition.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="quotidienne"
     )

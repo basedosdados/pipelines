@@ -10,7 +10,7 @@ their most recent two quarters (``PartBdpro``, free_lag 6 months = 2 quarters);
 the rolling window and its BigQuery Row Access Policies are re-applied on every
 prod run by ``register_table_materialization_task``.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``br_mf_divida_ativa_flow``
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``br_mf_divida_ativa_flow``
 (defined at module level here); the dev pool ignores the schedule, the prod pool
 activates it (paused until armed).
 """
@@ -91,7 +91,6 @@ def br_mf_divida_ativa_flow(
             prod. Use for a safe dev smoke test:
             ``{materialize_to_prod: False, update_metadata: False, force_run: True}``.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=ANCHOR_TABLE
     )
@@ -107,7 +106,6 @@ def br_mf_divida_ativa_flow(
 
         # Record a Poll on the source (audit: "when we last looked"). Non-gating —
         # the ingest decision is driven by discover_new_quarters, not this return.
-        # pyrefly: ignore [unused-coroutine]
         poll_source_for_update_task(
             dataset_id=DATASET_ID,
             table_id=ANCHOR_TABLE,

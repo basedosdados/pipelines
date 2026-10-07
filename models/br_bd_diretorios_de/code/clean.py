@@ -14,11 +14,10 @@ Writes one all-STRING snappy Parquet per table under ../output/<table>/data.parq
 the dbt models safe_cast to final types.
 
 Run:
-    cd models/br_bd_diretorios_de/code && python3 clean.py
+    uv run models/br_bd_diretorios_de/code/clean.py
 """
 
 import os
-import sys
 
 import pandas as pd
 import pyarrow as pa
@@ -29,9 +28,7 @@ GERDA_INPUT = os.path.join(HERE, "..", "..", "us_nature_gerda", "input")
 LOCAL_INPUT = os.path.join(HERE, "..", "input")
 OUTPUT = os.path.join(HERE, "..", "output")
 
-sys.path.insert(0, os.path.join(HERE, "..", "..", "us_nature_gerda", "code"))
-# pyrefly: ignore [missing-import]
-import gerda_common as gc  # noqa: E402
+from models.us_nature_gerda.code import gerda_common as gc  # noqa: E402
 
 # Files whose party universe feeds the party directory (everything in the GERDA
 # input dir except the crosswalk sources).

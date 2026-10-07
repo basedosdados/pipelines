@@ -49,7 +49,7 @@ the dev half of the flow too. With ``"append"`` the upload ends in
 ``Storage.upload(if_exists="replace")``, which replaces each partition blob at
 its own path — the same end state, without the delete.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers both flows; the dev pool
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers both flows; the dev pool
 ignores the schedules, the prod pool activates them.
 """
 
@@ -145,7 +145,6 @@ def _materialize(
     Returns:
         None.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=anchor_table
     )

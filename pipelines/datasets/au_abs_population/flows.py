@@ -12,7 +12,7 @@ the whole transform runs in seconds; the cost of a run is dominated by the
 download. The run short-circuits unless one of the two polled sources has
 advanced, which makes a scheduled run a cheap no-op between releases.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers
 ``au_abs_population_flow``; the dev pool ignores the schedule, the prod pool
 activates it.
 """
@@ -100,7 +100,6 @@ def au_abs_population_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when neither source poll reports new data.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="population"
     )

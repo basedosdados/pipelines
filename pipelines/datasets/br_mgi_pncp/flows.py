@@ -11,7 +11,7 @@ re-deliver records the previous run already loaded, and the dbt models collapse
 them on the PNCP control number, keeping the row with the latest
 ``data_atualizacao``. Re-running a window is therefore always safe.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``br_mgi_pncp_flow``; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``br_mgi_pncp_flow``; the
 dev pool ignores the schedule, the prod pool activates it (paused until armed).
 """
 
@@ -131,7 +131,6 @@ def br_mgi_pncp_flow(
         lookback_days: How far back to re-harvest. Wider than the schedule
             interval on purpose, because PNCP backdates amendments.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="contratacao"
     )

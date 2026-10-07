@@ -1,7 +1,7 @@
 """Upload the cleaned us_sec_edgar parquet to BigQuery staging (basedosdados-dev).
 
-    uv run python models/us_sec_edgar/code/upload.py                # all tables
-    uv run python models/us_sec_edgar/code/upload.py numeric_fact   # one table
+    uv run models/us_sec_edgar/code/upload.py                # all tables
+    uv run models/us_sec_edgar/code/upload.py numeric_fact   # one table
 
 The four data tables are hive-partitioned (`<table>/year=<YYYY>/quarter=<Q>/data.parquet`);
 `dicionario` is a single file. Each staging table's BigQuery row count is checked against

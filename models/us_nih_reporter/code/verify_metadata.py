@@ -9,14 +9,13 @@ for the duplicate records create_update_* produces when called without an id.
 import sys
 from collections import Counter
 
-from common import import_mcp_server
-
-server = import_mcp_server()
+import databasis_mcp.tools.metadata as bd_mcp_metadata
+import databasis_mcp.tools.write as bd_mcp_write
 
 ENV = sys.argv[1] if len(sys.argv) > 1 else "staging"
 SLUG = "nih_reporter"
 
-ds = server.get_dataset(slug=SLUG, env=ENV)
+ds = bd_mcp_metadata.get_dataset(slug=SLUG, env=ENV)
 print(f"dataset {SLUG} id={ds['id']}  found={ds['found']}")
 print(f"  orgs={[o['slug'] for o in ds['organizations']]}")
 print(f"  themes={[t['slug'] for t in ds['themes']]}")
@@ -40,9 +39,9 @@ query($id: ID!) {
   } } }
 }
 """
-node = server._gql(q, {"id": ds["id"]}, env=ENV)["allDataset"]["edges"][0][
-    "node"
-]
+node = bd_mcp_metadata._gql(q, {"id": ds["id"]}, env=ENV)["allDataset"][
+    "edges"
+][0]["node"]
 print(f"  status={node['status']['slug']}")
 
 problems = []
@@ -50,7 +49,7 @@ for e in sorted(
     node["tables"]["edges"], key=lambda e: e["node"]["order"] or 0
 ):
     t = e["node"]
-    tid = server._strip_id(t["id"])
+    tid = bd_mcp_metadata._strip_id(t["id"])
     ols = [o["node"] for o in t["observationLevels"]["edges"]]
     cts = [c["node"] for c in t["cloudTables"]["edges"]]
     covs = [c["node"] for c in t["coverages"]["edges"]]
@@ -112,7 +111,9 @@ for e in sorted(
     """
     cols = [
         c["node"]
-        for c in server._gql(cq, {"id": tid}, env=ENV)["allColumn"]["edges"]
+        for c in bd_mcp_metadata._gql(cq, {"id": tid}, env=ENV)["allColumn"][
+            "edges"
+        ]
     ]
     types = Counter(
         c["bigqueryType"]["name"] if c["bigqueryType"] else None for c in cols
@@ -171,13 +172,13 @@ query($id: ID!) {
   } } }
 }
 """
-listed = server.get_raw_data_sources(dataset_slug=SLUG, env=ENV)
+listed = bd_mcp_write.get_raw_data_sources(dataset_slug=SLUG, env=ENV)
 if isinstance(listed, dict):
     listed = listed.get("result", [])
 for s in listed:
-    n = server._gql(rq, {"id": s["id"]}, env=ENV)["allRawdatasource"]["edges"][
-        0
-    ]["node"]
+    n = bd_mcp_metadata._gql(rq, {"id": s["id"]}, env=ENV)["allRawdatasource"][
+        "edges"
+    ][0]["node"]
     ups = [u["node"] for u in n["updates"]["edges"]]
     print(
         f"  {s['url']}\n     license={n['license']['slug'] if n['license'] else None} "

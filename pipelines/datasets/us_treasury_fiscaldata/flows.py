@@ -8,7 +8,7 @@ on different cadences (debt daily, MTS and interest monthly, exchange quarterly)
 so each is **polled independently**: a daily run refreshes only ``debt_outstanding``
 and leaves the monthly MTS tables untouched until a new month appears.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_treasury_fiscaldata_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_treasury_fiscaldata_flow`;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
@@ -114,7 +114,6 @@ def us_treasury_fiscaldata_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when a table's source poll reports no new data.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="fiscaldata"
     )

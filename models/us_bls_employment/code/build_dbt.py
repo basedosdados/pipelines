@@ -4,7 +4,7 @@ The architecture CSVs are the single source of truth for column order, types and
 descriptions (see .claude/rules/onboarding-workflow.md), so the models are
 generated from them rather than hand-maintained alongside them.
 
-Run: uv run python models/us_bls_employment/code/build_dbt.py
+Run: uv run models/us_bls_employment/code/build_dbt.py
 
 The committed models are the pre-commit-formatted versions (sqlfmt
 normalises quoting, yamlfix restyles schema.yml), so a regen shows a
@@ -17,7 +17,6 @@ from pathlib import Path
 # repo. Other datasets avoid the diagnostic by having their whole code/
 # directory in pyrefly's project-excludes; suppressing the one import keeps
 # the rest of this file type-checked.
-# pyrefly: ignore [untyped-import]
 import yaml
 
 from pipelines.datasets.us_bls_employment.constants import constants

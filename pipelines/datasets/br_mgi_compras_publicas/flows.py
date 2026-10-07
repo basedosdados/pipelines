@@ -12,11 +12,25 @@ split by how the underlying law behaves rather than by convenience:
   dicionario. These are snapshots stamped with an extraction date, and they move
   slowly enough that a daily rebuild would be waste.
 
-The Lei 8.666 legado tables are **not** refreshed: that procurement regime has
-ended and its 2025 tail is 7,562 rows. They are a closed archive, backfilled
-once. Adding them to a schedule would spend hours re-reading a frozen dataset.
+The eight archive tables are **not** refreshed, and no flow below covers them:
+the six Lei 8.666 legado tables, plus `pregao_item_oferta` and
+`pregao_item_evento`, scraped from the legacy ComprasNet web UI. That regime has
+ended. Measured against the live source on 2026-09-29:
 
-Deploy: `.github/scripts/deploy_flows.py` discovers the flow objects below.
+    /modulo-legado/1_consultarLicitacao, by publication month
+      2025-01: 1,631   2025-03: 1,566   2025-05: 951
+      2025-07: 0       2025-09: 0       2026-01 … 2026-09: 0
+    /modulo-legado/5_consultarComprasSemLicitacao, whole year
+      2025: 24,382     2026 to date: 0
+
+So the legado published nothing after roughly June 2025. Scheduling it would
+also be costly rather than merely pointless: `2_consultarItemLicitacao`, which
+feeds `licitacao_item`, takes no date filter at all -- `modalidade=5` alone
+returns 32,397,345 records -- so each run would re-read tens of millions of rows
+to find nothing new. Their Update records therefore declare no frequency; see
+`UPDATE_CADENCE` in `models/br_mgi_compras_publicas/code/table_metadata.py`.
+
+Deploy: `.github/workflows/scripts/deploy_flows.py` discovers the flow objects below.
 """
 
 from __future__ import annotations
@@ -25,20 +39,19 @@ import datetime as dt
 
 from prefect.schedules import Cron
 
-from pipelines.datasets.br_mgi_compras_publicas.constants import constants
+from pipelines.datasets.br_mgi_compras_publicas.constants import (
+    COVERAGE,
+    DAILY_TABLES,
+    DERIVED_TABLES,
+    WEEKLY_TABLES,
+    constants,
+)
 from pipelines.datasets.br_mgi_compras_publicas.tasks import (
     clear_staging_partitions,
     rebuild_dicionario,
     refresh_table,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    AllFree,
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    PartBdpro,
-)
 from pipelines.utils.metadata.tasks import (
     register_table_materialization_task,
 )
@@ -54,71 +67,6 @@ DATASET_ID = constants.DATASET_ID.value
 #: land within 180 days of inclusion and the median is 78 days, so a shorter
 #: window would leave stale rows behind that no later run would ever revisit.
 REVISION_WINDOW_DAYS = 180
-
-DAILY_TABLES = (
-    "contratacao",
-    "contratacao_item",
-    "contratacao_item_resultado",
-    "ata_registro_preco",
-    "ata_registro_preco_item",
-    "contrato",
-    "contrato_item",
-)
-WEEKLY_TABLES = (
-    "orgao",
-    "unidade_administrativa",
-    "fornecedor",
-    "catalogo_material",
-    "catalogo_servico",
-)
-#: Not harvested -- derived from the other tables' chunks, so it is rebuilt
-#: after them rather than fetched. It has no TableSpec, and asking
-#: refresh_table for it raises.
-DERIVED_TABLES = ("dicionario",)
-
-#: Tables refreshed daily paywall their most recent window to BD Pro; the
-#: slow-moving registries stay fully open. `register_table_materialization_task`
-#: rolls the window forward on every run and re-issues the Row Access Policies.
-#: Column the BD Pro window is measured on, per daily table.
-#:
-#: It must be a real date, not `ano`. A year column cannot express a six-month
-#: boundary: every row of 2026 reads as 2026-01-01, so
-#: `DATE(ano,1,1) <= today - 6 months` releases the whole current year for
-#: free. A date column makes the window exactly "newer than six months ago",
-#: to the day, and it rolls forward on every run.
-#:
-#: For the contratacao tables the choice is forced -- each has one publication
-#: date. For atas and contratos it is not: `data_vigencia_inicial` looks
-#: forward, so a contract recorded today to start in 2028 would sit behind the
-#: paywall for two years while a contract signed in 2023 starting next month
-#: would be paid. Keying on when the row was *recorded* paywalls what is
-#: actually new and cannot be sidestepped by future-dating.
-BDPRO_DATE_COLUMN = {
-    "contratacao": "data_publicacao_pncp",
-    "contratacao_item": "data_inclusao_pncp",
-    "contratacao_item_resultado": "data_resultado_pncp",
-    "ata_registro_preco": "data_hora_inclusao",
-    "ata_registro_preco_item": "data_hora_inclusao",
-    "contrato": "data_hora_inclusao",
-    "contrato_item": "data_hora_inclusao",
-}
-
-COVERAGE = {
-    t: PartBdpro(
-        date_column=DateOnly(col=BDPRO_DATE_COLUMN[t]),
-        date_format=DateFormat.YEAR_MD,
-        free_lag=FreeLag(unit="months", value=6),
-    )
-    for t in DAILY_TABLES
-} | {
-    # The registries are keyed on a full extraction date, not a year, and the
-    # dicionario has no date column at all so it takes no coverage spec.
-    t: AllFree(
-        date_column=DateOnly(col="data_extracao"),
-        date_format=DateFormat.YEAR_MD,
-    )
-    for t in WEEKLY_TABLES
-}
 
 
 def _run(
@@ -201,7 +149,6 @@ def br_mgi_compras_publicas_diario_flow(
     revision_window_days: int = REVISION_WINDOW_DAYS,
 ) -> None:
     """Refresh the Lei 14.133 modules and the contract registry."""
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="diario"
     )
@@ -221,7 +168,6 @@ def br_mgi_compras_publicas_semanal_flow(
     output_dir: str = "/tmp/br_mgi_compras_publicas",
 ) -> None:
     """Re-snapshot the registries, catalogues and dicionario."""
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="semanal"
     )

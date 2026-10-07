@@ -6,7 +6,7 @@ once a year and revises earlier years in place, so each run refetches every
 in-scope release and does a **full replace** (``dump_mode="overwrite"``)
 rather than appending the newest year.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers
 `au_ato_taxation_statistics_flow`; the dev pool ignores the schedule, the prod
 pool activates it.
 """
@@ -70,7 +70,6 @@ def au_ato_taxation_statistics_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new release.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )

@@ -15,7 +15,7 @@ The run resolves the current release from the CKAN API and polls cheaply first
 ~1.6 GB payload when a newer quarterly snapshot has actually been published — so
 a scheduled run is a cheap no-op between quarterly releases.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``au_geoscape_gnaf_flow``;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``au_geoscape_gnaf_flow``;
 the dev pool ignores the schedule, the prod pool activates it (deployed paused).
 """
 
@@ -90,7 +90,6 @@ def au_geoscape_gnaf_flow(
         force_run: Download and materialize even when the source poll reports no
             new snapshot.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=CORE_TABLE
     )

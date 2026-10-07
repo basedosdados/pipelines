@@ -19,7 +19,7 @@ That shapes three decisions:
   dictionary coverage tests read ``dicionario``, so a per-table interleave
   would test a model before its sibling exists.
 
-Deploy: ``.github/scripts/deploy_flows.py`` discovers ``us_cms_hcris_flow``; the
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` discovers ``us_cms_hcris_flow``; the
 dev pool strips the schedule, the prod pool activates it (paused until armed).
 """
 
@@ -87,7 +87,6 @@ def us_cms_hcris_flow(
         last_extract_year: Highest federal fiscal year to probe for. CMS adds
             one each October; the probe stops at the first year that 404s.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )

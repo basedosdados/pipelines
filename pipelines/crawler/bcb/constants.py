@@ -7,6 +7,19 @@ class Constants(Enum):
     INPUT_FOLDER = f"input/{DATASET_ID}"
     OUTPUT_FOLDER = f"output/{DATASET_ID}"
 
+    # Tabelas de domínio publicadas na seção 1, fora de /DadosBrutos/, e que
+    # portanto não aparecem no scraping de `get_sicor_download_links`. Cada
+    # tabela lista as URLs que a compõem, na ordem em que são lidas.
+    tabelas_dominio_urls = {
+        "empreendimento": [
+            "https://www.bcb.gov.br/htms/sicor/Empreendimento.csv"
+        ],
+        "fonte_recurso": [
+            "https://www.bcb.gov.br/htms/sicor/FonteRecursos.csv",
+            "https://www.bcb.gov.br/htms/sicor/FonteRecursosPublicos.csv",
+        ],
+    }
+
     sicor_to_bd_table_names = {
         "operacao": {
             "table_raw_name": "OPERACAO_BASICA_ESTADO",
@@ -151,6 +164,159 @@ class Constants(Enum):
                 "TIPO_DESC": "tipo_desclassificacao",
             },
         },
+        # ── Proagro ────────────────────────────────────────────────────────
+        # O Proagro (Programa de Garantia da Atividade Agropecuária) cobre
+        # perdas do produtor. O fluxo é: COP (comunicado de ocorrência de
+        # perdas) → RCP (requerimento de cobertura, com a vistoria) → súmula de
+        # julgamento (decisão) → parcelas (pagamento). Todas se ligam a
+        # `operacao` por (REF_BACEN, NU_ORDEM).
+        "proagro_cop": {
+            "table_raw_name": "SICOR_COP_BASICO",
+            "table_schema": {
+                "#REF_BACEN": "id_referencia_bacen",
+                "NU_ORDEM": "numero_ordem",
+                "DT_COMUNICACAO": "data_comunicacao",
+                "DT_FIM_COLHEITA": "data_fim_colheita",
+                "DT_FIM_PLANTIO": "data_fim_plantio",
+                "DT_INICIO_COLHEITA": "data_inicio_colheita",
+                "DT_INICIO_PLANTIO": "data_inicio_plantio",
+                "CD_STATUS": "id_status",
+                "CD_CICLO_CULTIVAR": "id_tipo_ciclo_cultivar",
+                "CD_TIPO_SOLO": "id_tipo_solo",
+                "CD_EVENTO": "id_evento",
+            },
+        },
+        "proagro_complemento_cop": {
+            "table_raw_name": "SICOR_COMPLEMENTO_COP",
+            "table_schema": {
+                "#REF_BACEN": "id_referencia_bacen",
+                "NU_ORDEM": "numero_ordem",
+                "CD_CPF_CNPJ_PERICIADORA": "tipo_cpf_cnpj_periciadora",
+                "CD_EVENTO": "id_evento",
+                "CD_CPF_PERITO": "cpf_perito",
+            },
+        },
+        "proagro_rcp": {
+            "table_raw_name": "SICOR_RCP_BASICO",
+            "table_schema": {
+                "#REF_BACEN": "id_referencia_bacen",
+                "NU_ORDEM": "numero_ordem",
+                "DT_ENTREGA": "data_entrega",
+                "DT_FIM_COLHEITA": "data_fim_colheita",
+                "DT_FIM_EVENTO": "data_fim_evento",
+                "DT_FIM_PLANTIO": "data_fim_plantio",
+                "DT_INICIO_COLHEITA": "data_inicio_colheita",
+                "DT_INICIO_EVENTO": "data_inicio_evento",
+                "DT_INICIO_PLANTIO": "data_inicio_plantio",
+                "VL_AREA": "area",
+                "VL_PREV_PROD": "valor_previsao_producao",
+                "VL_REC_PREV": "valor_receita_prevista",
+                "CD_STATUS": "id_status",
+                "CD_TIPO": "id_tipo",
+                "CD_EVENTO": "id_evento",
+                "DT_VISITA": "data_visita",
+                "NU_DIAS_CICLO_CULTIVAR": "quantidade_dias_ciclo_cultivar",
+            },
+        },
+        "proagro_complemento_rcp": {
+            "table_raw_name": "SICOR_COMPLEMENTO_RCP",
+            "table_schema": {
+                "#REF_BACEN": "id_referencia_bacen",
+                "NU_ORDEM": "numero_ordem",
+                "CD_CPF_CNPJ_PERICIADORA": "tipo_cpf_cnpj_periciadora",
+                "CD_CPF_PERITO": "cpf_perito",
+            },
+        },
+        "proagro_rcp_gleba": {
+            "table_raw_name": "SICOR_RCP_GLEBAS",
+            "table_schema": {
+                "#REF_BACEN": "id_referencia_bacen",
+                "NU_ORDEM": "numero_ordem",
+                "NU_INDICE": "indice_gleba",
+                "GT_GEOMETRIA": "geometria",
+            },
+        },
+        "proagro_parcela": {
+            "table_raw_name": "SICOR_PARCELAS_PROAGRO",
+            "table_schema": {
+                "#REF_BACEN": "id_referencia_bacen",
+                "NU_ORDEM": "numero_ordem",
+                "DT_BASE": "data_base",
+                "DT_PAGAMENTO": "data_pagamento",
+                "CD_INSTANCIA": "id_instancia",
+                "CD_STATUS": "id_status",
+                "CD_NATUREZA_PARCELA": "id_natureza_parcela",
+                "DT_ATUALIZACAO": "data_atualizacao",
+                "VL_ATUAL": "valor_atual",
+                "VL_BASE": "valor_base",
+                "VL_PAGO": "valor_pago",
+                "VL_IMPOSTO": "valor_imposto",
+                "DT_REMESSA": "data_remessa",
+            },
+        },
+        "proagro_sumula_julgamento": {
+            "table_raw_name": "SICOR_SUMULA_JULGAMENTO",
+            "table_schema": {
+                "#REF_BACEN": "id_referencia_bacen",
+                "NU_ORDEM": "numero_ordem",
+                "VL_COB_ANT_PARCELA_INVEST_PROAGRO_MAIS": "valor_cobertura_anterior_parcela_investimento_proagro_mais",
+                "VL_REMU_ENCARR_COMPROV_PERDAS": "valor_remuneracao_encarregado_comprovacao_perdas",
+                "CD_STATUS": "id_status",
+                "VL_RECEITAS_CONSIDERADAS": "valor_receitas_consideradas",
+                "VL_COBERTURA_ANT_REC_PROPRIOS": "valor_cobertura_anterior_recurso_proprio",
+                "VL_DEMAIS_DESPESAS_COMPROV_PERD": "valor_demais_despesas_comprovacao_perdas",
+                "VL_CRED_CUSTEIO_USADO": "valor_credito_custeio_utilizado",
+                "VL_DEMAIS_DESP_ANT_COMP_PER": "valor_demais_despesas_anteriores_comprovacao_perdas",
+                "VL_REC_PROP_USADO": "valor_recurso_proprio_utilizado",
+                "VL_COB_ANT_GARANTIA_RENDA_MIN": "valor_cobertura_anterior_garantia_renda_minima",
+                "CD_INSTANCIA": "id_instancia",
+                "VL_PERDAS_NAO_AMPARADAS": "valor_perdas_nao_amparadas",
+                "VL_ENCARGOS_SOB_CREDITO": "valor_encargos_credito_utilizado",
+                "DT_INCLUSAO": "data_inclusao",
+                "VL_PERC_REDUTOR_COBERTURA": "percentual_redutor_cobertura",
+                "VL_REMU_ANT_ENCARG_COMP_PERDAS": "valor_remuneracao_anterior_encarregado_comprovacao_perdas",
+                "CD_DECISAO": "id_decisao",
+                "DT_DECISAO": "data_decisao",
+                "DT_BASE": "data_base",
+                "VL_COBERTURA_ANT_CREDITO_CUSTEIO": "valor_cobertura_anterior_credito_custeio",
+                "VL_BONUS_PGPAF": "valor_bonus_pgpaf",
+                "VL_DEDUCOES_LEGAIS": "valor_deducoes_legais",
+                "VL_ORCAMENTO_ENQUADRADO": "valor_orcamento_enquadrado",
+                "NU_DIAS_UTEIS_ATRASO_PERITO": "quantidade_dias_uteis_atraso_perito",
+                "IB_SEGUNDA_VISTORIA": "indicador_segunda_vistoria",
+            },
+        },
+        # Diretório das instituições financeiras do Sicor. É tabela de domínio
+        # (`IFsSicor` no manual), mas o BCB a publica dentro de /DadosBrutos/,
+        # então o scraping normal a encontra. CNPJ_IF é o CNPJ básico de 8
+        # dígitos e casa com `operacao.cnpj_basico_instituicao_financeira` em
+        # 100% das linhas — ver README.
+        "instituicao_financeira": {
+            "table_raw_name": "SICOR_LISTA_IFS",
+            "table_schema": {
+                "#CNPJ_IF": "cnpj_basico",
+                "NOME_IF": "nome",
+                "SEGMENTO_IF": "segmento",
+            },
+        },
+        # Fontes de recurso do crédito rural. Combina duas tabelas de domínio:
+        # FonteRecursos.csv traz código, descrição e vigência; e
+        # FonteRecursosPublicos.csv traz apenas o subconjunto de códigos
+        # considerados recursos públicos/controlados, virando o indicador
+        # `indicador_recurso_publico`. Ver `create_fonte_recurso`.
+        "fonte_recurso": {
+            "table_raw_name": "FonteRecursos",
+            "table_schema": {
+                "#CODIGO": "id_fonte_recurso",
+                "DESCRICAO": "descricao",
+                "DATA_INICIO": "data_inicio",
+                "DATA_FIM": "data_fim",
+            },
+            "table_schema_recurso_publico": {
+                "#CODIGO": "id_fonte_recurso",
+                "DESCRICAO": "descricao",
+            },
+        },
         "empreendimento": {
             "table_raw_name": "Empreendimento",
             "table_schema": {
@@ -276,6 +442,89 @@ class Constants(Enum):
             "id_tabela": "operacao",
             "nome_coluna": "id_tipo_irrigacao",
             "url": "https://www.bcb.gov.br/htms/sicor/TipoIrrigacao.csv",
+            "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
+            "sep": ";",
+        },
+        {
+            "id_tabela": "operacao",
+            "nome_coluna": "id_tipo_seguro",
+            "url": "https://www.bcb.gov.br/htms/sicor/TipoGarantiaEmpreendimento.csv",
+            "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
+            "sep": ",",
+        },
+        {
+            "id_tabela": "proagro_cop",
+            "nome_coluna": "id_status",
+            "url": "https://www.bcb.gov.br/htms/sicor/StatusCOPProagro.csv",
+            "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
+            "sep": ";",
+        },
+        {
+            "id_tabela": "proagro_cop",
+            "nome_coluna": "id_tipo_ciclo_cultivar",
+            "url": "https://www.bcb.gov.br/htms/sicor/CicloCultivarProagro.csv",
+            "colunas": {"#CODIGO_CICLO": "chave", "DESCRICAO_CICLO": "valor"},
+            "sep": ";",
+        },
+        {
+            "id_tabela": "proagro_cop",
+            "nome_coluna": "id_tipo_solo",
+            "url": "https://www.bcb.gov.br/htms/sicor/TipoSoloProagro.csv",
+            "colunas": {
+                "#CODIGO_TIPO_SOLO": "chave",
+                "DESCRICAO_TIPO_SOLO": "valor",
+            },
+            "sep": ";",
+        },
+        {
+            "id_tabela": "proagro_cop",
+            "nome_coluna": "id_evento",
+            "url": "https://www.bcb.gov.br/htms/sicor/EventoProagro.csv",
+            "colunas": {"#CODIGO_EVENTO": "chave", "NOME_EVENTO": "valor"},
+            "sep": ";",
+        },
+        {
+            "id_tabela": "proagro_complemento_cop",
+            "nome_coluna": "id_evento",
+            "url": "https://www.bcb.gov.br/htms/sicor/EventoProagro.csv",
+            "colunas": {"#CODIGO_EVENTO": "chave", "NOME_EVENTO": "valor"},
+            "sep": ";",
+        },
+        {
+            "id_tabela": "proagro_rcp",
+            "nome_coluna": "id_evento",
+            "url": "https://www.bcb.gov.br/htms/sicor/EventoProagro.csv",
+            "colunas": {"#CODIGO_EVENTO": "chave", "NOME_EVENTO": "valor"},
+            "sep": ";",
+        },
+        {
+            "id_tabela": "proagro_parcela",
+            "nome_coluna": "id_instancia",
+            "url": "https://www.bcb.gov.br/htms/sicor/InstanciaProagro.csv",
+            "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
+            "sep": ";",
+        },
+        {
+            "id_tabela": "proagro_parcela",
+            "nome_coluna": "id_status",
+            "url": "https://www.bcb.gov.br/htms/sicor/StatusParcelaProagro.csv",
+            "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
+            "sep": ";",
+        },
+        {
+            "id_tabela": "proagro_parcela",
+            "nome_coluna": "id_natureza_parcela",
+            "url": "https://www.bcb.gov.br/htms/sicor/NaturezaProagro.csv",
+            "colunas": {
+                "#CODIGO_NATUREZA": "chave",
+                "DESCRICAO_NATUREZA": "valor",
+            },
+            "sep": ";",
+        },
+        {
+            "id_tabela": "proagro_sumula_julgamento",
+            "nome_coluna": "id_instancia",
+            "url": "https://www.bcb.gov.br/htms/sicor/InstanciaProagro.csv",
             "colunas": {"#CODIGO": "chave", "DESCRICAO": "valor"},
             "sep": ";",
         },

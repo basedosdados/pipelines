@@ -20,7 +20,7 @@ The run polls cheaply first (HTTP HEAD on the newest ZIP and on the BMF) and
 only downloads once the IRS has published something newer than the last
 refresh, so a scheduled run between releases is a no-op.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``us_irs_form990_flow``;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``us_irs_form990_flow``;
 the dev pool ignores the schedule, the prod pool activates it (deployed paused).
 """
 
@@ -147,7 +147,6 @@ def us_irs_form990_flow(
         max_batches: Upper bound on e-file ZIPs processed per run (each is
             0.1 to 1.2 GB); the rest are picked up by the next run.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="return_financial"
     )

@@ -11,7 +11,7 @@ source poll no-ops until a new annual year appears, so most scheduled runs do
 nothing — cheap. All three tables are fully free (annual data, no BD Pro
 rolling window).
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``au_dcceew_greenhouse_flow``;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``au_dcceew_greenhouse_flow``;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
@@ -74,7 +74,6 @@ def au_dcceew_greenhouse_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new year.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="inventory_unfccc"
     )

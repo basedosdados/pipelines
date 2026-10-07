@@ -51,7 +51,7 @@ prod, by uploading them to the prod bucket itself. The first prod run therefore 
 be `full_refresh=True`, which downloads every exercise and uploads all 49; after that
 the daily incremental keeps them current.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers all four flows; the dev pool
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers all four flows; the dev pool
 ignores the schedule, the prod pool activates it (paused). The dev pool is only written
 by a PR carrying the `deploy-flow` label -- without it the deploy job skips and the
 staging deployments silently keep whatever they had.
@@ -221,7 +221,6 @@ def br_bd_execucao_estadual_flow(
             which is what populates `basedosdados-staging` — table-approve cannot do it
             for this dataset. Roughly 20 GB of input and several hours.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="despesa"
     )
@@ -245,7 +244,6 @@ def br_bd_execucao_estadual_sp_flow(
         full_refresh: Re-scrape every exercise from 2010. Five hours; needed once, for
             the first prod run.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="despesa_anual"
     )
@@ -285,7 +283,6 @@ def br_bd_execucao_estadual_rs_flow(
         full_refresh: Re-download all 175 monthly archives instead of the open years.
             This is the reason the flow still exists.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="despesa"
     )
@@ -346,7 +343,6 @@ def br_bd_execucao_estadual_seed_frozen_prod_flow(
     mirrors = (
         mirrors if mirrors is not None else constants.FROZEN_PROD_MIRRORS.value
     )
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Seed prod staging: ",
         dataset_id=DATASET_ID,

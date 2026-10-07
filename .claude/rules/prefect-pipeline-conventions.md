@@ -361,8 +361,8 @@ grew past 4Gi is failing for this reason and not for the reason its logs suggest
 Verify rather than trusting the number you wrote:
 
 ```bash
-uv run python -c "import sys; sys.path.insert(0,'<mcp>'); import server; \
-print(list(server._prefect_get('/work_pools/basedosdados-dev')['base_job_template']['variables']['properties']))"
+uv run python -c "from databasis_mcp.tools.prefect import _prefect_get; \
+print(list(_prefect_get('/work_pools/basedosdados-dev')['base_job_template']['variables']['properties']))"
 ```
 
 **Pick a minute nobody else is using — never `0`.** The hour follows the source's
@@ -382,7 +382,7 @@ Spacing of 5 minutes is plenty. Note this reduces contention, **not** bytes bill
 per day — the daily quota is a byte ceiling, and only doing less work (scoped tests,
 incremental models, no redundant dev materialization) moves that.
 
-Deploy is CI, via `.github/scripts/deploy_flows.py`:
+Deploy is CI, via `.github/workflows/scripts/deploy_flows.py`:
 - **Dev pool** (`cd-prefect3-staging.yaml`, `--pool basedosdados-dev`, on PR):
   runs **only if the PR carries the `deploy-flow` label** — no label, no deploy, and
   the job reports `skipped`, not failed. A PR without it deploys **nothing** and

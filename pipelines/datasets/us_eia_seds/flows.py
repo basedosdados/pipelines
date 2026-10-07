@@ -10,7 +10,7 @@ Rebuilding everything makes a double-count structurally impossible and keeps the
 dicionario computed over the whole record. The dataset is annual, so every table
 is fully free — no BD Pro window.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_eia_seds_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_eia_seds_flow`; the
 dev pool ignores the schedule, the prod pool activates it.
 """
 
@@ -64,7 +64,6 @@ def us_eia_seds_flow(
         force_run: Materialize even when the source poll reports nothing new —
             needed for a release that restates history without adding a year.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )

@@ -1,7 +1,7 @@
 """Check the built us_cms_hcris models against the local parquet and measured.json.
 
-    python verify_bigquery.py                # dev (basedosdados-dev)
-    python verify_bigquery.py --project basedosdados
+    uv run models/us_cms_hcris/code/verify_bigquery.py                # dev (basedosdados-dev)
+    uv run models/us_cms_hcris/code/verify_bigquery.py --project basedosdados
 
 The dbt tests assert structure — keys, nulls, foreign keys, dictionary coverage.
 This asserts that what landed is the data that was cleaned: the row counts match
@@ -19,9 +19,10 @@ import sys
 from pathlib import Path
 
 import pyarrow.parquet as pq
-from common import DATASET_ID, OUTPUT, STAGED_TABLES
 from google.cloud import bigquery
-from measures import MEASURES
+
+from models.us_cms_hcris.code.common import DATASET_ID, OUTPUT, STAGED_TABLES
+from models.us_cms_hcris.code.measures import MEASURES
 
 CODE_DIR = Path(__file__).resolve().parent
 TOLERANCE = 0.001

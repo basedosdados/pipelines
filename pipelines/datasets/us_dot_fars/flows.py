@@ -24,7 +24,7 @@ the dev half of the flow too. With ``"append"`` the upload ends in
 ``Storage.upload(if_exists="replace")``, which replaces each partition blob at its
 own path — the same end state, without the delete.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_dot_fars_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_dot_fars_flow`; the
 dev pool ignores the schedule, the prod pool activates it.
 """
 
@@ -89,7 +89,6 @@ def us_dot_fars_flow(
             year without adding a new one, which leaves the max coverage date
             unmoved and so does not trip the poll.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=PRIMARY_TABLE
     )

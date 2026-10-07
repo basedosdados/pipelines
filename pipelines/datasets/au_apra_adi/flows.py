@@ -16,7 +16,7 @@ of these issues Row Access Policies.
 The source poll short-circuits a run until APRA publishes a newer quarter, which
 makes a scheduled run a cheap no-op between releases.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``au_apra_adi_flow``;
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``au_apra_adi_flow``;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
@@ -103,7 +103,6 @@ def au_apra_adi_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new quarter.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="adi"
     )

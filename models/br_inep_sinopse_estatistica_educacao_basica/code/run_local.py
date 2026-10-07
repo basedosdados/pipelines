@@ -10,19 +10,23 @@ Três decisões o definem:
 - compara o que produziu com as contagens de referência e sai com código de erro
   se divergir, para servir de verificação e não só de execução.
 
-    uv run python run_local.py                     # todas as tabelas
-    uv run python run_local.py -t faixa_etaria     # uma tabela
-    uv run python run_local.py --output /tmp/x     # outro destino
+    uv run run_local.py                     # todas as tabelas
+    uv run run_local.py -t faixa_etaria     # uma tabela
+    uv run run_local.py --output /tmp/x     # outro destino
 """
 
 import argparse
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
-
-from constants import INPUT, OUTPUT, URL, YEAR, ZIP_PATH  # type: ignore
-from utils import (  # type: ignore
+from models.br_inep_sinopse_estatistica_educacao_basica.code.constants import (
+    INPUT,
+    OUTPUT,
+    URL,
+    YEAR,
+    ZIP_PATH,
+)
+from models.br_inep_sinopse_estatistica_educacao_basica.code.utils import (
     CLEANERS,
     clean_all,
     download_zip,

@@ -17,6 +17,9 @@ models:
         description: Sigla do País - ISO3
       - name: sigla_iso2
         description: Sigla do País - ISO2
+        tests:
+          - unique:
+              tags: [mundo]
       - name: sigla_pnud
         description: Sigla do País - PNUD
       - name: sigla_cow

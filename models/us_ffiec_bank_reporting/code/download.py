@@ -16,7 +16,7 @@ A download that lands short or malformed is deleted, never left behind to be
 mistaken for a complete one on the next run.
 
 Usage:
-    python download.py [call|mdrm|bhc|cra|all]
+    uv run models/us_ffiec_bank_reporting/code/download.py [call|mdrm|bhc|cra|all]
 """
 
 from __future__ import annotations
@@ -29,7 +29,9 @@ import zipfile
 from pathlib import Path
 
 import requests
-from common import (
+from curl_cffi import requests as cffi_requests
+
+from models.us_ffiec_bank_reporting.code.common import (
     BHC_CHICAGOFED_LAST_YEAR,
     BHC_FIRST,
     BHC_LAST,
@@ -52,7 +54,6 @@ from common import (
     quarters,
     yyyymmdd,
 )
-from curl_cffi import requests as cffi_requests
 
 HIDDEN_RE = re.compile(
     r'<input type="hidden" name="([^"]+)"[^>]*value="([^"]*)"'

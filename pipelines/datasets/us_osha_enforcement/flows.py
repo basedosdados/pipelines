@@ -16,7 +16,7 @@ window plus any older year OSHA has actually touched, read from
 Weekly, not daily: the files total 6 GB and the data does not move fast enough
 to justify seven downloads a week.
 
-Deploy: ``.github/scripts/deploy_flows.py`` discovers ``us_osha_enforcement_flow``.
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` discovers ``us_osha_enforcement_flow``.
 The dev pool strips the schedule; the prod pool activates it, paused.
 """
 
@@ -157,7 +157,6 @@ def us_osha_enforcement_flow(
         modified_days: Also rebuild any older year holding an inspection whose
             ``case_mod_date`` falls within this many days.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="inspection"
     )

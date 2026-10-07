@@ -21,7 +21,7 @@ regeneration (each regeneration republishes every year, so nothing is lost, it
 arrives later). Comparing a coverage date against a wall clock is a known
 property of the shared poll task, not something to work around per dataset.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``us_epa_tri_flow``;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``us_epa_tri_flow``;
 the dev pool ignores the schedule, the prod pool activates it (deployed paused).
 """
 
@@ -93,7 +93,6 @@ def us_epa_tri_flow(
         force_run: Download and materialize even when the source poll reports
             nothing new.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="form"
     )

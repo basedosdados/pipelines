@@ -7,7 +7,7 @@ the recurring Prefect pipeline share one implementation. This CLI is the
 initial-load entry point.
 
 Usage:
-    uv run python models/au_abs_prices_inflation/code/download.py [release ...]
+    uv run models/au_abs_prices_inflation/code/download.py [release ...]
 
 With no arguments it downloads the Consumer Price Index plus all five other
 releases. Files already present are left alone, so a re-run is cheap.

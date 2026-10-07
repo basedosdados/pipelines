@@ -10,7 +10,7 @@ just those ``ano=`` partitions and leaves history in place. Like
 the Câmara pipeline, there is no source-poll gate: legislative activity changes
 continuously, so a daily run is always meaningful.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `br_senado_dados_abertos_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `br_senado_dados_abertos_flow`;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
@@ -117,7 +117,6 @@ def br_senado_dados_abertos_flow(
             no source-poll gate, so it does not change behavior.
     """
     _ = force_run
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="votacao"
     )

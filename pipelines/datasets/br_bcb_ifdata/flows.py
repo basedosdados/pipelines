@@ -121,7 +121,6 @@ def br_bcb_ifdata_flow(
             em prod. Sem efeito quando `materialize_to_prod` é False.
         force_run: materializa mesmo quando o poll não vê competência nova.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="br_bcb_ifdata"
     )

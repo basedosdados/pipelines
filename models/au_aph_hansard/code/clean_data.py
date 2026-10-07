@@ -6,7 +6,7 @@ not types. Values reach here as strings already, so no numeric round-trip can
 turn 1959 into "1959.0" or a NULL into "nan".
 
 Usage:
-    python models/au_aph_hansard/code/clean_data.py [--year 1901] [--workers 4]
+    uv run models/au_aph_hansard/code/clean_data.py [--year 1901] [--workers 4]
 """
 
 from __future__ import annotations
@@ -14,14 +14,11 @@ from __future__ import annotations
 import argparse
 import csv
 import os
-import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
 import pyarrow as pa
 import pyarrow.parquet as pq
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
 from pipelines.datasets.au_aph_hansard.constants import constants
 from pipelines.datasets.au_aph_hansard.utils import (

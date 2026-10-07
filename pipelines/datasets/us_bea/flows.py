@@ -13,7 +13,7 @@ the monthly source poll; it just does not gate access. ``dicionario`` has no
 date column, so it takes no coverage spec. If a rolling BD Pro paywall is wanted
 later, add an end-of-period ``date`` column to ``nipa`` and key the policy on it.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``us_bea_flow``; the
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``us_bea_flow``; the
 dev pool ignores the schedule, the prod pool activates it (paused).
 """
 
@@ -103,7 +103,6 @@ def us_bea_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new month.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="us_bea"
     )

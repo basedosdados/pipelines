@@ -11,7 +11,7 @@ replaces the table (``dump_mode="overwrite"``). The whole source is a handful of
 megabytes, which is what makes a full rebuild the cheap option as well as the
 correct one.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers
 ``br_cgu_orcamento_publico_flow``; the dev pool ignores the schedule, the prod
 pool activates it.
 """
@@ -70,7 +70,6 @@ def br_cgu_orcamento_publico_flow(
             files since the last refresh. Needed for the first run, whose
             ``Table.Update.latest`` is newer than the source's ``Last-Modified``.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=TABLE_ID
     )

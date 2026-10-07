@@ -1,7 +1,7 @@
 """Upload the cleaned us_bls_employment parquet tables to BigQuery.
 
 Usage:
-    uv run python models/us_bls_employment/code/upload.py [--env dev|prod] [table ...]
+    uv run models/us_bls_employment/code/upload.py [--env dev|prod] [table ...]
 
 ``--env dev`` (default) targets ``basedosdados-dev``. Prod table data is
 materialised by the table-approve action when the onboarding PR merges, not by

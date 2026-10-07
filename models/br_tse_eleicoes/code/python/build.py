@@ -3,41 +3,55 @@ Main entry point for the br_tse_eleicoes pipeline.
 Equivalent of build.do.
 
 Usage:
-    python build.py                  # run full pipeline
-    python build.py candidates       # run a single step
-    python build.py normalize        # run normalization + partitioning
-    python build.py aggregate        # run aggregation only
-    python build.py --list           # list available steps
+    uv run models/br_tse_eleicoes/code/python/build.py                  # run full pipeline
+    uv run models/br_tse_eleicoes/code/python/build.py candidates       # run a single step
+    uv run models/br_tse_eleicoes/code/python/build.py normalize        # run normalization + partitioning
+    uv run models/br_tse_eleicoes/code/python/build.py aggregate        # run aggregation only
+    uv run models/br_tse_eleicoes/code/python/build.py --list           # list available steps
 """
 
 import sys
 import time
 
-from sub.campaign_finance import build_all as build_campaign_finance
-from sub.candidates import build_all as build_candidates
-from sub.parties import build_all as build_parties
-from sub.results_mun_zone import build_all as build_results_mun_zone
-from sub.results_state import build_all as build_results_state
-from sub.streaming_secao import (
+from models.br_tse_eleicoes.code.python.sub.campaign_finance import (
+    build_all as build_campaign_finance,
+)
+from models.br_tse_eleicoes.code.python.sub.candidates import (
+    build_all as build_candidates,
+)
+from models.br_tse_eleicoes.code.python.sub.parties import (
+    build_all as build_parties,
+)
+from models.br_tse_eleicoes.code.python.sub.results_mun_zone import (
+    build_all as build_results_mun_zone,
+)
+from models.br_tse_eleicoes.code.python.sub.results_state import (
+    build_all as build_results_state,
+)
+from models.br_tse_eleicoes.code.python.sub.streaming_secao import (
     build_all_perfil_secao as build_voter_profile_section,
 )
-from sub.streaming_secao import (
+from models.br_tse_eleicoes.code.python.sub.streaming_secao import (
     build_all_resultados_secao as build_results_section,
 )
-from sub.vacancies import build_all as build_vacancies
-from sub.voter_profile_mun_zone import (
+from models.br_tse_eleicoes.code.python.sub.vacancies import (
+    build_all as build_vacancies,
+)
+from models.br_tse_eleicoes.code.python.sub.voter_profile_mun_zone import (
     build_all as build_voter_profile_mun_zone,
 )
-from sub.voter_profile_polling_place import (
+from models.br_tse_eleicoes.code.python.sub.voter_profile_polling_place import (
     build_all as build_voter_profile_polling_place,
 )
-from sub.voting_details_mun_zone import (
+from models.br_tse_eleicoes.code.python.sub.voting_details_mun_zone import (
     build_all as build_voting_details_mun_zone,
 )
-from sub.voting_details_section import (
+from models.br_tse_eleicoes.code.python.sub.voting_details_section import (
     build_all as build_voting_details_section,
 )
-from sub.voting_details_state import build_all as build_voting_details_state
+from models.br_tse_eleicoes.code.python.sub.voting_details_state import (
+    build_all as build_voting_details_state,
+)
 
 # Phase 2 table builders (order matches build.do)
 STEPS = {
@@ -68,13 +82,15 @@ def _run_step(name: str, func):
 
 
 def run_normalize():
-    from normalization_partition import build_all
+    from models.br_tse_eleicoes.code.python.normalization_partition import (
+        build_all,
+    )
 
     _run_step("normalize_partition", build_all)
 
 
 def run_aggregate():
-    from aggregation import build_all
+    from models.br_tse_eleicoes.code.python.aggregation import build_all
 
     _run_step("aggregation", build_all)
 

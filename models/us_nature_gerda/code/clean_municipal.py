@@ -7,14 +7,14 @@ onto the party rows. The per-party zero->NA recode flag (replaced_0_with_na_*)
 is NOT carried: by construction it is only set on rows GERDA recoded to NA, which
 have no vote_share and therefore no long row; on surviving rows it is uniformly 0.
 
-Run: cd models/us_nature_gerda/code && python3 clean_municipal.py
+Run: uv run models/us_nature_gerda/code/clean_municipal.py
 """
 
 import os
 
-# pyrefly: ignore [missing-import]
-import gerda_common as gc
 import pandas as pd
+
+from models.us_nature_gerda.code import gerda_common as gc
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 IN = os.path.join(HERE, "..", "input")

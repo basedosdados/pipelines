@@ -11,7 +11,7 @@ disagree and history is quietly erased.
 The cost is bounded: about 700 MB of downloads and 25.7 million rows once a
 month.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_census_bps_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_census_bps_flow`;
 the dev pool strips the schedule, the prod pool activates it.
 """
 
@@ -176,7 +176,6 @@ def us_census_bps_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the poll reports no new month.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="bps"
     )

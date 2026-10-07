@@ -21,7 +21,7 @@ missing from the compatibilização tables fails the run. Because the download i
 run's archived raw JSON before the download starts, once against this run's own
 download before any builder runs. See ``utils.preflight_crosswalk``.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``br_me_siconfi_flow``;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``br_me_siconfi_flow``;
 the dev pool ignores the schedule, the prod pool activates it (paused).
 """
 
@@ -122,7 +122,6 @@ def br_me_siconfi_flow(
     if end_year is None:
         end_year = now_year
 
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="siconfi"
     )

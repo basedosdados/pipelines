@@ -13,7 +13,7 @@ already-present years are picked up at the next new-year trigger; use
 ``force_run=True`` for an on-demand full refresh. (Refining this to a
 load-time-based poll for true continuous refresh is a documented follow-up.)
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``us_usda_nass_flow``;
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``us_usda_nass_flow``;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
@@ -76,7 +76,6 @@ def us_usda_nass_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new year.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=_POLL_TABLE
     )

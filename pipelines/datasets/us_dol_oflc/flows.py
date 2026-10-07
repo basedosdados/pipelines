@@ -10,7 +10,7 @@ annual file supersedes what came before it. So a run does not append — it
 re-materialises the open fiscal year and the one before it from scratch, and
 leaves every closed year alone.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_dol_oflc_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_dol_oflc_flow`; the
 dev pool ignores the schedule, the prod pool activates it (paused).
 """
 
@@ -76,7 +76,6 @@ def us_dol_oflc_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports nothing new.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )

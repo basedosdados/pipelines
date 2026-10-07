@@ -12,7 +12,7 @@ each run is a **full replace** (``dump_mode="overwrite"``), not an incremental
 append. The source poll short-circuits a run until ABS publishes a newer
 period, which makes a scheduled run a cheap no-op between releases.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers every flow defined
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers every flow defined
 here; the dev pool ignores the schedules, the prod pool activates them.
 """
 
@@ -119,7 +119,6 @@ def au_abs_prices_inflation_cpi_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new month.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="cpi"
     )
@@ -288,7 +287,6 @@ def _build_release_flow(release: str):
                 ``materialize_to_prod`` is False.
             force_run: Materialize even when the poll reports no new quarter.
         """
-        # pyrefly: ignore [unused-coroutine]
         rename_flow_run_dataset_table(
             prefix="Dump: ", dataset_id=DATASET_ID, table_id=release
         )

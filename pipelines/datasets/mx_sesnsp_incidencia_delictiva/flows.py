@@ -9,7 +9,7 @@ not an incremental append. A single flow scrapes the rotating SharePoint tokens,
 downloads and cleans the four tables, and materializes them. Schedule targets the
 monthly SESNSP release window (~20th).
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers
 `mx_sesnsp_incidencia_delictiva_flow`; the dev pool ignores the schedule, the
 prod pool activates it.
 """
@@ -91,7 +91,6 @@ def mx_sesnsp_incidencia_delictiva_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new month.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="incidencia_delictiva"
     )

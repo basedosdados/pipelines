@@ -23,7 +23,7 @@ A trailing window cannot follow the weekly reconstruction of *old* years, so
 ``full_refresh`` rebuilds all 264 partitions. That is a multi-hour run and is
 meant to be triggered deliberately, not scheduled.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `world_noaa_ghcn_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `world_noaa_ghcn_flow`;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
@@ -119,7 +119,6 @@ def world_noaa_ghcn_flow(
         full_refresh: Rebuild all 264 year-partitions instead of the trailing
             window. Several hours; use when NCEI reprocesses historical data.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="observation"
     )

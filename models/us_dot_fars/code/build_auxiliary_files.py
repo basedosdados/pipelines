@@ -17,7 +17,7 @@ What goes in:
 What stays a link: the FARS Analytical User's Manual (9.5 MB) and the vPIC
 manual, both stable at crashstats.nhtsa.dot.gov.
 
-Run: uv run python models/us_dot_fars/code/build_auxiliary_files.py
+Run: uv run models/us_dot_fars/code/build_auxiliary_files.py
 """
 
 import shutil
@@ -26,7 +26,13 @@ from datetime import date
 from pathlib import Path
 
 import requests
-from common import DATA_TABLES, DATASET_ID, INPUT, OUTPUT
+
+from models.us_dot_fars.code.common import (
+    DATA_TABLES,
+    DATASET_ID,
+    INPUT,
+    OUTPUT,
+)
 
 BUNDLE_DIR = OUTPUT.parent / "auxiliary_files"
 TODAY = date.today().isoformat()

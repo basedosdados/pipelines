@@ -20,7 +20,7 @@ than appending the newest one. ``dump_mode="append"`` is deliberate: it ends in
 ``"overwrite"`` calls ``tb.delete(mode="all")`` and drops the materialized
 *production* table even from a dev-only run.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `us_nsf_ncses_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_nsf_ncses_flow`;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
@@ -103,7 +103,6 @@ def us_nsf_ncses_flow(
             ``env="prod"`` regardless of which pool the run is on.
         force_run: Materialize even when neither source poll reports a new year.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="ncses"
     )

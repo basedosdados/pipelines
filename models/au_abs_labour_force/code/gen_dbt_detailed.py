@@ -8,14 +8,16 @@ not touched: this appends to `schema.yml` rather than rewriting it, and refuses
 to run if a Detailed entry is already present.
 
 Usage:
-    uv run python models/au_abs_labour_force/code/gen_dbt_detailed.py
+    uv run models/au_abs_labour_force/code/gen_dbt_detailed.py
 """
 
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from architecture_detailed import GRAIN, TABLES, field
+from models.au_abs_labour_force.code.architecture_detailed import (
+    GRAIN,
+    TABLES,
+    field,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 DATASET = "au_abs_labour_force"

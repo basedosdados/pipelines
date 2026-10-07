@@ -12,7 +12,7 @@ published a new year, which makes a scheduled run a cheap no-op between the year
 updates. WDI is CC BY 4.0 and fully open, so every table is AllFree — no BD Pro
 paywall (the rolling-window paywall applies only to monthly-or-faster tables).
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `world_wb_wdi_flow`; the
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `world_wb_wdi_flow`; the
 dev pool ignores the schedule, the prod pool activates it.
 """
 
@@ -80,7 +80,6 @@ def world_wb_wdi_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new year.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="data"
     )

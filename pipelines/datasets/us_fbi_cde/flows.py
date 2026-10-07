@@ -11,7 +11,7 @@ the years it touches.
 from a dev-only run. With append, each partition blob is replaced wholesale,
 which is the semantics wanted here and touches nothing outside the window.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``us_fbi_cde_flow``;
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``us_fbi_cde_flow``;
 the dev pool strips the schedule, the prod pool activates it paused.
 """
 
@@ -93,7 +93,6 @@ def us_fbi_cde_flow(
         years_back: How many prior data years to refresh alongside the newest
             one. The FBI revises the two preceding years in each release.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )

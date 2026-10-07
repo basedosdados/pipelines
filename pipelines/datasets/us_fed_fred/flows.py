@@ -13,7 +13,7 @@ rolling window: the most recent 6 months are pro-only, everything older is free.
 ``series`` is a metadata catalog and stays fully free (``NonHistorical`` coverage
 from the table's last-modified time).
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``us_fed_fred_flow``;
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``us_fed_fred_flow``;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
@@ -91,7 +91,6 @@ def us_fed_fred_flow(
             ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new data.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="observation"
     )
