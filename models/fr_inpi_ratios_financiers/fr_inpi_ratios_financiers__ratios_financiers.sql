@@ -4,7 +4,7 @@
         alias="ratios_financiers",
         materialized="table",
         partition_by={
-            "field": "ano",
+            "field": "annee",
             "data_type": "int64",
             "range": {"start": 1919, "end": 2034, "interval": 1},
         },
@@ -12,7 +12,7 @@
     )
 }}
 select
-    safe_cast(ano as int64) ano,
+    safe_cast(annee as int64) annee,
     safe_cast(siren as string) siren,
     safe_cast(date_cloture_exercice as date) date_cloture_exercice,
     safe_cast(type_bilan as string) type_bilan,

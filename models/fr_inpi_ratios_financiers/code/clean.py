@@ -6,7 +6,7 @@ Usage:
 Reads ``$FR_INPI_RATIOS_DATA_DIR/input/ratios_inpi_bce.parquet`` (the ODS parquet
 export of ``ratios_inpi_bce`` on data.economie.gouv.fr) and writes:
 
-- ``output/ratios_financiers/ano=<YYYY>/data.parquet`` (one file per year)
+- ``output/ratios_financiers/annee=<YYYY>/data.parquet`` (one file per year)
 - ``output/dicionario/data.parquet``
 - ``output/_manifest.json`` with the row count per table
 
@@ -72,7 +72,7 @@ def build_ratios() -> int:
     for a in arch:
         name, orig = a["name"], a["original_name"]
         target = PA_TYPES[a["bigquery_type"]]
-        if name == "ano":
+        if name == "annee":
             date = src.column("date_cloture_exercice").cast(pa.date32())
             cols[name] = pc.year(date).cast(target)
         else:
@@ -84,7 +84,7 @@ def build_ratios() -> int:
                 col = pc.if_else(pc.equal(col, ""), None, col)
             cols[name] = col.cast(target)
     typed = pa.table(cols)
-    if typed.column("ano").null_count:
+    if typed.column("annee").null_count:
         raise ValueError(
             "Rows with no date_cloture_exercice: cannot partition"
         )
@@ -92,17 +92,17 @@ def build_ratios() -> int:
     string_schema = pa.schema([pa.field(a["name"], pa.string()) for a in arch])
     tdir = OUTPUT / TABLE
     shutil.rmtree(tdir, ignore_errors=True)
-    years = sorted(set(typed.column("ano").to_pylist()))
+    years = sorted(set(typed.column("annee").to_pylist()))
     for year in years:
-        part = typed.filter(pc.equal(typed.column("ano"), year))
-        pdir = tdir / f"ano={year}"
+        part = typed.filter(pc.equal(typed.column("annee"), year))
+        pdir = tdir / f"annee={year}"
         pdir.mkdir(parents=True)
         pq.write_table(
             part.cast(string_schema),
             pdir / "data.parquet",
             compression="snappy",
         )
-        print(f"  ano={year}: {part.num_rows:,}", flush=True)
+        print(f"  annee={year}: {part.num_rows:,}", flush=True)
     return typed.num_rows
 
 

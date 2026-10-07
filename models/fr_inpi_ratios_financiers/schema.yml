@@ -16,7 +16,7 @@ models:
           columns_covered_by_dictionary: [type_bilan]
           dictionary_model: ref('fr_inpi_ratios_financiers__dicionario')
     columns:
-      - name: ano
+      - name: annee
         description: >
           Ano de encerramento do exercício financeiro
         tests:

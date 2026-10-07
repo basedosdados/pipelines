@@ -169,11 +169,11 @@ DESCRIPTIONS = {
 GRAIN = {
     "ratios_financiers": {
         "company": ["siren"],
-        "year": ["ano", "date_cloture_exercice"],
+        "year": ["annee", "date_cloture_exercice"],
     },
     "dicionario": {},
 }
-PARTITION = {"ratios_financiers": "ano"}
+PARTITION = {"ratios_financiers": "annee"}
 # annual coverage; the 1919 and 2029 single-row typos are excluded (see CLAUDE.md)
 COVERAGE = {"ratios_financiers": (2002, 2026), "dicionario": None}
 ENTITIES = ("company", "year")

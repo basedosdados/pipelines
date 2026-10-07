@@ -23,7 +23,7 @@ Data language French → **French column/table names**; descriptions PT/EN/ES.
 | ratios_financiers | 24 | 6,813,145 | siren × date_cloture_exercice × type_bilan |
 | dicionario | 5 | 3 | `type_bilan` codes (C/K/S) |
 
-- Partition `ano` = year of `date_cloture_exercice` (derived; the only non-source column).
+- Partition `annee` = year of `date_cloture_exercice` (derived; the only non-source column).
 - `(siren, date_cloture_exercice)` is **not** unique (32,025 pairs carry two balance-sheet
   types, e.g. C and K); the key includes `type_bilan`.
 - `confidentiality` renamed `confidentialite`; values kept as readable source labels
@@ -44,7 +44,7 @@ Data language French → **French column/table names**; descriptions PT/EN/ES.
 
 ## Code (`code/`)
 - `architecture/*.csv` — source of truth (trilingual descriptions + observations).
-- `clean.py` — pyarrow; validates the 23 source columns, derives `ano`, writes all-STRING
+- `clean.py` — pyarrow; validates the 23 source columns, derives `annee`, writes all-STRING
   hive-partitioned parquet + `dicionario` + `_manifest.json`.
 - `upload.py` — `bd.Table.create` to `basedosdados-dev` staging, row-count check against the
   manifest. Needs `GOOGLE_APPLICATION_CREDENTIALS=~/.basedosdados/credentials/staging.json`
