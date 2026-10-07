@@ -777,6 +777,9 @@ models:
     us_fbi_cde:
       +materialized: table
       +schema: us_fbi_cde
+    us_meta_sci:
+      +materialized: table
+      +schema: us_meta_sci
     us_medsl_elections:
       +materialized: table
       +schema: us_medsl_elections

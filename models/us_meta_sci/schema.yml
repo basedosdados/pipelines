@@ -1,0 +1,471 @@
+---
+version: 2
+models:
+  - name: us_meta_sci__country
+    description: >-
+      Social Connectedness Index between pairs of countries (178 countries, all ordered
+      pairs
+      including each country with itself). Snapshot of Facebook users active in the
+      30 days
+      before 2026-01-25 with more than 20 friends, published by Meta (Data for Good)
+      on the
+      Humanitarian Data Exchange in 2026. scaled_sci is rescaled to 1-1,000,000,000
+      within
+      the source file.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [user_country_id, friend_country_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: user_country_id
+        description: ISO 3166-1 alpha-2 code of the user's country
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso2
+      - name: friend_country_id
+        description: ISO 3166-1 alpha-2 code of the friend's country
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso2
+      - name: scaled_sci
+        description: >-
+          Scaled Social Connectedness Index between the user country and the friend
+          country,
+          proportional to the probability that a Facebook user in the first is friends
+          with
+          a Facebook user in the second
+        tests: [not_null]
+  - name: us_meta_sci__gadm1
+    description: >-
+      Social Connectedness Index between pairs of GADM level-1 regions (3,168 regions
+      in 176
+      countries, all ordered pairs). Snapshot of Facebook users active in the 30 days
+      before
+      2026-01-25 with more than 20 friends, published by Meta (Data for Good) on the
+      Humanitarian
+      Data Exchange in 2026. scaled_sci is rescaled to 1-1,000,000,000 within the
+      source file.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [user_region_id, friend_region_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: user_country_id
+        description: ISO 3166-1 alpha-2 code of the user's country
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso2
+      - name: friend_country_id
+        description: ISO 3166-1 alpha-2 code of the friend's country
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso2
+      - name: user_region_id
+        description: Identifier of the user's GADM level-1 region
+        tests: [not_null]
+      - name: friend_region_id
+        description: Identifier of the friend's GADM level-1 region
+        tests: [not_null]
+      - name: scaled_sci
+        description: >-
+          Scaled Social Connectedness Index between the user region and the friend
+          region,
+          proportional to the probability that a Facebook user in the first is friends
+          with
+          a Facebook user in the second
+        tests: [not_null]
+  - name: us_meta_sci__gadm2
+    description: >-
+      Social Connectedness Index between pairs of GADM level-2 regions (37,161 regions,
+      all
+      ordered pairs, 1.38 billion rows). Snapshot of Facebook users active in the
+      30 days
+      before 2026-01-25 with more than 20 friends, published by Meta (Data for Good)
+      on the
+      Humanitarian Data Exchange in 2026. scaled_sci is rescaled to 1-1,000,000,000
+      within
+      the source file.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [user_region_id, friend_region_id]
+          config:
+            where: user_country_id = 'BR'
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: user_country_id = 'BR'
+    columns:
+      - name: user_country_id
+        description: ISO 3166-1 alpha-2 code of the user's country
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso2
+              config:
+                where: user_country_id = 'BR'
+      - name: friend_country_id
+        description: ISO 3166-1 alpha-2 code of the friend's country
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso2
+              config:
+                where: user_country_id = 'BR'
+      - name: user_region_id
+        description: Identifier of the user's GADM level-2 region
+        tests:
+          - not_null:
+              config:
+                where: user_country_id = 'BR'
+      - name: friend_region_id
+        description: Identifier of the friend's GADM level-2 region
+        tests:
+          - not_null:
+              config:
+                where: user_country_id = 'BR'
+      - name: scaled_sci
+        description: >-
+          Scaled Social Connectedness Index between the user region and the friend
+          region,
+          proportional to the probability that a Facebook user in the first is friends
+          with
+          a Facebook user in the second
+        tests:
+          - not_null:
+              config:
+                where: user_country_id = 'BR'
+  - name: us_meta_sci__geoboundaries_adm1
+    description: >-
+      Social Connectedness Index between pairs of geoBoundaries ADM1 regions (2,838
+      regions
+      in 178 countries, all ordered pairs). Snapshot of Facebook users active in the
+      30 days
+      before 2026-01-25 with more than 20 friends, published by Meta (Data for Good)
+      on the
+      Humanitarian Data Exchange in 2026. scaled_sci is rescaled to 1-1,000,000,000
+      within
+      the source file.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [user_region_id, friend_region_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: user_country_id
+        description: ISO 3166-1 alpha-2 code of the user's country
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso2
+      - name: friend_country_id
+        description: ISO 3166-1 alpha-2 code of the friend's country
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso2
+      - name: user_region_id
+        description: Identifier of the user's geoBoundaries ADM1 region
+        tests: [not_null]
+      - name: friend_region_id
+        description: Identifier of the friend's geoBoundaries ADM1 region
+        tests: [not_null]
+      - name: scaled_sci
+        description: >-
+          Scaled Social Connectedness Index between the user region and the friend
+          region,
+          proportional to the probability that a Facebook user in the first is friends
+          with
+          a Facebook user in the second
+        tests: [not_null]
+  - name: us_meta_sci__geoboundaries_adm2
+    description: >-
+      Social Connectedness Index between pairs of geoBoundaries ADM2 regions (all
+      ordered
+      pairs). Snapshot of Facebook users active in the 30 days before 2026-01-25 with
+      more
+      than 20 friends, published by Meta (Data for Good) on the Humanitarian Data
+      Exchange
+      in 2026. scaled_sci is rescaled to 1-1,000,000,000 within the source file.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [user_region_id, friend_region_id]
+          config:
+            where: user_country_id = 'BR'
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: user_country_id = 'BR'
+    columns:
+      - name: user_country_id
+        description: ISO 3166-1 alpha-2 code of the user's country
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso2
+              config:
+                where: user_country_id = 'BR'
+      - name: friend_country_id
+        description: ISO 3166-1 alpha-2 code of the friend's country
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso2
+              config:
+                where: user_country_id = 'BR'
+      - name: user_region_id
+        description: Identifier of the user's geoBoundaries ADM2 region
+        tests:
+          - not_null:
+              config:
+                where: user_country_id = 'BR'
+      - name: friend_region_id
+        description: Identifier of the friend's geoBoundaries ADM2 region
+        tests:
+          - not_null:
+              config:
+                where: user_country_id = 'BR'
+      - name: scaled_sci
+        description: >-
+          Scaled Social Connectedness Index between the user region and the friend
+          region,
+          proportional to the probability that a Facebook user in the first is friends
+          with
+          a Facebook user in the second
+        tests:
+          - not_null:
+              config:
+                where: user_country_id = 'BR'
+  - name: us_meta_sci__us_county
+    description: >-
+      Social Connectedness Index between pairs of US counties (3,204 counties, all
+      ordered
+      pairs). Snapshot of Facebook users active in the 30 days before 2026-01-25 with
+      more
+      than 20 friends, published by Meta (Data for Good) on the Humanitarian Data
+      Exchange
+      in 2026. scaled_sci is rescaled to 1-1,000,000,000 within the source file.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [user_county_id, friend_county_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: user_county_id
+        description: Five-digit FIPS code of the user's US county
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+      - name: friend_county_id
+        description: Five-digit FIPS code of the friend's US county
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_us__county')
+              field: id_county
+      - name: scaled_sci
+        description: >-
+          Scaled Social Connectedness Index between the user county and the friend
+          county,
+          proportional to the probability that a Facebook user in the first is friends
+          with
+          a Facebook user in the second
+        tests: [not_null]
+  - name: us_meta_sci__us_zcta
+    description: >-
+      Social Connectedness Index between pairs of US ZIP Code Tabulation Areas (20,195
+      ZCTAs,
+      all ordered pairs, 408 million rows). Snapshot of Facebook users active in the
+      30 days
+      before 2026-01-25 with more than 20 friends, published by Meta (Data for Good)
+      on the
+      Humanitarian Data Exchange in 2026. scaled_sci is rescaled to 1-1,000,000,000
+      within
+      the source file.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [user_zcta_id, friend_zcta_id]
+          config:
+            where: user_zcta_id < '01100'
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          config:
+            where: user_zcta_id < '01100'
+    columns:
+      - name: user_zcta_id
+        description: >-
+          Five-digit code of the user's US ZIP Code Tabulation Area (ZCTA)
+        tests:
+          - not_null:
+              config:
+                where: user_zcta_id < '01100'
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__zcta_2020')
+              field: id_zcta
+              ignore_values:
+                - '10281'
+                - '23806'
+                - '30320'
+                - '40506'
+                - '83601'
+                - '84132'
+                - '85144'
+                - '85288'
+                - '92878'
+                - '98205'
+              config:
+                where: user_zcta_id < '01100'
+      - name: friend_zcta_id
+        description: >-
+          Five-digit code of the friend's US ZIP Code Tabulation Area (ZCTA)
+        tests:
+          - not_null:
+              config:
+                where: user_zcta_id < '01100'
+          - custom_relationships:
+              to: ref('br_bd_diretorios_us__zcta_2020')
+              field: id_zcta
+              ignore_values:
+                - '10281'
+                - '23806'
+                - '30320'
+                - '40506'
+                - '83601'
+                - '84132'
+                - '85144'
+                - '85288'
+                - '92878'
+                - '98205'
+              config:
+                where: user_zcta_id < '01100'
+      - name: scaled_sci
+        description: >-
+          Scaled Social Connectedness Index between the user ZCTA and the friend ZCTA,
+          proportional
+          to the probability that a Facebook user in the first is friends with a Facebook
+          user in the second
+        tests:
+          - not_null:
+              config:
+                where: user_zcta_id < '01100'
+  - name: us_meta_sci__nuts_2024
+    description: >-
+      Social Connectedness Index between pairs of European NUTS 2024 regions at levels
+      1,
+      2 and 3 (all ordered pairs within a level). Snapshot of Facebook users active
+      in the
+      30 days before 2026-01-25 with more than 20 friends, published by Meta (Data
+      for Good)
+      on the Humanitarian Data Exchange in 2026. scaled_sci is rescaled to 1-1,000,000,000
+      within the source file and level.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [nuts_level, user_region_id, friend_region_id]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: nuts_level
+        description: >-
+          NUTS 2024 level of both regions in the pair: nuts1, nuts2 or nuts3
+        tests:
+          - not_null
+          - accepted_values:
+              values: [nuts1, nuts2, nuts3]
+      - name: user_country_id
+        description: ISO 3166-1 alpha-2 code of the user's country
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso2
+      - name: friend_country_id
+        description: ISO 3166-1 alpha-2 code of the friend's country
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso2
+      - name: user_region_id
+        description: Identifier of the user's NUTS 2024 region
+        tests: [not_null]
+      - name: friend_region_id
+        description: Identifier of the friend's NUTS 2024 region
+        tests: [not_null]
+      - name: scaled_sci
+        description: >-
+          Scaled Social Connectedness Index between the user region and the friend
+          region,
+          proportional to the probability that a Facebook user in the first is friends
+          with
+          a Facebook user in the second
+        tests: [not_null]
+  - name: us_meta_sci__region_to_country
+    description: >-
+      Social Connectedness Index between subnational regions and countries, for every
+      region
+      classification in the release (GADM 1-2, geoBoundaries ADM1-2, NUTS 2024 levels
+      1-3,
+      US counties and ZCTAs). One row per region and friend country. Snapshot of Facebook
+      users active in the 30 days before 2026-01-25 with more than 20 friends, published
+      by
+      Meta (Data for Good) on the Humanitarian Data Exchange in 2026. scaled_sci is
+      rescaled
+      to 1-1,000,000,000 within the source file and level.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - region_level
+            - user_region_id
+            - friend_country_id
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: region_level
+        description: >-
+          Geographic classification of the user's region: gadm1, gadm2, geoboundaries_adm1,
+          geoboundaries_adm2, nuts1_2024, nuts2_2024, nuts3_2024, us_county or us_zcta
+        tests:
+          - not_null
+          - accepted_values:
+              values:
+                - gadm1
+                - gadm2
+                - geoboundaries_adm1
+                - geoboundaries_adm2
+                - nuts1_2024
+                - nuts2_2024
+                - nuts3_2024
+                - us_county
+                - us_zcta
+      - name: user_country_id
+        description: ISO 3166-1 alpha-2 code of the user's country
+        tests:
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso2
+      - name: user_region_id
+        description: >-
+          Identifier of the user's region in the classification given by region_level
+        tests: [not_null]
+      - name: friend_country_id
+        description: ISO 3166-1 alpha-2 code of the friend's country
+        tests:
+          - not_null
+          - custom_relationships:
+              to: ref('br_bd_diretorios_mundo__pais')
+              field: sigla_iso2
+      - name: scaled_sci
+        description: >-
+          Scaled Social Connectedness Index between the user region and the friend
+          country,
+          proportional to the probability that a Facebook user in the first is friends
+          with
+          a Facebook user in the second
+        tests: [not_null]
