@@ -89,7 +89,8 @@ Há um único flow, `br_anp_precos_combustiveis__microdados`. Cada execução:
    que trazem as mesmas datas.
 2. **Verifica se há novidade**: `poll_source_for_update_task` compara essa data com o
    fim da cobertura da tabela em produção, no formato `%Y-%m-%d`. Se a fonte não
-   estiver à frente, o flow termina sem baixar nada.
+   estiver à frente, o flow termina sem baixar os três arquivos para carga (só o de
+   GLP, usado no passo 1, já foi baixado).
 3. **Registra a publicação da fonte**: `commit_source_update_task` grava o `Update` da
    fonte **antes do download**. Isso não trava a próxima tentativa, porque a
    verificação do passo 2 olha a cobertura da tabela, não esse registro. Se o flow
@@ -111,7 +112,8 @@ regras de acesso no BigQuery, então a janela anda sozinha. Por exemplo, com dad
 02/10/2026, a parte aberta vai até 21/08/2026, e a do BD Pro vai de 22/08 a 02/10.
 
 **Execução verde não quer dizer que ingeriu.** Como a ANP publica uma vez por semana e
-o flow roda todo dia, a maior parte das execuções termina com sucesso sem baixar nada.
+o flow roda todo dia, a maior parte das execuções termina com sucesso depois de
+conferir a data no arquivo de GLP, sem carregar nada.
 Para saber se entrou dado, procure no log as mensagens `Há atualizações na fonte
 original` e `dbt run OK`, ou veja se a cobertura andou.
 

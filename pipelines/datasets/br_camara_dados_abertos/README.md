@@ -127,7 +127,9 @@ A cobertura depende da tabela (`update_metadata_variable_dictionary`, em
 ## Agendamento
 
 Um flow por tabela, todo dia, no horário de Brasília, das 6h às 10h. Os horários
-seguem a ordem dos temas, com 10 minutos entre um flow e o seguinte:
+seguem a ordem dos temas, com 10 minutos entre um flow e o seguinte, exceto em torno
+de `licitacao` (9h15), que fica a 5 minutos de `frente_deputado` e de
+`licitacao_proposta`:
 
 | horário | tabelas |
 |---|---|
