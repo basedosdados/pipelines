@@ -8,8 +8,11 @@ TMP_DIR = PARENT_DIR / "tmp"
 TMP_DIR.mkdir(exist_ok=True, parents=True)
 
 # Antigo arquivo de pais sem COI e FIFA
+# keep_default_na=False: "NA" é a sigla ISO2 da Namíbia, não um valor ausente
 original = pd.read_csv(
-    "https://storage.googleapis.com/basedosdados/staging/br_bd_diretorios_mundo/pais/pais.csv"
+    "https://storage.googleapis.com/basedosdados/staging/br_bd_diretorios_mundo/pais/pais.csv",
+    dtype=str,
+    keep_default_na=False,
 )
 
 html = "https://pt.wikipedia.org/wiki/Compara%C3%A7%C3%A3o_entre_c%C3%B3digos_de_pa%C3%ADses_COI,_FIFA,_e_ISO_3166"
