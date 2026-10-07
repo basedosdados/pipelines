@@ -1,7 +1,7 @@
 """Register the fr_inpi_ratios_financiers metadata in the Data Basis backend.
 
     ~/.venvs/databasis-mcp/bin/python \
-        models/fr_inpi_ratios_financiers/code/register_metadata.py [dev|prod] [under_review|published]
+        models/fr_inpi_ratios_financiers/code/register_metadata.py [dev|staging|prod] [under_review|published]
 
 Reference ids are resolved by slug at runtime (they differ between backends), and
 existing child records are read back and their ids passed, so a re-run updates
@@ -29,7 +29,12 @@ import databasis_mcp.tools.write as bd_mcp_write
 
 DATASET_SLUG = "ratios_financiers"
 GCP_DATASET = "fr_inpi_ratios_financiers"
-GCP_PROJECT = {"dev": "basedosdados-dev", "prod": "basedosdados"}
+# staging stands in for dev while the dev backend is down; its data lives in dev
+GCP_PROJECT = {
+    "dev": "basedosdados-dev",
+    "staging": "basedosdados-dev",
+    "prod": "basedosdados",
+}
 ARCH = Path(__file__).resolve().parent / "architecture"
 
 DATASET_NAME = (
@@ -87,6 +92,17 @@ ORGANIZATION = {
     "website": "https://www.inpi.fr",
 }
 
+# created on first run; no backend had a record for it (checked staging and prod)
+LICENSE = {
+    "slug": "licence_ouverte_2_0",
+    "name": (
+        "Licença Aberta 2.0 (Licence Ouverte / Etalab)",
+        "Open Licence 2.0 (Licence Ouverte / Etalab)",
+        "Licencia Abierta 2.0 (Licence Ouverte / Etalab)",
+    ),
+    "url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
+}
+
 TAGS = [
     "company",
     "financial-statement",
@@ -116,8 +132,7 @@ SOURCE = {
         "parquet/CSV y API. También referenciado en data.gouv.fr (ratios-financiers-bce-inpi).",
     ),
     "url": "https://data.economie.gouv.fr/explore/dataset/ratios_inpi_bce/",
-    # Licence Ouverte v2.0 (Etalab) has no backend record; it is CC-BY compatible
-    "license": "cc_by",
+    "license": "licence_ouverte_2_0",
 }
 
 TABLE_ORDER = ["ratios_financiers", "dicionario"]
@@ -254,6 +269,19 @@ def main(env: str, status: str) -> None:
         )["id"]
         print(f"CREATED organization {ORGANIZATION['slug']} ({org})")
 
+    license_id = lookup("license", LICENSE["slug"], env)
+    if not license_id:
+        pt, en, es = LICENSE["name"]
+        license_id = fn("create_update_license")(
+            slug=LICENSE["slug"],
+            name_pt=pt,
+            name_en=en,
+            name_es=es,
+            url=LICENSE["url"],
+            env=env,
+        )["id"]
+        print(f"CREATED license {LICENSE['slug']} ({license_id})")
+
     tag_ids, missing_tags = [], []
     for slug in TAGS:
         found = lookup("tag", slug, env)
@@ -300,7 +328,7 @@ def main(env: str, status: str) -> None:
         description_en=SOURCE["description"][1],
         description_es=SOURCE["description"][2],
         url=SOURCE["url"],
-        license_id=lookup("license", SOURCE["license"], env),
+        license_id=license_id,
         availability_id=lookup("availability", "online", env),
         language_ids=[lookup("language", "fr", env)],
         has_structured_data=True,
@@ -438,6 +466,6 @@ if __name__ == "__main__":
         "published",
     ):
         raise SystemExit(
-            "usage: register_metadata.py [dev|prod] [under_review|published]"
+            "usage: register_metadata.py [dev|staging|prod] [under_review|published]"
         )
     main(env_arg, status_arg)
