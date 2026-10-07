@@ -150,8 +150,9 @@ os nomes não resolvidos e quantas escolas o Censo completou.
 
 O flow `br_bd_diretorios_brasil__escola` roda uma vez por mês, no dia 5. Ele
 baixa o catálogo (~85 MB), lê do BigQuery o diretório publicado, o diretório
-`municipio` e o Censo Escolar, grava o parquet e materializa em dev e depois em
-prod.
+`municipio` e o Censo Escolar, grava o parquet e materializa em dev. Com
+`materialize_after_dump=True`, que é o padrão, materializa também em prod; com
+`False`, para em dev.
 
 O catálogo não publica data de atualização, e a data do download não diz quando
 o Inep atualizou o registro. Por isso o flow não consulta a fonte antes de
