@@ -6,12 +6,26 @@ uploads the new snapshot to staging with ``dump_mode="overwrite"`` and the
 **incremental** dbt models append its ``extraction_date`` partition to the prod
 tables, so history accumulates.
 
-The run polls cheaply first (an HTTP HEAD on the ZIPs, compared against
-``Table.Update.latest``) and only downloads the ~1 GB payload when the source has
-actually republished — so a scheduled run is a cheap no-op between weekly releases.
+Migrated to the staged pipeline: check_update -> extract_and_load ->
+build_and_promote. Unlike the usual one-pipeline-per-table_id shape (see
+``pipelines.utils.stage_dispatch.pipeline_factory``), this dataset has only
+ONE check_update and ONE extract_and_load for the whole dataset: the two
+source ZIPs build all 4 tables (entity, other_name, dgr, dicionario) in one
+streaming ``lxml.iterparse`` pass (see the banner in ``tasks.py``), so
+``extract_and_load`` loops over ``extract_load_data``'s per-table results and
+dispatches one ``build_and_promote`` per table, using the stage_dispatch
+building blocks directly instead of ``CheckThenExtractLoadPipeline``.
 
-Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``au_ato_abr_flow``; the
-dev pool ignores the schedule, the prod pool activates it (deployed paused).
+check_update polls cheaply first (an HTTP HEAD on the ZIPs, compared against
+``Table.Update.latest`` — see ``get_latest_update``'s docstring in tasks.py for
+why ``table_update`` rather than ``coverage``) and only dispatches
+extract_and_load — which downloads the ~1 GB payload — when the source has
+actually republished, so a scheduled run is a cheap no-op between weekly
+releases.
+
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers both flows
+below; the dev pool ignores the check_update schedule, the prod pool activates
+it (deployed paused).
 """
 
 import shutil
@@ -21,196 +35,115 @@ from prefect.schedules import Cron
 
 from pipelines.datasets.au_ato_abr.constants import constants
 from pipelines.datasets.au_ato_abr.tasks import (
-    check_source_abr,
-    clean_abr,
-    download_abr,
+    extract_load_data,
+    get_latest_update,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    FreeLag,
-    PartBdpro,
+from pipelines.utils.stage_dispatch import (
+    Etapa,
+    check_update_and_dispatch,
+    deploy_tags,
+    discover_partition_folders,
+    dispatch_build_and_promote,
 )
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
-)
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
-)
+from pipelines.utils.tasks import rename_flow_run_dataset_table, upload_to_gcs
 
 DATASET_ID = constants.DATASET_ID.value
+CORE_TABLE = constants.CORE_TABLE.value
 
-# Coverage spec per table.
-#
-# The register refreshes weekly, so the three data tables carry the BD Pro
-# rolling window: the most recent `free_lag` of snapshots are pro-only, older
-# snapshots stay free. Each run recomputes free_end = source_end - free_lag,
-# rewrites both DateTimeRanges, and re-issues the BigQuery Row Access Policies,
-# so the window slides forward on its own.
-#
-# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
-# Coverage to already exist on the table, or assert_coverage_topology raises
-# before anything is written. The static onboard registered only the free
-# Coverage, so the pro Coverage must be created on each of entity/other_name/dgr
-# BEFORE this flow is armed (see the pipeline PR notes / ONBOARDING_PLAN.md).
-#
-# free_lag is a business choice: with weekly snapshots and a full register per
-# snapshot, the free tier always holds a complete (if lagged) register. 6 months
-# mirrors br_rf_cnpj; a shorter lag (e.g. FreeLag("weeks", 4)) narrows the
-# initial free-tier lockout at arm time. Confirm before arming.
-#
-# `dicionario` has no date column, so it takes no coverage spec.
-_PART_BDPRO = PartBdpro(
-    date_column=DateOnly(col="extraction_date"),
-    date_format=DateFormat.YEAR_MD,
-    free_lag=FreeLag(unit="months", value=6),
-)
-_COVERAGE = {
-    "entity": _PART_BDPRO,
-    "other_name": _PART_BDPRO,
-    "dgr": _PART_BDPRO,
-}
+# Deployment name of `au_ato_abr_extract_and_load` below (`deploy_flows.py`
+# registers a deployment under the Python variable name of the `@flow`). Passed
+# explicitly to `check_update_and_dispatch` since it isn't literally
+# `"extract_and_load"` (the `Etapa` value `deployment_name()` defaults to).
+_EXTRACT_AND_LOAD_DEPLOYMENT = "au_ato_abr_extract_and_load"
 
 
-@flow(name="au_ato_abr", log_prints=True)
-def au_ato_abr_flow(
-    materialize_to_prod: bool = True,
-    update_metadata: bool = True,
-    force_run: bool = False,
-) -> None:
-    """Refresh au_ato_abr with the latest weekly ABN Bulk Extract snapshot.
+@flow(name=f"{Etapa.CHECK_UPDATE}: {DATASET_ID}", log_prints=True)
+def au_ato_abr_check_update() -> bool:
+    """Poll the ABN Bulk Extract ZIPs for a newer weekly snapshot, dispatch extract_and_load.
 
-    Polls the source (cheap HEAD) and short-circuits when nothing new has been
-    published, unless ``force_run``. On new data, downloads + cleans the snapshot,
-    uploads it to staging (``dump_mode="overwrite"``) and lets the incremental dbt
-    models append its ``extraction_date`` partition to the prod tables.
-
-    Args:
-        materialize_to_prod: Continue past the dev materialization to write the
-            prod staging bucket and run dbt against ``target="prod"``. Set False
-            to exercise only the dev half — required for a safe test run, since
-            the default writes production.
-        update_metadata: After a successful prod materialization, register table
-            coverage (rolling BD Pro window) and commit the source update. Has no
-            effect when ``materialize_to_prod`` is False.
-        force_run: Download and materialize even when the source poll reports no
-            new snapshot.
+    Returns:
+        `True` if a newer snapshot was found (and `extract_and_load` was
+        dispatched); `False` otherwise.
     """
     rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="entity"
+        prefix="Check Update: ", dataset_id=DATASET_ID, table_id=CORE_TABLE
     )
 
-    # Cheap poll first: is the source's publication newer than our last refresh?
-    source_date = check_source_abr()
-    has_new_data = poll_source_for_update_task(
+    result = get_latest_update()
+
+    return check_update_and_dispatch(
+        prefect_dataset_id=DATASET_ID,
         dataset_id=DATASET_ID,
-        table_id="entity",
-        source_max_date=source_date,
-        env="prod",
-        date_format="%Y-%m-%d",
-        compare_against="table_update",
+        table_id=CORE_TABLE,
+        reference_date=result.reference_date,
+        next_deployment=_EXTRACT_AND_LOAD_DEPLOYMENT,
+        extra_download_params=result.extra_download_params,
+        compare_against=result.compare_against,
     )
-    if not has_new_data and not force_run:
-        return
 
+
+au_ato_abr_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE
+)
+# The source republishes weekly; the exact weekday drifts, so poll on several
+# days at 16:00 BRT. The HEAD-based source poll no-ops (no download) until a new
+# snapshot actually appears.
+au_ato_abr_check_update.deploy_schedules = [
+    Cron("30 16 * * 1,2,3,4", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=f"{Etapa.EXTRACT_AND_LOAD}: {DATASET_ID}", log_prints=True)
+def au_ato_abr_extract_and_load(download_params: dict) -> None:
+    """Download + clean the weekly snapshot, upload every table, dispatch promotion.
+
+    One pair of ZIPs produces all 4 tables at once (see `tasks.py`), so this
+    loops over `extract_load_data`'s per-table results instead of relying on
+    `CheckThenExtractLoadPipeline.run_extract_and_load` (built for exactly one
+    `ExtractAndLoad` per call).
+
+    Args:
+        download_params: dict received from check_update via
+            `run_deployment()` — `reference_date` (the source's HTTP
+            publication date; see `tasks.extract_load_data` for why it's
+            unused here).
+    """
+    rename_flow_run_dataset_table(
+        prefix="Extract and Load: ", dataset_id=DATASET_ID, table_id=CORE_TABLE
+    )
+
+    # work_dir is created/cleaned up here, not inside extract_load_data: its
+    # returned ExtractAndLoad.data_paths point inside it and are only read
+    # (via upload_to_gcs) below — cleaning it up before that would delete
+    # them first.
     work_dir = tempfile.mkdtemp(prefix="au_ato_abr_")
     try:
-        input_dir = download_abr(work_dir=work_dir)
-        result = clean_abr(work_dir=work_dir, input_dir=input_dir)
-        max_date = result["max_extraction_date"]
-
-        tables = constants.ALL_TABLES.value
-
-        # The dev materialization is the pre-arm validation path, not part of a
-        # production run: it rebuilds and re-tests every table in
-        # basedosdados-dev, which nothing downstream reads. Running it on an
-        # armed run doubled the BigQuery bytes billed for no signal — prod
-        # runs the same models and the same tests seconds later.
-        if not materialize_to_prod:
-            # Dev: upload staging (overwrite with the new snapshot) + materialize/test.
-            for table in tables:
-                upload_to_gcs(
-                    data_path=result[table],
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    bucket_name="basedosdados-dev",
-                    dump_mode="overwrite",
-                    source_format="parquet",
-                )
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="run",
-                    target="dev",
-                )
-            for table in tables:
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="test",
-                    target="dev",
-                )
-            return
-
-        # Prod: upload staging + materialize/test (incremental dbt appends the
-        # new extraction_date partition, keeping history).
-        for table in tables:
+        results = extract_load_data(work_dir, download_params)
+        for table_id, result in results.items():
+            result.partition_folders = discover_partition_folders(
+                result.data_path
+            )
             upload_to_gcs(
-                data_path=result[table],
+                data_path=result.data_path,
                 dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados",
-                dump_mode="overwrite",
-                source_format="parquet",
+                table_id=table_id,
+                bucket_name="basedosdados-dev",
+                dump_mode=result.dump_mode,
+                source_format=result.source_format,
             )
-            run_dbt(
+            dispatch_build_and_promote(
                 dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run",
-                target="prod",
-            )
-        for table in tables:
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="test",
-                target="prod",
-            )
-
-        if update_metadata:
-            for table, coverage in _COVERAGE.items():
-                register_table_materialization_task(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    coverage=coverage,
-                    env="prod",
-                    bq_project="basedosdados",
-                )
-            # Record the source Update (its max coverage date = the snapshot date).
-            commit_source_update_task(
-                dataset_id=DATASET_ID,
-                table_id="entity",
-                source_max_date=max_date,
-                env="prod",
-                date_format="%Y-%m-%d",
-                update_metadata=update_metadata,
-                materialize_after_dump=materialize_to_prod,
+                table_id=table_id,
+                result=result,
             )
     finally:
         shutil.rmtree(work_dir, ignore_errors=True)
 
 
-# The source republishes weekly; the exact weekday drifts, so poll on several
-# days at 16:00 BRT. The HEAD-based source poll no-ops (no download) until a new
-# snapshot actually appears.
-au_ato_abr_flow.deploy_schedules = [
-    Cron("30 16 * * 1,2,3,4", timezone="America/Sao_Paulo")
-]
+au_ato_abr_extract_and_load.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+)
 # The clean step streams from the ZIPs and flushes in 400k-row chunks, but the
 # download is ~1 GB; give the worker headroom.
-au_ato_abr_flow.job_variables = {"memory": "8Gi"}
+au_ato_abr_extract_and_load.job_variables = {"memory": "8Gi"}

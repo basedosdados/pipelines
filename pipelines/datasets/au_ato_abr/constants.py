@@ -10,6 +10,14 @@ dbt models append the new ``extraction_date`` partition to the prod tables.
 from enum import Enum
 from pathlib import Path
 
+from pipelines.utils.metadata.domain import (
+    DateFormat,
+    DateOnly,
+    FreeLag,
+    NonHistorical,
+    PartBdpro,
+)
+
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
@@ -23,6 +31,12 @@ class constants(Enum):
     """
 
     DATASET_ID = "au_ato_abr"
+
+    # Anchor table for the check_update poll/commit and flow-run renaming — the
+    # staged pipeline keeps a single check_update/extract_and_load pair for the
+    # whole dataset (see the banner in tasks.py), so one table has to stand in
+    # for the dataset.
+    CORE_TABLE = "entity"
 
     # data.gov.au 403s automated clients without a browser User-Agent.
     USER_AGENT = (
@@ -49,3 +63,39 @@ class constants(Enum):
     ARCHITECTURE_DIR = (
         _REPO_ROOT / "models" / "au_ato_abr" / "code" / "architecture"
     )
+
+
+# Coverage spec per table, used by `ExtractAndLoad.coverage` (tasks.py) and,
+# through it, by `register_table_materialization_task`/`build_and_promote`.
+#
+# The register refreshes weekly, so the three data tables carry the BD Pro
+# rolling window: the most recent `free_lag` of snapshots are pro-only, older
+# snapshots stay free. Each run recomputes free_end = source_end - free_lag,
+# rewrites both DateTimeRanges, and re-issues the BigQuery Row Access Policies,
+# so the window slides forward on its own.
+#
+# part_bdpro requires BOTH a free (is_closed=False) and a pro (is_closed=True)
+# Coverage to already exist on the table, or assert_coverage_topology raises
+# before anything is written. The static onboard registered only the free
+# Coverage, so the pro Coverage must be created on each of entity/other_name/dgr
+# BEFORE this flow is armed (see the pipeline PR notes / ONBOARDING_PLAN.md).
+#
+# free_lag is a business choice: with weekly snapshots and a full register per
+# snapshot, the free tier always holds a complete (if lagged) register. 6 months
+# mirrors br_rf_cnpj; a shorter lag (e.g. FreeLag("weeks", 4)) narrows the
+# initial free-tier lockout at arm time. Confirm before arming.
+#
+# `dicionario` has no date column, so it takes `NonHistorical` instead —
+# modeled on `__TABLES__.last_modified_time`, not a `DateColumn`/`DateFormat`
+# pair (same pattern as au_geoscape_gnaf's constants.py).
+_PART_BDPRO = PartBdpro(
+    date_column=DateOnly(col="extraction_date"),
+    date_format=DateFormat.YEAR_MD,
+    free_lag=FreeLag(unit="months", value=6),
+)
+COVERAGE = {
+    "entity": _PART_BDPRO,
+    "other_name": _PART_BDPRO,
+    "dgr": _PART_BDPRO,
+    "dicionario": NonHistorical(),
+}
