@@ -1,153 +1,61 @@
 """
-Flow br_bcb_agencia__agencia — Prefect 3.
+Flows para br_bcb_agencia — Prefect 3.
+
+Migrado por completo pro pipeline em estágios (staged pipeline):
+check_update -> extract_and_load -> build_and_promote. Lógica específica do
+dataset mora em `tasks.py`, constantes em `constants.py` — aqui só a fiação
+(`CheckThenExtractLoadPipeline` + `@flow`).
 """
 
 from prefect.schedules import Cron
 
-from pipelines.crawler.bcb_agencia.tasks import (
-    clean_data,
-    download_table,
-    extract_urls_list,
-    get_documents_metadata,
-    get_latest_file,
+from pipelines.datasets.br_bcb_agencia.constants import (
+    AGENCIA_TABLE_ID,
+    DATASET_ID,
+)
+from pipelines.datasets.br_bcb_agencia.tasks import (
+    extract_load_data,
+    get_latest_update,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    PartBdpro,
-    YearMonth,
+from pipelines.utils.stage_dispatch import (
+    CheckThenExtractLoadPipeline,
+    Etapa,
+    deploy_tags,
 )
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
-    task_get_api_most_recent_date,
-)
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
+
+_agencia_pipeline = CheckThenExtractLoadPipeline(
+    dataset_id=DATASET_ID,
+    table_id=AGENCIA_TABLE_ID,
+    get_latest_update=get_latest_update,
+    extract_load_data=extract_load_data,
+    # Mesma granularidade do flow antigo: dado é mensal, sem dia.
+    date_format="%Y-%m",
 )
 
 
-@flow(
-    name="br_bcb_agencia__agencia",
-    log_prints=True,
+@flow(name=_agencia_pipeline.check_update_flow_name, log_prints=True)
+def br_bcb_agencia_agencia_check_update() -> None:
+    _agencia_pipeline.run_check_update()
+
+
+br_bcb_agencia_agencia_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, AGENCIA_TABLE_ID
 )
-def br_bcb_agencia__agencia(
-    dataset_id: str = "br_bcb_agencia",
-    table_id: str = "agencia",
-    materialize_after_dump: bool = True,
-    update_metadata: bool = True,
-    target: str = "prod",
-    force_run: bool = False,
-) -> None:
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
-    )
-
-    documents_metadata = get_documents_metadata()
-    if documents_metadata is None:
-        raise RuntimeError(
-            "BCB metadata was not loaded! It was not possible to determine "
-            "if the dataset is up to date."
-        )
-
-    _, data_source_max_date = get_latest_file(documents_metadata)
-
-    if not force_run:
-        has_new_data = poll_source_for_update_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            source_max_date=data_source_max_date,
-            env="prod",
-            date_format="%Y-%m",
-            compare_against="coverage",
-        )
-        if not has_new_data:
-            print(f"Não há atualizações para a tabela {table_id}!")
-            return
-
-    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
-    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
-    # novo publicado, mesmo que a tabela não tenha sido atualizada.
-    commit_source_update_task(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        source_max_date=data_source_max_date,
-        env="prod",
-        date_format="%Y-%m",
-        update_metadata=update_metadata,
-        materialize_after_dump=materialize_after_dump,
-    )
-
-    print("Existem atualizações! A run será iniciada.")
-    api_max_date = task_get_api_most_recent_date(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        date_format="%Y-%m",
-        api_mode="prod",
-    )
-
-    # pyrefly: ignore [no-matching-overload]
-    urls_list = extract_urls_list(
-        documents_metadata,
-        data_source_max_date,
-        api_max_date,
-        date_format="%Y-%m",
-    )
-
-    for url in urls_list:
-        download_table(url=url)
-
-    filepath = clean_data()
-
-    upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        bucket_name="basedosdados-dev",
-        dump_mode="append",
-    )
-
-    run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        target="dev",
-    )
-
-    if not materialize_after_dump:
-        return
-
-    upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        bucket_name="basedosdados",
-        dump_mode="append",
-    )
-
-    run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        target=target,
-    )
-
-    if update_metadata:
-        register_table_materialization_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            coverage=PartBdpro(
-                date_column=YearMonth(year="ano", month="mes"),
-                date_format=DateFormat.YEAR_MONTH,
-            ),
-            env="prod",
-            bq_project="basedosdados",
-        )
-
-
-br_bcb_agencia__agencia.deploy_schedules = [
+# Mesmo cron do flow monolítico antigo (main).
+br_bcb_agencia_agencia_check_update.deploy_schedules = [
     Cron("0 22 25-31 * *", timezone="America/Sao_Paulo")
 ]
+
+
+@flow(name=_agencia_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_bcb_agencia_agencia_download(download_params: dict) -> None:
+    _agencia_pipeline.run_extract_and_load(download_params)
+
+
+br_bcb_agencia_agencia_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, AGENCIA_TABLE_ID
+)
+_agencia_pipeline.extract_load_deployment = (
+    br_bcb_agencia_agencia_download.fn.__name__
+)
