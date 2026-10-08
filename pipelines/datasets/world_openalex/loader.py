@@ -325,6 +325,7 @@ def load_snapshot(
     workers: int = 4,
     fresh: bool = False,
     max_files: int | None = None,
+    resume_fingerprint: str | None = None,
 ) -> dict:
     """Load the current snapshot into ``gs://<bucket>/staging/world_openalex/``.
 
@@ -342,6 +343,11 @@ def load_snapshot(
         workers: Source files processed in parallel (one process each).
         fresh: Start fresh even when markers for this release and code exist.
         max_files: Cap on files per entity, for test runs.
+        resume_fingerprint: Resume the markers of this earlier fingerprint
+            instead of the current code's. Only for a code change that cannot
+            alter output already staged, such as a fix for input that made the
+            old code raise (no finished file can contain it). Stated by the
+            operator, never inferred.
 
     Returns:
         ``{"release": date, "rows": {table: rows}, "checks": {entity: (rows, expected)}}``.
@@ -354,7 +360,11 @@ def load_snapshot(
     scratch.mkdir(parents=True, exist_ok=True)
     manifest = utils.fetch_manifest()
     release = utils.release_date(manifest)
-    fp = fingerprint()
+    fp = resume_fingerprint or fingerprint()
+    if resume_fingerprint:
+        print(
+            f"Resuming under fingerprint {fp}; current code is {fingerprint()}"
+        )
     markers = marker_prefix(release, fp)
 
     done_recs = [] if fresh else read_markers(bucket_name, markers)

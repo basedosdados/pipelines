@@ -213,11 +213,17 @@ def rebuild_abstract(inverted_index: str | None) -> str | None:
     """Rebuild abstract text from OpenAlex's JSON inverted index.
 
     The index maps each word to the positions it occupies; ordering the words by
-    position restores the text. Returns None for a missing or empty index.
+    position restores the text. Returns None for a missing or empty index, and
+    for one the source truncated (cut near 32,700 characters, so the JSON never
+    closes). A truncated index cannot be partly rebuilt: it is ordered by word,
+    so the cut drops every later word wherever it occurs in the text.
     """
     if not inverted_index:
         return None
-    idx = json.loads(inverted_index)
+    try:
+        idx = json.loads(inverted_index)
+    except json.JSONDecodeError:
+        return None
     if not idx:
         return None
     words = {p: w for w, positions in idx.items() for p in positions}

@@ -29,7 +29,17 @@ HERE = Path(__file__).resolve().parent
 def staged_rows() -> dict[str, int]:
     """Rows per table the loader wrote, from its GCS completion markers."""
     release = utils.release_date(utils.fetch_manifest())
-    prefix = loader.marker_prefix(release, loader.fingerprint())
+    # The load may have resumed under an earlier fingerprint, so take the one
+    # marker prefix of this release rather than the current code's.
+    root = f"staging/{loader.DATASET_ID}/_load_state/"
+    it = loader._bucket(PROJECT).list_blobs(prefix=root, delimiter="/")
+    list(it)
+    prefixes = [p for p in it.prefixes if p.startswith(f"{root}{release}_")]
+    if len(prefixes) != 1:
+        raise SystemExit(
+            f"expected one marker prefix for {release}, found {prefixes}"
+        )
+    prefix = prefixes[0]
     rows: dict[str, int] = {}
     for rec in loader.read_markers(PROJECT, prefix):
         for t, n in rec["rows"].items():

@@ -16,7 +16,10 @@ def get_release_date() -> str:
 
 @task
 def load_snapshot_task(
-    bucket_name: str, workers: int = 3, fresh: bool = False
+    bucket_name: str,
+    workers: int = 3,
+    fresh: bool = False,
+    resume_fingerprint: str = "",
 ) -> dict:
     """Stream the whole snapshot into ``gs://<bucket>/staging/world_openalex/``.
 
@@ -27,13 +30,19 @@ def load_snapshot_task(
         bucket_name: ``basedosdados-dev`` or ``basedosdados``.
         workers: Source files processed in parallel.
         fresh: Start fresh even when a resumable run exists.
+        resume_fingerprint: Resume markers of this earlier fingerprint; see
+            ``loader.load_snapshot``. Empty means the current code's.
 
     Returns:
         Release date, rows per table and record-count checks per entity.
     """
     scratch = Path(tempfile.mkdtemp(prefix="world_openalex_"))
     result = loader.load_snapshot(
-        bucket_name=bucket_name, scratch=scratch, workers=workers, fresh=fresh
+        bucket_name=bucket_name,
+        scratch=scratch,
+        workers=workers,
+        fresh=fresh,
+        resume_fingerprint=resume_fingerprint or None,
     )
     for table, n in sorted(result["rows"].items()):
         print(f"{table}: {n:,} rows")

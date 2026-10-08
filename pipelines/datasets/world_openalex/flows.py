@@ -69,6 +69,7 @@ def world_openalex_flow(
     force_run: bool = False,
     fresh_load: bool = False,
     load_workers: int = 3,
+    resume_fingerprint: str = "",
 ) -> None:
     """Rebuild every world_openalex table from the current OpenAlex snapshot.
 
@@ -85,6 +86,8 @@ def world_openalex_flow(
             load_workers: Snapshot files processed in parallel. Each worker peaks
             near 1.8 GB on the pod, so 3 stays inside the 6Gi request; above
             the request, a memory-tight node evicts the pod first.
+            resume_fingerprint: Resume the load markers of this earlier code
+            fingerprint. Only after a fix that cannot change staged output.
     """
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="work"
@@ -119,7 +122,10 @@ def world_openalex_flow(
     bucket = "basedosdados" if materialize_to_prod else "basedosdados-dev"
     target = "prod" if materialize_to_prod else "dev"
     load_snapshot_task(
-        bucket_name=bucket, workers=load_workers, fresh=fresh_load
+        bucket_name=bucket,
+        workers=load_workers,
+        fresh=fresh_load,
+        resume_fingerprint=resume_fingerprint,
     )
 
     # Run every model, then test every model: the relationship and dictionary
