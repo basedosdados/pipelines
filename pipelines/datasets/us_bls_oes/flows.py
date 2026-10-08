@@ -10,11 +10,22 @@ every earlier one untouched.
 
 The `dicionario` table is deliberately not refreshed here — its temporal-coverage
 column is computed over the whole panel, which a single-year run does not hold.
-The clean task instead asserts that the new year introduces no unlabelled code,
-and fails the run if it does (see `utils.assert_dictionary_labels`).
+`clean_oes` instead asserts that the new year introduces no unlabelled code, and
+fails the run if it does (see `utils.assert_dictionary_labels`).
 
-Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `us_bls_oes_flow`; the
-dev pool ignores the schedule, the prod pool activates it.
+Migrated to the staged pipeline: check_update -> extract_and_load ->
+build_and_promote. Unlike the usual one-pipeline-per-table_id shape (see
+``pipelines.utils.stage_dispatch.pipeline_factory``), this dataset has only ONE
+check_update and ONE extract_and_load for the whole dataset: a single release zip
+builds both `area` and `industry` in one pass (see the banner in `tasks.py`), so
+`extract_and_load` loops over `extract_load_data`'s per-table results and
+dispatches one `build_and_promote` per table, using the stage_dispatch building
+blocks directly instead of `CheckThenExtractLoadPipeline` — same shape as
+`au_geoscape_gnaf`.
+
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers both flows
+below; the dev pool ignores the check_update schedule, the prod pool activates
+it.
 """
 
 import shutil
@@ -22,175 +33,115 @@ import tempfile
 
 from prefect.schedules import Cron
 
-from pipelines.datasets.us_bls_oes.constants import constants
+from pipelines.datasets.us_bls_oes.constants import DATASET_ID, POLL_TABLE
 from pipelines.datasets.us_bls_oes.tasks import (
-    clean_oes,
-    download_oes,
-    resolve_latest_year,
+    extract_load_data,
+    get_latest_update,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
+from pipelines.utils.stage_dispatch import (
+    Etapa,
+    check_update_and_dispatch,
+    deploy_tags,
+    discover_partition_folders,
+    dispatch_build_and_promote,
 )
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
-)
+from pipelines.utils.tasks import rename_flow_run_dataset_table, upload_to_gcs
 
-DATASET_ID = constants.DATASET_ID.value
-TABLES = constants.DATA_TABLES.value
-# The table the source poll is anchored on. OEWS ships both tables in one
-# release, so either would do; `area` is the larger and more used of the two.
-POLL_TABLE = "area"
-
-# Coverage spec per table. OEWS is annual, so neither table takes a BD Pro
-# rolling window — that applies to tables refreshed monthly or more often. Both
-# are AllFree with a single free Coverage.
-_COVERAGE = {
-    table: AllFree(
-        date_column=YearOnly(col="year"), date_format=DateFormat.YEAR
-    )
-    for table in TABLES
-}
+# Deployment name of `us_bls_oes_extract_and_load` below (`deploy_flows.py`
+# registers a deployment under the Python variable name of the `@flow`). Passed
+# explicitly to `check_update_and_dispatch` since it isn't literally
+# `"extract_and_load"` (the `Etapa` value `deployment_name()` defaults to).
+_EXTRACT_AND_LOAD_DEPLOYMENT = "us_bls_oes_extract_and_load"
 
 
-@flow(name="us_bls_oes", log_prints=True)
-def us_bls_oes_flow(
-    materialize_to_prod: bool = True,
-    update_metadata: bool = True,
-    force_run: bool = False,
-) -> None:
-    """Append the newest OEWS release to the `area` and `industry` tables.
+@flow(name=f"{Etapa.CHECK_UPDATE}: {DATASET_ID}", log_prints=True)
+def us_bls_oes_check_update() -> bool:
+    """Poll BLS for a newer OEWS reference year, dispatch extract_and_load.
 
-    The source poll short-circuits the run when BLS has not published a new
-    reference year, which makes a scheduled run a cheap no-op for the eleven
-    months of the year when nothing is released.
-
-    Args:
-        materialize_to_prod: Continue past the dev materialization to write the
-            prod staging bucket and run dbt against ``target="prod"``. Set False
-            to exercise only the dev half — required for a safe test run, since
-            the default writes production.
-        update_metadata: After a successful prod materialization, register table
-            coverage and commit the source update. Has no effect when
-            ``materialize_to_prod`` is False.
-        force_run: Materialize even when the source poll reports no new year.
+    Returns:
+        `True` if a newer reference year was found (and `extract_and_load` was
+        dispatched); `False` otherwise.
     """
     rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=DATASET_ID, table_id="oes"
+        prefix="Check Update: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
     )
 
-    year = resolve_latest_year()
+    result = get_latest_update()
 
-    # Skip the run when BLS has not published a newer reference year.
-    has_new_data = poll_source_for_update_task(
+    return check_update_and_dispatch(
+        prefect_dataset_id=DATASET_ID,
         dataset_id=DATASET_ID,
         table_id=POLL_TABLE,
-        source_max_date=str(year),
-        env="prod",
+        reference_date=result.reference_date,
+        next_deployment=_EXTRACT_AND_LOAD_DEPLOYMENT,
         date_format="%Y",
-        compare_against="coverage",
+        extra_download_params=result.extra_download_params,
+        compare_against=result.compare_against,
     )
-    if not has_new_data and not force_run:
-        return
-
-    work_dir = tempfile.mkdtemp(prefix="us_bls_oes_")
-    try:
-        input_dir = download_oes(work_dir=work_dir, year=year)
-        result = clean_oes(work_dir=work_dir, input_dir=input_dir, year=year)
-
-        # Commit the source Update before materializing: if the run fails
-        # midway, the source metadata still records that BLS published a new
-        # year, even though our tables have not caught up yet.
-        commit_source_update_task(
-            dataset_id=DATASET_ID,
-            table_id=POLL_TABLE,
-            source_max_date=str(year),
-            env="prod",
-            date_format="%Y",
-            update_metadata=update_metadata,
-            materialize_after_dump=materialize_to_prod,
-        )
-
-        # The dev materialization is the pre-arm validation path, not part of a
-        # production run: it rebuilds and re-tests both tables in
-        # basedosdados-dev, which nothing downstream reads.
-        if not materialize_to_prod:
-            for table in TABLES:
-                upload_to_gcs(
-                    data_path=result[table],
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    bucket_name="basedosdados-dev",
-                    dump_mode="append",
-                    source_format="parquet",
-                )
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="run",
-                    target="dev",
-                )
-            # Every table is built before any is tested: the dictionary-coverage
-            # test reads the sibling `dicionario` model, so interleaving run and
-            # test per table fails in a clean environment.
-            for table in TABLES:
-                run_dbt(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    dbt_command="test",
-                    target="dev",
-                )
-            return
-
-        for table in TABLES:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados",
-                dump_mode="append",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run",
-                target="prod",
-            )
-        for table in TABLES:
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="test",
-                target="prod",
-            )
-
-        if update_metadata:
-            for table, coverage in _COVERAGE.items():
-                register_table_materialization_task(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    coverage=coverage,
-                    env="prod",
-                    bq_project="basedosdados",
-                )
-    finally:
-        # Covers both the dev-only early return and any exception. The k8s work
-        # pool gives each run a fresh pod, but a process worker reuses its
-        # filesystem, and one release is ~80 MB compressed.
-        shutil.rmtree(work_dir, ignore_errors=True)
 
 
+us_bls_oes_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE
+)
 # OEWS releases once a year, in the northern spring, with the exact date varying
 # between late March and May. Poll weekly across those three months; the
 # source-poll guard no-ops until a new reference year actually appears.
-us_bls_oes_flow.deploy_schedules = [
+us_bls_oes_check_update.deploy_schedules = [
     Cron("47 17 1,8,15,22,29 3,4,5 *", timezone="America/Sao_Paulo")
 ]
+
+
+@flow(name=f"{Etapa.EXTRACT_AND_LOAD}: {DATASET_ID}", log_prints=True)
+def us_bls_oes_extract_and_load(download_params: dict) -> None:
+    """Download + clean the release, upload both tables, dispatch promotion.
+
+    One download builds both tables at once (see `tasks.py`), so this loops
+    over `extract_load_data`'s per-table results instead of relying on
+    `CheckThenExtractLoadPipeline.run_extract_and_load` (built for exactly one
+    `ExtractAndLoad` per call).
+
+    Args:
+        download_params: dict received from check_update via
+            `run_deployment()` — `reference_date` (`"<year>-05-01"`).
+    """
+    rename_flow_run_dataset_table(
+        prefix="Extract and Load: ", dataset_id=DATASET_ID, table_id=POLL_TABLE
+    )
+
+    work_dir = tempfile.mkdtemp(prefix="us_bls_oes_")
+    try:
+        results = extract_load_data(
+            work_dir=work_dir, download_params=download_params
+        )
+        for table_id, result in results.items():
+            result.partition_folders = discover_partition_folders(
+                result.data_path
+            )
+            upload_to_gcs(
+                data_path=result.data_path,
+                dataset_id=DATASET_ID,
+                table_id=table_id,
+                bucket_name="basedosdados-dev",
+                dump_mode=result.dump_mode,
+                source_format=result.source_format,
+            )
+            dispatch_build_and_promote(
+                dataset_id=DATASET_ID,
+                table_id=table_id,
+                result=result,
+            )
+    finally:
+        # Covers both a clean run and any exception. The k8s work pool gives
+        # each run a fresh pod, but a process worker reuses its filesystem, and
+        # one release is ~80 MB compressed. Cleanup happens here, after every
+        # table has been uploaded — not inside `extract_load_data` — since the
+        # `ExtractAndLoad.data_path`s it returns point inside `work_dir`.
+        shutil.rmtree(work_dir, ignore_errors=True)
+
+
+us_bls_oes_extract_and_load.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD
+)
 # One release is ~430k rows held in pandas plus the Excel reader's own buffers.
-us_bls_oes_flow.job_variables = {"memory": "8Gi"}
+us_bls_oes_extract_and_load.job_variables = {"memory": "8Gi"}
