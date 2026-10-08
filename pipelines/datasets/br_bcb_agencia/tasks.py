@@ -45,6 +45,11 @@ def get_latest_update() -> SourceInspection:
         )
 
     _, data_source_max_date = get_latest_file(documents_metadata)
+    if data_source_max_date is None:
+        raise RuntimeError(
+            "BCB metadata had no documents! It was not possible to determine "
+            "if the dataset is up to date."
+        )
     reference_date = datetime.strptime(data_source_max_date, "%Y-%m").date()
     return SourceInspection(reference_date=reference_date)
 

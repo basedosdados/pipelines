@@ -47,8 +47,10 @@ def get_latest_update() -> SourceInspection:
     source_max_date = get_last_modified_date_in_sinan_tablen(
         datasus_database="SINAN", datasus_database_table="DENGBR"
     )
+    # retorna str de verdade, apesar da anotação `-> datetime` (bug pré-existente em crawler/datasus/tasks.py)
     reference_date = datetime.datetime.strptime(
-        source_max_date, "%Y-%m-%d"
+        source_max_date,  # pyrefly: ignore [bad-argument-type]
+        "%Y-%m-%d",
     ).date()
 
     return SourceInspection(reference_date=reference_date)

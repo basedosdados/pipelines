@@ -88,6 +88,12 @@ def extract_load_data(download_params: dict) -> dict[str, ExtractAndLoad]:
             partition_date=reference_date,
             chunksize=constants.CHUNKSIZE.value,
         )
+        if output_path is None:
+            raise RuntimeError(
+                f"process_file não gerou saída para a tabela {table_id!r} "
+                f"de {dataset_id} — arquivo não reconhecido em "
+                "TABLES_RENAME ou falha durante o processamento (ver logs)."
+            )
         results[table_id] = ExtractAndLoad(
             coverage=COVERAGE[table_id].model_dump(),
             data_path=output_path,
