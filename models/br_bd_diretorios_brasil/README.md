@@ -92,7 +92,7 @@ Para rodar fora do Prefect, `code/update_escola.py` faz o mesmo caminho e sobe
 para a staging de `basedosdados-dev`:
 
 ```bash
-uv run python models/br_bd_diretorios_brasil/code/update_escola.py --upload
+uv run models/br_bd_diretorios_brasil/code/update_escola.py --upload
 uv run dbt run --select br_bd_diretorios_brasil__escola
 uv run dbt test --select br_bd_diretorios_brasil__escola
 ```

@@ -3,15 +3,15 @@ Script de deploy de flows para o Prefect 3.
 
 Uso:
   # Deploy de arquivos específicos, sem expansão (uso manual)
-  python deploy_flows.py --pool basedosdados-dev --branch feat/meu-flow --files pipelines/datasets/meu_dataset/flows.py
+  uv run .github/workflows/scripts/deploy_flows.py --pool basedosdados-dev --branch feat/meu-flow --files pipelines/datasets/meu_dataset/flows.py
 
   # Deploy a partir de uma lista de arquivos alterados (CI, dev e prod) —
   # expande pra pasta inteira do dataset e escala pra --all quando a
   # mudança é em infra compartilhada (ver expand_changed_files)
-  python deploy_flows.py --pool basedosdados-dev --branch feat/meu-flow --changed pipelines/datasets/meu_dataset/tasks.py
+  uv run .github/workflows/scripts/deploy_flows.py --pool basedosdados-dev --branch feat/meu-flow --changed pipelines/datasets/meu_dataset/tasks.py
 
   # Deploy de todos os flows (recuperação manual, ex. depois de um drift)
-  python deploy_flows.py --pool basedosdados --branch main --all
+  uv run .github/workflows/scripts/deploy_flows.py --pool basedosdados --branch main --all
 
 Nome do deployment: em prod, é `<flow_name>` (mesmo nome de sempre — não
 mude, `sync-deployments`/`set_deployment_schedule_active` no backend
@@ -35,11 +35,20 @@ from pipelines.utils.flow import Flow
 REPO_URL = "https://github.com/basedosdados/pipelines.git"
 
 # Pastas cuja mudança pode afetar deploy de flows em mais de um dataset
-# (lógica compartilhada, ex. CheckThenDownloadPipeline em stage_dispatch.py,
+# (lógica compartilhada, ex. CheckThenExtractLoadPipeline em stage_dispatch.py,
 # ou um crawler usado por vários datasets como pipelines/crawler/datasus) —
 # não dá pra saber quais datasets são afetados sem reprocessar tudo, então
 # escala pra --all nesse caso, em vez de arriscar deixar algo desatualizado.
 SHARED_PREFIXES = ("pipelines/utils/", "pipelines/crawler/")
+
+# Perfil de recursos padrão pra qualquer flow com a tag "check_update"
+# (issue #1867, pendência da revisão #1932) que não sobrescreva
+# `job_variables` no próprio flow — ver `deploy_flow()`. Datasets cujo
+# check_update foge do padrão leve (ex. `br_ibge_ipca`, que baixa dado real
+# da API pra descobrir a data mais recente) devem setar
+# `<flow>.job_variables = {...}` explicitamente, o que sempre tem
+# prioridade sobre este default.
+CHECK_UPDATE_JOB_VARIABLES = {"memory_limit": "1Gi", "memory_request": "1Gi"}
 
 
 def all_python_files() -> list[str]:
@@ -197,7 +206,28 @@ def deploy_flow(
     # flows em dev não têm schedule
     schedules = None if is_dev else flow.deploy_schedules
 
+    extra_tags = flow.deploy_tags or []
+    # `env:dev`/`env:prod` — não é só descoberta no Prefect UI: é o sinal
+    # que `deployment_name()` (`stage_dispatch.py`) lê em runtime
+    # (`prefect.runtime.flow_run.tags`) pra saber se precisa repetir o
+    # prefixo `dev-` na hora de despachar o próximo estágio da cadeia
+    # (issue #1867/#1932) — sem isso, o dispatch check_update→extract_and_load
+    # e extract_and_load→build_and_promote só acha o nome certo em prod.
+    tags = [
+        "automated-deploy",
+        f"env:{'dev' if is_dev else 'prod'}",
+        *extra_tags,
+    ]
+
     job_variables = flow.job_variables
+    if job_variables is None and "check_update" in extra_tags:
+        # check_update (issue #1867/#1932) é propositalmente leve — só um
+        # poll de metadado, sem baixar dado real (exceto casos que fujam
+        # dessa regra, ver comentário em CHECK_UPDATE_JOB_VARIABLES). Herdar
+        # o default do work pool, dimensionado pro flow monolítico antigo,
+        # desperdiça recurso. Só se aplica quando o dataset não seta
+        # `job_variables` no flow — setar explicitamente sempre sobrescreve.
+        job_variables = CHECK_UPDATE_JOB_VARIABLES
 
     try:
         # pyrefly: ignore [missing-attribute]
@@ -210,7 +240,7 @@ def deploy_flow(
         ).deploy(
             name=deployment_name,
             work_pool_name=pool_name,
-            tags=["automated-deploy"],
+            tags=tags,
             schedules=schedules,
             job_variables=job_variables,
             build=False,
@@ -221,7 +251,7 @@ def deploy_flow(
             if not schedules
             else f"com schedules: {schedules}"
         )
-        return True, f"  ✓ {deployment_name} registrado {status}"
+        return True, f"  ✓ {deployment_name} registrado {status}, tags={tags}"
     except Exception as e:
         return False, f"  ✗ Falha ao registrar {deployment_name}: {e}"
 

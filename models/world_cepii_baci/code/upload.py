@@ -1,7 +1,7 @@
 """Upload cleaned world_cepii_baci / trade-directory parquet to BigQuery dev staging.
 
 Usage:
-    uv run python models/world_cepii_baci/code/upload.py [table_slug ...]
+    uv run models/world_cepii_baci/code/upload.py [table_slug ...]
 
 Point GOOGLE_APPLICATION_CREDENTIALS at the basedosdados-dev key (staging.json).
 Uploads sequentially (smallest first); stops on first failure.

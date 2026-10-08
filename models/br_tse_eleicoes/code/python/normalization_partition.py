@@ -88,9 +88,15 @@ def _save_secao_partition_parquet(
     d = OUTPUT_PYTHON / name / f"ano={ano}" / f"sigla_uf={uf}"
     d.mkdir(parents=True, exist_ok=True)
     cols = [c for c in df.columns if c not in ("ano", "sigla_uf")]
-    coerce_numeric_for_write(df[cols].copy()).to_parquet(
-        d / "data.parquet", index=False
-    )
+    out = coerce_numeric_for_write(df[cols].copy())
+    # An all-null object column (id_municipio in sigla_uf=ZZ, voters abroad)
+    # would be written with Parquet type NULL. BigQuery autodetects that as
+    # INT64, and table-approve rebuilds the prod staging table by
+    # autodetection, so every string-typed file then fails to read.
+    for c in out.columns:
+        if out[c].dtype == object and out[c].isna().all():
+            out[c] = out[c].astype("string")
+    out.to_parquet(d / "data.parquet", index=False)
 
 
 def _partition_secao_table(name: str, enrich) -> None:
@@ -1052,6 +1058,7 @@ _UFS_PERFIL_SECAO = {
     2020: ["AC", "AL", "AM", "AP", "BA", "CE", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"],
     2022: ["AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO", "ZZ"],
     2024: ["AC", "AL", "AM", "AP", "BA", "CE", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO"],
+    2026: ["AC", "AL", "AM", "AP", "BA", "CE", "DF", "ES", "GO", "MA", "MG", "MS", "MT", "PA", "PB", "PE", "PI", "PR", "RJ", "RN", "RO", "RR", "RS", "SC", "SE", "SP", "TO", "ZZ"],
 }
 # fmt: on
 

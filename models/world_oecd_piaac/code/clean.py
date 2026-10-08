@@ -1,7 +1,7 @@
 """Clean the PIAAC Public Use Files into partitioned Parquet.
 
 Usage:
-    uv run python models/world_oecd_piaac/code/clean.py [--only ISO3 ...] [--limit N]
+    uv run models/world_oecd_piaac/code/clean.py [--only ISO3 ...] [--limit N]
 
 Three properties of the source drive this transform:
 

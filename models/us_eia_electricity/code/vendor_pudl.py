@@ -1,6 +1,6 @@
 """Vendor the PUDL extraction maps and code vocabularies into this repo.
 
-    python vendor_pudl.py --pudl-src ~/Downloads/us_eia_electricity_data/ref/pudl
+    uv run models/us_eia_electricity/code/vendor_pudl.py --pudl-src ~/Downloads/us_eia_electricity_data/ref/pudl
 
 The Public Utility Data Liberation project (Catalyst Cooperative, MIT licence)
 has already solved the two hard parts of reading the EIA-860 and EIA-923 form

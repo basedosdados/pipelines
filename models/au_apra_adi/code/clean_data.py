@@ -5,7 +5,7 @@ recurring pipeline). Data lives outside the repo:
     ~/Downloads/au_apra_adi_data/{input,output}
 
 Usage:
-    uv run python models/au_apra_adi/code/clean_data.py
+    uv run models/au_apra_adi/code/clean_data.py
 """
 
 import logging

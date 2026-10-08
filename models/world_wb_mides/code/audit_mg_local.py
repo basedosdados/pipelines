@@ -46,22 +46,19 @@ across a newline shows up immediately as a shortfall, and the check rides along
 with the byte scan already being done.
 
 Usage:
-    python audit_mg_local.py --year 2021
-    python audit_mg_local.py                 # every exercise on disk
+    uv run models/world_wb_mides/code/audit_mg_local.py --year 2021
+    uv run models/world_wb_mides/code/audit_mg_local.py                 # every exercise on disk
 """
 
 from __future__ import annotations
 
 import argparse
-import sys
 import zipfile
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]  # sibling module via sys.path
-from harvest_mg import MG_INPUT
+from models.world_wb_mides.code.harvest_mg import MG_INPUT
 
 # Which CSV inside which category's zip feeds which MiDES table.
 # (category, stream) -> label used in the report.

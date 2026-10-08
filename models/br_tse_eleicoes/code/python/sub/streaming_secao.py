@@ -16,7 +16,7 @@ and perfil aggregations are group-sums, which are associative and so
 chunk-safe. Validated against the in-RAM build (which is byte-identical to
 the March reference) - see `validate_stream_year`.
 
-Run: ``TSE_DATA_DIR=... uv run python -m sub.streaming_secao <ano> [out_root]``
+Run: ``TSE_DATA_DIR=... uv run -m sub.streaming_secao <ano> [out_root]``
 """
 
 from __future__ import annotations

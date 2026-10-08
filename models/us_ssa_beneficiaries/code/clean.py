@@ -3,23 +3,18 @@
 Imports the cleaning transform from ``pipelines.datasets.us_ssa_beneficiaries.utils``
 so the recurring Prefect pipeline and this bootstrap can never diverge.
 
-    uv run python models/us_ssa_beneficiaries/code/clean.py [--download]
+    uv run models/us_ssa_beneficiaries/code/clean.py [--download]
 
 Raw downloads and cleaned parquet go to ``~/Downloads/us_ssa_beneficiaries_data``
 (override with ``SSA_DATA_DIR``), never inside the repo or Dropbox.
 """
 
-# ruff: noqa: E402  (sys.path must be set before the pipelines import)
 from __future__ import annotations
 
 import argparse
 import logging
 import os
-import sys
 from pathlib import Path
-
-REPO_ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(REPO_ROOT))
 
 from pipelines.datasets.us_ssa_beneficiaries import utils as U  # noqa: N812
 from pipelines.datasets.us_ssa_beneficiaries.constants import constants

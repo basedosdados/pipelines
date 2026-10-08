@@ -1,6 +1,6 @@
 """Build the br_mj_sisdepen cleaned tables from the SISDEPEN cycle files.
 
-    python models/br_mj_sisdepen/code/clean.py [--skip-download]
+    uv run models/br_mj_sisdepen/code/clean.py [--skip-download]
 
 Raw downloads and cleaned parquet go under SISDEPEN_DATA_ROOT (default
 ~/Downloads/br_mj_sisdepen_data), never inside the repo or Dropbox.
