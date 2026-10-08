@@ -16,6 +16,13 @@ CKAN ``package_show`` API at run time rather than hard-coding a URL.
 from enum import Enum
 from pathlib import Path
 
+from pipelines.utils.metadata.domain import (
+    AllFree,
+    DateFormat,
+    DateOnly,
+    NonHistorical,
+)
+
 _REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
@@ -80,3 +87,25 @@ class constants(Enum):
     ARCHITECTURE_DIR = (
         _REPO_ROOT / "models" / "au_geoscape_gnaf" / "code" / "architecture"
     )
+
+
+# Coverage spec per table, used by `ExtractAndLoad.coverage` (tasks.py) and,
+# through it, by `register_table_materialization_task`/`build_and_promote`.
+#
+# G-NAF is CC-BY / Open-G-NAF, so every dated table is AllFree — the whole
+# stacked history is public. `snapshot_date` (a DATE) is the coverage column,
+# shared by the 3 data tables (same instance, read-only). `dicionario` has no
+# date column, so it takes `NonHistorical` instead — modeled on
+# `__TABLES__.last_modified_time`, not a `DateColumn`/`DateFormat` pair. The
+# old monolithic flow never registered any coverage for `dicionario` at all;
+# this is its first baseline, not a change to a previously decided value.
+_ALL_FREE = AllFree(
+    date_column=DateOnly(col="snapshot_date"),
+    date_format=DateFormat.YEAR_MD,
+)
+COVERAGE = {
+    "address_detail": _ALL_FREE,
+    "street_locality": _ALL_FREE,
+    "locality": _ALL_FREE,
+    "dicionario": NonHistorical(),
+}
