@@ -187,6 +187,9 @@ models:
     fr_colibre_decp:
       +materialized: table
       +schema: fr_colibre_decp
+    fr_inpi_ratios_financiers:
+      +materialized: table
+      +schema: fr_inpi_ratios_financiers
     fr_insee_sirene:
       +materialized: table
       +schema: fr_insee_sirene
