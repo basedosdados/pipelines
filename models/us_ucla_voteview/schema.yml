@@ -100,10 +100,10 @@ models:
           Whether the NOMINATE (DW-NOMINATE) estimate was produced conditionally
       - name: nokken_poole_dim1
         description: >
-          NOMINATE (DW-NOMINATE) Nokken-Poole first-dimension estimate
+          Nokken-Poole first-dimension estimate
       - name: nokken_poole_dim2
         description: >
-          NOMINATE (DW-NOMINATE) Nokken-Poole second-dimension estimate
+          Nokken-Poole second-dimension estimate
   - name: us_ucla_voteview__parties
     description: >
       Congressional parties, one row per party, chamber and Congress, with the
@@ -265,7 +265,7 @@ models:
           How the member voted
       - name: prob
         description: >
-          Estimated probability, from NOMINATE (DW-NOMINATE) , of the member
+          Estimated probability, from NOMINATE (DW-NOMINATE), of the member
           casting the vote as recorded
   - name: us_ucla_voteview__dictionary
     description: >

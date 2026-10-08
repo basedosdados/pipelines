@@ -5,4 +5,4 @@ rollnumber,STRING,Sequential number of the roll call within the Congress and cha
 date,DATE,Date of the roll call,,no,,,no,"Not in the Voteview votes file. Added by Data Basis from the rollcalls table (congress, chamber, rollnumber)",date
 icpsr,STRING,ICPSR identifier of the member,,no,,,no,"In general one identifier per member for their whole career. Members who switched parties, and members who later became president, receive a new identifier so that a separate NOMINATE estimate can be produced. Use bioguide_id to identify the person",icpsr
 cast_code,STRING,How the member voted,,yes,,,no,,cast_code
-prob,FLOAT64,"Estimated probability, from NOMINATE (DW-NOMINATE) , of the member casting the vote as recorded",,no,,percent,no,,prob
+prob,FLOAT64,"Estimated probability, from NOMINATE (DW-NOMINATE), of the member casting the vote as recorded",,no,,percent,no,,prob

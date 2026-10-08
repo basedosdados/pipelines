@@ -182,15 +182,19 @@ TABLES = {
                 "full estimation. Empty in every row of the current release"
             ),
         ),
-        nominate(
+        col(
             "nokken_poole_dim1",
+            "FLOAT64",
             "Nokken-Poole first-dimension estimate",
-            "Estimated separately for each Congress, unlike nominate_dim1",
+            unit="index",
+            obs="Estimated separately for each Congress, unlike nominate_dim1",
         ),
-        nominate(
+        col(
             "nokken_poole_dim2",
+            "FLOAT64",
             "Nokken-Poole second-dimension estimate",
-            "Estimated separately for each Congress, unlike nominate_dim2",
+            unit="index",
+            obs="Estimated separately for each Congress, unlike nominate_dim2",
         ),
     ],
     "rollcalls": [
@@ -287,7 +291,7 @@ TABLES = {
         col(
             "prob",
             "FLOAT64",
-            f"Estimated probability, from {NOM}, of the member casting the vote as recorded",
+            f"Estimated probability, from {NOM.strip()}, of the member casting the vote as recorded",
             unit="percent",
         ),
     ],

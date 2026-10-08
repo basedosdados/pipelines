@@ -19,5 +19,5 @@ nominate_geo_mean_probability,FLOAT64,Geometric mean probability of the member's
 nominate_number_of_votes,INT64,Number of votes cast by the member in the Congress,,no,,vote,no,,nominate_number_of_votes
 nominate_number_of_errors,INT64,Number of the member's votes misclassified by the NOMINATE (DW-NOMINATE) estimate,,no,,vote,no,,nominate_number_of_errors
 conditional,STRING,Whether the NOMINATE (DW-NOMINATE) estimate was produced conditionally,,yes,,,no,Conditional estimates are provisional and are updated at the next full estimation. Empty in every row of the current release,conditional
-nokken_poole_dim1,FLOAT64,NOMINATE (DW-NOMINATE) Nokken-Poole first-dimension estimate,,no,,index,no,"Estimated separately for each Congress, unlike nominate_dim1",nokken_poole_dim1
-nokken_poole_dim2,FLOAT64,NOMINATE (DW-NOMINATE) Nokken-Poole second-dimension estimate,,no,,index,no,"Estimated separately for each Congress, unlike nominate_dim2",nokken_poole_dim2
+nokken_poole_dim1,FLOAT64,Nokken-Poole first-dimension estimate,,no,,index,no,"Estimated separately for each Congress, unlike nominate_dim1",nokken_poole_dim1
+nokken_poole_dim2,FLOAT64,Nokken-Poole second-dimension estimate,,no,,index,no,"Estimated separately for each Congress, unlike nominate_dim2",nokken_poole_dim2
