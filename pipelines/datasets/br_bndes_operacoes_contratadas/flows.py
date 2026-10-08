@@ -201,7 +201,6 @@ def br_bndes_operacoes_contratadas__operacoes_pre_embarque(
     table_id: str = "operacoes_pre_embarque",
     materialize_after_dump: bool = True,
     update_metadata: bool = True,
-    target: str = "prod",
     force_run: bool = False,
 ) -> None:
     """Atualiza a operacoes_pre_embarque quando o BNDES republica o recurso."""
@@ -269,7 +268,7 @@ def br_bndes_operacoes_contratadas__operacoes_pre_embarque(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        target=target,
+        target="prod",
     )
 
     if update_metadata:
