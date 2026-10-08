@@ -68,6 +68,7 @@ def world_openalex_flow(
     update_metadata: bool = True,
     force_run: bool = False,
     fresh_load: bool = False,
+    load_workers: int = 3,
 ) -> None:
     """Rebuild every world_openalex table from the current OpenAlex snapshot.
 
@@ -81,6 +82,9 @@ def world_openalex_flow(
         force_run: Rebuild even when the poll finds no new release.
         fresh_load: Reload every file even when an interrupted load of the same
             release and code can be resumed.
+            load_workers: Snapshot files processed in parallel. Each worker peaks
+            near 1.8 GB on the pod, so 3 stays inside the 6Gi request; above
+            the request, a memory-tight node evicts the pod first.
     """
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="work"
@@ -114,7 +118,9 @@ def world_openalex_flow(
 
     bucket = "basedosdados" if materialize_to_prod else "basedosdados-dev"
     target = "prod" if materialize_to_prod else "dev"
-    load_snapshot_task(bucket_name=bucket, fresh=fresh_load)
+    load_snapshot_task(
+        bucket_name=bucket, workers=load_workers, fresh=fresh_load
+    )
 
     # Run every model, then test every model: the relationship and dictionary
     # tests read sibling models, which must all exist first.
@@ -150,11 +156,12 @@ def world_openalex_flow(
 world_openalex_flow.deploy_schedules = [
     Cron("25 3 8-21 1,4,7,10 *", timezone="America/Sao_Paulo")
 ]
-# Five worker processes, each downloading and uploading over parallel
-# connections. Peak RSS is ~1.1 GB per worker at 10k-row batches, so the pod
-# needs ~6 GB: request that, or a memory-tight node evicts the pod first (a
-# 4Gi request using 9 GB was evicted). 8Gi was unschedulable on the dev pool.
-# `memory` alone is ignored by the work pool.
+# Three worker processes by default (the `load_workers` parameter). On the pod
+# each peaks near 1.8 GB (1.1 GB measured locally; the rest is likely file
+# cache from the downloaded snapshot files), so 3 workers (~5.5 GB) stay
+# inside the 6Gi request. Pods above their request are evicted first from a
+# memory-tight node: 4Gi using 9 GB and 6Gi using 8.9 GB both were. 8Gi was
+# unschedulable on the dev pool. `memory` alone is ignored by the work pool.
 world_openalex_flow.job_variables = {
     "memory": "10Gi",
     "memory_limit": "10Gi",
