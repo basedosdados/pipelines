@@ -70,12 +70,10 @@ TESTS = {
 COLUMN_TESTS = {
     ("members", "congress"): ["  - not_null"],
     ("members", "icpsr"): ["  - not_null"],
-    ("members", "state_abbrev"): [
+    ("members", "state_id"): [
         "  - relationships:",
         "      to: ref('br_bd_diretorios_us__state')",
-        "      field: abbreviation",
-        "      config:",
-        "        where: chamber != 'President'",
+        "      field: id_state",
     ],
     ("members", "bioguide_id"): [
         "  - relationships:",

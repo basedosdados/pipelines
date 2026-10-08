@@ -12,6 +12,7 @@ select
     safe_cast(state_icpsr as string) state_icpsr,
     safe_cast(district_code as string) district_code,
     safe_cast(state_abbrev as string) state_abbrev,
+    safe_cast(state_id as string) state_id,
     safe_cast(party_code as string) party_code,
     safe_cast(occupancy as string) occupancy,
     safe_cast(last_means as string) last_means,

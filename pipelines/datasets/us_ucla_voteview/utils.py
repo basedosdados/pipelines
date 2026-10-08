@@ -103,6 +103,26 @@ def add_vote_date(votes: pa.Table, rollcalls: pa.Table) -> pa.Table:
     return out
 
 
+def add_state_id(members: pa.Table) -> pa.Table:
+    """Add the state's FIPS code, the key of the US state directory.
+
+    Every abbreviation except presidents' "USA" must map, so a new code at the
+    source stops the run instead of silently losing its directory link.
+    """
+    fips = constants.STATE_FIPS.value
+    abbrev = members["state_abbrev"].to_pylist()
+    unknown = sorted(
+        {a for a in abbrev if a not in fips and a not in (None, "USA")}
+    )
+    if unknown:
+        raise ValueError(
+            f"members: state_abbrev without a FIPS code: {unknown}"
+        )
+    return members.append_column(
+        "state_id", pa.array([fips.get(a) for a in abbrev], pa.string())
+    )
+
+
 def to_string_table(tbl: pa.Table, table: str) -> pa.Table:
     """Order the columns as in the architecture and check none is missing."""
     order = [a["name"] for a in read_arch(table)]
@@ -202,6 +222,7 @@ def clean_all(input_dir: Path, output_dir: Path) -> dict:
     )
     check_unique(src["rollcalls"], KEY, "rollcalls")
 
+    src["members"] = add_state_id(src["members"])
     rows = {}
     for table in ["members", "parties", "rollcalls"]:
         rows[table] = write_table(

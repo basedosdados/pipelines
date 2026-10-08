@@ -52,8 +52,10 @@ NOTES = {
         "`party_code` values printed as `100.0` in the source are stored as `100`.",
         "`last_means` takes the values 0, 6 and 7 in the data, which the codebook "
         "does not document; they are kept and labelled as undocumented.",
-        "`state_abbrev` links to `br_bd_diretorios_us.state`. Presidents carry "
-        "`USA` and `state_icpsr` 99; territories carry ICPSR codes 92-96.",
+        "`state_id` is not in the Voteview file: Data Basis adds the state's "
+        "FIPS code from `state_abbrev`, and it links to "
+        "`br_bd_diretorios_us.state`. Presidents carry `USA` and `state_icpsr` "
+        "99 and have no `state_id`; territories carry ICPSR codes 92-96.",
     ],
     "rollcalls": [
         "`session` values printed as `1.0` in the source are stored as `1`.",

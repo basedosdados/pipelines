@@ -55,6 +55,22 @@ class constants(Enum):
         "n_members",
     }
 
+    # State postal abbreviation -> FIPS code, as in br_bd_diretorios_us.state
+    # (abbreviation -> id_state). Fills members.state_id, the directory link.
+    # Presidents carry "USA", which maps to nothing.
+    STATE_FIPS = {
+        "AK": "02", "AL": "01", "AR": "05", "AS": "60", "AZ": "04", "CA": "06",
+        "CO": "08", "CT": "09", "DC": "11", "DE": "10", "FL": "12", "FM": "64",
+        "GA": "13", "GU": "66", "HI": "15", "IA": "19", "ID": "16", "IL": "17",
+        "IN": "18", "KS": "20", "KY": "21", "LA": "22", "MA": "25", "MD": "24",
+        "ME": "23", "MH": "68", "MI": "26", "MN": "27", "MO": "29", "MP": "69",
+        "MS": "28", "MT": "30", "NC": "37", "ND": "38", "NE": "31", "NH": "33",
+        "NJ": "34", "NM": "35", "NV": "32", "NY": "36", "OH": "39", "OK": "40",
+        "OR": "41", "PA": "42", "PR": "72", "PW": "70", "RI": "44", "SC": "45",
+        "SD": "46", "TN": "47", "TX": "48", "UM": "74", "UT": "49", "VA": "51",
+        "VI": "78", "VT": "50", "WA": "53", "WI": "55", "WV": "54", "WY": "56",
+    }  # fmt: skip
+
     ARCHITECTURE_DIR = _CODE_DIR / "architecture"
     DICTIONARY_CSV = _CODE_DIR / "dictionary.csv"
 

@@ -72,9 +72,9 @@ PT_ES = {
         "Código ICPSR do estado que o membro representa",
         "Código ICPSR del estado que representa el miembro",
     ),
-    "ICPSR state codes. 92-96 are territories (PR, AS, GU, MP, VI) and 99 is the whole country (presidents). The state directory has no ICPSR code for territories, so the directory link is on state_abbrev": (
-        "Códigos de estado do ICPSR. 92-96 são territórios (PR, AS, GU, MP, VI) e 99 é o país inteiro (presidentes). O diretório de estados não tem código ICPSR para territórios, por isso a ligação com o diretório é feita por state_abbrev",
-        "Códigos de estado del ICPSR. 92-96 son territorios (PR, AS, GU, MP, VI) y 99 es el país entero (presidentes). El directorio de estados no tiene código ICPSR para los territorios, por lo que el vínculo con el directorio se hace por state_abbrev",
+    "ICPSR state codes. 92-96 are territories (PR, AS, GU, MP, VI) and 99 is the whole country (presidents). The state directory has no ICPSR code for territories, so the directory link is on state_id": (
+        "Códigos de estado do ICPSR. 92-96 são territórios (PR, AS, GU, MP, VI) e 99 é o país inteiro (presidentes). O diretório de estados não tem código ICPSR para territórios, por isso a ligação com o diretório é feita por state_id",
+        "Códigos de estado del ICPSR. 92-96 son territorios (PR, AS, GU, MP, VI) y 99 es el país entero (presidentes). El directorio de estados no tiene código ICPSR para los territorios, por lo que el vínculo con el directorio se hace por state_id",
     ),
     "Congressional district the member represents within their state": (
         "Distrito congressional que o membro representa dentro do estado",
@@ -88,9 +88,14 @@ PT_ES = {
         "Sigla postal de duas letras do estado que o membro representa",
         "Abreviatura postal de dos letras del estado que representa el miembro",
     ),
-    "USA for presidents, which is not in the state directory": (
-        "USA para presidentes, valor que não está no diretório de estados",
-        "USA para presidentes, valor que no está en el directorio de estados",
+    "USA for presidents": ("USA para presidentes", "USA para presidentes"),
+    "FIPS code of the state the member represents": (
+        "Código FIPS do estado que o membro representa",
+        "Código FIPS del estado que representa el miembro",
+    ),
+    "Not in the Voteview members file. Added by Data Basis from state_abbrev. Empty for presidents": (
+        "Não está no arquivo de membros do Voteview. Adicionado pela Base dos Dados a partir de state_abbrev. Vazio para presidentes",
+        "No está en el archivo de miembros de Voteview. Agregado por Data Basis a partir de state_abbrev. Vacío para presidentes",
     ),
     "Voteview code of the member's party": (
         "Código Voteview do partido do membro",

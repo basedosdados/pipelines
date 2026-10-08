@@ -29,12 +29,15 @@ HEADER = [
     "observations",
     "original_name",
 ]
-STATE = "br_bd_diretorios_us.state:abbreviation"
+STATE = "br_bd_diretorios_us.state:id_state"
 MEMBER = "br_bd_diretorios_us.congress_member:id_bioguide"
 
 
-def col(name, type_, desc, dic="no", directory="", unit="", obs=""):
-    return [name, type_, desc, "", dic, directory, unit, "no", obs, name]
+def col(
+    name, type_, desc, dic="no", directory="", unit="", obs="", original=None
+):
+    original = name if original is None else original
+    return [name, type_, desc, "", dic, directory, unit, "no", obs, original]
 
 
 CONGRESS = col(
@@ -95,7 +98,7 @@ TABLES = {
                 "ICPSR state codes. 92-96 are territories (PR, AS, GU, MP, VI) "
                 "and 99 is the whole country (presidents). The state directory "
                 "has no ICPSR code for territories, so the directory link is on "
-                "state_abbrev"
+                "state_id"
             ),
         ),
         col(
@@ -111,8 +114,18 @@ TABLES = {
             "state_abbrev",
             "STRING",
             "Two-letter postal abbreviation of the state the member represents",
+            obs="USA for presidents",
+        ),
+        col(
+            "state_id",
+            "STRING",
+            "FIPS code of the state the member represents",
             directory=STATE,
-            obs="USA for presidents, which is not in the state directory",
+            obs=(
+                "Not in the Voteview members file. Added by Data Basis from "
+                "state_abbrev. Empty for presidents"
+            ),
+            original="",
         ),
         col(
             "party_code",
@@ -280,6 +293,7 @@ TABLES = {
                 "Not in the Voteview votes file. Added by Data Basis from the "
                 "rollcalls table (congress, chamber, rollnumber)"
             ),
+            original="",
         ),
         ICPSR,
         col(

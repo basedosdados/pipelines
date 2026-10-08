@@ -36,12 +36,13 @@ models:
       - name: state_abbrev
         description: >
           Two-letter postal abbreviation of the state the member represents
+      - name: state_id
+        description: >
+          FIPS code of the state the member represents
         tests:
           - relationships:
               to: ref('br_bd_diretorios_us__state')
-              field: abbreviation
-              config:
-                where: chamber != 'President'
+              field: id_state
       - name: party_code
         description: >
           Voteview code of the member's party
