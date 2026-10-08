@@ -789,6 +789,9 @@ models:
     us_meta_sci:
       +materialized: table
       +schema: us_meta_sci
+    us_ucla_voteview:
+      +materialized: table
+      +schema: us_ucla_voteview
     us_medsl_elections:
       +materialized: table
       +schema: us_medsl_elections

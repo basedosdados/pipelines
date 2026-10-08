@@ -1,0 +1,6 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+table_id,STRING,Table identifier,,no,,,no,,table_id
+column_name,STRING,Column name,,no,,,no,,column_name
+key,STRING,Code,,no,,,no,,key
+temporal_coverage,STRING,Temporal coverage of the code,,no,,,no,,temporal_coverage
+value,STRING,Meaning of the code,,no,,,no,,value
