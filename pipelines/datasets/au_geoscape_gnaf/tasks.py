@@ -3,8 +3,6 @@ check_update/extract_and_load entry points the staged pipeline dispatches
 through (see the banner above `get_latest_update` below).
 """
 
-import shutil
-import tempfile
 from datetime import date
 from pathlib import Path
 
@@ -110,10 +108,18 @@ def get_latest_update() -> SourceInspection:
     )
 
 
-def extract_load_data(download_params: dict) -> dict[str, ExtractAndLoad]:
+def extract_load_data(
+    work_dir: str, download_params: dict
+) -> dict[str, ExtractAndLoad]:
     """Download + clean the quarterly release into all 4 tables.
 
     Args:
+        work_dir: Scratch directory for this run, created and cleaned up by
+            the caller (`flows.py`) — *not* here, since the returned
+            `ExtractAndLoad.data_path`s point inside it and are only read
+            (via `upload_to_gcs`) *after* this function returns. Cleaning it
+            up in a `finally` inside this function would delete those paths
+            before the caller ever uploads them.
         download_params: `{"reference_date": "<snapshot_date>", "url": ...}`
             — `reference_date` is `get_latest_update`'s resolved
             `snapshot_date` round-tripped through `check_update_and_dispatch`
@@ -125,22 +131,18 @@ def extract_load_data(download_params: dict) -> dict[str, ExtractAndLoad]:
         monolithic flow (CNPJ-style stacking: history accumulates in the
         incremental dbt models, not in the staging dump mode).
     """
-    work_dir = tempfile.mkdtemp(prefix="au_geoscape_gnaf_")
-    try:
-        zip_path = download_gnaf(work_dir=work_dir, url=download_params["url"])
-        result = clean_gnaf(
-            work_dir=work_dir,
-            zip_path=zip_path,
-            snapshot_date=download_params["reference_date"],
+    zip_path = download_gnaf(work_dir=work_dir, url=download_params["url"])
+    result = clean_gnaf(
+        work_dir=work_dir,
+        zip_path=zip_path,
+        snapshot_date=download_params["reference_date"],
+    )
+    return {
+        table: ExtractAndLoad(
+            coverage=COVERAGE[table].model_dump(),
+            data_path=result[table],
+            dump_mode="overwrite",
+            source_format="parquet",
         )
-        return {
-            table: ExtractAndLoad(
-                coverage=COVERAGE[table].model_dump(),
-                data_path=result[table],
-                dump_mode="overwrite",
-                source_format="parquet",
-            )
-            for table in constants.ALL_TABLES.value
-        }
-    finally:
-        shutil.rmtree(work_dir, ignore_errors=True)
+        for table in constants.ALL_TABLES.value
+    }

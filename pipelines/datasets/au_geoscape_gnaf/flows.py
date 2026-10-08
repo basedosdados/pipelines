@@ -31,6 +31,9 @@ below; the dev pool ignores the check_update schedule, the prod pool activates
 it (deployed paused).
 """
 
+import shutil
+import tempfile
+
 from prefect.schedules import Cron
 
 from pipelines.datasets.au_geoscape_gnaf.constants import constants
@@ -113,22 +116,32 @@ def au_geoscape_gnaf_extract_and_load(download_params: dict) -> None:
         prefix="Extract and Load: ", dataset_id=DATASET_ID, table_id=CORE_TABLE
     )
 
-    results = extract_load_data(download_params)
-    for table_id, result in results.items():
-        result.partition_folders = discover_partition_folders(result.data_path)
-        upload_to_gcs(
-            data_path=result.data_path,
-            dataset_id=DATASET_ID,
-            table_id=table_id,
-            bucket_name="basedosdados-dev",
-            dump_mode=result.dump_mode,
-            source_format=result.source_format,
-        )
-        dispatch_build_and_promote(
-            dataset_id=DATASET_ID,
-            table_id=table_id,
-            result=result,
-        )
+    # work_dir is created/cleaned up here, not inside extract_load_data: its
+    # returned ExtractAndLoad.data_paths point inside it and are only read
+    # (via upload_to_gcs) below — cleaning it up before that would delete
+    # them first.
+    work_dir = tempfile.mkdtemp(prefix="au_geoscape_gnaf_")
+    try:
+        results = extract_load_data(work_dir, download_params)
+        for table_id, result in results.items():
+            result.partition_folders = discover_partition_folders(
+                result.data_path
+            )
+            upload_to_gcs(
+                data_path=result.data_path,
+                dataset_id=DATASET_ID,
+                table_id=table_id,
+                bucket_name="basedosdados-dev",
+                dump_mode=result.dump_mode,
+                source_format=result.source_format,
+            )
+            dispatch_build_and_promote(
+                dataset_id=DATASET_ID,
+                table_id=table_id,
+                result=result,
+            )
+    finally:
+        shutil.rmtree(work_dir, ignore_errors=True)
 
 
 au_geoscape_gnaf_extract_and_load.deploy_tags = deploy_tags(
