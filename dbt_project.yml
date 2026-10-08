@@ -783,6 +783,9 @@ models:
     us_meta_sci:
       +materialized: table
       +schema: us_meta_sci
+    us_nyuad_cora:
+      +materialized: table
+      +schema: us_nyuad_cora
     us_medsl_elections:
       +materialized: table
       +schema: us_medsl_elections
