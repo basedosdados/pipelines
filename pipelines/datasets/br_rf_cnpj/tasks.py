@@ -1,9 +1,10 @@
 """
-Tasks for br_rf_cnpj
+Tasks for br_rf_cnpj — Prefect 3.
 """
 
 import asyncio
 import datetime
+from collections.abc import Callable
 from pathlib import Path
 
 from prefect import task
@@ -21,11 +22,35 @@ from pipelines.datasets.br_rf_cnpj.utils import (
     process_csv_socios,
     process_manual_dictionaries,
 )
+from pipelines.utils.metadata.domain import (
+    DateFormat,
+    DateOnly,
+    NonHistorical,
+    PartBdpro,
+)
+from pipelines.utils.stage_dispatch import (
+    ExtractAndLoad,
+    SourceInspection,
+    pipeline_factory,
+)
 from pipelines.utils.utils import log
 
 ufs = constants_cnpj.UFS.value
 url = constants_cnpj.URL.value
 headers = constants_cnpj.HEADERS.value
+
+DATASET_ID = "br_rf_cnpj"
+
+# simples/dicionario não têm baseline de coverage confiável (não são
+# particionadas por competência) — comparam contra Table.Update em vez de
+# Coverage. Mesma decisão do flow monolítico antigo.
+_NON_HISTORICAL_TABLE_IDS = ("simples", "dicionario")
+
+_COVERAGE_PART_BDPRO = PartBdpro(
+    date_column=DateOnly(col="data_referencia"),
+    date_format=DateFormat.YEAR_MD,
+)
+_COVERAGE_NON_HISTORICAL = NonHistorical()
 
 
 @task(retries=3, retry_delay_seconds=30)
@@ -176,3 +201,67 @@ def main(
     # pyrefly: ignore[bad-return]
     # pyrefly: ignore [unbound-name]
     return output_path
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# As 5 tabelas (empresas, socios, estabelecimentos, simples, dicionario) —
+# ver `constants.TABLES`/`constants.TABLE_CONFIGS`. `make_get_latest_update`/
+# `make_extract_load_data` são fábricas parametrizadas por `table_id`: a
+# checagem (`get_data_source_max_date`, leitura de índice via PROPFIND, sem
+# baixar arquivo nenhum) é idêntica pras 5; o download (`main`) e a coverage
+# mudam conforme `table_id` (simples/dicionario são NonHistorical e
+# comparam contra Table.Update; as demais são PartBdpro particionadas por
+# `data_referencia` e comparam contra Coverage).
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def make_get_latest_update(table_id: str) -> Callable[[], SourceInspection]:
+    def get_latest_update() -> SourceInspection:
+        folder_date, last_modified_date = get_data_source_max_date()
+        compare_against = (
+            "table_update"
+            if table_id in _NON_HISTORICAL_TABLE_IDS
+            else "coverage"
+        )
+        return SourceInspection(
+            reference_date=last_modified_date,
+            extra_download_params={"folder_date": folder_date},
+            compare_against=compare_against,
+        )
+
+    return get_latest_update
+
+
+def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
+    def extract_load_data(download_params: dict) -> ExtractAndLoad:
+        folder_date = download_params["folder_date"]
+        last_modified_date = datetime.date.fromisoformat(
+            download_params["reference_date"]
+        )
+
+        tabelas = constants_cnpj.TABLES.value[table_id]
+        output_filepath = main(
+            tables=tabelas,
+            folder_date=folder_date,
+            last_modified_date=last_modified_date,
+        )
+
+        coverage = (
+            _COVERAGE_NON_HISTORICAL
+            if table_id in _NON_HISTORICAL_TABLE_IDS
+            else _COVERAGE_PART_BDPRO
+        )
+
+        return ExtractAndLoad(
+            coverage=coverage.model_dump(),
+            data_path=str(output_filepath),
+        )
+
+    return extract_load_data
+
+
+make_pipeline = pipeline_factory(
+    DATASET_ID,
+    make_get_latest_update,
+    make_extract_load_data,
+)
