@@ -20,7 +20,7 @@ from pipelines.crawler.rf.utils import (
     download_file_async,
     process_chunk,
 )
-from pipelines.utils.utils import log
+from pipelines.utils.utils import brasil_proxy_url, log
 
 
 @task
@@ -63,6 +63,7 @@ def check_need_for_update(dataset_id: str, url: str | None = None) -> date:
                 headers=br_rf_constants.HEADERS.value,
                 timeout=30,
                 follow_redirects=True,
+                proxy=brasil_proxy_url(),
             )
             response.raise_for_status()
             break
