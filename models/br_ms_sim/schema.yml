@@ -241,3 +241,75 @@ models:
         description: Cobertura Temporal
       - name: valor
         description: Valor
+  - name: br_ms_sim__municipio_causa_idade_sexo_raca
+    description: >
+      Número de óbitos por ano, município de residência, causa básica, idade, sexo
+      e raça ou cor, calculado a partir dos microdados. Óbitos sem município de
+      residência ou com município ignorado não entram. Em 1996-1998, os códigos
+      3345xxx da capital do Rio de Janeiro são somados ao município 3304557.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ano
+            - id_municipio
+            - causa_basica
+            - idade
+            - sexo
+            - raca_cor
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação de residência
+        tests: [not_null]
+      - name: id_municipio
+        description: ID Município de residência - IBGE 7 Dígitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+              # Até 2003 a fonte traz 13 códigos fora do diretório (64 óbitos).
+              config:
+                where: ano >= 2004
+      - name: causa_basica
+        description: Causa básica (CID-10)
+      - name: idade
+        description: Idade em anos completos
+      - name: sexo
+        description: Sexo
+      - name: raca_cor
+        description: Raça ou cor
+      - name: numero_obitos
+        description: Número de óbitos
+  - name: br_ms_sim__municipio
+    description: >
+      Número de óbitos por ano e município de residência. Soma de
+      br_ms_sim__municipio_causa_idade_sexo_raca.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [ano, id_municipio]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: ano
+        description: Ano
+        tests: [not_null]
+      - name: sigla_uf
+        description: Sigla da Unidade da Federação de residência
+        tests: [not_null]
+      - name: id_municipio
+        description: ID Município de residência - IBGE 7 Dígitos
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_brasil__municipio')
+              field: id_municipio
+              # Até 2003 a fonte traz 13 códigos fora do diretório (64 óbitos).
+              config:
+                where: ano >= 2004
+      - name: numero_obitos
+        description: Número de óbitos
