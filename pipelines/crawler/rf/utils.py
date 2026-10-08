@@ -57,6 +57,14 @@ async def download_chunk(
 
     async with semaphore:  # controla concorrência
         response = await client.get(url, headers=headers, timeout=60.0)
+
+        if response.status_code != 206:
+            raise httpx.HTTPStatusError(
+                f"Faixa {start}-{end}: esperado 206, veio {response.status_code}",
+                request=response.request,
+                response=response,
+            )
+
         with open(filepath, "r+b") as f:
             f.seek(start)  # posiciona no ponto certo do arquivo
             f.write(response.content)
