@@ -1,182 +1,95 @@
 """
 Flows para br_bcb_estban — Prefect 3.
+
+Migrado por completo pro pipeline em estágios (staged pipeline):
+check_update -> extract_and_load -> build_and_promote, uma dupla de flows por
+tabela. Lógica específica do dataset mora em `tasks.py`, constantes em
+`constants.py` — aqui só a fiação (`CheckThenExtractLoadPipeline` + `@flow`).
+
+O antigo `_run_bcb_estban`/`_estban_flow` monolítico foi substituído por
+completo por este módulo — as tasks/utils de `pipelines/crawler/bcb_estban/`
+seguem existindo e são reaproveitadas aqui (`tasks.py`), sem reescrever a
+lógica de negócio.
 """
 
 from prefect.schedules import Cron
 
-from pipelines.crawler.bcb_estban.tasks import (
-    cleaning_data,
-    download_table,
-    extract_urls_list,
-    get_documents_metadata,
-    get_id_municipio,
-    get_latest_file,
+from pipelines.datasets.br_bcb_estban.constants import (
+    AGENCIA_TABLE_ID,
+    DATASET_ID,
+    MUNICIPIO_TABLE_ID,
 )
+from pipelines.datasets.br_bcb_estban.tasks import make_pipeline
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    PartBdpro,
-    YearMonth,
+from pipelines.utils.stage_dispatch import Etapa, deploy_tags
+
+# ──────────────────────────────────────────────────────────────────────────────
+# agencia
+# check_update: br_bcb_estban__agencia
+# extract_and_load: br_bcb_estban__agencia
+# ──────────────────────────────────────────────────────────────────────────────
+
+_agencia_pipeline = make_pipeline(AGENCIA_TABLE_ID)
+
+
+@flow(name=_agencia_pipeline.check_update_flow_name, log_prints=True)
+def br_bcb_estban_agencia_check_update() -> None:
+    _agencia_pipeline.run_check_update()
+
+
+br_bcb_estban_agencia_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, AGENCIA_TABLE_ID
 )
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
-    task_get_api_most_recent_date,
+# Mesmo cron do flow monolítico antigo (`br_bcb_estban__agencia`).
+br_bcb_estban_agencia_check_update.deploy_schedules = [
+    Cron("0 22 25-31 * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_agencia_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_bcb_estban_agencia_download(download_params: dict) -> None:
+    _agencia_pipeline.run_extract_and_load(download_params)
+
+
+br_bcb_estban_agencia_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, AGENCIA_TABLE_ID
 )
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
-)
-
-
-def _run_bcb_estban(
-    dataset_id: str,
-    table_id: str,
-    materialize_after_dump: bool,
-    update_metadata: bool,
-    target: str,
-    force_run: bool,
-) -> None:
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
-    )
-
-    documents_metadata = get_documents_metadata(table_id)
-    if documents_metadata is None:
-        raise RuntimeError(
-            "BCB metadata was not loaded! It was not possible to determine if the dataset is up to date."
-        )
-
-    _, data_source_max_date = get_latest_file(documents_metadata)
-
-    if not force_run:
-        has_new_data = poll_source_for_update_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            source_max_date=data_source_max_date,
-            env="prod",
-            date_format="%Y-%m",
-            compare_against="coverage",
-        )
-        if not has_new_data:
-            print(f"Não há atualizações para a tabela {table_id}!")
-            return
-
-    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
-    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
-    # novo publicado, mesmo que a tabela não tenha sido atualizada.
-    commit_source_update_task(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        source_max_date=data_source_max_date,
-        env="prod",
-        date_format="%Y-%m",
-        update_metadata=update_metadata,
-        materialize_after_dump=materialize_after_dump,
-    )
-
-    print("Existem atualizações! A run será iniciada.")
-    api_max_date = task_get_api_most_recent_date(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        date_format="%Y-%m",
-        api_mode="prod",
-    )
-
-    # pyrefly: ignore [no-matching-overload]
-    urls_list = extract_urls_list(
-        documents_metadata,
-        data_source_max_date,
-        api_max_date,
-        date_format="%Y-%m",
-    )
-
-    for url in urls_list:
-        download_table(url=url, table_id=table_id)
-
-    df_diretorios = get_id_municipio()
-    filepath = cleaning_data(table_id, df_diretorios)
-
-    upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        bucket_name="basedosdados-dev",
-        dump_mode="append",
-    )
-
-    run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        target="dev",
-    )
-
-    if not materialize_after_dump:
-        return
-
-    upload_to_gcs(
-        data_path=filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        bucket_name="basedosdados",
-        dump_mode="append",
-    )
-
-    run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        target=target,
-    )
-
-    if update_metadata:
-        register_table_materialization_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            coverage=PartBdpro(
-                date_column=YearMonth(year="ano", month="mes"),
-                date_format=DateFormat.YEAR_MONTH,
-            ),
-            env="prod",
-            bq_project="basedosdados",
-        )
-
-
-def _estban_flow(table_id: str, cron: str):
-    @flow(
-        name=f"br_bcb_estban__{table_id}",
-        log_prints=True,
-    )
-    def _flow(
-        dataset_id: str = "br_bcb_estban",
-        table_id: str = table_id,
-        materialize_after_dump: bool = True,
-        update_metadata: bool = True,
-        target: str = "prod",
-        force_run: bool = False,
-    ) -> None:
-        _run_bcb_estban(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            materialize_after_dump=materialize_after_dump,
-            update_metadata=update_metadata,
-            target=target,
-            force_run=force_run,
-        )
-
-    _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
-    return _flow
-
-
-br_bcb_estban__agencia = _estban_flow(
-    table_id="agencia",
-    cron="0 22 25-31 * *",
+_agencia_pipeline.extract_load_deployment = (
+    br_bcb_estban_agencia_download.fn.__name__
 )
 
-br_bcb_estban__municipio = _estban_flow(
-    table_id="municipio",
-    cron="30 22 25-31 * *",
+
+# ──────────────────────────────────────────────────────────────────────────────
+# municipio
+# check_update: br_bcb_estban__municipio
+# extract_and_load: br_bcb_estban__municipio
+# ──────────────────────────────────────────────────────────────────────────────
+
+_municipio_pipeline = make_pipeline(MUNICIPIO_TABLE_ID)
+
+
+@flow(name=_municipio_pipeline.check_update_flow_name, log_prints=True)
+def br_bcb_estban_municipio_check_update() -> None:
+    _municipio_pipeline.run_check_update()
+
+
+br_bcb_estban_municipio_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, MUNICIPIO_TABLE_ID
+)
+# Mesmo cron do flow monolítico antigo (`br_bcb_estban__municipio`).
+br_bcb_estban_municipio_check_update.deploy_schedules = [
+    Cron("30 22 25-31 * *", timezone="America/Sao_Paulo")
+]
+
+
+@flow(name=_municipio_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_bcb_estban_municipio_download(download_params: dict) -> None:
+    _municipio_pipeline.run_extract_and_load(download_params)
+
+
+br_bcb_estban_municipio_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, MUNICIPIO_TABLE_ID
+)
+_municipio_pipeline.extract_load_deployment = (
+    br_bcb_estban_municipio_download.fn.__name__
 )
