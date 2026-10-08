@@ -249,6 +249,12 @@ def clean_table(csv_path: Path) -> Path:
         for writer in writers.values():
             writer.close()
 
+    if rows_written != rows_read:
+        raise ValueError(
+            f"{rows_read - rows_written} linhas sem `ano` ficaram fora das "
+            "partições; a tabela subiria incompleta."
+        )
+
     log(
         f"{rows_read} linhas lidas, {rows_written} gravadas em "
         f"{len(writers)} partições de ano em {output_dir}"

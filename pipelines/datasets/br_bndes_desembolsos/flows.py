@@ -32,7 +32,6 @@ def br_bndes_desembolsos__mensal(
     table_id: str = "mensal",
     materialize_after_dump: bool = True,
     update_metadata: bool = True,
-    target: str = "prod",
     force_run: bool = False,
 ) -> None:
     """Atualiza a mensal quando o BNDES republica o recurso."""
@@ -100,7 +99,7 @@ def br_bndes_desembolsos__mensal(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        target=target,
+        target="prod",
     )
 
     if update_metadata:
