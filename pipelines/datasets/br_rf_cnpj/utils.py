@@ -16,11 +16,18 @@ from bs4 import BeautifulSoup
 from httpx import AsyncClient, HTTPError
 from tqdm import tqdm
 
-from pipelines.datasets.br_rf_cnpj.constants import constants as constants_cnpj
+from pipelines.datasets.br_rf_cnpj.constants import (
+    COLUNAS_EMPRESAS,
+    COLUNAS_ESTABELECIMENTO,
+    COLUNAS_ESTABELECIMENTO_ORDEM,
+    COLUNAS_SIMPLES,
+    COLUNAS_SOCIOS,
+    COMPONENTS_SPECS,
+    HEADERS,
+    UFS,
+    XML_BODY,
+)
 from pipelines.utils.utils import brasil_proxy_dict, brasil_proxy_url, log
-
-ufs = constants_cnpj.UFS.value
-timeout = constants_cnpj.TIMEOUT.value
 
 
 def data_url(
@@ -40,8 +47,8 @@ def data_url(
     link_data = requests.request(
         method="PROPFIND",
         url=url,
-        headers=constants_cnpj.HEADERS.value,
-        data=constants_cnpj.XML_BODY.value,
+        headers=HEADERS,
+        data=XML_BODY,
         timeout=30,
         proxies=brasil_proxy_dict(),
     )
@@ -100,8 +107,8 @@ def get_table_files(table_name: str, url_base: str):
     link_data = requests.request(
         method="PROPFIND",
         url=url_base,
-        headers=constants_cnpj.HEADERS.value,
-        data=constants_cnpj.XML_BODY.value,
+        headers=HEADERS,
+        data=XML_BODY,
         timeout=30,
         proxies=brasil_proxy_dict(),
     )
@@ -426,8 +433,8 @@ def process_csv_estabelecimentos(
         i (int): File number or batch index.
         chunk_size (int): Number of rows to process per chunk.
     """
-    ordem = constants_cnpj.COLUNAS_ESTABELECIMENTO_ORDEM.value
-    colunas = constants_cnpj.COLUNAS_ESTABELECIMENTO.value
+    ordem = COLUNAS_ESTABELECIMENTO_ORDEM
+    colunas = COLUNAS_ESTABELECIMENTO
     save_folder = Path(output_path) / f"data_referencia={data_referencia}"
     save_folder.mkdir(exist_ok=True, parents=True)
 
@@ -478,7 +485,7 @@ def process_csv_estabelecimentos(
                 chunk["id_municipio"] = ""
                 chunk = chunk.loc[:, ordem]
                 chunk["data_modificacao"] = data_coleta
-                for uf in constants_cnpj.UFS.value:
+                for uf in UFS:
                     df_particao = chunk[chunk["sigla_uf"] == uf].copy()
                     df_particao = df_particao.drop(["sigla_uf"], axis=1)
                     particao_path = save_folder / f"sigla_uf={uf}"
@@ -518,7 +525,7 @@ def process_csv_empresas(
         i (int): File number or batch index.
         chunk_size (int): Number of rows to process per chunk.
     """
-    colunas = constants_cnpj.COLUNAS_EMPRESAS.value
+    colunas = COLUNAS_EMPRESAS
     save_folder = Path(output_path) / f"data_referencia={data_referencia}"
     save_folder.mkdir(exist_ok=True, parents=True)
     save_path = save_folder / f"empresas_{i}.csv"
@@ -586,7 +593,7 @@ def process_csv_socios(
     Returns:
         None
     """
-    colunas = constants_cnpj.COLUNAS_SOCIOS.value
+    colunas = COLUNAS_SOCIOS
     save_folder = Path(output_path) / f"data_referencia={data_referencia}"
     save_folder.mkdir(exist_ok=True, parents=True)
     save_path = save_folder / f"socios_{i}.csv"
@@ -656,7 +663,7 @@ def process_csv_simples(
     Returns:
         None
     """
-    colunas = constants_cnpj.COLUNAS_SIMPLES.value
+    colunas = COLUNAS_SIMPLES
     save_folder = Path(output_path)
     save_folder.mkdir(exist_ok=True, parents=True)
     save_path = save_folder / f"{sufixo}.csv"
@@ -894,14 +901,14 @@ def process_csv_dicionario(
     Args:
         input_path (Path): Directory containing the input CSV files.
         output_path (Path): Base directory for output.
-        table_name (str): Name of the table to look up configuration in TABLE_CONFIGS.
+        table_name (str): Name of the table to look up configuration in COMPONENTS_SPECS.
     """
     save_path = output_path
     save_path.mkdir(exist_ok=True, parents=True)
     save_path = save_path / "data.csv"
 
     log(f"Save path: {save_path}")
-    table_configs: dict = constants_cnpj.TABLE_CONFIGS.value[table_name]
+    table_configs: dict = COMPONENTS_SPECS[table_name]
     files = [
         fp
         for fp in Path(input_path).iterdir()
@@ -987,12 +994,12 @@ def process_manual_dictionaries(output_path: Path, table_name: str):
 
     Args:
         output_path (Path): Base directory for output.
-        table_name (str): Name of the table to look up configuration in TABLE_CONFIGS.
+        table_name (str): Name of the table to look up configuration in COMPONENTS_SPECS.
     """
     save_path = output_path
     save_path.mkdir(exist_ok=True, parents=True)
     save_path = save_path / "data.csv"
-    table_configs: dict = constants_cnpj.TABLE_CONFIGS.value[table_name]
+    table_configs: dict = COMPONENTS_SPECS[table_name]
 
     chunk = pd.DataFrame(table_configs["chaves_valores"])
     for relationship in table_configs["relationships"]:
