@@ -57,18 +57,17 @@ def get_data_source_max_date(
     return data_url(url=URL, folder_date=folder_date)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# As 5 tabelas — ver constants.py
-#
-# O check é leve (um PROPFIND na listagem WebDAV da Receita Federal), igual
-# pras 5 tabelas. O que muda é contra o quê comparar:
-#   - empresas/estabelecimentos/socios: competência (`folder_date`) contra
-#     `Coverage`;
-#   - simples/dicionario (NonHistorical): `last_modified_date` contra
-#     `Table.Update`.
-# `folder_date` e `last_modified_date` seguem pro extract_and_load em
-# `extra_download_params` (strings ISO — o dict viaja por run_deployment).
-# ──────────────────────────────────────────────────────────────────────────────
+"""
+São 5 tabelas
+1. `check_update`
+    CHECK LEVE - PROPFIND na listagem WebDAV da Receita Federal)
+        - empresas/estabelecimentos/socios: compara-se a competência (`folder_date`) 
+        contra `Coverage`;
+        - simples/dicionario (NonHistorical): `last_modified_date` contra
+        `Table.Update`.
+2. `extract_and_load`: `folder_date` e `last_modified_date` (em `extra_download_params`) usados em 
+`main`
+"""
 
 
 def make_get_latest_update(table_id: str) -> Callable[[], SourceInspection]:
