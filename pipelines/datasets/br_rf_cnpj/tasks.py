@@ -4,11 +4,25 @@ Tasks for br_rf_cnpj
 
 import asyncio
 import datetime
+from collections.abc import Callable
 from pathlib import Path
 
 from prefect import task
 
-from pipelines.datasets.br_rf_cnpj.constants import constants as constants_cnpj
+from pipelines.datasets.br_rf_cnpj.constants import (
+    COMPONENTS_SPECS,
+    COVERAGE,
+    CSV_CHUNK_SIZE,
+    DATASET_ID,
+    DOWNLOAD_CHUNK_SIZE,
+    DOWNLOAD_MAX_PARALLEL,
+    DOWNLOAD_MAX_RETRIES,
+    DOWNLOAD_TIMEOUT,
+    FOLDER_DATE_FORMAT,
+    NON_HISTORICAL_TABLES,
+    TABLE_COMPONENTS,
+    URL,
+)
 from pipelines.datasets.br_rf_cnpj.utils import (
     build_paths,
     data_url,
@@ -21,11 +35,12 @@ from pipelines.datasets.br_rf_cnpj.utils import (
     process_csv_socios,
     process_manual_dictionaries,
 )
+from pipelines.utils.stage_dispatch import (
+    ExtractAndLoad,
+    SourceInspection,
+    pipeline_factory,
+)
 from pipelines.utils.utils import log
-
-ufs = constants_cnpj.UFS.value
-url = constants_cnpj.URL.value
-headers = constants_cnpj.HEADERS.value
 
 
 @task(retries=3, retry_delay_seconds=30)
@@ -33,17 +48,69 @@ def get_data_source_max_date(
     folder_date: str | None = None,
 ) -> tuple[str, datetime.date]:
     """
-    Checks if there are available updates for a specific dataset and table.
+    Looks up the latest release published by the Receita Federal.
 
     Returns:
-        tuple: Returns a tuple with the date extracted from the CNPJs API folder and today date
-        to be used as partition
+        tuple: the latest folder date on the source ("%Y-%m", the competência the
+        data refers to) and the max last-modified date of the source files.
     """
+    return data_url(url=URL, folder_date=folder_date)
 
-    folder_date, last_modified_date = data_url(
-        url=url, folder_date=folder_date
-    )
-    return folder_date, last_modified_date
+
+# ──────────────────────────────────────────────────────────────────────────────
+# As 5 tabelas — ver constants.py
+#
+# O check é leve (um PROPFIND na listagem WebDAV da Receita Federal), igual
+# pras 5 tabelas. O que muda é contra o quê comparar:
+#   - empresas/estabelecimentos/socios: competência (`folder_date`) contra
+#     `Coverage`;
+#   - simples/dicionario (NonHistorical): `last_modified_date` contra
+#     `Table.Update`.
+# `folder_date` e `last_modified_date` seguem pro extract_and_load em
+# `extra_download_params` (strings ISO — o dict viaja por run_deployment).
+# ──────────────────────────────────────────────────────────────────────────────
+
+
+def make_get_latest_update(table_id: str) -> Callable[[], SourceInspection]:
+    def get_latest_update() -> SourceInspection:
+        folder_date, last_modified_date = get_data_source_max_date()
+        extra_download_params = {
+            "folder_date": folder_date,
+            "last_modified_date": last_modified_date.isoformat(),
+        }
+
+        if table_id in NON_HISTORICAL_TABLES:
+            return SourceInspection(
+                reference_date=last_modified_date,
+                extra_download_params=extra_download_params,
+                compare_against="table_update",
+            )
+
+        return SourceInspection(
+            reference_date=datetime.datetime.strptime(
+                folder_date, FOLDER_DATE_FORMAT
+            ).date(),
+            extra_download_params=extra_download_params,
+        )
+
+    return get_latest_update
+
+
+def make_extract_load_data(table_id: str) -> Callable[[dict], ExtractAndLoad]:
+    def extract_load_data(download_params: dict) -> ExtractAndLoad:
+        output_path = main(
+            tables=TABLE_COMPONENTS[table_id],
+            folder_date=download_params["folder_date"],
+            last_modified_date=datetime.date.fromisoformat(
+                download_params["last_modified_date"]
+            ),
+        )
+        return ExtractAndLoad(
+            coverage=COVERAGE[table_id].model_dump(),
+            data_path=str(output_path),
+        )
+
+    return extract_load_data
 
 
 @task(retries=3, retry_delay_seconds=30)
@@ -51,11 +118,11 @@ def main(
     tables: list[str],
     folder_date: str,
     last_modified_date: datetime.date,
-    chunk_size: int = 100000,
-    download_chunk_size: int = 15 * 1024 * 1024,
-    download_max_retries: int = 5,
-    download_max_parallel: int = 15,
-    download_timeout: int = 5 * 60,
+    chunk_size: int = CSV_CHUNK_SIZE,
+    download_chunk_size: int = DOWNLOAD_CHUNK_SIZE,
+    download_max_retries: int = DOWNLOAD_MAX_RETRIES,
+    download_max_parallel: int = DOWNLOAD_MAX_PARALLEL,
+    download_timeout: int = DOWNLOAD_TIMEOUT,
 ) -> Path:
     """
     Performs the download, processing, and organization of CNPJ data.
@@ -71,7 +138,7 @@ def main(
     """
     arquivos_baixados = []  # List to track already downloaded files
     for table in tables:
-        table_configs = constants_cnpj.TABLE_CONFIGS.value[table]
+        table_configs = COMPONENTS_SPECS[table]
 
         # Creates dataset table paths (input and output)
 
@@ -87,7 +154,7 @@ def main(
         if table_configs["segmentada"]:
             files = get_table_files(
                 table_configs["table_name"],
-                f"{constants_cnpj.URL.value}{folder_date}",
+                f"{URL}{folder_date}",
             )
             for i, item in enumerate(files):
                 nome_arquivo = item[0]
@@ -144,7 +211,9 @@ def main(
                         )
         else:
             nome_arquivo = f"{table_configs['table_name']}"
-            url_download = f"{constants_cnpj.URL.value}{folder_date}/{table_configs['table_name']}.zip"
+            url_download = (
+                f"{URL}{folder_date}/{table_configs['table_name']}.zip"
+            )
 
             if (nome_arquivo not in arquivos_baixados) and not table_configs[
                 "manual"
@@ -176,3 +245,10 @@ def main(
     # pyrefly: ignore[bad-return]
     # pyrefly: ignore [unbound-name]
     return output_path
+
+
+make_pipeline = pipeline_factory(
+    DATASET_ID,
+    make_get_latest_update,
+    make_extract_load_data,
+)
