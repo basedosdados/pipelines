@@ -1,0 +1,11 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the index value,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,yr
+quarter,INT64,Reference quarter of the index value,,no,,quarter,no,,period
+cbsa_id,STRING,Five-digit code of the Metropolitan Statistical Area or Metropolitan Division,,no,,,no,"No directory link is declared: 37 of the 410 codes are Metropolitan Division (MSAD) codes, which br_bd_diretorios_us.cbsa_2023 does not carry. The remaining 373 resolve against br_bd_diretorios_us.cbsa_2023:id_cbsa.",place_id
+cbsa_name,STRING,Name of the Metropolitan Statistical Area or Metropolitan Division,,no,,,no,,place_name
+index_type,STRING,"Index variant: traditional, developmental, distress-free, non-metro or manufactured",,yes,,,no,The traditional purchase-only seasonally adjusted index is the series FHFA reports in its press releases. non-metro covers the nonmetropolitan remainder of a state rather than the state as a whole; manufactured covers manufactured homes only.,hpi_type
+index_flavor,STRING,"Underlying transaction data: purchase-only, all-transactions or expanded-data",,yes,,,no,"The three flavours differ by the data feeding the repeat-sales regression, not by the statistical method. Only all-transactions runs before 1991.",hpi_flavor
+index_nsa,FLOAT64,"House price index, not seasonally adjusted",,no,,index,no,The first period of each series is set to 100,index_nsa
+index_sa,FLOAT64,"House price index, seasonally adjusted",,no,,index,no,Null wherever FHFA publishes no seasonally adjusted variant of the series,index_sa
+relative_standard_error,FLOAT64,Relative standard error of the index value,,no,,percent,no,Published for the expanded-data metropolitan series only; null elsewhere,rstderr
+note,STRING,Footnote FHFA attaches to the index value,,no,,,no,"Flags quarters with fewer than 1,000 accumulated repeat-sales records, or a value suppressed for too few records. Null on every other row; the source's literal tab placeholder is cleaned to null.",note

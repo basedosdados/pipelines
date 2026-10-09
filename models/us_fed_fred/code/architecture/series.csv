@@ -1,0 +1,15 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+series_id,STRING,Identificador da série no FRED,,no,,,no,Chave lógica do catálogo; única por linha,id
+title,STRING,Título descritivo da série,,no,,,no,,title
+units,STRING,Unidade de medida dos valores da série (ex.: Percent Index 1982-1984=100 Billions of Dollars),,no,,,no,Define a unidade da coluna value na tabela observation,units
+units_short,STRING,Forma abreviada da unidade de medida,,no,,,no,,units_short
+frequency,STRING,Frequência de observação da série (ex.: Daily Weekly Monthly Quarterly Annual),,no,,,no,,frequency
+frequency_short,STRING,Código abreviado da frequência (D W M Q A SA BW),,yes,,,no,Rótulos legíveis na coluna frequency,frequency_short
+seasonal_adjustment,STRING,Tipo de ajuste sazonal (Seasonally Adjusted ou Not Seasonally Adjusted),,no,,,no,,seasonal_adjustment
+seasonal_adjustment_short,STRING,Código abreviado do ajuste sazonal (SA NSA SAAR SSA),,yes,,,no,Rótulos legíveis na coluna seasonal_adjustment,seasonal_adjustment_short
+observation_start,DATE,Data da primeira observação disponível da série,,no,,,no,,observation_start
+observation_end,DATE,Data da última observação disponível da série,,no,,,no,,observation_end
+last_updated,STRING,Data e hora da última atualização da série no FRED,,no,,,no,Timestamp com fuso horário conforme retornado pela API,last_updated
+source_name,STRING,Órgão fonte original da série (ex.: U.S. Bureau of Labor Statistics),,no,,,no,Usado para o controle de redistribuição/licença,source_name
+release_name,STRING,Publicação (release) do FRED à qual a série pertence,,no,,,no,,release_name
+notes,STRING,Notas descritivas e metodológicas da série fornecidas pelo FRED,,no,,,no,Inspecionado no download para excluir séries com restrição de copyright,notes

@@ -1,0 +1,87 @@
+{
+  "_note": "Trilingual display names and descriptions registered in the Data Basis backend, in PT/EN/ES order. The dataset record pre-exists on staging and prod (slug ghgrp, id 35d072bc-ddf5-4975-b8ab-9a75f6d2fcfa) with PT/EN filled; only the ES fields are added here.",
+  "dataset_slug": "ghgrp",
+  "organization_slug": "epa",
+  "dataset": {
+    "name_es": "Greenhouse Gas Reporting Program (GHGRP)",
+    "description_es": "El GHGRP exige la comunicación de datos de gases de efecto invernadero (GEI) y otra información relevante de grandes fuentes de emisión de GEI, proveedores de combustibles y gases industriales y sitios de inyección de CO2 en los Estados Unidos. Aproximadamente 8.000 instalaciones están obligadas a reportar sus emisiones anualmente, y los datos reportados se ponen a disposición del público en octubre de cada año."
+  },
+  "tables": {
+    "facility": {
+      "name": [
+        "Instalações",
+        "Facilities",
+        "Instalaciones"
+      ],
+      "description": [
+        "Uma linha por instalação e ano de relato do GHGRP, 2010 em diante: identificadores (GHGRP e FRS), empresa controladora, tipo de reportante, subpartes reportados, código NAICS, localização (estado, condado, cidade, endereço e coordenadas) e indicadores de monitoramento. Instalações que deixaram de reportar são mantidas pela fonte com o campo reporting_status preenchido e sem linhas de emissão no ano. Fonte: tabela pub_dim_facility da API Envirofacts.",
+        "One row per GHGRP facility and reporting year, 2010 onward: identifiers (GHGRP and FRS), parent company, reporter type, reported subparts, NAICS code, location (state, county, city, address and coordinates) and monitoring flags. Facilities that stopped reporting are carried by the source with reporting_status set and no emission rows for the year. Source: the pub_dim_facility table of the Envirofacts API.",
+        "Una fila por instalación y año de reporte del GHGRP, desde 2010: identificadores (GHGRP y FRS), empresa matriz, tipo de reportante, subpartes reportados, código NAICS, ubicación (estado, condado, ciudad, dirección y coordenadas) e indicadores de monitoreo. Las instalaciones que dejaron de reportar se mantienen en la fuente con el campo reporting_status completado y sin filas de emisión en el año. Fuente: tabla pub_dim_facility de la API Envirofacts."
+      ]
+    },
+    "emission_subpart": {
+      "name": [
+        "Emissões por subparte e gás",
+        "Emissions by subpart and gas",
+        "Emisiones por subparte y gas"
+      ],
+      "description": [
+        "Emissões anuais reportadas ao GHGRP por instalação, subparte do 40 CFR Part 98 e gás, em toneladas métricas de CO2 equivalente, 2010 em diante. O CO2 biogênico (gas = BIOCO2) é reportado à parte e não entra nos totais da instalação publicados pela EPA; valores nulos são informações confidenciais retidas pela EPA. Fonte: tabela pub_facts_subp_ghg_emission da API Envirofacts.",
+        "Annual emissions reported to the GHGRP by facility, 40 CFR Part 98 subpart and gas, in metric tons of CO2 equivalent, 2010 onward. Biogenic CO2 (gas = BIOCO2) is reported separately and is not part of the facility totals EPA publishes; null values are confidential information withheld by EPA. Source: the pub_facts_subp_ghg_emission table of the Envirofacts API.",
+        "Emisiones anuales reportadas al GHGRP por instalación, subparte del 40 CFR Part 98 y gas, en toneladas métricas de CO2 equivalente, desde 2010. El CO2 biogénico (gas = BIOCO2) se reporta por separado y no forma parte de los totales por instalación que publica la EPA; los valores nulos son información confidencial retenida por la EPA. Fuente: tabla pub_facts_subp_ghg_emission de la API Envirofacts."
+      ]
+    },
+    "emission_sector": {
+      "name": [
+        "Emissões por setor, subsetor e gás",
+        "Emissions by sector, subsector and gas",
+        "Emisiones por sector, subsector y gas"
+      ],
+      "description": [
+        "Emissões anuais reportadas ao GHGRP por instalação, setor e subsetor do painel FLIGHT e gás, em toneladas métricas de CO2 equivalente, 2010 em diante. Os setores são a classificação usada pela EPA no FLIGHT: a combustão estacionária (subparte C) é atribuída ao setor da instalação, por isso os totais por setor diferem dos totais por subparte. O CO2 biogênico (gas = BIOCO2) é reportado à parte; valores nulos são informações confidenciais. Nas raras chaves publicadas em mais de uma linha, as emissões foram somadas. Fonte: tabela pub_facts_sector_ghg_emission da API Envirofacts.",
+        "Annual emissions reported to the GHGRP by facility, FLIGHT sector and subsector and gas, in metric tons of CO2 equivalent, 2010 onward. Sectors are the classification EPA uses in FLIGHT: stationary combustion (subpart C) is attributed to the facility's sector, so sector totals differ from subpart totals. Biogenic CO2 (gas = BIOCO2) is reported separately; null values are confidential information. For the few keys the source publishes as more than one row, emissions were summed. Source: the pub_facts_sector_ghg_emission table of the Envirofacts API.",
+        "Emisiones anuales reportadas al GHGRP por instalación, sector y subsector del panel FLIGHT y gas, en toneladas métricas de CO2 equivalente, desde 2010. Los sectores son la clasificación que la EPA usa en FLIGHT: la combustión estacionaria (subparte C) se atribuye al sector de la instalación, por lo que los totales por sector difieren de los totales por subparte. El CO2 biogénico (gas = BIOCO2) se reporta por separado; los valores nulos son información confidencial. En las pocas claves publicadas en más de una fila, las emisiones se sumaron. Fuente: tabla pub_facts_sector_ghg_emission de la API Envirofacts."
+      ]
+    },
+    "dicionario": {
+      "name": [
+        "Dicionário",
+        "Dictionary",
+        "Diccionario"
+      ],
+      "description": [
+        "Dicionário de códigos das colunas categóricas do conjunto: subparte e gás (emission_subpart), setor, subsetor e gás (emission_sector) e os indicadores de situação do relato e de monitoramento da tabela facility.",
+        "Code dictionary for the dataset's categorical columns: subpart and gas (emission_subpart), sector, subsector and gas (emission_sector) and the reporting-status and monitoring flags of the facility table.",
+        "Diccionario de códigos de las columnas categóricas del conjunto: subparte y gas (emission_subpart), sector, subsector y gas (emission_sector) y los indicadores de situación del reporte y de monitoreo de la tabla facility."
+      ]
+    }
+  },
+  "raw_data_sources": {
+    "envirofacts": {
+      "name": [
+        "API Envirofacts — modelo de dados GHG",
+        "Envirofacts API — GHG data model",
+        "API Envirofacts — modelo de datos GHG"
+      ],
+      "url": "https://data.epa.gov/efservice/",
+      "description": [
+        "Serviço REST da EPA que expõe as tabelas publicadas do GHGRP (pub_dim_facility, pub_facts_subp_ghg_emission, pub_facts_sector_ghg_emission e dimensões). Fonte de todas as tabelas deste conjunto.",
+        "EPA REST service exposing the published GHGRP tables (pub_dim_facility, pub_facts_subp_ghg_emission, pub_facts_sector_ghg_emission and dimensions). Source of every table in this dataset.",
+        "Servicio REST de la EPA que expone las tablas publicadas del GHGRP (pub_dim_facility, pub_facts_subp_ghg_emission, pub_facts_sector_ghg_emission y dimensiones). Fuente de todas las tablas de este conjunto."
+      ]
+    },
+    "flight": {
+      "name": [
+        "GHGRP — arquivos de dados (FLIGHT)",
+        "GHGRP — data sets (FLIGHT)",
+        "GHGRP — conjuntos de datos (FLIGHT)"
+      ],
+      "url": "https://www.epa.gov/ghgreporting/data-sets",
+      "description": [
+        "Planilhas anuais de resumo por instalação e arquivos por subparte publicados pela EPA; mesma informação em formato largo, usada para conferência e documentação.",
+        "Annual facility summary spreadsheets and subpart-level files published by EPA; the same information in wide format, used for cross-checks and documentation.",
+        "Planillas anuales de resumen por instalación y archivos por subparte publicados por la EPA; la misma información en formato ancho, usada para verificación y documentación."
+      ]
+    }
+  }
+}

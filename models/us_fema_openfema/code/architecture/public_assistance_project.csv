@@ -1,0 +1,26 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,"Ano de referência, usado como coluna de partição",,no,diretorios_data_tempo.ano:ano,year,no,Derived during cleaning: year of declaration_date,declarationDate
+state_id,STRING,"Código FIPS de duas posições do estado, distrito ou território",,no,diretorios_us.state:id_state,,no,,stateNumberCode
+county_id,STRING,Código FIPS de cinco posições do condado,,no,diretorios_us.county:id_county,,no,Derivado na limpeza; nulo quando a fonte não identifica um condado. Derived during cleaning: zero-padded state_id || zero-padded county_code,
+gm_project_id,STRING,Identificador numérico do projeto no sistema Grants Manager,,no,,,no,,gmProjectId
+disaster_number,STRING,Número sequencial que designa o evento declarado como desastre,,no,,,no,,disasterNumber
+pw_number,INT64,Número sequencial que identifica o Project Worksheet,,no,,,no,Número sequencial sem unidade de medida cadastrada no back-end,pwNumber
+applicant_id,STRING,Identificador do requerente do programa Public Assistance,,no,,,no,,applicantId
+gm_applicant_id,STRING,Identificador numérico do requerente no sistema Grants Manager,,no,,,no,,gmApplicantId
+declaration_date,DATE,Data em que o desastre foi declarado,,no,,,no,,declarationDate
+incident_type,STRING,"Tipo primário do incidente, como incêndio ou inundação",,no,,,no,,incidentType
+application_title,STRING,"Título da aplicação, em texto livre e não único",,no,,,no,,applicationTitle
+damage_category_code,STRING,Código da categoria de trabalho elegível a reembolso pelo Public Assistance,,yes,,,no,,damageCategoryCode
+damage_category_descrip,STRING,Descrição da categoria de dano correspondente ao código de categoria,,no,,,no,,damageCategoryDescrip
+project_status,STRING,Situação do projeto quanto à sua elegibilidade,,no,,,no,,projectStatus
+project_process_step,STRING,"Etapa atual do projeto, da formulação ao encerramento, incluindo estágios pendentes e descontinuados",,no,,,no,,projectProcessStep
+project_size,STRING,"Porte do projeto, grande ou pequeno, definido por um limiar monetário que afeta a gestão do caso",,no,,,no,,projectSize
+county,STRING,"Nome do condado, paróquia, borough ou cidade independente",,no,,,no,,county
+county_code,STRING,Código FIPS do condado tal como publicado na fonte,,no,,,no,,countyCode
+state_abbreviation,STRING,"Sigla de duas letras do estado, distrito ou território",,no,,,no,"Não vinculado ao diretório de estados, que é chaveado pelo código FIPS e não pela sigla; a integridade é verificada por teste dbt",stateAbbreviation
+project_amount,FLOAT64,"Custo total estimado do projeto em dólares, sem custos administrativos",,no,,usd,no,,projectAmount
+federal_share_obligated,FLOAT64,"Parcela federal do financiamento disponibilizada ao estado, em dólares",,no,,usd,no,,federalShareObligated
+total_obligated,FLOAT64,"Parcela federal do valor elegível somada às contrapartidas estadual e local e aos custos administrativos, em dólares",,no,,usd,no,,totalObligated
+last_obligation_date,DATETIME,Data da última obrigação de recursos do projeto,,no,,,no,,lastObligationDate
+first_obligation_date,DATETIME,Data da primeira obrigação de recursos do projeto,,no,,,no,,firstObligationDate
+mitigation_amount,FLOAT64,"Valor proposto aplicável à mitigação prevista na seção 406, em dólares",,no,,usd,no,,mitigationAmount

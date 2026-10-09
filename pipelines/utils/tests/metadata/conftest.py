@@ -19,7 +19,15 @@ sem que este conftest dependa deles.
 
 from __future__ import annotations
 
+import datetime
+from typing import TYPE_CHECKING
+
 import pytest
+
+if TYPE_CHECKING:
+    # Só para anotar `FakeBQ` com as assinaturas de `BQReader`; em runtime o
+    # conftest continua sem depender dos módulos testados.
+    from pipelines.utils.metadata.domain import CoverageSpec, PartBdpro
 
 
 def node_response(query_class: str, _id: str | None) -> dict:
@@ -126,12 +134,14 @@ class FakeMetadataClient:
         table_update_latest=None,
         table_status="under_review",
         coverage_ids=None,
+        coverage_max_date=None,
     ):
         self.writes: list[tuple] = []
         self._raw_source_update_latest = raw_source_update_latest
         self._table_update_latest = table_update_latest
         self._table_status = table_status
         self._coverage_ids = coverage_ids
+        self._coverage_max_date = coverage_max_date
 
     # --- escrita (uma por entidade) -------------------------------------------
     def upsert_raw_source_poll(self, *args, **kwargs):
@@ -153,6 +163,9 @@ class FakeMetadataClient:
     def get_table_update_latest(self, *_args, **_kwargs):
         return self._table_update_latest
 
+    def get_coverage_max_date(self, *_args, **_kwargs):
+        return self._coverage_max_date
+
     def get_table_status(self, *_args, **_kwargs):
         return self._table_status
 
@@ -172,27 +185,39 @@ class FakeBQ:
 
     def __init__(
         self,
-        max_date=None,
-        last_modified=None,
-        can_read=True,
+        max_date: datetime.date | None = None,
+        last_modified: datetime.datetime | None = None,
+        can_read: bool = True,
     ):
         self._max_date = max_date
         self._last_modified = last_modified
         self._can_read = can_read
         self.rap_calls: list[tuple] = []
 
-    def read_max_date(self, dataset_id, table_id, coverage):
+    def read_max_date(
+        self, dataset_id: str, table_id: str, coverage: CoverageSpec
+    ) -> datetime.date:
+        assert self._max_date is not None, "FakeBQ criado sem max_date"
         return self._max_date
 
-    def last_modified(self, dataset_id, table_id):
+    def last_modified(
+        self, dataset_id: str, table_id: str
+    ) -> datetime.datetime:
+        assert self._last_modified is not None, (
+            "FakeBQ criado sem last_modified"
+        )
         return self._last_modified
 
-    def can_read_metadata(self, bq_project):
+    def can_read_metadata(self, bq_project: str) -> bool:
         return self._can_read
 
     def apply_row_access_policies(
-        self, coverage, free_end, dataset_id, table_id
-    ):
+        self,
+        coverage: PartBdpro,
+        free_end: datetime.date,
+        dataset_id: str,
+        table_id: str,
+    ) -> None:
         self.rap_calls.append((coverage, free_end, dataset_id, table_id))
 
 

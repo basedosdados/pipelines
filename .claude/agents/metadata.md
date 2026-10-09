@@ -60,3 +60,13 @@ After prod promotion:
 ```
 feat(<dataset_slug>): promote metadata to prod
 ```
+
+## Auxiliary files
+
+When the dataset has auxiliary-file bundles (step 6b of the onboarding workflow),
+pass `auxiliary_files_url` on `create_update_table` for each table that has one.
+Follow `.claude/rules/auxiliary-files.md`.
+
+Verify each URL anonymously (`curl -sI`) and report the status you actually got.
+Both GCS buckets are requester-pays, so expect HTTP 400 `UserProjectMissing` until
+that is fixed — report it, do not claim the files are reachable.

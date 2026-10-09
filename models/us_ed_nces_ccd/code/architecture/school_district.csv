@@ -1,0 +1,43 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Fall year of the school year the record refers to (2020 denotes school year 2020-21),,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,year
+agency_id,STRING,"NCES local education agency (school district) identification number, or LEAID (7 characters: 2-digit state FIPS followed by a 5-digit agency number)",,no,br_bd_diretorios_us.school_district:id_school_district,,no,Zero-padded to 7 characters on load; the source strips leading zeros in the enrollment extracts.,leaid
+state_id,STRING,State FIPS code as reported by the CCD,,yes,,,no,"Zero-padded to 2 characters. The CCD extends the state FIPS list with codes for jurisdictions that are not states (58 Department of Defense schools overseas, 59 Bureau of Indian Education, 61 and 63 Department of Defense domestic and overseas areas), so this column is not a strict foreign key into the state directory.",fips
+county_id,STRING,County FIPS code (5 digits) of the agency's location,,no,br_bd_diretorios_us.county:id_county,,no,,county_code
+agency_id_state,STRING,Local education agency identification number assigned by the state,,no,,,no,,state_leaid
+agency_name,STRING,Local education agency (school district) name,,no,,,no,,lea_name
+county_name,STRING,County name,,no,,,no,,county_name
+cbsa_id,STRING,OMB core-based statistical area code of the vintage in force in the school year,,no,,,no,,cbsa
+cbsa_type,STRING,Whether the core-based statistical area is metropolitan or micropolitan,,yes,,,no,,cbsa_type
+csa_id,STRING,OMB combined statistical area code of the vintage in force in the school year,,no,,,no,,csa
+cmsa_id,STRING,Consolidated metropolitan statistical area code (discontinued after 2003),,no,,,no,,cmsa
+necta_id,STRING,New England city and town area code,,no,,,no,,necta
+congressional_district_id,STRING,State and congressional district identification number,,no,,,no,,congress_district_id
+state_leg_district_lower,STRING,"State legislative district, lower chamber",,no,,,no,,state_leg_district_lower
+state_leg_district_upper,STRING,"State legislative district, upper chamber",,no,,,no,,state_leg_district_upper
+supervisory_union_number,STRING,"Supervisory union identification number, where the agency belongs to one",,no,,,no,,supervisory_union_number
+street_location,STRING,Street of the location address,,no,,,no,,street_location
+city_location,STRING,City of the location address,,no,,,no,,city_location
+state_location,STRING,USPS state abbreviation of the location address,,no,,,no,,state_location
+zip_location,STRING,ZIP code of the location address,,no,,,no,,zip_location
+zip4_location,STRING,Four-digit ZIP code extension of the location address,,no,,,no,,zip4_location
+street_mailing,STRING,Street of the mailing address,,no,,,no,,street_mailing
+city_mailing,STRING,City of the mailing address,,no,,,no,,city_mailing
+state_mailing,STRING,USPS state abbreviation of the mailing address,,no,,,no,,state_mailing
+zip_mailing,STRING,ZIP code of the mailing address,,no,,,no,,zip_mailing
+zip4_mailing,STRING,Four-digit ZIP code extension of the mailing address,,no,,,no,,zip4_mailing
+phone,STRING,Agency telephone number,,no,,,no,,phone
+latitude,FLOAT64,Latitude of the agency in decimal degrees,,no,,,no,,latitude
+longitude,FLOAT64,Longitude of the agency in decimal degrees,,no,,,no,,longitude
+urban_centric_locale,STRING,Degree of urbanization (urban-centric locale) of the agency location,,yes,,,no,,urban_centric_locale
+agency_type,STRING,Type of local education agency,,yes,,,no,,agency_type
+agency_level,STRING,Grade span served by the agency,,yes,,,no,,agency_level
+agency_charter_indicator,STRING,Whether the agency operates charter schools,,yes,,,no,,agency_charter_indicator
+boundary_change_indicator,STRING,Whether the agency's boundary changed since the previous school year,,yes,,,no,,boundary_change_indicator
+bureau_indian_education,STRING,Whether the agency is funded or operated by the Bureau of Indian Education,,yes,,,no,,bureau_indian_education
+lowest_grade_offered,STRING,Lowest grade offered by the agency,,yes,,,no,,lowest_grade_offered
+highest_grade_offered,STRING,Highest grade offered by the agency,,yes,,,no,,highest_grade_offered
+number_of_schools,INT64,Schools operated by the agency,,no,,,no,,number_of_schools
+enrollment,INT64,Total student enrollment reported in the agency directory,,no,,person,no,,enrollment
+spec_ed_students,INT64,Students served under the Individuals with Disabilities Education Act,,no,,person,no,,spec_ed_students
+english_language_learners,INT64,Students identified as English language learners,,no,,person,no,,english_language_learners
+migrant_students,INT64,Students identified as migrant,,no,,person,no,,migrant_students

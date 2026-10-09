@@ -1,0 +1,91 @@
+[
+  {
+    "name": "year",
+    "bigquery_type": "INT64",
+    "description_pt": "Ano de referência da observação",
+    "description_en": "Reference year of the observation",
+    "description_es": "Año de referencia de la observación",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "directory_column": "br_bd_diretorios_data_tempo.ano:ano",
+    "measurement_unit": "year"
+  },
+  {
+    "name": "month",
+    "bigquery_type": "INT64",
+    "description_pt": "Mês de referência da observação, de 1 a 12",
+    "description_en": "Reference month of the observation, from 1 to 12",
+    "description_es": "Mes de referencia de la observación, de 1 a 12",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "directory_column": "br_bd_diretorios_data_tempo.mes:mes",
+    "measurement_unit": "month"
+  },
+  {
+    "name": "geography",
+    "bigquery_type": "STRING",
+    "description_pt": "Área geográfica: Austrália (nacional) ou um dos oito estados e territórios",
+    "description_en": "Geographic area: Australia (national) or one of the eight states and territories",
+    "description_es": "Área geográfica: Australia (nacional) o uno de los ocho estados y territorios",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "duration_band",
+    "bigquery_type": "STRING",
+    "description_pt": "Duração da procura por trabalho",
+    "description_en": "Duration of job search",
+    "description_es": "Duración de la búsqueda de trabajo",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "age_group",
+    "bigquery_type": "STRING",
+    "description_pt": "Faixa etária em anos; total abrange pessoas com 15 anos ou mais",
+    "description_en": "Age group in years; total covers persons aged 15 years and over",
+    "description_es": "Grupo de edad en años; total abarca personas de 15 años o más",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "unemployed_total",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Número de pessoas desempregadas",
+    "description_en": "Number of unemployed persons",
+    "description_es": "Número de personas desempleadas",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "person"
+  },
+  {
+    "name": "unemployed_looked_for_full_time",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Número de pessoas desempregadas que procuraram trabalho em tempo integral",
+    "description_en": "Number of unemployed persons who looked for full-time work",
+    "description_es": "Número de personas desempleadas que buscaron trabajo a tiempo completo",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "person"
+  },
+  {
+    "name": "unemployed_looked_for_part_time",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Número de pessoas desempregadas que procuraram apenas trabalho em tempo parcial",
+    "description_en": "Number of unemployed persons who looked for only part-time work",
+    "description_es": "Número de personas desempleadas que buscaron solo trabajo a tiempo parcial",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "person"
+  },
+  {
+    "name": "weeks_searching",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Total de semanas de procura por trabalho das pessoas desempregadas",
+    "description_en": "Total weeks spent searching for a job by unemployed persons",
+    "description_es": "Total de semanas de búsqueda de trabajo de las personas desempleadas",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "week"
+  }
+]

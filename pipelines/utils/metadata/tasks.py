@@ -278,15 +278,16 @@ def poll_source_for_update_task(
     env: str = "dev",
     date_format: str = "%Y-%m-%d",
     raw_source_url: str | None = None,
+    compare_against: str = "coverage",
 ) -> bool:
     """Detecta se a fonte original tem novidade hoje, sem gravar o Update.
 
     Sempre grava um `Poll` na fonte (data de hoje) e devolve se `source_max_date`
-    indica dados mais novos do que o `Table.Update.latest` atual — mas, ao
-    contrário de `register_source_poll_task`, **não grava** o Update. A gravação
-    fica a cargo de `commit_source_update_task`, chamada ao fim do flow, após a
-    materialização. Use as duas em par quando a gravação do Update precisa ser
-    adiada para não travar runs futuras se o flow falhar no meio.
+    indica dados mais novos do que o alvo de comparação (`compare_against`) —
+    mas, ao contrário de `register_source_poll_task`, **não grava** o Update. A
+    gravação fica a cargo de `commit_source_update_task`, chamada ao fim do
+    flow, após a materialização. Use as duas em par quando a gravação do Update
+    precisa ser adiada para não travar runs futuras se o flow falhar no meio.
 
     Args:
         dataset_id: ID do dataset no GCP/BigQuery.
@@ -302,6 +303,14 @@ def poll_source_for_update_task(
         raw_source_url: URL exata da fonte a mirar quando a tabela tem mais de
             uma fonte ligada (ex.: uma API que atualiza e um histórico
             congelado). `None` (padrão) mantém o comportamento de fonte única.
+        compare_against: `"coverage"` (padrão) lê `Coverage.DateTimeRange` (a
+            competência que a tabela de fato cobre) — use quando
+            `source_max_date` representar uma competência (ex.: pasta `YYYYMM`
+            de um FTP); é o que a maioria dos flows auditados usa (27 de 32).
+            `"table_update"` lê `Table.Update.latest` — um timestamp de
+            execução, não a cobertura real; só faz sentido quando
+            `source_max_date` também for um timestamp de publicação/execução
+            (ex.: `last_modified` de um recurso CKAN), não uma competência.
 
     Returns:
         bool — True se a fonte trouxe novidade (Update ainda não gravado),
@@ -316,6 +325,7 @@ def poll_source_for_update_task(
         table_id,
         _coerce_to_date(source_max_date, date_format),
         raw_source_url=raw_source_url,
+        compare_against=compare_against,
     )
 
 
@@ -327,25 +337,37 @@ def commit_source_update_task(
     dataset_id: str,
     table_id: str,
     # pyrefly: ignore [not-a-type]
-    source_max_date: datetime.date | str,
+    source_max_date: datetime.date | str | None,
     env: str = "dev",
     date_format: str = "%Y-%m-%d",
     raw_source_url: str | None = None,
+    update_metadata: bool = True,
+    materialize_after_dump: bool = True,
 ) -> None:
     """Grava o `RawDataSource.Update` da fonte original.
 
     Contraparte de `poll_source_for_update_task`: registra `source_max_date`
-    como o novo `Update.latest`. Deve ser chamada **só ao fim do flow**, depois
-    da materialização bem-sucedida, para que o Update só avance quando o dado de
-    fato chegou ao destino — evitando que uma falha no meio deixe o Update
-    adiantado e trave as runs seguintes.
+    como o novo `Update.latest`. Deve ser chamada **logo depois do poll
+    confirmar novidade**, antes de baixar/materializar — não depende da
+    materialização ter dado certo. `poll_source_for_update` nunca lê o
+    `RawDataSource.Update` (compara contra `Coverage` ou `Table.Update`), então
+    não há risco de travar runs seguintes; o benefício é que, se o flow falhar
+    no meio (download, upload, dbt), o metadado da fonte já reflete que havia
+    dado novo publicado, mesmo que a tabela ainda não tenha sido atualizada.
+
+    `update_metadata`/`materialize_after_dump` replicam os mesmos parâmetros
+    que o flow já recebe (o nome local pode ser outro, ex.
+    `materialize_to_prod` — passe o valor, o nome do parâmetro aqui não
+    precisa bater). A função só grava quando as duas são `True` e
+    `source_max_date` não é `None`; caso contrário, é no-op. Centralizar essa
+    decisão aqui evita repetir o mesmo `if` em cada flow que chama esta task.
 
     Args:
         dataset_id: ID do dataset no GCP/BigQuery.
         table_id: ID da tabela no GCP/BigQuery.
         source_max_date: data máxima observada na fonte, gravada como o novo
-            `Update.latest`. Aceita `date`, `datetime`, `pd.Timestamp` ou `str`
-            no formato `date_format`. Obrigatória — só se commita quando há data.
+            `Update.latest`. Aceita `date`, `datetime`, `pd.Timestamp`, `str`
+            no formato `date_format`, ou `None` (nesse caso, no-op).
         env: backend de destino — `"dev"` (padrão), `"staging"` ou `"prod"`.
         date_format: formato usado para parsear `source_max_date` quando vier
             como string. Padrão `"%Y-%m-%d"`; use `"%Y-%m"` ou `"%Y"` conforme a
@@ -353,10 +375,20 @@ def commit_source_update_task(
         raw_source_url: URL exata da fonte a mirar quando a tabela tem mais de
             uma fonte ligada (ex.: uma API que atualiza e um histórico
             congelado). `None` (padrão) mantém o comportamento de fonte única.
+        update_metadata: gate do flow para tocar metadados. `True` (padrão).
+        materialize_after_dump: gate do flow para materializar em prod.
+            `True` (padrão).
 
     Returns:
         None.
     """
+
+    if (
+        not update_metadata
+        or not materialize_after_dump
+        or source_max_date is None
+    ):
+        return
 
     # pyrefly: ignore [bad-argument-type]
     client = MetadataClient(env=env)

@@ -5,7 +5,7 @@ Brazilian dataset); English and Spanish come from TRANSLATIONS below, so columns
 register without a Google Sheet. Writes code/columns_json/<table>.json.
 
 Usage:
-    python models/br_mf_divida_ativa/code/build_columns_json.py
+    uv run models/br_mf_divida_ativa/code/build_columns_json.py
 """
 
 import csv
@@ -89,7 +89,14 @@ TRANSLATIONS = {
 }
 
 
-def main():
+def main() -> None:
+    """Write one columns_json file per architecture CSV.
+
+    Reads each ``architecture/<table>.csv`` for the Portuguese description,
+    type, and flags, attaches the English/Spanish translations from
+    ``TRANSLATIONS``, and writes ``columns_json/<table>.json`` for
+    ``bulk_upsert_columns``.
+    """
     OUT.mkdir(parents=True, exist_ok=True)
     for csv_path in sorted(ARCH.glob("*.csv")):
         table = csv_path.stem

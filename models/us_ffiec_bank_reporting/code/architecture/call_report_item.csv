@@ -1,0 +1,8 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Year of the reporting quarter,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,
+quarter,INT64,"Calendar quarter of the report, 1 to 4",,no,,quarter,no,,
+report_date,DATE,Last calendar day of the reporting quarter,,no,,,no,,
+rssd_id,STRING,"RSSD identifier assigned by the Federal Reserve, unique per institution and stable across name and charter changes; the join key across every table in this dataset. To reach us_fdic_bankfind, join through institution.fdic_cert_id, which carries the FDIC certificate",,no,,,no,,IDRSSD
+schedule,STRING,"Call Report schedule the item was filed on, such as RC for the balance sheet or RI for the income statement",,yes,,,no,,
+item_code,STRING,"Eight-character MDRM identifier: a four-character mnemonic giving the report and consolidation basis, then the four-character item number; joins to mdrm_item for the item's name, type and unit",,no,,,no,,
+value,FLOAT64,Value the institution reported for the item,,no,,,no,"The unit varies by item and is given by mdrm_item.measurement_unit for the item_code. Dollar items are filed in thousands and are multiplied by 1,000 here, so they are plain USD; counts, percentages and ratios are carried as filed. Items whose measurement_unit is blank are yes/no answers or dates reported as numbers, not quantities.",

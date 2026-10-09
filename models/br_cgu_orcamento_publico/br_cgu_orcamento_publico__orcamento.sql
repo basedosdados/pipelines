@@ -1,6 +1,13 @@
 {{
     config(
-        alias="orcamento", schema="br_cgu_orcamento_publico", materialized="table"
+        alias="orcamento",
+        schema="br_cgu_orcamento_publico",
+        materialized="table",
+        partition_by={
+            "field": "ano_exercicio",
+            "data_type": "int64",
+            "range": {"start": 2014, "end": 2031, "interval": 1},
+        },
     )
 }}
 select

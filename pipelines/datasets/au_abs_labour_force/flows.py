@@ -12,14 +12,14 @@ Every table refreshes monthly, so each carries the BD Pro rolling window
 (``PartBdpro``): the most recent six months are pro-only, older data is free, and
 the window rolls forward on its own each run.
 
-Deploy: ``.github/scripts/deploy_flows.py`` auto-discovers ``au_abs_labour_force_flow``;
+Deploy: ``.github/workflows/scripts/deploy_flows.py`` auto-discovers ``au_abs_labour_force_flow``;
 the dev pool ignores the schedule, the prod pool activates it (paused until armed).
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.au_abs_labour_force.constants import constants
 from pipelines.datasets.au_abs_labour_force.tasks import (
@@ -28,6 +28,7 @@ from pipelines.datasets.au_abs_labour_force.tasks import (
     download_sdmx_task,
     latest_month_task,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     FreeLag,
@@ -98,7 +99,6 @@ def au_abs_labour_force_flow(
             effect when ``materialize_to_prod`` is False.
         force_run: Materialize even when the source poll reports no new month.
     """
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id=_POLL_TABLE
     )
@@ -121,32 +121,51 @@ def au_abs_labour_force_flow(
                 source_max_date=max_ym,
                 env="prod",
                 date_format="%Y-%m",
+                compare_against="coverage",
             )
             if not has_new_data:
                 return
+
+        # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+        # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+        # novo publicado, mesmo que a tabela não tenha sido atualizada.
+        for table in _SOURCE_COMMIT_TABLES:
+            commit_source_update_task(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                source_max_date=max_ym,
+                env="prod",
+                date_format="%Y-%m",
+                update_metadata=update_metadata,
+                materialize_after_dump=materialize_to_prod,
+            )
 
         # Only now fetch the heavy Excel spreadsheets and rebuild.
         download_excel_task(input_dir=input_dir, source_max_date=max_ym)
         result = clean_and_write_task(work_dir=work_dir, input_dir=input_dir)
 
-        # Dev: upload staging + materialize/test.
-        for table in TABLES:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados-dev",
-                dump_mode="overwrite",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run/test",
-                target="dev",
-            )
-
+        # The dev materialization is the pre-arm validation path, not part of a
+        # production run: it rebuilds and re-tests every table in
+        # basedosdados-dev, which nothing downstream reads. Running it on an
+        # armed run doubled the BigQuery bytes billed for no signal — prod
+        # runs the same models and the same tests seconds later.
         if not materialize_to_prod:
+            # Dev: upload staging + materialize/test.
+            for table in TABLES:
+                upload_to_gcs(
+                    data_path=result[table],
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    bucket_name="basedosdados-dev",
+                    dump_mode="overwrite",
+                    source_format="parquet",
+                )
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="run/test",
+                    target="dev",
+                )
             return
 
         # Prod: upload staging + materialize/test.
@@ -175,14 +194,6 @@ def au_abs_labour_force_flow(
                     env="prod",
                     bq_project="basedosdados",
                 )
-            for table in _SOURCE_COMMIT_TABLES:
-                commit_source_update_task(
-                    dataset_id=DATASET_ID,
-                    table_id=table,
-                    source_max_date=max_ym,
-                    env="prod",
-                    date_format="%Y-%m",
-                )
     finally:
         # Covers both early returns (no new data, dev-only) and any exception.
         shutil.rmtree(work_dir, ignore_errors=True)
@@ -191,10 +202,8 @@ def au_abs_labour_force_flow(
 # ABS releases Labour Force monthly, on a Thursday roughly the 3rd-4th week, at
 # 11:30 Canberra time. Poll daily across that window at 06:00 BRT (= evening AEST,
 # after the morning release); the source-poll guard no-ops until a new month lands.
-# pyrefly: ignore [missing-attribute]
 au_abs_labour_force_flow.deploy_schedules = [
-    {"cron": "0 6 14-27 * *", "timezone": "America/Sao_Paulo"}
+    Cron("30 6 14-27 * *", timezone="America/Sao_Paulo")
 ]
 # openpyxl reads the ~38 MB SEM1 pivot; give the worker headroom.
-# pyrefly: ignore [missing-attribute]
 au_abs_labour_force_flow.job_variables = {"memory": "6Gi"}

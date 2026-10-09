@@ -1,0 +1,1645 @@
+---
+version: 2
+models:
+  - name: us_ed_college_scorecard__institution
+    description: >-
+      One row per Title IV postsecondary institution and cohort year, carrying the
+      institution's identity, location, control and degree level, accreditation and
+      Title IV eligibility, minority-serving designations, undergraduate enrollment,
+      institutional finance, and the full admissions block (admission rate, SAT and
+      ACT score distributions). `unitid` is the IPEDS UNITID, so this table joins
+      to
+      the us_ed_ipeds dataset; that dataset types the key as INT64, so the join
+      needs safe_cast(unitid as int64). Every other institution-level measure
+      published by the source is in the long tables of this dataset, one per
+      measurement domain. Suppression: the source withholds small cells as
+      'PrivacySuppressed'. In the long tables such a cell is kept as a row with
+      value null and value_raw 'PrivacySuppressed', so a withheld value stays
+      distinguishable from one that was never collected; in the two wide tables it
+      becomes null.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, unitid]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - accreditor_code
+            - accreditor_name
+            - act_composite_p50
+            - act_english_p50
+            - act_math_p50
+            - act_writing_midpoint
+            - act_writing_p25
+            - act_writing_p75
+            - admission_rate_suppressed
+            - alaska_native_hawaiian_serving
+            - asian_pacific_islander_serving
+            - carnegie_basic
+            - carnegie_size_setting
+            - carnegie_undergraduate_profile
+            - control_peps
+            - currently_operating
+            - dol_provider
+            - federal_school_code
+            - heightened_cash_monitoring
+            - hispanic_serving
+            - historically_black
+            - institution_url
+            - latitude
+            - locale
+            - locale_degree_urbanization
+            - longitude
+            - men_only
+            - native_american_non_tribal
+            - net_price_calculator_url
+            - ownership_peps
+            - predominantly_black
+            - religious_affiliation
+            - sat_math_p50
+            - sat_reading_p50
+            - sat_writing_midpoint
+            - sat_writing_p25
+            - sat_writing_p75
+            - title_iv_approval_date
+            - tribal_college
+            - undergraduate_enrollment_all
+            - women_only
+    columns:
+      - name: year
+        description: >-
+          Reference year of the cohort, as published in the source's annual file
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: unitid
+        description: >-
+          IPEDS institution identifier (UNITID). Same key as the us_ed_ipeds dataset;
+          that dataset types it as INT64, so joining requires safe_cast(unitid as
+          int64)
+        tests: [not_null]
+      - name: opeid8
+        description: >-
+          8-digit OPE ID of the institution, assigned by the Office of Postsecondary
+          Education
+      - name: opeid6
+        description: >-
+          6-digit OPE ID of the institution, shared by every campus of the same entity
+      - name: federal_school_code
+        description: >-
+          Federal school code used on the FAFSA form
+      - name: institution_name
+        description: >-
+          Institution name
+      - name: institution_alias
+        description: >-
+          Alternative names and acronyms the institution is known by
+      - name: institution_url
+        description: >-
+          URL of the institution's website
+      - name: net_price_calculator_url
+        description: >-
+          URL of the institution's net price calculator
+      - name: address
+        description: >-
+          Street address of the institution
+      - name: city
+        description: >-
+          City of the institution
+      - name: state_abbreviation
+        description: >-
+          Two-letter postal code of the U.S. state where the institution is located
+      - name: zip_code
+        description: >-
+          ZIP code of the institution
+      - name: state_fips
+        description: >-
+          FIPS code of the state where the institution is located
+      - name: region
+        description: >-
+          IPEDS region where the institution is located
+      - name: locale
+        description: >-
+          Degree of urbanisation of the institution's locale, per the NCES
+          classification
+      - name: locale_degree_urbanization
+        description: >-
+          Aggregated degree of urbanisation of the institution's locale
+      - name: latitude
+        description: >-
+          Latitude of the institution in decimal degrees
+      - name: longitude
+        description: >-
+          Longitude of the institution in decimal degrees
+      - name: control
+        description: >-
+          Control of the institution, per IPEDS
+      - name: control_peps
+        description: >-
+          Control of the institution, per the PEPS system
+      - name: ownership_peps
+        description: >-
+          Ownership type of the institution, per the PEPS system
+      - name: scorecard_sector
+        description: >-
+          Sector of the institution under the College Scorecard classification
+      - name: institution_level
+        description: >-
+          Level of the institution per IPEDS institutional characteristics
+      - name: predominant_degree
+        description: >-
+          Predominant undergraduate degree awarded by the institution
+      - name: predominant_degree_recoded
+        description: >-
+          Predominant degree awarded, with codes 0 and 4 recoded
+      - name: highest_degree
+        description: >-
+          Highest degree awarded by the institution
+      - name: main_campus
+        description: >-
+          Whether the unit is the institution's main campus
+      - name: branch_campuses
+        description: >-
+          Number of campuses of the institution
+      - name: carnegie_basic
+        description: >-
+          Carnegie basic classification of the institution
+      - name: carnegie_undergraduate_profile
+        description: >-
+          Carnegie undergraduate profile of the institution
+      - name: carnegie_size_setting
+        description: >-
+          Carnegie size and setting of the institution
+      - name: online_only
+        description: >-
+          Whether the institution offers distance education only
+      - name: currently_operating
+        description: >-
+          Whether the institution was operating in the reference year
+      - name: open_admissions_policy
+        description: >-
+          Whether the institution has an open admissions policy
+      - name: religious_affiliation
+        description: >-
+          Religious affiliation of the institution
+      - name: men_only
+        description: >-
+          Whether the institution serves men only
+      - name: women_only
+        description: >-
+          Whether the institution serves women only
+      - name: historically_black
+        description: >-
+          Whether the institution is a historically black college or university
+      - name: predominantly_black
+        description: >-
+          Whether the institution is classified as predominantly black
+      - name: alaska_native_hawaiian_serving
+        description: >-
+          Whether the institution predominantly serves Alaska Natives or Native
+          Hawaiians
+      - name: tribal_college
+        description: >-
+          Whether the institution is a tribal college
+      - name: asian_pacific_islander_serving
+        description: >-
+          Whether the institution predominantly serves Asian Americans, Native Americans
+          or Pacific Islanders
+      - name: hispanic_serving
+        description: >-
+          Whether the institution predominantly serves Hispanic students
+      - name: native_american_non_tribal
+        description: >-
+          Whether the institution predominantly serves Native Americans without being
+          a
+          tribal college
+      - name: accreditor_name
+        description: >-
+          Name of the institution's accrediting agency
+      - name: accreditor_code
+        description: >-
+          Code of the institution's accrediting agency
+      - name: title_iv_eligibility_type
+        description: >-
+          Institution's eligibility type under Title IV of the Higher Education Act
+      - name: title_iv_approval_date
+        description: >-
+          Date the institution was approved for Title IV
+      - name: heightened_cash_monitoring
+        description: >-
+          Whether the institution is under Heightened Cash Monitoring 2
+      - name: dol_provider
+        description: >-
+          Whether the institution is a registered Department of Labor provider
+      - name: undergraduate_enrollment
+        description: >-
+          Number of degree-seeking undergraduate students enrolled
+      - name: undergraduate_enrollment_all
+        description: >-
+          Total number of undergraduate students, including non-degree-seeking students
+      - name: tuition_revenue_per_fte
+        description: >-
+          Net tuition revenue per full-time equivalent student
+      - name: instructional_expenditure_per_fte
+        description: >-
+          Instructional expenditure per full-time equivalent student
+      - name: average_faculty_salary
+        description: >-
+          Average monthly faculty salary
+      - name: full_time_faculty_rate
+        description: >-
+          Share of faculty employed full time, from 0 to 1
+      - name: endowment_begin
+        description: >-
+          Value of the institution's endowment at the beginning of the fiscal year
+      - name: endowment_end
+        description: >-
+          Value of the institution's endowment at the end of the fiscal year
+      - name: admission_rate
+        description: >-
+          Admission rate of the institution, from 0 to 1
+      - name: admission_rate_all_campuses
+        description: >-
+          Admission rate aggregated by 6-digit OPE ID, from 0 to 1
+      - name: admission_rate_suppressed
+        description: >-
+          Admission rate with suppression applied to small cohorts, from 0 to 1
+      - name: test_score_requirement
+        description: >-
+          Institution's requirement for standardised test scores in admissions
+      - name: sat_average
+        description: >-
+          Average SAT score among admitted students
+      - name: sat_average_all_campuses
+        description: >-
+          Average SAT score aggregated by 6-digit OPE ID
+      - name: sat_reading_p25
+        description: >-
+          SAT critical reading score among admitted students, at the 25th percentile
+      - name: sat_reading_p50
+        description: >-
+          SAT critical reading score among admitted students, at the median
+      - name: sat_reading_p75
+        description: >-
+          SAT critical reading score among admitted students, at the 75th percentile
+      - name: sat_reading_midpoint
+        description: >-
+          SAT critical reading score among admitted students, at the midpoint
+      - name: sat_math_p25
+        description: >-
+          SAT math score among admitted students, at the 25th percentile
+      - name: sat_math_p50
+        description: >-
+          SAT math score among admitted students, at the median
+      - name: sat_math_p75
+        description: >-
+          SAT math score among admitted students, at the 75th percentile
+      - name: sat_math_midpoint
+        description: >-
+          SAT math score among admitted students, at the midpoint
+      - name: sat_writing_p25
+        description: >-
+          SAT writing score among admitted students, at the 25th percentile
+      - name: sat_writing_p75
+        description: >-
+          SAT writing score among admitted students, at the 75th percentile
+      - name: sat_writing_midpoint
+        description: >-
+          SAT writing score among admitted students, at the midpoint
+      - name: act_composite_p25
+        description: >-
+          ACT cumulative score among admitted students, at the 25th percentile
+      - name: act_composite_p50
+        description: >-
+          ACT cumulative score among admitted students, at the median
+      - name: act_composite_p75
+        description: >-
+          ACT cumulative score among admitted students, at the 75th percentile
+      - name: act_composite_midpoint
+        description: >-
+          ACT cumulative score among admitted students, at the midpoint
+      - name: act_english_p25
+        description: >-
+          ACT English score among admitted students, at the 25th percentile
+      - name: act_english_p50
+        description: >-
+          ACT English score among admitted students, at the median
+      - name: act_english_p75
+        description: >-
+          ACT English score among admitted students, at the 75th percentile
+      - name: act_english_midpoint
+        description: >-
+          ACT English score among admitted students, at the midpoint
+      - name: act_math_p25
+        description: >-
+          ACT math score among admitted students, at the 25th percentile
+      - name: act_math_p50
+        description: >-
+          ACT math score among admitted students, at the median
+      - name: act_math_p75
+        description: >-
+          ACT math score among admitted students, at the 75th percentile
+      - name: act_math_midpoint
+        description: >-
+          ACT math score among admitted students, at the midpoint
+      - name: act_writing_p25
+        description: >-
+          ACT writing score among admitted students, at the 25th percentile
+      - name: act_writing_p75
+        description: >-
+          ACT writing score among admitted students, at the 75th percentile
+      - name: act_writing_midpoint
+        description: >-
+          ACT writing score among admitted students, at the midpoint
+  - name: us_ed_college_scorecard__academics
+    description: >-
+      Long table of academic-program measures by institution and cohort year: the
+      share of degrees awarded in each 2-digit CIP field, the credential levels
+      offered in each field, and the institution's largest reported programs. One
+      row per institution, year and source variable. Suppression: the source
+      withholds small cells as 'PrivacySuppressed'. In the long tables such a cell
+      is kept as a row with value null and value_raw 'PrivacySuppressed', so a
+      withheld value stays distinguishable from one that was never collected; in the
+      two wide tables it becomes null.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, unitid, variable_name]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [value, value_raw]
+    columns:
+      - name: year
+        description: >-
+          Reference year of the cohort, as published in the source's annual file
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: unitid
+        description: >-
+          IPEDS institution identifier (UNITID). Same key as the us_ed_ipeds dataset;
+          that dataset types it as INT64, so joining requires safe_cast(unitid as
+          int64)
+        tests: [not_null]
+      - name: variable_name
+        description: >-
+          Variable name as published by the source (e.g. MD_EARN_WNE_P10). Its
+          definition, label and unit are in the variable table
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_ed_college_scorecard__variable')
+              field: variable_name
+      - name: value
+        description: >-
+          Published numeric value. The unit depends on the variable; see the variable
+          table. Null when the source published an interval, a date, a text label
+          or a
+          privacy suppression instead; in those cases the content is in value_raw
+      - name: value_raw
+        description: >-
+          Published content when it is not a number: PrivacySuppressed (cell withheld
+          for privacy), a rounding interval such as 0.30-0.39 or <=0.10 (BBRR columns),
+          an MM/DD/YYYY date or a text label. Null when value is populated
+  - name: us_ed_college_scorecard__aid_debt
+    description: >-
+      Long table of student aid and cumulative debt measures by institution and
+      cohort year: Pell and federal loan receipt, median debt overall and by student
+      subgroup, cumulative debt percentiles, and Parent PLUS debt. One row per
+      institution, year and source variable. Suppression: the source withholds small
+      cells as 'PrivacySuppressed'. In the long tables such a cell is kept as a row
+      with value null and value_raw 'PrivacySuppressed', so a withheld value stays
+      distinguishable from one that was never collected; in the two wide tables it
+      becomes null.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, unitid, variable_name]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [value, value_raw]
+    columns:
+      - name: year
+        description: >-
+          Reference year of the cohort, as published in the source's annual file
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: unitid
+        description: >-
+          IPEDS institution identifier (UNITID). Same key as the us_ed_ipeds dataset;
+          that dataset types it as INT64, so joining requires safe_cast(unitid as
+          int64)
+        tests: [not_null]
+      - name: variable_name
+        description: >-
+          Variable name as published by the source (e.g. MD_EARN_WNE_P10). Its
+          definition, label and unit are in the variable table
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_ed_college_scorecard__variable')
+              field: variable_name
+      - name: value
+        description: >-
+          Published numeric value. The unit depends on the variable; see the variable
+          table. Null when the source published an interval, a date, a text label
+          or a
+          privacy suppression instead; in those cases the content is in value_raw
+      - name: value_raw
+        description: >-
+          Published content when it is not a number: PrivacySuppressed (cell withheld
+          for privacy), a rounding interval such as 0.30-0.39 or <=0.10 (BBRR columns),
+          an MM/DD/YYYY date or a text label. Null when value is populated
+  - name: us_ed_college_scorecard__completion
+    description: >-
+      Long table of completion and outcome measures by institution and cohort year:
+      completion rates at 100%, 150% and 200% of normal time, disaggregated by race,
+      Pell receipt, loan status and family income; the eight-year outcome measures
+      by entry status; transfer rates; and the underlying cohort counts. One row per
+      institution, year and source variable. Suppression: the source withholds small
+      cells as 'PrivacySuppressed'. In the long tables such a cell is kept as a row
+      with value null and value_raw 'PrivacySuppressed', so a withheld value stays
+      distinguishable from one that was never collected; in the two wide tables it
+      becomes null.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, unitid, variable_name]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [value, value_raw]
+    columns:
+      - name: year
+        description: >-
+          Reference year of the cohort, as published in the source's annual file
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: unitid
+        description: >-
+          IPEDS institution identifier (UNITID). Same key as the us_ed_ipeds dataset;
+          that dataset types it as INT64, so joining requires safe_cast(unitid as
+          int64)
+        tests: [not_null]
+      - name: variable_name
+        description: >-
+          Variable name as published by the source (e.g. MD_EARN_WNE_P10). Its
+          definition, label and unit are in the variable table
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_ed_college_scorecard__variable')
+              field: variable_name
+      - name: value
+        description: >-
+          Published numeric value. The unit depends on the variable; see the variable
+          table. Null when the source published an interval, a date, a text label
+          or a
+          privacy suppression instead; in those cases the content is in value_raw
+      - name: value_raw
+        description: >-
+          Published content when it is not a number: PrivacySuppressed (cell withheld
+          for privacy), a rounding interval such as 0.30-0.39 or <=0.10 (BBRR columns),
+          an MM/DD/YYYY date or a text label. Null when value is populated
+  - name: us_ed_college_scorecard__cost
+    description: >-
+      Long table of cost measures by institution and cohort year: average net price
+      overall and by family-income bracket, cost of attendance, and published
+      tuition and fees. One row per institution, year and source variable.
+      Suppression: the source withholds small cells as 'PrivacySuppressed'. In the
+      long tables such a cell is kept as a row with value null and value_raw
+      'PrivacySuppressed', so a withheld value stays distinguishable from one that
+      was never collected; in the two wide tables it becomes null.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, unitid, variable_name]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [value, value_raw]
+    columns:
+      - name: year
+        description: >-
+          Reference year of the cohort, as published in the source's annual file
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: unitid
+        description: >-
+          IPEDS institution identifier (UNITID). Same key as the us_ed_ipeds dataset;
+          that dataset types it as INT64, so joining requires safe_cast(unitid as
+          int64)
+        tests: [not_null]
+      - name: variable_name
+        description: >-
+          Variable name as published by the source (e.g. MD_EARN_WNE_P10). Its
+          definition, label and unit are in the variable table
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_ed_college_scorecard__variable')
+              field: variable_name
+      - name: value
+        description: >-
+          Published numeric value. The unit depends on the variable; see the variable
+          table. Null when the source published an interval, a date, a text label
+          or a
+          privacy suppression instead; in those cases the content is in value_raw
+      - name: value_raw
+        description: >-
+          Published content when it is not a number: PrivacySuppressed (cell withheld
+          for privacy), a rounding interval such as 0.30-0.39 or <=0.10 (BBRR columns),
+          an MM/DD/YYYY date or a text label. Null when value is populated
+  - name: us_ed_college_scorecard__earnings
+    description: >-
+      Long table of post-enrollment earnings measures by institution and cohort
+      year: mean and median earnings and earnings percentiles at 6, 7, 8, 9, 10 and
+      11 years after entry, the share earning above a high-school-graduate
+      threshold, and earnings disaggregated by family income, gender and completion
+      status. One row per institution, year and source variable. Suppression: the
+      source withholds small cells as 'PrivacySuppressed'. In the long tables such
+      a
+      cell is kept as a row with value null and value_raw 'PrivacySuppressed', so
+      a
+      withheld value stays distinguishable from one that was never collected; in the
+      two wide tables it becomes null.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, unitid, variable_name]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [value, value_raw]
+    columns:
+      - name: year
+        description: >-
+          Reference year of the cohort, as published in the source's annual file
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: unitid
+        description: >-
+          IPEDS institution identifier (UNITID). Same key as the us_ed_ipeds dataset;
+          that dataset types it as INT64, so joining requires safe_cast(unitid as
+          int64)
+        tests: [not_null]
+      - name: variable_name
+        description: >-
+          Variable name as published by the source (e.g. MD_EARN_WNE_P10). Its
+          definition, label and unit are in the variable table
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_ed_college_scorecard__variable')
+              field: variable_name
+      - name: value
+        description: >-
+          Published numeric value. The unit depends on the variable; see the variable
+          table. Null when the source published an interval, a date, a text label
+          or a
+          privacy suppression instead; in those cases the content is in value_raw
+      - name: value_raw
+        description: >-
+          Published content when it is not a number: PrivacySuppressed (cell withheld
+          for privacy), a rounding interval such as 0.30-0.39 or <=0.10 (BBRR columns),
+          an MM/DD/YYYY date or a text label. Null when value is populated
+  - name: us_ed_college_scorecard__repayment
+    description: >-
+      Long table of loan repayment measures by institution and cohort year:
+      repayment rates at 1, 3, 5 and 7 years, cohort default rates, and the
+      borrower-based repayment status distribution (default, delinquency,
+      forbearance, deferment, progress, paid in full, discharged). Many
+      borrower-based values are published as rounding intervals rather than numbers
+      and are therefore in value_raw, not value. One row per institution, year and
+      source variable. Suppression: the source withholds small cells as
+      'PrivacySuppressed'. In the long tables such a cell is kept as a row with
+      value null and value_raw 'PrivacySuppressed', so a withheld value stays
+      distinguishable from one that was never collected; in the two wide tables it
+      becomes null.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, unitid, variable_name]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [value, value_raw]
+    columns:
+      - name: year
+        description: >-
+          Reference year of the cohort, as published in the source's annual file
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: unitid
+        description: >-
+          IPEDS institution identifier (UNITID). Same key as the us_ed_ipeds dataset;
+          that dataset types it as INT64, so joining requires safe_cast(unitid as
+          int64)
+        tests: [not_null]
+      - name: variable_name
+        description: >-
+          Variable name as published by the source (e.g. MD_EARN_WNE_P10). Its
+          definition, label and unit are in the variable table
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_ed_college_scorecard__variable')
+              field: variable_name
+      - name: value
+        description: >-
+          Published numeric value. The unit depends on the variable; see the variable
+          table. Null when the source published an interval, a date, a text label
+          or a
+          privacy suppression instead; in those cases the content is in value_raw
+      - name: value_raw
+        description: >-
+          Published content when it is not a number: PrivacySuppressed (cell withheld
+          for privacy), a rounding interval such as 0.30-0.39 or <=0.10 (BBRR columns),
+          an MM/DD/YYYY date or a text label. Null when value is populated
+  - name: us_ed_college_scorecard__student_body
+    description: >-
+      Long table of student-body measures by institution and cohort year: enrollment
+      by race, gender and attendance status, age, dependency, family income, first-
+      generation status, and retention rates. One row per institution, year and
+      source variable. Suppression: the source withholds small cells as
+      'PrivacySuppressed'. In the long tables such a cell is kept as a row with
+      value null and value_raw 'PrivacySuppressed', so a withheld value stays
+      distinguishable from one that was never collected; in the two wide tables it
+      becomes null.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, unitid, variable_name]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [value, value_raw]
+    columns:
+      - name: year
+        description: >-
+          Reference year of the cohort, as published in the source's annual file
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: unitid
+        description: >-
+          IPEDS institution identifier (UNITID). Same key as the us_ed_ipeds dataset;
+          that dataset types it as INT64, so joining requires safe_cast(unitid as
+          int64)
+        tests: [not_null]
+      - name: variable_name
+        description: >-
+          Variable name as published by the source (e.g. MD_EARN_WNE_P10). Its
+          definition, label and unit are in the variable table
+        tests:
+          - not_null
+          - relationships:
+              to: ref('us_ed_college_scorecard__variable')
+              field: variable_name
+      - name: value
+        description: >-
+          Published numeric value. The unit depends on the variable; see the variable
+          table. Null when the source published an interval, a date, a text label
+          or a
+          privacy suppression instead; in those cases the content is in value_raw
+      - name: value_raw
+        description: >-
+          Published content when it is not a number: PrivacySuppressed (cell withheld
+          for privacy), a rounding interval such as 0.30-0.39 or <=0.10 (BBRR columns),
+          an MM/DD/YYYY date or a text label. Null when value is populated
+  - name: us_ed_college_scorecard__field_of_study
+    description: >-
+      One row per institution, 4-digit CIP field of study, credential level and
+      cohort year, carrying median and mean cumulative debt by student subgroup,
+      estimated monthly loan payment, median earnings at 1 to 5 years after
+      completion by subgroup, and borrower-based repayment status. This is the table
+      that pairs earnings with major. Borrower-based repayment columns (BBRR*) are
+      STRING because the source publishes them as rounding intervals as often as
+      numbers. The source also publishes entity-level rows identified only by
+      opeid6, with unitid null (58,103 rows, 3.3%); they carry real debt and
+      earnings data and are kept, which is why opeid6 is part of the key and unitid
+      is nullable here. Suppression: the source withholds small cells as
+      'PrivacySuppressed'. In the long tables such a cell is kept as a row with
+      value null and value_raw 'PrivacySuppressed', so a withheld value stays
+      distinguishable from one that was never collected; in the two wide tables it
+      becomes null.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - opeid6
+            - unitid
+            - cip_code
+            - credential_level
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values:
+            - bbrr1_fed_comp_dflt
+            - bbrr1_fed_comp_dfr
+            - bbrr1_fed_comp_discharge
+            - bbrr1_fed_comp_dlnq
+            - bbrr1_fed_comp_fbr
+            - bbrr1_fed_comp_makeprog
+            - bbrr1_fed_comp_n
+            - bbrr1_fed_comp_noprog
+            - bbrr1_fed_comp_paidinfull
+            - bbrr2_fed_comp_dflt
+            - bbrr2_fed_comp_dfr
+            - bbrr2_fed_comp_discharge
+            - bbrr2_fed_comp_dlnq
+            - bbrr2_fed_comp_fbr
+            - bbrr2_fed_comp_makeprog
+            - bbrr2_fed_comp_noprog
+            - bbrr2_fed_comp_paidinfull
+            - bbrr3_fed_comp_dflt
+            - bbrr3_fed_comp_dfr
+            - bbrr3_fed_comp_discharge
+            - bbrr3_fed_comp_dlnq
+            - bbrr3_fed_comp_fbr
+            - bbrr3_fed_comp_makeprog
+            - bbrr3_fed_comp_n
+            - bbrr3_fed_comp_noprog
+            - bbrr3_fed_comp_paidinfull
+            - bbrr4_fed_comp_dflt
+            - bbrr4_fed_comp_dfr
+            - bbrr4_fed_comp_discharge
+            - bbrr4_fed_comp_dlnq
+            - bbrr4_fed_comp_fbr
+            - bbrr4_fed_comp_makeprog
+            - bbrr4_fed_comp_n
+            - bbrr4_fed_comp_noprog
+            - bbrr4_fed_comp_paidinfull
+            - debt_all_pp_any_mdn
+            - debt_all_pp_any_mdn10yrpay
+            - debt_all_pp_any_mean
+            - debt_all_pp_eval_mdn
+            - debt_all_pp_eval_mdn10yrpay
+            - debt_all_pp_eval_mean
+            - debt_all_pp_eval_n
+            - debt_all_stgp_any_mdn10yrpay
+            - debt_all_stgp_eval_mdn10yrpay
+            - debt_male_pp_any_mdn
+            - debt_male_pp_any_mean
+            - debt_male_pp_any_n
+            - debt_male_pp_eval_mdn
+            - debt_male_pp_eval_mean
+            - debt_male_pp_eval_n
+            - debt_male_stgp_any_mdn
+            - debt_male_stgp_any_mean
+            - debt_male_stgp_eval_mdn
+            - debt_nopell_pp_any_mdn
+            - debt_nopell_pp_any_mean
+            - debt_nopell_pp_any_n
+            - debt_nopell_pp_eval_mdn
+            - debt_nopell_pp_eval_mean
+            - debt_nopell_pp_eval_n
+            - debt_nopell_stgp_any_mdn
+            - debt_nopell_stgp_any_mean
+            - debt_notmale_pp_any_mdn
+            - debt_notmale_pp_any_mean
+            - debt_notmale_pp_any_n
+            - debt_notmale_pp_eval_mdn
+            - debt_notmale_pp_eval_mean
+            - debt_notmale_pp_eval_n
+            - debt_notmale_stgp_any_mdn
+            - debt_notmale_stgp_any_mean
+            - debt_notmale_stgp_eval_mdn
+            - debt_pell_pp_any_mdn
+            - debt_pell_pp_any_mean
+            - debt_pell_pp_any_n
+            - debt_pell_pp_eval_mdn
+            - debt_pell_pp_eval_mean
+            - debt_pell_pp_eval_n
+            - debt_pell_stgp_any_mdn
+            - debt_pell_stgp_any_mean
+            - earn_cntover150_3yr
+            - earn_cntover150_hi_2yr
+            - earn_count_high_cred_1yr
+            - earn_count_high_cred_4yr
+            - earn_count_high_cred_5yr
+            - earn_count_male_ne_3yr
+            - earn_count_male_wne_1yr
+            - earn_count_male_wne_4yr
+            - earn_count_male_wne_5yr
+            - earn_count_ne_3yr
+            - earn_count_nomale_ne_3yr
+            - earn_count_nomale_wne_4yr
+            - earn_count_nomale_wne_5yr
+            - earn_count_nopell_ne_3yr
+            - earn_count_nopell_wne_1yr
+            - earn_count_nopell_wne_4yr
+            - earn_count_nopell_wne_5yr
+            - earn_count_nwne_hi_2yr
+            - earn_count_pell_ne_3yr
+            - earn_count_pell_wne_4yr
+            - earn_count_pell_wne_5yr
+            - earn_count_wne_3yr
+            - earn_count_wne_5yr
+            - earn_count_wne_hi_2yr
+            - earn_gt_threshold_1yr
+            - earn_gt_threshold_4yr
+            - earn_gt_threshold_5yr
+            - earn_in_state_1yr
+            - earn_in_state_4yr
+            - earn_in_state_5yr
+            - earn_male_ne_mdn_3yr
+            - earn_male_wne_mdn_1yr
+            - earn_male_wne_mdn_4yr
+            - earn_male_wne_mdn_5yr
+            - earn_mdn_5yr
+            - earn_mdn_hi_2yr
+            - earn_ne_mdn_3yr
+            - earn_nomale_ne_mdn_3yr
+            - earn_nomale_wne_mdn_4yr
+            - earn_nomale_wne_mdn_5yr
+            - earn_nopell_ne_mdn_3yr
+            - earn_nopell_wne_mdn_1yr
+            - earn_nopell_wne_mdn_4yr
+            - earn_nopell_wne_mdn_5yr
+            - earn_pell_ne_mdn_3yr
+            - earn_pell_wne_mdn_4yr
+            - earn_pell_wne_mdn_5yr
+    columns:
+      - name: year
+        description: >-
+          Reference year of the cohort, as published in the source's annual file
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: unitid
+        description: >-
+          IPEDS institution identifier (UNITID). Same key as the us_ed_ipeds dataset;
+          that dataset types it as INT64, so joining requires safe_cast(unitid as
+          int64)
+      - name: opeid6
+        description: >-
+          6-digit OPE ID for institution
+        tests: [not_null]
+      - name: institution_name
+        description: >-
+          Institution name
+      - name: control
+        description: >-
+          Control of institution
+      - name: main_campus
+        description: >-
+          Flag for main campus
+      - name: cip_code
+        description: >-
+          Classification of Instructional Programs (CIP) code for the field of study
+        tests: [not_null]
+      - name: cip_description
+        description: >-
+          Text description of the field of study CIP Code
+      - name: credential_level
+        description: >-
+          Level of credential
+        tests: [not_null]
+      - name: credential_description
+        description: >-
+          Text description of the level of credential
+      - name: ipedscount1
+        description: >-
+          Number of awards to all students in year 1 of the pooled debt cohort
+      - name: ipedscount2
+        description: >-
+          Number of awards to all students in year 2 of the pooled debt cohort
+      - name: debt_all_stgp_any_n
+        description: >-
+          Borrower count for average/median Stafford and Grad PLUS loan debt disbursed
+          at all institutions
+      - name: debt_all_stgp_any_mean
+        description: >-
+          Average Stafford and Grad PLUS loan debt disbursed at all institutions
+      - name: debt_all_stgp_any_mdn
+        description: >-
+          Median Stafford and Grad PLUS loan debt disbursed at all institutions
+      - name: debt_all_stgp_eval_n
+        description: >-
+          Borrower count for average/median Stafford and Grad PLUS loan debt disbursed
+          at this institution
+      - name: debt_all_stgp_eval_mean
+        description: >-
+          Average Stafford and Grad PLUS loan debt disbursed at this institution
+      - name: debt_all_stgp_eval_mdn
+        description: >-
+          Median Stafford and Grad PLUS loan debt disbursed at this institution
+      - name: debt_all_pp_any_n
+        description: >-
+          Student recipient count for average/median Parent PLUS loan debt disbursed
+          at
+          all institutions
+      - name: debt_all_pp_any_mean
+        description: >-
+          Average Parent PLUS loan debt disbursed at all institutions
+      - name: debt_all_pp_any_mdn
+        description: >-
+          Median Parent PLUS loan debt disbursed at all institutions
+      - name: debt_all_pp_eval_n
+        description: >-
+          Student recipient count for average/median Parent PLUS loan debt disbursed
+          at
+          this institution
+      - name: debt_all_pp_eval_mean
+        description: >-
+          Average Parent PLUS loan debt disbursed at this institution
+      - name: debt_all_pp_eval_mdn
+        description: >-
+          Median Parent PLUS loan debt disbursed at this institution
+      - name: debt_male_stgp_any_n
+        description: >-
+          Borrower count for average/median Stafford and Grad PLUS loan debt disbursed
+          to males at all institutions
+      - name: debt_male_stgp_any_mean
+        description: >-
+          Average Stafford and Grad PLUS loan debt disbursed to males at all
+          institutions
+      - name: debt_male_stgp_any_mdn
+        description: >-
+          Median Stafford and Grad PLUS loan debt disbursed to males at all institutions
+      - name: debt_male_stgp_eval_n
+        description: >-
+          Borrower count for average/median Stafford and Grad PLUS loan debt disbursed
+          to males at this institution
+      - name: debt_male_stgp_eval_mean
+        description: >-
+          Average Stafford and Grad PLUS loan debt disbursed to males at this
+          institution
+      - name: debt_male_stgp_eval_mdn
+        description: >-
+          Median Stafford and Grad PLUS loan debt disbursed to males at this institution
+      - name: debt_male_pp_any_n
+        description: >-
+          Student recipient count for average/median Parent PLUS loan debt disbursed
+          to
+          males at all institutions
+      - name: debt_male_pp_any_mean
+        description: >-
+          Average Parent PLUS loan debt disbursed to males at all institutions
+      - name: debt_male_pp_any_mdn
+        description: >-
+          Median Parent PLUS loan debt disbursed to males at all institutions
+      - name: debt_male_pp_eval_n
+        description: >-
+          Student recipient count for average/median Parent PLUS loan debt disbursed
+          to
+          males at this institution
+      - name: debt_male_pp_eval_mean
+        description: >-
+          Average Parent PLUS loan debt disbursed to males at this institution
+      - name: debt_male_pp_eval_mdn
+        description: >-
+          Median Parent PLUS loan debt disbursed to males at this institution
+      - name: debt_notmale_stgp_any_n
+        description: >-
+          Borrower count for average/median Stafford and Grad PLUS loan debt disbursed
+          to non-males at all institutions
+      - name: debt_notmale_stgp_any_mean
+        description: >-
+          Average Stafford and Grad PLUS loan debt disbursed to non-males at all
+          institutions
+      - name: debt_notmale_stgp_any_mdn
+        description: >-
+          Median Stafford and Grad PLUS loan debt disbursed to non-males at all
+          institutions
+      - name: debt_notmale_stgp_eval_n
+        description: >-
+          Borrower count for average/median Stafford and Grad PLUS loan debt disbursed
+          to non-males at this institution
+      - name: debt_notmale_stgp_eval_mean
+        description: >-
+          Average Stafford and Grad PLUS loan debt disbursed to non-males at this
+          institution
+      - name: debt_notmale_stgp_eval_mdn
+        description: >-
+          Median Stafford and Grad PLUS loan debt disbursed to non-males at this
+          institution
+      - name: debt_notmale_pp_any_n
+        description: >-
+          Student recipient count for average/median Parent PLUS loan debt disbursed
+          to
+          non-males at all institutions
+      - name: debt_notmale_pp_any_mean
+        description: >-
+          Average Parent PLUS loan debt disbursed to non-males at all institutions
+      - name: debt_notmale_pp_any_mdn
+        description: >-
+          Median Parent PLUS loan debt disbursed to non-males at all institutions
+      - name: debt_notmale_pp_eval_n
+        description: >-
+          Student recipient count for average/median Parent PLUS loan debt disbursed
+          to
+          non-males at this institution
+      - name: debt_notmale_pp_eval_mean
+        description: >-
+          Average Parent PLUS loan debt disbursed to non-males at this institution
+      - name: debt_notmale_pp_eval_mdn
+        description: >-
+          Median Parent PLUS loan debt disbursed to non-males at this institution
+      - name: debt_pell_stgp_any_n
+        description: >-
+          Borrower count for average/median Stafford and Grad PLUS loan debt disbursed
+          to Pell recipients at all institutions
+      - name: debt_pell_stgp_any_mean
+        description: >-
+          Average Stafford and Grad PLUS loan debt disbursed to Pell recipients at
+          all
+          institutions
+      - name: debt_pell_stgp_any_mdn
+        description: >-
+          Median Stafford and Grad PLUS loan debt disbursed to Pell recipients at
+          all
+          institutions
+      - name: debt_pell_stgp_eval_n
+        description: >-
+          Borrower count for average/median Stafford and Grad PLUS loan debt disbursed
+          to Pell recipients at this institution
+      - name: debt_pell_stgp_eval_mean
+        description: >-
+          Average Stafford and Grad PLUS loan debt disbursed to Pell recipients at
+          this
+          institution
+      - name: debt_pell_stgp_eval_mdn
+        description: >-
+          Median Stafford and Grad PLUS loan debt disbursed to Pell recipients at
+          this
+          institution
+      - name: debt_pell_pp_any_n
+        description: >-
+          Student recipient count for average/median Parent PLUS loan debt disbursed
+          to
+          Pell recipients at all institutions
+      - name: debt_pell_pp_any_mean
+        description: >-
+          Average Parent PLUS loan debt disbursed to Pell recipients at all institutions
+      - name: debt_pell_pp_any_mdn
+        description: >-
+          Median Parent PLUS loan debt disbursed to Pell recipients at all institutions
+      - name: debt_pell_pp_eval_n
+        description: >-
+          Student recipient count for average/median Parent PLUS loan debt disbursed
+          to
+          Pell recipients at this institution
+      - name: debt_pell_pp_eval_mean
+        description: >-
+          Average Parent PLUS loan debt disbursed to Pell recipients at this institution
+      - name: debt_pell_pp_eval_mdn
+        description: >-
+          Median Parent PLUS loan debt disbursed to Pell recipients at this institution
+      - name: debt_nopell_stgp_any_n
+        description: >-
+          Borrower count for average/median Stafford and Grad PLUS loan debt disbursed
+          to non-Pell-recipients at all institutions
+      - name: debt_nopell_stgp_any_mean
+        description: >-
+          Average Stafford and Grad PLUS loan debt disbursed to non-Pell-recipients
+          at
+          all institutions
+      - name: debt_nopell_stgp_any_mdn
+        description: >-
+          Median Stafford and Grad PLUS loan debt disbursed to non-Pell-recipients
+          at
+          all institutions
+      - name: debt_nopell_stgp_eval_n
+        description: >-
+          Borrower count for average/median Stafford and Grad PLUS loan debt disbursed
+          to non-Pell-recipients at this institution
+      - name: debt_nopell_stgp_eval_mean
+        description: >-
+          Average Stafford and Grad PLUS loan debt disbursed to non-Pell-recipients
+          at
+          this institution
+      - name: debt_nopell_stgp_eval_mdn
+        description: >-
+          Median Stafford and Grad PLUS loan debt disbursed to non-Pell-recipients
+          at
+          this institution
+      - name: debt_nopell_pp_any_n
+        description: >-
+          Student recipient count for average/median Parent PLUS loan debt disbursed
+          to
+          non-Pell-recipients at all institutions
+      - name: debt_nopell_pp_any_mean
+        description: >-
+          Average Parent PLUS loan debt disbursed to non-Pell-recipients at all
+          institutions
+      - name: debt_nopell_pp_any_mdn
+        description: >-
+          Median Parent PLUS loan debt disbursed to non-Pell-recipients at all
+          institutions
+      - name: debt_nopell_pp_eval_n
+        description: >-
+          Student recipient count for average/median Parent PLUS loan debt disbursed
+          to
+          non-Pell-recipients at this institution
+      - name: debt_nopell_pp_eval_mean
+        description: >-
+          Average Parent PLUS loan debt disbursed to non-Pell-recipients at this
+          institution
+      - name: debt_nopell_pp_eval_mdn
+        description: >-
+          Median Parent PLUS loan debt disbursed to non-Pell-recipients at this
+          institution
+      - name: debt_all_pp_any_mdn10yrpay
+        description: >-
+          Median estimated monthly payment for Parent PLUS loan debt disbursed at
+          all
+          institutions
+      - name: debt_all_pp_eval_mdn10yrpay
+        description: >-
+          Median estimated monthly payment for Parent PLUS loan debt disbursed at
+          this
+          institution
+      - name: debt_all_stgp_any_mdn10yrpay
+        description: >-
+          Median estimated monthly payment for Stafford and Grad PLUS loan debt
+          disbursed at all institutions
+      - name: debt_all_stgp_eval_mdn10yrpay
+        description: >-
+          Median estimated monthly payment for Stafford and Grad PLUS loan debt
+          disbursed at this institution
+      - name: earn_count_nwne_hi_1yr
+        description: >-
+          Number of graduates not working and not enrolled 1 year after completing
+          highest credential
+      - name: earn_cntover150_hi_1yr
+        description: >-
+          Number of graduates working and not enrolled who earned more than 150% of
+          the
+          single-person household poverty threshold 1 year after completing highest
+          credential
+      - name: earn_count_wne_hi_1yr
+        description: >-
+          Number of graduates working and not enrolled 1 year after completing highest
+          credential
+      - name: earn_mdn_hi_1yr
+        description: >-
+          Median earnings of graduates working and not enrolled 1 year after completing
+          highest credential
+      - name: earn_count_nwne_hi_2yr
+        description: >-
+          Number of graduates not working and not enrolled 2 years after completing
+          highest credential
+      - name: earn_cntover150_hi_2yr
+        description: >-
+          Number of graduates working and not enrolled who earned more than 150% of
+          the
+          single-person household poverty threshold 2 years after completing highest
+          credential
+      - name: earn_count_wne_hi_2yr
+        description: >-
+          Number of graduates working and not enrolled 2 years after completing highest
+          credential
+      - name: earn_mdn_hi_2yr
+        description: >-
+          Median earnings of graduates working and not enrolled 2 years after completing
+          highest credential
+      - name: bbrr2_fed_comp_n
+        description: >-
+          Federal student loan borrower-based 2-year borrower count of completers
+      - name: bbrr2_fed_comp_dflt
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers in default after 2 years
+      - name: bbrr2_fed_comp_dlnq
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers in delinquency after 2 years
+      - name: bbrr2_fed_comp_fbr
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers in forbearance after 2 years
+      - name: bbrr2_fed_comp_dfr
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers in deferment after 2 years
+      - name: bbrr2_fed_comp_noprog
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers not making progress after 2 years
+      - name: bbrr2_fed_comp_makeprog
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers making progress after 2 years
+      - name: bbrr2_fed_comp_paidinfull
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers paid in full after 2 years
+      - name: bbrr2_fed_comp_discharge
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers with all loans discharged after 2 years
+      - name: bbrr3_fed_comp_n
+        description: >-
+          Federal student loan borrower-based 3-year borrower count of completers
+      - name: bbrr3_fed_comp_dflt
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers in default after 3 years
+      - name: bbrr3_fed_comp_dlnq
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers in delinquency after 3 years
+      - name: bbrr3_fed_comp_fbr
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers in forbearance after 3 years
+      - name: bbrr3_fed_comp_dfr
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers in deferment after 3 years
+      - name: bbrr3_fed_comp_noprog
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers not making progress after 3 years
+      - name: bbrr3_fed_comp_makeprog
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers making progress after 3 years
+      - name: bbrr3_fed_comp_paidinfull
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers paid in full after 3 years
+      - name: bbrr3_fed_comp_discharge
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers with all loans discharged after 3 years
+      - name: earn_count_pell_wne_1yr
+        description: >-
+          Number of graduates who received a Pell Grant and were working and not
+          enrolled 1 year after completing
+      - name: earn_pell_wne_mdn_1yr
+        description: >-
+          Median earnings of graduates who received a Pell Grant and were working
+          and
+          not enrolled 1 year after completing
+      - name: earn_count_nopell_wne_1yr
+        description: >-
+          Number of graduates who did not receive a Pell Grant and were working and
+          not
+          enrolled 1 year after completing
+      - name: earn_nopell_wne_mdn_1yr
+        description: >-
+          Median earnings of graduates who did not receive a Pell Grant and were working
+          and not enrolled 1 year after completing
+      - name: earn_count_male_wne_1yr
+        description: >-
+          Number of male graduates working and not enrolled 1 year after completing
+      - name: earn_male_wne_mdn_1yr
+        description: >-
+          Median earnings of male graduates working and not enrolled 1 year after
+          completing
+      - name: earn_count_nomale_wne_1yr
+        description: >-
+          Number of non-male graduates working and not enrolled 1 year after completing
+      - name: earn_nomale_wne_mdn_1yr
+        description: >-
+          Median earnings of non-male graduates working and not enrolled 1 year after
+          completing
+      - name: earn_count_ne_3yr
+        description: >-
+          Number of graduates not enrolled 3 years after completing highest credential
+      - name: earn_ne_mdn_3yr
+        description: >-
+          Median earnings of graduates not enrolled 3 years after completing highest
+          credential
+      - name: earn_count_wne_3yr
+        description: >-
+          Number of graduates working and not enrolled 3 years after completing highest
+          credential
+      - name: earn_cntover150_3yr
+        description: >-
+          Number of graduates working and not enrolled who earned more than 150% of
+          the
+          single-person household poverty threshold 3 years after completing highest
+          credential
+      - name: earn_count_pell_ne_3yr
+        description: >-
+          Number of graduates who received a Pell Grant and were not enrolled 3 years
+          after completing highest credential
+      - name: earn_pell_ne_mdn_3yr
+        description: >-
+          Median earnings of graduates who received a Pell Grant and were not enrolled
+          3
+          years after completing highest credential
+      - name: earn_count_nopell_ne_3yr
+        description: >-
+          Number of graduates who did not receive a Pell Grant and were not enrolled
+          3
+          years after completing highest credential
+      - name: earn_nopell_ne_mdn_3yr
+        description: >-
+          Median earnings of graduates who did not receive a Pell Grant and were not
+          enrolled 3 years after completing highest credential
+      - name: earn_count_male_ne_3yr
+        description: >-
+          Number of male graduates not enrolled 3 years after completing highest
+          credential
+      - name: earn_male_ne_mdn_3yr
+        description: >-
+          Median earnings of male graduates not enrolled 3 years after completing
+          highest credential
+      - name: earn_count_nomale_ne_3yr
+        description: >-
+          Number of non-male graduates not enrolled 3 years after completing highest
+          credential
+      - name: earn_nomale_ne_mdn_3yr
+        description: >-
+          Median earnings of non-male graduates not enrolled 3 years after completing
+          highest credential
+      - name: earn_count_nwne_1yr
+        description: >-
+          Number of graduates not working and not enrolled 1 year after completing
+      - name: earn_count_wne_1yr
+        description: >-
+          Number of graduates working and not enrolled 1 year after completing
+      - name: earn_mdn_1yr
+        description: >-
+          Median earnings of graduates working and not enrolled 1 year after completing
+      - name: earn_gt_threshold_1yr
+        description: >-
+          Number of graduates working and not enrolled 1 year after completing who
+          earned more than a high school graduate
+      - name: earn_count_high_cred_1yr
+        description: >-
+          Number of graduates working and not enrolled 1 year after completing who
+          went
+          on to earn a higher credential
+      - name: earn_in_state_1yr
+        description: >-
+          Number of graduates working and not enrolled 1 year after completing who
+          were
+          employed within the same state as the institution
+      - name: earn_count_nwne_4yr
+        description: >-
+          Number of graduates not working and not enrolled 4 year after completing
+      - name: earn_count_wne_4yr
+        description: >-
+          Number of graduates working and not enrolled 4 year after completing
+      - name: earn_mdn_4yr
+        description: >-
+          Median earnings of graduates working and not enrolled 4 year after completing
+      - name: earn_gt_threshold_4yr
+        description: >-
+          Number of graduates working and not enrolled 4 years after completing who
+          earned more than a high school graduate
+      - name: earn_count_pell_wne_4yr
+        description: >-
+          Number of graduates who received a Pell Grant and were working and not
+          enrolled 4 year after completing
+      - name: earn_pell_wne_mdn_4yr
+        description: >-
+          Median earnings of graduates who received a Pell Grant and were working
+          and
+          not enrolled 4 year after completing
+      - name: earn_count_nopell_wne_4yr
+        description: >-
+          Number of graduates who did not receive a Pell Grant and were working and
+          not
+          enrolled 4 year after completing
+      - name: earn_nopell_wne_mdn_4yr
+        description: >-
+          Median earnings of graduates who did not receive a Pell Grant and were working
+          and not enrolled 4 year after completing
+      - name: earn_count_male_wne_4yr
+        description: >-
+          Number of male graduates working and not enrolled 4 year after completing
+      - name: earn_male_wne_mdn_4yr
+        description: >-
+          Median earnings of male graduates working and not enrolled 4 year after
+          completing
+      - name: earn_count_nomale_wne_4yr
+        description: >-
+          Number of non-male graduates working and not enrolled 4 year after completing
+      - name: earn_nomale_wne_mdn_4yr
+        description: >-
+          Median earnings of non-male graduates working and not enrolled 4 year after
+          completing
+      - name: earn_count_high_cred_4yr
+        description: >-
+          Number of graduates working and not enrolled 4 years after completing who
+          went
+          on to earn a higher credential
+      - name: earn_in_state_4yr
+        description: >-
+          Number of graduates working and not enrolled 4 years after completing who
+          were
+          employed within the same state as the institution
+      - name: bbrr1_fed_comp_n
+        description: >-
+          Federal student loan borrower-based 1-year borrower count of completers
+      - name: bbrr1_fed_comp_dflt
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers in default after 1 years
+      - name: bbrr1_fed_comp_dlnq
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers in delinquency after 1 years
+      - name: bbrr1_fed_comp_fbr
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers in forbearance after 1 years
+      - name: bbrr1_fed_comp_dfr
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers in deferment after 1 years
+      - name: bbrr1_fed_comp_noprog
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers not making progress after 1 years
+      - name: bbrr1_fed_comp_makeprog
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers making progress after 1 years
+      - name: bbrr1_fed_comp_paidinfull
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers paid in full after 1 years
+      - name: bbrr1_fed_comp_discharge
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers with all loans discharged after 1 years
+      - name: bbrr4_fed_comp_n
+        description: >-
+          Federal student loan borrower-based 4-year borrower count of completers
+      - name: bbrr4_fed_comp_dflt
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers in default after 4 years
+      - name: bbrr4_fed_comp_dlnq
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers in delinquency after 4 years
+      - name: bbrr4_fed_comp_fbr
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers in forbearance after 4 years
+      - name: bbrr4_fed_comp_dfr
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers in deferment after 4 years
+      - name: bbrr4_fed_comp_noprog
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers not making progress after 4 years
+      - name: bbrr4_fed_comp_makeprog
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers making progress after 4 years
+      - name: bbrr4_fed_comp_paidinfull
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers paid in full after 4 years
+      - name: bbrr4_fed_comp_discharge
+        description: >-
+          Percentage of undergraduate completer undergraduate federal student loan
+          borrowers with all loans discharged after 4 years
+      - name: distance_education
+        description: >-
+          Distance education indiciator for the field of study
+      - name: earn_count_nwne_5yr
+        description: >-
+          Number of graduates not working and not enrolled 5 year after completing
+      - name: earn_count_wne_5yr
+        description: >-
+          Number of graduates working and not enrolled 5 year after completing
+      - name: earn_mdn_5yr
+        description: >-
+          Median earnings of graduates working and not enrolled 5 year after completing
+      - name: earn_gt_threshold_5yr
+        description: >-
+          Number of graduates working and not enrolled 5 years after completing who
+          earned more than a high school graduate
+      - name: earn_count_pell_wne_5yr
+        description: >-
+          Number of graduates who received a Pell Grant and were working and not
+          enrolled 5 year after completing
+      - name: earn_pell_wne_mdn_5yr
+        description: >-
+          Median earnings of graduates who received a Pell Grant and were working
+          and
+          not enrolled 5 year after completing
+      - name: earn_count_nopell_wne_5yr
+        description: >-
+          Number of graduates who did not receive a Pell Grant and were working and
+          not
+          enrolled 5 year after completing
+      - name: earn_nopell_wne_mdn_5yr
+        description: >-
+          Median earnings of graduates who did not receive a Pell Grant and were working
+          and not enrolled 5 year after completing
+      - name: earn_count_male_wne_5yr
+        description: >-
+          Number of male graduates working and not enrolled 5 year after completing
+      - name: earn_male_wne_mdn_5yr
+        description: >-
+          Median earnings of male graduates working and not enrolled 5 year after
+          completing
+      - name: earn_count_nomale_wne_5yr
+        description: >-
+          Number of non-male graduates working and not enrolled 5 year after completing
+      - name: earn_nomale_wne_mdn_5yr
+        description: >-
+          Median earnings of non-male graduates working and not enrolled 5 year after
+          completing
+      - name: earn_count_high_cred_5yr
+        description: >-
+          Number of graduates working and not enrolled 5 years after completing who
+          went
+          on to earn a higher credential
+      - name: earn_in_state_5yr
+        description: >-
+          Number of graduates working and not enrolled 5 years after completing who
+          were
+          employed within the same state as the institution
+      - name: earn_count_wne_4yr_nat
+        description: >-
+          Number of graduates in the nation working and not enrolled 4 year after
+          completing
+      - name: earn_mdn_4yr_nat
+        description: >-
+          Median earnings of graduates in the nation working and not enrolled 4 year
+          after completing
+      - name: earn_p25_4yr_nat
+        description: >-
+          25th percentile earnings of graduates in the nation working and not enrolled
+          4
+          year after completing
+      - name: earn_p75_4yr_nat
+        description: >-
+          75th percentile earnings of graduates in the nation working and not enrolled
+          4
+          year after completing
+  - name: us_ed_college_scorecard__variable
+    description: >-
+      Catalogue of every variable published in the College Scorecard
+      institution-level and field-of-study files, with the table of this dataset it
+      was loaded into, its name in the source's API hierarchy, its declared type,
+      and its definition from the official data dictionary. Resolves the
+      variable_name column of the long tables.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [variable_name, source_file]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: variable_name
+        description: >-
+          Variable name as published by the source
+        tests: [not_null]
+      - name: source_file
+        description: >-
+          Source file the variable comes from: institution or field_of_study
+        tests: [not_null]
+      - name: table_name
+        description: >-
+          Table of this dataset the variable was loaded into
+      - name: api_name
+        description: >-
+          Hierarchical name of the variable in the College Scorecard API
+      - name: data_type
+        description: >-
+          Data type the source declares for the variable
+      - name: label
+        description: >-
+          Definition of the variable in the official data dictionary, including code
+          labels where they exist
+  - name: us_ed_college_scorecard__dicionario
+    description: >-
+      Value labels for the coded columns of the institution and field_of_study
+      tables, as published in the official data dictionary workbook.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [id_tabela, nome_coluna, chave]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: id_tabela
+        description: >-
+          Name of the table holding the column this dictionary translates
+        tests: [not_null]
+      - name: nome_coluna
+        description: >-
+          Name of the column this dictionary translates
+        tests: [not_null]
+      - name: chave
+        description: >-
+          Code as stored in the original column
+        tests: [not_null]
+      - name: cobertura_temporal
+        description: >-
+          Temporal coverage over which the key is valid
+      - name: valor
+        description: >-
+          Label matching the code, per the official data dictionary

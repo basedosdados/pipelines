@@ -1,0 +1,70 @@
+{
+ "inspection": [
+  "year",
+  "inspection_id",
+  "reporting_office_id",
+  "establishment_name",
+  "inspection_scope",
+  "open_date"
+ ],
+ "violation": [
+  "year",
+  "inspection_id",
+  "citation_id",
+  "issuance_date"
+ ],
+ "violation_event": [
+  "year",
+  "inspection_id",
+  "citation_id"
+ ],
+ "violation_text": [
+  "year",
+  "inspection_id",
+  "citation_id",
+  "text",
+  "line_count"
+ ],
+ "related_activity": [
+  "year",
+  "inspection_id",
+  "related_activity_id"
+ ],
+ "emphasis_code": [
+  "year",
+  "inspection_id",
+  "program_type",
+  "program_value"
+ ],
+ "optional_code_info": [
+  "year",
+  "inspection_id",
+  "information_type",
+  "information_id"
+ ],
+ "accident": [
+  "year",
+  "accident_id",
+  "reporting_office_id",
+  "event_date"
+ ],
+ "accident_injury": [
+  "year",
+  "accident_id",
+  "inspection_id",
+  "injury_line_number",
+  "age"
+ ],
+ "accident_narrative": [
+  "year",
+  "accident_id",
+  "line_count",
+  "wrap_style"
+ ],
+ "dicionario": [
+  "id_tabela",
+  "nome_coluna",
+  "chave",
+  "valor"
+ ]
+}

@@ -1,0 +1,412 @@
+[
+  {
+    "name": "year",
+    "bigquery_type": "INT64",
+    "description_pt": "Ano de referência da observação (fim do trimestre)",
+    "description_en": "Reference year of the quarter-end observation",
+    "description_es": "Año de referencia de la observación (fin del trimestre)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "directory_column": "br_bd_diretorios_data_tempo.ano:ano",
+    "measurement_unit": "year"
+  },
+  {
+    "name": "quarter",
+    "bigquery_type": "INT64",
+    "description_pt": "Trimestre de referência da observação, de 1 a 4",
+    "description_en": "Reference quarter of the observation, from 1 to 4",
+    "description_es": "Trimestre de referencia de la observación, de 1 a 4",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "quarter"
+  },
+  {
+    "name": "fund_type",
+    "bigquery_type": "STRING",
+    "description_pt": "Tipo de fundo de previdência: todos (indústria total), corporativo, setorial (industry), setor público ou varejo (retail)",
+    "description_en": "Superannuation fund type: all (whole industry), corporate, industry, public sector or retail funds",
+    "description_es": "Tipo de fondo de jubilación: todos (industria total), corporativo, sectorial (industry), sector público o minorista (retail)",
+    "covered_by_dictionary": true,
+    "has_sensitive_data": false
+  },
+  {
+    "name": "net_assets_beginning",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Ativos líquidos disponíveis para pagar benefícios no início do trimestre",
+    "description_en": "Net assets available to pay benefits at the beginning of the quarter",
+    "description_es": "Activos netos disponibles para pagar beneficios al inicio del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "total_contributions",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Total de contribuições recebidas no trimestre",
+    "description_en": "Total contributions received during the quarter",
+    "description_es": "Total de contribuciones recibidas en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "employer_contributions",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Contribuições patronais recebidas no trimestre",
+    "description_en": "Employer contributions received during the quarter",
+    "description_es": "Contribuciones del empleador recibidas en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "employer_defined_benefit_contributions",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Contribuições patronais para planos de benefício definido no trimestre",
+    "description_en": "Employer contributions to defined benefit interests during the quarter",
+    "description_es": "Contribuciones del empleador a planes de beneficio definido en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "employer_super_guarantee_contributions",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Contribuições patronais feitas sob a Garantia de Previdência compulsória (Superannuation Guarantee) no trimestre",
+    "description_en": "Employer contributions made under the compulsory Superannuation Guarantee during the quarter",
+    "description_es": "Contribuciones del empleador realizadas bajo la Garantía de Jubilación obligatoria (Superannuation Guarantee) en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "employer_salary_sacrifice_contributions",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Contribuições patronais feitas por meio de acordos de salary sacrifice no trimestre",
+    "description_en": "Employer contributions made through salary sacrifice arrangements during the quarter",
+    "description_es": "Contribuciones del empleador realizadas mediante acuerdos de salary sacrifice en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "member_contributions",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Contribuições dos participantes recebidas no trimestre",
+    "description_en": "Member contributions received during the quarter",
+    "description_es": "Contribuciones de los afiliados recibidas en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "member_personal_contributions",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Contribuições pessoais feitas pelos participantes no trimestre",
+    "description_en": "Personal contributions made by members during the quarter",
+    "description_es": "Contribuciones personales realizadas por los afiliados en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "government_co_contributions",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Contrapartidas do governo (co-contributions) recebidas no trimestre",
+    "description_en": "Government co-contributions received during the quarter",
+    "description_es": "Aportes de contrapartida del gobierno (co-contributions) recibidos en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "low_income_super_contributions",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Contribuições previdenciárias para baixa renda recebidas no trimestre",
+    "description_en": "Low income superannuation contributions received during the quarter",
+    "description_es": "Contribuciones de jubilación para bajos ingresos recibidas en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "other_member_contributions",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Outras contribuições dos participantes recebidas no trimestre",
+    "description_en": "Other member contributions received during the quarter",
+    "description_es": "Otras contribuciones de los afiliados recibidas en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "contribution_tax_and_surcharge",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Imposto e sobretaxa sobre contribuições no trimestre",
+    "description_en": "Contributions tax and surcharge for the quarter",
+    "description_es": "Impuesto y recargo sobre las contribuciones en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "net_benefit_transfers",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Transferências líquidas de benefícios para dentro ou fora do tipo de fundo no trimestre",
+    "description_en": "Net benefit transfers into or out of the fund type during the quarter",
+    "description_es": "Transferencias netas de beneficios hacia o desde el tipo de fondo en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "net_rollovers_to_from_smsf",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Rollovers líquidos para ou de fundos autogeridos (SMSFs) no trimestre",
+    "description_en": "Net rollovers to or from self-managed superannuation funds during the quarter",
+    "description_es": "Traspasos netos hacia o desde fondos autogestionados (SMSFs) en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "benefit_transfers_inward",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Transferências de benefícios recebidas (entrada) no trimestre",
+    "description_en": "Benefit transfers received (inward) during the quarter",
+    "description_es": "Transferencias de beneficios recibidas (entrada) en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "benefit_transfers_outward",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Transferências de benefícios pagas (saída) no trimestre",
+    "description_en": "Benefit transfers paid out (outward) during the quarter",
+    "description_es": "Transferencias de beneficios pagadas (salida) en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "benefit_payments",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Total de pagamentos de benefícios no trimestre",
+    "description_en": "Total benefit payments made during the quarter",
+    "description_es": "Total de pagos de beneficios en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "lump_sum_benefits",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Pagamentos de benefícios em parcela única no trimestre",
+    "description_en": "Lump sum benefit payments made during the quarter",
+    "description_es": "Pagos de beneficios en suma única en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "pension_benefits",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Pagamentos de benefícios em forma de pensão no trimestre",
+    "description_en": "Pension benefit payments made during the quarter",
+    "description_es": "Pagos de beneficios en forma de pensión en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "other_members_benefit_flows",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Outros fluxos de benefícios dos participantes no trimestre",
+    "description_en": "Other members' benefit flows during the quarter",
+    "description_es": "Otros flujos de beneficios de los afiliados en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "net_contribution_flows",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Fluxos líquidos de contribuições no trimestre (contribuições e transferências menos pagamentos de benefícios)",
+    "description_en": "Net contribution flows during the quarter (contributions and transfers net of benefit payments)",
+    "description_es": "Flujos netos de contribuciones en el trimestre (contribuciones y transferencias menos pagos de beneficios)",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "net_insurance_flows",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Fluxos líquidos de seguros no trimestre",
+    "description_en": "Net insurance flows during the quarter",
+    "description_es": "Flujos netos de seguros en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "insurance_flows_inward",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Fluxos de seguros recebidos (entrada) no trimestre",
+    "description_en": "Insurance flows received (inward) during the quarter",
+    "description_es": "Flujos de seguros recibidos (entrada) en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "insurance_flows_outward",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Fluxos de seguros pagos (saída) no trimestre",
+    "description_en": "Insurance flows paid out (outward) during the quarter",
+    "description_es": "Flujos de seguros pagados (salida) en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "investment_income",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Receita de investimentos no trimestre",
+    "description_en": "Investment income earned during the quarter",
+    "description_es": "Ingresos por inversiones en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "investment_income_after_impairment",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Receita de investimentos após despesa de impairment no trimestre",
+    "description_en": "Investment income after impairment expense during the quarter",
+    "description_es": "Ingresos por inversiones después del gasto por deterioro en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "total_gains_losses_on_investments",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Ganhos ou perdas totais, realizados e não realizados, em investimentos no trimestre",
+    "description_en": "Total realised and unrealised gains or losses on investments during the quarter",
+    "description_es": "Ganancias o pérdidas totales, realizadas y no realizadas, en inversiones en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "foreign_exchange_gains_losses",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Ganhos ou perdas cambiais no trimestre",
+    "description_en": "Foreign exchange gains or losses during the quarter",
+    "description_es": "Ganancias o pérdidas cambiarias en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "investment_expenses",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Despesas de investimento no trimestre",
+    "description_en": "Investment expenses incurred during the quarter",
+    "description_es": "Gastos de inversión en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "operating_income",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Receita operacional no trimestre",
+    "description_en": "Operating income during the quarter",
+    "description_es": "Ingresos operativos en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "administration_and_operating_expenses",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Despesas administrativas e operacionais no trimestre",
+    "description_en": "Administration and operating expenses during the quarter",
+    "description_es": "Gastos administrativos y operativos en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "net_earnings",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Resultado líquido no trimestre",
+    "description_en": "Net earnings during the quarter",
+    "description_es": "Resultado neto en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "income_tax_expense_benefit",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Despesa ou benefício de imposto de renda no trimestre",
+    "description_en": "Income tax expense or benefit for the quarter",
+    "description_es": "Gasto o beneficio por impuesto a la renta en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "net_earnings_after_tax",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Resultado líquido após impostos no trimestre",
+    "description_en": "Net earnings after tax during the quarter",
+    "description_es": "Resultado neto después de impuestos en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "net_operating_performance_after_tax",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Desempenho operacional líquido após impostos no trimestre",
+    "description_en": "Net operating performance after tax during the quarter",
+    "description_es": "Desempeño operativo neto después de impuestos en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "other_changes",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Outras variações nos ativos líquidos no trimestre",
+    "description_en": "Other changes in net assets during the quarter",
+    "description_es": "Otras variaciones en los activos netos en el trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "net_assets_end",
+    "bigquery_type": "FLOAT64",
+    "description_pt": "Ativos líquidos disponíveis para pagar benefícios no fim do trimestre",
+    "description_en": "Net assets available to pay benefits at the end of the quarter",
+    "description_es": "Activos netos disponibles para pagar beneficios al final del trimestre",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "AUD million"
+  },
+  {
+    "name": "number_of_entities",
+    "bigquery_type": "INT64",
+    "description_pt": "Número de entidades de previdência no tipo de fundo",
+    "description_en": "Number of superannuation entities in the fund type",
+    "description_es": "Número de entidades de jubilación en el tipo de fondo",
+    "covered_by_dictionary": false,
+    "has_sensitive_data": false,
+    "measurement_unit": "unit"
+  }
+]

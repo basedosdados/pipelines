@@ -6,8 +6,10 @@ import os
 
 import pandas as pd
 import requests
-from prefect import flow, task
+from prefect import task
+from prefect.schedules import Cron
 
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     AllBdpro,
     DateFormat,
@@ -73,12 +75,10 @@ def br_bcb_taxa_selic__taxa_selic(
     dataset_id: str = DATASET_ID,
     table_id: str = TABLE_ID,
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -93,9 +93,23 @@ def br_bcb_taxa_selic__taxa_selic(
             source_max_date=file_info["max_date"],
             env="prod",
             date_format="%Y-%m-%d",
+            compare_against="coverage",
         )
         if not has_new_data:
             return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=file_info["max_date"],
+        env="prod",
+        date_format="%Y-%m-%d",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
 
     upload_to_gcs(
         data_path=file_info["save_output_path"],
@@ -109,7 +123,6 @@ def br_bcb_taxa_selic__taxa_selic(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -128,7 +141,6 @@ def br_bcb_taxa_selic__taxa_selic(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -144,17 +156,7 @@ def br_bcb_taxa_selic__taxa_selic(
             bq_project="basedosdados",
         )
 
-        if file_info["max_date"] is not None:
-            commit_source_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=file_info["max_date"],
-                env="prod",
-                date_format="%Y-%m-%d",
-            )
 
-
-# pyrefly: ignore [missing-attribute]
 br_bcb_taxa_selic__taxa_selic.deploy_schedules = [
-    {"cron": "0 8 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 8 * * *", timezone="America/Sao_Paulo")
 ]

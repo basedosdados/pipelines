@@ -7,7 +7,7 @@ one-shot bootstrap and the recurring Prefect pipeline share one implementation.
 This CLI is just the initial-load entry point.
 
 Usage:
-    uv run python models/us_bls_cpi/code/clean_data.py [table ...]
+    uv run models/us_bls_cpi/code/clean_data.py [table ...]
 """
 
 import logging

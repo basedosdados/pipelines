@@ -1,0 +1,55 @@
+{{
+    config(
+        schema="us_sec_edgar",
+        alias="submission",
+        materialized="table",
+        partition_by={
+            "field": "year",
+            "data_type": "int64",
+            "range": {"start": 2009, "end": 2031, "interval": 1},
+        },
+        cluster_by=["cik"],
+    )
+}}
+
+
+select
+    safe_cast(year as int64) year,
+    safe_cast(quarter as int64) quarter,
+    safe_cast(accession_number as string) accession_number,
+    safe_cast(cik as string) cik,
+    safe_cast(company_name as string) company_name,
+    safe_cast(sic as string) sic,
+    safe_cast(ein as string) ein,
+    safe_cast(former_name as string) former_name,
+    safe_cast(former_name_change_date as date) former_name_change_date,
+    safe_cast(country_business as string) country_business,
+    safe_cast(state_business as string) state_business,
+    safe_cast(city_business as string) city_business,
+    safe_cast(zip_business as string) zip_business,
+    safe_cast(address1_business as string) address1_business,
+    safe_cast(address2_business as string) address2_business,
+    safe_cast(phone_business as string) phone_business,
+    safe_cast(country_mailing as string) country_mailing,
+    safe_cast(state_mailing as string) state_mailing,
+    safe_cast(city_mailing as string) city_mailing,
+    safe_cast(zip_mailing as string) zip_mailing,
+    safe_cast(address1_mailing as string) address1_mailing,
+    safe_cast(address2_mailing as string) address2_mailing,
+    safe_cast(country_incorporation as string) country_incorporation,
+    safe_cast(state_incorporation as string) state_incorporation,
+    safe_cast(filer_status as string) filer_status,
+    safe_cast(well_known_seasoned_issuer as string) well_known_seasoned_issuer,
+    safe_cast(fiscal_year_end as string) fiscal_year_end,
+    safe_cast(form as string) form,
+    safe_cast(period as date) period,
+    safe_cast(fiscal_year as int64) fiscal_year,
+    safe_cast(fiscal_period as string) fiscal_period,
+    safe_cast(filed_date as date) filed_date,
+    safe_cast(accepted_datetime as datetime) accepted_datetime,
+    safe_cast(previous_report as string) previous_report,
+    safe_cast(detail as string) detail,
+    safe_cast(instance as string) instance,
+    safe_cast(quantity_ciks as int64) quantity_ciks,
+    safe_cast(additional_ciks as string) additional_ciks
+from {{ set_datalake_project("us_sec_edgar_staging.submission") }} as t

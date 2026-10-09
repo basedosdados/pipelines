@@ -1,121 +1,65 @@
 """
-Flows for br_inmet_bdmep — Prefect 3.
+Flows para br_inmet_bdmep — Prefect 3.
+
+Migrado por completo pro pipeline em estágios (staged pipeline):
+check_update -> extract_and_load -> build_and_promote. Lógica específica do dataset mora em
+`tasks.py`, constantes em `constants.py` — aqui só a fiação
+(`CheckThenExtractLoadPipeline` + `@flow`).
+
+O antigo flow monolítico (`br_inmet_bdmep__microdados`, cron às 22h de
+seg-sex) foi removido deste arquivo.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
-from pipelines.crawler.inmet_bdmep.tasks import (
-    extract_last_date_from_source,
-    get_base_inmet,
+from pipelines.datasets.br_inmet_bdmep.constants import (
+    DATASET_ID,
+    MICRODADOS_TABLE_ID,
 )
-from pipelines.utils.metadata.domain import (
-    DateFormat,
-    DateOnly,
-    PartBdpro,
+from pipelines.datasets.br_inmet_bdmep.tasks import (
+    microdados_download,
+    microdados_get_latest_update,
 )
-from pipelines.utils.metadata.tasks import (
-    commit_source_update_task,
-    poll_source_for_update_task,
-    register_table_materialization_task,
-)
-from pipelines.utils.tasks import (
-    rename_flow_run_dataset_table,
-    run_dbt,
-    upload_to_gcs,
+from pipelines.utils.flow import flow
+from pipelines.utils.stage_dispatch import (
+    CheckThenExtractLoadPipeline,
+    Etapa,
+    deploy_tags,
 )
 
-
-@flow(
-    name="br_inmet_bdmep__microdados",
-    log_prints=True,
+_microdados_pipeline = CheckThenExtractLoadPipeline(
+    dataset_id=DATASET_ID,
+    table_id=MICRODADOS_TABLE_ID,
+    get_latest_update=microdados_get_latest_update,
+    extract_load_data=microdados_download,
+    # Mesma granularidade do flow antigo (comparava coverage com
+    # date_format="%Y-%m").
+    date_format="%Y-%m",
 )
-def br_inmet_bdmep__microdados(
-    dataset_id: str = "br_inmet_bdmep",
-    table_id: str = "microdados",
-    materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
-    update_metadata: bool = True,
-    target: str = "prod",
-    force_run: bool = False,
-) -> None:
-    # pyrefly: ignore [unused-coroutine]
-    rename_flow_run_dataset_table(
-        prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
-    )
-
-    source_last_date = extract_last_date_from_source()
-
-    if not force_run:
-        has_new_data = poll_source_for_update_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            source_max_date=source_last_date,
-            env="prod",
-            date_format="%Y-%m",
-        )
-        if not has_new_data:
-            return
-
-    output_filepath = get_base_inmet()
-
-    upload_to_gcs(
-        data_path=output_filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        bucket_name="basedosdados-dev",
-        dump_mode="append",
-    )
-
-    run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        dbt_alias=dbt_alias,
-        target="dev",
-    )
-
-    if not materialize_after_dump:
-        return
-
-    upload_to_gcs(
-        data_path=output_filepath,
-        dataset_id=dataset_id,
-        table_id=table_id,
-        bucket_name="basedosdados",
-        dump_mode="append",
-    )
-
-    run_dbt(
-        dataset_id=dataset_id,
-        table_id=table_id,
-        dbt_command="run/test",
-        dbt_alias=dbt_alias,
-        target=target,
-    )
-
-    if update_metadata:
-        register_table_materialization_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            coverage=PartBdpro(
-                date_column=DateOnly(col="data"),
-                date_format=DateFormat.YEAR_MD,
-            ),
-            env="prod",
-            bq_project="basedosdados",
-        )
-
-        if source_last_date is not None:
-            commit_source_update_task(
-                dataset_id=dataset_id,
-                table_id=table_id,
-                source_max_date=source_last_date,
-                env="prod",
-                date_format="%Y-%m",
-            )
 
 
-# pyrefly: ignore [missing-attribute]
-br_inmet_bdmep__microdados.deploy_schedules = [
-    {"cron": "0 22 * * 1-5", "timezone": "America/Sao_Paulo"},
+@flow(name=_microdados_pipeline.check_update_flow_name, log_prints=True)
+def br_inmet_bdmep_microdados_check_update() -> None:
+    _microdados_pipeline.run_check_update()
+
+
+br_inmet_bdmep_microdados_check_update.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.CHECK_UPDATE, MICRODADOS_TABLE_ID
+)
+# Mesmo cron do flow monolítico antigo (main).
+br_inmet_bdmep_microdados_check_update.deploy_schedules = [
+    Cron("0 22 * * 1-5", timezone="America/Sao_Paulo")
 ]
+
+
+@flow(name=_microdados_pipeline.extract_and_load_flow_name, log_prints=True)
+def br_inmet_bdmep_microdados_download(download_params: dict) -> None:
+    _microdados_pipeline.run_extract_and_load(download_params)
+
+
+br_inmet_bdmep_microdados_download.deploy_tags = deploy_tags(
+    DATASET_ID, Etapa.EXTRACT_AND_LOAD, MICRODADOS_TABLE_ID
+)
+_microdados_pipeline.extract_load_deployment = (
+    br_inmet_bdmep_microdados_download.fn.__name__
+)

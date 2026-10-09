@@ -1,0 +1,356 @@
+---
+version: 2
+models:
+  - name: au_abs_prices_inflation__cpi_quarterly
+    description: >-
+      Australian Consumer Price Index (ABS), quarterly. One row per quarter,
+      region, and CPI item, from the September quarter 1948, with the original
+      (not seasonally adjusted) index level and period-on-period and year-on-year
+      percentage change. The eight capital cities carry the All groups CPI; the
+      full 124-item expenditure hierarchy is reported for Australia (the weighted
+      average of the eight capital cities).
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, quarter, region, index_code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the index observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: Reference quarter of the index observation, from 1 to 4
+        tests: [not_null]
+      - name: region
+        description: Capital city of the price collection or the national aggregate
+        tests: [not_null]
+      - name: index_code
+        description: >-
+          ABS Consumer Price Index item code identifying the expenditure category
+        tests: [not_null]
+      - name: index_name
+        description: Consumer Price Index item label in the ABS expenditure hierarchy
+        tests: [not_null]
+      - name: serie_id
+        description: ABS time series identifier of the index-number series
+        tests: [not_null]
+      - name: index_number
+        description: >-
+          Original Consumer Price Index level for the item and region relative to
+          the ABS reference base period
+      - name: percentage_change_period
+        description: Percentage change in the index from the previous quarter
+      - name: percentage_change_year
+        description: >-
+          Percentage change in the index from the same quarter of the previous
+          year
+  - name: au_abs_prices_inflation__cpi_monthly
+    description: >-
+      Australian Consumer Price Index (ABS), monthly. One row per month, region,
+      and CPI item, from September 2017, with the original (not seasonally
+      adjusted) index level and month-on-month and year-on-year percentage
+      change. All nine regions (eight capital cities and Australia, the weighted
+      average of the eight capital cities) carry the full 124-item expenditure
+      hierarchy.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [year, month, region, index_code]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the index observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: month
+        description: Reference month of the index observation, from 1 to 12
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__mes')
+              field: mes.mes
+      - name: region
+        description: Capital city of the price collection or the national aggregate
+        tests: [not_null]
+      - name: index_code
+        description: >-
+          ABS Consumer Price Index item code identifying the expenditure category
+        tests: [not_null]
+      - name: index_name
+        description: Consumer Price Index item label in the ABS expenditure hierarchy
+        tests: [not_null]
+      - name: serie_id
+        description: ABS time series identifier of the index-number series
+        tests: [not_null]
+      - name: index_number
+        description: >-
+          Original Consumer Price Index level for the item and region relative to
+          the ABS reference base period
+      - name: percentage_change_period
+        description: Percentage change in the index from the previous month
+      - name: percentage_change_year
+        description: >-
+          Percentage change in the index from the same month of the previous year
+  - name: au_abs_prices_inflation__wage_price_index
+    description: >-
+      Australian Wage Price Index (ABS, former catalogue 6345.0), quarterly from
+      the September quarter 1997 and by financial year from 1997-98. One row per
+      series and period, measuring the change in hourly wage rates for a fixed
+      quantity and quality of labour, by state and territory, ownership sector
+      and ANZSIC industry division. Unlike the other releases in this dataset it
+      publishes seasonally adjusted and trend series alongside the original.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [series_id, year, quarter]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [financial_year]
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: >-
+          Reference quarter of the observation, from 1 to 4; empty for
+          financial-year series
+      - name: financial_year
+        description: >-
+          Australian financial year of the observation, such as 2025-26; empty
+          for quarterly series
+      - name: series_id
+        description: ABS time series identifier of the series
+        tests: [not_null]
+      - name: statistic
+        description: Statistic reported by the series
+        tests: [not_null]
+      - name: series_type
+        description: 'ABS series type: Original, Seasonally Adjusted or Trend'
+        tests: [not_null]
+      - name: pay_measure
+        description: Wage measure priced by the index
+        tests: [not_null]
+      - name: region
+        description: State, territory or national aggregate
+        tests: [not_null]
+      - name: sector
+        description: Ownership sector of the employing organisation
+        tests: [not_null]
+      - name: industry
+        description: ANZSIC industry division of the employing organisation
+        tests: [not_null]
+      - name: frequency
+        description: 'Publication frequency of the series: Quarter or Annual'
+        tests: [not_null]
+      - name: unit
+        description: Unit of the reported value, as published by ABS
+        tests: [not_null]
+      - name: value
+        description: >-
+          Value of the series in the reference period, in the unit given by the
+          unit column
+  - name: au_abs_prices_inflation__producer_price_index
+    description: >-
+      Australian Producer Price Indexes (ABS, former catalogue 6427.0),
+      quarterly from the September quarter 1966. One row per series and quarter,
+      measuring price change for the output of, and the inputs to, selected
+      industries, together with the final demand indexes. The direction of each
+      index, output or input, is published only in the ABS table title and is
+      recorded here in the index_type column.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [series_id, year, quarter]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [region]
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: series_id
+        description: ABS time series identifier of the series
+        tests: [not_null]
+      - name: statistic
+        description: Statistic reported by the series
+        tests: [not_null]
+      - name: index_type
+        description: >-
+          Whether the index prices industry output, industry input, or final
+          demand
+      - name: item_code
+        description: >-
+          Classification code prefixing the item label, where ABS publishes one
+      - name: item_name
+        description: Item or industry priced by the index
+      - name: region
+        description: Capital city or capital-city aggregate of the price collection
+      - name: source_table
+        description: Title of the ABS table the series is published in
+        tests: [not_null]
+      - name: unit
+        description: Unit of the reported value, as published by ABS
+        tests: [not_null]
+      - name: value
+        description: >-
+          Value of the series in the reference period, in the unit given by the
+          unit column
+  - name: au_abs_prices_inflation__international_trade_price_index
+    description: >-
+      Australian International Trade Price Indexes (ABS, former catalogue
+      6457.0), quarterly from the September quarter 1974. One row per series and
+      quarter, covering the Import Price Index and the Export Price Index across
+      several commodity classifications. Whether a series belongs to the import
+      or the export index is published only in the ABS table title and is
+      recorded here in the index_type column, without which the same item label
+      appears under both.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [series_id, year, quarter]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: series_id
+        description: ABS time series identifier of the series
+        tests: [not_null]
+      - name: statistic
+        description: Statistic reported by the series
+        tests: [not_null]
+      - name: index_type
+        description: Whether the series belongs to the Import or the Export Price
+          Index
+        tests: [not_null]
+      - name: classification
+        description: Commodity classification the item belongs to
+        tests: [not_null]
+      - name: item_code
+        description: >-
+          Classification code prefixing the item label, where ABS publishes one
+      - name: item_name
+        description: Commodity or commodity group priced by the index
+        tests: [not_null]
+      - name: source_table
+        description: Title of the ABS table the series is published in
+        tests: [not_null]
+      - name: unit
+        description: Unit of the reported value, as published by ABS
+        tests: [not_null]
+      - name: value
+        description: >-
+          Value of the series in the reference period, in the unit given by the
+          unit column
+  - name: au_abs_prices_inflation__living_cost_index
+    description: >-
+      Australian Selected Living Cost Indexes (ABS, former catalogue 6467.0),
+      quarterly from the June quarter 1998. One row per series and quarter,
+      measuring the change in out-of-pocket living costs for five household
+      types defined by their principal source of income. Unlike the Consumer
+      Price Index these indexes include mortgage interest charges and consumer
+      credit charges.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [series_id, year, quarter]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: series_id
+        description: ABS time series identifier of the series
+        tests: [not_null]
+      - name: statistic
+        description: Statistic reported by the series
+        tests: [not_null]
+      - name: household_type
+        description: Household type whose living costs the index measures
+        tests: [not_null]
+      - name: commodity_group
+        description: Commodity group priced by the index
+        tests: [not_null]
+      - name: unit
+        description: Unit of the reported value, as published by ABS
+        tests: [not_null]
+      - name: value
+        description: >-
+          Value of the series in the reference period, in the unit given by the
+          unit column
+  - name: au_abs_prices_inflation__dwelling_value
+    description: >-
+      Total Value of Dwellings, Australia (ABS, former catalogue 6432.0),
+      quarterly from the March quarter 2002. One row per series and quarter,
+      covering the value of the residential dwelling stock by owning sector, the
+      number of dwellings, and the median price and number of residential
+      property transfers by state, capital city and rest of state. This release
+      replaced Residential Property Price Indexes, which ceased in December
+      2021.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: [series_id, year, quarter]
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [owner_sector]
+    columns:
+      - name: year
+        description: Reference year of the observation
+        tests:
+          - not_null
+          - relationships:
+              to: ref('br_bd_diretorios_data_tempo__ano')
+              field: ano.ano
+      - name: quarter
+        description: Reference quarter of the observation, from 1 to 4
+        tests: [not_null]
+      - name: series_id
+        description: ABS time series identifier of the series
+        tests: [not_null]
+      - name: measure
+        description: Quantity reported by the series
+        tests: [not_null]
+      - name: owner_sector
+        description: >-
+          Sector owning the dwelling stock; empty for every measure other than
+          the value of dwelling stock
+      - name: region
+        description: State, territory, capital city or rest-of-state area
+        tests: [not_null]
+      - name: unit
+        description: Unit of the reported value, as published by ABS
+        tests: [not_null]
+      - name: value
+        description: >-
+          Value of the series in the reference period, in the unit given by the
+          unit column

@@ -1,0 +1,19 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,"Ano de referência dos dados, usado como coluna de partição",,no,diretorios_data_tempo.ano:ano,year,no,,data_year
+state_abbr,STRING,"Sigla de duas letras do estado, distrito ou território da agência",,no,,,no,,state_abbr
+victim_id,STRING,"Identificador da vítima atribuído pelo FBI, único dentro do estado e do ano",,no,,,no,,victim_id
+incident_id,STRING,"Identificador do incidente atribuído pelo FBI, único dentro do estado e do ano",,no,,,no,,incident_id
+victim_sequence_number,STRING,Número de ordem da vítima dentro do incidente,,no,,,no,,victim_seq_num
+victim_type_code,STRING,"Código do tipo de vítima, que pode ser pessoa, empresa, governo ou sociedade",,yes,,,no,Nem toda vítima é uma pessoa: crimes contra a sociedade têm uma única vítima do tipo sociedade. Not every victim is a person: crimes against society have a single victim of type society.,victim_type_id
+age_code,STRING,"Código da faixa etária da vítima, incluindo os códigos de desconhecido e de menor de um ano",,yes,,,no,,age_id
+age,INT64,"Idade exata da vítima em anos, quando informada",,no,,year,no,,age_num
+age_range_low,INT64,"Limite inferior da faixa etária da vítima, quando a idade exata não é informada",,no,,year,no,,age_range_low_num
+age_range_high,INT64,"Limite superior da faixa etária da vítima, quando a idade exata não é informada",,no,,year,no,,age_range_high_num
+sex_code,STRING,Código do sexo da vítima,,yes,,,no,,sex_code
+race_code,STRING,"Código da raça da vítima, tal como registrado pela agência",,yes,,,no,,race_id
+ethnicity_code,STRING,Código da etnia hispânica ou latina da vítima,,yes,,,no,Coletado apenas por parte das agências; a cobertura varia muito entre estados e anos. Collected by only some agencies; coverage varies widely across states and years.,ethnicity_id
+resident_status_code,STRING,Indica se a vítima residia na localidade em que o incidente ocorreu,,yes,,,no,,resident_status_code
+assignment_type_code,STRING,"Código do tipo de escala do policial vitimado, informado apenas quando a vítima é um policial ferido ou morto em serviço",,yes,,,no,,assignment_type_id
+activity_type_code,STRING,"Código da atividade que o policial vitimado exercia, informado apenas quando a vítima é um policial ferido ou morto em serviço",,yes,,,no,,activity_type_id
+injury_code,STRING,Código do tipo de lesão sofrida pela vítima,,yes,,,no,O NIBRS admite até dez lesões por vítima; guarda-se aqui o menor código e 'injury_count' informa quantas foram registradas. NIBRS allows up to ten injuries per victim; the lowest code is kept here and 'injury_count' reports how many were recorded.,injury_id
+injury_count,INT64,Número de lesões registradas para a vítima,,no,,injury,no,,nibrs_victim_injury

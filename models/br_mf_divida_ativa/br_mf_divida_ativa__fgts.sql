@@ -1,3 +1,4 @@
+-- Fonte: PGFN Dados Abertos da Divida Ativa da Uniao (FGTS)
 {{
     config(
         schema="br_mf_divida_ativa",

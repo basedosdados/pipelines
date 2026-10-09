@@ -1,0 +1,18 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the inventory (Australian financial year ending; 1990 = 1989-90),,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column. OData InventoryYear_ID.,InventoryYear_ID
+geography,STRING,"Geographic area: 'australia' (national) or one of the eight states/territories, plus 'et' (external territories)",,no,,,no,Australia is the national aggregate; states/territories follow the ASGS. Not directory-linked because the national aggregate has no id_state. 'et' = external/other territories.,
+unfccc_level_1,STRING,"UNFCCC/Paris inventory category (top IPCC sector: Energy, Agriculture, Industrial Processes, LULUCF, Waste)",,no,,,no,OData UNFCCC_Level_1,UNFCCC_Level_1
+unfccc_level_2,STRING,"UNFCCC/Paris inventory category, level 2 (sub-category; NULL where the branch is shallower)",,no,,,no,OData UNFCCC_Level_2,UNFCCC_Level_2
+unfccc_level_3,STRING,"UNFCCC/Paris inventory category, level 3 (sub-category; NULL where the branch is shallower)",,no,,,no,OData UNFCCC_Level_3,UNFCCC_Level_3
+unfccc_level_4,STRING,"UNFCCC/Paris inventory category, level 4 (sub-category; NULL where the branch is shallower)",,no,,,no,OData UNFCCC_Level_4,UNFCCC_Level_4
+unfccc_level_5,STRING,"UNFCCC/Paris inventory category, level 5 (sub-category; NULL where the branch is shallower)",,no,,,no,OData UNFCCC_Level_5,UNFCCC_Level_5
+unfccc_level_6,STRING,"UNFCCC/Paris inventory category, level 6 (sub-category; NULL where the branch is shallower)",,no,,,no,OData UNFCCC_Level_6,UNFCCC_Level_6
+unfccc_level_7,STRING,"UNFCCC/Paris inventory category, level 7 (sub-category; NULL where the branch is shallower)",,no,,,no,OData UNFCCC_Level_7,UNFCCC_Level_7
+unfccc_level_8,STRING,"UNFCCC/Paris inventory category, level 8 (sub-category; NULL where the branch is shallower)",,no,,,no,OData UNFCCC_Level_8,UNFCCC_Level_8
+unfccc_level_9,STRING,"UNFCCC/Paris inventory category, level 9 (sub-category; NULL where the branch is shallower)",,no,,,no,OData UNFCCC_Level_9,UNFCCC_Level_9
+unfccc_level_10,STRING,"UNFCCC/Paris inventory category, level 10 (sub-category; NULL where the branch is shallower)",,no,,,no,OData UNFCCC_Level_10,UNFCCC_Level_10
+gas_level_0,STRING,"Gas or metric: a physical gas/pollutant (CO2, CH4, N2O, ...) or the aggregate 'CO2-e - AR5' (CO2-equivalent, AR5 100-year GWP)",,no,,,no,,Gas_Level_0
+gas_level_1,STRING,"For 'CO2-e - AR5' rows, the contributing gas (CO2, CH4, N2O, Other); NULL for physical-gas rows",,no,,,no,,Gas_Level_1
+gas_level_2,STRING,"Sub-group of the CO2-e 'Other' contribution (HFC, PFC, SF6); NULL otherwise",,no,,,no,,Gas_Level_2
+gas_level_3,STRING,"Specific species within the CO2-e sub-group (e.g. HFC-134a, CF4); NULL otherwise",,no,,,no,,Gas_Level_3
+emissions_gg,FLOAT64,Emissions in gigagrams (Gg). For gas 'CO2-e - AR5' the unit is Gg CO2-equivalent (Mt CO2-e = value/1000); for a physical gas it is Gg of that gas,,no,,gigagram,no,"Source measure, not converted. LULUCF (a UNFCCC category) can be negative (net sink).",Gg

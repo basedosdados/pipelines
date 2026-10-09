@@ -1,3 +1,5 @@
+-- 2024 e 2026 reprocessados em 2026-10-06: celulas divididas pelo TSE em
+-- dimensoes nao mantidas aqui agora sao somadas, em vez de deduplicadas.
 {{
     config(
         schema="br_tse_eleicoes",
@@ -6,7 +8,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 1998, "end": 2024, "interval": 2},
+            "range": {"start": 1998, "end": 2030, "interval": 2},
         },
         cluster_by=["sigla_uf"],
     )
@@ -23,12 +25,16 @@ select
     safe_cast(estado_civil as string) estado_civil,
     safe_cast(grupo_idade as string) grupo_idade,
     safe_cast(instrucao as string) instrucao,
-    safe_cast(eleitores as string) eleitores,
-    safe_cast(eleitores_biometria as string) eleitores_biometria,
-    safe_cast(eleitores_deficiencia as string) eleitores_deficiencia
+    safe_cast(safe_cast(eleitores as float64) as int64) eleitores,
+    safe_cast(safe_cast(eleitores_biometria as float64) as int64) eleitores_biometria,
+    safe_cast(
+        safe_cast(eleitores_deficiencia as float64) as int64
+    ) eleitores_deficiencia
 from
     {{
         set_datalake_project(
             "br_tse_eleicoes_staging.perfil_eleitorado_municipio_zona"
         )
     }} as t
+
+    -- Rematerialized from the refactored pipeline (PR #1476).

@@ -1,0 +1,642 @@
+area_id,area_type,area_name
+1,2,Alabama
+10,2,Delaware
+1000001,6,"Sussex County, Delaware nonmetropolitan area"
+100001,6,Northwest Alabama nonmetropolitan area
+100002,6,Northeast Alabama nonmetropolitan area
+100003,6,Southwest Alabama nonmetropolitan area
+100004,6,Southeast Alabama nonmetropolitan area
+10180,4,"Abilene, TX"
+10380,4,"Aguadilla-Isabela-San Sebastian, PR"
+10420,4,"Akron, OH"
+10500,4,"Albany, GA"
+10580,4,"Albany-Schenectady-Troy, NY"
+10740,4,"Albuquerque, NM"
+10780,4,"Alexandria, LA"
+10900,4,"Allentown-Bethlehem-Easton, PA-NJ"
+11,2,District of Columbia
+11020,4,"Altoona, PA"
+11100,4,"Amarillo, TX"
+11180,4,"Ames, IA"
+11260,4,"Anchorage, AK"
+11300,4,"Anderson, IN"
+11340,4,"Anderson, SC"
+11460,4,"Ann Arbor, MI"
+11500,4,"Anniston-Oxford, AL"
+11540,4,"Appleton, WI"
+11700,4,"Asheville, NC"
+12,2,Florida
+1200001,6,Northwest Florida nonmetropolitan area
+1200002,6,Northeast Florida nonmetropolitan area
+1200003,6,South Florida nonmetropolitan area
+12020,4,"Athens-Clarke County, GA"
+12060,4,"Atlanta-Sandy Springs-Marietta, GA"
+12100,4,"Atlantic City-Hammonton, NJ"
+12220,4,"Auburn-Opelika, AL"
+12260,4,"Augusta-Richmond County, GA-SC"
+12420,4,"Austin-Round Rock-San Marcos, TX"
+12540,4,"Bakersfield-Delano, CA"
+12580,4,"Baltimore-Towson, MD"
+12940,4,"Baton Rouge, LA"
+12980,4,"Battle Creek, MI"
+13,2,Georgia
+1300001,6,North Georgia nonmetropolitan area
+1300002,6,Middle Georgia nonmetropolitan area
+1300003,6,East Georgia nonmetropolitan area
+1300004,6,South Georgia nonmetropolitan area
+13020,4,"Bay City, MI"
+13140,4,"Beaumont-Port Arthur, TX"
+13380,4,"Bellingham, WA"
+13460,4,"Bend, OR"
+13644,5,"Bethesda-Rockville-Frederick, MD Metropolitan Division"
+13740,4,"Billings, MT"
+13780,4,"Binghamton, NY"
+13820,4,"Birmingham-Hoover, AL"
+13900,4,"Bismarck, ND"
+13980,4,"Blacksburg-Christiansburg-Radford, VA"
+14020,4,"Bloomington, IN"
+14060,4,"Bloomington-Normal, IL"
+14260,4,"Boise City-Nampa, ID"
+14500,4,"Boulder, CO"
+14540,4,"Bowling Green, KY"
+14740,4,"Bremerton-Silverdale, WA"
+15,2,Hawaii
+1500001,6,Hawaii / Maui / Kauai nonmetropolitan area
+15180,4,"Brownsville-Harlingen, TX"
+15260,4,"Brunswick, GA"
+15380,4,"Buffalo-Niagara Falls, NY"
+15500,4,"Burlington, NC"
+15804,5,"Camden, NJ Metropolitan Division"
+15940,4,"Canton-Massillon, OH"
+15980,4,"Cape Coral-Fort Myers, FL"
+16,2,Idaho
+1600001,6,North Idaho nonmetropolitan area
+1600002,6,Southwest Idaho nonmetropolitan area
+1600003,6,Southcentral Idaho nonmetropolitan area
+1600004,6,East Idaho nonmetropolitan area
+16020,4,"Cape Girardeau-Jackson, MO-IL"
+16180,4,"Carson City, NV"
+16220,4,"Casper, WY"
+16300,4,"Cedar Rapids, IA"
+16580,4,"Champaign-Urbana, IL"
+16620,4,"Charleston, WV"
+16700,4,"Charleston-North Charleston-Summerville, SC"
+16740,4,"Charlotte-Gastonia-Rock Hill, NC-SC"
+16820,4,"Charlottesville, VA"
+16860,4,"Chattanooga, TN-GA"
+16940,4,"Cheyenne, WY"
+16974,5,"Chicago-Joliet-Naperville, IL Metropolitan Division"
+16980,4,"Chicago-Joliet-Naperville, IL-IN-WI"
+17,2,Illinois
+1700001,6,Northwest Illinois nonmetropolitan area
+1700002,6,West Central Illinois nonmetropolitan area
+1700003,6,East Central Illinois nonmetropolitan area
+1700004,6,South Illinois nonmetropolitan area
+17020,4,"Chico, CA"
+17140,4,"Cincinnati-Middletown, OH-KY-IN"
+17300,4,"Clarksville, TN-KY"
+17420,4,"Cleveland, TN"
+17460,4,"Cleveland-Elyria-Mentor, OH"
+17660,4,"Coeur d'Alene, ID"
+17780,4,"College Station-Bryan, TX"
+17820,4,"Colorado Springs, CO"
+17860,4,"Columbia, MO"
+17900,4,"Columbia, SC"
+17980,4,"Columbus, GA-AL"
+18,2,Indiana
+1800001,6,Northern Indiana nonmetropolitan area
+1800002,6,Central Indiana nonmetropolitan area
+1800003,6,Southern Indiana nonmetropolitan area
+18020,4,"Columbus, IN"
+18140,4,"Columbus, OH"
+18580,4,"Corpus Christi, TX"
+18700,4,"Corvallis, OR"
+18880,4,"Crestview-Fort Walton Beach-Destin, FL"
+19,2,Iowa
+1900001,6,Northeast Iowa nonmetropolitan area
+1900002,6,Northwest Iowa nonmetropolitan area
+1900003,6,Southwest Iowa nonmetropolitan area
+1900004,6,Southeast Iowa nonmetropolitan area
+19060,4,"Cumberland, MD-WV"
+19100,4,"Dallas-Fort Worth-Arlington, TX"
+19124,5,"Dallas-Plano-Irving, TX Metropolitan Division"
+19140,4,"Dalton, GA"
+19180,4,"Danville, IL"
+19260,4,"Danville, VA"
+19340,4,"Davenport-Moline-Rock Island, IA-IL"
+19380,4,"Dayton, OH"
+19460,4,"Decatur, AL"
+19500,4,"Decatur, IL"
+19660,4,"Deltona-Daytona Beach-Ormond Beach, FL"
+19740,4,"Denver-Aurora-Broomfield, CO"
+19780,4,"Des Moines-West Des Moines, IA"
+19804,5,"Detroit-Livonia-Dearborn, MI Metropolitan Division"
+19820,4,"Detroit-Warren-Livonia, MI"
+2,2,Alaska
+20,2,Kansas
+2000001,6,Kansas nonmetropolitan area
+200001,6,Southeast Alaska nonmetropolitan area
+200002,6,Railbelt / Southwest Alaska nonmetropolitan area
+20020,4,"Dothan, AL"
+20100,4,"Dover, DE"
+20220,4,"Dubuque, IA"
+20260,4,"Duluth, MN-WI"
+20500,4,"Durham-Chapel Hill, NC"
+20740,4,"Eau Claire, WI"
+20764,5,"Edison-New Brunswick, NJ Metropolitan Division"
+20940,4,"El Centro, CA"
+21,2,Kentucky
+2100001,6,West Kentucky nonmetropolitan area
+2100002,6,South Central Kentucky nonmetropolitan area
+2100003,6,West Central Kentucky nonmetropolitan area
+2100004,6,East Kentucky nonmetropolitan area
+21060,4,"Elizabethtown, KY"
+21140,4,"Elkhart-Goshen, IN"
+21300,4,"Elmira, NY"
+21340,4,"El Paso, TX"
+21500,4,"Erie, PA"
+21660,4,"Eugene-Springfield, OR"
+21780,4,"Evansville, IN-KY"
+21820,4,"Fairbanks, AK"
+21940,4,"Fajardo, PR"
+22,2,Louisiana
+2200001,6,Hammond nonmetropolitan area
+2200002,6,Natchitoches nonmetropolitan area
+2200003,6,Winnsboro nonmetropolitan area
+2200004,6,New Iberia nonmetropolitan area
+22020,4,"Fargo, ND-MN"
+22140,4,"Farmington, NM"
+22180,4,"Fayetteville, NC"
+22220,4,"Fayetteville-Springdale-Rogers, AR-MO"
+22380,4,"Flagstaff, AZ"
+22420,4,"Flint, MI"
+22500,4,"Florence, SC"
+22520,4,"Florence-Muscle Shoals, AL"
+22540,4,"Fond du Lac, WI"
+22660,4,"Fort Collins-Loveland, CO"
+22744,5,"Fort Lauderdale-Pompano Beach-Deerfield Beach, FL Metropolitan Division"
+22900,4,"Fort Smith, AR-OK"
+23,2,Maine
+2300001,6,Northeast Maine nonmetropolitan area
+2300002,6,Southwest Maine nonmetropolitan area
+23060,4,"Fort Wayne, IN"
+23104,5,"Fort Worth-Arlington, TX Metropolitan Division"
+23420,4,"Fresno, CA"
+23460,4,"Gadsden, AL"
+23540,4,"Gainesville, FL"
+23580,4,"Gainesville, GA"
+23844,5,"Gary, IN Metropolitan Division"
+24,2,Maryland
+2400001,6,Upper Eastern Shore nonmetropolitan area
+2400002,6,"Garrett County, Maryland nonmetropolitan area"
+2400003,6,"St. Mary's County, Maryland nonmetropolitan area"
+24020,4,"Glens Falls, NY"
+24140,4,"Goldsboro, NC"
+24220,4,"Grand Forks, ND-MN"
+24300,4,"Grand Junction, CO"
+24340,4,"Grand Rapids-Wyoming, MI"
+24500,4,"Great Falls, MT"
+24540,4,"Greeley, CO"
+24580,4,"Green Bay, WI"
+24660,4,"Greensboro-High Point, NC"
+24780,4,"Greenville, NC"
+24860,4,"Greenville-Mauldin-Easley, SC"
+25,2,Massachusetts
+2500001,6,Nantucket Island and Martha's Vineyard nonmetropolitan area
+2500002,6,Southwest Massachusetts nonmetropolitan area
+2500003,6,Northwest Massachusetts nonmetropolitan area
+2500004,6,North Central Massachusetts nonmetropolitan area
+25020,4,"Guayama, PR"
+25060,4,"Gulfport-Biloxi, MS"
+25180,4,"Hagerstown-Martinsburg, MD-WV"
+25260,4,"Hanford-Corcoran, CA"
+25420,4,"Harrisburg-Carlisle, PA"
+25500,4,"Harrisonburg, VA"
+25620,4,"Hattiesburg, MS"
+25860,4,"Hickory-Lenoir-Morganton, NC"
+25980,4,"Hinesville-Fort Stewart, GA"
+26,2,Michigan
+2600001,6,Upper Peninsula of Michigan nonmetropolitan area
+2600002,6,Northeast Lower Peninsula of Michigan nonmetropolitan area
+2600003,6,Northwest Lower Peninsula of Michigan nonmetropolitan area
+2600004,6,Balance of Lower Peninsula of Michigan nonmetropolitan area
+26100,4,"Holland-Grand Haven, MI"
+26180,4,"Honolulu, HI"
+26300,4,"Hot Springs, AR"
+26380,4,"Houma-Bayou Cane-Thibodaux, LA"
+26420,4,"Houston-Sugar Land-Baytown, TX"
+26580,4,"Huntington-Ashland, WV-KY-OH"
+26620,4,"Huntsville, AL"
+26820,4,"Idaho Falls, ID"
+26900,4,"Indianapolis-Carmel, IN"
+26980,4,"Iowa City, IA"
+27,2,Minnesota
+2700001,6,Northwest Minnesota nonmetropolitan area
+2700002,6,Northeast Minnesota nonmetropolitan area
+2700003,6,Southwest Minnesota nonmetropolitan area
+2700004,6,Southeast Minnesota nonmetropolitan area
+27060,4,"Ithaca, NY"
+27100,4,"Jackson, MI"
+27140,4,"Jackson, MS"
+27180,4,"Jackson, TN"
+27260,4,"Jacksonville, FL"
+27340,4,"Jacksonville, NC"
+27500,4,"Janesville, WI"
+27620,4,"Jefferson City, MO"
+27740,4,"Johnson City, TN"
+27780,4,"Johnstown, PA"
+27860,4,"Jonesboro, AR"
+27900,4,"Joplin, MO"
+28,2,Mississippi
+2800001,6,Northeast Mississippi nonmetropolitan area
+2800002,6,Northwest Mississippi nonmetropolitan area
+2800003,6,Southeast Mississippi nonmetropolitan area
+2800004,6,Southwest Mississippi nonmetropolitan area
+28020,4,"Kalamazoo-Portage, MI"
+28100,4,"Kankakee-Bradley, IL"
+28140,4,"Kansas City, MO-KS"
+28420,4,"Kennewick-Pasco-Richland, WA"
+28660,4,"Killeen-Temple-Fort Hood, TX"
+28700,4,"Kingsport-Bristol-Bristol, TN-VA"
+28740,4,"Kingston, NY"
+28940,4,"Knoxville, TN"
+29,2,Missouri
+2900001,6,Central Missouri nonmetropolitan area
+2900002,6,North Missouri nonmetropolitan area
+2900003,6,Southeast Missouri nonmetropolitan area
+2900004,6,Southwest Missouri nonmetropolitan area
+29020,4,"Kokomo, IN"
+29100,4,"La Crosse, WI-MN"
+29140,4,"Lafayette, IN"
+29180,4,"Lafayette, LA"
+29340,4,"Lake Charles, LA"
+29404,5,"Lake County-Kenosha County, IL-WI Metropolitan Division"
+29420,4,"Lake Havasu City-Kingman, AZ"
+29460,4,"Lakeland-Winter Haven, FL"
+29540,4,"Lancaster, PA"
+29620,4,"Lansing-East Lansing, MI"
+29700,4,"Laredo, TX"
+29740,4,"Las Cruces, NM"
+29820,4,"Las Vegas-Paradise, NV"
+29940,4,"Lawrence, KS"
+30,2,Montana
+3000001,6,Eastern Montana nonmetropolitan area
+3000002,6,Central Montana nonmetropolitan area
+3000003,6,Southwestern Montana nonmetropolitan area
+3000004,6,Western Montana nonmetropolitan area
+30020,4,"Lawton, OK"
+30140,4,"Lebanon, PA"
+30300,4,"Lewiston, ID-WA"
+30460,4,"Lexington-Fayette, KY"
+30620,4,"Lima, OH"
+30700,4,"Lincoln, NE"
+30780,4,"Little Rock-North Little Rock-Conway, AR"
+30860,4,"Logan, UT-ID"
+30980,4,"Longview, TX"
+31,2,Nebraska
+3100001,6,Western Nebraska nonmetropolitan area
+3100002,6,Central Nebraska nonmetropolitan area
+3100003,6,Northeastern Nebraska nonmetropolitan area
+3100004,6,Southeastern Nebraska nonmetropolitan area
+31020,4,"Longview, WA"
+31084,5,"Los Angeles-Long Beach-Glendale, CA  Metropolitan Division"
+31100,4,"Los Angeles-Long Beach-Santa Ana, CA"
+31140,4,"Louisville-Jefferson County, KY-IN"
+31180,4,"Lubbock, TX"
+31340,4,"Lynchburg, VA"
+31420,4,"Macon, GA"
+31460,4,"Madera-Chowchilla, CA"
+31540,4,"Madison, WI"
+31740,4,"Manhattan, KS"
+31860,4,"Mankato-North Mankato, MN"
+31900,4,"Mansfield, OH"
+32,2,Nevada
+3200001,6,Western Central Nevada nonmetropolitan area
+3200002,6,Other Nevada nonmetropolitan area
+32420,4,"Mayaguez, PR"
+32580,4,"McAllen-Edinburg-Mission, TX"
+32780,4,"Medford, OR"
+32820,4,"Memphis, TN-MS-AR"
+32900,4,"Merced, CA"
+33,2,New Hampshire
+3300001,6,Northern New Hampshire nonmetropolitan area
+3300002,6,Other New Hampshire nonmetropolitan area
+3300003,6,Western New Hampshire nonmetropolitan area
+3300004,6,Southwestern New Hampshire nonmetropolitan area
+33100,4,"Miami-Fort Lauderdale-Pompano Beach, FL"
+33124,5,"Miami-Miami Beach-Kendall, FL Metropolitan Division"
+33140,4,"Michigan City-La Porte, IN"
+33260,4,"Midland, TX"
+33340,4,"Milwaukee-Waukesha-West Allis, WI"
+33460,4,"Minneapolis-St. Paul-Bloomington, MN-WI"
+33540,4,"Missoula, MT"
+33660,4,"Mobile, AL"
+33700,4,"Modesto, CA"
+33740,4,"Monroe, LA"
+33780,4,"Monroe, MI"
+33860,4,"Montgomery, AL"
+34,2,New Jersey
+34060,4,"Morgantown, WV"
+34100,4,"Morristown, TN"
+34580,4,"Mount Vernon-Anacortes, WA"
+34620,4,"Muncie, IN"
+34740,4,"Muskegon-Norton Shores, MI"
+34820,4,"Myrtle Beach-North Myrtle Beach-Conway, SC"
+34900,4,"Napa, CA"
+34940,4,"Naples-Marco Island, FL"
+34980,4,"Nashville-Davidson--Murfreesboro--Franklin, TN"
+35,2,New Mexico
+3500001,6,North and West Central New Mexico nonmetropolitan area
+3500002,6,Eastern New Mexico nonmetropolitan area
+3500003,6,Southwestern New Mexico nonmetropolitan area
+3500004,6,"Los Alamos County, New Mexico nonmetropolitan area"
+35004,5,"Nassau-Suffolk, NY Metropolitan Division"
+35084,5,"Newark-Union, NJ-PA Metropolitan Division"
+35380,4,"New Orleans-Metairie-Kenner, LA"
+35620,4,"New York-Northern New Jersey-Long Island, NY-NJ-PA"
+35644,5,"New York-White Plains-Wayne, NY-NJ Metropolitan Division"
+35660,4,"Niles-Benton Harbor, MI"
+35840,4,"North Port-Bradenton-Sarasota, FL"
+36,2,New York
+3600001,6,Capital/Northern New York nonmetropolitan area
+3600002,6,East Central New York nonmetropolitan area
+3600003,6,Central New York nonmetropolitan area
+3600004,6,Southwest New York nonmetropolitan area
+36084,5,"Oakland-Fremont-Hayward, CA Metropolitan Division"
+36100,4,"Ocala, FL"
+36140,4,"Ocean City, NJ"
+36220,4,"Odessa, TX"
+36260,4,"Ogden-Clearfield, UT"
+36420,4,"Oklahoma City, OK"
+36500,4,"Olympia, WA"
+36540,4,"Omaha-Council Bluffs, NE-IA"
+36740,4,"Orlando-Kissimmee-Sanford, FL"
+36780,4,"Oshkosh-Neenah, WI"
+36980,4,"Owensboro, KY"
+37,2,North Carolina
+3700001,6,Northeastern North Carolina nonmetropolitan area
+3700002,6,Other North Carolina nonmetropolitan area
+3700003,6,Western Central North Carolina nonmetropolitan area
+3700004,6,Western North Carolina nonmetropolitan area
+37100,4,"Oxnard-Thousand Oaks-Ventura, CA"
+37340,4,"Palm Bay-Melbourne-Titusville, FL"
+37380,4,"Palm Coast, FL"
+37460,4,"Panama City-Lynn Haven-Panama City Beach, FL"
+37620,4,"Parkersburg-Marietta-Vienna, WV-OH"
+37700,4,"Pascagoula, MS"
+37860,4,"Pensacola-Ferry Pass-Brent, FL"
+37900,4,"Peoria, IL"
+37964,5,"Philadelphia, PA Metropolitan Division"
+37980,4,"Philadelphia-Camden-Wilmington, PA-NJ-DE-MD"
+38,2,North Dakota
+3800001,6,Far Western North Dakota nonmetropolitan area
+3800002,6,West Central North Dakota nonmetropolitan area
+3800003,6,East Central North Dakota
+3800004,6,Far Eastern North Dakota nonmetropolitan area
+38060,4,"Phoenix-Mesa-Glendale, AZ"
+38220,4,"Pine Bluff, AR"
+38300,4,"Pittsburgh, PA"
+38540,4,"Pocatello, ID"
+38660,4,"Ponce, PR"
+38900,4,"Portland-Vancouver-Hillsboro, OR-WA"
+38940,4,"Port St. Lucie, FL"
+39,2,Ohio
+3900001,6,West Northwestern Ohio nonmetropolitan area
+3900002,6,Other Ohio nonmetropolitan area
+3900003,6,Eastern Ohio nonmetropolitan area
+3900004,6,Southern Ohio nonmetropolitan area
+39100,4,"Poughkeepsie-Newburgh-Middletown, NY"
+39140,4,"Prescott, AZ"
+39340,4,"Provo-Orem, UT"
+39380,4,"Pueblo, CO"
+39460,4,"Punta Gorda, FL"
+39540,4,"Racine, WI"
+39580,4,"Raleigh-Cary, NC"
+39660,4,"Rapid City, SD"
+39740,4,"Reading, PA"
+39820,4,"Redding, CA"
+39900,4,"Reno-Sparks, NV"
+4,2,Arizona
+40,2,Oklahoma
+4000001,6,Northeastern Oklahoma nonmetropolitan area
+4000002,6,Northwestern Oklahoma nonmetropolitan area
+4000003,6,Southwestern Oklahoma nonmetropolitan area
+4000004,6,Southeastern Oklahoma nonmetropolitan area
+400001,6,North Arizona nonmetropolitan area
+400002,6,Southeast Arizona nonmetropolitan area
+40060,4,"Richmond, VA"
+40140,4,"Riverside-San Bernardino-Ontario, CA"
+40220,4,"Roanoke, VA"
+40340,4,"Rochester, MN"
+40380,4,"Rochester, NY"
+40420,4,"Rockford, IL"
+40580,4,"Rocky Mount, NC"
+40660,4,"Rome, GA"
+40900,4,"Sacramento--Arden-Arcade--Roseville, CA"
+40980,4,"Saginaw-Saginaw Township North, MI"
+41,2,Oregon
+4100001,6,Coastal Oregon nonmetropolitan area
+4100002,6,Southern Oregon and Linn County nonmetropolitan area
+4100003,6,North Central Oregon nonmetropolitan area
+4100004,6,Eastern Oregon nonmetropolitan area
+41060,4,"St. Cloud, MN"
+41100,4,"St. George, UT"
+41140,4,"St. Joseph, MO-KS"
+41180,4,"St. Louis, MO-IL"
+41420,4,"Salem, OR"
+41500,4,"Salinas, CA"
+41540,4,"Salisbury, MD"
+41620,4,"Salt Lake City, UT"
+41660,4,"San Angelo, TX"
+41700,4,"San Antonio-New Braunfels, TX"
+41740,4,"San Diego-Carlsbad-San Marcos, CA"
+41780,4,"Sandusky, OH"
+41860,4,"San Francisco-Oakland-Fremont, CA"
+41884,5,"San Francisco-San Mateo-Redwood City, CA Metropolitan Division"
+41900,4,"San German-Cabo Rojo, PR"
+41940,4,"San Jose-Sunnyvale-Santa Clara, CA"
+41980,4,"San Juan-Caguas-Guaynabo, PR"
+42,2,Pennsylvania
+4200001,6,Far Western Pennsylvania nonmetropolitan area
+4200002,6,West Central Pennsylvania nonmetropolitan area
+4200003,6,Northeastern Pennsylvania nonmetropolitan area
+4200004,6,East Central Pennsylvania nonmetropolitan area
+42020,4,"San Luis Obispo-Paso Robles, CA"
+42044,5,"Santa Ana-Anaheim-Irvine, CA Metropolitan Division"
+42060,4,"Santa Barbara-Santa Maria-Goleta, CA"
+42100,4,"Santa Cruz-Watsonville, CA"
+42140,4,"Santa Fe, NM"
+42220,4,"Santa Rosa-Petaluma, CA"
+42340,4,"Savannah, GA"
+42540,4,"Scranton--Wilkes-Barre, PA"
+42644,5,"Seattle-Bellevue-Everett, WA Metropolitan Division"
+42660,4,"Seattle-Tacoma-Bellevue, WA"
+42680,4,"Sebastian-Vero Beach, FL"
+43100,4,"Sheboygan, WI"
+43300,4,"Sherman-Denison, TX"
+43340,4,"Shreveport-Bossier City, LA"
+43580,4,"Sioux City, IA-NE-SD"
+43620,4,"Sioux Falls, SD"
+43780,4,"South Bend-Mishawaka, IN-MI"
+43900,4,"Spartanburg, SC"
+44,2,Rhode Island
+4400001,6,"New Shoreham Town, Rhode Island nonmetropolitan area"
+44060,4,"Spokane, WA"
+44100,4,"Springfield, IL"
+44180,4,"Springfield, MO"
+44220,4,"Springfield, OH"
+44300,4,"State College, PA"
+44600,4,"Steubenville-Weirton, OH-WV"
+44700,4,"Stockton, CA"
+44940,4,"Sumter, SC"
+45,2,South Carolina
+4500001,6,Low Country South Carolina nonmetropolitan area
+4500002,6,Upper Savannah South Carolina nonmetropolitan area
+4500003,6,Pee Dee South Carolina nonmetropolitan area
+4500004,6,Lower Savannah South Carolina nonmetropolitan area
+45060,4,"Syracuse, NY"
+45104,5,"Tacoma, WA Metropolitan Division"
+45220,4,"Tallahassee, FL"
+45300,4,"Tampa-St. Petersburg-Clearwater, FL"
+45460,4,"Terre Haute, IN"
+45500,4,"Texarkana-Texarkana, TX-AR"
+45780,4,"Toledo, OH"
+45820,4,"Topeka, KS"
+45940,4,"Trenton-Ewing, NJ"
+46,2,South Dakota
+4600001,6,Central South Dakota nonmetropolitan area
+4600002,6,Eastern South Dakota nonmetropolitan area
+4600003,6,Western South Dakota nonmetropolitan area
+46060,4,"Tucson, AZ"
+46140,4,"Tulsa, OK"
+46220,4,"Tuscaloosa, AL"
+46340,4,"Tyler, TX"
+46540,4,"Utica-Rome, NY"
+46660,4,"Valdosta, GA"
+46700,4,"Vallejo-Fairfield, CA"
+47,2,Tennessee
+4700001,6,Western Tennessee nonmetropolitan area
+4700002,6,South Central Tennessee nonmetropolitan area
+4700003,6,North Central Tennessee nonmetropolitan area
+4700004,6,Eastern Tennessee nonmetropolitan area
+47020,4,"Victoria, TX"
+47220,4,"Vineland-Millville-Bridgeton, NJ"
+47260,4,"Virginia Beach-Norfolk-Newport News, VA-NC"
+47300,4,"Visalia-Porterville, CA"
+47380,4,"Waco, TX"
+47580,4,"Warner Robins, GA"
+47644,5,"Warren-Troy-Farmington Hills, MI Metropolitan Division"
+47894,5,"Washington-Arlington-Alexandria, DC-VA-MD-WV Metropolitan Division"
+47900,4,"Washington-Arlington-Alexandria, DC-VA-MD-WV"
+47940,4,"Waterloo-Cedar Falls, IA"
+48,2,Texas
+4800001,6,Northwestern Texas nonmetropolitan area
+4800002,6,North Central Texas nonmetropolitan area
+4800003,6,Eastern Texas nonmetropolitan area
+4800004,6,Central Texas nonmetropolitan area
+4800005,6,Southern Texas nonmetropolitan area
+4800006,6,Gulf Coast Texas nonmetropolitan area
+48140,4,"Wausau, WI"
+48300,4,"Wenatchee-East Wenatchee, WA"
+48424,5,"West Palm Beach-Boca Raton-Boynton Beach, FL Metropolitan Division"
+48540,4,"Wheeling, WV-OH"
+48620,4,"Wichita, KS"
+48660,4,"Wichita Falls, TX"
+48700,4,"Williamsport, PA"
+48864,5,"Wilmington, DE-MD-NJ Metropolitan Division"
+48900,4,"Wilmington, NC"
+49,2,Utah
+4900001,6,Northern Utah nonmetropolitan area
+4900002,6,West Central Utah nonmetropolitan area
+4900003,6,South Western Utah nonmetropolitan area
+4900004,6,Eastern Utah nonmetropolitan area
+49020,4,"Winchester, VA-WV"
+49180,4,"Winston-Salem, NC"
+49420,4,"Yakima, WA"
+49500,4,"Yauco, PR"
+49620,4,"York-Hanover, PA"
+49660,4,"Youngstown-Warren-Boardman, OH-PA"
+49700,4,"Yuba City, CA"
+49740,4,"Yuma, AZ"
+5,2,Arkansas
+50,2,Vermont
+5000001,6,Southern Vermont nonmetropolitan area
+5000002,6,Northern Vermont nonmetropolitan area
+500001,6,Central Arkansas nonmetropolitan area
+500002,6,East Arkansas nonmetropolitan area
+500003,6,South Arkansas nonmetropolitan area
+500004,6,West Arkansas nonmetropolitan area
+51,2,Virginia
+5100001,6,Southwestern Virginia nonmetropolitan area
+5100002,6,Southside Virginia nonmetropolitan area
+5100003,6,Northeastern Virginia nonmetropolitan area
+5100004,6,Northwestern Virginia nonmetropolitan area
+53,2,Washington
+5300001,6,Northwestern Washington nonmetropolitan area
+5300002,6,Southwestern Washington nonmetropolitan area
+5300003,6,Central Washington nonmetropolitan area
+5300004,6,Eastern Washington nonmetropolitan area
+54,2,West Virginia
+5400001,6,Southern West Virginia nonmetropolitan area
+5400002,6,North Central West Virginia nonmetropolitan area
+55,2,Wisconsin
+5500001,6,Eastern Wisconsin nonmetropolitan area
+5500002,6,West Central Wisconsin nonmetropolitan area
+5500003,6,South Central Wisconsin nonmetropolitan area
+5500004,6,Southwestern Wisconsin nonmetropolitan area
+5500005,6,Northern Wisconsin nonmetropolitan area
+56,2,Wyoming
+5600001,6,Northwestern Wyoming nonmetropolitan area
+5600002,6,Southwestern Wyoming nonmetropolitan area
+5600003,6,Northeastern Wyoming nonmetropolitan area
+5600004,6,Southeastern Wyoming nonmetropolitan area
+6,2,California
+600001,6,Mother Lode Region of California nonmetropolitan area
+600002,6,Eastern Sierra Region of California nonmetropolitan area
+600003,6,North Coast Region of California nonmetropolitan area
+600004,6,North Valley Region of California nonmetropolitan area
+600005,6,Northern Mountains Region of California nonmetropolitan area
+66,3,Guam
+70750,4,"Bangor, ME"
+70900,4,"Barnstable Town, MA"
+71650,4,"Boston-Cambridge-Quincy, MA-NH"
+71654,5,"Boston-Cambridge-Quincy, MA NECTA Division"
+71950,4,"Bridgeport-Stamford-Norwalk, CT"
+72,3,Puerto Rico
+7200001,6,Puerto Rico nonmetropolitan area 1
+7200002,6,Puerto Rico nonmetropolitan area 2
+72104,5,"Brockton-Bridgewater-Easton, MA NECTA Division"
+72400,4,"Burlington-South Burlington, VT"
+72850,4,"Danbury, CT"
+73104,5,"Framingham, MA NECTA Division"
+73450,4,"Hartford-West Hartford-East Hartford, CT"
+73604,5,"Haverhill-North Andover-Amesbury, MA-NH NECTA Division"
+74204,5,"Lawrence-Methuen-Salem, MA-NH NECTA Division"
+74500,4,"Leominster-Fitchburg-Gardner, MA"
+74650,4,"Lewiston-Auburn, ME"
+74804,5,"Lowell-Billerica-Chelmsford, MA-NH NECTA Division"
+74950,4,"Manchester, NH"
+75404,5,"Nashua, NH-MA NECTA Division"
+75550,4,"New Bedford, MA"
+75700,4,"New Haven, CT"
+76450,4,"Norwich-New London, CT-RI"
+76524,5,"Peabody, MA NECTA Division"
+76600,4,"Pittsfield, MA"
+76750,4,"Portland-South Portland-Biddeford, ME"
+76900,4,"Portsmouth, NH-ME"
+77200,4,"Providence-Fall River-Warwick, RI-MA"
+77350,4,"Rochester-Dover, NH-ME"
+78,3,Virgin Islands
+78100,4,"Springfield, MA-CT"
+78254,5,"Taunton-Norton-Raynham, MA NECTA Division"
+78700,4,"Waterbury, CT"
+79600,4,"Worcester, MA-CT"
+8,2,Colorado
+800001,6,Eastern and Southern Colorado nonmetropolitan area
+800002,6,Western Colorado nonmetropolitan area
+800003,6,North Central Colorado nonmetropolitan area
+800004,6,Central Colorado nonmetropolitan area
+9,2,Connecticut
+900001,6,Northwestern Connecticut nonmetropolitan area
+900002,6,Eastern Connecticut nonmetropolitan area
+99,1,U.S.

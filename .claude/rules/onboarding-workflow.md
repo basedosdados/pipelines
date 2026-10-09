@@ -13,6 +13,7 @@ Work through steps in order. Do not skip steps.
 4.  clean                write and run data cleaning code → partitioned parquet
 5.  upload               upload parquet to BigQuery dev
 6.  dbt                  write .sql and schema.yml files
+6b. auxiliary            bundle the source's documentation per table -> GCS
 7.  validate             run DBT tests and data quality checks; fix or flag errors
 8.  discover             resolve all reference IDs from backend (dev)
 9.  metadata             register metadata in dev backend (dataset status = under_review)
@@ -60,10 +61,16 @@ cleaning transform is shared with `models/<ds>/code/` rather than duplicated.
 `us_bls_cpi` it passed while three separate bugs waited in the upload, the poll, and the
 staging schema. Step 12 is not finished until the flow has run on the **dev pool** with
 `{"materialize_to_prod": False, "update_metadata": False, "force_run": True}` and the logs
-show `dbt run OK` + `dbt test OK` for every table. Two traps around that run:
+show `dbt run OK` + `dbt test OK` for every table. Three traps around that run:
 
 - The PR needs the **`deploy-flow` label** or the staging deploy is `skipped` and nothing
   is deployed — silently.
+- The label only covers a PR that changes **`flows.py`**. `deploy_flows.py` keeps only
+  files defining a `Flow`, so a fix in `utils.py`/`tasks.py`/`*_clean.py` deploys
+  **nothing** while the job still reports `pass`, and the trigger then runs whatever
+  branch the deployment already pointed at. Confirm the clone path in the logs is
+  `/app/pipelines-<your-branch>/`, not `/app/pipelines-main/`. See
+  `prefect-pipeline-conventions`.
 - The defaults are `materialize_to_prod=True, update_metadata=True`, and the metadata
   tasks are pinned `env="prod"` even from the dev pool. A run triggered with `{}` writes
   **prod** data and metadata and applies the paywall.
@@ -99,6 +106,27 @@ the free/pro `is_closed` polarity, and what is verifiable locally.
 The upload/dbt/metadata halves run on the deployed worker (prod is not exercisable
 locally).
 
+## Step 6b - auxiliary files (only when the source publishes documentation)
+
+Many sources ship codebooks, questionnaires, technical reports and import scripts
+alongside the data, and some datasets are unusable without them. Follow
+`auxiliary-files` for where each document goes: a raw data source (a place data is
+published from), an auxiliary file (a per-table bundle in GCS, recorded in
+`Table.auxiliaryFilesUrl`), or a link in the bundle README (large, stable
+long-form PDFs).
+
+Two things to know before reporting success:
+
+- **Upload to `gs://basedosdados-public`, not to a data-lake bucket.** The two
+  data-lake buckets (`basedosdados`, `basedosdados-dev`) are requester-pays, so
+  anything served from them returns `UserProjectMissing` to an anonymous fetch.
+  `curl -sI` each URL with no credentials and report what it actually returns —
+  a 400 means the wrong bucket.
+- **Some publishers block scripted downloads.** `www.oecd.org` serves `.zip` only to
+  a real browser. Fetch through the browser tools rather than dropping the document.
+
+Skip this step entirely for a source that publishes data and nothing else.
+
 ## Verification checkpoint (between steps 9 and 10)
 
 After step 9 succeeds, output the following checklist and **wait for explicit approval** before proceeding to step 10:
@@ -110,6 +138,7 @@ After step 9 succeeds, output the following checklist and **wait for explicit ap
 ✓ Columns: <counts per table>
 ✓ Coverage: <start>–<end>
 ✓ Cloud tables: OK
+✓ Auxiliary files: <per-table bundles, and the real anonymous HTTP status of each URL>
 ✓ Verify at: https://development.basedosdados.org/dataset/<id>
 
 Table order set: <list in order, or "default">
@@ -137,6 +166,19 @@ Publishing is one call: `create_update_dataset(id=<dataset_id>, …, status_id=s
 ## Prod table data — materialised by the merge, never uploaded by hand
 
 **You never upload data to the prod project (`basedosdados`) yourself.** During onboarding the local upload targets **`basedosdados-dev` only** (steps 5, and the `set_datalake_project` dbt macro resolves the `dev` target to `basedosdados-dev`). The **prod table data lands in `basedosdados.<gcp_dataset_id>.*` when the onboarding PR is merged**, via the GitHub **table-approve** action, which runs `dbt --target prod` (that target's `set_datalake_project` reads `basedosdados-staging`). So the sequence is: upload to dev → verify in dev → register prod metadata `under_review` (step 10, cloud tables pointing at the not-yet-existing `basedosdados` tables) → open PR (step 11) → **merge → table-approve materialises the prod tables** → verify → publish (step 13). Do not try to populate `basedosdados` or `basedosdados-staging` from a local machine; local credentials are dev-only, and the merge is the trigger. (Watch the phantom-model failure mode noted above: non-model `.sql` in the PR can abort materialisation before any real table builds.)
+
+## Branch and commit discipline
+
+**Branch names — never the generic `claude/…` prefix.** Name the branch for the work, using a prefix that matches the change (the slug is the `<dataset_id>` whenever there is one):
+
+| Prefix | Use for | Example |
+|--------|---------|---------|
+| `data/` | onboarding a new dataset (cleaning code, dbt models, metadata) | `data/br_mma_cnuc` |
+| `pipeline/` | adding or fixing a recurring Prefect pipeline | `pipeline/br_mf_divida_ativa` |
+| `fix/` | bug fix to existing code, models, or data | `fix/br_tse_eleicoes-schema` |
+| `docs/` | documentation or `.claude/rules` changes only | `docs/tag-conventions` |
+
+If a tool or environment created a `claude/…` branch, rename it (`git branch -m <new-name>`) before opening the PR — **except** when a recurring-pipeline PR has already registered its dev deployment from that branch (the deploy step pins the deployment's `GitRepository` to the PR branch, so renaming mid-PR breaks the deployment's source). In that one case, keep the branch and use the correct prefix next time.
 
 ## Commit discipline
 

@@ -1,0 +1,71 @@
+{{
+    config(
+        schema="br_mgi_pncp",
+        alias="contrato",
+        materialized="incremental",
+        incremental_strategy="insert_overwrite",
+        partition_by={
+            "field": "ano",
+            "data_type": "int64",
+            "range": {"start": 2021, "end": 2031, "interval": 1},
+        },
+    )
+}}
+
+
+select
+    safe_cast(ano as int64) ano,
+    safe_cast(sigla_uf as string) sigla_uf,
+    safe_cast(id_municipio as string) id_municipio,
+    safe_cast(id_contrato_pncp as string) id_contrato_pncp,
+    safe_cast(id_contratacao_pncp as string) id_contratacao_pncp,
+    safe_cast(id_ata_pncp as string) id_ata_pncp,
+    safe_cast(ano_contrato as int64) ano_contrato,
+    safe_cast(sequencial_contrato as string) sequencial_contrato,
+    safe_cast(numero_contrato_empenho as string) numero_contrato_empenho,
+    safe_cast(numero_processo as string) numero_processo,
+    safe_cast(cnpj_orgao as string) cnpj_orgao,
+    safe_cast(nome_orgao as string) nome_orgao,
+    safe_cast(id_esfera as string) id_esfera,
+    safe_cast(id_poder as string) id_poder,
+    safe_cast(codigo_unidade as string) codigo_unidade,
+    safe_cast(nome_unidade as string) nome_unidade,
+    safe_cast(cnpj_orgao_subrogado as string) cnpj_orgao_subrogado,
+    safe_cast(nome_orgao_subrogado as string) nome_orgao_subrogado,
+    safe_cast(codigo_unidade_subrogada as string) codigo_unidade_subrogada,
+    safe_cast(nome_unidade_subrogada as string) nome_unidade_subrogada,
+    safe_cast(id_tipo_contrato as string) id_tipo_contrato,
+    safe_cast(tipo_contrato as string) tipo_contrato,
+    safe_cast(id_categoria_processo as string) id_categoria_processo,
+    safe_cast(categoria_processo as string) categoria_processo,
+    safe_cast(id_fornecedor as string) id_fornecedor,
+    safe_cast(nome_fornecedor as string) nome_fornecedor,
+    safe_cast(tipo_pessoa_fornecedor as string) tipo_pessoa_fornecedor,
+    safe_cast(codigo_pais_fornecedor as string) codigo_pais_fornecedor,
+    safe_cast(id_fornecedor_subcontratado as string) id_fornecedor_subcontratado,
+    safe_cast(nome_fornecedor_subcontratado as string) nome_fornecedor_subcontratado,
+    safe_cast(objeto_contrato as string) objeto_contrato,
+    safe_cast(informacao_complementar as string) informacao_complementar,
+    safe_cast(indicador_receita as boolean) indicador_receita,
+    safe_cast(indicador_emenda_parlamentar as boolean) indicador_emenda_parlamentar,
+    safe_cast(indicador_fruto_adesao as boolean) indicador_fruto_adesao,
+    safe_cast(numero_retificacao as int64) numero_retificacao,
+    safe_cast(numero_parcelas as int64) numero_parcelas,
+    safe_cast(data_assinatura as date) data_assinatura,
+    safe_cast(data_vigencia_inicio as date) data_vigencia_inicio,
+    safe_cast(data_vigencia_fim as date) data_vigencia_fim,
+    safe_cast(data_publicacao as date) data_publicacao,
+    safe_cast(data_atualizacao as date) data_atualizacao,
+    safe_cast(valor_inicial as float64) valor_inicial,
+    safe_cast(valor_parcela as float64) valor_parcela,
+    safe_cast(valor_global as float64) valor_global,
+    safe_cast(valor_acumulado as float64) valor_acumulado
+from {{ set_datalake_project("br_mgi_pncp_staging.contrato") }} as t
+{% if is_incremental() and var("pncp_years", "") %}
+    where safe_cast(ano as int64) in ({{ var("pncp_years") }})
+{% endif %}
+qualify
+    row_number() over (
+        partition by id_contrato_pncp order by safe_cast(data_atualizacao as date) desc
+    )
+    = 1

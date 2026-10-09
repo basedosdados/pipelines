@@ -1,7 +1,7 @@
 """Upload cleaned ESS parquet tables to BigQuery dev (basedosdados-dev).
 
 Usage:
-    uv run python models/gb_eric_ess/code/upload.py [round_NN ...]
+    uv run models/gb_eric_ess/code/upload.py [round_NN ...]
 
 Uploads each round table sequentially (smallest first), stops on first failure.
 Expected row counts are read from the local parquet so this also handles rounds

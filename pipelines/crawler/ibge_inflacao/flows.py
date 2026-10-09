@@ -3,13 +3,12 @@ Flow compartilhado para índices de inflação do IBGE (IPCA, INPC, ...).
 Prefect 3 — use os flows dos datasets (br_ibge_ipca, br_ibge_inpc) para deploy.
 """
 
-from prefect import flow
-
 from pipelines.crawler.ibge_inflacao.tasks import (
     check_for_updates,
     collect_data_utils,
     json_to_csv,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import DateFormat, PartBdpro, YearMonth
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -28,13 +27,11 @@ def _run_ibge_inflacao(
     table_id: str,
     periodo: str | None,
     materialize_after_dump: bool,
-    dbt_alias: bool,
     update_metadata: bool,
     target: str,
     force_run: bool = False,
 ) -> None:
     """Lógica completa do flow de inflação IBGE. Chamada pelos flows de cada dataset."""
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -51,10 +48,24 @@ def _run_ibge_inflacao(
         source_max_date=max_date,
         env="prod",
         date_format="%Y-%m",
+        compare_against="coverage",
     )
 
     if not has_new_data and not force_run:
         return
+
+    # Comita o Update da fonte já aqui, antes de baixar/materializar: se o
+    # flow falhar no meio, o metadado da fonte ainda reflete que havia dado
+    # novo publicado, mesmo que a tabela não tenha sido atualizada.
+    commit_source_update_task(
+        dataset_id=dataset_id,
+        table_id=table_id,
+        source_max_date=max_date,
+        env="prod",
+        date_format="%Y-%m",
+        update_metadata=update_metadata,
+        materialize_after_dump=materialize_after_dump,
+    )
 
     filepath = json_to_csv(table_id=table_id, dataset_id=dataset_id)
 
@@ -70,7 +81,6 @@ def _run_ibge_inflacao(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -89,7 +99,6 @@ def _run_ibge_inflacao(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -105,14 +114,6 @@ def _run_ibge_inflacao(
             bq_project="basedosdados",
         )
 
-        commit_source_update_task(
-            dataset_id=dataset_id,
-            table_id=table_id,
-            source_max_date=max_date,
-            env="prod",
-            date_format="%Y-%m",
-        )
-
 
 @flow(name="ibge-inflacao", log_prints=True)
 def ibge_inflacao_flow(
@@ -120,7 +121,6 @@ def ibge_inflacao_flow(
     table_id: str = "mes_brasil",
     periodo: str | None = None,
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     update_metadata: bool = False,
     target: str = "prod",
 ) -> None:
@@ -130,11 +130,9 @@ def ibge_inflacao_flow(
         table_id=table_id,
         periodo=periodo,
         materialize_after_dump=materialize_after_dump,
-        dbt_alias=dbt_alias,
         update_metadata=update_metadata,
         target=target,
     )
 
 
-# pyrefly: ignore [missing-attribute]
 ibge_inflacao_flow.deploy_schedules = []

@@ -20,7 +20,6 @@ Outputs (Snappy parquet, hive-partitioned by ``year``):
 from __future__ import annotations
 
 import shutil
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -28,9 +27,7 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-# pyrefly: ignore [missing-import]
-import reference as ref
+from models.in_tcpd_elections.code import reference as ref
 
 # --------------------------------------------------------------------------- #
 # Paths

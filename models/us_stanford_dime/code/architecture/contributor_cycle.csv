@@ -1,0 +1,4 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+cycle,INT64,Two-year election cycle the amount refers to,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,amount.<cycle>
+contributor_id,STRING,"Unique identifier of the contributor, assigned by DIME entity resolution",,no,,,no,Joins to the contributor and contribution tables,bonica.cid
+amount,FLOAT64,Total amount contributed by the donor during the cycle,,no,,USD,no,Nominal dollars. Reshaped from the amount.<cycle> columns of the source contributor file; cycles in which the donor gave nothing are not stored as rows,amount.<cycle>

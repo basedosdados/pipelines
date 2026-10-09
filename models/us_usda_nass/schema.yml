@@ -1,0 +1,567 @@
+---
+version: 2
+models:
+  - name: us_usda_nass__survey_national
+    description: >
+      Estatísticas de pesquisa (survey) do USDA NASS QuickStats no nível nacional
+      dos EUA, em formato longo: uma linha por ano, geografia, commodity, categoria
+      estatística, domínio e unidade. A unidade de medida varia por linha e está na
+      coluna unit.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - commodity
+            - commodity_class
+            - production_practice
+            - utilization_practice
+            - statistic_category
+            - unit
+            - domain
+            - domain_category
+            - reference_period
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [value_suppression_flag, coefficient_of_variation]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_usda_nass__dicionario')
+          columns_covered_by_dictionary: [value_suppression_flag]
+    columns:
+      - name: year
+        description: Ano de referência da observação
+        tests: [not_null]
+      - name: sector
+        description: Setor da commodity no QuickStats (crops, animals & products,
+          economics, demographics, environmental)
+      - name: commodity_group
+        description: Grupo de commodities ao qual a observação pertence
+      - name: commodity
+        description: Commodity agrícola medida
+        tests: [not_null]
+      - name: commodity_class
+        description: Classe ou subtipo da commodity
+      - name: production_practice
+        description: 'Prática de produção (ex.: irrigada, orgânica, todas as práticas)'
+      - name: utilization_practice
+        description: 'Prática de utilização (ex.: para grão, para silagem, todas as
+          práticas)'
+      - name: statistic_category
+        description: 'Categoria estatística medida (ex.: production, yield, area planted,
+          price received)'
+        tests: [not_null]
+      - name: unit
+        description: 'Unidade de medida do valor; varia por linha (ex.: BU, LB, ACRES,
+          HEAD, $)'
+      - name: short_description
+        description: Descrição completa da série (commodity, classe, práticas e estatística
+          concatenadas)
+      - name: domain
+        description: Domínio de desagregação da observação (TOTAL quando não desagregada)
+      - name: domain_category
+        description: Categoria dentro do domínio de desagregação
+      - name: frequency
+        description: Frequência de referência da observação
+      - name: reference_period
+        description: 'Período de referência dentro do ano (ex.: YEAR, MARKETING YEAR)'
+      - name: value
+        description: Valor observado; a unidade está na coluna unit e varia por linha
+      - name: value_suppression_flag
+        description: Código de supressão quando o valor foi retido pela fonte ((D),
+          (Z) etc.); nulo caso contrário
+      - name: coefficient_of_variation
+        description: Coeficiente de variação da estimativa, em porcentagem
+  - name: us_usda_nass__survey_state
+    description: >
+      Estatísticas de pesquisa (survey) do USDA NASS QuickStats no nível estadual,
+      em formato longo: uma linha por ano, geografia, commodity, categoria estatística,
+      domínio e unidade. A unidade de medida varia por linha e está na coluna unit.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - state_fips
+            - commodity
+            - commodity_class
+            - production_practice
+            - utilization_practice
+            - statistic_category
+            - unit
+            - domain
+            - domain_category
+            - reference_period
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [value_suppression_flag, coefficient_of_variation]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_usda_nass__dicionario')
+          columns_covered_by_dictionary: [value_suppression_flag]
+    columns:
+      - name: year
+        description: Ano de referência da observação
+        tests: [not_null]
+      - name: state_fips
+        description: Código FIPS de dois dígitos do estado
+        tests: [not_null]
+      - name: state_abbreviation
+        description: Sigla de duas letras do estado
+      - name: state_name
+        description: Nome do estado
+      - name: sector
+        description: Setor da commodity no QuickStats (crops, animals & products,
+          economics, demographics, environmental)
+      - name: commodity_group
+        description: Grupo de commodities ao qual a observação pertence
+      - name: commodity
+        description: Commodity agrícola medida
+        tests: [not_null]
+      - name: commodity_class
+        description: Classe ou subtipo da commodity
+      - name: production_practice
+        description: 'Prática de produção (ex.: irrigada, orgânica, todas as práticas)'
+      - name: utilization_practice
+        description: 'Prática de utilização (ex.: para grão, para silagem, todas as
+          práticas)'
+      - name: statistic_category
+        description: 'Categoria estatística medida (ex.: production, yield, area planted,
+          price received)'
+        tests: [not_null]
+      - name: unit
+        description: 'Unidade de medida do valor; varia por linha (ex.: BU, LB, ACRES,
+          HEAD, $)'
+      - name: short_description
+        description: Descrição completa da série (commodity, classe, práticas e estatística
+          concatenadas)
+      - name: domain
+        description: Domínio de desagregação da observação (TOTAL quando não desagregada)
+      - name: domain_category
+        description: Categoria dentro do domínio de desagregação
+      - name: frequency
+        description: Frequência de referência da observação
+      - name: reference_period
+        description: 'Período de referência dentro do ano (ex.: YEAR, MARKETING YEAR)'
+      - name: value
+        description: Valor observado; a unidade está na coluna unit e varia por linha
+      - name: value_suppression_flag
+        description: Código de supressão quando o valor foi retido pela fonte ((D),
+          (Z) etc.); nulo caso contrário
+      - name: coefficient_of_variation
+        description: Coeficiente de variação da estimativa, em porcentagem
+  - name: us_usda_nass__survey_agricultural_district
+    description: >
+      Estatísticas de pesquisa (survey) do USDA NASS QuickStats no nível de distrito
+      estatístico agrícola (ASD), em formato longo: uma linha por ano, geografia,
+      commodity, categoria estatística, domínio e unidade. A unidade de medida varia
+      por linha e está na coluna unit.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - state_fips
+            - agricultural_district_code
+            - commodity
+            - commodity_class
+            - production_practice
+            - utilization_practice
+            - statistic_category
+            - unit
+            - domain
+            - domain_category
+            - reference_period
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [value_suppression_flag, coefficient_of_variation]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_usda_nass__dicionario')
+          columns_covered_by_dictionary: [value_suppression_flag]
+    columns:
+      - name: year
+        description: Ano de referência da observação
+        tests: [not_null]
+      - name: state_fips
+        description: Código FIPS de dois dígitos do estado
+        tests: [not_null]
+      - name: state_abbreviation
+        description: Sigla de duas letras do estado
+      - name: state_name
+        description: Nome do estado
+      - name: agricultural_district_code
+        description: Código do distrito estatístico agrícola dentro do estado
+        tests: [not_null]
+      - name: agricultural_district_name
+        description: Nome do distrito estatístico agrícola
+      - name: sector
+        description: Setor da commodity no QuickStats (crops, animals & products,
+          economics, demographics, environmental)
+      - name: commodity_group
+        description: Grupo de commodities ao qual a observação pertence
+      - name: commodity
+        description: Commodity agrícola medida
+        tests: [not_null]
+      - name: commodity_class
+        description: Classe ou subtipo da commodity
+      - name: production_practice
+        description: 'Prática de produção (ex.: irrigada, orgânica, todas as práticas)'
+      - name: utilization_practice
+        description: 'Prática de utilização (ex.: para grão, para silagem, todas as
+          práticas)'
+      - name: statistic_category
+        description: 'Categoria estatística medida (ex.: production, yield, area planted,
+          price received)'
+        tests: [not_null]
+      - name: unit
+        description: 'Unidade de medida do valor; varia por linha (ex.: BU, LB, ACRES,
+          HEAD, $)'
+      - name: short_description
+        description: Descrição completa da série (commodity, classe, práticas e estatística
+          concatenadas)
+      - name: domain
+        description: Domínio de desagregação da observação (TOTAL quando não desagregada)
+      - name: domain_category
+        description: Categoria dentro do domínio de desagregação
+      - name: frequency
+        description: Frequência de referência da observação
+      - name: reference_period
+        description: 'Período de referência dentro do ano (ex.: YEAR, MARKETING YEAR)'
+      - name: value
+        description: Valor observado; a unidade está na coluna unit e varia por linha
+      - name: value_suppression_flag
+        description: Código de supressão quando o valor foi retido pela fonte ((D),
+          (Z) etc.); nulo caso contrário
+      - name: coefficient_of_variation
+        description: Coeficiente de variação da estimativa, em porcentagem
+  - name: us_usda_nass__survey_county
+    description: >
+      Estatísticas de pesquisa (survey) do USDA NASS QuickStats no nível de condado,
+      em formato longo: uma linha por ano, geografia, commodity, categoria estatística,
+      domínio e unidade. A unidade de medida varia por linha e está na coluna unit.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - state_fips
+            - agricultural_district_code
+            - county_fips
+            - commodity
+            - commodity_class
+            - production_practice
+            - utilization_practice
+            - statistic_category
+            - unit
+            - domain
+            - domain_category
+            - reference_period
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [value_suppression_flag, coefficient_of_variation]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_usda_nass__dicionario')
+          columns_covered_by_dictionary: [value_suppression_flag]
+    columns:
+      - name: year
+        description: Ano de referência da observação
+        tests: [not_null]
+      - name: state_fips
+        description: Código FIPS de dois dígitos do estado
+        tests: [not_null]
+      - name: state_abbreviation
+        description: Sigla de duas letras do estado
+      - name: state_name
+        description: Nome do estado
+      - name: agricultural_district_code
+        description: Código do distrito estatístico agrícola dentro do estado
+        tests: [not_null]
+      - name: agricultural_district_name
+        description: Nome do distrito estatístico agrícola
+      - name: county_fips
+        description: Código FIPS de cinco dígitos do condado (estado mais condado)
+        tests: [not_null]
+      - name: county_name
+        description: Nome do condado
+      - name: sector
+        description: Setor da commodity no QuickStats (crops, animals & products,
+          economics, demographics, environmental)
+      - name: commodity_group
+        description: Grupo de commodities ao qual a observação pertence
+      - name: commodity
+        description: Commodity agrícola medida
+        tests: [not_null]
+      - name: commodity_class
+        description: Classe ou subtipo da commodity
+      - name: production_practice
+        description: 'Prática de produção (ex.: irrigada, orgânica, todas as práticas)'
+      - name: utilization_practice
+        description: 'Prática de utilização (ex.: para grão, para silagem, todas as
+          práticas)'
+      - name: statistic_category
+        description: 'Categoria estatística medida (ex.: production, yield, area planted,
+          price received)'
+        tests: [not_null]
+      - name: unit
+        description: 'Unidade de medida do valor; varia por linha (ex.: BU, LB, ACRES,
+          HEAD, $)'
+      - name: short_description
+        description: Descrição completa da série (commodity, classe, práticas e estatística
+          concatenadas)
+      - name: domain
+        description: Domínio de desagregação da observação (TOTAL quando não desagregada)
+      - name: domain_category
+        description: Categoria dentro do domínio de desagregação
+      - name: frequency
+        description: Frequência de referência da observação
+      - name: reference_period
+        description: 'Período de referência dentro do ano (ex.: YEAR, MARKETING YEAR)'
+      - name: value
+        description: Valor observado; a unidade está na coluna unit e varia por linha
+      - name: value_suppression_flag
+        description: Código de supressão quando o valor foi retido pela fonte ((D),
+          (Z) etc.); nulo caso contrário
+      - name: coefficient_of_variation
+        description: Coeficiente de variação da estimativa, em porcentagem
+  - name: us_usda_nass__census_of_agriculture_national
+    description: >
+      Censo Agropecuário quinquenal do USDA NASS QuickStats no nível nacional dos
+      EUA, em formato longo: uma linha por ano, geografia, commodity, categoria estatística,
+      domínio e unidade. A unidade de medida varia por linha e está na coluna unit.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - commodity
+            - commodity_class
+            - production_practice
+            - utilization_practice
+            - statistic_category
+            - unit
+            - domain
+            - domain_category
+            - reference_period
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [value_suppression_flag, coefficient_of_variation]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_usda_nass__dicionario')
+          columns_covered_by_dictionary: [value_suppression_flag]
+    columns:
+      - name: year
+        description: Ano de referência da observação
+        tests: [not_null]
+      - name: sector
+        description: Setor da commodity no QuickStats (crops, animals & products,
+          economics, demographics, environmental)
+      - name: commodity_group
+        description: Grupo de commodities ao qual a observação pertence
+      - name: commodity
+        description: Commodity agrícola medida
+        tests: [not_null]
+      - name: commodity_class
+        description: Classe ou subtipo da commodity
+      - name: production_practice
+        description: 'Prática de produção (ex.: irrigada, orgânica, todas as práticas)'
+      - name: utilization_practice
+        description: 'Prática de utilização (ex.: para grão, para silagem, todas as
+          práticas)'
+      - name: statistic_category
+        description: 'Categoria estatística medida (ex.: production, yield, area planted,
+          price received)'
+        tests: [not_null]
+      - name: unit
+        description: 'Unidade de medida do valor; varia por linha (ex.: BU, LB, ACRES,
+          HEAD, $)'
+      - name: short_description
+        description: Descrição completa da série (commodity, classe, práticas e estatística
+          concatenadas)
+      - name: domain
+        description: Domínio de desagregação da observação (TOTAL quando não desagregada)
+      - name: domain_category
+        description: Categoria dentro do domínio de desagregação
+      - name: frequency
+        description: Frequência de referência da observação
+      - name: reference_period
+        description: 'Período de referência dentro do ano (ex.: YEAR, MARKETING YEAR)'
+      - name: value
+        description: Valor observado; a unidade está na coluna unit e varia por linha
+      - name: value_suppression_flag
+        description: Código de supressão quando o valor foi retido pela fonte ((D),
+          (Z) etc.); nulo caso contrário
+      - name: coefficient_of_variation
+        description: Coeficiente de variação da estimativa, em porcentagem
+  - name: us_usda_nass__census_of_agriculture_state
+    description: >
+      Censo Agropecuário quinquenal do USDA NASS QuickStats no nível estadual, em
+      formato longo: uma linha por ano, geografia, commodity, categoria estatística,
+      domínio e unidade. A unidade de medida varia por linha e está na coluna unit.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - state_fips
+            - commodity
+            - commodity_class
+            - production_practice
+            - utilization_practice
+            - statistic_category
+            - unit
+            - domain
+            - domain_category
+            - reference_period
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [value_suppression_flag, coefficient_of_variation]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_usda_nass__dicionario')
+          columns_covered_by_dictionary: [value_suppression_flag]
+    columns:
+      - name: year
+        description: Ano de referência da observação
+        tests: [not_null]
+      - name: state_fips
+        description: Código FIPS de dois dígitos do estado
+        tests: [not_null]
+      - name: state_abbreviation
+        description: Sigla de duas letras do estado
+      - name: state_name
+        description: Nome do estado
+      - name: sector
+        description: Setor da commodity no QuickStats (crops, animals & products,
+          economics, demographics, environmental)
+      - name: commodity_group
+        description: Grupo de commodities ao qual a observação pertence
+      - name: commodity
+        description: Commodity agrícola medida
+        tests: [not_null]
+      - name: commodity_class
+        description: Classe ou subtipo da commodity
+      - name: production_practice
+        description: 'Prática de produção (ex.: irrigada, orgânica, todas as práticas)'
+      - name: utilization_practice
+        description: 'Prática de utilização (ex.: para grão, para silagem, todas as
+          práticas)'
+      - name: statistic_category
+        description: 'Categoria estatística medida (ex.: production, yield, area planted,
+          price received)'
+        tests: [not_null]
+      - name: unit
+        description: 'Unidade de medida do valor; varia por linha (ex.: BU, LB, ACRES,
+          HEAD, $)'
+      - name: short_description
+        description: Descrição completa da série (commodity, classe, práticas e estatística
+          concatenadas)
+      - name: domain
+        description: Domínio de desagregação da observação (TOTAL quando não desagregada)
+      - name: domain_category
+        description: Categoria dentro do domínio de desagregação
+      - name: frequency
+        description: Frequência de referência da observação
+      - name: reference_period
+        description: 'Período de referência dentro do ano (ex.: YEAR, MARKETING YEAR)'
+      - name: value
+        description: Valor observado; a unidade está na coluna unit e varia por linha
+      - name: value_suppression_flag
+        description: Código de supressão quando o valor foi retido pela fonte ((D),
+          (Z) etc.); nulo caso contrário
+      - name: coefficient_of_variation
+        description: Coeficiente de variação da estimativa, em porcentagem
+  - name: us_usda_nass__census_of_agriculture_county
+    description: >
+      Censo Agropecuário quinquenal do USDA NASS QuickStats no nível de condado, em
+      formato longo: uma linha por ano, geografia, commodity, categoria estatística,
+      domínio e unidade. A unidade de medida varia por linha e está na coluna unit.
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - state_fips
+            - agricultural_district_code
+            - county_fips
+            - commodity
+            - commodity_class
+            - production_practice
+            - utilization_practice
+            - statistic_category
+            - unit
+            - domain
+            - domain_category
+            - reference_period
+      - not_null_proportion_multiple_columns:
+          at_least: 0.05
+          ignore_values: [value_suppression_flag, coefficient_of_variation]
+      - custom_dictionary_coverage:
+          dictionary_model: ref('us_usda_nass__dicionario')
+          columns_covered_by_dictionary: [value_suppression_flag]
+    columns:
+      - name: year
+        description: Ano de referência da observação
+        tests: [not_null]
+      - name: state_fips
+        description: Código FIPS de dois dígitos do estado
+        tests: [not_null]
+      - name: state_abbreviation
+        description: Sigla de duas letras do estado
+      - name: state_name
+        description: Nome do estado
+      - name: agricultural_district_code
+        description: Código do distrito estatístico agrícola dentro do estado
+        tests: [not_null]
+      - name: agricultural_district_name
+        description: Nome do distrito estatístico agrícola
+      - name: county_fips
+        description: Código FIPS de cinco dígitos do condado (estado mais condado)
+        tests: [not_null]
+      - name: county_name
+        description: Nome do condado
+      - name: sector
+        description: Setor da commodity no QuickStats (crops, animals & products,
+          economics, demographics, environmental)
+      - name: commodity_group
+        description: Grupo de commodities ao qual a observação pertence
+      - name: commodity
+        description: Commodity agrícola medida
+        tests: [not_null]
+      - name: commodity_class
+        description: Classe ou subtipo da commodity
+      - name: production_practice
+        description: 'Prática de produção (ex.: irrigada, orgânica, todas as práticas)'
+      - name: utilization_practice
+        description: 'Prática de utilização (ex.: para grão, para silagem, todas as
+          práticas)'
+      - name: statistic_category
+        description: 'Categoria estatística medida (ex.: production, yield, area planted,
+          price received)'
+        tests: [not_null]
+      - name: unit
+        description: 'Unidade de medida do valor; varia por linha (ex.: BU, LB, ACRES,
+          HEAD, $)'
+      - name: short_description
+        description: Descrição completa da série (commodity, classe, práticas e estatística
+          concatenadas)
+      - name: domain
+        description: Domínio de desagregação da observação (TOTAL quando não desagregada)
+      - name: domain_category
+        description: Categoria dentro do domínio de desagregação
+      - name: frequency
+        description: Frequência de referência da observação
+      - name: reference_period
+        description: 'Período de referência dentro do ano (ex.: YEAR, MARKETING YEAR)'
+      - name: value
+        description: Valor observado; a unidade está na coluna unit e varia por linha
+      - name: value_suppression_flag
+        description: Código de supressão quando o valor foi retido pela fonte ((D),
+          (Z) etc.); nulo caso contrário
+      - name: coefficient_of_variation
+        description: Coeficiente de variação da estimativa, em porcentagem
+  - name: us_usda_nass__dicionario
+    description: >
+      Dicionário de valores codificados do conjunto us_usda_nass e seus rótulos
+      legíveis. Cobre a coluna value_suppression_flag das tabelas de pesquisa e
+      censo (códigos de supressão do NASS, como (D) e (Z)).
+    columns:
+      - name: id_tabela
+        description: Nome da tabela à qual a coluna pertence
+      - name: nome_coluna
+        description: Nome da coluna codificada
+      - name: chave
+        description: Valor codificado
+      - name: cobertura_temporal
+        description: Cobertura temporal do mapeamento
+      - name: valor
+        description: Rótulo legível correspondente à chave

@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 2002, "end": 2024, "interval": 2},
+            "range": {"start": 2002, "end": 2030, "interval": 2},
         },
     )
 }}
@@ -27,11 +27,13 @@ select
     safe_cast(numero_partido as string) numero_partido,
     safe_cast(sigla_partido as string) sigla_partido,
     safe_cast(cargo as string) cargo,
-    safe_cast(sequencial_despesa as string) sequencial_despesa,
+    nullif(
+        nullif(safe_cast(sequencial_despesa as string), '#nulo'), '-1'
+    ) sequencial_despesa,
     safe_cast(data_despesa as date) data_despesa,
     safe_cast(tipo_despesa as string) tipo_despesa,
     safe_cast(descricao_despesa as string) descricao_despesa,
-    safe_cast(origem_despesa as string) origem_despesa,
+    nullif(nullif(safe_cast(origem_despesa as string), '#nulo'), '-1') origem_despesa,
     safe_cast(valor_despesa as float64) valor_despesa,
     safe_cast(tipo_prestacao_contas as string) tipo_prestacao_contas,
     safe_cast(data_prestacao_contas as date) data_prestacao_contas,
@@ -59,7 +61,9 @@ select
     safe_cast(tipo_fornecedor as string) tipo_fornecedor,
     safe_cast(esfera_partidaria_fornecedor as string) esfera_partidaria_fornecedor,
     safe_cast(sigla_uf_fornecedor as string) sigla_uf_fornecedor,
-    safe_cast(id_municipio_tse_fornecedor as string) id_municipio_tse_fornecedor,
+    safe_cast(
+        regexp_replace(id_municipio_tse_fornecedor, r'\.0$', '') as string
+    ) id_municipio_tse_fornecedor,
     safe_cast(
         sequencial_candidato_fornecedor as string
     ) sequencial_candidato_fornecedor,
@@ -67,4 +71,7 @@ select
     safe_cast(numero_partido_fornecedor as string) numero_partido_fornecedor,
     safe_cast(sigla_partido_fornecedor as string) sigla_partido_fornecedor,
     safe_cast(cargo_fornecedor as string) cargo_fornecedor
-from {{ set_datalake_project("br_tse_eleicoes_staging.despesas_candidato") }} as t
+from
+    {{ set_datalake_project("br_tse_eleicoes_staging.despesas_candidato") }} as t
+
+    -- Rematerialized from the refactored pipeline (PR #1476).

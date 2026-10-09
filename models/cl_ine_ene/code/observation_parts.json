@@ -1,0 +1,2179 @@
+{
+ "ano": {
+  "override": "Columna de partición. Es el año del mes CENTRAL del trimestre móvil, no el año de la entrevista: el trimestre centrado en enero abarca diciembre del año anterior. Nombre en la fuente: ano_trimestre",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "mes": {
+  "override": "Columna de partición. Mes central del trimestre móvil; el trimestre abarca el mes anterior, el mes central y el siguiente. Nombre en la fuente: mes_central",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "ano_encuesta": {
+  "override": "No coincide necesariamente con ano: en el trimestre móvil centrado en enero la recolección abarca diciembre del año anterior",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "mes_encuesta": {
+  "override": "Mes en que se entrevistó a la persona, dentro de los tres meses del trimestre móvil",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "id_region": {
+  "override": "La fuente publica el código sin ceros a la izquierda (1 a 16); aquí se rellena a 2 dígitos para que empalme con el directorio. El INE recodificó toda la serie desde 2010 a la división vigente de 16 regiones, de modo que los archivos antiguos ya incluyen Ñuble (16)",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "id_provincia": {
+  "override": "La fuente publica el código sin ceros a la izquierda; aquí se rellena a 3 dígitos",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "id_comuna": {
+  "override": "La fuente publica el código sin ceros a la izquierda; aquí se rellena a 5 dígitos. Empalma con br_bd_diretorios_cl.comuna sin excepciones. La comuna identifica la vivienda seleccionada: el diseño muestral de la ENE NO contempla estimaciones comunales",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "tipo": {
+  "override": "",
+  "source": "Categoría 2 Resto de Área Urbana (RAU) dejó de utilizarse a partir de EFM 2022",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "estrato": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "conglomerado": {
+  "override": "",
+  "source": "Conglomerado Vigente desde NDE 2019 a la fecha",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "id_identificacion": {
+  "override": "Identifica el hogar dentro del trimestre móvil. No es un identificador de panel entre trimestres",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "hogar": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "idrph": {
+  "override": "Identificador de persona dentro del trimestre móvil. Su formato cambia a lo largo de la serie y no permite seguir a la misma persona entre trimestres",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "nro_linea": {
+  "override": "",
+  "source": "Número de línea de persona Corresponde al orden con el cual la persona fue",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "proveedor": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "parentesco": {
+  "override": "",
+  "source": "Entre EFM 2020 y NDE 2019, el código 1 identificaba al jefe o jefa de hogar, concepto que fue reemplazado por proveedor/a principal a partir de DEF 2020",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "sexo": {
+  "override": "",
+  "source": "Corresponde al sexo declarado respecto a la persona entrevistada (INE, 2022b)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "edad": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "est_conyugal": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "mig1": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2021c)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "mig2_cod": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "mig3_cod": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "mig4": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2021c)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "mig5_cod": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "mig6_cod": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "nacionalidad": {
+  "override": "",
+  "source": "",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "orig1": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2021c)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "orig2": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2021c)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "orig3": {
+  "override": "",
+  "source": "Especifica orig2=20 (Otro). Pregunta abierta. Vigente desde EFM 2020 a la fecha como",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "curso": {
+  "override": "",
+  "source": "Vigente desde EFM 2010 a la fecha. Equivale a edu1 y se mantiene solo con fines de comparabilidad",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "nivel": {
+  "override": "",
+  "source": "Vigente desde EFM 2010 a la fecha",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "termino_nivel": {
+  "override": "",
+  "source": "Vigente desde EFM 2010 a la fecha. Equivale a edu3 y se mantiene solo con fines de comparabilidad",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "estudia_actual": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha. Réplica de variable edu4 creada con fines analíticos. Corresponde a cuestionario vigente",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "edu1": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "edu2": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "edu3": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "edu4": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha. Réplica de variable estudia_actual creada con fines analíticos. Corresponde a cuestionario vigente",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "a1": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "a2": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "a3": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "a4": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "a5": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "a6": {
+  "override": "",
+  "source": "",
+  "undocumented": [
+   "88",
+   "99"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "a6_otro": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "a7": {
+  "override": "",
+  "source": "",
+  "undocumented": [
+   "88",
+   "99"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "a8": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b1": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b2": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b3": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b4": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b5": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b6": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b7a_1": {
+  "override": "",
+  "source": "Vigente desde JAS 2017 a la fecha (véase Anexo 4)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b7a_2": {
+  "override": "",
+  "source": "Vigente desde JAS 2017 a la fecha (véase Anexo 4)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b7a_3": {
+  "override": "",
+  "source": "Vigente desde JAS 2017 a la fecha (véase Anexo 4)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b7b_1": {
+  "override": "",
+  "source": "Vigente desde JAS 2017 a la fecha (véase Anexo 4)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b7b_2": {
+  "override": "",
+  "source": "Vigente desde JAS 2017 a la fecha (véase Anexo 4)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b7b_3": {
+  "override": "",
+  "source": "Vigente desde JAS 2017 a la fecha (véase Anexo 4)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b7b_4": {
+  "override": "",
+  "source": "Vigente desde JAS 2017 a la fecha (véase Anexo 4)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b8": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b9": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b10": {
+  "override": "",
+  "source": "",
+  "undocumented": [
+   "6"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b12": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b13_rev4cl_caenes": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b14_rev4cl_caenes": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b15_1": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b15_2": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b16": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b16_otro": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b17_mes": {
+  "override": "",
+  "source": "",
+  "undocumented": [
+   "98",
+   "1997"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b17_ano": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b18_region": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b18_codigo": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b18_varias": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b19": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "dependencia_segunda": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2021d). Las preguntas sobre informalidad laboral son parte de la sección B “ Caracterización de la actividad principal ”. Se presentan separadas de ésta sólo con fines expositivos. 7",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "i1": {
+  "override": "",
+  "source": "Vigente desde JAS 2017 a la fecha (INE, 2017)",
+  "undocumented": [
+   "3"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "i2": {
+  "override": "",
+  "source": "Vigente desde JAS 2017 a la fecha (INE, 2017)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "i3": {
+  "override": "",
+  "source": "Vigente desde JAS 2017 a la fecha (INE, 2017). El nombre no se publica por estar regido por secreto estadístico",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "i3_v": {
+  "override": "",
+  "source": "Vigente desde JAS 2017 a la fecha (INE, 2017). Variable creada tras la identificación de la empresa en registros administrativos. La información es utilizada para definir formalidad del sector económico al cual pertenece la empresa. 7 Las preguntas sobre informalidad laboral fueron incorporadas a la ENE en el mes de julio de 2017, siendo el primer trimestre móvil con información para la totalidad de la muestra el correspondiente a julio-septiembre de ese mismo año. Para mayores antecedentes metodológicos información, véase INE, 2020b",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "i4": {
+  "override": "",
+  "source": "Vigente desde JAS 2017 a la fecha (INE, 2017)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "i5": {
+  "override": "",
+  "source": "Vigente desde JAS 2017 a la fecha (INE, 2017)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "i6": {
+  "override": "",
+  "source": "Vigente desde JAS 2017 a la fecha (INE, 2017)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "i7": {
+  "override": "",
+  "source": "Vigente desde JAS 2017 a la fecha (INE, 2017)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "f7a": {
+  "override": "",
+  "source": "Vigente desde JAS 2017 a la fecha como nueva dimensión de análisis (INE, 2024b)",
+  "undocumented": [
+   "77"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "f7b": {
+  "override": "",
+  "source": "Vigente desde JAS 2017 a la fecha como nueva dimensión de análisis (INE, 2024b)",
+  "undocumented": [
+   "77"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "f7c": {
+  "override": "",
+  "source": "Vigente desde JAS 2017 a la fecha como nueva dimensión de análisis (INE, 2024b)",
+  "undocumented": [
+   "77"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "f7d": {
+  "override": "",
+  "source": "Vigente desde JAS 2017 a la fecha como nueva dimensión de análisis (INE, 2024b)",
+  "undocumented": [
+   "77"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "f7e": {
+  "override": "",
+  "source": "Vigente desde JAS 2017 a la fecha como nueva dimensión de análisis (INE, 2024b)",
+  "undocumented": [
+   "77"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "de_1a": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "de_1b": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "de_2a": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "de_2b": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "de_3a": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "de_3b": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "do_1": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "do_2": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "do_3": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "do_4": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "re1": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "re2": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "re3": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "re4": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "re5": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "re6": {
+  "override": "",
+  "source": "Vigente desde EFM 2020 a la fecha como nueva dimensión de análisis (INE, 2026) Las siguientes preguntas se incorporaron en el cuestionario de la ENE a partir del trimestre MAM 2020, permaneciendo vigentes hasta OND 2021. Fueron recomendadas por OIT en el contexto del impacto de la pandemia de COVID-19 en la población ocupada",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "turno": {
+  "override": "",
+  "source": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "turno_d": {
+  "override": "",
+  "source": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "turno_de": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "turno_h": {
+  "override": "",
+  "source": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "turno_t": {
+  "override": "",
+  "source": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "c2_1_1": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "c2_1_2": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "c2_1_3": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "c2_2_1": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "c2_2_2": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "c2_2_3": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "c3_1": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "c3_2": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "c3_3": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "turno_cont_d": {
+  "override": "",
+  "source": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "turno_cont_de": {
+  "override": "",
+  "source": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "turno_cont_h": {
+  "override": "",
+  "source": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "turno_cont_t": {
+  "override": "",
+  "source": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "c4": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "c5": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "c6": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "c7": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "c8": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "c9": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "c9_otro": {
+  "override": "",
+  "source": "Corresponde a una pregunta",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "adicionales_h": {
+  "override": "",
+  "source": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "adicionales_d": {
+  "override": "",
+  "source": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "adicionales_t": {
+  "override": "",
+  "source": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "c10": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "c11": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "c12": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e2": {
+  "override": "",
+  "source": "Responden ocupados/as y no ocupados/as",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e3_1": {
+  "override": "",
+  "source": "Responden ocupados/as y no ocupados/as",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e3_2": {
+  "override": "",
+  "source": "Responden ocupados/as y no ocupados/as",
+  "undocumented": [
+   "2"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e3_3": {
+  "override": "",
+  "source": "Responden ocupados/as y no ocupados/as",
+  "undocumented": [
+   "3",
+   "9"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e3_4": {
+  "override": "",
+  "source": "Responden ocupados/as y no ocupados/as",
+  "undocumented": [
+   "4"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e3_5": {
+  "override": "",
+  "source": "Responden ocupados/as y no ocupados/as",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e3_6": {
+  "override": "",
+  "source": "Responden ocupados/as y no ocupados/as",
+  "undocumented": [
+   "1"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e3_7": {
+  "override": "",
+  "source": "Responden ocupados/as y no ocupados/as",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e3_8": {
+  "override": "",
+  "source": "Responden ocupados/as y no ocupados/as",
+  "undocumented": [
+   "8"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e3_9": {
+  "override": "",
+  "source": "Responden ocupados/as y no ocupados/as",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e3_10": {
+  "override": "",
+  "source": "Responden ocupados/as y no ocupados/as",
+  "undocumented": [
+   "2"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e3_11": {
+  "override": "",
+  "source": "Responden ocupados/as y no ocupados/as",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e3_12": {
+  "override": "",
+  "source": "Responden ocupados/as y no ocupados/as. Sólo identifica realización de gestión. En caso contrario, no existe valor",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e3_total": {
+  "override": "",
+  "source": "1 – 11 Variable construida a partir de sumatoria",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "e4": {
+  "override": "",
+  "source": "Solo responden ocupados/as",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e5": {
+  "override": "",
+  "source": "Solo responden no ocupados/as",
+  "undocumented": [
+   "88"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e5_dia": {
+  "override": "",
+  "source": "Solo responden no ocupados/as",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e5_sem": {
+  "override": "",
+  "source": "Solo responden no ocupados/as",
+  "undocumented": [
+   "6",
+   "9",
+   "999"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e5_mes": {
+  "override": "",
+  "source": "Solo responden no ocupados/as",
+  "undocumented": [
+   "999"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e5_ano": {
+  "override": "",
+  "source": "Solo responden no ocupados/as",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e6_mes": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e6_ano": {
+  "override": "",
+  "source": "Solo responden no ocupados/as",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e7": {
+  "override": "",
+  "source": "Responden ocupados/as y no ocupados/as",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e9": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e9_otro": {
+  "override": "",
+  "source": "Corresponde a una pregunta abierta",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e10": {
+  "override": "",
+  "source": "Solo responden no ocupados/as",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "deseo_trabajar": {
+  "override": "",
+  "source": "Solo responden no ocupados/as. Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e11": {
+  "override": "",
+  "source": "Solo responden no ocupados/as",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e12": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e12_otro": {
+  "override": "",
+  "source": "Corresponde a una pregunta abierta",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e13": {
+  "override": "",
+  "source": "Solo responden no ocupados/as",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e21_mes": {
+  "override": "",
+  "source": "Incorporada a partir de JJA 2020, recomendadas por OIT en el contexto del impacto de la pandemia de COVID -19 en la población no ocupada (INE, 2020c)",
+  "undocumented": [
+   "85",
+   "888",
+   "999",
+   "8888",
+   "9999"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e21_ano": {
+  "override": "",
+  "source": "Incorporada a partir de JJA 2020, recomendadas por OIT en el contexto del impacto de la pandemia de COVID -19 en la población no ocupada (INE, 2020c)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e21_tramo": {
+  "override": "",
+  "source": "Incorporada a partir de JJA 2020, recomendadas por OIT en el contexto del impacto de la pandemia de COVID -19 en la población no ocupada (INE, 2020c). Variable construida a partir de respuestas a e21_mes y e21_ano",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e22": {
+  "override": "",
+  "source": "Incorporada a partir de JJA 2020, recomendadas por OIT en el contexto del impacto de la pandemia o reemplazo cuenta propia económicas fenómeno natural o siniestro del COVID-19 cuenta propia por la pandemia del COVID-19 de COVID -19 en la población no ocupada (INE, 2020c)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e23": {
+  "override": "",
+  "source": "Incorporada a partir de JJA 2020, recomendadas por OIT en el contexto del impacto de la pandemia de COVID -19 en la población no ocupada (INE, 2020c)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e23_otro": {
+  "override": "",
+  "source": "Incorporada a partir de JJA 2020,",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e24": {
+  "override": "",
+  "source": "Incorporada a partir de JJA 2020, recomendadas por OIT en el contexto del impacto de la pandemia de COVID -19 en la población no ocupada (INE, 2020c)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "e24_otro": {
+  "override": "",
+  "source": "Incorporada a partir de JJA 2020,",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "b11_proxy": {
+  "override": "",
+  "source": "Variable incorporada a partir de trimestre NDE 2019 en reemplazo de la variable b11 descontinuada (ver Anexo 6). Su uso permite determinar la clasificación de informalidad laboral",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "ocup_honorarios": {
+  "override": "",
+  "source": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2021c",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "asocia": {
+  "override": "",
+  "source": "Incorporada como nueva dimensión de análisis, véase INE, 2024c",
+  "undocumented": [
+   "2"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "plataformas_digitales": {
+  "override": "",
+  "source": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022b",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "pd_especifique": {
+  "override": "",
+  "source": "Pregunta abierta Variable incorporada a partir Véase INE, 2022b",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "pd_ley": {
+  "override": "",
+  "source": "Variable incorporada a partir de trimestre EFM 2020",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "sda_pd": {
+  "override": "",
+  "source": "Variable incorporada a partir de trimestre EFM 2020. Véase INE, 2022b",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "sda_pd_especifique": {
+  "override": "",
+  "source": "Pregunta abierta Variable incorporada a partir Véase INE, 2022b",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "sda_pd_ley": {
+  "override": "",
+  "source": "Variable incorporada a partir de trimestre EFM 2020",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "meses_ocup_actual": {
+  "override": "",
+  "source": "Incorporada como nueva dimensión de análisis, véase",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "dep_economica": {
+  "override": "",
+  "source": "Incorporada como nueva dimensión de análisis, véase INE (2026)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "dep_organizativa": {
+  "override": "",
+  "source": "Incorporada como nueva dimensión de análisis, véase INE (2026)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "dep_ambas": {
+  "override": "",
+  "source": "Incorporada como nueva dimensión de análisis, véase INE (2026)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "no_salario": {
+  "override": "",
+  "source": "Incorporada como nueva dimensión de análisis, véase INE (2026)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "no_prevision": {
+  "override": "",
+  "source": "Incorporada como nueva dimensión de análisis, véase INE (2026)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "riesgo_economico": {
+  "override": "",
+  "source": "Incorporada como nueva dimensión de análisis, véase INE (2026)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "n_dependencias": {
+  "override": "",
+  "source": "0 – 7 Incorporada como nueva dimensión de análisis, véase",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "cdi": {
+  "override": "",
+  "source": "Incorporada como nueva dimensión de análisis, véase INE (2026)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "cdd": {
+  "override": "",
+  "source": "Incorporada como nueva dimensión de análisis, véase INE (2026)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "cd": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "ciso1": {
+  "override": "",
+  "source": "Incorporada como nueva dimensión de análisis, véase INE (2026)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "ciso2": {
+  "override": "",
+  "source": "Incorporada como nueva dimensión de análisis, véase INE (2026)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "ciso3_a": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "ciso3_b": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "cine97": {
+  "override": "",
+  "source": "Desagregación a un dígito de Clasificación Internacional Normalizada de la Educación (CINE) 1997 (UNESCO, 2006). Véase INE (2025)",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "cine11_1d": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "cine11_2d": {
+  "override": "",
+  "source": "",
+  "undocumented": [
+   "98"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "habituales": {
+  "override": "STRING y no INT64 porque la columna mezcla horas con los códigos de no respuesta 888 (No sabe) y 999 (No responde): convertirla a entero los dejaría como jornadas de 888 y 999 horas. Filtre esos dos valores antes de hacer aritmética. Variable construida a partir de c2_1_1, c2_1_2 y c2_1_3",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "efectivas": {
+  "override": "STRING y no INT64 por la misma razón que habituales: contiene los códigos 888 (No sabe) y 999 (No responde) junto con las horas. Variable construida a partir de c2_1_1, c2_1_2, c2_1_3, c6 y c8",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "pet": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "ft": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "ftp": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "inhab": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "fta": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "obe": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "idisp": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "tpi": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "ina_cal_edu": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "ocup_form": {
+  "override": "",
+  "source": "Variable incorporada a partir de trimestre JAS 2017",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "sector": {
+  "override": "",
+  "source": "Ocupado/a según sector Variable incorporada a partir de trimestre JAS 2017",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "r_p_rev4cl_caenes": {
+  "override": "",
+  "source": "Corresponde a ajuste realizado a variable",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "tramo_edad": {
+  "override": "",
+  "source": "Variable construida a partir de respuesta en variable edad",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "categoria_ocupacion": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "cae_general": {
+  "override": "",
+  "source": "Corresponde a la condición de actividad económica general. Corresponde a la clasificación de todas las personas de 15 años y más, según su situación laboral, basado en un esquema denominado código sumario",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "cae_especifico": {
+  "override": "",
+  "source": "(Potencial) (Potencial) (Habitual) Corresponde a la condición de actividad económica específica. Corresponde a la clasificación de todas las personas de 15 años y más, según su situación laboral, basado en un esquema denominado código sumario",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "activ": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": false
+ },
+ "fact_cal": {
+  "override": "Factor de expansión calibrado, disponible para la totalidad de la serie desde el trimestre EFM 2010. La fuente lo publica con coma decimal; aquí se convierte a punto. Es la única ponderación válida para expandir la muestra",
+  "source": "",
+  "undocumented": [],
+  "retired": [],
+  "description_is_mine": true
+ },
+ "a9": {
+  "override": "",
+  "source": "Descontinuada. Producida entre MAM 2020 y NDE 2022. Su inclusión fue recomendada por OIT en el contexto del impacto de la pandemia de COVID-19 en la población ocupada (INE, 2020b)",
+  "undocumented": [],
+  "retired": [
+   "2020-04",
+   "2023-01"
+  ],
+  "description_is_mine": false
+ },
+ "i11": {
+  "override": "",
+  "source": "Descontinuada. Vigente entre MAM 2020 y OND2021",
+  "undocumented": [],
+  "retired": [
+   "2020-06",
+   "2021-11"
+  ],
+  "description_is_mine": false
+ },
+ "i12": {
+  "override": "",
+  "source": "Descontinuada. Vigente entre MAM 2020 y OND2021",
+  "undocumented": [],
+  "retired": [
+   "2020-06",
+   "2021-11"
+  ],
+  "description_is_mine": false
+ },
+ "i13_1": {
+  "override": "",
+  "source": "",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [
+   "2020-06",
+   "2021-11"
+  ],
+  "description_is_mine": false
+ },
+ "i13_2": {
+  "override": "",
+  "source": "",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [
+   "2020-06",
+   "2021-11"
+  ],
+  "description_is_mine": false
+ },
+ "i13_3": {
+  "override": "",
+  "source": "",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [
+   "2020-06",
+   "2021-11"
+  ],
+  "description_is_mine": false
+ },
+ "i13_4": {
+  "override": "",
+  "source": "",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [
+   "2020-06",
+   "2021-11"
+  ],
+  "description_is_mine": false
+ },
+ "i13_5": {
+  "override": "",
+  "source": "",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [
+   "2020-06",
+   "2021-11"
+  ],
+  "description_is_mine": false
+ },
+ "i13_6": {
+  "override": "",
+  "source": "",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [
+   "2020-06",
+   "2021-11"
+  ],
+  "description_is_mine": false
+ },
+ "i13_7": {
+  "override": "",
+  "source": "",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [
+   "2020-06",
+   "2021-11"
+  ],
+  "description_is_mine": false
+ },
+ "i13_8": {
+  "override": "",
+  "source": "",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [
+   "2020-06",
+   "2021-11"
+  ],
+  "description_is_mine": false
+ },
+ "i13_9": {
+  "override": "",
+  "source": "",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [
+   "2020-06",
+   "2021-11"
+  ],
+  "description_is_mine": false
+ },
+ "i13_10": {
+  "override": "",
+  "source": "",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [
+   "2020-06",
+   "2021-11"
+  ],
+  "description_is_mine": false
+ },
+ "i13_11": {
+  "override": "",
+  "source": "",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [
+   "2020-06",
+   "2021-11"
+  ],
+  "description_is_mine": false
+ },
+ "i13_88": {
+  "override": "",
+  "source": "",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [
+   "2020-06",
+   "2021-11"
+  ],
+  "description_is_mine": false
+ },
+ "i13_99": {
+  "override": "",
+  "source": "",
+  "undocumented": [
+   "0"
+  ],
+  "retired": [
+   "2020-06",
+   "2021-11"
+  ],
+  "description_is_mine": false
+ },
+ "i13_total": {
+  "override": "",
+  "source": "1 – 10 Descontinuada. Vigente entre MAM 2020 Variable construida a partir de sumatoria",
+  "undocumented": [],
+  "retired": [
+   "2020-06",
+   "2021-11"
+  ],
+  "description_is_mine": true
+ },
+ "b11": {
+  "override": "",
+  "source": "Descontinuada. Producida entre EFM 2010 y DEF 2020",
+  "undocumented": [],
+  "retired": [
+   "2010-02",
+   "2020-01"
+  ],
+  "description_is_mine": false
+ },
+ "id_directorio": {
+  "override": "Reemplazada por conglomerado a partir del trimestre NDE 2019. En el esquema antiguo el conglomerado se denominaba manzana en estrato urbano y sección en RAU y rural",
+  "source": "",
+  "undocumented": [],
+  "retired": [
+   "2010-02",
+   "2019-11"
+  ],
+  "description_is_mine": true
+ },
+ "c1": {
+  "override": "",
+  "source": "Descontinuada. Producida entre EFM 2010 y OND 2019",
+  "undocumented": [
+   "99"
+  ],
+  "retired": [
+   "2010-02",
+   "2019-11"
+  ],
+  "description_is_mine": false
+ },
+ "c13": {
+  "override": "",
+  "source": "Descontinuada. Producida entre EFM 2010 y OND 2019. En esta sección se caracteriza la búsqueda de empleo, tanto en personas ocupadas como en no ocupadas, así como también la disponibilidad para comenzar a trabajar",
+  "undocumented": [],
+  "retired": [
+   "2010-02",
+   "2019-11"
+  ],
+  "description_is_mine": false
+ },
+ "e1": {
+  "override": "",
+  "source": "Responden ocupados/as y no ocupados/as. Descontinuada. Producida entre EFM 2010 y OND 2019",
+  "undocumented": [],
+  "retired": [
+   "2010-02",
+   "2019-11"
+  ],
+  "description_is_mine": false
+ },
+ "e8": {
+  "override": "",
+  "source": "Descontinuada. Producida entre EFM 2010 y OND 2019. Responden ocupados/as y no ocupados/as",
+  "undocumented": [],
+  "retired": [
+   "2010-02",
+   "2019-11"
+  ],
+  "description_is_mine": false
+ },
+ "e14_mes": {
+  "override": "",
+  "source": "Descontinuada. Producida entre EFM 2010 y OND 2019",
+  "undocumented": [],
+  "retired": [
+   "2010-02",
+   "2019-11"
+  ],
+  "description_is_mine": false
+ },
+ "e14_ano": {
+  "override": "",
+  "source": "Descontinuada. Producida entre EFM 2010 y OND 2019",
+  "undocumented": [],
+  "retired": [
+   "2010-02",
+   "2019-11"
+  ],
+  "description_is_mine": false
+ },
+ "e15_meses": {
+  "override": "",
+  "source": "Descontinuada. Producida entre EFM 2010 y OND 2019",
+  "undocumented": [],
+  "retired": [
+   "2010-02",
+   "2019-11"
+  ],
+  "description_is_mine": false
+ },
+ "e15_anos": {
+  "override": "",
+  "source": "Descontinuada. Producida entre EFM 2010 y OND 2019",
+  "undocumented": [],
+  "retired": [
+   "2010-02",
+   "2019-11"
+  ],
+  "description_is_mine": false
+ },
+ "e16_ciuo08": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [
+   "2017-02",
+   "2019-11"
+  ],
+  "description_is_mine": true
+ },
+ "e17": {
+  "override": "",
+  "source": "Producida entre EFM 2010 y OND 2019",
+  "undocumented": [],
+  "retired": [
+   "2010-02",
+   "2019-11"
+  ],
+  "description_is_mine": false
+ },
+ "e18_rev4cl_caenes": {
+  "override": "",
+  "source": "Producida entre EFM 2010 y OND 2019",
+  "undocumented": [],
+  "retired": [
+   "2016-02",
+   "2019-11"
+  ],
+  "description_is_mine": false
+ },
+ "e19": {
+  "override": "",
+  "source": "Producida entre EFM 2010 y OND 2019",
+  "undocumented": [],
+  "retired": [
+   "2010-02",
+   "2019-11"
+  ],
+  "description_is_mine": false
+ },
+ "e19_otro": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [
+   "2010-02",
+   "2019-11"
+  ],
+  "description_is_mine": true
+ },
+ "id": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [
+   "2010-02",
+   "2019-11"
+  ],
+  "description_is_mine": true
+ },
+ "fact": {
+  "override": "Descontinuado: vigente sólo hasta el trimestre OND 2019. Para toda la serie use fact_cal",
+  "source": "",
+  "undocumented": [],
+  "retired": [
+   "2010-02",
+   "2019-11"
+  ],
+  "description_is_mine": true
+ },
+ "b1_ciuo88": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [
+   "2010-02",
+   "2019-02"
+  ],
+  "description_is_mine": false
+ },
+ "e16_ciuo88": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [
+   "2010-02",
+   "2019-02"
+  ],
+  "description_is_mine": true
+ },
+ "region_15": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [
+   "2010-02",
+   "2018-07"
+  ],
+  "description_is_mine": true
+ },
+ "estrato_15": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [
+   "2010-02",
+   "2018-07"
+  ],
+  "description_is_mine": true
+ },
+ "r_p_c_15": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [
+   "2010-02",
+   "2018-07"
+  ],
+  "description_is_mine": true
+ },
+ "b7_1": {
+  "override": "",
+  "source": "Descontinuada. Producida entre EFM 2010 y JJA 2017 (véase Anexo 4)",
+  "undocumented": [
+   "88",
+   "99"
+  ],
+  "retired": [
+   "2010-02",
+   "2017-07"
+  ],
+  "description_is_mine": false
+ },
+ "b7_2": {
+  "override": "",
+  "source": "Descontinuada. Producida entre EFM 2010 y JJA 2017 (véase Anexo 4)",
+  "undocumented": [
+   "88",
+   "99"
+  ],
+  "retired": [
+   "2010-02",
+   "2017-07"
+  ],
+  "description_is_mine": false
+ },
+ "b7_3": {
+  "override": "",
+  "source": "Descontinuada. Producida entre EFM 2010 y JJA 2017 (véase Anexo 4)",
+  "undocumented": [
+   "88",
+   "99"
+  ],
+  "retired": [
+   "2010-02",
+   "2017-07"
+  ],
+  "description_is_mine": false
+ },
+ "b7_4": {
+  "override": "",
+  "source": "Descontinuada. Producida entre EFM 2010 y JJA 2017 (véase Anexo 4)",
+  "undocumented": [
+   "88",
+   "99"
+  ],
+  "retired": [
+   "2010-02",
+   "2017-07"
+  ],
+  "description_is_mine": false
+ },
+ "b7_5": {
+  "override": "",
+  "source": "Descontinuada. Producida entre EFM 2010 y JJA 2017 (véase Anexo 4)",
+  "undocumented": [
+   "88",
+   "99"
+  ],
+  "retired": [
+   "2010-02",
+   "2017-07"
+  ],
+  "description_is_mine": false
+ },
+ "b7_6": {
+  "override": "",
+  "source": "Descontinuada. Producida entre EFM 2010 y JJA 2017 (véase Anexo 4)",
+  "undocumented": [
+   "88",
+   "99"
+  ],
+  "retired": [
+   "2010-02",
+   "2017-07"
+  ],
+  "description_is_mine": false
+ },
+ "b7_7": {
+  "override": "",
+  "source": "Descontinuada. Producida entre EFM 2010 y JJA 2017 (véase Anexo 4)",
+  "undocumented": [
+   "88",
+   "99"
+  ],
+  "retired": [
+   "2010-02",
+   "2017-07"
+  ],
+  "description_is_mine": false
+ },
+ "b13_ciiu_rev3": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [
+   "2010-02",
+   "2016-11"
+  ],
+  "description_is_mine": true
+ },
+ "b14_ciiu_rev3": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [
+   "2010-02",
+   "2016-11"
+  ],
+  "description_is_mine": true
+ },
+ "e18_ciiu_rev3": {
+  "override": "",
+  "source": "",
+  "undocumented": [],
+  "retired": [
+   "2010-02",
+   "2016-11"
+  ],
+  "description_is_mine": true
+ }
+}

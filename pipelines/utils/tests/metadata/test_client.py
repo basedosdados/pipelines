@@ -15,14 +15,16 @@ import datetime
 
 import pytest
 
-# pyrefly: ignore [missing-import]
-from conftest import RecordingBackend, mutation_response, node_response
-
 from pipelines.utils.metadata.client import (
     BackendMutationError,
     MetadataClient,
 )
 from pipelines.utils.metadata.dto import DateTimeRangeInput
+from pipelines.utils.tests.metadata.conftest import (
+    RecordingBackend,
+    mutation_response,
+    node_response,
+)
 
 UUID = "00000000-0000-4000-8000-000000000000"
 DAY_ENTITY = "00000000-0000-4000-8000-0000000000d1"
@@ -245,6 +247,76 @@ def test_update_latest_parsed_to_date(client, backend):
     )
 
 
+def test_coverage_max_date_none_when_no_coverage(client, backend):
+    backend.set_response("allCoverage", {"allCoverage": {"items": []}})
+    assert client.get_coverage_max_date("br_x", "tab") is None
+
+
+def test_coverage_max_date_picks_max_across_ranges(client, backend):
+    # free termina em 2025-11, pro termina em 2026-05 — o maior dos dois vence.
+    backend.set_response(
+        "allCoverage",
+        {
+            "allCoverage": {
+                "items": [
+                    {
+                        "datetimeRanges": {
+                            "items": [
+                                {
+                                    "endYear": 2025,
+                                    "endMonth": 11,
+                                    "endDay": None,
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "datetimeRanges": {
+                            "items": [
+                                {
+                                    "endYear": 2026,
+                                    "endMonth": 5,
+                                    "endDay": None,
+                                }
+                            ]
+                        }
+                    },
+                ]
+            }
+        },
+    )
+    assert client.get_coverage_max_date("br_x", "tab") == datetime.date(
+        2026, 5, 1
+    )
+
+
+def test_coverage_max_date_defaults_missing_month_day_to_one(client, backend):
+    # Cobertura anual (só endYear) não deve quebrar — mês/dia default para 1.
+    backend.set_response(
+        "allCoverage",
+        {
+            "allCoverage": {
+                "items": [
+                    {
+                        "datetimeRanges": {
+                            "items": [
+                                {
+                                    "endYear": 2025,
+                                    "endMonth": None,
+                                    "endDay": None,
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+    )
+    assert client.get_coverage_max_date("br_x", "tab") == datetime.date(
+        2025, 1, 1
+    )
+
+
 def test_mutation_errors_raise(client, backend):
     backend.set_response(
         "allRawdatasource", node_response("allRawdatasource", RDS)
@@ -283,6 +355,7 @@ def test_token_authenticated_once_per_instance(monkeypatch):
         "CreateUpdateUpdate", mutation_response("CreateUpdateUpdate")
     )
 
+    # pyrefly: ignore [bad-argument-type]
     client = MetadataClient(env="dev", backend=backend)
     client.upsert_raw_source_poll(
         "br_x", "tab", latest=datetime.date(2026, 6, 1)

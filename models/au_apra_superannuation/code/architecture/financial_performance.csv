@@ -1,0 +1,42 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Reference year of the quarter-end observation,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Partition column,
+quarter,INT64,"Reference quarter of the observation, from 1 to 4",,no,,quarter,no,"APRA labels each quarter by its final month: Q1 March, Q2 June, Q3 September, Q4 December",
+fund_type,STRING,"Superannuation fund type: all (whole industry), corporate, industry, public sector or retail funds",,yes,,,no,APRA regulates only these fund types; self-managed super funds (SMSFs) are regulated by the ATO and are not covered,
+net_assets_beginning,FLOAT64,Net assets available to pay benefits at the beginning of the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Net assets at the beginning of the period
+total_contributions,FLOAT64,Total contributions received during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Total contributions
+employer_contributions,FLOAT64,Employer contributions received during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Employer
+employer_defined_benefit_contributions,FLOAT64,Employer contributions to defined benefit interests during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,of which: Defined benefit contributions
+employer_super_guarantee_contributions,FLOAT64,Employer contributions made under the compulsory Superannuation Guarantee during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,of which: Super guarantee contributions
+employer_salary_sacrifice_contributions,FLOAT64,Employer contributions made through salary sacrifice arrangements during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,of which: Salary sacrifice contributions
+member_contributions,FLOAT64,Member contributions received during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Member
+member_personal_contributions,FLOAT64,Personal contributions made by members during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Personal contributions
+government_co_contributions,FLOAT64,Government co-contributions received during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Government co-contributions
+low_income_super_contributions,FLOAT64,Low income superannuation contributions received during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Low income super contributions
+other_member_contributions,FLOAT64,Other member contributions received during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Other member contributions
+contribution_tax_and_surcharge,FLOAT64,Contributions tax and surcharge for the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Contribution tax and surcharge
+net_benefit_transfers,FLOAT64,Net benefit transfers into or out of the fund type during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Net benefit transfers
+net_rollovers_to_from_smsf,FLOAT64,Net rollovers to or from self-managed superannuation funds during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,of which: Net rollovers to/from SMSFs
+benefit_transfers_inward,FLOAT64,Benefit transfers received (inward) during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Inward
+benefit_transfers_outward,FLOAT64,Benefit transfers paid out (outward) during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Outward
+benefit_payments,FLOAT64,Total benefit payments made during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Benefit payments
+lump_sum_benefits,FLOAT64,Lump sum benefit payments made during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Lump sums
+pension_benefits,FLOAT64,Pension benefit payments made during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Pensions
+other_members_benefit_flows,FLOAT64,Other members' benefit flows during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Other members' benefits flows
+net_contribution_flows,FLOAT64,Net contribution flows during the quarter (contributions and transfers net of benefit payments),,no,,AUD million,no,Values in millions of Australian dollars,Net contribution flows
+net_insurance_flows,FLOAT64,Net insurance flows during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Net insurance flows
+insurance_flows_inward,FLOAT64,Insurance flows received (inward) during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Inward
+insurance_flows_outward,FLOAT64,Insurance flows paid out (outward) during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Outward
+investment_income,FLOAT64,Investment income earned during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Investment income
+investment_income_after_impairment,FLOAT64,Investment income after impairment expense during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Investment income after impairment expense
+total_gains_losses_on_investments,FLOAT64,Total realised and unrealised gains or losses on investments during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Total gains/losses on investments
+foreign_exchange_gains_losses,FLOAT64,Foreign exchange gains or losses during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,of which: Foreign exchange gains/ losses
+investment_expenses,FLOAT64,Investment expenses incurred during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Investment expenses
+operating_income,FLOAT64,Operating income during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Operating income
+administration_and_operating_expenses,FLOAT64,Administration and operating expenses during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Administration and operating expenses
+net_earnings,FLOAT64,Net earnings during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Net earnings
+income_tax_expense_benefit,FLOAT64,Income tax expense or benefit for the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Income tax expense/benefit
+net_earnings_after_tax,FLOAT64,Net earnings after tax during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Net earnings after tax
+net_operating_performance_after_tax,FLOAT64,Net operating performance after tax during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Net operating performance after tax
+other_changes,FLOAT64,Other changes in net assets during the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Other changes
+net_assets_end,FLOAT64,Net assets available to pay benefits at the end of the quarter,,no,,AUD million,no,Values in millions of Australian dollars,Net assets at the end of the quarter
+number_of_entities,INT64,Number of superannuation entities in the fund type,,no,,unit,no,,Number of entities

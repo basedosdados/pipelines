@@ -10,7 +10,8 @@
 --
 with
     max_bdpro_date as (
-        select max(data) as max_date from `basedosdados.br_me_cnpj.estabelecimentos`
+        select max(data_referencia) as max_date
+        from `basedosdados.br_rf_cnpj.estabelecimentos`
     ),
 
     estabelecimento as (
@@ -152,12 +153,12 @@ with
             concat(ddd_2, " ", telefone_2) as telefone_2,
             concat(ddd_fax, " ", fax) as fax,
             email,
-        from `basedosdados.br_me_cnpj.estabelecimentos` a
+        from `basedosdados.br_rf_cnpj.estabelecimentos` a
         inner join
-            `basedosdados.br_me_cnpj.dicionario` b
+            `basedosdados.br_rf_cnpj.dicionario` b
             on a.identificador_matriz_filial = b.chave
         inner join
-            `basedosdados.br_me_cnpj.dicionario` t
+            `basedosdados.br_rf_cnpj.dicionario` t
             on a.identificador_matriz_filial = t.chave
         left join
             `basedosdados-dev.br_bd_diretorios_brasil_staging.bairro_code_iso3` g
@@ -166,7 +167,7 @@ with
             `basedosdados-dev.br_bd_diretorios_mundo_staging.pais_code` f
             on a.id_pais = f.co_pais
         where
-            a.data = (select max_date from max_bdpro_date)
+            a.data_referencia = (select max_date from max_bdpro_date)
             and b.nome_coluna = 'identificador_matriz_filial'
             and t.nome_coluna = 'situacao_cadastral'
     ),
@@ -178,14 +179,16 @@ with
             ente_federativo,
             capital_social,
             b.valor as porte,
-            a.data
-        from `basedosdados.br_me_cnpj.empresas` a
-        inner join `basedosdados.br_me_cnpj.dicionario` b on a.porte = b.chave
-        where b.nome_coluna = 'porte' and a.data = (select max_date from max_bdpro_date)
+            a.data_referencia
+        from `basedosdados.br_rf_cnpj.empresas` a
+        inner join `basedosdados.br_rf_cnpj.dicionario` b on a.porte = b.chave
+        where
+            b.nome_coluna = 'porte'
+            and a.data_referencia = (select max_date from max_bdpro_date)
     ),
     simples as (
         select distinct cnpj_basico, opcao_simples, opcao_mei
-        from `basedosdados.br_me_cnpj.simples`
+        from `basedosdados.br_rf_cnpj.simples`
     )
 
 select

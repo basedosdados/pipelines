@@ -1,0 +1,778 @@
+{
+ "accident": {
+  "catalog_id": 10331,
+  "columns": {
+   "ABSTRACT_TEXT": {
+    "data_type": "varchar",
+    "desc": "Abstract text.",
+    "intended_datatype": "text"
+   },
+   "BUILD_STORIES": {
+    "data_type": "number",
+    "desc": "Construction - nr of stories in building",
+    "intended_datatype": "numeric"
+   },
+   "CONST_END_USE": {
+    "data_type": "varchar",
+    "desc": "Construction - end-use (code table ENDU)",
+    "intended_datatype": "categorical"
+   },
+   "EVENT_DATE": {
+    "data_type": "date",
+    "desc": "Date of accident (yyyymmdd)",
+    "intended_datatype": "date"
+   },
+   "EVENT_DESC": {
+    "data_type": "varchar",
+    "desc": "Short description of event",
+    "intended_datatype": "text"
+   },
+   "EVENT_KEYWORD": {
+    "data_type": "varchar",
+    "desc": "Contains comma separated keywords entered by ERG during the review process.",
+    "intended_datatype": "text"
+   },
+   "EVENT_TIME": {
+    "data_type": "timestamp_ntz",
+    "desc": "Time of accident (hhmm)",
+    "intended_datatype": "time"
+   },
+   "FATALITY": {
+    "data_type": "varchar",
+    "desc": "X=Fatality is associated with accident",
+    "intended_datatype": "boolean"
+   },
+   "LOAD_DT": {
+    "data_type": "timestamp_ntz",
+    "desc": "The date the load was completed.",
+    "intended_datatype": "date"
+   },
+   "NONBUILD_HT": {
+    "data_type": "number",
+    "desc": "Construction - height in feet when not a building",
+    "intended_datatype": "numeric"
+   },
+   "PROJECT_COST": {
+    "data_type": "varchar",
+    "desc": "Construction - project cost range (code table COST)",
+    "intended_datatype": "categorical"
+   },
+   "PROJECT_TYPE": {
+    "data_type": "varchar",
+    "desc": "Construction - project type (code table PTYP)",
+    "intended_datatype": "categorical"
+   },
+   "REPORT_ID": {
+    "data_type": "number",
+    "desc": "Identifies the OSHA federal or state reporting jurisdiction",
+    "intended_datatype": "identifier"
+   },
+   "SIC_LIST": {
+    "data_type": "varchar",
+    "desc": "Comma separated 4-digit SICs associated with related inspections",
+    "intended_datatype": "categorical"
+   },
+   "STATE_FLAG": {
+    "data_type": "varchar",
+    "desc": "The flag used to identify a State.",
+    "intended_datatype": "text"
+   },
+   "SUMMARY_NR": {
+    "data_type": "number",
+    "desc": "Identifies the accident OSHA-170 form",
+    "intended_datatype": "identifier"
+   }
+  },
+  "tablename": "OSHA_accident"
+ },
+ "accident_abstract": {
+  "catalog_id": 10332,
+  "columns": {
+   "ABSTRACT_TEXT": {
+    "data_type": "varchar",
+    "desc": "Abstract text",
+    "intended_datatype": "text"
+   },
+   "LINE_NR": {
+    "data_type": "number",
+    "desc": "Abstract line nr - this is a sequence number which should only be used for ordering the lines",
+    "intended_datatype": "numeric"
+   },
+   "LOAD_DT": {
+    "data_type": "timestamp_ntz",
+    "desc": "The date the load was completed.",
+    "intended_datatype": "date"
+   },
+   "SUMMARY_NR": {
+    "data_type": "number",
+    "desc": "Unique identifier for each incident-investigation",
+    "intended_datatype": "numeric"
+   }
+  },
+  "tablename": "OSHA_accident_abstract"
+ },
+ "accident_injury": {
+  "catalog_id": 10333,
+  "columns": {
+   "AGE": {
+    "data_type": "number",
+    "desc": "Age of the injured person",
+    "intended_datatype": "numeric"
+   },
+   "CONST_OP": {
+    "data_type": "number",
+    "desc": "Construction - operation code (code table OPER)",
+    "intended_datatype": "categorical"
+   },
+   "CONST_OP_CAUSE": {
+    "data_type": "number",
+    "desc": "Construction - cause of injury (code table OPER)",
+    "intended_datatype": "categorical"
+   },
+   "DEGREE_OF_INJ": {
+    "data_type": "number",
+    "desc": "1=Fatality. 2=Hospitalized injuries. 3=No Hospitalized injuries",
+    "intended_datatype": "categorical"
+   },
+   "EVENT_TYPE": {
+    "data_type": "number",
+    "desc": "Event type code - code table FT. Please note: this has not been coded according to the requirements under the Occupational Injury and Illness Classification System (OIICS).",
+    "intended_datatype": "categorical"
+   },
+   "EVN_FACTOR": {
+    "data_type": "number",
+    "desc": "Environmental factor code - code table EN",
+    "intended_datatype": "categorical"
+   },
+   "FALL_DISTANCE": {
+    "data_type": "number",
+    "desc": "Construction - distance of fall (feet)",
+    "intended_datatype": "numeric"
+   },
+   "FALL_HT": {
+    "data_type": "number",
+    "desc": "Construction - height of person when fell (feet)",
+    "intended_datatype": "numeric"
+   },
+   "FAT_CAUSE": {
+    "data_type": "number",
+    "desc": "Construction - cause of fatality (code table CAUS)",
+    "intended_datatype": "categorical"
+   },
+   "HAZSUB": {
+    "data_type": "varchar",
+    "desc": "Hazardous substance code",
+    "intended_datatype": "categorical"
+   },
+   "HUM_FACTOR": {
+    "data_type": "number",
+    "desc": "Human factor code - code table HU",
+    "intended_datatype": "categorical"
+   },
+   "INJURY_LINE_NR": {
+    "data_type": "number",
+    "desc": "Injury line number - is often referenced in the abstract text to refer to a particular person.",
+    "intended_datatype": "identifier"
+   },
+   "LOAD_DT": {
+    "data_type": "timestamp_ntz",
+    "desc": "The date the load was completed.",
+    "intended_datatype": "date"
+   },
+   "NATURE_OF_INJ": {
+    "data_type": "number",
+    "desc": "Nature of injury code - code table IN. Please note: this has not been coded according to the requirements under the Occupational Injury and Illness Classification System (OIICS).",
+    "intended_datatype": "categorical"
+   },
+   "OCC_CODE": {
+    "data_type": "number",
+    "desc": "Occupation code - code table OCC. Please note these are not standardized occupation titles.",
+    "intended_datatype": "categorical"
+   },
+   "PART_OF_BODY": {
+    "data_type": "number",
+    "desc": "Part of body code - code table BD. Please note: this has not been coded according to the requirements under the Occupational Injury and Illness Classification System (OIICS).",
+    "intended_datatype": "categorical"
+   },
+   "REL_INSP_NR": {
+    "data_type": "number",
+    "desc": "Unique identifier to identify inspection(s) associated with an investigation",
+    "intended_datatype": "identifier"
+   },
+   "SEX": {
+    "data_type": "varchar",
+    "desc": "M=Male. F=Female",
+    "intended_datatype": "categorical"
+   },
+   "SRC_OF_INJURY": {
+    "data_type": "number",
+    "desc": "Source of injury code - code table SO. Please note: this has not been coded according to the requirements under the Occupational Injury and Illness Classification System (OIICS).",
+    "intended_datatype": "categorical"
+   },
+   "SUMMARY_NR": {
+    "data_type": "number",
+    "desc": "Unique identifier for each incident-investigation",
+    "intended_datatype": "identifier"
+   },
+   "TASK_ASSIGNED": {
+    "data_type": "number",
+    "desc": "1=Task regularly assigned. 2=Task not regularly assigned",
+    "intended_datatype": "boolean"
+   }
+  },
+  "tablename": "OSHA_accident_injury"
+ },
+ "accident_lookup2": {
+  "catalog_id": 10330,
+  "columns": {
+   "ACCIDENT_CODE": {
+    "data_type": "varchar",
+    "desc": "Code used in OSHA data to identify characteristics of accidents",
+    "intended_datatype": "text"
+   },
+   "ACCIDENT_LETTER": {
+    "data_type": "varchar",
+    "desc": "Letter code that identifies accident_value",
+    "intended_datatype": "text"
+   },
+   "ACCIDENT_NUMBER": {
+    "data_type": "number",
+    "desc": "Numeric code that identifies accident_value",
+    "intended_datatype": "numeric"
+   },
+   "ACCIDENT_VALUE": {
+    "data_type": "varchar",
+    "desc": "Text description of accident characteristic",
+    "intended_datatype": "text"
+   },
+   "LOAD_DT": {
+    "data_type": "timestamp_ntz",
+    "desc": "The date the load was completed.",
+    "intended_datatype": "date"
+   }
+  },
+  "tablename": "OSHA_accident_lookup2"
+ },
+ "emphasis_codes": {
+  "catalog_id": 10337,
+  "columns": {
+   "ACTIVITY_NR": {
+    "data_type": "number",
+    "desc": "Unique identifier for each inspection",
+    "intended_datatype": "identifier"
+   },
+   "LOAD_DT": {
+    "data_type": "timestamp_ntz",
+    "desc": "The date the load was completed.",
+    "intended_datatype": "date"
+   },
+   "PROG_TYPE": {
+    "data_type": "varchar",
+    "desc": "Code identifying the type of emphasis program",
+    "intended_datatype": "categorical"
+   },
+   "PROG_VALUE": {
+    "data_type": "varchar",
+    "desc": "Description of the specific emphasis program",
+    "intended_datatype": "text"
+   }
+  },
+  "tablename": "OSHA_emphasis_codes"
+ },
+ "inspection": {
+  "catalog_id": 10334,
+  "columns": {
+   "ACTIVITY_NR": {
+    "data_type": "number",
+    "desc": "Unique identifier for the inspection",
+    "intended_datatype": "identifier"
+   },
+   "ADV_NOTICE": {
+    "data_type": "varchar",
+    "desc": "Y/N/blank",
+    "intended_datatype": "categorical"
+   },
+   "CASE_MOD_DATE": {
+    "data_type": "date",
+    "desc": "Date the inspection or associated violations were last affected by updating (yyyymmdd). Note: this field was only recently added to the database to facilitate the transfer process.  Therefore. case not affected by updating in April. 2004 or later will have zero in this field.",
+    "intended_datatype": "date"
+   },
+   "CLOSE_CASE_DATE": {
+    "data_type": "date",
+    "desc": "Close date of inspection (yyyymmdd)",
+    "intended_datatype": "date"
+   },
+   "CLOSE_CONF_DATE": {
+    "data_type": "date",
+    "desc": "Closing conference date (yyyymmdd)",
+    "intended_datatype": "date"
+   },
+   "ESTAB_NAME": {
+    "data_type": "varchar",
+    "desc": "Establishment being inspected",
+    "intended_datatype": "text"
+   },
+   "HEALTH_CONST": {
+    "data_type": "varchar",
+    "desc": "Health planning guide construction (X/blank)",
+    "intended_datatype": "boolean"
+   },
+   "HEALTH_MANUF": {
+    "data_type": "varchar",
+    "desc": "Health planning guide manufacturing (X/blank)",
+    "intended_datatype": "boolean"
+   },
+   "HEALTH_MARIT": {
+    "data_type": "varchar",
+    "desc": "Health planning guide maritime (X/blank)",
+    "intended_datatype": "boolean"
+   },
+   "HOST_EST_KEY": {
+    "data_type": "varchar",
+    "desc": "Internal establishment key",
+    "intended_datatype": "identifier"
+   },
+   "INSP_SCOPE": {
+    "data_type": "varchar",
+    "desc": "A=Complete.B=Partial.C=Records.D=NoInspection",
+    "intended_datatype": "categorical"
+   },
+   "INSP_TYPE": {
+    "data_type": "varchar",
+    "desc": "A=Accident. B=Complaint. C=Referral. D=Monitoring. E=Variance. F=FollowUp. G=Unprog Rel. H=Planned. I=Prog Related. J=Unprog Other. K=Prog Other. L=Other-L. M=Fat/Cat. N=Unprog Emph",
+    "intended_datatype": "categorical"
+   },
+   "LOAD_DT": {
+    "data_type": "timestamp_ntz",
+    "desc": "Load Date Timestamp",
+    "intended_datatype": "date"
+   },
+   "MAIL_CITY": {
+    "data_type": "varchar",
+    "desc": "Mailing address city",
+    "intended_datatype": "categorical"
+   },
+   "MAIL_STATE": {
+    "data_type": "varchar",
+    "desc": "Mailing address state postal abbreviation",
+    "intended_datatype": "categorical"
+   },
+   "MAIL_STREET": {
+    "data_type": "varchar",
+    "desc": "Mailing address street",
+    "intended_datatype": "text"
+   },
+   "MAIL_ZIP": {
+    "data_type": "varchar",
+    "desc": "Mailing address postal zip code",
+    "intended_datatype": "categorical"
+   },
+   "MIGRANT": {
+    "data_type": "varchar",
+    "desc": "Migrant labor inspection (X/blank)",
+    "intended_datatype": "boolean"
+   },
+   "NAICS_CODE": {
+    "data_type": "varchar",
+    "desc": "The unique code number that is assigned to the NAICS.",
+    "intended_datatype": "categorical"
+   },
+   "NR_IN_ESTAB": {
+    "data_type": "varchar",
+    "desc": "Number of employees in establishment",
+    "intended_datatype": "numeric"
+   },
+   "OPEN_DATE": {
+    "data_type": "date",
+    "desc": "Indicates when the inspection was started.",
+    "intended_datatype": "date"
+   },
+   "OWNER_CODE": {
+    "data_type": "varchar",
+    "desc": "Used for owner=D only",
+    "intended_datatype": "text"
+   },
+   "OWNER_TYPE": {
+    "data_type": "varchar",
+    "desc": "A=Private. B=LocalGovt. C=StateGovt. D=Federal",
+    "intended_datatype": "categorical"
+   },
+   "REPORTING_ID": {
+    "data_type": "varchar",
+    "desc": "Identifies the OSHA federal or state reporting jurisdiction",
+    "intended_datatype": "identifier"
+   },
+   "SAFETY_CONST": {
+    "data_type": "varchar",
+    "desc": "Safety planning guide construction (X/blank)",
+    "intended_datatype": "boolean"
+   },
+   "SAFETY_HLTH": {
+    "data_type": "varchar",
+    "desc": "Safety/Health indicator (S=Safety. H=Health)",
+    "intended_datatype": "categorical"
+   },
+   "SAFETY_MANUF": {
+    "data_type": "varchar",
+    "desc": "Safety planning guide manufacturing (X/blank)",
+    "intended_datatype": "boolean"
+   },
+   "SAFETY_MARIT": {
+    "data_type": "varchar",
+    "desc": "Safety planning guide maritime (X/blank)",
+    "intended_datatype": "boolean"
+   },
+   "SIC_CODE": {
+    "data_type": "varchar",
+    "desc": "SIC code",
+    "intended_datatype": "categorical"
+   },
+   "SITE_ADDRESS": {
+    "data_type": "varchar",
+    "desc": "Street address of site inspected",
+    "intended_datatype": "text"
+   },
+   "SITE_CITY": {
+    "data_type": "varchar",
+    "desc": "City of site inspected",
+    "intended_datatype": "categorical"
+   },
+   "SITE_STATE": {
+    "data_type": "varchar",
+    "desc": "State postal abbreviation of site inspected",
+    "intended_datatype": "categorical"
+   },
+   "SITE_ZIP": {
+    "data_type": "varchar",
+    "desc": "Postal zip code of site inspected",
+    "intended_datatype": "categorical"
+   },
+   "STATE_FLAG": {
+    "data_type": "varchar",
+    "desc": "The flag used to identify a State. (Note: This field is not populated)",
+    "intended_datatype": "text"
+   },
+   "UNION_STATUS": {
+    "data_type": "varchar",
+    "desc": "Indicates union representation during inspection (Yes=Y/U/A. No=N/B/blank)",
+    "intended_datatype": "categorical"
+   },
+   "WHY_NO_INSP": {
+    "data_type": "varchar",
+    "desc": "A=No Insp/Not Found.B=No Insp/Out of Business.C=No Insp/Process Inactive.D=No Insp/10 or Fewer Empe.E=No Insp/Denied Entry.F=No Insp/SIC not on PG.G=No Insp/Exempt Voluntary.H=No Insp/NonExempt Consult.I=No Insp/Other.J=No Insp/Employer Exempted By Appropriation Act",
+    "intended_datatype": "categorical"
+   }
+  },
+  "tablename": "OSHA_inspection"
+ },
+ "optional_code_info": {
+  "catalog_id": 10356,
+  "columns": {
+   "ACTIVITY_NR": {
+    "data_type": "number",
+    "desc": "Unique identifier for each inspection",
+    "intended_datatype": "identifier"
+   },
+   "LOAD_DT": {
+    "data_type": "timestamp_ntz",
+    "desc": "The date the load was completed.",
+    "intended_datatype": "date"
+   },
+   "OPT_ID": {
+    "data_type": "number",
+    "desc": "Optional information ID",
+    "intended_datatype": "identifier"
+   },
+   "OPT_INFO_ID": {
+    "data_type": "number",
+    "desc": "Optional Information ID (Note: This field is not populated)",
+    "intended_datatype": "identifier"
+   },
+   "OPT_TYPE": {
+    "data_type": "varchar",
+    "desc": "Identifies the optional information type (only N type included)",
+    "intended_datatype": "boolean"
+   },
+   "OPT_VALUE": {
+    "data_type": "varchar",
+    "desc": "Optional information value",
+    "intended_datatype": "text"
+   }
+  },
+  "tablename": "OSHA_optional_code_info"
+ },
+ "related_activity": {
+  "catalog_id": 10336,
+  "columns": {
+   "ACTIVITY_NR": {
+    "data_type": "number",
+    "desc": "Unique identifier for each inspection",
+    "intended_datatype": "identifier"
+   },
+   "LOAD_DT": {
+    "data_type": "timestamp_ntz",
+    "desc": "The date the load was completed.",
+    "intended_datatype": "date"
+   },
+   "REL_ACT_NR": {
+    "data_type": "number",
+    "desc": "Activity number of the related activity",
+    "intended_datatype": "identifier"
+   },
+   "REL_HEALTH": {
+    "data_type": "varchar",
+    "desc": "If the related activity is a Referral or Complaint, indicates that subject is Health related",
+    "intended_datatype": "categorical"
+   },
+   "REL_SAFETY": {
+    "data_type": "varchar",
+    "desc": "If the related activity is a Referral or Complaint, indicates that subject is Safety related",
+    "intended_datatype": "categorical"
+   },
+   "REL_TYPE": {
+    "data_type": "varchar",
+    "desc": "Related Activity Type",
+    "intended_datatype": "categorical"
+   }
+  },
+  "tablename": "OSHA_related_activity"
+ },
+ "violation": {
+  "catalog_id": 10338,
+  "columns": {
+   "ABATE_COMPLETE": {
+    "data_type": "varchar",
+    "desc": "Abatement Completion Code",
+    "intended_datatype": "categorical"
+   },
+   "ABATE_DATE": {
+    "data_type": "date",
+    "desc": "Abatement Due Date",
+    "intended_datatype": "date"
+   },
+   "ACTIVITY_NR": {
+    "data_type": "number",
+    "desc": "Unique identifier for each inspection",
+    "intended_datatype": "identifier"
+   },
+   "CITATION_ID": {
+    "data_type": "varchar",
+    "desc": "Identifies the citation number. item number. and item group of the issued citation.",
+    "intended_datatype": "identifier"
+   },
+   "CONTEST_DATE": {
+    "data_type": "date",
+    "desc": "Date Contested",
+    "intended_datatype": "date"
+   },
+   "CURRENT_PENALTY": {
+    "data_type": "varchar",
+    "desc": "Current Penalty Amount",
+    "intended_datatype": "currency"
+   },
+   "DELETE_FLAG": {
+    "data_type": "varchar",
+    "desc": "Violation Deleted Indicator",
+    "intended_datatype": "categorical"
+   },
+   "EMPHASIS": {
+    "data_type": "varchar",
+    "desc": "Emphasis Program Indicator",
+    "intended_datatype": "categorical"
+   },
+   "FINAL_ORDER_DATE": {
+    "data_type": "date",
+    "desc": "Final Order Date",
+    "intended_datatype": "date"
+   },
+   "FTA_CONTEST_DATE": {
+    "data_type": "date",
+    "desc": "Failure-To-Abate (FTA) Date Contested",
+    "intended_datatype": "date"
+   },
+   "FTA_FINAL_ORDER_DATE": {
+    "data_type": "date",
+    "desc": "Failure-To-Abate (FTA) Final Order Date",
+    "intended_datatype": "date"
+   },
+   "FTA_INSP_NR": {
+    "data_type": "number",
+    "desc": "Failure-To-Abate (FTA) Inspection Number",
+    "intended_datatype": "identifier"
+   },
+   "FTA_ISSUANCE_DATE": {
+    "data_type": "date",
+    "desc": "Failure-To-Abate (FTA) Issuance Date",
+    "intended_datatype": "date"
+   },
+   "FTA_PENALTY": {
+    "data_type": "varchar",
+    "desc": "Failure-To-Abate (FTA) Penalty Amount",
+    "intended_datatype": "currency"
+   },
+   "GRAVITY": {
+    "data_type": "varchar",
+    "desc": "Level of Gravity for Serious Violations",
+    "intended_datatype": "categorical"
+   },
+   "HAZCAT": {
+    "data_type": "varchar",
+    "desc": "General Industry Standard Hazard Category",
+    "intended_datatype": "categorical"
+   },
+   "HAZSUB1": {
+    "data_type": "varchar",
+    "desc": "Hazardous Substance Code 1",
+    "intended_datatype": "categorical"
+   },
+   "HAZSUB2": {
+    "data_type": "varchar",
+    "desc": "Hazardous Substance Code 2",
+    "intended_datatype": "categorical"
+   },
+   "HAZSUB3": {
+    "data_type": "varchar",
+    "desc": "Hazardous Substance Code 3",
+    "intended_datatype": "categorical"
+   },
+   "HAZSUB4": {
+    "data_type": "varchar",
+    "desc": "Hazardous Substance Code 4",
+    "intended_datatype": "categorical"
+   },
+   "HAZSUB5": {
+    "data_type": "varchar",
+    "desc": "Hazardous Substance Code 5",
+    "intended_datatype": "categorical"
+   },
+   "INITIAL_PENALTY": {
+    "data_type": "varchar",
+    "desc": "Initial Penalty Amount",
+    "intended_datatype": "currency"
+   },
+   "ISSUANCE_DATE": {
+    "data_type": "date",
+    "desc": "Citation Issuance Date",
+    "intended_datatype": "date"
+   },
+   "LOAD_DT": {
+    "data_type": "timestamp_ntz",
+    "desc": "The date the load was completed.",
+    "intended_datatype": "date"
+   },
+   "NR_EXPOSED": {
+    "data_type": "number",
+    "desc": "Number of Employees Exposed",
+    "intended_datatype": "numeric"
+   },
+   "NR_INSTANCES": {
+    "data_type": "number",
+    "desc": "Number of Instances",
+    "intended_datatype": "numeric"
+   },
+   "REC": {
+    "data_type": "varchar",
+    "desc": "Related Event Code",
+    "intended_datatype": "categorical"
+   },
+   "STANDARD": {
+    "data_type": "varchar",
+    "desc": "OSHA Standard Cited",
+    "intended_datatype": "text"
+   },
+   "VIOL_TYPE": {
+    "data_type": "varchar",
+    "desc": "Violation Type",
+    "intended_datatype": "categorical"
+   }
+  },
+  "tablename": "OSHA_violation"
+ },
+ "violation_event": {
+  "catalog_id": 10357,
+  "columns": {
+   "ACTIVITY_NR": {
+    "data_type": "number",
+    "desc": "Unique identifier for each inspection",
+    "intended_datatype": "identifier"
+   },
+   "CITATION_ID": {
+    "data_type": "varchar",
+    "desc": "Identifies the citation number. item number. and item group of the associated citation.",
+    "intended_datatype": "identifier"
+   },
+   "HIST_ABATE_DATE": {
+    "data_type": "date",
+    "desc": "abatement date (only in scope when pen-fta == P)",
+    "intended_datatype": "date"
+   },
+   "HIST_DATE": {
+    "data_type": "date",
+    "desc": "event date",
+    "intended_datatype": "date"
+   },
+   "HIST_EVENT": {
+    "data_type": "varchar",
+    "desc": "classification of event",
+    "intended_datatype": "categorical"
+   },
+   "HIST_INSP_NR": {
+    "data_type": "number",
+    "desc": "fta inspection number when pen-fta == F",
+    "intended_datatype": "identifier"
+   },
+   "HIST_PENALTY": {
+    "data_type": "number",
+    "desc": "amount of penalty assessed",
+    "intended_datatype": "currency"
+   },
+   "HIST_VTYPE": {
+    "data_type": "varchar",
+    "desc": "violation type (only in scope when pen-fta == F)",
+    "intended_datatype": "categorical"
+   },
+   "LOAD_DT": {
+    "data_type": "timestamp_ntz",
+    "desc": "The date the load was completed.",
+    "intended_datatype": "date"
+   },
+   "PEN_FTA": {
+    "data_type": "varchar",
+    "desc": "penalty or failure to abate",
+    "intended_datatype": "categorical"
+   }
+  },
+  "tablename": "OSHA_violation_event"
+ },
+ "violation_gen_duty_std": {
+  "catalog_id": 10340,
+  "columns": {
+   "ACTIVITY_NR": {
+    "data_type": "number",
+    "desc": "Identifies the associated inspection",
+    "intended_datatype": "identifier"
+   },
+   "CITATION_ID": {
+    "data_type": "varchar",
+    "desc": "Identifies the citation number. item number. and item group of the associated citation.",
+    "intended_datatype": "identifier"
+   },
+   "LINE_NR": {
+    "data_type": "number",
+    "desc": "Identifies the relative line in the citation text represented by Line-text.",
+    "intended_datatype": "numeric"
+   },
+   "LINE_TEXT": {
+    "data_type": "varchar",
+    "desc": "line of narrative text describing an accident",
+    "intended_datatype": "text"
+   },
+   "LOAD_DT": {
+    "data_type": "timestamp_ntz",
+    "desc": "The date the load was completed.",
+    "intended_datatype": "date"
+   }
+  },
+  "tablename": "OSHA_violation_gen_duty_std"
+ }
+}

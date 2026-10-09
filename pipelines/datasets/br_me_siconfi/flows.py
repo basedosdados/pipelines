@@ -15,7 +15,13 @@ new *year* appearing is not the trigger — catching intra-year revisions is —
 every scheduled run does real work. The poll/commit still record the source
 ``Poll``/``Update`` for bookkeeping.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers ``br_me_siconfi_flow``;
+Tesouro also extends the DCA account layout without notice, and an account key
+missing from the compatibilização tables fails the run. Because the download is
+~17h of an ~18h run, that check runs twice up front — once against the previous
+run's archived raw JSON before the download starts, once against this run's own
+download before any builder runs. See ``utils.preflight_crosswalk``.
+
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers ``br_me_siconfi_flow``;
 the dev pool ignores the schedule, the prod pool activates it (paused).
 """
 
@@ -23,10 +29,11 @@ import shutil
 import tempfile
 from datetime import datetime
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_me_siconfi import tasks, utils
 from pipelines.datasets.br_me_siconfi.constants import constants
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
@@ -67,6 +74,8 @@ def br_me_siconfi_flow(
     use_cache: bool = True,
     cache_bucket: str = "basedosdados",
     download_workers: int = 1,
+    preflight: bool = True,
+    preflight_bucket: str = "basedosdados-dev",
 ) -> None:
     """Refresh br_me_siconfi from the SICONFI API and materialize all tables.
 
@@ -97,6 +106,13 @@ def br_me_siconfi_flow(
             ``use_cache`` is True.
         download_workers: Parallel download threads for the município-heavy
             window. Default 1; raise with care against the .gov API.
+        preflight: Check the crosswalk against the previous run's archived raw
+            JSON *before* spending ~17h on the download. Set False only to
+            re-run deliberately against a crosswalk you know is incomplete.
+        preflight_bucket: Bucket the preflight reads the raw archive from.
+            Defaults to the dev bucket because ``tasks.archive`` writes there on
+            every run — including a run that later fails, which is exactly the
+            run whose keys the next preflight needs.
     """
     now_year = datetime.now().year
     if full_refresh:
@@ -106,13 +122,24 @@ def br_me_siconfi_flow(
     if end_year is None:
         end_year = now_year
 
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="siconfi"
     )
 
     work_dir = tempfile.mkdtemp(prefix="br_me_siconfi_")
     try:
+        # Fail on a stale crosswalk in minutes rather than after the ~17h
+        # download. Passing here is not a guarantee — the archive predates this
+        # run's download — so clean_window re-checks against the fresh JSON.
+        if preflight:
+            tasks.preflight(
+                work_dir=work_dir,
+                start_year=start_year,
+                end_year=end_year,
+                levels=levels,
+                archive_bucket=preflight_bucket,
+            )
+
         api_dir = tasks.download(
             work_dir=work_dir,
             start_year=start_year,
@@ -144,26 +171,31 @@ def br_me_siconfi_flow(
                 env="prod",
                 date_format="%Y",
                 raw_source_url=_SOURCE_URL,
+                compare_against="coverage",
             )
 
-        # Dev: upload staging + materialize/test.
-        for table in tables:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados-dev",
-                dump_mode="overwrite",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run/test",
-                target="dev",
-            )
-
+        # The dev materialization is the pre-arm validation path, not part of a
+        # production run: it rebuilds and re-tests every table in
+        # basedosdados-dev, which nothing downstream reads. Running it on an
+        # armed run doubled the BigQuery bytes billed for no signal — prod
+        # runs the same models and the same tests seconds later.
         if not materialize_to_prod:
+            # Dev: upload staging + materialize/test.
+            for table in tables:
+                upload_to_gcs(
+                    data_path=result[table],
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    bucket_name="basedosdados-dev",
+                    dump_mode="overwrite",
+                    source_format="parquet",
+                )
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="run/test",
+                    target="dev",
+                )
             return
 
         # Archive the raw source JSON (provenance) to the prod bucket's raw/ prefix.
@@ -195,15 +227,19 @@ def br_me_siconfi_flow(
                     env="prod",
                     bq_project="basedosdados",
                 )
-            if max_year is not None:
-                commit_source_update_task(
-                    dataset_id=DATASET_ID,
-                    table_id=_SOURCE_TABLE,
-                    source_max_date=str(max_year),
-                    env="prod",
-                    date_format="%Y",
-                    raw_source_url=_SOURCE_URL,
-                )
+            commit_source_update_task(
+                dataset_id=DATASET_ID,
+                table_id=_SOURCE_TABLE,
+                # max_year pode ser None (linha ~134) — str(None) seria a
+                # string "None", não o valor None, e escaparia do guard
+                # interno da task. Preserva o None real quando for o caso.
+                source_max_date=str(max_year)
+                if max_year is not None
+                else None,
+                env="prod",
+                date_format="%Y",
+                raw_source_url=_SOURCE_URL,
+            )
     finally:
         # Covers early returns (dev-only) and exceptions. k8s gives each run a
         # fresh pod, but a process/local worker reuses its filesystem — the
@@ -213,12 +249,10 @@ def br_me_siconfi_flow(
 
 # SICONFI is annual but revised retroactively; rebuild once a month (1st at
 # 16:00 BRT). Each run rebuilds fully — there is no source-poll no-op here.
-# pyrefly: ignore [missing-attribute]
 br_me_siconfi_flow.deploy_schedules = [
-    {"cron": "0 16 1 * *", "timezone": "America/Sao_Paulo"}
+    Cron("0 16 1 * *", timezone="America/Sao_Paulo")
 ]
 # The município window build holds a full year of data in pandas at a time.
-# pyrefly: ignore [missing-attribute]
 br_me_siconfi_flow.job_variables = {"memory": "16Gi"}
 
 
@@ -299,5 +333,4 @@ def br_me_siconfi_seed_flow(
 
 
 # The legacy build holds one year of município Excel in pandas at a time.
-# pyrefly: ignore [missing-attribute]
 br_me_siconfi_seed_flow.job_variables = {"memory": "8Gi"}

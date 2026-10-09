@@ -6,7 +6,7 @@
         partition_by={
             "field": "ano",
             "data_type": "int64",
-            "range": {"start": 1994, "end": 2024, "interval": 2},
+            "range": {"start": 1994, "end": 2030, "interval": 2},
         },
         cluster_by=["sigla_uf"],
     )
@@ -35,3 +35,5 @@ from
             "br_tse_eleicoes_staging.resultados_candidato_municipio_zona"
         )
     }} as t
+
+    -- Rematerialized from the refactored pipeline (PR #1476).

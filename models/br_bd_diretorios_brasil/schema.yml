@@ -573,9 +573,7 @@ models:
         description: Categoria Escola Privada
       - name: conveniada_poder_publico
         description: Conveniada Poder Público
-      - name: restricao_atendimento
-        description: regulacao_conselho_educacao
-      - name: Regulamentação pelo Conselho de Educação
+      - name: regulacao_conselho_educacao
         description: Regulamentação pelo Conselho de Educação
       - name: porte
         description: Porte
@@ -587,6 +585,11 @@ models:
         description: Latitude
       - name: longitude
         description: Longitude
+      - name: situacao_catalogo
+        description: >-
+          Indica se a escola consta no catálogo mais recente do Inep
+          (Presente) ou se saiu do registro da fonte e foi mantida no
+          diretório (Ausente)
   - name: br_bd_diretorios_brasil__etnia_indigena
     description: Diretório das etnias indígenas nos Sistemas de Informação Ambulatorial
       e Hospitalar - SIA/SUS e SIH/SUS - 'https://bvsms.saude.gov.br/bvs/saudelegis/sas/2010/prt0508_28_09_2010.html'

@@ -64,18 +64,25 @@ uv run manage.py add-pipeline <dataset_id>
 
 ### File conventions
 
-- `flows.py`: Define flows with `@flow`. Flows **must be defined at module level in this file** — `deploy_flows.py` only collects `Flow` objects whose function is defined there (an `obj.fn.__code__.co_filename` check).
+- `flows.py`: Define flows with `@flow` from **`pipelines.utils.flow`**, never `prefect.flow` — the repo's decorator returns a `prefect.Flow` subclass that declares the deploy attributes (`deploy_schedules`, `job_variables`), which the Prefect class does not, so setting them on a plain `prefect.Flow` is a Pyrefly `missing-attribute` error. Each deployable flow **must be bound to a module-level name in this file, and its function must be defined in this file** — `deploy_flows.py` scans the module's top-level names and keeps only `Flow` objects whose function comes from `flows.py` (an `obj.fn.__code__.co_filename` check). A factory that returns an inner `@flow` (see `br_ibge_ipca`) is fine, since the inner function is still defined in `flows.py`; a flow imported from another module is not picked up.
 - `tasks.py`: Define tasks with `@task`.
 - `constants.py`: Use a `constants` enum or plain constants — no hardcoded values elsewhere.
 - `utils.py`: Pure helper functions with no Prefect decorators.
 
-There is no `schedules.py`. Attach the schedule to the flow object in `flows.py`; CI turns
-these dicts into `Cron` objects at deploy time:
+There is no `schedules.py`. Attach the schedule to the flow object in `flows.py`, as
+`Cron` objects from `prefect.schedules` (the `timezone` is an argument of `Cron`):
 
 ```python
-my_flow.deploy_schedules = [
-    {"cron": "0 16 10 * *", "timezone": "America/Sao_Paulo"}
-]
+from prefect.schedules import Cron
+
+from pipelines.utils.flow import flow
+
+
+@flow(name="my_flow", log_prints=True)
+def my_flow() -> None: ...
+
+
+my_flow.deploy_schedules = [Cron("0 16 10 * *", timezone="America/Sao_Paulo")]
 my_flow.job_variables = {
     "memory": "8Gi"
 }  # optional; size to the flow's peak RAM
@@ -91,7 +98,7 @@ from pipelines.datasets.<dataset_id>.flows import my_flow
 my_flow(materialize_to_prod=False, update_metadata=False)
 ```
 
-Run with `uv run python test.py`. Only the pure download/transform half runs locally: the
+Run with `uv run test.py`. Only the pure download/transform half runs locally: the
 upload, dbt, and metadata steps need credentials that exist on the deployed worker, so
 expect those to fail on a laptop and say so rather than working around it.
 
@@ -252,11 +259,21 @@ dbt test --select models/<dataset_id>
 ## Code Style
 
 - Linter: **Ruff** (`uv run ruff check .`) — line length 79, Python 3.10 target.
+- Type checker: **Pyrefly** (`uv run pyrefly check`) — the CI `type-check` job runs this on **every** PR and blocks merge on any error. See "Type checking with Pyrefly" below.
 - SQL formatter: **sqlfmt** (`uv run sqlfmt .`) — excludes `target/`, `dbt_packages/`, `.venv/`.
 - YAML formatter: **yamlfix**.
-- Pre-commit hooks enforce all of the above automatically on commit.
+- Pre-commit hooks enforce Ruff/sqlfmt/yamlfix automatically on commit. There is also a local `pyrefly-check` hook, but it fires **only when `.py` files change** and is **skipped on the hosted pre-commit.ci runner** — so the authoritative type-check gate is the CI job, not pre-commit. Run `uv run pyrefly check` yourself (see below).
 - Never bypass hooks with `--no-verify`.
 - Add type hints and docstrings for python functions following Google Style.
+
+### Type checking with Pyrefly
+
+[Pyrefly](https://pyrefly.org) is Meta's fast static type checker. The CI `type-check` job (`.github/workflows/ci.yaml`) runs `uv run pyrefly check` over the whole repo on every PR to `main` and **fails the check on any type error** — this is the single most common reason a PR goes red. A local `pyrefly-check` pre-commit hook exists but fires only when `.py` files change and is skipped on the hosted pre-commit.ci runner (its isolated venv can't resolve project deps), so a commit that edited only `pyproject.toml` excludes, or a PR that passed pre-commit.ci, can still fail this job. The CI job is the source of truth. Prevent surprises:
+
+- **Run `uv run pyrefly check` locally before opening a PR (and after any Python change).** Fix everything it reports; suppress only as described below. Do not open the PR red and wait for CI to tell you what you could have seen locally.
+- **Framework code under `pipelines/`** (flows, tasks, utils) is fully type-checked and must pass cleanly — add the missing type hints or `assert`s rather than suppressing.
+- **One-shot onboarding scripts** (`models/<gcp_dataset_id>/code/*.py`) are type-checked too. Import sibling modules by absolute path (`from models.<ds>.code.schema import ...`, see "Onboarding scripts" under Dataset Onboarding) so pyrefly can resolve them — a bare `sys.path`-relative import (`import schema`) is a `missing-import` error. **Do not add directories to `project-excludes`**: an excluded path also loses its diagnostics in the editor (pyrefly LSP). The reusable transform still belongs in `pipelines/datasets/<ds>/utils.py`, not in the onboarding script.
+- Reach for inline suppressions (`# pyrefly: ignore [<code>]`) only when the error cannot be fixed in the code — a gap in a third-party stub (`pyarrow.compute`, pandas-stubs), an intentional monkeypatch, a package that is not installed — scoped to one line and one error code. Prefer fixing over suppressing.
 
 ## Dataset Onboarding
 
@@ -272,6 +289,28 @@ Notes: <anything unusual>
 ```
 
 The agent runs an 11-step sequence: context → architecture → download → clean → upload → dbt → validate → discover → metadata (dev) → [human approval] → metadata (prod) → PR.
+
+### Onboarding scripts (`models/<gcp_dataset_id>/code/`)
+
+The one-shot scripts that download, clean and upload a dataset are Python modules like any other, and one script often imports another (`clean.py` importing `schema.py`). Two rules keep that safe:
+
+- **Importing a script must never run it.** Python executes a module's top level on every import, so a script whose body sits at module level runs again — download, `bd.read_sql`, `tb.create(..., if_table_exists="replace")` — the moment another file imports it to reuse a function. Keep only imports, constants, functions and classes at the top level, put the work in a `main()` function, and call it from the guard:
+
+  ```python
+  def main() -> None:
+      """Baixa, limpa e sobe a tabela <table_slug>."""
+      df = download()
+      ...
+
+
+  if __name__ == "__main__":
+      main()
+  ```
+
+  Parse CLI arguments inside `main()`, not at import time. Do not leave notebook leftovers (`df.head()`, `df.info()`, bare `.unique()`) at module level — they compute and print nothing outside a notebook.
+- **Import sibling modules by absolute path**, not through `sys.path.insert(0, <script dir>)`: `from models.<gcp_dataset_id>.code.schema import COLUMNS`. Add an empty `__init__.py` to `code/` (and to any subdirectory holding imported modules). The project is installed in editable mode, so `models` is importable under `uv run` from any directory; `.dbtignore` already excludes `**.py`, so the `__init__.py` files do not reach dbt.
+
+Many existing scripts predate these rules (module-level bodies, `sys.path` imports). Nothing imports them today; convert one to `main()` when you touch it or before anything imports it.
 
 ### Multi-agent architecture
 
@@ -299,8 +338,8 @@ Agents use shared rule files in `.claude/rules/`:
 | `data-basis-style.md` | Column naming, ordering, prefixes, directory mappings |
 | `dbt-conventions.md` | SQL patterns, schema.yml structure, test types |
 | `bigquery-conventions.md` | Project references, partitioning, type casting |
-| `metadata-schema.md` | Backend API field mapping, MCP tool sequence |
-| `onboarding-workflow.md` | 11-step sequence, quality gates, commit discipline |
+| `metadata-schema.md` | Backend API field mapping, MCP tool sequence, tag selection |
+| `onboarding-workflow.md` | 11-step sequence, quality gates, branch & commit discipline |
 
 ### Skills (user-callable shortcuts)
 
@@ -319,14 +358,29 @@ Before running AI-assisted onboarding, ensure the following are configured:
 4. **`~/.basedosdados/config.toml`** — basedosdados SDK config. Required by the `uploader` agent (`basedosdados config init`).
 5. **`GOOGLE_APPLICATION_CREDENTIALS`** — Service account key with BigQuery write access to `basedosdados-dev`.
 
+## Pull requests: all checks must pass before merge
+
+**A PR is not done when it is opened — it is done when it is green and merged.** No PR may be merged until every required CI check passes and the branch is free of merge conflicts. Opening the PR is the start of the agent's responsibility for it, not the end.
+
+After opening or updating a PR, **actively watch it and fix what breaks** — do not hand a red PR back to the user:
+
+1. **Poll the checks until they settle.** After pushing, wait for CI to run and read the result (`mcp__github__pull_request_read` with the checks/status view, or `gh pr checks <n>` / `gh pr view <n> --json statusCheckRollup`). Do not assume green — CI runs asynchronously and a check that was pending when you pushed can fail minutes later.
+2. **On any failing check, read its logs, find the root cause, fix it, push, and re-poll.** The `type-check` (Pyrefly) job is the most frequent failure — see "Type checking with Pyrefly" above; `uv run pyrefly check` reproduces it locally. Ruff/sqlfmt/yamlfix failures reproduce via `uv run pre-commit run --all-files`. Keep iterating until the checks are green; never leave a known-failing check for the user to discover.
+3. **Resolve merge conflicts promptly.** If the PR reports conflicts with `main`, rebase or merge `main` in, resolve them, re-run the local checks, and push. A conflicted PR cannot merge.
+4. **Beware the pipeline deploy caveats.** For recurring-pipeline PRs, a green "deploy flows" check does **not** mean anything deployed, and the `deploy-flow` label only redeploys a PR that changes `flows.py`. See `prefect-pipeline-conventions.md` ("`deploy-flow` only deploys a PR that changes `flows.py`", "Green ≠ ingested") before trusting a check's color.
+5. **Report status honestly.** When handing a PR back, state which checks are green, which are red and why, and what remains. Never describe a PR as ready to merge while any required check is failing or conflicts exist.
+
 ## Key Rules for Agents
 
 1. **Never hardcode credentials or secrets.** Use environment variables or Vault.
 2. **Always use `set_datalake_project` macro** in model SQL files, except for joins which must use production project references.
 3. **Follow snake_case** for all dataset/pipeline names.
-4. **Run `uv run pre-commit run --all-files`** after making changes to verify formatting and linting before committing.
+4. **Run `uv run pre-commit run --all-files` AND `uv run pyrefly check`** after making changes, before committing or opening a PR. Pre-commit covers Ruff/sqlfmt/yamlfix; the pyrefly hook only fires on `.py` changes and is skipped on pre-commit.ci, so the CI `type-check` job is the real gate — run pyrefly explicitly. See "Type checking with Pyrefly".
 5. **Do not modify `dbt_packages/` or `target/`** — these are generated directories.
 6. **Do not create a `test.py` file with real credentials** — it is gitignored and for local use only.
 7. **Document exceptions** in `schema.yml` model descriptions when using `custom_relationships` or `custom_unique_combinations_of_columns` with non-zero `proportion_allowed_failures`.
 8. When adding a new dataset pipeline, always run `uv run manage.py add-pipeline <name>` rather than creating files manually.
 9. The `dbt` CLI must be run inside the activated virtual environment: `source .venv/bin/activate` or via `uv run dbt ...`.
+10. **Name branches for the work — never the generic `claude/…` prefix.** Use `data/<dataset_id>`, `pipeline/<dataset_id>`, `fix/<scope>`, or `docs/<topic>`. See "Branch and commit discipline" in `onboarding-workflow.md`.
+11. **Always choose and attach dataset tags — never leave `tag_ids` empty.** Scan `discover_ids(keys=["tag"])`, pick the tags that describe the dataset, and create new ones only when none fit. See "Choosing tags" in `metadata-schema.md`.
+12. **Never merge a PR with failing checks or conflicts, and actively watch your PRs until they are green.** After opening or pushing to a PR, poll the CI checks, fix any failure at its root, and resolve conflicts with `main` — don't hand a red PR back to the user. See "Pull requests: all checks must pass before merge".

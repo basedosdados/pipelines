@@ -1,6 +1,5 @@
 {{ config(alias="brasil", schema="br_inep_ideb", materialized="table") }}
 
-
 select
     safe_cast(ano as int64) ano,
     safe_cast(if(rede = "pública", "publica", rede) as string) rede,

@@ -1,0 +1,15 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano do programa a que o registro se refere,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,,Program_Year
+teaching_hospital_ccn,STRING,CMS Certification Number (CCN) do hospital universitário,,no,,,no,,Teaching_Hospital_CCN
+teaching_hospital_name,STRING,"Nome do hospital universitário, conforme a lista de hospitais universitários do CMS",,no,,,no,,Teaching_Hospital_NAME
+address_line_1,STRING,Primeira linha do endereço do hospital universitário,,no,,,no,,Teaching_Hospital_ADDRESS1
+address_line_2,STRING,Segunda linha do endereço do hospital universitário,,no,,,no,,Teaching_Hospital_ADDRESS2
+city,STRING,Cidade do hospital universitário,,no,,,no,,Teaching_Hospital_CITY
+state,STRING,Sigla de duas letras do estado do hospital universitário,,no,br_bd_diretorios_us.state:abbreviation,,no,"Além das siglas de estados e territórios dos Estados Unidos, a coluna traz os códigos das forças armadas AA, AE e AP, ausentes do diretório br_bd_diretorios_us.state.",Teaching_Hospital_STATE
+zip_code,STRING,CEP do hospital universitário,,no,,,no,,Teaching_Hospital_ZIP_CODE
+general_payment_amount_total,FLOAT64,"Valor total de pagamentos gerais, em dólares americanos",,no,,usd,no,,General_Total_Payment
+research_payment_amount_total,FLOAT64,"Valor total de pagamentos de pesquisa, em dólares americanos",,no,,usd,no,,Research_Total_Payment
+general_transaction_count,INT64,Quantidade de transações de pagamento geral,,no,,,no,"Contagem adimensional, sem unidade de medida aplicável.",General_Total_Transactions
+research_transaction_count,INT64,Quantidade de transações de pagamento de pesquisa,,no,,,no,"Contagem adimensional, sem unidade de medida aplicável.",Research_Total_Transactions
+disputed_transaction_count,INT64,Quantidade de transações contestadas pelo beneficiário,,no,,,no,"Contagem adimensional, sem unidade de medida aplicável.",Total_Disputed_Transactions
+undisputed_transaction_count,INT64,Quantidade de transações não contestadas,,no,,,no,"Contagem adimensional, sem unidade de medida aplicável.",Total_Undisputed_Transactions

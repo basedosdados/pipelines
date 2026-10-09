@@ -1,0 +1,11 @@
+name,bigquery_type,description,temporal_coverage,covered_by_dictionary,directory_column,measurement_unit,has_sensitive_data,observations,original_name
+year,INT64,Ano de abertura da inspeção associada,,no,br_bd_diretorios_data_tempo.ano:ano,year,no,Derivado de inspection.open_date. Registros cujo inspection_id não existe em inspection recebem year = 9999,
+inspection_id,STRING,Identificador único da inspeção (activity number) da OSHA,,no,,,no,,ACTIVITY_NR
+citation_id,STRING,"Identificador da citação: número da citação, do item e do grupo do item",,no,,,no,,CITATION_ID
+penalty_or_fta,STRING,Indica se o evento se refere à multa (P) ou à falha em corrigir (F),,yes,,,no,,PEN_FTA
+event_code,STRING,Código de classificação do evento,,no,,,no,"A OSHA não publica a legenda destes 22 códigos, que por isso não constam do dicionário",HIST_EVENT
+event_date,DATE,Data do evento,,no,,,no,Contém erros de digitação da fonte (máximo observado 2106-05-02),HIST_DATE
+penalty,FLOAT64,Multa avaliada no evento,,no,,USD,no,Contém valores negativos na fonte (mínimo -1),HIST_PENALTY
+abatement_date,DATE,Prazo de correção vigente após o evento; aplicável apenas quando penalty_or_fta é P,,no,,,no,"Contém erros de digitação da fonte (mínimo 0210-06-16, máximo 5015-08-28)",HIST_ABATE_DATE
+violation_type,STRING,Classificação da violação no evento; aplicável apenas quando penalty_or_fta é F,,yes,,,no,,HIST_VTYPE
+fta_inspection_id,STRING,Identificador da inspeção por falha em corrigir; aplicável apenas quando penalty_or_fta é F,,no,,,no,,HIST_INSP_NR

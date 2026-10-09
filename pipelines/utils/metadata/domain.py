@@ -43,8 +43,14 @@ class YearQuarter(BaseModel):
     quarter: str
 
 
+class YearBimester(BaseModel):
+    kind: Literal["year_bimester"] = "year_bimester"
+    year: str
+    bimester: str
+
+
 DateColumn = Annotated[
-    DateOnly | YearOnly | YearMonth | YearQuarter,
+    DateOnly | YearOnly | YearMonth | YearQuarter | YearBimester,
     Field(discriminator="kind"),
 ]
 
@@ -61,6 +67,8 @@ def date_column_to_legacy_dict(dc) -> dict:
         return {"year": dc.year, "month": dc.month}
     if isinstance(dc, YearQuarter):
         return {"year": dc.year, "quarter": dc.quarter}
+    if isinstance(dc, YearBimester):
+        return {"year": dc.year, "bimester": dc.bimester}
     raise TypeError(f"DateColumn desconhecido: {type(dc).__name__}")
 
 
@@ -86,6 +94,7 @@ class _CoverageBase(BaseModel):
             ("date", DateFormat.YEAR_MD),
             ("year_month", DateFormat.YEAR_MONTH),
             ("year_quarter", DateFormat.YEAR_MONTH),
+            ("year_bimester", DateFormat.YEAR_MONTH),
             ("year", DateFormat.YEAR),
         }
         if (self.date_column.kind, self.date_format) not in allowed:

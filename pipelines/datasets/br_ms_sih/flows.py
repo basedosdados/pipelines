@@ -2,9 +2,10 @@
 Flows for br_ms_sih — Prefect 3.
 """
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.crawler.datasus.flows import _run_sihsus
+from pipelines.utils.flow import flow
 
 
 def _sih_flow(table_id: str, cron: str):
@@ -16,9 +17,7 @@ def _sih_flow(table_id: str, cron: str):
         dataset_id: str = "br_ms_sih",
         table_id: str = table_id,
         materialize_after_dump: bool = True,
-        dbt_alias: bool = True,
         update_metadata: bool = True,
-        target: str = "prod",
         force_run: bool = False,
         year_month_to_extract: str = "",
     ) -> None:
@@ -26,15 +25,12 @@ def _sih_flow(table_id: str, cron: str):
             dataset_id=dataset_id,
             table_id=table_id,
             materialize_after_dump=materialize_after_dump,
-            dbt_alias=dbt_alias,
             update_metadata=update_metadata,
-            target=target,
             force_run=force_run,
             year_month_to_extract=year_month_to_extract,
         )
 
-    # pyrefly: ignore [missing-attribute]
-    _flow.deploy_schedules = [{"cron": cron, "timezone": "America/Sao_Paulo"}]
+    _flow.deploy_schedules = [Cron(cron, timezone="America/Sao_Paulo")]
     return _flow
 
 

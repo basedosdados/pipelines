@@ -1,25 +1,27 @@
 """
 Flows for br_senado_dados_abertos — Prefect 3.
 
-Senado Federal legislative open data. One flow refreshes all ten tables from the
-public Legislative Open Data API each day: dimensions in full, the four
+Senado Federal legislative open data. One flow refreshes all 18 tables from the
+public Legislative Open Data API each day: the ten dimensions in full, the eight
 time-series tables (votacao, votacao_parlamentar, votacao_orientacao_bancada,
-processo) for the recent window only — uploaded with ``dump_mode="append"``,
-which replaces just those ``ano=`` partitions and leaves history in place. Like
+processo, relatoria, votacao_comissao, votacao_comissao_parlamentar, discurso)
+for the recent window only — uploaded with ``dump_mode="append"``, which replaces
+just those ``ano=`` partitions and leaves history in place. Like
 the Câmara pipeline, there is no source-poll gate: legislative activity changes
 continuously, so a daily run is always meaningful.
 
-Deploy: `.github/scripts/deploy_flows.py` auto-discovers `br_senado_dados_abertos_flow`;
+Deploy: `.github/workflows/scripts/deploy_flows.py` auto-discovers `br_senado_dados_abertos_flow`;
 the dev pool ignores the schedule, the prod pool activates it.
 """
 
 import shutil
 import tempfile
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.datasets.br_senado_dados_abertos.constants import constants
 from pipelines.datasets.br_senado_dados_abertos.tasks import extract_clean
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     DateOnly,
@@ -39,7 +41,7 @@ from pipelines.utils.tasks import (
 DATASET_ID = constants.DATASET_ID.value
 ALL_TABLES = constants.ALL_TABLES.value
 
-# BD Pro rolling window: the four time-series tables paywall their most recent
+# BD Pro rolling window: the eight time-series tables paywall their most recent
 # 6 months (part_bdpro), everything older is free. register_table_materialization_task
 # recomputes free_end = source_end - free_lag, rewrites both DateTimeRanges, and
 # re-issues the BigQuery Row Access Policies each run, so the window slides on
@@ -65,6 +67,26 @@ _COVERAGE = {
     ),
     "processo": PartBdpro(
         date_column=DateOnly(col="data_apresentacao"),
+        date_format=DateFormat.YEAR_MD,
+        free_lag=FreeLag(unit="months", value=6),
+    ),
+    "relatoria": PartBdpro(
+        date_column=DateOnly(col="data_designacao"),
+        date_format=DateFormat.YEAR_MD,
+        free_lag=FreeLag(unit="months", value=6),
+    ),
+    "votacao_comissao": PartBdpro(
+        date_column=DateOnly(col="data_reuniao"),
+        date_format=DateFormat.YEAR_MD,
+        free_lag=FreeLag(unit="months", value=6),
+    ),
+    "votacao_comissao_parlamentar": PartBdpro(
+        date_column=DateOnly(col="data_reuniao"),
+        date_format=DateFormat.YEAR_MD,
+        free_lag=FreeLag(unit="months", value=6),
+    ),
+    "discurso": PartBdpro(
+        date_column=DateOnly(col="data_sessao"),
         date_format=DateFormat.YEAR_MD,
         free_lag=FreeLag(unit="months", value=6),
     ),
@@ -95,7 +117,6 @@ def br_senado_dados_abertos_flow(
             no source-poll gate, so it does not change behavior.
     """
     _ = force_run
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=DATASET_ID, table_id="votacao"
     )
@@ -107,24 +128,40 @@ def br_senado_dados_abertos_flow(
         )
         max_ds = result["max_data_sessao"]
 
-        # Dev: upload staging (append = replace refreshed partitions) + dbt.
-        for table in ALL_TABLES:
-            upload_to_gcs(
-                data_path=result[table],
-                dataset_id=DATASET_ID,
-                table_id=table,
-                bucket_name="basedosdados-dev",
-                dump_mode="append",
-                source_format="parquet",
-            )
-            run_dbt(
-                dataset_id=DATASET_ID,
-                table_id=table,
-                dbt_command="run/test",
-                target="dev",
-            )
-
+        # The dev materialization is the pre-arm validation path, not part of a
+        # production run: it rebuilds and re-tests every table in
+        # basedosdados-dev, which nothing downstream reads. Running it on an
+        # armed run doubled the BigQuery bytes billed for no signal — prod
+        # runs the same models and the same tests seconds later.
+        # Build every table before testing any of them. A test may read a
+        # sibling model — today only the directory refs (uf, ano), but an
+        # intra-dataset `relationships` added later would fail on a clean
+        # environment if the sibling had not been built yet, and pass in a
+        # re-run only because a stale copy survived.
         if not materialize_to_prod:
+            # Dev: upload staging (append = replace refreshed partitions) + dbt.
+            for table in ALL_TABLES:
+                upload_to_gcs(
+                    data_path=result[table],
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    bucket_name="basedosdados-dev",
+                    dump_mode="append",
+                    source_format="parquet",
+                )
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="run",
+                    target="dev",
+                )
+            for table in ALL_TABLES:
+                run_dbt(
+                    dataset_id=DATASET_ID,
+                    table_id=table,
+                    dbt_command="test",
+                    target="dev",
+                )
             return
 
         # Prod: upload staging + dbt.
@@ -140,7 +177,14 @@ def br_senado_dados_abertos_flow(
             run_dbt(
                 dataset_id=DATASET_ID,
                 table_id=table,
-                dbt_command="run/test",
+                dbt_command="run",
+                target="prod",
+            )
+        for table in ALL_TABLES:
+            run_dbt(
+                dataset_id=DATASET_ID,
+                table_id=table,
+                dbt_command="test",
                 target="prod",
             )
 
@@ -165,9 +209,7 @@ def br_senado_dados_abertos_flow(
 
 
 # Legislative activity updates on business days; refresh every morning (BRT).
-# pyrefly: ignore [missing-attribute]
 br_senado_dados_abertos_flow.deploy_schedules = [
-    {"cron": "0 8 * * *", "timezone": "America/Sao_Paulo"}
+    Cron("15 8 * * *", timezone="America/Sao_Paulo")
 ]
-# pyrefly: ignore [missing-attribute]
 br_senado_dados_abertos_flow.job_variables = {"memory": "4Gi"}

@@ -1,0 +1,107 @@
+{
+  "saved_at": "2026-09-10T13:40:00",
+  "dataset_slug": "nsw_elections",
+  "gcp_dataset_id": "au_nsw_nswec_elections",
+  "organization_slug": "au_nswec",
+  "current_step": 10,
+  "completed_steps": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "env": "staging",
+  "gcp_project": "basedosdados-dev",
+  "venv": "/Users/rdahis/.venvs/bd-pipelines-nsw",
+  "scratch": "~/Downloads/au_nsw_nswec_elections_data",
+  "branch": "data/au_nsw_nswec_elections",
+  "licence": "CC BY 4.0 (cc_40). The NSWEC publishes pastvtr.elections.nsw.gov.au URLs as the resources of cc-by datasets on data.nsw.gov.au, federated to data.gov.au; express for 2015, by parity for 2011/2019/2023.",
+  "events": {
+    "2011": {
+      "election_id": "SGE2011",
+      "base": "https://pastvtr.elections.nsw.gov.au/SGE2011",
+      "date": "2011-03-26"
+    },
+    "2015": {
+      "election_id": "SGE2015",
+      "base": "https://pastvtr.elections.nsw.gov.au/SGE2015",
+      "date": "2015-03-28"
+    },
+    "2019": {
+      "election_id": "SG1901",
+      "base": "https://pastvtr.elections.nsw.gov.au/SG1901",
+      "date": "2019-03-23"
+    },
+    "2023": {
+      "election_id": "SG2301",
+      "base": "https://pastvtr.elections.nsw.gov.au/SG2301",
+      "date": "2023-03-25"
+    }
+  },
+  "row_counts": {
+    "ballot_preference": 33747873,
+    "result_voting_centre": 280816,
+    "voting_centre": 10750,
+    "distribution_of_preferences": 6900,
+    "result_district": 5025,
+    "candidate": 3225,
+    "enrolment_turnout": 282,
+    "dicionario": 43,
+    "election": 4,
+    "TOTAL": 34054918
+  },
+  "coverage": {
+    "2011_only_in": [
+      "election",
+      "candidate",
+      "result_district"
+    ],
+    "all_other_tables": "2015-2023"
+  },
+  "dbt": {
+    "models": 9,
+    "run": "PASS 9/9",
+    "test": "PASS 72/72"
+  },
+  "sed_directory": {
+    "vintage": "br_bd_diretorios_au.state_electoral_division_2021",
+    "linked_districts": {
+      "2011": "86/93",
+      "2015": "93/93",
+      "2019": "93/93",
+      "2023": "88/93"
+    }
+  },
+  "deferred": [
+    "campaign finance disclosures (JavaScript-only Salesforce app)",
+    "step 12 recurring pipeline"
+  ],
+  "backend_ids": {
+    "organization_au_nswec": "a4e9e5a6-5e3a-4bf4-98b2-29536e6d03e0",
+    "dataset_nsw_elections": "1da63b84-e288-4912-864b-f43c931fffae",
+    "raw_data_sources": {
+      "2011": "462440f7-3bdb-493b-b5a6-af171e50bfa8",
+      "2015": "c4924204-7485-4340-bc0f-9bebaa5051af",
+      "2019": "6f2606db-b56b-4501-b6ab-e71798d28dcb",
+      "2023": "d839d97f-bafa-4bbb-b79a-b342ca69bb28"
+    },
+    "tables": {
+      "election": "d6ddf4d4-b1e1-4e05-9ed6-5cc4aac3e430",
+      "candidate": "92a46934-e1b2-4103-915b-74aaeeceaf48",
+      "result_district": "066eb96b-9f20-4036-ba5e-56cc259604c8",
+      "result_voting_centre": "c8b866d4-1854-489f-99e2-8830c24c5e3c",
+      "distribution_of_preferences": "c2fecbdc-25c2-4176-9533-92f3dc529cd9",
+      "ballot_preference": "34250d38-cc97-40b0-9ddf-8b34bfeb7a84",
+      "enrolment_turnout": "c9f8010c-443d-482d-8bc9-7e5bd90150bd",
+      "voting_centre": "a18c3952-ea7f-4e86-934b-49d8193fb98b",
+      "dicionario": "458553be-d31f-4a3b-a891-751e5ad9d3ac"
+    }
+  },
+  "staging_status": "published (step 9b; prod remains unregistered)",
+  "columns_registered": 146
+}

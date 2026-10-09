@@ -4,7 +4,7 @@ Flow br_mp_pep — Prefect 3.
 
 import datetime
 
-from prefect import flow
+from prefect.schedules import Cron
 
 from pipelines.crawler.mp_pep.tasks import (
     clean_data,
@@ -14,6 +14,7 @@ from pipelines.crawler.mp_pep.tasks import (
     scraper,
     setup_web_driver,
 )
+from pipelines.utils.flow import flow
 from pipelines.utils.metadata.domain import (
     DateFormat,
     PartBdpro,
@@ -37,12 +38,10 @@ def br_mp_pep__cargos_funcoes(
     dataset_id: str = "br_mp_pep",
     table_id: str = "cargos_funcoes",
     materialize_after_dump: bool = True,
-    dbt_alias: bool = True,
     update_metadata: bool = True,
     target: str = "prod",
     force_run: bool = False,
 ) -> None:
-    # pyrefly: ignore [unused-coroutine]
     rename_flow_run_dataset_table(
         prefix="Dump: ", dataset_id=dataset_id, table_id=table_id
     )
@@ -76,7 +75,6 @@ def br_mp_pep__cargos_funcoes(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target="dev",
     )
 
@@ -95,7 +93,6 @@ def br_mp_pep__cargos_funcoes(
         dataset_id=dataset_id,
         table_id=table_id,
         dbt_command="run/test",
-        dbt_alias=dbt_alias,
         target=target,
     )
 
@@ -112,7 +109,6 @@ def br_mp_pep__cargos_funcoes(
         )
 
 
-# pyrefly: ignore [missing-attribute]
 br_mp_pep__cargos_funcoes.deploy_schedules = [
-    {"cron": "0 14 * * 3", "timezone": "America/Sao_Paulo"}
+    Cron("0 14 * * 3", timezone="America/Sao_Paulo")
 ]
