@@ -23,7 +23,7 @@ from pipelines.datasets.br_bndes_operacoes_contratadas.tasks import (
     get_source_last_modified,
 )
 from pipelines.utils.flow import flow
-from pipelines.utils.metadata.domain import AllFree, DateFormat, YearOnly
+from pipelines.utils.metadata.domain import AllFree, DateFormat, DateOnly
 from pipelines.utils.metadata.tasks import (
     commit_source_update_task,
     poll_source_for_update_task,
@@ -276,7 +276,8 @@ def br_bndes_operacoes_contratadas__operacoes_pre_embarque(
             dataset_id=dataset_id,
             table_id=table_id,
             coverage=AllFree(
-                date_column=YearOnly(col="ano"), date_format=DateFormat.YEAR
+                date_column=DateOnly(col="data_contratacao"),
+                date_format=DateFormat.YEAR_MD,
             ),
             env="prod",
             bq_project="basedosdados",

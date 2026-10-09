@@ -19,6 +19,7 @@ Tabelas:
 - **Wrapper `@flow` + schedule por tabela:** `pipelines/datasets/br_bndes_operacoes_contratadas/flows.py` (cron **semanal**, segunda 06h BRT).
 - **Exceção: `operacoes_pre_embarque`**, que segue o desenho de diretório único. `constants.py`, `utils.py` e `tasks.py` ficam em `pipelines/datasets/br_bndes_operacoes_contratadas/` e servem só a ela; o corpo do flow fica no próprio `@flow`. O cron é `25 2 * * 1` (segunda, 02h25 BRT).
 - **Poll deferido** (`poll_source_for_update` + `commit_source_update`): grava o Poll ao detectar novidade, mas só comita o Update **depois** de materializar — evita adiantar o Update e travar runs futuras se o flow falhar no meio.
+- **Cobertura temporal pela data da operação** (`AllFree` + `DateOnly` + `DateFormat.YEAR_MD`): `data_contratacao` na indiretas, na não automáticas, na de bens e na de pré-embarque; `data_nivel_atual` na de administração pública, a mesma coluna de onde sai o `ano`. Nenhuma tabela tem coluna de mês, que o `YearMonth` exigiria, então a faixa sai com dia (por exemplo, 2002-01-08 a 2026-08-31). O flow só atualiza o fim da faixa; o início é registrado à mão no backend. A `operacoes_exportacao_servicos`, carga única, fica por ano.
 - **Staging 100% STRING:** o `clean` grava Parquet todo string; a tipagem fica a cargo do `safe_cast` no dbt. (Parquet tipado quebra o upload: `... does not match target STRING_PIECE`.) Partição por `ano`.
 - **DBT:** `models/br_bndes_operacoes_contratadas/` (um `.sql` por tabela + `schema.yml` único).
 - **Observation level = `transaction`** (grão de operação/subcrédito; a BD não tem entidade "operação").
@@ -50,7 +51,7 @@ CSV consolidado do Portal de Dados Abertos do BNDES (CKAN), recurso `612faa0b-b6
 
 ### Metadados
 
-Registrados **direto em produção** (o backend de dev foi desativado durante a onboarding): no conjunto existente `operacoes_contratadas`, tabela em status **`under_review`** (aguardando code review para promover a `published`). Descrições PT/EN/ES, coverage **2002-01 a 2026-05** (ano-mês, refletindo a atualização mensal da fonte), cloud table em `basedosdados.br_bndes_operacoes_contratadas`. A raw source (nome = nome da tabela) tem o Update mensal preenchido; o Poll é gravado na 1ª run.
+Registrados **direto em produção** (o backend de dev foi desativado durante a onboarding): no conjunto existente `operacoes_contratadas`, tabela em status **`under_review`** (aguardando code review para promover a `published`). Descrições PT/EN/ES, cobertura pela `data_contratacao` (ver "Estrutura"), cloud table em `basedosdados.br_bndes_operacoes_contratadas`. A raw source (nome = nome da tabela) tem o Update mensal preenchido; o Poll é gravado na 1ª run.
 
 ## operacoes_administracao_publica
 
